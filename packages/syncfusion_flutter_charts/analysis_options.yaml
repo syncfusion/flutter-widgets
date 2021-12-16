@@ -13,3 +13,5 @@ analyzer:
     unnecessary_nullable_for_final_variable_declarations: ignore
     must_be_immutable: ignore
     avoid_equals_and_hash_code_on_mutable_classes: ignore
+    unnecessary_null_checks: ignore
+    noop_primitive_operations: ignore

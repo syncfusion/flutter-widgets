@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +27,7 @@ class RenderBaseSlider extends RenderProxyBox
     required bool showLabels,
     required bool showDividers,
     required bool enableTooltip,
+    required bool shouldAlwaysShowTooltip,
     required LabelPlacement labelPlacement,
     required bool isInversed,
     required NumberFormat numberFormat,
@@ -57,6 +57,7 @@ class RenderBaseSlider extends RenderProxyBox
         _showLabels = showLabels,
         _showDividers = showDividers,
         _enableTooltip = enableTooltip,
+        _shouldAlwaysShowTooltip = shouldAlwaysShowTooltip,
         _isInversed = isInversed,
         _labelPlacement = labelPlacement,
         _numberFormat = numberFormat,
@@ -259,6 +260,16 @@ class RenderBaseSlider extends RenderProxyBox
       return;
     }
     _enableTooltip = value;
+  }
+
+  bool get shouldAlwaysShowTooltip => _shouldAlwaysShowTooltip;
+  bool _shouldAlwaysShowTooltip;
+  set shouldAlwaysShowTooltip(bool value) {
+    if (_shouldAlwaysShowTooltip == value) {
+      return;
+    }
+    _shouldAlwaysShowTooltip = value;
+    markNeedsPaint();
   }
 
   // When the directionality of horizontal sliders is set to RTL and

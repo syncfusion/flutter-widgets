@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -10,9 +8,6 @@ import 'package:syncfusion_flutter_maps/maps.dart';
 
 import '../common.dart';
 import '../controller/map_controller.dart';
-import '../layer/layer_base.dart';
-import '../layer/shape_layer.dart';
-import '../settings.dart';
 import '../utils.dart';
 
 // ignore_for_file: public_member_api_docs
@@ -39,7 +34,7 @@ class MapTooltip extends StatefulWidget {
   final MapController? controller;
 
   @override
-  _MapTooltipState createState() => _MapTooltipState();
+  State<MapTooltip> createState() => _MapTooltipState();
 }
 
 class _MapTooltipState extends State<MapTooltip>
@@ -593,7 +588,7 @@ class _TooltipShape {
     // Drawing fill color.
     paint
       ..style = PaintingStyle.fill
-      ..color = tooltipSettings.color ?? themeData.tooltipColor;
+      ..color = tooltipSettings.color ?? themeData.tooltipColor!;
     context.canvas.drawPath(path, paint);
 
     context.canvas.clipPath(path);

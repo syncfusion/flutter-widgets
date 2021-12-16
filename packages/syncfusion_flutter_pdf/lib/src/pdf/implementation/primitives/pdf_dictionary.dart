@@ -1,55 +1,86 @@
-part of pdf;
+import 'package:intl/intl.dart';
 
-class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
-  /// Constructor to create a [_PdfDictionary] object.
-  _PdfDictionary([_PdfDictionary? dictionary]) {
-    _items = <_PdfName?, _IPdfPrimitive?>{};
-    _copyDictionary(dictionary);
+import '../../interfaces/pdf_interface.dart';
+import '../io/enums.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../io/pdf_parser.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_boolean.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_null.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_stream.dart';
+import '../primitives/pdf_string.dart';
+import '../security/pdf_encryptor.dart';
+import '../security/pdf_security.dart';
+
+/// internal class
+class PdfDictionary implements IPdfPrimitive, IPdfChangable {
+  /// Constructor to create a [PdfDictionary] object.
+  PdfDictionary([PdfDictionary? dictionary]) {
+    items = <PdfName?, IPdfPrimitive?>{};
+    copyDictionary(dictionary);
     _encrypt = true;
     decrypted = false;
   }
 
   //Constants
+  /// internal field
   static const String prefix = '<<';
+
+  /// internal field
   static const String suffix = '>>';
 
   //Fields
-  Map<_PdfName?, _IPdfPrimitive?>? _items;
-  bool? _isChanged;
+  /// internal field
+  Map<PdfName?, IPdfPrimitive?>? items;
+
+  /// internal property
+  bool? isChanged;
   bool? _isSaving;
   int? _objectCollectionIndex;
   int? _position;
-  _ObjectStatus? _status;
-  _PdfCrossTable? _crossTable;
-  bool _archive = true;
+  PdfObjectStatus? _status;
+
+  /// internal field
+  PdfCrossTable? crossTable;
+
+  /// internal field
+  bool archive = true;
   bool? _encrypt;
+
+  /// internal field
   bool? decrypted;
 
   //Properties
   /// Get the PdfDictionary items.
-  _IPdfPrimitive? operator [](dynamic key) => returnValue(checkName(key));
+  IPdfPrimitive? operator [](dynamic key) => returnValue(checkName(key));
 
   ///  Set the PdfDictionary items.
-  operator []=(dynamic key, dynamic value) => _addItems(key, value);
+  operator []=(dynamic key, dynamic value) => addItems(key, value);
 
-  dynamic _addItems(dynamic key, dynamic value) {
+  /// internal method
+  dynamic addItems(dynamic key, dynamic value) {
     if (key == null) {
       throw ArgumentError.value(key, 'key', 'value cannot be null');
     }
     if (value == null) {
       throw ArgumentError.value(value, 'value', 'value cannot be null');
     }
-    _items![checkName(key)] = value as _IPdfPrimitive?;
+    items![checkName(key)] = value as IPdfPrimitive?;
     modify();
     return value;
   }
 
   /// Get the length of the item.
-  int get count => _items!.length;
+  int get count => items!.length;
 
   /// Get the values of the item.
-  List<_IPdfPrimitive?> get value => _items!.values as List<_IPdfPrimitive?>;
+  List<IPdfPrimitive?> get value => items!.values as List<IPdfPrimitive?>;
 
+  /// internal property
   bool? get encrypt => _encrypt;
 
   set encrypt(bool? value) {
@@ -58,118 +89,129 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
   }
 
   //Implementation
-  void _copyDictionary(_PdfDictionary? dictionary) {
+  /// internal method
+  void copyDictionary(PdfDictionary? dictionary) {
     if (dictionary != null) {
-      dictionary._items!
-          .forEach((_PdfName? k, _IPdfPrimitive? v) => _addItems(k, v));
+      dictionary.items!
+          .forEach((PdfName? k, IPdfPrimitive? v) => addItems(k, v));
       freezeChanges(this);
     }
   }
 
   /// Check and return the valid name.
-  _PdfName? checkName(dynamic key) {
-    if (key is _PdfName) {
+  PdfName? checkName(dynamic key) {
+    if (key is PdfName) {
       return key;
     } else if (key is String) {
-      return _PdfName(key);
+      return PdfName(key);
     } else {
       return null;
     }
   }
 
   /// Check key and return the value.
-  _IPdfPrimitive? returnValue(dynamic key) {
-    if (_items!.containsKey(key)) {
-      return _items![key];
+  IPdfPrimitive? returnValue(dynamic key) {
+    if (items!.containsKey(key)) {
+      return items![key];
     } else {
       return null;
     }
   }
 
+  /// internal method
   bool containsKey(dynamic key) {
     if (key is String) {
-      return _items!.containsKey(_PdfName(key));
-    } else if (key is _PdfName) {
-      return _items!.containsKey(key);
+      return items!.containsKey(PdfName(key));
+    } else if (key is PdfName) {
+      return items!.containsKey(key);
     }
     return false;
   }
 
+  /// internal method
   void remove(dynamic key) {
     if (key == null) {
       throw ArgumentError.value(key, 'key', 'value cannot be null');
     }
-    final _PdfName name = key is _PdfName ? key : _PdfName(key);
-    _items!.remove(name);
+    final PdfName name = key is PdfName ? key : PdfName(key);
+    items!.remove(name);
     modify();
   }
 
+  /// internal method
   void clear() {
-    _items!.clear();
+    items!.clear();
     modify();
   }
 
+  /// internal method
   void modify() {
     changed = true;
   }
 
+  /// internal method
   void setProperty(dynamic key, dynamic value) {
     if (value == null) {
       if (key is String) {
-        _items!.remove(_PdfName(key));
-      } else if (key is _PdfName) {
-        _items!.remove(key);
+        items!.remove(PdfName(key));
+      } else if (key is PdfName) {
+        items!.remove(key);
       }
     } else {
-      if (value is _IPdfWrapper) {
-        value = value._element;
+      if (value is IPdfWrapper) {
+        value = IPdfWrapper.getElement(value);
       }
       this[key] = value;
     }
     modify();
   }
 
-  void _setName(_PdfName key, String? name) {
-    if (_items!.containsKey(key)) {
-      this[key] = _PdfName(name);
+  /// internal method
+  void setName(PdfName key, String? name) {
+    if (items!.containsKey(key)) {
+      this[key] = PdfName(name);
       modify();
     } else {
-      this[key] = _PdfName(name);
+      this[key] = PdfName(name);
     }
   }
 
-  void _setArray(String key, List<_IPdfPrimitive> list) {
-    _PdfArray? pdfArray = this[key] as _PdfArray?;
+  /// internal method
+  void setArray(String key, List<IPdfPrimitive> list) {
+    PdfArray? pdfArray = this[key] as PdfArray?;
     if (pdfArray != null) {
-      pdfArray._clear();
+      pdfArray.clear();
       modify();
     } else {
-      pdfArray = _PdfArray();
+      pdfArray = PdfArray();
       this[key] = pdfArray;
     }
     for (int i = 0; i < list.length; i++) {
-      pdfArray._add(list.elementAt(i));
+      pdfArray.add(list.elementAt(i));
     }
   }
 
-  void _setString(String key, String? str) {
-    final _PdfString? pdfString = this[key] as _PdfString?;
+  /// internal method
+  void setString(String key, String? str) {
+    final PdfString? pdfString = this[key] as PdfString?;
     if (pdfString != null) {
       pdfString.value = str;
       modify();
     } else {
-      this[key] = _PdfString(str!);
+      this[key] = PdfString(str!);
     }
   }
 
-  void _saveDictionary(_IPdfWriter writer, bool enableEvents) {
-    writer._write(prefix);
+  /// internal method
+  void saveDictionary(IPdfWriter writer, bool enableEvents) {
+    writer.write(prefix);
     if (enableEvents) {
-      final _SavePdfPrimitiveArgs args = _SavePdfPrimitiveArgs(writer);
-      _onBeginSave(args);
+      final SavePdfPrimitiveArgs args = SavePdfPrimitiveArgs(writer);
+      onBeginSave(args);
     }
     if (count > 0) {
-      final _PdfEncryptor encryptor = writer._document!.security._encryptor;
+      final PdfEncryptor encryptor =
+          PdfSecurityHelper.getHelper(writer.document!.security).encryptor;
       final bool state = encryptor.encrypt;
       if (!_encrypt!) {
         encryptor.encrypt = false;
@@ -179,70 +221,69 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
         encryptor.encrypt = state;
       }
     }
-    writer._write(suffix);
-    writer._write(_Operators.newLine);
+    writer.write(suffix);
+    writer.write(PdfOperators.newLine);
     if (enableEvents) {
-      final _SavePdfPrimitiveArgs args = _SavePdfPrimitiveArgs(writer);
-      _onEndSave(args);
+      final SavePdfPrimitiveArgs args = SavePdfPrimitiveArgs(writer);
+      onEndSave(args);
     }
   }
 
-  void _saveItems(_IPdfWriter writer) {
-    writer._write(_Operators.newLine);
-    _items!.forEach((_PdfName? key, _IPdfPrimitive? value) {
+  void _saveItems(IPdfWriter writer) {
+    writer.write(PdfOperators.newLine);
+    items!.forEach((PdfName? key, IPdfPrimitive? value) {
       key!.save(writer);
-      writer._write(_Operators.whiteSpace);
-      final _PdfName name = key;
-      if (name._name == 'Fields') {
-        final _IPdfPrimitive? fields = value;
-        final List<_PdfReferenceHolder> fieldCollection =
-            <_PdfReferenceHolder>[];
-        if (fields is _PdfArray) {
+      writer.write(PdfOperators.whiteSpace);
+      final PdfName name = key;
+      if (name.name == 'Fields') {
+        final IPdfPrimitive? fields = value;
+        final List<PdfReferenceHolder> fieldCollection = <PdfReferenceHolder>[];
+        if (fields is PdfArray) {
           for (int k = 0; k < fields.count; k++) {
-            final _PdfReferenceHolder fieldReference =
-                fields._elements[k]! as _PdfReferenceHolder;
+            final PdfReferenceHolder fieldReference =
+                fields.elements[k]! as PdfReferenceHolder;
             fieldCollection.add(fieldReference);
           }
           for (int i = 0; i < fields.count; i++) {
-            if (fields._elements[i]! is _PdfReferenceHolder) {
-              final _PdfReferenceHolder refHolder =
-                  fields._elements[i]! as _PdfReferenceHolder;
-              final _PdfDictionary? field =
-                  refHolder._object as _PdfDictionary?;
+            if (fields.elements[i]! is PdfReferenceHolder) {
+              final PdfReferenceHolder refHolder =
+                  fields.elements[i]! as PdfReferenceHolder;
+              final PdfDictionary? field =
+                  refHolder.referenceObject as PdfDictionary?;
               if (field != null) {
-                if (field._beginSave != null) {
-                  final _SavePdfPrimitiveArgs args =
-                      _SavePdfPrimitiveArgs(writer);
-                  field._beginSave!(field, args);
+                if (field.beginSave != null) {
+                  final SavePdfPrimitiveArgs args =
+                      SavePdfPrimitiveArgs(writer);
+                  field.beginSave!(field, args);
                 }
-                if (!field.containsKey(_PdfName(_DictionaryProperties.kids))) {
-                  if (field._items!
-                      .containsKey(_PdfName(_DictionaryProperties.ft))) {
-                    final _IPdfPrimitive? value =
-                        field._items![_PdfName(_DictionaryProperties.ft)];
+                if (!field.containsKey(PdfName(PdfDictionaryProperties.kids))) {
+                  if (field.items!
+                      .containsKey(PdfName(PdfDictionaryProperties.ft))) {
+                    final IPdfPrimitive? value =
+                        field.items![PdfName(PdfDictionaryProperties.ft)];
                     if (value != null &&
-                        value is _PdfName &&
-                        value._name == 'Sig') {
+                        value is PdfName &&
+                        value.name == 'Sig') {
                       for (int k = 0; k < fields.count; k++) {
                         if (k == i) {
                           continue;
                         }
-                        final _PdfReferenceHolder fieldRef =
-                            fields._elements[k]! as _PdfReferenceHolder;
-                        final _PdfDictionary field1 =
-                            fieldRef.object! as _PdfDictionary;
-                        if (field1._items!.containsKey(
-                                _PdfName(_DictionaryProperties.t)) &&
-                            field._items!.containsKey(
-                                _PdfName(_DictionaryProperties.t))) {
-                          final _PdfString parentSignatureName =
-                              field1._items![_PdfName(_DictionaryProperties.t)]!
-                                  as _PdfString;
-                          final _PdfString childName =
-                              field._items![_PdfName(_DictionaryProperties.t)]!
-                                  as _PdfString;
+                        final PdfReferenceHolder fieldRef =
+                            fields.elements[k]! as PdfReferenceHolder;
+                        final PdfDictionary field1 =
+                            fieldRef.object! as PdfDictionary;
+                        if (field1.items!.containsKey(
+                                PdfName(PdfDictionaryProperties.t)) &&
+                            field.items!.containsKey(
+                                PdfName(PdfDictionaryProperties.t))) {
+                          final PdfString parentSignatureName =
+                              field1.items![PdfName(PdfDictionaryProperties.t)]!
+                                  as PdfString;
+                          final PdfString childName =
+                              field.items![PdfName(PdfDictionaryProperties.t)]!
+                                  as PdfString;
                           if (parentSignatureName.value == childName.value) {
-                            fields._remove(refHolder);
+                            fields.remove(refHolder);
                           }
                         }
                       }
@@ -256,45 +297,49 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
         }
       }
       value!.save(writer);
-      writer._write(_Operators.newLine);
+      writer.write(PdfOperators.newLine);
     });
   }
 
-  _IPdfPrimitive? _getValue(String key, String parentKey) {
-    _PdfDictionary? dictionary = this;
-    _IPdfPrimitive? element = _PdfCrossTable._dereference(dictionary[key]);
+  /// internal method
+  IPdfPrimitive? getValue(String key, String parentKey) {
+    PdfDictionary? dictionary = this;
+    IPdfPrimitive? element = PdfCrossTable.dereference(dictionary[key]);
     while (element == null) {
-      dictionary = _PdfCrossTable._dereference(dictionary![parentKey])
-          as _PdfDictionary?;
+      dictionary =
+          PdfCrossTable.dereference(dictionary![parentKey]) as PdfDictionary?;
       if (dictionary == null) {
         break;
       }
-      element = _PdfCrossTable._dereference(dictionary[key]);
+      element = PdfCrossTable.dereference(dictionary[key]);
     }
     return element;
   }
 
-  int _getInt(String propertyName) {
-    final _IPdfPrimitive? primitive =
-        _PdfCrossTable._dereference(this[propertyName]);
-    return (primitive != null && primitive is _PdfNumber)
+  /// internal method
+  int getInt(String propertyName) {
+    final IPdfPrimitive? primitive =
+        PdfCrossTable.dereference(this[propertyName]);
+    return (primitive != null && primitive is PdfNumber)
         ? primitive.value!.toInt()
         : 0;
   }
 
-  _PdfString? _getString(String propertyName) {
-    final _IPdfPrimitive? primitive =
-        _PdfCrossTable._dereference(this[propertyName]);
-    return (primitive != null && primitive is _PdfString) ? primitive : null;
+  /// internal method
+  PdfString? getString(String propertyName) {
+    final IPdfPrimitive? primitive =
+        PdfCrossTable.dereference(this[propertyName]);
+    return (primitive != null && primitive is PdfString) ? primitive : null;
   }
 
-  bool _checkChanges() {
+  /// internal method
+  bool checkChanges() {
     bool result = false;
-    final List<_PdfName?> keys = _items!.keys.toList();
+    final List<PdfName?> keys = items!.keys.toList();
     for (int i = 0; i < keys.length; i++) {
-      final _IPdfPrimitive? primitive = _items![keys[i]];
-      if (primitive is _IPdfChangable &&
-          (primitive! as _IPdfChangable).changed!) {
+      final IPdfPrimitive? primitive = items![keys[i]];
+      if (primitive is IPdfChangable &&
+          (primitive! as IPdfChangable).changed!) {
         result = true;
         break;
       }
@@ -302,58 +347,56 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
     return result;
   }
 
-  void _setNumber(String key, int? value) {
-    final _PdfNumber? pdfNumber = this[key] as _PdfNumber?;
+  /// internal method
+  void setNumber(String key, int? value) {
+    final PdfNumber? pdfNumber = this[key] as PdfNumber?;
     if (pdfNumber != null) {
       pdfNumber.value = value;
       modify();
     } else {
-      this[key] = _PdfNumber(value!);
+      this[key] = PdfNumber(value!);
     }
   }
 
-  void _setBoolean(String key, bool? value) {
-    final _PdfBoolean? pdfBoolean = this[key] as _PdfBoolean?;
+  /// internal method
+  void setBoolean(String key, bool? value) {
+    final PdfBoolean? pdfBoolean = this[key] as PdfBoolean?;
     if (pdfBoolean != null) {
       pdfBoolean.value = value;
       modify();
     } else {
-      this[key] = _PdfBoolean(value);
+      this[key] = PdfBoolean(value);
     }
   }
 
-  void _setDateTime(String key, DateTime dateTime) {
+  /// internal method
+  void setDateTime(String key, DateTime dateTime) {
     final DateFormat dateFormat = DateFormat('yyyyMMddHHmmss');
     final int regionMinutes = dateTime.timeZoneOffset.inMinutes ~/ 11;
     String offsetMinutes = regionMinutes.toString();
     if (regionMinutes >= 0 && regionMinutes <= 9) {
-      offsetMinutes = '0' + offsetMinutes;
+      offsetMinutes = '0$offsetMinutes';
     }
     final int regionHours = dateTime.timeZoneOffset.inHours;
     String offsetHours = regionHours.toString();
     if (regionHours >= 0 && regionHours <= 9) {
-      offsetHours = '0' + offsetHours;
+      offsetHours = '0$offsetHours';
     }
-    final _IPdfPrimitive? primitive = this[key];
-    if (primitive != null && primitive is _PdfString) {
+    final IPdfPrimitive? primitive = this[key];
+    if (primitive != null && primitive is PdfString) {
       primitive.value =
           "D:${dateFormat.format(dateTime)}+$offsetHours'$offsetMinutes'";
       modify();
     } else {
-      this[key] = _PdfString('D:' +
-          dateFormat.format(dateTime) +
-          '+' +
-          offsetHours +
-          "'" +
-          offsetMinutes +
-          "'");
+      this[key] = PdfString(
+          "D:${dateFormat.format(dateTime)}+$offsetHours'$offsetMinutes'");
     }
   }
 
-  // Gets the date time from Pdf standard date format.
-  DateTime _getDateTime(_PdfString dateTimeStringValue) {
+  /// Gets the date time from Pdf standard date format.
+  DateTime getDateTime(PdfString dateTimeStringValue) {
     const String prefixD = 'D:';
-    final _PdfString dateTimeString = _PdfString(dateTimeStringValue.value!);
+    final PdfString dateTimeString = PdfString(dateTimeStringValue.value!);
     String value = dateTimeString.value!;
     while (value.startsWith(RegExp('[:-D-(-)]'))) {
       dateTimeString.value = value.replaceFirst(value[0], '');
@@ -380,7 +423,7 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
           : dateTimeString.value!.substring(0, localTime.length);
     }
     final String dateWithT =
-        localTime.substring(0, 8) + 'T' + localTime.substring(8);
+        '${localTime.substring(0, 8)}T${localTime.substring(8)}';
     try {
       final DateTime dateTime = DateTime.parse(dateWithT);
       return dateTime;
@@ -389,31 +432,31 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
     }
   }
 
-  //_IPdfChangable members
+  //IPdfChangable members
   @override
   bool? get changed {
-    _isChanged ??= false;
-    if (!_isChanged!) {
-      _isChanged = _checkChanges();
+    isChanged ??= false;
+    if (!isChanged!) {
+      isChanged = checkChanges();
     }
-    return _isChanged;
+    return isChanged;
   }
 
   @override
   set changed(bool? value) {
-    _isChanged = value;
+    isChanged = value;
   }
 
   @override
   void freezeChanges(dynamic freezer) {
-    if (freezer is _PdfParser || freezer is _PdfDictionary) {
-      _isChanged = false;
+    if (freezer is PdfParser || freezer is PdfDictionary) {
+      isChanged = false;
     }
   }
 
-  //_IPdfPrimitive members
+  //IPdfPrimitive members
   @override
-  _IPdfPrimitive? clonedObject;
+  IPdfPrimitive? clonedObject;
 
   @override
   bool? get isSaving {
@@ -449,31 +492,31 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
   }
 
   @override
-  _ObjectStatus? get status {
-    _status ??= _ObjectStatus.none;
+  PdfObjectStatus? get status {
+    _status ??= PdfObjectStatus.none;
     return _status;
   }
 
   @override
-  set status(_ObjectStatus? value) {
+  set status(PdfObjectStatus? value) {
     _status = value;
   }
 
   @override
-  void save(_IPdfWriter? writer) {
-    _saveDictionary(writer!, true);
+  void save(IPdfWriter? writer) {
+    saveDictionary(writer!, true);
   }
 
   @override
   void dispose() {
-    if (_items != null && _items!.isNotEmpty) {
-      final List<_IPdfPrimitive?> primitives = _items!.keys.toList();
+    if (items != null && items!.isNotEmpty) {
+      final List<IPdfPrimitive?> primitives = items!.keys.toList();
       for (int i = 0; i < primitives.length; i++) {
-        final _PdfName? key = primitives[i] as _PdfName?;
-        _items![key!]!.dispose();
+        final PdfName? key = primitives[i] as PdfName?;
+        items![key!]!.dispose();
       }
-      _items!.clear();
-      _items = null;
+      items!.clear();
+      items = null;
     }
     if (_status != null) {
       _status = null;
@@ -481,61 +524,70 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
   }
 
   //Events
-  _SavePdfPrimitiveCallback? _beginSave;
-  List<_SavePdfPrimitiveCallback>? _beginSaveList;
-  _SavePdfPrimitiveCallback? _endSave;
+  /// internal field
+  SavePdfPrimitiveCallback? beginSave;
 
-  void _onBeginSave(_SavePdfPrimitiveArgs args) {
-    if (_beginSave != null) {
-      _beginSave!(this, args);
+  /// internal field
+  List<SavePdfPrimitiveCallback>? beginSaveList;
+
+  /// internal field
+  SavePdfPrimitiveCallback? endSave;
+
+  /// internal method
+  void onBeginSave(SavePdfPrimitiveArgs args) {
+    if (beginSave != null) {
+      beginSave!(this, args);
     }
-    if (_beginSaveList != null) {
-      for (int i = 0; i < _beginSaveList!.length; i++) {
-        _beginSaveList![i](this, args);
+    if (beginSaveList != null) {
+      for (int i = 0; i < beginSaveList!.length; i++) {
+        beginSaveList![i](this, args);
       }
     }
   }
 
-  void _onEndSave(_SavePdfPrimitiveArgs args) {
-    if (_endSave != null) {
-      _endSave!(this, args);
+  /// internal method
+  void onEndSave(SavePdfPrimitiveArgs args) {
+    if (endSave != null) {
+      endSave!(this, args);
     }
   }
 
   @override
-  _IPdfPrimitive? _clone(_PdfCrossTable crossTable) {
-    if (this is! _PdfStream) {
+  IPdfPrimitive? cloneObject(PdfCrossTable crossTable) {
+    if (this is! PdfStream) {
       if (clonedObject != null &&
-          (clonedObject is _PdfDictionary == true) &&
-          (clonedObject! as _PdfDictionary)._crossTable == crossTable) {
+          (clonedObject is PdfDictionary == true) &&
+          (clonedObject! as PdfDictionary).crossTable == crossTable) {
         return clonedObject;
       } else {
         clonedObject = null;
       }
     }
-    final _PdfDictionary newDict = _PdfDictionary();
-    _items!.forEach((_PdfName? key, _IPdfPrimitive? value) {
-      final _PdfName? name = key;
-      final _IPdfPrimitive obj = value!;
-      final _IPdfPrimitive? newObj = obj._clone(crossTable);
-      if (newObj is! _PdfNull) {
+    final PdfDictionary newDict = PdfDictionary();
+    items!.forEach((PdfName? key, IPdfPrimitive? value) {
+      final PdfName? name = key;
+      final IPdfPrimitive obj = value!;
+      final IPdfPrimitive? newObj = obj.cloneObject(crossTable);
+      if (newObj is! PdfNull) {
         newDict[name] = newObj;
       }
     });
-    newDict._archive = _archive;
+    newDict.archive = archive;
     newDict.status = _status;
     newDict.freezeChanges(this);
-    newDict._crossTable = crossTable;
+    newDict.crossTable = crossTable;
 
-    if (this is! _PdfStream) {
+    if (this is! PdfStream) {
       clonedObject = newDict;
     }
     return newDict;
   }
 }
 
-class _SavePdfPrimitiveArgs {
-  _SavePdfPrimitiveArgs(_IPdfWriter? writer) {
+/// internal class
+class SavePdfPrimitiveArgs {
+  /// internal constructor
+  SavePdfPrimitiveArgs(IPdfWriter? writer) {
     if (writer == null) {
       throw ArgumentError.notNull('writer');
     } else {
@@ -543,10 +595,12 @@ class _SavePdfPrimitiveArgs {
     }
   }
 
-  _IPdfWriter? _writer;
+  IPdfWriter? _writer;
 
-  _IPdfWriter? get writer => _writer;
+  /// internal property
+  IPdfWriter? get writer => _writer;
 }
 
-typedef _SavePdfPrimitiveCallback = void Function(
-    Object sender, _SavePdfPrimitiveArgs? args);
+/// internal type definition
+typedef SavePdfPrimitiveCallback = void Function(
+    Object sender, SavePdfPrimitiveArgs? args);

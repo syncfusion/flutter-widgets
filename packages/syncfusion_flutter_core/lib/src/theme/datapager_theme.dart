@@ -62,45 +62,8 @@ class SfDataPagerThemeData with Diagnosticable {
       TextStyle? disabledItemTextStyle,
       Color? itemBorderColor,
       double? itemBorderWidth,
-      BorderRadiusGeometry? itemBorderRadius}) {
-    brightness = brightness ?? Brightness.light;
-    final bool isLight = brightness == Brightness.light;
-
-    backgroundColor ??= isLight
-        ? const Color.fromRGBO(255, 255, 255, 1)
-        : const Color.fromRGBO(33, 33, 33, 1);
-
-    itemColor ??= isLight
-        ? const Color.fromRGBO(255, 255, 255, 1)
-        : const Color.fromRGBO(33, 33, 33, 1);
-
-    itemTextStyle ??= TextStyle(
-        color: isLight
-            ? const Color.fromRGBO(0, 0, 0, 0.87)
-            : const Color.fromRGBO(255, 255, 255, 1),
-        fontSize: 14,
-        fontFamily: 'Roboto',
-        fontWeight: FontWeight.w400);
-
-    itemBorderRadius ??= BorderRadius.circular(50);
-
-    itemBorderColor ??= Colors.transparent;
-
-    selectedItemColor ??= const Color.fromRGBO(33, 150, 243, 1);
-
-    selectedItemTextStyle ??= const TextStyle(
-        color: Color.fromRGBO(255, 255, 255, 1),
-        fontSize: 14,
-        fontFamily: 'Roboto',
-        fontWeight: FontWeight.w400);
-
-    disabledItemColor ??= Colors.transparent;
-
-    disabledItemTextStyle ??= TextStyle(
-        color: isLight
-            ? const Color.fromRGBO(0, 0, 0, 0.36)
-            : const Color.fromRGBO(255, 255, 255, 0.36));
-
+      BorderRadiusGeometry? itemBorderRadius,
+      Color? dropdownButtonBorderColor}) {
     return SfDataPagerThemeData.raw(
         brightness: brightness,
         backgroundColor: backgroundColor,
@@ -112,7 +75,8 @@ class SfDataPagerThemeData with Diagnosticable {
         disabledItemTextStyle: disabledItemTextStyle,
         itemBorderColor: itemBorderColor,
         itemBorderWidth: itemBorderWidth,
-        itemBorderRadius: itemBorderRadius);
+        itemBorderRadius: itemBorderRadius,
+        dropdownButtonBorderColor: dropdownButtonBorderColor);
   }
 
   /// Create a [SfDataPagerThemeData] given a set of exact values.
@@ -132,39 +96,36 @@ class SfDataPagerThemeData with Diagnosticable {
       required this.disabledItemTextStyle,
       required this.itemBorderColor,
       required this.itemBorderWidth,
-      required this.itemBorderRadius});
+      required this.itemBorderRadius,
+      required this.dropdownButtonBorderColor});
 
   /// The brightness of the overall theme of the
   /// application for the [SfDataPager] widgets.
-  ///
-  /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).brightness], brightness for
-  /// datapager widgets will be applied.
-  final Brightness brightness;
+  final Brightness? brightness;
 
   /// The color of the page Items
-  final Color itemColor;
+  final Color? itemColor;
 
   /// The color of the data pager background
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// The style of the text of page Items
-  final TextStyle itemTextStyle;
+  final TextStyle? itemTextStyle;
 
   /// The color of the page Items which are disabled.
-  final Color disabledItemColor;
+  final Color? disabledItemColor;
 
   /// The style of the text of page items which are disabled.
-  final TextStyle disabledItemTextStyle;
+  final TextStyle? disabledItemTextStyle;
 
   /// The color of the currently selected page item.
-  final Color selectedItemColor;
+  final Color? selectedItemColor;
 
   /// The style of the text of currently selected page Item.
-  final TextStyle selectedItemTextStyle;
+  final TextStyle? selectedItemTextStyle;
 
   /// The color of the border in page Item.
-  final Color itemBorderColor;
+  final Color? itemBorderColor;
 
   /// The width of the border in page item.
   final double? itemBorderWidth;
@@ -176,7 +137,10 @@ class SfDataPagerThemeData with Diagnosticable {
   /// see also:
   ///
   /// [BoxDecoration.borderRadius]
-  final BorderRadiusGeometry itemBorderRadius;
+  final BorderRadiusGeometry? itemBorderRadius;
+
+  ///The border color of the rowsPerPage dropdown button.
+  final Color? dropdownButtonBorderColor;
 
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
@@ -191,7 +155,8 @@ class SfDataPagerThemeData with Diagnosticable {
       TextStyle? disabledItemTextStyle,
       Color? itemBorderColor,
       double? itemBorderWidth,
-      BorderRadiusGeometry? itemBorderRadius}) {
+      BorderRadiusGeometry? itemBorderRadius,
+      Color? dropdownButtonBorderColor}) {
     return SfDataPagerThemeData.raw(
         brightness: brightness ?? this.brightness,
         backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -205,7 +170,9 @@ class SfDataPagerThemeData with Diagnosticable {
             disabledItemTextStyle ?? this.disabledItemTextStyle,
         itemBorderColor: itemBorderColor ?? this.itemBorderColor,
         itemBorderWidth: itemBorderWidth ?? this.itemBorderWidth,
-        itemBorderRadius: itemBorderRadius ?? this.itemBorderRadius);
+        itemBorderRadius: itemBorderRadius ?? this.itemBorderRadius,
+        dropdownButtonBorderColor:
+            dropdownButtonBorderColor ?? this.dropdownButtonBorderColor);
   }
 
   /// Linearly interpolate between two themes.
@@ -229,7 +196,9 @@ class SfDataPagerThemeData with Diagnosticable {
         itemBorderColor: Color.lerp(a.itemBorderColor, b.itemBorderColor, t),
         itemBorderWidth: lerpDouble(a.itemBorderWidth, b.itemBorderWidth, t),
         itemBorderRadius: BorderRadiusGeometry.lerp(
-            a.itemBorderRadius, b.itemBorderRadius, t));
+            a.itemBorderRadius, b.itemBorderRadius, t),
+        dropdownButtonBorderColor: Color.lerp(
+            a.dropdownButtonBorderColor, b.dropdownButtonBorderColor, t));
   }
 
   @override
@@ -252,7 +221,8 @@ class SfDataPagerThemeData with Diagnosticable {
         other.disabledItemTextStyle == disabledItemTextStyle &&
         other.itemBorderColor == itemBorderColor &&
         other.itemBorderWidth == itemBorderWidth &&
-        other.itemBorderRadius == itemBorderRadius;
+        other.itemBorderRadius == itemBorderRadius &&
+        other.dropdownButtonBorderColor == dropdownButtonBorderColor;
   }
 
   @override
@@ -267,7 +237,8 @@ class SfDataPagerThemeData with Diagnosticable {
       disabledItemTextStyle,
       itemBorderColor,
       itemBorderWidth,
-      itemBorderRadius
+      itemBorderRadius,
+      dropdownButtonBorderColor
     ];
     return hashList(values);
   }
@@ -302,5 +273,8 @@ class SfDataPagerThemeData with Diagnosticable {
     properties.add(DiagnosticsProperty<BorderRadiusGeometry>(
         'itemBorderRadius', itemBorderRadius,
         defaultValue: defaultData.itemBorderRadius));
+    properties.add(ColorProperty(
+        'dropdownButtonBorderColor', dropdownButtonBorderColor,
+        defaultValue: defaultData.dropdownButtonBorderColor));
   }
 }

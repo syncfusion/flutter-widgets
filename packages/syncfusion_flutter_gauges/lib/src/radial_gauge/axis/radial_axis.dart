@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 
 import '../../radial_gauge/annotation/gauge_annotation.dart';
@@ -15,6 +13,7 @@ import '../../radial_gauge/range/gauge_range.dart';
 import '../../radial_gauge/styles/radial_text_style.dart';
 import '../../radial_gauge/styles/radial_tick_style.dart';
 import '../../radial_gauge/utils/enum.dart';
+import '../../radial_gauge/utils/helper.dart';
 import '../../radial_gauge/utils/radial_callback_args.dart';
 import '../../radial_gauge/utils/radial_gauge_typedef.dart';
 
@@ -1054,7 +1053,7 @@ class _RadialAxisState extends State<RadialAxis> with TickerProviderStateMixin {
               _pointerAnimationControllers[pointerIndex];
           pointerIndex++;
         } else if (_enableAnimation) {
-          pointerAnimationController = _animationController!;
+          pointerAnimationController = _animationController;
         }
 
         _radialAxisWidgets.add(RadialAxisScope(
@@ -1185,7 +1184,11 @@ class _RadialAxisState extends State<RadialAxis> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return RadialAxisParentWidget(children: _buildRadialAxis());
+    return RadialAxisInheritedWidget(
+      minimum: widget.minimum,
+      maximum: widget.maximum,
+      child: RadialAxisParentWidget(children: _buildRadialAxis()),
+    );
   }
 
   void _disposeAnimationControllers() {

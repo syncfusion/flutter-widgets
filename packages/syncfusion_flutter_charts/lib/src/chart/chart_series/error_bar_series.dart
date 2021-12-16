@@ -1,16 +1,5 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../../charts.dart';
-import '../../chart/utils/enum.dart';
-import '../../common/common.dart';
-import '../../common/series/chart_series.dart';
-import '../../common/utils/typedef.dart';
-import '../series_painter/error_bar_painter.dart';
-import 'xy_data_series.dart';
 
 /// This class has the properties of the error bar series.
 ///

@@ -1,4 +1,34 @@
-part of pdf;
+import 'dart:math';
+import 'dart:ui';
+
+import '../../interfaces/pdf_interface.dart';
+import '../annotations/pdf_annotation_border.dart';
+import '../drawing/drawing.dart';
+import '../graphics/brushes/pdf_solid_brush.dart';
+import '../graphics/enums.dart';
+import '../graphics/figures/pdf_template.dart';
+import '../graphics/fonts/enums.dart';
+import '../graphics/fonts/pdf_font.dart';
+import '../graphics/fonts/pdf_standard_font.dart';
+import '../graphics/fonts/pdf_string_format.dart';
+import '../graphics/pdf_color.dart';
+import '../graphics/pdf_graphics.dart';
+import '../graphics/pdf_margins.dart';
+import '../graphics/pdf_pen.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../pages/pdf_page.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_boolean.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_stream.dart';
+import 'enum.dart';
+import 'pdf_annotation.dart';
+import 'pdf_annotation_collection.dart';
+import 'pdf_paintparams.dart';
 
 /// Represents a line annotation.
 class PdfLineAnnotation extends PdfAnnotation {
@@ -40,19 +70,16 @@ class PdfLineAnnotation extends PdfAnnotation {
       PdfLineIntent lineIntent = PdfLineIntent.lineArrow,
       int? leaderLine,
       int? leaderLineExt,
-      bool lineCaption = false})
-      : super._(
-            text: text,
-            color: color,
-            innerColor: innerColor,
-            border: border,
-            author: author,
-            subject: subject,
-            modifiedDate: modifiedDate,
-            opacity: opacity,
-            setAppearance: setAppearance) {
-    _linePoints = _PdfArray(linePoints);
-    _points = linePoints;
+      bool lineCaption = false}) {
+    _helper = PdfLineAnnotationHelper(this, linePoints, text,
+        color: color,
+        innerColor: innerColor,
+        border: border,
+        author: author,
+        subject: subject,
+        modifiedDate: modifiedDate,
+        opacity: opacity,
+        setAppearance: setAppearance);
     this.beginLineStyle = beginLineStyle;
     this.endLineStyle = endLineStyle;
     this.captionType = captionType;
@@ -67,18 +94,13 @@ class PdfLineAnnotation extends PdfAnnotation {
   }
 
   PdfLineAnnotation._(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable, String annotText)
-      : super._internal(dictionary, crossTable) {
-    _dictionary = dictionary;
-    _crossTable = crossTable;
+      PdfDictionary dictionary, PdfCrossTable crossTable, String annotText) {
+    _helper = PdfLineAnnotationHelper._(this, dictionary, crossTable);
     text = annotText;
   }
 
   // Fields
-  _PdfArray? _linePoints;
-  _PdfArray? _lineStyle;
-  int _leaderLine = 0;
-  List<int> _points = <int>[];
+  late PdfLineAnnotationHelper _helper;
   late PdfLineEndingStyle _beginLineStyle;
   late PdfLineEndingStyle _endLineStyle;
   int _leaderLineExt = 0;
@@ -88,129 +110,154 @@ class PdfLineAnnotation extends PdfAnnotation {
 
   // Properties
   /// Gets the leader line.
-  int get leaderLine => _isLoadedAnnotation ? _obtainLeaderLine() : _leaderLine;
+  int get leaderLine => PdfAnnotationHelper.getHelper(this).isLoadedAnnotation
+      ? _helper._obtainLeaderLine()
+      : _helper.leaderLine;
 
   /// Sets the leader line.
   set leaderLine(int value) {
-    if (value != 0 && !_isLoadedAnnotation) {
-      _leaderLine = value;
-    } else if (_isLoadedAnnotation) {
-      _dictionary._setNumber(_DictionaryProperties.ll, value);
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(this);
+    final bool isLoadedAnnotation = helper.isLoadedAnnotation;
+    if (value != 0 && !isLoadedAnnotation) {
+      _helper.leaderLine = value;
+    } else if (isLoadedAnnotation) {
+      helper.dictionary!.setNumber(PdfDictionaryProperties.ll, value);
     }
   }
 
   /// Gets the line points of the annotation.
   List<int> get linePoints =>
-      _isLoadedAnnotation ? _obtainLinePoints() : _points;
+      PdfAnnotationHelper.getHelper(this).isLoadedAnnotation
+          ? _helper._obtainLinePoints()
+          : _helper.points;
 
   /// Sets the line points of the annotation.
   set linePoints(List<int> value) {
-    _points = value;
-    _linePoints = _PdfArray(_points);
-    if (_isLoadedAnnotation) {
-      _dictionary.setProperty(_DictionaryProperties.l, _linePoints);
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(this);
+    _helper.points = value;
+    _helper.linePoints = PdfArray(_helper.points);
+    if (helper.isLoadedAnnotation) {
+      helper.dictionary!
+          .setProperty(PdfDictionaryProperties.l, _helper.linePoints);
     }
   }
 
   /// Gets the line intent of the annotation.
   PdfLineIntent get lineIntent =>
-      _isLoadedAnnotation ? _obtainLineIntent() : _lineIntent;
+      PdfAnnotationHelper.getHelper(this).isLoadedAnnotation
+          ? _helper._obtainLineIntent()
+          : _lineIntent;
 
   /// Sets the line intent of the annotation.
   set lineIntent(PdfLineIntent value) {
-    if (!_isLoadedAnnotation) {
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(this);
+    if (!helper.isLoadedAnnotation) {
       _lineIntent = value;
     } else {
-      _dictionary._setName(
-          _PdfName(_DictionaryProperties.it), _getEnumName(value));
+      helper.dictionary!.setName(
+          PdfName(PdfDictionaryProperties.it), helper.getEnumName(value));
     }
   }
 
   /// Gets the line caption of the annotation.
-  bool get lineCaption =>
-      _isLoadedAnnotation ? _obtainLineCaption() : _lineCaption;
+  bool get lineCaption => PdfAnnotationHelper.getHelper(this).isLoadedAnnotation
+      ? _helper._obtainLineCaption()
+      : _lineCaption;
 
   /// Sets the line caption of the annotation.
   set lineCaption(bool value) {
-    if (!_isLoadedAnnotation) {
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(this);
+    if (!helper.isLoadedAnnotation) {
       _lineCaption = value;
     } else {
-      _dictionary._setBoolean(_DictionaryProperties.cap, value);
+      helper.dictionary!.setBoolean(PdfDictionaryProperties.cap, value);
     }
   }
 
   /// Gets the leader line extension.
   int get leaderLineExt =>
-      _isLoadedAnnotation ? _obtainLeaderExt() : _leaderLineExt;
+      PdfAnnotationHelper.getHelper(this).isLoadedAnnotation
+          ? _helper._obtainLeaderExt()
+          : _leaderLineExt;
 
   /// Sets the leader line extension.
   set leaderLineExt(int value) {
-    if (!_isLoadedAnnotation) {
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(this);
+    if (!helper.isLoadedAnnotation) {
       _leaderLineExt = value;
     } else {
-      _dictionary._setNumber(_DictionaryProperties.lle, value);
+      helper.dictionary!.setNumber(PdfDictionaryProperties.lle, value);
     }
   }
 
   /// Gets the begin line style of the annotation.
   PdfLineEndingStyle get beginLineStyle =>
-      _isLoadedAnnotation ? _getLineStyle(0) : _beginLineStyle;
+      PdfAnnotationHelper.getHelper(this).isLoadedAnnotation
+          ? _helper._getLineStyle(0)
+          : _beginLineStyle;
 
   /// Sets the end line style of the annotation.
   set beginLineStyle(PdfLineEndingStyle value) {
-    if (!_isLoadedAnnotation) {
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(this);
+    if (!helper.isLoadedAnnotation) {
       _beginLineStyle = value;
     } else {
-      _PdfArray? _lineStyle = _obtainLineStyle();
+      PdfArray? _lineStyle = _helper._obtainLineStyle();
       if (_lineStyle == null) {
-        _lineStyle = _PdfArray();
+        _lineStyle = PdfArray();
       } else {
-        _lineStyle._elements.removeAt(0);
+        _lineStyle.elements.removeAt(0);
       }
-      _lineStyle._insert(
+      _lineStyle.insert(
           0,
-          _PdfName(
-              _getEnumName(_getLineStyle(_getEnumName(value.toString())))));
-      _dictionary.setProperty(_DictionaryProperties.le, _lineStyle);
+          PdfName(helper.getEnumName(
+              _helper._getLineStyle(helper.getEnumName(value.toString())))));
+      helper.dictionary!.setProperty(PdfDictionaryProperties.le, _lineStyle);
     }
   }
 
   /// Gets the end line style of the annotation.
   PdfLineEndingStyle get endLineStyle =>
-      _isLoadedAnnotation ? _getLineStyle(1) : _endLineStyle;
+      PdfAnnotationHelper.getHelper(this).isLoadedAnnotation
+          ? _helper._getLineStyle(1)
+          : _endLineStyle;
 
   /// Sets the end line style of the annotation.
   set endLineStyle(PdfLineEndingStyle value) {
-    if (!_isLoadedAnnotation) {
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(this);
+    if (!helper.isLoadedAnnotation) {
       _endLineStyle = value;
     } else {
-      _PdfArray? _lineStyle = _obtainLineStyle();
+      PdfArray? _lineStyle = _helper._obtainLineStyle();
       if (_lineStyle == null) {
-        _lineStyle = _PdfArray();
+        _lineStyle = PdfArray();
       } else {
-        _lineStyle._elements.removeAt(1);
+        _lineStyle.elements.removeAt(1);
       }
-      _lineStyle._insert(
+      _lineStyle.insert(
           1,
-          _PdfName(
-              _getEnumName(_getLineStyle(_getEnumName(value.toString())))));
-      _dictionary.setProperty(_DictionaryProperties.le, _lineStyle);
+          PdfName(helper.getEnumName(
+              _helper._getLineStyle(helper.getEnumName(value.toString())))));
+      helper.dictionary!.setProperty(PdfDictionaryProperties.le, _lineStyle);
     }
   }
 
   /// Gets the caption type of the annotation.
   PdfLineCaptionType get captionType =>
-      _isLoadedAnnotation ? _obtainCaptionType() : _captionType;
+      PdfAnnotationHelper.getHelper(this).isLoadedAnnotation
+          ? _helper._obtainCaptionType()
+          : _captionType;
 
   /// Sets the caption type of the annotation.
   set captionType(PdfLineCaptionType value) {
-    if (!_isLoadedAnnotation) {
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(this);
+    if (!helper.isLoadedAnnotation) {
       _captionType = value;
     } else {
-      _dictionary.setProperty(
-          _DictionaryProperties.cp,
-          _PdfName(
-              _getEnumName(_getCaptionType(_getEnumName(value.toString())))));
+      helper.dictionary!.setProperty(
+          PdfDictionaryProperties.cp,
+          PdfName(helper.getEnumName(
+              _helper._getCaptionType(helper.getEnumName(value.toString())))));
     }
   }
 
@@ -221,244 +268,261 @@ class PdfLineAnnotation extends PdfAnnotation {
   String get text => super.text;
   @override
   set text(String value) {
-    if (_text != value) {
-      _text = value;
-      _dictionary._setString(_DictionaryProperties.contents, _text);
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(this);
+    if (helper.textValue != value) {
+      helper.textValue = value;
+      helper.dictionary!
+          .setString(PdfDictionaryProperties.contents, helper.textValue);
     }
   }
 
-  // Implementation
+  IPdfPrimitive? get _element => PdfAnnotationHelper.getHelper(this).dictionary;
+
+  set _element(IPdfPrimitive? value) {
+    if (value != null && value is PdfDictionary) {
+      PdfAnnotationHelper.getHelper(this).dictionary = value;
+    }
+  }
+}
+
+/// [PdfLineAnnotation] helper
+class PdfLineAnnotationHelper extends PdfAnnotationHelper {
+  /// internal constructor
+  PdfLineAnnotationHelper(
+      this.lineAnnotation, List<int> linePoints, String text,
+      {PdfColor? color,
+      PdfColor? innerColor,
+      PdfAnnotationBorder? border,
+      String? author,
+      String? subject,
+      DateTime? modifiedDate,
+      double? opacity,
+      bool? setAppearance})
+      : super(lineAnnotation) {
+    initializeAnnotation(
+        text: text,
+        color: color,
+        innerColor: innerColor,
+        border: border,
+        author: author,
+        subject: subject,
+        modifiedDate: modifiedDate,
+        opacity: opacity,
+        setAppearance: setAppearance);
+    this.linePoints = PdfArray(linePoints);
+    points = linePoints;
+    dictionary!.setProperty(
+        PdfDictionaryProperties.subtype, PdfName(PdfDictionaryProperties.line));
+  }
+  PdfLineAnnotationHelper._(
+      this.lineAnnotation, PdfDictionary dictionary, PdfCrossTable crossTable)
+      : super(lineAnnotation) {
+    initializeExistingAnnotation(dictionary, crossTable);
+  }
+
+  /// internal field
+  late PdfLineAnnotation lineAnnotation;
+
+  /// internal field
+  PdfArray? lineStyle;
+
+  /// internal field
+  PdfArray? linePoints;
+
+  /// internal field
+  int leaderLine = 0;
+
+  /// internal field
+  List<int> points = <int>[];
+
+  /// internal property
   @override
-  void _initialize() {
-    super._initialize();
-    _dictionary.setProperty(
-        _DictionaryProperties.subtype, _PdfName(_DictionaryProperties.line));
-  }
-
-  List<int> _obtainLinePoints() {
-    List<int> points = <int>[];
-    if (!_isLoadedAnnotation) {
-      if (_linePoints != null) {
-        // ignore: prefer_final_in_for_each
-        for (_IPdfPrimitive? linePoint in _linePoints!._elements) {
-          if (linePoint is _PdfNumber) {
-            points.add(linePoint.value!.toInt());
-          }
-        }
-      }
-    } else {
-      if (_dictionary.containsKey(_DictionaryProperties.l)) {
-        _linePoints =
-            _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.l])
-                as _PdfArray?;
-        if (_linePoints != null) {
-          points = <int>[];
-          // ignore: prefer_final_in_for_each
-          for (_IPdfPrimitive? value in _linePoints!._elements) {
-            if (value is _PdfNumber) {
-              points.add(value.value!.toInt());
-            }
-          }
-        }
-      }
-    }
-    return points;
-  }
-
-  _Rectangle _obtainLineBounds() {
-    _Rectangle bounds = _Rectangle.fromRect(this.bounds);
-    if (_points.length == 4 || _isLoadedAnnotation) {
-      final List<int> lPoints = _obtainLinePoints();
-      if (lPoints.length == 4) {
-        final _PdfArray lineStyle = _PdfArray();
-        if (lineStyle._elements.isNotEmpty) {
-          lineStyle._insert(0, _PdfName(_getEnumName(beginLineStyle)));
-          lineStyle._insert(1, _PdfName(_getEnumName(endLineStyle)));
-        } else {
-          lineStyle._add(_PdfName(beginLineStyle.toString()));
-          lineStyle._add(_PdfName(endLineStyle.toString()));
-        }
-        bounds = _isLoadedAnnotation
-            ? _calculateLineBounds(lPoints, leaderLineExt, leaderLine,
-                _obtainLeaderOffset(), lineStyle, border.width.toDouble())
-            : _calculateLineBounds(lPoints, leaderLineExt, _leaderLine, 0,
-                lineStyle, border.width.toDouble());
-        bounds = _Rectangle(bounds.left - 8, bounds.top - 8,
-            bounds.width + 2 * 8, bounds.height + 2 * 8);
-      }
-    }
-    return bounds;
-  }
-
-  // Gets leader offset of the annotation.
-  int _obtainLeaderOffset() {
-    int lLineOffset = 0;
-    if (_dictionary.containsKey(_DictionaryProperties.llo)) {
-      final _PdfNumber lOffset =
-          _dictionary[_DictionaryProperties.llo]! as _PdfNumber;
-      lLineOffset = lOffset.value!.toInt();
-    }
-    return lLineOffset;
-  }
+  IPdfPrimitive? get element => lineAnnotation._element;
 
   @override
-  void _save() {
-    if (page!.annotations._flatten) {
-      _flatten = true;
+  set element(IPdfPrimitive? value) {
+    lineAnnotation._element = value;
+  }
+
+  /// internal method
+  void save() {
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(lineAnnotation);
+    if (PdfAnnotationCollectionHelper.getHelper(
+            lineAnnotation.page!.annotations)
+        .flatten) {
+      helper.flatten = true;
     }
-    if (_flatten || setAppearance) {
+    if (helper.flatten || lineAnnotation.setAppearance) {
       final PdfTemplate? appearance = _createAppearance();
-      if (_flatten) {
-        if (appearance != null || _isLoadedAnnotation) {
-          if (page != null) {
-            _flattenAnnotation(page, appearance);
+      if (helper.flatten) {
+        if (appearance != null || helper.isLoadedAnnotation) {
+          if (lineAnnotation.page != null) {
+            _flattenAnnotation(lineAnnotation.page, appearance);
           }
         }
       } else {
         if (appearance != null) {
-          this.appearance.normal = appearance;
-          _dictionary.setProperty(
-              _DictionaryProperties.ap, _PdfReferenceHolder(this.appearance));
+          lineAnnotation.appearance.normal = appearance;
+          helper.dictionary!.setProperty(PdfDictionaryProperties.ap,
+              PdfReferenceHolder(lineAnnotation.appearance));
         }
       }
     }
-    if (!_flatten && !_isLoadedAnnotation) {
-      super._save();
+    if (!helper.flatten && !helper.isLoadedAnnotation) {
+      helper.saveAnnotation();
       _savePdfLineDictionary();
     }
-    if (_flattenPopups) {
-      _flattenPopup();
+    if (helper.flattenPopups) {
+      helper.flattenPopup();
     }
   }
 
   void _savePdfLineDictionary() {
-    super._save();
-    _lineStyle = _PdfArray();
-    if (_lineStyle!._elements.isNotEmpty) {
-      _lineStyle!._insert(0, _PdfName(_getEnumName(beginLineStyle)));
-      _lineStyle!._insert(1, _PdfName(_getEnumName(endLineStyle)));
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(lineAnnotation);
+    helper.saveAnnotation();
+    lineStyle = PdfArray();
+    if (lineStyle!.elements.isNotEmpty) {
+      lineStyle!.insert(
+          0, PdfName(helper.getEnumName(lineAnnotation.beginLineStyle)));
+      lineStyle!
+          .insert(1, PdfName(helper.getEnumName(lineAnnotation.endLineStyle)));
     } else {
-      _lineStyle!._add(_PdfName(_getEnumName(beginLineStyle)));
-      _lineStyle!._add(_PdfName(_getEnumName(endLineStyle)));
+      lineStyle!
+          .add(PdfName(helper.getEnumName(lineAnnotation.beginLineStyle)));
+      lineStyle!.add(PdfName(helper.getEnumName(lineAnnotation.endLineStyle)));
     }
-    _dictionary.setProperty(_DictionaryProperties.le, _lineStyle);
-    if (_linePoints != null) {
-      _dictionary.setProperty(_DictionaryProperties.l, _linePoints);
+    final PdfDictionary dictionary = helper.dictionary!;
+    dictionary.setProperty(PdfDictionaryProperties.le, lineStyle);
+    if (linePoints != null) {
+      dictionary.setProperty(PdfDictionaryProperties.l, linePoints);
     } else {
       throw ArgumentError.value('LinePoints cannot be null');
     }
-    if (border.dashArray == 0) {
-      if (border.borderStyle == PdfBorderStyle.dashed) {
-        border.dashArray = 4;
-      } else if (border.borderStyle == PdfBorderStyle.dot) {
-        border.dashArray = 2;
+    if (lineAnnotation.border.dashArray == 0) {
+      if (lineAnnotation.border.borderStyle == PdfBorderStyle.dashed) {
+        lineAnnotation.border.dashArray = 4;
+      } else if (lineAnnotation.border.borderStyle == PdfBorderStyle.dot) {
+        lineAnnotation.border.dashArray = 2;
       }
     }
-    _dictionary.setProperty(_DictionaryProperties.bs, border);
-    if (!innerColor.isEmpty && innerColor._alpha != 0) {
-      _dictionary.setProperty(
-          _DictionaryProperties.ic, innerColor._toArray(PdfColorSpace.rgb));
+    dictionary.setProperty(PdfDictionaryProperties.bs, lineAnnotation.border);
+    if (!lineAnnotation.innerColor.isEmpty &&
+        PdfColorHelper.getHelper(lineAnnotation.innerColor).alpha != 0) {
+      dictionary.setProperty(PdfDictionaryProperties.ic,
+          PdfColorHelper.toArray(lineAnnotation.innerColor, PdfColorSpace.rgb));
     }
-    _dictionary[_DictionaryProperties.c] = color._toArray(PdfColorSpace.rgb);
+    dictionary[PdfDictionaryProperties.c] =
+        PdfColorHelper.toArray(lineAnnotation.color, PdfColorSpace.rgb);
 
-    _dictionary.setProperty(
-        _DictionaryProperties.it, _PdfName(_getEnumName(lineIntent)));
+    dictionary.setProperty(PdfDictionaryProperties.it,
+        PdfName(helper.getEnumName(lineAnnotation.lineIntent)));
 
-    _dictionary.setProperty(
-        _DictionaryProperties.lle, _PdfNumber(leaderLineExt));
+    dictionary.setProperty(
+        PdfDictionaryProperties.lle, PdfNumber(lineAnnotation.leaderLineExt));
 
-    _dictionary.setProperty(_DictionaryProperties.ll, _PdfNumber(_leaderLine));
+    dictionary.setProperty(PdfDictionaryProperties.ll, PdfNumber(leaderLine));
 
-    _dictionary.setProperty(
-        _DictionaryProperties.cp, _PdfName(_getEnumName(captionType)));
+    dictionary.setProperty(PdfDictionaryProperties.cp,
+        PdfName(helper.getEnumName(lineAnnotation.captionType)));
 
-    _dictionary.setProperty(
-        _DictionaryProperties.cap, _PdfBoolean(lineCaption));
+    dictionary.setProperty(
+        PdfDictionaryProperties.cap, PdfBoolean(lineAnnotation.lineCaption));
 
-    _dictionary.setProperty(_DictionaryProperties.rect,
-        _PdfArray.fromRectangle(_obtainLineBounds()));
+    dictionary.setProperty(PdfDictionaryProperties.rect,
+        PdfArray.fromRectangle(_obtainLineBounds()));
   }
 
   void _flattenAnnotation(PdfPage? page, PdfTemplate? appearance) {
-    if (_isLoadedAnnotation) {
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(lineAnnotation);
+    final PdfDictionary dictionary = helper.dictionary!;
+    if (helper.isLoadedAnnotation) {
       final bool isContainsAP =
-          _dictionary.containsKey(_DictionaryProperties.ap);
+          dictionary.containsKey(PdfDictionaryProperties.ap);
       if (isContainsAP && appearance == null) {
-        _PdfDictionary? appearanceDictionary =
-            _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.ap])
-                as _PdfDictionary?;
+        PdfDictionary? appearanceDictionary =
+            PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.ap])
+                as PdfDictionary?;
         if (appearanceDictionary != null) {
-          appearanceDictionary = _PdfCrossTable._dereference(
-              appearanceDictionary[_DictionaryProperties.n]) as _PdfDictionary?;
+          appearanceDictionary = PdfCrossTable.dereference(
+                  appearanceDictionary[PdfDictionaryProperties.n])
+              as PdfDictionary?;
           if (appearanceDictionary != null) {
-            final _PdfStream appearanceStream =
-                appearanceDictionary as _PdfStream;
-            appearance = PdfTemplate._fromPdfStream(appearanceStream);
+            final PdfStream appearanceStream =
+                appearanceDictionary as PdfStream;
+            appearance = PdfTemplateHelper.fromPdfStream(appearanceStream);
             final bool isNormalMatrix =
-                _validateTemplateMatrix(appearanceDictionary);
-            _flattenAnnotationTemplate(appearance, isNormalMatrix);
+                helper.validateTemplateMatrix(appearanceDictionary);
+            helper.flattenAnnotationTemplate(appearance, isNormalMatrix);
           } else {
-            setAppearance = true;
+            lineAnnotation.setAppearance = true;
             appearance = _createAppearance();
             if (appearance != null) {
-              final bool isNormalMatrix =
-                  _validateTemplateMatrix(appearance._content);
-              _flattenAnnotationTemplate(appearance, isNormalMatrix);
+              final bool isNormalMatrix = helper.validateTemplateMatrix(
+                  PdfTemplateHelper.getHelper(appearance).content);
+              helper.flattenAnnotationTemplate(appearance, isNormalMatrix);
             }
           }
         }
       } else if (!isContainsAP && appearance == null) {
-        setAppearance = true;
+        lineAnnotation.setAppearance = true;
         appearance = _createAppearance();
         if (appearance != null) {
-          final bool isNormalMatrix =
-              _validateTemplateMatrix(appearance._content);
-          _flattenAnnotationTemplate(appearance, isNormalMatrix);
+          final bool isNormalMatrix = helper.validateTemplateMatrix(
+              PdfTemplateHelper.getHelper(appearance).content);
+          helper.flattenAnnotationTemplate(appearance, isNormalMatrix);
         }
       } else {
-        final bool isNormalMatrix =
-            _validateTemplateMatrix(appearance!._content);
-        _flattenAnnotationTemplate(appearance, isNormalMatrix);
+        final bool isNormalMatrix = helper.validateTemplateMatrix(
+            PdfTemplateHelper.getHelper(appearance!).content);
+        helper.flattenAnnotationTemplate(appearance, isNormalMatrix);
       }
     } else {
       page!.graphics.save();
-      final Rect rectangle =
-          super._calculateTemplateBounds(bounds, page, appearance, true);
-      if (opacity < 1) {
-        page.graphics.setTransparency(opacity);
+      final Rect rectangle = helper.calculateTemplateBounds(
+          lineAnnotation.bounds, page, appearance, true);
+      if (lineAnnotation.opacity < 1) {
+        page.graphics.setTransparency(lineAnnotation.opacity);
       }
       page.graphics.drawPdfTemplate(
           appearance!, Offset(rectangle.left, rectangle.top), rectangle.size);
-      page.annotations.remove(this);
+      page.annotations.remove(lineAnnotation);
       page.graphics.restore();
     }
   }
 
   PdfTemplate? _createAppearance() {
-    if (_isLoadedAnnotation && !setAppearance) {
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(lineAnnotation);
+    final bool isLoadedAnnotation = helper.isLoadedAnnotation;
+    if (isLoadedAnnotation && !lineAnnotation.setAppearance) {
       return null;
     }
     final Rect nativeRectangle = _obtainLineBounds().rect;
-    final PdfTemplate template = PdfTemplate._fromRect(nativeRectangle);
-    _setMatrix(template._content);
-    template._writeTransformation = false;
-    final _PaintParams paintParams = _PaintParams();
+    final PdfTemplate template = PdfTemplateHelper.fromRect(nativeRectangle);
+    helper.setMatrix(PdfTemplateHelper.getHelper(template).content);
+    PdfTemplateHelper.getHelper(template).writeTransformation = false;
+    final PaintParams paintParams = PaintParams();
     final PdfGraphics? graphics = template.graphics;
-    final PdfPen mBorderPen = PdfPen(color, width: border.width.toDouble());
-    if (border.borderStyle == PdfBorderStyle.dashed) {
+    final PdfPen mBorderPen =
+        PdfPen(lineAnnotation.color, width: lineAnnotation.border.width);
+    if (lineAnnotation.border.borderStyle == PdfBorderStyle.dashed) {
       mBorderPen.dashStyle = PdfDashStyle.dash;
-    } else if (border.borderStyle == PdfBorderStyle.dot) {
+    } else if (lineAnnotation.border.borderStyle == PdfBorderStyle.dot) {
       mBorderPen.dashStyle = PdfDashStyle.dot;
     }
-    paintParams._borderPen = mBorderPen;
-    paintParams._foreBrush = PdfSolidBrush(color);
+    paintParams.borderPen = mBorderPen;
+    paintParams.foreBrush = PdfSolidBrush(lineAnnotation.color);
     final PdfFont mFont = PdfStandardFont(
-        PdfFontFamily.helvetica, _isLoadedAnnotation ? 10 : 9,
+        PdfFontFamily.helvetica, isLoadedAnnotation ? 10 : 9,
         style: PdfFontStyle.regular);
     final PdfStringFormat format = PdfStringFormat();
     format.alignment = PdfTextAlignment.center;
     format.lineAlignment = PdfVerticalAlignment.middle;
-    final double lineWidth = mFont.measureString(text, format: format).width;
+    final double lineWidth =
+        mFont.measureString(lineAnnotation.text, format: format).width;
     final List<int> linePoints = _obtainLinePoints();
     if (linePoints.length == 4) {
       final double x1 = linePoints[0].toDouble();
@@ -473,55 +537,58 @@ class PdfLineAnnotation extends PdfAnnotation {
           angle = 270;
         }
       } else {
-        angle = _getAngle(x1, y1, x2, y2);
+        angle = helper.getAngle(x1, y1, x2, y2);
       }
       double leadLine = 0;
       double lineAngle = 0;
-      if (leaderLine < 0) {
-        leadLine = -leaderLine.toDouble();
+      if (lineAnnotation.leaderLine < 0) {
+        leadLine = -lineAnnotation.leaderLine.toDouble();
         lineAngle = angle + 180;
       } else {
-        leadLine = leaderLine.toDouble();
+        leadLine = lineAnnotation.leaderLine.toDouble();
         lineAngle = angle;
       }
       final List<double> x1y1 = <double>[x1, y1];
       final List<double> x2y2 = <double>[x2, y2];
       final double line = leadLine +
-          (_isLoadedAnnotation ? _obtainLeaderOffset().toDouble() : 0);
+          (isLoadedAnnotation ? _obtainLeaderOffset().toDouble() : 0);
       final List<double> startingPoint =
-          _getAxisValue(x1y1, lineAngle + 90, line);
+          helper.getAxisValue(x1y1, lineAngle + 90, line);
       final List<double> endingPoint =
-          _getAxisValue(x2y2, lineAngle + 90, line);
+          helper.getAxisValue(x2y2, lineAngle + 90, line);
       final double lineDistance = sqrt(
           pow(endingPoint[0] - startingPoint[0], 2) +
               pow(endingPoint[1] - startingPoint[1], 2));
       final double centerWidth =
-          lineDistance / 2 - ((lineWidth / 2) + border.width);
+          lineDistance / 2 - ((lineWidth / 2) + lineAnnotation.border.width);
       final List<double> middlePoint1 =
-          _getAxisValue(startingPoint, angle, centerWidth);
+          helper.getAxisValue(startingPoint, angle, centerWidth);
       final List<double> middlePoint2 =
-          _getAxisValue(endingPoint, angle + 180, centerWidth);
+          helper.getAxisValue(endingPoint, angle + 180, centerWidth);
       List<double> lineStartingPoint;
       List<double> lineEndingPoint;
-      if (beginLineStyle == PdfLineEndingStyle.openArrow ||
-          beginLineStyle == PdfLineEndingStyle.closedArrow) {
-        lineStartingPoint =
-            _getAxisValue(startingPoint, angle, border.width.toDouble());
+      if (lineAnnotation.beginLineStyle == PdfLineEndingStyle.openArrow ||
+          lineAnnotation.beginLineStyle == PdfLineEndingStyle.closedArrow) {
+        lineStartingPoint = helper.getAxisValue(
+            startingPoint, angle, lineAnnotation.border.width);
       } else {
         lineStartingPoint = startingPoint;
       }
-      if (endLineStyle == PdfLineEndingStyle.openArrow ||
-          endLineStyle == PdfLineEndingStyle.closedArrow) {
-        lineEndingPoint = _getAxisValue(endingPoint, angle, -border.width);
+      if (lineAnnotation.endLineStyle == PdfLineEndingStyle.openArrow ||
+          lineAnnotation.endLineStyle == PdfLineEndingStyle.closedArrow) {
+        lineEndingPoint = helper.getAxisValue(
+            endingPoint, angle, -lineAnnotation.border.width);
       } else {
         lineEndingPoint = endingPoint;
       }
-      final String caption = _getEnumName(captionType);
-      if (opacity < 1) {
+      final String caption = helper.getEnumName(lineAnnotation.captionType);
+      if (lineAnnotation.opacity < 1) {
         graphics!.save();
-        graphics.setTransparency(opacity);
+        graphics.setTransparency(lineAnnotation.opacity);
       }
-      if (text.isEmpty || caption == 'Top' || !lineCaption) {
+      if (lineAnnotation.text.isEmpty ||
+          caption == 'Top' ||
+          !lineAnnotation.lineCaption) {
         graphics!.drawLine(
             mBorderPen,
             Offset(lineStartingPoint[0], -lineStartingPoint[1]),
@@ -536,57 +603,59 @@ class PdfLineAnnotation extends PdfAnnotation {
             Offset(lineEndingPoint[0], -lineEndingPoint[1]),
             Offset(middlePoint2[0], -middlePoint2[1]));
       }
-      if (opacity < 1) {
+      if (lineAnnotation.opacity < 1) {
         graphics.restore();
       }
       //Set begin and end line style.
-      final PdfBrush backBrush = PdfSolidBrush(innerColor);
-      final _PdfArray lineStyle = _PdfArray();
-      lineStyle._insert(0, _PdfName(_getEnumName(beginLineStyle)));
-      lineStyle._insert(1, _PdfName(_getEnumName(endLineStyle)));
-      final double borderLength = border.width.toDouble();
-      _setLineEndingStyles(startingPoint, endingPoint, graphics, angle,
+      final PdfBrush backBrush = PdfSolidBrush(lineAnnotation.innerColor);
+      final PdfArray lineStyle = PdfArray();
+      lineStyle.insert(
+          0, PdfName(helper.getEnumName(lineAnnotation.beginLineStyle)));
+      lineStyle.insert(
+          1, PdfName(helper.getEnumName(lineAnnotation.endLineStyle)));
+      final double borderLength = lineAnnotation.border.width;
+      helper.setLineEndingStyles(startingPoint, endingPoint, graphics, angle,
           mBorderPen, backBrush, lineStyle, borderLength);
       //Set leader extension.
-      final List<double> beginLineExt = _getAxisValue(
-          startingPoint, lineAngle + 90, leaderLineExt.toDouble());
+      final List<double> beginLineExt = helper.getAxisValue(startingPoint,
+          lineAngle + 90, lineAnnotation.leaderLineExt.toDouble());
       graphics.drawLine(mBorderPen, Offset(startingPoint[0], -startingPoint[1]),
           Offset(beginLineExt[0], -beginLineExt[1]));
-      final List<double> endLineExt =
-          _getAxisValue(endingPoint, lineAngle + 90, leaderLineExt.toDouble());
+      final List<double> endLineExt = helper.getAxisValue(
+          endingPoint, lineAngle + 90, lineAnnotation.leaderLineExt.toDouble());
       graphics.drawLine(mBorderPen, Offset(endingPoint[0], -endingPoint[1]),
           Offset(endLineExt[0], -endLineExt[1]));
       //Set leader line
       final List<double> beginLeaderLine =
-          _getAxisValue(startingPoint, lineAngle - 90, leadLine.toDouble());
+          helper.getAxisValue(startingPoint, lineAngle - 90, leadLine);
       graphics.drawLine(mBorderPen, Offset(startingPoint[0], -startingPoint[1]),
           Offset(beginLeaderLine[0], -beginLeaderLine[1]));
       final List<double> endLeaderLine =
-          _getAxisValue(endingPoint, lineAngle - 90, leadLine.toDouble());
+          helper.getAxisValue(endingPoint, lineAngle - 90, leadLine);
       graphics.drawLine(mBorderPen, Offset(endingPoint[0], -endingPoint[1]),
           Offset(endLeaderLine[0], -endLeaderLine[1]));
       //Set caption Type.
-      if (lineCaption) {
+      if (lineAnnotation.lineCaption) {
         final double midpoint = lineDistance / 2;
         final List<double> centerPoint =
-            _getAxisValue(startingPoint, angle, midpoint);
+            helper.getAxisValue(startingPoint, angle, midpoint);
         final List<double> captionPosition =
             _getCaptionPosition(caption, centerPoint, angle, mFont);
         graphics.translateTransform(captionPosition[0], -captionPosition[1]);
         graphics.rotateTransform(-angle);
-        graphics.drawString(text, mFont,
+        graphics.drawString(lineAnnotation.text, mFont,
             brush: backBrush, bounds: Rect.fromLTWH(-lineWidth / 2, 0, 0, 0));
       }
     }
-    if (_isLoadedAnnotation) {
-      _dictionary.setProperty(_DictionaryProperties.rect,
-          _PdfArray.fromRectangle(_obtainLineBounds()));
+    if (isLoadedAnnotation) {
+      helper.dictionary!.setProperty(PdfDictionaryProperties.rect,
+          PdfArray.fromRectangle(_obtainLineBounds()));
     }
-    if (!_isLoadedAnnotation && _flatten) {
-      final double pageHeight = page!.size.height;
-      final PdfMargins? margins = _obtainMargin();
-      if (page != null) {
-        bounds = Rect.fromLTWH(
+    if (!isLoadedAnnotation && helper.flatten) {
+      final double pageHeight = lineAnnotation.page!.size.height;
+      final PdfMargins? margins = helper.obtainMargin();
+      if (lineAnnotation.page != null) {
+        lineAnnotation.bounds = Rect.fromLTWH(
             nativeRectangle.left - margins!.left,
             pageHeight -
                 (nativeRectangle.top + nativeRectangle.height) -
@@ -594,7 +663,7 @@ class PdfLineAnnotation extends PdfAnnotation {
             nativeRectangle.width,
             nativeRectangle.height);
       } else {
-        bounds = Rect.fromLTWH(
+        lineAnnotation.bounds = Rect.fromLTWH(
             nativeRectangle.left,
             pageHeight - (nativeRectangle.top + nativeRectangle.height),
             nativeRectangle.width,
@@ -607,9 +676,11 @@ class PdfLineAnnotation extends PdfAnnotation {
   List<double> _getCaptionPosition(
       String caption, List<double> centerPoint, double angle, PdfFont font) {
     List<double> captionPosition = List<double>.filled(2, 0);
-    if (_isLoadedAnnotation) {
-      final bool isContainsMeasure = _dictionary._items!
-          .containsKey(_PdfName(_DictionaryProperties.measure));
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(lineAnnotation);
+    if (helper.isLoadedAnnotation) {
+      final bool isContainsMeasure = helper.dictionary!.items!
+          .containsKey(PdfName(PdfDictionaryProperties.measure));
       final double length = caption == 'Top'
           ? isContainsMeasure
               ? 2 * font.height
@@ -617,20 +688,22 @@ class PdfLineAnnotation extends PdfAnnotation {
           : isContainsMeasure
               ? 3 * (font.height / 2)
               : font.height / 2;
-      captionPosition = _getAxisValue(centerPoint, angle + 90, length);
+      captionPosition = helper.getAxisValue(centerPoint, angle + 90, length);
     } else {
-      captionPosition = _getAxisValue(centerPoint, angle + 90,
+      captionPosition = helper.getAxisValue(centerPoint, angle + 90,
           caption == 'Top' ? font.height : font.height / 2);
     }
     return captionPosition;
   }
 
-  // Gets leader line of the annotation.
+  // Gets leader line of the lineAnnotation.
   int _obtainLeaderLine() {
     int lLine = 0;
-    if (_dictionary.containsKey(_DictionaryProperties.ll)) {
-      final _PdfNumber ll =
-          _dictionary[_DictionaryProperties.ll]! as _PdfNumber;
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(lineAnnotation);
+    if (helper.dictionary!.containsKey(PdfDictionaryProperties.ll)) {
+      final PdfNumber ll =
+          helper.dictionary![PdfDictionaryProperties.ll]! as PdfNumber;
       lLine = ll.value!.toInt();
     }
     return lLine;
@@ -639,10 +712,13 @@ class PdfLineAnnotation extends PdfAnnotation {
   // Gets the line intent of the annotation.
   PdfLineIntent _obtainLineIntent() {
     PdfLineIntent _lineintent = PdfLineIntent.lineArrow;
-    if (_dictionary.containsKey(_DictionaryProperties.it)) {
-      final _PdfName lineintent = _crossTable
-          ._getObject(_dictionary[_DictionaryProperties.it])! as _PdfName;
-      _lineintent = _getLineIntentText(lineintent._name.toString());
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(lineAnnotation);
+    if (helper.dictionary!.containsKey(PdfDictionaryProperties.it)) {
+      final PdfName lineintent = helper.crossTable
+              .getObject(helper.dictionary![PdfDictionaryProperties.it])!
+          as PdfName;
+      _lineintent = _getLineIntentText(lineintent.name.toString());
     }
     return _lineintent;
   }
@@ -661,12 +737,46 @@ class PdfLineAnnotation extends PdfAnnotation {
     return lineintent;
   }
 
+  List<int> _obtainLinePoints() {
+    List<int> points = <int>[];
+    if (!PdfAnnotationHelper.getHelper(lineAnnotation).isLoadedAnnotation) {
+      if (linePoints != null) {
+        // ignore: prefer_final_in_for_each
+        for (IPdfPrimitive? linePoint in linePoints!.elements) {
+          if (linePoint is PdfNumber) {
+            points.add(linePoint.value!.toInt());
+          }
+        }
+      }
+    } else {
+      if (PdfAnnotationHelper.getHelper(lineAnnotation)
+          .dictionary!
+          .containsKey(PdfDictionaryProperties.l)) {
+        linePoints = PdfCrossTable.dereference(
+            PdfAnnotationHelper.getHelper(lineAnnotation)
+                .dictionary![PdfDictionaryProperties.l]) as PdfArray?;
+        if (linePoints != null) {
+          points = <int>[];
+          // ignore: prefer_final_in_for_each
+          for (IPdfPrimitive? value in linePoints!.elements) {
+            if (value is PdfNumber) {
+              points.add(value.value!.toInt());
+            }
+          }
+        }
+      }
+    }
+    return points;
+  }
+
   // Gets line caption of the annotation.
   bool _obtainLineCaption() {
     bool lCaption = false;
-    if (_dictionary.containsKey(_DictionaryProperties.cap)) {
-      final _PdfBoolean lCap =
-          _dictionary[_DictionaryProperties.cap]! as _PdfBoolean;
+    if (PdfAnnotationHelper.getHelper(lineAnnotation)
+        .dictionary!
+        .containsKey(PdfDictionaryProperties.cap)) {
+      final PdfBoolean lCap = PdfAnnotationHelper.getHelper(lineAnnotation)
+          .dictionary![PdfDictionaryProperties.cap]! as PdfBoolean;
       lCaption = lCap.value!;
     }
     return lCaption;
@@ -675,9 +785,11 @@ class PdfLineAnnotation extends PdfAnnotation {
   // Gets leader ext of the annotation.
   int _obtainLeaderExt() {
     int lLineExt = 0;
-    if (_dictionary.containsKey(_DictionaryProperties.lle)) {
-      final _PdfNumber lExt =
-          _dictionary[_DictionaryProperties.lle]! as _PdfNumber;
+    if (PdfAnnotationHelper.getHelper(lineAnnotation)
+        .dictionary!
+        .containsKey(PdfDictionaryProperties.lle)) {
+      final PdfNumber lExt = PdfAnnotationHelper.getHelper(lineAnnotation)
+          .dictionary![PdfDictionaryProperties.lle]! as PdfNumber;
       lLineExt = lExt.value!.toInt();
     }
     return lLineExt;
@@ -687,10 +799,10 @@ class PdfLineAnnotation extends PdfAnnotation {
   PdfLineEndingStyle _getLineStyle(dynamic value) {
     PdfLineEndingStyle linestyle = PdfLineEndingStyle.none;
     if (value is int) {
-      final _PdfArray? array = _obtainLineStyle();
+      final PdfArray? array = _obtainLineStyle();
       if (array != null) {
-        final _PdfName style = array[value]! as _PdfName;
-        linestyle = _getLineStyle(style._name);
+        final PdfName style = array[value]! as PdfName;
+        linestyle = _getLineStyle(style.name);
       }
     } else if (value is String) {
       switch (value) {
@@ -729,12 +841,71 @@ class PdfLineAnnotation extends PdfAnnotation {
     return linestyle;
   }
 
+  PdfRectangle _obtainLineBounds() {
+    PdfRectangle bounds = PdfRectangle.fromRect(lineAnnotation.bounds);
+    if (points.length == 4 ||
+        PdfAnnotationHelper.getHelper(lineAnnotation).isLoadedAnnotation) {
+      final List<int> lPoints = _obtainLinePoints();
+      if (lPoints.length == 4) {
+        final PdfArray lineStyle = PdfArray();
+        if (lineStyle.elements.isNotEmpty) {
+          lineStyle.insert(
+              0,
+              PdfName(PdfAnnotationHelper.getHelper(lineAnnotation)
+                  .getEnumName(lineAnnotation.beginLineStyle)));
+          lineStyle.insert(
+              1,
+              PdfName(PdfAnnotationHelper.getHelper(lineAnnotation)
+                  .getEnumName(lineAnnotation.endLineStyle)));
+        } else {
+          lineStyle.add(PdfName(lineAnnotation.beginLineStyle.toString()));
+          lineStyle.add(PdfName(lineAnnotation.endLineStyle.toString()));
+        }
+        bounds = PdfAnnotationHelper.getHelper(lineAnnotation)
+                .isLoadedAnnotation
+            ? PdfAnnotationHelper.getHelper(lineAnnotation).calculateLineBounds(
+                lPoints,
+                lineAnnotation.leaderLineExt,
+                lineAnnotation.leaderLine,
+                _obtainLeaderOffset(),
+                lineStyle,
+                lineAnnotation.border.width)
+            : PdfAnnotationHelper.getHelper(lineAnnotation).calculateLineBounds(
+                lPoints,
+                lineAnnotation.leaderLineExt,
+                leaderLine,
+                0,
+                lineStyle,
+                lineAnnotation.border.width);
+        bounds = PdfRectangle(bounds.left - 8, bounds.top - 8,
+            bounds.width + 2 * 8, bounds.height + 2 * 8);
+      }
+    }
+    return bounds;
+  }
+
+  // Gets leader offset of the annotation.
+  int _obtainLeaderOffset() {
+    int lLineOffset = 0;
+    if (PdfAnnotationHelper.getHelper(lineAnnotation)
+        .dictionary!
+        .containsKey(PdfDictionaryProperties.llo)) {
+      final PdfNumber lOffset = PdfAnnotationHelper.getHelper(lineAnnotation)
+          .dictionary![PdfDictionaryProperties.llo]! as PdfNumber;
+      lLineOffset = lOffset.value!.toInt();
+    }
+    return lLineOffset;
+  }
+
   // Gets line style of the annotation.
-  _PdfArray? _obtainLineStyle() {
-    _PdfArray? array;
-    if (_dictionary.containsKey(_DictionaryProperties.le)) {
-      array = _crossTable._getObject(_dictionary[_DictionaryProperties.le])
-          as _PdfArray?;
+  PdfArray? _obtainLineStyle() {
+    PdfArray? array;
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(lineAnnotation);
+    if (helper.dictionary!.containsKey(PdfDictionaryProperties.le)) {
+      array = helper.crossTable
+              .getObject(helper.dictionary![PdfDictionaryProperties.le])
+          as PdfArray?;
     }
     return array;
   }
@@ -742,9 +913,12 @@ class PdfLineAnnotation extends PdfAnnotation {
   // Gets caption type of the annotation.
   PdfLineCaptionType _obtainCaptionType() {
     PdfLineCaptionType _captiontype = PdfLineCaptionType.inline;
-    if (_dictionary.containsKey(_DictionaryProperties.cp)) {
-      final _PdfName cType = _dictionary[_DictionaryProperties.cp]! as _PdfName;
-      _captiontype = _getCaptionType(cType._name.toString());
+    if (PdfAnnotationHelper.getHelper(lineAnnotation)
+        .dictionary!
+        .containsKey(PdfDictionaryProperties.cp)) {
+      final PdfName cType = PdfAnnotationHelper.getHelper(lineAnnotation)
+          .dictionary![PdfDictionaryProperties.cp]! as PdfName;
+      _captiontype = _getCaptionType(cType.name.toString());
     }
     return _captiontype;
   }
@@ -760,11 +934,14 @@ class PdfLineAnnotation extends PdfAnnotation {
     return captiontype;
   }
 
-  @override
-  _IPdfPrimitive get _element => _dictionary;
+  /// internal method
+  static PdfLineAnnotation load(
+      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
+    return PdfLineAnnotation._(dictionary, crossTable, text);
+  }
 
-  @override
-  set _element(_IPdfPrimitive? value) {
-    _element = value;
+  /// internal method
+  static PdfLineAnnotationHelper getHelper(PdfLineAnnotation annotation) {
+    return annotation._helper;
   }
 }

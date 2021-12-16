@@ -1,54 +1,82 @@
-part of pdf;
+import '../io/pdf_constants.dart';
+import '../pdf_document/enums.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_string.dart';
+import 'embedded_file.dart';
+import 'file_specification_base.dart';
 
 /// Represents specification of embedded file.
-class _PdfEmbeddedFileSpecification extends _PdfFileSpecificationBase {
+class PdfEmbeddedFileSpecification extends PdfFileSpecificationBase {
   //Constructor
   /// Initializes a new instance of the [PdfEmbeddedFileSpecification] class
-  _PdfEmbeddedFileSpecification(String fileName, List<int> data) : super() {
-    _embeddedFile = _EmbeddedFile(fileName, data);
-    description = fileName;
+  PdfEmbeddedFileSpecification(String fileName, List<int> data) : super() {
+    _helper = PdfEmbeddedFileSpecificationHelper(this);
+    PdfFileSpecificationBaseHelper.getHelper(this)
+        .dictionary!
+        .setProperty(PdfDictionaryProperties.ef, _helper._dict);
+    _helper.embeddedFile = EmbeddedFile(fileName, data);
+    _helper.description = fileName;
   }
 
   //Fields
-  late _EmbeddedFile _embeddedFile;
-  String _description = '';
-  final _PdfDictionary _dict = _PdfDictionary();
-  // ignore: prefer_final_fields
-  PdfAttachmentRelationship _relationship = PdfAttachmentRelationship.source;
+  late PdfEmbeddedFileSpecificationHelper _helper;
+}
 
-  //Properties.
+/// [PdfEmbeddedFileSpecification] helper
+class PdfEmbeddedFileSpecificationHelper {
+  /// internal constructor
+  PdfEmbeddedFileSpecificationHelper(this.base);
+
+  /// internal field
+  PdfEmbeddedFileSpecification base;
+
+  /// internal method
+  static PdfEmbeddedFileSpecificationHelper getHelper(
+      PdfEmbeddedFileSpecification base) {
+    return base._helper;
+  }
+
+  /// internal field
+  late EmbeddedFile embeddedFile;
+
+  /// internal field
+  // ignore: prefer_final_fields
+  PdfAttachmentRelationship relationship = PdfAttachmentRelationship.source;
+  String _desc = '';
+  final PdfDictionary _dict = PdfDictionary();
+
   /// Gets the description.
-  String get description => _description;
+  String get description => _desc;
 
   /// Sets the description.
   set description(String value) {
-    if (_description != value) {
-      _description = value;
-      _dictionary._setString(_DictionaryProperties.description, _description);
+    if (_desc != value) {
+      _desc = value;
+      PdfFileSpecificationBaseHelper.getHelper(base)
+          .dictionary!
+          .setString(PdfDictionaryProperties.description, _desc);
     }
   }
 
-  //Implementations.
-  //Initializes instance.
-  @override
-  void _initialize() {
-    super._initialize();
-    _dictionary.setProperty(_DictionaryProperties.ef, _dict);
-  }
-
-  String _getEnumName(dynamic text) {
+  /// internal method
+  String getEnumName(dynamic text) {
     final int index = text.toString().indexOf('.');
     final String name = text.toString().substring(index + 1);
     return name[0].toUpperCase() + name.substring(1);
   }
 
-  //Saves object state.
-  @override
-  void _save() {
-    _dict[_DictionaryProperties.f] = _PdfReferenceHolder(_embeddedFile);
-    final _PdfString str =
-        _PdfString(_formatFileName(_embeddedFile.fileName, false));
-    _dictionary.setProperty(_DictionaryProperties.f, str);
-    _dictionary.setProperty(_DictionaryProperties.uf, str);
+  /// internal method
+  void save() {
+    _dict[PdfDictionaryProperties.f] = PdfReferenceHolder(embeddedFile);
+    final PdfString str = PdfString(
+        PdfFileSpecificationBaseHelper.getHelper(base)
+            .formatFileName(embeddedFile.fileName, false));
+    PdfFileSpecificationBaseHelper.getHelper(base)
+        .dictionary!
+        .setProperty(PdfDictionaryProperties.f, str);
+    PdfFileSpecificationBaseHelper.getHelper(base)
+        .dictionary!
+        .setProperty(PdfDictionaryProperties.uf, str);
   }
 }

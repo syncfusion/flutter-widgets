@@ -1,7 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../plot_band.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -33,7 +31,7 @@ class SfSparkWinLossChartRenderObjectWidget
       Color? lastPointColor,
       Color? negativePointColor,
       SparkChartDataDetails? sparkChartDataDetails,
-      ThemeData? themeData,
+      SfChartThemeData? themeData,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
       : super(
@@ -98,7 +96,9 @@ class SfSparkWinLossChartRenderObjectWidget
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderSparkWinLossChart renderObject) {
+      BuildContext context,
+      // ignore: library_private_types_in_public_api
+      _RenderSparkWinLossChart renderObject) {
     renderObject
       ..isInversed = isInversed
       ..axisCrossesAt = axisCrossesAt
@@ -148,7 +148,7 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
       Color? tiePointColor,
       double? borderWidth,
       Color? borderColor,
-      ThemeData? themeData,
+      SfChartThemeData? themeData,
       SparkChartDataDetails? sparkChartDataDetails,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})

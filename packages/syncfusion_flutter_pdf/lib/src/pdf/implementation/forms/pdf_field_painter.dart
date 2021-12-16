@@ -1,103 +1,124 @@
-part of pdf;
+import 'dart:math';
+import 'dart:ui';
+
+import '../annotations/enum.dart';
+import '../annotations/pdf_paintparams.dart';
+import '../drawing/drawing.dart';
+import '../graphics/brushes/pdf_brush.dart';
+import '../graphics/brushes/pdf_solid_brush.dart';
+import '../graphics/enums.dart';
+import '../graphics/figures/pdf_path.dart';
+import '../graphics/fonts/enums.dart';
+import '../graphics/fonts/pdf_font.dart';
+import '../graphics/fonts/pdf_standard_font.dart';
+import '../graphics/fonts/pdf_string_format.dart';
+import '../graphics/pdf_color.dart';
+import '../graphics/pdf_graphics.dart';
+import '../graphics/pdf_pen.dart';
+import 'enum.dart';
+import 'pdf_list_field_item.dart';
+import 'pdf_list_field_item_collection.dart';
 
 /// Represents class which draws form fields.
-class _FieldPainter {
-  //Constructor
-  _FieldPainter();
+class FieldPainter {
+  /// internal constructor
+  FieldPainter();
 
   //Implementations
-  //Draws a rectangular control.
-  void drawRectangularControl(PdfGraphics graphics, _PaintParams params) {
+  /// Draws a rectangular control.
+  void drawRectangularControl(PdfGraphics graphics, PaintParams params) {
     graphics.drawRectangle(
-        bounds: params._bounds ?? const Rect.fromLTWH(0, 0, 0, 0),
-        brush: params._backBrush);
-    drawBorder(graphics, params._bounds, params._borderPen, params._style,
-        params._borderWidth);
-    switch (params._style) {
+        bounds: params.bounds ?? Rect.zero, brush: params.backBrush);
+    drawBorder(graphics, params.bounds, params.borderPen, params.style,
+        params.borderWidth);
+    switch (params.style) {
       case PdfBorderStyle.inset:
         drawLeftTopShadow(
-            graphics, params._bounds!, params._borderWidth!, PdfBrushes.gray);
+            graphics, params.bounds!, params.borderWidth!, PdfBrushes.gray);
         drawRightBottomShadow(
-            graphics, params._bounds!, params._borderWidth!, PdfBrushes.silver);
+            graphics, params.bounds!, params.borderWidth!, PdfBrushes.silver);
         break;
       case PdfBorderStyle.beveled:
         drawLeftTopShadow(
-            graphics, params._bounds!, params._borderWidth!, PdfBrushes.white);
-        drawRightBottomShadow(graphics, params._bounds!, params._borderWidth!,
-            params._shadowBrush);
+            graphics, params.bounds!, params.borderWidth!, PdfBrushes.white);
+        drawRightBottomShadow(
+            graphics, params.bounds!, params.borderWidth!, params.shadowBrush);
         break;
       default:
         break;
     }
   }
 
-  void _drawCheckBox(PdfGraphics g, _PaintParams paintParams,
-      String checkSymbol, _PdfCheckFieldState state,
+  /// internal method
+  void drawCheckBox(PdfGraphics g, PaintParams paintParams, String checkSymbol,
+      PdfCheckFieldState state,
       [PdfFont? font]) {
     switch (state) {
-      case _PdfCheckFieldState.unchecked:
-      case _PdfCheckFieldState.checked:
-        if (paintParams._borderPen != null &&
-            paintParams._borderPen!.color._alpha != 0) {
+      case PdfCheckFieldState.unchecked:
+      case PdfCheckFieldState.checked:
+        if (paintParams.borderPen != null &&
+            PdfColorHelper.getHelper(paintParams.borderPen!.color).alpha != 0) {
           g.drawRectangle(
-              brush: paintParams._backBrush, bounds: paintParams._bounds!);
+              brush: paintParams.backBrush, bounds: paintParams.bounds!);
         }
         break;
 
-      case _PdfCheckFieldState.pressedChecked:
-      case _PdfCheckFieldState.pressedUnchecked:
-        if ((paintParams._style == PdfBorderStyle.beveled) ||
-            (paintParams._style == PdfBorderStyle.underline)) {
-          if (paintParams._borderPen != null &&
-              paintParams._borderPen!.color._alpha != 0) {
+      case PdfCheckFieldState.pressedChecked:
+      case PdfCheckFieldState.pressedUnchecked:
+        if ((paintParams.style == PdfBorderStyle.beveled) ||
+            (paintParams.style == PdfBorderStyle.underline)) {
+          if (paintParams.borderPen != null &&
+              PdfColorHelper.getHelper(paintParams.borderPen!.color).alpha !=
+                  0) {
             g.drawRectangle(
-                brush: paintParams._backBrush, bounds: paintParams._bounds!);
+                brush: paintParams.backBrush, bounds: paintParams.bounds!);
           }
         } else {
-          if (paintParams._borderPen != null &&
-              paintParams._borderPen!.color._alpha != 0) {
+          if (paintParams.borderPen != null &&
+              PdfColorHelper.getHelper(paintParams.borderPen!.color).alpha !=
+                  0) {
             g.drawRectangle(
-                brush: paintParams._shadowBrush, bounds: paintParams._bounds!);
+                brush: paintParams.shadowBrush, bounds: paintParams.bounds!);
           }
         }
         break;
     }
 
-    drawBorder(g, paintParams._bounds, paintParams._borderPen,
-        paintParams._style, paintParams._borderWidth);
+    drawBorder(g, paintParams.bounds, paintParams.borderPen, paintParams.style,
+        paintParams.borderWidth);
 
-    if ((state == _PdfCheckFieldState.pressedChecked) ||
-        (state == _PdfCheckFieldState.pressedUnchecked)) {
-      switch (paintParams._style) {
+    if ((state == PdfCheckFieldState.pressedChecked) ||
+        (state == PdfCheckFieldState.pressedUnchecked)) {
+      switch (paintParams.style) {
         case PdfBorderStyle.inset:
-          drawLeftTopShadow(g, paintParams._bounds!, paintParams._borderWidth!,
+          drawLeftTopShadow(g, paintParams.bounds!, paintParams.borderWidth!,
               PdfBrushes.black);
-          drawRightBottomShadow(g, paintParams._bounds!,
-              paintParams._borderWidth!, PdfBrushes.white);
+          drawRightBottomShadow(g, paintParams.bounds!,
+              paintParams.borderWidth!, PdfBrushes.white);
           break;
 
         case PdfBorderStyle.beveled:
-          drawLeftTopShadow(g, paintParams._bounds!, paintParams._borderWidth!,
-              paintParams._shadowBrush);
-          drawRightBottomShadow(g, paintParams._bounds!,
-              paintParams._borderWidth!, PdfBrushes.white);
+          drawLeftTopShadow(g, paintParams.bounds!, paintParams.borderWidth!,
+              paintParams.shadowBrush);
+          drawRightBottomShadow(g, paintParams.bounds!,
+              paintParams.borderWidth!, PdfBrushes.white);
           break;
         default:
       }
     } else {
-      switch (paintParams._style) {
+      switch (paintParams.style) {
         case PdfBorderStyle.inset:
-          drawLeftTopShadow(g, paintParams._bounds!, paintParams._borderWidth!,
+          drawLeftTopShadow(g, paintParams.bounds!, paintParams.borderWidth!,
               PdfBrushes.gray);
-          drawRightBottomShadow(g, paintParams._bounds!,
-              paintParams._borderWidth!, PdfBrushes.silver);
+          drawRightBottomShadow(g, paintParams.bounds!,
+              paintParams.borderWidth!, PdfBrushes.silver);
           break;
 
         case PdfBorderStyle.beveled:
-          drawLeftTopShadow(g, paintParams._bounds!, paintParams._borderWidth!,
+          drawLeftTopShadow(g, paintParams.bounds!, paintParams.borderWidth!,
               PdfBrushes.white);
-          drawRightBottomShadow(g, paintParams._bounds!,
-              paintParams._borderWidth!, paintParams._shadowBrush);
+          drawRightBottomShadow(g, paintParams.bounds!,
+              paintParams.borderWidth!, paintParams.shadowBrush);
           break;
         default:
       }
@@ -105,38 +126,38 @@ class _FieldPainter {
     double yOffset = 0;
     double size = 0;
     switch (state) {
-      case _PdfCheckFieldState.pressedChecked:
-      case _PdfCheckFieldState.checked:
+      case PdfCheckFieldState.pressedChecked:
+      case PdfCheckFieldState.checked:
         if (font == null) {
           final bool extraBorder =
-              paintParams._style == PdfBorderStyle.beveled ||
-                  paintParams._style == PdfBorderStyle.inset;
+              paintParams.style == PdfBorderStyle.beveled ||
+                  paintParams.style == PdfBorderStyle.inset;
 
-          double borderWidth = paintParams._borderWidth!.toDouble();
+          double borderWidth = paintParams.borderWidth!.toDouble();
           if (extraBorder) {
             borderWidth *= 2;
           }
           double xPosition = extraBorder
-              ? 2.0 * paintParams._borderWidth!
-              : paintParams._borderWidth!.toDouble();
+              ? 2.0 * paintParams.borderWidth!
+              : paintParams.borderWidth!.toDouble();
           xPosition = max(xPosition, 1);
           final double xOffset = min(borderWidth, xPosition);
 
-          size = (paintParams._bounds!.width > paintParams._bounds!.height)
-              ? paintParams._bounds!.height
-              : paintParams._bounds!.width;
+          size = (paintParams.bounds!.width > paintParams.bounds!.height)
+              ? paintParams.bounds!.height
+              : paintParams.bounds!.width;
 
           final double fontSize = size - 2 * xOffset;
 
           font = PdfStandardFont(PdfFontFamily.zapfDingbats, fontSize);
-          if (paintParams._bounds!.width > paintParams._bounds!.height) {
-            yOffset = (paintParams._bounds!.height - font.height) / 2;
+          if (paintParams.bounds!.width > paintParams.bounds!.height) {
+            yOffset = (paintParams.bounds!.height - font.height) / 2;
           }
         } else {
           font = PdfStandardFont(PdfFontFamily.zapfDingbats, font.size);
         }
         if (size == 0) {
-          size = paintParams._bounds!.height;
+          size = paintParams.bounds!.height;
         }
 
         if (size < font.size) {
@@ -144,12 +165,12 @@ class _FieldPainter {
               'Font size cannot be greater than CheckBox height');
         }
         g.drawString(checkSymbol, font,
-            brush: paintParams._foreBrush,
+            brush: paintParams.foreBrush,
             bounds: Rect.fromLTWH(
-                paintParams._bounds!.left,
-                paintParams._bounds!.top - yOffset,
-                paintParams._bounds!.width,
-                paintParams._bounds!.height),
+                paintParams.bounds!.left,
+                paintParams.bounds!.top - yOffset,
+                paintParams.bounds!.width,
+                paintParams.bounds!.height),
             format: PdfStringFormat(
                 alignment: PdfTextAlignment.center,
                 lineAlignment: PdfVerticalAlignment.middle));
@@ -158,7 +179,7 @@ class _FieldPainter {
     }
   }
 
-  //Draws a border.
+  /// Draws a border.
   void drawBorder(PdfGraphics graphics, Rect? bounds, PdfPen? borderPen,
       PdfBorderStyle? style, int? borderWidth) {
     if (borderPen != null) {
@@ -183,41 +204,41 @@ class _FieldPainter {
     }
   }
 
-  void drawRadioButton(PdfGraphics? g, _PaintParams paintParams,
-      String checkSymbol, _PdfCheckFieldState state) {
+  /// internal method
+  void drawRadioButton(PdfGraphics? g, PaintParams paintParams,
+      String checkSymbol, PdfCheckFieldState state) {
     //if the symbol is not a circle type ("l") then we need to draw the checkbox appearance
     if (checkSymbol != 'l') {
-      _drawCheckBox(g!, paintParams, checkSymbol, state, null);
+      drawCheckBox(g!, paintParams, checkSymbol, state, null);
     } else {
       switch (state) {
-        case _PdfCheckFieldState.unchecked:
-        case _PdfCheckFieldState.checked:
-          g!.drawEllipse(paintParams._bounds!, brush: paintParams._backBrush);
+        case PdfCheckFieldState.unchecked:
+        case PdfCheckFieldState.checked:
+          g!.drawEllipse(paintParams.bounds!, brush: paintParams.backBrush);
           break;
 
-        case _PdfCheckFieldState.pressedChecked:
-        case _PdfCheckFieldState.pressedUnchecked:
-          if ((paintParams._style == PdfBorderStyle.beveled) ||
-              (paintParams._style == PdfBorderStyle.underline)) {
-            g!.drawEllipse(paintParams._bounds!, brush: paintParams._backBrush);
+        case PdfCheckFieldState.pressedChecked:
+        case PdfCheckFieldState.pressedUnchecked:
+          if ((paintParams.style == PdfBorderStyle.beveled) ||
+              (paintParams.style == PdfBorderStyle.underline)) {
+            g!.drawEllipse(paintParams.bounds!, brush: paintParams.backBrush);
           } else {
-            g!.drawEllipse(paintParams._bounds!,
-                brush: paintParams._shadowBrush);
+            g!.drawEllipse(paintParams.bounds!, brush: paintParams.shadowBrush);
           }
 
           break;
       }
-      drawRoundBorder(g, paintParams._bounds, paintParams._borderPen,
-          paintParams._borderWidth);
+      drawRoundBorder(g, paintParams.bounds, paintParams.borderPen,
+          paintParams.borderWidth);
       drawRoundShadow(g, paintParams, state);
       switch (state) {
-        case _PdfCheckFieldState.checked:
-        case _PdfCheckFieldState.pressedChecked:
+        case PdfCheckFieldState.checked:
+        case PdfCheckFieldState.pressedChecked:
           final Rect outward = Rect.fromLTWH(
-              paintParams._bounds!.left + paintParams._borderWidth! / 2.0,
-              paintParams._bounds!.top + paintParams._borderWidth! / 2.0,
-              paintParams._bounds!.width - paintParams._borderWidth!,
-              paintParams._bounds!.height - paintParams._borderWidth!);
+              paintParams.bounds!.left + paintParams.borderWidth! / 2.0,
+              paintParams.bounds!.top + paintParams.borderWidth! / 2.0,
+              paintParams.bounds!.width - paintParams.borderWidth!,
+              paintParams.bounds!.height - paintParams.borderWidth!);
           Rect checkedBounds = outward;
           checkedBounds = Rect.fromLTWH(
               checkedBounds.left + (outward.width / 4),
@@ -225,7 +246,7 @@ class _FieldPainter {
               checkedBounds.width - (outward.width / 2),
               checkedBounds.height - (outward.width / 2));
           g.drawEllipse(checkedBounds,
-              brush: paintParams._foreBrush ?? PdfBrushes.black);
+              brush: paintParams.foreBrush ?? PdfBrushes.black);
           break;
         default:
           break;
@@ -233,7 +254,7 @@ class _FieldPainter {
     }
   }
 
-  //Draws the left top shadow.
+  /// Draws the left top shadow.
   void drawLeftTopShadow(
       PdfGraphics graphics, Rect bounds, int width, PdfBrush? brush) {
     final List<Offset> points = <Offset>[
@@ -247,7 +268,7 @@ class _FieldPainter {
     graphics.drawPath(PdfPath()..addPolygon(points), brush: brush);
   }
 
-  //Draws the right bottom shadow.
+  /// Draws the right bottom shadow.
   void drawRightBottomShadow(
       PdfGraphics graphics, Rect bounds, int width, PdfBrush? brush) {
     final List<Offset> points = <Offset>[
@@ -261,60 +282,63 @@ class _FieldPainter {
     graphics.drawPath(PdfPath()..addPolygon(points), brush: brush);
   }
 
-  void drawButton(PdfGraphics g, _PaintParams paintParams, String text,
+  /// internal method
+  void drawButton(PdfGraphics g, PaintParams paintParams, String text,
       PdfFont font, PdfStringFormat? format) {
     drawRectangularControl(g, paintParams);
-    final Rect? rectangle = paintParams._bounds;
+    final Rect? rectangle = paintParams.bounds;
     g.drawString(text, font,
-        brush: paintParams._foreBrush, bounds: rectangle, format: format);
+        brush: paintParams.foreBrush, bounds: rectangle, format: format);
   }
 
-  void drawPressedButton(PdfGraphics g, _PaintParams paintParams, String text,
+  /// internal method
+  void drawPressedButton(PdfGraphics g, PaintParams paintParams, String text,
       PdfFont font, PdfStringFormat? format) {
-    switch (paintParams._style) {
+    switch (paintParams.style) {
       case PdfBorderStyle.inset:
         g.drawRectangle(
-            brush: paintParams._shadowBrush, bounds: paintParams._bounds!);
+            brush: paintParams.shadowBrush, bounds: paintParams.bounds!);
         break;
       default:
         g.drawRectangle(
-            brush: paintParams._backBrush, bounds: paintParams._bounds!);
+            brush: paintParams.backBrush, bounds: paintParams.bounds!);
         break;
     }
 
-    drawBorder(g, paintParams._bounds, paintParams._borderPen,
-        paintParams._style, paintParams._borderWidth);
+    drawBorder(g, paintParams.bounds, paintParams.borderPen, paintParams.style,
+        paintParams.borderWidth);
 
     final Rect rectangle = Rect.fromLTWH(
-        paintParams._borderWidth!.toDouble(),
-        paintParams._borderWidth!.toDouble(),
-        paintParams._bounds!.size.width - paintParams._borderWidth!,
-        paintParams._bounds!.size.height - paintParams._borderWidth!);
+        paintParams.borderWidth!.toDouble(),
+        paintParams.borderWidth!.toDouble(),
+        paintParams.bounds!.size.width - paintParams.borderWidth!,
+        paintParams.bounds!.size.height - paintParams.borderWidth!);
     g.drawString(text, font,
-        brush: paintParams._foreBrush, bounds: rectangle, format: format);
+        brush: paintParams.foreBrush, bounds: rectangle, format: format);
 
-    switch (paintParams._style) {
+    switch (paintParams.style) {
       case PdfBorderStyle.inset:
-        drawLeftTopShadow(g, paintParams._bounds!, paintParams._borderWidth!,
-            PdfBrushes.gray);
-        drawRightBottomShadow(g, paintParams._bounds!,
-            paintParams._borderWidth!, PdfBrushes.silver);
+        drawLeftTopShadow(
+            g, paintParams.bounds!, paintParams.borderWidth!, PdfBrushes.gray);
+        drawRightBottomShadow(g, paintParams.bounds!, paintParams.borderWidth!,
+            PdfBrushes.silver);
         break;
 
       case PdfBorderStyle.beveled:
-        drawLeftTopShadow(g, paintParams._bounds!, paintParams._borderWidth!,
-            paintParams._shadowBrush);
-        drawRightBottomShadow(g, paintParams._bounds!,
-            paintParams._borderWidth!, PdfBrushes.white);
+        drawLeftTopShadow(g, paintParams.bounds!, paintParams.borderWidth!,
+            paintParams.shadowBrush);
+        drawRightBottomShadow(
+            g, paintParams.bounds!, paintParams.borderWidth!, PdfBrushes.white);
         break;
 
       default:
-        drawLeftTopShadow(g, paintParams._bounds!, paintParams._borderWidth!,
-            paintParams._shadowBrush);
+        drawLeftTopShadow(g, paintParams.bounds!, paintParams.borderWidth!,
+            paintParams.shadowBrush);
         break;
     }
   }
 
+  /// internal method
   void drawRoundBorder(
       PdfGraphics? g, Rect? bounds, PdfPen? borderPen, int? borderWidth) {
     Rect? outward = bounds;
@@ -328,29 +352,29 @@ class _FieldPainter {
     }
   }
 
+  /// internal method
   void drawRoundShadow(
-      PdfGraphics? g, _PaintParams paintParams, _PdfCheckFieldState state) {
-    final double borderWidth = paintParams._borderWidth!.toDouble();
-    final Rect rectangle = paintParams._bounds!;
+      PdfGraphics? g, PaintParams paintParams, PdfCheckFieldState state) {
+    final double borderWidth = paintParams.borderWidth!.toDouble();
+    final Rect rectangle = paintParams.bounds!;
     rectangle.inflate(-1.5 * borderWidth);
     PdfPen? leftTopPen;
     PdfPen? rightBottomPen;
-    final PdfSolidBrush shadowBrush =
-        paintParams._shadowBrush! as PdfSolidBrush;
+    final PdfSolidBrush shadowBrush = paintParams.shadowBrush! as PdfSolidBrush;
     final PdfColor shadowColor = shadowBrush.color;
 
-    switch (paintParams._style) {
+    switch (paintParams.style) {
       case PdfBorderStyle.beveled:
         switch (state) {
-          case _PdfCheckFieldState.pressedChecked:
-          case _PdfCheckFieldState.pressedUnchecked:
+          case PdfCheckFieldState.pressedChecked:
+          case PdfCheckFieldState.pressedUnchecked:
             leftTopPen = PdfPen(shadowColor, width: borderWidth);
             rightBottomPen =
                 PdfPen(PdfColor(255, 255, 255), width: borderWidth);
             break;
 
-          case _PdfCheckFieldState.checked:
-          case _PdfCheckFieldState.unchecked:
+          case PdfCheckFieldState.checked:
+          case PdfCheckFieldState.unchecked:
             leftTopPen = PdfPen(PdfColor(255, 255, 255), width: borderWidth);
             rightBottomPen = PdfPen(shadowColor, width: borderWidth);
             break;
@@ -360,14 +384,14 @@ class _FieldPainter {
 
       case PdfBorderStyle.inset:
         switch (state) {
-          case _PdfCheckFieldState.pressedChecked:
-          case _PdfCheckFieldState.pressedUnchecked:
+          case PdfCheckFieldState.pressedChecked:
+          case PdfCheckFieldState.pressedUnchecked:
             leftTopPen = PdfPen(PdfColor(0, 0, 0), width: borderWidth);
             rightBottomPen = PdfPen(PdfColor(0, 0, 0), width: borderWidth);
             break;
 
-          case _PdfCheckFieldState.checked:
-          case _PdfCheckFieldState.unchecked:
+          case PdfCheckFieldState.checked:
+          case PdfCheckFieldState.unchecked:
             leftTopPen =
                 PdfPen(PdfColor(255, 128, 128, 128), width: borderWidth);
             rightBottomPen =
@@ -383,42 +407,42 @@ class _FieldPainter {
     }
   }
 
-  //Draws the combo box
-  void drawComboBox(PdfGraphics graphics, _PaintParams paintParams,
-      String? text, PdfFont? font, PdfStringFormat? format) {
+  /// Draws the combo box
+  void drawComboBox(PdfGraphics graphics, PaintParams paintParams, String? text,
+      PdfFont? font, PdfStringFormat? format) {
     drawRectangularControl(graphics, paintParams);
-    final Rect? rectangle = paintParams._bounds;
+    final Rect? rectangle = paintParams.bounds;
     graphics.drawString(text!, font!,
-        brush: paintParams._foreBrush, bounds: rectangle, format: format);
+        brush: paintParams.foreBrush, bounds: rectangle, format: format);
   }
 
-  //Draws the list box
+  /// Draws the list box
   void drawListBox(
       PdfGraphics graphics,
-      _PaintParams params,
+      PaintParams params,
       PdfListFieldItemCollection items,
       List<int> selectedItem,
       PdfFont font,
       PdfStringFormat? stringFormat) {
-    _FieldPainter().drawRectangularControl(graphics, params);
+    FieldPainter().drawRectangularControl(graphics, params);
     for (int index = 0; index < items.count; index++) {
       final PdfListFieldItem item = items[index];
-      final int borderWidth = params._borderWidth!;
+      final int borderWidth = params.borderWidth!;
       final double doubleBorderWidth = (2 * borderWidth).toDouble();
-      final bool padding = params._style == PdfBorderStyle.inset ||
-          params._style == PdfBorderStyle.beveled;
+      final bool padding = params.style == PdfBorderStyle.inset ||
+          params.style == PdfBorderStyle.beveled;
       final Offset point = padding
           ? Offset(2 * doubleBorderWidth,
               (index + 2) * borderWidth + font.size * index)
           : Offset(
               doubleBorderWidth, (index + 1) * borderWidth + font.size * index);
-      PdfBrush? brush = params._foreBrush;
-      double width = params._bounds!.width - doubleBorderWidth;
+      PdfBrush? brush = params.foreBrush;
+      double width = params.bounds!.width - doubleBorderWidth;
       final Rect rectangle = Rect.fromLTWH(
-          params._bounds!.left,
-          params._bounds!.top,
-          params._bounds!.width,
-          params._bounds!.height - (padding ? doubleBorderWidth : borderWidth));
+          params.bounds!.left,
+          params.bounds!.top,
+          params.bounds!.width,
+          params.bounds!.height - (padding ? doubleBorderWidth : borderWidth));
       graphics.setClip(bounds: rectangle, mode: PdfFillMode.winding);
       bool selected = false;
       for (final int selectedIndex in selectedItem) {
@@ -439,38 +463,40 @@ class _FieldPainter {
         brush = PdfSolidBrush(PdfColor(255, 255, 255, 255));
       }
       final String value = item.text;
-      final _Rectangle itemTextBound =
-          _Rectangle(point.dx, point.dy, width - point.dx, font.height);
-      graphics._layoutString(value, font,
+      final PdfRectangle itemTextBound =
+          PdfRectangle(point.dx, point.dy, width - point.dx, font.height);
+      PdfGraphicsHelper.getHelper(graphics).layoutString(value, font,
           brush: brush ?? PdfSolidBrush(PdfColor(0, 0, 0)),
           layoutRectangle: itemTextBound,
           format: stringFormat);
     }
   }
 
-  //Draws the text box
-  void drawTextBox(PdfGraphics graphics, _PaintParams params, String text,
+  /// Draws the text box
+  void drawTextBox(PdfGraphics graphics, PaintParams params, String text,
       PdfFont font, PdfStringFormat format, bool insertSpaces, bool multiline) {
     if (!insertSpaces) {
-      _FieldPainter().drawRectangularControl(graphics, params);
+      FieldPainter().drawRectangularControl(graphics, params);
     }
-    final int multiplier = params._style == PdfBorderStyle.beveled ||
-            params._style == PdfBorderStyle.inset
+    final int multiplier = params.style == PdfBorderStyle.beveled ||
+            params.style == PdfBorderStyle.inset
         ? 2
         : 1;
     Rect rectangle = Rect.fromLTWH(
-        params._bounds!.left + (2 * multiplier) * params._borderWidth!,
-        params._bounds!.top + (2 * multiplier) * params._borderWidth!,
-        params._bounds!.width - (4 * multiplier) * params._borderWidth!,
-        params._bounds!.height - (4 * multiplier) * params._borderWidth!);
+        params.bounds!.left + (2 * multiplier) * params.borderWidth!,
+        params.bounds!.top + (2 * multiplier) * params.borderWidth!,
+        params.bounds!.width - (4 * multiplier) * params.borderWidth!,
+        params.bounds!.height - (4 * multiplier) * params.borderWidth!);
     // Calculate position of the text.
     if (multiline) {
       final double tempHeight =
           format.lineSpacing == 0 ? font.height : format.lineSpacing;
       final bool subScript =
           format.subSuperscript == PdfSubSuperscript.subscript;
-      final double ascent = font._metrics!._getAscent(format);
-      final double descent = font._metrics!._getDescent(format);
+      final double ascent =
+          PdfFontHelper.getHelper(font).metrics!.getAscent(format);
+      final double descent =
+          PdfFontHelper.getHelper(font).metrics!.getDescent(format);
       final double shift = subScript
           ? tempHeight - (font.height + descent)
           : tempHeight - ascent;
@@ -480,14 +506,15 @@ class _FieldPainter {
       }
     }
     graphics.drawString(text, font,
-        brush: params._foreBrush,
+        brush: params.foreBrush,
         bounds: rectangle,
         format: PdfStringFormat(
             alignment: format.alignment,
             lineAlignment: PdfVerticalAlignment.middle));
   }
 
-  void drawSignature(PdfGraphics graphics, _PaintParams paintParams) {
+  /// internal method
+  void drawSignature(PdfGraphics graphics, PaintParams paintParams) {
     drawRectangularControl(graphics, paintParams);
   }
 }

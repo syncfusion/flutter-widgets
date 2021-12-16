@@ -1,57 +1,116 @@
-part of pdf;
+import 'enums.dart';
+import 'pdf_reader.dart';
 
-class _PdfLexer {
+/// internal class
+class PdfLexer {
   //Constructor
-  _PdfLexer(_PdfReader reader) {
+  /// internal constructor
+  PdfLexer(PdfReader reader) {
     _initialize(reader);
   }
 
   //Constants
+  /// internal field
   final int bufferSize = 8192;
+
+  /// internal field
   final int f = -1;
+
+  /// internal field
   final int noState = -1;
+
+  /// internal field
   final int notAccept = 0;
+
+  /// internal field
   final int start = 1;
+
+  /// internal field
   final int end = 2;
+
+  /// internal field
   final int noAnchor = 4;
+
+  /// internal field
   final int bol = 256;
+
+  /// internal field
   final int eof = 257;
+
+  /// internal field
   final String prefix = '<<';
 
   //Fields
-  late _PdfReader _reader;
+  late PdfReader _reader;
+
+  /// internal field
   late int bufferIndex;
+
+  /// internal field
   late int bufferRead;
+
+  /// internal field
   late int bufferStart;
+
+  /// internal field
   late int bufferEnd;
+
+  /// internal field
   late List<int> buffer;
+
+  /// internal field
   bool _lastWasCr = false;
+
+  /// internal field
   late int line;
+
+  /// internal field
   late bool atBool;
+
+  /// internal field
   late _State lexicalState;
+
+  /// internal field
   List<int> stateTrans = <int>[0, 81, 83];
+
+  /// internal field
   late List<int> accept;
+
+  /// internal field
   String? objectName;
+
+  /// internal field
   bool isArray = false;
+
+  /// internal field
   int paren = 0;
+
+  /// internal field
   String stringText = '';
-  bool _skip = false;
+
+  /// internal field
+  bool skip = false;
 
   //Properties
+  /// internal property
   int get position {
     return _reader.position - bufferRead + bufferIndex;
   }
 
+  /// internal property
   String get text => _text();
 
+  /// internal property
   late List<int> cMap;
 
+  /// internal property
   late List<int> rMap;
 
+  /// internal property
   late List<List<int>> next;
 
   //Implementation
-  void _initialize(_PdfReader reader) {
+  void _initialize(PdfReader reader) {
     _reader = reader;
     buffer = List<int>.filled(bufferSize, 0);
     bufferRead = 0;
@@ -201,7 +260,8 @@ class _PdfLexer {
     return res;
   }
 
-  void _reset() {
+  /// internal method
+  void reset() {
     buffer = List<int>.filled(bufferSize, 0);
     bufferRead = 0;
     bufferIndex = 0;
@@ -274,7 +334,8 @@ class _PdfLexer {
     return buffer[bufferIndex++];
   }
 
-  void _skipNewLine() {
+  /// internal method
+  void skipNewLine() {
     bufferIndex = bufferStart + 1;
 
     if (buffer[bufferIndex] == 13) {
@@ -289,7 +350,8 @@ class _PdfLexer {
     _markStart();
   }
 
-  void _skipToken() {
+  /// internal method
+  void skipToken() {
     bufferStart = bufferEnd;
   }
 
@@ -309,7 +371,8 @@ class _PdfLexer {
     return nextRead;
   }
 
-  List<int> _readBytes(int count) {
+  /// internal method
+  List<int> readBytes(int count) {
     final List<int> list = List<int>.filled(count, 0);
     _markStart();
     if (bufferRead - bufferStart < count) {
@@ -350,7 +413,8 @@ class _PdfLexer {
             2029 == buffer[bufferEnd - 1]);
   }
 
-  _TokenType _getNextToken() {
+  /// internal method
+  PdfTokenType getNextToken() {
     int? lookAhead;
     int anchor = noAnchor;
     int state = stateTrans[lexicalState.index];
@@ -377,7 +441,7 @@ class _PdfLexer {
       nextState = f;
       nextState = next[rMap[state]][cMap[lookAhead!]];
       if (eof == lookAhead && initial) {
-        return _TokenType.eof;
+        return PdfTokenType.eof;
       }
       if (f != nextState) {
         state = nextState;
@@ -422,7 +486,7 @@ class _PdfLexer {
             case 5:
               {
                 _begin(_State.hexString);
-                return _TokenType.hexStringStart;
+                return PdfTokenType.hexStringStart;
               }
             case -6:
               break;
@@ -436,146 +500,146 @@ class _PdfLexer {
               break;
             case 7:
               {
-                return _TokenType.arrayStart;
+                return PdfTokenType.arrayStart;
               }
             case -8:
               break;
             case 8:
               {
-                return _TokenType.arrayEnd;
+                return PdfTokenType.arrayEnd;
               }
             case -9:
               break;
             case 9:
               {
-                return _TokenType.name;
+                return PdfTokenType.name;
               }
             case -10:
               break;
             case 10:
               {
-                return _TokenType.objectType;
+                return PdfTokenType.objectType;
               }
             case -11:
               break;
             case 11:
               {
-                return _TokenType.number;
+                return PdfTokenType.number;
               }
             case -12:
               break;
             case 12:
               {
-                return _TokenType.reference;
+                return PdfTokenType.reference;
               }
             case -13:
               break;
             case 13:
               {
-                return _TokenType.dictionaryStart;
+                return PdfTokenType.dictionaryStart;
               }
             case -14:
               break;
             case 14:
               {
-                return _TokenType.dictionaryEnd;
+                return PdfTokenType.dictionaryEnd;
               }
             case -15:
               break;
             case 15:
               {
-                return _TokenType.real;
+                return PdfTokenType.real;
               }
             case -16:
               break;
             case 16:
               {
-                return _TokenType.objectStart;
+                return PdfTokenType.objectStart;
               }
             case -17:
               break;
             case 17:
               {
-                return _TokenType.unicodeString;
+                return PdfTokenType.unicodeString;
               }
             case -18:
               break;
             case 18:
               {
-                return _TokenType.boolean;
+                return PdfTokenType.boolean;
               }
             case -19:
               break;
             case 19:
               {
-                return _TokenType.nullType;
+                return PdfTokenType.nullType;
               }
             case -20:
               break;
             case 20:
               {
-                return _TokenType.xRef;
+                return PdfTokenType.xRef;
               }
             case -21:
               break;
             case 21:
               {
-                return _TokenType.objectEnd;
+                return PdfTokenType.objectEnd;
               }
             case -22:
               break;
             case 22:
               {
-                return _TokenType.streamStart;
+                return PdfTokenType.streamStart;
               }
             case -23:
               break;
             case 23:
               {
-                return _TokenType.trailer;
+                return PdfTokenType.trailer;
               }
             case -24:
               break;
             case 24:
               {
-                return _TokenType.streamEnd;
+                return PdfTokenType.streamEnd;
               }
             case -25:
               break;
             case 25:
               {
-                return _TokenType.startXRef;
+                return PdfTokenType.startXRef;
               }
             case -26:
               break;
             case 26:
               {
-                return _TokenType.hexStringWeird;
+                return PdfTokenType.hexStringWeird;
               }
             case -27:
               break;
             case 27:
               {
-                return _TokenType.whiteSpace;
+                return PdfTokenType.whiteSpace;
               }
             case -28:
               break;
             case 28:
               {
                 _begin(_State.initial);
-                return _TokenType.hexStringEnd;
+                return PdfTokenType.hexStringEnd;
               }
             case -29:
               break;
             case 29:
               {
-                return _TokenType.hexDigit;
+                return PdfTokenType.hexDigit;
               }
             case -30:
               break;
             case 30:
               {
-                return _TokenType.hexStringWeirdEscape;
+                return PdfTokenType.hexStringWeirdEscape;
               }
             case -31:
               break;
@@ -593,7 +657,7 @@ class _PdfLexer {
                   --paren;
                 } else {
                   _begin(_State.initial);
-                  return _TokenType.string;
+                  return PdfTokenType.string;
                 }
                 break;
               }
@@ -629,30 +693,30 @@ class _PdfLexer {
               break;
             case 38:
               {
-                return _TokenType.objectType;
+                return PdfTokenType.objectType;
               }
             case -38:
               break;
             case 39:
               {
-                return _TokenType.unicodeString;
+                return PdfTokenType.unicodeString;
               }
             case -39:
               break;
             case 40:
               {
-                return _TokenType.hexStringWeird;
+                return PdfTokenType.hexStringWeird;
               }
             case -40:
               break;
             case 42:
               {
-                return _TokenType.unknown;
+                return PdfTokenType.unknown;
               }
             case -41:
               break;
             case 44:
-              return _TokenType.unknown;
+              return PdfTokenType.unknown;
             case -42:
               break;
             case 46:
@@ -693,7 +757,7 @@ class _PdfLexer {
                 } else {
                   if (buffer[bufferIndex - 1] == '.'.codeUnitAt(0) &&
                       buffer[bufferIndex] == '-'.codeUnitAt(0)) {
-                    return _TokenType.unknown;
+                    return PdfTokenType.unknown;
                   }
                 }
                 _error(_Error.match, true);
@@ -754,25 +818,25 @@ class _PdfLexer {
         }
         if (text[index] == '>' && text[index + 1] == '>') {
           bufferIndex = index;
-          _skip = false;
+          skip = false;
         } else if (text.length > index + 2) {
           if (text[index + 2] == '/') {
             bufferIndex = index;
-            _skip = false;
+            skip = false;
           } else if (text[index + 1] == '/') {
             bufferIndex = index;
-            _skip = false;
+            skip = false;
           } else if (text[index] == '/') {
             bufferIndex = index;
-            _skip = false;
+            skip = false;
           } else if (text[index - 1] == ')') {
             bufferIndex = index;
-            _skip = false;
+            skip = false;
           } else {
-            _skip = true;
+            skip = true;
           }
         } else {
-          _skip = true;
+          skip = true;
         }
         final int tempIndex = text.indexOf(')', bufferEnd + 1);
         if (tempIndex >= 0 && text[index - 1] == ')' && bufferEnd < index + 1) {
@@ -792,9 +856,9 @@ class _PdfLexer {
         }
         if (text[index - 1] == ')') {
           bufferIndex = index - 1;
-          _skip = false;
+          skip = false;
         } else {
-          _skip = true;
+          skip = true;
         }
       }
     }
@@ -808,15 +872,10 @@ class _PdfLexer {
   void _error(_Error code, bool fatal) {
     if (fatal) {
       if (objectName != null) {
-        throw ArgumentError.value(
-            code,
-            'Fatal Error occurred at ' +
-                position.toString() +
-                '.\n When reading object type of ' +
-                objectName!);
+        throw ArgumentError.value(code,
+            'Fatal Error occurred at $position.\n When reading object type of ${objectName!}');
       } else {
-        throw ArgumentError.value(
-            code, 'Fatal Error occurred at ' + position.toString());
+        throw ArgumentError.value(code, 'Fatal Error occurred at $position');
       }
     }
   }

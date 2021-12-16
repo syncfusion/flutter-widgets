@@ -32,6 +32,7 @@ class _DecimalPointToken extends _FormatTokenBase {
       _strFormat = chCurrent;
     } else if (strFormat[iIndex] == r'\\' &&
         strFormat[iIndex + 1] == _defaultFormat) {
+      // ignore: noop_primitive_operations
       _strFormat = strFormat[iIndex + 1].toString();
       iIndex = iIndex + 2;
     }

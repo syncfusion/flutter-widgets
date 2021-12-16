@@ -814,7 +814,7 @@ class TreeTable extends TreeTableBase {
         }
       }
 
-      insertFixup(newBranch!, _inAddMode);
+      insertFixup(newBranch, _inAddMode);
 
       if (value.parent != null && value.parent?.parent != null) {
         if (value.parent!.parent?.right == value) {
@@ -854,16 +854,16 @@ class TreeTable extends TreeTableBase {
     } else {
       // find node
       TreeTableBranchBase? branch;
-      TreeTableNodeBase? current = _root!;
+      TreeTableNodeBase? current = _root;
       int cmp = 0;
       final Comparable<dynamic>? comparer = this.comparer;
       const bool inAddMode = false;
-      Comparable<dynamic>? comparableKey = key!;
+      Comparable<dynamic>? comparableKey = key;
       while (current != null && !current.isEntry()) {
         branch = current as TreeTableBranchBase;
         if (comparer != null) {
           final TreeTableNodeBase? tableNodeBase = branch.right;
-          if (tableNodeBase != null) {
+          if (tableNodeBase != null && key != null) {
             final Object? value = tableNodeBase.getMinimum();
             cmp = key.compareTo(value);
           }
@@ -890,9 +890,9 @@ class TreeTable extends TreeTableBase {
 
       final TreeTableEntryBase leaf = current! as TreeTableEntryBase;
 
-      if (comparer != null) {
+      if (comparer != null && key != null) {
         cmp = key.compareTo(leaf.getSortKey());
-      } else if (value!.getMinimum() is Comparable) {
+      } else if (value!.getMinimum() is Comparable && comparableKey != null) {
         cmp = comparableKey.compareTo(leaf.getSortKey());
       }
 
@@ -981,7 +981,6 @@ class TreeTable extends TreeTableBase {
       }
 
       final TreeTableEntryBase leaf = current! as TreeTableEntryBase;
-      if (leaf is TreeTableEntryBase) {}
 
       final TreeTableBranchBase? newBranch = leaf.createBranch(this);
 
@@ -1047,7 +1046,7 @@ class TreeTable extends TreeTableBase {
 
     // search root
     while (value!.parent != null) {
-      value = value.parent!;
+      value = value.parent;
     }
 
     return referenceEquals(value, _root);
@@ -1075,7 +1074,7 @@ class TreeTable extends TreeTableBase {
         if (w != null && w.color == TreeTableNodeColor.red) {
           w.color = TreeTableNodeColor.black;
           x.parent?.color = TreeTableNodeColor.black;
-          leftRotate(x.parent!, inAddMode);
+          leftRotate(x.parent, inAddMode);
           if (x.parent != null) {
             w = x.parent!.right! as TreeTableBranchBase;
           }
@@ -1103,7 +1102,7 @@ class TreeTable extends TreeTableBase {
             w.color == TreeTableNodeColor.black &&
             !w.right!.isEntry() &&
             w.getRightBranch()!.color == TreeTableNodeColor.red) {
-          leftRotate(x.parent!, inAddMode);
+          leftRotate(x.parent, inAddMode);
           w.color = x.parent!.color;
           x.parent!.color = w.color;
           return;
@@ -1118,7 +1117,7 @@ class TreeTable extends TreeTableBase {
           w.parent!.color = TreeTableNodeColor.black;
           w.color = TreeTableNodeColor.red;
 
-          leftRotate(x.parent!, inAddMode);
+          leftRotate(x.parent, inAddMode);
           w.color = x.parent!.color;
           x.parent!.color = w.color;
           return;
@@ -1529,7 +1528,7 @@ class TreeTable extends TreeTableBase {
   TreeTableNodeBase _getSisterNode(
       TreeTableBranchBase leafsParent, TreeTableNodeBase node) {
     final TreeTableNodeBase? sisterNode =
-        referenceEquals(leafsParent.left!, node)
+        referenceEquals(leafsParent.left, node)
             ? leafsParent.right
             : leafsParent.left;
 

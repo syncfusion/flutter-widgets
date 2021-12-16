@@ -1,9 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../chart/common/data_label.dart';
 import '../../chart/utils/enum.dart';
 import '../../common/user_interaction/selection_behavior.dart';
@@ -56,8 +52,6 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
       double? opacity,
       Color? strokeColor,
       bool? enableTooltip,
-      @Deprecated('Use LabelIntersectAction.shift in dataLabelSettings.labelIntersectAction instead')
-          bool? enableSmartLabels,
       String? name,
       double? animationDuration,
       double? animationDelay,
@@ -106,7 +100,6 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
           selectionBehavior: selectionBehavior,
           sortingOrder: sortingOrder,
           legendIconType: legendIconType,
-          enableSmartLabels: enableSmartLabels,
           cornerStyle: cornerStyle,
           initialSelectedDataIndexes: initialSelectedDataIndexes,
         );
@@ -261,7 +254,6 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
         other.dataLabelMapper == dataLabelMapper &&
         other.dataLabelSettings == dataLabelSettings &&
         other.dataSource == dataSource &&
-        other.enableSmartLabels == enableSmartLabels &&
         other.enableTooltip == enableTooltip &&
         other.gap == gap &&
         listEquals(
@@ -303,7 +295,6 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
       dataLabelMapper,
       dataLabelSettings,
       dataSource,
-      enableSmartLabels,
       enableTooltip,
       gap,
       initialSelectedDataIndexes,

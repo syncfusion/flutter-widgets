@@ -1,9 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../chart/common/data_label.dart';
 import '../../chart/utils/enum.dart';
 import '../../common/common.dart';
@@ -59,8 +55,6 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
       double? strokeWidth,
       DataLabelSettings? dataLabelSettings,
       bool? enableTooltip,
-      @Deprecated('Use LabelIntersectAction.shift in dataLabelSettings.labelIntersectAction instead')
-          bool? enableSmartLabels,
       String? name,
       double? opacity,
       double? animationDuration,
@@ -120,7 +114,6 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
           selectionBehavior: selectionBehavior,
           legendIconType: legendIconType,
           sortingOrder: sortingOrder,
-          enableSmartLabels: enableSmartLabels,
           cornerStyle: cornerStyle,
           initialSelectedDataIndexes: initialSelectedDataIndexes,
         );
@@ -157,7 +150,6 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
         other.dataLabelSettings == dataLabelSettings &&
         other.dataSource == dataSource &&
         other.emptyPointSettings == emptyPointSettings &&
-        other.enableSmartLabels == enableSmartLabels &&
         other.enableTooltip == enableTooltip &&
         other.endAngle == endAngle &&
         other.explode == explode &&
@@ -203,7 +195,6 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
       dataLabelSettings,
       dataSource,
       emptyPointSettings,
-      enableSmartLabels,
       enableTooltip,
       endAngle,
       explode,

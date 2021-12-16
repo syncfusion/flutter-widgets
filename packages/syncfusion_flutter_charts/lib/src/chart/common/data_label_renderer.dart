@@ -1,9 +1,6 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
@@ -328,7 +325,7 @@ void _calculateDataLabelRegion(
         fillRect.center.dy - textSize.height / 2);
     point.dataLabelRegion = Rect.fromLTWH(point.labelLocation!.x,
         point.labelLocation!.y, textSize.width, textSize.height);
-    if (margin == const EdgeInsets.all(0)) {
+    if (margin == EdgeInsets.zero) {
       point.labelFillRect = fillRect;
     } else {
       final Rect rect = fillRect.middleRect;
@@ -373,7 +370,7 @@ void _calculateDataLabelRegion(
           fillRect2.center.dy - textSize2.height / 2);
       point.dataLabelRegion2 = Rect.fromLTWH(point.labelLocation2!.x,
           point.labelLocation2!.y, textSize2.width, textSize2.height);
-      if (margin == const EdgeInsets.all(0)) {
+      if (margin == EdgeInsets.zero) {
         point.labelFillRect2 = fillRect2;
       } else {
         final Rect rect2 = fillRect2.middleRect;
@@ -395,7 +392,7 @@ void _calculateDataLabelRegion(
           fillRect3.center.dy - textSize3.height / 2);
       point.dataLabelRegion3 = Rect.fromLTWH(point.labelLocation3!.x,
           point.labelLocation3!.y, textSize3.width, textSize3.height);
-      if (margin == const EdgeInsets.all(0)) {
+      if (margin == EdgeInsets.zero) {
         point.labelFillRect3 = fillRect3;
       } else {
         final Rect rect3 = fillRect3.middleRect;
@@ -413,7 +410,7 @@ void _calculateDataLabelRegion(
           fillRect4.center.dy - textSize4.height / 2);
       point.dataLabelRegion4 = Rect.fromLTWH(point.labelLocation4!.x,
           point.labelLocation4!.y, textSize4.width, textSize4.height);
-      if (margin == const EdgeInsets.all(0)) {
+      if (margin == EdgeInsets.zero) {
         point.labelFillRect4 = fillRect4;
       } else {
         final Rect rect4 = fillRect4.middleRect;
@@ -432,7 +429,7 @@ void _calculateDataLabelRegion(
             fillRect5.center.dy - textSize5.height / 2);
         point.dataLabelRegion5 = Rect.fromLTWH(point.labelLocation5!.x,
             point.labelLocation5!.y, textSize5.width, textSize5.height);
-        if (margin == const EdgeInsets.all(0)) {
+        if (margin == EdgeInsets.zero) {
           point.labelFillRect5 = fillRect5;
         } else {
           final Rect rect5 = fillRect5.middleRect;
@@ -1227,7 +1224,7 @@ void _drawDataLabelRectAndText(
                     outliersRect[outlierIndex],
                     dataLabel.borderRadius,
                     dataLabel.margin);
-                if (dataLabel.margin == const EdgeInsets.all(0)) {
+                if (dataLabel.margin == EdgeInsets.zero) {
                   point.outliersFillRect.add(outliersFillRect);
                 } else {
                   final Rect outliersRect = outliersFillRect.middleRect;
@@ -1780,7 +1777,7 @@ void calculateDataLabelPosition(
           seriesRendererDetails.series.dataLabelSettings.color;
       chart.onDataLabelRender!(dataLabelArgs);
       labelList[i] = dataLabelArgs.text;
-      index = dataLabelArgs.pointIndex!;
+      index = dataLabelArgs.viewportPointIndex!;
       CartesianPointHelper.setDataLabelTextStyle(
           point, dataLabelArgs.textStyle);
       CartesianPointHelper.setDataLabelColor(point, dataLabelArgs.color);
@@ -1846,7 +1843,7 @@ void calculateDataLabelPosition(
             fontSize: 12)
         : dataLabelStyle!;
     point.label = labelList.isNotEmpty ? labelList[0] : label;
-    if (point.label!.isNotEmpty) {
+    if (point.label != null) {
       ChartLocation? chartLocation,
           chartLocation2,
           chartLocation3,

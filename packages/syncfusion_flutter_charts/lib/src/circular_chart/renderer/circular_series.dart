@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../../chart/common/data_label.dart';
 import '../../chart/utils/enum.dart';
 import '../../common/common.dart';
@@ -60,8 +58,6 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
       double? borderWidth,
       DataLabelSettings? dataLabelSettings,
       bool? enableTooltip,
-      @Deprecated('Use LabelIntersectAction.shift in dataLabelSettings.labelIntersectAction instead')
-          bool? enableSmartLabels,
       this.name,
       double? animationDuration,
       double? animationDelay,
@@ -91,7 +87,6 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
         enableTooltip = enableTooltip ?? true,
         sortingOrder = sortingOrder ?? SortingOrder.none,
         legendIconType = legendIconType ?? LegendIconType.seriesType,
-        enableSmartLabels = enableSmartLabels ?? true,
         initialSelectedDataIndexes = initialSelectedDataIndexes ?? <int>[],
         super(name: name);
 
@@ -407,25 +402,6 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///```
   @override
   final ChartIndexedValueMapper<dynamic>? sortFieldValueMapper;
-
-  ///Data label placement without collision.
-  ///
-  ///Defaults to `true`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///           series: <PieSeries<ChartData, String>>[
-  ///                PieSeries<ChartData, String>(
-  ///                   enableSmartLabels: true,
-  ///                  )
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-  final bool enableSmartLabels;
 
   ///Shape of the legend icon.
   ///

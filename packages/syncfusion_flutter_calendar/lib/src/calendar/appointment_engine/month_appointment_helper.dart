@@ -119,10 +119,9 @@ class MonthAppointmentHelper {
         appointmentView.endIndex ~/ DateTime.daysPerWeek) {
       final int endIndex = appointmentView.endIndex;
       appointmentView.endIndex =
-          ((((appointmentView.startIndex ~/ DateTime.daysPerWeek) + 1) *
-                      DateTime.daysPerWeek) -
-                  1)
-              .toInt();
+          (((appointmentView.startIndex ~/ DateTime.daysPerWeek) + 1) *
+                  DateTime.daysPerWeek) -
+              1;
       appointmentView.isSpanned = true;
       if (!appointmentCollection.contains(appointmentView)) {
         appointmentCollection.add(appointmentView);
@@ -318,7 +317,7 @@ class MonthAppointmentHelper {
     while (
         dateTime.isBefore(endDateTime) || isSameDate(dateTime, endDateTime)) {
       if (isSameDate(dateTime, date)) {
-        return ((row * DateTime.daysPerWeek) + currentViewIndex).toInt();
+        return (row * DateTime.daysPerWeek) + currentViewIndex;
       }
 
       currentViewIndex++;

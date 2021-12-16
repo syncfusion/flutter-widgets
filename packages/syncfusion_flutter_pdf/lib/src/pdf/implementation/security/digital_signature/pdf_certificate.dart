@@ -1,4 +1,5 @@
-part of pdf;
+import 'pdf_pkcs_certificate.dart';
+import 'x509/x509_certificates.dart';
 
 /// Represents the Certificate object.
 class PdfCertificate {
@@ -8,7 +9,7 @@ class PdfCertificate {
   }
 
   //Fields
-  late _PdfPKCSCertificate _pkcsCertificate;
+  late PdfPKCSCertificate _pkcsCertificate;
   int _version = 0;
   late List<int> _serialNumber;
   String _issuerName = '';
@@ -39,34 +40,34 @@ class PdfCertificate {
   //Implementation
   void _initializeCertificate(List<int> certificateBytes, String password) {
     _distinguishedNameCollection = <String, Map<String, String>>{};
-    _pkcsCertificate = _PdfPKCSCertificate(certificateBytes, password);
+    _pkcsCertificate = PdfPKCSCertificate(certificateBytes, password);
     String certificateAlias = '';
     final List<String> keys = _pkcsCertificate.getContentTable().keys.toList();
     bool isContinue = true;
     keys.toList().forEach((String key) {
       if (isContinue &&
           _pkcsCertificate.isKey(key) &&
-          _pkcsCertificate.getKey(key)!._key!.isPrivate!) {
+          _pkcsCertificate.getKey(key)!.key!.isPrivate!) {
         certificateAlias = key;
         isContinue = false;
       }
     });
-    final _X509Certificates entry =
+    final X509Certificates entry =
         _pkcsCertificate.getCertificate(certificateAlias)!;
     _loadDetails(entry.certificate!);
   }
 
-  void _loadDetails(_X509Certificate certificate) {
+  void _loadDetails(X509Certificate certificate) {
     _issuerName =
-        _getDistinguishedAttributes(certificate._c!.issuer.toString(), 'CN');
+        _getDistinguishedAttributes(certificate.c!.issuer.toString(), 'CN');
     _subjectName =
-        _getDistinguishedAttributes(certificate._c!.subject.toString(), 'CN');
-    _validFrom = certificate._c!.startDate!.toDateTime();
-    _validTo = certificate._c!.endDate!.toDateTime();
-    _version = certificate._c!.version;
+        _getDistinguishedAttributes(certificate.c!.subject.toString(), 'CN');
+    _validFrom = certificate.c!.startDate!.toDateTime();
+    _validTo = certificate.c!.endDate!.toDateTime();
+    _version = certificate.c!.version;
     final List<int> serialNumber = <int>[]
       // ignore: prefer_spread_collections
-      ..addAll(certificate._c!.serialNumber!._value!.reversed.toList());
+      ..addAll(certificate.c!.serialNumber!.intValue!.reversed.toList());
     _serialNumber = serialNumber;
   }
 
@@ -134,5 +135,20 @@ class PdfCertificate {
         }
       }
     }
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfCertificate] helper
+class PdfCertificateHelper {
+  /// internal method
+  static PdfPKCSCertificate getPkcsCertificate(PdfCertificate certificate) {
+    return certificate._pkcsCertificate;
+  }
+
+  /// internal method
+  static void setPkcsCertificate(
+      PdfCertificate certificate, PdfPKCSCertificate pkcsCertificate) {
+    certificate._pkcsCertificate = pkcsCertificate;
   }
 }

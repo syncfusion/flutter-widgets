@@ -49,7 +49,13 @@ The Flutter Calendar widget has built-in configurable views such as day, week, w
 
 ![schedule_view](https://cdn.syncfusion.com/content/images/FTControl/Calendar/flutter-calendar-schedule-view.png)
 
+* **Resize, drag and drop** - Resize and drag-and-drop support have been added for rescheduling appointments in the event calendar.
+
+![drag_drop_resize](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calendar-resize-drag-drop.gif)
+
 * **Load more** - Load appointments on-demand whenever users switch from one view to another or when scrolling to the start or end position of the schedule view.
+
+* **Calendar details** - Returns calendar details based on the given offset passed through an argument by using the getCalendarDetailsAtOffset method.
 
 * **Special time regions** - Disable interactions and selections for specific time ranges. This is useful when you want to block user interaction during holidays or another special events and to highlight those time slots.
 
@@ -83,11 +89,7 @@ The Flutter Calendar widget has built-in configurable views such as day, week, w
 
 * **Week numbers** - Display the week numbers of the year in the month, week, and work week views of the Calendar. 
 
-![week_numbers](https://cdn.syncfusion.com/content/images/FTControl/Calendar/calendar-weeknumber.png)
-
-* **Resize, drag and drop** - Resize and drag-and-drop support have been added for rescheduling appointments in the event calendar.
-
-![drag_drop_resize](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calendar-resize-drag-drop.gif)
+![week_numbers](https://cdn.syncfusion.com/content/images/FTControl/Calendar/calendar_weeknumber.png)
 
 * **Quick view navigation** - Navigate among calendar views easily using the header date picker views button in the calendar header and clicking month cell and view headers.
 
@@ -121,7 +123,6 @@ The Flutter Calendar widget has built-in configurable views such as day, week, w
 
 ## Coming soon
 
-- Drag and drop
 - Reminder
 
 ## Get the demo application
@@ -320,4 +321,4 @@ class Meeting {
 
 Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
 
-Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls) and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.
+Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls) and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.

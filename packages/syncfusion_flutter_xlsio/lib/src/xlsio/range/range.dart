@@ -91,6 +91,7 @@ class Range {
   /// workbook.dispose();
   /// ```
   String get addressGlobal {
+    // ignore: prefer_interpolation_to_compose_strings
     final String result = worksheet.name + '!';
     final String cell0 = r'$' + _getCellNameWithSymbol(row, column);
 
@@ -98,6 +99,7 @@ class Range {
       return result + cell0;
     } else {
       final String cell1 = r'$' + _getCellNameWithSymbol(lastRow, lastColumn);
+      // ignore: prefer_interpolation_to_compose_strings
       return result + cell0 + ':' + cell1;
     }
   }
@@ -806,6 +808,7 @@ class Range {
     if (formula != null) {
       if (isSingleRange) {
         if (formula[0] != '=') {
+          // ignore: prefer_interpolation_to_compose_strings
           formula = '=' + formula;
         }
         _formula = formula;
@@ -911,6 +914,7 @@ class Range {
 
   /// Set formula error string value.
   void _setFormulaErrorStringValue(String eValue) {
+    // ignore: noop_primitive_operations
     _errorValue = eValue.split(' ').toList().removeAt(1).toString();
     _saveType = 'e';
   }
@@ -982,6 +986,7 @@ class Range {
       final int currencyIndex = inputFormat.indexOf(currencySymbol);
       if (currencyIndex != -1) {
         inputFormat =
+            // ignore: prefer_interpolation_to_compose_strings
             inputFormat.replaceAll('"' + currencySymbol + '"', currencySymbol);
       }
     }
@@ -1117,6 +1122,7 @@ class Range {
 
         case 'NOW':
           numberFormat =
+              // ignore: prefer_interpolation_to_compose_strings
               dateTime.shortDatePattern + ' ' + dateTime.shortTimePattern;
           updated = true;
           break;
@@ -1257,6 +1263,7 @@ class Range {
   /// Set built-in-style.
   void setBuiltInStyle(BuiltInStyles? value) {
     if (value != null) {
+      // ignore: noop_primitive_operations
       _styleName = value.toString().split('.').toList().removeAt(1).toString();
       final Style globalStyle = workbook.styles.add(_styleName);
       if (isSingleRange) {
@@ -1487,6 +1494,7 @@ class Range {
     if (isSingleRange) {
       _cfValue = _getColumnName(column) + row.toString();
     } else {
+      // ignore: prefer_interpolation_to_compose_strings
       _cfValue = _getColumnName(column) +
           row.toString() +
           ':' +

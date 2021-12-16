@@ -5,8 +5,6 @@ import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../maps.dart';
 import 'controller/map_controller.dart';
-import 'enum.dart';
-import 'layer/layer_base.dart';
 import 'layer/zoomable.dart';
 import 'utils.dart';
 

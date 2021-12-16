@@ -1,26 +1,18 @@
 import 'dart:async';
-import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../../common/rendering_details.dart';
-import '../../common/utils/enum.dart';
 import '../axis/axis.dart';
-import '../base/chart_base.dart';
 import '../chart_segment/chart_segment.dart';
 import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/interactive_tooltip.dart';
-import '../common/marker.dart';
 import '../common/renderer.dart';
-import '../utils/enum.dart';
 import '../utils/helper.dart';
 import 'trackball.dart';
 import 'trackball_template.dart';
@@ -174,7 +166,7 @@ class TrackballPainter extends CustomPainter {
   List<TrackballElement> stringValue = <TrackballElement>[];
 
   /// Represents the boundary rect for trackball.
-  Rect boundaryRect = const Rect.fromLTWH(0, 0, 0, 0);
+  Rect boundaryRect = Rect.zero;
 
   /// Represents the value of left padding.
   double leftPadding = 0;
@@ -658,13 +650,7 @@ class TrackballPainter extends CustomPainter {
                 null &&
             isLabel) {
           stringValue.add(TrackballElement(
-              ((chartPointInfo[index].header == null ||
-                          chartPointInfo[index].header == '')
-                      ? ''
-                      : i == 0
-                          ? '\n'
-                          : '') +
-                  '${chartPointInfo[i].seriesRendererDetails!.seriesName}\n${chartPointInfo[i].label}',
+              '${(chartPointInfo[index].header == null || chartPointInfo[index].header == '') ? '' : i == 0 ? '\n' : ''}${chartPointInfo[i].seriesRendererDetails!.seriesName}\n${chartPointInfo[i].label}',
               chartPointInfo[i].seriesRendererDetails!.renderer));
         } else if (chartPointInfo[i].seriesRendererDetails!.series.name !=
             null) {
@@ -699,10 +685,7 @@ class TrackballPainter extends CustomPainter {
                   ? pos.dx >= _minLocation!.x && pos.dx <= _maxLocation!.x
                   : true) {
                 stringValue.add(TrackballElement(
-                    str1 +
-                        chartPointInfo[i].seriesRendererDetails!.series.name! +
-                        ': ' +
-                        chartPointInfo[i].label!,
+                    '$str1${chartPointInfo[i].seriesRendererDetails!.series.name!}: ${chartPointInfo[i].label!}',
                     chartPointInfo[i].seriesRendererDetails!.renderer));
               }
             }
@@ -1305,7 +1288,7 @@ class TrackballPainter extends CustomPainter {
                 for (int k = 0; k < str1.length; k++) {
                   final double width =
                       k > 0 ? measureText(str1[k - 1], labelStyle).width : 0;
-                  str1[k] = k == 1 ? ':' + str1[k] : str1[k];
+                  str1[k] = k == 1 ? ':${str1[k]}' : str1[k];
                   labelStyle = TextStyle(
                       fontWeight: k > 0 ? FontWeight.bold : FontWeight.normal,
                       color: labelStyle.color,
@@ -1626,7 +1609,6 @@ class TrackballPainter extends CustomPainter {
       double animationFactor,
       Canvas canvas,
       int index) {
-    _seriesRendererDetails.isMarkerRenderEvent = true;
     final MarkerSettings markerSettings =
         chart.trackballBehavior.markerSettings == null
             ? _seriesRendererDetails.series.markerSettings

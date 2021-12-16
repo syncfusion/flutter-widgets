@@ -1,6 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../marker.dart';
 import '../plot_band.dart';
 import '../renderers/spark_line_renderer.dart';
@@ -569,7 +568,7 @@ class SfSparkLineChart extends StatefulWidget {
 /// Represents the state class for spark line chart widget
 class _SfSparkLineChartState extends State<SfSparkLineChart> {
   /// specifies the theme of the chart
-  late ThemeData _themeData;
+  late SfChartThemeData _chartThemeData;
 
   /// Specifies the series screen coordinate points
   late List<Offset> _coordinatePoints;
@@ -602,7 +601,7 @@ class _SfSparkLineChartState extends State<SfSparkLineChart> {
 
   @override
   void didChangeDependencies() {
-    _themeData = Theme.of(context);
+    _chartThemeData = SfChartTheme.of(context);
     super.didChangeDependencies();
   }
 
@@ -670,7 +669,7 @@ class _SfSparkLineChartState extends State<SfSparkLineChart> {
           marker: widget.marker,
           labelDisplayMode: widget.labelDisplayMode,
           labelStyle: widget.labelStyle,
-          themeData: _themeData,
+          themeData: _chartThemeData,
           sparkChartDataDetails: widget._sparkChartDataDetails,
           dataPoints: _dataPoints,
           coordinatePoints: _coordinatePoints),

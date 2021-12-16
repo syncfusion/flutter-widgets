@@ -1,10 +1,8 @@
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/src/chart/axis/axis.dart';
+import 'package:syncfusion_flutter_charts/src/circular_chart/base/circular_state_properties.dart';
 import 'package:syncfusion_flutter_charts/src/common/rendering_details.dart';
 import 'package:syncfusion_flutter_charts/src/pyramid_chart/utils/common.dart';
 import 'package:syncfusion_flutter_charts/src/pyramid_chart/utils/helper.dart';
@@ -196,7 +194,7 @@ Widget? getElements(StateProperties stateProperties, Widget chartWidget,
         : (chartWidth > chartLegend.legendSize.width);
   }
   if (!chartLegend.shouldRenderLegend) {
-    element = Container(
+    element = SizedBox(
         child: chartWidget,
         width: constraints.maxWidth,
         height: constraints.maxHeight);
@@ -285,7 +283,7 @@ Widget? getElements(StateProperties stateProperties, Widget chartWidget,
           spacing: chartLegend.legend!.padding,
           itemSpacing: 0,
           itemRunSpacing: 0,
-          padding: const EdgeInsets.all(0),
+          padding: EdgeInsets.zero,
           margin: getEffectiveLegendMargin(chartLegend, legendPosition),
           toggledItemColor:
               stateProperties.renderingDetails.chartTheme.brightness ==
@@ -478,6 +476,7 @@ Widget? getLegendTitleWidget(Legend legend, RenderingDetails renderingDetails) {
             : titleAlign == ChartAlignment.near
                 ? Alignment.centerLeft
                 : Alignment.centerRight,
+        // ignore: avoid_unnecessary_containers
         child: Container(
           child: Text(legend.title.text!,
               overflow: TextOverflow.ellipsis,
@@ -531,7 +530,7 @@ EdgeInsetsGeometry getEffectiveLegendMargin(
     margin = EdgeInsets.fromLTRB(needPadding ? legendMargin / 2 : 0, 0, 0,
         needPadding ? 3 * legendMargin : 0);
   } else {
-    margin = const EdgeInsets.all(0);
+    margin = EdgeInsets.zero;
   }
 
   return margin;
@@ -626,7 +625,7 @@ EdgeInsetsGeometry getEffectiveLegendPadding(ChartLegend chartLegend,
       }
     }
   } else {
-    padding = const EdgeInsets.all(0);
+    padding = EdgeInsets.zero;
   }
   return padding;
 }
@@ -698,6 +697,9 @@ void circularAndTriangularToggle(int index, dynamic stateProperties) {
       legendToggleState(chartLegend.legendCollections![index], stateProperties);
     }
     stateProperties.renderingDetails.isLegendToggled = true;
+    if (stateProperties is CircularStateProperties) {
+      stateProperties.isToggled = true;
+    }
     stateProperties.redraw();
   }
 }
@@ -908,7 +910,7 @@ String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
   if (size > labelsExtent) {
     final int textLength = text.length;
     for (int i = textLength - 1; i >= 0; --i) {
-      label = text.substring(0, i) + '...';
+      label = '${text.substring(0, i)}...';
       size = axisRenderer != null
           ? measureText(label, labelStyle, axisRendererDetails!.labelRotation)
               .width
@@ -924,10 +926,8 @@ String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
 /// To get equivalent value for the percentage
 num getValueByPercentage(num value1, num value2) {
   return value1.isNegative
-      ? (num.tryParse('-' +
-          (num.tryParse(value1.toString().replaceAll(RegExp('-'), ''))! %
-                  value2)
-              .toString()))!
+      ? (num.tryParse(
+          '-${num.tryParse(value1.toString().replaceAll(RegExp('-'), ''))! % value2}'))!
       : (value1 % value2);
 }
 
@@ -1071,9 +1071,7 @@ void calculatePointSeriesIndex(
         }
       });
 
-      if (pointIndex != null &&
-          !seriesRendererDetails
-              .stateProperties.renderingDetails.isLegendToggled) {
+      if (pointIndex != null && seriesRendererDetails.visible! == true) {
         if ((seriesRendererDetails.series.onPointTap != null ||
                 seriesRendererDetails.series.onPointDoubleTap != null ||
                 seriesRendererDetails.series.onPointLongPress != null) &&
@@ -1093,15 +1091,6 @@ void calculatePointSeriesIndex(
                       .series.onPointDoubleTap!(pointInteractionDetails)
                   : seriesRendererDetails
                       .series.onPointLongPress!(pointInteractionDetails);
-        } else {
-          PointTapArgs pointTapArgs;
-          pointTapArgs = PointTapArgs(
-              i,
-              pointIndex!,
-              seriesRendererDetails.dataPoints,
-              seriesRendererDetails
-                  .visibleDataPoints![pointIndex!].overallDataPointIndex);
-          chart.onPointTapped!(pointTapArgs);
         }
       }
     }
@@ -1125,15 +1114,6 @@ void calculatePointSeriesIndex(
                   .onPointDoubleTap!(pointInteractionDetails)
               : chart.series[seriesIndex]
                   .onPointLongPress!(pointInteractionDetails);
-    } else {
-      PointTapArgs pointTapArgs;
-      pointTapArgs = PointTapArgs(
-          pointRegion?.seriesIndex,
-          pointRegion?.pointIndex,
-          stateProperties
-              .chartSeries.visibleSeriesRenderers[seriesIndex].dataPoints,
-          pointRegion?.pointIndex);
-      chart.onPointTapped!(pointTapArgs);
     }
   } else {
     int? index;
@@ -1158,11 +1138,6 @@ void calculatePointSeriesIndex(
             : activationMode == ActivationMode.doubleTap
                 ? chart.series.onPointDoubleTap!(pointInteractionDetails)
                 : chart.series.onPointLongPress!(pointInteractionDetails);
-      } else {
-        PointTapArgs pointTapArgs;
-        pointTapArgs =
-            PointTapArgs(seriesIndex, index, stateProperties.dataPoints, index);
-        chart.onPointTapped!(pointTapArgs);
       }
     }
   }
@@ -1214,4 +1189,12 @@ PointInfo<dynamic> pyramidFunnelPixelToPoint(
       .chartSeries.visibleSeriesRenderers[seriesIndex].renderPoints[pointIndex];
 
   return chartPoint;
+}
+
+/// Add the ellipse with trimmed text
+String addEllipse(String text, int maxLength, String ellipse) {
+  maxLength--;
+  final int length = maxLength - ellipse.length;
+  final String trimText = text.substring(0, length);
+  return trimText + ellipse;
 }

@@ -1,8 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import '../chart_series/bar_series.dart';
 import '../chart_series/series.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';

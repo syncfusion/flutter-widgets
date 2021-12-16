@@ -5,8 +5,6 @@ import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_re
 import '../../common/rendering_details.dart';
 import '../../common/state_properties.dart';
 import '../../common/user_interaction/tooltip.dart';
-import '../../pyramid_chart/utils/common.dart';
-import '../base/funnel_base.dart';
 import '../base/funnel_plot_area.dart';
 import '../base/series_base.dart';
 import '../renderer/data_label_renderer.dart';
@@ -46,6 +44,12 @@ class FunnelStateProperties extends StateProperties {
 
   /// Specifies the render points
   late List<PointInfo<dynamic>> renderPoints;
+
+  /// Specifies the data label rects.
+  late List<Rect> labelRects = <Rect>[];
+
+  /// Specifies the outside render labels
+  late List<Rect> outsideRects = <Rect>[];
 
   /// Specifies the funnel series
   late FunnelChartBase chartSeries;

@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../../circular_chart/renderer/common.dart';
 import '../chart_segment/chart_segment.dart';
 

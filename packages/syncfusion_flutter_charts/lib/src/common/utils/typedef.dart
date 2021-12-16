@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../chart/chart_series/series.dart';
 import '../../chart/chart_series/xy_data_series.dart';
@@ -19,16 +18,14 @@ typedef ChartTooltipCallback = void Function(TooltipArgs tooltipArgs);
 typedef ChartActualRangeChangedCallback = void Function(
     ActualRangeChangedArgs rangeChangedArgs);
 
-@Deprecated('Use ChartLabelFormatterCallback instead.')
-
-/// Returns the AxisLabelRenderArgs.
-typedef ChartAxisLabelRenderCallback = void Function(
-    AxisLabelRenderArgs axisLabelRenderArgs);
-
 ///Signature for the [axisLabelFormatter] callback that returns [ChartAxisLabel] class value to
 /// customize the axis label text and style.
 typedef ChartLabelFormatterCallback = ChartAxisLabel Function(
     AxisLabelRenderDetails axisLabelRenderArgs);
+
+/// Signature for the `multiLevelLabelFormatter` callback that returns `ChartAxisLabel`
+typedef MultiLevelLabelFormatterCallback = ChartAxisLabel Function(
+    MultiLevelLabelRenderDetails multiLevelLabelRenderArgs);
 
 /// Returns the DataLabelRenderArgs.
 typedef ChartDataLabelRenderCallback = void Function(
@@ -51,11 +48,6 @@ typedef ChartCrosshairCallback = void Function(
 
 /// Returns the ZoomPanArgs.
 typedef ChartZoomingCallback = void Function(ZoomPanArgs zoomingArgs);
-
-@Deprecated('Use ChartPointInteractionCallback instead.')
-
-/// Returns the  PointTapArgs.
-typedef ChartPointTapCallback = void Function(PointTapArgs pointTapArgs);
 
 /// Returns the  ChartPointDetails.
 typedef ChartPointInteractionCallback = void Function(
@@ -161,9 +153,6 @@ typedef CircularTooltipCallback = void Function(TooltipArgs tooltipArgs);
 typedef CircularDatalabelRenderCallback = void Function(
     DataLabelRenderArgs dataLabelArgs);
 
-/// Returns the PointTapArgs.
-typedef CircularPointTapCallback = void Function(PointTapArgs pointTapArgs);
-
 /// Returns the SelectionArgs.
 typedef CircularSelectionCallback = void Function(SelectionArgs selectionArgs);
 
@@ -195,9 +184,6 @@ typedef FunnelDataLabelRenderCallback = void Function(
 /// Returns the SelectionArgs.
 typedef FunnelSelectionCallback = void Function(SelectionArgs selectionArgs);
 
-///Returns tha PointTapArgs.
-typedef FunnelPointTapCallback = void Function(PointTapArgs pointTapArgs);
-
 /// Returns the Offset
 typedef FunnelTouchInteractionCallback = void Function(
     ChartTouchInteractionArgs tapArgs);
@@ -221,9 +207,6 @@ typedef PyramidDataLabelRenderCallback = void Function(
 
 /// Returns the SelectionArgs.
 typedef PyramidSelectionCallback = void Function(SelectionArgs selectionArgs);
-
-///Returns tha PointTapArgs.
-typedef PyramidPointTapCallback = void Function(PointTapArgs pointTapArgs);
 
 /// Returns the Offset
 typedef PyramidTouchInteractionCallback = void Function(

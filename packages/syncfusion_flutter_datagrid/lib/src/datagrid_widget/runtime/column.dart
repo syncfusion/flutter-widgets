@@ -158,6 +158,7 @@ class GridColumn {
 @Deprecated('Use GridColumn instead.')
 class GridTextColumn extends GridColumn {
   /// Creates a String column using [columnName] and [label].
+  @Deprecated('Use GridColumn instead.')
   GridTextColumn({
     required String columnName,
     required Widget label,
@@ -288,7 +289,6 @@ class ColumnSizer {
     _isColumnSizerLoadedInitially = false;
   }
 
-  /// ToDo
   DataGridStateDetails? _dataGridStateDetails;
 
   GridColumn? _autoFillColumn;
@@ -309,6 +309,7 @@ class ColumnSizer {
   void _refresh(double availableWidth) {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
+
     final bool hasAnySizerColumn = dataGridConfiguration.columns.any(
         (GridColumn column) =>
             (column.columnWidthMode != ColumnWidthMode.none) ||
@@ -420,12 +421,16 @@ class ColumnSizer {
             column.width.isNaN)
         .toList();
 
-    final List<GridColumn> lastColumnFill = dataGridConfiguration.columns
-        .skipWhile((GridColumn column) => calculatedColumns.contains(column))
-        .where((GridColumn col) =>
-            col.columnWidthMode == ColumnWidthMode.lastColumnFill &&
-            !_isLastFillColum(col))
-        .toList();
+    final List<GridColumn> lastColumnFill =
+        dataGridConfiguration.shrinkWrapColumns
+            ? <GridColumn>[]
+            : dataGridConfiguration.columns
+                .skipWhile(
+                    (GridColumn column) => calculatedColumns.contains(column))
+                .where((GridColumn col) =>
+                    col.columnWidthMode == ColumnWidthMode.lastColumnFill &&
+                    !_isLastFillColum(col))
+                .toList();
 
     autoColumns = (autoColumns + lastColumnFill).toSet().toList();
 
@@ -503,6 +508,9 @@ class ColumnSizer {
           break;
         case ColumnWidthMode.auto:
         case ColumnWidthMode.lastColumnFill:
+          if (dataGridConfiguration.shrinkWrapColumns) {
+            break;
+          }
           if (column._autoWidth.isNaN) {
             final double columnWidth = _getWidthBasedOnColumn(
                 dataGridConfiguration, column, ColumnWidthMode.auto);
@@ -537,6 +545,7 @@ class ColumnSizer {
     final double remainingColumnWidths = viewPortWidth - totalColumnSize;
 
     if (remainingColumnWidths > 0 &&
+        !dataGridConfiguration.shrinkWrapColumns &&
         (totalColumnSize != 0 ||
             (totalColumnSize == 0 && remainingColumns.length == 1) ||
             (dataGridConfiguration.columns.any((GridColumn col) =>
@@ -973,6 +982,9 @@ class ColumnSizer {
         rowIndex <= dataGridConfiguration.stackedHeaderRows.length - 1) {
       return dataGridConfiguration.headerRowHeight;
     }
+    if (grid_helper.isFooterWidgetRow(rowIndex, dataGridConfiguration)) {
+      return dataGridConfiguration.footerHeight;
+    }
 
     if (grid_helper.isTableSummaryIndex(dataGridConfiguration, rowIndex)) {
       return dataGridConfiguration.rowHeight;
@@ -1040,32 +1052,20 @@ class ColumnSizer {
 
   TextStyle _getDefaultTextStyle(
       DataGridConfiguration dataGridConfiguration, bool isHeader) {
-    final bool isLight =
-        dataGridConfiguration.dataGridThemeData!.brightness == Brightness.light;
     if (isHeader) {
-      return isLight
-          ? const TextStyle(
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
-              color: Colors.black87)
-          : const TextStyle(
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
-              color: Color.fromRGBO(255, 255, 255, 1));
+      return TextStyle(
+          fontFamily: 'Roboto',
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          color:
+              dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.87));
     } else {
-      return isLight
-          ? const TextStyle(
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
-              color: Colors.black87)
-          : const TextStyle(
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
-              color: Color.fromRGBO(255, 255, 255, 1));
+      return TextStyle(
+          fontFamily: 'Roboto',
+          fontWeight: FontWeight.w400,
+          fontSize: 14,
+          color:
+              dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.87));
     }
   }
 
@@ -1073,7 +1073,7 @@ class ColumnSizer {
       {required int rowIndex,
       required DataGridConfiguration dataGridConfiguration}) {
     final double strokeWidth =
-        dataGridConfiguration.dataGridThemeData!.gridLineStrokeWidth;
+        dataGridConfiguration.dataGridThemeHelper!.gridLineStrokeWidth;
 
     final GridLinesVisibility gridLinesVisibility =
         rowIndex <= grid_helper.getHeaderIndex(dataGridConfiguration)
@@ -1129,33 +1129,33 @@ class ColumnSizer {
   }
 }
 
-/// ToDo
+/// Helps to call `initialRefresh` method in the `columnSizer`.
 void initialRefresh(ColumnSizer columnSizer, double availableWidth) {
   columnSizer._initialRefresh(availableWidth);
 }
 
-/// ToDo
+/// Calls the `refresh` method to refresh all the column's width.
 void refreshColumnSizer(ColumnSizer columnSizer, double availableWidth) {
   columnSizer._refresh(availableWidth);
 }
 
-/// ToDo
+/// Resets the auto fit calculation column widths.
 void resetAutoCalculation(ColumnSizer columnSizer) {
   columnSizer._resetAutoCalculation();
 }
 
-/// ToDo
+/// Updates the column sizer's state whether its loaded or not initially.
 void updateColumnSizerLoadedInitiallyFlag(
     ColumnSizer columnSizer, bool isLoaded) {
   columnSizer._isColumnSizerLoadedInitially = isLoaded;
 }
 
-/// ToDo
+/// Returns the width of a sorting icon.
 double getSortIconWidth(ColumnSizer columnSizer, GridColumn column) {
   return columnSizer._getSortIconWidth(column);
 }
 
-/// ToDo
+/// Returns the auto fit row height of the given row based on index.
 double getAutoFitRowHeight(ColumnSizer columnSizer, int rowIndex,
     {bool canIncludeHiddenColumns = false,
     List<String> excludedColumns = const <String>[]}) {
@@ -1164,7 +1164,7 @@ double getAutoFitRowHeight(ColumnSizer columnSizer, int rowIndex,
       excludedColumns: excludedColumns);
 }
 
-/// ToDo
+/// Sets `dataGridConfiguration` to the [ColumnSizer].
 void setStateDetailsInColumnSizer(
     ColumnSizer columnSizer, DataGridStateDetails dataGridCellDetails) {
   columnSizer._dataGridStateDetails = dataGridCellDetails;
@@ -1177,10 +1177,10 @@ bool isColumnSizerLoadedInitially(ColumnSizer columnSizer) {
 
 /// Process column resizing operation in [SfDataGrid].
 class ColumnResizeController {
-  /// ToDo
+  /// Creates the [ColumnResizeController] for the [SfDataGrid].
   ColumnResizeController({required this.dataGridStateDetails});
 
-  /// ToDo
+  /// Holds the [DataGridStateDetails].
   final DataGridStateDetails dataGridStateDetails;
 
   /// Holds the buffer value for enable column resizing based on the
@@ -1197,14 +1197,14 @@ class ColumnResizeController {
   /// Determines whether the resizing indicator is enable or not.
   bool isResizeIndicatorVisible = false;
 
-  /// To set the resizing column's right border position to the x position of
+  /// Sets the resizing column's right border position to the x position of
   /// the resizing indicator.
   double indicatorPosition = 0.0;
 
-  /// To maintain the resizing cell from tapped position.
+  /// Maintains the resizing cell from tapped position.
   DataCellBase? resizingDataCell;
 
-  /// To hold the current resizing line information.
+  /// Holds the current resizing line information.
   VisibleLineInfo? _resizingLine;
 
   /// Maintain the temporary value to update the width of the column.
@@ -1451,7 +1451,7 @@ class ColumnResizeController {
     // To remove the half of stroke width to show the indicator to the
     // center of grid line.
     indicatorLeft -= dataGridConfiguration
-            .dataGridThemeData!.columnResizeIndicatorStrokeWidth /
+            .dataGridThemeHelper!.columnResizeIndicatorStrokeWidth /
         2;
 
     return indicatorLeft;
@@ -1676,7 +1676,7 @@ class ColumnResizeController {
     _ensureCursorVisibility(event.localPosition, dataRow);
   }
 
-  /// To activate the column resizing in mobile platform by long press.
+  /// Activates the column resizing in mobile platform by long press.
   void onLongPressStart(LongPressStartDetails details, DataRowBase dataRow) {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
     if (dataGridConfiguration.allowColumnsResizing &&

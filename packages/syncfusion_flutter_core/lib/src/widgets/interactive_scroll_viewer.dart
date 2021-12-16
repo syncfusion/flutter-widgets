@@ -141,6 +141,7 @@ class InteractiveScrollViewer extends StatefulWidget {
   ///
   /// Default to null
   ///
+  // ignore: library_private_types_in_public_api
   final _DoubleTapZoomInvokedCallback? onDoubleTapZoomInvoked;
 
   @override

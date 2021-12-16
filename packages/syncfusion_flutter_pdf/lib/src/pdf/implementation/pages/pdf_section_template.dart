@@ -1,4 +1,4 @@
-part of pdf;
+import '../pdf_document/pdf_document_template.dart';
 
 /// Represents a page template for all the pages in the section.
 /// ```dart

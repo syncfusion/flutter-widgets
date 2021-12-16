@@ -50,16 +50,13 @@ class ChartLegend {
   late int columnCount;
 
   /// Specifies the legend size value
-  Size legendSize = const Size(0, 0);
+  Size legendSize = Size.zero;
 
   /// Specifies the value of chart size
-  Size chartSize = const Size(0, 0);
+  Size chartSize = Size.zero;
 
   /// Specifies whether to render the legend
   bool shouldRenderLegend = false;
-
-  /// Specifies the legend repaint notifier
-  late ValueNotifier<int> legendRepaintNotifier;
 
   /// Specifies whether the legend is scrollable
   late bool isNeedScrollable;
@@ -325,43 +322,58 @@ class ChartLegend {
                   ? trendline!.legendIconType
                   : series.legendIconType));
       legendCollections!.add(legendRenderContext);
+      final Shader? cartesianShader =
+          _getCartesianSeriesGradientShader(legendRenderContext, chart.legend);
       final LegendItem legendItem = LegendItem(
           text: legendRenderContext.text,
-          color: (legendRenderContext.iconColor ??
-                  palette[legendRenderContext.seriesIndex % palette.length])
-              .withOpacity(legend!.opacity),
-          shader: _getCartesianSeriesGradientShader(
-              legendRenderContext, chart.legend),
+          color: cartesianShader == null
+              ? (legendRenderContext.iconColor ?? palette[legendRenderContext.seriesIndex % palette.length])
+                  .withOpacity(legend!.opacity)
+              : const Color.fromRGBO(211, 211, 211, 1),
+          shader: cartesianShader,
           imageProvider: legendRenderContext.iconType == LegendIconType.image &&
                   chart.legend.image != null
               ? chart.legend.image
-              : null,
+              : (seriesRendererDetails.seriesType == 'scatter' &&
+                      seriesRendererDetails.series.markerSettings.shape ==
+                          DataMarkerType.image)
+                  ? seriesRendererDetails.series.markerSettings.image
+                  : null,
           iconType: legendRenderContext.iconType == LegendIconType.seriesType
               ? _getEffectiveLegendIconType(
                   legendRenderContext.iconType,
                   legendRenderContext,
                   legendRenderContext.seriesRenderer.seriesType)
               : _getEffectiveLegendIconType(legendRenderContext.iconType),
-          iconStrokeWidth: legendRenderContext.iconType ==
-                  LegendIconType.seriesType
-              ? (legendRenderContext.seriesRenderer.seriesType == 'line' ||
-                      legendRenderContext.seriesRenderer.seriesType ==
-                          'fastline' ||
-                      legendRenderContext.seriesRenderer.seriesType
-                              .contains('stackedline') ==
-                          true)
-                  ? (chart.legend.iconBorderWidth > 0
-                      ? chart.legend.iconBorderWidth
-                      : 3)
-                  : ((legendRenderContext.seriesRenderer.seriesType == 'candle' ||
+          iconStrokeWidth:
+              legendRenderContext.iconType == LegendIconType.seriesType
+                  ? (legendRenderContext.seriesRenderer.seriesType == 'line' ||
                           legendRenderContext.seriesRenderer.seriesType ==
-                              'boxandWhisker' ||
-                          legendRenderContext.seriesRenderer.seriesType.contains('hilo') == true)
+                              'fastline' ||
+                          legendRenderContext.seriesRenderer.seriesType.contains('stackedline') ==
+                              true)
+                      ? (chart.legend.iconBorderWidth > 0
+                          ? chart.legend.iconBorderWidth
+                          : 3)
+                      : ((legendRenderContext.seriesRenderer.seriesType == 'candle' ||
+                              legendRenderContext.seriesRenderer.seriesType ==
+                                  'boxandWhisker' ||
+                              legendRenderContext.seriesRenderer.seriesType.contains('hilo') ==
+                                  true)
+                          ? (chart.legend.iconBorderWidth > 0
+                              ? chart.legend.iconBorderWidth
+                              : 2)
+                          : (legendRenderContext.seriesRenderer.seriesType == 'spline' ||
+                                  legendRenderContext.seriesRenderer.seriesType ==
+                                      'stepline')
+                              ? (chart.legend.iconBorderWidth > 0
+                                  ? chart.legend.iconBorderWidth
+                                  : 1)
+                              : null)
+                  : ((legendRenderContext.iconType == LegendIconType.horizontalLine ||
+                          legendRenderContext.iconType == LegendIconType.verticalLine)
                       ? (chart.legend.iconBorderWidth > 0 ? chart.legend.iconBorderWidth : 2)
-                      : (legendRenderContext.seriesRenderer.seriesType == 'spline' || legendRenderContext.seriesRenderer.seriesType == 'stepline')
-                          ? (chart.legend.iconBorderWidth > 0 ? chart.legend.iconBorderWidth : 1)
-                          : null)
-              : ((legendRenderContext.iconType == LegendIconType.horizontalLine || legendRenderContext.iconType == LegendIconType.verticalLine) ? (chart.legend.iconBorderWidth > 0 ? chart.legend.iconBorderWidth : 2) : null),
+                      : null),
           overlayMarkerType: _getOverlayMarkerType(legendRenderContext));
       legendItems.add(legendItem);
       if (seriesRendererDetails.visible! == false &&
@@ -424,6 +436,7 @@ class ChartLegend {
           if (seriesRendererDetails.isIndicator == false) {
             _calculateLegends(chart, i, seriesRendererDetails);
           }
+          // ignore: unnecessary_type_check
           if (seriesRendererDetails.renderer is CartesianSeriesRenderer) {
             final SeriesRendererDetails xYseriesRendererDetails =
                 seriesRendererDetails;
@@ -493,16 +506,20 @@ class ChartLegend {
               pointEndAngle = pointStartAngle + degree;
             }
 
+            final Shader? circularShader =
+                _getCircularSeriesShader(legendRenderContext, chart.legend);
             final LegendItem legendItem = LegendItem(
                 text: legendRenderContext.text,
-                color: (legendRenderContext.iconColor)!
-                    .withOpacity(legend!.opacity),
-                shader:
-                    _getCircularSeriesShader(legendRenderContext, chart.legend),
-                imageProvider: legendRenderContext.iconType == LegendIconType.image &&
-                        chart.legend.image != null
-                    ? chart.legend.image
-                    : null,
+                shader: circularShader,
+                color: circularShader == null
+                    ? (legendRenderContext.iconColor)!
+                        .withOpacity(legend!.opacity)
+                    : const Color.fromRGBO(211, 211, 211, 1),
+                imageProvider:
+                    legendRenderContext.iconType == LegendIconType.image &&
+                            chart.legend.image != null
+                        ? chart.legend.image
+                        : null,
                 iconType: legendRenderContext.iconType == LegendIconType.seriesType
                     ? _getEffectiveLegendIconType(
                         legendRenderContext.iconType,
@@ -512,8 +529,7 @@ class ChartLegend {
                         legendRenderContext.iconType, legendRenderContext),
                 iconStrokeWidth: ((legendRenderContext.iconType ==
                                 LegendIconType.seriesType &&
-                            (legendRenderContext.seriesRenderer.seriesType ==
-                                    'radialbar' ||
+                            (legendRenderContext.seriesRenderer.seriesType == 'radialbar' ||
                                 legendRenderContext.seriesRenderer.seriesType ==
                                     'doughnut')) ||
                         legendRenderContext.iconType == LegendIconType.horizontalLine ||
@@ -568,7 +584,7 @@ class ChartLegend {
           (technicalIndicatorsRenderer.indicatorType +
               (_map[technicalIndicatorsRenderer.indicatorType] == 1
                   ? ''
-                  : ' ' + count.toString()));
+                  : ' $count'));
       if (indicator.isVisible && indicator.isVisibleInLegend) {
         if (chart.onLegendItemRender != null) {
           legendEventArgs = LegendRenderArgs(i);

@@ -1,20 +1,15 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../../charts.dart';
 import '../../common/user_interaction/selection_behavior.dart';
 import '../axis/axis.dart';
-import '../base/chart_base.dart';
-import '../chart_segment/candle_segment.dart';
 import '../chart_segment/chart_segment.dart';
-import '../chart_series/candle_series.dart';
 import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
+import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
@@ -105,31 +100,43 @@ class CandleSeriesRenderer extends XyDataSeriesRenderer {
     _candleSegment = _candelSeriesRenderer._candleSegment;
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(_candleSegment);
-
     if (_currentSeriesDetails.candleSeries.enableSolidCandles! == true) {
       segmentProperties.isSolid = true;
-      segmentProperties.color = segmentProperties.isBull == true
-          ? _currentSeriesDetails.candleSeries.bullColor
-          : _currentSeriesDetails.candleSeries.bearColor;
+      segmentProperties.color =
+          _getCandleColor(_candleSegment, segmentProperties);
     } else {
       segmentProperties.isSolid = segmentProperties.isBull == false;
-      final SeriesRendererDetails candleSeriesDetails =
-          SeriesHelper.getSeriesRendererDetails(
-              segmentProperties.seriesRenderer);
-      _candleSegment.currentSegmentIndex! - 1 >= 0 &&
-              (candleSeriesDetails
-                          .dataPoints[_candleSegment.currentSegmentIndex! - 1]
-                          .close >
-                      candleSeriesDetails
-                          .dataPoints[_candleSegment.currentSegmentIndex!]
-                          .close) ==
-                  true
-          ? segmentProperties.color =
-              _currentSeriesDetails.candleSeries.bearColor
-          : segmentProperties.color =
-              _currentSeriesDetails.candleSeries.bullColor;
+      segmentProperties.color =
+          _getCandleColor(_candleSegment, segmentProperties);
     }
     segmentProperties.strokeWidth = segmentProperties.series.borderWidth;
+  }
+
+  Color? _getCandleColor(
+      CandleSegment candleSegment, SegmentProperties segmentProperties) {
+    final SeriesRendererDetails candleSeriesDetails =
+        SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer);
+    if (_currentSeriesDetails.candleSeries.enableSolidCandles! &&
+        segmentProperties.isSolid) {
+      return (candleSeriesDetails
+                      .dataPoints[_candleSegment.currentSegmentIndex!].open <
+                  candleSeriesDetails
+                      .dataPoints[_candleSegment.currentSegmentIndex!].close) ==
+              true
+          ? _currentSeriesDetails.candleSeries.bullColor
+          : _currentSeriesDetails.candleSeries.bearColor;
+    }
+    final Color? color = _candleSegment.currentSegmentIndex! - 1 >= 0 &&
+            (candleSeriesDetails
+                        .dataPoints[_candleSegment.currentSegmentIndex! - 1]
+                        .close >
+                    candleSeriesDetails
+                        .dataPoints[_candleSegment.currentSegmentIndex!]
+                        .close) ==
+                true
+        ? _currentSeriesDetails.candleSeries.bearColor
+        : _currentSeriesDetails.candleSeries.bullColor;
+    return color;
   }
 
   /// To draw candle series segments
@@ -201,6 +208,9 @@ class CandlePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer);
+
+    // Disposing the old chart segments.
+    disposeOldSegments(chart, seriesRendererDetails);
     final ChartAxisRendererDetails xAxisDetails =
         seriesRendererDetails.xAxisDetails!;
     final ChartAxisRendererDetails yAxisDetails =

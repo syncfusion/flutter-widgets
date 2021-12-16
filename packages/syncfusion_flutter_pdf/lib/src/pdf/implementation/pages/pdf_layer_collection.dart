@@ -1,30 +1,33 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../exporting/pdf_text_extractor/parser/content_parser.dart';
+import '../general/pdf_collection.dart';
+import '../graphics/pdf_resources.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../pdf_document/pdf_document.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_boolean.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_stream.dart';
+import '../primitives/pdf_string.dart';
+import 'pdf_layer.dart';
+import 'pdf_page.dart';
 
 /// The class provides methods and properties to handle the collections of [PdfLayer]
 class PdfLayerCollection extends PdfObjectCollection {
   // Contructor
   PdfLayerCollection._(PdfDocument document) {
-    _document = document;
-    _sublayer = false;
-    if (document._isLoadedDocument) {
-      _getDocumentLayer(document);
-    }
+    _helper = PdfLayerCollectionHelper(this, document);
   }
 
   PdfLayerCollection._withLayer(PdfDocument? document, PdfLayer? layer) {
-    _document = document;
-    _parent = layer;
-    _sublayer = true;
+    _helper = PdfLayerCollectionHelper._(this, document, layer);
   }
 
   // Fields
-  PdfDocument? _document;
-  bool? _sublayer;
-  PdfLayer? _parent;
-  final _PdfDictionary _optionalContent = _PdfDictionary();
-  final Map<_PdfReferenceHolder, PdfLayer> _layerDictionary =
-      <_PdfReferenceHolder, PdfLayer>{};
-  int _bdcCount = 0;
+  late PdfLayerCollectionHelper _helper;
 
   //Properties
   /// Gets [PdfLayer] by its index from [PdfLayerCollection].
@@ -32,40 +35,104 @@ class PdfLayerCollection extends PdfObjectCollection {
     if (index < 0 || index >= count) {
       throw RangeError('index');
     }
-    return _list[index] as PdfLayer;
+    return _helper.list[index] as PdfLayer;
   }
 
   // Implementation
   /// Creates a new [PdfLayer] with name and adds it to the end of the collection.
   PdfLayer add({String? name, bool? visible}) {
-    final PdfLayer layer = PdfLayer._();
-    if (name != null) {
-      layer.name = name;
-    }
-    layer._document = _document;
-    if (visible != null) {
-      layer.visible = visible;
-    }
-    layer._layerId = 'OCG_' + _PdfResources._globallyUniqueIdentifier;
-    layer._layer = layer;
-    _add(layer);
-    return layer;
+    return _helper.add(name, visible);
   }
 
   /// Removes layer from the collection by using layer or layer name and may also remove graphical content, if isRemoveGraphicalContent is true.
   void remove(
       {PdfLayer? layer, String? name, bool isRemoveGraphicalContent = false}) {
+    _helper.remove(layer, name, isRemoveGraphicalContent);
+  }
+
+  /// Removes layer by its index from collections and may also remove graphical content if isRemoveGraphicalContent is true.
+  void removeAt(int index, [bool isRemoveGraphicalContent = false]) {
+    _helper.removeAt(index, isRemoveGraphicalContent);
+  }
+
+  /// Clears layers from the [PdfLayerCollection].
+  void clear() {
+    _helper.clear();
+  }
+}
+
+/// [PdfLayerCollection] helper
+class PdfLayerCollectionHelper extends PdfObjectCollectionHelper {
+  /// internal constructor
+  PdfLayerCollectionHelper(this.layerCollection, PdfDocument document)
+      : super(layerCollection) {
+    _document = document;
+    _sublayer = false;
+    if (PdfDocumentHelper.getHelper(document).isLoadedDocument) {
+      _getDocumentLayer(document);
+    }
+  }
+
+  /// internal constructor
+  PdfLayerCollectionHelper._(
+      this.layerCollection, PdfDocument? document, PdfLayer? layer)
+      : super(layerCollection) {
+    _document = document;
+    _parent = layer;
+    _sublayer = true;
+  }
+
+  /// internal field
+  late PdfLayerCollection layerCollection;
+
+  PdfDocument? _document;
+  bool? _sublayer;
+  PdfLayer? _parent;
+  final PdfDictionary _optionalContent = PdfDictionary();
+  final Map<PdfReferenceHolder, PdfLayer> _layerDictionary =
+      <PdfReferenceHolder, PdfLayer>{};
+  int _bdcCount = 0;
+
+  /// internal method
+  static PdfLayerCollection load(PdfDocument document) {
+    return PdfLayerCollection._(document);
+  }
+
+  /// internal method
+  static PdfLayerCollection withLayer(PdfDocument? document, PdfLayer? layer) {
+    return PdfLayerCollection._withLayer(document, layer);
+  }
+
+  /// Creates a new [PdfLayer] with name and adds it to the end of the collection.
+  PdfLayer add(String? name, bool? visible) {
+    final PdfLayer layer = PdfLayerHelper.internal();
+    if (name != null) {
+      layer.name = name;
+    }
+    PdfLayerHelper.getHelper(layer).document = _document;
+    if (visible != null) {
+      layer.visible = visible;
+    }
+    PdfLayerHelper.getHelper(layer).layerId =
+        'OCG_${PdfResources.globallyUniqueIdentifier}';
+    PdfLayerHelper.getHelper(layer).layer = layer;
+    _add(layer);
+    return layer;
+  }
+
+  /// Removes layer from the collection by using layer or layer name and may also remove graphical content, if isRemoveGraphicalContent is true.
+  void remove(PdfLayer? layer, String? name, bool isRemoveGraphicalContent) {
     if (layer != null) {
       _removeLayer(layer, isRemoveGraphicalContent);
-      _list.remove(layer);
+      list.remove(layer);
     } else if (name != null) {
       bool isFind = false;
-      for (int i = 0; i < _list.length; i++) {
-        final PdfLayer layer = _list[i] as PdfLayer;
+      for (int i = 0; i < list.length; i++) {
+        final PdfLayer layer = list[i] as PdfLayer;
         if (layer.name == name) {
           isFind = true;
           _removeLayer(layer, isRemoveGraphicalContent);
-          _list.remove(layer);
+          list.remove(layer);
           i = i - 1;
         }
       }
@@ -78,233 +145,280 @@ class PdfLayerCollection extends PdfObjectCollection {
   }
 
   /// Removes layer by its index from collections and may also remove graphical content if isRemoveGraphicalContent is true.
-  void removeAt(int index, [bool isRemoveGraphicalContent = false]) {
-    if (index < 0 || index > _list.length - 1) {
+  void removeAt(int index, bool isRemoveGraphicalContent) {
+    if (index < 0 || index > list.length - 1) {
       ArgumentError.value(
           '$index Value can not be less 0 and greater List.Count - 1');
     }
-    final PdfLayer layer = this[index];
-    _list.removeAt(index);
+    final PdfLayer layer = layerCollection[index];
+    list.removeAt(index);
     _removeLayer(layer, isRemoveGraphicalContent);
   }
 
   /// Clears layers from the [PdfLayerCollection].
   void clear() {
-    for (int i = 0; i < _list.length; i++) {
-      final PdfLayer layer = this[i];
+    for (int i = 0; i < list.length; i++) {
+      final PdfLayer layer = layerCollection[i];
       _removeLayer(layer, true);
     }
-    _list.clear();
+    list.clear();
   }
 
   int _add(PdfLayer layer) {
-    _list.add(layer);
-    final int index = count - 1;
+    list.add(layer);
+    final int index = layerCollection.count - 1;
     if (_document is PdfDocument) {
       _createLayer(layer);
     }
-    layer._layer = layer;
+    PdfLayerHelper.getHelper(layer).layer = layer;
     return index;
   }
 
   void _createLayer(PdfLayer layer) {
-    final _PdfDictionary ocProperties = _PdfDictionary();
-    ocProperties[_DictionaryProperties.ocg] =
+    final PdfDictionary ocProperties = PdfDictionary();
+    ocProperties[PdfDictionaryProperties.ocg] =
         _createOptionalContentDictionary(layer);
-    ocProperties[_DictionaryProperties.defaultView] =
+    ocProperties[PdfDictionaryProperties.defaultView] =
         _createOptionalContentViews(layer);
-    _document!._catalog[_DictionaryProperties.ocProperties] = ocProperties;
-    _document!._catalog
-        .setProperty(_DictionaryProperties.ocProperties, ocProperties);
+    PdfDocumentHelper.getHelper(_document!)
+        .catalog[PdfDictionaryProperties.ocProperties] = ocProperties;
+    PdfDocumentHelper.getHelper(_document!)
+        .catalog
+        .setProperty(PdfDictionaryProperties.ocProperties, ocProperties);
   }
 
-  _IPdfPrimitive? _createOptionalContentDictionary(PdfLayer layer) {
-    final _PdfDictionary dictionary = _PdfDictionary();
-    dictionary[_DictionaryProperties.name] = _PdfString(layer.name!);
-    dictionary[_DictionaryProperties.type] = _PdfName('OCG');
-    dictionary[_DictionaryProperties.layerID] = _PdfName(layer._layerId);
-    dictionary[_DictionaryProperties.visible] = _PdfBoolean(layer.visible);
+  IPdfPrimitive? _createOptionalContentDictionary(PdfLayer layer) {
+    final PdfDictionary dictionary = PdfDictionary();
+    dictionary[PdfDictionaryProperties.name] = PdfString(layer.name!);
+    dictionary[PdfDictionaryProperties.type] = PdfName('OCG');
+    dictionary[PdfDictionaryProperties.layerID] =
+        PdfName(PdfLayerHelper.getHelper(layer).layerId);
+    dictionary[PdfDictionaryProperties.visible] = PdfBoolean(layer.visible);
 
-    layer._usage = _setPrintOption(layer);
-    dictionary[_DictionaryProperties.usage] = _PdfReferenceHolder(layer._usage);
-    _document!._printLayer!._add(_PdfReferenceHolder(dictionary));
+    PdfLayerHelper.getHelper(layer).usage = _setPrintOption(layer);
+    dictionary[PdfDictionaryProperties.usage] =
+        PdfReferenceHolder(PdfLayerHelper.getHelper(layer).usage);
+    PdfDocumentHelper.getHelper(_document!)
+        .printLayer!
+        .add(PdfReferenceHolder(dictionary));
 
-    final _PdfReferenceHolder reference = _PdfReferenceHolder(dictionary);
-    _document!._primitive!._add(reference);
-    layer._referenceHolder = reference;
-    layer._dictionary = dictionary;
+    final PdfReferenceHolder reference = PdfReferenceHolder(dictionary);
+    PdfDocumentHelper.getHelper(_document!).pdfPrimitive!.add(reference);
+    PdfLayerHelper.getHelper(layer).referenceHolder = reference;
+    PdfLayerHelper.getHelper(layer).dictionary = dictionary;
 
     // Order of the layers
-    final _PdfDictionary? ocProperties = _PdfCrossTable._dereference(
-            _document!._catalog[_DictionaryProperties.ocProperties])
-        as _PdfDictionary?;
+    final PdfDictionary? ocProperties = PdfCrossTable.dereference(
+        PdfDocumentHelper.getHelper(_document!)
+            .catalog[PdfDictionaryProperties.ocProperties]) as PdfDictionary?;
     _createSublayer(ocProperties, reference, layer);
     if (layer.visible) {
-      _document!._on!._add(reference);
+      PdfDocumentHelper.getHelper(_document!).on!.add(reference);
     } else {
-      _document!._off!._add(reference);
+      PdfDocumentHelper.getHelper(_document!).off!.add(reference);
     }
-    return _document!._primitive;
+    return PdfDocumentHelper.getHelper(_document!).pdfPrimitive;
   }
 
-  _PdfDictionary _setPrintOption(PdfLayer layer) {
-    final _PdfDictionary _usage = _PdfDictionary();
-    layer._printOption = _PdfDictionary();
-    layer._printOption![_DictionaryProperties.subtype] = _PdfName('Print');
-    _usage[_DictionaryProperties.print] =
-        _PdfReferenceHolder(layer._printOption);
-    return _usage;
+  PdfDictionary _setPrintOption(PdfLayer layer) {
+    final PdfDictionary usage = PdfDictionary();
+    PdfLayerHelper.getHelper(layer).printOption = PdfDictionary();
+    PdfLayerHelper.getHelper(layer)
+        .printOption![PdfDictionaryProperties.subtype] = PdfName('Print');
+    usage[PdfDictionaryProperties.print] =
+        PdfReferenceHolder(PdfLayerHelper.getHelper(layer).printOption);
+    return usage;
   }
 
-  void _createSublayer(_PdfDictionary? ocProperties,
-      _PdfReferenceHolder reference, PdfLayer layer) {
+  void _createSublayer(PdfDictionary? ocProperties,
+      PdfReferenceHolder reference, PdfLayer layer) {
     if (_sublayer == false) {
       if (ocProperties != null) {
-        _PdfArray? order;
-        final _PdfDictionary? defaultview = _PdfCrossTable._dereference(
-            ocProperties[_DictionaryProperties.defaultView]) as _PdfDictionary?;
+        PdfArray? order;
+        final PdfDictionary? defaultview = PdfCrossTable.dereference(
+                ocProperties[PdfDictionaryProperties.defaultView])
+            as PdfDictionary?;
         if (defaultview != null) {
-          order = _PdfCrossTable._dereference(
-              defaultview[_DictionaryProperties.ocgOrder]) as _PdfArray?;
+          order = PdfCrossTable.dereference(
+              defaultview[PdfDictionaryProperties.ocgOrder]) as PdfArray?;
         }
-        if (_document!._order != null && order != null) {
-          _document!._order = order;
+        if (PdfDocumentHelper.getHelper(_document!).order != null &&
+            order != null) {
+          PdfDocumentHelper.getHelper(_document!).order = order;
         }
-        _document!._order!._add(reference);
+        PdfDocumentHelper.getHelper(_document!).order!.add(reference);
       } else {
-        _document!._order!._add(reference);
+        PdfDocumentHelper.getHelper(_document!).order!.add(reference);
       }
     } else {
-      layer._parent = _parent;
+      PdfLayerHelper.getHelper(layer).parent = _parent;
       if (ocProperties != null) {
-        _PdfArray? order;
-        final _PdfDictionary? defaultview = _PdfCrossTable._dereference(
-            ocProperties[_DictionaryProperties.defaultView]) as _PdfDictionary?;
+        PdfArray? order;
+        final PdfDictionary? defaultview = PdfCrossTable.dereference(
+                ocProperties[PdfDictionaryProperties.defaultView])
+            as PdfDictionary?;
         if (defaultview != null) {
-          order = _PdfCrossTable._dereference(
-              defaultview[_DictionaryProperties.ocgOrder]) as _PdfArray?;
+          order = PdfCrossTable.dereference(
+              defaultview[PdfDictionaryProperties.ocgOrder]) as PdfArray?;
         }
-        if (_document!._order != null && order != null) {
-          _document!._order = order;
+        if (PdfDocumentHelper.getHelper(_document!).order != null &&
+            order != null) {
+          PdfDocumentHelper.getHelper(_document!).order = order;
         }
       }
-      if (_parent!._child.isEmpty) {
-        _parent!._sublayer._add(reference);
-      } else if (_document!._order!._contains(_parent!._referenceHolder!)) {
-        final int position =
-            _document!._order!._indexOf(_parent!._referenceHolder!);
-        _document!._order!._removeAt(position + 1);
-        _parent!._sublayer._add(reference);
+      if (PdfLayerHelper.getHelper(_parent!).child.isEmpty) {
+        PdfLayerHelper.getHelper(_parent!).sublayer.add(reference);
+      } else if (PdfDocumentHelper.getHelper(_document!)
+          .order!
+          .contains(PdfLayerHelper.getHelper(_parent!).referenceHolder!)) {
+        final int position = PdfDocumentHelper.getHelper(_document!)
+            .order!
+            .indexOf(PdfLayerHelper.getHelper(_parent!).referenceHolder!);
+        PdfDocumentHelper.getHelper(_document!).order!.removeAt(position + 1);
+        PdfLayerHelper.getHelper(_parent!).sublayer.add(reference);
       } else {
-        _parent!._sublayer._add(reference);
+        PdfLayerHelper.getHelper(_parent!).sublayer.add(reference);
       }
-      if (_document!._order!._contains(_parent!._referenceHolder!)) {
-        final int position =
-            _document!._order!._indexOf(_parent!._referenceHolder!);
-        _document!._order!._insert(position + 1, _parent!._sublayer);
+      if (PdfDocumentHelper.getHelper(_document!)
+          .order!
+          .contains(PdfLayerHelper.getHelper(_parent!).referenceHolder!)) {
+        final int position = PdfDocumentHelper.getHelper(_document!)
+            .order!
+            .indexOf(PdfLayerHelper.getHelper(_parent!).referenceHolder!);
+        PdfDocumentHelper.getHelper(_document!)
+            .order!
+            .insert(position + 1, PdfLayerHelper.getHelper(_parent!).sublayer);
       } else {
-        if (_parent!._parent != null) {
-          if (_parent!._parent!._sublayer
-              ._contains(_parent!._referenceHolder!)) {
-            int position = _parent!._parent!._sublayer
-                ._indexOf(_parent!._referenceHolder!);
-            if (_parent!._sublayer.count == 1) {
-              _parent!._parent!._sublayer
-                  ._insert(position + 1, _parent!._sublayer);
+        if (PdfLayerHelper.getHelper(_parent!).parent != null) {
+          if (PdfLayerHelper.getHelper(
+                  PdfLayerHelper.getHelper(_parent!).parent!)
+              .sublayer
+              .contains(PdfLayerHelper.getHelper(_parent!).referenceHolder!)) {
+            int position = PdfLayerHelper.getHelper(
+                    PdfLayerHelper.getHelper(_parent!).parent!)
+                .sublayer
+                .indexOf(PdfLayerHelper.getHelper(_parent!).referenceHolder!);
+            if (PdfLayerHelper.getHelper(_parent!).sublayer.count == 1) {
+              PdfLayerHelper.getHelper(
+                      PdfLayerHelper.getHelper(_parent!).parent!)
+                  .sublayer
+                  .insert(position + 1,
+                      PdfLayerHelper.getHelper(_parent!).sublayer);
             }
-
-            if (_document!._order!
-                ._contains(_parent!._parent!._referenceHolder!)) {
-              position = _document!._order!
-                  ._indexOf(_parent!._parent!._referenceHolder!);
-              _document!._order!._removeAt(position + 1);
-              _document!._order!
-                  ._insert(position + 1, _parent!._parent!._sublayer);
+            if (PdfDocumentHelper.getHelper(_document!).order!.contains(
+                PdfLayerHelper.getHelper(
+                        PdfLayerHelper.getHelper(_parent!).parent!)
+                    .referenceHolder!)) {
+              position = PdfDocumentHelper.getHelper(_document!).order!.indexOf(
+                  PdfLayerHelper.getHelper(
+                          PdfLayerHelper.getHelper(_parent!).parent!)
+                      .referenceHolder!);
+              PdfDocumentHelper.getHelper(_document!)
+                  .order!
+                  .removeAt(position + 1);
+              PdfDocumentHelper.getHelper(_document!).order!.insert(
+                  position + 1,
+                  PdfLayerHelper.getHelper(
+                          PdfLayerHelper.getHelper(_parent!).parent!)
+                      .sublayer);
             }
           }
         }
       }
 
-      _parent!._child.add(layer);
+      PdfLayerHelper.getHelper(_parent!).child.add(layer);
 
-      if (_parent!._parentLayer.isEmpty) {
-        layer._parentLayer.add(_parent!);
+      if (PdfLayerHelper.getHelper(_parent!).parentLayer.isEmpty) {
+        PdfLayerHelper.getHelper(layer).parentLayer.add(_parent!);
       } else {
-        for (int i = 0; i < _parent!._parentLayer.length; i++) {
-          if (!layer._parentLayer.contains(_parent!._parentLayer[i])) {
-            layer._parentLayer.add(_parent!._parentLayer[i]);
+        for (int i = 0;
+            i < PdfLayerHelper.getHelper(_parent!).parentLayer.length;
+            i++) {
+          if (!PdfLayerHelper.getHelper(layer)
+              .parentLayer
+              .contains(PdfLayerHelper.getHelper(_parent!).parentLayer[i])) {
+            PdfLayerHelper.getHelper(layer)
+                .parentLayer
+                .add(PdfLayerHelper.getHelper(_parent!).parentLayer[i]);
           }
         }
-        layer._parentLayer.add(_parent!);
+        PdfLayerHelper.getHelper(layer).parentLayer.add(_parent!);
       }
     }
   }
 
-  _IPdfPrimitive _createOptionalContentViews(PdfLayer layer) {
-    final _PdfArray usageApplication = _PdfArray();
-    _optionalContent[_DictionaryProperties.name] = _PdfString('Layers');
-    _optionalContent[_DictionaryProperties.ocgOrder] = _document!._order;
-    _optionalContent[_DictionaryProperties.ocgOn] = _document!._on;
-    _optionalContent[_DictionaryProperties.ocgOff] = _document!._off;
-    final _PdfArray category = _PdfArray();
-    category._add(_PdfName('Print'));
-    final _PdfDictionary applicationDictionary = _PdfDictionary();
-    applicationDictionary[_DictionaryProperties.category] = category;
-    applicationDictionary[_DictionaryProperties.ocg] = _document!._printLayer;
-    applicationDictionary[_DictionaryProperties.event] = _PdfName('Print');
-    usageApplication._add(_PdfReferenceHolder(applicationDictionary));
-    _optionalContent[_DictionaryProperties.usageApplication] = usageApplication;
+  IPdfPrimitive _createOptionalContentViews(PdfLayer layer) {
+    final PdfArray usageApplication = PdfArray();
+    _optionalContent[PdfDictionaryProperties.name] = PdfString('Layers');
+    _optionalContent[PdfDictionaryProperties.ocgOrder] =
+        PdfDocumentHelper.getHelper(_document!).order;
+    _optionalContent[PdfDictionaryProperties.ocgOn] =
+        PdfDocumentHelper.getHelper(_document!).on;
+    _optionalContent[PdfDictionaryProperties.ocgOff] =
+        PdfDocumentHelper.getHelper(_document!).off;
+    final PdfArray category = PdfArray();
+    category.add(PdfName('Print'));
+    final PdfDictionary applicationDictionary = PdfDictionary();
+    applicationDictionary[PdfDictionaryProperties.category] = category;
+    applicationDictionary[PdfDictionaryProperties.ocg] =
+        PdfDocumentHelper.getHelper(_document!).printLayer;
+    applicationDictionary[PdfDictionaryProperties.event] = PdfName('Print');
+    usageApplication.add(PdfReferenceHolder(applicationDictionary));
+    _optionalContent[PdfDictionaryProperties.usageApplication] =
+        usageApplication;
     return _optionalContent;
   }
 
   void _getDocumentLayer(PdfDocument document) {
-    _PdfDictionary? layerDictionary;
-    _PdfReferenceHolder layerReference;
-    if (document._catalog.containsKey(_DictionaryProperties.ocProperties)) {
-      final _PdfDictionary? ocProperties = _PdfCrossTable._dereference(
-              document._catalog[_DictionaryProperties.ocProperties])
-          as _PdfDictionary?;
+    PdfDictionary? layerDictionary;
+    PdfReferenceHolder layerReference;
+    if (PdfDocumentHelper.getHelper(_document!)
+        .catalog
+        .containsKey(PdfDictionaryProperties.ocProperties)) {
+      final PdfDictionary? ocProperties = PdfCrossTable.dereference(
+          PdfDocumentHelper.getHelper(_document!)
+              .catalog[PdfDictionaryProperties.ocProperties]) as PdfDictionary?;
       if (ocProperties != null) {
-        if (ocProperties.containsKey(_DictionaryProperties.ocg)) {
-          final _PdfArray ocGroup = _PdfCrossTable._dereference(
-              ocProperties[_DictionaryProperties.ocg])! as _PdfArray;
+        if (ocProperties.containsKey(PdfDictionaryProperties.ocg)) {
+          final PdfArray ocGroup = PdfCrossTable.dereference(
+              ocProperties[PdfDictionaryProperties.ocg])! as PdfArray;
           for (int i = 0; i < ocGroup.count; i++) {
-            if (ocGroup[i] is _PdfReferenceHolder) {
-              layerReference = ocGroup[i]! as _PdfReferenceHolder;
-              layerDictionary = layerReference.object as _PdfDictionary?;
-              final PdfLayer layer = PdfLayer._();
+            if (ocGroup[i] is PdfReferenceHolder) {
+              layerReference = ocGroup[i]! as PdfReferenceHolder;
+              layerDictionary = layerReference.object as PdfDictionary?;
+              final PdfLayer layer = PdfLayerHelper.internal();
               if (layerDictionary != null &&
-                  layerDictionary.containsKey(_DictionaryProperties.name)) {
-                final _PdfString layerName = _PdfCrossTable._dereference(
-                    layerDictionary[_DictionaryProperties.name])! as _PdfString;
+                  layerDictionary.containsKey(PdfDictionaryProperties.name)) {
+                final PdfString layerName = PdfCrossTable.dereference(
+                        layerDictionary[PdfDictionaryProperties.name])!
+                    as PdfString;
                 layer.name = layerName.value;
-                layer._dictionary = layerDictionary;
-                layer._referenceHolder = layerReference;
-                final _IPdfPrimitive? layerId = _PdfCrossTable._dereference(
-                    layerDictionary[_DictionaryProperties.layerID]);
+                PdfLayerHelper.getHelper(layer).dictionary = layerDictionary;
+                PdfLayerHelper.getHelper(layer).referenceHolder =
+                    layerReference;
+                final IPdfPrimitive? layerId = PdfCrossTable.dereference(
+                    layerDictionary[PdfDictionaryProperties.layerID]);
                 if (layerId != null) {
-                  layer._layerId = layerId.toString();
+                  PdfLayerHelper.getHelper(layer).layerId = layerId.toString();
                 }
-                final _PdfDictionary? usage = _PdfCrossTable._dereference(
-                        layerDictionary[_DictionaryProperties.usage])
-                    as _PdfDictionary?;
+                final PdfDictionary? usage = PdfCrossTable.dereference(
+                        layerDictionary[PdfDictionaryProperties.usage])
+                    as PdfDictionary?;
 
                 if (usage != null) {
-                  final _PdfDictionary? printOption =
-                      _PdfCrossTable._dereference(
-                              usage[_DictionaryProperties.print])
-                          as _PdfDictionary?;
+                  final PdfDictionary? printOption = PdfCrossTable.dereference(
+                      usage[PdfDictionaryProperties.print]) as PdfDictionary?;
 
                   if (printOption != null) {
-                    layer._printOption = printOption;
+                    PdfLayerHelper.getHelper(layer).printOption = printOption;
                   }
                 }
               }
-              layer._document = document;
-              layer._layer = layer;
-              // layer._parsingLayerPage();
+              PdfLayerHelper.getHelper(layer).document = document;
+              PdfLayerHelper.getHelper(layer).layer = layer;
+              // layer.parsingLayerPage();
               _layerDictionary[layerReference] = layer;
-              _list.add(layer);
+              list.add(layer);
             }
           }
         }
@@ -316,28 +430,31 @@ class PdfLayerCollection extends PdfObjectCollection {
     }
   }
 
-  void _checkLayerVisible(_PdfDictionary ocProperties) {
-    _PdfArray? visible;
-    if (_document!._catalog.containsKey(_DictionaryProperties.ocProperties)) {
-      final _PdfDictionary? defaultView = _PdfCrossTable._dereference(
-          ocProperties[_DictionaryProperties.defaultView]) as _PdfDictionary?;
+  void _checkLayerVisible(PdfDictionary ocProperties) {
+    PdfArray? visible;
+    if (PdfDocumentHelper.getHelper(_document!)
+        .catalog
+        .containsKey(PdfDictionaryProperties.ocProperties)) {
+      final PdfDictionary? defaultView = PdfCrossTable.dereference(
+          ocProperties[PdfDictionaryProperties.defaultView]) as PdfDictionary?;
 
       if (defaultView != null &&
-          defaultView.containsKey(_DictionaryProperties.ocgOff)) {
-        visible = _PdfCrossTable._dereference(
-            defaultView[_DictionaryProperties.ocgOff]) as _PdfArray?;
+          defaultView.containsKey(PdfDictionaryProperties.ocgOff)) {
+        visible = PdfCrossTable.dereference(
+            defaultView[PdfDictionaryProperties.ocgOff]) as PdfArray?;
       }
       if (visible != null) {
         for (int i = 0; i < visible.count; i++) {
           final PdfLayer? pdfLayer =
-              _layerDictionary[visible[i]! as _PdfReferenceHolder];
+              _layerDictionary[visible[i]! as PdfReferenceHolder];
           if (pdfLayer != null) {
-            pdfLayer._visible = false;
-            if (pdfLayer._dictionary != null &&
-                pdfLayer._dictionary!
-                    .containsKey(_DictionaryProperties.visible)) {
-              pdfLayer._dictionary!.setProperty(
-                  _DictionaryProperties.visible, _PdfBoolean(false));
+            pdfLayer.visible = false;
+            if (PdfLayerHelper.getHelper(pdfLayer).dictionary != null &&
+                PdfLayerHelper.getHelper(pdfLayer)
+                    .dictionary!
+                    .containsKey(PdfDictionaryProperties.visible)) {
+              PdfLayerHelper.getHelper(pdfLayer).dictionary!.setProperty(
+                  PdfDictionaryProperties.visible, PdfBoolean(false));
             }
           }
         }
@@ -345,31 +462,31 @@ class PdfLayerCollection extends PdfObjectCollection {
     }
   }
 
-  void _checkParentLayer(_PdfDictionary ocProperties) {
-    final _PdfDictionary? defaultView = _PdfCrossTable._dereference(
-        ocProperties[_DictionaryProperties.defaultView]) as _PdfDictionary?;
+  void _checkParentLayer(PdfDictionary ocProperties) {
+    final PdfDictionary? defaultView = PdfCrossTable.dereference(
+        ocProperties[PdfDictionaryProperties.defaultView]) as PdfDictionary?;
     if (defaultView != null) {
-      final _PdfArray? array = _PdfCrossTable._dereference(
-          defaultView[_DictionaryProperties.ocgOrder]) as _PdfArray?;
+      final PdfArray? array = PdfCrossTable.dereference(
+          defaultView[PdfDictionaryProperties.ocgOrder]) as PdfArray?;
       if (array != null) {
         _parsingLayerOrder(array, _layerDictionary);
       }
     }
   }
 
-  void _checkLayerLock(_PdfDictionary ocProperties) {
-    _PdfArray? locked;
-    final _PdfDictionary? defaultView = _PdfCrossTable._dereference(
-        ocProperties[_DictionaryProperties.defaultView]) as _PdfDictionary?;
+  void _checkLayerLock(PdfDictionary ocProperties) {
+    PdfArray? locked;
+    final PdfDictionary? defaultView = PdfCrossTable.dereference(
+        ocProperties[PdfDictionaryProperties.defaultView]) as PdfDictionary?;
     if (defaultView != null &&
-        defaultView.containsKey(_DictionaryProperties.ocgLock)) {
-      locked = _PdfCrossTable._dereference(
-          defaultView[_DictionaryProperties.ocgLock]) as _PdfArray?;
+        defaultView.containsKey(PdfDictionaryProperties.ocgLock)) {
+      locked = PdfCrossTable.dereference(
+          defaultView[PdfDictionaryProperties.ocgLock]) as PdfArray?;
     }
     if (locked != null) {
       for (int i = 0; i < locked.count; i++) {
         final PdfLayer? pdfLayer =
-            _layerDictionary[locked[i]! as _PdfReferenceHolder];
+            _layerDictionary[locked[i]! as PdfReferenceHolder];
         if (pdfLayer != null) {
           continue;
         }
@@ -377,23 +494,33 @@ class PdfLayerCollection extends PdfObjectCollection {
     }
   }
 
-  void _createLayerHierarchical(_PdfDictionary ocProperties) {
-    final _PdfDictionary? defaultView = _PdfCrossTable._dereference(
-        ocProperties[_DictionaryProperties.defaultView]) as _PdfDictionary?;
+  void _createLayerHierarchical(PdfDictionary ocProperties) {
+    final PdfDictionary? defaultView = PdfCrossTable.dereference(
+        ocProperties[PdfDictionaryProperties.defaultView]) as PdfDictionary?;
     if (defaultView != null &&
-        defaultView.containsKey(_DictionaryProperties.ocgOrder)) {
+        defaultView.containsKey(PdfDictionaryProperties.ocgOrder)) {
       if (_layerDictionary.isNotEmpty) {
-        _list.clear();
-        _layerDictionary.forEach((_PdfReferenceHolder key, PdfLayer value) {
+        list.clear();
+        _layerDictionary.forEach((PdfReferenceHolder key, PdfLayer value) {
           final PdfLayer pdfLayer = value;
-          if (pdfLayer._parent == null && !_list.contains(pdfLayer)) {
-            _list.add(pdfLayer);
-          } else if (pdfLayer._child.isNotEmpty) {
-            _addChildlayer(pdfLayer._parent!);
-          } else if (pdfLayer._parent != null &&
-              pdfLayer._child.isEmpty &&
-              !pdfLayer._parent!.layers._list.contains(pdfLayer)) {
-            pdfLayer._parent!.layers._addNestedLayer(pdfLayer);
+          if (PdfLayerHelper.getHelper(pdfLayer).parent == null &&
+              !list.contains(pdfLayer)) {
+            list.add(pdfLayer);
+          } else if (PdfLayerHelper.getHelper(pdfLayer).child.isNotEmpty) {
+            _addChildlayer(PdfLayerHelper.getHelper(pdfLayer).parent!);
+          } else if (PdfLayerHelper.getHelper(pdfLayer).parent != null &&
+              PdfLayerHelper.getHelper(pdfLayer).child.isEmpty &&
+              !PdfLayerHelper.getHelper(pdfLayer)
+                  .parent!
+                  .layers
+                  ._helper
+                  .list
+                  .contains(pdfLayer)) {
+            PdfLayerHelper.getHelper(pdfLayer)
+                .parent!
+                .layers
+                ._helper
+                ._addNestedLayer(pdfLayer);
           }
         });
       }
@@ -401,29 +528,29 @@ class PdfLayerCollection extends PdfObjectCollection {
   }
 
   void _addChildlayer(PdfLayer pdfLayer) {
-    for (int i = 0; i < pdfLayer._child.length; i++) {
-      final PdfLayer child = pdfLayer._child[i];
-      if (!pdfLayer.layers._list.contains(child)) {
-        pdfLayer.layers._addNestedLayer(child);
+    for (int i = 0; i < PdfLayerHelper.getHelper(pdfLayer).child.length; i++) {
+      final PdfLayer child = PdfLayerHelper.getHelper(pdfLayer).child[i];
+      if (!pdfLayer.layers._helper.list.contains(child)) {
+        pdfLayer.layers._helper._addNestedLayer(child);
       }
     }
   }
 
   int _addNestedLayer(PdfLayer layer) {
-    _list.add(layer);
-    layer._layer = layer;
-    return _list.length - 1;
+    list.add(layer);
+    PdfLayerHelper.getHelper(layer).layer = layer;
+    return list.length - 1;
   }
 
   void _parsingLayerOrder(
-      _PdfArray array, Map<_PdfReferenceHolder, PdfLayer> layerDictionary,
+      PdfArray array, Map<PdfReferenceHolder, PdfLayer> layerDictionary,
       [PdfLayer? parent]) {
-    _PdfReferenceHolder reference;
+    PdfReferenceHolder reference;
     PdfLayer? layer;
     for (int i = 0; i < array.count; i++) {
-      if (array[i] is _PdfReferenceHolder) {
-        reference = array[i]! as _PdfReferenceHolder;
-        layerDictionary.forEach((_PdfReferenceHolder key, PdfLayer value) {
+      if (array[i] is PdfReferenceHolder) {
+        reference = array[i]! as PdfReferenceHolder;
+        layerDictionary.forEach((PdfReferenceHolder key, PdfLayer value) {
           if (identical(key.object, reference.object) ||
               identical(key.reference, reference.reference)) {
             layer = value;
@@ -431,101 +558,106 @@ class PdfLayerCollection extends PdfObjectCollection {
         });
         if (layer != null) {
           if (parent != null) {
-            parent._child.add(layer!);
-            if (parent._parentLayer.isEmpty) {
-              layer!._parentLayer.add(parent);
-              layer!._parent = parent;
+            PdfLayerHelper.getHelper(parent).child.add(layer!);
+            if (PdfLayerHelper.getHelper(parent).parentLayer.isEmpty) {
+              PdfLayerHelper.getHelper(parent).parentLayer.add(parent);
+              PdfLayerHelper.getHelper(layer!).parent = parent;
             } else {
-              for (int j = 0; j < parent._parentLayer.length; j++) {
-                if (!layer!._parentLayer.contains(parent._parentLayer[j])) {
-                  layer!._parentLayer.add(parent._parentLayer[j]);
+              for (int j = 0;
+                  j < PdfLayerHelper.getHelper(parent).parentLayer.length;
+                  j++) {
+                if (!PdfLayerHelper.getHelper(layer!).parentLayer.contains(
+                    PdfLayerHelper.getHelper(parent).parentLayer[j])) {
+                  PdfLayerHelper.getHelper(layer!)
+                      .parentLayer
+                      .add(PdfLayerHelper.getHelper(parent).parentLayer[j]);
                 }
               }
-              layer!._parentLayer.add(parent);
-              layer!._parent = parent;
+              PdfLayerHelper.getHelper(layer!).parentLayer.add(parent);
+              PdfLayerHelper.getHelper(layer!).parent = parent;
             }
           }
           if (array.count > i + 1 &&
-              _PdfCrossTable._dereference(array[i + 1]) is _PdfArray) {
+              PdfCrossTable.dereference(array[i + 1]) is PdfArray) {
             i++;
-            final _PdfArray pdfArray =
-                _PdfCrossTable._dereference(array[i])! as _PdfArray;
-            layer!._sublayer._add(pdfArray);
+            final PdfArray pdfArray =
+                PdfCrossTable.dereference(array[i])! as PdfArray;
+            PdfLayerHelper.getHelper(layer!).sublayer.add(pdfArray);
             _parsingLayerOrder(pdfArray, layerDictionary, layer);
           }
         }
-      } else if (_PdfCrossTable._dereference(array[i]) is _PdfArray) {
-        final _PdfArray? subarray =
-            _PdfCrossTable._dereference(array[i]) as _PdfArray?;
+      } else if (PdfCrossTable.dereference(array[i]) is PdfArray) {
+        final PdfArray? subarray =
+            PdfCrossTable.dereference(array[i]) as PdfArray?;
         if (subarray == null) {
           return;
         }
-        if (subarray[0] is _PdfString) {
+        if (subarray[0] is PdfString) {
           parent = null;
           _parsingLayerOrder(subarray, layerDictionary, parent);
         } else {
           parent = null;
-          _parsingLayerOrder(
-              _PdfCrossTable._dereference(array[i])! as _PdfArray,
-              layerDictionary,
-              parent);
+          _parsingLayerOrder(PdfCrossTable.dereference(array[i])! as PdfArray,
+              layerDictionary, parent);
         }
       }
     }
   }
 
   void _removeLayer(PdfLayer layer, bool isRemoveContent) {
-    _PdfDictionary? dictionary;
+    PdfDictionary? dictionary;
     if (_document != null) {
-      dictionary = _document!._catalog;
-      if (dictionary.containsKey(_DictionaryProperties.ocProperties)) {
-        final _PdfDictionary? ocPropertie = _PdfCrossTable._dereference(
-            dictionary[_DictionaryProperties.ocProperties]) as _PdfDictionary?;
+      dictionary = PdfDocumentHelper.getHelper(_document!).catalog;
+      if (dictionary.containsKey(PdfDictionaryProperties.ocProperties)) {
+        final PdfDictionary? ocPropertie = PdfCrossTable.dereference(
+            dictionary[PdfDictionaryProperties.ocProperties]) as PdfDictionary?;
         if (ocPropertie != null) {
-          final _PdfArray? ocGroup = _PdfCrossTable._dereference(
-              ocPropertie[_DictionaryProperties.ocg]) as _PdfArray?;
+          final PdfArray? ocGroup = PdfCrossTable.dereference(
+              ocPropertie[PdfDictionaryProperties.ocg]) as PdfArray?;
           if (ocGroup != null) {
-            _removeOCProperties(ocGroup, layer._referenceHolder);
+            _removeOCProperties(
+                ocGroup, PdfLayerHelper.getHelper(layer).referenceHolder);
           }
-          if (ocPropertie.containsKey(_DictionaryProperties.defaultView)) {
-            final _PdfDictionary? defaultView = _PdfCrossTable._dereference(
-                    ocPropertie[_DictionaryProperties.defaultView])
-                as _PdfDictionary?;
+          if (ocPropertie.containsKey(PdfDictionaryProperties.defaultView)) {
+            final PdfDictionary? defaultView = PdfCrossTable.dereference(
+                    ocPropertie[PdfDictionaryProperties.defaultView])
+                as PdfDictionary?;
             if (defaultView != null) {
-              _PdfArray? _on, off;
-              if (defaultView.containsKey(_DictionaryProperties.ocgOrder)) {
-                final _PdfArray? order = _PdfCrossTable._dereference(
-                    defaultView[_DictionaryProperties.ocgOrder]) as _PdfArray?;
+              PdfArray? _on, off;
+              if (defaultView.containsKey(PdfDictionaryProperties.ocgOrder)) {
+                final PdfArray? order = PdfCrossTable.dereference(
+                    defaultView[PdfDictionaryProperties.ocgOrder]) as PdfArray?;
                 if (order != null) {
-                  _removeOrder(layer, order, <_PdfArray>[]);
-                  // _removeOCProperties(order, layer._referenceHolder);
+                  _removeOrder(layer, order, <PdfArray>[]);
+                  // _removeOCProperties(order, layer.referenceHolder);
                 }
               }
-              if (defaultView.containsKey(_DictionaryProperties.ocgLock)) {
-                final _PdfArray? locked = _PdfCrossTable._dereference(
-                    defaultView[_DictionaryProperties.ocgLock]) as _PdfArray?;
+              if (defaultView.containsKey(PdfDictionaryProperties.ocgLock)) {
+                final PdfArray? locked = PdfCrossTable.dereference(
+                    defaultView[PdfDictionaryProperties.ocgLock]) as PdfArray?;
                 if (locked != null) {
-                  _removeOCProperties(locked, layer._referenceHolder);
+                  _removeOCProperties(
+                      locked, PdfLayerHelper.getHelper(layer).referenceHolder);
                 }
               }
-              if (defaultView.containsKey(_DictionaryProperties.ocgOff)) {
-                off = _PdfCrossTable._dereference(
-                    defaultView[_DictionaryProperties.ocgOff]) as _PdfArray?;
+              if (defaultView.containsKey(PdfDictionaryProperties.ocgOff)) {
+                off = PdfCrossTable.dereference(
+                    defaultView[PdfDictionaryProperties.ocgOff]) as PdfArray?;
               }
-              if (defaultView.containsKey(_DictionaryProperties.ocgOn)) {
-                _on = _PdfCrossTable._dereference(
-                    defaultView[_DictionaryProperties.ocgOn]) as _PdfArray?;
+              if (defaultView.containsKey(PdfDictionaryProperties.ocgOn)) {
+                _on = PdfCrossTable.dereference(
+                    defaultView[PdfDictionaryProperties.ocgOn]) as PdfArray?;
               } else if (_on == null && defaultView.containsKey('ON')) {
-                _on = _PdfCrossTable._dereference(defaultView['ON'])
-                    as _PdfArray?;
+                _on = PdfCrossTable.dereference(defaultView['ON']) as PdfArray?;
               }
               if (defaultView
-                  .containsKey(_DictionaryProperties.usageApplication)) {
-                final _PdfArray? usage = _PdfCrossTable._dereference(
-                        defaultView[_DictionaryProperties.usageApplication])
-                    as _PdfArray?;
+                  .containsKey(PdfDictionaryProperties.usageApplication)) {
+                final PdfArray? usage = PdfCrossTable.dereference(
+                        defaultView[PdfDictionaryProperties.usageApplication])
+                    as PdfArray?;
                 if (usage != null) {
-                  _removeOCProperties(usage, layer._referenceHolder);
+                  _removeOCProperties(
+                      usage, PdfLayerHelper.getHelper(layer).referenceHolder);
                 }
               }
               _removeVisible(layer, _on, off);
@@ -539,45 +671,48 @@ class PdfLayerCollection extends PdfObjectCollection {
     }
   }
 
-  void _removeVisible(PdfLayer layer, _PdfArray? _on, _PdfArray? off) {
+  void _removeVisible(PdfLayer layer, PdfArray? _on, PdfArray? off) {
     if (layer.visible) {
       if (_on != null) {
-        _removeOCProperties(_on, layer._referenceHolder);
+        _removeOCProperties(
+            _on, PdfLayerHelper.getHelper(layer).referenceHolder);
       }
     } else {
       if (off != null) {
-        _removeOCProperties(off, layer._referenceHolder);
+        _removeOCProperties(
+            off, PdfLayerHelper.getHelper(layer).referenceHolder);
       }
     }
   }
 
-  void _removeOrder(
-      PdfLayer layer, _PdfArray order, List<_PdfArray> arrayList) {
+  void _removeOrder(PdfLayer layer, PdfArray order, List<PdfArray> arrayList) {
     bool isRemoveOrder = false;
     for (int i = 0; i < order.count; i++) {
-      if (order[i] is _PdfReferenceHolder) {
-        final _PdfReferenceHolder holder = order[i]! as _PdfReferenceHolder;
-        if (identical(holder.object, layer._referenceHolder!.object) ||
-            identical(holder.reference, layer._referenceHolder!.reference)) {
+      if (order[i] is PdfReferenceHolder) {
+        final PdfReferenceHolder holder = order[i]! as PdfReferenceHolder;
+        if (identical(holder.object,
+                PdfLayerHelper.getHelper(layer).referenceHolder!.object) ||
+            identical(holder.reference,
+                PdfLayerHelper.getHelper(layer).referenceHolder!.reference)) {
           if (i != order.count - 1) {
-            if (order[i + 1] is _PdfArray) {
-              order._removeAt(i);
-              order._removeAt(i);
+            if (order[i + 1] is PdfArray) {
+              order.removeAt(i);
+              order.removeAt(i);
               isRemoveOrder = true;
               break;
             } else {
-              order._removeAt(i);
+              order.removeAt(i);
               isRemoveOrder = true;
               break;
             }
           } else {
-            order._removeAt(i);
+            order.removeAt(i);
             isRemoveOrder = true;
             break;
           }
         }
-      } else if (order[i] is _PdfArray) {
-        arrayList.add(order[i]! as _PdfArray);
+      } else if (order[i] is PdfArray) {
+        arrayList.add(order[i]! as PdfArray);
       }
     }
     if (!isRemoveOrder) {
@@ -591,127 +726,130 @@ class PdfLayerCollection extends PdfObjectCollection {
   }
 
   void _removeOCProperties(
-      _PdfArray content, _PdfReferenceHolder? referenceHolder) {
+      PdfArray content, PdfReferenceHolder? referenceHolder) {
     bool isChange = false;
     for (int i = 0; i < content.count; i++) {
-      final _IPdfPrimitive? primitive = content._elements[i];
-      if (primitive != null && primitive is _PdfReferenceHolder) {
-        final _PdfReferenceHolder holder = primitive;
+      final IPdfPrimitive? primitive = content.elements[i];
+      if (primitive != null && primitive is PdfReferenceHolder) {
+        final PdfReferenceHolder holder = primitive;
         if (holder.reference != null && referenceHolder!.reference != null) {
-          if (holder.reference!._objNum == referenceHolder.reference!._objNum) {
-            content._elements.removeAt(i);
+          if (holder.reference!.objNum == referenceHolder.reference!.objNum) {
+            content.elements.removeAt(i);
             isChange = true;
             i--;
           }
         } else if (identical(holder, referenceHolder)) {
-          content._elements.removeAt(i);
+          content.elements.removeAt(i);
           isChange = true;
           i--;
-        } else if (identical(holder._object, referenceHolder!._object)) {
-          content._elements.removeAt(i);
+        } else if (identical(holder.object, referenceHolder!.object)) {
+          content.elements.removeAt(i);
           isChange = true;
           i--;
         }
-      } else if (primitive != null && primitive is _PdfArray) {
+      } else if (primitive != null && primitive is PdfArray) {
         _removeOCProperties(primitive, referenceHolder);
       }
     }
     if (isChange) {
-      content._isChanged = true;
+      content.changed = true;
     }
   }
 
   void _removeLayerContent(PdfLayer layer) {
-    _PdfDictionary? properties;
+    PdfDictionary? properties;
     bool isSkip = false;
-    _PdfDictionary? xObject;
-    if (!layer._pageParsed) {
-      layer._parsingLayerPage();
+    PdfDictionary? xObject;
+    if (!PdfLayerHelper.getHelper(layer).pageParsed) {
+      PdfLayerHelper.getHelper(layer).parsingLayerPage();
       _removeLayerContent(layer);
       return;
     }
-    if (layer._pages.isNotEmpty) {
-      for (int i = 0; i < layer._pages.length; i++) {
-        final _PdfDictionary? resource = _PdfCrossTable._dereference(
-                layer._pages[i]._dictionary[_DictionaryProperties.resources])
-            as _PdfDictionary?;
+    if (PdfLayerHelper.getHelper(layer).pages.isNotEmpty) {
+      for (int i = 0; i < PdfLayerHelper.getHelper(layer).pages.length; i++) {
+        final PdfDictionary? resource = PdfCrossTable.dereference(PdfPageHelper
+                .getHelper(PdfLayerHelper.getHelper(layer).pages[i])
+            .dictionary![PdfDictionaryProperties.resources]) as PdfDictionary?;
         if (resource != null) {
-          properties = _PdfCrossTable._dereference(
-              resource[_DictionaryProperties.properties]) as _PdfDictionary?;
-          xObject = _PdfCrossTable._dereference(
-              resource[_DictionaryProperties.xObject]) as _PdfDictionary?;
+          properties = PdfCrossTable.dereference(
+              resource[PdfDictionaryProperties.properties]) as PdfDictionary?;
+          xObject = PdfCrossTable.dereference(
+              resource[PdfDictionaryProperties.xObject]) as PdfDictionary?;
           if (properties != null) {
-            if (properties.containsKey(layer._layerId)) {
-              properties.remove(layer._layerId);
+            if (properties
+                .containsKey(PdfLayerHelper.getHelper(layer).layerId)) {
+              properties.remove(PdfLayerHelper.getHelper(layer).layerId);
             }
           }
-          if (xObject != null && layer._xobject.isNotEmpty) {
-            for (final _PdfName? key in xObject._items!.keys) {
-              if (layer._xobject.contains(key!._name)) {
+          if (xObject != null &&
+              PdfLayerHelper.getHelper(layer).xobject.isNotEmpty) {
+            for (final PdfName? key in xObject.items!.keys) {
+              if (PdfLayerHelper.getHelper(layer).xobject.contains(key!.name)) {
                 xObject.remove(key);
               }
-              if (xObject._items!.isEmpty) {
+              if (xObject.items!.isEmpty) {
                 break;
               }
             }
           }
-          final _PdfArray content = layer._pages[i]._contents;
+          final PdfArray content =
+              PdfPageHelper.getHelper(PdfLayerHelper.getHelper(layer).pages[i])
+                  .contents;
           for (int m = 0; m < content.count; m++) {
             List<int>? stream = <int>[];
-            final _PdfStream data = _PdfStream();
-            final _PdfStream pageContent =
-                _PdfCrossTable._dereference(content[m])! as _PdfStream;
-            if (layer._pages[i]._isLoadedPage) {
-              pageContent._decompress();
+            final PdfStream data = PdfStream();
+            final PdfStream pageContent =
+                PdfCrossTable.dereference(content[m])! as PdfStream;
+            if (PdfPageHelper.getHelper(
+                    PdfLayerHelper.getHelper(layer).pages[i])
+                .isLoadedPage) {
+              pageContent.decompress();
             }
-            stream = pageContent._dataStream;
-            final _ContentParser parser = _ContentParser(stream);
-            final _PdfRecordCollection recordCollection =
-                parser._readContent()!;
-            for (int j = 0;
-                j < recordCollection._recordCollection.length;
-                j++) {
+            stream = pageContent.dataStream;
+            final ContentParser parser = ContentParser(stream);
+            final PdfRecordCollection recordCollection = parser.readContent()!;
+            for (int j = 0; j < recordCollection.recordCollection.length; j++) {
               final String? mOperator =
-                  recordCollection._recordCollection[j]._operatorName;
+                  recordCollection.recordCollection[j].operatorName;
               if (mOperator == 'BMC' ||
                   mOperator == 'EMC' ||
                   mOperator == 'BDC') {
                 _processBeginMarkContent(layer, mOperator,
-                    recordCollection._recordCollection[j]._operands, data);
+                    recordCollection.recordCollection[j].operands, data);
                 isSkip = true;
               }
-              if (mOperator == _Operators.paintXObject) {
-                if (layer._xobject.contains(
-                    recordCollection._recordCollection[j]._operands![0])) {
+              if (mOperator == PdfOperators.paintXObject) {
+                if (PdfLayerHelper.getHelper(layer).xobject.contains(
+                    recordCollection.recordCollection[j].operands![0])) {
                   isSkip = true;
                 }
               }
               if (mOperator == 'RG' ||
-                  mOperator == _Operators.saveState ||
-                  mOperator == _Operators.restoreState ||
-                  mOperator == _Operators.setLineWidth ||
-                  mOperator == _Operators.setLineCapStyle ||
-                  mOperator == _Operators.setLineJoinStyle ||
-                  mOperator == _Operators.setMiterLimit ||
-                  mOperator == _Operators.setDashPattern ||
-                  mOperator == _Operators.setGraphicsState ||
-                  mOperator == _Operators.currentMatrix ||
-                  mOperator == _Operators.selectColorSpaceForNonStroking ||
-                  mOperator == _Operators.selectColorSpaceForStroking) {
+                  mOperator == PdfOperators.saveState ||
+                  mOperator == PdfOperators.restoreState ||
+                  mOperator == PdfOperators.setLineWidth ||
+                  mOperator == PdfOperators.setLineCapStyle ||
+                  mOperator == PdfOperators.setLineJoinStyle ||
+                  mOperator == PdfOperators.setMiterLimit ||
+                  mOperator == PdfOperators.setDashPattern ||
+                  mOperator == PdfOperators.setGraphicsState ||
+                  mOperator == PdfOperators.currentMatrix ||
+                  mOperator == PdfOperators.selectColorSpaceForNonStroking ||
+                  mOperator == PdfOperators.selectColorSpaceForStroking) {
                 if (!isSkip) {
-                  _streamWrite(recordCollection._recordCollection[j]._operands,
+                  _streamWrite(recordCollection.recordCollection[j].operands,
                       mOperator, false, data);
                 }
               } else if (!isSkip) {
-                _streamWrite(recordCollection._recordCollection[j]._operands,
+                _streamWrite(recordCollection.recordCollection[j].operands,
                     mOperator, true, data);
               }
               isSkip = false;
             }
-            if (data._dataStream!.isNotEmpty) {
+            if (data.dataStream!.isNotEmpty) {
               pageContent.clear();
-              pageContent._dataStream!.clear();
-              pageContent._write(data._dataStream);
+              pageContent.dataStream!.clear();
+              pageContent.write(data.dataStream);
             } else {
               pageContent.clear();
             }
@@ -722,7 +860,7 @@ class PdfLayerCollection extends PdfObjectCollection {
   }
 
   void _processBeginMarkContent(PdfLayer parser, String? mOperator,
-      List<String>? operands, _PdfStream data) {
+      List<String>? operands, PdfStream data) {
     if ('BDC' == mOperator) {
       String? operand;
       if (operands!.length > 1 && ((operands[0]) == '/OC')) {
@@ -732,7 +870,8 @@ class PdfLayerCollection extends PdfObjectCollection {
         _bdcCount++;
         return;
       }
-      if (operand != null && (operand == parser._layerId)) {
+      if (operand != null &&
+          (operand == PdfLayerHelper.getHelper(parser).layerId)) {
         _bdcCount++;
       }
     }
@@ -743,20 +882,20 @@ class PdfLayerCollection extends PdfObjectCollection {
   }
 
   void _streamWrite(
-      List<String>? operands, String? mOperator, bool skip, _PdfStream data) {
-    _PdfString pdfString;
+      List<String>? operands, String? mOperator, bool skip, PdfStream data) {
+    PdfString pdfString;
     if (skip && _bdcCount > 0) {
       return;
     }
     if (operands != null) {
       for (final String operand in operands) {
-        pdfString = _PdfString(operand);
-        data._write(pdfString.data);
-        data._write(_Operators.whiteSpace);
+        pdfString = PdfString(operand);
+        data.write(pdfString.data);
+        data.write(PdfOperators.whiteSpace);
       }
     }
-    pdfString = _PdfString(mOperator!);
-    data._write(pdfString.data);
-    data._write(_Operators.newLine);
+    pdfString = PdfString(mOperator!);
+    data.write(pdfString.data);
+    data.write(PdfOperators.newLine);
   }
 }

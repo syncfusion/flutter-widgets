@@ -1,6 +1,52 @@
 ## Unreleased
 
 **Features**
+* Implemented multilevel axis labels support in Cartesian charts to categorize the axis labels.
+* Improved the date-time axis label’s default format to display additional detail about the date.
+* Provided support to trim, shift, or hide data labels that overflow from their segments in pie, doughnut, pyramid, and funnel charts. 
+
+**Breaking changes**
+* The `axisLabelFormatter` callback has been moved from the [SfCartesianChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart-class.html) class to the [ChartAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis-class.html) class.
+* The deprecated `onAxisLabelRender` callback has been removed. Instead, use the `axisLabelFormatter` callback from the [ChartAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis-class.html) class.
+* The `smartLabelMode` property in the [SfPyramidChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfPyramidChart-class.html) and [SfFunnelChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfFunnelChart-class.html) classes has been removed. Instead, use the `overflowMode` property.
+* The deprecated `enableSmartLabels` property in [CircularSeries](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CircularSeries/CircularSeries.html) has been removed. Instead, use `LabelIntersectAction.shift` of the [labelIntersectAction](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/DataLabelSettings/labelIntersectAction.html) property.
+* The deprecated `onPointTapped` callback has been removed in [SfCartesianChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/SfCartesianChart.html), [SfCircularChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCircularChart/SfCircularChart.html), [SfPyramidChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfPyramidChart/SfPyramidChart.html) and [SfFunnelChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfFunnelChart/SfFunnelChart.html). Instead, use the `onPointTap` callback from [CartesianSeries](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CartesianSeries/CartesianSeries.html), [CircularSeries](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CircularSeries/CircularSeries.html), [PyramidSeries](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/PyramidSeries/PyramidSeries.html), and [FunnelSeries](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/FunnelSeries/FunnelSeries.html) respectively. 
+
+## [19.3.57] - 12/07/2021
+**Bugs**
+* The trackball will not get disappeared on tapping the chart repeatedly.
+* Now the bear and bull colors for candle series with [enableSolidCandles](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CandleSeries/enableSolidCandles.html) will get applied based on the current data.
+
+## [19.3.56] - 11/30/2021
+**Bugs**
+* The zoom mode is working properly with [`zoomIn`](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ZoomPanBehavior/zoomIn.html) public method.
+
+## [19.3.55] - 11/23/2021
+**Bugs**
+* Now, the proper index value is obtained in the data label callback with the auto-scrolling feature.
+* With marker rendering callback, the proper index value is obtained in the live update of the chart using the updateDataSource method.
+
+## [19.3.54] - 11/17/2021
+**Bugs**
+* The series controller instance gets created properly with setstate.
+
+## [19.3.47] - 10/26/2021
+**Bugs**
+* The legend border renders properly and the exception will not be thrown with the tooltip template. 
+
+## [19.3.46] - 10/19/2021
+**Bugs**
+* The trendline will consider dynamically added points and renders properly.
+
+## [19.3.45] - 10/12/2021
+**Bugs**
+* Now the axis padding is ignored when axis elements are moved inside the axis.
+* The tooltip builder's gesture detector will work properly.
+* Now, the [`binInterval`](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/HistogramSeries/binInterval.html) property supports for double value.
+
+## [19.3.43] - 09/30/2021
+
+**Features**
 * Implemented the error bar series type with all its functionalities to indicate errors or uncertain values in the data.
 * Provided support to place the pie and doughnut chart data labels smartly without intersecting one another.
 * Provided support to retrieve the internally calculated slope and intercept values of a trendline for later use in the application.
@@ -74,7 +120,7 @@
 
 **Breaking changes**
 
-* `onAxisLabelRender` callback has been deprecated, instead use `labelFormatter` callback to customize the axis labels.
+* `onAxisLabelRender` callback has been deprecated, instead use `axisLabelFormatter` callback to customize the axis labels.
 * Hereafter initialize the chart behaviors in the `initState` method instead of `build method.
 * Now, the marker will be displayed in the trackball tooltip by default.
 

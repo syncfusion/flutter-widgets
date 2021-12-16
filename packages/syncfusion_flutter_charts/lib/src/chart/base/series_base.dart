@@ -164,11 +164,9 @@ class ChartSeriesPanel {
         seriesRendererDetails.histogramValues.minValue =
             seriesRendererDetails.histogramValues.yValues!.reduce(math.min);
         seriesRendererDetails.histogramValues.binWidth = series.binInterval ??
-            ((3.5 * seriesRendererDetails.histogramValues.sDValue!) /
-                    math.pow(
-                        seriesRendererDetails.histogramValues.yValues!.length,
-                        1 / 3))
-                .round();
+            (3.5 * seriesRendererDetails.histogramValues.sDValue!) /
+                math.pow(seriesRendererDetails.histogramValues.yValues!.length,
+                    1 / 3);
       }
       final String seriesType = seriesRendererDetails.seriesType;
       final bool needSorting = series.sortingOrder != SortingOrder.none &&
@@ -894,7 +892,7 @@ class ChartSeriesPanel {
               (technicalIndicatorsRenderer.indicatorType +
                   (_map[technicalIndicatorsRenderer.indicatorType] == 1
                       ? ''
-                      : ' ' + count.toString()));
+                      : ' $count'));
         }
         if (indicator != null &&
             indicator.isVisible == true &&

@@ -68,7 +68,7 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
       BoxShadow(
         color: Color.fromRGBO(0, 0, 0, 0.14),
         blurRadius: 2,
-        offset: Offset(0, 0),
+        offset: Offset.zero,
       ),
       BoxShadow(
         color: Color.fromRGBO(0, 0, 0, 0.12),
@@ -87,7 +87,10 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
         height: _kPdfHeaderBarHeight,
         margin: const EdgeInsets.only(bottom: 3),
         decoration: BoxDecoration(
-          color: _pdfViewerThemeData!.bookmarkViewStyle.headerBarColor,
+          color: _pdfViewerThemeData!.bookmarkViewStyle?.headerBarColor ??
+              ((Theme.of(context).colorScheme.brightness == Brightness.light)
+                  ? const Color(0xFFFAFAFA)
+                  : const Color(0xFF424242)),
           boxShadow: boxShadows,
         ),
         child: Stack(
@@ -98,7 +101,17 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
               height: _kPdfHeaderTextHeight,
               child: Text(
                 _localizations!.pdfBookmarksLabel,
-                style: _pdfViewerThemeData!.bookmarkViewStyle.headerTextStyle,
+                style:
+                    _pdfViewerThemeData!.bookmarkViewStyle?.headerTextStyle ??
+                        TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.87),
+                        ),
                 semanticsLabel: '',
               ),
             ),
@@ -114,7 +127,9 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
                 child: Icon(
                   Icons.close,
                   size: _kPdfCloseIconSize,
-                  color: _pdfViewerThemeData!.bookmarkViewStyle.closeIconColor,
+                  color: _pdfViewerThemeData!
+                          .bookmarkViewStyle?.closeIconColor ??
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.54),
                   semanticLabel: 'Close Bookmark',
                 ),
               ),

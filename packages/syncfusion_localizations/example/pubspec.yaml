@@ -10,10 +10,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  syncfusion_localizations: 
-   path: ../../syncfusion_localizations
-  syncfusion_flutter_calendar: 
-   path: ../../syncfusion_flutter_calendar
+  syncfusion_localizations: ^19.1.57
+  syncfusion_flutter_calendar: ^19.1.57
   cupertino_icons: ^0.1.3
 
 flutter:

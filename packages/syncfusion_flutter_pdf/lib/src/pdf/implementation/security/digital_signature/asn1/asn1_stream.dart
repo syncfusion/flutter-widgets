@@ -1,62 +1,74 @@
-part of pdf;
+import 'dart:convert';
+import 'dart:math';
 
-class _Asn1Stream {
-  _Asn1Stream(_StreamReader stream, [int? limit]) {
+import '../../../io/stream_reader.dart';
+import 'asn1.dart';
+import 'asn1_parser.dart';
+import 'ber.dart';
+import 'der.dart';
+
+/// internal class
+class Asn1Stream {
+  /// internal constructor
+  Asn1Stream(PdfStreamReader stream, [int? limit]) {
     _stream = stream;
     _limit = limit ?? getLimit(stream);
     _buffers = List<List<int>>.generate(16, (int i) => <int>[]);
   }
   int? _limit;
   List<List<int>>? _buffers;
-  _StreamReader? _stream;
+  PdfStreamReader? _stream;
 
-  static int? getLimit(_StreamReader input) {
-    if (input is _Asn1BaseStream) {
+  /// internal method
+  static int? getLimit(PdfStreamReader input) {
+    if (input is Asn1BaseStream) {
       return input.remaining;
     } else {
       return input.length! - input.position;
     }
   }
 
-  static _Asn1? getPrimitiveObject(
-      int tagNumber, _Asn1StreamHelper stream, List<List<int>>? buffers) {
+  /// internal method
+  static Asn1? getPrimitiveObject(
+      int tagNumber, Asn1StreamHelper stream, List<List<int>>? buffers) {
     switch (tagNumber) {
-      case _Asn1Tags.boolean:
-        return _DerBoolean.fromBytes(getBytes(stream, buffers!));
-      case _Asn1Tags.enumerated:
-        return _DerCatalogue(getBytes(stream, buffers!));
-      case _Asn1Tags.objectIdentifier:
-        return _DerObjectID.fromOctetString(getBytes(stream, buffers!));
+      case Asn1Tags.boolean:
+        return DerBoolean.fromBytes(getBytes(stream, buffers!));
+      case Asn1Tags.enumerated:
+        return DerCatalogue(getBytes(stream, buffers!));
+      case Asn1Tags.objectIdentifier:
+        return DerObjectID.fromOctetString(getBytes(stream, buffers!));
     }
     final List<int> bytes = stream.toArray();
     switch (tagNumber) {
-      case _Asn1Tags.bitString:
-        return _DerBitString.fromAsn1Octets(bytes);
-      case _Asn1Tags.bmpString:
-        return _DerBmpString(bytes);
-      case _Asn1Tags.generalizedTime:
-        return _GeneralizedTime(bytes);
-      case _Asn1Tags.asciiString:
-        return _DerAsciiString.fromBytes(bytes);
-      case _Asn1Tags.integer:
-        return _DerInteger(bytes);
-      case _Asn1Tags.nullValue:
-        return _DerNull.value;
-      case _Asn1Tags.octetString:
-        return _DerOctet(bytes);
-      case _Asn1Tags.printableString:
-        return _DerPrintableString(utf8.decode(bytes));
-      case _Asn1Tags.teleText:
-        return _DerTeleText(String.fromCharCodes(bytes));
-      case _Asn1Tags.utcTime:
-        return _DerUtcTime(bytes);
-      case _Asn1Tags.utf8String:
-        return _DerUtf8String(utf8.decode(bytes));
+      case Asn1Tags.bitString:
+        return DerBitString.fromAsn1Octets(bytes);
+      case Asn1Tags.bmpString:
+        return DerBmpString(bytes);
+      case Asn1Tags.generalizedTime:
+        return GeneralizedTime(bytes);
+      case Asn1Tags.asciiString:
+        return DerAsciiString.fromBytes(bytes);
+      case Asn1Tags.integer:
+        return DerInteger(bytes);
+      case Asn1Tags.nullValue:
+        return DerNull.value;
+      case Asn1Tags.octetString:
+        return DerOctet(bytes);
+      case Asn1Tags.printableString:
+        return DerPrintableString(utf8.decode(bytes));
+      case Asn1Tags.teleText:
+        return DerTeleText(String.fromCharCodes(bytes));
+      case Asn1Tags.utcTime:
+        return DerUtcTime(bytes);
+      case Asn1Tags.utf8String:
+        return DerUtf8String(utf8.decode(bytes));
     }
     return null;
   }
 
-  static List<int> getBytes(_Asn1StreamHelper stream, List<List<int>> buffers) {
+  /// internal method
+  static List<int> getBytes(Asn1StreamHelper stream, List<List<int>> buffers) {
     final int length = stream.remaining;
     if (length >= buffers.length) {
       stream.toArray();
@@ -69,7 +81,8 @@ class _Asn1Stream {
     return bytes;
   }
 
-  static int readTagNumber(_StreamReader? stream, int tagNumber) {
+  /// internal method
+  static int readTagNumber(PdfStreamReader? stream, int tagNumber) {
     int result = tagNumber & 0x1f;
     if (result == 0x1f) {
       result = 0;
@@ -90,7 +103,8 @@ class _Asn1Stream {
     return result;
   }
 
-  static int getLength(_StreamReader stream, int? limit) {
+  /// internal method
+  static int getLength(PdfStreamReader stream, int? limit) {
     int length = stream.readByte()!;
     if (length < 0) {
       throw Exception('End of file detected');
@@ -121,55 +135,58 @@ class _Asn1Stream {
     return length;
   }
 
-  _Asn1? buildObject(int tag, int tagNumber, int length) {
-    final bool isConstructed = (tag & _Asn1Tags.constructed) != 0;
-    final _Asn1StreamHelper stream = _Asn1StreamHelper(_stream, length);
-    if ((tag & _Asn1Tags.tagged) != 0)
-      return _Asn1Parser(stream).readTaggedObject(isConstructed, tagNumber);
+  /// internal method
+  Asn1? buildObject(int tag, int tagNumber, int length) {
+    final bool isConstructed = (tag & Asn1Tags.constructed) != 0;
+    final Asn1StreamHelper stream = Asn1StreamHelper(_stream, length);
+    if ((tag & Asn1Tags.tagged) != 0)
+      return Asn1Parser(stream).readTaggedObject(isConstructed, tagNumber);
     if (isConstructed) {
       switch (tagNumber) {
-        case _Asn1Tags.octetString:
-          return _BerOctet(getBytesfromAsn1EncodeCollection(
+        case Asn1Tags.octetString:
+          return BerOctet(getBytesfromAsn1EncodeCollection(
               getDerEncodableCollection(stream)));
-        case _Asn1Tags.sequence:
+        case Asn1Tags.sequence:
           return createDerSequence(stream);
-        case _Asn1Tags.setTag:
+        case Asn1Tags.setTag:
           return createDerSet(stream);
       }
     }
     return getPrimitiveObject(tagNumber, stream, _buffers);
   }
 
-  _Asn1EncodeCollection getEncodableCollection() {
-    final _Asn1EncodeCollection objects = _Asn1EncodeCollection();
-    _Asn1? asn1Object;
+  /// internal method
+  Asn1EncodeCollection getEncodableCollection() {
+    final Asn1EncodeCollection objects = Asn1EncodeCollection();
+    Asn1? asn1Object;
     while ((asn1Object = readAsn1()) != null) {
-      objects._encodableObjects.add(asn1Object);
+      objects.encodableObjects.add(asn1Object);
     }
     return objects;
   }
 
-  _Asn1? readAsn1() {
+  /// internal method
+  Asn1? readAsn1() {
     final int tag = _stream!.readByte()!;
     if (tag > 0) {
       final int tagNumber = readTagNumber(_stream, tag);
-      final bool isConstructed = (tag & _Asn1Tags.constructed) != 0;
+      final bool isConstructed = (tag & Asn1Tags.constructed) != 0;
       final int length = getLength(_stream!, _limit);
       if (length < 0) {
         if (!isConstructed) {
           throw ArgumentError.value(
               length, 'length', 'Encodeing length is invalid');
         }
-        final _Asn1Parser sp =
-            _Asn1Parser(_Asn1LengthStream(_stream, _limit), _limit);
-        if ((tag & _Asn1Tags.tagged) != 0) {
-          return _BerTagHelper(true, tagNumber, sp).getAsn1();
+        final Asn1Parser sp =
+            Asn1Parser(Asn1LengthStream(_stream, _limit), _limit);
+        if ((tag & Asn1Tags.tagged) != 0) {
+          return BerTagHelper(true, tagNumber, sp).getAsn1();
         }
         switch (tagNumber) {
-          case _Asn1Tags.octetString:
-            return _BerOctetHelper(sp).getAsn1();
-          case _Asn1Tags.sequence:
-            return _BerSequenceHelper(sp).getAsn1();
+          case Asn1Tags.octetString:
+            return BerOctetHelper(sp).getAsn1();
+          case Asn1Tags.sequence:
+            return BerSequenceHelper(sp).getAsn1();
           default:
             throw ArgumentError.value(
                 tagNumber, 'tag', 'Invalid object in the sequence');
@@ -185,49 +202,72 @@ class _Asn1Stream {
     return null;
   }
 
-  List<int> getBytesfromAsn1EncodeCollection(_Asn1EncodeCollection octets) {
+  /// internal method
+  List<int> getBytesfromAsn1EncodeCollection(Asn1EncodeCollection octets) {
     final List<int> result = <int>[];
     for (int i = 0; i < octets.count; i++) {
-      final _DerOctet o = octets[i]! as _DerOctet;
+      final DerOctet o = octets[i]! as DerOctet;
       result.addAll(o.getOctets()!);
     }
     return result;
   }
 
-  _Asn1EncodeCollection getDerEncodableCollection(_Asn1StreamHelper stream) {
-    return _Asn1Stream(stream).getEncodableCollection();
+  /// internal method
+  Asn1EncodeCollection getDerEncodableCollection(Asn1StreamHelper stream) {
+    return Asn1Stream(stream).getEncodableCollection();
   }
 
-  _DerSequence createDerSequence(_Asn1StreamHelper stream) {
-    return _DerSequence(collection: getDerEncodableCollection(stream));
+  /// internal method
+  DerSequence createDerSequence(Asn1StreamHelper stream) {
+    return DerSequence(collection: getDerEncodableCollection(stream));
   }
 
-  _DerSet createDerSet(_Asn1StreamHelper stream) {
-    return _DerSet(
-        collection: getDerEncodableCollection(stream), isSort: false);
+  /// internal method
+  DerSet createDerSet(Asn1StreamHelper stream) {
+    return DerSet(collection: getDerEncodableCollection(stream), isSort: false);
   }
 }
 
-class _Asn1BaseStream extends _StreamReader {
-  _Asn1BaseStream(this.input, this.limit);
+/// internal class
+class Asn1BaseStream extends PdfStreamReader {
+  /// internal constructor
+  Asn1BaseStream(this.input, this.limit);
+
+  /// internal field
   int? limit;
+
+  /// internal field
   late bool closed;
-  _StreamReader? input;
+
+  /// internal field
+  PdfStreamReader? input;
+
+  /// internal property
   int? get remaining => limit;
+
+  /// internal property
   bool get canRead => !closed;
+
+  /// internal property
   bool get canSeek => false;
+
+  /// internal property
   bool get canWrite => false;
+
+  /// internal method
   void close() {
     closed = true;
   }
 
+  /// internal method
   void setParentEndOfFileDetect(bool isDetect) {
-    if (input is _Asn1LengthStream) {
-      (input! as _Asn1LengthStream).setEndOfFileOnStart(isDetect);
+    if (input is Asn1LengthStream) {
+      (input! as Asn1LengthStream).setEndOfFileOnStart(isDetect);
     }
   }
 
   @override
+  // ignore: avoid_renaming_method_parameters
   int read(List<int> buffer, int offset, int count) {
     int pos = offset;
     try {
@@ -248,8 +288,11 @@ class _Asn1BaseStream extends _StreamReader {
   }
 }
 
-class _Asn1StreamHelper extends _Asn1BaseStream {
-  _Asn1StreamHelper(_StreamReader? stream, int length) : super(stream, length) {
+/// internal class
+class Asn1StreamHelper extends Asn1BaseStream {
+  /// internal constructor
+  Asn1StreamHelper(PdfStreamReader? stream, int length)
+      : super(stream, length) {
     if (length < 0) {
       throw Exception('Invalid length specified.');
     }
@@ -279,6 +322,7 @@ class _Asn1StreamHelper extends _Asn1BaseStream {
     return result;
   }
 
+  /// internal method
   @override
   int read(List<int> bytes, int offset, int length) {
     if (remaining == 0) {
@@ -294,6 +338,7 @@ class _Asn1StreamHelper extends _Asn1BaseStream {
     return count;
   }
 
+  /// internal method
   List<int> toArray() {
     if (_remaining == 0) {
       return <int>[];
@@ -306,6 +351,7 @@ class _Asn1StreamHelper extends _Asn1BaseStream {
     return bytes;
   }
 
+  /// internal method
   void readAll(List<int> bytes) {
     if (_remaining != bytes.length) {
       throw ArgumentError.value(bytes, 'bytes', 'Invalid length in bytes');
@@ -316,6 +362,7 @@ class _Asn1StreamHelper extends _Asn1BaseStream {
     setParentEndOfFileDetect(true);
   }
 
+  /// internal method
   int readData(List<int> bytes, int offset, int length) {
     int total = 0;
     while (total < length) {
@@ -329,15 +376,21 @@ class _Asn1StreamHelper extends _Asn1BaseStream {
   }
 }
 
-class _Asn1LengthStream extends _Asn1BaseStream {
-  _Asn1LengthStream(_StreamReader? stream, int? limit) : super(stream, limit) {
+/// internal class
+class Asn1LengthStream extends Asn1BaseStream {
+  /// internal constructor
+  Asn1LengthStream(PdfStreamReader? stream, int? limit) : super(stream, limit) {
     byte = requireByte();
     checkEndOfFile();
   }
 
+  /// internal field
   int? byte;
+
+  /// internal field
   bool isEndOfFile = true;
 
+  /// internal method
   int requireByte() {
     final int value = input!.readByte()!;
     if (value < 0) {
@@ -346,6 +399,7 @@ class _Asn1LengthStream extends _Asn1BaseStream {
     return value;
   }
 
+  /// internal method
   void setEndOfFileOnStart(bool isEOF) {
     isEndOfFile = isEOF;
     if (isEndOfFile) {
@@ -353,6 +407,7 @@ class _Asn1LengthStream extends _Asn1BaseStream {
     }
   }
 
+  /// internal method
   bool checkEndOfFile() {
     if (byte == 0x00) {
       final int extra = requireByte();
@@ -391,46 +446,5 @@ class _Asn1LengthStream extends _Asn1BaseStream {
     buffer[offset] = byte!;
     byte = requireByte();
     return numRead + 1;
-  }
-}
-
-class _PushStream extends _StreamReader {
-  _PushStream(_StreamReader stream) : super(stream._data) {
-    _stream = stream;
-    _buffer = -1;
-  }
-  //Fields
-  late _StreamReader _stream;
-  int? _buffer;
-  @override
-  int get position => _stream.position;
-  @override
-  set position(int value) {
-    _stream.position = value;
-  }
-
-  //Implementation
-  @override
-  int? readByte() {
-    if (_buffer != -1) {
-      final int? temp = _buffer;
-      _buffer = -1;
-      return temp;
-    }
-    return _stream.readByte();
-  }
-
-  @override
-  int? read(List<int> buffer, int offset, int count) {
-    if (_buffer != -1) {
-      final int? temp = _buffer;
-      _buffer = -1;
-      return temp;
-    }
-    return _stream.read(buffer, offset, count);
-  }
-
-  void unread(int b) {
-    _buffer = b & 0xFF;
   }
 }

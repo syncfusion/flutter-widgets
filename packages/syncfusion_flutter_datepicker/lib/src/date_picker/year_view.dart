@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -6,7 +5,6 @@ import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import '../../datepicker.dart';
-import 'date_picker_manager.dart';
 import 'picker_helper.dart';
 
 /// Used to hold the year cell widgets.
@@ -47,7 +45,8 @@ class YearView extends StatefulWidget {
       this.navigationDirection,
       this.width,
       this.height,
-      this.disableDatesCollection);
+      this.disableDatesCollection,
+      this.extendableRangeSelectionDirection);
 
   /// Defines the year cell style.
   final dynamic cellStyle;
@@ -157,7 +156,12 @@ class YearView extends StatefulWidget {
   /// Holds the list of dates for selectable day predicate.
   final List<dynamic>? disableDatesCollection;
 
+  /// Defines the extendable range selection direction
+  /// of the [SfDateRangePicker].
+  final ExtendableRangeSelectionDirection extendableRangeSelectionDirection;
+
   @override
+  // ignore: library_private_types_in_public_api
   _YearViewState createState() => _YearViewState();
 }
 
@@ -198,7 +202,9 @@ class _YearViewState extends State<YearView> {
         widget.enableMultiView != oldWidget.enableMultiView ||
         widget.allowViewNavigation != oldWidget.allowViewNavigation ||
         widget.navigationDirection != oldWidget.navigationDirection ||
-        widget.visibleDates != oldWidget.visibleDates) {
+        widget.visibleDates != oldWidget.visibleDates ||
+        widget.extendableRangeSelectionDirection !=
+            oldWidget.extendableRangeSelectionDirection) {
       _children.clear();
     }
 
@@ -209,6 +215,12 @@ class _YearViewState extends State<YearView> {
 
     _updateSelection(isNeedSetState: false);
     super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    widget.selectionNotifier.removeListener(_updateSelection);
+    super.dispose();
   }
 
   @override
@@ -443,6 +455,7 @@ class _YearViewState extends State<YearView> {
               widget.localizations,
               widget.navigationDirection,
               widget.disableDatesCollection,
+              widget.extendableRangeSelectionDirection,
               widgets: _children);
         }
       case DateRangePickerSelectionMode.multiRange:
@@ -1182,6 +1195,7 @@ class _ExtendableRangeSelectionRenderWidget
       this.localizations,
       this.navigationDirection,
       this.disableDatesCollection,
+      this.extendableRangeSelectionDirection,
       {required List<Widget> widgets})
       : super(children: widgets);
 
@@ -1271,6 +1285,8 @@ class _ExtendableRangeSelectionRenderWidget
 
   final List<dynamic>? disableDatesCollection;
 
+  final ExtendableRangeSelectionDirection extendableRangeSelectionDirection;
+
   @override
   _ExtendableRangeSelectionRenderObject createRenderObject(
       BuildContext context) {
@@ -1304,7 +1320,8 @@ class _ExtendableRangeSelectionRenderWidget
         navigationDirection,
         localizations,
         selectedRange,
-        disableDatesCollection);
+        disableDatesCollection,
+        extendableRangeSelectionDirection);
   }
 
   @override
@@ -1340,7 +1357,8 @@ class _ExtendableRangeSelectionRenderWidget
       ..monthFormat = monthFormat
       ..locale = locale
       ..view = view
-      ..disableDatesCollection = disableDatesCollection;
+      ..disableDatesCollection = disableDatesCollection
+      ..extendableRangeSelectionDirection = extendableRangeSelectionDirection;
   }
 }
 
@@ -2257,7 +2275,7 @@ abstract class _IYearViewRenderObject extends RenderBox
             rect: Rect.fromLTWH(startXPosition + left, startYPosition + top,
                 cellWidth, cellHeight),
             properties: SemanticsProperties(
-              label: getCellSemanticsText(date) + 'Disabled cell',
+              label: '${getCellSemanticsText(date)}Disabled cell',
               textDirection: TextDirection.ltr,
             ),
           ));
@@ -2292,13 +2310,22 @@ abstract class _IYearViewRenderObject extends RenderBox
     int startIndex = -1;
     int endIndex = -1;
     final List<int> selectedIndex = <int>[];
+    if (startDate == null && endDate == null) {
+      return selectedIndex;
+    }
+
+    dynamic endRangeDate;
+    if (endDate != null) {
+      endRangeDate = DateRangePickerHelper.getDate(
+          endDate.year, endDate.month, endDate.day, _isHijri);
+    }
 
     /// Check the start date as before of end date, if not then swap
     /// the start and end date values.
-    if (startDate != null && startDate.isAfter(endDate) == true) {
+    if (startDate != null && startDate.isAfter(endRangeDate) == true) {
       final dynamic temp = startDate;
-      startDate = endDate;
-      endDate = temp;
+      startDate = endRangeDate;
+      endRangeDate = temp;
     }
 
     final dynamic viewStartDate = visibleDates[viewStartIndex];
@@ -2307,7 +2334,7 @@ abstract class _IYearViewRenderObject extends RenderBox
     if (startDate != null) {
       /// Assign start index as -1 when the start date before view start date.
       if (viewStartDate.isAfter(startDate) == true &&
-          viewStartDate.isBefore(endDate) == true) {
+          viewStartDate.isBefore(endRangeDate) == true) {
         startIndex = -1;
       } else {
         startIndex = DateRangePickerHelper.getDateCellIndex(
@@ -2316,15 +2343,15 @@ abstract class _IYearViewRenderObject extends RenderBox
       }
     }
 
-    if (endDate != null) {
+    if (endRangeDate != null) {
       /// Assign end index as visible dates length when the
       /// end date after of view end date.
       if (viewEndDate.isAfter(startDate) == true &&
-          viewEndDate.isBefore(endDate) == true) {
+          viewEndDate.isBefore(endRangeDate) == true) {
         endIndex = viewEndIndex + 1;
       } else {
         endIndex = DateRangePickerHelper.getDateCellIndex(
-            visibleDates, endDate, _view,
+            visibleDates, endRangeDate, _view,
             viewStartIndex: viewStartIndex, viewEndIndex: viewEndIndex);
       }
     }
@@ -2358,12 +2385,12 @@ abstract class _IYearViewRenderObject extends RenderBox
         return DateRangePickerHelper.getHijriMonthText(
             date, localizations, format);
       } else {
-        return DateFormat(format, locale.toString()).format(date).toString();
+        return DateFormat(format, locale.toString()).format(date);
       }
     } else if (_view == DateRangePickerView.decade) {
       return date.year.toString();
     } else if (_view == DateRangePickerView.century) {
-      return date.year.toString() + ' - ' + (date.year + 9).toString();
+      return '${date.year} - ${date.year + 9}';
     }
 
     return '';
@@ -2376,12 +2403,12 @@ abstract class _IYearViewRenderObject extends RenderBox
                 date, localizations, 'MMMM') +
             date.year.toString();
       } else {
-        return DateFormat('MMMM yyyy').format(date).toString();
+        return DateFormat('MMMM yyyy').format(date);
       }
     } else if (_view == DateRangePickerView.decade) {
       return date.year.toString();
     } else if (_view == DateRangePickerView.century) {
-      return date.year.toString() + ' to ' + (date.year + 9).toString();
+      return '${date.year} to ${date.year + 9}';
     }
 
     return '';
@@ -2474,7 +2501,7 @@ abstract class _IYearViewRenderObject extends RenderBox
       highlightPadding = maximumHighlight;
     }
 
-    Rect rect = const Rect.fromLTRB(0, 0, 0, 0);
+    Rect rect = Rect.zero;
     final double startYPosition =
         yPosition + centerYPosition - highlightPadding - textHalfHeight;
     final double endYPosition =
@@ -2572,24 +2599,24 @@ abstract class _IYearViewRenderObject extends RenderBox
       bool isEnableDate, bool isActiveDate, bool isDisabledDate) {
     if (!isEnableDate || isDisabledDate) {
       return cellStyle.disabledDatesTextStyle as TextStyle? ??
-          datePickerTheme.disabledCellTextStyle;
+          datePickerTheme.disabledCellTextStyle!;
     }
 
     if (isSelected) {
-      return selectionTextStyle ?? datePickerTheme.selectionTextStyle;
+      return selectionTextStyle ?? datePickerTheme.selectionTextStyle!;
     }
 
     if (isCurrentDate) {
       return cellStyle.todayTextStyle as TextStyle? ??
-          datePickerTheme.todayCellTextStyle;
+          datePickerTheme.todayCellTextStyle!;
     }
 
     if (!isActiveDate && !_isHijri) {
       return cellStyle.leadingDatesTextStyle as TextStyle? ??
-          datePickerTheme.leadingCellTextStyle;
+          datePickerTheme.leadingCellTextStyle!;
     }
 
-    return cellStyle.textStyle as TextStyle? ?? datePickerTheme.cellTextStyle;
+    return cellStyle.textStyle as TextStyle? ?? datePickerTheme.cellTextStyle!;
   }
 
   Decoration? _updateCellDecoration(int j, bool isCurrentDate,
@@ -3200,7 +3227,8 @@ class _ExtendableRangeSelectionRenderObject extends _IYearViewRenderObject {
       DateRangePickerNavigationDirection navigationDirection,
       SfLocalizations localizations,
       this._selectedRange,
-      List<dynamic>? disableDatesCollection)
+      List<dynamic>? disableDatesCollection,
+      this._extendableRangeSelectionDirection)
       : super(
             visibleDates,
             cellStyle,
@@ -3242,6 +3270,25 @@ class _ExtendableRangeSelectionRenderObject extends _IYearViewRenderObject {
     }
 
     _selectedRange = value;
+    if (childCount == 0) {
+      markNeedsPaint();
+    } else {
+      markNeedsLayout();
+    }
+  }
+
+  ExtendableRangeSelectionDirection _extendableRangeSelectionDirection;
+
+  ExtendableRangeSelectionDirection get extendableRangeSelectionDirection =>
+      _extendableRangeSelectionDirection;
+
+  set extendableRangeSelectionDirection(
+      ExtendableRangeSelectionDirection value) {
+    if (_extendableRangeSelectionDirection == value) {
+      return;
+    }
+
+    _extendableRangeSelectionDirection = value;
     if (childCount == 0) {
       markNeedsPaint();
     } else {
@@ -3792,9 +3839,20 @@ void _drawYearCells(
             yearView.enablePastDates,
             view,
             yearView.isHijri);
-        final bool isDisabledDate =
-            DateRangePickerHelper.isDateWithInVisibleDates(
-                yearView.visibleDates, yearView.disableDatesCollection, date);
+        bool isDisabledDate = DateRangePickerHelper.isDateWithInVisibleDates(
+            yearView.visibleDates, yearView.disableDatesCollection, date);
+        if (!isDisabledDate &&
+            yearView is _ExtendableRangeSelectionRenderObject &&
+            yearView.selectedRange != null &&
+            DateRangePickerHelper.isDisableDirectionDate(
+                yearView.selectedRange,
+                date,
+                yearView.extendableRangeSelectionDirection,
+                view,
+                yearView.isHijri,
+                isInBetweenEnabled: true)) {
+          isDisabledDate = true;
+        }
 
         if (isSelected && isEnableDate && !isDisabledDate) {
           yearView.drawCustomCellSelection(
@@ -3911,9 +3969,21 @@ void _drawYearCells(
           yearView.isHijri);
       final bool isActiveDate = _isCurrentViewDateCell(
           date, j, yearView.visibleDates, yearView.enableMultiView, view);
-      final bool isDisabledDate =
-          DateRangePickerHelper.isDateWithInVisibleDates(
-              yearView.visibleDates, yearView.disableDatesCollection, date);
+      bool isDisabledDate = DateRangePickerHelper.isDateWithInVisibleDates(
+          yearView.visibleDates, yearView.disableDatesCollection, date);
+      if (!isDisabledDate &&
+          yearView is _ExtendableRangeSelectionRenderObject &&
+          yearView.selectedRange != null &&
+          DateRangePickerHelper.isDisableDirectionDate(
+              yearView.selectedRange,
+              date,
+              yearView.extendableRangeSelectionDirection,
+              view,
+              yearView.isHijri,
+              isInBetweenEnabled: true)) {
+        isDisabledDate = true;
+      }
+
       final TextStyle style = yearView._updateCellTextStyle(j, isCurrentDate,
           isSelected, isEnableDate, isActiveDate, isDisabledDate);
       final Decoration? yearDecoration = yearView._updateCellDecoration(

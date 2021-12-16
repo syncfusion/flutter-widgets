@@ -22,7 +22,6 @@ import '../../radial_gauge/pointers/needle_pointer_renderer.dart';
 import '../../radial_gauge/pointers/range_pointer_renderer.dart';
 import '../../radial_gauge/pointers/widget_pointer_renderer.dart';
 import '../../radial_gauge/range/gauge_range_renderer.dart';
-import '../../radial_gauge/utils/helper.dart';
 import '../../radial_gauge/utils/radial_callback_args.dart';
 
 /// Default widget height.
@@ -329,7 +328,7 @@ class RenderRadialAxisParent extends RenderBox
     while (childRenderBox != null) {
       final MultiChildLayoutParentData childParentData =
           childRenderBox.parentData! as MultiChildLayoutParentData;
-      childParentData.offset = const Offset(0, 0);
+      childParentData.offset = Offset.zero;
       childRenderBox = childParentData.nextSibling;
     }
   }
@@ -552,9 +551,7 @@ class RenderRadialAxisParent extends RenderBox
 
   /// Method to set the current pointer value
   void _setCurrentPointerValue(double dragValue, dynamic pointer) {
-    final double actualValue =
-        getMinMax(dragValue, axis!.minimum, axis!.maximum);
-
+    final double actualValue = dragValue.clamp(axis!.minimum, axis!.maximum);
     if (pointer.onValueChanging != null) {
       final ValueChangingArgs args = ValueChangingArgs()..value = actualValue;
       pointer.onValueChanging!(args);

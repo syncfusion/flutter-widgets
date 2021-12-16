@@ -1,19 +1,12 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
+import 'package:syncfusion_flutter_charts/src/chart/common/renderer.dart';
 import '../../../charts.dart';
 import '../../common/rendering_details.dart';
 import '../../common/user_interaction/selection_behavior.dart';
 import '../axis/axis.dart';
-import '../base/chart_base.dart';
 import '../chart_segment/chart_segment.dart';
-import '../chart_segment/line_segment.dart';
-import '../chart_series/line_series.dart';
 import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
-import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
 import '../common/segment_properties.dart';
@@ -172,15 +165,8 @@ class LineChartPainter extends CustomPainter {
     Rect clipRect;
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer);
-    if (!chart.legend.isVisible! &&
-        !seriesRendererDetails.isSelectionEnable &&
-        !chart.zoomPanBehavior.enableDoubleTapZooming &&
-        !chart.zoomPanBehavior.enableMouseWheelZooming &&
-        !chart.zoomPanBehavior.enablePanning &&
-        !chart.zoomPanBehavior.enablePinching &&
-        !chart.zoomPanBehavior.enableSelectionZooming) {
-      seriesRendererDetails.dispose();
-    }
+    // Disposing the old chart segments.
+    disposeOldSegments(chart, seriesRendererDetails);
 
     final ChartAxisRendererDetails xAxisDetails =
         seriesRendererDetails.xAxisDetails!;
@@ -240,7 +226,7 @@ class LineChartPainter extends CustomPainter {
         }
         if (pointIndex + 1 < dataPoints.length) {
           _nextPoint = dataPoints[pointIndex + 1];
-          if (startPoint != null && _nextPoint.isVisible && _nextPoint.isGap) {
+          if (startPoint != null && !_nextPoint.isVisible && _nextPoint.isGap) {
             startPoint = null;
           } else if (_nextPoint.isVisible && !_nextPoint.isGap) {
             endPoint = _nextPoint;

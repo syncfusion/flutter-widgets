@@ -1,110 +1,126 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_reference.dart';
+import 'enums.dart';
+import 'object_info.dart';
 
-class _PdfMainObjectCollection {
+/// internal class
+class PdfMainObjectCollection {
   //Constructor
-  _PdfMainObjectCollection() {
+  /// internal constructor
+  PdfMainObjectCollection() {
     _initialize();
   }
 
   //Fields
   int? _index;
-  Map<int?, _ObjectInfo>? _mainObjectCollection;
-  List<_ObjectInfo>? _objectCollection;
-  Map<_IPdfPrimitive?, int>? _primitiveObjectCollection;
-  int? _maximumReferenceObjectNumber = 0;
+
+  /// internal field
+  Map<int?, PdfObjectInfo>? mainObjectCollection;
+
+  /// internal field
+  List<PdfObjectInfo>? objectCollection;
+  Map<IPdfPrimitive?, int>? _primitiveObjectCollection;
+
+  /// internal field
+  int? maximumReferenceObjectNumber = 0;
 
   //Properties
-  int get _count {
-    return _objectCollection!.length;
+  /// internal property
+  int get count {
+    return objectCollection!.length;
   }
 
   /// Get the PdfMainObjectCollection items.
-  _ObjectInfo operator [](int key) => _returnValue(key);
+  PdfObjectInfo operator [](int key) => _returnValue(key);
 
   //Implementation
   void _initialize() {
     _index = 0;
-    _mainObjectCollection = <int?, _ObjectInfo>{};
-    _objectCollection = <_ObjectInfo>[];
-    _primitiveObjectCollection = <_IPdfPrimitive?, int>{};
+    mainObjectCollection = <int?, PdfObjectInfo>{};
+    objectCollection = <PdfObjectInfo>[];
+    _primitiveObjectCollection = <IPdfPrimitive?, int>{};
   }
 
   /// Check key and return the value.
-  _ObjectInfo _returnValue(int index) {
-    if (index < 0 || index > _objectCollection!.length) {
+  PdfObjectInfo _returnValue(int index) {
+    if (index < 0 || index > objectCollection!.length) {
       throw ArgumentError.value(index, 'index', 'index out of range');
     }
-    return _objectCollection![index];
+    return objectCollection![index];
   }
 
-  bool _containsReference(_PdfReference reference) {
-    return _mainObjectCollection!.containsKey(reference._objNum);
+  /// internal property
+  bool containsReference(PdfReference reference) {
+    return mainObjectCollection!.containsKey(reference.objNum);
   }
 
   /// Adds the specified element.
-  void _add(dynamic element, [_PdfReference? reference]) {
+  void add(dynamic element, [PdfReference? reference]) {
     if (element == null) {
       throw ArgumentError.value(element, 'element', 'value cannot be null');
     }
-    if (element is _IPdfWrapper) {
-      element = element._element;
+    if (element is IPdfWrapper) {
+      element = IPdfWrapper.getElement(element);
     }
     if (reference == null) {
-      final _ObjectInfo info = _ObjectInfo(element);
-      _objectCollection!.add(info);
+      final PdfObjectInfo info = PdfObjectInfo(element);
+      objectCollection!.add(info);
       if (!_primitiveObjectCollection!.containsKey(element)) {
-        _primitiveObjectCollection![element] = _objectCollection!.length - 1;
+        _primitiveObjectCollection![element] = objectCollection!.length - 1;
       }
-      element.position = _objectCollection!.length - 1;
-      _index = _objectCollection!.length - 1;
-      element.status = _ObjectStatus.registered;
+      element.position = objectCollection!.length - 1;
+      _index = objectCollection!.length - 1;
+      element.status = PdfObjectStatus.registered;
     } else {
-      final _ObjectInfo info = _ObjectInfo(element, reference);
-      if (_maximumReferenceObjectNumber! < reference._objNum!) {
-        _maximumReferenceObjectNumber = reference._objNum;
+      final PdfObjectInfo info = PdfObjectInfo(element, reference);
+      if (maximumReferenceObjectNumber! < reference.objNum!) {
+        maximumReferenceObjectNumber = reference.objNum;
       }
-      _objectCollection!.add(info);
+      objectCollection!.add(info);
       if (!_primitiveObjectCollection!.containsKey(element)) {
-        _primitiveObjectCollection![element] = _objectCollection!.length - 1;
+        _primitiveObjectCollection![element] = objectCollection!.length - 1;
       }
-      _mainObjectCollection![reference._objNum] = info;
-      element.position = _objectCollection!.length - 1;
-      reference.position = _objectCollection!.length - 1;
+      mainObjectCollection![reference.objNum] = info;
+      element.position = objectCollection!.length - 1;
+      reference.position = objectCollection!.length - 1;
     }
   }
 
-  Map<String, dynamic> _getReference(_IPdfPrimitive object, bool? isNew) {
-    _index = _lookFor(object);
-    _PdfReference? reference;
-    if (_index! < 0 || _index! > _count) {
+  /// internal property
+  Map<String, dynamic> getReference(IPdfPrimitive object, bool? isNew) {
+    _index = lookFor(object);
+    PdfReference? reference;
+    if (_index! < 0 || _index! > count) {
       isNew = true;
     } else {
       isNew = false;
-      final _ObjectInfo objectInfo = _objectCollection![_index!];
-      reference = objectInfo._reference;
+      final PdfObjectInfo objectInfo = objectCollection![_index!];
+      reference = objectInfo.reference;
     }
     return <String, dynamic>{'isNew': isNew, 'reference': reference};
   }
 
-  bool contains(_IPdfPrimitive element) {
-    return _lookFor(element)! >= 0;
+  /// internal property
+  bool contains(IPdfPrimitive element) {
+    return lookFor(element)! >= 0;
   }
 
-  int? _lookFor(_IPdfPrimitive obj) {
+  /// internal property
+  int? lookFor(IPdfPrimitive obj) {
     int? index = -1;
     if (obj.position != -1) {
       return obj.position;
     }
     if (_primitiveObjectCollection!.containsKey(obj) &&
-        _count == _primitiveObjectCollection!.length) {
+        count == _primitiveObjectCollection!.length) {
       index = _primitiveObjectCollection![obj];
     } else {
-      for (int i = _count - 1; i >= 0; i--) {
-        final _ObjectInfo objectInfo = _objectCollection![i];
-        final _IPdfPrimitive? primitive = objectInfo._object;
-        final bool isValidType =
-            !((primitive is _PdfName && obj is! _PdfName) ||
-                (primitive is! _PdfName && obj is _PdfName));
+      for (int i = count - 1; i >= 0; i--) {
+        final PdfObjectInfo objectInfo = objectCollection![i];
+        final IPdfPrimitive? primitive = objectInfo.object;
+        final bool isValidType = !((primitive is PdfName && obj is! PdfName) ||
+            (primitive is! PdfName && obj is PdfName));
         if (isValidType && primitive == obj) {
           index = i;
           break;
@@ -114,34 +130,36 @@ class _PdfMainObjectCollection {
     return index;
   }
 
-  _IPdfPrimitive? _getObject(_PdfReference reference) {
+  /// internal property
+  IPdfPrimitive? getObject(PdfReference reference) {
     try {
-      return _mainObjectCollection![reference._objNum]!._object;
+      return mainObjectCollection![reference.objNum]!.object;
     } catch (e) {
       return null;
     }
   }
 
-  int? _getObjectIndex(_PdfReference reference) {
+  /// internal property
+  int? getObjectIndex(PdfReference reference) {
     if (reference.position != -1) {
       return reference.position;
     }
-    if (_mainObjectCollection!.isEmpty) {
-      if (_objectCollection!.isEmpty) {
+    if (mainObjectCollection!.isEmpty) {
+      if (objectCollection!.isEmpty) {
         return -1;
       } else {
-        for (int i = 0; i < _objectCollection!.length - 1; i++) {
-          _mainObjectCollection![_objectCollection![i]._reference!._objNum] =
-              _objectCollection![i];
+        for (int i = 0; i < objectCollection!.length - 1; i++) {
+          mainObjectCollection![objectCollection![i].reference!.objNum] =
+              objectCollection![i];
         }
-        if (!_mainObjectCollection!.containsKey(reference._objNum)) {
+        if (!mainObjectCollection!.containsKey(reference.objNum)) {
           return -1;
         } else {
           return 0;
         }
       }
     } else {
-      if (!_mainObjectCollection!.containsKey(reference._objNum)) {
+      if (!mainObjectCollection!.containsKey(reference.objNum)) {
         return -1;
       } else {
         return 0;
@@ -149,56 +167,60 @@ class _PdfMainObjectCollection {
     }
   }
 
-  bool _trySetReference(_IPdfPrimitive object, _PdfReference reference) {
+  /// internal property
+  bool trySetReference(IPdfPrimitive object, PdfReference reference) {
     bool result = true;
-    _index = _lookFor(object);
-    if (_index! < 0 || _index! >= _objectCollection!.length) {
+    _index = lookFor(object);
+    if (_index! < 0 || _index! >= objectCollection!.length) {
       result = false;
     } else {
-      final _ObjectInfo objectInfo = _objectCollection![_index!];
-      if (objectInfo._reference != null) {
+      final PdfObjectInfo objectInfo = objectCollection![_index!];
+      if (objectInfo.reference != null) {
         result = false;
       } else {
-        objectInfo._setReference(reference);
+        objectInfo.setReference(reference);
       }
     }
     return result;
   }
 
-  _IPdfPrimitive? _getObjectFromReference(_PdfReference reference) {
+  /// internal property
+  IPdfPrimitive? getObjectFromReference(PdfReference reference) {
     try {
-      return _mainObjectCollection![reference._objNum]!._object;
+      return mainObjectCollection![reference.objNum]!.object;
     } catch (e) {
       return null;
     }
   }
 
-  void _reregisterReference(int oldObjIndex, _IPdfPrimitive newObj) {
-    if (oldObjIndex < 0 || oldObjIndex > _count) {
+  /// internal property
+  void reregisterReference(int oldObjIndex, IPdfPrimitive newObj) {
+    if (oldObjIndex < 0 || oldObjIndex > count) {
       throw ArgumentError.value(
           oldObjIndex, 'oldObjIndex', 'index out of range');
     }
-    final _ObjectInfo oi = _objectCollection![oldObjIndex];
-    if (oi._object != newObj) {
-      _primitiveObjectCollection!.remove(oi._object);
+    final PdfObjectInfo oi = objectCollection![oldObjIndex];
+    if (oi.object != newObj) {
+      _primitiveObjectCollection!.remove(oi.object);
       _primitiveObjectCollection![newObj] = oldObjIndex;
     }
-    oi._object = newObj;
+    oi.object = newObj;
     newObj.position = oldObjIndex;
   }
 
-  void _dispose() {
-    if (_mainObjectCollection != null) {
-      _mainObjectCollection!.clear();
-      _mainObjectCollection = null;
+  /// internal property
+  void dispose() {
+    if (mainObjectCollection != null) {
+      mainObjectCollection!.clear();
+      mainObjectCollection = null;
     }
-    if (_objectCollection != null) {
-      _objectCollection!.clear();
-      _objectCollection = null;
+    if (objectCollection != null) {
+      objectCollection!.clear();
+      objectCollection = null;
     }
     if (_primitiveObjectCollection != null &&
         _primitiveObjectCollection!.isNotEmpty) {
-      final List<_IPdfPrimitive?> primitives =
+      final List<IPdfPrimitive?> primitives =
           _primitiveObjectCollection!.keys.toList();
       for (int i = 0; i < primitives.length; i++) {
         primitives[i]!.dispose();

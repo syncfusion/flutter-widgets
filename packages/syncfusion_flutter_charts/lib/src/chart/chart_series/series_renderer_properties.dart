@@ -1,9 +1,6 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/src/chart/common/segment_properties.dart';
@@ -13,7 +10,6 @@ import '../axis/axis.dart';
 import '../axis/category_axis.dart';
 import '../axis/datetime_axis.dart';
 import '../axis/datetime_category_axis.dart';
-import '../base/chart_base.dart';
 import '../chart_segment/chart_segment.dart';
 import '../chart_series/series.dart';
 import '../common/cartesian_state_properties.dart';
@@ -21,15 +17,10 @@ import '../common/common.dart';
 import '../common/data_label.dart';
 import '../common/marker.dart';
 import '../common/renderer.dart';
-import '../series_painter/box_and_whisker_painter.dart';
-import '../series_painter/scatter_painter.dart';
 import '../trendlines/trendlines.dart';
 import '../utils/helper.dart';
-import 'candle_series.dart';
 import 'financial_series_base.dart';
-import 'hiloopenclose_series.dart';
 import 'histogram_series.dart';
-import 'xy_data_series.dart';
 
 /// Represents the series renderer details
 class SeriesRendererDetails {
@@ -366,9 +357,7 @@ class SeriesRendererDetails {
       sumValue += (histogramValues.yValues![value] - histogramValues.mean!) *
           (histogramValues.yValues![value] - histogramValues.mean!);
     }
-    sDValue = math.sqrt(sumValue / histogramValues.yValues!.length - 1).isNaN
-        ? 0
-        : (math.sqrt(sumValue / histogramValues.yValues!.length - 1)).round();
+    sDValue = math.sqrt(sumValue / (histogramValues.yValues!.length - 1));
     histogramValues.sDValue = sDValue;
   }
 
@@ -467,7 +456,6 @@ class SeriesRendererDetails {
       if (chart.tooltipBehavior != null &&
           seriesType != 'errorbar' &&
           (chart.tooltipBehavior.enable ||
-              chart.onPointTapped != null ||
               seriesRendererDetails.series.onPointTap != null ||
               seriesRendererDetails.series.onPointDoubleTap != null ||
               seriesRendererDetails.series.onPointLongPress != null) &&
@@ -495,8 +483,17 @@ class SeriesRendererDetails {
       final dynamic primaryAxisDetails = xAxisDetails;
       if (primaryAxisDetails is DateTimeAxisDetails) {
         final DateTimeAxis _axis = primaryAxisDetails.axis as DateTimeAxis;
+        final num interval = primaryAxisDetails.visibleRange!.minimum.ceil();
+        final num prevInterval =
+            (primaryAxisDetails.visibleLabels.length != null &&
+                    primaryAxisDetails.visibleLabels.isNotEmpty)
+                ? primaryAxisDetails
+                    .visibleLabels[primaryAxisDetails.visibleLabels.length - 1]
+                    .value
+                : interval;
         final DateFormat dateFormat = _axis.dateFormat ??
-            getDateTimeLabelFormat(xAxisDetails!.axisRenderer);
+            getDateTimeLabelFormat(xAxisDetails!.axisRenderer, interval.toInt(),
+                prevInterval.toInt());
         date = dateFormat
             .format(DateTime.fromMillisecondsSinceEpoch(point.xValue));
       } else if (primaryAxisDetails is DateTimeCategoryAxisDetails) {

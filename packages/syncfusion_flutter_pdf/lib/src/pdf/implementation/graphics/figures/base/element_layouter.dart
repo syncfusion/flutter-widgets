@@ -1,10 +1,17 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../../drawing/drawing.dart';
+import '../../../pages/pdf_page.dart';
+import '../../../pages/pdf_section.dart';
+import '../enums.dart';
+import 'layout_element.dart';
+import 'text_layouter.dart';
 
 /// Base class for elements lay outing.
-abstract class _ElementLayouter {
+abstract class ElementLayouter {
   //Constructor
   /// Initializes a new instance of the [ElementLayouter] class.
-  _ElementLayouter(PdfLayoutElement element) {
+  ElementLayouter(PdfLayoutElement element) {
     _element = element;
   }
 
@@ -17,27 +24,32 @@ abstract class _ElementLayouter {
   PdfLayoutElement? get element => _element;
 
   //Implementation
-  PdfLayoutResult? _layout(_PdfLayoutParams param) {
-    return _layoutInternal(param);
+  /// internal method
+  PdfLayoutResult? layout(PdfLayoutParams param) {
+    return layoutInternal(param);
   }
 
-  PdfLayoutResult? _layoutInternal(_PdfLayoutParams param);
-  PdfPage? _getNextPage(PdfPage currentPage) {
-    final PdfSection section = currentPage._section!;
+  /// internal method
+  PdfLayoutResult? layoutInternal(PdfLayoutParams param);
+
+  /// internal method
+  PdfPage? getNextPage(PdfPage currentPage) {
+    final PdfSection section = PdfPageHelper.getHelper(currentPage).section!;
     PdfPage? nextPage;
-    final int index = section._indexOf(currentPage);
-    if (index == section._count - 1) {
+    final int index = PdfSectionHelper.getHelper(section).indexOf(currentPage);
+    if (index == PdfSectionHelper.getHelper(section).count - 1) {
       nextPage = section.pages.add();
     } else {
-      nextPage = section._getPageByIndex(index + 1);
+      nextPage = PdfSectionHelper.getHelper(section).getPageByIndex(index + 1);
     }
     return nextPage;
   }
 
-  _Rectangle _getPaginateBounds(_PdfLayoutParams param) {
+  /// internal method
+  PdfRectangle getPaginateBounds(PdfLayoutParams param) {
     return param.format!._boundsSet
-        ? _Rectangle.fromRect(param.format!.paginateBounds)
-        : _Rectangle(
+        ? PdfRectangle.fromRect(param.format!.paginateBounds)
+        : PdfRectangle(
             param.bounds!.x, 0, param.bounds!.width, param.bounds!.height);
   }
 }
@@ -53,10 +65,10 @@ class PdfLayoutFormat {
     this.breakType = breakType ?? PdfLayoutBreakType.fitPage;
     this.layoutType = layoutType ?? PdfLayoutType.paginate;
     if (paginateBounds != null) {
-      _paginateBounds = _Rectangle.fromRect(paginateBounds);
+      _paginateBounds = PdfRectangle.fromRect(paginateBounds);
       _boundsSet = true;
     } else {
-      _paginateBounds = _Rectangle.empty;
+      _paginateBounds = PdfRectangle.empty;
       _boundsSet = false;
     }
   }
@@ -79,7 +91,7 @@ class PdfLayoutFormat {
 
   /// Sets the bounds on the next page.
   set paginateBounds(Rect value) {
-    _paginateBounds = _Rectangle.fromRect(value);
+    _paginateBounds = PdfRectangle.fromRect(value);
     _boundsSet = true;
   }
 
@@ -90,41 +102,28 @@ class PdfLayoutFormat {
   late bool _boundsSet;
 
   /// Bounds for the paginating.
-  late _Rectangle _paginateBounds;
+  late PdfRectangle _paginateBounds;
 }
 
-/// Represents the layouting result format.
-class PdfLayoutResult {
-  //Constructors
-  /// Represents the layouting result format
-  /// including bounds and resultant page.
-  PdfLayoutResult._(PdfPage page, Rect bounds) {
-    _page = page;
-    _bounds = bounds;
+// ignore: avoid_classes_with_only_static_members
+/// [PdfLayoutFormat] helper
+class PdfLayoutFormatHelper {
+  /// internal method
+  static bool isBoundsSet(PdfLayoutFormat format, [bool? value]) {
+    if (value != null) {
+      format._boundsSet = value;
+    }
+    return format._boundsSet;
   }
-
-  //Fields
-  /// The last page where the element was drawn.
-  late PdfPage _page;
-
-  /// The bounds of the element on the last page where it was drawn.
-  late Rect _bounds;
-
-  //Properties
-  /// Gets the last page where the element was drawn.
-  PdfPage get page => _page;
-
-  /// Gets the bounds of the element on the last page where it was drawn.
-  Rect get bounds => _bounds;
 }
 
 /// Represents the layouting parameters.
-class _PdfLayoutParams {
+class PdfLayoutParams {
   /// Gets and Sets Start lay outing page.
   PdfPage? page;
 
   /// Gets and Sets Lay outing bounds.
-  _Rectangle? bounds;
+  PdfRectangle? bounds;
 
   /// Gets and Sets Layout settings.
   PdfLayoutFormat? format;

@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
 
@@ -109,7 +108,10 @@ class _BookmarkItemState extends State<BookmarkItem> {
   @override
   void didChangeDependencies() {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
-    _color = _pdfViewerThemeData!.bookmarkViewStyle.backgroundColor!;
+    _color = _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+        (Theme.of(context).colorScheme.brightness == Brightness.light
+            ? Colors.white
+            : const Color(0xFF212121));
     super.didChangeDependencies();
   }
 
@@ -120,12 +122,18 @@ class _BookmarkItemState extends State<BookmarkItem> {
   }
 
   void _handleBackToParent() {
-    _color = _pdfViewerThemeData!.bookmarkViewStyle.backgroundColor!;
+    _color = _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+        (Theme.of(context).colorScheme.brightness == Brightness.light
+            ? Colors.white
+            : const Color(0xFF212121));
     widget.onBackPressed();
   }
 
   void _handleExpandBookmarkList() {
-    _color = _pdfViewerThemeData!.bookmarkViewStyle.backgroundColor!;
+    _color = _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+        (Theme.of(context).colorScheme.brightness == Brightness.light
+            ? Colors.white
+            : const Color(0xFF212121));
     widget.onExpandPressed();
   }
 
@@ -142,7 +150,10 @@ class _BookmarkItemState extends State<BookmarkItem> {
       if (kIsDesktop && !widget.isMobileWebView) {
         _color = const Color(0xFF000000).withOpacity(0.08);
       } else {
-        _color = _pdfViewerThemeData!.bookmarkViewStyle.selectionColor!;
+        _color = _pdfViewerThemeData!.bookmarkViewStyle?.selectionColor! ??
+            ((Theme.of(context).colorScheme.brightness == Brightness.light)
+                ? const Color.fromRGBO(0, 0, 0, 0.08)
+                : const Color.fromRGBO(255, 255, 255, 0.12));
       }
     });
   }
@@ -153,7 +164,10 @@ class _BookmarkItemState extends State<BookmarkItem> {
 
   void _handleCancelSelectionColor() {
     setState(() {
-      _color = _pdfViewerThemeData!.bookmarkViewStyle.backgroundColor!;
+      _color = _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+          (Theme.of(context).colorScheme.brightness == Brightness.light
+              ? Colors.white
+              : const Color(0xFF212121));
     });
   }
 
@@ -173,7 +187,11 @@ class _BookmarkItemState extends State<BookmarkItem> {
                 border: Border(
                   bottom: BorderSide(
                     color: _pdfViewerThemeData!
-                        .bookmarkViewStyle.titleSeparatorColor!,
+                            .bookmarkViewStyle?.titleSeparatorColor ??
+                        ((Theme.of(context).colorScheme.brightness ==
+                                Brightness.light)
+                            ? const Color.fromRGBO(0, 0, 0, 0.16)
+                            : const Color.fromRGBO(255, 255, 255, 0.16)),
                   ),
                 ),
               )
@@ -192,7 +210,12 @@ class _BookmarkItemState extends State<BookmarkItem> {
                   child: Icon(
                     Icons.arrow_back,
                     size: _kPdfBackIconSize,
-                    color: _pdfViewerThemeData!.bookmarkViewStyle.backIconColor,
+                    color:
+                        _pdfViewerThemeData!.bookmarkViewStyle?.backIconColor ??
+                            Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.54),
                     semanticLabel: 'Previous level bookmark',
                   ),
                 ),
@@ -205,7 +228,16 @@ class _BookmarkItemState extends State<BookmarkItem> {
               child: Text(
                 widget.title,
                 overflow: TextOverflow.ellipsis,
-                style: _pdfViewerThemeData!.bookmarkViewStyle.titleTextStyle,
+                style: _pdfViewerThemeData!.bookmarkViewStyle?.titleTextStyle ??
+                    TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.87),
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.normal,
+                    ),
               ),
             ),
             Visibility(
@@ -221,7 +253,11 @@ class _BookmarkItemState extends State<BookmarkItem> {
                     Icons.arrow_forward_ios,
                     size: _kPdfExpandIconSize,
                     color: _pdfViewerThemeData!
-                        .bookmarkViewStyle.navigationIconColor,
+                            .bookmarkViewStyle?.navigationIconColor ??
+                        Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.54),
                     semanticLabel: 'Next level bookmark',
                   ),
                 ),
@@ -241,7 +277,10 @@ class _BookmarkItemState extends State<BookmarkItem> {
         },
         onExit: (PointerExitEvent details) {
           setState(() {
-            _color = _pdfViewerThemeData!.bookmarkViewStyle.backgroundColor!;
+            _color = _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+                (Theme.of(context).colorScheme.brightness == Brightness.light
+                    ? Colors.white
+                    : const Color(0xFF212121));
           });
         },
         child: bookmarkItem,

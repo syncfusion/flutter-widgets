@@ -9,13 +9,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  timezone: 0.7.0
+  timezone: 0.8.0
   syncfusion_flutter_core:
     path: ../syncfusion_flutter_core
 
   syncfusion_flutter_datepicker:
     path: ../syncfusion_flutter_datepicker
-  
+
   intl: ">=0.15.0 <0.20.0"
 
 flutter:

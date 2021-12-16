@@ -1,9 +1,8 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../series/spark_area_base.dart';
 import '../series/spark_bar_base.dart';
 import '../utils/enum.dart';
@@ -65,7 +64,7 @@ class _SparckChartTrackballRendererState
   Offset? _globalPosition;
 
   /// Specifies the theme of the chart
-  ThemeData? _themeData;
+  SfChartThemeData? _themeData;
 
   /// Specifies the current data point
   SparkChartPoint? _currentDataPoint;
@@ -94,7 +93,7 @@ class _SparckChartTrackballRendererState
 
   @override
   void didChangeDependencies() {
-    _themeData = Theme.of(context);
+    _themeData = SfChartTheme.of(context);
     super.didChangeDependencies();
   }
 
@@ -172,6 +171,7 @@ class _SparckChartTrackballRendererState
   Widget _addTrackballPainter() {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
+        // ignore: avoid_unnecessary_containers
         return Container(
           child: RepaintBoundary(
             child: CustomPaint(
@@ -379,7 +379,7 @@ class TrackballPainter extends CustomPainter {
     final SparkChartPoint currentPoint = _rendererState._currentDataPoint!;
     String dataLabel = currentPoint.labelY!;
     final String? labelX = currentPoint.labelX;
-    dataLabel = labelX != null ? labelX + ' : ' + dataLabel : dataLabel;
+    dataLabel = labelX != null ? '$labelX : $dataLabel' : dataLabel;
     if (_trackball!.tooltipFormatter != null) {
       final TooltipFormatterDetails tooltipFormatterDetails =
           TooltipFormatterDetails(

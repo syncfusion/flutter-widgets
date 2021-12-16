@@ -1,10 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../maps.dart';
 import 'common.dart';
@@ -46,7 +43,7 @@ Size getBoxSize(BoxConstraints constraints) {
 }
 
 Offset pixelFromLatLng(num latitude, num longitude, Size size,
-    [Offset offset = const Offset(0, 0), double scale = 1.0]) {
+    [Offset offset = Offset.zero, double scale = 1.0]) {
   final double x = (longitude + 180.0) / 360.0;
   final double sinLatitude = sin(latitude * pi / 180.0);
   final double y =
@@ -63,7 +60,7 @@ MapLatLng getPixelToLatLng(
 }
 
 MapLatLng pixelToLatLng(Offset offset, Size size,
-    [Offset translation = const Offset(0, 0), double scale = 1.0]) {
+    [Offset translation = Offset.zero, double scale = 1.0]) {
   final double mapSize = size.longestSide * scale;
   final double x =
       ((offset.dx - translation.dx).clamp(0, mapSize - 1) / mapSize) - 0.5;
@@ -119,7 +116,7 @@ String getTrimText(String text, TextStyle style, double maxWidth,
   int trimLength = 3; // 3 dots
   while (width > maxWidth) {
     if (trimmedText.length <= 4) {
-      trimmedText = trimmedText[0] + '...';
+      trimmedText = '${trimmedText[0]}...';
       painter.text = TextSpan(style: style, text: trimmedText);
       painter.layout();
       break;

@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../../common/rendering_details.dart';
 import '../../common/utils/helper.dart';
 import '../axis/axis.dart';
@@ -12,6 +10,7 @@ import '../chart_series/series_renderer_properties.dart';
 import '../common/cartesian_state_properties.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
+import 'multi_level_labels.dart';
 
 /// Represents the class for customize axis elements
 abstract class CustomizeAxisElements {
@@ -144,6 +143,7 @@ class CartesianAxisWidget extends StatefulWidget {
   String renderType;
 
   /// Specifies the cartesian axis widget state
+  // ignore: library_private_types_in_public_api
   late _CartesianAxisWidgetState state;
 
   @override
@@ -178,6 +178,7 @@ class _CartesianAxisWidgetState extends State<CartesianAxisWidget>
       curve: const Interval(0.1, 0.9, curve: Curves.decelerate),
     ));
     animationController.forward(from: 0.0);
+    // ignore: avoid_unnecessary_containers
     return Container(
         child: RepaintBoundary(
             child: CustomPaint(
@@ -388,6 +389,9 @@ class _CartesianAxesPainter extends CustomPainter {
       }
       axisRenderer.drawHorizontalAxesLabels(canvas, axisRenderer, chart,
           renderType, animationFactor, oldAxisRenderer, needAnimate);
+      if (axisDetails.isMultiLevelLabelEnabled) {
+        drawMultiLevelLabels(axisDetails, canvas);
+      }
       if (renderType == 'outside') {
         axisRenderer.drawHorizontalAxesTitle(canvas, axisRenderer, chart);
       }
@@ -415,6 +419,9 @@ class _CartesianAxesPainter extends CustomPainter {
       }
       axisRenderer.drawVerticalAxesLabels(canvas, axisRenderer, chart,
           renderType, animationFactor, oldAxisRenderer, needAnimate);
+      if (axisDetails.isMultiLevelLabelEnabled) {
+        drawMultiLevelLabels(axisDetails, canvas);
+      }
       if (renderType == 'outside') {
         axisRenderer.drawVerticalAxesTitle(canvas, axisRenderer, chart);
       }

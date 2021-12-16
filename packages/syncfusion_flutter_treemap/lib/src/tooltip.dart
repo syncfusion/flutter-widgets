@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -17,7 +16,7 @@ class TreemapTooltip extends StatefulWidget {
   final TreemapTooltipSettings settings;
 
   @override
-  _TreemapTooltipState createState() => _TreemapTooltipState();
+  State<TreemapTooltip> createState() => _TreemapTooltipState();
 }
 
 class _TreemapTooltipState extends State<TreemapTooltip>
@@ -97,6 +96,7 @@ class RenderTooltip extends RenderProxyBox {
   RenderTooltip({
     required TreemapTooltipSettings settings,
     required MediaQueryData mediaQueryData,
+    // ignore: library_private_types_in_public_api
     required _TreemapTooltipState state,
   })  : _settings = settings,
         _mediaQueryData = mediaQueryData,
@@ -112,7 +112,6 @@ class RenderTooltip extends RenderProxyBox {
   static const double _topPadding = 15.0;
   final _TreemapTooltipState _state;
   final _TooltipShape _tooltipShape = const _TooltipShape();
-  final Duration _waitDuration = const Duration(seconds: 3);
   final Duration _hideDeferDuration = const Duration(milliseconds: 500);
   late Animation<double> _scaleAnimation;
   Timer? _showTimer;
@@ -165,7 +164,6 @@ class RenderTooltip extends RenderProxyBox {
         if (_state.controller.value > 0) {
           _state.controller.reset();
         }
-
         _showTimer?.cancel();
         _showTimer = Timer(const Duration(milliseconds: 100), () {
           _state.controller.forward(from: 0.0);
@@ -173,9 +171,12 @@ class RenderTooltip extends RenderProxyBox {
       }
     } else {
       _state.controller.forward(from: 0.0);
+      if (settings.hideDelay == double.infinity) {
+        return;
+      }
       _showTimer?.cancel();
       if (_pointerKind == PointerKind.touch) {
-        _showTimer = Timer(_waitDuration, hide);
+        _showTimer = Timer(Duration(seconds: settings.hideDelay.toInt()), hide);
       }
     }
   }

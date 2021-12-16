@@ -1,17 +1,25 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../general/pdf_collection.dart';
+import '../io/pdf_constants.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_string.dart';
+import 'pdf_field.dart';
+import 'pdf_list_field.dart';
+import 'pdf_list_field_item.dart';
 
 /// Represents list field item collection.
 class PdfListFieldItemCollection extends PdfObjectCollection
-    implements _IPdfWrapper {
+    implements IPdfWrapper {
   //Constructor
   PdfListFieldItemCollection._([PdfListField? field]) : super() {
+    _helper = PdfListFieldItemCollectionHelper(this);
     if (field != null) {
       _field = field;
     }
   }
 
   //Fields
-  final _PdfArray _items = _PdfArray();
+  late PdfListFieldItemCollectionHelper _helper;
   PdfListField? _field;
 
   //Properties
@@ -20,7 +28,7 @@ class PdfListFieldItemCollection extends PdfObjectCollection
     if (index < 0 || index >= count) {
       throw RangeError('index');
     }
-    return _list[index] as PdfListFieldItem;
+    return _helper.list[index] as PdfListFieldItem;
   }
 
   //Public methods
@@ -39,7 +47,7 @@ class PdfListFieldItemCollection extends PdfObjectCollection
 
   /// Removes the specified [PdfListFieldItem].
   void remove(PdfListFieldItem item) {
-    if (_list.contains(item)) {
+    if (_helper.list.contains(item)) {
       _doRemove(item);
     }
   }
@@ -54,99 +62,131 @@ class PdfListFieldItemCollection extends PdfObjectCollection
 
   /// Determines whether the item is present in the collection.
   bool contains(PdfListFieldItem item) {
-    return _list.contains(item);
+    return _helper.list.contains(item);
   }
 
   /// Gets the index of the specified item.
   int indexOf(PdfListFieldItem item) {
-    return _list.indexOf(item);
+    return _helper.list.indexOf(item);
   }
 
   /// Clears the collection.
   void clear() {
-    if (_field != null && _field!._isLoadedField) {
-      final _PdfArray list = _getItems().._clear();
-      _field!._dictionary.setProperty(_DictionaryProperties.opt, list);
+    if (_field != null && PdfFieldHelper.getHelper(_field!).isLoadedField) {
+      final PdfArray list = _getItems()..clear();
+      PdfFieldHelper.getHelper(_field!)
+          .dictionary!
+          .setProperty(PdfDictionaryProperties.opt, list);
     } else {
-      _items._clear();
+      _helper._items.clear();
     }
-    _list.clear();
+    _helper.list.clear();
   }
 
   //Implementations
   int _doAdd(PdfListFieldItem item) {
-    if (_field != null && _field!._isLoadedField) {
-      final _PdfArray list = _getItems();
-      final _PdfArray itemArray = _getArray(item);
-      list._add(itemArray);
-      _field!._dictionary.setProperty(_DictionaryProperties.opt, list);
+    if (_field != null && PdfFieldHelper.getHelper(_field!).isLoadedField) {
+      final PdfArray list = _getItems();
+      final PdfArray itemArray = _getArray(item);
+      list.add(itemArray);
+      PdfFieldHelper.getHelper(_field!)
+          .dictionary!
+          .setProperty(PdfDictionaryProperties.opt, list);
     } else {
-      _items._add(item._element);
+      _helper._items.add(IPdfWrapper.getElement(item)!);
     }
-    _list.add(item);
+    _helper.list.add(item);
     return count - 1;
   }
 
   void _doInsert(int index, PdfListFieldItem item) {
-    if (_field != null && _field!._isLoadedField) {
-      final _PdfArray list = _getItems();
-      final _PdfArray itemArray = _getArray(item);
-      list._insert(index, itemArray);
-      _field!._dictionary.setProperty(_DictionaryProperties.opt, list);
+    if (_field != null && PdfFieldHelper.getHelper(_field!).isLoadedField) {
+      final PdfArray list = _getItems();
+      final PdfArray itemArray = _getArray(item);
+      list.insert(index, itemArray);
+      PdfFieldHelper.getHelper(_field!)
+          .dictionary!
+          .setProperty(PdfDictionaryProperties.opt, list);
     } else {
-      _items._insert(index, item._element);
+      _helper._items.insert(index, IPdfWrapper.getElement(item)!);
     }
-    _list.insert(index, item);
+    _helper.list.insert(index, item);
   }
 
   void _doRemove(PdfListFieldItem? item, [int? index]) {
     if (index == null && item != null) {
-      index = _list.indexOf(item);
+      index = _helper.list.indexOf(item);
     }
-    if (_field != null && _field!._isLoadedField) {
-      final _PdfArray list = _getItems().._removeAt(index!);
-      _field!._dictionary.setProperty(_DictionaryProperties.opt, list);
+    if (_field != null && PdfFieldHelper.getHelper(_field!).isLoadedField) {
+      final PdfArray list = _getItems()..removeAt(index!);
+      PdfFieldHelper.getHelper(_field!)
+          .dictionary!
+          .setProperty(PdfDictionaryProperties.opt, list);
     } else {
-      _items._removeAt(index!);
+      _helper._items.removeAt(index!);
     }
-    _list.removeAt(index);
+    _helper.list.removeAt(index);
   }
 
-  _PdfArray _getItems() {
-    _PdfArray? items;
-    if (_field!._dictionary.containsKey(_DictionaryProperties.opt)) {
-      final _IPdfPrimitive? obj = _field!._crossTable!
-          ._getObject(_field!._dictionary[_DictionaryProperties.opt]);
-      if (obj != null && obj is _PdfArray) {
+  PdfArray _getItems() {
+    PdfArray? items;
+    if (PdfFieldHelper.getHelper(_field!)
+        .dictionary!
+        .containsKey(PdfDictionaryProperties.opt)) {
+      final IPdfPrimitive? obj = PdfFieldHelper.getHelper(_field!)
+          .crossTable!
+          .getObject(PdfFieldHelper.getHelper(_field!)
+              .dictionary![PdfDictionaryProperties.opt]);
+      if (obj != null && obj is PdfArray) {
         items = obj;
       }
     }
-    return items ?? _PdfArray();
+    return items ?? PdfArray();
   }
 
-  _PdfArray _getArray(PdfListFieldItem item) {
-    final _PdfArray array = _PdfArray();
+  PdfArray _getArray(PdfListFieldItem item) {
+    final PdfArray array = PdfArray();
     if (item.value != '') {
-      array._add(_PdfString(item.value));
+      array.add(PdfString(item.value));
     }
     if (item.value != '') {
-      array._add(_PdfString(item.text));
+      array.add(PdfString(item.text));
     }
     return array;
   }
+}
 
-  int _addItem(PdfListFieldItem item) {
-    _list.add(item);
-    return count - 1;
+/// [PdfListFieldItemCollection] helper
+class PdfListFieldItemCollectionHelper extends PdfObjectCollectionHelper {
+  /// internal constructor
+  PdfListFieldItemCollectionHelper(this.listFieldItemCollection)
+      : super(listFieldItemCollection);
+
+  /// internal field
+  PdfListFieldItemCollection listFieldItemCollection;
+  final PdfArray _items = PdfArray();
+
+  /// internal property
+  IPdfPrimitive? get element => _items;
+  // ignore: unused_element
+  set element(IPdfPrimitive? value) {
+    throw ArgumentError("Primitive element can't be set");
   }
 
-  //overrides
-  @override
-  _IPdfPrimitive get _element => _items;
+  /// internal method
+  static PdfListFieldItemCollectionHelper getHelper(
+      PdfListFieldItemCollection itemCollection) {
+    return itemCollection._helper;
+  }
 
-  @override
-  // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    throw ArgumentError('Primitive element can\'t be set');
+  /// internal method
+  static PdfListFieldItemCollection itemCollection([PdfListField? field]) {
+    return PdfListFieldItemCollection._(field);
+  }
+
+  /// internal method
+  int addItem(PdfListFieldItem item) {
+    list.add(item);
+    return listFieldItemCollection.count - 1;
   }
 }

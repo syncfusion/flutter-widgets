@@ -1,8 +1,9 @@
-part of pdf;
+import 'in_buffer.dart';
 
-class _HuffmanTree {
-  // Constructors
-  _HuffmanTree({List<int>? code, bool? isLtree}) {
+/// internal class
+class HuffmanTree {
+  /// internal constructor
+  HuffmanTree({List<int>? code, bool? isLtree}) {
     if (code == null && isLtree != null) {
       _clArray = isLtree ? _getLTree() : _getDTree();
     } else if (code != null) {
@@ -10,7 +11,7 @@ class _HuffmanTree {
     } else {
       ArgumentError.value(code, 'code', 'The value of the code cannot be null');
     }
-    if (_clArray.length == _maxLTree) {
+    if (_clArray.length == maxLTree) {
       _tBits = 9;
     } else {
       _tBits = 7;
@@ -20,9 +21,14 @@ class _HuffmanTree {
   }
 
   // Constants
-  static const int _maxLTree = 288;
-  static const int _maxDTree = 32;
-  static const int _nCLength = 19;
+  /// internal field
+  static const int maxLTree = 288;
+
+  /// internal field
+  static const int maxDTree = 32;
+
+  /// internal field
+  static const int nCLength = 19;
 
   // Fields
   late int _tBits;
@@ -34,7 +40,7 @@ class _HuffmanTree {
 
   //Implementation
   List<int> _getLTree() {
-    final List<int> lTree = List<int>.filled(_maxLTree, 0);
+    final List<int> lTree = List<int>.filled(maxLTree, 0);
     for (int i = 0; i <= 143; i++) {
       lTree[i] = 8.toUnsigned(8);
     }
@@ -51,7 +57,7 @@ class _HuffmanTree {
   }
 
   List<int> _getDTree() {
-    return List<int>.filled(_maxDTree, 5);
+    return List<int>.filled(maxDTree, 5);
   }
 
   List<int> _calculateHashCode() {
@@ -66,7 +72,7 @@ class _HuffmanTree {
       temp = (temp + bit[bits - 1]) << 1;
       next[bits] = temp;
     }
-    final List<int> code = List<int>.filled(_maxLTree, 0);
+    final List<int> code = List<int>.filled(maxLTree, 0);
     for (int i = 0; i < _clArray.length; i++) {
       final int len = _clArray[i];
       if (len > 0) {
@@ -96,7 +102,7 @@ class _HuffmanTree {
     for (int ch = 0; ch < _clArray.length; ch++) {
       final int len = _clArray[ch];
       if (len > 0) {
-        int start = codeArray[ch].toInt();
+        int start = codeArray[ch];
         if (len <= _tBits) {
           final int i = 1 << len;
           if (start >= i) {
@@ -137,8 +143,9 @@ class _HuffmanTree {
     }
   }
 
-  int _getNextSymbol(_InBuffer input) {
-    final int? bitBuffer = input._load16Bits();
+  /// internal method
+  int getNextSymbol(InBuffer input) {
+    final int? bitBuffer = input.load16Bits();
     if (input.bits == 0) {
       return -1;
     }
@@ -162,7 +169,7 @@ class _HuffmanTree {
     if (codeLength > input.bits) {
       return -1;
     }
-    input._skipBits(codeLength);
+    input.skipBits(codeLength);
     return symbol;
   }
 }

@@ -1,22 +1,27 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../io/enums.dart';
+import '../io/pdf_cross_table.dart';
 
-class _PdfBoolean implements _IPdfPrimitive {
-  _PdfBoolean([bool? v]) {
+/// internal class
+class PdfBoolean implements IPdfPrimitive {
+  /// internal constructor
+  PdfBoolean([bool? v]) {
     if (v != null) {
       value = v;
     }
   }
 
   //Fields
+  /// internal field
   bool? value = false;
   bool? _isSaving;
   int? _objectCollectionIndex;
   int? _position;
-  _ObjectStatus? _status;
+  PdfObjectStatus? _status;
 
-  //_IPdfPrimitive members
+  //IPdfPrimitive members
   @override
-  _IPdfPrimitive? clonedObject;
+  IPdfPrimitive? clonedObject;
 
   @override
   bool? get isSaving {
@@ -52,19 +57,19 @@ class _PdfBoolean implements _IPdfPrimitive {
   }
 
   @override
-  _ObjectStatus? get status {
-    _status ??= _ObjectStatus.none;
+  PdfObjectStatus? get status {
+    _status ??= PdfObjectStatus.none;
     return _status;
   }
 
   @override
-  set status(_ObjectStatus? value) {
+  set status(PdfObjectStatus? value) {
     _status = value;
   }
 
   @override
-  void save(_IPdfWriter? writer) {
-    writer!._write(value! ? 'true' : 'false');
+  void save(IPdfWriter? writer) {
+    writer!.write(value! ? 'true' : 'false');
   }
 
   @override
@@ -75,5 +80,5 @@ class _PdfBoolean implements _IPdfPrimitive {
   }
 
   @override
-  _IPdfPrimitive _clone(_PdfCrossTable crossTable) => _PdfBoolean(value);
+  IPdfPrimitive cloneObject(PdfCrossTable crossTable) => PdfBoolean(value);
 }

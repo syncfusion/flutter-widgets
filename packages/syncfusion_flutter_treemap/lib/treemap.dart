@@ -1130,6 +1130,7 @@ class TreemapTooltipSettings extends DiagnosticableTree {
   /// ```
   const TreemapTooltipSettings({
     this.color,
+    this.hideDelay = 3.0,
     this.borderColor,
     this.borderWidth = 1.0,
     this.borderRadius = const BorderRadius.all(
@@ -1144,6 +1145,15 @@ class TreemapTooltipSettings extends DiagnosticableTree {
   /// * [borderWidth], to set the border width.
   /// * [borderRadius], to set the border radius.
   final Color? color;
+
+  /// Specifies the tooltip hide delay duration
+  ///
+  /// See also:
+  /// * [color], to set the fill color.
+  /// * [borderColor], to set the border color.
+  /// * [borderWidth], to set the border width.
+  /// * [borderRadius], to set the border radius.
+  final double hideDelay;
 
   /// Specifies the border color applies to the tooltip.
   ///
@@ -1172,6 +1182,7 @@ class TreemapTooltipSettings extends DiagnosticableTree {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
+    properties.add(DoubleProperty('hideDelay', hideDelay));
     if (color != null) {
       properties.add(ColorProperty('color', color));
     }
@@ -1193,24 +1204,28 @@ class TreemapTooltipSettings extends DiagnosticableTree {
     }
     return other is TreemapTooltipSettings &&
         other.color == color &&
+        other.hideDelay == hideDelay &&
         other.borderColor == borderColor &&
         other.borderWidth == borderWidth &&
         other.borderRadius == borderRadius;
   }
 
   @override
-  int get hashCode => hashValues(color, borderColor, borderWidth, borderRadius);
+  int get hashCode =>
+      hashValues(color, hideDelay, borderColor, borderWidth, borderRadius);
 
   /// Creates a copy of this class but with the given fields
   /// replaced with the new values.
   TreemapTooltipSettings copyWith({
     Color? color,
+    double? hideDelay,
     Color? borderColor,
     double? borderWidth,
     BorderRadiusGeometry? borderRadius,
   }) {
     return TreemapTooltipSettings(
         color: color ?? this.color,
+        hideDelay: hideDelay ?? this.hideDelay,
         borderColor: borderColor ?? this.borderColor,
         borderWidth: borderWidth ?? this.borderWidth,
         borderRadius: borderRadius ?? this.borderRadius);
@@ -1819,8 +1834,7 @@ class SfTreemap extends StatelessWidget {
     this.legend,
     this.onSelectionChanged,
     this.tileHoverColor = Colors.transparent,
-    this.tileHoverBorder = const RoundedRectangleBorder(
-        side: BorderSide(width: 1, color: Color.fromRGBO(0, 0, 0, 0.5))),
+    this.tileHoverBorder,
     this.selectionSettings = const TreemapSelectionSettings(),
     this.tooltipSettings = const TreemapTooltipSettings(),
     this.enableDrilldown = false,
@@ -1943,9 +1957,7 @@ class SfTreemap extends StatelessWidget {
     this.selectionSettings = const TreemapSelectionSettings(),
     this.tooltipSettings = const TreemapTooltipSettings(),
     this.tileHoverColor = Colors.transparent,
-    this.tileHoverBorder = const RoundedRectangleBorder(
-      side: BorderSide(width: 1, color: Color.fromRGBO(0, 0, 0, 0.5)),
-    ),
+    this.tileHoverBorder,
     this.enableDrilldown = false,
     this.breadcrumbs,
   })  : assert(dataCount > 0),
@@ -2065,8 +2077,7 @@ class SfTreemap extends StatelessWidget {
     this.selectionSettings = const TreemapSelectionSettings(),
     this.tooltipSettings = const TreemapTooltipSettings(),
     this.tileHoverColor = Colors.transparent,
-    this.tileHoverBorder = const RoundedRectangleBorder(
-        side: BorderSide(width: 1, color: Color.fromRGBO(0, 0, 0, 0.5))),
+    this.tileHoverBorder,
     this.enableDrilldown = false,
     this.breadcrumbs,
   })  : assert(dataCount > 0),
@@ -2740,7 +2751,7 @@ class SfTreemap extends StatelessWidget {
   ///     );
   ///   }
   /// ```
-  final RoundedRectangleBorder tileHoverBorder;
+  final RoundedRectangleBorder? tileHoverBorder;
 
   /// Specifies the type of the treemap.
   final LayoutType _layoutType;
@@ -3029,7 +3040,13 @@ class SfTreemap extends StatelessWidget {
       colorMappers: colorMappers,
       legend: legend,
       tileHoverColor: tileHoverColor,
-      tileHoverBorder: tileHoverBorder,
+      tileHoverBorder: tileHoverBorder ??
+          RoundedRectangleBorder(
+            side: BorderSide(
+              width: 1,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            ),
+          ),
       onSelectionChanged: onSelectionChanged,
       selectionSettings: selectionSettings,
       tooltipSettings: tooltipSettings,

@@ -1,9 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../chart/utils/enum.dart';
 import '../../common/common.dart';
 import '../../common/event_args.dart' show ErrorBarValues;
@@ -240,6 +235,12 @@ class CartesianChartPoint<D> {
 
   /// To set the drop value.
   bool isDrop = false;
+
+  /// To check marker event is triggered.
+  bool _isMarkerEventTriggered = false;
+
+  /// To store the marker color when callback is triggered.
+  MarkerDetails? _markerDetails;
 
   /// Sets the visibility of the series.
   bool isVisible = true;
@@ -480,6 +481,28 @@ class CartesianPointHelper {
       CartesianChartPoint<dynamic> point, Color? color) {
     point._dataLabelColor = color;
   }
+
+  /// Returns the marker event triggered flag for a given point
+  static bool getIsMarkerEventTriggered(CartesianChartPoint<dynamic> point) {
+    return point._isMarkerEventTriggered;
+  }
+
+  /// Sets the marker event triggered flag for a given point
+  static void setIsMarkerEventTriggered(
+      CartesianChartPoint<dynamic> point, bool isMarkerEventTriggered) {
+    point._isMarkerEventTriggered = isMarkerEventTriggered;
+  }
+
+  /// Returns the MarkerDetails for a given point
+  static MarkerDetails? getMarkerDetails(CartesianChartPoint<dynamic> point) {
+    return point._markerDetails;
+  }
+
+  /// Sets the MarkerDetails for a given point
+  static void setMarkerDetails(
+      CartesianChartPoint<dynamic> point, MarkerDetails? details) {
+    point._markerDetails = details;
+  }
 }
 
 /// Represents the chart location
@@ -559,7 +582,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
             currentPoint.y = pointIndex != 0 &&
                     (!_seriesType.contains('stackedcolumn') &&
                         !_seriesType.contains('stackedbar'))
-                ? prevPoint.y
+                ? prevPoint.y ?? 0
                 : 0;
             currentPoint.open = 0;
             currentPoint.close = 0;
@@ -581,7 +604,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
                       : 0
                   : currentPoint.high;
             } else {
-              currentPoint.y = pointIndex != 0 ? prevPoint.y : 0;
+              currentPoint.y = pointIndex != 0 ? prevPoint.y ?? 0 : 0;
             }
           }
           currentPoint.isVisible = false;
@@ -609,7 +632,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
                       _seriesType != 'steparea' &&
                       !_seriesType.contains('stackedcolumn') &&
                       !_seriesType.contains('stackedbar'))
-              ? prevPoint.y
+              ? prevPoint.y ?? 0
               : 0;
           currentPoint.isDrop = true;
           currentPoint.isVisible = false;

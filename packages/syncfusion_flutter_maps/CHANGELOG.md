@@ -2,6 +2,12 @@
 
 **Features**
 
+* Legend pointer - Provided an option to show a pointer on the solid bar legend while hover over the shape or bubble.
+
+## [19.3.43-beta] - 09/30/2021
+
+**Features**
+
 * Vector line stroke cap - Provides a stroke cap option to customize the map vector lines and polylines.
 * Marker alignment - Marker can be aligned in various alignment positions based on its coordinate point.
 * Custom bounds - Provides an option to specify the visual limits for viewing a specific region in Maps.

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../radial_gauge/axis/radial_axis_scope.dart';
 import '../../radial_gauge/range/gauge_range_renderer.dart';
 import '../../radial_gauge/styles/radial_text_style.dart';
 import '../../radial_gauge/utils/enum.dart';
+import '../../radial_gauge/utils/helper.dart';
 
 /// Create the range to add a color bar in the gauge.
 ///
@@ -292,9 +292,12 @@ class GaugeRange extends LeafRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+    final RadialAxisInheritedWidget ancestor = context
+        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
+
     return RenderGaugeRange(
-        startValue: startValue,
-        endValue: endValue,
+        startValue: startValue.clamp(ancestor.minimum, ancestor.maximum),
+        endValue: endValue.clamp(ancestor.minimum, ancestor.maximum),
         startWidth: startWidth,
         endWidth: endWidth,
         sizeUnit: sizeUnit,
@@ -312,9 +315,12 @@ class GaugeRange extends LeafRenderObjectWidget {
   void updateRenderObject(BuildContext context, RenderGaugeRange renderObject) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+    final RadialAxisInheritedWidget ancestor = context
+        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
+
     renderObject
-      ..startValue = startValue
-      ..endValue = endValue
+      ..startValue = startValue.clamp(ancestor.minimum, ancestor.maximum)
+      ..endValue = endValue.clamp(ancestor.minimum, ancestor.maximum)
       ..startWidth = startWidth
       ..endWidth = endWidth
       ..sizeUnit = sizeUnit

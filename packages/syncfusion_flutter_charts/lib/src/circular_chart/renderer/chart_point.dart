@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../../chart/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import '../utils/enum.dart';
@@ -86,7 +85,7 @@ class ChartPoint<D> {
   late Rect labelRect;
 
   /// Size of the Data label of chart point
-  Size dataLabelSize = const Size(0, 0);
+  Size dataLabelSize = Size.zero;
 
   /// Saturation region value of chart point
   bool saturationRegionOutside = false;
@@ -105,6 +104,9 @@ class ChartPoint<D> {
 
   /// To store the trimmed text, if the label renders outside the container area.
   String? trimmedText;
+
+  /// Stores the segment overflow data label trimmed text.
+  String? overflowTrimmedText;
 
   /// To execute onTooltipRender event or not.
   // ignore: prefer_final_fields

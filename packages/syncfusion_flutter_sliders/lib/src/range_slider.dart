@@ -1,12 +1,7 @@
 import 'dart:math' as math;
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-// ignore: unused_import
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -121,6 +116,8 @@ class SfRangeSlider extends StatefulWidget {
       this.max = 1.0,
       required this.values,
       required this.onChanged,
+      this.onChangeStart,
+      this.onChangeEnd,
       this.interval,
       this.stepSize,
       this.stepDuration,
@@ -129,6 +126,7 @@ class SfRangeSlider extends StatefulWidget {
       this.showLabels = false,
       this.showDividers = false,
       this.enableTooltip = false,
+      this.shouldAlwaysShowTooltip = false,
       this.enableIntervalSelection = false,
       this.dragMode = SliderDragMode.onThumb,
       this.inactiveColor,
@@ -154,6 +152,8 @@ class SfRangeSlider extends StatefulWidget {
         _tooltipPosition = null,
         assert(min != max),
         assert(interval == null || interval > 0),
+        assert(!enableIntervalSelection ||
+            (enableIntervalSelection && (interval != null && interval > 0))),
         super(key: key);
 
   /// Creates a vertical [SfRangeSlider].
@@ -202,6 +202,8 @@ class SfRangeSlider extends StatefulWidget {
       this.max = 1.0,
       required this.values,
       required this.onChanged,
+      this.onChangeStart,
+      this.onChangeEnd,
       this.interval,
       this.stepSize,
       this.stepDuration,
@@ -210,6 +212,7 @@ class SfRangeSlider extends StatefulWidget {
       this.showLabels = false,
       this.showDividers = false,
       this.enableTooltip = false,
+      this.shouldAlwaysShowTooltip = false,
       this.enableIntervalSelection = false,
       this.dragMode = SliderDragMode.onThumb,
       this.isInversed = false,
@@ -338,6 +341,79 @@ class SfRangeSlider extends StatefulWidget {
   /// ```
   ///
   final ValueChanged<SfRangeValues>? onChanged;
+
+  /// The [onChangeStart] callback will be called when the user starts to
+  /// tap or drag the range slider. This callback is only used to notify
+  /// the user about the start interaction and it does not update the
+  /// range slider value.
+  ///
+  /// The last interacted thumb value will be passed to this callback.
+  /// The value will be double or date time.
+  ///
+  /// ```dart
+  /// SfRangeValues _values = SfRangeValues(4.0, 6.0);
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfRangeSlider(
+  ///       min: 0,
+  ///       max: 10,
+  ///       values: _values,
+  ///       onChangeStart: (SfRangeValues startValue) {
+  ///         print('Interaction start');
+  ///       },
+  ///       onChanged: (SfRangeValues newValues) {
+  ///         setState(() {
+  ///           _values = newValues;
+  ///         });
+  ///       },
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// See also:
+  /// •	The [onChangeEnd] callback used to notify the user about the
+  ///   interaction end.
+  /// •	The [onChanged] callback used to update the slider thumb value.
+  final ValueChanged<SfRangeValues>? onChangeStart;
+
+  /// The [onChangeEnd] callback will be called when the user ends
+  /// tap or drag the range slider.
+  ///
+  /// This callback is only used to notify the user about the end interaction
+  /// and it does not update the range slider thumb value.
+  ///
+  /// ```dart
+  /// SfRangeValues _values = SfRangeValues(4.0, 6.0);
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfRangeSlider(
+  ///       min: 0,
+  ///       max: 10,
+  ///       values: _values,
+  ///       onChangeEnd: (SfRangeValues endValue) {
+  ///         print('Interaction end');
+  ///       },
+  ///       onChanged: (SfRangeValues newValues) {
+  ///         setState(() {
+  ///           _values = newValues;
+  ///         });
+  ///       },
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// See also:
+  /// •	The [onChangeStart] callback used to notify the user about the
+  ///   interaction begins.
+  /// •	The [onChanged] callback used to update the range slider thumb value.
+
+  final ValueChanged<SfRangeValues>? onChangeEnd;
 
   /// Splits the range slider into given interval.
   /// It is mandatory if labels, major ticks and dividers are needed.
@@ -654,6 +730,39 @@ class SfRangeSlider extends StatefulWidget {
   /// * [tooltipTextFormatterCallback], for changing the default tooltip text.
   /// * [SfRangeSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfRangeSliderThemeData-class.html), for customizing the appearance of the tooltip text.
   final bool enableTooltip;
+
+  /// Option to show tooltip always in range slider.
+  ///
+  /// Defaults to false.
+  ///
+  /// When this property is enabled, the tooltip is always displayed to the
+  /// start and end thumbs of the selector. This property works independent of
+  /// the[enableTooltip] property. While this property is enabled, the tooltip
+  /// will always appear during interaction.
+  ///
+  /// This snippet shows how to show the tooltip in the [SfRangeSlider].
+  ///
+  ///  ```dart
+  /// SfRangeValues _values = SfRangeValues(4.0, 6.0);
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfRangeSlider(
+  ///       min: 0,
+  ///       max: 10,
+  ///       values: _values,
+  ///       shouldAlwaysShowTooltip: true,
+  ///       onChanged: (SfRangeValues newValues) {
+  ///         setState(() {
+  ///           _values = newValues;
+  ///         });
+  ///       },
+  ///     ),
+  ///   );
+  /// }
+  /// ````
+  final bool shouldAlwaysShowTooltip;
 
   /// Option to select the particular interval based on
   /// the position of the tap or click.
@@ -1171,7 +1280,7 @@ class SfRangeSlider extends StatefulWidget {
   final Widget? endThumbIcon;
 
   @override
-  _SfRangeSliderState createState() => _SfRangeSliderState();
+  State<SfRangeSlider> createState() => _SfRangeSliderState();
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -1186,6 +1295,10 @@ class SfRangeSlider extends StatefulWidget {
     properties.add(ObjectFlagProperty<ValueChanged<SfRangeValues>>(
         'onChanged', onChanged,
         ifNull: 'disabled'));
+    properties.add(ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
+        'onChangeStart', onChangeStart));
+    properties.add(ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
+        'onChangeEnd', onChangeEnd));
     properties.add(DoubleProperty('interval', interval));
     properties.add(DoubleProperty('stepSize', stepSize));
     if (stepDuration != null) {
@@ -1207,11 +1320,18 @@ class SfRangeSlider extends StatefulWidget {
         ifTrue: 'Dividers are  showing',
         ifFalse: 'Dividers are not showing',
         showName: false));
-    properties.add(FlagProperty('enableTooltip',
-        value: enableTooltip,
-        ifTrue: 'Tooltip is enabled',
-        ifFalse: 'Tooltip is disabled',
-        showName: false));
+    if (shouldAlwaysShowTooltip) {
+      properties.add(FlagProperty('shouldAlwaysShowTooltip',
+          value: shouldAlwaysShowTooltip,
+          ifTrue: 'Tooltip is always visible',
+          showName: false));
+    } else {
+      properties.add(FlagProperty('enableTooltip',
+          value: enableTooltip,
+          ifTrue: 'Tooltip is enabled',
+          ifFalse: 'Tooltip is disabled',
+          showName: false));
+    }
     properties.add(FlagProperty('enableIntervalSelection',
         value: enableIntervalSelection,
         ifTrue: 'Interval selection is enabled',
@@ -1224,10 +1344,8 @@ class SfRangeSlider extends StatefulWidget {
     properties
         .add(DiagnosticsProperty<NumberFormat>('numberFormat', numberFormat));
     if (values.start.runtimeType == DateTime && dateFormat != null) {
-      properties.add(StringProperty(
-          'dateFormat',
-          'Formatted value is ' +
-              (dateFormat!.format(values.start)).toString()));
+      properties.add(StringProperty('dateFormat',
+          'Formatted value is ${dateFormat!.format(values.start)}'));
     }
     properties.add(
         EnumProperty<DateIntervalType>('dateIntervalType', dateIntervalType));
@@ -1255,6 +1373,18 @@ class _SfRangeSliderState extends State<SfRangeSlider>
   void _onChanged(SfRangeValues values) {
     if (values != widget.values) {
       widget.onChanged!(values);
+    }
+  }
+
+  void _onChangeStart(SfRangeValues values) {
+    if (widget.onChangeStart != null) {
+      widget.onChangeStart!(values);
+    }
+  }
+
+  void _onChangeEnd(SfRangeValues values) {
+    if (widget.onChangeEnd != null) {
+      widget.onChangeEnd!(values);
     }
   }
 
@@ -1291,33 +1421,40 @@ class _SfRangeSliderState extends State<SfRangeSlider>
                   ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       tooltipTextStyle: rangeSliderThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
-              color: rangeSliderThemeData.brightness == Brightness.light
-                  ? const Color.fromRGBO(255, 255, 255, 1)
-                  : const Color.fromRGBO(0, 0, 0, 1)),
+          themeData.textTheme.bodyText1!
+              .copyWith(color: themeData.colorScheme.surface),
       inactiveTrackColor: widget.inactiveColor ??
           rangeSliderThemeData.inactiveTrackColor ??
-          themeData.primaryColor.withOpacity(0.24),
+          themeData.colorScheme.primary.withOpacity(0.24),
       activeTrackColor: widget.activeColor ??
           rangeSliderThemeData.activeTrackColor ??
-          themeData.primaryColor,
+          themeData.colorScheme.primary,
       thumbColor: widget.activeColor ??
           rangeSliderThemeData.thumbColor ??
-          themeData.primaryColor,
-      activeTickColor: rangeSliderThemeData.activeTickColor,
-      inactiveTickColor: rangeSliderThemeData.inactiveTickColor,
-      disabledActiveTickColor: rangeSliderThemeData.disabledActiveTickColor,
-      disabledInactiveTickColor: rangeSliderThemeData.disabledInactiveTickColor,
-      activeMinorTickColor: rangeSliderThemeData.activeMinorTickColor,
-      inactiveMinorTickColor: rangeSliderThemeData.inactiveMinorTickColor,
+          themeData.colorScheme.primary,
+      activeTickColor: rangeSliderThemeData.activeTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.37),
+      inactiveTickColor: rangeSliderThemeData.inactiveTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.37),
+      disabledActiveTickColor: rangeSliderThemeData.disabledActiveTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.24),
+      disabledInactiveTickColor:
+          rangeSliderThemeData.disabledInactiveTickColor ??
+              themeData.colorScheme.onSurface.withOpacity(0.24),
+      activeMinorTickColor: rangeSliderThemeData.activeMinorTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.37),
+      inactiveMinorTickColor: rangeSliderThemeData.inactiveMinorTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.37),
       disabledActiveMinorTickColor:
-          rangeSliderThemeData.disabledActiveMinorTickColor,
+          rangeSliderThemeData.disabledActiveMinorTickColor ??
+              themeData.colorScheme.onSurface.withOpacity(0.24),
       disabledInactiveMinorTickColor:
-          rangeSliderThemeData.disabledInactiveMinorTickColor,
+          rangeSliderThemeData.disabledInactiveMinorTickColor ??
+              themeData.colorScheme.onSurface.withOpacity(0.24),
       // ignore: lines_longer_than_80_chars
       overlayColor: widget.activeColor?.withOpacity(0.12) ??
           rangeSliderThemeData.overlayColor ??
-          themeData.primaryColor.withOpacity(0.12),
+          themeData.colorScheme.primary.withOpacity(0.12),
       inactiveDividerColor: widget.activeColor ??
           rangeSliderThemeData.inactiveDividerColor ??
           themeData.colorScheme.primary.withOpacity(0.54),
@@ -1335,13 +1472,13 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       disabledInactiveTrackColor:
           rangeSliderThemeData.disabledInactiveTrackColor ??
               themeData.colorScheme.onSurface.withOpacity(0.12),
-      disabledThumbColor: rangeSliderThemeData.disabledThumbColor,
+      disabledThumbColor: rangeSliderThemeData.disabledThumbColor ??
+          Color.alphaBlend(themeData.colorScheme.onSurface.withOpacity(0.38),
+              themeData.colorScheme.surface),
       tooltipBackgroundColor: rangeSliderThemeData.tooltipBackgroundColor ??
-          (widget.tooltipShape is SfPaddleTooltipShape
-              ? themeData.primaryColor
-              : (rangeSliderThemeData.brightness == Brightness.light)
-                  ? const Color.fromRGBO(97, 97, 97, 1)
-                  : const Color.fromRGBO(224, 224, 224, 1)),
+          (themeData.brightness == Brightness.light
+              ? const Color.fromRGBO(97, 97, 97, 1)
+              : const Color.fromRGBO(224, 224, 224, 1)),
       thumbStrokeColor: rangeSliderThemeData.thumbStrokeColor,
       overlappingThumbStrokeColor:
           rangeSliderThemeData.overlappingThumbStrokeColor ??
@@ -1407,6 +1544,20 @@ class _SfRangeSliderState extends State<SfRangeSlider>
   }
 
   @override
+  void didUpdateWidget(SfRangeSlider oldWidget) {
+    if (oldWidget.shouldAlwaysShowTooltip != widget.shouldAlwaysShowTooltip) {
+      if (widget.shouldAlwaysShowTooltip) {
+        tooltipAnimationStartController.value = 1;
+        tooltipAnimationEndController.value = 1;
+      } else {
+        tooltipAnimationStartController.value = 0;
+        tooltipAnimationEndController.value = 0;
+      }
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void dispose() {
     overlayStartController.dispose();
     overlayEndController.dispose();
@@ -1430,6 +1581,8 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       max: widget.max,
       values: widget.values,
       onChanged: isActive ? _onChanged : null,
+      onChangeStart: widget.onChangeStart != null ? _onChangeStart : null,
+      onChangeEnd: widget.onChangeEnd != null ? _onChangeEnd : null,
       interval: widget.interval,
       stepSize: widget.stepSize,
       stepDuration: widget.stepDuration,
@@ -1438,6 +1591,7 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       showLabels: widget.showLabels,
       showDividers: widget.showDividers,
       enableTooltip: widget.enableTooltip,
+      shouldAlwaysShowTooltip: widget.shouldAlwaysShowTooltip,
       dragMode: widget.dragMode,
       enableIntervalSelection: widget.enableIntervalSelection,
       isInversed: widget._sliderType == SliderType.horizontal &&
@@ -1479,6 +1633,8 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
     required this.max,
     required this.values,
     required this.onChanged,
+    required this.onChangeStart,
+    required this.onChangeEnd,
     required this.interval,
     required this.stepSize,
     required this.stepDuration,
@@ -1487,6 +1643,7 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
     required this.showLabels,
     required this.showDividers,
     required this.enableTooltip,
+    required this.shouldAlwaysShowTooltip,
     required this.enableIntervalSelection,
     required this.dragMode,
     required this.isInversed,
@@ -1519,6 +1676,8 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
   final dynamic max;
   final SfRangeValues? values;
   final ValueChanged<SfRangeValues>? onChanged;
+  final ValueChanged<SfRangeValues>? onChangeStart;
+  final ValueChanged<SfRangeValues>? onChangeEnd;
   final double? interval;
   final double? stepSize;
   final SliderStepDuration? stepDuration;
@@ -1530,6 +1689,7 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
   final bool enableTooltip;
   final bool enableIntervalSelection;
   final bool isInversed;
+  final bool shouldAlwaysShowTooltip;
 
   final Color inactiveColor;
   final Color activeColor;
@@ -1564,6 +1724,8 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
       max: max,
       values: values,
       onChanged: onChanged,
+      onChangeStart: onChangeStart,
+      onChangeEnd: onChangeEnd,
       interval: interval,
       stepSize: stepSize,
       stepDuration: stepDuration,
@@ -1572,6 +1734,7 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
       showLabels: showLabels,
       showDividers: showDividers,
       enableTooltip: enableTooltip,
+      shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
       enableIntervalSelection: enableIntervalSelection,
       dragMode: dragMode,
       isInversed: isInversed,
@@ -1606,6 +1769,8 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
       ..max = max
       ..values = values!
       ..onChanged = onChanged
+      ..onChangeStart = onChangeStart
+      ..onChangeEnd = onChangeEnd
       ..interval = interval
       ..stepSize = stepSize
       ..stepDuration = stepDuration
@@ -1614,6 +1779,7 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
       ..showLabels = showLabels
       ..showDividers = showDividers
       ..enableTooltip = enableTooltip
+      ..shouldAlwaysShowTooltip = shouldAlwaysShowTooltip
       ..enableIntervalSelection = enableIntervalSelection
       ..dragMode = dragMode
       ..isInversed = isInversed
@@ -1707,7 +1873,6 @@ class _RenderRangeSliderElement extends RenderObjectElement {
   @override
   void insertRenderObjectChild(RenderObject child, ChildElements slotValue) {
     assert(child is RenderBox);
-    assert(slotValue is ChildElements);
     final ChildElements slot = slotValue;
     _updateRenderObject(child, slot);
     assert(renderObject.childToSlot.keys.contains(child));
@@ -1736,6 +1901,8 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
     required dynamic max,
     required SfRangeValues? values,
     required ValueChanged<SfRangeValues>? onChanged,
+    required ValueChanged<SfRangeValues>? onChangeStart,
+    required ValueChanged<SfRangeValues>? onChangeEnd,
     required double? interval,
     required double? stepSize,
     required SliderStepDuration? stepDuration,
@@ -1744,6 +1911,7 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
     required bool showLabels,
     required bool showDividers,
     required bool enableTooltip,
+    required bool shouldAlwaysShowTooltip,
     required bool enableIntervalSelection,
     required SliderDragMode dragMode,
     required bool isInversed,
@@ -1774,6 +1942,8 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
             min: min,
             max: max,
             values: values,
+            onChangeStart: onChangeStart,
+            onChangeEnd: onChangeEnd,
             interval: interval,
             stepSize: stepSize,
             stepDuration: stepDuration,
@@ -1782,6 +1952,7 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
             showLabels: showLabels,
             showDividers: showDividers,
             enableTooltip: enableTooltip,
+            shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
             enableIntervalSelection: enableIntervalSelection,
             dragMode: dragMode,
             isInversed: isInversed,

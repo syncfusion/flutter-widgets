@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
@@ -111,6 +110,7 @@ class AppointmentLayout extends StatefulWidget {
   }
 
   @override
+  // ignore: library_private_types_in_public_api
   _AppointmentLayoutState createState() => _AppointmentLayoutState();
 }
 
@@ -317,7 +317,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
       final List<int> keys = _monthAppointmentCountViews.keys.toList();
       for (int i = 0; i < keys.length; i++) {
         // ignore: unnecessary_nullable_for_final_variable_declarations
-        final RRect? rect = _monthAppointmentCountViews[keys[i]]!;
+        final RRect? rect = _monthAppointmentCountViews[keys[i]];
 
         if (rect != null &&
             rect.left <= x &&
@@ -506,7 +506,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         visibleStartIndex,
         visibleEndIndex);
     final TextStyle style =
-        widget.calendar.todayTextStyle ?? widget.calendarTheme.todayTextStyle;
+        widget.calendar.todayTextStyle ?? widget.calendarTheme.todayTextStyle!;
     final TextSpan dateText =
         TextSpan(text: DateTime.now().day.toString(), style: style);
     _textPainter = _updateTextPainter(
@@ -612,7 +612,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
               yPosition,
               cellWidth - cellEndPadding > 0 ? cellWidth - cellEndPadding : 0,
               appointmentHeight - 1),
-          const Radius.circular(0));
+          Radius.zero);
 
       _monthAppointmentCountViews[index] = moreRegionRect;
     }
@@ -2031,10 +2031,10 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
 
       double startXPosition = 0;
       if (isRTL) {
-        startXPosition = (6 - (i % DateTime.daysPerWeek).toInt()) * cellWidth;
+        startXPosition = (6 - (i % DateTime.daysPerWeek)) * cellWidth;
       } else {
-        startXPosition = (((i % DateTime.daysPerWeek).toInt()) * cellWidth) +
-            _weekNumberPanelWidth;
+        startXPosition =
+            ((i % DateTime.daysPerWeek) * cellWidth) + _weekNumberPanelWidth;
       }
 
       xPosition += startXPosition;
@@ -2233,7 +2233,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     canvas.translate(xPosition, yPosition);
     final double radians = 90 * math.pi / 180;
     canvas.rotate(radians);
-    _textPainter.paint(canvas, const Offset(0, 0));
+    _textPainter.paint(canvas, Offset.zero);
     canvas.restore();
   }
 
@@ -2275,7 +2275,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     canvas.translate(xPosition, yPosition);
     final double radians = 90 * math.pi / 180;
     canvas.rotate(radians);
-    _textPainter.paint(canvas, const Offset(0, 0));
+    _textPainter.paint(canvas, Offset.zero);
     canvas.restore();
   }
 

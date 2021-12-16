@@ -1,4 +1,8 @@
-part of pdf;
+import '../io/pdf_stream_writer.dart';
+import 'brushes/pdf_solid_brush.dart';
+import 'enums.dart';
+import 'pdf_color.dart';
+import 'pdf_transformation_matrix.dart';
 
 /// A class defining settings for drawing operations,
 /// that determines the color, width, and style of the drawing elements.
@@ -36,6 +40,7 @@ class PdfPen {
       PdfDashStyle dashStyle = PdfDashStyle.solid,
       PdfLineCap lineCap = PdfLineCap.flat,
       PdfLineJoin lineJoin = PdfLineJoin.miter}) {
+    _helper = PdfPenHelper(this);
     _color = pdfColor;
     _initialize(width, dashStyle, lineCap, lineJoin);
   }
@@ -59,19 +64,21 @@ class PdfPen {
       PdfDashStyle dashStyle = PdfDashStyle.solid,
       PdfLineCap lineCap = PdfLineCap.flat,
       PdfLineJoin lineJoin = PdfLineJoin.miter}) {
+    _helper = PdfPenHelper(this);
     _setBrush(brush);
     _width = width;
     _initialize(width, dashStyle, lineCap, lineJoin);
   }
 
   PdfPen._immutable(PdfColor pdfColor) {
+    _helper = PdfPenHelper(this);
     _color = pdfColor;
-    _immutable = true;
+    _helper.isImmutable = true;
     _initialize(1.0, PdfDashStyle.solid, PdfLineCap.flat, PdfLineJoin.miter);
   }
 
   //Fields
-  bool _immutable = false;
+  late PdfPenHelper _helper;
   //ignore:unused_field
   late PdfColorSpace _colorSpace;
   PdfDashStyle _dashStyle = PdfDashStyle.solid;
@@ -83,7 +90,6 @@ class PdfPen {
   PdfLineJoin _lineJoin = PdfLineJoin.miter;
   double _width = 1.0;
   late double _miterLimit;
-  bool? _isSkipPatternWidth;
 
   //Properties
   @override
@@ -308,8 +314,8 @@ class PdfPen {
   }
 
   void _checkImmutability() {
-    if (_immutable) {
-      throw UnsupportedError('The immutable object can\'t be changed');
+    if (_helper.isImmutable) {
+      throw UnsupportedError("The immutable object can't be changed");
     }
   }
 
@@ -360,46 +366,71 @@ class PdfPen {
       _brush = brush;
     }
   }
+}
 
-  bool _monitorChanges(
+/// [PdfPen] helper
+class PdfPenHelper {
+  /// internal constructor
+  PdfPenHelper(this.base);
+
+  /// internal field
+  late PdfPen base;
+
+  /// internal method
+  static PdfPenHelper getHelper(PdfPen base) {
+    return base._helper;
+  }
+
+  /// internal field
+  bool isImmutable = false;
+
+  /// internal method
+  static PdfPen immutable(PdfColor pdfColor) {
+    return PdfPen._immutable(pdfColor);
+  }
+
+  /// internal field
+  bool? isSkipPatternWidth;
+
+  /// internal method
+  bool monitorChanges(
       PdfPen? currentPen,
-      _PdfStreamWriter streamWriter,
+      PdfStreamWriter streamWriter,
       Function? getResources,
       bool saveState,
       PdfColorSpace? currentColorSpace,
-      _PdfTransformationMatrix? matrix) {
+      PdfTransformationMatrix? matrix) {
     bool diff = false;
     saveState = true;
     if (currentPen == null) {
       diff = true;
     }
     diff = _dashControl(currentPen, saveState, streamWriter);
-    streamWriter._setLineWidth(width);
-    streamWriter._setLineJoin(lineJoin);
-    streamWriter._setLineCap(lineCap);
-    if (miterLimit > 0) {
-      streamWriter._setMiterLimit(miterLimit);
+    streamWriter.setLineWidth(base.width);
+    streamWriter.setLineJoin(base.lineJoin);
+    streamWriter.setLineCap(base.lineCap);
+    if (base.miterLimit > 0) {
+      streamWriter.setMiterLimit(base.miterLimit);
       diff = true;
     }
-    streamWriter._setColorAndSpace(color, currentColorSpace, true);
+    streamWriter.setColorAndSpace(base.color, currentColorSpace, true);
     diff = true;
     return diff;
   }
 
-  bool _dashControl(
-      PdfPen? pen, bool saveState, _PdfStreamWriter streamWriter) {
+  bool _dashControl(PdfPen? pen, bool saveState, PdfStreamWriter streamWriter) {
     saveState = true;
     final List<double>? pattern = _getPattern();
-    streamWriter._setLineDashPattern(pattern, dashOffset * width);
+    streamWriter.setLineDashPattern(pattern, base.dashOffset * base.width);
     return saveState;
   }
 
   List<double>? _getPattern() {
-    final List<double> pattern = dashPattern;
-    _isSkipPatternWidth ??= false;
-    if (!_isSkipPatternWidth!) {
+    final List<double> pattern = base.dashPattern;
+    isSkipPatternWidth ??= false;
+    if (!isSkipPatternWidth!) {
       for (int i = 0; i < pattern.length; ++i) {
-        pattern[i] *= width;
+        pattern[i] *= base.width;
       }
     }
     return pattern;

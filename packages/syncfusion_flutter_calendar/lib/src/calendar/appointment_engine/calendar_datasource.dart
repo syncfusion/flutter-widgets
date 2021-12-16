@@ -8,8 +8,6 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart'
 
 import '../../../calendar.dart';
 import '../common/calendar_view_helper.dart';
-import '../common/enums.dart';
-import '../resource_view/calendar_resource.dart';
 
 /// An object that maintains the data source for [SfCalendar].
 ///
@@ -19,6 +17,9 @@ import '../resource_view/calendar_resource.dart';
 ///
 /// Allows to add and remove an [Appointment] from the collection and also
 /// allows to reset the appointment collection for [SfCalendar].
+///
+/// _Note:_ This method must be implemented to get the data with business
+/// object type when drag and drop or appointment resizing enabled.
 ///
 /// See also:
 /// * [Appointment], the object which holds the details of the appointment.

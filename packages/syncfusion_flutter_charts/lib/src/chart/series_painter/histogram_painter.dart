@@ -1,17 +1,11 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../../charts.dart';
 import '../../common/rendering_details.dart';
 import '../axis/axis.dart';
-import '../base/chart_base.dart';
 import '../base/series_base.dart';
 import '../chart_segment/chart_segment.dart';
-import '../chart_segment/histogram_segment.dart';
-import '../chart_series/histogram_series.dart';
 import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
@@ -270,6 +264,8 @@ class HistogramChartPainter extends CustomPainter {
     CartesianChartPoint<dynamic> point;
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer);
+    // Disposing the old chart segments.
+    disposeOldSegments(chart, seriesRendererDetails);
     final ChartAxisRendererDetails xAxisDetails =
         seriesRendererDetails.xAxisDetails!;
     final ChartAxisRendererDetails yAxisDetails =

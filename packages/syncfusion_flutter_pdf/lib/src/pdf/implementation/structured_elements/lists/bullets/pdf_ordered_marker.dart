@@ -1,4 +1,7 @@
-part of pdf;
+import '../../../graphics/fonts/pdf_font.dart';
+import '../../../pages/enum.dart';
+import '../../../pdf_document/automatic_fields/pdf_automatic_field.dart';
+import 'pdf_marker.dart';
 
 /// Represents marker for ordered list.
 ///
@@ -45,6 +48,7 @@ class PdfOrderedMarker extends PdfMarker {
       PdfFont? font,
       String suffix = '',
       String delimiter = ''}) {
+    _helper = PdfOrderedMarkerHelper(this);
     _delimiter = delimiter;
     _suffix = suffix;
     this.font = font;
@@ -72,17 +76,12 @@ class PdfOrderedMarker extends PdfMarker {
   /// ```
   PdfNumberStyle style = PdfNumberStyle.none;
 
-  /// Start number for ordered list.
-  int _startNumber = 1;
-
   /// Delimiter for numbers.
   String? _delimiter;
 
   /// Finalizer for numbers.
   String? _suffix;
-
-  /// Current index of item.
-  late int _currentIndex;
+  late PdfOrderedMarkerHelper _helper;
 
   //Properties
   /// Gets or sets start number for ordered list. Default value is 1.
@@ -105,12 +104,12 @@ class PdfOrderedMarker extends PdfMarker {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  int get startNumber => _startNumber;
+  int get startNumber => _helper._startNumber;
   set startNumber(int value) {
     if (value <= 0) {
       throw ArgumentError('Start number should be greater than 0');
     }
-    _startNumber = value;
+    _helper._startNumber = value;
   }
 
   /// Gets or sets the delimiter.
@@ -172,10 +171,30 @@ class PdfOrderedMarker extends PdfMarker {
   }
 
   set suffix(String value) => _suffix = value;
+}
 
-  //Implementation
+/// [PdfOrderedMarker] helper
+class PdfOrderedMarkerHelper extends PdfMarkerHelper {
+  /// internal constructor
+  PdfOrderedMarkerHelper(this.base) : super(base);
+
+  /// internal field
+  PdfOrderedMarker base;
+
+  /// internal method
+  static PdfOrderedMarkerHelper getHelper(PdfOrderedMarker base) {
+    return base._helper;
+  }
+
+  /// Current index of item.
+  late int currentIndex;
+
+  /// Start number for ordered list.
+  int _startNumber = 1;
+
   /// Gets the marker number.
-  String _getNumber() {
-    return PdfAutomaticField._convert(_startNumber + _currentIndex, style);
+  String getNumber() {
+    return PdfAutomaticFieldHelper.convert(
+        _startNumber + currentIndex, base.style);
   }
 }

@@ -1,4 +1,6 @@
-part of pdf;
+import '../../io/pdf_stream_writer.dart';
+import '../enums.dart';
+import '../pdf_color.dart';
 
 /// Represents a brush that fills any object with a solid color.
 class PdfSolidBrush implements PdfBrush {
@@ -25,7 +27,7 @@ class PdfSolidBrush implements PdfBrush {
   @override
   bool _monitorChanges(
       PdfBrush? brush,
-      _PdfStreamWriter? streamWriter,
+      PdfStreamWriter? streamWriter,
       Function? getResources,
       bool saveChanges,
       PdfColorSpace? currentColorSpace) {
@@ -33,22 +35,22 @@ class PdfSolidBrush implements PdfBrush {
     if (getResources != null && streamWriter != null) {
       if (brush == null) {
         diff = true;
-        streamWriter._setColorAndSpace(color, currentColorSpace, false);
+        streamWriter.setColorAndSpace(color, currentColorSpace, false);
       } else if (brush != this) {
         final PdfSolidBrush solidBrush = brush as PdfSolidBrush;
-        if (brush is PdfSolidBrush) {
+        if (brush != null) {
           if (solidBrush.color != color ||
               solidBrush._colorSpace != currentColorSpace) {
             diff = true;
-            streamWriter._setColorAndSpace(color, currentColorSpace, false);
+            streamWriter.setColorAndSpace(color, currentColorSpace, false);
           } else if (solidBrush._colorSpace == currentColorSpace &&
               currentColorSpace == PdfColorSpace.rgb) {
             diff = true;
-            streamWriter._setColorAndSpace(color, currentColorSpace, false);
+            streamWriter.setColorAndSpace(color, currentColorSpace, false);
           }
         } else {
           brush._resetChanges(streamWriter);
-          streamWriter._setColorAndSpace(color, currentColorSpace, false);
+          streamWriter.setColorAndSpace(color, currentColorSpace, false);
           diff = true;
         }
       }
@@ -56,7 +58,51 @@ class PdfSolidBrush implements PdfBrush {
     return diff;
   }
 
-  void _resetChanges(_PdfStreamWriter streamWriter) {
-    streamWriter._setColorAndSpace(PdfColor(0, 0, 0), PdfColorSpace.rgb, false);
+  void _resetChanges(PdfStreamWriter streamWriter) {
+    streamWriter.setColorAndSpace(PdfColor(0, 0, 0), PdfColorSpace.rgb, false);
+  }
+}
+
+/// Provides objects used to fill the interiors of graphical shapes
+/// such as rectangles, ellipses, pies, polygons, and paths.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument doc = PdfDocument();
+/// //Create a new PDF solid brush.
+/// PdfBrush solidBrush = PdfSolidBrush(PdfColor(1, 0, 0));
+/// //Add a page and draw a rectangle using the brush.
+/// doc.pages
+///     .add()
+///     .graphics
+///     .drawRectangle(brush: solidBrush,
+///     bounds: Rect.fromLTWH(0, 0, 200, 100));
+/// //Save the document.
+/// List<int> bytes = doc.save();
+/// //Dispose the document.
+/// doc.dispose();
+/// ```
+abstract class PdfBrush {
+  bool _monitorChanges(
+      PdfBrush? brush,
+      PdfStreamWriter? streamWriter,
+      Function? getResources,
+      bool saveChanges,
+      PdfColorSpace? currentColorSpace);
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfBrush] helper
+class PdfBrushHelper {
+  /// internal method
+  static bool monitorChanges(
+      PdfBrush base,
+      PdfBrush? brush,
+      PdfStreamWriter? streamWriter,
+      Function? getResources,
+      bool saveChanges,
+      PdfColorSpace? currentColorSpace) {
+    return base._monitorChanges(
+        brush, streamWriter, getResources, saveChanges, currentColorSpace);
   }
 }

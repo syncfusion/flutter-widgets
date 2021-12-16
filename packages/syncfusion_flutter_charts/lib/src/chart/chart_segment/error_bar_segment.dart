@@ -1,12 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series.dart';
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
 import 'package:syncfusion_flutter_charts/src/chart/common/common.dart';
 import '../../../charts.dart';
-import '../chart_series/error_bar_series.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import 'chart_segment.dart';
@@ -79,8 +77,7 @@ class ErrorBarSegment extends ChartSegment {
       List<double> dashArray) {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer);
-    if (_segmentProperties.series.animationDuration > 0 == true &&
-        animationFactor != 0) {
+    if (animationFactor != 0) {
       animationFactor = (!seriesRendererDetails.reAnimate &&
               !seriesRendererDetails
                   .stateProperties.renderingDetails.initialRender! &&

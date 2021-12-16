@@ -1,8 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_core/tooltip_internal.dart';
@@ -60,6 +57,7 @@ class PyramidPlotArea extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
+      // ignore: avoid_unnecessary_containers
       return Container(
           child: MouseRegion(
               // Using the _enableMouseHover property, prevented mouse hover function in mobile platforms. The mouse hover event should not be triggered for mobile platforms and logged an issue regarding this to the Flutter team.
@@ -84,12 +82,6 @@ class PyramidPlotArea extends StatelessWidget {
                       onTapUp: (TapUpDetails details) {
                         stateProperties.renderingDetails.tapPosition =
                             renderBox.globalToLocal(details.globalPosition);
-                        if (chart.onPointTapped != null &&
-                            // ignore: unnecessary_null_comparison
-                            seriesRenderer != null) {
-                          calculatePointSeriesIndex(chart, seriesRenderer,
-                              stateProperties.renderingDetails.tapPosition!);
-                        }
                         if (chart.series.onPointTap != null &&
                             // ignore: unnecessary_null_comparison
                             seriesRenderer != null) {
@@ -143,6 +135,7 @@ class PyramidPlotArea extends StatelessWidget {
     _bindTooltipWidgets(constraints);
     renderBox = context.findRenderObject() as RenderBox;
     stateProperties.chartPlotArea = this;
+    // ignore: avoid_unnecessary_containers
     return Container(
         child: Stack(
             textDirection: TextDirection.ltr,
@@ -221,6 +214,7 @@ class PyramidPlotArea extends StatelessWidget {
         )..addStatusListener((AnimationStatus status) {
                 if (status == AnimationStatus.completed) {
                   stateProperties.renderingDetails.animateCompleted = true;
+                  stateProperties.renderingDetails.initialRender = false;
                   if (stateProperties.renderDataLabel != null) {
                     stateProperties.renderDataLabel!.state?.render();
                   }
@@ -241,6 +235,7 @@ class PyramidPlotArea extends StatelessWidget {
         stateProperties.renderingDetails.animationController.forward(from: 0.0);
       } else {
         stateProperties.renderingDetails.animateCompleted = true;
+        stateProperties.renderingDetails.initialRender = false;
         if (stateProperties.renderDataLabel != null) {
           stateProperties.renderDataLabel!.state?.render();
         }
@@ -263,13 +258,7 @@ class PyramidPlotArea extends StatelessWidget {
           key: GlobalKey(),
           stateProperties: stateProperties,
           //ignore: avoid_bool_literals_in_conditional_expressions
-          show: !stateProperties.renderingDetails.widgetNeedUpdate
-              ? stateProperties.renderingDetails.animationController.status ==
-                      AnimationStatus.completed ||
-                  stateProperties
-                          .renderingDetails.animationController.duration ==
-                      null
-              : true);
+          show: stateProperties.renderingDetails.animateCompleted);
       stateProperties.renderingDetails.chartWidgets!
           .add(stateProperties.renderDataLabel!);
     }
@@ -480,6 +469,7 @@ class PyramidPlotArea extends StatelessWidget {
           showPyramidTooltipTemplate();
         } else {
           stateProperties.renderingDetails.tooltipBehaviorRenderer.onLongPress(
+              // ignore: noop_primitive_operations
               stateProperties.renderingDetails.tapPosition!.dx.toDouble(),
               stateProperties.renderingDetails.tapPosition!.dy.toDouble());
         }

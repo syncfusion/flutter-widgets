@@ -36,51 +36,64 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
     return RenderLinearAxis(
-        orientation: linearGauge.orientation,
-        showAxisTrack: linearGauge.showAxisTrack,
-        thickness: style.thickness,
-        color: style.color ?? (isDarkTheme ? Colors.white24 : Colors.black12),
-        borderWidth: style.borderWidth,
-        borderColor: style.borderColor ??
-            (isDarkTheme ? Colors.white30 : Colors.black26),
-        gradient: style.gradient,
-        edgeStyle: style.edgeStyle,
-        minimum: linearGauge.minimum,
-        maximum: linearGauge.maximum,
-        interval: linearGauge.interval,
-        minorTicksPerInterval: linearGauge.minorTicksPerInterval,
-        numberFormat: linearGauge.numberFormat,
-        labelOffset: linearGauge.labelOffset,
-        labelPosition: linearGauge.labelPosition,
-        tickPosition: linearGauge.tickPosition,
-        tickOffset: linearGauge.tickOffset,
-        isMirrored: linearGauge.isMirrored,
-        textStyle: linearGauge.axisLabelStyle ??
-            TextStyle(
-                fontSize: 12.0,
-                fontStyle: FontStyle.normal,
-                color: isDarkTheme ? Colors.white : Colors.black87,
-                fontWeight: FontWeight.normal),
-        showLabels: linearGauge.showLabels,
-        showTicks: linearGauge.showTicks,
-        isAxisInversed: linearGauge.isAxisInversed,
-        useRangeColorForAxis: linearGauge.useRangeColorForAxis,
-        majorTickLength: linearGauge.majorTickStyle.length,
-        majorTickThickness: linearGauge.majorTickStyle.thickness,
-        majorTickColor:
-            majorTickColor ?? (isDarkTheme ? Colors.white30 : Colors.black26),
-        minorTickLength: linearGauge.minorTickStyle.length,
-        minorTickThickness: linearGauge.minorTickStyle.thickness,
-        minorTickColor:
-            minorTickColor ?? (isDarkTheme ? Colors.white30 : Colors.black26),
-        maximumLabels: linearGauge.maximumLabels,
-        axisTrackExtent: linearGauge.axisTrackExtent,
-        fadeAnimation: fadeAnimation,
-        onGenerateLabels: linearGauge.onGenerateLabels,
-        ranges: linearGauge.ranges,
-        valueToFactorCallback: linearGauge.valueToFactorCallback,
-        factorToValueCallback: linearGauge.factorToValueCallback,
-        labelFormatterCallback: linearGauge.labelFormatterCallback);
+      orientation: linearGauge.orientation,
+      showAxisTrack: linearGauge.showAxisTrack,
+      thickness: style.thickness,
+      color: style.color ??
+          (isDarkTheme
+              ? theme.colorScheme.onSurface.withOpacity(0.24)
+              : theme.colorScheme.onSurface.withOpacity(0.12)),
+      borderWidth: style.borderWidth,
+      borderColor: style.borderColor ??
+          (isDarkTheme
+              ? theme.colorScheme.onSurface.withOpacity(0.30)
+              : theme.colorScheme.onSurface.withOpacity(0.26)),
+      gradient: style.gradient,
+      edgeStyle: style.edgeStyle,
+      minimum: linearGauge.minimum,
+      maximum: linearGauge.maximum,
+      interval: linearGauge.interval,
+      minorTicksPerInterval: linearGauge.minorTicksPerInterval,
+      numberFormat: linearGauge.numberFormat,
+      labelOffset: linearGauge.labelOffset,
+      labelPosition: linearGauge.labelPosition,
+      tickPosition: linearGauge.tickPosition,
+      tickOffset: linearGauge.tickOffset,
+      isMirrored: linearGauge.isMirrored,
+      textStyle: linearGauge.axisLabelStyle ??
+          TextStyle(
+              fontSize: 12.0,
+              fontStyle: FontStyle.normal,
+              color: isDarkTheme
+                  ? theme.colorScheme.onSurface
+                  : theme.colorScheme.onSurface.withOpacity(0.87),
+              fontWeight: FontWeight.normal),
+      showLabels: linearGauge.showLabels,
+      showTicks: linearGauge.showTicks,
+      isAxisInversed: linearGauge.isAxisInversed,
+      useRangeColorForAxis: linearGauge.useRangeColorForAxis,
+      majorTickLength: linearGauge.majorTickStyle.length,
+      majorTickThickness: linearGauge.majorTickStyle.thickness,
+      majorTickColor: majorTickColor ??
+          (isDarkTheme
+              ? theme.colorScheme.onSurface.withOpacity(0.30)
+              : theme.colorScheme.onSurface.withOpacity(0.26)),
+      minorTickLength: linearGauge.minorTickStyle.length,
+      minorTickThickness: linearGauge.minorTickStyle.thickness,
+      minorTickColor: minorTickColor ??
+          (isDarkTheme
+              ? theme.colorScheme.onSurface.withOpacity(0.30)
+              : theme.colorScheme.onSurface.withOpacity(0.26)),
+      maximumLabels: linearGauge.maximumLabels,
+      axisTrackExtent: linearGauge.axisTrackExtent,
+      fadeAnimation: fadeAnimation,
+      onGenerateLabels: linearGauge.onGenerateLabels,
+      ranges: linearGauge.ranges,
+      valueToFactorCallback: linearGauge.valueToFactorCallback,
+      factorToValueCallback: linearGauge.factorToValueCallback,
+      labelFormatterCallback: linearGauge.labelFormatterCallback,
+      context: context,
+    );
   }
 
   @override
@@ -94,9 +107,14 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
       ..orientation = linearGauge.orientation
       ..showAxisTrack = linearGauge.showAxisTrack
       ..thickness = style.thickness
-      ..color = style.color ?? (isDarkTheme ? Colors.white24 : Colors.black12)
-      ..borderColor =
-          style.borderColor ?? (isDarkTheme ? Colors.white30 : Colors.black26)
+      ..color = style.color ??
+          (isDarkTheme
+              ? theme.colorScheme.onSurface.withOpacity(0.24)
+              : theme.colorScheme.onSurface.withOpacity(0.12))
+      ..borderColor = style.borderColor ??
+          (isDarkTheme
+              ? theme.colorScheme.onSurface.withOpacity(0.30)
+              : theme.colorScheme.onSurface.withOpacity(0.26))
       ..borderWidth = style.borderWidth
       ..gradient = style.gradient
       ..edgeStyle = style.edgeStyle
@@ -110,19 +128,25 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
       ..tickPosition = linearGauge.tickPosition
       ..majorTickLength = linearGauge.majorTickStyle.length
       ..majorTickThickness = linearGauge.majorTickStyle.thickness
-      ..majorTickColor =
-          majorTickColor ?? (isDarkTheme ? Colors.white30 : Colors.black26)
+      ..majorTickColor = majorTickColor ??
+          (isDarkTheme
+              ? theme.colorScheme.onSurface.withOpacity(0.30)
+              : theme.colorScheme.onSurface.withOpacity(0.26))
       ..minorTickLength = linearGauge.minorTickStyle.length
       ..minorTickThickness = linearGauge.minorTickStyle.thickness
-      ..minorTickColor =
-          minorTickColor ?? (isDarkTheme ? Colors.white30 : Colors.black26)
+      ..minorTickColor = minorTickColor ??
+          (isDarkTheme
+              ? theme.colorScheme.onSurface.withOpacity(0.30)
+              : theme.colorScheme.onSurface.withOpacity(0.26))
       ..tickOffset = linearGauge.tickOffset
       ..isMirrored = linearGauge.isMirrored
       ..textStyle = linearGauge.axisLabelStyle ??
           TextStyle(
               fontSize: 12.0,
               fontStyle: FontStyle.normal,
-              color: isDarkTheme ? Colors.white : Colors.black87,
+              color: isDarkTheme
+                  ? theme.colorScheme.onSurface
+                  : theme.colorScheme.onSurface.withOpacity(0.87),
               fontWeight: FontWeight.normal)
       ..showLabels = linearGauge.showLabels
       ..showTicks = linearGauge.showTicks
@@ -145,45 +169,46 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
 /// Represents the render object of linear axis.
 class RenderLinearAxis extends RenderBox {
   /// Creates a instance for [RenderLinearAxis].
-  RenderLinearAxis(
-      {required LinearGaugeOrientation orientation,
-      required bool showAxisTrack,
-      required double thickness,
-      required Color color,
-      required Color borderColor,
-      required double borderWidth,
-      required LinearEdgeStyle edgeStyle,
-      required double minimum,
-      required double maximum,
-      required int minorTicksPerInterval,
-      required NumberFormat? numberFormat,
-      required double labelOffset,
-      required LinearLabelPosition labelPosition,
-      required LinearElementPosition tickPosition,
-      required double tickOffset,
-      required TextStyle textStyle,
-      required bool showLabels,
-      required bool showTicks,
-      required bool isAxisInversed,
-      required bool isMirrored,
-      required bool useRangeColorForAxis,
-      required int maximumLabels,
-      required double majorTickLength,
-      required double majorTickThickness,
-      required Color majorTickColor,
-      required double minorTickLength,
-      required double minorTickThickness,
-      required Color minorTickColor,
-      required double axisTrackExtent,
-      Gradient? gradient,
-      double? interval,
-      Animation<double>? fadeAnimation,
-      GenerateLabelsCallback? onGenerateLabels,
-      LabelFormatterCallback? labelFormatterCallback,
-      ValueToFactorCallback? valueToFactorCallback,
-      FactorToValueCallback? factorToValueCallback,
-      List<LinearGaugeRange>? ranges})
-      : _orientation = orientation,
+  RenderLinearAxis({
+    required LinearGaugeOrientation orientation,
+    required bool showAxisTrack,
+    required double thickness,
+    required Color color,
+    required Color borderColor,
+    required double borderWidth,
+    required LinearEdgeStyle edgeStyle,
+    required double minimum,
+    required double maximum,
+    required int minorTicksPerInterval,
+    required NumberFormat? numberFormat,
+    required double labelOffset,
+    required LinearLabelPosition labelPosition,
+    required LinearElementPosition tickPosition,
+    required double tickOffset,
+    required TextStyle textStyle,
+    required bool showLabels,
+    required bool showTicks,
+    required bool isAxisInversed,
+    required bool isMirrored,
+    required bool useRangeColorForAxis,
+    required int maximumLabels,
+    required double majorTickLength,
+    required double majorTickThickness,
+    required Color majorTickColor,
+    required double minorTickLength,
+    required double minorTickThickness,
+    required Color minorTickColor,
+    required double axisTrackExtent,
+    Gradient? gradient,
+    double? interval,
+    Animation<double>? fadeAnimation,
+    GenerateLabelsCallback? onGenerateLabels,
+    LabelFormatterCallback? labelFormatterCallback,
+    ValueToFactorCallback? valueToFactorCallback,
+    FactorToValueCallback? factorToValueCallback,
+    List<LinearGaugeRange>? ranges,
+    required BuildContext context,
+  })  : _orientation = orientation,
         _showAxisTrack = showAxisTrack,
         _thickness = thickness,
         _color = color,
@@ -220,7 +245,8 @@ class RenderLinearAxis extends RenderBox {
         _useRangeColorForAxis = useRangeColorForAxis,
         _factorToValueCallback = factorToValueCallback,
         _valueToFactorCallback = valueToFactorCallback {
-    _axisPaint = Paint()..color = Colors.black12;
+    _axisPaint = Paint()
+      ..color = Theme.of(context).colorScheme.onSurface.withOpacity(0.12);
     _textPainter = TextPainter(textDirection: TextDirection.ltr);
     _visibleLabels = <LinearAxisLabel>[];
     _isHorizontalOrientation = orientation == LinearGaugeOrientation.horizontal;

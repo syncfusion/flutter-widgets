@@ -61,6 +61,7 @@ class ChartCollection extends ChartHelper {
     chart._primaryValueAxis.hasMajorGridLines = true;
     chart._plotArea = ChartPlotArea(_worksheet, chart);
     innerList.add(chart);
+    // ignore: prefer_interpolation_to_compose_strings
     chart.name = 'Chart' + innerList.length.toString();
     chart.index = innerList.length;
     chart.topRow = 0;

@@ -1,18 +1,19 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import '../../common/event_args.dart';
 import '../../common/rendering_details.dart';
 import '../../common/utils/enum.dart';
 import '../../common/utils/helper.dart';
+import '../../common/utils/typedef.dart'
+    show MultiLevelLabelFormatterCallback, ChartLabelFormatterCallback;
 import '../axis/axis_renderer.dart';
 import '../axis/category_axis.dart';
 import '../axis/datetime_axis.dart';
 import '../axis/datetime_category_axis.dart';
 import '../axis/logarithmic_axis.dart';
+import '../axis/multi_level_labels.dart';
 import '../axis/numeric_axis.dart';
 import '../axis/plotband.dart';
 import '../base/chart_base.dart';
@@ -32,47 +33,55 @@ import '../utils/helper.dart';
 ///
 /// Provides the options for plotOffset, series visible, axis title, label padding, and alignment to customize the appearance.
 ///
+///
 abstract class ChartAxis {
   /// Creating an argument constructor of ChartAxis class.
-  ChartAxis({
-    this.name,
-    double? plotOffset,
-    bool? isVisible,
-    bool? anchorRangeToVisiblePoints,
-    AxisTitle? title,
-    AxisLine? axisLine,
-    ChartRangePadding? rangePadding,
-    int? labelRotation,
-    ChartDataLabelPosition? labelPosition,
-    LabelAlignment? labelAlignment,
-    TickPosition? tickPosition,
-    MajorTickLines? majorTickLines,
-    MinorTickLines? minorTickLines,
-    TextStyle? labelStyle,
-    AxisLabelIntersectAction? labelIntersectAction,
-    this.desiredIntervals,
-    MajorGridLines? majorGridLines,
-    MinorGridLines? minorGridLines,
-    int? maximumLabels,
-    int? minorTicksPerInterval,
-    bool? isInversed,
-    bool? opposedPosition,
-    EdgeLabelPlacement? edgeLabelPlacement,
-    bool? enableAutoIntervalOnZooming,
-    double? zoomFactor,
-    double? zoomPosition,
-    InteractiveTooltip? interactiveTooltip,
-    this.interval,
-    this.crossesAt,
-    this.associatedAxisName,
-    bool? placeLabelsNearAxisLine,
-    List<PlotBand>? plotBands,
-    this.rangeController,
-    this.maximumLabelWidth,
-    this.labelsExtent,
-    this.autoScrollingDelta,
-    AutoScrollingMode? autoScrollingMode,
-  })  : isVisible = isVisible ?? true,
+  ChartAxis(
+      {this.name,
+      double? plotOffset,
+      bool? isVisible,
+      bool? anchorRangeToVisiblePoints,
+      AxisTitle? title,
+      AxisLine? axisLine,
+      ChartRangePadding? rangePadding,
+      int? labelRotation,
+      ChartDataLabelPosition? labelPosition,
+      LabelAlignment? labelAlignment,
+      TickPosition? tickPosition,
+      MajorTickLines? majorTickLines,
+      MinorTickLines? minorTickLines,
+      TextStyle? labelStyle,
+      AxisLabelIntersectAction? labelIntersectAction,
+      this.desiredIntervals,
+      MajorGridLines? majorGridLines,
+      MinorGridLines? minorGridLines,
+      int? maximumLabels,
+      int? minorTicksPerInterval,
+      bool? isInversed,
+      bool? opposedPosition,
+      EdgeLabelPlacement? edgeLabelPlacement,
+      bool? enableAutoIntervalOnZooming,
+      double? zoomFactor,
+      double? zoomPosition,
+      InteractiveTooltip? interactiveTooltip,
+      this.interval,
+      this.crossesAt,
+      this.associatedAxisName,
+      bool? placeLabelsNearAxisLine,
+      List<PlotBand>? plotBands,
+      this.rangeController,
+      this.maximumLabelWidth,
+      this.labelsExtent,
+      this.autoScrollingDelta,
+      AutoScrollingMode? autoScrollingMode,
+      double? borderWidth,
+      Color? borderColor,
+      AxisBorderType? axisBorderType,
+      MultiLevelLabelStyle? multiLevelLabelStyle,
+      this.multiLevelLabelFormatter,
+      this.multiLevelLabels,
+      this.axisLabelFormatter})
+      : isVisible = isVisible ?? true,
         anchorRangeToVisiblePoints = anchorRangeToVisiblePoints ?? true,
         interactiveTooltip = interactiveTooltip ?? const InteractiveTooltip(),
         isInversed = isInversed ?? false,
@@ -105,7 +114,12 @@ abstract class ChartAxis {
         zoomPosition = zoomPosition ?? 0,
         enableAutoIntervalOnZooming = enableAutoIntervalOnZooming ?? true,
         plotBands = plotBands ?? <PlotBand>[],
-        autoScrollingMode = autoScrollingMode ?? AutoScrollingMode.end;
+        autoScrollingMode = autoScrollingMode ?? AutoScrollingMode.end,
+        axisBorderType = axisBorderType ?? AxisBorderType.rectangle,
+        borderColor = borderColor ?? Colors.transparent,
+        borderWidth = borderWidth ?? 0.0,
+        multiLevelLabelStyle =
+            multiLevelLabelStyle ?? const MultiLevelLabelStyle();
 
   ///Toggles the visibility of the axis.
   ///
@@ -811,6 +825,191 @@ abstract class ChartAxis {
   ///}
   ///```
   final AutoScrollingMode autoScrollingMode;
+
+  /// Border color of the axis label.
+  ///
+  /// Defaults to `Colors.transparent`.
+  ///
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///   return Container(
+  ///     child: SfCartesianChart(
+  ///       primaryXAxis: NumericAxis(
+  ///         borderColor: Colors.black,
+  ///         borderWidth: 2,
+  ///       )
+  ///     )
+  ///   );
+  /// }
+  ///```
+  final Color? borderColor;
+
+  /// Border width of the axis label.
+  ///
+  /// Defaults to `0`.
+  ///
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///   return Container(
+  ///     child: SfCartesianChart(
+  ///       primaryXAxis: NumericAxis(
+  ///         borderColor: Colors.black,
+  ///         borderWidth: 2,
+  ///       )
+  ///     )
+  ///   );
+  /// }
+  ///```
+  final double borderWidth;
+
+  /// Border type of the axis label.
+  ///
+  /// Defaults to `AxisBorderType.rectangle`.
+  ///
+  /// Also refer [AxisBorderType].
+  ///
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///   return Container(
+  ///     child: SfCartesianChart(
+  ///       primaryXAxis: NumericAxis(
+  ///         axisBorderType: AxisBorderType.withoutTopAndBottom,
+  ///       )
+  ///     )
+  ///   );
+  /// }
+  ///```
+  final AxisBorderType axisBorderType;
+
+  /// Customize the multi-level label’s border color, width, type, and
+  /// text style such as color, font size, etc.
+  ///
+  /// When the multi-level label’s width exceeds its respective segment,
+  /// then the label will get trimmed and on tapping / hovering over the
+  /// trimmed label, a tooltip will be shown.
+  ///
+  /// Also refer [multiLevelLabelFormatter].
+  ///
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///      child: SfCartesianChart(
+  ///        primaryXAxis: NumericAxis(
+  ///          multiLevelLabelStyle: MultiLevelLabelStyle(
+  ///            borderWidth: 1,
+  ///            borderColor: Colors.black,
+  ///            borderType: MultiLevelBorderType.rectangle,
+  ///            textStyle: TextStyle(
+  ///              fontSize: 10,
+  ///              color: Colors.black,
+  ///            )
+  ///          )
+  ///        )
+  ///      )
+  ///    );
+  ///  }
+  ///```
+  final MultiLevelLabelStyle multiLevelLabelStyle;
+
+  /// Provides the option to group the axis labels. You can customize the start,
+  /// end value of a multi-level label, text, and level of the multi-level labels.
+  ///
+  /// The `start` and `end` values for the category axis need to be string type,
+  /// in the case of date-time or date-time category axes need to be date-time
+  /// and in the case of numeric or logarithmic axes needs to be double.
+  ///
+  /// Defaults to `null`.
+  ///
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///   return Container(
+  ///     child: SfCartesianChart(
+  ///       primaryXAxis: NumericAxis(
+  ///         multiLevelLabels: const <NumericMultiLevelLabel>[
+  ///           NumericMultiLevelLabel(
+  ///             start: 0,
+  ///             end: 2,
+  ///             text: 'First'
+  ///           ),
+  ///           NumericMultiLevelLabel(
+  ///             start: 2,
+  ///             end: 4,
+  ///             text: 'Second'
+  ///           )
+  ///         ]
+  ///       )
+  ///     )
+  ///   );
+  /// }
+  ///```
+  // ignore: always_specify_types
+  final List<ChartMultiLevelLabel>? multiLevelLabels;
+
+  /// Called while rendering each multi-level label.
+  ///
+  /// Provides label text, the actual level of the label, index, and
+  /// text styles such as color, font size, etc using `MultiLevelLabelRenderDetails` class.
+  ///
+  /// You can customize the text and text style using `ChartAxisLabel` class
+  /// and can return it.
+  ///
+  /// Defaults to `null`.
+  ///
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///   return Container(
+  ///     child: SfCartesianChart(
+  ///       primaryXAxis: NumericAxis(
+  ///         multiLevelLabelFormatter: (MultiLevelLabelRenderDetails details) {
+  ///           if (details.index == 1) {
+  ///             return ChartAxisLabel('Text', details.textStyle);
+  ///           } else {
+  ///             return ChartAxisLabel(details.text, details.textStyle);
+  ///           }
+  ///         },
+  ///         multiLevelLabels: const <NumericMultiLevelLabel>[
+  ///           NumericMultiLevelLabel(
+  ///             start: 0,
+  ///             end: 2,
+  ///             text: 'First'
+  ///           ),
+  ///           NumericMultiLevelLabel(
+  ///             start: 2,
+  ///             end: 4,
+  ///             text: 'Second'
+  ///           )
+  ///         ]
+  ///       )
+  ///     )
+  ///   );
+  /// }
+  ///```
+  final MultiLevelLabelFormatterCallback? multiLevelLabelFormatter;
+
+  ///Called while rendering each axis label in the chart.
+  ///
+  ///Provides label text, axis name, orientation of the axis, trimmed text and text styles such as color,
+  /// font size, and font weight to the user using the `AxisLabelRenderDetails` class.
+  ///
+  ///You can customize the text and text style using the `ChartAxisLabel` class and can return it.
+  ///
+  /// Defaults to `null`.
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///            primarXAxis: CategoryAxis(
+  ///               axisLabelFormatter: (AxisLabelRenderDetails details) => axis(details),
+  ///            ),
+  ///        ));
+  ///}
+  ///
+  ///ChartAxisLabel axis(AxisLabelRenderDetails details) {
+  ///   return ChartAxisLabel('axis Label', details.textStyle);
+  ///}
+  ///```
+  final ChartLabelFormatterCallback? axisLabelFormatter;
 }
 
 /// Holds the axis label information.
@@ -1718,7 +1917,9 @@ class ChartAxisRendererDetails {
   /// Creates an instance of chart axis renderer details
   ChartAxisRendererDetails(this.axis, this.stateProperties, this.axisRenderer) {
     visibleLabels = <AxisLabel>[];
-    maximumLabelSize = const Size(0, 0);
+    visibleAxisMultiLevelLabels = <AxisMultiLevelLabel>[];
+    maximumLabelSize = Size.zero;
+    multiLevelLabelTotalSize = Size.zero;
     seriesRenderers = <CartesianSeriesRenderer>[];
     name = axis.name;
     labelRotation = axis.labelRotation;
@@ -1729,7 +1930,7 @@ class ChartAxisRendererDetails {
   /// Represents the chart axis renderer
   late ChartAxisRenderer axisRenderer;
 
-  /// Represnts the chart axis value
+  /// Represents the chart axis value
   late ChartAxis axis;
 
   /// Specifies the old axis value
@@ -1753,8 +1954,23 @@ class ChartAxisRendererDetails {
   /// Specifies the value of visible labels
   late List<AxisLabel> visibleLabels;
 
-  /// Holds the size of larger label.
-  Size maximumLabelSize = const Size(0, 0);
+  /// Specifies the value of visible labels
+  late List<AxisMultiLevelLabel> visibleAxisMultiLevelLabels;
+
+  /// Stores each level's maximum size
+  List<Size> multiLevelsMaximumSize = <Size>[];
+
+  /// Holds the size of larger label
+  Size maximumLabelSize = Size.zero;
+
+  /// Holds the total size of the multilevel label
+  Size multiLevelLabelTotalSize = Size.zero;
+
+  /// Holds the end point value of the axis border
+  double? axisBorderEnd;
+
+  /// Holds the highest level value of multilevel labels
+  int? highestLevel;
 
   /// Specifies axis orientations such as vertical, horizontal.
   AxisOrientation? orientation;
@@ -1765,12 +1981,18 @@ class ChartAxisRendererDetails {
   /// Specifies the actual range based on min, max values.
   VisibleRange? actualRange;
 
+  /// Specifies the minimum and maximum for multi level labels
+  num? minimumMultiLevelLabelValue, maximumMultiLevelLabelValue;
+
+  /// To express the multi level label is enabled or not
+  bool isMultiLevelLabelEnabled = false;
+
   /// Holds the chart series
   late List<CartesianSeriesRenderer> seriesRenderers;
 
   /// Specifies the value of bounds
   // ignore: prefer_final_fields
-  Rect bounds = const Rect.fromLTWH(0, 0, 0, 0);
+  Rect bounds = Rect.zero;
 
   /// Specifies whether the ticks are placed inside
   bool? isInsideTickPosition;
@@ -1808,8 +2030,14 @@ class ChartAxisRendererDetails {
   /// Specifies the cross range
   VisibleRange? crossRange;
 
-  /// Holds teh label offset value
-  num? labelOffset;
+  /// Holds the label offset value
+  double? labelOffset;
+
+  /// Holds the axis title offset value
+  double? titleOffset;
+
+  /// Holds the axis title height
+  double? titleHeight;
 
   /// Specifies the x-axis start and x-axis end
   Offset? xAxisStart, xAxisEnd;
@@ -1874,6 +2102,7 @@ class ChartAxisRendererDetails {
       ChartAxisRenderer? oldAxisRenderer,
       bool? needAnimate]) {
     final dynamic chartAxis = axis;
+    double betweenTickPositionValue = 0.0;
     late double tempInterval, pointX, pointY;
     int length = visibleLabels.length;
     if (length > 0) {
@@ -1960,6 +2189,20 @@ class ChartAxisRendererDetails {
                           ? pointY + ticks.size
                           : pointY - ticks.size)));
         }
+        if ((axis.borderWidth > 0 || isMultiLevelLabelEnabled) && i == 0) {
+          setAxisBorderEndPoint(this, pointY);
+        }
+        if (axis.borderWidth > 0) {
+          if (i == 0 && !isBetweenTicks && visibleLabels.length > 1) {
+            final num nextPoint =
+                (valueToCoefficient(visibleLabels[i + 1].value, this) *
+                        bounds.width) +
+                    bounds.left;
+            betweenTickPositionValue = (nextPoint.toDouble() - pointX) / 2;
+          }
+          renderHorizontalAxisBorder(this, canvas, pointX, bounds.top,
+              isBetweenTicks, betweenTickPositionValue);
+        }
       }
     }
   }
@@ -2004,7 +2247,7 @@ class ChartAxisRendererDetails {
     }
   }
 
-  /// Method to drwa the horizontal axes major grid lines
+  /// Method to draw the horizontal axes major grid lines
   void drawHorizontalAxesMajorGridLines(
       Canvas canvas,
       Offset point,
@@ -2297,7 +2540,7 @@ class ChartAxisRendererDetails {
     double? location;
     final Rect bounds = axisRenderer._axisRendererDetails.bounds;
     final ChartAxis axis = axisRenderer._axisRendererDetails.axis;
-    textSize ??= const Size(0, 0);
+    textSize ??= Size.zero;
     if (oldAxisRenderer._axisRendererDetails.visibleRange!.minimum > value ==
         false) {
       location = axisRenderer._axisRendererDetails.orientation ==
@@ -2382,38 +2625,47 @@ class ChartAxisRendererDetails {
       ChartAxisRenderer axisRenderer, Size textSize, Rect axisBounds) {
     late double pointX;
     const num innerPadding = 5;
-    final ChartAxis axis = axisRenderer._axisRendererDetails.axis;
-    if (axis.labelPosition == ChartDataLabelPosition.inside) {
-      pointX = (!axis.opposedPosition)
-          ? (axisBounds.left +
-              innerPadding +
-              (axisRenderer._axisRendererDetails.isInsideTickPosition!
-                  ? axis.majorTickLines.size
-                  : 0))
-          : (axisBounds.left -
-              axisRenderer._axisRendererDetails.maximumLabelSize.width -
-              innerPadding -
-              (axisRenderer._axisRendererDetails.isInsideTickPosition!
-                  ? axis.majorTickLines.size
-                  : 0));
+    final ChartAxisRendererDetails axisRendererDetails =
+        axisRenderer._axisRendererDetails;
+    final ChartAxis axis = axisRendererDetails.axis;
+    if (axis.borderWidth > 0 || axisRendererDetails.isMultiLevelLabelEnabled) {
+      pointX = getLabelOffsetX(axisRendererDetails, textSize);
     } else {
-      pointX = ((!axis.opposedPosition)
-              ? axisRenderer._axisRendererDetails.labelOffset != null
-                  ? axisRenderer._axisRendererDetails.labelOffset! -
-                      textSize.width
-                  : (axisBounds.left -
-                      (axisRenderer._axisRendererDetails.isInsideTickPosition!
-                          ? 0
-                          : axis.majorTickLines.size) -
-                      textSize.width -
-                      innerPadding)
-              : (axisRenderer._axisRendererDetails.labelOffset ??
-                  (axisBounds.left +
-                      (axisRenderer._axisRendererDetails.isInsideTickPosition!
-                          ? 0
-                          : axis.majorTickLines.size) +
-                      innerPadding)))
-          .toDouble();
+      if (axis.labelPosition == ChartDataLabelPosition.inside) {
+        pointX = (!axis.opposedPosition)
+            ? axisRendererDetails.labelOffset ??
+                (axisBounds.left +
+                    innerPadding +
+                    (axisRendererDetails.isInsideTickPosition!
+                        ? axis.majorTickLines.size
+                        : 0))
+            : axisRendererDetails.labelOffset != null
+                ? axisRendererDetails.labelOffset! - textSize.width
+                : (axisBounds.left -
+                    axisRendererDetails.maximumLabelSize.width -
+                    innerPadding -
+                    (axisRendererDetails.isInsideTickPosition!
+                        ? axis.majorTickLines.size
+                        : 0));
+      } else {
+        pointX = ((!axis.opposedPosition)
+                ? axisRendererDetails.labelOffset != null
+                    ? axisRenderer._axisRendererDetails.labelOffset! -
+                        textSize.width
+                    : (axisBounds.left -
+                        (axisRendererDetails.isInsideTickPosition!
+                            ? 0
+                            : axis.majorTickLines.size) -
+                        textSize.width -
+                        innerPadding)
+                : (axisRendererDetails.labelOffset ??
+                    (axisBounds.left +
+                        (axisRendererDetails.isInsideTickPosition!
+                            ? 0
+                            : axis.majorTickLines.size) +
+                        innerPadding)))
+            .toDouble();
+      }
     }
     return pointX;
   }
@@ -2421,57 +2673,61 @@ class ChartAxisRendererDetails {
   /// Return the y point
   double _getPointY(
       ChartAxisRenderer axisRenderer, AxisLabel label, Rect axisBounds) {
-    final ChartAxis axis = axisRenderer._axisRendererDetails.axis;
+    final ChartAxisRendererDetails axisRendererDetails =
+        axisRenderer._axisRendererDetails;
+    final ChartAxis axis = axisRendererDetails.axis;
     double pointY;
     const num innerPadding = 3;
-    if (axis.labelPosition == ChartDataLabelPosition.inside) {
-      pointY = !axis.opposedPosition
-          ? axisBounds.top -
-              innerPadding -
-              (label._index > 1
-                  ? axisRenderer._axisRendererDetails.maximumLabelSize.height /
-                      2
-                  : axisRenderer._axisRendererDetails.maximumLabelSize.height) -
-              (axisRenderer._axisRendererDetails.isInsideTickPosition!
-                  ? axis.majorTickLines.size
-                  : 0)
-          : axisBounds.top +
-              (axisRenderer._axisRendererDetails.isInsideTickPosition!
-                  ? axis.majorTickLines.size
-                  : 0) +
-              (label._index > 1
-                  ? axisRenderer._axisRendererDetails.maximumLabelSize.height /
-                      2
-                  : 0);
+    if (axis.borderWidth > 0 || axisRendererDetails.isMultiLevelLabelEnabled) {
+      pointY = getLabelOffsetY(this, label._index);
     } else {
-      pointY = (!axis.opposedPosition
-              ? axisRenderer._axisRendererDetails.labelOffset ??
-                  (axisBounds.top +
-                      ((axisRenderer._axisRendererDetails.isInsideTickPosition!
-                              ? 0
-                              : axis.majorTickLines.size) +
-                          innerPadding) +
-                      (label._index > 1
-                          ? axisRenderer._axisRendererDetails.maximumLabelSize
-                                  .height /
-                              2
-                          : 0))
-              : axisRenderer._axisRendererDetails.labelOffset != null
-                  ? axisRenderer._axisRendererDetails.labelOffset! -
-                      axisRenderer._axisRendererDetails.maximumLabelSize.height
-                  : (axisBounds.top -
-                      (((axisRenderer._axisRendererDetails.isInsideTickPosition!
-                                  ? 0
-                                  : axis.majorTickLines.size) +
-                              innerPadding) -
-                          (label._index > 1
-                              ? axisRenderer._axisRendererDetails
-                                      .maximumLabelSize.height /
-                                  2
-                              : 0)) -
-                      axisRenderer
-                          ._axisRendererDetails.maximumLabelSize.height))
-          .toDouble();
+      if (axis.labelPosition == ChartDataLabelPosition.inside) {
+        pointY = axis.opposedPosition == false
+            ? axisRendererDetails.labelOffset != null
+                ? axisRendererDetails.labelOffset! -
+                    axisRendererDetails.maximumLabelSize.height
+                : axisBounds.top -
+                    innerPadding -
+                    (label._index > 1
+                        ? axisRendererDetails.maximumLabelSize.height / 2
+                        : axisRendererDetails.maximumLabelSize.height) -
+                    (axisRendererDetails.isInsideTickPosition!
+                        ? axis.majorTickLines.size
+                        : 0)
+            : axisRendererDetails.labelOffset ??
+                axisBounds.top +
+                    (axisRendererDetails.isInsideTickPosition!
+                        ? axis.majorTickLines.size
+                        : 0) +
+                    (label._index > 1
+                        ? axisRendererDetails.maximumLabelSize.height / 2
+                        : 0);
+      } else {
+        pointY = (axis.opposedPosition == false
+                ? axisRendererDetails.labelOffset ??
+                    (axisBounds.top +
+                        ((axisRendererDetails.isInsideTickPosition!
+                                ? 0
+                                : axis.majorTickLines.size) +
+                            innerPadding) +
+                        (label._index > 1
+                            ? axisRendererDetails.maximumLabelSize.height / 2
+                            : 0))
+                : axisRendererDetails.labelOffset != null
+                    ? axisRendererDetails.labelOffset! -
+                        axisRendererDetails.maximumLabelSize.height
+                    : (axisBounds.top -
+                        (((axisRendererDetails.isInsideTickPosition!
+                                    ? 0
+                                    : axis.majorTickLines.size) +
+                                innerPadding) -
+                            (label._index > 1
+                                ? axisRendererDetails.maximumLabelSize.height /
+                                    2
+                                : 0)) -
+                        axisRendererDetails.maximumLabelSize.height))
+            .toDouble();
+      }
     }
     return pointY;
   }
@@ -2548,6 +2804,7 @@ class ChartAxisRendererDetails {
       bool? needAnimate]) {
     final dynamic axis = axisRenderer._axisRendererDetails.axis;
     final Rect axisBounds = axisRenderer._axisRendererDetails.bounds;
+    double betweenTicksPointValue = 0.0;
     final List<AxisLabel> visibleLabels =
         axisRenderer._axisRendererDetails.visibleLabels;
     double tempInterval, pointX, pointY;
@@ -2627,6 +2884,23 @@ class ChartAxisRendererDetails {
                           : pointX + axis.majorTickLines.size),
                   pointY));
         }
+      }
+      if ((axis.borderWidth > 0 == true || isMultiLevelLabelEnabled) &&
+          i == 0) {
+        setAxisBorderEndPoint(this, pointX);
+      }
+      if (axis.borderWidth > 0 == true) {
+        if (i == 0 && !isBetweenTicks && visibleLabels.length > 1) {
+          num nextPoint =
+              (valueToCoefficient(visibleLabels[i + 1].value, this) *
+                      bounds.height) +
+                  bounds.top;
+          nextPoint = (axisBounds.top + axisBounds.height) -
+              (nextPoint - axisBounds.top).abs();
+          betweenTicksPointValue = (nextPoint.toDouble() - pointY) / 2;
+        }
+        renderVerticalAxisBorder(this, canvas, axisBounds.left, pointY,
+            isBetweenTicks, betweenTicksPointValue);
       }
     }
   }
@@ -2965,29 +3239,43 @@ class ChartAxisRendererDetails {
         textStyle: style,
         fontColor: style.color ?? renderingDetails.chartTheme.axisTitleColor);
     final Size textSize = measureText(title, style);
-    double top;
-    if (axis.labelPosition == ChartDataLabelPosition.inside) {
-      top = !axis.opposedPosition
-          ? axisBounds.top +
-              (isInsideTickPosition! ? 0 : axis.majorTickLines.size) +
-              (!kIsWeb ? innerPadding : innerPadding + textSize.height / 2)
-          : axisBounds.top -
-              (isInsideTickPosition! ? 0 : axis.majorTickLines.size) -
-              innerPadding -
-              textSize.height;
+    double top = 0.0;
+    final ChartAxisRendererDetails axisRendererDetails =
+        axisRenderer._axisRendererDetails;
+    if (axis.borderWidth > 0 || isMultiLevelLabelEnabled) {
+      top = getHorizontalAxisTitleOffset(this, textSize);
     } else {
-      top = !axis.opposedPosition
-          ? axisBounds.top +
-              (isInsideTickPosition! ? 0 : axis.majorTickLines.size) +
-              innerPadding +
-              (!kIsWeb
-                  ? maximumLabelSize.height
-                  : maximumLabelSize.height + textSize.height / 2)
-          : axisBounds.top -
-              (isInsideTickPosition! ? 0 : axis.majorTickLines.size) -
-              innerPadding -
-              maximumLabelSize.height -
-              textSize.height;
+      if (axis.labelPosition == ChartDataLabelPosition.inside) {
+        top = !axis.opposedPosition
+            ? axisRendererDetails.titleOffset ??
+                axisBounds.top +
+                    (isInsideTickPosition! ? 0 : axis.majorTickLines.size) +
+                    (!kIsWeb
+                        ? innerPadding
+                        : innerPadding + textSize.height / 2)
+            : axisRendererDetails.titleOffset != null
+                ? axisRendererDetails.titleOffset! - textSize.height
+                : axisBounds.top -
+                    (isInsideTickPosition! ? 0 : axis.majorTickLines.size) -
+                    innerPadding -
+                    textSize.height;
+      } else {
+        top = !axis.opposedPosition
+            ? axisRendererDetails.titleOffset ??
+                axisBounds.top +
+                    (isInsideTickPosition! ? 0 : axis.majorTickLines.size) +
+                    innerPadding +
+                    (!kIsWeb
+                        ? maximumLabelSize.height
+                        : maximumLabelSize.height + textSize.height / 2)
+            : axisRendererDetails.titleOffset != null
+                ? axisRendererDetails.titleOffset! - textSize.height
+                : axisBounds.top -
+                    (isInsideTickPosition! ? 0 : axis.majorTickLines.size) -
+                    innerPadding -
+                    maximumLabelSize.height -
+                    textSize.height;
+      }
     }
     axis.title.alignment == ChartAlignment.near
         ? point = Offset(stateProperties.chartAxis.axisClipRect.left, top)
@@ -3017,28 +3305,42 @@ class ChartAxisRendererDetails {
         textStyle: style,
         fontColor: style.color ?? renderingDetails.chartTheme.axisTitleColor);
     final Size textSize = measureText(title, style);
-    double left;
-    if (axis.labelPosition == ChartDataLabelPosition.inside) {
-      left = (!axis.opposedPosition)
-          ? axisBounds.left -
-              (isInsideTickPosition! ? 0 : axis.majorTickLines.size) -
-              innerPadding -
-              textSize.height
-          : axisBounds.left +
-              (isInsideTickPosition! ? 0 : axis.majorTickLines.size) +
-              innerPadding * 2;
+    double left = 0.0;
+    final ChartAxisRendererDetails axisRendererDetails =
+        axisRenderer._axisRendererDetails;
+    if (axis.borderWidth > 0 || isMultiLevelLabelEnabled) {
+      left = getVerticalAxisTitleOffset(this, textSize);
     } else {
-      left = (!axis.opposedPosition)
-          ? (axisBounds.left -
-              (isInsideTickPosition! ? 0 : axis.majorTickLines.size) -
-              innerPadding -
-              maximumLabelSize.width -
-              textSize.height / 2)
-          : axisBounds.left +
-              (isInsideTickPosition! ? 0 : axis.majorTickLines.size) +
-              innerPadding +
-              maximumLabelSize.width +
-              textSize.height / 2;
+      if (axis.labelPosition == ChartDataLabelPosition.inside) {
+        left = (!axis.opposedPosition)
+            ? axisRendererDetails.titleOffset != null
+                ? axisRendererDetails.titleOffset! - textSize.height / 2
+                : axisBounds.left -
+                    (isInsideTickPosition! ? 0 : axis.majorTickLines.size) -
+                    innerPadding -
+                    textSize.height
+            : axisRendererDetails.titleOffset != null
+                ? axisRendererDetails.titleOffset! + textSize.height / 2
+                : axisBounds.left +
+                    (isInsideTickPosition! ? 0 : axis.majorTickLines.size) +
+                    innerPadding * 2;
+      } else {
+        left = (!axis.opposedPosition)
+            ? axisRendererDetails.titleOffset != null
+                ? axisRendererDetails.titleOffset! - textSize.height
+                : (axisBounds.left -
+                    (isInsideTickPosition! ? 0 : axis.majorTickLines.size) -
+                    innerPadding -
+                    maximumLabelSize.width -
+                    textSize.height / 2)
+            : axisRendererDetails.titleOffset != null
+                ? axisRendererDetails.titleOffset! + textSize.height / 2
+                : axisBounds.left +
+                    (isInsideTickPosition! ? 0 : axis.majorTickLines.size) +
+                    innerPadding +
+                    maximumLabelSize.width +
+                    textSize.height / 2;
+      }
     }
     axis.title.alignment == ChartAlignment.near
         ? point = Offset(left,
@@ -3144,11 +3446,20 @@ class ChartAxisRendererDetails {
 
   /// To trigger the render label event
   void triggerLabelRenderEvent(String labelText, num labelValue) {
-    AxisLabelRenderArgs axisLabelArgs;
     TextStyle fontStyle = axis.labelStyle;
-
     final String actualText = labelText;
-    Size textSize = measureText(labelText, axis.labelStyle, 0);
+    String renderText = actualText;
+    String? eventActualText;
+    final AxisLabelRenderDetails axisLabelDetails =
+        AxisLabelRenderDetails(labelValue, actualText, fontStyle, axis);
+    if (axis.axisLabelFormatter != null) {
+      final ChartAxisLabel axisLabel =
+          axis.axisLabelFormatter!(axisLabelDetails);
+      fontStyle = axisLabel.textStyle;
+      renderText = axisLabel.text;
+      eventActualText = axisLabel.text;
+    }
+    Size textSize = measureText(renderText, axis.labelStyle, 0);
     if (axis.maximumLabelWidth != null || axis.labelsExtent != null) {
       if (axis.maximumLabelWidth != null) {
         assert(axis.maximumLabelWidth! >= 0,
@@ -3161,7 +3472,7 @@ class ChartAxisRendererDetails {
               textSize.width > axis.maximumLabelWidth!) ||
           (axis.labelsExtent != null && textSize.width > axis.labelsExtent!)) {
         labelText = getTrimmedText(
-            labelText,
+            renderText,
             (axis.labelsExtent ?? axis.maximumLabelWidth)!,
             axis.labelStyle,
             axisRenderer);
@@ -3170,35 +3481,14 @@ class ChartAxisRendererDetails {
     }
     final String? trimmedText =
         labelText.contains('...') || labelText.isEmpty ? labelText : null;
-    String renderText = trimmedText ?? actualText;
-    final AxisLabelRenderDetails axisLabelDetails = AxisLabelRenderDetails(
-        labelValue,
-        trimmedText ?? actualText,
-        actualText,
-        fontStyle,
-        axis,
-        name,
-        orientation!);
-    if (chart.axisLabelFormatter != null) {
-      final ChartAxisLabel axisLabel =
-          chart.axisLabelFormatter!(axisLabelDetails);
-      fontStyle = axisLabel.textStyle;
-      renderText = axisLabel.text;
-    } else if (chart.onAxisLabelRender != null) {
-      axisLabelArgs = AxisLabelRenderArgs(labelValue, name, orientation, axis);
-      axisLabelArgs.text = actualText;
-      axisLabelArgs.textStyle = fontStyle;
-      chart.onAxisLabelRender!(axisLabelArgs);
-      fontStyle = axisLabelArgs.textStyle;
-      renderText = axisLabelArgs.text;
-    }
+    renderText = trimmedText ?? renderText;
     final Size labelSize =
         measureText(renderText, fontStyle, axis.labelRotation);
-    visibleLabels.add(AxisLabel(
-        fontStyle, labelSize, actualText, labelValue, trimmedText, renderText));
+    visibleLabels.add(AxisLabel(fontStyle, labelSize,
+        eventActualText ?? actualText, labelValue, trimmedText, renderText));
   }
 
-  /// Calculate the maximum lable's size
+  /// Calculate the maximum label's size.
   void calculateMaximumLabelSize(ChartAxisRenderer axisRenderer,
       CartesianStateProperties stateProperties) {
     AxisLabelIntersectAction action;
@@ -3249,7 +3539,6 @@ class ChartAxisRendererDetails {
                 stateProperties.chartAxis.axisClipRect.width) +
             stateProperties.chartAxis.axisClipRect.left;
         pointX1 -= label1.labelSize.width / 2;
-
         if ((((pointX + label.labelSize.width) > pointX1) &&
                 !axis.isInversed) ||
             (((pointX - label.labelSize.width) < pointX1) && axis.isInversed)) {
@@ -3322,7 +3611,8 @@ class ChartAxisRendererDetails {
       case AxisLabelIntersectAction.rotate90:
         angle = action == AxisLabelIntersectAction.rotate45 ? -45 : -90;
         labelRotation = angle;
-        currentLabelSize = measureText(label.text, axis.labelStyle, angle);
+        currentLabelSize =
+            measureText(label.renderText!, axis.labelStyle, angle);
         if (currentLabelSize.height > maximumLabelHeight) {
           maximumLabelHeight = currentLabelSize.height;
         }

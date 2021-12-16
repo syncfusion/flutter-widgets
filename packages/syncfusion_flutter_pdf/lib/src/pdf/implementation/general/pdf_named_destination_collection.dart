@@ -1,74 +1,81 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../pdf_document/pdf_document.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_string.dart';
+import 'pdf_named_destination.dart';
 
 /// Implements a collection of named destinations in the document.
-class PdfNamedDestinationCollection implements _IPdfWrapper {
+class PdfNamedDestinationCollection implements IPdfWrapper {
   /// Initializes a new instance of the [PdfNamedDestinationCollection] class.
   PdfNamedDestinationCollection() : super() {
+    _helper = PdfNamedDestinationCollectionHelper(this);
     _initialize();
   }
 
   PdfNamedDestinationCollection._(
-      _PdfDictionary? dictionary, _PdfCrossTable? crossTable) {
-    _dictionary = dictionary;
+      PdfDictionary? dictionary, PdfCrossTable? crossTable) {
+    _helper = PdfNamedDestinationCollectionHelper(this);
+    _helper.dictionary = dictionary;
     if (crossTable != null) {
       _crossTable = crossTable;
     }
-    if (_dictionary != null &&
-        _dictionary!.containsKey(_DictionaryProperties.dests)) {
-      final _PdfDictionary? destination =
-          _PdfCrossTable._dereference(_dictionary![_DictionaryProperties.dests])
-              as _PdfDictionary?;
+    if (_helper.dictionary != null &&
+        _helper.dictionary!.containsKey(PdfDictionaryProperties.dests)) {
+      final PdfDictionary? destination = PdfCrossTable.dereference(
+          _helper.dictionary![PdfDictionaryProperties.dests]) as PdfDictionary?;
       if (destination != null &&
-          destination.containsKey(_DictionaryProperties.names)) {
+          destination.containsKey(PdfDictionaryProperties.names)) {
         _addCollection(destination);
       } else if (destination != null &&
-          destination.containsKey(_DictionaryProperties.kids)) {
-        final _PdfArray? kids =
-            _PdfCrossTable._dereference(destination[_DictionaryProperties.kids])
-                as _PdfArray?;
+          destination.containsKey(PdfDictionaryProperties.kids)) {
+        final PdfArray? kids =
+            PdfCrossTable.dereference(destination[PdfDictionaryProperties.kids])
+                as PdfArray?;
         if (kids != null) {
           for (int i = 0; i < kids.count; i++) {
             _findDestination(
-                _PdfCrossTable._dereference(kids[i]) as _PdfDictionary?);
+                PdfCrossTable.dereference(kids[i]) as PdfDictionary?);
           }
         }
       }
     }
-    _crossTable._document!._catalog._beginSave =
-        (Object sender, _SavePdfPrimitiveArgs? ars) {
+    PdfDocumentHelper.getHelper(_crossTable.document!).catalog.beginSave =
+        (Object sender, SavePdfPrimitiveArgs? ars) {
       for (final PdfNamedDestination values in _namedCollections) {
-        _namedDestination._add(_PdfString(values.title));
-        _namedDestination._add(_PdfReferenceHolder(values));
+        _namedDestination.add(PdfString(values.title));
+        _namedDestination.add(PdfReferenceHolder(values));
       }
-      _dictionary!.setProperty(
-          _DictionaryProperties.names, _PdfReferenceHolder(_namedDestination));
+      _helper.dictionary!.setProperty(
+          PdfDictionaryProperties.names, PdfReferenceHolder(_namedDestination));
 
-      if (_dictionary!.containsKey(_DictionaryProperties.dests)) {
-        final _PdfDictionary? destsDictionary = _PdfCrossTable._dereference(
-            _dictionary![_DictionaryProperties.dests]) as _PdfDictionary?;
+      if (_helper.dictionary!.containsKey(PdfDictionaryProperties.dests)) {
+        final PdfDictionary? destsDictionary = PdfCrossTable.dereference(
+                _helper.dictionary![PdfDictionaryProperties.dests])
+            as PdfDictionary?;
         if (destsDictionary != null &&
-            !destsDictionary.containsKey(_DictionaryProperties.kids)) {
-          destsDictionary.setProperty(_DictionaryProperties.names,
-              _PdfReferenceHolder(_namedDestination));
+            !destsDictionary.containsKey(PdfDictionaryProperties.kids)) {
+          destsDictionary.setProperty(PdfDictionaryProperties.names,
+              PdfReferenceHolder(_namedDestination));
         }
       } else {
-        _dictionary!.setProperty(_DictionaryProperties.names,
-            _PdfReferenceHolder(_namedDestination));
+        _helper.dictionary!.setProperty(PdfDictionaryProperties.names,
+            PdfReferenceHolder(_namedDestination));
       }
     };
-    _crossTable._document!._catalog.modify();
+    PdfDocumentHelper.getHelper(_crossTable.document!).catalog.modify();
   }
 
-  /// Collection of the named destinations.
+  //Fields
+  late PdfNamedDestinationCollectionHelper _helper;
   final List<PdfNamedDestination> _namedCollections = <PdfNamedDestination>[];
+  PdfCrossTable _crossTable = PdfCrossTable();
+  final PdfArray _namedDestination = PdfArray();
 
-  /// Internal variable to store dictinary.
-  _PdfDictionary? _dictionary = _PdfDictionary();
-  _PdfCrossTable _crossTable = _PdfCrossTable();
-
-  /// Array of the named destinations.
-  final _PdfArray _namedDestination = _PdfArray();
-
+  //Properties
   /// Gets number of the elements in the collection.
   int get count => _namedCollections.length;
 
@@ -121,49 +128,49 @@ class PdfNamedDestinationCollection implements _IPdfWrapper {
   void insert(int index, PdfNamedDestination namedDestination) {
     if (index < 0 || index > count) {
       throw RangeError(
-          'The index can\'t be less then zero or greater then Count.');
+          "The index can't be less then zero or greater then Count.");
     }
     _namedCollections.insert(index, namedDestination);
   }
 
   /// Initializes instance.
   void _initialize() {
-    _dictionary!._beginSave = (Object sender, _SavePdfPrimitiveArgs? ars) {
+    _helper.dictionary!.beginSave = (Object sender, SavePdfPrimitiveArgs? ars) {
       for (final PdfNamedDestination values in _namedCollections) {
-        _namedDestination._add(_PdfString(values.title));
-        _namedDestination._add(_PdfReferenceHolder(values));
+        _namedDestination.add(PdfString(values.title));
+        _namedDestination.add(PdfReferenceHolder(values));
       }
-      _dictionary!.setProperty(
-          _DictionaryProperties.names, _PdfReferenceHolder(_namedDestination));
+      _helper.dictionary!.setProperty(
+          PdfDictionaryProperties.names, PdfReferenceHolder(_namedDestination));
     };
   }
 
-  void _addCollection(_PdfDictionary namedDictionary) {
-    final _PdfArray? elements = _PdfCrossTable._dereference(
-        namedDictionary[_DictionaryProperties.names]) as _PdfArray?;
+  void _addCollection(PdfDictionary namedDictionary) {
+    final PdfArray? elements = PdfCrossTable.dereference(
+        namedDictionary[PdfDictionaryProperties.names]) as PdfArray?;
     if (elements != null) {
       for (int i = 1; i <= elements.count; i = i + 2) {
-        _PdfReferenceHolder? reference;
-        if (elements[i] is _PdfReferenceHolder) {
-          reference = elements[i]! as _PdfReferenceHolder;
+        PdfReferenceHolder? reference;
+        if (elements[i] is PdfReferenceHolder) {
+          reference = elements[i]! as PdfReferenceHolder;
         }
-        _PdfDictionary? dictionary;
-        if (reference != null && reference.object is _PdfArray) {
-          dictionary = _PdfDictionary();
-          dictionary.setProperty(_DictionaryProperties.d,
-              _PdfArray(reference.object as _PdfArray?));
-        } else if (reference == null && elements[i] is _PdfArray) {
-          dictionary = _PdfDictionary();
-          final _PdfArray referenceArray = elements[i]! as _PdfArray;
+        PdfDictionary? dictionary;
+        if (reference != null && reference.object is PdfArray) {
+          dictionary = PdfDictionary();
+          dictionary.setProperty(PdfDictionaryProperties.d,
+              PdfArray(reference.object as PdfArray?));
+        } else if (reference == null && elements[i] is PdfArray) {
+          dictionary = PdfDictionary();
+          final PdfArray referenceArray = elements[i]! as PdfArray;
           dictionary.setProperty(
-              _DictionaryProperties.d, _PdfArray(referenceArray));
+              PdfDictionaryProperties.d, PdfArray(referenceArray));
         } else {
-          dictionary = reference!.object as _PdfDictionary?;
+          dictionary = reference!.object as PdfDictionary?;
         }
         if (dictionary != null) {
           final PdfNamedDestination namedDestinations =
-              PdfNamedDestination._(dictionary, _crossTable, true);
-          final _PdfString? title = elements[i - 1] as _PdfString?;
+              PdfNamedDestinationHelper.load(dictionary, _crossTable, true);
+          final PdfString? title = elements[i - 1] as PdfString?;
           if (title != null) {
             namedDestinations.title = title.value!;
           }
@@ -173,31 +180,51 @@ class PdfNamedDestinationCollection implements _IPdfWrapper {
     }
   }
 
-  void _findDestination(_PdfDictionary? destination) {
+  void _findDestination(PdfDictionary? destination) {
     if (destination != null &&
-        destination.containsKey(_DictionaryProperties.names)) {
+        destination.containsKey(PdfDictionaryProperties.names)) {
       _addCollection(destination);
     } else if (destination != null &&
-        destination.containsKey(_DictionaryProperties.kids)) {
-      final _PdfArray? kids =
-          _PdfCrossTable._dereference(destination[_DictionaryProperties.kids])
-              as _PdfArray?;
+        destination.containsKey(PdfDictionaryProperties.kids)) {
+      final PdfArray? kids =
+          PdfCrossTable.dereference(destination[PdfDictionaryProperties.kids])
+              as PdfArray?;
       if (kids != null) {
         for (int i = 0; i < kids.count; i++) {
           _findDestination(
-              _PdfCrossTable._dereference(kids[i]) as _PdfDictionary?);
+              PdfCrossTable.dereference(kids[i]) as PdfDictionary?);
         }
       }
     }
   }
+}
 
-  /// Gets the element.
-  @override
-  _IPdfPrimitive? get _element => _dictionary;
+/// [PdfNamedDestinationCollection] helper
+class PdfNamedDestinationCollectionHelper {
+  /// internal constructor
+  PdfNamedDestinationCollectionHelper(this.destination);
 
-  @override
-  // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    throw ArgumentError();
+  /// internal field
+  late PdfNamedDestinationCollection destination;
+
+  /// internal field
+  PdfDictionary? dictionary = PdfDictionary();
+
+  /// internal method
+  static PdfNamedDestinationCollectionHelper getHelper(
+      PdfNamedDestinationCollection destination) {
+    return destination._helper;
+  }
+
+  /// internal method
+  static PdfNamedDestinationCollection load(
+      PdfDictionary? dictionary, PdfCrossTable? crossTable) {
+    return PdfNamedDestinationCollection._(dictionary, crossTable);
+  }
+
+  /// internal property
+  IPdfPrimitive? get element => dictionary;
+  set element(IPdfPrimitive? value) {
+    throw ArgumentError("Primitive element can't be set");
   }
 }

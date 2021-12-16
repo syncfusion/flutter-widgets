@@ -1,8 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../../common/utils/helper.dart';
@@ -1014,9 +1010,8 @@ class _PlotBandPainter extends CustomPainter {
       Path? _dashPath;
       if (needDashLine) {
         paint.isAntiAlias = false;
-        _dashPath = !kIsWeb
-            ? dashPath(path, dashArray: CircularIntervalList<double>(dashArray))
-            : path;
+        _dashPath =
+            dashPath(path, dashArray: CircularIntervalList<double>(dashArray));
       } else {
         _dashPath = path;
       }

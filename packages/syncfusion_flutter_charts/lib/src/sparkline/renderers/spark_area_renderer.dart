@@ -1,7 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../marker.dart';
 import '../plot_band.dart';
 import '../utils/enum.dart';
@@ -35,7 +33,7 @@ class SfSparkAreaChartRenderObjectWidget
     this.marker,
     this.labelDisplayMode,
     this.labelStyle,
-    ThemeData? themeData,
+    SfChartThemeData? themeData,
     SparkChartDataDetails? sparkChartDataDetails,
     List<Offset>? coordinatePoints,
     List<SparkChartPoint>? dataPoints,
@@ -109,7 +107,9 @@ class SfSparkAreaChartRenderObjectWidget
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderSparkAreaChart renderObject) {
+      BuildContext context,
+      // ignore: library_private_types_in_public_api
+      _RenderSparkAreaChart renderObject) {
     renderObject
       ..dataCount = dataCount
       ..data = data
@@ -164,7 +164,7 @@ class _RenderSparkAreaChart extends RenderSparkChart {
       SparkChartLabelDisplayMode? labelDisplayMode,
       TextStyle? labelStyle,
       SparkChartDataDetails? sparkChartDataDetails,
-      ThemeData? themeData,
+      SfChartThemeData? themeData,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
       : _borderWidth = borderWidth,

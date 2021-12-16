@@ -127,6 +127,7 @@ class Worksheet {
   /// ```
   String get name {
     if (_name == '') {
+      // ignore: prefer_interpolation_to_compose_strings
       _name = 'Sheet' + (index).toString();
     }
     return _name;
@@ -182,6 +183,7 @@ class Worksheet {
   }
 
   /// Gets/Sets a Conditional Format collections in the worksheet.
+  // ignore: library_private_types_in_public_api
   List<_ConditionalFormatsImpl> conditionalFormats =
       <_ConditionalFormatsImpl>[];
 
@@ -333,6 +335,7 @@ class Worksheet {
             _SecondToken._defaultMilliSecondHalf) {
       final String decimalSeparator =
           currentCulture.numberFormat.numberDecimalSeparator;
+      // ignore: prefer_interpolation_to_compose_strings
       final RegExp regex = RegExp('([0-9]*:[0-9]*:[0-9]*"' +
           decimalSeparator +
           '[0-9]*' +
@@ -344,6 +347,7 @@ class Worksheet {
         final String semiColon = currentCulture.dateTimeFormat.timeSeparator;
         const String valueFormat = _SecondToken._defaultFormatLong;
         final List<String> timeValues =
+            // ignore: noop_primitive_operations
             match.pattern.toString().split(semiColon.toString());
         final int minutesValue = Range._fromOADate(dNumber).minute;
         String updatedValue = timeValues[0];
@@ -357,6 +361,7 @@ class Worksheet {
               updatedValue = updatedValue +
                   semiColon +
                   (timeValues[timeValues.length - 1]).replaceAll(
+                      // ignore: noop_primitive_operations
                       timeValues[timeValues.length - 1].toString(),
                       valueFormat);
               value = value.replaceAll(match.pattern.toString(), updatedValue);
@@ -582,6 +587,7 @@ class Worksheet {
     bool isNumber = true;
     if (value.contains(cultureInfo.numberFormat.numberDecimalSeparator)) {
       final RegExp decimalSepRegex =
+          // ignore: prefer_interpolation_to_compose_strings
           RegExp('[' + cultureInfo.numberFormat.numberDecimalSeparator + ']');
       final List<RegExpMatch> decimalSepMatches =
           decimalSepRegex.allMatches(value).toList();
@@ -620,6 +626,7 @@ class Worksheet {
     }
 
     final RegExp groupSepRegex =
+        // ignore: prefer_interpolation_to_compose_strings
         RegExp('[' + cultureInfo.numberFormat.numberGroupSeparator + ']');
     final List<RegExpMatch> groupSepMatches =
         groupSepRegex.allMatches(value).toList();
@@ -1098,6 +1105,7 @@ class Worksheet {
           curSize._width = _book._convertToPixels(
                   _autoFitManager
                       ._calculateWrappedCell(format, strText, defWidth.toInt())
+                      // ignore: noop_primitive_operations
                       .toDouble(),
                   6) -
               defWidth;
@@ -1700,6 +1708,7 @@ class Worksheet {
           'Sheet is already protected, before use unprotect method');
     }
     if (password.length > _maxPassWordLength) {
+      // ignore: prefer_interpolation_to_compose_strings, avoid_escaping_inner_quotes
       throw Exception('Length of the password can\'t be more than ' +
           _maxPassWordLength.toString());
     }
@@ -1835,6 +1844,7 @@ class Worksheet {
     }
 
     if (count < 0) {
+      // ignore: avoid_escaping_inner_quotes
       throw Exception('Count can\'t be less than zero');
     }
 

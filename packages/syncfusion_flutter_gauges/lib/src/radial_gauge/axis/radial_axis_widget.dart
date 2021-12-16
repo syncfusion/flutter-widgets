@@ -89,6 +89,7 @@ class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
         axisElementsAnimation: radialGaugeScope.animation1,
         repaintNotifier: radialGaugeScope.repaintNotifier,
         gaugeThemeData: gaugeTheme,
+        context: context,
         ranges: axis.ranges,
         renderer: renderer,
         backgroundImage: axis.backgroundImage,
@@ -223,6 +224,7 @@ class RenderRadialAxisWidget extends RenderBox {
       Color? minorTickColor,
       List<double>? minorTickDashArray,
       required SfGaugeThemeData gaugeThemeData,
+      required BuildContext context,
       RadialAxisRenderer? renderer,
       List<GaugeRange>? ranges,
       Animation<double>? axisElementsAnimation,
@@ -282,6 +284,8 @@ class RenderRadialAxisWidget extends RenderBox {
         _ranges = ranges,
         _renderer = renderer,
         _repaintNotifier = repaintNotifier,
+        _themeData = Theme.of(context),
+        _isDarkTheme = Theme.of(context).brightness == Brightness.dark,
         _backgroundImage = backgroundImage {
     _isLabelsOutside = labelPosition == ElementsPosition.outside;
     _isTicksOutside = tickPosition == ElementsPosition.outside;
@@ -313,6 +317,8 @@ class RenderRadialAxisWidget extends RenderBox {
   late double _cornerAngle;
   ImageInfo? _backgroundImageInfo;
   late ImageStreamListener _imageStreamListener;
+  final ThemeData _themeData;
+  final bool _isDarkTheme;
 
   late double _radius;
   late double _actualAxisWidth;
@@ -1380,8 +1386,8 @@ class RenderRadialAxisWidget extends RenderBox {
   ///Calculates the center when the region length is two.
   Offset _getCenterLengthOne(Offset startPoint, Offset endPoint, double x,
       double y, double radius, List<int> region) {
-    Offset point1 = const Offset(0, 0);
-    Offset point2 = const Offset(0, 0);
+    Offset point1 = Offset.zero;
+    Offset point2 = Offset.zero;
     final double maxRadian = 2 * math.pi * region[0] / 360;
     final Offset maxPoint = Offset(
         x + (radius * math.cos(maxRadian)), y + (radius * math.sin(maxRadian)));
@@ -1476,8 +1482,8 @@ class RenderRadialAxisWidget extends RenderBox {
         y + (radius * math.sin(region1Radian)));
     final Offset region2Point = Offset(x + (radius * math.cos(region2Radian)),
         y + (radius * math.sin(region2Radian)));
-    Offset regionStartPoint = const Offset(0, 0);
-    Offset regionEndPoint = const Offset(0, 0);
+    Offset regionStartPoint = Offset.zero;
+    Offset regionEndPoint = Offset.zero;
     switch (region[2]) {
       case 0:
       case 360:
@@ -1673,7 +1679,7 @@ class RenderRadialAxisWidget extends RenderBox {
   /// Converts the axis value to angle.
   double _valueToAngle(double value) {
     double angle = 0;
-    value = getMinMax(value, minimum, maximum);
+    value = value.clamp(minimum, maximum);
     if (!isInversed) {
       angle =
           (_sweepAngle / (maximum - minimum).abs()) * (minimum - value).abs();
@@ -1786,9 +1792,8 @@ class RenderRadialAxisWidget extends RenderBox {
           (renderer != null && renderer!.factorToValue(degree) != null)
               ? renderer!.factorToValue(degree) ?? factorToValue(degree)
               : factorToValue(degree);
-      final Offset centerPoint = !canScaleToFit
-          ? Offset(_centerXPoint, _centerYPoint)
-          : const Offset(0, 0);
+      final Offset centerPoint =
+          !canScaleToFit ? Offset(_centerXPoint, _centerYPoint) : Offset.zero;
       tickOffset.startPoint = Offset(tickOffset.startPoint.dx - centerPoint.dx,
           tickOffset.startPoint.dy - centerPoint.dy);
       tickOffset.endPoint = Offset(tickOffset.endPoint.dx - centerPoint.dx,
@@ -1935,9 +1940,8 @@ class RenderRadialAxisWidget extends RenderBox {
         tickOffset.endPoint = tickPosition[1];
         tickOffset.value = tickValue;
 
-        final Offset centerPoint = !canScaleToFit
-            ? Offset(_centerXPoint, _centerYPoint)
-            : const Offset(0, 0);
+        final Offset centerPoint =
+            !canScaleToFit ? Offset(_centerXPoint, _centerYPoint) : Offset.zero;
         tickOffset.startPoint = Offset(
             tickOffset.startPoint.dx - centerPoint.dx,
             tickOffset.startPoint.dy - centerPoint.dy);
@@ -2051,7 +2055,7 @@ class RenderRadialAxisWidget extends RenderBox {
 
   /// To find the maximum label size
   void _measureAxisLabels() {
-    _maximumLabelSize = const Size(0, 0);
+    _maximumLabelSize = Size.zero;
     for (int i = 0; i < _axisLabels!.length; i++) {
       final CircularAxisLabel label = _axisLabels![i];
       label.labelSize = getTextSize(label.text, label.labelStyle);
@@ -2324,21 +2328,16 @@ class RenderRadialAxisWidget extends RenderBox {
           _drawStartCurve(path, endRadian, innerRadius, outerRadius);
         }
 
-        path.addArc(
-            Rect.fromCircle(center: const Offset(0, 0), radius: outerRadius),
-            _startCornerRadian,
-            endRadian);
+        path.addArc(Rect.fromCircle(center: Offset.zero, radius: outerRadius),
+            _startCornerRadian, endRadian);
 
         // Adds the rounded corner at end of axis line.
         if (axisLineCornerStyle == CornerStyle.endCurve ||
             axisLineCornerStyle == CornerStyle.bothCurve) {
           _drawEndCurve(path, endRadian, innerRadius, outerRadius);
         }
-        path.arcTo(
-            Rect.fromCircle(center: const Offset(0, 0), radius: innerRadius),
-            endRadian + _startCornerRadian,
-            -endRadian,
-            false);
+        path.arcTo(Rect.fromCircle(center: Offset.zero, radius: innerRadius),
+            endRadian + _startCornerRadian, -endRadian, false);
       }
     } else {
       path = _getPath(endRadian, isFill);
@@ -2379,7 +2378,11 @@ class RenderRadialAxisWidget extends RenderBox {
 
   Paint _getPaint(SweepGradient? gradient, bool isFill) {
     final Paint paint = Paint()
-      ..color = axisLineColor ?? _gaugeThemeData.axisLineColor
+      ..color = axisLineColor ??
+          _gaugeThemeData.axisLineColor ??
+          (_isDarkTheme
+              ? _themeData.colorScheme.onSurface.withOpacity(0.24)
+              : _themeData.colorScheme.onSurface.withOpacity(0.12))
       ..style = !isFill ? PaintingStyle.stroke : PaintingStyle.fill
       ..strokeWidth = _actualAxisWidth;
     if (gradient != null) {
@@ -2395,7 +2398,7 @@ class RenderRadialAxisWidget extends RenderBox {
     final Offset midPoint = getDegreeToPoint(
         isInversed ? -_cornerAngle : _cornerAngle,
         (innerRadius + outerRadius) / 2,
-        const Offset(0, 0));
+        Offset.zero);
     final double midStartAngle = getDegreeToRadian(180);
 
     double midEndAngle = midStartAngle + getDegreeToRadian(180);
@@ -2415,8 +2418,8 @@ class RenderRadialAxisWidget extends RenderBox {
     final double angle = isInversed
         ? getRadianToDegree(sweepRadian) - curveCornerAngle
         : getRadianToDegree(sweepRadian) + curveCornerAngle;
-    final Offset midPoint = getDegreeToPoint(
-        angle, (innerRadius + outerRadius) / 2, const Offset(0, 0));
+    final Offset midPoint =
+        getDegreeToPoint(angle, (innerRadius + outerRadius) / 2, Offset.zero);
 
     final double midStartAngle = sweepRadian / 2;
 
@@ -2448,7 +2451,9 @@ class RenderRadialAxisWidget extends RenderBox {
       for (int i = 0; i < ranges!.length; i++) {
         if (ranges![i].startValue <= value.roundToDouble() &&
             ranges![i].endValue >= value.roundToDouble()) {
-          color = ranges![i].color ?? gaugeThemeData.rangeColor;
+          color = ranges![i].color ??
+              gaugeThemeData.rangeColor ??
+              const Color(0xFFF67280);
           break;
         }
       }
@@ -2459,6 +2464,9 @@ class RenderRadialAxisWidget extends RenderBox {
   /// Method to draw the major ticks
   void _drawMajorTicks(Canvas canvas) {
     double length = _majorTickOffsets.length.toDouble();
+    final Color colorSchemeMajorTickColor = _isDarkTheme
+        ? _themeData.colorScheme.onSurface.withOpacity(0.27)
+        : _themeData.colorScheme.onSurface.withOpacity(0.18);
     if (_axisElementsAnimation != null) {
       length = _majorTickOffsets.length * _axisElementsAnimation!.value;
     }
@@ -2473,8 +2481,11 @@ class RenderRadialAxisWidget extends RenderBox {
           tickPaint.color = useRangeColorForAxis
               ? _getRangeColor(tickOffset.value, _gaugeThemeData) ??
                   majorTickColor ??
-                  _gaugeThemeData.majorTickColor
-              : majorTickColor ?? _gaugeThemeData.majorTickColor;
+                  _gaugeThemeData.majorTickColor ??
+                  colorSchemeMajorTickColor
+              : majorTickColor ??
+                  _gaugeThemeData.majorTickColor ??
+                  colorSchemeMajorTickColor;
 
           if (majorTickDashArray != null && majorTickDashArray!.isNotEmpty) {
             final Path path = Path()
@@ -2514,6 +2525,9 @@ class RenderRadialAxisWidget extends RenderBox {
   /// Method to draw the minor ticks.
   void _drawMinorTicks(Canvas canvas) {
     double length = _minorTickOffsets.length.toDouble();
+    final Color colorSchemeMinorTickColor = _isDarkTheme
+        ? _themeData.colorScheme.onSurface.withOpacity(0.33)
+        : _themeData.colorScheme.onSurface.withOpacity(0.28);
     if (_axisElementsAnimation != null) {
       length = _minorTickOffsets.length * _axisElementsAnimation!.value;
     }
@@ -2526,8 +2540,11 @@ class RenderRadialAxisWidget extends RenderBox {
         tickPaint.color = useRangeColorForAxis
             ? _getRangeColor(tickOffset.value, _gaugeThemeData) ??
                 minorTickColor ??
-                _gaugeThemeData.minorTickColor
-            : minorTickColor ?? _gaugeThemeData.minorTickColor;
+                _gaugeThemeData.minorTickColor ??
+                colorSchemeMinorTickColor
+            : minorTickColor ??
+                _gaugeThemeData.minorTickColor ??
+                colorSchemeMinorTickColor;
         if (minorTickDashArray != null && minorTickDashArray!.isNotEmpty) {
           final Path path = Path()
             ..moveTo(tickOffset.startPoint.dx, tickOffset.startPoint.dy)
@@ -2556,8 +2573,11 @@ class RenderRadialAxisWidget extends RenderBox {
               !showLastLabel &&
               _isMaxiumValueIncluded))) {
         final CircularAxisLabel label = _axisLabels![i];
-        final Color labelColor =
-            label.labelStyle.color ?? _gaugeThemeData.axisLabelColor;
+        final Color labelColor = label.labelStyle.color ??
+            _gaugeThemeData.axisLabelColor ??
+            (_isDarkTheme
+                ? _themeData.colorScheme.onSurface
+                : _themeData.colorScheme.onSurface.withOpacity(0.72));
         final TextSpan span = TextSpan(
             text: label.text,
             style: TextStyle(

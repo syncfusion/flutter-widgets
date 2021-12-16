@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import 'technical_indicator.dart';

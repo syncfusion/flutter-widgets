@@ -1,20 +1,11 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../common/rendering_details.dart';
-import '../../common/utils/enum.dart';
-import '../axis/axis.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/interactive_tooltip.dart';
-import '../common/trackball_marker_settings.dart';
-import '../utils/enum.dart';
 import 'trackball.dart';
-import 'trackball_marker_setting_renderer.dart';
 import 'trackball_painter.dart';
 
 /// Widget class which is used to display the trackball template

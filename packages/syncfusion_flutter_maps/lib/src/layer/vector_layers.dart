@@ -5,14 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-// ignore: unused_import
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../maps.dart';
 import '../common.dart';
 import '../controller/map_controller.dart';
-import '../layer/layer_base.dart';
 import '../utils.dart';
 
 /// This enum supported only for circle and polygon shapes.
@@ -765,8 +763,8 @@ class _MapLineLayerState extends State<_MapLineLayer>
       animation: widget.animation,
       color: widget.color ??
           (_mapsThemeData.brightness == Brightness.light
-              ? const Color.fromRGBO(140, 140, 140, 1)
-              : const Color.fromRGBO(208, 208, 208, 1)),
+              ? themeData.colorScheme.onSurface.withOpacity(0.44)
+              : themeData.colorScheme.onSurface.withOpacity(0.78)),
       width: widget.width,
       strokeCap: widget.strokeCap,
       dashArray: widget.dashArray,
@@ -1826,8 +1824,8 @@ class _MapArcLayerState extends State<_MapArcLayer>
       animation: widget.animation,
       color: widget.color ??
           (_mapsThemeData.brightness == Brightness.light
-              ? const Color.fromRGBO(140, 140, 140, 1)
-              : const Color.fromRGBO(208, 208, 208, 1)),
+              ? themeData.colorScheme.onSurface.withOpacity(0.44)
+              : themeData.colorScheme.onSurface.withOpacity(0.78)),
       width: widget.width,
       dashArray: widget.dashArray,
       tooltipBuilder: widget.tooltipBuilder,
@@ -2905,8 +2903,8 @@ class _MapPolylineLayerState extends State<_MapPolylineLayer>
       animation: widget.animation,
       color: widget.color ??
           (_mapsThemeData.brightness == Brightness.light
-              ? const Color.fromRGBO(140, 140, 140, 1)
-              : const Color.fromRGBO(208, 208, 208, 1)),
+              ? themeData.colorScheme.onSurface.withOpacity(0.44)
+              : themeData.colorScheme.onSurface.withOpacity(0.78)),
       width: widget.width,
       strokeCap: widget.strokeCap,
       dashArray: widget.dashArray,
@@ -3904,7 +3902,7 @@ class _MapPolygonLayerState extends State<_MapPolygonLayer>
                 ErrorSummary('Incorrect MapPolygon arguments.'),
                 ErrorDescription(
                     'Inverted polygons cannot be customized individually.'),
-                ErrorHint('To customize all the polygon\'s color,'
+                ErrorHint("To customize all the polygon's color,"
                     ' use MapPolygonLayer.color')
               ]));
           assert(
@@ -3913,7 +3911,7 @@ class _MapPolygonLayerState extends State<_MapPolygonLayer>
                 ErrorSummary('Incorrect MapPolygon arguments.'),
                 ErrorDescription(
                     'Inverted polygons cannot be customized individually.'),
-                ErrorHint('To customize all the polygon\'s stroke color,'
+                ErrorHint("To customize all the polygon's stroke color,"
                     ' use MapPolygonLayer.strokeColor')
               ]));
           assert(
@@ -3922,7 +3920,7 @@ class _MapPolygonLayerState extends State<_MapPolygonLayer>
                 ErrorSummary('Incorrect MapPolygon arguments.'),
                 ErrorDescription(
                     'Inverted polygons cannot be customized individually.'),
-                ErrorHint('To customize all the polygon\'s stroke width,'
+                ErrorHint("To customize all the polygon's stroke width,"
                     ' use MapPolygonLayer.strokeWidth')
               ]));
         }
@@ -5074,7 +5072,7 @@ class _MapCircleLayerState extends State<_MapCircleLayer>
                 ErrorSummary('Incorrect MapCircle arguments.'),
                 ErrorDescription(
                     'Inverted circles cannot be customized individually.'),
-                ErrorHint('To customize all the circle\'s color,'
+                ErrorHint("To customize all the circle's color,"
                     ' use MapCircleLayer.color')
               ]));
           assert(
@@ -5083,7 +5081,7 @@ class _MapCircleLayerState extends State<_MapCircleLayer>
                 ErrorSummary('Incorrect MapCircle arguments.'),
                 ErrorDescription(
                     'Inverted circles cannot be customized individually.'),
-                ErrorHint('To customize all the circle\'s stroke color,'
+                ErrorHint("To customize all the circle's stroke color,"
                     ' use MapCircleLayer.strokeColor')
               ]));
           assert(
@@ -5092,7 +5090,7 @@ class _MapCircleLayerState extends State<_MapCircleLayer>
                 ErrorSummary('Incorrect MapCircle arguments.'),
                 ErrorDescription(
                     'Inverted circles cannot be customized individually.'),
-                ErrorHint('To customize all the circle\'s stroke width,'
+                ErrorHint("To customize all the circle's stroke width,"
                     ' use MapCircleLayer.strokeWidth')
               ]));
         }

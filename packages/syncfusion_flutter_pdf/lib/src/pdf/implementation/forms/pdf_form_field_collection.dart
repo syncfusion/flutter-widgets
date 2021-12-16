@@ -1,14 +1,97 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../annotations/pdf_annotation.dart';
+import '../general/pdf_collection.dart';
+import '../graphics/pdf_resources.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_reference_holder.dart';
+import 'enum.dart';
+import 'pdf_button_field.dart';
+import 'pdf_check_box_field.dart';
+import 'pdf_combo_box_field.dart';
+import 'pdf_field.dart';
+import 'pdf_form.dart';
+import 'pdf_list_box_field.dart';
+import 'pdf_radio_button_list_field.dart';
+import 'pdf_signature_field.dart';
+import 'pdf_text_box_field.dart';
 
 /// Represents a collection of form fields.
 class PdfFormFieldCollection extends PdfObjectCollection
-    implements _IPdfWrapper {
+    implements IPdfWrapper {
   //Constructor
   /// Initializes a new instance of the [PdfFormFieldCollection] class.
   PdfFormFieldCollection._([PdfForm? form]) : super() {
+    _helper = PdfFormFieldCollectionHelper(this, form);
+  }
+
+  //Fields
+  late PdfFormFieldCollectionHelper _helper;
+
+  //Properties
+  /// Gets the [PdfField] at the specified index.
+  PdfField operator [](int index) {
+    if ((count < 0) || (index >= count)) {
+      throw RangeError('index');
+    }
+    return _helper.list[index] as PdfField;
+  }
+
+  //Public methods
+  /// Adds the specified field to the collection.
+  int add(PdfField field) {
+    return _helper._doAdd(field);
+  }
+
+  /// Adds a list of fields to the collection.
+  void addAll(List<PdfField> fields) {
+    if (fields.isEmpty) {
+      throw ArgumentError("fields can't be empty");
+    }
+    // ignore: avoid_function_literals_in_foreach_calls
+    fields.forEach((PdfField element) => add(element));
+  }
+
+  /// Removes the specified field in the collection.
+  void remove(PdfField field) {
+    _helper._doRemove(field);
+  }
+
+  /// Removes field at the specified position.
+  void removeAt(int index) {
+    _helper._doRemoveAt(index);
+  }
+
+  /// Gets the index of the specific field.
+  int indexOf(PdfField field) {
+    return PdfObjectCollectionHelper.getHelper(this).list.indexOf(field);
+  }
+
+  /// Determines whether field is contained within the collection.
+  bool contains(PdfField field) {
+    return PdfObjectCollectionHelper.getHelper(this).list.contains(field);
+  }
+
+  /// Clears the form field collection.
+  void clear() {
+    _helper._doClear();
+  }
+}
+
+/// [PdfFormFieldCollection] helper
+class PdfFormFieldCollectionHelper extends PdfObjectCollectionHelper {
+  /// internal constructor
+  PdfFormFieldCollectionHelper(this.formFieldCollection, PdfForm? form)
+      : super(formFieldCollection) {
     if (form != null) {
-      _form = form;
-      for (int i = 0; i < _form!._terminalFields.length; ++i) {
+      this.form = form;
+      for (int i = 0;
+          i < PdfFormHelper.getHelper(form).terminalFields.length;
+          ++i) {
         final PdfField? field = _getField(index: i);
         if (field != null) {
           _doAdd(field);
@@ -17,256 +100,61 @@ class PdfFormFieldCollection extends PdfObjectCollection
     }
   }
 
-  //Fields
-  PdfForm? _form;
-  final _PdfArray _array = _PdfArray();
+  /// internal field
+  late PdfFormFieldCollection formFieldCollection;
+
+  /// internal field
+  final PdfArray array = PdfArray();
+
+  /// internal field
+  PdfForm? form;
+
+  /// internal field
+  bool isAction = false;
+
+  /// internal field
   // ignore: prefer_final_fields
-  bool _isAction = false;
-  final List<String?> _addedFieldNames = <String?>[];
+  final List<String?> addedFieldNames = <String?>[];
 
-  //Properties
-  /// Gets the [PdfField] at the specified index.
-  PdfField operator [](int index) {
-    if ((count < 0) || (index >= count)) {
-      throw RangeError('index');
-    }
-    return _list[index] as PdfField;
+  /// internal method
+  static PdfFormFieldCollectionHelper getHelper(
+      PdfFormFieldCollection collection) {
+    return collection._helper;
   }
 
-  //Public methods
-  /// Adds the specified field to the collection.
-  int add(PdfField field) {
-    return _doAdd(field);
+  /// internal method
+  static PdfFormFieldCollection getCollection([PdfForm? form]) {
+    return PdfFormFieldCollection._(form);
   }
 
-  /// Adds a list of fields to the collection.
-  void addAll(List<PdfField> fields) {
-    if (fields.isEmpty) {
-      throw ArgumentError('fields can\'t be empty');
-    }
-    // ignore: avoid_function_literals_in_foreach_calls
-    fields.forEach((PdfField element) => add(element));
+  /// internal method
+  IPdfPrimitive get element => array;
+  // ignore: unused_element
+  set element(IPdfPrimitive? value) {
+    throw ArgumentError("Primitive element can't be set");
   }
 
-  /// Removes the specified field in the collection.
-  void remove(PdfField field) {
-    _doRemove(field);
-  }
-
-  /// Removes field at the specified position.
-  void removeAt(int index) {
-    _doRemoveAt(index);
-  }
-
-  /// Gets the index of the specific field.
-  int indexOf(PdfField field) {
-    return _list.indexOf(field);
-  }
-
-  /// Determines whether field is contained within the collection.
-  bool contains(PdfField field) {
-    return _list.contains(field);
-  }
-
-  /// Clears the form field collection.
-  void clear() {
-    _doClear();
-  }
-
-  //Implementations
-  int _doAdd(PdfField field) {
-    final bool isLoaded = _form != null && _form!._isLoadedForm;
-    if (!_isAction) {
-      field._setForm(_form);
-      String? name = field.name;
-      _PdfArray? array;
-      bool skipField = false;
-      if (isLoaded) {
-        array = _form!._dictionary.containsKey(_DictionaryProperties.fields)
-            ? _form!._crossTable!._getObject(
-                _form!._dictionary[_DictionaryProperties.fields]) as _PdfArray?
-            : _PdfArray();
-        if (field._dictionary._items!
-            .containsKey(_PdfName(_DictionaryProperties.parent))) {
-          skipField = true;
-        }
-      } else {
-        if (name == null || name.isEmpty) {
-          name = _PdfResources._globallyUniqueIdentifier;
-        }
-        _form!._fieldNames.add(name);
-      }
-      if (!isLoaded || !field._isLoadedField) {
-        if (_form!.fieldAutoNaming && !skipField) {
-          if (!isLoaded) {
-            field._applyName(_form!._getCorrectName(name));
-          } else {
-            field._applyName(_getCorrectName(name));
-            array!._add(_PdfReferenceHolder(field));
-            _form!._dictionary.setProperty(_DictionaryProperties.fields, array);
-          }
-        } else if (isLoaded && !_addedFieldNames.contains(name) && !skipField) {
-          array!._add(_PdfReferenceHolder(field));
-          _form!._dictionary.setProperty(_DictionaryProperties.fields, array);
-        } else if (isLoaded &&
-                (!_addedFieldNames.contains(name) && skipField) ||
-            (_form!.fieldAutoNaming && skipField)) {
-          _addedFieldNames.add(field.name);
-        } else if (count > 0 && !isLoaded) {
-          for (int i = 0; i < count; i++) {
-            if (_list[i] is PdfField) {
-              final PdfField oldField = _list[i] as PdfField;
-              if (oldField._name == field._name) {
-                if ((field is PdfTextBoxField && oldField is PdfTextBoxField) ||
-                    (field is PdfCheckBoxField &&
-                        oldField is PdfCheckBoxField)) {
-                  final _PdfDictionary dic = field._widget!._dictionary;
-                  dic.remove(_DictionaryProperties.parent);
-                  field._widget!.parent = oldField;
-                  if (field._page != null) {
-                    field._page!.annotations.add(field._widget!);
-                  }
-                  bool isPresent = false;
-                  for (int i = 0; i < oldField._array.count; i++) {
-                    final _IPdfPrimitive? obj = oldField._array._elements[i];
-                    if (obj != null &&
-                        obj is _PdfReferenceHolder &&
-                        obj.object != null &&
-                        obj.object is _PdfDictionary &&
-                        obj.object == oldField._widget!._dictionary) {
-                      isPresent = true;
-                      break;
-                    }
-                  }
-                  if (!isPresent) {
-                    oldField._array._add(_PdfReferenceHolder(oldField._widget));
-                    oldField._fieldItems ??= <PdfField>[];
-                    oldField._fieldItems!.add(oldField);
-                  }
-                  oldField._array._add(_PdfReferenceHolder(field._widget));
-                  oldField._fieldItems ??= <PdfField>[];
-                  oldField._fieldItems!.add(field);
-                  oldField._dictionary
-                      .setProperty(_DictionaryProperties.kids, oldField._array);
-                  return count - 1;
-                } else if (field is PdfSignatureField) {
-                  final PdfSignatureField currentField = field;
-                  final _PdfDictionary dictionary =
-                      currentField._widget!._dictionary;
-                  if (dictionary.containsKey(_DictionaryProperties.parent)) {
-                    dictionary.remove(_DictionaryProperties.parent);
-                  }
-                  currentField._widget!.parent = oldField;
-                  _IPdfPrimitive? oldKids;
-                  _IPdfPrimitive? newKids;
-                  if (oldField._dictionary
-                      .containsKey(_DictionaryProperties.kids)) {
-                    oldKids = oldField._dictionary
-                        ._items![_PdfName(_DictionaryProperties.kids)];
-                  }
-                  if (field._dictionary
-                      .containsKey(_DictionaryProperties.kids)) {
-                    newKids = field._dictionary
-                        ._items![_PdfName(_DictionaryProperties.kids)];
-                  }
-                  if (newKids != null && newKids is _PdfArray) {
-                    if (oldKids == null || oldKids is! _PdfArray) {
-                      oldKids = _PdfArray();
-                    }
-                    for (int i = 0; i < newKids.count; i++) {
-                      final _IPdfPrimitive? kidsReference = newKids[i];
-                      if (kidsReference != null &&
-                          kidsReference is _PdfReferenceHolder) {
-                        oldKids._add(kidsReference);
-                      }
-                    }
-                  }
-                  oldField._dictionary
-                      .setProperty(_DictionaryProperties.kids, oldKids);
-                  currentField._skipKidsCertificate = true;
-                  if (!field.page!.annotations
-                      .contains(currentField._widget!)) {
-                    field.page!.annotations.add(currentField._widget!);
-                  }
-                  return count - 1;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    if (isLoaded && !_addedFieldNames.contains(field.name)) {
-      _addedFieldNames.add(field.name);
-    }
-    if (field is! PdfRadioButtonListField && field._page != null) {
-      field._page!.annotations.add(field._widget!);
-    }
-    _array._add(_PdfReferenceHolder(field));
-    _list.add(field);
-    field._annotationIndex = _list.length - 1;
-    return _list.length - 1;
-  }
-
-  void _doRemove(PdfField field) {
-    if (field._isLoadedField ||
-        (field._form != null && field._form!._isLoadedForm)) {
-      _removeFromDictionary(field);
-    }
-    field._setForm(null);
-    final int index = _list.indexOf(field);
-    _array._removeAt(index);
-    _list.removeAt(index);
-  }
-
-  void _doRemoveAt(int index) {
-    if (_list[index] is PdfField && (_list[index] as PdfField)._isLoadedField) {
-      _removeFromDictionary(_list[index] as PdfField);
-    }
-    _array._removeAt(index);
-    _list.removeAt(index);
-  }
-
-  void _doClear() {
-    if (count > 0) {
-      for (int i = 0; i < count; i++) {
-        if (_list[i] is PdfField) {
-          final PdfField field = _list[i] as PdfField;
-          if (field._isLoadedField) {
-            _removeFromDictionary(field);
-          } else {
-            _form!._deleteFromPages(field);
-            _form!._deleteAnnotation(field);
-            field._page = null;
-            if (field._dictionary._items != null) {
-              field._dictionary.clear();
-            }
-            field._setForm(null);
-          }
-        }
-      }
-    }
-    _addedFieldNames.clear();
-    _form!._terminalFields.clear();
-    _array._clear();
-    _list.clear();
-  }
-
-  void _createFormFieldsFromWidgets(int startFormFieldIndex) {
-    for (int i = startFormFieldIndex; i < _form!._terminalFields.length; ++i) {
+  /// internal method
+  void createFormFieldsFromWidgets(int startFormFieldIndex) {
+    for (int i = startFormFieldIndex;
+        i < PdfFormHelper.getHelper(form!).terminalFields.length;
+        ++i) {
       final PdfField? field = _getField(index: i);
       if (field != null) {
         _doAdd(field);
       }
     }
-    if (_form!._widgetDictionary != null &&
-        _form!._widgetDictionary!.isNotEmpty) {
-      for (final List<_PdfDictionary> dictValue
-          in _form!._widgetDictionary!.values) {
+    if (PdfFormHelper.getHelper(form!).widgetDictionary != null &&
+        PdfFormHelper.getHelper(form!).widgetDictionary!.isNotEmpty) {
+      final Map<String?, List<PdfDictionary>> widgetDictionary =
+          PdfFormHelper.getHelper(form!).widgetDictionary!;
+      for (final List<PdfDictionary> dictValue in widgetDictionary.values) {
         if (dictValue.isNotEmpty) {
           final PdfField? field = _getField(dictionary: dictValue[0]);
           if (field != null) {
-            _form!._terminalFields.add(field._dictionary);
+            PdfFormHelper.getHelper(form!)
+                .terminalFields
+                .add(PdfFieldHelper.getHelper(field).dictionary!);
             _doAdd(field);
           }
         }
@@ -274,49 +162,231 @@ class PdfFormFieldCollection extends PdfObjectCollection
     }
   }
 
+  int _doAdd(PdfField field) {
+    final bool isLoaded =
+        form != null && PdfFormHelper.getHelper(form!).isLoadedForm;
+    if (!isAction) {
+      PdfFieldHelper.getHelper(field).setForm(form);
+      String? name = field.name;
+      PdfArray? array;
+      bool skipField = false;
+      if (isLoaded) {
+        array = PdfFormHelper.getHelper(form!)
+                .dictionary!
+                .containsKey(PdfDictionaryProperties.fields)
+            ? PdfFormHelper.getHelper(form!).crossTable!.getObject(
+                PdfFormHelper.getHelper(form!)
+                    .dictionary![PdfDictionaryProperties.fields]) as PdfArray?
+            : PdfArray();
+        if (PdfFieldHelper.getHelper(field)
+            .dictionary!
+            .items!
+            .containsKey(PdfName(PdfDictionaryProperties.parent))) {
+          skipField = true;
+        }
+      } else {
+        if (name == null || name.isEmpty) {
+          name = PdfResources.globallyUniqueIdentifier;
+        }
+        PdfFormHelper.getHelper(form!).fieldNames.add(name);
+      }
+      if (!isLoaded || !PdfFieldHelper.getHelper(field).isLoadedField) {
+        if (form!.fieldAutoNaming && !skipField) {
+          if (!isLoaded) {
+            PdfFieldHelper.getHelper(field)
+                .applyName(PdfFormHelper.getHelper(form!).getCorrectName(name));
+          } else {
+            PdfFieldHelper.getHelper(field).applyName(getCorrectName(name));
+            array!.add(PdfReferenceHolder(field));
+            PdfFormHelper.getHelper(form!)
+                .dictionary!
+                .setProperty(PdfDictionaryProperties.fields, array);
+          }
+        } else if (isLoaded && !addedFieldNames.contains(name) && !skipField) {
+          array!.add(PdfReferenceHolder(field));
+          PdfFormHelper.getHelper(form!)
+              .dictionary!
+              .setProperty(PdfDictionaryProperties.fields, array);
+        } else if (isLoaded && (!addedFieldNames.contains(name) && skipField) ||
+            (form!.fieldAutoNaming && skipField)) {
+          addedFieldNames.add(field.name);
+        } else if (formFieldCollection.count > 0 && !isLoaded) {
+          for (int i = 0; i < formFieldCollection.count; i++) {
+            if (list[i] is PdfField) {
+              final PdfField oldField = list[i] as PdfField;
+              if (oldField.name == field.name) {
+                if ((field is PdfTextBoxField && oldField is PdfTextBoxField) ||
+                    (field is PdfCheckBoxField &&
+                        oldField is PdfCheckBoxField)) {
+                  final PdfDictionary dic = PdfAnnotationHelper.getHelper(
+                          PdfFieldHelper.getHelper(field).widget!)
+                      .dictionary!;
+                  dic.remove(PdfDictionaryProperties.parent);
+                  PdfFieldHelper.getHelper(field).widget!.parent = oldField;
+                  if (PdfFieldHelper.getHelper(field).page != null) {
+                    PdfFieldHelper.getHelper(field)
+                        .page!
+                        .annotations
+                        .add(PdfFieldHelper.getHelper(field).widget!);
+                  }
+                  bool isPresent = false;
+                  for (int i = 0;
+                      i < PdfFieldHelper.getHelper(oldField).array.count;
+                      i++) {
+                    final IPdfPrimitive? obj =
+                        PdfFieldHelper.getHelper(oldField).array.elements[i];
+                    if (obj != null &&
+                        obj is PdfReferenceHolder &&
+                        obj.object != null &&
+                        obj.object is PdfDictionary &&
+                        obj.object ==
+                            PdfAnnotationHelper.getHelper(
+                                    PdfFieldHelper.getHelper(oldField).widget!)
+                                .dictionary) {
+                      isPresent = true;
+                      break;
+                    }
+                  }
+                  if (!isPresent) {
+                    PdfFieldHelper.getHelper(oldField).array.add(
+                        PdfReferenceHolder(
+                            PdfFieldHelper.getHelper(oldField).widget));
+                    if (PdfFieldHelper.getHelper(oldField).fieldItems == null) {
+                      PdfFieldHelper.getHelper(oldField).fieldItems =
+                          <PdfField>[];
+                    }
+                    PdfFieldHelper.getHelper(oldField)
+                        .fieldItems!
+                        .add(oldField);
+                  }
+                  PdfFieldHelper.getHelper(oldField).array.add(
+                      PdfReferenceHolder(
+                          PdfFieldHelper.getHelper(field).widget));
+                  if (PdfFieldHelper.getHelper(oldField).fieldItems == null) {
+                    PdfFieldHelper.getHelper(oldField).fieldItems =
+                        <PdfField>[];
+                  }
+                  PdfFieldHelper.getHelper(oldField).fieldItems!.add(field);
+                  PdfFieldHelper.getHelper(oldField).dictionary!.setProperty(
+                      PdfDictionaryProperties.kids,
+                      PdfFieldHelper.getHelper(oldField).array);
+                  return formFieldCollection.count - 1;
+                } else if (field is PdfSignatureField) {
+                  final PdfSignatureField currentField = field;
+                  final PdfDictionary dictionary =
+                      PdfAnnotationHelper.getHelper(
+                              PdfFieldHelper.getHelper(currentField).widget!)
+                          .dictionary!;
+                  if (dictionary.containsKey(PdfDictionaryProperties.parent)) {
+                    dictionary.remove(PdfDictionaryProperties.parent);
+                  }
+                  PdfFieldHelper.getHelper(currentField).widget!.parent =
+                      oldField;
+                  IPdfPrimitive? oldKids;
+                  IPdfPrimitive? newKids;
+                  if (PdfFieldHelper.getHelper(oldField)
+                      .dictionary!
+                      .containsKey(PdfDictionaryProperties.kids)) {
+                    oldKids = PdfFieldHelper.getHelper(oldField)
+                        .dictionary!
+                        .items![PdfName(PdfDictionaryProperties.kids)];
+                  }
+                  if (PdfFieldHelper.getHelper(field)
+                      .dictionary!
+                      .containsKey(PdfDictionaryProperties.kids)) {
+                    newKids = PdfFieldHelper.getHelper(field)
+                        .dictionary!
+                        .items![PdfName(PdfDictionaryProperties.kids)];
+                  }
+                  if (newKids != null && newKids is PdfArray) {
+                    if (oldKids == null || oldKids is! PdfArray) {
+                      oldKids = PdfArray();
+                    }
+                    for (int i = 0; i < newKids.count; i++) {
+                      final IPdfPrimitive? kidsReference = newKids[i];
+                      if (kidsReference != null &&
+                          kidsReference is PdfReferenceHolder) {
+                        oldKids.add(kidsReference);
+                      }
+                    }
+                  }
+                  PdfFieldHelper.getHelper(oldField)
+                      .dictionary!
+                      .setProperty(PdfDictionaryProperties.kids, oldKids);
+                  PdfSignatureFieldHelper.getHelper(currentField)
+                      .skipKidsCertificate = true;
+                  if (!field.page!.annotations.contains(
+                      PdfFieldHelper.getHelper(currentField).widget!)) {
+                    field.page!.annotations
+                        .add(PdfFieldHelper.getHelper(currentField).widget!);
+                  }
+                  return formFieldCollection.count - 1;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (isLoaded && !addedFieldNames.contains(field.name)) {
+      addedFieldNames.add(field.name);
+    }
+    if (field is! PdfRadioButtonListField &&
+        PdfFieldHelper.getHelper(field).page != null) {
+      PdfFieldHelper.getHelper(field)
+          .page!
+          .annotations
+          .add(PdfFieldHelper.getHelper(field).widget!);
+    }
+    array.add(PdfReferenceHolder(field));
+    list.add(field);
+    PdfFieldHelper.getHelper(field).annotationIndex = list.length - 1;
+    return list.length - 1;
+  }
+
   // Gets the field.
-  PdfField? _getField({int? index, _PdfDictionary? dictionary}) {
+  PdfField? _getField({int? index, PdfDictionary? dictionary}) {
     index != null
-        ? dictionary = _form!._terminalFields[index]
+        ? dictionary = PdfFormHelper.getHelper(form!).terminalFields[index]
         : ArgumentError.checkNotNull(
             dictionary, 'method cannot be initialized without parameters');
-    final _PdfCrossTable? crossTable = _form!._crossTable;
+    final PdfCrossTable? crossTable = PdfFormHelper.getHelper(form!).crossTable;
     PdfField? field;
-    final _PdfName? name = PdfField._getValue(
-        dictionary!, crossTable, _DictionaryProperties.ft, true) as _PdfName?;
-    _PdfFieldTypes type = _PdfFieldTypes.none;
+    final PdfName? name = PdfFieldHelper.getValue(
+        dictionary!, crossTable, PdfDictionaryProperties.ft, true) as PdfName?;
+    PdfFieldTypes type = PdfFieldTypes.none;
     if (name != null) {
       type = _getFieldType(name, dictionary, crossTable);
     }
     switch (type) {
-      case _PdfFieldTypes.comboBox:
+      case PdfFieldTypes.comboBox:
         field = _createComboBox(dictionary, crossTable!);
         break;
-      case _PdfFieldTypes.listBox:
+      case PdfFieldTypes.listBox:
         field = _createListBox(dictionary, crossTable!);
         break;
-      case _PdfFieldTypes.textField:
+      case PdfFieldTypes.textField:
         field = _createTextField(dictionary, crossTable!);
         break;
-      case _PdfFieldTypes.checkBox:
+      case PdfFieldTypes.checkBox:
         field = _createCheckBox(dictionary, crossTable!);
         break;
-      case _PdfFieldTypes.radioButton:
+      case PdfFieldTypes.radioButton:
         field = _createRadioButton(dictionary, crossTable!);
         break;
-      case _PdfFieldTypes.pushButton:
+      case PdfFieldTypes.pushButton:
         field = _createPushButton(dictionary, crossTable!);
         break;
-      case _PdfFieldTypes.signatureField:
+      case PdfFieldTypes.signatureField:
         field = _createSignatureField(dictionary, crossTable!);
         break;
       default:
         break;
     }
     if (field != null) {
-      field._setForm(_form);
-      field._beforeNameChanges = (String name) {
-        if (_addedFieldNames.contains(name)) {
+      PdfFieldHelper.getHelper(field).setForm(form);
+      PdfFieldHelper.getHelper(field).beforeNameChanges = (String name) {
+        if (addedFieldNames.contains(name)) {
           throw ArgumentError('Field with the same name already exist');
         }
       };
@@ -325,130 +395,131 @@ class PdfFormFieldCollection extends PdfObjectCollection
   }
 
   //Gets the type of the field.
-  _PdfFieldTypes _getFieldType(
-      _PdfName name, _PdfDictionary dictionary, _PdfCrossTable? crossTable) {
-    final String str = name._name!;
-    _PdfFieldTypes type = _PdfFieldTypes.none;
-    final _PdfNumber? number = PdfField._getValue(
-            dictionary, crossTable, _DictionaryProperties.fieldFlags, true)
-        as _PdfNumber?;
+  PdfFieldTypes _getFieldType(
+      PdfName name, PdfDictionary dictionary, PdfCrossTable? crossTable) {
+    final String str = name.name!;
+    PdfFieldTypes type = PdfFieldTypes.none;
+    final PdfNumber? number = PdfFieldHelper.getValue(
+            dictionary, crossTable, PdfDictionaryProperties.fieldFlags, true)
+        as PdfNumber?;
     int fieldFlags = 0;
     if (number != null) {
       fieldFlags = number.value!.toInt();
     }
     switch (str.toLowerCase()) {
       case 'ch':
-        //check with _FieldFlags.combo value.
+        //check with FieldFlags.combo value.
         if ((fieldFlags & 1 << 17) != 0) {
-          type = _PdfFieldTypes.comboBox;
+          type = PdfFieldTypes.comboBox;
         } else {
-          type = _PdfFieldTypes.listBox;
+          type = PdfFieldTypes.listBox;
         }
         break;
       case 'tx':
-        type = _PdfFieldTypes.textField;
+        type = PdfFieldTypes.textField;
         break;
       case 'btn':
         if ((fieldFlags & 1 << 15) != 0) {
-          type = _PdfFieldTypes.radioButton;
+          type = PdfFieldTypes.radioButton;
         } else if ((fieldFlags & 1 << 16) != 0) {
-          type = _PdfFieldTypes.pushButton;
+          type = PdfFieldTypes.pushButton;
         } else {
-          type = _PdfFieldTypes.checkBox;
+          type = PdfFieldTypes.checkBox;
         }
         break;
       case 'sig':
-        type = _PdfFieldTypes.signatureField;
+        type = PdfFieldTypes.signatureField;
         break;
     }
     return type;
   }
 
   //Creates the combo box.
-  PdfField _createComboBox(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable) {
-    final PdfField field = PdfComboBoxField._load(dictionary, crossTable);
-    field._setForm(_form);
+  PdfField _createComboBox(PdfDictionary dictionary, PdfCrossTable crossTable) {
+    final PdfField field =
+        PdfComboBoxFieldHelper.loadComboBox(dictionary, crossTable);
+    PdfFieldHelper.getHelper(field).setForm(form);
     return field;
   }
 
   //Creates the list box.
-  PdfField _createListBox(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable) {
-    final PdfField field = PdfListBoxField._load(dictionary, crossTable);
-    field._setForm(_form);
+  PdfField _createListBox(PdfDictionary dictionary, PdfCrossTable crossTable) {
+    final PdfField field =
+        PdfListBoxFieldHelper.loadListBox(dictionary, crossTable);
+    PdfFieldHelper.getHelper(field).setForm(form);
     return field;
   }
 
   //Creates the text field.
   PdfField _createTextField(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable) {
-    final PdfField field = PdfTextBoxField._load(dictionary, crossTable);
-    field._setForm(_form);
+      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    final PdfField field =
+        PdfTextBoxFieldHelper.loadTextBox(dictionary, crossTable);
+    PdfFieldHelper.getHelper(field).setForm(form);
     return field;
   }
 
-  PdfField _createCheckBox(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable) {
-    final PdfField field = PdfCheckBoxField._loaded(dictionary, crossTable);
-    field._setForm(_form);
+  PdfField _createCheckBox(PdfDictionary dictionary, PdfCrossTable crossTable) {
+    final PdfField field =
+        PdfCheckBoxFieldHelper.loadCheckBoxField(dictionary, crossTable);
+    PdfFieldHelper.getHelper(field).setForm(form);
     return field;
   }
 
   PdfField _createRadioButton(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable) {
+      PdfDictionary dictionary, PdfCrossTable crossTable) {
     final PdfField field =
-        PdfRadioButtonListField._loaded(dictionary, crossTable);
-    field._setForm(_form);
+        PdfRadioButtonListFieldHelper.loaded(dictionary, crossTable);
+    PdfFieldHelper.getHelper(field).setForm(form);
     return field;
   }
 
   PdfField _createPushButton(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable) {
-    final PdfField field = PdfButtonField._loaded(dictionary, crossTable);
-    field._setForm(_form);
+      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    final PdfField field =
+        PdfButtonFieldHelper.loadButtonField(dictionary, crossTable);
+    PdfFieldHelper.getHelper(field).setForm(form);
     return field;
   }
 
   PdfField _createSignatureField(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable) {
-    final PdfField field = PdfSignatureField._(dictionary, crossTable);
-    field._setForm(_form);
+      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    final PdfField field =
+        PdfSignatureFieldHelper.loadSignatureField(dictionary, crossTable);
+    PdfFieldHelper.getHelper(field).setForm(form);
     return field;
   }
 
   /// Gets the new name of the field.
-  String? _getCorrectName(String? name) {
-    final List<String?> list = <String?>[];
-    for (int i = 0; i < count; i++) {
-      if (_list[i] is PdfField) {
-        list.add((_list[i] as PdfField).name);
+  String? getCorrectName(String? name) {
+    final List<String?> tempList = <String?>[];
+    for (int i = 0; i < formFieldCollection.count; i++) {
+      final Object entry = list[i];
+      if (entry is PdfField) {
+        tempList.add(entry.name);
       }
     }
     String? correctName = name;
     int index = 0;
-    while (list.contains(correctName)) {
+    while (tempList.contains(correctName)) {
       correctName = name! + index.toString();
       ++index;
     }
-    list.clear();
+    tempList.clear();
     return correctName;
   }
 
-  void _removeFromDictionary(PdfField field) {
-    if (field._isLoadedField) {
-      _form!._removeFromDictionaries(field);
-    }
-    _addedFieldNames.remove(field.name);
-  }
-
-  int _getFieldIndex(String name) {
+  /// internal method
+  int getFieldIndex(String name) {
     int i = -1;
     final List<String> _fieldNames = <String>[];
     final List<String> _indexedFieldNames = <String>[];
-    for (int j = 0; j < count; j++) {
-      if (_list[j] is PdfField) {
-        final PdfField field = _list[j] as PdfField;
+    for (int j = 0; j < formFieldCollection.count; j++) {
+      if (PdfObjectCollectionHelper.getHelper(formFieldCollection).list[j]
+          is PdfField) {
+        final PdfField field =
+            PdfObjectCollectionHelper.getHelper(formFieldCollection).list[j]
+                as PdfField;
         _fieldNames.add(field.name!);
         if (field.name != null) {
           _indexedFieldNames.add(field.name!.split('[')[0]);
@@ -463,13 +534,56 @@ class PdfFormFieldCollection extends PdfObjectCollection
     return i;
   }
 
-  //Overrides
-  @override
-  _IPdfPrimitive get _element => _array;
+  void _removeFromDictionary(PdfField field) {
+    if (PdfFieldHelper.getHelper(field).isLoadedField) {
+      PdfFormHelper.getHelper(form!).removeFromDictionaries(field);
+    }
+    addedFieldNames.remove(field.name);
+  }
 
-  @override
-  // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    throw ArgumentError('Primitive element can\'t be set');
+  void _doRemove(PdfField field) {
+    if (PdfFieldHelper.getHelper(field).isLoadedField ||
+        (field.form != null &&
+            PdfFormHelper.getHelper(field.form!).isLoadedForm)) {
+      _removeFromDictionary(field);
+    }
+    PdfFieldHelper.getHelper(field).setForm(null);
+    final int index = list.indexOf(field);
+    array.removeAt(index);
+    list.removeAt(index);
+  }
+
+  void _doRemoveAt(int index) {
+    if (list[index] is PdfField &&
+        PdfFieldHelper.getHelper(list[index] as PdfField).isLoadedField) {
+      _removeFromDictionary(list[index] as PdfField);
+    }
+    array.removeAt(index);
+    list.removeAt(index);
+  }
+
+  void _doClear() {
+    if (formFieldCollection.count > 0) {
+      for (int i = 0; i < formFieldCollection.count; i++) {
+        if (list[i] is PdfField) {
+          final PdfField field = list[i] as PdfField;
+          if (PdfFieldHelper.getHelper(field).isLoadedField) {
+            _removeFromDictionary(field);
+          } else {
+            PdfFormHelper.getHelper(form!).deleteFromPages(field);
+            PdfFormHelper.getHelper(form!).deleteAnnotation(field);
+            PdfFieldHelper.getHelper(field).page = null;
+            if (PdfFieldHelper.getHelper(field).dictionary!.items != null) {
+              PdfFieldHelper.getHelper(field).dictionary!.clear();
+            }
+            PdfFieldHelper.getHelper(field).setForm(null);
+          }
+        }
+      }
+    }
+    addedFieldNames.clear();
+    PdfFormHelper.getHelper(form!).terminalFields.clear();
+    array.clear();
+    list.clear();
   }
 }

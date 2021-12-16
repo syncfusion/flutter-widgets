@@ -24,6 +24,8 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     required dynamic min,
     required dynamic max,
     required SfRangeValues? values,
+    this.onChangeStart,
+    this.onChangeEnd,
     required double? interval,
     required double? stepSize,
     required SliderStepDuration? stepDuration,
@@ -32,6 +34,7 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     required bool showLabels,
     required bool showDividers,
     required bool enableTooltip,
+    required bool shouldAlwaysShowTooltip,
     required bool enableIntervalSelection,
     required SliderDragMode dragMode,
     required LabelPlacement labelPlacement,
@@ -67,6 +70,7 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
             showLabels: showLabels,
             showDividers: showDividers,
             enableTooltip: enableTooltip,
+            shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
             labelPlacement: labelPlacement,
             numberFormat: numberFormat,
             dateFormat: dateFormat,
@@ -119,6 +123,11 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     _tooltipEndAnimation = CurvedAnimation(
         parent: tooltipAnimationEndController, curve: Curves.fastOutSlowIn);
 
+    if (shouldAlwaysShowTooltip) {
+      tooltipAnimationStartController.value = 1;
+      tooltipAnimationEndController.value = 1;
+    }
+
     if (isDateTime) {
       _valuesInMilliseconds = SfRangeValues(
           values.start.millisecondsSinceEpoch.toDouble(),
@@ -153,7 +162,10 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
   late bool _validForMouseTracker;
   late SfRangeValues _valuesInMilliseconds;
   late SfRangeValues _beginValues;
+  late SfRangeValues _newValues;
 
+  ValueChanged<SfRangeValues>? onChangeStart;
+  ValueChanged<SfRangeValues>? onChangeEnd;
   bool _isDragging = false;
   bool isIntervalTapped = false;
   bool _isLocked = false;
@@ -349,6 +361,7 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
 
   void _beginInteraction() {
     _beginValues = _values;
+    onChangeStart?.call(_values);
     // This field is used in the [paint] method to handle the
     // interval selection animation, so we can't reset this
     // field in [endInteraction] method.
@@ -369,10 +382,12 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
       if (_isDragStart) {
         _isLocked = true;
       } else {
+        _newValues = _values;
         return;
       }
     } else if (dragMode == SliderDragMode.betweenThumbs &&
         !_tappedBetweenThumbs(startPosition, endPosition)) {
+      _newValues = _values;
       return;
     } else if (rightThumbWidth == leftThumbWidth) {
       switch (activeThumb!) {
@@ -423,7 +438,9 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
       tooltipAnimationEndController.forward();
       tooltipDelayTimer?.cancel();
       tooltipDelayTimer = Timer(const Duration(milliseconds: 500), () {
-        _reverseTooltipAnimation();
+        if (!shouldAlwaysShowTooltip) {
+          _reverseTooltipAnimation();
+        }
       });
     }
   }
@@ -447,14 +464,14 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
   }
 
   void _updateRangeValues({double? delta}) {
-    SfRangeValues newValues = values;
+    _newValues = values;
     _isDragging = (_interactionStartOffset - mainAxisOffset).abs() > 1;
     isIntervalTapped = _enableIntervalSelection && !_isDragging;
 
     if (!isIntervalTapped) {
       if (_isLocked) {
         if (delta != null) {
-          newValues = _getLockRangeValues(delta);
+          _newValues = _getLockRangeValues(delta);
         } else {
           return;
         }
@@ -473,13 +490,13 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
             final double startValue = math.min(value, end - minThumbGap);
             final dynamic actualStartValue =
                 getActualValue(valueInDouble: startValue);
-            newValues = values.copyWith(start: actualStartValue);
+            _newValues = values.copyWith(start: actualStartValue);
             break;
           case SfThumb.end:
             final double endValue = math.max(value, start + minThumbGap);
             final dynamic actualEndValue =
                 getActualValue(valueInDouble: endValue);
-            newValues = values.copyWith(end: actualEndValue);
+            _newValues = values.copyWith(end: actualEndValue);
             break;
           case SfThumb.both:
           case SfThumb.none:
@@ -488,7 +505,7 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
       }
     }
 
-    updateValues(newValues);
+    updateValues(_newValues);
   }
 
   SfRangeValues _getLockRangeValues(double? delta) {
@@ -545,6 +562,7 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
           final double? value =
               lerpDouble(actualMin, actualMax, getFactorFromCurrentPosition());
           newValues = _getSelectedRange(value!);
+          _newValues = newValues;
           _updatePositionControllerValue(newValues);
         }
       }
@@ -554,7 +572,9 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
       currentPointerType = PointerType.up;
       overlayStartController.reverse();
       overlayEndController.reverse();
-      if (enableTooltip && tooltipDelayTimer == null) {
+      if (enableTooltip &&
+          tooltipDelayTimer == null &&
+          !shouldAlwaysShowTooltip) {
         tooltipAnimationStartController.reverse();
         tooltipAnimationEndController.reverse();
       }
@@ -562,6 +582,7 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
       _isLocked = false;
       _isDragStart = false;
       isInteractionEnd = true;
+      onChangeEnd?.call(_newValues);
       markNeedsPaint();
     }
   }
@@ -653,7 +674,9 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
         if (enableTooltip) {
           willDrawTooltip = true;
           tooltipAnimationStartController.forward();
-          tooltipAnimationEndController.reverse();
+          if (!shouldAlwaysShowTooltip) {
+            tooltipAnimationEndController.reverse();
+          }
         }
         break;
       case SfThumb.end:
@@ -662,7 +685,9 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
         if (enableTooltip) {
           willDrawTooltip = true;
           tooltipAnimationEndController.forward();
-          tooltipAnimationStartController.reverse();
+          if (!shouldAlwaysShowTooltip) {
+            tooltipAnimationStartController.reverse();
+          }
         }
         break;
       case SfThumb.both:
@@ -679,8 +704,10 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
         overlayEndController.reverse();
         if (enableTooltip) {
           willDrawTooltip = true;
-          tooltipAnimationStartController.reverse();
-          tooltipAnimationEndController.reverse();
+          if (!shouldAlwaysShowTooltip) {
+            tooltipAnimationStartController.reverse();
+            tooltipAnimationEndController.reverse();
+          }
         }
         break;
     }
@@ -692,7 +719,7 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     if (mounted! && currentPointerType != PointerType.move) {
       overlayStartController.reverse();
       overlayEndController.reverse();
-      if (enableTooltip) {
+      if (enableTooltip && !shouldAlwaysShowTooltip) {
         tooltipAnimationStartController.reverse();
         tooltipAnimationEndController.reverse();
       }
@@ -897,7 +924,7 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
       Offset offset,
       Offset actualTrackOffset,
       Rect trackRect) {
-    if (willDrawTooltip) {
+    if (willDrawTooltip || shouldAlwaysShowTooltip) {
       final Paint paint = Paint()
         ..color = sliderThemeData.tooltipBackgroundColor!
         ..style = PaintingStyle.fill

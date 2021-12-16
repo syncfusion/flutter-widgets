@@ -1,4 +1,4 @@
-﻿![syncfusion_flutter_pdfviewer](https://cdn.syncfusion.com/content/images/pdfviewer-banner.png)
+﻿*![syncfusion_flutter_pdfviewer](https://cdn.syncfusion.com/content/images/pdfviewer-banner.png)
 
 # Flutter PDF Viewer library
 
@@ -13,8 +13,10 @@ The Flutter PDF Viewer plugin lets you view the PDF documents seamlessly and eff
 - [Installation](#installation)
 - [Getting started](#getting-started)
     - [Add PDF Viewer to the widget tree](#add-pdf-viewer-to-the-widget-tree)
+    - [Load encrypted PDF document](#load-encrypted-pdf-document)
     - [Customize the visibility of scroll head and scroll status](#customize-the-visibility-of-scroll-head-and-scroll-status)
     - [Customize the visibility of page navigation dialog](#customize-the-visibility-of-page-navigation-dialog)
+    - [Customize the visibility of password dialog](#customize-the-visibility-of-password-dialog)
 	- [Enable or disable the double-tap zoom ](#enable-or-disable-the-double-tap-zoom)
 	- [Change the page layout](#change-the-page-layout)
 	- [Switch scroll direction](#switch-scroll-direction)
@@ -119,6 +121,21 @@ On your `web/index.html` file, add the following `script` tags, somewhere in the
 </script>
 ```
 
+## Load encrypted PDF document
+
+Encrypted or password-protected document can be loaded in the SfPdfViewer widget by specifying the password in **password** property.
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+      body: Container(
+          child: SfPdfViewer.network(
+              'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
+              password: "syncfusion")));
+}
+```
+
 ## Customize the visibility of scroll head and scroll status
 
 As a default, the SfPdfViewer displays the scroll head and scroll status. You can customize the visibility of these items using the **canShowScrollHead** and **canShowScrollStatus** properties.
@@ -147,6 +164,21 @@ Widget build(BuildContext context) {
           child: SfPdfViewer.network(
               'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
               canShowPaginationDialog: false)));
+}
+```
+
+## Customize the visibility of password dialog
+
+As a default, the password dialog will be displayed when a password-protected or encrypted document is loaded. You can customize the visibility of the password dialog using the **canShowPasswordDialog** property.
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+      body: Container(
+          child: SfPdfViewer.network(
+              'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
+              canShowPasswordDialog: false)));
 }
 ```
 
@@ -468,6 +500,6 @@ Widget build(BuildContext context) {
 
 ## About Syncfusion
 
-Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
+Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies. 
 
-Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls) and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.
+Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls) and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.

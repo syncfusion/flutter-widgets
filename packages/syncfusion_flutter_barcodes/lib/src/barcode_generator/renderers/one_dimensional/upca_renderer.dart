@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../../base/symbology_base.dart';
@@ -158,11 +157,11 @@ class UPCARenderer extends SymbologyRenderer {
     const String middleBar = '01010';
     final List<String> code = <String>[];
     code.add(endDigits);
-    code.add('101' + _getLeftValue(true, 'L', _encodedValue[0]));
+    code.add('101${_getLeftValue(true, 'L', _encodedValue[0])}');
     code.add(_getLeftValue(true, 'LLLLL', _encodedValue.substring(1, 6)));
     code.add(middleBar);
     code.add(_getLeftValue(true, 'RRRRR', _encodedValue.substring(6, 11)));
-    code.add(_getLeftValue(true, 'R', _encodedValue[11]) + '101');
+    code.add('${_getLeftValue(true, 'R', _encodedValue[11])}101');
     code.add(endDigits);
     return code;
   }

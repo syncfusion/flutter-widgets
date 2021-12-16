@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -82,6 +81,12 @@ class TextSelectionHelper {
 
   /// Checks whether the tap selection is enabled or not.
   bool enableTapSelection = false;
+
+  /// Start index of the selected text line.
+  int startIndex = 0;
+
+  /// End index of the selected text line.
+  int endIndex = 0;
 
   /// Gets the selected text lines.
   List<PdfTextLine> selectedTextLines = <PdfTextLine>[];

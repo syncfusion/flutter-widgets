@@ -228,8 +228,7 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
 
     if (moveRanges != null) {
       for (final RangeValuePair<T> rv in moveRanges) {
-        setRange(
-            rv.start.toInt() + insertAt.toInt(), rv.count.toInt(), rv.value);
+        setRange(rv.start + insertAt.toInt(), rv.count, rv.value);
       }
     }
   }
@@ -312,7 +311,7 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
     int deleteCount = 0;
     while (total < count && n + deleteCount < rangeValues.length) {
       final RangeValuePair<T> rv = rangeValues[n.toInt() + deleteCount];
-      total += rv.count.toInt();
+      total += rv.count;
       deleteCount++;
       if (moveRanges != null && !(rv.value == defaultValue)) {
         moveRanges.rangeValues.add(RangeValuePair<T>.fromRangeValuePair(
@@ -370,8 +369,8 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
       return n;
     }
 
-    final int count1 = index.toInt() - rangeValues[n].start.toInt();
-    final int count2 = rangeValues[n].count.toInt() - count1.toInt();
+    final int count1 = index.toInt() - rangeValues[n].start;
+    final int count2 = rangeValues[n].count - count1;
     rv.count = count1;
 
     final RangeValuePair<T> rv2 =

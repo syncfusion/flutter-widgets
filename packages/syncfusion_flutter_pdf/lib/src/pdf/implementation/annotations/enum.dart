@@ -1,5 +1,3 @@
-part of pdf;
-
 /// Specifies the highlight mode for a field.
 enum PdfHighlightMode {
   /// No highlighting.
@@ -25,12 +23,14 @@ enum PdfFilePathType {
 }
 
 /// Specifies the annotation types.
-enum _PdfAnnotationTypes {
+enum PdfAnnotationTypes {
   /// DocumentLinkAnnotation type.
   documentLinkAnnotation,
 
   /// Link annotation type.
   linkAnnotation,
+
+  /// Link annotation type.
   textWebLinkAnnotation,
 
   /// LineAnnotation type.

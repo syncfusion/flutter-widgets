@@ -1,10 +1,15 @@
-part of pdf;
+import '../../graphics/figures/pdf_template.dart';
 
-class _PdfTemplateValuePair {
+/// internal class
+class PdfTemplateValuePair {
   // constructor
-  _PdfTemplateValuePair(this.template, this.value);
+  /// internal constructor
+  PdfTemplateValuePair(this.template, this.value);
 
   // field
+  /// internal field
   late PdfTemplate template;
+
+  /// internal field
   late String value;
 }

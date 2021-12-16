@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -225,7 +224,10 @@ class BookmarkViewControllerState extends State<BookmarkView> {
         Align(
           alignment: _isTablet ? Alignment.topRight : Alignment.center,
           child: Container(
-            color: _pdfViewerThemeData!.bookmarkViewStyle.backgroundColor,
+            color: _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+                (Theme.of(context).colorScheme.brightness == Brightness.light
+                    ? Colors.white
+                    : const Color(0xFF212121)),
             width: _isTablet ? _kPdfTabletBookmarkWidth : _totalWidth,
             child: Column(children: <Widget>[
               BookmarkToolbar(_handleClose),
@@ -241,7 +243,16 @@ class BookmarkViewControllerState extends State<BookmarkView> {
                         child: Text(
                           _localizations!.pdfNoBookmarksLabel,
                           style: _pdfViewerThemeData!
-                              .bookmarkViewStyle.titleTextStyle,
+                                  .bookmarkViewStyle?.titleTextStyle ??
+                              TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.87),
+                                fontFamily: 'Roboto',
+                                fontWeight: FontWeight.normal,
+                              ),
                         ),
                       ),
               ),

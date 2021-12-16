@@ -1,11 +1,8 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series.dart';
 import '../common/common.dart';
 import '../common/segment_properties.dart';
-import '../series_painter/scatter_painter.dart';
 import '../utils/helper.dart';
 import 'chart_segment.dart';
 
@@ -33,7 +30,8 @@ class ScatterSegment extends ChartSegment {
               : ((hasPointColor &&
                       _segmentProperties.currentPoint!.pointColorMapper != null)
                   ? _segmentProperties.currentPoint!.pointColorMapper
-                  : _segmentProperties.color)!
+                  : _segmentProperties.series.markerSettings.color ??
+                      _segmentProperties.color)!
           ..style = PaintingStyle.fill;
       }
     } else {
@@ -62,18 +60,25 @@ class ScatterSegment extends ChartSegment {
     final ScatterSeriesRenderer _scatterRenderer =
         _segmentProperties.seriesRenderer as ScatterSeriesRenderer;
     final Paint strokePaint = Paint()
-      ..color = _segmentProperties.currentPoint!.isEmpty == true
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+          ? _segmentProperties.series.emptyPointSettings.borderWidth
+          : _segmentProperties.series.markerSettings.isVisible == true
+              ? _segmentProperties.series.markerSettings.borderWidth
+              : _segmentProperties.strokeWidth!;
+    if (_segmentProperties.series.borderGradient != null) {
+      strokePaint.shader = _segmentProperties.series.borderGradient!
+          .createShader(_segmentProperties.currentPoint!.region!);
+    } else {
+      strokePaint.color = _segmentProperties.currentPoint!.isEmpty == true
           ? _segmentProperties.series.emptyPointSettings.borderColor
           : _segmentProperties.series.markerSettings.isVisible == true
               ? _segmentProperties.series.markerSettings.borderColor ??
                   SeriesHelper.getSeriesRendererDetails(
                           _segmentProperties.seriesRenderer)
                       .seriesColor!
-              : _segmentProperties.strokeColor!
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
-          ? _segmentProperties.series.emptyPointSettings.borderWidth
-          : _segmentProperties.strokeWidth!;
+              : _segmentProperties.strokeColor!;
+    }
     (strokePaint.strokeWidth == 0 &&
             SeriesHelper.getSeriesRendererDetails(_scatterRenderer)
                     .isLineType ==

@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'event_args.dart';
 
 /// Returns the valueChangeArgs by used the [onValueChanged] event.
-typedef _ValueChangedCallback = void Function();
+typedef ValueChangedCallback = void Function();
 
 /// Returns the ValueChangingArgs by used the [onValueChanging] event.
-typedef _ValueChangingCallback = void Function(
+typedef ValueChangingCallback = void Function(
     ValueChangingArgs valueChangingArgs);
 
 /// Returns the PropertyChangedArgs by used the [onPropertyChanged] event.
-typedef _PropertyChangedCallback = void Function(
+typedef PropertyChangedCallback = void Function(
     PropertyChangedArgs propertyChangedArgs);
 
 /// Defines an interface that provides all properties to configure a scrollbar.
@@ -136,15 +136,15 @@ class ScrollInfo extends ScrollBarBase {
   late double _proposedLargeChange;
 
   /// Occurs when a property value changes.
-  _PropertyChangedCallback? onPropertyChangedEvent;
+  PropertyChangedCallback? onPropertyChangedEvent;
 
   /// Occurs when the current position of the scroll box on the scroll bar
   /// has changed.
-  _ValueChangedCallback? onValueChanged;
+  ValueChangedCallback? onValueChanged;
 
   /// Occurs when the current position of the scroll box on the scroll bar
   /// is being changed.
-  _ValueChangingCallback? onValueChanging;
+  ValueChangingCallback? onValueChanging;
 
   /// Sets a value to be added to or subtracted from the value of the property
   /// when the scroll box is moved a large distance.

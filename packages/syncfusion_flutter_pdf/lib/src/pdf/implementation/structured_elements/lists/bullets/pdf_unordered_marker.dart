@@ -1,4 +1,14 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../../drawing/drawing.dart';
+import '../../../graphics/brushes/pdf_solid_brush.dart';
+import '../../../graphics/figures/pdf_template.dart';
+import '../../../graphics/fonts/pdf_font.dart';
+import '../../../graphics/pdf_graphics.dart';
+import '../../../graphics/pdf_pen.dart';
+import '../bullets/enums.dart';
+import '../pdf_list.dart';
+import 'pdf_marker.dart';
 
 /// Represents bullet for the list.
 ///
@@ -46,6 +56,7 @@ class PdfUnorderedMarker extends PdfMarker {
       PdfFont? font,
       String? text,
       PdfTemplate? template}) {
+    _helper = PdfUnorderedMarkerHelper(this);
     if (font != null) {
       this.font = font;
     }
@@ -87,12 +98,7 @@ class PdfUnorderedMarker extends PdfMarker {
 
   /// Marker temlapte.
   PdfTemplate? _template;
-
-  /// Marker size.
-  _Size? _size;
-
-  /// Font used when draws styled marker
-  late PdfFont _unicodeFont;
+  late PdfUnorderedMarkerHelper _helper;
 
   //Properties
   /// Gets or sets template of the marker.
@@ -149,37 +155,56 @@ class PdfUnorderedMarker extends PdfMarker {
       style = PdfUnorderedMarkerStyle.customString;
     }
   }
+}
 
-  //Implementation
+/// [PdfUnorderedMarker] helper
+class PdfUnorderedMarkerHelper extends PdfMarkerHelper {
+  /// internal constructor
+  PdfUnorderedMarkerHelper(this.base) : super(base);
+
+  /// internal field
+  PdfUnorderedMarker base;
+
+  /// internal method
+  static PdfUnorderedMarkerHelper getHelper(PdfUnorderedMarker base) {
+    return base._helper;
+  }
+
+  /// Marker size.
+  PdfSize? size;
+
+  /// Font used when draws styled marker
+  late PdfFont unicodeFont;
+
   /// Draws the specified graphics.
-  void _draw(PdfGraphics? graphics, Offset point, PdfBrush? brush, PdfPen? pen,
+  void draw(PdfGraphics? graphics, Offset point, PdfBrush? brush, PdfPen? pen,
       [PdfList? curList]) {
-    final PdfTemplate templete = PdfTemplate(_size!.width, _size!.height);
+    final PdfTemplate templete = PdfTemplate(size!.width, size!.height);
     Offset offset = Offset(point.dx, point.dy);
-    switch (style) {
+    switch (base.style) {
       case PdfUnorderedMarkerStyle.customTemplate:
         templete.graphics!
-            .drawPdfTemplate(_template!, const Offset(0, 0), _size!.size);
+            .drawPdfTemplate(base._template!, Offset.zero, size!.size);
         offset = Offset(
             point.dx,
             point.dy +
-                ((curList!.font!.height > font!.height
+                ((curList!.font!.height > base.font!.height
                         ? curList.font!.height
-                        : font!.height) /
+                        : base.font!.height) /
                     2) -
-                (_size!.height / 2));
+                (size!.height / 2));
         break;
       case PdfUnorderedMarkerStyle.customImage:
         //  templete.graphics.drawImage(
         //      _image, 1, 1, _size.width - 2, _size.height - 2);
         break;
       default:
-        final _Point location = _Point.empty;
+        final PdfPoint location = PdfPoint.empty;
         if (pen != null) {
           location.x = location.x + pen.width;
           location.y = location.y + pen.width;
         }
-        templete.graphics!.drawString(_getStyledText(), _unicodeFont,
+        templete.graphics!.drawString(getStyledText(), unicodeFont,
             pen: pen,
             brush: brush,
             bounds: Rect.fromLTWH(location.x, location.y, 0, 0));
@@ -189,9 +214,9 @@ class PdfUnorderedMarker extends PdfMarker {
   }
 
   /// Gets the styled text.
-  String _getStyledText() {
+  String getStyledText() {
     String text = '';
-    switch (style) {
+    switch (base.style) {
       case PdfUnorderedMarkerStyle.disk:
         text = '\x6C';
         break;

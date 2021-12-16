@@ -1,4 +1,9 @@
-part of pdf;
+import '../general/pdf_collection.dart';
+import '../pages/enum.dart';
+import '../pages/pdf_page.dart';
+import '../pages/pdf_page_collection.dart';
+import '../pages/pdf_page_template_element.dart';
+import '../pages/pdf_section.dart';
 
 /// Encapsulates a page template for all the pages in the document.
 class PdfDocumentTemplate {
@@ -18,11 +23,13 @@ class PdfDocumentTemplate {
       PdfPageTemplateElement? oddRight,
       PdfPageTemplateElement? oddBottom,
       PdfStampCollection? stamps}) {
+    _helper = PdfDocumentTemplateHelper(this);
     _intialize(left, top, right, bottom, evenLeft, evenTop, evenRight,
         evenBottom, oddLeft, oddTop, oddRight, oddBottom, stamps);
   }
 
   //Fields
+  late PdfDocumentTemplateHelper _helper;
   PdfPageTemplateElement? _left;
   PdfPageTemplateElement? _top;
   PdfPageTemplateElement? _right;
@@ -43,7 +50,7 @@ class PdfDocumentTemplate {
 
   /// Sets a left page template.
   set left(PdfPageTemplateElement? value) {
-    _left = _checkElement(value, _TemplateType.left);
+    _left = _checkElement(value, TemplateType.left);
   }
 
   /// Gets a right page template.
@@ -51,7 +58,7 @@ class PdfDocumentTemplate {
 
   /// Sets a right page template.
   set right(PdfPageTemplateElement? value) {
-    _right = _checkElement(value, _TemplateType.right);
+    _right = _checkElement(value, TemplateType.right);
   }
 
   /// Gets a top page template.
@@ -59,7 +66,7 @@ class PdfDocumentTemplate {
 
   /// Sets a top page template.
   set top(PdfPageTemplateElement? value) {
-    _top = _checkElement(value, _TemplateType.top);
+    _top = _checkElement(value, TemplateType.top);
   }
 
   /// Gets a bottom page template.
@@ -67,7 +74,7 @@ class PdfDocumentTemplate {
 
   /// Sets a bottom page template.
   set bottom(PdfPageTemplateElement? value) {
-    _bottom = _checkElement(value, _TemplateType.bottom);
+    _bottom = _checkElement(value, TemplateType.bottom);
   }
 
   /// Gets a even left page template.
@@ -75,7 +82,7 @@ class PdfDocumentTemplate {
 
   /// Sets a even left page template.
   set evenLeft(PdfPageTemplateElement? value) {
-    _evenLeft = _checkElement(value, _TemplateType.left);
+    _evenLeft = _checkElement(value, TemplateType.left);
   }
 
   /// Gets a even right page template.
@@ -83,7 +90,7 @@ class PdfDocumentTemplate {
 
   /// Sets a even right page template.
   set evenRight(PdfPageTemplateElement? value) {
-    _evenRight = _checkElement(value, _TemplateType.right);
+    _evenRight = _checkElement(value, TemplateType.right);
   }
 
   /// Gets a even top page template.
@@ -91,7 +98,7 @@ class PdfDocumentTemplate {
 
   /// Sets a even top page template.
   set evenTop(PdfPageTemplateElement? value) {
-    _evenTop = _checkElement(value, _TemplateType.top);
+    _evenTop = _checkElement(value, TemplateType.top);
   }
 
   /// Gets a even bottom page template.
@@ -99,7 +106,7 @@ class PdfDocumentTemplate {
 
   /// Sets a even bottom page template.
   set evenBottom(PdfPageTemplateElement? value) {
-    _evenBottom = _checkElement(value, _TemplateType.bottom);
+    _evenBottom = _checkElement(value, TemplateType.bottom);
   }
 
   /// Gets a odd left page template.
@@ -107,7 +114,7 @@ class PdfDocumentTemplate {
 
   /// Sets a odd left page template.
   set oddLeft(PdfPageTemplateElement? value) {
-    _oddLeft = _checkElement(value, _TemplateType.left);
+    _oddLeft = _checkElement(value, TemplateType.left);
   }
 
   /// Gets a odd right page template.
@@ -115,7 +122,7 @@ class PdfDocumentTemplate {
 
   /// Sets a odd right page template.
   set oddRight(PdfPageTemplateElement? value) {
-    _oddRight = _checkElement(value, _TemplateType.right);
+    _oddRight = _checkElement(value, TemplateType.right);
   }
 
   /// Gets a odd top page template.
@@ -123,7 +130,7 @@ class PdfDocumentTemplate {
 
   /// Sets a odd top page template.
   set oddTop(PdfPageTemplateElement? value) {
-    _oddTop = _checkElement(value, _TemplateType.top);
+    _oddTop = _checkElement(value, TemplateType.top);
   }
 
   /// Gets a odd bottom page template.
@@ -131,7 +138,7 @@ class PdfDocumentTemplate {
 
   /// Sets a odd bottom page template.
   set oddBottom(PdfPageTemplateElement? value) {
-    _oddBottom = _checkElement(value, _TemplateType.bottom);
+    _oddBottom = _checkElement(value, TemplateType.bottom);
   }
 
   /// Gets a collection of stamp elements.
@@ -196,73 +203,15 @@ class PdfDocumentTemplate {
     }
   }
 
-  PdfPageTemplateElement? _getLeft(PdfPage page) {
-    PdfPageTemplateElement? template;
-    if (evenLeft != null || oddLeft != null || left != null) {
-      if (_isEven(page)) {
-        template = (evenLeft != null) ? evenLeft : left;
-      } else {
-        template = (oddLeft != null) ? oddLeft : left;
-      }
-    }
-    return template;
-  }
-
-  PdfPageTemplateElement? _getRight(PdfPage page) {
-    PdfPageTemplateElement? template;
-    if (evenRight != null || oddRight != null || right != null) {
-      if (_isEven(page)) {
-        template = (evenRight != null) ? evenRight : right;
-      } else {
-        template = (oddRight != null) ? oddRight : right;
-      }
-    }
-    return template;
-  }
-
-  PdfPageTemplateElement? _getTop(PdfPage page) {
-    PdfPageTemplateElement? template;
-    if (evenTop != null || oddTop != null || top != null) {
-      if (_isEven(page)) {
-        template = (evenTop != null) ? evenTop : top;
-      } else {
-        template = (oddTop != null) ? oddTop : top;
-      }
-    }
-    return template;
-  }
-
-  PdfPageTemplateElement? _getBottom(PdfPage page) {
-    PdfPageTemplateElement? template;
-    if (evenBottom != null || oddBottom != null || bottom != null) {
-      if (_isEven(page)) {
-        template = (evenBottom != null) ? evenBottom : bottom;
-      } else {
-        template = (oddBottom != null) ? oddBottom : bottom;
-      }
-    }
-    return template;
-  }
-
-  bool _isEven(PdfPage page) {
-    final PdfPageCollection pages = page._section!._document!.pages;
-    int index = 0;
-    if (pages._pageCollectionIndex.containsKey(page)) {
-      index = pages._pageCollectionIndex[page]! + 1;
-    } else {
-      index = pages.indexOf(page) + 1;
-    }
-    return (index % 2) == 0;
-  }
-
   PdfPageTemplateElement? _checkElement(
-      PdfPageTemplateElement? templateElement, _TemplateType type) {
+      PdfPageTemplateElement? templateElement, TemplateType type) {
     if (templateElement != null) {
-      if (templateElement._type != _TemplateType.none) {
+      if (PdfPageTemplateElementHelper.getHelper(templateElement).type !=
+          TemplateType.none) {
         throw ArgumentError.value(type,
             "Can't reassign the template element. Please, create new one.");
       }
-      templateElement._type = type;
+      PdfPageTemplateElementHelper.getHelper(templateElement).type = type;
     }
     return templateElement;
   }
@@ -271,12 +220,116 @@ class PdfDocumentTemplate {
 /// A collection of stamps that are applied to the page templates.
 class PdfStampCollection extends PdfObjectCollection {
   /// Initializes a new instance of the [PdfStampCollection] class.
-  PdfStampCollection() : super();
+  PdfStampCollection() : super() {
+    _helper = PdfStampCollectionHelper(this);
+  }
+
+  late PdfStampCollectionHelper _helper;
 
   /// Adds a stamp element to the collection.
   /// [PdfPageTemplateElement] used here to create stamp element.
   int add(PdfPageTemplateElement template) {
-    _list.add(template);
-    return count - 1;
+    return _helper.add(template);
+  }
+}
+
+/// [PdfStampCollection] helper
+class PdfStampCollectionHelper extends PdfObjectCollectionHelper {
+  /// internal constructor
+  PdfStampCollectionHelper(this.base) : super(base);
+
+  /// internal field
+  late PdfStampCollection base;
+
+  /// internal method
+  int add(PdfPageTemplateElement template) {
+    list.add(template);
+    return base.count - 1;
+  }
+}
+
+/// [PdfDocumentTemplate] helper
+class PdfDocumentTemplateHelper {
+  /// internal constructor
+  PdfDocumentTemplateHelper(this.base);
+
+  /// internal field
+  PdfDocumentTemplate base;
+
+  /// internal method
+  static PdfDocumentTemplateHelper getHelper(PdfDocumentTemplate template) {
+    return template._helper;
+  }
+
+  /// internal method
+  PdfPageTemplateElement? getLeft(PdfPage page) {
+    PdfPageTemplateElement? template;
+    if (base.evenLeft != null || base.oddLeft != null || base.left != null) {
+      if (_isEven(page)) {
+        template = (base.evenLeft != null) ? base.evenLeft : base.left;
+      } else {
+        template = (base.oddLeft != null) ? base.oddLeft : base.left;
+      }
+    }
+    return template;
+  }
+
+  /// internal method
+  PdfPageTemplateElement? getRight(PdfPage page) {
+    PdfPageTemplateElement? template;
+    if (base.evenRight != null || base.oddRight != null || base.right != null) {
+      if (_isEven(page)) {
+        template = (base.evenRight != null) ? base.evenRight : base.right;
+      } else {
+        template = (base.oddRight != null) ? base.oddRight : base.right;
+      }
+    }
+    return template;
+  }
+
+  /// internal method
+  PdfPageTemplateElement? getTop(PdfPage page) {
+    PdfPageTemplateElement? template;
+    if (base.evenTop != null || base.oddTop != null || base.top != null) {
+      if (_isEven(page)) {
+        template = (base.evenTop != null) ? base.evenTop : base.top;
+      } else {
+        template = (base.oddTop != null) ? base.oddTop : base.top;
+      }
+    }
+    return template;
+  }
+
+  /// internal method
+  PdfPageTemplateElement? getBottom(PdfPage page) {
+    PdfPageTemplateElement? template;
+    if (base.evenBottom != null ||
+        base.oddBottom != null ||
+        base.bottom != null) {
+      if (_isEven(page)) {
+        template = (base.evenBottom != null) ? base.evenBottom : base.bottom;
+      } else {
+        template = (base.oddBottom != null) ? base.oddBottom : base.bottom;
+      }
+    }
+    return template;
+  }
+
+  bool _isEven(PdfPage page) {
+    final PdfPageCollection pages =
+        PdfSectionHelper.getHelper(PdfPageHelper.getHelper(page).section!)
+            .document!
+            .pages;
+    int index = 0;
+    if (PdfPageCollectionHelper.getHelper(pages)
+        .pageCollectionIndex
+        .containsKey(page)) {
+      index =
+          PdfPageCollectionHelper.getHelper(pages).pageCollectionIndex[page]! +
+              1;
+    } else {
+      index = pages.indexOf(page) + 1;
+    }
+    return (index % 2) == 0;
   }
 }

@@ -1,4 +1,8 @@
-part of pdf;
+import '../../graphics/brushes/pdf_solid_brush.dart';
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/fonts/pdf_string_format.dart';
+import '../../graphics/pdf_pen.dart';
+import 'pdf_list.dart';
 
 /// Represents list item of the list.
 ///

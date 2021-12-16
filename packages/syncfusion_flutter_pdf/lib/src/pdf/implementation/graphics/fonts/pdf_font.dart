@@ -1,4 +1,15 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../../interfaces/pdf_interface.dart';
+import 'enums.dart';
+import 'pdf_cjk_standard_font.dart';
+import 'pdf_font_metrics.dart';
+import 'pdf_standard_font.dart';
+import 'pdf_string_format.dart';
+import 'pdf_string_layout_result.dart';
+import 'pdf_string_layouter.dart';
+import 'pdf_true_type_font.dart';
+import 'string_tokenizer.dart';
 
 /// Defines a particular format for text, including font face, size,
 /// and style attributes.
@@ -14,40 +25,8 @@ part of pdf;
 /// //Close the document.
 /// document.dispose();
 /// ```
-abstract class PdfFont implements _IPdfWrapper {
-  //Constants
-  static const double _characterSizeMultiplier = 0.001;
-  static const List<String> _standardFontNames = <String>[
-    'Helvetica',
-    'courier',
-    'TimesRoman',
-    'Symbol',
-    'ZapfDingbats'
-  ];
-  static const List<String> _standardCjkFontNames = <String>[
-    'HanyangSystemsGothicMedium',
-    'HanyangSystemsShinMyeongJoMedium',
-    'HeiseiKakuGothicW5',
-    'HeiseiMinchoW3',
-    'MonotypeHeiMedium',
-    'MonotypeSungLight',
-    'SinoTypeSongLight'
-  ];
-
-  //Fields
-  //Size of the font.
-  late double _size;
-
-  //Metrics of the font.
-  _PdfFontMetrics? _metrics;
-
-  //PDF primitive of the font.
-  _IPdfPrimitive? _fontInternals;
-
-  //Number format of [PdfFontStyle].
-  int _fontStyle = 0;
-
-  PdfFontStyle _style = PdfFontStyle.regular;
+abstract class PdfFont implements IPdfWrapper {
+  final PdfFontHelper _helper = PdfFontHelper();
 
   //Properties
   /// Gets style of the font.
@@ -66,7 +45,7 @@ abstract class PdfFont implements _IPdfWrapper {
   /// //Close the document.
   /// document.dispose();
   /// ```
-  PdfFontStyle get style => _style;
+  PdfFontStyle get style => _helper.style;
 
   /// Gets the font name.
   ///
@@ -84,7 +63,7 @@ abstract class PdfFont implements _IPdfWrapper {
   /// //Close the document.
   /// document.dispose();
   /// ```
-  String get name => _metrics!.name;
+  String get name => _helper.metrics!.name;
 
   /// Gets the font size.
   ///
@@ -102,7 +81,7 @@ abstract class PdfFont implements _IPdfWrapper {
   /// //Close the document.
   /// document.dispose();
   /// ```
-  double get size => _size;
+  double get size => _helper.size;
 
   /// Gets the height of the font in points.
   ///
@@ -120,14 +99,7 @@ abstract class PdfFont implements _IPdfWrapper {
   /// //Close the document.
   /// document.dispose();
   /// ```
-  double get height => _metrics!._getHeight(null);
-
-  //ignore:unused_element
-  bool get _isUnderline =>
-      _fontStyle & _getPdfFontStyle(PdfFontStyle.underline) > 0;
-  //ignore:unused_element
-  bool get _isStrikeout =>
-      _fontStyle & _getPdfFontStyle(PdfFontStyle.strikethrough) > 0;
+  double get height => _helper.metrics!.getHeight(null);
 
   //Public methods
   /// Measures a string by using this font.
@@ -154,60 +126,14 @@ abstract class PdfFont implements _IPdfWrapper {
   /// document.dispose();
   /// ```
   Size measureString(String text, {Size? layoutArea, PdfStringFormat? format}) {
-    layoutArea ??= const Size(0, 0);
-    final _PdfStringLayouter layouter = _PdfStringLayouter();
-    final _PdfStringLayoutResult result = layouter._layout(text, this, format,
+    layoutArea ??= Size.zero;
+    final PdfStringLayouter layouter = PdfStringLayouter();
+    final PdfStringLayoutResult result = layouter.layout(text, this, format,
         width: layoutArea.width, height: layoutArea.height);
-    return result._size.size;
+    return result.size.size;
   }
 
   //Implementation
-  /// Initializes a new instance of the [PdfFont] class
-  /// with font size and style.
-  void _initialize(double size,
-      {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
-    _setSize(size);
-    _setStyle(style, multiStyle);
-  }
-
-  ///Sets the style.
-  void _setStyle(PdfFontStyle? style, List<PdfFontStyle>? multiStyle) {
-    if (style != null) {
-      _style = style;
-      _fontStyle = _getPdfFontStyle(style);
-    }
-    if (multiStyle != null && multiStyle.isNotEmpty) {
-      for (int i = 0; i < multiStyle.length; i++) {
-        _fontStyle = _fontStyle | _getPdfFontStyle(multiStyle[i]);
-      }
-    } else if (style == null) {
-      _style = PdfFontStyle.regular;
-    }
-  }
-
-  ///Sets the font size.
-  void _setSize(double value) {
-    if (_metrics != null) {
-      _metrics!.size = value;
-    }
-    _size = value;
-  }
-
-  /// Gets the value for PdfFontStyle.
-  static int _getPdfFontStyle(PdfFontStyle value) {
-    switch (value) {
-      case PdfFontStyle.bold:
-        return 1;
-      case PdfFontStyle.italic:
-        return 2;
-      case PdfFontStyle.underline:
-        return 4;
-      case PdfFontStyle.strikethrough:
-        return 8;
-      default:
-        return 0;
-    }
-  }
 
   /// Returns width of the line.
   double _getLineWidth(String line, PdfStringFormat? format);
@@ -222,10 +148,135 @@ abstract class PdfFont implements _IPdfWrapper {
       }
       if (format.wordSpacing != 0) {
         final int whitespacesCount =
-            _StringTokenizer._getCharacterCount(line, _StringTokenizer._spaces);
+            StringTokenizer.getCharacterCount(line, StringTokenizer.spaces);
         realWidth += whitespacesCount * format.wordSpacing;
       }
     }
     return realWidth;
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfFont] helper
+class PdfFontHelper {
+  /// internal method
+  static PdfFontHelper getHelper(PdfFont font) {
+    return font._helper;
+  }
+
+  /// internal field
+  static const double characterSizeMultiplier = 0.001;
+
+  /// internal field
+  static const List<String> standardFontNames = <String>[
+    'Helvetica',
+    'courier',
+    'TimesRoman',
+    'Symbol',
+    'ZapfDingbats'
+  ];
+
+  /// internal field
+  static const List<String> standardCjkFontNames = <String>[
+    'HanyangSystemsGothicMedium',
+    'HanyangSystemsShinMyeongJoMedium',
+    'HeiseiKakuGothicW5',
+    'HeiseiMinchoW3',
+    'MonotypeHeiMedium',
+    'MonotypeSungLight',
+    'SinoTypeSongLight'
+  ];
+
+  /// internal field
+  late double size;
+
+  /// internal field
+  PdfFontMetrics? metrics;
+
+  /// internal field
+  IPdfPrimitive? fontInternals;
+
+  /// internal field
+  int fontStyle = 0;
+
+  /// internal field
+  PdfFontStyle style = PdfFontStyle.regular;
+
+  /// internal field
+  //ignore:unused_element
+  bool get isUnderline =>
+      fontStyle & getPdfFontStyle(PdfFontStyle.underline) > 0;
+
+  /// internal field
+  //ignore:unused_element
+  bool get isStrikeout =>
+      fontStyle & getPdfFontStyle(PdfFontStyle.strikethrough) > 0;
+
+  /// Initializes a new instance of the [PdfFont] class
+  /// with font size and style.
+  void initialize(double size,
+      {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
+    setSize(size);
+    setStyle(style, multiStyle);
+  }
+
+  ///Sets the font size.
+  void setSize(double value) {
+    if (metrics != null) {
+      metrics!.size = value;
+    }
+    size = value;
+  }
+
+  ///Sets the style.
+  void setStyle(PdfFontStyle? style, List<PdfFontStyle>? multiStyle) {
+    if (style != null) {
+      this.style = style;
+      fontStyle = getPdfFontStyle(style);
+    }
+    if (multiStyle != null && multiStyle.isNotEmpty) {
+      for (int i = 0; i < multiStyle.length; i++) {
+        fontStyle = fontStyle | getPdfFontStyle(multiStyle[i]);
+      }
+    } else if (style == null) {
+      this.style = PdfFontStyle.regular;
+    }
+  }
+
+  /// internal method
+  /// Gets the value for PdfFontStyle.
+  static int getPdfFontStyle(PdfFontStyle value) {
+    switch (value) {
+      case PdfFontStyle.bold:
+        return 1;
+      case PdfFontStyle.italic:
+        return 2;
+      case PdfFontStyle.underline:
+        return 4;
+      case PdfFontStyle.strikethrough:
+        return 8;
+      default:
+        return 0;
+    }
+  }
+
+  /// internal method
+  static double getLineWidth(
+      PdfFont font, String line, PdfStringFormat? format) {
+    if (font is PdfCjkStandardFont) {
+      return PdfCjkStandardFontHelper.getHelper(font)
+          .getLineWidth(line, format);
+    } else if (font is PdfStandardFont) {
+      return PdfStandardFontHelper.getHelper(font).getLineWidth(line, format);
+    } else if (font is PdfTrueTypeFont) {
+      return PdfTrueTypeFontHelper.getHelper(font).getLineWidth(line, format);
+    }
+    return font._getLineWidth(line, format);
+  }
+
+  /// internal method
+  static double applyFormatSettings(
+      PdfFont font, String line, PdfStringFormat? format, double width) {
+    return font._applyFormatSettings(line, format, width);
   }
 }

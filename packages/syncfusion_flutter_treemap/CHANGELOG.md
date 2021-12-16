@@ -1,5 +1,12 @@
 ## Unreleased
 
+**Features**
+
+* Legend pointer - Provided an option to show a pointer on the solid bar legend while hover over the tile.
+* Tooltip visibility - Provided an option to increase or decrease the duration of the tooltip visibility.
+
+## [19.3.43-beta] - 09/30/ 22021
+
 ### Features
 
 * **Layout direction** - Set a different layout direction in a squarified treemap.

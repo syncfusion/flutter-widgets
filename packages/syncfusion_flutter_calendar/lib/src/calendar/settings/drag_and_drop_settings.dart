@@ -42,7 +42,7 @@ class DragAndDropSettings with Diagnosticable {
     this.allowScroll = true,
     this.showTimeIndicator = true,
     this.timeIndicatorStyle,
-    this.indicatorTimeFormat = 'HH:mm a',
+    this.indicatorTimeFormat = 'h:mm a',
     this.autoNavigateDelay = const Duration(seconds: 1),
   });
 

@@ -1,25 +1,37 @@
-part of pdf;
+import 'dart:convert';
 
-class _PdfArchiveStream extends _PdfStream {
+import '../../interfaces/pdf_interface.dart';
+import '../pdf_document/pdf_document.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_reference.dart';
+import '../primitives/pdf_stream.dart';
+import 'pdf_constants.dart';
+import 'pdf_writer.dart';
+
+/// internal class
+class PdfArchiveStream extends PdfStream {
   // Constructor
-  _PdfArchiveStream(PdfDocument? document) : super() {
+  /// internal constructor
+  PdfArchiveStream(PdfDocument? document) : super() {
     ArgumentError.notNull('document');
     _document = document;
     _objects = <int>[];
-    _objectWriter = _PdfWriter(_objects);
-    _objectWriter!._document = _document;
+    _objectWriter = PdfWriter(_objects);
+    _objectWriter!.document = _document;
     _indices = <Object?, Object?>{};
   }
 
   // Fields
   PdfDocument? _document;
-  _IPdfWriter? _objectWriter;
+  IPdfWriter? _objectWriter;
   late List<int> _objects;
   Map<Object?, Object?>? _indices;
-  late _StreamWriter _writer;
+  late PdfArchiveStreamWriter _writer;
 
   // Properties
-  int get _objCount {
+  /// internal property
+  int get objCount {
     if (_indices == null) {
       return 0;
     } else {
@@ -27,32 +39,33 @@ class _PdfArchiveStream extends _PdfStream {
     }
   }
 
-  int _getIndex(int? objNumber) {
+  /// internal method
+  int getIndex(int? objNumber) {
     return _indices!.values.toList().indexOf(objNumber);
   }
 
   // Implementation
   @override
-  void save(_IPdfWriter? writer) {
+  void save(IPdfWriter? writer) {
     final List<int> data = <int>[];
-    _writer = _StreamWriter(data);
+    _writer = PdfArchiveStreamWriter(data);
     _saveIndices();
-    this[_DictionaryProperties.first] = _PdfNumber(_writer._position!);
+    this[PdfDictionaryProperties.first] = PdfNumber(_writer.position!);
     _saveObjects();
-    _dataStream = _writer._buffer;
-    this[_DictionaryProperties.n] = _PdfNumber(_indices!.length);
-    this[_DictionaryProperties.type] = _PdfName('ObjStm');
+    dataStream = _writer._buffer;
+    this[PdfDictionaryProperties.n] = PdfNumber(_indices!.length);
+    this[PdfDictionaryProperties.type] = PdfName('ObjStm');
     super.save(writer);
   }
 
   void _saveIndices() {
     for (final Object? position in _indices!.keys) {
       if (position is int) {
-        _writer = _StreamWriter(_writer._buffer!);
-        _writer._write(_indices![position]);
-        _writer._write(_Operators.whiteSpace);
-        _writer._write(position);
-        _writer._write(_Operators.newLine);
+        _writer = PdfArchiveStreamWriter(_writer._buffer!);
+        _writer.write(_indices![position]);
+        _writer.write(PdfOperators.whiteSpace);
+        _writer.write(position);
+        _writer.write(PdfOperators.newLine);
       }
     }
   }
@@ -61,37 +74,41 @@ class _PdfArchiveStream extends _PdfStream {
     _writer._buffer!.addAll(_objects);
   }
 
-  void _saveObject(_IPdfPrimitive obj, _PdfReference reference) {
-    final int? position = _objectWriter!._position;
-    _indices![position] = reference._objNum;
+  /// internal method
+  void saveObject(IPdfPrimitive obj, PdfReference reference) {
+    final int? position = _objectWriter!.position;
+    _indices![position] = reference.objNum;
     obj.save(_objectWriter);
-    _objectWriter!._write(_Operators.newLine);
+    _objectWriter!.write(PdfOperators.newLine);
   }
 }
 
-class _StreamWriter extends _IPdfWriter {
+/// internal class
+class PdfArchiveStreamWriter extends IPdfWriter {
   // Constructor
-  _StreamWriter(List<int> buffer) {
+  /// internal constructor
+  PdfArchiveStreamWriter(List<int> buffer) {
     _buffer = buffer;
-    _length = buffer.length;
-    _position = buffer.length;
+    length = buffer.length;
+    position = buffer.length;
   }
 
   //Fields
   List<int>? _buffer;
 
   @override
-  void _write(dynamic data) {
+  // ignore: avoid_renaming_method_parameters
+  void write(dynamic data) {
     if (data is List<int>) {
       for (int i = 0; i < data.length; i++) {
         _buffer!.add(data[i]);
       }
-      _length = _buffer!.length;
-      _position = _buffer!.length;
+      length = _buffer!.length;
+      position = _buffer!.length;
     } else if (data is String) {
-      _write(utf8.encode(data));
+      write(utf8.encode(data));
     } else if (data is int) {
-      _write(data.toString());
+      write(data.toString());
     }
   }
 }

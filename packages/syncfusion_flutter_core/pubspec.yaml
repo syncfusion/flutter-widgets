@@ -11,7 +11,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-dev_dependencies:
-  pedantic: ">=1.9.0 <2.0.0"
+  flutter_lints: ^1.0.4
 
 flutter:

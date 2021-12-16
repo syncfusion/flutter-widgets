@@ -257,9 +257,12 @@ class SfDataPager extends StatefulWidget {
       this.pageItemBuilder,
       this.onPageNavigationStart,
       this.onPageNavigationEnd,
+      this.onRowsPerPageChanged,
+      this.availableRowsPerPage = const <int>[10, 15, 20],
       this.controller})
       : assert(pageCount > 0),
         assert(itemHeight > 0 && itemWidth > 0),
+        assert(availableRowsPerPage.length != 0),
         assert((firstPageItemVisible ||
                 lastPageItemVisible ||
                 nextPageItemVisible ||
@@ -360,8 +363,20 @@ class SfDataPager extends StatefulWidget {
   /// Typically you can use this callback to call the setState() to hide the loading indicator once data is successfully retrieved from services.
   final PageNavigationEnd? onPageNavigationEnd;
 
+  /// Invoked when the user selects a different number of rows per page.
+  ///
+  /// If this is null, no affordance will be provided to change the value i.e. dropdown widget will not be shown.
+  final ValueChanged<int?>? onRowsPerPageChanged;
+
+  /// The options to offer for the rowsPerPage.
+  ///
+  /// The values in this list should be sorted in ascending order.
+  ///
+  /// The given list will be shown in [DropdownButton] widget.
+  final List<int> availableRowsPerPage;
+
   @override
-  _SfDataPagerState createState() => _SfDataPagerState();
+  SfDataPagerState createState() => SfDataPagerState();
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -385,8 +400,13 @@ class SfDataPager extends StatefulWidget {
   }
 }
 
-class _SfDataPagerState extends State<SfDataPager> {
+/// A state class of a [SfDataPager] StatefulWidget that maintain the paging
+/// state details.
+class SfDataPagerState extends State<SfDataPager> {
   Size _defaultPagerDimension = Size.zero;
+  double _rowsPerPageLabelWidth = 0;
+  static const Size _dropdownSize = Size(82, 36);
+  static const EdgeInsets __rowsPerPageLabelPadding = EdgeInsets.all(5);
   static const Size _defaultPagerLabelDimension = Size(200.0, 50.0);
   static const double _kMobileViewWidthOnWeb = 767.0;
 
@@ -409,15 +429,20 @@ class _SfDataPagerState extends State<SfDataPager> {
   TextDirection _textDirection = TextDirection.ltr;
   Orientation _deviceOrientation = Orientation.landscape;
 
+  DataPagerThemeHelper? _dataPagerThemeHelper;
+
   bool _isDirty = false;
   bool _isOrientationChanged = false;
   bool _isPregenerateItems = false;
   bool _isDesktop = false;
 
+  int? _rowsPerPage;
+
   bool get _isRTL => _textDirection == TextDirection.rtl;
 
   int get _lastPageIndex => _pageCount - 1;
 
+  /// Defines the text direction of [SfDataPager].
   set textDirection(TextDirection newTextDirection) {
     if (_textDirection == newTextDirection) {
       return;
@@ -426,6 +451,7 @@ class _SfDataPagerState extends State<SfDataPager> {
     _isDirty = true;
   }
 
+  /// Defines the device orientation whether in portrait or landscape
   set deviceOrientation(Orientation newOrientation) {
     if (_deviceOrientation == newOrientation) {
       return;
@@ -436,6 +462,7 @@ class _SfDataPagerState extends State<SfDataPager> {
     _isDirty = true;
   }
 
+  /// Defines the theme data of [SfDataPager].
   set dataPagerThemeData(SfDataPagerThemeData? newThemeData) {
     if (newThemeData == null || _dataPagerThemeData == newThemeData) {
       return;
@@ -444,14 +471,23 @@ class _SfDataPagerState extends State<SfDataPager> {
     _isDirty = true;
   }
 
+  void _setRowsPerPageLabelSize() {
+    if (widget.onRowsPerPageChanged != null) {
+      _rowsPerPageLabelWidth = 110;
+    } else {
+      _rowsPerPageLabelWidth = 0;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    _rowsPerPage = widget.availableRowsPerPage[0];
+    _setRowsPerPageLabelSize();
 
     /// Set page count in DataGridSource.
     _setPageCountInDataGridSource(widget.pageCount);
     _defaultPagerDimension = Size(300.0, _getDefaultDimensionHeight());
-
     _scrollController = ScrollController()
       ..addListener(_handleScrollPositionChanged);
     _itemGenerator = _DataPagerItemGenerator();
@@ -618,7 +654,7 @@ class _SfDataPagerState extends State<SfDataPager> {
         final bool canChangePage = await _canChangePage(selectedPageIndex);
 
         if (canChangePage) {
-          final double distance = getScrollOffset(selectedPageIndex);
+          final double distance = _getScrollOffset(selectedPageIndex);
           await _scrollTo(distance);
           _setCurrentPageIndex(selectedPageIndex);
         }
@@ -672,7 +708,7 @@ class _SfDataPagerState extends State<SfDataPager> {
     return previousPageIndex.isNegative ? -1 : previousPageIndex;
   }
 
-  double getScrollOffset(int index) {
+  double _getScrollOffset(int index) {
     final double origin = _getCumulativeSize(index);
     final double scrollOffset = _scrollController!.offset;
     final double corner =
@@ -691,13 +727,13 @@ class _SfDataPagerState extends State<SfDataPager> {
 
   void _moveToNextPage() {
     final int nextIndex = _getNextPageIndex();
-    final double distance = getScrollOffset(nextIndex);
+    final double distance = _getScrollOffset(nextIndex);
     _scrollTo(distance);
   }
 
   void _moveToPreviousPage() {
     final int previousIndex = _getPreviousPageIndex();
-    final double distance = getScrollOffset(previousIndex);
+    final double distance = _getScrollOffset(previousIndex);
     _scrollTo(distance);
   }
 
@@ -784,12 +820,12 @@ class _SfDataPagerState extends State<SfDataPager> {
           key: ValueKey<String>(type),
           size: 20,
           color: visible
-              ? _dataPagerThemeData!.brightness == Brightness.light
-                  ? _dataPagerThemeData!.disabledItemTextStyle.color
+              ? _dataPagerThemeHelper!.brightness == Brightness.light
+                  ? _dataPagerThemeHelper!.disabledItemTextStyle.color
                       ?.withOpacity(0.54)
-                  : _dataPagerThemeData!.disabledItemTextStyle.color
+                  : _dataPagerThemeHelper!.disabledItemTextStyle.color
                       ?.withOpacity(0.65)
-              : _dataPagerThemeData!.disabledItemTextStyle.color);
+              : _dataPagerThemeHelper!.disabledItemTextStyle.color);
     }
 
     if (widget.direction == Axis.vertical) {
@@ -824,9 +860,17 @@ class _SfDataPagerState extends State<SfDataPager> {
     }
   }
 
-  double _getDataPagerWidth() {
+  double _getDataPagerWidth(
+      {bool canEnableDataPagerLable = false, bool isDropDown = false}) {
     if (widget.direction == Axis.horizontal) {
-      return _headerExtent + _scrollViewPortSize + _footerExtent;
+      if (canEnableDataPagerLable && isDropDown) {
+        return _headerExtent +
+            _scrollViewPortSize +
+            _footerExtent +
+            _defaultPagerLabelDimension.width;
+      } else {
+        return _headerExtent + _scrollViewPortSize + _footerExtent;
+      }
     } else {
       return _defaultPagerDimension.height;
     }
@@ -852,7 +896,7 @@ class _SfDataPagerState extends State<SfDataPager> {
     _controller!._selectedPageIndex = index;
   }
 
-  bool isNavigatorItemVisible(String type) {
+  bool _isNavigatorItemVisible(String type) {
     if (type == 'Next' || type == 'Last') {
       if (_currentPageIndex == _lastPageIndex) {
         return true;
@@ -876,7 +920,7 @@ class _SfDataPagerState extends State<SfDataPager> {
     return index - 1;
   }
 
-  bool checkIsSelectedIndex(int index) {
+  bool _checkIsSelectedIndex(int index) {
     return index == _currentPageIndex;
   }
   // Ensuring and Generating
@@ -969,7 +1013,7 @@ class _SfDataPagerState extends State<SfDataPager> {
     final ThemeData _flutterTheme = Theme.of(context);
     Widget? pagerItem;
     Key? pagerItemKey;
-    Color itemColor = _dataPagerThemeData!.itemColor;
+    Color itemColor = _dataPagerThemeHelper!.itemColor;
     bool visible = true;
     late Border border;
 
@@ -979,20 +1023,20 @@ class _SfDataPagerState extends State<SfDataPager> {
     }
 
     void _setBorder() {
-      border = _dataPagerThemeData!.itemBorderWidth != null &&
-              _dataPagerThemeData!.itemBorderWidth! > 0.0
+      border = _dataPagerThemeHelper!.itemBorderWidth != null &&
+              _dataPagerThemeHelper!.itemBorderWidth! > 0.0
           ? Border.all(
-              width: _dataPagerThemeData!.itemBorderWidth!,
-              color: _dataPagerThemeData!.itemBorderColor)
+              width: _dataPagerThemeHelper!.itemBorderWidth!,
+              color: _dataPagerThemeHelper!.itemBorderColor)
           : Border.all(width: 0.0, color: Colors.transparent);
     }
 
     if (pagerItem == null) {
       if (element == null) {
-        visible = !isNavigatorItemVisible(type!);
+        visible = !_isNavigatorItemVisible(type!);
         itemColor = visible
-            ? _dataPagerThemeData!.itemColor
-            : _dataPagerThemeData!.disabledItemColor;
+            ? _dataPagerThemeHelper!.itemColor
+            : _dataPagerThemeHelper!.disabledItemColor;
 
         pagerItem = Semantics(
           label: '$type Page',
@@ -1000,19 +1044,19 @@ class _SfDataPagerState extends State<SfDataPager> {
         );
         pagerItemKey = ObjectKey(type);
       } else {
-        final bool isSelected = checkIsSelectedIndex(element.index);
+        final bool isSelected = _checkIsSelectedIndex(element.index);
 
         itemColor = isSelected
-            ? _dataPagerThemeData!.selectedItemColor
-            : _dataPagerThemeData!.itemColor;
+            ? _dataPagerThemeHelper!.selectedItemColor
+            : _dataPagerThemeHelper!.itemColor;
 
         final int index = _resolveToItemIndexInView(element.index);
         pagerItem = Text(
           index.toString(),
           key: element.key,
           style: isSelected
-              ? _dataPagerThemeData!.selectedItemTextStyle
-              : _dataPagerThemeData!.itemTextStyle,
+              ? _dataPagerThemeHelper!.selectedItemTextStyle
+              : _dataPagerThemeHelper!.itemTextStyle,
         );
         pagerItemKey = element.key;
       }
@@ -1020,7 +1064,7 @@ class _SfDataPagerState extends State<SfDataPager> {
 
     _setBorder();
 
-    return Container(
+    return SizedBox(
       key: pagerItemKey,
       width: width,
       height: height,
@@ -1032,12 +1076,12 @@ class _SfDataPagerState extends State<SfDataPager> {
               decoration: BoxDecoration(
                   color: itemColor,
                   border: border,
-                  borderRadius: _dataPagerThemeData!.itemBorderRadius),
+                  borderRadius: _dataPagerThemeHelper!.itemBorderRadius),
               imageConfig: _imageConfiguration!),
           child: Material(
             key: pagerItemKey,
             color: Colors.transparent,
-            borderRadius: _dataPagerThemeData!.itemBorderRadius,
+            borderRadius: _dataPagerThemeHelper!.itemBorderRadius,
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               key: pagerItemKey,
@@ -1126,6 +1170,46 @@ class _SfDataPagerState extends State<SfDataPager> {
                 widget.navigationItemHeight, widget.navigationItemWidth);
 
     return children.isEmpty ? null : _getChildrenBasedOnDirection(children);
+  }
+
+  // dropdown
+  Widget? _buildDropDownWidget() {
+    if (widget.onRowsPerPageChanged != null) {
+      final List<Widget> _availableRowsPerPage =
+          widget.availableRowsPerPage.map<DropdownMenuItem<int>>((int? value) {
+        return DropdownMenuItem<int>(
+            value: value,
+            child: Text(
+              '$value',
+              style: _dataPagerThemeHelper!.itemTextStyle,
+              textAlign: _isRTL ? TextAlign.right : TextAlign.left,
+            ));
+      }).toList();
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+        child: Container(
+          width: _dropdownSize.width,
+          height: _dropdownSize.height,
+          padding: const EdgeInsets.fromLTRB(16, 8, 12, 8),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(3.0),
+              border: Border.all(
+                  color: _dataPagerThemeHelper!.dropdownButtonBorderColor)),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              itemHeight: 48,
+              items: _availableRowsPerPage.cast<DropdownMenuItem<int>>(),
+              value: _rowsPerPage,
+              iconSize: 22.0,
+              onChanged: (int? value) {
+                _rowsPerPage = value;
+                widget.onRowsPerPageChanged!(_rowsPerPage);
+              },
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   // Footer
@@ -1309,11 +1393,32 @@ class _SfDataPagerState extends State<SfDataPager> {
       children.insert(1, body);
     }
 
+    if ((!_isDesktop && widget.direction != Axis.vertical) &&
+        widget.onRowsPerPageChanged != null) {
+      children.add(Row(children: _buildRowsPerPageLabel()!));
+    }
     return _getChildrenBasedOnDirection(children);
   }
 
-  // DataPager with Label builders
+  // DataPager with rows per page label
+  List<Widget>? _buildRowsPerPageLabel() {
+    final List<Widget> children = <Widget>[];
 
+    final Widget _dropDown = _buildDropDownWidget()!;
+    children.add(Container(
+      width: _rowsPerPageLabelWidth,
+      padding: __rowsPerPageLabelPadding,
+      child: Text(_localization.rowsPerPageDataPagerLabel,
+          textDirection: _textDirection,
+          style: _dataPagerThemeHelper!.itemTextStyle,
+          textAlign: _isRTL ? TextAlign.right : TextAlign.left),
+    ));
+    children.add(_dropDown);
+
+    return children;
+  }
+
+  // DataPager with Label builders
   Widget _buildDataPagerLabel() {
     final int index = _resolveToItemIndexInView(_currentPageIndex);
     final String _labelInfo =
@@ -1324,15 +1429,13 @@ class _SfDataPagerState extends State<SfDataPager> {
       _labelInfo,
       textDirection: _textDirection,
       style: TextStyle(
-          fontSize: _dataPagerThemeData!.itemTextStyle.fontSize,
-          fontWeight: _dataPagerThemeData!.itemTextStyle.fontWeight,
-          fontFamily: _dataPagerThemeData!.itemTextStyle.fontFamily,
-          color: _dataPagerThemeData!.brightness == Brightness.light
-              ? Colors.black54
-              : Colors.white54),
+          fontSize: _dataPagerThemeHelper!.itemTextStyle.fontSize,
+          fontWeight: _dataPagerThemeHelper!.itemTextStyle.fontWeight,
+          fontFamily: _dataPagerThemeHelper!.itemTextStyle.fontFamily,
+          color: _dataPagerThemeHelper!.itemTextStyle.color),
     );
 
-    final Widget dataPagerLabel = Container(
+    final Widget dataPagerLabel = SizedBox(
         width: _defaultPagerLabelDimension.width,
         height: _defaultPagerLabelDimension.height,
         child: Align(
@@ -1344,19 +1447,38 @@ class _SfDataPagerState extends State<SfDataPager> {
 
   void _buildDataPagerWithLabel(
       BoxConstraints constraint, List<Widget> children) {
+    Widget? _dataPagerLabel;
+
     final bool canEnablePagerLabel = _canEnableDataPagerLabel(constraint);
+    final Widget? _dropDown = _buildDropDownWidget();
+
+    double _getRowsPerPageLabelWidth() {
+      if (_dropDown != null) {
+        return _rowsPerPageLabelWidth + _dropdownSize.width + 32;
+      } else {
+        return _defaultPagerLabelDimension.width;
+      }
+    }
 
     // DataPager
     final BoxConstraints _dataPagerConstraint = BoxConstraints(
         maxWidth: canEnablePagerLabel
-            ? _getTotalDataPagerWidth(constraint) -
-                _defaultPagerLabelDimension.width
+            ? _getTotalDataPagerWidth(constraint) - _getRowsPerPageLabelWidth()
             : _getTotalDataPagerWidth(constraint),
         maxHeight: _getTotalDataPagerHeight(constraint));
 
     final Widget _pager = _buildDataPager(_dataPagerConstraint);
 
-    final Widget _dataPager = Container(
+    //DataPagerLabel
+    if (canEnablePagerLabel &&
+        _dataPagerConstraint.maxWidth >= _kMobileViewWidthOnWeb) {
+      _dataPagerLabel = _buildDataPagerLabel();
+    }
+    bool _isDropDown = false;
+    if (_dropDown != null) {
+      _isDropDown = true;
+    }
+    final Widget _dataPager = SizedBox(
         width: _dataPagerConstraint.maxWidth,
         height: _dataPagerConstraint.maxHeight,
         child: Align(
@@ -1367,17 +1489,25 @@ class _SfDataPagerState extends State<SfDataPager> {
                 : canEnablePagerLabel
                     ? Alignment.centerLeft
                     : Alignment.center,
-            child: Container(
-                width: _getDataPagerWidth(),
+            child: SizedBox(
+                width: _getDataPagerWidth(
+                    canEnableDataPagerLable: canEnablePagerLabel,
+                    isDropDown: _isDropDown),
                 height: _getDataPagerHeight(),
-                child: _pager)));
+                child: _dataPagerLabel != null && _isDropDown
+                    ? Row(
+                        children: <Widget>[_pager, _dataPagerLabel],
+                      )
+                    : _pager)));
 
     children.add(_dataPager);
 
-    // DataPagerLabel
-    if (canEnablePagerLabel) {
-      final Widget _dataPagerLabel = _buildDataPagerLabel();
-
+    if (_isDropDown) {
+      children.add(Row(
+        children: _buildRowsPerPageLabel()!,
+      ));
+    }
+    if ((canEnablePagerLabel && _dataPagerLabel != null) && !_isDropDown) {
       children.add(_dataPagerLabel);
     }
   }
@@ -1387,10 +1517,12 @@ class _SfDataPagerState extends State<SfDataPager> {
     super.didChangeDependencies();
     _imageConfiguration = createLocalImageConfiguration(context);
     deviceOrientation = MediaQuery.of(context).orientation;
-    textDirection = Directionality.of(context);
     dataPagerThemeData = SfDataPagerTheme.of(context);
+    textDirection = Directionality.of(context);
     _localization = SfLocalizations.of(context);
     final ThemeData themeData = Theme.of(context);
+    _dataPagerThemeHelper = DataPagerThemeHelper(
+        _dataPagerThemeData, Theme.of(context).colorScheme, themeData);
     _isDesktop = kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
         themeData.platform == TargetPlatform.windows ||
@@ -1403,6 +1535,7 @@ class _SfDataPagerState extends State<SfDataPager> {
     final bool isDataPagerControllerChanged =
         oldWidget.controller != widget.controller;
     final bool isDelegateChanged = oldWidget.delegate != widget.delegate;
+
     if (isDataPagerControllerChanged ||
         isDelegateChanged ||
         oldWidget.pageCount != widget.pageCount ||
@@ -1411,17 +1544,26 @@ class _SfDataPagerState extends State<SfDataPager> {
         oldWidget.navigationItemWidth != widget.navigationItemWidth ||
         oldWidget.itemWidth != widget.itemWidth ||
         oldWidget.itemHeight != widget.itemHeight ||
+        oldWidget.availableRowsPerPage != widget.availableRowsPerPage ||
+        oldWidget.onRowsPerPageChanged != widget.onRowsPerPageChanged ||
         oldWidget.visibleItemsCount != widget.visibleItemsCount ||
         oldWidget.initialPageIndex != widget.initialPageIndex) {
+      _setRowsPerPageLabelSize();
+
       /// Set page count in DataGridSource.
       _setPageCountInDataGridSource(widget.pageCount);
-      _defaultPagerDimension = Size(300.0, _getDefaultDimensionHeight());
 
+      _defaultPagerDimension = Size(300.0, _getDefaultDimensionHeight());
       if (isDelegateChanged) {
         _removeDelegateListener(oldWidget);
         _addDelegateListener();
       }
 
+      if (oldWidget.availableRowsPerPage != widget.availableRowsPerPage) {
+        _rowsPerPage = widget.availableRowsPerPage.contains(_rowsPerPage)
+            ? _rowsPerPage
+            : widget.availableRowsPerPage[0];
+      }
       if (isDataPagerControllerChanged) {
         if (oldWidget.pageCount != widget.pageCount) {
           _currentPageIndex = 0;
@@ -1441,32 +1583,47 @@ class _SfDataPagerState extends State<SfDataPager> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0.0,
-      color: _dataPagerThemeData!.backgroundColor,
+      color: _dataPagerThemeHelper!.backgroundColor,
       child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraint) {
-          _updateConstraintChanged(constraint);
+          builder: (BuildContext context, BoxConstraints constraint) {
+        _updateConstraintChanged(constraint);
+        if (_currentPageIndex > _pageCount) {
+          _currentPageIndex = _pageCount - 1;
+        }
+        if (_isDesktop && widget.direction == Axis.horizontal) {
+          final List<Widget> children = <Widget>[];
 
-          if (_isDesktop && widget.direction == Axis.horizontal) {
-            final List<Widget> children = <Widget>[];
+          _buildDataPagerWithLabel(constraint, children);
 
-            _buildDataPagerWithLabel(constraint, children);
-
-            _isDirty = false;
-            return Container(
-              width: _getTotalDataPagerWidth(constraint),
-              height: _getTotalDataPagerHeight(constraint),
-              child: _getChildrenBasedOnDirection(children),
+          _isDirty = false;
+          return constraint.maxWidth >= _kMobileViewWidthOnWeb
+              ? SizedBox(
+                  width: _getTotalDataPagerWidth(constraint),
+                  height: _getTotalDataPagerHeight(constraint),
+                  child: _getChildrenBasedOnDirection(children),
+                )
+              : SizedBox(
+                  child: SingleChildScrollView(
+                      scrollDirection: widget.direction,
+                      child: _getChildrenBasedOnDirection(children)),
+                );
+        } else {
+          final Widget _dataPager = _buildDataPager(constraint);
+          _isDirty = false;
+          if (widget.onRowsPerPageChanged != null &&
+              widget.direction == Axis.horizontal) {
+            return SingleChildScrollView(
+              scrollDirection: widget.direction,
+              child: _dataPager,
             );
           } else {
-            final Widget _dataPager = _buildDataPager(constraint);
-            _isDirty = false;
-            return Container(
+            return SizedBox(
                 width: _getDataPagerWidth(),
                 height: _getDataPagerHeight(),
                 child: _dataPager);
           }
-        },
-      ),
+        }
+      }),
     );
   }
 
@@ -1808,4 +1965,93 @@ class _DataPagerChangeNotifier {
   void dispose() {
     _listeners = null;
   }
+}
+
+/// To Do
+class DataPagerThemeHelper {
+  /// To Do
+  DataPagerThemeHelper(SfDataPagerThemeData? sfDataPagerThemeData,
+      ColorScheme? colorScheme, ThemeData themeData) {
+    brightness = sfDataPagerThemeData!.brightness ?? themeData.brightness;
+    backgroundColor = sfDataPagerThemeData.backgroundColor ??
+        colorScheme!.surface.withOpacity(0.12);
+    itemColor = sfDataPagerThemeData.itemColor ?? Colors.transparent;
+    itemTextStyle = sfDataPagerThemeData.itemTextStyle ??
+        TextStyle(
+            color: themeData.colorScheme.onSurface.withOpacity(0.6),
+            fontSize: 14,
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w400);
+    selectedItemColor =
+        sfDataPagerThemeData.selectedItemColor ?? colorScheme!.primary;
+    selectedItemTextStyle = sfDataPagerThemeData.selectedItemTextStyle ??
+        TextStyle(
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+            color: colorScheme!.onPrimary);
+    disabledItemColor =
+        sfDataPagerThemeData.disabledItemColor ?? Colors.transparent;
+    disabledItemTextStyle = sfDataPagerThemeData.disabledItemTextStyle ??
+        TextStyle(
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+            color: colorScheme!.onSurface.withOpacity(0.36));
+    itemBorderColor =
+        sfDataPagerThemeData.itemBorderColor ?? Colors.transparent;
+    itemBorderWidth = sfDataPagerThemeData.itemBorderWidth;
+    itemBorderRadius =
+        sfDataPagerThemeData.itemBorderRadius ?? BorderRadius.circular(50);
+    dropdownButtonBorderColor =
+        sfDataPagerThemeData.dropdownButtonBorderColor ??
+            colorScheme!.onSurface.withOpacity(0.12);
+  }
+
+  /// The brightness of the overall theme of the
+  /// application for the [SfDataPager] widgets.
+  ///
+  /// If [brightness] is not specified, then based on the
+  /// [Theme.of(context).brightness], brightness for
+  /// datapager widgets will be applied.
+  late Brightness brightness;
+
+  /// The color of the page Items
+  late Color itemColor;
+
+  /// The color of the data pager background
+  late Color backgroundColor;
+
+  /// The style of the text of page Items
+  late TextStyle itemTextStyle;
+
+  /// The color of the page Items which are disabled.
+  late Color disabledItemColor;
+
+  /// The style of the text of page items which are disabled.
+  late TextStyle disabledItemTextStyle;
+
+  /// The color of the currently selected page item.
+  late Color selectedItemColor;
+
+  /// The style of the text of currently selected page Item.
+  late TextStyle selectedItemTextStyle;
+
+  /// The color of the border in page Item.
+  late Color itemBorderColor;
+
+  /// The width of the border in page item.
+  double? itemBorderWidth;
+
+  /// If non null, the corners of the page item are rounded by
+  /// this [itemBorderRadius].
+  ///
+  /// Applies only to boxes with rectangular shapes;
+  /// see also:
+  ///
+  /// [BoxDecoration.borderRadius]
+  late BorderRadiusGeometry itemBorderRadius;
+
+  ///The border color of the rowsPerPage dropdown button.
+  late Color dropdownButtonBorderColor;
 }

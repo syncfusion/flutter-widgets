@@ -1,12 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../../charts.dart';
 import '../axis/axis.dart';
-import '../base/chart_base.dart';
-import '../chart_segment/box_and_whisker_segment.dart';
 import '../chart_segment/chart_segment.dart';
 import '../chart_series/box_and_whisker_series.dart';
 import '../chart_series/series.dart';
@@ -17,7 +11,6 @@ import '../common/common.dart';
 import '../common/marker.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
-import '../utils/enum.dart';
 import '../utils/helper.dart';
 
 /// Creates series renderer for Box and Whisker series
@@ -291,6 +284,9 @@ class BoxAndWhiskerPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer);
+    // Disposing the old chart segments.
+    disposeOldSegments(chart, seriesRendererDetails);
+
     final ChartAxisRendererDetails xAxisDetails =
         seriesRendererDetails.xAxisDetails!;
     final ChartAxisRendererDetails yAxisDetails =

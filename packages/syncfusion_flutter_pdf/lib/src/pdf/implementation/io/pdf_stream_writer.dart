@@ -1,310 +1,360 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../graphics/enums.dart';
+import '../graphics/fonts/pdf_font.dart';
+import '../graphics/pdf_color.dart';
+import '../graphics/pdf_transformation_matrix.dart';
+import '../pdf_document/pdf_document.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_stream.dart';
+import '../primitives/pdf_string.dart';
+import 'pdf_constants.dart';
 
 /// Helper class to write PDF graphic streams easily.
-class _PdfStreamWriter implements _IPdfWriter {
+class PdfStreamWriter implements IPdfWriter {
   //Constructor
-  _PdfStreamWriter(_PdfStream? stream) {
-    _stream = stream;
-  }
+  /// internal constructor
+  PdfStreamWriter(this.stream);
 
   //Fields
-  _PdfStream? _stream;
+  /// internal field
+  PdfStream? stream;
 
   //Implementation
-  void _saveGraphicsState() {
-    _writeOperator(_Operators.saveState);
+  /// internal method
+  void saveGraphicsState() {
+    writeOperator(PdfOperators.saveState);
   }
 
-  void _restoreGraphicsState() {
-    _writeOperator(_Operators.restoreState);
+  /// internal method
+  void restoreGraphicsState() {
+    writeOperator(PdfOperators.restoreState);
   }
 
-  void _writeOperator(String opcode) {
-    _stream!._write(opcode);
-    _stream!._write(_Operators.newLine);
+  /// internal method
+  void writeOperator(String opcode) {
+    stream!.write(opcode);
+    stream!.write(PdfOperators.newLine);
   }
 
-  void _writeComment(String comment) {
-    _writeOperator('% ' + comment);
+  /// internal method
+  void writeComment(String comment) {
+    writeOperator('% $comment');
   }
 
-  void _writePoint(double? x, double y) {
-    _write(x);
-    _stream!._write(_Operators.whiteSpace);
-    _write(-y);
-    _stream!._write(_Operators.whiteSpace);
+  /// internal method
+  void writePoint(double? x, double y) {
+    write(x);
+    stream!.write(PdfOperators.whiteSpace);
+    write(-y);
+    stream!.write(PdfOperators.whiteSpace);
   }
 
-  void _closePath() {
-    _writeOperator(_Operators.closePath);
+  /// internal method
+  void closePath() {
+    writeOperator(PdfOperators.closePath);
   }
 
-  void _clipPath(bool useEvenOddRule) {
-    _stream!._write(_Operators.clipPath);
+  /// internal method
+  void clipPath(bool useEvenOddRule) {
+    stream!.write(PdfOperators.clipPath);
     if (useEvenOddRule) {
-      _stream!._write(_Operators.evenOdd);
+      stream!.write(PdfOperators.evenOdd);
     }
-    _stream!._write(_Operators.whiteSpace);
-    _stream!._write(_Operators.endPath);
-    _stream!._write(_Operators.newLine);
+    stream!.write(PdfOperators.whiteSpace);
+    stream!.write(PdfOperators.endPath);
+    stream!.write(PdfOperators.newLine);
   }
 
-  void _appendRectangle(double? x, double y, double? width, double height) {
-    _writePoint(x, y);
-    _writePoint(width, height);
-    _writeOperator(_Operators.appendRectangle);
+  /// internal method
+  void appendRectangle(double? x, double y, double? width, double height) {
+    writePoint(x, y);
+    writePoint(width, height);
+    writeOperator(PdfOperators.appendRectangle);
   }
 
-  void _modifyCurrentMatrix(_PdfTransformationMatrix matrix) {
-    _stream!._write(matrix._toString());
-    _writeOperator(_Operators.currentMatrix);
+  /// internal method
+  void modifyCurrentMatrix(PdfTransformationMatrix matrix) {
+    stream!.write(matrix.getString());
+    writeOperator(PdfOperators.currentMatrix);
   }
 
-  void _modifyTransformationMatrix(_PdfTransformationMatrix matrix) {
-    _stream!._write(matrix._toString());
-    _writeOperator(_Operators.transformationMatrix);
+  /// internal method
+  void modifyTransformationMatrix(PdfTransformationMatrix matrix) {
+    stream!.write(matrix.getString());
+    writeOperator(PdfOperators.transformationMatrix);
   }
 
-  void _setLineWidth(double width) {
-    _write(width);
-    _stream!._write(_Operators.whiteSpace);
-    _writeOperator(_Operators.setLineWidth);
+  /// internal method
+  void setLineWidth(double width) {
+    write(width);
+    stream!.write(PdfOperators.whiteSpace);
+    writeOperator(PdfOperators.setLineWidth);
   }
 
-  void _setLineCap(PdfLineCap lineCapStyle) {
-    _write(lineCapStyle.index);
-    _stream!._write(_Operators.whiteSpace);
-    _writeOperator(_Operators.setLineCapStyle);
+  /// internal method
+  void setLineCap(PdfLineCap lineCapStyle) {
+    write(lineCapStyle.index);
+    stream!.write(PdfOperators.whiteSpace);
+    writeOperator(PdfOperators.setLineCapStyle);
   }
 
-  void _setLineJoin(PdfLineJoin lineJoinStyle) {
-    _write(lineJoinStyle.index);
-    _stream!._write(_Operators.whiteSpace);
-    _writeOperator(_Operators.setLineJoinStyle);
+  /// internal method
+  void setLineJoin(PdfLineJoin lineJoinStyle) {
+    write(lineJoinStyle.index);
+    stream!.write(PdfOperators.whiteSpace);
+    writeOperator(PdfOperators.setLineJoinStyle);
   }
 
-  void _setMiterLimit(double? miterLimit) {
-    _write(miterLimit);
-    _stream!._write(_Operators.whiteSpace);
-    _writeOperator(_Operators.setMiterLimit);
+  /// internal method
+  void setMiterLimit(double? miterLimit) {
+    write(miterLimit);
+    stream!.write(PdfOperators.whiteSpace);
+    writeOperator(PdfOperators.setMiterLimit);
   }
 
-  void _setLineDashPattern(List<double>? pattern, double patternOffset) {
-    final _PdfArray patternArray = _PdfArray(pattern);
+  /// internal method
+  void setLineDashPattern(List<double>? pattern, double patternOffset) {
+    final PdfArray patternArray = PdfArray(pattern);
     patternArray.save(this);
-    _stream!._write(_Operators.whiteSpace);
-    _write(patternOffset);
-    _stream!._write(_Operators.whiteSpace);
-    _writeOperator(_Operators.setDashPattern);
+    stream!.write(PdfOperators.whiteSpace);
+    write(patternOffset);
+    stream!.write(PdfOperators.whiteSpace);
+    writeOperator(PdfOperators.setDashPattern);
   }
 
-  void _setColorAndSpace(
+  /// internal method
+  void setColorAndSpace(
       PdfColor color, PdfColorSpace? colorSpace, bool forStroking) {
     if (!color.isEmpty) {
-      _stream!._write(color._toString(colorSpace, forStroking));
-      _stream!._write(_Operators.newLine);
+      stream!.write(
+          PdfColorHelper.getHelper(color).getString(colorSpace, forStroking));
+      stream!.write(PdfOperators.newLine);
     }
   }
 
-  void _setColorSpace(_PdfName name, bool forStroking) {
-    _stream!._write(name.toString());
-    _stream!._write(_Operators.whiteSpace);
-    _stream!._write(forStroking
-        ? _Operators.selectColorSpaceForStroking
-        : _Operators.selectColorSpaceForNonStroking);
-    _stream!._write(_Operators.newLine);
+  /// internal method
+  void setColorSpace(PdfName name, bool forStroking) {
+    stream!.write(name.toString());
+    stream!.write(PdfOperators.whiteSpace);
+    stream!.write(forStroking
+        ? PdfOperators.selectColorSpaceForStroking
+        : PdfOperators.selectColorSpaceForNonStroking);
+    stream!.write(PdfOperators.newLine);
   }
 
-  void _setFont(PdfFont font, _PdfName name, double size) {
-    _stream!._write(name.toString());
-    _stream!._write(_Operators.whiteSpace);
-    _stream!._write(size.toStringAsFixed(2));
-    _stream!._write(_Operators.whiteSpace);
-    _writeOperator(_Operators.setFont);
+  /// internal method
+  void setFont(PdfFont font, PdfName name, double size) {
+    stream!.write(name.toString());
+    stream!.write(PdfOperators.whiteSpace);
+    stream!.write(size.toStringAsFixed(2));
+    stream!.write(PdfOperators.whiteSpace);
+    writeOperator(PdfOperators.setFont);
   }
 
-  void _setTextRenderingMode(int renderingMode) {
-    _write(renderingMode);
-    _stream!._write(_Operators.whiteSpace);
-    _writeOperator(_Operators.setRenderingMode);
+  /// internal method
+  void setTextRenderingMode(int renderingMode) {
+    write(renderingMode);
+    stream!.write(PdfOperators.whiteSpace);
+    writeOperator(PdfOperators.setRenderingMode);
   }
 
-  void _setTextScaling(double? textScaling) {
-    _write(textScaling);
-    _stream!._write(_Operators.whiteSpace);
-    _writeOperator(_Operators.setTextScaling);
+  /// internal method
+  void setTextScaling(double? textScaling) {
+    write(textScaling);
+    stream!.write(PdfOperators.whiteSpace);
+    writeOperator(PdfOperators.setTextScaling);
   }
 
-  void _setCharacterSpacing(double? charSpacing) {
-    _write(charSpacing);
-    _stream!._write(_Operators.whiteSpace);
-    _stream!._write(_Operators.setCharacterSpace);
-    _stream!._write(_Operators.newLine);
+  /// internal method
+  void setCharacterSpacing(double? charSpacing) {
+    write(charSpacing);
+    stream!.write(PdfOperators.whiteSpace);
+    stream!.write(PdfOperators.setCharacterSpace);
+    stream!.write(PdfOperators.newLine);
   }
 
-  void _setWordSpacing(double? wordSpacing) {
-    _write(wordSpacing);
-    _stream!._write(_Operators.whiteSpace);
-    _writeOperator(_Operators.setWordSpace);
+  /// internal method
+  void setWordSpacing(double? wordSpacing) {
+    write(wordSpacing);
+    stream!.write(PdfOperators.whiteSpace);
+    writeOperator(PdfOperators.setWordSpace);
   }
 
-  void _showNextLineText(dynamic value) {
+  /// internal method
+  void showNextLineText(dynamic value) {
     if (value == null) {
       throw ArgumentError.value(value, 'value', 'value cannot be null');
     }
     _writeText(value);
-    _writeOperator(_Operators.setTextOnNewLine);
+    writeOperator(PdfOperators.setTextOnNewLine);
   }
 
-  void _startNextLine([double? x, double? y]) {
+  /// internal method
+  void startNextLine([double? x, double? y]) {
     if (x == null && y == null) {
-      _writeOperator(_Operators.goToNextLine);
+      writeOperator(PdfOperators.goToNextLine);
     } else {
-      _writePoint(x, y!);
-      _writeOperator(_Operators.setCoords);
+      writePoint(x, y!);
+      writeOperator(PdfOperators.setCoords);
     }
   }
 
-  void _showText(_PdfString pdfString) {
+  /// internal method
+  void showText(PdfString pdfString) {
     _writeText(pdfString);
-    _writeOperator(_Operators.setText);
+    writeOperator(PdfOperators.setText);
   }
 
-  void _endText() {
-    _writeOperator(_Operators.endText);
+  /// internal method
+  void endText() {
+    writeOperator(PdfOperators.endText);
   }
 
   void _writeText(dynamic value) {
-    if (value is _PdfString) {
-      _stream!._write(value._pdfEncode(null));
+    if (value is PdfString) {
+      stream!.write(value.pdfEncode(null));
     } else if (value is List<int>) {
-      _stream!._write(_PdfString.stringMark[0]);
-      _stream!._write(value);
-      _stream!._write(_PdfString.stringMark[1]);
+      stream!.write(PdfString.stringMark[0]);
+      stream!.write(value);
+      stream!.write(PdfString.stringMark[1]);
     }
   }
 
-  void _setGraphicsState(_PdfName name) {
-    if (name._name!.isEmpty) {
+  /// internal method
+  void setGraphicsState(PdfName name) {
+    if (name.name!.isEmpty) {
       throw ArgumentError.value(
           name, 'name', 'dictionary name cannot be empty');
     }
-    _stream!._write(name.toString());
-    _stream!._write(_Operators.whiteSpace);
-    _writeOperator(_Operators.setGraphicsState);
+    stream!.write(name.toString());
+    stream!.write(PdfOperators.whiteSpace);
+    writeOperator(PdfOperators.setGraphicsState);
   }
 
-  void _beginPath(double x, double y) {
-    _writePoint(x, y);
-    _writeOperator(_Operators.beginPath);
+  /// internal method
+  void beginPath(double x, double y) {
+    writePoint(x, y);
+    writeOperator(PdfOperators.beginPath);
   }
 
-  void _appendLineSegment(double x, double y) {
-    _writePoint(x, y);
-    _writeOperator(_Operators.appendLineSegment);
+  /// internal method
+  void appendLineSegment(double x, double y) {
+    writePoint(x, y);
+    writeOperator(PdfOperators.appendLineSegment);
   }
 
-  void _strokePath() {
-    _writeOperator(_Operators.stroke);
+  /// internal method
+  void strokePath() {
+    writeOperator(PdfOperators.stroke);
   }
 
-  void _closeFillStrokePath(bool useEvenOddRule) {
-    _stream!._write(_Operators.closeFillStrokePath);
+  /// internal method
+  void closeFillStrokePath(bool useEvenOddRule) {
+    stream!.write(PdfOperators.closeFillStrokePath);
     if (useEvenOddRule) {
-      _stream!._write(_Operators.evenOdd);
+      stream!.write(PdfOperators.evenOdd);
     }
-    _stream!._write(_Operators.newLine);
+    stream!.write(PdfOperators.newLine);
   }
 
-  void _fillStrokePath(bool useEvenOddRule) {
-    _stream!._write(_Operators.fillStroke);
+  /// internal method
+  void fillStrokePath(bool useEvenOddRule) {
+    stream!.write(PdfOperators.fillStroke);
     if (useEvenOddRule) {
-      _stream!._write(_Operators.evenOdd);
+      stream!.write(PdfOperators.evenOdd);
     }
-    _stream!._write(_Operators.newLine);
+    stream!.write(PdfOperators.newLine);
   }
 
-  void _fillPath(bool useEvenOddRule) {
-    _stream!._write(_Operators.fill);
+  /// internal method
+  void fillPath(bool useEvenOddRule) {
+    stream!.write(PdfOperators.fill);
     if (useEvenOddRule) {
-      _stream!._write(_Operators.evenOdd);
+      stream!.write(PdfOperators.evenOdd);
     }
-    _stream!._write(_Operators.newLine);
+    stream!.write(PdfOperators.newLine);
   }
 
-  void _closeFillPath(bool useEvenOddRule) {
-    _writeOperator(_Operators.closePath);
-    _stream!._write(_Operators.fill);
+  /// internal method
+  void closeFillPath(bool useEvenOddRule) {
+    writeOperator(PdfOperators.closePath);
+    stream!.write(PdfOperators.fill);
     if (useEvenOddRule) {
-      _stream!._write(_Operators.evenOdd);
+      stream!.write(PdfOperators.evenOdd);
     }
-    _stream!._write(_Operators.newLine);
+    stream!.write(PdfOperators.newLine);
   }
 
-  void _closeStrokePath() {
-    _writeOperator(_Operators.closeStrokePath);
+  /// internal method
+  void closeStrokePath() {
+    writeOperator(PdfOperators.closeStrokePath);
   }
 
-  void _endPath() {
-    _writeOperator(_Operators.n);
+  /// internal method
+  void endPath() {
+    writeOperator(PdfOperators.n);
   }
 
-  void _executeObject(_PdfName pdfName) {
-    _stream!._write(pdfName.toString());
-    _stream!._write(_Operators.whiteSpace);
-    _writeOperator(_Operators.paintXObject);
+  /// internal method
+  void executeObject(PdfName pdfName) {
+    stream!.write(pdfName.toString());
+    stream!.write(PdfOperators.whiteSpace);
+    writeOperator(PdfOperators.paintXObject);
   }
 
-  void _appendBezierSegment(
+  /// internal method
+  void appendBezierSegment(
       double x1, double y1, double x2, double y2, double x3, double y3) {
-    _writePoint(x1, y1);
-    _writePoint(x2, y2);
-    _writePoint(x3, y3);
-    _writeOperator(_Operators.appendBezierCurve);
+    writePoint(x1, y1);
+    writePoint(x2, y2);
+    writePoint(x3, y3);
+    writeOperator(PdfOperators.appendBezierCurve);
   }
 
-  void _clear() {
-    _stream!._clearStream();
+  /// internal method
+  void clear() {
+    stream!.clearStream();
   }
 
-  //_IPdfWriter members
+  //IPdfWriter members
   @override
-  PdfDocument? get _document => null;
+  PdfDocument? get document => null;
 
   @override
   //ignore:unused_element
-  set _document(PdfDocument? value) {
+  set document(PdfDocument? value) {
     throw ArgumentError.value(
         value, 'The method or operation is not implemented');
   }
 
   @override
   //ignore:unused_element
-  int get _length => _stream!._dataStream!.length;
+  int get length => stream!.dataStream!.length;
 
   @override
   //ignore:unused_element
-  set _length(int? value) {
+  set length(int? value) {
     throw ArgumentError.value(
         value, 'The method or operation is not implemented');
   }
 
   @override
   //ignore:unused_element
-  int? get _position => _stream!.position;
+  int? get position => stream!.position;
   @override
   //ignore:unused_element
-  set _position(int? value) {
+  set position(int? value) {
     throw ArgumentError.value(
         value, 'The method or operation is not implemented');
   }
 
   @override
-  void _write(dynamic pdfObject) {
-    if (pdfObject is _IPdfPrimitive) {
+  void write(dynamic pdfObject) {
+    if (pdfObject is IPdfPrimitive) {
       pdfObject.save(this);
     } else if (pdfObject is int) {
-      _stream!._write(pdfObject.toString());
+      stream!.write(pdfObject.toString());
     } else if (pdfObject is double) {
       pdfObject = pdfObject.toStringAsFixed(2);
       if ((pdfObject as String).endsWith('.00')) {
@@ -314,11 +364,11 @@ class _PdfStreamWriter implements _IPdfWriter {
           pdfObject = pdfObject.substring(0, pdfObject.length - 3);
         }
       }
-      _stream!._write(pdfObject);
+      stream!.write(pdfObject);
     } else if (pdfObject is String) {
-      _stream!._write(pdfObject);
+      stream!.write(pdfObject);
     } else if (pdfObject is List<int>) {
-      _stream!._write(pdfObject);
+      stream!.write(pdfObject);
     } else {
       throw ArgumentError.value(
           pdfObject, 'The method or operation is not implemented');

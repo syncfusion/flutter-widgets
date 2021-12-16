@@ -1,18 +1,23 @@
-part of pdf;
+import 'aes_engine.dart';
+import 'buffered_block_padding_base.dart';
+import 'cipher_block_chaining_mode.dart';
 
-class _AesCipher {
+/// internal class
+class AesCipher {
   //Constructor
-  _AesCipher(bool isEncryption, List<int> key, List<int> iv) {
-    _bp = _BufferedCipher(_CipherBlockChainingMode(_AesEngine()));
-    final _InvalidParameter ip = _InvalidParameter(_KeyParameter(key), iv);
+  /// internal constructor
+  AesCipher(bool isEncryption, List<int> key, List<int> iv) {
+    _bp = BufferedCipher(CipherBlockChainingMode(AesEngine()));
+    final InvalidParameter ip = InvalidParameter(KeyParameter(key), iv);
     _bp.initialize(isEncryption, ip);
   }
 
   //Fields
-  late _BufferedCipher _bp;
+  late BufferedCipher _bp;
 
   //Implementation
-  List<int>? _update(List<int> input, int inputOffset, int inputLength) {
+  /// internal method
+  List<int>? update(List<int> input, int inputOffset, int inputLength) {
     int length = _bp.getUpdateOutputSize(inputLength);
     List<int>? output;
     if (length > 0) {
@@ -27,17 +32,20 @@ class _AesCipher {
   }
 }
 
-class _AesCipherNoPadding {
+/// internal class
+class AesCipherNoPadding {
   //Constructor
-  _AesCipherNoPadding(bool isEncryption, List<int> key) {
-    _cbc = _CipherBlockChainingMode(_AesEngine());
-    _cbc.initialize(isEncryption, _KeyParameter(key));
+  /// internal constructor
+  AesCipherNoPadding(bool isEncryption, List<int> key) {
+    _cbc = CipherBlockChainingMode(AesEngine());
+    _cbc.initialize(isEncryption, KeyParameter(key));
   }
 
   //Fields
-  late _CipherBlockChainingMode _cbc;
+  late CipherBlockChainingMode _cbc;
 
   //Implementation
+  /// internal method
   List<int>? processBlock(List<int>? input, int offset, int length) {
     if ((length % _cbc.blockSize!) != 0) {
       throw ArgumentError.value('Not multiple of block: $length');
@@ -56,10 +64,12 @@ class _AesCipherNoPadding {
   }
 }
 
-class _AesEncryptor {
-  _AesEncryptor(List<int> key, List<int> iv, bool isEncryption) {
+/// internal class
+class AesEncryptor {
+  /// internal constructor
+  AesEncryptor(List<int> key, List<int> iv, bool isEncryption) {
     initialize();
-    _aes = _Aes(
+    _aes = Aes(
         key.length == _blockSize ? _KeySize.bits128 : _KeySize.bits256, key);
     List.copyRange(_buf, 0, iv, 0, iv.length);
     List.copyRange(_cbcV!, 0, iv, 0, iv.length);
@@ -71,7 +81,7 @@ class _AesEncryptor {
 
   //Fields
   int? _blockSize;
-  late _Aes _aes;
+  late Aes _aes;
   late bool _isEncryption;
   late List<int> _buf;
   List<int>? _cbcV;
@@ -79,6 +89,7 @@ class _AesEncryptor {
   List<int>? _nextBlockVector;
 
   //Implementation
+  /// internal method
   void initialize() {
     _blockSize = 16;
     _ivOff = 0;
@@ -87,13 +98,15 @@ class _AesEncryptor {
     _nextBlockVector = List<int>.filled(_blockSize!, 0, growable: true);
   }
 
-  int _getBlockSize(int length) {
+  /// internal method
+  int getBlockSize(int length) {
     final int total = length + _ivOff!;
     final int leftOver = total % _buf.length;
     return total - (leftOver == 0 ? _buf.length : leftOver);
   }
 
-  void _processBytes(
+  /// internal method
+  void processBytes(
       List<int> input, int inOff, int length, List<int> output, int outOff) {
     if (length < 0) {
       throw ArgumentError.value(length, 'length cannot be negative');
@@ -116,6 +129,7 @@ class _AesEncryptor {
     _ivOff = _ivOff! + length;
   }
 
+  /// internal method
   int processBlock(List<int> input, int inOff, List<int> outBytes, int outOff) {
     int length = 0;
     if ((inOff + _blockSize!) > input.length) {
@@ -140,7 +154,8 @@ class _AesEncryptor {
     return length;
   }
 
-  int _calculateOutputSize() {
+  /// internal method
+  int calculateOutputSize() {
     final int total = _ivOff!;
     final int leftOver = total % _buf.length;
     return leftOver == 0
@@ -148,7 +163,8 @@ class _AesEncryptor {
         : (total - leftOver + _buf.length);
   }
 
-  int _finalize(List<int> output) {
+  /// internal method
+  int finalize(List<int> output) {
     int resultLen = 0;
     const int outOff = 0;
     if (_isEncryption) {
@@ -188,8 +204,10 @@ class _AesEncryptor {
   }
 }
 
-class _Aes {
-  _Aes(_KeySize keySize, List<int> keyBytes) {
+/// internal class
+class Aes {
+  /// internal constructor
+  Aes(_KeySize keySize, List<int> keyBytes) {
     _keySize = keySize;
     nb = 4;
     if (_keySize == _KeySize.bits128) {
@@ -209,17 +227,36 @@ class _Aes {
 
   //Fields
   _KeySize? _keySize;
+
+  /// internal field
   late int nb;
+
+  /// internal field
   late int nk;
+
+  /// internal field
   int? nr;
+
+  /// internal field
   late List<int> key;
+
+  /// internal field
   late List<List<int>> sBox;
+
+  /// internal field
   late List<List<int>> iBox;
+
+  /// internal field
   late List<List<int>> rCon;
+
+  /// internal field
   late List<List<int>> keySheduleArray;
+
+  /// internal field
   late List<List<int>> state;
 
   //Implemenation
+  /// internal method
   void initialize() {
     _buildSubstitutionBox();
     _buildInverseSubBox();
@@ -1092,4 +1129,16 @@ class _Aes {
       ]
     ];
   }
+}
+
+/// Specifies the key size of AES.
+enum _KeySize {
+  /// 128 Bit.
+  bits128,
+
+  /// 192 Bit.
+  bits192,
+
+  /// 256 Bit.
+  bits256
 }

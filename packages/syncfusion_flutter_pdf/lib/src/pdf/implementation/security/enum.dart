@@ -1,5 +1,3 @@
-part of pdf;
-
 /// Specifies the encryption option.
 enum PdfEncryptionOptions {
   /// To encrypt all the document contents.
@@ -58,18 +56,6 @@ enum PdfPermissionsFlags {
 
   /// Full quality print.
   fullQualityPrint
-}
-
-/// Specifies the key size of AES.
-enum _KeySize {
-  /// 128 Bit.
-  bits128,
-
-  /// 192 Bit.
-  bits192,
-
-  /// 256 Bit.
-  bits256
 }
 
 /// Specifies the available permissions on certificated document.

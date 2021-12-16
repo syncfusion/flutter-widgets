@@ -1,4 +1,5 @@
-part of pdf;
+import '../enums.dart';
+import 'enums.dart';
 
 /// Represents the text layout information on PDF
 ///
@@ -62,6 +63,7 @@ class PdfStringFormat {
       double paragraphIndent = 0,
       bool measureTrailingSpaces = false,
       PdfWordWrapType wordWrap = PdfWordWrapType.word}) {
+    _helper = PdfStringFormatHelper();
     _initialize(
         alignment,
         lineAlignment,
@@ -76,6 +78,8 @@ class PdfStringFormat {
   }
 
   //Fields
+  late PdfStringFormatHelper _helper;
+
   /// Gets and sets Horizontal text alignment.
   ///
   /// ```dart
@@ -306,14 +310,8 @@ class PdfStringFormat {
   /// ```
   late PdfWordWrapType wordWrap;
 
-  //The scaling factor of the text being drawn.
-  // ignore: prefer_final_fields
-  double _scalingFactor = 100;
-
   //Indent of the first line in the paragraph.
   late double _paragraphIndent;
-
-  late double _firstLineIndent;
 
   //Properties
   /// Gets or sets the indent of the first line in the paragraph.
@@ -332,7 +330,7 @@ class PdfStringFormat {
   double get paragraphIndent => _paragraphIndent;
   set paragraphIndent(double value) {
     _paragraphIndent = value;
-    _firstLineIndent = value;
+    _helper.firstLineIndent = value;
   }
 
   //Implementation
@@ -358,4 +356,18 @@ class PdfStringFormat {
     this.wordSpacing = wordSpacing;
     this.wordWrap = wordWrap;
   }
+}
+
+/// [PdfStringFormat] helper
+class PdfStringFormatHelper {
+  /// internal method
+  static PdfStringFormatHelper getHelper(PdfStringFormat format) {
+    return format._helper;
+  }
+
+  /// internal field
+  double scalingFactor = 100;
+
+  /// internal field
+  late double firstLineIndent;
 }

@@ -1,4 +1,50 @@
 ## Unreleased
+
+**Features**
+
+* Provided the support to set the different swipe offset for right and left swiping.
+* Provided the support to select multiple rows when tapping another row and press and hold the SHIFT key
+* Provided the support to wrap the DataGrid’s width and height based on number of rows and columns available when DataGrid’s  parent size is infinity.
+* Provided the support to show a dropdown button for choosing a different number of rows to show on each page.
+* Provided the support to set the number of rows to be added with the currently visible items in viewport size for reusing during vertical scrolling.
+
+**Bugs**
+
+* Range exception will no longer be thrown when DataGridSource is changed at run time with multiple rows are selected.
+
+## [19.3.55] - 11/23/2021
+
+**Bugs**
+
+* The `assertion failed` exception will no longer be thrown when you scroll horizontally using scrollbar thumb track and `isScrollbarAlwaysShown` is enabled.
+
+## [19.3.54] - 11/17/2021
+
+**Bugs**
+
+* Now, `onQueryRowHeight` callback will be called for all the rows in view when all the rows are available in view.
+
+## [19.3.53] - 11/12/2021
+
+**Breaking changes**
+
+* Now, [onCellLongPress](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/SfDataGrid/onCellLongPress.html) callback will be called when long a pointer has remained in contact with the screen at the same location for a long period of time.
+
+## [19.3.47] - 26/10/2021
+
+**Bugs**
+
+* `debugDisposed` and `debugDuringDeviceUpdate` errors are no longer occurred in debug mode when rebuilding the app from any of the DataGrid's `onCellDoubleTap` callback.
+
+## [19.3.44] - 10/05/2021
+
+**Features**
+* Provided the support to export the DataGrid content with sorted order.
+
+**Bugs**
+* The focus is now retained in the `TextField`, which is outside the DataGrid, when calling the `notifyListeners` from TextField’s `onPressed` callback to update the data in DataGrid.
+
+## [19.3.43] - 10/01/2021
  
 **Features**
 * Provided the support to resize the columns by tapping and dragging the right border of the column header.

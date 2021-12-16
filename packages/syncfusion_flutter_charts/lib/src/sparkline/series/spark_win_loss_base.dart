@@ -1,6 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../plot_band.dart';
 import '../renderers/spark_win_loss_renderer.dart';
 import '../trackball/spark_chart_trackball.dart';
@@ -493,6 +492,9 @@ class SfSparkWinLossChart extends StatefulWidget {
 
 /// Represents the state class for spark win loss chart widget
 class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
+  /// specifies the theme of the chart
+  late SfChartThemeData _chartThemeData;
+
   /// Specifies the series screen coordinate points
   late List<Offset> _coordinatePoints;
 
@@ -513,6 +515,19 @@ class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
     _coordinatePoints = <Offset>[];
     _dataPoints = <SparkChartPoint>[];
     super.initState();
+  }
+
+  /// Called when a dependency of this [State] object changes.
+  ///
+  /// For example, if the previous call to [build] referenced an [InheritedWidget] that later changed,
+  /// the framework would call this method to notify this object about the change.
+  ///
+  /// This method is also called immediately after [initState]. It is safe to call [BuildContext.dependOnInheritedWidgetOfExactType] from this method.
+
+  @override
+  void didChangeDependencies() {
+    _chartThemeData = SfChartTheme.of(context);
+    super.didChangeDependencies();
   }
 
   /// Called whenever the widget configuration changes.
@@ -565,6 +580,7 @@ class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
           borderColor: widget.borderColor,
           borderWidth: widget.borderWidth,
           plotBand: widget.plotBand,
+          themeData: _chartThemeData,
           sparkChartDataDetails: widget._sparkChartDataDetails,
           dataPoints: _dataPoints,
           coordinatePoints: _coordinatePoints),

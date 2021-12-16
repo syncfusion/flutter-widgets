@@ -161,41 +161,12 @@ class SfMapsThemeData with Diagnosticable {
     double? toggledItemStrokeWidth,
   }) {
     brightness = brightness ?? Brightness.light;
-    final bool isLight = brightness == Brightness.light;
-    layerColor ??= isLight
-        ? const Color.fromRGBO(224, 224, 224, 1)
-        : const Color.fromRGBO(97, 97, 97, 1);
-    layerStrokeColor ??= isLight
-        ? const Color.fromRGBO(158, 158, 158, 0.5)
-        : const Color.fromRGBO(224, 224, 224, 0.5);
     layerStrokeWidth ??= 1.0;
-    markerIconColor ??= isLight
-        ? const Color.fromRGBO(98, 0, 238, 1)
-        : const Color.fromRGBO(187, 134, 252, 1);
     markerIconStrokeWidth ??= 1.0;
-    bubbleColor ??= isLight
-        ? const Color.fromRGBO(98, 0, 238, 0.5)
-        : const Color.fromRGBO(187, 134, 252, 0.8);
-    bubbleStrokeColor ??= Colors.transparent;
     bubbleStrokeWidth ??= 1.0;
-    selectionColor ??= isLight
-        ? const Color.fromRGBO(117, 117, 117, 1)
-        : const Color.fromRGBO(224, 224, 224, 1);
-    selectionStrokeColor ??= isLight
-        ? const Color.fromRGBO(158, 158, 158, 1)
-        : const Color.fromRGBO(97, 97, 97, 1);
     selectionStrokeWidth ??= 0.5;
-    tooltipColor ??= isLight
-        ? const Color.fromRGBO(117, 117, 117, 1)
-        : const Color.fromRGBO(245, 245, 245, 1);
     tooltipStrokeWidth ??= 1.0;
     tooltipBorderRadius ??= const BorderRadius.all(Radius.circular(4.0));
-    toggledItemColor ??= isLight
-        ? const Color.fromRGBO(245, 245, 245, 1)
-        : const Color.fromRGBO(66, 66, 66, 1);
-    toggledItemStrokeColor ??= isLight
-        ? const Color.fromRGBO(158, 158, 158, 1)
-        : const Color.fromRGBO(97, 97, 97, 1);
 
     return SfMapsThemeData.raw(
       brightness: brightness,
@@ -311,7 +282,7 @@ class SfMapsThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color layerColor;
+  final Color? layerColor;
 
   /// Specifies the stroke color for maps layer.
   ///
@@ -331,7 +302,7 @@ class SfMapsThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color layerStrokeColor;
+  final Color? layerStrokeColor;
 
   /// Specifies the stroke width for maps layer.
   ///
@@ -468,7 +439,7 @@ class SfMapsThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color markerIconColor;
+  final Color? markerIconColor;
 
   /// Specifies the stroke color for marker icon.
   ///
@@ -548,7 +519,7 @@ class SfMapsThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color bubbleColor;
+  final Color? bubbleColor;
 
   /// Specifies the stroke color for bubble.
   ///
@@ -568,7 +539,7 @@ class SfMapsThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color bubbleStrokeColor;
+  final Color? bubbleStrokeColor;
 
   /// Specifies the stroke width for bubble.
   ///
@@ -684,7 +655,7 @@ class SfMapsThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color selectionColor;
+  final Color? selectionColor;
 
   /// Specifies the stroke color for selected shape.
   ///
@@ -704,7 +675,7 @@ class SfMapsThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color selectionStrokeColor;
+  final Color? selectionStrokeColor;
 
   /// Specifies the stroke width for selected shape.
   ///
@@ -744,7 +715,7 @@ class SfMapsThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color tooltipColor;
+  final Color? tooltipColor;
 
   /// Specifies the stroke color for tooltip.
   ///
@@ -838,7 +809,7 @@ class SfMapsThemeData with Diagnosticable {
   /// See also:
   /// * [toggledItemStrokeColor], [toggledItemStrokeWidth], to set the stroke
   /// for the toggled legend item's shape or bubble.
-  final Color toggledItemColor;
+  final Color? toggledItemColor;
 
   /// Stroke color for the toggled legend item's respective shape or bubble.
   ///
@@ -859,7 +830,7 @@ class SfMapsThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color toggledItemStrokeColor;
+  final Color? toggledItemStrokeColor;
 
   /// Stroke width for the toggled legend item's respective shape or bubble.
   ///

@@ -1,10 +1,7 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
@@ -14,10 +11,8 @@ import '../controller/map_controller.dart';
 import '../elements/marker.dart';
 import '../elements/toolbar.dart';
 import '../elements/tooltip.dart';
-import '../layer/layer_base.dart';
 import '../layer/vector_layers.dart';
 import '../layer/zoomable.dart';
-import '../settings.dart';
 import '../utils.dart';
 
 Offset _pixelFromLatLng(MapLatLng latLng, double scale) {
@@ -164,7 +159,7 @@ class TileLayer extends StatefulWidget {
   final bool isTransparent;
 
   @override
-  _TileLayerState createState() => _TileLayerState();
+  State<TileLayer> createState() => _TileLayerState();
 }
 
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {

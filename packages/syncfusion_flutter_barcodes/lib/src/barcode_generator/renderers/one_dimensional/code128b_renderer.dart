@@ -10,7 +10,7 @@ class Code128BRenderer extends Code128Renderer {
   bool getIsValidateInput(String value) {
     for (int i = 0; i < value.length; i++) {
       if (!code128BCharacterSets.contains(value[i])) {
-        throw 'The provided input cannot be encoded : ' + value[i];
+        throw 'The provided input cannot be encoded : ${value[i]}';
       }
     }
     return true;

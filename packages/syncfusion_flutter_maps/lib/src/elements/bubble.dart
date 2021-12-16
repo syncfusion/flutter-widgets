@@ -1,6 +1,3 @@
-import 'dart:ui';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -8,9 +5,6 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import '../../maps.dart';
 import '../common.dart';
 import '../controller/map_controller.dart';
-import '../elements/legend.dart';
-import '../enum.dart';
-import '../settings.dart';
 import '../utils.dart';
 
 // ignore_for_file: public_member_api_docs
@@ -362,7 +356,7 @@ class RenderMapBubble extends ShapeLayerChildRenderBoxBase {
   void _initializeToggledBubbleTweenColors() {
     final Color? toggledBubbleColor = _themeData.toggledItemColor !=
             Colors.transparent
-        ? _themeData.toggledItemColor.withOpacity(_legend!.toggledItemOpacity)
+        ? _themeData.toggledItemColor!.withOpacity(_legend!.toggledItemOpacity)
         : null;
 
     _forwardToggledBubbleColorTween.end = toggledBubbleColor;
@@ -407,7 +401,7 @@ class RenderMapBubble extends ShapeLayerChildRenderBoxBase {
       }
     }
 
-    final Color bubbleColor = model.bubbleColor ?? _themeData.bubbleColor;
+    final Color bubbleColor = model.bubbleColor ?? _themeData.bubbleColor!;
     _forwardToggledBubbleColorTween.begin = bubbleColor;
     _reverseToggledBubbleColorTween.end = bubbleColor;
   }
@@ -554,7 +548,7 @@ class RenderMapBubble extends ShapeLayerChildRenderBoxBase {
       } else if (hasDefaultStroke) {
         strokePaint
           ..style = PaintingStyle.stroke
-          ..color = _themeData.bubbleStrokeColor
+          ..color = _themeData.bubbleStrokeColor!
           ..strokeWidth = _themeData.bubbleStrokeWidth;
         return;
       }
@@ -598,7 +592,7 @@ class RenderMapBubble extends ShapeLayerChildRenderBoxBase {
         ..strokeWidth = _getDesiredValue(themeData.bubbleHoverStrokeWidth!);
     } else if (hasDefaultStroke) {
       strokePaint
-        ..color = _themeData.bubbleStrokeColor
+        ..color = _themeData.bubbleStrokeColor!
         ..strokeWidth = _getDesiredValue(_themeData.bubbleStrokeWidth);
     }
 

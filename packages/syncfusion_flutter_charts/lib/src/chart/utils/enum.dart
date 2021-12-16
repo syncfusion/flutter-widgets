@@ -470,3 +470,36 @@ enum RenderingMode {
   /// Determines both the vertical and horizontal sides of the error bar.
   both
 }
+
+/// Border type of the chart axis label.
+///
+/// Defaults to `AxisBorderType.rectangle`.
+enum AxisBorderType {
+  /// `AxisBorderType.rectangle` renders border for axis label with rectangle shape.
+  rectangle,
+
+  /// `AxisBorderType.withoutTopAndBottom` renders border for axis label without top
+  /// and bottom in the rectangle.
+  withoutTopAndBottom,
+}
+
+/// Border type of the chart axis multi-level label.
+///
+/// Defaults to `MultiLevelBorderType.rectangle`.
+enum MultiLevelBorderType {
+  /// `MultiLevelBorderType.rectangle` renders border for multi-level axis label
+  /// in rectangle shape.
+  rectangle,
+
+  /// `MultiLevelBorderType.withoutTopAndBottom` renders border for multi-level
+  /// axis label without top and bottom in a rectangle shape.
+  withoutTopAndBottom,
+
+  /// `MultiLevelBorderType.squareBrace` renders square brace as the border
+  /// for the multi-level label.
+  squareBrace,
+
+  /// `MultiLevelBorderType.curlyBrace` renders curly brace as the border
+  /// for the multi-level label.
+  curlyBrace,
+}

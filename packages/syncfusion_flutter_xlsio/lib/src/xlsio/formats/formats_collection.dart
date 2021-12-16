@@ -60,9 +60,13 @@ class FormatsCollection {
     '0.00',
     '#,##0',
     '#,##0.00',
+    // ignore: avoid_escaping_inner_quotes
     '\'\$\'#,##0_);\\(\'\$\'#,##0\\)',
+    // ignore: avoid_escaping_inner_quotes
     '\'\$\'#,##0_);[Red]\\(\'\$\'#,##0\\)',
+    // ignore: avoid_escaping_inner_quotes
     '\'\$\'#,##0.00_);\\(\'\$\'#,##0.00\\)',
+    // ignore: avoid_escaping_inner_quotes
     '\'\$\'#,##0.00_);[Red]\\(\'\$\'#,##0.00\\)',
     '0%',
     '0.00%',
@@ -82,9 +86,13 @@ class FormatsCollection {
     r'#,##0_);[Red](#,##0)',
     r'#,##0.00_);(#,##0.00)',
     r'#,##0.00_);[Red](#,##0.00)',
+    // ignore: avoid_escaping_inner_quotes
     '_(* #,##0_);_(* \\(#,##0\\);_(* \'-\'_);_(@_)',
+    // ignore: avoid_escaping_inner_quotes
     '_(\'\$\'* #,##0_);_(\'\$\'* \\(#,##0\\);_(\'\$\'* \'-\'_);_(@_)',
+    // ignore: avoid_escaping_inner_quotes
     '_(* #,##0.00_);_(* \\(#,##0.00\\);_(* \'-\'??_);_(@_)',
+    // ignore: avoid_escaping_inner_quotes
     '_(\'\$\'* #,##0.00_);_(\'\$\'* \\(#,##0.00\\);_(\'\$\'* \'-\'??_);_(@_)',
     'mm:ss',
     '[h]:mm:ss',
@@ -113,6 +121,7 @@ class FormatsCollection {
   }
 
   /// Indexer of the class
+  // ignore: library_private_types_in_public_api
   _Format operator [](dynamic index) => _rawFormats[index]!;
 
   /// Inserts all default formats into list.
@@ -184,10 +193,12 @@ class FormatsCollection {
       return format._index;
     }
     if (_parent.cultureInfo._culture == 'en-US') {
+      // ignore: avoid_escaping_inner_quotes
       final String localStr = formatString.replaceAll('\'\$\'', r'\$');
 
       /// To know if the format string to be created is a pre-defined one.
       for (final String formatStr in _hashFormatStrings.keys) {
+        // ignore: avoid_escaping_inner_quotes
         if (formatStr.replaceAll(r'\\', '').replaceAll('\'\$\'', r'\$') ==
             localStr) {
           final _Format format = _hashFormatStrings[formatStr]!;

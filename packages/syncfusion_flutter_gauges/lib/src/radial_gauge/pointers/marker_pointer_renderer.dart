@@ -37,6 +37,7 @@ class RenderMarkerPointer extends RenderBox {
       String? imageUrl,
       MarkerPointerRenderer? markerPointerRenderer,
       required GaugeTextStyle textStyle,
+      required BuildContext context,
       Color? overlayColor,
       double? overlayRadius,
       double elevation = 0,
@@ -65,7 +66,9 @@ class RenderMarkerPointer extends RenderBox {
         _markerPointerRenderer = markerPointerRenderer,
         _pointerAnimationController = pointerAnimationController,
         _repaintNotifier = repaintNotifier,
-        _gaugeThemeData = gaugeThemeData;
+        _gaugeThemeData = gaugeThemeData,
+        _themeData = Theme.of(context),
+        _isDarkTheme = Theme.of(context).brightness == Brightness.dark;
 
   final double _margin = 15;
   dart_ui.Image? _image;
@@ -85,6 +88,8 @@ class RenderMarkerPointer extends RenderBox {
   late double _centerXPoint;
   late double _centerYPoint;
   late Offset _axisCenter;
+  final bool _isDarkTheme;
+  final ThemeData _themeData;
 
   /// Marker pointer old value.
   double? oldValue;
@@ -557,7 +562,6 @@ class RenderMarkerPointer extends RenderBox {
 
   /// Method returns the angle of  current pointer value
   double _getPointerAngle() {
-    value = getMinMax(value, axisRenderer!.minimum, axisRenderer!.maximum);
     final double currentFactor = (axisRenderer!.renderer != null &&
             axisRenderer!.renderer?.valueToFactor(value) != null)
         ? axisRenderer!.renderer?.valueToFactor(value) ??
@@ -622,7 +626,9 @@ class RenderMarkerPointer extends RenderBox {
   void drawPointer(Canvas canvas, PointerPaintingDetails pointerPaintingDetails,
       SfGaugeThemeData gaugeThemeData) {
     final Paint paint = Paint()
-      ..color = color ?? gaugeThemeData.markerColor
+      ..color = color ??
+          gaugeThemeData.markerColor ??
+          _themeData.colorScheme.secondaryVariant.withOpacity(0.8)
       ..style = PaintingStyle.fill;
     const Color shadowColor = Colors.black;
 
@@ -632,7 +638,8 @@ class RenderMarkerPointer extends RenderBox {
       overlayPaint = Paint()
         ..color = overlayColor ??
             color?.withOpacity(0.12) ??
-            gaugeThemeData.markerColor.withOpacity(0.12)
+            gaugeThemeData.markerColor?.withOpacity(0.12) ??
+            _themeData.colorScheme.secondaryVariant.withOpacity(0.12)
         ..style = PaintingStyle.fill;
     }
 
@@ -711,7 +718,11 @@ class RenderMarkerPointer extends RenderBox {
   /// To render the MarkerShape.Text
   void _drawText(Canvas canvas, Paint paint, Offset startPosition,
       double pointerAngle, SfGaugeThemeData gaugeThemeData) {
-    final Color labelColor = textStyle.color ?? gaugeThemeData.axisLabelColor;
+    final Color labelColor = textStyle.color ??
+        gaugeThemeData.axisLabelColor ??
+        (_isDarkTheme
+            ? _themeData.colorScheme.onSurface
+            : _themeData.colorScheme.onSurface.withOpacity(0.72));
 
     final TextSpan span = TextSpan(
         text: text,

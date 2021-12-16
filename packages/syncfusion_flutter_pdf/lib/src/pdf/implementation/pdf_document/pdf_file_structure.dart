@@ -1,4 +1,4 @@
-part of pdf;
+import 'enums.dart';
 
 /// This class represents a set of the properties that define
 /// the internal structure of PDF file.
@@ -88,5 +88,17 @@ class PdfFileStructure {
     if (value.index <= PdfVersion.version1_3.index) {
       crossReferenceType = PdfCrossReferenceType.crossReferenceTable;
     }
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfFileStructure] helper
+class PdfFileStructureHelper {
+  /// internal method
+  static bool fileID(PdfFileStructure fileStructure, [bool? value]) {
+    if (value != null) {
+      fileStructure._fileID = value;
+    }
+    return fileStructure._fileID;
   }
 }

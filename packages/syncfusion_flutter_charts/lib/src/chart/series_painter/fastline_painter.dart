@@ -1,22 +1,16 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../../charts.dart';
 import '../../common/user_interaction/selection_behavior.dart';
 import '../axis/axis.dart';
-import '../base/chart_base.dart';
 import '../chart_segment/chart_segment.dart';
-import '../chart_segment/fastline_segment.dart';
-import '../chart_series/fastline_series.dart';
 import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
+import '../common/renderer.dart';
 import '../common/segment_properties.dart';
-import '../utils/enum.dart';
 import '../utils/helper.dart';
 
 /// Creates series renderer for Fastline series
@@ -141,6 +135,8 @@ class FastLineChartPainter extends CustomPainter {
     double animationFactor;
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer);
+    // Disposing the old chart segments.
+    disposeOldSegments(chart, seriesRendererDetails);
     final FastLineSeries<dynamic, dynamic> series =
         seriesRendererDetails.series as FastLineSeries<dynamic, dynamic>;
     final ChartAxisRendererDetails xAxisDetails =
@@ -216,6 +212,20 @@ class FastLineChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      final bool hasSeriesElements = seriesRendererDetails.visible! &&
+          (series.markerSettings.isVisible ||
+              series.dataLabelSettings.isVisible ||
+              (chart.tooltipBehavior != null &&
+                  chart.tooltipBehavior.enable &&
+                  (chart.tooltipBehavior != null &&
+                      chart.tooltipBehavior.enable &&
+                      series.enableTooltip)));
+      final bool hasTooltip = chart.tooltipBehavior != null &&
+          (chart.tooltipBehavior.enable ||
+              seriesRendererDetails.series.onPointTap != null ||
+              seriesRendererDetails.series.onPointDoubleTap != null ||
+              seriesRendererDetails.series.onPointLongPress != null);
       for (int pointIndex = 0;
           pointIndex < seriesRendererDetails.dataPoints.length;
           pointIndex++) {
@@ -226,9 +236,11 @@ class FastLineChartPainter extends CustomPainter {
             (prevYValue - yVal).abs() >= yTolerance) {
           point = currentPoint;
           dataPoints.add(currentPoint);
-          seriesRendererDetails.calculateRegionData(stateProperties,
-              seriesRendererDetails, painterKey.index, point, pointIndex);
-          if (point.isVisible) {
+          final bool withInXRange = withInRange(currentPoint.xValue,
+              seriesRendererDetails.xAxisDetails!.visibleRange!);
+          final bool withInYRange = withInRange(currentPoint.yValue,
+              seriesRendererDetails.yAxisDetails!.visibleRange!);
+          if (withInXRange || withInYRange) {
             currentLocation = calculatePoint(
                 xVal,
                 yVal,
@@ -237,31 +249,63 @@ class FastLineChartPainter extends CustomPainter {
                 seriesRendererDetails.stateProperties.requireInvertedAxis,
                 series,
                 areaBounds);
-            _points.add(Offset(currentLocation.x, currentLocation.y));
-            if (prevPoint == null) {
-              seriesRendererDetails.segmentPath!
-                  .moveTo(currentLocation.x, currentLocation.y);
-            } else if (seriesRendererDetails
-                        .dataPoints[pointIndex - 1].isVisible ==
-                    false &&
-                series.emptyPointSettings.mode == EmptyPointMode.gap) {
-              seriesRendererDetails.segmentPath!
-                  .moveTo(currentLocation.x, currentLocation.y);
-            } else if (point.isGap != true &&
-                seriesRendererDetails.dataPoints[pointIndex - 1].isGap !=
-                    true &&
-                seriesRendererDetails.dataPoints[pointIndex].isVisible ==
-                    true) {
-              seriesRendererDetails.segmentPath!
-                  .lineTo(currentLocation.x, currentLocation.y);
-            } else {
-              seriesRendererDetails.segmentPath!
-                  .moveTo(currentLocation.x, currentLocation.y);
+            if (withInXRange) {
+              seriesRendererDetails.visibleDataPoints!.add(currentPoint);
+              seriesRendererDetails.dataPoints[pointIndex].visiblePointIndex =
+                  seriesRendererDetails.visibleDataPoints!.length - 1;
             }
-            prevPoint = point;
+
+            if (hasSeriesElements) {
+              if (series.markerSettings != null) {
+                final double markerHeight = series.markerSettings.height,
+                    markerWidth = series.markerSettings.width;
+                point.region = Rect.fromLTWH(
+                    currentLocation.x - markerWidth,
+                    currentLocation.y - markerHeight,
+                    2 * markerWidth,
+                    2 * markerHeight);
+                point.markerPoint = currentLocation;
+              }
+              if (point.region == null) {
+                if (seriesRendererDetails.calculateRegion == true &&
+                    dataPoints.length == pointIndex - 1) {
+                  seriesRendererDetails.calculateRegion = false;
+                }
+              }
+
+              if (hasTooltip) {
+                calculateTooltipRegion(
+                    point, seriesIndex, seriesRendererDetails, stateProperties);
+              }
+            }
+
+            if (point.isVisible) {
+              _points.add(Offset(currentLocation.x, currentLocation.y));
+              if (prevPoint == null) {
+                seriesRendererDetails.segmentPath!
+                    .moveTo(currentLocation.x, currentLocation.y);
+              } else if (seriesRendererDetails
+                          .dataPoints[pointIndex - 1].isVisible ==
+                      false &&
+                  series.emptyPointSettings.mode == EmptyPointMode.gap) {
+                seriesRendererDetails.segmentPath!
+                    .moveTo(currentLocation.x, currentLocation.y);
+              } else if (point.isGap != true &&
+                  seriesRendererDetails.dataPoints[pointIndex - 1].isGap !=
+                      true &&
+                  seriesRendererDetails.dataPoints[pointIndex].isVisible ==
+                      true) {
+                seriesRendererDetails.segmentPath!
+                    .lineTo(currentLocation.x, currentLocation.y);
+              } else {
+                seriesRendererDetails.segmentPath!
+                    .moveTo(currentLocation.x, currentLocation.y);
+              }
+              prevPoint = point;
+            }
+            prevXValue = xVal;
+            prevYValue = yVal;
           }
-          prevXValue = xVal;
-          prevYValue = yVal;
         }
       }
 
@@ -272,17 +316,7 @@ class FastLineChartPainter extends CustomPainter {
             seriesRenderer._createSegments(painterKey.index, segmentIndex += 1,
                 chart, animationFactor, _points));
       }
-      clipRect = calculatePlotOffset(
-          Rect.fromLTRB(
-              stateProperties.chartAxis.axisClipRect.left -
-                  series.markerSettings.width,
-              stateProperties.chartAxis.axisClipRect.top -
-                  series.markerSettings.height,
-              stateProperties.chartAxis.axisClipRect.right +
-                  series.markerSettings.width,
-              stateProperties.chartAxis.axisClipRect.bottom +
-                  series.markerSettings.height),
-          Offset(xAxisDetails.axis.plotOffset, yAxisDetails.axis.plotOffset));
+
       canvas.restore();
 
       if ((series.animationDuration <= 0 ||
@@ -292,6 +326,17 @@ class FastLineChartPainter extends CustomPainter {
         // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The fast line series should be available to render a marker on it.');
+        clipRect = calculatePlotOffset(
+            Rect.fromLTRB(
+                stateProperties.chartAxis.axisClipRect.left -
+                    series.markerSettings.width,
+                stateProperties.chartAxis.axisClipRect.top -
+                    series.markerSettings.height,
+                stateProperties.chartAxis.axisClipRect.right +
+                    series.markerSettings.width,
+                stateProperties.chartAxis.axisClipRect.bottom +
+                    series.markerSettings.height),
+            Offset(xAxisDetails.axis.plotOffset, yAxisDetails.axis.plotOffset));
         canvas.clipRect(clipRect);
         seriesRendererDetails.renderSeriesElements(
             chart, canvas, seriesRendererDetails.seriesElementAnimation);

@@ -13,7 +13,9 @@ dependencies:
   syncfusion_flutter_core:
     path: ../syncfusion_flutter_core
       
-  http: ">=0.12.0 <=0.13.3"
+  http: ">=0.12.0 <=0.13.4"
   vector_math: ">=2.1.0 <=3.0.0"
 
-flutter:  
+flutter:
+
+  

@@ -1,6 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../plot_band.dart';
 import '../renderers/spark_bar_renderer.dart';
 import '../trackball/spark_chart_trackball.dart';
@@ -534,7 +533,7 @@ class SfSparkBarChart extends StatefulWidget {
 /// Represents the state class for spark bar widget
 class _SfSparkBarChartState extends State<SfSparkBarChart> {
   /// specifies the theme of the chart
-  late ThemeData _themeData;
+  late SfChartThemeData _chartThemeData;
 
   /// Specifies the series screen coordinate points
   late List<Offset> _coordinatePoints;
@@ -567,7 +566,7 @@ class _SfSparkBarChartState extends State<SfSparkBarChart> {
 
   @override
   void didChangeDependencies() {
-    _themeData = Theme.of(context);
+    _chartThemeData = SfChartTheme.of(context);
     super.didChangeDependencies();
   }
 
@@ -622,7 +621,7 @@ class _SfSparkBarChartState extends State<SfSparkBarChart> {
           plotBand: widget.plotBand,
           labelDisplayMode: widget.labelDisplayMode,
           labelStyle: widget.labelStyle,
-          themeData: _themeData,
+          themeData: _chartThemeData,
           sparkChartDataDetails: widget._sparkChartDataDetails,
           dataPoints: _dataPoints,
           coordinatePoints: _coordinatePoints),

@@ -1,18 +1,21 @@
-part of pdf;
-
-class _StreamReader {
+/// internal class
+class PdfStreamReader {
   //Constructor
-  _StreamReader([List<int>? data]) {
-    _data = data;
+  /// internal constructor
+  PdfStreamReader([this.data]) {
     _position = 0;
   }
 
   //Fields
-  List<int>? _data;
+  /// internal field
+  List<int>? data;
   int? _position;
 
   //Properties
-  int? get length => _data!.length;
+  /// internal property
+  int? get length => data!.length;
+
+  /// internal property
   int get position => _position!;
   set position(int value) {
     if (value < 0) {
@@ -22,9 +25,10 @@ class _StreamReader {
   }
 
   //Implementation
+  /// internal method
   int? readByte() {
     if (_position != length) {
-      final int result = _data![position];
+      final int result = data![position];
       _position = _position! + 1;
       return result;
     } else {
@@ -32,6 +36,7 @@ class _StreamReader {
     }
   }
 
+  /// internal method
   int? read(List<int> buffer, int offset, int length) {
     _position = offset;
     int pos = offset;

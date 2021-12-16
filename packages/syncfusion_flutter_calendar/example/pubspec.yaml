@@ -13,6 +13,7 @@ dependencies:
   syncfusion_flutter_calendar:
     path: ../../syncfusion_flutter_calendar
 
+
 flutter:
 
   uses-material-design: true

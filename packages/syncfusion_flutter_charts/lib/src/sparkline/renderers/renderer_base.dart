@@ -1,9 +1,7 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../plot_band.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -88,7 +86,7 @@ abstract class SfSparkChartRenderObjectWidget extends LeafRenderObjectWidget {
   final SparkChartDataDetails? sparkChartDataDetails;
 
   /// Specfies the theme of the spark chart
-  final ThemeData? themeData;
+  final SfChartThemeData? themeData;
 
   /// Specifies the series screen coordinate points
   final List<Offset>? coordinatePoints;
@@ -121,7 +119,7 @@ abstract class RenderSparkChart extends RenderBox {
       Color? negativePointColor,
       SparkChartPlotBand? plotBand,
       SparkChartDataDetails? sparkChartDataDetails,
-      ThemeData? themeData,
+      SfChartThemeData? themeData,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
       : _data = data,
@@ -270,13 +268,13 @@ abstract class RenderSparkChart extends RenderBox {
   }
 
   /// Defines the spark chart theme
-  ThemeData? _themeData;
+  SfChartThemeData? _themeData;
 
   /// Returns the spark chart theme
-  ThemeData? get themeData => _themeData;
+  SfChartThemeData? get themeData => _themeData;
 
   /// Sets the spark chart theme
-  set themeData(ThemeData? value) {
+  set themeData(SfChartThemeData? value) {
     if (_themeData != value) {
       _themeData = value;
       markNeedsPaint();

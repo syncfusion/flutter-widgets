@@ -182,14 +182,7 @@ class AppointmentHelper {
         (getDifference(exactStartTime, convertToEndTime(date)).inDays + 1)
             .toString();
 
-    return appointment.subject +
-        ' (' +
-        localization.daySpanCountLabel +
-        ' ' +
-        currentDate +
-        ' / ' +
-        totalDays +
-        ')';
+    return '${appointment.subject} (${localization.daySpanCountLabel} $currentDate / $totalDays)';
   }
 
   /// Returns recurrence icon details for appointment view.
@@ -492,18 +485,14 @@ class AppointmentHelper {
   /// Returns the position from time passed, based on the time interval height.
   static double timeToPosition(
       SfCalendar calendar, DateTime date, double timeIntervalHeight) {
-    final double singleIntervalHeightForAnHour = ((60 /
-                CalendarViewHelper.getTimeInterval(
-                    calendar.timeSlotViewSettings)) *
-            timeIntervalHeight)
-        .toDouble();
+    final double singleIntervalHeightForAnHour = (60 /
+            CalendarViewHelper.getTimeInterval(calendar.timeSlotViewSettings)) *
+        timeIntervalHeight;
 
     final double startHour = calendar.timeSlotViewSettings.startHour;
-    return ((date.hour +
-                (date.minute / 60).toDouble() +
-                (date.second / 3600).toDouble()) *
+    return ((date.hour + (date.minute / 60) + (date.second / 3600)) *
             singleIntervalHeightForAnHour) -
-        (startHour * singleIntervalHeightForAnHour).toDouble();
+        (startHour * singleIntervalHeightForAnHour);
   }
 
   /// Returns the appointment height from the duration passed.
@@ -513,11 +502,9 @@ class AppointmentHelper {
       return 0;
     }
 
-    final double hourHeight = ((60 /
-                CalendarViewHelper.getTimeInterval(
-                    calendar.timeSlotViewSettings)) *
-            timeIntervalHeight)
-        .toDouble();
+    final double hourHeight = (60 /
+            CalendarViewHelper.getTimeInterval(calendar.timeSlotViewSettings)) *
+        timeIntervalHeight;
     return minimumDuration.inMinutes * (hourHeight / 60);
   }
 
@@ -1365,7 +1352,7 @@ class AppointmentHelper {
     String rule = recurrenceRule;
     if (!rule.contains('COUNT') && !rule.contains('UNTIL')) {
       final DateFormat formatter = DateFormat('yyyyMMdd');
-      final String newSubString = ';UNTIL=' + formatter.format(visibleEndDate);
+      final String newSubString = ';UNTIL=${formatter.format(visibleEndDate)}';
       rule = rule + newSubString;
     }
 
@@ -1407,7 +1394,7 @@ class AppointmentHelper {
       /// the appointment's rrule we used a separate property internally
       /// for our purpose.
       if (!recurrenceRule.contains('COUNT')) {
-        recurrenceRule = recurrenceRule + ';COUNT=1';
+        recurrenceRule = '$recurrenceRule;COUNT=1';
       }
       final List<DateTime> recDates =
           RecurrenceHelper.getRecurrenceDateTimeCollection(
@@ -1423,7 +1410,7 @@ class AppointmentHelper {
           ? appointment.notes
           : appointment.notes == null
               ? 'isOccurrenceAppointment'
-              : appointment.notes! + 'isOccurrenceAppointment';
+              : '${appointment.notes!}isOccurrenceAppointment';
       appointments.add(occurrenceAppointment);
     }
   }

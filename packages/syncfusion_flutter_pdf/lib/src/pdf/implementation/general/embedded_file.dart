@@ -1,10 +1,14 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../io/pdf_constants.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_stream.dart';
 
 /// Class which represents embedded file into Pdf document.
-class _EmbeddedFile implements _IPdfWrapper {
+class EmbeddedFile implements IPdfWrapper {
   //Constructor.
   ///  Initializes a new instance of the [EmbeddedFile] class.
-  _EmbeddedFile(String fileName, List<int> data) : super() {
+  EmbeddedFile(String fileName, List<int> data) : super() {
     this.data = data.toList();
     _initialize();
     this.fileName = fileName;
@@ -13,10 +17,12 @@ class _EmbeddedFile implements _IPdfWrapper {
   //Fields.
   /// Gets or sets the data.
   late List<int> data;
-  final _PdfStream _stream = _PdfStream();
+  final PdfStream _stream = PdfStream();
   String _fileName = '';
-  final _EmbeddedFileParams _params = _EmbeddedFileParams();
   String _mimeType = '';
+
+  /// internal field
+  final EmbeddedFileParams params = EmbeddedFileParams();
 
   //Properties.
   /// Gets the name of the file.
@@ -38,16 +44,16 @@ class _EmbeddedFile implements _IPdfWrapper {
           .replaceAll('#', '#23')
           .replaceAll(' ', '#20')
           .replaceAll('/', '#2F');
-      _stream._setName(_PdfName(_DictionaryProperties.subtype), value);
+      _stream.setName(PdfName(PdfDictionaryProperties.subtype), value);
     }
   }
 
   //Implementations.
   void _initialize() {
-    _stream.setProperty(_DictionaryProperties.type,
-        _PdfName(_DictionaryProperties.embeddedFile));
-    _stream.setProperty(_DictionaryProperties.params, _params);
-    _stream._beginSave = _streamBeginSave;
+    _stream.setProperty(PdfDictionaryProperties.type,
+        PdfName(PdfDictionaryProperties.embeddedFile));
+    _stream.setProperty(PdfDictionaryProperties.params, params);
+    _stream.beginSave = _streamBeginSave;
   }
 
   String _getFileName(String attachmentName) {
@@ -55,19 +61,66 @@ class _EmbeddedFile implements _IPdfWrapper {
     return fileName[fileName.length - 1];
   }
 
-  void _streamBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
-    _stream._clearStream();
+  void _streamBeginSave(Object sender, SavePdfPrimitiveArgs? ars) {
+    _stream.clearStream();
     _stream.compress = false;
-    _stream._dataStream = data;
-    _params._size = data.length;
+    _stream.dataStream = data;
+    params.size = data.length;
   }
 
-  @override
-  _IPdfPrimitive get _element => _stream;
+  //Overrides
+  /// internal property
+  IPdfPrimitive? get element => _stream;
+  set element(IPdfPrimitive? value) {
+    throw ArgumentError("Primitive element can't be set");
+  }
+}
 
-  @override
+/// Defines additional parameters for the embedded file.
+class EmbeddedFileParams implements IPdfWrapper {
+  //Constructor.
+  /// internal constructor
+  EmbeddedFileParams() : super() {
+    creationDate = DateTime.now();
+    modificationDate = DateTime.now();
+  }
+
+  //Fields
+  DateTime _cDate = DateTime.now();
+  DateTime _mDate = DateTime.now();
+  int? _fileSize;
+
+  /// internal field
+  PdfDictionary? dictionary = PdfDictionary();
+
+  //Properties.
+  /// internal property
+  DateTime get creationDate => _cDate;
+  set creationDate(DateTime value) {
+    _cDate = value;
+    dictionary!.setDateTime(PdfDictionaryProperties.creationDate, value);
+  }
+
+  /// internal property
+  DateTime get modificationDate => _mDate;
+  set modificationDate(DateTime value) {
+    _mDate = value;
+    dictionary!.setDateTime(PdfDictionaryProperties.modificationDate, value);
+  }
+
+  // int get _size => _fileSize;
+  /// internal property
+  set size(int value) {
+    if (_fileSize != value) {
+      _fileSize = value;
+      dictionary!.setNumber(PdfDictionaryProperties.size, _fileSize);
+    }
+  }
+
+  /// internal property
+  IPdfPrimitive? get element => dictionary;
   // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    throw ArgumentError('primitive element can\'t be set');
+  set element(IPdfPrimitive? value) {
+    throw ArgumentError("Primitive element can't be set");
   }
 }

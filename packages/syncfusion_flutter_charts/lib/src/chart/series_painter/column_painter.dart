@@ -1,22 +1,17 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/src/chart/user_interaction/zooming_panning.dart';
 
 import '../../../charts.dart';
 import '../../common/rendering_details.dart';
 import '../../common/user_interaction/selection_behavior.dart';
 import '../axis/axis.dart';
-import '../base/chart_base.dart';
 import '../chart_segment/chart_segment.dart';
-import '../chart_segment/column_segment.dart';
-import '../chart_series/column_series.dart';
 import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
+import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
@@ -101,6 +96,7 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
         _stateProperties.segments.isNotEmpty) {
       segmentProperties.oldSeriesVisible =
           _stateProperties.oldSeriesVisible[segmentProperties.seriesIndex];
+
       ColumnSegment oldSegment;
       for (int i = 0; i < _stateProperties.segments.length; i++) {
         oldSegment = _stateProperties.segments[i] as ColumnSegment;
@@ -111,6 +107,7 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
         }
       }
     }
+
     segmentProperties.path =
         findingRectSeriesDashedBorder(currentPoint, _columnSeries.borderWidth);
     // ignore: unnecessary_null_comparison
@@ -225,6 +222,8 @@ class ColumnChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer);
+    // Disposing the old chart segments.
+    disposeOldSegments(chart, seriesRendererDetails);
     final ChartAxisRendererDetails xAxisDetails =
         seriesRendererDetails.xAxisDetails!;
     final ChartAxisRendererDetails yAxisDetails =
@@ -256,6 +255,7 @@ class ColumnChartPainter extends CustomPainter {
         stateProperties.shader = series.onCreateShader!(
             ShaderDetails(stateProperties.chartAxis.axisClipRect, 'series'));
       }
+
       int segmentIndex = -1;
       if (seriesRendererDetails.visibleDataPoints == null ||
           seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {

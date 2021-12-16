@@ -1,8 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../radial_gauge/styles/radial_text_style.dart';
 import '../../radial_gauge/utils/enum.dart';
@@ -55,12 +53,6 @@ Color getSaturationColor(Color color) {
   final Color saturationColor =
       contrast >= 128 ? const Color(0xFF333333) : const Color(0xFFF5F5F5);
   return saturationColor;
-}
-
-/// Method to check whether the value ranges between
-/// the minimum and maximum value
-double getMinMax(double value, double min, double max) {
-  return value > max ? max : (value < min ? min : value);
 }
 
 /// Measure the text and return the text size
@@ -184,4 +176,25 @@ double cornerRadiusAngle(double totalRadius, double circleRadius) {
   final double cornerRadiusAngle =
       math.asin((2 * area) / (totalRadius * totalRadius)) * (180 / math.pi);
   return cornerRadiusAngle;
+}
+
+/// Base class for radial axis internal usage.
+class RadialAxisInheritedWidget extends InheritedWidget {
+  /// Creates [RadialAxisInheritedWidget].
+  const RadialAxisInheritedWidget({
+    required this.minimum,
+    required this.maximum,
+    required Widget child,
+  }) : super(child: child);
+
+  /// Defines the minimum value of axis.
+  final double minimum;
+
+  /// Defines the maximum value of axis.
+  final double maximum;
+
+  @override
+  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
+    return false;
+  }
 }

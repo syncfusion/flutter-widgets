@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
 import 'package:syncfusion_flutter_charts/src/chart/common/segment_properties.dart';
 
@@ -288,6 +286,7 @@ class SelectionRenderer {
     final ChartSelectionCallback? chartEventSelection =
         chart.onSelectionChanged;
     if (isSelection) {
+      // ignore: unnecessary_type_check
       if (series is CartesianSeries) {
         fillColor = chartEventSelection != null &&
                 selectionArgs != null &&
@@ -308,6 +307,7 @@ class SelectionRenderer {
               ? stateProperties.selectionArgs!.selectedColor.opacity
               : selectionBehavior.selectedOpacity ?? series.opacity;
     } else {
+      // ignore: unnecessary_type_check
       if (series is CartesianSeries) {
         fillColor = chartEventSelection != null &&
                 selectionArgs != null &&
@@ -356,6 +356,7 @@ class SelectionRenderer {
     final ChartSelectionCallback? chartEventSelection =
         chart.onSelectionChanged;
     if (isSelection) {
+      // ignore: unnecessary_type_check
       if (series is CartesianSeries) {
         seriesType == 'line' ||
                 seriesType == 'spline' ||
@@ -405,6 +406,7 @@ class SelectionRenderer {
               ? stateProperties.selectionArgs!.selectedBorderWidth
               : selectionBehavior.selectedBorderWidth ?? series.borderWidth;
     } else {
+      // ignore: unnecessary_type_check
       if (series is CartesianSeries) {
         segment is LineSegment ||
                 segment is SplineSegment ||
@@ -1542,7 +1544,8 @@ class SelectionRenderer {
           startSegmentProperties = SegmentHelper.getSegmentProperties(
               seriesRendererDetails.segments[dataPointIndex]);
         } else if (dataPointIndex ==
-            seriesRendererDetails.dataPoints.length - 1) {
+                seriesRendererDetails.dataPoints.length - 1 &&
+            dataPointIndex - 1 < seriesRendererDetails.segments.length) {
           startSegmentProperties = SegmentHelper.getSegmentProperties(
               seriesRendererDetails.segments[dataPointIndex - 1]);
         } else {

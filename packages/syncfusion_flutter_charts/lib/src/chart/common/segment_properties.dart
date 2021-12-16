@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../chart_segment/chart_segment.dart';
 import '../chart_segment/waterfall_segment.dart';
 import '../chart_series/series.dart';

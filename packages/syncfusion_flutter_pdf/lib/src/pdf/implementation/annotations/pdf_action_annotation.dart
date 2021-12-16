@@ -1,17 +1,19 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../interfaces/pdf_interface.dart';
+import '../actions/pdf_action.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import 'enum.dart';
+import 'pdf_annotation.dart';
 
 /// Represents the base class for the link annotations.
-abstract class PdfLinkAnnotation extends PdfAnnotation {
-  // constructor
-  /// Initializes new instance of
-  /// [PdfLinkAnnotation] class with specified bounds.
-  PdfLinkAnnotation(Rect bounds) : super._(bounds: bounds);
-
-  PdfLinkAnnotation._(_PdfDictionary dictionary, _PdfCrossTable crossTable)
-      : super._internal(dictionary, crossTable);
-
+abstract class PdfLinkAnnotation extends PdfAnnotation implements IPdfWrapper {
   // fields
   PdfHighlightMode _highlightMode = PdfHighlightMode.noHighlighting;
+  PdfAction? _action;
 
   //properties
   /// Gets or sets the highlight mode of the link annotation.
@@ -29,19 +31,15 @@ abstract class PdfLinkAnnotation extends PdfAnnotation {
   /// document.dispose();
   /// ```
   PdfHighlightMode get highlightMode =>
-      _isLoadedAnnotation ? _obtainHighlightMode() : _highlightMode;
+      PdfAnnotationHelper.getHelper(this).isLoadedAnnotation
+          ? _obtainHighlightMode()
+          : _highlightMode;
   set highlightMode(PdfHighlightMode value) {
     _highlightMode = value;
     final String mode = _getHighlightMode(_highlightMode);
-    _dictionary._setName(_PdfName(_DictionaryProperties.h), mode);
-  }
-
-  // implementation
-  @override
-  void _initialize() {
-    super._initialize();
-    _dictionary.setProperty(_PdfName(_DictionaryProperties.subtype),
-        _PdfName(_DictionaryProperties.link));
+    PdfAnnotationHelper.getHelper(this)
+        .dictionary!
+        .setName(PdfName(PdfDictionaryProperties.h), mode);
   }
 
   String _getHighlightMode(PdfHighlightMode mode) {
@@ -65,9 +63,12 @@ abstract class PdfLinkAnnotation extends PdfAnnotation {
 
   PdfHighlightMode _obtainHighlightMode() {
     PdfHighlightMode mode = PdfHighlightMode.noHighlighting;
-    if (_dictionary.containsKey(_DictionaryProperties.h)) {
-      final _PdfName name = _dictionary[_DictionaryProperties.h]! as _PdfName;
-      switch (name._name) {
+    if (PdfAnnotationHelper.getHelper(this)
+        .dictionary!
+        .containsKey(PdfDictionaryProperties.h)) {
+      final PdfName name = PdfAnnotationHelper.getHelper(this)
+          .dictionary![PdfDictionaryProperties.h]! as PdfName;
+      switch (name.name) {
         case 'I':
           mode = PdfHighlightMode.invert;
           break;
@@ -86,24 +87,26 @@ abstract class PdfLinkAnnotation extends PdfAnnotation {
   }
 }
 
-/// Represents base class for link annotations with associated action.
-abstract class PdfActionLinkAnnotation extends PdfLinkAnnotation {
-  // constructor
-  /// Initializes a new instance of the [PdfActionLinkAnnotation]
-  ///  class with specified bounds and action to be performed.
-  PdfActionLinkAnnotation(Rect bounds, [PdfAction? action]) : super(bounds) {
-    if (action != null) {
-      _action = action;
-    }
+/// [PdfLinkAnnotation] helper
+class PdfLinkAnnotationHelper extends PdfAnnotationHelper {
+  /// internal constructor
+  PdfLinkAnnotationHelper(PdfLinkAnnotation linkAnnotation, Rect? bounds)
+      : super(linkAnnotation) {
+    initializeAnnotation(bounds: bounds);
+    dictionary!.setProperty(PdfName(PdfDictionaryProperties.subtype),
+        PdfName(PdfDictionaryProperties.link));
   }
 
-  PdfActionLinkAnnotation._(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable)
-      : super._(dictionary, crossTable);
+  /// internal constructor
+  PdfLinkAnnotationHelper.load(PdfLinkAnnotation linkAnnotation,
+      PdfDictionary dictionary, PdfCrossTable crossTable)
+      : super(linkAnnotation) {
+    initializeExistingAnnotation(dictionary, crossTable);
+  }
+}
 
-  // fields
-  PdfAction? _action;
-
+/// Represents base class for link annotations with associated action.
+abstract class PdfActionLinkAnnotation extends PdfLinkAnnotation {
   // properties
   /// Gets or sets the action for the link annotation.
   PdfAction? get action => _action;
@@ -114,20 +117,59 @@ abstract class PdfActionLinkAnnotation extends PdfLinkAnnotation {
   }
 }
 
+/// [PdfActionLinkAnnotation] helper
+class PdfActionLinkAnnotationHelper extends PdfLinkAnnotationHelper {
+  /// internal constructor
+  PdfActionLinkAnnotationHelper(
+      PdfActionLinkAnnotation actionLinkAnnotation, Rect bounds,
+      [PdfAction? action])
+      : super(actionLinkAnnotation, bounds) {
+    if (action != null) {
+      actionLinkAnnotation._action = action;
+    }
+  }
+
+  /// internal constructor
+  PdfActionLinkAnnotationHelper.load(
+      PdfActionLinkAnnotation actionLinkAnnotation,
+      PdfDictionary dictionary,
+      PdfCrossTable crossTable)
+      : super.load(actionLinkAnnotation, dictionary, crossTable);
+}
+
 /// Represents the annotation with associated action.
 class PdfActionAnnotation extends PdfActionLinkAnnotation {
   // constructor
   /// Initializes a new instance of the
   /// [PdfActionAnnotation] class with specified bounds and action.
-  PdfActionAnnotation(Rect bounds, PdfAction action) : super(bounds, action);
+  PdfActionAnnotation(Rect bounds, PdfAction action) {
+    _helper = PdfActionAnnotationHelper(this, bounds, action);
+  }
+  late PdfActionAnnotationHelper _helper;
+}
 
-  @override
-  void _save() {
-    super._save();
-    _dictionary.setProperty(
-        _PdfName(_DictionaryProperties.a), action!._element);
+/// [PdfActionAnnotation] helper
+class PdfActionAnnotationHelper extends PdfActionLinkAnnotationHelper {
+  /// internal method
+  PdfActionAnnotationHelper(
+      this.actionAnnotation, Rect bounds, PdfAction action)
+      : super(actionAnnotation, bounds, action);
+
+  /// internal method
+  PdfActionAnnotation actionAnnotation;
+
+  /// internal method
+  static PdfActionAnnotationHelper getHelper(PdfActionAnnotation base) {
+    return base._helper;
   }
 
+  /// internal method
+  void save() {
+    dictionary!.setProperty(PdfName(PdfDictionaryProperties.a),
+        IPdfWrapper.getElement(actionAnnotation.action!));
+  }
+
+  /// internal method
   @override
-  _IPdfPrimitive? _element;
+  IPdfPrimitive? element;
 }

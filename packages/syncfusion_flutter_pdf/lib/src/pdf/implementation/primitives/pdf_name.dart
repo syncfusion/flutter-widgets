@@ -1,19 +1,24 @@
-part of pdf;
+import 'package:syncfusion_flutter_pdf/src/pdf/implementation/io/enums.dart';
+import 'package:syncfusion_flutter_pdf/src/pdf/implementation/io/pdf_cross_table.dart';
+import 'package:syncfusion_flutter_pdf/src/pdf/interfaces/pdf_interface.dart';
 
-class _PdfName implements _IPdfPrimitive {
-  /// Constructor for creation [_PdfName] object.
-  _PdfName([this._name]);
+/// internal class
+class PdfName implements IPdfPrimitive {
+  /// Constructor for creation [PdfName] object.
+  PdfName([this.name]);
 
   //Constants
+  /// internal field
   static const String stringStartMark = '/';
   final List<int> _replacements = <int>[32, 9, 10, 13];
 
   //Fields
-  final String? _name;
+  /// internal field
+  final String? name;
   bool? _isSaving;
   int? _objectCollectionIndex;
   int? _position;
-  _ObjectStatus? _status;
+  PdfObjectStatus? _status;
 
   //Implementation
   String _escapeString(String value) {
@@ -33,19 +38,19 @@ class _PdfName implements _IPdfPrimitive {
 
   @override
   String toString() {
-    return stringStartMark + _escapeString(_name!);
+    return stringStartMark + _escapeString(name!);
   }
 
-  //_IPdfPrimitive members
+  //IPdfPrimitive members
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  bool operator ==(covariant _IPdfPrimitive name) {
-    return name is _PdfName && _name == name._name;
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
+  bool operator ==(covariant IPdfPrimitive name) {
+    return name is PdfName && this.name == name.name;
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => _name.hashCode;
+  int get hashCode => name.hashCode;
 
   @override
   bool? get isSaving {
@@ -81,22 +86,22 @@ class _PdfName implements _IPdfPrimitive {
   }
 
   @override
-  _ObjectStatus? get status {
-    _status ??= _ObjectStatus.none;
+  PdfObjectStatus? get status {
+    _status ??= PdfObjectStatus.none;
     return _status;
   }
 
   @override
-  set status(_ObjectStatus? value) {
+  set status(PdfObjectStatus? value) {
     _status = value;
   }
 
   @override
-  _IPdfPrimitive? clonedObject;
+  IPdfPrimitive? clonedObject;
 
   @override
-  void save(_IPdfWriter? writer) {
-    writer!._write(toString());
+  void save(IPdfWriter? writer) {
+    writer!.write(toString());
   }
 
   @override
@@ -107,5 +112,5 @@ class _PdfName implements _IPdfPrimitive {
   }
 
   @override
-  _IPdfPrimitive _clone(_PdfCrossTable crossTable) => _PdfName(_name);
+  IPdfPrimitive cloneObject(PdfCrossTable crossTable) => PdfName(name);
 }

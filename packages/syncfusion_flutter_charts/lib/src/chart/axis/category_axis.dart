@@ -1,10 +1,11 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import '../../common/event_args.dart';
+import '../../common/utils/typedef.dart'
+    show MultiLevelLabelFormatterCallback, ChartLabelFormatterCallback;
 import '../axis/axis.dart';
+import '../axis/multi_level_labels.dart';
 import '../axis/plotband.dart';
 import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
@@ -23,49 +24,56 @@ import '../utils/helper.dart';
 @immutable
 class CategoryAxis extends ChartAxis {
   /// Creating an argument constructor of CategoryAxis class.
-  CategoryAxis({
-    String? name,
-    bool? isVisible,
-    AxisTitle? title,
-    AxisLine? axisLine,
-    this.arrangeByIndex = false,
-    ChartRangePadding? rangePadding,
-    this.labelPlacement = LabelPlacement.betweenTicks,
-    EdgeLabelPlacement? edgeLabelPlacement,
-    ChartDataLabelPosition? labelPosition,
-    TickPosition? tickPosition,
-    int? labelRotation,
-    AxisLabelIntersectAction? labelIntersectAction,
-    LabelAlignment? labelAlignment,
-    bool? isInversed,
-    bool? opposedPosition,
-    int? minorTicksPerInterval,
-    int? maximumLabels,
-    MajorTickLines? majorTickLines,
-    MinorTickLines? minorTickLines,
-    MajorGridLines? majorGridLines,
-    MinorGridLines? minorGridLines,
-    TextStyle? labelStyle,
-    double? plotOffset,
-    double? zoomFactor,
-    double? zoomPosition,
-    InteractiveTooltip? interactiveTooltip,
-    this.minimum,
-    this.maximum,
-    double? interval,
-    this.visibleMinimum,
-    this.visibleMaximum,
-    dynamic crossesAt,
-    String? associatedAxisName,
-    bool? placeLabelsNearAxisLine,
-    List<PlotBand>? plotBands,
-    int? desiredIntervals,
-    RangeController? rangeController,
-    double? maximumLabelWidth,
-    double? labelsExtent,
-    int? autoScrollingDelta,
-    AutoScrollingMode? autoScrollingMode,
-  }) : super(
+  CategoryAxis(
+      {String? name,
+      bool? isVisible,
+      AxisTitle? title,
+      AxisLine? axisLine,
+      this.arrangeByIndex = false,
+      ChartRangePadding? rangePadding,
+      this.labelPlacement = LabelPlacement.betweenTicks,
+      EdgeLabelPlacement? edgeLabelPlacement,
+      ChartDataLabelPosition? labelPosition,
+      TickPosition? tickPosition,
+      int? labelRotation,
+      AxisLabelIntersectAction? labelIntersectAction,
+      LabelAlignment? labelAlignment,
+      bool? isInversed,
+      bool? opposedPosition,
+      int? minorTicksPerInterval,
+      int? maximumLabels,
+      MajorTickLines? majorTickLines,
+      MinorTickLines? minorTickLines,
+      MajorGridLines? majorGridLines,
+      MinorGridLines? minorGridLines,
+      TextStyle? labelStyle,
+      double? plotOffset,
+      double? zoomFactor,
+      double? zoomPosition,
+      InteractiveTooltip? interactiveTooltip,
+      this.minimum,
+      this.maximum,
+      double? interval,
+      this.visibleMinimum,
+      this.visibleMaximum,
+      dynamic crossesAt,
+      String? associatedAxisName,
+      bool? placeLabelsNearAxisLine,
+      List<PlotBand>? plotBands,
+      int? desiredIntervals,
+      RangeController? rangeController,
+      double? maximumLabelWidth,
+      double? labelsExtent,
+      int? autoScrollingDelta,
+      double? borderWidth,
+      Color? borderColor,
+      AxisBorderType? axisBorderType,
+      MultiLevelLabelFormatterCallback? multiLevelLabelFormatter,
+      MultiLevelLabelStyle? multiLevelLabelStyle,
+      List<CategoricalMultiLevelLabel>? multiLevelLabels,
+      AutoScrollingMode? autoScrollingMode,
+      ChartLabelFormatterCallback? axisLabelFormatter})
+      : super(
             name: name,
             isVisible: isVisible,
             isInversed: isInversed,
@@ -100,7 +108,14 @@ class CategoryAxis extends ChartAxis {
             maximumLabelWidth: maximumLabelWidth,
             labelsExtent: labelsExtent,
             autoScrollingDelta: autoScrollingDelta,
-            autoScrollingMode: autoScrollingMode);
+            axisBorderType: axisBorderType,
+            borderColor: borderColor,
+            borderWidth: borderWidth,
+            multiLevelLabelStyle: multiLevelLabelStyle,
+            multiLevelLabels: multiLevelLabels,
+            multiLevelLabelFormatter: multiLevelLabelFormatter,
+            autoScrollingMode: autoScrollingMode,
+            axisLabelFormatter: axisLabelFormatter);
 
   ///Position of the category axis labels.
   ///
@@ -250,7 +265,14 @@ class CategoryAxis extends ChartAxis {
         other.maximumLabelWidth == maximumLabelWidth &&
         other.labelsExtent == labelsExtent &&
         other.autoScrollingDelta == autoScrollingDelta &&
-        other.autoScrollingMode == autoScrollingMode;
+        other.axisBorderType == axisBorderType &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.multiLevelLabelStyle == multiLevelLabelStyle &&
+        other.multiLevelLabels == multiLevelLabels &&
+        other.multiLevelLabelFormatter == multiLevelLabelFormatter &&
+        other.autoScrollingMode == autoScrollingMode &&
+        other.axisLabelFormatter == axisLabelFormatter;
   }
 
   @override
@@ -296,7 +318,14 @@ class CategoryAxis extends ChartAxis {
       maximumLabelWidth,
       labelsExtent,
       autoScrollingDelta,
-      autoScrollingMode
+      axisBorderType,
+      borderColor,
+      borderWidth,
+      multiLevelLabelStyle,
+      multiLevelLabels,
+      multiLevelLabelFormatter,
+      autoScrollingMode,
+      axisLabelFormatter
     ];
     return hashList(values);
   }
@@ -468,7 +497,14 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
         _axisDetails.triggerLabelRenderEvent(labelText, tempInterval);
       }
     }
+
+    /// Get the maximum label of width and height in axis.
     _axisDetails.calculateMaximumLabelSize(this, _axisDetails.stateProperties);
+    if (_axisDetails._categoryAxis.multiLevelLabels != null &&
+        _axisDetails._categoryAxis.multiLevelLabels!.isNotEmpty) {
+      generateMultiLevelLabels(_axisDetails);
+      calculateMultiLevelLabelBounds(_axisDetails);
+    }
   }
 
   /// Finds the interval of an axis.
@@ -507,7 +543,7 @@ class CategoryAxisDetails extends ChartAxisRendererDetails {
     if (_categoryAxis.arrangeByIndex) {
       // ignore: unnecessary_null_comparison
       pointIndex < labels.length && labels[pointIndex] != null
-          ? labels[pointIndex] += ', ' + point.x
+          ? labels[pointIndex] += ', ${point.x}'
           : labels.add(point.x.toString());
       point.xValue = pointIndex;
     } else {

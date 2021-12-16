@@ -1,75 +1,120 @@
-part of pdf;
+import 'matrix_helper.dart';
 
-class _GraphicObjectData {
-  //constructor
-  _GraphicObjectData() {
-    _mitterLength = 0;
-    _horizontalScaling = 100;
+/// internal class
+class GraphicObjectData {
+  /// internal constructor
+  GraphicObjectData() {
+    mitterLength = 0;
+    horizontalScaling = 100;
     rise = 0;
-    transformMatrixTM = _MatrixHelper(0, 0, 0, 0, 0, 0);
+    transformMatrixTM = MatrixHelper(0, 0, 0, 0, 0, 0);
     characterSpacing = 0;
     wordSpacing = 0;
-    _nonStrokingOpacity = 1;
-    _strokingOpacity = 1;
+    nonStrokingOpacity = 1;
+    strokingOpacity = 1;
     textLeading = 0;
     fontSize = 0;
   }
 
   //Fields
-  _MatrixHelper? currentTransformationMatrix;
-  _MatrixHelper? drawing2dMatrixCTM;
-  _MatrixHelper? documentMatrix;
-  _MatrixHelper? textLineMatrix;
-  _MatrixHelper? textMatrix;
-  _MatrixHelper? textMatrixUpdate;
-  _MatrixHelper? transformMatrixTM;
-  double? _horizontalScaling;
-  double? _mitterLength;
+  /// internal field
+  MatrixHelper? currentTransformationMatrix;
+
+  /// internal field
+  MatrixHelper? drawing2dMatrixCTM;
+
+  /// internal field
+  MatrixHelper? documentMatrix;
+
+  /// internal field
+  MatrixHelper? textLineMatrix;
+
+  /// internal field
+  MatrixHelper? textMatrix;
+
+  /// internal field
+  MatrixHelper? textMatrixUpdate;
+
+  /// internal field
+  MatrixHelper? transformMatrixTM;
+
+  /// internal field
+  double? horizontalScaling;
+
+  /// internal field
+  double? mitterLength;
+
+  /// internal field
   int? rise;
+
+  /// internal field
   double? characterSpacing;
+
+  /// internal field
   double? wordSpacing;
-  double? _nonStrokingOpacity;
-  double? _strokingOpacity;
+
+  /// internal field
+  double? nonStrokingOpacity;
+
+  /// internal field
+  double? strokingOpacity;
+
+  /// internal field
   String? currentFont;
+
+  /// internal field
   double? textLeading;
+
+  /// internal field
   double? fontSize;
 }
 
-class _GraphicsObject {
-  _GraphicsObject() {
-    _transformMatrix = _MatrixHelper(1, 0, 0, 1, 0, 0);
+/// internal class
+class GraphicsObject {
+  /// internal constructor
+  GraphicsObject() {
+    transformMatrix = MatrixHelper(1, 0, 0, 1, 0, 0);
   }
-  _MatrixHelper? _transformMatrix;
-  _GraphicsState? _graphicState;
+
+  /// internal field
+  MatrixHelper? transformMatrix;
+  GraphicsState? _graphicState;
 
   //Implementation
-  _GraphicsState? _save() {
-    _graphicState = _GraphicsState();
-    _graphicState!._transformMatrix = _transformMatrix;
+  /// internal method
+  GraphicsState? save() {
+    _graphicState = GraphicsState();
+    _graphicState!._transformMatrix = transformMatrix;
     return _graphicState;
   }
 
-  void _restore(_GraphicsState graphicState) {
-    _transformMatrix = graphicState._transformMatrix;
+  /// internal method
+  void restore(GraphicsState graphicState) {
+    transformMatrix = graphicState._transformMatrix;
   }
 
-  void _multiplyTransform(_MatrixHelper matrix) {
-    _transformMatrix = _transformMatrix! * matrix;
+  /// internal method
+  void multiplyTransform(MatrixHelper matrix) {
+    transformMatrix = transformMatrix! * matrix;
   }
 
-  void _scaleTransform(double scaleX, double scaleY) {
-    _transformMatrix = _transformMatrix!._scale(scaleX, scaleY, 0, 0);
+  /// internal method
+  void scaleTransform(double scaleX, double scaleY) {
+    transformMatrix = transformMatrix!.scale(scaleX, scaleY, 0, 0);
   }
 
-  void _translateTransform(double offsetX, double offsetY) {
-    _transformMatrix = _transformMatrix!._translate(offsetX, offsetY);
+  /// internal method
+  void translateTransform(double offsetX, double offsetY) {
+    transformMatrix = transformMatrix!.translate(offsetX, offsetY);
   }
 
-  void _rotateTransform(double angle) {
-    _transformMatrix = _transformMatrix!._rotate(angle, 0, 0);
+  /// internal method
+  void rotateTransform(double angle) {
+    transformMatrix = transformMatrix!.rotate(angle, 0, 0);
   }
 }
 
-class _GraphicsState {
-  _MatrixHelper? _transformMatrix;
+/// internal class
+class GraphicsState {
+  MatrixHelper? _transformMatrix;
 }

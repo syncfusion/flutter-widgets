@@ -6158,6 +6158,7 @@ class Workbook {
       index++;
       String fontColor = '';
       if (toCompareStyle.fontColor.length == 7) {
+        // ignore: prefer_interpolation_to_compose_strings
         fontColor = 'FF' + toCompareStyle.fontColor.replaceAll('#', '');
       } else {
         fontColor = toCompareStyle.fontColor;
@@ -6575,6 +6576,7 @@ class Workbook {
     double currentWidth = 0;
     const double spaceWidth = 14;
     for (int i = 0; i < text.length; i++) {
+      // ignore: noop_primitive_operations
       currentWidth = (_getTextSizeFromFont(text[i].toString(), font)._width)
           .ceilToDouble();
       if ((text[i] == _carriageReturn &&

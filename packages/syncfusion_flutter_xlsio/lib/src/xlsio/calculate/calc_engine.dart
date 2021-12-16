@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings, noop_primitive_operations
+
 part of xlsio;
 
 /// CalcEngine encapsulates the code required to parse and compute formulas.
@@ -1651,6 +1653,7 @@ class CalcEngine {
                 s1[0] == _tic[0] &&
                 !_isCellReference(s[1]) &&
                 useNoAmpersandQuotes) {
+              // ignore: avoid_escaping_inner_quotes
               s1 = s1.replaceAll(RegExp('^\'|\'\$'), '');
             }
           } else if (s.length < 3 &&
@@ -1677,6 +1680,7 @@ class CalcEngine {
                 !_isCellReference(s[2]) &&
                 useNoAmpersandQuotes) {
               s1 = s.length == 3 ? s1 : _falseValueStr;
+              // ignore: avoid_escaping_inner_quotes
               s1 = s1.replaceAll(RegExp('^\'|\'\$'), '');
             }
           }
@@ -5010,8 +5014,7 @@ class CalcEngine {
     int col2 = _getColIndex(r.substring(i + 1));
     // Supports implenmented only for XlsIO
     //To return proper value when grid type is ICalcData.
-    if (_grid is Worksheet ||
-        (dependentGrid != null && dependentGrid is Worksheet)) {
+    if (_grid != null || dependentGrid != null) {
       if ((row1 != -1 || row2 == -1) != (row1 == -1 || row2 != -1)) {
         return _errorStrings[5].toString();
       }

@@ -7,9 +7,7 @@ import '../../common/state_properties.dart';
 import '../../common/user_interaction/tooltip.dart';
 import '../base/pyramid_plot_area.dart';
 import '../renderer/data_label_renderer.dart';
-import '../utils/common.dart';
 import 'chart_base.dart';
-import 'pyramid_base.dart';
 
 /// Represents the pyramid state properties
 class PyramidStateProperties extends StateProperties {
@@ -46,6 +44,12 @@ class PyramidStateProperties extends StateProperties {
 
   /// Specifies the list of render points
   List<PointInfo<dynamic>>? renderPoints;
+
+  /// Specifies the data label rects.
+  late List<Rect> labelRects = <Rect>[];
+
+  /// Specifies the outside rendered label rects
+  late List<Rect> outsideRects = <Rect>[];
 
   /// Specifies the pyramid chart base
   late PyramidChartBase chartSeries;

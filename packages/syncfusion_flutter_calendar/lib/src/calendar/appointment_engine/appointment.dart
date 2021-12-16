@@ -4,7 +4,6 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart'
     show IterableDiagnostics;
 
 import '../../../calendar.dart';
-import '../common/enums.dart';
 
 /// Appointment data for calendar.
 ///

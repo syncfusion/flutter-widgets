@@ -1,4 +1,16 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../graphics/brushes/pdf_solid_brush.dart';
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/pdf_graphics.dart';
+import '../../pages/enum.dart';
+import '../../pages/pdf_page.dart';
+import '../../pages/pdf_section.dart';
+import '../../pages/pdf_section_collection.dart';
+import '../pdf_document.dart';
+import 'pdf_automatic_field.dart';
+import 'pdf_dynamic_field.dart';
+import 'pdf_single_value_field.dart';
 
 /// Represents total PDF document page count automatic field.
 /// Represents an automatic field to display total number of pages
@@ -40,7 +52,7 @@ part of pdf;
 /// //Dispose the document.
 /// document.dispose();
 /// ```
-class PdfPageCountField extends _PdfSingleValueField {
+class PdfPageCountField extends PdfSingleValueField {
   // constructor
   /// Initializes a new instance of the [PdfPageCountField] class
   /// and may also with the classes are [PdfFont], [PdfBrush] and [Rect].
@@ -132,21 +144,33 @@ class PdfPageCountField extends _PdfSingleValueField {
   bool _isSectionPageCount = false;
 
   // implementation
-  @override
   String? _getValue(PdfGraphics graphics) {
     String? result;
-    if (graphics._page is PdfPage) {
-      final PdfPage page = _PdfDynamicField._getPageFromGraphics(graphics);
+    if (PdfGraphicsHelper.getHelper(graphics).page is PdfPage) {
+      final PdfPage page = PdfDynamicField.getPageFromGraphics(graphics);
       if (_isSectionPageCount) {
-        final PdfSection section = page._section!;
-        final int count = section._count;
-        return PdfAutomaticField._convert(count, numberStyle);
+        final PdfSection section = PdfPageHelper.getHelper(page).section!;
+        final int count = PdfSectionHelper.getHelper(section).count;
+        return PdfAutomaticFieldHelper.convert(count, numberStyle);
       } else {
-        final PdfDocument document = page._section!._parent!._document!;
+        final PdfDocument document = PdfSectionCollectionHelper.getHelper(
+                PdfSectionHelper.getHelper(
+                        PdfPageHelper.getHelper(page).section!)
+                    .parent!)
+            .document!;
         final int number = document.pages.count;
-        return PdfAutomaticField._convert(number, numberStyle);
+        return PdfAutomaticFieldHelper.convert(number, numberStyle);
       }
     }
     return result;
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfPageCountField] helper
+class PdfPageCountFieldHelper {
+  /// internal method
+  static String? getValue(PdfPageCountField field, PdfGraphics graphics) {
+    return field._getValue(graphics);
   }
 }

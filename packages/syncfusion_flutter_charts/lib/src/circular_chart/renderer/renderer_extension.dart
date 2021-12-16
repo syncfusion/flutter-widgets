@@ -1,9 +1,6 @@
-import 'dart:ui';
 import 'dart:ui' as dart_ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../../chart/common/data_label.dart';

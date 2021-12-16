@@ -1,9 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../common/event_args.dart';
 import '../base/circular_state_properties.dart';
 import '../renderer/chart_point.dart';
@@ -176,6 +171,7 @@ class RadialBarPainter extends CustomPainter {
                       (_oldPoint.outerRadius! + _oldPoint.innerRadius!) / 2) *
                   _animationValue;
         }
+        // ignore: unnecessary_type_check
         if (seriesRenderer is RadialBarSeriesRendererExtension) {
           seriesRenderer.drawDataPoint(
               point,

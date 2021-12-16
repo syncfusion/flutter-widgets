@@ -1,20 +1,14 @@
 import 'dart:math' as math;
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/src/circular_chart/base/circular_state_properties.dart';
 import 'package:syncfusion_flutter_charts/src/common/utils/helper.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import '../../chart/chart_series/xy_data_series.dart';
-import '../base/circular_base.dart';
-import '../renderer/chart_point.dart';
-import '../renderer/circular_series.dart';
 import '../renderer/common.dart';
 import '../renderer/renderer_extension.dart';
-import '../utils/enum.dart';
 
 /// To get equivalent value for the percentage
 num? percentToValue(String? value, num size) {

@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide DataCell, DataRow;
-import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../grid_common/enums.dart';
 import '../../grid_common/row_column_index.dart';
@@ -182,7 +181,7 @@ abstract class DataRowBase {
   /// Holds the configuration of collection [DataGridCell].
   DataGridRowAdapter? dataGridRowAdapter;
 
-  /// ToDo
+  /// Holds the [DataGridStateDetails].
   DataGridStateDetails? dataGridStateDetails;
 
   /// Holds the `GridTableSummaryRow` for the current summary row.
@@ -210,20 +209,20 @@ abstract class DataRowBase {
 
   void _ensureColumns(VisibleLinesCollection visibleColumnLines) {}
 
-  /// ToDo
+  /// Returns the `VisibleLineInfo` for the given column index.
   VisibleLineInfo? getColumnVisibleLineInfo(int index) =>
       dataGridStateDetails!()
           .container
           .scrollColumns
           .getVisibleLineAtLineIndex(index);
 
-  /// ToDo
+  /// Returns the `VisibleLineInfo` for the given row index.
   VisibleLineInfo? getRowVisibleLineInfo(int index) => dataGridStateDetails!()
       .container
       .scrollRows
       .getVisibleLineAtLineIndex(index);
 
-  /// ToDo
+  /// Gets the width of a given column index from the `scrollColumns` collection.
   double getColumnWidth(int startIndex, int endIndex, {bool lineNull = false}) {
     if (startIndex != endIndex || lineNull) {
       final List<DoubleSpan> currentPos = dataGridStateDetails!()
@@ -241,7 +240,7 @@ abstract class DataRowBase {
     return line.size;
   }
 
-  /// ToDo
+  /// Gets the height of a given row index from the `scrollRows` collection.
   double getRowHeight(int startIndex, int endIndex) {
     if (startIndex != endIndex) {
       final List<DoubleSpan> currentPos = dataGridStateDetails!()
@@ -577,7 +576,7 @@ class DataRow extends DataRowBase {
 
 /// Helps to generate the [DataRow] for data grid.
 class RowGenerator {
-  /// ToDo
+  /// Creates the [RowGenerator] for the [SfDataGrid].
   RowGenerator({required this.dataGridStateDetails});
 
   /// Collection of visible [DataRow]'s.
@@ -585,12 +584,13 @@ class RowGenerator {
 
   DataGridConfiguration get _dataGridConfiguration => dataGridStateDetails();
 
-  /// ToDo
+  /// Holds the [DataGridStateDetails].
   DataGridStateDetails dataGridStateDetails;
 
   VisualContainerHelper get _container => _dataGridConfiguration.container;
 
-  /// ToDo
+  /// Generates the rows for the [SfDataGrid] by using [DataGridSource].
+  /// It's generating rows for the data grid initially.
   void preGenerateRows(VisibleLinesCollection? visibleRows,
       VisibleLinesCollection? visibleColumns) {
     if (items.isNotEmpty || _dataGridConfiguration.container.rowCount <= 0) {
@@ -620,7 +620,7 @@ class RowGenerator {
     }
   }
 
-  /// ToDo
+  /// Ensures the data grid rows based on current visible rows.
   void ensureRows(VisibleLinesCollection visibleRows,
       VisibleLinesCollection visibleColumns) {
     List<int>? actualStartAndEndIndex = <int>[];
@@ -656,10 +656,28 @@ class RowGenerator {
           index++) {
         DataRowBase? dr = _indexer(index);
         if (dr == null) {
-          List<DataRowBase>? rows = reUseRows();
-          if (rows.isNotEmpty) {
-            _updateRow(rows, index, region);
-            rows = null;
+          int cacheLength = 0;
+          int footerRowsCount = 0;
+          if (dataGridStateDetails().rowsCacheExtent != null) {
+            cacheLength += (visibleRows.length - 1) +
+                dataGridStateDetails().rowsCacheExtent!;
+            footerRowsCount += dataGridStateDetails().footerFrozenRowsCount +
+                grid_helper.getTableSummaryCount(
+                    dataGridStateDetails(), GridTableSummaryRowPosition.bottom);
+          }
+          if (dataGridStateDetails().rowsCacheExtent != null &&
+              items.length < cacheLength &&
+              index >= (items.length - footerRowsCount) &&
+              region == RowRegion.body) {
+            dr = _createDataRow(index, visibleColumns);
+            dr.isEnsured = true;
+            items.add(dr);
+          } else {
+            List<DataRowBase>? rows = reUseRows();
+            if (rows.isNotEmpty) {
+              _updateRow(rows, index, region);
+              rows = null;
+            }
           }
         }
 
@@ -703,7 +721,7 @@ class RowGenerator {
     region = null;
   }
 
-  /// ToDo
+  /// Ensures the data grid columns based on current visible columns.
   void ensureColumns(VisibleLinesCollection visibleColumns) {
     for (final DataRowBase row in items) {
       row._ensureColumns(visibleColumns);
@@ -823,8 +841,8 @@ class RowGenerator {
     }
 
     BoxDecoration drawBorder() {
-      final SfDataGridThemeData themeData =
-          dataGridConfiguration.dataGridThemeData!;
+      final DataGridThemeHelper themeData =
+          dataGridConfiguration.dataGridThemeHelper!;
       final GridLinesVisibility gridLinesVisibility =
           dataGridConfiguration.gridLinesVisibility;
 
@@ -1061,7 +1079,7 @@ class RowGenerator {
     }
   }
 
-  /// ToDo
+  /// Invokes the [SfDataGrid.onQueryRowHeight] callback.
   double queryRowHeight(int rowIndex, double height) {
     final DataGridConfiguration dataGridConfiguration = _dataGridConfiguration;
     double rowHeight = height;

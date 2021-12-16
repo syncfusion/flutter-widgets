@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart' hide DataCell, DataRow;
-import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../../datagrid.dart';
 import '../helper/datagrid_configuration.dart';
 import '../helper/datagrid_helper.dart' as grid_helper;
-import '../helper/enums.dart';
 import '../selection/selection_manager.dart' as selection_manager;
 import '../widgets/cell_widget.dart';
 import 'generator.dart';
@@ -14,7 +12,6 @@ abstract class GridCellRendererBase {
   /// Decide to enable the editing in the renderer.
   bool isEditable = true;
 
-  /// ToDo
   late DataGridStateDetails _dataGridStateDetails;
 
   /// Called when the child widgets for the GridCell are prepared.
@@ -33,28 +30,21 @@ class GridStackedHeaderCellRenderer
   @override
   void onInitializeDisplayWidget(DataCellBase dataCell) {
     final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
-    final bool isLight =
-        dataGridConfiguration.dataGridThemeData!.brightness == Brightness.light;
+
     Widget? label = DefaultTextStyle(
-        style: isLight
-            ? const TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                color: Colors.black87)
-            : const TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                color: Color.fromRGBO(255, 255, 255, 1)),
+        style: TextStyle(
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            color:
+                dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.87)),
         child: dataCell.stackedHeaderCell!.child);
 
     dataCell.columnElement = GridCell(
       key: dataCell.key!,
       dataCell: dataCell,
-      backgroundColor: isLight
-          ? const Color.fromRGBO(255, 255, 255, 1)
-          : const Color.fromRGBO(33, 33, 33, 1),
+      backgroundColor:
+          dataGridConfiguration.colorScheme!.surface.withOpacity(0.0001),
       isDirty: dataGridConfiguration.container.isDirty || dataCell.isDirty,
       dataGridStateDetails: _dataGridStateDetails,
       child: label,
@@ -84,34 +74,22 @@ class GridCellTextFieldRenderer
     final DataRowBase? dataRow = dataCell.dataRow;
     if (dataRow != null && dataRow.isSelectedRow) {
       return dataRow.isHoveredRow
-          ? dataGridConfiguration.dataGridThemeData!.rowHoverTextStyle
-          : dataGridConfiguration.dataGridThemeData!.brightness ==
-                  Brightness.light
-              ? const TextStyle(
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14,
-                  color: Color.fromRGBO(0, 0, 0, 0.87))
-              : const TextStyle(
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14,
-                  color: Color.fromRGBO(255, 255, 255, 1));
+          ? dataGridConfiguration.dataGridThemeHelper!.rowHoverTextStyle
+          : TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: dataGridConfiguration.colorScheme!.onSurface
+                  .withOpacity(0.87));
     } else {
       return dataRow!.isHoveredRow
-          ? dataGridConfiguration.dataGridThemeData!.rowHoverTextStyle
-          : dataGridConfiguration.dataGridThemeData!.brightness ==
-                  Brightness.light
-              ? const TextStyle(
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14,
-                  color: Colors.black87)
-              : const TextStyle(
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14,
-                  color: Color.fromRGBO(255, 255, 255, 1));
+          ? dataGridConfiguration.dataGridThemeHelper!.rowHoverTextStyle
+          : TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: dataGridConfiguration.colorScheme!.onSurface
+                  .withOpacity(0.87));
     }
   }
 }
@@ -157,20 +135,13 @@ class GridHeaderCellRenderer
 
   @override
   void setCellStyle(DataCellBase dataCell) {
-    final SfDataGridThemeData themeData =
-        _dataGridStateDetails().dataGridThemeData!;
     TextStyle getDefaultHeaderTextStyle() {
-      return themeData.brightness == Brightness.light
-          ? const TextStyle(
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
-              color: Colors.black87)
-          : const TextStyle(
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
-              color: Color.fromRGBO(255, 255, 255, 1));
+      return TextStyle(
+          fontFamily: 'Roboto',
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          color:
+              _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.87));
     }
 
     dataCell.textStyle = getDefaultHeaderTextStyle();
@@ -305,34 +276,37 @@ class GridTableSummaryCellRenderer
       Widget? cell;
       final GridTableSummaryRow? tableSummaryRow =
           dataCell.dataRow!.tableSummaryRow;
-      if (tableSummaryRow != null &&
-          (dataCell.summaryColumn != null || dataCell.columnSpan > 0)) {
-        final GridSummaryColumn? summaryColumn = dataCell.summaryColumn;
-        final RowColumnIndex rowColumnIndex =
-            RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex);
-        final String title = dataGridConfiguration.source.calculateSummaryValue(
-            tableSummaryRow, summaryColumn, rowColumnIndex);
 
-        cell = dataGridConfiguration.source.buildTableSummaryCellWidget(
-            tableSummaryRow, summaryColumn, rowColumnIndex, title);
+      if (tableSummaryRow != null) {
+        final int titleColumnSpan = grid_helper.getSummaryTitleColumnSpan(
+            dataGridConfiguration, tableSummaryRow);
+        if (dataCell.summaryColumn != null ||
+            tableSummaryRow.showSummaryInRow ||
+            (!tableSummaryRow.showSummaryInRow &&
+                titleColumnSpan > 0 &&
+                dataCell.columnIndex < titleColumnSpan)) {
+          final GridSummaryColumn? summaryColumn = dataCell.summaryColumn;
+          final RowColumnIndex rowColumnIndex =
+              RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex);
+          final String title = dataGridConfiguration.source
+              .calculateSummaryValue(
+                  tableSummaryRow, summaryColumn, rowColumnIndex);
+
+          cell = dataGridConfiguration.source.buildTableSummaryCellWidget(
+              tableSummaryRow, summaryColumn, rowColumnIndex, title);
+        }
       }
       cell ??= Container();
       return cell;
     }
 
     Widget? label = DefaultTextStyle(
-        style: dataGridConfiguration.dataGridThemeData!.brightness ==
-                Brightness.light
-            ? const TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                color: Colors.black87)
-            : const TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                color: Color.fromRGBO(255, 255, 255, 1)),
+        style: TextStyle(
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            color:
+                dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.87)),
         child: getSummaryCell());
 
     dataCell.columnElement = GridCell(
@@ -348,7 +322,7 @@ class GridTableSummaryCellRenderer
   }
 }
 
-/// ToDo
+/// Sets the `dataGridConfiguration` to the cell renderers.
 void setStateDetailsInCellRendererBase(GridCellRendererBase cellRendererBase,
     DataGridStateDetails dataGridStateDetails) {
   cellRendererBase._dataGridStateDetails = dataGridStateDetails;

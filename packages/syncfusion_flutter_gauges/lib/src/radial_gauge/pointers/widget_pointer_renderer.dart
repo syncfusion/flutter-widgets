@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -234,7 +233,6 @@ class RenderWidgetPointer extends RenderShiftedBox {
 
   /// Method returns the angle of  current pointer value.
   double getPointerAngle() {
-    value = getMinMax(value, axisRenderer!.minimum, axisRenderer!.maximum);
     return (axisRenderer!.valueToFactor(value) * _sweepAngle) +
         axisRenderer!.startAngle;
   }

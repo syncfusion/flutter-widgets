@@ -1,10 +1,17 @@
-## Unreleased
+## [19.4.xx]
+**Features**
+* Provided support to extendable range selection direction in the date range picker.
+
+**Bug fixes**
+* Now, the action button is working properly without selecting any dates in the `SfDateRangePicker`.
+
+## [19.3.43] - 09/30/2021
 
 **Features**
 * Added a Today button in the Date Range Picker to move to today’s date.
 * Added a selectable day predicate callback to decide whether a cell is selectable or not.
 
-## [19.2.44]
+## [19.2.44] - 06/30/2021
 **Features**
 * Provided support to display week numbers of the year.
 * Provided extendable range selection support to extend the selected range.

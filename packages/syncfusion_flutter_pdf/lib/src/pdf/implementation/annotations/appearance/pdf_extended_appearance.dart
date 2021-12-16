@@ -1,55 +1,58 @@
-part of pdf;
+import '../../../interfaces/pdf_interface.dart';
+import '../../io/pdf_constants.dart';
+import '../../primitives/pdf_dictionary.dart';
+import '../../primitives/pdf_reference_holder.dart';
+import 'pdf_appearance_state.dart';
 
 /// Represents extended appearance of the annotation. It has two states such as On state and Off state.
-class _PdfExtendedAppearance implements _IPdfWrapper {
+class PdfExtendedAppearance implements IPdfWrapper {
   //Constructor
   /// Initializes a new instance of the [PdfExtendedAppearance] class.
-  _PdfExtendedAppearance() : super();
+  PdfExtendedAppearance() : super();
 
   //Fields
-  _PdfAppearanceState? _normal;
-  _PdfAppearanceState? _pressed;
-  _PdfAppearanceState? _mouseHover;
-  final _PdfDictionary _dictionary = _PdfDictionary();
+  PdfDictionary? _dictionary = PdfDictionary();
+  PdfAppearanceState? _normal;
+  PdfAppearanceState? _pressed;
+  PdfAppearanceState? _mouseHover;
 
   //Properties
   /// Gets the normal appearance of the annotation.
-  _PdfAppearanceState get normal {
+  PdfAppearanceState get normal {
     if (_normal == null) {
-      _normal = _PdfAppearanceState();
-      _dictionary.setProperty(
-          _DictionaryProperties.n, _PdfReferenceHolder(_normal));
+      _normal = PdfAppearanceState();
+      _dictionary!
+          .setProperty(PdfDictionaryProperties.n, PdfReferenceHolder(_normal));
     }
     return _normal!;
   }
 
   /// Gets the appearance when mouse is hovered.
-  _PdfAppearanceState get mouseHover {
+  PdfAppearanceState get mouseHover {
     if (_mouseHover == null) {
-      _mouseHover = _PdfAppearanceState();
-      _dictionary.setProperty(
-          _DictionaryProperties.r, _PdfReferenceHolder(_mouseHover));
+      _mouseHover = PdfAppearanceState();
+      _dictionary!.setProperty(
+          PdfDictionaryProperties.r, PdfReferenceHolder(_mouseHover));
     }
     return _mouseHover!;
   }
 
   /// Gets the pressed state annotation.
-  _PdfAppearanceState get pressed {
+  PdfAppearanceState get pressed {
     if (_pressed == null) {
-      _pressed = _PdfAppearanceState();
-      _dictionary.setProperty(
-          _DictionaryProperties.d, _PdfReferenceHolder(_pressed));
+      _pressed = PdfAppearanceState();
+      _dictionary!
+          .setProperty(PdfDictionaryProperties.d, PdfReferenceHolder(_pressed));
     }
     return _pressed!;
   }
 
-  //Implementation
-  @override
-  _IPdfPrimitive get _element => _dictionary;
-
-  @override
+  /// internal property
+  IPdfPrimitive? get element => _dictionary;
   // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    _element = value;
+  set element(IPdfPrimitive? value) {
+    if (value != null && value is PdfDictionary) {
+      _dictionary = value;
+    }
   }
 }

@@ -1,18 +1,20 @@
-part of pdf;
-
-class _PdfPngFilter {
-  //Constructor
-  _PdfPngFilter() {
+/// internal class
+class PdfPngFilter {
+  /// internal constructor
+  PdfPngFilter() {
     _decompressFilter = _decompressData;
     bytesPerPixel = 1;
   }
 
   //Fields
   _RowFilter? _decompressFilter;
+
+  /// internal field
   late int bytesPerPixel;
 
   //Implementation
-  List<int> _decompress(List<int> data, int bytesPerRow) {
+  /// internal method
+  List<int> decompress(List<int> data, int bytesPerRow) {
     if (bytesPerRow <= 0) {
       throw ArgumentError.value(bytesPerRow,
           'There cannot be less or equal to zero bytes in a line.');

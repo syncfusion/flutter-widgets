@@ -1,32 +1,6 @@
-part of pdf;
-
-/// Provides objects used to fill the interiors of graphical shapes
-/// such as rectangles, ellipses, pies, polygons, and paths.
-///
-/// ```dart
-/// //Create a new PDF document.
-/// PdfDocument doc = PdfDocument();
-/// //Create a new PDF solid brush.
-/// PdfBrush solidBrush = PdfSolidBrush(PdfColor(1, 0, 0));
-/// //Add a page and draw a rectangle using the brush.
-/// doc.pages
-///     .add()
-///     .graphics
-///     .drawRectangle(brush: solidBrush,
-///     bounds: Rect.fromLTWH(0, 0, 200, 100));
-/// //Save the document.
-/// List<int> bytes = doc.save();
-/// //Dispose the document.
-/// doc.dispose();
-/// ```
-abstract class PdfBrush {
-  bool _monitorChanges(
-      PdfBrush? brush,
-      _PdfStreamWriter? streamWriter,
-      Function? getResources,
-      bool saveChanges,
-      PdfColorSpace? currentColorSpace);
-}
+import '../../drawing/color.dart';
+import '../../graphics/pdf_color.dart';
+import 'pdf_solid_brush.dart';
 
 /// Brushes for all the standard colors.
 ///
@@ -43,7 +17,7 @@ abstract class PdfBrush {
 /// ```
 class PdfBrushes {
   PdfBrushes._();
-  static final Map<_KnownColor, PdfBrush> _brushes = <_KnownColor, PdfBrush>{};
+  static final Map<KnownColor, PdfBrush> _brushes = <KnownColor, PdfBrush>{};
 
   /// Gets the AliceBlue brush.
   ///
@@ -59,10 +33,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get aliceBlue {
-    if (_brushes.containsKey(_KnownColor.aliceBlue)) {
-      return _brushes[_KnownColor.aliceBlue]!;
+    if (_brushes.containsKey(KnownColor.aliceBlue)) {
+      return _brushes[KnownColor.aliceBlue]!;
     } else {
-      return _getBrush(_KnownColor.aliceBlue);
+      return _getBrush(KnownColor.aliceBlue);
     }
   }
 
@@ -81,10 +55,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get antiqueWhite {
-    if (_brushes.containsKey(_KnownColor.antiqueWhite)) {
-      return _brushes[_KnownColor.antiqueWhite]!;
+    if (_brushes.containsKey(KnownColor.antiqueWhite)) {
+      return _brushes[KnownColor.antiqueWhite]!;
     } else {
-      return _getBrush(_KnownColor.antiqueWhite);
+      return _getBrush(KnownColor.antiqueWhite);
     }
   }
 
@@ -102,10 +76,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get aqua {
-    if (_brushes.containsKey(_KnownColor.aqua)) {
-      return _brushes[_KnownColor.aqua]!;
+    if (_brushes.containsKey(KnownColor.aqua)) {
+      return _brushes[KnownColor.aqua]!;
     } else {
-      return _getBrush(_KnownColor.aqua);
+      return _getBrush(KnownColor.aqua);
     }
   }
 
@@ -123,10 +97,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get aquamarine {
-    if (_brushes.containsKey(_KnownColor.aquamarine)) {
-      return _brushes[_KnownColor.aquamarine]!;
+    if (_brushes.containsKey(KnownColor.aquamarine)) {
+      return _brushes[KnownColor.aquamarine]!;
     } else {
-      return _getBrush(_KnownColor.aquamarine);
+      return _getBrush(KnownColor.aquamarine);
     }
   }
 
@@ -144,10 +118,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get azure {
-    if (_brushes.containsKey(_KnownColor.azure)) {
-      return _brushes[_KnownColor.azure]!;
+    if (_brushes.containsKey(KnownColor.azure)) {
+      return _brushes[KnownColor.azure]!;
     } else {
-      return _getBrush(_KnownColor.azure);
+      return _getBrush(KnownColor.azure);
     }
   }
 
@@ -165,10 +139,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get beige {
-    if (_brushes.containsKey(_KnownColor.beige)) {
-      return _brushes[_KnownColor.beige]!;
+    if (_brushes.containsKey(KnownColor.beige)) {
+      return _brushes[KnownColor.beige]!;
     } else {
-      return _getBrush(_KnownColor.beige);
+      return _getBrush(KnownColor.beige);
     }
   }
 
@@ -186,10 +160,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get bisque {
-    if (_brushes.containsKey(_KnownColor.bisque)) {
-      return _brushes[_KnownColor.bisque]!;
+    if (_brushes.containsKey(KnownColor.bisque)) {
+      return _brushes[KnownColor.bisque]!;
     } else {
-      return _getBrush(_KnownColor.bisque);
+      return _getBrush(KnownColor.bisque);
     }
   }
 
@@ -207,10 +181,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get black {
-    if (_brushes.containsKey(_KnownColor.black)) {
-      return _brushes[_KnownColor.black]!;
+    if (_brushes.containsKey(KnownColor.black)) {
+      return _brushes[KnownColor.black]!;
     } else {
-      return _getBrush(_KnownColor.black);
+      return _getBrush(KnownColor.black);
     }
   }
 
@@ -229,10 +203,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get blanchedAlmond {
-    if (_brushes.containsKey(_KnownColor.blanchedAlmond)) {
-      return _brushes[_KnownColor.blanchedAlmond]!;
+    if (_brushes.containsKey(KnownColor.blanchedAlmond)) {
+      return _brushes[KnownColor.blanchedAlmond]!;
     } else {
-      return _getBrush(_KnownColor.blanchedAlmond);
+      return _getBrush(KnownColor.blanchedAlmond);
     }
   }
 
@@ -250,10 +224,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get blue {
-    if (_brushes.containsKey(_KnownColor.blue)) {
-      return _brushes[_KnownColor.blue]!;
+    if (_brushes.containsKey(KnownColor.blue)) {
+      return _brushes[KnownColor.blue]!;
     } else {
-      return _getBrush(_KnownColor.blue);
+      return _getBrush(KnownColor.blue);
     }
   }
 
@@ -271,10 +245,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get blueViolet {
-    if (_brushes.containsKey(_KnownColor.blueViolet)) {
-      return _brushes[_KnownColor.blueViolet]!;
+    if (_brushes.containsKey(KnownColor.blueViolet)) {
+      return _brushes[KnownColor.blueViolet]!;
     } else {
-      return _getBrush(_KnownColor.blueViolet);
+      return _getBrush(KnownColor.blueViolet);
     }
   }
 
@@ -292,10 +266,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get brown {
-    if (_brushes.containsKey(_KnownColor.brown)) {
-      return _brushes[_KnownColor.brown]!;
+    if (_brushes.containsKey(KnownColor.brown)) {
+      return _brushes[KnownColor.brown]!;
     } else {
-      return _getBrush(_KnownColor.brown);
+      return _getBrush(KnownColor.brown);
     }
   }
 
@@ -313,10 +287,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get burlyWood {
-    if (_brushes.containsKey(_KnownColor.burlyWood)) {
-      return _brushes[_KnownColor.burlyWood]!;
+    if (_brushes.containsKey(KnownColor.burlyWood)) {
+      return _brushes[KnownColor.burlyWood]!;
     } else {
-      return _getBrush(_KnownColor.burlyWood);
+      return _getBrush(KnownColor.burlyWood);
     }
   }
 
@@ -334,10 +308,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get cadetBlue {
-    if (_brushes.containsKey(_KnownColor.cadetBlue)) {
-      return _brushes[_KnownColor.cadetBlue]!;
+    if (_brushes.containsKey(KnownColor.cadetBlue)) {
+      return _brushes[KnownColor.cadetBlue]!;
     } else {
-      return _getBrush(_KnownColor.cadetBlue);
+      return _getBrush(KnownColor.cadetBlue);
     }
   }
 
@@ -355,10 +329,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get chartreuse {
-    if (_brushes.containsKey(_KnownColor.chartreuse)) {
-      return _brushes[_KnownColor.chartreuse]!;
+    if (_brushes.containsKey(KnownColor.chartreuse)) {
+      return _brushes[KnownColor.chartreuse]!;
     } else {
-      return _getBrush(_KnownColor.chartreuse);
+      return _getBrush(KnownColor.chartreuse);
     }
   }
 
@@ -376,10 +350,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get chocolate {
-    if (_brushes.containsKey(_KnownColor.chocolate)) {
-      return _brushes[_KnownColor.chocolate]!;
+    if (_brushes.containsKey(KnownColor.chocolate)) {
+      return _brushes[KnownColor.chocolate]!;
     } else {
-      return _getBrush(_KnownColor.chocolate);
+      return _getBrush(KnownColor.chocolate);
     }
   }
 
@@ -397,10 +371,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get coral {
-    if (_brushes.containsKey(_KnownColor.coral)) {
-      return _brushes[_KnownColor.coral]!;
+    if (_brushes.containsKey(KnownColor.coral)) {
+      return _brushes[KnownColor.coral]!;
     } else {
-      return _getBrush(_KnownColor.coral);
+      return _getBrush(KnownColor.coral);
     }
   }
 
@@ -419,10 +393,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get cornflowerBlue {
-    if (_brushes.containsKey(_KnownColor.cornflowerBlue)) {
-      return _brushes[_KnownColor.cornflowerBlue]!;
+    if (_brushes.containsKey(KnownColor.cornflowerBlue)) {
+      return _brushes[KnownColor.cornflowerBlue]!;
     } else {
-      return _getBrush(_KnownColor.cornflowerBlue);
+      return _getBrush(KnownColor.cornflowerBlue);
     }
   }
 
@@ -440,10 +414,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get cornsilk {
-    if (_brushes.containsKey(_KnownColor.cornsilk)) {
-      return _brushes[_KnownColor.cornsilk]!;
+    if (_brushes.containsKey(KnownColor.cornsilk)) {
+      return _brushes[KnownColor.cornsilk]!;
     } else {
-      return _getBrush(_KnownColor.cornsilk);
+      return _getBrush(KnownColor.cornsilk);
     }
   }
 
@@ -461,10 +435,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get crimson {
-    if (_brushes.containsKey(_KnownColor.crimson)) {
-      return _brushes[_KnownColor.crimson]!;
+    if (_brushes.containsKey(KnownColor.crimson)) {
+      return _brushes[KnownColor.crimson]!;
     } else {
-      return _getBrush(_KnownColor.crimson);
+      return _getBrush(KnownColor.crimson);
     }
   }
 
@@ -482,10 +456,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get cyan {
-    if (_brushes.containsKey(_KnownColor.cyan)) {
-      return _brushes[_KnownColor.cyan]!;
+    if (_brushes.containsKey(KnownColor.cyan)) {
+      return _brushes[KnownColor.cyan]!;
     } else {
-      return _getBrush(_KnownColor.cyan);
+      return _getBrush(KnownColor.cyan);
     }
   }
 
@@ -503,10 +477,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkBlue {
-    if (_brushes.containsKey(_KnownColor.darkBlue)) {
-      return _brushes[_KnownColor.darkBlue]!;
+    if (_brushes.containsKey(KnownColor.darkBlue)) {
+      return _brushes[KnownColor.darkBlue]!;
     } else {
-      return _getBrush(_KnownColor.darkBlue);
+      return _getBrush(KnownColor.darkBlue);
     }
   }
 
@@ -524,10 +498,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkCyan {
-    if (_brushes.containsKey(_KnownColor.darkCyan)) {
-      return _brushes[_KnownColor.darkCyan]!;
+    if (_brushes.containsKey(KnownColor.darkCyan)) {
+      return _brushes[KnownColor.darkCyan]!;
     } else {
-      return _getBrush(_KnownColor.darkCyan);
+      return _getBrush(KnownColor.darkCyan);
     }
   }
 
@@ -546,10 +520,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkGoldenrod {
-    if (_brushes.containsKey(_KnownColor.darkGoldenrod)) {
-      return _brushes[_KnownColor.darkGoldenrod]!;
+    if (_brushes.containsKey(KnownColor.darkGoldenrod)) {
+      return _brushes[KnownColor.darkGoldenrod]!;
     } else {
-      return _getBrush(_KnownColor.darkGoldenrod);
+      return _getBrush(KnownColor.darkGoldenrod);
     }
   }
 
@@ -567,10 +541,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkGray {
-    if (_brushes.containsKey(_KnownColor.darkGray)) {
-      return _brushes[_KnownColor.darkGray]!;
+    if (_brushes.containsKey(KnownColor.darkGray)) {
+      return _brushes[KnownColor.darkGray]!;
     } else {
-      return _getBrush(_KnownColor.darkGray);
+      return _getBrush(KnownColor.darkGray);
     }
   }
 
@@ -588,10 +562,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkGreen {
-    if (_brushes.containsKey(_KnownColor.darkGreen)) {
-      return _brushes[_KnownColor.darkGreen]!;
+    if (_brushes.containsKey(KnownColor.darkGreen)) {
+      return _brushes[KnownColor.darkGreen]!;
     } else {
-      return _getBrush(_KnownColor.darkGreen);
+      return _getBrush(KnownColor.darkGreen);
     }
   }
 
@@ -609,10 +583,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkKhaki {
-    if (_brushes.containsKey(_KnownColor.darkKhaki)) {
-      return _brushes[_KnownColor.darkKhaki]!;
+    if (_brushes.containsKey(KnownColor.darkKhaki)) {
+      return _brushes[KnownColor.darkKhaki]!;
     } else {
-      return _getBrush(_KnownColor.darkKhaki);
+      return _getBrush(KnownColor.darkKhaki);
     }
   }
 
@@ -630,10 +604,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkMagenta {
-    if (_brushes.containsKey(_KnownColor.darkMagenta)) {
-      return _brushes[_KnownColor.darkMagenta]!;
+    if (_brushes.containsKey(KnownColor.darkMagenta)) {
+      return _brushes[KnownColor.darkMagenta]!;
     } else {
-      return _getBrush(_KnownColor.darkMagenta);
+      return _getBrush(KnownColor.darkMagenta);
     }
   }
 
@@ -652,10 +626,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkOliveGreen {
-    if (_brushes.containsKey(_KnownColor.darkOliveGreen)) {
-      return _brushes[_KnownColor.darkOliveGreen]!;
+    if (_brushes.containsKey(KnownColor.darkOliveGreen)) {
+      return _brushes[KnownColor.darkOliveGreen]!;
     } else {
-      return _getBrush(_KnownColor.darkOliveGreen);
+      return _getBrush(KnownColor.darkOliveGreen);
     }
   }
 
@@ -673,10 +647,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkOrange {
-    if (_brushes.containsKey(_KnownColor.darkOrange)) {
-      return _brushes[_KnownColor.darkOrange]!;
+    if (_brushes.containsKey(KnownColor.darkOrange)) {
+      return _brushes[KnownColor.darkOrange]!;
     } else {
-      return _getBrush(_KnownColor.darkOrange);
+      return _getBrush(KnownColor.darkOrange);
     }
   }
 
@@ -694,10 +668,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkOrchid {
-    if (_brushes.containsKey(_KnownColor.darkOrchid)) {
-      return _brushes[_KnownColor.darkOrchid]!;
+    if (_brushes.containsKey(KnownColor.darkOrchid)) {
+      return _brushes[KnownColor.darkOrchid]!;
     } else {
-      return _getBrush(_KnownColor.darkOrchid);
+      return _getBrush(KnownColor.darkOrchid);
     }
   }
 
@@ -715,10 +689,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkRed {
-    if (_brushes.containsKey(_KnownColor.darkRed)) {
-      return _brushes[_KnownColor.darkRed]!;
+    if (_brushes.containsKey(KnownColor.darkRed)) {
+      return _brushes[KnownColor.darkRed]!;
     } else {
-      return _getBrush(_KnownColor.darkRed);
+      return _getBrush(KnownColor.darkRed);
     }
   }
 
@@ -736,10 +710,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkSalmon {
-    if (_brushes.containsKey(_KnownColor.darkSalmon)) {
-      return _brushes[_KnownColor.darkSalmon]!;
+    if (_brushes.containsKey(KnownColor.darkSalmon)) {
+      return _brushes[KnownColor.darkSalmon]!;
     } else {
-      return _getBrush(_KnownColor.darkSalmon);
+      return _getBrush(KnownColor.darkSalmon);
     }
   }
 
@@ -758,10 +732,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkSeaGreen {
-    if (_brushes.containsKey(_KnownColor.darkSeaGreen)) {
-      return _brushes[_KnownColor.darkSeaGreen]!;
+    if (_brushes.containsKey(KnownColor.darkSeaGreen)) {
+      return _brushes[KnownColor.darkSeaGreen]!;
     } else {
-      return _getBrush(_KnownColor.darkSeaGreen);
+      return _getBrush(KnownColor.darkSeaGreen);
     }
   }
 
@@ -780,10 +754,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkSlateBlue {
-    if (_brushes.containsKey(_KnownColor.darkSlateBlue)) {
-      return _brushes[_KnownColor.darkSlateBlue]!;
+    if (_brushes.containsKey(KnownColor.darkSlateBlue)) {
+      return _brushes[KnownColor.darkSlateBlue]!;
     } else {
-      return _getBrush(_KnownColor.darkSlateBlue);
+      return _getBrush(KnownColor.darkSlateBlue);
     }
   }
 
@@ -802,10 +776,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkSlateGray {
-    if (_brushes.containsKey(_KnownColor.darkSlateGray)) {
-      return _brushes[_KnownColor.darkSlateGray]!;
+    if (_brushes.containsKey(KnownColor.darkSlateGray)) {
+      return _brushes[KnownColor.darkSlateGray]!;
     } else {
-      return _getBrush(_KnownColor.darkSlateGray);
+      return _getBrush(KnownColor.darkSlateGray);
     }
   }
 
@@ -824,10 +798,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkTurquoise {
-    if (_brushes.containsKey(_KnownColor.darkTurquoise)) {
-      return _brushes[_KnownColor.darkTurquoise]!;
+    if (_brushes.containsKey(KnownColor.darkTurquoise)) {
+      return _brushes[KnownColor.darkTurquoise]!;
     } else {
-      return _getBrush(_KnownColor.darkTurquoise);
+      return _getBrush(KnownColor.darkTurquoise);
     }
   }
 
@@ -845,10 +819,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get darkViolet {
-    if (_brushes.containsKey(_KnownColor.darkViolet)) {
-      return _brushes[_KnownColor.darkViolet]!;
+    if (_brushes.containsKey(KnownColor.darkViolet)) {
+      return _brushes[KnownColor.darkViolet]!;
     } else {
-      return _getBrush(_KnownColor.darkViolet);
+      return _getBrush(KnownColor.darkViolet);
     }
   }
 
@@ -866,10 +840,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get deepPink {
-    if (_brushes.containsKey(_KnownColor.deepPink)) {
-      return _brushes[_KnownColor.deepPink]!;
+    if (_brushes.containsKey(KnownColor.deepPink)) {
+      return _brushes[KnownColor.deepPink]!;
     } else {
-      return _getBrush(_KnownColor.deepPink);
+      return _getBrush(KnownColor.deepPink);
     }
   }
 
@@ -887,10 +861,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get deepSkyBlue {
-    if (_brushes.containsKey(_KnownColor.deepSkyBlue)) {
-      return _brushes[_KnownColor.deepSkyBlue]!;
+    if (_brushes.containsKey(KnownColor.deepSkyBlue)) {
+      return _brushes[KnownColor.deepSkyBlue]!;
     } else {
-      return _getBrush(_KnownColor.deepSkyBlue);
+      return _getBrush(KnownColor.deepSkyBlue);
     }
   }
 
@@ -908,10 +882,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get dimGray {
-    if (_brushes.containsKey(_KnownColor.dimGray)) {
-      return _brushes[_KnownColor.dimGray]!;
+    if (_brushes.containsKey(KnownColor.dimGray)) {
+      return _brushes[KnownColor.dimGray]!;
     } else {
-      return _getBrush(_KnownColor.dimGray);
+      return _getBrush(KnownColor.dimGray);
     }
   }
 
@@ -929,10 +903,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get dodgerBlue {
-    if (_brushes.containsKey(_KnownColor.dodgerBlue)) {
-      return _brushes[_KnownColor.dodgerBlue]!;
+    if (_brushes.containsKey(KnownColor.dodgerBlue)) {
+      return _brushes[KnownColor.dodgerBlue]!;
     } else {
-      return _getBrush(_KnownColor.dodgerBlue);
+      return _getBrush(KnownColor.dodgerBlue);
     }
   }
 
@@ -950,10 +924,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get firebrick {
-    if (_brushes.containsKey(_KnownColor.firebrick)) {
-      return _brushes[_KnownColor.firebrick]!;
+    if (_brushes.containsKey(KnownColor.firebrick)) {
+      return _brushes[KnownColor.firebrick]!;
     } else {
-      return _getBrush(_KnownColor.firebrick);
+      return _getBrush(KnownColor.firebrick);
     }
   }
 
@@ -971,10 +945,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get floralWhite {
-    if (_brushes.containsKey(_KnownColor.floralWhite)) {
-      return _brushes[_KnownColor.floralWhite]!;
+    if (_brushes.containsKey(KnownColor.floralWhite)) {
+      return _brushes[KnownColor.floralWhite]!;
     } else {
-      return _getBrush(_KnownColor.floralWhite);
+      return _getBrush(KnownColor.floralWhite);
     }
   }
 
@@ -992,10 +966,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get forestGreen {
-    if (_brushes.containsKey(_KnownColor.forestGreen)) {
-      return _brushes[_KnownColor.forestGreen]!;
+    if (_brushes.containsKey(KnownColor.forestGreen)) {
+      return _brushes[KnownColor.forestGreen]!;
     } else {
-      return _getBrush(_KnownColor.forestGreen);
+      return _getBrush(KnownColor.forestGreen);
     }
   }
 
@@ -1013,10 +987,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get fuchsia {
-    if (_brushes.containsKey(_KnownColor.fuchsia)) {
-      return _brushes[_KnownColor.fuchsia]!;
+    if (_brushes.containsKey(KnownColor.fuchsia)) {
+      return _brushes[KnownColor.fuchsia]!;
     } else {
-      return _getBrush(_KnownColor.fuchsia);
+      return _getBrush(KnownColor.fuchsia);
     }
   }
 
@@ -1034,10 +1008,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get gainsboro {
-    if (_brushes.containsKey(_KnownColor.gainsboro)) {
-      return _brushes[_KnownColor.gainsboro]!;
+    if (_brushes.containsKey(KnownColor.gainsboro)) {
+      return _brushes[KnownColor.gainsboro]!;
     } else {
-      return _getBrush(_KnownColor.gainsboro);
+      return _getBrush(KnownColor.gainsboro);
     }
   }
 
@@ -1055,10 +1029,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get ghostWhite {
-    if (_brushes.containsKey(_KnownColor.ghostWhite)) {
-      return _brushes[_KnownColor.ghostWhite]!;
+    if (_brushes.containsKey(KnownColor.ghostWhite)) {
+      return _brushes[KnownColor.ghostWhite]!;
     } else {
-      return _getBrush(_KnownColor.ghostWhite);
+      return _getBrush(KnownColor.ghostWhite);
     }
   }
 
@@ -1076,10 +1050,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get gold {
-    if (_brushes.containsKey(_KnownColor.gold)) {
-      return _brushes[_KnownColor.gold]!;
+    if (_brushes.containsKey(KnownColor.gold)) {
+      return _brushes[KnownColor.gold]!;
     } else {
-      return _getBrush(_KnownColor.gold);
+      return _getBrush(KnownColor.gold);
     }
   }
 
@@ -1097,10 +1071,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get goldenrod {
-    if (_brushes.containsKey(_KnownColor.goldenrod)) {
-      return _brushes[_KnownColor.goldenrod]!;
+    if (_brushes.containsKey(KnownColor.goldenrod)) {
+      return _brushes[KnownColor.goldenrod]!;
     } else {
-      return _getBrush(_KnownColor.goldenrod);
+      return _getBrush(KnownColor.goldenrod);
     }
   }
 
@@ -1118,10 +1092,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get gray {
-    if (_brushes.containsKey(_KnownColor.gray)) {
-      return _brushes[_KnownColor.gray]!;
+    if (_brushes.containsKey(KnownColor.gray)) {
+      return _brushes[KnownColor.gray]!;
     } else {
-      return _getBrush(_KnownColor.gray);
+      return _getBrush(KnownColor.gray);
     }
   }
 
@@ -1139,10 +1113,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get green {
-    if (_brushes.containsKey(_KnownColor.green)) {
-      return _brushes[_KnownColor.green]!;
+    if (_brushes.containsKey(KnownColor.green)) {
+      return _brushes[KnownColor.green]!;
     } else {
-      return _getBrush(_KnownColor.green);
+      return _getBrush(KnownColor.green);
     }
   }
 
@@ -1160,10 +1134,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get greenYellow {
-    if (_brushes.containsKey(_KnownColor.greenYellow)) {
-      return _brushes[_KnownColor.greenYellow]!;
+    if (_brushes.containsKey(KnownColor.greenYellow)) {
+      return _brushes[KnownColor.greenYellow]!;
     } else {
-      return _getBrush(_KnownColor.greenYellow);
+      return _getBrush(KnownColor.greenYellow);
     }
   }
 
@@ -1181,10 +1155,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get honeydew {
-    if (_brushes.containsKey(_KnownColor.honeydew)) {
-      return _brushes[_KnownColor.honeydew]!;
+    if (_brushes.containsKey(KnownColor.honeydew)) {
+      return _brushes[KnownColor.honeydew]!;
     } else {
-      return _getBrush(_KnownColor.honeydew);
+      return _getBrush(KnownColor.honeydew);
     }
   }
 
@@ -1202,10 +1176,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get hotPink {
-    if (_brushes.containsKey(_KnownColor.hotPink)) {
-      return _brushes[_KnownColor.hotPink]!;
+    if (_brushes.containsKey(KnownColor.hotPink)) {
+      return _brushes[KnownColor.hotPink]!;
     } else {
-      return _getBrush(_KnownColor.hotPink);
+      return _getBrush(KnownColor.hotPink);
     }
   }
 
@@ -1223,10 +1197,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get indianRed {
-    if (_brushes.containsKey(_KnownColor.indianRed)) {
-      return _brushes[_KnownColor.indianRed]!;
+    if (_brushes.containsKey(KnownColor.indianRed)) {
+      return _brushes[KnownColor.indianRed]!;
     } else {
-      return _getBrush(_KnownColor.indianRed);
+      return _getBrush(KnownColor.indianRed);
     }
   }
 
@@ -1244,10 +1218,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get indigo {
-    if (_brushes.containsKey(_KnownColor.indigo)) {
-      return _brushes[_KnownColor.indigo]!;
+    if (_brushes.containsKey(KnownColor.indigo)) {
+      return _brushes[KnownColor.indigo]!;
     } else {
-      return _getBrush(_KnownColor.indigo);
+      return _getBrush(KnownColor.indigo);
     }
   }
 
@@ -1265,10 +1239,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get ivory {
-    if (_brushes.containsKey(_KnownColor.ivory)) {
-      return _brushes[_KnownColor.ivory]!;
+    if (_brushes.containsKey(KnownColor.ivory)) {
+      return _brushes[KnownColor.ivory]!;
     } else {
-      return _getBrush(_KnownColor.ivory);
+      return _getBrush(KnownColor.ivory);
     }
   }
 
@@ -1286,10 +1260,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get khaki {
-    if (_brushes.containsKey(_KnownColor.khaki)) {
-      return _brushes[_KnownColor.khaki]!;
+    if (_brushes.containsKey(KnownColor.khaki)) {
+      return _brushes[KnownColor.khaki]!;
     } else {
-      return _getBrush(_KnownColor.khaki);
+      return _getBrush(KnownColor.khaki);
     }
   }
 
@@ -1307,10 +1281,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lavender {
-    if (_brushes.containsKey(_KnownColor.lavender)) {
-      return _brushes[_KnownColor.lavender]!;
+    if (_brushes.containsKey(KnownColor.lavender)) {
+      return _brushes[KnownColor.lavender]!;
     } else {
-      return _getBrush(_KnownColor.lavender);
+      return _getBrush(KnownColor.lavender);
     }
   }
 
@@ -1329,10 +1303,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lavenderBlush {
-    if (_brushes.containsKey(_KnownColor.lavenderBlush)) {
-      return _brushes[_KnownColor.lavenderBlush]!;
+    if (_brushes.containsKey(KnownColor.lavenderBlush)) {
+      return _brushes[KnownColor.lavenderBlush]!;
     } else {
-      return _getBrush(_KnownColor.lavenderBlush);
+      return _getBrush(KnownColor.lavenderBlush);
     }
   }
 
@@ -1350,10 +1324,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lawnGreen {
-    if (_brushes.containsKey(_KnownColor.lawnGreen)) {
-      return _brushes[_KnownColor.lawnGreen]!;
+    if (_brushes.containsKey(KnownColor.lawnGreen)) {
+      return _brushes[KnownColor.lawnGreen]!;
     } else {
-      return _getBrush(_KnownColor.lawnGreen);
+      return _getBrush(KnownColor.lawnGreen);
     }
   }
 
@@ -1372,10 +1346,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lemonChiffon {
-    if (_brushes.containsKey(_KnownColor.lemonChiffon)) {
-      return _brushes[_KnownColor.lemonChiffon]!;
+    if (_brushes.containsKey(KnownColor.lemonChiffon)) {
+      return _brushes[KnownColor.lemonChiffon]!;
     } else {
-      return _getBrush(_KnownColor.lemonChiffon);
+      return _getBrush(KnownColor.lemonChiffon);
     }
   }
 
@@ -1393,10 +1367,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightBlue {
-    if (_brushes.containsKey(_KnownColor.lightBlue)) {
-      return _brushes[_KnownColor.lightBlue]!;
+    if (_brushes.containsKey(KnownColor.lightBlue)) {
+      return _brushes[KnownColor.lightBlue]!;
     } else {
-      return _getBrush(_KnownColor.lightBlue);
+      return _getBrush(KnownColor.lightBlue);
     }
   }
 
@@ -1414,10 +1388,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightCoral {
-    if (_brushes.containsKey(_KnownColor.lightCoral)) {
-      return _brushes[_KnownColor.lightCoral]!;
+    if (_brushes.containsKey(KnownColor.lightCoral)) {
+      return _brushes[KnownColor.lightCoral]!;
     } else {
-      return _getBrush(_KnownColor.lightCoral);
+      return _getBrush(KnownColor.lightCoral);
     }
   }
 
@@ -1435,10 +1409,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightCyan {
-    if (_brushes.containsKey(_KnownColor.lightCyan)) {
-      return _brushes[_KnownColor.lightCyan]!;
+    if (_brushes.containsKey(KnownColor.lightCyan)) {
+      return _brushes[KnownColor.lightCyan]!;
     } else {
-      return _getBrush(_KnownColor.lightCyan);
+      return _getBrush(KnownColor.lightCyan);
     }
   }
 
@@ -1457,10 +1431,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightGoldenrodYellow {
-    if (_brushes.containsKey(_KnownColor.lightGoldenrodYellow)) {
-      return _brushes[_KnownColor.lightGoldenrodYellow]!;
+    if (_brushes.containsKey(KnownColor.lightGoldenrodYellow)) {
+      return _brushes[KnownColor.lightGoldenrodYellow]!;
     } else {
-      return _getBrush(_KnownColor.lightGoldenrodYellow);
+      return _getBrush(KnownColor.lightGoldenrodYellow);
     }
   }
 
@@ -1478,10 +1452,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightGray {
-    if (_brushes.containsKey(_KnownColor.lightGray)) {
-      return _brushes[_KnownColor.lightGray]!;
+    if (_brushes.containsKey(KnownColor.lightGray)) {
+      return _brushes[KnownColor.lightGray]!;
     } else {
-      return _getBrush(_KnownColor.lightGray);
+      return _getBrush(KnownColor.lightGray);
     }
   }
 
@@ -1499,10 +1473,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightGreen {
-    if (_brushes.containsKey(_KnownColor.lightGreen)) {
-      return _brushes[_KnownColor.lightGreen]!;
+    if (_brushes.containsKey(KnownColor.lightGreen)) {
+      return _brushes[KnownColor.lightGreen]!;
     } else {
-      return _getBrush(_KnownColor.lightGreen);
+      return _getBrush(KnownColor.lightGreen);
     }
   }
 
@@ -1520,10 +1494,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightPink {
-    if (_brushes.containsKey(_KnownColor.lightPink)) {
-      return _brushes[_KnownColor.lightPink]!;
+    if (_brushes.containsKey(KnownColor.lightPink)) {
+      return _brushes[KnownColor.lightPink]!;
     } else {
-      return _getBrush(_KnownColor.lightPink);
+      return _getBrush(KnownColor.lightPink);
     }
   }
 
@@ -1541,10 +1515,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightSalmon {
-    if (_brushes.containsKey(_KnownColor.lightSalmon)) {
-      return _brushes[_KnownColor.lightSalmon]!;
+    if (_brushes.containsKey(KnownColor.lightSalmon)) {
+      return _brushes[KnownColor.lightSalmon]!;
     } else {
-      return _getBrush(_KnownColor.lightSalmon);
+      return _getBrush(KnownColor.lightSalmon);
     }
   }
 
@@ -1563,10 +1537,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightSeaGreen {
-    if (_brushes.containsKey(_KnownColor.lightSeaGreen)) {
-      return _brushes[_KnownColor.lightSeaGreen]!;
+    if (_brushes.containsKey(KnownColor.lightSeaGreen)) {
+      return _brushes[KnownColor.lightSeaGreen]!;
     } else {
-      return _getBrush(_KnownColor.lightSeaGreen);
+      return _getBrush(KnownColor.lightSeaGreen);
     }
   }
 
@@ -1585,10 +1559,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightSkyBlue {
-    if (_brushes.containsKey(_KnownColor.lightSkyBlue)) {
-      return _brushes[_KnownColor.lightSkyBlue]!;
+    if (_brushes.containsKey(KnownColor.lightSkyBlue)) {
+      return _brushes[KnownColor.lightSkyBlue]!;
     } else {
-      return _getBrush(_KnownColor.lightSkyBlue);
+      return _getBrush(KnownColor.lightSkyBlue);
     }
   }
 
@@ -1607,10 +1581,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightSlateGray {
-    if (_brushes.containsKey(_KnownColor.lightSlateGray)) {
-      return _brushes[_KnownColor.lightSlateGray]!;
+    if (_brushes.containsKey(KnownColor.lightSlateGray)) {
+      return _brushes[KnownColor.lightSlateGray]!;
     } else {
-      return _getBrush(_KnownColor.lightSlateGray);
+      return _getBrush(KnownColor.lightSlateGray);
     }
   }
 
@@ -1629,10 +1603,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightSteelBlue {
-    if (_brushes.containsKey(_KnownColor.lightSteelBlue)) {
-      return _brushes[_KnownColor.lightSteelBlue]!;
+    if (_brushes.containsKey(KnownColor.lightSteelBlue)) {
+      return _brushes[KnownColor.lightSteelBlue]!;
     } else {
-      return _getBrush(_KnownColor.lightSteelBlue);
+      return _getBrush(KnownColor.lightSteelBlue);
     }
   }
 
@@ -1650,10 +1624,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lightYellow {
-    if (_brushes.containsKey(_KnownColor.lightYellow)) {
-      return _brushes[_KnownColor.lightYellow]!;
+    if (_brushes.containsKey(KnownColor.lightYellow)) {
+      return _brushes[KnownColor.lightYellow]!;
     } else {
-      return _getBrush(_KnownColor.lightYellow);
+      return _getBrush(KnownColor.lightYellow);
     }
   }
 
@@ -1671,10 +1645,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get lime {
-    if (_brushes.containsKey(_KnownColor.lime)) {
-      return _brushes[_KnownColor.lime]!;
+    if (_brushes.containsKey(KnownColor.lime)) {
+      return _brushes[KnownColor.lime]!;
     } else {
-      return _getBrush(_KnownColor.lime);
+      return _getBrush(KnownColor.lime);
     }
   }
 
@@ -1692,10 +1666,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get limeGreen {
-    if (_brushes.containsKey(_KnownColor.limeGreen)) {
-      return _brushes[_KnownColor.limeGreen]!;
+    if (_brushes.containsKey(KnownColor.limeGreen)) {
+      return _brushes[KnownColor.limeGreen]!;
     } else {
-      return _getBrush(_KnownColor.limeGreen);
+      return _getBrush(KnownColor.limeGreen);
     }
   }
 
@@ -1713,10 +1687,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get linen {
-    if (_brushes.containsKey(_KnownColor.linen)) {
-      return _brushes[_KnownColor.linen]!;
+    if (_brushes.containsKey(KnownColor.linen)) {
+      return _brushes[KnownColor.linen]!;
     } else {
-      return _getBrush(_KnownColor.linen);
+      return _getBrush(KnownColor.linen);
     }
   }
 
@@ -1734,10 +1708,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get magenta {
-    if (_brushes.containsKey(_KnownColor.magenta)) {
-      return _brushes[_KnownColor.magenta]!;
+    if (_brushes.containsKey(KnownColor.magenta)) {
+      return _brushes[KnownColor.magenta]!;
     } else {
-      return _getBrush(_KnownColor.magenta);
+      return _getBrush(KnownColor.magenta);
     }
   }
 
@@ -1755,10 +1729,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get maroon {
-    if (_brushes.containsKey(_KnownColor.maroon)) {
-      return _brushes[_KnownColor.maroon]!;
+    if (_brushes.containsKey(KnownColor.maroon)) {
+      return _brushes[KnownColor.maroon]!;
     } else {
-      return _getBrush(_KnownColor.maroon);
+      return _getBrush(KnownColor.maroon);
     }
   }
 
@@ -1777,10 +1751,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get mediumAquamarine {
-    if (_brushes.containsKey(_KnownColor.mediumAquamarine)) {
-      return _brushes[_KnownColor.mediumAquamarine]!;
+    if (_brushes.containsKey(KnownColor.mediumAquamarine)) {
+      return _brushes[KnownColor.mediumAquamarine]!;
     } else {
-      return _getBrush(_KnownColor.mediumAquamarine);
+      return _getBrush(KnownColor.mediumAquamarine);
     }
   }
 
@@ -1798,10 +1772,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get mediumBlue {
-    if (_brushes.containsKey(_KnownColor.mediumBlue)) {
-      return _brushes[_KnownColor.mediumBlue]!;
+    if (_brushes.containsKey(KnownColor.mediumBlue)) {
+      return _brushes[KnownColor.mediumBlue]!;
     } else {
-      return _getBrush(_KnownColor.mediumBlue);
+      return _getBrush(KnownColor.mediumBlue);
     }
   }
 
@@ -1820,10 +1794,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get mediumOrchid {
-    if (_brushes.containsKey(_KnownColor.mediumOrchid)) {
-      return _brushes[_KnownColor.mediumOrchid]!;
+    if (_brushes.containsKey(KnownColor.mediumOrchid)) {
+      return _brushes[KnownColor.mediumOrchid]!;
     } else {
-      return _getBrush(_KnownColor.mediumOrchid);
+      return _getBrush(KnownColor.mediumOrchid);
     }
   }
 
@@ -1842,10 +1816,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get mediumPurple {
-    if (_brushes.containsKey(_KnownColor.mediumPurple)) {
-      return _brushes[_KnownColor.mediumPurple]!;
+    if (_brushes.containsKey(KnownColor.mediumPurple)) {
+      return _brushes[KnownColor.mediumPurple]!;
     } else {
-      return _getBrush(_KnownColor.mediumPurple);
+      return _getBrush(KnownColor.mediumPurple);
     }
   }
 
@@ -1864,10 +1838,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get mediumSeaGreen {
-    if (_brushes.containsKey(_KnownColor.mediumSeaGreen)) {
-      return _brushes[_KnownColor.mediumSeaGreen]!;
+    if (_brushes.containsKey(KnownColor.mediumSeaGreen)) {
+      return _brushes[KnownColor.mediumSeaGreen]!;
     } else {
-      return _getBrush(_KnownColor.mediumSeaGreen);
+      return _getBrush(KnownColor.mediumSeaGreen);
     }
   }
 
@@ -1886,10 +1860,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get mediumSlateBlue {
-    if (_brushes.containsKey(_KnownColor.mediumSlateBlue)) {
-      return _brushes[_KnownColor.mediumSlateBlue]!;
+    if (_brushes.containsKey(KnownColor.mediumSlateBlue)) {
+      return _brushes[KnownColor.mediumSlateBlue]!;
     } else {
-      return _getBrush(_KnownColor.mediumSlateBlue);
+      return _getBrush(KnownColor.mediumSlateBlue);
     }
   }
 
@@ -1908,10 +1882,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get mediumSpringGreen {
-    if (_brushes.containsKey(_KnownColor.mediumSpringGreen)) {
-      return _brushes[_KnownColor.mediumSpringGreen]!;
+    if (_brushes.containsKey(KnownColor.mediumSpringGreen)) {
+      return _brushes[KnownColor.mediumSpringGreen]!;
     } else {
-      return _getBrush(_KnownColor.mediumSpringGreen);
+      return _getBrush(KnownColor.mediumSpringGreen);
     }
   }
 
@@ -1930,10 +1904,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get mediumTurquoise {
-    if (_brushes.containsKey(_KnownColor.mediumTurquoise)) {
-      return _brushes[_KnownColor.mediumTurquoise]!;
+    if (_brushes.containsKey(KnownColor.mediumTurquoise)) {
+      return _brushes[KnownColor.mediumTurquoise]!;
     } else {
-      return _getBrush(_KnownColor.mediumTurquoise);
+      return _getBrush(KnownColor.mediumTurquoise);
     }
   }
 
@@ -1952,10 +1926,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get mediumVioletRed {
-    if (_brushes.containsKey(_KnownColor.mediumVioletRed)) {
-      return _brushes[_KnownColor.mediumVioletRed]!;
+    if (_brushes.containsKey(KnownColor.mediumVioletRed)) {
+      return _brushes[KnownColor.mediumVioletRed]!;
     } else {
-      return _getBrush(_KnownColor.mediumVioletRed);
+      return _getBrush(KnownColor.mediumVioletRed);
     }
   }
 
@@ -1974,10 +1948,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get midnightBlue {
-    if (_brushes.containsKey(_KnownColor.midnightBlue)) {
-      return _brushes[_KnownColor.midnightBlue]!;
+    if (_brushes.containsKey(KnownColor.midnightBlue)) {
+      return _brushes[KnownColor.midnightBlue]!;
     } else {
-      return _getBrush(_KnownColor.midnightBlue);
+      return _getBrush(KnownColor.midnightBlue);
     }
   }
 
@@ -1995,10 +1969,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get mintCream {
-    if (_brushes.containsKey(_KnownColor.mintCream)) {
-      return _brushes[_KnownColor.mintCream]!;
+    if (_brushes.containsKey(KnownColor.mintCream)) {
+      return _brushes[KnownColor.mintCream]!;
     } else {
-      return _getBrush(_KnownColor.mintCream);
+      return _getBrush(KnownColor.mintCream);
     }
   }
 
@@ -2016,10 +1990,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get mistyRose {
-    if (_brushes.containsKey(_KnownColor.mistyRose)) {
-      return _brushes[_KnownColor.mistyRose]!;
+    if (_brushes.containsKey(KnownColor.mistyRose)) {
+      return _brushes[KnownColor.mistyRose]!;
     } else {
-      return _getBrush(_KnownColor.mistyRose);
+      return _getBrush(KnownColor.mistyRose);
     }
   }
 
@@ -2037,10 +2011,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get moccasin {
-    if (_brushes.containsKey(_KnownColor.moccasin)) {
-      return _brushes[_KnownColor.moccasin]!;
+    if (_brushes.containsKey(KnownColor.moccasin)) {
+      return _brushes[KnownColor.moccasin]!;
     } else {
-      return _getBrush(_KnownColor.moccasin);
+      return _getBrush(KnownColor.moccasin);
     }
   }
 
@@ -2058,10 +2032,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get navajoWhite {
-    if (_brushes.containsKey(_KnownColor.navajoWhite)) {
-      return _brushes[_KnownColor.navajoWhite]!;
+    if (_brushes.containsKey(KnownColor.navajoWhite)) {
+      return _brushes[KnownColor.navajoWhite]!;
     } else {
-      return _getBrush(_KnownColor.navajoWhite);
+      return _getBrush(KnownColor.navajoWhite);
     }
   }
 
@@ -2079,10 +2053,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get navy {
-    if (_brushes.containsKey(_KnownColor.navy)) {
-      return _brushes[_KnownColor.navy]!;
+    if (_brushes.containsKey(KnownColor.navy)) {
+      return _brushes[KnownColor.navy]!;
     } else {
-      return _getBrush(_KnownColor.navy);
+      return _getBrush(KnownColor.navy);
     }
   }
 
@@ -2100,10 +2074,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get oldLace {
-    if (_brushes.containsKey(_KnownColor.oldLace)) {
-      return _brushes[_KnownColor.oldLace]!;
+    if (_brushes.containsKey(KnownColor.oldLace)) {
+      return _brushes[KnownColor.oldLace]!;
     } else {
-      return _getBrush(_KnownColor.oldLace);
+      return _getBrush(KnownColor.oldLace);
     }
   }
 
@@ -2121,10 +2095,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get olive {
-    if (_brushes.containsKey(_KnownColor.olive)) {
-      return _brushes[_KnownColor.olive]!;
+    if (_brushes.containsKey(KnownColor.olive)) {
+      return _brushes[KnownColor.olive]!;
     } else {
-      return _getBrush(_KnownColor.olive);
+      return _getBrush(KnownColor.olive);
     }
   }
 
@@ -2142,10 +2116,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get oliveDrab {
-    if (_brushes.containsKey(_KnownColor.oliveDrab)) {
-      return _brushes[_KnownColor.oliveDrab]!;
+    if (_brushes.containsKey(KnownColor.oliveDrab)) {
+      return _brushes[KnownColor.oliveDrab]!;
     } else {
-      return _getBrush(_KnownColor.oliveDrab);
+      return _getBrush(KnownColor.oliveDrab);
     }
   }
 
@@ -2163,10 +2137,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get orange {
-    if (_brushes.containsKey(_KnownColor.orange)) {
-      return _brushes[_KnownColor.orange]!;
+    if (_brushes.containsKey(KnownColor.orange)) {
+      return _brushes[KnownColor.orange]!;
     } else {
-      return _getBrush(_KnownColor.orange);
+      return _getBrush(KnownColor.orange);
     }
   }
 
@@ -2184,10 +2158,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get orangeRed {
-    if (_brushes.containsKey(_KnownColor.orangeRed)) {
-      return _brushes[_KnownColor.orangeRed]!;
+    if (_brushes.containsKey(KnownColor.orangeRed)) {
+      return _brushes[KnownColor.orangeRed]!;
     } else {
-      return _getBrush(_KnownColor.orangeRed);
+      return _getBrush(KnownColor.orangeRed);
     }
   }
 
@@ -2205,10 +2179,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get orchid {
-    if (_brushes.containsKey(_KnownColor.orchid)) {
-      return _brushes[_KnownColor.orchid]!;
+    if (_brushes.containsKey(KnownColor.orchid)) {
+      return _brushes[KnownColor.orchid]!;
     } else {
-      return _getBrush(_KnownColor.orchid);
+      return _getBrush(KnownColor.orchid);
     }
   }
 
@@ -2227,10 +2201,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get paleGoldenrod {
-    if (_brushes.containsKey(_KnownColor.paleGoldenrod)) {
-      return _brushes[_KnownColor.paleGoldenrod]!;
+    if (_brushes.containsKey(KnownColor.paleGoldenrod)) {
+      return _brushes[KnownColor.paleGoldenrod]!;
     } else {
-      return _getBrush(_KnownColor.paleGoldenrod);
+      return _getBrush(KnownColor.paleGoldenrod);
     }
   }
 
@@ -2248,10 +2222,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get paleGreen {
-    if (_brushes.containsKey(_KnownColor.paleGreen)) {
-      return _brushes[_KnownColor.paleGreen]!;
+    if (_brushes.containsKey(KnownColor.paleGreen)) {
+      return _brushes[KnownColor.paleGreen]!;
     } else {
-      return _getBrush(_KnownColor.paleGreen);
+      return _getBrush(KnownColor.paleGreen);
     }
   }
 
@@ -2270,10 +2244,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get paleTurquoise {
-    if (_brushes.containsKey(_KnownColor.paleTurquoise)) {
-      return _brushes[_KnownColor.paleTurquoise]!;
+    if (_brushes.containsKey(KnownColor.paleTurquoise)) {
+      return _brushes[KnownColor.paleTurquoise]!;
     } else {
-      return _getBrush(_KnownColor.paleTurquoise);
+      return _getBrush(KnownColor.paleTurquoise);
     }
   }
 
@@ -2292,10 +2266,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get paleVioletRed {
-    if (_brushes.containsKey(_KnownColor.paleVioletRed)) {
-      return _brushes[_KnownColor.paleVioletRed]!;
+    if (_brushes.containsKey(KnownColor.paleVioletRed)) {
+      return _brushes[KnownColor.paleVioletRed]!;
     } else {
-      return _getBrush(_KnownColor.paleVioletRed);
+      return _getBrush(KnownColor.paleVioletRed);
     }
   }
 
@@ -2313,10 +2287,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get papayaWhip {
-    if (_brushes.containsKey(_KnownColor.papayaWhip)) {
-      return _brushes[_KnownColor.papayaWhip]!;
+    if (_brushes.containsKey(KnownColor.papayaWhip)) {
+      return _brushes[KnownColor.papayaWhip]!;
     } else {
-      return _getBrush(_KnownColor.papayaWhip);
+      return _getBrush(KnownColor.papayaWhip);
     }
   }
 
@@ -2334,10 +2308,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get peachPuff {
-    if (_brushes.containsKey(_KnownColor.peachPuff)) {
-      return _brushes[_KnownColor.peachPuff]!;
+    if (_brushes.containsKey(KnownColor.peachPuff)) {
+      return _brushes[KnownColor.peachPuff]!;
     } else {
-      return _getBrush(_KnownColor.peachPuff);
+      return _getBrush(KnownColor.peachPuff);
     }
   }
 
@@ -2355,10 +2329,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get peru {
-    if (_brushes.containsKey(_KnownColor.peru)) {
-      return _brushes[_KnownColor.peru]!;
+    if (_brushes.containsKey(KnownColor.peru)) {
+      return _brushes[KnownColor.peru]!;
     } else {
-      return _getBrush(_KnownColor.peru);
+      return _getBrush(KnownColor.peru);
     }
   }
 
@@ -2376,10 +2350,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get pink {
-    if (_brushes.containsKey(_KnownColor.pink)) {
-      return _brushes[_KnownColor.pink]!;
+    if (_brushes.containsKey(KnownColor.pink)) {
+      return _brushes[KnownColor.pink]!;
     } else {
-      return _getBrush(_KnownColor.pink);
+      return _getBrush(KnownColor.pink);
     }
   }
 
@@ -2397,10 +2371,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get plum {
-    if (_brushes.containsKey(_KnownColor.plum)) {
-      return _brushes[_KnownColor.plum]!;
+    if (_brushes.containsKey(KnownColor.plum)) {
+      return _brushes[KnownColor.plum]!;
     } else {
-      return _getBrush(_KnownColor.plum);
+      return _getBrush(KnownColor.plum);
     }
   }
 
@@ -2418,10 +2392,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get powderBlue {
-    if (_brushes.containsKey(_KnownColor.powderBlue)) {
-      return _brushes[_KnownColor.powderBlue]!;
+    if (_brushes.containsKey(KnownColor.powderBlue)) {
+      return _brushes[KnownColor.powderBlue]!;
     } else {
-      return _getBrush(_KnownColor.powderBlue);
+      return _getBrush(KnownColor.powderBlue);
     }
   }
 
@@ -2439,10 +2413,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get purple {
-    if (_brushes.containsKey(_KnownColor.purple)) {
-      return _brushes[_KnownColor.purple]!;
+    if (_brushes.containsKey(KnownColor.purple)) {
+      return _brushes[KnownColor.purple]!;
     } else {
-      return _getBrush(_KnownColor.purple);
+      return _getBrush(KnownColor.purple);
     }
   }
 
@@ -2460,10 +2434,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get red {
-    if (_brushes.containsKey(_KnownColor.red)) {
-      return _brushes[_KnownColor.red]!;
+    if (_brushes.containsKey(KnownColor.red)) {
+      return _brushes[KnownColor.red]!;
     } else {
-      return _getBrush(_KnownColor.red);
+      return _getBrush(KnownColor.red);
     }
   }
 
@@ -2481,10 +2455,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get rosyBrown {
-    if (_brushes.containsKey(_KnownColor.rosyBrown)) {
-      return _brushes[_KnownColor.rosyBrown]!;
+    if (_brushes.containsKey(KnownColor.rosyBrown)) {
+      return _brushes[KnownColor.rosyBrown]!;
     } else {
-      return _getBrush(_KnownColor.rosyBrown);
+      return _getBrush(KnownColor.rosyBrown);
     }
   }
 
@@ -2502,10 +2476,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get royalBlue {
-    if (_brushes.containsKey(_KnownColor.royalBlue)) {
-      return _brushes[_KnownColor.royalBlue]!;
+    if (_brushes.containsKey(KnownColor.royalBlue)) {
+      return _brushes[KnownColor.royalBlue]!;
     } else {
-      return _getBrush(_KnownColor.royalBlue);
+      return _getBrush(KnownColor.royalBlue);
     }
   }
 
@@ -2523,10 +2497,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get saddleBrown {
-    if (_brushes.containsKey(_KnownColor.saddleBrown)) {
-      return _brushes[_KnownColor.saddleBrown]!;
+    if (_brushes.containsKey(KnownColor.saddleBrown)) {
+      return _brushes[KnownColor.saddleBrown]!;
     } else {
-      return _getBrush(_KnownColor.saddleBrown);
+      return _getBrush(KnownColor.saddleBrown);
     }
   }
 
@@ -2544,10 +2518,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get salmon {
-    if (_brushes.containsKey(_KnownColor.salmon)) {
-      return _brushes[_KnownColor.salmon]!;
+    if (_brushes.containsKey(KnownColor.salmon)) {
+      return _brushes[KnownColor.salmon]!;
     } else {
-      return _getBrush(_KnownColor.salmon);
+      return _getBrush(KnownColor.salmon);
     }
   }
 
@@ -2565,10 +2539,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get sandyBrown {
-    if (_brushes.containsKey(_KnownColor.sandyBrown)) {
-      return _brushes[_KnownColor.sandyBrown]!;
+    if (_brushes.containsKey(KnownColor.sandyBrown)) {
+      return _brushes[KnownColor.sandyBrown]!;
     } else {
-      return _getBrush(_KnownColor.sandyBrown);
+      return _getBrush(KnownColor.sandyBrown);
     }
   }
 
@@ -2586,10 +2560,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get seaGreen {
-    if (_brushes.containsKey(_KnownColor.seaGreen)) {
-      return _brushes[_KnownColor.seaGreen]!;
+    if (_brushes.containsKey(KnownColor.seaGreen)) {
+      return _brushes[KnownColor.seaGreen]!;
     } else {
-      return _getBrush(_KnownColor.seaGreen);
+      return _getBrush(KnownColor.seaGreen);
     }
   }
 
@@ -2607,10 +2581,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get seaShell {
-    if (_brushes.containsKey(_KnownColor.seaShell)) {
-      return _brushes[_KnownColor.seaShell]!;
+    if (_brushes.containsKey(KnownColor.seaShell)) {
+      return _brushes[KnownColor.seaShell]!;
     } else {
-      return _getBrush(_KnownColor.seaShell);
+      return _getBrush(KnownColor.seaShell);
     }
   }
 
@@ -2628,10 +2602,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get sienna {
-    if (_brushes.containsKey(_KnownColor.sienna)) {
-      return _brushes[_KnownColor.sienna]!;
+    if (_brushes.containsKey(KnownColor.sienna)) {
+      return _brushes[KnownColor.sienna]!;
     } else {
-      return _getBrush(_KnownColor.sienna);
+      return _getBrush(KnownColor.sienna);
     }
   }
 
@@ -2649,10 +2623,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get silver {
-    if (_brushes.containsKey(_KnownColor.silver)) {
-      return _brushes[_KnownColor.silver]!;
+    if (_brushes.containsKey(KnownColor.silver)) {
+      return _brushes[KnownColor.silver]!;
     } else {
-      return _getBrush(_KnownColor.silver);
+      return _getBrush(KnownColor.silver);
     }
   }
 
@@ -2670,10 +2644,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get skyBlue {
-    if (_brushes.containsKey(_KnownColor.skyBlue)) {
-      return _brushes[_KnownColor.skyBlue]!;
+    if (_brushes.containsKey(KnownColor.skyBlue)) {
+      return _brushes[KnownColor.skyBlue]!;
     } else {
-      return _getBrush(_KnownColor.skyBlue);
+      return _getBrush(KnownColor.skyBlue);
     }
   }
 
@@ -2691,10 +2665,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get slateBlue {
-    if (_brushes.containsKey(_KnownColor.slateBlue)) {
-      return _brushes[_KnownColor.slateBlue]!;
+    if (_brushes.containsKey(KnownColor.slateBlue)) {
+      return _brushes[KnownColor.slateBlue]!;
     } else {
-      return _getBrush(_KnownColor.slateBlue);
+      return _getBrush(KnownColor.slateBlue);
     }
   }
 
@@ -2712,10 +2686,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get slateGray {
-    if (_brushes.containsKey(_KnownColor.slateGray)) {
-      return _brushes[_KnownColor.slateGray]!;
+    if (_brushes.containsKey(KnownColor.slateGray)) {
+      return _brushes[KnownColor.slateGray]!;
     } else {
-      return _getBrush(_KnownColor.slateGray);
+      return _getBrush(KnownColor.slateGray);
     }
   }
 
@@ -2733,10 +2707,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get snow {
-    if (_brushes.containsKey(_KnownColor.snow)) {
-      return _brushes[_KnownColor.snow]!;
+    if (_brushes.containsKey(KnownColor.snow)) {
+      return _brushes[KnownColor.snow]!;
     } else {
-      return _getBrush(_KnownColor.snow);
+      return _getBrush(KnownColor.snow);
     }
   }
 
@@ -2754,10 +2728,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get springGreen {
-    if (_brushes.containsKey(_KnownColor.springGreen)) {
-      return _brushes[_KnownColor.springGreen]!;
+    if (_brushes.containsKey(KnownColor.springGreen)) {
+      return _brushes[KnownColor.springGreen]!;
     } else {
-      return _getBrush(_KnownColor.springGreen);
+      return _getBrush(KnownColor.springGreen);
     }
   }
 
@@ -2775,10 +2749,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get steelBlue {
-    if (_brushes.containsKey(_KnownColor.steelBlue)) {
-      return _brushes[_KnownColor.steelBlue]!;
+    if (_brushes.containsKey(KnownColor.steelBlue)) {
+      return _brushes[KnownColor.steelBlue]!;
     } else {
-      return _getBrush(_KnownColor.steelBlue);
+      return _getBrush(KnownColor.steelBlue);
     }
   }
 
@@ -2796,10 +2770,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get tan {
-    if (_brushes.containsKey(_KnownColor.tan)) {
-      return _brushes[_KnownColor.tan]!;
+    if (_brushes.containsKey(KnownColor.tan)) {
+      return _brushes[KnownColor.tan]!;
     } else {
-      return _getBrush(_KnownColor.tan);
+      return _getBrush(KnownColor.tan);
     }
   }
 
@@ -2817,10 +2791,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get teal {
-    if (_brushes.containsKey(_KnownColor.teal)) {
-      return _brushes[_KnownColor.teal]!;
+    if (_brushes.containsKey(KnownColor.teal)) {
+      return _brushes[KnownColor.teal]!;
     } else {
-      return _getBrush(_KnownColor.teal);
+      return _getBrush(KnownColor.teal);
     }
   }
 
@@ -2838,10 +2812,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get thistle {
-    if (_brushes.containsKey(_KnownColor.thistle)) {
-      return _brushes[_KnownColor.thistle]!;
+    if (_brushes.containsKey(KnownColor.thistle)) {
+      return _brushes[KnownColor.thistle]!;
     } else {
-      return _getBrush(_KnownColor.thistle);
+      return _getBrush(KnownColor.thistle);
     }
   }
 
@@ -2859,10 +2833,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get tomato {
-    if (_brushes.containsKey(_KnownColor.tomato)) {
-      return _brushes[_KnownColor.tomato]!;
+    if (_brushes.containsKey(KnownColor.tomato)) {
+      return _brushes[KnownColor.tomato]!;
     } else {
-      return _getBrush(_KnownColor.tomato);
+      return _getBrush(KnownColor.tomato);
     }
   }
 
@@ -2880,10 +2854,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get transparent {
-    if (_brushes.containsKey(_KnownColor.transparent)) {
-      return _brushes[_KnownColor.transparent]!;
+    if (_brushes.containsKey(KnownColor.transparent)) {
+      return _brushes[KnownColor.transparent]!;
     } else {
-      return _getBrush(_KnownColor.transparent);
+      return _getBrush(KnownColor.transparent);
     }
   }
 
@@ -2901,10 +2875,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get turquoise {
-    if (_brushes.containsKey(_KnownColor.turquoise)) {
-      return _brushes[_KnownColor.turquoise]!;
+    if (_brushes.containsKey(KnownColor.turquoise)) {
+      return _brushes[KnownColor.turquoise]!;
     } else {
-      return _getBrush(_KnownColor.turquoise);
+      return _getBrush(KnownColor.turquoise);
     }
   }
 
@@ -2922,10 +2896,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get violet {
-    if (_brushes.containsKey(_KnownColor.violet)) {
-      return _brushes[_KnownColor.violet]!;
+    if (_brushes.containsKey(KnownColor.violet)) {
+      return _brushes[KnownColor.violet]!;
     } else {
-      return _getBrush(_KnownColor.violet);
+      return _getBrush(KnownColor.violet);
     }
   }
 
@@ -2943,10 +2917,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get wheat {
-    if (_brushes.containsKey(_KnownColor.wheat)) {
-      return _brushes[_KnownColor.wheat]!;
+    if (_brushes.containsKey(KnownColor.wheat)) {
+      return _brushes[KnownColor.wheat]!;
     } else {
-      return _getBrush(_KnownColor.wheat);
+      return _getBrush(KnownColor.wheat);
     }
   }
 
@@ -2964,10 +2938,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get white {
-    if (_brushes.containsKey(_KnownColor.white)) {
-      return _brushes[_KnownColor.white]!;
+    if (_brushes.containsKey(KnownColor.white)) {
+      return _brushes[KnownColor.white]!;
     } else {
-      return _getBrush(_KnownColor.white);
+      return _getBrush(KnownColor.white);
     }
   }
 
@@ -2985,10 +2959,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get whiteSmoke {
-    if (_brushes.containsKey(_KnownColor.whiteSmoke)) {
-      return _brushes[_KnownColor.whiteSmoke]!;
+    if (_brushes.containsKey(KnownColor.whiteSmoke)) {
+      return _brushes[KnownColor.whiteSmoke]!;
     } else {
-      return _getBrush(_KnownColor.whiteSmoke);
+      return _getBrush(KnownColor.whiteSmoke);
     }
   }
 
@@ -3006,10 +2980,10 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get yellow {
-    if (_brushes.containsKey(_KnownColor.yellow)) {
-      return _brushes[_KnownColor.yellow]!;
+    if (_brushes.containsKey(KnownColor.yellow)) {
+      return _brushes[KnownColor.yellow]!;
     } else {
-      return _getBrush(_KnownColor.yellow);
+      return _getBrush(KnownColor.yellow);
     }
   }
 
@@ -3027,15 +3001,15 @@ class PdfBrushes {
   /// doc.dispose();
   /// ```
   static PdfBrush get yellowGreen {
-    if (_brushes.containsKey(_KnownColor.yellowGreen)) {
-      return _brushes[_KnownColor.yellowGreen]!;
+    if (_brushes.containsKey(KnownColor.yellowGreen)) {
+      return _brushes[KnownColor.yellowGreen]!;
     } else {
-      return _getBrush(_KnownColor.yellowGreen);
+      return _getBrush(KnownColor.yellowGreen);
     }
   }
 
-  static PdfBrush _getBrush(_KnownColor kColor) {
-    final _Color color = _Color(kColor);
+  static PdfBrush _getBrush(KnownColor kColor) {
+    final ColorHelper color = ColorHelper(kColor);
     final PdfBrush brush = PdfSolidBrush(PdfColor(color.r, color.g, color.b));
     _brushes[kColor] = brush;
     return brush;
@@ -3043,5 +3017,14 @@ class PdfBrushes {
 
   static void _dispose() {
     _brushes.clear();
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfBrushes] helper
+class PdfBrushesHelper {
+  /// internal method
+  static void dispose() {
+    PdfBrushes._dispose();
   }
 }

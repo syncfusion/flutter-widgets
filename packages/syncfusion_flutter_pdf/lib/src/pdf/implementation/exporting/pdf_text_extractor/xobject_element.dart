@@ -1,75 +1,104 @@
-part of pdf;
+import 'dart:math';
 
-class _XObjectElement {
-  //constructor
-  _XObjectElement(this.dictionary, String? name) {
+import '../../../interfaces/pdf_interface.dart';
+import '../../io/pdf_constants.dart';
+import '../../primitives/pdf_array.dart';
+import '../../primitives/pdf_dictionary.dart';
+import '../../primitives/pdf_name.dart';
+import '../../primitives/pdf_number.dart';
+import '../../primitives/pdf_reference_holder.dart';
+import '../../primitives/pdf_stream.dart';
+import 'glyph.dart';
+import 'graphic_object_data.dart';
+import 'graphic_object_data_collection.dart';
+import 'image_renderer.dart';
+import 'matrix_helper.dart';
+import 'page_resource_loader.dart';
+import 'parser/content_parser.dart';
+import 'text_element.dart';
+
+/// internal class
+class XObjectElement {
+  /// internal constructor
+  XObjectElement(this.dictionary, String? name) {
     _objectName = name;
     getObjectType();
-    _isPrintSelected = false;
-    _pageHeight = 0;
+    isPrintSelected = false;
+    pageHeight = 0;
   }
 
   //Fields
-  _PdfDictionary? dictionary;
   // ignore: unused_field
   String? _objectName;
   String? _objectType;
-  bool? _isPrintSelected;
-  double? _pageHeight;
-  bool? _isExtractTextLine;
+
+  /// internal field
+  PdfDictionary? dictionary;
+
+  /// internal field
+  bool? isPrintSelected;
+
+  /// internal field
+  double? pageHeight;
+
+  /// internal field
+  bool? isExtractTextLine;
 
   //Implementation
+  /// internal method
   void getObjectType() {
-    if (dictionary!.containsKey(_DictionaryProperties.subtype)) {
-      final _IPdfPrimitive? primitive =
-          dictionary![_DictionaryProperties.subtype];
-      if (primitive is _PdfName) {
-        _objectType = primitive._name;
+    if (dictionary!.containsKey(PdfDictionaryProperties.subtype)) {
+      final IPdfPrimitive? primitive =
+          dictionary![PdfDictionaryProperties.subtype];
+      if (primitive is PdfName) {
+        _objectType = primitive.name;
       }
     }
   }
 
-  _PdfRecordCollection? render(_PdfPageResources? resources) {
+  /// internal method
+  PdfRecordCollection? render(PdfPageResources? resources) {
     if (_objectType != null &&
         _objectType == 'Form' &&
-        dictionary is _PdfStream) {
-      final _PdfStream stream = dictionary! as _PdfStream;
-      stream._decompress();
-      return _ContentParser(stream._dataStream)._readContent();
+        dictionary is PdfStream) {
+      final PdfStream stream = dictionary! as PdfStream;
+      stream.decompress();
+      return ContentParser(stream.dataStream).readContent();
     } else {
       return null;
     }
   }
 
-  Map<String, dynamic> _render(
-      _GraphicsObject? g,
-      _PdfPageResources? resources,
-      _GraphicStateCollection? graphicsStates,
-      _GraphicObjectDataCollection? objects,
+  /// internal method
+  Map<String, dynamic> renderTextElement(
+      GraphicsObject? g,
+      PdfPageResources? resources,
+      GraphicStateCollection? graphicsStates,
+      GraphicObjectDataCollection? objects,
       double? currentPageHeight,
-      List<_Glyph>? glyphList) {
-    glyphList = <_Glyph>[];
-    List<_TextElement>? extractTextElement;
+      List<Glyph>? glyphList) {
+    glyphList = <Glyph>[];
+    List<TextElement>? extractTextElement;
     if (_objectType != null &&
         _objectType == 'Form' &&
         dictionary != null &&
-        dictionary is _PdfStream) {
-      final _PdfStream stream = dictionary! as _PdfStream;
-      stream._decompress();
-      final _ContentParser parser = _ContentParser(stream._dataStream);
-      final _PdfRecordCollection? contentTree = parser._readContent();
-      final _PageResourceLoader resourceLoader = _PageResourceLoader();
-      _PdfDictionary pageDictionary = _PdfDictionary();
-      final _PdfDictionary xobjects = dictionary!;
-      _PdfPageResources childResource = _PdfPageResources();
-      if (xobjects.containsKey(_DictionaryProperties.resources)) {
-        _IPdfPrimitive? primitive = xobjects[_DictionaryProperties.resources];
-        if (primitive is _PdfReferenceHolder) {
+        dictionary is PdfStream) {
+      final PdfStream stream = dictionary! as PdfStream;
+      stream.decompress();
+      final ContentParser parser = ContentParser(stream.dataStream);
+      final PdfRecordCollection? contentTree = parser.readContent();
+      final PageResourceLoader resourceLoader = PageResourceLoader();
+      PdfDictionary pageDictionary = PdfDictionary();
+      final PdfDictionary xobjects = dictionary!;
+      PdfPageResources childResource = PdfPageResources();
+      if (xobjects.containsKey(PdfDictionaryProperties.resources)) {
+        IPdfPrimitive? primitive = xobjects[PdfDictionaryProperties.resources];
+        if (primitive is PdfReferenceHolder) {
           primitive = primitive.object;
-          if (primitive != null && primitive is _PdfDictionary) {
+          if (primitive != null && primitive is PdfDictionary) {
             pageDictionary = primitive;
           }
-        } else if (primitive is _PdfDictionary) {
+        } else if (primitive is PdfDictionary) {
           pageDictionary = primitive;
         }
         childResource = resourceLoader.updatePageResources(
@@ -77,47 +106,50 @@ class _XObjectElement {
         childResource = resourceLoader.updatePageResources(
             childResource, resourceLoader.getFormResources(pageDictionary));
       }
-      _MatrixHelper xFormsMatrix = _MatrixHelper(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
-      if (xobjects.containsKey(_DictionaryProperties.matrix)) {
-        final _IPdfPrimitive? arrayReference =
-            xobjects[_DictionaryProperties.matrix];
-        if (arrayReference is _PdfArray) {
-          final _PdfArray matrixArray = arrayReference;
-          final double a = (matrixArray[0]! as _PdfNumber).value!.toDouble();
-          final double b = (matrixArray[1]! as _PdfNumber).value!.toDouble();
-          final double c = (matrixArray[2]! as _PdfNumber).value!.toDouble();
-          final double d = (matrixArray[3]! as _PdfNumber).value!.toDouble();
-          final double e = (matrixArray[4]! as _PdfNumber).value!.toDouble();
-          final double f = (matrixArray[5]! as _PdfNumber).value!.toDouble();
-          xFormsMatrix = _MatrixHelper(a, b, c, d, e, f);
+      MatrixHelper xFormsMatrix = MatrixHelper(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+      if (xobjects.containsKey(PdfDictionaryProperties.matrix)) {
+        final IPdfPrimitive? arrayReference =
+            xobjects[PdfDictionaryProperties.matrix];
+        if (arrayReference is PdfArray) {
+          final PdfArray matrixArray = arrayReference;
+          final double a = (matrixArray[0]! as PdfNumber).value!.toDouble();
+          final double b = (matrixArray[1]! as PdfNumber).value!.toDouble();
+          final double c = (matrixArray[2]! as PdfNumber).value!.toDouble();
+          final double d = (matrixArray[3]! as PdfNumber).value!.toDouble();
+          final double e = (matrixArray[4]! as PdfNumber).value!.toDouble();
+          final double f = (matrixArray[5]! as PdfNumber).value!.toDouble();
+          xFormsMatrix = MatrixHelper(a, b, c, d, e, f);
           if (e != 0 || f != 0) {
-            g!._translateTransform(e, -f);
+            g!.translateTransform(e, -f);
           }
           if (a != 0 || d != 0) {
-            g!._scaleTransform(a, d);
+            g!.scaleTransform(a, d);
           }
           //check for rotate transform
-          final double degree = ((180 / pi) * acos(a)).round().toDouble();
-          final double checkDegree = ((180 / pi) * asin(b)).round().toDouble();
-          if (degree == checkDegree) {
-            g!._rotateTransform(-degree);
-          } else {
-            if (!checkDegree.isNaN) {
-              g!._rotateTransform(-checkDegree);
-            } else if (!degree.isNaN) {
-              g!._rotateTransform(-degree);
+          if (!a.isNaN && !b.isNaN && a >= -1 && a <= 1 && b >= -1 && b <= 1) {
+            final double degree = ((180 / pi) * acos(a)).round().toDouble();
+            final double checkDegree =
+                ((180 / pi) * asin(b)).round().toDouble();
+            if (degree == checkDegree) {
+              g!.rotateTransform(-degree);
+            } else {
+              if (!checkDegree.isNaN) {
+                g!.rotateTransform(-checkDegree);
+              } else if (!degree.isNaN) {
+                g!.rotateTransform(-degree);
+              }
             }
           }
         }
       }
-      final _ImageRenderer renderer =
-          _ImageRenderer(contentTree, childResource, currentPageHeight!, g);
-      renderer._isExtractLineCollection = _isExtractTextLine!;
-      renderer._objects = objects;
-      final _MatrixHelper parentMatrix =
+      final ImageRenderer renderer =
+          ImageRenderer(contentTree, childResource, currentPageHeight, g);
+      renderer.isExtractLineCollection = isExtractTextLine!;
+      renderer.graphicsObjects = objects;
+      final MatrixHelper parentMatrix =
           objects!.last.currentTransformationMatrix!;
-      final _MatrixHelper newMatrix = xFormsMatrix * parentMatrix;
-      objects.last.drawing2dMatrixCTM = _MatrixHelper(
+      final MatrixHelper newMatrix = xFormsMatrix * parentMatrix;
+      objects.last.drawing2dMatrixCTM = MatrixHelper(
           newMatrix.m11,
           newMatrix.m12,
           newMatrix.m21,
@@ -125,14 +157,14 @@ class _XObjectElement {
           newMatrix.offsetX,
           newMatrix.offsetY);
       objects.last.currentTransformationMatrix = newMatrix;
-      renderer._selectablePrintDocument = _isPrintSelected;
-      renderer._pageHeight = _pageHeight;
-      renderer._isXGraphics = true;
-      renderer._renderAsImage();
-      renderer._isXGraphics = false;
-      while (renderer._xobjectGraphicsCount > 0) {
-        objects._pop();
-        renderer._xobjectGraphicsCount--;
+      renderer.selectablePrintDocument = isPrintSelected;
+      renderer.pageHeight = pageHeight;
+      renderer.isXGraphics = true;
+      renderer.renderAsImage();
+      renderer.isXGraphics = false;
+      while (renderer.xobjectGraphicsCount > 0) {
+        objects.pop();
+        renderer.xobjectGraphicsCount--;
       }
       glyphList = renderer.imageRenderGlyphList;
       objects.last.currentTransformationMatrix = parentMatrix;
@@ -147,7 +179,8 @@ class _XObjectElement {
   }
 }
 
-String _unescape(String str) {
+/// internal method
+String unescape(String str) {
   final StringBuffer buffer = StringBuffer();
   while (str.isNotEmpty) {
     final int index = str.indexOf(r'\');

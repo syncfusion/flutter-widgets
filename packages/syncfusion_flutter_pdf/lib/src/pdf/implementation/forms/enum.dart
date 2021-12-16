@@ -1,7 +1,5 @@
-part of pdf;
-
 /// Represents fields flags enum.
-enum _FieldFlags {
+enum FieldFlags {
   //Common flags
   /// Default field flag.
   defaultFieldFlag,
@@ -114,7 +112,8 @@ enum PdfCheckBoxStyle {
   star
 }
 
-enum _PdfCheckFieldState {
+/// internal enumerator
+enum PdfCheckFieldState {
   /// Indicated unchecked/unpressed state.
   unchecked,
 
@@ -128,26 +127,35 @@ enum _PdfCheckFieldState {
   pressedChecked
 }
 
-enum _PdfFieldTypes {
-  //Identify text field.
+/// internal enumerator
+enum PdfFieldTypes {
+  /// Identify text field.
   textField,
-  //Identify push button field.
+
+  /// Identify push button field.
   pushButton,
-  //Identify check box field.
+
+  /// Identify check box field.
   checkBox,
-  //Identify radio button field.
+
+  /// Identify radio button field.
   radioButton,
-  //Identify signature field.
+
+  /// Identify signature field.
   signatureField,
-  //Identify listbox field.
+
+  /// Identify listbox field.
   listBox,
-  //Identify combobox field.
+
+  /// Identify combobox field.
   comboBox,
-  //Identify that field has no type.
+
+  /// Identify that field has no type.
   none
 }
 
-enum _SignatureFlags {
+/// internal enumerator
+enum SignatureFlags {
   /// No flags specified.
   none,
 

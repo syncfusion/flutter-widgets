@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/interactive_scroll_viewer_internal.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
@@ -145,6 +144,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FocusNode _focusNode = FocusNode();
   SfPdfViewerThemeData? _pdfViewerThemeData;
+  ThemeData? _themeData;
   SfLocalizations? _localizations;
   final GlobalKey _childKey = GlobalKey();
   bool _isInteractionEnded = true;
@@ -167,6 +167,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   @override
   void didChangeDependencies() {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
+    _themeData = Theme.of(context);
     _localizations = SfLocalizations.of(context);
     super.didChangeDependencies();
   }
@@ -388,22 +389,32 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
           final Orientation orientation = MediaQuery.of(context).orientation;
           return AlertDialog(
             scrollable: true,
-            insetPadding: const EdgeInsets.all(0),
+            insetPadding: EdgeInsets.zero,
             contentPadding: orientation == Orientation.portrait
                 ? const EdgeInsets.all(24)
                 : const EdgeInsets.only(top: 0, right: 24, left: 24, bottom: 0),
             buttonPadding: orientation == Orientation.portrait
                 ? const EdgeInsets.all(8)
                 : const EdgeInsets.all(4),
-            backgroundColor:
-                _pdfViewerThemeData!.paginationDialogStyle.backgroundColor,
+            backgroundColor: _pdfViewerThemeData!.backgroundColor ??
+                (Theme.of(context).colorScheme.brightness == Brightness.light
+                    ? Colors.white
+                    : const Color(0xFF424242)),
             title: Text(
               _localizations!.pdfGoToPageLabel,
-              style: _pdfViewerThemeData!.paginationDialogStyle.headerTextStyle,
+              style: _pdfViewerThemeData!
+                      .paginationDialogStyle?.headerTextStyle ??
+                  TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: _themeData!.colorScheme.onSurface.withOpacity(0.87),
+                  ),
             ),
             shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(4.0))),
-            content: SingleChildScrollView(child: _paginationTextField()),
+            content:
+                SingleChildScrollView(child: _paginationTextField(context)),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -413,13 +424,17 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                 child: Text(
                   _localizations!.pdfPaginationDialogCancelLabel,
                   style: _pdfViewerThemeData!
-                              .paginationDialogStyle.cancelTextStyle!.color ==
+                              .paginationDialogStyle?.cancelTextStyle?.color ==
                           null
                       ? _pdfViewerThemeData!
-                          .paginationDialogStyle.cancelTextStyle!
-                          .copyWith(color: Theme.of(context).primaryColor)
+                          .paginationDialogStyle?.cancelTextStyle!
+                          .copyWith(color: _themeData!.colorScheme.primary)
                       : _pdfViewerThemeData!
-                          .paginationDialogStyle.cancelTextStyle,
+                              .paginationDialogStyle?.cancelTextStyle ??
+                          const TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500),
                 ),
               ),
               TextButton(
@@ -429,11 +444,16 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                 child: Text(
                   _localizations!.pdfPaginationDialogOkLabel,
                   style: _pdfViewerThemeData!
-                              .paginationDialogStyle.okTextStyle!.color ==
+                              .paginationDialogStyle?.okTextStyle!.color ==
                           null
-                      ? _pdfViewerThemeData!.paginationDialogStyle.okTextStyle!
-                          .copyWith(color: Theme.of(context).primaryColor)
-                      : _pdfViewerThemeData!.paginationDialogStyle.okTextStyle,
+                      ? _pdfViewerThemeData!.paginationDialogStyle?.okTextStyle!
+                          .copyWith(color: _themeData!.colorScheme.primary)
+                      : _pdfViewerThemeData!
+                              .paginationDialogStyle?.okTextStyle ??
+                          const TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500),
                 ),
               )
             ],
@@ -442,28 +462,47 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   }
 
   /// A material design Text field for pagination dialog box.
-  Widget _paginationTextField() {
+  Widget _paginationTextField(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Container(
+      child: SizedBox(
         width: _kPdfPaginationTextFieldWidth,
         child: TextFormField(
-          style: _pdfViewerThemeData!.paginationDialogStyle.inputFieldTextStyle,
+          style: _pdfViewerThemeData!
+                  .paginationDialogStyle?.inputFieldTextStyle ??
+              TextStyle(
+                  fontFamily: 'Roboto',
+                  fontSize: 16,
+                  color: _themeData!.colorScheme.onSurface.withOpacity(0.87)),
           focusNode: _focusNode,
           decoration: InputDecoration(
             isDense: true,
             focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Theme.of(context).primaryColor),
+              borderSide: BorderSide(color: _themeData!.colorScheme.primary),
             ),
             contentPadding: const EdgeInsets.symmetric(vertical: 6),
             hintText: _localizations!.pdfEnterPageNumberLabel,
-            hintStyle: _pdfViewerThemeData!.paginationDialogStyle.hintTextStyle,
+            hintStyle: _pdfViewerThemeData!
+                    .paginationDialogStyle?.hintTextStyle ??
+                (TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 16,
+                    color:
+                        _themeData!.colorScheme.onSurface.withOpacity(0.38))),
             counterText:
                 '${widget.pdfViewerController.pageNumber}/${widget.pdfViewerController.pageCount}',
-            counterStyle:
-                _pdfViewerThemeData!.paginationDialogStyle.pageInfoTextStyle,
-            errorStyle:
-                _pdfViewerThemeData!.paginationDialogStyle.validationTextStyle,
+            counterStyle: _pdfViewerThemeData!
+                    .paginationDialogStyle?.pageInfoTextStyle ??
+                TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 12,
+                    color: _themeData!.colorScheme.onSurface.withOpacity(0.6)),
+            errorStyle: _pdfViewerThemeData!
+                    .paginationDialogStyle?.validationTextStyle ??
+                TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 12,
+                    color: _themeData!.colorScheme.error),
           ),
           keyboardType: TextInputType.number,
           enableInteractiveSelection: false,

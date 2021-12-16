@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../../base/symbology_base.dart';
@@ -69,7 +68,7 @@ class Code39Renderer extends SymbologyRenderer {
   bool getIsValidateInput(String value) {
     for (int i = 0; i < value.length; i++) {
       if (!_character.contains(value[i])) {
-        throw 'The provided input cannot be encoded : ' + value[i];
+        throw 'The provided input cannot be encoded : ${value[i]}';
       }
     }
     return true;
@@ -88,7 +87,7 @@ class Code39Renderer extends SymbologyRenderer {
 
   /// Returns the provided value with start and stop symbol
   String _getValueWithStartAndStopCharacters(String value) {
-    return '*' + value + '*';
+    return '*$value*';
   }
 
   /// Returns the pattern collection based on the provided input

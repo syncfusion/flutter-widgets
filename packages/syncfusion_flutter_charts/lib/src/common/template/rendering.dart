@@ -321,6 +321,7 @@ class ChartTemplate extends StatefulWidget {
   StateProperties stateProperties;
 
   /// Holds the value of chart template state
+  // ignore: library_private_types_in_public_api
   late _ChartTemplateState state;
 
   @override

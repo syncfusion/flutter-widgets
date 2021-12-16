@@ -3,7 +3,8 @@ import 'package:flutter/foundation.dart';
 import '../treemap.dart';
 import 'layouts.dart';
 
-typedef _DrillDownCallback = void Function(TreemapTile tile, bool isDrilledIn);
+/// Drilled in and out call back
+typedef DrillDownCallback = void Function(TreemapTile tile, bool isDrilledIn);
 
 /// Whenever the user modifies a selection, hover or drilldown, the controller
 /// notifies its listeners.
@@ -11,8 +12,8 @@ class TreemapController {
   ObserverList<VoidCallback>? _selectionListeners =
       ObserverList<VoidCallback>();
   ObserverList<VoidCallback>? _hoverListeners = ObserverList<VoidCallback>();
-  ObserverList<_DrillDownCallback>? _drillDownListeners =
-      ObserverList<_DrillDownCallback>();
+  ObserverList<DrillDownCallback>? _drillDownListeners =
+      ObserverList<DrillDownCallback>();
 
   /// Register method that will be called when the selection is changed.
   void addSelectionListener(VoidCallback listener) {
@@ -26,7 +27,7 @@ class TreemapController {
 
   /// Register method that will be called when the drilldown visible index is
   /// changed.
-  void addDrillDownListener(_DrillDownCallback listener) {
+  void addDrillDownListener(DrillDownCallback listener) {
     _drillDownListeners?.add(listener);
   }
 
@@ -41,7 +42,7 @@ class TreemapController {
   }
 
   /// Remove a previously register selection method.
-  void removeDrillDownListener(_DrillDownCallback listener) {
+  void removeDrillDownListener(DrillDownCallback listener) {
     _drillDownListeners?.remove(listener);
   }
 
@@ -61,7 +62,7 @@ class TreemapController {
 
   /// This method should be called whenever the drilldown visible index changes.
   void notifyDrilldownListeners(TreemapTile tile, bool isDrilledIn) {
-    for (final _DrillDownCallback listener in _drillDownListeners!) {
+    for (final DrillDownCallback listener in _drillDownListeners!) {
       listener(tile, isDrilledIn);
     }
   }

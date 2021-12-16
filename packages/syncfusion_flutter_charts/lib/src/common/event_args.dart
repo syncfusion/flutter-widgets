@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import '../chart/axis/axis.dart';
 import '../chart/chart_series/xy_data_series.dart';
-import '../chart/common/common.dart';
 import '../chart/common/data_label.dart';
 import '../chart/common/interactive_tooltip.dart';
 import '../chart/technical_indicators/technical_indicator.dart';
 import '../chart/utils/enum.dart';
-import 'user_interaction/tooltip.dart';
 import 'utils/enum.dart';
 
 ///Holds the arguments for the event onTooltipRender.
@@ -89,67 +87,54 @@ class ActualRangeChangedArgs {
   final AxisOrientation? orientation;
 }
 
-/// Holds the onAxisLabelRender event arguments.
-///
-/// AxisLabelRenderArgs is the type argument for onAxisLabelRender event. Whenever the axis gets rendered, the onAxisLabelRender event is
-/// triggered and provides options to set the axis label text and label text style.
-///
-///It has the public properties of axis label text, axis name, axis type, label text style, and orientation.
-
-class AxisLabelRenderArgs {
-  /// Creating an argument constructor of AxisLabelRenderArgs class.
-  AxisLabelRenderArgs([this.value, this.axisName, this.orientation, this.axis]);
-
-  /// Get and set the text value of the axis label.
-  late String text;
-
-  /// Get the value of the axis label.
-  final num? value;
-
-  /// Get the axis name.
-  final String? axisName;
-
-  /// Get the orientation of an axis.
-  final AxisOrientation? orientation;
-
-  /// Get the chart axis type and its properties.
-  final ChartAxis? axis;
-
-  /// Get and set the text style of an axis label.
-  TextStyle textStyle = const TextStyle(
-      fontFamily: 'Roboto',
-      fontStyle: FontStyle.normal,
-      fontWeight: FontWeight.normal,
-      fontSize: 12);
-}
-
 /// Holds label text, axis name, orientation of the axis, trimmed text and text styles such as color,
 /// font size, and font weight for label formatter event
 class AxisLabelRenderDetails {
   /// Creating an argument constructor of AxisLabelRenderDetails class.
-  AxisLabelRenderDetails(this.value, this.text, this.actualText, this.textStyle,
-      this.axis, this.axisName, this.orientation);
-
-  /// The rendered text value of the axis label.
-  final String text;
+  AxisLabelRenderDetails(this.value, this.text, this.textStyle, this.axis);
 
   /// Actual text value of the axis label.
-  final String actualText;
+  final String text;
 
   /// Get the value of the axis label.
   final num value;
-
-  /// Get the axis name.
-  final String? axisName;
-
-  /// Get the orientation of an axis.
-  final AxisOrientation orientation;
 
   /// Get the chart axis type and its properties.
   final ChartAxis axis;
 
   /// Get the text style of an axis label.
   final TextStyle textStyle;
+}
+
+/// Holds multi-level label text, name of the axis, index, actual level of the
+/// multi-level label, text style such as color, font size, etc arguments for
+/// multi-level label formatter callback.
+///
+/// The value in the `index` will be obtained as per the order of the labels specified in
+/// the `multiLevelLabels` property irrespective of the value specified in
+/// the `level` property.
+///
+/// The level obtained in the `actualLevel`property is the re-ordered level
+/// irrespective of the value specified in the `level` property.
+class MultiLevelLabelRenderDetails {
+  /// Creating an argument constructor of MultiLevelLabelRenderDetails class.
+  MultiLevelLabelRenderDetails(
+      this.actualLevel, this.text, this.textStyle, this.index, this.axisName);
+
+  /// Get the multi-level label text.
+  final String text;
+
+  /// Get the text style of the multi-level label.
+  final TextStyle textStyle;
+
+  /// Get the index value of the multi-level label.
+  final int index;
+
+  /// Get the actual level of the multi-level label.
+  final int actualLevel;
+
+  /// Get the axis name.
+  final String? axisName;
 }
 
 /// Holds the axis label text and style details.
@@ -381,36 +366,11 @@ class ZoomPanArgs {
   final double? previousZoomFactor;
 }
 
-/// Holds the onPointTapped event arguments.
-///
-/// The PointTapArgs is the argument type of onPointTapped event, whenever the `onPointTapped` is triggered, gets the series index, current point index, and the data points.
-///
-class PointTapArgs {
-  /// Creating an argument constructor of PointTapArgs class.
-  PointTapArgs(
-      [this.seriesIndex,
-      this.viewportPointIndex,
-      this.dataPoints,
-      this.pointIndex]);
-
-  /// Get the series index.
-  final int? seriesIndex;
-
-  /// Get the overall index value.
-  final int? pointIndex;
-
-  /// Get the list of data points.
-  final List<dynamic>? dataPoints;
-
-  /// Get the view port index value.
-  final num? viewportPointIndex;
-}
-
 ///Holds the arguments of `onPointTap`, `onPointDoubleTap` and `onPointLongPress` callbacks.
 ///
 ///The user can fetch the series index, point index, view port point index and data of the current point.
 class ChartPointDetails {
-  /// Creating an argument constructor of PointTapArgs class.
+  /// Creating an argument constructor of ChartPointDetails class.
   ChartPointDetails(
       [this.seriesIndex,
       this.viewportPointIndex,
@@ -543,6 +503,7 @@ class SelectionArgs {
 /// _Note:_ This is only applicable for [SfCartesianChart].
 class IndicatorRenderArgs {
   /// Creating an argument constructor of IndicatorRenderArgs class.
+  @Deprecated('Use IndicatorRenderParams instead.')
   IndicatorRenderArgs([
     this.indicator,
     this.index,

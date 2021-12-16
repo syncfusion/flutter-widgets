@@ -34,28 +34,28 @@ abstract class PdfViewerPlatform extends PlatformInterface {
   /// Initializes the PDF renderer instance in respective platform by loading the PDF from the specified path.
   ///
   /// If success, returns page count else returns error message from respective platform
-  Future<String?> initializePdfRenderer(Uint8List documentBytes) async {
+  Future<String?> initializePdfRenderer(Uint8List documentBytes, String documentID) async {
     throw UnimplementedError(
         'initializePdfRenderer() has not been implemented.');
   }
 
   /// Gets the height of all pages in the document.
-  Future<List?> getPagesHeight() async {
+  Future<List?> getPagesHeight(String documentID) async {
     throw UnimplementedError('getPagesHeight() has not been implemented.');
   }
 
   /// Gets the width of all pages in the document.
-  Future<List?> getPagesWidth() async {
+  Future<List?> getPagesWidth(String documentID) async {
     throw UnimplementedError('getPagesWidth() has not been implemented.');
   }
 
   /// Gets the image's bytes information of the specified page.
-  Future<Uint8List?> getImage(int pageNumber) async {
+  Future<Uint8List?> getImage(int pageNumber,double scale,String documentID) async {
     throw UnimplementedError('getImage() has not been implemented.');
   }
 
   /// Closes the PDF document.
-  Future<void> closeDocument() async {
+  Future<void> closeDocument(String documentID) async {
     throw UnimplementedError('closeDocument() has not been implemented.');
   }
 }

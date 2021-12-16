@@ -1,13 +1,23 @@
-part of pdf;
+import 'dart:convert';
 
-class _IAsn1String {
+import '../../../io/stream_reader.dart';
+import '../cryptography/signature_utilities.dart';
+import 'asn1.dart';
+import 'asn1_parser.dart';
+import 'asn1_stream.dart';
+
+/// internal class
+class IAsn1String {
+  /// internal method
   String? getString([List<int>? bytes]) => null;
 }
 
-class _IAsn1SetHelper implements _IAsn1 {
-  _IAsn1? readObject() => null;
+/// internal class
+class IAsn1SetHelper implements IAsn1 {
+  /// internal method
+  IAsn1? readObject() => null;
   @override
-  _Asn1? getAsn1() => null;
+  Asn1? getAsn1() => null;
 }
 
 class _ObjectIdentityToken {
@@ -33,7 +43,8 @@ class _ObjectIdentityToken {
   }
 }
 
-abstract class _DerString extends _Asn1 implements _IAsn1String {
+/// internal class
+abstract class DerString extends Asn1 implements IAsn1String {
   @override
   String? getString([List<int>? bytes]);
 
@@ -51,7 +62,7 @@ abstract class _DerString extends _Asn1 implements _IAsn1String {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    if (other is _DerString) {
+    if (other is DerString) {
       return getString() == other.getString();
     } else {
       return false;
@@ -59,16 +70,19 @@ abstract class _DerString extends _Asn1 implements _IAsn1String {
   }
 }
 
-class _DerAsciiString extends _DerString {
+/// internal class
+class DerAsciiString extends DerString {
   //Constructor
-  _DerAsciiString(String value, bool isValid) {
+  /// internal constructor
+  DerAsciiString(String value, bool isValid) {
     if (isValid && !isAsciiString(value)) {
       throw ArgumentError.value(value, 'value', 'Invalid characters found');
     }
     _value = value;
   }
 
-  _DerAsciiString.fromBytes(List<int> bytes) {
+  /// internal constructor
+  DerAsciiString.fromBytes(List<int> bytes) {
     _value = utf8.decode(bytes);
   }
   //Fields
@@ -81,8 +95,9 @@ class _DerAsciiString extends _DerString {
   }
 
   @override
-  void encode(_DerStream stream) {
-    stream.writeEncoded(_Asn1Tags.asciiString, getOctets());
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream stream) {
+    stream.writeEncoded(Asn1Tags.asciiString, getOctets());
   }
 
   @override
@@ -92,24 +107,27 @@ class _DerAsciiString extends _DerString {
   }
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
   bool operator ==(Object asn1) {
-    if (asn1 is _DerAsciiString) {
+    if (asn1 is DerAsciiString) {
       return _value == asn1._value;
     } else {
       return false;
     }
   }
 
+  /// internal method
   List<int>? asnEncode() {
     return super.asn1Encode(getOctets());
   }
 
+  /// internal method
   List<int> getOctets() {
     return utf8.encode(_value!);
   }
 
   //Static methods
+  /// internal method
   static bool isAsciiString(String value) {
     for (int i = 0; i < value.length; i++) {
       if (value.codeUnitAt(i) > 0x007f) {
@@ -120,10 +138,11 @@ class _DerAsciiString extends _DerString {
   }
 }
 
-class _DerBitString extends _DerString {
-  _DerBitString(List<int> data, int? pad) {
-    _data = data;
-    _extra = pad ?? 0;
+/// internal class
+class DerBitString extends DerString {
+  /// internal constructor
+  DerBitString(this.data, int? pad) {
+    extra = pad ?? 0;
     _table = <String>[
       '0',
       '1',
@@ -143,40 +162,47 @@ class _DerBitString extends _DerString {
       'F'
     ];
   }
-  _DerBitString.fromAsn1(_Asn1Encode asn1) {
-    _data = asn1.getDerEncoded();
+
+  /// internal constructor
+  DerBitString.fromAsn1(Asn1Encode asn1) {
+    data = asn1.getDerEncoded();
   }
 
   //Fields
-  List<int>? _data;
-  int? _extra;
+  /// internal field
+  List<int>? data;
+
+  /// internal field
+  int? extra;
   late List<String> _table;
 
   //Implementation
+  /// internal method
   List<int>? getBytes() {
-    return _data;
+    return data;
   }
 
   @override
-  void encode(_DerStream stream) {
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream stream) {
     final List<int> bytes =
         List<int>.generate(getBytes()!.length + 1, (int i) => 0);
-    bytes[0] = _extra!;
+    bytes[0] = extra!;
     List.copyRange(bytes, 1, getBytes()!, 0, bytes.length - 1);
-    stream.writeEncoded(_Asn1Tags.bitString, bytes);
+    stream.writeEncoded(Asn1Tags.bitString, bytes);
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
-    return _extra.hashCode ^ _Asn1.getHashCode(_data);
+    return extra.hashCode ^ Asn1.getHashCode(data);
   }
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
   bool operator ==(Object asn1) {
-    if (asn1 is _DerBitString) {
-      return _extra == asn1._extra && _Asn1.areEqual(_data, asn1._data);
+    if (asn1 is DerBitString) {
+      return extra == asn1.extra && Asn1.areEqual(data, asn1.data);
     } else {
       return false;
     }
@@ -195,33 +221,38 @@ class _DerBitString extends _DerString {
   }
 
   //Static methods
-  static _DerBitString fromAsn1Octets(List<int> bytes) {
+  /// internal method
+  static DerBitString fromAsn1Octets(List<int> bytes) {
     final int pad = bytes[0];
     final List<int> data = List<int>.generate(bytes.length - 1, (int i) => 0);
     List.copyRange(data, 0, bytes, 1, data.length + 1);
-    return _DerBitString(data, pad);
+    return DerBitString(data, pad);
   }
 
-  static _DerBitString? getDetBitString(dynamic obj) {
+  /// internal method
+  static DerBitString? getDetBitString(dynamic obj) {
     if (obj == null) {
       return null;
-    } else if (obj is _DerBitString) {
+    } else if (obj is DerBitString) {
       return obj;
     }
     throw ArgumentError.value(obj, 'object', 'Invalid Entry');
   }
 
-  static _DerBitString? getDerBitStringFromTag(_Asn1Tag tag, bool isExplicit) {
-    final _Asn1? asn1 = tag.getObject();
-    if (isExplicit || asn1 is _DerBitString) {
+  /// internal method
+  static DerBitString? getDerBitStringFromTag(Asn1Tag tag, bool isExplicit) {
+    final Asn1? asn1 = tag.getObject();
+    if (isExplicit || asn1 is DerBitString) {
       return getDetBitString(asn1);
     }
-    return fromAsn1Octets((asn1! as _Asn1Octet).getOctets()!);
+    return fromAsn1Octets((asn1! as Asn1Octet).getOctets()!);
   }
 }
 
-class _DerBmpString extends _DerString {
-  _DerBmpString(List<int> bytes) {
+/// internal class
+class DerBmpString extends DerString {
+  /// internal constructor
+  DerBmpString(List<int> bytes) {
     String result = '';
     for (int i = 0; i != (bytes.length ~/ 2); i++) {
       result +=
@@ -244,9 +275,9 @@ class _DerBmpString extends _DerString {
   int get hashCode => _value.hashCode;
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
   bool operator ==(Object asn1) {
-    if (asn1 is _DerBmpString) {
+    if (asn1 is DerBmpString) {
       return _value == asn1._value;
     } else {
       return false;
@@ -254,19 +285,22 @@ class _DerBmpString extends _DerString {
   }
 
   @override
-  void encode(_DerStream stream) {
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream stream) {
     final List<int> bytes =
         List<int>.generate(_value!.length * 2, (int i) => 0);
     for (int i = 0; i != _value!.length; i++) {
       bytes[2 * i] = (_value!.codeUnitAt(i) >> 8).toUnsigned(8);
       bytes[2 * i + 1] = _value!.codeUnitAt(i).toUnsigned(8);
     }
-    stream.writeEncoded(_Asn1Tags.bmpString, bytes);
+    stream.writeEncoded(Asn1Tags.bmpString, bytes);
   }
 }
 
-class _DerPrintableString extends _DerString {
-  _DerPrintableString(String value) {
+/// internal class
+class DerPrintableString extends DerString {
+  /// internal constructor
+  DerPrintableString(String value) {
     _value = value;
   }
   //Fields
@@ -277,19 +311,21 @@ class _DerPrintableString extends _DerString {
     return _value;
   }
 
+  /// internal method
   List<int> getBytes() {
     return utf8.encode(_value!);
   }
 
+  /// internal method
   @override
-  void encode(_DerStream stream) {
-    stream.writeEncoded(_Asn1Tags.printableString, getBytes());
+  void encode(DerStream stream) {
+    stream.writeEncoded(Asn1Tags.printableString, getBytes());
   }
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
   bool operator ==(Object asn1) {
-    if (asn1 is _DerPrintableString) {
+    if (asn1 is DerPrintableString) {
       return _value == asn1._value;
     } else {
       return false;
@@ -301,11 +337,15 @@ class _DerPrintableString extends _DerString {
   int get hashCode => _value.hashCode;
 }
 
-class _DerBoolean extends _Asn1 {
-  _DerBoolean(bool value) {
+/// internal class
+class DerBoolean extends Asn1 {
+  /// internal constructor
+  DerBoolean(bool value) {
     _value = value ? 0xff : 0;
   }
-  _DerBoolean.fromBytes(List<int> bytes) {
+
+  /// internal constructor
+  DerBoolean.fromBytes(List<int> bytes) {
     if (bytes.length != 1) {
       throw ArgumentError.value(bytes, 'bytes', 'Invalid length in bytes');
     }
@@ -315,18 +355,20 @@ class _DerBoolean extends _Asn1 {
   late int _value;
 
   //Properties
+  /// internal property
   bool get isTrue => _value != 0;
 
   //Implementation
   @override
-  void encode(_DerStream stream) {
-    stream.writeEncoded(_Asn1Tags.boolean, <int>[_value]);
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream stream) {
+    stream.writeEncoded(Asn1Tags.boolean, <int>[_value]);
   }
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
   bool operator ==(Object asn1) {
-    if (asn1 is _DerBoolean) {
+    if (asn1 is DerBoolean) {
       return isTrue == asn1.isTrue;
     } else {
       return false;
@@ -345,40 +387,47 @@ class _DerBoolean extends _Asn1 {
   }
 }
 
-class _DerInteger extends _Asn1 {
-  _DerInteger(List<int>? bytes) {
-    _value = bytes;
-  }
-  _DerInteger.fromNumber(BigInt? value) {
+/// internal class
+class DerInteger extends Asn1 {
+  /// internal constructor
+  DerInteger(this.intValue);
+
+  /// internal constructor
+  DerInteger.fromNumber(BigInt? value) {
     if (value == null) {
       throw ArgumentError.value(value, 'value', 'Invalid value');
     }
-    _value = _bigIntToBytes(value);
+    intValue = bigIntToBytes(value);
   }
   //Fields
-  List<int>? _value;
+  /// internal field
+  List<int>? intValue;
 
   //Properties
-  BigInt get value => _bigIntFromBytes(_value);
-  BigInt get positiveValue => _bigIntFromBytes(_value, 1);
+  /// internal property
+  BigInt get value => bigIntFromBytes(intValue);
+
+  /// internal property
+  BigInt get positiveValue => bigIntFromBytes(intValue, 1);
 
   //Implementation
   @override
-  void encode(_DerStream stream) {
-    stream.writeEncoded(_Asn1Tags.integer, _value);
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream stream) {
+    stream.writeEncoded(Asn1Tags.integer, intValue);
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
-    return _Asn1.getHashCode(_value);
+    return Asn1.getHashCode(intValue);
   }
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
   bool operator ==(Object asn1) {
-    if (asn1 is _DerInteger) {
-      return _Asn1.areEqual(_value, asn1._value);
+    if (asn1 is DerInteger) {
+      return Asn1.areEqual(intValue, asn1.intValue);
     } else {
       return false;
     }
@@ -390,40 +439,48 @@ class _DerInteger extends _Asn1 {
   }
 
   //Static methods
-  static _DerInteger? getNumber(dynamic obj) {
-    if (obj == null || obj is _DerInteger) {
-      return obj as _DerInteger?;
+  /// internal method
+  static DerInteger? getNumber(dynamic obj) {
+    if (obj == null || obj is DerInteger) {
+      return obj as DerInteger?;
     }
     throw ArgumentError.value(obj, 'obj', 'Invalid entry');
   }
 
-  static _DerInteger? getNumberFromTag(_Asn1Tag tag, bool isExplicit) {
-    final _Asn1? asn1 = tag.getObject();
-    if (isExplicit || asn1 is _DerInteger) {
+  /// internal method
+  static DerInteger? getNumberFromTag(Asn1Tag tag, bool isExplicit) {
+    final Asn1? asn1 = tag.getObject();
+    if (isExplicit || asn1 is DerInteger) {
       return getNumber(asn1);
     }
-    return _DerInteger(_Asn1Octet.getOctetStringFromObject(asn1)!.getOctets());
+    return DerInteger(Asn1Octet.getOctetStringFromObject(asn1)!.getOctets());
   }
 }
 
-class _DerNull extends _Asn1Null {
-  _DerNull() : super() {
-    _bytes = <int>[];
+/// internal class
+class DerNull extends Asn1Null {
+  /// internal constructor
+  DerNull() : super() {
+    bytes = <int>[];
   }
   //Fields
+  /// internal field
   @override
-  List<int>? _bytes;
-  static _DerNull value = _DerNull();
+  List<int>? bytes;
+
+  /// internal field
+  static DerNull value = DerNull();
   //Implementation
   @override
-  void encode(_DerStream stream) {
-    stream.writeEncoded(_Asn1Tags.nullValue, _bytes);
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream stream) {
+    stream.writeEncoded(Asn1Tags.nullValue, bytes);
   }
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
   bool operator ==(Object asn1) {
-    return asn1 is _DerNull;
+    return asn1 is DerNull;
   }
 
   @override
@@ -433,33 +490,42 @@ class _DerNull extends _Asn1Null {
   }
 }
 
-class _DerObjectID extends _Asn1 {
+/// internal class
+class DerObjectID extends Asn1 {
   //Contructors
-  _DerObjectID(String id) {
-    if (!isValidIdentifier(id)) {
+  /// internal constructor
+  DerObjectID(this.id) {
+    if (!isValidIdentifier(id!)) {
       throw ArgumentError.value(id, 'id', 'Invalid ID');
     }
-    _id = id;
-  }
-  _DerObjectID.fromBytes(List<int> bytes) {
-    _id = getObjectID(bytes);
-    _bytes = _Asn1.clone(bytes);
-  }
-  String? _id;
-  @override
-  List<int>? _bytes;
-  // ignore: prefer_final_fields
-  static List<_DerObjectID?> _objects =
-      List<_DerObjectID?>.generate(1024, (int i) => null);
-  //Implemnetation
-  List<int>? getBytes() {
-    _bytes ??= getOutput();
-    return _bytes;
   }
 
+  /// internal constructor
+  DerObjectID.fromBytes(List<int> bytes) {
+    id = getObjectID(bytes);
+    bytes = Asn1.clone(bytes);
+  }
+
+  /// internal field
+  String? id;
+
+  /// internal field
+  @override
+  List<int>? bytes;
+  // ignore: prefer_final_fields
+  static List<DerObjectID?> _objects =
+      List<DerObjectID?>.generate(1024, (int i) => null);
+  //Implemnetation
+  /// internal method
+  List<int>? getBytes() {
+    bytes ??= getOutput();
+    return bytes;
+  }
+
+  /// internal method
   List<int> getOutput() {
     List<int> stream = <int>[];
-    final _ObjectIdentityToken oidToken = _ObjectIdentityToken(_id);
+    final _ObjectIdentityToken oidToken = _ObjectIdentityToken(id);
     String token = oidToken.nextToken()!;
     final int first = int.parse(token) * 40;
     token = oidToken.nextToken()!;
@@ -480,6 +546,7 @@ class _DerObjectID extends _Asn1 {
     return stream;
   }
 
+  /// internal method
   List<int> writeField(List<int> stream,
       {int? fieldValue, BigInt? numberValue}) {
     if (fieldValue != null) {
@@ -509,21 +576,22 @@ class _DerObjectID extends _Asn1 {
   }
 
   @override
-  void encode(_DerStream stream) {
-    stream.writeEncoded(_Asn1Tags.objectIdentifier, getBytes());
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream stream) {
+    stream.writeEncoded(Asn1Tags.objectIdentifier, getBytes());
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
-    return _id.hashCode;
+    return id.hashCode;
   }
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
   bool operator ==(Object asn1) {
-    if (asn1 is _DerObjectID) {
-      return _id == asn1._id;
+    if (asn1 is DerObjectID) {
+      return id == asn1.id;
     } else {
       return false;
     }
@@ -531,19 +599,21 @@ class _DerObjectID extends _Asn1 {
 
   @override
   String toString() {
-    return _id!;
+    return id!;
   }
 
   //Static methods
-  static _DerObjectID? getID(dynamic obj) {
-    if (obj == null || obj is _DerObjectID) {
-      return obj as _DerObjectID?;
+  /// internal method
+  static DerObjectID? getID(dynamic obj) {
+    if (obj == null || obj is DerObjectID) {
+      return obj as DerObjectID?;
     } else if (obj is List<int>) {
       return fromOctetString(obj);
     }
     throw ArgumentError.value(obj, 'obj', 'Illegal object');
   }
 
+  /// internal method
   static bool isValidBranchID(String branchID, int start) {
     bool isAllowed = false;
     int position = branchID.length;
@@ -566,6 +636,7 @@ class _DerObjectID extends _Asn1 {
     return isAllowed;
   }
 
+  /// internal method
   static bool isValidIdentifier(String id) {
     if (id.length < 3 || id[1] != '.') {
       return false;
@@ -577,6 +648,7 @@ class _DerObjectID extends _Asn1 {
     return isValidBranchID(id, 2);
   }
 
+  /// internal method
   static String getObjectID(List<int> bytes) {
     String result = '';
     int value = 0;
@@ -626,87 +698,104 @@ class _DerObjectID extends _Asn1 {
     return result;
   }
 
-  static _DerObjectID? fromOctetString(List<int> bytes) {
-    final int hashCode = _Asn1.getHashCode(bytes);
+  /// internal method
+  static DerObjectID? fromOctetString(List<int> bytes) {
+    final int hashCode = Asn1.getHashCode(bytes);
     final int first = hashCode & 1023;
-    final _DerObjectID? entry = _objects[first];
-    if (entry != null && _Asn1.areEqual(bytes, entry.getBytes())) {
+    final DerObjectID? entry = _objects[first];
+    if (entry != null && Asn1.areEqual(bytes, entry.getBytes())) {
       return entry;
     }
-    _objects[first] = _DerObjectID.fromBytes(bytes);
+    _objects[first] = DerObjectID.fromBytes(bytes);
     return _objects[first];
   }
 }
 
-class _DerOctet extends _Asn1Octet {
-  _DerOctet(List<int> bytes) : super(bytes);
-  _DerOctet.fromObject(_Asn1Encode asn1) : super.fromObject(asn1);
+/// internal class
+class DerOctet extends Asn1Octet {
+  /// internal constructor
+  DerOctet(List<int> bytes) : super(bytes);
+
+  /// internal constructor
+  DerOctet.fromObject(Asn1Encode asn1) : super.fromObject(asn1);
   @override
-  void encode(_DerStream stream) {
-    stream.writeEncoded(_Asn1Tags.octetString, _value);
+  void encode(DerStream stream) {
+    stream.writeEncoded(Asn1Tags.octetString, value);
   }
 }
 
-class _DerSequence extends _Asn1Sequence {
-  _DerSequence({List<_Asn1Encode?>? array, _Asn1EncodeCollection? collection})
+/// internal class
+class DerSequence extends Asn1Sequence {
+  /// internal constructor
+  DerSequence({List<Asn1Encode?>? array, Asn1EncodeCollection? collection})
       : super() {
     if (array != null) {
       // ignore: prefer_foreach
-      for (final _Asn1Encode? entry in array) {
-        _objects!.add(entry);
+      for (final Asn1Encode? entry in array) {
+        objects!.add(entry);
       }
     } else if (collection != null) {
       for (int i = 0; i < collection.count; i++) {
-        _objects!.add(collection[i]);
+        objects!.add(collection[i]);
       }
     }
   }
-  _DerSequence.fromObject(_Asn1Encode? encode) : super() {
-    _objects!.add(encode);
-  }
-  static _DerSequence fromCollection(_Asn1EncodeCollection collection) {
-    return collection.count < 1 ? empty : _DerSequence(collection: collection);
+
+  /// internal constructor
+  DerSequence.fromObject(Asn1Encode? encode) : super() {
+    objects!.add(encode);
   }
 
-  static _DerSequence empty = _DerSequence();
+  /// internal constructor
+  static DerSequence fromCollection(Asn1EncodeCollection collection) {
+    return collection.count < 1 ? empty : DerSequence(collection: collection);
+  }
+
+  /// internal constructor
+  static DerSequence empty = DerSequence();
   @override
-  void encode(_DerStream outputStream) {
-    final _DerStream stream = _DerStream(<int>[]);
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream outputStream) {
+    final DerStream stream = DerStream(<int>[]);
     // ignore: avoid_function_literals_in_foreach_calls
-    _objects!.forEach((dynamic asn1) => stream.writeObject(asn1));
+    objects!.forEach((dynamic asn1) => stream.writeObject(asn1));
     outputStream.writeEncoded(
-        _Asn1Tags.sequence | _Asn1Tags.constructed, stream._stream);
+        Asn1Tags.sequence | Asn1Tags.constructed, stream.stream);
   }
 }
 
-class _DerSequenceHelper implements _IAsn1Collection {
-  _DerSequenceHelper(_Asn1Parser helper) {
+/// internal class
+class DerSequenceHelper implements IAsn1Collection {
+  /// internal constructor
+  DerSequenceHelper(Asn1Parser helper) {
     _helper = helper;
   }
   //Fields
-  late _Asn1Parser _helper;
+  late Asn1Parser _helper;
   //Implementation
   @override
-  _IAsn1? readObject() {
+  IAsn1? readObject() {
     return _helper.readObject();
   }
 
   @override
-  _Asn1 getAsn1() {
-    return _DerSequence(collection: _helper.readCollection());
+  Asn1 getAsn1() {
+    return DerSequence(collection: _helper.readCollection());
   }
 }
 
-class _DerSet extends _Asn1Set {
+/// internal class
+class DerSet extends Asn1Set {
   //Constructor
-  _DerSet(
-      {List<_Asn1Encode?>? array,
-      _Asn1EncodeCollection? collection,
+  /// internal constructor
+  DerSet(
+      {List<Asn1Encode?>? array,
+      Asn1EncodeCollection? collection,
       bool? isSort})
       : super() {
     if (array != null) {
       // ignore: avoid_function_literals_in_foreach_calls
-      array.forEach((_Asn1Encode? asn1) => addObject(asn1));
+      array.forEach((Asn1Encode? asn1) => addObject(asn1));
       sortObjects();
     } else if (collection != null) {
       isSort ??= true;
@@ -720,41 +809,49 @@ class _DerSet extends _Asn1Set {
   }
   //Implementation
   @override
-  void encode(_DerStream outputStream) {
-    final _DerStream stream = _DerStream(<int>[]);
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream outputStream) {
+    final DerStream stream = DerStream(<int>[]);
     // ignore: avoid_function_literals_in_foreach_calls
-    _objects.forEach((dynamic entry) => stream.writeObject(entry));
+    objects.forEach((dynamic entry) => stream.writeObject(entry));
     outputStream.writeEncoded(
-        _Asn1Tags.setTag | _Asn1Tags.constructed, stream._stream);
+        Asn1Tags.setTag | Asn1Tags.constructed, stream.stream);
   }
 }
 
-class _DerSetHelper implements _IAsn1SetHelper {
-  _DerSetHelper(_Asn1Parser helper) {
+/// internal class
+class DerSetHelper implements IAsn1SetHelper {
+  /// internal constructor
+  DerSetHelper(Asn1Parser helper) {
     _helper = helper;
   }
   //Fields
-  late _Asn1Parser _helper;
+  late Asn1Parser _helper;
   //Implementation
   @override
-  _IAsn1? readObject() {
+  IAsn1? readObject() {
     return _helper.readObject();
   }
 
   @override
-  _Asn1 getAsn1() {
-    return _DerSet(collection: _helper.readCollection(), isSort: false);
+  Asn1 getAsn1() {
+    return DerSet(collection: _helper.readCollection(), isSort: false);
   }
 }
 
-class _DerStream {
-  _DerStream([List<int>? stream]) {
+/// internal class
+class DerStream {
+  /// internal constructor
+  DerStream([List<int>? stream]) {
     if (stream != null) {
-      _stream = stream;
+      this.stream = stream;
     }
   }
-  List<int>? _stream;
+
+  /// internal field
+  List<int>? stream;
   //Implementation
+  /// internal method
   void writeLength(int length) {
     if (length > 127) {
       int size = 1;
@@ -762,34 +859,36 @@ class _DerStream {
       while ((value >>= 8) != 0) {
         size++;
       }
-      _stream!.add((size | 0x80).toUnsigned(8));
+      stream!.add((size | 0x80).toUnsigned(8));
       for (int i = (size - 1) * 8; i >= 0; i -= 8) {
-        _stream!.add((length >> i).toUnsigned(8));
+        stream!.add((length >> i).toUnsigned(8));
       }
     } else {
-      _stream!.add(length.toUnsigned(8));
+      stream!.add(length.toUnsigned(8));
     }
   }
 
+  /// internal method
   void writeEncoded(int? tagNumber, List<int>? bytes, [int? flag]) {
     if (flag != null) {
       writeTag(flag, tagNumber!);
       writeLength(bytes!.length);
-      _stream!.addAll(bytes);
+      stream!.addAll(bytes);
     } else {
-      _stream!.add(tagNumber!.toUnsigned(8));
+      stream!.add(tagNumber!.toUnsigned(8));
       writeLength(bytes!.length);
-      _stream!.addAll(bytes);
+      stream!.addAll(bytes);
     }
   }
 
+  /// internal method
   void writeTag(int flag, int tagNumber) {
     if (tagNumber < 31) {
-      _stream!.add((flag | tagNumber).toUnsigned(8));
+      stream!.add((flag | tagNumber).toUnsigned(8));
     } else {
-      _stream!.add((flag | 0x1f).toUnsigned(8));
+      stream!.add((flag | 0x1f).toUnsigned(8));
       if (tagNumber < 128) {
-        _stream!.add(tagNumber.toUnsigned(8));
+        stream!.add(tagNumber.toUnsigned(8));
       } else {
         final List<int> bytes = <int>[];
         bytes.add((tagNumber & 0x7F).toUnsigned(8));
@@ -797,18 +896,19 @@ class _DerStream {
           tagNumber >>= 7;
           bytes.add((tagNumber & 0x7F | 0x80).toUnsigned(8));
         } while (tagNumber > 127 && bytes.length <= 5);
-        _stream!.addAll(bytes.reversed.toList());
+        stream!.addAll(bytes.reversed.toList());
       }
     }
   }
 
+  /// internal method
   void writeObject(dynamic obj) {
     if (obj == null) {
-      _stream!.add(_Asn1Tags.nullValue);
-      _stream!.add(0x00);
-    } else if (obj is _Asn1) {
+      stream!.add(Asn1Tags.nullValue);
+      stream!.add(0x00);
+    } else if (obj is Asn1) {
       obj.encode(this);
-    } else if (obj is _Asn1Encode) {
+    } else if (obj is Asn1Encode) {
       obj.getAsn1()!.encode(this);
     } else {
       throw ArgumentError.value(obj, 'obj', 'Invalid object specified');
@@ -816,56 +916,63 @@ class _DerStream {
   }
 }
 
-class _DerTag extends _Asn1Tag {
-  _DerTag(int? tagNumber, _Asn1Encode? asn1, [bool? isExplicit])
+/// internal class
+class DerTag extends Asn1Tag {
+  /// internal constructor
+  DerTag(int? tagNumber, Asn1Encode? asn1, [bool? isExplicit])
       : super(tagNumber, asn1) {
     if (isExplicit != null) {
-      _isExplicit = isExplicit;
+      explicit = isExplicit;
     }
   }
   //Implementation
   @override
-  void encode(_DerStream stream) {
-    final List<int>? bytes = _object!.getDerEncoded();
-    if (_isExplicit!) {
+  void encode(DerStream stream) {
+    final List<int>? bytes = object!.getDerEncoded();
+    if (explicit!) {
       stream.writeEncoded(
-          _tagNumber, bytes, _Asn1Tags.constructed | _Asn1Tags.tagged);
+          tagNumber, bytes, Asn1Tags.constructed | Asn1Tags.tagged);
     } else {
-      final int flag = (bytes![0] & _Asn1Tags.constructed) | _Asn1Tags.tagged;
-      stream.writeTag(flag, _tagNumber!);
-      stream._stream!.addAll(bytes.sublist(1));
+      final int flag = (bytes![0] & Asn1Tags.constructed) | Asn1Tags.tagged;
+      stream.writeTag(flag, tagNumber!);
+      stream.stream!.addAll(bytes.sublist(1));
     }
   }
 }
 
-class _DerUtcTime extends _Asn1 {
-  _DerUtcTime(List<int> bytes) {
+/// internal class
+class DerUtcTime extends Asn1 {
+  /// internal constructor
+  DerUtcTime(List<int> bytes) {
     _time = utf8.decode(bytes);
   }
   //Fields
   String? _time;
   //Properties
+  /// internal property
   DateTime? get toAdjustedDateTime {
     return DateTime.tryParse(adjustedTimeString);
   }
 
+  /// internal property
   String get adjustedTimeString {
     String timeString = _time!;
     final String c = timeString.codeUnitAt(0) < '5'.codeUnitAt(0) ? '20' : '19';
     timeString = c + timeString;
-    return timeString.substring(0, 8) + 'T' + timeString.substring(8);
+    return '${timeString.substring(0, 8)}T${timeString.substring(8)}';
   }
 
   //Implementation
   @override
-  void encode(_DerStream stream) {
-    stream.writeEncoded(_Asn1Tags.utcTime, utf8.encode(_time!));
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream stream) {
+    stream.writeEncoded(Asn1Tags.utcTime, utf8.encode(_time!));
   }
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
   bool operator ==(Object asn1) {
-    if (asn1 is _DerUtcTime) {
+    if (asn1 is DerUtcTime) {
       return _time == asn1._time;
     } else {
       return false;
@@ -884,24 +991,27 @@ class _DerUtcTime extends _Asn1 {
   }
 }
 
-class _DerCatalogue extends _Asn1 {
-  _DerCatalogue(List<int> bytes) {
-    _bytes = bytes;
-  }
+/// internal class
+class DerCatalogue extends Asn1 {
+  /// internal constructor
+  DerCatalogue(this.bytes);
   //Fields
+
+  /// internal field
   @override
-  List<int>? _bytes;
+  List<int>? bytes;
   //Implemnetation
   @override
-  void encode(_DerStream stream) {
-    stream.writeEncoded(_Asn1Tags.enumerated, _bytes);
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream stream) {
+    stream.writeEncoded(Asn1Tags.enumerated, bytes);
   }
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
   bool operator ==(Object asn1) {
-    if (asn1 is _DerCatalogue) {
-      return _Asn1.areEqual(_bytes, asn1._bytes);
+    if (asn1 is DerCatalogue) {
+      return Asn1.areEqual(bytes, asn1.bytes);
     } else {
       return false;
     }
@@ -910,30 +1020,34 @@ class _DerCatalogue extends _Asn1 {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
-    return _Asn1.getHashCode(_bytes);
+    return Asn1.getHashCode(bytes);
   }
 }
 
-class _DerOctetHelper implements _IAsn1Octet {
-  _DerOctetHelper(_Asn1StreamHelper? stream) {
+/// internal class
+class DerOctetHelper implements IAsn1Octet {
+  /// internal constructor
+  DerOctetHelper(Asn1StreamHelper? stream) {
     _stream = stream;
   }
   //Fields
-  _Asn1StreamHelper? _stream;
+  Asn1StreamHelper? _stream;
   //Implementation
   @override
-  _StreamReader? getOctetStream() {
+  PdfStreamReader? getOctetStream() {
     return _stream;
   }
 
   @override
-  _Asn1 getAsn1() {
-    return _DerOctet(_stream!.toArray());
+  Asn1 getAsn1() {
+    return DerOctet(_stream!.toArray());
   }
 }
 
-class _DerUtf8String extends _DerString {
-  _DerUtf8String(String value) {
+/// internal class
+class DerUtf8String extends DerString {
+  /// internal constructor
+  DerUtf8String(String value) {
     _value = value;
   }
   //Fields
@@ -945,14 +1059,15 @@ class _DerUtf8String extends _DerString {
   }
 
   @override
-  void encode(_DerStream stream) {
-    stream.writeEncoded(_Asn1Tags.utf8String, utf8.encode(_value!));
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream stream) {
+    stream.writeEncoded(Asn1Tags.utf8String, utf8.encode(_value!));
   }
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
   bool operator ==(Object asn1) {
-    if (asn1 is _DerUtf8String) {
+    if (asn1 is DerUtf8String) {
       return _value == asn1._value;
     } else {
       return false;
@@ -964,8 +1079,10 @@ class _DerUtf8String extends _DerString {
   int get hashCode => _value.hashCode;
 }
 
-class _DerTeleText extends _DerString {
-  _DerTeleText(String value) {
+/// internal class
+class DerTeleText extends DerString {
+  /// internal constructor
+  DerTeleText(String value) {
     _value = value;
   }
   //Fields
@@ -977,10 +1094,12 @@ class _DerTeleText extends _DerString {
   }
 
   @override
-  void encode(_DerStream stream) {
-    stream.writeEncoded(_Asn1Tags.teleText, toByteArray(_value!));
+  // ignore: avoid_renaming_method_parameters
+  void encode(DerStream stream) {
+    stream.writeEncoded(Asn1Tags.teleText, toByteArray(_value!));
   }
 
+  /// internal method
   List<int> toByteArray(String value) {
     final List<int> result = <int>[];
     // ignore: avoid_function_literals_in_foreach_calls
@@ -989,9 +1108,9 @@ class _DerTeleText extends _DerString {
   }
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, avoid_renaming_method_parameters
   bool operator ==(Object asn1) {
-    if (asn1 is _DerTeleText) {
+    if (asn1 is DerTeleText) {
       return _value == asn1._value;
     } else {
       return false;

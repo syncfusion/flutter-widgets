@@ -1,16 +1,15 @@
-part of pdf;
-
-String _decodeBigEndian(List<int>? bytes, [int offset = 0, int? length]) {
+/// internal method
+String decodeBigEndian(List<int>? bytes, [int offset = 0, int? length]) {
   final List<int> codeUnits =
-      _UtfbeDecoder(bytes, offset, length).decodeRemaining();
+      UtfbeDecoder(bytes, offset, length).decodeRemaining();
   final List<int> result = _convertCodeUnitsToCodePoints(codeUnits);
   return String.fromCharCodes(result);
 }
 
 List<int> _convertCodeUnitsToCodePoints(List<int> codeUnits,
     [int offset = 0, int? length]) {
-  final _UtfCodeUnitDecoder decoder =
-      _UtfCodeUnitDecoder(_ByteRange(codeUnits, offset, length));
+  final UtfCodeUnitDecoder decoder =
+      UtfCodeUnitDecoder(ByteRange(codeUnits, offset, length));
   final List<int> codePoints =
       List<int>.filled(decoder.byteRange.remaining, 0, growable: true);
   int i = 0;
@@ -26,20 +25,28 @@ List<int> _convertCodeUnitsToCodePoints(List<int> codeUnits,
   }
 }
 
-class _UtfbeDecoder {
-  _UtfbeDecoder(List<int>? encodedBytes, [int offset = 0, int? length]) {
+/// internal class
+class UtfbeDecoder {
+  /// internal constructor
+  UtfbeDecoder(List<int>? encodedBytes, [int offset = 0, int? length]) {
     length = length ?? encodedBytes!.length - offset;
-    byteRange = _ByteRange(encodedBytes, offset, length);
+    byteRange = ByteRange(encodedBytes, offset, length);
     if (isBeBom(encodedBytes, offset, length)) {
       byteRange.skip(2);
     }
   }
-  late _ByteRange byteRange;
+
+  /// internal field
+  late ByteRange byteRange;
+
+  /// internal field
   final int rcPoint = 0xfffd;
   int? _current;
 
+  /// internal property
   int get remaining => (byteRange.remaining + 1) ~/ 2;
 
+  /// internal property
   bool get moveNext {
     _current = null;
     final int remaining = byteRange.remaining;
@@ -56,6 +63,7 @@ class _UtfbeDecoder {
     return true;
   }
 
+  /// internal method
   List<int> decodeRemaining() {
     final List<int> codeunits = List<int>.filled(remaining, 0, growable: true);
     int i = 0;
@@ -71,6 +79,7 @@ class _UtfbeDecoder {
     }
   }
 
+  /// internal method
   bool isBeBom(List<int>? encodedBytes, [int offset = 0, int? length]) {
     final int end = length != null ? offset + length : encodedBytes!.length;
     return (offset + 2) <= end &&
@@ -78,6 +87,7 @@ class _UtfbeDecoder {
         encodedBytes[offset + 1] == 0xff;
   }
 
+  /// internal method
   int decode() {
     byteRange.moveNext;
     final int first = byteRange.current!;
@@ -87,8 +97,10 @@ class _UtfbeDecoder {
   }
 }
 
-class _ByteRange {
-  _ByteRange(List<int>? source, int offset, int? length) {
+/// internal class
+class ByteRange {
+  /// internal constructor
+  ByteRange(List<int>? source, int offset, int? length) {
     length = length ?? source!.length - offset;
     _source = source;
     _offset = offset - 1;
@@ -100,24 +112,39 @@ class _ByteRange {
   late int _length;
   late int _end;
 
+  /// internal property
   int? get current => _source![_offset];
+
+  /// internal property
   bool get moveNext => ++_offset < _end;
+
+  /// internal property
   int get remaining => _end - _offset - 1;
+
+  /// internal method
   void skip([int count = 1]) {
     _offset += count;
   }
 
+  /// internal method
   void backup([int byte = 1]) {
     _offset -= byte;
   }
 }
 
-class _UtfCodeUnitDecoder {
-  _UtfCodeUnitDecoder(this.byteRange);
-  final _ByteRange byteRange;
+/// internal class
+class UtfCodeUnitDecoder {
+  /// internal constructor
+  UtfCodeUnitDecoder(this.byteRange);
+
+  /// internal field
+  final ByteRange byteRange;
+
+  /// internal field
   final int rcPoint = 0xfffd;
   int? _current;
 
+  /// internal property
   bool get moveNext {
     _current = null;
     if (!byteRange.moveNext) {
@@ -147,7 +174,8 @@ class _UtfCodeUnitDecoder {
   }
 }
 
-List<int> _encodeBigEndian(String content) {
+/// internal method
+List<int> encodeBigEndian(String content) {
   final List<int> codeUnits = _codePointsToCodeUnits(content.codeUnits);
   final List<int> encodedBytes =
       List<int>.filled(2 * codeUnits.length, 0, growable: true);

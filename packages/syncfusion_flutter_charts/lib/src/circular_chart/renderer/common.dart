@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import '../../chart/common/data_label.dart';
 import '../../chart/utils/enum.dart';

@@ -102,6 +102,7 @@ class TimelineWidget extends StatefulWidget {
   final List<DateTime>? blackoutDates;
 
   @override
+  // ignore: library_private_types_in_public_api
   _TimelineWidgetState createState() => _TimelineWidgetState();
 }
 
@@ -860,7 +861,7 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
       Canvas canvas, bool isResourceEnabled, int visibleDatesCount) {
     _linePainter.strokeWidth = 0.5;
     _linePainter.strokeCap = StrokeCap.round;
-    _linePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor;
+    _linePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor!;
     double startXPosition = 0;
     double endXPosition = size.width;
     double startYPosition = 0.5;
@@ -1068,9 +1069,9 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
   String _getAccessibilityText(DateTime date, [CalendarResource? resource]) {
     String dateText;
     if (visibleDates.length > DateTime.daysPerWeek) {
-      dateText = DateFormat('EEEEE, dd/MMMM/yyyy').format(date).toString();
+      dateText = DateFormat('EEEEE, dd MMMM yyyy').format(date);
     }
-    dateText = DateFormat('h a, dd/MMMM/yyyy').format(date).toString();
+    dateText = DateFormat('h a, dd MMMM yyyy').format(date);
 
     if (resource != null) {
       dateText = dateText + resource.displayName;
@@ -1184,30 +1185,16 @@ class TimelineViewHeaderView extends CustomPainter {
             ? size.width - childWidth
             : 0;
 
-    TextStyle viewHeaderDayTextStyle =
-        calendarTheme.brightness == Brightness.light
-            ? const TextStyle(
-                color: Colors.black87,
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-                fontFamily: 'Roboto')
-            : const TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-                fontFamily: 'Roboto');
-    TextStyle viewHeaderDateTextStyle =
-        calendarTheme.brightness == Brightness.light
-            ? const TextStyle(
-                color: Colors.black87,
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-                fontFamily: 'Roboto')
-            : const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-                fontFamily: 'Roboto');
+    TextStyle viewHeaderDayTextStyle = TextStyle(
+        color: calendarTheme.viewHeaderDayTextStyle!.color,
+        fontSize: 11,
+        fontWeight: FontWeight.w400,
+        fontFamily: 'Roboto');
+    TextStyle viewHeaderDateTextStyle = TextStyle(
+        color: calendarTheme.viewHeaderDateTextStyle!.color,
+        fontSize: 15,
+        fontWeight: FontWeight.w400,
+        fontFamily: 'Roboto');
 
     if (viewHeaderDateTextStyle == calendarTheme.viewHeaderDateTextStyle &&
         isTimelineMonth) {
@@ -1237,8 +1224,8 @@ class TimelineViewHeaderView extends CustomPainter {
     if (isTimelineMonth) {
       _hoverPainter.strokeWidth = 0.5;
       _hoverPainter.strokeCap = StrokeCap.round;
-      _hoverPainter.color = cellBorderColor ?? calendarTheme.cellBorderColor;
-      canvas.drawLine(const Offset(0, 0), Offset(size.width, 0), _hoverPainter);
+      _hoverPainter.color = cellBorderColor ?? calendarTheme.cellBorderColor!;
+      canvas.drawLine(Offset.zero, Offset(size.width, 0), _hoverPainter);
     }
 
     for (int i = 0; i < visibleDatesLength; i++) {
@@ -1253,11 +1240,9 @@ class TimelineViewHeaderView extends CustomPainter {
               ? 'EEEE'
               : timeSlotViewSettings.dayFormat;
 
-      final String dayText =
-          DateFormat(dayFormat, locale).format(currentDate).toString();
-      final String dateText = DateFormat(timeSlotViewSettings.dateFormat)
-          .format(currentDate)
-          .toString();
+      final String dayText = DateFormat(dayFormat, locale).format(currentDate);
+      final String dateText =
+          DateFormat(timeSlotViewSettings.dateFormat).format(currentDate);
 
       final bool isBlackoutDate =
           CalendarViewHelper.isDateInDateCollection(blackoutDates, currentDate);
@@ -1284,13 +1269,18 @@ class TimelineViewHeaderView extends CustomPainter {
       }
 
       if (!isDateWithInDateRange(minDate, maxDate, currentDate)) {
-        if (calendarTheme.brightness == Brightness.light) {
-          dayTextStyle = dayTextStyle.copyWith(color: Colors.black26);
-          dateTextStyle = dateTextStyle.copyWith(color: Colors.black26);
-        } else {
-          dayTextStyle = dayTextStyle.copyWith(color: Colors.white38);
-          dateTextStyle = dateTextStyle.copyWith(color: Colors.white38);
-        }
+        dayTextStyle = dayTextStyle.copyWith(
+            color: dayTextStyle.color != null
+                ? dayTextStyle.color!.withOpacity(0.38)
+                : calendarTheme.brightness == Brightness.light
+                    ? Colors.black26
+                    : Colors.white38);
+        dateTextStyle = dateTextStyle.copyWith(
+            color: dateTextStyle.color != null
+                ? dateTextStyle.color!.withOpacity(0.38)
+                : calendarTheme.brightness == Brightness.light
+                    ? Colors.black26
+                    : Colors.white38);
       }
 
       final TextSpan dayTextSpan = TextSpan(text: dayText, style: dayTextStyle);
@@ -1397,7 +1387,7 @@ class TimelineViewHeaderView extends CustomPainter {
       _xPosition += childWidth;
     }
 
-    _hoverPainter.color = cellBorderColor ?? calendarTheme.cellBorderColor;
+    _hoverPainter.color = cellBorderColor ?? calendarTheme.cellBorderColor!;
     canvas.restore();
     canvas.drawLine(
         Offset(_xPosition, 0), Offset(_xPosition, size.height), _hoverPainter);
@@ -1488,14 +1478,14 @@ class TimelineViewHeaderView extends CustomPainter {
   }
 
   String _getAccessibilityText(DateTime date) {
-    final String textString = DateFormat('EEEEE').format(date).toString() +
-        DateFormat('dd/MMMM/yyyy').format(date).toString();
+    final String textString = DateFormat('EEEEE').format(date) +
+        DateFormat('dd/MMMM/yyyy').format(date);
     if (!isDateWithInDateRange(minDate, maxDate, date)) {
-      return textString + ', Disabled date';
+      return '$textString, Disabled date';
     }
 
     if (CalendarViewHelper.isDateInDateCollection(blackoutDates, date)) {
-      return textString + ', Blackout date';
+      return '$textString, Blackout date';
     }
 
     return textString;

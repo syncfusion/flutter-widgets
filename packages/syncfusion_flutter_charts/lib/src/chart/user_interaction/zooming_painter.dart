@@ -1,9 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/src/chart/user_interaction/zooming_panning.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
@@ -66,12 +61,10 @@ class ZoomRectPainter extends CustomPainter {
             stateProperties.zoomPanBehaviorRenderer);
     if (zoomingBehaviorDetails.rectPath != null) {
       canvas.drawPath(
-          !kIsWeb
-              ? dashPath(
-                  zoomingBehaviorDetails.rectPath!,
-                  dashArray: CircularIntervalList<double>(<double>[5, 5]),
-                )!
-              : zoomingBehaviorDetails.rectPath!,
+          dashPath(
+            zoomingBehaviorDetails.rectPath!,
+            dashArray: CircularIntervalList<double>(<double>[5, 5]),
+          )!,
           strokePaint);
       canvas.drawRect(zoomingBehaviorDetails.zoomingRect, fillPaint);
       final Rect zoomRect = zoomingBehaviorDetails.zoomingRect;
@@ -307,11 +300,9 @@ class ZoomRectPainter extends CustomPainter {
     }
     tooltip.connectorLineDashArray != null
         ? canvas.drawPath(
-            !kIsWeb
-                ? dashPath(connectorPath,
-                    dashArray: CircularIntervalList<double>(
-                        tooltip.connectorLineDashArray!))!
-                : connectorPath,
+            dashPath(connectorPath,
+                dashArray: CircularIntervalList<double>(
+                    tooltip.connectorLineDashArray!))!,
             connectorLinePaint)
         : canvas.drawPath(connectorPath, connectorLinePaint);
   }

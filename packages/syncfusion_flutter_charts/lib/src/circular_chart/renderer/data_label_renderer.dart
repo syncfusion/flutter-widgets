@@ -1,14 +1,15 @@
-import 'dart:ui';
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
+
 import '../../chart/chart_series/xy_data_series.dart';
 import '../../chart/common/data_label.dart';
 import '../../chart/utils/enum.dart';
 import '../../chart/utils/helper.dart';
 import '../../common/event_args.dart';
 import '../../common/utils/helper.dart';
-
 import '../../pyramid_chart/utils/helper.dart';
 import '../base/circular_base.dart';
 import '../base/circular_state_properties.dart';
@@ -75,6 +76,7 @@ class CircularDataLabelRendererState extends State<CircularDataLabelRenderer>
     animationController.forward(from: 0.0);
     return !widget.show
         ? Container()
+        // ignore: avoid_unnecessary_containers
         : Container(
             child: RepaintBoundary(
                 child: CustomPaint(
@@ -703,7 +705,6 @@ void setLabelPosition(
   final SfCircularChart chart = stateProperties.chart;
   final num angle = dataLabel.angle;
   Offset labelLocation;
-  final bool smartLabel = seriesRenderer.series.enableSmartLabels;
   const int labelPadding = 2;
   if (dataLabel.labelPosition == ChartDataLabelPosition.inside) {
     labelLocation = degreeToPoint(point.midAngle!,
@@ -720,8 +721,50 @@ void setLabelPosition(
         labelLocation.dy - labelPadding,
         textSize.width + (2 * labelPadding),
         textSize.height + (2 * labelPadding));
-    final bool isDataLabelCollide =
+    bool isDataLabelCollide =
         findingCollision(point.labelRect, renderDataLabelRegions);
+    point.overflowTrimmedText = point.overflowTrimmedText ?? label;
+    if (dataLabel.overflowMode == OverflowMode.shift) {
+      final String labelText = _getSegmentOverflowTrimmedText(
+          point.text!,
+          textSize,
+          point,
+          point.labelRect,
+          stateProperties,
+          labelLocation,
+          dataLabel.overflowMode);
+      if (labelText.contains('...') || labelText.isEmpty) {
+        isDataLabelCollide = true;
+        point.renderPosition = ChartDataLabelPosition.outside;
+      }
+      point.text = isDataLabelCollide ? point.text : labelText;
+    } else if (dataLabel.overflowMode == OverflowMode.trim &&
+        !point.text!.contains('...')) {
+      point.text = _getSegmentOverflowTrimmedText(
+          point.text!,
+          textSize,
+          point,
+          point.labelRect,
+          stateProperties,
+          labelLocation,
+          dataLabel.overflowMode);
+      label = point.text!;
+      final Size trimmedTextSize = measureText(label, dataLabelStyle);
+      labelLocation = degreeToPoint(point.midAngle!,
+          (point.innerRadius! + point.outerRadius!) / 2, point.center!);
+      labelLocation = Offset(
+          labelLocation.dx -
+              (trimmedTextSize.width / 2) +
+              (angle == 0 ? 0 : trimmedTextSize.width / 2),
+          labelLocation.dy -
+              (trimmedTextSize.height / 2) +
+              (angle == 0 ? 0 : trimmedTextSize.height / 2));
+      point.labelRect = Rect.fromLTWH(
+          labelLocation.dx - labelPadding,
+          labelLocation.dy - labelPadding,
+          trimmedTextSize.width + (2 * labelPadding),
+          trimmedTextSize.height + (2 * labelPadding));
+    }
     final TextStyle textStyle = TextStyle(
         color: (dataLabelStyle.color ?? dataLabel.textStyle.color) ??
             getSaturationColor(
@@ -758,7 +801,8 @@ void setLabelPosition(
             dataLabel.textStyle.fontFamilyFallback);
     if (seriesRenderer.series.dataLabelSettings.labelIntersectAction ==
             LabelIntersectAction.shift &&
-        isDataLabelCollide) {
+        isDataLabelCollide &&
+        dataLabel.overflowMode != OverflowMode.trim) {
       point.saturationRegionOutside = true;
       point.renderPosition = ChartDataLabelPosition.outside;
       dataLabelStyle = textStyle;
@@ -774,7 +818,11 @@ void setLabelPosition(
           dataLabelStyle,
           renderDataLabelRegions,
           animateOpacity);
-    } else if (smartLabel && isDataLabelCollide) {
+    } else if (((dataLabel.labelIntersectAction == LabelIntersectAction.shift &&
+                dataLabel.overflowMode == OverflowMode.none) &&
+            isDataLabelCollide &&
+            dataLabel.overflowMode != OverflowMode.trim) ||
+        (isDataLabelCollide && dataLabel.overflowMode == OverflowMode.shift)) {
       point.saturationRegionOutside = true;
       point.renderPosition = ChartDataLabelPosition.outside;
       dataLabelStyle = textStyle;
@@ -790,7 +838,9 @@ void setLabelPosition(
           dataLabelStyle,
           renderDataLabelRegions,
           animateOpacity);
-    } else {
+    } else if (!isDataLabelCollide ||
+        (dataLabel.labelIntersectAction == LabelIntersectAction.none &&
+            dataLabel.overflowMode == OverflowMode.none)) {
       point.renderPosition = ChartDataLabelPosition.inside;
       dataLabelStyle = TextStyle(
           color: (chart.onDataLabelRender != null &&
@@ -837,10 +887,24 @@ void setLabelPosition(
           fontFamilyFallback: dataLabelStyle.fontFamilyFallback ??
               dataLabel.textStyle.fontFamilyFallback);
       if (!isDataLabelCollide &&
-          (dataLabel.labelIntersectAction == LabelIntersectAction.shift)) {
+          (dataLabel.labelIntersectAction == LabelIntersectAction.shift &&
+              dataLabel.overflowMode != OverflowMode.hide)) {
         renderDataLabelRegions.add(point.labelRect);
       } else if (!isDataLabelCollide &&
-          (dataLabel.labelIntersectAction == LabelIntersectAction.hide)) {
+          (dataLabel.labelIntersectAction == LabelIntersectAction.hide ||
+              dataLabel.overflowMode == OverflowMode.hide)) {
+        if (point.renderPosition == ChartDataLabelPosition.inside &&
+            (dataLabel.overflowMode == OverflowMode.hide)) {
+          point.text = _getSegmentOverflowTrimmedText(
+              point.text!,
+              textSize,
+              point,
+              point.labelRect,
+              stateProperties,
+              labelLocation,
+              dataLabel.overflowMode);
+          label = point.text!;
+        }
         drawLabel(
             point.labelRect,
             labelLocation,
@@ -1172,4 +1236,133 @@ Color findthemecolor(CircularStateProperties stateProperties,
                       Brightness.light
                   ? Colors.white
                   : Colors.black)));
+}
+
+/// Method to get a text when the text overlap with another segment/slice.
+String _getSegmentOverflowTrimmedText(
+    String datalabelText,
+    Size size,
+    ChartPoint<dynamic> point,
+    Rect labelRect,
+    CircularStateProperties chartState,
+    Offset labelLocation,
+    OverflowMode action) {
+  const int index = 0;
+  bool isTextWithinRegion;
+  const String ellipse = '...';
+  const int minCharacterLength = 3;
+  // To reduce the additional padding around label rects
+  const double labelPadding = kIsWeb ? 4 : 2;
+
+  final bool labelLeftEnd = _isInsideSegment(
+      point.labelRect.centerLeft - Offset(labelPadding, 0),
+      chartState.centerLocation,
+      point.outerRadius!,
+      point.startAngle!,
+      point.endAngle!);
+
+  final bool labelRightEnd = _isInsideSegment(
+      point.labelRect.centerRight - Offset(labelPadding, 0),
+      chartState.centerLocation,
+      point.outerRadius!,
+      point.startAngle!,
+      point.endAngle!);
+
+  if (labelLeftEnd && labelRightEnd) {
+    return datalabelText;
+  } else {
+    isTextWithinRegion = false;
+    while (!isTextWithinRegion) {
+      if (action == OverflowMode.trim) {
+        if (datalabelText == '') {
+          break;
+        }
+        if (datalabelText.length > minCharacterLength)
+          datalabelText =
+              addEllipse(datalabelText, datalabelText.length, ellipse);
+        else {
+          datalabelText = '';
+          break;
+        }
+        if (datalabelText == ellipse) {
+          datalabelText = '';
+          break;
+        }
+        const num labelPadding = 0;
+        final Size trimSize = measureText(
+            datalabelText,
+            chartState.chartSeries.visibleSeriesRenderers[index].series
+                .dataLabelSettings.textStyle);
+        Offset trimmedlabelLocation = degreeToPoint(point.midAngle!,
+            (point.innerRadius! + point.outerRadius!) / 2, point.center!);
+        trimmedlabelLocation = Offset(
+            (trimmedlabelLocation.dx - trimSize.width - 5) +
+                (chartState.chartSeries.visibleSeriesRenderers[index].series
+                            .dataLabelSettings.angle ==
+                        0
+                    ? 0
+                    : trimSize.width / 2),
+            (trimmedlabelLocation.dy - trimSize.height / 2) +
+                (chartState.chartSeries.visibleSeriesRenderers[index].series
+                            .dataLabelSettings.angle ==
+                        0
+                    ? 0
+                    : trimSize.height / 2));
+        final Rect trimmedlabelRect = Rect.fromLTWH(
+            trimmedlabelLocation.dx - labelPadding,
+            trimmedlabelLocation.dy - labelPadding,
+            trimSize.width + (2 * labelPadding),
+            trimSize.height + (2 * labelPadding));
+
+        final bool trimmedLeftEnd = _isInsideSegment(
+            trimmedlabelRect.centerLeft,
+            chartState.centerLocation,
+            point.outerRadius!,
+            point.startAngle!,
+            point.endAngle!);
+
+        final bool trimmedRightEnd = _isInsideSegment(
+            trimmedlabelRect.centerRight,
+            chartState.centerLocation,
+            point.outerRadius!,
+            point.startAngle!,
+            point.endAngle!);
+        if (trimmedLeftEnd && trimmedRightEnd) {
+          isTextWithinRegion = true;
+          point.labelRect = trimmedlabelRect;
+        }
+      } else {
+        datalabelText = '';
+        isTextWithinRegion = true;
+        break;
+      }
+    }
+  }
+  return datalabelText;
+}
+
+/// Method to check if a label is inside the point region based on the angle for pie and doughnut series.
+bool _isInsideSegment(
+    Offset point, Offset center, num radius, num start, num end) {
+  final Offset labelOffset = point - center;
+
+  final double labelRadius = labelOffset.distance;
+
+  if (labelRadius < radius) {
+    final num originAngle =
+        math.atan2(-labelOffset.dy, labelOffset.dx) * 180 / math.pi;
+
+    num labelAngle;
+
+    labelAngle = 360 - originAngle;
+
+    if (labelAngle > 270) {
+      labelAngle -= 360;
+    }
+    labelAngle = labelAngle.round();
+
+    return labelAngle >= start && labelAngle <= end;
+  } else {
+    return false;
+  }
 }

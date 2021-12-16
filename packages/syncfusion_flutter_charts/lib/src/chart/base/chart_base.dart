@@ -159,8 +159,6 @@ class SfCartesianChart extends StatefulWidget {
       this.plotAreaBackgroundImage,
       this.onTooltipRender,
       this.onActualRangeChanged,
-      //ignore: deprecated_member_use_from_same_package
-      @deprecated this.onAxisLabelRender,
       this.onDataLabelRender,
       this.onLegendItemRender,
       this.onTrackballPositionChanging,
@@ -169,7 +167,6 @@ class SfCartesianChart extends StatefulWidget {
       this.onZoomStart,
       this.onZoomEnd,
       this.onZoomReset,
-      @deprecated this.onPointTapped,
       this.onAxisLabelTapped,
       this.onDataLabelTapped,
       this.onLegendTapped,
@@ -195,7 +192,6 @@ class SfCartesianChart extends StatefulWidget {
         Color.fromRGBO(255, 240, 219, 1),
         Color.fromRGBO(238, 238, 238, 1)
       ],
-      this.axisLabelFormatter,
       ChartAxis? primaryXAxis,
       ChartAxis? primaryYAxis,
       EdgeInsets? margin,
@@ -441,22 +437,6 @@ class SfCartesianChart extends StatefulWidget {
   ///```
   final ChartActualRangeChangedCallback? onActualRangeChanged;
 
-  /// Occurs while rendering the axis labels. Text and text styles such as color, font size,
-  /// and font weight can be customized.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            onAxisLabelRender: (AxisLabelRenderArgs args) => axis(args),
-  ///        ));
-  ///}
-  ///void axis(AxisLabelRenderArgs args) {
-  ///   args.text = 'axis Label';
-  ///}
-  ///```
-  //ignore: deprecated_member_use_from_same_package
-  final ChartAxisLabelRenderCallback? onAxisLabelRender;
-
   /// Occurs when tapping the axis label. Here, you can get the appropriate axis that is
   /// tapped and the axis label text.
   ///```dart
@@ -584,22 +564,6 @@ class SfCartesianChart extends StatefulWidget {
   ///}
   ///```
   final ChartZoomingCallback? onZooming;
-
-  /// Occurs when tapping the series point. Here, you can get the series, series index
-  /// and point index.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            onPointTapped: (PointTapArgs args) => point(args),
-  ///        ));
-  ///}
-  ///void point(PointTapArgs args) {
-  ///   print(args.seriesIndex);
-  ///}
-  ///```
-  @Deprecated('Use onPointTap in ChartSeries instead.')
-  final ChartPointTapCallback? onPointTapped;
 
   ///Called when the data label is tapped.
   ///
@@ -962,14 +926,6 @@ class SfCartesianChart extends StatefulWidget {
   ///```
   final List<Color> palette;
 
-  ///Called while rendering each axis label in the chart.
-  ///
-  ///Provides label text, axis name, orientation of the axis, trimmed text and text styles such as color,
-  /// font size, and font weight to the user using the `AxisLabelRenderDetails` class.
-  ///
-  ///You can customize the text and text style using the `ChartAxisLabel` class and can return it.
-  final ChartLabelFormatterCallback? axisLabelFormatter;
-
   ///Technical indicators for charts.
   final List<TechnicalIndicators<dynamic, dynamic>> indicators;
 
@@ -1150,8 +1106,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
     _stateProperties.oldAxisRenderers = <ChartAxisRenderer>[];
     _stateProperties.zoomedAxisRendererStates = <ChartAxisRenderer>[];
     _stateProperties.zoomAxes = <ZoomAxisRange>[];
-    _stateProperties.renderingDetails.chartContainerRect =
-        const Rect.fromLTRB(0, 0, 0, 0);
+    _stateProperties.renderingDetails.chartContainerRect = Rect.zero;
     _stateProperties.zoomProgress = false;
     _stateProperties.renderingDetails.legendToggleStates =
         <LegendRenderContext>[];
@@ -1674,15 +1629,16 @@ class SfCartesianChartState extends State<SfCartesianChart>
             _stateProperties.renderingDetails.prevSize != constraints.biggest;
         _stateProperties.renderingDetails.prevSize = constraints.biggest;
         _stateProperties.isTooltipOrientationChanged = false;
-        final List<CartesianChartPoint<dynamic>> _pointCollections =
-            _getChartPoints(_stateProperties);
+        final CartesianChartPoint<dynamic> _crosshairPoint =
+            _getCrosshairChartPoint(_stateProperties);
         SchedulerBinding.instance!.addPostFrameCallback((_) {
-          _validateStateMaintenance(_stateProperties, _pointCollections);
+          _validateStateMaintenance(_stateProperties, _crosshairPoint);
         });
         final List<Widget> legendTemplates =
             _bindCartesianLegendTemplateWidgets();
         if (legendTemplates.isNotEmpty &&
             _stateProperties.renderingDetails.legendWidgetContext.isEmpty) {
+          // ignore: avoid_unnecessary_containers
           element = Container(child: Stack(children: legendTemplates));
           SchedulerBinding.instance?.addPostFrameCallback((_) => _refresh());
         } else {
@@ -1787,7 +1743,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
               (trendline.type == TrendlineType.movingAverage
                       ? 'Moving average'
                       : trendline.type.toString().substring(14)) +
-                  (' ' + (trendlineTypes[trendline.type.index]++).toString());
+                  (' ${trendlineTypes[trendline.type.index]++}');
         }
         for (final TrendlineRenderer trendlineRenderer
             in seriesRendererDetails.trendlineRenderer) {
@@ -1878,6 +1834,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
                   .series,
               legendText ?? legendItemText ?? seriesName ?? 'Series $index');
         }
+        // ignore: unnecessary_type_check
         final CartesianSeriesRenderer? cSeriesRenderer = _stateProperties
                     .chartSeries
                     .visibleSeriesRenderers[visibleSeriesRenderers.length - 1]
@@ -1931,105 +1888,71 @@ class SfCartesianChartState extends State<SfCartesianChart>
     _stateProperties.seriesRenderers = _seriesRenderers;
   }
 
-  /// This will return crosshair and tooltip chart points
-  List<CartesianChartPoint<dynamic>> _getChartPoints(
-      CartesianStateProperties _stateProperties) {
+  /// This will return crosshair chart points
+  CartesianChartPoint<dynamic> _getCrosshairChartPoint(
+      CartesianStateProperties stateProperties) {
     CartesianChartPoint<dynamic> crosshairChartPoint =
-            CartesianChartPoint<dynamic>(null, null),
-        tooltipChartPoint = CartesianChartPoint<dynamic>(null, null);
-    final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _stateProperties.renderingDetails.tooltipBehaviorRenderer;
-    final TooltipRenderingDetails tooltipRenderingDetails =
-        TooltipHelper.getRenderingDetails(tooltipBehaviorRenderer);
+        CartesianChartPoint<dynamic>(null, null);
     final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
-        _stateProperties.crosshairBehaviorRenderer;
+        stateProperties.crosshairBehaviorRenderer;
     final CrosshairRenderingDetails crosshairRenderingDetails =
         CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
-    if (_stateProperties.renderingDetails.oldDeviceOrientation !=
-            _stateProperties.renderingDetails.deviceOrientation ||
-        _stateProperties.renderingDetails.didSizeChange) {
+    if (stateProperties.renderingDetails.oldDeviceOrientation !=
+            stateProperties.renderingDetails.deviceOrientation ||
+        stateProperties.renderingDetails.didSizeChange) {
       if (crosshairRenderingDetails.position != null &&
-          _stateProperties.chart.crosshairBehavior.enable) {
+          stateProperties.chart.crosshairBehavior.enable) {
         crosshairChartPoint = calculatePixelToPoint(
             crosshairRenderingDetails.position!,
-            _stateProperties.seriesRenderers.first);
-      }
-      if (tooltipRenderingDetails.showLocation != null &&
-          _stateProperties.chart.tooltipBehavior.enable &&
-          !_stateProperties.isTooltipHidden &&
-          !_stateProperties.requireAxisTooltip) {
-        if ((tooltipRenderingDetails.currentSeriesDetails.seriesType
-                        .contains('bar') ==
-                    true &&
-                tooltipRenderingDetails
-                        .currentSeriesDetails.chart.isTransposed ==
-                    false) ||
-            tooltipRenderingDetails.currentSeriesDetails.chart.isTransposed ==
-                true) {
-          tooltipRenderingDetails
-              .currentSeriesDetails.stateProperties.requireInvertedAxis = true;
-        }
-        if (tooltipRenderingDetails.currentSeriesDetails.visible == true) {
-          tooltipChartPoint = calculatePixelToPoint(
-              Offset(tooltipRenderingDetails.showLocation!.dx,
-                  tooltipRenderingDetails.showLocation!.dy),
-              tooltipRenderingDetails.currentSeriesDetails);
-        }
+            stateProperties.seriesRenderers.first);
       }
     }
-    return <CartesianChartPoint<dynamic>>[
-      crosshairChartPoint,
-      tooltipChartPoint
-    ];
+    return crosshairChartPoint;
   }
 
   /// Here for orientation change/browser resize, the logic in this method will get executed
-  void _validateStateMaintenance(CartesianStateProperties _stateProperties,
-      List<dynamic> _pointCollections) {
+  void _validateStateMaintenance(CartesianStateProperties stateProperties,
+      CartesianChartPoint<dynamic> point) {
     final TrackballBehaviorRenderer trackballBehaviorRenderer =
-        _stateProperties.trackballBehaviorRenderer;
+        stateProperties.trackballBehaviorRenderer;
     final TrackballRenderingDetails trackballRenderingDetails =
         TrackballHelper.getRenderingDetails(trackballBehaviorRenderer);
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _stateProperties.renderingDetails.tooltipBehaviorRenderer;
+        stateProperties.renderingDetails.tooltipBehaviorRenderer;
     final TooltipRenderingDetails tooltipRenderingDetails =
         TooltipHelper.getRenderingDetails(tooltipBehaviorRenderer);
     final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
-        _stateProperties.crosshairBehaviorRenderer;
+        stateProperties.crosshairBehaviorRenderer;
     final CrosshairRenderingDetails crosshairRenderingDetails =
         CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
-    late Offset _crosshairOffset;
-    if (_stateProperties.renderingDetails.oldDeviceOrientation !=
-            _stateProperties.renderingDetails.deviceOrientation ||
-        _stateProperties.renderingDetails.didSizeChange) {
+    late Offset crosshairOffset;
+    if (stateProperties.renderingDetails.oldDeviceOrientation !=
+            stateProperties.renderingDetails.deviceOrientation ||
+        stateProperties.renderingDetails.didSizeChange) {
       if (trackballRenderingDetails.chartPointInfo.isNotEmpty &&
-          _stateProperties.chart.trackballBehavior.enable) {
-        _stateProperties.isTrackballOrientationChanged = true;
+          stateProperties.chart.trackballBehavior.enable) {
+        stateProperties.isTrackballOrientationChanged = true;
         trackballRenderingDetails.internalShowByIndex(
             trackballRenderingDetails.chartPointInfo[0].dataPointIndex!);
       }
       if (crosshairRenderingDetails.position != null &&
-          _stateProperties.chart.crosshairBehavior.enable) {
-        _stateProperties.isCrosshairOrientationChanged = true;
-        _crosshairOffset = calculatePointToPixel(
-            _pointCollections[0], _stateProperties.seriesRenderers.first);
+          stateProperties.chart.crosshairBehavior.enable) {
+        stateProperties.isCrosshairOrientationChanged = true;
+        crosshairOffset =
+            calculatePointToPixel(point, stateProperties.seriesRenderers.first);
         crosshairRenderingDetails.internalShow(
-            _crosshairOffset.dx, _crosshairOffset.dy, 'pixel');
+            crosshairOffset.dx, crosshairOffset.dy, 'pixel');
       }
       if (tooltipRenderingDetails.showLocation != null &&
-          _stateProperties.chart.tooltipBehavior.enable &&
-          !_stateProperties.isTooltipHidden &&
-          _pointCollections[1].x != null) {
-        _stateProperties.isTooltipOrientationChanged = true;
-        final Offset _tooltipPosition = calculatePointToPixel(
-            _pointCollections[1], tooltipRenderingDetails.currentSeriesDetails);
-        if (_stateProperties.chart.tooltipBehavior.builder != null) {
-          tooltipRenderingDetails.showTemplateTooltip(
-              Offset(_tooltipPosition.dx, _tooltipPosition.dy));
-        } else {
-          tooltipRenderingDetails.internalShowByPixel(
-              _tooltipPosition.dx, _tooltipPosition.dy);
-        }
+          stateProperties.chart.tooltipBehavior.enable &&
+          !stateProperties.isTooltipHidden &&
+          !stateProperties.requireAxisTooltip &&
+          tooltipRenderingDetails.currentSeriesDetails.seriesIndex != null &&
+          tooltipRenderingDetails.pointIndex != null) {
+        stateProperties.isTooltipOrientationChanged = true;
+        tooltipRenderingDetails.internalShowByIndex(
+            tooltipRenderingDetails.currentSeriesDetails.seriesIndex,
+            tooltipRenderingDetails.pointIndex!);
       }
     }
   }
@@ -2200,6 +2123,7 @@ class ContainerArea extends StatelessWidget {
             chart.trackballBehavior.activationMode ==
                 ActivationMode.singleTap) ||
         chart.onPlotAreaSwipe != null ||
+        (!requireInvertedAxis && chart.loadMoreIndicatorBuilder != null) ||
         (chart.zoomPanBehavior.enablePanning &&
             chart.zoomPanBehavior.zoomMode == ZoomMode.x);
 
@@ -2208,6 +2132,7 @@ class ContainerArea extends StatelessWidget {
             requireInvertedAxis &&
             chart.trackballBehavior.activationMode ==
                 ActivationMode.singleTap) ||
+        (requireInvertedAxis && chart.loadMoreIndicatorBuilder != null) ||
         (chart.zoomPanBehavior.enablePanning &&
             chart.zoomPanBehavior.zoomMode == ZoomMode.y);
 
@@ -2284,21 +2209,24 @@ class ContainerArea extends StatelessWidget {
                           final SeriesRendererDetails selectionSeriesDetails =
                               SeriesHelper.getSeriesRendererDetails(
                                   selectionseriesRenderer);
-                          final SelectionBehaviorRenderer?
-                              selectionBehaviorRenderer =
-                              selectionSeriesDetails.selectionBehaviorRenderer;
-                          final SelectionDetails? selectionDetails =
-                              SelectionHelper.getRenderingDetails(
-                                  selectionBehaviorRenderer!);
-                          if (selectionSeriesDetails.isSelectionEnable ==
-                                  true &&
-                              selectionDetails?.selectionRenderer != null &&
-                              selectionSeriesDetails.isOuterRegion == false) {
-                            selectionDetails
-                                    ?.selectionRenderer?.seriesRendererDetails =
-                                selectionSeriesDetails;
-                            selectionBehaviorRenderer.onTouchDown(
-                                position.dx, position.dy);
+                          if (selectionSeriesDetails.visible == true) {
+                            final SelectionBehaviorRenderer?
+                                selectionBehaviorRenderer =
+                                selectionSeriesDetails
+                                    .selectionBehaviorRenderer;
+                            final SelectionDetails? selectionDetails =
+                                SelectionHelper.getRenderingDetails(
+                                    selectionBehaviorRenderer!);
+                            if (selectionSeriesDetails.isSelectionEnable ==
+                                    true &&
+                                selectionDetails?.selectionRenderer != null &&
+                                selectionSeriesDetails.isOuterRegion == false) {
+                              selectionDetails?.selectionRenderer
+                                      ?.seriesRendererDetails =
+                                  selectionSeriesDetails;
+                              selectionBehaviorRenderer.onTouchDown(
+                                  position.dx, position.dy);
+                            }
                           }
                         }
                       },
@@ -2308,10 +2236,6 @@ class ContainerArea extends StatelessWidget {
                         final List<CartesianSeriesRenderer>
                             visibleSeriesRenderer =
                             _stateProperties.chartSeries.visibleSeriesRenderers;
-                        if (chart.onPointTapped != null) {
-                          calculatePointSeriesIndex(
-                              chart, _stateProperties, position);
-                        }
                         final CartesianSeriesRenderer? cartesianSeriesRenderer =
                             _findSeries(position);
                         if (cartesianSeriesRenderer != null &&
@@ -2439,6 +2363,7 @@ class ContainerArea extends StatelessWidget {
     renderBox = context.findRenderObject()! as RenderBox;
     _stateProperties.containerArea = this;
     _stateProperties.legendRefresh = false;
+    // ignore: avoid_unnecessary_containers
     return Container(
         child: Stack(
             textDirection: TextDirection.ltr,
@@ -2681,6 +2606,7 @@ class ContainerArea extends StatelessWidget {
       final String _seriesType = seriesRendererDetails.seriesType;
       if (seriesRendererDetails.isIndicator == true) {
         seriesRendererDetails.repaintNotifier = ValueNotifier<int>(0);
+        // ignore: unnecessary_type_check
         if (_seriesRenderer is XyDataSeriesRenderer) {
           seriesRendererDetails.animationController =
               AnimationController(vsync: _stateProperties.chartState)
@@ -2837,8 +2763,7 @@ class ContainerArea extends StatelessWidget {
           }
           _stateProperties.forwardAnimation(seriesRendererDetails);
         } else {
-          seriesRendererDetails.animationController.duration =
-              const Duration(milliseconds: 0);
+          seriesRendererDetails.animationController.duration = Duration.zero;
           seriesRendererDetails.seriesAnimation =
               Tween<double>(begin: 1, end: 1.0).animate(CurvedAnimation(
             parent: seriesRendererDetails.animationController,
@@ -2854,6 +2779,7 @@ class ContainerArea extends StatelessWidget {
           setAnimationStatus(_stateProperties);
         }
       }
+      // ignore: avoid_unnecessary_containers
       _stateProperties.renderingDetails.chartWidgets!.add(Container(
           child: RepaintBoundary(
               child: CustomPaint(
@@ -2931,7 +2857,10 @@ class ContainerArea extends StatelessWidget {
             k >= 0;
             k--) {
           isSelect = seriesRendererDetails.isSelectionEnable == true &&
+              seriesRendererDetails.visible != null &&
               seriesRendererDetails.visible! == true &&
+              seriesRendererDetails.visibleDataPoints != null &&
+              seriesRendererDetails.visibleDataPoints!.isNotEmpty &&
               (SelectionHelper.getRenderingDetails(selectionBehaviorRenderer!)
                       .selectionRenderer!
                       .isSeriesContainsPoint(
@@ -2941,7 +2870,10 @@ class ContainerArea extends StatelessWidget {
                   true);
           if (isSelect) {
             return _stateProperties.chartSeries.visibleSeriesRenderers[i];
-          } else if (seriesRendererDetails.visible! == true &&
+          } else if (seriesRendererDetails.visible != null &&
+              seriesRendererDetails.visible! == true &&
+              seriesRendererDetails.visibleDataPoints != null &&
+              seriesRendererDetails.visibleDataPoints!.isNotEmpty &&
               SelectionHelper.getRenderingDetails(selectionBehaviorRenderer!)
                       .selectionRenderer!
                       .isSeriesContainsPoint(
@@ -3276,7 +3208,7 @@ class ContainerArea extends StatelessWidget {
         zoomingBehaviorDetails
             .doSelectionZooming(zoomingBehaviorDetails.zoomingRect);
         if (zoomingBehaviorDetails.canPerformSelection != true) {
-          zoomingBehaviorDetails.zoomingRect = const Rect.fromLTRB(0, 0, 0, 0);
+          zoomingBehaviorDetails.zoomingRect = Rect.zero;
         }
       }
     }

@@ -27,8 +27,10 @@ export './src/datagrid_widget/sfdatagrid.dart'
         effectiveRows,
         setPageCount,
         setChildColumnIndexes,
-        getChildColumnIndexes;
-export './src/datapager/sfdatapager.dart';
+        getChildColumnIndexes,
+        DataGridThemeHelper;
+export './src/datapager/sfdatapager.dart'
+    hide SfDataPagerState, DataPagerThemeHelper;
 export './src/grid_common/row_column_index.dart';
 export 'src/datagrid_widget/helper/callbackargs.dart'
     hide setColumnSizerInRowHeightDetailsArgs;

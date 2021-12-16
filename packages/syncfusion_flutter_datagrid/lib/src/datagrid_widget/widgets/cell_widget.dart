@@ -40,7 +40,7 @@ class GridCell extends StatefulWidget {
   /// rebuild.
   final bool isDirty;
 
-  /// ToDo
+  /// Holds the [DataGridStateDetails].
   final DataGridStateDetails dataGridStateDetails;
 
   @override
@@ -204,7 +204,7 @@ class GridHeaderCell extends StatefulWidget {
   /// rebuild.
   final bool isDirty;
 
-  /// ToDo
+  /// Holds the [DataGridStateDetails].
   final DataGridStateDetails dataGridStateDetails;
 
   @override
@@ -370,14 +370,13 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
           sortColumn != null) {
         final int sortNumber =
             dataGridConfiguration.source.sortedColumns.indexOf(sortColumn) + 1;
-        final bool isLight =
-            dataGridConfiguration.dataGridThemeData!.brightness ==
-                Brightness.light;
         _sortDirection = sortColumn.sortDirection;
-        _sortIconColor = dataGridConfiguration.dataGridThemeData!.sortIconColor;
+        _sortIconColor =
+            dataGridConfiguration.dataGridThemeHelper!.sortIconColor;
         _sortNumberBackgroundColor =
-            isLight ? Colors.grey[350]! : Colors.grey[700]!;
-        _sortNumberTextColor = isLight ? Colors.black87 : Colors.white54;
+            dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.12);
+        _sortNumberTextColor =
+            dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.87);
         if (dataGridConfiguration.source.sortedColumns.length > 1 &&
             dataGridConfiguration.showSortNumbers) {
           _sortNumber = sortNumber;
@@ -571,15 +570,14 @@ class _SortIconState extends State<_SortIcon>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: AnimatedBuilder(
-            animation: _animationController,
-            builder: (BuildContext context, Widget? child) {
-              return Transform.rotate(
-                  angle: _sortingAnimation.value,
-                  child: Icon(Icons.arrow_upward,
-                      color: widget.sortIconColor, size: 16));
-            }));
+    return AnimatedBuilder(
+        animation: _animationController,
+        builder: (BuildContext context, Widget? child) {
+          return Transform.rotate(
+              angle: _sortingAnimation.value,
+              child: Icon(Icons.arrow_upward,
+                  color: widget.sortIconColor, size: 16));
+        });
   }
 
   @override
@@ -592,9 +590,9 @@ class _SortIconState extends State<_SortIcon>
 BorderDirectional _getCellBorder(
     DataGridConfiguration dataGridConfiguration, DataCellBase dataCell) {
   final Color borderColor =
-      dataGridConfiguration.dataGridThemeData!.gridLineColor;
+      dataGridConfiguration.dataGridThemeHelper!.gridLineColor;
   final double borderWidth =
-      dataGridConfiguration.dataGridThemeData!.gridLineStrokeWidth;
+      dataGridConfiguration.dataGridThemeHelper!.gridLineStrokeWidth;
 
   final int rowIndex = (dataCell.rowSpan > 0)
       ? dataCell.rowIndex - dataCell.rowSpan
@@ -675,13 +673,13 @@ BorderDirectional _getCellBorder(
               columnIndex;
 
   final bool isFrozenPaneElevationApplied =
-      dataGridConfiguration.dataGridThemeData!.frozenPaneElevation > 0.0;
+      dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation > 0.0;
 
   final Color frozenPaneLineColor =
-      dataGridConfiguration.dataGridThemeData!.frozenPaneLineColor;
+      dataGridConfiguration.dataGridThemeHelper!.frozenPaneLineColor;
 
   final double frozenPaneLineWidth =
-      dataGridConfiguration.dataGridThemeData!.frozenPaneLineWidth;
+      dataGridConfiguration.dataGridThemeHelper!.frozenPaneLineWidth;
 
   BorderSide _getLeftBorder() {
     if ((columnIndex == 0 &&
@@ -779,9 +777,9 @@ Widget _wrapInsideCellContainer(
     required Color backgroundColor,
     required Widget child}) {
   final Color color =
-      dataGridConfiguration.dataGridThemeData!.currentCellStyle.borderColor;
+      dataGridConfiguration.dataGridThemeHelper!.currentCellStyle.borderColor;
   final double borderWidth =
-      dataGridConfiguration.dataGridThemeData!.currentCellStyle.borderWidth;
+      dataGridConfiguration.dataGridThemeHelper!.currentCellStyle.borderWidth;
 
   Border getBorder() {
     final bool isCurrentCell = dataCell.isCurrentCell;

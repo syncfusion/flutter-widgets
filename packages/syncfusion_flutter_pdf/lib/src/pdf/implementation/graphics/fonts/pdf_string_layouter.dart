@@ -1,11 +1,18 @@
-part of pdf;
+import '../../drawing/drawing.dart';
+import '../enums.dart';
+import 'enums.dart';
+import 'pdf_font.dart';
+import 'pdf_string_format.dart';
+import 'pdf_string_layout_result.dart';
+import 'string_tokenizer.dart';
 
 /// Class lay outing the text.
-class _PdfStringLayouter {
+class PdfStringLayouter {
   //Constructor
-  _PdfStringLayouter() {
-    _size = _Size.empty;
-    _rectangle = _Rectangle.empty;
+  /// internal constructor
+  PdfStringLayouter() {
+    _size = PdfSize.empty;
+    _rectangle = PdfRectangle.empty;
   }
 
   //Fields
@@ -13,34 +20,38 @@ class _PdfStringLayouter {
   String? _text;
   PdfFont? _font;
   PdfStringFormat? _format;
-  late _Size _size;
-  late _Rectangle _rectangle;
+  late PdfSize _size;
+  late PdfRectangle _rectangle;
   late double _pageHeight;
-  _StringTokenizer? _reader;
+  StringTokenizer? _reader;
   int _tabOccuranceCount = 0;
   bool _isTabReplaced = false;
 
   //Implementation
-  _PdfStringLayoutResult _layout(
+  /// internal method
+  PdfStringLayoutResult layout(
       String text, PdfFont font, PdfStringFormat? format,
-      {double? width, double? height, _Rectangle? bounds, double? pageHeight}) {
+      {double? width,
+      double? height,
+      PdfRectangle? bounds,
+      double? pageHeight}) {
     _text = text;
     _font = font;
     _format = format;
-    _size = bounds == null ? _Size(width!, height!) : bounds.size;
-    _rectangle = bounds ?? _Rectangle(0, 0, width!, height!);
+    _size = bounds == null ? PdfSize(width!, height!) : bounds.size;
+    _rectangle = bounds ?? PdfRectangle(0, 0, width!, height!);
     _pageHeight = pageHeight ?? 0;
-    _reader = _StringTokenizer(text);
-    final _PdfStringLayoutResult result = _doLayout();
+    _reader = StringTokenizer(text);
+    final PdfStringLayoutResult result = _doLayout();
     _clear();
     return result;
   }
 
-  _PdfStringLayoutResult _doLayout() {
-    final _PdfStringLayoutResult result = _PdfStringLayoutResult();
-    _PdfStringLayoutResult lineResult = _PdfStringLayoutResult();
-    final List<_LineInfo> lines = <_LineInfo>[];
-    String? line = _reader!._peekLine();
+  PdfStringLayoutResult _doLayout() {
+    final PdfStringLayoutResult result = PdfStringLayoutResult();
+    PdfStringLayoutResult lineResult = PdfStringLayoutResult();
+    final List<LineInfo> lines = <LineInfo>[];
+    String? line = _reader!.peekLine();
     double? lineIndent = _getLineIndent(true);
     while (line != null) {
       lineResult = _layoutLine(line, lineIndent!);
@@ -51,22 +62,22 @@ class _PdfStringLayouter {
       final bool success = returnedValue['success'] as bool;
       numSymbolsInserted = returnedValue['numInserted'] as int?;
       if (!success) {
-        _reader!._read(numSymbolsInserted);
+        _reader!.read(numSymbolsInserted);
         break;
       }
-      _reader!._readLine();
-      line = _reader!._peekLine();
+      _reader!.readLine();
+      line = _reader!.peekLine();
       lineIndent = _getLineIndent(false);
     }
     _finalizeResult(result, lines);
     return result;
   }
 
-  void _finalizeResult(_PdfStringLayoutResult result, List<_LineInfo> lines) {
-    result._lines = lines.toList();
-    result._lineHeight = _getLineHeight();
-    if (!_reader!._isEndOfFile) {
-      result._remainder = _reader!._readToEnd();
+  void _finalizeResult(PdfStringLayoutResult result, List<LineInfo> lines) {
+    result.lines = lines.toList();
+    result.lineHeight = _getLineHeight();
+    if (!_reader!.isEndOfFile) {
+      result.remainder = _reader!.readToEnd();
     }
     lines.length = 0;
   }
@@ -74,8 +85,9 @@ class _PdfStringLayouter {
   double? _getLineIndent(bool firstLine) {
     double? lineIndent = 0;
     if (_format != null) {
-      lineIndent =
-          firstLine ? _format!._firstLineIndent : _format!.paragraphIndent;
+      lineIndent = firstLine
+          ? PdfStringFormatHelper.getHelper(_format!).firstLineIndent
+          : _format!.paragraphIndent;
       lineIndent = (_size.width > 0)
           ? (_size.width <= lineIndent ? _size.width : lineIndent)
           : lineIndent;
@@ -83,7 +95,7 @@ class _PdfStringLayouter {
     return lineIndent;
   }
 
-  _PdfStringLayoutResult _layoutLine(String line, double lineIndent) {
+  PdfStringLayoutResult _layoutLine(String line, double lineIndent) {
     if (line.contains('\t')) {
       _tabOccuranceCount = 0;
       int i = 0;
@@ -95,12 +107,12 @@ class _PdfStringLayouter {
       line = line.replaceAll('\t', '    ');
       _isTabReplaced = true;
     }
-    final _PdfStringLayoutResult lineResult = _PdfStringLayoutResult();
-    lineResult._lineHeight = _getLineHeight();
-    final List<_LineInfo> lines = <_LineInfo>[];
+    final PdfStringLayoutResult lineResult = PdfStringLayoutResult();
+    lineResult.lineHeight = _getLineHeight();
+    final List<LineInfo> lines = <LineInfo>[];
     final double maxWidth = _size.width;
     double lineWidth = _getLineWidth(line) + lineIndent;
-    _LineType lineType = _LineType.firstParagraphLine;
+    LineType lineType = LineType.firstParagraphLine;
     bool readWord = true;
     if (maxWidth <= 0 ||
         lineWidth.roundToDouble() <= maxWidth.roundToDouble()) {
@@ -109,27 +121,27 @@ class _PdfStringLayouter {
           lines,
           line,
           lineWidth,
-          _getLineTypeValue(_LineType.newLineBreak)! |
-              _getLineTypeValue(lineType)!);
+          getLineTypeValue(LineType.newLineBreak)! |
+              getLineTypeValue(lineType)!);
     } else {
       String builder = '';
       String curLine = '';
       lineWidth = lineIndent;
       double curIndent = lineIndent;
-      final _StringTokenizer reader = _StringTokenizer(line);
-      String? word = reader._peekWord();
-      if (word!.length != reader._length) {
+      final StringTokenizer reader = StringTokenizer(line);
+      String? word = reader.peekWord();
+      if (word!.length != reader.length) {
         if (word == ' ') {
           curLine = curLine + word;
           builder = builder + word;
-          reader._position = reader._position! + 1;
-          word = reader._peekWord()!;
+          reader.position = reader.position! + 1;
+          word = reader.peekWord();
         }
       }
       while (word != null) {
         curLine += word;
-        double curLineWidth = _getLineWidth(curLine.toString()) + curIndent;
-        if (curLine.toString() == ' ') {
+        double curLineWidth = _getLineWidth(curLine) + curIndent;
+        if (curLine == ' ') {
           curLine = '';
           curLineWidth = 0;
         }
@@ -139,7 +151,7 @@ class _PdfStringLayouter {
           }
           if (curLine.length == word.length) {
             if (_getWrapType() == PdfWordWrapType.wordOnly) {
-              lineResult._remainder = line.substring(reader._position!);
+              lineResult.remainder = line.substring(reader.position!);
               break;
             } else if (curLine.length == 1) {
               builder += word;
@@ -147,33 +159,33 @@ class _PdfStringLayouter {
             } else {
               readWord = false;
               curLine = '';
-              word = reader._peek().toString();
+              word = reader.peek();
               continue;
             }
           } else {
             if (_getWrapType() != PdfWordWrapType.character || !readWord) {
-              final String ln = builder.toString();
+              final String ln = builder;
               if (ln != ' ') {
                 _addToLineResult(
                     lineResult,
                     lines,
                     ln,
                     lineWidth,
-                    _getLineTypeValue(_LineType.layoutBreak)! |
-                        _getLineTypeValue(lineType)!);
+                    getLineTypeValue(LineType.layoutBreak)! |
+                        getLineTypeValue(lineType)!);
               }
               curLine = '';
               builder = '';
               lineWidth = 0;
               curIndent = 0;
               curLineWidth = 0;
-              lineType = _LineType.none;
-              word = readWord ? word : reader._peekWord()!;
+              lineType = LineType.none;
+              word = readWord ? word : reader.peekWord()!;
               readWord = true;
             } else {
               readWord = false;
-              curLine = builder.toString();
-              word = reader._peek();
+              curLine = builder;
+              word = reader.peek();
             }
             continue;
           }
@@ -181,60 +193,60 @@ class _PdfStringLayouter {
         builder += word;
         lineWidth = curLineWidth;
         if (readWord) {
-          reader._readWord();
-          word = reader._peekWord();
+          reader.readWord();
+          word = reader.peekWord();
         } else {
-          reader._read();
-          word = reader._peek().toString();
+          reader.read();
+          word = reader.peek();
         }
       }
       if (builder.isNotEmpty) {
-        final String ln = builder.toString();
+        final String ln = builder;
         _addToLineResult(
             lineResult,
             lines,
             ln,
             lineWidth,
-            _getLineTypeValue(_LineType.newLineBreak)! |
-                _getLineTypeValue(_LineType.lastParagraphLine)!);
+            getLineTypeValue(LineType.newLineBreak)! |
+                getLineTypeValue(LineType.lastParagraphLine)!);
       }
-      reader._close();
+      reader.close();
     }
-    lineResult._lines = lines.toList();
+    lineResult.lines = lines.toList();
     lines.length = 0;
     return lineResult;
   }
 
-  void _addToLineResult(_PdfStringLayoutResult lineResult,
-      List<_LineInfo> lines, String line, double lineWidth, int breakType) {
-    final _LineInfo info = _LineInfo();
+  void _addToLineResult(PdfStringLayoutResult lineResult, List<LineInfo> lines,
+      String line, double lineWidth, int breakType) {
+    final LineInfo info = LineInfo();
     info.text = line;
     info.width = lineWidth;
-    info._lineType = breakType;
-    info.lineType = _getLineType(breakType);
+    info.lineType = breakType;
+    info.lineTypeList = _getLineType(breakType);
     lines.add(info);
-    final _Size size = lineResult._size;
+    final PdfSize size = lineResult.size;
     size.height += _getLineHeight();
     size.width = size.width >= lineWidth ? size.width : lineWidth;
-    lineResult._size = size;
+    lineResult.size = size;
   }
 
-  List<_LineType> _getLineType(int breakType) {
-    final List<_LineType> result = <_LineType>[];
-    if ((breakType & _getLineTypeValue(_LineType.none)!) > 0) {
-      result.add(_LineType.none);
+  List<LineType> _getLineType(int breakType) {
+    final List<LineType> result = <LineType>[];
+    if ((breakType & getLineTypeValue(LineType.none)!) > 0) {
+      result.add(LineType.none);
     }
-    if ((breakType & _getLineTypeValue(_LineType.newLineBreak)!) > 0) {
-      result.add(_LineType.newLineBreak);
+    if ((breakType & getLineTypeValue(LineType.newLineBreak)!) > 0) {
+      result.add(LineType.newLineBreak);
     }
-    if ((breakType & _getLineTypeValue(_LineType.layoutBreak)!) > 0) {
-      result.add(_LineType.layoutBreak);
+    if ((breakType & getLineTypeValue(LineType.layoutBreak)!) > 0) {
+      result.add(LineType.layoutBreak);
     }
-    if (breakType & _getLineTypeValue(_LineType.firstParagraphLine)! > 0) {
-      result.add(_LineType.firstParagraphLine);
+    if (breakType & getLineTypeValue(LineType.firstParagraphLine)! > 0) {
+      result.add(LineType.firstParagraphLine);
     }
-    if (breakType & _getLineTypeValue(_LineType.lastParagraphLine)! > 0) {
-      result.add(_LineType.lastParagraphLine);
+    if (breakType & getLineTypeValue(LineType.lastParagraphLine)! > 0) {
+      result.add(LineType.lastParagraphLine);
     }
     return result;
   }
@@ -246,7 +258,7 @@ class _PdfStringLayouter {
   }
 
   double _getLineWidth(String line) {
-    return _font!._getLineWidth(line, _format);
+    return PdfFontHelper.getLineWidth(_font!, line, _format);
   }
 
   PdfWordWrapType? _getWrapType() {
@@ -254,24 +266,24 @@ class _PdfStringLayouter {
   }
 
   dynamic _copyToResult(
-      _PdfStringLayoutResult result,
-      _PdfStringLayoutResult lineResult,
-      List<_LineInfo> lines,
+      PdfStringLayoutResult result,
+      PdfStringLayoutResult lineResult,
+      List<LineInfo> lines,
       int? numInserted) {
     bool success = true;
     final bool allowPartialLines = _format != null && !_format!.lineLimit;
-    double? height = result._size.height;
+    double? height = result.size.height;
     double? maxHeight = _size.height;
     if ((_pageHeight > 0) && (maxHeight + _rectangle.y > _pageHeight)) {
       maxHeight = _rectangle.y - _pageHeight;
       maxHeight = maxHeight >= -maxHeight ? maxHeight : -maxHeight;
     }
     numInserted = 0;
-    if (lineResult._lines != null) {
-      for (int i = 0; i < lineResult._lines!.length; i++) {
-        final double expHeight = height! + lineResult._lineHeight;
+    if (lineResult.lines != null) {
+      for (int i = 0; i < lineResult.lines!.length; i++) {
+        final double expHeight = height! + lineResult.lineHeight;
         if (expHeight <= maxHeight || maxHeight <= 0 || allowPartialLines) {
-          _LineInfo info = lineResult._lines![i];
+          LineInfo info = lineResult.lines![i];
           if (!_isTabReplaced) {
             numInserted = numInserted! + info.text!.length;
           } else {
@@ -281,9 +293,9 @@ class _PdfStringLayouter {
           }
           info = _trimLine(info, lines.isEmpty);
           lines.add(info);
-          final _Size size = result._size;
+          final PdfSize size = result.size;
           size.width = (size.width >= info.width!) ? size.width : info.width!;
-          result._size = size;
+          result.size = size;
           height = expHeight;
         } else {
           success = false;
@@ -291,20 +303,20 @@ class _PdfStringLayouter {
         }
       }
     }
-    if (height != result._size.height) {
-      final _Size size = result._size;
+    if (height != result.size.height) {
+      final PdfSize size = result.size;
       size.height = height!;
-      result._size = size;
+      result.size = size;
     }
     return <String, dynamic>{'success': success, 'numInserted': numInserted};
   }
 
-  _LineInfo _trimLine(_LineInfo info, bool firstLine) {
+  LineInfo _trimLine(LineInfo info, bool firstLine) {
     String line = info.text.toString();
     double? lineWidth = info.width;
     final bool start = _format == null ||
         _format!.textDirection != PdfTextDirection.rightToLeft;
-    if (!info.lineType.contains(_LineType.firstParagraphLine)) {
+    if (!info.lineTypeList.contains(LineType.firstParagraphLine)) {
       line = start ? line.trimLeft() : line.trimRight();
     }
     if (_format == null || !_format!.measureTrailingSpaces) {
@@ -312,8 +324,7 @@ class _PdfStringLayouter {
     }
     if (line.length != info.text!.length) {
       lineWidth = _getLineWidth(line);
-      if (info._lineType & _getLineTypeValue(_LineType.firstParagraphLine)! >
-          0) {
+      if (info.lineType & getLineTypeValue(LineType.firstParagraphLine)! > 0) {
         lineWidth += _getLineIndent(firstLine)!;
       }
     }
@@ -325,27 +336,28 @@ class _PdfStringLayouter {
   void _clear() {
     _font = null;
     _format = null;
-    _reader!._close();
+    _reader!.close();
     _reader = null;
     _text = null;
   }
 
-  static int? _getLineTypeValue(_LineType type) {
+  /// internal method
+  static int? getLineTypeValue(LineType type) {
     int? value;
     switch (type) {
-      case _LineType.none:
+      case LineType.none:
         value = 0;
         break;
-      case _LineType.newLineBreak:
+      case LineType.newLineBreak:
         value = 0x0001;
         break;
-      case _LineType.layoutBreak:
+      case LineType.layoutBreak:
         value = 0x0002;
         break;
-      case _LineType.firstParagraphLine:
+      case LineType.firstParagraphLine:
         value = 0x0004;
         break;
-      case _LineType.lastParagraphLine:
+      case LineType.lastParagraphLine:
         value = 0x0008;
         break;
     }
@@ -354,9 +366,16 @@ class _PdfStringLayouter {
 }
 
 /// Provides a line information
-class _LineInfo {
+class LineInfo {
+  /// internal field
   String? text;
+
+  /// internal field
   double? width;
-  List<_LineType> lineType = <_LineType>[];
-  late int _lineType;
+
+  /// internal field
+  List<LineType> lineTypeList = <LineType>[];
+
+  /// internal field
+  late int lineType;
 }

@@ -24,6 +24,14 @@ export './src/chart/axis/datetime_axis.dart' hide DateTimeAxisDetails;
 export './src/chart/axis/datetime_category_axis.dart'
     hide DateTimeCategoryAxisDetails;
 export './src/chart/axis/logarithmic_axis.dart' hide LogarithmicAxisDetails;
+export './src/chart/axis/multi_level_labels.dart'
+    show
+        NumericMultiLevelLabel,
+        CategoricalMultiLevelLabel,
+        DateTimeCategoricalMultiLevelLabel,
+        DateTimeMultiLevelLabel,
+        LogarithmicMultiLevelLabel,
+        MultiLevelLabelStyle;
 export './src/chart/axis/numeric_axis.dart' hide NumericAxisDetails;
 export './src/chart/axis/plotband.dart' hide getPlotBandPainter;
 
@@ -107,7 +115,8 @@ export './src/chart/chart_series/xy_data_series.dart'
 //export common
 export './src/chart/common/data_label.dart' hide DataLabelSettingsRenderer;
 export './src/chart/common/interactive_tooltip.dart' hide ChartPointInfo;
-export './src/chart/common/marker.dart' hide MarkerSettingsRenderer;
+export './src/chart/common/marker.dart'
+    hide MarkerSettingsRenderer, MarkerDetails;
 export './src/chart/common/trackball_marker_settings.dart';
 
 // export chart series renderer
@@ -220,4 +229,4 @@ export './src/funnel_chart/renderer/funnel_series.dart';
 export './src/pyramid_chart/base/pyramid_base.dart';
 export './src/pyramid_chart/renderer/pyramid_series.dart';
 export './src/pyramid_chart/renderer/series_controller.dart';
-export './src/pyramid_chart/utils/common.dart';
+export './src/pyramid_chart/utils/common.dart' hide PointInfoHelper;

@@ -13,4 +13,5 @@ dependencies:
     path: ../syncfusion_flutter_core
   intl: ^0.17.0
 
-flutter: 
+flutter:
+ 

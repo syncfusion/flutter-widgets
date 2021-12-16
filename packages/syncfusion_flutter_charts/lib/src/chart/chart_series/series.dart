@@ -1,39 +1,26 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
 
-import '../../chart/utils/enum.dart';
-import '../../common/common.dart';
 import '../../common/rendering_details.dart';
-import '../../common/series/chart_series.dart';
 import '../../common/template/rendering.dart';
-import '../../common/user_interaction/selection_behavior.dart';
 import '../../common/user_interaction/tooltip.dart';
-import '../../common/utils/enum.dart';
-import '../../common/utils/typedef.dart';
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
 import '../axis/datetime_axis.dart';
 import '../axis/datetime_category_axis.dart';
 import '../axis/logarithmic_axis.dart';
-import '../base/chart_base.dart';
 import '../chart_segment/chart_segment.dart';
 import '../common/cartesian_state_properties.dart';
-import '../common/data_label.dart';
 import '../common/interactive_tooltip.dart';
-import '../common/marker.dart';
 import '../trendlines/trendlines.dart';
 import '../user_interaction/trackball.dart';
 import '../user_interaction/trackball_painter.dart';
 import '../user_interaction/trackball_template.dart';
 import '../utils/helper.dart';
 import 'series_renderer_properties.dart';
-import 'xy_data_series.dart';
 
 /// This class has the properties of the Cartesian series.
 ///
@@ -1390,6 +1377,7 @@ class ChartSeriesController {
       }
       currentPoint.xValue ??= x;
       currentPoint.yValue = currentPoint.y;
+      currentPoint.overallDataPointIndex = index;
       if (!_needXRecalculation &&
           ((xRange.minimum >= x) == true || (xRange.maximum <= x) == true)) {
         _needXRecalculation = true;
@@ -1437,6 +1425,7 @@ class ChartSeriesController {
                   currentPoint.close == null)
               : (currentPoint.low == null || currentPoint.high == null)
           : currentPoint.y == null) {
+        // ignore: unnecessary_type_check
         if (seriesRenderer is XyDataSeriesRenderer) {
           seriesRenderer.calculateEmptyPointValue(
               index, currentPoint, seriesRenderer);
@@ -1502,22 +1491,22 @@ class ChartSeriesController {
   /// Widget build(BuildContext context) {
   ///  ChartSeriesController seriesController;
   ///    return Container(
-  ///          child: SfCartesianChart(
-  ///           series: <CartesianSeries<ChartSampleData, num>>[
-  ///             ColumnSeries<ChartSampleData, num>(
-  ///               onRendererCreated: (ChartSeriesController controller) {
+  ///       child: SfCartesianChart(
+  ///         series: <CartesianSeries<ChartSampleData, num>>[
+  ///           ColumnSeries<ChartSampleData, num>(
+  ///             onRendererCreated: (ChartSeriesController controller) {
   ///                 seriesController = controller;
-  ///               },
-  ///             )
-  ///           ],
-  ///           onPointTapped: (PointTapArgs args) {
-  ///             CartesianChartPoint<dynamic> chartPoint =
-  ///                 CartesianChartPoint<dynamic>(data[args.pointIndex].x,
+  ///             },
+  ///             onPointTap: (ChartPointDetails args) {
+  ///                 CartesianChartPoint<dynamic> chartPoint =
+  ///                   CartesianChartPoint<dynamic>(data[args.pointIndex].x,
   ///                     data[args.pointIndex].y);
-  ///             Offset pointLocation = seriesController.pointToPixel(chartPoint);
-  ///             print('X location: ${pointLocation.x}');
-  ///             print('Y location: ${pointLocation.y}');
-  ///           },
+  ///                 Offset pointLocation = seriesController.pointToPixel(chartPoint);
+  ///                 print('X location: ${pointLocation.x}');
+  ///                 print('Y location: ${pointLocation.y}');
+  ///             },
+  ///           )
+  ///         ],
   ///       )
   ///     );
   /// }

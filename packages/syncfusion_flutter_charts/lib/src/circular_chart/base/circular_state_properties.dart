@@ -1,17 +1,13 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
 import '../../common/rendering_details.dart';
 import '../../common/state_properties.dart';
 import '../../common/user_interaction/tooltip.dart';
-import '../renderer/chart_point.dart';
 import '../renderer/data_label_renderer.dart';
 import '../renderer/renderer_extension.dart';
 import 'circular_area.dart';
-import 'circular_base.dart';
 import 'series_base.dart';
 
 /// Specifies the circular state properties

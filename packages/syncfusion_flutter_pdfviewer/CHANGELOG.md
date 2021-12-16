@@ -2,20 +2,55 @@
 
 **Features**
 
+* Support for loading password-protected or encrypted documents has been provided.
+* Now, Page regions will be rendered in high resolution when a user zooms in on the page.
+
+**Bugs**
+
+* Now, PDF pages won't be overlapped when multi PDFs are placed inside `IndexedStack`
+
+## [19.3.57-beta] - 12/07/2021 
+
+* `DisplayMetrics` deprecation warnings for Android R SDK in Android Plugin has been cleared now.
+
+## [19.3.56-beta] - 11/30/2021
+
+* Now, Linefeed will be included while copying PDF content in desktop platforms.
+
+## [19.3.55-beta] - 11/23/2021
+
+* PDF page clarity has been improved now when smaller page width document is loaded.
+
+## [19.3.53-beta] - 11/12/2021
+
+* Now, PDF pages can be panned when text selection is disabled.
+ 
+## [19.3.46-beta] - 10/19/2021
+
+* Support for text selection in multi-column PDF has been provided.
+
+## [19.3.45-beta] - 10/12/2021
+
+* Now, Network images won't be reloaded when rebuilding the SfPdfViewer widget.
+
+## [19.3.43-beta] - 09/30/2021
+
+**Features**
+
 * Support for screen reading has been provided.	
 * Now, PDF document can be viewed page by page horizontally.
 * Horizontal scrolling support has been provided.
 * Support for text selection and text search in rotated document has been provided.
 
-# [19.2.57-beta] - 08/24/2021
+## [19.2.57-beta] - 08/24/2021
 
 * Now, SfPdfViewer widget won't be rebuilding continuously without any user interaction.
 
-# [19.2.51-beta] - 08/03/2021
+## [19.2.51-beta] - 08/03/2021
 
 * Now, `searchText` method works properly in `onDocumentLoaded` callback.
 
-# [19.2.46-beta] - 07/06/2021
+## [19.2.46-beta] - 07/06/2021
 
 * Now, Grayscale images will be displayed properly in a PDF document while viewing in iOS 14.1 or later versions.
 

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 // External package imports
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -33,23 +32,24 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  MyHomePageState createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  List<Employee> employees = <Employee>[];
-  late EmployeeDataSource employeeDataSource;
+/// A state class of a [MyHomePage] stateful widget.
+class MyHomePageState extends State<MyHomePage> {
+  List<Employee> _employees = <Employee>[];
+  late EmployeeDataSource _employeeDataSource;
 
   final GlobalKey<SfDataGridState> _key = GlobalKey<SfDataGridState>();
 
   @override
   void initState() {
     super.initState();
-    employees = getEmployeeData();
-    employeeDataSource = EmployeeDataSource(employeeData: employees);
+    _employees = _getEmployeeData();
+    _employeeDataSource = EmployeeDataSource(employeeData: _employees);
   }
 
-  Future<void> exportDataGridToExcel() async {
+  Future<void> _exportDataGridToExcel() async {
     final Workbook workbook = _key.currentState!.exportToExcelWorkbook();
 
     final List<int> bytes = workbook.saveAsStream();
@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await helper.saveAndLaunchFile(bytes, 'DataGrid.xlsx');
   }
 
-  Future<void> exportDataGridToPdf() async {
+  Future<void> _exportDataGridToPdf() async {
     final PdfDocument document =
         _key.currentState!.exportToPdfDocument(fitAllColumnsInOnePage: true);
 
@@ -92,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         'Export to Excel',
                         style: TextStyle(color: Colors.white),
                       )),
-                      onPressed: exportDataGridToExcel),
+                      onPressed: _exportDataGridToExcel),
                 ),
                 const Padding(padding: EdgeInsets.all(20)),
                 SizedBox(
@@ -105,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         'Export to PDF',
                         style: TextStyle(color: Colors.white),
                       )),
-                      onPressed: exportDataGridToPdf),
+                      onPressed: _exportDataGridToPdf),
                 ),
               ],
             ),
@@ -113,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
             child: SfDataGrid(
               key: _key,
-              source: employeeDataSource,
+              source: _employeeDataSource,
               columns: <GridColumn>[
                 GridColumn(
                     columnName: 'ID',
@@ -152,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  List<Employee> getEmployeeData() {
+  List<Employee> _getEmployeeData() {
     return <Employee>[
       Employee(10001, 'James', 'Project Lead', 20000),
       Employee(10002, 'Kathryn', 'Manager', 30000),

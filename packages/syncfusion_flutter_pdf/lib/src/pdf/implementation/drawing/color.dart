@@ -1,42 +1,61 @@
-part of pdf;
+/// internal class
+class ColorHelper {
+  /// internal constructor
+  ColorHelper(this._knownColor);
 
-class _Color {
-  _Color(this._knownColor);
+  /// internal field
   static const int argbAlphaShift = 24;
+
+  /// internal field
   static const int argbRedShift = 16;
+
+  /// internal field
   static const int argbGreebShift = 8;
+
+  /// internal field
   static const int argbBlueShift = 0;
 
   int? _value;
-  final _KnownColor _knownColor;
+  final KnownColor _knownColor;
 
+  /// internal property
   int get r {
     return ((value! >> argbRedShift) & 0xFF).toUnsigned(8);
   }
 
+  /// internal property
   int get g {
     return ((value! >> argbGreebShift) & 0xFF).toUnsigned(8);
   }
 
+  /// internal property
   int get b {
     return ((value! >> argbBlueShift) & 0xFF).toUnsigned(8);
   }
 
+  /// internal property
   int get a {
     return ((value! >> argbAlphaShift) & 0xFF).toUnsigned(8);
   }
 
+  /// internal property
   int? get value {
-    _value ??= _KnownColorTable().knowColorToArgb(_knownColor);
+    _value ??= KnownColorTable().knowColorToArgb(_knownColor);
     return _value;
   }
 }
 
-class _KnownColorTable {
-  _KnownColorTable() {
+/// internal class
+class KnownColorTable {
+  /// internal constructor
+  KnownColorTable() {
     initColorTable();
   }
+
+  /// internal field
   static Map<int, int> colorTable = <int, int>{};
+
+  /// internal method
   void initColorTable() {
     colorTable[0x1b] = 0xffffff;
     colorTable[0x1c] = -984833;
@@ -182,362 +201,364 @@ class _KnownColorTable {
     colorTable[0xa7] = -6632142;
   }
 
-  int? knowColorToArgb(_KnownColor color) {
-    if (getKnownColor(color) <= getKnownColor(_KnownColor.menuHighlight)) {
+  /// internal method
+  int? knowColorToArgb(KnownColor color) {
+    if (getKnownColor(color) <= getKnownColor(KnownColor.menuHighlight)) {
       return colorTable[getKnownColor(color)];
     }
     return 0;
   }
 
-  int getKnownColor(_KnownColor color) {
+  /// internal method
+  int getKnownColor(KnownColor color) {
     switch (color) {
-      case _KnownColor.activeBorder:
+      case KnownColor.activeBorder:
         return 1;
-      case _KnownColor.activeCaption:
+      case KnownColor.activeCaption:
         return 2;
-      case _KnownColor.activeCaptionText:
+      case KnownColor.activeCaptionText:
         return 3;
-      case _KnownColor.aliceBlue:
+      case KnownColor.aliceBlue:
         return 0x1c;
-      case _KnownColor.antiqueWhite:
+      case KnownColor.antiqueWhite:
         return 0x1d;
-      case _KnownColor.appWorkspace:
+      case KnownColor.appWorkspace:
         return 4;
-      case _KnownColor.aqua:
+      case KnownColor.aqua:
         return 30;
-      case _KnownColor.aquamarine:
+      case KnownColor.aquamarine:
         return 0x1f;
-      case _KnownColor.azure:
+      case KnownColor.azure:
         return 0x20;
-      case _KnownColor.beige:
+      case KnownColor.beige:
         return 0x21;
-      case _KnownColor.bisque:
+      case KnownColor.bisque:
         return 0x22;
-      case _KnownColor.black:
+      case KnownColor.black:
         return 0x23;
-      case _KnownColor.blanchedAlmond:
+      case KnownColor.blanchedAlmond:
         return 0x24;
-      case _KnownColor.blue:
+      case KnownColor.blue:
         return 0x25;
-      case _KnownColor.blueViolet:
+      case KnownColor.blueViolet:
         return 0x26;
-      case _KnownColor.brown:
+      case KnownColor.brown:
         return 0x27;
-      case _KnownColor.burlyWood:
+      case KnownColor.burlyWood:
         return 40;
-      case _KnownColor.buttonFace:
+      case KnownColor.buttonFace:
         return 0xa8;
-      case _KnownColor.buttonHighlight:
+      case KnownColor.buttonHighlight:
         return 0xa9;
-      case _KnownColor.buttonShadow:
+      case KnownColor.buttonShadow:
         return 170;
-      case _KnownColor.cadetBlue:
+      case KnownColor.cadetBlue:
         return 0x29;
-      case _KnownColor.chartreuse:
+      case KnownColor.chartreuse:
         return 0x2a;
-      case _KnownColor.chocolate:
+      case KnownColor.chocolate:
         return 0x2b;
-      case _KnownColor.control:
+      case KnownColor.control:
         return 5;
-      case _KnownColor.controlDark:
+      case KnownColor.controlDark:
         return 6;
-      case _KnownColor.controlDarkDark:
+      case KnownColor.controlDarkDark:
         return 7;
-      case _KnownColor.controlLight:
+      case KnownColor.controlLight:
         return 8;
-      case _KnownColor.controlLightLight:
+      case KnownColor.controlLightLight:
         return 9;
-      case _KnownColor.controlText:
+      case KnownColor.controlText:
         return 10;
-      case _KnownColor.coral:
+      case KnownColor.coral:
         return 0x2c;
-      case _KnownColor.cornflowerBlue:
+      case KnownColor.cornflowerBlue:
         return 0x2d;
-      case _KnownColor.cornsilk:
+      case KnownColor.cornsilk:
         return 0x2e;
-      case _KnownColor.crimson:
+      case KnownColor.crimson:
         return 0x2f;
-      case _KnownColor.cyan:
+      case KnownColor.cyan:
         return 0x30;
-      case _KnownColor.darkBlue:
+      case KnownColor.darkBlue:
         return 0x31;
-      case _KnownColor.darkCyan:
+      case KnownColor.darkCyan:
         return 50;
-      case _KnownColor.darkGoldenrod:
+      case KnownColor.darkGoldenrod:
         return 0x33;
-      case _KnownColor.darkGray:
+      case KnownColor.darkGray:
         return 0x34;
-      case _KnownColor.darkGreen:
+      case KnownColor.darkGreen:
         return 0x35;
-      case _KnownColor.darkKhaki:
+      case KnownColor.darkKhaki:
         return 0x36;
-      case _KnownColor.darkMagenta:
+      case KnownColor.darkMagenta:
         return 0x37;
-      case _KnownColor.darkOliveGreen:
+      case KnownColor.darkOliveGreen:
         return 0x38;
-      case _KnownColor.darkOrange:
+      case KnownColor.darkOrange:
         return 0x39;
-      case _KnownColor.darkOrchid:
+      case KnownColor.darkOrchid:
         return 0x3a;
-      case _KnownColor.darkRed:
+      case KnownColor.darkRed:
         return 0x3b;
-      case _KnownColor.darkSalmon:
+      case KnownColor.darkSalmon:
         return 60;
-      case _KnownColor.darkSeaGreen:
+      case KnownColor.darkSeaGreen:
         return 0x3d;
-      case _KnownColor.darkSlateBlue:
+      case KnownColor.darkSlateBlue:
         return 0x3e;
-      case _KnownColor.darkSlateGray:
+      case KnownColor.darkSlateGray:
         return 0x3f;
-      case _KnownColor.darkTurquoise:
+      case KnownColor.darkTurquoise:
         return 0x40;
-      case _KnownColor.darkViolet:
+      case KnownColor.darkViolet:
         return 0x41;
-      case _KnownColor.deepPink:
+      case KnownColor.deepPink:
         return 0x42;
-      case _KnownColor.deepSkyBlue:
+      case KnownColor.deepSkyBlue:
         return 0x43;
-      case _KnownColor.desktop:
+      case KnownColor.desktop:
         return 11;
-      case _KnownColor.dimGray:
+      case KnownColor.dimGray:
         return 0x44;
-      case _KnownColor.dodgerBlue:
+      case KnownColor.dodgerBlue:
         return 0x45;
-      case _KnownColor.firebrick:
+      case KnownColor.firebrick:
         return 70;
-      case _KnownColor.floralWhite:
+      case KnownColor.floralWhite:
         return 0x47;
-      case _KnownColor.forestGreen:
+      case KnownColor.forestGreen:
         return 0x48;
-      case _KnownColor.fuchsia:
+      case KnownColor.fuchsia:
         return 0x49;
-      case _KnownColor.gainsboro:
+      case KnownColor.gainsboro:
         return 0x4a;
-      case _KnownColor.ghostWhite:
+      case KnownColor.ghostWhite:
         return 0x4b;
-      case _KnownColor.gold:
+      case KnownColor.gold:
         return 0x4c;
-      case _KnownColor.goldenrod:
+      case KnownColor.goldenrod:
         return 0x4d;
-      case _KnownColor.gradientActiveCaption:
+      case KnownColor.gradientActiveCaption:
         return 0xab;
-      case _KnownColor.gradientInactiveCaption:
+      case KnownColor.gradientInactiveCaption:
         return 0xac;
-      case _KnownColor.gray:
+      case KnownColor.gray:
         return 0x4e;
-      case _KnownColor.grayText:
+      case KnownColor.grayText:
         return 12;
-      case _KnownColor.green:
+      case KnownColor.green:
         return 0x4f;
-      case _KnownColor.greenYellow:
+      case KnownColor.greenYellow:
         return 80;
-      case _KnownColor.highlight:
+      case KnownColor.highlight:
         return 13;
-      case _KnownColor.highlightText:
+      case KnownColor.highlightText:
         return 14;
-      case _KnownColor.honeydew:
+      case KnownColor.honeydew:
         return 0x51;
-      case _KnownColor.hotPink:
+      case KnownColor.hotPink:
         return 0x52;
-      case _KnownColor.hotTrack:
+      case KnownColor.hotTrack:
         return 15;
-      case _KnownColor.inactiveBorder:
+      case KnownColor.inactiveBorder:
         return 0x10;
-      case _KnownColor.inactiveCaption:
+      case KnownColor.inactiveCaption:
         return 0x11;
-      case _KnownColor.inactiveCaptionText:
+      case KnownColor.inactiveCaptionText:
         return 0x12;
-      case _KnownColor.indianRed:
+      case KnownColor.indianRed:
         return 0x53;
-      case _KnownColor.indigo:
+      case KnownColor.indigo:
         return 0x54;
-      case _KnownColor.info:
+      case KnownColor.info:
         return 0x13;
-      case _KnownColor.infoText:
+      case KnownColor.infoText:
         return 20;
-      case _KnownColor.ivory:
+      case KnownColor.ivory:
         return 0x55;
-      case _KnownColor.khaki:
+      case KnownColor.khaki:
         return 0x56;
-      case _KnownColor.lavender:
+      case KnownColor.lavender:
         return 0x57;
-      case _KnownColor.lavenderBlush:
+      case KnownColor.lavenderBlush:
         return 0x58;
-      case _KnownColor.lawnGreen:
+      case KnownColor.lawnGreen:
         return 0x59;
-      case _KnownColor.lemonChiffon:
+      case KnownColor.lemonChiffon:
         return 90;
-      case _KnownColor.lightBlue:
+      case KnownColor.lightBlue:
         return 0x5b;
-      case _KnownColor.lightCoral:
+      case KnownColor.lightCoral:
         return 0x5c;
-      case _KnownColor.lightCyan:
+      case KnownColor.lightCyan:
         return 0x5d;
-      case _KnownColor.lightGoldenrodYellow:
+      case KnownColor.lightGoldenrodYellow:
         return 0x5e;
-      case _KnownColor.lightGray:
+      case KnownColor.lightGray:
         return 0x5f;
-      case _KnownColor.lightGreen:
+      case KnownColor.lightGreen:
         return 0x60;
-      case _KnownColor.lightPink:
+      case KnownColor.lightPink:
         return 0x61;
-      case _KnownColor.lightSalmon:
+      case KnownColor.lightSalmon:
         return 0x62;
-      case _KnownColor.lightSeaGreen:
+      case KnownColor.lightSeaGreen:
         return 0x63;
-      case _KnownColor.lightSkyBlue:
+      case KnownColor.lightSkyBlue:
         return 100;
-      case _KnownColor.lightSlateGray:
+      case KnownColor.lightSlateGray:
         return 0x65;
-      case _KnownColor.lightSteelBlue:
+      case KnownColor.lightSteelBlue:
         return 0x66;
-      case _KnownColor.lightYellow:
+      case KnownColor.lightYellow:
         return 0x67;
-      case _KnownColor.lime:
+      case KnownColor.lime:
         return 0x68;
-      case _KnownColor.limeGreen:
+      case KnownColor.limeGreen:
         return 0x69;
-      case _KnownColor.linen:
+      case KnownColor.linen:
         return 0x6a;
-      case _KnownColor.magenta:
+      case KnownColor.magenta:
         return 0x6b;
-      case _KnownColor.maroon:
+      case KnownColor.maroon:
         return 0x6c;
-      case _KnownColor.mediumAquamarine:
+      case KnownColor.mediumAquamarine:
         return 0x6d;
-      case _KnownColor.mediumBlue:
+      case KnownColor.mediumBlue:
         return 110;
-      case _KnownColor.mediumOrchid:
+      case KnownColor.mediumOrchid:
         return 0x6f;
-      case _KnownColor.mediumPurple:
+      case KnownColor.mediumPurple:
         return 0x70;
-      case _KnownColor.mediumSeaGreen:
+      case KnownColor.mediumSeaGreen:
         return 0x71;
-      case _KnownColor.mediumSlateBlue:
+      case KnownColor.mediumSlateBlue:
         return 0x72;
-      case _KnownColor.mediumSpringGreen:
+      case KnownColor.mediumSpringGreen:
         return 0x73;
-      case _KnownColor.mediumTurquoise:
+      case KnownColor.mediumTurquoise:
         return 0x74;
-      case _KnownColor.mediumVioletRed:
+      case KnownColor.mediumVioletRed:
         return 0x75;
-      case _KnownColor.menu:
+      case KnownColor.menu:
         return 0x15;
-      case _KnownColor.menuBar:
+      case KnownColor.menuBar:
         return 0xad;
-      case _KnownColor.menuHighlight:
+      case KnownColor.menuHighlight:
         return 0xae;
-      case _KnownColor.menuText:
+      case KnownColor.menuText:
         return 0x16;
-      case _KnownColor.midnightBlue:
+      case KnownColor.midnightBlue:
         return 0x76;
-      case _KnownColor.mintCream:
+      case KnownColor.mintCream:
         return 0x77;
-      case _KnownColor.mistyRose:
+      case KnownColor.mistyRose:
         return 120;
-      case _KnownColor.moccasin:
+      case KnownColor.moccasin:
         return 0x79;
-      case _KnownColor.navajoWhite:
+      case KnownColor.navajoWhite:
         return 0x7a;
-      case _KnownColor.navy:
+      case KnownColor.navy:
         return 0x7b;
-      case _KnownColor.oldLace:
+      case KnownColor.oldLace:
         return 0x7c;
-      case _KnownColor.olive:
+      case KnownColor.olive:
         return 0x7d;
-      case _KnownColor.oliveDrab:
+      case KnownColor.oliveDrab:
         return 0x7e;
-      case _KnownColor.orange:
+      case KnownColor.orange:
         return 0x7f;
-      case _KnownColor.orangeRed:
+      case KnownColor.orangeRed:
         return 0x80;
-      case _KnownColor.orchid:
+      case KnownColor.orchid:
         return 0x81;
-      case _KnownColor.paleGoldenrod:
+      case KnownColor.paleGoldenrod:
         return 130;
-      case _KnownColor.paleGreen:
+      case KnownColor.paleGreen:
         return 0x83;
-      case _KnownColor.paleTurquoise:
+      case KnownColor.paleTurquoise:
         return 0x84;
-      case _KnownColor.paleVioletRed:
+      case KnownColor.paleVioletRed:
         return 0x85;
-      case _KnownColor.papayaWhip:
+      case KnownColor.papayaWhip:
         return 0x86;
-      case _KnownColor.peachPuff:
+      case KnownColor.peachPuff:
         return 0x87;
-      case _KnownColor.peru:
+      case KnownColor.peru:
         return 0x88;
-      case _KnownColor.pink:
+      case KnownColor.pink:
         return 0x89;
-      case _KnownColor.plum:
+      case KnownColor.plum:
         return 0x8a;
-      case _KnownColor.powderBlue:
+      case KnownColor.powderBlue:
         return 0x8b;
-      case _KnownColor.purple:
+      case KnownColor.purple:
         return 140;
-      case _KnownColor.red:
+      case KnownColor.red:
         return 0x8d;
-      case _KnownColor.rosyBrown:
+      case KnownColor.rosyBrown:
         return 0x8e;
-      case _KnownColor.royalBlue:
+      case KnownColor.royalBlue:
         return 0x8f;
-      case _KnownColor.saddleBrown:
+      case KnownColor.saddleBrown:
         return 0x90;
-      case _KnownColor.salmon:
+      case KnownColor.salmon:
         return 0x91;
-      case _KnownColor.sandyBrown:
+      case KnownColor.sandyBrown:
         return 0x92;
-      case _KnownColor.scrollBar:
+      case KnownColor.scrollBar:
         return 0x17;
-      case _KnownColor.seaGreen:
+      case KnownColor.seaGreen:
         return 0x93;
-      case _KnownColor.seaShell:
+      case KnownColor.seaShell:
         return 0x94;
-      case _KnownColor.sienna:
+      case KnownColor.sienna:
         return 0x95;
-      case _KnownColor.silver:
+      case KnownColor.silver:
         return 150;
-      case _KnownColor.skyBlue:
+      case KnownColor.skyBlue:
         return 0x97;
-      case _KnownColor.slateBlue:
+      case KnownColor.slateBlue:
         return 0x98;
-      case _KnownColor.slateGray:
+      case KnownColor.slateGray:
         return 0x99;
-      case _KnownColor.snow:
+      case KnownColor.snow:
         return 0x9a;
-      case _KnownColor.springGreen:
+      case KnownColor.springGreen:
         return 0x9b;
-      case _KnownColor.steelBlue:
+      case KnownColor.steelBlue:
         return 0x9c;
-      case _KnownColor.tan:
+      case KnownColor.tan:
         return 0x9d;
-      case _KnownColor.teal:
+      case KnownColor.teal:
         return 0x9e;
-      case _KnownColor.thistle:
+      case KnownColor.thistle:
         return 0x9f;
-      case _KnownColor.tomato:
+      case KnownColor.tomato:
         return 160;
-      case _KnownColor.transparent:
+      case KnownColor.transparent:
         return 0x1b;
-      case _KnownColor.turquoise:
+      case KnownColor.turquoise:
         return 0xa1;
-      case _KnownColor.violet:
+      case KnownColor.violet:
         return 0xa2;
-      case _KnownColor.wheat:
+      case KnownColor.wheat:
         return 0xa3;
-      case _KnownColor.white:
+      case KnownColor.white:
         return 0xa4;
-      case _KnownColor.whiteSmoke:
+      case KnownColor.whiteSmoke:
         return 0xa5;
-      case _KnownColor.window:
+      case KnownColor.window:
         return 0x18;
-      case _KnownColor.windowFrame:
+      case KnownColor.windowFrame:
         return 0x19;
-      case _KnownColor.windowText:
+      case KnownColor.windowText:
         return 0x1a;
-      case _KnownColor.yellow:
+      case KnownColor.yellow:
         return 0xa6;
-      case _KnownColor.yellowGreen:
+      case KnownColor.yellowGreen:
         return 0xa7;
       default:
         return 0x23;
@@ -545,179 +566,528 @@ class _KnownColorTable {
   }
 }
 
-enum _KnownColor {
+/// internal enumerator
+enum KnownColor {
+  /// internal enumerator
   activeBorder,
+
+  /// internal enumerator
   activeCaption,
+
+  /// internal enumerator
   activeCaptionText,
+
+  /// internal enumerator
   aliceBlue,
+
+  /// internal enumerator
   antiqueWhite,
+
+  /// internal enumerator
   appWorkspace,
+
+  /// internal enumerator
   aqua,
+
+  /// internal enumerator
   aquamarine,
+
+  /// internal enumerator
   azure,
+
+  /// internal enumerator
   beige,
+
+  /// internal enumerator
   bisque,
+
+  /// internal enumerator
   black,
+
+  /// internal enumerator
   blanchedAlmond,
+
+  /// internal enumerator
   blue,
+
+  /// internal enumerator
   blueViolet,
+
+  /// internal enumerator
   brown,
+
+  /// internal enumerator
   burlyWood,
+
+  /// internal enumerator
   buttonFace,
+
+  /// internal enumerator
   buttonHighlight,
+
+  /// internal enumerator
   buttonShadow,
+
+  /// internal enumerator
   cadetBlue,
+
+  /// internal enumerator
   chartreuse,
+
+  /// internal enumerator
   chocolate,
+
+  /// internal enumerator
   control,
+
+  /// internal enumerator
   controlDark,
+
+  /// internal enumerator
   controlDarkDark,
+
+  /// internal enumerator
   controlLight,
+
+  /// internal enumerator
   controlLightLight,
+
+  /// internal enumerator
   controlText,
+
+  /// internal enumerator
   coral,
+
+  /// internal enumerator
   cornflowerBlue,
+
+  /// internal enumerator
   cornsilk,
+
+  /// internal enumerator
   crimson,
+
+  /// internal enumerator
   cyan,
+
+  /// internal enumerator
   darkBlue,
+
+  /// internal enumerator
   darkCyan,
+
+  /// internal enumerator
   darkGoldenrod,
+
+  /// internal enumerator
   darkGray,
+
+  /// internal enumerator
   darkGreen,
+
+  /// internal enumerator
   darkKhaki,
+
+  /// internal enumerator
   darkMagenta,
+
+  /// internal enumerator
   darkOliveGreen,
+
+  /// internal enumerator
   darkOrange,
+
+  /// internal enumerator
   darkOrchid,
+
+  /// internal enumerator
   darkRed,
+
+  /// internal enumerator
   darkSalmon,
+
+  /// internal enumerator
+  /// internal enumerator
   darkSeaGreen,
+
+  /// internal enumerator
   darkSlateBlue,
+
+  /// internal enumerator
   darkSlateGray,
+
+  /// internal enumerator
   darkTurquoise,
+
+  /// internal enumerator
   darkViolet,
+
+  /// internal enumerator
   deepPink,
+
+  /// internal enumerator
   deepSkyBlue,
+
+  /// internal enumerator
   desktop,
+
+  /// internal enumerator
   dimGray,
+
+  /// internal enumerator
   dodgerBlue,
+
+  /// internal enumerator
   firebrick,
+
+  /// internal enumerator
   floralWhite,
+
+  /// internal enumerator
   forestGreen,
+
+  /// internal enumerator
   fuchsia,
+
+  /// internal enumerator
   gainsboro,
+
+  /// internal enumerator
   ghostWhite,
+
+  /// internal enumerator
   gold,
+
+  /// internal enumerator
   goldenrod,
+
+  /// internal enumerator
   gradientActiveCaption,
+
+  /// internal enumerator
   gradientInactiveCaption,
+
+  /// internal enumerator
   gray,
+
+  /// internal enumerator
   grayText,
+
+  /// internal enumerator
   green,
+
+  /// internal enumerator
   greenYellow,
+
+  /// internal enumerator
   highlight,
+
+  /// internal enumerator
   highlightText,
+
+  /// internal enumerator
   honeydew,
+
+  /// internal enumerator
   hotPink,
+
+  /// internal enumerator
   hotTrack,
+
+  /// internal enumerator
   inactiveBorder,
+
+  /// internal enumerator
   inactiveCaption,
+
+  /// internal enumerator
   inactiveCaptionText,
+
+  /// internal enumerator
   indianRed,
+
+  /// internal enumerator
   indigo,
+
+  /// internal enumerator
   info,
+
+  /// internal enumerator
   infoText,
+
+  /// internal enumerator
   ivory,
+
+  /// internal enumerator
   khaki,
+
+  /// internal enumerator
   lavender,
+
+  /// internal enumerator
   lavenderBlush,
+
+  /// internal enumerator
   lawnGreen,
+
+  /// internal enumerator
   lemonChiffon,
+
+  /// internal enumerator
   lightBlue,
+
+  /// internal enumerator
   lightCoral,
+
+  /// internal enumerator
   lightCyan,
+
+  /// internal enumerator
   lightGoldenrodYellow,
+
+  /// internal enumerator
   lightGray,
+
+  /// internal enumerator
   lightGreen,
+
+  /// internal enumerator
   lightPink,
+
+  /// internal enumerator
   lightSalmon,
+
+  /// internal enumerator
   lightSeaGreen,
+
+  /// internal enumerator
   lightSkyBlue,
+
+  /// internal enumerator
   lightSlateGray,
+
+  /// internal enumerator
   lightSteelBlue,
+
+  /// internal enumerator
   lightYellow,
+
+  /// internal enumerator
   lime,
+
+  /// internal enumerator
   limeGreen,
+
+  /// internal enumerator
   linen,
+
+  /// internal enumerator
   magenta,
+
+  /// internal enumerator
   maroon,
+
+  /// internal enumerator
   mediumAquamarine,
+
+  /// internal enumerator
   mediumBlue,
+
+  /// internal enumerator
   mediumOrchid,
+
+  /// internal enumerator
   mediumPurple,
+
+  /// internal enumerator
   mediumSeaGreen,
+
+  /// internal enumerator
   mediumSlateBlue,
+
+  /// internal enumerator
   mediumSpringGreen,
+
+  /// internal enumerator
   mediumTurquoise,
+
+  /// internal enumerator
   mediumVioletRed,
+
+  /// internal enumerator
   menu,
+
+  /// internal enumerator
   menuBar,
+
+  /// internal enumerator
   menuHighlight,
+
+  /// internal enumerator
   menuText,
+
+  /// internal enumerator
   midnightBlue,
+
+  /// internal enumerator
   mintCream,
+
+  /// internal enumerator
   mistyRose,
+
+  /// internal enumerator
   moccasin,
+
+  /// internal enumerator
   navajoWhite,
+
+  /// internal enumerator
   navy,
+
+  /// internal enumerator
   oldLace,
+
+  /// internal enumerator
   olive,
+
+  /// internal enumerator
   oliveDrab,
+
+  /// internal enumerator
   orange,
+
+  /// internal enumerator
   orangeRed,
+
+  /// internal enumerator
   orchid,
+
+  /// internal enumerator
   paleGoldenrod,
+
+  /// internal enumerator
   paleGreen,
+
+  /// internal enumerator
   paleTurquoise,
+
+  /// internal enumerator
   paleVioletRed,
+
+  /// internal enumerator
   papayaWhip,
+
+  /// internal enumerator
   peachPuff,
+
+  /// internal enumerator
   peru,
+
+  /// internal enumerator
   pink,
+
+  /// internal enumerator
   plum,
+
+  /// internal enumerator
   powderBlue,
+
+  /// internal enumerator
   purple,
+
+  /// internal enumerator
   red,
+
+  /// internal enumerator
   rosyBrown,
+
+  /// internal enumerator
   royalBlue,
+
+  /// internal enumerator
   saddleBrown,
+
+  /// internal enumerator
   salmon,
+
+  /// internal enumerator
   sandyBrown,
+
+  /// internal enumerator
   scrollBar,
+
+  /// internal enumerator
   seaGreen,
+
+  /// internal enumerator
   seaShell,
+
+  /// internal enumerator
   sienna,
+
+  /// internal enumerator
   silver,
+
+  /// internal enumerator
   skyBlue,
+
+  /// internal enumerator
   slateBlue,
+
+  /// internal enumerator
   slateGray,
+
+  /// internal enumerator
   snow,
+
+  /// internal enumerator
   springGreen,
+
+  /// internal enumerator
   steelBlue,
+
+  /// internal enumerator
   tan,
+
+  /// internal enumerator
   teal,
+
+  /// internal enumerator
   thistle,
+
+  /// internal enumerator
   tomato,
+
+  /// internal enumerator
   transparent,
+
+  /// internal enumerator
   turquoise,
+
+  /// internal enumerator
   violet,
+
+  /// internal enumerator
   wheat,
+
+  /// internal enumerator
   white,
+
+  /// internal enumerator
   whiteSmoke,
+
+  /// internal enumerator
   window,
+
+  /// internal enumerator
   windowFrame,
+
+  /// internal enumerator
   windowText,
+
+  /// internal enumerator
   yellow,
+
+  /// internal enumerator
   yellowGreen
 }

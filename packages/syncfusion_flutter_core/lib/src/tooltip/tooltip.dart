@@ -211,7 +211,7 @@ class SfTooltipState extends State<SfTooltip>
       }
     } else {
       if (!_animating) {
-        animationController!.duration = const Duration(milliseconds: 0);
+        animationController!.duration = Duration.zero;
       }
     }
   }
@@ -427,7 +427,7 @@ class TooltipRenderBox extends RenderShiftedBox {
   ///Getter for size of marker rendered in tooltip
   double get markerSize => _markerSize;
 
-  Rect _boundaryRect = const Rect.fromLTWH(0, 0, 0, 0);
+  Rect _boundaryRect = Rect.zero;
 
   List<DataMarkerType?> _markerTypes = <DataMarkerType?>[];
 
@@ -465,6 +465,7 @@ class TooltipRenderBox extends RenderShiftedBox {
       _isRight = false,
       _isTop = false,
       _isOutOfBoundInTop = false;
+  final double _templateArrowHeight = 5.0;
   late double _markerPointY;
   Rect? _tooltipRect;
   final Path _arrowPath = Path();
@@ -475,7 +476,12 @@ class TooltipRenderBox extends RenderShiftedBox {
     if (child == null || _tooltipRect == null) {
       return false;
     } else {
-      return child!.hitTest(result, position: position - _tooltipRect!.topLeft);
+      return child!.hitTest(result,
+          position: position -
+              (_isOutOfBoundInTop
+                  ? _tooltipRect!.topLeft +
+                      Offset(0, _templateArrowHeight + _tooltipRect!.height)
+                  : _tooltipRect!.topLeft));
     }
   }
 
@@ -520,6 +526,7 @@ class TooltipRenderBox extends RenderShiftedBox {
         _renderDefaultTooltipView(context.canvas);
       } else {
         _renderTemplateTooltipView(context, relativeOffset);
+        context.canvas.translate(relativeOffset.dx, relativeOffset.dy);
       }
     }
     context.canvas.translate(-relativeOffset.dx, -relativeOffset.dy);
@@ -528,11 +535,10 @@ class TooltipRenderBox extends RenderShiftedBox {
   /// renders the tooltip templaate view with tooltip background, arrow and
   /// template
   void _renderTemplateTooltipView(PaintingContext context, Offset offset) {
-    const double arrowHeight = 5.0;
     _templateSize = Size.copy(child!.size);
     _tooltipRect = Rect.fromLTWH(
         _x! - _templateSize.width / 2,
-        _y! - _templateSize.height - arrowHeight,
+        _y! - _templateSize.height - _templateArrowHeight,
         _templateSize.width,
         _templateSize.height);
 
@@ -542,13 +548,13 @@ class TooltipRenderBox extends RenderShiftedBox {
     final Offset tooltipLocation =
         _getTemplateLocation(_tooltipRect!, bounds, offset);
     Offset arrowLocation = Offset(_x! - _templateSize.width / 2,
-        _isOutOfBoundInTop ? _y! : _y! - arrowHeight);
+        _isOutOfBoundInTop ? _y! : _y! - _templateArrowHeight);
     if (_y! < bounds.top + offset.dy) {
-      paddingTop = bounds.top + offset.dy + arrowHeight;
+      paddingTop = bounds.top + offset.dy + _templateArrowHeight;
       top = tooltipLocation.dy;
       arrowLocation = Offset(arrowLocation.dx, tooltipLocation.dy);
     }
-    top = _isOutOfBoundInTop ? top + arrowHeight : _tooltipRect!.top;
+    top = _isOutOfBoundInTop ? top + _templateArrowHeight : _tooltipRect!.top;
     if (_y! >= bounds.top + offset.dy) {
       paddingTop = top;
     }
@@ -674,8 +680,7 @@ class TooltipRenderBox extends RenderShiftedBox {
     _isRight = false;
     double height = 0, width = 0, headerTextWidth = 0, headerTextHeight = 0;
     _markerSize = 0;
-    _totalWidth =
-        _boundaryRect.left.toDouble() + _boundaryRect.width.toDouble();
+    _totalWidth = _boundaryRect.left + _boundaryRect.width;
     //ignore: prefer_final_locals
     TextStyle _textStyle = _tooltip.textStyle;
     final TextStyle textStyle =
@@ -860,7 +865,7 @@ class TooltipRenderBox extends RenderShiftedBox {
         _drawMarkers(markerPoint, canvas, animationFactor, 0);
       } else {
         double height = 0;
-        Size textSize = const Size(0, 0);
+        Size textSize = Size.zero;
         final List<String> textValues = _stringValue!.split('\n');
         for (int i = 0; i < _markerTypes.length && i < textValues.length; i++) {
           String str = '';
@@ -1118,7 +1123,7 @@ class TooltipRenderBox extends RenderShiftedBox {
     if (rotation != null && rotation > 0) {
       canvas.rotate(degreeToRadian(rotation));
     }
-    tp.paint(canvas, const Offset(0.0, 0.0));
+    tp.paint(canvas, Offset.zero);
     canvas.restore();
   }
 

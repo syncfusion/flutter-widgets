@@ -1,15 +1,15 @@
-part of pdf;
-
 /// Utility class for arabic shape rendering.
-class _ArabicShapeRenderer {
+class ArabicShapeRenderer {
   // Constructor.
-  _ArabicShapeRenderer() {
+  /// internal constructor
+  ArabicShapeRenderer() {
     for (int i = 0; i < arabicCharTable.length; i++) {
       arabicMapTable[arabicCharTable[i][0]] = arabicCharTable[i];
     }
   }
 
   // Constants and Fields.
+  /// internal field
   final List<List<String>> arabicCharTable = <List<String>>[
     <String>['\u0621', '\uFE80'],
     <String>['\u0622', '\uFE81', '\uFE82'],
@@ -89,35 +89,86 @@ class _ArabicShapeRenderer {
     <String>['\u06D3', '\uFBB0', '\uFBB1']
   ];
 
+  /// internal field
   static const String alef = '\u0627';
+
+  /// internal field
   static const String alefHamza = '\u0623';
+
+  /// internal field
   static const String alefHamzaBelow = '\u0625';
+
+  /// internal field
   static const String alefMadda = '\u0622';
+
+  /// internal field
   static const String lam = '\u0644';
+
+  /// internal field
   static const String hamza = '\u0621';
+
+  /// internal field
   static const String zeroWidthJoiner = '\u200D';
+
+  /// internal field
   static const String hamzaAbove = '\u0654';
+
+  /// internal field
   static const String hamzaBelow = '\u0655';
+
+  /// internal field
   static const String wawHamza = '\u0624';
+
+  /// internal field
   static const String yehHamza = '\u0626';
+
+  /// internal field
   static const String waw = '\u0648';
+
+  /// internal field
   static const String alefMaksura = '\u0649';
+
+  /// internal field
   static const String yeh = '\u064A';
+
+  /// internal field
   static const String farsiYeh = '\u06CC';
+
+  /// internal field
   static const String shadda = '\u0651';
+
+  /// internal field
   static const String madda = '\u0653';
+
+  /// internal field
   static const String lwa = '\uFEFB';
+
+  /// internal field
   static const String lwawh = '\uFEF7';
+
+  /// internal field
   static const String lwawhb = '\uFEF9';
+
+  /// internal field
   static const String lwawm = '\uFEF5';
+
+  /// internal field
   static const String bwhb = '\u06D3';
+
+  /// internal field
   static const String fathatan = '\u064B';
+
+  /// internal field
   static const String superscriptAlef = '\u0670';
+
+  /// internal field
   static const int vowel = 0x1;
 
+  /// internal field
   Map<String, List<String>> arabicMapTable = <String, List<String>>{};
 
   // Implementations.
+  /// internal method
   String shape(List<String> text, int level) {
     final StringBuffer buffer = StringBuffer();
     StringBuffer str2 = StringBuffer();
@@ -141,6 +192,7 @@ class _ArabicShapeRenderer {
     return buffer.toString();
   }
 
+  /// internal method
   String doShape(List<String> input, int level) {
     final StringBuffer str = StringBuffer();
     int ligature, len, i = 0;
@@ -174,6 +226,7 @@ class _ArabicShapeRenderer {
     return str.toString();
   }
 
+  /// internal method
   void append(StringBuffer buffer, _ArabicShape shape, int level) {
     if (shape.value != '') {
       buffer.write(shape.value);
@@ -197,6 +250,7 @@ class _ArabicShapeRenderer {
     }
   }
 
+  /// internal method
   int ligature(String value, _ArabicShape shape) {
     if (shape.value != '') {
       int result = 0;
@@ -286,6 +340,7 @@ class _ArabicShapeRenderer {
     }
   }
 
+  /// internal method
   String getCharacterShape(String input, int index) {
     final int inputCode = input == '' ? 0 : input.codeUnitAt(0);
     if (inputCode >= hamza.codeUnitAt(0) && inputCode <= bwhb.codeUnitAt(0)) {
@@ -300,6 +355,7 @@ class _ArabicShapeRenderer {
     return input;
   }
 
+  /// internal method
   int getShapeCount(String shape) {
     final int value = shape.codeUnitAt(0);
     if ((value >= hamza.codeUnitAt(0)) &&

@@ -1,18 +1,25 @@
-part of pdf;
+import 'dart:math';
 
 /// Utility class for Bidirectional/Rtl text.
-class _Bidi {
+class Bidi {
   // Constructor.
-  _Bidi() {
+  /// internal constructor
+  Bidi() {
     update();
   }
 
   // Fields.
+  /// internal field
   late List<int> indexes;
+
+  /// internal field
   late List<int> indexLevels;
+
+  /// internal field
   Map<int, int> mirroringShapeCharacters = <int, int>{};
 
   // Implementations.
+  /// internal method
   String getLogicalToVisualString(String inputText, bool isRTL) {
     indexLevels = List<int>.filled(inputText.length, 0, growable: true);
     indexes = List<int>.filled(inputText.length, 0, growable: true);
@@ -29,6 +36,7 @@ class _Bidi {
     return resultBuffer.toString();
   }
 
+  /// internal method
   String doMirrorShaping(String text) {
     final StringBuffer result = StringBuffer();
     for (int i = 0; i < text.length; i++) {
@@ -43,12 +51,14 @@ class _Bidi {
     return result.toString();
   }
 
+  /// internal method
   void setDefaultIndexLevel() {
     for (int i = 0; i < indexLevels.length; i++) {
       indexes[i] = i;
     }
   }
 
+  /// internal method
   void doOrder(int sIndex, int eIndex) {
     int max = indexLevels[sIndex].toUnsigned(8);
     int min = max;
@@ -98,6 +108,7 @@ class _Bidi {
     }
   }
 
+  /// internal method
   void reArrange(int i, int j) {
     final int length = (i + j) ~/ 2;
     --j;
@@ -108,6 +119,7 @@ class _Bidi {
     }
   }
 
+  /// internal method
   void update() {
     mirroringShapeCharacters[40] = 41;
     mirroringShapeCharacters[41] = 40;

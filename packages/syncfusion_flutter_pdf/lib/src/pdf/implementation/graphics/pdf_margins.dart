@@ -1,5 +1,3 @@
-part of pdf;
-
 /// A class representing PDF page margins.
 ///
 /// ```dart
@@ -30,15 +28,16 @@ class PdfMargins {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfMargins();
+  PdfMargins() {
+    _helper = PdfMarginsHelper(this);
+  }
 
   //Fields
+  late PdfMarginsHelper _helper;
   double _left = 0;
   double _top = 0;
   double _right = 0;
   double _bottom = 0;
-  // ignore: prefer_final_fields
-  bool _isPageAdded = false;
 
   //Properties
   /// Gets or sets the left margin size.
@@ -61,7 +60,7 @@ class PdfMargins {
   /// ```
   double get left => _left;
   set left(double value) {
-    if (_left != value && !_isPageAdded) {
+    if (_left != value && !_helper.isPageAdded) {
       _left = value;
     }
   }
@@ -86,7 +85,7 @@ class PdfMargins {
   /// ```
   double get top => _top;
   set top(double value) {
-    if (_top != value && !_isPageAdded) {
+    if (_top != value && !_helper.isPageAdded) {
       _top = value;
     }
   }
@@ -111,7 +110,7 @@ class PdfMargins {
   /// ```
   double get right => _right;
   set right(double value) {
-    if (_right != value && !_isPageAdded) {
+    if (_right != value && !_helper.isPageAdded) {
       _right = value;
     }
   }
@@ -136,7 +135,7 @@ class PdfMargins {
   /// ```
   double get bottom => _bottom;
   set bottom(double value) {
-    if (_bottom != value && !_isPageAdded) {
+    if (_bottom != value && !_helper.isPageAdded) {
       _bottom = value;
     }
   }
@@ -156,41 +155,63 @@ class PdfMargins {
   /// document.dispose();
   /// ```
   set all(double value) {
-    if (!_isPageAdded) {
-      _setMargins(value);
+    if (!_helper.isPageAdded) {
+      _helper.setMargins(value);
     }
   }
+}
 
-  //Implementation
-  void _setMargins(double margin) {
-    left = top = right = bottom = margin;
+/// [PdfMargins] helper
+class PdfMarginsHelper {
+  /// internal constructor
+  PdfMarginsHelper(this.base);
+
+  /// internal field
+  late PdfMargins base;
+
+  /// internal field
+  // ignore: prefer_final_fields
+  bool isPageAdded = false;
+
+  /// internal method
+  static PdfMarginsHelper getHelper(PdfMargins base) {
+    return base._helper;
   }
 
-  void _setMarginsLT(double leftRight, double topBottom) {
-    left = right = leftRight;
-    top = bottom = topBottom;
+  /// internal method
+  void setMargins(double margin) {
+    base.left = base.top = base.right = base.bottom = margin;
   }
 
-  void _setMarginsAll(double l, double t, double r, double b) {
-    left = l;
-    right = r;
-    top = t;
-    bottom = b;
+  /// internal method
+  void setMarginsLT(double leftRight, double topBottom) {
+    base.left = base.right = leftRight;
+    base.top = base.bottom = topBottom;
   }
 
-  bool _equals(PdfMargins margins) {
-    return _left == margins.left &&
-        _top == margins._top &&
-        _right == margins._right &&
-        _bottom == margins._bottom;
+  /// internal method
+  void setMarginsAll(double l, double t, double r, double b) {
+    base.left = l;
+    base.right = r;
+    base.top = t;
+    base.bottom = b;
   }
 
-  PdfMargins _clone() {
+  /// internal method
+  bool equals(PdfMargins margins) {
+    return base._left == margins.left &&
+        base._top == margins._top &&
+        base._right == margins._right &&
+        base._bottom == margins._bottom;
+  }
+
+  /// internal method
+  PdfMargins clone() {
     final PdfMargins result = PdfMargins();
-    result.left = left.toDouble();
-    result.right = right.toDouble();
-    result.top = top.toDouble();
-    result.bottom = bottom.toDouble();
+    result.left = base.left;
+    result.right = base.right;
+    result.top = base.top;
+    result.bottom = base.bottom;
     return result;
   }
 }

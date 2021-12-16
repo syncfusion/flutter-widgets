@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../linear_gauge/gauge/linear_gauge.dart';
 import '../../linear_gauge/gauge/linear_gauge_scope.dart';

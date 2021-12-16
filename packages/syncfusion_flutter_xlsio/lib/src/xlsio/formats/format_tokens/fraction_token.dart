@@ -31,9 +31,11 @@ class _FractionToken extends _FormatTokenBase {
 
     if (chCurrent == _defaultFormatChar) {
       iIndex++;
+      // ignore: noop_primitive_operations
       _strFormat = chCurrent.toString();
     } else if (strFormat[iIndex] == r'\\' &&
         strFormat[iIndex + 1] == _defaultFormatChar) {
+      // ignore: noop_primitive_operations
       _strFormat = strFormat[iIndex + 1].toString();
       iIndex = iIndex + 2;
     }

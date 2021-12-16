@@ -1,5 +1,6 @@
 part of xlsio;
 
+// ignore: noop_primitive_operations
 /// Class used for Character Token.
 class _CharacterToken extends _FormatTokenBase {
   /// Start of the token.
@@ -24,13 +25,17 @@ class _CharacterToken extends _FormatTokenBase {
       _strFormat = strFormat[iIndex];
       iIndex++;
     } else if (strFormat[iIndex] == _defaultStart) {
+      // ignore: noop_primitive_operations
       _strFormat = strFormat[iIndex + 1].toString();
+      // ignore: noop_primitive_operations
       if (_strFormat != _defaultFormatChar.toString()) {
         iIndex += 2;
       } else {
+        // ignore: noop_primitive_operations
         _strFormat = _defaultFormatChar.toString();
       }
     } else if (strFormat[iIndex] == '[' && strFormat[iIndex + 2] == r'\$') {
+      // ignore: noop_primitive_operations
       _strFormat = strFormat[iIndex + 1].toString();
       iIndex = strFormat.indexOf(']', iIndex + 3) + 1;
     }

@@ -1,5 +1,3 @@
-part of pdf;
-
 /// Allows to choose outline text style.
 ///
 /// ```dart

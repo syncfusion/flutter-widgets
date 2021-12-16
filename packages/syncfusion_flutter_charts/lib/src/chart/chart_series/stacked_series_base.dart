@@ -1,9 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../chart/utils/enum.dart';
 import '../../common/common.dart';
 import '../../common/user_interaction/selection_behavior.dart';
@@ -64,7 +59,7 @@ abstract class StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
       CartesianShaderCallback? onCreateShader,
       double? animationDelay,
       double? opacity})
-      : borderRadius = borderRadius ?? const BorderRadius.all(Radius.zero),
+      : borderRadius = borderRadius ?? BorderRadius.zero,
         trackColor = trackColor ?? Colors.grey,
         trackBorderColor = trackBorderColor ?? Colors.transparent,
         trackBorderWidth = trackBorderWidth ?? 1,
