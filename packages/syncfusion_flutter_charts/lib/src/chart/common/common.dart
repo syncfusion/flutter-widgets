@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'dart:ui' as dart_ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:syncfusion_flutter_charts/src/chart/axis/datetime_axis.dart'
     show DateTimeAxisDetails;
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';

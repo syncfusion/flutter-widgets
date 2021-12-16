@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   
-    syncfusion_flutter_datagrid:
+  syncfusion_flutter_datagrid:
     path: ../syncfusion_flutter_datagrid
   
   syncfusion_flutter_xlsio:

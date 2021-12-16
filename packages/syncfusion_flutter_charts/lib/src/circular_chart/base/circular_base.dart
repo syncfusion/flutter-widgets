@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
