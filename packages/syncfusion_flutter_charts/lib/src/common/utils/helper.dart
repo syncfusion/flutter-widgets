@@ -221,9 +221,8 @@ Widget? getElements(StateProperties stateProperties, Widget chartWidget,
                     (context.series == toggledItem.series) ||
                     (context.seriesRenderer.seriesName ==
                         toggledItem.seriesRenderer.seriesName))) {
-              if (!isTrendline || !toggledIndices.contains(i)) {
+              if (!isTrendline || !toggledIndices.contains(i))
                 toggledIndices.add(i);
-              }
               if (!isTrendline &&
                   context.indicatorRenderer == null &&
                   context.series.trendlines != null) {

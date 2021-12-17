@@ -1,6 +1,6 @@
 name: syncfusion_officecore
 description: Syncfusion Flutter Office Core is a dependant library for Syncfusion Flutter XlsIO, written natively in Dart for creating Excel from scratch.
-version: 18.3.35-beta
+version: 19.4.38
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_officecore
 
 environment:

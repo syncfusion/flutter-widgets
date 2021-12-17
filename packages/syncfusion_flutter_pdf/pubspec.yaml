@@ -1,6 +1,6 @@
 name: syncfusion_flutter_pdf
 description: The Flutter PDF is a library written natively in Dart for creating, reading, editing, and securing PDF files in Android, iOS, and web platforms.
-version: 18.1.36-beta
+version: 19.4.38
 homepage: https://github.com/syncfusion/flutter-examples
 
 environment:
@@ -15,4 +15,3 @@ dependencies:
     path: ../syncfusion_flutter_core
   crypto: ">=3.0.0 <4.0.0"
   convert: ">=3.0.0 <4.0.0"
-

@@ -1069,7 +1069,7 @@ void renderOutsideDataLabel(
     }
   } else {
     if (seriesRenderer.series.dataLabelSettings.labelIntersectAction !=
-        LabelIntersectAction.shift) {
+        LabelIntersectAction.shift)
       canvas.drawPath(
           connectorPath,
           Paint()
@@ -1078,7 +1078,6 @@ void renderOutsideDataLabel(
                 : connector.color ?? point.fill.withOpacity(animateOpacity)
             ..strokeWidth = connector.width
             ..style = PaintingStyle.stroke);
-    }
   }
 }
 
@@ -1278,10 +1277,10 @@ String _getSegmentOverflowTrimmedText(
         if (datalabelText == '') {
           break;
         }
-        if (datalabelText.length > minCharacterLength) {
+        if (datalabelText.length > minCharacterLength)
           datalabelText =
               addEllipse(datalabelText, datalabelText.length, ellipse);
-        } else {
+        else {
           datalabelText = '';
           break;
         }

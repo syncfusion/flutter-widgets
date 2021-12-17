@@ -924,9 +924,8 @@ class TooltipRenderingDetails {
           prevTooltipValue!.outlierIndex == currentTooltipValue!.outlierIndex;
       if (tooltipBehavior.builder != null && tooltipBounds != null) {
         chartTooltipState!.boundaryRect = tooltipBounds!;
-        if (tooltipBehavior.tooltipPosition != TooltipPosition.auto) {
+        if (tooltipBehavior.tooltipPosition != TooltipPosition.auto)
           _presentTooltipValue!.pointerPosition = showLocation;
-        }
         if (showLocation != null) {
           _resolveLocation();
           chartTooltipState?.show(
@@ -971,9 +970,8 @@ class TooltipRenderingDetails {
             (currentTooltipValue == null ||
                 tooltipBehavior.tooltipPosition == TooltipPosition.auto)) {
           chartTooltipState!.boundaryRect = tooltipBounds!;
-          if (tooltipBehavior.tooltipPosition != TooltipPosition.auto) {
+          if (tooltipBehavior.tooltipPosition != TooltipPosition.auto)
             _presentTooltipValue!.pointerPosition = showLocation;
-          }
           if (showLocation != null) {
             chartTooltipState?.needMarker =
                 _stateProperties.chart is SfCartesianChart;

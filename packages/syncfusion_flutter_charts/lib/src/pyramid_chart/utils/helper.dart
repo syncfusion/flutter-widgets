@@ -799,9 +799,9 @@ String getSegmentOverflowTrimmedText(
       label = '';
       break;
     }
-    if (label.length > minCharacterLength) {
+    if (label.length > minCharacterLength)
       label = addEllipse(label, label.length, ellipse);
-    } else {
+    else {
       label = '';
       break;
     }

@@ -9,8 +9,12 @@ class MethodChannelPdfViewer extends PdfViewerPlatform {
   /// Initializes the PDF renderer instance in respective platform by loading the PDF from the provided byte information.
   /// If success, returns page count else returns error message from respective platform
   @override
-  Future<String?> initializePdfRenderer(Uint8List documentBytes,String documentID) async {
-    return _channel.invokeMethod('initializePdfRenderer',<String, dynamic>{'documentBytes': documentBytes, 'documentID': documentID });
+  Future<String?> initializePdfRenderer(
+      Uint8List documentBytes, String documentID) async {
+    return _channel.invokeMethod('initializePdfRenderer', <String, dynamic>{
+      'documentBytes': documentBytes,
+      'documentID': documentID
+    });
   }
 
   /// Gets the height of all pages in the document.
@@ -27,9 +31,13 @@ class MethodChannelPdfViewer extends PdfViewerPlatform {
 
   /// Gets the image's bytes information of the specified page.
   @override
-  Future<Uint8List?> getImage(int pageNumber,double currentScale, String documentID) async {
-    return _channel.invokeMethod<Uint8List>(
-        'getImage', <String, dynamic>{'index': pageNumber,'scale': currentScale,'documentID': documentID});
+  Future<Uint8List?> getImage(
+      int pageNumber, double currentScale, String documentID) async {
+    return _channel.invokeMethod<Uint8List>('getImage', <String, dynamic>{
+      'index': pageNumber,
+      'scale': currentScale,
+      'documentID': documentID
+    });
   }
 
   /// Closes the PDF document.
