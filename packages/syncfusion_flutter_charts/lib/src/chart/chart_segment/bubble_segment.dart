@@ -115,11 +115,12 @@ class BubbleSegment extends ChartSegment {
         rect);
     _centerX = location.x;
     _centerY = location.y;
-    if (bubbleSegmentProperties.seriesRenderer is BubbleSeriesRenderer)
+    if (bubbleSegmentProperties.seriesRenderer is BubbleSeriesRenderer) {
       _radius = calculateBubbleRadius(
           seriesRendererDetails,
           bubbleSegmentProperties.series,
           bubbleSegmentProperties.currentPoint!);
+    }
     bubbleSegmentProperties.currentPoint!.region = Rect.fromLTRB(
         location.x - 2 * _radius,
         location.y - 2 * _radius,

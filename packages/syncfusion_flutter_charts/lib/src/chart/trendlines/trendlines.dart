@@ -671,9 +671,10 @@ class TrendlineRenderer {
       index++;
     }
     slopeIntercept = _findSlopeIntercept(xValues, yValues, points);
-    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN)
+    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
       pointsData = getLinearPoints(
           points, xValues, yValues, seriesRendererDetails, slopeIntercept);
+    }
     slopeInterceptData =
         _findSlopeIntercept(slopeInterceptXValues, yValues, points);
   }
@@ -762,9 +763,10 @@ class TrendlineRenderer {
     }
     xValues.sort();
     slopeIntercept = _findSlopeIntercept(xValues, yValues, points);
-    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN)
+    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
       pointsData = getExponentialPoints(
           points, xValues, yValues, seriesRendererDetails, slopeIntercept);
+    }
     slopeInterceptData =
         _findSlopeIntercept(slopeInterceptXValues, yValues, points);
   }
@@ -861,9 +863,10 @@ class TrendlineRenderer {
     }
     powerPoints.sort();
     slopeIntercept = _findSlopeIntercept(xValues, yValues, points);
-    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN)
+    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
       pointsData = getPowerPoints(
           points, powerPoints, yValues, seriesRendererDetails, slopeIntercept);
+    }
     slopeInterceptData =
         _findSlopeIntercept(slopeInterceptXValues, yValues, points);
   }
@@ -952,9 +955,10 @@ class TrendlineRenderer {
     }
     xPointsLgr.sort();
     slopeIntercept = _findSlopeIntercept(xLogValue, yLogValue, points);
-    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN)
+    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
       pointsData = getLogarithmicPoints(
           points, xPointsLgr, yLogValue, seriesRendererDetails, slopeIntercept);
+    }
     slopeInterceptData =
         _findSlopeIntercept(slopeInterceptXLogValue, yLogValue, points);
   }
