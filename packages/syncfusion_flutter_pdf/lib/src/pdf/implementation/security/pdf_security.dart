@@ -1,4 +1,5 @@
-part of pdf;
+import 'enum.dart';
+import 'pdf_encryptor.dart';
 
 /// Represents the security settings of the PDF document.
 ///
@@ -20,16 +21,13 @@ class PdfSecurity {
   //constructor
   /// Initializes a new instance of the [PdfSecurity] class.
   PdfSecurity._() {
+    _helper = PdfSecurityHelper(this);
     _initialize();
   }
 
   //Fields
-  late _PdfEncryptor _encryptor;
   PdfPermissions? _permissions;
-  // ignore: prefer_final_fields
-  bool _conformance = false;
-  bool _modifiedSecurity = false;
-  late bool _encryptOnlyAttachment;
+  late PdfSecurityHelper _helper;
 
   /// Gets the type of encryption algorithm used.
   ///
@@ -44,7 +42,7 @@ class PdfSecurity {
   /// document.dispose();
   /// ```
   PdfEncryptionAlgorithm get algorithm {
-    return _encryptor.encryptionAlgorithm!;
+    return _helper.encryptor.encryptionAlgorithm!;
   }
 
   /// Sets the type of encryption algorithm.
@@ -64,11 +62,11 @@ class PdfSecurity {
   /// document.dispose();
   /// ```
   set algorithm(PdfEncryptionAlgorithm value) {
-    _encryptor.encryptionAlgorithm = value;
-    _encryptor.encrypt = true;
-    _encryptor._isChanged = true;
-    _encryptor._hasComputedPasswordValues = false;
-    _modifiedSecurity = true;
+    _helper.encryptor.encryptionAlgorithm = value;
+    _helper.encryptor.encrypt = true;
+    _helper.encryptor.changed = true;
+    _helper.encryptor.hasComputedPasswordValues = false;
+    _helper.modifiedSecurity = true;
   }
 
   /// Gets the owner password.
@@ -87,7 +85,7 @@ class PdfSecurity {
   /// document.dispose();
   /// ```
   String get ownerPassword {
-    return _encryptAttachments ? '' : _encryptor.ownerPassword;
+    return _helper.encryptAttachments ? '' : _helper.encryptor.ownerPassword;
   }
 
   /// Sets the owner password.
@@ -110,13 +108,13 @@ class PdfSecurity {
   /// document.dispose();
   /// ```
   set ownerPassword(String value) {
-    if (_conformance) {
+    if (_helper.conformance) {
       throw ArgumentError(
           'Document encryption is not allowed with Conformance documents.');
     }
-    _encryptor.ownerPassword = value;
-    _encryptor.encrypt = true;
-    _modifiedSecurity = true;
+    _helper.encryptor.ownerPassword = value;
+    _helper.encryptor.encrypt = true;
+    _helper.modifiedSecurity = true;
   }
 
   /// Gets the user password.
@@ -134,7 +132,7 @@ class PdfSecurity {
   /// document.dispose();
   /// ```
   String get userPassword {
-    return _encryptor.userPassword;
+    return _helper.encryptor.userPassword;
   }
 
   /// Sets the user password.
@@ -156,13 +154,13 @@ class PdfSecurity {
   /// document.dispose();
   /// ```
   set userPassword(String value) {
-    if (_conformance) {
+    if (_helper.conformance) {
       throw ArgumentError(
           'Document encryption is not allowed with Conformance documents.');
     }
-    _encryptor.userPassword = value;
-    _encryptor.encrypt = true;
-    _modifiedSecurity = true;
+    _helper.encryptor.userPassword = value;
+    _helper.encryptor.encrypt = true;
+    _helper.modifiedSecurity = true;
   }
 
   /// Gets the permissions when the document is opened with user password.
@@ -185,7 +183,8 @@ class PdfSecurity {
   /// document.dispose();
   /// ```
   PdfPermissions get permissions {
-    _permissions ??= PdfPermissions._(_encryptor, _encryptor.permissions);
+    _permissions ??=
+        PdfPermissions._(_helper.encryptor, _helper.encryptor.permissions);
     return _permissions!;
   }
 
@@ -212,46 +211,80 @@ class PdfSecurity {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfEncryptionOptions get encryptionOptions => _encryptor._encryptionOptions;
+  PdfEncryptionOptions get encryptionOptions =>
+      _helper.encryptor.encryptionOptions;
   set encryptionOptions(PdfEncryptionOptions value) {
-    if (_conformance) {
+    if (_helper.conformance) {
       throw ArgumentError(
           'Document encryption is not allowed with Conformance documents.');
     }
-    if (_encryptor._encryptionOptions != value) {
-      _encryptor._encryptionOptions = value;
-      _encryptor.encrypt = true;
-      _encryptor._isChanged = true;
-      _modifiedSecurity = true;
-      _encryptor._hasComputedPasswordValues = false;
+    if (_helper.encryptor.encryptionOptions != value) {
+      _helper.encryptor.encryptionOptions = value;
+      _helper.encryptor.encrypt = true;
+      _helper.encryptor.changed = true;
+      _helper.modifiedSecurity = true;
+      _helper.encryptor.hasComputedPasswordValues = false;
       if (PdfEncryptionOptions.encryptOnlyAttachments == value) {
-        _encryptAttachments = true;
-        _encryptor.encryptMetadata = false;
+        _helper.encryptAttachments = true;
+        _helper.encryptor.encryptMetadata = false;
       } else if (PdfEncryptionOptions.encryptAllContentsExceptMetadata ==
           value) {
-        _encryptAttachments = false;
-        _encryptor.encryptMetadata = false;
+        _helper.encryptAttachments = false;
+        _helper.encryptor.encryptMetadata = false;
       } else {
-        _encryptAttachments = false;
-        _encryptor.encryptMetadata = true;
+        _helper.encryptAttachments = false;
+        _helper.encryptor.encryptMetadata = true;
       }
     }
   }
 
-  bool get _encryptAttachments {
-    return _encryptOnlyAttachment;
-  }
-
-  set _encryptAttachments(bool value) {
-    _encryptOnlyAttachment = value;
-    _encryptor.encryptOnlyAttachment = value;
-    _encryptor._isChanged = true;
-  }
-
   //Implementation
   void _initialize() {
-    _encryptOnlyAttachment = false;
-    _encryptor = _PdfEncryptor();
+    _helper.encryptAttachmentOnly = false;
+    _helper.encryptor = PdfEncryptor();
+  }
+}
+
+/// [PdfSecurity] helper
+class PdfSecurityHelper {
+  /// internal constructor
+  PdfSecurityHelper(this.base);
+
+  /// internal field
+  PdfSecurity base;
+
+  /// internal method
+  static PdfSecurityHelper getHelper(PdfSecurity base) {
+    return base._helper;
+  }
+
+  /// internal field
+  late PdfEncryptor encryptor;
+
+  /// internal field
+  late bool encryptAttachmentOnly;
+
+  /// internal property
+  bool get encryptAttachments {
+    return encryptAttachmentOnly;
+  }
+
+  set encryptAttachments(bool value) {
+    encryptAttachmentOnly = value;
+    encryptor.encryptOnlyAttachment = value;
+    encryptor.changed = true;
+  }
+
+  /// internal field
+  // ignore: prefer_final_fields
+  bool conformance = false;
+
+  /// internal field
+  bool modifiedSecurity = false;
+
+  /// internal method
+  static PdfSecurity getSecurity() {
+    return PdfSecurity._();
   }
 }
 
@@ -278,13 +311,13 @@ class PdfSecurity {
 class PdfPermissions {
   //constructor
   PdfPermissions._(
-      _PdfEncryptor encryptor, List<PdfPermissionsFlags> permissions) {
+      PdfEncryptor encryptor, List<PdfPermissionsFlags> permissions) {
     _encryptor = encryptor;
     _permissions = permissions;
   }
 
   //Fields
-  late _PdfEncryptor _encryptor;
+  late PdfEncryptor _encryptor;
   late List<PdfPermissionsFlags> _permissions;
   bool _modifiedPermissions = false;
 
@@ -478,5 +511,22 @@ class PdfPermissions {
       throw ArgumentError.value(index, 'Index out of range');
     }
     return _permissions[index];
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfPermissions] helper
+class PdfPermissionsHelper {
+  /// internal method
+  static PdfEncryptor getEncryptor(PdfPermissions permissions) {
+    return permissions._encryptor;
+  }
+
+  /// internal method
+  static bool isModifiedPermissions(PdfPermissions permissions, [bool? value]) {
+    if (value != null) {
+      permissions._modifiedPermissions = value;
+    }
+    return permissions._modifiedPermissions;
   }
 }

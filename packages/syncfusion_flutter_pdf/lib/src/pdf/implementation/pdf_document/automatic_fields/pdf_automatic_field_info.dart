@@ -1,27 +1,26 @@
-part of pdf;
+import '../../drawing/drawing.dart';
+import 'pdf_automatic_field.dart';
 
-class _PdfAutomaticFieldInfo {
+/// internal class
+class PdfAutomaticFieldInfo {
   // constructor
-  _PdfAutomaticFieldInfo(this.field,
-      [_Point? location, double scalingX = 1, double scalingY = 1]) {
-    this.location = location ?? _Point.empty;
+  /// internal constructor
+  PdfAutomaticFieldInfo(this.field,
+      [PdfPoint? location, double scalingX = 1, double scalingY = 1]) {
+    this.location = location ?? PdfPoint.empty;
     scalingX = scalingX;
     scalingY = scalingY;
   }
 
+  /// internal field
   double scalingX = 1;
+
+  /// internal field
   double scalingY = 1;
+
+  /// internal field
   late PdfAutomaticField field;
-  late _Point location;
-}
 
-class _PdfAutomaticFieldInfoCollection extends PdfObjectCollection {
-  // constructor
-  _PdfAutomaticFieldInfoCollection() : super();
-
-  // implementaion
-  int add(_PdfAutomaticFieldInfo fieldInfo) {
-    _list.add(fieldInfo);
-    return count - 1;
-  }
+  /// internal field
+  late PdfPoint location;
 }

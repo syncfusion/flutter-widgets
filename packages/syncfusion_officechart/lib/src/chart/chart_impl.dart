@@ -696,6 +696,7 @@ class Chart {
     axisRange = _getSerieOrAxisRange(_serieValue, !_bSeriesInRows, _serieValue);
     // }
     if (!_validateSerieRangeForChartType(_serieValue, type, _bSeriesInRows)) {
+      // ignore: avoid_escaping_inner_quotes
       throw 'Can\'t set data range.';
     }
 
@@ -783,6 +784,7 @@ class Chart {
               serieValue.lastRow, serieValue.column + i);
 
       final ChartSerie serie = series[i];
+      // ignore: prefer_interpolation_to_compose_strings
       serie.name = 'Serie' + (i + 1).toString();
       serie._index = i;
       int iAddIndex = iIndex;

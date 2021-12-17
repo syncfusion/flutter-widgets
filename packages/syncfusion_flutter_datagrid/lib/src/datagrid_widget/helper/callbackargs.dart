@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-
+import 'package:syncfusion_flutter_datagrid/src/datagrid_widget/helper/datagrid_configuration.dart';
 import '../../grid_common/row_column_index.dart';
 import '../runtime/column.dart';
 import 'enums.dart';
@@ -124,24 +124,19 @@ class DataGridCellDoubleTapDetails extends DataGridCellDetails {
 @immutable
 class DataGridCellLongPressDetails extends DataGridCellDetails {
   /// Creates a [DataGridCellLongPressDetails] with the specified
-  /// [rowColumnIndex], [column], [globalPosition], [localPosition] and
-  /// [velocity].
-  const DataGridCellLongPressDetails(
-      {required RowColumnIndex rowColumnIndex,
-      required GridColumn column,
-      required this.globalPosition,
-      required this.localPosition,
-      required this.velocity})
-      : super(rowColumnIndex: rowColumnIndex, column: column);
+  /// [rowColumnIndex], [column], [globalPosition], [localPosition].
+  const DataGridCellLongPressDetails({
+    required RowColumnIndex rowColumnIndex,
+    required GridColumn column,
+    required this.globalPosition,
+    required this.localPosition,
+  }) : super(rowColumnIndex: rowColumnIndex, column: column);
 
   /// The global position at which the pointer contacted the screen.
   final Offset globalPosition;
 
   /// The local position at which the pointer contacted the screen.
   final Offset localPosition;
-
-  /// The pointer's velocity when it stopped contacting the screen.
-  final Velocity velocity;
 }
 
 /// Configuration details to sort a column in [SfDataGrid].
@@ -163,17 +158,26 @@ class SortColumnDetails {
 }
 
 /// Holds the arguments for the [SfDataGrid.onSwipeStart] callback.
-@immutable
 class DataGridSwipeStartDetails {
   /// Creates a [DataGridSwipeStartDetails] class for [SfDataGrid].
-  const DataGridSwipeStartDetails(
-      {required this.rowIndex, required this.swipeDirection});
+  DataGridSwipeStartDetails({
+    required this.rowIndex,
+    required this.swipeDirection,
+  });
+  late DataGridConfiguration _dataGridConfiguration;
 
   /// An index of a row which is swiped.
   final int rowIndex;
 
   /// The direction in which a row is swiped.
   final DataGridRowSwipeDirection swipeDirection;
+
+  /// Sets the maximum offset in which a row can be swiped.
+  ///
+  /// Typically, this method can be used to set the different maximum offset for swiping based on the swipe direction.
+  void setSwipeMaxOffset(double offset) {
+    _dataGridConfiguration.effectiveSwipeMaxOffset = offset;
+  }
 }
 
 /// Holds the arguments for the [SfDataGrid.onSwipeUpdate] callback.
@@ -248,8 +252,15 @@ class ColumnResizeEndDetails {
   final double width;
 }
 
-/// ToDo
+/// Sets the `columnSizer` instance to the [RowHeightDetails] class.
 void setColumnSizerInRowHeightDetailsArgs(
     RowHeightDetails rowHeightDetails, ColumnSizer columnSizer) {
   rowHeightDetails._columnSizer = columnSizer;
+}
+
+///Sets the `dataGridConfiguration` instance to the [DataGridSwipeStartDetails] class
+void setSwipeOffsetInDataGridSwipeStartDetailsArgs(
+    DataGridConfiguration dataGridConfiguration,
+    DataGridSwipeStartDetails swipeStartDetails) {
+  swipeStartDetails._dataGridConfiguration = dataGridConfiguration;
 }

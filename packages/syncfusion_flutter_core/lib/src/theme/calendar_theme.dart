@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../theme.dart';
@@ -135,116 +134,6 @@ class SfCalendarThemeData with Diagnosticable {
     TextStyle? weekNumberTextStyle,
     TextStyle? timeIndicatorTextStyle,
   }) {
-    brightness = brightness ?? Brightness.light;
-    final bool isLight = brightness == Brightness.light;
-    backgroundColor ??= isLight ? Colors.white : Colors.transparent;
-    headerBackgroundColor ??= Colors.transparent;
-    agendaBackgroundColor ??= Colors.transparent;
-    agendaDayTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black54,
-            fontWeight: FontWeight.w500,
-            fontSize: 10,
-            fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white70,
-            fontWeight: FontWeight.w500,
-            fontSize: 10,
-            fontFamily: 'Roboto');
-    agendaDateTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.normal)
-        : const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.normal);
-    activeDatesBackgroundColor ??= Colors.transparent;
-    todayBackgroundColor ??= Colors.transparent;
-    trailingDatesBackgroundColor ??= Colors.transparent;
-    leadingDatesBackgroundColor ??= Colors.transparent;
-    viewHeaderBackgroundColor ??= Colors.transparent;
-    weekNumberBackgroundColor = Colors.grey.withOpacity(0.19);
-    allDayPanelColor ??= Colors.transparent;
-    cellBorderColor ??=
-        isLight ? Colors.black.withOpacity(0.16) : Colors.white30;
-    todayTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.white, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.black, fontSize: 13, fontFamily: 'Roboto');
-    headerTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black87, fontSize: 18, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white, fontSize: 18, fontFamily: 'Roboto');
-    activeDatesTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black87, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white, fontSize: 13, fontFamily: 'Roboto');
-    timeTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black54, fontWeight: FontWeight.w500, fontSize: 10)
-        : const TextStyle(
-            color: Colors.white38, fontWeight: FontWeight.w500, fontSize: 10);
-    viewHeaderDateTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black87,
-            fontSize: 15,
-            fontWeight: FontWeight.w400,
-            fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-            fontWeight: FontWeight.w400,
-            fontFamily: 'Roboto');
-    viewHeaderDayTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black87,
-            fontSize: 11,
-            fontWeight: FontWeight.w400,
-            fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white,
-            fontSize: 11,
-            fontWeight: FontWeight.w400,
-            fontFamily: 'Roboto');
-    trailingDatesTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black54, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white70, fontSize: 13, fontFamily: 'Roboto');
-    leadingDatesTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black54, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white70, fontSize: 13, fontFamily: 'Roboto');
-    displayNameTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black,
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-            fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-            fontFamily: 'Roboto');
-    weekNumberTextStyle = isLight
-        ? const TextStyle(
-            color: Colors.black87, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white, fontSize: 13, fontFamily: 'Roboto');
-    timeIndicatorTextStyle ??= isLight
-        ? const TextStyle(
-            color: null, fontWeight: FontWeight.w500, fontSize: 10)
-        : const TextStyle(
-            color: null, fontWeight: FontWeight.w500, fontSize: 10);
-
     return SfCalendarThemeData.raw(
         brightness: brightness,
         backgroundColor: backgroundColor,
@@ -338,7 +227,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Brightness brightness;
+  final Brightness? brightness;
 
   /// Specifies the background color of calendar widgets.
   ///
@@ -359,7 +248,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// Specifies the calendar header text style.
   ///
@@ -380,7 +269,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle headerTextStyle;
+  final TextStyle? headerTextStyle;
 
   ///Specifies the cell border color of calendar widgets.
   ///
@@ -401,7 +290,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color cellBorderColor;
+  final Color? cellBorderColor;
 
   ///Specifies the calendar Header background color.
   ///
@@ -422,7 +311,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color headerBackgroundColor;
+  final Color? headerBackgroundColor;
 
   ///Specifies the border color the default BoxDecoration , border color.
   ///
@@ -464,7 +353,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color agendaBackgroundColor;
+  final Color? agendaBackgroundColor;
 
   ///Specifies the agenda view background color.
   ///
@@ -485,7 +374,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color viewHeaderBackgroundColor;
+  final Color? viewHeaderBackgroundColor;
 
   /// Specifies the day text style for the view header.
   ///
@@ -507,7 +396,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle viewHeaderDayTextStyle;
+  final TextStyle? viewHeaderDayTextStyle;
 
   /// Specifies the agenda view day text style.
   ///
@@ -528,7 +417,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle agendaDayTextStyle;
+  final TextStyle? agendaDayTextStyle;
 
   /// Specifies the agenda view date text style.
   ///
@@ -550,7 +439,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle agendaDateTextStyle;
+  final TextStyle? agendaDateTextStyle;
 
   /// Specifies the background color for the current month cells.
   ///
@@ -571,7 +460,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color activeDatesBackgroundColor;
+  final Color? activeDatesBackgroundColor;
 
   ///Specifies the background for the today month cell.
   ///
@@ -592,7 +481,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color todayBackgroundColor;
+  final Color? todayBackgroundColor;
 
   ///Specifies the background for the trailing dates month cells.
   ///
@@ -613,7 +502,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color trailingDatesBackgroundColor;
+  final Color? trailingDatesBackgroundColor;
 
   ///Specifies the background for the leading dates month cells.
   ///
@@ -634,7 +523,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color leadingDatesBackgroundColor;
+  final Color? leadingDatesBackgroundColor;
 
   /// Specifies the text style for the leading month cell dates.
   ///
@@ -656,7 +545,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle leadingDatesTextStyle;
+  final TextStyle? leadingDatesTextStyle;
 
   /// Specifies the text style for the blackout dates text in calendar.
   ///
@@ -702,7 +591,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle displayNameTextStyle;
+  final TextStyle? displayNameTextStyle;
 
   /// Specifies the text style for the today month cell.
   ///
@@ -723,7 +612,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle todayTextStyle;
+  final TextStyle? todayTextStyle;
 
   ///Specifies the today highlight color.
   ///
@@ -766,7 +655,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle viewHeaderDateTextStyle;
+  final TextStyle? viewHeaderDateTextStyle;
 
   /// Specifies the time label text style in days and timeline views.
   ///
@@ -787,7 +676,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle timeTextStyle;
+  final TextStyle? timeTextStyle;
 
   ///Specifies the current month text style color of calendar widgets.
   ///
@@ -809,7 +698,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle activeDatesTextStyle;
+  final TextStyle? activeDatesTextStyle;
 
   /// Specifies the text style for the trailing month cell dates.
   ///
@@ -831,7 +720,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle trailingDatesTextStyle;
+  final TextStyle? trailingDatesTextStyle;
 
   /// Specifies the background for the week number panel.
   ///
@@ -877,7 +766,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle weekNumberTextStyle;
+  final TextStyle? weekNumberTextStyle;
 
   /// Specifies the text style for the timeIndicator text of dragging
   /// appointment in calendar.
@@ -900,7 +789,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle timeIndicatorTextStyle;
+  final TextStyle? timeIndicatorTextStyle;
 
   /// Specifies the background for all day panel.
   ///

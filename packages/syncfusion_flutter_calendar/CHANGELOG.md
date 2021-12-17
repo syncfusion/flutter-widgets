@@ -1,4 +1,20 @@
-## Unreleased
+## [19.4.xx]
+**Features**
+* Provided support to get calendar details based on the given offset passed through an argument by using the method of the `getCalendarDetailsAtOffset`.
+
+**Enhancements**
+* Now, improved the allowedViews UI in the flutter event calendar.
+
+## [19.3.57] - 12/06/2021
+**Bug fixes**
+* Now, the localization is working properly for the All day label text in schedule view of the Flutter event calendar.
+
+## [19.3.45] - 10/11/2021
+
+**Enhancements**
+* Now, the non-working dates are disabled in the date range picker for the work week views of the calendar.
+
+## [19.3.43] - 09/30/2021
 
 **Features**
 * Provided resize, drag-and-drop support to reschedule appointments in the event calendar.

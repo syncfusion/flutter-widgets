@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 /// Coordinates between [SfRangeSelector] and the widget which listens to it.
 ///

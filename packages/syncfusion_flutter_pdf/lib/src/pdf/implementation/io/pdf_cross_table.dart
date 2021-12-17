@@ -1,51 +1,85 @@
-part of pdf;
+import 'dart:collection';
+import 'dart:math';
+
+import '../../interfaces/pdf_interface.dart';
+import '../pages/pdf_page.dart';
+import '../pages/pdf_page_collection.dart';
+import '../pdf_document/enums.dart';
+import '../pdf_document/pdf_catalog.dart';
+import '../pdf_document/pdf_document.dart';
+import '../pdf_document/pdf_file_structure.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_null.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_reference.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_stream.dart';
+import '../primitives/pdf_string.dart';
+import '../security/pdf_encryptor.dart';
+import '../security/pdf_security.dart';
+import 'cross_table.dart';
+import 'enums.dart';
+import 'object_info.dart';
+import 'pdf_archive_stream.dart';
+import 'pdf_constants.dart';
+import 'pdf_main_object_collection.dart';
+import 'pdf_writer.dart';
 
 /// PDFCrossTable is responsible for intermediate level parsing and
 /// savingof a PDF document.
-class _PdfCrossTable {
+class PdfCrossTable {
   //Constructor
-  _PdfCrossTable([PdfDocument? document, List<int>? data]) {
+  /// internal constructor
+  PdfCrossTable([PdfDocument? document, List<int>? data]) {
     if (document != null) {
-      _document = document;
-      _objNumbers = Queue<_PdfReference>();
+      this.document = document;
+      _objNumbers = Queue<PdfReference>();
       if (data != null) {
         _data = data;
         _initializeCrossTable();
-        _document = document;
+        this.document = document;
       }
     }
     _isColorSpace = false;
   }
-  _PdfCrossTable._fromCatalog(int tableCount,
-      _PdfDictionary? encryptionDictionary, _PdfDictionary? documentCatalog) {
+
+  /// internal constructor
+  PdfCrossTable.fromCatalog(int tableCount, PdfDictionary? encryptionDictionary,
+      this.pdfDocumentCatalog) {
     _storedCount = tableCount;
     _encryptorDictionary = encryptionDictionary;
-    _documentCatalog = documentCatalog;
     _bForceNew = true;
     _isColorSpace = false;
   }
   //Fields
   PdfDocument? _pdfDocument;
   int _count = 0;
-  _PdfMainObjectCollection? _items;
-  _PdfDictionary? _trailer;
+
+  /// internal field
+  PdfMainObjectCollection? items;
+  PdfDictionary? _trailer;
   Map<int?, _RegisteredObject>? _objects = <int?, _RegisteredObject>{};
   List<int>? _data;
-  _CrossTable? _crossTable;
-  late Queue<_PdfReference> _objNumbers;
-  _PdfDictionary? _documentCatalog;
+  CrossTable? _crossTable;
+  late Queue<PdfReference> _objNumbers;
+
+  /// internal field
+  PdfDictionary? pdfDocumentCatalog;
   bool _isIndexOutOfRange = false;
-  _PdfDictionary? _encryptorDictionary;
+  PdfDictionary? _encryptorDictionary;
   List<_ArchiveInfo>? _archives;
-  _PdfArchiveStream? _archive;
+  PdfArchiveStream? _archive;
   double _maxGenNumIndex = 0;
   late int _storedCount;
   bool _bForceNew = false;
-  Map<_PdfReference, _PdfReference>? _mappedReferences;
-  List<_PdfReference?>? _prevRef;
+  Map<PdfReference, PdfReference>? _mappedReferences;
+  List<PdfReference?>? _prevRef;
   late bool _isColorSpace;
 
   //Properties
+  /// internal property
   int get nextObjectNumber {
     if (count == 0) {
       count++;
@@ -53,52 +87,57 @@ class _PdfCrossTable {
     return count++;
   }
 
-  _PdfEncryptor? get encryptor {
+  /// internal property
+  PdfEncryptor? get encryptor {
     return _crossTable == null ? null : _crossTable!.encryptor;
   }
 
-  set encryptor(_PdfEncryptor? value) {
+  set encryptor(PdfEncryptor? value) {
     if (value != null) {
-      _crossTable!.encryptor = value._clone();
+      _crossTable!.encryptor = value.clone();
     }
   }
 
-  _PdfDictionary? get documentCatalog {
-    if (_documentCatalog == null && _crossTable != null) {
-      _documentCatalog =
-          _dereference(_crossTable!.documentCatalog) as _PdfDictionary?;
+  /// internal property
+  PdfDictionary? get documentCatalog {
+    if (pdfDocumentCatalog == null && _crossTable != null) {
+      pdfDocumentCatalog =
+          dereference(_crossTable!.documentCatalog) as PdfDictionary?;
     }
-    return _documentCatalog;
+    return pdfDocumentCatalog;
   }
 
-  _PdfDictionary? get trailer {
-    _trailer ??= _crossTable == null ? _PdfStream() : _crossTable!._trailer;
+  /// internal property
+  PdfDictionary? get trailer {
+    _trailer ??= _crossTable == null ? PdfStream() : _crossTable!.trailer;
     return _trailer;
   }
 
-  _PdfDictionary? get encryptorDictionary {
+  /// internal property
+  PdfDictionary? get encryptorDictionary {
     if (_encryptorDictionary == null &&
-        trailer!.containsKey(_DictionaryProperties.encrypt)) {
-      final _IPdfPrimitive? primitive =
-          _dereference(trailer![_DictionaryProperties.encrypt]);
-      if (primitive is _PdfDictionary) {
+        trailer!.containsKey(PdfDictionaryProperties.encrypt)) {
+      final IPdfPrimitive? primitive =
+          dereference(trailer![PdfDictionaryProperties.encrypt]);
+      if (primitive is PdfDictionary) {
         _encryptorDictionary = primitive;
       }
     }
     return _encryptorDictionary;
   }
 
+  /// internal property
   int get count {
     if (_count == 0) {
-      _IPdfPrimitive? obj;
-      _PdfNumber? tempCount;
+      IPdfPrimitive? obj;
+      PdfNumber? tempCount;
       if (_crossTable != null) {
-        obj = _crossTable!._trailer![_DictionaryProperties.size];
+        obj = _crossTable!.trailer![PdfDictionaryProperties.size];
       }
       if (obj != null) {
-        tempCount = _dereference(obj) as _PdfNumber?;
+        tempCount = dereference(obj) as PdfNumber?;
       } else {
-        tempCount = _PdfNumber(0);
+        tempCount = PdfNumber(0);
       }
       _count = tempCount!.value!.toInt();
     }
@@ -109,20 +148,25 @@ class _PdfCrossTable {
     _count = value;
   }
 
-  _PdfMainObjectCollection? get _objectCollection => _pdfDocument!._objects;
-  PdfDocument? get _document => _pdfDocument;
-  set _document(PdfDocument? document) {
+  /// internal property
+  PdfMainObjectCollection? get objectCollection =>
+      PdfDocumentHelper.getHelper(_pdfDocument!).objects;
+
+  /// internal property
+  PdfDocument? get document => _pdfDocument;
+  set document(PdfDocument? document) {
     if (document == null) {
       throw ArgumentError('Document');
     }
     _pdfDocument = document;
-    _items = _pdfDocument!._objects;
+    items = PdfDocumentHelper.getHelper(_pdfDocument!).objects;
   }
 
-  List<_PdfReference?>? get _prevReference =>
-      (_prevRef != null) ? _prevRef : _prevRef = <_PdfReference>[];
+  /// internal property
+  List<PdfReference?>? get prevReference =>
+      (_prevRef != null) ? _prevRef : _prevRef = <PdfReference>[];
 
-  set _prevReference(List<_PdfReference?>? value) {
+  set prevReference(List<PdfReference?>? value) {
     if (value != null) {
       _prevRef = value;
     }
@@ -130,21 +174,24 @@ class _PdfCrossTable {
 
   //Implementation
   void _initializeCrossTable() {
-    _crossTable = _CrossTable(_data, this);
+    _crossTable = CrossTable(_data, this);
   }
 
   void _markTrailerReferences() {
-    trailer!._items!.forEach((_PdfName? name, _IPdfPrimitive? element) {
-      if (element is _PdfReferenceHolder) {
-        final _PdfReferenceHolder rh = element;
-        if (!_document!._objects.contains(rh.object!)) {
-          _document!._objects._add(rh.object);
+    trailer!.items!.forEach((PdfName? name, IPdfPrimitive? element) {
+      if (element is PdfReferenceHolder) {
+        final PdfReferenceHolder rh = element;
+        if (!PdfDocumentHelper.getHelper(document!)
+            .objects
+            .contains(rh.object!)) {
+          PdfDocumentHelper.getHelper(document!).objects.add(rh.object);
         }
       }
     });
   }
 
-  void _save(_PdfWriter writer) {
+  /// internal method
+  void save(PdfWriter writer) {
     _saveHead(writer);
     _objects!.clear();
     if (_archives != null) {
@@ -154,45 +201,45 @@ class _PdfCrossTable {
     _markTrailerReferences();
     _saveObjects(writer);
     final int saveCount = count;
-    if (_document!._isLoadedDocument) {
-      writer._position = writer._length;
+    if (PdfDocumentHelper.getHelper(document!).isLoadedDocument) {
+      writer.position = writer.length;
     }
-    if (_isCrossReferenceStream(writer._document)) {
+    if (_isCrossReferenceStream(writer.document)) {
       _saveArchives(writer);
     }
-    _registerObject(_PdfReference(0, -1), position: 0, isFreeType: true);
-    final int? referencePosition = writer._position;
+    _registerObject(PdfReference(0, -1), position: 0, isFreeType: true);
+    final int? referencePosition = writer.position;
     final int prevXRef =
-        _crossTable == null ? 0 : _crossTable!._startCrossReference;
-    if (_isCrossReferenceStream(writer._document)) {
-      _PdfReference? xRefReference;
-      final Map<String, _IPdfPrimitive> returnedValue = _prepareXRefStream(
+        _crossTable == null ? 0 : _crossTable!.startCrossReference;
+    if (_isCrossReferenceStream(writer.document)) {
+      PdfReference? xRefReference;
+      final Map<String, IPdfPrimitive> returnedValue = _prepareXRefStream(
           prevXRef.toDouble(), referencePosition!.toDouble(), xRefReference);
-      final _PdfStream xRefStream = returnedValue['xRefStream']! as _PdfStream;
-      xRefReference = returnedValue['reference'] as _PdfReference?;
-      xRefStream._blockEncryption = true;
+      final PdfStream xRefStream = returnedValue['xRefStream']! as PdfStream;
+      xRefReference = returnedValue['reference'] as PdfReference?;
+      xRefStream.blockEncryption = true;
       _doSaveObject(xRefStream, xRefReference!, writer);
     } else {
-      writer._write(_Operators.crossReference);
-      writer._write(_Operators.newLine);
+      writer.write(PdfOperators.crossReference);
+      writer.write(PdfOperators.newLine);
       _saveSections(writer);
       _saveTrailer(writer, count, prevXRef);
     }
     _saveEnd(writer, referencePosition);
     count = saveCount;
-    for (int i = 0; i < _objectCollection!._count; i++) {
-      final _ObjectInfo objectInfo = _objectCollection![i];
-      objectInfo._object!.isSaving = false;
+    for (int i = 0; i < objectCollection!.count; i++) {
+      final PdfObjectInfo objectInfo = objectCollection![i];
+      objectInfo.object!.isSaving = false;
     }
   }
 
-  void _saveHead(_PdfWriter writer) {
-    writer._write('%PDF-');
-    final String version = _generateFileVersion(writer._document!);
-    writer._write(version);
-    writer._write(_Operators.newLine);
-    writer._write(<int>[0x25, 0x83, 0x92, 0xfa, 0xfe]);
-    writer._write(_Operators.newLine);
+  void _saveHead(PdfWriter writer) {
+    writer.write('%PDF-');
+    final String version = _generateFileVersion(writer.document!);
+    writer.write(version);
+    writer.write(PdfOperators.newLine);
+    writer.write(<int>[0x25, 0x83, 0x92, 0xfa, 0xfe]);
+    writer.write(PdfOperators.newLine);
   }
 
   String _generateFileVersion(PdfDocument document) {
@@ -200,25 +247,25 @@ class _PdfCrossTable {
       const String version = '2.0';
       return version;
     } else {
-      return '1.' + document.fileStructure.version.index.toString();
+      return '1.${document.fileStructure.version.index}';
     }
   }
 
-  void _saveObjects(_PdfWriter writer) {
-    final _PdfMainObjectCollection objectCollection = _objectCollection!;
+  void _saveObjects(PdfWriter writer) {
+    final PdfMainObjectCollection objects = objectCollection!;
     if (_bForceNew) {
       count = 1;
       _mappedReferences = null;
     }
     _setSecurity();
-    for (int i = 0; i < objectCollection._count; i++) {
-      final _ObjectInfo objInfo = objectCollection[i];
-      if (objInfo._modified! || _bForceNew) {
-        final _IPdfPrimitive obj = objInfo._object!;
-        final _IPdfPrimitive? reference = objInfo._reference;
+    for (int i = 0; i < objects.count; i++) {
+      final PdfObjectInfo objInfo = objects[i];
+      if (objInfo.modified! || _bForceNew) {
+        final IPdfPrimitive obj = objInfo.object!;
+        final IPdfPrimitive? reference = objInfo.reference;
         if (reference == null) {
-          final _PdfReference ref = _getReference(obj);
-          objInfo._reference = ref;
+          final PdfReference ref = getReference(obj);
+          objInfo.reference = ref;
         }
         _saveIndirectObject(obj, writer);
       }
@@ -226,69 +273,73 @@ class _PdfCrossTable {
   }
 
   void _setSecurity() {
-    final PdfSecurity security = _document!.security;
+    final PdfSecurity security = document!.security;
     trailer!.encrypt = false;
-    if (security._encryptor.encrypt) {
-      _PdfDictionary? securityDictionary = encryptorDictionary;
+    if (PdfSecurityHelper.getHelper(security).encryptor.encrypt) {
+      PdfDictionary? securityDictionary = encryptorDictionary;
       if (securityDictionary == null) {
-        securityDictionary = _PdfDictionary();
+        securityDictionary = PdfDictionary();
         securityDictionary.encrypt = false;
-        _document!._objects._add(securityDictionary);
+        PdfDocumentHelper.getHelper(document!).objects.add(securityDictionary);
         securityDictionary.position = -1;
       }
-      securityDictionary =
-          security._encryptor._saveToDictionary(securityDictionary);
-      trailer![_DictionaryProperties.id] = security._encryptor.fileID;
-      trailer![_DictionaryProperties.encrypt] =
-          _PdfReferenceHolder(securityDictionary);
-    } else if (!security._encryptor.encryptOnlyAttachment) {
-      if (trailer!.containsKey(_DictionaryProperties.encrypt)) {
-        trailer!.remove(_DictionaryProperties.encrypt);
+      securityDictionary = PdfSecurityHelper.getHelper(security)
+          .encryptor
+          .saveToDictionary(securityDictionary);
+      trailer![PdfDictionaryProperties.id] =
+          PdfSecurityHelper.getHelper(security).encryptor.fileID;
+      trailer![PdfDictionaryProperties.encrypt] =
+          PdfReferenceHolder(securityDictionary);
+    } else if (!PdfSecurityHelper.getHelper(security)
+        .encryptor
+        .encryptOnlyAttachment) {
+      if (trailer!.containsKey(PdfDictionaryProperties.encrypt)) {
+        trailer!.remove(PdfDictionaryProperties.encrypt);
       }
-      if (trailer!.containsKey(_DictionaryProperties.id) &&
-          !_document!.fileStructure._fileID) {
-        trailer!.remove(_DictionaryProperties.id);
+      if (trailer!.containsKey(PdfDictionaryProperties.id) &&
+          !PdfFileStructureHelper.fileID(document!.fileStructure)) {
+        trailer!.remove(PdfDictionaryProperties.id);
       }
     }
   }
 
-  void _saveIndirectObject(_IPdfPrimitive object, _PdfWriter writer) {
-    final _PdfReference reference = _getReference(object);
-    if (object is _PdfCatalog) {
-      trailer![_DictionaryProperties.root] = reference;
+  void _saveIndirectObject(IPdfPrimitive object, PdfWriter writer) {
+    final PdfReference reference = getReference(object);
+    if (object is PdfCatalog) {
+      trailer![PdfDictionaryProperties.root] = reference;
       //NOTE: This is needed to get PDF/A Conformance.
-      if (_document != null &&
-          _document!._conformanceLevel != PdfConformanceLevel.none) {
-        trailer![_DictionaryProperties.id] =
-            _document!.security._encryptor.fileID;
+      if (document != null &&
+          PdfDocumentHelper.getHelper(document!).conformanceLevel !=
+              PdfConformanceLevel.none) {
+        trailer![PdfDictionaryProperties.id] =
+            PdfSecurityHelper.getHelper(document!.security).encryptor.fileID;
       }
     }
-    _document!._currentSavingObject = reference;
+    PdfDocumentHelper.getHelper(document!).currentSavingObject = reference;
     bool archive = false;
-    archive = object is! _PdfDictionary ||
-        (object is _PdfDictionary && object._archive);
+    archive = object is! PdfDictionary || object.archive;
     final bool allowedType =
-        !((object is _PdfStream) || !archive || (object is _PdfCatalog));
+        !((object is PdfStream) || !archive || (object is PdfCatalog));
     bool sigFlag = false;
-    if (object is _PdfDictionary &&
-        _document!.fileStructure.crossReferenceType ==
+    if (object is PdfDictionary &&
+        document!.fileStructure.crossReferenceType ==
             PdfCrossReferenceType.crossReferenceStream) {
-      final _PdfDictionary dictionary = object;
-      if (dictionary.containsKey(_DictionaryProperties.type)) {
-        final _PdfName? name =
-            dictionary[_DictionaryProperties.type] as _PdfName?;
-        if (name != null && name._name! == 'Sig') {
+      final PdfDictionary dictionary = object;
+      if (dictionary.containsKey(PdfDictionaryProperties.type)) {
+        final PdfName? name =
+            dictionary[PdfDictionaryProperties.type] as PdfName?;
+        if (name != null && name.name! == 'Sig') {
           sigFlag = true;
         }
       }
     }
     if (allowedType &&
-        _isCrossReferenceStream(writer._document) &&
-        reference._genNum == 0 &&
+        _isCrossReferenceStream(writer.document) &&
+        reference.genNum == 0 &&
         !sigFlag) {
       _doArchiveObject(object, reference, writer);
     } else {
-      _registerObject(reference, position: writer._position);
+      _registerObject(reference, position: writer.position);
       _doSaveObject(object, reference, writer);
       if (object == _archive) {
         _archive = null;
@@ -296,39 +347,44 @@ class _PdfCrossTable {
     }
   }
 
-  _PdfReference _getReference(_IPdfPrimitive? object) {
-    if (object is _PdfArchiveStream) {
-      final _PdfReference r = _findArchiveReference(object);
+  /// internal method
+  PdfReference getReference(IPdfPrimitive? object) {
+    if (object is PdfArchiveStream) {
+      final PdfReference r = _findArchiveReference(object);
       return r;
     }
-    if (object is _PdfReferenceHolder) {
+    if (object is PdfReferenceHolder) {
       object = object.object;
-      if (_document != null && !_document!._isLoadedDocument) {
+      if (document != null &&
+          !PdfDocumentHelper.getHelper(document!).isLoadedDocument) {
         object!.isSaving = true;
       }
     }
-    if (object is _IPdfWrapper) {
-      object = (object! as _IPdfWrapper)._element;
+    if (object is IPdfWrapper) {
+      object = IPdfWrapper.getElement(object! as IPdfWrapper);
     }
     dynamic reference;
     bool? wasNew = false;
     if (object!.isSaving!) {
-      if (_items!._count > 0 &&
+      if (items!.count > 0 &&
           object.objectCollectionIndex! > 0 &&
-          _items!._count > object.objectCollectionIndex! - 1) {
+          items!.count > object.objectCollectionIndex! - 1) {
         final Map<String, dynamic> result =
-            _document!._objects._getReference(object, wasNew);
+            PdfDocumentHelper.getHelper(document!)
+                .objects
+                .getReference(object, wasNew);
         wasNew = result['isNew'] as bool?;
         reference = result['reference'];
       }
     } else {
-      final Map<String, dynamic> result =
-          _document!._objects._getReference(object, wasNew);
+      final Map<String, dynamic> result = PdfDocumentHelper.getHelper(document!)
+          .objects
+          .getReference(object, wasNew);
       wasNew = result['isNew'] as bool?;
       reference = result['reference'];
     }
     if (reference == null) {
-      if (object.status == _ObjectStatus.registered) {
+      if (object.status == PdfObjectStatus.registered) {
         wasNew = false;
       } else {
         wasNew = true;
@@ -338,18 +394,22 @@ class _PdfCrossTable {
     }
     if (_bForceNew) {
       if (reference == null) {
-        int maxObj =
-            (_storedCount > 0) ? _storedCount++ : _document!._objects._count;
+        int maxObj = (_storedCount > 0)
+            ? _storedCount++
+            : PdfDocumentHelper.getHelper(document!).objects.count;
         if (maxObj <= 0) {
           maxObj = -1;
           _storedCount = 2;
         }
-        while (_document!._objects._mainObjectCollection!.containsKey(maxObj)) {
+        while (PdfDocumentHelper.getHelper(document!)
+            .objects
+            .mainObjectCollection!
+            .containsKey(maxObj)) {
           maxObj++;
         }
-        reference = _PdfReference(maxObj, 0);
+        reference = PdfReference(maxObj, 0);
         if (wasNew) {
-          _document!._objects._add(object, reference);
+          PdfDocumentHelper.getHelper(document!).objects.add(object, reference);
         }
       }
       reference = getMappedReference(reference);
@@ -357,94 +417,108 @@ class _PdfCrossTable {
     if (reference == null) {
       int objectNumber = nextObjectNumber;
       if (_crossTable != null) {
-        while (_crossTable!._objects.containsKey(objectNumber)) {
+        while (_crossTable!.objects.containsKey(objectNumber)) {
           objectNumber = nextObjectNumber;
         }
       }
-      if (_document!._objects._mainObjectCollection!
+      if (PdfDocumentHelper.getHelper(document!)
+          .objects
+          .mainObjectCollection!
           .containsKey(objectNumber)) {
-        reference = _PdfReference(nextObjectNumber, 0);
+        reference = PdfReference(nextObjectNumber, 0);
       } else {
-        _PdfNumber? trailerCount;
+        PdfNumber? trailerCount;
         if (_crossTable != null) {
           trailerCount =
-              _crossTable!._trailer![_DictionaryProperties.size] as _PdfNumber?;
+              _crossTable!.trailer![PdfDictionaryProperties.size] as PdfNumber?;
         }
         if (trailerCount != null && objectNumber == trailerCount.value) {
-          reference = _PdfReference(nextObjectNumber, 0);
+          reference = PdfReference(nextObjectNumber, 0);
         } else {
-          reference = _PdfReference(objectNumber, 0);
+          reference = PdfReference(objectNumber, 0);
         }
       }
       if (wasNew) {
-        if (object is _IPdfChangable) {
-          (object as _IPdfChangable).changed = true;
+        if (object is IPdfChangable) {
+          (object as IPdfChangable).changed = true;
         }
-        _document!._objects._add(object);
-        _document!._objects._trySetReference(object, reference);
-        final int tempIndex = _document!._objects._count - 1;
-        final int? tempkey = _document!
-            ._objects._objectCollection![tempIndex]._reference!._objNum;
-        final _ObjectInfo tempvalue = _document!
-            ._objects._objectCollection![_document!._objects._count - 1];
-        _document!._objects._mainObjectCollection![tempkey] = tempvalue;
+        PdfDocumentHelper.getHelper(document!).objects.add(object);
+        PdfDocumentHelper.getHelper(document!)
+            .objects
+            .trySetReference(object, reference);
+        final int tempIndex =
+            PdfDocumentHelper.getHelper(document!).objects.count - 1;
+        final int? tempkey = PdfDocumentHelper.getHelper(document!)
+            .objects
+            .objectCollection![tempIndex]
+            .reference!
+            .objNum;
+        final PdfObjectInfo tempvalue =
+            PdfDocumentHelper.getHelper(document!).objects.objectCollection![
+                PdfDocumentHelper.getHelper(document!).objects.count - 1];
+        PdfDocumentHelper.getHelper(document!)
+            .objects
+            .mainObjectCollection![tempkey] = tempvalue;
         object.position = -1;
       } else {
-        _document!._objects._trySetReference(object, reference);
+        PdfDocumentHelper.getHelper(document!)
+            .objects
+            .trySetReference(object, reference);
       }
-      object.objectCollectionIndex = reference._objNum as int?;
-      object.status = _ObjectStatus.none;
+      object.objectCollectionIndex = reference.objNum as int?;
+      object.status = PdfObjectStatus.none;
     }
-    return reference as _PdfReference;
+    return reference as PdfReference;
   }
 
-  _PdfReference getMappedReference(_PdfReference reference) {
-    _mappedReferences ??= <_PdfReference, _PdfReference>{};
-    _PdfReference? mref = _mappedReferences!.containsKey(reference)
+  /// internal method
+  PdfReference getMappedReference(PdfReference reference) {
+    _mappedReferences ??= <PdfReference, PdfReference>{};
+    PdfReference? mref = _mappedReferences!.containsKey(reference)
         ? _mappedReferences![reference]
         : null;
     if (mref == null) {
-      mref = _PdfReference(nextObjectNumber, 0);
+      mref = PdfReference(nextObjectNumber, 0);
       _mappedReferences![reference] = mref;
     }
     return mref;
   }
 
-  void _registerObject(_PdfReference reference,
-      {int? position, _PdfArchiveStream? archive, bool? isFreeType}) {
+  void _registerObject(PdfReference reference,
+      {int? position, PdfArchiveStream? archive, bool? isFreeType}) {
     if (isFreeType == null) {
       if (position != null) {
-        _objects![reference._objNum] = _RegisteredObject(position, reference);
-        _maxGenNumIndex = max(_maxGenNumIndex, reference._genNum!.toDouble());
+        _objects![reference.objNum] = _RegisteredObject(position, reference);
+        _maxGenNumIndex = max(_maxGenNumIndex, reference.genNum!.toDouble());
       } else {
-        _objects![reference._objNum] =
+        _objects![reference.objNum] =
             _RegisteredObject.fromArchive(this, archive, reference);
         _maxGenNumIndex = max(_maxGenNumIndex, archive!.count.toDouble());
       }
     } else {
-      _objects![reference._objNum] =
+      _objects![reference.objNum] =
           _RegisteredObject(position, reference, isFreeType);
-      _maxGenNumIndex = max(_maxGenNumIndex, reference._genNum!.toDouble());
+      _maxGenNumIndex = max(_maxGenNumIndex, reference.genNum!.toDouble());
     }
   }
 
   void _doSaveObject(
-      _IPdfPrimitive object, _PdfReference reference, _PdfWriter writer) {
-    writer._write(reference._objNum);
-    writer._write(_Operators.whiteSpace);
-    writer._write(reference._genNum);
-    writer._write(_Operators.whiteSpace);
-    writer._write(_Operators.obj);
-    writer._write(_Operators.newLine);
+      IPdfPrimitive object, PdfReference reference, PdfWriter writer) {
+    writer.write(reference.objNum);
+    writer.write(PdfOperators.whiteSpace);
+    writer.write(reference.genNum);
+    writer.write(PdfOperators.whiteSpace);
+    writer.write(PdfOperators.obj);
+    writer.write(PdfOperators.newLine);
     object.save(writer);
-    if (object is _PdfName || object is _PdfNumber || object is _PdfNull) {
-      writer._write(_Operators.newLine);
+    if (object is PdfName || object is PdfNumber || object is PdfNull) {
+      writer.write(PdfOperators.newLine);
     }
-    writer._write(_Operators.endobj);
-    writer._write(_Operators.newLine);
+    writer.write(PdfOperators.endobj);
+    writer.write(PdfOperators.newLine);
   }
 
-  void _saveSections(_IPdfWriter writer) {
+  void _saveSections(IPdfWriter writer) {
     int objectNumber = 0;
     int? count = 0;
     do {
@@ -461,10 +535,15 @@ class _PdfCrossTable {
     int i;
     int total = count;
     if (total <= 0) {
-      total = _document!._objects._count + 1;
+      total = PdfDocumentHelper.getHelper(document!).objects.count + 1;
     }
-    if (total < _document!._objects._maximumReferenceObjectNumber!) {
-      total = _document!._objects._maximumReferenceObjectNumber!;
+    if (total <
+        PdfDocumentHelper.getHelper(document!)
+            .objects
+            .maximumReferenceObjectNumber!) {
+      total = PdfDocumentHelper.getHelper(document!)
+          .objects
+          .maximumReferenceObjectNumber!;
       _isIndexOutOfRange = true;
     }
     if (objectNumber >= total) {
@@ -485,24 +564,21 @@ class _PdfCrossTable {
     return <String, int>{'count': tempCount, 'objectNumber': objectNumber};
   }
 
-  void _saveSubsection(_IPdfWriter writer, int? objectNumber, int tempCount) {
+  void _saveSubsection(IPdfWriter writer, int? objectNumber, int tempCount) {
     if (tempCount <= 0 || objectNumber! >= count && !_isIndexOutOfRange) {
       return;
     }
 
-    writer._write(objectNumber.toString() +
-        ' ' +
-        (tempCount).toString() +
-        _Operators.newLine);
+    writer.write('$objectNumber $tempCount${PdfOperators.newLine}');
     for (int i = objectNumber; i < objectNumber + tempCount; ++i) {
       final _RegisteredObject obj = _objects![i]!;
       String value = '';
-      if (obj._type == _ObjectType.free) {
+      if (obj._type == PdfObjectType.free) {
         value = _getItem(obj._offset, 65535, true);
       } else {
         value = _getItem(obj._offset, obj._generationNumber!, false);
       }
-      writer._write(value);
+      writer.write(value);
     }
   }
 
@@ -517,53 +593,55 @@ class _PdfCrossTable {
             ? 0
             : (5 - generationNumber.toString().length);
     for (int index = 0; index < offsetLength; index++) {
-      result = result + '0';
+      result = '${result}0';
     }
-    result = result + offset.toString() + ' ';
+    result = '$result$offset ';
     for (int index = 0; index < generationNumberLength; index++) {
-      result = result + '0';
+      result = '${result}0';
     }
-    result = result + generationNumber.toString() + ' ';
+    result = '$result$generationNumber ';
     result = result +
-        (isFreeType ? _Operators.f : _Operators.n) +
-        _Operators.newLine;
+        (isFreeType ? PdfOperators.f : PdfOperators.n) +
+        PdfOperators.newLine;
     return result;
   }
 
-  void _saveTrailer(_IPdfWriter writer, int count, int prevCrossReference) {
-    writer._write(_Operators.trailer);
-    writer._write(_Operators.newLine);
-    _PdfDictionary trailerDictionary = trailer!;
+  void _saveTrailer(IPdfWriter writer, int count, int prevCrossReference) {
+    writer.write(PdfOperators.trailer);
+    writer.write(PdfOperators.newLine);
+    PdfDictionary trailerDictionary = trailer!;
     if (prevCrossReference != 0) {
-      trailer![_DictionaryProperties.prev] = _PdfNumber(prevCrossReference);
+      trailer![PdfDictionaryProperties.prev] = PdfNumber(prevCrossReference);
     }
-    trailerDictionary[_DictionaryProperties.size] = _PdfNumber(_count);
-    trailerDictionary = _PdfDictionary(trailerDictionary);
+    trailerDictionary[PdfDictionaryProperties.size] = PdfNumber(_count);
+    trailerDictionary = PdfDictionary(trailerDictionary);
     trailerDictionary.encrypt = false;
     trailerDictionary.save(writer);
   }
 
-  void _saveEnd(_IPdfWriter writer, int? position) {
-    writer._write(_Operators.newLine +
-        _Operators.startCrossReference +
-        _Operators.newLine);
-    writer._write(position.toString() + _Operators.newLine);
-    writer._write(_Operators.endOfFileMarker);
-    writer._write(_Operators.newLine);
+  void _saveEnd(IPdfWriter writer, int? position) {
+    writer.write(PdfOperators.newLine +
+        PdfOperators.startCrossReference +
+        PdfOperators.newLine);
+    writer.write(position.toString() + PdfOperators.newLine);
+    writer.write(PdfOperators.endOfFileMarker);
+    writer.write(PdfOperators.newLine);
   }
 
-  static _IPdfPrimitive? _dereference(_IPdfPrimitive? element) {
-    if (element != null && element is _PdfReferenceHolder) {
-      final _PdfReferenceHolder holder = element;
+  /// internal method
+  static IPdfPrimitive? dereference(IPdfPrimitive? element) {
+    if (element != null && element is PdfReferenceHolder) {
+      final PdfReferenceHolder holder = element;
       return holder.object;
     }
     return element;
   }
 
-  void _dispose() {
-    if (_items != null) {
-      _items!._dispose();
-      _items = null;
+  /// internal method
+  void dispose() {
+    if (items != null) {
+      items!.dispose();
+      items = null;
     }
     if (_objects != null && _objects!.isNotEmpty) {
       _objects!.clear();
@@ -571,80 +649,86 @@ class _PdfCrossTable {
     }
   }
 
-  _IPdfPrimitive? _getObject(_IPdfPrimitive? pointer) {
+  /// internal method
+  IPdfPrimitive? getObject(IPdfPrimitive? pointer) {
     bool isEncryptedMetadata = true;
-    _IPdfPrimitive? result = pointer;
-    if (pointer is _PdfReferenceHolder) {
+    IPdfPrimitive? result = pointer;
+    if (pointer is PdfReferenceHolder) {
       result = pointer.object;
-    } else if (pointer is _PdfReference) {
-      final _PdfReference reference = pointer;
+    } else if (pointer is PdfReference) {
+      final PdfReference reference = pointer;
       _objNumbers.addLast(pointer);
-      _IPdfPrimitive? obj;
+      IPdfPrimitive? obj;
       if (_crossTable != null) {
-        obj = _crossTable!._getObject(pointer);
+        obj = _crossTable!.getObject(pointer);
       } else {
-        final int? index = _items!._getObjectIndex(reference);
+        final int? index = items!.getObjectIndex(reference);
         if (index == 0) {
-          obj = _items!._getObjectFromReference(reference);
+          obj = items!.getObjectFromReference(reference);
         }
       }
       obj = _pageProceed(obj);
-      final _PdfMainObjectCollection? goc = _items;
+      final PdfMainObjectCollection? goc = items;
       if (obj != null) {
-        if (goc!._containsReference(reference)) {
-          goc._getObjectIndex(reference);
-          obj = goc._getObjectFromReference(reference);
+        if (goc!.containsReference(reference)) {
+          goc.getObjectIndex(reference);
+          obj = goc.getObjectFromReference(reference);
         } else {
-          goc._add(obj, reference);
+          goc.add(obj, reference);
           obj.position = -1;
           reference.position = -1;
         }
       }
       result = obj;
-      if (obj != null && obj is _PdfDictionary) {
-        final _PdfDictionary dictionary = obj;
-        if (dictionary.containsKey(_DictionaryProperties.type)) {
-          final _IPdfPrimitive? primitive =
-              dictionary[_DictionaryProperties.type];
+      if (obj != null && obj is PdfDictionary) {
+        final PdfDictionary dictionary = obj;
+        if (dictionary.containsKey(PdfDictionaryProperties.type)) {
+          final IPdfPrimitive? primitive =
+              dictionary[PdfDictionaryProperties.type];
           if (primitive != null &&
-              primitive is _PdfName &&
-              primitive._name == _DictionaryProperties.metadata) {
+              primitive is PdfName &&
+              primitive.name == PdfDictionaryProperties.metadata) {
             if (encryptor != null) {
               isEncryptedMetadata = encryptor!.encryptMetadata;
             }
           }
         }
       }
-      if (_document!._isEncrypted && isEncryptedMetadata) {
+      if (PdfDocumentHelper.getHelper(document!).isEncrypted &&
+          isEncryptedMetadata) {
         _decrypt(result);
       }
     }
-    if (pointer is _PdfReference) {
+    if (pointer is PdfReference) {
       _objNumbers.removeLast();
     }
     return result;
   }
 
-  _IPdfPrimitive? _pageProceed(_IPdfPrimitive? obj) {
+  IPdfPrimitive? _pageProceed(IPdfPrimitive? obj) {
     if (obj is PdfPage) {
       return obj;
     }
-    if (obj is _PdfDictionary) {
-      final _PdfDictionary dic = obj;
+    if (obj is PdfDictionary) {
+      final PdfDictionary dic = obj;
       if (obj is! PdfPage) {
-        if (dic.containsKey(_DictionaryProperties.type)) {
-          final _IPdfPrimitive? objType = dic[_DictionaryProperties.type];
-          if (objType is _PdfName) {
-            final _PdfName type = _getObject(objType)! as _PdfName;
-            if (type._name == 'Page') {
-              if (!dic.containsKey(_DictionaryProperties.kids)) {
-                if (_pdfDocument!._isLoadedDocument) {
-                  final PdfPage lPage = _pdfDocument!.pages._getPage(dic);
-                  obj = lPage._element;
-                  final _PdfMainObjectCollection items = _pdfDocument!._objects;
-                  final int index = items._lookFor(dic)!;
+        if (dic.containsKey(PdfDictionaryProperties.type)) {
+          final IPdfPrimitive? objType = dic[PdfDictionaryProperties.type];
+          if (objType is PdfName) {
+            final PdfName type = getObject(objType)! as PdfName;
+            if (type.name == 'Page') {
+              if (!dic.containsKey(PdfDictionaryProperties.kids)) {
+                if (PdfDocumentHelper.getHelper(_pdfDocument!)
+                    .isLoadedDocument) {
+                  final PdfPage lPage =
+                      PdfPageCollectionHelper.getHelper(_pdfDocument!.pages)
+                          .getPage(dic);
+                  obj = IPdfWrapper.getElement(lPage);
+                  final PdfMainObjectCollection items =
+                      PdfDocumentHelper.getHelper(_pdfDocument!).objects;
+                  final int index = items.lookFor(dic)!;
                   if (index >= 0) {
-                    items._reregisterReference(index, obj!);
+                    items.reregisterReference(index, obj!);
                     obj.position = -1;
                   }
                 }
@@ -661,7 +745,7 @@ class _PdfCrossTable {
     ArgumentError.notNull('document');
     bool result = false;
     if (_crossTable != null) {
-      if (_crossTable!._trailer is _PdfStream) {
+      if (_crossTable!.trailer is PdfStream) {
         result = true;
       }
     } else {
@@ -671,52 +755,52 @@ class _PdfCrossTable {
     return result;
   }
 
-  void _saveArchives(_PdfWriter writer) {
+  void _saveArchives(PdfWriter writer) {
     if (_archives != null) {
       for (final _ArchiveInfo ai in _archives!) {
-        _PdfReference? reference = ai._reference;
+        PdfReference? reference = ai._reference;
         if (reference == null) {
-          reference = _PdfReference(nextObjectNumber, 0);
+          reference = PdfReference(nextObjectNumber, 0);
           ai._reference = reference;
         }
-        _document!._currentSavingObject = reference;
-        _registerObject(reference, position: writer._position);
+        PdfDocumentHelper.getHelper(document!).currentSavingObject = reference;
+        _registerObject(reference, position: writer.position);
         _doSaveObject(ai._archive!, reference, writer);
       }
     }
   }
 
   void _doArchiveObject(
-      _IPdfPrimitive obj, _PdfReference reference, _PdfWriter writer) {
+      IPdfPrimitive obj, PdfReference reference, PdfWriter writer) {
     if (_archive == null) {
-      _archive = _PdfArchiveStream(_document);
+      _archive = PdfArchiveStream(document);
       _saveArchive(writer);
     }
     _registerObject(reference, archive: _archive);
-    _archive!._saveObject(obj, reference);
-    if (_archive!._objCount >= 100) {
+    _archive!.saveObject(obj, reference);
+    if (_archive!.objCount >= 100) {
       _archive = null;
     }
   }
 
-  void _saveArchive(_PdfWriter writer) {
+  void _saveArchive(PdfWriter writer) {
     final _ArchiveInfo ai = _ArchiveInfo(null, _archive);
     _archives ??= <_ArchiveInfo>[];
     _archives!.add(ai);
   }
 
-  Map<String, _IPdfPrimitive> _prepareXRefStream(
-      double prevXRef, double position, _PdfReference? reference) {
-    _PdfStream? xRefStream;
-    xRefStream = _trailer as _PdfStream?;
+  Map<String, IPdfPrimitive> _prepareXRefStream(
+      double prevXRef, double position, PdfReference? reference) {
+    PdfStream? xRefStream;
+    xRefStream = _trailer as PdfStream?;
     if (xRefStream == null) {
-      xRefStream = _PdfStream();
+      xRefStream = PdfStream();
     } else {
-      xRefStream.remove(_DictionaryProperties.filter);
-      xRefStream.remove(_DictionaryProperties.decodeParms);
+      xRefStream.remove(PdfDictionaryProperties.filter);
+      xRefStream.remove(PdfDictionaryProperties.decodeParms);
     }
-    final _PdfArray sectionIndeces = _PdfArray();
-    reference = _PdfReference(nextObjectNumber, 0);
+    final PdfArray sectionIndeces = PdfArray();
+    reference = PdfReference(nextObjectNumber, 0);
     _registerObject(reference, position: position.toInt());
 
     double objectNum = 0;
@@ -732,35 +816,35 @@ class _PdfCrossTable {
       if (count <= 0) {
         break;
       } else {
-        sectionIndeces._add(_PdfNumber(objectNum));
-        sectionIndeces._add(_PdfNumber(count));
+        sectionIndeces.add(PdfNumber(objectNum));
+        sectionIndeces.add(PdfNumber(count));
         _saveSubSection(ms, objectNum, count, paramsFormat);
         objectNum += count;
       }
     }
     //iw.Flush();
-    xRefStream._dataStream = ms;
-    xRefStream[_DictionaryProperties.index] = sectionIndeces;
-    xRefStream[_DictionaryProperties.size] = _PdfNumber(this.count);
-    xRefStream[_DictionaryProperties.prev] = _PdfNumber(prevXRef);
-    xRefStream[_DictionaryProperties.type] = _PdfName('XRef');
-    xRefStream[_DictionaryProperties.w] = _PdfArray(paramsFormat);
+    xRefStream.dataStream = ms;
+    xRefStream[PdfDictionaryProperties.index] = sectionIndeces;
+    xRefStream[PdfDictionaryProperties.size] = PdfNumber(this.count);
+    xRefStream[PdfDictionaryProperties.prev] = PdfNumber(prevXRef);
+    xRefStream[PdfDictionaryProperties.type] = PdfName('XRef');
+    xRefStream[PdfDictionaryProperties.w] = PdfArray(paramsFormat);
     if (_crossTable != null) {
-      final _PdfDictionary trailer = _crossTable!._trailer!;
-      for (final _PdfName? key in trailer._items!.keys) {
+      final PdfDictionary trailer = _crossTable!.trailer!;
+      for (final PdfName? key in trailer.items!.keys) {
         final bool contains = xRefStream.containsKey(key);
         if (!contains &&
-            key!._name != _DictionaryProperties.decodeParms &&
-            key._name != _DictionaryProperties.filter) {
+            key!.name != PdfDictionaryProperties.decodeParms &&
+            key.name != PdfDictionaryProperties.filter) {
           xRefStream[key] = trailer[key];
         }
       }
     }
-    if (prevXRef == 0 && xRefStream.containsKey(_DictionaryProperties.prev)) {
-      xRefStream.remove(_DictionaryProperties.prev);
+    if (prevXRef == 0 && xRefStream.containsKey(PdfDictionaryProperties.prev)) {
+      xRefStream.remove(PdfDictionaryProperties.prev);
     }
     xRefStream.encrypt = false;
-    return <String, _IPdfPrimitive>{
+    return <String, IPdfPrimitive>{
       'xRefStream': xRefStream,
       'reference': reference
     };
@@ -795,17 +879,17 @@ class _PdfCrossTable {
       final _RegisteredObject obj = _objects![i]!;
       xRefStream.add(obj._type!.index.toUnsigned(8));
       switch (obj._type) {
-        case _ObjectType.free:
+        case PdfObjectType.free:
           _saveLong(xRefStream, obj._objectNumber!.toInt(), format[1]);
           _saveLong(xRefStream, obj._generationNumber, format[2]);
           break;
 
-        case _ObjectType.normal:
+        case PdfObjectType.normal:
           _saveLong(xRefStream, obj.offset, format[1]);
           _saveLong(xRefStream, obj._generationNumber, format[2]);
           break;
 
-        case _ObjectType.packed:
+        case PdfObjectType.packed:
           _saveLong(xRefStream, obj._objectNumber!.toInt(), format[1]);
           _saveLong(xRefStream, obj.offset, format[2]);
           break;
@@ -823,7 +907,7 @@ class _PdfCrossTable {
     }
   }
 
-  _PdfReference _findArchiveReference(_PdfArchiveStream archive) {
+  PdfReference _findArchiveReference(PdfArchiveStream archive) {
     int i = 0;
     late _ArchiveInfo ai;
     for (final int count = _archives!.length; i < count; ++i) {
@@ -832,48 +916,49 @@ class _PdfCrossTable {
         break;
       }
     }
-    _PdfReference? reference = ai._reference;
-    reference ??= _PdfReference(nextObjectNumber, 0);
+    PdfReference? reference = ai._reference;
+    reference ??= PdfReference(nextObjectNumber, 0);
     ai._reference = reference;
     return reference;
   }
 
-  void _decrypt(_IPdfPrimitive? obj) {
+  void _decrypt(IPdfPrimitive? obj) {
     if (obj != null) {
-      if (obj is _PdfDictionary || obj is _PdfStream) {
-        final _PdfDictionary dic = obj as _PdfDictionary;
+      if (obj is PdfDictionary || obj is PdfStream) {
+        final PdfDictionary dic = obj as PdfDictionary;
         if (!dic.decrypted!) {
-          dic._items!.forEach((_PdfName? key, _IPdfPrimitive? element) {
+          dic.items!.forEach((PdfName? key, IPdfPrimitive? element) {
             _decrypt(element);
           });
-          if (obj is _PdfStream) {
-            final _PdfStream stream = obj;
-            if (_document!._isEncrypted &&
+          if (obj is PdfStream) {
+            final PdfStream stream = obj;
+            if (PdfDocumentHelper.getHelper(document!).isEncrypted &&
                 !stream.decrypted! &&
                 _objNumbers.isNotEmpty &&
                 encryptor != null &&
-                !encryptor!._encryptOnlyAttachment!) {
-              stream.decrypt(encryptor!, _objNumbers.last._objNum);
+                !encryptor!.encryptAttachmentOnly!) {
+              stream.decrypt(encryptor!, _objNumbers.last.objNum);
             }
           }
         }
-      } else if (obj is _PdfArray) {
-        final _PdfArray array = obj;
-        for (final _IPdfPrimitive? element in array._elements) {
-          if (element != null && element is _PdfName) {
-            final _PdfName name = element;
-            if (name._name == 'Indexed') {
+      } else if (obj is PdfArray) {
+        final PdfArray array = obj;
+        for (final IPdfPrimitive? element in array.elements) {
+          if (element != null && element is PdfName) {
+            final PdfName name = element;
+            if (name.name == 'Indexed') {
               _isColorSpace = true;
             }
           }
-          _decrypt(element!);
+          _decrypt(element);
         }
         _isColorSpace = false;
-      } else if (obj is _PdfString) {
-        final _PdfString str = obj;
-        if (!str.decrypted && (!str._isHex! || _isColorSpace)) {
-          if (_document!._isEncrypted && _objNumbers.isNotEmpty) {
-            obj.decrypt(encryptor!, _objNumbers.last._objNum);
+      } else if (obj is PdfString) {
+        final PdfString str = obj;
+        if (!str.decrypted && (!str.isHex! || _isColorSpace)) {
+          if (PdfDocumentHelper.getHelper(document!).isEncrypted &&
+              _objNumbers.isNotEmpty) {
+            obj.decrypt(encryptor!, _objNumbers.last.objNum);
           }
         }
       }
@@ -883,36 +968,36 @@ class _PdfCrossTable {
 
 /// Represents a registered object.
 class _RegisteredObject {
-  _RegisteredObject(int? offset, _PdfReference reference, [bool? isFreeType]) {
+  _RegisteredObject(int? offset, PdfReference reference, [bool? isFreeType]) {
     _offset = offset;
-    _generationNumber = reference._genNum;
-    _objNumber = reference._objNum!.toDouble();
+    _generationNumber = reference.genNum;
+    _objNumber = reference.objNum!.toDouble();
     if (isFreeType != null) {
-      _type = isFreeType ? _ObjectType.free : _ObjectType.normal;
+      _type = isFreeType ? PdfObjectType.free : PdfObjectType.normal;
     } else {
-      _type = _ObjectType.normal;
-      _objNumber = reference._objNum!.toDouble();
+      _type = PdfObjectType.normal;
+      _objNumber = reference.objNum!.toDouble();
     }
   }
 
-  _RegisteredObject.fromArchive(_PdfCrossTable xrefTable,
-      _PdfArchiveStream? archive, _PdfReference reference) {
+  _RegisteredObject.fromArchive(PdfCrossTable xrefTable,
+      PdfArchiveStream? archive, PdfReference reference) {
     _xrefTable = xrefTable;
     _archive = archive;
-    _offset = reference._objNum;
-    _type = _ObjectType.packed;
+    _offset = reference.objNum;
+    _type = PdfObjectType.packed;
   }
   int? _offset;
   int? _generationNumber;
-  _ObjectType? _type;
+  PdfObjectType? _type;
   double? _objNumber;
-  late _PdfCrossTable _xrefTable;
-  _PdfArchiveStream? _archive;
+  late PdfCrossTable _xrefTable;
+  PdfArchiveStream? _archive;
 
   int? get offset {
     int? result;
     if (_archive != null) {
-      result = _archive!._getIndex(_offset);
+      result = _archive!.getIndex(_offset);
     } else {
       result = _offset;
     }
@@ -923,7 +1008,7 @@ class _RegisteredObject {
     _objNumber ??= 0;
     if (_objNumber == 0) {
       if (_archive != null) {
-        _objNumber = _xrefTable._getReference(_archive)._objNum!.toDouble();
+        _objNumber = _xrefTable.getReference(_archive).objNum!.toDouble();
       }
     }
     return _objNumber;
@@ -932,11 +1017,11 @@ class _RegisteredObject {
 
 class _ArchiveInfo {
   // Constructor
-  _ArchiveInfo(_PdfReference? reference, _PdfArchiveStream? archive) {
+  _ArchiveInfo(PdfReference? reference, PdfArchiveStream? archive) {
     _reference = reference;
     _archive = archive;
   }
   // Fields
-  _PdfReference? _reference;
-  _PdfArchiveStream? _archive;
+  PdfReference? _reference;
+  PdfArchiveStream? _archive;
 }

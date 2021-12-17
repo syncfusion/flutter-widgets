@@ -1,11 +1,9 @@
-import 'dart:ui';
 import 'dart:ui' as dart_ui;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
+import './../../common/event_args.dart' show MarkerRenderArgs;
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/waterfall_series.dart';
 import '../chart_series/xy_data_series.dart';
@@ -233,6 +231,32 @@ class MarkerSettings {
   }
 }
 
+/// To hold the individual point's marker details for the onMarkerRender event
+class MarkerDetails {
+  /// Creates an argument constructor for MarkerDetails class.
+  const MarkerDetails(
+      {this.markerType,
+      this.color,
+      this.borderColor,
+      this.borderWidth,
+      this.size});
+
+  /// Shape of the marker which is obtained from callback.
+  final DataMarkerType? markerType;
+
+  /// Color of the marker which is obtained from callback.
+  final Color? color;
+
+  /// Border color of the marker which is obtained from callback.
+  final Color? borderColor;
+
+  /// Border width of the marker which is obtained from callback.
+  final double? borderWidth;
+
+  /// Size of the marker which is obtained from callback.
+  final Size? size;
+}
+
 /// Marker settings renderer class for mutable fields and methods
 class MarkerSettingsRenderer {
   /// Creates an argument constructor for MarkerSettings renderer class
@@ -276,10 +300,56 @@ class MarkerSettingsRenderer {
     Paint strokePaint, fillPaint;
     final XyDataSeries<dynamic, dynamic> series =
         seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
-    final Size size =
-        Size(series.markerSettings.width, series.markerSettings.height);
-    final DataMarkerType markerType = series.markerSettings.shape;
+    Size size = Size(series.markerSettings.width, series.markerSettings.height);
     CartesianChartPoint<dynamic> point;
+    DataMarkerType markerType = series.markerSettings.shape;
+    Color? seriesColor = seriesRendererDetails.seriesColor;
+    point = seriesRendererDetails.dataPoints[markerIndex];
+    if (seriesRendererDetails.seriesType == 'waterfall') {
+      seriesColor = getWaterfallSeriesColor(
+          seriesRendererDetails.series as WaterfallSeries<dynamic, dynamic>,
+          point,
+          seriesColor);
+    }
+    MarkerRenderArgs? event;
+    borderColor = series.markerSettings.borderColor ?? seriesColor;
+    color = series.markerSettings.color;
+    borderWidth = series.markerSettings.borderWidth;
+    final bool isMarkerEventTriggered =
+        CartesianPointHelper.getIsMarkerEventTriggered(point);
+    if (isDataPointVisible &&
+        seriesRendererDetails.chart.onMarkerRender != null &&
+        seriesRendererDetails.isMarkerRenderEvent == false) {
+      if (animationController == null ||
+          ((animationController.value == 0.0 &&
+                  !isMarkerEventTriggered &&
+                  animationController.status == AnimationStatus.forward) ||
+              (seriesRendererDetails
+                          .animationController.duration!.inMilliseconds ==
+                      0 &&
+                  !isMarkerEventTriggered))) {
+        CartesianPointHelper.setIsMarkerEventTriggered(point, true);
+        event = triggerMarkerRenderEvent(
+            seriesRendererDetails,
+            size,
+            markerType,
+            seriesRendererDetails.dataPoints[markerIndex].visiblePointIndex!,
+            animationController)!;
+        markerType = event.shape;
+        borderColor = event.borderColor;
+        color = event.color;
+        borderWidth = event.borderWidth;
+        size = Size(event.markerHeight, event.markerWidth);
+        CartesianPointHelper.setMarkerDetails(
+            point,
+            MarkerDetails(
+                markerType: markerType,
+                borderColor: borderColor,
+                color: color,
+                borderWidth: borderWidth,
+                size: size));
+      }
+    }
     final bool hasPointColor = series.pointColorMapper != null;
     final bool isBoxSeries =
         seriesRendererDetails.seriesType.contains('boxandwhisker');
@@ -290,23 +360,14 @@ class MarkerSettingsRenderer {
                 seriesRendererDetails.needAnimateSeriesElements == true))
         ? animationController.value
         : 1;
-    point = seriesRendererDetails.dataPoints[markerIndex];
-    Color? seriesColor = seriesRendererDetails.seriesColor;
-    if (seriesRendererDetails.seriesType == 'waterfall') {
-      seriesColor = getWaterfallSeriesColor(
-          seriesRendererDetails.series as WaterfallSeries<dynamic, dynamic>,
-          point,
-          seriesColor);
-    }
-    borderColor = series.markerSettings.borderColor ?? seriesColor;
-    color = series.markerSettings.color;
-    borderWidth = series.markerSettings.borderWidth;
+    final MarkerDetails? pointMarkerDetails =
+        CartesianPointHelper.getMarkerDetails(point);
     !isBoxSeries
         ? seriesRendererDetails.markerShapes.add(isDataPointVisible
             ? getMarkerShapesPath(
-                markerType,
+                pointMarkerDetails?.markerType ?? markerType,
                 Offset(point.markerPoint!.x, point.markerPoint!.y),
-                size,
+                pointMarkerDetails?.size ?? size,
                 seriesRendererDetails,
                 markerIndex,
                 null,
@@ -314,10 +375,10 @@ class MarkerSettingsRenderer {
             : null)
         : seriesRendererDetails.markerShapes.add(isDataPointVisible
             ? getMarkerShapesPath(
-                markerType,
+                pointMarkerDetails?.markerType ?? markerType,
                 Offset(point.outliersPoint[outlierIndex!].x,
                     point.outliersPoint[outlierIndex].y),
-                size,
+                pointMarkerDetails?.size ?? size,
                 seriesRendererDetails,
                 markerIndex,
                 null,
@@ -327,9 +388,9 @@ class MarkerSettingsRenderer {
         seriesRendererDetails.seriesType == 'hilo') {
       seriesRendererDetails.markerShapes2.add(isDataPointVisible
           ? getMarkerShapesPath(
-              markerType,
+              pointMarkerDetails?.markerType ?? markerType,
               Offset(point.markerPoint2!.x, point.markerPoint2!.y),
-              size,
+              pointMarkerDetails?.size ?? size,
               seriesRendererDetails,
               markerIndex,
               null,
@@ -343,19 +404,27 @@ class MarkerSettingsRenderer {
               : series.emptyPointSettings.borderColor.withOpacity(opacity))
           : (series.markerSettings.borderWidth == 0
               ? Colors.transparent
-              : ((hasPointColor && point.pointColorMapper != null)
-                  ? point.pointColorMapper!.withOpacity(opacity)
-                  : borderColor!.withOpacity(opacity)))
+              : (pointMarkerDetails?.borderColor != null
+                  ? pointMarkerDetails!.borderColor!.withOpacity(opacity)
+                  : (hasPointColor && point.pointColorMapper != null)
+                      ? point.pointColorMapper!.withOpacity(opacity)
+                      : (borderColor != null
+                          ? borderColor!.withOpacity(opacity)
+                          : seriesColor!.withOpacity(opacity))))
       ..style = PaintingStyle.stroke
       ..strokeWidth = point.isEmpty == true
           ? series.emptyPointSettings.borderWidth
-          : borderWidth;
+          : pointMarkerDetails?.borderWidth ?? borderWidth;
 
-    if (series.gradient != null && series.markerSettings.borderColor == null) {
+    if (series.gradient != null &&
+        series.markerSettings.borderColor == null &&
+        ((pointMarkerDetails == null) ||
+            (pointMarkerDetails != null &&
+                pointMarkerDetails.borderColor == null))) {
       strokePaint = getLinearGradientPaint(
           series.gradient!,
           getMarkerShapesPath(
-                  markerType,
+                  pointMarkerDetails?.markerType ?? markerType,
                   Offset(
                       isBoxSeries
                           ? point.outliersPoint[outlierIndex!].x
@@ -363,7 +432,7 @@ class MarkerSettingsRenderer {
                       isBoxSeries
                           ? point.outliersPoint[outlierIndex!].y
                           : point.markerPoint!.y),
-                  size,
+                  pointMarkerDetails?.size ?? size,
                   seriesRendererDetails,
                   null,
                   null,
@@ -373,14 +442,16 @@ class MarkerSettingsRenderer {
       strokePaint.style = PaintingStyle.stroke;
       strokePaint.strokeWidth = point.isEmpty == true
           ? series.emptyPointSettings.borderWidth
-          : series.markerSettings.borderWidth;
+          : pointMarkerDetails?.borderWidth ??
+              series.markerSettings.borderWidth;
     }
 
     fillPaint = Paint()
       ..color = point.isEmpty == true
           ? series.emptyPointSettings.color
           : color != Colors.transparent
-              ? (color ??
+              ? (pointMarkerDetails?.color ??
+                      color ??
                       (seriesRendererDetails.stateProperties.renderingDetails
                                   .chartTheme.brightness ==
                               Brightness.light
@@ -434,6 +505,17 @@ class MarkerSettingsRenderer {
         }
       }
     }
+    if (seriesRendererDetails.chart.onMarkerRender != null &&
+        seriesRendererDetails.isMarkerRenderEvent == false) {
+      if (animationController == null ||
+          ((animationController.value == 1.0 &&
+                  animationController.status == AnimationStatus.completed) ||
+              (seriesRendererDetails
+                      .animationController.duration!.inMilliseconds ==
+                  0))) {
+        CartesianPointHelper.setIsMarkerEventTriggered(point, false);
+      }
+    }
   }
 
   /// To determine if the marker is within axis clip rect
@@ -453,7 +535,6 @@ class MarkerSettingsRenderer {
   /// Paint the image marker
   void drawImageMarker(SeriesRendererDetails seriesRendererDetails,
       Canvas canvas, double pointX, double pointY) {
-    //  final MarkerSettingsRenderer markerSettingsRenderer = seriesRenderer.seriesRendererDetails.markerSettingsRenderer;
     if (seriesRendererDetails.markerSettingsRenderer!.image != null) {
       final double imageWidth =
           2 * seriesRendererDetails.series.markerSettings.width;

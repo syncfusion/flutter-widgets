@@ -1,4 +1,23 @@
-part of pdf;
+import 'dart:convert';
+
+import '../../../interfaces/pdf_interface.dart';
+import '../../forms/pdf_field.dart';
+import '../../forms/pdf_signature_field.dart';
+import '../../io/pdf_constants.dart';
+import '../../io/pdf_cross_table.dart';
+import '../../io/stream_reader.dart';
+import '../../pages/pdf_page.dart';
+import '../../pdf_document/pdf_document.dart';
+import '../../primitives/pdf_array.dart';
+import '../../primitives/pdf_dictionary.dart';
+import '../../primitives/pdf_reference_holder.dart';
+import '../../primitives/pdf_string.dart';
+import '../enum.dart';
+import '../pdf_security.dart';
+import 'pdf_certificate.dart';
+import 'pdf_external_signer.dart';
+import 'pdf_signature_dictionary.dart';
+import 'x509/x509_certificates.dart';
 
 /// Represents a digital signature used for signing a PDF document.
 class PdfSignature {
@@ -13,22 +32,14 @@ class PdfSignature {
       CryptographicStandard cryptographicStandard = CryptographicStandard.cms,
       DigestAlgorithm digestAlgorithm = DigestAlgorithm.sha256,
       PdfCertificate? certificate}) {
+    _helper = PdfSignatureHelper(this);
     _init(signedName, locationInfo, reason, contactInfo, documentPermissions,
         cryptographicStandard, digestAlgorithm, certificate);
   }
 
   //Fields
-  PdfPage? _page;
-  PdfSignatureField? _field;
-  PdfDocument? _document;
-  // ignore: prefer_final_fields
-  bool _certificated = false;
-  _PdfSignatureDictionary? _signatureDictionary;
-  _PdfArray? _byteRange;
-  DateTime? _signedDate;
-  IPdfExternalSigner? _externalSigner;
+  late PdfSignatureHelper _helper;
   List<List<int>>? _externalRootCert;
-  List<_X509Certificate?>? _externalChain;
 
   //Properties
   /// Gets or sets the permission for certificated document.
@@ -46,7 +57,7 @@ class PdfSignature {
   String? signedName;
 
   /// Gets the signed date.
-  DateTime? get signedDate => _signedDate;
+  DateTime? get signedDate => _helper.dateOfSign;
 
   /// Gets or sets cryptographic standard.
   late CryptographicStandard cryptographicStandard;
@@ -62,64 +73,6 @@ class PdfSignature {
   PdfCertificate? certificate;
 
   //Implementations
-  //To check annotation last elements have signature field
-  void _checkAnnotationElementsContainsSignature(
-      PdfPage page, String? signatureName) {
-    if (page._dictionary.containsKey(_DictionaryProperties.annots)) {
-      final _IPdfPrimitive? annotationElements = _PdfCrossTable._dereference(
-          page._dictionary[_DictionaryProperties.annots]);
-      _IPdfPrimitive? lastElement;
-      if (annotationElements != null &&
-          annotationElements is _PdfArray &&
-          annotationElements._elements.isNotEmpty) {
-        lastElement = _PdfCrossTable._dereference(
-            annotationElements[annotationElements._elements.length - 1]);
-      }
-      if (lastElement != null &&
-          lastElement is _PdfDictionary &&
-          lastElement.containsKey(_DictionaryProperties.t)) {
-        final _IPdfPrimitive? name =
-            _PdfCrossTable._dereference(lastElement[_DictionaryProperties.t]);
-        String tempName = '';
-        if (name != null && name is _PdfString) {
-          tempName = utf8.decode(name.data!);
-        }
-        if (tempName == signatureName &&
-            annotationElements != null &&
-            annotationElements is _PdfArray &&
-            annotationElements._elements.isNotEmpty) {
-          annotationElements._elements
-              .removeAt(annotationElements._elements.length - 1);
-        }
-      }
-    }
-  }
-
-  void _catalogBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
-    if (_certificated) {
-      _IPdfPrimitive? permission = _PdfCrossTable._dereference(
-          _document!._catalog[_DictionaryProperties.perms]);
-      if (permission == null) {
-        permission = _PdfDictionary();
-        (permission as _PdfDictionary)[_DictionaryProperties.docMDP] =
-            _PdfReferenceHolder(_signatureDictionary);
-        _document!._catalog[_DictionaryProperties.perms] = permission;
-      } else if (permission is _PdfDictionary &&
-          !permission.containsKey(_DictionaryProperties.docMDP)) {
-        permission.setProperty(_DictionaryProperties.docMDP,
-            _PdfReferenceHolder(_signatureDictionary));
-      }
-    }
-  }
-
-  void _dictionaryBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
-    if (_field != null) {
-      _field!._dictionary.encrypt = _document!.security._encryptor.encrypt;
-      _field!._dictionary
-          .setProperty(_DictionaryProperties.ap, _field!.appearance);
-    }
-  }
-
   void _init(
       String? signedName,
       String? locationInfo,
@@ -154,18 +107,129 @@ class PdfSignature {
   /// Add external signer for signature.
   void addExternalSigner(
       IPdfExternalSigner signer, List<List<int>> publicCertificatesData) {
-    _externalSigner = signer;
+    _helper.externalSigner = signer;
     _externalRootCert = publicCertificatesData;
     if (_externalRootCert != null) {
-      final _X509CertificateParser parser = _X509CertificateParser();
-      _externalChain = <_X509Certificate?>[];
-      _externalRootCert!.toList().forEach((List<int> certRawData) =>
-          _externalChain!
-              .add(parser.readCertificate(_StreamReader(certRawData))));
+      final X509CertificateParser parser = X509CertificateParser();
+      _helper.externalChain = <X509Certificate?>[];
+      _externalRootCert!.toList().forEach((List<int> certRawData) => _helper
+          .externalChain!
+          .add(parser.readCertificate(PdfStreamReader(certRawData))));
+    }
+  }
+}
+
+/// [PdfSignature] helper
+class PdfSignatureHelper {
+  /// internal constructor
+  PdfSignatureHelper(this.base);
+
+  /// internal field
+  PdfSignature base;
+
+  /// internal method
+  static PdfSignatureHelper getHelper(PdfSignature signature) {
+    return signature._helper;
+  }
+
+  /// internal field
+  PdfPage? page;
+
+  /// internal method
+  PdfSignatureField? field;
+
+  /// internal method
+  PdfDocument? document;
+
+  /// internal method
+  // ignore: prefer_final_fields
+  bool certificated = false;
+
+  /// internal method
+  PdfSignatureDictionary? signatureDictionary;
+
+  /// internal method
+  PdfArray? byteRange;
+
+  /// internal method
+  DateTime? dateOfSign;
+
+  /// internal method
+  IPdfExternalSigner? externalSigner;
+
+  /// internal method
+  List<X509Certificate?>? externalChain;
+
+  /// internal method
+  /// To check annotation last elements have signature field
+  void checkAnnotationElementsContainsSignature(
+      PdfPage page, String? signatureName) {
+    if (PdfPageHelper.getHelper(page)
+        .dictionary!
+        .containsKey(PdfDictionaryProperties.annots)) {
+      final IPdfPrimitive? annotationElements = PdfCrossTable.dereference(
+          PdfPageHelper.getHelper(page)
+              .dictionary![PdfDictionaryProperties.annots]);
+      IPdfPrimitive? lastElement;
+      if (annotationElements != null &&
+          annotationElements is PdfArray &&
+          annotationElements.elements.isNotEmpty) {
+        lastElement = PdfCrossTable.dereference(
+            annotationElements[annotationElements.elements.length - 1]);
+      }
+      if (lastElement != null &&
+          lastElement is PdfDictionary &&
+          lastElement.containsKey(PdfDictionaryProperties.t)) {
+        final IPdfPrimitive? name =
+            PdfCrossTable.dereference(lastElement[PdfDictionaryProperties.t]);
+        String tempName = '';
+        if (name != null && name is PdfString) {
+          tempName = utf8.decode(name.data!);
+        }
+        if (tempName == signatureName &&
+            annotationElements != null &&
+            annotationElements is PdfArray &&
+            annotationElements.elements.isNotEmpty) {
+          annotationElements.elements
+              .removeAt(annotationElements.elements.length - 1);
+        }
+      }
     }
   }
 
-  List<PdfCertificationFlags> _getCertificateFlags(int value) {
+  /// internal method
+  void catalogBeginSave(Object sender, SavePdfPrimitiveArgs? ars) {
+    if (certificated) {
+      IPdfPrimitive? permission = PdfCrossTable.dereference(
+          PdfDocumentHelper.getHelper(document!)
+              .catalog[PdfDictionaryProperties.perms]);
+      if (permission == null) {
+        permission = PdfDictionary();
+        (permission as PdfDictionary)[PdfDictionaryProperties.docMDP] =
+            PdfReferenceHolder(signatureDictionary);
+        PdfDocumentHelper.getHelper(document!)
+            .catalog[PdfDictionaryProperties.perms] = permission;
+      } else if (permission is PdfDictionary &&
+          !permission.containsKey(PdfDictionaryProperties.docMDP)) {
+        permission.setProperty(PdfDictionaryProperties.docMDP,
+            PdfReferenceHolder(signatureDictionary));
+      }
+    }
+  }
+
+  /// internal method
+  void dictionaryBeginSave(Object sender, SavePdfPrimitiveArgs? ars) {
+    if (field != null) {
+      final PdfFieldHelper helper = PdfFieldHelper.getHelper(field!);
+      helper.dictionary!.encrypt =
+          PdfSecurityHelper.getHelper(document!.security).encryptor.encrypt;
+      helper.dictionary!
+          .setProperty(PdfDictionaryProperties.ap, field!.appearance);
+    }
+  }
+
+  /// internal method
+  List<PdfCertificationFlags> getCertificateFlags(int value) {
     final List<PdfCertificationFlags> result = <PdfCertificationFlags>[];
     if (value & _getCertificateFlagValue(PdfCertificationFlags.forbidChanges)! >
         0) {
@@ -182,6 +246,18 @@ class PdfSignature {
     return result;
   }
 
+  /// internal method
+  int getCertificateFlagResult(List<PdfCertificationFlags> flags) {
+    int result = 0;
+    flags.toList().forEach((PdfCertificationFlags flag) {
+      result |= _getCertificateFlagValue(flag)!;
+    });
+    if (result == 0) {
+      result = 1;
+    }
+    return result;
+  }
+
   int? _getCertificateFlagValue(PdfCertificationFlags flag) {
     int? result;
     switch (flag) {
@@ -194,17 +270,6 @@ class PdfSignature {
       case PdfCertificationFlags.allowComments:
         result = 3;
         break;
-    }
-    return result;
-  }
-
-  int _getCertificateFlagResult(List<PdfCertificationFlags> flags) {
-    int result = 0;
-    flags.toList().forEach((PdfCertificationFlags flag) {
-      result |= _getCertificateFlagValue(flag)!;
-    });
-    if (result == 0) {
-      result = 1;
     }
     return result;
   }

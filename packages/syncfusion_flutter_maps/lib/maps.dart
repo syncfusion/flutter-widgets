@@ -298,7 +298,7 @@ class SfMaps extends StatefulWidget {
   final List<MapLayer> layers;
 
   @override
-  _SfMapsState createState() => _SfMapsState();
+  State<SfMaps> createState() => _SfMapsState();
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -2577,7 +2577,7 @@ class MapZoomPanBehavior extends MapBehavior {
           ..isInInteractive = true
           ..gesture = Gesture.scale;
         zoomLevel = details.newZoomLevel!;
-        focalLatLng = details.focalLatLng!;
+        focalLatLng = details.focalLatLng;
         _controller!.notifyListeners();
       }
     }
@@ -2616,7 +2616,7 @@ class MapZoomPanBehavior extends MapBehavior {
           ..gesture = Gesture.pan
           ..localScale = 1.0
           ..panDistance += details.delta!;
-        focalLatLng = details.focalLatLng!;
+        focalLatLng = details.focalLatLng;
         _controller!.notifyListeners();
       }
     }
@@ -2883,7 +2883,7 @@ class BehaviorView extends StatefulWidget {
   final WillPanCallback? onWillPan;
 
   @override
-  _BehaviorViewState createState() => _BehaviorViewState();
+  State<BehaviorView> createState() => _BehaviorViewState();
 }
 
 class _BehaviorViewState extends State<BehaviorView> {
@@ -3129,7 +3129,9 @@ class BehaviorViewRenderObjectWidget extends LeafRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderBehaviorView renderObject) {
+      BuildContext context,
+      // ignore: library_private_types_in_public_api
+      _RenderBehaviorView renderObject) {
     renderObject
       ..controller = controller
       ..zoomPanBehavior = zoomPanBehavior;

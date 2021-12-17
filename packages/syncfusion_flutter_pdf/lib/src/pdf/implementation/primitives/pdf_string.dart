@@ -1,26 +1,36 @@
-part of pdf;
+import 'dart:convert';
 
-class _PdfString implements _IPdfPrimitive {
-  _PdfString(String value, [bool? encrypted]) {
+import '../../interfaces/pdf_interface.dart';
+import '../io/decode_big_endian.dart';
+import '../io/enums.dart';
+import '../io/pdf_cross_table.dart';
+import '../pdf_document/pdf_document.dart';
+import '../security/pdf_encryptor.dart';
+import '../security/pdf_security.dart';
+
+/// internal class
+class PdfString implements IPdfPrimitive {
+  /// internal constructor
+  PdfString(String value, [bool? encrypted]) {
     if (encrypted != null) {
       if (!encrypted && value.isNotEmpty) {
-        data = _hexToBytes(value);
+        data = hexToBytes(value);
         if (data!.isNotEmpty) {
           if (data![0] == 0xfe && data![1] == 0xff) {
-            this.value = _decodeBigEndian(data, 2, data!.length - 2);
-            _isHex = false;
+            this.value = decodeBigEndian(data, 2, data!.length - 2);
+            isHex = false;
             data = <int>[];
             for (int i = 0; i < value.length; i++) {
               data!.add(value.codeUnitAt(i).toUnsigned(8));
             }
           } else {
-            this.value = _byteToString(data!);
+            this.value = byteToString(data!);
           }
         }
       } else {
         this.value = value;
       }
-      _isHex = true;
+      isHex = true;
     } else {
       if (value.isEmpty) {
         this.value = '';
@@ -31,58 +41,74 @@ class _PdfString implements _IPdfPrimitive {
           data!.add(value.codeUnitAt(i).toUnsigned(8));
         }
       }
-      _isHex = false;
+      isHex = false;
     }
     decrypted = false;
     isParentDecrypted = false;
   }
 
-  _PdfString.fromBytes(this.data) {
+  /// internal constructor
+  PdfString.fromBytes(this.data) {
     if (data!.isNotEmpty) {
       value = String.fromCharCodes(data!);
     }
-    _isHex = true;
+    isHex = true;
     decrypted = false;
     isParentDecrypted = false;
   }
 
   //Constants
+  /// internal field
   static const String stringMark = '()';
+
+  /// internal field
   static const String hexStringMark = '<>';
 
   //Fields
+  /// internal field
   List<int>? data;
+
+  /// internal field
   String? value;
+
+  /// internal field
   bool isAsciiEncode = false;
   bool? _isSaving;
   int? _objectCollectionIndex;
   int? _position;
-  _ObjectStatus? _status;
-  bool? _isHex;
-  _ForceEncoding encode = _ForceEncoding.none;
-  _PdfCrossTable? _crossTable;
-  _PdfString? _clonedObject;
+  PdfObjectStatus? _status;
+
+  /// internal field
+  bool? isHex;
+
+  /// internal field
+  ForceEncoding encode = ForceEncoding.none;
+  PdfCrossTable? _crossTable;
+  PdfString? _clonedObject;
+
+  /// internal field
   late bool isParentDecrypted;
 
   //Implementations
-  List<int> _pdfEncode(PdfDocument? document) {
+  /// internal method
+  List<int> pdfEncode(PdfDocument? document) {
     final List<int> result = <int>[];
-    result.add(_isHex!
-        ? _PdfString.hexStringMark.codeUnitAt(0)
-        : _PdfString.stringMark.codeUnitAt(0));
+    result.add(isHex!
+        ? PdfString.hexStringMark.codeUnitAt(0)
+        : PdfString.stringMark.codeUnitAt(0));
     if (data != null && data!.isNotEmpty) {
       List<int> tempData;
-      if (_isHex!) {
+      if (isHex!) {
         tempData = _getHexBytes(data!);
       } else if (isAsciiEncode) {
-        final List<int> data = _escapeSymbols(value);
+        final List<int> data = escapeSymbols(value);
         tempData = <int>[];
         for (int i = 0; i < data.length; i++) {
           tempData.add(data[i].toUnsigned(8));
         }
       } else if (utf8.encode(value!).length != value!.length) {
-        tempData = _toUnicodeArray(value!, true);
-        tempData = _escapeSymbols(tempData);
+        tempData = toUnicodeArray(value!, true);
+        tempData = escapeSymbols(tempData);
       } else {
         tempData = <int>[];
         for (int i = 0; i < value!.length; i++) {
@@ -101,14 +127,14 @@ class _PdfString implements _IPdfPrimitive {
           break;
         }
       }
-      if (_isHex! && !hex) {
+      if (isHex! && !hex) {
         tempData = _getHexBytes(tempData);
       }
       result.addAll(tempData);
     }
-    result.add(_isHex!
-        ? _PdfString.hexStringMark.codeUnitAt(1)
-        : _PdfString.stringMark.codeUnitAt(1));
+    result.add(isHex!
+        ? PdfString.hexStringMark.codeUnitAt(1)
+        : PdfString.stringMark.codeUnitAt(1));
     return result;
   }
 
@@ -116,34 +142,25 @@ class _PdfString implements _IPdfPrimitive {
     final List<int> result = <int>[];
     for (int i = 0; i < data.length; i++) {
       String radix = data[i].toRadixString(16);
-      radix = (radix.length == 1 ? '0' + radix : radix).toUpperCase();
+      radix = (radix.length == 1 ? '0$radix' : radix).toUpperCase();
       result.add(radix.codeUnitAt(0).toUnsigned(8));
       result.add(radix.codeUnitAt(1).toUnsigned(8));
     }
     return result;
   }
 
-  static String _bytesToHex(List<int> data) {
+  /// internal method
+  static String bytesToHex(List<int> data) {
     String result = '';
     for (int i = 0; i < data.length; i++) {
       final String radix = data[i].toRadixString(16);
-      result += (radix.length == 1 ? '0' + radix : radix).toUpperCase();
+      result += (radix.length == 1 ? '0$radix' : radix).toUpperCase();
     }
     return result;
   }
 
-  /// Converts string to array of unicode symbols.
-  static List<int> toUnicodeArray(String value) {
-    final List<int> data = <int>[];
-    for (int i = 0; i < value.length; i++) {
-      final int code = value.codeUnitAt(i);
-      data.add(code ~/ 256 >> 0);
-      data.add(code & 0xff);
-    }
-    return data;
-  }
-
-  static List<int> _escapeSymbols(dynamic value) {
+  /// internal method
+  static List<int> escapeSymbols(dynamic value) {
     if (value == null) {
       throw ArgumentError.value(value, 'value', 'value cannot be null');
     }
@@ -178,7 +195,8 @@ class _PdfString implements _IPdfPrimitive {
     return data;
   }
 
-  static List<int> _toUnicodeArray(String value, bool addPrefix) {
+  /// internal method
+  static List<int> toUnicodeArray(String value, [bool addPrefix = false]) {
     final List<int> output = <int>[];
     if (addPrefix) {
       output.add(254);
@@ -192,7 +210,8 @@ class _PdfString implements _IPdfPrimitive {
     return output;
   }
 
-  static String _byteToString(List<int> data, [int? length]) {
+  /// internal method
+  static String byteToString(List<int> data, [int? length]) {
     length ??= data.length;
     if (length > data.length) {
       ArgumentError.value(length);
@@ -200,7 +219,8 @@ class _PdfString implements _IPdfPrimitive {
     return String.fromCharCodes(data, 0, length);
   }
 
-  List<int> _hexToBytes(String value) {
+  /// internal method
+  List<int> hexToBytes(String value) {
     final List<int> hexNumbers = <int>[];
     for (int i = 0; i < value.length; i++) {
       final int charCode = value.codeUnitAt(i);
@@ -245,7 +265,7 @@ class _PdfString implements _IPdfPrimitive {
     return value;
   }
 
-  //_IPdfPrimitive members
+  //IPdfPrimitive members
   @override
   bool? get isSaving {
     _isSaving ??= false;
@@ -280,23 +300,23 @@ class _PdfString implements _IPdfPrimitive {
   }
 
   @override
-  _ObjectStatus? get status {
-    _status ??= _ObjectStatus.none;
+  PdfObjectStatus? get status {
+    _status ??= PdfObjectStatus.none;
     return _status;
   }
 
   @override
-  set status(_ObjectStatus? value) {
+  set status(PdfObjectStatus? value) {
     _status = value;
   }
 
   @override
-  _IPdfPrimitive? clonedObject;
+  IPdfPrimitive? clonedObject;
 
   @override
-  void save(_IPdfWriter? writer) {
+  void save(IPdfWriter? writer) {
     if (writer != null) {
-      writer._write(_pdfEncode(writer._document));
+      writer.write(pdfEncode(writer.document));
     }
   }
 
@@ -312,15 +332,15 @@ class _PdfString implements _IPdfPrimitive {
   }
 
   @override
-  _IPdfPrimitive? _clone(_PdfCrossTable crossTable) {
+  IPdfPrimitive? cloneObject(PdfCrossTable crossTable) {
     if (_clonedObject != null && _clonedObject!._crossTable == crossTable) {
       return _clonedObject;
     } else {
       _clonedObject = null;
     }
-    final _PdfString newString = _PdfString(value!);
+    final PdfString newString = PdfString(value!);
     newString.encode = encode;
-    newString._isHex = _isHex;
+    newString.isHex = isHex;
     newString._crossTable = crossTable;
     _clonedObject = newString;
     return newString;
@@ -329,29 +349,47 @@ class _PdfString implements _IPdfPrimitive {
   List<int> _encryptIfNeeded(List<int> data, PdfDocument? document) {
     final PdfSecurity? security = (document == null) ? null : document.security;
     if (security == null ||
-        (!security._encryptor.encrypt ||
-            security._encryptor._encryptOnlyAttachment!)) {
+        (!PdfSecurityHelper.getHelper(security).encryptor.encrypt ||
+            PdfSecurityHelper.getHelper(security)
+                .encryptor
+                .encryptAttachmentOnly!)) {
       return data;
     } else {
-      data = security._encryptor
-          ._encryptData(document!._currentSavingObject!._objNum, data, true);
+      data = PdfSecurityHelper.getHelper(security).encryptor.encryptData(
+          PdfDocumentHelper.getHelper(document!).currentSavingObject!.objNum,
+          data,
+          true);
     }
-    return _escapeSymbols(data);
+    return escapeSymbols(data);
   }
 
+  /// internal field
   late bool decrypted;
-  void decrypt(_PdfEncryptor encryptor, int? currentObjectNumber) {
-    if (!decrypted &&
+
+  /// internal method
+  void decrypt(PdfEncryptor encryptor, int? currentObjectNumber) {
+    if (data != null &&
+        !decrypted &&
         !isParentDecrypted &&
-        !encryptor._encryptOnlyAttachment!) {
+        !encryptor.encryptAttachmentOnly!) {
       decrypted = true;
-      value = _byteToString(data!);
+      value = byteToString(data!);
       final List<int> bytes =
-          encryptor._encryptData(currentObjectNumber, data!, false);
-      value = _byteToString(bytes);
+          encryptor.encryptData(currentObjectNumber, data!, false);
+      value = byteToString(bytes);
       data = bytes;
     }
   }
 }
 
-enum _ForceEncoding { none, ascii, unicode }
+/// internal enumerator
+enum ForceEncoding {
+  /// internal enumerator
+  none,
+
+  /// internal enumerator
+  ascii,
+
+  /// internal enumerator
+  unicode
+}

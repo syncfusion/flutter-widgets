@@ -1,21 +1,5 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-
-import '../../chart/utils/enum.dart';
-import '../../common/common.dart';
-import '../../common/series/chart_series.dart';
-import '../../common/user_interaction/selection_behavior.dart';
-import '../../common/utils/enum.dart';
-import '../../common/utils/typedef.dart';
-import '../common/data_label.dart';
-import '../common/marker.dart';
-import '../series_painter/bar_painter.dart';
-import '../trendlines/trendlines.dart';
-import 'xy_data_series.dart';
 
 /// This class has the properties of the bar series.
 ///
@@ -52,7 +36,7 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
       bool? isVisible,
       LinearGradient? gradient,
       LinearGradient? borderGradient,
-      this.borderRadius = const BorderRadius.all(Radius.zero),
+      this.borderRadius = BorderRadius.zero,
       bool? enableTooltip,
       double? animationDuration,
       this.trackColor = Colors.grey,

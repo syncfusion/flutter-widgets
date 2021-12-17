@@ -6,7 +6,6 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_page_view.dart';
 
 import '../common/pdfviewer_helper.dart';
-import '../pdfviewer.dart';
 import 'scroll_head_overlay.dart';
 
 /// This callback triggered whenever offset is changed in PDF.

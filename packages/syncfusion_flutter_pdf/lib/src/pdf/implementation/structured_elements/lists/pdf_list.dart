@@ -1,4 +1,17 @@
-part of pdf;
+import '../../drawing/drawing.dart';
+import '../../graphics/brushes/pdf_solid_brush.dart';
+import '../../graphics/figures/base/element_layouter.dart';
+import '../../graphics/figures/base/layout_element.dart';
+import '../../graphics/figures/base/text_layouter.dart';
+import '../../graphics/figures/enums.dart';
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/fonts/pdf_string_format.dart';
+import '../../graphics/pdf_graphics.dart';
+import '../../graphics/pdf_pen.dart';
+import '../../pages/pdf_page.dart';
+import 'pdf_list_item.dart';
+import 'pdf_list_item_collection.dart';
+import 'pdf_list_layouter.dart';
 
 /// Represents base class for lists.
 ///
@@ -23,11 +36,6 @@ part of pdf;
 /// document.dispose();
 /// ```
 abstract class PdfList extends PdfLayoutElement {
-  // Creates an item collection.
-  static PdfListItemCollection _createItems(String text) {
-    return PdfListItemCollection(text.split('\n'));
-  }
-
   //Fields
   /// Tabulation for items.
   ///
@@ -151,12 +159,6 @@ abstract class PdfList extends PdfLayoutElement {
   /// ```
   PdfStringFormat? stringFormat;
 
-  //Holds collection of items.
-  PdfListItemCollection? _items;
-
-  //List's font.
-  PdfFont? _font;
-
   //Properties
   /// Gets items of the list.
   ///
@@ -177,8 +179,8 @@ abstract class PdfList extends PdfLayoutElement {
   /// document.dispose();
   /// ```
   PdfListItemCollection get items {
-    _items ??= PdfListItemCollection();
-    return _items!;
+    _helper.items ??= PdfListItemCollection();
+    return _helper.items!;
   }
 
   /// Gets or sets the list font.
@@ -203,10 +205,10 @@ abstract class PdfList extends PdfLayoutElement {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfFont? get font => _font;
+  PdfFont? get font => _helper.font;
   set font(PdfFont? value) {
     if (value != null) {
-      _font = value;
+      _helper.font = value;
     }
   }
 
@@ -271,36 +273,63 @@ abstract class PdfList extends PdfLayoutElement {
   /// ```
   EndItemLayoutCallback? endItemLayout;
 
+  late PdfListHelper _helper;
+}
+
+/// [PdfList] helper
+class PdfListHelper {
+  /// internal construtor
+  PdfListHelper(this.list) {
+    list._helper = this;
+  }
+
+  /// Creates an item collection.
+  static PdfListItemCollection createItems(String text) {
+    return PdfListItemCollection(text.split('\n'));
+  }
+
+  /// internal field
+  PdfListItemCollection? items;
+
+  /// internal field
+  PdfFont? font;
+
+  /// internal field
+  late PdfList list;
+
+  /// internal method
+  static PdfListHelper getHelper(PdfList list) {
+    return list._helper;
+  }
+
   /// Layouts on the specified Page.
-  @override
-  PdfLayoutResult? _layout(_PdfLayoutParams param) {
-    final _PdfListLayouter layouter = _PdfListLayouter(this);
-    return layouter._layout(param);
+  PdfLayoutResult? layout(PdfLayoutParams param) {
+    final PdfListLayouter layouter = PdfListLayouter(list);
+    return layouter.layout(param);
   }
 
   /// Draws list on the Graphics.
-  @override
-  void _drawInternal(PdfGraphics graphics, _Rectangle bounds) {
-    final _PdfLayoutParams param = _PdfLayoutParams();
+  void drawInternal(PdfGraphics graphics, PdfRectangle bounds) {
+    final PdfLayoutParams param = PdfLayoutParams();
     param.bounds = bounds;
     param.format = PdfLayoutFormat();
     param.format!.layoutType = PdfLayoutType.onePage;
-    final _PdfListLayouter layouter = _PdfListLayouter(this);
+    final PdfListLayouter layouter = PdfListLayouter(list);
     layouter.graphics = graphics;
-    layouter._layoutInternal(param);
+    layouter.layoutInternal(param);
   }
 
   /// Rise the BeginItemLayout event.
-  void _onBeginItemLayout(BeginItemLayoutArgs args) {
-    if (beginItemLayout != null) {
-      beginItemLayout!(this, args);
+  void onBeginItemLayout(BeginItemLayoutArgs args) {
+    if (list.beginItemLayout != null) {
+      list.beginItemLayout!(list, args);
     }
   }
 
   /// Rise the EndItemLayout event.
-  void _onEndItemLayout(EndItemLayoutArgs args) {
-    if (endItemLayout != null) {
-      endItemLayout!(this, args);
+  void onEndItemLayout(EndItemLayoutArgs args) {
+    if (list.endItemLayout != null) {
+      list.endItemLayout!(list, args);
     }
   }
 }
@@ -408,6 +437,15 @@ class BeginItemLayoutArgs {
   PdfPage get page => _page;
 }
 
+// ignore: avoid_classes_with_only_static_members
+/// [BeginItemLayoutArgs] helper
+class BeginItemLayoutArgsHelper {
+  /// internal method
+  static BeginItemLayoutArgs internal(PdfListItem item, PdfPage page) {
+    return BeginItemLayoutArgs._internal(item, page);
+  }
+}
+
 /// Represents end layout event arguments.
 ///
 /// ```dart
@@ -506,6 +544,15 @@ class EndItemLayoutArgs {
   /// document.dispose();
   /// ```
   PdfPage get page => _page;
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [EndItemLayoutArgs] helper
+class EndItemLayoutArgsHelper {
+  /// internal method
+  static EndItemLayoutArgs internal(PdfListItem item, PdfPage page) {
+    return EndItemLayoutArgs._internal(item, page);
+  }
 }
 
 /// typedef for handling BeginItemLayoutEvent.

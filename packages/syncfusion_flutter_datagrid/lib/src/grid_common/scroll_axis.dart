@@ -23,7 +23,7 @@ import 'visible_line_info.dart';
 /// visible in the viewing area. ScrollAxisBase wires itself with a
 /// `ScrollLinesHost` and reacts to changes in line count,
 /// line sizes, hidden state and default line size.
-typedef _ChangedCallback = void Function(ScrollChangedArgs scrollChangedArgs);
+typedef ChangedCallback = void Function(ScrollChangedArgs scrollChangedArgs);
 
 ///
 abstract class ScrollAxisBase {
@@ -89,7 +89,7 @@ abstract class ScrollAxisBase {
   }
 
   /// Occurs when a scroll axis changed.
-  _ChangedCallback? onChangedCallback;
+  ChangedCallback? onChangedCallback;
 
   /// Get visibleLine
   VisibleLinesCollection get visibleLines {
@@ -1825,9 +1825,8 @@ class PixelScrollAxis extends ScrollAxisBase {
       if (scrollLineIndex >= lineCount) {
         scrollLineDelta = 0.0;
       } else {
-        scrollLineDelta = (scrollBar!.value -
-                distances!.getCumulatedDistanceAt(scrollLineIndex))
-            .toDouble();
+        scrollLineDelta = scrollBar!.value -
+            distances!.getCumulatedDistanceAt(scrollLineIndex);
       }
     } else {
       scrollLineIndex = max(
@@ -1846,27 +1845,21 @@ class PixelScrollAxis extends ScrollAxisBase {
       if (scrollLineIndex >= lineCount) {
         scrollLineDelta = 0.0;
       } else {
-        scrollLineDelta = (scrollBar!.maximum -
-                scrollBar!.largeChange -
-                scrollBar!.value +
-                (headerLineCount == 0
-                    ? clip.start
-                    : (scrollBar!.maximum -
-                                scrollBar!.largeChange -
-                                scrollBar!.value !=
-                            -1
-                        ? clip.start + headerExtent
-                        : (clip.start > 0
-                            ? clip.start + headerExtent + 1
-                            : 1))) +
-                (renderSize > scrollBar!.maximum + footerExtent
-                    ? renderSize -
-                        scrollBar!.maximum -
-                        footerExtent -
-                        headerExtent
-                    : 0) -
-                distances!.getCumulatedDistanceAt(scrollLineIndex))
-            .toDouble();
+        scrollLineDelta = scrollBar!.maximum -
+            scrollBar!.largeChange -
+            scrollBar!.value +
+            (headerLineCount == 0
+                ? clip.start
+                : (scrollBar!.maximum -
+                            scrollBar!.largeChange -
+                            scrollBar!.value !=
+                        -1
+                    ? clip.start + headerExtent
+                    : (clip.start > 0 ? clip.start + headerExtent + 1 : 1))) +
+            (renderSize > scrollBar!.maximum + footerExtent
+                ? renderSize - scrollBar!.maximum - footerExtent - headerExtent
+                : 0) -
+            distances!.getCumulatedDistanceAt(scrollLineIndex);
       }
     }
     return <dynamic>[scrollLineIndex, scrollLineDelta];

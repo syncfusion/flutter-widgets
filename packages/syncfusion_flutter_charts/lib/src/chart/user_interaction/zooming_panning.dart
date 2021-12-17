@@ -1,10 +1,7 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../axis/axis.dart';
 import '../base/chart_base.dart';
 import '../chart_behavior/zoom_behavior.dart';
@@ -268,19 +265,24 @@ class ZoomPanBehavior {
         index++) {
       axisDetails = AxisHelper.getAxisRendererDetails(
           _stateProperties.chartAxis.axisRenderersCollection[index]);
-      if (axisDetails.zoomFactor <= 1.0 && axisDetails.zoomFactor > 0.0) {
-        if (axisDetails.zoomFactor - 0.1 < 0) {
-          needZoom = false;
-          break;
-        } else {
-          zoomPanBehaviorRenderer._zoomingBehaviorDetails
-              .setZoomFactorAndZoomPosition(
-                  _stateProperties.chartState, axisDetails, zoomFactor);
-          needZoom = true;
+      if ((axisDetails.orientation == AxisOrientation.vertical &&
+              chart.zoomPanBehavior.zoomMode != ZoomMode.x) ||
+          (axisDetails.orientation == AxisOrientation.horizontal &&
+              chart.zoomPanBehavior.zoomMode != ZoomMode.y)) {
+        if (axisDetails.zoomFactor <= 1.0 && axisDetails.zoomFactor > 0.0) {
+          if (axisDetails.zoomFactor - 0.1 < 0) {
+            needZoom = false;
+            break;
+          } else {
+            zoomPanBehaviorRenderer._zoomingBehaviorDetails
+                .setZoomFactorAndZoomPosition(
+                    _stateProperties.chartState, axisDetails, zoomFactor);
+            needZoom = true;
+          }
         }
-      }
-      if (chart.onZooming != null) {
-        bindZoomEvent(chart, axisDetails, chart.onZooming!);
+        if (chart.onZooming != null) {
+          bindZoomEvent(chart, axisDetails, chart.onZooming!);
+        }
       }
     }
     if (needZoom == true) {
@@ -304,16 +306,21 @@ class ZoomPanBehavior {
         index++) {
       axisDetails = AxisHelper.getAxisRendererDetails(
           _stateProperties.chartAxis.axisRenderersCollection[index]);
-      if (axisDetails.zoomFactor < 1.0 && axisDetails.zoomFactor > 0.0) {
-        zoomPanBehaviorRenderer._zoomingBehaviorDetails
-            .setZoomFactorAndZoomPosition(
-                _stateProperties.chartState, axisDetails, zoomFactor);
-        axisDetails.zoomFactor = axisDetails.zoomFactor > 1.0
-            ? 1.0
-            : (axisDetails.zoomFactor < 0.0 ? 0.0 : axisDetails.zoomFactor);
-      }
-      if (chart.onZooming != null) {
-        bindZoomEvent(chart, axisDetails, chart.onZooming!);
+      if ((axisDetails.orientation == AxisOrientation.vertical &&
+              chart.zoomPanBehavior.zoomMode != ZoomMode.x) ||
+          (axisDetails.orientation == AxisOrientation.horizontal &&
+              chart.zoomPanBehavior.zoomMode != ZoomMode.y)) {
+        if (axisDetails.zoomFactor < 1.0 && axisDetails.zoomFactor > 0.0) {
+          zoomPanBehaviorRenderer._zoomingBehaviorDetails
+              .setZoomFactorAndZoomPosition(
+                  _stateProperties.chartState, axisDetails, zoomFactor);
+          axisDetails.zoomFactor = axisDetails.zoomFactor > 1.0
+              ? 1.0
+              : (axisDetails.zoomFactor < 0.0 ? 0.0 : axisDetails.zoomFactor);
+        }
+        if (chart.onZooming != null) {
+          bindZoomEvent(chart, axisDetails, chart.onZooming!);
+        }
       }
     }
     zoomPanBehaviorRenderer._zoomingBehaviorDetails.createZoomState();
@@ -531,7 +538,7 @@ class ZoomingBehaviorDetails {
   bool canPerformSelection = false;
 
   /// Holds the value of zooming rect
-  Rect zoomingRect = const Rect.fromLTWH(0, 0, 0, 0);
+  Rect zoomingRect = Rect.zero;
 
   /// Specifies whether to draw with delay
   bool delayRedraw = false;
@@ -591,7 +598,7 @@ class ZoomingBehaviorDetails {
 
           axisDetails.zoomPosition = _zoomPosition!;
           axisDetails.zoomFactor = zoomFactor;
-          axisDetails.bounds = const Rect.fromLTWH(0, 0, 0, 0);
+          axisDetails.bounds = Rect.zero;
           axisDetails.visibleLabels = <AxisLabel>[];
         }
         maxZoomFactor = _zoomPanBehavior.maximumZoomLevel;
@@ -615,6 +622,7 @@ class ZoomingBehaviorDetails {
     num currentScale, value;
     ChartAxisRendererDetails axisDetails;
     double currentZoomPosition;
+    bool isNeedPan = false;
     for (int axisIndex = 0;
         axisIndex < stateProperties.chartAxis.axisRenderersCollection.length;
         axisIndex++) {
@@ -640,6 +648,9 @@ class ZoomingBehaviorDetails {
                   1 - axisDetails.zoomFactor)
               .toDouble();
           axisDetails.zoomPosition = currentZoomPosition;
+          if (currentZoomPosition > 0.0 && !isNeedPan) {
+            isNeedPan = true;
+          }
         } else {
           value = (previousMovedPosition!.dy - yPos) /
               stateProperties.chartAxis.axisClipRect.height /
@@ -652,13 +663,18 @@ class ZoomingBehaviorDetails {
                   1 - axisDetails.zoomFactor)
               .toDouble();
           axisDetails.zoomPosition = currentZoomPosition;
+          if (currentZoomPosition > 0.0 && !isNeedPan) {
+            isNeedPan = true;
+          }
         }
       }
       if (_chart.onZooming != null) {
         bindZoomEvent(_chart, axisDetails, _chart.onZooming!);
       }
     }
-    createZoomState();
+    if (isNeedPan) {
+      createZoomState();
+    }
   }
 
   ///Below method for drawing selection rectangle
@@ -746,7 +762,7 @@ class ZoomingBehaviorDetails {
       }
     }
 
-    zoomRect = const Rect.fromLTRB(0, 0, 0, 0);
+    zoomRect = Rect.zero;
     rectPath = Path();
     createZoomState();
   }
@@ -959,7 +975,7 @@ class ZoomingBehaviorDetails {
           }
           axisDetails.zoomPosition = zoomPosition;
           axisDetails.zoomFactor = zoomFactor;
-          axisDetails.bounds = const Rect.fromLTWH(0, 0, 0, 0);
+          axisDetails.bounds = Rect.zero;
           axisDetails.visibleLabels = <AxisLabel>[];
           maxZoomFactor = _zoomPanBehavior.maximumZoomLevel;
           if (zoomFactor < maxZoomFactor) {

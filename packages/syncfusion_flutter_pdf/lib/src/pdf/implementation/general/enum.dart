@@ -1,5 +1,3 @@
-part of pdf;
-
 /// Enumeration that represents fit mode.
 enum PdfDestinationMode {
   /// Display the page designated by page, with the coordinates (left, top)

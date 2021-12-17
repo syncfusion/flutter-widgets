@@ -102,7 +102,7 @@ class SfTheme extends StatelessWidget {
     final _SfInheritedTheme? inheritedTheme =
         context.dependOnInheritedWidgetOfExactType<_SfInheritedTheme>();
     return inheritedTheme?.data ??
-        (Theme.of(context).brightness == Brightness.light
+        (Theme.of(context).colorScheme.brightness == Brightness.light
             ? SfThemeData.light()
             : SfThemeData.dark());
   }

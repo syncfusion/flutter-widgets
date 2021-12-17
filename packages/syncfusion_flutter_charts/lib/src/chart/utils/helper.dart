@@ -1,75 +1,33 @@
 import 'dart:math' as math;
 import 'dart:math' as math_lib;
 import 'dart:math';
-import 'dart:ui';
 import 'dart:ui' as dart_ui;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import './../../circular_chart/utils/helper.dart';
-import './../../common/event_args.dart';
 import './../../common/rendering_details.dart';
 import './../../common/user_interaction/selection_behavior.dart';
 import './../../common/utils/helper.dart';
-import './../../common/utils/typedef.dart';
-import './../annotation/annotation_settings.dart';
 import './../axis/axis.dart';
 import './../axis/category_axis.dart';
 import './../axis/datetime_axis.dart';
 import './../axis/datetime_category_axis.dart';
 import './../axis/logarithmic_axis.dart';
-import './../axis/numeric_axis.dart';
-import './../base/chart_base.dart';
 import './../chart_segment/chart_segment.dart';
-import './../chart_segment/scatter_segment.dart';
-import './../chart_series/bar_series.dart';
-import './../chart_series/box_and_whisker_series.dart';
-import './../chart_series/bubble_series.dart';
-import './../chart_series/candle_series.dart';
-import './../chart_series/column_series.dart';
 import './../chart_series/financial_series_base.dart';
-import './../chart_series/hilo_series.dart';
-import './../chart_series/hiloopenclose_series.dart';
-import './../chart_series/histogram_series.dart';
-import './../chart_series/range_area_series.dart';
-import './../chart_series/range_column_series.dart';
 import './../chart_series/series.dart';
 import './../chart_series/series_renderer_properties.dart';
-import './../chart_series/spline_area_series.dart';
-import './../chart_series/spline_range_area_series.dart';
-import './../chart_series/spline_series.dart';
-import './../chart_series/stacked_bar_series.dart';
-import './../chart_series/stacked_column_series.dart';
 import './../chart_series/stacked_series_base.dart';
-import './../chart_series/waterfall_series.dart';
 import './../chart_series/xy_data_series.dart';
 import './../common/cartesian_state_properties.dart';
 import './../common/common.dart';
 import './../common/marker.dart';
 import './../common/renderer.dart';
 import './../common/segment_properties.dart';
-import './../series_painter/bar_painter.dart';
-import './../series_painter/box_and_whisker_painter.dart';
-import './../series_painter/candle_painter.dart';
-import './../series_painter/column_painter.dart';
-import './../series_painter/hilo_painter.dart';
-import './../series_painter/hiloopenclose_painter.dart';
-import './../series_painter/histogram_painter.dart';
-import './../series_painter/range_column_painter.dart';
-import './../series_painter/scatter_painter.dart';
-import './../series_painter/spline_area_painter.dart';
-import './../series_painter/spline_painter.dart';
-import './../series_painter/spline_range_area_painter.dart';
-import './../series_painter/waterfall_painter.dart';
-import './../trendlines/trendlines.dart';
-import './../trendlines/trendlines_painter.dart';
-import './../user_interaction/trackball.dart';
 import '../../../charts.dart';
-import 'enum.dart';
 
 /// Return percentage to value
 num? percentageToValue(String? value, num size) {
@@ -94,7 +52,7 @@ void drawText(Canvas canvas, String text, Offset point, TextStyle style,
   tp.layout();
   canvas.save();
   canvas.translate(point.dx, point.dy);
-  Offset labelOffset = const Offset(0.0, 0.0);
+  Offset labelOffset = Offset.zero;
   if (angle != null && angle > 0) {
     canvas.rotate(degreeToRadian(angle));
     labelOffset = Offset(-tp.width / 2, -tp.height / 2);
@@ -183,15 +141,27 @@ ChartLocation calculatePoint(
   final ChartAxis xAxis = xAxisRendererDetails.axis;
   final ChartAxis yAxis = yAxisRendererDetails.axis;
   x = xAxis is LogarithmicAxis
-      ? calculateLogBaseValue(x > 1 ? x : 1, xAxis.logBase)
+      ? calculateLogBaseValue(x > 0 ? x : 0, xAxis.logBase)
       : x;
   y = yAxis is LogarithmicAxis
       ? y != null
-          ? calculateLogBaseValue(y > 1 ? y : 1, yAxis.logBase)
+          ? calculateLogBaseValue(y > 0 ? y : 0, yAxis.logBase)
           : 0
       : y;
-  x = valueToCoefficient(x, xAxisRendererDetails);
-  y = valueToCoefficient(y, yAxisRendererDetails);
+  x = valueToCoefficient(x.isInfinite ? 0 : x, xAxisRendererDetails);
+  y = valueToCoefficient(
+      y != null
+          ? y.isInfinite
+              ? 0
+              : y < 0 &&
+                      yAxis is LogarithmicAxis &&
+                      (series is SplineSeries ||
+                          series is SplineAreaSeries ||
+                          series is SplineRangeAreaSeries)
+                  ? 0
+                  : y
+          : y,
+      yAxisRendererDetails);
   final num xLength = isInverted ? rect.height : rect.width;
   final num yLength = isInverted ? rect.width : rect.height;
   final double locationX =
@@ -1617,8 +1587,17 @@ dynamic getInteractiveTooltipLabel(
             .round()];
   } else if (axisRenderer is DateTimeAxisRenderer) {
     final DateTimeAxis _dateTimeAxis = axisRendererDetails.axis as DateTimeAxis;
-    final DateFormat dateFormat =
-        _dateTimeAxis.dateFormat ?? getDateTimeLabelFormat(axisRenderer);
+    final num interval = axisRendererDetails.visibleRange!.minimum.ceil();
+    final num previousInterval =
+        (axisRendererDetails.visibleLabels.length != null &&
+                axisRendererDetails.visibleLabels.isNotEmpty)
+            ? axisRendererDetails
+                .visibleLabels[axisRendererDetails.visibleLabels.length - 1]
+                .value
+            : interval;
+    final DateFormat dateFormat = _dateTimeAxis.dateFormat ??
+        getDateTimeLabelFormat(
+            axisRenderer, interval.toInt(), previousInterval.toInt());
     value =
         dateFormat.format(DateTime.fromMillisecondsSinceEpoch(value.toInt()));
   } else {
@@ -1634,18 +1613,6 @@ Path getMarkerShapesPath(DataMarkerType markerType, Offset position, Size size,
     TrackballBehavior? trackballBehavior,
     Animation<double>? animationController,
     ChartSegment? segment]) {
-  if (seriesRendererDetails!.chart.onMarkerRender != null &&
-      seriesRendererDetails.isMarkerRenderEvent == false) {
-    final MarkerRenderArgs event = triggerMarkerRenderEvent(
-        seriesRendererDetails,
-        size,
-        markerType,
-        seriesRendererDetails.dataPoints[index!].visiblePointIndex!,
-        animationController,
-        segment)!;
-    markerType = event.shape;
-    size = Size(event.markerHeight, event.markerWidth);
-  }
   final Path path = Path();
   final Rect rect = Rect.fromLTWH(position.dx - size.width / 2,
       position.dy - size.height / 2, size.width, size.height);
@@ -1664,7 +1631,7 @@ Path getMarkerShapesPath(DataMarkerType markerType, Offset position, Size size,
       break;
     case DataMarkerType.image:
       {
-        if (seriesRendererDetails.series != null) {
+        if (seriesRendererDetails!.series != null) {
           _loadMarkerImage(seriesRendererDetails.renderer, trackballBehavior);
         }
       }
@@ -1813,7 +1780,9 @@ ChartLocation getAnnotationLocation(CartesianChartAnnotation annotation,
                     : dateTimeCategoryAxisDetails.labels.indexOf(annotation.x));
           }
         } else {
-          xValue = annotation.x;
+          xValue = annotation.x is DateTime
+              ? (annotation.x).millisecondsSinceEpoch
+              : annotation.x;
         }
       } else if (yAxisName == axisRendererDetails.name ||
           (yAxisName == null && axisRendererDetails.name == 'primaryYAxis')) {
@@ -2755,7 +2724,7 @@ List<Offset> _calculateCardinalControlPoints(
   double yCoefficient = coefficientY;
   double y1Coefficient = coefficientY1;
   if (SeriesHelper.getSeriesRendererDetails(seriesRenderer).xAxisDetails
-      is DateTimeAxisRenderer) {
+      is DateTimeAxisDetails) {
     yCoefficient = coefficientY / dateTimeInterval(seriesRenderer);
     y1Coefficient = coefficientY1 / dateTimeInterval(seriesRenderer);
   }
@@ -2829,20 +2798,12 @@ MarkerRenderArgs? triggerMarkerRenderEvent(
     markerargs.borderWidth = isScatter
         ? segment.strokePaint!.strokeWidth
         : markerSettingsRenderer.borderWidth;
-    if (animationController == null ||
-        isScatter ||
-        ((animationController.value == 1.0 &&
-                animationController.status == AnimationStatus.completed) ||
-            seriesRendererDetails
-                    .animationController.duration!.inMilliseconds ==
-                0)) {
-      seriesRendererDetails.chart.onMarkerRender!(markerargs);
-      size = Size(markerargs.markerWidth, markerargs.markerHeight);
-      markerType = markerargs.shape;
-      markerSettingsRenderer.color = markerargs.color;
-      markerSettingsRenderer.borderColor = markerargs.borderColor;
-      markerSettingsRenderer.borderWidth = markerargs.borderWidth;
-    }
+    seriesRendererDetails.chart.onMarkerRender!(markerargs);
+    size = Size(markerargs.markerWidth, markerargs.markerHeight);
+    markerType = markerargs.shape;
+    markerSettingsRenderer.color = markerargs.color;
+    markerSettingsRenderer.borderColor = markerargs.borderColor;
+    markerSettingsRenderer.borderWidth = markerargs.borderWidth;
 
     if (isScatter) {
       segment.fillPaint!.color = (markerargs.color != null &&
@@ -3640,7 +3601,8 @@ void _setActualIntervalType(
 }
 
 /// To get the label format of the date-time axis
-DateFormat getDateTimeLabelFormat(ChartAxisRenderer axisRenderer) {
+DateFormat getDateTimeLabelFormat(ChartAxisRenderer axisRenderer,
+    [int? interval, int? prevInterval]) {
   DateFormat? format;
   final ChartAxisRendererDetails axisRendererDetails =
       AxisHelper.getAxisRendererDetails(axisRenderer);
@@ -3648,38 +3610,51 @@ DateFormat getDateTimeLabelFormat(ChartAxisRenderer axisRenderer) {
           axisRendererDetails.axis.interval! % 1 == 0) ||
       axisRendererDetails.axis.interval == null;
   DateTimeIntervalType? actualIntervalType;
+  VisibleRange? visibleRange;
+  num? minimum;
   if (axisRenderer is DateTimeAxisRenderer) {
     final DateTimeAxisDetails dateTimeAxisDetails =
         AxisHelper.getAxisRendererDetails(axisRenderer) as DateTimeAxisDetails;
     actualIntervalType = dateTimeAxisDetails.actualIntervalType;
+    visibleRange = dateTimeAxisDetails.visibleRange;
+    minimum = dateTimeAxisDetails.min;
   } else if (axisRenderer is DateTimeCategoryAxisRenderer) {
     final DateTimeCategoryAxisDetails dateTimeCategoryAxisDetails =
         AxisHelper.getAxisRendererDetails(axisRenderer)
             as DateTimeCategoryAxisDetails;
+    visibleRange = dateTimeCategoryAxisDetails.visibleRange;
+    minimum = dateTimeCategoryAxisDetails.min;
     actualIntervalType = dateTimeCategoryAxisDetails.actualIntervalType;
   }
   switch (actualIntervalType) {
     case DateTimeIntervalType.years:
-      format = notDoubleInterval ? DateFormat.yMMM() : DateFormat.MMMd();
+      format = notDoubleInterval ? DateFormat.y() : DateFormat.MMMd();
       break;
     case DateTimeIntervalType.months:
-      format = notDoubleInterval ? DateFormat.MMMd() : DateFormat.MMMd();
+      format = (minimum == interval || interval == prevInterval)
+          ? _getFirstLabelFormat(actualIntervalType)
+          : _getDateTimeFormat(
+              actualIntervalType, visibleRange, interval, prevInterval);
+
       break;
     case DateTimeIntervalType.days:
-      format = notDoubleInterval ? DateFormat.MMMd() : DateFormat.Hm();
+      format = (minimum == interval || interval == prevInterval)
+          ? _getFirstLabelFormat(actualIntervalType)
+          : _getDateTimeFormat(
+              actualIntervalType, visibleRange, interval, prevInterval);
       break;
     case DateTimeIntervalType.hours:
-      format = notDoubleInterval ? DateFormat.Hm() : DateFormat.ms();
+      format = DateFormat.j();
       break;
     case DateTimeIntervalType.minutes:
-      format = notDoubleInterval ? DateFormat.ms() : DateFormat.ms();
+      format = DateFormat.Hm();
       break;
     case DateTimeIntervalType.seconds:
-      format = notDoubleInterval ? DateFormat.ms() : DateFormat.ms();
+      format = DateFormat.ms();
       break;
     case DateTimeIntervalType.milliseconds:
       final DateFormat? _format = DateFormat('ss.SSS');
-      format = notDoubleInterval ? _format : _format;
+      format = _format;
       break;
     case DateTimeIntervalType.auto:
       break;
@@ -3687,6 +3662,42 @@ DateFormat getDateTimeLabelFormat(ChartAxisRenderer axisRenderer) {
       break;
   }
   return format!;
+}
+
+/// Calculate the dateTime format
+
+DateFormat? _getDateTimeFormat(DateTimeIntervalType? actualIntervalType,
+    VisibleRange? visibleRange, int? interval, int? prevInterval) {
+  final DateTime minimum = DateTime.fromMillisecondsSinceEpoch(interval!);
+  final DateTime maximum = DateTime.fromMillisecondsSinceEpoch(prevInterval!);
+  DateFormat? format;
+  final bool isIntervalDecimal = visibleRange!.interval % 1 == 0;
+  if (actualIntervalType == DateTimeIntervalType.months) {
+    format = minimum.year == maximum.year
+        ? (isIntervalDecimal ? DateFormat.MMM() : DateFormat.MMMd())
+        : DateFormat('yyy MMM');
+  } else if (actualIntervalType == DateTimeIntervalType.days) {
+    format = minimum.month != maximum.month
+        ? (isIntervalDecimal ? DateFormat.MMMd() : DateFormat.MEd())
+        : DateFormat.d();
+  }
+
+  return format;
+}
+
+/// Returns the first label format for date time values
+DateFormat? _getFirstLabelFormat(DateTimeIntervalType? actualIntervalType) {
+  DateFormat? format;
+
+  if (actualIntervalType == DateTimeIntervalType.months) {
+    format = DateFormat('yyy MMM');
+  } else if (actualIntervalType == DateTimeIntervalType.days) {
+    format = DateFormat.MMMd();
+  } else if (actualIntervalType == DateTimeIntervalType.minutes) {
+    format = DateFormat.Hm();
+  }
+
+  return format;
 }
 
 /// Method to set the minimum and maximum value of category axis
@@ -3986,6 +3997,10 @@ bool shouldShowAxisTooltip(CartesianStateProperties stateProperties) {
             stateProperties.chartAxis.axisRenderersCollection[i]);
     requireAxisTooltip = axisRendererDetails.axis.maximumLabelWidth != null ||
         axisRendererDetails.axis.labelsExtent != null;
+    if (axisRendererDetails.axis.multiLevelLabels != null) {
+      requireAxisTooltip =
+          axisRendererDetails.visibleAxisMultiLevelLabels.isNotEmpty;
+    }
     if (requireAxisTooltip) {
       break;
     }
@@ -3993,7 +4008,7 @@ bool shouldShowAxisTooltip(CartesianStateProperties stateProperties) {
   return requireAxisTooltip;
 }
 
-/// Method to get the visbile data point index
+/// Method to get the visible data point index
 int? getVisibleDataPointIndex(
     int? pointIndex, SeriesRendererDetails seriesRendererDetails) {
   int? index;

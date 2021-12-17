@@ -1,11 +1,12 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:syncfusion_flutter_core/core.dart';
 import '../../common/event_args.dart';
+import '../../common/utils/typedef.dart'
+    show MultiLevelLabelFormatterCallback, ChartLabelFormatterCallback;
 import '../axis/axis.dart';
+import '../axis/multi_level_labels.dart';
 import '../axis/plotband.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
@@ -29,51 +30,58 @@ import '../utils/helper.dart';
 @immutable
 class DateTimeCategoryAxis extends ChartAxis {
   /// Creating an argument constructor of DateTimeCategoryAxis class.
-  DateTimeCategoryAxis({
-    String? name,
-    bool? isVisible,
-    AxisTitle? title,
-    AxisLine? axisLine,
-    ChartRangePadding? rangePadding,
-    EdgeLabelPlacement? edgeLabelPlacement,
-    ChartDataLabelPosition? labelPosition,
-    TickPosition? tickPosition,
-    int? labelRotation,
-    AxisLabelIntersectAction? labelIntersectAction,
-    LabelAlignment? labelAlignment,
-    bool? isInversed,
-    bool? opposedPosition,
-    int? minorTicksPerInterval,
-    int? maximumLabels,
-    MajorTickLines? majorTickLines,
-    MinorTickLines? minorTickLines,
-    MajorGridLines? majorGridLines,
-    MinorGridLines? minorGridLines,
-    TextStyle? labelStyle,
-    double? plotOffset,
-    double? zoomFactor,
-    double? zoomPosition,
-    InteractiveTooltip? interactiveTooltip,
-    this.minimum,
-    this.maximum,
-    double? interval,
-    this.visibleMinimum,
-    this.visibleMaximum,
-    dynamic crossesAt,
-    String? associatedAxisName,
-    bool? placeLabelsNearAxisLine,
-    List<PlotBand>? plotBands,
-    int? desiredIntervals,
-    RangeController? rangeController,
-    double? maximumLabelWidth,
-    double? labelsExtent,
-    this.labelPlacement = LabelPlacement.betweenTicks,
-    this.dateFormat,
-    this.intervalType = DateTimeIntervalType.auto,
-    this.autoScrollingDeltaType = DateTimeIntervalType.auto,
-    int? autoScrollingDelta,
-    AutoScrollingMode? autoScrollingMode,
-  }) : super(
+  DateTimeCategoryAxis(
+      {String? name,
+      bool? isVisible,
+      AxisTitle? title,
+      AxisLine? axisLine,
+      ChartRangePadding? rangePadding,
+      EdgeLabelPlacement? edgeLabelPlacement,
+      ChartDataLabelPosition? labelPosition,
+      TickPosition? tickPosition,
+      int? labelRotation,
+      AxisLabelIntersectAction? labelIntersectAction,
+      LabelAlignment? labelAlignment,
+      bool? isInversed,
+      bool? opposedPosition,
+      int? minorTicksPerInterval,
+      int? maximumLabels,
+      MajorTickLines? majorTickLines,
+      MinorTickLines? minorTickLines,
+      MajorGridLines? majorGridLines,
+      MinorGridLines? minorGridLines,
+      TextStyle? labelStyle,
+      double? plotOffset,
+      double? zoomFactor,
+      double? zoomPosition,
+      InteractiveTooltip? interactiveTooltip,
+      this.minimum,
+      this.maximum,
+      double? interval,
+      this.visibleMinimum,
+      this.visibleMaximum,
+      dynamic crossesAt,
+      String? associatedAxisName,
+      bool? placeLabelsNearAxisLine,
+      List<PlotBand>? plotBands,
+      int? desiredIntervals,
+      RangeController? rangeController,
+      double? maximumLabelWidth,
+      double? labelsExtent,
+      this.labelPlacement = LabelPlacement.betweenTicks,
+      this.dateFormat,
+      this.intervalType = DateTimeIntervalType.auto,
+      this.autoScrollingDeltaType = DateTimeIntervalType.auto,
+      int? autoScrollingDelta,
+      double? borderWidth,
+      Color? borderColor,
+      AxisBorderType? axisBorderType,
+      MultiLevelLabelStyle? multiLevelLabelStyle,
+      MultiLevelLabelFormatterCallback? multiLevelLabelFormatter,
+      List<DateTimeCategoricalMultiLevelLabel>? multiLevelLabels,
+      AutoScrollingMode? autoScrollingMode,
+      ChartLabelFormatterCallback? axisLabelFormatter})
+      : super(
             name: name,
             isVisible: isVisible,
             isInversed: isInversed,
@@ -108,7 +116,14 @@ class DateTimeCategoryAxis extends ChartAxis {
             maximumLabelWidth: maximumLabelWidth,
             labelsExtent: labelsExtent,
             autoScrollingDelta: autoScrollingDelta,
-            autoScrollingMode: autoScrollingMode);
+            axisBorderType: axisBorderType,
+            borderColor: borderColor,
+            borderWidth: borderWidth,
+            multiLevelLabelStyle: multiLevelLabelStyle,
+            multiLevelLabelFormatter: multiLevelLabelFormatter,
+            multiLevelLabels: multiLevelLabels,
+            autoScrollingMode: autoScrollingMode,
+            axisLabelFormatter: axisLabelFormatter);
 
   ///Formats the date-time category axis labels.
   ///
@@ -292,7 +307,14 @@ class DateTimeCategoryAxis extends ChartAxis {
         other.autoScrollingDelta == autoScrollingDelta &&
         other.autoScrollingMode == autoScrollingMode &&
         other.intervalType == intervalType &&
-        other.dateFormat == dateFormat;
+        other.axisBorderType == axisBorderType &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.multiLevelLabelStyle == multiLevelLabelStyle &&
+        other.multiLevelLabels == multiLevelLabels &&
+        other.multiLevelLabelFormatter == multiLevelLabelFormatter &&
+        other.dateFormat == dateFormat &&
+        other.axisLabelFormatter == axisLabelFormatter;
   }
 
   @override
@@ -339,7 +361,14 @@ class DateTimeCategoryAxis extends ChartAxis {
       autoScrollingDelta,
       autoScrollingMode,
       intervalType,
-      dateFormat
+      axisBorderType,
+      borderColor,
+      borderWidth,
+      multiLevelLabelStyle,
+      multiLevelLabels,
+      multiLevelLabelFormatter,
+      dateFormat,
+      axisLabelFormatter
     ];
     return hashList(values);
   }
@@ -481,11 +510,18 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
   void generateVisibleLabels() {
     num tempInterval = _axisDetails.visibleRange!.minimum.ceil();
     int position;
+    num prevInterval;
     String labelText;
+    final List<AxisLabel> label = _axisDetails.visibleLabels;
     _axisDetails.visibleLabels = <AxisLabel>[];
+    prevInterval = (label.length != null && label.isNotEmpty)
+        ? _axisDetails
+            .visibleLabels[_axisDetails.visibleLabels.length - 1].value
+        : tempInterval;
     _axisDetails.dateTimeFormat =
         _axisDetails.dateTimeCategoryAxis.dateFormat ??
-            getDateTimeLabelFormat(this);
+            getDateTimeLabelFormat(
+                this, tempInterval.toInt(), prevInterval.toInt());
     for (;
         tempInterval <= _axisDetails.visibleRange!.maximum;
         tempInterval += _axisDetails.visibleRange!.interval) {
@@ -507,7 +543,14 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
         _axisDetails.triggerLabelRenderEvent(labelText, tempInterval);
       }
     }
+
+    /// Get the maximum label of width and height in axis.
     _axisDetails.calculateMaximumLabelSize(this, _axisDetails.stateProperties);
+    if (_axisDetails.dateTimeCategoryAxis.multiLevelLabels != null &&
+        _axisDetails.dateTimeCategoryAxis.multiLevelLabels!.isNotEmpty) {
+      generateMultiLevelLabels(_axisDetails);
+      calculateMultiLevelLabelBounds(_axisDetails);
+    }
   }
 
   /// Finds the interval of an axis.

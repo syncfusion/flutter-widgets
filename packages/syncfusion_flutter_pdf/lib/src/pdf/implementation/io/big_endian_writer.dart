@@ -1,8 +1,8 @@
-part of pdf;
-
-class _BigEndianWriter {
+/// internal class
+class BigEndianWriter {
   //Constructor
-  _BigEndianWriter(int capacity) {
+  /// internal constructor
+  BigEndianWriter(int capacity) {
     _bufferLength = capacity;
     _buffer = List<int>.filled(capacity, 0, growable: true);
     for (int i = 0; i < capacity; i++) {
@@ -16,7 +16,8 @@ class _BigEndianWriter {
   int? _internalPosition;
 
   //Properties
-  List<int>? get _data {
+  /// internal property
+  List<int>? get data {
     if (_buffer!.length < _bufferLength) {
       final int length = _bufferLength - _buffer!.length;
       for (int i = 0; i < length; i++) {
@@ -32,7 +33,8 @@ class _BigEndianWriter {
   }
 
   //Implementation
-  void _writeShort(int value) {
+  /// internal property
+  void writeShort(int value) {
     final List<int> bytes = <int>[
       (value & 0x0000ff00) >> 8,
       value & 0x000000ff
@@ -40,7 +42,8 @@ class _BigEndianWriter {
     _flush(bytes);
   }
 
-  void _writeInt(int value) {
+  /// internal property
+  void writeInt(int value) {
     int i1 = (value & 0xff000000) >> 24;
     i1 = i1 < 0 ? 256 + i1 : i1;
     int i2 = (value & 0x00ff0000) >> 16;
@@ -58,7 +61,8 @@ class _BigEndianWriter {
     _flush(bytes);
   }
 
-  void _writeUInt(int value) {
+  /// internal property
+  void writeUInt(int value) {
     final List<int> buff = <int>[
       (value & 0xff000000) >> 24,
       (value & 0x00ff0000) >> 16,
@@ -68,7 +72,8 @@ class _BigEndianWriter {
     _flush(buff);
   }
 
-  void _writeString(String value) {
+  /// internal property
+  void writeString(String value) {
     final List<int> bytes = <int>[];
     for (int i = 0; i < value.length; i++) {
       bytes.add(value.codeUnitAt(i));
@@ -76,7 +81,8 @@ class _BigEndianWriter {
     _flush(bytes);
   }
 
-  void _writeBytes(List<int> value) {
+  /// internal property
+  void writeBytes(List<int> value) {
     _flush(value);
   }
 

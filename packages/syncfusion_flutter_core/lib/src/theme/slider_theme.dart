@@ -131,15 +131,6 @@ class SfSliderThemeData with Diagnosticable {
     inactiveTrackHeight ??= 4.0;
     overlayRadius ??= 24.0;
     thumbRadius ??= 10.0;
-    activeTickColor ??= const Color.fromRGBO(158, 158, 158, 1);
-    inactiveTickColor ??= const Color.fromRGBO(158, 158, 158, 1);
-    activeMinorTickColor ??= const Color.fromRGBO(158, 158, 158, 1);
-    inactiveMinorTickColor ??= const Color.fromRGBO(158, 158, 158, 1);
-    disabledActiveTickColor ??= const Color.fromRGBO(189, 189, 189, 1);
-    disabledInactiveTickColor ??= const Color.fromRGBO(189, 189, 189, 1);
-    disabledActiveMinorTickColor ??= const Color.fromRGBO(189, 189, 189, 1);
-    disabledInactiveMinorTickColor ??= const Color.fromRGBO(189, 189, 189, 1);
-    disabledThumbColor ??= const Color.fromRGBO(158, 158, 158, 1);
 
     return SfSliderThemeData.raw(
         brightness: brightness,
@@ -1437,7 +1428,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color activeTickColor;
+  final Color? activeTickColor;
 
   /// Specifies the color for the inactive major ticks in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1481,7 +1472,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color inactiveTickColor;
+  final Color? inactiveTickColor;
 
   /// Specifies the color for the disabled active major ticks in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1515,7 +1506,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color disabledActiveTickColor;
+  final Color? disabledActiveTickColor;
 
   /// Specifies the color for the disabled inactive major ticks in the
   /// [SfSlider], [SfRangeSlider], and [SfRangeSelector].
@@ -1553,7 +1544,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color disabledInactiveTickColor;
+  final Color? disabledInactiveTickColor;
 
   /// Specifies the color for the active minor ticks in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1592,7 +1583,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color activeMinorTickColor;
+  final Color? activeMinorTickColor;
 
   /// Specifies the color for the inactive minor ticks in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1634,7 +1625,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color inactiveMinorTickColor;
+  final Color? inactiveMinorTickColor;
 
   /// Specifies the color for the disabled active minor ticks in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1668,7 +1659,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color disabledActiveMinorTickColor;
+  final Color? disabledActiveMinorTickColor;
 
   /// Specifies the color for the disabled inactive minor ticks in
   /// the [SfSlider], [SfRangeSlider], and [SfRangeSelector].
@@ -1708,7 +1699,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color disabledInactiveMinorTickColor;
+  final Color? disabledInactiveMinorTickColor;
 
   /// Specifies the color for the overlay in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1993,7 +1984,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color disabledThumbColor;
+  final Color? disabledThumbColor;
 
   /// Specifies the color for the tooltip background in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].

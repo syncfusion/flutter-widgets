@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:ui';
 import 'dart:ui' as dart_ui;
 
 import 'package:flutter/foundation.dart';
@@ -76,7 +74,6 @@ class SfCircularChart extends StatefulWidget {
       this.onLegendItemRender,
       this.onTooltipRender,
       this.onDataLabelRender,
-      @deprecated this.onPointTapped,
       this.onDataLabelTapped,
       this.onLegendTapped,
       this.onSelectionChanged,
@@ -333,22 +330,6 @@ class SfCircularChart extends StatefulWidget {
   ///}
   ///```
   final CircularDatalabelRenderCallback? onDataLabelRender;
-
-  /// Occurs when tapping a series point. Here, you can get the series, series index
-  /// and point index.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///            onPointTapped: (PointTapArgs args) => point(args),
-  ///        ));
-  ///}
-  ///void point(PointTapArgs args) {
-  ///   print(args.seriesIndex);
-  ///}
-  ///```
-  @Deprecated('Use onPointTap in CircularSeries instead.')
-  final CircularPointTapCallback? onPointTapped;
 
   ///Fills the data points with the gradient and image shaders.
   ///
@@ -892,6 +873,7 @@ class SfCircularChartState extends State<SfCircularChart>
             bindLegendTemplateWidgets(_stateProperties);
         if (legendTemplates.isNotEmpty &&
             _stateProperties.renderingDetails.legendWidgetContext.isEmpty) {
+          // ignore: avoid_unnecessary_containers
           element = Container(child: Stack(children: legendTemplates));
           SchedulerBinding.instance!.addPostFrameCallback((_) => _refresh());
         } else {

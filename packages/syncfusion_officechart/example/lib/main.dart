@@ -29,6 +29,7 @@ class CreateOfficeChartStatefulWidget extends StatefulWidget {
   /// title.
   final String title;
   @override
+  // ignore: library_private_types_in_public_api
   _CreateOfficeChartState createState() => _CreateOfficeChartState();
 }
 
@@ -114,7 +115,9 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
     sheet1.getRangeByIndex(12, 1).setText('Seating & Decor');
     sheet1.getRangeByIndex(13, 1).setText('Technical team');
     sheet1.getRangeByIndex(14, 1).setText('Performers');
+    // ignore: avoid_escaping_inner_quotes
     sheet1.getRangeByIndex(15, 1).setText('Performer\'s transport');
+    // ignore: avoid_escaping_inner_quotes
     sheet1.getRangeByIndex(16, 1).setText('Performer\'s stay');
     sheet1.getRangeByIndex(17, 1).setText('Marketing');
     sheet1.getRangeByIndex(18, 1).setText('Total');

@@ -1,4 +1,9 @@
-part of pdf;
+import 'dart:math';
+
+import '../../graphics/figures/base/text_layouter.dart';
+import 'pdf_grid.dart';
+import 'pdf_grid_cell.dart';
+import 'styles/style.dart';
 
 /// Provides customization of the settings for the particular row.
 /// ```dart
@@ -35,7 +40,7 @@ part of pdf;
 ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
 /// //Draw the grid in PDF document page
 /// grid.draw(
-///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+///     page: document.pages.add(), bounds: Rect.zero);
 /// //Save the document.
 /// List<int> bytes = document.save();
 /// //Dispose the document.
@@ -77,35 +82,22 @@ class PdfGridRow {
   ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
   PdfGridRow(PdfGrid grid, {PdfGridRowStyle? style, double? height}) {
+    _helper = PdfGridRowHelper(this);
     _initialize(grid, style, height);
   }
 
   //Fields
-  late PdfGrid _grid;
-  PdfGridCellCollection? _cells;
+  late PdfGridRowHelper _helper;
   PdfGridRowStyle? _style;
   late double _height;
   late double _width;
-  late bool _rowSpanExists;
-  late double _rowBreakHeight;
-  late int _rowOverflowIndex;
-  PdfLayoutResult? _gridResult;
-  late bool _isRowBreaksNextPage;
-  late bool _isrowFinish;
-  late bool _rowMergeComplete;
-  late int _noOfPageCount;
-  late bool _isRowHeightSet;
-  late int _maximumRowSpan;
-  late bool _isPageBreakRowSpanApplied;
-  late bool _isRowSpanRowHeightSet;
-  late bool _isHeaderRow;
 
   //Properties
   /// Gets the cells from the selected row.
@@ -137,15 +129,15 @@ class PdfGridRow {
   /// row2.height = 20;
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
   PdfGridCellCollection get cells {
-    _cells ??= PdfGridCellCollection._(this);
-    return _cells!;
+    _helper.cells ??= PdfGridCellCollectionHelper.load(this);
+    return _helper.cells!;
   }
 
   /// Gets or sets the row style.
@@ -190,7 +182,7 @@ class PdfGridRow {
   /// row2.style = rowStyle;
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -240,57 +232,48 @@ class PdfGridRow {
   ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
   double get height {
-    if (!_isRowHeightSet) {
+    if (!_helper.isRowHeightSet) {
       _height = _measureHeight();
     }
     return _height;
   }
 
   set height(double value) {
-    _isRowHeightSet = true;
+    _helper.isRowHeightSet = true;
     _height = value;
   }
-
-  int get _index => _grid.rows._indexOf(this);
 
   //Implementation
   void _initialize(PdfGrid grid, PdfGridRowStyle? style, double? height) {
     if (style != null) {
       _style = style;
     }
-    _grid = grid;
+    _helper.grid = grid;
     if (height != null) {
       this.height = height;
     } else {
       _height = -1;
     }
     _width = -1;
-    _rowSpanExists = false;
-    _rowBreakHeight = 0;
-    _rowOverflowIndex = 0;
-    _isRowBreaksNextPage = false;
-    _isrowFinish = false;
-    _rowMergeComplete = true;
-    _noOfPageCount = 0;
-    _isRowHeightSet = false;
-    _maximumRowSpan = 0;
-    _isPageBreakRowSpanApplied = false;
-    _isRowSpanRowHeightSet = false;
-    _isHeaderRow = false;
-  }
-
-  double _getWidth() {
-    if (_width == -1) {
-      _width = _measureWidth();
-    }
-    return _width;
+    _helper.rowSpanExists = false;
+    _helper.rowBreakHeight = 0;
+    _helper.rowOverflowIndex = 0;
+    _helper.isRowBreaksNextPage = false;
+    _helper.isrowFinish = false;
+    _helper.rowMergeComplete = true;
+    _helper.noOfPageCount = 0;
+    _helper.isRowHeightSet = false;
+    _helper.maximumRowSpan = 0;
+    _helper.isPageBreakRowSpanApplied = false;
+    _helper.isRowSpanRowHeightSet = false;
+    _helper.isHeaderRow = false;
   }
 
   double _measureHeight() {
@@ -298,19 +281,23 @@ class PdfGridRow {
     bool isHeader = false;
     double rowHeight = cells[0].rowSpan > 1 ? 0 : cells[0].height;
     double maxHeight = 0;
-    if (_grid.headers._indexOf(this) != -1) {
+    if (PdfGridHeaderCollectionHelper.getHelper(_helper.grid.headers)
+            .indexOf(this) !=
+        -1) {
       isHeader = true;
     }
-    for (int i = 0; i < _cells!.count; i++) {
-      final PdfGridCell cell = _cells![i];
-      if (cell._rowSpanRemainingHeight > rowSpanRemainingHeight) {
-        rowSpanRemainingHeight = cell._rowSpanRemainingHeight;
+    for (int i = 0; i < _helper.cells!.count; i++) {
+      final PdfGridCell cell = _helper.cells![i];
+      if (PdfGridCellHelper.getHelper(cell).rowSpanRemainingHeight >
+          rowSpanRemainingHeight) {
+        rowSpanRemainingHeight =
+            PdfGridCellHelper.getHelper(cell).rowSpanRemainingHeight;
       }
-      if (cell._isRowMergeContinue) {
+      if (PdfGridCellHelper.getHelper(cell).isRowMergeContinue) {
         continue;
       }
-      if (!cell._isRowMergeContinue) {
-        _rowMergeComplete = false;
+      if (!PdfGridCellHelper.getHelper(cell).isRowMergeContinue) {
+        _helper.rowMergeComplete = false;
       }
       if (cell.rowSpan > 1) {
         if (maxHeight < cell.height) {
@@ -330,14 +317,84 @@ class PdfGridRow {
     }
     return rowHeight;
   }
+}
+
+/// [PdfGridRow] helper
+class PdfGridRowHelper {
+  /// internal constructor
+  PdfGridRowHelper(this.base);
+
+  /// internal field
+  PdfGridRow base;
+
+  /// internal method
+  static PdfGridRowHelper getHelper(PdfGridRow base) {
+    return base._helper;
+  }
+
+  /// internal method
+  double getWidth() {
+    if (base._width == -1) {
+      base._width = _measureWidth();
+    }
+    return base._width;
+  }
 
   double _measureWidth() {
     double width = 0;
-    for (int i = 0; i < _grid.columns.count; i++) {
-      width += _grid.columns[i].width;
+    for (int i = 0; i < grid.columns.count; i++) {
+      width += grid.columns[i].width;
     }
     return width;
   }
+
+  /// internal field
+  late PdfGrid grid;
+
+  /// internal field
+  PdfGridCellCollection? cells;
+
+  /// internal method
+  late bool rowSpanExists;
+
+  /// internal method
+  late bool isHeaderRow;
+
+  /// internal method
+  late bool isRowSpanRowHeightSet;
+
+  /// internal method
+  late bool isPageBreakRowSpanApplied;
+
+  /// internal method
+  late bool isRowHeightSet;
+
+  /// internal method
+  late bool rowMergeComplete;
+
+  /// internal method
+  late bool isrowFinish;
+
+  /// internal method
+  late bool isRowBreaksNextPage;
+
+  /// internal method
+  late int maximumRowSpan;
+
+  /// internal method
+  late int noOfPageCount;
+
+  /// internal method
+  PdfLayoutResult? gridResult;
+
+  /// internal method
+  late int rowOverflowIndex;
+
+  /// internal method
+  late double rowBreakHeight;
+
+  /// internal method
+  int get index => grid.rows._indexOf(base);
 }
 
 /// Provides access to an ordered, strongly typed collection of
@@ -380,7 +437,7 @@ class PdfGridRow {
 ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
 /// //Draw the grid in PDF document page
 /// grid.draw(
-///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+///     page: document.pages.add(), bounds: Rect.zero);
 /// //Save the document.
 /// List<int> bytes = document.save();
 /// //Dispose the document.
@@ -427,7 +484,7 @@ class PdfGridRowCollection {
   ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -484,7 +541,7 @@ class PdfGridRowCollection {
   ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -531,7 +588,7 @@ class PdfGridRowCollection {
   ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -579,7 +636,7 @@ class PdfGridRowCollection {
   ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -597,7 +654,7 @@ class PdfGridRowCollection {
       row.style.textBrush = _grid.style.textBrush;
       if (row.cells.count == 0) {
         for (int i = 0; i < _grid.columns.count; i++) {
-          row.cells._add(PdfGridCell());
+          PdfGridCellCollectionHelper.getHelper(row.cells).add(PdfGridCell());
         }
       }
       _rows.add(row);
@@ -640,7 +697,7 @@ class PdfGridRowCollection {
   ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -700,7 +757,7 @@ class PdfGridRowCollection {
   /// grid.rows.applyStyle(rowStyle);
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -736,6 +793,35 @@ class PdfGridRowCollection {
   }
 }
 
+// ignore: avoid_classes_with_only_static_members
+/// [PdfGridRowCollection] helper
+class PdfGridRowCollectionHelper {
+  /// internal method
+  static PdfGrid getGrid(PdfGridRowCollection collection) {
+    return collection._grid;
+  }
+
+  /// internal method
+  static void setGrid(PdfGridRowCollection collection, PdfGrid value) {
+    collection._grid = value;
+  }
+
+  /// internal method
+  static List<PdfGridRow> getRows(PdfGridRowCollection collection) {
+    return collection._rows;
+  }
+
+  /// internal method
+  static void setRows(PdfGridRowCollection collection, List<PdfGridRow> value) {
+    collection._rows = value;
+  }
+
+  /// internal method
+  static int indexOf(PdfGridRowCollection collection, PdfGridRow? row) {
+    return collection._indexOf(row);
+  }
+}
+
 /// Provides customization of the settings for the header.
 /// ```dart
 /// //Create a new PDF document
@@ -763,7 +849,7 @@ class PdfGridRowCollection {
 /// grid.rows.setSpan(0, 1, 2, 1);
 /// //Draw the grid in PDF document page
 /// grid.draw(
-///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+///     page: document.pages.add(), bounds: Rect.zero);
 /// //Save the document.
 /// List<int> bytes = document.save();
 /// //Dispose the document.
@@ -773,12 +859,13 @@ class PdfGridHeaderCollection {
   /// Initializes a new instance of the [PdfGridHeaderCollection] class
   /// with the parent grid.
   PdfGridHeaderCollection(PdfGrid grid) {
-    _grid = grid;
+    _helper = PdfGridHeaderCollectionHelper(this);
+    _helper.grid = grid;
     _rows = <PdfGridRow>[];
   }
 
   //Fields
-  late PdfGrid _grid;
+  late PdfGridHeaderCollectionHelper _helper;
   late List<PdfGridRow> _rows;
 
   //Properties
@@ -811,7 +898,7 @@ class PdfGridHeaderCollection {
   /// row2.cells[2].value = '\$12,000';
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -847,7 +934,7 @@ class PdfGridHeaderCollection {
   /// row2.cells[2].value = '\$12,000';
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -883,7 +970,7 @@ class PdfGridHeaderCollection {
   /// row2.cells[2].value = '\$12,000';
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -926,7 +1013,7 @@ class PdfGridHeaderCollection {
   /// row2.cells[2].value = '\$12,000';
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -982,7 +1069,7 @@ class PdfGridHeaderCollection {
   /// row2.cells[2].value = '\$12,000';
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -1001,23 +1088,41 @@ class PdfGridHeaderCollection {
   }
 
   void _add(PdfGridRow row) {
-    row._isHeaderRow = true;
+    PdfGridRowHelper.getHelper(row).isHeaderRow = true;
     _rows.add(row);
   }
 
   List<PdfGridRow> _addRows(int count) {
     PdfGridRow row;
     for (int i = 0; i < count; i++) {
-      row = PdfGridRow(_grid);
-      for (int j = 0; j < _grid.columns.count; j++) {
-        row.cells._add(PdfGridCell());
+      row = PdfGridRow(_helper.grid);
+      for (int j = 0; j < _helper.grid.columns.count; j++) {
+        PdfGridCellCollectionHelper.getHelper(row.cells).add(PdfGridCell());
       }
       _add(row);
     }
     return _rows.toList();
   }
+}
 
-  int _indexOf(PdfGridRow row) {
-    return _rows.indexOf(row);
+/// [PdfGridHeaderCollection] helper
+class PdfGridHeaderCollectionHelper {
+  /// internal constructor
+  PdfGridHeaderCollectionHelper(this.base);
+
+  /// internal field
+  PdfGridHeaderCollection base;
+
+  /// internal method
+  static PdfGridHeaderCollectionHelper getHelper(PdfGridHeaderCollection base) {
+    return base._helper;
+  }
+
+  /// internal method
+  late PdfGrid grid;
+
+  /// internal method
+  int indexOf(PdfGridRow row) {
+    return base._rows.indexOf(row);
   }
 }

@@ -1,5 +1,3 @@
-part of pdf;
-
 /// Enumerator that represents the PDF page orientations.
 enum PdfPageOrientation {
   /// Portrait orientation.
@@ -79,24 +77,6 @@ enum PdfAlignmentStyle {
   bottomRight,
 }
 
-/// TemplateArea can be header/footer on of the following types.
-enum _TemplateType {
-  /// Page template is not used as header.
-  none,
-
-  /// Page template is used as Top.
-  top,
-
-  /// Page template is used as Bottom.
-  bottom,
-
-  /// Page template is used as Left.
-  left,
-
-  /// Page template is used as Right.
-  right
-}
-
 /// Specifies numbering style of page labels.
 enum PdfNumberStyle {
   /// No numbering at all.
@@ -134,4 +114,22 @@ enum PdfFormFieldsTabOrder {
 
   /// Form fields are visited manual order
   manual,
+}
+
+/// TemplateArea can be header/footer on of the following types.
+enum TemplateType {
+  /// Page template is not used as header.
+  none,
+
+  /// Page template is used as Top.
+  top,
+
+  /// Page template is used as Bottom.
+  bottom,
+
+  /// Page template is used as Left.
+  left,
+
+  /// Page template is used as Right.
+  right
 }

@@ -1,4 +1,9 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../drawing/drawing.dart';
+import '../pdf_graphics.dart';
+import '../pdf_pen.dart';
+import 'base/pdf_shape_element.dart';
 
 /// Represents Bezier curve shape.
 class PdfBezierCurve extends PdfShapeElement {
@@ -8,6 +13,7 @@ class PdfBezierCurve extends PdfShapeElement {
   PdfBezierCurve(Offset startPoint, Offset firstControlPoint,
       Offset secondControlPoint, Offset endPoint,
       {PdfPen? pen}) {
+    _helper = PdfBezierCurveHelper(this);
     if (pen != null) {
       super.pen = pen;
     }
@@ -18,10 +24,11 @@ class PdfBezierCurve extends PdfShapeElement {
   }
 
   // fields
-  _Point _startPoint = _Point.empty;
-  _Point _firstControlPoint = _Point.empty;
-  _Point _secondControlPoint = _Point.empty;
-  _Point _endPoint = _Point.empty;
+  late PdfBezierCurveHelper _helper;
+  PdfPoint _startPoint = PdfPoint.empty;
+  PdfPoint _firstControlPoint = PdfPoint.empty;
+  PdfPoint _secondControlPoint = PdfPoint.empty;
+  PdfPoint _endPoint = PdfPoint.empty;
 
   // properties
   /// Gets the starting point of the curve
@@ -29,7 +36,7 @@ class PdfBezierCurve extends PdfShapeElement {
 
   /// Sets the starting point of the curve
   set startPoint(Offset value) {
-    _startPoint = _Point.fromOffset(value);
+    _startPoint = PdfPoint.fromOffset(value);
   }
 
   /// Gets the first control point of the curve.
@@ -37,7 +44,7 @@ class PdfBezierCurve extends PdfShapeElement {
 
   /// Sets the first control point of the curve.
   set firstControlPoint(Offset value) {
-    _firstControlPoint = _Point.fromOffset(value);
+    _firstControlPoint = PdfPoint.fromOffset(value);
   }
 
   /// Gets the second control point of the curve
@@ -45,7 +52,7 @@ class PdfBezierCurve extends PdfShapeElement {
 
   /// Sets the second control point of the curve
   set secondControlPoint(Offset value) {
-    _secondControlPoint = _Point.fromOffset(value);
+    _secondControlPoint = PdfPoint.fromOffset(value);
   }
 
   /// Gets the ending point of the curve.
@@ -53,20 +60,32 @@ class PdfBezierCurve extends PdfShapeElement {
 
   /// Sets the ending point of the curve.
   set endPoint(Offset value) {
-    _endPoint = _Point.fromOffset(value);
+    _endPoint = PdfPoint.fromOffset(value);
+  }
+}
+
+/// [PdfBezierCurve] helper
+class PdfBezierCurveHelper {
+  /// internal constructor
+  PdfBezierCurveHelper(this.base);
+
+  /// internal field
+  late PdfBezierCurve base;
+
+  /// internal method
+  static PdfBezierCurveHelper getHelper(PdfBezierCurve base) {
+    return base._helper;
   }
 
-  // implementation
-
-  @override
-  void _drawInternal(PdfGraphics graphics, _Rectangle bounds) {
-    graphics.drawBezier(
-        startPoint, firstControlPoint, secondControlPoint, endPoint,
-        pen: _obtainPen());
+  /// internal method
+  void drawInternal(PdfGraphics graphics, PdfRectangle bounds) {
+    graphics.drawBezier(base.startPoint, base.firstControlPoint,
+        base.secondControlPoint, base.endPoint,
+        pen: PdfShapeElementHelper.obtainPen(base));
   }
 
-  @override
-  _Rectangle? _getBoundsInternal() {
+  /// internal method
+  PdfRectangle? getBoundsInternal() {
     return null;
   }
 }

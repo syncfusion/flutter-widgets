@@ -3,7 +3,6 @@ library signaturepad;
 import 'dart:math';
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart'
     show
         DragStartBehavior,
@@ -1024,24 +1023,14 @@ class RenderSignaturePad extends RenderBox {
 
   /// Exports the signature to html canvas.
   void renderToContext2D(dynamic context2D) {
-    final String _strokePenColor = strokeColor.red.toString() +
-        ',' +
-        strokeColor.green.toString() +
-        ',' +
-        strokeColor.blue.toString() +
-        ',' +
-        strokeColor.opacity.toStringAsFixed(2);
+    final String _strokePenColor =
+        '${strokeColor.red},${strokeColor.green},${strokeColor.blue},${strokeColor.opacity.toStringAsFixed(2)}';
 
-    final String _backgroundFillColor = backgroundColor.red.toString() +
-        ',' +
-        backgroundColor.green.toString() +
-        ',' +
-        backgroundColor.blue.toString() +
-        ',' +
-        backgroundColor.opacity.toStringAsFixed(2);
+    final String _backgroundFillColor =
+        '${backgroundColor.red},${backgroundColor.green},${backgroundColor.blue},${backgroundColor.opacity.toStringAsFixed(2)}';
 
     //Drawing the background of the SignaturePad
-    context2D.fillStyle = 'rgba(' + _backgroundFillColor + ')';
+    context2D.fillStyle = 'rgba($_backgroundFillColor)';
     context2D.fillRect(0, 0, size.width, size.height);
     context2D.fill();
 
@@ -1061,7 +1050,7 @@ class RenderSignaturePad extends RenderBox {
             _bezierPoints[i].width / 2, 0, 2 * pi, false);
       }
 
-      context2D.fillStyle = 'rgba(' + _strokePenColor + ')';
+      context2D.fillStyle = 'rgba($_strokePenColor)';
       context2D.fill();
     } else {
       for (int i = 0; i < _data.length; i++) {
@@ -1070,7 +1059,7 @@ class RenderSignaturePad extends RenderBox {
           context2D.moveTo(_point.x, _point.y);
           context2D.arc(_point.x, _point.y,
               (_minimumStrokeWidth + _maximumStrokeWidth) / 2, 0, pi * 2, true);
-          context2D.fillStyle = 'rgba(' + _strokePenColor + ')';
+          context2D.fillStyle = 'rgba($_strokePenColor)';
           context2D.fill();
         } else {
           final List<_TouchPoint> _drawPath = _data[i];
@@ -1082,7 +1071,7 @@ class RenderSignaturePad extends RenderBox {
           }
 
           context2D.lineWidth = _maximumStrokeWidth;
-          context2D.strokeStyle = 'rgba(' + _strokePenColor + ')';
+          context2D.strokeStyle = 'rgba($_strokePenColor)';
           context2D.lineCap = 'round';
           context2D.stroke();
         }
@@ -1185,8 +1174,8 @@ class _Bezier {
     final double l1 = sqrt(dx1 * dx1 + dy1 * dy1);
     final double l2 = sqrt(dx2 * dx2 + dy2 * dy2);
 
-    final double dxm = (m1.x - m2.x).toDouble();
-    final double dym = (m1.y - m2.y).toDouble();
+    final double dxm = m1.x - m2.x;
+    final double dym = m1.y - m2.y;
 
     double k = l2 / (l1 + l2);
     if (k.isNaN) {

@@ -4073,6 +4073,25 @@ enum DateRangePickerNavigationMode {
   scroll
 }
 
+/// The direction for extendable range selection in [SfDateRangePicker].
+/// Extends the selected range with the new selected date in the date range
+/// picker based on the extendable range selection direction.
+enum ExtendableRangeSelectionDirection {
+  /// Doesn’t allows to extend the selection, the initial range will remains.
+  none,
+
+  /// Allows to extend the selection in both the direction.
+  both,
+
+  /// Allows to extend the selection only in forward direction.
+  /// The start date will not be changed here.
+  forward,
+
+  /// Allows to extend the selection only in backward direction.
+  /// The end date will not be changed here.
+  backward
+}
+
 /// The dates that visible on the view changes in [SfDateRangePicker].
 ///
 /// Details for [DateRangePickerViewChangedCallback], such as [visibleDateRange]
@@ -4230,7 +4249,7 @@ class IterableDiagnostics<T> extends DiagnosticableTree {
     return collection == null
         ? 'null'
         : collection!.isNotEmpty
-            ? '<' + T.toString() + '>'
+            ? '<$T>'
             : '<none>';
   }
 }

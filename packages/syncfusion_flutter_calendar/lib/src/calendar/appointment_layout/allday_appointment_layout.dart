@@ -1,7 +1,5 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
@@ -96,6 +94,7 @@ class AllDayAppointmentLayout extends StatefulWidget {
   final SfLocalizations localizations;
 
   @override
+  // ignore: library_private_types_in_public_api
   _AllDayAppointmentLayoutState createState() =>
       _AllDayAppointmentLayoutState();
 }
@@ -291,29 +290,25 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
                 ((widget.visibleDates.length - appointmentView.endIndex) *
                         cellWidth) +
                     cellEndPadding,
-                (kAllDayAppointmentHeight * appointmentView.position)
-                    .toDouble(),
+                kAllDayAppointmentHeight * appointmentView.position,
                 (widget.visibleDates.length - appointmentView.startIndex) *
                     cellWidth,
-                ((kAllDayAppointmentHeight * appointmentView.position) +
-                        kAllDayAppointmentHeight -
-                        1)
-                    .toDouble()),
+                (kAllDayAppointmentHeight * appointmentView.position) +
+                    kAllDayAppointmentHeight -
+                    1),
             const Radius.circular(cornerRadius));
       } else {
         rect = RRect.fromRectAndRadius(
             Rect.fromLTRB(
                 widget.timeLabelWidth +
                     (appointmentView.startIndex * cellWidth),
-                (kAllDayAppointmentHeight * appointmentView.position)
-                    .toDouble(),
+                kAllDayAppointmentHeight * appointmentView.position,
                 (appointmentView.endIndex * cellWidth) +
                     widget.timeLabelWidth -
                     cellEndPadding,
-                ((kAllDayAppointmentHeight * appointmentView.position) +
-                        kAllDayAppointmentHeight -
-                        1)
-                    .toDouble()),
+                (kAllDayAppointmentHeight * appointmentView.position) +
+                    kAllDayAppointmentHeight -
+                    1),
             const Radius.circular(cornerRadius));
       }
 
@@ -962,7 +957,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
     if (view == CalendarView.day) {
       _rectPainter.strokeWidth = 0.5;
       _rectPainter.color =
-          calendar.cellBorderColor ?? calendarTheme.cellBorderColor;
+          calendar.cellBorderColor ?? calendarTheme.cellBorderColor!;
       //// Decrease the x position by 0.5 because draw the end point of the view
       /// draws half of the line to current view and hides another half.
       context.canvas.drawLine(
@@ -1270,12 +1265,12 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
 
   void _addExpanderText(Canvas canvas, int position, double textPadding) {
     final TextStyle textStyle = calendar.viewHeaderStyle.dayTextStyle ??
-        calendarTheme.viewHeaderDayTextStyle;
+        calendarTheme.viewHeaderDayTextStyle!;
     final double endYPosition = allDayPainterHeight - kAllDayAppointmentHeight;
     final List<int> keys = moreAppointmentIndex.keys.toList();
     for (final int index in keys) {
       final TextSpan span = TextSpan(
-        text: '+ ' + moreAppointmentIndex[index].toString(),
+        text: '+ ${moreAppointmentIndex[index]}',
         style: textStyle,
       );
       _textPainter.text = span;
@@ -1307,7 +1302,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
           color: calendar.viewHeaderStyle.dayTextStyle != null &&
                   calendar.viewHeaderStyle.dayTextStyle!.color != null
               ? calendar.viewHeaderStyle.dayTextStyle!.color
-              : calendarTheme.viewHeaderDayTextStyle.color,
+              : calendarTheme.viewHeaderDayTextStyle!.color,
           fontSize: calendar.viewHeaderStyle.dayTextStyle != null &&
                   calendar.viewHeaderStyle.dayTextStyle!.fontSize != null
               ? calendar.viewHeaderStyle.dayTextStyle!.fontSize! * 2
@@ -1563,7 +1558,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
               _cellWidth,
               kAllDayAppointmentHeight),
           properties: SemanticsProperties(
-            label: '+' + moreAppointmentIndex[index].toString(),
+            label: '+${moreAppointmentIndex[index]}',
             textDirection: TextDirection.ltr,
           ),
         ));

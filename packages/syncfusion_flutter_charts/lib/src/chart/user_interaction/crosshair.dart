@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../../common/utils/helper.dart';
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
@@ -212,11 +210,13 @@ class CrosshairBehavior {
   /// coordinateUnit - specify the type of x and y values given.'pixel' or 'point' for logica pixel and chart data point respectively.
   /// Defaults to `'point'`.
   void show(dynamic x, double y, [String coordinateUnit = 'point']) {
-    final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
-        _stateProperties.crosshairBehaviorRenderer;
-    final CrosshairRenderingDetails renderingDetails =
-        CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
-    renderingDetails.internalShow(x, y, coordinateUnit);
+    if (_stateProperties != null) {
+      final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
+          _stateProperties.crosshairBehaviorRenderer;
+      final CrosshairRenderingDetails renderingDetails =
+          CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
+      renderingDetails.internalShow(x, y, coordinateUnit);
+    }
   }
 
   /// Displays the crosshair at the specified point index.
@@ -224,59 +224,62 @@ class CrosshairBehavior {
   ///
   /// pointIndex - index of point at which the crosshair needs to be shown.
   void showByIndex(int pointIndex) {
-    final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
-        _stateProperties.crosshairBehaviorRenderer;
-    final CrosshairRenderingDetails renderingDetails =
-        CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
-    if (validIndex(pointIndex, 0, renderingDetails.crosshairPainter!.chart)) {
-      if (renderingDetails.crosshairPainter != null &&
-          activationMode != ActivationMode.none) {
-        final List<CartesianSeriesRenderer> visibleSeriesRenderer =
-            renderingDetails.crosshairPainter!.stateProperties.chartSeries
-                .visibleSeriesRenderers;
-        final SeriesRendererDetails seriesRendererDetails =
-            SeriesHelper.getSeriesRendererDetails(visibleSeriesRenderer[0]);
-        renderingDetails.crosshairPainter!.generateAllPoints(Offset(
-            seriesRendererDetails.dataPoints[pointIndex].markerPoint!.x,
-            seriesRendererDetails.dataPoints[pointIndex].markerPoint!.y));
-        renderingDetails.crosshairPainter!.canResetPath = false;
-        renderingDetails.crosshairPainter!.stateProperties
-            .repaintNotifiers['crosshair']!.value++;
+    if (_stateProperties != null) {
+      final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
+          _stateProperties.crosshairBehaviorRenderer;
+      final CrosshairRenderingDetails renderingDetails =
+          CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
+      if (validIndex(pointIndex, 0, renderingDetails.crosshairPainter!.chart)) {
+        if (renderingDetails.crosshairPainter != null) {
+          final List<CartesianSeriesRenderer> visibleSeriesRenderer =
+              renderingDetails.crosshairPainter!.stateProperties.chartSeries
+                  .visibleSeriesRenderers;
+          final SeriesRendererDetails seriesRendererDetails =
+              SeriesHelper.getSeriesRendererDetails(visibleSeriesRenderer[0]);
+          renderingDetails.crosshairPainter!.generateAllPoints(Offset(
+              seriesRendererDetails.dataPoints[pointIndex].markerPoint!.x,
+              seriesRendererDetails.dataPoints[pointIndex].markerPoint!.y));
+          renderingDetails.crosshairPainter!.canResetPath = false;
+          renderingDetails.crosshairPainter!.stateProperties
+              .repaintNotifiers['crosshair']!.value++;
+        }
       }
     }
   }
 
   /// Hides the crosshair if it is displayed.
   void hide() {
-    final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
-        _stateProperties.crosshairBehaviorRenderer;
-    final CrosshairRenderingDetails renderingDetails =
-        CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
-    if (renderingDetails.crosshairPainter != null) {
-      renderingDetails.crosshairPainter!.canResetPath = false;
-      ValueNotifier<int>(renderingDetails.crosshairPainter!.stateProperties
-          .repaintNotifiers['crosshair']!.value++);
-      renderingDetails.crosshairPainter!.timer?.cancel();
-      if (!_stateProperties.isTouchUp) {
-        renderingDetails.crosshairPainter!.stateProperties
-            .repaintNotifiers['crosshair']!.value++;
-        renderingDetails.crosshairPainter!.canResetPath = true;
-        renderingDetails.position = null;
-      } else {
-        if (!shouldAlwaysShow) {
-          final double duration = (hideDelay == 0 &&
-                  renderingDetails
-                          .crosshairPainter!.stateProperties.enableDoubleTap ==
-                      true)
-              ? 200
-              : hideDelay;
-          renderingDetails.crosshairPainter!.timer =
-              Timer(Duration(milliseconds: duration.toInt()), () {
-            renderingDetails.crosshairPainter!.stateProperties
-                .repaintNotifiers['crosshair']!.value++;
-            renderingDetails.crosshairPainter!.canResetPath = true;
-            renderingDetails.position = null;
-          });
+    if (_stateProperties != null) {
+      final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
+          _stateProperties.crosshairBehaviorRenderer;
+      final CrosshairRenderingDetails renderingDetails =
+          CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
+      if (renderingDetails.crosshairPainter != null) {
+        renderingDetails.crosshairPainter!.canResetPath = false;
+        ValueNotifier<int>(renderingDetails.crosshairPainter!.stateProperties
+            .repaintNotifiers['crosshair']!.value++);
+        renderingDetails.crosshairPainter!.timer?.cancel();
+        if (!_stateProperties.isTouchUp) {
+          renderingDetails.crosshairPainter!.stateProperties
+              .repaintNotifiers['crosshair']!.value++;
+          renderingDetails.crosshairPainter!.canResetPath = true;
+          renderingDetails.position = null;
+        } else {
+          if (!shouldAlwaysShow) {
+            final double duration = (hideDelay == 0 &&
+                    renderingDetails.crosshairPainter!.stateProperties
+                            .enableDoubleTap ==
+                        true)
+                ? 200
+                : hideDelay;
+            renderingDetails.crosshairPainter!.timer =
+                Timer(Duration(milliseconds: duration.toInt()), () {
+              renderingDetails.crosshairPainter!.stateProperties
+                  .repaintNotifiers['crosshair']!.value++;
+              renderingDetails.crosshairPainter!.canResetPath = true;
+              renderingDetails.position = null;
+            });
+          }
         }
       }
     }
@@ -402,9 +405,7 @@ class CrosshairRenderingDetails {
 
     final CrosshairRenderingDetails renderingDetails =
         CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
-    if (renderingDetails.crosshairPainter != null &&
-        _chart.crosshairBehavior.activationMode != ActivationMode.none &&
-        x != null) {
+    if (renderingDetails.crosshairPainter != null && x != null) {
       renderingDetails.crosshairPainter!
           .generateAllPoints(Offset(x.toDouble(), y));
       renderingDetails.crosshairPainter!.canResetPath = false;

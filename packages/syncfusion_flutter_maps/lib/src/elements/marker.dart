@@ -1,6 +1,3 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -11,9 +8,6 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import '../../maps.dart';
 import '../common.dart';
 import '../controller/map_controller.dart';
-import '../enum.dart';
-import '../layer/layer_base.dart';
-import '../layer/shape_layer.dart';
 import '../utils.dart';
 
 // ignore_for_file: public_member_api_docs
@@ -42,7 +36,9 @@ class MarkerContainer extends Stack {
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderMarkerContainer renderObject) {
+      BuildContext context,
+      // ignore: library_private_types_in_public_api
+      _RenderMarkerContainer renderObject) {
     renderObject
       ..markerTooltipBuilder = markerTooltipBuilder
       ..sublayer = sublayer
@@ -886,10 +882,12 @@ class MapMarker extends SingleChildRenderObjectWidget {
       iconType: iconType,
       themeData: SfMapsTheme.of(context)!,
       marker: this,
+      context: context,
     );
   }
 
   @override
+  // ignore: library_private_types_in_public_api
   void updateRenderObject(BuildContext context, _RenderMapMarker renderObject) {
     renderObject
       ..longitude = longitude
@@ -919,6 +917,7 @@ class _RenderMapMarker extends RenderProxyBox
     required double? iconStrokeWidth,
     required MapIconType iconType,
     required SfMapsThemeData themeData,
+    required BuildContext context,
     required this.marker,
   })  : _longitude = longitude,
         _latitude = latitude,
@@ -929,10 +928,12 @@ class _RenderMapMarker extends RenderProxyBox
         _iconStrokeColor = iconStrokeColor,
         _iconStrokeWidth = iconStrokeWidth,
         _iconType = iconType,
-        _themeData = themeData {
+        _themeData = themeData,
+        _theme = Theme.of(context) {
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUp;
   }
 
+  final ThemeData _theme;
   final Size _defaultMarkerSize = const Size(14.0, 14.0);
   late TapGestureRecognizer _tapGestureRecognizer;
 
@@ -1176,7 +1177,12 @@ class _RenderMapMarker extends RenderProxyBox
           canvas: context.canvas,
           rect: paintBounds,
           shapeType: _getEffectiveShapeType(),
-          paint: Paint()..color = _iconColor ?? _themeData.markerIconColor,
+          paint: Paint()
+            ..color = _iconColor ??
+                _themeData.markerIconColor ??
+                (_theme.brightness == Brightness.light
+                    ? const Color.fromRGBO(98, 0, 238, 1)
+                    : const Color.fromRGBO(187, 134, 252, 1)),
           borderPaint: _getBorderPaint());
     } else {
       context.paintChild(child!, offset);

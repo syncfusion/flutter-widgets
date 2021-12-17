@@ -1,9 +1,6 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-import '../chart_series/hiloopenclose_series.dart';
 import '../chart_series/series.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/common.dart';

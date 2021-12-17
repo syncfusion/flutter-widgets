@@ -1,5 +1,3 @@
-part of pdf;
-
 /// Specifies the available PDF versions to save the PDF document.
 enum PdfVersion {
   /// PDF version 1.0.
@@ -88,4 +86,25 @@ enum PdfAttachmentRelationship {
 
   ///Relationship is not known or cannot be described using one of the other values
   unspecified
+}
+
+/// Compression level.
+enum PdfCompressionLevel {
+  /// Pack without compression
+  none,
+
+  /// Use high speed compression, reduce of data size is low
+  bestSpeed,
+
+  /// Something middle between normal and BestSpeed compressions
+  belowNormal,
+
+  /// Use normal compression, middle between speed and size
+  normal,
+
+  /// Pack better but require a little more time
+  aboveNormal,
+
+  /// Use best compression, slow enough
+  best
 }

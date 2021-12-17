@@ -1,10 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../maps.dart';
-import '../layer/shape_layer.dart';
-import '../settings.dart';
 
 /// Base class for the [MapShapeLayer] and [MapTileLayer].
 ///

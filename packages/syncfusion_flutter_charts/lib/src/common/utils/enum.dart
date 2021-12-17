@@ -128,15 +128,3 @@ enum PyramidMode {
   /// - PyramidMode.surface, Surface pyramid will be displayed
   surface
 }
-
-/// Action when labels get overlapped
-enum SmartLabelMode {
-  /// - SmartLabelMode.shift, Shifts the data label position when a label intersects with other label.
-  shift,
-
-  /// - SmartLabelMode.hide, Hides the intersecting data label, and it is the default value.
-  hide,
-
-  /// - SmartLabelMode.none, no action will be performed
-  none
-}

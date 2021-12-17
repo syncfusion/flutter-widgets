@@ -1,7 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../plot_band.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -32,7 +30,7 @@ class SfSparkBarChartRenderObjectWidget extends SfSparkChartRenderObjectWidget {
       SparkChartPlotBand? plotBand,
       this.labelDisplayMode,
       this.labelStyle,
-      ThemeData? themeData,
+      SfChartThemeData? themeData,
       SparkChartDataDetails? sparkChartDataDetails,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
@@ -102,7 +100,9 @@ class SfSparkBarChartRenderObjectWidget extends SfSparkChartRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderSparkBarChart renderObject) {
+      BuildContext context,
+      // ignore: library_private_types_in_public_api
+      _RenderSparkBarChart renderObject) {
     renderObject
       ..isInversed = isInversed
       ..axisCrossesAt = axisCrossesAt!
@@ -155,7 +155,7 @@ class _RenderSparkBarChart extends RenderSparkChart {
       SparkChartLabelDisplayMode? labelDisplayMode,
       TextStyle? labelStyle,
       SparkChartDataDetails? sparkChartDataDetails,
-      ThemeData? themeData,
+      SfChartThemeData? themeData,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
       : _borderWidth = borderWidth,

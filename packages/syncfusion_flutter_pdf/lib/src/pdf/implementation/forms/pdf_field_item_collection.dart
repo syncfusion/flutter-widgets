@@ -1,11 +1,17 @@
-part of pdf;
+import '../general/pdf_collection.dart';
+import '../io/pdf_constants.dart';
+import 'pdf_field.dart';
+import 'pdf_field_item.dart';
 
 /// Represents collection field items.
 class PdfFieldItemCollection extends PdfObjectCollection {
   //Constructor
   PdfFieldItemCollection._(PdfField field) {
-    _field = field;
+    _helper = PdfFieldItemCollectionHelper(this, field);
   }
+
+  //Fields
+  late PdfFieldItemCollectionHelper _helper;
 
   //Properties
   /// Gets the Field item at the specified index.
@@ -13,21 +19,50 @@ class PdfFieldItemCollection extends PdfObjectCollection {
     if (index < 0 || index >= count) {
       throw RangeError('index');
     }
-    return _list[index] as PdfFieldItem;
+    return _helper.list[index] as PdfFieldItem;
   }
-
-  //Fields
-  late PdfField _field;
 
   //Implementations
   /// Clears all items in the list.
   void clear() {
-    _field._array._clear();
-    _list.clear();
-    _field._dictionary.remove(_DictionaryProperties.kids);
+    _helper.clear();
+  }
+}
+
+/// [PdfFieldItemCollection] helper
+class PdfFieldItemCollectionHelper extends PdfObjectCollectionHelper {
+  /// internal constructor
+  PdfFieldItemCollectionHelper(this.fieldItemCollection, this.field)
+      : super(fieldItemCollection);
+
+  /// internal field
+  late PdfFieldItemCollection fieldItemCollection;
+
+  /// internal field
+  late PdfField field;
+
+  /// internal method
+  static PdfFieldItemCollection load(PdfField field) {
+    return PdfFieldItemCollection._(field);
   }
 
-  void _add(PdfFieldItem item) {
-    _list.add(item);
+  /// internal method
+  static PdfFieldItemCollectionHelper getHelper(
+      PdfFieldItemCollection collection) {
+    return collection._helper;
+  }
+
+  /// internal method
+  void add(PdfFieldItem item) {
+    list.add(item);
+  }
+
+  /// internal method
+  void clear() {
+    PdfFieldHelper.getHelper(field).array.clear();
+    list.clear();
+    PdfFieldHelper.getHelper(field)
+        .dictionary!
+        .remove(PdfDictionaryProperties.kids);
   }
 }

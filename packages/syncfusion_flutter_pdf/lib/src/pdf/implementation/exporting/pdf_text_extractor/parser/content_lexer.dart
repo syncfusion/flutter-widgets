@@ -1,24 +1,29 @@
-part of pdf;
-
-class _ContentLexer {
+/// internal class
+class ContentLexer {
   // Constructor
-  _ContentLexer(List<int>? contentStream) {
+  /// internal constructor
+  ContentLexer(List<int>? contentStream) {
     _contentStream = contentStream;
-    _operatorParams = StringBuffer();
+    operatorParams = StringBuffer();
   }
 
   // fields
   List<int>? _contentStream;
-  StringBuffer? _operatorParams;
   String _currentChar = '0';
   String _nextChar = '0';
   int _charPointer = 0;
   bool _isArtifactContentEnds = false;
-  bool _isContainsArtifacts = false;
   bool _isContentEnded = false;
 
+  /// internal field
+  bool isContainsArtifacts = false;
+
+  /// internal field
+  StringBuffer? operatorParams;
+
   // Implementation
-  _PdfTokenType _getNextToken() {
+  /// internal method
+  PdfToken getNextToken() {
     _resetToken();
     final String ch = String.fromCharCode(int.parse(_moveToNextChar()));
     switch (ch) {
@@ -44,7 +49,7 @@ class _ContentLexer {
         return _getNumber();
 
       case '"':
-      case '\'':
+      case "'":
         return _getOperator();
     }
     if (isDigit(ch)) {
@@ -56,14 +61,16 @@ class _ContentLexer {
     }
 
     if (ch == '65535') {
-      return _PdfTokenType.eof;
+      return PdfToken.eof;
     }
 
-    return _PdfTokenType.nullType;
+    return PdfToken.nullType;
   }
 
+  /// internal method
   bool isDigit(String s, [int idx = 0]) => (s.codeUnitAt(idx) ^ 0x30) <= 9;
 
+  /// internal method
   bool isLetter(String s) {
     if (s.contains(RegExp(r'[A-Z]')) || s.contains(RegExp(r'[a-z]'))) {
       return true;
@@ -73,7 +80,7 @@ class _ContentLexer {
   }
 
   void _resetToken() {
-    _operatorParams!.clear();
+    operatorParams!.clear();
   }
 
   String _moveToNextChar() {
@@ -87,7 +94,7 @@ class _ContentLexer {
         case '8':
         case '32':
         case '20':
-          _getNextChar(); // line feeds and spaces
+          getNextChar(); // line feeds and spaces
           break;
 
         default:
@@ -97,7 +104,8 @@ class _ContentLexer {
     return _currentChar;
   }
 
-  String _getNextChar([bool value = false]) {
+  /// internal method
+  String getNextChar([bool value = false]) {
     if (value) {
       return _nextChar;
     }
@@ -128,14 +136,14 @@ class _ContentLexer {
     return _currentChar;
   }
 
-  _PdfTokenType _getComment() {
+  PdfToken _getComment() {
     _resetToken();
     String ch;
     while ((ch = _consumeValue()) != '10' && ch != '65535') {}
-    return _PdfTokenType.comment;
+    return PdfToken.comment;
   }
 
-  _PdfTokenType _getName() {
+  PdfToken _getName() {
     _resetToken();
     while (true) {
       final String ch = _consumeValue();
@@ -143,33 +151,33 @@ class _ContentLexer {
         break;
       }
     }
-    return _PdfTokenType.name;
+    return PdfToken.name;
   }
 
-  _PdfTokenType _getNumber() {
+  PdfToken _getNumber() {
     String ch = _currentChar;
     if (ch == '43' || ch == '45') {
-      _operatorParams!.write(String.fromCharCode(int.parse(_currentChar)));
-      ch = _getNextChar();
+      operatorParams!.write(String.fromCharCode(int.parse(_currentChar)));
+      ch = getNextChar();
     }
     while (true) {
       if (isDigit(String.fromCharCode(int.parse(ch)))) {
-        _operatorParams!.write(String.fromCharCode(int.parse(_currentChar)));
+        operatorParams!.write(String.fromCharCode(int.parse(_currentChar)));
       } else if (ch == '46') {
-        _operatorParams!.write(String.fromCharCode(int.parse(_currentChar)));
+        operatorParams!.write(String.fromCharCode(int.parse(_currentChar)));
       } else {
         break;
       }
-      ch = _getNextChar();
+      ch = getNextChar();
     }
-    return _PdfTokenType.integer;
+    return PdfToken.integer;
   }
 
   String _consumeValue() {
     final String data = String.fromCharCode(int.parse(_currentChar));
-    _operatorParams!.write(data);
-    if (_isContainsArtifacts &&
-        _operatorParams.toString().contains('/Contents') &&
+    operatorParams!.write(data);
+    if (isContainsArtifacts &&
+        operatorParams.toString().contains('/Contents') &&
         !_isContentEnded) {
       _isArtifactContentEnds = true;
       if (String.fromCharCode(int.parse(_nextChar)) == ')' &&
@@ -178,10 +186,10 @@ class _ContentLexer {
         _isContentEnded = true;
       }
     }
-    return _getNextChar();
+    return getNextChar();
   }
 
-  _PdfTokenType _getLiteralString() {
+  PdfToken _getLiteralString() {
     String beginChar;
     _resetToken();
 
@@ -195,15 +203,15 @@ class _ContentLexer {
     while (true) {
       if (String.fromCharCode(int.parse(beginChar)) == '(') {
         literal = _getLiterals(ch);
-        _operatorParams!.write(literal);
-        ch = String.fromCharCode(int.parse(_getNextChar()));
+        operatorParams!.write(literal);
+        ch = String.fromCharCode(int.parse(getNextChar()));
         break;
       } else {
         if (String.fromCharCode(int.parse(ch)) == '(') {
           ch = _consumeValue();
           literal = _getLiterals(ch);
-          _operatorParams!.write(literal);
-          ch = _getNextChar();
+          operatorParams!.write(literal);
+          ch = getNextChar();
           continue;
         } else if (String.fromCharCode(int.parse(ch)) == ']') {
           ch = _consumeValue();
@@ -212,7 +220,7 @@ class _ContentLexer {
         ch = _consumeValue();
       }
     }
-    return _PdfTokenType.string;
+    return PdfToken.string;
   }
 
   String _getLiterals(String ch) {
@@ -222,22 +230,22 @@ class _ContentLexer {
       ch = String.fromCharCode(int.parse(ch));
       if (ch == r'\') {
         literal += ch;
-        ch = String.fromCharCode(int.parse(_getNextChar()));
+        ch = String.fromCharCode(int.parse(getNextChar()));
         literal += ch;
-        ch = _getNextChar();
+        ch = getNextChar();
         continue;
       }
 
       if (ch == '(') {
         parenthesesCount++;
         literal += ch;
-        ch = _getNextChar();
+        ch = getNextChar();
         continue;
       }
 
       if (ch == ')' && parenthesesCount != 0) {
         literal += ch;
-        ch = _getNextChar();
+        ch = getNextChar();
         parenthesesCount--;
         continue;
       }
@@ -247,11 +255,11 @@ class _ContentLexer {
         return literal;
       }
       literal += ch;
-      ch = _getNextChar();
+      ch = getNextChar();
     }
   }
 
-  _PdfTokenType _getHexadecimalString() {
+  PdfToken _getHexadecimalString() {
     int parentLevel = 0;
     String ch = String.fromCharCode(int.parse(_consumeValue()));
     while (true) {
@@ -268,7 +276,7 @@ class _ContentLexer {
             parentLevel--;
           }
           if (parentLevel == 1 &&
-              (ch == ' ' || (_isContainsArtifacts && ch == 'B'))) {
+              (ch == ' ' || (isContainsArtifacts && ch == 'B'))) {
             break;
           }
         } else {
@@ -282,21 +290,22 @@ class _ContentLexer {
       }
     }
     _isContentEnded = false;
-    _isContainsArtifacts = false;
-    return _PdfTokenType.hexString;
+    isContainsArtifacts = false;
+    return PdfToken.hexString;
   }
 
-  _PdfTokenType _getOperator() {
+  PdfToken _getOperator() {
     _resetToken();
     String ch = String.fromCharCode(int.parse(_currentChar));
 
     while (_isOperator(ch)) {
       ch = String.fromCharCode(int.parse(_consumeValue()));
     }
-    return _PdfTokenType.operators;
+    return PdfToken.operators;
   }
 
-  String _getNextInlineChar() {
+  /// internal method
+  String getNextInlineChar() {
     if (_contentStream!.length <= _charPointer) {
       _currentChar = '65535';
       _nextChar = '65535';
@@ -314,7 +323,8 @@ class _ContentLexer {
     return _currentChar;
   }
 
-  String _getNextCharforInlineStream() {
+  /// internal method
+  String getNextCharforInlineStream() {
     if (_contentStream!.length <= _charPointer) {
       _currentChar = '65535';
       _nextChar = '65535';
@@ -335,7 +345,8 @@ class _ContentLexer {
     return _currentChar;
   }
 
-  void _resetContentPointer(int count) {
+  /// internal method
+  void resetContentPointer(int count) {
     _charPointer = _charPointer - count;
   }
 
@@ -345,7 +356,7 @@ class _ContentLexer {
     }
     switch (ch) {
       case '*':
-      case '\'':
+      case "'":
       case '"':
       case '1':
       case '0':
@@ -383,25 +394,52 @@ class _ContentLexer {
     return false;
   }
 
-  void _dispose() {
+  /// internal method
+  void dispose() {
     if (_contentStream != null) {
       _contentStream = null;
     }
   }
 }
 
-enum _PdfTokenType {
+/// internal enumerator
+enum PdfToken {
+  /// internal enumerator
   nullType,
+
+  /// internal enumerator
   comment,
+
+  /// internal enumerator
   integer,
+
+  /// internal enumerator
   real,
+
+  /// internal enumerator
   string,
+
+  /// internal enumerator
   hexString,
+
+  /// internal enumerator
   unicodeString,
+
+  /// internal enumerator
   unicodeHexString,
+
+  /// internal enumerator
   name,
+
+  /// internal enumerator
   operators,
+
+  /// internal enumerator
   beginArray,
+
+  /// internal enumerator
   endArray,
+
+  /// internal enumerator
   eof,
 }

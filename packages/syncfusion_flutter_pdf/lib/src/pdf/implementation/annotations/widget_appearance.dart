@@ -1,20 +1,32 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../graphics/enums.dart';
+import '../graphics/pdf_color.dart';
+import '../io/pdf_constants.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_dictionary.dart';
 
 /// The Syncfusion.Pdf.Interactive namespace contains classes used to create interactive elements.
-class _WidgetAppearance implements _IPdfWrapper {
-  //Constructors
-  _WidgetAppearance() : super() {
-    _dictionary.setProperty(
-        _DictionaryProperties.bc, _borderColor._toArray(PdfColorSpace.rgb));
-    _dictionary.setProperty(
-        _DictionaryProperties.bg, _backColor._toArray(PdfColorSpace.rgb));
+class WidgetAppearance implements IPdfWrapper {
+  /// internal Constructor
+  WidgetAppearance() : super() {
+    dictionary!.setProperty(PdfDictionaryProperties.bc,
+        PdfColorHelper.toArray(_borderColor, PdfColorSpace.rgb));
+    dictionary!.setProperty(PdfDictionaryProperties.bg,
+        PdfColorHelper.toArray(_backColor, PdfColorSpace.rgb));
   }
 
-  //Fields
-  final _PdfDictionary _dictionary = _PdfDictionary();
+  /// internal field
+  PdfDictionary? dictionary = PdfDictionary();
   PdfColor _borderColor = PdfColor(0, 0, 0);
   PdfColor _backColor = PdfColor(255, 255, 255);
   String? _normalCaption = '';
+
+  //Overrides
+  /// internal property
+  IPdfPrimitive? get element => dictionary;
+  set element(IPdfPrimitive? value) {
+    throw ArgumentError("Primitive element can't be set");
+  }
 
   //Properties
   /// Gets or sets the color of the border.
@@ -22,11 +34,11 @@ class _WidgetAppearance implements _IPdfWrapper {
   set borderColor(PdfColor value) {
     if (_borderColor != value) {
       _borderColor = value;
-      value._alpha == 0
-          ? _dictionary.setProperty(
-              _DictionaryProperties.bc, _PdfArray(<int>[]))
-          : _dictionary.setProperty(_DictionaryProperties.bc,
-              _borderColor._toArray(PdfColorSpace.rgb));
+      PdfColorHelper.getHelper(value).alpha == 0
+          ? dictionary!
+              .setProperty(PdfDictionaryProperties.bc, PdfArray(<int>[]))
+          : dictionary!.setProperty(PdfDictionaryProperties.bc,
+              PdfColorHelper.toArray(_borderColor, PdfColorSpace.rgb));
     }
   }
 
@@ -35,32 +47,23 @@ class _WidgetAppearance implements _IPdfWrapper {
   set backColor(PdfColor value) {
     if (_backColor != value) {
       _backColor = value;
-      if (_backColor._alpha == 0) {
-        _dictionary.setProperty(
-            _DictionaryProperties.bc, _PdfArray(<int>[0, 0, 0]));
-        _dictionary.remove(_DictionaryProperties.bg);
+      if (PdfColorHelper.getHelper(_backColor).alpha == 0) {
+        dictionary!
+            .setProperty(PdfDictionaryProperties.bc, PdfArray(<int>[0, 0, 0]));
+        dictionary!.remove(PdfDictionaryProperties.bg);
       } else {
-        _dictionary.setProperty(
-            _DictionaryProperties.bg, _backColor._toArray(PdfColorSpace.rgb));
+        dictionary!.setProperty(PdfDictionaryProperties.bg,
+            PdfColorHelper.toArray(_backColor, PdfColorSpace.rgb));
       }
     }
   }
 
+  /// internal property
   String? get normalCaption => _normalCaption;
   set normalCaption(String? value) {
     if (_normalCaption != value) {
       _normalCaption = value;
-      _dictionary._setString(_DictionaryProperties.ca, _normalCaption);
+      dictionary!.setString(PdfDictionaryProperties.ca, _normalCaption);
     }
-  }
-
-  //Overrides
-  @override
-  _IPdfPrimitive get _element => _dictionary;
-
-  @override
-  // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    throw ArgumentError('Primitive element can\'t be set');
   }
 }

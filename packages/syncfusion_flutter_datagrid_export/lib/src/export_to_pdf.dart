@@ -415,7 +415,7 @@ class DataGridToPdfConverter {
     final PdfGrid pdfGrid = exportToPdfGrid(dataGrid, rows);
 
     //Draw the pdf grid into pdf document
-    pdfGrid.draw(page: pdfPage, bounds: const Rect.fromLTWH(0, 0, 0, 0));
+    pdfGrid.draw(page: pdfPage, bounds: Rect.zero);
 
     return pdfDocument;
   }
@@ -427,7 +427,7 @@ class DataGridToPdfConverter {
   /// Use `cellExport` argument which is the callback and it will be called for each cell. You can customize the cell in pdf document.
 
   PdfGrid exportToPdfGrid(SfDataGrid dataGrid, List<DataGridRow>? rows) {
-    rows ??= dataGrid.source.rows;
+    rows ??= dataGrid.source.effectiveRows;
     final PdfGrid pdfGrid = PdfGrid();
     pdfGrid.style.cellPadding = PdfPaddings(
       left: 3,
@@ -675,7 +675,7 @@ class DataGridToPdfConverter {
         }
 
         _exportTableSummaryCell(
-            column: column!,
+            column: column,
             pdfGrid: pdfGrid,
             dataGrid: dataGrid,
             summaryRow: summaryRow,

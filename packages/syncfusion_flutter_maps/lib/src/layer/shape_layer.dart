@@ -10,14 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
-// ignore: unused_import
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/legend_internal.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 
 import '../common.dart';
-import '../controller/layer_controller.dart';
 import '../controller/map_controller.dart';
 import '../controller/map_provider.dart';
 import '../elements/bubble.dart';
@@ -26,10 +24,7 @@ import '../elements/legend.dart';
 import '../elements/marker.dart';
 import '../elements/toolbar.dart';
 import '../elements/tooltip.dart';
-import '../enum.dart';
-import '../layer/layer_base.dart';
 import '../layer/vector_layers.dart';
-import '../settings.dart';
 import '../utils.dart';
 
 /// The source that maps the data source with the shape file and provides
@@ -1189,7 +1184,7 @@ class GeoJSONLayer extends StatefulWidget {
   final List<MapSublayer>? sublayers;
 
   @override
-  _GeoJSONLayerState createState() => _GeoJSONLayerState();
+  State<GeoJSONLayer> createState() => _GeoJSONLayerState();
 }
 
 class _GeoJSONLayerState extends State<GeoJSONLayer>
@@ -1371,13 +1366,19 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
               ? (isLightTheme
                   ? const Color.fromRGBO(198, 198, 198, 1)
                   : const Color.fromRGBO(71, 71, 71, 1))
-              : mapsThemeData.layerColor),
+              : mapsThemeData.layerColor ??
+                  (isLightTheme
+                      ? themeData.colorScheme.onSurface.withOpacity(0.11)
+                      : themeData.colorScheme.onSurface.withOpacity(0.24))),
       layerStrokeColor: widget.strokeColor ??
           (isSublayer
               ? (isLightTheme
                   ? const Color.fromRGBO(145, 145, 145, 1)
                   : const Color.fromRGBO(133, 133, 133, 1))
-              : mapsThemeData.layerStrokeColor),
+              : mapsThemeData.layerStrokeColor ??
+                  (isLightTheme
+                      ? themeData.colorScheme.onSurface.withOpacity(0.18)
+                      : themeData.colorScheme.onSurface.withOpacity(0.43))),
       layerStrokeWidth: widget.strokeWidth ??
           (isSublayer
               ? (isLightTheme ? 0.5 : 0.25)
@@ -1388,30 +1389,55 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
           .copyWith(
               color: themeData.textTheme.caption!.color!.withOpacity(0.87))
           .merge(widget.legend?.textStyle ?? mapsThemeData.legendTextStyle),
-      bubbleColor: widget.bubbleSettings.color ?? mapsThemeData.bubbleColor,
-      bubbleStrokeColor:
-          widget.bubbleSettings.strokeColor ?? mapsThemeData.bubbleStrokeColor,
+      markerIconColor: mapsThemeData.markerIconColor ??
+          (isLightTheme
+              ? const Color.fromRGBO(98, 0, 238, 1)
+              : const Color.fromRGBO(187, 134, 252, 1)),
+      bubbleColor: widget.bubbleSettings.color ??
+          mapsThemeData.bubbleColor ??
+          (isLightTheme
+              ? const Color.fromRGBO(98, 0, 238, 0.5)
+              : const Color.fromRGBO(187, 134, 252, 0.8)),
+      bubbleStrokeColor: widget.bubbleSettings.strokeColor ??
+          mapsThemeData.bubbleStrokeColor ??
+          Colors.transparent,
       bubbleStrokeWidth:
           widget.bubbleSettings.strokeWidth ?? mapsThemeData.bubbleStrokeWidth,
       bubbleHoverStrokeWidth: mapsThemeData.bubbleHoverStrokeWidth ??
           mapsThemeData.bubbleStrokeWidth,
-      selectionColor:
-          widget.selectionSettings.color ?? mapsThemeData.selectionColor,
+      selectionColor: widget.selectionSettings.color ??
+          mapsThemeData.selectionColor ??
+          (isLightTheme
+              ? themeData.colorScheme.onSurface.withOpacity(0.53)
+              : themeData.colorScheme.onSurface.withOpacity(0.85)),
       selectionStrokeColor: widget.selectionSettings.strokeColor ??
-          mapsThemeData.selectionStrokeColor,
+          mapsThemeData.selectionStrokeColor ??
+          (isLightTheme
+              ? themeData.colorScheme.onPrimary.withOpacity(0.29)
+              : themeData.colorScheme.surface.withOpacity(0.56)),
       selectionStrokeWidth: widget.selectionSettings.strokeWidth ??
           mapsThemeData.selectionStrokeWidth,
-      tooltipColor: widget.tooltipSettings.color ?? mapsThemeData.tooltipColor,
+      tooltipColor: widget.tooltipSettings.color ??
+          mapsThemeData.tooltipColor ??
+          (isLightTheme
+              ? const Color.fromRGBO(117, 117, 117, 1)
+              : const Color.fromRGBO(245, 245, 245, 1)),
       tooltipStrokeColor: widget.tooltipSettings.strokeColor ??
           mapsThemeData.tooltipStrokeColor,
       tooltipStrokeWidth: widget.tooltipSettings.strokeWidth ??
           mapsThemeData.tooltipStrokeWidth,
       tooltipBorderRadius:
           mapsThemeData.tooltipBorderRadius.resolve(Directionality.of(context)),
-      toggledItemColor:
-          widget.legend?.toggledItemColor ?? mapsThemeData.toggledItemColor,
+      toggledItemColor: widget.legend?.toggledItemColor ??
+          mapsThemeData.toggledItemColor ??
+          (isLightTheme
+              ? themeData.colorScheme.onPrimary
+              : themeData.colorScheme.onSurface.withOpacity(0.09)),
       toggledItemStrokeColor: widget.legend?.toggledItemStrokeColor ??
-          mapsThemeData.toggledItemStrokeColor,
+          mapsThemeData.toggledItemStrokeColor ??
+          (isLightTheme
+              ? themeData.colorScheme.onSurface.withOpacity(0.37)
+              : themeData.colorScheme.onSurface.withOpacity(0.17)),
       toggledItemStrokeWidth: widget.legend?.toggledItemStrokeWidth ??
           mapsThemeData.toggledItemStrokeWidth,
     );
@@ -1486,6 +1512,7 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
 
   Offset _getLegendPointerOffset(double? value) {
     double normalized = 0.0;
+    double factor = 0.0;
     final List<MapColorMapper>? colorMappers = _getLegendSource();
     if (value != null && colorMappers != null && colorMappers.isNotEmpty) {
       final int length = colorMappers.length;
@@ -1495,15 +1522,34 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
         for (int i = 0; i < length; i++) {
           final MapColorMapper mapper = colorMappers[i];
           if (mapper.from! <= value && mapper.to! >= value) {
-            normalized +=
-                (value - mapper.from!) / (mapper.to! - mapper.from!) * slab;
-            break;
+            factor = (value - mapper.from!) / (mapper.to! - mapper.from!);
+            if (widget.legend!.segmentPaintingStyle ==
+                MapLegendPaintingStyle.solid) {
+              // Setting the index of the segment based on the hovered
+              // tile for solid bar legend types.
+              _pointerController.segmentIndex = i;
+              normalized += factor;
+              break;
+            } else {
+              normalized += factor * slab;
+              break;
+            }
+          } else if (widget.legend!.segmentPaintingStyle ==
+              MapLegendPaintingStyle.gradient) {
+            normalized += slab;
           }
-          normalized += slab;
         }
       } else {
         // Equal color mapper.
-        normalized = value / (length - 1);
+        if (widget.legend!.segmentPaintingStyle ==
+            MapLegendPaintingStyle.solid) {
+          _pointerController.segmentIndex = value.toInt();
+          // To place the pointer at the center of the segment in case of
+          // solid bar legend type.
+          normalized = 0.5;
+        } else {
+          normalized = value / (length - 1);
+        }
       }
     }
     return Offset(normalized, normalized);
@@ -2165,7 +2211,7 @@ class _RenderGeoJSONLayer extends RenderStack
   }
 
   void _updateSelectionTweenColors() {
-    final Color selectionColor = _themeData.selectionColor;
+    final Color selectionColor = _themeData.selectionColor!;
     _forwardSelectionColorTween!.end = selectionColor;
     _forwardSelectionStrokeColorTween.begin = _themeData.layerStrokeColor;
     _forwardSelectionStrokeColorTween.end = _themeData.selectionStrokeColor;
@@ -2244,7 +2290,7 @@ class _RenderGeoJSONLayer extends RenderStack
     return (_themeData.shapeHoverStrokeColor != null &&
             _themeData.shapeHoverStrokeColor != Colors.transparent)
         ? _themeData.shapeHoverStrokeColor!
-        : getSaturatedColor(_themeData.layerStrokeColor);
+        : getSaturatedColor(_themeData.layerStrokeColor!);
   }
 
   MapLatLngBounds _getMaxVisibleBounds(MapLatLngBounds initialBounds) {
@@ -2563,7 +2609,7 @@ class _RenderGeoJSONLayer extends RenderStack
       ),
     );
     _panDetails = MapPanDetails(
-      newVisibleBounds: _zoomDetails!.newVisibleBounds!,
+      newVisibleBounds: _zoomDetails!.newVisibleBounds,
     );
   }
 
@@ -2710,7 +2756,7 @@ class _RenderGeoJSONLayer extends RenderStack
       double distance, double frictionCoefficient) {
     final int duration =
         (log(10.0 / distance) / log(frictionCoefficient / 100)).round();
-    final int durationInMs = (duration * 650).round();
+    final int durationInMs = duration * 650;
     return Duration(milliseconds: durationInMs < 350 ? 350 : durationInMs);
   }
 
@@ -3127,7 +3173,7 @@ class _RenderGeoJSONLayer extends RenderStack
       _invokeTooltip(
           position: position,
           model: _currentInteractedItem,
-          element: _currentInteractedElement!);
+          element: _currentInteractedElement);
     }
 
     _downLocalPoint = null;
@@ -3173,12 +3219,21 @@ class _RenderGeoJSONLayer extends RenderStack
     final RenderBox renderBox = context.findRenderObject()! as RenderBox;
     final Offset localPosition = renderBox.globalToLocal(event.position);
     _prevSelectedItem = null;
+    // Initially currentHoverItem will be previous hovered item and
+    // currentInteractedItem is interacting item in present, So we have
+    // restricted updating the legend pointer from each pixel changes.
+    final bool didUpdateLegend = _currentHoverItem != _currentInteractedItem;
     _performChildHover(localPosition);
-    if (_legend != null && _legend!.showPointerOnHover) {
+    if (_legend != null && _legend!.showPointerOnHover && didUpdateLegend) {
       if ((_currentInteractedElement == MapLayerElement.bubble &&
               _legend!.source == MapElement.bubble) ||
           (_currentInteractedElement == MapLayerElement.shape &&
               _legend!.source == MapElement.shape)) {
+        if (_previousHoverItem != null) {
+          // Passing null value to offset property in PointerController to
+          // render the solid bar legend segment without pointer.
+          _state._updateLegendPointer(null);
+        }
         _state._updateLegendPointer(
             _currentInteractedItem!.colorValue?.toDouble());
       } else {
@@ -3478,7 +3533,7 @@ class _RenderGeoJSONLayer extends RenderStack
 
       final Color shapeColor = (_currentSelectedItem != null &&
               _currentSelectedItem!.actualIndex == model.actualIndex)
-          ? _themeData.selectionColor
+          ? _themeData.selectionColor!
           : getActualShapeColor(model);
       _forwardToggledShapeColorTween.begin = shapeColor;
       _reverseToggledShapeColorTween.end = shapeColor;
@@ -3663,7 +3718,7 @@ class _RenderGeoJSONLayer extends RenderStack
               ..strokeWidth = _themeData.layerStrokeWidth;
           } else {
             strokePaint
-              ..color = _themeData.layerStrokeColor
+              ..color = _themeData.layerStrokeColor!
               ..strokeWidth = _themeData.layerStrokeWidth;
           }
         } else {
@@ -3746,14 +3801,14 @@ class _RenderGeoJSONLayer extends RenderStack
     }
 
     strokePaint
-      ..color = _themeData.layerStrokeColor
+      ..color = _themeData.layerStrokeColor!
       ..strokeWidth = _themeData.layerStrokeWidth;
   }
 
   // Returns the color to the shape based on the [shapeColorMappers] and
   // [layerColor] properties.
   Color getActualShapeColor(MapModel model) {
-    return model.shapeColor ?? _themeData.layerColor;
+    return model.shapeColor ?? _themeData.layerColor!;
   }
 
   double _getIntrinsicStrokeWidth(double strokeWidth) {
@@ -3795,7 +3850,7 @@ class _RenderGeoJSONLayer extends RenderStack
               _getIntrinsicStrokeWidth(_themeData.shapeHoverStrokeWidth!);
       } else {
         strokePaint
-          ..color = _themeData.layerStrokeColor
+          ..color = _themeData.layerStrokeColor!
           ..strokeWidth = _getIntrinsicStrokeWidth(_themeData.layerStrokeWidth);
       }
 

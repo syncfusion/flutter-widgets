@@ -2,6 +2,29 @@
 
 ## Slider
 
+**Features**
+
+* Tooltip visibility - Provided an option to always show a tooltip.
+* Start and end callbacks - Provided callbacks to notify the user for start and end interactions performed with slider thumb.
+
+## Range Slider
+
+**Features**
+
+* Tooltip visibility - Provided an option to always show a tooltip.
+* Start and end callbacks - Provided callbacks to notify the user for start and end interactions performed with range slider thumb.
+
+## Range Selector
+
+**Features**
+
+* Tooltip visibility - Provided an option to always show a tooltip.
+* Start and end callbacks - Provided callbacks to notify the user for start and end interactions performed with range selector thumb.
+
+## [19.3.43] - 09/30/2021
+
+## Slider
+
 * Provides an option to change the minimum and maximum positions of the vertical slider.
 
 ## Range Slider

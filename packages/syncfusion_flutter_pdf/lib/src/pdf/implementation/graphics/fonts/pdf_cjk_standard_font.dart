@@ -1,4 +1,13 @@
-part of pdf;
+import '../../../interfaces/pdf_interface.dart';
+import '../../io/pdf_constants.dart';
+import '../../primitives/pdf_array.dart';
+import '../../primitives/pdf_dictionary.dart';
+import '../../primitives/pdf_name.dart';
+import 'enums.dart';
+import 'pdf_cid_font.dart';
+import 'pdf_cjk_standard_font_metrics_factory.dart';
+import 'pdf_font.dart';
+import 'pdf_string_format.dart';
 
 /// Represents the standard CJK fonts.
 ///
@@ -35,7 +44,9 @@ class PdfCjkStandardFont extends PdfFont {
   /// ```
   PdfCjkStandardFont(PdfCjkFontFamily fontFamily, double size,
       {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
-    _initialize(size, style: style, multiStyle: multiStyle);
+    _helper = PdfCjkStandardFontHelper(this);
+    PdfFontHelper.getHelper(this)
+        .initialize(size, style: style, multiStyle: multiStyle);
     _fontFamily = fontFamily;
     _initializeInternals();
   }
@@ -59,15 +70,19 @@ class PdfCjkStandardFont extends PdfFont {
   /// ```
   PdfCjkStandardFont.protoType(PdfCjkStandardFont prototype, double size,
       {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
-    _initialize(size, style: style, multiStyle: multiStyle);
+    _helper = PdfCjkStandardFontHelper(this);
+    PdfFontHelper.getHelper(this)
+        .initialize(size, style: style, multiStyle: multiStyle);
     _fontFamily = prototype.fontFamily;
     if (style == null && (multiStyle == null || multiStyle.isEmpty)) {
-      _setStyle(prototype.style, null);
+      PdfFontHelper.getHelper(this).setStyle(prototype.style, null);
     }
     _initializeInternals();
   }
 
   //Fields
+  late PdfCjkStandardFontHelper _helper;
+
   /// FontFamily of the font.
   PdfCjkFontFamily _fontFamily = PdfCjkFontFamily.heiseiKakuGothicW5;
 
@@ -91,41 +106,32 @@ class PdfCjkStandardFont extends PdfFont {
   /// ```
   PdfCjkFontFamily get fontFamily => _fontFamily;
 
-  //_IPdfWrapper elements
-  @override
-  _IPdfPrimitive? get _element => _fontInternals;
-
-  @override
-  //ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    _fontInternals = value;
-  }
-
   void _initializeInternals() {
-    _metrics = _PdfCjkStandardFontMetricsFactory._getMetrics(
-        _fontFamily, _fontStyle, size);
-    _fontInternals = _createInternals();
+    PdfFontHelper.getHelper(this).metrics =
+        PdfCjkStandardFontMetricsFactory.getMetrics(
+            _fontFamily, PdfFontHelper.getHelper(this).fontStyle, size);
+    PdfFontHelper.getHelper(this).fontInternals = _createInternals();
   }
 
   /// Creates font's dictionary.
-  _PdfDictionary _createInternals() {
-    final _PdfDictionary dictionary = _PdfDictionary();
+  PdfDictionary _createInternals() {
+    final PdfDictionary dictionary = PdfDictionary();
 
-    dictionary[_DictionaryProperties.type] =
-        _PdfName(_DictionaryProperties.font);
-    dictionary[_DictionaryProperties.subtype] =
-        _PdfName(_DictionaryProperties.type0);
-    dictionary[_DictionaryProperties.baseFont] =
-        _PdfName(_metrics!.postScriptName);
+    dictionary[PdfDictionaryProperties.type] =
+        PdfName(PdfDictionaryProperties.font);
+    dictionary[PdfDictionaryProperties.subtype] =
+        PdfName(PdfDictionaryProperties.type0);
+    dictionary[PdfDictionaryProperties.baseFont] =
+        PdfName(PdfFontHelper.getHelper(this).metrics!.postScriptName);
 
-    dictionary[_DictionaryProperties.encoding] = _getEncoding(_fontFamily);
-    dictionary[_DictionaryProperties.descendantFonts] = _getDescendantFont();
+    dictionary[PdfDictionaryProperties.encoding] = _getEncoding(_fontFamily);
+    dictionary[PdfDictionaryProperties.descendantFonts] = _getDescendantFont();
 
     return dictionary;
   }
 
   /// Gets the prope CJK encoding.
-  static _PdfName _getEncoding(PdfCjkFontFamily? fontFamily) {
+  static PdfName _getEncoding(PdfCjkFontFamily? fontFamily) {
     String encoding = 'Unknown';
 
     switch (fontFamily) {
@@ -147,38 +153,64 @@ class PdfCjkStandardFont extends PdfFont {
       default:
         break;
     }
-    final _PdfName name = _PdfName(encoding);
+    final PdfName name = PdfName(encoding);
     return name;
   }
 
   /// Returns descendant font.
-  _PdfArray _getDescendantFont() {
-    final _PdfArray df = _PdfArray();
-    final _PdfCidFont cidFont = _PdfCidFont(_fontFamily, _fontStyle, _metrics!);
-    df._add(cidFont);
+  PdfArray _getDescendantFont() {
+    final PdfArray df = PdfArray();
+    final PdfCidFont cidFont = PdfCidFont(
+        _fontFamily,
+        PdfFontHelper.getHelper(this).fontStyle,
+        PdfFontHelper.getHelper(this).metrics!);
+    df.add(cidFont);
     return df;
   }
 
-  @override
-  double _getLineWidth(String line, PdfStringFormat? format) {
+  IPdfPrimitive? get _element => PdfFontHelper.getHelper(this).fontInternals;
+  set _element(IPdfPrimitive? value) {
+    PdfFontHelper.getHelper(this).fontInternals = value;
+  }
+}
+
+/// [PdfCjkStandardFont] element
+class PdfCjkStandardFontHelper {
+  /// internal constructor
+  PdfCjkStandardFontHelper(this.base);
+
+  /// internal field
+  PdfCjkStandardFont base;
+
+  /// internal method
+  static PdfCjkStandardFontHelper getHelper(PdfCjkStandardFont base) {
+    return base._helper;
+  }
+
+  /// internal method
+  IPdfPrimitive? get element => base._element;
+  set element(IPdfPrimitive? value) {
+    base._element = value;
+  }
+
+  /// internal method
+  double getLineWidth(String line, PdfStringFormat? format) {
     double width = 0;
     for (int i = 0; i < line.length; i++) {
       final String ch = line[i];
-      final double charWidth = _getCharWidthInternal(ch);
+      final double charWidth = getCharWidthInternal(ch);
       width += charWidth;
     }
-
-    final double size = _metrics!._getSize(format)!;
-    width *= PdfFont._characterSizeMultiplier * size;
-    width = _applyFormatSettings(line, format, width);
-
+    final double size = PdfFontHelper.getHelper(base).metrics!.getSize(format)!;
+    width *= PdfFontHelper.characterSizeMultiplier * size;
+    width = PdfFontHelper.applyFormatSettings(base, line, format, width);
     return width;
   }
 
   /// Gets the char width internal.
-  double _getCharWidthInternal(String charCode) {
+  double getCharWidthInternal(String charCode) {
     int code = charCode.codeUnitAt(0);
     code = (code >= 0) ? code : 0;
-    return _metrics!._widthTable![code]!.toDouble();
+    return PdfFontHelper.getHelper(base).metrics!.widthTable![code]!.toDouble();
   }
 }

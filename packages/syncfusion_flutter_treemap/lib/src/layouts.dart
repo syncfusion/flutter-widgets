@@ -666,7 +666,7 @@ class Treemap extends StatefulWidget {
   final TreemapBreadcrumbs? breadcrumbs;
 
   @override
-  _TreemapState createState() => _TreemapState();
+  State<Treemap> createState() => _TreemapState();
 }
 
 class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
@@ -794,18 +794,37 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
       // Range color mapper.
       if (widget.colorMappers![0].from != null) {
         final double slab = 1 / length;
+        double factor = 0.0;
         for (int i = 0; i < length; i++) {
           final TreemapColorMapper mapper = widget.colorMappers![i];
           if (mapper.from! <= value && mapper.to! >= value) {
-            normalized +=
-                (value - mapper.from!) / (mapper.to! - mapper.from!) * slab;
-            break;
+            factor = (value - mapper.from!) / (mapper.to! - mapper.from!);
+            if (widget.legend!.segmentPaintingStyle ==
+                TreemapLegendPaintingStyle.solid) {
+              // Setting the index of the segment based on the hovered
+              // tile for solid bar legend types.
+              _pointerController.segmentIndex = i;
+              normalized += factor;
+              break;
+            } else {
+              normalized += factor * slab;
+              break;
+            }
+          } else if (widget.legend!.segmentPaintingStyle ==
+              TreemapLegendPaintingStyle.gradient) {
+            normalized += slab;
           }
-          normalized += slab;
         }
       } else {
         // Equal color mapper.
-        normalized = value / (length - 1);
+        if (widget.legend!.segmentPaintingStyle ==
+            TreemapLegendPaintingStyle.solid) {
+          _pointerController.segmentIndex = value.toInt();
+          // To place the pointer at the center of the segment in case of
+          // solid bar legend type.
+          normalized = 0.5;
+        } else
+          normalized = value / (length - 1);
       }
     }
     return Offset(normalized, normalized);
@@ -2303,11 +2322,10 @@ class _BreadcrumbsState extends State<_Breadcrumbs>
     final List<Widget> children = <Widget>[];
     final int length = _tiles.length;
     if (_breadcrumbs.isEmpty) {
-      _breadcrumbs.add(widget.settings.builder(context, _current, true)!);
+      _breadcrumbs.add(widget.settings.builder(context, _current, true));
     }
-    final Color dividerColor = Theme.of(context).brightness == Brightness.light
-        ? const Color.fromRGBO(0, 0, 0, 0.54)
-        : const Color.fromRGBO(255, 255, 255, 0.54);
+    final Color dividerColor =
+        Theme.of(context).colorScheme.onSurface.withOpacity(0.54);
     final Widget divider = widget.settings.divider ??
         Icon(Icons.chevron_right, size: 16.0, color: dividerColor);
 

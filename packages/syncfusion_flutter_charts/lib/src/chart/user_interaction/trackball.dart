@@ -1,27 +1,17 @@
 import 'dart:async';
-import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-import 'package:syncfusion_flutter_core/core.dart';
 
-import '../../common/event_args.dart';
 import '../../common/rendering_details.dart';
-import '../../common/utils/enum.dart';
 import '../../common/utils/helper.dart';
-import '../../common/utils/typedef.dart';
 import '../axis/axis.dart';
 import '../axis/axis_panel.dart';
 import '../axis/category_axis.dart';
 import '../axis/datetime_axis.dart';
 import '../axis/datetime_category_axis.dart';
-import '../base/chart_base.dart';
-import '../chart_behavior/chart_behavior.dart';
 import '../chart_segment/chart_segment.dart';
 import '../chart_series/financial_series_base.dart';
 import '../chart_series/series.dart';
@@ -29,12 +19,8 @@ import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
 import '../common/interactive_tooltip.dart';
-import '../common/marker.dart';
 import '../common/renderer.dart';
-import '../common/trackball_marker_settings.dart';
-import '../utils/enum.dart';
 import '../utils/helper.dart';
-import 'trackball_marker_setting_renderer.dart';
 import 'trackball_painter.dart';
 import 'trackball_template.dart';
 
@@ -406,9 +392,8 @@ class TrackballBehavior {
         stateProperties.chartSeries.visibleSeriesRenderers;
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(visibleSeriesRenderer[0]);
-    if ((_trackballRenderingDetails.trackballPainter != null ||
-            builder != null) &&
-        activationMode != ActivationMode.none) {
+    if (_trackballRenderingDetails.trackballPainter != null ||
+        builder != null) {
       final ChartAxisRendererDetails xAxisDetails =
           seriesRendererDetails.xAxisDetails!;
       if (coordinateUnit != 'pixel') {
@@ -431,10 +416,13 @@ class TrackballBehavior {
         x = location.x;
         y = location.y;
       }
-      if (_trackballRenderingDetails.trackballPainter != null) {
+      if (_trackballRenderingDetails.trackballPainter != null &&
+          seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
         _trackballRenderingDetails.isTrackballTemplate = false;
         _trackballRenderingDetails.generateAllPoints(Offset(x.toDouble(), y));
-      } else if (builder != null && (!_trackballRenderingDetails.isMoving)) {
+      } else if (builder != null &&
+          (!_trackballRenderingDetails.isMoving) &&
+          seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
         _trackballRenderingDetails
             .showTemplateTrackball(Offset(x.toDouble(), y));
       }
@@ -465,8 +453,7 @@ class TrackballBehavior {
         TrackballHelper.getRenderingDetails(
             _stateProperties.trackballBehaviorRenderer);
     if (_trackballRenderingDetails.trackballPainter != null &&
-        !_trackballRenderingDetails.isTrackballTemplate &&
-        activationMode != ActivationMode.none) {
+        !_trackballRenderingDetails.isTrackballTemplate) {
       if (stateProperties.chart.trackballBehavior.activationMode ==
           ActivationMode.doubleTap) {
         _trackballRenderingDetails.trackballPainter!.canResetPath = false;
@@ -487,6 +474,9 @@ class TrackballBehavior {
                 ? 200
                 : hideDelay;
         if (!shouldAlwaysShow) {
+          if (_trackballRenderingDetails.trackballPainter!.timer != null) {
+            _trackballRenderingDetails.trackballPainter!.timer!.cancel();
+          }
           _trackballRenderingDetails.trackballPainter!.timer =
               Timer(Duration(milliseconds: duration.toInt()), () {
             _trackballRenderingDetails.trackballPainter!.stateProperties
@@ -707,7 +697,6 @@ class TrackballRenderingDetails {
       final Size size = Size(markerSettings.width, markerSettings.height);
       final String seriesType =
           chartPointInfo[index].seriesRendererDetails!.seriesType;
-      chartPointInfo[index].seriesRendererDetails!.isMarkerRenderEvent = true;
       markerShapes.add(getMarkerShapesPath(
           markerType,
           Offset(
@@ -1170,8 +1159,9 @@ class TrackballRenderingDetails {
           TrackballDisplayMode.floatAllPoints) {
         ChartPointInfo point = trackballInfo[0];
         for (i = 1; i < trackballInfo.length; i++) {
-          if ((point.yPosition! - yPos).abs() >
-              (trackballInfo[i].yPosition! - yPos).abs()) {
+          if (((point.yPosition! - yPos).abs() >
+                  (trackballInfo[i].yPosition! - yPos).abs()) &&
+              point.xPosition == trackballInfo[i].xPosition) {
             point = trackballInfo[i];
           }
         }
@@ -1612,16 +1602,22 @@ class TrackballRenderingDetails {
       final ChartAxisRendererDetails axisDetails =
           seriesRendererDetails.xAxisDetails!;
       if (axisDetails is DateTimeAxisDetails) {
+        final num interval = axisDetails.visibleRange!.minimum.ceil();
+        final num prevInterval = (axisDetails.visibleLabels.length != null &&
+                axisDetails.visibleLabels.isNotEmpty)
+            ? axisDetails
+                .visibleLabels[axisDetails.visibleLabels.length - 1].value
+            : interval;
         final DateFormat dateFormat =
             (axisDetails.axis as DateTimeAxis).dateFormat ??
-                getDateTimeLabelFormat(axisDetails.axisRenderer);
+                getDateTimeLabelFormat(axisDetails.axisRenderer,
+                    interval.toInt(), prevInterval.toInt());
         x = dateFormat
             .format(DateTime.fromMillisecondsSinceEpoch(xValue! as int));
       } else if (axisDetails is CategoryAxisDetails) {
         x = dataPoint.x;
       } else if (axisDetails is DateTimeCategoryAxisDetails) {
-        x = axisDetails.labels
-            .indexOf(axisDetails.dateFormat.format(dataPoint.x));
+        x = axisDetails.dateFormat.format(dataPoint.x);
       }
       labelValue = seriesRendererDetails.seriesType.contains('hilo') == true ||
               seriesRendererDetails.seriesType.contains('range') == true ||
@@ -1691,33 +1687,9 @@ class TrackballRenderingDetails {
                       true
               ? seriesRendererDetails.seriesType.contains('boxandwhisker') ==
                       true
-                  ? 'Maximum : ' +
-                      getLabelValue(maxValue, yAxis) +
-                      '\n' +
-                      'Minimum : ' +
-                      getLabelValue(minValue, yAxis) +
-                      '\n' +
-                      'LowerQuartile : ' +
-                      getLabelValue(lowerQuartileValue, yAxis) +
-                      '\n' +
-                      'UpperQuartile : ' +
-                      getLabelValue(upperQuartileValue, yAxis)
-                  : 'High : ' +
-                      getLabelValue(highValue, yAxis) +
-                      '\n' +
-                      'Low : ' +
-                      getLabelValue(lowValue, yAxis) +
-                      '\n' +
-                      'Open : ' +
-                      getLabelValue(openValue, yAxis) +
-                      '\n' +
-                      'Close : ' +
-                      getLabelValue(closeValue, yAxis)
-              : 'High : ' +
-                  getLabelValue(highValue, yAxis) +
-                  '\n' +
-                  'Low : ' +
-                  getLabelValue(lowValue, yAxis);
+                  ? 'Maximum : ${getLabelValue(maxValue, yAxis)}\nMinimum : ${getLabelValue(minValue, yAxis)}\nLowerQuartile : ${getLabelValue(lowerQuartileValue, yAxis)}\nUpperQuartile : ${getLabelValue(upperQuartileValue, yAxis)}'
+                  : 'High : ${getLabelValue(highValue, yAxis)}\nLow : ${getLabelValue(lowValue, yAxis)}\nOpen : ${getLabelValue(openValue, yAxis)}\nClose : ${getLabelValue(closeValue, yAxis)}'
+              : 'High : ${getLabelValue(highValue, yAxis)}\nLow : ${getLabelValue(lowValue, yAxis)}';
     }
     return labelValue;
   }
@@ -1731,8 +1703,15 @@ class TrackballRenderingDetails {
     String? date;
     if (xAxisDetails is DateTimeAxisDetails) {
       final DateTimeAxis _xAxis = xAxisDetails.axis as DateTimeAxis;
+      final num interval = xAxisDetails.visibleRange!.minimum.ceil();
+      final num prevInterval = (xAxisDetails.visibleLabels.length != null &&
+              xAxisDetails.visibleLabels.isNotEmpty)
+          ? xAxisDetails
+              .visibleLabels[xAxisDetails.visibleLabels.length - 1].value
+          : interval;
       final DateFormat dateFormat = _xAxis.dateFormat ??
-          getDateTimeLabelFormat(xAxisDetails.axisRenderer);
+          getDateTimeLabelFormat(xAxisDetails.axisRenderer, interval.toInt(),
+              prevInterval.toInt());
       date = dateFormat
           .format(DateTime.fromMillisecondsSinceEpoch(point.xValue.floor()));
     }
@@ -1769,9 +1748,8 @@ class TrackballRenderingDetails {
     final TrackballRenderingDetails _trackballRenderingDetails =
         TrackballHelper.getRenderingDetails(
             _stateProperties.trackballBehaviorRenderer);
-    if ((_trackballRenderingDetails.trackballPainter != null ||
-            _chart.trackballBehavior.builder != null) &&
-        _chart.trackballBehavior.activationMode != ActivationMode.none) {
+    if (_trackballRenderingDetails.trackballPainter != null ||
+        _chart.trackballBehavior.builder != null) {
       if (validIndex(pointIndex, 0, stateProperties.chart)) {
         _trackballRenderingDetails.showTrackball(
             stateProperties.chartSeries.visibleSeriesRenderers,

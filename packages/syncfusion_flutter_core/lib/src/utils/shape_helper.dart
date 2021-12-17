@@ -2,7 +2,6 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 /// Apply the different marker pointer.
 enum ShapeMarkerType {
@@ -782,7 +781,7 @@ Path _processPentagonShape(
   final double radius = rect.width / 2;
 
   for (int i = 0; i <= numberOfSides; i++) {
-    final double angle = ((i / 5) * pi * 2 + rotation!).toDouble();
+    final double angle = (i / 5) * pi * 2 + rotation!;
     i == 0
         ? path.moveTo(cos(angle) * radius + left, sin(angle) * radius + top)
         : path.lineTo(cos(angle) * radius + left, sin(angle) * radius + top);
@@ -912,19 +911,13 @@ Path _processPieShape(
   final double r = min(height, width) / 2;
   path.moveTo(x, y);
   path.lineTo(x + r, y);
-  path.arcTo(
-      Rect.fromCircle(center: Offset(x, y), radius: r),
-      _degreesToRadians(0).toDouble(),
-      _degreesToRadians(270).toDouble(),
-      false);
+  path.arcTo(Rect.fromCircle(center: Offset(x, y), radius: r),
+      _degreesToRadians(0), _degreesToRadians(270), false);
   path.close();
   path.moveTo(x + width / 10, y - height / 10);
   path.lineTo(x + r, y - height / 10);
-  path.arcTo(
-      Rect.fromCircle(center: Offset(x + 2, y - 2), radius: r),
-      _degreesToRadians(-5).toDouble(),
-      _degreesToRadians(-80).toDouble(),
-      false);
+  path.arcTo(Rect.fromCircle(center: Offset(x + 2, y - 2), radius: r),
+      _degreesToRadians(-5), _degreesToRadians(-80), false);
   path.close();
 
   if (isNeedToReturnPath) {
@@ -1073,34 +1066,25 @@ Path _getArcPath(Path path, double innerRadius, double radius, Offset center,
   final num midpointAngle = (endAngle + startAngle) / 2;
 
   if (isFullCircle) {
-    path.arcTo(
-        Rect.fromCircle(center: center, radius: radius.toDouble()),
-        startAngle.toDouble(),
-        midpointAngle.toDouble() - startAngle.toDouble(),
-        true);
-    path.arcTo(
-        Rect.fromCircle(center: center, radius: radius.toDouble()),
-        midpointAngle.toDouble(),
-        endAngle.toDouble() - midpointAngle.toDouble(),
-        true);
+    path.arcTo(Rect.fromCircle(center: center, radius: radius), startAngle,
+        midpointAngle.toDouble() - startAngle, true);
+    path.arcTo(Rect.fromCircle(center: center, radius: radius),
+        midpointAngle.toDouble(), endAngle - midpointAngle.toDouble(), true);
   } else {
     path.lineTo(radiusStartPoint.x, radiusStartPoint.y);
-    path.arcTo(Rect.fromCircle(center: center, radius: radius.toDouble()),
-        startAngle.toDouble(), degree.toDouble(), true);
+    path.arcTo(Rect.fromCircle(center: center, radius: radius), startAngle,
+        degree, true);
   }
 
   if (isFullCircle) {
-    path.arcTo(
-        Rect.fromCircle(center: center, radius: innerRadius.toDouble()),
-        endAngle.toDouble(),
-        midpointAngle.toDouble() - endAngle.toDouble(),
-        true);
-    path.arcTo(Rect.fromCircle(center: center, radius: innerRadius.toDouble()),
+    path.arcTo(Rect.fromCircle(center: center, radius: innerRadius), endAngle,
+        midpointAngle.toDouble() - endAngle, true);
+    path.arcTo(Rect.fromCircle(center: center, radius: innerRadius),
         midpointAngle.toDouble(), startAngle - midpointAngle.toDouble(), true);
   } else {
     path.lineTo(innerRadiusEndPoint.x, innerRadiusEndPoint.y);
-    path.arcTo(Rect.fromCircle(center: center, radius: innerRadius.toDouble()),
-        endAngle.toDouble(), startAngle.toDouble() - endAngle.toDouble(), true);
+    path.arcTo(Rect.fromCircle(center: center, radius: innerRadius), endAngle,
+        startAngle - endAngle, true);
     path.lineTo(radiusStartPoint.x, radiusStartPoint.y);
   }
   return path;

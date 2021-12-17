@@ -81,6 +81,7 @@ class TimeSlotWidget extends StatefulWidget {
   final DateTime maxDate;
 
   @override
+  // ignore: library_private_types_in_public_api
   _TimeSlotWidgetState createState() => _TimeSlotWidgetState();
 }
 
@@ -740,7 +741,7 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
     _linePainter.style = PaintingStyle.stroke;
     _linePainter.strokeWidth = 0.5;
     _linePainter.strokeCap = StrokeCap.round;
-    _linePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor;
+    _linePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor!;
 
     final double startXPosition = isRTL ? 0 : timeLabelWidth;
     final double endXPosition =
@@ -862,7 +863,7 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
         semanticsBuilder.add(CustomPainterSemantics(
           rect: Rect.fromLTWH(left, top, cellWidth, cellHeight),
           properties: SemanticsProperties(
-            label: DateFormat('h a, dd/MMMM/yyyy').format(date).toString(),
+            label: DateFormat('h a, dd MMMM yyyy').format(date),
             textDirection: TextDirection.ltr,
           ),
         ));

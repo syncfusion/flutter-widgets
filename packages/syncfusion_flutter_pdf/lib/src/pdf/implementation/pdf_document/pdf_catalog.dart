@@ -1,20 +1,36 @@
-part of pdf;
+import 'dart:convert';
+
+import 'package:xml/xml.dart';
+
+import '../../interfaces/pdf_interface.dart';
+import '../forms/pdf_form.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../pages/pdf_section_collection.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_stream.dart';
+import '../xmp/xmp_metadata.dart';
+import 'pdf_catalog_names.dart';
+import 'pdf_document.dart';
 
 /// Represents internal catalog of the PDF document.
-class _PdfCatalog extends _PdfDictionary {
+class PdfCatalog extends PdfDictionary {
   /// Initializes a new instance of the [PdfCatalog] class.
-  _PdfCatalog() {
-    this[_DictionaryProperties.type] = _PdfName('Catalog');
+  PdfCatalog() {
+    this[PdfDictionaryProperties.type] = PdfName('Catalog');
   }
 
-  _PdfCatalog.fromDocument(PdfDocument document, _PdfDictionary? catalog)
+  /// internal constructor
+  PdfCatalog.fromDocument(PdfDocument this.document, PdfDictionary? catalog)
       : super(catalog) {
-    _document = document;
-    if (containsKey(_DictionaryProperties.names)) {
-      final _IPdfPrimitive? obj =
-          _PdfCrossTable._dereference(this[_DictionaryProperties.names]);
-      if (obj is _PdfDictionary) {
-        _catalogNames = _PdfCatalogNames(obj);
+    if (containsKey(PdfDictionaryProperties.names)) {
+      final IPdfPrimitive? obj =
+          PdfCrossTable.dereference(this[PdfDictionaryProperties.names]);
+      if (obj is PdfDictionary) {
+        _catalogNames = PdfCatalogNames(obj);
       }
     }
     readMetadata();
@@ -23,42 +39,49 @@ class _PdfCatalog extends _PdfDictionary {
 
   PdfSectionCollection? _sections;
   // ignore: unused_field
-  PdfDocument? _document;
-  _XmpMetadata? _metadata;
-  _PdfCatalogNames? _catalogNames;
+  /// internal field
+  PdfDocument? document;
+
+  /// internal field
+  XmpMetadata? metadata;
+  PdfCatalogNames? _catalogNames;
   PdfForm? _forms;
   // ignore: unused_element
-  PdfSectionCollection? get _pages => _sections;
-  set _pages(PdfSectionCollection? sections) {
+  /// internal property
+  PdfSectionCollection? get pages => _sections;
+  set pages(PdfSectionCollection? sections) {
     if (_sections != sections) {
       _sections = sections;
-      this[_DictionaryProperties.pages] = _PdfReferenceHolder(sections);
+      this[PdfDictionaryProperties.pages] = PdfReferenceHolder(sections);
     }
   }
 
-  _PdfDictionary? get _destinations {
-    _PdfDictionary? dests;
-    if (containsKey(_DictionaryProperties.dests)) {
-      dests = _PdfCrossTable._dereference(this[_DictionaryProperties.dests])
-          as _PdfDictionary?;
+  /// internal property
+  PdfDictionary? get destinations {
+    PdfDictionary? dests;
+    if (containsKey(PdfDictionaryProperties.dests)) {
+      dests = PdfCrossTable.dereference(this[PdfDictionaryProperties.dests])
+          as PdfDictionary?;
     }
     return dests;
   }
 
-  _PdfCatalogNames? get _names {
+  /// internal property
+  PdfCatalogNames? get names {
     if (_catalogNames == null) {
-      _catalogNames = _PdfCatalogNames();
-      this[_DictionaryProperties.names] = _PdfReferenceHolder(_catalogNames);
+      _catalogNames = PdfCatalogNames();
+      this[PdfDictionaryProperties.names] = PdfReferenceHolder(_catalogNames);
     }
     return _catalogNames;
   }
 
-  PdfForm? get _form => _forms;
-  set _form(PdfForm? value) {
+  /// internal property
+  PdfForm? get form => _forms;
+  set form(PdfForm? value) {
     if (_forms != value) {
       _forms = value;
-      if (!_forms!._isLoadedForm) {
-        this[_DictionaryProperties.acroForm] = _PdfReferenceHolder(_forms);
+      if (!PdfFormHelper.getHelper(_forms!).isLoadedForm) {
+        this[PdfDictionaryProperties.acroForm] = PdfReferenceHolder(_forms);
       }
     }
   }
@@ -67,31 +90,31 @@ class _PdfCatalog extends _PdfDictionary {
   /// Reads Xmp from the document.
   void readMetadata() {
     //Read metadata if present.
-    final _IPdfPrimitive? rhMetadata = this[_DictionaryProperties.metadata];
-    if (_PdfCrossTable._dereference(rhMetadata) is _PdfStream) {
-      final _PdfStream xmpStream =
-          _PdfCrossTable._dereference(rhMetadata)! as _PdfStream;
+    final IPdfPrimitive? rhMetadata = this[PdfDictionaryProperties.metadata];
+    if (PdfCrossTable.dereference(rhMetadata) is PdfStream) {
+      final PdfStream xmpStream =
+          PdfCrossTable.dereference(rhMetadata)! as PdfStream;
       bool isFlateDecode = false;
-      if (xmpStream.containsKey(_DictionaryProperties.filter)) {
-        _IPdfPrimitive? obj = xmpStream[_DictionaryProperties.filter];
-        if (obj is _PdfReferenceHolder) {
-          final _PdfReferenceHolder rh = obj;
+      if (xmpStream.containsKey(PdfDictionaryProperties.filter)) {
+        IPdfPrimitive? obj = xmpStream[PdfDictionaryProperties.filter];
+        if (obj is PdfReferenceHolder) {
+          final PdfReferenceHolder rh = obj;
           obj = rh.object;
         }
         if (obj != null) {
-          if (obj is _PdfName) {
-            final _PdfName filter = obj;
+          if (obj is PdfName) {
+            final PdfName filter = obj;
 
-            if (filter._name == _DictionaryProperties.flateDecode) {
+            if (filter.name == PdfDictionaryProperties.flateDecode) {
               isFlateDecode = true;
             }
-          } else if (obj is _PdfArray) {
-            final _PdfArray filter = obj;
-            _IPdfPrimitive? pdfFilter;
-            for (pdfFilter in filter._elements) {
-              if (pdfFilter != null && pdfFilter is _PdfName) {
-                final _PdfName filtername = pdfFilter;
-                if (filtername._name == _DictionaryProperties.flateDecode) {
+          } else if (obj is PdfArray) {
+            final PdfArray filter = obj;
+            IPdfPrimitive? pdfFilter;
+            for (pdfFilter in filter.elements) {
+              if (pdfFilter != null && pdfFilter is PdfName) {
+                final PdfName filtername = pdfFilter;
+                if (filtername.name == PdfDictionaryProperties.flateDecode) {
                   isFlateDecode = true;
                 }
               }
@@ -102,23 +125,23 @@ class _PdfCatalog extends _PdfDictionary {
 
       if (xmpStream.compress! || isFlateDecode) {
         try {
-          xmpStream._decompress();
+          xmpStream.decompress();
         } catch (e) {
           //non-compressed stream will throws exception when try to decompress
         }
       }
       XmlDocument xmp;
       try {
-        xmp = XmlDocument.parse(utf8.decode(xmpStream._dataStream!));
+        xmp = XmlDocument.parse(utf8.decode(xmpStream.dataStream!));
       } catch (e) {
-        xmpStream._decompress();
+        xmpStream.decompress();
         try {
-          xmp = XmlDocument.parse(utf8.decode(xmpStream._dataStream!));
+          xmp = XmlDocument.parse(utf8.decode(xmpStream.dataStream!));
         } catch (e1) {
           return;
         }
       }
-      _metadata = _XmpMetadata.fromXmlDocument(xmp);
+      metadata = XmpMetadata.fromXmlDocument(xmp);
     }
   }
 }

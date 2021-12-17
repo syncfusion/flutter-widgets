@@ -1,14 +1,15 @@
 import 'dart:math' as math;
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../../common/event_args.dart';
+import '../../common/utils/typedef.dart'
+    show MultiLevelLabelFormatterCallback, ChartLabelFormatterCallback;
 import '../axis/axis.dart';
+import '../axis/multi_level_labels.dart';
 import '../axis/plotband.dart';
 import '../base/chart_base.dart';
 import '../chart_series/series_renderer_properties.dart';
@@ -28,51 +29,58 @@ import '../utils/helper.dart';
 @immutable
 class LogarithmicAxis extends ChartAxis {
   /// Creating an argument constructor of LogarithmicAxis class.
-  LogarithmicAxis({
-    String? name,
-    bool? isVisible,
-    bool? anchorRangeToVisiblePoints,
-    AxisTitle? title,
-    AxisLine? axisLine,
-    AxisLabelIntersectAction? labelIntersectAction,
-    int? labelRotation,
-    ChartDataLabelPosition? labelPosition,
-    TickPosition? tickPosition,
-    bool? isInversed,
-    bool? opposedPosition,
-    int? minorTicksPerInterval,
-    int? maximumLabels,
-    MajorTickLines? majorTickLines,
-    MinorTickLines? minorTickLines,
-    MajorGridLines? majorGridLines,
-    MinorGridLines? minorGridLines,
-    EdgeLabelPlacement? edgeLabelPlacement,
-    TextStyle? labelStyle,
-    double? plotOffset,
-    double? zoomFactor,
-    double? zoomPosition,
-    bool? enableAutoIntervalOnZooming,
-    InteractiveTooltip? interactiveTooltip,
-    this.minimum,
-    this.maximum,
-    double? interval,
-    this.logBase = 10,
-    this.labelFormat,
-    this.numberFormat,
-    this.visibleMinimum,
-    this.visibleMaximum,
-    LabelAlignment? labelAlignment,
-    dynamic crossesAt,
-    String? associatedAxisName,
-    bool? placeLabelsNearAxisLine,
-    List<PlotBand>? plotBands,
-    int? desiredIntervals,
-    RangeController? rangeController,
-    double? maximumLabelWidth,
-    double? labelsExtent,
-    int? autoScrollingDelta,
-    AutoScrollingMode? autoScrollingMode,
-  }) : super(
+  LogarithmicAxis(
+      {String? name,
+      bool? isVisible,
+      bool? anchorRangeToVisiblePoints,
+      AxisTitle? title,
+      AxisLine? axisLine,
+      AxisLabelIntersectAction? labelIntersectAction,
+      int? labelRotation,
+      ChartDataLabelPosition? labelPosition,
+      TickPosition? tickPosition,
+      bool? isInversed,
+      bool? opposedPosition,
+      int? minorTicksPerInterval,
+      int? maximumLabels,
+      MajorTickLines? majorTickLines,
+      MinorTickLines? minorTickLines,
+      MajorGridLines? majorGridLines,
+      MinorGridLines? minorGridLines,
+      EdgeLabelPlacement? edgeLabelPlacement,
+      TextStyle? labelStyle,
+      double? plotOffset,
+      double? zoomFactor,
+      double? zoomPosition,
+      bool? enableAutoIntervalOnZooming,
+      InteractiveTooltip? interactiveTooltip,
+      this.minimum,
+      this.maximum,
+      double? interval,
+      this.logBase = 10,
+      this.labelFormat,
+      this.numberFormat,
+      this.visibleMinimum,
+      this.visibleMaximum,
+      LabelAlignment? labelAlignment,
+      dynamic crossesAt,
+      String? associatedAxisName,
+      bool? placeLabelsNearAxisLine,
+      List<PlotBand>? plotBands,
+      int? desiredIntervals,
+      RangeController? rangeController,
+      double? maximumLabelWidth,
+      double? labelsExtent,
+      int? autoScrollingDelta,
+      double? borderWidth,
+      Color? borderColor,
+      AxisBorderType? axisBorderType,
+      MultiLevelLabelStyle? multiLevelLabelStyle,
+      MultiLevelLabelFormatterCallback? multiLevelLabelFormatter,
+      List<LogarithmicMultiLevelLabel>? multiLevelLabels,
+      AutoScrollingMode? autoScrollingMode,
+      ChartLabelFormatterCallback? axisLabelFormatter})
+      : super(
             name: name,
             isVisible: isVisible,
             anchorRangeToVisiblePoints: anchorRangeToVisiblePoints,
@@ -108,7 +116,14 @@ class LogarithmicAxis extends ChartAxis {
             maximumLabelWidth: maximumLabelWidth,
             labelsExtent: labelsExtent,
             autoScrollingDelta: autoScrollingDelta,
-            autoScrollingMode: autoScrollingMode);
+            axisBorderType: axisBorderType,
+            borderColor: borderColor,
+            borderWidth: borderWidth,
+            multiLevelLabelStyle: multiLevelLabelStyle,
+            multiLevelLabelFormatter: multiLevelLabelFormatter,
+            multiLevelLabels: multiLevelLabels,
+            autoScrollingMode: autoScrollingMode,
+            axisLabelFormatter: axisLabelFormatter);
 
   ///Formats the numeric axis labels.
   ///
@@ -270,7 +285,14 @@ class LogarithmicAxis extends ChartAxis {
         other.maximumLabelWidth == maximumLabelWidth &&
         other.labelsExtent == labelsExtent &&
         other.autoScrollingDelta == autoScrollingDelta &&
-        other.autoScrollingMode == autoScrollingMode;
+        other.axisBorderType == axisBorderType &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.multiLevelLabelStyle == multiLevelLabelStyle &&
+        other.multiLevelLabels == multiLevelLabels &&
+        other.multiLevelLabelFormatter == multiLevelLabelFormatter &&
+        other.autoScrollingMode == autoScrollingMode &&
+        other.axisLabelFormatter == axisLabelFormatter;
   }
 
   @override
@@ -317,7 +339,14 @@ class LogarithmicAxis extends ChartAxis {
       maximumLabelWidth,
       labelsExtent,
       autoScrollingDelta,
-      autoScrollingMode
+      axisBorderType,
+      borderColor,
+      borderWidth,
+      multiLevelLabelStyle,
+      multiLevelLabels,
+      multiLevelLabelFormatter,
+      autoScrollingMode,
+      axisLabelFormatter
     ];
     return hashList(values);
   }
@@ -407,13 +436,18 @@ class LogarithmicAxisRenderer extends ChartAxisRenderer {
     for (;
         tempInterval <= _axisDetails.visibleRange!.maximum;
         tempInterval += _axisDetails.visibleRange!.interval) {
-      labelText = pow(_axisDetails.logarithmicAxis.logBase, tempInterval)
-          .floor()
-          .toString();
+      labelText =
+          pow(_axisDetails.logarithmicAxis.logBase, tempInterval).toString();
+
+      labelText = double.parse(labelText) < 1
+          ? labelText
+          : double.parse(labelText).floor().toString();
+
       if (_axisDetails.logarithmicAxis.numberFormat != null) {
-        labelText = _axisDetails.logarithmicAxis.numberFormat!.format(
-            pow(_axisDetails.logarithmicAxis.logBase, tempInterval).floor());
+        labelText = _axisDetails.logarithmicAxis.numberFormat!
+            .format(pow(_axisDetails.logarithmicAxis.logBase, tempInterval));
       }
+
       if (_axisDetails.logarithmicAxis.labelFormat != null &&
           _axisDetails.logarithmicAxis.labelFormat != '') {
         labelText = _axisDetails.logarithmicAxis.labelFormat!
@@ -424,6 +458,11 @@ class LogarithmicAxisRenderer extends ChartAxisRenderer {
 
     /// Get the maximum label of width and height in axis.
     _axisDetails.calculateMaximumLabelSize(this, _axisDetails.stateProperties);
+    if (_axisDetails.logarithmicAxis.multiLevelLabels != null &&
+        _axisDetails.logarithmicAxis.multiLevelLabels!.isNotEmpty) {
+      generateMultiLevelLabels(_axisDetails);
+      calculateMultiLevelLabelBounds(_axisDetails);
+    }
   }
 
   /// Finds the interval of an axis.
@@ -600,6 +639,7 @@ class LogarithmicAxisDetails extends ChartAxisRendererDetails {
     this.max ??= 5;
     this.min = logarithmicAxis.minimum ?? this.min;
     this.max = logarithmicAxis.maximum ?? this.max;
+    actualRange = VisibleRange(this.min, this.max);
     if (axis.anchorRangeToVisiblePoints &&
         needCalculateYrange(logarithmicAxis.minimum, logarithmicAxis.maximum,
             stateProperties, orientation!)) {

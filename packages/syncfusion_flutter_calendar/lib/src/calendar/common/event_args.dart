@@ -1,10 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import '../resource_view/calendar_resource.dart';
-import '../settings/time_region.dart';
-import 'enums.dart';
 
 /// The dates that visible on the view changes in [SfCalendar].
 ///
@@ -99,17 +94,16 @@ class CalendarTouchDetails {
   const CalendarTouchDetails(
       this.appointments, this.date, this.targetElement, this.resource);
 
-  /// The collection of appointments that tapped or falls inside the selected
-  /// date.
+  /// The collection of appointments that return from the date.
   final List<dynamic>? appointments;
 
-  /// The date cell that tapped on view.
+  /// The date that return from the view.
   final DateTime? date;
 
-  /// The element that tapped on view.
+  /// The element that return from the view.
   final CalendarElement targetElement;
 
-  /// The resource associated with the tapped calendar cell in timeline views.
+  /// The resource associated with the calendar cell in timeline views.
   final CalendarResource? resource;
 }
 
@@ -271,6 +265,16 @@ class AppointmentDragEndDetails {
 
   /// The dropping time.
   final DateTime? droppingTime;
+}
+
+/// Details for [CalendarDetailsCallback], such as [appointments], [date], and
+/// [targetElement] and [resource].
+@immutable
+class CalendarDetails extends CalendarTouchDetails {
+  /// creates details for [CalendarDetailsCallback].
+  const CalendarDetails(List<dynamic>? appointments, DateTime? date,
+      CalendarElement element, CalendarResource? resource)
+      : super(appointments, date, element, resource);
 }
 
 /// Signature for a function that creates a widget based on month

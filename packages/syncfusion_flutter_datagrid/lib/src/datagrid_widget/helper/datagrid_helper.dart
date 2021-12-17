@@ -73,6 +73,12 @@ int resolveToRowIndex(
   }
 }
 
+/// Help to get the [SfDataGrid] swipeMaxOffset when it changing at runtime
+double getSwipeMaxOffset(DataGridConfiguration dataGridConfiguration) {
+  return dataGridConfiguration.effectiveSwipeMaxOffset ??
+      dataGridConfiguration.swipeMaxOffset;
+}
+
 /// Help to resolve the [SfDataGrid] position row index to record index.
 int resolveToRecordIndex(
     DataGridConfiguration dataGridConfiguration, int rowIndex) {

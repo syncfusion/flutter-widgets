@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:ui';
 import 'dart:ui' as dart_ui;
 
 import 'package:flutter/foundation.dart';
@@ -10,20 +8,16 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
-import '../../chart/utils/enum.dart';
 import '../../chart/utils/helper.dart';
 import '../../common/common.dart';
 import '../../common/legend/legend.dart';
 import '../../common/legend/renderer.dart';
 import '../../common/rendering_details.dart';
 import '../../common/user_interaction/tooltip.dart';
-import '../../common/utils/enum.dart';
 import '../../common/utils/helper.dart';
-import '../../common/utils/typedef.dart';
 import '../base/funnel_plot_area.dart';
 import '../base/funnel_state_properties.dart';
 import '../base/series_base.dart';
-import '../renderer/funnel_series.dart';
 import '../renderer/renderer_extension.dart';
 
 ///Renders the funnel chart
@@ -48,7 +42,6 @@ class SfFunnelChart extends StatefulWidget {
     this.onLegendItemRender,
     this.onTooltipRender,
     this.onDataLabelRender,
-    @deprecated this.onPointTapped,
     this.onLegendTapped,
     this.onDataLabelTapped,
     this.onSelectionChanged,
@@ -72,7 +65,6 @@ class SfFunnelChart extends StatefulWidget {
       Color.fromRGBO(238, 238, 238, 1)
     ],
     TooltipBehavior? tooltipBehavior,
-    SmartLabelMode? smartLabelMode,
     ActivationMode? selectionGesture,
     bool? enableMultiSelection,
   })  : title = title ?? ChartTitle(),
@@ -80,7 +72,6 @@ class SfFunnelChart extends StatefulWidget {
         margin = margin ?? const EdgeInsets.fromLTRB(10, 10, 10, 10),
         legend = legend ?? Legend(),
         tooltipBehavior = tooltipBehavior ?? TooltipBehavior(),
-        smartLabelMode = smartLabelMode ?? SmartLabelMode.hide,
         selectionGesture = selectionGesture ?? ActivationMode.singleTap,
         enableMultiSelection = enableMultiSelection ?? false,
         super(key: key);
@@ -230,11 +221,6 @@ class SfFunnelChart extends StatefulWidget {
   /// Occurs when the legend is tapped ,using this event the legend tap arguments can be customized.
   final ChartLegendTapCallback? onLegendTapped;
 
-  ///Overlapping of the labels can be avoided by using the smartLabelMode property.
-  ///
-  ///The default value is true for accumulation type series and false for other series types.
-  final SmartLabelMode smartLabelMode;
-
   ///Data points or series can be selected while performing interaction on the chart.
   ///
   ///It can also be selected at the initial rendering using this property.
@@ -371,22 +357,6 @@ class SfFunnelChart extends StatefulWidget {
   ///}
   ///```
   final FunnelTouchInteractionCallback? onChartTouchInteractionMove;
-
-  /// Occurs when tapping a series point. Here, you can get the series, series index
-  /// and point index.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfFunnelChart(
-  ///            onPointTapped: (PointTapArgs args) => point(args),
-  ///        ));
-  ///}
-  ///void point(PointTapArgs args) {
-  ///   print(args.pointIndex);
-  ///}
-  ///```
-  @Deprecated('Use onPointTap in FunnelSeries instead.')
-  final FunnelPointTapCallback? onPointTapped;
 
   //Called when the data label is tapped.
   ///
@@ -713,6 +683,7 @@ class SfFunnelChartState extends State<SfFunnelChart>
             bindLegendTemplateWidgets(_stateProperties);
         if (legendTemplates.isNotEmpty &&
             _stateProperties.renderingDetails.legendWidgetContext.isEmpty) {
+          // ignore: avoid_unnecessary_containers
           element = Container(child: Stack(children: legendTemplates));
           SchedulerBinding.instance!.addPostFrameCallback((_) => _refresh());
         } else {

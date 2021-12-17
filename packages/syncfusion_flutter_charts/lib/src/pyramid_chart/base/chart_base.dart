@@ -1,7 +1,5 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../../chart/utils/enum.dart';
 import '../../circular_chart/renderer/common.dart';
 import '../../circular_chart/utils/helper.dart';

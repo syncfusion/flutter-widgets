@@ -147,6 +147,7 @@ class CellStyle implements Style {
   }
 
   /// Gets number format object.
+  // ignore: library_private_types_in_public_api
   _Format get numberFormatObject {
     //MS Excel sets 14th index by default if the index is out of range for any the datatype.
     //So, using the same here in XlsIO.

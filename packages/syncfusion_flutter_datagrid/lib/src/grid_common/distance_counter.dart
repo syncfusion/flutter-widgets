@@ -623,7 +623,7 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
       return counter.distance + (delta * defaultDistance);
     } else {
       final LineIndexEntryAt e = initDistanceLine(index, false);
-      e.rbEntryPosition = e.rbEntry!.getCounterPosition!;
+      e.rbEntryPosition = e.rbEntry!.getCounterPosition;
       return e.rbEntryPosition!.distance +
           ((index - e.rbEntryPosition!.lineCount) *
               e.rbValue!.singleLineDistance);
@@ -673,7 +673,7 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
       ..searchPosition = DistanceLineCounter(0, lineIndex);
     e.rbEntry = _rbTree.getEntryAtCounterPositionWithThreeArgs(
         e.searchPosition!, DistanceLineCounterKind.lines, false);
-    e.rbValue = e.rbEntry!.value!;
+    e.rbValue = e.rbEntry!.value;
     e.rbEntryPosition = null;
     if (determineEntryPosition) {
       e.rbEntryPosition = e.rbValue!.lineCount > 1

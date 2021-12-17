@@ -5,43 +5,17 @@ import Foundation
 import AppKit
 
 public class SyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
-
-    // Instance of CGPDFDocument
-    var document : CGPDFDocument?
-    // Width collection of rendered pages
-    var pagesWidth: Array<Double>
-    // Height collection of rendered pages
-    var pagesHeight: Array<Double>
-    // Number of pages in PDF document
-    var pageCount: NSNumber
-    // PDF path
-    var bytes: FlutterStandardTypedData!
-
-    // Initializes the SyncfusionFlutterPdfViewerPlugin
-    override init(){
-        pagesWidth = Array<Double>()
-        pagesHeight = Array<Double>()
-        pageCount = NSNumber(0)
-        document = nil
-        bytes = nil
-    }
-
-    private func closeDocument()
-    {
-        self.document = nil
-        self.pageCount = NSNumber(0)
-        self.pagesHeight.removeAll()
-        self.pagesWidth.removeAll()
-        self.bytes = nil
-    }
-
+    
+    // Document repository
+    var documentRepo = [String: CGPDFDocument?]()
+    
     // Registers the SyncfusionFlutterPdfViewerPlugin
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "syncfusion_flutter_pdfviewer", binaryMessenger: registrar.messenger)
         let instance = SyncfusionFlutterPdfViewerPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
-
+    
     // Invokes the method call operations.
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         if(call.method == "initializePdfRenderer")
@@ -62,86 +36,109 @@ public class SyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         }
         else if(call.method == "closeDocument")
         {
-            closeDocument()
+            closeDocument(call:call,result:result)
         }
     }
-
+    
     // Initializes the PDF Renderer and returns the page count.
     private func initializePdfRenderer( call: FlutterMethodCall, result: @escaping FlutterResult)
     {
-        self.bytes =  call.arguments as? FlutterStandardTypedData
-        let byte = [UInt8](self.bytes.data)
+        guard let argument = call.arguments else {return}
+        let args = argument as? [String: Any]
+        let documentBytes = args!["documentBytes"] as? FlutterStandardTypedData
+        let currentDocumentID = args!["documentID"] as! String
+        let byte = [UInt8](documentBytes!.data)
         let cfData = CFDataCreate(nil, byte, byte.count)!
         let dataProvider = CGDataProvider(data: cfData)!
-        self.document = CGPDFDocument(dataProvider)
-        self.pageCount = NSNumber(value: self.document!.numberOfPages)
-        result(self.pageCount.stringValue);
+        let document = CGPDFDocument(dataProvider)
+        documentRepo.updateValue(document!, forKey: currentDocumentID)
+        let pageCount = NSNumber(value: document!.numberOfPages)
+        result(pageCount.stringValue);
     }
-
+    
+    private func closeDocument( call: FlutterMethodCall, result: @escaping FlutterResult)
+    {
+        guard let argument = call.arguments else {return}
+        let documentID = argument as! String
+        self.documentRepo[documentID] = nil
+        self.documentRepo.removeValue(forKey: documentID)
+    }
+    
     // Returns the width collection of rendered pages.
     private func getPagesWidth( call: FlutterMethodCall, result: @escaping FlutterResult)
     {
-        pagesWidth = Array<Double>()
-        for index in stride(from: 1,to: self.pageCount.intValue + 1, by: 1){
-            let page = self.document!.page(at: Int(index))
+        guard let argument = call.arguments else {return}
+        let documentID = argument as! String
+        let document = self.documentRepo[documentID]!!
+        let pageCount = NSNumber(value: document.numberOfPages)
+        var pagesWidth = Array<Double>()
+        for index in stride(from: 1,to: pageCount.intValue + 1, by: 1){
+            let page = document.page(at: Int(index))
             var pageRect = page!.getBoxRect(.mediaBox)
             if(page!.rotationAngle > 0)
             {
                 let angle = CGFloat(page!.rotationAngle) * CGFloat.pi/180
                 pageRect = (pageRect.applying(CGAffineTransform(rotationAngle: angle)))
             }
-            self.pagesWidth.append(Double(pageRect.width))
+            pagesWidth.append(Double(pageRect.width))
         }
         result(pagesWidth)
     }
-
+    
     // Returns the height collection of rendered pages.
     private func getPagesHeight( call: FlutterMethodCall, result: @escaping FlutterResult)
     {
-        pagesHeight = Array<Double>()
-        for index in stride(from: 1,to: self.pageCount.intValue + 1, by: 1){
-            let page = self.document!.page(at: Int(index))
+        guard let argument = call.arguments else {return}
+        let documentID = argument as! String
+        let document = self.documentRepo[documentID]!!
+        let pageCount = NSNumber(value: document.numberOfPages)
+        var pagesHeight = Array<Double>()
+        for index in stride(from: 1,to: pageCount.intValue + 1, by: 1){
+            let page = document.page(at: Int(index))
             var pageRect = page!.getBoxRect(.mediaBox)
             if(page!.rotationAngle > 0)
             {
                 let angle = CGFloat(page!.rotationAngle) * CGFloat.pi/180
                 pageRect = (pageRect.applying(CGAffineTransform(rotationAngle: angle)))
             }
-            self.pagesHeight.append(Double(pageRect.height))
+            pagesHeight.append(Double(pageRect.height))
         }
         result(pagesHeight)
     }
-
+    
     // Gets the pdf page image from the specified page
     private func getImage( call: FlutterMethodCall, result: @escaping FlutterResult)
     {
         guard let argument = call.arguments else {return}
         let args = argument as? [String: Any]
         let index = args!["index"] as? Int
-        result(getImageForPlugin(index: index!))
+        var scale = CGFloat(args!["scale"] as! Double)
+        if(scale < 2)
+        {
+            scale = 2
+        }
+        let documentID = args!["documentID"] as! String
+        result(getImageForPlugin(index: index!,scale: scale,documentID: documentID))
     }
-
+    
     // Gets the image for plugin
-    private func getImageForPlugin(index: Int) -> FlutterStandardTypedData
+    private func getImageForPlugin(index: Int,scale: CGFloat,documentID: String) -> FlutterStandardTypedData
     {
-        if(self.document != nil)
-            {
-                let page = self.document!.page(at: Int(index))
-                var pageRect = page!.getBoxRect(.mediaBox)
-                let imageRect = CGRect(x: 0,y: 0,width: pageRect.size.width*2,height: pageRect.size.height*2)
-                let nsImage = NSImage(size: imageRect.size, actions: { cgContext in
-                        cgContext.beginPage(mediaBox: &pageRect)
-                        let transform = page!.getDrawingTransform(.mediaBox, rect: pageRect, rotate: 0, preserveAspectRatio: true)
-                        cgContext.translateBy(x: 0.0, y: imageRect.size.height)
-                        cgContext.scaleBy(x: 2, y: -2)
-                        cgContext.concatenate(transform)
-                        cgContext.drawPDFPage(page!)
-                        cgContext.endPage()
-                    })
-                let bytes = nsImage.tiffRepresentation?.bitmap?.png
-                return FlutterStandardTypedData(bytes: bytes!)
-            }
-        return FlutterStandardTypedData()
+        let document = self.documentRepo[documentID]!!
+        let page = document.page(at: Int(index))
+        var pageRect = page!.getBoxRect(.mediaBox)
+        let imageRect = CGRect(x: 0,y: 0,width: pageRect.size.width*CGFloat(scale),height: pageRect.size.height*CGFloat(scale))
+        let nsImage = NSImage(size: imageRect.size, actions: { cgContext in
+            cgContext.beginPage(mediaBox: &pageRect)
+            let transform = page!.getDrawingTransform(.mediaBox, rect: pageRect, rotate: 0, preserveAspectRatio: true)
+            cgContext.translateBy(x: 0.0, y: imageRect.size.height)
+            cgContext.scaleBy(x: CGFloat(scale), y: -CGFloat(scale))
+            cgContext.concatenate(transform)
+            cgContext.drawPDFPage(page!)
+            cgContext.endPage()
+        })
+        let bytes = nsImage.tiffRepresentation?.bitmap?.png
+        return bytes == nil ? FlutterStandardTypedData() : FlutterStandardTypedData(bytes: bytes!)
     }
 }
 
@@ -164,5 +161,5 @@ extension NSImage {
         actions(NSGraphicsContext.current!.cgContext)
         unlockFocus()
     }
-     var png: Data? { tiffRepresentation?.bitmap?.png }
+    var png: Data? { tiffRepresentation?.bitmap?.png }
 }

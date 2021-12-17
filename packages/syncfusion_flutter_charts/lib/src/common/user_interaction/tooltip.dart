@@ -1,31 +1,17 @@
 import 'dart:async';
-import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_core/tooltip_internal.dart';
 
 import '../../chart/axis/axis.dart';
 import '../../chart/axis/category_axis.dart';
 import '../../chart/axis/datetime_category_axis.dart';
-import '../../chart/base/chart_base.dart';
-import '../../chart/chart_behavior/chart_behavior.dart';
 import '../../chart/chart_series/series.dart';
 import '../../chart/chart_series/series_renderer_properties.dart';
 import '../../chart/chart_series/xy_data_series.dart';
-import '../../chart/utils/enum.dart';
 import '../../chart/utils/helper.dart';
-import '../../circular_chart/base/circular_base.dart';
-import '../../circular_chart/renderer/chart_point.dart';
-import '../../circular_chart/utils/helper.dart';
-import '../../funnel_chart/base/funnel_base.dart';
-import '../../pyramid_chart/base/pyramid_base.dart';
 import '../rendering_details.dart';
-import '../utils/enum.dart';
-import '../utils/helper.dart';
-import '../utils/typedef.dart';
 import 'tooltip_rendering_details.dart';
 
 export 'package:syncfusion_flutter_core/core.dart'
@@ -455,10 +441,12 @@ class TooltipBehavior {
   // Defaults to true.
   void showByPixel(double x, double y) {
     //, [bool shouldInsidePointRegion]) {
-    final TooltipRenderingDetails renderingDetails =
-        TooltipHelper.getRenderingDetails(
-            _stateProperties.renderingDetails.tooltipBehaviorRenderer);
-    renderingDetails.internalShowByPixel(x, y);
+    if (_stateProperties != null) {
+      final TooltipRenderingDetails renderingDetails =
+          TooltipHelper.getRenderingDetails(
+              _stateProperties.renderingDetails.tooltipBehaviorRenderer);
+      renderingDetails.internalShowByPixel(x, y);
+    }
   }
 
   /// Displays the tooltip at the specified x and y-values.
@@ -473,7 +461,8 @@ class TooltipBehavior {
   ///
   /// * yAxisName - name of the y axis the given point must be bind to.
   void show(dynamic x, double y, [String? xAxisName, String? yAxisName]) {
-    if (_stateProperties.chart is SfCartesianChart) {
+    if (_stateProperties != null &&
+        _stateProperties.chart is SfCartesianChart) {
       final dynamic chart = _stateProperties.chart;
       final RenderingDetails renderingDetails =
           _stateProperties.renderingDetails;
@@ -570,102 +559,37 @@ class TooltipBehavior {
   ///
   /// * pointIndex - index of the point for which the tooltip should be shown
   void showByIndex(int seriesIndex, int pointIndex) {
-    final dynamic chart = _stateProperties.chart;
-    final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _stateProperties.renderingDetails.tooltipBehaviorRenderer;
-    dynamic x, y;
-    if (chart is SfCartesianChart) {
-      if (validIndex(pointIndex, seriesIndex, chart)) {
-        final SeriesRendererDetails cSeriesRendererDetails =
-            SeriesHelper.getSeriesRendererDetails(_stateProperties
-                .chartSeries.visibleSeriesRenderers[seriesIndex]);
-        if (cSeriesRendererDetails.visible! == true) {
-          x = cSeriesRendererDetails.dataPoints[pointIndex].markerPoint!.x;
-          y = cSeriesRendererDetails.dataPoints[pointIndex].markerPoint!.y;
-        }
-      }
-      if (x != null && y != null && chart.series[seriesIndex].enableTooltip) {
-        if (chart.tooltipBehavior.builder != null) {
-          tooltipBehaviorRenderer._tooltipRenderingDetails
-              .showTemplateTooltip(Offset(x, y));
-        } else if (chart.series[seriesIndex].enableTooltip) {
-          tooltipBehaviorRenderer._tooltipRenderingDetails.showTooltip(x, y);
-        }
-      }
-    } else if (chart is SfCircularChart) {
-      if (chart.tooltipBehavior.builder != null &&
-          seriesIndex < chart.series.length &&
-          pointIndex <
-              _stateProperties.chartSeries.visibleSeriesRenderers[seriesIndex]
-                  .dataPoints.length &&
-          chart.series[seriesIndex].enableTooltip) {
-        //to show the tooltip template when the provided indices are valid
-        _stateProperties.circularArea
-            ._showCircularTooltipTemplate(seriesIndex, pointIndex);
-      } else if (chart.tooltipBehavior.builder == null &&
-          _stateProperties.animationCompleted == true &&
-          pointIndex >= 0 &&
-          (pointIndex + 1 <=
-              _stateProperties.chartSeries.visibleSeriesRenderers[seriesIndex]
-                  .renderPoints.length)) {
-        final ChartPoint<dynamic> chartPoint = _stateProperties.chartSeries
-            .visibleSeriesRenderers[seriesIndex].renderPoints[pointIndex];
-        if (chartPoint.isVisible) {
-          final Offset position = degreeToPoint(
-              chartPoint.midAngle!,
-              (chartPoint.innerRadius! + chartPoint.outerRadius!) / 2,
-              chartPoint.center!);
-          x = position.dx;
-          y = position.dy;
-          tooltipBehaviorRenderer._tooltipRenderingDetails.showTooltip(x, y);
-        }
-      }
-    } else if (pointIndex != null && // ignore: unnecessary_null_comparison
-        pointIndex <
-            _stateProperties
-                .chartSeries.visibleSeriesRenderers[0].dataPoints.length) {
-      //this shows the tooltip for triangular type of charts (funnel and pyramid)
-      if (chart.tooltipBehavior.builder == null) {
-        _stateProperties.tooltipPointIndex = pointIndex;
-        final Offset? position = _stateProperties.chartSeries
-            .visibleSeriesRenderers[0].dataPoints[pointIndex].region?.center;
-        x = position?.dx;
-        y = position?.dy;
-        tooltipBehaviorRenderer._tooltipRenderingDetails.showTooltip(x, y);
-      } else {
-        if (chart is SfFunnelChart &&
-            _stateProperties.animationCompleted == true) {
-          _stateProperties.funnelplotArea.showFunnelTooltipTemplate(pointIndex);
-        } else if (chart is SfPyramidChart &&
-            _stateProperties.animationCompleted == true) {
-          _stateProperties.chartPlotArea.showPyramidTooltipTemplate(pointIndex);
-        }
-      }
+    if (_stateProperties != null) {
+      final TooltipRenderingDetails renderingDetails =
+          TooltipHelper.getRenderingDetails(
+              _stateProperties.renderingDetails.tooltipBehaviorRenderer);
+      renderingDetails.internalShowByIndex(seriesIndex, pointIndex);
     }
-    tooltipBehaviorRenderer._tooltipRenderingDetails.isInteraction = false;
   }
 
   /// Hides the tooltip if it is displayed.
   void hide() {
-    final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _stateProperties.renderingDetails.tooltipBehaviorRenderer;
-    // ignore: unnecessary_null_comparison
-    if (tooltipBehaviorRenderer != null) {
-      tooltipBehaviorRenderer._tooltipRenderingDetails.showLocation = null;
-      tooltipBehaviorRenderer._tooltipRenderingDetails.show = false;
-    }
-    if (builder != null) {
-      // hides tooltip template
-      tooltipBehaviorRenderer._tooltipRenderingDetails.chartTooltipState
-          ?.hide(hideDelay: 0);
-    } else {
-      //hides default tooltip
-      tooltipBehaviorRenderer._tooltipRenderingDetails.currentTooltipValue =
-          tooltipBehaviorRenderer._tooltipRenderingDetails.prevTooltipValue =
-              null;
+    if (_stateProperties != null) {
+      final TooltipBehaviorRenderer tooltipBehaviorRenderer =
+          _stateProperties.renderingDetails.tooltipBehaviorRenderer;
+      // ignore: unnecessary_null_comparison
+      if (tooltipBehaviorRenderer != null) {
+        tooltipBehaviorRenderer._tooltipRenderingDetails.showLocation = null;
+        tooltipBehaviorRenderer._tooltipRenderingDetails.show = false;
+      }
+      if (builder != null) {
+        // hides tooltip template
+        tooltipBehaviorRenderer._tooltipRenderingDetails.chartTooltipState
+            ?.hide(hideDelay: 0);
+      } else {
+        //hides default tooltip
+        tooltipBehaviorRenderer._tooltipRenderingDetails.currentTooltipValue =
+            tooltipBehaviorRenderer._tooltipRenderingDetails.prevTooltipValue =
+                null;
 
-      tooltipBehaviorRenderer._tooltipRenderingDetails.chartTooltipState
-          ?.hide(hideDelay: 0);
+        tooltipBehaviorRenderer._tooltipRenderingDetails.chartTooltipState
+            ?.hide(hideDelay: 0);
+      }
     }
   }
 }

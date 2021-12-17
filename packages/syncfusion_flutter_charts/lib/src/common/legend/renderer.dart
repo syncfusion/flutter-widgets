@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../../chart/chart_series/series.dart';
 import '../../chart/technical_indicators/technical_indicator.dart';
-import '../../chart/trendlines/trendlines.dart';
-import '../utils/enum.dart';
 
 /// Represents the legend render context chart
 class LegendRenderContext {

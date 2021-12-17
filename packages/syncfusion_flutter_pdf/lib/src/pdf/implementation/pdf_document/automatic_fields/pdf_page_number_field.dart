@@ -1,4 +1,16 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../graphics/brushes/pdf_solid_brush.dart';
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/pdf_graphics.dart';
+import '../../pages/enum.dart';
+import '../../pages/pdf_page.dart';
+import '../../pages/pdf_section.dart';
+import '../../pages/pdf_section_collection.dart';
+import '../pdf_document.dart';
+import 'pdf_automatic_field.dart';
+import 'pdf_dynamic_field.dart';
+import 'pdf_multiple_value_field.dart';
 
 /// Represents PDF document page number field.
 /// Represents an automatic field to display page number within a section.
@@ -39,7 +51,7 @@ part of pdf;
 /// //Dispose the document.
 /// document.dispose();
 /// ```
-class PdfPageNumberField extends _PdfMultipleValueField {
+class PdfPageNumberField extends PdfMultipleValueField {
   // constructor
   /// Initializes a new instance of the [PdfPageNumberField] class
   /// and may also with the classes are [PdfFont], [PdfBrush] and [Rect].
@@ -83,7 +95,9 @@ class PdfPageNumberField extends _PdfMultipleValueField {
   PdfPageNumberField(
       {PdfFont? font, PdfBrush? brush, Rect? bounds, bool? isSectionPageNumber})
       : super(font: font, brush: brush, bounds: bounds) {
-    _isSectionPageNumber = isSectionPageNumber != null && isSectionPageNumber;
+    _helper = PdfPageNumberFieldHelper(this);
+    _helper._isSectionPageNumber =
+        isSectionPageNumber != null && isSectionPageNumber;
   }
 
   // fields
@@ -126,30 +140,49 @@ class PdfPageNumberField extends _PdfMultipleValueField {
   /// document.dispose();
   /// ```
   PdfNumberStyle numberStyle = PdfNumberStyle.numeric;
+  late PdfPageNumberFieldHelper _helper;
+}
+
+/// [PdfPageNumberField] helper
+class PdfPageNumberFieldHelper {
+  /// internal constructor
+  PdfPageNumberFieldHelper(this.base);
+
+  /// internal field
+  PdfPageNumberField base;
 
   /// Represents an automatic field to display page number within a section.
   bool _isSectionPageNumber = false;
 
-  //implementation
-  @override
-  String? _getValue(PdfGraphics graphics) {
+  /// internal method
+  static PdfPageNumberFieldHelper getHelper(PdfPageNumberField field) {
+    return field._helper;
+  }
+
+  /// internal method
+  String? getValue(PdfGraphics graphics) {
     String? result;
-    if (graphics._page is PdfPage) {
-      final PdfPage page = _PdfDynamicField._getPageFromGraphics(graphics);
-      result = _internalGetValue(page);
+    if (PdfGraphicsHelper.getHelper(graphics).page is PdfPage) {
+      final PdfPage page = PdfDynamicField.getPageFromGraphics(graphics);
+      result = internalGetValue(page);
     }
     return result;
   }
 
-  String _internalGetValue(PdfPage? page) {
+  /// internal method
+  String internalGetValue(PdfPage? page) {
     if (_isSectionPageNumber) {
-      final PdfSection section = page!._section!;
-      final int index = section._indexOf(page) + 1;
-      return PdfAutomaticField._convert(index, numberStyle);
+      final PdfSection section = PdfPageHelper.getHelper(page!).section!;
+      final int index = PdfSectionHelper.getHelper(section).indexOf(page) + 1;
+      return PdfAutomaticFieldHelper.convert(index, base.numberStyle);
     } else {
-      final PdfDocument document = page!._section!._parent!._document!;
+      final PdfDocument document = PdfSectionCollectionHelper.getHelper(
+              PdfSectionHelper.getHelper(
+                      PdfPageHelper.getHelper(page!).section!)
+                  .parent!)
+          .document!;
       final int pageIndex = document.pages.indexOf(page) + 1;
-      return PdfAutomaticField._convert(pageIndex, numberStyle);
+      return PdfAutomaticFieldHelper.convert(pageIndex, base.numberStyle);
     }
   }
 }

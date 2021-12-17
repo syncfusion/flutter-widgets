@@ -1,12 +1,13 @@
-part of pdf;
+import 'in_flatter.dart';
 
-class _DeflateStream {
-  //Constructor
-  _DeflateStream(List<int> data, int offset, bool leaveOpen) {
+/// internal class
+class DeflateStream {
+  /// internal constructor
+  DeflateStream(List<int> data, int offset, bool leaveOpen) {
     _offset = offset;
     _data = data;
     _leaveOpen = leaveOpen;
-    _inflater = _Inflater();
+    _inflater = Inflater();
     _buffer = List<int>.filled(8192, 0);
   }
 
@@ -16,16 +17,16 @@ class _DeflateStream {
   bool? _leaveOpen;
   late int _offset;
   List<int>? _buffer;
-  late _Inflater _inflater;
+  late Inflater _inflater;
 
-  //Implementation
-  Map<String, dynamic> _read(List<int>? array, int offset, int count) {
+  /// internal method
+  Map<String, dynamic> read(List<int>? array, int offset, int count) {
     int? length;
     int cOffset = offset;
     int rCount = count;
     while (true) {
       final Map<String, dynamic> inflateResult =
-          _inflater._inflate(array!, cOffset, rCount);
+          _inflater.inflate(array!, cOffset, rCount);
       length = inflateResult['count'] as int?;
       array = inflateResult['data'] as List<int>;
       cOffset += length!;
@@ -33,7 +34,7 @@ class _DeflateStream {
       if (rCount == 0) {
         break;
       }
-      if (_inflater._finished) {
+      if (_inflater.finished) {
         break;
       }
       final Map<String, dynamic> result = _readBytes();
@@ -42,7 +43,7 @@ class _DeflateStream {
       if (bytes == 0) {
         break;
       }
-      _inflater._setInput(_buffer, 0, bytes!);
+      _inflater.setInput(_buffer, 0, bytes!);
     }
     return <String, dynamic>{'count': count - rCount, 'data': array};
   }

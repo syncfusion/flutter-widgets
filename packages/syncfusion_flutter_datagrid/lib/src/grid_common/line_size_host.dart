@@ -7,28 +7,28 @@ import 'utility_helper.dart';
 
 /// Returns the DefaultLineSizeChangedArgs used by the
 /// [onDefaultLineSizeChanged] event.
-typedef _DefaultLineSizeChangedCallback = void Function(
+typedef DefaultLineSizeChangedCallback = void Function(
     DefaultLineSizeChangedArgs _defaultLineSizeChangedArgs);
 
 /// Returns the LineCountChangedArgs used by the
 /// [onLineCountChanged][onHeaderLineCountChanged][onFooderLineCountChanged]
 /// event.
-typedef _LineCountChangedCallback = void Function();
+typedef LineCountChangedCallback = void Function();
 
 /// Returns the HiddenRangeChangedArgs used by the [onLineHiddenChanged] event.
-typedef _LineHiddenChangedCallback = void Function(
+typedef LineHiddenChangedCallback = void Function(
     HiddenRangeChangedArgs _hiddenRangeChangedArgs);
 
 /// Returns the LinesInsertedArgs used by the [onLinesInserted] event.
-typedef _LinesInsertedCallback = void Function(
+typedef LinesInsertedCallback = void Function(
     LinesInsertedArgs _linesInsertedArgs);
 
 /// Returns the LinesRemovedArgs used by the [onLinesRemoved] event.
-typedef _LinesRemovedCallback = void Function(
+typedef LinesRemovedCallback = void Function(
     LinesRemovedArgs _linesRemovedArgs);
 
 /// Returns the RangeChangedArgs used by the [onLineSizeChanged] event.
-typedef _LineSizeChangedCallback = void Function(
+typedef LineSizeChangedCallback = void Function(
     RangeChangedArgs rangeChangedArgs);
 
 /// A collection that manages lines with varying height and hidden state.
@@ -40,28 +40,28 @@ typedef _LineSizeChangedCallback = void Function(
 /// size of line.
 abstract class LineSizeHostBase {
   /// Occurs when the default line size changed.
-  _DefaultLineSizeChangedCallback? onDefaultLineSizeChanged;
+  DefaultLineSizeChangedCallback? onDefaultLineSizeChanged;
 
   /// Occurs when the footer line count was changed.
-  _LineCountChangedCallback? onFooterLineCountChanged;
+  LineCountChangedCallback? onFooterLineCountChanged;
 
   /// Occurs when the header line count was changed.
-  _LineCountChangedCallback? onHeaderLineCountChanged;
+  LineCountChangedCallback? onHeaderLineCountChanged;
 
   /// Occurs when a lines size was changed.
-  _LineSizeChangedCallback? onLineSizeChanged;
+  LineSizeChangedCallback? onLineSizeChanged;
 
   /// Occurs when a lines hidden state changed.
-  _LineHiddenChangedCallback? onLineHiddenChanged;
+  LineHiddenChangedCallback? onLineHiddenChanged;
 
   /// Occurs when the line count was changed.
-  _LineCountChangedCallback? onLineCountChanged;
+  LineCountChangedCallback? onLineCountChanged;
 
   /// Occurs when lines were inserted.
-  _LinesInsertedCallback? onLinesInserted;
+  LinesInsertedCallback? onLinesInserted;
 
   /// Occurs when lines were removed.
-  _LinesRemovedCallback? onLinesRemoved;
+  LinesRemovedCallback? onLinesRemoved;
 
   /// Returns the default line size..
   double getDefaultLineSize();
@@ -673,15 +673,15 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
       for (final RangeValuePair<double> entry in _lineSizes.rangeValues) {
         final double entryValue = entry.value as double;
         if (entryValue != -2) {
-          _distances!.setRange(entry.start.toInt(), entry.end.toInt(),
+          _distances!.setRange(entry.start, entry.end,
               entryValue < 0.0 ? defaultLineSize : entryValue);
         }
       }
 
       for (final RangeValuePair<bool> entry in _lineHidden.rangeValues) {
         final bool entryValue = entry.value as bool;
-        if (entryValue is bool && entryValue) {
-          setRange(entry.start.toInt(), entry.end.toInt(), 0.0);
+        if (entryValue) {
+          setRange(entry.start, entry.end, 0.0);
         }
       }
     }
@@ -708,10 +708,9 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
       int insertAtLine, int count, EditableLineSizeHostBase? moveLines) {
     final LineSizeCollection? _moveLines =
         moveLines != null ? moveLines as LineSizeCollection : null;
-    _lineSizes.insertWithThreeArgs(
-        insertAtLine, count, _moveLines == null ? null : _moveLines._lineSizes);
-    _lineHidden.insertWithThreeArgs(insertAtLine, count,
-        _moveLines == null ? null : _moveLines._lineHidden);
+    _lineSizes.insertWithThreeArgs(insertAtLine, count, _moveLines?._lineSizes);
+    _lineHidden.insertWithThreeArgs(
+        insertAtLine, count, _moveLines?._lineHidden);
     _lineNested = <int, LineSizeCollection>{};
 
     _lineNested.forEach((int key, LineSizeCollection value) {
@@ -800,10 +799,9 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
       int removeAtLine, int count, EditableLineSizeHostBase? moveLines) {
     final LineSizeCollection? _moveLines =
         moveLines != null ? moveLines as LineSizeCollection : null;
-    _lineSizes.removeWithThreeArgs(
-        removeAtLine, count, _moveLines == null ? null : _moveLines._lineSizes);
-    _lineHidden.removeWithThreeArgs(removeAtLine, count,
-        _moveLines == null ? null : _moveLines._lineHidden);
+    _lineSizes.removeWithThreeArgs(removeAtLine, count, _moveLines?._lineSizes);
+    _lineHidden.removeWithThreeArgs(
+        removeAtLine, count, _moveLines?._lineHidden);
 
     final Map<int, LineSizeCollection> lineNested = _lineNested;
     _lineNested = <int, LineSizeCollection>{};

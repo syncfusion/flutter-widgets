@@ -1,15 +1,19 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../io/enums.dart';
+import '../io/pdf_cross_table.dart';
 
-class _PdfNull implements _IPdfPrimitive {
-  _PdfNull();
+/// internal class
+class PdfNull implements IPdfPrimitive {
+  /// internal constructor
+  PdfNull();
 
   //Fields
   bool? _isSaving;
   int? _objectCollectionIndex;
   int? _position;
-  _ObjectStatus? _status;
+  PdfObjectStatus? _status;
 
-  //_IPdfPrimitive members
+  //IPdfPrimitive members
   @override
   bool? get isSaving {
     _isSaving ??= false;
@@ -44,22 +48,22 @@ class _PdfNull implements _IPdfPrimitive {
   }
 
   @override
-  _ObjectStatus? get status {
-    _status ??= _ObjectStatus.none;
+  PdfObjectStatus? get status {
+    _status ??= PdfObjectStatus.none;
     return _status;
   }
 
   @override
-  set status(_ObjectStatus? value) {
+  set status(PdfObjectStatus? value) {
     _status = value;
   }
 
   @override
-  _IPdfPrimitive? clonedObject;
+  IPdfPrimitive? clonedObject;
 
   @override
-  void save(_IPdfWriter? writer) {
-    writer!._write('null');
+  void save(IPdfWriter? writer) {
+    writer!.write('null');
   }
 
   @override
@@ -70,5 +74,5 @@ class _PdfNull implements _IPdfPrimitive {
   }
 
   @override
-  _IPdfPrimitive _clone(_PdfCrossTable crossTable) => _PdfNull();
+  IPdfPrimitive cloneObject(PdfCrossTable crossTable) => PdfNull();
 }

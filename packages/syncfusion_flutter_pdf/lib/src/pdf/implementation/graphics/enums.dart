@@ -1,5 +1,3 @@
-part of pdf;
-
 /// Specifies the type of horizontal text alignment.
 ///
 /// ```dart
@@ -102,24 +100,6 @@ enum PdfColorSpace {
 
   /// Indexed color space.
   indexed
-}
-
-/// Specifies the text rendering mode.
-class _TextRenderingMode {
-  /// Fill text.
-  static const int fill = 0;
-
-  /// Stroke text.
-  static const int stroke = 1;
-
-  /// Fill, then stroke text.
-  static const int fillStroke = 2;
-
-  /// Neither fill nor stroke text (invisible).
-  static const int none = 3;
-
-  /// The flag showing that the text should be a part of a clipping path.
-  static const int clipFlag = 4;
 }
 
 /// Possible dash styles of the pen.

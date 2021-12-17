@@ -1,13 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:syncfusion_flutter_core/core.dart';
 
 import '../chart_series/series.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/marker.dart';
-import '../common/renderer.dart';
 import '../user_interaction/trackball_marker_setting_renderer.dart';
 import '../utils/enum.dart';
 

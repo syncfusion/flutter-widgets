@@ -1,13 +1,14 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../../common/event_args.dart';
+import '../../common/utils/typedef.dart'
+    show MultiLevelLabelFormatterCallback, ChartLabelFormatterCallback;
 import '../axis/axis.dart';
+import '../axis/multi_level_labels.dart';
 import '../axis/plotband.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
@@ -28,52 +29,59 @@ import '../utils/helper.dart';
 @immutable
 class NumericAxis extends ChartAxis {
   /// Creating an argument constructor of NumericAxis class.
-  NumericAxis({
-    String? name,
-    bool? isVisible,
-    bool? anchorRangeToVisiblePoints,
-    AxisTitle? title,
-    AxisLine? axisLine,
-    ChartRangePadding? rangePadding,
-    AxisLabelIntersectAction? labelIntersectAction,
-    int? labelRotation,
-    this.labelFormat,
-    this.numberFormat,
-    LabelAlignment? labelAlignment,
-    ChartDataLabelPosition? labelPosition,
-    TickPosition? tickPosition,
-    bool? isInversed,
-    bool? opposedPosition,
-    int? minorTicksPerInterval,
-    int? maximumLabels,
-    MajorTickLines? majorTickLines,
-    MinorTickLines? minorTickLines,
-    MajorGridLines? majorGridLines,
-    MinorGridLines? minorGridLines,
-    EdgeLabelPlacement? edgeLabelPlacement,
-    TextStyle? labelStyle,
-    double? plotOffset,
-    double? zoomFactor,
-    double? zoomPosition,
-    bool? enableAutoIntervalOnZooming,
-    InteractiveTooltip? interactiveTooltip,
-    this.minimum,
-    this.maximum,
-    double? interval,
-    this.visibleMinimum,
-    this.visibleMaximum,
-    dynamic crossesAt,
-    String? associatedAxisName,
-    bool? placeLabelsNearAxisLine,
-    List<PlotBand>? plotBands,
-    this.decimalPlaces = 3,
-    int? desiredIntervals,
-    RangeController? rangeController,
-    double? maximumLabelWidth,
-    double? labelsExtent,
-    int? autoScrollingDelta,
-    AutoScrollingMode? autoScrollingMode,
-  }) : super(
+  NumericAxis(
+      {String? name,
+      bool? isVisible,
+      bool? anchorRangeToVisiblePoints,
+      AxisTitle? title,
+      AxisLine? axisLine,
+      ChartRangePadding? rangePadding,
+      AxisLabelIntersectAction? labelIntersectAction,
+      int? labelRotation,
+      this.labelFormat,
+      this.numberFormat,
+      LabelAlignment? labelAlignment,
+      ChartDataLabelPosition? labelPosition,
+      TickPosition? tickPosition,
+      bool? isInversed,
+      bool? opposedPosition,
+      int? minorTicksPerInterval,
+      int? maximumLabels,
+      MajorTickLines? majorTickLines,
+      MinorTickLines? minorTickLines,
+      MajorGridLines? majorGridLines,
+      MinorGridLines? minorGridLines,
+      EdgeLabelPlacement? edgeLabelPlacement,
+      TextStyle? labelStyle,
+      double? plotOffset,
+      double? zoomFactor,
+      double? zoomPosition,
+      bool? enableAutoIntervalOnZooming,
+      InteractiveTooltip? interactiveTooltip,
+      this.minimum,
+      this.maximum,
+      double? interval,
+      this.visibleMinimum,
+      this.visibleMaximum,
+      dynamic crossesAt,
+      String? associatedAxisName,
+      bool? placeLabelsNearAxisLine,
+      List<PlotBand>? plotBands,
+      this.decimalPlaces = 3,
+      int? desiredIntervals,
+      RangeController? rangeController,
+      double? maximumLabelWidth,
+      double? labelsExtent,
+      int? autoScrollingDelta,
+      AutoScrollingMode? autoScrollingMode,
+      double? borderWidth,
+      Color? borderColor,
+      AxisBorderType? axisBorderType,
+      List<NumericMultiLevelLabel>? multiLevelLabels,
+      MultiLevelLabelFormatterCallback? multiLevelLabelFormatter,
+      MultiLevelLabelStyle? multiLevelLabelStyle,
+      ChartLabelFormatterCallback? axisLabelFormatter})
+      : super(
             name: name,
             isVisible: isVisible,
             anchorRangeToVisiblePoints: anchorRangeToVisiblePoints,
@@ -110,7 +118,14 @@ class NumericAxis extends ChartAxis {
             maximumLabelWidth: maximumLabelWidth,
             labelsExtent: labelsExtent,
             autoScrollingDelta: autoScrollingDelta,
-            autoScrollingMode: autoScrollingMode);
+            axisBorderType: axisBorderType,
+            borderColor: borderColor,
+            borderWidth: borderWidth,
+            multiLevelLabelFormatter: multiLevelLabelFormatter,
+            multiLevelLabels: multiLevelLabels,
+            multiLevelLabelStyle: multiLevelLabelStyle,
+            autoScrollingMode: autoScrollingMode,
+            axisLabelFormatter: axisLabelFormatter);
 
   ///Formats the numeric axis labels.
   ///
@@ -270,7 +285,14 @@ class NumericAxis extends ChartAxis {
         other.maximumLabelWidth == maximumLabelWidth &&
         other.labelsExtent == labelsExtent &&
         other.autoScrollingDelta == autoScrollingDelta &&
-        other.autoScrollingMode == autoScrollingMode;
+        other.axisBorderType == axisBorderType &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.multiLevelLabelStyle == multiLevelLabelStyle &&
+        other.multiLevelLabels == multiLevelLabels &&
+        other.multiLevelLabelFormatter == multiLevelLabelFormatter &&
+        other.autoScrollingMode == autoScrollingMode &&
+        other.axisLabelFormatter == axisLabelFormatter;
   }
 
   @override
@@ -317,7 +339,14 @@ class NumericAxis extends ChartAxis {
       maximumLabelWidth,
       labelsExtent,
       autoScrollingDelta,
-      autoScrollingMode
+      axisBorderType,
+      borderColor,
+      borderWidth,
+      multiLevelLabelStyle,
+      multiLevelLabels,
+      multiLevelLabelFormatter,
+      autoScrollingMode,
+      axisLabelFormatter
     ];
     return hashList(values);
   }
@@ -461,7 +490,7 @@ class NumericAxisRenderer extends ChartAxisRenderer {
                 axisDetails.name ==
                     axisDetails
                         .stateProperties.chartAxis.primaryYAxisDetails.name
-            ? (text + '%')
+            ? '$text%'
             : text;
         axisDetails.triggerLabelRenderEvent(text, tempInterval);
       }
@@ -469,6 +498,11 @@ class NumericAxisRenderer extends ChartAxisRenderer {
 
     /// Get the maximum label of width and height in axis.
     axisDetails.calculateMaximumLabelSize(this, axisDetails.stateProperties);
+    if (numericAxis.multiLevelLabels != null &&
+        numericAxis.multiLevelLabels!.isNotEmpty) {
+      generateMultiLevelLabels(_axisDetails);
+      calculateMultiLevelLabelBounds(axisDetails);
+    }
   }
 
   /// Calculates the visible range for an axis in chart.

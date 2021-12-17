@@ -5,8 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:vector_math/vector_math_64.dart' show Vector3, Matrix4;
 
 /// Signature for when the zoom level or actual rect value changes get
@@ -169,7 +167,7 @@ class Zoomable extends StatefulWidget {
   final Widget? child;
 
   @override
-  _ZoomableState createState() => _ZoomableState();
+  State<Zoomable> createState() => _ZoomableState();
 }
 
 class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
@@ -400,7 +398,7 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
   Duration _getFlingAnimationDuration(double distance) {
     final int duration =
         (log(10.0 / distance) / log(widget.frictionCoefficient / 100)).round();
-    final int durationInMs = (duration * 1000).round();
+    final int durationInMs = duration * 1000;
     return Duration(milliseconds: durationInMs < 350 ? 350 : durationInMs);
   }
 

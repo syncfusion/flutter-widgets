@@ -1,8 +1,6 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import 'common.dart';
@@ -614,10 +612,10 @@ class SfTickShape {
     }
 
     final Color begin = isInactive
-        ? themeData.disabledInactiveTickColor
-        : themeData.disabledActiveTickColor;
+        ? themeData.disabledInactiveTickColor!
+        : themeData.disabledActiveTickColor!;
     final Color end =
-        isInactive ? themeData.inactiveTickColor : themeData.activeTickColor;
+        isInactive ? themeData.inactiveTickColor! : themeData.activeTickColor!;
     final Paint paint = Paint()
       ..isAntiAlias = true
       ..strokeWidth = _isVertical(parentBox) ? tickSize.height : tickSize.width
@@ -709,11 +707,11 @@ class SfMinorTickShape extends SfTickShape {
     }
 
     final Color begin = isInactive
-        ? themeData.disabledInactiveMinorTickColor
-        : themeData.disabledActiveMinorTickColor;
+        ? themeData.disabledInactiveMinorTickColor!
+        : themeData.disabledActiveMinorTickColor!;
     final Color end = isInactive
-        ? themeData.inactiveMinorTickColor
-        : themeData.activeMinorTickColor;
+        ? themeData.inactiveMinorTickColor!
+        : themeData.activeMinorTickColor!;
     final Paint paint = Paint()
       ..isAntiAlias = true
       ..strokeWidth =
@@ -948,16 +946,10 @@ class SfPaddleTooltipShape extends SfTooltipShape {
         0.0,
         math.pi / 3,
         false);
-    path.arcTo(
-        Rect.fromCircle(center: const Offset(0.0, 0.0), radius: thumbRadius),
-        3 * math.pi / 2,
-        -math.pi,
-        false);
-    path.arcTo(
-        Rect.fromCircle(center: const Offset(0.0, 0.0), radius: thumbRadius),
-        math.pi / 2,
-        -math.pi,
-        false);
+    path.arcTo(Rect.fromCircle(center: Offset.zero, radius: thumbRadius),
+        3 * math.pi / 2, -math.pi, false);
+    path.arcTo(Rect.fromCircle(center: Offset.zero, radius: thumbRadius),
+        math.pi / 2, -math.pi, false);
     path.arcTo(
         Rect.fromCircle(center: bottomNeckCenter, radius: bottomNeckRadius),
         2 * math.pi / 3,

@@ -289,7 +289,7 @@ class DataGridToExcelConverter {
         }
 
         _exportTableSummaryCell(
-            column: column!,
+            column: column,
             sheet: worksheet,
             dataGrid: dataGrid,
             summaryRow: summaryRow,
@@ -320,7 +320,7 @@ class DataGridToExcelConverter {
       return;
     }
 
-    rows ??= dataGrid.source.rows;
+    rows ??= dataGrid.source.effectiveRows;
 
     _setColumnWidths(exportColumnWidth, worksheet, defaultColumnWidth);
 

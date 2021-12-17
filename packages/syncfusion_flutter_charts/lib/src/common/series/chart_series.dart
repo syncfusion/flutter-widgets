@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../../chart/common/data_label.dart';
 import '../../chart/utils/enum.dart';
 import '../../circular_chart/renderer/chart_point.dart';

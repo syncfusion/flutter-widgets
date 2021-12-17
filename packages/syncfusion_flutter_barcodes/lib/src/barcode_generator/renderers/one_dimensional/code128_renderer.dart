@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../../base/symbology_base.dart';
@@ -20,6 +19,7 @@ class Code128Renderer extends SymbologyRenderer {
     code128ACharacterSets.add('\$');
     code128ACharacterSets.add('%');
     code128ACharacterSets.add('&');
+    // ignore: avoid_escaping_inner_quotes
     code128ACharacterSets.add('\'');
     code128ACharacterSets.add('(');
     code128ACharacterSets.add(')');
@@ -129,6 +129,7 @@ class Code128Renderer extends SymbologyRenderer {
     code128BCharacterSets.add('\$');
     code128BCharacterSets.add('%');
     code128BCharacterSets.add('&');
+    // ignore: avoid_escaping_inner_quotes
     code128BCharacterSets.add('\'');
     code128BCharacterSets.add('(');
     code128BCharacterSets.add(')');
@@ -436,7 +437,7 @@ class Code128Renderer extends SymbologyRenderer {
       } else if (currentCharacter < 127) {
         return true;
       } else {
-        throw 'The provided input cannot be encoded : ' + value[i];
+        throw 'The provided input cannot be encoded : ${value[i]}';
       }
     }
     return false;

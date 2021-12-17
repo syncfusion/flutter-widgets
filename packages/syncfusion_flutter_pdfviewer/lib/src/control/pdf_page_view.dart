@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
@@ -189,8 +188,10 @@ class PdfPageViewState extends State<PdfPageView> {
 
   @override
   Widget build(BuildContext context) {
-    PaintingBinding.instance?.imageCache?.clear();
-    PaintingBinding.instance?.imageCache?.clearLiveImages();
+    if (!kIsDesktop) {
+      PaintingBinding.instance?.imageCache?.clear();
+      PaintingBinding.instance?.imageCache?.clearLiveImages();
+    }
     final double pageSpacing =
         widget.pageIndex == widget.pdfViewerController.pageCount - 1
             ? 0.0
@@ -211,6 +212,7 @@ class PdfPageViewState extends State<PdfPageView> {
         widget.imageStream!,
         width: widget.width,
         height: widget.height,
+        gaplessPlayback: true,
         fit: BoxFit.fitWidth,
         semanticLabel: widget.semanticLabel,
         alignment: Alignment.center,
@@ -225,14 +227,22 @@ class PdfPageViewState extends State<PdfPageView> {
                 image,
                 Container(
                   height: pageSpacing,
-                  color: _pdfViewerThemeData!.backgroundColor,
+                  color: _pdfViewerThemeData!.backgroundColor ??
+                      (Theme.of(context).colorScheme.brightness ==
+                              Brightness.light
+                          ? const Color(0xFFD6D6D6)
+                          : const Color(0xFF303030)),
                 )
               ])
             : Row(children: <Widget>[
                 image,
                 Container(
                   width: widget.isSinglePageView ? 0.0 : pageSpacing,
-                  color: _pdfViewerThemeData!.backgroundColor,
+                  color: _pdfViewerThemeData!.backgroundColor ??
+                      (Theme.of(context).colorScheme.brightness ==
+                              Brightness.light
+                          ? const Color(0xFFD6D6D6)
+                          : const Color(0xFF303030)),
                 )
               ]),
       );
@@ -465,7 +475,10 @@ class PdfPageViewState extends State<PdfPageView> {
     } else {
       final BorderSide borderSide = BorderSide(
           width: widget.isSinglePageView ? pageSpacing / 2 : pageSpacing,
-          color: _pdfViewerThemeData!.backgroundColor);
+          color: _pdfViewerThemeData!.backgroundColor ??
+              (Theme.of(context).colorScheme.brightness == Brightness.light
+                  ? const Color(0xFFD6D6D6)
+                  : const Color(0xFF303030)));
       final Widget child = Container(
         height: widget.height + heightSpacing,
         width: widget.width + widthSpacing,

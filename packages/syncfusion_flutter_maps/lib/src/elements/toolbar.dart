@@ -1,13 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../maps.dart';
 import '../controller/map_controller.dart';
-import '../enum.dart';
-import '../settings.dart';
 
 // ignore_for_file: public_member_api_docs
 enum _ToolbarIcon { zoomIn, zoomOut, reset }

@@ -1,11 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-// ignore: unused_import
-import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/legend_internal.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -13,9 +8,6 @@ import 'package:syncfusion_flutter_maps/maps.dart';
 import 'package:syncfusion_flutter_maps/src/controller/map_controller.dart';
 
 import '../common.dart';
-import '../enum.dart';
-import '../layer/shape_layer.dart';
-import '../settings.dart';
 
 /// Specifies the legend type.
 enum _LegendType {
@@ -2200,7 +2192,7 @@ class Legend extends StatefulWidget {
   final SfMapsThemeData themeData;
 
   @override
-  _LegendState createState() => _LegendState();
+  State<Legend> createState() => _LegendState();
 }
 
 class _LegendState extends State<Legend> {
@@ -2394,7 +2386,7 @@ class _LegendState extends State<Legend> {
 
   Color? _getEffectiveToggledItemColor() {
     if (widget.themeData.toggledItemColor != Colors.transparent) {
-      return widget.themeData.toggledItemColor
+      return widget.themeData.toggledItemColor!
           .withOpacity(widget.legend.toggledItemOpacity);
     }
     return widget.themeData.toggledItemColor;

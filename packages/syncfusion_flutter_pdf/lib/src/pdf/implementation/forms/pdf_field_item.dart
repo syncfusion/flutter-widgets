@@ -1,90 +1,116 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../interfaces/pdf_interface.dart';
+import '../annotations/enum.dart';
+import '../graphics/brushes/pdf_solid_brush.dart';
+import '../graphics/fonts/pdf_font.dart';
+import '../graphics/fonts/pdf_string_format.dart';
+import '../graphics/pdf_pen.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../pages/pdf_page.dart';
+import '../pages/pdf_page_collection.dart';
+import '../pdf_document/pdf_document.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_reference.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_string.dart';
+import 'enum.dart';
+import 'pdf_field.dart';
 
 /// Represents base class for field's group items.
 class PdfFieldItem {
   //Constructor
   /// Initializes a new instance of the [PdfFieldItem] class.
-  PdfFieldItem._(PdfField field, int index, _PdfDictionary? dictionary) {
-    _field = field;
-    _collectionIndex = index;
-    _dictionary = dictionary;
+  PdfFieldItem._(PdfField field, int index, PdfDictionary? dictionary) {
+    _helper = PdfFieldItemHelper(this, field);
+    _helper._collectionIndex = index;
+    _helper.dictionary = dictionary;
   }
 
   //Field
-  late PdfField _field;
-  int _collectionIndex = 0;
-  _PdfDictionary? _dictionary;
+  late PdfFieldItemHelper _helper;
   PdfPage? _page;
 
   //Properties
   /// Gets or sets the bounds.
   Rect get bounds {
-    final int backUpIndex = _field._defaultIndex;
-    _field._defaultIndex = _collectionIndex;
-    final Rect rect = _field.bounds;
-    _field._defaultIndex = backUpIndex;
+    final PdfFieldHelper helper = PdfFieldHelper.getHelper(_helper.field);
+    final int backUpIndex = helper.defaultIndex;
+    helper.defaultIndex = _helper._collectionIndex;
+    final Rect rect = _helper.field.bounds;
+    helper.defaultIndex = backUpIndex;
     return rect;
   }
 
   set bounds(Rect value) {
     if (value.isEmpty) {
-      ArgumentError('bounds can\'t be null/empty');
+      ArgumentError("bounds can't be null/empty");
     }
-    final int backUpIndex = _field._defaultIndex;
-    _field._defaultIndex = _collectionIndex;
-    _field.bounds = value;
-    _field._defaultIndex = backUpIndex;
+    final PdfFieldHelper helper = PdfFieldHelper.getHelper(_helper.field);
+    final int backUpIndex = helper.defaultIndex;
+    helper.defaultIndex = _helper._collectionIndex;
+    _helper.field.bounds = value;
+    helper.defaultIndex = backUpIndex;
   }
 
   /// Gets the page of the field.
   PdfPage? get page {
     if (_page == null) {
-      final int backUpIndex = _field._defaultIndex;
-      _field._defaultIndex = _collectionIndex;
-      _page = _field.page;
-      final _PdfName pName = _PdfName(_DictionaryProperties.p);
-      if (_field._kids != null && _field._kids!.count > 0) {
-        final PdfDocument? doc = _field._crossTable!._document;
-        if (doc != null && doc._isLoadedDocument) {
-          if (_dictionary!.containsKey(pName)) {
-            final _IPdfPrimitive? pageRef = _field._crossTable!
-                ._getObject(_dictionary![_DictionaryProperties.p]);
-            if (pageRef != null && pageRef is _PdfDictionary) {
-              final _PdfReference widgetReference =
-                  _field._crossTable!._getReference(_dictionary);
+      final PdfFieldHelper helper = PdfFieldHelper.getHelper(_helper.field);
+      final int backUpIndex = helper.defaultIndex;
+      helper.defaultIndex = _helper._collectionIndex;
+      _page = _helper.field.page;
+      final PdfName pName = PdfName(PdfDictionaryProperties.p);
+      final PdfArray? kids = helper.kids;
+      if (kids != null && kids.count > 0) {
+        final PdfCrossTable crosstable = helper.crossTable!;
+        final PdfDocument? doc = crosstable.document;
+        if (doc != null && PdfDocumentHelper.getHelper(doc).isLoadedDocument) {
+          if (_helper.dictionary!.containsKey(pName)) {
+            final IPdfPrimitive? pageRef = crosstable
+                .getObject(_helper.dictionary![PdfDictionaryProperties.p]);
+            if (pageRef != null && pageRef is PdfDictionary) {
+              final PdfReference widgetReference =
+                  crosstable.getReference(_helper.dictionary);
               for (int i = 0; i < doc.pages.count; i++) {
                 final PdfPage loadedPage = doc.pages[i];
-                final _PdfArray? lAnnots = loadedPage._obtainAnnotations();
+                final PdfArray? lAnnots =
+                    PdfPageHelper.getHelper(loadedPage).obtainAnnotations();
                 if (lAnnots != null) {
                   for (int i = 0; i < lAnnots.count; i++) {
-                    final _IPdfPrimitive? holder = lAnnots[i];
+                    final IPdfPrimitive? holder = lAnnots[i];
                     if (holder != null &&
-                        holder is _PdfReferenceHolder &&
-                        holder.reference!._objNum == widgetReference._objNum &&
-                        holder.reference!._genNum == widgetReference._genNum) {
-                      _page = doc.pages._getPage(pageRef);
-                      _field._defaultIndex = backUpIndex;
+                        holder is PdfReferenceHolder &&
+                        holder.reference!.objNum == widgetReference.objNum &&
+                        holder.reference!.genNum == widgetReference.genNum) {
+                      _page = PdfPageCollectionHelper.getHelper(doc.pages)
+                          .getPage(pageRef);
+                      helper.defaultIndex = backUpIndex;
                       return _page;
                     }
                   }
                 }
               }
-              _field._defaultIndex = backUpIndex;
+              helper.defaultIndex = backUpIndex;
               _page = null;
             }
           } else {
-            final _PdfReference widgetReference =
-                _field._crossTable!._getReference(_dictionary);
+            final PdfReference widgetReference =
+                crosstable.getReference(_helper.dictionary);
             for (int i = 0; i < doc.pages.count; i++) {
               final PdfPage loadedPage = doc.pages[i];
-              final _PdfArray? lAnnots = loadedPage._obtainAnnotations();
+              final PdfArray? lAnnots =
+                  PdfPageHelper.getHelper(loadedPage).obtainAnnotations();
               if (lAnnots != null) {
                 for (int i = 0; i < lAnnots.count; i++) {
-                  final _IPdfPrimitive? holder = lAnnots[i];
+                  final IPdfPrimitive? holder = lAnnots[i];
                   if (holder != null &&
-                      holder is _PdfReferenceHolder &&
-                      holder.reference!._objNum == widgetReference._objNum &&
-                      holder.reference!._genNum == widgetReference._genNum) {
+                      holder is PdfReferenceHolder &&
+                      holder.reference!.objNum == widgetReference.objNum &&
+                      holder.reference!.genNum == widgetReference.genNum) {
                     return _page = loadedPage;
                   }
                 }
@@ -94,72 +120,189 @@ class PdfFieldItem {
           }
         }
       }
-      _field._defaultIndex = backUpIndex;
+      helper.defaultIndex = backUpIndex;
     }
     return _page;
   }
+}
 
-  PdfPen? get _borderPen {
-    final int backUpIndex = _field._defaultIndex;
-    _field._defaultIndex = _collectionIndex;
-    final PdfPen? pen = _field._borderPen;
-    _field._defaultIndex = backUpIndex;
+/// [PdfFieldItem] helper
+class PdfFieldItemHelper {
+  /// internal constructor
+  PdfFieldItemHelper(this.fieldItem, this.field);
+
+  /// internal field
+  late PdfFieldItem fieldItem;
+
+  /// internal field
+  late PdfField field;
+
+  /// internal field
+  PdfDictionary? dictionary;
+
+  /// internal field
+  int _collectionIndex = 0;
+
+  /// internal method
+  PdfPen? get borderPen {
+    final PdfFieldHelper helper = PdfFieldHelper.getHelper(field);
+    final int backUpIndex = helper.defaultIndex;
+    helper.defaultIndex = _collectionIndex;
+    final PdfPen? pen = helper.borderPen;
+    helper.defaultIndex = backUpIndex;
     return pen;
   }
 
-  PdfBorderStyle? get _borderStyle {
-    final int backUpIndex = _field._defaultIndex;
-    _field._defaultIndex = _collectionIndex;
-    final PdfBorderStyle bs = _field._borderStyle;
-    _field._defaultIndex = backUpIndex;
+  /// internal method
+  PdfBorderStyle? get borderStyle {
+    final PdfFieldHelper helper = PdfFieldHelper.getHelper(field);
+    final int backUpIndex = helper.defaultIndex;
+    helper.defaultIndex = _collectionIndex;
+    final PdfBorderStyle bs = helper.borderStyle;
+    helper.defaultIndex = backUpIndex;
     return bs;
   }
 
-  int get _borderWidth {
-    final int backUpIndex = _field._defaultIndex;
-    _field._defaultIndex = _collectionIndex;
-    final int borderWidth = _field._borderWidth;
-    _field._defaultIndex = backUpIndex;
+  /// internal method
+  int get borderWidth {
+    final PdfFieldHelper helper = PdfFieldHelper.getHelper(field);
+    final int backUpIndex = helper.defaultIndex;
+    helper.defaultIndex = _collectionIndex;
+    final int borderWidth = helper.borderWidth;
+    helper.defaultIndex = backUpIndex;
     return borderWidth;
   }
 
-  PdfStringFormat? get _format {
-    final int backUpIndex = _field._defaultIndex;
-    _field._defaultIndex = _collectionIndex;
-    final PdfStringFormat? sFormat = _field._format;
-    _field._defaultIndex = backUpIndex;
+  /// internal method
+  PdfStringFormat? get format {
+    final PdfFieldHelper helper = PdfFieldHelper.getHelper(field);
+    final int backUpIndex = helper.defaultIndex;
+    helper.defaultIndex = _collectionIndex;
+    final PdfStringFormat? sFormat = helper.format;
+    helper.defaultIndex = backUpIndex;
     return sFormat;
   }
 
-  PdfBrush? get _backBrush {
-    final int backUpIndex = _field._defaultIndex;
-    _field._defaultIndex = _collectionIndex;
-    final PdfBrush? backBrush = _field._backBrush;
-    _field._defaultIndex = backUpIndex;
+  /// internal method
+  PdfBrush? get backBrush {
+    final PdfFieldHelper helper = PdfFieldHelper.getHelper(field);
+    final int backUpIndex = helper.defaultIndex;
+    helper.defaultIndex = _collectionIndex;
+    final PdfBrush? backBrush = helper.backBrush;
+    helper.defaultIndex = backUpIndex;
     return backBrush;
   }
 
-  PdfBrush? get _foreBrush {
-    final int backUpIndex = _field._defaultIndex;
-    _field._defaultIndex = _collectionIndex;
-    final PdfBrush? foreBrush = _field._foreBrush;
-    _field._defaultIndex = backUpIndex;
+  /// internal method
+  PdfBrush? get foreBrush {
+    final PdfFieldHelper helper = PdfFieldHelper.getHelper(field);
+    final int backUpIndex = helper.defaultIndex;
+    helper.defaultIndex = _collectionIndex;
+    final PdfBrush? foreBrush = helper.foreBrush;
+    helper.defaultIndex = backUpIndex;
     return foreBrush;
   }
 
-  PdfBrush? get _shadowBrush {
-    final int backUpIndex = _field._defaultIndex;
-    _field._defaultIndex = _collectionIndex;
-    final PdfBrush? shadowBrush = _field._shadowBrush;
-    _field._defaultIndex = backUpIndex;
+  /// internal method
+  PdfBrush? get shadowBrush {
+    final PdfFieldHelper helper = PdfFieldHelper.getHelper(field);
+    final int backUpIndex = helper.defaultIndex;
+    helper.defaultIndex = _collectionIndex;
+    final PdfBrush? shadowBrush = helper.shadowBrush;
+    helper.defaultIndex = backUpIndex;
     return shadowBrush;
   }
 
-  PdfFont get _font {
-    final int backUpIndex = _field._defaultIndex;
-    _field._defaultIndex = _collectionIndex;
-    final PdfFont font = _field._font!;
-    _field._defaultIndex = backUpIndex;
+  /// internal method
+  PdfFont get font {
+    final PdfFieldHelper helper = PdfFieldHelper.getHelper(field);
+    final int backUpIndex = helper.defaultIndex;
+    helper.defaultIndex = _collectionIndex;
+    final PdfFont font = helper.font!;
+    helper.defaultIndex = backUpIndex;
     return font;
+  }
+
+  /// internal method
+  static PdfFieldItemHelper getHelper(PdfFieldItem item) {
+    return item._helper;
+  }
+}
+
+/// Represents loaded check box item.
+class PdfCheckBoxItem extends PdfFieldItem {
+  PdfCheckBoxItem._(PdfField field, int index, PdfDictionary? dictionary)
+      : super._(field, index, dictionary);
+
+  //Implementation
+  void _setStyle(PdfCheckBoxStyle value) {
+    String style = '';
+    if (_helper.dictionary!.containsKey(PdfDictionaryProperties.mk)) {
+      switch (value) {
+        case PdfCheckBoxStyle.check:
+          style = '4';
+          break;
+        case PdfCheckBoxStyle.circle:
+          style = 'l';
+          break;
+        case PdfCheckBoxStyle.cross:
+          style = '8';
+          break;
+        case PdfCheckBoxStyle.diamond:
+          style = 'u';
+          break;
+        case PdfCheckBoxStyle.square:
+          style = 'n';
+          break;
+        case PdfCheckBoxStyle.star:
+          style = 'H';
+          break;
+      }
+      final IPdfPrimitive? mk = _helper.dictionary![PdfDictionaryProperties.mk];
+      if (mk is PdfReferenceHolder) {
+        final IPdfPrimitive? widgetDict = mk.object;
+        if (widgetDict is PdfDictionary) {
+          if (widgetDict.containsKey(PdfDictionaryProperties.ca)) {
+            widgetDict[PdfDictionaryProperties.ca] = PdfString(style);
+          } else {
+            widgetDict.setProperty(
+                PdfDictionaryProperties.ca, PdfString(style));
+          }
+        }
+      } else if (mk is PdfDictionary) {
+        mk[PdfDictionaryProperties.ca] = PdfString(style);
+      }
+    }
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfCheckBoxItem] helper
+class PdfCheckBoxItemHelper {
+  /// internal method
+  static void setStyle(PdfCheckBoxItem checkBoxItem, PdfCheckBoxStyle value) {
+    checkBoxItem._setStyle(value);
+  }
+
+  /// internal method
+  static PdfCheckBoxItem getItem(
+      PdfField field, int index, PdfDictionary? dictionary) {
+    return PdfCheckBoxItem._(field, index, dictionary);
+  }
+}
+
+/// Represents an item in a text box field collection.
+class PdfTextBoxItem extends PdfFieldItem {
+  PdfTextBoxItem._(PdfField field, int index, PdfDictionary? dictionary)
+      : super._(field, index, dictionary);
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfTextBoxItem] helper
+class PdfTextBoxItemHelper {
+  /// internal method
+  static PdfTextBoxItem getItem(
+      PdfField field, int index, PdfDictionary? dictionary) {
+    return PdfTextBoxItem._(field, index, dictionary);
   }
 }

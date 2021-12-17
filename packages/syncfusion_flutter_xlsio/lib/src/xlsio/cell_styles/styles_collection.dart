@@ -95,7 +95,9 @@ class StylesCollection {
   Style? operator [](dynamic index) {
     if (index is String) {
       if (!_dictStyles.containsKey(index)) {
+        // ignore: prefer_interpolation_to_compose_strings
         throw Exception('Style with specified name does not exist. Name: ' +
+            // ignore: noop_primitive_operations
             index.toString() +
             ', value');
       }

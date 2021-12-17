@@ -1,23 +1,27 @@
-part of pdf;
+import '../asn1/asn1.dart';
+import '../asn1/der.dart';
+import '../pkcs/pfx_data.dart';
 
-class _X509Name extends _Asn1Encode {
-  _X509Name(_Asn1Sequence sequence) {
+/// internal class
+class X509Name extends Asn1Encode {
+  /// internal constructor
+  X509Name(Asn1Sequence sequence) {
     _initialize();
     _sequence = sequence;
     // ignore: avoid_function_literals_in_foreach_calls
-    sequence._objects!.forEach((dynamic encode) {
-      final _Asn1Set asn1Set = _Asn1Set.getAsn1Set(encode.getAsn1())!;
-      for (int i = 0; i < asn1Set._objects.length; i++) {
-        final _Asn1Sequence asn1Sequence =
-            _Asn1Sequence.getSequence(asn1Set[i]!.getAsn1())!;
+    sequence.objects!.forEach((dynamic encode) {
+      final Asn1Set asn1Set = Asn1Set.getAsn1Set(encode.getAsn1())!;
+      for (int i = 0; i < asn1Set.objects.length; i++) {
+        final Asn1Sequence asn1Sequence =
+            Asn1Sequence.getSequence(asn1Set[i]!.getAsn1())!;
         if (asn1Sequence.count != 2) {
           throw ArgumentError.value(
               sequence, 'sequence', 'Invalid length in sequence');
         }
-        _ordering.add(_DerObjectID.getID(asn1Sequence[0]!.getAsn1()));
-        final _Asn1? asn1 = asn1Sequence[1]!.getAsn1();
-        if (asn1 is _IAsn1String) {
-          String value = (asn1! as _IAsn1String).getString()!;
+        _ordering.add(DerObjectID.getID(asn1Sequence[0]!.getAsn1()));
+        final Asn1? asn1 = asn1Sequence[1]!.getAsn1();
+        if (asn1 is IAsn1String) {
+          String value = (asn1! as IAsn1String).getString()!;
           if (value.startsWith('#')) {
             value = r'\' + value;
           }
@@ -27,52 +31,116 @@ class _X509Name extends _Asn1Encode {
       }
     });
   }
-  static _DerObjectID c = _DerObjectID('2.5.4.6');
-  static _DerObjectID o = _DerObjectID('2.5.4.10');
-  static _DerObjectID ou = _DerObjectID('2.5.4.11');
-  static _DerObjectID t = _DerObjectID('2.5.4.12');
-  static _DerObjectID cn = _DerObjectID('2.5.4.3');
-  static _DerObjectID street = _DerObjectID('2.5.4.9');
-  static _DerObjectID serialNumber = _DerObjectID('2.5.4.5');
-  static _DerObjectID l = _DerObjectID('2.5.4.7');
-  static _DerObjectID st = _DerObjectID('2.5.4.8');
-  static _DerObjectID surname = _DerObjectID('2.5.4.4');
-  static _DerObjectID givenName = _DerObjectID('2.5.4.42');
-  static _DerObjectID initials = _DerObjectID('2.5.4.43');
-  static _DerObjectID generation = _DerObjectID('2.5.4.44');
-  static _DerObjectID uniqueIdentifier = _DerObjectID('2.5.4.45');
-  static _DerObjectID businessCategory = _DerObjectID('2.5.4.15');
-  static _DerObjectID postalCode = _DerObjectID('2.5.4.17');
-  static _DerObjectID dnQualifier = _DerObjectID('2.5.4.46');
-  static _DerObjectID pseudonym = _DerObjectID('2.5.4.65');
-  static _DerObjectID dateOfBirth = _DerObjectID('1.3.6.1.5.5.7.9.1');
-  static _DerObjectID placeOfBirth = _DerObjectID('1.3.6.1.5.5.7.9.2');
-  static _DerObjectID gender = _DerObjectID('1.3.6.1.5.5.7.9.3');
-  static _DerObjectID countryOfCitizenship = _DerObjectID('1.3.6.1.5.5.7.9.4');
-  static _DerObjectID countryOfResidence = _DerObjectID('1.3.6.1.5.5.7.9.5');
-  static _DerObjectID nameAtBirth = _DerObjectID('1.3.36.8.3.14');
-  static _DerObjectID postalAddress = _DerObjectID('2.5.4.16');
-  static _DerObjectID telephoneNumber = _X509Objects.telephoneNumberID;
-  static _DerObjectID emailAddress = _PkcsObjectId.pkcs9AtEmailAddress;
-  static _DerObjectID unstructuredName = _PkcsObjectId.pkcs9AtUnstructuredName;
-  static _DerObjectID unstructuredAddress =
-      _PkcsObjectId.pkcs9AtUnstructuredAddress;
-  static _DerObjectID dc = _DerObjectID('0.9.2342.19200300.100.1.25');
-  static _DerObjectID uid = _DerObjectID('0.9.2342.19200300.100.1.1');
+
+  /// internal field
+  static DerObjectID c = DerObjectID('2.5.4.6');
+
+  /// internal field
+  static DerObjectID o = DerObjectID('2.5.4.10');
+
+  /// internal field
+  static DerObjectID ou = DerObjectID('2.5.4.11');
+
+  /// internal field
+  static DerObjectID t = DerObjectID('2.5.4.12');
+
+  /// internal field
+  static DerObjectID cn = DerObjectID('2.5.4.3');
+
+  /// internal field
+  static DerObjectID street = DerObjectID('2.5.4.9');
+
+  /// internal field
+  static DerObjectID serialNumber = DerObjectID('2.5.4.5');
+
+  /// internal field
+  static DerObjectID l = DerObjectID('2.5.4.7');
+
+  /// internal field
+  static DerObjectID st = DerObjectID('2.5.4.8');
+
+  /// internal field
+  static DerObjectID surname = DerObjectID('2.5.4.4');
+
+  /// internal field
+  static DerObjectID givenName = DerObjectID('2.5.4.42');
+
+  /// internal field
+  static DerObjectID initials = DerObjectID('2.5.4.43');
+
+  /// internal field
+  static DerObjectID generation = DerObjectID('2.5.4.44');
+
+  /// internal field
+  static DerObjectID uniqueIdentifier = DerObjectID('2.5.4.45');
+
+  /// internal field
+  static DerObjectID businessCategory = DerObjectID('2.5.4.15');
+
+  /// internal field
+  static DerObjectID postalCode = DerObjectID('2.5.4.17');
+
+  /// internal field
+  static DerObjectID dnQualifier = DerObjectID('2.5.4.46');
+
+  /// internal field
+  static DerObjectID pseudonym = DerObjectID('2.5.4.65');
+
+  /// internal field
+  static DerObjectID dateOfBirth = DerObjectID('1.3.6.1.5.5.7.9.1');
+
+  /// internal field
+  static DerObjectID placeOfBirth = DerObjectID('1.3.6.1.5.5.7.9.2');
+
+  /// internal field
+  static DerObjectID gender = DerObjectID('1.3.6.1.5.5.7.9.3');
+
+  /// internal field
+  static DerObjectID countryOfCitizenship = DerObjectID('1.3.6.1.5.5.7.9.4');
+
+  /// internal field
+  static DerObjectID countryOfResidence = DerObjectID('1.3.6.1.5.5.7.9.5');
+
+  /// internal field
+  static DerObjectID nameAtBirth = DerObjectID('1.3.36.8.3.14');
+
+  /// internal field
+  static DerObjectID postalAddress = DerObjectID('2.5.4.16');
+
+  /// internal field
+  static DerObjectID telephoneNumber = X509Objects.telephoneNumberID;
+
+  /// internal field
+  static DerObjectID emailAddress = PkcsObjectId.pkcs9AtEmailAddress;
+
+  /// internal field
+  static DerObjectID unstructuredName = PkcsObjectId.pkcs9AtUnstructuredName;
+
+  /// internal field
+  static DerObjectID unstructuredAddress =
+      PkcsObjectId.pkcs9AtUnstructuredAddress;
+
+  /// internal field
+  static DerObjectID dc = DerObjectID('0.9.2342.19200300.100.1.25');
+
+  /// internal field
+  static DerObjectID uid = DerObjectID('0.9.2342.19200300.100.1.1');
   final List<dynamic> _ordering = <dynamic>[];
   final List<dynamic> _values = <dynamic>[];
   final List<dynamic> _added = <dynamic>[];
-  final Map<_DerObjectID, String> _defaultSymbols = <_DerObjectID, String>{};
-  _Asn1Sequence? _sequence;
-  static _X509Name? getName(dynamic obj, [bool? isExplicit]) {
-    _X509Name? result;
-    if (obj is _Asn1Tag && isExplicit != null) {
-      result = getName(_Asn1Sequence.getSequence(obj, isExplicit));
+  final Map<DerObjectID, String> _defaultSymbols = <DerObjectID, String>{};
+  Asn1Sequence? _sequence;
+
+  /// internal property
+  static X509Name? getName(dynamic obj, [bool? isExplicit]) {
+    X509Name? result;
+    if (obj is Asn1Tag && isExplicit != null) {
+      result = getName(Asn1Sequence.getSequence(obj, isExplicit));
     } else {
-      if (obj == null || obj is _X509Name) {
-        result = obj as _X509Name?;
+      if (obj == null || obj is X509Name) {
+        result = obj as X509Name?;
       } else if (obj != null) {
-        result = _X509Name(_Asn1Sequence.getSequence(obj)!);
+        result = X509Name(Asn1Sequence.getSequence(obj)!);
       } else {
         throw ArgumentError.value(obj, 'obj', 'Invalid entry');
       }
@@ -115,37 +183,38 @@ class _X509Name extends _Asn1Encode {
   }
 
   @override
-  _Asn1? getAsn1() {
+  Asn1? getAsn1() {
     if (_sequence == null) {
-      final _Asn1EncodeCollection collection1 = _Asn1EncodeCollection();
-      _Asn1EncodeCollection collection2 = _Asn1EncodeCollection();
-      _DerObjectID? lstOid;
+      final Asn1EncodeCollection collection1 = Asn1EncodeCollection();
+      Asn1EncodeCollection collection2 = Asn1EncodeCollection();
+      DerObjectID? lstOid;
       for (int i = 0; i != _ordering.length; i++) {
-        final _DerObjectID? oid = _ordering[i] as _DerObjectID?;
+        final DerObjectID? oid = _ordering[i] as DerObjectID?;
         if (lstOid != null && !(_added[i] as bool)) {
-          collection1._encodableObjects.add(_DerSet(collection: collection2));
-          collection2 = _Asn1EncodeCollection();
+          collection1.encodableObjects.add(DerSet(collection: collection2));
+          collection2 = Asn1EncodeCollection();
         }
         lstOid = oid;
       }
-      collection1._encodableObjects.add(_DerSet(collection: collection2));
-      _sequence = _DerSequence(collection: collection1);
+      collection1.encodableObjects.add(DerSet(collection: collection2));
+      _sequence = DerSequence(collection: collection1);
     }
     return _sequence;
   }
 
-  String getString(bool isReverse, Map<_DerObjectID, String> symbols) {
+  /// internal method
+  String getString(bool isReverse, Map<DerObjectID, String> symbols) {
     List<dynamic> components = <dynamic>[];
     String result = '';
     for (int i = 0; i < _ordering.length; i++) {
       if (_added[i] as bool) {
         result = '+';
         result = appendValue(
-            result, symbols, _ordering[i] as _DerObjectID?, _values[i]);
+            result, symbols, _ordering[i] as DerObjectID?, _values[i]);
       } else {
         result = '';
         result = appendValue(
-            result, symbols, _ordering[i] as _DerObjectID?, _values[i]);
+            result, symbols, _ordering[i] as DerObjectID?, _values[i]);
         components.add(result);
       }
     }
@@ -163,13 +232,14 @@ class _X509Name extends _Asn1Encode {
     return buf;
   }
 
-  String appendValue(String builder, Map<_DerObjectID, String> symbols,
-      _DerObjectID? id, String value) {
+  /// internal method
+  String appendValue(String builder, Map<DerObjectID, String> symbols,
+      DerObjectID? id, String value) {
     final String? symbol = symbols[id!];
     if (symbol != null) {
       builder += symbol;
     } else {
-      builder += id._id!;
+      builder += id.id!;
     }
     builder += '=';
     int index = builder.length;

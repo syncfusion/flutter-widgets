@@ -60,3 +60,19 @@ enum PointRenderMode {
   /// - PointRenderMode.gradient, will render points making a sweep gradient based on their values and fill.
   gradient,
 }
+
+/// Data label overflow action when it’s overflowing from its region area.
+enum OverflowMode {
+  /// - OverflowMode.none, no action will be taken and priority goes for
+  /// `LabelIntersectAction.shift` of `labelIntersectAction` property.
+  none,
+
+  /// - OverflowMode.trim, data label text will be trimmed.
+  trim,
+
+  /// - OverflowMode.shift, datalabel text will be shifted to outside.
+  shift,
+
+  /// - OverflowMode.hide, data label text will be hidden.
+  hide,
+}

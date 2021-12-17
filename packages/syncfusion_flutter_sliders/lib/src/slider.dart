@@ -116,6 +116,8 @@ class SfSlider extends StatefulWidget {
       this.max = 1.0,
       required this.value,
       required this.onChanged,
+      this.onChangeStart,
+      this.onChangeEnd,
       this.interval,
       this.stepSize,
       this.stepDuration,
@@ -124,6 +126,7 @@ class SfSlider extends StatefulWidget {
       this.showLabels = false,
       this.showDividers = false,
       this.enableTooltip = false,
+      this.shouldAlwaysShowTooltip = false,
       this.activeColor,
       this.inactiveColor,
       this.labelPlacement = LabelPlacement.onTicks,
@@ -196,6 +199,8 @@ class SfSlider extends StatefulWidget {
       this.max = 1.0,
       required this.value,
       required this.onChanged,
+      this.onChangeStart,
+      this.onChangeEnd,
       this.interval,
       this.stepSize,
       this.stepDuration,
@@ -204,6 +209,7 @@ class SfSlider extends StatefulWidget {
       this.showLabels = false,
       this.showDividers = false,
       this.enableTooltip = false,
+      this.shouldAlwaysShowTooltip = false,
       this.isInversed = false,
       this.activeColor,
       this.inactiveColor,
@@ -324,6 +330,79 @@ class SfSlider extends StatefulWidget {
   /// )
   /// ```
   final ValueChanged<dynamic>? onChanged;
+
+  /// The [onChangeStart] callback will be called when the user starts
+  /// to tap or drag the slider. This callback is only used to notify
+  /// the user about the start interaction and it does not update the
+  /// slider value.
+  ///
+  /// The last interacted thumb value will be passed to this callback.
+  /// The value will be double or date time.
+  ///
+  /// ```dart
+  /// double _value = 4.0;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfSlider(
+  ///       min: 0,
+  ///       max: 10,
+  ///       value: _value,
+  ///       onChangeStart: (dynamic newValue) {
+  ///         print('Interaction starts');
+  ///       },
+  ///       onChanged: (dynamic newValue) {
+  ///         setState(() {
+  ///           _value = newValue;
+  ///         });
+  ///       },
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// See also:
+  /// •	The [onChangeEnd] callback used to notify the user about the
+  ///   interaction end.
+  /// •	The [onChanged] callback used to update the slider thumb value.
+  final ValueChanged<dynamic>? onChangeStart;
+
+  /// The [`onChangeEnd`] callback will be called when the user ends
+  /// tap or drag the slider.
+  ///
+  /// This callback is only used to notify the user about the end interaction
+  /// and it does not update the slider thumb value.
+  ///
+  /// ```dart
+  /// double _value = 4.0;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfSlider(
+  ///       min: 0,
+  ///       max: 10,
+  ///       value: _value,
+  ///       onChangeEnd: (dynamic endValue) {
+  ///         print('Interaction end');
+  ///       },
+  ///       onChanged: (dynamic newValue) {
+  ///         setState(() {
+  ///           _value = newValue;
+  ///         });
+  ///       },
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// See also:
+  /// •	The [onChangeStart] callback used to notify the user about the
+  ///   interaction begins.
+  /// •	The [onChanged] callback used to update the slider thumb value.
+
+  final ValueChanged<dynamic>? onChangeEnd;
 
   /// Splits the slider into given interval.
   /// It is mandatory if labels, major ticks and dividers are needed.
@@ -638,6 +717,39 @@ class SfSlider extends StatefulWidget {
   /// * [tooltipTextFormatterCallback], for changing the default tooltip text.
   /// * [SfSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfSliderThemeData-class.html), for customizing the appearance of the tooltip text.
   final bool enableTooltip;
+
+  /// Option to show tooltip always in slider.
+  ///
+  /// Defaults to false.
+  ///
+  /// When this property is enabled, the tooltip is always displayed to the
+  /// start and end thumbs of the selector. This property works independent
+  /// of the [enableTooltip] property. While this property is enabled, the
+  /// tooltip will always appear during interaction.
+  ///
+  /// This snippet shows how to show the tooltip in the [SfSlider].
+  ///
+  /// ```dart
+  /// double _value = 4.0;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfSlider(
+  ///       min: 0,
+  ///       max: 10,
+  ///       value: _value,
+  ///       shouldAlwaysShowTooltip: true,
+  ///       onChanged: (dynamic newValue) {
+  ///         setState(() {
+  ///           _value = newValue;
+  ///         });
+  ///       },
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  final bool shouldAlwaysShowTooltip;
 
   /// Option to inverse the slider.
   ///
@@ -1030,7 +1142,7 @@ class SfSlider extends StatefulWidget {
   final Widget? thumbIcon;
 
   @override
-  _SfSliderState createState() => _SfSliderState();
+  State<SfSlider> createState() => _SfSliderState();
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -1043,6 +1155,10 @@ class SfSlider extends StatefulWidget {
     properties.add(ObjectFlagProperty<ValueChanged<double>>(
         'onChanged', onChanged,
         ifNull: 'disabled'));
+    properties.add(ObjectFlagProperty<ValueChanged<dynamic>>.has(
+        'onChangeStart', onChangeStart));
+    properties.add(ObjectFlagProperty<ValueChanged<dynamic>>.has(
+        'onChangeEnd', onChangeEnd));
     properties.add(DoubleProperty('interval', interval));
     properties.add(DoubleProperty('stepSize', stepSize));
     if (stepDuration != null) {
@@ -1064,11 +1180,18 @@ class SfSlider extends StatefulWidget {
         ifTrue: 'Dividers are  showing',
         ifFalse: 'Dividers are not showing',
         showName: false));
-    properties.add(FlagProperty('enableTooltip',
-        value: enableTooltip,
-        ifTrue: 'Tooltip is enabled',
-        ifFalse: 'Tooltip is disabled',
-        showName: false));
+    if (shouldAlwaysShowTooltip) {
+      properties.add(FlagProperty('shouldAlwaysShowTooltip',
+          value: shouldAlwaysShowTooltip,
+          ifTrue: 'Tooltip is always visible',
+          showName: false));
+    } else {
+      properties.add(FlagProperty('enableTooltip',
+          value: enableTooltip,
+          ifTrue: 'Tooltip is enabled',
+          ifFalse: 'Tooltip is disabled',
+          showName: false));
+    }
     properties.add(ColorProperty('activeColor', activeColor));
     properties.add(ColorProperty('inactiveColor', inactiveColor));
     properties
@@ -1076,8 +1199,8 @@ class SfSlider extends StatefulWidget {
     properties
         .add(DiagnosticsProperty<NumberFormat>('numberFormat', numberFormat));
     if (value.runtimeType == DateTime && dateFormat != null) {
-      properties.add(StringProperty('dateFormat',
-          'Formatted value is ' + (dateFormat!.format(value)).toString()));
+      properties.add(StringProperty(
+          'dateFormat', 'Formatted value is ${dateFormat!.format(value)}'));
     }
     properties.add(
         EnumProperty<DateIntervalType>('dateIntervalType', dateIntervalType));
@@ -1100,6 +1223,18 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
   void _onChanged(dynamic value) {
     if (value != widget.value) {
       widget.onChanged!(value);
+    }
+  }
+
+  void _onChangeStart(dynamic value) {
+    if (widget.onChangeStart != null) {
+      widget.onChangeStart!(value);
+    }
+  }
+
+  void _onChangeEnd(dynamic value) {
+    if (widget.onChangeEnd != null) {
+      widget.onChangeEnd!(value);
     }
   }
 
@@ -1132,33 +1267,39 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
                   ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       tooltipTextStyle: sliderThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
-              color: sliderThemeData.brightness == Brightness.light
-                  ? const Color.fromRGBO(255, 255, 255, 1)
-                  : const Color.fromRGBO(0, 0, 0, 1)),
+          themeData.textTheme.bodyText1!
+              .copyWith(color: themeData.colorScheme.surface),
       inactiveTrackColor: widget.inactiveColor ??
           sliderThemeData.inactiveTrackColor ??
-          themeData.primaryColor.withOpacity(0.24),
+          themeData.colorScheme.primary.withOpacity(0.24),
       activeTrackColor: widget.activeColor ??
           sliderThemeData.activeTrackColor ??
-          themeData.primaryColor,
+          themeData.colorScheme.primary,
       thumbColor: widget.activeColor ??
           sliderThemeData.thumbColor ??
-          themeData.primaryColor,
-      activeTickColor: sliderThemeData.activeTickColor,
-      inactiveTickColor: sliderThemeData.inactiveTickColor,
-      disabledActiveTickColor: sliderThemeData.disabledActiveTickColor,
-      disabledInactiveTickColor: sliderThemeData.disabledInactiveTickColor,
-      activeMinorTickColor: sliderThemeData.activeMinorTickColor,
-      inactiveMinorTickColor: sliderThemeData.inactiveMinorTickColor,
+          themeData.colorScheme.primary,
+      activeTickColor: sliderThemeData.activeTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.37),
+      inactiveTickColor: sliderThemeData.inactiveTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.37),
+      disabledActiveTickColor: sliderThemeData.disabledActiveTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.24),
+      disabledInactiveTickColor: sliderThemeData.disabledInactiveTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.24),
+      activeMinorTickColor: sliderThemeData.activeMinorTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.37),
+      inactiveMinorTickColor: sliderThemeData.inactiveMinorTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.37),
       disabledActiveMinorTickColor:
-          sliderThemeData.disabledActiveMinorTickColor,
+          sliderThemeData.disabledActiveMinorTickColor ??
+              themeData.colorScheme.onSurface.withOpacity(0.24),
       disabledInactiveMinorTickColor:
-          sliderThemeData.disabledInactiveMinorTickColor,
+          sliderThemeData.disabledInactiveMinorTickColor ??
+              themeData.colorScheme.onSurface.withOpacity(0.24),
       // ignore: lines_longer_than_80_chars
       overlayColor: widget.activeColor?.withOpacity(0.12) ??
           sliderThemeData.overlayColor ??
-          themeData.primaryColor.withOpacity(0.12),
+          themeData.colorScheme.primary.withOpacity(0.12),
       inactiveDividerColor: widget.activeColor ??
           sliderThemeData.inactiveDividerColor ??
           themeData.colorScheme.primary.withOpacity(0.54),
@@ -1174,13 +1315,13 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
           themeData.colorScheme.onSurface.withOpacity(0.32),
       disabledInactiveTrackColor: sliderThemeData.disabledInactiveTrackColor ??
           themeData.colorScheme.onSurface.withOpacity(0.12),
-      disabledThumbColor: sliderThemeData.disabledThumbColor,
+      disabledThumbColor: sliderThemeData.disabledThumbColor ??
+          Color.alphaBlend(themeData.colorScheme.onSurface.withOpacity(0.38),
+              themeData.colorScheme.surface),
       tooltipBackgroundColor: sliderThemeData.tooltipBackgroundColor ??
-          (widget.tooltipShape is SfPaddleTooltipShape
-              ? themeData.primaryColor
-              : (sliderThemeData.brightness == Brightness.light)
-                  ? const Color.fromRGBO(97, 97, 97, 1)
-                  : const Color.fromRGBO(224, 224, 224, 1)),
+          (themeData.brightness == Brightness.light
+              ? const Color.fromRGBO(97, 97, 97, 1)
+              : const Color.fromRGBO(224, 224, 224, 1)),
       thumbStrokeColor: sliderThemeData.thumbStrokeColor,
       activeDividerStrokeColor: sliderThemeData.activeDividerStrokeColor,
       inactiveDividerStrokeColor: sliderThemeData.inactiveDividerStrokeColor,
@@ -1216,6 +1357,18 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
   }
 
   @override
+  void didUpdateWidget(SfSlider oldWidget) {
+    if (oldWidget.shouldAlwaysShowTooltip != widget.shouldAlwaysShowTooltip) {
+      if (widget.shouldAlwaysShowTooltip) {
+        tooltipAnimationController.value = 1;
+      } else {
+        tooltipAnimationController.value = 0;
+      }
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void initState() {
     super.initState();
     overlayController = AnimationController(vsync: this, duration: duration);
@@ -1247,6 +1400,8 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
         max: widget.max,
         value: widget.value,
         onChanged: isActive ? _onChanged : null,
+        onChangeStart: widget.onChangeStart != null ? _onChangeStart : null,
+        onChangeEnd: widget.onChangeEnd != null ? _onChangeEnd : null,
         interval: widget.interval,
         stepSize: widget.stepSize,
         stepDuration: widget.stepDuration,
@@ -1255,6 +1410,7 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
         showLabels: widget.showLabels,
         showDividers: widget.showDividers,
         enableTooltip: widget.enableTooltip,
+        shouldAlwaysShowTooltip: widget.shouldAlwaysShowTooltip,
         isInversed: widget._sliderType == SliderType.horizontal &&
                 Directionality.of(context) == TextDirection.rtl ||
             widget.isInversed,
@@ -1292,6 +1448,8 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       required this.max,
       required this.value,
       required this.onChanged,
+      required this.onChangeStart,
+      required this.onChangeEnd,
       required this.interval,
       required this.stepSize,
       required this.stepDuration,
@@ -1300,6 +1458,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       required this.showLabels,
       required this.showDividers,
       required this.enableTooltip,
+      required this.shouldAlwaysShowTooltip,
       required this.isInversed,
       required this.inactiveColor,
       required this.activeColor,
@@ -1330,6 +1489,8 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
   final dynamic max;
   final dynamic value;
   final ValueChanged<dynamic>? onChanged;
+  final ValueChanged<dynamic>? onChangeStart;
+  final ValueChanged<dynamic>? onChangeEnd;
   final double? interval;
   final double? stepSize;
   final SliderStepDuration? stepDuration;
@@ -1340,6 +1501,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
   final bool showDividers;
   final bool enableTooltip;
   final bool isInversed;
+  final bool shouldAlwaysShowTooltip;
 
   final Color inactiveColor;
   final Color activeColor;
@@ -1372,6 +1534,8 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
         max: max,
         value: value,
         onChanged: onChanged,
+        onChangeStart: onChangeStart,
+        onChangeEnd: onChangeEnd,
         minorTicksPerInterval: minorTicksPerInterval,
         interval: interval,
         stepSize: stepSize,
@@ -1380,6 +1544,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
         showLabels: showLabels,
         showDividers: showDividers,
         enableTooltip: enableTooltip,
+        shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
         isInversed: isInversed,
         labelPlacement: labelPlacement,
         numberFormat: numberFormat,
@@ -1410,6 +1575,8 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       ..max = max
       ..value = value
       ..onChanged = onChanged
+      ..onChangeStart = onChangeStart
+      ..onChangeEnd = onChangeEnd
       ..interval = interval
       ..stepSize = stepSize
       ..stepDuration = stepDuration
@@ -1418,6 +1585,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       ..showLabels = showLabels
       ..showDividers = showDividers
       ..enableTooltip = enableTooltip
+      ..shouldAlwaysShowTooltip = shouldAlwaysShowTooltip
       ..isInversed = isInversed
       ..labelPlacement = labelPlacement
       ..numberFormat = numberFormat
@@ -1503,7 +1671,6 @@ class _RenderSliderElement extends RenderObjectElement {
   @override
   void insertRenderObjectChild(RenderObject child, ChildElements slotValue) {
     assert(child is RenderBox);
-    assert(slotValue is ChildElements);
     final ChildElements slot = slotValue;
     _updateRenderObject(child, slot);
     assert(renderObject.childToSlot.keys.contains(child));
@@ -1532,6 +1699,8 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     required dynamic max,
     required dynamic value,
     required ValueChanged<dynamic>? onChanged,
+    required this.onChangeStart,
+    required this.onChangeEnd,
     required double? interval,
     required double? stepSize,
     required SliderStepDuration? stepDuration,
@@ -1540,6 +1709,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     required bool showLabels,
     required bool showDividers,
     required bool enableTooltip,
+    required bool shouldAlwaysShowTooltip,
     required bool isInversed,
     required LabelPlacement labelPlacement,
     required NumberFormat numberFormat,
@@ -1577,6 +1747,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
           showLabels: showLabels,
           showDividers: showDividers,
           enableTooltip: enableTooltip,
+          shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
           isInversed: isInversed,
           labelPlacement: labelPlacement,
           numberFormat: numberFormat,
@@ -1629,6 +1800,10 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     _tooltipAnimation = CurvedAnimation(
         parent: _state.tooltipAnimationController, curve: Curves.fastOutSlowIn);
 
+    if (shouldAlwaysShowTooltip) {
+      _state.tooltipAnimationController.value = 1;
+    }
+
     updateTextPainter();
 
     if (isDateTime) {
@@ -1647,6 +1822,12 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
   late Animation<double> _tooltipAnimation;
 
   late bool _validForMouseTracker;
+
+  late dynamic _newValue;
+
+  ValueChanged<dynamic>? onChangeStart;
+
+  ValueChanged<dynamic>? onChangeEnd;
 
   double? _valueInMilliseconds;
 
@@ -1808,6 +1989,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
 
   void _beginInteraction() {
     isInteractionEnd = false;
+    onChangeStart?.call(_value);
     _state.overlayController.forward();
     if (enableTooltip) {
       willDrawTooltip = true;
@@ -1818,7 +2000,8 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
         if (isInteractionEnd &&
             willDrawTooltip &&
             _state.tooltipAnimationController.status ==
-                AnimationStatus.completed) {
+                AnimationStatus.completed &&
+            !shouldAlwaysShowTooltip) {
           _state.tooltipAnimationController.reverse();
         }
       });
@@ -1831,17 +2014,19 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
   void _updateValue() {
     final double factor = getFactorFromCurrentPosition();
     final double valueFactor = lerpDouble(actualMin, actualMax, factor)!;
-    final dynamic newValue = getActualValue(valueInDouble: valueFactor);
+    _newValue = getActualValue(valueInDouble: valueFactor);
 
-    if (newValue != _value) {
-      onChanged!(newValue);
+    if (_newValue != _value) {
+      onChanged!(_newValue);
     }
   }
 
   void _endInteraction() {
     if (!isInteractionEnd) {
       _state.overlayController.reverse();
-      if (enableTooltip && _state.tooltipDelayTimer == null) {
+      if (enableTooltip &&
+          _state.tooltipDelayTimer == null &&
+          !shouldAlwaysShowTooltip) {
         _state.tooltipAnimationController.reverse();
         if (_state.tooltipAnimationController.status ==
             AnimationStatus.dismissed) {
@@ -1851,6 +2036,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
 
       currentPointerType = PointerType.up;
       isInteractionEnd = true;
+      onChangeEnd?.call(_newValue);
       markNeedsPaint();
     }
   }
@@ -1863,7 +2049,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
 
   void _drawTooltip(PaintingContext context, Offset thumbCenter, Offset offset,
       Offset actualTrackOffset, Rect trackRect) {
-    if (willDrawTooltip) {
+    if (willDrawTooltip || shouldAlwaysShowTooltip) {
       final Paint paint = Paint()
         ..color = sliderThemeData.tooltipBackgroundColor!
         ..style = PaintingStyle.fill
@@ -1914,7 +2100,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     // not needed to call controller's reverse.
     if (_state.mounted && currentPointerType != PointerType.move) {
       _state.overlayController.reverse();
-      if (enableTooltip) {
+      if (enableTooltip && !shouldAlwaysShowTooltip) {
         _state.tooltipAnimationController.reverse();
       }
     }

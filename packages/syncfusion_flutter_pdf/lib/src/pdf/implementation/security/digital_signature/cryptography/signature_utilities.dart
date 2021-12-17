@@ -1,6 +1,7 @@
-part of pdf;
+import 'dart:math';
 
-BigInt _bigIntFromBytes(List<int>? data, [int? sign]) {
+/// internal method
+BigInt bigIntFromBytes(List<int>? data, [int? sign]) {
   BigInt result;
   if (sign == null) {
     final bool isNegative = data!.isNotEmpty && data[0] & 0x80 == 0x80;
@@ -42,7 +43,8 @@ BigInt _bigIntFromBytes(List<int>? data, [int? sign]) {
   return result;
 }
 
-List<int> _bigIntToBytes(BigInt number, [bool isSigned = true]) {
+/// internal method
+List<int> bigIntToBytes(BigInt number, [bool isSigned = true]) {
   List<int> result;
   final BigInt mask = BigInt.from(0xff);
   final BigInt flag = BigInt.from(0x80);
@@ -79,12 +81,14 @@ List<int> _bigIntToBytes(BigInt number, [bool isSigned = true]) {
   return result;
 }
 
-BigInt _getMod(BigInt n, BigInt m) {
+/// internal method
+BigInt getMod(BigInt n, BigInt m) {
   final BigInt biggie = n.remainder(m);
   return biggie.sign >= 0 ? biggie : biggie + m;
 }
 
-BigInt _bigIntFromRamdom(int value, Random? random) {
+/// internal method
+BigInt bigIntFromRamdom(int value, Random? random) {
   BigInt result;
   if (value < 0) {
     throw ArgumentError.value(value, 'value', 'Invalid entry');
@@ -97,7 +101,7 @@ BigInt _bigIntFromRamdom(int value, Random? random) {
         List<int>.generate(nBytes, (int i) => random!.nextInt(256));
     final int xBits = 8 * nBytes - value;
     b[0] &= (255 >> xBits).toUnsigned(8);
-    result = _bigIntFromBytes(b);
+    result = bigIntFromBytes(b);
   }
   return result;
 }

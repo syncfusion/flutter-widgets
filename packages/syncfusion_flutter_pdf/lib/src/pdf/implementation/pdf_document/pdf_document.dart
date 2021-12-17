@@ -1,4 +1,47 @@
-part of pdf;
+import 'dart:collection';
+import 'dart:convert';
+
+import 'package:syncfusion_flutter_pdf/src/pdf/implementation/forms/pdf_form_field_collection.dart';
+
+import '../../interfaces/pdf_interface.dart';
+import '../color_space/pdf_icc_color_profile.dart';
+import '../forms/pdf_form.dart';
+import '../general/file_specification_base.dart';
+import '../general/pdf_destination.dart';
+import '../general/pdf_named_destination.dart';
+import '../general/pdf_named_destination_collection.dart';
+import '../graphics/brushes/pdf_brush.dart';
+import '../graphics/enums.dart';
+import '../graphics/pdf_pens.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../io/pdf_main_object_collection.dart';
+import '../io/pdf_reader.dart';
+import '../io/pdf_writer.dart';
+import '../pages/pdf_layer_collection.dart';
+import '../pages/pdf_page.dart';
+import '../pages/pdf_page_collection.dart';
+import '../pages/pdf_page_settings.dart';
+import '../pages/pdf_section_collection.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_boolean.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_reference.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_string.dart';
+import '../security/digital_signature/pdf_signature_dictionary.dart';
+import '../security/enum.dart';
+import '../security/pdf_encryptor.dart';
+import '../security/pdf_security.dart';
+import 'attachments/pdf_attachment_collection.dart';
+import 'enums.dart';
+import 'outlines/pdf_outline.dart';
+import 'pdf_catalog.dart';
+import 'pdf_catalog_names.dart';
+import 'pdf_document_information.dart';
+import 'pdf_document_template.dart';
+import 'pdf_file_structure.dart';
 
 /// Represents a PDF document and can be used to create a new PDF document
 /// from the scratch.
@@ -30,10 +73,11 @@ class PdfDocument {
       {List<int>? inputBytes,
       PdfConformanceLevel? conformanceLevel,
       String? password}) {
-    _isLoadedDocument = inputBytes != null;
-    _password = password;
+    _helper = PdfDocumentHelper(this);
+    _helper.isLoadedDocument = inputBytes != null;
+    _helper.password = password;
     _initialize(inputBytes);
-    if (!_isLoadedDocument && conformanceLevel != null) {
+    if (!_helper.isLoadedDocument && conformanceLevel != null) {
       _initializeConformance(conformanceLevel);
     }
   }
@@ -59,20 +103,17 @@ class PdfDocument {
   /// document.dispose();
   /// ```
   PdfDocument.fromBase64String(String base64String, {String? password}) {
+    _helper = PdfDocumentHelper(this);
     if (base64String.isEmpty) {
       ArgumentError.value(base64String, 'PDF data', 'PDF data cannot be null');
     }
-    _password = password;
-    _isLoadedDocument = true;
+    _helper.password = password;
+    _helper.isLoadedDocument = true;
     _initialize(base64.decode(base64String));
   }
-  //Constants
-  static const double _defaultMargin = 40;
 
   //Fields
-  late _PdfMainObjectCollection _objects;
-  late _PdfCrossTable _crossTable;
-  late _PdfCatalog _catalog;
+  late PdfDocumentHelper _helper;
   PdfPageCollection? _pages;
   PdfPageSettings? _settings;
   PdfSectionCollection? _sections;
@@ -81,33 +122,12 @@ class PdfDocument {
   PdfDocumentTemplate? _template;
   PdfBookmarkBase? _outlines;
   PdfNamedDestinationCollection? _namedDestinations;
-  bool _isLoadedDocument = false;
   List<int>? _data;
-  bool _isStreamCopied = false;
   PdfBookmarkBase? _bookmark;
-  Map<PdfPage, dynamic>? _bookmarkHashTable;
   PdfDocumentInformation? _documentInfo;
-  PdfSecurity? _security;
-  int? _position;
-  int? _orderPosition;
-  int? _onPosition;
-  int? _offPosition;
-  _PdfArray? _primitive;
-  _PdfArray? _printLayer;
-  _PdfArray? _on;
-  _PdfArray? _off;
-  _PdfArray? _order;
-  String? _password;
-  late bool _isEncrypted;
-  PdfConformanceLevel _conformanceLevel = PdfConformanceLevel.none;
   PdfLayerCollection? _layers;
-  _PdfReference? _currentSavingObject;
   PdfAttachmentCollection? _attachments;
-  bool? _isAttachOnlyEncryption;
   PdfForm? _form;
-
-  //Events
-  List<_DocumentSavedHandler>? _documentSavedList;
 
   /// Gets or  sets the PDF document compression level.
   PdfCompressionLevel? compressionLevel;
@@ -157,11 +177,11 @@ class PdfDocument {
   /// document.dispose();
   /// ```
   PdfSecurity get security {
-    _security ??= PdfSecurity._();
-    if (_conformanceLevel != PdfConformanceLevel.none) {
-      _security!._conformance = true;
+    _helper._security ??= PdfSecurityHelper.getSecurity();
+    if (_helper.conformanceLevel != PdfConformanceLevel.none) {
+      PdfSecurityHelper.getHelper(_helper._security!).conformance = true;
     }
-    return _security!;
+    return _helper._security!;
   }
 
   /// Gets the collection of the sections in the document.
@@ -199,7 +219,7 @@ class PdfDocument {
   PdfPageSettings get pageSettings {
     if (_settings == null) {
       _settings = PdfPageSettings();
-      _settings!.setMargins(_defaultMargin);
+      _settings!.setMargins(PdfDocumentHelper.defaultMargin);
     }
     return _settings!;
   }
@@ -308,14 +328,15 @@ class PdfDocument {
   /// document.dispose();
   /// ```
   PdfBookmarkBase get bookmarks {
-    if (_isLoadedDocument) {
+    if (_helper.isLoadedDocument) {
       if (_bookmark == null) {
-        if (_catalog.containsKey(_DictionaryProperties.outlines)) {
-          final _IPdfPrimitive? outlines = _PdfCrossTable._dereference(
-              _catalog[_DictionaryProperties.outlines]);
-          if (outlines != null && outlines is _PdfDictionary) {
-            _bookmark = PdfBookmarkBase._load(outlines, _crossTable);
-            _bookmark!._reproduceTree();
+        if (_helper.catalog.containsKey(PdfDictionaryProperties.outlines)) {
+          final IPdfPrimitive? outlines = PdfCrossTable.dereference(
+              _helper.catalog[PdfDictionaryProperties.outlines]);
+          if (outlines != null && outlines is PdfDictionary) {
+            _bookmark =
+                PdfBookmarkBaseHelper.loaded(outlines, _helper.crossTable);
+            PdfBookmarkBaseHelper.getHelper(_bookmark!).reproduceTree();
           } else {
             _bookmark = _createBookmarkRoot();
           }
@@ -326,9 +347,9 @@ class PdfDocument {
       return _bookmark!;
     } else {
       if (_outlines == null) {
-        _outlines = PdfBookmarkBase._internal();
-        _catalog[_DictionaryProperties.outlines] =
-            _PdfReferenceHolder(_outlines);
+        _outlines = PdfBookmarkBaseHelper.loadInternal();
+        _helper.catalog[PdfDictionaryProperties.outlines] =
+            PdfReferenceHolder(_outlines);
       }
       return _outlines!;
     }
@@ -336,15 +357,14 @@ class PdfDocument {
 
   /// Gets the named destination collection of the document.
   PdfNamedDestinationCollection get namedDestinationCollection {
-    if (_isLoadedDocument) {
+    if (_helper.isLoadedDocument) {
       if (_namedDestinations == null) {
-        if (_catalog.containsKey(_DictionaryProperties.names) &&
+        if (_helper.catalog.containsKey(PdfDictionaryProperties.names) &&
             (_namedDestinations == null)) {
-          final _PdfDictionary? namedDestinations =
-              _PdfCrossTable._dereference(_catalog[_DictionaryProperties.names])
-                  as _PdfDictionary?;
-          _namedDestinations =
-              PdfNamedDestinationCollection._(namedDestinations, _crossTable);
+          final PdfDictionary? namedDestinations = PdfCrossTable.dereference(
+              _helper.catalog[PdfDictionaryProperties.names]) as PdfDictionary?;
+          _namedDestinations = PdfNamedDestinationCollectionHelper.load(
+              namedDestinations, _helper.crossTable);
         }
         _namedDestinations ??= _createNamedDestinations();
       }
@@ -352,15 +372,15 @@ class PdfDocument {
     } else {
       if (_namedDestinations == null) {
         _namedDestinations = PdfNamedDestinationCollection();
-        _catalog[_DictionaryProperties.names] =
-            _PdfReferenceHolder(_namedDestinations);
-        final _PdfReferenceHolder? names =
-            _catalog[_DictionaryProperties.names] as _PdfReferenceHolder?;
+        _helper.catalog[PdfDictionaryProperties.names] =
+            PdfReferenceHolder(_namedDestinations);
+        final PdfReferenceHolder? names = _helper
+            .catalog[PdfDictionaryProperties.names] as PdfReferenceHolder?;
         if (names != null) {
-          final _PdfDictionary? dic = names.object as _PdfDictionary?;
+          final PdfDictionary? dic = names.object as PdfDictionary?;
           if (dic != null) {
-            dic[_DictionaryProperties.dests] =
-                _PdfReferenceHolder(_namedDestinations);
+            dic[PdfDictionaryProperties.dests] =
+                PdfReferenceHolder(_namedDestinations);
           }
         }
       }
@@ -371,30 +391,30 @@ class PdfDocument {
   /// Gets document's information and properties such as document's title, subject, keyword etc.
   PdfDocumentInformation get documentInformation {
     if (_documentInfo == null) {
-      if (_isLoadedDocument) {
-        final _PdfDictionary trailer = _crossTable.trailer!;
-        if (_PdfCrossTable._dereference(trailer[_DictionaryProperties.info])
-            is _PdfDictionary) {
-          final _PdfDictionary? entry =
-              _PdfCrossTable._dereference(trailer[_DictionaryProperties.info])
-                  as _PdfDictionary?;
-          _documentInfo = PdfDocumentInformation._(_catalog,
+      if (_helper.isLoadedDocument) {
+        final PdfDictionary trailer = _helper.crossTable.trailer!;
+        if (PdfCrossTable.dereference(trailer[PdfDictionaryProperties.info])
+            is PdfDictionary) {
+          final PdfDictionary? entry =
+              PdfCrossTable.dereference(trailer[PdfDictionaryProperties.info])
+                  as PdfDictionary?;
+          _documentInfo = PdfDocumentInformationHelper.load(_helper.catalog,
               dictionary: entry,
               isLoaded: true,
-              conformance: _conformanceLevel);
+              conformance: _helper.conformanceLevel);
         } else {
-          _documentInfo = PdfDocumentInformation._(_catalog,
-              conformance: _conformanceLevel);
-          _crossTable.trailer![_DictionaryProperties.info] =
-              _PdfReferenceHolder(_documentInfo);
+          _documentInfo = PdfDocumentInformationHelper.load(_helper.catalog,
+              conformance: _helper.conformanceLevel);
+          _helper.crossTable.trailer![PdfDictionaryProperties.info] =
+              PdfReferenceHolder(_documentInfo);
         }
         // Read document's info dictionary if present.
         _readDocumentInfo();
       } else {
-        _documentInfo =
-            PdfDocumentInformation._(_catalog, conformance: _conformanceLevel);
-        _crossTable.trailer![_DictionaryProperties.info] =
-            _PdfReferenceHolder(_documentInfo);
+        _documentInfo = PdfDocumentInformationHelper.load(_helper.catalog,
+            conformance: _helper.conformanceLevel);
+        _helper.crossTable.trailer![PdfDictionaryProperties.info] =
+            PdfReferenceHolder(_documentInfo);
       }
     }
     return _documentInfo!;
@@ -402,40 +422,41 @@ class PdfDocument {
 
   /// Gets the collection of PdfLayer from the PDF document.
   PdfLayerCollection get layers {
-    _layers ??= PdfLayerCollection._(this);
+    _layers ??= PdfLayerCollectionHelper.load(this);
     return _layers!;
   }
 
   /// Gets the attachment collection of the document.
   PdfAttachmentCollection get attachments {
     if (_attachments == null) {
-      if (!_isLoadedDocument) {
+      if (!_helper.isLoadedDocument) {
         _attachments = PdfAttachmentCollection();
-        if (_conformanceLevel == PdfConformanceLevel.a1b ||
-            _conformanceLevel == PdfConformanceLevel.a2b) {
-          _attachments!._conformance = true;
+        if (_helper.conformanceLevel == PdfConformanceLevel.a1b ||
+            _helper.conformanceLevel == PdfConformanceLevel.a2b) {
+          PdfAttachmentCollectionHelper.getHelper(_attachments!).conformance =
+              true;
         }
-        _catalog._names!._embeddedFiles = _attachments!;
+        _helper.catalog.names!.embeddedFiles = _attachments!;
       } else {
-        if (onPdfPassword != null && _password == '') {
+        if (onPdfPassword != null && _helper.password == '') {
           final PdfPasswordArgs args = PdfPasswordArgs._();
           onPdfPassword!(this, args);
-          _password = args.attachmentOpenPassword;
+          _helper.password = args.attachmentOpenPassword;
         }
-        if (_isAttachOnlyEncryption!) {
-          _checkEncryption(_isAttachOnlyEncryption);
+        if (_helper._isAttachOnlyEncryption!) {
+          _helper.checkEncryption(_helper._isAttachOnlyEncryption);
         }
-        final _IPdfPrimitive? attachmentDictionary =
-            _PdfCrossTable._dereference(_catalog[_DictionaryProperties.names]);
+        final IPdfPrimitive? attachmentDictionary = PdfCrossTable.dereference(
+            _helper.catalog[PdfDictionaryProperties.names]);
         if (attachmentDictionary != null &&
-            attachmentDictionary is _PdfDictionary &&
+            attachmentDictionary is PdfDictionary &&
             attachmentDictionary
-                .containsKey(_DictionaryProperties.embeddedFiles)) {
-          _attachments =
-              PdfAttachmentCollection._(attachmentDictionary, _crossTable);
+                .containsKey(PdfDictionaryProperties.embeddedFiles)) {
+          _attachments = PdfAttachmentCollectionHelper.load(
+              attachmentDictionary, _helper.crossTable);
         } else {
           _attachments = PdfAttachmentCollection();
-          _catalog._names!._embeddedFiles = _attachments!;
+          _helper.catalog.names!.embeddedFiles = _attachments!;
         }
       }
     }
@@ -444,48 +465,59 @@ class PdfDocument {
 
   /// Gets the interactive form of the document.
   PdfForm get form {
-    if (_isLoadedDocument) {
+    if (_helper.isLoadedDocument) {
       if (_form == null) {
-        if (_catalog.containsKey(_DictionaryProperties.acroForm)) {
-          final _IPdfPrimitive? formDictionary = _PdfCrossTable._dereference(
-              _catalog[_DictionaryProperties.acroForm]);
-          if (formDictionary is _PdfDictionary) {
-            _form = PdfForm._internal(_crossTable, formDictionary);
+        if (_helper.catalog.containsKey(PdfDictionaryProperties.acroForm)) {
+          final IPdfPrimitive? formDictionary = PdfCrossTable.dereference(
+              _helper.catalog[PdfDictionaryProperties.acroForm]);
+          if (formDictionary is PdfDictionary) {
+            _form = PdfFormHelper.internal(_helper.crossTable, formDictionary);
             if (_form != null && _form!.fields.count != 0) {
-              _catalog._form = _form;
+              _helper.catalog.form = _form;
               List<int>? widgetReference;
-              if (_form!._crossTable!._document != null) {
+              if (PdfFormHelper.getHelper(_form!).crossTable!.document !=
+                  null) {
                 for (int i = 0;
-                    i < _form!._crossTable!._document!.pages.count;
+                    i <
+                        PdfFormHelper.getHelper(_form!)
+                            .crossTable!
+                            .document!
+                            .pages
+                            .count;
                     i++) {
-                  final PdfPage page = _form!._crossTable!._document!.pages[i];
-                  widgetReference ??= page._getWidgetReferences();
+                  final PdfPage page = PdfFormHelper.getHelper(_form!)
+                      .crossTable!
+                      .document!
+                      .pages[i];
+                  widgetReference ??=
+                      PdfPageHelper.getHelper(page).getWidgetReferences();
                   if (widgetReference.isNotEmpty) {
-                    page._createAnnotations(widgetReference);
+                    PdfPageHelper.getHelper(page)
+                        .createAnnotations(widgetReference);
                   }
                 }
                 if (widgetReference != null) {
                   widgetReference.clear();
                 }
-                if (!_form!._formHasKids) {
-                  _form!.fields
-                      ._createFormFieldsFromWidgets(_form!.fields.count);
+                if (!PdfFormHelper.getHelper(_form!).formHasKids) {
+                  PdfFormFieldCollectionHelper.getHelper(_form!.fields)
+                      .createFormFieldsFromWidgets(_form!.fields.count);
                 }
               }
             }
           }
         } else {
-          _form = PdfForm._internal(_crossTable);
-          _catalog.setProperty(
-              _DictionaryProperties.acroForm, _PdfReferenceHolder(_form));
-          _catalog._form = _form!;
+          _form = PdfFormHelper.internal(_helper.crossTable);
+          _helper.catalog.setProperty(
+              PdfDictionaryProperties.acroForm, PdfReferenceHolder(_form));
+          _helper.catalog.form = _form;
           return _form!;
         }
       } else {
         return _form!;
       }
     } else {
-      return _catalog._form ??= PdfForm();
+      return _helper.catalog.form ??= PdfForm();
     }
     return _form!;
   }
@@ -506,74 +538,87 @@ class PdfDocument {
   /// ```
   List<int> save() {
     final List<int> buffer = <int>[];
-    final _PdfWriter writer = _PdfWriter(buffer);
-    writer._document = this;
+    final PdfWriter writer = PdfWriter(buffer);
+    writer.document = this;
     _checkPages();
-    if (security._encryptAttachments && security.userPassword == '') {
+    if (PdfSecurityHelper.getHelper(security).encryptAttachments &&
+        security.userPassword == '') {
       throw ArgumentError.value(
           'User password cannot be empty for encrypt only attachment.');
     }
-    if (_isLoadedDocument) {
-      if (_security != null) {
-        if (_security!._encryptAttachments) {
+    if (_helper.isLoadedDocument) {
+      if (_helper._security != null) {
+        if (PdfSecurityHelper.getHelper(_helper._security!)
+            .encryptAttachments) {
           fileStructure.incrementalUpdate = false;
-          if (_security!._encryptor.userPassword.isEmpty) {
-            _security!._encryptor.encryptOnlyAttachment = false;
+          if (PdfSecurityHelper.getHelper(_helper._security!)
+              .encryptor
+              .userPassword
+              .isEmpty) {
+            PdfSecurityHelper.getHelper(_helper._security!)
+                .encryptor
+                .encryptOnlyAttachment = false;
           }
         }
       }
       if (fileStructure.incrementalUpdate &&
-          (_security == null ||
-              (_security != null &&
-                  !_security!._modifiedSecurity &&
-                  !_security!.permissions._modifiedPermissions))) {
+          (_helper._security == null ||
+              (_helper._security != null &&
+                  !PdfSecurityHelper.getHelper(_helper._security!)
+                      .modifiedSecurity &&
+                  !PdfPermissionsHelper.isModifiedPermissions(
+                      _helper._security!.permissions)))) {
         _copyOldStream(writer);
-        if (_catalog.changed!) {
+        if (_helper.catalog.changed!) {
           _readDocumentInfo();
         }
       } else {
-        _crossTable = _PdfCrossTable._fromCatalog(_crossTable.count,
-            _crossTable.encryptorDictionary, _crossTable._documentCatalog);
-        _crossTable._document = this;
-        _crossTable.trailer![_DictionaryProperties.info] =
-            _PdfReferenceHolder(documentInformation);
+        _helper.crossTable = PdfCrossTable.fromCatalog(
+            _helper.crossTable.count,
+            _helper.crossTable.encryptorDictionary,
+            _helper.crossTable.pdfDocumentCatalog);
+        _helper.crossTable.document = this;
+        _helper.crossTable.trailer![PdfDictionaryProperties.info] =
+            PdfReferenceHolder(documentInformation);
       }
       _appendDocument(writer);
     } else {
-      if (_conformanceLevel == PdfConformanceLevel.a1b ||
-          _conformanceLevel == PdfConformanceLevel.a2b ||
-          _conformanceLevel == PdfConformanceLevel.a3b) {
-        documentInformation._xmpMetadata;
-        if (_conformanceLevel == PdfConformanceLevel.a3b &&
-            _catalog._names != null &&
+      if (_helper.conformanceLevel == PdfConformanceLevel.a1b ||
+          _helper.conformanceLevel == PdfConformanceLevel.a2b ||
+          _helper.conformanceLevel == PdfConformanceLevel.a3b) {
+        PdfDocumentInformationHelper.getHelper(documentInformation).xmpMetadata;
+        if (_helper.conformanceLevel == PdfConformanceLevel.a3b &&
+            _helper.catalog.names != null &&
             attachments.count > 0) {
-          final _PdfName fileRelationShip =
-              _PdfName(_DictionaryProperties.afRelationship);
-          final _PdfArray fileAttachmentAssociationArray = _PdfArray();
+          final PdfName fileRelationShip =
+              PdfName(PdfDictionaryProperties.afRelationship);
+          final PdfArray fileAttachmentAssociationArray = PdfArray();
           for (int i = 0; i < attachments.count; i++) {
-            if (!attachments[i]
-                ._dictionary
-                ._items!
+            if (!PdfFileSpecificationBaseHelper.getHelper(attachments[i])
+                .dictionary!
+                .items!
                 .containsKey(fileRelationShip)) {
-              attachments[i]._dictionary._items![fileRelationShip] =
-                  _PdfName('Alternative');
+              PdfFileSpecificationBaseHelper.getHelper(attachments[i])
+                  .dictionary!
+                  .items![fileRelationShip] = PdfName('Alternative');
             }
-            fileAttachmentAssociationArray
-                ._add(_PdfReferenceHolder(attachments[i]._dictionary));
+            fileAttachmentAssociationArray.add(PdfReferenceHolder(
+                PdfFileSpecificationBaseHelper.getHelper(attachments[i])
+                    .dictionary));
           }
-          _catalog._items![_PdfName(_DictionaryProperties.af)] =
+          _helper.catalog.items![PdfName(PdfDictionaryProperties.af)] =
               fileAttachmentAssociationArray;
         }
       }
-      _crossTable._save(writer);
-      final _DocumentSavedArgs argsSaved = _DocumentSavedArgs(writer);
+      _helper.crossTable.save(writer);
+      final DocumentSavedArgs argsSaved = DocumentSavedArgs(writer);
       _onDocumentSaved(argsSaved);
     }
-    return writer._buffer!;
+    return writer.buffer!;
   }
 
   void _checkPages() {
-    if (!_isLoadedDocument) {
+    if (!_helper.isLoadedDocument) {
       if (pages.count == 0) {
         pages.add();
       }
@@ -594,34 +639,34 @@ class PdfDocument {
   /// document.dispose();
   /// ```
   void dispose() {
-    PdfBrushes._dispose();
-    PdfPens._dispose();
-    _crossTable._dispose();
-    _security = null;
-    _currentSavingObject = null;
+    PdfBrushesHelper.dispose();
+    PdfPensHelper.dispose();
+    _helper.crossTable.dispose();
+    _helper._security = null;
+    _helper.currentSavingObject = null;
   }
 
   //Implementation
   void _initialize(List<int>? pdfData) {
-    _isAttachOnlyEncryption = false;
-    _isEncrypted = false;
+    _helper._isAttachOnlyEncryption = false;
+    _helper.isEncrypted = false;
     _data = pdfData;
-    _objects = _PdfMainObjectCollection();
-    if (_isLoadedDocument) {
-      _crossTable = _PdfCrossTable(this, pdfData);
-      _isEncrypted = _checkEncryption(false);
-      final _PdfCatalog catalog = _getCatalogValue();
-      if (catalog.containsKey(_DictionaryProperties.pages) &&
-          !catalog.containsKey(_DictionaryProperties.type)) {
-        catalog._addItems(_DictionaryProperties.type,
-            _PdfName(_DictionaryProperties.catalog));
+    _helper.objects = PdfMainObjectCollection();
+    if (_helper.isLoadedDocument) {
+      _helper.crossTable = PdfCrossTable(this, pdfData);
+      _helper.isEncrypted = _helper.checkEncryption(false);
+      final PdfCatalog catalog = _getCatalogValue();
+      if (catalog.containsKey(PdfDictionaryProperties.pages) &&
+          !catalog.containsKey(PdfDictionaryProperties.type)) {
+        catalog.addItems(PdfDictionaryProperties.type,
+            PdfName(PdfDictionaryProperties.catalog));
       }
-      if (catalog.containsKey(_DictionaryProperties.type)) {
-        if (!(catalog[_DictionaryProperties.type]! as _PdfName)
-            ._name!
-            .contains(_DictionaryProperties.catalog)) {
-          catalog[_DictionaryProperties.type] =
-              _PdfName(_DictionaryProperties.catalog);
+      if (catalog.containsKey(PdfDictionaryProperties.type)) {
+        if (!(catalog[PdfDictionaryProperties.type]! as PdfName)
+            .name!
+            .contains(PdfDictionaryProperties.catalog)) {
+          catalog[PdfDictionaryProperties.type] =
+              PdfName(PdfDictionaryProperties.catalog);
         }
         _setCatalog(catalog);
       } else {
@@ -629,11 +674,11 @@ class PdfDocument {
             catalog, 'Cannot find the PDF catalog information');
       }
       bool hasVersion = false;
-      if (catalog.containsKey(_DictionaryProperties.version)) {
-        final _PdfName? version =
-            catalog[_DictionaryProperties.version] as _PdfName?;
+      if (catalog.containsKey(PdfDictionaryProperties.version)) {
+        final PdfName? version =
+            catalog[PdfDictionaryProperties.version] as PdfName?;
         if (version != null) {
-          _setFileVersion('PDF-' + version._name!);
+          _setFileVersion('PDF-${version.name!}');
           hasVersion = true;
         }
       }
@@ -641,106 +686,46 @@ class PdfDocument {
         _readFileVersion();
       }
     } else {
-      _crossTable = _PdfCrossTable(this);
-      _crossTable._document = this;
-      _catalog = _PdfCatalog();
-      _objects._add(_catalog);
-      _catalog.position = -1;
-      _sections = PdfSectionCollection._(this);
-      _pages = PdfPageCollection._(this);
-      _catalog._pages = _sections;
+      _helper.crossTable = PdfCrossTable(this);
+      _helper.crossTable.document = this;
+      _helper.catalog = PdfCatalog();
+      _helper.objects.add(_helper.catalog);
+      _helper.catalog.position = -1;
+      _sections = PdfSectionCollectionHelper.load(this);
+      _pages = PdfPageCollectionHelper.load(this);
+      _helper.catalog.pages = _sections;
     }
     compressionLevel = PdfCompressionLevel.normal;
-    _position = 0;
-    _orderPosition = 0;
-    _onPosition = 0;
-    _offPosition = 0;
-    _primitive = _PdfArray();
-    _on = _PdfArray();
-    _off = _PdfArray();
-    _order = _PdfArray();
-    _printLayer = _PdfArray();
+    _helper.position = 0;
+    _helper.orderPosition = 0;
+    _helper.onPosition = 0;
+    _helper.offPosition = 0;
+    _helper.pdfPrimitive = PdfArray();
+    _helper.on = PdfArray();
+    _helper.off = PdfArray();
+    _helper.order = PdfArray();
+    _helper.printLayer = PdfArray();
   }
 
-  bool _checkEncryption(bool? isAttachEncryption) {
-    bool wasEncrypted = false;
-    if (_crossTable.encryptorDictionary != null) {
-      final _PdfDictionary encryptionDict = _crossTable.encryptorDictionary!;
-      _password ??= '';
-      final _PdfDictionary trailerDict = _crossTable.trailer!;
-      _PdfArray? obj;
-      if (trailerDict.containsKey(_DictionaryProperties.id)) {
-        _IPdfPrimitive? primitive = trailerDict[_DictionaryProperties.id];
-        if (primitive is _PdfArray) {
-          obj = primitive;
-        } else if (primitive is _PdfReferenceHolder) {
-          primitive = primitive.object;
-          if (primitive != null && primitive is _PdfArray) {
-            obj = primitive;
-          }
-        }
-      }
-      obj ??= _PdfArray().._add(_PdfString.fromBytes(<int>[]));
-      final _PdfString key = obj[0]! as _PdfString;
-      final _PdfEncryptor encryptor = _PdfEncryptor();
-      if (encryptionDict.containsKey(_DictionaryProperties.encryptMetadata)) {
-        _IPdfPrimitive? primitive =
-            encryptionDict[_DictionaryProperties.encryptMetadata];
-        if (primitive is _PdfBoolean) {
-          encryptor.encryptMetadata = primitive.value!;
-        } else if (primitive is _PdfReferenceHolder) {
-          primitive = primitive._object;
-          if (primitive != null && primitive is _PdfBoolean) {
-            encryptor.encryptMetadata = primitive.value!;
-          }
-        }
-      }
-      wasEncrypted = true;
-      encryptor._readFromDictionary(encryptionDict);
-      bool encryption = true;
-      if (!isAttachEncryption! && encryptor._encryptOnlyAttachment!) {
-        encryption = false;
-      }
-      if (!encryptor._checkPassword(_password!, key, encryption)) {
-        throw ArgumentError.value(_password, 'password',
-            'Cannot open an encrypted document. The password is invalid.');
-      }
-      encryptionDict.encrypt = false;
-      final PdfSecurity security = PdfSecurity._().._encryptor = encryptor;
-      _security = security;
-      _security!._encryptOnlyAttachment = encryptor._encryptOnlyAttachment!;
-      _isAttachOnlyEncryption = encryptor._encryptOnlyAttachment;
-      if (_isAttachOnlyEncryption!) {
-        security._encryptor._encryptionOptions =
-            PdfEncryptionOptions.encryptOnlyAttachments;
-      } else if (!encryptor.encryptMetadata) {
-        security._encryptor._encryptionOptions =
-            PdfEncryptionOptions.encryptAllContentsExceptMetadata;
-      }
-      _crossTable.encryptor = encryptor;
-    }
-    return wasEncrypted;
+  void _copyOldStream(PdfWriter writer) {
+    writer.write(_data);
+    _helper.isStreamCopied = true;
   }
 
-  void _copyOldStream(_PdfWriter writer) {
-    writer._write(_data);
-    _isStreamCopied = true;
-  }
-
-  void _appendDocument(_PdfWriter writer) {
-    writer._document = this;
-    _crossTable._save(writer);
-    security._encryptor.encrypt = true;
-    final _DocumentSavedArgs argsSaved = _DocumentSavedArgs(writer);
+  void _appendDocument(PdfWriter writer) {
+    writer.document = this;
+    _helper.crossTable.save(writer);
+    PdfSecurityHelper.getHelper(security).encryptor.encrypt = true;
+    final DocumentSavedArgs argsSaved = DocumentSavedArgs(writer);
     _onDocumentSaved(argsSaved);
   }
 
   void _readFileVersion() {
-    final _PdfReader _reader = _PdfReader(_data);
+    final PdfReader _reader = PdfReader(_data);
     _reader.position = 0;
-    String token = _reader._getNextToken()!;
+    String token = _reader.getNextToken()!;
     if (token.startsWith('%')) {
-      token = _reader._getNextToken()!;
+      token = _reader.getNextToken()!;
       _setFileVersion(token);
     }
   }
@@ -781,33 +766,35 @@ class PdfDocument {
     }
   }
 
-  _PdfCatalog _getCatalogValue() {
-    final _PdfCatalog catalog =
-        _PdfCatalog.fromDocument(this, _crossTable.documentCatalog);
-    final int index = _objects._lookFor(_crossTable.documentCatalog!)!;
-    _objects._reregisterReference(index, catalog);
+  PdfCatalog _getCatalogValue() {
+    final PdfCatalog catalog =
+        PdfCatalog.fromDocument(this, _helper.crossTable.documentCatalog);
+    final int index =
+        _helper.objects.lookFor(_helper.crossTable.documentCatalog!)!;
+    _helper.objects.reregisterReference(index, catalog);
     catalog.position = -1;
     return catalog;
   }
 
-  void _setCatalog(_PdfCatalog catalog) {
-    _catalog = catalog;
-    if (_catalog.containsKey(_DictionaryProperties.outlines)) {
-      final _PdfReferenceHolder? outlines =
-          _catalog[_DictionaryProperties.outlines] as _PdfReferenceHolder?;
-      _PdfDictionary? dic;
+  void _setCatalog(PdfCatalog catalog) {
+    _helper.catalog = catalog;
+    if (_helper.catalog.containsKey(PdfDictionaryProperties.outlines)) {
+      final PdfReferenceHolder? outlines = _helper
+          .catalog[PdfDictionaryProperties.outlines] as PdfReferenceHolder?;
+      PdfDictionary? dic;
       if (outlines == null) {
-        dic = _catalog[_DictionaryProperties.outlines] as _PdfDictionary?;
-      } else if (outlines.object is _PdfDictionary) {
-        dic = outlines.object as _PdfDictionary?;
+        dic =
+            _helper.catalog[PdfDictionaryProperties.outlines] as PdfDictionary?;
+      } else if (outlines.object is PdfDictionary) {
+        dic = outlines.object as PdfDictionary?;
       }
-      if (dic != null && dic.containsKey(_DictionaryProperties.first)) {
-        final _PdfReferenceHolder? first =
-            dic[_DictionaryProperties.first] as _PdfReferenceHolder?;
+      if (dic != null && dic.containsKey(PdfDictionaryProperties.first)) {
+        final PdfReferenceHolder? first =
+            dic[PdfDictionaryProperties.first] as PdfReferenceHolder?;
         if (first != null) {
-          final _PdfDictionary? firstDic = first.object as _PdfDictionary?;
+          final PdfDictionary? firstDic = first.object as PdfDictionary?;
           if (firstDic == null) {
-            dic.remove(_DictionaryProperties.first);
+            dic.remove(PdfDictionaryProperties.first);
           }
         }
       }
@@ -815,202 +802,109 @@ class PdfDocument {
   }
 
   PdfPageCollection _getPageCollection() {
-    _pages ??= _isLoadedDocument
-        ? PdfPageCollection._fromCrossTable(this, _crossTable)
-        : PdfPageCollection._(this);
+    _pages ??= _helper.isLoadedDocument
+        ? PdfPageCollectionHelper.fromCrossTable(this, _helper.crossTable)
+        : PdfPageCollectionHelper.load(this);
     return _pages!;
   }
 
   /// Creates a bookmarks collection to the document.
   PdfBookmarkBase? _createBookmarkRoot() {
-    _bookmark = PdfBookmarkBase._internal();
-    _catalog.setProperty(
-        _DictionaryProperties.outlines, _PdfReferenceHolder(_bookmark));
+    _bookmark = PdfBookmarkBaseHelper.loadInternal();
+    _helper.catalog.setProperty(
+        PdfDictionaryProperties.outlines, PdfReferenceHolder(_bookmark));
     return _bookmark;
-  }
-
-  _PdfArray? _getNamedDestination(_IPdfPrimitive obj) {
-    _PdfDictionary? destinations;
-    _PdfArray? destination;
-    if (obj is _PdfName) {
-      destinations = _catalog._destinations;
-      final _IPdfPrimitive? name = destinations![obj];
-      destination = _extractDestination(name);
-    } else if (obj is _PdfString) {
-      final _PdfCatalogNames? names = _catalog._names;
-      if (names != null) {
-        destinations = names._destinations;
-        final _IPdfPrimitive? name =
-            names._getNamedObjectFromTree(destinations, obj);
-        destination = _extractDestination(name);
-      }
-    }
-    return destination;
-  }
-
-  _PdfArray? _extractDestination(_IPdfPrimitive? obj) {
-    _PdfDictionary? dic;
-    if (obj is _PdfDictionary) {
-      dic = obj;
-    } else if (obj is _PdfReferenceHolder) {
-      final _PdfReferenceHolder holder = obj;
-      if (holder._object is _PdfDictionary) {
-        dic = holder._object as _PdfDictionary?;
-      } else if (holder._object is _PdfArray) {
-        obj = (holder._object! as _PdfArray?)! as _PdfReferenceHolder;
-      }
-    }
-    _PdfArray? destination;
-    if (obj is _PdfArray) {
-      destination = obj;
-    }
-    if (dic != null) {
-      obj = _PdfCrossTable._dereference(dic[_DictionaryProperties.d]);
-      destination = obj as _PdfArray?;
-    }
-    return destination;
   }
 
   PdfNamedDestinationCollection? _createNamedDestinations() {
     _namedDestinations = PdfNamedDestinationCollection();
-    final _PdfReferenceHolder? catalogReference =
-        _catalog[_DictionaryProperties.names] as _PdfReferenceHolder?;
+    final PdfReferenceHolder? catalogReference =
+        _helper.catalog[PdfDictionaryProperties.names] as PdfReferenceHolder?;
 
     if (catalogReference != null) {
-      final _PdfDictionary? catalogNames =
-          catalogReference.object as _PdfDictionary?;
+      final PdfDictionary? catalogNames =
+          catalogReference.object as PdfDictionary?;
       if (catalogNames != null) {
-        catalogNames.setProperty(_DictionaryProperties.dests,
-            _PdfReferenceHolder(_namedDestinations));
+        catalogNames.setProperty(PdfDictionaryProperties.dests,
+            PdfReferenceHolder(_namedDestinations));
       }
     } else {
-      _catalog.setProperty(
-          _DictionaryProperties.names, _PdfReferenceHolder(_namedDestinations));
+      _helper.catalog.setProperty(PdfDictionaryProperties.names,
+          PdfReferenceHolder(_namedDestinations));
     }
-    _catalog.modify();
+    _helper.catalog.modify();
     return _namedDestinations;
-  }
-
-  Map<PdfPage, dynamic>? _createBookmarkDestinationDictionary() {
-    PdfBookmarkBase? current = bookmarks;
-    if (_bookmarkHashTable == null) {
-      _bookmarkHashTable = <PdfPage, dynamic>{};
-      final Queue<_CurrentNodeInfo> stack = Queue<_CurrentNodeInfo>();
-      _CurrentNodeInfo ni = _CurrentNodeInfo(current._list);
-      do {
-        for (; ni.index < ni.kids.length;) {
-          current = ni.kids[ni.index];
-          final PdfNamedDestination? ndest =
-              (current! as PdfBookmark).namedDestination;
-          if (ndest != null) {
-            if (ndest.destination != null) {
-              final PdfPage page = ndest.destination!.page;
-              List<dynamic>? list;
-              if (_bookmarkHashTable!.containsKey(page)) {
-                list = _bookmarkHashTable![page] as List<dynamic>?;
-              }
-              if (list == null) {
-                list = <dynamic>[];
-                _bookmarkHashTable![page] = list;
-              }
-              list.add(current);
-            }
-          } else {
-            final PdfDestination? dest = (current as PdfBookmark).destination;
-            final PdfPage page = dest!.page;
-            List<dynamic>? list = _bookmarkHashTable!.containsKey(page)
-                ? _bookmarkHashTable![page] as List<dynamic>?
-                : null;
-            if (list == null) {
-              list = <dynamic>[];
-              _bookmarkHashTable![page] = list;
-            }
-            list.add(current);
-          }
-          ni.index = ni.index + 1;
-          if (current.count > 0) {
-            stack.addLast(ni);
-            ni = _CurrentNodeInfo(current._list);
-            continue;
-          }
-        }
-        if (stack.isNotEmpty) {
-          ni = stack.removeLast();
-          while ((ni.index == ni.kids.length) && (stack.isNotEmpty)) {
-            ni = stack.removeLast();
-          }
-        }
-      } while (ni.index < ni.kids.length);
-    }
-    return _bookmarkHashTable;
   }
 
   void _readDocumentInfo() {
     // Read document's info if present.
-    final _PdfDictionary? info = _PdfCrossTable._dereference(
-        _crossTable.trailer![_DictionaryProperties.info]) as _PdfDictionary?;
+    final PdfDictionary? info = PdfCrossTable.dereference(
+            _helper.crossTable.trailer![PdfDictionaryProperties.info])
+        as PdfDictionary?;
     if (info != null && _documentInfo == null) {
-      _documentInfo = PdfDocumentInformation._(_catalog,
-          dictionary: info, isLoaded: true, conformance: _conformanceLevel);
+      _documentInfo = PdfDocumentInformationHelper.load(_helper.catalog,
+          dictionary: info,
+          isLoaded: true,
+          conformance: _helper.conformanceLevel);
     }
     if (info != null &&
         !info.changed! &&
-        _crossTable.trailer![_DictionaryProperties.info]
-            is _PdfReferenceHolder) {
-      _documentInfo = PdfDocumentInformation._(_catalog,
-          dictionary: info, isLoaded: true, conformance: _conformanceLevel);
-      if (_catalog.changed!) {
+        _helper.crossTable.trailer![PdfDictionaryProperties.info]
+            is PdfReferenceHolder) {
+      _documentInfo = PdfDocumentInformationHelper.load(_helper.catalog,
+          dictionary: info,
+          isLoaded: true,
+          conformance: _helper.conformanceLevel);
+      if (_helper.catalog.changed!) {
         _documentInfo!.modificationDate = DateTime.now();
       }
-      if (_objects._lookFor(_documentInfo!._element!)! > -1) {
-        _objects._reregisterReference(
-            _objects._lookFor(info)!, _documentInfo!._element!);
-        _documentInfo!._element!.position = -1;
+      if (_helper.objects.lookFor(IPdfWrapper.getElement(_documentInfo!)!)! >
+          -1) {
+        _helper.objects.reregisterReference(_helper.objects.lookFor(info)!,
+            IPdfWrapper.getElement(_documentInfo!)!);
+        IPdfWrapper.getElement(_documentInfo!)!.position = -1;
       }
     }
   }
 
   void _initializeConformance(PdfConformanceLevel conformance) {
-    _conformanceLevel = conformance;
-    if (_conformanceLevel == PdfConformanceLevel.a1b ||
-        _conformanceLevel == PdfConformanceLevel.a2b ||
-        _conformanceLevel == PdfConformanceLevel.a3b) {
+    _helper.conformanceLevel = conformance;
+    if (_helper.conformanceLevel == PdfConformanceLevel.a1b ||
+        _helper.conformanceLevel == PdfConformanceLevel.a2b ||
+        _helper.conformanceLevel == PdfConformanceLevel.a3b) {
       //Note : PDF/A is based on Pdf 1.4.  Hence it does not support cross reference
       //stream which is an Pdf 1.5 feature.
       fileStructure.crossReferenceType =
           PdfCrossReferenceType.crossReferenceTable;
-      if (_conformanceLevel == PdfConformanceLevel.a1b) {
+      if (_helper.conformanceLevel == PdfConformanceLevel.a1b) {
         fileStructure.version = PdfVersion.version1_4;
       } else {
         fileStructure.version = PdfVersion.version1_7;
       }
       //Embed the Color Profie.
-      final _PdfDictionary dict = _PdfDictionary();
-      dict['Info'] = _PdfString('sRGB IEC61966-2.1');
-      dict['S'] = _PdfName('GTS_PDFA1');
-      dict['OutputConditionIdentifier'] = _PdfString('custom');
-      dict['Type'] = _PdfName('OutputIntent');
-      dict['OutputCondition'] = _PdfString('');
-      dict['RegistryName'] = _PdfString('');
-      final _PdfICCColorProfile srgbProfile = _PdfICCColorProfile();
-      dict['DestOutputProfile'] = _PdfReferenceHolder(srgbProfile);
-      final _PdfArray outputIntent = _PdfArray();
-      outputIntent._add(dict);
-      _catalog['OutputIntents'] = outputIntent;
+      final PdfDictionary dict = PdfDictionary();
+      dict['Info'] = PdfString('sRGB IEC61966-2.1');
+      dict['S'] = PdfName('GTS_PDFA1');
+      dict['OutputConditionIdentifier'] = PdfString('custom');
+      dict['Type'] = PdfName('OutputIntent');
+      dict['OutputCondition'] = PdfString('');
+      dict['RegistryName'] = PdfString('');
+      final PdfICCColorProfile srgbProfile = PdfICCColorProfile();
+      dict['DestOutputProfile'] = PdfReferenceHolder(srgbProfile);
+      final PdfArray outputIntent = PdfArray();
+      outputIntent.add(dict);
+      _helper.catalog['OutputIntents'] = outputIntent;
     }
   }
 
   //Raises DocumentSaved event.
-  void _onDocumentSaved(_DocumentSavedArgs args) {
-    if (_documentSavedList != null && _documentSavedList!.isNotEmpty) {
-      for (int i = 0; i < _documentSavedList!.length; i++) {
-        _documentSavedList![i](this, args);
+  void _onDocumentSaved(DocumentSavedArgs args) {
+    if (_helper.documentSavedList != null &&
+        _helper.documentSavedList!.isNotEmpty) {
+      for (int i = 0; i < _helper.documentSavedList!.length; i++) {
+        _helper.documentSavedList![i](this, args);
       }
     }
-  }
-
-  void _setUserPassword(PdfPasswordArgs args) {
-    onPdfPassword!(this, args);
   }
 }
 
@@ -1097,18 +991,255 @@ class PdfPasswordArgs {
   String? attachmentOpenPassword;
 }
 
-typedef _DocumentSavedHandler = void Function(
-    Object sender, _DocumentSavedArgs args);
+// ignore: avoid_classes_with_only_static_members
+/// [PdfPasswordArgs] helper
+class PdfPasswordArgsHelper {
+  /// internal method
+  static PdfPasswordArgs load() {
+    return PdfPasswordArgs._();
+  }
+}
 
-class _DocumentSavedArgs {
-  //Constructor
-  _DocumentSavedArgs(_IPdfWriter writer) {
-    _writer = writer;
+/// [PdfDocument] helper
+class PdfDocumentHelper {
+  /// internal constructor
+  PdfDocumentHelper(this.base);
+
+  /// internal field
+  PdfDocument base;
+
+  /// internal method
+  static PdfDocumentHelper getHelper(PdfDocument base) {
+    return base._helper;
   }
 
-  //Fields
-  _IPdfWriter? _writer;
+  /// internal constant
+  static const double defaultMargin = 40;
 
-  //Properties
-  _IPdfWriter? get writer => _writer;
+  /// internal field
+  List<DocumentSavedHandler>? documentSavedList;
+
+  /// internal field
+  late PdfMainObjectCollection objects;
+
+  /// internal field
+  late PdfCrossTable crossTable;
+
+  /// internal field
+  late PdfCatalog catalog;
+
+  /// internal field
+  bool isLoadedDocument = false;
+
+  /// internal field
+  bool isStreamCopied = false;
+
+  /// internal field
+  int? position;
+
+  /// internal field
+  int? orderPosition;
+
+  /// internal field
+  int? onPosition;
+
+  /// internal field
+  int? offPosition;
+
+  /// internal field
+  PdfArray? pdfPrimitive;
+
+  /// internal field
+  PdfArray? printLayer;
+
+  /// internal field
+  PdfArray? on;
+
+  /// internal field
+  PdfArray? off;
+
+  /// internal field
+  PdfArray? order;
+
+  /// internal field
+  String? password;
+
+  /// internal field
+  late bool isEncrypted;
+
+  /// internal field
+  PdfConformanceLevel conformanceLevel = PdfConformanceLevel.none;
+
+  /// internal method
+  PdfReference? currentSavingObject;
+  PdfSecurity? _security;
+  bool? _isAttachOnlyEncryption;
+  Map<PdfPage, dynamic>? _bookmarkHashTable;
+
+  /// internal method
+  bool checkEncryption(bool? isAttachEncryption) {
+    bool wasEncrypted = false;
+    if (crossTable.encryptorDictionary != null) {
+      final PdfDictionary encryptionDict = crossTable.encryptorDictionary!;
+      password ??= '';
+      final PdfDictionary trailerDict = crossTable.trailer!;
+      PdfArray? obj;
+      if (trailerDict.containsKey(PdfDictionaryProperties.id)) {
+        IPdfPrimitive? primitive = trailerDict[PdfDictionaryProperties.id];
+        if (primitive is PdfArray) {
+          obj = primitive;
+        } else if (primitive is PdfReferenceHolder) {
+          primitive = primitive.object;
+          if (primitive != null && primitive is PdfArray) {
+            obj = primitive;
+          }
+        }
+      }
+      obj ??= PdfArray()..add(PdfString.fromBytes(<int>[]));
+      final PdfString key = obj[0]! as PdfString;
+      final PdfEncryptor encryptor = PdfEncryptor();
+      if (encryptionDict.containsKey(PdfDictionaryProperties.encryptMetadata)) {
+        IPdfPrimitive? primitive =
+            encryptionDict[PdfDictionaryProperties.encryptMetadata];
+        if (primitive is PdfBoolean) {
+          encryptor.encryptMetadata = primitive.value!;
+        } else if (primitive is PdfReferenceHolder) {
+          primitive = primitive.object;
+          if (primitive != null && primitive is PdfBoolean) {
+            encryptor.encryptMetadata = primitive.value!;
+          }
+        }
+      }
+      wasEncrypted = true;
+      encryptor.readFromDictionary(encryptionDict);
+      bool encryption = true;
+      if (!isAttachEncryption! && encryptor.encryptAttachmentOnly!) {
+        encryption = false;
+      }
+      if (!encryptor.checkPassword(password!, key, encryption)) {
+        throw ArgumentError.value(password, 'password',
+            'Cannot open an encrypted document. The password is invalid.');
+      }
+      encryptionDict.encrypt = false;
+      final PdfSecurity security = PdfSecurityHelper.getSecurity();
+      PdfSecurityHelper.getHelper(security).encryptor = encryptor;
+      _security = security;
+      PdfSecurityHelper.getHelper(_security!).encryptAttachmentOnly =
+          encryptor.encryptAttachmentOnly!;
+      _isAttachOnlyEncryption = encryptor.encryptAttachmentOnly;
+      if (_isAttachOnlyEncryption!) {
+        PdfSecurityHelper.getHelper(security).encryptor.encryptionOptions =
+            PdfEncryptionOptions.encryptOnlyAttachments;
+      } else if (!encryptor.encryptMetadata) {
+        PdfSecurityHelper.getHelper(security).encryptor.encryptionOptions =
+            PdfEncryptionOptions.encryptAllContentsExceptMetadata;
+      }
+      crossTable.encryptor = encryptor;
+    }
+    return wasEncrypted;
+  }
+
+  /// internal method
+  PdfArray? getNamedDestination(IPdfPrimitive obj) {
+    PdfDictionary? destinations;
+    PdfArray? destination;
+    if (obj is PdfName) {
+      destinations = catalog.destinations;
+      final IPdfPrimitive? name = destinations![obj];
+      destination = _extractDestination(name);
+    } else if (obj is PdfString) {
+      final PdfCatalogNames? names = catalog.names;
+      if (names != null) {
+        destinations = names.destinations;
+        final IPdfPrimitive? name =
+            names.getNamedObjectFromTree(destinations, obj);
+        destination = _extractDestination(name);
+      }
+    }
+    return destination;
+  }
+
+  PdfArray? _extractDestination(IPdfPrimitive? obj) {
+    PdfDictionary? dic;
+    if (obj is PdfDictionary) {
+      dic = obj;
+    } else if (obj is PdfReferenceHolder) {
+      final PdfReferenceHolder holder = obj;
+      if (holder.object is PdfDictionary) {
+        dic = holder.object as PdfDictionary?;
+      } else if (holder.object is PdfArray) {
+        obj = (holder.object! as PdfArray?)! as PdfReferenceHolder;
+      }
+    }
+    PdfArray? destination;
+    if (obj is PdfArray) {
+      destination = obj;
+    }
+    if (dic != null) {
+      obj = PdfCrossTable.dereference(dic[PdfDictionaryProperties.d]);
+      destination = obj as PdfArray?;
+    }
+    return destination;
+  }
+
+  /// internal method
+  Map<PdfPage, dynamic>? createBookmarkDestinationDictionary() {
+    PdfBookmarkBase? current = base.bookmarks;
+    if (_bookmarkHashTable == null) {
+      _bookmarkHashTable = <PdfPage, dynamic>{};
+      final Queue<CurrentNodeInfo> stack = Queue<CurrentNodeInfo>();
+      CurrentNodeInfo ni =
+          CurrentNodeInfo(PdfBookmarkBaseHelper.getList(current));
+      do {
+        for (; ni.index < ni.kids.length;) {
+          current = ni.kids[ni.index];
+          final PdfNamedDestination? ndest =
+              (current! as PdfBookmark).namedDestination;
+          if (ndest != null) {
+            if (ndest.destination != null) {
+              final PdfPage page = ndest.destination!.page;
+              List<dynamic>? list;
+              if (_bookmarkHashTable!.containsKey(page)) {
+                list = _bookmarkHashTable![page] as List<dynamic>?;
+              }
+              if (list == null) {
+                list = <dynamic>[];
+                _bookmarkHashTable![page] = list;
+              }
+              list.add(current);
+            }
+          } else {
+            final PdfDestination? dest = (current as PdfBookmark).destination;
+            final PdfPage page = dest!.page;
+            List<dynamic>? list = _bookmarkHashTable!.containsKey(page)
+                ? _bookmarkHashTable![page] as List<dynamic>?
+                : null;
+            if (list == null) {
+              list = <dynamic>[];
+              _bookmarkHashTable![page] = list;
+            }
+            list.add(current);
+          }
+          ni.index = ni.index + 1;
+          if (current.count > 0) {
+            stack.addLast(ni);
+            ni = CurrentNodeInfo(PdfBookmarkBaseHelper.getList(current));
+            continue;
+          }
+        }
+        if (stack.isNotEmpty) {
+          ni = stack.removeLast();
+          while ((ni.index == ni.kids.length) && (stack.isNotEmpty)) {
+            ni = stack.removeLast();
+          }
+        }
+      } while (ni.index < ni.kids.length);
+    }
+    return _bookmarkHashTable;
+  }
+
+  /// internal method
+  void setUserPassword(PdfPasswordArgs args) {
+    base.onPdfPassword!(base, args);
+  }
 }

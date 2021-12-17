@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../marker.dart';
 import 'enum.dart';
@@ -50,7 +50,7 @@ void drawText(Canvas canvas, String dataLabel, Offset point, TextStyle style) {
   tp.layout();
   canvas.save();
   canvas.translate(point.dx, point.dy);
-  const Offset labelOffset = Offset(0.0, 0.0);
+  const Offset labelOffset = Offset.zero;
   tp.paint(canvas, labelOffset);
   canvas.restore();
 }
@@ -399,7 +399,7 @@ void renderMarker(
     num highPoint,
     num lowPoint,
     double axisCrossesAt,
-    ThemeData themeData,
+    SfChartThemeData themeData,
     Color? lowPointColor,
     Color? highPointColor,
     Color? negativePointColor,
@@ -581,7 +581,7 @@ void renderMarker(
 Color _getDataLabelSaturationColor(
     Offset dataLabelOffset,
     Offset coordinateOffset,
-    ThemeData theme,
+    SfChartThemeData theme,
     Offset offset,
     Color seriesColor,
     String type,
@@ -623,7 +623,7 @@ TextStyle _getTextStyle(
     Offset dataLabelOffset,
     Offset coordinateOffset,
     Offset offset,
-    ThemeData theme,
+    SfChartThemeData theme,
     Color seriesColor,
     String type,
     [Rect? segment,
@@ -669,7 +669,7 @@ void renderDataLabel(
     TextStyle labelStyle,
     SparkChartLabelDisplayMode labelDisplayMode,
     String type,
-    ThemeData theme,
+    SfChartThemeData theme,
     Offset offset,
     Color seriesColor,
     num highPoint,

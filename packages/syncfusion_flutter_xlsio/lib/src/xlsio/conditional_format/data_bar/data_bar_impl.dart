@@ -213,6 +213,7 @@ class _DataBarImpl implements DataBar {
     _bHasExtensionList = value;
     if (_stGUID == null) {
       final _Guid guid = _Guid();
+      // ignore: prefer_interpolation_to_compose_strings
       _stGUID = '{' + guid._newGuid() + '}';
     }
   }

@@ -40,7 +40,7 @@ class AssetMapProvider extends MapProvider {
 
   @override
   Future<String> loadString() async {
-    return await rootBundle.loadString(_shapePath);
+    return rootBundle.loadString(_shapePath);
   }
 
   @override

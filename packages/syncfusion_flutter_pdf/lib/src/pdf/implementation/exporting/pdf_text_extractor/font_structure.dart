@@ -1,43 +1,62 @@
-part of pdf;
+import 'dart:convert';
 
-class _FontStructure {
+import '../../../interfaces/pdf_interface.dart';
+import '../../graphics/fonts/enums.dart';
+import '../../graphics/fonts/pdf_cjk_standard_font.dart';
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/fonts/pdf_standard_font.dart';
+import '../../io/decode_big_endian.dart';
+import '../../io/pdf_constants.dart';
+import '../../primitives/pdf_array.dart';
+import '../../primitives/pdf_dictionary.dart';
+import '../../primitives/pdf_name.dart';
+import '../../primitives/pdf_number.dart';
+import '../../primitives/pdf_reference_holder.dart';
+import '../../primitives/pdf_stream.dart';
+import '../../primitives/pdf_string.dart';
+import 'font_file2.dart';
+import 'xobject_element.dart';
+
+/// internal class
+class FontStructure {
   //constructor
-  _FontStructure([_IPdfPrimitive? fontDict, String? fontRefNum]) {
+  /// internal constructor
+  FontStructure([IPdfPrimitive? fontDict, String? fontRefNum]) {
     if (fontDict != null) {
-      fontDictionary = fontDict as _PdfDictionary;
-      if (fontDictionary.containsKey(_PdfName('Subtype'))) {
-        fontType = fontDictionary._items![_PdfName('Subtype')] as _PdfName?;
+      fontDictionary = fontDict as PdfDictionary;
+      if (fontDictionary.containsKey(PdfName('Subtype'))) {
+        fontType = fontDictionary.items![PdfName('Subtype')] as PdfName?;
       }
     }
     _initialize();
     if (fontRefNum != null) {
       fontRefNumber = fontRefNum;
       if (fontType != null) {
-        if (fontType!._name == 'Type3') {
-          if (fontDictionary._items!.containsKey(_PdfName('CharProcs'))) {
-            _PdfDictionary? charProcs;
-            if (fontDictionary['CharProcs'] is _PdfDictionary) {
-              charProcs = fontDictionary['CharProcs'] as _PdfDictionary?;
+        if (fontType!.name == 'Type3') {
+          if (fontDictionary.items!.containsKey(PdfName('CharProcs'))) {
+            PdfDictionary? charProcs;
+            if (fontDictionary['CharProcs'] is PdfDictionary) {
+              charProcs = fontDictionary['CharProcs'] as PdfDictionary?;
             } else {
-              charProcs = (fontDictionary['CharProcs']! as _PdfReferenceHolder)
-                  .object as _PdfDictionary?;
+              charProcs = (fontDictionary['CharProcs']! as PdfReferenceHolder)
+                  .object as PdfDictionary?;
             }
-            final List<_PdfName?> names = charProcs!._items!.keys.toList();
+            final List<PdfName?> names = charProcs!.items!.keys.toList();
             int i = 0;
             // ignore: avoid_function_literals_in_foreach_calls
-            charProcs._items!.values.forEach((_IPdfPrimitive? value) {
-              if (value != null && value is _PdfReferenceHolder) {
-                final _PdfReferenceHolder holder = value;
-                type3FontCharProcsDict[names[i]!._name] =
-                    holder.object as _PdfStream?;
+            charProcs.items!.values.forEach((IPdfPrimitive? value) {
+              if (value != null && value is PdfReferenceHolder) {
+                final PdfReferenceHolder holder = value;
+                type3FontCharProcsDict[names[i]!.name] =
+                    holder.object as PdfStream?;
                 i++;
               }
             });
           }
-        } else if (fontType!._name == 'Type1') {
-          _isStandardFont = _checkStandardFont();
-        } else if (fontType!._name == 'Type0') {
-          _isStandardCJKFont = _checkStandardCJKFont();
+        } else if (fontType!.name == 'Type1') {
+          isStandardFont = _checkStandardFont();
+        } else if (fontType!.name == 'Type0') {
+          isStandardCJKFont = _checkStandardCJKFont();
         }
       }
     }
@@ -48,58 +67,119 @@ class _FontStructure {
   }
 
   //Fields
+  /// internal field
   bool isWhiteSpace = false;
+
+  /// internal field
   bool isSameFont = false;
   String? _fontEncoding;
-  late _PdfDictionary fontDictionary;
+
+  /// internal field
+  late PdfDictionary fontDictionary;
   String? _fontName;
+
+  /// internal field
   double? fontSize;
   Map<double, String>? _characterMapTable;
   Map<String, double>? _reverseMapTable;
+
+  /// internal field
   Map<double, String> tempMapTable = <double, String>{};
+
+  /// internal field
   Map<int, String>? differenceEncoding;
+
+  /// internal field
   List<String> tempStringList = <String>[];
   Map<String, String?>? _differencesDictionary;
+
+  /// internal field
   late Map<int, String> differenceTable;
   Map<int, int>? _octDecMapTable;
   Map<int, String>? _macEncodeTable;
   final Map<int, String> _macRomanMapTable = <int, String>{};
   final Map<int, String> _winansiMapTable = <int, String>{};
+
+  /// internal field
   Map<String?, int> reverseDictMapping = <String?, int>{};
-  _PdfDictionary? cidSystemInfoDictionary;
+
+  /// internal field
+  PdfDictionary? cidSystemInfoDictionary;
+
+  /// internal field
   Map<double, String>? cidToGidTable;
   Map<int, int>? _cidToGidReverseMapTable;
-  Map<String?, _PdfStream?> type3FontCharProcsDict = <String?, _PdfStream?>{};
+
+  /// internal field
+  Map<String?, PdfStream?> type3FontCharProcsDict = <String?, PdfStream?>{};
+
+  /// internal field
   bool isContainFontfile2 = false;
+
+  /// internal field
   bool isMappingDone = false;
+
+  /// internal field
   bool isSystemFontExist = false;
+
+  /// internal field
   bool isTextExtraction = false;
+
+  /// internal field
   bool isEmbedded = false;
+
+  /// internal field
   bool containsCmap = true;
+
+  /// internal field
   late String zapfPostScript;
+
+  /// internal field
   late String fontRefNumber;
-  _PdfName? fontType;
+
+  /// internal field
+  PdfName? fontType;
+
+  /// internal field
   bool isAdobeIdentity = false;
   bool _isCidFontType = false;
   List<PdfFontStyle>? _fontStyle;
   Map<int, int>? _fontGlyphWidth;
+
+  /// internal field
   double? defaultGlyphWidth;
   late bool _containsCmap;
   Map<int, String>? _unicodeCharMapTable;
-  late double _type1GlyphHeight;
-  late bool _isStandardFont;
-  late bool _isStandardCJKFont;
+
+  /// internal field
+  late double type1GlyphHeight;
+
+  /// internal field
+  late bool isStandardFont;
+
+  /// internal field
+  late bool isStandardCJKFont;
+
+  /// internal field
   PdfFont? font;
   String? _standardFontName = '';
   String? _standardCJKFontName = '';
+
+  /// internal field
   late List<String> standardFontNames;
+
+  /// internal field
   late List<String> standardCJKFontNames;
+
+  /// internal field
   late List<String> cjkEncoding;
   late List<String> _windows1252MapTable;
 
 //Properties
+  /// internal property
   String? get fontEncoding => _fontEncoding ??= getFontEncoding();
 
+  /// internal property
   Map<double, String> get characterMapTable =>
       _characterMapTable ??= getCharacterMapTable();
 
@@ -107,6 +187,7 @@ class _FontStructure {
     _characterMapTable = value;
   }
 
+  /// internal property
   Map<String, String?> get differencesDictionary =>
       _differencesDictionary ??= getDifferencesDictionary();
 
@@ -114,12 +195,14 @@ class _FontStructure {
     _differencesDictionary = value;
   }
 
+  /// internal property
   Map<int, int> get octDecMapTable => _octDecMapTable ??= <int, int>{};
 
   set octDecMapTable(Map<int, int> value) {
     _octDecMapTable = value;
   }
 
+  /// internal property
   Map<String, double>? get reverseMapTable =>
       _reverseMapTable ??= getReverseMapTable();
 
@@ -127,6 +210,7 @@ class _FontStructure {
     _reverseMapTable = value;
   }
 
+  /// internal property
   Map<int, int> get cidToGidReverseMapTable =>
       _cidToGidReverseMapTable ??= <int, int>{};
 
@@ -134,6 +218,7 @@ class _FontStructure {
     _cidToGidReverseMapTable = value;
   }
 
+  /// internal property
   Map<int, String>? get macEncodeTable {
     if (_macEncodeTable == null) {
       getMacEncodeTable();
@@ -145,8 +230,10 @@ class _FontStructure {
     _macEncodeTable = value;
   }
 
+  /// internal property
   String? get fontName => _fontName ??= getFontName();
 
+  /// internal property
   bool get isCid {
     _isCidFontType = isCIDFontType();
     return _isCidFontType;
@@ -156,6 +243,7 @@ class _FontStructure {
     _isCidFontType = value;
   }
 
+  /// internal property
   List<PdfFontStyle>? get fontStyle {
     if (_fontStyle!.length == 1 && _fontStyle![0] == PdfFontStyle.regular) {
       _fontStyle = getFontStyle();
@@ -163,6 +251,7 @@ class _FontStructure {
     return _fontStyle;
   }
 
+  /// internal property
   Map<int, int>? get fontGlyphWidths {
     if (fontEncoding == 'Identity-H' || fontEncoding == 'Identity#2DH') {
       _getGlyphWidths();
@@ -172,6 +261,7 @@ class _FontStructure {
     return _fontGlyphWidth;
   }
 
+  /// internal property
   Map<int, String>? get unicodeCharMapTable {
     _unicodeCharMapTable ??= <int, String>{};
     return _unicodeCharMapTable;
@@ -181,16 +271,17 @@ class _FontStructure {
     _unicodeCharMapTable = value;
   }
 
-  _PdfNumber? get flags => _getFlagValue();
+  /// internal property
+  PdfNumber? get flags => _getFlagValue();
 
   //Implementation
   void _initialize() {
     differenceTable = <int, String>{};
     zapfPostScript = '';
     fontRefNumber = '';
-    _type1GlyphHeight = 0;
-    _isStandardFont = false;
-    _isStandardCJKFont = false;
+    type1GlyphHeight = 0;
+    isStandardFont = false;
+    isStandardCJKFont = false;
     standardCJKFontNames = <String>[
       'HYGoThic-Medium,BoldItalic',
       'HYGoThic-Medium,Bold',
@@ -294,7 +385,7 @@ class _FontStructure {
       r'$',
       '%',
       '&',
-      '\'',
+      "'",
       '(',
       ')',
       '*',
@@ -513,19 +604,19 @@ class _FontStructure {
     ];
   }
 
-  _PdfNumber? _getFlagValue() {
-    _PdfNumber? flagvalue;
+  PdfNumber? _getFlagValue() {
+    PdfNumber? flagvalue;
     if (fontEncoding != 'Identity-H') {
-      if (fontDictionary.containsKey(_DictionaryProperties.fontDescriptor)) {
-        _IPdfPrimitive? primitive =
-            fontDictionary[_DictionaryProperties.fontDescriptor];
-        if (primitive != null && primitive is _PdfReferenceHolder) {
+      if (fontDictionary.containsKey(PdfDictionaryProperties.fontDescriptor)) {
+        IPdfPrimitive? primitive =
+            fontDictionary[PdfDictionaryProperties.fontDescriptor];
+        if (primitive != null && primitive is PdfReferenceHolder) {
           primitive = primitive.object;
-          if (primitive != null && primitive is _PdfDictionary) {
-            final _PdfDictionary dic = primitive;
-            if (dic.containsKey(_DictionaryProperties.flags)) {
-              primitive = dic[_DictionaryProperties.flags];
-              if (primitive is _PdfNumber) {
+          if (primitive != null && primitive is PdfDictionary) {
+            final PdfDictionary dic = primitive;
+            if (dic.containsKey(PdfDictionaryProperties.flags)) {
+              primitive = dic[PdfDictionaryProperties.flags];
+              if (primitive is PdfNumber) {
                 flagvalue = primitive;
                 return flagvalue;
               }
@@ -534,39 +625,40 @@ class _FontStructure {
         }
       }
     } else {
-      if (fontDictionary.containsKey(_DictionaryProperties.descendantFonts)) {
-        _IPdfPrimitive? primitive =
-            fontDictionary[_DictionaryProperties.descendantFonts];
-        if (primitive is _PdfReferenceHolder) {
+      if (fontDictionary.containsKey(PdfDictionaryProperties.descendantFonts)) {
+        IPdfPrimitive? primitive =
+            fontDictionary[PdfDictionaryProperties.descendantFonts];
+        if (primitive is PdfReferenceHolder) {
           primitive = primitive.object;
         }
-        if (primitive != null && primitive is _PdfArray) {
-          final _PdfArray descenarray = primitive;
-          if (descenarray.count > 0 && descenarray[0] is _PdfReferenceHolder) {
-            final _PdfReferenceHolder referenceholder =
-                descenarray[0]! as _PdfReferenceHolder;
-            final _IPdfPrimitive? primitiveObject = referenceholder.object;
-            if (primitiveObject != null && primitiveObject is _PdfDictionary) {
-              final _PdfDictionary dictionary = primitiveObject;
+        if (primitive != null && primitive is PdfArray) {
+          final PdfArray descenarray = primitive;
+          if (descenarray.count > 0 && descenarray[0] is PdfReferenceHolder) {
+            final PdfReferenceHolder referenceholder =
+                descenarray[0]! as PdfReferenceHolder;
+            final IPdfPrimitive? primitiveObject = referenceholder.object;
+            if (primitiveObject != null && primitiveObject is PdfDictionary) {
+              final PdfDictionary dictionary = primitiveObject;
               if (dictionary
-                  .containsKey(_DictionaryProperties.fontDescriptor)) {
-                _IPdfPrimitive? fontDescriptor =
-                    dictionary[_DictionaryProperties.fontDescriptor];
-                _PdfDictionary? descriptorDictionary;
-                if (fontDescriptor is _PdfReferenceHolder) {
+                  .containsKey(PdfDictionaryProperties.fontDescriptor)) {
+                IPdfPrimitive? fontDescriptor =
+                    dictionary[PdfDictionaryProperties.fontDescriptor];
+                PdfDictionary? descriptorDictionary;
+                if (fontDescriptor is PdfReferenceHolder) {
                   fontDescriptor = fontDescriptor.object;
                   if (fontDescriptor != null &&
-                      fontDescriptor is _PdfDictionary) {
+                      fontDescriptor is PdfDictionary) {
                     descriptorDictionary = fontDescriptor;
                   }
-                } else if (fontDescriptor is _PdfDictionary) {
+                } else if (fontDescriptor is PdfDictionary) {
                   descriptorDictionary = fontDescriptor;
                 }
                 if (descriptorDictionary != null &&
                     descriptorDictionary
-                        .containsKey(_DictionaryProperties.flags)) {
-                  primitive = descriptorDictionary[_DictionaryProperties.flags];
-                  if (primitive is _PdfNumber) {
+                        .containsKey(PdfDictionaryProperties.flags)) {
+                  primitive =
+                      descriptorDictionary[PdfDictionaryProperties.flags];
+                  if (primitive is PdfNumber) {
                     flagvalue = primitive;
                     return flagvalue;
                   }
@@ -582,50 +674,50 @@ class _FontStructure {
 
   void _getGlyphWidths() {
     if (fontEncoding == 'Identity-H' || fontEncoding == 'Identity#2DH') {
-      _PdfDictionary dictionary = fontDictionary;
-      if (dictionary.containsKey(_DictionaryProperties.descendantFonts)) {
-        _IPdfPrimitive? primitive =
-            dictionary[_DictionaryProperties.descendantFonts];
-        _PdfArray? arr;
-        if (primitive is _PdfReferenceHolder) {
+      PdfDictionary dictionary = fontDictionary;
+      if (dictionary.containsKey(PdfDictionaryProperties.descendantFonts)) {
+        IPdfPrimitive? primitive =
+            dictionary[PdfDictionaryProperties.descendantFonts];
+        PdfArray? arr;
+        if (primitive is PdfReferenceHolder) {
           primitive = primitive.object;
-          if (primitive != null && primitive is _PdfArray) {
+          if (primitive != null && primitive is PdfArray) {
             arr = primitive;
           }
-        } else if (primitive is _PdfArray) {
+        } else if (primitive is PdfArray) {
           arr = primitive;
         }
         if (arr != null && arr.count > 0) {
-          if (arr[0] is _PdfDictionary) {
-            dictionary = arr[0]! as _PdfDictionary;
-          } else if (arr[0] is _PdfReferenceHolder) {
-            final _IPdfPrimitive? holder =
-                (arr[0]! as _PdfReferenceHolder).object;
-            if (holder != null && holder is _PdfDictionary) {
+          if (arr[0] is PdfDictionary) {
+            dictionary = arr[0]! as PdfDictionary;
+          } else if (arr[0] is PdfReferenceHolder) {
+            final IPdfPrimitive? holder =
+                (arr[0]! as PdfReferenceHolder).object;
+            if (holder != null && holder is PdfDictionary) {
               dictionary = holder;
             }
           }
         }
       }
       _fontGlyphWidth = <int, int>{};
-      _PdfArray? w;
+      PdfArray? w;
       int index = 0;
       int endIndex = 0;
-      _PdfArray? widthArray;
-      if (dictionary.containsKey(_DictionaryProperties.w)) {
-        _IPdfPrimitive? holder = dictionary[_DictionaryProperties.w];
-        if (holder is _PdfArray) {
+      PdfArray? widthArray;
+      if (dictionary.containsKey(PdfDictionaryProperties.w)) {
+        IPdfPrimitive? holder = dictionary[PdfDictionaryProperties.w];
+        if (holder is PdfArray) {
           w = holder;
-        } else if (holder is _PdfReferenceHolder) {
+        } else if (holder is PdfReferenceHolder) {
           holder = holder.object;
-          if (holder != null && holder is _PdfArray) {
+          if (holder != null && holder is PdfArray) {
             w = holder;
           }
         }
       }
-      if (dictionary.containsKey(_DictionaryProperties.dw)) {
-        final _IPdfPrimitive? holder = dictionary[_DictionaryProperties.dw];
-        if (holder is _PdfNumber) {
+      if (dictionary.containsKey(PdfDictionaryProperties.dw)) {
+        final IPdfPrimitive? holder = dictionary[PdfDictionaryProperties.dw];
+        if (holder is PdfNumber) {
           defaultGlyphWidth = holder.value!.toDouble();
         }
       }
@@ -634,40 +726,40 @@ class _FontStructure {
           return;
         }
         for (int i = 0; i < w.count;) {
-          if (w[i] is _PdfNumber) {
-            index = (w[i]! as _PdfNumber).value!.toInt();
+          if (w[i] is PdfNumber) {
+            index = (w[i]! as PdfNumber).value!.toInt();
           }
           i++;
-          if (w[i] is _PdfArray) {
-            widthArray = w[i]! as _PdfArray;
+          if (w[i] is PdfArray) {
+            widthArray = w[i]! as PdfArray;
             for (int j = 0; j < widthArray.count; j++) {
               if (!_containsCmap) {
                 _fontGlyphWidth![index] =
-                    (widthArray[j]! as _PdfNumber).value!.toInt();
+                    (widthArray[j]! as PdfNumber).value!.toInt();
               } else if (!_fontGlyphWidth!.containsKey(index)) {
                 _fontGlyphWidth![index] =
-                    (widthArray[j]! as _PdfNumber).value!.toInt();
+                    (widthArray[j]! as PdfNumber).value!.toInt();
               }
               index++;
             }
-          } else if (w[i] is _PdfNumber) {
-            endIndex = (w[i]! as _PdfNumber).value!.toInt();
+          } else if (w[i] is PdfNumber) {
+            endIndex = (w[i]! as PdfNumber).value!.toInt();
             i++;
             for (; index <= endIndex; index++) {
               if (!_fontGlyphWidth!.containsKey(index)) {
-                _fontGlyphWidth![index] = (w[i]! as _PdfNumber).value!.toInt();
+                _fontGlyphWidth![index] = (w[i]! as PdfNumber).value!.toInt();
               }
             }
-          } else if (w[i] is _PdfReferenceHolder) {
-            widthArray = (w[i]! as _PdfReferenceHolder).object as _PdfArray?;
+          } else if (w[i] is PdfReferenceHolder) {
+            widthArray = (w[i]! as PdfReferenceHolder).object as PdfArray?;
             for (int j = 0; j < widthArray!.count; j++) {
               if (!_containsCmap) {
                 _fontGlyphWidth![index] =
-                    (widthArray[j]! as _PdfNumber).value!.toInt();
+                    (widthArray[j]! as PdfNumber).value!.toInt();
               } else {
                 if (!_fontGlyphWidth!.containsKey(index)) {
                   _fontGlyphWidth![index] =
-                      (widthArray[j]! as _PdfNumber).value!.toInt();
+                      (widthArray[j]! as PdfNumber).value!.toInt();
                 }
               }
               index++;
@@ -685,44 +777,44 @@ class _FontStructure {
 
   void _getGlyphWidthsNonIdH() {
     int firstChar = 0;
-    final _PdfDictionary dictionary = fontDictionary;
-    if (dictionary.containsKey(_DictionaryProperties.dw)) {
-      defaultGlyphWidth = (dictionary[_DictionaryProperties.dw]! as _PdfNumber)
+    final PdfDictionary dictionary = fontDictionary;
+    if (dictionary.containsKey(PdfDictionaryProperties.dw)) {
+      defaultGlyphWidth = (dictionary[PdfDictionaryProperties.dw]! as PdfNumber)
           .value!
           .toDouble();
     }
-    if (dictionary.containsKey(_DictionaryProperties.firstChar)) {
-      firstChar = (dictionary[_DictionaryProperties.firstChar]! as _PdfNumber)
+    if (dictionary.containsKey(PdfDictionaryProperties.firstChar)) {
+      firstChar = (dictionary[PdfDictionaryProperties.firstChar]! as PdfNumber)
           .value!
           .toInt();
     }
     _fontGlyphWidth = <int, int>{};
-    _PdfArray? w;
+    PdfArray? w;
     int index = 0;
-    if (dictionary.containsKey(_DictionaryProperties.widths)) {
-      _IPdfPrimitive? primitive = dictionary[_DictionaryProperties.widths];
-      if (primitive is _PdfArray) {
+    if (dictionary.containsKey(PdfDictionaryProperties.widths)) {
+      IPdfPrimitive? primitive = dictionary[PdfDictionaryProperties.widths];
+      if (primitive is PdfArray) {
         w = primitive;
-      } else if (primitive is _PdfReferenceHolder) {
+      } else if (primitive is PdfReferenceHolder) {
         primitive = primitive.object;
-        if (primitive != null && primitive is _PdfArray) {
+        if (primitive != null && primitive is PdfArray) {
           w = primitive;
         }
       }
     }
-    if (dictionary.containsKey(_DictionaryProperties.descendantFonts)) {
-      _IPdfPrimitive? primitive =
-          dictionary[_DictionaryProperties.descendantFonts];
-      if (primitive != null && primitive is _PdfArray) {
-        final _PdfArray descendantdicArray = primitive;
+    if (dictionary.containsKey(PdfDictionaryProperties.descendantFonts)) {
+      IPdfPrimitive? primitive =
+          dictionary[PdfDictionaryProperties.descendantFonts];
+      if (primitive != null && primitive is PdfArray) {
+        final PdfArray descendantdicArray = primitive;
         if (descendantdicArray.count > 0 &&
-            descendantdicArray[0] is _PdfReferenceHolder) {
-          primitive = (descendantdicArray[0]! as _PdfReferenceHolder).object;
-          if (primitive != null && primitive is _PdfDictionary) {
-            final _PdfDictionary descendantDictionary = primitive;
-            if (descendantDictionary.containsKey(_DictionaryProperties.w)) {
-              primitive = descendantDictionary[_DictionaryProperties.w];
-              if (primitive is _PdfArray) {
+            descendantdicArray[0] is PdfReferenceHolder) {
+          primitive = (descendantdicArray[0]! as PdfReferenceHolder).object;
+          if (primitive != null && primitive is PdfDictionary) {
+            final PdfDictionary descendantDictionary = primitive;
+            if (descendantDictionary.containsKey(PdfDictionaryProperties.w)) {
+              primitive = descendantDictionary[PdfDictionaryProperties.w];
+              if (primitive is PdfArray) {
                 w = primitive;
               }
             }
@@ -739,17 +831,17 @@ class _FontStructure {
               differencesDictionary.isNotEmpty) {
             if (characterMapTable.containsKey(index)) {
               if (!_fontGlyphWidth!.containsKey(index)) {
-                _fontGlyphWidth![index] = (w[i]! as _PdfNumber).value!.toInt();
+                _fontGlyphWidth![index] = (w[i]! as PdfNumber).value!.toInt();
               }
             } else if (differencesDictionary.containsKey(index.toString())) {
               if (!_fontGlyphWidth!.containsKey(index)) {
-                _fontGlyphWidth![index] = (w[i]! as _PdfNumber).value!.toInt();
+                _fontGlyphWidth![index] = (w[i]! as PdfNumber).value!.toInt();
               }
             } else if (!_fontGlyphWidth!.containsKey(index)) {
-              _fontGlyphWidth![index] = (w[i]! as _PdfNumber).value!.toInt();
+              _fontGlyphWidth![index] = (w[i]! as PdfNumber).value!.toInt();
             }
-          } else if (w[i] is _PdfArray) {
-            final _PdfArray tempW = w[i]! as _PdfArray;
+          } else if (w[i] is PdfArray) {
+            final PdfArray tempW = w[i]! as PdfArray;
             for (int j = i; j < tempW.count; j++) {
               index = firstChar + j;
               if (characterMapTable.isNotEmpty ||
@@ -759,27 +851,27 @@ class _FontStructure {
                   final int entryValue = mappingString.codeUnitAt(0);
                   if (!_fontGlyphWidth!.containsKey(entryValue)) {
                     _fontGlyphWidth![entryValue] =
-                        (tempW[j]! as _PdfNumber).value!.toInt();
+                        (tempW[j]! as PdfNumber).value!.toInt();
                   }
                 } else if (differencesDictionary
                     .containsKey(index.toString())) {
                   if (!_fontGlyphWidth!.containsKey(index)) {
                     _fontGlyphWidth![index] =
-                        (tempW[j]! as _PdfNumber).value!.toInt();
+                        (tempW[j]! as PdfNumber).value!.toInt();
                   }
                 } else {
                   if (!_fontGlyphWidth!.containsKey(index)) {
                     _fontGlyphWidth![index] =
-                        (tempW[j]! as _PdfNumber).value!.toInt();
+                        (tempW[j]! as PdfNumber).value!.toInt();
                   }
                 }
               } else {
                 _fontGlyphWidth![index] =
-                    (tempW[j]! as _PdfNumber).value!.toInt();
+                    (tempW[j]! as PdfNumber).value!.toInt();
               }
             }
           } else {
-            final int value = (w[i]! as _PdfNumber).value!.toInt();
+            final int value = (w[i]! as PdfNumber).value!.toInt();
             if (!_fontGlyphWidth!.containsKey(index)) {
               _fontGlyphWidth![index] = value;
             }
@@ -793,20 +885,21 @@ class _FontStructure {
 
   bool _checkStandardFont() {
     bool result = !_checkStandardFontDictionary();
-    if (result && fontDictionary.containsKey(_DictionaryProperties.baseFont)) {
-      _IPdfPrimitive? primitive =
-          fontDictionary[_DictionaryProperties.baseFont];
-      _PdfName? baseFont;
-      if (primitive is _PdfName) {
+    if (result &&
+        fontDictionary.containsKey(PdfDictionaryProperties.baseFont)) {
+      IPdfPrimitive? primitive =
+          fontDictionary[PdfDictionaryProperties.baseFont];
+      PdfName? baseFont;
+      if (primitive is PdfName) {
         baseFont = primitive;
-      } else if (primitive is _PdfReferenceHolder) {
+      } else if (primitive is PdfReferenceHolder) {
         primitive = primitive.object;
-        if (primitive != null && primitive is _PdfName) {
+        if (primitive != null && primitive is PdfName) {
           baseFont = primitive;
         }
       }
       if (baseFont != null) {
-        _standardFontName = baseFont._name;
+        _standardFontName = baseFont.name;
         result &=
             standardFontNames.contains(_resolveFontName(_standardFontName));
       } else {
@@ -820,33 +913,34 @@ class _FontStructure {
 
   bool _checkStandardCJKFont() {
     bool result = !_checkStandardFontDictionary();
-    if (result && fontDictionary.containsKey(_DictionaryProperties.baseFont)) {
-      _IPdfPrimitive? primitive =
-          fontDictionary[_DictionaryProperties.baseFont];
-      _PdfName? baseFont;
-      if (primitive is _PdfName) {
+    if (result &&
+        fontDictionary.containsKey(PdfDictionaryProperties.baseFont)) {
+      IPdfPrimitive? primitive =
+          fontDictionary[PdfDictionaryProperties.baseFont];
+      PdfName? baseFont;
+      if (primitive is PdfName) {
         baseFont = primitive;
-      } else if (primitive is _PdfReferenceHolder) {
+      } else if (primitive is PdfReferenceHolder) {
         primitive = primitive.object;
-        if (primitive != null && primitive is _PdfName) {
+        if (primitive != null && primitive is PdfName) {
           baseFont = primitive;
         }
       }
       if (baseFont != null) {
-        _standardCJKFontName = baseFont._name;
-        _PdfName? encoding;
-        if (fontDictionary.containsKey(_DictionaryProperties.encoding)) {
-          primitive = fontDictionary[_DictionaryProperties.encoding];
-          if (primitive is _PdfName) {
+        _standardCJKFontName = baseFont.name;
+        PdfName? encoding;
+        if (fontDictionary.containsKey(PdfDictionaryProperties.encoding)) {
+          primitive = fontDictionary[PdfDictionaryProperties.encoding];
+          if (primitive is PdfName) {
             encoding = primitive;
-          } else if (primitive is _PdfReferenceHolder) {
+          } else if (primitive is PdfReferenceHolder) {
             primitive = primitive.object;
-            if (primitive != null && primitive is _PdfName) {
+            if (primitive != null && primitive is PdfName) {
               encoding = primitive;
             }
           }
         }
-        result &= encoding != null && cjkEncoding.contains(encoding._name);
+        result &= encoding != null && cjkEncoding.contains(encoding.name);
         result &= _standardCJKFontName != '' &&
             standardCJKFontNames.contains(_standardCJKFontName);
       } else {
@@ -870,13 +964,14 @@ class _FontStructure {
   }
 
   bool _checkStandardFontDictionary() {
-    return fontDictionary.containsKey(_DictionaryProperties.widths) ||
-        fontDictionary.containsKey(_DictionaryProperties.firstChar) ||
-        fontDictionary.containsKey(_DictionaryProperties.lastChar) ||
-        fontDictionary.containsKey(_DictionaryProperties.fontDescriptor);
+    return fontDictionary.containsKey(PdfDictionaryProperties.widths) ||
+        fontDictionary.containsKey(PdfDictionaryProperties.firstChar) ||
+        fontDictionary.containsKey(PdfDictionaryProperties.lastChar) ||
+        fontDictionary.containsKey(PdfDictionaryProperties.fontDescriptor);
   }
 
-  PdfFont? _createStandardFont(double size) {
+  /// internal method
+  PdfFont? createStandardFont(double size) {
     if (_standardFontName != '') {
       final PdfFontFamily fontFamily = _getFontFamily(_standardFontName!);
       final List<PdfFontStyle> styles = _getFontStyle(_standardFontName!);
@@ -895,7 +990,8 @@ class _FontStructure {
     return font;
   }
 
-  PdfFont? _createStandardCJKFont(double size) {
+  /// internal method
+  PdfFont? createStandardCJKFont(double size) {
     if (_standardCJKFontName != '') {
       final PdfCjkFontFamily fontFamily =
           _getCJKFontFamily(_standardCJKFontName!);
@@ -975,36 +1071,36 @@ class _FontStructure {
     return fontFamily;
   }
 
-  // Extracts the font encoding associated with the text string
-  // Font style.
+  /// Extracts the font encoding associated with the text string
+  /// Font style.
   String? getFontEncoding() {
-    _PdfName? baseFont = _PdfName();
+    PdfName? baseFont = PdfName();
     String? fontEncoding = '';
-    if (fontDictionary.containsKey(_DictionaryProperties.encoding)) {
-      if (fontDictionary[_DictionaryProperties.encoding] is _PdfName) {
-        baseFont = fontDictionary[_DictionaryProperties.encoding] as _PdfName?;
-        fontEncoding = baseFont!._name;
+    if (fontDictionary.containsKey(PdfDictionaryProperties.encoding)) {
+      if (fontDictionary[PdfDictionaryProperties.encoding] is PdfName) {
+        baseFont = fontDictionary[PdfDictionaryProperties.encoding] as PdfName?;
+        fontEncoding = baseFont!.name;
       } else {
-        _PdfDictionary? baseFontDict = _PdfDictionary();
-        if (fontDictionary[_DictionaryProperties.encoding] is _PdfDictionary) {
-          baseFontDict =
-              fontDictionary[_DictionaryProperties.encoding] as _PdfDictionary?;
+        PdfDictionary? baseFontDict = PdfDictionary();
+        if (fontDictionary[PdfDictionaryProperties.encoding] is PdfDictionary) {
+          baseFontDict = fontDictionary[PdfDictionaryProperties.encoding]
+              as PdfDictionary?;
           if (baseFontDict == null) {
-            baseFont = (fontDictionary[_DictionaryProperties.encoding]!
-                    as _PdfReferenceHolder)
-                .object as _PdfName?;
-            fontEncoding = baseFont!._name;
+            baseFont = (fontDictionary[PdfDictionaryProperties.encoding]!
+                    as PdfReferenceHolder)
+                .object as PdfName?;
+            fontEncoding = baseFont!.name;
           }
-        } else if (fontDictionary[_DictionaryProperties.encoding]
-            is _PdfReferenceHolder) {
-          baseFontDict = (fontDictionary[_DictionaryProperties.encoding]!
-                  as _PdfReferenceHolder)
-              .object as _PdfDictionary?;
+        } else if (fontDictionary[PdfDictionaryProperties.encoding]
+            is PdfReferenceHolder) {
+          baseFontDict = (fontDictionary[PdfDictionaryProperties.encoding]!
+                  as PdfReferenceHolder)
+              .object as PdfDictionary?;
         }
         if (baseFontDict != null &&
-            baseFontDict.containsKey(_DictionaryProperties.type)) {
+            baseFontDict.containsKey(PdfDictionaryProperties.type)) {
           fontEncoding =
-              (baseFontDict[_DictionaryProperties.type]! as _PdfName)._name;
+              (baseFontDict[PdfDictionaryProperties.type]! as PdfName).name;
         }
       }
     }
@@ -1014,6 +1110,7 @@ class _FontStructure {
     return fontEncoding;
   }
 
+  /// internal method
   Map<String, double>? getReverseMapTable() {
     _reverseMapTable = <String, double>{};
     characterMapTable.forEach((double k, String v) {
@@ -1024,28 +1121,28 @@ class _FontStructure {
     return _reverseMapTable;
   }
 
-  // Extracts the font name associated with the string.
+  /// Extracts the font name associated with the string.
   String? getFontName() {
     String? fontName = '';
     isSystemFontExist = false;
-    if (fontDictionary.containsKey(_DictionaryProperties.baseFont)) {
-      _PdfName? baseFont =
-          fontDictionary[_DictionaryProperties.baseFont] as _PdfName?;
-      baseFont ??= (fontDictionary[_DictionaryProperties.baseFont]!
-              as _PdfReferenceHolder)
-          .object as _PdfName?;
-      String font = baseFont!._name!;
+    if (fontDictionary.containsKey(PdfDictionaryProperties.baseFont)) {
+      PdfName? baseFont =
+          fontDictionary[PdfDictionaryProperties.baseFont] as PdfName?;
+      baseFont ??= (fontDictionary[PdfDictionaryProperties.baseFont]!
+              as PdfReferenceHolder)
+          .object as PdfName?;
+      String font = baseFont!.name!;
       if (font.contains('#20') && !font.contains('+')) {
         final int startIndex = font.lastIndexOf('#20');
         font = font.substring(0, startIndex);
-        font = font + '+';
+        font = '$font+';
       }
       if (font.contains('+')) {}
       if (!isSystemFontExist) {
-        if (baseFont._name!.contains('+')) {
-          fontName = baseFont._name!.split('+')[1];
+        if (baseFont.name!.contains('+')) {
+          fontName = baseFont.name!.split('+')[1];
         } else {
-          fontName = baseFont._name;
+          fontName = baseFont.name;
         }
 
         if (fontName!.contains('-')) {
@@ -1067,22 +1164,23 @@ class _FontStructure {
     return fontName;
   }
 
+  /// internal method
   List<PdfFontStyle> getFontStyle() {
     List<PdfFontStyle> styles = <PdfFontStyle>[];
-    if (fontDictionary.containsKey(_DictionaryProperties.baseFont)) {
-      _IPdfPrimitive? primitive =
-          fontDictionary[_DictionaryProperties.baseFont];
-      _PdfName? baseFont;
-      if (primitive is _PdfName) {
+    if (fontDictionary.containsKey(PdfDictionaryProperties.baseFont)) {
+      IPdfPrimitive? primitive =
+          fontDictionary[PdfDictionaryProperties.baseFont];
+      PdfName? baseFont;
+      if (primitive is PdfName) {
         baseFont = primitive;
-      } else if (primitive is _PdfReferenceHolder) {
+      } else if (primitive is PdfReferenceHolder) {
         primitive = primitive.object;
-        if (primitive is _PdfName) {
+        if (primitive is PdfName) {
           baseFont = primitive;
         }
       }
       if (baseFont != null) {
-        styles = _getFontStyle(baseFont._name!);
+        styles = _getFontStyle(baseFont.name!);
       }
     }
     if (styles.isEmpty) {
@@ -1158,20 +1256,19 @@ class _FontStructure {
     return styles;
   }
 
+  /// internal method
   String decodeHexFontName(String fontName) {
     String? newFontname;
     for (int i = 0; i < fontName.length; i++) {
       if (fontName[i] == '#') {
-        final String hexValue =
-            fontName[i + 1].toString() + fontName[i + 2].toString();
+        final String hexValue = fontName[i + 1] + fontName[i + 2];
         final int decimalValue = int.parse(hexValue, radix: 16);
         if (decimalValue != 0) {
           final String charValue = String.fromCharCode(decimalValue);
-          newFontname = fontName.replaceAll(
-              '#' + hexValue.toString(), charValue.toString());
+          newFontname = fontName.replaceAll('#$hexValue', charValue);
           i = i + 2;
         }
-        if (!fontName.toString().contains('#')) {
+        if (!fontName.contains('#')) {
           break;
         }
       }
@@ -1179,28 +1276,28 @@ class _FontStructure {
     return newFontname.toString();
   }
 
-  // Builds the mapping table that is used to map the
-  // decoded text to get the expected text.
-  // Returns a Map with key as the encoded
-  // element and value as the value to be mapped to.
+  /// Builds the mapping table that is used to map the
+  /// decoded text to get the expected text.
+  /// Returns a Map with key as the encoded
+  /// element and value as the value to be mapped to.
   Map<double, String> getCharacterMapTable() {
     int endOfTable = 0;
     final Map<double, String> mapTable = <double, String>{};
-    if (fontDictionary.containsKey(_DictionaryProperties.toUnicode)) {
-      _IPdfPrimitive? unicodeMap =
-          fontDictionary[_DictionaryProperties.toUnicode];
+    if (fontDictionary.containsKey(PdfDictionaryProperties.toUnicode)) {
+      IPdfPrimitive? unicodeMap =
+          fontDictionary[PdfDictionaryProperties.toUnicode];
 
-      _PdfStream? mapStream;
-      if (unicodeMap is _PdfReferenceHolder) {
-        mapStream = unicodeMap.object as _PdfStream?;
+      PdfStream? mapStream;
+      if (unicodeMap is PdfReferenceHolder) {
+        mapStream = unicodeMap.object as PdfStream?;
       } else {
-        mapStream = unicodeMap as _PdfStream?;
+        mapStream = unicodeMap as PdfStream?;
       }
       unicodeMap = null;
       if (mapStream != null) {
-        mapStream._decompress();
-        mapStream._isChanged = false;
-        final String text = utf8.decode(mapStream._dataStream!);
+        mapStream.decompress();
+        mapStream.changed = false;
+        final String text = utf8.decode(mapStream.dataStream!);
         bool isBfRange = false, isBfChar = false;
         int start, end, startCmap, endCmap, endPointer;
         startCmap = text.indexOf('begincmap');
@@ -1266,14 +1363,14 @@ class _FontStructure {
                                 int.parse(tableValue.substring(0, 4), radix: 16)
                                     .toSigned(64));
                             tableValue = tableValue.substring(4);
-                            mapValue += mapChar.toString();
+                            mapValue += mapChar;
                           }
                           mapValue = checkContainInvalidChar(mapValue);
                           if (!mapTable.containsKey(
                               int.parse(tmpList[0], radix: 16).toSigned(64))) {
                             mapTable[int.parse(tmpList[0], radix: 16)
                                 .toSigned(64)
-                                .toDouble()] = mapValue.toString();
+                                .toDouble()] = mapValue;
                           }
                           continue;
                         }
@@ -1283,7 +1380,7 @@ class _FontStructure {
                               int.parse(tmpList[1], radix: 16).toSigned(64));
                           mapTable[int.parse(tmpList[0], radix: 16)
                               .toSigned(64)
-                              .toDouble()] = mapValue.toString();
+                              .toDouble()] = mapValue;
                         }
                       }
                     }
@@ -1303,7 +1400,7 @@ class _FontStructure {
                             int.parse(tableValue.substring(0, 4), radix: 16)
                                 .toSigned(64));
                         tableValue = tableValue.substring(4);
-                        mapValue += mapChar.toString();
+                        mapValue += mapChar;
                       }
                       mapValue = checkContainInvalidChar(mapValue);
                       if (!mapTable.containsKey(
@@ -1311,7 +1408,7 @@ class _FontStructure {
                               .toSigned(64))) {
                         mapTable[int.parse(tempStringList[0], radix: 16)
                             .toSigned(64)
-                            .toDouble()] = mapValue.toString();
+                            .toDouble()] = mapValue;
                       }
                       continue;
                     }
@@ -1321,7 +1418,7 @@ class _FontStructure {
                           int.parse(tempStringList[1], radix: 16).toSigned(64));
                       mapTable[int.parse(tempStringList[0], radix: 16)
                           .toSigned(64)
-                          .toDouble()] = mapValue.toString();
+                          .toDouble()] = mapValue;
                     }
                   }
                 }
@@ -1429,7 +1526,7 @@ class _FontStructure {
                             mapFirstChar + String.fromCharCode(mapValue);
                         mapChar = checkContainInvalidChar(mapChar);
                         if (!mapTable.containsKey(j)) {
-                          mapTable[j] = mapChar.toString();
+                          mapTable[j] = mapChar;
                         }
                       }
                     } else {
@@ -1444,7 +1541,7 @@ class _FontStructure {
                             int.parse(hexString, radix: 16).toSigned(64);
                         final String mapChar = String.fromCharCode(mapValue);
                         if (!mapTable.containsKey(j)) {
-                          mapTable[j] = mapChar.toString();
+                          mapTable[j] = mapChar;
                         }
                       }
                     }
@@ -1457,7 +1554,7 @@ class _FontStructure {
                               .toSigned(64));
                       mapTable[int.parse(tempStringList[k], radix: 16)
                           .toSigned(64)
-                          .toDouble()] = mapValue.toString();
+                          .toDouble()] = mapValue;
                       k = k + 3;
                     }
                   }
@@ -1484,45 +1581,46 @@ class _FontStructure {
     return mapTable;
   }
 
-// Builds the mapping table that is used to map the decoded
-// text to get the expected text.
+  /// Builds the mapping table that is used to map the decoded
+  /// text to get the expected text.
   Map<String, String?> getDifferencesDictionary() {
     final Map<String, String?> differencesDictionary = <String, String?>{};
-    _PdfDictionary? encodingDictionary;
+    PdfDictionary? encodingDictionary;
 
-    if (fontDictionary.containsKey(_DictionaryProperties.encoding)) {
-      if (fontDictionary[_DictionaryProperties.encoding]
-          is _PdfReferenceHolder) {
-        encodingDictionary = (fontDictionary[_DictionaryProperties.encoding]!
-                as _PdfReferenceHolder)
-            .object as _PdfDictionary?;
-      } else if (fontDictionary[_DictionaryProperties.encoding]
-          is _PdfDictionary) {
+    if (fontDictionary.containsKey(PdfDictionaryProperties.encoding)) {
+      if (fontDictionary[PdfDictionaryProperties.encoding]
+          is PdfReferenceHolder) {
+        encodingDictionary = (fontDictionary[PdfDictionaryProperties.encoding]!
+                as PdfReferenceHolder)
+            .object as PdfDictionary?;
+      } else if (fontDictionary[PdfDictionaryProperties.encoding]
+          is PdfDictionary) {
         encodingDictionary =
-            fontDictionary[_DictionaryProperties.encoding] as _PdfDictionary?;
+            fontDictionary[PdfDictionaryProperties.encoding] as PdfDictionary?;
       }
 
       if (encodingDictionary != null) {
-        if (encodingDictionary.containsKey(_DictionaryProperties.differences)) {
+        if (encodingDictionary
+            .containsKey(PdfDictionaryProperties.differences)) {
           int differenceCount = 0;
-          final _IPdfPrimitive? obj =
-              encodingDictionary[_DictionaryProperties.differences];
-          _PdfArray? differences;
-          if (obj is _PdfArray) {
+          final IPdfPrimitive? obj =
+              encodingDictionary[PdfDictionaryProperties.differences];
+          PdfArray? differences;
+          if (obj is PdfArray) {
             differences = obj;
-          } else if (obj is _PdfReferenceHolder && obj.object is _PdfArray) {
-            differences = obj.object as _PdfArray?;
+          } else if (obj is PdfReferenceHolder && obj.object is PdfArray) {
+            differences = obj.object as PdfArray?;
           }
           if (differences != null) {
             for (int i = 0; i < differences.count; i++) {
               String? text = '';
-              if (differences[i] is _PdfNumber) {
-                final _PdfNumber number = differences[i]! as _PdfNumber;
+              if (differences[i] is PdfNumber) {
+                final PdfNumber number = differences[i]! as PdfNumber;
                 text = number.value.toString();
                 differenceCount = number.value!.toInt();
-              } else if (differences[i] is _PdfName) {
-                text = (differences[i]! as _PdfName)._name;
-                if ((fontType!._name == 'Type1') && (text == '.notdef')) {
+              } else if (differences[i] is PdfName) {
+                text = (differences[i]! as PdfName).name;
+                if ((fontType!.name == 'Type1') && (text == '.notdef')) {
                   text = ' ';
                   differencesDictionary[differenceCount.toString()] =
                       getLatinCharacter(text);
@@ -1548,8 +1646,8 @@ class _FontStructure {
     return differencesDictionary;
   }
 
-  //  Gets Latin Character
-  //Latin Character Set (APPENDIX D Pdf version-1.7) Page- 997
+  /// Gets Latin Character
+  /// Latin Character Set (APPENDIX D Pdf version-1.7) Page- 997
   String? getLatinCharacter(String? decodedCharacter) {
     switch (decodedCharacter) {
       case 'zero':
@@ -1829,8 +1927,8 @@ class _FontStructure {
     }
   }
 
-  //  Gets Latin Character
-  //Latin Character Set (APPENDIX D Pdf version-1.7) Page- 997
+  /// Gets Latin Character
+  /// Latin Character Set (APPENDIX D Pdf version-1.7) Page- 997
   String? getSpecialCharacter(String? decodedCharacter) {
     switch (decodedCharacter) {
       case 'head2right':
@@ -2151,6 +2249,7 @@ class _FontStructure {
     }
   }
 
+  /// internal method
   void getMacEncodeTable() {
     _macEncodeTable = <int, String>{};
     _macEncodeTable![127] = ' ';
@@ -2284,6 +2383,7 @@ class _FontStructure {
     _macEncodeTable![255] = 'ˇ';
   }
 
+  /// internal method
   String skipEscapeSequence(String text) {
     if (text.contains(r'\')) {
       final int i = text.indexOf(r'\');
@@ -2326,10 +2426,10 @@ class _FontStructure {
                 text = text.replaceAll(r'\', '');
               } else {
                 try {
-                  text = _unescape(text);
+                  text = unescape(text);
                 } catch (e) {
                   if (text.isNotEmpty) {
-                    text = _unescape(RegExp.escape(text));
+                    text = unescape(RegExp.escape(text));
                   } else {
                     throw Exception();
                   }
@@ -2343,8 +2443,8 @@ class _FontStructure {
     return text;
   }
 
-  // Organizes the hex string enclosed within the '<' '>' brackets
-  // hexCode - Mapping string in the map table of the document</param>
+  /// Organizes the hex string enclosed within the '<' '>' brackets
+  /// hexCode - Mapping string in the map table of the document</param>
   List<String> getHexCode(String hexCode) {
     final List<String> tmp = <String>[];
     String _tmp = hexCode;
@@ -2363,6 +2463,7 @@ class _FontStructure {
     return tmp;
   }
 
+  /// internal method
   String checkContainInvalidChar(String charvalue) {
     for (int i = 0; i < charvalue.length; i++) {
       switch (charvalue.codeUnitAt(i)) {
@@ -2381,6 +2482,7 @@ class _FontStructure {
     return charvalue;
   }
 
+  /// internal method
   String decodeTextExtraction(String textToDecode, bool isSameFont) {
     String decodedText = '';
     String encodedText = textToDecode;
@@ -2402,8 +2504,8 @@ class _FontStructure {
             hasEscapeChar = true;
             decodedText = skipEscapeSequence(decodedText);
           }
-          if (fontDictionary.containsKey(_DictionaryProperties.encoding)) {
-            if (fontDictionary[_DictionaryProperties.encoding] is _PdfName) {
+          if (fontDictionary.containsKey(PdfDictionaryProperties.encoding)) {
+            if (fontDictionary[PdfDictionaryProperties.encoding] is PdfName) {
               if (<String>[
                 'Identity-H',
                 'UniCNS-UCS2-H',
@@ -2411,8 +2513,8 @@ class _FontStructure {
                 'UniJIS-UCS2-H',
                 'UniGB-UCS2-H'
               ].contains(
-                  (fontDictionary[_DictionaryProperties.encoding]! as _PdfName)
-                      ._name)) {
+                  (fontDictionary[PdfDictionaryProperties.encoding]! as PdfName)
+                      .name)) {
                 String text = decodedText;
                 if (!hasEscapeChar) {
                   do {
@@ -2423,7 +2525,7 @@ class _FontStructure {
                 for (int i = 0; i < text.length; i++) {
                   bytes.add(text[i].codeUnitAt(0).toUnsigned(8));
                 }
-                decodedText = _decodeBigEndian(bytes);
+                decodedText = decodeBigEndian(bytes);
               }
             }
           }
@@ -2536,6 +2638,7 @@ class _FontStructure {
     return decodedText;
   }
 
+  /// internal method
   List<String> decodeCjkTextExtractionTJ(String textToDecode, bool isSameFont) {
     String decodedText = '';
     String encodedText = textToDecode;
@@ -2615,7 +2718,7 @@ class _FontStructure {
                 previous.replaceRange(previous.length - 1, previous.length, '');
             previous += listElement;
             listElement = previous;
-            decodedList[0] = fromUnicodeText(listElement) + 's';
+            decodedList[0] = '${fromUnicodeText(listElement)}s';
           } else if ((listElement[0].codeUnitAt(0) == 32 ||
                   listElement[0].codeUnitAt(0) == 47) &&
               listElement.length > 1) {
@@ -2627,17 +2730,17 @@ class _FontStructure {
                   previous.length - 1, previous.length, '');
               previous += listElement;
               listElement = previous;
-              decodedList[0] = fromUnicodeText(listElement) + 's';
+              decodedList[0] = '${fromUnicodeText(listElement)}s';
             } else {
-              listElement = fromUnicodeText(listElement) + 's';
+              listElement = '${fromUnicodeText(listElement)}s';
               decodedList.add(listElement);
             }
           } else {
-            listElement = fromUnicodeText(listElement) + 's';
+            listElement = '${fromUnicodeText(listElement)}s';
             decodedList.add(listElement);
           }
         } else {
-          listElement = fromUnicodeText(listElement) + 's';
+          listElement = '${fromUnicodeText(listElement)}s';
           decodedList.add(listElement);
         }
         encodedText = encodedText.substring(textEnd + 1, encodedText.length);
@@ -2648,6 +2751,7 @@ class _FontStructure {
     return decodedList;
   }
 
+  /// internal method
   String getHexaDecimalCJKString(String hexEncodedText) {
     int index = 0;
     String result = '';
@@ -2660,6 +2764,7 @@ class _FontStructure {
     return result;
   }
 
+  /// internal method
   List<String> decodeTextExtractionTJ(String textToDecode, bool isSameFont) {
     String decodedText = '';
     String encodedText = textToDecode;
@@ -2677,10 +2782,10 @@ class _FontStructure {
           }
           encodedText = encodedText.substring(1, encodedText.length - 1);
           decodedText = getLiteralString(encodedText);
-          if (fontDictionary.containsKey(_DictionaryProperties.encoding)) {
-            if (fontDictionary[_DictionaryProperties.encoding] is _PdfName) {
-              if ((fontDictionary[_DictionaryProperties.encoding]! as _PdfName)
-                      ._name ==
+          if (fontDictionary.containsKey(PdfDictionaryProperties.encoding)) {
+            if (fontDictionary[PdfDictionaryProperties.encoding] is PdfName) {
+              if ((fontDictionary[PdfDictionaryProperties.encoding]! as PdfName)
+                      .name ==
                   'Identity-H') {
                 final String text = skipEscapeSequence(decodedText);
 
@@ -2688,7 +2793,7 @@ class _FontStructure {
                 for (int i = 0; i < text.length; i++) {
                   bytes.add(text[i].codeUnitAt(0).toUnsigned(8));
                 }
-                decodedText = _decodeBigEndian(bytes);
+                decodedText = decodeBigEndian(bytes);
               }
             }
           }
@@ -2811,7 +2916,7 @@ class _FontStructure {
                     previous.length - 1, previous.length, '');
                 previous += listElement;
                 listElement = previous;
-                decodedList[0] = listElement + 's';
+                decodedList[0] = '${listElement}s';
               } else if ((listElement[0].codeUnitAt(0) == 32 ||
                       listElement[0].codeUnitAt(0) == 47) &&
                   listElement.length > 1) {
@@ -2823,7 +2928,7 @@ class _FontStructure {
                       previous.length - 1, previous.length, '');
                   previous += listElement;
                   listElement = previous;
-                  decodedList[0] = listElement + 's';
+                  decodedList[0] = '${listElement}s';
                 } else {
                   listElement += 's';
                   decodedList.add(listElement);
@@ -2833,7 +2938,7 @@ class _FontStructure {
                 decodedList.add(listElement);
               }
             } else {
-              listElement = listElement.trimRight() + 's';
+              listElement = '${listElement.trimRight()}s';
               decodedList.add(listElement);
             }
             encodedText =
@@ -2856,6 +2961,7 @@ class _FontStructure {
     return decodedList;
   }
 
+  /// internal method
   String fromUnicodeText(String value) {
     String result = '';
     if (value.length % 2 != 0) {
@@ -2879,6 +2985,7 @@ class _FontStructure {
     return result;
   }
 
+  /// internal method
   String getEncodedText(String textElement, bool isSameFont) {
     String encodedText = '';
     String textToEncode = textElement;
@@ -2900,11 +3007,11 @@ class _FontStructure {
             hasEscapeChar = true;
             encodedText = skipEscapeSequence(encodedText);
           }
-          if (fontDictionary.containsKey(_DictionaryProperties.encoding)) {
-            final _IPdfPrimitive? primitive =
-                fontDictionary[_DictionaryProperties.encoding];
-            if (primitive is _PdfName) {
-              final String? encoding = primitive._name;
+          if (fontDictionary.containsKey(PdfDictionaryProperties.encoding)) {
+            final IPdfPrimitive? primitive =
+                fontDictionary[PdfDictionaryProperties.encoding];
+            if (primitive is PdfName) {
+              final String? encoding = primitive.name;
               if (encoding == 'Identity-H') {
                 String text = encodedText;
                 if (!hasEscapeChar) {
@@ -2916,6 +3023,7 @@ class _FontStructure {
                       text.contains(r'\t') ||
                       text.contains(r'\n') ||
                       text.contains(r'\v') ||
+                      // ignore: avoid_escaping_inner_quotes
                       text.contains('\\\'')) {
                     while (text.contains(r'\a') ||
                         text.contains(r'\') ||
@@ -2925,6 +3033,7 @@ class _FontStructure {
                         text.contains(r'\t') ||
                         text.contains(r'\n') ||
                         text.contains(r'\v') ||
+                        // ignore: avoid_escaping_inner_quotes
                         text.contains('\\\'')) {
                       text = skipEscapeSequence(text);
                     }
@@ -2937,7 +3046,7 @@ class _FontStructure {
                   bytes.add(text.codeUnitAt(0).toUnsigned(8));
                 }
                 if (encoding == 'Identity-H') {
-                  encodedText = _decodeBigEndian(bytes);
+                  encodedText = decodeBigEndian(bytes);
                 }
                 if (encodedText.contains(r'\')) {
                   // ignore: use_raw_strings
@@ -3033,30 +3142,32 @@ class _FontStructure {
     return encodedText;
   }
 
+  /// internal method
   bool isCIDFontType() {
     bool iscid = false;
-    if (fontDictionary.containsKey(_DictionaryProperties.descendantFonts)) {
-      _IPdfPrimitive? primitive =
-          fontDictionary[_DictionaryProperties.descendantFonts];
-      if (primitive is _PdfReferenceHolder) {
-        final _PdfReferenceHolder descendantFontArrayReference = primitive;
+    if (fontDictionary.containsKey(PdfDictionaryProperties.descendantFonts)) {
+      IPdfPrimitive? primitive =
+          fontDictionary[PdfDictionaryProperties.descendantFonts];
+      if (primitive is PdfReferenceHolder) {
+        final PdfReferenceHolder descendantFontArrayReference = primitive;
         primitive = descendantFontArrayReference.object;
-        if (primitive is _PdfArray) {
-          final _PdfArray descendantFontArray = primitive;
+        if (primitive is PdfArray) {
+          final PdfArray descendantFontArray = primitive;
           if (descendantFontArray.count > 0 &&
-              descendantFontArray[0] is _PdfReferenceHolder) {
-            primitive = (descendantFontArray[0]! as _PdfReferenceHolder).object;
-            if (primitive is _PdfDictionary) {
-              final _PdfDictionary descendantDictionary = primitive;
+              descendantFontArray[0] is PdfReferenceHolder) {
+            primitive = (descendantFontArray[0]! as PdfReferenceHolder).object;
+            if (primitive is PdfDictionary) {
+              final PdfDictionary descendantDictionary = primitive;
               if (descendantDictionary
-                  .containsKey(_DictionaryProperties.subtype)) {
-                primitive = descendantDictionary[_DictionaryProperties.subtype];
-                if (primitive is _PdfName) {
-                  final _PdfName subtype =
-                      descendantDictionary[_DictionaryProperties.subtype]!
-                          as _PdfName;
-                  if (subtype._name == 'CIDFontType2' ||
-                      subtype._name == 'CIDFontType0') {
+                  .containsKey(PdfDictionaryProperties.subtype)) {
+                primitive =
+                    descendantDictionary[PdfDictionaryProperties.subtype];
+                if (primitive is PdfName) {
+                  final PdfName subtype =
+                      descendantDictionary[PdfDictionaryProperties.subtype]!
+                          as PdfName;
+                  if (subtype.name == 'CIDFontType2' ||
+                      subtype.name == 'CIDFontType0') {
                     iscid = true;
                   }
                 }
@@ -3064,22 +3175,22 @@ class _FontStructure {
             }
           }
         }
-      } else if (primitive is _PdfArray) {
-        final _PdfArray descendantFontArray = primitive;
+      } else if (primitive is PdfArray) {
+        final PdfArray descendantFontArray = primitive;
         if (descendantFontArray.count > 0 &&
-            descendantFontArray[0] is _PdfReferenceHolder) {
-          primitive = (descendantFontArray[0]! as _PdfReferenceHolder).object;
-          if (primitive is _PdfDictionary) {
-            final _PdfDictionary descendantDictionary = primitive;
+            descendantFontArray[0] is PdfReferenceHolder) {
+          primitive = (descendantFontArray[0]! as PdfReferenceHolder).object;
+          if (primitive is PdfDictionary) {
+            final PdfDictionary descendantDictionary = primitive;
             if (descendantDictionary
-                .containsKey(_DictionaryProperties.subtype)) {
-              primitive = descendantDictionary[_DictionaryProperties.subtype];
-              if (primitive is _PdfName) {
-                final _PdfName subtype =
-                    descendantDictionary[_DictionaryProperties.subtype]!
-                        as _PdfName;
-                if (subtype._name == 'CIDFontType2' ||
-                    subtype._name == 'CIDFontType0') {
+                .containsKey(PdfDictionaryProperties.subtype)) {
+              primitive = descendantDictionary[PdfDictionaryProperties.subtype];
+              if (primitive is PdfName) {
+                final PdfName subtype =
+                    descendantDictionary[PdfDictionaryProperties.subtype]!
+                        as PdfName;
+                if (subtype.name == 'CIDFontType2' ||
+                    subtype.name == 'CIDFontType0') {
                   iscid = true;
                 }
               }
@@ -3091,6 +3202,7 @@ class _FontStructure {
     return iscid;
   }
 
+  /// internal method
   String getRawString(String decodedText) {
     String rawString = '';
     int charCode = 0;
@@ -3164,14 +3276,14 @@ class _FontStructure {
     return decodedText;
   }
 
-  // Takes in the decoded text and maps it with its
-  // corresponding entry in the CharacterMapTable
+  /// Takes in the decoded text and maps it with its
+  /// corresponding entry in the CharacterMapTable
   String mapDifferences(String? encodedText) {
     String decodedText = '';
     bool skip = false;
     if (isTextExtraction) {
       try {
-        encodedText = _unescape(encodedText!);
+        encodedText = unescape(encodedText!);
       } catch (e) {
         if (encodedText != null && encodedText.isNotEmpty) {
           encodedText = RegExp.escape(encodedText)
@@ -3189,7 +3301,7 @@ class _FontStructure {
       if (differencesDictionary.containsKey(character.toString())) {
         final String tempString = differencesDictionary[character.toString()]!;
         if ((tempString.length > 1) &&
-            (fontType!._name != 'Type3') &&
+            (fontType!.name != 'Type3') &&
             (!isTextExtraction)) {
           decodedText += character.toString();
         } else {
@@ -3203,7 +3315,7 @@ class _FontStructure {
             decodedText += textDecoded;
           } else {
             if (!differencesDictionary.containsKey(character.toString())) {
-              final _AdobeGlyphList glyphList = _AdobeGlyphList();
+              final AdobeGlyphList glyphList = AdobeGlyphList();
               decodedText += glyphList.getUnicode(tempString)!;
               glyphList.map!.clear();
             } else {
@@ -3258,6 +3370,7 @@ class _FontStructure {
     return decodedText;
   }
 
+  /// internal method
   String mapZapf(String encodedText) {
     String decodedtext = '';
     for (int i = 0; i < encodedText.length; i++) {
@@ -4088,6 +4201,7 @@ class _FontStructure {
     return decodedtext;
   }
 
+  /// internal method
   String mapDifferenceOfWingDings(String decodedText) {
     if (decodedText.length > 1 && decodedText.contains('c')) {
       if (decodedText.indexOf('c') == 0) {
@@ -4104,6 +4218,7 @@ class _FontStructure {
     return decodedText;
   }
 
+  /// internal method
   String mapCidToGid(String decodedText) {
     String finalText = '';
     bool skip = false;
@@ -4192,6 +4307,7 @@ class _FontStructure {
     return finalText;
   }
 
+  /// internal method
   bool hasEscapeCharacter(String text) {
     return text.contains(r'\u0007') ||
         text.contains(r'\') ||
@@ -4205,7 +4321,7 @@ class _FontStructure {
         text.contains(r'\u0000');
   }
 
-  // Decodes the octal text in the encoded text.
+  /// Decodes the octal text in the encoded text.
   String getLiteralString(String encodedText) {
     String decodedText = encodedText;
     int octalIndex = -1;
@@ -4250,10 +4366,10 @@ class _FontStructure {
         String temp = '';
         final String decodedChar = String.fromCharCode(decimalValue);
         if (characterMapTable.isNotEmpty) {
-          temp = decodedChar.toString();
+          temp = decodedChar;
         } else if (differencesDictionary.isNotEmpty &&
             differencesDictionary.containsKey(decimalValue.toString())) {
-          temp = decodedChar.toString();
+          temp = decodedChar;
         } else {
           if (fontEncoding != 'MacRomanEncoding') {
             final List<int> charbytes = <int>[decimalValue.toUnsigned(8)];
@@ -4298,7 +4414,7 @@ class _FontStructure {
         final int index = decodedText.indexOf(r'\');
         final String char = decodedText[index + 1];
         if (char == '(' || char == ')') {
-          _unescape(decodedText);
+          unescape(decodedText);
           // ignore: use_raw_strings
         } else if (!decodedText.contains('\\\\')) {
           int initialLength = 0;
@@ -4314,7 +4430,7 @@ class _FontStructure {
       getMacEncodeTable();
       for (int i = 0; i < decodedText.length; i++) {
         final int decimalValue = decodedText[i].codeUnitAt(0);
-        if (_macEncodeTable!.containsValue(decodedText[i].toString())) {
+        if (_macEncodeTable!.containsValue(decodedText[i])) {
           if (!_macRomanMapTable.containsKey(decimalValue)) {
             final int charbytes = decimalValue.toUnsigned(8);
             _macRomanMapTable[decimalValue] = String.fromCharCode(charbytes);
@@ -4339,7 +4455,7 @@ class _FontStructure {
             decimalValue == 209) {
           final String mappedChar = String.fromCharCode(149);
           if (!_winansiMapTable.containsKey(decimalValue)) {
-            _winansiMapTable[decimalValue] = mappedChar.toString();
+            _winansiMapTable[decimalValue] = mappedChar;
           }
         }
       }
@@ -4358,17 +4474,17 @@ class _FontStructure {
     return result;
   }
 
-// Decodes the HEX encoded string and returns Decoded string.
+  /// Decodes the HEX encoded string and returns Decoded string.
   String getHexaDecimalString(String hexEncodedText) {
     String decodedText = '';
     // IsHexaDecimalString = true;
     if (hexEncodedText.isNotEmpty) {
-      final _PdfName fontType =
-          fontDictionary._items![_PdfName('Subtype')]! as _PdfName;
+      final PdfName fontType =
+          fontDictionary.items![PdfName('Subtype')]! as PdfName;
       int limit = 2;
-      if (fontType._name != 'Type1' &&
-          fontType._name != 'TrueType' &&
-          fontType._name != 'Type3') {
+      if (fontType.name != 'Type1' &&
+          fontType.name != 'TrueType' &&
+          fontType.name != 'Type3') {
         limit = 4;
       }
       hexEncodedText = escapeSymbols(hexEncodedText);
@@ -4381,97 +4497,98 @@ class _FontStructure {
         }
         String hexChar = hexEncodedText.substring(0, limit);
 
-        if (fontDictionary.containsKey(_DictionaryProperties.descendantFonts) &&
-            !fontDictionary.containsKey(_DictionaryProperties.toUnicode)) {
-          final _PdfArray? descendantArray =
-              fontDictionary[_DictionaryProperties.descendantFonts]
-                  as _PdfArray?;
+        if (fontDictionary
+                .containsKey(PdfDictionaryProperties.descendantFonts) &&
+            !fontDictionary.containsKey(PdfDictionaryProperties.toUnicode)) {
+          final PdfArray? descendantArray =
+              fontDictionary[PdfDictionaryProperties.descendantFonts]
+                  as PdfArray?;
           if (descendantArray != null) {
-            _PdfDictionary? descendantDictionary;
-            if (descendantArray[0] is _PdfReferenceHolder) {
-              descendantDictionary =
-                  (descendantArray[0]! as _PdfReferenceHolder).object
-                      as _PdfDictionary?;
-            } else if (descendantArray[0] is _PdfDictionary) {
-              descendantDictionary = descendantArray[0]! as _PdfDictionary;
+            PdfDictionary? descendantDictionary;
+            if (descendantArray[0] is PdfReferenceHolder) {
+              descendantDictionary = (descendantArray[0]! as PdfReferenceHolder)
+                  .object as PdfDictionary?;
+            } else if (descendantArray[0] is PdfDictionary) {
+              descendantDictionary = descendantArray[0]! as PdfDictionary;
             }
             if (descendantDictionary != null) {
-              _PdfDictionary? descriptorDictionary;
+              PdfDictionary? descriptorDictionary;
               if (descendantDictionary
-                  .containsKey(_DictionaryProperties.fontDescriptor)) {
-                _IPdfPrimitive? primitive =
-                    descendantDictionary[_DictionaryProperties.fontDescriptor];
-                if (primitive is _PdfReferenceHolder) {
+                  .containsKey(PdfDictionaryProperties.fontDescriptor)) {
+                IPdfPrimitive? primitive = descendantDictionary[
+                    PdfDictionaryProperties.fontDescriptor];
+                if (primitive is PdfReferenceHolder) {
                   primitive = primitive.object;
-                  if (primitive != null && primitive is _PdfDictionary) {
+                  if (primitive != null && primitive is PdfDictionary) {
                     descriptorDictionary = primitive;
                   }
-                } else if (primitive is _PdfDictionary) {
+                } else if (primitive is PdfDictionary) {
                   descriptorDictionary = primitive;
                 }
               }
               if (descriptorDictionary != null) {
                 if (descendantDictionary
-                        .containsKey(_DictionaryProperties.subtype) &&
+                        .containsKey(PdfDictionaryProperties.subtype) &&
                     !descriptorDictionary
-                        .containsKey(_DictionaryProperties.fontFile2)) {
-                  final _PdfName subtype =
-                      descendantDictionary[_DictionaryProperties.subtype]!
-                          as _PdfName;
-                  if (subtype._name == 'CIDFontType2') {
+                        .containsKey(PdfDictionaryProperties.fontFile2)) {
+                  final PdfName subtype =
+                      descendantDictionary[PdfDictionaryProperties.subtype]!
+                          as PdfName;
+                  if (subtype.name == 'CIDFontType2') {
                     hexChar = mapHebrewCharacters(hexChar);
                   }
                 }
               }
             }
-          } else if (fontDictionary._items!
-              .containsKey(_PdfName(_DictionaryProperties.descendantFonts))) {
-            final _PdfReferenceHolder? descendantFontArrayReference =
-                fontDictionary._items![
-                        _PdfName(_DictionaryProperties.descendantFonts)]
-                    as _PdfReferenceHolder?;
+          } else if (fontDictionary.items!
+              .containsKey(PdfName(PdfDictionaryProperties.descendantFonts))) {
+            final PdfReferenceHolder? descendantFontArrayReference =
+                fontDictionary.items![
+                        PdfName(PdfDictionaryProperties.descendantFonts)]
+                    as PdfReferenceHolder?;
             if (descendantFontArrayReference != null) {
-              _PdfName? subtype;
-              final _PdfArray descendantFontArray =
-                  descendantFontArrayReference.object! as _PdfArray;
-              if (descendantFontArray[0] is _PdfReferenceHolder) {
-                final _PdfDictionary? descendantDictionary =
-                    (descendantFontArray[0]! as _PdfReferenceHolder).object
-                        as _PdfDictionary?;
+              PdfName? subtype;
+              final PdfArray descendantFontArray =
+                  descendantFontArrayReference.object! as PdfArray;
+              if (descendantFontArray[0] is PdfReferenceHolder) {
+                final PdfDictionary? descendantDictionary =
+                    (descendantFontArray[0]! as PdfReferenceHolder).object
+                        as PdfDictionary?;
                 if (descendantDictionary != null &&
                     descendantDictionary
-                        .containsKey(_DictionaryProperties.cidSystemInfo) &&
+                        .containsKey(PdfDictionaryProperties.cidSystemInfo) &&
                     descendantDictionary
-                        .containsKey(_DictionaryProperties.subtype)) {
-                  subtype = descendantDictionary[_DictionaryProperties.subtype]
-                      as _PdfName?;
-                  final _PdfDictionary? cidSystemInfo = (descendantDictionary[
-                              _DictionaryProperties.cidSystemInfo]!
-                          as _PdfReferenceHolder)
-                      .object as _PdfDictionary?;
+                        .containsKey(PdfDictionaryProperties.subtype)) {
+                  subtype =
+                      descendantDictionary[PdfDictionaryProperties.subtype]
+                          as PdfName?;
+                  final PdfDictionary? cidSystemInfo = (descendantDictionary[
+                              PdfDictionaryProperties.cidSystemInfo]!
+                          as PdfReferenceHolder)
+                      .object as PdfDictionary?;
                   if (cidSystemInfo != null &&
                       cidSystemInfo
-                          .containsKey(_DictionaryProperties.registry) &&
+                          .containsKey(PdfDictionaryProperties.registry) &&
                       cidSystemInfo
-                          .containsKey(_DictionaryProperties.ordering) &&
+                          .containsKey(PdfDictionaryProperties.ordering) &&
                       cidSystemInfo
-                          .containsKey(_DictionaryProperties.supplement)) {
-                    final _PdfString pdfRegistry =
-                        cidSystemInfo[_DictionaryProperties.registry]!
-                            as _PdfString;
-                    final _PdfNumber? pdfSupplement =
-                        cidSystemInfo[_DictionaryProperties.supplement]
-                            as _PdfNumber?;
-                    final _PdfString? pdfOrdering =
-                        cidSystemInfo[_DictionaryProperties.ordering]
-                            as _PdfString?;
+                          .containsKey(PdfDictionaryProperties.supplement)) {
+                    final PdfString pdfRegistry =
+                        cidSystemInfo[PdfDictionaryProperties.registry]!
+                            as PdfString;
+                    final PdfNumber? pdfSupplement =
+                        cidSystemInfo[PdfDictionaryProperties.supplement]
+                            as PdfNumber?;
+                    final PdfString? pdfOrdering =
+                        cidSystemInfo[PdfDictionaryProperties.ordering]
+                            as PdfString?;
                     if (pdfRegistry.value != null &&
                         pdfSupplement!.value != null &&
                         pdfOrdering!.value != null) {
                       if (pdfRegistry.value == 'Adobe' &&
                           pdfOrdering.value == 'Identity' &&
                           pdfSupplement.value == 0 &&
-                          subtype!._name == 'CIDFontType2' &&
+                          subtype!.name == 'CIDFontType2' &&
                           cidSystemInfoDictionary == null &&
                           !isContainFontfile2) {
                         isAdobeIdentity = true;
@@ -4487,7 +4604,7 @@ class _FontStructure {
         decodedText +=
             String.fromCharCode(int.parse(hexChar, radix: 16).toSigned(64));
         hexEncodedText = hexEncodedText.substring(limit, hexEncodedText.length);
-        decodedTxt = decodedText.toString();
+        decodedTxt = decodedText;
       }
       if ((decodedTxt.contains('') ||
               decodedTxt.contains('') ||
@@ -4503,6 +4620,7 @@ class _FontStructure {
     return decodedText;
   }
 
+  /// internal method
   String mapHebrewCharacters(String hexChar) {
     if (hexChar.substring(0, 2) == '02') {
       int i = int.parse(hexChar);
@@ -4522,6 +4640,7 @@ class _FontStructure {
     return hexChar;
   }
 
+  /// internal method
   String mapIdentityCharacters(String hexChar) {
     if (hexChar.substring(0, 2) == '00') {
       if (hexChar.substring(2, 3) != '0' || hexChar.substring(2, 3) != '1') {
@@ -4537,7 +4656,7 @@ class _FontStructure {
     return hexChar;
   }
 
-  // Method to remove the new line character
+  /// Method to remove the new line character
   String escapeSymbols(String text) {
     while (text.contains('\n')) {
       text = text.replaceAll('\n', '');
@@ -4545,8 +4664,8 @@ class _FontStructure {
     return text;
   }
 
-  // Takes in the decoded text and maps it with its
-  // corresponding entry in the CharacterMapTable
+  /// Takes in the decoded text and maps it with its
+  /// corresponding entry in the CharacterMapTable
   String mapCharactersFromTable(String decodedText) {
     String finalText = '';
     bool skip = false;
@@ -4557,7 +4676,7 @@ class _FontStructure {
         if (mappingString.contains('�')) {
           mappingString = mappingString.replaceAll('�', '');
           if (fontName!.contains('ZapfDingbats')) {
-            mappingString = character.toString();
+            mappingString = character;
           }
         }
         if (fontEncoding != 'Identity-H' &&
@@ -4567,14 +4686,14 @@ class _FontStructure {
               isNonPrintableCharacter(
                   character)) //Contains 'CANCEL' of ASCII value 24
           {
-            mappingString = character.toString();
+            mappingString = character;
           }
         }
         finalText += mappingString;
         skip = false;
       } else if (!characterMapTable.containsKey(character.codeUnitAt(0)) &&
           !skip) {
-        final List<int> bytes = _encodeBigEndian(character.toString());
+        final List<int> bytes = encodeBigEndian(character);
         if (bytes[0] != 92) {
           if (characterMapTable.containsKey(bytes[0])) {
             finalText += characterMapTable[bytes[0]]!;
@@ -4594,7 +4713,7 @@ class _FontStructure {
         skip = false;
       } else {
         if (skip) {
-          switch (character.toString()) {
+          switch (character) {
             case 'n':
               if (characterMapTable.containsKey(10)) {
                 finalText += characterMapTable[10]!;
@@ -4654,6 +4773,7 @@ class _FontStructure {
     return finalText;
   }
 
+  /// internal method
   bool isCancel(String mappingString) {
     bool isCancel = false;
     if (mappingString == '') {
@@ -4662,11 +4782,11 @@ class _FontStructure {
     return isCancel;
   }
 
-  // Checks whether the specified character is Non-Printable character or not.
+  /// Checks whether the specified character is Non-Printable character or not.
   bool isNonPrintableCharacter(String str) {
     bool isNonPrintable = false;
     if (!isTextExtraction &&
-        fontType!._name == 'Type1' &&
+        fontType!.name == 'Type1' &&
         fontEncoding == 'Encoding' &&
         fontName != 'ZapfDingbats' &&
         (characterMapTable.length == differencesDictionary.length)) {

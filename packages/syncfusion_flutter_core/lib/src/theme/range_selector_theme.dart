@@ -200,28 +200,12 @@ class SfRangeSelectorThemeData extends SfRangeSliderThemeData {
       double? activeDividerStrokeWidth,
       double? inactiveDividerStrokeWidth}) {
     brightness = brightness ?? Brightness.light;
-    final bool isLight = brightness == Brightness.light;
     activeTrackHeight ??= 6.0;
     inactiveTrackHeight ??= 4.0;
     tickSize ??= const Size(1.0, 8.0);
     minorTickSize ??= const Size(1.0, 5.0);
     overlayRadius ??= 24.0;
     thumbRadius ??= 10.0;
-    activeTickColor ??= const Color.fromRGBO(158, 158, 158, 1);
-    inactiveTickColor ??= const Color.fromRGBO(158, 158, 158, 1);
-    activeMinorTickColor ??= const Color.fromRGBO(158, 158, 158, 1);
-    inactiveMinorTickColor ??= const Color.fromRGBO(158, 158, 158, 1);
-    disabledActiveTickColor ??= const Color.fromRGBO(189, 189, 189, 1);
-    disabledInactiveTickColor ??= const Color.fromRGBO(189, 189, 189, 1);
-    disabledActiveMinorTickColor ??= const Color.fromRGBO(189, 189, 189, 1);
-    disabledInactiveMinorTickColor ??= const Color.fromRGBO(189, 189, 189, 1);
-    disabledThumbColor ??= const Color.fromRGBO(158, 158, 158, 1);
-    activeRegionColor ??= isLight
-        ? const Color.fromRGBO(255, 255, 255, 1).withOpacity(0)
-        : const Color.fromRGBO(255, 255, 255, 1).withOpacity(0);
-    inactiveRegionColor ??= isLight
-        ? const Color.fromRGBO(255, 255, 255, 1).withOpacity(0.75)
-        : const Color.fromRGBO(48, 48, 48, 1).withOpacity(0.75);
 
     return SfRangeSelectorThemeData.raw(
         brightness: brightness,
@@ -295,14 +279,14 @@ class SfRangeSelectorThemeData extends SfRangeSliderThemeData {
     required Color? overlappingThumbStrokeColor,
     required Color? activeDividerStrokeColor,
     required Color? inactiveDividerStrokeColor,
-    required Color activeTickColor,
-    required Color inactiveTickColor,
-    required Color disabledActiveTickColor,
-    required Color disabledInactiveTickColor,
-    required Color activeMinorTickColor,
-    required Color inactiveMinorTickColor,
-    required Color disabledActiveMinorTickColor,
-    required Color disabledInactiveMinorTickColor,
+    required Color? activeTickColor,
+    required Color? inactiveTickColor,
+    required Color? disabledActiveTickColor,
+    required Color? disabledInactiveTickColor,
+    required Color? activeMinorTickColor,
+    required Color? inactiveMinorTickColor,
+    required Color? disabledActiveMinorTickColor,
+    required Color? disabledInactiveMinorTickColor,
     required Color? overlayColor,
     required Color? inactiveDividerColor,
     required Color? activeDividerColor,
@@ -310,7 +294,7 @@ class SfRangeSelectorThemeData extends SfRangeSliderThemeData {
     required Color? disabledInactiveTrackColor,
     required Color? disabledActiveDividerColor,
     required Color? disabledInactiveDividerColor,
-    required Color disabledThumbColor,
+    required Color? disabledThumbColor,
     required this.activeRegionColor,
     required this.inactiveRegionColor,
     required Color? tooltipBackgroundColor,
@@ -402,7 +386,7 @@ class SfRangeSelectorThemeData extends SfRangeSliderThemeData {
   ///    )
   /// )
   /// ```
-  final Color activeRegionColor;
+  final Color? activeRegionColor;
 
   /// Specifies the color for the inactive region of the child
   /// in the [SfRangeSelector].
@@ -442,7 +426,7 @@ class SfRangeSelectorThemeData extends SfRangeSliderThemeData {
   ///    )
   /// )
   /// ```
-  final Color inactiveRegionColor;
+  final Color? inactiveRegionColor;
 
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.

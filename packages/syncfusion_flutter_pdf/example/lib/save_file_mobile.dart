@@ -1,8 +1,8 @@
 import 'dart:io';
+
+import 'package:open_file/open_file.dart' as open_file;
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-// ignore: directives_ordering
-import 'package:open_file/open_file.dart' as open_file;
 
 ///To save the pdf file in the device
 Future<void> saveAndLaunchFile(List<int> bytes, String fileName) async {

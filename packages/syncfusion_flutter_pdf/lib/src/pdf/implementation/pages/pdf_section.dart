@@ -1,4 +1,27 @@
-part of pdf;
+import 'dart:ui';
+
+import 'package:syncfusion_flutter_pdf/src/pdf/implementation/pdf_document/pdf_document_template.dart';
+
+import '../../interfaces/pdf_interface.dart';
+import '../drawing/drawing.dart';
+import '../general/pdf_collection.dart';
+import '../graphics/pdf_margins.dart';
+import '../io/pdf_constants.dart';
+import '../pdf_document/pdf_document.dart';
+import '../pdf_document/pdf_document_template.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_reference_holder.dart';
+import 'enum.dart';
+import 'pdf_page.dart';
+import 'pdf_page_collection.dart';
+import 'pdf_page_layer.dart';
+import 'pdf_page_settings.dart';
+import 'pdf_page_template_element.dart';
+import 'pdf_section_collection.dart';
+import 'pdf_section_template.dart';
 
 /// Represents a section entity. A section is a set of the pages
 /// with similar page settings.
@@ -16,37 +39,30 @@ part of pdf;
 /// //Dispose the document.
 /// document.dispose();
 /// ```
-class PdfSection implements _IPdfWrapper {
+class PdfSection implements IPdfWrapper {
   //Constructor
   /// Initializes a new instance of the [PdfSection] class.
   PdfSection._(PdfDocument? document, [PdfPageSettings? settings]) {
-    _pageReferences = _PdfArray();
-    _section = _PdfDictionary();
-    _section!._beginSave = _beginSave;
-    _pageCount = _PdfNumber(0);
-    _section![_DictionaryProperties.count] = _pageCount;
-    _section![_DictionaryProperties.type] =
-        _PdfName(_DictionaryProperties.pages);
-    _section![_DictionaryProperties.kids] = _pageReferences;
-    _pdfDocument = document;
-    _settings =
-        settings != null ? settings._clone() : document!.pageSettings._clone();
+    _helper = PdfSectionHelper(this);
+    _helper.pageReferences = PdfArray();
+    _helper._section = PdfDictionary();
+    _helper._section!.beginSave = _helper.beginSave;
+    _helper._pageCount = PdfNumber(0);
+    _helper._section![PdfDictionaryProperties.count] = _helper._pageCount;
+    _helper._section![PdfDictionaryProperties.type] =
+        PdfName(PdfDictionaryProperties.pages);
+    _helper._section![PdfDictionaryProperties.kids] = _helper.pageReferences;
+    _helper.pdfDocument = document;
+    _helper.settings = settings != null
+        ? PdfPageSettingsHelper.getHelper(settings).clone()
+        : PdfPageSettingsHelper.getHelper(document!.pageSettings).clone();
   }
-
-  //Fields
-  _PdfArray? _pageReferences;
-  _PdfDictionary? _section;
-  _PdfNumber? _pageCount;
-  PdfDocument? _pdfDocument;
-  late PdfPageSettings _settings;
-  PdfSectionCollection? _sectionCollection;
-  bool? _isNewPageSection = false;
-  final List<PdfPage> _pages = <PdfPage>[];
 
   /// Event rises when the new page has been added
   PageAddedCallback? pageAdded;
   PdfSectionTemplate? _template;
   PdfPageCollection? _pageCollection;
+  late PdfSectionHelper _helper;
 
   //Properties
   /// Gets or sets the [PdfSectionTemplate] for the pages in the section.
@@ -94,7 +110,7 @@ class PdfSection implements _IPdfWrapper {
   /// document.dispose();
   /// ```
   PdfPageCollection get pages {
-    _pageCollection ??= PdfPageCollection._(_pdfDocument, this);
+    _pageCollection ??= PdfPageCollectionHelper.load(_helper.pdfDocument, this);
     return _pageCollection!;
   }
 
@@ -119,134 +135,173 @@ class PdfSection implements _IPdfWrapper {
   /// document.dispose();
   /// ```
   PdfPageSettings get pageSettings {
-    _settings._isPageAdded = _settings.margins._isPageAdded = _pages.isNotEmpty;
-    return _settings;
+    PdfMarginsHelper.getHelper(_helper.settings.margins).isPageAdded =
+        _helper._pages.isNotEmpty;
+    PdfPageSettingsHelper.getHelper(_helper.settings).isPageAdded =
+        _helper._pages.isNotEmpty;
+    return _helper.settings;
   }
 
   set pageSettings(PdfPageSettings settings) {
-    if (_pages.isEmpty) {
-      _settings = settings;
+    if (_helper._pages.isEmpty) {
+      _helper.settings = settings;
     }
   }
+}
 
-  /// Gets the parent.
-  PdfSectionCollection? get _parent => _sectionCollection;
+/// [PdfSection] helper
+class PdfSectionHelper {
+  /// internal constructor
+  PdfSectionHelper(this.base);
+
+  /// internal field
+  late PdfSection base;
+
+  /// internal method
+  static PdfSectionHelper getHelper(PdfSection base) {
+    return base._helper;
+  }
+
+  /// internal method
+  static PdfSection load(PdfDocument? document, [PdfPageSettings? settings]) {
+    return PdfSection._(document, settings);
+  }
+
+  /// internal field
+  PdfDictionary? _section;
+  PdfSectionCollection? _sectionCollection;
+  final List<PdfPage> _pages = <PdfPage>[];
+  PdfNumber? _pageCount;
+
+  /// internal method
+  IPdfPrimitive? get element => _section;
+  //ignore: unused_element
+  set element(IPdfPrimitive? value) {
+    _section = value as PdfDictionary?;
+  }
+
+  /// internal method
+  PdfArray? pageReferences;
+
+  /// internal method
+  PdfDocument? pdfDocument;
+
+  /// internal method
+  late PdfPageSettings settings;
+
+  /// internal method
+  bool? isNewPageSection = false;
+
+  /// internal method
+  PdfSectionCollection? get parent => _sectionCollection;
 
   /// Sets the parent.
-  set _parent(PdfSectionCollection? sections) {
+  set parent(PdfSectionCollection? sections) {
     _sectionCollection = sections;
     if (sections != null) {
-      _section![_DictionaryProperties.parent] = _PdfReferenceHolder(sections);
+      _section![PdfDictionaryProperties.parent] = PdfReferenceHolder(sections);
     } else {
-      _section!.remove(_DictionaryProperties.parent);
+      _section!.remove(PdfDictionaryProperties.parent);
     }
   }
 
-  /// Gets the document.
-  PdfDocument? get _document {
+  /// internal method
+  PdfDocument? get document {
     if (_sectionCollection != null) {
-      return _sectionCollection!._document;
+      return PdfSectionCollectionHelper.getHelper(_sectionCollection!).document;
     } else {
       return null;
     }
   }
 
-  /// Gets the count of the pages in the section.
-  int get _count => _pageReferences!.count;
+  /// internal method
+  int get count => pageReferences!.count;
 
-  //Implementation
-  void _add(PdfPage page) {
-    if (!_isNewPageSection!) {
-      _isNewPageSection = page._isNewPage;
+  /// internal method
+  void add(PdfPage page) {
+    if (!isNewPageSection!) {
+      isNewPageSection = PdfPageHelper.getHelper(page).isNewPage;
     }
-    final _PdfReferenceHolder holder = _PdfReferenceHolder(page);
-    _isNewPageSection = false;
+    final PdfReferenceHolder holder = PdfReferenceHolder(page);
+    isNewPageSection = false;
     _pages.add(page);
-    _pageReferences!._add(holder);
-    page._assignSection(this);
+    pageReferences!.add(holder);
+    PdfPageHelper.getHelper(page).assignSection(base);
     _pdfPageAdded(page);
   }
 
-  void _remove(PdfPage page) {
-    final _PdfReferenceHolder r = _PdfReferenceHolder(page);
-    if (_pageReferences!._contains(r)) {
-      _pageReferences!._elements.remove(r);
-      _pages.remove(page);
+  void _pdfPageAdded(PdfPage page) {
+    final PageAddedArgs args = PageAddedArgs(page);
+    _onPageAdded(args);
+    final PdfSectionCollection? sectionCollection = parent;
+    if (sectionCollection != null) {
+      PdfPageCollectionHelper.getHelper(
+              PdfSectionCollectionHelper.getHelper(sectionCollection)
+                  .document!
+                  .pages)
+          .onPageAdded(args);
+    }
+    _pageCount!.value = count;
+  }
+
+  void _onPageAdded(PageAddedArgs args) {
+    if (base.pageAdded != null) {
+      base.pageAdded!(base, args);
     }
   }
 
-  PdfPage? _getPageByIndex(int index) {
-    if (index < 0 || index >= _count) {
+  /// internal method
+  void remove(PdfPage page) {
+    for (int i = 0; i < pageReferences!.elements.length; i++) {
+      final IPdfPrimitive? pageReference = pageReferences!.elements[i];
+      if (pageReference != null &&
+          pageReference is PdfReferenceHolder &&
+          pageReference.object == PdfPageHelper.getHelper(page).element) {
+        pageReferences!.elements.removeAt(i);
+        _pages.remove(page);
+        break;
+      }
+    }
+  }
+
+  /// internal method
+  PdfPage? getPageByIndex(int index) {
+    if (index < 0 || index >= count) {
       throw ArgumentError.value(index, 'our of range');
     }
     return _pages[index];
   }
 
-  void _setPageSettings(_PdfDictionary container,
-      [PdfPageSettings? parentSettings]) {
-    if (parentSettings == null || pageSettings._size != parentSettings._size) {
-      final _Rectangle bounds = _Rectangle(_settings._origin.x,
-          _settings._origin.y, _settings.size.width, _settings.size.height);
-      container[_DictionaryProperties.mediaBox] =
-          _PdfArray.fromRectangle(bounds);
-    }
-    if (parentSettings == null ||
-        pageSettings.rotate != parentSettings.rotate) {
-      int rotate = 0;
-      if (_sectionCollection != null) {
-        if (pageSettings._isRotation && !_document!.pageSettings._isRotation) {
-          rotate =
-              PdfSectionCollection._rotateFactor * pageSettings.rotate.index;
-        } else {
-          if (!_document!.pageSettings._isRotation &&
-              pageSettings.rotate != PdfPageRotateAngle.rotateAngle0) {
-            rotate =
-                PdfSectionCollection._rotateFactor * pageSettings.rotate.index;
-          } else {
-            if (pageSettings._isRotation) {
-              rotate = PdfSectionCollection._rotateFactor *
-                  pageSettings.rotate.index;
-            } else if (parentSettings != null) {
-              rotate = PdfSectionCollection._rotateFactor *
-                  parentSettings.rotate.index;
-            }
-          }
-        }
-      } else {
-        rotate = PdfSectionCollection._rotateFactor * pageSettings.rotate.index;
-      }
-      final _PdfNumber angle = _PdfNumber(rotate);
-      if (angle.value != 0) {
-        container[_DictionaryProperties.rotate] = angle;
-      }
-    }
-  }
-
-  _Rectangle _getActualBounds(PdfPage page, bool includeMargins,
+  /// internal method
+  PdfRectangle getActualBounds(PdfPage page, bool includeMargins,
       [PdfDocument? document]) {
     if (document == null) {
-      if (_parent != null) {
-        final PdfDocument? pdfDocument = _parent!._document;
-        return _getActualBounds(page, includeMargins, pdfDocument!);
+      if (parent != null) {
+        final PdfDocument? pdfDocument =
+            PdfSectionCollectionHelper.getHelper(parent!).document;
+        return getActualBounds(page, includeMargins, pdfDocument);
       } else {
-        final _Size size = includeMargins
-            ? _Size.fromSize(pageSettings._getActualSize())
-            : pageSettings.size as _Size;
-        final double left = includeMargins ? pageSettings.margins.left : 0;
-        final double top = includeMargins ? pageSettings.margins.top : 0;
-        return _Rectangle(left, top, size.width, size.height);
+        final PdfSize size = includeMargins
+            ? PdfSize.fromSize(
+                PdfPageSettingsHelper.getHelper(base.pageSettings)
+                    .getActualSize())
+            : base.pageSettings.size as PdfSize;
+        final double left = includeMargins ? base.pageSettings.margins.left : 0;
+        final double top = includeMargins ? base.pageSettings.margins.top : 0;
+        return PdfRectangle(left, top, size.width, size.height);
       }
     } else {
-      final _Rectangle bounds = _Rectangle.empty;
-      final Size size =
-          includeMargins ? pageSettings.size : pageSettings._getActualSize();
+      final PdfRectangle bounds = PdfRectangle.empty;
+      final Size size = includeMargins
+          ? base.pageSettings.size
+          : PdfPageSettingsHelper.getHelper(base.pageSettings).getActualSize();
       bounds.width = size.width;
       bounds.height = size.height;
-      final double left = _getLeftIndentWidth(document, page, includeMargins);
-      final double top = _getTopIndentHeight(document, page, includeMargins);
-      final double right = _getRightIndentWidth(document, page, includeMargins);
+      final double left = getLeftIndentWidth(document, page, includeMargins);
+      final double top = getTopIndentHeight(document, page, includeMargins);
+      final double right = getRightIndentWidth(document, page, includeMargins);
       final double bottom =
-          _getBottomIndentHeight(document, page, includeMargins);
+          getBottomIndentHeight(document, page, includeMargins);
       bounds.x += left;
       bounds.y += top;
       bounds.width -= left + right;
@@ -255,29 +310,47 @@ class PdfSection implements _IPdfWrapper {
     }
   }
 
-  double _getLeftIndentWidth(
+  /// internal method
+  double getLeftIndentWidth(
       PdfDocument document, PdfPage page, bool includeMargins) {
-    double value = includeMargins ? pageSettings.margins.left : 0;
+    double value = includeMargins ? base.pageSettings.margins.left : 0;
     final double templateWidth =
-        template._getLeft(page) != null ? template._getLeft(page)!.width : 0;
-    final double docTemplateWidth = document.template._getLeft(page) != null
-        ? document.template._getLeft(page)!.width
-        : 0;
-    value += template.leftTemplate
+        PdfDocumentTemplateHelper.getHelper(base.template).getLeft(page) != null
+            ? PdfDocumentTemplateHelper.getHelper(base.template)
+                .getLeft(page)!
+                .width
+            : 0;
+    final double docTemplateWidth =
+        PdfDocumentTemplateHelper.getHelper(document.template).getLeft(page) !=
+                null
+            ? PdfDocumentTemplateHelper.getHelper(document.template)
+                .getLeft(page)!
+                .width
+            : 0;
+    value += base.template.leftTemplate
         ? (templateWidth >= docTemplateWidth ? templateWidth : docTemplateWidth)
         : templateWidth;
     return value;
   }
 
-  double _getTopIndentHeight(
+  /// internal method
+  double getTopIndentHeight(
       PdfDocument document, PdfPage page, bool includeMargins) {
-    double value = includeMargins ? pageSettings.margins.top : 0;
+    double value = includeMargins ? base.pageSettings.margins.top : 0;
     final double templateHeight =
-        template._getTop(page) != null ? template._getTop(page)!.height : 0;
-    final double docTemplateHeight = document.template._getTop(page) != null
-        ? document.template._getTop(page)!.height
-        : 0;
-    value += template.topTemplate
+        PdfDocumentTemplateHelper.getHelper(base.template).getTop(page) != null
+            ? PdfDocumentTemplateHelper.getHelper(base.template)
+                .getTop(page)!
+                .height
+            : 0;
+    final double docTemplateHeight =
+        PdfDocumentTemplateHelper.getHelper(document.template).getTop(page) !=
+                null
+            ? PdfDocumentTemplateHelper.getHelper(document.template)
+                .getTop(page)!
+                .height
+            : 0;
+    value += base.template.topTemplate
         ? (templateHeight >= docTemplateHeight
             ? templateHeight
             : docTemplateHeight)
@@ -285,30 +358,50 @@ class PdfSection implements _IPdfWrapper {
     return value;
   }
 
-  double _getRightIndentWidth(
+  /// internal method
+  double getRightIndentWidth(
       PdfDocument document, PdfPage page, bool includeMargins) {
-    double value = includeMargins ? pageSettings.margins.right : 0;
+    double value = includeMargins ? base.pageSettings.margins.right : 0;
     final double templateWidth =
-        template._getRight(page) != null ? template._getRight(page)!.width : 0;
-    final double docTemplateWidth = document.template._getRight(page) != null
-        ? document.template._getRight(page)!.width
-        : 0;
-    value += template.rightTemplate
+        PdfDocumentTemplateHelper.getHelper(base.template).getRight(page) !=
+                null
+            ? PdfDocumentTemplateHelper.getHelper(base.template)
+                .getRight(page)!
+                .width
+            : 0;
+    final double docTemplateWidth =
+        PdfDocumentTemplateHelper.getHelper(document.template).getRight(page) !=
+                null
+            ? PdfDocumentTemplateHelper.getHelper(document.template)
+                .getRight(page)!
+                .width
+            : 0;
+    value += base.template.rightTemplate
         ? (templateWidth >= docTemplateWidth ? templateWidth : docTemplateWidth)
         : templateWidth;
     return value;
   }
 
-  double _getBottomIndentHeight(
+  /// internal method
+  double getBottomIndentHeight(
       PdfDocument document, PdfPage page, bool includeMargins) {
-    double value = includeMargins ? pageSettings.margins.bottom : 0;
-    final double templateHeight = template._getBottom(page) != null
-        ? template._getBottom(page)!.height
-        : 0;
-    final double docTemplateHeight = document.template._getBottom(page) != null
-        ? document.template._getBottom(page)!.height
-        : 0;
-    value += template.bottomTemplate
+    double value = includeMargins ? base.pageSettings.margins.bottom : 0;
+    final double templateHeight =
+        PdfDocumentTemplateHelper.getHelper(base.template).getBottom(page) !=
+                null
+            ? PdfDocumentTemplateHelper.getHelper(base.template)
+                .getBottom(page)!
+                .height
+            : 0;
+    final double docTemplateHeight =
+        PdfDocumentTemplateHelper.getHelper(document.template)
+                    .getBottom(page) !=
+                null
+            ? PdfDocumentTemplateHelper.getHelper(document.template)
+                .getBottom(page)!
+                .height
+            : 0;
+    value += base.template.bottomTemplate
         ? (templateHeight >= docTemplateHeight
             ? templateHeight
             : docTemplateHeight)
@@ -316,9 +409,10 @@ class PdfSection implements _IPdfWrapper {
     return value;
   }
 
-  void _beginSave(Object sender, _SavePdfPrimitiveArgs? args) {
-    _pageCount!.value = _count;
-    final PdfDocument? document = args!._writer!._document;
+  /// internal method
+  void beginSave(Object sender, SavePdfPrimitiveArgs? args) {
+    _pageCount!.value = count;
+    final PdfDocument? document = args!.writer!.document;
     if (document == null) {
       _setPageSettings(_section!);
     } else {
@@ -326,31 +420,65 @@ class PdfSection implements _IPdfWrapper {
     }
   }
 
-  void _pdfPageAdded(PdfPage page) {
-    final PageAddedArgs args = PageAddedArgs(page);
-    _onPageAdded(args);
-    final PdfSectionCollection? sectionCollection = _parent;
-    if (sectionCollection != null) {
-      sectionCollection._document!.pages._onPageAdded(args);
+  void _setPageSettings(PdfDictionary container,
+      [PdfPageSettings? parentSettings]) {
+    if (parentSettings == null ||
+        base.pageSettings.size != parentSettings.size) {
+      final PdfRectangle bounds = PdfRectangle(
+          PdfPageSettingsHelper.getHelper(settings).origin.x,
+          PdfPageSettingsHelper.getHelper(settings).origin.y,
+          settings.size.width,
+          settings.size.height);
+      container[PdfDictionaryProperties.mediaBox] =
+          PdfArray.fromRectangle(bounds);
     }
-    _pageCount!.value = _count;
+    if (parentSettings == null ||
+        base.pageSettings.rotate != parentSettings.rotate) {
+      int rotate = 0;
+      if (_sectionCollection != null) {
+        if (PdfPageSettingsHelper.getHelper(base.pageSettings).isRotation &&
+            !PdfPageSettingsHelper.getHelper(document!.pageSettings)
+                .isRotation) {
+          rotate = PdfSectionCollectionHelper.rotateFactor *
+              base.pageSettings.rotate.index;
+        } else {
+          if (!PdfPageSettingsHelper.getHelper(document!.pageSettings)
+                  .isRotation &&
+              base.pageSettings.rotate != PdfPageRotateAngle.rotateAngle0) {
+            rotate = PdfSectionCollectionHelper.rotateFactor *
+                base.pageSettings.rotate.index;
+          } else {
+            if (PdfPageSettingsHelper.getHelper(base.pageSettings).isRotation) {
+              rotate = PdfSectionCollectionHelper.rotateFactor *
+                  base.pageSettings.rotate.index;
+            } else if (parentSettings != null) {
+              rotate = PdfSectionCollectionHelper.rotateFactor *
+                  parentSettings.rotate.index;
+            }
+          }
+        }
+      } else {
+        rotate = PdfSectionCollectionHelper.rotateFactor *
+            base.pageSettings.rotate.index;
+      }
+      final PdfNumber angle = PdfNumber(rotate);
+      if (angle.value != 0) {
+        container[PdfDictionaryProperties.rotate] = angle;
+      }
+    }
   }
 
-  void _onPageAdded(PageAddedArgs args) {
-    if (pageAdded != null) {
-      pageAdded!(this, args);
-    }
-  }
-
-  int _indexOf(PdfPage page) {
+  /// internal method
+  int indexOf(PdfPage page) {
     if (_pages.contains(page)) {
       return _pages.indexOf(page);
     }
-    final _PdfReferenceHolder holder = _PdfReferenceHolder(page);
-    return _pageReferences!._indexOf(holder);
+    final PdfReferenceHolder holder = PdfReferenceHolder(page);
+    return pageReferences!.indexOf(holder);
   }
 
-  bool _containsTemplates(PdfDocument document, PdfPage page, bool foreground) {
+  /// internal method
+  bool containsTemplates(PdfDocument document, PdfPage page, bool foreground) {
     final List<PdfPageTemplateElement?> documentHeaders =
         _getDocumentTemplates(document, page, true, foreground);
     final List<PdfPageTemplateElement?> documentTemplates =
@@ -370,28 +498,52 @@ class PdfSection implements _IPdfWrapper {
       PdfDocument document, PdfPage page, bool headers, bool foreground) {
     final List<PdfPageTemplateElement> templates = <PdfPageTemplateElement>[];
     if (headers) {
-      if (template.topTemplate &&
-          document.template._getTop(page) != null &&
-          document.template._getTop(page)!.foreground == foreground) {
-        templates.add(document.template._getTop(page)!);
+      if (base.template.topTemplate &&
+          PdfDocumentTemplateHelper.getHelper(document.template).getTop(page) !=
+              null &&
+          PdfDocumentTemplateHelper.getHelper(document.template)
+                  .getTop(page)!
+                  .foreground ==
+              foreground) {
+        templates.add(PdfDocumentTemplateHelper.getHelper(document.template)
+            .getTop(page)!);
       }
-      if (template.bottomTemplate &&
-          document.template._getBottom(page) != null &&
-          document.template._getBottom(page)!.foreground == foreground) {
-        templates.add(document.template._getBottom(page)!);
+      if (base.template.bottomTemplate &&
+          PdfDocumentTemplateHelper.getHelper(document.template)
+                  .getBottom(page) !=
+              null &&
+          PdfDocumentTemplateHelper.getHelper(document.template)
+                  .getBottom(page)!
+                  .foreground ==
+              foreground) {
+        templates.add(PdfDocumentTemplateHelper.getHelper(document.template)
+            .getBottom(page)!);
       }
-      if (template.leftTemplate &&
-          document.template._getLeft(page) != null &&
-          document.template._getLeft(page)!.foreground == foreground) {
-        templates.add(document.template._getLeft(page)!);
+      if (base.template.leftTemplate &&
+          PdfDocumentTemplateHelper.getHelper(document.template)
+                  .getLeft(page) !=
+              null &&
+          PdfDocumentTemplateHelper.getHelper(document.template)
+                  .getLeft(page)!
+                  .foreground ==
+              foreground) {
+        templates.add(PdfDocumentTemplateHelper.getHelper(document.template)
+            .getLeft(page)!);
       }
-      if (template.rightTemplate &&
-          document.template._getRight(page) != null &&
-          document.template._getRight(page)!.foreground == foreground) {
-        templates.add(document.template._getRight(page)!);
+      if (base.template.rightTemplate &&
+          PdfDocumentTemplateHelper.getHelper(document.template)
+                  .getRight(page) !=
+              null &&
+          PdfDocumentTemplateHelper.getHelper(document.template)
+                  .getRight(page)!
+                  .foreground ==
+              foreground) {
+        templates.add(PdfDocumentTemplateHelper.getHelper(document.template)
+            .getRight(page)!);
       }
-    } else if (template.stamp) {
-      final List<Object> list = document.template.stamps._list;
+    } else if (base.template.stamp) {
+      final List<Object> list =
+          PdfObjectCollectionHelper.getHelper(document.template.stamps).list;
       for (int i = 0; i < list.length; i++) {
         final PdfPageTemplateElement template =
             list[i] as PdfPageTemplateElement;
@@ -407,24 +559,45 @@ class PdfSection implements _IPdfWrapper {
       PdfPage page, bool headers, bool foreground) {
     final List<PdfPageTemplateElement> templates = <PdfPageTemplateElement>[];
     if (headers) {
-      if (template._getTop(page) != null &&
-          template._getTop(page)!.foreground == foreground) {
-        templates.add(template._getTop(page)!);
+      if (PdfDocumentTemplateHelper.getHelper(base.template).getTop(page) !=
+              null &&
+          PdfDocumentTemplateHelper.getHelper(base.template)
+                  .getTop(page)!
+                  .foreground ==
+              foreground) {
+        templates.add(
+            PdfDocumentTemplateHelper.getHelper(base.template).getTop(page)!);
       }
-      if (template._getBottom(page) != null &&
-          template._getBottom(page)!.foreground == foreground) {
-        templates.add(template._getBottom(page)!);
+      if (PdfDocumentTemplateHelper.getHelper(base.template).getBottom(page) !=
+              null &&
+          PdfDocumentTemplateHelper.getHelper(base.template)
+                  .getBottom(page)!
+                  .foreground ==
+              foreground) {
+        templates.add(PdfDocumentTemplateHelper.getHelper(base.template)
+            .getBottom(page)!);
       }
-      if (template._getLeft(page) != null &&
-          template._getLeft(page)!.foreground == foreground) {
-        templates.add(template._getLeft(page)!);
+      if (PdfDocumentTemplateHelper.getHelper(base.template).getLeft(page) !=
+              null &&
+          PdfDocumentTemplateHelper.getHelper(base.template)
+                  .getLeft(page)!
+                  .foreground ==
+              foreground) {
+        templates.add(
+            PdfDocumentTemplateHelper.getHelper(base.template).getLeft(page)!);
       }
-      if (template._getRight(page) != null &&
-          template._getRight(page)!.foreground == foreground) {
-        templates.add(template._getRight(page)!);
+      if (PdfDocumentTemplateHelper.getHelper(base.template).getRight(page) !=
+              null &&
+          PdfDocumentTemplateHelper.getHelper(base.template)
+                  .getRight(page)!
+                  .foreground ==
+              foreground) {
+        templates.add(
+            PdfDocumentTemplateHelper.getHelper(base.template).getRight(page)!);
       }
     } else {
-      final List<Object> list = template.stamps._list;
+      final List<Object> list =
+          PdfObjectCollectionHelper.getHelper(base.template.stamps).list;
       for (int i = 0; i < list.length; i++) {
         final PdfPageTemplateElement temp = list[i] as PdfPageTemplateElement;
         if (temp.foreground == foreground) {
@@ -435,7 +608,8 @@ class PdfSection implements _IPdfWrapper {
     return templates;
   }
 
-  void _drawTemplates(
+  /// internal method
+  void drawTemplates(
       PdfPage page, PdfPageLayer layer, PdfDocument document, bool foreground) {
     final List<PdfPageTemplateElement> documentHeaders =
         _getDocumentTemplates(document, page, true, foreground);
@@ -462,31 +636,24 @@ class PdfSection implements _IPdfWrapper {
       List<PdfPageTemplateElement> templates) {
     if (templates.isNotEmpty) {
       for (final PdfPageTemplateElement template in templates) {
-        template._draw(layer, document);
+        PdfPageTemplateElementHelper.getHelper(template).draw(layer, document);
       }
     }
   }
 
-  _Point _pointToNativePdf(PdfPage page, _Point point) {
-    final _Rectangle bounds = _getActualBounds(page, true);
+  /// internal method
+  PdfPoint pointToNativePdf(PdfPage page, PdfPoint point) {
+    final PdfRectangle bounds = getActualBounds(page, true);
     point.x += bounds.left;
-    point.y = pageSettings.height - (bounds.top + point.y);
+    point.y = base.pageSettings.height - (bounds.top + point.y);
     return point;
   }
 
-  void _dropCropBox() {
+  /// internal method
+  void dropCropBox() {
     _setPageSettings(_section!, null);
-    _section![_DictionaryProperties.cropBox] =
-        _section![_DictionaryProperties.mediaBox];
-  }
-
-  @override
-  _IPdfPrimitive? get _element => _section;
-
-  @override
-  //ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    _section = value as _PdfDictionary?;
+    _section![PdfDictionaryProperties.cropBox] =
+        _section![PdfDictionaryProperties.mediaBox];
   }
 }
 

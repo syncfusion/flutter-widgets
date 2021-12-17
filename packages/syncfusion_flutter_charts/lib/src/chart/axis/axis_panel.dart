@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import '../axis/axis.dart';
@@ -24,7 +23,9 @@ class ChartAxisPanel {
   ChartAxisPanel(this.stateProperties) {
     innerPadding = 5;
     axisPadding = 10;
-    axisClipRect = const Rect.fromLTRB(0, 0, 0, 0);
+    axisLineLabelPadding = 5;
+    axisLabelTitlePadding = 3;
+    axisClipRect = Rect.zero;
     verticalAxisRenderers = <ChartAxisRenderer>[];
     horizontalAxisRenderers = <ChartAxisRenderer>[];
     needsRepaint = true;
@@ -84,6 +85,12 @@ class ChartAxisPanel {
 
   /// Specifies the axis padding value
   double axisPadding = 0;
+
+  /// Specifies the padding between axis line and axis label
+  double? axisLineLabelPadding;
+
+  /// Specifies the padding between axis label and axis title
+  double? axisLabelTitlePadding;
 
   /// Specifies the value of axis clip rect
   late Rect axisClipRect;
@@ -234,12 +241,48 @@ class ChartAxisPanel {
         AxisHelper.getAxisRendererDetails(axisRenderer);
     ChartAxisRendererDetails crossAxisRendererDetails;
     final ChartAxis axis = axisDetails.axis;
-    num titleSize = 0;
+    final bool isTitleEnabled =
+        axis.title.text != null && axis.title.text!.isNotEmpty;
+    double titleSize = 0;
+    num multiLevelLabelSize = 0;
     axisDetails.totalSize = 0;
+    if (axis.multiLevelLabels != null &&
+        axis.multiLevelLabels!.isNotEmpty &&
+        axisDetails.visibleRange != null) {
+      if ((((axisDetails.visibleRange!.minimum! <=
+                          axisDetails.minimumMultiLevelLabelValue! ==
+                      true) &&
+                  (axisDetails.minimumMultiLevelLabelValue! <=
+                      axisDetails.visibleRange!.maximum!)) ||
+              (axisDetails.visibleRange!.minimum! <=
+                      axisDetails.maximumMultiLevelLabelValue! ==
+                  true)) &&
+          !(axisDetails.visibleRange!.minimum! <=
+                      axisDetails.minimumMultiLevelLabelValue! ==
+                  true &&
+              axisDetails.visibleRange!.maximum! <=
+                      axisDetails.minimumMultiLevelLabelValue! ==
+                  true)) {
+        axisDetails.isMultiLevelLabelEnabled = true;
+      }
+    }
+    if (axis.borderWidth > 0 || (axisDetails.isMultiLevelLabelEnabled)) {
+      const double axisLabelPadding = 10;
+      double maximumLabelWidth = axisDetails.maximumLabelSize.width;
+      double maximumLabelHeight = axisDetails.maximumLabelSize.height;
+      if (axisDetails.orientation == AxisOrientation.horizontal) {
+        maximumLabelHeight = maximumLabelHeight + axisLabelPadding;
+      } else {
+        maximumLabelWidth = maximumLabelWidth + axisLabelPadding;
+      }
+      axisDetails.maximumLabelSize =
+          Size(maximumLabelWidth, maximumLabelHeight);
+    }
     if (axis.isVisible) {
-      if (axis.title.text != null && axis.title.text!.isNotEmpty) {
+      if (isTitleEnabled) {
         titleSize = measureText(axis.title.text!, axis.title.textStyle).height +
             axisPadding;
+        axisDetails.titleHeight = titleSize;
       }
       final Rect rect = stateProperties.renderingDetails.chartContainerRect;
       final int axisIndex = _getAxisIndex(axisRenderer);
@@ -263,89 +306,148 @@ class ChartAxisPanel {
                           ? axis.labelsExtent
                           : axisDetails.maximumLabelSize.width)! +
               innerPadding;
-      axisDetails.totalSize = titleSize + tickSize + labelSize;
+      if (axisDetails.isMultiLevelLabelEnabled &&
+          axis.labelPosition == ChartDataLabelPosition.outside) {
+        multiLevelLabelSize =
+            axisDetails.orientation == AxisOrientation.horizontal
+                ? axisDetails.multiLevelLabelTotalSize.height
+                : axisDetails.multiLevelLabelTotalSize.width;
+        if (axisDetails.axis.multiLevelLabelStyle.borderType ==
+                MultiLevelBorderType.squareBrace ||
+            axisDetails.axis.multiLevelLabelStyle.borderType ==
+                MultiLevelBorderType.curlyBrace) {
+          const double bracePadding = 5;
+          multiLevelLabelSize = multiLevelLabelSize + bracePadding;
+        }
+      }
+      axisDetails.totalSize =
+          titleSize + tickSize + labelSize + multiLevelLabelSize;
       if (axisDetails.orientation == AxisOrientation.horizontal) {
         if (!axis.opposedPosition) {
-          axisDetails.totalSize +=
-              bottomAxisRenderers.isNotEmpty && axis.labelStyle.fontSize! > 0
-                  ? axisPadding.toDouble()
-                  : 0;
+          axisDetails.totalSize += bottomAxisRenderers.isNotEmpty &&
+                  axis.labelStyle.fontSize! > 0 &&
+                  (axis.labelPosition == ChartDataLabelPosition.outside ||
+                      ((axis.majorTickLines.width > 0 ||
+                              axis.minorTickLines.width > 0) &&
+                          axis.tickPosition == TickPosition.outside) ||
+                      (axis.title.text != null && axis.title.text != ''))
+              ? axisPadding.toDouble()
+              : 0;
           if (axisDetails.crossValue != null &&
               axisDetails.crossRange != null) {
             crossAxisRendererDetails = AxisHelper.getAxisRendererDetails(
                 axisDetails.crossAxisRenderer);
-            final num crosPosition = valueToCoefficient(
+            final num crossPosition = valueToCoefficient(
                     axisDetails.crossValue!, crossAxisRendererDetails) *
                 rect.height;
-            axisDetails.totalSize = crosPosition - axisDetails.totalSize < 0
-                ? (crosPosition - axisDetails.totalSize).abs()
+            axisDetails.totalSize = crossPosition - axisDetails.totalSize < 0
+                ? (crossPosition - axisDetails.totalSize).abs()
                 : !axis.placeLabelsNearAxisLine
-                    ? labelSize
+                    ? (isTitleEnabled ? labelSize + titleSize : labelSize)
                     : 0;
+            if (axisDetails.isMultiLevelLabelEnabled &&
+                axis.labelPosition == ChartDataLabelPosition.outside) {
+              axisDetails.totalSize = !axis.placeLabelsNearAxisLine
+                  ? axisDetails.totalSize + (multiLevelLabelSize.toDouble())
+                  : axisDetails.totalSize;
+            }
           }
           bottomSize += axisDetails.totalSize;
           bottomAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         } else {
-          axisDetails.totalSize +=
-              topAxisRenderers.isNotEmpty && axis.labelStyle.fontSize! > 0
-                  ? axisPadding.toDouble()
-                  : 0;
+          axisDetails.totalSize += topAxisRenderers.isNotEmpty &&
+                  axis.labelStyle.fontSize! > 0 &&
+                  (axis.labelPosition == ChartDataLabelPosition.outside ||
+                      ((axis.majorTickLines.width > 0 ||
+                              axis.minorTickLines.width > 0) &&
+                          axis.tickPosition == TickPosition.outside) ||
+                      (axis.title.text != null && axis.title.text != ''))
+              ? axisPadding.toDouble()
+              : 0;
           if (axisDetails.crossValue != null &&
               axisDetails.crossRange != null) {
             crossAxisRendererDetails = AxisHelper.getAxisRendererDetails(
                 axisDetails.crossAxisRenderer);
-            final num crosPosition = valueToCoefficient(
+            final num crossPosition = valueToCoefficient(
                     axisDetails.crossValue!, crossAxisRendererDetails) *
                 rect.height;
-            axisDetails.totalSize = crosPosition + axisDetails.totalSize >
+            axisDetails.totalSize = crossPosition + axisDetails.totalSize >
                     rect.height
-                ? ((crosPosition + axisDetails.totalSize) - rect.height).abs()
+                ? ((crossPosition + axisDetails.totalSize) - rect.height).abs()
                 : !axis.placeLabelsNearAxisLine
-                    ? labelSize
+                    ? (isTitleEnabled ? labelSize + titleSize : labelSize)
                     : 0;
+            if (axisDetails.isMultiLevelLabelEnabled &&
+                axis.labelPosition == ChartDataLabelPosition.outside) {
+              axisDetails.totalSize = !axis.placeLabelsNearAxisLine
+                  ? axisDetails.totalSize + (multiLevelLabelSize.toDouble())
+                  : axisDetails.totalSize;
+            }
           }
           topSize += axisDetails.totalSize;
           topAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         }
       } else if (axisDetails.orientation == AxisOrientation.vertical) {
         if (!axis.opposedPosition) {
-          axisDetails.totalSize +=
-              leftAxisRenderers.isNotEmpty && axis.labelStyle.fontSize! > 0
-                  ? axisPadding.toDouble()
-                  : 0;
+          axisDetails.totalSize += leftAxisRenderers.isNotEmpty &&
+                  axis.labelStyle.fontSize! > 0 &&
+                  (axis.labelPosition == ChartDataLabelPosition.outside ||
+                      ((axis.majorTickLines.width > 0 ||
+                              axis.minorTickLines.width > 0) &&
+                          axis.tickPosition == TickPosition.outside) ||
+                      (axis.title.text != null && axis.title.text != ''))
+              ? axisPadding.toDouble()
+              : 0;
           if (axisDetails.crossValue != null &&
               axisDetails.crossRange != null) {
             crossAxisRendererDetails = AxisHelper.getAxisRendererDetails(
                 axisDetails.crossAxisRenderer);
-            final num crosPosition = valueToCoefficient(
+            final num crossPosition = valueToCoefficient(
                     axisDetails.crossValue!, crossAxisRendererDetails) *
                 rect.width;
-            axisDetails.totalSize = crosPosition - axisDetails.totalSize < 0
-                ? (crosPosition - axisDetails.totalSize).abs()
+            axisDetails.totalSize = crossPosition - axisDetails.totalSize < 0
+                ? (crossPosition - axisDetails.totalSize).abs()
                 : !axis.placeLabelsNearAxisLine
-                    ? labelSize
+                    ? (isTitleEnabled ? labelSize + titleSize : labelSize)
                     : 0;
+            if (axisDetails.isMultiLevelLabelEnabled &&
+                axis.labelPosition == ChartDataLabelPosition.outside) {
+              axisDetails.totalSize = !axis.placeLabelsNearAxisLine
+                  ? axisDetails.totalSize + (multiLevelLabelSize.toDouble())
+                  : axisDetails.totalSize;
+            }
           }
           leftSize += axisDetails.totalSize;
           leftAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         } else {
-          axisDetails.totalSize +=
-              rightAxisRenderers.isNotEmpty && axis.labelStyle.fontSize! > 0
-                  ? axisPadding.toDouble()
-                  : 0;
+          axisDetails.totalSize += rightAxisRenderers.isNotEmpty &&
+                  axis.labelStyle.fontSize! > 0 &&
+                  (axis.labelPosition == ChartDataLabelPosition.outside ||
+                      ((axis.majorTickLines.width > 0 ||
+                              axis.minorTickLines.width > 0) &&
+                          axis.tickPosition == TickPosition.outside) ||
+                      (axis.title.text != null && axis.title.text != ''))
+              ? axisPadding.toDouble()
+              : 0;
           if (axisDetails.crossValue != null &&
               axisDetails.crossRange != null) {
             crossAxisRendererDetails = AxisHelper.getAxisRendererDetails(
                 axisDetails.crossAxisRenderer);
-            final num crosPosition = valueToCoefficient(
+            final num crossPosition = valueToCoefficient(
                     axisDetails.crossValue!, crossAxisRendererDetails) *
                 rect.width;
-            axisDetails.totalSize = crosPosition + axisDetails.totalSize >
+            axisDetails.totalSize = crossPosition + axisDetails.totalSize >
                     rect.width
-                ? ((crosPosition + axisDetails.totalSize) - rect.width).abs()
+                ? ((crossPosition + axisDetails.totalSize) - rect.width).abs()
                 : !axis.placeLabelsNearAxisLine
-                    ? labelSize
+                    ? (isTitleEnabled ? labelSize + titleSize : labelSize)
                     : 0;
+            if (axisDetails.isMultiLevelLabelEnabled &&
+                axis.labelPosition == ChartDataLabelPosition.outside) {
+              axisDetails.totalSize = !axis.placeLabelsNearAxisLine
+                  ? axisDetails.totalSize + (multiLevelLabelSize.toDouble())
+                  : axisDetails.totalSize;
+            }
           }
           rightSize += axisDetails.totalSize;
           rightAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
@@ -427,6 +529,8 @@ class ChartAxisPanel {
         final ChartAxisRendererDetails axisDetails =
             AxisHelper.getAxisRendererDetails(axisRenderer);
         final Rect bounds = axisDetails.bounds;
+        final bool isLabelPositionInside =
+            axisDetails.axis.labelPosition == ChartDataLabelPosition.inside;
         if (type == 'Left' &&
             ((axisDetails.labelOffset != null
                     ? axisDetails.labelOffset! -
@@ -434,7 +538,16 @@ class ChartAxisPanel {
                     : bounds.left - bounds.width) <
                 rect.left)) {
           prevAxisOffsetValue = axisDetails.labelOffset != null
-              ? axisDetails.labelOffset! - axisDetails.maximumLabelSize.width
+              ? axisDetails.labelOffset! -
+                  (!isLabelPositionInside
+                      ? axisDetails.maximumLabelSize.width
+                      : 0) -
+                  (axisDetails.isMultiLevelLabelEnabled
+                      ? axisDetails.multiLevelLabelTotalSize.width
+                      : 0) -
+                  ((axisDetails.titleOffset != null)
+                      ? axisDetails.titleHeight!
+                      : 0)
               : bounds.left - bounds.width;
           break;
         } else if (type == 'Bottom' &&
@@ -444,7 +557,16 @@ class ChartAxisPanel {
                     : bounds.top + bounds.height) >
                 rect.top + rect.height)) {
           prevAxisOffsetValue = axisDetails.labelOffset != null
-              ? axisDetails.labelOffset! + axisDetails.maximumLabelSize.height
+              ? axisDetails.labelOffset! +
+                  (!isLabelPositionInside
+                      ? axisDetails.maximumLabelSize.height
+                      : 0) +
+                  (axisDetails.isMultiLevelLabelEnabled
+                      ? axisDetails.multiLevelLabelTotalSize.height
+                      : 0) +
+                  ((axisDetails.titleOffset != null)
+                      ? axisDetails.titleHeight!
+                      : 0)
               : bounds.top + bounds.height;
           break;
         } else if (type == 'Right' &&
@@ -454,7 +576,16 @@ class ChartAxisPanel {
                     : bounds.left + bounds.width) >
                 rect.left + rect.width)) {
           prevAxisOffsetValue = axisDetails.labelOffset != null
-              ? axisDetails.labelOffset! + axisDetails.maximumLabelSize.width
+              ? axisDetails.labelOffset! +
+                  (!isLabelPositionInside
+                      ? axisDetails.maximumLabelSize.width
+                      : 0) +
+                  (axisDetails.isMultiLevelLabelEnabled
+                      ? axisDetails.multiLevelLabelTotalSize.width
+                      : 0) +
+                  ((axisDetails.titleOffset != null)
+                      ? axisDetails.titleHeight!
+                      : 0)
               : bounds.left + bounds.width;
           break;
         } else if (type == 'Top' &&
@@ -464,7 +595,16 @@ class ChartAxisPanel {
                     : bounds.top - bounds.height) <
                 rect.top)) {
           prevAxisOffsetValue = axisDetails.labelOffset != null
-              ? axisDetails.labelOffset! - axisDetails.maximumLabelSize.height
+              ? axisDetails.labelOffset! -
+                  (!isLabelPositionInside
+                      ? axisDetails.maximumLabelSize.height
+                      : 0) -
+                  (axisDetails.isMultiLevelLabelEnabled
+                      ? axisDetails.multiLevelLabelTotalSize.height
+                      : 0) -
+                  ((axisDetails.titleOffset != null)
+                      ? axisDetails.titleHeight!
+                      : 0)
               : bounds.top - bounds.height;
           break;
         }
@@ -521,7 +661,21 @@ class ChartAxisPanel {
                 rect.width) +
             rect.left;
         if (axisIndex == 0 && !axis.placeLabelsNearAxisLine) {
-          axisDetails.labelOffset = rect.left - 5;
+          axisDetails.labelOffset = rect.left +
+              (axis.labelPosition == ChartDataLabelPosition.inside
+                  ? axisLineLabelPadding!
+                  : -axisLineLabelPadding!);
+          if (axis.title.text != null && axis.title.text!.isNotEmpty) {
+            axisDetails.titleOffset =
+                axis.labelPosition == ChartDataLabelPosition.inside
+                    ? rect.left - axisLabelTitlePadding!
+                    : rect.left -
+                        axisLabelTitlePadding! -
+                        (axisDetails.isMultiLevelLabelEnabled
+                            ? axisDetails.multiLevelLabelTotalSize.width
+                            : 0) -
+                        axisDetails.maximumLabelSize.width;
+          }
         }
       } else {
         final num? prevAxisOffsetValue =
@@ -570,7 +724,24 @@ class ChartAxisPanel {
                     axisDetails.crossValue!, crossAxisRendererDetails) *
                 rect.height);
         if (axisIndex == 0 && !axis.placeLabelsNearAxisLine) {
-          axisDetails.labelOffset = rect.top + rect.height + 5;
+          axisDetails.labelOffset = rect.top +
+              rect.height +
+              (axis.labelPosition == ChartDataLabelPosition.inside
+                  ? -axisLineLabelPadding!
+                  : axisLineLabelPadding!);
+          if (axis.title.text != null && axis.title.text!.isNotEmpty) {
+            axisDetails.titleOffset =
+                axis.labelPosition == ChartDataLabelPosition.inside
+                    ? rect.top + rect.height + axisLabelTitlePadding!
+                    : rect.top +
+                        rect.height +
+                        axisLabelTitlePadding! +
+                        axisLineLabelPadding! +
+                        (axisDetails.isMultiLevelLabelEnabled
+                            ? axisDetails.multiLevelLabelTotalSize.height
+                            : 0) +
+                        axisDetails.maximumLabelSize.height;
+          }
         }
       } else {
         final num? prevAxisOffsetValue =
@@ -618,7 +789,24 @@ class ChartAxisPanel {
                     axisDetails.crossValue!, crossAxisRendererDetails) *
                 rect.width);
         if (axisIndex == 0 && !axis.placeLabelsNearAxisLine) {
-          axisDetails.labelOffset = rect.left + rect.width + 5;
+          axisDetails.labelOffset = rect.left +
+              rect.width +
+              (axis.labelPosition == ChartDataLabelPosition.inside
+                  ? -axisLineLabelPadding!
+                  : axisLineLabelPadding!);
+          if (axis.title.text != null && axis.title.text!.isNotEmpty) {
+            axisDetails.titleOffset =
+                axis.labelPosition == ChartDataLabelPosition.inside
+                    ? rect.left + rect.width + axisLabelTitlePadding!
+                    : rect.left +
+                        rect.width +
+                        axisLabelTitlePadding! +
+                        axisLineLabelPadding! +
+                        (axisDetails.isMultiLevelLabelEnabled
+                            ? axisDetails.multiLevelLabelTotalSize.width
+                            : 0) +
+                        axisDetails.maximumLabelSize.width;
+          }
         }
       } else {
         final num? prevAxisOffsetValue =
@@ -667,7 +855,22 @@ class ChartAxisPanel {
                     axisDetails.crossValue!, crossAxisRendererDetails) *
                 rect.height);
         if (axisIndex == 0 && !axis.placeLabelsNearAxisLine) {
-          axisDetails.labelOffset = rect.top - 5;
+          axisDetails.labelOffset = rect.top +
+              (axis.labelPosition == ChartDataLabelPosition.inside
+                  ? axisLineLabelPadding!
+                  : -axisLineLabelPadding!);
+          if (axis.title.text != null && axis.title.text!.isNotEmpty) {
+            axisDetails.titleOffset =
+                axis.labelPosition == ChartDataLabelPosition.inside
+                    ? rect.top - axisLabelTitlePadding!
+                    : rect.top -
+                        axisLabelTitlePadding! -
+                        axisLineLabelPadding! -
+                        (axisDetails.isMultiLevelLabelEnabled
+                            ? axisDetails.multiLevelLabelTotalSize.height
+                            : 0) -
+                        axisDetails.maximumLabelSize.height;
+          }
         }
       } else {
         final num? prevAxisOffsetValue =
@@ -704,7 +907,7 @@ class ChartAxisPanel {
 
     innerPadding = chartWidget.borderWidth;
     axisPadding = 5;
-    axisClipRect = const Rect.fromLTRB(0, 0, 0, 0);
+    axisClipRect = Rect.zero;
     verticalAxisRenderers = <ChartAxisRenderer>[];
     horizontalAxisRenderers = <ChartAxisRenderer>[];
     axisRenderersCollection = <ChartAxisRenderer>[];

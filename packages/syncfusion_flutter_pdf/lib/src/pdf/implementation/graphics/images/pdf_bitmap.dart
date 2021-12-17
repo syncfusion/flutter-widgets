@@ -1,4 +1,17 @@
-part of pdf;
+import 'dart:convert';
+import 'dart:ui';
+
+import '../../drawing/drawing.dart';
+import '../../graphics/pdf_graphics.dart';
+import '../../io/pdf_constants.dart';
+import '../../primitives/pdf_array.dart';
+import '../../primitives/pdf_name.dart';
+import '../../primitives/pdf_stream.dart';
+import '../enums.dart';
+import 'decoders/image_decoder.dart';
+import 'decoders/png_decoder.dart';
+import 'enum.dart';
+import 'pdf_image.dart';
 
 /// The [PdfBitmap] contains methods and properties to handle the Bitmap images
 ///
@@ -34,6 +47,7 @@ class PdfBitmap extends PdfImage {
   /// doc.dispose();
   /// ```
   PdfBitmap(List<int> imageData) {
+    _helper = PdfBitmapHelper(this);
     _initialize(imageData);
   }
 
@@ -55,11 +69,13 @@ class PdfBitmap extends PdfImage {
     if (imageData.isEmpty) {
       ArgumentError.value(imageData, 'image data', 'image data cannot be null');
     }
+    _helper = PdfBitmapHelper(this);
     _initialize(base64.decode(imageData));
   }
 
   //Fields
-  _ImageDecoder? _decoder;
+  late PdfBitmapHelper _helper;
+  ImageDecoder? _decoder;
   late int _height;
   late int _width;
   // ignore: prefer_final_fields
@@ -67,11 +83,8 @@ class PdfBitmap extends PdfImage {
   // ignore: prefer_final_fields
   double _verticalResolution = 0;
   bool _imageStatus = true;
-  PdfColorSpace? _colorSpace;
 
   //Properties
-  @override
-
   /// Width of an image
   ///
   /// ```dart
@@ -89,9 +102,8 @@ class PdfBitmap extends PdfImage {
   /// //Dispose the document.
   /// doc.dispose();
   /// ```
-  int get width => _width;
-
   @override
+  int get width => _width;
 
   /// Height of an image
   ///
@@ -110,9 +122,8 @@ class PdfBitmap extends PdfImage {
   /// //Dispose the document.
   /// doc.dispose();
   /// ```
-  int get height => _height;
-
   @override
+  int get height => _height;
 
   /// Horizontal Resolution of an image
   ///
@@ -133,9 +144,8 @@ class PdfBitmap extends PdfImage {
   /// //Dispose the document.
   /// doc.dispose();
   /// ```
-  double get horizontalResolution => _horizontalResolution;
-
   @override
+  double get horizontalResolution => _horizontalResolution;
 
   /// Vertical Resolution of an image
   ///
@@ -156,6 +166,7 @@ class PdfBitmap extends PdfImage {
   /// //Dispose the document.
   /// doc.dispose();
   /// ```
+  @override
   double get verticalResolution => _verticalResolution;
 
   //Implementation
@@ -163,13 +174,14 @@ class PdfBitmap extends PdfImage {
     if (imageData.isEmpty) {
       ArgumentError.value(imageData, 'image data', 'image data cannot be null');
     }
-    _colorSpace = PdfColorSpace.rgb;
-    final _ImageDecoder? decoder = _ImageDecoder.getDecoder(imageData);
+    _helper.colorSpace = PdfColorSpace.rgb;
+    final ImageDecoder? decoder = ImageDecoder.getDecoder(imageData);
     if (decoder != null) {
       _decoder = decoder;
       _height = _decoder!.height;
       _width = _decoder!.width;
-      _jpegOrientationAngle = _decoder!.jpegDecoderOrientationAngle;
+      PdfImageHelper.setJpegOrientationAngle(
+          this, _decoder!.jpegDecoderOrientationAngle);
       _imageStatus = false;
     } else {
       throw UnsupportedError('Invalid/Unsupported image stream');
@@ -177,73 +189,91 @@ class PdfBitmap extends PdfImage {
   }
 
   void _setColorSpace() {
-    final _PdfStream stream = _imageStream!;
-    final _PdfName? color =
-        stream[_DictionaryProperties.colorSpace] as _PdfName?;
-    if (color!._name == _DictionaryProperties.deviceCMYK) {
-      _colorSpace = PdfColorSpace.cmyk;
-    } else if (color._name == _DictionaryProperties.deviceGray) {
-      _colorSpace = PdfColorSpace.grayScale;
+    final PdfStream stream = PdfImageHelper.getImageStream(this)!;
+    final PdfName? color =
+        stream[PdfDictionaryProperties.colorSpace] as PdfName?;
+    if (color!.name == PdfDictionaryProperties.deviceCMYK) {
+      _helper.colorSpace = PdfColorSpace.cmyk;
+    } else if (color.name == PdfDictionaryProperties.deviceGray) {
+      _helper.colorSpace = PdfColorSpace.grayScale;
     }
-    if (_decoder is _PngDecoder &&
-        (_decoder! as _PngDecoder)._colorSpace != null) {
-      _colorSpace = PdfColorSpace.indexed;
+    if (_decoder is PngDecoder &&
+        (_decoder! as PngDecoder).colorSpace != null) {
+      _helper.colorSpace = PdfColorSpace.indexed;
     }
-    switch (_colorSpace) {
+    switch (_helper.colorSpace) {
       case PdfColorSpace.cmyk:
-        stream[_DictionaryProperties.decode] =
-            _PdfArray(<double>[1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0]);
-        stream[_DictionaryProperties.colorSpace] =
-            _PdfName(_DictionaryProperties.deviceCMYK);
+        stream[PdfDictionaryProperties.decode] =
+            PdfArray(<double>[1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0]);
+        stream[PdfDictionaryProperties.colorSpace] =
+            PdfName(PdfDictionaryProperties.deviceCMYK);
         break;
       case PdfColorSpace.grayScale:
-        stream[_DictionaryProperties.decode] = _PdfArray(<double>[0.0, 1.0]);
-        stream[_DictionaryProperties.colorSpace] =
-            _PdfName(_DictionaryProperties.deviceGray);
+        stream[PdfDictionaryProperties.decode] = PdfArray(<double>[0.0, 1.0]);
+        stream[PdfDictionaryProperties.colorSpace] =
+            PdfName(PdfDictionaryProperties.deviceGray);
         break;
       case PdfColorSpace.rgb:
-        stream[_DictionaryProperties.decode] =
-            _PdfArray(<double>[0.0, 1.0, 0.0, 1.0, 0.0, 1.0]);
-        stream[_DictionaryProperties.colorSpace] =
-            _PdfName(_DictionaryProperties.deviceRGB);
+        stream[PdfDictionaryProperties.decode] =
+            PdfArray(<double>[0.0, 1.0, 0.0, 1.0, 0.0, 1.0]);
+        stream[PdfDictionaryProperties.colorSpace] =
+            PdfName(PdfDictionaryProperties.deviceRGB);
         break;
       case PdfColorSpace.indexed:
-        stream[_DictionaryProperties.colorSpace] =
-            (_decoder! as _PngDecoder)._colorSpace;
+        stream[PdfDictionaryProperties.colorSpace] =
+            (_decoder! as PngDecoder).colorSpace;
         break;
       default:
         break;
     }
   }
+}
 
-  @override
-  void _save() {
-    if (!_imageStatus) {
-      _imageStatus = true;
-      _imageStream = _decoder!.getImageDictionary();
-      if (_decoder!.format == _ImageType.png) {
-        final _PngDecoder? decoder = _decoder as _PngDecoder?;
-        if (decoder != null && decoder._isDecode) {
-          if (decoder._colorSpace != null) {
-            _setColorSpace();
+/// [PdfBitmap] helper
+class PdfBitmapHelper {
+  /// internal constructor
+  PdfBitmapHelper(this.bitmap);
+
+  /// internal field
+  late PdfBitmap bitmap;
+
+  /// internal method
+  static PdfBitmapHelper getHelper(PdfBitmap bitmap) {
+    return bitmap._helper;
+  }
+
+  /// internal method
+  PdfColorSpace? colorSpace;
+
+  /// internal method
+  void save() {
+    if (!bitmap._imageStatus) {
+      bitmap._imageStatus = true;
+      PdfImageHelper.setImageStream(
+          bitmap, bitmap._decoder!.getImageDictionary());
+      if (bitmap._decoder!.format == ImageType.png) {
+        final PngDecoder? decoder = bitmap._decoder as PngDecoder?;
+        if (decoder != null && decoder.isDecode) {
+          if (decoder.colorSpace != null) {
+            bitmap._setColorSpace();
           }
         } else {
-          _setColorSpace();
+          bitmap._setColorSpace();
         }
       } else {
-        _setColorSpace();
+        bitmap._setColorSpace();
       }
     }
   }
 
-  @override
-  void _drawInternal(PdfGraphics graphics, _Rectangle bounds) {
-    graphics.drawImage(
-        this, Rect.fromLTWH(0, 0, _width * 0.75, _height * 0.75));
+  /// internal method
+  void drawInternal(PdfGraphics graphics, PdfRectangle bounds) {
+    graphics.drawImage(bitmap,
+        Rect.fromLTWH(0, 0, bitmap._width * 0.75, bitmap._height * 0.75));
   }
 
-  @override
-  _Rectangle _getBoundsInternal() {
-    return _Rectangle(0, 0, width * 0.75, height * 0.75);
+  /// internal method
+  PdfRectangle getBoundsInternal() {
+    return PdfRectangle(0, 0, bitmap.width * 0.75, bitmap.height * 0.75);
   }
 }

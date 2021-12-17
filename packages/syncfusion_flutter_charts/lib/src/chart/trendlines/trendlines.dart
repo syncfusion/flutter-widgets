@@ -1,10 +1,7 @@
 import 'dart:math';
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-import 'package:syncfusion_flutter_core/core.dart';
 import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import '../axis/axis.dart';
@@ -20,10 +17,7 @@ import '../chart_series/range_column_series.dart';
 import '../chart_series/stacked_series_base.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
-import '../common/common.dart';
 import '../common/marker.dart';
-import '../common/renderer.dart';
-import '../trendlines/trendlines.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 
@@ -534,9 +528,11 @@ class TrendlineRenderer {
   List<CartesianChartPoint<dynamic>>? pointsData;
 
   /// Holds the slope intercept
+  // ignore: library_private_types_in_public_api
   _SlopeIntercept slopeIntercept = _SlopeIntercept();
 
   /// Holds the slope intercept value for equation
+  // ignore: library_private_types_in_public_api
   _SlopeIntercept slopeInterceptData = _SlopeIntercept();
 
   /// Holds the polynomial slopes
@@ -617,10 +613,12 @@ class TrendlineRenderer {
       dynamic xValues,
       List<num> yValues,
       SeriesRendererDetails seriesRendererDetails,
+      // ignore: library_private_types_in_public_api
       _SlopeIntercept slopeInterceptLinear) {
     num x1Linear, x2Linear;
     final List<CartesianChartPoint<dynamic>> pts =
         <CartesianChartPoint<dynamic>>[];
+    xValues.sort();
     if (seriesRendererDetails.xAxisDetails is DateTimeAxisRenderer) {
       x1Linear = _increaseDateTimeForecast(
           seriesRendererDetails.xAxisDetails as DateTimeAxisRenderer,
@@ -673,9 +671,10 @@ class TrendlineRenderer {
       index++;
     }
     slopeIntercept = _findSlopeIntercept(xValues, yValues, points);
-    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN)
+    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
       pointsData = getLinearPoints(
           points, xValues, yValues, seriesRendererDetails, slopeIntercept);
+    }
     slopeInterceptData =
         _findSlopeIntercept(slopeInterceptXValues, yValues, points);
   }
@@ -686,6 +685,7 @@ class TrendlineRenderer {
       dynamic xValues,
       List<num> yValues,
       SeriesRendererDetails seriesRendererDetails,
+      // ignore: library_private_types_in_public_api
       _SlopeIntercept slopeInterceptExpo) {
     num x1, x2, x3;
     final int midPoint = (points.length / 2).round();
@@ -761,10 +761,12 @@ class TrendlineRenderer {
 
       index++;
     }
+    xValues.sort();
     slopeIntercept = _findSlopeIntercept(xValues, yValues, points);
-    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN)
+    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
       pointsData = getExponentialPoints(
           points, xValues, yValues, seriesRendererDetails, slopeIntercept);
+    }
     slopeInterceptData =
         _findSlopeIntercept(slopeInterceptXValues, yValues, points);
   }
@@ -775,6 +777,7 @@ class TrendlineRenderer {
       dynamic xValues,
       List<num> yValues,
       SeriesRendererDetails seriesRendererDetails,
+      // ignore: library_private_types_in_public_api
       _SlopeIntercept slopeInterceptPow) {
     num x1, x2, x3;
     final int midPoint = (points.length / 2).round();
@@ -858,10 +861,12 @@ class TrendlineRenderer {
               : math.log(point.high));
       index++;
     }
+    powerPoints.sort();
     slopeIntercept = _findSlopeIntercept(xValues, yValues, points);
-    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN)
+    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
       pointsData = getPowerPoints(
           points, powerPoints, yValues, seriesRendererDetails, slopeIntercept);
+    }
     slopeInterceptData =
         _findSlopeIntercept(slopeInterceptXValues, yValues, points);
   }
@@ -872,6 +877,7 @@ class TrendlineRenderer {
       dynamic xValues,
       List<num> yValues,
       SeriesRendererDetails seriesRendererDetails,
+      // ignore: library_private_types_in_public_api
       _SlopeIntercept slopeInterceptLog) {
     num x1, x2, x3;
     final int midPoint = (points.length / 2).round();
@@ -947,10 +953,12 @@ class TrendlineRenderer {
               : point.high);
       index++;
     }
+    xPointsLgr.sort();
     slopeIntercept = _findSlopeIntercept(xLogValue, yLogValue, points);
-    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN)
+    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
       pointsData = getLogarithmicPoints(
           points, xPointsLgr, yLogValue, seriesRendererDetails, slopeIntercept);
+    }
     slopeInterceptData =
         _findSlopeIntercept(slopeInterceptXLogValue, yLogValue, points);
   }
@@ -1063,6 +1071,7 @@ class TrendlineRenderer {
               : point.high);
       index++;
     }
+    xPolyValues.sort();
     pointsData = _getPolynomialPoints(
         points, xPolyValues, yPolyValues, seriesRendererDetails);
   }
@@ -1135,19 +1144,20 @@ class TrendlineRenderer {
         ? points.length - 1
         : trendline.period;
     periods = max(2, periods);
-    int? y;
+    double? y;
     dynamic x;
     int count, nullCount;
     for (int index = 0; index < points.length - 1; index++) {
-      y = count = nullCount = 0;
+      y = 0.0;
+      count = nullCount = 0;
       for (int j = index; count < periods; j++) {
         count++;
         if (j >= yValues.length || yValues[j] == null) {
           nullCount++;
         }
-        y = y! + (j >= yValues.length ? 0 : yValues[j]!).toInt();
+        y = y! + (j >= yValues.length ? 0 : yValues[j]!);
       }
-      y = ((periods - nullCount) <= 0) ? null : (y! ~/ (periods - nullCount));
+      y = ((periods - nullCount) <= 0) ? null : (y! / (periods - nullCount));
       if (y != null && !y.isNaN && index + periods < xValues.length + 1) {
         x = xValues[periods - 1 + index];
         pts.add(getDataPoint(x, y, points[periods - 1 + index],
@@ -1177,6 +1187,7 @@ class TrendlineRenderer {
               ? point.low
               : point.high);
     }
+    xAvgValues.sort();
     pointsData = getMovingAveragePoints(
         points, xAvgValues, yValues, seriesRendererDetails);
   }
@@ -1509,11 +1520,11 @@ class TrendlineRenderer {
   /// To return predicted forecast values
   int _getForecastDate(
       ChartAxisRendererDetails axisRendererDetails, bool _isForward) {
-    Duration duration = const Duration(seconds: 0);
+    Duration duration = Duration.zero;
     final DateTimeAxis axis = axisRendererDetails.axis as DateTimeAxis;
     switch (axis.intervalType) {
       case DateTimeIntervalType.auto:
-        duration = const Duration(seconds: 0);
+        duration = Duration.zero;
         break;
       case DateTimeIntervalType.years:
         duration = Duration(

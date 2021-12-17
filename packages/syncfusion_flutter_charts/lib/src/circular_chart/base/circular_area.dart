@@ -1,30 +1,21 @@
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_core/tooltip_internal.dart';
 import '../../chart/user_interaction/selection_renderer.dart';
-import '../../chart/utils/enum.dart';
-import '../../common/event_args.dart';
 import '../../common/template/rendering.dart';
 import '../../common/user_interaction/selection_behavior.dart';
 import '../../common/user_interaction/tooltip.dart';
-import '../../common/utils/enum.dart';
 import '../../common/utils/helper.dart';
-import '../renderer/chart_point.dart';
-import '../renderer/circular_chart_annotation.dart';
-import '../renderer/circular_series.dart';
 import '../renderer/common.dart';
 import '../renderer/data_label_renderer.dart';
 import '../renderer/renderer_extension.dart';
 import '../series_painter/doughnut_series_painter.dart';
 import '../series_painter/pie_chart_painter.dart';
 import '../series_painter/radial_bar_painter.dart';
-import '../utils/enum.dart';
 import '../utils/helper.dart';
-import 'circular_base.dart';
 import 'circular_state_properties.dart';
 
 /// Represents the circular chart area
@@ -64,6 +55,7 @@ class CircularArea extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
+      // ignore: avoid_unnecessary_containers
       return Container(
         child: MouseRegion(
             // Using the _enableMouseHover property, prevented mouse hover function in mobile platforms. The mouse hover event should not be triggered for mobile platforms and logged an issue regarding this to the Flutter team.
@@ -83,10 +75,6 @@ class CircularArea extends StatelessWidget {
               child: GestureDetector(
                   onLongPress: _onLongPress,
                   onTapUp: (TapUpDetails details) {
-                    if (chart.onPointTapped != null && pointRegion != null) {
-                      calculatePointSeriesIndex(
-                          chart, stateProperties, null, pointRegion);
-                    }
                     if (chart.series[0].onPointTap != null &&
                         pointRegion != null) {
                       calculatePointSeriesIndex(chart, stateProperties, null,
@@ -314,10 +302,6 @@ class CircularArea extends StatelessWidget {
     if (stateProperties.animationCompleted) {
       _showTrimmedDataLabelTooltip(position, stateProperties, seriesRenderer);
     }
-    if (chart.onDataLabelTapped != null) {
-      triggerCircularDataLabelEvent(chart, seriesRenderer, stateProperties,
-          stateProperties.renderingDetails.tapPosition);
-    }
     if (stateProperties.renderingDetails.tapPosition != null &&
         pointRegion != null) {
       stateProperties.renderingDetails.currentActive = ChartInteraction(
@@ -445,6 +429,7 @@ class CircularArea extends StatelessWidget {
     _bindTooltipWidgets(constraints);
     stateProperties.circularArea = this;
     renderBox = context.findRenderObject() as RenderBox;
+    // ignore: avoid_unnecessary_containers
     return Container(
         child: Stack(
             textDirection: TextDirection.ltr,
@@ -547,7 +532,7 @@ class CircularArea extends StatelessWidget {
               verticalAlignment: annotation.verticalAlignment,
               clipRect: stateProperties.renderingDetails.chartContainerRect,
               widget: annotationHeight > 0 && annotationWidth > 0
-                  ? Container(
+                  ? SizedBox(
                       height: annotationHeight,
                       width: annotationWidth,
                       child: annotation.widget)
@@ -587,10 +572,12 @@ class CircularArea extends StatelessWidget {
     TooltipHelper.setStateProperties(chart.tooltipBehavior, stateProperties);
     final SfChartThemeData _chartTheme =
         stateProperties.renderingDetails.chartTheme;
+    const int seriesIndex = 0;
+    final DataLabelSettings dataLabel = stateProperties.chartSeries
+        .visibleSeriesRenderers[seriesIndex].series.dataLabelSettings;
     if (chart.tooltipBehavior.enable ||
-        stateProperties.chartSeries.visibleSeriesRenderers[0].series
-                .dataLabelSettings.labelIntersectAction ==
-            LabelIntersectAction.shift) {
+        dataLabel.labelIntersectAction == LabelIntersectAction.shift ||
+        dataLabel.overflowMode == OverflowMode.trim) {
       final TooltipBehavior tooltip = chart.tooltipBehavior;
       final TooltipRenderingDetails tooltipRenderingDetails =
           TooltipHelper.getRenderingDetails(
@@ -672,7 +659,9 @@ class CircularArea extends StatelessWidget {
           (stateProperties.renderingDetails.initialRender! ||
               (stateProperties.renderingDetails.widgetNeedUpdate &&
                   seriesRenderer.needsAnimation) ||
-              stateProperties.renderingDetails.isLegendToggled)) {
+              (stateProperties.renderingDetails.isLegendToggled &&
+                  stateProperties.isToggled &&
+                  !stateProperties.renderingDetails.widgetNeedUpdate))) {
         final int totalAnimationDuration =
             series.animationDuration.toInt() + series.animationDelay.toInt();
         stateProperties.renderingDetails.animationController.duration =
@@ -712,6 +701,9 @@ class CircularArea extends StatelessWidget {
       seriesRenderer.repaintNotifier =
           stateProperties.renderingDetails.seriesRepaintNotifier;
       if (seriesRenderer.seriesType == 'pie') {
+        if (chart.onCreateShader != null) {
+          stateProperties.renderingDetails.seriesRepaintNotifier.value++;
+        }
         seriesPainter = PieChartPainter(
             stateProperties: stateProperties,
             index: i,
@@ -721,6 +713,9 @@ class CircularArea extends StatelessWidget {
             seriesAnimation: seriesAnimation,
             notifier: stateProperties.renderingDetails.seriesRepaintNotifier);
       } else if (seriesRenderer.seriesType == 'doughnut') {
+        if (chart.onCreateShader != null) {
+          stateProperties.renderingDetails.seriesRepaintNotifier.value++;
+        }
         seriesPainter = DoughnutChartPainter(
             stateProperties: stateProperties,
             index: i,
@@ -747,6 +742,7 @@ class CircularArea extends StatelessWidget {
       stateProperties.renderingDetails.chartWidgets!
           .add(stateProperties.renderDataLabel!);
     }
+    stateProperties.isToggled = false;
   }
 }
 

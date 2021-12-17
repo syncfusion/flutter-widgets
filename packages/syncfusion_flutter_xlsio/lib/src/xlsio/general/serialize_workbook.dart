@@ -1,5 +1,6 @@
 part of xlsio;
 
+// ignore: noop_primitive_operations
 /// Represent the workbook serialize.
 class SerializeWorkbook {
   /// Create an instances of serialize workbook.
@@ -92,6 +93,7 @@ class SerializeWorkbook {
           builder.element('sheet', nest: () {
             builder.attribute('name', _workbook.worksheets[i].name);
             builder.attribute('sheetId', (i + 1).toString());
+            // ignore: prefer_interpolation_to_compose_strings
             builder.attribute('r:id', 'rId' + (i + 1).toString());
           });
         }
@@ -161,6 +163,7 @@ class SerializeWorkbook {
           if (hyperlink.textToDisplay != null &&
               cell.number == null &&
               cell.text == null) {
+            // ignore: unnecessary_null_checks
             cell.value = hyperlink.textToDisplay!;
           } else if (cell.text != null) {
             cell.value = cell.text;
@@ -296,6 +299,7 @@ class SerializeWorkbook {
                             builder.attribute('t', cell._saveType);
                           }
                           strFormula =
+                              // ignore: avoid_escaping_inner_quotes
                               strFormula.substring(1).replaceAll('\'', '"');
                           final int i = strFormula.indexOf('!');
                           if (i != -1 &&
@@ -303,8 +307,10 @@ class SerializeWorkbook {
                               strFormula[i - 1] == '"') {
                             final String sheetName =
                                 strFormula.substring(1, i - 1);
+                            // ignore: prefer_interpolation_to_compose_strings, avoid_escaping_inner_quotes
                             strFormula = '\'' +
                                 sheetName +
+                                // ignore: avoid_escaping_inner_quotes
                                 '\'' +
                                 strFormula.substring(i);
                           }
@@ -403,6 +409,7 @@ class SerializeWorkbook {
                 }
               }
             }
+            // ignore: prefer_interpolation_to_compose_strings
             builder.attribute('r:id', 'rId' + id.toString());
           } else {
             builder.attribute('r:id', rId);
@@ -413,13 +420,21 @@ class SerializeWorkbook {
         _serializeConditionalFormattingExt(builder, sheet);
       });
       final List<int> rel = _saveSheetRelations(sheet);
-      _addToArchive(rel,
+
+      _addToArchive(
+          rel,
+          // ignore: prefer_interpolation_to_compose_strings
           'xl/worksheets/_rels/sheet' + sheet.index.toString() + '.xml.rels');
     });
     final String stringXml = builder.buildDocument().copy().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(
-        bytes, 'xl/worksheets' '/sheet' + (index + 1).toString() + '.xml');
+        bytes,
+        // ignore: prefer_interpolation_to_compose_strings
+        'xl/worksheets'
+                '/sheet' +
+            (index + 1).toString() +
+            '.xml');
   }
 
   /// Serializes single protection option.
@@ -442,6 +457,7 @@ class SerializeWorkbook {
             .split('.')
             .toList()
             .removeAt(1)
+            // ignore: noop_primitive_operations
             .toString();
       }
       if (iCount == 0 || !hyperLinkType.contains('range')) {
@@ -457,6 +473,7 @@ class SerializeWorkbook {
                 builder.attribute('location', link.address);
               } else {
                 builder.attribute('ref', link.reference);
+                // ignore: prefer_interpolation_to_compose_strings
                 final String rId = 'rId' + id.toString();
                 builder.attribute('r:id', rId);
                 _relationId.add(rId);
@@ -534,15 +551,19 @@ class SerializeWorkbook {
               builder.element('xdr:nvPicPr', nest: () {
                 builder.element('xdr:cNvPr', nest: () {
                   builder.attribute('id', imgId);
+                  // ignore: prefer_interpolation_to_compose_strings
                   builder.attribute('name', 'Picture' + imgId.toString());
                   if (picture._isHyperlink) {
                     builder.element('a:hlinkClick', nest: () {
                       builder.attribute('xmlns:r',
                           'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
                       int id = idIndex + imgId + idHyperlink;
+                      // ignore: prefer_interpolation_to_compose_strings
                       String rId = 'rId' + id.toString();
                       if (idRelation.contains(rId)) {
+                        // ignore: prefer_interpolation_to_compose_strings
                         id = id + 1;
+                        // ignore: prefer_interpolation_to_compose_strings
                         rId = 'rId' + id.toString();
                       }
                       builder.attribute('r:id', rId);
@@ -571,18 +592,23 @@ class SerializeWorkbook {
                   int id;
                   String rId;
                   if (idRelation.isEmpty) {
+                    // ignore: prefer_interpolation_to_compose_strings
                     id = idIndex + imgId + hyperlinkCount;
+                    // ignore: prefer_interpolation_to_compose_strings
                     rId = 'rId' + id.toString();
                     builder.attribute('r:embed', rId);
                     idRelation.add(rId);
                   } else {
                     id = idIndex + imgId + hyperlinkCount;
+                    // ignore: prefer_interpolation_to_compose_strings
                     rId = 'rId' + id.toString();
                     if (idRelation.contains(rId)) {
                       id = id + 1;
+                      // ignore: prefer_interpolation_to_compose_strings
                       rId = 'rId' + id.toString();
                       if (idRelation.contains(rId)) {
                         id = id + 1;
+                        // ignore: prefer_interpolation_to_compose_strings
                         rId = 'rId' + id.toString();
                       }
                     }
@@ -636,12 +662,14 @@ class SerializeWorkbook {
           String imgPath;
           if (Picture.isJpeg(imageData)) {
             imgPath =
+                // ignore: prefer_interpolation_to_compose_strings
                 'xl/media/image' + _workbook._imageCount.toString() + '.jpeg';
             if (!_workbook._defaultContentTypes.containsKey('jpeg')) {
               _workbook._defaultContentTypes['jpeg'] = 'image/jpeg';
             }
           } else {
             imgPath =
+                // ignore: prefer_interpolation_to_compose_strings
                 'xl/media/image' + _workbook._imageCount.toString() + '.png';
             if (!_workbook._defaultContentTypes.containsKey('png')) {
               _workbook._defaultContentTypes['png'] = 'image/png';
@@ -656,7 +684,9 @@ class SerializeWorkbook {
     _saveDrawingRelations(sheet);
     final String stringXml = builder.buildDocument().copy().toString();
     final List<int> bytes = utf8.encode(stringXml);
-    _addToArchive(bytes,
+    _addToArchive(
+        bytes,
+        // ignore: prefer_interpolation_to_compose_strings
         'xl/drawings/drawing' + (_workbook._drawingCount).toString() + '.xml');
   }
 
@@ -672,11 +702,13 @@ class SerializeWorkbook {
         final int length = sheet.chartCount;
         for (int i = 1; i <= length; i++) {
           builder.element('Relationship', nest: () {
+            // ignore: prefer_interpolation_to_compose_strings
             builder.attribute('Id', 'rId' + (idIndex + i).toString());
             builder.attribute('Type',
                 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart');
             builder.attribute(
                 'Target',
+                // ignore: prefer_interpolation_to_compose_strings
                 '/xl/charts/chart' +
                     (sheet.workbook.chartCount + i).toString() +
                     '.xml');
@@ -696,6 +728,7 @@ class SerializeWorkbook {
                   'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink');
               if (sheet.hyperlinks[i].type == HyperlinkType.workbook) {
                 String address = sheet.hyperlinks[i].address;
+                // ignore: prefer_interpolation_to_compose_strings
                 address = address.startsWith('#') ? address : '#' + address;
                 builder.attribute('Target', address);
               } else {
@@ -718,20 +751,27 @@ class SerializeWorkbook {
           builder.element('Relationship', nest: () {
             String imgPath;
             if (Picture.isPng(sheet.pictures[i - 1].imageData)) {
+              // ignore: prefer_interpolation_to_compose_strings
               imgPath = '/xl/media/image' + id.toString() + '.png';
             } else {
+              // ignore: prefer_interpolation_to_compose_strings
               imgPath = '/xl/media/image' + id.toString() + '.jpeg';
             }
             if (sheet.pictures[i - 1]._isHyperlink) {
               builder.attribute(
-                  'Id', 'rId' + (idIndex + i + idHyperlink).toString());
+                  // ignore: prefer_interpolation_to_compose_strings
+                  'Id',
+                  // ignore: prefer_interpolation_to_compose_strings
+                  'rId' + (idIndex + i + idHyperlink).toString());
               builder.attribute('Type',
                   'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image');
               builder.attribute('Target', imgPath);
               idHyperlink++;
             } else {
               builder.attribute(
-                  'Id', 'rId' + (idIndex + i + idHyperlink).toString());
+                  'Id',
+                  // ignore: prefer_interpolation_to_compose_strings
+                  'rId' + (idIndex + i + idHyperlink).toString());
               builder.attribute('Type',
                   'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image');
               builder.attribute('Target', imgPath);
@@ -745,6 +785,7 @@ class SerializeWorkbook {
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(
         bytes,
+        // ignore: prefer_interpolation_to_compose_strings
         'xl/drawings/_rels/drawing' +
             (_workbook._drawingCount).toString() +
             '.xml.rels');
@@ -880,6 +921,7 @@ class SerializeWorkbook {
           if (link._attachedType == ExcelHyperlinkAttachedType.range &&
               link.type != HyperlinkType.workbook) {
             builder.element('Relationship', nest: () {
+              // ignore: prefer_interpolation_to_compose_strings
               builder.attribute('Id', 'rId' + id.toString());
               builder.attribute('Type',
                   'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink');
@@ -904,6 +946,7 @@ class SerializeWorkbook {
                 }
               }
             }
+            // ignore: prefer_interpolation_to_compose_strings
             builder.attribute('Id', 'rId' + id.toString());
           } else {
             builder.attribute('Id', rId);
@@ -912,6 +955,7 @@ class SerializeWorkbook {
               'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing');
           builder.attribute(
               'Target',
+              // ignore: prefer_interpolation_to_compose_strings
               '../drawings/drawing' +
                   _workbook._drawingCount.toString() +
                   '.xml');
@@ -930,6 +974,7 @@ class SerializeWorkbook {
                 }
               }
             }
+            // ignore: prefer_interpolation_to_compose_strings
             builder.attribute('Id', 'rId' + id.toString());
           } else {
             builder.attribute('Id', rId);
@@ -938,6 +983,7 @@ class SerializeWorkbook {
               'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing');
           builder.attribute(
               'Target',
+              // ignore: prefer_interpolation_to_compose_strings
               '../drawings/drawing' +
                   _workbook._drawingCount.toString() +
                   '.xml');
@@ -1122,7 +1168,9 @@ class SerializeWorkbook {
         final int index = i + 1;
         builder.element('Override', nest: () {
           builder.attribute(
-              'PartName', '/xl/worksheets/sheet' + index.toString() + '.xml');
+              'PartName',
+              // ignore: prefer_interpolation_to_compose_strings
+              '/xl/worksheets/sheet' + index.toString() + '.xml');
           builder.attribute('ContentType',
               'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml');
         });
@@ -1135,7 +1183,9 @@ class SerializeWorkbook {
             final int chartCount = _workbook.worksheets[i].chartCount;
             for (int index = 1; index <= chartCount; index++) {
               builder.element('Override', nest: () {
-                builder.attribute('PartName',
+                builder.attribute(
+                    'PartName',
+                    // ignore: prefer_interpolation_to_compose_strings
                     '/xl/charts/chart' + chartIndex.toString() + '.xml');
                 builder.attribute('ContentType',
                     'application/vnd.openxmlformats-officedocument.drawingml.chart+xml');
@@ -1144,7 +1194,9 @@ class SerializeWorkbook {
             }
           }
           builder.element('Override', nest: () {
-            builder.attribute('PartName',
+            builder.attribute(
+                'PartName',
+                // ignore: prefer_interpolation_to_compose_strings
                 '/xl/drawings/drawing' + drawingIndex.toString() + '.xml');
             builder.attribute('ContentType',
                 'application/vnd.openxmlformats-officedocument.drawing+xml');
@@ -1191,15 +1243,19 @@ class SerializeWorkbook {
       for (int i = 0; i < length; i++, count++) {
         builder.element('Relationship', nest: () {
           index = i + 1;
+          // ignore: prefer_interpolation_to_compose_strings
           builder.attribute('Id', 'rId' + index.toString());
           builder.attribute('Type',
               'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet');
           builder.attribute(
-              'Target', 'worksheets/sheet' + index.toString() + '.xml');
+              'Target',
+              // ignore: prefer_interpolation_to_compose_strings
+              'worksheets/sheet' + index.toString() + '.xml');
         });
       }
       count = ++count;
       builder.element('Relationship', nest: () {
+        // ignore: prefer_interpolation_to_compose_strings
         builder.attribute('Id', 'rId' + count.toString());
         builder.attribute('Type',
             'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles');
@@ -1208,6 +1264,7 @@ class SerializeWorkbook {
       if (_workbook._sharedStringCount > 0) {
         count = ++count;
         builder.element('Relationship', nest: () {
+          // ignore: prefer_interpolation_to_compose_strings
           builder.attribute('Id', 'rId' + count.toString());
           builder.attribute('Type',
               'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings');
@@ -1353,6 +1410,7 @@ class SerializeWorkbook {
         font.size = style.fontSize;
         font.underline = style.underline;
         if (style.fontColor.length == 7) {
+          // ignore: prefer_interpolation_to_compose_strings
           font.color = 'FF' + style.fontColor.replaceAll('#', '');
         } else {
           font.color = style.fontColor;
@@ -1363,6 +1421,7 @@ class SerializeWorkbook {
         cellXfs._fontId = compareFontResult._index;
       }
       if (style.backColor != '#FFFFFF' && style.backColor.length == 7) {
+        // ignore: prefer_interpolation_to_compose_strings
         final String backColor = 'FF' + style.backColor.replaceAll('#', '');
         if (_workbook.fills.containsKey(backColor)) {
           final int? fillId = _workbook.fills[backColor];
@@ -1415,8 +1474,10 @@ class SerializeWorkbook {
       cellXfs._alignment = Alignment();
       cellXfs._alignment!.indent = style.indent;
       cellXfs._alignment!.horizontal =
+          // ignore: noop_primitive_operations
           style.hAlign.toString().split('.').toList().removeAt(1).toString();
       cellXfs._alignment!.vertical =
+          // ignore: noop_primitive_operations
           style.vAlign.toString().split('.').toList().removeAt(1).toString();
       cellXfs._alignment!.wrapText = style.wrapText ? 1 : 0;
       cellXfs._alignment!.rotation = style.rotation;
@@ -1445,7 +1506,9 @@ class SerializeWorkbook {
           builder.element('numFmt', nest: () {
             builder.attribute('numFmtId', arrFormats[i]._index.toString());
             final String formatString =
+                // ignore: avoid_escaping_inner_quotes
                 arrFormats[i]._formatString!.replaceAll('\'', '"');
+            // ignore: noop_primitive_operations
             builder.attribute('formatCode', formatString.toString());
           });
         }
@@ -1566,10 +1629,12 @@ class SerializeWorkbook {
               .split('.')
               .toList()
               .removeAt(1)
+              // ignore: noop_primitive_operations
               .toString()
               .toLowerCase());
       builder.element('color', nest: () {
         if (border.color.length == 7) {
+          // ignore: prefer_interpolation_to_compose_strings
           builder.attribute('rgb', 'FF' + border.color.replaceAll('#', ''));
         } else {
           builder.attribute('rgb', border.color);
@@ -1693,6 +1758,7 @@ class SerializeWorkbook {
       final String startCell = Range._getCellName(mCell.y, mCell.x);
       final String endCell = Range._getCellName(
           rowIndex + mCell.height, cell._index + mCell.width);
+      // ignore: prefer_interpolation_to_compose_strings
       mCell._reference = startCell + ':' + endCell;
       mergeCells.addCell(mCell);
       final _ExtendCell start = _ExtendCell();
@@ -1801,6 +1867,7 @@ class SerializeWorkbook {
     final ExcelCFType cfType = condition.formatType;
     final ExcelComparisonOperator comparisonOperator = condition.operator;
     final CFTimePeriods cfTimePeriod = condition.timePeriodType;
+    // ignore: prefer_interpolation_to_compose_strings
     builder.element(prefix + 'cfRule', nest: () {
       builder.attribute('type', _getCFType(cfType, comparisonOperator));
       if (_checkFormat(condition)) {
@@ -1840,6 +1907,7 @@ class SerializeWorkbook {
             .split('.')
             .toList()
             .removeAt(1)
+            // ignore: noop_primitive_operations
             .toString()
             .toLowerCase();
         _serializeAttributes(
@@ -1856,7 +1924,9 @@ class SerializeWorkbook {
         if (v1[0] == '=') {
           v1 = v1.substring(1);
         }
+        // ignore: avoid_escaping_inner_quotes
         v1 = v1.replaceAll('\'', '"');
+        // ignore: prefer_interpolation_to_compose_strings
         builder.element(prefix + 'formula', nest: v1);
       }
       if (condition.secondFormula != '') {
@@ -1864,7 +1934,9 @@ class SerializeWorkbook {
         if (v1[0] == '=') {
           v1 = v1.substring(1);
         }
+        // ignore: avoid_escaping_inner_quotes
         v1 = v1.replaceAll('\'', '"');
+        // ignore: prefer_interpolation_to_compose_strings
         builder.element(prefix + 'formula', nest: v1);
       }
       if (cfType == ExcelCFType.dataBar) {
@@ -1895,6 +1967,7 @@ class SerializeWorkbook {
                 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main');
 
             builder.element('x14:id',
+                // ignore: unnecessary_null_checks
                 nest: (condition.dataBar! as _DataBarImpl)._stGUID!);
           });
         });
@@ -1981,7 +2054,7 @@ class SerializeWorkbook {
     if (cfHasExtensionList || isCustom) {
       prefix = 'x14:';
     }
-
+    // ignore: prefer_interpolation_to_compose_strings
     builder.element(prefix + 'cfvo', nest: () {
       final int index = conditionValue.type.index;
       final String strType = _valueTypes[index];
@@ -2049,6 +2122,7 @@ class SerializeWorkbook {
     builder.element(tagName, nest: () {
       String colorValue = color;
       if (colorValue.length <= 7) {
+        // ignore: prefer_interpolation_to_compose_strings
         colorValue = 'FF' + color.replaceAll('#', '');
       }
       builder.attribute('rgb', colorValue);
@@ -2216,6 +2290,7 @@ class SerializeWorkbook {
         }
         String fontColor;
         if (condition.fontColor.length <= 7) {
+          // ignore: prefer_interpolation_to_compose_strings
           fontColor = 'FF' + condition.fontColor.replaceAll('#', '');
         } else {
           fontColor = condition.fontColor;
@@ -2242,7 +2317,9 @@ class SerializeWorkbook {
       builder.element('numFmt', nest: () {
         builder.attribute('numFmtId', index.toString());
         final String formatString =
+            // ignore: avoid_escaping_inner_quotes
             format!._formatString!.replaceAll('\'', '"');
+        // ignore: noop_primitive_operations
         builder.attribute('formatCode', formatString.toString());
       });
     }
@@ -2253,6 +2330,7 @@ class SerializeWorkbook {
     String backColor;
     if (condition.backColor != '#FFFFFF') {
       if (condition.backColor.length == 7) {
+        // ignore: prefer_interpolation_to_compose_strings
         backColor = 'FF' + condition.backColor.replaceAll('#', '');
       } else {
         backColor = condition.backColor;
@@ -2304,11 +2382,13 @@ class SerializeWorkbook {
           .split('.')
           .toList()
           .removeAt(1)
+          // ignore: noop_primitive_operations
           .toString()
           .toLowerCase();
       builder.attribute('style', _strStyle);
       builder.element('color', nest: () {
         if (borderColor.length <= 7) {
+          // ignore: prefer_interpolation_to_compose_strings
           builder.attribute('rgb', 'FF' + borderColor.replaceAll('#', ''));
         } else {
           builder.attribute('rgb', borderColor);
@@ -2349,6 +2429,7 @@ class SerializeWorkbook {
               if (format._bCFHasExtensionList) {
                 final _ConditionalFormatsImpl formats = conditions;
                 format._rangeRefernce = (formats._cellList.isNotEmpty)
+                    // ignore: prefer_interpolation_to_compose_strings
                     ? (' ' + formats._cellList)
                     : '';
 
@@ -2444,6 +2525,7 @@ class SerializeWorkbook {
 
                   final _ConditionalFormatsImpl formats = conditions;
                   final String strAddress = (formats._cellList.isNotEmpty)
+                      // ignore: prefer_interpolation_to_compose_strings
                       ? (' ' + formats._cellList)
                       : '';
                   builder.element('xm:sqref', nest: strAddress);

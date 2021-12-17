@@ -1,8 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../circular_chart/renderer/circular_chart_annotation.dart';
 import '../../circular_chart/utils/enum.dart';
@@ -45,6 +41,7 @@ class DataLabelSettings {
       this.showZeroValue = true,
       this.borderColor = Colors.transparent,
       this.borderWidth = 0,
+      this.overflowMode = OverflowMode.none,
       this.labelIntersectAction = LabelIntersectAction.shift,
       this.connectorLineSettings = const ConnectorLineSettings(),
       this.labelPosition = ChartDataLabelPosition.inside});
@@ -303,6 +300,36 @@ class DataLabelSettings {
   ///```
   final ChartDataLabelPosition labelPosition;
 
+  /// Action on data labels when it’s overflowing from its region area.
+  ///
+  /// The overflowing data label rendering behavior can be changed based
+  ///  on this. If `overflowMode` property is set to `OverflowMode.none`
+  ///  then the `labelIntersectAction` takes the priority, else
+  /// `overflowMode` takes the priority.
+  ///
+  /// _Note:_ This is applicable for pie, doughnut, pyramid, and funnel series
+  ///  types alone.
+  ///
+  /// Defaults to `OverflowMode.none`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Container(
+  ///   child: SfCircularChart(
+  ///     series: <PieSeries<ChartData, String>>[
+  ///       PieSeries<ChartData, String>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           overflowMode: OverflowMode.shift
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   )
+  ///  );
+  /// }
+  /// ```
+  final OverflowMode overflowMode;
+
   ///Customizes the connector lines. Connector line is rendered when the data label is
   /// placed outside the chart.
   ///
@@ -329,7 +356,7 @@ class DataLabelSettings {
   ///
   ///The intersecting data labels can be hidden.
   ///
-  /// _Note:_ This is applicable for pie and doughnut series types alone.
+  /// _Note:_ This is applicable for pie, doughnut, funnel and pyramid series types alone.
   ///
   ///Defaults to `LabelIntersectAction.shift`.
   ///
@@ -468,6 +495,7 @@ class DataLabelSettings {
         other.showZeroValue == showZeroValue &&
         other.borderColor == borderColor &&
         other.borderWidth == borderWidth &&
+        other.overflowMode == overflowMode &&
         other.labelIntersectAction == labelIntersectAction &&
         other.connectorLineSettings == connectorLineSettings &&
         other.labelPosition == labelPosition;
@@ -492,6 +520,7 @@ class DataLabelSettings {
       showZeroValue,
       borderColor,
       borderWidth,
+      overflowMode,
       labelIntersectAction,
       connectorLineSettings,
       labelPosition

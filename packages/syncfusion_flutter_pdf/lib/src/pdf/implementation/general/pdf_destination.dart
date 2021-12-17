@@ -1,28 +1,42 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../interfaces/pdf_interface.dart';
+import '../drawing/drawing.dart';
+import '../io/pdf_constants.dart';
+import '../pages/pdf_page.dart';
+import '../pages/pdf_section.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_reference_holder.dart';
+import 'enum.dart';
 
 /// Represents an anchor in the document where bookmarks
 /// or annotations can direct when clicked.
-class PdfDestination implements _IPdfWrapper {
+class PdfDestination implements IPdfWrapper {
   // constructor
   /// Initializes a new instance of the [PdfDestination] class with
   /// specified page and location.
   PdfDestination(PdfPage page, [Offset? location]) {
+    _helper = PdfDestinationHelper(this);
     this.page = page;
     this.location = (location == null) ? Offset(0, _location.y) : location;
   }
 
-  PdfDestination._(PdfPage page, _Rectangle rect) {
+  PdfDestination._(PdfPage page, PdfRectangle rect) {
+    _helper = PdfDestinationHelper(this);
     this.page = page;
     location = rect.location.offset;
     _bounds = rect;
   }
 
   // fields
+  late PdfDestinationHelper _helper;
   double _zoom = 0;
-  _Point _location = _Point.empty;
-  _Rectangle _rect = _Rectangle.empty;
+  PdfPoint _location = PdfPoint.empty;
+  PdfRectangle _rect = PdfRectangle.empty;
   PdfPage? _page;
-  final _PdfArray _array = _PdfArray();
+  final PdfArray _array = PdfArray();
   PdfDestinationMode _destinationMode = PdfDestinationMode.location;
 
   // Properties
@@ -66,16 +80,16 @@ class PdfDestination implements _IPdfWrapper {
 
   /// Sets a location of the destination.
   set location(Offset value) {
-    final _Point position = _Point.fromOffset(value);
+    final PdfPoint position = PdfPoint.fromOffset(value);
     if (position != _location) {
       _location = position;
       _initializePrimitive();
     }
   }
 
-  _Rectangle get _bounds => _rect;
+  PdfRectangle get _bounds => _rect;
 
-  set _bounds(_Rectangle value) {
+  set _bounds(PdfRectangle value) {
     if (_rect != value) {
       _rect = value;
       _initializePrimitive();
@@ -84,59 +98,78 @@ class PdfDestination implements _IPdfWrapper {
 
   // implementation
   void _initializePrimitive() {
-    _array._clear();
-    _array._add(_PdfReferenceHolder(_page));
+    _array.clear();
+    _array.add(PdfReferenceHolder(_page));
     switch (mode) {
       case PdfDestinationMode.location:
-        _Point point = _Point.empty;
-        if (page._isLoadedPage) {
+        PdfPoint point = PdfPoint.empty;
+        if (PdfPageHelper.getHelper(page).isLoadedPage) {
           point.x = _location.x;
           point.y = page.size.height - _location.y;
         } else {
-          point = _pointToNativePdf(page, _Point(_location.x, _location.y));
+          point = _pointToNativePdf(page, PdfPoint(_location.x, _location.y));
         }
-        _array._add(_PdfName(_DictionaryProperties.xyz));
-        _array._add(_PdfNumber(point.x));
-        _array._add(_PdfNumber(point.y));
-        _array._add(_PdfNumber(_zoom));
+        _array.add(PdfName(PdfDictionaryProperties.xyz));
+        _array.add(PdfNumber(point.x));
+        _array.add(PdfNumber(point.y));
+        _array.add(PdfNumber(_zoom));
         break;
 
       case PdfDestinationMode.fitToPage:
-        _array._add(_PdfName(_DictionaryProperties.fit));
+        _array.add(PdfName(PdfDictionaryProperties.fit));
         break;
 
       case PdfDestinationMode.fitR:
         {
-          _array._add(_PdfName(_DictionaryProperties.fitR));
-          _array._add(_PdfNumber(_bounds.x));
-          _array._add(_PdfNumber(_bounds.y));
-          _array._add(_PdfNumber(_bounds.width));
-          _array._add(_PdfNumber(_bounds.height));
+          _array.add(PdfName(PdfDictionaryProperties.fitR));
+          _array.add(PdfNumber(_bounds.x));
+          _array.add(PdfNumber(_bounds.y));
+          _array.add(PdfNumber(_bounds.width));
+          _array.add(PdfNumber(_bounds.height));
         }
         break;
 
       case PdfDestinationMode.fitH:
         final PdfPage page = _page!;
         double value = 0;
-        if (page._isLoadedPage) {
+        if (PdfPageHelper.getHelper(page).isLoadedPage) {
           value = page.size.height - _location.y;
         } else {
           value = page.size.height - _location.y;
         }
-        _array._add(_PdfName(_DictionaryProperties.fitH));
-        _array._add(_PdfNumber(value));
+        _array.add(PdfName(PdfDictionaryProperties.fitH));
+        _array.add(PdfNumber(value));
         break;
       default:
         break;
     }
-    _element = _array;
+    _helper.element = _array;
   }
 
-  _Point _pointToNativePdf(PdfPage page, _Point point) {
-    final PdfSection section = page._section!;
-    return section._pointToNativePdf(page, point);
+  PdfPoint _pointToNativePdf(PdfPage page, PdfPoint point) {
+    return PdfSectionHelper.getHelper(PdfPageHelper.getHelper(page).section!)
+        .pointToNativePdf(page, point);
+  }
+}
+
+/// [PdfDestination] helper
+class PdfDestinationHelper {
+  /// internal constructor
+  PdfDestinationHelper(this.destination);
+
+  /// internal field
+  late PdfDestination destination;
+
+  /// internal method
+  static PdfDestinationHelper getHelper(PdfDestination destination) {
+    return destination._helper;
   }
 
-  @override
-  _IPdfPrimitive? _element;
+  /// internal method
+  static PdfDestination getDestination(PdfPage page, PdfRectangle rect) {
+    return PdfDestination._(page, rect);
+  }
+
+  /// internal field
+  IPdfPrimitive? element;
 }

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
-import '../../../gauges.dart';
 import '../../linear_gauge/utils/enum.dart';
 
 /// [LinearMarkerPointer] has properties for customizing linear gauge pointers.

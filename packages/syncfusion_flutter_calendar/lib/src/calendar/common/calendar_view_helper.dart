@@ -8,17 +8,7 @@ import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../../calendar.dart';
 import '../appointment_engine/appointment_helper.dart';
-import '../appointment_engine/calendar_datasource.dart';
-import '../resource_view/calendar_resource.dart';
-import '../settings/month_view_settings.dart';
-import '../settings/resource_view_settings.dart';
-import '../settings/schedule_view_settings.dart';
-import '../settings/time_region.dart';
-import '../settings/time_slot_view_settings.dart';
-import '../sfcalendar.dart';
 import 'date_time_engine.dart';
-import 'enums.dart';
-import 'event_args.dart';
 
 /// All day appointment height
 const double kAllDayAppointmentHeight = 20;
@@ -259,27 +249,17 @@ class CalendarViewHelper {
   /// views(all day panel, time slot panel, agenda view).
   static String getAppointmentSemanticsText(CalendarAppointment appointment) {
     if (appointment.isAllDay) {
-      return appointment.subject + 'All day';
+      return '${appointment.subject}All day';
     } else if (appointment.isSpanned ||
         AppointmentHelper.getDifference(
                     appointment.startTime, appointment.endTime)
                 .inDays >
             0) {
-      return appointment.subject +
-          DateFormat('hh mm a dd/MMMM/yyyy')
-              .format(appointment.startTime)
-              .toString() +
-          'to' +
-          DateFormat('hh mm a dd/MMMM/yyyy')
-              .format(appointment.endTime)
-              .toString();
+      // ignore: lines_longer_than_80_chars
+      return '${appointment.subject}${DateFormat('hh mm a dd/MMMM/yyyy').format(appointment.startTime)}to${DateFormat('hh mm a dd/MMMM/yyyy').format(appointment.endTime)}';
     } else {
-      return appointment.subject +
-          DateFormat('hh mm a').format(appointment.startTime).toString() +
-          '-' +
-          DateFormat('hh mm a dd/MMMM/yyyy')
-              .format(appointment.endTime)
-              .toString();
+      // ignore: lines_longer_than_80_chars
+      return '${appointment.subject}${DateFormat('hh mm a').format(appointment.startTime)}-${DateFormat('hh mm a dd/MMMM/yyyy').format(appointment.endTime)}';
     }
   }
 
@@ -291,7 +271,7 @@ class CalendarViewHelper {
     if (todayTextColor != null && todayTextColor == Colors.transparent) {
       todayTextColor = todayTextStyle != null
           ? todayTextStyle.color
-          : calendarTheme.todayTextStyle.color;
+          : calendarTheme.todayTextStyle!.color;
     }
 
     return todayTextColor;
@@ -708,6 +688,72 @@ class CalendarViewHelper {
     return showWeekNumber
         ? (width / (DateTime.daysPerWeek + 1)) / (isMobilePlatform ? 1.3 : 4)
         : 0;
+  }
+
+  /// Method to check that the current dragging appointment range contains any
+  /// disabled date time in it.
+  static bool isDraggingAppointmentHasDisabledCell(
+      List<CalendarTimeRegion> timeRegions,
+      List<DateTime> blackoutDates,
+      DateTime appStartTime,
+      DateTime appEndTime,
+      bool isTimelineView,
+      bool isMonthView,
+      DateTime minDate,
+      DateTime maxDate,
+      int timeInterval,
+      int resourceIndex,
+      List<CalendarResource>? resources) {
+    /// Condition added to check and restrict the appointment rescheduling when
+    /// it exceeds the min/max dates in the calendar.
+    if ((isMonthView &&
+            (!isDateWithInDateRange(minDate, maxDate, appStartTime) ||
+                !isDateWithInDateRange(minDate, maxDate, appEndTime))) ||
+        (!isMonthView &&
+            (!CalendarViewHelper.isDateTimeWithInDateTimeRange(
+                    minDate, maxDate, appStartTime, timeInterval) ||
+                !CalendarViewHelper.isDateTimeWithInDateTimeRange(
+                    minDate, maxDate, appEndTime, timeInterval)))) {
+      return true;
+    }
+
+    /// Condition added to check and restrict the appointment rescheduling into
+    /// the blackout dates of the month and timeline month views of the
+    /// calendar.
+    if (isMonthView) {
+      for (int i = 0; i < blackoutDates.length; i++) {
+        final DateTime blackoutDate = blackoutDates[i];
+        if (isSameOrBeforeDate(appEndTime, blackoutDate) &&
+            isSameOrAfterDate(appStartTime, blackoutDate)) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    /// Condition added to check and restrict the appointment rescheduling into
+    /// the disabled time region of the timeslot views of the calendar.
+    if (!isMonthView) {
+      for (int i = 0; i < timeRegions.length; i++) {
+        final CalendarTimeRegion region = timeRegions[i];
+        if (!region.enablePointerInteraction &&
+            (isSameOrBeforeDateTime(appEndTime, region.actualStartTime) &&
+                isSameOrAfterDateTime(appStartTime, region.actualEndTime))) {
+          if (resourceIndex != -1 &&
+              region.resourceIds != null &&
+              region.resourceIds!.isNotEmpty &&
+              !region.resourceIds!.contains(resources![resourceIndex].id)) {
+            continue;
+          }
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    return false;
   }
 }
 

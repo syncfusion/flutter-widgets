@@ -1,9 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../chart/common/data_label.dart';
 import '../../common/utils/helper.dart';
 import '../../pyramid_chart/utils/helper.dart';
@@ -68,6 +63,7 @@ class PyramidDataLabelRendererState extends State<PyramidDataLabelRenderer>
     animationController.forward(from: 0.0);
     return !widget.show
         ? Container()
+        // ignore: avoid_unnecessary_containers
         : Container(
             child: RepaintBoundary(
                 child: CustomPaint(
@@ -130,6 +126,7 @@ class PyramidDataLabelPainter extends CustomPainter {
         seriesRenderer.series.dataLabelSettings.isVisible == true) {
       seriesRenderer.dataLabelSettingsRenderer =
           DataLabelSettingsRenderer(seriesRenderer.series.dataLabelSettings);
+      stateProperties.outsideRects.clear();
       renderPyramidDataLabel(
           seriesRenderer, canvas, stateProperties, animation);
     }

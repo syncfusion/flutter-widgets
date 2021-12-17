@@ -1,7 +1,4 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../linear_gauge/gauge/linear_gauge_scope.dart';
 import '../../linear_gauge/pointers/linear_marker_pointer.dart';
@@ -451,9 +448,14 @@ class LinearShapePointer extends LeafRenderObjectWidget
         onChanged: onChanged,
         onChangeStart: onChangeStart,
         onChangeEnd: onChangeEnd,
-        color: color ?? (isDarkTheme ? Colors.white70 : Colors.black54),
-        borderColor:
-            borderColor ?? (isDarkTheme ? Colors.white70 : Colors.black54),
+        color: color ??
+            (isDarkTheme
+                ? theme.colorScheme.onSurface.withOpacity(0.70)
+                : theme.colorScheme.onSurface.withOpacity(0.54)),
+        borderColor: borderColor ??
+            (isDarkTheme
+                ? theme.colorScheme.onSurface.withOpacity(0.70)
+                : theme.colorScheme.onSurface.withOpacity(0.54)),
         borderWidth: borderWidth,
         width: width ?? (shapeType == LinearShapePointerType.diamond ? 12 : 16),
         height:
@@ -485,9 +487,14 @@ class LinearShapePointer extends LeafRenderObjectWidget
       ..onChanged = onChanged
       ..onChangeStart = onChangeStart
       ..onChangeEnd = onChangeEnd
-      ..color = color ?? (isDarkTheme ? Colors.white70 : Colors.black54)
-      ..borderColor =
-          borderColor ?? (isDarkTheme ? Colors.white70 : Colors.black54)
+      ..color = color ??
+          (isDarkTheme
+              ? theme.colorScheme.onSurface.withOpacity(0.70)
+              : theme.colorScheme.onSurface.withOpacity(0.54))
+      ..borderColor = borderColor ??
+          (isDarkTheme
+              ? theme.colorScheme.onSurface.withOpacity(0.70)
+              : theme.colorScheme.onSurface.withOpacity(0.54))
       ..borderWidth = borderWidth
       ..width = width ?? (shapeType == LinearShapePointerType.diamond ? 12 : 16)
       ..height =

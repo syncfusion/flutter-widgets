@@ -1,7 +1,3 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -10,7 +6,6 @@ import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../datepicker.dart';
-import 'date_picker_manager.dart';
 import 'picker_helper.dart';
 
 /// Used to hold the month cell widgets.
@@ -55,7 +50,8 @@ class MonthView extends StatefulWidget {
       this.showWeekNumber,
       this.weekNumberStyle,
       this.isMobilePlatform,
-      this.disableDatesCollection);
+      this.disableDatesCollection,
+      this.extendableRangeSelectionDirection);
 
   /// Defines the month row count.
   final int rowCount;
@@ -171,12 +167,17 @@ class MonthView extends StatefulWidget {
   /// Holds the list of dates for selectable day predicate.
   final List<dynamic>? disableDatesCollection;
 
+  /// Defines the extendable range selection direction
+  /// of the [SfDateRangePicker].
+  final ExtendableRangeSelectionDirection extendableRangeSelectionDirection;
+
   @override
+  // ignore: library_private_types_in_public_api
   _MonthViewState createState() => _MonthViewState();
 }
 
 class _MonthViewState extends State<MonthView> {
-  final PickerStateArgs _pickerStateDetails = PickerStateArgs();
+  late PickerStateArgs _pickerStateDetails;
   dynamic _selectedDate;
   List<dynamic>? _selectedDates;
   dynamic _selectedRange;
@@ -186,6 +187,7 @@ class _MonthViewState extends State<MonthView> {
 
   @override
   void initState() {
+    _pickerStateDetails = PickerStateArgs();
     widget.getPickerStateDetails(_pickerStateDetails);
     _selectedDate = _pickerStateDetails.selectedDate;
     _selectedDates =
@@ -220,7 +222,9 @@ class _MonthViewState extends State<MonthView> {
         widget.navigationDirection != oldWidget.navigationDirection ||
         widget.visibleDates != oldWidget.visibleDates ||
         widget.showWeekNumber != oldWidget.showWeekNumber ||
-        widget.weekNumberStyle != oldWidget.weekNumberStyle) {
+        widget.weekNumberStyle != oldWidget.weekNumberStyle ||
+        widget.extendableRangeSelectionDirection !=
+            oldWidget.extendableRangeSelectionDirection) {
       _children.clear();
     }
 
@@ -558,6 +562,7 @@ class _MonthViewState extends State<MonthView> {
               widget.weekNumberStyle,
               weekNumberPanelWidth,
               widget.disableDatesCollection,
+              widget.extendableRangeSelectionDirection,
               widgets: _children);
         }
       case DateRangePickerSelectionMode.multiRange:
@@ -1240,6 +1245,7 @@ class _MonthViewExtendableRangeSelectionRenderWidget
       this.weekNumberStyle,
       this.weekNumberPanelWidth,
       this.disableDatesCollection,
+      this.extendableRangeSelectionDirection,
       {required List<Widget> widgets})
       : super(children: widgets);
 
@@ -1315,6 +1321,8 @@ class _MonthViewExtendableRangeSelectionRenderWidget
 
   final List<dynamic>? disableDatesCollection;
 
+  final ExtendableRangeSelectionDirection extendableRangeSelectionDirection;
+
   @override
   _MonthViewExtendableRangeSelectionRenderObject createRenderObject(
       BuildContext context) {
@@ -1354,7 +1362,8 @@ class _MonthViewExtendableRangeSelectionRenderWidget
         isMobilePlatform,
         weekNumberStyle,
         weekNumberPanelWidth,
-        disableDatesCollection);
+        disableDatesCollection,
+        extendableRangeSelectionDirection);
   }
 
   @override
@@ -1396,7 +1405,8 @@ class _MonthViewExtendableRangeSelectionRenderWidget
       ..isMobilePlatform = isMobilePlatform
       ..weekNumberStyle = weekNumberStyle
       ..weekNumberPanelWidth = weekNumberPanelWidth
-      ..disableDatesCollection = disableDatesCollection;
+      ..disableDatesCollection = disableDatesCollection
+      ..extendableRangeSelectionDirection = extendableRangeSelectionDirection;
   }
 }
 
@@ -2436,7 +2446,7 @@ abstract class _IMonthView extends RenderBox
               rect: Rect.fromLTWH(
                   xPosition, top, weekNumberPanelWidth, cellHeight),
               properties: SemanticsProperties(
-                label: 'week' + weekNumber.toString(),
+                label: 'week$weekNumber',
                 textDirection: TextDirection.ltr,
               )));
         }
@@ -2454,7 +2464,7 @@ abstract class _IMonthView extends RenderBox
             rect: Rect.fromLTWH(viewXStartPosition + left,
                 viewYStartPosition + top, cellWidth, cellHeight),
             properties: SemanticsProperties(
-              label: _getSemanticMonthLabel(currentDate) + ', Blackout date',
+              label: '${_getSemanticMonthLabel(currentDate)}, Blackout date',
               textDirection: TextDirection.ltr,
             ),
           ));
@@ -2471,7 +2481,7 @@ abstract class _IMonthView extends RenderBox
             rect: Rect.fromLTWH(viewXStartPosition + left,
                 viewYStartPosition + top, cellWidth, cellHeight),
             properties: SemanticsProperties(
-              label: _getSemanticMonthLabel(currentDate) + ', Disabled date',
+              label: '${_getSemanticMonthLabel(currentDate)}, Disabled date',
               textDirection: TextDirection.ltr,
             ),
           ));
@@ -2502,15 +2512,11 @@ abstract class _IMonthView extends RenderBox
   ///  Returns the accessibility text for the month cell.
   String _getSemanticMonthLabel(dynamic date) {
     if (_isHijri) {
-      return DateFormat('EEE').format(date.toDateTime()).toString() +
-          ',' +
-          date.day.toString() +
-          '/' +
-          DateRangePickerHelper.getHijriMonthText(date, localizations, 'MMMM') +
-          '/' +
-          date.year.toString();
+      return '${DateFormat('EEE').format(date.toDateTime())},${date.day}'
+          // ignore: lines_longer_than_80_chars
+          ' ${DateRangePickerHelper.getHijriMonthText(date, localizations, 'MMMM')} ${date.year}';
     } else {
-      return DateFormat('EEE, dd/MMMM/yyyy').format(date).toString();
+      return DateFormat('EEE, dd MMMM yyyy').format(date);
     }
   }
 }
@@ -3105,7 +3111,8 @@ class _MonthViewRangeSelectionRenderObject extends _IMonthView {
     if (selectedRange != null) {
       final dynamic startDate = selectedRange.startDate;
       final dynamic endDate = selectedRange.endDate ?? selectedRange.startDate;
-      _selectedIndex = _getSelectedRangeIndex(startDate, endDate, visibleDates,
+      _selectedIndex = _getSelectedRangeIndex(
+          startDate, endDate, visibleDates, isHijri,
           monthStartIndex: viewStartIndex, monthEndIndex: viewEndIndex);
     }
 
@@ -3196,7 +3203,8 @@ class _MonthViewExtendableRangeSelectionRenderObject extends _IMonthView {
       bool isMobilePlatform,
       DateRangePickerWeekNumberStyle weekNumberStyle,
       double weekNumberPanelWidth,
-      List<dynamic>? disableDatesCollection)
+      List<dynamic>? disableDatesCollection,
+      this._extendableRangeSelectionDirection)
       : super(
             visibleDates,
             rowCount,
@@ -3244,6 +3252,25 @@ class _MonthViewExtendableRangeSelectionRenderObject extends _IMonthView {
     }
 
     _selectedRange = value;
+    if (childCount == 0) {
+      markNeedsPaint();
+    } else {
+      markNeedsLayout();
+    }
+  }
+
+  ExtendableRangeSelectionDirection _extendableRangeSelectionDirection;
+
+  ExtendableRangeSelectionDirection get extendableRangeSelectionDirection =>
+      _extendableRangeSelectionDirection;
+
+  set extendableRangeSelectionDirection(
+      ExtendableRangeSelectionDirection value) {
+    if (_extendableRangeSelectionDirection == value) {
+      return;
+    }
+
+    _extendableRangeSelectionDirection = value;
     if (childCount == 0) {
       markNeedsPaint();
     } else {
@@ -3384,7 +3411,8 @@ class _MonthViewExtendableRangeSelectionRenderObject extends _IMonthView {
     if (selectedRange != null) {
       final dynamic startDate = selectedRange.startDate;
       final dynamic endDate = selectedRange.endDate ?? selectedRange.startDate;
-      _selectedIndex = _getSelectedRangeIndex(startDate, endDate, visibleDates,
+      _selectedIndex = _getSelectedRangeIndex(
+          startDate, endDate, visibleDates, isHijri,
           monthStartIndex: viewStartIndex, monthEndIndex: viewEndIndex);
     }
 
@@ -3675,7 +3703,7 @@ class _MonthViewMultiRangeSelectionRenderObject extends _IMonthView {
         final dynamic startDate = range.startDate;
         final dynamic endDate = range.endDate ?? range.startDate;
         final List<int> rangeIndex = _getSelectedRangeIndex(
-            startDate, endDate, visibleDates,
+            startDate, endDate, visibleDates, isHijri,
             monthStartIndex: viewStartIndex, monthEndIndex: viewEndIndex);
         for (int i = 0; i < rangeIndex.length; i++) {
           selectedIndex.add(rangeIndex[i]);
@@ -3845,16 +3873,25 @@ double _getCellRadius(
   return radius > selectionRadius ? selectionRadius : radius;
 }
 
-List<int> _getSelectedRangeIndex(
-    dynamic startDate, dynamic endDate, List<dynamic> visibleDates,
+List<int> _getSelectedRangeIndex(dynamic startDate, dynamic endDate,
+    List<dynamic> visibleDates, bool isHijri,
     {int monthStartIndex = -1, int monthEndIndex = -1}) {
   int startIndex = -1;
   int endIndex = -1;
   final List<int> selectedIndex = <int>[];
-  if (startDate != null && startDate.isAfter(endDate) == true) {
+  if (startDate == null && endDate == null) {
+    return selectedIndex;
+  }
+
+  dynamic endRangeDate;
+  if (endDate != null) {
+    endRangeDate = DateRangePickerHelper.getDate(
+        endDate.year, endDate.month, endDate.day, isHijri);
+  }
+  if (startDate != null && startDate.isAfter(endRangeDate) == true) {
     final dynamic temp = startDate;
-    startDate = endDate;
-    endDate = temp;
+    startDate = endRangeDate;
+    endRangeDate = temp;
   }
 
   final dynamic viewStartDate =
@@ -3864,7 +3901,7 @@ List<int> _getSelectedRangeIndex(
       : visibleDates[visibleDates.length - 1];
   if (startDate != null) {
     if (viewStartDate.isAfter(startDate) == true &&
-        viewStartDate.isBefore(endDate) == true) {
+        viewStartDate.isBefore(endRangeDate) == true) {
       startIndex = -1;
     } else {
       startIndex = _getSelectedIndex(startDate, visibleDates,
@@ -3872,12 +3909,12 @@ List<int> _getSelectedRangeIndex(
     }
   }
 
-  if (endDate != null) {
+  if (endRangeDate != null) {
     if (viewEndDate.isAfter(startDate) == true &&
-        viewEndDate.isBefore(endDate) == true) {
+        viewEndDate.isBefore(endRangeDate) == true) {
       endIndex = visibleDates.length;
     } else {
-      endIndex = _getSelectedIndex(endDate, visibleDates,
+      endIndex = _getSelectedIndex(endRangeDate, visibleDates,
           viewStartIndex: monthStartIndex);
     }
   }
@@ -3998,7 +4035,7 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
 
   monthView._textPainter.textScaleFactor = monthView.textScaleFactor;
   TextStyle textStyle = monthView.cellStyle.textStyle as TextStyle? ??
-      monthView.datePickerTheme.activeDatesTextStyle;
+      monthView.datePickerTheme.activeDatesTextStyle!;
   final int datesCount = monthView.visibleDates.length ~/ viewCount;
   final bool isNeedWidgetPaint = monthView.childCount != 0;
   final bool hideLeadingAndTrailingDates =
@@ -4127,13 +4164,25 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
             monthView.enablePastDates,
             date,
             monthView.isHijri);
+
         final bool isBlackedDate =
             DateRangePickerHelper.isDateWithInVisibleDates(
                 monthView.visibleDates, monthView.blackoutDates, date);
         final bool isSelectedDate = selectedIndex.contains(currentIndex);
-        final bool isDisabledDate =
-            DateRangePickerHelper.isDateWithInVisibleDates(
-                monthView.visibleDates, monthView.disableDatesCollection, date);
+        bool isDisabledDate = DateRangePickerHelper.isDateWithInVisibleDates(
+            monthView.visibleDates, monthView.disableDatesCollection, date);
+        if (!isDisabledDate &&
+            monthView is _MonthViewExtendableRangeSelectionRenderObject &&
+            monthView.selectedRange != null &&
+            DateRangePickerHelper.isDisableDirectionDate(
+                monthView.selectedRange,
+                date,
+                monthView.extendableRangeSelectionDirection,
+                DateRangePickerView.month,
+                monthView.isHijri,
+                isInBetweenEnabled: true)) {
+          isDisabledDate = true;
+        }
 
         if (isSelectedDate &&
             !isBlackedDate &&
@@ -4218,9 +4267,9 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
         getPreviousMonthDate(currentMonthDate).month as int;
     bool isCurrentDate;
     final TextStyle selectionTextStyle = monthView.selectionTextStyle ??
-        monthView.datePickerTheme.selectionTextStyle;
+        monthView.datePickerTheme.selectionTextStyle!;
     final TextStyle selectedRangeTextStyle = monthView.rangeTextStyle ??
-        monthView.datePickerTheme.rangeSelectionTextStyle;
+        monthView.datePickerTheme.rangeSelectionTextStyle!;
 
     Decoration? dateDecoration;
     const double padding = 1;
@@ -4249,6 +4298,7 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
           monthView.mouseHoverPosition.value!.hoveringRange.startDate,
           monthView.mouseHoverPosition.value!.hoveringRange.endDate,
           monthView.visibleDates,
+          monthView.isHijri,
           monthStartIndex: viewStartIndex,
           monthEndIndex: viewEndIndex);
     }
@@ -4372,15 +4422,27 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
           monthView.enablePastDates,
           date,
           monthView.isHijri);
+
       final bool isBlackedDate = DateRangePickerHelper.isDateWithInVisibleDates(
           monthView.visibleDates, monthView.blackoutDates, date);
       final bool isWeekEnd =
           DateRangePickerHelper.isWeekend(monthView.weekendDays, date);
       final bool isSpecialDate = DateRangePickerHelper.isDateWithInVisibleDates(
           monthView.visibleDates, monthView.specialDates, date);
-      final bool isDisabledDate =
-          DateRangePickerHelper.isDateWithInVisibleDates(
-              monthView.visibleDates, monthView.disableDatesCollection, date);
+      bool isDisabledDate = DateRangePickerHelper.isDateWithInVisibleDates(
+          monthView.visibleDates, monthView.disableDatesCollection, date);
+      if (!isDisabledDate &&
+          monthView is _MonthViewExtendableRangeSelectionRenderObject &&
+          monthView.selectedRange != null &&
+          DateRangePickerHelper.isDisableDirectionDate(
+              monthView.selectedRange,
+              date,
+              monthView.extendableRangeSelectionDirection,
+              DateRangePickerView.month,
+              monthView.isHijri,
+              isInBetweenEnabled: true)) {
+        isDisabledDate = true;
+      }
 
       textStyle = _updateTextStyle(
           monthView,
@@ -4483,7 +4545,7 @@ void _drawWeekNumber(
       DateRangePickerHelper.getWeekNumberOfYear(date, monthView.isHijri)
           .toString();
   final TextStyle weekNumberTextStyle = monthView.weekNumberStyle.textStyle ??
-      monthView.datePickerTheme.weekNumberTextStyle;
+      monthView.datePickerTheme.weekNumberTextStyle!;
   final TextSpan textSpan =
       TextSpan(text: weekNumber, style: weekNumberTextStyle);
 
@@ -4565,7 +4627,7 @@ void _addRangeHoverEffect(Canvas canvas, double xPosition, double yPosition,
       break;
   }
 
-  Rect rect = const Rect.fromLTRB(0, 0, 0, 0);
+  Rect rect = Rect.zero;
   if (isStartRange) {
     switch (monthView.selectionShape) {
       case DateRangePickerSelectionShape.circle:
@@ -4745,7 +4807,7 @@ TextStyle _updateTextStyle(
     bool isDisabledDate) {
   final TextStyle currentDatesTextStyle =
       monthView.cellStyle.textStyle as TextStyle? ??
-          monthView.datePickerTheme.activeDatesTextStyle;
+          monthView.datePickerTheme.activeDatesTextStyle!;
   if (isBlackedDate) {
     return monthView.cellStyle.blackoutDateTextStyle as TextStyle? ??
         (monthView.datePickerTheme.blackoutDatesTextStyle ??
@@ -4754,18 +4816,22 @@ TextStyle _updateTextStyle(
   }
 
   if (isSpecialDate) {
-    return monthView.cellStyle.specialDatesTextStyle as TextStyle? ??
-        monthView.datePickerTheme.specialDatesTextStyle;
+    final TextStyle? specialDateTextStyle =
+        monthView.cellStyle.specialDatesTextStyle as TextStyle? ??
+            monthView.datePickerTheme.specialDatesTextStyle;
+    if (specialDateTextStyle != null) {
+      return specialDateTextStyle;
+    }
   }
 
   if (!isEnableDate || isDisabledDate) {
     return monthView.cellStyle.disabledDatesTextStyle as TextStyle? ??
-        monthView.datePickerTheme.disabledDatesTextStyle;
+        monthView.datePickerTheme.disabledDatesTextStyle!;
   }
 
   if (isCurrentDate) {
     return monthView.cellStyle.todayTextStyle as TextStyle? ??
-        monthView.datePickerTheme.todayTextStyle;
+        monthView.datePickerTheme.todayTextStyle!;
   }
 
   if (isWeekEnd && monthView.cellStyle.weekendTextStyle != null) {
@@ -4777,10 +4843,10 @@ TextStyle _updateTextStyle(
 
   if (isNextMonth && !monthView.isHijri) {
     return monthView.cellStyle.leadingDatesTextStyle as TextStyle? ??
-        monthView.datePickerTheme.leadingDatesTextStyle;
+        monthView.datePickerTheme.leadingDatesTextStyle!;
   } else if (isPreviousMonth && !monthView.isHijri) {
     return monthView.cellStyle.trailingDatesTextStyle as TextStyle? ??
-        monthView.datePickerTheme.trailingDatesTextStyle;
+        monthView.datePickerTheme.trailingDatesTextStyle!;
   }
 
   return currentDatesTextStyle;

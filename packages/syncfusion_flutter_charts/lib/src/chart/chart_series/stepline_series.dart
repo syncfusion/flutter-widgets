@@ -1,22 +1,5 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-
-import '../../chart/utils/enum.dart';
-import '../../common/common.dart';
-import '../../common/series/chart_series.dart';
-import '../../common/user_interaction/selection_behavior.dart';
-import '../../common/utils/enum.dart';
-import '../../common/utils/typedef.dart';
-import '../base/chart_base.dart';
-import '../common/data_label.dart';
-import '../common/marker.dart';
-import '../series_painter/stepline_painter.dart';
-import '../trendlines/trendlines.dart';
-import 'xy_data_series.dart';
 
 /// Renders the step line series.
 ///

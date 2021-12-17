@@ -77,6 +77,42 @@
       "type": "text"
   },
 
+  "passwordDialogHeaderTextLabel": "Password Protected",
+  "@passwordDialogHeaderTextLabel": {
+      "description": "Label that is displayed in the header of password dialog in PdfViewer.",
+      "type": "text"
+  },
+
+  "passwordDialogContentLabel": "Enter the password to open this PDF file",
+  "@passwordDialogContentLabel": {
+      "description": "Label that is displayed in the password dialog in PdfViewer.",
+      "type": "text"
+  },
+  
+  "passwordDialogHintTextLabel": "Enter Password",
+  "@passwordDialogHintTextLabel": {
+      "description": "Label that is displayed in the text field of password dialog in the PdfViewer.",
+      "type": "text"
+  },
+
+  "passwordDialogInvalidPasswordLabel": "Invalid Password",
+  "@passwordDialogInvalidPasswordLabel": {
+      "description": "Label that is displayed in the password dialog of PdfViewer when an invalid password is entered in the text field.",
+      "type": "text"
+  },
+
+  "pdfPasswordDialogOpenLabel": "OPEN",
+  "@pdfPasswordDialogOpenLabel": {
+      "description": "Label that is displayed in the password dialog of PdfViewer to represent the OPEN confirmation button.",
+      "type": "text"
+  },
+
+  "pdfPasswordDialogCancelLabel": "CANCEL",
+  "@pdfPasswordDialogCancelLabel": {
+      "description": "Label that is displayed in the password dialog of PdfViewer to represent the CANCEL confirmation button.",
+      "type": "text"
+  }, 
+
   "allowedViewDayLabel": "Day",
   "@allowedViewDayLabel": {
       "description": "Label that is displayed in the calendar header view when allowed views have calendar day view.",
@@ -140,6 +176,12 @@
   "weeknumberLabel": "Week",
   "@weeknumberLabel": {
       "description": "Label that is displayed prefix to week number.",
+      "type": "text"
+  },
+
+  "allDayLabel": "All Day",
+  "@allDayLabel": {
+      "description": "Label that is displayed in the calendar schedule view of the all day appointment.",
       "type": "text"
   },
 

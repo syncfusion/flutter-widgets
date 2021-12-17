@@ -28,5 +28,5 @@ String getPlatformType() {
   if (html.window.navigator.platform!.toLowerCase().contains('macintel')) {
     return 'macos';
   }
-  return html.window.navigator.platform!.toString().toLowerCase();
+  return html.window.navigator.platform!.toLowerCase();
 }

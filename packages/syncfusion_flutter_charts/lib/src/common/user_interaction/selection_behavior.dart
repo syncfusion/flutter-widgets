@@ -1,8 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/src/chart/common/cartesian_state_properties.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
@@ -327,20 +323,25 @@ class SelectionBehavior {
   ///```dart
 
   void selectDataPoints(int pointIndex, [int seriesIndex = 0]) {
-    final dynamic seriesRenderer = _selectionBehaviorRenderer!._selectionDetails
-        .stateProperties.chartSeries.visibleSeriesRenderers[seriesIndex];
-    assert(
-        seriesRenderer is CartesianSeriesRenderer == false ||
-            getVisibleDataPointIndex(pointIndex,
-                    SeriesHelper.getSeriesRendererDetails(seriesRenderer)) !=
-                null,
-        'Provided point index is not in the visible range. Provide point index which is in the visible range.');
-    _selectionBehaviorRenderer = seriesRenderer is CartesianSeriesRenderer
-        ? SeriesHelper.getSeriesRendererDetails(seriesRenderer)
-            .selectionBehaviorRenderer
-        : _selectionBehaviorRenderer;
-    _selectionBehaviorRenderer!._selectionDetails.selectionRenderer
-        ?.selectDataPoints(pointIndex, seriesIndex);
+    if (_selectionBehaviorRenderer != null) {
+      final dynamic seriesRenderer = _selectionBehaviorRenderer!
+          ._selectionDetails
+          .stateProperties
+          .chartSeries
+          .visibleSeriesRenderers[seriesIndex];
+      assert(
+          seriesRenderer is CartesianSeriesRenderer == false ||
+              getVisibleDataPointIndex(pointIndex,
+                      SeriesHelper.getSeriesRendererDetails(seriesRenderer)) !=
+                  null,
+          'Provided point index is not in the visible range. Provide point index which is in the visible range.');
+      _selectionBehaviorRenderer = seriesRenderer is CartesianSeriesRenderer
+          ? SeriesHelper.getSeriesRendererDetails(seriesRenderer)
+              .selectionBehaviorRenderer
+          : _selectionBehaviorRenderer;
+      _selectionBehaviorRenderer!._selectionDetails.selectionRenderer
+          ?.selectDataPoints(pointIndex, seriesIndex);
+    }
   }
 
   /// provides the list of selected point indices for given series.

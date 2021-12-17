@@ -1,12 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../radial_gauge/axis/radial_axis_scope.dart';
 import '../../radial_gauge/pointers/gauge_pointer.dart';
 import '../../radial_gauge/pointers/range_pointer_renderer.dart';
 import '../../radial_gauge/utils/enum.dart';
+import '../../radial_gauge/utils/helper.dart';
 import '../../radial_gauge/utils/radial_callback_args.dart';
 
 /// Create the pointer to indicate the value with rounded range bar arc.
@@ -451,9 +450,11 @@ class RangePointer extends LeafRenderObjectWidget implements GaugePointer {
   RenderObject createRenderObject(BuildContext context) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+    final RadialAxisInheritedWidget ancestor = context
+        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
 
     return RenderRangePointer(
-        value: value,
+        value: value.clamp(ancestor.minimum, ancestor.maximum),
         enableDragging: enableDragging,
         onValueChanged: onValueChanged,
         onValueChangeStart: onValueChangeStart,
@@ -473,6 +474,7 @@ class RangePointer extends LeafRenderObjectWidget implements GaugePointer {
             radialAxisScope.isRadialGaugeAnimationEnabled,
         repaintNotifier: radialAxisScope.repaintNotifier,
         animationType: animationType,
+        context: context,
         gaugeThemeData: gaugeTheme);
   }
 
@@ -481,6 +483,8 @@ class RangePointer extends LeafRenderObjectWidget implements GaugePointer {
       BuildContext context, RenderRangePointer renderObject) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+    final RadialAxisInheritedWidget ancestor = context
+        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
 
     renderObject
       ..enableDragging = enableDragging
@@ -502,7 +506,7 @@ class RangePointer extends LeafRenderObjectWidget implements GaugePointer {
       ..isRadialGaugeAnimationEnabled =
           radialAxisScope.isRadialGaugeAnimationEnabled
       ..gaugeThemeData = gaugeTheme
-      ..value = value;
+      ..value = value.clamp(ancestor.minimum, ancestor.maximum);
     super.updateRenderObject(context, renderObject);
   }
 }

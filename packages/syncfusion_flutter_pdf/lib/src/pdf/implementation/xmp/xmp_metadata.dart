@@ -1,24 +1,33 @@
-part of pdf;
+import 'package:xml/xml.dart';
+
+import '../../interfaces/pdf_interface.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_stream_writer.dart';
+import '../pdf_document/enums.dart';
+import '../pdf_document/pdf_document_information.dart';
+import '../primitives//pdf_name.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_stream.dart';
 
 /// Represents XMP metadata of the document.
-class _XmpMetadata extends _IPdfWrapper {
+class XmpMetadata implements IPdfWrapper {
   //Constructor
   /// Initializes a new instance of the [XmpMetadata] class.
-  _XmpMetadata(PdfDocumentInformation? documentInfo) {
+  XmpMetadata(PdfDocumentInformation? documentInfo) {
     _initialize(documentInfo);
   }
 
   /// Initializes a new instance of the [XmpMetadata] class.
-  _XmpMetadata.fromXmlDocument(XmlDocument xmp) {
-    _stream = _PdfStream();
-    _stream!._beginSave = _beginSave;
-    _stream!._endSave = _endSave;
+  XmpMetadata.fromXmlDocument(XmlDocument xmp) {
+    _stream = PdfStream();
+    _stream!.beginSave = beginSave;
+    _stream!.endSave = endSave;
     load(xmp);
   }
 
   //Fields
+  PdfStream? _stream;
   XmlDocument? _xmlData;
-  _PdfStream? _stream;
   PdfDocumentInformation? _documentInfo;
   Map<String?, String?> _namespaceCollection = <String?, String?>{};
   final String _rdfUri = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
@@ -92,7 +101,7 @@ class _XmpMetadata extends _IPdfWrapper {
   //Implementations
   void _initialize(PdfDocumentInformation? info) {
     _xmlData = XmlDocument();
-    _stream = _PdfStream();
+    _stream = PdfStream();
     _documentInfo = info;
     _initializeStream();
     _createStartPacket();
@@ -103,26 +112,28 @@ class _XmpMetadata extends _IPdfWrapper {
 
   //Initialize stream.
   void _initializeStream() {
-    _stream!._beginSave = _beginSave;
-    _stream!._endSave = _endSave;
-    _stream![_DictionaryProperties.type] =
-        _PdfName(_DictionaryProperties.metadata);
-    _stream![_DictionaryProperties.subtype] =
-        _PdfName(_DictionaryProperties.xml);
+    _stream!.beginSave = beginSave;
+    _stream!.endSave = endSave;
+    _stream![PdfDictionaryProperties.type] =
+        PdfName(PdfDictionaryProperties.metadata);
+    _stream![PdfDictionaryProperties.subtype] =
+        PdfName(PdfDictionaryProperties.xml);
     _stream!.compress = false;
   }
 
+  /// internal method
   //Raises before stream saves.
-  void _beginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
+  void beginSave(Object sender, SavePdfPrimitiveArgs? ars) {
     //Save Xml to the stream.
-    final _PdfStreamWriter streamWriter = _PdfStreamWriter(_stream);
-    streamWriter._write(_xmlData!.toXmlString(pretty: true));
+    final PdfStreamWriter streamWriter = PdfStreamWriter(_stream);
+    streamWriter.write(_xmlData!.toXmlString(pretty: true));
   }
 
+  /// internal method
   //Raises after stream saves.
-  void _endSave(Object sender, _SavePdfPrimitiveArgs? ars) {
+  void endSave(Object sender, SavePdfPrimitiveArgs? ars) {
     //Reset stream data
-    _stream!._clearStream();
+    _stream!.clearStream();
   }
 
   //Creates packet element.
@@ -181,11 +192,13 @@ class _XmpMetadata extends _IPdfWrapper {
         xmpDescription.children.add(XmlElement(XmlName('CreatorTool', 'xmp'),
             <XmlAttribute>[], <XmlNode>[XmlText(info.creator)]));
       }
-      final String createDate = _getDateTime(info._creationDate);
+      final String createDate = _getDateTime(
+          PdfDocumentInformationHelper.getHelper(info).creationDate);
       xmpDescription.children.add(XmlElement(XmlName('CreateDate', 'xmp'),
           <XmlAttribute>[], <XmlNode>[XmlText(createDate)]));
-      if (!info._isRemoveModifyDate) {
-        final String modificationDate = _getDateTime(info._modificationDate);
+      if (!PdfDocumentInformationHelper.getHelper(info).isRemoveModifyDate) {
+        final String modificationDate = _getDateTime(
+            PdfDocumentInformationHelper.getHelper(info).modificationDate);
         xmpDescription.children.add(XmlElement(XmlName('ModifyDate', 'xmp'),
             <XmlAttribute>[], <XmlNode>[XmlText(modificationDate)]));
       }
@@ -208,16 +221,22 @@ class _XmpMetadata extends _IPdfWrapper {
     _createDublinCoreContainer(
         dublinDescription, 'creator', info.author, false, 'Seq');
     rdf.children.add(dublinDescription);
-    if (_documentInfo!._conformance == PdfConformanceLevel.a1b ||
-        _documentInfo!._conformance == PdfConformanceLevel.a2b ||
-        _documentInfo!._conformance == PdfConformanceLevel.a3b) {
+    if (PdfDocumentInformationHelper.getHelper(_documentInfo!).conformance ==
+            PdfConformanceLevel.a1b ||
+        PdfDocumentInformationHelper.getHelper(_documentInfo!).conformance ==
+            PdfConformanceLevel.a2b ||
+        PdfDocumentInformationHelper.getHelper(_documentInfo!).conformance ==
+            PdfConformanceLevel.a3b) {
       final String? pdfaid =
           _addNamespace('pdfaid', 'http://www.aiim.org/pdfa/ns/id/');
       final XmlElement pdfA = _createElement('rdf', 'Description', _rdfUri);
       pdfA.setAttribute('rdf:about', ' ');
-      if (_documentInfo!._conformance == PdfConformanceLevel.a1b) {
+      if (PdfDocumentInformationHelper.getHelper(_documentInfo!).conformance ==
+          PdfConformanceLevel.a1b) {
         pdfA.setAttribute('pdfaid:part', '1');
-      } else if (_documentInfo!._conformance == PdfConformanceLevel.a2b) {
+      } else if (PdfDocumentInformationHelper.getHelper(_documentInfo!)
+              .conformance ==
+          PdfConformanceLevel.a2b) {
         pdfA.setAttribute('pdfaid:part', '2');
       } else {
         pdfA.setAttribute('pdfaid:part', '3');
@@ -270,18 +289,15 @@ class _XmpMetadata extends _IPdfWrapper {
     final int regionMinutes = dateTime.timeZoneOffset.inMinutes ~/ 11;
     String offsetMinutes = regionMinutes.toString();
     if (regionMinutes >= 0 && regionMinutes <= 9) {
-      offsetMinutes = '0' + offsetMinutes;
+      offsetMinutes = '0$offsetMinutes';
     }
     final int regionHours = dateTime.timeZoneOffset.inHours;
     String offsetHours = regionHours.toString();
     if (regionHours >= 0 && regionHours <= 9) {
-      offsetHours = '0' + offsetHours;
+      offsetHours = '0$offsetHours';
     }
-    final String date = dateTime.toIso8601String().substring(0, 22) +
-        '+' +
-        offsetHours +
-        ':' +
-        offsetMinutes;
+    final String date =
+        '${dateTime.toIso8601String().substring(0, 22)}+$offsetHours:$offsetMinutes';
     return date;
   }
 
@@ -331,6 +347,11 @@ class _XmpMetadata extends _IPdfWrapper {
     }
   }
 
-  @override
-  _IPdfPrimitive? get _element => _stream;
+  /// internal property
+  IPdfPrimitive? get element => _stream;
+  set element(IPdfPrimitive? value) {
+    if (value != null && value is PdfStream) {
+      _stream = value;
+    }
+  }
 }

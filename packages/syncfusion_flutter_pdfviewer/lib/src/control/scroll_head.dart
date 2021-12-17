@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
@@ -118,7 +117,7 @@ class _ScrollHeadState extends State<ScrollHead> {
       BoxShadow(
         color: Color.fromRGBO(0, 0, 0, 0.14),
         blurRadius: 2,
-        offset: Offset(0, 0),
+        offset: Offset.zero,
       ),
       BoxShadow(
         color: Color.fromRGBO(0, 0, 0, 0.12),
@@ -164,7 +163,11 @@ class _ScrollHeadState extends State<ScrollHead> {
                 : Alignment.centerRight,
             child: Container(
               decoration: BoxDecoration(
-                color: _pdfViewerThemeData!.scrollHeadStyle.backgroundColor,
+                color: _pdfViewerThemeData!.scrollHeadStyle?.backgroundColor ??
+                    (Theme.of(context).colorScheme.brightness ==
+                            Brightness.light
+                        ? const Color(0xFFFAFAFA)
+                        : const Color(0xFF424242)),
                 borderRadius: borderRadius,
                 boxShadow: boxShadows,
               ),
@@ -174,8 +177,14 @@ class _ScrollHeadState extends State<ScrollHead> {
                 alignment: Alignment.center,
                 child: Text(
                   '${widget.pdfViewerController.pageNumber}',
-                  style:
-                      _pdfViewerThemeData!.scrollHeadStyle.pageNumberTextStyle,
+                  style: _pdfViewerThemeData!
+                          .scrollHeadStyle?.pageNumberTextStyle ??
+                      TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.87)),
                   semanticsLabel: widget.isBookmarkViewOpen
                       ? ''
                       : widget.pdfViewerController.pageNumber.toString(),

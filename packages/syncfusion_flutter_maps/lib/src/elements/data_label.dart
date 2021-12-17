@@ -1,6 +1,3 @@
-import 'dart:ui';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -8,9 +5,6 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import '../../maps.dart';
 import '../common.dart';
 import '../controller/map_controller.dart';
-import '../enum.dart';
-import '../layer/shape_layer.dart';
-import '../settings.dart';
 import '../utils.dart';
 
 // ignore_for_file: public_member_api_docs
@@ -34,6 +28,7 @@ class MapDataLabel extends LeafRenderObjectWidget {
   final AnimationController dataLabelAnimationController;
 
   @override
+  // ignore: library_private_types_in_public_api
   _RenderMapDataLabel createRenderObject(BuildContext context) {
     return _RenderMapDataLabel(
       source: source,
@@ -49,7 +44,9 @@ class MapDataLabel extends LeafRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderMapDataLabel renderObject) {
+      BuildContext context,
+      // ignore: library_private_types_in_public_api
+      _RenderMapDataLabel renderObject) {
     renderObject
       ..source = source
       ..mapDataSource = mapDataSource
@@ -277,7 +274,7 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
   }
 
   Color _getActualShapeColor(MapModel model) {
-    return model.shapeColor ?? _themeData.layerColor;
+    return model.shapeColor ?? _themeData.layerColor!;
   }
 
   Color _getAnimatedColor(Color color) {

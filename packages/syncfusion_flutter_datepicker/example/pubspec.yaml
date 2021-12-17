@@ -13,6 +13,7 @@ dependencies:
   syncfusion_flutter_datepicker:
     path: ../
 
+
 flutter:
 
   uses-material-design: true

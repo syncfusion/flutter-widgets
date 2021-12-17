@@ -108,6 +108,7 @@ class MonthViewWidget extends StatefulWidget {
   final ValueNotifier<List<CalendarAppointment>?> visibleAppointmentNotifier;
 
   @override
+  // ignore: library_private_types_in_public_api
   _MonthViewWidgetState createState() => _MonthViewWidgetState();
 }
 
@@ -830,7 +831,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
         DateTimeHelper.getWeekNumberOfYear(date).toString();
     double xPosition = isRTL ? size.width - weekNumberPanelWidth : 0;
     final TextStyle weekNumberTextStyle =
-        weekNumberStyle.textStyle ?? calendarTheme.weekNumberTextStyle;
+        weekNumberStyle.textStyle ?? calendarTheme.weekNumberTextStyle!;
     final TextSpan textSpan =
         TextSpan(text: weekNumber, style: weekNumberTextStyle);
 
@@ -866,7 +867,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     if (isMobilePlatform) {
       double yPosition = cellHeight;
       _linePainter.strokeWidth = linePadding;
-      _linePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor;
+      _linePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor!;
       for (int i = 0; i < rowCount - 1; i++) {
         canvas.drawLine(
             Offset(left, yPosition), Offset(right, yPosition), _linePainter);
@@ -900,20 +901,23 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     bool isCurrentDate;
 
     _linePainter.isAntiAlias = true;
-    final TextStyle todayStyle = todayTextStyle ?? calendarTheme.todayTextStyle;
+    final TextStyle todayStyle =
+        todayTextStyle ?? calendarTheme.todayTextStyle!;
     final TextStyle currentMonthTextStyle =
-        monthCellStyle.textStyle ?? calendarTheme.activeDatesTextStyle;
+        monthCellStyle.textStyle ?? calendarTheme.activeDatesTextStyle!;
     final TextStyle previousMonthTextStyle =
         monthCellStyle.trailingDatesTextStyle ??
-            calendarTheme.trailingDatesTextStyle;
+            calendarTheme.trailingDatesTextStyle!;
     final TextStyle nextMonthTextStyle = monthCellStyle.leadingDatesTextStyle ??
-        calendarTheme.leadingDatesTextStyle;
+        calendarTheme.leadingDatesTextStyle!;
     final TextStyle? blackoutDatesStyle =
         blackoutDatesTextStyle ?? calendarTheme.blackoutDatesTextStyle;
     final TextStyle disabledTextStyle = TextStyle(
-        color: calendarTheme.brightness == Brightness.light
-            ? Colors.black26
-            : Colors.white38,
+        color: currentMonthTextStyle.color != null
+            ? currentMonthTextStyle.color!.withOpacity(0.38)
+            : calendarTheme.brightness == Brightness.light
+                ? Colors.black26
+                : Colors.white38,
         fontSize: 13,
         fontFamily: 'Roboto');
 
@@ -922,15 +926,15 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
             rowCount, showTrailingAndLeadingDates);
 
     final Color currentMonthBackgroundColor = monthCellStyle.backgroundColor ??
-        calendarTheme.activeDatesBackgroundColor;
+        calendarTheme.activeDatesBackgroundColor!;
     final Color nextMonthBackgroundColor =
         monthCellStyle.leadingDatesBackgroundColor ??
-            calendarTheme.leadingDatesBackgroundColor;
+            calendarTheme.leadingDatesBackgroundColor!;
     final Color previousMonthBackgroundColor =
         monthCellStyle.trailingDatesBackgroundColor ??
-            calendarTheme.trailingDatesBackgroundColor;
+            calendarTheme.trailingDatesBackgroundColor!;
     final Color todayBackgroundColor = monthCellStyle.todayBackgroundColor ??
-        calendarTheme.todayBackgroundColor;
+        calendarTheme.todayBackgroundColor!;
 
     TextStyle textStyle = currentMonthTextStyle;
     _drawWeekNumberPanel(canvas, cellHeight);
@@ -1127,7 +1131,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
       double yPosition, double xPosition, double cellHeight, double cellWidth) {
     yPosition = cellHeight;
     _linePainter.strokeWidth = linePadding;
-    _linePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor;
+    _linePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor!;
     xPosition = isRTL ? 0 : weekNumberPanelWidth;
     final double finalXPosition =
         isRTL ? size.width - weekNumberPanelWidth : size.width;
@@ -1169,13 +1173,13 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
   String _getAccessibilityText(DateTime date, int index) {
     final String accessibilityText =
-        DateFormat('EEE, dd/MMMM/yyyy').format(date).toString();
+        DateFormat('EEE, dd MMMM yyyy').format(date);
     if (_blackoutDatesIndex.contains(index)) {
-      return accessibilityText + ', Blackout date';
+      return '$accessibilityText, Blackout date';
     }
 
     if (!isDateWithInDateRange(minDate, maxDate, date)) {
-      return accessibilityText + ', Disabled date';
+      return '$accessibilityText, Disabled date';
     }
 
     return accessibilityText;
@@ -1205,7 +1209,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
             rect: Rect.fromLTWH(isRTL ? (size.width - left - cellWidth) : 0,
                 top, weekNumberPanelWidth, cellHeight),
             properties: SemanticsProperties(
-              label: 'week' + weekNumber.toString(),
+              label: 'week$weekNumber',
               textDirection: TextDirection.ltr,
             )));
       }

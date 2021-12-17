@@ -1,7 +1,13 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../io/pdf_constants.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_string.dart';
+import 'pdf_action.dart';
+import 'pdf_annotation_action.dart';
 
 /// Represents actions to be performed as response to field events.
-class PdfFieldActions implements _IPdfWrapper {
+class PdfFieldActions implements IPdfWrapper {
   //Constructor
   /// Initializes a new instance of the [PdfFieldActions] class with
   /// the [PdfAnnotationActions]
@@ -10,23 +16,21 @@ class PdfFieldActions implements _IPdfWrapper {
       PdfJavaScriptAction? format,
       PdfJavaScriptAction? validate,
       PdfJavaScriptAction? calculate}) {
-    _annotationActions = annotationActions;
+    _helper.annotationActions = annotationActions;
     _initValues(keyPressed, format, validate, calculate);
   }
 
-  PdfFieldActions._loaded(_PdfDictionary dictionary) {
-    _dictionary = dictionary;
-    _annotationActions = PdfAnnotationActions._loaded(dictionary);
+  PdfFieldActions._loaded(PdfDictionary dictionary) {
+    _helper.dictionary = dictionary;
+    _helper.annotationActions = PdfAnnotationActionsHelper.load(dictionary);
   }
 
   //Fields
-  _PdfDictionary? _dictionary = _PdfDictionary();
-  late PdfAnnotationActions _annotationActions;
+  final PdfFieldActionsHelper _helper = PdfFieldActionsHelper();
   PdfJavaScriptAction? _keyPressed;
   PdfJavaScriptAction? _format;
   PdfJavaScriptAction? _validate;
   PdfJavaScriptAction? _calculate;
-  bool _isChanged = false;
 
   //Properties
   /// Gets or sets the JavaScript action to be performed when
@@ -35,8 +39,8 @@ class PdfFieldActions implements _IPdfWrapper {
   set keyPressed(PdfJavaScriptAction? value) {
     if (value != null && _keyPressed != value) {
       _keyPressed = value;
-      _dictionary!.setProperty(_DictionaryProperties.k, _keyPressed);
-      _isChanged = true;
+      _helper.dictionary!.setProperty(PdfDictionaryProperties.k, _keyPressed);
+      _helper.changed = true;
     }
   }
 
@@ -46,8 +50,8 @@ class PdfFieldActions implements _IPdfWrapper {
   set format(PdfJavaScriptAction? value) {
     if (value != null && _format != value) {
       _format = value;
-      _dictionary!.setProperty(_DictionaryProperties.f, _format);
-      _isChanged = true;
+      _helper.dictionary!.setProperty(PdfDictionaryProperties.f, _format);
+      _helper.changed = true;
     }
   }
 
@@ -57,8 +61,8 @@ class PdfFieldActions implements _IPdfWrapper {
   set validate(PdfJavaScriptAction? value) {
     if (value != null && _validate != value) {
       _validate = value;
-      _dictionary!.setProperty(_DictionaryProperties.v, _validate);
-      _isChanged = true;
+      _helper.dictionary!.setProperty(PdfDictionaryProperties.v, _validate);
+      _helper.changed = true;
     }
   }
 
@@ -68,68 +72,68 @@ class PdfFieldActions implements _IPdfWrapper {
   set calculate(PdfJavaScriptAction? value) {
     if (value != null && _calculate != value) {
       _calculate = value;
-      _dictionary!.setProperty(_DictionaryProperties.c, _calculate);
-      _isChanged = true;
+      _helper.dictionary!.setProperty(PdfDictionaryProperties.c, _calculate);
+      _helper.changed = true;
     }
   }
 
   /// Gets or sets the action to be performed when the mouse cursor enters
   /// the fields’s area.
-  PdfAction? get mouseEnter => _annotationActions.mouseEnter;
+  PdfAction? get mouseEnter => _helper.annotationActions.mouseEnter;
   set mouseEnter(PdfAction? value) {
     if (value != null) {
-      _annotationActions.mouseEnter = value;
-      _isChanged = true;
+      _helper.annotationActions.mouseEnter = value;
+      _helper.changed = true;
     }
   }
 
   /// Gets or sets the action to be performed when the cursor exits
   /// the fields’s area.
-  PdfAction? get mouseLeave => _annotationActions.mouseLeave;
+  PdfAction? get mouseLeave => _helper.annotationActions.mouseLeave;
   set mouseLeave(PdfAction? value) {
     if (value != null) {
-      _annotationActions.mouseLeave = value;
-      _isChanged = true;
+      _helper.annotationActions.mouseLeave = value;
+      _helper.changed = true;
     }
   }
 
   /// Gets or sets the action to be performed when the mouse button is released
   /// inside the field’s area.
-  PdfAction? get mouseUp => _annotationActions.mouseUp;
+  PdfAction? get mouseUp => _helper.annotationActions.mouseUp;
   set mouseUp(PdfAction? value) {
     if (value != null) {
-      _annotationActions.mouseUp = value;
-      _isChanged = true;
+      _helper.annotationActions.mouseUp = value;
+      _helper.changed = true;
     }
   }
 
   /// Gets or sets the action to be performed when the mouse button is pressed inside the
   /// field’s area.
-  PdfAction? get mouseDown => _annotationActions.mouseDown;
+  PdfAction? get mouseDown => _helper.annotationActions.mouseDown;
   set mouseDown(PdfAction? value) {
     if (value != null) {
-      _annotationActions.mouseDown = value;
-      _isChanged = true;
+      _helper.annotationActions.mouseDown = value;
+      _helper.changed = true;
     }
   }
 
   /// Gets or sets the action to be performed when the field receives the
   /// input focus.
-  PdfAction? get gotFocus => _annotationActions.gotFocus;
+  PdfAction? get gotFocus => _helper.annotationActions.gotFocus;
   set gotFocus(PdfAction? value) {
     if (value != null) {
-      _annotationActions.gotFocus = value;
-      _isChanged = true;
+      _helper.annotationActions.gotFocus = value;
+      _helper.changed = true;
     }
   }
 
   /// Gets or sets the action to be performed when the field loses the
   /// input focus.
-  PdfAction? get lostFocus => _annotationActions.lostFocus;
+  PdfAction? get lostFocus => _helper.annotationActions.lostFocus;
   set lostFocus(PdfAction? value) {
     if (value != null) {
-      _annotationActions.lostFocus = value;
-      _isChanged = true;
+      _helper.annotationActions.lostFocus = value;
+      _helper.changed = true;
     }
   }
 
@@ -153,14 +157,36 @@ class PdfFieldActions implements _IPdfWrapper {
       calculate = cal;
     }
   }
+}
 
-  @override
-  _IPdfPrimitive? get _element => _dictionary;
+/// [PdfFieldActions] helper
+class PdfFieldActionsHelper {
+  /// internal field
+  bool changed = false;
 
-  @override
+  /// internal field
+  PdfDictionary? dictionary = PdfDictionary();
+
+  /// internal field
+  late PdfAnnotationActions annotationActions;
+
+  /// internal property
+  IPdfPrimitive? get element => dictionary;
   // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    _element = value;
+  set element(IPdfPrimitive? value) {
+    if (value != null && value is PdfDictionary) {
+      dictionary = value;
+    }
+  }
+
+  /// internal method
+  static PdfFieldActionsHelper getHelper(PdfFieldActions fieldActions) {
+    return fieldActions._helper;
+  }
+
+  /// internal method
+  static PdfFieldActions load(PdfDictionary dictionary) {
+    return PdfFieldActions._loaded(dictionary);
   }
 }
 
@@ -169,8 +195,13 @@ class PdfJavaScriptAction extends PdfAction {
   //Constructor
   /// Initializes a new instance of the [PdfJavaScriptAction] class with
   /// the java script code
-  PdfJavaScriptAction(String javaScript) : super._() {
+  PdfJavaScriptAction(String javaScript) : super() {
     _initValue(javaScript);
+    PdfActionHelper.getHelper(this).dictionary.setProperty(
+        PdfDictionaryProperties.s, PdfName(PdfDictionaryProperties.javaScript));
+    PdfActionHelper.getHelper(this)
+        .dictionary
+        .setProperty(PdfDictionaryProperties.js, PdfString(_javaScript));
   }
 
   //Fields
@@ -183,90 +214,13 @@ class PdfJavaScriptAction extends PdfAction {
   set javaScript(String value) {
     if (_javaScript != value) {
       _javaScript = value;
-      _dictionary._setString(_DictionaryProperties.js, _javaScript);
+      PdfActionHelper.getHelper(this)
+          .dictionary
+          .setString(PdfDictionaryProperties.js, _javaScript);
     }
-  }
-
-  //Implementation
-  @override
-  void _initialize() {
-    super._initialize();
-    _dictionary.setProperty(
-        _DictionaryProperties.s, _PdfName(_DictionaryProperties.javaScript));
-    _dictionary.setProperty(_DictionaryProperties.js, _PdfString(_javaScript));
   }
 
   void _initValue(String js) {
     javaScript = js;
-  }
-}
-
-/// Represents the action on form fields.
-class PdfFormAction extends PdfAction {
-  //Constrcutor
-  /// Initializes a new instance of the [PdfFormAction] class.
-  PdfFormAction._() : super._();
-
-  //Fields
-  PdfFormFieldCollection? _fields;
-
-  /// Gets or sets a value indicating whether fields contained in the fields
-  /// collection will be included for resetting or submitting.
-  ///
-  /// If the [include] property is true, only the fields in this collection
-  /// will be reset or submitted.
-  /// If the [include] property is false, the fields in this collection
-  /// are not reset or submitted and only the remaining form fields are
-  /// reset or submitted.
-  /// If the collection is empty, then all the form fields are reset
-  /// and the [include] property is ignored.
-  bool include = false;
-
-  ///Gets the fields.
-  PdfFormFieldCollection get fields {
-    if (_fields == null) {
-      _fields = PdfFormFieldCollection._();
-      _dictionary.setProperty(_DictionaryProperties.fields, _fields);
-    }
-    _fields!._isAction = true;
-    return _fields!;
-  }
-}
-
-/// Represents PDF form's reset action,this action allows a user to reset
-/// the form fields to their default values.
-class PdfResetAction extends PdfFormAction {
-  //Constructor
-  /// Initializes a new instance of the [PdfResetAction] class.
-  PdfResetAction({bool? include, List<PdfField>? fields}) : super._() {
-    _initValues(include, fields);
-  }
-
-  //Properties
-  @override
-  set include(bool value) {
-    if (super.include != value) {
-      super.include = value;
-      _dictionary._setNumber(
-          _DictionaryProperties.flags, super.include ? 0 : 1);
-    }
-  }
-
-  //Implementation
-  @override
-  void _initialize() {
-    super._initialize();
-    _dictionary.setProperty(
-        _DictionaryProperties.s, _PdfName(_DictionaryProperties.resetForm));
-  }
-
-  void _initValues(bool? initInclude, List<PdfField>? field) {
-    if (initInclude != null) {
-      include = initInclude;
-    }
-    if (field != null) {
-      // ignore: avoid_function_literals_in_foreach_calls
-      field.forEach((PdfField f) => fields.add(f));
-    }
   }
 }

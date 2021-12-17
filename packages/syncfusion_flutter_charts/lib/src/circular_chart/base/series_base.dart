@@ -1,7 +1,5 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../../chart/utils/enum.dart';
 import '../../common/common.dart';
 import '../../common/event_args.dart';
@@ -198,9 +196,8 @@ class CircularSeriesBase {
     if (sumOfGroup > 0) {
       seriesRenderer.renderPoints!
           .add(ChartPoint<dynamic>('Others', sumOfGroup));
-      seriesRenderer
-              .renderPoints![seriesRenderer.renderPoints!.length - 1].text =
-          isYText == true ? 'Others : ' + sumOfGroup.toString() : 'Others';
+      seriesRenderer.renderPoints![seriesRenderer.renderPoints!.length - 1]
+          .text = isYText == true ? 'Others : $sumOfGroup}' : 'Others';
     }
     _setPointStyle(seriesRenderer);
   }
@@ -370,6 +367,9 @@ class CircularSeriesBase {
                 .contains(pointIndex) &&
             !stateProperties.renderingDetails.isLegendToggled) {
           if (pointIndex == series.explodeIndex || series.explodeAll) {
+            if (!series.explodeAll && pointIndex == 0) {
+              stateProperties.renderingDetails.explodedPoints.clear();
+            }
             stateProperties.renderingDetails.explodedPoints.add(pointIndex);
             isNeedExplode = true;
           } else if (!series.explodeAll &&

@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import '../../common/event_args.dart';
 import '../../common/rendering_details.dart';
@@ -78,7 +76,7 @@ class CrosshairPainter extends CustomPainter {
   List<String> stringValue = <String>[];
 
   /// Represents the boundary rect for crosshair.
-  Rect boundaryRect = const Rect.fromLTWH(0, 0, 0, 0);
+  Rect boundaryRect = Rect.zero;
 
   /// Represents the left padding for crosshair.
   double leftPadding = 0;

@@ -1,9 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../pyramid_chart/utils/common.dart';
 import '../base/funnel_state_properties.dart';
 import 'renderer_extension.dart';

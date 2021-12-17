@@ -1,17 +1,29 @@
-part of pdf;
-
 /// The class used to handle the collection of PDF objects.
-class PdfObjectCollection {
-  //Constructor
-  /// Initializes a new instance of the [PdfObjectCollection] class.
-  PdfObjectCollection() {
-    _list = <Object>[];
-  }
-
+abstract class PdfObjectCollection {
   //Fields
-  late List<Object> _list;
+  late PdfObjectCollectionHelper _objectCollectionHelper;
 
   //Properties
   /// Gets number of the elements in the collection.
-  int get count => _list.length;
+  int get count => _objectCollectionHelper.list.length;
+}
+
+/// [PdfObjectCollection] helper
+class PdfObjectCollectionHelper {
+  /// internal constructor
+  PdfObjectCollectionHelper(this.collection) {
+    list = <Object>[];
+    collection._objectCollectionHelper = this;
+  }
+
+  /// internal field
+  late PdfObjectCollection collection;
+
+  /// internal method
+  static PdfObjectCollectionHelper getHelper(PdfObjectCollection collection) {
+    return collection._objectCollectionHelper;
+  }
+
+  /// internal field
+  late List<Object> list;
 }

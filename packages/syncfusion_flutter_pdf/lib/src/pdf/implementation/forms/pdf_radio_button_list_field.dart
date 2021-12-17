@@ -1,4 +1,19 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../interfaces/pdf_interface.dart';
+import '../general/pdf_collection.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../pages/pdf_page.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_string.dart';
+import 'enum.dart';
+import 'pdf_check_box_field.dart';
+import 'pdf_field.dart';
+import 'pdf_radio_button_item_collection.dart';
 
 /// Represents radio button field in the PDF form.
 class PdfRadioButtonListField extends PdfField {
@@ -8,34 +23,37 @@ class PdfRadioButtonListField extends PdfField {
   PdfRadioButtonListField(PdfPage page, String name,
       {List<PdfRadioButtonListItem>? items,
       int? selectedIndex,
-      String? selectedValue})
-      : super(page, name, Rect.zero) {
+      String? selectedValue}) {
+    _helper = PdfRadioButtonListFieldHelper(this);
+    _helper.internal(page, name, Rect.zero);
     _initValues(items, selectedIndex, selectedValue);
-    _flags.add(_FieldFlags.radio);
-    _dictionary.setProperty(
-        _DictionaryProperties.ft, _PdfName(_DictionaryProperties.btn));
+    _helper.flags.add(FieldFlags.radio);
+    _helper.dictionary!.setProperty(
+        PdfDictionaryProperties.ft, PdfName(PdfDictionaryProperties.btn));
   }
 
   PdfRadioButtonListField._loaded(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable)
-      : super._load(dictionary, crossTable) {
+      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    _helper = PdfRadioButtonListFieldHelper(this);
+    _helper.load(dictionary, crossTable);
     _retrieveOptionValue();
   }
 
   //Fields
   PdfRadioButtonItemCollection? _items;
-  int _selectedIndex = -1;
+  late PdfRadioButtonListFieldHelper _helper;
 
   //Properties
   /// Gets the items of the radio button field.{Read-Only}
   PdfRadioButtonItemCollection get items {
-    if (_isLoadedField) {
-      _items ??= _getRadioButtonListItems(PdfRadioButtonItemCollection._(this));
+    if (_helper.isLoadedField) {
+      _items ??= _getRadioButtonListItems(
+          PdfRadioButtonItemCollectionHelper.getCollection(this));
       return _items!;
     } else {
       if (_items == null) {
-        _items = PdfRadioButtonItemCollection._(this);
-        _dictionary.setProperty(_DictionaryProperties.kids, _items);
+        _items = PdfRadioButtonItemCollectionHelper.getCollection(this);
+        _helper.dictionary!.setProperty(PdfDictionaryProperties.kids, _items);
       }
       return _items!;
     }
@@ -43,26 +61,27 @@ class PdfRadioButtonListField extends PdfField {
 
   /// Gets or sets the first selected item in the list.
   int get selectedIndex {
-    if (_isLoadedField && _selectedIndex == -1) {
-      _selectedIndex = _obtainSelectedIndex();
+    if (_helper.isLoadedField && _helper.selectedIndex == -1) {
+      _helper.selectedIndex = _obtainSelectedIndex();
     }
-    if (_selectedIndex == -1) {
+    if (_helper.selectedIndex == -1) {
       ArgumentError.value('None of the item to be selected in the list');
     }
-    return _selectedIndex;
+    return _helper.selectedIndex;
   }
 
   set selectedIndex(int value) {
     RangeError.range(value, 0, items.count, 'SelectedIndex');
     if (selectedIndex != value) {
-      if (_isLoadedField) {
+      if (_helper.isLoadedField) {
         _assignSelectedIndex(value);
-        _changed = true;
+        _helper.changed = true;
       }
-      _selectedIndex = value;
-      final PdfRadioButtonListItem item = _items![_selectedIndex];
-      _dictionary._setName(_PdfName(_DictionaryProperties.v), item.value);
-      _dictionary._setName(_PdfName(_DictionaryProperties.dv), item.value);
+      _helper.selectedIndex = value;
+      final PdfRadioButtonListItem item = _items![_helper.selectedIndex];
+      final PdfDictionary dictionary = _helper.dictionary!;
+      dictionary.setName(PdfName(PdfDictionaryProperties.v), item.value);
+      dictionary.setName(PdfName(PdfDictionaryProperties.dv), item.value);
     }
   }
 
@@ -70,41 +89,44 @@ class PdfRadioButtonListField extends PdfField {
   PdfRadioButtonListItem? get selectedItem {
     PdfRadioButtonListItem? item;
     if (selectedIndex != -1) {
-      item = items[_selectedIndex];
+      item = items[_helper.selectedIndex];
     }
     return item;
   }
 
   /// Gets or sets the value of the first selected item in the list.
   String get selectedValue {
-    if (_isLoadedField) {
+    if (_helper.isLoadedField) {
       if (selectedIndex == -1) {
-        _selectedIndex = _obtainSelectedIndex();
+        _helper.selectedIndex = _obtainSelectedIndex();
       }
-      if (_selectedIndex != -1) {
-        return _items![_selectedIndex].value;
+      if (_helper.selectedIndex != -1) {
+        return _items![_helper.selectedIndex].value;
       } else {
         ArgumentError('None of the item to be selected in the list');
       }
-      return _items![_selectedIndex].value;
+      return _items![_helper.selectedIndex].value;
     } else {
-      if (_selectedIndex == -1) {
+      if (_helper.selectedIndex == -1) {
         ArgumentError('None of the item to be selected in the list');
       }
-      return _items![_selectedIndex].value;
+      return _items![_helper.selectedIndex].value;
     }
   }
 
   set selectedValue(String value) {
-    if (_isLoadedField) {
+    if (_helper.isLoadedField) {
       _assignSelectedValue(value);
-      _changed = true;
+      _helper.changed = true;
     } else {
-      for (final Object? item in items._list) {
+      final List<Object> objects =
+          PdfObjectCollectionHelper.getHelper(items).list;
+      for (final Object? item in objects) {
         if (item is PdfRadioButtonListItem && item.value == value) {
-          _selectedIndex = items.indexOf(item);
-          _dictionary._setName(_PdfName(_DictionaryProperties.v), item.value);
-          _dictionary._setName(_PdfName(_DictionaryProperties.dv), item.value);
+          _helper.selectedIndex = items.indexOf(item);
+          final PdfDictionary dictionary = _helper.dictionary!;
+          dictionary.setName(PdfName(PdfDictionaryProperties.v), item.value);
+          dictionary.setName(PdfName(PdfDictionaryProperties.dv), item.value);
           break;
         }
       }
@@ -129,14 +151,14 @@ class PdfRadioButtonListField extends PdfField {
 
   PdfRadioButtonItemCollection _getRadioButtonListItems(
       PdfRadioButtonItemCollection listItems) {
-    final _PdfArray fieldKids = _obtainKids()!;
+    final PdfArray fieldKids = _helper.obtainKids()!;
     for (int i = 0; i < fieldKids.count; i++) {
-      final _IPdfPrimitive? kidsDict =
-          _PdfCrossTable._dereference(fieldKids[i]);
-      if (kidsDict != null && kidsDict is _PdfDictionary) {
-        final PdfRadioButtonListItem item =
-            PdfRadioButtonListItem._loaded(kidsDict, _crossTable!, this);
-        listItems._doAdd(item, true);
+      final IPdfPrimitive? kidsDict = PdfCrossTable.dereference(fieldKids[i]);
+      if (kidsDict != null && kidsDict is PdfDictionary) {
+        final PdfRadioButtonListItem item = PdfRadioButtonListItemHelper.loaded(
+            kidsDict, _helper.crossTable!, this);
+        PdfRadioButtonItemCollectionHelper.getHelper(listItems)
+            .doAdd(item, true);
       }
     }
     return listItems;
@@ -146,24 +168,23 @@ class PdfRadioButtonListField extends PdfField {
     int index = -1;
     for (int i = 0; i < items.count; ++i) {
       final PdfRadioButtonListItem item = items[i];
-      final _PdfDictionary dic = item._dictionary;
-      final _IPdfPrimitive? checkNamePrimitive =
-          PdfField._searchInParents(dic, _crossTable, _DictionaryProperties.v);
-      if (dic.containsKey(_DictionaryProperties.usageApplication) &&
-          (checkNamePrimitive is _PdfName ||
-              checkNamePrimitive is _PdfString)) {
-        final _IPdfPrimitive? name = _crossTable!
-            ._getObject(dic[_DictionaryProperties.usageApplication]);
-        if (name is _PdfName && name._name!.toLowerCase() != 'off') {
-          if (checkNamePrimitive is _PdfName &&
-              checkNamePrimitive._name!.toLowerCase() != 'off') {
-            if (name._name == checkNamePrimitive._name) {
+      final PdfDictionary dic = PdfFieldHelper.getHelper(item).dictionary!;
+      final IPdfPrimitive? checkNamePrimitive = PdfFieldHelper.searchInParents(
+          dic, _helper.crossTable, PdfDictionaryProperties.v);
+      if (dic.containsKey(PdfDictionaryProperties.usageApplication) &&
+          (checkNamePrimitive is PdfName || checkNamePrimitive is PdfString)) {
+        final IPdfPrimitive? name = _helper.crossTable!
+            .getObject(dic[PdfDictionaryProperties.usageApplication]);
+        if (name is PdfName && name.name!.toLowerCase() != 'off') {
+          if (checkNamePrimitive is PdfName &&
+              checkNamePrimitive.name!.toLowerCase() != 'off') {
+            if (name.name == checkNamePrimitive.name) {
               index = i;
             }
             break;
-          } else if (checkNamePrimitive is _PdfString &&
+          } else if (checkNamePrimitive is PdfString &&
               checkNamePrimitive.value!.toLowerCase() != 'off') {
-            if (name._name == checkNamePrimitive.value) {
+            if (name.name == checkNamePrimitive.value) {
               index = i;
             }
             break;
@@ -174,122 +195,157 @@ class PdfRadioButtonListField extends PdfField {
     return index;
   }
 
-  @override
-  void _beginSave() {
-    super._beginSave();
-    final _PdfArray? kids = _obtainKids();
-    int i = 0;
-    if (kids != null) {
-      for (i = 0; i < kids.count; ++i) {
-        final _PdfDictionary? widget =
-            _crossTable!._getObject(kids[i]) as _PdfDictionary?;
-        final PdfRadioButtonListItem item = items[i];
-        item._applyAppearance(widget, item);
-      }
-    }
-    while (i < items.count) {
-      final PdfRadioButtonListItem item = items[i];
-      item._save();
-      i++;
-    }
-  }
-
   void _assignSelectedIndex(int value) {
-    final int index = _selectedIndex;
+    final int index = _helper.selectedIndex;
     if (index != value) {
-      _PdfName? name;
-      if (_dictionary.containsKey(_DictionaryProperties.v)) {
-        name = _dictionary[_DictionaryProperties.v] as _PdfName?;
-        _dictionary.remove(_DictionaryProperties.v);
-        _dictionary.remove(_DictionaryProperties.dv);
+      PdfName? name;
+      if (_helper.dictionary!.containsKey(PdfDictionaryProperties.v)) {
+        name = _helper.dictionary![PdfDictionaryProperties.v] as PdfName?;
+        _helper.dictionary!.remove(PdfDictionaryProperties.v);
+        _helper.dictionary!.remove(PdfDictionaryProperties.dv);
       }
       if (name != null) {
         for (int i = 0; i < items.count; i++) {
           final PdfRadioButtonListItem item = items[i];
-          if (item.value == name._name) {
-            item._dictionary._setName(
-                _PdfName(_DictionaryProperties.usageApplication),
-                _DictionaryProperties.off);
+          if (item.value == name.name) {
+            PdfFieldHelper.getHelper(item).dictionary!.setName(
+                PdfName(PdfDictionaryProperties.usageApplication),
+                PdfDictionaryProperties.off);
           }
         }
       }
-      items[value]._dictionary._setName(
-          _PdfName(_DictionaryProperties.usageApplication), items[value].value);
+      PdfFieldHelper.getHelper(items[value]).dictionary!.setName(
+          PdfName(PdfDictionaryProperties.usageApplication),
+          items[value].value);
     }
   }
 
   void _assignSelectedValue(String value) {
-    _PdfName? name;
-    if (_dictionary.containsKey(_DictionaryProperties.v)) {
-      name = _dictionary[_DictionaryProperties.v] as _PdfName?;
-      _dictionary.remove(_DictionaryProperties.v);
-      _dictionary.remove(_DictionaryProperties.dv);
+    PdfName? name;
+    if (_helper.dictionary!.containsKey(PdfDictionaryProperties.v)) {
+      name = _helper.dictionary![PdfDictionaryProperties.v] as PdfName?;
+      _helper.dictionary!.remove(PdfDictionaryProperties.v);
+      _helper.dictionary!.remove(PdfDictionaryProperties.dv);
     }
     if (name != null) {
       for (int i = 0; i < items.count; i++) {
         final PdfRadioButtonListItem item = items[i];
-        if (item.value == name._name) {
-          item._dictionary._setName(
-              _PdfName(_DictionaryProperties.usageApplication),
-              _DictionaryProperties.off);
+        if (item.value == name.name) {
+          _helper.dictionary!.setName(
+              PdfName(PdfDictionaryProperties.usageApplication),
+              PdfDictionaryProperties.off);
         }
       }
     }
-    for (final Object? item in items._list) {
+    final List<Object> objects =
+        PdfObjectCollectionHelper.getHelper(items).list;
+    for (final Object? item in objects) {
       if (item is PdfRadioButtonListItem &&
-          (item.value == value || item._optionValue == value)) {
-        _selectedIndex = items.indexOf(item);
-        _dictionary._setName(_PdfName(_DictionaryProperties.v), item.value);
-        _dictionary._setName(_PdfName(_DictionaryProperties.dv), item.value);
-        item._dictionary._setName(
-            _PdfName(_DictionaryProperties.usageApplication), item.value);
-        item._dictionary
-            ._setName(_PdfName(_DictionaryProperties.v), item.value);
+          (item.value == value ||
+              PdfRadioButtonListItemHelper.getHelper(item).optionValue ==
+                  value)) {
+        _helper.selectedIndex = items.indexOf(item);
+        _helper.dictionary!
+            .setName(PdfName(PdfDictionaryProperties.v), item.value);
+        _helper.dictionary!
+            .setName(PdfName(PdfDictionaryProperties.dv), item.value);
+        final PdfFieldHelper helper = PdfFieldHelper.getHelper(item);
+        helper.dictionary!.setName(
+            PdfName(PdfDictionaryProperties.usageApplication), item.value);
+        helper.dictionary!
+            .setName(PdfName(PdfDictionaryProperties.v), item.value);
         break;
       }
     }
   }
 
+  void _retrieveOptionValue() {
+    if (_helper.dictionary!.containsKey(PdfDictionaryProperties.opt)) {
+      final IPdfPrimitive optionArray =
+          _helper.dictionary![PdfDictionaryProperties.opt]!;
+      final IPdfPrimitive? options =
+          optionArray is PdfReferenceHolder ? optionArray.object : optionArray;
+      if (options != null && options is PdfArray) {
+        final int count =
+            (options.count <= items.count) ? options.count : items.count;
+        for (int i = 0; i < count; i++) {
+          final IPdfPrimitive? option = options[i] is PdfReferenceHolder
+              ? (options[i]! as PdfReferenceHolder).object
+              : options[i];
+          if (option != null && option is PdfString) {
+            PdfRadioButtonListItemHelper.getHelper(items[i]).optionValue =
+                option.value;
+          }
+        }
+      }
+    }
+  }
+}
+
+/// [PdfRadioButtonListField] helper
+class PdfRadioButtonListFieldHelper extends PdfFieldHelper {
+  /// internal constructor
+  PdfRadioButtonListFieldHelper(this.radioButtonList) : super(radioButtonList);
+
+  /// internal field
+  PdfRadioButtonListField radioButtonList;
+
+  /// internal field
+  int selectedIndex = -1;
+
+  /// internal method
+  static PdfRadioButtonListFieldHelper getHelper(
+      PdfRadioButtonListField radioButtonList) {
+    return radioButtonList._helper;
+  }
+
+  /// internal method
+  static PdfRadioButtonListField loaded(
+      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    return PdfRadioButtonListField._loaded(dictionary, crossTable);
+  }
+
+  /// internal method
   @override
-  void _draw() {
-    if (_isLoadedField) {
-      final _PdfArray? kids = _obtainKids();
+  void beginSave() {
+    super.beginSave();
+    final PdfArray? kids = obtainKids();
+    int i = 0;
+    if (kids != null) {
+      for (i = 0; i < kids.count; ++i) {
+        final PdfDictionary? widget =
+            crossTable!.getObject(kids[i]) as PdfDictionary?;
+        final PdfRadioButtonListItem item = radioButtonList.items[i];
+        PdfCheckFieldBaseHelper.getHelper(item).applyAppearance(widget, item);
+      }
+    }
+    while (i < radioButtonList.items.count) {
+      PdfRadioButtonListItemHelper.getHelper(radioButtonList.items[i]).save();
+      i++;
+    }
+  }
+
+  /// internal method
+  @override
+  void draw() {
+    if (isLoadedField) {
+      final PdfArray? kids = obtainKids();
       if (kids != null) {
         for (int i = 0; i < kids.count; ++i) {
-          final PdfRadioButtonListItem item = items[i];
-          _PdfCheckFieldState state = _PdfCheckFieldState.unchecked;
-          if ((selectedIndex >= 0) && (selectedValue == item.value)) {
-            state = _PdfCheckFieldState.checked;
+          final PdfRadioButtonListItem item = radioButtonList.items[i];
+          PdfCheckFieldState state = PdfCheckFieldState.unchecked;
+          if ((radioButtonList.selectedIndex >= 0) &&
+              (radioButtonList.selectedValue == item.value)) {
+            state = PdfCheckFieldState.checked;
           }
           if (item.page != null) {
-            _drawStateItem(item.page!.graphics, state, item);
+            drawStateItem(item.page!.graphics, state, item);
           }
         }
       }
     } else {
-      for (int i = 0; i < items.count; ++i) {
-        items[i]._draw();
-      }
-    }
-  }
-
-  void _retrieveOptionValue() {
-    if (_dictionary.containsKey(_DictionaryProperties.opt)) {
-      final _IPdfPrimitive optionArray =
-          _dictionary[_DictionaryProperties.opt]!;
-      final _IPdfPrimitive? options =
-          optionArray is _PdfReferenceHolder ? optionArray.object : optionArray;
-      if (options != null && options is _PdfArray) {
-        final int count =
-            (options.count <= items.count) ? options.count : items.count;
-        for (int i = 0; i < count; i++) {
-          final _IPdfPrimitive? option = options[i] is _PdfReferenceHolder
-              ? (options[i]! as _PdfReferenceHolder).object
-              : options[i];
-          if (option != null && option is _PdfString) {
-            items[i]._optionValue = option.value;
-          }
-        }
+      for (int i = 0; i < radioButtonList.items.count; ++i) {
+        PdfRadioButtonListItemHelper.getHelper(radioButtonList.items[i]).draw();
       }
     }
   }

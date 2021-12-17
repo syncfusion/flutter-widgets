@@ -1,5 +1,3 @@
-part of pdf;
-
 /// Specifies style information applied to text.
 ///
 /// ```dart
@@ -154,7 +152,7 @@ enum PdfWordWrapType {
 }
 
 /// Break type of the line.
-enum _LineType {
+enum LineType {
   /// Unknown type line.
   none,
 
@@ -169,70 +167,4 @@ enum _LineType {
 
   /// The line is the last in the paragraph.
   lastParagraphLine
-}
-
-/// Enumerator that implements CMAP formats.
-enum _TtfCmapFormat {
-  /// This is the Apple standard character to glyph index mapping table.
-  apple,
-
-  /// This is the Microsoft standard character to glyph index mapping table.
-  microsoft,
-
-  /// Format 6: Trimmed table mapping.
-  trimmed
-}
-
-/// Enumerator that implements CMAP encodings.
-enum _TtfCmapEncoding {
-  /// Unknown encoding.
-  unknown,
-
-  /// When building a symbol font for Windows.
-  symbol,
-
-  /// When building a Unicode font for Windows.
-  unicode,
-
-  /// For font that will be used on a Macintosh.
-  macintosh
-}
-
-/// Ttf platform ID.
-enum _TtfPlatformID {
-  /// Apple platform.
-  appleUnicode,
-
-  /// Macintosh platform.
-  macintosh,
-
-  /// Iso platform.
-  iso,
-
-  /// Microsoft platform.
-  microsoft
-}
-
-/// Microsoft encoding ID.
-enum _TtfMicrosoftEncodingID {
-  /// Undefined encoding.
-  undefined,
-
-  /// Unicode encoding.
-  unicode,
-
-  /// Unicode UCS4.
-  unicodeUCS4
-}
-
-/// Macintosh encoding ID.
-enum _TtfMacintoshEncodingID {
-  /// Roman encoding.
-  roman,
-
-  /// Japanese encoding.
-  japanese,
-
-  /// Chinese encoding.
-  chinese
 }

@@ -1,9 +1,6 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../common/event_args.dart';
 import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';

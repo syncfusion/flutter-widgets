@@ -1,4 +1,8 @@
-part of pdf;
+import '../../graphics/brushes/pdf_solid_brush.dart';
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/pdf_graphics.dart';
+import 'pdf_automatic_field.dart';
+import 'pdf_multiple_value_field.dart';
 
 /// Represents class which can concatenate multiple
 /// automatic fields into single string.
@@ -34,7 +38,7 @@ part of pdf;
 /// //Dispose the document.
 /// document.dispose();
 /// ```
-class PdfCompositeField extends _PdfMultipleValueField {
+class PdfCompositeField extends PdfMultipleValueField {
   // constructor
   /// Initializes the new instance of the [PdfCompositeField] class.
   ///
@@ -182,15 +186,24 @@ class PdfCompositeField extends _PdfMultipleValueField {
   }
 
   // implementation
-  @override
   String _getValue(PdfGraphics graphics) {
     String? copyText;
     if (fields.isNotEmpty) {
       copyText = text;
       for (int i = 0; i < fields.length; i++) {
-        copyText = copyText!.replaceAll('{$i}', fields[i]._getValue(graphics)!);
+        copyText = copyText!.replaceAll('{$i}',
+            PdfAutomaticFieldHelper.getHelper(fields[i]).getValue(graphics)!);
       }
     }
     return (copyText == null) ? text : copyText;
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfCompositeField] helper
+class PdfCompositeFieldHelper {
+  /// internal method
+  static String getValue(PdfCompositeField field, PdfGraphics graphics) {
+    return field._getValue(graphics);
   }
 }

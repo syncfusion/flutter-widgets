@@ -1,82 +1,19 @@
-part of pdf;
+import 'dart:math';
 
-int _checkSumBitOffset = 16;
-int _checksumBase = 65521;
-int _checksumIterationCount = 3800;
-int _checksumUpdate(int checksum, List<int>? buffer, int offset, int length) {
-  int checksumUint = checksum.toUnsigned(32);
-  int s1 = checksumUint & 65535;
-  int s2 = checksumUint >> _checkSumBitOffset;
-  while (length > 0) {
-    int steps = min(length, _checksumIterationCount);
-    length -= steps;
-    while (--steps >= 0) {
-      s1 = s1 + (buffer![offset++] & 255).toUnsigned(32);
-      s2 += s1;
-    }
-    s1 %= _checksumBase;
-    s2 %= _checksumBase;
-  }
-  checksumUint = (s2 << _checkSumBitOffset) | s1;
-  return checksumUint;
-}
+import '../pdf_document/enums.dart';
+import 'compressor_huffman_tree.dart';
 
-List<int> _defReverseBits = <int>[
-  0,
-  8,
-  4,
-  12,
-  2,
-  10,
-  6,
-  14,
-  1,
-  9,
-  5,
-  13,
-  3,
-  11,
-  7,
-  15
-];
-List<int> _defHuffmanDyntreeCodelengthsOrder = <int>[
-  16,
-  17,
-  18,
-  0,
-  8,
-  7,
-  9,
-  6,
-  10,
-  5,
-  11,
-  4,
-  12,
-  3,
-  13,
-  2,
-  14,
-  1,
-  15
-];
-int _bitReverse(int value) {
-  return (_defReverseBits[(value & 15)] << 12 |
-          _defReverseBits[((value >> 4) & 15)] << 8 |
-          _defReverseBits[((value >> 8) & 15)] << 4 |
-          _defReverseBits[(value >> 12)])
-      .toSigned(16);
-}
-
-class _CompressedStreamWriter {
-  _CompressedStreamWriter(List<int> outputStream, bool bNoWrap,
+/// internal class
+class CompressedStreamWriter {
+  /// internal constructor
+  CompressedStreamWriter(List<int> outputStream, bool bNoWrap,
       PdfCompressionLevel? level, bool bCloseStream) {
-    _treeLiteral = _CompressorHuffmanTree(
+    _treeLiteral = CompressorHuffmanTree(
         this, def_huffman_literal_alphabet_length, 257, 15);
-    _treeDistances = _CompressorHuffmanTree(
+    _treeDistances = CompressorHuffmanTree(
         this, def_huffman_distances_alphabet_length, 1, 15);
     _treeCodeLengths =
-        _CompressorHuffmanTree(this, def_huffman_bitlen_tree_length, 4, 7);
+        CompressorHuffmanTree(this, def_huffman_bitlen_tree_length, 4, 7);
     _arrDistancesBuffer = List<int>.filled(def_huffman_buffer_size, 0);
     _arrLiteralsBuffer = List<int>.filled(def_huffman_buffer_size, 0);
     _stream = outputStream;
@@ -87,12 +24,10 @@ class _CompressedStreamWriter {
     _hashHead = List<int>.filled(hash_size, 0);
     _hashPrevious = List<int>.filled(wsize, 0);
     _blockStart = _stringStart = 1;
-
     _goodLength = good_length[_getCompressionLevel(level)!];
     _niceLength = nice_length[_getCompressionLevel(level)!];
     _maximumChainLength = max_chain[_getCompressionLevel(level)!];
     _maximumLazySearch = max_lazy[_getCompressionLevel(level)!];
-
     if (!bNoWrap) {
       _writeZLIBHeader();
     }
@@ -123,6 +58,7 @@ class _CompressedStreamWriter {
   /// Code of the symbol, than means the end of the block.
   static const int def_huffman_endblock_symbol = 256;
 
+  /// internal field
   static const int too_far = 4096;
 
   /// Maximum window size.
@@ -158,6 +94,15 @@ class _CompressedStreamWriter {
   /// Internal compression engine constant
   static const List<int> good_length = <int>[0, 4, 4, 4, 4, 8, 8, 8, 32, 32];
 
+  /// internal field
+  static const int checkSumBitOffset = 16;
+
+  /// internal field
+  static const int checksumBase = 65521;
+
+  /// internal field
+  static const int checksumIterationCount = 3800;
+
   /// Internal compression engine constant
   static const List<int> nice_length = <int>[
     0,
@@ -186,6 +131,27 @@ class _CompressedStreamWriter {
     4096
   ];
 
+  /// internal field
+  static const List<int> def_reverse_bits = <int>[
+    0,
+    8,
+    4,
+    12,
+    2,
+    10,
+    6,
+    14,
+    1,
+    9,
+    5,
+    13,
+    3,
+    11,
+    7,
+    15
+  ];
+
+  /// internal field
   static const List<int> def_huffman_dyntree_codelengths_order = <int>[
     16,
     17,
@@ -208,6 +174,7 @@ class _CompressedStreamWriter {
     15
   ];
 
+  /// internal field
   static const List<int> max_lazy = <int>[0, 4, 5, 6, 4, 16, 16, 32, 128, 258];
 
   final List<int> _pendingBuffer = List<int>.filled(def_pending_buffer_size, 0);
@@ -239,9 +206,9 @@ class _CompressedStreamWriter {
   int _matchLength = 0;
   int _iBufferPosition = 0;
   bool _matchPreviousAvailable = false;
-  late _CompressorHuffmanTree _treeLiteral;
-  late _CompressorHuffmanTree _treeDistances;
-  _CompressorHuffmanTree? _treeCodeLengths;
+  late CompressorHuffmanTree _treeLiteral;
+  late CompressorHuffmanTree _treeDistances;
+  CompressorHuffmanTree? _treeCodeLengths;
   int _iExtraBits = 0;
   static List<int>? _arrLiteralCodes;
   static late List<int> _arrLiteralLengths;
@@ -271,6 +238,7 @@ class _CompressedStreamWriter {
     }
   }
 
+  /// internal method
   void initializeStaticLiterals() {
     if (_arrLiteralCodes == null) {
       _arrLiteralCodes =
@@ -279,19 +247,19 @@ class _CompressedStreamWriter {
           List<int>.filled(def_huffman_literal_alphabet_length, 0);
       int i = 0;
       while (i < 144) {
-        _arrLiteralCodes![i] = _bitReverse((0x030 + i) << 8);
+        _arrLiteralCodes![i] = bitReverse((0x030 + i) << 8);
         _arrLiteralLengths[i++] = 8;
       }
       while (i < 256) {
-        _arrLiteralCodes![i] = _bitReverse(((0x190 - 144) + i) << 7);
+        _arrLiteralCodes![i] = bitReverse(((0x190 - 144) + i) << 7);
         _arrLiteralLengths[i++] = 9;
       }
       while (i < 280) {
-        _arrLiteralCodes![i] = _bitReverse(((0x000 - 256) + i) << 9);
+        _arrLiteralCodes![i] = bitReverse(((0x000 - 256) + i) << 9);
         _arrLiteralLengths[i++] = 7;
       }
       while (i < def_huffman_literal_alphabet_length) {
-        _arrLiteralCodes![i] = _bitReverse(((0x0c0 - 280) + i) << 8);
+        _arrLiteralCodes![i] = bitReverse(((0x0c0 - 280) + i) << 8);
         _arrLiteralLengths[i++] = 8;
       }
       _arrDistanceCodes =
@@ -300,7 +268,7 @@ class _CompressedStreamWriter {
           List<int>.filled(def_huffman_distances_alphabet_length, 0);
 
       for (i = 0; i < def_huffman_distances_alphabet_length; i++) {
-        _arrDistanceCodes[i] = _bitReverse(i << 11);
+        _arrDistanceCodes[i] = bitReverse(i << 11);
         _arrDistanceLengths[i] = 5;
       }
     }
@@ -322,6 +290,7 @@ class _CompressedStreamWriter {
     _pendingBuffer[_pendingBufferLength++] = s.toUnsigned(8);
   }
 
+  /// internal method
   void write(List<int> data, int offset, int length, bool bCloseAfterWrite) {
     final int end = offset + length;
     if (0 > offset || offset > end || end > data.length) {
@@ -336,7 +305,7 @@ class _CompressedStreamWriter {
     if (_bStreamClosed) {
       throw Exception('Stream was closed.');
     }
-    _checksum = _checksumUpdate(_checksum, _inputBuffer, offset, length);
+    _checksum = checksumUpdate(_checksum, _inputBuffer, offset, length);
 
     while (!_needsInput || !_pendingBufferIsFlushed) {
       _pendingBufferFlush();
@@ -606,13 +575,13 @@ class _CompressedStreamWriter {
     _arrLiteralsBuffer[_iBufferPosition++] = (len - 3).toUnsigned(8);
 
     final int lc = _huffmanLengthCode(len - 3);
-    _treeLiteral._codeFrequences[lc]++;
+    _treeLiteral.codeFrequences[lc]++;
     if (lc >= 265 && lc < 285) {
       _iExtraBits += (lc - 261) ~/ 4;
     }
 
     final int dc = _huffmanDistanceCode(dist - 1);
-    _treeDistances._codeFrequences[dc]++;
+    _treeDistances.codeFrequences[dc]++;
     if (dc >= 4) {
       _iExtraBits += dc ~/ 2 - 1;
     }
@@ -621,40 +590,40 @@ class _CompressedStreamWriter {
 
   void _huffmanFlushBlock(
       List<int>? stored, int storedOffset, int storedLength, bool lastBlock) {
-    _treeLiteral._codeFrequences[def_huffman_endblock_symbol]++;
+    _treeLiteral.codeFrequences[def_huffman_endblock_symbol]++;
 
     // Build trees.
-    _treeLiteral._buildTree();
-    _treeDistances._buildTree();
+    _treeLiteral.buildTree();
+    _treeDistances.buildTree();
 
     // Calculate bitlen frequency.
-    _treeLiteral._calcBLFreq(_treeCodeLengths);
-    _treeDistances._calcBLFreq(_treeCodeLengths);
+    _treeLiteral.calcBLFreq(_treeCodeLengths);
+    _treeDistances.calcBLFreq(_treeCodeLengths);
 
     // Build bitlen tree.
-    _treeCodeLengths!._buildTree();
+    _treeCodeLengths!.buildTree();
 
     int blTreeCodes = 4;
     for (int i = 18; i > blTreeCodes; i--) {
       if (_treeCodeLengths!
-              ._codeLengths![def_huffman_dyntree_codelengths_order[i]] >
+              .codeLengths![def_huffman_dyntree_codelengths_order[i]] >
           0) {
         blTreeCodes = i + 1;
       }
     }
     int optLen = 14 +
         blTreeCodes * 3 +
-        _treeCodeLengths!._getEncodedLength() +
-        _treeLiteral._getEncodedLength() +
-        _treeDistances._getEncodedLength() +
+        _treeCodeLengths!.getEncodedLength() +
+        _treeLiteral.getEncodedLength() +
+        _treeDistances.getEncodedLength() +
         _iExtraBits;
 
     int staticLen = _iExtraBits;
     for (int i = 0; i < def_huffman_literal_alphabet_length; i++) {
-      staticLen += _treeLiteral._codeFrequences[i] * _arrLiteralLengths[i];
+      staticLen += _treeLiteral.codeFrequences[i] * _arrLiteralLengths[i];
     }
     for (int i = 0; i < def_huffman_distances_alphabet_length; i++) {
-      staticLen += _treeDistances._codeFrequences[i] * _arrDistanceLengths[i];
+      staticLen += _treeDistances.codeFrequences[i] * _arrDistanceLengths[i];
     }
     if (optLen >= staticLen) {
       // Force static trees.
@@ -665,14 +634,14 @@ class _CompressedStreamWriter {
       _huffmanFlushStoredBlock(stored!, storedOffset, storedLength, lastBlock);
     } else if (optLen == staticLen) {
       // Encode with static tree.
-      _pendingBufferWriteBits((1 << 1) + (lastBlock ? 1 : 0), 3);
-      _treeLiteral._setStaticCodes(_arrLiteralCodes!, _arrLiteralLengths);
-      _treeDistances._setStaticCodes(_arrDistanceCodes, _arrDistanceLengths);
+      pendingBufferWriteBits((1 << 1) + (lastBlock ? 1 : 0), 3);
+      _treeLiteral.setStaticCodes(_arrLiteralCodes!, _arrLiteralLengths);
+      _treeDistances.setStaticCodes(_arrDistanceCodes, _arrDistanceLengths);
       _huffmanCompressBlock();
       _huffmanReset();
     } else {
       // Encode with dynamic tree.
-      _pendingBufferWriteBits((2 << 1) + (lastBlock ? 1 : 0), 3);
+      pendingBufferWriteBits((2 << 1) + (lastBlock ? 1 : 0), 3);
       _huffmanSendAllTrees(blTreeCodes);
       _huffmanCompressBlock();
       _huffmanReset();
@@ -680,22 +649,22 @@ class _CompressedStreamWriter {
   }
 
   void _huffmanSendAllTrees(int blTreeCodes) {
-    _treeCodeLengths!._buildCodes();
-    _treeLiteral._buildCodes();
-    _treeDistances._buildCodes();
-    _pendingBufferWriteBits(_treeLiteral._codeCount - 257, 5);
-    _pendingBufferWriteBits(_treeDistances._codeCount - 1, 5);
-    _pendingBufferWriteBits(blTreeCodes - 4, 4);
+    _treeCodeLengths!.buildCodes();
+    _treeLiteral.buildCodes();
+    _treeDistances.buildCodes();
+    pendingBufferWriteBits(_treeLiteral.codeCount - 257, 5);
+    pendingBufferWriteBits(_treeDistances.codeCount - 1, 5);
+    pendingBufferWriteBits(blTreeCodes - 4, 4);
 
     for (int rank = 0; rank < blTreeCodes; rank++) {
-      _pendingBufferWriteBits(
+      pendingBufferWriteBits(
           _treeCodeLengths!
-              ._codeLengths![def_huffman_dyntree_codelengths_order[rank]],
+              .codeLengths![def_huffman_dyntree_codelengths_order[rank]],
           3);
     }
 
-    _treeLiteral._writeTree(_treeCodeLengths);
-    _treeDistances._writeTree(_treeCodeLengths);
+    _treeLiteral.writeTree(_treeCodeLengths);
+    _treeDistances.writeTree(_treeCodeLengths);
   }
 
   int _insertString() {
@@ -717,26 +686,26 @@ class _CompressedStreamWriter {
 
       if (dist-- != 0) {
         final int lc = _huffmanLengthCode(litlen);
-        _treeLiteral._writeCodeToStream(lc);
+        _treeLiteral.writeCodeToStream(lc);
 
         int bits = (lc - 261) ~/ 4;
         if (bits > 0 && bits <= 5) {
-          _pendingBufferWriteBits(litlen & ((1 << bits) - 1), bits);
+          pendingBufferWriteBits(litlen & ((1 << bits) - 1), bits);
         }
 
         final int dc = _huffmanDistanceCode(dist);
-        _treeDistances._writeCodeToStream(dc);
+        _treeDistances.writeCodeToStream(dc);
 
         bits = dc ~/ 2 - 1;
         if (bits > 0) {
-          _pendingBufferWriteBits(dist & ((1 << bits) - 1), bits);
+          pendingBufferWriteBits(dist & ((1 << bits) - 1), bits);
         }
       } else {
-        _treeLiteral._writeCodeToStream(litlen);
+        _treeLiteral.writeCodeToStream(litlen);
       }
     }
 
-    _treeLiteral._writeCodeToStream(def_huffman_endblock_symbol);
+    _treeLiteral.writeCodeToStream(def_huffman_endblock_symbol);
   }
 
   int _huffmanDistanceCode(int distance) {
@@ -766,7 +735,7 @@ class _CompressedStreamWriter {
 
   void _huffmanFlushStoredBlock(
       List<int> stored, int storedOffset, int storedLength, bool lastBlock) {
-    _pendingBufferWriteBits((0 << 1) + (lastBlock ? 1 : 0), 3);
+    pendingBufferWriteBits((0 << 1) + (lastBlock ? 1 : 0), 3);
     _pendingBufferAlignToByte();
     _pendingBufferWriteShort(storedLength);
     _pendingBufferWriteShort(~storedLength);
@@ -777,9 +746,9 @@ class _CompressedStreamWriter {
   void _huffmanReset() {
     _iBufferPosition = 0;
     _iExtraBits = 0;
-    _treeLiteral._reset();
-    _treeDistances._reset();
-    _treeCodeLengths!._reset();
+    _treeLiteral.reset();
+    _treeDistances.reset();
+    _treeCodeLengths!.reset();
   }
 
   void _pendingBufferWriteShort(int s) {
@@ -808,7 +777,8 @@ class _CompressedStreamWriter {
     _pendingBufferBitsInCache = 0;
   }
 
-  void _pendingBufferWriteBits(int b, int count) {
+  /// internal method
+  void pendingBufferWriteBits(int b, int count) {
     _pendingBufferBitsCache |= (b << _pendingBufferBitsInCache).toUnsigned(32);
     _pendingBufferBitsInCache += count;
 
@@ -818,7 +788,7 @@ class _CompressedStreamWriter {
   bool _huffmanTallyLit(int literal) {
     _arrDistancesBuffer[_iBufferPosition] = 0;
     _arrLiteralsBuffer[_iBufferPosition++] = literal.toUnsigned(8);
-    _treeLiteral._codeFrequences[literal]++;
+    _treeLiteral.codeFrequences[literal]++;
     return _huffmanIsFull;
   }
 
@@ -890,8 +860,9 @@ class _CompressedStreamWriter {
     return result;
   }
 
+  /// internal method
   // ignore: unused_element
-  void _close() {
+  void close() {
     if (_bStreamClosed) {
       return;
     }
@@ -915,5 +886,34 @@ class _CompressedStreamWriter {
     if (_bCloseStream) {
       _stream.clear();
     }
+  }
+
+  /// internal field
+  static int bitReverse(int value) {
+    return (def_reverse_bits[(value & 15)] << 12 |
+            def_reverse_bits[((value >> 4) & 15)] << 8 |
+            def_reverse_bits[((value >> 8) & 15)] << 4 |
+            def_reverse_bits[(value >> 12)])
+        .toSigned(16);
+  }
+
+  /// internal method
+  static int checksumUpdate(
+      int checksum, List<int>? buffer, int offset, int length) {
+    int checksumUint = checksum.toUnsigned(32);
+    int s1 = checksumUint & 65535;
+    int s2 = checksumUint >> checkSumBitOffset;
+    while (length > 0) {
+      int steps = min(length, checksumIterationCount);
+      length -= steps;
+      while (--steps >= 0) {
+        s1 = s1 + (buffer![offset++] & 255).toUnsigned(32);
+        s2 += s1;
+      }
+      s1 %= checksumBase;
+      s2 %= checksumBase;
+    }
+    checksumUint = (s2 << checkSumBitOffset) | s1;
+    return checksumUint;
   }
 }

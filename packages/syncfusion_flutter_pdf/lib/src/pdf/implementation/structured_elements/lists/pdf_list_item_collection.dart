@@ -1,4 +1,5 @@
-part of pdf;
+import '../../general/pdf_collection.dart';
+import 'pdf_list_item.dart';
 
 /// Represents collection of list items.
 ///
@@ -47,12 +48,11 @@ class PdfListItemCollection extends PdfObjectCollection {
   /// document.dispose();
   /// ```
   PdfListItemCollection([List<String>? items]) {
-    if (items != null) {
-      for (int i = 0; i < items.length; i++) {
-        _add(items[i]);
-      }
-    }
+    _helper = PdfListItemCollectionHelper(this, items);
   }
+
+  //Fields
+  late PdfListItemCollectionHelper _helper;
 
   //Properties
   /// Gets the [PdfListItem] from collection at the specified index.
@@ -74,13 +74,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfListItem operator [](int index) {
-    if (index < 0 || index >= count) {
-      throw RangeError(
-          'The index should be less than item\'s count or more or equal to 0');
-    }
-    return _list[index] as PdfListItem;
-  }
+  PdfListItem operator [](int index) => _helper.getValue(index);
 
   //Public methods
   /// Adds the specified item.
@@ -104,11 +98,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   /// document.dispose();
   /// ```
   int add(PdfListItem item, [double? itemIndent]) {
-    if (itemIndent != null) {
-      item.textIndent = itemIndent;
-    }
-    _list.add(item);
-    return _list.length - 1;
+    return _helper.add(item, itemIndent);
   }
 
   /// Inserts item at the specified index.
@@ -132,14 +122,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   /// document.dispose();
   /// ```
   void insert(int index, PdfListItem item, [double? itemIndent]) {
-    if (index < 0 || index >= count) {
-      throw ArgumentError(
-          'The index should be less than item\'s count or more or equal to 0, $index');
-    }
-    if (itemIndent != null) {
-      item.textIndent = itemIndent;
-    }
-    _list.insert(index, item);
+    _helper.insert(index, item, itemIndent);
   }
 
   /// Removes the specified item from the list.
@@ -165,10 +148,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   /// document.dispose();
   /// ```
   void remove(PdfListItem item) {
-    if (!_list.contains(item)) {
-      throw ArgumentError('The list doesn\'t contain this item, $item');
-    }
-    _list.remove(item);
+    _helper.remove(item);
   }
 
   /// Removes the item at the specified index from the list.
@@ -193,11 +173,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   /// document.dispose();
   /// ```
   void removeAt(int index) {
-    if (index < 0 || index >= count) {
-      throw ArgumentError(
-          'The index should be less than item\'s count or more or equal to 0, $index');
-    }
-    _list.removeAt(index);
+    _helper.removeAt(index);
   }
 
   /// Determines the index of a specific item in the list.
@@ -225,7 +201,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   /// document.dispose();
   /// ```
   int indexOf(PdfListItem item) {
-    return _list.indexOf(item);
+    return _helper.indexOf(item);
   }
 
   /// Clears collection
@@ -251,13 +227,85 @@ class PdfListItemCollection extends PdfObjectCollection {
   /// document.dispose();
   /// ```
   void clear() {
-    _list.clear();
+    _helper.clear();
+  }
+}
+
+/// [PdfListItemCollection] helper
+class PdfListItemCollectionHelper extends PdfObjectCollectionHelper {
+  /// internal constructor
+  PdfListItemCollectionHelper(this.base, List<String>? items) : super(base) {
+    if (items != null) {
+      for (int i = 0; i < items.length; i++) {
+        _add(items[i]);
+      }
+    }
   }
 
-  //Implementation
+  /// internal field
+  PdfListItemCollection base;
+
+  /// internal method
   PdfListItem _add(String text) {
     final PdfListItem item = PdfListItem(text: text);
-    _list.add(item);
+    list.add(item);
     return item;
+  }
+
+  /// internal method
+  PdfListItem getValue(int index) {
+    if (index < 0 || index >= base.count) {
+      throw RangeError(
+          "The index should be less than item's count or more or equal to 0");
+    }
+    return list[index] as PdfListItem;
+  }
+
+  /// internal method
+  int add(PdfListItem item, double? itemIndent) {
+    if (itemIndent != null) {
+      item.textIndent = itemIndent;
+    }
+    list.add(item);
+    return list.length - 1;
+  }
+
+  /// internal method
+  void insert(int index, PdfListItem item, double? itemIndent) {
+    if (index < 0 || index >= base.count) {
+      throw ArgumentError(
+          "The index should be less than item's count or more or equal to 0, $index");
+    }
+    if (itemIndent != null) {
+      item.textIndent = itemIndent;
+    }
+    list.insert(index, item);
+  }
+
+  /// internal method
+  void remove(PdfListItem item) {
+    if (!list.contains(item)) {
+      throw ArgumentError("The list doesn't contain this item, $item");
+    }
+    list.remove(item);
+  }
+
+  /// internal method
+  void removeAt(int index) {
+    if (index < 0 || index >= base.count) {
+      throw ArgumentError(
+          "The index should be less than item's count or more or equal to 0, $index");
+    }
+    list.removeAt(index);
+  }
+
+  /// Determines the index of a specific item in the list.
+  int indexOf(PdfListItem item) {
+    return list.indexOf(item);
+  }
+
+  /// Clears collection
+  void clear() {
+    list.clear();
   }
 }

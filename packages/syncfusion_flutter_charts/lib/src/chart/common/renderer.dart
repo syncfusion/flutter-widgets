@@ -1,9 +1,6 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/error_bar_series.dart';
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
@@ -43,6 +40,7 @@ class DataLabelRenderer extends StatefulWidget {
   bool show;
 
   /// Specifies the data label renderer state
+  // ignore: library_private_types_in_public_api
   _DataLabelRendererState? state;
 
   @override
@@ -84,6 +82,7 @@ class _DataLabelRendererState extends State<DataLabelRenderer>
     ));
 
     animationController.forward(from: 0.0);
+    // ignore: avoid_unnecessary_containers
     return Container(
         child: CustomPaint(
             painter: _DataLabelPainter(
@@ -901,13 +900,11 @@ void calculateTooltipRegion(
   if ((series.enableTooltip != null ||
           // ignore: unnecessary_null_comparison
           seriesRendererDetails.chart.trackballBehavior != null ||
-          chart.onPointTapped != null ||
           seriesRendererDetails.series.onPointTap != null ||
           seriesRendererDetails.series.onPointDoubleTap != null ||
           seriesRendererDetails.series.onPointLongPress != null) &&
       (series.enableTooltip ||
           seriesRendererDetails.chart.trackballBehavior.enable == true ||
-          chart.onPointTapped != null ||
           seriesRendererDetails.series.onPointTap != null ||
           seriesRendererDetails.series.onPointDoubleTap != null ||
           seriesRendererDetails.series.onPointLongPress != null) &&
@@ -929,8 +926,15 @@ void calculateTooltipRegion(
     }
     if (xAxisDetails is DateTimeAxisDetails) {
       final DateTimeAxis xAxis = xAxisDetails.axis as DateTimeAxis;
-      final DateFormat dateFormat =
-          xAxis.dateFormat ?? getDateTimeLabelFormat(xAxisDetails.axisRenderer);
+      final num interval = xAxisDetails.visibleRange!.minimum.ceil();
+      final num prevInterval = (xAxisDetails.visibleLabels.length != null &&
+              xAxisDetails.visibleLabels.isNotEmpty)
+          ? xAxisDetails
+              .visibleLabels[xAxisDetails.visibleLabels.length - 1].value
+          : interval;
+      final DateFormat dateFormat = xAxis.dateFormat ??
+          getDateTimeLabelFormat(xAxisDetails.axisRenderer, interval.toInt(),
+              prevInterval.toInt());
       date = dateFormat
           .format(DateTime.fromMillisecondsSinceEpoch(point.xValue.floor()));
     } else if (xAxisDetails is DateTimeCategoryAxisDetails) {
@@ -947,17 +951,8 @@ void calculateTooltipRegion(
                 ? regionData.add(getLabelValue(point.xValue, xAxisDetails.axis,
                         chart.tooltipBehavior.decimalPlaces)
                     .toString())
-                : regionData.add((getLabelValue(
-                            point.xValue - binWidth / 2,
-                            xAxisDetails.axis,
-                            chart.tooltipBehavior.decimalPlaces)
-                        .toString()) +
-                    ' - ' +
-                    (getLabelValue(
-                            point.xValue + binWidth / 2,
-                            xAxisDetails.axis,
-                            chart.tooltipBehavior.decimalPlaces)
-                        .toString()));
+                : regionData.add(
+                    '${getLabelValue(point.xValue - binWidth / 2, xAxisDetails.axis, chart.tooltipBehavior.decimalPlaces)} - ${getLabelValue(point.xValue + binWidth / 2, xAxisDetails.axis, chart.tooltipBehavior.decimalPlaces)}');
 
     if (seriesRendererDetails.seriesType.contains('range') == true &&
             !isTrendline ||
@@ -1088,5 +1083,19 @@ void drawDashedLine(
         paint);
   } else {
     canvas.drawPath(path, paint);
+  }
+}
+
+/// To dispose the old segments.
+void disposeOldSegments(
+    SfCartesianChart chart, SeriesRendererDetails seriesRendererDetails) {
+  if (!chart.legend.isVisible! &&
+      !seriesRendererDetails.isSelectionEnable &&
+      !chart.zoomPanBehavior.enableDoubleTapZooming &&
+      !chart.zoomPanBehavior.enableMouseWheelZooming &&
+      !chart.zoomPanBehavior.enablePanning &&
+      !chart.zoomPanBehavior.enablePinching &&
+      !chart.zoomPanBehavior.enableSelectionZooming) {
+    seriesRendererDetails.dispose();
   }
 }

@@ -17,6 +17,7 @@ dependencies:
   syncfusion_flutter_pdfviewer_platform_interface:
     path: ../syncfusion_flutter_pdfviewer_platform_interface
 
+
 flutter:
   plugin:
     platforms:

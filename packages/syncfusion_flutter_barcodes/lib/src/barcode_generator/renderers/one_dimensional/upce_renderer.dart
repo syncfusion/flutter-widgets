@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../../base/symbology_base.dart';
@@ -246,11 +245,11 @@ class UPCERenderer extends SymbologyRenderer {
         result += actualValue;
       }
     }
-    result = '0' + result;
-    String encodingValue = '' + result;
+    result = '0$result';
+    String encodingValue = result;
     final String checkSumValue = _getCheckSum(result).toString();
     encodingValue += checkSumValue;
-    _encodedValue = '0' + value + checkSumValue;
+    _encodedValue = '0$value$checkSumValue';
     return encodingValue;
   }
 

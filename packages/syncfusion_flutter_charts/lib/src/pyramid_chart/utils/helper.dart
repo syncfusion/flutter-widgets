@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import '../../chart/common/data_label.dart';
@@ -260,6 +258,7 @@ void renderPyramidDataLabel(
     PyramidStateProperties stateProperties,
     Animation<double> animation) {
   PointInfo<dynamic> point;
+  PointInfo<dynamic> nextPoint;
   final SfPyramidChart chart = stateProperties.chart;
   final DataLabelSettings dataLabel = seriesRenderer.series.dataLabelSettings;
   final DataLabelSettingsRenderer dataLabelSettingsRenderer =
@@ -271,6 +270,7 @@ void renderPyramidDataLabel(
   TextStyle dataLabelStyle;
   final List<Rect> renderDataLabelRegions = <Rect>[];
   Size textSize;
+  stateProperties.outsideRects.clear();
   for (int pointIndex = 0;
       pointIndex < seriesRenderer.renderPoints!.length;
       pointIndex++) {
@@ -303,6 +303,36 @@ void renderPyramidDataLabel(
       // Label check after event
       if (label != '') {
         if (dataLabel.labelPosition == ChartDataLabelPosition.inside) {
+          stateProperties.labelRects.clear();
+          for (int index = 0;
+              index < seriesRenderer.renderPoints!.length;
+              index++) {
+            nextPoint = seriesRenderer.renderPoints![index];
+            final num angle = dataLabel.angle;
+            Offset labelLocation;
+            const int labelPadding = 2;
+            final Size nextDataLabelSize =
+                measureText(nextPoint.text!, dataLabelStyle);
+            if (nextPoint.isVisible) {
+              labelLocation = nextPoint.symbolLocation;
+              labelLocation = Offset(
+                  labelLocation.dx -
+                      (nextDataLabelSize.width / 2) +
+                      (angle == 0 ? 0 : nextDataLabelSize.width / 2),
+                  labelLocation.dy -
+                      (nextDataLabelSize.height / 2) +
+                      (angle == 0 ? 0 : nextDataLabelSize.height / 2));
+              stateProperties.labelRects.add(Rect.fromLTWH(
+                  labelLocation.dx - labelPadding,
+                  labelLocation.dy - labelPadding,
+                  nextDataLabelSize.width + (2 * labelPadding),
+                  nextDataLabelSize.height + (2 * labelPadding)));
+            } else {
+              stateProperties.labelRects.add(Rect.zero);
+            }
+          }
+          PointInfoHelper.setIsLabelCollide(
+              point, checkCollide(pointIndex, stateProperties.labelRects));
           _setPyramidInsideLabelPosition(
               dataLabel,
               point,
@@ -351,7 +381,6 @@ void _setPyramidInsideLabelPosition(
     TextStyle dataLabelStyle) {
   final num angle = dataLabel.angle;
   Offset labelLocation;
-  final SmartLabelMode smartLabelMode = stateProperties.chart.smartLabelMode;
   const int labelPadding = 2;
   labelLocation = point.symbolLocation;
   labelLocation = Offset(
@@ -368,7 +397,24 @@ void _setPyramidInsideLabelPosition(
       textSize.height + (2 * labelPadding));
   final bool isDataLabelCollide =
       findingCollision(point.labelRect!, renderDataLabelRegions, point.region);
-  if (isDataLabelCollide && smartLabelMode == SmartLabelMode.shift) {
+  if (isDataLabelCollide) {
+    switch (dataLabel.overflowMode) {
+      case OverflowMode.trim:
+        label = getSegmentOverflowTrimmedText(dataLabel, point, textSize,
+            stateProperties, labelLocation, renderDataLabelRegions);
+        break;
+      case OverflowMode.hide:
+        label = '';
+        break;
+      default:
+        break;
+    }
+  }
+  final bool isLabelCollide = PointInfoHelper.getIsLabelCollide(point);
+  if ((isLabelCollide &&
+          dataLabel.labelIntersectAction == LabelIntersectAction.shift &&
+          dataLabel.overflowMode == OverflowMode.none) ||
+      isDataLabelCollide && dataLabel.overflowMode == OverflowMode.shift) {
     point.saturationRegionOutside = true;
     point.renderPosition = ChartDataLabelPosition.outside;
     dataLabelStyle = getDataLabelTextStyle(
@@ -384,10 +430,47 @@ void _setPyramidInsideLabelPosition(
         dataLabelStyle,
         renderDataLabelRegions,
         animateOpacity);
-  } else if (smartLabelMode == SmartLabelMode.none ||
-      (!isDataLabelCollide && smartLabelMode == SmartLabelMode.shift) ||
-      (!isDataLabelCollide && smartLabelMode == SmartLabelMode.hide)) {
+  } else if ((dataLabel.labelIntersectAction == LabelIntersectAction.none ||
+          (!isLabelCollide &&
+              dataLabel.labelIntersectAction == LabelIntersectAction.shift) ||
+          (!isLabelCollide &&
+              dataLabel.labelIntersectAction == LabelIntersectAction.hide)) &&
+      (!isDataLabelCollide && dataLabel.overflowMode == OverflowMode.hide ||
+          (dataLabel.overflowMode == OverflowMode.none)) &&
+      label != '') {
     point.renderPosition = ChartDataLabelPosition.inside;
+    _drawPyramidLabel(
+        point.labelRect!,
+        labelLocation,
+        label,
+        null,
+        canvas,
+        seriesRenderer,
+        point,
+        pointIndex,
+        stateProperties,
+        dataLabelStyle,
+        renderDataLabelRegions,
+        animateOpacity);
+  } else if (((!isLabelCollide &&
+              dataLabel.labelIntersectAction != LabelIntersectAction.hide) ||
+          (dataLabel.overflowMode == OverflowMode.trim)) &&
+      (label != '')) {
+    point.renderPosition = ChartDataLabelPosition.inside;
+    final Size trimmedTextSize = measureText(label, dataLabel.textStyle);
+    labelLocation = point.symbolLocation;
+    labelLocation = Offset(
+        labelLocation.dx -
+            (trimmedTextSize.width / 2) +
+            (angle == 0 ? 0 : textSize.width / 2),
+        labelLocation.dy -
+            (trimmedTextSize.height / 2) +
+            (angle == 0 ? 0 : trimmedTextSize.height / 2));
+    point.labelRect = Rect.fromLTWH(
+        labelLocation.dx - labelPadding,
+        labelLocation.dy - labelPadding,
+        trimmedTextSize.width + (2 * labelPadding),
+        trimmedTextSize.height + (2 * labelPadding));
     _drawPyramidLabel(
         point.labelRect!,
         labelLocation,
@@ -422,8 +505,10 @@ void _renderOutsidePyramidDataLabel(
   final EdgeInsets margin = seriesRenderer.series.dataLabelSettings.margin;
   final ConnectorLineSettings connector =
       seriesRenderer.series.dataLabelSettings.connectorLineSettings;
+  final DataLabelSettings dataLabel = seriesRenderer.series.dataLabelSettings;
   const num regionPadding = 12;
   connectorPath = Path();
+  bool isPreviousRectIntersect = false;
   final num connectorLength = percentToValue(connector.length ?? '0%',
           stateProperties.renderingDetails.chartAreaRect.width / 2)! +
       seriesRenderer.maximumDataLabelRegion.width / 2 -
@@ -454,18 +539,86 @@ void _renderOutsidePyramidDataLabel(
     labelLocation = Offset(rect.left + margin.left,
         rect.top + rect.height / 2 - textSize.height / 2);
     final Rect containerRect = stateProperties.renderingDetails.chartAreaRect;
-    if (seriesRenderer.series.dataLabelSettings.builder == null) {
-      Rect? lastRenderedLabelRegion;
-      if (renderDataLabelRegions.isNotEmpty) {
-        lastRenderedLabelRegion =
-            renderDataLabelRegions[renderDataLabelRegions.length - 1];
+    if (dataLabel.labelIntersectAction == LabelIntersectAction.shift ||
+        dataLabel.overflowMode == OverflowMode.shift) {
+      if (seriesRenderer.series.dataLabelSettings.builder == null) {
+        Rect? lastRenderedLabelRegion;
+        if (renderDataLabelRegions.isNotEmpty) {
+          lastRenderedLabelRegion =
+              renderDataLabelRegions[renderDataLabelRegions.length - 1];
+        }
+        if (stateProperties.outsideRects.isNotEmpty) {
+          isPreviousRectIntersect =
+              _isPyramidLabelIntersect(rect, stateProperties.outsideRects.last);
+        } else {
+          isPreviousRectIntersect =
+              _isPyramidLabelIntersect(rect, lastRenderedLabelRegion);
+        }
+        if (!isPreviousRectIntersect &&
+            (rect.left > containerRect.left &&
+                rect.left + rect.width <
+                    containerRect.left + containerRect.width) &&
+            rect.top > containerRect.top &&
+            rect.top + rect.height < containerRect.top + containerRect.height) {
+          stateProperties.outsideRects.add(rect);
+          _drawPyramidLabel(
+              rect,
+              labelLocation,
+              label,
+              connectorPath,
+              canvas,
+              seriesRenderer,
+              point,
+              pointIndex,
+              stateProperties,
+              textStyle,
+              renderDataLabelRegions,
+              animateOpacity);
+        } else {
+          if (pointIndex != 0) {
+            const num connectorLinePadding = 15;
+            const num padding = 2;
+            final Rect previousRenderedRect =
+                stateProperties.outsideRects.isNotEmpty
+                    ? stateProperties
+                        .outsideRects[stateProperties.outsideRects.length - 1]
+                    : renderDataLabelRegions[renderDataLabelRegions.length - 1];
+            rect = Rect.fromLTWH(rect.left,
+                previousRenderedRect.bottom + padding, rect.width, rect.height);
+            labelLocation = Offset(
+                rect.left + margin.left,
+                previousRenderedRect.bottom +
+                    padding +
+                    rect.height / 2 -
+                    textSize.height / 2);
+            connectorPath = Path();
+            connectorPath.moveTo(startPoint.dx, startPoint.dy);
+            connectorPath.lineTo(
+                rect.left - connectorLinePadding, rect.top + rect.height / 2);
+            connectorPath.lineTo(rect.left, rect.top + rect.height / 2);
+          }
+          if (rect.bottom <
+              stateProperties.renderingDetails.chartAreaRect.bottom) {
+            stateProperties.outsideRects.add(rect);
+            _drawPyramidLabel(
+                rect,
+                labelLocation,
+                label,
+                connectorPath,
+                canvas,
+                seriesRenderer,
+                point,
+                pointIndex,
+                stateProperties,
+                textStyle,
+                renderDataLabelRegions,
+                animateOpacity);
+          }
+        }
       }
-      if (!_isPyramidLabelIntersect(rect, lastRenderedLabelRegion) &&
-          (rect.left > containerRect.left &&
-              rect.left + rect.width <
-                  containerRect.left + containerRect.width) &&
-          rect.top > containerRect.top &&
-          rect.top + rect.height < containerRect.top + containerRect.height) {
+    } else if (dataLabel.labelIntersectAction == LabelIntersectAction.none) {
+      if (seriesRenderer.series.dataLabelSettings.builder == null) {
+        stateProperties.outsideRects.add(rect);
         _drawPyramidLabel(
             rect,
             labelLocation,
@@ -479,28 +632,18 @@ void _renderOutsidePyramidDataLabel(
             textStyle,
             renderDataLabelRegions,
             animateOpacity);
-      } else {
-        if (pointIndex != 0) {
-          const num connectorLinePadding = 15;
-          const num padding = 2;
-          final Rect previousRenderedRect =
+      }
+    } else if (dataLabel.labelIntersectAction == LabelIntersectAction.hide) {
+      if (seriesRenderer.series.dataLabelSettings.builder == null) {
+        stateProperties.outsideRects.add(rect);
+        Rect? lastRenderedLabelRegion;
+        if (renderDataLabelRegions.isNotEmpty) {
+          lastRenderedLabelRegion =
               renderDataLabelRegions[renderDataLabelRegions.length - 1];
-          rect = Rect.fromLTWH(rect.left, previousRenderedRect.bottom + padding,
-              rect.width, rect.height);
-          labelLocation = Offset(
-              rect.left + margin.left,
-              previousRenderedRect.bottom +
-                  padding +
-                  rect.height / 2 -
-                  textSize.height / 2);
-          connectorPath = Path();
-          connectorPath.moveTo(startPoint.dx, startPoint.dy);
-          connectorPath.lineTo(
-              rect.left - connectorLinePadding, rect.top + rect.height / 2);
-          connectorPath.lineTo(rect.left, rect.top + rect.height / 2);
         }
-        if (rect.bottom <
-            stateProperties.renderingDetails.chartAreaRect.bottom) {
+        isPreviousRectIntersect =
+            _isPyramidLabelIntersect(rect, lastRenderedLabelRegion);
+        if (!isPreviousRectIntersect) {
           _drawPyramidLabel(
               rect,
               labelLocation,
@@ -633,4 +776,72 @@ void triggerPyramidDataLabelEvent(
           pointIndex, point, position, seriesIndex);
     }
   }
+}
+
+/// Method to get a text when the text overlap with another segment/slice.
+String getSegmentOverflowTrimmedText(
+  DataLabelSettings dataLabel,
+  PointInfo<dynamic> point,
+  Size textSize,
+  StateProperties stateProperties,
+  Offset labelLocation,
+  List<Rect> renderDataLabelRegions,
+) {
+  bool isCollide;
+  String label = point.text!;
+  const int labelPadding = 2;
+  const String ellipse = '...';
+  const int minCharacterLength = 3;
+
+  isCollide = findingCollision(point.labelRect!, <Rect>[], point.region);
+  while (isCollide) {
+    if (label == ellipse) {
+      label = '';
+      break;
+    }
+    if (label.length > minCharacterLength) {
+      label = addEllipse(label, label.length, ellipse);
+    } else {
+      label = '';
+      break;
+    }
+    final Size trimTextSize = measureText(label, dataLabel.textStyle);
+    final Rect trimRect = Rect.fromLTWH(
+        labelLocation.dx - labelPadding,
+        labelLocation.dy - labelPadding,
+        trimTextSize.width + (2 * labelPadding),
+        trimTextSize.height + (2 * labelPadding));
+    isCollide = isLabelsColliding(trimRect, point.region);
+  }
+  return label == ellipse ? '' : label;
+}
+
+/// To check collide
+bool isLabelsColliding(Rect rect, Rect? pathRect) {
+  bool isCollide = false;
+  if (pathRect != null &&
+      (pathRect.left > rect.left &&
+          pathRect.width > rect.width &&
+          pathRect.top < rect.top &&
+          pathRect.height > rect.height)) {
+    isCollide = false;
+  } else if (pathRect != null) {
+    isCollide = true;
+  }
+  return isCollide;
+}
+
+/// To check if labels collide
+bool checkCollide(int index, List<Rect> list) {
+  final Rect currentRect = list[index];
+  Rect nextRect;
+  bool isCollide = false;
+  for (int i = index + 1; i < list.length; i++) {
+    nextRect = list[i];
+    isCollide = currentRect.overlaps(nextRect);
+    if (isCollide == true) {
+      break;
+    }
+  }
+  return isCollide;
 }

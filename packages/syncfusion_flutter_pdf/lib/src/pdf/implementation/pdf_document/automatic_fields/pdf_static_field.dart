@@ -1,33 +1,45 @@
-part of pdf;
+import 'dart:ui';
 
-abstract class _PdfStaticField extends PdfAutomaticField {
+import '../../drawing/drawing.dart';
+import '../../graphics/brushes/pdf_solid_brush.dart';
+import '../../graphics/figures/pdf_template.dart';
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/pdf_graphics.dart';
+import 'pdf_automatic_field.dart';
+
+/// internal class
+abstract class PdfStaticField extends PdfAutomaticField {
   // constructor
   /// Represents automatic field which value can be evaluated
   /// in the moment of creation.
-  _PdfStaticField({PdfFont? font, PdfBrush? brush, Rect? bounds})
-      : super._(font, brush: brush, bounds: bounds);
+  PdfStaticField({PdfFont? font, PdfBrush? brush, Rect? bounds}) {
+    PdfAutomaticFieldHelper(this).internal(font, brush: brush, bounds: bounds);
+  }
 
   // fields
   PdfTemplate? _template;
   final List<PdfGraphics> _graphicsList = <PdfGraphics>[];
 
   // implementation
-  @override
-  void _performDraw(PdfGraphics graphics, _Point? _location, double scalingX,
+  void _performDraw(PdfGraphics graphics, PdfPoint? location, double scalingX,
       double scalingY) {
-    super._performDraw(graphics, _location, scalingX, scalingY);
-
-    final String? value = _getValue(graphics);
+    final String? value =
+        PdfAutomaticFieldHelper.getHelper(this).getValue(graphics);
     final Offset drawLocation =
-        Offset(_location!.x + bounds.left, _location.y + bounds.top);
+        Offset(location!.x + bounds.left, location.y + bounds.top);
 
     if (_template == null) {
-      _template = PdfTemplate(_obtainSize().width, _obtainSize().height);
+      _template = PdfTemplate(
+          PdfAutomaticFieldHelper.getHelper(this).obtainSize().width,
+          PdfAutomaticFieldHelper.getHelper(this).obtainSize().height);
       _template!.graphics!.drawString(value!, font,
           pen: pen,
           brush: brush,
-          bounds:
-              Rect.fromLTWH(0, 0, _obtainSize().width, _obtainSize().height),
+          bounds: Rect.fromLTWH(
+              0,
+              0,
+              PdfAutomaticFieldHelper.getHelper(this).obtainSize().width,
+              PdfAutomaticFieldHelper.getHelper(this).obtainSize().height),
           format: stringFormat);
       graphics.drawPdfTemplate(
           _template!,
@@ -45,5 +57,15 @@ abstract class _PdfStaticField extends PdfAutomaticField {
         _graphicsList.add(graphics);
       }
     }
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfStaticField] helper
+class PdfStaticFieldHelper {
+  /// internal method
+  static void performDraw(PdfStaticField staticField, PdfGraphics graphics,
+      PdfPoint? location, double scalingX, double scalingY) {
+    staticField._performDraw(graphics, location, scalingX, scalingY);
   }
 }

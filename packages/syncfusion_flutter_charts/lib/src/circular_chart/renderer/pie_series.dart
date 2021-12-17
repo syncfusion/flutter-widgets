@@ -1,9 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import '../../chart/common/data_label.dart';
 import '../../chart/utils/enum.dart';
 import '../../common/common.dart';
@@ -57,8 +53,6 @@ class PieSeries<T, D> extends CircularSeries<T, D> {
       double? opacity,
       DataLabelSettings? dataLabelSettings,
       bool? enableTooltip,
-      @Deprecated('Use LabelIntersectAction.shift in dataLabelSettings.labelIntersectAction instead')
-          bool? enableSmartLabels,
       String? name,
       double? animationDuration,
       double? animationDelay,
@@ -117,8 +111,7 @@ class PieSeries<T, D> extends CircularSeries<T, D> {
             name: name,
             selectionBehavior: selectionBehavior,
             legendIconType: legendIconType,
-            sortingOrder: sortingOrder,
-            enableSmartLabels: enableSmartLabels);
+            sortingOrder: sortingOrder);
 
   /// Create the  pie series renderer.
   PieSeriesRenderer? createRenderer(CircularSeries<T, D> series) {
@@ -152,7 +145,6 @@ class PieSeries<T, D> extends CircularSeries<T, D> {
         other.dataLabelSettings == dataLabelSettings &&
         other.dataSource == dataSource &&
         other.emptyPointSettings == emptyPointSettings &&
-        other.enableSmartLabels == enableSmartLabels &&
         other.enableTooltip == enableTooltip &&
         other.endAngle == endAngle &&
         other.explode == explode &&
@@ -197,7 +189,6 @@ class PieSeries<T, D> extends CircularSeries<T, D> {
       dataLabelSettings,
       dataSource,
       emptyPointSettings,
-      enableSmartLabels,
       enableTooltip,
       endAngle,
       explode,

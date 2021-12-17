@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series.dart';
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
@@ -8,7 +6,6 @@ import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/common.dart';
 import '../common/segment_properties.dart';
-import '../series_painter/bubble_painter.dart';
 import '../utils/helper.dart';
 import 'chart_segment.dart';
 
@@ -118,11 +115,12 @@ class BubbleSegment extends ChartSegment {
         rect);
     _centerX = location.x;
     _centerY = location.y;
-    if (bubbleSegmentProperties.seriesRenderer is BubbleSeriesRenderer)
+    if (bubbleSegmentProperties.seriesRenderer is BubbleSeriesRenderer) {
       _radius = calculateBubbleRadius(
           seriesRendererDetails,
           bubbleSegmentProperties.series,
           bubbleSegmentProperties.currentPoint!);
+    }
     bubbleSegmentProperties.currentPoint!.region = Rect.fromLTRB(
         location.x - 2 * _radius,
         location.y - 2 * _radius,

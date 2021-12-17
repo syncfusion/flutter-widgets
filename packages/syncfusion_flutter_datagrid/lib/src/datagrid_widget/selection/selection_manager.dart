@@ -14,7 +14,10 @@ import '../sfdatagrid.dart';
 class SelectionManagerBase extends ChangeNotifier {
   final List<DataGridRow> _selectedRows = <DataGridRow>[];
 
-  /// ToDo
+  //Holds the shift key consecutive row selected item
+  final List<DataGridRow> _shiftSelectedRows = <DataGridRow>[];
+
+  /// Holds the [DataGridStateDetails].
   DataGridStateDetails? _dataGridStateDetails;
 
   /// Processes the selection operation when tap a cell.
@@ -92,6 +95,8 @@ class RowSelectionManager extends SelectionManagerBase {
   RowSelectionManager() : super();
 
   RowColumnIndex _pressedRowColumnIndex = RowColumnIndex(-1, -1);
+
+  int _pressedRowIndex = -1;
 
   void _applySelection(RowColumnIndex rowColumnIndex) {
     final DataGridConfiguration dataGridConfiguration =
@@ -182,7 +187,6 @@ class RowSelectionManager extends SelectionManagerBase {
         } else {
           _removeSelection(record, dataGridConfiguration);
         }
-
         notifyListeners();
         _raiseSelectionChanged(newItems: addedItems, oldItems: removeItems);
       }
@@ -195,6 +199,93 @@ class RowSelectionManager extends SelectionManagerBase {
     }
 
     record = null;
+  }
+
+  void _processShiftKeySelection(
+      RowColumnIndex rowColumnIndex, int currentRecordIndex) {
+    final DataGridConfiguration dataGridConfiguration =
+        _dataGridStateDetails!();
+    List<DataGridRow> addedItems = <DataGridRow>[];
+    List<DataGridRow> removedItems = <DataGridRow>[];
+    removedItems = _shiftSelectedRows.toList();
+
+    if (dataGridConfiguration.onSelectionChanging != null ||
+        dataGridConfiguration.onSelectionChanged != null) {
+      addedItems = _getAddedItems(
+          _pressedRowIndex, currentRecordIndex, dataGridConfiguration);
+      final List<DataGridRow> commonItemsList = addedItems
+          .toSet()
+          .where((DataGridRow record) => removedItems.toSet().contains(record))
+          .toList();
+      addedItems = addedItems
+          .toSet()
+          .where(
+              (DataGridRow record) => !_selectedRows.toSet().contains(record))
+          .toList();
+      removedItems = removedItems
+          .toSet()
+          .where(
+              (DataGridRow record) => !commonItemsList.toSet().contains(record))
+          .toList();
+    }
+    if (_raiseSelectionChanging(newItems: addedItems, oldItems: removedItems)) {
+      _addSelectionForShiftKey(currentRecordIndex);
+      notifyListeners();
+      _raiseSelectionChanged(newItems: addedItems, oldItems: removedItems);
+    }
+  }
+
+  void _addSelectionForShiftKey(int currentRecordIndex) {
+    late DataGridRow? record;
+    final DataGridConfiguration dataGridConfiguration =
+        _dataGridStateDetails!();
+    if (_shiftSelectedRows.isNotEmpty) {
+      for (final DataGridRow record in _shiftSelectedRows) {
+        if (record !=
+            selection_helper.getRecord(
+                dataGridConfiguration, _pressedRowIndex)) {
+          _removeSelection(record, dataGridConfiguration);
+        }
+      }
+      _shiftSelectedRows.removeWhere((DataGridRow record) =>
+          record !=
+          selection_helper.getRecord(dataGridConfiguration, _pressedRowIndex)!);
+    }
+    if (_pressedRowIndex < currentRecordIndex) {
+      for (int rowIndex = _pressedRowIndex + 1;
+          rowIndex <= currentRecordIndex;
+          rowIndex++) {
+        record = selection_helper.getRecord(dataGridConfiguration, rowIndex);
+        if (record != null && !_selectedRows.contains(record)) {
+          _shiftSelectedRows.add(record);
+          _addSelection(record, dataGridConfiguration);
+        }
+      }
+    } else if (_pressedRowIndex > currentRecordIndex) {
+      for (int rowIndex = _pressedRowIndex - 1;
+          rowIndex >= currentRecordIndex;
+          rowIndex--) {
+        record = selection_helper.getRecord(dataGridConfiguration, rowIndex);
+        if (record != null && !_selectedRows.contains(record)) {
+          _shiftSelectedRows.add(record);
+          _addSelection(record, dataGridConfiguration);
+        }
+      }
+    }
+  }
+
+  List<DataGridRow> _getAddedItems(
+      int startIndex, int endIndex, DataGridConfiguration configuration) {
+    final List<DataGridRow> addedItems = <DataGridRow>[];
+    if (startIndex > endIndex) {
+      final int tempIndex = startIndex;
+      startIndex = endIndex;
+      endIndex = tempIndex;
+    }
+    for (int i = startIndex; i <= endIndex; i++) {
+      addedItems.add(selection_helper.getRecord(configuration, i)!);
+    }
+    return addedItems;
   }
 
   void _addSelection(
@@ -238,9 +329,12 @@ class RowSelectionManager extends SelectionManagerBase {
 
   void _clearSelectedRows(DataGridConfiguration dataGridConfiguration) {
     if (_selectedRows.isNotEmpty) {
-      for (int i = _selectedRows.length - 1; i >= 0; i--) {
-        final DataGridRow selectedItem = _selectedRows[i];
-        _removeSelection(selectedItem, dataGridConfiguration);
+      _selectedRows.clear();
+      dataGridConfiguration.controller.selectedRows.clear();
+      _refreshSelection();
+      dataGridConfiguration.container.isDirty = true;
+      if (dataGridConfiguration.headerCheckboxState != false) {
+        _updateCheckboxStateOnHeader(dataGridConfiguration);
       }
     }
 
@@ -288,7 +382,6 @@ class RowSelectionManager extends SelectionManagerBase {
   void _refreshSelection() {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
-    _removeUnWantedDataGridRows(dataGridConfiguration);
     final DataGridRow? _selectedRow =
         _selectedRows.isNotEmpty ? _selectedRows.last : null;
     final int _recordIndex = _selectedRow == null
@@ -296,19 +389,6 @@ class RowSelectionManager extends SelectionManagerBase {
         : effectiveRows(dataGridConfiguration.source).indexOf(_selectedRow);
     updateSelectedRow(dataGridConfiguration.controller, _selectedRow);
     updateSelectedIndex(dataGridConfiguration.controller, _recordIndex);
-  }
-
-  void _removeUnWantedDataGridRows(
-      DataGridConfiguration dataGridConfiguration) {
-    final List<DataGridRow> duplicateSelectedRows = _selectedRows.toList();
-    for (final DataGridRow selectedRow in duplicateSelectedRows) {
-      final int rowIndex =
-          effectiveRows(dataGridConfiguration.source).indexOf(selectedRow);
-      if (rowIndex.isNegative) {
-        _selectedRows.remove(selectedRow);
-        dataGridConfiguration.controller.selectedRows.remove(selectedRow);
-      }
-    }
   }
 
   void _addCurrentCell(
@@ -434,19 +514,18 @@ class RowSelectionManager extends SelectionManagerBase {
     final DataCellBase? headerDataCell = headerDataRow.visibleColumns
         .firstWhereOrNull((DataCellBase cell) => cell.columnIndex == 0);
 
-    if (dataGridConfiguration.controller.selectedRows.length !=
+    if (_selectedRows.isEmpty &&
+        dataGridConfiguration.headerCheckboxState != false) {
+      dataGridConfiguration.headerCheckboxState = false;
+      headerDataCell?.updateColumn();
+    } else if (dataGridConfiguration.controller.selectedRows.length !=
             effectiveRows(dataGridConfiguration.source).length &&
         dataGridConfiguration.headerCheckboxState != null) {
       dataGridConfiguration.headerCheckboxState = null;
       headerDataCell?.updateColumn();
-    } else if (_selectedRows.isEmpty &&
-        dataGridConfiguration.headerCheckboxState == null) {
-      dataGridConfiguration.headerCheckboxState = false;
-      headerDataCell?.updateColumn();
     } else if (dataGridConfiguration.controller.selectedRows.length ==
             dataGridConfiguration.source.rows.length &&
-        (dataGridConfiguration.headerCheckboxState == null ||
-            dataGridConfiguration.headerCheckboxState == false)) {
+        dataGridConfiguration.headerCheckboxState != true) {
       dataGridConfiguration.headerCheckboxState = true;
       headerDataCell?.updateColumn();
     }
@@ -460,6 +539,8 @@ class RowSelectionManager extends SelectionManagerBase {
     if (dataGridConfiguration.selectionMode == SelectionMode.none) {
       return;
     }
+    final int recordIndex = grid_helper.resolveToRecordIndex(
+        dataGridConfiguration, rowColumnIndex.rowIndex);
 
     final RowColumnIndex previousRowColumnIndex = RowColumnIndex(
         dataGridConfiguration.currentCell.rowIndex,
@@ -468,9 +549,19 @@ class RowSelectionManager extends SelectionManagerBase {
         ._handlePointerOperation(dataGridConfiguration, rowColumnIndex)) {
       return;
     }
+    if (!dataGridConfiguration.isShiftKeyPressed) {
+      _pressedRowIndex = recordIndex;
+      _shiftSelectedRows.clear();
+      _processSelection(
+          dataGridConfiguration, rowColumnIndex, previousRowColumnIndex);
+    }
 
-    _processSelection(
-        dataGridConfiguration, rowColumnIndex, previousRowColumnIndex);
+    if (dataGridConfiguration.isShiftKeyPressed &&
+        dataGridConfiguration.selectionMode == SelectionMode.multiple &&
+        _selectedRows.contains(selection_helper.getRecord(
+            dataGridConfiguration, _pressedRowIndex))) {
+      _processShiftKeySelection(rowColumnIndex, recordIndex);
+    }
   }
 
   void _processSelection(
@@ -632,9 +723,13 @@ class RowSelectionManager extends SelectionManagerBase {
     }
 
     _clearSelectedRows(dataGridConfiguration);
-    for (final DataGridRow record in newValue) {
-      _addSelection(record, dataGridConfiguration);
-    }
+    _selectedRows.addAll(newValue);
+    dataGridConfiguration.controller.selectedRows.addAll(newValue);
+    _refreshSelection();
+    dataGridConfiguration.container
+      ..isDirty = true
+      ..refreshView();
+    _updateCheckboxStateOnHeader(dataGridConfiguration);
 
     if (dataGridConfiguration.navigationMode == GridNavigationMode.cell &&
         _selectedRows.isNotEmpty) {
@@ -1153,26 +1248,14 @@ class RowSelectionManager extends SelectionManagerBase {
     }
 
     if (_raiseSelectionChanging(oldItems: removeItems, newItems: addedItems)) {
-      for (final DataGridRow record
-          in effectiveRows(dataGridConfiguration.source)) {
-        if (!_selectedRows.contains(record)) {
-          final int rowIndex =
-              selection_helper.resolveToRowIndex(dataGridConfiguration, record);
-          if (rowIndex != -1 &&
-              dataGridConfiguration.rowGenerator.items
-                  .any((DataRowBase row) => row.rowIndex == rowIndex)) {
-            _setRowSelection(rowIndex, dataGridConfiguration, true);
-            _selectedRows.add(record);
-          } else {
-            _selectedRows.add(record);
-          }
-        }
-      }
       dataGridConfiguration.controller.selectedRows.clear();
+      _selectedRows.addAll(effectiveRows(dataGridConfiguration.source));
       dataGridConfiguration.controller.selectedRows
           .addAll(effectiveRows(dataGridConfiguration.source));
       _refreshSelection();
-      dataGridConfiguration.container.isDirty = true;
+      dataGridConfiguration.container
+        ..isDirty = true
+        ..refreshView();
       _updateCheckboxStateOnHeader(dataGridConfiguration);
 
       notifyListeners();
@@ -1188,6 +1271,10 @@ class RowSelectionManager extends SelectionManagerBase {
     }
 
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
+    final int recordIndex = grid_helper.resolveToRecordIndex(
+        dataGridConfiguration, currentCell.rowIndex);
+    _shiftSelectedRows.clear();
+    _pressedRowIndex = recordIndex;
     _applySelection(
         RowColumnIndex(currentCell.rowIndex, currentCell.columnIndex));
   }
@@ -1255,18 +1342,19 @@ class RowSelectionManager extends SelectionManagerBase {
   }
 }
 
-/// ToDo
+/// A class that can be used to manage the current cell operations in the
+/// [SfDataGrid].
 class CurrentCellManager {
-  /// ToDo
+  /// Creates the [CurrentCellManager] for the [SfDataGrid].
   CurrentCellManager(this.dataGridStateDetails);
 
-  /// ToDo
+  /// Holds the [DataGridStateDetails].
   final DataGridStateDetails dataGridStateDetails;
 
-  /// ToDo
+  /// The row index of the current cell.
   int rowIndex = -1;
 
-  /// ToDo
+  /// The column index of the current cell.
   int columnIndex = -1;
 
   /// Current editing dataCell.
@@ -1381,7 +1469,7 @@ class CurrentCellManager {
     this.columnIndex = columnIndex;
   }
 
-  /// ToDo
+  /// Sets the current data cell as dirty to refresh the cell.
   void setCurrentCellDirty(
       DataRowBase? dataRow, DataCellBase? dataCell, bool enableCurrentCell) {
     dataCell?.isCurrentCell = enableCurrentCell;
@@ -1542,7 +1630,7 @@ class CurrentCellManager {
   }
 
   // ------------------------------Editing-------------------------------------
-  /// ToDo
+  /// Called when the editing is begin to the data cell.
   void onCellBeginEdit(
       {DataCellBase? editingDataCell,
       RowColumnIndex? editingRowColumnIndex,
@@ -1758,7 +1846,10 @@ class CurrentCellManager {
             rowColumnIndex: rowColumnIndex, propertyName: 'editing');
       }
 
-      if (dataGridConfiguration.dataGridFocusNode != null &&
+      // Allow focus only if any data cell is in editing state and the
+      // data grid currently isn't focused.
+      if (dataGridConfiguration.currentCell.isEditing &&
+          dataGridConfiguration.dataGridFocusNode != null &&
           !dataGridConfiguration.dataGridFocusNode!.hasPrimaryFocus) {
         dataGridConfiguration.dataGridFocusNode!.requestFocus();
       }
@@ -1775,7 +1866,7 @@ class CurrentCellManager {
         .firstWhereOrNull((DataCellBase dataCell) => dataCell.isEditing);
   }
 
-  /// ToDo
+  /// Called when the editing is submitted in the data cell.
   bool canSubmitCell(DataGridConfiguration dataGridConfiguration) {
     final DataRowBase? dataRow = _getEditingRow(dataGridConfiguration);
 
@@ -1816,6 +1907,22 @@ void onRowColumnChanged(DataGridConfiguration dataGridConfiguration,
 }
 
 ///
+void removeUnWantedDataGridRows(DataGridConfiguration dataGridConfiguration) {
+  final RowSelectionManager rowSelectionManager =
+      dataGridConfiguration.rowSelectionManager as RowSelectionManager;
+  final List<DataGridRow> duplicateSelectedRows =
+      rowSelectionManager._selectedRows.toList();
+  for (final DataGridRow selectedRow in duplicateSelectedRows) {
+    final int rowIndex =
+        effectiveRows(dataGridConfiguration.source).indexOf(selectedRow);
+    if (rowIndex.isNegative) {
+      rowSelectionManager._selectedRows.remove(selectedRow);
+      dataGridConfiguration.controller.selectedRows.remove(selectedRow);
+    }
+  }
+}
+
+///
 void handleSelectionPropertyChanged(
     {required DataGridConfiguration dataGridConfiguration,
     RowColumnIndex? rowColumnIndex,
@@ -1847,7 +1954,7 @@ void updateSelectionController(
   }
 }
 
-/// ToDo
+/// Ensures the selection and current cell update in the [RowSelectionManager].
 void processSelectionAndCurrentCell(
     DataGridConfiguration dataGridConfiguration, RowColumnIndex rowColumnIndex,
     {bool isShiftKeyPressed = false, bool isProgrammatic = false}) {

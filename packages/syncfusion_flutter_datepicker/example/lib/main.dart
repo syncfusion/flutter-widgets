@@ -36,12 +36,9 @@ class MyAppState extends State<MyApp> {
     /// multi range.
     setState(() {
       if (args.value is PickerDateRange) {
-        _range =
-            DateFormat('dd/MM/yyyy').format(args.value.startDate).toString() +
-                ' - ' +
-                DateFormat('dd/MM/yyyy')
-                    .format(args.value.endDate ?? args.value.startDate)
-                    .toString();
+        _range = '${DateFormat('dd/MM/yyyy').format(args.value.startDate)} -'
+            // ignore: lines_longer_than_80_chars
+            ' ${DateFormat('dd/MM/yyyy').format(args.value.endDate ?? args.value.startDate)}';
       } else if (args.value is DateTime) {
         _selectedDate = args.value.toString();
       } else if (args.value is List<DateTime>) {
@@ -71,10 +68,10 @@ class MyAppState extends State<MyApp> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text('Selected date: ' + _selectedDate),
-                      Text('Selected date count: ' + _dateCount),
-                      Text('Selected range: ' + _range),
-                      Text('Selected ranges count: ' + _rangeCount)
+                      Text('Selected date: $_selectedDate'),
+                      Text('Selected date count: $_dateCount'),
+                      Text('Selected range: $_range'),
+                      Text('Selected ranges count: $_rangeCount')
                     ],
                   ),
                 ),

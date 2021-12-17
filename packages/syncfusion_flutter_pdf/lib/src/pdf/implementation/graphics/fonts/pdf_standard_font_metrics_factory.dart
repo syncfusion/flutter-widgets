@@ -1,8 +1,11 @@
-part of pdf;
+import 'enums.dart';
+import 'pdf_font.dart';
+import 'pdf_font_metrics.dart';
 
 /// Factory of the standard fonts metrics.
-class _PdfStandardFontMetricsFactory {
-  _PdfStandardFontMetricsFactory();
+class PdfStandardFontMetricsFactory {
+  /// internal constructor
+  PdfStandardFontMetricsFactory();
 
   /// Multiplier os subscript superscript.
   static const double _subSuperscriptFactor = 1.52;
@@ -134,9 +137,9 @@ class _PdfStandardFontMetricsFactory {
   static const String _zapfDingbatsName = 'ZapfDingbats';
 
   /// Returns metrics of the font.
-  static _PdfFontMetrics _getMetrics(
+  static PdfFontMetrics getMetrics(
       PdfFontFamily? fontFamily, int? fontStyle, double size) {
-    _PdfFontMetrics metrics;
+    PdfFontMetrics metrics;
     switch (fontFamily) {
       case PdfFontFamily.helvetica:
         metrics = _getHelveticaMetrics(fontFamily, fontStyle!, size);
@@ -158,153 +161,159 @@ class _PdfStandardFontMetricsFactory {
             _getHelveticaMetrics(PdfFontFamily.helvetica, fontStyle!, size);
         break;
     }
-    metrics.name = PdfFont._standardFontNames[fontFamily!.index];
+    metrics.name = PdfFontHelper.standardFontNames[fontFamily!.index];
     metrics.subscriptSizeFactor = _subSuperscriptFactor;
     metrics.superscriptSizeFactor = _subSuperscriptFactor;
     return metrics;
   }
 
   /// Creates Helvetica font metrics.
-  static _PdfFontMetrics _getHelveticaMetrics(
+  static PdfFontMetrics _getHelveticaMetrics(
       PdfFontFamily? fontFamily, int fontStyle, double size) {
-    final _PdfFontMetrics metrics = _PdfFontMetrics();
-    if (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold) > 0 &&
-        fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic) > 0) {
+    final PdfFontMetrics metrics = PdfFontMetrics();
+    if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) > 0 &&
+        fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic) > 0) {
       metrics.ascent = _helveticaBoldItalicAscent;
       metrics.descent = _helveticaBoldItalicDescent;
       metrics.postScriptName = _helveticaBoldItalicName;
       metrics.size = size;
-      metrics._widthTable =
-          _StandardWidthTable(_StandardFontWidth._arialBoldWidth);
+      metrics.widthTable =
+          StandardWidthTable(_StandardFontWidth._arialBoldWidth);
       metrics.height = metrics.ascent - metrics.descent;
-    } else if (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold) > 0) {
+    } else if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) >
+        0) {
       metrics.ascent = _helveticaBoldAscent;
       metrics.descent = _helveticaBoldDescent;
       metrics.postScriptName = _helveticaBoldName;
       metrics.size = size;
-      metrics._widthTable =
-          _StandardWidthTable(_StandardFontWidth._arialBoldWidth);
+      metrics.widthTable =
+          StandardWidthTable(_StandardFontWidth._arialBoldWidth);
       metrics.height = metrics.ascent - metrics.descent;
-    } else if (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic) > 0) {
+    } else if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic) >
+        0) {
       metrics.ascent = _helveticaItalicAscent;
       metrics.descent = _helveticaItalicDescent;
       metrics.postScriptName = _helveticaItalicName;
       metrics.size = size;
-      metrics._widthTable = _StandardWidthTable(_StandardFontWidth._arialWidth);
+      metrics.widthTable = StandardWidthTable(_StandardFontWidth._arialWidth);
       metrics.height = metrics.ascent - metrics.descent;
     } else {
       metrics.ascent = _helveticaAscent;
       metrics.descent = _helveticaDescent;
       metrics.postScriptName = _helveticaName;
       metrics.size = size;
-      metrics._widthTable = _StandardWidthTable(_StandardFontWidth._arialWidth);
+      metrics.widthTable = StandardWidthTable(_StandardFontWidth._arialWidth);
       metrics.height = metrics.ascent - metrics.descent;
     }
     return metrics;
   }
 
   /// Creates Courier font metrics.
-  static _PdfFontMetrics _getCourierMetrics(
+  static PdfFontMetrics _getCourierMetrics(
       PdfFontFamily? fontFamily, int fontStyle, double size) {
-    final _PdfFontMetrics metrics = _PdfFontMetrics();
-    if (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold) > 0 &&
-        fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic) > 0) {
+    final PdfFontMetrics metrics = PdfFontMetrics();
+    if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) > 0 &&
+        fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic) > 0) {
       metrics.ascent = _courierBoldItalicAscent;
       metrics.descent = _courierBoldItalicDescent;
       metrics.postScriptName = _courierBoldItalicName;
       metrics.size = size;
-      metrics._widthTable = _StandardWidthTable(_StandardFontWidth._fixedWidth);
+      metrics.widthTable = StandardWidthTable(_StandardFontWidth._fixedWidth);
       metrics.height = metrics.ascent - metrics.descent;
-    } else if (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold) > 0) {
+    } else if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) >
+        0) {
       metrics.ascent = _courierBoldAscent;
       metrics.descent = _courierBoldDescent;
       metrics.postScriptName = _courierBoldName;
       metrics.size = size;
-      metrics._widthTable = _StandardWidthTable(_StandardFontWidth._fixedWidth);
+      metrics.widthTable = StandardWidthTable(_StandardFontWidth._fixedWidth);
       metrics.height = metrics.ascent - metrics.descent;
-    } else if (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic) > 0) {
+    } else if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic) >
+        0) {
       metrics.ascent = _courierItalicAscent;
       metrics.descent = _courierItalicDescent;
       metrics.postScriptName = _courierItalicName;
       metrics.size = size;
-      metrics._widthTable = _StandardWidthTable(_StandardFontWidth._fixedWidth);
+      metrics.widthTable = StandardWidthTable(_StandardFontWidth._fixedWidth);
       metrics.height = metrics.ascent - metrics.descent;
     } else {
       metrics.ascent = _courierAscent;
       metrics.descent = _courierDescent;
       metrics.postScriptName = _courierName;
       metrics.size = size;
-      metrics._widthTable = _StandardWidthTable(_StandardFontWidth._fixedWidth);
+      metrics.widthTable = StandardWidthTable(_StandardFontWidth._fixedWidth);
       metrics.height = metrics.ascent - metrics.descent;
     }
     return metrics;
   }
 
   /// Creates Times font metrics.
-  static _PdfFontMetrics _getTimesMetrics(
+  static PdfFontMetrics _getTimesMetrics(
       PdfFontFamily? fontFamily, int fontStyle, double size) {
-    final _PdfFontMetrics metrics = _PdfFontMetrics();
-    if (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold) > 0 &&
-        fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic) > 0) {
+    final PdfFontMetrics metrics = PdfFontMetrics();
+    if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) > 0 &&
+        fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic) > 0) {
       metrics.ascent = _timesBoldItalicAscent;
       metrics.descent = _timesBoldItalicDescent;
       metrics.postScriptName = _timesBoldItalicName;
       metrics.size = size;
-      metrics._widthTable =
-          _StandardWidthTable(_StandardFontWidth._timesRomanBoldItalicWidth);
+      metrics.widthTable =
+          StandardWidthTable(_StandardFontWidth._timesRomanBoldItalicWidth);
       metrics.height = metrics.ascent - metrics.descent;
-    } else if (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold) > 0) {
+    } else if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) >
+        0) {
       metrics.ascent = _timesBoldAscent;
       metrics.descent = _timesBoldDescent;
       metrics.postScriptName = _timesBoldName;
       metrics.size = size;
-      metrics._widthTable =
-          _StandardWidthTable(_StandardFontWidth._timesRomanBoldWidth);
+      metrics.widthTable =
+          StandardWidthTable(_StandardFontWidth._timesRomanBoldWidth);
       metrics.height = metrics.ascent - metrics.descent;
-    } else if (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic) > 0) {
+    } else if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic) >
+        0) {
       metrics.ascent = _timesItalicAscent;
       metrics.descent = _timesItalicDescent;
       metrics.postScriptName = _timesItalicName;
       metrics.size = size;
-      metrics._widthTable =
-          _StandardWidthTable(_StandardFontWidth._timesRomanItalicWidth);
+      metrics.widthTable =
+          StandardWidthTable(_StandardFontWidth._timesRomanItalicWidth);
       metrics.height = metrics.ascent - metrics.descent;
     } else {
       metrics.ascent = _timesAscent;
       metrics.descent = _timesDescent;
       metrics.postScriptName = _timesName;
       metrics.size = size;
-      metrics._widthTable =
-          _StandardWidthTable(_StandardFontWidth._timesRomanWidth);
+      metrics.widthTable =
+          StandardWidthTable(_StandardFontWidth._timesRomanWidth);
       metrics.height = metrics.ascent - metrics.descent;
     }
     return metrics;
   }
 
   /// Creates Symbol font metrics.
-  static _PdfFontMetrics _getSymbolMetrics(
+  static PdfFontMetrics _getSymbolMetrics(
       PdfFontFamily? fontFamily, double size) {
-    final _PdfFontMetrics metrics = _PdfFontMetrics();
+    final PdfFontMetrics metrics = PdfFontMetrics();
 
     metrics.ascent = _symbolAscent;
     metrics.descent = _symbolDescent;
     metrics.postScriptName = _symbolName;
     metrics.size = size;
-    metrics._widthTable = _StandardWidthTable(_StandardFontWidth._symbolWidth);
+    metrics.widthTable = StandardWidthTable(_StandardFontWidth._symbolWidth);
     metrics.height = metrics.ascent - metrics.descent;
     return metrics;
   }
 
   /// Creates ZapfDingbats font metrics.
-  static _PdfFontMetrics _getZapfDingbatsMetrics(
+  static PdfFontMetrics _getZapfDingbatsMetrics(
       PdfFontFamily? fontFamily, double size) {
-    final _PdfFontMetrics metrics = _PdfFontMetrics();
+    final PdfFontMetrics metrics = PdfFontMetrics();
     metrics.ascent = _zapfDingbatsAscent;
     metrics.descent = _zapfDingbatsDescent;
     metrics.postScriptName = _zapfDingbatsName;
     metrics.size = size;
-    metrics._widthTable =
-        _StandardWidthTable(_StandardFontWidth._zapfDingbatsWidth);
+    metrics.widthTable =
+        StandardWidthTable(_StandardFontWidth._zapfDingbatsWidth);
     metrics.height = metrics.ascent - metrics.descent;
     return metrics;
   }

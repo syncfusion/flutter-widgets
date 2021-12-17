@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui';
 import 'dart:ui' as dart_ui;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/src/chart/axis/datetime_axis.dart'
     show DateTimeAxisDetails;
 import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
@@ -30,7 +27,6 @@ import '../chart_series/waterfall_series.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/data_label.dart';
-import '../common/marker.dart';
 import '../common/renderer.dart';
 import '../series_painter/box_and_whisker_painter.dart';
 import '../series_painter/stacked_line_painter.dart';
@@ -1743,7 +1739,7 @@ Path findingRectSeriesDashedBorder(
 Future<dart_ui.Image> _getImageInfo(ImageProvider imageProvider) async {
   final Completer<ImageInfo> completer = Completer<ImageInfo>();
   imageProvider
-      .resolve(const ImageConfiguration())
+      .resolve(ImageConfiguration.empty)
       .addListener(ImageStreamListener((ImageInfo info, bool _) {
     completer.complete(info);
     // return completer.future;
@@ -1779,11 +1775,6 @@ void calculateImage(CartesianStateProperties stateProperties,
       if (!seriesRendererDetails.markerSettingsRenderer!.isImageDrawn) {
         seriesRendererDetails.repaintNotifier.value++;
         seriesRendererDetails.markerSettingsRenderer!.isImageDrawn = true;
-      }
-      if (seriesRendererDetails.seriesType == 'scatter' &&
-          seriesRendererDetails.chart.legend.isVisible! == true) {
-        seriesRendererDetails.stateProperties.renderingDetails.chartLegend
-            .legendRepaintNotifier.value++;
       }
     }
   }

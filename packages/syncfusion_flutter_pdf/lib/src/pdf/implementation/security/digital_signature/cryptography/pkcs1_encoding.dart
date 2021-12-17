@@ -1,17 +1,22 @@
-part of pdf;
+import 'dart:math';
 
-class _Pkcs1Encoding implements _ICipherBlock {
-  _Pkcs1Encoding(_ICipherBlock? cipher) {
+import 'cipher_block_chaining_mode.dart';
+import 'ipadding.dart';
+
+/// internal class
+class Pkcs1Encoding implements ICipherBlock {
+  /// internal constructor
+  Pkcs1Encoding(ICipherBlock? cipher) {
     _cipher = cipher;
   }
   //Fields
-  _ICipherBlock? _cipher;
+  ICipherBlock? _cipher;
   late bool _isEncryption;
   bool? _isPrivateKey;
   late Random _random;
   //Properties
   @override
-  String get algorithmName => _cipher!.algorithmName! + '/PKCS1Padding';
+  String get algorithmName => '${_cipher!.algorithmName!}/PKCS1Padding';
   @override
   int? get inputBlock =>
       _isEncryption ? _cipher!.inputBlock! - 10 : _cipher!.inputBlock;
@@ -20,10 +25,10 @@ class _Pkcs1Encoding implements _ICipherBlock {
       _isEncryption ? _cipher!.outputBlock : _cipher!.outputBlock! - 10;
   //Implmentation
   @override
-  void initialize(bool forEncryption, _ICipherParameter? parameters) {
-    _CipherParameter? kParam;
+  void initialize(bool forEncryption, ICipherParameter? parameters) {
+    CipherParameter? kParam;
     _random = Random.secure();
-    kParam = parameters as _CipherParameter?;
+    kParam = parameters as CipherParameter?;
     _cipher!.initialize(forEncryption, parameters);
     _isPrivateKey = kParam!.isPrivate;
     _isEncryption = forEncryption;
@@ -36,6 +41,7 @@ class _Pkcs1Encoding implements _ICipherBlock {
         : decodeBlock(input, inOff, length);
   }
 
+  /// internal method
   List<int>? encodeBlock(List<int> input, int inOff, int inLen) {
     if (inLen > inputBlock!) {
       throw ArgumentError.value(inLen, 'inLen', 'Input data too large');
@@ -61,6 +67,7 @@ class _Pkcs1Encoding implements _ICipherBlock {
     return _cipher!.processBlock(block, 0, block.length);
   }
 
+  /// internal method
   List<int> decodeBlock(List<int> input, int inOff, int inLen) {
     final List<int> block = _cipher!.processBlock(input, inOff, inLen)!;
     if (block.length < outputBlock!) {

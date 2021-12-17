@@ -18,9 +18,8 @@ dependencies:
     path: ../syncfusion_flutter_xlsio
   
   syncfusion_flutter_pdf:
-    path: ../syncfusion_flutter_pdf 
+    path: ../syncfusion_flutter_pdf   
 
   collection: ">=1.9.0 <=1.15.0"
-
 
 flutter: null

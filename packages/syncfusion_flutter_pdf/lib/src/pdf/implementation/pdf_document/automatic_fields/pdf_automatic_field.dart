@@ -1,24 +1,44 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../drawing/drawing.dart';
+import '../../graphics/brushes/pdf_brush.dart';
+import '../../graphics/brushes/pdf_solid_brush.dart';
+import '../../graphics/fonts/enums.dart';
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/fonts/pdf_standard_font.dart';
+import '../../graphics/fonts/pdf_string_format.dart';
+import '../../graphics/pdf_graphics.dart';
+import '../../graphics/pdf_pen.dart';
+import '../../pages/enum.dart';
+import 'pdf_automatic_field_info.dart';
+import 'pdf_composite_field.dart';
+import 'pdf_date_time_field.dart';
+import 'pdf_destination_page_number_field.dart';
+import 'pdf_multiple_value_field.dart';
+import 'pdf_page_count_field.dart';
+import 'pdf_page_number_field.dart';
+import 'pdf_single_value_field.dart';
+import 'pdf_static_field.dart';
 
 /// Represents a fields which is calculated before the document saves.
 abstract class PdfAutomaticField {
-  // constructor
-  PdfAutomaticField._(PdfFont? font, {Rect? bounds, PdfBrush? brush})
-      : super() {
+  /// Initialize [PdfAutomaticField] object
+  void _internal(PdfFont? font,
+      {Rect? bounds, PdfBrush? brush, PdfAutomaticFieldHelper? helper}) {
+    _helper = helper!;
     this.font = font ?? PdfStandardFont(PdfFontFamily.helvetica, 8);
     if (bounds != null) {
-      _bounds = _Rectangle.fromRect(bounds);
+      _bounds = PdfRectangle.fromRect(bounds);
     } else {
-      _bounds = _Rectangle.empty;
+      _bounds = PdfRectangle.empty;
     }
     this.brush = brush ?? PdfBrushes.black;
   }
+
   // fields
-  late _Rectangle _bounds;
-
+  late PdfAutomaticFieldHelper _helper;
+  late PdfRectangle _bounds;
   PdfPen? _pen;
-
-  Size _templateSize = const Size(0, 0);
 
   /// Gets or sets the font of the field.
   ///```dart
@@ -188,7 +208,7 @@ abstract class PdfAutomaticField {
   }
 
   set bounds(Rect value) {
-    _bounds = _Rectangle.fromRect(value);
+    _bounds = PdfRectangle.fromRect(value);
   }
 
   /// Gets or sets the pen of the field.
@@ -275,38 +295,39 @@ abstract class PdfAutomaticField {
   /// document.dispose();
   ///```
   void draw(PdfGraphics graphics, [Offset? location]) {
-    location ??= const Offset(0, 0);
-    graphics._autoFields!
-        .add(_PdfAutomaticFieldInfo(this, _Point.fromOffset(location)));
+    location ??= Offset.zero;
+    PdfGraphicsHelper.getHelper(graphics)
+        .autoFields!
+        .add(PdfAutomaticFieldInfo(this, PdfPoint.fromOffset(location)));
+  }
+}
+
+/// [PdfAutomaticField] helper
+class PdfAutomaticFieldHelper {
+  /// internal constructor
+  PdfAutomaticFieldHelper(this.base);
+
+  /// internal field
+  late PdfAutomaticField base;
+
+  /// internal method
+  static PdfAutomaticFieldHelper getHelper(PdfAutomaticField base) {
+    return base._helper;
   }
 
-  String? _getValue(PdfGraphics graphics) {
-    return graphics as String;
-  }
-
-  void _performDraw(PdfGraphics graphics, _Point? location, double scalingX,
-      double scalingY) {
-    if (bounds.height == 0 || bounds.width == 0) {
-      final String text = _getValue(graphics)!;
-      _templateSize = font.measureString(text,
-          layoutArea: bounds.size, format: stringFormat);
-    }
-  }
-
-  Size _obtainSize() {
-    if (bounds.height == 0 || bounds.width == 0) {
-      return _templateSize;
-    } else {
-      return bounds.size;
-    }
+  /// internal method
+  void internal(PdfFont? font, {Rect? bounds, PdfBrush? brush}) {
+    base._internal(font, bounds: bounds, brush: brush, helper: this);
   }
 
   // fields
   static const double _letterLimit = 26.0;
   static const int _acsiiStartIndex = 65 - 1;
+  Size _templateSize = Size.zero;
 
   // methods
-  static String _convert(int intArabic, PdfNumberStyle numberStyle) {
+  /// internal method
+  static String convert(int intArabic, PdfNumberStyle numberStyle) {
     switch (numberStyle) {
       case PdfNumberStyle.none:
         return '';
@@ -406,5 +427,55 @@ abstract class PdfAutomaticField {
     }
     final String letter = (_acsiiStartIndex + number).toString();
     result.write(String.fromCharCode(int.parse(letter)));
+  }
+
+  /// internal method
+  String? getValue(PdfGraphics graphics) {
+    if (base is PdfCompositeField) {
+      return PdfCompositeFieldHelper.getValue(
+          base as PdfCompositeField, graphics);
+    } else if (base is PdfDateTimeField) {
+      return PdfDateTimeFieldHelper.getValue(
+          base as PdfDateTimeField, graphics);
+    } else if (base is PdfDestinationPageNumberField) {
+      return PdfDestinationPageNumberFieldHelper.getValue(
+          base as PdfDestinationPageNumberField, graphics);
+    } else if (base is PdfPageNumberField) {
+      return PdfPageNumberFieldHelper.getHelper(base as PdfPageNumberField)
+          .getValue(graphics);
+    } else if (base is PdfPageCountField) {
+      return PdfPageCountFieldHelper.getValue(
+          base as PdfPageCountField, graphics);
+    }
+    return graphics as String;
+  }
+
+  /// internal method
+  void performDraw(PdfGraphics graphics, PdfPoint? location, double scalingX,
+      double scalingY) {
+    if (base.bounds.height == 0 || base.bounds.width == 0) {
+      final String text = getValue(graphics)!;
+      _templateSize = base.font.measureString(text,
+          layoutArea: base.bounds.size, format: base.stringFormat);
+    }
+    if (base is PdfStaticField) {
+      PdfStaticFieldHelper.performDraw(
+          base as PdfStaticField, graphics, location, scalingX, scalingY);
+    } else if (base is PdfSingleValueField) {
+      PdfSingleValueFieldHelper.performDraw(
+          base as PdfSingleValueField, graphics, location, scalingX, scalingY);
+    } else if (base is PdfMultipleValueField) {
+      PdfMultipleValueFieldHelper.performDraw(base as PdfMultipleValueField,
+          graphics, location, scalingX, scalingY);
+    }
+  }
+
+  /// internal method
+  Size obtainSize() {
+    if (base.bounds.height == 0 || base.bounds.width == 0) {
+      return _templateSize;
+    } else {
+      return base.bounds.size;
+    }
   }
 }

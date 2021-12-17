@@ -14,3 +14,5 @@ dependencies:
     path: ../syncfusion_flutter_core
 
   collection: ">=1.9.0 <=1.15.0"
+
+

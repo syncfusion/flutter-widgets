@@ -191,7 +191,7 @@ class VisibleLineInfo extends Comparable<VisibleLineInfo> {
             region = ${region.toString()}
             }''';
 
-    return sb.toString();
+    return sb;
   }
 }
 

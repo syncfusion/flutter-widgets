@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../../base/symbology_base.dart';
@@ -18,7 +17,7 @@ class Code93Renderer extends SymbologyRenderer {
   bool getIsValidateInput(String value) {
     for (int i = 0; i < value.length; i++) {
       if (!_character.contains(value[i])) {
-        throw 'The provided input cannot be encoded : ' + value[i];
+        throw 'The provided input cannot be encoded : ${value[i]}';
       }
     }
     return true;

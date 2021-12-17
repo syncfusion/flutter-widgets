@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -43,7 +42,7 @@ class RenderLinearRange extends RenderOpacity {
         _isAxisInversed = isAxisInversed,
         _isMirrored = isMirrored {
     _rangePaint = Paint()..color = Colors.black12;
-    _rangeOffsets = List<Offset>.filled(5, const Offset(0, 0), growable: false);
+    _rangeOffsets = List<Offset>.filled(5, Offset.zero, growable: false);
     _isHorizontal = orientation == LinearGaugeOrientation.horizontal;
     _path = Path();
   }

@@ -1,4 +1,7 @@
-part of pdf;
+import '../../graphics/fonts/pdf_string_format.dart';
+import 'pdf_grid.dart';
+import 'pdf_grid_cell.dart';
+import 'pdf_grid_row.dart';
 
 /// Represents the schema of a column in a [PdfGrid].
 /// ```dart
@@ -30,7 +33,7 @@ part of pdf;
 /// grid.columns[1].width = 50;
 /// //Draw the grid in PDF document page
 /// grid.draw(
-///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+///     page: document.pages.add(), bounds: Rect.zero);
 /// //Save the document.
 /// List<int> bytes = document.save();
 /// //Dispose the document.
@@ -69,23 +72,23 @@ class PdfGridColumn {
   /// grid.columns[1].width = 50;
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
   PdfGridColumn(PdfGrid grid) {
+    _helper = PdfGridColumnHelper(this);
     _grid = grid;
-    _width = -1;
-    _isCustomWidth = false;
+    _helper.width = -1;
+    _helper.isCustomWidth = false;
   }
 
   //Fields
+  late PdfGridColumnHelper _helper;
   late PdfGrid _grid;
-  late double _width;
   PdfStringFormat? _format;
-  late bool _isCustomWidth;
 
   //Properties
   /// Gets the width of the [PdfGridColumn].
@@ -122,16 +125,16 @@ class PdfGridColumn {
   ///     lineAlignment: PdfVerticalAlignment.bottom);
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  double get width => _width;
+  double get width => _helper.width;
   set width(double value) {
-    _isCustomWidth = true;
-    _width = value;
+    _helper.isCustomWidth = true;
+    _helper.width = value;
   }
 
   /// Gets the information about the text formatting.
@@ -168,7 +171,7 @@ class PdfGridColumn {
   ///     lineAlignment: PdfVerticalAlignment.bottom);
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -213,13 +216,33 @@ class PdfGridColumn {
   ///     lineAlignment: PdfVerticalAlignment.bottom);
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
   PdfGrid get grid => _grid;
+}
+
+/// [PdfGridColumn] helper
+class PdfGridColumnHelper {
+  /// internal constructor
+  PdfGridColumnHelper(this.base);
+
+  /// internal field
+  PdfGridColumn base;
+
+  /// internal method
+  static PdfGridColumnHelper getHelper(PdfGridColumn base) {
+    return base._helper;
+  }
+
+  /// internal field
+  late bool isCustomWidth;
+
+  /// internal field
+  late double width;
 }
 
 /// Provides access to an ordered, strongly typed collection of [PdfGridColumn]
@@ -259,7 +282,7 @@ class PdfGridColumn {
 ///     lineAlignment: PdfVerticalAlignment.bottom);
 /// //Draw the grid in PDF document page
 /// grid.draw(
-///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+///     page: document.pages.add(), bounds: Rect.zero);
 /// //Save the document.
 /// List<int> bytes = document.save();
 /// //Dispose the document.
@@ -269,15 +292,14 @@ class PdfGridColumnCollection {
   /// Initializes a new instance of the [PdfGridColumnCollection] class
   /// with the parent grid.
   PdfGridColumnCollection(PdfGrid grid) {
-    _grid = grid;
-    _columns = <PdfGridColumn>[];
-    _columnsWidth = -1;
+    _helper = PdfGridColumnCollectionHelper(this);
+    _helper._grid = grid;
+    _helper._columns = <PdfGridColumn>[];
+    _helper._columnsWidth = -1;
   }
 
   //Fields
-  late PdfGrid _grid;
-  late List<PdfGridColumn> _columns;
-  late double _columnsWidth;
+  late PdfGridColumnCollectionHelper _helper;
 
   //Properties
   /// Gets the number of columns in the [PdfGrid].
@@ -318,13 +340,13 @@ class PdfGridColumnCollection {
   ///     lineAlignment: PdfVerticalAlignment.bottom);
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  int get count => _columns.length;
+  int get count => _helper._columns.length;
 
   /// Gets the [PdfGridColumn] at the specified index.
   /// ```dart
@@ -362,25 +384,13 @@ class PdfGridColumnCollection {
   ///     lineAlignment: PdfVerticalAlignment.bottom);
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
   PdfGridColumn operator [](int index) => _returnValue(index);
-  double get _width {
-    if (_columnsWidth == -1) {
-      _columnsWidth = _measureColumnsWidth();
-    }
-    if (_grid._initialWidth != 0 &&
-        _columnsWidth != _grid._initialWidth &&
-        !_grid.style.allowHorizontalOverflow) {
-      _columnsWidth = _grid._initialWidth;
-      _grid._isPageWidth = true;
-    }
-    return _columnsWidth;
-  }
 
   //Public methods
 
@@ -420,7 +430,7 @@ class PdfGridColumnCollection {
   ///     lineAlignment: PdfVerticalAlignment.bottom);
   /// //Draw the grid in PDF document page
   /// grid.draw(
-  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -428,54 +438,88 @@ class PdfGridColumnCollection {
   /// ```
   void add({int? count, PdfGridColumn? column}) {
     if (count == null && column == null) {
-      final PdfGridColumn column = PdfGridColumn(_grid);
-      _columns.add(column);
+      final PdfGridColumn column = PdfGridColumn(_helper._grid);
+      _helper._columns.add(column);
     } else {
       if (count != null) {
         for (int i = 0; i < count; i++) {
-          _columns.add(PdfGridColumn(_grid));
-          for (int i = 0; i < _grid.rows.count; i++) {
-            final PdfGridRow row = _grid.rows[i];
+          _helper._columns.add(PdfGridColumn(_helper._grid));
+          for (int i = 0; i < _helper._grid.rows.count; i++) {
+            final PdfGridRow row = _helper._grid.rows[i];
             final PdfGridCell cell = PdfGridCell();
             cell.value = '';
-            row.cells._add(cell);
+            PdfGridCellCollectionHelper.getHelper(row.cells).add(cell);
           }
         }
       }
       if (column != null) {
-        _columns.add(column);
+        _helper._columns.add(column);
       }
     }
   }
 
   //Implementation
   PdfGridColumn _returnValue(int index) {
-    if (index < 0 || index >= _columns.length) {
-      throw IndexError(index, _columns);
+    if (index < 0 || index >= _helper._columns.length) {
+      throw IndexError(index, _helper._columns);
     }
-    return _columns[index];
+    return _helper._columns[index];
+  }
+}
+
+/// [PdfGridColumnCollection] helper
+class PdfGridColumnCollectionHelper {
+  /// internal constructor
+  PdfGridColumnCollectionHelper(this.base);
+
+  /// internal field
+  PdfGridColumnCollection base;
+  late double _columnsWidth;
+  late PdfGrid _grid;
+  late List<PdfGridColumn> _columns;
+
+  /// internal method
+  static PdfGridColumnCollectionHelper getHelper(PdfGridColumnCollection base) {
+    return base._helper;
+  }
+
+  /// internal method
+  double get columnWidth {
+    if (_columnsWidth == -1) {
+      _columnsWidth = _measureColumnsWidth();
+    }
+    if (PdfGridHelper.getHelper(_grid).initialWidth != 0 &&
+        _columnsWidth != PdfGridHelper.getHelper(_grid).initialWidth &&
+        !_grid.style.allowHorizontalOverflow) {
+      _columnsWidth = PdfGridHelper.getHelper(_grid).initialWidth;
+      PdfGridHelper.getHelper(_grid).isPageWidth = true;
+    }
+    return _columnsWidth;
   }
 
   double _measureColumnsWidth() {
     double totalWidth = 0;
-    _grid._measureColumnsWidth();
+    PdfGridHelper.getHelper(_grid).measureColumnsWidth();
     for (int i = 0; i < _columns.length; i++) {
       totalWidth += _columns[i].width;
     }
     return totalWidth;
   }
 
-  List<double?> _getDefaultWidths(double? totalWidth) {
-    final List<double?> widths = List<double?>.filled(count, 0);
-    int subFactor = count;
-    for (int i = 0; i < count; i++) {
-      if (_grid._isPageWidth &&
+  /// internal method
+
+  List<double?> getDefaultWidths(double? totalWidth) {
+    final List<double?> widths = List<double?>.filled(base.count, 0);
+    int subFactor = base.count;
+    for (int i = 0; i < base.count; i++) {
+      if (PdfGridHelper.getHelper(_grid).isPageWidth &&
           totalWidth! >= 0 &&
-          !_columns[i]._isCustomWidth) {
+          !PdfGridColumnHelper.getHelper(_columns[i]).isCustomWidth) {
         _columns[i].width = -1;
       } else {
         widths[i] = _columns[i].width;
-        if (_columns[i].width > 0 && _columns[i]._isCustomWidth) {
+        if (_columns[i].width > 0 &&
+            PdfGridColumnHelper.getHelper(_columns[i]).isCustomWidth) {
           totalWidth = totalWidth! - _columns[i].width;
           subFactor--;
         } else {
@@ -483,7 +527,7 @@ class PdfGridColumnCollection {
         }
       }
     }
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < base.count; i++) {
       final double width = totalWidth! / subFactor;
       if (widths[i]! <= 0) {
         widths[i] = width;

@@ -1,23 +1,16 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../../charts.dart';
 import '../../common/rendering_details.dart';
 import '../../common/user_interaction/selection_behavior.dart';
-import '../base/chart_base.dart';
 import '../chart_segment/chart_segment.dart';
-import '../chart_segment/stacked_column_segment.dart';
-import '../chart_segment/stackedcolumn100_segment.dart';
 import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
-import '../chart_series/stacked_column_series.dart';
 import '../chart_series/stacked_series_base.dart';
-import '../chart_series/stackedcolumn100_series.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
+import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
@@ -312,6 +305,8 @@ class StackedColumn100ChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer);
+    // Disposing the old chart segments.
+    disposeOldSegments(chart, seriesRendererDetails);
     _stackedRectPainter(canvas, seriesRenderer, seriesRendererDetails,
         stateProperties, painterKey);
   }

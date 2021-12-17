@@ -1,4 +1,33 @@
-part of pdf;
+import 'dart:ui';
+
+import 'package:syncfusion_flutter_pdf/src/pdf/implementation/pages/pdf_page_layer_collection.dart';
+
+import '../../../interfaces/pdf_interface.dart';
+import '../../graphics/fonts/enums.dart';
+import '../../graphics/fonts/pdf_cjk_standard_font.dart';
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/fonts/pdf_standard_font.dart';
+import '../../io/pdf_constants.dart';
+import '../../pages/enum.dart';
+import '../../pages/pdf_page.dart';
+import '../../pdf_document/pdf_document.dart';
+import '../../primitives/pdf_array.dart';
+import '../../primitives/pdf_dictionary.dart';
+import '../../primitives/pdf_reference_holder.dart';
+import '../../primitives/pdf_stream.dart';
+import 'enums.dart';
+import 'font_structure.dart';
+import 'glyph.dart';
+import 'image_renderer.dart';
+import 'matched_item.dart';
+import 'matrix_helper.dart';
+import 'page_resource_loader.dart';
+import 'parser/content_parser.dart';
+import 'text_element.dart';
+import 'text_glyph.dart';
+import 'text_line.dart';
+import 'text_word.dart';
+import 'xobject_element.dart';
 
 /// Represents a text extractor from an existing PDF document
 class PdfTextExtractor {
@@ -15,7 +44,7 @@ class PdfTextExtractor {
   /// document.dispose();
   /// ```
   PdfTextExtractor(PdfDocument document) {
-    if (!document._isLoadedDocument) {
+    if (!PdfDocumentHelper.getHelper(document).isLoadedDocument) {
       ArgumentError.value(document, 'document',
           'document instance is not a loaded PDF document');
     }
@@ -29,17 +58,17 @@ class PdfTextExtractor {
   String? _currentFont;
   double? _fontSize;
   PdfPage? _currentPage;
-  late _PageResourceLoader _resourceLoader;
+  late PageResourceLoader _resourceLoader;
   late int _currentPageIndex;
   bool _isLayout = false;
   double _characterSpacing = 0;
   double _wordSpacing = 0;
-  _MatrixHelper? _textLineMatrix;
-  _MatrixHelper? _textMatrix;
-  _MatrixHelper? _currentTextMatrix;
+  MatrixHelper? _textLineMatrix;
+  MatrixHelper? _textMatrix;
+  MatrixHelper? _currentTextMatrix;
   Rect? _tempBoundingRectangle;
   bool _hasLeading = false;
-  late _MatrixHelper _currentTransformationMatrix;
+  late MatrixHelper _currentTransformationMatrix;
   bool _hasBDC = false;
 
   //Public methods
@@ -129,12 +158,12 @@ class PdfTextExtractor {
 
   void _initialize() {
     _symbolChars = <String>['(', ')', '[', ']', '<', '>'];
-    _resourceLoader = _PageResourceLoader();
-    _currentTextMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
-    _textLineMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
-    _textMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
-    _tempBoundingRectangle = const Rect.fromLTWH(0, 0, 0, 0);
-    _currentTransformationMatrix = _MatrixHelper(1, 0, 0, 1, 0, 0);
+    _resourceLoader = PageResourceLoader();
+    _currentTextMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
+    _textLineMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
+    _textMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
+    _tempBoundingRectangle = Rect.zero;
+    _currentTransformationMatrix = MatrixHelper(1, 0, 0, 1, 0, 0);
   }
 
   String _extractText(int? startPageIndex, int? endPageIndex) {
@@ -237,28 +266,28 @@ class PdfTextExtractor {
   String _getText(PdfPage page) {
     _currentPage = page;
     _fontSize = 0;
-    page._isTextExtraction = true;
+    PdfPageHelper.getHelper(page).isTextExtraction = true;
     final bool isChanged = _checkPageDictionary(page);
     final bool isContentChanged = _checkContentArray(page);
-    final _PdfRecordCollection? recordCollection = _getRecordCollection(page);
-    final _PdfPageResources pageResources =
+    final PdfRecordCollection? recordCollection = _getRecordCollection(page);
+    final PdfPageResources pageResources =
         _resourceLoader.getPageResources(page);
     String resultantText = _isLayout
         ? _renderTextAsLayout(recordCollection, pageResources)
         : _renderText(recordCollection, pageResources);
     if (recordCollection != null) {
-      recordCollection._recordCollection.clear();
+      recordCollection.recordCollection.clear();
     }
     pageResources.resources.clear();
-    if (pageResources._fontCollection.isNotEmpty) {
-      pageResources._fontCollection.clear();
+    if (pageResources.fontCollection.isNotEmpty) {
+      pageResources.fontCollection.clear();
     }
     if (resultantText != '') {
       resultantText = _skipEscapeSequence(resultantText);
     }
-    page._contents._isChanged = isContentChanged;
-    page._dictionary._isChanged = isChanged;
-    page._isTextExtraction = false;
+    PdfPageHelper.getHelper(page).contents.changed = isContentChanged;
+    PdfPageHelper.getHelper(page).dictionary!.changed = isChanged;
+    PdfPageHelper.getHelper(page).isTextExtraction = false;
     return resultantText;
   }
 
@@ -266,18 +295,19 @@ class PdfTextExtractor {
     final List<TextLine> result = <TextLine>[];
     _currentPage = pdfPage;
     _fontSize = 0;
-    pdfPage._isTextExtraction = true;
+    PdfPageHelper.getHelper(pdfPage).isTextExtraction = true;
     final bool isChanged = _checkPageDictionary(pdfPage);
     final bool isContentChanged = _checkContentArray(pdfPage);
-    final _PdfRecordCollection? recordCollection =
-        _getRecordCollection(pdfPage);
-    final _PdfPageResources pageResources =
+    final PdfRecordCollection? recordCollection = _getRecordCollection(pdfPage);
+    final PdfPageResources pageResources =
         _resourceLoader.getPageResources(pdfPage);
-    final _ImageRenderer renderer = _ImageRenderer(recordCollection,
+    final ImageRenderer renderer = ImageRenderer(recordCollection,
         pageResources, pdfPage.size.height * 1.3333333333333333);
-    renderer._isExtractLineCollection = true;
-    renderer._renderAsImage();
-    renderer._isExtractLineCollection = false;
+    renderer.isExtractLineCollection = true;
+    final double rotation = _getPageRotation(pdfPage);
+    renderer.pageRotation = rotation;
+    renderer.renderAsImage();
+    renderer.isExtractLineCollection = false;
     int i = 0;
     double? width = 0;
     double? height = 0;
@@ -287,31 +317,38 @@ class PdfTextExtractor {
     double yPos = 0;
     String pagestring = '';
     int lineStartIndex = 0;
-    TextLine textLine = TextLine._();
+    TextLine textLine = TextLineHelper.initialize();
     if (pagestring == '') {
-      for (final _Glyph s in renderer.imageRenderGlyphList) {
+      for (final Glyph s in renderer.imageRenderGlyphList) {
         pagestring = pagestring + s.toUnicode;
       }
     }
     if (renderer.extractTextElement.isNotEmpty) {
       for (int k = 0; k < renderer.extractTextElement.length; k++) {
+        bool hasRotation = false;
         if (i < renderer.imageRenderGlyphList.length) {
-          yPos = renderer.imageRenderGlyphList[i].boundingRect.top;
+          final Glyph tempGlyph = renderer.imageRenderGlyphList[i];
+          if (tempGlyph.isRotated && rotation == 270) {
+            yPos = tempGlyph.boundingRect.left;
+            hasRotation = true;
+          } else {
+            yPos = tempGlyph.boundingRect.top;
+          }
           if ((i != 0 &&
                   yPos.toInt() != offsetY &&
                   renderer.extractTextElement[k].renderedText != '') ||
               (i == renderer.imageRenderGlyphList.length - 1)) {
             offsetY = yPos.toInt();
             if (textLine.wordCollection.isNotEmpty) {
-              result
-                  .add(_prepareTextLine(textLine, renderer, lineStartIndex, i));
+              result.add(_prepareTextLine(
+                  textLine, renderer, lineStartIndex, i, rotation));
             }
             lineStartIndex = i;
-            textLine = TextLine._();
+            textLine = TextLineHelper.initialize();
           }
-          final _TextElement textElement = renderer.extractTextElement[k];
+          final TextElement textElement = renderer.extractTextElement[k];
           final List<String> words = textElement.renderedText.split(' ');
-          textElement._text = ' ';
+          textElement.text = ' ';
           TextWord? textwords;
           List<TextGlyph> glyphs = <TextGlyph>[];
           for (int x = 0; x < words.length; x++) {
@@ -320,16 +357,17 @@ class PdfTextExtractor {
               String tempText = '';
               int lastIndex = i;
               for (int m = i; m < i + words[x].length; m++) {
-                final Rect tempBounds =
-                    renderer.imageRenderGlyphList[m].boundingRect;
+                final Glyph tempGlyph = renderer.imageRenderGlyphList[m];
+                final Rect tempBounds = tempGlyph.boundingRect;
                 final Rect glyphBounds = Rect.fromLTRB(tempBounds.left,
                     tempBounds.top, tempBounds.right, tempBounds.bottom);
-                final TextGlyph textGlyph = TextGlyph._(
-                    renderer.imageRenderGlyphList[m].toUnicode,
+                final TextGlyph textGlyph = TextGlyphHelper.initialize(
+                    tempGlyph.toUnicode,
                     textElement.fontName,
                     textElement.fontStyle,
                     _calculateBounds(glyphBounds),
-                    textElement.fontSize);
+                    textElement.fontSize,
+                    tempGlyph.isRotated);
                 tempText += textGlyph.text;
                 glyphs.add(textGlyph);
                 lastIndex = m;
@@ -337,32 +375,44 @@ class PdfTextExtractor {
                   break;
                 }
               }
+              Rect? wordBound;
               dx = renderer.imageRenderGlyphList[i].boundingRect.left;
               dy = renderer.imageRenderGlyphList[i].boundingRect.top;
-              height = renderer.imageRenderGlyphList[i].boundingRect.height;
-              if (dx >
-                  renderer.imageRenderGlyphList[lastIndex].boundingRect.left) {
-                width = (dx -
-                        renderer.imageRenderGlyphList[lastIndex].boundingRect
-                            .left) +
-                    renderer.imageRenderGlyphList[lastIndex].boundingRect.width;
+              if (hasRotation && rotation == 270) {
+                width = renderer.imageRenderGlyphList[i].boundingRect.width;
+                height = renderer
+                    .imageRenderGlyphList[lastIndex].boundingRect.bottom;
+                wordBound = Rect.fromLTWH(dx, dy, width, height - dy);
               } else {
-                width = (renderer
-                        .imageRenderGlyphList[lastIndex].boundingRect.left) +
-                    renderer.imageRenderGlyphList[lastIndex].boundingRect.width;
+                height = renderer.imageRenderGlyphList[i].boundingRect.height;
+                if (dx >
+                    renderer
+                        .imageRenderGlyphList[lastIndex].boundingRect.left) {
+                  width = (dx -
+                          renderer.imageRenderGlyphList[lastIndex].boundingRect
+                              .left) +
+                      renderer
+                          .imageRenderGlyphList[lastIndex].boundingRect.width;
+                } else {
+                  width = (renderer
+                          .imageRenderGlyphList[lastIndex].boundingRect.left) +
+                      renderer
+                          .imageRenderGlyphList[lastIndex].boundingRect.width;
+                }
+                wordBound = Rect.fromLTWH(dx, dy, width - dx, height);
               }
               i = lastIndex + 1;
-              textwords = TextWord._(
+              textwords = TextWordHelper.initialize(
                   words[x],
                   textElement.fontName,
                   textElement.fontStyle,
                   glyphs,
-                  Rect.fromLTWH(dx, dy, width - dx, height),
+                  wordBound,
                   textElement.fontSize);
               textLine.wordCollection.add(textwords);
             }
-            textElement._text = words[x];
-            if (textElement._text != '') {
+            textElement.text = words[x];
+            if (textElement.text != '') {
               if (x < words.length - 1) {
                 if (i != 0) {
                   final Map<String, dynamic> tempResult = _addSpace(textwords,
@@ -406,32 +456,34 @@ class PdfTextExtractor {
             if (renderer.extractTextElement.isNotEmpty && k == 0) {
               offsetY = yPos.toInt();
               if (textLine.wordCollection.isNotEmpty) {
-                result.add(
-                    _prepareTextLine(textLine, renderer, lineStartIndex, i));
+                result.add(_prepareTextLine(
+                    textLine, renderer, lineStartIndex, i, rotation));
               }
               lineStartIndex = i;
-              textLine = TextLine._();
+              textLine = TextLineHelper.initialize();
             }
           }
         }
       }
-      final _TextElement element =
+      final TextElement element =
           renderer.extractTextElement[renderer.extractTextElement.length - 1];
       if (textLine.wordCollection.isNotEmpty &&
           !result.contains(textLine) &&
           element.renderedText != '' &&
           element.renderedText != ' ') {
-        result.add(_prepareTextLine(textLine, renderer, lineStartIndex, i));
-        textLine = TextLine._();
+        result.add(
+            _prepareTextLine(textLine, renderer, lineStartIndex, i, rotation));
+        textLine = TextLineHelper.initialize();
       }
     }
     if (textLine.wordCollection.isNotEmpty && !result.contains(textLine)) {
-      result.add(_prepareTextLine(textLine, renderer, lineStartIndex, i));
-      textLine = TextLine._();
+      result.add(
+          _prepareTextLine(textLine, renderer, lineStartIndex, i, rotation));
+      textLine = TextLineHelper.initialize();
     }
-    pdfPage._contents._isChanged = isContentChanged;
-    pdfPage._dictionary._isChanged = isChanged;
-    pdfPage._isTextExtraction = false;
+    PdfPageHelper.getHelper(pdfPage).contents.changed = isContentChanged;
+    PdfPageHelper.getHelper(pdfPage).dictionary!.changed = isChanged;
+    PdfPageHelper.getHelper(pdfPage).isTextExtraction = false;
     return result;
   }
 
@@ -458,20 +510,21 @@ class PdfTextExtractor {
       if (isMatched) {
         _currentPage = page;
         _fontSize = 0;
-        page._isTextExtraction = true;
+        PdfPageHelper.getHelper(page).isTextExtraction = true;
         final bool isChanged = _checkPageDictionary(page);
         final bool isContentChanged = _checkContentArray(page);
-        final _PdfRecordCollection? recordCollection =
+        final PdfRecordCollection? recordCollection =
             _getRecordCollection(page);
-        final _PdfPageResources pageResources =
+        final PdfPageResources pageResources =
             _resourceLoader.getPageResources(page);
-        final _ImageRenderer renderer = _ImageRenderer(recordCollection,
+        final ImageRenderer renderer = ImageRenderer(recordCollection,
             pageResources, page.size.height * 1.3333333333333333);
-        renderer._renderAsImage();
+        renderer.pageRotation = _getPageRotation(page);
+        renderer.renderAsImage();
         String renderedString = '';
         final Map<int, int> combinedGlyphLength = <int, int>{};
         if (renderer.imageRenderGlyphList.isNotEmpty) {
-          for (final _Glyph glyph in renderer.imageRenderGlyphList) {
+          for (final Glyph glyph in renderer.imageRenderGlyphList) {
             final String currentText = glyph.toUnicode;
             if (currentText.length > 1) {
               combinedGlyphLength[renderedString.length] = currentText.length;
@@ -492,7 +545,7 @@ class PdfTextExtractor {
                 final String currentText = (searchOption != null &&
                         (searchOption == TextSearchOption.caseSensitive ||
                             searchOption == TextSearchOption.both))
-                    ? term.toString()
+                    ? term
                     : term.toLowerCase();
                 int startIndex = 0;
                 final int length = currentText.length;
@@ -533,16 +586,17 @@ class PdfTextExtractor {
                   for (final int index in indexes) {
                     final Rect rect = _calculatedTextounds(
                         renderer.imageRenderGlyphList, term, index, page);
-                    result.add(MatchedItem._(term, rect, _currentPageIndex));
+                    result.add(MatchedItemHelper.initialize(
+                        term, rect, _currentPageIndex));
                   }
                 }
               }
             }
           }
         }
-        page._contents._isChanged = isContentChanged;
-        page._dictionary._isChanged = isChanged;
-        page._isTextExtraction = false;
+        PdfPageHelper.getHelper(page).contents.changed = isContentChanged;
+        PdfPageHelper.getHelper(page).dictionary!.changed = isChanged;
+        PdfPageHelper.getHelper(page).isTextExtraction = false;
       }
     }
     return result;
@@ -559,37 +613,42 @@ class PdfTextExtractor {
     return textIndex - adjustableLength;
   }
 
-  _PdfRecordCollection? _getRecordCollection(PdfPage page) {
-    _PdfRecordCollection? recordCollection;
-    final List<int>? combinedData = page.layers._combineContent(true);
+  PdfRecordCollection? _getRecordCollection(PdfPage page) {
+    PdfRecordCollection? recordCollection;
+    final List<int>? combinedData =
+        PdfPageLayerCollectionHelper.getHelper(page.layers)
+            .combineContent(true);
     if (combinedData != null) {
-      final _ContentParser parser = _ContentParser(combinedData);
-      parser._isTextExtractionProcess = true;
-      recordCollection = parser._readContent();
-      parser._isTextExtractionProcess = false;
+      final ContentParser parser = ContentParser(combinedData);
+      parser.isTextExtractionProcess = true;
+      recordCollection = parser.readContent();
+      parser.isTextExtractionProcess = false;
     }
     return recordCollection;
   }
 
   bool _checkPageDictionary(PdfPage page) {
-    return page._dictionary._isChanged != null && page._dictionary._isChanged!;
+    return PdfPageHelper.getHelper(page).dictionary!.changed != null &&
+        PdfPageHelper.getHelper(page).dictionary!.changed!;
   }
 
   bool _checkContentArray(PdfPage page) {
     bool isContentChanged = false;
-    if (page._dictionary.containsKey(_DictionaryProperties.contents)) {
-      final _IPdfPrimitive? contents =
-          page._dictionary[_DictionaryProperties.contents];
-      if (contents is _PdfReferenceHolder) {
-        final _PdfReferenceHolder holder = contents;
-        final _IPdfPrimitive? primitive = holder.object;
-        if (primitive is _PdfArray) {
-          isContentChanged = primitive._isChanged!;
-        } else if (primitive is _PdfStream) {
-          isContentChanged = primitive._isChanged!;
+    if (PdfPageHelper.getHelper(page)
+        .dictionary!
+        .containsKey(PdfDictionaryProperties.contents)) {
+      final IPdfPrimitive? contents = PdfPageHelper.getHelper(page)
+          .dictionary![PdfDictionaryProperties.contents];
+      if (contents is PdfReferenceHolder) {
+        final PdfReferenceHolder holder = contents;
+        final IPdfPrimitive? primitive = holder.object;
+        if (primitive is PdfArray) {
+          isContentChanged = primitive.changed!;
+        } else if (primitive is PdfStream) {
+          isContentChanged = primitive.changed!;
         }
-      } else if (contents is _PdfArray) {
-        isContentChanged = contents._isChanged!;
+      } else if (contents is PdfArray) {
+        isContentChanged = contents.changed!;
       }
     }
     return isContentChanged;
@@ -597,8 +656,8 @@ class PdfTextExtractor {
 
   Map<String, dynamic> _addSpace(
       TextWord? textwords,
-      _ImageRenderer renderer,
-      _TextElement textElement,
+      ImageRenderer renderer,
+      TextElement textElement,
       int i,
       double? dx,
       double? dy,
@@ -607,12 +666,13 @@ class PdfTextExtractor {
     final Rect tempBounds = renderer.imageRenderGlyphList[i].boundingRect;
     final Rect glyphBounds = Rect.fromLTWH(
         tempBounds.left, tempBounds.top, tempBounds.width, tempBounds.height);
-    final TextGlyph textGlyph = TextGlyph._(
+    final TextGlyph textGlyph = TextGlyphHelper.initialize(
         renderer.imageRenderGlyphList[i].toUnicode,
         textElement.fontName,
         textElement.fontStyle,
         _calculateBounds(glyphBounds),
-        textElement.fontSize);
+        textElement.fontSize,
+        renderer.imageRenderGlyphList[i].isRotated);
     dx = renderer.imageRenderGlyphList[i].boundingRect.left;
     dy = renderer.imageRenderGlyphList[i].boundingRect.top;
     height = renderer.imageRenderGlyphList[i].boundingRect.height;
@@ -624,7 +684,7 @@ class PdfTextExtractor {
           renderer.imageRenderGlyphList[i].boundingRect.width;
     }
     return <String, dynamic>{
-      'word': TextWord._(
+      'word': TextWordHelper.initialize(
           ' ',
           textElement.fontName,
           textElement.fontStyle,
@@ -639,8 +699,8 @@ class PdfTextExtractor {
   }
 
   Rect _calculatedTextounds(
-      List<_Glyph> glyphs, String text, int index, PdfPage page) {
-    final _Glyph startGlyph = glyphs[index];
+      List<Glyph> glyphs, String text, int index, PdfPage page) {
+    final Glyph startGlyph = glyphs[index];
     double x = startGlyph.boundingRect.left;
     double y = startGlyph.boundingRect.top;
     double width = 0;
@@ -657,7 +717,7 @@ class PdfTextExtractor {
         break;
       }
     }
-    final _Glyph endGlyph = glyphs[endIndex];
+    final Glyph endGlyph = glyphs[endIndex];
     if (startGlyph.boundingRect.top == endGlyph.boundingRect.top ||
         (startGlyph.boundingRect.top - endGlyph.boundingRect.top).abs() <
             0.001) {
@@ -736,18 +796,22 @@ class PdfTextExtractor {
   }
 
   Rect _calculateBounds(Rect bounds) {
-    if (_currentPage != null &&
-        _currentPage!._cropBox != Rect.zero &&
-        _currentPage!._cropBox != _currentPage!._mediaBox) {
-      final double x = bounds.left - _currentPage!._cropBox.left;
-      final double y = bounds.top + _currentPage!._cropBox.top;
-      return Rect.fromLTWH(x, y, bounds.width, bounds.height);
+    if (_currentPage != null) {
+      if (PdfPageHelper.getHelper(_currentPage!).cropBox != Rect.zero &&
+          PdfPageHelper.getHelper(_currentPage!).cropBox !=
+              PdfPageHelper.getHelper(_currentPage!).mediaBox) {
+        final double x =
+            bounds.left - PdfPageHelper.getHelper(_currentPage!).cropBox.left;
+        final double y =
+            bounds.top + PdfPageHelper.getHelper(_currentPage!).cropBox.top;
+        return Rect.fromLTWH(x, y, bounds.width, bounds.height);
+      }
     }
     return bounds;
   }
 
-  TextLine _prepareTextLine(TextLine textLine, _ImageRenderer renderer,
-      int lineStartIndex, int glyphIndex) {
+  TextLine _prepareTextLine(TextLine textLine, ImageRenderer renderer,
+      int lineStartIndex, int glyphIndex, double rotation) {
     bool isSameFontName = true;
     bool isSameFontSize = true;
     bool isSameFontStyle = true;
@@ -755,15 +819,25 @@ class PdfTextExtractor {
     double? fontSize = 0;
     textLine.pageIndex = _currentPageIndex;
     List<PdfFontStyle>? fontStyle = <PdfFontStyle>[PdfFontStyle.regular];
-    textLine.bounds = Rect.fromLTWH(
-        renderer.imageRenderGlyphList[lineStartIndex].boundingRect.left,
-        renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.top,
-        renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.right -
-            renderer.imageRenderGlyphList[lineStartIndex].boundingRect.left,
-        renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.height);
+    if (rotation == 270 &&
+        renderer.imageRenderGlyphList[lineStartIndex].isRotated) {
+      textLine.bounds = Rect.fromLTWH(
+          renderer.imageRenderGlyphList[lineStartIndex].boundingRect.left,
+          renderer.imageRenderGlyphList[lineStartIndex].boundingRect.top,
+          renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.width,
+          renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.bottom -
+              renderer.imageRenderGlyphList[lineStartIndex].boundingRect.top);
+    } else {
+      textLine.bounds = Rect.fromLTWH(
+          renderer.imageRenderGlyphList[lineStartIndex].boundingRect.left,
+          renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.top,
+          renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.right -
+              renderer.imageRenderGlyphList[lineStartIndex].boundingRect.left,
+          renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.height);
+    }
     textLine.bounds = _calculateBounds(textLine.bounds);
     for (int i = lineStartIndex; i < glyphIndex; i++) {
-      final _Glyph glyph = renderer.imageRenderGlyphList[i];
+      final Glyph glyph = renderer.imageRenderGlyphList[i];
       if (i == 0) {
         fontName = glyph.fontFamily;
         fontSize = glyph.fontSize;
@@ -803,15 +877,15 @@ class PdfTextExtractor {
   }
 
   String _renderText(
-      _PdfRecordCollection? recordCollection, _PdfPageResources pageResources) {
+      PdfRecordCollection? recordCollection, PdfPageResources pageResources) {
     String resultantText = '';
     if (recordCollection != null &&
-        recordCollection._recordCollection.isNotEmpty) {
-      final List<_PdfRecord> records = recordCollection._recordCollection;
+        recordCollection.recordCollection.isNotEmpty) {
+      final List<PdfRecord> records = recordCollection.recordCollection;
       for (int i = 0; i < records.length; i++) {
-        final _PdfRecord record = records[i];
-        final String token = record._operatorName!;
-        final List<String>? elements = record._operands;
+        final PdfRecord record = records[i];
+        final String token = record.operatorName!;
+        final List<String>? elements = record.operands;
         for (int j = 0; j < _symbolChars.length; j++) {
           if (token.contains(_symbolChars[j])) {
             token.replaceAll(_symbolChars[j], '');
@@ -835,14 +909,14 @@ class PdfTextExtractor {
             }
           case 'Tj':
           case 'TJ':
-          case '\'':
+          case "'":
             {
               final String? resultText =
                   _renderTextElement(elements!, token, pageResources);
               if (resultText != null) {
                 resultantText += resultText;
               }
-              if (token == '\'') {
+              if (token == "'") {
                 resultantText += '\r\n';
               }
               break;
@@ -865,7 +939,7 @@ class PdfTextExtractor {
   }
 
   String _renderTextAsLayout(
-      _PdfRecordCollection? recordCollection, _PdfPageResources pageResources) {
+      PdfRecordCollection? recordCollection, PdfPageResources pageResources) {
     double? currentMatrixY = 0;
     double? prevMatrixY = 0;
     double? currentY = 0;
@@ -880,14 +954,14 @@ class PdfTextExtractor {
     double? horizontalScaling = 100;
     bool hasNoSpacing = false;
     bool spaceBetweenWord = false;
-    _tempBoundingRectangle = const Rect.fromLTWH(0, 0, 0, 0);
+    _tempBoundingRectangle = Rect.zero;
     if (recordCollection != null &&
-        recordCollection._recordCollection.isNotEmpty) {
-      final List<_PdfRecord> records = recordCollection._recordCollection;
+        recordCollection.recordCollection.isNotEmpty) {
+      final List<PdfRecord> records = recordCollection.recordCollection;
       for (int i = 0; i < records.length; i++) {
-        final _PdfRecord record = records[i];
-        final String token = record._operatorName!;
-        final List<String>? elements = record._operands;
+        final PdfRecord record = records[i];
+        final String token = record.operatorName!;
+        final List<String>? elements = record.operands;
         for (int j = 0; j < _symbolChars.length; j++) {
           if (token.contains(_symbolChars[j])) {
             token.replaceAll(_symbolChars[j], '');
@@ -912,17 +986,17 @@ class PdfTextExtractor {
               final double d = double.tryParse(elements[3])!;
               final double e = double.tryParse(elements[4])!;
               final double f = double.tryParse(elements[5])!;
-              _textLineMatrix = _MatrixHelper(a, b, c, d, e, f);
-              _textMatrix = _MatrixHelper(a, b, c, d, e, f);
+              _textLineMatrix = MatrixHelper(a, b, c, d, e, f);
+              _textMatrix = MatrixHelper(a, b, c, d, e, f);
               if (_textMatrix!.offsetY == _textLineMatrix!.offsetY &&
                   _textMatrix!.offsetX != _textLineMatrix!.offsetX) {
-                _textLineMatrix = _textMatrix!._clone();
+                _textLineMatrix = _textMatrix!.clone();
               }
               if (_textLineMatrix!.offsetY != _currentTextMatrix!.offsetY ||
                   ((_textLineMatrix!.offsetX != _currentTextMatrix!.offsetX) &&
                       _hasBDC &&
                       !hasTj)) {
-                _tempBoundingRectangle = const Rect.fromLTWH(0, 0, 0, 0);
+                _tempBoundingRectangle = Rect.zero;
                 _hasBDC = false;
               }
               break;
@@ -955,7 +1029,7 @@ class PdfTextExtractor {
           case 'TD':
             {
               textLeading = double.tryParse(elements![1]);
-              _textMatrix = _MatrixHelper(
+              _textMatrix = MatrixHelper(
                       1,
                       0,
                       0,
@@ -963,19 +1037,19 @@ class PdfTextExtractor {
                       double.tryParse(elements[0])!,
                       double.tryParse(elements[1])!) *
                   _textLineMatrix!;
-              _textLineMatrix = _textMatrix!._clone();
+              _textLineMatrix = _textMatrix!.clone();
               if (_textLineMatrix!.offsetY != _currentTextMatrix!.offsetY ||
                   (_hasBDC &&
                       _textLineMatrix!.offsetX != _currentTextMatrix!.offsetX &&
                       !hasTj)) {
-                _tempBoundingRectangle = const Rect.fromLTWH(0, 0, 0, 0);
+                _tempBoundingRectangle = Rect.zero;
                 _hasBDC = false;
               }
               break;
             }
           case 'Td':
             {
-              _textMatrix = _MatrixHelper(
+              _textMatrix = MatrixHelper(
                       1,
                       0,
                       0,
@@ -983,12 +1057,12 @@ class PdfTextExtractor {
                       double.tryParse(elements![0])!,
                       double.tryParse(elements[1])!) *
                   _textLineMatrix!;
-              _textLineMatrix = _textMatrix!._clone();
+              _textLineMatrix = _textMatrix!.clone();
               if (_textLineMatrix!.offsetY != _currentTextMatrix!.offsetY ||
                   (_hasBDC &&
                       _textLineMatrix!.offsetX !=
                           _currentTextMatrix!.offsetX)) {
-                _tempBoundingRectangle = const Rect.fromLTWH(0, 0, 0, 0);
+                _tempBoundingRectangle = Rect.zero;
                 _hasBDC = false;
               }
               if ((_textLineMatrix!.offsetX - _currentTextMatrix!.offsetX) >
@@ -996,8 +1070,7 @@ class PdfTextExtractor {
                   !spaceBetweenWord &&
                   hasTj) {
                 differenceX =
-                    (_textLineMatrix!.offsetX - _currentTextMatrix!.offsetX)
-                        .toDouble();
+                    _textLineMatrix!.offsetX - _currentTextMatrix!.offsetX;
                 spaceBetweenWord = true;
               }
               break;
@@ -1009,15 +1082,15 @@ class PdfTextExtractor {
             }
           case 'BT':
             {
-              _textMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
-              _textLineMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
+              _textMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
+              _textLineMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
               break;
             }
           case 'T*':
             {
               _textMatrix =
-                  _MatrixHelper(1, 0, 0, 1, 0, textLeading!) * _textLineMatrix!;
-              _textLineMatrix = _textMatrix!._clone();
+                  MatrixHelper(1, 0, 0, 1, 0, textLeading!) * _textLineMatrix!;
+              _textLineMatrix = _textMatrix!.clone();
               break;
             }
           case 'Tf':
@@ -1032,7 +1105,7 @@ class PdfTextExtractor {
                       10;
               if (_hasLeading && endTextPosition == 0 && hasNoSpacing) {
                 resultantText += ' ';
-                _tempBoundingRectangle = const Rect.fromLTWH(0, 0, 0, 0);
+                _tempBoundingRectangle = Rect.zero;
                 _hasLeading = false;
               }
               break;
@@ -1066,16 +1139,16 @@ class PdfTextExtractor {
                   ? _renderTextElementTJ(
                       elements!, token, pageResources, horizontalScaling)
                   : _renderTextElement(elements!, token, pageResources);
-              _currentTextMatrix = _textLineMatrix!._clone();
+              _currentTextMatrix = _textLineMatrix!.clone();
               prevY = currentY;
               resultantText += currentText!;
-              _textMatrix = _textLineMatrix!._clone();
+              _textMatrix = _textLineMatrix!.clone();
               if (currentToken == 'TJ') {
                 _hasBDC = false;
               }
               break;
             }
-          case '\'':
+          case "'":
             {
               currentY = _textMatrix!.offsetY;
               hasNoSpacing = false;
@@ -1102,10 +1175,10 @@ class PdfTextExtractor {
                 hasNoSpacing = true;
               }
               _textMatrix =
-                  _MatrixHelper(1, 0, 0, 1, 0, textLeading!) * _textLineMatrix!;
-              _textLineMatrix = _textMatrix!._clone();
+                  MatrixHelper(1, 0, 0, 1, 0, textLeading!) * _textLineMatrix!;
+              _textLineMatrix = _textMatrix!.clone();
               currentText = _renderTextElement(elements!, token, pageResources);
-              _currentTextMatrix = _textLineMatrix!._clone();
+              _currentTextMatrix = _textLineMatrix!.clone();
               resultantText += currentText!;
               break;
             }
@@ -1144,7 +1217,7 @@ class PdfTextExtractor {
     return text;
   }
 
-  void _renderFont(List<String> elements, _PdfPageResources resources) {
+  void _renderFont(List<String> elements, PdfPageResources resources) {
     int i = 0;
     for (i = 0; i < elements.length; i++) {
       if (elements[i].contains('/')) {
@@ -1154,31 +1227,30 @@ class PdfTextExtractor {
     }
     _fontSize = double.tryParse(elements[i + 1]);
     if (resources.containsKey(_currentFont)) {
-      final _FontStructure structure =
-          resources[_currentFont!] as _FontStructure;
-      if (structure._isStandardFont) {
-        structure._createStandardFont(_fontSize!);
-      } else if (structure._isStandardCJKFont) {
-        structure._createStandardCJKFont(_fontSize!);
+      final FontStructure structure = resources[_currentFont!] as FontStructure;
+      if (structure.isStandardFont) {
+        structure.createStandardFont(_fontSize!);
+      } else if (structure.isStandardCJKFont) {
+        structure.createStandardCJKFont(_fontSize!);
       }
     }
   }
 
   String _renderTextElementTJ(List<String> elements, String tokenType,
-      _PdfPageResources pageResources, double? horizontalScaling) {
+      PdfPageResources pageResources, double? horizontalScaling) {
     List<String> decodedList = <String>[];
     final String text = elements.join();
     String tempText = '';
     if (pageResources.containsKey(_currentFont)) {
-      _FontStructure? fontStructure;
+      FontStructure? fontStructure;
       final dynamic returnValue = pageResources[_currentFont!];
-      if (returnValue != null && returnValue is _FontStructure) {
+      if (returnValue != null && returnValue is FontStructure) {
         fontStructure = returnValue;
       }
       fontStructure!.isTextExtraction = true;
       fontStructure.fontSize = _fontSize;
       if (!fontStructure.isEmbedded &&
-          fontStructure._isStandardCJKFont &&
+          fontStructure.isStandardCJKFont &&
           fontStructure.font != null) {
         decodedList = fontStructure.decodeCjkTextExtractionTJ(
             text, pageResources.isSameFont());
@@ -1194,7 +1266,7 @@ class PdfTextExtractor {
   }
 
   String _renderTextFromTJ(List<String> decodedList, double? horizontalScaling,
-      _FontStructure? fontStructure) {
+      FontStructure? fontStructure) {
     String extractedText = '';
     for (String word in decodedList) {
       final double? space = double.tryParse(word);
@@ -1212,29 +1284,31 @@ class PdfTextExtractor {
         }
         for (int i = 0; i < word.length; i++) {
           final String renderedCharacter = word[i];
-          _MatrixHelper transform = _MatrixHelper(1, 0, 0, 1, 0, 0);
+          MatrixHelper transform = MatrixHelper(1, 0, 0, 1, 0, 0);
           if (!fontStructure!.isEmbedded &&
-              fontStructure._isStandardFont &&
+              fontStructure.isStandardFont &&
               fontStructure.font != null) {
             final PdfStandardFont font = fontStructure.font! as PdfStandardFont;
-            _characterWidth = font._getCharWidthInternal(renderedCharacter) *
-                PdfFont._characterSizeMultiplier;
+            _characterWidth = PdfStandardFontHelper.getHelper(font)
+                    .getCharWidthInternal(renderedCharacter) *
+                PdfFontHelper.characterSizeMultiplier;
           } else if (!fontStructure.isEmbedded &&
-              fontStructure._isStandardCJKFont &&
+              fontStructure.isStandardCJKFont &&
               fontStructure.font != null) {
             final PdfCjkStandardFont font =
                 fontStructure.font! as PdfCjkStandardFont;
-            _characterWidth = font._getCharWidthInternal(renderedCharacter) *
-                PdfFont._characterSizeMultiplier;
+            _characterWidth = PdfCjkStandardFontHelper.getHelper(font)
+                    .getCharWidthInternal(renderedCharacter) *
+                PdfFontHelper.characterSizeMultiplier;
           } else {
             _characterWidth =
                 _getCharacterWidth(renderedCharacter, fontStructure);
           }
           _textMatrix = _getTextRenderingMatrix(horizontalScaling!);
-          final _MatrixHelper identity = _MatrixHelper.identity._clone();
-          identity._scale(0.01, 0.01, 0.0, 0.0);
-          identity._translate(0.0, 1.0);
-          final _MatrixHelper matrix = transform._clone();
+          final MatrixHelper identity = MatrixHelper.identity.clone();
+          identity.scale(0.01, 0.01, 0.0, 0.0);
+          identity.translate(0.0, 1.0);
+          final MatrixHelper matrix = transform.clone();
           transform = matrix;
           double? tempFontSize;
           if (_textMatrix!.m11 > 0) {
@@ -1269,15 +1343,15 @@ class PdfTextExtractor {
           _textLineMatrix =
               _updateTextMatrix(_characterWidth, horizontalScaling);
           _tempBoundingRectangle = boundingRect;
-          _textMatrix = _textLineMatrix!._clone();
+          _textMatrix = _textLineMatrix!.clone();
         }
       }
     }
     return extractedText;
   }
 
-  String? _renderTextElement(List<String> elements, String tokenType,
-      _PdfPageResources pageResources) {
+  String? _renderTextElement(
+      List<String> elements, String tokenType, PdfPageResources pageResources) {
     try {
       String text = elements.join();
       if (!pageResources.containsKey(_currentFont)) {
@@ -1286,9 +1360,9 @@ class PdfTextExtractor {
         }
       }
       if (pageResources.containsKey(_currentFont)) {
-        _FontStructure? fontStructure;
+        FontStructure? fontStructure;
         final dynamic returnValue = pageResources[_currentFont!];
-        if (returnValue != null && returnValue is _FontStructure) {
+        if (returnValue != null && returnValue is FontStructure) {
           fontStructure = returnValue;
         }
         fontStructure!.isTextExtraction = true;
@@ -1303,23 +1377,23 @@ class PdfTextExtractor {
   }
 
   String? _getXObject(String resultantText, List<String> xobjectElement,
-      _PdfPageResources pageResources) {
+      PdfPageResources pageResources) {
     String? result;
     final String key = xobjectElement[0].replaceAll('/', '');
     if (pageResources.containsKey(key)) {
       final dynamic element = pageResources[key];
-      if (element is _XObjectElement) {
-        final _PdfRecordCollection collection = element.render(pageResources)!;
-        final _PdfDictionary xobjects = element.dictionary!;
-        _PdfPageResources childResource = _PdfPageResources();
-        if (xobjects.containsKey(_DictionaryProperties.resources)) {
-          _PdfDictionary? pageDictionary = _PdfDictionary();
-          final _IPdfPrimitive? resource =
-              xobjects[_DictionaryProperties.resources];
-          if (resource is _PdfReferenceHolder &&
-              resource.object is _PdfDictionary) {
-            pageDictionary = resource.object as _PdfDictionary?;
-          } else if (resource is _PdfDictionary) {
+      if (element is XObjectElement) {
+        final PdfRecordCollection collection = element.render(pageResources)!;
+        final PdfDictionary xobjects = element.dictionary!;
+        PdfPageResources childResource = PdfPageResources();
+        if (xobjects.containsKey(PdfDictionaryProperties.resources)) {
+          PdfDictionary? pageDictionary = PdfDictionary();
+          final IPdfPrimitive? resource =
+              xobjects[PdfDictionaryProperties.resources];
+          if (resource is PdfReferenceHolder &&
+              resource.object is PdfDictionary) {
+            pageDictionary = resource.object as PdfDictionary?;
+          } else if (resource is PdfDictionary) {
             pageDictionary = resource;
           }
           childResource = _resourceLoader.updatePageResources(
@@ -1330,32 +1404,32 @@ class PdfTextExtractor {
           childResource = _updateFontResources(pageResources);
         }
         if (_isLayout) {
-          result = _renderTextAsLayout(collection, childResource) + '\r\n';
+          result = '${_renderTextAsLayout(collection, childResource)}\r\n';
         } else {
           result = _renderText(collection, childResource);
         }
-        collection._recordCollection.clear();
+        collection.recordCollection.clear();
       }
     }
     return result;
   }
 
-  _PdfPageResources _updateFontResources(_PdfPageResources pageResources) {
-    final _PdfPageResources resources = _PdfPageResources();
+  PdfPageResources _updateFontResources(PdfPageResources pageResources) {
+    final PdfPageResources resources = PdfPageResources();
     pageResources.resources.forEach((String? key, dynamic value) {
-      if (value is _FontStructure) {
+      if (value is FontStructure) {
         resources.resources[key] = value;
-        resources._fontCollection[key] = value;
+        resources.fontCollection[key] = value;
       }
     });
     return resources;
   }
 
-  _MatrixHelper? _updateTextMatrixWithSpacing(
+  MatrixHelper? _updateTextMatrixWithSpacing(
       double space, double horizontalScaling) {
     final double x = -(space * 0.001 * _fontSize! * horizontalScaling / 100);
-    final Offset point = _textLineMatrix!._transform(const Offset(0.0, 0.0));
-    final Offset point2 = _textLineMatrix!._transform(Offset(x, 0.0));
+    final Offset point = _textLineMatrix!.transform(Offset.zero);
+    final Offset point2 = _textLineMatrix!.transform(Offset(x, 0.0));
     if (point.dx != point2.dx) {
       _textLineMatrix!.offsetX = point2.dx;
     } else {
@@ -1364,27 +1438,39 @@ class PdfTextExtractor {
     return _textLineMatrix;
   }
 
-  _MatrixHelper _getTextRenderingMatrix(double textHorizontalScaling) {
-    return _MatrixHelper(_fontSize! * (textHorizontalScaling / 100), 0, 0,
+  MatrixHelper _getTextRenderingMatrix(double textHorizontalScaling) {
+    return MatrixHelper(_fontSize! * (textHorizontalScaling / 100), 0, 0,
             -_fontSize!, 0, _fontSize!) *
         _textLineMatrix! *
         _currentTransformationMatrix;
   }
 
-  double _getCharacterWidth(String character, _FontStructure structure) {
+  double _getCharacterWidth(String character, FontStructure structure) {
     final int _charID = character.codeUnitAt(0);
     return (structure.fontGlyphWidths != null &&
-            structure.fontType!._name == 'TrueType' &&
+            structure.fontType!.name == 'TrueType' &&
             structure.fontGlyphWidths!.containsKey(_charID))
         ? structure.fontGlyphWidths![_charID]! * 0.001
         : 1.0;
   }
 
-  _MatrixHelper _updateTextMatrix(
+  MatrixHelper _updateTextMatrix(
       double characterWidth, double horizontalScaling) {
     final double offsetX =
         (characterWidth * _fontSize! + _characterSpacing + _wordSpacing) *
             (horizontalScaling / 100);
-    return _MatrixHelper(1.0, 0.0, 0.0, 1.0, offsetX, 0.0) * _textLineMatrix!;
+    return MatrixHelper(1.0, 0.0, 0.0, 1.0, offsetX, 0.0) * _textLineMatrix!;
+  }
+
+  double _getPageRotation(PdfPage page) {
+    if (page.rotation == PdfPageRotateAngle.rotateAngle90) {
+      return 90;
+    } else if (page.rotation == PdfPageRotateAngle.rotateAngle180) {
+      return 180;
+    } else if (page.rotation == PdfPageRotateAngle.rotateAngle270) {
+      return 270;
+    } else {
+      return 0;
+    }
   }
 }

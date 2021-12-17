@@ -1,4 +1,9 @@
-part of pdf;
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/fonts/pdf_string_format.dart';
+import '../../pages/enum.dart';
+import 'bullets/pdf_ordered_marker.dart';
+import 'pdf_list.dart';
+import 'pdf_list_item_collection.dart';
 
 /// Represents the ordered list.
 ///
@@ -57,17 +62,18 @@ class PdfOrderedList extends PdfList {
       double indent = 10,
       double textIndent = 5})
       : super() {
+    final PdfListHelper helper = PdfListHelper(this);
     this.marker = marker ?? _createMarker(style);
     stringFormat = format;
     super.indent = indent;
     super.textIndent = textIndent;
     if (font != null) {
-      _font = font;
+      helper.font = font;
     }
     if (items != null) {
-      _items = items;
+      helper.items = items;
     } else if (text != null) {
-      _items = PdfList._createItems(text);
+      helper.items = PdfListHelper.createItems(text);
     }
   }
 

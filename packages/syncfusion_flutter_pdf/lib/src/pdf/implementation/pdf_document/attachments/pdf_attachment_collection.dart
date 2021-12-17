@@ -1,209 +1,187 @@
-part of pdf;
+import 'dart:convert';
+
+import '../../../interfaces/pdf_interface.dart';
+import '../../general/pdf_collection.dart';
+import '../../io/pdf_constants.dart';
+import '../../io/pdf_cross_table.dart';
+import '../../io/pdf_main_object_collection.dart';
+import '../../primitives/pdf_array.dart';
+import '../../primitives/pdf_dictionary.dart';
+import '../../primitives/pdf_name.dart';
+import '../../primitives/pdf_reference.dart';
+import '../../primitives/pdf_reference_holder.dart';
+import '../../primitives/pdf_stream.dart';
+import '../../primitives/pdf_string.dart';
+import '../enums.dart';
+import '../pdf_document.dart';
+import 'pdf_attachment.dart';
 
 /// Represents a collection of the attachment objects.
 class PdfAttachmentCollection extends PdfObjectCollection
-    implements _IPdfWrapper {
+    implements IPdfWrapper {
   //Constructors.
   /// Initializes a new instance of the [PdfAttachmentCollection] class.
   PdfAttachmentCollection() : super() {
-    _dictionary.setProperty(_DictionaryProperties.names, _array);
+    _helper = PdfAttachmentCollectionHelper(this);
   }
 
   PdfAttachmentCollection._(
-      _PdfDictionary attachmentDictionary, _PdfCrossTable? crossTable) {
-    _dictionary = attachmentDictionary;
-    _crossTable = crossTable;
-    _initializeAttachmentCollection();
+      PdfDictionary dictionary, PdfCrossTable? crossTable) {
+    _helper = PdfAttachmentCollectionHelper._(this, dictionary, crossTable);
   }
 
   //Fields
-  _PdfDictionary _dictionary = _PdfDictionary();
-  _PdfArray? _array = _PdfArray();
-  // ignore: prefer_final_fields
-  bool _conformance = false;
-  int _count = 0;
-  final Map<String, _PdfReferenceHolder> _dic = <String, _PdfReferenceHolder>{};
-  _PdfCrossTable? _crossTable;
+  late PdfAttachmentCollectionHelper _helper;
 
   //Properties
   /// Gets the attachment by index from  the collection. Read-Only.
-  PdfAttachment operator [](int index) {
-    if (index < 0 || index >= count) {
-      throw RangeError('index');
-    }
-    return _list[index] as PdfAttachment;
-  }
+  PdfAttachment operator [](int index) => _helper.getValue(index);
 
   //Public methods.
   /// Add [PdfAttachment] in the specified attachment collection.
   ///
   /// Returns position of the inserted attachment.
   int add(PdfAttachment attachment) {
-    if (_conformance) {
-      throw ArgumentError(
-          'Attachment is not allowed for this conformance level.');
-    }
-    final int position = _doAdd(attachment);
-    _dictionary.modify();
-    return position;
+    return _helper.add(attachment);
   }
 
   /// Removes the specified attachment from the collection.
   void remove(PdfAttachment attachment) {
-    _doRemove(attachment: attachment);
+    _helper._doRemove(attachment: attachment);
   }
 
   /// Removes attachment at the specified index.
   void removeAt(int index) {
-    _doRemove(index: index);
+    _helper._doRemove(index: index);
   }
 
   /// Search and find the index of the attachment.
   int indexOf(PdfAttachment attachment) {
-    return _list.indexOf(attachment);
+    return _helper.indexOf(attachment);
   }
 
   /// Determines whether the attachment collection contains the specified attachment.
   ///
   /// Returns true if the attachment is present.
   bool contains(PdfAttachment attachment) {
-    return _list.contains(attachment);
+    return _helper.contains(attachment);
   }
 
   /// Remove all the attachments from the collection.
   void clear() {
-    _doClear();
+    _helper._doClear();
+  }
+}
+
+/// [PdfAttachmentCollection] helper
+class PdfAttachmentCollectionHelper extends PdfObjectCollectionHelper {
+  /// internal constructor
+  PdfAttachmentCollectionHelper(this.base) : super(base) {
+    dictionary = PdfDictionary();
+    dictionary.setProperty(PdfDictionaryProperties.names, _array);
+  }
+  PdfAttachmentCollectionHelper._(this.base, this.dictionary, this.crossTable)
+      : super(base) {
+    _initializeAttachmentCollection();
   }
 
-  //Implementations.
-  //Adds the attachment.
-  int _doAdd(PdfAttachment attachment) {
-    final String fileName = attachment.fileName;
-    final String converted = utf8.encode(fileName).length != fileName.length
-        ? 'Attachment ${_count++}'
-        : fileName;
-    if (_dic.isEmpty && _array!.count > 0) {
-      for (int i = 0; i < _array!.count; i += 2) {
-        if (!_dic.containsKey((_array![i]! as _PdfString).value)) {
-          _dic[(_array![i]! as _PdfString).value!] =
-              _array![i + 1]! as _PdfReferenceHolder;
-        } else {
-          final String value = (_array![i]! as _PdfString).value! + '_copy';
-          _dic[value] = _array![i + 1]! as _PdfReferenceHolder;
-        }
-      }
-    }
-    !_dic.containsKey(converted)
-        ? _dic[converted] = _PdfReferenceHolder(attachment)
-        : _dic[converted + '_copy'] = _PdfReferenceHolder(attachment);
-    final List<String?> orderList = _dic.keys.toList();
-    orderList.sort();
-    _array!._clear();
-    for (final String? key in orderList) {
-      _array!._add(_PdfString(key!));
-      _array!._add(_dic[key]!);
-    }
-    _list.add(attachment);
-    return _list.length - 1;
+  /// internal field
+  late PdfAttachmentCollection base;
+
+  /// internal field
+  late PdfDictionary dictionary;
+
+  /// internal field
+  PdfArray? _array = PdfArray();
+
+  /// internal field
+  int _count = 0;
+
+  /// internal field
+  final Map<String, PdfReferenceHolder> _dic = <String, PdfReferenceHolder>{};
+
+  /// internal field
+  PdfCrossTable? crossTable;
+
+  /// internal method
+  static PdfAttachmentCollectionHelper getHelper(PdfAttachmentCollection base) {
+    return base._helper;
   }
 
-  //Removes the attachment.
-  void _doRemove({PdfAttachment? attachment, int? index}) {
-    if (attachment != null) {
-      index = _list.indexOf(attachment);
-    }
-    _array!._removeAt(2 * index!);
-    _IPdfPrimitive? attachmentDictionay =
-        _PdfCrossTable._dereference(_array![2 * index]);
-    if (attachmentDictionay is _PdfDictionary) {
-      _removeAttachementObjects(attachmentDictionay);
-      attachmentDictionay = null;
-    }
-    _array!._removeAt(2 * index);
-    _list.removeAt(index);
+  /// internal method
+  static PdfAttachmentCollection load(
+      PdfDictionary attachmentDictionary, PdfCrossTable? crossTable) {
+    return PdfAttachmentCollection._(attachmentDictionary, crossTable);
   }
 
-  //Removing attachment dictionary and stream from main object collection.
-  void _removeAttachementObjects(_PdfDictionary attachmentDictionary) {
-    _PdfMainObjectCollection? _objectCollection;
-    if (_crossTable != null && _crossTable!._document != null) {
-      _objectCollection = _crossTable!._document!._objects;
-    }
-    if (_objectCollection != null) {
-      if (attachmentDictionary.containsKey(_DictionaryProperties.ef)) {
-        final _IPdfPrimitive? embedded = _PdfCrossTable._dereference(
-            attachmentDictionary[_DictionaryProperties.ef]);
-        if (embedded is _PdfDictionary) {
-          if (embedded.containsKey(_DictionaryProperties.f)) {
-            final _IPdfPrimitive? stream =
-                _PdfCrossTable._dereference(embedded[_DictionaryProperties.f]);
-            if (stream != null) {
-              if (_objectCollection.contains(stream)) {
-                final int index = _objectCollection._lookFor(stream)!;
-                if (_objectCollection._objectCollection!.length > index) {
-                  _objectCollection._objectCollection!.removeAt(index);
-                }
-              }
-            }
-          }
-        }
-      }
-      if (_objectCollection.contains(attachmentDictionary)) {
-        final int index = _objectCollection._lookFor(attachmentDictionary)!;
-        if (_objectCollection._objectCollection!.length > index) {
-          _objectCollection._objectCollection!.removeAt(index);
-        }
-      }
-      if (_dic.isNotEmpty) {
-        _dic.clear();
-      }
-    }
+  /// internal property
+  IPdfPrimitive get element => dictionary;
+  // ignore: unused_element
+  set element(IPdfPrimitive? value) {
+    throw ArgumentError("Primitive element can't be set");
   }
 
-  //Clears the collection.
-  void _doClear() {
-    _list.clear();
-    if (_crossTable != null) {
-      final _PdfMainObjectCollection coll = _crossTable!._document!._objects;
-      if (coll._count > 0) {
-        for (int i = 1; i < _array!.count; i = i + 2) {
-          if (_array![i] is _PdfReferenceHolder) {
-            final _IPdfPrimitive? dic = _PdfCrossTable._dereference(_array![i]);
-            if (dic is _PdfDictionary) {
-              _removeAttachementObjects(dic);
-            }
-          }
-        }
-      }
+  /// internal method
+  // ignore: prefer_final_fields
+  bool conformance = false;
+
+  /// internal method
+  PdfAttachment getValue(int index) {
+    if (index < 0 || index >= base.count) {
+      throw RangeError('index');
     }
-    _array!._clear();
+    return list[index] as PdfAttachment;
+  }
+
+  /// Add [PdfAttachment] in the specified attachment collection.
+  ///
+  /// Returns position of the inserted attachment.
+  int add(PdfAttachment attachment) {
+    if (conformance) {
+      throw ArgumentError(
+          'Attachment is not allowed for this conformance level.');
+    }
+    final int position = _doAdd(attachment);
+    dictionary.modify();
+    return position;
+  }
+
+  /// Search and find the index of the attachment.
+  int indexOf(PdfAttachment attachment) {
+    return list.indexOf(attachment);
+  }
+
+  /// Determines whether the attachment collection contains the specified attachment.
+  ///
+  /// Returns true if the attachment is present.
+  bool contains(PdfAttachment attachment) {
+    return list.contains(attachment);
   }
 
   void _initializeAttachmentCollection() {
-    _IPdfPrimitive? embedDictionary =
-        _dictionary[_DictionaryProperties.embeddedFiles];
-    if (embedDictionary is _PdfReferenceHolder) {
+    IPdfPrimitive? embedDictionary =
+        dictionary[PdfDictionaryProperties.embeddedFiles];
+    if (embedDictionary is PdfReferenceHolder) {
       embedDictionary = embedDictionary.object;
     }
-    if (embedDictionary is _PdfDictionary) {
-      final _IPdfPrimitive? obj = embedDictionary[_DictionaryProperties.names];
-      final _IPdfPrimitive? kid = embedDictionary[_DictionaryProperties.kids];
-      if (obj is! _PdfArray && kid != null && kid is _PdfArray) {
-        final _PdfArray kids = kid;
+    if (embedDictionary is PdfDictionary) {
+      final IPdfPrimitive? obj = embedDictionary[PdfDictionaryProperties.names];
+      final IPdfPrimitive? kid = embedDictionary[PdfDictionaryProperties.kids];
+      if (obj is! PdfArray && kid != null && kid is PdfArray) {
+        final PdfArray kids = kid;
         if (kids.count != 0) {
           for (int l = 0; l < kids.count; l++) {
-            if (kids[l] is _PdfReferenceHolder || kids[l] is _PdfDictionary) {
-              embedDictionary = kids[l] is _PdfDictionary
-                  ? kids[l]! as _PdfDictionary
-                  : (kids[l]! as _PdfReferenceHolder).object != null &&
-                          (kids[l]! as _PdfReferenceHolder).object
-                              is _PdfDictionary
-                      ? (kids[l]! as _PdfReferenceHolder).object
+            if (kids[l] is PdfReferenceHolder || kids[l] is PdfDictionary) {
+              embedDictionary = kids[l] is PdfDictionary
+                  ? kids[l]! as PdfDictionary
+                  : (kids[l]! as PdfReferenceHolder).object != null &&
+                          (kids[l]! as PdfReferenceHolder).object
+                              is PdfDictionary
+                      ? (kids[l]! as PdfReferenceHolder).object
                       : null;
-              if (embedDictionary != null &&
-                  embedDictionary is _PdfDictionary) {
+              if (embedDictionary != null && embedDictionary is PdfDictionary) {
                 _array =
-                    embedDictionary[_DictionaryProperties.names] as _PdfArray?;
+                    embedDictionary[PdfDictionaryProperties.names] as PdfArray?;
                 if (_array != null) {
                   _attachmentInformation(_array!);
                 }
@@ -211,7 +189,7 @@ class PdfAttachmentCollection extends PdfObjectCollection
             }
           }
         }
-      } else if (obj is _PdfArray) {
+      } else if (obj is PdfArray) {
         _array = obj;
         _attachmentInformation(_array!);
       }
@@ -219,116 +197,115 @@ class PdfAttachmentCollection extends PdfObjectCollection
   }
 
   //Internal method to get attachement information.
-  void _attachmentInformation(_PdfArray _array) {
+  void _attachmentInformation(PdfArray _array) {
     if (_array.count != 0) {
       int k = 1;
       for (int i = 0; i < (_array.count ~/ 2); i++) {
-        if (_array[k] is _PdfReferenceHolder || _array[k] is _PdfDictionary) {
-          _IPdfPrimitive? streamDictionary = _array[k];
-          if (_array[k] is _PdfReferenceHolder) {
-            streamDictionary = (_array[k]! as _PdfReferenceHolder).object;
+        if (_array[k] is PdfReferenceHolder || _array[k] is PdfDictionary) {
+          IPdfPrimitive? streamDictionary = _array[k];
+          if (_array[k] is PdfReferenceHolder) {
+            streamDictionary = (_array[k]! as PdfReferenceHolder).object;
           }
-          if (streamDictionary is _PdfDictionary) {
-            _PdfStream? stream = _PdfStream();
-            _PdfDictionary? attachmentStream;
-            if (streamDictionary.containsKey(_DictionaryProperties.ef)) {
-              if (streamDictionary[_DictionaryProperties.ef]
-                  is _PdfDictionary) {
-                attachmentStream = streamDictionary[_DictionaryProperties.ef]
-                    as _PdfDictionary?;
-              } else if (streamDictionary[_DictionaryProperties.ef]
-                  is _PdfReferenceHolder) {
-                final _PdfReferenceHolder streamHolder =
-                    streamDictionary[_DictionaryProperties.ef]!
-                        as _PdfReferenceHolder;
-                attachmentStream = streamHolder.object as _PdfDictionary?;
+          if (streamDictionary is PdfDictionary) {
+            PdfStream? stream = PdfStream();
+            PdfDictionary? attachmentStream;
+            if (streamDictionary.containsKey(PdfDictionaryProperties.ef)) {
+              if (streamDictionary[PdfDictionaryProperties.ef]
+                  is PdfDictionary) {
+                attachmentStream = streamDictionary[PdfDictionaryProperties.ef]
+                    as PdfDictionary?;
+              } else if (streamDictionary[PdfDictionaryProperties.ef]
+                  is PdfReferenceHolder) {
+                final PdfReferenceHolder streamHolder =
+                    streamDictionary[PdfDictionaryProperties.ef]!
+                        as PdfReferenceHolder;
+                attachmentStream = streamHolder.object as PdfDictionary?;
               }
-              final _PdfReferenceHolder? holder1 =
-                  attachmentStream![_DictionaryProperties.f]
-                      as _PdfReferenceHolder?;
+              final PdfReferenceHolder? holder1 =
+                  attachmentStream![PdfDictionaryProperties.f]
+                      as PdfReferenceHolder?;
               if (holder1 != null) {
-                final _IPdfPrimitive? reference = holder1.reference;
-                if (holder1.object != null && holder1.object is _PdfStream) {
-                  stream = holder1.object as _PdfStream?;
+                final IPdfPrimitive? reference = holder1.reference;
+                if (holder1.object != null && holder1.object is PdfStream) {
+                  stream = holder1.object as PdfStream?;
                   if (stream != null &&
-                      _crossTable!.encryptor != null &&
-                      _crossTable!.encryptor!._encryptOnlyAttachment! &&
+                      crossTable!.encryptor != null &&
+                      crossTable!.encryptor!.encryptAttachmentOnly! &&
                       reference != null &&
-                      reference is _PdfReference) {
-                    stream.decrypt(_crossTable!.encryptor!, reference._objNum);
+                      reference is PdfReference) {
+                    stream.decrypt(crossTable!.encryptor!, reference.objNum);
                   }
                 }
               }
             }
             PdfAttachment attachment;
             if (stream != null) {
-              stream._decompress();
+              stream.decompress();
               if (streamDictionary.containsKey('F')) {
                 attachment = PdfAttachment(
-                    (streamDictionary['F']! as _PdfString).value!,
-                    stream._dataStream!);
-                final _IPdfPrimitive fileStream = stream;
-                if (fileStream is _PdfDictionary) {
-                  final _IPdfPrimitive? subtype = _PdfCrossTable._dereference(
-                      fileStream[_DictionaryProperties.subtype]);
-                  if (subtype is _PdfName) {
-                    attachment.mimeType = subtype._name!
+                    (streamDictionary['F']! as PdfString).value!,
+                    stream.dataStream!);
+                final IPdfPrimitive fileStream = stream;
+                if (fileStream is PdfDictionary) {
+                  final IPdfPrimitive? subtype = PdfCrossTable.dereference(
+                      fileStream[PdfDictionaryProperties.subtype]);
+                  if (subtype is PdfName) {
+                    attachment.mimeType = subtype.name!
                         .replaceAll('#23', '#')
                         .replaceAll('#20', ' ')
                         .replaceAll('#2F', '/');
                   }
                 }
-                if (fileStream is _PdfDictionary &&
-                    fileStream.containsKey(_DictionaryProperties.params)) {
-                  final _IPdfPrimitive? mParams = _PdfCrossTable._dereference(
-                          fileStream[_DictionaryProperties.params])
-                      as _PdfDictionary?;
-                  if (mParams is _PdfDictionary) {
-                    final _IPdfPrimitive? creationDate =
-                        _PdfCrossTable._dereference(
-                            mParams[_DictionaryProperties.creationDate]);
-                    final _IPdfPrimitive? modifiedDate =
-                        _PdfCrossTable._dereference(
-                            mParams[_DictionaryProperties.modificationDate]);
-                    if (creationDate is _PdfString) {
+                if (fileStream is PdfDictionary &&
+                    fileStream.containsKey(PdfDictionaryProperties.params)) {
+                  final IPdfPrimitive? mParams = PdfCrossTable.dereference(
+                          fileStream[PdfDictionaryProperties.params])
+                      as PdfDictionary?;
+                  if (mParams is PdfDictionary) {
+                    final IPdfPrimitive? creationDate =
+                        PdfCrossTable.dereference(
+                            mParams[PdfDictionaryProperties.creationDate]);
+                    final IPdfPrimitive? modifiedDate =
+                        PdfCrossTable.dereference(
+                            mParams[PdfDictionaryProperties.modificationDate]);
+                    if (creationDate is PdfString) {
                       attachment.creationDate =
-                          mParams._getDateTime(creationDate);
+                          mParams.getDateTime(creationDate);
                     }
-                    if (modifiedDate is _PdfString) {
+                    if (modifiedDate is PdfString) {
                       attachment.modificationDate =
-                          mParams._getDateTime(modifiedDate);
+                          mParams.getDateTime(modifiedDate);
                     }
                   }
                 }
                 if (streamDictionary
-                    .containsKey(_DictionaryProperties.afRelationship)) {
-                  final _IPdfPrimitive? relationShip =
-                      _PdfCrossTable._dereference(streamDictionary[
-                          _DictionaryProperties.afRelationship]);
-                  if (relationShip is _PdfName) {
+                    .containsKey(PdfDictionaryProperties.afRelationship)) {
+                  final IPdfPrimitive? relationShip = PdfCrossTable.dereference(
+                      streamDictionary[PdfDictionaryProperties.afRelationship]);
+                  if (relationShip is PdfName) {
                     attachment.relationship =
-                        _obtainRelationShip(relationShip._name);
+                        _obtainRelationShip(relationShip.name);
                   }
                 }
                 if (streamDictionary.containsKey('Desc')) {
                   attachment.description =
-                      (streamDictionary['Desc']! as _PdfString).value!;
+                      (streamDictionary['Desc']! as PdfString).value!;
                 }
               } else {
                 attachment = PdfAttachment(
-                    (streamDictionary['Desc']! as _PdfString).value!,
-                    stream._dataStream!);
+                    (streamDictionary['Desc']! as PdfString).value!,
+                    stream.dataStream!);
               }
             } else {
               if (streamDictionary.containsKey('Desc')) {
                 attachment = PdfAttachment(
-                    (streamDictionary['Desc']! as _PdfString).value!, <int>[]);
+                    (streamDictionary['Desc']! as PdfString).value!, <int>[]);
               } else {
                 attachment = PdfAttachment(
-                    (streamDictionary['F']! as _PdfString).value!, <int>[]);
+                    (streamDictionary['F']! as PdfString).value!, <int>[]);
               }
             }
-            _list.add(attachment);
+            list.add(attachment);
           }
         }
         k = k + 2;
@@ -362,13 +339,108 @@ class PdfAttachmentCollection extends PdfObjectCollection
     return relationShip;
   }
 
-  //Overrides
-  @override
-  _IPdfPrimitive get _element => _dictionary;
+  //Adds the attachment.
+  int _doAdd(PdfAttachment attachment) {
+    final String fileName = attachment.fileName;
+    final String converted = utf8.encode(fileName).length != fileName.length
+        ? 'Attachment ${_count++}'
+        : fileName;
+    if (_dic.isEmpty && _array!.count > 0) {
+      for (int i = 0; i < _array!.count; i += 2) {
+        if (!_dic.containsKey((_array![i]! as PdfString).value)) {
+          _dic[(_array![i]! as PdfString).value!] =
+              _array![i + 1]! as PdfReferenceHolder;
+        } else {
+          final String value = '${(_array![i]! as PdfString).value!}_copy';
+          _dic[value] = _array![i + 1]! as PdfReferenceHolder;
+        }
+      }
+    }
+    !_dic.containsKey(converted)
+        ? _dic[converted] = PdfReferenceHolder(attachment)
+        : _dic['${converted}_copy'] = PdfReferenceHolder(attachment);
+    final List<String?> orderList = _dic.keys.toList();
+    orderList.sort();
+    _array!.clear();
+    for (final String? key in orderList) {
+      _array!.add(PdfString(key!));
+      _array!.add(_dic[key]!);
+    }
+    list.add(attachment);
+    return list.length - 1;
+  }
 
-  @override
-  // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    throw ArgumentError('primitive element can\'t be set');
+  //Removes the attachment.
+  void _doRemove({PdfAttachment? attachment, int? index}) {
+    if (attachment != null) {
+      index = list.indexOf(attachment);
+    }
+    _array!.removeAt(2 * index!);
+    IPdfPrimitive? attachmentDictionay =
+        PdfCrossTable.dereference(_array![2 * index]);
+    if (attachmentDictionay is PdfDictionary) {
+      _removeAttachementObjects(attachmentDictionay);
+      attachmentDictionay = null;
+    }
+    _array!.removeAt(2 * index);
+    list.removeAt(index);
+  }
+
+  //Removing attachment dictionary and stream from main object collection.
+  void _removeAttachementObjects(PdfDictionary attachmentDictionary) {
+    PdfMainObjectCollection? _objectCollection;
+    if (crossTable != null && crossTable!.document != null) {
+      _objectCollection =
+          PdfDocumentHelper.getHelper(crossTable!.document!).objects;
+    }
+    if (_objectCollection != null) {
+      if (attachmentDictionary.containsKey(PdfDictionaryProperties.ef)) {
+        final IPdfPrimitive? embedded = PdfCrossTable.dereference(
+            attachmentDictionary[PdfDictionaryProperties.ef]);
+        if (embedded is PdfDictionary) {
+          if (embedded.containsKey(PdfDictionaryProperties.f)) {
+            final IPdfPrimitive? stream =
+                PdfCrossTable.dereference(embedded[PdfDictionaryProperties.f]);
+            if (stream != null) {
+              if (_objectCollection.contains(stream)) {
+                final int index = _objectCollection.lookFor(stream)!;
+                if (_objectCollection.objectCollection!.length > index) {
+                  _objectCollection.objectCollection!.removeAt(index);
+                }
+              }
+            }
+          }
+        }
+      }
+      if (_objectCollection.contains(attachmentDictionary)) {
+        final int index = _objectCollection.lookFor(attachmentDictionary)!;
+        if (_objectCollection.objectCollection!.length > index) {
+          _objectCollection.objectCollection!.removeAt(index);
+        }
+      }
+      if (_dic.isNotEmpty) {
+        _dic.clear();
+      }
+    }
+  }
+
+  //Clears the collection.
+  void _doClear() {
+    list.clear();
+    if (crossTable != null) {
+      final PdfMainObjectCollection coll =
+          PdfDocumentHelper.getHelper(crossTable!.document!).objects;
+      if (coll.count > 0) {
+        for (int i = 1; i < _array!.count; i = i + 2) {
+          if (_array![i] is PdfReferenceHolder) {
+            final IPdfPrimitive? dic = PdfCrossTable.dereference(_array![i]);
+            if (dic is PdfDictionary) {
+              _removeAttachementObjects(dic);
+            }
+          }
+        }
+      }
+    }
+    _array!.clear();
   }
 }

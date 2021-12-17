@@ -1,11 +1,17 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 
+import '../../../calendar.dart';
 import 'calendar_view_helper.dart';
-import 'enums.dart';
 
 /// Signature for callback that reports that the [CalendarController] properties
 /// changed.
 typedef CalendarValueChangedCallback = void Function(String);
+
+/// Signature for callback that gets the calendar details by using the
+/// [getCalendarDetailsAtOffset] function.
+typedef CalendarDetailsCallback = CalendarDetails? Function(Offset position);
 
 /// Notifier used to notify the when the objects properties changed.
 class CalendarValueChangedNotifier with Diagnosticable {
@@ -308,6 +314,42 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///}
   /// ```
   VoidCallback? forward;
+
+  /// Get the calendar details by given the Offset by using the
+  /// [getCalendarDetailsAtOffset] method.
+  ///
+  /// class _MyHomePageState extends State<MyHomePage> {
+  ///   final CalendarController _calendarController = CalendarController();
+  ///
+  ///   @override
+  ///   initState() {
+  ///     _calendarController.selectedDate = DateTime(2021, 11, 22);
+  ///     _calendarController.displayDate = DateTime(2021, 11, 22);
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return MaterialApp(
+  ///       home: Scaffold(
+  ///           body: MouseRegion(
+  ///               onHover: (PointerHoverEvent event) {
+  ///                 CalendarDetails? details = _calendarController
+  ///                     .getCalendarDetailsAtOffset!(event.localPosition);
+  ///                 DateTime date = details!.date!;
+  ///                 dynamic appointments = details.appointments;
+  ///                 CalendarElement calendarElement = details.targetElement;
+  ///               },
+  ///               child: SfCalendar(
+  ///                 view: CalendarView.month,
+  ///                 controller: _calendarController,
+  ///                 dataSource: _getCalendarDataSource(),
+  ///               ))),
+  ///     );
+  ///   }
+  /// }
+  ///
+  CalendarDetailsCallback? getCalendarDetailsAtOffset;
 
   /// Moves to the previous view programmatically with animation by checking
   /// that the previous view dates falls between the minimum and maximum date

@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../../chart/utils/enum.dart';
 import '../../circular_chart/utils/enum.dart';
 
@@ -57,8 +56,11 @@ class PointInfo<D> {
   /// Stores the value of label rect.
   Rect? labelRect;
 
+  /// To check if labels collide.
+  bool _isLabelCollide = false;
+
   /// Stores the value data label size.
-  Size dataLabelSize = const Size(0, 0);
+  Size dataLabelSize = Size.zero;
 
   /// To set the saturation region.
   bool saturationRegionOutside = false;
@@ -88,4 +90,17 @@ class PointInfo<D> {
   /// To execute OnDataLabelRender event or not.
   // ignore: prefer_final_fields
   bool labelRenderEvent = false;
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// Helper class handling PointInfo class private fields
+class PointInfoHelper {
+  /// Returns the value of isLabelCollide flag for the given point
+  static bool getIsLabelCollide(PointInfo<dynamic> point) =>
+      point._isLabelCollide;
+
+  /// Sets the value of isLabelCollide flag for the given point
+  static void setIsLabelCollide(PointInfo<dynamic> point, bool isLabelCollide) {
+    point._isLabelCollide = isLabelCollide;
+  }
 }

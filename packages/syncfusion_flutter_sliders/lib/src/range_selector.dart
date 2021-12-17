@@ -1,13 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-// ignore: unused_import
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -122,6 +117,8 @@ class SfRangeSelector extends StatefulWidget {
       this.max = 1.0,
       this.initialValues,
       this.onChanged,
+      this.onChangeStart,
+      this.onChangeEnd,
       this.controller,
       this.enabled = true,
       this.interval,
@@ -133,6 +130,7 @@ class SfRangeSelector extends StatefulWidget {
       this.showLabels = false,
       this.showDividers = false,
       this.enableTooltip = false,
+      this.shouldAlwaysShowTooltip = false,
       this.enableIntervalSelection = false,
       this.enableDeferredUpdate = false,
       this.dragMode = SliderDragMode.onThumb,
@@ -158,6 +156,8 @@ class SfRangeSelector extends StatefulWidget {
       : assert(min != max),
         assert(interval == null || interval > 0),
         assert(stepSize == null || stepSize > 0),
+        assert(!enableIntervalSelection ||
+            (enableIntervalSelection && (interval != null && interval > 0))),
         assert(controller != null || initialValues != null),
         super(key: key);
 
@@ -231,6 +231,76 @@ class SfRangeSelector extends StatefulWidget {
   /// )
   /// ```
   final ValueChanged<SfRangeValues>? onChanged;
+
+  /// The [onChangeStart] callback will be called when the user starts
+  /// to tap or drag the range selector. This callback is only used to
+  /// notify the user about the start interaction and it does not update
+  /// the range selector value.
+  ///
+  /// The last interacted thumb value will be passed to this callback.
+  /// The value will be double or date time.
+  ///
+  /// ```dart
+  /// SfRangeValues _values = SfRangeValues(4.0, 6.0);
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfRangeSelector(
+  ///       min: 0,
+  ///       max: 10,
+  ///       initialValues: _values,
+  ///       onChangeStart: (SfRangeValues startValue) {
+  ///         print('Interaction start');
+  ///       },
+  ///       child: Container(
+  ///         height: 150,
+  ///         color: Colors.green,
+  ///       ),
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// See also:
+  /// •	The [onChangeEnd] callback used to notify the user about the
+  ///   interaction end.
+  /// •	The [onChanged] callback used to update the slider thumb value.
+  final ValueChanged<SfRangeValues>? onChangeStart;
+
+  /// The [onChangeEnd] callback will be called when the user ends
+  /// tap or drag the range selector.
+  ///
+  /// This callback is only used to notify the user about the end interaction
+  /// and it does not update the range selector thumb value.
+  ///
+  /// ```dart
+  /// SfRangeValues _values = SfRangeValues(4.0, 6.0);
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfRangeSelector(
+  ///       min: 0,
+  ///       max: 10,
+  ///       initialValues: _values,
+  ///       onChangeEnd: (SfRangeValues endValue) {
+  ///         print('Interaction end');
+  ///       },
+  ///       child: Container(
+  ///         height: 150,
+  ///         color: Colors.green,
+  ///       ),
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// See also:
+  /// •	The [onChangeStart] callback used to notify the user about the
+  ///   interaction begins.
+  /// •	The [onChanged] callback used to update the range selector thumb value.
+  final ValueChanged<SfRangeValues>? onChangeEnd;
 
   /// Coordinates between [SfRangeSelector] and the widget which listens to it.
   ///
@@ -767,6 +837,38 @@ class SfRangeSelector extends StatefulWidget {
   /// * [SfRangeSelectorThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfRangeSelectorThemeData-class.html), for customizing the appearance of the tooltip text.
   final bool enableTooltip;
 
+  /// Option to show tooltip always in range selector.
+  ///
+  /// Defaults to false.
+  ///
+  /// When this property is enabled, the tooltip is always displayed to the
+  /// start and end thumbs of the selector. This property works independent
+  /// of the [enableTooltip] property. While this property is enabled, the
+  /// tooltip will always appear during interaction.
+  ///
+  /// This snippet shows how to show the tooltip in the [SfRangeSelector].
+  ///
+  /// ```dart
+  /// SfRangeValues _values = SfRangeValues(4.0, 6.0);
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfRangeSelector(
+  ///       min: 0,
+  ///       max: 10,
+  ///       initialValues: _values,
+  ///       shouldAlwaysShowTooltip: true,
+  ///       child: Container(
+  ///         height: 150,
+  ///         color: Colors.green,
+  ///       ),
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  final bool shouldAlwaysShowTooltip;
+
   /// Option to select the particular interval based on
   /// the position of the tap or click.
   ///
@@ -1289,7 +1391,7 @@ class SfRangeSelector extends StatefulWidget {
   final Widget? endThumbIcon;
 
   @override
-  _SfRangeSelectorState createState() => _SfRangeSelectorState();
+  State<SfRangeSelector> createState() => _SfRangeSelectorState();
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -1333,11 +1435,18 @@ class SfRangeSelector extends StatefulWidget {
         ifTrue: 'Dividers are  showing',
         ifFalse: 'Dividers are not showing',
         showName: false));
-    properties.add(FlagProperty('enableTooltip',
-        value: enableTooltip,
-        ifTrue: 'Tooltip is enabled',
-        ifFalse: 'Tooltip is disabled',
-        showName: false));
+    if (shouldAlwaysShowTooltip) {
+      properties.add(FlagProperty('shouldAlwaysShowTooltip',
+          value: shouldAlwaysShowTooltip,
+          ifTrue: 'Tooltip is always visible',
+          showName: false));
+    } else {
+      properties.add(FlagProperty('enableTooltip',
+          value: enableTooltip,
+          ifTrue: 'Tooltip is enabled',
+          ifFalse: 'Tooltip is disabled',
+          showName: false));
+    }
     properties.add(FlagProperty('enableIntervalSelection',
         value: enableIntervalSelection,
         ifTrue: 'Interval selection is enabled',
@@ -1358,14 +1467,16 @@ class SfRangeSelector extends StatefulWidget {
     if (initialValues != null &&
         initialValues!.start.runtimeType == DateTime &&
         dateFormat != null) {
-      properties.add(StringProperty(
-          'dateFormat',
-          'Formatted value is ' +
-              (dateFormat!.format(initialValues!.start)).toString()));
+      properties.add(StringProperty('dateFormat',
+          'Formatted value is ${dateFormat!.format(initialValues!.start)}'));
     }
 
     properties.add(ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
         'onChanged', onChanged));
+    properties.add(ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
+        'onChangeStart', onChangeStart));
+    properties.add(ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
+        'onChangeEnd', onChangeEnd));
     properties.add(
         EnumProperty<DateIntervalType>('dateIntervalType', dateIntervalType));
     properties.add(ObjectFlagProperty<TooltipTextFormatterCallback>.has(
@@ -1426,34 +1537,40 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
                   ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       tooltipTextStyle: rangeSelectorThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
-              color: rangeSelectorThemeData.brightness == Brightness.light
-                  ? const Color.fromRGBO(255, 255, 255, 1)
-                  : const Color.fromRGBO(0, 0, 0, 1)),
+          themeData.textTheme.bodyText1!
+              .copyWith(color: themeData.colorScheme.surface),
       inactiveTrackColor: widget.inactiveColor ??
           rangeSelectorThemeData.inactiveTrackColor ??
-          themeData.primaryColor.withOpacity(0.24),
+          themeData.colorScheme.primary.withOpacity(0.24),
       activeTrackColor: widget.activeColor ??
           rangeSelectorThemeData.activeTrackColor ??
-          themeData.primaryColor,
+          themeData.colorScheme.primary,
       thumbColor: widget.activeColor ??
           rangeSelectorThemeData.thumbColor ??
-          themeData.primaryColor,
-      activeTickColor: rangeSelectorThemeData.activeTickColor,
-      inactiveTickColor: rangeSelectorThemeData.inactiveTickColor,
-      disabledActiveTickColor: rangeSelectorThemeData.disabledActiveTickColor,
+          themeData.colorScheme.primary,
+      activeTickColor: rangeSelectorThemeData.activeTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.37),
+      inactiveTickColor: rangeSelectorThemeData.inactiveTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.37),
+      disabledActiveTickColor: rangeSelectorThemeData.disabledActiveTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.24),
       disabledInactiveTickColor:
-          rangeSelectorThemeData.disabledInactiveTickColor,
-      activeMinorTickColor: rangeSelectorThemeData.activeMinorTickColor,
-      inactiveMinorTickColor: rangeSelectorThemeData.inactiveMinorTickColor,
+          rangeSelectorThemeData.disabledInactiveTickColor ??
+              themeData.colorScheme.onSurface.withOpacity(0.24),
+      activeMinorTickColor: rangeSelectorThemeData.activeMinorTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.37),
+      inactiveMinorTickColor: rangeSelectorThemeData.inactiveMinorTickColor ??
+          themeData.colorScheme.onSurface.withOpacity(0.37),
       disabledActiveMinorTickColor:
-          rangeSelectorThemeData.disabledActiveMinorTickColor,
+          rangeSelectorThemeData.disabledActiveMinorTickColor ??
+              themeData.colorScheme.onSurface.withOpacity(0.24),
       // ignore: lines_longer_than_80_chars
       disabledInactiveMinorTickColor:
-          rangeSelectorThemeData.disabledInactiveMinorTickColor,
+          rangeSelectorThemeData.disabledInactiveMinorTickColor ??
+              themeData.colorScheme.onSurface.withOpacity(0.24),
       overlayColor: widget.activeColor?.withOpacity(0.12) ??
           rangeSelectorThemeData.overlayColor ??
-          themeData.primaryColor.withOpacity(0.12),
+          themeData.colorScheme.primary.withOpacity(0.12),
       inactiveDividerColor: widget.activeColor ??
           rangeSelectorThemeData.inactiveDividerColor ??
           themeData.colorScheme.primary.withOpacity(0.54),
@@ -1472,7 +1589,9 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       disabledInactiveTrackColor:
           rangeSelectorThemeData.disabledInactiveTrackColor ??
               themeData.colorScheme.onSurface.withOpacity(0.12),
-      disabledThumbColor: rangeSelectorThemeData.disabledThumbColor,
+      disabledThumbColor: rangeSelectorThemeData.disabledThumbColor ??
+          Color.alphaBlend(themeData.colorScheme.onSurface.withOpacity(0.38),
+              themeData.colorScheme.surface),
       thumbStrokeColor: rangeSelectorThemeData.thumbStrokeColor,
       overlappingThumbStrokeColor:
           rangeSelectorThemeData.overlappingThumbStrokeColor ??
@@ -1483,15 +1602,17 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       overlappingTooltipStrokeColor:
           rangeSelectorThemeData.overlappingTooltipStrokeColor ??
               themeData.colorScheme.surface,
-      activeRegionColor: rangeSelectorThemeData.activeRegionColor,
-      inactiveRegionColor:
-          widget.inactiveColor ?? rangeSelectorThemeData.inactiveRegionColor,
+      activeRegionColor:
+          rangeSelectorThemeData.activeRegionColor ?? Colors.transparent,
+      inactiveRegionColor: widget.inactiveColor ??
+          rangeSelectorThemeData.inactiveRegionColor ??
+          (themeData.brightness == Brightness.light
+              ? const Color.fromRGBO(255, 255, 255, 1).withOpacity(0.75)
+              : const Color.fromRGBO(48, 48, 48, 1).withOpacity(0.75)),
       tooltipBackgroundColor: rangeSelectorThemeData.tooltipBackgroundColor ??
-          (widget.tooltipShape is SfPaddleTooltipShape
-              ? themeData.primaryColor
-              : (rangeSelectorThemeData.brightness == Brightness.light)
-                  ? const Color.fromRGBO(97, 97, 97, 1)
-                  : const Color.fromRGBO(224, 224, 224, 1)),
+          (themeData.brightness == Brightness.light
+              ? const Color.fromRGBO(97, 97, 97, 1)
+              : const Color.fromRGBO(224, 224, 224, 1)),
       trackCornerRadius:
           rangeSelectorThemeData.trackCornerRadius ?? maxTrackHeight / 2,
       thumbRadius: rangeSelectorThemeData.thumbRadius,
@@ -1507,6 +1628,18 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
     );
 
     return rangeSelectorThemeData;
+  }
+
+  void _onChangeStart(SfRangeValues values) {
+    if (widget.onChangeStart != null && widget.enabled) {
+      widget.onChangeStart!(values);
+    }
+  }
+
+  void _onChangeEnd(SfRangeValues values) {
+    if (widget.onChangeEnd != null && widget.enabled) {
+      widget.onChangeEnd!(values);
+    }
   }
 
   @override
@@ -1535,6 +1668,20 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
   }
 
   @override
+  void didUpdateWidget(SfRangeSelector oldWidget) {
+    if (oldWidget.shouldAlwaysShowTooltip != widget.shouldAlwaysShowTooltip) {
+      if (widget.shouldAlwaysShowTooltip) {
+        tooltipAnimationStartController.value = 1;
+        tooltipAnimationEndController.value = 1;
+      } else {
+        tooltipAnimationStartController.value = 0;
+        tooltipAnimationEndController.value = 0;
+      }
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void dispose() {
     overlayStartController.dispose();
     overlayEndController.dispose();
@@ -1556,6 +1703,8 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       min: widget.min,
       max: widget.max,
       values: _values ?? widget.initialValues,
+      onChangeStart: widget.onChangeStart != null ? _onChangeStart : null,
+      onChangeEnd: widget.onChangeEnd != null ? _onChangeEnd : null,
       enabled: widget.enabled && widget.min != widget.max,
       interval: widget.interval,
       stepSize: widget.stepSize,
@@ -1566,6 +1715,7 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       showLabels: widget.showLabels,
       showDividers: widget.showDividers,
       enableTooltip: widget.enableTooltip,
+      shouldAlwaysShowTooltip: widget.shouldAlwaysShowTooltip,
       enableIntervalSelection: widget.enableIntervalSelection,
       deferUpdate: widget.enableDeferredUpdate,
       dragMode: widget.dragMode,
@@ -1603,6 +1753,8 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
     required this.min,
     required this.max,
     required this.values,
+    required this.onChangeStart,
+    required this.onChangeEnd,
     required this.enabled,
     required this.interval,
     required this.stepSize,
@@ -1613,6 +1765,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
     required this.showLabels,
     required this.showDividers,
     required this.enableTooltip,
+    required this.shouldAlwaysShowTooltip,
     required this.enableIntervalSelection,
     required this.deferUpdate,
     required this.dragMode,
@@ -1642,6 +1795,8 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
   final dynamic min;
   final dynamic max;
   final SfRangeValues? values;
+  final ValueChanged<SfRangeValues>? onChangeStart;
+  final ValueChanged<SfRangeValues>? onChangeEnd;
   final bool enabled;
   final double? interval;
   final double? stepSize;
@@ -1655,6 +1810,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
   final bool enableTooltip;
   final bool enableIntervalSelection;
   final bool deferUpdate;
+  final bool shouldAlwaysShowTooltip;
   final SliderDragMode dragMode;
 
   final Color inactiveColor;
@@ -1690,6 +1846,8 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       min: min,
       max: max,
       values: values,
+      onChangeStart: onChangeStart,
+      onChangeEnd: onChangeEnd,
       enabled: enabled,
       interval: interval,
       stepSize: stepSize,
@@ -1700,6 +1858,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       showLabels: showLabels,
       showDividers: showDividers,
       enableTooltip: enableTooltip,
+      shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
       isInversed: Directionality.of(context) == TextDirection.rtl,
       enableIntervalSelection: enableIntervalSelection,
       deferUpdate: deferUpdate,
@@ -1731,6 +1890,8 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
     renderObject
       ..min = min
       ..max = max
+      ..onChangeStart = onChangeStart
+      ..onChangeEnd = onChangeEnd
       ..isInteractive = enabled
       ..interval = interval
       ..stepSize = stepSize
@@ -1741,6 +1902,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       ..showLabels = showLabels
       ..showDividers = showDividers
       ..enableTooltip = enableTooltip
+      ..shouldAlwaysShowTooltip = shouldAlwaysShowTooltip
       ..isInversed = Directionality.of(context) == TextDirection.rtl
       ..enableIntervalSelection = enableIntervalSelection
       ..deferUpdate = deferUpdate
@@ -1866,6 +2028,8 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     required dynamic min,
     required dynamic max,
     required SfRangeValues? values,
+    required ValueChanged<SfRangeValues>? onChangeStart,
+    required ValueChanged<SfRangeValues>? onChangeEnd,
     required bool enabled,
     required double? interval,
     required double? stepSize,
@@ -1876,6 +2040,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     required bool showLabels,
     required bool showDividers,
     required bool enableTooltip,
+    required bool shouldAlwaysShowTooltip,
     required bool isInversed,
     required bool enableIntervalSelection,
     required bool deferUpdate,
@@ -1907,6 +2072,8 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
             min: min,
             max: max,
             values: values,
+            onChangeStart: onChangeStart,
+            onChangeEnd: onChangeEnd,
             interval: interval,
             stepSize: stepSize,
             stepDuration: stepDuration,
@@ -1915,6 +2082,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
             showLabels: showLabels,
             showDividers: showDividers,
             enableTooltip: enableTooltip,
+            shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
             isInversed: isInversed,
             enableIntervalSelection: enableIntervalSelection,
             dragMode: dragMode,
@@ -1936,8 +2104,8 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
             tooltipPosition: null,
             textDirection: textDirection,
             mediaQueryData: mediaQueryData) {
-    _inactiveRegionColor = rangeSelectorThemeData.inactiveRegionColor;
-    _activeRegionColor = rangeSelectorThemeData.activeRegionColor;
+    _inactiveRegionColor = rangeSelectorThemeData.inactiveRegionColor!;
+    _activeRegionColor = rangeSelectorThemeData.activeRegionColor!;
   }
 
   final _SfRangeSelectorState _state;
@@ -2002,8 +2170,8 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     maxTrackHeight = getMaxTrackHeight();
 
     if (value is SfRangeSelectorThemeData) {
-      _inactiveRegionColor = value.inactiveRegionColor;
-      _activeRegionColor = value.activeRegionColor;
+      _inactiveRegionColor = value.inactiveRegionColor!;
+      _activeRegionColor = value.activeRegionColor!;
     }
     markNeedsPaint();
   }
@@ -2435,8 +2603,8 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(StringProperty(
-        'deferredUpdateDelay', _deferUpdateDelay.toString() + ' ms'));
+    properties
+        .add(StringProperty('deferredUpdateDelay', '$_deferUpdateDelay ms'));
     debugRangeSliderFillProperties(properties);
   }
 }

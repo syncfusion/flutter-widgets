@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../theme.dart';
@@ -122,49 +121,24 @@ class SfGaugeThemeData with Diagnosticable {
   /// Initialize the gauge theme data
   factory SfGaugeThemeData({
     Brightness? brightness,
-    Color? backgroundColor,
+    Color backgroundColor = Colors.transparent,
     Color? titleColor,
     Color? axisLabelColor,
     Color? axisLineColor,
     Color? majorTickColor,
     Color? minorTickColor,
     Color? markerColor,
-    Color? markerBorderColor,
+    Color markerBorderColor = Colors.transparent,
     Color? needleColor,
     Color? knobColor,
-    Color? knobBorderColor,
+    Color knobBorderColor = Colors.transparent,
     Color? tailColor,
-    Color? tailBorderColor,
+    Color tailBorderColor = Colors.transparent,
     Color? rangePointerColor,
     Color? rangeColor,
-    Color? titleBorderColor,
-    Color? titleBackgroundColor,
+    Color titleBorderColor = Colors.transparent,
+    Color titleBackgroundColor = Colors.transparent,
   }) {
-    brightness = brightness ?? Brightness.light;
-    final bool isLight = brightness == Brightness.light;
-    backgroundColor ??= Colors.transparent;
-    titleColor ??= isLight ? const Color(0xFF333333) : const Color(0xFFF5F5F5);
-    axisLabelColor ??=
-        isLight ? const Color(0xFF333333) : const Color(0xFFF5F5F5);
-    axisLineColor ??=
-        isLight ? const Color(0xFFDADADA) : const Color(0xFF555555);
-    majorTickColor ??=
-        isLight ? const Color(0xFF999999) : const Color(0xFF888888);
-    minorTickColor ??=
-        isLight ? const Color(0xFFC4C4C4) : const Color(0xFF666666);
-    markerColor ??= isLight ? const Color(0xFF00A8B5) : const Color(0xFF00A8B5);
-    markerBorderColor ??= isLight ? Colors.transparent : Colors.transparent;
-    needleColor ??= isLight ? const Color(0xFF3A3A3A) : const Color(0xFFEEEEEE);
-    knobColor ??= isLight ? const Color(0xFF3A3A3A) : const Color(0xFFEEEEEE);
-    knobBorderColor ??= isLight ? Colors.transparent : Colors.transparent;
-    tailColor ??= isLight ? const Color(0xFF3A3A3A) : const Color(0xFFEEEEEE);
-    tailBorderColor ??= isLight ? Colors.transparent : Colors.transparent;
-    rangePointerColor ??=
-        isLight ? const Color(0xFF00A8B5) : const Color(0xFF00A8B5);
-    rangeColor ??= isLight ? const Color(0xFFF67280) : const Color(0xFFF67280);
-    titleBorderColor ??= isLight ? Colors.transparent : Colors.transparent;
-    titleBackgroundColor ??= isLight ? Colors.transparent : Colors.transparent;
-
     return SfGaugeThemeData.raw(
         brightness: brightness,
         backgroundColor: backgroundColor,
@@ -239,7 +213,7 @@ class SfGaugeThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Brightness brightness;
+  final Brightness? brightness;
 
   /// Specifies the background color of gauge widgets.
   ///
@@ -283,7 +257,7 @@ class SfGaugeThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color titleColor;
+  final Color? titleColor;
 
   /// Specifies the axis label color
   ///
@@ -304,7 +278,7 @@ class SfGaugeThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color axisLabelColor;
+  final Color? axisLabelColor;
 
   /// Specifies the axis line color
   ///
@@ -325,7 +299,7 @@ class SfGaugeThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color axisLineColor;
+  final Color? axisLineColor;
 
   /// Specifies the major tick line color
   ///
@@ -346,7 +320,7 @@ class SfGaugeThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color majorTickColor;
+  final Color? majorTickColor;
 
   /// Specifies the minor tick line color
   ///
@@ -367,7 +341,7 @@ class SfGaugeThemeData with Diagnosticable {
   ///   );
   ///}
   ///```
-  final Color minorTickColor;
+  final Color? minorTickColor;
 
   /// Specifies the marker color
   ///
@@ -403,7 +377,7 @@ class SfGaugeThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color markerColor;
+  final Color? markerColor;
 
   /// Specifies the marker border color
   ///
@@ -473,7 +447,7 @@ class SfGaugeThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color needleColor;
+  final Color? needleColor;
 
   /// Specifies the knob color
   ///
@@ -506,7 +480,7 @@ class SfGaugeThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color knobColor;
+  final Color? knobColor;
 
   /// Specifies the knob border color
   ///
@@ -576,7 +550,7 @@ class SfGaugeThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color tailColor;
+  final Color? tailColor;
 
   /// Specifies the tail border color
   ///
@@ -646,7 +620,7 @@ class SfGaugeThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color rangePointerColor;
+  final Color? rangePointerColor;
 
   /// Specifies the range color
   ///
@@ -682,7 +656,7 @@ class SfGaugeThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color rangeColor;
+  final Color? rangeColor;
 
   /// Specifies the title border color
   ///
@@ -781,7 +755,7 @@ class SfGaugeThemeData with Diagnosticable {
       return null;
     }
     return SfGaugeThemeData(
-      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
+      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t)!,
       titleColor: Color.lerp(a.titleColor, b.titleColor, t),
       axisLabelColor: Color.lerp(a.axisLabelColor, b.axisLabelColor, t),
       axisLineColor: Color.lerp(a.axisLineColor, b.axisLineColor, t),
@@ -789,18 +763,18 @@ class SfGaugeThemeData with Diagnosticable {
       minorTickColor: Color.lerp(a.minorTickColor, b.minorTickColor, t),
       markerColor: Color.lerp(a.markerColor, b.markerColor, t),
       markerBorderColor:
-          Color.lerp(a.markerBorderColor, b.markerBorderColor, t),
+          Color.lerp(a.markerBorderColor, b.markerBorderColor, t)!,
       needleColor: Color.lerp(a.needleColor, b.needleColor, t),
       knobColor: Color.lerp(a.knobColor, b.knobColor, t),
-      knobBorderColor: Color.lerp(a.knobBorderColor, b.knobBorderColor, t),
+      knobBorderColor: Color.lerp(a.knobBorderColor, b.knobBorderColor, t)!,
       tailColor: Color.lerp(a.tailColor, b.tailColor, t),
-      tailBorderColor: Color.lerp(a.tailBorderColor, b.tailBorderColor, t),
+      tailBorderColor: Color.lerp(a.tailBorderColor, b.tailBorderColor, t)!,
       rangePointerColor:
           Color.lerp(a.rangePointerColor, b.rangePointerColor, t),
       rangeColor: Color.lerp(a.rangeColor, b.rangeColor, t),
-      titleBorderColor: Color.lerp(a.titleBorderColor, b.titleBorderColor, t),
+      titleBorderColor: Color.lerp(a.titleBorderColor, b.titleBorderColor, t)!,
       titleBackgroundColor:
-          Color.lerp(a.titleBackgroundColor, b.titleBackgroundColor, t),
+          Color.lerp(a.titleBackgroundColor, b.titleBackgroundColor, t)!,
     );
   }
 
@@ -835,7 +809,7 @@ class SfGaugeThemeData with Diagnosticable {
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       backgroundColor,
       titleColor,
       axisLabelColor,

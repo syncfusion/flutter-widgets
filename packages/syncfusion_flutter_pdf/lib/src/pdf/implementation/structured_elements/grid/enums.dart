@@ -1,5 +1,3 @@
-part of pdf;
-
 ///Specifies the alignment type.
 enum PdfGridImagePosition {
   /// To fit image to the cell based on the cell width and height.
@@ -16,7 +14,8 @@ enum PdfGridImagePosition {
   tile
 }
 
-enum _PdfGridStretchOption {
+/// internal enumerator
+enum PdfGridStretchOption {
   /// The content is resized to fill the destination dimensions.
   /// The aspect ratio is not preserved.
   fill,

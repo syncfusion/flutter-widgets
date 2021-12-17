@@ -1,10 +1,7 @@
 import 'dart:convert' show utf8;
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_barcodes/barcodes.dart';
-import '../../base/symbology_base.dart';
-import '../../utils/enum.dart';
 import '../../utils/helper.dart';
 import '../one_dimensional/symbology_base_renderer.dart';
 
@@ -994,8 +991,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
       if (actualEncoding == DataMatrixEncoding.asciiNumeric &&
           _dataMatrixSymbology.encoding != actualEncoding) {
-        throw 'Data contains invalid characters and cannot be encoded as'
-            'ASCIINumeric.';
+        throw 'Data contains invalid characters and cannot be encoded as ASCIINumeric.';
       }
 
       _encoding = actualEncoding;

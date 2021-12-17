@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../base/symbology_base.dart';
 import '../renderers/one_dimensional/symbology_base_renderer.dart';
 
@@ -63,6 +61,7 @@ class SfBarcodeGeneratorRenderObjectWidget extends LeafRenderObjectWidget {
   }
 
   @override
+  // ignore: library_private_types_in_public_api
   void updateRenderObject(BuildContext context, _RenderBarcode renderObject) {
     renderObject
       ..value = value!

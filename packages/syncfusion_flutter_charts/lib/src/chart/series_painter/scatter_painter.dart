@@ -1,20 +1,15 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../../charts.dart';
 import '../../common/user_interaction/selection_behavior.dart';
 import '../axis/axis.dart';
-import '../base/chart_base.dart';
 import '../chart_segment/chart_segment.dart';
-import '../chart_segment/scatter_segment.dart';
-import '../chart_series/scatter_series.dart';
 import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
+import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
@@ -237,6 +232,9 @@ class ScatterChartPainter extends CustomPainter {
     double animationFactor;
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer);
+    // Disposing the old chart segments.
+    disposeOldSegments(chart, seriesRendererDetails);
+
     final ScatterSeries<dynamic, dynamic> series =
         seriesRendererDetails.series as ScatterSeries<dynamic, dynamic>;
     if (seriesRendererDetails.visible! == true) {
