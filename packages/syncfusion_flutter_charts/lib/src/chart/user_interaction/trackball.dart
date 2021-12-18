@@ -416,15 +416,14 @@ class TrackballBehavior {
         x = location.x;
         y = location.y;
       }
-      if (_trackballRenderingDetails.trackballPainter != null &&
-          seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
-        _trackballRenderingDetails.isTrackballTemplate = false;
-        _trackballRenderingDetails.generateAllPoints(Offset(x.toDouble(), y));
-      } else if (builder != null &&
-          (!_trackballRenderingDetails.isMoving) &&
-          seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
-        _trackballRenderingDetails
-            .showTemplateTrackball(Offset(x.toDouble(), y));
+      if (seriesRendererDetails.visibleDataPoints?.isNotEmpty ?? false) {
+        if (_trackballRenderingDetails.trackballPainter != null) {
+          _trackballRenderingDetails.isTrackballTemplate = false;
+          _trackballRenderingDetails.generateAllPoints(Offset(x.toDouble(), y));
+        } else if (builder != null && !_trackballRenderingDetails.isMoving) {
+          _trackballRenderingDetails
+              .showTemplateTrackball(Offset(x.toDouble(), y));
+        }
       }
     }
 
