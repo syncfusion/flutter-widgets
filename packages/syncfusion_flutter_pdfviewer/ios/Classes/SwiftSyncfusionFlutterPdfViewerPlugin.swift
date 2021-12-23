@@ -65,20 +65,22 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
     // Returns the width collection of rendered pages.
     private func getPagesWidth( call: FlutterMethodCall, result: @escaping FlutterResult)
     {
+        var pagesWidth = Array<Double>()
         guard let argument = call.arguments else {return}
         let documentID = argument as! String
-        let document = self.documentRepo[documentID]!!
-        let pageCount = NSNumber(value: document.numberOfPages)
-        var pagesWidth = Array<Double>()
-        for index in stride(from: 1,to: pageCount.intValue + 1, by: 1){
-            let page = document.page(at: Int(index))
-            var pageRect = page!.getBoxRect(.mediaBox)
-            if(page!.rotationAngle > 0)
-            {
-                let angle = CGFloat(page!.rotationAngle) * CGFloat.pi/180
-                pageRect = (pageRect.applying(CGAffineTransform(rotationAngle: angle)))
+        if(self.documentRepo[documentID] != nil){
+            let document = self.documentRepo[documentID]!!
+            let pageCount = NSNumber(value: document.numberOfPages)
+            for index in stride(from: 1,to: pageCount.intValue + 1, by: 1){
+                let page = document.page(at: Int(index))
+                var pageRect = page!.getBoxRect(.mediaBox)
+                if(page!.rotationAngle > 0)
+                {
+                    let angle = CGFloat(page!.rotationAngle) * CGFloat.pi/180
+                    pageRect = (pageRect.applying(CGAffineTransform(rotationAngle: angle)))
+                }
+                pagesWidth.append(Double(pageRect.width))
             }
-            pagesWidth.append(Double(pageRect.width))
         }
         result(pagesWidth)
     }
@@ -86,20 +88,23 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
     // Returns the height collection of rendered pages.
     private func getPagesHeight( call: FlutterMethodCall, result: @escaping FlutterResult)
     {
+        var pagesHeight = Array<Double>()
         guard let argument = call.arguments else {return}
         let documentID = argument as! String
-        let document = self.documentRepo[documentID]!!
-        let pageCount = NSNumber(value: document.numberOfPages)
-        var pagesHeight = Array<Double>()
-        for index in stride(from: 1,to: pageCount.intValue + 1, by: 1){
-            let page = document.page(at: Int(index))
-            var pageRect = page!.getBoxRect(.mediaBox)
-            if(page!.rotationAngle > 0)
-            {
-                let angle = CGFloat(page!.rotationAngle) * CGFloat.pi/180
-                pageRect = (pageRect.applying(CGAffineTransform(rotationAngle: angle)))
+        if(self.documentRepo[documentID] != nil){
+            let document = self.documentRepo[documentID]!!
+            let pageCount = NSNumber(value: document.numberOfPages)
+
+            for index in stride(from: 1,to: pageCount.intValue + 1, by: 1){
+                let page = document.page(at: Int(index))
+                var pageRect = page!.getBoxRect(.mediaBox)
+                if(page!.rotationAngle > 0)
+                {
+                    let angle = CGFloat(page!.rotationAngle) * CGFloat.pi/180
+                    pageRect = (pageRect.applying(CGAffineTransform(rotationAngle: angle)))
+                }
+                pagesHeight.append(Double(pageRect.height))
             }
-            pagesHeight.append(Double(pageRect.height))
         }
         result(pagesHeight)
     }
