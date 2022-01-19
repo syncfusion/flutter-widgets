@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_charts/src/chart/axis/axis_panel.dart';
 
 import '../../common/rendering_details.dart';
 import '../common/cartesian_state_properties.dart';
@@ -289,7 +290,13 @@ class TrackballTemplateRenderBox extends RenderShiftedBox {
         trackballRenderingDetails.xAxesInfo;
     final List<ChartAxisRenderer> yAxesInfo =
         trackballRenderingDetails.yAxesInfo;
-    boundaryRect = stateProperties.chartAxis.axisClipRect;
+    final ChartAxisPanel chartAxis = stateProperties.chartAxis;
+    boundaryRect = Rect.fromLTRB(
+      chartAxis.axisClipRect.left - chartAxis.leftSize,
+      chartAxis.axisClipRect.top,
+      chartAxis.axisClipRect.right + chartAxis.rightSize,
+      chartAxis.axisClipRect.bottom,
+    );
     final num totalWidth = boundaryRect.left + boundaryRect.width;
     tooltipPosition = trackballRenderingDetails.tooltipPosition;
     final bool isTrackballMarkerEnabled =
@@ -349,6 +356,7 @@ class TrackballTemplateRenderBox extends RenderShiftedBox {
         }
 
         if (!isGroupAllPoints) {
+          // TODO(WieFel): refactor this part
           left = (stateProperties.requireInvertedAxis
                   ? tooltipPosition!.tooltipTop[index!]
                   : xPos +
@@ -420,33 +428,45 @@ class TrackballTemplateRenderBox extends RenderShiftedBox {
             isTemplateInBounds = false;
           }
         } else {
-          if (xPos + size.width > totalWidth) {
-            xPos = xPos -
-                size.width -
-                2 * padding -
+          final bool showOnTheRight = xPos <= totalWidth / 2;
+
+          double availableWidth;
+          if (showOnTheRight) {
+            // offset x by half marker width + padding to the right
+
+            xPos = xPos +
+                padding +
                 (isTrackballMarkerEnabled
                     ? trackballBehavior.markerSettings!.width / 2
                     : 0);
-          }
-
-          trackballTemplateRect =
-              Rect.fromLTWH(xPos, yPos, size.width, size.height);
-
-          if (_isTemplateWithinBounds(
-              boundaryRect, trackballTemplateRect!, offset)) {
-            isTemplateInBounds = true;
-            childParentData.offset = Offset(
-                xPos +
-                    padding +
-                    (isTrackballMarkerEnabled
-                        ? trackballBehavior.markerSettings!.width / 2
-                        : 0),
-                yPos);
+            availableWidth = boundaryRect.right - xPos;
           } else {
-            child!.layout(constraints.copyWith(maxWidth: 0),
-                parentUsesSize: true);
-            isTemplateInBounds = false;
+            // offset x by half marker width + padding + actualWidth to the left
+
+            final double xAtLine = xPos -
+                padding -
+                (isTrackballMarkerEnabled
+                    ? trackballBehavior.markerSettings!.width / 2
+                    : 0);
+
+            availableWidth = xAtLine - boundaryRect.left;
+
+            xPos = xAtLine - _actualWidth(availableWidth, size.width);
           }
+
+          // as long as we have width of 50 available, we show template, else we
+          // don't
+          isTemplateInBounds = availableWidth >= 50;
+
+          trackballTemplateRect = Rect.fromLTWH(xPos, yPos,
+              _actualWidth(availableWidth, size.width), size.height);
+
+          child!.layout(
+              constraints.copyWith(maxWidth: trackballTemplateRect!.width),
+              parentUsesSize: true);
+
+          // offset the actual template
+          childParentData.offset = Offset(xPos, yPos);
         }
       }
     } else {
@@ -459,6 +479,9 @@ class TrackballTemplateRenderBox extends RenderShiftedBox {
       xAxesInfo.clear();
     }
   }
+
+  double _actualWidth(double availableWidth, double desiredWidth) =>
+      desiredWidth > availableWidth ? availableWidth : desiredWidth;
 
   /// To check template is within bounds
   bool _isTemplateWithinBounds(Rect bounds, Rect templateRect, Offset? offset) {
