@@ -9,14 +9,15 @@ class Row {
 
   /// Represents the row height.
   double height = 0;
+  
+  /// Represents the hidden property of row.
+  bool hidden = false;
 
   /// Represents the row index.
   late int index;
 
   /// Parent worksheet.
   late Worksheet _worksheet;
-
-  bool hidden = false;
 
   /// Range collection in the row.
   RangeCollection? _ranges;
