@@ -7,6 +7,9 @@ class Column {
 
   /// Represents the column width.
   double width = 0;
+  
+  /// Represents the hidden property of column
+  bool hidden = false;
 
   /// Represents the column index.
   late int index;

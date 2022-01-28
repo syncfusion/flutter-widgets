@@ -224,6 +224,9 @@ class SerializeWorkbook {
                 } else {
                   builder.attribute('width', '8.43');
                 }
+                if (column.hidden){
+                  builder.attribute('hidden', '1');
+                }
                 builder.attribute('customWidth', '1');
               });
             }
@@ -239,6 +242,9 @@ class SerializeWorkbook {
                 if (row.height != 0) {
                   builder.attribute('ht', row.height.toString());
                   builder.attribute('customHeight', '1');
+                }
+                if (row.hidden){
+                  builder.attribute('hidden', '1');
                 }
                 if (row.ranges.count != 0) {
                   for (final Range? cell in row.ranges.innerList) {
@@ -2688,7 +2694,7 @@ class SerializeWorkbook {
       final Column? columnToCompare = sheet.columns[iCurrentColumn];
 
       if (columnToCompare != null &&
-          columnToCompare.width == currentColumn!.width) {
+          columnToCompare.width == currentColumn!.width && columnToCompare.hidden == currentColumn.hidden) {
         iColumnIndex++;
       } else {
         break;

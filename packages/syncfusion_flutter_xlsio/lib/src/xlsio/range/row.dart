@@ -16,6 +16,8 @@ class Row {
   /// Parent worksheet.
   late Worksheet _worksheet;
 
+  bool hidden = false;
+
   /// Range collection in the row.
   RangeCollection? _ranges;
 
