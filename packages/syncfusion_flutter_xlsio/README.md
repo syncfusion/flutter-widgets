@@ -429,7 +429,7 @@ File('AutoFits.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 
 ```
-**Insert/Delete Rows and Colums**
+**Insert/Delete/Hide Rows and Colums**
 
 Use the following code to insert rows and columns to the Excel worksheet.
 
@@ -483,6 +483,34 @@ sheet.deleteColumn(2, 1);
 // Save and dispose workbook.
 final List<int> bytes = workbook.saveAsStream();
 File('DeleteRowandColumn.xlsx').writeAsBytes(bytes);
+workbook.dispose();
+
+```
+
+Use the following code to hide rows and columns of Excel worksheet.
+
+```dart
+// Create a new Excel Document.
+final Workbook workbook = Workbook();
+
+// Accessing sheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+
+Range range = sheet.getRangeByName('A1');
+range.setText('Hello');
+
+// Hide a column
+range.columnHidden = true;
+
+range = sheet.getRangeByName('B2');
+range.setText('World');
+
+// Hide a row
+range.rowHidden = true;
+
+// Save and dispose workbook.
+final List<int> bytes = workbook.saveAsStream();
+File('InsertRowandColumn.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 
 ```
