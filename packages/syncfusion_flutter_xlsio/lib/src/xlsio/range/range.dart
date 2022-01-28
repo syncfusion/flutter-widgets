@@ -565,6 +565,72 @@ class Range {
     }
   }
 
+  /// Sets the hidden property of all the columns in the range.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// Range range = sheet.getRangeByName('A1');
+  /// range.columnHidden = true;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ColumnWidth.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  set columnHidden(bool hidden) {
+    if (isSingleRange) {
+      Column? columnObj = worksheet.columns[column];
+      if (columnObj == null) {
+        columnObj = Column(_worksheet);
+        columnObj.index = column;
+        worksheet.columns[column] = columnObj;
+      }
+      columnObj.hidden = hidden;
+    } else {
+      // ignore: prefer_final_locals
+      for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
+        // ignore: prefer_final_locals
+        for (int iCol = column, iLastCol = lastColumn;
+        iCol <= iLastCol;
+        iCol++) {
+          worksheet.getRangeByIndex(iRow, iCol).columnHidden = hidden;
+        }
+      }
+    }
+  }
+
+  /// Sets the hidden property of all the rows in the range.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// Range range = sheet.getRangeByName('A1');
+  /// range.rowHidden = true;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('RowHeight.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  set rowHidden(bool hidden) {
+    if (isSingleRange) {
+      Row? _rowObj = _worksheet.rows[row];
+      if (_rowObj == null) {
+        _rowObj = Row(_worksheet);
+        _rowObj.index = row;
+        worksheet.rows[row] = _rowObj;
+      }
+      _rowObj.hidden = hidden;
+    } else {
+      // ignore: prefer_final_locals
+      for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
+        // ignore: prefer_final_locals
+        for (int iCol = column, iLastCol = lastColumn;
+        iCol <= iLastCol;
+        iCol++) {
+          worksheet.getRangeByIndex(iRow, iCol).rowHidden = hidden;
+        }
+      }
+    }
+  }
+
   /// Gets a <see cref='Range'/> object that represents the cells in the Range.Read-only.
   ///
   /// ```dart
