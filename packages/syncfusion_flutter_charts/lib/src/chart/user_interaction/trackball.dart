@@ -47,6 +47,7 @@ class TrackballBehavior {
     this.shouldAlwaysShow = false,
     this.builder,
     this.hideDelay = 0,
+    this.includeYAxisExceedingPoints = false,
   });
 
   ///Toggles the visibility of the trackball.
@@ -202,6 +203,21 @@ class TrackballBehavior {
   ///}
   ///```
   final bool shouldAlwaysShow;
+
+  /// Specifies whether points that exceed a possible minimum/maximum setting on
+  /// the y-axes should be still included within the trackball tooltip or not.
+  ///
+  /// Defaults to `false`.
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///           trackballBehavior: TrackballBehavior(enable: true, includeYAxisExceedingPoints: true),
+  ///        ));
+  ///}
+  ///```
+  final bool includeYAxisExceedingPoints;
 
   ///Customizes the trackball tooltip.
   ///
@@ -1008,7 +1024,9 @@ class TrackballRenderingDetails {
                         : isBoxSeries
                             ? maxYPos!
                             : yPos)) ||
-                seriesBounds.overlaps(rect)) {
+                seriesBounds.overlaps(rect) ||
+                (trackballBehavior.includeYAxisExceedingPoints &&
+                    _fitsHorizontally(seriesBounds, xPos))) {
               visiblePoints.add(ClosestPoints(
                   closestPointX: !isRangeSeries
                       ? xPos
@@ -1079,6 +1097,14 @@ class TrackballRenderingDetails {
       }
     }
     _triggerTrackballRenderCallback();
+  }
+
+  /// Checks if the given [xPos] is contained horizontally within the given
+  /// [seriesBounds].
+  bool _fitsHorizontally(Rect seriesBounds, double xPos) {
+    final Rect heightIndependentBounds =
+        Rect.fromLTRB(seriesBounds.left, 0, seriesBounds.right, 1);
+    return heightIndependentBounds.contains(Offset(xPos, 0));
   }
 
   /// Event for trackball render
@@ -1253,6 +1279,12 @@ class TrackballRenderingDetails {
   /// To render the trackball marker
   void renderTrackballMarker(SeriesRendererDetails seriesRendererDetails,
       Canvas canvas, TrackballBehavior trackballBehavior, int index) {
+    if (!_axisClipRect.contains(Offset(chartPointInfo[index].markerXPos!,
+        chartPointInfo[index].markerYPos!))) {
+      // point is outside chart area -> skip rendering it
+      return;
+    }
+
     final CartesianChartPoint<dynamic> point =
         seriesRendererDetails.dataPoints[index];
     final TrackballMarkerSettings markerSettings =
