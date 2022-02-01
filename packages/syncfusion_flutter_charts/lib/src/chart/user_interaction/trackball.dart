@@ -1279,6 +1279,12 @@ class TrackballRenderingDetails {
   /// To render the trackball marker
   void renderTrackballMarker(SeriesRendererDetails seriesRendererDetails,
       Canvas canvas, TrackballBehavior trackballBehavior, int index) {
+    if (!_axisClipRect.contains(Offset(chartPointInfo[index].markerXPos!,
+        chartPointInfo[index].markerYPos!))) {
+      // point is outside chart area -> skip rendering it
+      return;
+    }
+
     final CartesianChartPoint<dynamic> point =
         seriesRendererDetails.dataPoints[index];
     final TrackballMarkerSettings markerSettings =
