@@ -48,6 +48,7 @@ class TrackballBehavior {
     this.shouldAlwaysShow = false,
     this.builder,
     this.hideDelay = 0,
+    this.includeYAxisExceedingPoints = false,
   });
 
   /// Toggles the visibility of the trackball.
@@ -273,7 +274,22 @@ class TrackballBehavior {
   /// ```
   final bool shouldAlwaysShow;
 
-  /// Customizes the trackball tooltip.
+  /// Specifies whether points that exceed a possible minimum/maximum setting on
+  /// the y-axes should be still included within the trackball tooltip or not.
+  ///
+  /// Defaults to `false`.
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///           trackballBehavior: TrackballBehavior(enable: true, includeYAxisExceedingPoints: true),
+  ///        ));
+  ///}
+  ///```
+  final bool includeYAxisExceedingPoints;
+
+  ///Customizes the trackball tooltip.
   ///
   /// ```dart
   /// late TrackballBehavior trackballBehavior;
@@ -1063,32 +1079,45 @@ class TrackballRenderingDetails {
                         ? highYPos!
                         : isBoxSeries
                             ? maxYPos!
-                            : yPos));
-                _addChartPointInfo(
-                    cartesianSeriesRendererDetails,
-                    xPos,
-                    yPos,
-                    index,
-                    !isTrackballTemplate ? labelValue : null,
-                    seriesIndex,
-                    lowYPos,
-                    highXPos,
-                    highYPos,
-                    openXPos,
-                    openYPos,
-                    closeXPos,
-                    closeYPos,
-                    minYPos,
-                    maxXPos,
-                    maxYPos,
-                    lowerXPos,
-                    lowerYPos,
-                    upperXPos,
-                    upperYPos);
-                if (tooltipDisplayMode == TrackballDisplayMode.groupAllPoints &&
-                    leastX >= seriesBounds.left) {
-                  invertedAxis ? yPos = leastX : xPos = leastX;
-                }
+                            : yPos)) ||
+                seriesBounds.overlaps(rect) ||
+                (trackballBehavior.includeYAxisExceedingPoints &&
+                    _fitsHorizontally(seriesBounds, xPos))) {
+              visiblePoints.add(ClosestPoints(
+                  closestPointX: !isRangeSeries
+                      ? xPos
+                      : isBoxSeries
+                          ? maxXPos!
+                          : highXPos!,
+                  closestPointY: isRangeSeries
+                      ? highYPos!
+                      : isBoxSeries
+                          ? maxYPos!
+                          : yPos));
+              _addChartPointInfo(
+                  cartesianSeriesRendererDetails,
+                  xPos,
+                  yPos,
+                  index,
+                  !isTrackballTemplate ? labelValue : null,
+                  seriesIndex,
+                  lowYPos,
+                  highXPos,
+                  highYPos,
+                  openXPos,
+                  openYPos,
+                  closeXPos,
+                  closeYPos,
+                  minYPos,
+                  maxXPos,
+                  maxYPos,
+                  lowerXPos,
+                  lowerYPos,
+                  upperXPos,
+                  upperYPos);
+              if (tooltipDisplayMode == TrackballDisplayMode.groupAllPoints &&
+                  leastX >= seriesBounds.left) {
+                invertedAxis ? yPos = leastX : xPos = leastX;
               }
             }
           }
@@ -1125,6 +1154,14 @@ class TrackballRenderingDetails {
       }
     }
     _triggerTrackballRenderCallback();
+  }
+
+  /// Checks if the given [xPos] is contained horizontally within the given
+  /// [seriesBounds].
+  bool _fitsHorizontally(Rect seriesBounds, double xPos) {
+    final Rect heightIndependentBounds =
+        Rect.fromLTRB(seriesBounds.left, 0, seriesBounds.right, 1);
+    return heightIndependentBounds.contains(Offset(xPos, 0));
   }
 
   /// Event for trackball render
