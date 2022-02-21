@@ -35,7 +35,7 @@ class LinearGaugeScope extends InheritedWidget {
   static LinearGaugeScope of(BuildContext context) {
     late LinearGaugeScope scope;
 
-    final InheritedWidget widget = context
+    final Widget widget = context
         .getElementForInheritedWidgetOfExactType<LinearGaugeScope>()!
         .widget;
 
