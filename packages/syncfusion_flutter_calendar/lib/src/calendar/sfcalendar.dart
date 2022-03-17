@@ -1937,6 +1937,7 @@ class SfCalendar extends StatefulWidget {
   ///      ),
   ///    );
   ///  }
+  /// ```
   final bool showWeekNumber;
 
   /// Defines the text style for the text in the week number panel of the
@@ -1966,6 +1967,7 @@ class SfCalendar extends StatefulWidget {
   ///   ),
   ///  );
   /// }
+  /// ```
   final WeekNumberStyle weekNumberStyle;
 
   /// Defines the builder that builds a widget and replaces the header
@@ -2013,6 +2015,7 @@ class SfCalendar extends StatefulWidget {
   ///     ),
   ///   );
   /// }
+  /// ```
   final ResourceViewHeaderBuilder? resourceViewHeaderBuilder;
 
   /// Allows to drag and drop the appointment, to reschedule this into
@@ -2050,6 +2053,7 @@ class SfCalendar extends StatefulWidget {
   ///     ),
   ///   );
   /// }
+  /// ```
   final bool allowDragAndDrop;
 
   /// Allows to customize the drag and drop environment.
@@ -2077,6 +2081,7 @@ class SfCalendar extends StatefulWidget {
   ///     ),
   ///   );
   /// }
+  /// ```
   final DragAndDropSettings dragAndDropSettings;
 
   /// Called whenever the appointment starts to drag in the  [SfCalendar].
@@ -2104,6 +2109,7 @@ class SfCalendar extends StatefulWidget {
   ///         }),
   ///   );
   /// }
+  /// ```
   final AppointmentDragStartCallback? onDragStart;
 
   /// Called whenever the appointment is dragging in the [SfCalendar].
@@ -2134,6 +2140,7 @@ class SfCalendar extends StatefulWidget {
   ///         }),
   ///   );
   /// }
+  /// ```
   final AppointmentDragUpdateCallback? onDragUpdate;
 
   /// Called when the dragging appointment is dropped in the [SfCalendar].
@@ -2163,6 +2170,7 @@ class SfCalendar extends StatefulWidget {
   ///         }),
   ///   );
   /// }
+  /// ```
   final AppointmentDragEndCallback? onDragEnd;
 
   /// An object that used for programmatic date navigation and date selection
