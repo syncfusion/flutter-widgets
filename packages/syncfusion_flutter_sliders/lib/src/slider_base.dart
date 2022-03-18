@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +10,7 @@ import 'common.dart';
 import 'constants.dart';
 import 'slider_shapes.dart';
 
+// ignore_for_file: public_member_api_docs
 /// Base render box class for all three sliders such as [SfSlider],
 /// [SfRangeSlider], and [SfRangeSelector].
 class RenderBaseSlider extends RenderProxyBox
@@ -27,7 +27,9 @@ class RenderBaseSlider extends RenderProxyBox
     required bool showLabels,
     required bool showDividers,
     required bool enableTooltip,
+    required bool shouldAlwaysShowTooltip,
     required LabelPlacement labelPlacement,
+    required bool isInversed,
     required NumberFormat numberFormat,
     required DateFormat? dateFormat,
     required DateIntervalType? dateIntervalType,
@@ -55,6 +57,8 @@ class RenderBaseSlider extends RenderProxyBox
         _showLabels = showLabels,
         _showDividers = showDividers,
         _enableTooltip = enableTooltip,
+        _shouldAlwaysShowTooltip = shouldAlwaysShowTooltip,
+        _isInversed = isInversed,
         _labelPlacement = labelPlacement,
         _numberFormat = numberFormat,
         _dateFormat = dateFormat,
@@ -145,7 +149,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   dynamic get min => _min;
   dynamic _min;
-
   set min(dynamic value) {
     if (_min == value) {
       return;
@@ -163,7 +166,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   dynamic get max => _max;
   dynamic _max;
-
   set max(dynamic value) {
     if (_max == value) {
       return;
@@ -181,7 +183,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   double? get interval => _interval;
   double? _interval;
-
   set interval(double? value) {
     if (_interval == value) {
       return;
@@ -194,7 +195,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   double? get stepSize => _stepSize;
   double? _stepSize;
-
   set stepSize(double? value) {
     if (_stepSize == value) {
       return;
@@ -205,7 +205,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   SliderStepDuration? get stepDuration => _stepDuration;
   SliderStepDuration? _stepDuration;
-
   set stepDuration(SliderStepDuration? value) {
     if (_stepDuration == value) {
       return;
@@ -215,7 +214,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   int get minorTicksPerInterval => _minorTicksPerInterval;
   int _minorTicksPerInterval;
-
   set minorTicksPerInterval(int value) {
     if (_minorTicksPerInterval == value) {
       return;
@@ -227,7 +225,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   bool get showTicks => _showTicks;
   bool _showTicks;
-
   set showTicks(bool value) {
     if (_showTicks == value) {
       return;
@@ -238,7 +235,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   bool get showLabels => _showLabels;
   bool _showLabels;
-
   set showLabels(bool value) {
     if (_showLabels == value) {
       return;
@@ -249,7 +245,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   bool get showDividers => _showDividers;
   bool _showDividers;
-
   set showDividers(bool value) {
     if (_showDividers == value) {
       return;
@@ -260,7 +255,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   bool get enableTooltip => _enableTooltip;
   bool _enableTooltip;
-
   set enableTooltip(bool value) {
     if (_enableTooltip == value) {
       return;
@@ -268,9 +262,31 @@ class RenderBaseSlider extends RenderProxyBox
     _enableTooltip = value;
   }
 
+  bool get shouldAlwaysShowTooltip => _shouldAlwaysShowTooltip;
+  bool _shouldAlwaysShowTooltip;
+  set shouldAlwaysShowTooltip(bool value) {
+    if (_shouldAlwaysShowTooltip == value) {
+      return;
+    }
+    _shouldAlwaysShowTooltip = value;
+    markNeedsPaint();
+  }
+
+  // When the directionality of horizontal sliders is set to RTL and
+  // the [isInversed] API of SfSlider.vertical, SfRangeSlider.vertical
+  // is set to true, the isInversed property is true.
+  bool get isInversed => _isInversed;
+  bool _isInversed;
+  set isInversed(bool value) {
+    if (_isInversed == value) {
+      return;
+    }
+    _isInversed = value;
+    markNeedsLayout();
+  }
+
   LabelPlacement get labelPlacement => _labelPlacement;
   LabelPlacement _labelPlacement;
-
   set labelPlacement(LabelPlacement value) {
     if (_labelPlacement == value) {
       return;
@@ -281,7 +297,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   NumberFormat get numberFormat => _numberFormat;
   NumberFormat _numberFormat;
-
   set numberFormat(NumberFormat value) {
     if (_numberFormat == value) {
       return;
@@ -293,7 +308,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   DateIntervalType? get dateIntervalType => _dateIntervalType;
   DateIntervalType? _dateIntervalType;
-
   set dateIntervalType(DateIntervalType? value) {
     if (_dateIntervalType == value) {
       return;
@@ -306,7 +320,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   DateFormat? get dateFormat => _dateFormat;
   DateFormat? _dateFormat;
-
   set dateFormat(DateFormat? value) {
     if (_dateFormat == value) {
       return;
@@ -318,7 +331,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   LabelFormatterCallback get labelFormatterCallback => _labelFormatterCallback;
   LabelFormatterCallback _labelFormatterCallback;
-
   set labelFormatterCallback(LabelFormatterCallback value) {
     if (_labelFormatterCallback == value) {
       return;
@@ -330,7 +342,6 @@ class RenderBaseSlider extends RenderProxyBox
   TooltipTextFormatterCallback get tooltipTextFormatterCallback =>
       _tooltipTextFormatterCallback;
   TooltipTextFormatterCallback _tooltipTextFormatterCallback;
-
   set tooltipTextFormatterCallback(TooltipTextFormatterCallback value) {
     if (_tooltipTextFormatterCallback == value) {
       return;
@@ -341,7 +352,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   SfThumbShape get thumbShape => _thumbShape;
   SfThumbShape _thumbShape;
-
   set thumbShape(SfThumbShape value) {
     if (_thumbShape == value) {
       return;
@@ -352,7 +362,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   SfOverlayShape get overlayShape => _overlayShape;
   SfOverlayShape _overlayShape;
-
   set overlayShape(SfOverlayShape value) {
     if (_overlayShape == value) {
       return;
@@ -362,7 +371,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   SfTrackShape get trackShape => _trackShape;
   SfTrackShape _trackShape;
-
   set trackShape(SfTrackShape value) {
     if (_trackShape == value) {
       return;
@@ -373,7 +381,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   SfDividerShape get dividerShape => _dividerShape;
   SfDividerShape _dividerShape;
-
   set dividerShape(SfDividerShape value) {
     if (_dividerShape == value) {
       return;
@@ -384,7 +391,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   SfTickShape get tickShape => _tickShape;
   SfTickShape _tickShape;
-
   set tickShape(SfTickShape value) {
     if (_tickShape == value) {
       return;
@@ -395,7 +401,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   SfTickShape get minorTickShape => _minorTickShape;
   SfTickShape _minorTickShape;
-
   set minorTickShape(SfTickShape value) {
     if (_minorTickShape == value) {
       return;
@@ -406,7 +411,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   SfTooltipShape get tooltipShape => _tooltipShape;
   SfTooltipShape _tooltipShape;
-
   set tooltipShape(SfTooltipShape value) {
     if (_tooltipShape == value) {
       return;
@@ -416,7 +420,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   SfSliderThemeData get sliderThemeData => _sliderThemeData;
   SfSliderThemeData _sliderThemeData;
-
   set sliderThemeData(SfSliderThemeData value) {
     if (_sliderThemeData == value) {
       return;
@@ -427,7 +430,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   TextDirection get textDirection => _textDirection;
   TextDirection _textDirection;
-
   set textDirection(TextDirection value) {
     if (_textDirection == value) {
       return;
@@ -439,7 +441,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   SliderTooltipPosition? get tooltipPosition => _tooltipPosition;
   SliderTooltipPosition? _tooltipPosition;
-
   set tooltipPosition(SliderTooltipPosition? value) {
     if (_tooltipPosition == value) {
       return;
@@ -450,7 +451,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   MediaQueryData get mediaQueryData => _mediaQueryData;
   MediaQueryData _mediaQueryData;
-
   set mediaQueryData(MediaQueryData value) {
     if (_mediaQueryData == value) {
       return;
@@ -459,6 +459,8 @@ class RenderBaseSlider extends RenderProxyBox
     updateTextPainter();
     markNeedsLayout();
   }
+
+  bool get isInteractive => false;
 
   bool get isDateTime =>
       _min.runtimeType == DateTime && _max.runtimeType == DateTime;
@@ -534,11 +536,11 @@ class RenderBaseSlider extends RenderProxyBox
       : 0;
 
   // Here 10 is a gap between tooltip nose and thumb.
-  double get tooltipStartY => (sliderType == SliderType.vertical)
-      ? math.max(actualThumbSize.width, actualTrackRect.width) / 2 + 10
-      : _tooltipShape is SfPaddleTooltipShape
+  double get tooltipStartY => (sliderType == SliderType.horizontal)
+      ? _tooltipShape is SfPaddleTooltipShape
           ? math.max(actualThumbSize.height, actualTrackRect.height) / 2
-          : math.max(actualThumbSize.height, actualTrackRect.height) / 2 + 10;
+          : math.max(actualThumbSize.height, actualTrackRect.height) / 2 + 10
+      : math.max(actualThumbSize.width, actualTrackRect.width) / 2 + 10;
 
   double get adjustmentUnit => (actualMax - actualMin) / 10;
 
@@ -594,19 +596,19 @@ class RenderBaseSlider extends RenderProxyBox
         ? 0.0
         // ignore: avoid_as
         : (value - actualMin) / (actualMax - actualMin) as double;
-    if (sliderType == SliderType.vertical) {
-      return factor;
+    if (_isInversed) {
+      return 1.0 - factor;
     } else {
-      return (_textDirection == TextDirection.rtl) ? 1.0 - factor : factor;
+      return factor;
     }
   }
 
   double getPositionFromValue(double value) {
-    return sliderType == SliderType.vertical
-        ? actualTrackRect.bottom -
-            getFactorFromValue(value) * actualTrackRect.height
-        : getFactorFromValue(value) * actualTrackRect.width +
-            actualTrackRect.left;
+    return sliderType == SliderType.horizontal
+        ? getFactorFromValue(value) * actualTrackRect.width +
+            actualTrackRect.left
+        : actualTrackRect.bottom -
+            getFactorFromValue(value) * actualTrackRect.height;
   }
 
   void generateLabelsAndMajorTicks() {
@@ -643,14 +645,14 @@ class RenderBaseSlider extends RenderProxyBox
       unformattedLabels?.add(isDateTime
           ? valueInMilliseconds!.toDouble()
           : currentValue.toDouble());
-      if (sliderType == SliderType.vertical) {
-        labelPosition = getFactorFromValue(
-                isDateTime ? valueInMilliseconds : currentValue) *
-            (actualTrackRect.height);
-      } else {
+      if (sliderType == SliderType.horizontal) {
         labelPosition = getFactorFromValue(
                 isDateTime ? valueInMilliseconds : currentValue) *
             (actualTrackRect.width);
+      } else {
+        labelPosition = getFactorFromValue(
+                isDateTime ? valueInMilliseconds : currentValue) *
+            (actualTrackRect.height);
       }
       if (!_majorTickPositions.contains(labelPosition)) {
         _majorTickPositions.add(labelPosition);
@@ -663,7 +665,6 @@ class RenderBaseSlider extends RenderProxyBox
 
   void _generateEdgeLabelsAndMajorTicks() {
     String label;
-    double labelPosition;
     divisions = 1.0;
     label = _labelFormatterCallback(_min, getFormattedText(_min));
     _visibleLabels.add(label);
@@ -674,16 +675,17 @@ class RenderBaseSlider extends RenderProxyBox
     unformattedLabels?.add(
         isDateTime ? _max.millisecondsSinceEpoch.toDouble() : _max.toDouble());
 
-    labelPosition = getFactorFromValue(actualMin) *
-        (sliderType == SliderType.vertical
-            ? actualTrackRect.height
-            : actualTrackRect.width);
-    _majorTickPositions.add(labelPosition);
-    labelPosition = getFactorFromValue(actualMax) *
-        (sliderType == SliderType.vertical
-            ? actualTrackRect.height
-            : actualTrackRect.width);
-    _majorTickPositions.add(labelPosition);
+    if (sliderType == SliderType.horizontal) {
+      _majorTickPositions
+          .add(getFactorFromValue(actualMin) * actualTrackRect.width);
+      _majorTickPositions
+          .add(getFactorFromValue(actualMax) * actualTrackRect.width);
+    } else {
+      _majorTickPositions
+          .add(getFactorFromValue(actualMin) * actualTrackRect.height);
+      _majorTickPositions
+          .add(getFactorFromValue(actualMax) * actualTrackRect.height);
+    }
   }
 
   void generateMinorTicks() {
@@ -741,20 +743,22 @@ class RenderBaseSlider extends RenderProxyBox
 
   double _updateMinorTicksPosition(double value) {
     return getFactorFromValue(value) *
-        (sliderType == SliderType.vertical
-            ? actualTrackRect.height
-            : actualTrackRect.width);
+        (sliderType == SliderType.horizontal
+            ? actualTrackRect.width
+            : actualTrackRect.height);
   }
 
   void _generateNumericMinorTicks() {
     final int majorTicksCount = _majorTickPositions.length;
     for (int i = 0; i <= majorTicksCount - 1; i++) {
-      final double minorPositionDiff = ((i + 1 < majorTicksCount
-                  ? _majorTickPositions[i + 1]
-                  : (sliderType == SliderType.vertical
-                      ? actualTrackRect.height
-                      : actualTrackRect.width)) -
-              _majorTickPositions[i]) /
+      final double minorPositionDiff = (i + 1 < majorTicksCount
+              ? _majorTickPositions[i + 1] - _majorTickPositions[i]
+              : ((sliderType == SliderType.horizontal
+                      ? actualTrackRect.width
+                      : actualTrackRect.height) -
+                  (isInversed
+                      ? _majorTickPositions[0]
+                      : _majorTickPositions[majorTicksCount - 1]))) /
           (_minorTicksPerInterval + 1);
       for (int j = 1; j <= _minorTicksPerInterval; j++) {
         _minorTickPositions.add(_majorTickPositions[i] + j * minorPositionDiff);
@@ -814,17 +818,20 @@ class RenderBaseSlider extends RenderProxyBox
   }
 
   dynamic getValueFromPosition(double position) {
-    double valueFactor = sliderType == SliderType.vertical
-        ? (1 - (actualTrackRect.height - position) / actualTrackRect.height)
-            .clamp(0.0, 1.0)
-        : ((position - actualTrackRect.left) / actualTrackRect.width)
-            .clamp(0.0, 1.0);
-    if (sliderType != SliderType.vertical) {
-      if (_textDirection == TextDirection.rtl) {
+    double valueFactor;
+    if (sliderType == SliderType.horizontal) {
+      valueFactor = (position - actualTrackRect.left) / actualTrackRect.width;
+      if (_isInversed) {
+        valueFactor = 1.0 - valueFactor;
+      }
+    } else {
+      valueFactor =
+          (actualTrackRect.height - position) / actualTrackRect.height;
+      if (!_isInversed) {
         valueFactor = 1.0 - valueFactor;
       }
     }
-    final dynamic actualValue = getValueFromFactor(valueFactor);
+    final dynamic actualValue = getValueFromFactor(valueFactor.clamp(0.0, 1.0));
     return getActualValue(valueInDouble: actualValue);
   }
 
@@ -836,15 +843,15 @@ class RenderBaseSlider extends RenderProxyBox
     if (isDiscrete) {
       if (!isDateTime) {
         final double maxMinDiff = getNumerizedValue(_max - _min);
-        final double factorValue = (getFactorFromValue(valueInDouble ?? value) *
+        double factorValue = (getFactorFromValue(valueInDouble ?? value) *
                     (maxMinDiff / _stepSize!))
                 .round() /
             (maxMinDiff / _stepSize!);
-        value = getValueFromFactor(((sliderType == SliderType.horizontal &&
-                    _textDirection == TextDirection.rtl)
-                ? (1 - factorValue)
-                : factorValue)
-            .clamp(0.0, 1.0));
+        if (_isInversed) {
+          factorValue = 1.0 - factorValue;
+        }
+
+        value = getValueFromFactor(factorValue.clamp(0.0, 1.0));
       } else {
         // ignore: avoid_as
         DateTime currentDate = _min as DateTime;
@@ -858,7 +865,7 @@ class RenderBaseSlider extends RenderProxyBox
               currentDate.year + _stepDuration!.years,
               currentDate.month + _stepDuration!.months,
               currentDate.day + _stepDuration!.days,
-              currentDate.hour + _stepDuration!.days,
+              currentDate.hour + _stepDuration!.hours,
               currentDate.minute + _stepDuration!.minutes,
               currentDate.second + _stepDuration!.seconds);
 
@@ -891,15 +898,15 @@ class RenderBaseSlider extends RenderProxyBox
   }
 
   double getFactorFromCurrentPosition() {
-    final double factor = sliderType == SliderType.vertical
-        ? ((actualTrackRect.bottom - mainAxisOffset) / actualTrackRect.height)
+    final double factor = (sliderType == SliderType.horizontal)
+        ? ((mainAxisOffset - actualTrackRect.left) / actualTrackRect.width)
             .clamp(0.0, 1.0)
-        : ((mainAxisOffset - actualTrackRect.left) / actualTrackRect.width)
+        : ((actualTrackRect.bottom - mainAxisOffset) / actualTrackRect.height)
             .clamp(0.0, 1.0);
-    if (sliderType == SliderType.vertical) {
-      return factor;
+    if (_isInversed) {
+      return 1.0 - factor;
     } else {
-      return (_textDirection == TextDirection.rtl) ? 1.0 - factor : factor;
+      return factor;
     }
   }
 
@@ -935,16 +942,21 @@ class RenderBaseSlider extends RenderProxyBox
     return Rect.fromLTRB(left, top, right, bottom);
   }
 
-  Rect getPaddleTooltipRect(TextPainter textPainter, Offset offset,
-      Offset thumbCenter, Rect trackRect, SfSliderThemeData themeData) {
+  Rect getPaddleTooltipRect(
+      TextPainter textPainter,
+      double thumbRadius,
+      Offset offset,
+      Offset thumbCenter,
+      Rect trackRect,
+      SfSliderThemeData themeData) {
     final double paddleTooltipRadius =
         textPainter.height > minPaddleTopCircleRadius
             ? textPainter.height
             : minPaddleTopCircleRadius;
     final double topNeckRadius = paddleTooltipRadius - neckDifference;
     final double bottomNeckRadius =
-        themeData.thumbRadius > minPaddleTopCircleRadius * moveNeckValue
-            ? themeData.thumbRadius - neckDifference
+        thumbRadius > minPaddleTopCircleRadius * moveNeckValue
+            ? thumbRadius - neckDifference
             : 4.0;
     final double halfTextWidth = textPainter.width / 2 + textPadding;
     final double halfPaddleWidth = halfTextWidth > paddleTooltipRadius
@@ -960,7 +972,7 @@ class RenderBaseSlider extends RenderProxyBox
         topNeckRadius -
         offset.dy * (1.0 - moveNeckValue) -
         bottomNeckRadius;
-    final double bottom = thumbCenter.dy + themeData.thumbRadius;
+    final double bottom = thumbCenter.dy + thumbRadius;
     return Rect.fromLTRB(left, top, right, bottom);
   }
 
@@ -996,31 +1008,38 @@ class RenderBaseSlider extends RenderProxyBox
       dynamic value,
       SfRangeValues? values) {
     int dateTimePos = 0;
+    bool isActive;
     final double dx =
-        sliderType == SliderType.vertical ? trackRect.bottom : trackRect.left;
+        sliderType == SliderType.horizontal ? trackRect.left : trackRect.bottom;
     final double dy =
-        sliderType == SliderType.vertical ? trackRect.left : trackRect.top;
-    final double halfTrackHeight = sliderType == SliderType.vertical
-        ? trackRect.width / 2
-        : trackRect.height / 2;
+        sliderType == SliderType.horizontal ? trackRect.top : trackRect.left;
+    final double halfTrackHeight = sliderType == SliderType.horizontal
+        ? trackRect.height / 2
+        : trackRect.width / 2;
+    if (startThumbCenter != null) {
+      if (sliderType == SliderType.horizontal) {
+        isActive =
+            offset.dx >= startThumbCenter.dx && offset.dx <= endThumbCenter!.dx;
+      } else {
+        isActive =
+            offset.dy <= startThumbCenter.dy && offset.dy >= endThumbCenter!.dy;
+      }
+    } else {
+      if (sliderType == SliderType.horizontal) {
+        isActive = offset.dx <= thumbCenter!.dx;
+      } else {
+        isActive = offset.dy <= thumbCenter!.dy;
+      }
+    }
 
-    final bool isActive = startThumbCenter != null
-        ? (sliderType == SliderType.vertical
-            ? offset.dy <= startThumbCenter.dy &&
-                offset.dy >= endThumbCenter!.dy
-            : offset.dx >= startThumbCenter.dx &&
-                offset.dx <= endThumbCenter!.dx)
-        : (sliderType == SliderType.vertical
-            ? offset.dy <= thumbCenter!.dy
-            : offset.dx <= thumbCenter!.dx);
     final double dividerRadius = _dividerShape
             .getPreferredSize(_sliderThemeData, isActive: isActive)
             .width /
         2;
 
-    final double tickRadius = sliderType == SliderType.vertical
-        ? _tickShape.getPreferredSize(_sliderThemeData).height / 2
-        : _tickShape.getPreferredSize(_sliderThemeData).width / 2;
+    final double tickRadius = sliderType == SliderType.horizontal
+        ? _tickShape.getPreferredSize(_sliderThemeData).width / 2
+        : _tickShape.getPreferredSize(_sliderThemeData).height / 2;
 
     // ignore: avoid_as
     double textValue = isDateTime ? 0.0 : _min.toDouble() as double;
@@ -1095,32 +1114,31 @@ class RenderBaseSlider extends RenderProxyBox
 
         // Drawing label.
         if (_showLabels) {
-          final double dx = sliderType == SliderType.vertical
-              ? trackRect.bottom
-              : trackRect.left;
+          final double dx = sliderType == SliderType.horizontal
+              ? trackRect.left
+              : trackRect.bottom;
 
-          final bool isRTL = _textDirection == TextDirection.rtl;
-          double offsetX = sliderType == SliderType.vertical
-              ? dx - tickPosition
-              : dx + tickPosition;
+          double offsetX = sliderType == SliderType.horizontal
+              ? dx + tickPosition
+              : dx - tickPosition;
 
           if (_labelPlacement == LabelPlacement.betweenTicks) {
-            if (sliderType == SliderType.vertical) {
+            if (sliderType == SliderType.horizontal) {
+              offsetX += ((dateTimePos + 1 <= divisions!
+                          ? _majorTickPositions[dateTimePos + 1]
+                          : (_isInversed ? trackRect.left : trackRect.width)) -
+                      tickPosition) /
+                  2;
+              if (_isInversed
+                  ? offsetX <= trackRect.left
+                  : offsetX - dx >= trackRect.width) {
+                break;
+              }
+            } else {
               if (dateTimePos + 1 <= divisions!) {
                 offsetX -=
                     ((_majorTickPositions[dateTimePos + 1]) - tickPosition) / 2;
               } else {
-                break;
-              }
-            } else {
-              offsetX += ((dateTimePos + 1 <= divisions!
-                          ? _majorTickPositions[dateTimePos + 1]
-                          : (isRTL ? trackRect.left : trackRect.width)) -
-                      tickPosition) /
-                  2;
-              if (isRTL
-                  ? offsetX <= trackRect.left
-                  : offsetX - dx >= trackRect.width) {
                 break;
               }
             }
@@ -1171,34 +1189,48 @@ class RenderBaseSlider extends RenderProxyBox
       dynamic value,
       SfRangeValues? values,
       Animation<double> stateAnimation) {
-    Offset actualTickOffset = sliderType == SliderType.vertical
-        ? Offset(dy + trackRect.width, dx - tickPosition) +
-            (_sliderThemeData.tickOffset ?? Offset.zero)
-        : Offset(dx + tickPosition, dy + trackRect.height) +
+    Offset actualTickOffset;
+
+    if (sliderType == SliderType.horizontal) {
+      if (_majorTickPositions[dateTimePos] == 0.0) {
+        actualTickOffset =
+            Offset(dx + tickPosition + tickRadius, dy + trackRect.height) +
+                (_sliderThemeData.tickOffset ?? Offset.zero);
+      }
+      // Due to floating-point operations, last [_majorTickPosition] is greater
+      // than [trackRect.height] or [trackRect.width]. This happens in some
+      // specific layouts alone. To avoid this, we limit it to 8 decimal points.
+      // (e.g. Expected [_majorTickPosition] = 100.0909890118
+      // Current [_majorTickPosition] = 100.0909890121)
+      else if (_majorTickPositions[dateTimePos].toStringAsFixed(8) ==
+          trackRect.width.toStringAsFixed(8)) {
+        actualTickOffset =
+            Offset(dx + tickPosition - tickRadius, dy + trackRect.height) +
+                (_sliderThemeData.tickOffset ?? Offset.zero);
+      } else {
+        actualTickOffset = Offset(dx + tickPosition, dy + trackRect.height) +
             (_sliderThemeData.tickOffset ?? Offset.zero);
-
-    if (_majorTickPositions[dateTimePos] == 0.0) {
-      actualTickOffset = sliderType == SliderType.vertical
-          ? Offset(dy + trackRect.width, dx - tickPosition - tickRadius) +
-              (_sliderThemeData.tickOffset ?? Offset.zero)
-          : Offset(dx + tickPosition + tickRadius, dy + trackRect.height) +
-              (_sliderThemeData.tickOffset ?? Offset.zero);
-    }
-
-    // Due to floating-point operations, last [_majorTickPosition] is greater
-    // than [trackRect.height] or [trackRect.width]. This happens in some
-    // specific layouts alone. To avoid this, we limit it to 8 decimal points.
-    // (e.g. Expected [_majorTickPosition] = 100.0909890118
-    // Current [_majorTickPosition] = 100.0909890121)
-    else if (_majorTickPositions[dateTimePos].toStringAsFixed(8) ==
-        (sliderType == SliderType.vertical
-            ? trackRect.height.toStringAsFixed(8)
-            : trackRect.width.toStringAsFixed(8))) {
-      actualTickOffset = sliderType == SliderType.vertical
-          ? Offset(dy + trackRect.width, dx - tickPosition + tickRadius) +
-              (_sliderThemeData.tickOffset ?? Offset.zero)
-          : Offset(dx + tickPosition - tickRadius, dy + trackRect.height) +
-              (_sliderThemeData.tickOffset ?? Offset.zero);
+      }
+    } else {
+      if (_majorTickPositions[dateTimePos] == 0.0) {
+        actualTickOffset =
+            Offset(dy + trackRect.width, dx - tickPosition - tickRadius) +
+                (_sliderThemeData.tickOffset ?? Offset.zero);
+      }
+      // Due to floating-point operations, last [_majorTickPosition] is greater
+      // than [trackRect.height] or [trackRect.width]. This happens in some
+      // specific layouts alone. To avoid this, we limit it to 8 decimal points.
+      // (e.g. Expected [_majorTickPosition] = 100.0909890118
+      // Current [_majorTickPosition] = 100.0909890121)
+      else if (_majorTickPositions[dateTimePos].toStringAsFixed(8) ==
+          trackRect.height.toStringAsFixed(8)) {
+        actualTickOffset =
+            Offset(dy + trackRect.width, dx - tickPosition + tickRadius) +
+                (_sliderThemeData.tickOffset ?? Offset.zero);
+      } else {
+        actualTickOffset = Offset(dy + trackRect.width, dx - tickPosition) +
+            (_sliderThemeData.tickOffset ?? Offset.zero);
+      }
     }
     _tickShape.paint(context, actualTickOffset, thumbCenter, startThumbCenter,
         endThumbCenter,
@@ -1223,14 +1255,14 @@ class RenderBaseSlider extends RenderProxyBox
       SfRangeValues? values,
       Animation<double> stateAnimation) {
     if (currentMinorTickPosition <
-            (sliderType == SliderType.vertical
-                ? trackRect.height
-                : trackRect.width) &&
+            (sliderType == SliderType.horizontal
+                ? trackRect.width
+                : trackRect.height) &&
         currentMinorTickPosition > 0) {
-      final Offset actualTickOffset = sliderType == SliderType.vertical
-          ? Offset(dy + trackRect.width, dx - currentMinorTickPosition) +
+      final Offset actualTickOffset = sliderType == SliderType.horizontal
+          ? Offset(dx + currentMinorTickPosition, dy + trackRect.height) +
               (_sliderThemeData.tickOffset ?? Offset.zero)
-          : Offset(dx + currentMinorTickPosition, dy + trackRect.height) +
+          : Offset(dy + trackRect.width, dx - currentMinorTickPosition) +
               (_sliderThemeData.tickOffset ?? Offset.zero);
       _minorTickShape.paint(context, actualTickOffset, thumbCenter,
           startThumbCenter, endThumbCenter,
@@ -1258,28 +1290,44 @@ class RenderBaseSlider extends RenderProxyBox
       dynamic value,
       SfRangeValues? values,
       Animation<double> stateAnimation) {
-    Offset dividerCenter = sliderType == SliderType.vertical
-        ? Offset(dy + halfTrackHeight, dx - tickPosition)
-        : Offset(dx + tickPosition, dy + halfTrackHeight);
-    if (_majorTickPositions[_dateTimePos] == 0.0) {
-      dividerCenter = sliderType == SliderType.vertical
-          ? Offset(dy + halfTrackHeight, dx - tickPosition - dividerRadius)
-          : Offset(dx + tickPosition + dividerRadius, dy + halfTrackHeight);
+    Offset dividerCenter;
+
+    if (sliderType == SliderType.horizontal) {
+      if (_majorTickPositions[_dateTimePos] == 0.0) {
+        dividerCenter =
+            Offset(dx + tickPosition + dividerRadius, dy + halfTrackHeight);
+      }
+      // Due to floating-point operations, last [_majorTickPosition] is greater
+      // than [trackRect.height] or [trackRect.width]. This happens in some
+      // specific layouts alone. To avoid this, we limit it to 8 decimal points.
+      // (e.g. Expected [_majorTickPosition] = 100.0909890118
+      // Current [_majorTickPosition] = 100.0909890121)
+      else if (_majorTickPositions[_dateTimePos].toStringAsFixed(8) ==
+          trackRect.width.toStringAsFixed(8)) {
+        dividerCenter =
+            Offset(dx + tickPosition - dividerRadius, dy + halfTrackHeight);
+      } else {
+        dividerCenter = Offset(dx + tickPosition, dy + halfTrackHeight);
+      }
+    } else {
+      if (_majorTickPositions[_dateTimePos] == 0.0) {
+        dividerCenter =
+            Offset(dy + halfTrackHeight, dx - tickPosition - dividerRadius);
+      }
+      // Due to floating-point operations, last [_majorTickPosition] is greater
+      // than [trackRect.height] or [trackRect.width]. This happens in some
+      // specific layouts alone. To avoid this, we limit it to 8 decimal points.
+      // (e.g. Expected [_majorTickPosition] = 100.0909890118
+      // Current [_majorTickPosition] = 100.0909890121)
+      else if (_majorTickPositions[_dateTimePos].toStringAsFixed(8) ==
+          trackRect.height.toStringAsFixed(8)) {
+        dividerCenter =
+            Offset(dy + halfTrackHeight, dx - tickPosition + dividerRadius);
+      } else {
+        dividerCenter = Offset(dy + halfTrackHeight, dx - tickPosition);
+      }
     }
 
-    // Due to floating-point operations, last [_majorTickPosition] is greater
-    // than [trackRect.height] or [trackRect.width]. This happens in some
-    // specific layouts alone. To avoid this, we limit it to 8 decimal points.
-    // (e.g. Expected [_majorTickPosition] = 100.0909890118
-    // Current [_majorTickPosition] = 100.0909890121)
-    else if (_majorTickPositions[_dateTimePos].toStringAsFixed(8) ==
-        (sliderType == SliderType.vertical
-            ? trackRect.height.toStringAsFixed(8)
-            : trackRect.width.toStringAsFixed(8))) {
-      dividerCenter = sliderType == SliderType.vertical
-          ? Offset(dy + halfTrackHeight, dx - tickPosition + dividerRadius)
-          : Offset(dx + tickPosition - dividerRadius, dy + halfTrackHeight);
-    }
     _dividerShape.paint(
         context, dividerCenter, thumbCenter, startThumbCenter, endThumbCenter,
         parentBox: this,
@@ -1306,12 +1354,12 @@ class RenderBaseSlider extends RenderProxyBox
       Animation<double> stateAnimation,
       double offsetX) {
     final double dy =
-        sliderType == SliderType.vertical ? trackRect.left : trackRect.top;
+        sliderType == SliderType.horizontal ? trackRect.top : trackRect.left;
     final String labelText = _visibleLabels[_dateTimePos];
-    final Offset actualLabelOffset = sliderType == SliderType.vertical
-        ? Offset(dy + trackRect.width + actualTickWidth, offsetX) +
+    final Offset actualLabelOffset = sliderType == SliderType.horizontal
+        ? Offset(offsetX, dy + trackRect.height + actualTickHeight) +
             (_sliderThemeData.labelOffset ?? Offset.zero)
-        : Offset(offsetX, dy + trackRect.height + actualTickHeight) +
+        : Offset(dy + trackRect.width + actualTickWidth, offsetX) +
             (_sliderThemeData.labelOffset ?? Offset.zero);
 
     _drawText(context, actualLabelOffset, thumbCenter, startThumbCenter,
@@ -1335,31 +1383,42 @@ class RenderBaseSlider extends RenderProxyBox
       required TextPainter textPainter,
       required TextDirection textDirection}) {
     bool isInactive;
-    switch (textDirection) {
-      case TextDirection.ltr:
-        // Added this condition to check whether consider single thumb or
-        // two thumbs for finding inactive range.
-        isInactive = startThumbCenter != null
-            ? (sliderType == SliderType.vertical
-                ? center.dy > startThumbCenter.dy ||
-                    center.dy < endThumbCenter!.dy
-                : center.dx < startThumbCenter.dx ||
-                    center.dx > endThumbCenter!.dx)
-            : (sliderType == SliderType.vertical
-                ? center.dy < thumbCenter!.dy
-                : center.dx > thumbCenter!.dx);
-        break;
-      case TextDirection.rtl:
-        isInactive = startThumbCenter != null
-            ? (sliderType == SliderType.vertical
-                ? center.dy > startThumbCenter.dy ||
-                    center.dy < endThumbCenter!.dy
-                : center.dx > startThumbCenter.dx ||
-                    center.dx < endThumbCenter!.dx)
-            : (sliderType == SliderType.vertical
-                ? center.dy < thumbCenter!.dy
-                : center.dx < thumbCenter!.dx);
-        break;
+    if (sliderType == SliderType.horizontal) {
+      // Added this condition to check whether consider single thumb or
+      // two thumbs for finding inactive range.
+      if (startThumbCenter != null) {
+        if (!_isInversed) {
+          isInactive =
+              center.dx < startThumbCenter.dx || center.dx > endThumbCenter!.dx;
+        } else {
+          isInactive =
+              center.dx > startThumbCenter.dx || center.dx < endThumbCenter!.dx;
+        }
+      } else {
+        if (!_isInversed) {
+          isInactive = center.dx > thumbCenter!.dx;
+        } else {
+          isInactive = center.dx < thumbCenter!.dx;
+        }
+      }
+    } else {
+      // Added this condition to check whether consider single thumb or
+      // two thumbs for finding inactive range.
+      if (startThumbCenter != null) {
+        if (!_isInversed) {
+          isInactive =
+              center.dy > startThumbCenter.dy || center.dy < endThumbCenter!.dy;
+        } else {
+          isInactive =
+              center.dy < startThumbCenter.dy || center.dy > endThumbCenter!.dy;
+        }
+      } else {
+        if (!_isInversed) {
+          isInactive = center.dy < thumbCenter!.dy;
+        } else {
+          isInactive = center.dy > thumbCenter!.dy;
+        }
+      }
     }
 
     final TextSpan textSpan = TextSpan(
@@ -1370,12 +1429,12 @@ class RenderBaseSlider extends RenderProxyBox
     );
     textPainter.text = textSpan;
     textPainter.layout();
-    if (sliderType == SliderType.vertical) {
-      textPainter.paint(context.canvas,
-          Offset(center.dx, center.dy - textPainter.height / 2));
-    } else {
+    if (sliderType == SliderType.horizontal) {
       textPainter.paint(
           context.canvas, Offset(center.dx - textPainter.width / 2, center.dy));
+    } else {
+      textPainter.paint(context.canvas,
+          Offset(center.dx, center.dy - textPainter.height / 2));
     }
   }
 
@@ -1435,7 +1494,7 @@ class RenderBaseSlider extends RenderProxyBox
       return (value as DateTime).millisecondsSinceEpoch.toDouble();
     }
     // ignore: avoid_as
-    return value as double;
+    return value.toDouble() as double;
   }
 
   // This method is only applicable for vertical sliders
@@ -1501,33 +1560,44 @@ class RenderBaseSlider extends RenderProxyBox
   }
 
   @override
+  void setupParentData(RenderObject child) {
+    if (child.parentData is! BoxParentData) {
+      child.parentData = BoxParentData();
+    }
+  }
+
+  @override
   void performLayout() {
     // Here, the required width for the rendering of the
     // vertical sliders is also considered as actualHeight.
-    actualHeight = math.max(
-        2 * trackOffset.dy,
-        trackOffset.dy +
-            maxTrackHeight / 2 +
-            (sliderType == SliderType.vertical
-                ? math.max(actualTickWidth, actualMinorTickWidth) +
-                    _maximumLabelWidth() +
-                    actualLabelOffset
-                : math.max(actualTickHeight, actualMinorTickHeight) +
-                    actualLabelHeight));
+    if (sliderType == SliderType.horizontal) {
+      actualHeight = math.max(
+          2 * trackOffset.dy,
+          trackOffset.dy +
+              maxTrackHeight / 2 +
+              math.max(actualTickHeight, actualMinorTickHeight) +
+              actualLabelHeight);
 
-    size = sliderType == SliderType.vertical
-        ? Size(
-            constraints.hasBoundedWidth ? constraints.maxWidth : actualHeight,
-            constraints.hasBoundedHeight
-                ? constraints.maxHeight
-                : minTrackWidth + 2 * trackOffset.dx)
-        : Size(
-            constraints.hasBoundedWidth
-                ? constraints.maxWidth
-                : minTrackWidth + 2 * trackOffset.dx,
-            constraints.hasBoundedHeight
-                ? constraints.maxHeight
-                : actualHeight);
+      size = Size(
+          constraints.hasBoundedWidth
+              ? constraints.maxWidth
+              : minTrackWidth + 2 * trackOffset.dx,
+          constraints.hasBoundedHeight ? constraints.maxHeight : actualHeight);
+    } else {
+      actualHeight = math.max(
+          2 * trackOffset.dx,
+          trackOffset.dx +
+              maxTrackHeight / 2 +
+              math.max(actualTickWidth, actualMinorTickWidth) +
+              _maximumLabelWidth() +
+              actualLabelOffset);
+      size = Size(
+          constraints.hasBoundedWidth ? constraints.maxWidth : actualHeight,
+          constraints.hasBoundedHeight
+              ? constraints.maxHeight
+              : minTrackWidth + 2 * trackOffset.dy);
+    }
+
     generateLabelsAndMajorTicks();
     generateMinorTicks();
   }
@@ -1536,10 +1606,10 @@ class RenderBaseSlider extends RenderProxyBox
   void handleEvent(PointerEvent event, HitTestEntry entry) {
     // Checked [_isInteractionEnd] for avoiding multi touch.
     if (isInteractionEnd && event.down && event is PointerDownEvent) {
-      if (sliderType == SliderType.vertical) {
-        verticalDragGestureRecognizer!.addPointer(event);
-      } else {
+      if (sliderType == SliderType.horizontal) {
         horizontalDragGestureRecognizer!.addPointer(event);
+      } else {
+        verticalDragGestureRecognizer!.addPointer(event);
       }
       tapGestureRecognizer.addPointer(event);
     }

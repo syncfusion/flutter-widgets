@@ -1,27 +1,87 @@
-part of charts;
+import 'dart:math';
 
-class _ChartLegend {
-  _ChartLegend(this._chartState);
-  dynamic get chart => _chartState._chart;
-  final dynamic _chartState;
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
+import 'package:syncfusion_flutter_charts/src/circular_chart/renderer/chart_point.dart';
+import 'package:syncfusion_flutter_charts/src/circular_chart/renderer/circular_series.dart';
+import 'package:syncfusion_flutter_charts/src/circular_chart/renderer/renderer_extension.dart';
+import 'package:syncfusion_flutter_charts/src/common/utils/typedef.dart';
+import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_core/legend_internal.dart'
+    hide LegendPosition;
+
+import '../../chart/base/chart_base.dart';
+import '../../chart/chart_series/series.dart';
+import '../../chart/common/cartesian_state_properties.dart';
+import '../../chart/technical_indicators/technical_indicator.dart';
+import '../../chart/trendlines/trendlines.dart';
+import '../../chart/utils/helper.dart';
+import '../common.dart';
+import '../event_args.dart';
+import '../rendering_details.dart';
+import '../state_properties.dart';
+import '../utils/enum.dart';
+import 'renderer.dart';
+
+/// Represents the chart legend class.
+class ChartLegend {
+  /// Creates an instance of chart legend.
+  ChartLegend(this.stateProperties);
+
+  /// Specifies the value of state properties.
+  final StateProperties stateProperties;
+
+  /// Holds the chart.
+  dynamic get chart => stateProperties.chart;
+
+  /// Specifies the value of legend.
   Legend? legend;
-  List<_LegendRenderContext>? legendCollections;
+
+  /// Specifies the list of legend renderer context.
+  List<LegendRenderContext>? legendCollections;
+
+  /// Specifies the list of legend items for SfLegend widget.
+  late List<LegendItem> legendItems;
+
+  /// Specifies the value of row count.
   late int rowCount;
+
+  /// Specifies the value of column count.
   late int columnCount;
-  Size legendSize = const Size(0, 0);
-  Size chartSize = const Size(0, 0);
+
+  /// Specifies the legend size value.
+  Size legendSize = Size.zero;
+
+  /// Specifies the value of chart size.
+  Size chartSize = Size.zero;
+
+  /// Specifies whether to render the legend.
   bool shouldRenderLegend = false;
-  late ValueNotifier<int> legendRepaintNotifier;
+
+  /// Specifies whether the legend is scrollable.
   late bool isNeedScrollable;
 
-  /// To calculate legend bounds
-  void _calculateLegendBounds(Size size) {
+  /// Specifies the legend's title height value.
+  double titleHeight = 0.0;
+
+  /// Specifies the list of toggled legend indices for SfLegend.
+  List<int> toggledIndices = <int>[];
+
+  /// Specifies the sum of points for circular chart types.
+  num sumOfPoints = 0;
+
+  /// Specifies the toggled item color for Sflegend.
+  Color toggledItemColor = const Color.fromRGBO(211, 211, 211, 1);
+
+  /// To calculate legend bounds.
+  void calculateLegendBounds(Size size) {
     legend = chart.legend;
     final LegendRenderer legendRenderer =
-        _chartState._renderingDetails.legendRenderer;
-    final List<_MeasureWidgetContext> legendWidgetContext =
-        _chartState._renderingDetails.legendWidgetContext;
-    final _ChartLegend chartLegend = _chartState._renderingDetails.chartLegend;
+        stateProperties.renderingDetails.legendRenderer;
+    final List<MeasureWidgetContext> legendWidgetContext =
+        stateProperties.renderingDetails.legendWidgetContext;
+    final ChartLegend chartLegend =
+        stateProperties.renderingDetails.chartLegend;
     shouldRenderLegend = false;
     assert(
         !(legend != null && legend!.width != null) ||
@@ -34,7 +94,8 @@ class _ChartLegend {
                 !legend!.height!.contains(RegExp(r'[A-Z]')),
         'Legend height must be number or percentage value, it should not contain any alphabets in the string.');
     if (legend != null && legend!.isVisible!) {
-      legendCollections = <_LegendRenderContext>[];
+      legendCollections = <LegendRenderContext>[];
+      legendItems = <LegendItem>[];
       _calculateSeriesLegends();
       // ignore: unnecessary_null_comparison
       assert(!(legend!.itemPadding != null) || legend!.itemPadding >= 0,
@@ -57,9 +118,9 @@ class _ChartLegend {
         final num padding = legend!.itemPadding;
         chartLegend.isNeedScrollable = false;
         final bool isBottomOrTop =
-            legendRenderer._legendPosition == LegendPosition.bottom ||
-                legendRenderer._legendPosition == LegendPosition.top;
-        legendRenderer._orientation =
+            legendRenderer.legendPosition == LegendPosition.bottom ||
+                legendRenderer.legendPosition == LegendPosition.top;
+        legendRenderer.orientation =
             (legend!.orientation == LegendItemOrientation.auto)
                 ? (isBottomOrTop
                     ? LegendItemOrientation.horizontal
@@ -67,16 +128,16 @@ class _ChartLegend {
                 : legend!.orientation;
 
         maxRenderHeight = legend!.height != null
-            ? _percentageToValue(legend!.height, size.height)
+            ? percentageToValue(legend!.height, size.height)
             : isBottomOrTop
-                ? _percentageToValue('30%', size.height)
+                ? percentageToValue('30%', size.height)
                 : size.height;
 
         maxRenderWidth = legend!.width != null
-            ? _percentageToValue(legend!.width, size.width)
+            ? percentageToValue(legend!.width, size.width)
             : isBottomOrTop
                 ? size.width
-                : _percentageToValue('30%', size.width);
+                : percentageToValue('30%', size.width);
         // To reduce the container width based on offset.
         if (chartLegend.legend!.offset != null &&
             (chartLegend.legend!.offset?.dx.isNegative == false)) {
@@ -93,8 +154,8 @@ class _ChartLegend {
         final bool isTemplate = legend!.legendItemBuilder != null;
         final int length =
             isTemplate ? legendWidgetContext.length : legendCollections!.length;
-        late _MeasureWidgetContext legendContext;
-        late _LegendRenderContext legendRenderContext;
+        late MeasureWidgetContext legendContext;
+        late LegendRenderContext legendRenderContext;
         String legendText;
         Size textSize;
         // ignore: unnecessary_null_comparison
@@ -138,7 +199,7 @@ class _ChartLegend {
           }
           shouldRenderLegend = true;
           bool needRender = false;
-          if (legendRenderer._orientation == LegendItemOrientation.horizontal) {
+          if (legendRenderer.orientation == LegendItemOrientation.horizontal) {
             if (legend!.overflowMode == LegendItemOverflowMode.wrap) {
               if ((legendWidth + currentWidth) > maxRenderWidth!) {
                 legendWidth = currentWidth;
@@ -204,28 +265,35 @@ class _ChartLegend {
     }
   }
 
-  /// To calculate legends in chart
-  void _calculateLegends(
-      SfCartesianChart chart, int index, CartesianSeriesRenderer seriesRenderer,
+  /// To calculate legends in chart.
+  void _calculateLegends(SfCartesianChart chart, int index,
+      SeriesRendererDetails seriesRendererDetails,
       [Trendline? trendline, int? trendlineIndex]) {
     LegendRenderArgs? legendEventArgs;
     bool isTrendlineadded = false;
     TrendlineRenderer? trendlineRenderer;
-    final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
-    final _RenderingDetails _renderingDetails = _chartState._renderingDetails;
+    final CartesianSeries<dynamic, dynamic> series =
+        seriesRendererDetails.series;
+    final CartesianStateProperties stateProperties =
+        this.stateProperties as CartesianStateProperties;
+    final RenderingDetails _renderingDetails = stateProperties.renderingDetails;
+    final List<Color> palette = stateProperties.chart.palette;
     if (trendline != null) {
       isTrendlineadded = true;
-      trendlineRenderer = seriesRenderer._trendlineRenderer[trendlineIndex!];
+      trendlineRenderer =
+          seriesRendererDetails.trendlineRenderer[trendlineIndex!];
     }
-    seriesRenderer._seriesName = seriesRenderer._seriesName ?? 'series $index';
+    seriesRendererDetails.seriesName =
+        seriesRendererDetails.seriesName ?? 'series $index';
     if (series.isVisibleInLegend &&
-        (seriesRenderer._seriesName != null || series.legendItemText != null)) {
+        (seriesRendererDetails.seriesName != null ||
+            series.legendItemText != null)) {
       if (chart.onLegendItemRender != null) {
         legendEventArgs = LegendRenderArgs(index);
         legendEventArgs.text = series.legendItemText ??
             (isTrendlineadded
-                ? trendlineRenderer!._name!
-                : seriesRenderer._seriesName!);
+                ? trendlineRenderer!.name!
+                : seriesRendererDetails.seriesName!);
         legendEventArgs.legendIconType = isTrendlineadded
             ? trendline!.legendIconType
             : series.legendIconType;
@@ -233,19 +301,19 @@ class _ChartLegend {
             isTrendlineadded ? trendline!.color : series.color;
         chart.onLegendItemRender!(legendEventArgs);
       }
-      final _LegendRenderContext legendRenderContext = _LegendRenderContext(
-          seriesRenderer: seriesRenderer,
+      final LegendRenderContext legendRenderContext = LegendRenderContext(
+          seriesRenderer: seriesRendererDetails,
           trendline: trendline,
           seriesIndex: index,
           trendlineIndex: isTrendlineadded ? trendlineIndex : null,
-          isSelect: _chartState._isTrendlineToggled == true
-              ? (!isTrendlineadded || !trendlineRenderer!._visible)
+          isSelect: stateProperties.isTrendlineToggled == true
+              ? (!isTrendlineadded || !trendlineRenderer!.visible)
               : !series.isVisible,
           text: legendEventArgs?.text ??
               series.legendItemText ??
               (isTrendlineadded
-                  ? trendlineRenderer!._name!
-                  : seriesRenderer._seriesName!),
+                  ? trendlineRenderer!.name!
+                  : seriesRendererDetails.seriesName!),
           iconColor: legendEventArgs?.color ??
               (isTrendlineadded ? trendline!.color : series.color),
           isTrendline: isTrendlineadded,
@@ -254,72 +322,136 @@ class _ChartLegend {
                   ? trendline!.legendIconType
                   : series.legendIconType));
       legendCollections!.add(legendRenderContext);
-      if (!seriesRenderer._visible! &&
+      final Shader? cartesianShader =
+          _getCartesianSeriesGradientShader(legendRenderContext, chart.legend);
+      final LegendItem legendItem = LegendItem(
+          text: legendRenderContext.text,
+          color: cartesianShader == null
+              ? (legendRenderContext.iconColor ?? palette[legendRenderContext.seriesIndex % palette.length])
+                  .withOpacity(legend!.opacity)
+              : const Color.fromRGBO(211, 211, 211, 1),
+          shader: cartesianShader,
+          imageProvider: legendRenderContext.iconType == LegendIconType.image &&
+                  chart.legend.image != null
+              ? chart.legend.image
+              : (seriesRendererDetails.seriesType == 'scatter' &&
+                      seriesRendererDetails.series.markerSettings.shape ==
+                          DataMarkerType.image)
+                  ? seriesRendererDetails.series.markerSettings.image
+                  : null,
+          iconType: legendRenderContext.iconType == LegendIconType.seriesType
+              ? _getEffectiveLegendIconType(
+                  legendRenderContext.iconType,
+                  legendRenderContext,
+                  legendRenderContext.seriesRenderer.seriesType)
+              : _getEffectiveLegendIconType(legendRenderContext.iconType),
+          iconStrokeWidth:
+              legendRenderContext.iconType == LegendIconType.seriesType
+                  ? (legendRenderContext.seriesRenderer.seriesType == 'line' ||
+                          legendRenderContext.seriesRenderer.seriesType ==
+                              'fastline' ||
+                          legendRenderContext.seriesRenderer.seriesType.contains('stackedline') ==
+                              true)
+                      ? (chart.legend.iconBorderWidth > 0
+                          ? chart.legend.iconBorderWidth
+                          : 3)
+                      : ((legendRenderContext.seriesRenderer.seriesType == 'candle' ||
+                              legendRenderContext.seriesRenderer.seriesType ==
+                                  'boxandWhisker' ||
+                              legendRenderContext.seriesRenderer.seriesType.contains('hilo') ==
+                                  true)
+                          ? (chart.legend.iconBorderWidth > 0
+                              ? chart.legend.iconBorderWidth
+                              : 2)
+                          : (legendRenderContext.seriesRenderer.seriesType == 'spline' ||
+                                  legendRenderContext.seriesRenderer.seriesType ==
+                                      'stepline')
+                              ? (chart.legend.iconBorderWidth > 0
+                                  ? chart.legend.iconBorderWidth
+                                  : 1)
+                              : null)
+                  : ((legendRenderContext.iconType == LegendIconType.horizontalLine ||
+                          legendRenderContext.iconType == LegendIconType.verticalLine)
+                      ? (chart.legend.iconBorderWidth > 0 ? chart.legend.iconBorderWidth : 2)
+                      : null),
+          overlayMarkerType: _getOverlayMarkerType(legendRenderContext));
+      legendItems.add(legendItem);
+      if (seriesRendererDetails.visible! == false &&
           series.isVisibleInLegend &&
           (_renderingDetails.widgetNeedUpdate ||
               _renderingDetails.initialRender!) &&
-          (seriesRenderer._oldSeries == null ||
-              (!series.isVisible && seriesRenderer._oldSeries!.isVisible))) {
+          (seriesRendererDetails.oldSeries == null ||
+              (!series.isVisible &&
+                  seriesRendererDetails.oldSeries!.isVisible == true))) {
         legendRenderContext.isSelect = true;
-        if (_chartState._renderingDetails.legendToggleStates
+        if (stateProperties.renderingDetails.legendToggleStates
                 .contains(legendRenderContext) ==
             false) {
-          _chartState._renderingDetails.legendToggleStates
+          stateProperties.renderingDetails.legendToggleStates
               .add(legendRenderContext);
         }
       } else if (_renderingDetails.widgetNeedUpdate &&
-          (seriesRenderer._oldSeries != null &&
+          (seriesRendererDetails.oldSeries != null &&
               (series.isVisible &&
-                  _chartState._legendToggling == false &&
-                  seriesRenderer._visible!))) {
+                  stateProperties.legendToggling == false &&
+                  seriesRendererDetails.visible! == true))) {
         final List<CartesianSeriesRenderer> visibleSeriesRenderers =
-            _chartState._chartSeries.visibleSeriesRenderers;
+            stateProperties.chartSeries.visibleSeriesRenderers;
         final String legendItemText =
-            visibleSeriesRenderers[index]._series.legendItemText ??
+            SeriesHelper.getSeriesRendererDetails(visibleSeriesRenderers[index])
+                    .series
+                    .legendItemText ??
                 series.name ??
                 'Series $index';
-        final int seriesIndex = visibleSeriesRenderers.indexOf(seriesRenderer);
-        final List<_LegendRenderContext> legendToggle = <_LegendRenderContext>[]
+        final int seriesIndex =
+            visibleSeriesRenderers.indexOf(seriesRendererDetails.renderer);
+        final List<LegendRenderContext> legendToggle = <LegendRenderContext>[]
           //ignore: prefer_spread_collections
-          ..addAll(_chartState._renderingDetails.legendToggleStates);
-        for (final _LegendRenderContext legendContext
-            in _chartState._renderingDetails.legendToggleStates) {
+          ..addAll(stateProperties.renderingDetails.legendToggleStates);
+        for (final LegendRenderContext legendContext
+            in stateProperties.renderingDetails.legendToggleStates) {
           if (seriesIndex == legendContext.seriesIndex &&
               legendContext.text == legendItemText) {
             legendToggle.remove(legendContext);
           }
         }
-        _chartState._renderingDetails.legendToggleStates = legendToggle;
+        stateProperties.renderingDetails.legendToggleStates = legendToggle;
       }
     }
   }
 
-  /// To calculate series legends
+  /// To calculate series legends.
   void _calculateSeriesLegends() {
     LegendRenderArgs? legendEventArgs;
     if (chart.legend.legendItemBuilder == null) {
       if (chart is SfCartesianChart) {
+        final CartesianStateProperties stateProperties =
+            this.stateProperties as CartesianStateProperties;
         for (int i = 0;
-            i < _chartState._chartSeries.visibleSeriesRenderers.length;
+            i < stateProperties.chartSeries.visibleSeriesRenderers.length;
             i++) {
-          final CartesianSeriesRenderer seriesRenderer =
-              _chartState._chartSeries.visibleSeriesRenderers[i];
-          if (!seriesRenderer._isIndicator) {
-            _calculateLegends(chart, i, seriesRenderer);
+          final SeriesRendererDetails seriesRendererDetails =
+              SeriesHelper.getSeriesRendererDetails(
+                  stateProperties.chartSeries.visibleSeriesRenderers[i]);
+          if (seriesRendererDetails.isIndicator == false) {
+            _calculateLegends(chart, i, seriesRendererDetails);
           }
-          if (seriesRenderer is CartesianSeriesRenderer) {
-            final CartesianSeriesRenderer xYSeriesRenderer = seriesRenderer;
+          // ignore: unnecessary_type_check
+          if (seriesRendererDetails.renderer is CartesianSeriesRenderer) {
+            final SeriesRendererDetails xYseriesRendererDetails =
+                seriesRendererDetails;
             // ignore: unnecessary_null_comparison
-            if (xYSeriesRenderer._series != null &&
-                xYSeriesRenderer._series.trendlines != null) {
+            if (xYseriesRendererDetails.series != null &&
+                xYseriesRendererDetails.series.trendlines != null) {
               for (int j = 0;
-                  j < xYSeriesRenderer._series.trendlines!.length;
+                  j < xYseriesRendererDetails.series.trendlines!.length;
                   j++) {
                 final Trendline trendline =
-                    xYSeriesRenderer._series.trendlines![j];
+                    xYseriesRendererDetails.series.trendlines![j];
                 if (trendline.isVisibleInLegend) {
-                  _chartState._renderingDetails.chartLegend._calculateLegends(
-                      chart, i, xYSeriesRenderer, trendline, j);
+                  stateProperties.renderingDetails.chartLegend
+                      ._calculateLegends(
+                          chart, i, xYseriesRendererDetails, trendline, j);
                 }
               }
             }
@@ -328,46 +460,107 @@ class _ChartLegend {
         if (chart.indicators.isNotEmpty == true) {
           _calculateIndicatorLegends();
         }
-      } else if (_chartState._chartSeries.visibleSeriesRenderers.isNotEmpty ==
-          true) {
-        final dynamic seriesRenderer =
-            _chartState._chartSeries.visibleSeriesRenderers[0];
-        for (int j = 0; j < seriesRenderer._renderPoints.length; j++) {
-          final dynamic chartPoint = seriesRenderer._renderPoints[j];
-          if (chart.onLegendItemRender != null) {
-            legendEventArgs = LegendRenderArgs(0, j);
-            legendEventArgs.text = chartPoint.x;
-            legendEventArgs.legendIconType =
-                seriesRenderer._series.legendIconType;
-            legendEventArgs.color = chartPoint.fill;
-            chart.onLegendItemRender(legendEventArgs);
+      } else {
+        final dynamic stateProperties = this.stateProperties;
+        if (stateProperties.chartSeries.visibleSeriesRenderers.isNotEmpty ==
+            true) {
+          final dynamic seriesRenderer =
+              stateProperties.chartSeries.visibleSeriesRenderers[0];
+          for (int j = 0; j < seriesRenderer.renderPoints.length; j++) {
+            final dynamic chartPoint = seriesRenderer.renderPoints[j];
+            if (chart.onLegendItemRender != null) {
+              legendEventArgs = LegendRenderArgs(0, j);
+              legendEventArgs.text = chartPoint.x;
+              legendEventArgs.legendIconType =
+                  seriesRenderer.series.legendIconType;
+              legendEventArgs.color = chartPoint.fill;
+              chart.onLegendItemRender(legendEventArgs);
+            }
+
+            final LegendRenderContext legendRenderContext = LegendRenderContext(
+                seriesRenderer: seriesRenderer,
+                seriesIndex: j,
+                isSelect: false,
+                point: chartPoint,
+                text: legendEventArgs?.text ?? chartPoint.x,
+                iconColor: legendEventArgs?.color ?? chartPoint.fill,
+                iconType: legendEventArgs?.legendIconType ??
+                    seriesRenderer.series.legendIconType);
+            legendCollections!.add(legendRenderContext);
+
+            double? degree;
+            double? pointStartAngle;
+            double? totalAngle;
+            double? pointEndAngle;
+            final bool isRadialBarSeries = legendRenderContext.iconType ==
+                    LegendIconType.seriesType &&
+                legendRenderContext.seriesRenderer.seriesType == 'radialbar';
+            if (isRadialBarSeries) {
+              pointStartAngle = -90;
+              totalAngle = 360;
+              _getSumOfPoints(seriesRenderer);
+              degree =
+                  legendRenderContext.seriesRenderer.renderPoints[j].y.abs() /
+                      (legendRenderContext.series.maximumValue ?? sumOfPoints);
+              degree = (degree! > 1 ? 1 : degree) * (totalAngle - 0.001);
+              pointEndAngle = pointStartAngle + degree;
+            }
+
+            final Shader? circularShader =
+                _getCircularSeriesShader(legendRenderContext, chart.legend);
+            final LegendItem legendItem = LegendItem(
+                text: legendRenderContext.text,
+                shader: circularShader,
+                color: circularShader == null
+                    ? (legendRenderContext.iconColor)!
+                        .withOpacity(legend!.opacity)
+                    : const Color.fromRGBO(211, 211, 211, 1),
+                imageProvider:
+                    legendRenderContext.iconType == LegendIconType.image &&
+                            chart.legend.image != null
+                        ? chart.legend.image
+                        : null,
+                iconType: legendRenderContext.iconType == LegendIconType.seriesType
+                    ? _getEffectiveLegendIconType(
+                        legendRenderContext.iconType,
+                        legendRenderContext,
+                        legendRenderContext.seriesRenderer.seriesType)
+                    : _getEffectiveLegendIconType(
+                        legendRenderContext.iconType, legendRenderContext),
+                iconStrokeWidth: ((legendRenderContext.iconType ==
+                                LegendIconType.seriesType &&
+                            (legendRenderContext.seriesRenderer.seriesType == 'radialbar' ||
+                                legendRenderContext.seriesRenderer.seriesType ==
+                                    'doughnut')) ||
+                        legendRenderContext.iconType == LegendIconType.horizontalLine ||
+                        legendRenderContext.iconType == LegendIconType.verticalLine)
+                    ? (chart.legend.iconBorderWidth > 0 == true ? chart.legend.iconBorderWidth : 1)
+                    : null,
+                degree: degree,
+                startAngle: pointStartAngle,
+                endAngle: pointEndAngle);
+            legendItems.add(legendItem);
           }
-          legendCollections!.add(_LegendRenderContext(
-              seriesRenderer: seriesRenderer,
-              seriesIndex: j,
-              isSelect: false,
-              point: chartPoint,
-              text: legendEventArgs?.text ?? chartPoint.x,
-              iconColor: legendEventArgs?.color ?? chartPoint.fill,
-              iconType: legendEventArgs?.legendIconType ??
-                  seriesRenderer._series.legendIconType));
         }
       }
     }
   }
 
-  /// To calculate indicator legends
+  /// To calculate indicator legends.
   void _calculateIndicatorLegends() {
     LegendRenderArgs? legendEventArgs;
     final List<String> textCollection = <String>[];
     TechnicalIndicatorsRenderer? technicalIndicatorsRenderer;
+    final CartesianStateProperties stateProperties =
+        this.stateProperties as CartesianStateProperties;
     for (int i = 0; i < chart.indicators.length; i++) {
       final TechnicalIndicators<dynamic, dynamic> indicator =
           chart.indicators[i];
-      technicalIndicatorsRenderer = _chartState._technicalIndicatorRenderer[i];
-      _chartState._chartSeries
-          ?._setIndicatorType(indicator, technicalIndicatorsRenderer);
-      textCollection.add(technicalIndicatorsRenderer!._indicatorType);
+      technicalIndicatorsRenderer =
+          stateProperties.technicalIndicatorRenderer[i];
+      stateProperties.chartSeries
+          .setIndicatorType(indicator, technicalIndicatorsRenderer);
+      textCollection.add(technicalIndicatorsRenderer.indicatorType);
     }
     //ignore: prefer_collection_literals
     final Map<String, int> _map = Map<String, int>();
@@ -379,196 +572,345 @@ class _ChartLegend {
     for (int i = 0; i < chart.indicators.length; i++) {
       final TechnicalIndicators<dynamic, dynamic> indicator =
           chart.indicators[i];
-      technicalIndicatorsRenderer = _chartState._technicalIndicatorRenderer[i];
+      technicalIndicatorsRenderer =
+          stateProperties.technicalIndicatorRenderer[i];
       final int count = indicatorTextCollection
-              .contains(technicalIndicatorsRenderer?._indicatorType)
-          ? _chartState._chartSeries?._getIndicatorId(indicatorTextCollection,
-              technicalIndicatorsRenderer?._indicatorType)
+              .contains(technicalIndicatorsRenderer.indicatorType)
+          ? stateProperties.chartSeries.getIndicatorId(indicatorTextCollection,
+              technicalIndicatorsRenderer.indicatorType)
           : 0;
-      indicatorTextCollection.add(technicalIndicatorsRenderer!._indicatorType);
-      technicalIndicatorsRenderer._name = indicator.name ??
-          (technicalIndicatorsRenderer._indicatorType +
-              (_map[technicalIndicatorsRenderer._indicatorType] == 1
+      indicatorTextCollection.add(technicalIndicatorsRenderer.indicatorType);
+      technicalIndicatorsRenderer.name = indicator.name ??
+          (technicalIndicatorsRenderer.indicatorType +
+              (_map[technicalIndicatorsRenderer.indicatorType] == 1
                   ? ''
-                  : ' ' + count.toString()));
+                  : ' $count'));
       if (indicator.isVisible && indicator.isVisibleInLegend) {
         if (chart.onLegendItemRender != null) {
           legendEventArgs = LegendRenderArgs(i);
           legendEventArgs.text =
-              indicator.legendItemText ?? technicalIndicatorsRenderer._name;
+              indicator.legendItemText ?? technicalIndicatorsRenderer.name;
           legendEventArgs.legendIconType = indicator.legendIconType;
           legendEventArgs.color = indicator.signalLineColor;
           chart.onLegendItemRender(legendEventArgs);
         }
-        final _LegendRenderContext legendRenderContext = _LegendRenderContext(
+        final LegendRenderContext legendRenderContext = LegendRenderContext(
             seriesRenderer: indicator,
-            indicatorRenderer: _chartState._technicalIndicatorRenderer[i],
+            indicatorRenderer: stateProperties.technicalIndicatorRenderer[i],
             seriesIndex:
-                _chartState._chartSeries.visibleSeriesRenderers.length + i,
+                stateProperties.chartSeries.visibleSeriesRenderers.length + i,
             isSelect: !indicator.isVisible,
             text: legendEventArgs?.text ??
                 indicator.legendItemText ??
-                technicalIndicatorsRenderer._name,
+                technicalIndicatorsRenderer.name,
+            isTrendline: false,
             iconColor: legendEventArgs?.color ?? indicator.signalLineColor,
             iconType:
                 legendEventArgs?.legendIconType ?? indicator.legendIconType);
         legendCollections!.add(legendRenderContext);
+        final LegendItem legendIndicatorItem = LegendItem(
+            text: legendRenderContext.text,
+            color: legendRenderContext.iconColor!.withOpacity(legend!.opacity),
+            imageProvider: legendRenderContext.iconType == LegendIconType.image &&
+                    chart.legend.image != null
+                ? chart.legend.image
+                : null,
+            iconType: legendRenderContext.series.legendIconType ==
+                    LegendIconType.seriesType
+                ? ShapeMarkerType.horizontalLine
+                : _getEffectiveLegendIconType(
+                    legendRenderContext.iconType, legendRenderContext),
+            iconStrokeWidth: ((legendRenderContext.series
+                            is TechnicalIndicators &&
+                        legendRenderContext.indicatorRenderer!.isIndicator) &&
+                    (legendRenderContext.iconType == LegendIconType.seriesType ||
+                        legendRenderContext.iconType ==
+                            LegendIconType.horizontalLine ||
+                        legendRenderContext.iconType ==
+                            LegendIconType.verticalLine))
+                ? (chart.legend.iconBorderWidth > 0 == true
+                    ? chart.legend.iconBorderWidth
+                    : 2)
+                : null);
+        legendItems.add(legendIndicatorItem);
         if (!indicator.isVisible &&
             indicator.isVisibleInLegend &&
-            _chartState._renderingDetails.initialRender == true) {
+            stateProperties.renderingDetails.initialRender! == true) {
           legendRenderContext.isSelect = true;
-          _chartState._renderingDetails.legendToggleStates
+          stateProperties.renderingDetails.legendToggleStates
               .add(legendRenderContext);
         }
       }
     }
   }
-}
 
-class _LegendContainer extends StatelessWidget {
-  _LegendContainer({this.chartState}) : chart = chartState._chart;
-
-  final dynamic chart;
-  final dynamic chartState;
-
-  @override
-  Widget build(BuildContext context) {
-    final _ChartLegend chartLegend = chartState._renderingDetails.chartLegend;
-    final List<_LegendRenderContext> legendCollections =
-        chartLegend.legendCollections!;
-    final List<Widget> legendWidgets = <Widget>[];
-    final Legend legend = chart.legend;
-    num titleHeight = 0;
-
-    final List<_MeasureWidgetContext> legendWidgetContext =
-        chartState._renderingDetails.legendWidgetContext;
-    chartLegend.legendRepaintNotifier = ValueNotifier<int>(0);
-    if (legend.legendItemBuilder != null) {
-      for (int i = 0; i < legendWidgetContext.length; i++) {
-        final _MeasureWidgetContext legendRenderContext =
-            legendWidgetContext[i];
-        if (!(legend.overflowMode == LegendItemOverflowMode.none) ||
-            legendRenderContext.isRender) {
-          legendWidgets.add(_RenderLegend(
-              index: i,
-              template: legendRenderContext.widget!,
-              size: legendRenderContext.size!,
-              chartState: chartState));
-        }
-      }
-    } else {
-      for (int i = 0; i < legendCollections.length; i++) {
-        final _LegendRenderContext legendRenderContext = legendCollections[i];
-        if (!(legend.overflowMode == LegendItemOverflowMode.none) ||
-            legendRenderContext.isRender) {
-          legendWidgets.add(_RenderLegend(
-              index: i,
-              size: legendRenderContext.size!,
-              chartState: chartState));
-        }
+  /// To find sum of points in radial bar series.
+  void _getSumOfPoints(CircularSeriesRendererExtension seriesRenderer) {
+    num sum = 0;
+    for (final ChartPoint<dynamic> point in seriesRenderer.renderPoints!) {
+      if (point.isVisible) {
+        sum += point.y!.abs();
       }
     }
-
-    final bool needLegendTitle =
-        legend.title.text != null && legend.title.text!.isNotEmpty;
-
-    if (needLegendTitle) {
-      titleHeight =
-          measureText(legend.title.text!, legend.title.textStyle).height + 10;
-    }
-    return _getWidget(legendWidgets, needLegendTitle, titleHeight);
+    sumOfPoints = sum;
   }
 
-  Widget _getWidget(
-      List<Widget> legendWidgets, bool needLegendTitle, num titleHeight) {
-    Widget widget;
-    final Legend legend = chart.legend;
-    final _RenderingDetails renderingDetails = chartState._renderingDetails;
-    final _ChartLegend chartLegend = chartState._renderingDetails.chartLegend;
-    final LegendRenderer legedRenderer =
-        chartState._renderingDetails.legendRenderer;
-    final double legendHeight = chartLegend.legendSize.height;
-    if (chartLegend.isNeedScrollable) {
-      widget = Container(
-          height: needLegendTitle
-              ? (legendHeight - titleHeight).abs()
-              : legendHeight,
-          child: SingleChildScrollView(
-              scrollDirection:
-                  legedRenderer._orientation == LegendItemOrientation.horizontal
-                      ? Axis.vertical
-                      : Axis.horizontal,
-              child: legedRenderer._orientation ==
-                      LegendItemOrientation.horizontal
-                  ? Wrap(direction: Axis.horizontal, children: legendWidgets)
-                  : Wrap(direction: Axis.vertical, children: legendWidgets)));
-    } else if (legend.overflowMode == LegendItemOverflowMode.scroll) {
-      widget = Container(
-          height: needLegendTitle
-              ? (legendHeight - titleHeight).abs()
-              : legendHeight,
-          child: SingleChildScrollView(
-              scrollDirection:
-                  legedRenderer._orientation == LegendItemOrientation.horizontal
-                      ? Axis.horizontal
-                      : Axis.vertical,
-              child:
-                  legedRenderer._orientation == LegendItemOrientation.horizontal
-                      ? Row(children: legendWidgets)
-                      : Column(children: legendWidgets)));
-    } else if (legend.overflowMode == LegendItemOverflowMode.none) {
-      widget = Container(
-          height: needLegendTitle
-              ? (legendHeight - titleHeight).abs()
-              : legendHeight,
-          child: legedRenderer._orientation == LegendItemOrientation.horizontal
-              ? Row(children: legendWidgets)
-              : Column(children: legendWidgets));
-    } else {
-      widget = Container(
-          height: needLegendTitle
-              ? (legendHeight - titleHeight).abs()
-              : legendHeight,
-          width: chartLegend.legendSize.width,
-          child: Wrap(
-              direction:
-                  legedRenderer._orientation == LegendItemOrientation.horizontal
-                      ? Axis.horizontal
-                      : Axis.vertical,
-              children: legendWidgets));
+  /// To get the cartesian series gradient shader for SfLegend.
+  Shader? _getCartesianSeriesGradientShader(
+      LegendRenderContext legendRenderContext, Legend legend) {
+    Shader? legendShader;
+    Shader? cartesianShader;
+    TrendlineRenderer? trendlineRenderer;
+
+    final Size size = Size(legend.iconWidth, legend.iconHeight);
+    final Rect pathRect = Rect.fromCenter(
+        center: Offset(size.width / 2, size.height / 2),
+        width: size.width,
+        height: size.height);
+    final Rect rectBounds = Offset.zero & size;
+    final String seriesType = legendRenderContext.seriesRenderer.seriesType;
+    final LinearGradient? gradientFill = legendRenderContext.series.gradient;
+    final Shader toggledLegendShader =
+        LinearGradient(colors: <Color>[toggledItemColor, toggledItemColor])
+            .createShader(pathRect);
+
+    if (legendRenderContext.trendline != null) {
+      trendlineRenderer = legendRenderContext.seriesRenderer
+          .trendlineRenderer[legendRenderContext.trendlineIndex!];
     }
-    if (needLegendTitle) {
-      final ChartAlignment titleAlign = legend.title.alignment;
-      final Color color = chart.legend.title.textStyle.color ??
-          renderingDetails.chartTheme.legendTitleColor;
-      final double fontSize = chart.legend.title.textStyle.fontSize;
-      final String fontFamily = chart.legend.title.textStyle.fontFamily;
-      final FontStyle fontStyle = chart.legend.title.textStyle.fontStyle;
-      final FontWeight? fontWeight = chart.legend.title.textStyle.fontWeight;
-      widget = Container(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-            Container(
-                height: titleHeight.toDouble(),
-                alignment: titleAlign == ChartAlignment.center
-                    ? Alignment.center
-                    : titleAlign == ChartAlignment.near
-                        ? Alignment.centerLeft
-                        : Alignment.centerRight,
-                child: Container(
-                  child: Text(legend.title.text!,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          color: color,
-                          fontSize: fontSize,
-                          fontFamily: fontFamily,
-                          fontStyle: fontStyle,
-                          fontWeight: fontWeight)),
-                )),
-            widget
-          ]));
+    legendRenderContext.isSelect = (legendRenderContext.trendline != null)
+        ? !trendlineRenderer!.visible
+        : legendRenderContext.seriesRenderer
+                is TechnicalIndicators<dynamic, dynamic>
+            ? !legendRenderContext.indicatorRenderer!.visible!
+            : legendRenderContext.seriesRenderer.visible == false;
+    if (legendRenderContext.series is CartesianSeries &&
+        legendRenderContext.series.onCreateShader != null &&
+        !legendRenderContext.isSelect) {
+      ShaderDetails shaderDetails;
+      shaderDetails = ShaderDetails(pathRect, 'legend');
+      legendShader = legendRenderContext.series.onCreateShader(shaderDetails);
     }
-    return widget;
+
+    // ignore: prefer_if_null_operators
+    cartesianShader = legendShader == null
+        ? !seriesType.contains('line') &&
+                (legendRenderContext.series is CartesianSeries &&
+                    legendRenderContext.series.gradient != null &&
+                    !legendRenderContext.isTrendline!)
+            ? !legendRenderContext.isSelect
+                ? gradientFill!.createShader(rectBounds)
+                : toggledLegendShader
+            : null
+        : !legendRenderContext.isSelect
+            ? legendShader
+            : toggledLegendShader;
+
+    return cartesianShader;
+  }
+
+  /// To get the circular series shader for SfLegend.
+  Shader? _getCircularSeriesShader(
+      LegendRenderContext legendRenderContext, Legend legend) {
+    Shader? legendShader;
+    Shader? shader;
+    ChartShaderMapper<dynamic>? pointShaderMapper;
+    final Size size = Size(legend.iconWidth, legend.iconHeight);
+    final Rect pathRect = Rect.fromCenter(
+        center: Offset(size.width / 2, size.height / 2),
+        width: size.width,
+        height: size.height);
+    final Shader toggledLegendShader =
+        LinearGradient(colors: <Color>[toggledItemColor, toggledItemColor])
+            .createShader(pathRect);
+    legendRenderContext.isSelect = legendRenderContext.point.isVisible == false;
+    if (legendRenderContext.series is CircularSeries &&
+        stateProperties.chart.onCreateShader != null) {
+      ChartShaderDetails chartShaderDetails;
+      chartShaderDetails = ChartShaderDetails(pathRect, null, 'legend');
+      legendShader = stateProperties.chart.onCreateShader(chartShaderDetails);
+    }
+    if (legendRenderContext.series is CircularSeries) {
+      pointShaderMapper =
+          PointHelper.getPointShaderMapper(legendRenderContext.point);
+    }
+
+    shader = legendRenderContext.series is CircularSeries &&
+            (pointShaderMapper != null || legendShader != null)
+        ? pointShaderMapper != null
+            ? !legendRenderContext.isSelect
+                ? pointShaderMapper(null, legendRenderContext.point?.index,
+                    legendRenderContext.point?.fill, pathRect)
+                : toggledLegendShader
+            : !legendRenderContext.isSelect
+                ? legendShader
+                : toggledLegendShader
+        : null;
+    return shader;
+  }
+
+  /// To get overlayMarker type for line series type legend icons.
+  ShapeMarkerType? _getOverlayMarkerType(
+      LegendRenderContext? legendRenderContext) {
+    ShapeMarkerType? overlayMarkerType;
+    if (legendRenderContext!.iconType == LegendIconType.seriesType) {
+      overlayMarkerType = (legendRenderContext.seriesRenderer.seriesType ==
+                      'line' ||
+                  legendRenderContext.seriesRenderer.seriesType == 'fastline' ||
+                  legendRenderContext.seriesRenderer.seriesType
+                          .contains('stackedline') ==
+                      true) &&
+              legendRenderContext.series.markerSettings.isVisible == true &&
+              legendRenderContext.series.markerSettings.shape !=
+                  DataMarkerType.image
+          ? _getMarkerIconType(legendRenderContext.series.markerSettings.shape)
+          : null;
+    }
+    return overlayMarkerType;
+  }
+
+  /// To get legend icon shape based on series marker shape.
+  ShapeMarkerType _getMarkerIconType(DataMarkerType shape) {
+    ShapeMarkerType? iconType;
+    switch (shape) {
+      case DataMarkerType.circle:
+        iconType = ShapeMarkerType.circle;
+        break;
+      case DataMarkerType.rectangle:
+        iconType = ShapeMarkerType.rectangle;
+        break;
+      case DataMarkerType.image:
+        iconType = ShapeMarkerType.image;
+        break;
+      case DataMarkerType.pentagon:
+        iconType = ShapeMarkerType.pentagon;
+        break;
+      case DataMarkerType.verticalLine:
+        iconType = ShapeMarkerType.verticalLine;
+        break;
+      case DataMarkerType.invertedTriangle:
+        iconType = ShapeMarkerType.invertedTriangle;
+        break;
+      case DataMarkerType.horizontalLine:
+        iconType = ShapeMarkerType.horizontalLine;
+        break;
+      case DataMarkerType.diamond:
+        iconType = ShapeMarkerType.diamond;
+        break;
+      case DataMarkerType.triangle:
+        iconType = ShapeMarkerType.triangle;
+        break;
+      case DataMarkerType.none:
+        break;
+    }
+    return iconType!;
+  }
+
+  /// To get the legend icon type for SfLegend.
+  ShapeMarkerType _getEffectiveLegendIconType(LegendIconType iconType,
+      [LegendRenderContext? legendRenderContext, String? seriesType]) {
+    ShapeMarkerType legendIconType;
+    switch (iconType) {
+      case LegendIconType.circle:
+        legendIconType = ShapeMarkerType.circle;
+        break;
+      case LegendIconType.rectangle:
+        legendIconType = ShapeMarkerType.rectangle;
+        break;
+      case LegendIconType.pentagon:
+        legendIconType = ShapeMarkerType.pentagon;
+        break;
+      case LegendIconType.verticalLine:
+        legendIconType = ShapeMarkerType.verticalLine;
+        break;
+      case LegendIconType.horizontalLine:
+        legendIconType = ShapeMarkerType.horizontalLine;
+        break;
+      case LegendIconType.diamond:
+        legendIconType = ShapeMarkerType.diamond;
+        break;
+      case LegendIconType.triangle:
+        legendIconType = ShapeMarkerType.triangle;
+        break;
+      case LegendIconType.invertedTriangle:
+        legendIconType = ShapeMarkerType.invertedTriangle;
+        break;
+      case LegendIconType.image:
+        legendIconType = ShapeMarkerType.image;
+        break;
+      case LegendIconType.seriesType:
+        legendIconType =
+            _getSeriesLegendIconType(seriesType!, legendRenderContext!);
+        break;
+    }
+    return legendIconType;
+  }
+
+  /// To get effective series type legend icon for SfLegend.
+  ShapeMarkerType _getSeriesLegendIconType(
+      String seriesType, LegendRenderContext context) {
+    switch (seriesType) {
+      case 'line':
+      case 'fastline':
+      case 'stackedline':
+      case 'stackedline100':
+        return context.series.dashArray[0] != 0
+            ? ShapeMarkerType.lineSeriesWithDashArray
+            : ShapeMarkerType.lineSeries;
+      case 'spline':
+        return context.series.dashArray[0] != 0
+            ? ShapeMarkerType.splineSeriesWithDashArray
+            : ShapeMarkerType.splineSeries;
+      case 'splinearea':
+      case 'splinerangearea':
+        return ShapeMarkerType.splineAreaSeries;
+      case 'bar':
+      case 'stackedbar':
+      case 'stackedbar100':
+        return ShapeMarkerType.barSeries;
+      case 'column':
+      case 'stackedcolumn':
+      case 'stackedcolumn100':
+      case 'rangecolumn':
+      case 'histogram':
+        return ShapeMarkerType.columnSeries;
+      case 'area':
+      case 'stackedarea':
+      case 'rangearea':
+      case 'stackedarea100':
+        return ShapeMarkerType.areaSeries;
+      case 'stepline':
+        return context.series.dashArray[0] != 0
+            ? ShapeMarkerType.stepLineSeriesWithDashArray
+            : ShapeMarkerType.stepLineSeries;
+      case 'scatter':
+        return _getMarkerIconType(context.series.markerSettings.shape);
+      case 'bubble':
+        return ShapeMarkerType.bubbleSeries;
+      case 'hilo':
+        return ShapeMarkerType.hiloSeries;
+      case 'hiloopenclose':
+      case 'candle':
+        return ShapeMarkerType.hiloOpenCloseSeries;
+      case 'waterfall':
+      case 'boxandwhisker':
+        return ShapeMarkerType.waterfallSeries;
+      case 'pie':
+        return ShapeMarkerType.pieSeries;
+      case 'doughnut':
+        return ShapeMarkerType.doughnutSeries;
+      case 'radialbar':
+        return ShapeMarkerType.radialBarSeries;
+      case 'steparea':
+        return ShapeMarkerType.stepAreaSeries;
+      case 'pyramid':
+        return ShapeMarkerType.pyramidSeries;
+      case 'funnel':
+        return ShapeMarkerType.funnelSeries;
+      case 'errorbar':
+        return ShapeMarkerType.verticalLine;
+      default:
+        return ShapeMarkerType.circle;
+    }
   }
 }

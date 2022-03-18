@@ -70,86 +70,78 @@ enum DataMarkerType {
   none,
 }
 
-/// Draw different marker shapes by using height and width
-class ShapeMaker {
-  /// Draw the circle shape marker
-  static void drawCircle(
-      Path path, double x, double y, double width, double height) {
-    path.addArc(
-        Rect.fromLTRB(
-            x - width / 2, y - height / 2, x + width / 2, y + height / 2),
-        0.0,
-        2 * math.pi);
-  }
+/// Draw the circle shape marker
+void drawCircle(Path path, double x, double y, double width, double height) {
+  path.addArc(
+      Rect.fromLTRB(
+          x - width / 2, y - height / 2, x + width / 2, y + height / 2),
+      0.0,
+      2 * math.pi);
+}
 
-  /// Draw the Rectangle shape marker
-  static void drawRectangle(
-      Path path, double x, double y, double width, double height) {
-    path.addRect(Rect.fromLTRB(
-        x - width / 2, y - height / 2, x + width / 2, y + height / 2));
-  }
+/// Draw the Rectangle shape marker
+void drawRectangle(Path path, double x, double y, double width, double height) {
+  path.addRect(Rect.fromLTRB(
+      x - width / 2, y - height / 2, x + width / 2, y + height / 2));
+}
 
-  ///Draw the Pentagon shape marker
-  static void drawPentagon(
-      Path path, double x, double y, double width, double height) {
-    const int eq = 72;
-    double xValue;
-    double yValue;
-    for (int i = 0; i <= 5; i++) {
-      xValue = width / 2 * math.cos((math.pi / 180) * (i * eq));
-      yValue = height / 2 * math.sin((math.pi / 180) * (i * eq));
-      i == 0
-          ? path.moveTo(x + xValue, y + yValue)
-          : path.lineTo(x + xValue, y + yValue);
-    }
-    path.close();
+///Draw the Pentagon shape marker
+void drawPentagon(Path path, double x, double y, double width, double height) {
+  const int eq = 72;
+  double xValue;
+  double yValue;
+  for (int i = 0; i <= 5; i++) {
+    xValue = width / 2 * math.cos((math.pi / 180) * (i * eq));
+    yValue = height / 2 * math.sin((math.pi / 180) * (i * eq));
+    i == 0
+        ? path.moveTo(x + xValue, y + yValue)
+        : path.lineTo(x + xValue, y + yValue);
   }
+  path.close();
+}
 
-  ///Draw the Vertical line shape marker
-  static void drawVerticalLine(
-      Path path, double x, double y, double width, double height) {
-    path.moveTo(x, y + height / 2);
-    path.lineTo(x, y - height / 2);
-  }
+///Draw the Vertical line shape marker
+void drawVerticalLine(
+    Path path, double x, double y, double width, double height) {
+  path.moveTo(x, y + height / 2);
+  path.lineTo(x, y - height / 2);
+}
 
-  ///Draw the Inverted Triangle shape marker
-  static void drawInvertedTriangle(
-      Path path, double x, double y, double width, double height) {
-    path.moveTo(x + width / 2, y - height / 2);
+///Draw the Inverted Triangle shape marker
+void drawInvertedTriangle(
+    Path path, double x, double y, double width, double height) {
+  path.moveTo(x + width / 2, y - height / 2);
 
-    path.lineTo(x, y + height / 2);
-    path.lineTo(x - width / 2, y - height / 2);
-    path.lineTo(x + width / 2, y - height / 2);
-    path.close();
-  }
+  path.lineTo(x, y + height / 2);
+  path.lineTo(x - width / 2, y - height / 2);
+  path.lineTo(x + width / 2, y - height / 2);
+  path.close();
+}
 
-  ///Draw the Horizontal line shape marker
-  static void drawHorizontalLine(
-      Path path, double x, double y, double width, double height) {
-    path.moveTo(x - width / 2, y);
-    path.lineTo(x + width / 2, y);
-  }
+///Draw the Horizontal line shape marker
+void drawHorizontalLine(
+    Path path, double x, double y, double width, double height) {
+  path.moveTo(x - width / 2, y);
+  path.lineTo(x + width / 2, y);
+}
 
-  ///Draw the Diamond shape marker
-  static void drawDiamond(
-      Path path, double x, double y, double width, double height) {
-    path.moveTo(x - width / 2, y);
-    path.lineTo(x, y + height / 2);
-    path.lineTo(x + width / 2, y);
-    path.lineTo(x, y - height / 2);
-    path.lineTo(x - width / 2, y);
-    path.close();
-  }
+///Draw the Diamond shape marker
+void drawDiamond(Path path, double x, double y, double width, double height) {
+  path.moveTo(x - width / 2, y);
+  path.lineTo(x, y + height / 2);
+  path.lineTo(x + width / 2, y);
+  path.lineTo(x, y - height / 2);
+  path.lineTo(x - width / 2, y);
+  path.close();
+}
 
-  ///Draw the Triangle shape marker
-  static void drawTriangle(
-      Path path, double x, double y, double width, double height) {
-    path.moveTo(x - width / 2, y + height / 2);
-    path.lineTo(x + width / 2, y + height / 2);
-    path.lineTo(x, y - height / 2);
-    path.lineTo(x - width / 2, y + height / 2);
-    path.close();
-  }
+///Draw the Triangle shape marker
+void drawTriangle(Path path, double x, double y, double width, double height) {
+  path.moveTo(x - width / 2, y + height / 2);
+  path.lineTo(x + width / 2, y + height / 2);
+  path.lineTo(x, y - height / 2);
+  path.lineTo(x - width / 2, y + height / 2);
+  path.close();
 }
 
 /// This method measures the size for given text and textstyle

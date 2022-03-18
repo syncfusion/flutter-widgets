@@ -1,8 +1,22 @@
-part of pdf;
+import 'dart:ui';
 
-class _TextLayouter extends _ElementLayouter {
+import '../../../drawing/drawing.dart';
+import '../../../pages/pdf_page.dart';
+import '../../fonts/enums.dart';
+import '../../fonts/pdf_string_format.dart';
+import '../../fonts/pdf_string_layout_result.dart';
+import '../../fonts/pdf_string_layouter.dart';
+import '../../pdf_graphics.dart';
+import '../enums.dart';
+import '../pdf_text_element.dart';
+import 'element_layouter.dart';
+import 'layout_element.dart';
+
+/// internal class
+class TextLayouter extends ElementLayouter {
   //Constructor
-  _TextLayouter(PdfTextElement element) : super(element);
+  /// internal constructor
+  TextLayouter(PdfTextElement element) : super(element);
 
   //Fields
   PdfStringFormat? _format;
@@ -14,49 +28,50 @@ class _TextLayouter extends _ElementLayouter {
 
   //Implementation
   _TextPageLayoutResult _layoutOnPage(String text, PdfPage currentPage,
-      _Rectangle currentBounds, _PdfLayoutParams param) {
+      PdfRectangle currentBounds, PdfLayoutParams param) {
     final _TextPageLayoutResult result = _TextPageLayoutResult();
     result.remainder = text;
     result.page = currentPage;
     currentBounds = _checkCorrectBounds(currentPage, currentBounds);
     if (currentBounds.height < 0) {
-      currentPage = _getNextPage(currentPage)!;
+      currentPage = getNextPage(currentPage)!;
       result.page = currentPage;
-      currentBounds = _Rectangle(
+      currentBounds = PdfRectangle(
           currentBounds.x, 0, currentBounds.width, currentBounds.height);
     }
-    final _PdfStringLayouter layouter = _PdfStringLayouter();
-    final _PdfStringLayoutResult stringResult = layouter._layout(
+    final PdfStringLayouter layouter = PdfStringLayouter();
+    final PdfStringLayoutResult stringResult = layouter.layout(
         text, element!.font, _format,
         bounds: currentBounds, pageHeight: currentPage.getClientSize().height);
     final bool textFinished =
-        stringResult._remainder == null || stringResult._remainder!.isEmpty;
+        stringResult.remainder == null || stringResult.remainder!.isEmpty;
     final bool doesntFit =
         param.format!.breakType == PdfLayoutBreakType.fitElement &&
             currentPage == param.page &&
             !textFinished;
-    final bool canDraw = !(doesntFit || stringResult._isEmpty);
+    final bool canDraw = !(doesntFit || stringResult.isEmpty);
     if (canDraw) {
       final PdfGraphics graphics = currentPage.graphics;
-      graphics._drawStringLayoutResult(stringResult, element!.font,
-          element!.pen, element!._obtainBrush(), currentBounds, _format);
-      final _LineInfo lineInfo =
-          stringResult._lines![stringResult._lineCount - 1];
-      result.lastLineBounds = graphics._getLineBounds(
-          stringResult._lineCount - 1,
+      PdfGraphicsHelper.getHelper(graphics).drawStringLayoutResult(
           stringResult,
           element!.font,
+          element!.pen,
+          PdfTextElementHelper.getHelper(element!).obtainBrush(),
           currentBounds,
           _format);
+      final LineInfo lineInfo = stringResult.lines![stringResult.lineCount - 1];
+      result.lastLineBounds = PdfGraphicsHelper.getHelper(graphics)
+          .getLineBounds(stringResult.lineCount - 1, stringResult,
+              element!.font, currentBounds, _format);
       result.bounds =
           _getTextPageBounds(currentPage, currentBounds, stringResult);
-      result.remainder = stringResult._remainder;
+      result.remainder = stringResult.remainder;
       _checkCorectStringFormat(lineInfo);
     } else {
       result.bounds =
           _getTextPageBounds(currentPage, currentBounds, stringResult);
     }
-    final bool stopLayouting = stringResult._isEmpty &&
+    final bool stopLayouting = stringResult.isEmpty &&
             ((param.format!.breakType != PdfLayoutBreakType.fitElement) &&
                 (param.format!.layoutType != PdfLayoutType.paginate) &&
                 canDraw) ||
@@ -68,8 +83,8 @@ class _TextLayouter extends _ElementLayouter {
     return result;
   }
 
-  _Rectangle _checkCorrectBounds(
-      PdfPage currentPage, _Rectangle currentBounds) {
+  PdfRectangle _checkCorrectBounds(
+      PdfPage currentPage, PdfRectangle currentBounds) {
     final Size pageSize = currentPage.graphics.clientSize;
     currentBounds.height = (currentBounds.height > 0)
         ? currentBounds.height
@@ -77,37 +92,40 @@ class _TextLayouter extends _ElementLayouter {
     return currentBounds;
   }
 
-  Rect _getTextPageBounds(PdfPage currentPage, _Rectangle currentBounds,
-      _PdfStringLayoutResult stringResult) {
-    final _Size textSize = stringResult._size;
+  Rect _getTextPageBounds(PdfPage currentPage, PdfRectangle currentBounds,
+      PdfStringLayoutResult stringResult) {
+    final PdfSize textSize = stringResult.size;
     double? x = currentBounds.x;
     double? y = currentBounds.y;
     final double width =
         (currentBounds.width > 0) ? currentBounds.width : textSize.width;
     final double height = textSize.height;
-    final _Rectangle shiftedRect = currentPage.graphics
-        ._checkCorrectLayoutRectangle(
-            textSize, currentBounds.x, currentBounds.y, _format);
+    final PdfRectangle shiftedRect =
+        PdfGraphicsHelper.getHelper(currentPage.graphics)
+            .checkCorrectLayoutRectangle(
+                textSize, currentBounds.x, currentBounds.y, _format);
     if (currentBounds.width <= 0) {
       x = shiftedRect.x;
     }
     if (currentBounds.height <= 0) {
       y = shiftedRect.y;
     }
-    final double verticalShift = currentPage.graphics
-        ._getTextVerticalAlignShift(
-            textSize.height, currentBounds.height, _format);
+    final double verticalShift =
+        PdfGraphicsHelper.getHelper(currentPage.graphics)
+            .getTextVerticalAlignShift(
+                textSize.height, currentBounds.height, _format);
     y += verticalShift;
     return Rect.fromLTWH(x, y, width, height);
   }
 
-  void _checkCorectStringFormat(_LineInfo lineInfo) {
+  void _checkCorectStringFormat(LineInfo lineInfo) {
     if (_format != null) {
-      _format!._firstLineIndent = lineInfo._lineType &
-                  _PdfStringLayouter._getLineTypeValue(
-                      _LineType.newLineBreak)! >
-              0
-          ? element!.stringFormat!._firstLineIndent
+      PdfStringFormatHelper.getHelper(_format!).firstLineIndent = (lineInfo
+                      .lineType &
+                  PdfStringLayouter.getLineTypeValue(LineType.newLineBreak)! >
+              0)
+          ? PdfStringFormatHelper.getHelper(element!.stringFormat!)
+              .firstLineIndent
           : 0;
     }
   }
@@ -119,10 +137,10 @@ class _TextLayouter extends _ElementLayouter {
 
   bool _raiseBeforePageLayout(PdfPage? currentPage, Rect currentBounds) {
     bool cancel = false;
-    if (element!._raiseBeginPageLayout) {
+    if (PdfLayoutElementHelper.getHelper(element!).raiseBeginPageLayout) {
       final BeginPageLayoutArgs args =
           BeginPageLayoutArgs(currentBounds, currentPage!);
-      element!._onBeginPageLayout(args);
+      PdfLayoutElementHelper.getHelper(element!).onBeginPageLayout(args);
       cancel = args.cancel;
       currentBounds = args.bounds;
     }
@@ -131,20 +149,20 @@ class _TextLayouter extends _ElementLayouter {
 
   EndTextPageLayoutArgs? _raisePageLayouted(_TextPageLayoutResult pageResult) {
     EndTextPageLayoutArgs? args;
-    if (element!._raisePageLayouted) {
+    if (PdfLayoutElementHelper.getHelper(element!).raisePageLayouted) {
       args = EndTextPageLayoutArgs(_getLayoutResult(pageResult));
-      element!._onEndPageLayout(args);
+      PdfLayoutElementHelper.getHelper(element!).onEndPageLayout(args);
     }
     return args;
   }
 
   //Override methods
   @override
-  PdfLayoutResult _layoutInternal(_PdfLayoutParams param) {
+  PdfLayoutResult layoutInternal(PdfLayoutParams param) {
     if (element != null) {
       _format = (element!.stringFormat != null) ? element!.stringFormat : null;
       PdfPage? currentPage = param.page;
-      _Rectangle? currentBounds = param.bounds;
+      PdfRectangle? currentBounds = param.bounds;
       String? text = element!.text;
       PdfTextLayoutResult result;
       _TextPageLayoutResult pageResult = _TextPageLayoutResult();
@@ -159,14 +177,14 @@ class _TextLayouter extends _ElementLayouter {
           cancel = endArgs != null && endArgs.cancel;
         }
         if (!pageResult.end && !cancel) {
-          if (element!._isPdfTextElement) {
+          if (PdfTextElementHelper.getHelper(element!).isPdfTextElement) {
             result = _getLayoutResult(pageResult);
             break;
           }
-          currentBounds = _getPaginateBounds(param);
+          currentBounds = getPaginateBounds(param);
           text = pageResult.remainder;
           currentPage = endArgs == null || endArgs.nextPage == null
-              ? _getNextPage(currentPage!)
+              ? getNextPage(currentPage!)
               : endArgs.nextPage;
         } else {
           result = _getLayoutResult(pageResult);
@@ -203,11 +221,45 @@ class PdfTextLayoutResult extends PdfLayoutResult {
   Rect? get lastLineBounds => _lastLineBounds;
 }
 
+/// Represents the layouting result format.
+class PdfLayoutResult {
+  //Constructors
+  /// Represents the layouting result format
+  /// including bounds and resultant page.
+  PdfLayoutResult._(PdfPage page, Rect bounds) {
+    _page = page;
+    _bounds = bounds;
+  }
+
+  //Fields
+  /// The last page where the element was drawn.
+  late PdfPage _page;
+
+  /// The bounds of the element on the last page where it was drawn.
+  late Rect _bounds;
+
+  //Properties
+  /// Gets the last page where the element was drawn.
+  PdfPage get page => _page;
+
+  /// Gets the bounds of the element on the last page where it was drawn.
+  Rect get bounds => _bounds;
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfLayoutResult] helper
+class PdfLayoutResultHelper {
+  /// internal method
+  static PdfLayoutResult load(PdfPage page, Rect bounds) {
+    return PdfLayoutResult._(page, bounds);
+  }
+}
+
 class _TextPageLayoutResult {
   _TextPageLayoutResult() {
-    bounds = const Rect.fromLTWH(0, 0, 0, 0);
+    bounds = Rect.zero;
     end = false;
-    lastLineBounds = const Rect.fromLTWH(0, 0, 0, 0);
+    lastLineBounds = Rect.zero;
   }
   PdfPage? page;
   late Rect bounds;

@@ -6,3 +6,5 @@ analyzer:
     lines_longer_than_80_chars: ignore
     avoid_as: false
     use_raw_strings: ignore
+    unnecessary_null_checks: ignore
+    noop_primitive_operations: ignore

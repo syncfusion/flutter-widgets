@@ -6,7 +6,7 @@ abstract class GaugeAxisRenderer {
   /// Represents the gauge axis
   late RadialAxis axis;
 
-  /// Returns the visible labels on [GaugeAxis]
+  /// Returns the visible labels on [RadialAxis]
   ///
   /// Modify the actual labels generated, which are calculated on the basis
   /// of scale range and interval.

@@ -1,54 +1,148 @@
-part of pdf;
+import 'dart:collection';
+import 'dart:ui';
 
-class _TextElement {
+import 'package:intl/intl.dart' as bidi;
+
+import '../../graphics/fonts/enums.dart';
+import '../../graphics/fonts/pdf_cjk_standard_font.dart';
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/fonts/pdf_standard_font.dart';
+import 'font_structure.dart';
+import 'glyph.dart';
+import 'graphic_object_data.dart';
+import 'matrix_helper.dart';
+
+/// internal class
+class TextElement {
   //constructor
-  _TextElement(String text, _MatrixHelper? transformMatrix) {
-    _text = text;
+  /// internal constructor
+  TextElement(this.text, MatrixHelper? transformMatrix) {
     transformations = _TransformationStack(transformMatrix);
     _initialize();
   }
 
   //Fields
-  late String _text;
+  /// internal field
+  late String text;
+
+  /// internal field
   late _TransformationStack transformations;
-  late List<_Glyph> textElementGlyphList;
+
+  /// internal field
+  late List<Glyph> textElementGlyphList;
+
+  /// internal field
   bool? isExtractTextData;
+
+  /// internal field
   late String fontName;
+
+  /// internal field
   late List<PdfFontStyle> fontStyle;
+
+  /// internal field
   double fontSize = 0;
+
+  /// internal field
   double? textScaling;
+
+  /// internal field
   double? characterSpacing;
+
+  /// internal field
   double? wordSpacing;
+
+  /// internal field
   int? renderingMode;
+
+  /// internal field
   Map<int, int>? encodedTextBytes;
+
+  /// internal field
   String? fontEncoding;
+
+  /// internal field
   Map<int, int>? fontGlyphWidths;
+
+  /// internal field
   double? defaultGlyphWidth;
+
+  /// internal field
   Map<int, String>? unicodeCharMapTable;
+
+  /// internal field
   Map<int, int>? cidToGidReverseMapTable;
+
+  /// internal field
   late Map<double, String> characterMapTable;
+
+  /// internal field
   Map<String, double>? reverseMapTable;
-  late _FontStructure structure;
+
+  /// internal field
+  late FontStructure structure;
+
+  /// internal field
   late bool isEmbeddedFont;
-  _MatrixHelper? currentTransformationMatrix;
-  _MatrixHelper? textLineMatrix;
-  _MatrixHelper? transformMatrix;
-  int? _rise;
-  _MatrixHelper? documentMatrix;
+
+  /// internal field
+  MatrixHelper? currentTransformationMatrix;
+
+  /// internal field
+  MatrixHelper? textLineMatrix;
+
+  /// internal field
+  MatrixHelper? transformMatrix;
+
+  /// internal field
+  int? rise;
+
+  /// internal field
+  MatrixHelper? documentMatrix;
+
+  /// internal field
   String? fontId;
+
+  /// internal field
   Map<int, int>? octDecMapTable;
+
+  /// internal field
   double? textHorizontalScaling;
+
+  /// internal field
   String? zapfPostScript;
+
+  /// internal field
   double? lineWidth;
+
+  /// internal field
   double? pageRotation;
+
+  /// internal field
   double? zoomFactor;
+
+  /// internal field
   Map<String, String>? substitutedFontsList;
+
+  /// internal field
   PdfFont? font;
+
+  /// internal field
   String renderedText = '';
+
+  /// internal field
   int? fontFlag;
+
+  /// internal field
   late bool isTextGlyphAdded;
+
+  /// internal field
   double? currentGlyphWidth;
+
+  /// internal field
   late double charSizeMultiplier;
+
+  /// internal field
   List<int>? macRomanToUnicode;
 
   //Implementation
@@ -58,7 +152,7 @@ class _TextElement {
     charSizeMultiplier = 0.001;
     currentGlyphWidth = 0;
     isTextGlyphAdded = false;
-    textElementGlyphList = <_Glyph>[];
+    textElementGlyphList = <Glyph>[];
     isExtractTextData = false;
     textScaling = 100;
     textHorizontalScaling = 100;
@@ -67,8 +161,8 @@ class _TextElement {
     defaultGlyphWidth = 0;
     reverseMapTable = <String, double>{};
     isEmbeddedFont = false;
-    documentMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
-    documentMatrix!.type = _MatrixTypes.identity;
+    documentMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
+    documentMatrix!.type = MatrixTypes.identity;
     fontId = '';
     lineWidth = 0;
     pageRotation = 0;
@@ -207,15 +301,16 @@ class _TextElement {
     ];
   }
 
-  _MatrixHelper _getTextRenderingMatrix() {
-    return _MatrixHelper(fontSize * (textHorizontalScaling! / 100), 0, 0,
-            -fontSize, 0, fontSize + _rise!) *
+  MatrixHelper _getTextRenderingMatrix() {
+    return MatrixHelper(fontSize * (textHorizontalScaling! / 100), 0, 0,
+            -fontSize, 0, fontSize + rise!) *
         textLineMatrix! *
         currentTransformationMatrix!;
   }
 
-  double _render(
-      _GraphicsObject? g,
+  /// internal method
+  Map<String, dynamic> renderTextElement(
+      GraphicsObject? g,
       Offset currentLocation,
       double? textScaling,
       Map<int, int>? glyphWidths,
@@ -223,20 +318,20 @@ class _TextElement {
       Map<int, String> differenceTable,
       Map<String, String?> differenceMappedTable,
       Map<int, String>? differenceEncoding,
-      _MatrixHelper? txtMatrix) {
-    txtMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
-    txtMatrix.type = _MatrixTypes.identity;
-    double changeInX = currentLocation.dx.toDouble();
+      MatrixHelper? txtMatrix,
+      [List<dynamic>? retrievedCharCodes]) {
+    txtMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
+    txtMatrix.type = MatrixTypes.identity;
+    double changeInX = currentLocation.dx;
     Offset location = Offset(currentLocation.dx, currentLocation.dy);
     if (!isEmbeddedFont &&
-        (structure._isStandardFont || structure._isStandardCJKFont) &&
+        (structure.isStandardFont || structure.isStandardCJKFont) &&
         structure.font != null) {
-      final _MatrixHelper defaultTransformations =
-          g!._transformMatrix!._clone();
-      for (int i = 0; i < _text.length; i++) {
-        final String character = _text[i];
-        g._transformMatrix = _MatrixHelper(1, 0, 0, 1, 0, 0);
-        final _Glyph glyph = _Glyph();
+      final MatrixHelper defaultTransformations = g!.transformMatrix!.clone();
+      for (int i = 0; i < text.length; i++) {
+        final String character = text[i];
+        g.transformMatrix = MatrixHelper(1, 0, 0, 1, 0, 0);
+        final Glyph glyph = Glyph();
         glyph.fontSize = fontSize;
         glyph.fontFamily = fontName;
         glyph.fontStyle = fontStyle;
@@ -246,23 +341,25 @@ class _TextElement {
         glyph.charId = character.codeUnitAt(0);
         glyph.toUnicode = character;
         glyph.charSpacing = characterSpacing!;
-        if (structure._isStandardFont) {
+        if (structure.isStandardFont) {
           final PdfStandardFont font = structure.font! as PdfStandardFont;
-          glyph.width = font._getCharWidthInternal(character) *
-              PdfFont._characterSizeMultiplier;
-        } else if (structure._isStandardCJKFont) {
+          glyph.width = PdfStandardFontHelper.getHelper(font)
+                  .getCharWidthInternal(character) *
+              PdfFontHelper.characterSizeMultiplier;
+        } else if (structure.isStandardCJKFont) {
           final PdfCjkStandardFont font = structure.font! as PdfCjkStandardFont;
-          glyph.width = font._getCharWidthInternal(character) *
-              PdfFont._characterSizeMultiplier;
+          glyph.width = PdfCjkStandardFontHelper.getHelper(font)
+                  .getCharWidthInternal(character) *
+              PdfFontHelper.characterSizeMultiplier;
         }
-        final _MatrixHelper identity = _MatrixHelper.identity._clone();
-        identity._scale(0.01, 0.01, 0.0, 0.0);
-        identity._translate(0.0, 1.0);
+        final MatrixHelper identity = MatrixHelper.identity.clone();
+        identity.scale(0.01, 0.01, 0.0, 0.0);
+        identity.translate(0.0, 1.0);
         transformations._pushTransform(identity * glyph.transformMatrix);
-        final _MatrixHelper transform = g._transformMatrix!;
-        _MatrixHelper matrix = transform._clone();
-        matrix = matrix * transformations.currentTransform!._clone();
-        g._transformMatrix = matrix;
+        final MatrixHelper transform = g.transformMatrix!;
+        MatrixHelper matrix = transform.clone();
+        matrix = matrix * transformations.currentTransform!.clone();
+        g.transformMatrix = matrix;
         double? tempFontSize = 0;
         if (glyph.transformMatrix.m11 > 0) {
           tempFontSize = glyph.transformMatrix.m11;
@@ -274,6 +371,9 @@ class _TextElement {
             tempFontSize = glyph.transformMatrix.m12;
           }
         } else {
+          tempFontSize = glyph.fontSize;
+        }
+        if (tempFontSize.toInt() == 0) {
           tempFontSize = glyph.fontSize;
         }
         glyph.boundingRect = Rect.fromLTWH(
@@ -288,41 +388,74 @@ class _TextElement {
         transformations._popTransform();
         renderedText += character;
       }
-      g._transformMatrix = defaultTransformations;
+      g.transformMatrix = defaultTransformations;
       txtMatrix = textLineMatrix;
     } else {
       int letterCount = 0;
-      for (int i = 0; i < _text.length; i++) {
-        final String letter = _text[i];
+      if ((retrievedCharCodes != null &&
+              text.length != retrievedCharCodes.length) ||
+          !bidi.Bidi.hasAnyRtl(text)) {
+        retrievedCharCodes = null;
+      }
+      for (int i = 0; i < text.length; i++) {
+        final String letter = text[i];
+        final dynamic retrievedCharCode = (retrievedCharCodes != null &&
+                i < retrievedCharCodes.length &&
+                retrievedCharCodes[i] != null &&
+                retrievedCharCodes[i] != 0)
+            ? retrievedCharCodes[i]
+            : null;
         letterCount += 1;
         final int charCode = letter.codeUnitAt(0);
         isTextGlyphAdded = false;
         if (charCode.toUnsigned(8) > 126 &&
             fontEncoding == 'MacRomanEncoding' &&
             !isEmbeddedFont) {
-          txtMatrix = drawSystemFontGlyphShape(letter, g!, txtMatrix);
+          isTextGlyphAdded = true;
+          final MatrixHelper? tempMatrix = drawSystemFontGlyphShape(
+              letter, g!, txtMatrix, retrievedCharCode);
+          if (tempMatrix != null) {
+            txtMatrix = tempMatrix;
+          } else {
+            isTextGlyphAdded = false;
+          }
         } else {
           if (renderingMode == 1) {
-            txtMatrix = drawSystemFontGlyphShape(letter, g!, txtMatrix);
+            isTextGlyphAdded = true;
+            final MatrixHelper? tempMatrix = drawSystemFontGlyphShape(
+                letter, g!, txtMatrix, retrievedCharCode);
+            if (tempMatrix != null) {
+              txtMatrix = tempMatrix;
+            } else {
+              isTextGlyphAdded = false;
+            }
           } else if (reverseMapTable!.isNotEmpty &&
               reverseMapTable!.containsKey(letter)) {
             final int tempCharCode = reverseMapTable![letter]!.toInt();
             if (fontGlyphWidths != null) {
-              currentGlyphWidth = (fontGlyphWidths!.containsKey(tempCharCode)
-                      ? fontGlyphWidths![tempCharCode]
+              currentGlyphWidth = (fontGlyphWidths!
+                          .containsKey(retrievedCharCode ?? tempCharCode)
+                      ? fontGlyphWidths![retrievedCharCode ?? tempCharCode]
                       : defaultGlyphWidth)! *
                   charSizeMultiplier;
             } else {
               currentGlyphWidth = defaultGlyphWidth! * charSizeMultiplier;
             }
-            txtMatrix = drawGlyphs(currentGlyphWidth, g!, txtMatrix, letter);
+            txtMatrix =
+                drawGlyphs(currentGlyphWidth, g!, txtMatrix, letter, false);
             isTextGlyphAdded = true;
           } else {
             if (characterMapTable.isNotEmpty &&
                 characterMapTable.containsKey(charCode)) {
               final String tempLetter = characterMapTable[charCode]![0];
               isTextGlyphAdded = true;
-              txtMatrix = drawSystemFontGlyphShape(tempLetter, g!, txtMatrix);
+              final MatrixHelper? tempMatrix = drawSystemFontGlyphShape(
+                  tempLetter, g!, txtMatrix, retrievedCharCode);
+              if (tempMatrix != null) {
+                txtMatrix = tempMatrix;
+              } else {
+                isTextGlyphAdded = false;
+              }
             }
           }
           if (!isTextGlyphAdded) {
@@ -332,7 +465,7 @@ class _TextElement {
               if (fontGlyphWidths == null) {
                 currentGlyphWidth = defaultGlyphWidth! * charSizeMultiplier;
               } else {
-                if (structure.fontType!._name == 'Type0') {
+                if (structure.fontType!.name == 'Type0') {
                   if (cidToGidReverseMapTable != null &&
                       cidToGidReverseMapTable!.containsKey(charCode) &&
                       !structure.isMappingDone) {
@@ -350,7 +483,7 @@ class _TextElement {
                           defaultGlyphWidth! * charSizeMultiplier;
                     }
                   }
-                } else if (structure.fontType!._name == 'TrueType' &&
+                } else if (structure.fontType!.name == 'TrueType' &&
                     fontGlyphWidths!.containsKey(charCode)) {
                   currentGlyphWidth =
                       fontGlyphWidths![charCode]! * charSizeMultiplier;
@@ -374,22 +507,27 @@ class _TextElement {
             }
           }
         }
-        if (letterCount < _text.length) {
+        if (letterCount < text.length) {
           location = Offset(location.dx + characterSpacing!, location.dy);
         }
         if (!isTextGlyphAdded) {
-          txtMatrix = drawGlyphs(currentGlyphWidth, g!, txtMatrix, letter);
+          txtMatrix =
+              drawGlyphs(currentGlyphWidth, g!, txtMatrix, letter, false);
         }
       }
     }
     changeInX = location.dx - changeInX;
-    return changeInX;
+    return <String, dynamic>{
+      'textElementWidth': changeInX,
+      'tempTextMatrix': txtMatrix
+    };
   }
 
-  double _renderWithSpacing(
-      _GraphicsObject? g,
+  /// internal method
+  Map<String, dynamic> renderWithSpacing(
+      GraphicsObject? g,
       Offset currentLocation,
-      List<String> decodedList,
+      Map<List<dynamic>?, String> decodedList,
       List<double>? characterSpacing,
       double? textScaling,
       Map<int, int>? glyphWidths,
@@ -397,29 +535,29 @@ class _TextElement {
       Map<int, String> differenceTable,
       Map<String, String?> differenceMappedTable,
       Map<int, String>? differenceEncoding,
-      _MatrixHelper? txtMatrix) {
-    txtMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
-    txtMatrix.type = _MatrixTypes.identity;
-    double changeInX = currentLocation.dx.toDouble();
+      MatrixHelper? txtMatrix) {
+    txtMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
+    txtMatrix.type = MatrixTypes.identity;
+    double changeInX = currentLocation.dx;
     Offset location = Offset(currentLocation.dx, currentLocation.dy);
     // ignore: avoid_function_literals_in_foreach_calls
-    decodedList.forEach((String word) {
+    decodedList.forEach((List<dynamic>? keys, String word) {
       final double? space = double.tryParse(word);
       if (space != null) {
         _updateTextMatrixWithSpacing(space);
       } else {
         if (!isEmbeddedFont &&
             structure.font != null &&
-            (structure._isStandardFont || structure._isStandardCJKFont)) {
-          final _MatrixHelper defaultTransformations =
-              g!._transformMatrix!._clone();
+            (structure.isStandardFont || structure.isStandardCJKFont)) {
+          final MatrixHelper defaultTransformations =
+              g!.transformMatrix!.clone();
           if (word != '' && word[word.length - 1] == 's') {
             word = word.substring(0, word.length - 1);
           }
           for (int i = 0; i < word.length; i++) {
             final String character = word[i];
-            g._transformMatrix = _MatrixHelper(1, 0, 0, 1, 0, 0);
-            final _Glyph glyph = _Glyph();
+            g.transformMatrix = MatrixHelper(1, 0, 0, 1, 0, 0);
+            final Glyph glyph = Glyph();
             glyph.fontSize = fontSize;
             glyph.fontFamily = fontName;
             glyph.fontStyle = fontStyle;
@@ -429,24 +567,26 @@ class _TextElement {
             glyph.charId = character.codeUnitAt(0);
             glyph.toUnicode = character;
             glyph.charSpacing = this.characterSpacing!;
-            if (structure._isStandardFont) {
+            if (structure.isStandardFont) {
               final PdfStandardFont font = structure.font! as PdfStandardFont;
-              glyph.width = font._getCharWidthInternal(character) *
-                  PdfFont._characterSizeMultiplier;
-            } else if (structure._isStandardCJKFont) {
+              glyph.width = PdfStandardFontHelper.getHelper(font)
+                      .getCharWidthInternal(character) *
+                  PdfFontHelper.characterSizeMultiplier;
+            } else if (structure.isStandardCJKFont) {
               final PdfCjkStandardFont font =
                   structure.font! as PdfCjkStandardFont;
-              glyph.width = font._getCharWidthInternal(character) *
-                  PdfFont._characterSizeMultiplier;
+              glyph.width = PdfCjkStandardFontHelper.getHelper(font)
+                      .getCharWidthInternal(character) *
+                  PdfFontHelper.characterSizeMultiplier;
             }
-            final _MatrixHelper identity = _MatrixHelper.identity._clone();
-            identity._scale(0.01, 0.01, 0.0, 0.0);
-            identity._translate(0.0, 1.0);
+            final MatrixHelper identity = MatrixHelper.identity.clone();
+            identity.scale(0.01, 0.01, 0.0, 0.0);
+            identity.translate(0.0, 1.0);
             transformations._pushTransform(identity * glyph.transformMatrix);
-            final _MatrixHelper transform = g._transformMatrix!;
-            _MatrixHelper matrix = transform._clone();
-            matrix = matrix * transformations.currentTransform!._clone();
-            g._transformMatrix = matrix;
+            final MatrixHelper transform = g.transformMatrix!;
+            MatrixHelper matrix = transform.clone();
+            matrix = matrix * transformations.currentTransform!.clone();
+            g.transformMatrix = matrix;
             double? tempFontSize = 0;
             if (glyph.transformMatrix.m11 > 0) {
               tempFontSize = glyph.transformMatrix.m11;
@@ -472,24 +612,45 @@ class _TextElement {
             transformations._popTransform();
             renderedText += character;
           }
-          g._transformMatrix = defaultTransformations;
+          g.transformMatrix = defaultTransformations;
           txtMatrix = textLineMatrix;
         } else {
           if (word != '' && word[word.length - 1] == 's') {
             word = word.substring(0, word.length - 1);
           }
+          final bool containsRTL = bidi.Bidi.hasAnyRtl(word);
+          if ((keys != null &&
+                  word.length > keys.length &&
+                  keys.length > word.length + 2) ||
+              !containsRTL) {
+            keys = null;
+          }
           if (word != '') {
             int letterCount = 0;
             bool isComplexScript = false;
-            if (reverseMapTable!.isNotEmpty &&
+            if ((!containsRTL || (containsRTL && word.length <= 1)) &&
+                reverseMapTable!.isNotEmpty &&
                 reverseMapTable!.containsKey(word)) {
               final int charCode = reverseMapTable![word]!.toInt();
+              final dynamic retrievedCharCode = (keys != null &&
+                      keys.isNotEmpty &&
+                      keys[0] != null &&
+                      keys[0] != 0)
+                  ? keys[0]
+                  : null;
               if (characterMapTable.isNotEmpty &&
                   characterMapTable.containsKey(charCode)) {
                 final String tempLetter = characterMapTable[charCode]!;
                 isTextGlyphAdded = true;
-                txtMatrix = drawSystemFontGlyphShape(tempLetter, g!, txtMatrix);
                 isComplexScript = true;
+                final MatrixHelper? tempMatrix = drawSystemFontGlyphShape(
+                    tempLetter, g!, txtMatrix, retrievedCharCode);
+                if (tempMatrix != null) {
+                  txtMatrix = tempMatrix;
+                } else {
+                  isTextGlyphAdded = false;
+                  isComplexScript = false;
+                }
               }
             }
             if (!isComplexScript) {
@@ -497,14 +658,34 @@ class _TextElement {
                 final String letter = word[i];
                 letterCount += 1;
                 int charCode = letter.codeUnitAt(0);
+                final dynamic retrievedCharCode = (keys != null &&
+                        i < keys.length &&
+                        keys[i] != null &&
+                        keys[i] != 0)
+                    ? keys[i]
+                    : null;
                 isTextGlyphAdded = false;
                 if (charCode.toUnsigned(8) > 126 &&
                     fontEncoding == 'MacRomanEncoding' &&
                     !isEmbeddedFont) {
-                  txtMatrix = drawSystemFontGlyphShape(letter, g!, txtMatrix);
+                  isTextGlyphAdded = true;
+                  final MatrixHelper? tempMatrix = drawSystemFontGlyphShape(
+                      letter, g!, txtMatrix, retrievedCharCode);
+                  if (tempMatrix != null) {
+                    txtMatrix = tempMatrix;
+                  } else {
+                    isTextGlyphAdded = false;
+                  }
                 } else {
                   if (renderingMode == 1) {
-                    txtMatrix = drawSystemFontGlyphShape(letter, g!, txtMatrix);
+                    isTextGlyphAdded = true;
+                    final MatrixHelper? tempMatrix = drawSystemFontGlyphShape(
+                        letter, g!, txtMatrix, retrievedCharCode);
+                    if (tempMatrix != null) {
+                      txtMatrix = tempMatrix;
+                    } else {
+                      isTextGlyphAdded = false;
+                    }
                   } else {
                     if (reverseMapTable!.isNotEmpty &&
                         reverseMapTable!.containsKey(letter)) {
@@ -514,8 +695,13 @@ class _TextElement {
                         characterMapTable.containsKey(charCode)) {
                       final String tempLetter = characterMapTable[charCode]![0];
                       isTextGlyphAdded = true;
-                      txtMatrix =
-                          drawSystemFontGlyphShape(tempLetter, g!, txtMatrix);
+                      final MatrixHelper? tempMatrix = drawSystemFontGlyphShape(
+                          tempLetter, g!, txtMatrix, retrievedCharCode);
+                      if (tempMatrix != null) {
+                        txtMatrix = tempMatrix;
+                      } else {
+                        isTextGlyphAdded = false;
+                      }
                     }
                   }
                   if (characterMapTable.isNotEmpty &&
@@ -525,7 +711,7 @@ class _TextElement {
                       currentGlyphWidth =
                           defaultGlyphWidth! * charSizeMultiplier;
                     } else {
-                      if (structure.fontType!._name == 'Type0') {
+                      if (structure.fontType!.name == 'Type0') {
                         if (cidToGidReverseMapTable != null &&
                             cidToGidReverseMapTable!.containsKey(charCode) &&
                             !structure.isMappingDone) {
@@ -543,7 +729,7 @@ class _TextElement {
                                 defaultGlyphWidth! * charSizeMultiplier;
                           }
                         }
-                      } else if (structure.fontType!._name == 'TrueType' &&
+                      } else if (structure.fontType!.name == 'TrueType' &&
                           fontGlyphWidths!.containsKey(charCode)) {
                         currentGlyphWidth =
                             fontGlyphWidths![charCode]! * charSizeMultiplier;
@@ -570,9 +756,12 @@ class _TextElement {
                   location =
                       Offset(location.dx + this.characterSpacing!, location.dy);
                 }
-                if (!isTextGlyphAdded) {
-                  txtMatrix =
-                      drawGlyphs(currentGlyphWidth, g!, txtMatrix, letter);
+                if (!isTextGlyphAdded &&
+                    (retrievedCharCode == null ||
+                        (retrievedCharCode != null &&
+                            retrievedCharCode is! String))) {
+                  txtMatrix = drawGlyphs(
+                      currentGlyphWidth, g!, txtMatrix, letter, i == 0);
                 }
               }
             }
@@ -581,14 +770,18 @@ class _TextElement {
       }
     });
     changeInX = location.dx - changeInX;
-    return changeInX;
+    return <String, dynamic>{
+      'textElementWidth': changeInX,
+      'tempTextMatrix': txtMatrix
+    };
   }
 
-  _MatrixHelper? drawGlyphs(double? glyphwidth, _GraphicsObject g,
-      _MatrixHelper? temptextmatrix, String? glyphChar) {
-    final _MatrixHelper defaultTransformations = g._transformMatrix!._clone();
-    g._transformMatrix = _MatrixHelper(1, 0, 0, 1, 0, 0);
-    final _Glyph glyph = _Glyph();
+  /// internal method
+  MatrixHelper? drawGlyphs(double? glyphwidth, GraphicsObject g,
+      MatrixHelper? temptextmatrix, String? glyphChar, bool renderWithSpace) {
+    final MatrixHelper defaultTransformations = g.transformMatrix!.clone();
+    g.transformMatrix = MatrixHelper(1, 0, 0, 1, 0, 0);
+    final Glyph glyph = Glyph();
     glyph.fontSize = fontSize;
     glyph.fontFamily = fontName;
     glyph.fontStyle = fontStyle;
@@ -599,14 +792,14 @@ class _TextElement {
     if (glyphChar == ' ') {
       glyph.wordSpacing = wordSpacing!;
     }
-    final _MatrixHelper identity = _MatrixHelper(1, 0, 0, 1, 0, 0);
-    identity._scale(0.01, 0.01, 0.0, 0.0);
-    identity._translate(0.0, 1.0);
+    final MatrixHelper identity = MatrixHelper(1, 0, 0, 1, 0, 0);
+    identity.scale(0.01, 0.01, 0.0, 0.0);
+    identity.translate(0.0, 1.0);
     transformations._pushTransform(identity * glyph.transformMatrix);
-    final _MatrixHelper transform = g._transformMatrix!;
-    _MatrixHelper matrix = transform._clone();
-    matrix *= transformations.currentTransform!._clone();
-    g._transformMatrix = matrix;
+    final MatrixHelper transform = g.transformMatrix!;
+    MatrixHelper matrix = transform.clone();
+    matrix *= transformations.currentTransform!.clone();
+    g.transformMatrix = matrix;
     if (!structure.isMappingDone) {
       if (cidToGidReverseMapTable != null &&
           cidToGidReverseMapTable!.containsKey(glyphChar!.codeUnitAt(0)) &&
@@ -647,17 +840,35 @@ class _TextElement {
       } else if (matrix.m12 < 0 && matrix.m21 < 0) {
         glyph.rotationAngle = 180;
       }
-      glyph.boundingRect = Rect.fromLTWH(
-          ((matrix.offsetX +
-                      ((tempFontSize + (glyph.ascent / 1000.0)) * matrix.m21)) /
-                  1.3333333333333333) /
-              zoomFactor!,
-          (((matrix.offsetY - (tempFontSize * matrix.m21)) /
-                      1.3333333333333333) -
-                  (tempFontSize * zoomFactor! / 1.3333333333333333)) /
-              zoomFactor!,
-          glyph.width * tempFontSize,
-          tempFontSize);
+      final double x = ((matrix.offsetX +
+                  ((tempFontSize + (glyph.ascent / 1000.0)) * matrix.m21)) /
+              1.3333333333333333) /
+          zoomFactor!;
+      double y = ((matrix.offsetY -
+                  ((pageRotation == 270
+                          ? tempFontSize
+                          : (glyph.width * tempFontSize)) *
+                      zoomFactor!)) /
+              1.3333333333333333) /
+          zoomFactor!;
+      double width = glyph.width * tempFontSize;
+      double height = tempFontSize;
+      if (pageRotation == 270) {
+        if (textElementGlyphList.isEmpty || renderWithSpace) {
+          y += width;
+        } else {
+          final Glyph tempGlyph =
+              textElementGlyphList[textElementGlyphList.length - 1];
+          if (textElementGlyphList.length == 1 && tempGlyph.toUnicode == ' ') {
+            y += width;
+          } else {
+            y = tempGlyph.boundingRect.top + tempGlyph.boundingRect.height;
+          }
+        }
+        height = width;
+        width = tempFontSize;
+      }
+      glyph.boundingRect = Rect.fromLTWH(x, y, width, height);
     } else {
       glyph.boundingRect = Rect.fromLTWH(
           (matrix.offsetX / 1.3333333333333333) / zoomFactor!,
@@ -670,7 +881,7 @@ class _TextElement {
     if (glyph.toUnicode.length != 1) {
       textElementGlyphList.add(glyph);
       for (int i = 0; i < glyph.toUnicode.length - 1; i++) {
-        final _Glyph emptyGlyph = _Glyph();
+        final Glyph emptyGlyph = Glyph();
         textElementGlyphList.add(emptyGlyph);
       }
     } else {
@@ -678,22 +889,24 @@ class _TextElement {
     }
     _updateTextMatrix(glyph);
     transformations._popTransform();
-    g._transformMatrix = defaultTransformations;
+    g.transformMatrix = defaultTransformations;
     temptextmatrix = textLineMatrix;
     renderedText += glyphChar;
     return temptextmatrix;
   }
 
-  _MatrixHelper? drawSystemFontGlyphShape(
-      String letter, _GraphicsObject g, _MatrixHelper? temptextmatrix) {
-    final _MatrixHelper? defaultTransformations = g._transformMatrix;
-    g._transformMatrix = _MatrixHelper(1, 0, 0, 1, 0, 0);
-    final _Glyph gly = _Glyph();
+  /// internal method
+  MatrixHelper? drawSystemFontGlyphShape(
+      String letter, GraphicsObject g, MatrixHelper? temptextmatrix,
+      [dynamic charCode]) {
+    final MatrixHelper? defaultTransformations = g.transformMatrix;
+    g.transformMatrix = MatrixHelper(1, 0, 0, 1, 0, 0);
+    final Glyph gly = Glyph();
     gly.horizontalScaling = textHorizontalScaling!;
     gly.charSpacing = characterSpacing!;
     gly.fontSize = fontSize;
     gly.name = letter;
-    gly.charId = letter.codeUnitAt(0).toUnsigned(8).toInt();
+    gly.charId = letter.codeUnitAt(0).toUnsigned(8);
     gly.transformMatrix = _getTextRenderingMatrix();
     if (letter == ' ') {
       gly.wordSpacing = wordSpacing!;
@@ -701,9 +914,15 @@ class _TextElement {
     double? systemFontGlyph;
     if (fontGlyphWidths != null && fontGlyphWidths!.isNotEmpty) {
       if (reverseMapTable != null && reverseMapTable!.containsKey(letter)) {
-        final int charCode = reverseMapTable![letter]!.toInt();
-        if (fontGlyphWidths!.containsKey(charCode)) {
-          systemFontGlyph = fontGlyphWidths![charCode]! * charSizeMultiplier;
+        if (charCode != null && charCode is String) {
+          systemFontGlyph = 0;
+        } else {
+          charCode ??= reverseMapTable![letter]!.toInt();
+          if (fontGlyphWidths!.containsKey(charCode)) {
+            systemFontGlyph = fontGlyphWidths![charCode]! * charSizeMultiplier;
+          } else {
+            return null;
+          }
         }
       } else if (fontGlyphWidths!.containsKey(letter.codeUnitAt(0))) {
         systemFontGlyph =
@@ -711,14 +930,14 @@ class _TextElement {
       }
     }
     gly.width = (systemFontGlyph == null) ? 0 : systemFontGlyph;
-    final _MatrixHelper identity = _MatrixHelper(1, 0, 0, 1, 0, 0);
-    identity._scale(0.01, 0.01, 0.0, 0.0);
-    identity._translate(0.0, 1.0);
+    final MatrixHelper identity = MatrixHelper(1, 0, 0, 1, 0, 0);
+    identity.scale(0.01, 0.01, 0.0, 0.0);
+    identity.translate(0.0, 1.0);
     transformations._pushTransform(identity * gly.transformMatrix);
-    final _MatrixHelper transform = g._transformMatrix!;
-    _MatrixHelper matrix = transform._clone();
-    matrix = matrix * transformations.currentTransform!._clone();
-    g._transformMatrix = matrix;
+    final MatrixHelper transform = g.transformMatrix!;
+    MatrixHelper matrix = transform.clone();
+    matrix = matrix * transformations.currentTransform!.clone();
+    g.transformMatrix = matrix;
     double? tempFontSize = 0;
     if (gly.transformMatrix.m11 > 0) {
       tempFontSize = gly.transformMatrix.m11;
@@ -759,7 +978,7 @@ class _TextElement {
     textElementGlyphList.add(gly);
     _updateTextMatrix(gly);
     transformations._popTransform();
-    g._transformMatrix = defaultTransformations;
+    g.transformMatrix = defaultTransformations;
     temptextmatrix = textLineMatrix;
     renderedText += glyphName;
     return temptextmatrix;
@@ -767,8 +986,8 @@ class _TextElement {
 
   void _updateTextMatrixWithSpacing(double space) {
     final double x = -(space * 0.001 * fontSize * textHorizontalScaling! / 100);
-    final Offset point = textLineMatrix!._transform(const Offset(0.0, 0.0));
-    final Offset point2 = textLineMatrix!._transform(Offset(x, 0.0));
+    final Offset point = textLineMatrix!.transform(Offset.zero);
+    final Offset point2 = textLineMatrix!.transform(Offset(x, 0.0));
     if (point.dx != point2.dx) {
       textLineMatrix!.offsetX = point2.dx;
     } else {
@@ -776,11 +995,11 @@ class _TextElement {
     }
   }
 
-  void _updateTextMatrix(_Glyph glyph) {
+  void _updateTextMatrix(Glyph glyph) {
     textLineMatrix = _calculateTextMatrix(textLineMatrix!, glyph);
   }
 
-  _MatrixHelper _calculateTextMatrix(_MatrixHelper m, _Glyph glyph) {
+  MatrixHelper _calculateTextMatrix(MatrixHelper m, Glyph glyph) {
     if (glyph.charId == 32) {
       glyph.wordSpacing = wordSpacing!;
     }
@@ -788,25 +1007,25 @@ class _TextElement {
     final double offsetX =
         (width * glyph.fontSize + glyph.charSpacing + glyph.wordSpacing) *
             (glyph.horizontalScaling / 100);
-    return _MatrixHelper(1.0, 0.0, 0.0, 1.0, offsetX, 0.0) * m;
+    return MatrixHelper(1.0, 0.0, 0.0, 1.0, offsetX, 0.0) * m;
   }
 }
 
 class _TransformationStack {
-  _TransformationStack([_MatrixHelper? transformMatrix]) {
+  _TransformationStack([MatrixHelper? transformMatrix]) {
     _initialTransform = (transformMatrix != null)
         ? transformMatrix
-        : _MatrixHelper(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
-    transformStack = Queue<_MatrixHelper>();
+        : MatrixHelper(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+    transformStack = Queue<MatrixHelper>();
   }
 
   //Fields
-  late _MatrixHelper _currentTransform;
-  _MatrixHelper? _initialTransform;
-  late Queue<_MatrixHelper> transformStack;
+  late MatrixHelper _currentTransform;
+  MatrixHelper? _initialTransform;
+  late Queue<MatrixHelper> transformStack;
 
   //Properties
-  _MatrixHelper? get currentTransform {
+  MatrixHelper? get currentTransform {
     if (transformStack.isEmpty) {
       return _initialTransform;
     }
@@ -814,10 +1033,10 @@ class _TransformationStack {
   }
 
   //Implementation
-  void _pushTransform(_MatrixHelper transformMatrix) {
+  void _pushTransform(MatrixHelper transformMatrix) {
     transformStack.addLast(transformMatrix);
-    _MatrixHelper matrix = _MatrixHelper.identity._clone();
-    for (final _MatrixHelper current in transformStack) {
+    MatrixHelper matrix = MatrixHelper.identity.clone();
+    for (final MatrixHelper current in transformStack) {
       matrix *= current;
     }
     _currentTransform = matrix;
@@ -825,8 +1044,8 @@ class _TransformationStack {
 
   void _popTransform() {
     transformStack.removeLast();
-    _MatrixHelper matrix = _MatrixHelper.identity._clone();
-    for (final _MatrixHelper current in transformStack) {
+    MatrixHelper matrix = MatrixHelper.identity.clone();
+    for (final MatrixHelper current in transformStack) {
       matrix *= current;
     }
     _currentTransform = matrix;

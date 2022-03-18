@@ -1,4 +1,8 @@
-part of pdf;
+import 'dart:ui';
+
+import '../drawing/drawing.dart';
+import '../graphics/pdf_margins.dart';
+import 'enum.dart';
 
 /// The class provides various setting related with PDF pages.
 class PdfPageSettings {
@@ -22,26 +26,24 @@ class PdfPageSettings {
   /// document.dispose();
   /// ```
   PdfPageSettings([Size? size, PdfPageOrientation? orientation]) {
+    _helper = PdfPageSettingsHelper(this);
     if (size != null) {
-      _size = _Size.fromSize(size);
+      _size = PdfSize.fromSize(size);
     }
     if (orientation != null) {
       _orientation = orientation;
       _updateSize(orientation);
     }
-    _origin = _Point(0, 0);
+    _helper.origin = PdfPoint(0, 0);
     _margins = PdfMargins();
   }
 
   //Fields
+  late PdfPageSettingsHelper _helper;
   late PdfMargins _margins;
   PdfPageOrientation _orientation = PdfPageOrientation.portrait;
-  _Size _size = _Size.fromSize(PdfPageSize.a4);
-  late _Point _origin;
+  PdfSize _size = PdfSize.fromSize(PdfPageSize.a4);
   PdfPageRotateAngle _rotateAngle = PdfPageRotateAngle.rotateAngle0;
-  bool _isRotation = false;
-  // ignore: prefer_final_fields
-  bool _isPageAdded = false;
 
   //Properties
   /// Gets or sets the margins of the PDF page.
@@ -61,7 +63,8 @@ class PdfPageSettings {
   /// ```
   PdfMargins get margins => _margins;
   set margins(PdfMargins value) {
-    if (!_margins._equals(value) && !_isPageAdded) {
+    if (!PdfMarginsHelper.getHelper(_margins).equals(value) &&
+        !_helper.isPageAdded) {
       _margins = value;
     }
   }
@@ -137,7 +140,7 @@ class PdfPageSettings {
   /// document.dispose();
   /// ```
   set orientation(PdfPageOrientation value) {
-    if (value != _orientation && !_isPageAdded) {
+    if (value != _orientation && !_helper.isPageAdded) {
       _orientation = value;
       _updateSize(_orientation);
     }
@@ -176,7 +179,7 @@ class PdfPageSettings {
   /// document.dispose();
   /// ```
   set size(Size value) {
-    if (!_isPageAdded) {
+    if (!_helper.isPageAdded) {
       _updateSize(_orientation, value);
     }
   }
@@ -220,9 +223,9 @@ class PdfPageSettings {
   /// document.dispose();
   /// ```
   set rotate(PdfPageRotateAngle value) {
-    if (!_isPageAdded) {
+    if (!_helper.isPageAdded) {
       _rotateAngle = value;
-      _isRotation = true;
+      _helper.isRotation = true;
     }
   }
 
@@ -243,15 +246,16 @@ class PdfPageSettings {
   /// document.dispose();
   /// ```
   void setMargins(double all, [double? top, double? right, double? bottom]) {
-    if (!_isPageAdded) {
+    if (!_helper.isPageAdded) {
       if (top != null && right != null && bottom != null) {
-        margins._setMarginsAll(all, top, right, bottom);
+        PdfMarginsHelper.getHelper(margins)
+            .setMarginsAll(all, top, right, bottom);
       } else if (top != null && right == null) {
-        margins._setMarginsLT(all, top);
+        PdfMarginsHelper.getHelper(margins).setMarginsLT(all, top);
       } else if (top == null && bottom != null) {
-        margins._setMarginsLT(all, bottom);
+        PdfMarginsHelper.getHelper(margins).setMarginsLT(all, bottom);
       } else {
-        margins._setMargins(all);
+        PdfMarginsHelper.getHelper(margins).setMargins(all);
       }
     }
   }
@@ -269,24 +273,50 @@ class PdfPageSettings {
     }
     switch (orientation) {
       case PdfPageOrientation.portrait:
-        _size = _Size(min, max);
+        _size = PdfSize(min, max);
         break;
 
       case PdfPageOrientation.landscape:
-        _size = _Size(max, min);
+        _size = PdfSize(max, min);
         break;
     }
   }
+}
 
-  Size _getActualSize() {
-    return Size(width - (margins.left + margins.right),
-        height - (margins.top + margins.bottom));
+/// [PdfPageSettings] helper
+class PdfPageSettingsHelper {
+  /// internal constructor
+  PdfPageSettingsHelper(this.base);
+
+  /// internal field
+  late PdfPageSettings base;
+
+  /// internal method
+  static PdfPageSettingsHelper getHelper(PdfPageSettings base) {
+    return base._helper;
   }
 
-  PdfPageSettings _clone() {
+  /// internal field
+  late PdfPoint origin;
+
+  /// internal method
+  bool isRotation = false;
+
+  /// internal method
+  // ignore: prefer_final_fields
+  bool isPageAdded = false;
+
+  /// internal method
+  Size getActualSize() {
+    return Size(base.width - (base.margins.left + base.margins.right),
+        base.height - (base.margins.top + base.margins.bottom));
+  }
+
+  /// internal method
+  PdfPageSettings clone() {
     final PdfPageSettings result = PdfPageSettings();
-    result.size = Size(size.width.toDouble(), size.height.toDouble());
-    switch (rotate) {
+    result.size = Size(base.size.width, base.size.height);
+    switch (base.rotate) {
       case PdfPageRotateAngle.rotateAngle90:
         result.rotate = PdfPageRotateAngle.rotateAngle90;
         break;
@@ -300,12 +330,12 @@ class PdfPageSettings {
         result.rotate = PdfPageRotateAngle.rotateAngle0;
         break;
     }
-    if (orientation == PdfPageOrientation.landscape) {
+    if (base.orientation == PdfPageOrientation.landscape) {
       result.orientation = PdfPageOrientation.landscape;
     } else {
       result.orientation = PdfPageOrientation.portrait;
     }
-    result.margins = margins._clone();
+    result.margins = PdfMarginsHelper.getHelper(base.margins).clone();
     return result;
   }
 }

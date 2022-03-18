@@ -1,6 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../plot_band.dart';
 import '../renderers/spark_bar_renderer.dart';
 import '../trackball/spark_chart_trackball.dart';
@@ -32,7 +31,8 @@ class SfSparkBarChart extends StatefulWidget {
   ///    body: Center(
   ///        child:  SfSparkBarChart(
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///     )
+  ///    ),
   ///  );
   /// }
   /// ```
@@ -76,7 +76,7 @@ class SfSparkBarChart extends StatefulWidget {
   /// The [dataCount] property allows declaring the total data count going to
   /// be displayed in the chart.
   ///
-  /// The [xValueMapper[ returns the x- value of the corresponding data point.
+  /// The [xValueMapper] returns the x- value of the corresponding data point.
   /// The [xValueMapper] allows providing num, DateTime, or string as x-value.
   ///
   /// The [yValueMapper] returns the y-value of the corresponding data point.
@@ -89,7 +89,7 @@ class SfSparkBarChart extends StatefulWidget {
   /// }
   ///
   ///   List<SalesData> data;
-
+  ///
   /// @override
   /// void initState() {
   ///  super.initState();
@@ -120,10 +120,10 @@ class SfSparkBarChart extends StatefulWidget {
       /// Data count for the spark charts.
       int? dataCount,
 
-      /// Specifies the x-value mapping field
+      /// Specifies the x-value mapping field.
       SparkChartIndexedValueMapper<dynamic>? xValueMapper,
 
-      /// Specifies the y-value maping field
+      /// Specifies the y-value maping field.
       SparkChartIndexedValueMapper<num>? yValueMapper,
       this.plotBand,
       this.borderWidth = 2,
@@ -168,7 +168,8 @@ class SfSparkBarChart extends StatefulWidget {
   ///        child:  SfSparkBarChart(
   ///      isInversed: true,
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///     )
+  ///   ),
   ///  );
   /// }
   /// ```
@@ -178,7 +179,7 @@ class SfSparkBarChart extends StatefulWidget {
   /// The axis line is rendered on the minimum y-value and can be repositioned
   /// to required y-value.
   ///
-  /// Defaults to `zero`.
+  /// Defaults to `0`.
   ///
   /// ```dart
   /// @override
@@ -188,7 +189,8 @@ class SfSparkBarChart extends StatefulWidget {
   ///        child: SfSparkBarChart(
   ///      axisCrossesAt: 24,
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///     )
+  ///   ),
   ///  );
   /// }
   /// ```
@@ -206,7 +208,8 @@ class SfSparkBarChart extends StatefulWidget {
   ///        child: SfSparkBarChart(
   ///      axisLineWidth: 4,
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///     )
+  ///   ),
   ///  );
   /// }
   /// ```
@@ -225,7 +228,8 @@ class SfSparkBarChart extends StatefulWidget {
   ///        child: SfSparkBarChart(
   ///      axisLineColor: Colors.red,
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -244,7 +248,8 @@ class SfSparkBarChart extends StatefulWidget {
   ///        child: SfSparkBarChart(
   ///      axisLineDashArray: <double>[2,2],
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -262,9 +267,9 @@ class SfSparkBarChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child:  SfSparkBarChart(
-  ///      highPointColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      highPointColor: Colors.red
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -284,15 +289,15 @@ class SfSparkBarChart extends StatefulWidget {
   ///    body: Center(
   ///        child: SfSparkBarChart(
   ///      lowPointColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
   final Color? lowPointColor;
 
   /// Customizes the color of negative data point and data point value less than
-  ///  the [axisCrossesAt] value.
+  /// the [axisCrossesAt] value.
   ///
   /// If the negative data point is either the high or low, first or last data
   /// point, then priority will be given to those colors.
@@ -305,9 +310,9 @@ class SfSparkBarChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkBarChart(
-  ///      negativePointColor: Colors.red,
-  ///      data: <double>[18, 24, -30, 14, 28],
-  ///    )),
+  ///      negativePointColor: Colors.red
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -327,8 +332,8 @@ class SfSparkBarChart extends StatefulWidget {
   ///    body: Center(
   ///        child:  SfSparkBarChart(
   ///      firstPointColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -347,9 +352,9 @@ class SfSparkBarChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkBarChart(
-  ///      lastPointColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      lastPointColor: Colors.red
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -357,7 +362,7 @@ class SfSparkBarChart extends StatefulWidget {
 
   /// Customizes the spark bar chart color.
   ///
-  /// Defaults to `blue`.
+  /// Defaults to `Colors.blue`.
   ///
   /// ```dart
   /// @override
@@ -365,9 +370,9 @@ class SfSparkBarChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkBarChart(
-  ///      color: Colors.blue,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      color: Colors.blue
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -381,8 +386,8 @@ class SfSparkBarChart extends StatefulWidget {
   ///
   /// Plot bands are drawn based on the axis.
   ///
-  /// Provides the property of `start`, `end`, [color], [borderColor], and
-  /// [borderWidth] to customize the appearance.
+  /// Provides the property of `start`, `end`, `color`, `borderColor`, and
+  /// `borderWidth` to customize the appearance.
   ///
   /// Defaults to `null`.
   ///
@@ -392,9 +397,9 @@ class SfSparkBarChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkBarChart(
-  ///      plotBand: SparkChartPlotBand(start: 15, end: 25),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      plotBand: SparkChartPlotBand(start: 15, end: 25)
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -411,9 +416,9 @@ class SfSparkBarChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkBarChart(
-  ///      borderColor: Colors.black, borderWidth: 3,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      borderWidth: 3
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -431,9 +436,9 @@ class SfSparkBarChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child:  SfSparkBarChart(
-  ///      borderColor: Colors.black, borderWidth: 3,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      borderColor: Colors.black
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -445,17 +450,17 @@ class SfSparkBarChart extends StatefulWidget {
   /// and its value.
   ///
   /// * [SparkChartLabelDisplayMode.all] enables the data label for all the
-  /// data points
+  /// data points.
   /// * [SparkChartLabelDisplayMode.none] disables the data labels
   /// * [SparkChartLabelDisplayMode.high] displays the data label on highest
-  ///  data point
+  ///  data point.
   /// * [SparkChartLabelDisplayMode.low] displays the data label on lowest
-  /// data point
+  /// data point.
   /// * [SparkChartLabelDisplayMode.first] displays the data label on first data
-  ///  point
+  ///  point.
   /// * [SparkChartLabelDisplayMode.last] displays the data label on first data
-  ///  point
-  /// * Also refer [SparkChartLabelDisplayMode]
+  ///  point.
+  /// * Also refer [SparkChartLabelDisplayMode].
   ///
   /// Defaults to `SparkChartDislayMode.none`.
   ///
@@ -465,9 +470,9 @@ class SfSparkBarChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkBarChart(
-  ///      labelDisplayMode: SparkChartLabelDisplayMode.high,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      labelDisplayMode: SparkChartLabelDisplayMode.high
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -487,10 +492,9 @@ class SfSparkBarChart extends StatefulWidget {
   /// Widget build(BuildContext context) {
   ///  return Scaffold(
   ///    body: Center(
-  ///        child: SfSparkBarChart(labelStyle: TextStyle(fontStyle: FontStyle.italic),
-  ///      labelDisplayMode: SparkChartLabelDisplayMode.high,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///        child: SfSparkBarChart(labelStyle: TextStyle(fontStyle: FontStyle.italic)
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -502,8 +506,8 @@ class SfSparkBarChart extends StatefulWidget {
   /// to the point where you touch on the chart area. This feature can be
   /// enabled by creating an instance of [SparkChartTrackball].
   ///
-  /// Provides option to customizes the `activationMode`, `width`, [color],
-  /// [labelStyle], `backgroundColor`, [borderColor], [borderWidth].
+  /// Provides option to customizes the `activationMode`, `width`, `color`,
+  /// `labelStyle`, `backgroundColor`, `borderColor`, `borderWidth`.
   ///
   /// Defaults to `null`.
   ///
@@ -513,17 +517,16 @@ class SfSparkBarChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkBarChart(
-  ///      trackball: SparkChartTrackball(borderWidth: 2,
-  ///      borderColor: Colors.black,
-  ///      activationMode: SparkChartActivationMode.doubleTap),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      trackball: SparkChartTrackball(
+  ///      activationMode: SparkChartActivationMode.tap)
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
   final SparkChartTrackball? trackball;
 
-  /// Specifies the spark chart data details
+  /// Specifies the spark chart data details.
   final SparkChartDataDetails _sparkChartDataDetails;
   @override
   State<StatefulWidget> createState() {
@@ -531,15 +534,15 @@ class SfSparkBarChart extends StatefulWidget {
   }
 }
 
-/// Represents the state class for spark bar widget
+/// Represents the state class for spark bar widget.
 class _SfSparkBarChartState extends State<SfSparkBarChart> {
-  /// specifies the theme of the chart
-  late ThemeData _themeData;
+  /// specifies the theme of the chart.
+  late SfChartThemeData _chartThemeData;
 
-  /// Specifies the series screen coordinate points
+  /// Specifies the series screen coordinate points.
   late List<Offset> _coordinatePoints;
 
-  /// Specifies the series data points
+  /// Specifies the series data points.
   late List<SparkChartPoint> _dataPoints;
 
   /// Called when this object is inserted into the tree.
@@ -567,7 +570,7 @@ class _SfSparkBarChartState extends State<SfSparkBarChart> {
 
   @override
   void didChangeDependencies() {
-    _themeData = Theme.of(context);
+    _chartThemeData = SfChartTheme.of(context);
     super.didChangeDependencies();
   }
 
@@ -622,7 +625,7 @@ class _SfSparkBarChartState extends State<SfSparkBarChart> {
           plotBand: widget.plotBand,
           labelDisplayMode: widget.labelDisplayMode,
           labelStyle: widget.labelStyle,
-          themeData: _themeData,
+          themeData: _chartThemeData,
           sparkChartDataDetails: widget._sparkChartDataDetails,
           dataPoints: _dataPoints,
           coordinatePoints: _coordinatePoints),

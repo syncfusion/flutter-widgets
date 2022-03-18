@@ -1,29 +1,30 @@
-part of pdf;
+import 'dart:ui';
 
 /// Details of the searched text
 class MatchedItem {
   //Constructor
-  MatchedItem._(this.text, this.bounds, this.pageIndex);
+  MatchedItem._(this.text, this._boundsCollection, this.pageIndex);
 
   //Fields
   /// The searched text.
   late String text;
 
   /// Rectangle bounds of the searched text.
-  late Rect bounds;
+  late Rect bounds = _boundsCollection[0];
 
   /// Page number of the searched text.
   late int pageIndex;
+
+  //Internal fields
+  /// Rectangle bounds collection of the searched text.
+  final List<Rect> _boundsCollection;
 }
 
-/// Defines the constants that specify the option for text search.
-enum TextSearchOption {
-  /// Searches whole words only but not case sensitive.
-  wholeWords,
-
-  /// Searches words with case sensitive.
-  caseSensitive,
-
-  /// Searches words with both the case sensitive and whole word.
-  both
+// ignore: avoid_classes_with_only_static_members
+/// [MatchedItem] helper
+class MatchedItemHelper {
+  /// internal method
+  static MatchedItem initialize(String text, List<Rect> bounds, int pageIndex) {
+    return MatchedItem._(text, bounds, pageIndex);
+  }
 }

@@ -1,26 +1,61 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../io/pdf_constants.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import 'embedded_file_specification.dart';
 
 /// Represents base class for file specification objects.
-abstract class _PdfFileSpecificationBase implements _IPdfWrapper {
+abstract class PdfFileSpecificationBase implements IPdfWrapper {
   //Constructor.
   /// Initializes a new instance of the [PdfFileSpecificationBase] class.
-  _PdfFileSpecificationBase() {
-    _initialize();
+  PdfFileSpecificationBase() {
+    _helper = PdfFileSpecificationBaseHelper(this);
+    _helper.initialize();
   }
 
   //Fields
-  final _PdfDictionary _dictionary = _PdfDictionary();
+  late PdfFileSpecificationBaseHelper _helper;
+}
 
-  //Implementations.
-  //Initializes instance.
-  void _initialize() {
-    _dictionary.setProperty(
-        _DictionaryProperties.type, _PdfName(_DictionaryProperties.filespec));
-    _dictionary._beginSave = _dictionaryBeginSave;
+/// [PdfFileSpecificationBase] helper
+class PdfFileSpecificationBaseHelper {
+  /// internal constructor
+  PdfFileSpecificationBaseHelper(this.base);
+
+  /// internal field
+  PdfFileSpecificationBase base;
+
+  /// internal field
+  PdfDictionary? dictionary;
+
+  /// internal method
+  static PdfFileSpecificationBaseHelper getHelper(
+      PdfFileSpecificationBase base) {
+    return base._helper;
   }
 
-  //Formats file name to Unix format.
-  String _formatFileName(String fileName, bool flag) {
+  /// internal property
+  IPdfPrimitive? get element => dictionary;
+  set element(IPdfPrimitive? value) {
+    throw ArgumentError("Primitive element can't be set");
+  }
+
+  /// internal method
+
+  void initialize() {
+    dictionary = PdfDictionary();
+    dictionary!.setProperty(PdfDictionaryProperties.type,
+        PdfName(PdfDictionaryProperties.filespec));
+    dictionary!.beginSave = _dictionaryBeginSave;
+  }
+
+  //Handles the BeginSave event of the m_dictionary control.
+  void _dictionaryBeginSave(Object sender, SavePdfPrimitiveArgs? ars) {
+    PdfFileSpecificationBaseHelper.save(base);
+  }
+
+  /// internal method
+  String formatFileName(String fileName, bool flag) {
     const String oldSlash = r'\';
     const String newSlash = '/';
     const String driveDelimiter = ':';
@@ -38,21 +73,10 @@ abstract class _PdfFileSpecificationBase implements _IPdfWrapper {
     return formated;
   }
 
-  //Handles the BeginSave event of the m_dictionary control.
-  void _dictionaryBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
-    _save();
-  }
-
-  //Saves an instance.
-  void _save();
-
-  //Overrides
-  @override
-  _IPdfPrimitive get _element => _dictionary;
-
-  @override
-  // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    throw ArgumentError('primitive element can\'t be set');
+  /// internal method
+  static void save(PdfFileSpecificationBase base) {
+    if (base is PdfEmbeddedFileSpecification) {
+      PdfEmbeddedFileSpecificationHelper.getHelper(base).save();
+    }
   }
 }

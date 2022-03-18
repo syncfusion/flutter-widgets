@@ -1,20 +1,28 @@
-part of pdf;
+import '../../../interfaces/pdf_interface.dart';
+import '../../graphics/figures/pdf_template.dart';
+import '../../io/pdf_constants.dart';
+import '../../primitives/pdf_dictionary.dart';
+import '../../primitives/pdf_reference_holder.dart';
 
 /// Represents the states of an annotation's appearance.
-class _PdfAppearanceState implements _IPdfWrapper {
+class PdfAppearanceState implements IPdfWrapper {
   //Constructor
   /// Initializes a new instance of the [PdfAppearanceState] class.
-  _PdfAppearanceState() : super() {
-    _dictionary._beginSave = _dictionaryBeginSave;
+  PdfAppearanceState() : super() {
+    dictionary = PdfDictionary();
+    dictionary!.beginSave = _dictionaryBeginSave;
   }
 
   //Fields
-  final _PdfDictionary _dictionary = _PdfDictionary();
+  /// internal fields
+  PdfDictionary? dictionary;
   PdfTemplate? _on;
   PdfTemplate? _off;
+
+  /// internal fields
   // ignore: prefer_final_fields
-  String _onMappingName = _DictionaryProperties.yes;
-  static const String _offMappingName = _DictionaryProperties.off;
+  String onMappingName = PdfDictionaryProperties.yes;
+  static const String _offMappingName = PdfDictionaryProperties.off;
 
   //Properties
   /// Gets the active state template.
@@ -36,21 +44,21 @@ class _PdfAppearanceState implements _IPdfWrapper {
   }
 
   //Implementation
-  void _dictionaryBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
+  void _dictionaryBeginSave(Object sender, SavePdfPrimitiveArgs? ars) {
     if (_on != null) {
-      _dictionary.setProperty(_onMappingName, _PdfReferenceHolder(_on));
+      dictionary!.setProperty(onMappingName, PdfReferenceHolder(_on));
     }
     if (_off != null) {
-      _dictionary.setProperty(_offMappingName, _PdfReferenceHolder(_off));
+      dictionary!.setProperty(_offMappingName, PdfReferenceHolder(_off));
     }
   }
 
-  @override
-  _IPdfPrimitive get _element => _dictionary;
-
-  @override
+  /// internal property
+  IPdfPrimitive? get element => dictionary;
   // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    _element = value;
+  set element(IPdfPrimitive? value) {
+    if (value != null && value is PdfDictionary) {
+      dictionary = value;
+    }
   }
 }

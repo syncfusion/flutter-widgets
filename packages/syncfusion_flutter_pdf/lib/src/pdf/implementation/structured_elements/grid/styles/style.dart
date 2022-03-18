@@ -1,4 +1,10 @@
-part of pdf;
+import '../../../graphics/brushes/pdf_solid_brush.dart';
+import '../../../graphics/fonts/pdf_font.dart';
+import '../../../graphics/fonts/pdf_string_format.dart';
+import '../../../graphics/images/pdf_image.dart';
+import '../../../graphics/pdf_pen.dart';
+import '../enums.dart';
+import '../styles/pdf_borders.dart';
 
 /// Base class for the grid style
 abstract class PdfGridStyleBase {
@@ -92,6 +98,20 @@ class PdfGridCellStyle extends PdfGridRowStyle {
   }
 }
 
+// ignore: avoid_classes_with_only_static_members
+/// [PdfGridCellStyle] helper
+class PdfGridCellStyleHelper {
+  /// internal method
+  static PdfPaddings? getPadding(PdfGridCellStyle style) {
+    return style._cellPadding;
+  }
+
+  /// internal method
+  static void setPadding(PdfGridCellStyle style, PdfPaddings? padding) {
+    style._cellPadding = padding;
+  }
+}
+
 /// Provides customization of the appearance for the [PdfGrid].
 class PdfGridStyle extends PdfGridStyleBase {
   //Constructor
@@ -156,5 +176,19 @@ class PdfGridStyle extends PdfGridStyleBase {
     if (cellPadding != null) {
       this.cellPadding = cellPadding;
     }
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfGridStyle] helper
+class PdfGridStyleHelper {
+  /// internal method
+  static PdfPaddings? getPadding(PdfGridStyle style) {
+    return style._cellPadding;
+  }
+
+  /// internal method
+  static void setPadding(PdfGridStyle style, PdfPaddings? padding) {
+    style._cellPadding = padding;
   }
 }

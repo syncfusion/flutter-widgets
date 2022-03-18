@@ -1,21 +1,24 @@
-part of charts;
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import 'stacked_series_base.dart';
 
 /// Renders the stacked area series.
 ///
 /// A stacked area chart is the extension of a basic area chart to display the
-///evolution of the value of several groups on the same graphic.
+/// evolution of the value of several groups on the same graphic.
 ///
 /// The values of each group are displayed on top of each other.
 ///
-/// Stackedarea100 series show the percentage-of-the-whole of each group
-/// and are plotted by the percentage of each value to the total amount in each group
+/// Stacked area 100 series show the percentage-of-the-whole of each group
+/// and are plotted by the percentage of each value to the total amount in each group.
 ///
 /// Provides options to customize the [color], [opacity], [borderWidth], [borderColor],
-/// [borderDrawMode] of the stackedarea100 series segments.
+/// [borderDrawMode] of the stacked area 100 series segments.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=NCUDBD_ClHo}
 @immutable
-class StackedArea100Series<T, D> extends _StackedSeriesBase<T, D> {
+class StackedArea100Series<T, D> extends StackedSeriesBase<T, D> {
   /// Creating an argument constructor of StackedArea100Series class.
   StackedArea100Series(
       {ValueKey<String>? key,
@@ -49,10 +52,12 @@ class StackedArea100Series<T, D> extends _StackedSeriesBase<T, D> {
       LegendIconType? legendIconType,
       String? legendItemText,
       double? opacity,
+      double? animationDelay,
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader,
       this.borderDrawMode = BorderDrawMode.top})
       : super(
             key: key,
@@ -89,26 +94,27 @@ class StackedArea100Series<T, D> extends _StackedSeriesBase<T, D> {
             onPointTap: onPointTap,
             onPointDoubleTap: onPointDoubleTap,
             onPointLongPress: onPointLongPress,
-            opacity: opacity);
+            opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader);
 
-  ///Border type of stacked area series.
+  /// Border type of stacked area 100 series.
   ///
-  ///Defaults to `BorderDrawMode.top`.
+  /// Defaults to `BorderDrawMode.top`.
   ///
-  ///Also refer [BorderDrawMode]
+  /// Also refer [BorderDrawMode].
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <AreaSeries<SalesData, num>>[
-  ///                AreaSeries<SalesData, num>(
-  ///                  borderDrawMode: BorderDrawMode.all,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedAreaSeries<SalesData, num>>[
+  ///       StackedAreaSeries<SalesData, num>(
+  ///         borderDrawMode: BorderDrawMode.all,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BorderDrawMode borderDrawMode;
 
   @override
@@ -149,10 +155,12 @@ class StackedArea100Series<T, D> extends _StackedSeriesBase<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.onRendererCreated == onRendererCreated &&
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
         other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader &&
         other.borderColor == borderColor &&
         other.borderWidth == borderWidth &&
         other.borderGradient == borderGradient &&
@@ -190,6 +198,7 @@ class StackedArea100Series<T, D> extends _StackedSeriesBase<T, D> {
       legendIconType,
       legendItemText,
       opacity,
+      animationDelay,
       onRendererCreated,
       borderColor,
       borderWidth,
@@ -215,90 +224,4 @@ class StackedArea100Series<T, D> extends _StackedSeriesBase<T, D> {
     }
     return StackedArea100SeriesRenderer();
   }
-}
-
-/// Creates series renderer for Stacked area 100 series
-class StackedArea100SeriesRenderer extends _StackedSeriesRenderer {
-  /// Calling the default constructor of StackedArea100SeriesRenderer class.
-  StackedArea100SeriesRenderer();
-
-  /// Stacked Area segment is created here.
-  // ignore: unused_element
-  ChartSegment _createSegments(
-      int seriesIndex, SfCartesianChart chart, double animateFactor,
-      [List<Offset>? _points]) {
-    final StackedArea100Segment segment = createSegment();
-    final List<CartesianSeriesRenderer> _oldSeriesRenderers =
-        _chartState!._oldSeriesRenderers;
-    _isRectSeries = false;
-    // ignore: unnecessary_null_comparison
-    if (segment != null) {
-      segment._seriesRenderer = this;
-      segment._series = _series as XyDataSeries<dynamic, dynamic>;
-      segment._seriesIndex = seriesIndex;
-      if (_points != null) {
-        segment.points = _points;
-      }
-      segment.animationFactor = animateFactor;
-      if (_renderingDetails!.widgetNeedUpdate &&
-          _xAxisRenderer!._zoomFactor == 1 &&
-          _yAxisRenderer!._zoomFactor == 1 &&
-          // ignore: unnecessary_null_comparison
-          _oldSeriesRenderers != null &&
-          _oldSeriesRenderers.isNotEmpty &&
-          _oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
-          _oldSeriesRenderers[segment._seriesIndex]._seriesName ==
-              segment._seriesRenderer._seriesName) {
-        segment._oldSeriesRenderer = _oldSeriesRenderers[segment._seriesIndex];
-        segment._oldSeries = segment._oldSeriesRenderer!._series
-            as XyDataSeries<dynamic, dynamic>;
-        segment._oldSegmentIndex = 0;
-      }
-      customizeSegment(segment);
-      segment._chart = chart;
-      segment.strokePaint = segment.getStrokePaint();
-      segment.fillPaint = segment.getFillPaint();
-      _segments.add(segment);
-    }
-    return segment;
-  }
-
-  /// To render stacked area 100 series segments
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment segment) {
-    if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer
-          ?._checkWithSelectionState(_segments[0], _chart);
-    }
-    segment.onPaint(canvas);
-  }
-
-  /// Creates a segment for a data point in the series.
-  @override
-  StackedArea100Segment createSegment() => StackedArea100Segment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  void customizeSegment(ChartSegment segment) {
-    segment._color = segment._seriesRenderer._seriesColor;
-    segment._strokeColor = segment._series.borderColor;
-    segment._strokeWidth = segment._series.borderWidth;
-  }
-
-  /// Draws marker with different shape and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {
-    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
-  }
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }

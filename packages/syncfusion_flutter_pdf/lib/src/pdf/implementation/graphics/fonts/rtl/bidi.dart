@@ -1,34 +1,155 @@
-part of pdf;
+import 'dart:math';
 
 /// Utility class for Bidirectional/Rtl text.
-class _Bidi {
+class Bidi {
   // Constructor.
-  _Bidi() {
+  /// internal constructor
+  Bidi() {
     update();
   }
 
   // Fields.
+  /// internal field
   late List<int> indexes;
+
+  /// internal field
   late List<int> indexLevels;
+
+  /// internal field
   Map<int, int> mirroringShapeCharacters = <int, int>{};
 
+  late Map<int, List<int>> _ranges;
+
+  /// internal field
+  bool isVisualOrder = true;
+
   // Implementations.
-  String getLogicalToVisualString(String inputText, bool isRTL) {
+  /// internal method
+  Map<String, dynamic> getLogicalToVisualString(String inputText, bool isRTL) {
     indexLevels = List<int>.filled(inputText.length, 0, growable: true);
     indexes = List<int>.filled(inputText.length, 0, growable: true);
+    _ranges = <int, List<int>>{};
     final _RTLCharacters rtlCharacters = _RTLCharacters();
     indexLevels = rtlCharacters.getVisualOrder(inputText, isRTL);
     setDefaultIndexLevel();
-    doOrder(0, indexLevels.length - 1);
+    if (isVisualOrder) {
+      doBidiOrder(0, indexLevels.length - 1);
+      if (_ranges.isNotEmpty) {
+        _ranges.forEach((int key, List<int> value) {
+          if (_ranges.entries.last.key != key) {
+            while (value[0] - 1 != -1 &&
+                (rtlCharacters.types[value[0] - 1] == 17 ||
+                    rtlCharacters.types[value[0] - 1] == 18 ||
+                    rtlCharacters.types[value[0] - 1] == 12)) {
+              value[0] = value[0] - 1;
+            }
+            while (value[1] != _ranges.entries.last.value[1] + 1 &&
+                value[1] < rtlCharacters.types.length &&
+                (rtlCharacters.types[value.last] == 17 ||
+                    rtlCharacters.types[value.last] == 18 ||
+                    rtlCharacters.types[value.last] == 12)) {
+              value[1] = value.last + 1;
+            }
+          }
+        });
+        if (_ranges.length == 1) {
+          reArrange(_ranges[0]![0], _ranges[0]![1]);
+        } else {
+          int start = 0;
+          for (int i = 0; i < _ranges.length - 1; i++) {
+            final List<int> range = _ranges[i]!;
+            if (range[0] == 0) {
+              start = range[1];
+            } else {
+              reArrange(start, range[0]);
+              start = range[1];
+            }
+          }
+          if (start != indexLevels.length) {
+            reArrange(start, indexLevels.length);
+          }
+        }
+      }
+    } else {
+      doOrder(0, indexLevels.length - 1);
+    }
     final String text = doMirrorShaping(inputText);
     final StringBuffer resultBuffer = StringBuffer();
     for (int i = 0; i < indexes.length; i++) {
       final int index = indexes[i];
       resultBuffer.write(text[index]);
     }
-    return resultBuffer.toString();
+    String renderedString = resultBuffer.toString();
+    if (isVisualOrder) {
+      final List<String> tempList = renderedString.split('');
+      _ranges.forEach((int key, List<int> value) {
+        if (_ranges.keys.last != key) {
+          String tempText = tempList.getRange(value[0], value[1]).join();
+          if (tempText.contains(')')) {
+            tempText = tempText.replaceAll(')', '(');
+            tempList.replaceRange(value[0], value[1], tempText.split(''));
+            renderedString = tempList.join();
+          }
+        }
+      });
+    }
+    return <String, dynamic>{
+      'rtlText': renderedString,
+      'orderedIndexes': indexes
+    };
   }
 
+  /// internal method
+  void doBidiOrder(int sIndex, int eIndex) {
+    int max = indexLevels[sIndex].toUnsigned(8);
+    int min = max;
+    int odd = max;
+    int even = max;
+    for (int i = sIndex + 1; i <= eIndex; ++i) {
+      final int data = indexLevels[i];
+      if (data > max) {
+        max = data;
+      } else if (data < min) {
+        min = data;
+      }
+      odd &= data;
+      even |= data;
+    }
+    if ((even & 1) == 0) {
+      return;
+    }
+    if ((odd & 1) == 1) {
+      _ranges[_ranges.length] = <int>[sIndex, eIndex + 1];
+      return;
+    }
+    min |= 1;
+    while (max >= min) {
+      int pstart = sIndex;
+      while (true) {
+        while (pstart <= eIndex) {
+          if (indexLevels[pstart] >= max) {
+            break;
+          }
+          pstart += 1;
+        }
+        if (pstart > eIndex) {
+          break;
+        }
+        int pend = pstart + 1;
+        while (pend <= eIndex) {
+          if (indexLevels[pend] < max) {
+            break;
+          }
+          pend += 1;
+        }
+        _ranges[_ranges.length] = <int>[pstart, pend];
+        pstart = pend + 1;
+      }
+      max -= 1;
+    }
+  }
+
+  /// internal method
   String doMirrorShaping(String text) {
     final StringBuffer result = StringBuffer();
     for (int i = 0; i < text.length; i++) {
@@ -43,12 +164,14 @@ class _Bidi {
     return result.toString();
   }
 
+  /// internal method
   void setDefaultIndexLevel() {
     for (int i = 0; i < indexLevels.length; i++) {
       indexes[i] = i;
     }
   }
 
+  /// internal method
   void doOrder(int sIndex, int eIndex) {
     int max = indexLevels[sIndex].toUnsigned(8);
     int min = max;
@@ -98,6 +221,7 @@ class _Bidi {
     }
   }
 
+  /// internal method
   void reArrange(int i, int j) {
     final int length = (i + j) ~/ 2;
     --j;
@@ -108,6 +232,7 @@ class _Bidi {
     }
   }
 
+  /// internal method
   void update() {
     mirroringShapeCharacters[40] = 41;
     mirroringShapeCharacters[41] = 40;

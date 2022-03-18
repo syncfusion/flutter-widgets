@@ -1,3 +1,23 @@
+## [19.3.43] - 09/30/2021
+
+## Linear Gauge
+
+**Features**
+
+* Pointer drag behavior - Provides an option to change the dragging behavior of the marker pointers. The available drag behaviors are `free` and `constraint`.
+* Added `onChangeStart` and `onChangeEnd` callbacks in the [`LinearMarkerPointer`](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/LinearMarkerPointer-class.html) to notify the user about the marker pointer start and end actions.
+
+**Breaking changes**
+
+* The `onValueChanged` callback has been renamed to `onChanged` in the [`LinearMarkerPointer`](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/LinearMarkerPointer-class.html) class.
+
+## Radial Gauge
+
+**Enhancements**
+
+* Now, the pointer can be freely dragged beyond the end-angle for circular radial gauge. For the non-circular radial gauge, the pointers can be dragged between the start and end angle only.
+* The [`GaugeRange`](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/GaugeRange/GaugeRange.html) will always apply in clockwise direction even the [`startValue`](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/GaugeRange/startValue.html) is greater than the [`endValue`](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/GaugeRange/endValue.html).
+
 ## [18.3.35] - 10/01/2020
 
 **Features** 

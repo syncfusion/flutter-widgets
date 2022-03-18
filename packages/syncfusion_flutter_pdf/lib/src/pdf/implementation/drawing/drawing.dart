@@ -1,11 +1,12 @@
-part of pdf;
+import 'dart:ui';
 
 /// Represents the size values.
-class _Size {
-  /// Initializes the [_Size] class.
-  _Size(this.width, this.height);
+class PdfSize {
+  /// Initializes the [PdfSize] class.
+  PdfSize(this.width, this.height);
 
-  _Size.fromSize(Size size) {
+  /// internal constructor
+  PdfSize.fromSize(Size size) {
     width = size.width;
     height = size.height;
   }
@@ -13,7 +14,7 @@ class _Size {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    return other is _Size && width == other.width && height == other.height;
+    return other is PdfSize && width == other.width && height == other.height;
   }
 
   @override
@@ -27,16 +28,19 @@ class _Size {
   late double height;
 
   /// Gets the empty size.
-  static _Size get empty => _Size(0, 0);
+  static PdfSize get empty => PdfSize(0, 0);
 
+  /// internal property
   Size get size => Size(width, height);
 }
 
 /// Represents the point values.
-class _Point {
-  /// Initializes the [_Point] class.
-  _Point(this.x, this.y);
-  _Point.fromOffset(Offset location) {
+class PdfPoint {
+  /// Initializes the [PdfPoint] class.
+  PdfPoint(this.x, this.y);
+
+  /// internal constructor
+  PdfPoint.fromOffset(Offset location) {
     x = location.dx;
     y = location.dy;
   }
@@ -44,7 +48,7 @@ class _Point {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    return other is _Point && x == other.x && y == other.y;
+    return other is PdfPoint && x == other.x && y == other.y;
   }
 
   @override
@@ -57,18 +61,20 @@ class _Point {
   /// Gets or sets the y value.
   late double y;
 
-  /// Gets the empty [_Point].
-  static _Point get empty => _Point(0, 0);
+  /// Gets the empty [PdfPoint].
+  static PdfPoint get empty => PdfPoint(0, 0);
 
+  /// internal property
   Offset get offset => Offset(x, y);
 }
 
 /// Represents the rectangle values.
-class _Rectangle {
-  /// Intialize the [_Rectangle] class.
-  _Rectangle(this.x, this.y, this.width, this.height);
+class PdfRectangle {
+  /// Intialize the [PdfRectangle] class.
+  PdfRectangle(this.x, this.y, this.width, this.height);
 
-  _Rectangle.fromRect(Rect rect) {
+  /// internal constructor
+  PdfRectangle.fromRect(Rect rect) {
     x = rect.left;
     y = rect.top;
     width = rect.width;
@@ -78,7 +84,7 @@ class _Rectangle {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    return other is _Rectangle &&
+    return other is PdfRectangle &&
         x == other.x &&
         y == other.y &&
         height == other.height &&
@@ -102,19 +108,19 @@ class _Rectangle {
   late double height;
 
   /// Gets the [location].
-  _Point get location => _Point(x, y);
+  PdfPoint get location => PdfPoint(x, y);
 
   /// Sets the [location].
-  set location(_Point value) {
+  set location(PdfPoint value) {
     x = value.x;
     y = value.y;
   }
 
   /// Gets the [size].
-  _Size get size => _Size(width, height);
+  PdfSize get size => PdfSize(width, height);
 
   /// Sets the [size].
-  set size(_Size value) {
+  set size(PdfSize value) {
     width = value.width;
     height = value.height;
   }
@@ -131,13 +137,14 @@ class _Rectangle {
   /// Gets the bottom.
   double get bottom => y + height;
 
-  /// Gets the empty [_Rectangle].
-  static _Rectangle get empty => _Rectangle(0, 0, 0, 0);
+  /// Gets the empty [PdfRectangle].
+  static PdfRectangle get empty => PdfRectangle(0, 0, 0, 0);
 
+  /// internal property
   Rect get rect => Rect.fromLTWH(x, y, width, height);
 
   ///Clones the instance of a rectangle.
-  _Rectangle _clone() {
-    return _Rectangle(x, y, width, height);
+  PdfRectangle clone() {
+    return PdfRectangle(x, y, width, height);
   }
 }

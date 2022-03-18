@@ -8,10 +8,14 @@ import 'package:flutter/material.dart';
 /// [size], and [displayNameTextStyle] in resource view of calendar.
 ///
 /// See also:
+/// * [CalendarResource], which holds the data for the resource in the
+/// * [CalendarDataSource.resources], which used to set and handle the resource
+/// collection for the calendar.
+/// * [SfCalendar.resourceViewHeaderBuilder], which used to set custom widget
+/// for the resource view header in calendar.
+/// * Knowledge base: [How to customize the resource view](https://www.syncfusion.com/kb/12351/how-to-customize-the-resource-view-in-the-flutter-calendar)
+/// * Knowledge base: [How to add resources](https://www.syncfusion.com/kb/12070/how-to-add-resources-in-the-flutter-calendar)
 ///
-/// * [CalendarResource], the resource data for calendar.
-/// * [CalendarDataSource.resources], the collection of resource to be displayed
-///  in the timeline views of [SfCalendar].
 ///
 /// ```dart
 ///@override
@@ -76,10 +80,12 @@ class ResourceViewSettings with Diagnosticable {
   /// [SfCalendar]
   ///
   /// See also:
-  ///
-  /// * [CalendarResource], the resource data for calendar.
-  /// * [CalendarDataSource.resources], the collection of resource to be
-  /// displayed in the timeline views of [SfCalendar].
+  /// * [CalendarResource], the object which holds the data for the resource in
+  /// the calendar
+  /// * [CalendarDataSource.resources], which set and handle the resource
+  /// collection for the calendar.
+  /// * Knowledge base: [How to customize the resource view](https://www.syncfusion.com/kb/12351/how-to-customize-the-resource-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to add resources](https://www.syncfusion.com/kb/12070/how-to-add-resources-in-the-flutter-calendar)
   ///
   /// ```dart
   ///@override
@@ -108,10 +114,14 @@ class ResourceViewSettings with Diagnosticable {
   /// appearance of various components of the calendar.
   ///
   /// See also:
-  ///
-  /// * [CalendarResource], the resource data for calendar.
-  /// * [CalendarDataSource.resources], the collection of resource to be
-  /// displayed in the timeline views of [SfCalendar].
+  /// * [CalendarResource], the object which holds the data for the resource in
+  /// the calendar
+  /// * [CalendarDataSource.resources], which set and handle the resource
+  /// collection for the calendar.
+  /// * [SfCalendar.resourceViewHeaderBuilder], which allows to set custom
+  /// widget for the resource view header.in calendar.
+  /// * Knowledge base: [How to customize the resource view](https://www.syncfusion.com/kb/12351/how-to-customize-the-resource-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to add resources](https://www.syncfusion.com/kb/12070/how-to-add-resources-in-the-flutter-calendar)
   ///
   /// ```dart
   ///@override
@@ -140,10 +150,14 @@ class ResourceViewSettings with Diagnosticable {
   /// Defaults to `75`.
   ///
   /// See also:
-  ///
-  /// * [CalendarResource], the resource data for calendar.
-  /// * [CalendarDataSource.resources], the collection of resource to be
-  /// displayed in the timeline views of [SfCalendar].
+  /// * [CalendarResource], the object which holds the data for the resource in
+  /// the calendar
+  /// * [CalendarDataSource.resources], which set and handle the resource
+  /// collection for the calendar.
+  /// * [SfCalendar.resourceViewHeaderBuilder], which allows to set custom
+  /// widget for the resource view header.in calendar.
+  /// * Knowledge base: [How to customize the resource view](https://www.syncfusion.com/kb/12351/how-to-customize-the-resource-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to add resources](https://www.syncfusion.com/kb/12070/how-to-add-resources-in-the-flutter-calendar)
   ///
   /// ```dart
   ///@override
@@ -175,10 +189,14 @@ class ResourceViewSettings with Diagnosticable {
   ///
   ///
   /// See also:
-  ///
-  /// * [CalendarResource], the resource data for calendar.
-  /// * [CalendarDataSource.resources], the collection of resource to be
-  /// displayed in the timeline views of [SfCalendar].
+  /// * [CalendarResource], the object which holds the data for the resource in
+  /// the calendar
+  /// * [CalendarDataSource.resources], which set and handle the resource
+  /// collection for the calendar.
+  /// * [SfCalendar.resourceViewHeaderBuilder], which allows to set custom
+  /// widget for the resource view header.in calendar.
+  /// * Knowledge base: [How to customize the resource view](https://www.syncfusion.com/kb/12351/how-to-customize-the-resource-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to add resources](https://www.syncfusion.com/kb/12070/how-to-add-resources-in-the-flutter-calendar)
   ///
   /// ```dart
   ///@override

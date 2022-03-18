@@ -1,7 +1,10 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../io/pdf_constants.dart';
+import '../primitives/pdf_dictionary.dart';
+import 'pdf_action.dart';
 
 /// Represents additional actions of the annotations.
-class PdfAnnotationActions implements _IPdfWrapper {
+class PdfAnnotationActions implements IPdfWrapper {
   //Constructor
   /// Initializes a new instance of the [PdfAnnotationActions] class.
   PdfAnnotationActions(
@@ -11,16 +14,17 @@ class PdfAnnotationActions implements _IPdfWrapper {
       PdfAction? mouseDown,
       PdfAction? gotFocus,
       PdfAction? lostFocus}) {
+    _helper = PdfAnnotationActionsHelper();
     _initValues(
         mouseEnter, mouseLeave, mouseUp, mouseDown, gotFocus, lostFocus);
   }
 
-  PdfAnnotationActions._loaded(_PdfDictionary? dictionary) {
-    _dictionary = dictionary;
+  PdfAnnotationActions._loaded(PdfDictionary? dictionary) {
+    _helper = PdfAnnotationActionsHelper(dictionary);
   }
 
   //Fields
-  _PdfDictionary? _dictionary = _PdfDictionary();
+  late PdfAnnotationActionsHelper _helper;
   PdfAction? _mouseEnter;
   PdfAction? _mouseLeave;
   PdfAction? _mouseDown;
@@ -35,7 +39,7 @@ class PdfAnnotationActions implements _IPdfWrapper {
   set mouseEnter(PdfAction? value) {
     if (value != null && _mouseEnter != value) {
       _mouseEnter = value;
-      _dictionary!.setProperty(_DictionaryProperties.e, _mouseEnter);
+      _helper.dictionary!.setProperty(PdfDictionaryProperties.e, _mouseEnter);
     }
   }
 
@@ -45,7 +49,7 @@ class PdfAnnotationActions implements _IPdfWrapper {
   set mouseLeave(PdfAction? value) {
     if (value != null && _mouseLeave != value) {
       _mouseLeave = value;
-      _dictionary!.setProperty(_DictionaryProperties.x, _mouseLeave);
+      _helper.dictionary!.setProperty(PdfDictionaryProperties.x, _mouseLeave);
     }
   }
 
@@ -55,7 +59,7 @@ class PdfAnnotationActions implements _IPdfWrapper {
   set mouseDown(PdfAction? value) {
     if (value != null && _mouseDown != value) {
       _mouseDown = value;
-      _dictionary!.setProperty(_DictionaryProperties.d, _mouseDown);
+      _helper.dictionary!.setProperty(PdfDictionaryProperties.d, _mouseDown);
     }
   }
 
@@ -64,7 +68,7 @@ class PdfAnnotationActions implements _IPdfWrapper {
   set mouseUp(PdfAction? value) {
     if (value != null && _mouseUp != value) {
       _mouseUp = value;
-      _dictionary!.setProperty(_DictionaryProperties.u, _mouseUp);
+      _helper.dictionary!.setProperty(PdfDictionaryProperties.u, _mouseUp);
     }
   }
 
@@ -74,7 +78,7 @@ class PdfAnnotationActions implements _IPdfWrapper {
   set gotFocus(PdfAction? value) {
     if (value != null && _gotFocus != value) {
       _gotFocus = value;
-      _dictionary!.setProperty(_DictionaryProperties.fo, _gotFocus);
+      _helper.dictionary!.setProperty(PdfDictionaryProperties.fo, _gotFocus);
     }
   }
 
@@ -84,7 +88,7 @@ class PdfAnnotationActions implements _IPdfWrapper {
   set lostFocus(PdfAction? value) {
     if (value != null && _lostFocus != value) {
       _lostFocus = value;
-      _dictionary!.setProperty(_DictionaryProperties.bl, _lostFocus);
+      _helper.dictionary!.setProperty(PdfDictionaryProperties.bl, _lostFocus);
     }
   }
 
@@ -110,13 +114,35 @@ class PdfAnnotationActions implements _IPdfWrapper {
       lostFocus = lostF;
     }
   }
+}
 
-  @override
-  _IPdfPrimitive? get _element => _dictionary;
+/// [PdfAnnotationActions] helper
+class PdfAnnotationActionsHelper {
+  /// internal constructor
+  PdfAnnotationActionsHelper([PdfDictionary? dictionary]) {
+    this.dictionary = (dictionary != null) ? dictionary : PdfDictionary();
+  }
 
-  @override
+  /// internal field
+  PdfDictionary? dictionary;
+
+  /// internal property
+  IPdfPrimitive? get element => dictionary;
   // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    _element = value;
+  set element(IPdfPrimitive? value) {
+    if (value != null && value is PdfDictionary) {
+      dictionary = value;
+    }
+  }
+
+  /// internal method
+  static PdfAnnotationActionsHelper getHelper(
+      PdfAnnotationActions annotationActions) {
+    return annotationActions._helper;
+  }
+
+  /// internal method
+  static PdfAnnotationActions load(PdfDictionary? dictionary) {
+    return PdfAnnotationActions._loaded(dictionary);
   }
 }

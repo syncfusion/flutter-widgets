@@ -1,51 +1,107 @@
-part of charts;
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_core/core.dart';
+import '../../common/event_args.dart';
+import '../../common/rendering_details.dart';
+import '../axis/axis.dart';
+import '../axis/category_axis.dart';
+import '../base/chart_base.dart';
+import '../common/cartesian_state_properties.dart';
+import '../common/renderer.dart';
+import '../utils/enum.dart';
+import '../utils/helper.dart';
+import 'crosshair.dart';
 
-class _CrosshairPainter extends CustomPainter {
-  _CrosshairPainter({required this.chartState, required this.valueNotifier})
-      : chart = chartState._chart,
+/// Represents the crosshair painter.
+class CrosshairPainter extends CustomPainter {
+  /// Calling the default constructor of CrosshairPainter class.
+  CrosshairPainter({required this.stateProperties, required this.valueNotifier})
+      : chart = stateProperties.chart,
         super(repaint: valueNotifier);
-  final SfCartesianChartState chartState;
+
+  /// Represents the cartesian state properties.
+  final CartesianStateProperties stateProperties;
+
+  /// Represents the cartesian chart.
   final SfCartesianChart chart;
-  _RenderingDetails get _renderingDetails => chartState._renderingDetails;
+
+  RenderingDetails get _renderingDetails => stateProperties.renderingDetails;
+
+  /// Represents the value of timer.
   Timer? timer;
+
+  /// Repaint notifier for crosshair.
   ValueNotifier<int> valueNotifier;
+
   // double pointerLength;
   // double pointerWidth;
+
+  /// Represents the nose point y value.
   double nosePointY = 0;
+
+  /// Represents the nose point x value.
   double nosePointX = 0;
+
+  /// Represents the total width value.
   double totalWidth = 0;
+
   // double x;
   // double y;
   // double xPos;
   // double yPos;
+
+  /// Represents the value of isTop.
   bool isTop = false;
+
   // double cornerRadius;
+
+  /// Represents the background path value for crosshair.
   Path backgroundPath = Path();
+
+  /// Represents the canResetPath value of crosshair.
   bool canResetPath = true;
+
+  /// Represents the value of isleft.
   bool isLeft = false;
+
+  /// Represents the value of isRight.
   bool isRight = false;
+
   // bool enable;
+
+  /// Represents the padding value for crosshair.
   double padding = 0;
+
+  /// Specifies the list of string value for the crosshair tooltip.
   List<String> stringValue = <String>[];
-  Rect boundaryRect = const Rect.fromLTWH(0, 0, 0, 0);
+
+  /// Represents the boundary rect for crosshair.
+  Rect boundaryRect = Rect.zero;
+
+  /// Represents the left padding for crosshair.
   double leftPadding = 0;
+
+  /// Represents the top padding for crosshair.
   double topPadding = 0;
+
+  /// Specifies whether the orientation is horizontal or not.
   bool isHorizontalOrientation = false;
+
   // TextStyle labelStyle;
 
   @override
   void paint(Canvas canvas, Size size) {
     if (!canResetPath) {
-      chartState._crosshairBehaviorRenderer.onPaint(canvas);
+      stateProperties.crosshairBehaviorRenderer.onPaint(canvas);
     }
   }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 
-  /// calculate trackball points
-  void _generateAllPoints(Offset position) {
-    final Rect _axisClipRect = chartState._chartAxis._axisClipRect;
+  /// Calculate trackball points.
+  void generateAllPoints(Offset position) {
+    final Rect _axisClipRect = stateProperties.chartAxis.axisClipRect;
     double dx, dy;
     dx = position.dx > _axisClipRect.right
         ? _axisClipRect.right
@@ -57,47 +113,50 @@ class _CrosshairPainter extends CustomPainter {
         : position.dy < _axisClipRect.top
             ? _axisClipRect.top
             : position.dy;
-    chartState._crosshairBehaviorRenderer._position = Offset(dx, dy);
+    CrosshairHelper.getRenderingDetails(
+            stateProperties.crosshairBehaviorRenderer)
+        .position = Offset(dx, dy);
   }
 
-  /// Get line painter paint
-  Paint _getLinePainter(Paint crosshairLinePaint) => crosshairLinePaint;
+  /// Gets the line painter.
+  Paint getLinePainter(Paint crosshairLinePaint) => crosshairLinePaint;
 
-  /// Draw the path of the cross hair line
-  void _drawCrosshairLine(Canvas canvas, Paint paint, int? index) {
-    if (chartState._crosshairBehaviorRenderer._position != null) {
+  /// Draw the path of the crosshair line.
+  void drawCrosshairLine(Canvas canvas, Paint paint, int? index) {
+    final CrosshairRenderingDetails renderingDetails =
+        CrosshairHelper.getRenderingDetails(
+            stateProperties.crosshairBehaviorRenderer);
+    if (renderingDetails.position != null) {
       final Path dashArrayPath = Path();
       if ((chart.crosshairBehavior.lineType == CrosshairLineType.horizontal ||
               chart.crosshairBehavior.lineType == CrosshairLineType.both) &&
           chart.crosshairBehavior.lineWidth != 0) {
-        dashArrayPath.moveTo(chartState._chartAxis._axisClipRect.left,
-            chartState._crosshairBehaviorRenderer._position!.dy);
-        dashArrayPath.lineTo(chartState._chartAxis._axisClipRect.right,
-            chartState._crosshairBehaviorRenderer._position!.dy);
+        dashArrayPath.moveTo(stateProperties.chartAxis.axisClipRect.left,
+            renderingDetails.position!.dy);
+        dashArrayPath.lineTo(stateProperties.chartAxis.axisClipRect.right,
+            renderingDetails.position!.dy);
         chart.crosshairBehavior.lineDashArray != null
-            ? _drawDashedLine(canvas, chart.crosshairBehavior.lineDashArray!,
+            ? drawDashedLine(canvas, chart.crosshairBehavior.lineDashArray!,
                 paint, dashArrayPath)
             : canvas.drawPath(dashArrayPath, paint);
       }
       if ((chart.crosshairBehavior.lineType == CrosshairLineType.vertical ||
               chart.crosshairBehavior.lineType == CrosshairLineType.both) &&
           chart.crosshairBehavior.lineWidth != 0) {
-        dashArrayPath.moveTo(
-            chartState._crosshairBehaviorRenderer._position!.dx,
-            chartState._chartAxis._axisClipRect.top);
-        dashArrayPath.lineTo(
-            chartState._crosshairBehaviorRenderer._position!.dx,
-            chartState._chartAxis._axisClipRect.bottom);
+        dashArrayPath.moveTo(renderingDetails.position!.dx,
+            stateProperties.chartAxis.axisClipRect.top);
+        dashArrayPath.lineTo(renderingDetails.position!.dx,
+            stateProperties.chartAxis.axisClipRect.bottom);
         chart.crosshairBehavior.lineDashArray != null
-            ? _drawDashedLine(canvas, chart.crosshairBehavior.lineDashArray!,
+            ? drawDashedLine(canvas, chart.crosshairBehavior.lineDashArray!,
                 paint, dashArrayPath)
             : canvas.drawPath(dashArrayPath, paint);
       }
     }
   }
 
-  /// To draw cross hair
-  void _drawCrosshair(Canvas canvas) {
+  /// To draw crosshair.
+  void drawCrosshair(Canvas canvas) {
     final Paint fillPaint = Paint()
       ..color = _renderingDetails.chartTheme.crosshairBackgroundColor
       ..strokeCap = StrokeCap.butt
@@ -114,8 +173,11 @@ class _CrosshairPainter extends CustomPainter {
         : strokePaint.color = strokePaint.color;
 
     final Paint crosshairLinePaint = Paint();
-    if (chartState._crosshairBehaviorRenderer._position != null) {
-      final Offset position = chartState._crosshairBehaviorRenderer._position!;
+    final CrosshairRenderingDetails renderingDetails =
+        CrosshairHelper.getRenderingDetails(
+            stateProperties.crosshairBehaviorRenderer);
+    if (renderingDetails.position != null) {
+      final Offset position = renderingDetails.position!;
 
       crosshairLinePaint.color = chart.crosshairBehavior.lineColor ??
           _renderingDetails.chartTheme.crosshairLineColor;
@@ -124,15 +186,13 @@ class _CrosshairPainter extends CustomPainter {
       CrosshairRenderArgs crosshairEventArgs;
       if (chart.onCrosshairPositionChanging != null) {
         crosshairEventArgs = CrosshairRenderArgs();
+        crosshairEventArgs.text = '';
         crosshairEventArgs.lineColor = crosshairLinePaint.color;
         chart.onCrosshairPositionChanging!(crosshairEventArgs);
         crosshairLinePaint.color = crosshairEventArgs.lineColor;
       }
-      chartState._crosshairBehaviorRenderer._drawLine(
-          canvas,
-          chartState._crosshairBehaviorRenderer
-              ._linePainter(crosshairLinePaint),
-          null);
+      renderingDetails.drawLine(
+          canvas, renderingDetails.linePainter(crosshairLinePaint), null);
 
       _drawBottomAxesTooltip(canvas, position, strokePaint, fillPaint);
       _drawTopAxesTooltip(canvas, position, strokePaint, fillPaint);
@@ -141,10 +201,10 @@ class _CrosshairPainter extends CustomPainter {
     }
   }
 
-  /// draw bottom axes tooltip
+  /// Draw bottom axes tooltip.
   void _drawBottomAxesTooltip(
       Canvas canvas, Offset position, Paint strokePaint, Paint fillPaint) {
-    ChartAxisRenderer axisRenderer;
+    ChartAxisRendererDetails axisDetails;
     String value;
     Size labelSize;
     Rect labelRect, validatedRect;
@@ -154,20 +214,21 @@ class _CrosshairPainter extends CustomPainter {
     const double padding = 10;
     CrosshairRenderArgs crosshairEventArgs;
     for (int index = 0;
-        index < chartState._chartAxis._bottomAxesCount.length;
+        index < stateProperties.chartAxis.bottomAxesCount.length;
         index++) {
-      axisRenderer = chartState._chartAxis._bottomAxesCount[index].axisRenderer;
-      final ChartAxis axis = axisRenderer._axis;
-      if (_needToAddTooltip(axisRenderer)) {
+      axisDetails = AxisHelper.getAxisRendererDetails(
+          stateProperties.chartAxis.bottomAxesCount[index].axisRenderer);
+      final ChartAxis axis = axisDetails.axis;
+      if (_needToAddTooltip(axisDetails)) {
         fillPaint.color = axis.interactiveTooltip.color ??
             _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.color = axis.interactiveTooltip.borderColor ??
             _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.strokeWidth = axis.interactiveTooltip.borderWidth;
-        value = _getXValue(axisRenderer, position);
+        value = _getXValue(axisDetails.axisRenderer, position);
         if (chart.onCrosshairPositionChanging != null) {
           crosshairEventArgs = CrosshairRenderArgs(
-              axis, value, axisRenderer._name, axisRenderer._orientation);
+              axis, value, axisDetails.name, axisDetails.orientation);
           crosshairEventArgs.text = value;
           crosshairEventArgs.lineColor = chart.crosshairBehavior.lineColor ??
               _renderingDetails.chartTheme.crosshairLineColor;
@@ -178,17 +239,17 @@ class _CrosshairPainter extends CustomPainter {
         labelSize = measureText(value, axis.interactiveTooltip.textStyle);
         labelRect = Rect.fromLTWH(
             position.dx - (labelSize.width / 2 + padding / 2),
-            axisRenderer._bounds.top + axis.interactiveTooltip.arrowLength,
+            axisDetails.bounds.top + axis.interactiveTooltip.arrowLength,
             labelSize.width + padding,
             labelSize.height + padding);
-        labelRect = _validateRectBounds(
-            labelRect, _renderingDetails.chartContainerRect);
-        validatedRect = _validateRectXPosition(labelRect, chartState);
+        labelRect =
+            validateRectBounds(labelRect, _renderingDetails.chartContainerRect);
+        validatedRect = validateRectXPosition(labelRect, stateProperties);
         backgroundPath.reset();
-        tooltipRect = _getRoundedCornerRect(
+        tooltipRect = getRoundedCornerRect(
             validatedRect, axis.interactiveTooltip.borderRadius);
         backgroundPath.addRRect(tooltipRect);
-        _drawTooltipArrowhead(
+        drawTooltipArrowhead(
             canvas,
             backgroundPath,
             fillPaint,
@@ -209,11 +270,11 @@ class _CrosshairPainter extends CustomPainter {
     }
   }
 
-  /// draw top axes tooltip
+  /// Draw top axes tooltip.
   void _drawTopAxesTooltip(
       Canvas canvas, Offset position, Paint strokePaint, Paint fillPaint) {
     ChartAxis axis;
-    ChartAxisRenderer axisRenderer;
+    ChartAxisRendererDetails axisDetails;
     String value;
     Size labelSize;
     Rect labelRect, validatedRect;
@@ -223,20 +284,21 @@ class _CrosshairPainter extends CustomPainter {
     Color? color;
     CrosshairRenderArgs crosshairEventArgs;
     for (int index = 0;
-        index < chartState._chartAxis._topAxesCount.length;
+        index < stateProperties.chartAxis.topAxesCount.length;
         index++) {
-      axisRenderer = chartState._chartAxis._topAxesCount[index].axisRenderer;
-      axis = axisRenderer._axis;
-      if (_needToAddTooltip(axisRenderer)) {
+      axisDetails = AxisHelper.getAxisRendererDetails(
+          stateProperties.chartAxis.topAxesCount[index].axisRenderer);
+      axis = axisDetails.axis;
+      if (_needToAddTooltip(axisDetails)) {
         fillPaint.color = axis.interactiveTooltip.color ??
             _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.color = axis.interactiveTooltip.borderColor ??
             _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.strokeWidth = axis.interactiveTooltip.borderWidth;
-        value = _getXValue(axisRenderer, position);
+        value = _getXValue(axisDetails.axisRenderer, position);
         if (chart.onCrosshairPositionChanging != null) {
-          crosshairEventArgs = CrosshairRenderArgs(axisRenderer._axis, value,
-              axisRenderer._name, axisRenderer._orientation);
+          crosshairEventArgs = CrosshairRenderArgs(axisDetails.axis, value,
+              axisDetails.name, axisDetails.orientation);
           crosshairEventArgs.text = value;
           crosshairEventArgs.lineColor = chart.crosshairBehavior.lineColor ??
               _renderingDetails.chartTheme.crosshairLineColor;
@@ -247,19 +309,19 @@ class _CrosshairPainter extends CustomPainter {
         labelSize = measureText(value, axis.interactiveTooltip.textStyle);
         labelRect = Rect.fromLTWH(
             position.dx - (labelSize.width / 2 + padding / 2),
-            axisRenderer._bounds.top -
+            axisDetails.bounds.top -
                 (labelSize.height + padding) -
                 axis.interactiveTooltip.arrowLength,
             labelSize.width + padding,
             labelSize.height + padding);
-        labelRect = _validateRectBounds(
-            labelRect, _renderingDetails.chartContainerRect);
-        validatedRect = _validateRectXPosition(labelRect, chartState);
+        labelRect =
+            validateRectBounds(labelRect, _renderingDetails.chartContainerRect);
+        validatedRect = validateRectXPosition(labelRect, stateProperties);
         backgroundPath.reset();
-        tooltipRect = _getRoundedCornerRect(
+        tooltipRect = getRoundedCornerRect(
             validatedRect, axis.interactiveTooltip.borderRadius);
         backgroundPath.addRRect(tooltipRect);
-        _drawTooltipArrowhead(
+        drawTooltipArrowhead(
             canvas,
             backgroundPath,
             fillPaint,
@@ -280,11 +342,11 @@ class _CrosshairPainter extends CustomPainter {
     }
   }
 
-  /// draw left axes tooltip
+  /// Draw left axes tooltip.
   void _drawLeftAxesTooltip(
       Canvas canvas, Offset position, Paint strokePaint, Paint fillPaint) {
     ChartAxis axis;
-    ChartAxisRenderer axisRenderer;
+    ChartAxisRendererDetails axisDetails;
     String value;
     Size labelSize;
     Rect labelRect, validatedRect;
@@ -294,20 +356,21 @@ class _CrosshairPainter extends CustomPainter {
     Color? color;
     CrosshairRenderArgs crosshairEventArgs;
     for (int index = 0;
-        index < chartState._chartAxis._leftAxesCount.length;
+        index < stateProperties.chartAxis.leftAxesCount.length;
         index++) {
-      axisRenderer = chartState._chartAxis._leftAxesCount[index].axisRenderer;
-      axis = axisRenderer._axis;
-      if (_needToAddTooltip(axisRenderer)) {
+      axisDetails = AxisHelper.getAxisRendererDetails(
+          stateProperties.chartAxis.leftAxesCount[index].axisRenderer);
+      axis = axisDetails.axis;
+      if (_needToAddTooltip(axisDetails)) {
         fillPaint.color = axis.interactiveTooltip.color ??
             _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.color = axis.interactiveTooltip.borderColor ??
             _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.strokeWidth = axis.interactiveTooltip.borderWidth;
-        value = _getYValue(axisRenderer, position);
+        value = _getYValue(axisDetails.axisRenderer, position);
         if (chart.onCrosshairPositionChanging != null) {
           crosshairEventArgs = CrosshairRenderArgs(
-              axis, value, axisRenderer._name, axisRenderer._orientation);
+              axis, value, axisDetails.name, axisDetails.orientation);
           crosshairEventArgs.text = value;
           crosshairEventArgs.lineColor = chart.crosshairBehavior.lineColor ??
               _renderingDetails.chartTheme.crosshairLineColor;
@@ -317,21 +380,21 @@ class _CrosshairPainter extends CustomPainter {
         }
         labelSize = measureText(value, axis.interactiveTooltip.textStyle);
         labelRect = Rect.fromLTWH(
-            axisRenderer._bounds.left -
+            axisDetails.bounds.left -
                 (labelSize.width + padding) -
                 axis.interactiveTooltip.arrowLength,
             position.dy - (labelSize.height + padding) / 2,
             labelSize.width + padding,
             labelSize.height + padding);
-        labelRect = _validateRectBounds(
-            labelRect, _renderingDetails.chartContainerRect);
-        validatedRect = _validateRectYPosition(labelRect, chartState);
+        labelRect =
+            validateRectBounds(labelRect, _renderingDetails.chartContainerRect);
+        validatedRect = validateRectYPosition(labelRect, stateProperties);
         backgroundPath.reset();
-        tooltipRect = _getRoundedCornerRect(
+        tooltipRect = getRoundedCornerRect(
             validatedRect, axis.interactiveTooltip.borderRadius);
 
         backgroundPath.addRRect(tooltipRect);
-        _drawTooltipArrowhead(
+        drawTooltipArrowhead(
             canvas,
             backgroundPath,
             fillPaint,
@@ -355,11 +418,11 @@ class _CrosshairPainter extends CustomPainter {
     }
   }
 
-  /// draw right axes tooltip
+  /// Draw right axes tooltip.
   void _drawRightAxesTooltip(
       Canvas canvas, Offset position, Paint strokePaint, Paint fillPaint) {
     ChartAxis axis;
-    ChartAxisRenderer axisRenderer;
+    ChartAxisRendererDetails axisDetails;
     String value;
     Size labelSize;
     Rect labelRect, validatedRect;
@@ -369,20 +432,21 @@ class _CrosshairPainter extends CustomPainter {
     Color? color;
     const double padding = 10;
     for (int index = 0;
-        index < chartState._chartAxis._rightAxesCount.length;
+        index < stateProperties.chartAxis.rightAxesCount.length;
         index++) {
-      axisRenderer = chartState._chartAxis._rightAxesCount[index].axisRenderer;
-      axis = axisRenderer._axis;
-      if (_needToAddTooltip(axisRenderer)) {
+      axisDetails = AxisHelper.getAxisRendererDetails(
+          stateProperties.chartAxis.rightAxesCount[index].axisRenderer);
+      axis = axisDetails.axis;
+      if (_needToAddTooltip(axisDetails)) {
         fillPaint.color = axis.interactiveTooltip.color ??
             _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.color = axis.interactiveTooltip.borderColor ??
             _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.strokeWidth = axis.interactiveTooltip.borderWidth;
-        value = _getYValue(axisRenderer, position);
+        value = _getYValue(axisDetails.axisRenderer, position);
         if (chart.onCrosshairPositionChanging != null) {
           crosshairEventArgs = CrosshairRenderArgs(
-              axis, value, axisRenderer._name, axisRenderer._orientation);
+              axis, value, axisDetails.name, axisDetails.orientation);
           crosshairEventArgs.text = value;
           crosshairEventArgs.lineColor = chart.crosshairBehavior.lineColor ??
               _renderingDetails.chartTheme.crosshairLineColor;
@@ -392,18 +456,18 @@ class _CrosshairPainter extends CustomPainter {
         }
         labelSize = measureText(value, axis.interactiveTooltip.textStyle);
         labelRect = Rect.fromLTWH(
-            axisRenderer._bounds.left + axis.interactiveTooltip.arrowLength,
+            axisDetails.bounds.left + axis.interactiveTooltip.arrowLength,
             position.dy - (labelSize.height / 2 + padding / 2),
             labelSize.width + padding,
             labelSize.height + padding);
-        labelRect = _validateRectBounds(
-            labelRect, _renderingDetails.chartContainerRect);
-        validatedRect = _validateRectYPosition(labelRect, chartState);
+        labelRect =
+            validateRectBounds(labelRect, _renderingDetails.chartContainerRect);
+        validatedRect = validateRectYPosition(labelRect, stateProperties);
         backgroundPath.reset();
-        tooltipRect = _getRoundedCornerRect(
+        tooltipRect = getRoundedCornerRect(
             validatedRect, axis.interactiveTooltip.borderRadius);
         backgroundPath.addRRect(tooltipRect);
-        _drawTooltipArrowhead(
+        drawTooltipArrowhead(
             canvas,
             backgroundPath,
             fillPaint,
@@ -428,7 +492,7 @@ class _CrosshairPainter extends CustomPainter {
 
   void _drawTooltipText(Canvas canvas, String text, TextStyle textStyle,
       RRect tooltipRect, Size labelSize) {
-    _drawText(
+    drawText(
         canvas,
         text,
         Offset((tooltipRect.left + tooltipRect.width / 2) - labelSize.width / 2,
@@ -460,56 +524,60 @@ class _CrosshairPainter extends CustomPainter {
         0);
   }
 
-  /// To find the x value of crosshair
+  /// To find the x value of crosshair.
   String _getXValue(ChartAxisRenderer axisRenderer, Offset position) {
-    final num value = _pointToXVal(
+    final ChartAxisRendererDetails axisDetails =
+        AxisHelper.getAxisRendererDetails(axisRenderer);
+    final num value = pointToXVal(
         chart,
-        axisRenderer,
-        axisRenderer._bounds,
+        axisDetails.axisRenderer,
+        axisDetails.bounds,
         position.dx -
-            (chartState._chartAxis._axisClipRect.left +
-                axisRenderer._axis.plotOffset),
+            (stateProperties.chartAxis.axisClipRect.left +
+                axisDetails.axis.plotOffset),
         position.dy -
-            (chartState._chartAxis._axisClipRect.top +
-                axisRenderer._axis.plotOffset));
+            (stateProperties.chartAxis.axisClipRect.top +
+                axisDetails.axis.plotOffset));
     String resultantString =
-        _getInteractiveTooltipLabel(value, axisRenderer).toString();
-    if (axisRenderer._axis.interactiveTooltip.format != null) {
-      final String stringValue = axisRenderer._axis.interactiveTooltip.format!
+        getInteractiveTooltipLabel(value, axisDetails.axisRenderer).toString();
+    if (axisDetails.axis.interactiveTooltip.format != null) {
+      final String stringValue = axisDetails.axis.interactiveTooltip.format!
           .replaceAll('{value}', resultantString);
       resultantString = stringValue;
     }
     return resultantString;
   }
 
-  /// To find the y value of crosshair
+  /// To find the y value of crosshair.
   String _getYValue(ChartAxisRenderer axisRenderer, Offset position) {
-    final num value = _pointToYVal(
+    final ChartAxisRendererDetails axisDetails =
+        AxisHelper.getAxisRendererDetails(axisRenderer);
+    final num value = pointToYVal(
         chart,
-        axisRenderer,
-        axisRenderer._bounds,
+        axisDetails.axisRenderer,
+        axisDetails.bounds,
         position.dx -
-            (chartState._chartAxis._axisClipRect.left +
-                axisRenderer._axis.plotOffset),
+            (stateProperties.chartAxis.axisClipRect.left +
+                axisDetails.axis.plotOffset),
         position.dy -
-            (chartState._chartAxis._axisClipRect.top +
-                axisRenderer._axis.plotOffset));
+            (stateProperties.chartAxis.axisClipRect.top +
+                axisDetails.axis.plotOffset));
     String resultantString =
-        _getInteractiveTooltipLabel(value, axisRenderer).toString();
-    if (axisRenderer._axis.interactiveTooltip.format != null) {
-      final String stringValue = axisRenderer._axis.interactiveTooltip.format!
+        getInteractiveTooltipLabel(value, axisDetails.axisRenderer).toString();
+    if (axisDetails.axis.interactiveTooltip.format != null) {
+      final String stringValue = axisDetails.axis.interactiveTooltip.format!
           .replaceAll('{value}', resultantString);
       resultantString = stringValue;
     }
     return resultantString;
   }
 
-  /// To add the tooltip for crosshair
-  bool _needToAddTooltip(ChartAxisRenderer axisRenderer) {
-    return axisRenderer._axis.interactiveTooltip.enable &&
-        ((axisRenderer is! CategoryAxisRenderer &&
-                axisRenderer._visibleLabels.isNotEmpty) ||
-            (axisRenderer is CategoryAxisRenderer &&
-                axisRenderer._labels.isNotEmpty));
+  /// To add the tooltip for crosshair.
+  bool _needToAddTooltip(ChartAxisRendererDetails axisDetails) {
+    return axisDetails.axis.interactiveTooltip.enable &&
+        ((axisDetails is! CategoryAxisDetails &&
+                axisDetails.visibleLabels.isNotEmpty) ||
+            (axisDetails is CategoryAxisDetails &&
+                axisDetails.labels.isNotEmpty));
   }
 }

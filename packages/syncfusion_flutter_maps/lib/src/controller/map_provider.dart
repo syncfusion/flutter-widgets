@@ -1,10 +1,9 @@
 import 'dart:convert' show utf8;
 import 'dart:typed_data' show Uint8List;
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
-
-import 'package:flutter/material.dart';
 
 /// Converts the given source file to future string based on source type.
 abstract class MapProvider {
@@ -41,7 +40,7 @@ class AssetMapProvider extends MapProvider {
 
   @override
   Future<String> loadString() async {
-    return await rootBundle.loadString(_shapePath);
+    return rootBundle.loadString(_shapePath);
   }
 
   @override

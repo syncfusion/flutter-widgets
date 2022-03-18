@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../../base/symbology_base.dart';
@@ -43,7 +42,7 @@ class CodabarRenderer extends SymbologyRenderer {
           value[i] == 'B' ||
           value[i] == 'C' ||
           value[i] == 'D') {
-        throw 'The provided input cannot be encoded : ' + value[i];
+        throw 'The provided input cannot be encoded : ${value[i]}';
       }
     }
     return true;
@@ -118,7 +117,7 @@ class CodabarRenderer extends SymbologyRenderer {
 
   /// Method to append the start and the stop symbol
   String _getValueWithStartAndStopSymbol(String value) {
-    return 'A' + value + 'A';
+    return 'A${value}A';
   }
 
   /// Returns the encoded value of the provided input value

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../radial_gauge/axis/radial_axis_scope.dart';
 import '../../radial_gauge/pointers/gauge_pointer.dart';
 import '../../radial_gauge/pointers/widget_pointer_renderer.dart';
 import '../../radial_gauge/utils/enum.dart';
+import '../../radial_gauge/utils/helper.dart';
 import '../../radial_gauge/utils/radial_callback_args.dart';
 
 /// Create the pointer to indicate the value with built-in shape.
@@ -375,8 +375,10 @@ class WidgetPointer extends SingleChildRenderObjectWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+    final RadialAxisInheritedWidget ancestor = context
+        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
     return RenderWidgetPointer(
-        value: value,
+        value: value.clamp(ancestor.minimum, ancestor.maximum),
         enableDragging: enableDragging,
         onValueChanged: onValueChanged,
         onValueChangeStart: onValueChangeStart,
@@ -397,6 +399,8 @@ class WidgetPointer extends SingleChildRenderObjectWidget
   void updateRenderObject(
       BuildContext context, RenderWidgetPointer renderObject) {
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+    final RadialAxisInheritedWidget ancestor = context
+        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
 
     renderObject
       ..enableDragging = enableDragging
@@ -412,7 +416,7 @@ class WidgetPointer extends SingleChildRenderObjectWidget
       ..isRadialGaugeAnimationEnabled =
           radialAxisScope.isRadialGaugeAnimationEnabled
       ..offset = offset
-      ..value = value;
+      ..value = value.clamp(ancestor.minimum, ancestor.maximum);
     super.updateRenderObject(context, renderObject);
   }
 }

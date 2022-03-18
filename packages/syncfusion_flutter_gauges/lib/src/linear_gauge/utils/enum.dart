@@ -105,3 +105,25 @@ enum LinearMarkerAlignment {
   /// LinearMarkerAlignment.end points the axis from outside position.
   end
 }
+
+/// Apply the different drag behavior for marker pointers.
+enum LinearMarkerDragBehavior {
+  /// LinearMarkerDragBehavior.free default drag behavior for marker pointer.
+  free,
+
+  /// LinearMarkerDragBehavior.constrained the current marker pointer is not
+  /// go beyond the reference marker pointer.
+  constrained,
+}
+
+/// Find the Constrained state of the marker pointer.
+enum ConstrainedBy {
+  /// ConstrainedBy.min constrained the marker pointer in the minimum value.
+  min,
+
+  /// ConstrainedBy.max constrained the marker pointer in the maximum value.
+  max,
+
+  /// ConstrainedBy.none when the marker pointer is not constrained with any pointers.
+  none,
+}

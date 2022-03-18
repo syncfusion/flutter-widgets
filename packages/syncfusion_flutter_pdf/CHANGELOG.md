@@ -2,6 +2,76 @@
 
 **Features**
 
+* Provided support to extract RTL text from an existing PDF document along with its bounds.
+
+* Provided support to find RTL text in an existing PDF document.
+
+**Known Limitation**
+
+* RTL text with LTR text is not working in find text, Ex. .(PDF فلم يف
+
+## [19.4.41-beta] - 01/04/2022
+
+**Bugs**
+
+* Typecasting exceptions will no longer occur while extracting text from the PDF document.
+
+## [19.3.55-beta] - 11/23/2021
+
+**Bugs**
+
+* Exception will no longer be thrown while extracting text from a particular PDF document.
+
+## [19.3.48-beta] - 11/02/2021
+
+**Bugs**
+
+* Emoji character preservation issue has been resolved now.
+
+* Null check exception will no longer be thrown while removing the password from a PDF document.
+
+## [19.3.47-beta] - 10/26/2021
+
+**Features**
+
+* Provided support to identify whether the TextGlyph is rotated or not.
+
+## [19.3.46-beta] - 10/19/2021
+
+**Bugs**
+
+* The text search bounds related issue has now been resolved.
+
+## [19.3.45-beta] - 10/12/2021
+
+**Bugs**
+
+* The PDF destination retrieval related issue has now been resolved.
+
+## [19.2.56-beta.1] - 08/17/2021
+
+**Bugs**
+
+* Resolved the RangeError while extracting text lines from the PDF document.
+* The TextLine extraction bounds related issue has been resolved now.
+
+## [19.2.56-beta] - 08/17/2021
+
+**Features**
+
+* Provided the support to get or set rotation in an existing PDF page.
+
+## [19.2.48-beta] - 07/20/2021
+
+**Bugs**
+
+* The white space missing issue while extracting text has been resolved now.
+* The unhandled exception when encrypting PDF document is resolved now.
+
+## [19.2.44-beta] - 06/30/2021
+
+**Features**
+
 * Provided the support to import and export form fields.
 * Provided the support to add skew transformation in PDF graphics.
 

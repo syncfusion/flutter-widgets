@@ -4,6 +4,7 @@ import 'package:syncfusion_flutter_core/core.dart';
 import '../common/calendar_view_helper.dart';
 import 'appointment_helper.dart';
 
+// ignore: avoid_classes_with_only_static_members
 /// Holds the static helper methods used for appointment rendering in calendar
 /// month view.
 class MonthAppointmentHelper {
@@ -118,10 +119,9 @@ class MonthAppointmentHelper {
         appointmentView.endIndex ~/ DateTime.daysPerWeek) {
       final int endIndex = appointmentView.endIndex;
       appointmentView.endIndex =
-          ((((appointmentView.startIndex ~/ DateTime.daysPerWeek) + 1) *
-                      DateTime.daysPerWeek) -
-                  1)
-              .toInt();
+          (((appointmentView.startIndex ~/ DateTime.daysPerWeek) + 1) *
+                  DateTime.daysPerWeek) -
+              1;
       appointmentView.isSpanned = true;
       if (!appointmentCollection.contains(appointmentView)) {
         appointmentCollection.add(appointmentView);
@@ -249,8 +249,12 @@ class MonthAppointmentHelper {
     /// swap list index value.
     /// Eg., app1 start with Nov3 10AM and ends with Nov5 11AM and app2 starts
     /// with Nov3 9AM and ends with Nov4 11AM then swap the app1 before of app2.
-    return (startTime2.difference(endTime2).inMinutes.abs())
-        .compareTo(startTime1.difference(endTime1).inMinutes.abs());
+    return (AppointmentHelper.getDifference(endTime2, startTime2)
+            .inMinutes
+            .abs())
+        .compareTo(AppointmentHelper.getDifference(endTime1, startTime1)
+            .inMinutes
+            .abs());
   }
 
   static void _updateAppointmentPosition(
@@ -313,7 +317,7 @@ class MonthAppointmentHelper {
     while (
         dateTime.isBefore(endDateTime) || isSameDate(dateTime, endDateTime)) {
       if (isSameDate(dateTime, date)) {
-        return ((row * DateTime.daysPerWeek) + currentViewIndex).toInt();
+        return (row * DateTime.daysPerWeek) + currentViewIndex;
       }
 
       currentViewIndex++;

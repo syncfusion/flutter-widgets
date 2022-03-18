@@ -6,6 +6,7 @@ import '../common/enums.dart' show RecurrenceType, RecurrenceRange, WeekDays;
 import 'appointment_helper.dart';
 import 'recurrence_properties.dart';
 
+// ignore: avoid_classes_with_only_static_members
 /// Holds the static helper methods used for handling recurrence in calendar.
 class RecurrenceHelper {
   /// Check the recurrence appointment in between the visible date range.
@@ -34,7 +35,7 @@ class RecurrenceHelper {
           specificEndDate.day, 23, 59, 59);
     }
 
-    recurrenceDuration ??= const Duration();
+    recurrenceDuration ??= Duration.zero;
     final bool isSpecificDateRange =
         specificStartDate != null && specificEndDate != null;
 
@@ -130,8 +131,9 @@ class RecurrenceHelper {
 
       /// Total days difference between the visible start date and recurrence
       /// start date.
-      final int difference =
-          visibleInitialDate.difference(recurrenceInitialDate).inDays;
+      final int difference = AppointmentHelper.getDifference(
+              recurrenceInitialDate, visibleInitialDate)
+          .inDays;
       final int dayDifference = difference % dailyDayGap;
 
       /// Valid recurrences in between the visible start date and recurrence
@@ -224,7 +226,7 @@ class RecurrenceHelper {
           specificEndDate.day, 23, 59, 59);
     }
 
-    recurrenceDuration ??= const Duration();
+    recurrenceDuration ??= Duration.zero;
     final bool isSpecificDateRange =
         specificStartDate != null && specificEndDate != null;
 
@@ -441,7 +443,8 @@ class RecurrenceHelper {
 
       /// Calculate the total days between the recurrence start and visible
       /// start date.
-      int daysDifference = specificStartDate.difference(startDate).inDays;
+      int daysDifference =
+          AppointmentHelper.getDifference(startDate, specificStartDate).inDays;
       final DateTime recurrenceEndDate = addDate.add(recurrenceDuration);
 
       /// Calculate day difference between the recurrence start and end date.
@@ -567,7 +570,7 @@ class RecurrenceHelper {
           specificEndDate.day, 23, 59, 59);
     }
 
-    recurrenceDuration ??= const Duration();
+    recurrenceDuration ??= Duration.zero;
     final bool isSpecificDateRange =
         specificStartDate != null && specificEndDate != null;
 
@@ -656,7 +659,11 @@ class RecurrenceHelper {
     }
 
     if (byMonthDay == 'BYMONTHDAY') {
-      final int monthDate = int.parse(byMonthDayCount);
+      int monthDate = int.parse(byMonthDayCount);
+      final int byMonthDay = monthDate;
+      if (byMonthDay == -1) {
+        monthDate = AppointmentHelper.getMonthEndDate(addDate).day;
+      }
       final DateTime temp = DateTime(addDate.year, addDate.month, monthDate,
           recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
 
@@ -724,6 +731,11 @@ class RecurrenceHelper {
         }
 
         monthValue += monthlyMonthGap;
+        monthDate = byMonthDay == -1
+            ? AppointmentHelper.getMonthEndDate(
+                    DateTime(yearValue, monthValue, 1))
+                .day
+            : monthDate;
         addDate = DateTime(yearValue, monthValue, monthDate,
             recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
 
@@ -731,7 +743,7 @@ class RecurrenceHelper {
       }
     } else if (byDay == 'BYDAY') {
       int tempCount = 0;
-      final int nthWeekDay = _getWeekDay(byDayValue);
+      final int nthWeekDay = _getWeekDay(byDayValue) % DateTime.daysPerWeek;
       final int bySetPosValue = int.parse(bySetPosCount);
 
       void _updateValidDate() {
@@ -807,7 +819,7 @@ class RecurrenceHelper {
           specificEndDate.day, 23, 59, 59);
     }
 
-    recurrenceDuration ??= const Duration();
+    recurrenceDuration ??= Duration.zero;
     final bool isSpecificDateRange =
         specificStartDate != null && specificEndDate != null;
 
@@ -890,7 +902,13 @@ class RecurrenceHelper {
 
     if (byMonthDay == 'BYMONTHDAY') {
       final int monthIndex = int.parse(byMonthCount);
-      final int dayIndex = int.parse(byMonthDayCount);
+      int dayIndex = int.parse(byMonthDayCount);
+      final int byMonthDay = dayIndex;
+      if (byMonthDay == -1) {
+        dayIndex = AppointmentHelper.getMonthEndDate(
+                DateTime(addDate.year, monthIndex, 1))
+            .day;
+      }
       if (monthIndex < 0 || monthIndex > 12) {
         return recDateCollection;
       }
@@ -933,10 +951,16 @@ class RecurrenceHelper {
           recDateCollection.add(addDate);
         }
 
+        dayIndex = byMonthDay == -1
+            ? AppointmentHelper.getMonthEndDate(
+                    DateTime(addDate.year + yearlyYearGap, monthIndex, 1))
+                .day
+            : addDate.day;
+
         addDate = DateTime(
             addDate.year + yearlyYearGap,
             addDate.month,
-            addDate.day,
+            dayIndex,
             recurrenceStartHour,
             recurrenceStartMinute,
             recurrenceStartSecond);
@@ -946,7 +970,7 @@ class RecurrenceHelper {
       int tempCount = 0;
       final int monthIndex = int.parse(byMonthCount);
       final int bySetPosValue = int.parse(bySetPosCount);
-      final int nthWeekDay = _getWeekDay(byDayValue);
+      final int nthWeekDay = _getWeekDay(byDayValue) % DateTime.daysPerWeek;
 
       void _updateValidNextDate() {
         while (true) {
@@ -1200,15 +1224,15 @@ class RecurrenceHelper {
       }
 
       if (recurrenceProperties.interval > 0) {
-        rRule = rRule + ';INTERVAL=' + recurrenceProperties.interval.toString();
+        rRule = '$rRule;INTERVAL=${recurrenceProperties.interval}';
       }
 
       if (recurrenceProperties.recurrenceRange == RecurrenceRange.count) {
-        rRule = rRule + ';COUNT=' + recCount.toString();
+        rRule = '$rRule;COUNT=$recCount';
       } else if (recurrenceProperties.recurrenceRange ==
           RecurrenceRange.endDate) {
         final DateFormat format = DateFormat('yyyyMMdd');
-        rRule = rRule + ';UNTIL=' + format.format(endDate!);
+        rRule = '$rRule;UNTIL=${format.format(endDate!)}';
       }
     }
 
@@ -1239,7 +1263,7 @@ class RecurrenceHelper {
       int su = 0, mo = 0, tu = 0, we = 0, th = 0, fr = 0, sa = 0;
       String dayKey = '';
       int dayCount = 0;
-      rRule = rRule + ';BYDAY=';
+      rRule = '$rRule;BYDAY=';
       int count = 0;
       int i = 0;
       while ((count < recCount &&
@@ -1323,7 +1347,8 @@ class RecurrenceHelper {
 
         if (dayKey.isNotEmpty) {
           if (count != 0) {
-            final Duration tempTimeSpan = addDate.difference(prevDate);
+            final Duration tempTimeSpan =
+                AppointmentHelper.getDifference(prevDate, addDate);
             if (tempTimeSpan <= diffTimeSpan) {
               isValidRecurrence = false;
             } else {
@@ -1335,7 +1360,7 @@ class RecurrenceHelper {
               if (addDate.weekday != DateTime.saturday) {
                 byDay =
                     byDay.isNotEmpty && byDay.substring(byDay.length - 1) == 'A'
-                        ? byDay + ',' + dayKey
+                        ? '$byDay,$dayKey'
                         : byDay + dayKey;
               } else {
                 byDay = byDay + dayKey;
@@ -1347,7 +1372,7 @@ class RecurrenceHelper {
             prevDate = addDate;
             count++;
             byDay = byDay.isNotEmpty && byDay.substring(byDay.length - 1) == 'A'
-                ? byDay + ',' + dayKey
+                ? '$byDay,$dayKey'
                 : byDay + dayKey;
             dayCount++;
           }
@@ -1422,15 +1447,15 @@ class RecurrenceHelper {
       rRule = rRule + byDay;
 
       if (recurrenceProperties.interval > 0) {
-        rRule = rRule + ';INTERVAL=' + recurrenceProperties.interval.toString();
+        rRule = '$rRule;INTERVAL=${recurrenceProperties.interval}';
       }
 
       if (recurrenceProperties.recurrenceRange == RecurrenceRange.count) {
-        rRule = rRule + ';COUNT=' + recCount.toString();
+        rRule = '$rRule;COUNT=$recCount';
       } else if (recurrenceProperties.recurrenceRange ==
           RecurrenceRange.endDate) {
         final DateFormat format = DateFormat('yyyyMMdd');
-        rRule = rRule + ';UNTIL=' + format.format(endDate!);
+        rRule = '$rRule;UNTIL=${format.format(endDate!)}';
       }
     }
 
@@ -1458,8 +1483,7 @@ class RecurrenceHelper {
       rRule = 'FREQ=MONTHLY';
 
       if (recurrenceProperties.week == 0) {
-        rRule =
-            rRule + ';BYMONTHDAY=' + recurrenceProperties.dayOfMonth.toString();
+        rRule = '$rRule;BYMONTHDAY=${recurrenceProperties.dayOfMonth}';
       } else {
         final DateTime firstDate = DateTimeHelper.getDateTimeValue(
             addDays(DateTime.now(), -(DateTime.now().weekday - 1)));
@@ -1473,33 +1497,32 @@ class RecurrenceHelper {
         /// AbbreviatedDayNames will return three digit char, as per the
         /// standard we need to return only first two char for RRule so here
         /// have removed the last char.
-        rRule = rRule +
-            ';BYDAY=' +
-            byDayString.substring(0, byDayString.length - 1).toUpperCase() +
-            ';BYSETPOS=' +
-            recurrenceProperties.week.toString();
+        rRule =
+            // ignore: lines_longer_than_80_chars
+            '$rRule;BYDAY=${byDayString.substring(0, byDayString.length - 1).toUpperCase()};BYSETPOS=${recurrenceProperties.week}';
       }
 
       if (recurrenceProperties.interval > 0) {
-        rRule = rRule + ';INTERVAL=' + recurrenceProperties.interval.toString();
+        rRule = '$rRule;INTERVAL=${recurrenceProperties.interval}';
       }
 
       if (recurrenceProperties.recurrenceRange == RecurrenceRange.count) {
-        rRule = rRule + ';COUNT=' + recCount.toString();
+        rRule = '$rRule;COUNT=$recCount';
       } else if (recurrenceProperties.recurrenceRange ==
           RecurrenceRange.endDate) {
         final DateFormat format = DateFormat('yyyyMMdd');
-        rRule = rRule + ';UNTIL=' + format.format(endDate!);
+        rRule = '$rRule;UNTIL=${format.format(endDate!)}';
       }
 
-      if (DateTime(
+      if (AppointmentHelper.getDifference(
+              startDate,
+              DateTime(
                   startDate.year,
                   startDate.month + recurrenceProperties.interval,
                   startDate.day,
                   startDate.hour,
                   startDate.minute,
-                  startDate.second)
-              .difference(startDate) <
+                  startDate.second)) <
           diffTimeSpan) {
         isValidRecurrence = false;
       }
@@ -1528,11 +1551,9 @@ class RecurrenceHelper {
       rRule = 'FREQ=YEARLY';
 
       if (recurrenceProperties.week == 0) {
-        rRule = rRule +
-            ';BYMONTHDAY=' +
-            recurrenceProperties.dayOfMonth.toString() +
-            ';BYMONTH=' +
-            recurrenceProperties.month.toString();
+        rRule =
+            // ignore: lines_longer_than_80_chars
+            '$rRule;BYMONTHDAY=${recurrenceProperties.dayOfMonth};BYMONTH=${recurrenceProperties.month}';
       } else {
         final DateTime firstDate = DateTimeHelper.getDateTimeValue(
             addDays(DateTime.now(), -(DateTime.now().weekday - 1)));
@@ -1546,35 +1567,32 @@ class RecurrenceHelper {
         /// AbbreviatedDayNames will return three digit char, as per the
         /// standard we need to return only first two char for RRule so here
         /// have removed the last char.
-        rRule = rRule +
-            ';BYDAY=' +
-            byDayString.substring(0, byDayString.length - 1).toUpperCase() +
-            ';BYMONTH=' +
-            recurrenceProperties.month.toString() +
-            ';BYSETPOS=' +
-            recurrenceProperties.week.toString();
+        rRule =
+            // ignore: lines_longer_than_80_chars
+            '$rRule;BYDAY=${byDayString.substring(0, byDayString.length - 1).toUpperCase()};BYMONTH=${recurrenceProperties.month};BYSETPOS=${recurrenceProperties.week}';
       }
 
       if (recurrenceProperties.interval > 0) {
-        rRule = rRule + ';INTERVAL=' + recurrenceProperties.interval.toString();
+        rRule = '$rRule;INTERVAL=${recurrenceProperties.interval}';
       }
 
       if (recurrenceProperties.recurrenceRange == RecurrenceRange.count) {
-        rRule = rRule + ';COUNT=' + recCount.toString();
+        rRule = '$rRule;COUNT=$recCount';
       } else if (recurrenceProperties.recurrenceRange ==
           RecurrenceRange.endDate) {
         final DateFormat format = DateFormat('yyyyMMdd');
-        rRule = rRule + ';UNTIL=' + format.format(endDate!);
+        rRule = '$rRule;UNTIL=${format.format(endDate!)}';
       }
 
-      if (DateTime(
+      if (AppointmentHelper.getDifference(
+              startDate,
+              DateTime(
                   startDate.year + recurrenceProperties.interval,
                   startDate.month,
                   startDate.day,
                   startDate.hour,
                   startDate.minute,
-                  startDate.second)
-              .difference(startDate) <
+                  startDate.second)) <
           diffTimeSpan) {
         isValidRecurrence = false;
       }
@@ -1597,7 +1615,8 @@ class RecurrenceHelper {
         ? appStartTime
         : recPropStartDate;
     final DateTime? endDate = recPropEndDate;
-    final Duration diffTimeSpan = appEndTime.difference(appStartTime);
+    final Duration diffTimeSpan =
+        AppointmentHelper.getDifference(appStartTime, appEndTime);
     int recCount = 0;
     final DateTime prevDate = DateTime.utc(1);
     const bool isValidRecurrence = true;
@@ -1818,7 +1837,7 @@ class RecurrenceHelper {
   /// Returns the last week date for the given weekday.
   static DateTime _getLastWeekDay(DateTime date, int dayOfWeek) {
     final DateTime currentDate = date;
-    final int currentDateWeek = currentDate.weekday;
+    final int currentDateWeek = currentDate.weekday % DateTime.daysPerWeek;
     int otherMonthCount = -currentDateWeek + (dayOfWeek - DateTime.daysPerWeek);
     if (otherMonthCount.abs() >= DateTime.daysPerWeek) {
       otherMonthCount += DateTime.daysPerWeek;
@@ -1847,7 +1866,7 @@ class RecurrenceHelper {
       count++;
       String day = sortedDays[i];
       if (count > 1) {
-        day = ',' + day;
+        day = ',$day';
       }
 
       weeklyDayString = weeklyDayString + day;

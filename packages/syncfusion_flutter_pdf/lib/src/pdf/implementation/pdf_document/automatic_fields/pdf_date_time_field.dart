@@ -1,4 +1,12 @@
-part of pdf;
+import 'dart:ui';
+
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+
+import '../../graphics/brushes/pdf_solid_brush.dart';
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/pdf_graphics.dart';
+import 'pdf_static_field.dart';
 
 /// Represents date and time automated field.
 /// ```dart
@@ -36,7 +44,7 @@ part of pdf;
 /// //Dispose the document.
 /// document.dispose();
 /// ```
-class PdfDateTimeField extends _PdfStaticField {
+class PdfDateTimeField extends PdfStaticField {
   // constructor
   /// Initializes a new instance of the [PdfDateTimeField] class.
   ///
@@ -203,11 +211,19 @@ class PdfDateTimeField extends _PdfStaticField {
   String locale = 'en_US';
 
   // implementation
-  @override
   String _getValue(PdfGraphics? graphics) {
     initializeDateFormatting(locale);
     final DateFormat formatter = DateFormat(dateFormatString, locale);
     final String value = formatter.format(date);
     return value;
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfDateTimeField] helper
+class PdfDateTimeFieldHelper {
+  /// internal method
+  static String getValue(PdfDateTimeField field, PdfGraphics? graphics) {
+    return field._getValue(graphics);
   }
 }

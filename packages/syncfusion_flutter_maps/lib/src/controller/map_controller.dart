@@ -1,35 +1,33 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../maps.dart';
 import '../common.dart';
 import '../utils.dart';
 
 // ignore_for_file: public_member_api_docs
-typedef _ZoomingCallback = void Function(MapZoomDetails details);
+typedef ZoomingCallback = void Function(MapZoomDetails details);
 
-typedef _PanningCallback = void Function(MapPanDetails details);
+typedef PanningCallback = void Function(MapPanDetails details);
 
-typedef _ZoomToCallback = void Function(double factor);
+typedef ZoomToCallback = void Function(double factor);
 
-typedef _PanToCallback = void Function(MapLatLng? latlng);
+typedef PanToCallback = void Function(MapLatLng? latlng);
 
 class MapController {
   final List<int> _toggledIndices = <int>[];
   List<int> get toggledIndices => _toggledIndices;
   ObserverList<VoidCallback>? _listeners = ObserverList<VoidCallback>();
-  ObserverList<_ZoomingCallback>? _zoomingListeners =
-      ObserverList<_ZoomingCallback>();
-  ObserverList<_PanningCallback>? _panningListeners =
-      ObserverList<_PanningCallback>();
+  ObserverList<ZoomingCallback>? _zoomingListeners =
+      ObserverList<ZoomingCallback>();
+  ObserverList<PanningCallback>? _panningListeners =
+      ObserverList<PanningCallback>();
   ObserverList<VoidCallback>? _refreshListeners = ObserverList<VoidCallback>();
   ObserverList<VoidCallback>? _resetListeners = ObserverList<VoidCallback>();
   ObserverList<VoidCallback>? _toggledListeners = ObserverList<VoidCallback>();
+  ObserverList<VoidCallback>? _zoomPanListeners = ObserverList<VoidCallback>();
 
   double shapeLayerSizeFactor = 1.0;
   double localScale = 1.0;
@@ -41,8 +39,8 @@ class MapController {
   Offset shapeLayerOrigin = Offset.zero;
   Rect currentBounds = Rect.zero;
 
-  late _ZoomToCallback onZoomLevelChange;
-  late _PanToCallback onPanChange;
+  late ZoomToCallback onZoomLevelChange;
+  late PanToCallback onPanChange;
   late Size shapeLayerBoxSize;
   late Offset shapeLayerOffset;
   late double tileZoomLevel;
@@ -86,23 +84,37 @@ class MapController {
     }
   }
 
+  void addZoomPanListener(VoidCallback listener) {
+    _zoomPanListeners?.add(listener);
+  }
+
+  void removeZoomPanListener(VoidCallback listener) {
+    _zoomPanListeners?.remove(listener);
+  }
+
+  void notifyZoomPanListeners() {
+    for (final VoidCallback listener in _zoomPanListeners!) {
+      listener();
+    }
+  }
+
   bool wasToggled(MapModel model) {
     return toggledIndices.contains(model.legendMapperIndex);
   }
 
-  void addZoomingListener(_ZoomingCallback listener) {
+  void addZoomingListener(ZoomingCallback listener) {
     _zoomingListeners?.add(listener);
   }
 
-  void removeZoomingListener(_ZoomingCallback listener) {
+  void removeZoomingListener(ZoomingCallback listener) {
     _zoomingListeners?.remove(listener);
   }
 
-  void addPanningListener(_PanningCallback listener) {
+  void addPanningListener(PanningCallback listener) {
     _panningListeners?.add(listener);
   }
 
-  void removePanningListener(_PanningCallback listener) {
+  void removePanningListener(PanningCallback listener) {
     _panningListeners?.remove(listener);
   }
 
@@ -131,13 +143,13 @@ class MapController {
   }
 
   void notifyZoomingListeners(MapZoomDetails details) {
-    for (final _ZoomingCallback listener in _zoomingListeners!) {
+    for (final ZoomingCallback listener in _zoomingListeners!) {
       listener(details);
     }
   }
 
   void notifyPanningListeners(MapPanDetails details) {
-    for (final _PanningCallback listener in _panningListeners!) {
+    for (final PanningCallback listener in _panningListeners!) {
       listener(details);
     }
   }
@@ -256,6 +268,7 @@ class MapController {
   void dispose() {
     _listeners = null;
     _toggledListeners = null;
+    _zoomPanListeners = null;
     _zoomingListeners = null;
     _panningListeners = null;
     _resetListeners = null;

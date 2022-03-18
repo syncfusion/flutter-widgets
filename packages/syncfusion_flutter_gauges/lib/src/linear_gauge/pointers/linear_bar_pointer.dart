@@ -1,8 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
+import '../../linear_gauge/gauge/linear_gauge.dart';
 import '../../linear_gauge/gauge/linear_gauge_scope.dart';
 import '../../linear_gauge/pointers/linear_bar_renderer.dart';
 import '../../linear_gauge/utils/enum.dart';
@@ -29,7 +26,7 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
       : offset = offset > 0 ? offset : 0,
         super(key: key, child: child);
 
-  /// Specifies the pointer value of [barPointer].
+  /// Specifies the pointer value of [SfLinearGauge.barPointers].
   /// This value must be between the min and max value of an axis track.
   ///
   /// Defaults to 0.
@@ -99,7 +96,7 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
   /// SfLinearGauge (
   /// barPointers: [
   /// LinearBarPointer(
-  ///  color: Colors.Red,
+  ///  color: Colors.red,
   ///  )])
   /// ```
   ///
@@ -117,7 +114,7 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
   /// SfLinearGauge (
   /// barPointers: [
   /// LinearBarPointer(
-  ///  borderColor: Colors.Blue,
+  ///  borderColor: Colors.blue,
   ///  )])
   /// ```
   ///
@@ -150,7 +147,7 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
   /// SfLinearGauge (
   /// barPointers: [
   /// LinearBarPointer(
-  /// value: 40
+  /// value: 40,
   /// thickness: 80,
   ///  )])
   /// ```
@@ -170,7 +167,7 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
   /// SfLinearGauge (
   /// barPointers: [
   /// LinearBarPointer(
-  /// value: 40
+  /// value: 40,
   /// offset: 10,
   ///  )])
   /// ```
@@ -188,7 +185,7 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
   /// SfLinearGauge (
   /// barPointers: [
   /// LinearBarPointer(
-  /// value: 40
+  /// value: 40,
   /// position: LinearElementPosition.outside,
   ///  )])
   /// ```
@@ -206,7 +203,7 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
   /// SfLinearGauge (
   /// barPointers: [
   /// LinearBarPointer(
-  /// value: 20
+  /// value: 20,
   /// enableAnimation: true,
   ///  )])
   /// ```
@@ -225,7 +222,7 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
   /// SfLinearGauge (
   /// barPointers: [
   /// LinearBarPointer(
-  /// value: 20
+  /// value: 20,
   /// enableAnimation: true,
   /// animationDuration: 4000
   ///  )])
@@ -244,7 +241,7 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
   /// SfLinearGauge (
   /// barPointers: [
   /// LinearBarPointer(
-  /// value: 20
+  /// value: 20,
   /// enableAnimation: true,
   /// animationType: LinearAnimationType.bounceOut
   ///  )])
@@ -272,12 +269,13 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) {
     final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
+    final ThemeData themeData = Theme.of(context);
     return RenderLinearBarPointer(
         value: value,
         edgeStyle: edgeStyle,
         shaderCallback: shaderCallback,
-        color: color ?? const Color(0xff0074E3),
-        borderColor: borderColor ?? const Color(0xff0074E3),
+        color: color ?? themeData.colorScheme.primary,
+        borderColor: borderColor ?? themeData.colorScheme.primary,
         borderWidth: borderWidth,
         thickness: thickness,
         offset: offset,
@@ -293,12 +291,13 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, RenderLinearBarPointer renderObject) {
     final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
+    final ThemeData themeData = Theme.of(context);
     renderObject
       ..value = value
       ..edgeStyle = edgeStyle
       ..shaderCallback = shaderCallback
-      ..color = color ?? const Color(0xff0074E3)
-      ..borderColor = borderColor ?? const Color(0xff0074E3)
+      ..color = color ?? themeData.colorScheme.primary
+      ..borderColor = borderColor ?? themeData.colorScheme.primary
       ..borderWidth = borderWidth
       ..thickness = thickness
       ..offset = offset

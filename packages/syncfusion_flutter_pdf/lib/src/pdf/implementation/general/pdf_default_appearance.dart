@@ -1,9 +1,11 @@
-part of pdf;
+import '../graphics/enums.dart';
+import '../graphics/pdf_color.dart';
 
 /// Represents default appearance string.
-class _PdfDefaultAppearance {
+class PdfDefaultAppearance {
   //Constructor
-  _PdfDefaultAppearance();
+  /// initialize [PdfDefaultAppearance] object
+  PdfDefaultAppearance();
 
   //Fields
   /// Internal variable to store fore color.
@@ -16,7 +18,8 @@ class _PdfDefaultAppearance {
   double? fontSize = 0;
 
   //Implementation
-  String _toString() {
-    return '/$fontName ${fontSize! % 1 == 0 ? fontSize!.toInt() : fontSize} Tf ${foreColor._toString(PdfColorSpace.rgb, false)}';
+  /// internal method
+  String getString() {
+    return '/$fontName ${fontSize! % 1 == 0 ? fontSize!.toInt() : fontSize} Tf ${PdfColorHelper.getHelper(foreColor).getString(PdfColorSpace.rgb, false)}';
   }
 }

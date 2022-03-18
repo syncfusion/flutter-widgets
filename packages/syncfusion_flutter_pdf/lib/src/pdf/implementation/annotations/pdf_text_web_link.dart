@@ -1,4 +1,21 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../interfaces/pdf_interface.dart';
+import '../graphics/brushes/pdf_solid_brush.dart';
+import '../graphics/fonts/enums.dart';
+import '../graphics/fonts/pdf_font.dart';
+import '../graphics/fonts/pdf_standard_font.dart';
+import '../graphics/fonts/pdf_string_format.dart';
+import '../graphics/pdf_graphics.dart';
+import '../graphics/pdf_pen.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../pages/pdf_page.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_string.dart';
+import 'pdf_annotation.dart';
+import 'pdf_annotation_border.dart';
+import 'pdf_uri_annotation.dart';
 
 /// Represents the class for text web link annotation.
 /// ``` dart
@@ -48,22 +65,22 @@ class PdfTextWebLink extends PdfAnnotation {
       PdfBrush? brush,
       PdfFont? font,
       PdfPen? pen,
-      PdfStringFormat? format})
-      : super._() {
+      PdfStringFormat? format}) {
+    _helper = PdfTextWebLinkHelper(this);
     _initializeWebLink(text, font, pen, brush, format);
     this.url = url;
   }
 
   PdfTextWebLink._(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable, String? annotText)
-      : super._internal(dictionary, crossTable) {
+      PdfDictionary dictionary, PdfCrossTable crossTable, String? annotText) {
+    _helper = PdfTextWebLinkHelper._(this, dictionary, crossTable);
     text = annotText != null && annotText.isNotEmpty ? annotText : '';
-    _crossTable = crossTable;
   }
 
   // fields
   String? _url;
   late PdfUriAnnotation _uriAnnotation;
+  late PdfTextWebLinkHelper _helper;
 
   /// Get or sets the font.
   /// ```dart
@@ -186,7 +203,7 @@ class PdfTextWebLink extends PdfAnnotation {
   /// document.dispose();
   /// ```
   String get url {
-    if (_isLoadedAnnotation) {
+    if (PdfAnnotationHelper.getHelper(this).isLoadedAnnotation) {
       return _obtainUrl()!;
     } else {
       return _url!;
@@ -198,15 +215,17 @@ class PdfTextWebLink extends PdfAnnotation {
       throw ArgumentError.value('Url - string can not be empty');
     }
     _url = value;
-    if (_isLoadedAnnotation) {
-      if (_dictionary.containsKey(_DictionaryProperties.a)) {
-        final _PdfDictionary? dictionary =
-            _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.a])
-                as _PdfDictionary?;
+    if (PdfAnnotationHelper.getHelper(this).isLoadedAnnotation) {
+      final PdfDictionary tempDictionary =
+          PdfAnnotationHelper.getHelper(this).dictionary!;
+      if (tempDictionary.containsKey(PdfDictionaryProperties.a)) {
+        final PdfDictionary? dictionary =
+            PdfCrossTable.dereference(tempDictionary[PdfDictionaryProperties.a])
+                as PdfDictionary?;
         if (dictionary != null) {
-          dictionary._setString(_DictionaryProperties.uri, _url);
+          dictionary.setString(PdfDictionaryProperties.uri, _url);
         }
-        _dictionary.modify();
+        tempDictionary.modify();
       }
     }
   }
@@ -251,7 +270,7 @@ class PdfTextWebLink extends PdfAnnotation {
   /// document.dispose();
   /// ```
   void draw(PdfPage page, Offset location) {
-    if (!_isLoadedAnnotation) {
+    if (!PdfAnnotationHelper.getHelper(this).isLoadedAnnotation) {
       final PdfFont pdfFont =
           font != null ? font! : PdfStandardFont(PdfFontFamily.helvetica, 8);
       final Size textSize = pdfFont.measureString(text);
@@ -271,15 +290,17 @@ class PdfTextWebLink extends PdfAnnotation {
 
   String? _obtainUrl() {
     String? url = '';
-    if (_dictionary.containsKey(_DictionaryProperties.a)) {
-      final _PdfDictionary? dictionary =
-          _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.a])
-              as _PdfDictionary?;
+    final PdfDictionary tempDictionary =
+        PdfAnnotationHelper.getHelper(this).dictionary!;
+    if (tempDictionary.containsKey(PdfDictionaryProperties.a)) {
+      final PdfDictionary? dictionary =
+          PdfCrossTable.dereference(tempDictionary[PdfDictionaryProperties.a])
+              as PdfDictionary?;
       if (dictionary != null &&
-          dictionary.containsKey(_DictionaryProperties.uri)) {
-        final _PdfString? uriText =
-            _PdfCrossTable._dereference(dictionary[_DictionaryProperties.uri])
-                as _PdfString?;
+          dictionary.containsKey(PdfDictionaryProperties.uri)) {
+        final PdfString? uriText =
+            PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.uri])
+                as PdfString?;
         if (uriText != null) {
           url = uriText.value;
         }
@@ -287,7 +308,37 @@ class PdfTextWebLink extends PdfAnnotation {
     }
     return url;
   }
+}
 
+/// [PdfTextWebLink] helper
+class PdfTextWebLinkHelper extends PdfAnnotationHelper {
+  /// internal constructor
+  PdfTextWebLinkHelper(this.webLinkHelper) : super(webLinkHelper) {
+    initializeAnnotation();
+  }
+
+  /// internal constructor
+  PdfTextWebLinkHelper._(
+      this.webLinkHelper, PdfDictionary dictionary, PdfCrossTable crossTable)
+      : super(webLinkHelper) {
+    initializeExistingAnnotation(dictionary, crossTable);
+  }
+
+  /// internal field
+  late PdfTextWebLink webLinkHelper;
+
+  /// internal field
   @override
-  _IPdfPrimitive? _element;
+  IPdfPrimitive? element;
+
+  /// internal method
+  static PdfTextWebLink load(
+      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
+    return PdfTextWebLink._(dictionary, crossTable, text);
+  }
+
+  /// internal method
+  static PdfTextWebLinkHelper getHelper(PdfTextWebLink annotation) {
+    return annotation._helper;
+  }
 }

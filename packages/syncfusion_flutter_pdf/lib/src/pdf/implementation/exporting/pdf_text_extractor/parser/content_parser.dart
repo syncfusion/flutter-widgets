@@ -1,21 +1,24 @@
-part of pdf;
+import 'content_lexer.dart';
 
-class _ContentParser {
-  // Constructor
-  _ContentParser(List<int>? contentStream) {
-    _lexer = _ContentLexer(contentStream);
-    _operatorParams = _lexer._operatorParams;
-    _recordCollection = _PdfRecordCollection();
-    _isTextExtractionProcess = false;
+/// internal class
+class ContentParser {
+  /// internal constructor
+  ContentParser(List<int>? contentStream) {
+    _lexer = ContentLexer(contentStream);
+    _operatorParams = _lexer.operatorParams;
+    _recordCollection = PdfRecordCollection();
+    isTextExtractionProcess = false;
   }
 
   // Fields
-  late _ContentLexer _lexer;
+  late ContentLexer _lexer;
   StringBuffer? _operatorParams;
-  _PdfRecordCollection? _recordCollection;
+  PdfRecordCollection? _recordCollection;
   bool _isByteOperands = false;
-  late bool _isTextExtractionProcess;
   final bool _conformanceEnabled = false;
+
+  /// internal field
+  late bool isTextExtractionProcess;
 
   static const List<String> _operators = <String>[
     'b',
@@ -94,55 +97,56 @@ class _ContentParser {
     'T*',
     'b*',
     'B*',
-    '\'',
-    '\'',
+    "'",
+    '"',
     'true'
   ];
 
   // Implementation
-  _PdfRecordCollection? _readContent() {
-    _parseObject(_PdfTokenType.eof);
-    if (_isTextExtractionProcess) {
-      _lexer._dispose();
+  /// internal method
+  PdfRecordCollection? readContent() {
+    _parseObject(PdfToken.eof);
+    if (isTextExtractionProcess) {
+      _lexer.dispose();
     }
     return _recordCollection;
   }
 
-  void _parseObject(_PdfTokenType stop) {
-    _PdfTokenType symbol;
+  void _parseObject(PdfToken stop) {
+    PdfToken symbol;
     final List<String> _operands = <String>[];
 
-    while ((symbol = _getNextToken()) != _PdfTokenType.eof) {
-      if (symbol == stop || symbol == _PdfTokenType.nullType) {
+    while ((symbol = _getNextToken()) != PdfToken.eof) {
+      if (symbol == stop || symbol == PdfToken.nullType) {
         return;
       }
       switch (symbol) {
-        case _PdfTokenType.comment:
+        case PdfToken.comment:
           break;
 
-        case _PdfTokenType.integer:
+        case PdfToken.integer:
           _operands.add(_operatorParams.toString());
           break;
 
-        case _PdfTokenType.real:
+        case PdfToken.real:
           _operands.add(_operatorParams.toString());
           break;
 
-        case _PdfTokenType.string:
-        case _PdfTokenType.hexString:
-        case _PdfTokenType.unicodeString:
-        case _PdfTokenType.unicodeHexString:
+        case PdfToken.string:
+        case PdfToken.hexString:
+        case PdfToken.unicodeString:
+        case PdfToken.unicodeHexString:
           _operands.add(_operatorParams.toString());
           break;
 
-        case _PdfTokenType.name:
+        case PdfToken.name:
           if (_operatorParams.toString() == '/Artifact') {
-            _lexer._isContainsArtifacts = true;
+            _lexer.isContainsArtifacts = true;
           }
           _operands.add(_operatorParams.toString());
           break;
 
-        case _PdfTokenType.operators:
+        case PdfToken.operators:
           if (_operatorParams.toString() == 'true') {
             _operands.add(_operatorParams.toString());
           } else if (_operatorParams.toString() == 'ID') {
@@ -155,10 +159,10 @@ class _ContentParser {
           }
           break;
 
-        case _PdfTokenType.beginArray:
+        case PdfToken.beginArray:
           break;
 
-        case _PdfTokenType.endArray:
+        case PdfToken.endArray:
           ArgumentError.value('Error while parsing content');
           break;
 
@@ -168,8 +172,8 @@ class _ContentParser {
     }
   }
 
-  _PdfTokenType _getNextToken() {
-    return _lexer._getNextToken();
+  PdfToken _getNextToken() {
+    return _lexer.getNextToken();
   }
 
   void _createRecord(List<String> operands, [List<int>? inlineImageBytes]) {
@@ -178,7 +182,7 @@ class _ContentParser {
     if (occurence < 0) {
       ArgumentError.value('Invalid operand');
     }
-    _PdfRecord record;
+    PdfRecord record;
     final List<String> op = operands.isNotEmpty
         ? List<String>.filled(operands.length, '', growable: true)
         : <String>[];
@@ -186,7 +190,7 @@ class _ContentParser {
       List.copyRange(op, 0, operands);
     }
     if (!_isByteOperands) {
-      record = _PdfRecord(operand, op);
+      record = PdfRecord(operand, op);
     } else {
       final List<int> imBytes = inlineImageBytes!.isNotEmpty
           ? List<int>.filled(inlineImageBytes.length, 0, growable: true)
@@ -194,9 +198,9 @@ class _ContentParser {
       if (inlineImageBytes.isNotEmpty) {
         List.copyRange(imBytes, 0, inlineImageBytes);
       }
-      record = _PdfRecord.fromImage(operand, imBytes);
+      record = PdfRecord.fromImage(operand, imBytes);
     }
-    _recordCollection!._add(record);
+    _recordCollection!.add(record);
   }
 
   void _consumeValue(List<String> operands) {
@@ -209,13 +213,13 @@ class _ContentParser {
       while (true) {
         thirdChar = <String>[];
         int contentCount = 0;
-        currentChar = _lexer._getNextCharforInlineStream();
+        currentChar = _lexer.getNextCharforInlineStream();
         if (String.fromCharCode(int.parse(currentChar)) == 'E') {
-          nextChar = _lexer._getNextInlineChar();
+          nextChar = _lexer.getNextInlineChar();
           if (String.fromCharCode(int.parse(nextChar)) == 'I') {
-            secondNextChar = _lexer._getNextInlineChar();
+            secondNextChar = _lexer.getNextInlineChar();
             final String snc = String.fromCharCode(int.parse(secondNextChar));
-            thirdChar.add(_lexer._getNextChar(true));
+            thirdChar.add(_lexer.getNextChar(true));
             if ((snc == ' ' ||
                     snc == '\n' ||
                     secondNextChar == '65535' ||
@@ -224,12 +228,12 @@ class _ContentParser {
               while (thirdChar[thirdChar.length - 1] == ' ' ||
                   thirdChar[thirdChar.length - 1] == '\r' ||
                   thirdChar[thirdChar.length - 1] == '\n') {
-                thirdChar.add(_lexer._getNextChar());
+                thirdChar.add(_lexer.getNextChar());
                 contentCount++;
               }
             }
-            if (!_isTextExtractionProcess) {
-              _lexer._resetContentPointer(contentCount);
+            if (!isTextExtractionProcess) {
+              _lexer.resetContentPointer(contentCount);
             }
             if ((snc == ' ' ||
                     snc == '\n' ||
@@ -252,7 +256,7 @@ class _ContentParser {
                 _createRecord(operands, _inlineImageBytes);
                 _isByteOperands = false;
                 _inlineImageBytes.clear();
-                nextChar = _lexer._getNextInlineChar();
+                nextChar = _lexer.getNextInlineChar();
                 break;
               } else {
                 _inlineImageBytes.add(int.parse(currentChar));
@@ -265,7 +269,7 @@ class _ContentParser {
                 for (final String c in thirdChar) {
                   _inlineImageBytes.add(int.parse(c));
                 }
-                currentChar = _lexer._getNextCharforInlineStream();
+                currentChar = _lexer.getNextCharforInlineStream();
               }
             } else {
               _inlineImageBytes.add(int.parse(currentChar));
@@ -276,7 +280,7 @@ class _ContentParser {
                   _inlineImageBytes.add(int.parse(tc));
                 }
               }
-              currentChar = _lexer._getNextCharforInlineStream();
+              currentChar = _lexer.getNextCharforInlineStream();
             }
           } else {
             _inlineImageBytes.add(int.parse(currentChar));
@@ -291,21 +295,21 @@ class _ContentParser {
       String thirdChar;
       while (true) {
         int contentCount = 0;
-        currentChar = _lexer._getNextCharforInlineStream();
+        currentChar = _lexer.getNextCharforInlineStream();
         if (String.fromCharCode(int.parse(currentChar)) == 'E') {
-          nextChar = _lexer._getNextInlineChar();
+          nextChar = _lexer.getNextInlineChar();
           if (String.fromCharCode(int.parse(nextChar)) == 'I') {
-            secondNextChar = _lexer._getNextInlineChar();
+            secondNextChar = _lexer.getNextInlineChar();
             final String snc = String.fromCharCode(int.parse(secondNextChar));
-            thirdChar = _lexer._getNextChar(true);
+            thirdChar = _lexer.getNextChar(true);
             while (String.fromCharCode(int.parse(thirdChar)) == ' ' ||
                 String.fromCharCode(int.parse(thirdChar)) == '\r' ||
                 String.fromCharCode(int.parse(thirdChar)) == '\n') {
-              thirdChar = _lexer._getNextChar();
+              thirdChar = _lexer.getNextChar();
               contentCount++;
             }
-            if (!_isTextExtractionProcess) {
-              _lexer._resetContentPointer(contentCount);
+            if (!isTextExtractionProcess) {
+              _lexer.resetContentPointer(contentCount);
             }
             if (snc == ' ' ||
                 snc == '\n' ||
@@ -323,7 +327,7 @@ class _ContentParser {
                 _createRecord(operands, _inlineImageBytes);
                 _isByteOperands = false;
                 _inlineImageBytes.clear();
-                nextChar = _lexer._getNextInlineChar();
+                nextChar = _lexer.getNextInlineChar();
                 break;
               }
             } else {
@@ -331,7 +335,7 @@ class _ContentParser {
               _inlineImageBytes.add(int.parse(nextChar));
               _inlineImageBytes.add(int.parse(secondNextChar));
               _inlineImageBytes.add(int.parse(thirdChar));
-              currentChar = _lexer._getNextCharforInlineStream();
+              currentChar = _lexer.getNextCharforInlineStream();
             }
           } else {
             _inlineImageBytes.add(int.parse(currentChar));
@@ -345,39 +349,46 @@ class _ContentParser {
   }
 }
 
-class _PdfRecordCollection {
+/// internal class
+class PdfRecordCollection {
   // Constructor
-  _PdfRecordCollection() {
-    _recordCollection = <_PdfRecord>[];
+  /// internal constructor
+  PdfRecordCollection() {
+    recordCollection = <PdfRecord>[];
   }
 
   // Fields
-  late List<_PdfRecord> _recordCollection;
+  /// internal field
+  late List<PdfRecord> recordCollection;
 
   //Properties
-  int get _count => _recordCollection.length;
+  /// internal property
+  int get count => recordCollection.length;
 
   // Implementation
-  void _add(_PdfRecord record) {
-    _recordCollection.add(record);
+  /// internal method
+  void add(PdfRecord record) {
+    recordCollection.add(record);
   }
 }
 
-class _PdfRecord {
+/// internal class
+class PdfRecord {
   // Constructor
-  _PdfRecord(String name, List<String> operands) {
-    _operatorName = name;
-    _operands = operands;
-  }
+  /// internal constructor
+  PdfRecord(this.operatorName, this.operands);
 
-  _PdfRecord.fromImage(String name, List<int> imageData) {
-    _operatorName = name;
-    _inlineImageBytes = imageData;
-  }
+  /// internal constructor
+  PdfRecord.fromImage(this.operatorName, this.inlineImageBytes);
 
   // Fields
-  String? _operatorName;
-  List<String>? _operands;
+  /// internal field
+  String? operatorName;
+
+  /// internal field
+  List<String>? operands;
+
+  /// internal field
   // ignore: unused_field
-  List<int>? _inlineImageBytes;
+  List<int>? inlineImageBytes;
 }

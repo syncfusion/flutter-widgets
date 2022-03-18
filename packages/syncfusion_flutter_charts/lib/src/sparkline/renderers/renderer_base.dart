@@ -1,17 +1,15 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../plot_band.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 
-/// Represents the render object for spark chart
+/// Represents the render object for spark chart.
 @immutable
 abstract class SfSparkChartRenderObjectWidget extends LeafRenderObjectWidget {
-  /// Creates the render object for spark chart
+  /// Creates the render object for spark chart.
   const SfSparkChartRenderObjectWidget(
       {Key? key,
       this.data,
@@ -36,7 +34,7 @@ abstract class SfSparkChartRenderObjectWidget extends LeafRenderObjectWidget {
       this.coordinatePoints})
       : super(key: key);
 
-  /// Specifies the data source for the series
+  /// Specifies the data source for the series.
   final List<dynamic>? data;
 
   /// Field in the data source, which is considered as x-value.
@@ -45,61 +43,61 @@ abstract class SfSparkChartRenderObjectWidget extends LeafRenderObjectWidget {
   /// Field in the data source, which is considered as y-value.
   final SparkChartIndexedValueMapper<num>? yValueMapper;
 
-  /// Specifies the data source count
+  /// Specifies the data source count.
   final int? dataCount;
 
-  /// Specifies whether to inverse the spark chart
+  /// Specifies whether to inverse the spark chart.
   final bool? isInversed;
 
   /// Specifies the horizontal axis line position.
   final double? axisCrossesAt;
 
-  /// Specifies the horizontal axis line width
+  /// Specifies the horizontal axis line width.
   final double? axisLineWidth;
 
-  /// Specifies the axis line color
+  /// Specifies the axis line color.
   final Color? axisLineColor;
 
-  /// Specifies the axis line dash array
+  /// Specifies the axis line dash array.
   final List<double>? axisLineDashArray;
 
-  /// Specifies the high point color
+  /// Specifies the high point color.
   final Color? highPointColor;
 
-  /// Specifies the low point color
+  /// Specifies the low point color.
   final Color? lowPointColor;
 
-  /// Specifies the negative point color
+  /// Specifies the negative point color.
   final Color? negativePointColor;
 
-  /// Specifies the first point color
+  /// Specifies the first point color.
   final Color? firstPointColor;
 
-  /// Specifies the last point color
+  /// Specifies the last point color.
   final Color? lastPointColor;
 
-  /// Specifies the spark chart color
+  /// Specifies the spark chart color.
   final Color? color;
 
-  /// Specifies the spark chart plot band
+  /// Specifies the spark chart plot band.
   final SparkChartPlotBand? plotBand;
 
-  /// Specifies the spark chart data details
+  /// Specifies the spark chart data details.
   final SparkChartDataDetails? sparkChartDataDetails;
 
-  /// Specfies the theme of the spark chart
-  final ThemeData? themeData;
+  /// Specfies the theme of the spark chart.
+  final SfChartThemeData? themeData;
 
-  /// Specifies the series screen coordinate points
+  /// Specifies the series screen coordinate points.
   final List<Offset>? coordinatePoints;
 
-  /// Specifies the series data points
+  /// Specifies the series data points.
   final List<SparkChartPoint>? dataPoints;
 }
 
-/// Represents the RenderSparkChart class
+/// Represents the RenderSparkChart class.
 abstract class RenderSparkChart extends RenderBox {
-  /// Creates the render object widget
+  /// Creates the render object widget.
   RenderSparkChart(
       {
       //ignore: avoid_unused_constructor_parameters
@@ -121,7 +119,7 @@ abstract class RenderSparkChart extends RenderBox {
       Color? negativePointColor,
       SparkChartPlotBand? plotBand,
       SparkChartDataDetails? sparkChartDataDetails,
-      ThemeData? themeData,
+      SfChartThemeData? themeData,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
       : _data = data,
@@ -150,13 +148,13 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the data source
+  /// Defines the data source.
   List<dynamic>? _data;
 
-  /// Returns the data source value
+  /// Returns the data source value.
   List<dynamic>? get data => _data;
 
-  /// Set the data source value
+  /// Set the data source value.
   set data(List<dynamic>? value) {
     if (_data != null && _data != value) {
       _data = value;
@@ -165,13 +163,13 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the data count
+  /// Defines the data count.
   int? _dataCount;
 
-  /// Returns the data count value
+  /// Returns the data count value.
   int? get dataCount => _dataCount;
 
-  /// Set the data source value
+  /// Set the data source value.
   set dataCount(int? value) {
     if (_dataCount != null && _dataCount != value) {
       _dataCount = value;
@@ -183,10 +181,10 @@ abstract class RenderSparkChart extends RenderBox {
   /// Defines the x-value in the data source.
   SparkChartIndexedValueMapper<dynamic>? _xValueMapper;
 
-  /// Returns the xValueMapper value
+  /// Returns the xValueMapper value.
   SparkChartIndexedValueMapper<dynamic>? get xValueMapper => _xValueMapper;
 
-  /// Set the xValue Mapper value
+  /// Set the xValue Mapper value.
   set xValueMapper(SparkChartIndexedValueMapper<dynamic>? value) {
     if (_xValueMapper != null && _xValueMapper != value) {
       _xValueMapper = value;
@@ -198,10 +196,10 @@ abstract class RenderSparkChart extends RenderBox {
   /// Defines the y-value in the data source.
   SparkChartIndexedValueMapper<num>? _yValueMapper;
 
-  /// Returns the yValueMapper value
+  /// Returns the yValueMapper value.
   SparkChartIndexedValueMapper<num>? get yValueMapper => _yValueMapper;
 
-  /// Set the yValue Mapper value
+  /// Set the yValue Mapper value.
   set yValueMapper(SparkChartIndexedValueMapper<num>? value) {
     if (_yValueMapper != null && _yValueMapper != value) {
       _yValueMapper = value;
@@ -210,13 +208,13 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines whether to inverse the spark chart
+  /// Defines whether to inverse the spark chart.
   bool? _isInversed;
 
-  /// Returns the isInversed
+  /// Returns the isInversed.
   bool? get isInversed => _isInversed;
 
-  /// Set the isInversed
+  /// Set the isInversed.
   set isInversed(bool? value) {
     if (_isInversed != value) {
       _isInversed = value;
@@ -229,10 +227,10 @@ abstract class RenderSparkChart extends RenderBox {
   /// Defines the horizontal axis line position.
   double? _axisCrossesAt;
 
-  /// Returns the axisCrossesAt value
+  /// Returns the axisCrossesAt value.
   double? get axisCrossesAt => _axisCrossesAt;
 
-  /// Set the axisCrossesAt value
+  /// Set the axisCrossesAt value.
   set axisCrossesAt(double? value) {
     if (_axisCrossesAt != value) {
       _axisCrossesAt = value;
@@ -241,13 +239,13 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the axis line width
+  /// Defines the axis line width.
   double? _axisLineWidth;
 
-  /// Returns the axis line width value
+  /// Returns the axis line width value.
   double? get axisLineWidth => _axisLineWidth;
 
-  /// Set the axis line width value
+  /// Set the axis line width value.
   set axisLineWidth(double? value) {
     if (_axisLineWidth != value) {
       _axisLineWidth = value;
@@ -255,13 +253,13 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the axis line color
+  /// Defines the axis line color.
   Color? _axisLineColor;
 
-  /// Returns the axis line color value
+  /// Returns the axis line color value.
   Color? get axisLineColor => _axisLineColor;
 
-  /// Set the axis line color value
+  /// Set the axis line color value.
   set axisLineColor(Color? value) {
     if (_axisLineColor != value) {
       _axisLineColor = value;
@@ -269,53 +267,53 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the spark chart theme
-  ThemeData? _themeData;
+  /// Defines the spark chart theme.
+  SfChartThemeData? _themeData;
 
-  /// Returns the spark chart theme
-  ThemeData? get themeData => _themeData;
+  /// Returns the spark chart theme.
+  SfChartThemeData? get themeData => _themeData;
 
-  /// Sets the spark chart theme
-  set themeData(ThemeData? value) {
+  /// Sets the spark chart theme.
+  set themeData(SfChartThemeData? value) {
     if (_themeData != value) {
       _themeData = value;
       markNeedsPaint();
     }
   }
 
-  /// Defines the series coordinate points
+  /// Defines the series coordinate points.
   List<Offset>? _coordinatePoints;
 
-  /// Returns the series coordinate points
+  /// Returns the series coordinate points.
   List<Offset>? get coordinatePoints => _coordinatePoints;
 
-  /// Sets the series coordinate points
+  /// Sets the series coordinate points.
   set coordinatePoints(List<Offset>? value) {
     if (_coordinatePoints != value) {
       _coordinatePoints = value;
     }
   }
 
-  /// Defines the series data points
+  /// Defines the series data points.
   List<SparkChartPoint>? _dataPoints;
 
-  /// Returns the series data points
+  /// Returns the series data points.
   List<SparkChartPoint>? get dataPoints => _dataPoints;
 
-  /// Sets the series coordinate points
+  /// Sets the series coordinate points.
   set dataPoints(List<SparkChartPoint>? value) {
     if (_dataPoints != value) {
       _dataPoints = value;
     }
   }
 
-  /// Defines the axis line dash array
+  /// Defines the axis line dash array.
   List<double>? _axisLineDashArray;
 
-  /// Returns the axis line dash array value
+  /// Returns the axis line dash array value.
   List<double>? get axisLineDashArray => _axisLineDashArray;
 
-  /// Set the axis line dash array value
+  /// Set the axis line dash array value.
   set axisLineDashArray(List<double>? value) {
     if (_axisLineDashArray != value) {
       _axisLineDashArray = value;
@@ -323,13 +321,13 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the first point color
+  /// Defines the first point color.
   Color? _firstPointColor;
 
-  /// Returns the first point color value
+  /// Returns the first point color value.
   Color? get firstPointColor => _firstPointColor;
 
-  /// Set the first point color value
+  /// Set the first point color value.
   set firstPointColor(Color? value) {
     if (_firstPointColor != value) {
       _firstPointColor = value;
@@ -337,13 +335,13 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the last point color
+  /// Defines the last point color.
   Color? _lastPointColor;
 
-  /// Returns the last point color vlue
+  /// Returns the last point color vlue.
   Color? get lastPointColor => _lastPointColor;
 
-  /// Set the last point color value
+  /// Set the last point color value.
   set lastPointColor(Color? value) {
     if (_lastPointColor != value) {
       _lastPointColor = value;
@@ -351,13 +349,13 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the high point color
+  /// Defines the high point color.
   Color? _highPointColor;
 
-  /// Returns the high point color value
+  /// Returns the high point color value.
   Color? get highPointColor => _highPointColor;
 
-  /// Set the high point color value
+  /// Set the high point color value.
   set highPointColor(Color? value) {
     if (_highPointColor != value) {
       _highPointColor = value;
@@ -365,13 +363,13 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the low point color
+  /// Defines the low point color.
   Color? _lowPointColor;
 
-  /// Returns the low point color value
+  /// Returns the low point color value.
   Color? get lowPointColor => _lowPointColor;
 
-  /// Set the low point color value
+  /// Set the low point color value.
   set lowPointColor(Color? value) {
     if (_lowPointColor != value) {
       _lowPointColor = value;
@@ -379,13 +377,13 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the negative point color
+  /// Defines the negative point color.
   Color? _negativePointColor;
 
-  /// Returns the negative point color value
+  /// Returns the negative point color value.
   Color? get negativePointColor => _negativePointColor;
 
-  /// Set the negative point color value
+  /// Set the negative point color value.
   set negativePointColor(Color? value) {
     if (_negativePointColor != value) {
       _negativePointColor = value;
@@ -393,13 +391,13 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the spark chart series color
+  /// Defines the spark chart series color.
   Color? _color;
 
-  /// Returns the spark chart color
+  /// Returns the spark chart color.
   Color? get color => _color;
 
-  /// Set the spark chart color value
+  /// Set the spark chart color value.
   set color(Color? value) {
     if (_color != value) {
       _color = value;
@@ -407,13 +405,13 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the spark chart plot band
+  /// Defines the spark chart plot band.
   SparkChartPlotBand? _plotBand;
 
-  /// Returns the spark chart plot band
+  /// Returns the spark chart plot band.
   SparkChartPlotBand? get plotBand => _plotBand;
 
-  /// Sets the spark chart plot band
+  /// Sets the spark chart plot band.
   set plotBand(SparkChartPlotBand? value) {
     if (_plotBand != value) {
       _plotBand = value;
@@ -422,56 +420,56 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Defines the spark chart data details
+  /// Defines the spark chart data details.
   SparkChartDataDetails? _sparkChartDataDetails;
 
-  /// Returns the spark chart data details
+  /// Returns the spark chart data details.
   SparkChartDataDetails? get sparkChartDataDetails => _sparkChartDataDetails;
 
-  /// Sets the spark chart data details
+  /// Sets the spark chart data details.
   set sparkChartDataDetails(SparkChartDataDetails? value) {
     if (_sparkChartDataDetails != value) {
       _sparkChartDataDetails = value;
     }
   }
 
-  /// Defines the plot band start height
+  /// Defines the plot band start height.
   double? plotBandStartHeight;
 
-  /// Defines the plot band end height
+  /// Defines the plot band end height.
   double? plotBandEndHeight;
 
-  /// Specifies the minimum X value
+  /// Specifies the minimum X value.
   double? minX;
 
   /// Specifies the maximum X value
   double? maxX;
 
-  /// Specifies the minimum Y value
+  /// Specifies the minimum Y value.
   double? minY;
 
-  /// Specifies the maximum X value
+  /// Specifies the maximum X value.
   double? maxY;
 
-  /// Defines the Y difference
+  /// Defines the Y difference.
   double? diffY;
 
-  /// Defines the X difference
+  /// Defines the X difference.
   double? diffX;
 
-  /// Specifies the axis height
+  /// Specifies the axis height.
   double? axisHeight;
 
-  /// Specifies the area size
+  /// Specifies the area size.
   Size? areaSize;
 
-  /// specifies the data label values
+  /// Specifies the data label values.
   List<String>? dataLabels;
 
-  /// specifies the data label values
+  /// Specifies the data label values.
   List<String>? reversedDataLabels;
 
-  /// Method to find the minX, maxX, minY, maxY
+  /// Method to find the minX, maxX, minY, maxY.
   void _calculateMinimumMaximumXY(SparkChartPoint currentPoint) {
     minX ??= currentPoint.x.toDouble();
     maxX ??= currentPoint.x.toDouble();
@@ -483,7 +481,7 @@ abstract class RenderSparkChart extends RenderBox {
     maxY = math.max(maxY!, currentPoint.y.toDouble());
   }
 
-  /// Method to process the data source
+  /// Method to process the data source.
   void processDataSource() {
     if (dataPoints!.isNotEmpty) {
       dataPoints!.clear();
@@ -545,7 +543,7 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Returns the data label
+  /// Returns the data label.
   String _getDataLabel(num value) {
     String dataLabel = value.toString();
     if (value is double) {
@@ -559,7 +557,7 @@ abstract class RenderSparkChart extends RenderBox {
     return dataLabel;
   }
 
-  /// Method to calculate axis height
+  /// Method to calculate axis height.
   double? getAxisHeight() {
     final double value = axisCrossesAt!;
     double? axisLineHeight =
@@ -576,7 +574,7 @@ abstract class RenderSparkChart extends RenderBox {
     return axisLineHeight;
   }
 
-  /// Inverse the data Points
+  /// Inverse the data Points.
   void inverseDataPoints() {
     final List<SparkChartPoint> temp = dataPoints!.reversed.toList();
     reversedDataLabels = List<String>.from(dataLabels!.reversed);
@@ -589,7 +587,7 @@ abstract class RenderSparkChart extends RenderBox {
     maxX = tempX;
   }
 
-  /// Methods to calculate the visible points
+  /// Methods to calculate the visible points.
   void calculateRenderingPoints() {
     if (minX != null && maxX != null && minY != null && maxY != null) {
       diffX = maxX! - minX!;
@@ -616,7 +614,7 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Method to calculate the plot band position
+  /// Method to calculate the plot band position.
   void calculatePlotBandPosition() {
     final double height = areaSize!.height;
     final double? start = plotBand == null
@@ -633,7 +631,7 @@ abstract class RenderSparkChart extends RenderBox {
     plotBandEndHeight = height - ((height / diffY!) * (end! - minY!));
   }
 
-  /// Method to render axis line
+  /// Method to render axis line.
   void renderAxisline(Canvas canvas, Offset offset) {
     if (axisLineWidth! > 0 && axisHeight != null) {
       final double x1 = offset.dx;
@@ -653,7 +651,7 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Method to render plot band
+  /// Method to render plot band.
   void renderPlotBand(Canvas canvas, Offset offset) {
     if (plotBandStartHeight != plotBandEndHeight) {
       final Paint paint = Paint()..color = plotBand!.color;
@@ -683,7 +681,7 @@ abstract class RenderSparkChart extends RenderBox {
     }
   }
 
-  /// Method to refresh the spark chart
+  /// Method to refresh the spark chart.
   void _refreshSparkChart() {
     processDataSource();
     if (isInversed!) {

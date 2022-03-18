@@ -1,37 +1,55 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../io/pdf_constants.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_reference_holder.dart';
 
 /// Represents base class for all action types.
-class PdfAction implements _IPdfWrapper {
-  // constructor
-  PdfAction._() : super() {
-    _initialize();
-  }
-  // fields
-  PdfAction? _action;
-  final _PdfDictionary _dictionary = _PdfDictionary();
+abstract class PdfAction implements IPdfWrapper {
+  //Fields
+  final PdfActionHelper _helper = PdfActionHelper();
 
   // properties
   /// Gets the next action
   /// to be performed after the action represented by this instance.
-  PdfAction? get next => _action;
+  PdfAction? get next => _helper.action;
 
   /// Sets the next action
   /// to be performed after the action represented by this instance.
   set next(PdfAction? value) {
-    if (value != null && _action != value) {
-      _action = value;
-      _dictionary._setArray(_DictionaryProperties.next,
-          <_IPdfPrimitive>[_PdfReferenceHolder(_action)]);
+    if (value != null && _helper.action != value) {
+      _helper.action = value;
+      _helper.dictionary.setArray(PdfDictionaryProperties.next,
+          <IPdfPrimitive>[PdfReferenceHolder(_helper.action)]);
     }
   }
+}
 
-  // implementation
-  void _initialize() {
-    _dictionary.setProperty(_PdfName(_DictionaryProperties.type),
-        _PdfName(_DictionaryProperties.action));
-    _element = _dictionary;
+/// [PdfAction] helper
+class PdfActionHelper {
+  /// initialize a new instance
+  PdfActionHelper() {
+    initialize();
   }
 
-  @override
-  _IPdfPrimitive? _element;
+  /// internal field
+  PdfAction? action;
+
+  /// internal field
+  IPdfPrimitive? element;
+
+  /// internal field
+  final PdfDictionary dictionary = PdfDictionary();
+
+  /// internal method
+  void initialize() {
+    dictionary.setProperty(PdfName(PdfDictionaryProperties.type),
+        PdfName(PdfDictionaryProperties.action));
+    element = dictionary;
+  }
+
+  /// Get dictionary
+  static PdfActionHelper getHelper(PdfAction action) {
+    return action._helper;
+  }
 }

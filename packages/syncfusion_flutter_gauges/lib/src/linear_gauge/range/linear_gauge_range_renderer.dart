@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -43,7 +42,7 @@ class RenderLinearRange extends RenderOpacity {
         _isAxisInversed = isAxisInversed,
         _isMirrored = isMirrored {
     _rangePaint = Paint()..color = Colors.black12;
-    _rangeOffsets = List<Offset>.filled(5, const Offset(0, 0), growable: false);
+    _rangeOffsets = List<Offset>.filled(5, Offset.zero, growable: false);
     _isHorizontal = orientation == LinearGaugeOrientation.horizontal;
     _path = Path();
   }
@@ -341,7 +340,7 @@ class RenderLinearRange extends RenderOpacity {
 
   void _getRangeOffsets() {
     final LinearElementPosition rangeElementPosition =
-        LinearGaugeHelper.getEffectiveElementPosition(position, isMirrored);
+        getEffectiveElementPosition(position, isMirrored);
     double _bottom = _rangeOffset.dy + _rangeRect.height;
 
     if (orientation == LinearGaugeOrientation.vertical) {
@@ -408,14 +407,14 @@ class RenderLinearRange extends RenderOpacity {
               rangeRect, Radius.circular(startThickness / 2)));
           break;
         case LinearEdgeStyle.startCurve:
-          _path.addRRect(LinearGaugeHelper.getStartCurve(
+          _path.addRRect(getStartCurve(
               isHorizontal: _isHorizontal,
               isAxisInversed: isAxisInversed,
               rect: rangeRect,
               radius: startThickness / 2));
           break;
         case LinearEdgeStyle.endCurve:
-          _path.addRRect(LinearGaugeHelper.getEndCurve(
+          _path.addRRect(getEndCurve(
               isHorizontal: _isHorizontal,
               isAxisInversed: isAxisInversed,
               rect: rangeRect,

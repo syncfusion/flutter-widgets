@@ -100,7 +100,7 @@ class _AutoFitManager {
           }
 
           for (int idx = 1; idx <= indentLevel; idx++) {
-            text = ' ' + text;
+            text = ' $text';
           }
         }
       }
@@ -286,7 +286,7 @@ class _AutoFitManager {
                 wordsN.length - 1 + wordNSplit.length, '',
                 growable: false);
             for (int i = 0; i < wordsN.length - 1; i++) {
-              words[i] = wordsN[i] + '\n';
+              words[i] = '${wordsN[i]}\n';
             }
             int j = wordsN.length - 1;
             for (int i = 0; i < wordNSplit.length; i++) {
@@ -296,7 +296,7 @@ class _AutoFitManager {
             String autoFitText;
             int biggestLength = 0;
             for (int index = 0; index < words.length; index++) {
-              autoFitText = words[index].toString();
+              autoFitText = words[index];
               if (autoFitText.isNotEmpty) {
                 final int length =
                     _measureCharacterRanges(style, autoFitText, _num, ef);
@@ -309,7 +309,7 @@ class _AutoFitManager {
                     index = temp;
                     if (words.length != 1) {
                       if (!autoFitText.endsWith('\n')) {
-                        autoFitText = autoFitText + ' ' + words[temp];
+                        autoFitText = '$autoFitText ${words[temp]}';
                       } else {
                         index--;
                       }
@@ -383,7 +383,7 @@ class _AutoFitManager {
     for (final int key in columnsWidth.keys) {
       final int num12 = columnsWidth[key]!;
       if (num12 != 0) {
-        _worksheet._setColumnWidthInPixels(key, num12);
+        _worksheet.setColumnWidthInPixels(key, num12);
       }
     }
   }
@@ -419,7 +419,7 @@ class _AutoFitManager {
     final _FontStyle regular = _FontStyle._regular;
 
     if (stringValue[stringValue.length - 1] == '\n') {
-      stringValue = stringValue + 'a';
+      stringValue = '${stringValue}a';
     }
 
     regular._bold = font.bold;

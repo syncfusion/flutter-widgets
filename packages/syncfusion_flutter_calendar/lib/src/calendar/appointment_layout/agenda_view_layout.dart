@@ -1,17 +1,13 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
+import '../../../calendar.dart';
 import '../appointment_engine/appointment_helper.dart';
 import '../common/calendar_view_helper.dart';
-import '../common/event_args.dart';
-import '../settings/month_view_settings.dart';
-import '../settings/schedule_view_settings.dart';
 
 /// Used to holds the agenda appointment views in calendar widgets.
 class AgendaViewLayout extends StatefulWidget {
@@ -33,7 +29,8 @@ class AgendaViewLayout extends StatefulWidget {
       this.isMobilePlatform,
       this.appointmentBuilder,
       this.width,
-      this.height);
+      this.height,
+      this.calendar);
 
   /// Defines the month view customization details.
   final MonthViewSettings? monthViewSettings;
@@ -84,7 +81,11 @@ class AgendaViewLayout extends StatefulWidget {
   /// Defines the height of the agenda appointment layout widget.
   final double height;
 
+  /// Defines the calendar widget.
+  final SfCalendar calendar;
+
   @override
+  // ignore: library_private_types_in_public_api
   _AgendaViewLayoutState createState() => _AgendaViewLayoutState();
 }
 
@@ -132,7 +133,8 @@ class _AgendaViewLayoutState extends State<AgendaViewLayout> {
         final CalendarAppointmentDetails details = CalendarAppointmentDetails(
             widget.selectedDate!,
             List<dynamic>.unmodifiable(<dynamic>[
-              CalendarViewHelper.getAppointmentDetail(view.appointment!)
+              CalendarViewHelper.getAppointmentDetail(
+                  view.appointment!, widget.calendar.dataSource)
             ]),
             view.appointmentRect!.outerRect);
         final Widget child = widget.appointmentBuilder!(context, details);
@@ -765,10 +767,9 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
       semanticsBuilder.add(CustomPainterSemantics(
         rect: Offset.zero & size,
         properties: SemanticsProperties(
-          label: DateFormat('EEEEE').format(selectedDate!).toString() +
-              DateFormat('dd/MMMM/yyyy').format(selectedDate!).toString() +
-              ', '
-                  'No events',
+          label:
+              // ignore: lines_longer_than_80_chars
+              '${DateFormat('EEEEE').format(selectedDate!)}${DateFormat('dd MMMM yyyy').format(selectedDate!)}, No events',
           textDirection: TextDirection.ltr,
         ),
       ));
@@ -1079,9 +1080,9 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
             ? 'hh:mm a'
             : 'MMM dd, hh:mm a');
     final TextSpan span = TextSpan(
-        text: DateFormat(format, locale).format(appointment.actualStartTime) +
-            ' - ' +
-            DateFormat(format, locale).format(appointment.actualEndTime),
+        text:
+            // ignore: lines_longer_than_80_chars
+            '${DateFormat(format, locale).format(appointment.actualStartTime)} - ${DateFormat(format, locale).format(appointment.actualEndTime)}',
         style: appointmentTextStyle);
     _textPainter.text = span;
 
@@ -1227,10 +1228,9 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
         DateFormat(appointmentTimeTextFormat ?? 'hh:mm a', locale);
     final TextSpan span = TextSpan(
         text: appointment.isAllDay || appointment.isSpanned
-            ? 'All Day'
-            : format.format(appointment.actualStartTime) +
-                ' - ' +
-                format.format(appointment.actualEndTime),
+            ? _localizations.allDayLabel
+            // ignore: lines_longer_than_80_chars
+            : '${format.format(appointment.actualStartTime)} - ${format.format(appointment.actualEndTime)}',
         style: appointmentTextStyle);
     _textPainter.text = span;
 
@@ -1270,7 +1270,18 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
             calendarTheme.selectionBorderColor!.withOpacity(0.4);
         _rectPainter.style = PaintingStyle.stroke;
         _rectPainter.strokeWidth = 2;
-        canvas.drawRect(rect.outerRect, _rectPainter);
+        if (childCount == 0) {
+          final Radius cornerRadius = Radius.circular(
+              (rect.outerRect.height * 0.1) > 5
+                  ? 5
+                  : (rect.outerRect.height * 0.1));
+          canvas.drawRRect(
+              RRect.fromRectAndRadius(rect.outerRect, cornerRadius),
+              _rectPainter);
+        } else {
+          canvas.drawRect(rect.outerRect, _rectPainter);
+        }
+
         _rectPainter.style = PaintingStyle.fill;
       }
     }

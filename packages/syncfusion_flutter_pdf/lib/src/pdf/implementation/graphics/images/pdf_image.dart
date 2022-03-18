@@ -1,4 +1,8 @@
-part of pdf;
+import 'dart:ui';
+import '../../../interfaces/pdf_interface.dart';
+import '../../primitives/pdf_stream.dart';
+import '../figures/base/pdf_shape_element.dart';
+import 'pdf_bitmap.dart';
 
 /// Represents the base class for images
 /// and provides functionality for the [PdfBitmap] class
@@ -16,10 +20,10 @@ part of pdf;
 /// //Dispose the document.
 /// doc.dispose();
 /// ```
-abstract class PdfImage extends PdfShapeElement implements _IPdfWrapper {
+abstract class PdfImage extends PdfShapeElement implements IPdfWrapper {
   //Fields
   double? _jpegOrientationAngle;
-  _PdfStream? _imageStream;
+  PdfStream? _imageStream;
 
   //Properties
   /// Width of an image
@@ -123,14 +127,48 @@ abstract class PdfImage extends PdfShapeElement implements _IPdfWrapper {
   /// ```
   Size get physicalDimension => Size(width.toDouble(), height.toDouble());
 
-  //Implementations
-  void _save();
-
-  @override
-  _IPdfPrimitive? get _element => _imageStream;
-  @override
+  IPdfPrimitive? get _element => _imageStream;
   // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    _imageStream = value as _PdfStream?;
+  set _element(IPdfPrimitive? value) {
+    _imageStream = value as PdfStream?;
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfImage] helper
+class PdfImageHelper {
+  /// internal method
+  static IPdfPrimitive? getElement(PdfImage image) {
+    return image._element;
+  }
+
+  /// internal method
+  static void setElement(PdfImage image, IPdfPrimitive? element) {
+    image._element = element;
+  }
+
+  /// internal method
+  static double? getJpegOrientationAngle(PdfImage image) {
+    return image._jpegOrientationAngle;
+  }
+
+  /// internal method
+  static void setJpegOrientationAngle(PdfImage image, double? value) {
+    image._jpegOrientationAngle = value;
+  }
+
+  /// internal method
+  static PdfStream? getImageStream(PdfImage image) {
+    return image._imageStream;
+  }
+
+  /// internal method
+  static void setImageStream(PdfImage image, PdfStream? value) {
+    image._imageStream = value;
+  }
+
+  /// internal method
+  static void save(PdfImage image) {
+    PdfBitmapHelper.getHelper(image as PdfBitmap).save();
   }
 }

@@ -1,5 +1,3 @@
-part of pdf;
-
 /// Represents marker alignment.
 ///
 /// ```dart

@@ -1,11 +1,24 @@
-part of pdf;
+import '../../../../interfaces/pdf_interface.dart';
+import '../../../compression/deflate/deflate_stream.dart';
+import '../../../io/pdf_constants.dart';
+import '../../../primitives/pdf_array.dart';
+import '../../../primitives/pdf_dictionary.dart';
+import '../../../primitives/pdf_name.dart';
+import '../../../primitives/pdf_number.dart';
+import '../../../primitives/pdf_reference_holder.dart';
+import '../../../primitives/pdf_stream.dart';
+import '../../../primitives/pdf_string.dart';
+import '../enum.dart';
+import 'image_decoder.dart';
 
-class _PngDecoder extends _ImageDecoder {
-  _PngDecoder(List<int> imageData, int offset) {
+/// internal class
+class PngDecoder extends ImageDecoder {
+  /// internal constructor
+  PngDecoder(List<int> imageData, int offset) {
     this.imageData = List<int>.from(imageData);
-    format = _ImageType.png;
+    format = ImageType.png;
     _issRGB = false;
-    _isDecode = false;
+    isDecode = false;
     _shades = false;
     _ideateDecode = true;
     _colors = 0;
@@ -21,7 +34,6 @@ class _PngDecoder extends _ImageDecoder {
   late int _currentChunkLength;
   late _PngHeader _header;
   late bool _issRGB;
-  late bool _isDecode;
   late bool _shades;
   late bool _ideateDecode;
   late int _colors;
@@ -33,8 +45,13 @@ class _PngDecoder extends _ImageDecoder {
   List<int>? _iDatStream;
   late List<int> _dataStream;
   int? _dataStreamOffset;
-  _PdfArray? _colorSpace;
   List<int>? _decodedImageData;
+
+  /// internal field
+  PdfArray? colorSpace;
+
+  /// internal field
+  late bool isDecode;
 
   //Implementation
   void _initialize() {
@@ -86,9 +103,9 @@ class _PngDecoder extends _ImageDecoder {
   Map<String, dynamic> _hasValidChunkType(_PngChunkTypes? type) {
     type = _PngChunkTypes.unknown;
     if (offset + 8 <= imageData.length) {
-      _currentChunkLength = _readUInt32(imageData, offset);
-      _seek(4);
-      final String chunk = _readString(imageData, 4);
+      _currentChunkLength = readUInt32(imageData, offset);
+      seek(4);
+      final String chunk = readString(imageData, 4);
       final _PngChunkTypes? header = _getChunkType(chunk);
       if (header != null) {
         type = header;
@@ -196,7 +213,7 @@ class _PngDecoder extends _ImageDecoder {
 
   void _ignoreChunk() {
     if (_currentChunkLength > 0) {
-      _seek(_currentChunkLength + 4);
+      seek(_currentChunkLength + 4);
     }
   }
 
@@ -209,15 +226,15 @@ class _PngDecoder extends _ImageDecoder {
         offset = offset + 1;
       }
     }
-    _seek(4);
+    seek(4);
   }
 
   void _decodeImageData() {
-    _isDecode = (_header.interlace == 1) ||
+    isDecode = (_header.interlace == 1) ||
         (_header.bitDepth == 16) ||
         ((_header.colorType & 4) != 0) ||
         _shades;
-    if (_isDecode) {
+    if (isDecode) {
       if ((_header.colorType & 4) != 0 || _shades) {
         final int length = width * height;
         _maskData = <int>[];
@@ -244,13 +261,13 @@ class _PngDecoder extends _ImageDecoder {
 
   List<int> _getDeflatedData(List<int> data) {
     final List<int> idatData = data.sublist(2, data.length - 4);
-    final _DeflateStream deflateStream = _DeflateStream(idatData, 0, true);
+    final DeflateStream deflateStream = DeflateStream(idatData, 0, true);
     List<int> buffer = List<int>.filled(4096, 0);
     int? numRead = 0;
     final List<int> outputData = <int>[];
     do {
       final Map<String, dynamic> result =
-          deflateStream._read(buffer, 0, buffer.length);
+          deflateStream.read(buffer, 0, buffer.length);
       numRead = result['count'] as int?;
       buffer = result['data'] as List<int>;
       for (int i = 0; i < numRead!; i++) {
@@ -318,7 +335,7 @@ class _PngDecoder extends _ImageDecoder {
 
   int? _readStream(
       List<int> stream, int? streamOffset, List<int>? data, int count) {
-    final dynamic result = _read(stream, streamOffset, data, count);
+    final dynamic result = read(stream, streamOffset, data, count);
     data = result['outputBuffer'] as List<int>?;
     streamOffset = result['offset'] as int?;
     final int n = result['length'] as int;
@@ -496,12 +513,12 @@ class _PngDecoder extends _ImageDecoder {
 
   void _readPLTE() {
     if (_header.colorType == 3) {
-      _colorSpace = _PdfArray();
-      _colorSpace!._add(_PdfName(_DictionaryProperties.indexed));
-      _colorSpace!._add(_getPngColorSpace());
-      _colorSpace!._add(_PdfNumber(_currentChunkLength / 3 - 1));
-      _colorSpace!._add(_PdfString.fromBytes(_readBytes(_currentChunkLength)));
-      _seek(4);
+      colorSpace = PdfArray();
+      colorSpace!.add(PdfName(PdfDictionaryProperties.indexed));
+      colorSpace!.add(_getPngColorSpace());
+      colorSpace!.add(PdfNumber(_currentChunkLength / 3 - 1));
+      colorSpace!.add(PdfString.fromBytes(readBytes(_currentChunkLength)));
+      seek(4);
     } else {
       _ignoreChunk();
     }
@@ -509,8 +526,8 @@ class _PngDecoder extends _ImageDecoder {
 
   void _readTRNS() {
     if (_header.colorType == 3) {
-      final List<int> alpha = _readBytes(_currentChunkLength);
-      _seek(4);
+      final List<int> alpha = readBytes(_currentChunkLength);
+      seek(4);
       _alpha = List<int>.filled(alpha.length, 0, growable: true);
       for (int i = 0; i < alpha.length; i++) {
         _alpha[i] = alpha[i];
@@ -524,25 +541,25 @@ class _PngDecoder extends _ImageDecoder {
     }
   }
 
-  _IPdfPrimitive _getPngColorSpace() {
+  IPdfPrimitive _getPngColorSpace() {
     if (!_issRGB) {
       if ((_header.colorType & 2) == 0) {
-        return _PdfName(_DictionaryProperties.deviceGray);
+        return PdfName(PdfDictionaryProperties.deviceGray);
       } else {
-        return _PdfName(_DictionaryProperties.deviceRGB);
+        return PdfName(PdfDictionaryProperties.deviceRGB);
       }
     } else {
-      final _PdfArray colorspace = _PdfArray();
-      final _PdfDictionary calRGB = _PdfDictionary();
-      _PdfArray whitePoint = _PdfArray();
-      whitePoint._add(_PdfNumber(1));
-      whitePoint._add(_PdfNumber(1));
-      whitePoint._add(_PdfNumber(1));
-      final _PdfArray gammaArray = _PdfArray();
-      gammaArray._add(_PdfNumber(2.2));
-      gammaArray._add(_PdfNumber(2.2));
-      gammaArray._add(_PdfNumber(2.2));
-      calRGB.setProperty(_PdfName(_DictionaryProperties.gamma), gammaArray);
+      final PdfArray colorspace = PdfArray();
+      final PdfDictionary calRGB = PdfDictionary();
+      PdfArray whitePoint = PdfArray();
+      whitePoint.add(PdfNumber(1));
+      whitePoint.add(PdfNumber(1));
+      whitePoint.add(PdfNumber(1));
+      final PdfArray gammaArray = PdfArray();
+      gammaArray.add(PdfNumber(2.2));
+      gammaArray.add(PdfNumber(2.2));
+      gammaArray.add(PdfNumber(2.2));
+      calRGB.setProperty(PdfName(PdfDictionaryProperties.gamma), gammaArray);
       if (_issRGB) {
         const double wpX = 0.3127;
         const double wpY = 0.329;
@@ -576,116 +593,116 @@ class _PngDecoder extends _ImageDecoder {
         const double whiteX = alphaX + blueX + colorX;
         const double whiteY = 1;
         const double whiteZ = alphaZ + blueZ + colorZ;
-        final _PdfArray whitePointArray = _PdfArray();
-        whitePointArray._add(_PdfNumber(whiteX));
-        whitePointArray._add(_PdfNumber(whiteY));
-        whitePointArray._add(_PdfNumber(whiteZ));
+        final PdfArray whitePointArray = PdfArray();
+        whitePointArray.add(PdfNumber(whiteX));
+        whitePointArray.add(PdfNumber(whiteY));
+        whitePointArray.add(PdfNumber(whiteZ));
         whitePoint = whitePointArray;
-        final _PdfArray matrix = _PdfArray();
-        matrix._add(_PdfNumber(alphaX));
-        matrix._add(_PdfNumber(alphaY));
-        matrix._add(_PdfNumber(alphaZ));
-        matrix._add(_PdfNumber(blueX));
-        matrix._add(_PdfNumber(blueY));
-        matrix._add(_PdfNumber(blueZ));
-        matrix._add(_PdfNumber(colorX));
-        matrix._add(_PdfNumber(colorY));
-        matrix._add(_PdfNumber(colorZ));
-        calRGB.setProperty(_PdfName(_DictionaryProperties.matrix), matrix);
+        final PdfArray matrix = PdfArray();
+        matrix.add(PdfNumber(alphaX));
+        matrix.add(PdfNumber(alphaY));
+        matrix.add(PdfNumber(alphaZ));
+        matrix.add(PdfNumber(blueX));
+        matrix.add(PdfNumber(blueY));
+        matrix.add(PdfNumber(blueZ));
+        matrix.add(PdfNumber(colorX));
+        matrix.add(PdfNumber(colorY));
+        matrix.add(PdfNumber(colorZ));
+        calRGB.setProperty(PdfName(PdfDictionaryProperties.matrix), matrix);
       }
       calRGB.setProperty(
-          _PdfName(_DictionaryProperties.whitePoint), whitePoint);
-      colorspace._add(_PdfName(_DictionaryProperties.calRGB));
-      colorspace._add(calRGB);
+          PdfName(PdfDictionaryProperties.whitePoint), whitePoint);
+      colorspace.add(PdfName(PdfDictionaryProperties.calRGB));
+      colorspace.add(calRGB);
       return colorspace;
     }
   }
 
-  void _setMask(_PdfStream imageStream) {
+  void _setMask(PdfStream imageStream) {
     if (_maskData != null && _maskData!.isNotEmpty) {
-      final _PdfStream stream = _PdfStream();
-      stream._dataStream = _maskData;
-      stream[_DictionaryProperties.type] =
-          _PdfName(_DictionaryProperties.xObject);
-      stream[_DictionaryProperties.subtype] =
-          _PdfName(_DictionaryProperties.image);
-      stream[_DictionaryProperties.width] = _PdfNumber(width);
-      stream[_DictionaryProperties.height] = _PdfNumber(height);
+      final PdfStream stream = PdfStream();
+      stream.dataStream = _maskData;
+      stream[PdfDictionaryProperties.type] =
+          PdfName(PdfDictionaryProperties.xObject);
+      stream[PdfDictionaryProperties.subtype] =
+          PdfName(PdfDictionaryProperties.image);
+      stream[PdfDictionaryProperties.width] = PdfNumber(width);
+      stream[PdfDictionaryProperties.height] = PdfNumber(height);
       if (bitsPerComponent == 16) {
-        stream[_DictionaryProperties.bitsPerComponent] = _PdfNumber(8);
+        stream[PdfDictionaryProperties.bitsPerComponent] = PdfNumber(8);
       } else {
-        stream[_DictionaryProperties.bitsPerComponent] =
-            _PdfNumber(bitsPerComponent!);
+        stream[PdfDictionaryProperties.bitsPerComponent] =
+            PdfNumber(bitsPerComponent!);
       }
-      stream[_DictionaryProperties.colorSpace] =
-          _PdfName(_DictionaryProperties.deviceGray);
+      stream[PdfDictionaryProperties.colorSpace] =
+          PdfName(PdfDictionaryProperties.deviceGray);
       imageStream.setProperty(
-          _PdfName(_DictionaryProperties.sMask), _PdfReferenceHolder(stream));
+          PdfName(PdfDictionaryProperties.sMask), PdfReferenceHolder(stream));
     }
   }
 
-  _PdfDictionary _getDecodeParams() {
-    final _PdfDictionary decodeParams = _PdfDictionary();
-    decodeParams[_DictionaryProperties.columns] = _PdfNumber(width);
-    decodeParams[_DictionaryProperties.colors] = _PdfNumber(_colors);
-    decodeParams[_DictionaryProperties.predictor] = _PdfNumber(15);
-    decodeParams[_DictionaryProperties.bitsPerComponent] =
-        _PdfNumber(bitsPerComponent!);
+  PdfDictionary _getDecodeParams() {
+    final PdfDictionary decodeParams = PdfDictionary();
+    decodeParams[PdfDictionaryProperties.columns] = PdfNumber(width);
+    decodeParams[PdfDictionaryProperties.colors] = PdfNumber(_colors);
+    decodeParams[PdfDictionaryProperties.predictor] = PdfNumber(15);
+    decodeParams[PdfDictionaryProperties.bitsPerComponent] =
+        PdfNumber(bitsPerComponent!);
     return decodeParams;
   }
 
   @override
   void readHeader() {
     _header = _PngHeader();
-    _header.width = _readUInt32(imageData, offset);
-    _seek(4);
-    _header.height = _readUInt32(imageData, offset);
-    _seek(4);
-    _header.bitDepth = _readByte();
-    _header.colorType = _readByte();
-    _header.compression = _readByte();
-    _header.filter = _getFilterType(_readByte());
-    _header.interlace = _readByte();
+    _header.width = readUInt32(imageData, offset);
+    seek(4);
+    _header.height = readUInt32(imageData, offset);
+    seek(4);
+    _header.bitDepth = readByte();
+    _header.colorType = readByte();
+    _header.compression = readByte();
+    _header.filter = _getFilterType(readByte());
+    _header.interlace = readByte();
     _colors = (_header.colorType == 3 || (_header.colorType & 2) == 0) ? 1 : 3;
     _initializeBase();
     _setBitsPerPixel();
-    _seek(4);
+    seek(4);
   }
 
   @override
-  _PdfStream getImageDictionary() {
-    final _PdfStream imageStream = _PdfStream();
-    imageStream._dataStream = _decodedImageData;
-    if (_isDecode && _ideateDecode) {
+  PdfStream getImageDictionary() {
+    final PdfStream imageStream = PdfStream();
+    imageStream.dataStream = _decodedImageData;
+    if (isDecode && _ideateDecode) {
       imageStream.compress = true;
     } else {
       imageStream.compress = false;
     }
-    imageStream[_DictionaryProperties.type] =
-        _PdfName(_DictionaryProperties.xObject);
-    imageStream[_DictionaryProperties.subtype] =
-        _PdfName(_DictionaryProperties.image);
-    imageStream[_DictionaryProperties.width] = _PdfNumber(width);
-    imageStream[_DictionaryProperties.height] = _PdfNumber(height);
+    imageStream[PdfDictionaryProperties.type] =
+        PdfName(PdfDictionaryProperties.xObject);
+    imageStream[PdfDictionaryProperties.subtype] =
+        PdfName(PdfDictionaryProperties.image);
+    imageStream[PdfDictionaryProperties.width] = PdfNumber(width);
+    imageStream[PdfDictionaryProperties.height] = PdfNumber(height);
     if (bitsPerComponent == 16) {
-      imageStream[_DictionaryProperties.bitsPerComponent] = _PdfNumber(8);
+      imageStream[PdfDictionaryProperties.bitsPerComponent] = PdfNumber(8);
     } else {
-      imageStream[_DictionaryProperties.bitsPerComponent] =
-          _PdfNumber(bitsPerComponent!);
+      imageStream[PdfDictionaryProperties.bitsPerComponent] =
+          PdfNumber(bitsPerComponent!);
     }
-    if (!_isDecode || !_ideateDecode) {
-      imageStream[_DictionaryProperties.filter] =
-          _PdfName(_DictionaryProperties.flateDecode);
+    if (!isDecode || !_ideateDecode) {
+      imageStream[PdfDictionaryProperties.filter] =
+          PdfName(PdfDictionaryProperties.flateDecode);
     }
     if ((_header.colorType & 2) == 0) {
-      imageStream[_DictionaryProperties.colorSpace] =
-          _PdfName(_DictionaryProperties.deviceGray);
+      imageStream[PdfDictionaryProperties.colorSpace] =
+          PdfName(PdfDictionaryProperties.deviceGray);
     } else {
-      imageStream[_DictionaryProperties.colorSpace] =
-          _PdfName(_DictionaryProperties.deviceRGB);
+      imageStream[PdfDictionaryProperties.colorSpace] =
+          PdfName(PdfDictionaryProperties.deviceRGB);
     }
-    if (!_isDecode || _shades && !_ideateDecode) {
-      imageStream[_DictionaryProperties.decodeParms] = _getDecodeParams();
+    if (!isDecode || _shades && !_ideateDecode) {
+      imageStream[PdfDictionaryProperties.decodeParms] = _getDecodeParams();
     }
     _setMask(imageStream);
     return imageStream;
@@ -710,3 +727,26 @@ class _PngHeader {
   late _PngFilterTypes filter;
   late int interlace;
 }
+
+enum _PngChunkTypes {
+  iHDR,
+  pLTE,
+  iDAT,
+  iEND,
+  bKGD,
+  cHRM,
+  gAMA,
+  hIST,
+  pHYs,
+  sBIT,
+  tEXt,
+  tIME,
+  tRNS,
+  zTXt,
+  sRGB,
+  iCCP,
+  iTXt,
+  unknown
+}
+
+enum _PngFilterTypes { none, sub, up, average, paeth }

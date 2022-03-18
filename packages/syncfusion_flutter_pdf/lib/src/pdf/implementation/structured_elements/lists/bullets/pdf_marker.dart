@@ -1,4 +1,8 @@
-part of pdf;
+import '../../../graphics/brushes/pdf_solid_brush.dart';
+import '../../../graphics/fonts/pdf_font.dart';
+import '../../../graphics/fonts/pdf_string_format.dart';
+import '../../../graphics/pdf_pen.dart';
+import 'enums.dart';
 
 /// Represents base class for markers.
 ///
@@ -129,4 +133,25 @@ abstract class PdfMarker {
   //Properties
   /// Indicates is alignment right.
   bool get _rightToLeft => alignment == PdfListMarkerAlignment.right;
+
+  late PdfMarkerHelper _helper;
+}
+
+/// [PdfMarker] helper
+class PdfMarkerHelper {
+  /// internal constructor
+  PdfMarkerHelper(this.marker) {
+    marker._helper = this;
+  }
+
+  /// internal field
+  late PdfMarker marker;
+
+  /// internal method
+  static PdfMarkerHelper getHelper(PdfMarker marker) {
+    return marker._helper;
+  }
+
+  /// internal property
+  bool get rightToLeft => marker._rightToLeft;
 }

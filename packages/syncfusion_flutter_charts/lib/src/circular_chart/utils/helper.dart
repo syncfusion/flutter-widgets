@@ -1,7 +1,17 @@
-part of charts;
+import 'dart:math' as math;
+import 'dart:math';
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_charts/src/circular_chart/base/circular_state_properties.dart';
+import 'package:syncfusion_flutter_charts/src/common/utils/helper.dart';
+import 'package:syncfusion_flutter_core/core.dart';
+import '../../chart/chart_series/xy_data_series.dart';
+import '../renderer/common.dart';
+import '../renderer/renderer_extension.dart';
 
-/// To get equivalent value for the percentage
-num? _percentToValue(String? value, num size) {
+/// To get equivalent value for the percentage.
+num? percentToValue(String? value, num size) {
   return value != null
       ? value.contains('%')
           ? (size / 100) *
@@ -10,16 +20,16 @@ num? _percentToValue(String? value, num size) {
       : null;
 }
 
-/// Convert degree to radian
-num _degreesToRadians(num deg) => deg * (pi / 180);
+/// Convert degree to radian.
+num degreesToRadians(num deg) => deg * (pi / 180);
 
-/// To get arc  path for circular chart render
-Path _getArcPath(num innerRadius, num radius, Offset center, num? startAngle,
+/// To get arc path for circular chart render.
+Path getArcPath(num innerRadius, num radius, Offset center, num? startAngle,
     num? endAngle, num? degree, SfCircularChart chart, bool isAnimate) {
   final Path path = Path();
-  startAngle = _degreesToRadians(startAngle!);
-  endAngle = _degreesToRadians(endAngle!);
-  degree = _degreesToRadians(degree!);
+  startAngle = degreesToRadians(startAngle!);
+  endAngle = degreesToRadians(endAngle!);
+  degree = degreesToRadians(degree!);
 
   final math.Point<double> innerRadiusStartPoint = math.Point<double>(
       innerRadius * cos(startAngle) + center.dx,
@@ -76,61 +86,8 @@ Path _getArcPath(num innerRadius, num radius, Offset center, num? startAngle,
   return path;
 }
 
-/// To get current point
-ChartPoint<dynamic> _getCircularPoint(
-    CircularSeriesRenderer seriesRenderer, int pointIndex) {
-  final CircularSeries<dynamic, dynamic> series = seriesRenderer._series;
-  late ChartPoint<dynamic> currentPoint;
-  final ChartIndexedValueMapper<dynamic>? xMap = series.xValueMapper;
-  final ChartIndexedValueMapper<dynamic>? yMap = series.yValueMapper;
-  final ChartIndexedValueMapper<dynamic>? sortFieldMap =
-      series.sortFieldValueMapper;
-  final ChartIndexedValueMapper<String>? radiusMap = series.pointRadiusMapper;
-  final ChartIndexedValueMapper<Color>? colorMap = series.pointColorMapper;
-  final ChartShaderMapper<dynamic>? shadeMap = series.pointShaderMapper;
-
-  /// Can be either a string or num value
-  dynamic xVal;
-  num? yVal;
-  String? radiusVal;
-  Color? colorVal;
-  String? sortVal;
-  if (xMap != null) {
-    xVal = xMap(pointIndex);
-  }
-
-  if (xVal != null) {
-    if (yMap != null) {
-      yVal = yMap(pointIndex);
-    }
-
-    if (radiusMap != null) {
-      radiusVal = radiusMap(pointIndex);
-    }
-
-    if (colorMap != null) {
-      colorVal = colorMap(pointIndex);
-    }
-    if (sortFieldMap != null) {
-      sortVal = sortFieldMap(pointIndex);
-    }
-
-    currentPoint =
-        ChartPoint<dynamic>(xVal, yVal, radiusVal, colorVal, sortVal);
-  }
-  currentPoint.index = pointIndex;
-  if (shadeMap != null) {
-    currentPoint._pointShaderMapper = shadeMap;
-  } else {
-    currentPoint._pointShaderMapper = null;
-  }
-  currentPoint.center = seriesRenderer._center;
-
-  return currentPoint;
-}
-
-/// To get rounded corners Arc path
-Path _getRoundedCornerArcPath(
+/// To get rounded corners Arc path.
+Path getRoundedCornerArcPath(
     num innerRadius,
     num outerRadius,
     Offset? center,
@@ -146,11 +103,11 @@ Path _getRoundedCornerArcPath(
   if (cornerStyle == CornerStyle.startCurve ||
       cornerStyle == CornerStyle.bothCurve) {
     _midPoint =
-        _degreeToPoint(startAngle, (innerRadius + outerRadius) / 2, center!);
+        degreeToPoint(startAngle, (innerRadius + outerRadius) / 2, center!);
 
-    midStartAngle = _degreesToRadians(180);
+    midStartAngle = degreesToRadians(180);
 
-    midEndAngle = midStartAngle + _degreesToRadians(180);
+    midEndAngle = midStartAngle + degreesToRadians(180);
 
     path.addArc(
         Rect.fromCircle(
@@ -161,17 +118,17 @@ Path _getRoundedCornerArcPath(
 
   path.addArc(
       Rect.fromCircle(center: center!, radius: outerRadius.toDouble()),
-      _degreesToRadians(startAngle).toDouble(),
-      _degreesToRadians(endAngle - startAngle).toDouble());
+      degreesToRadians(startAngle).toDouble(),
+      degreesToRadians(endAngle - startAngle).toDouble());
 
   if (cornerStyle == CornerStyle.endCurve ||
       cornerStyle == CornerStyle.bothCurve) {
     _midPoint =
-        _degreeToPoint(endAngle, (innerRadius + outerRadius) / 2, center);
+        degreeToPoint(endAngle, (innerRadius + outerRadius) / 2, center);
 
-    midStartAngle = _degreesToRadians(endAngle / 2);
+    midStartAngle = degreesToRadians(endAngle / 2);
 
-    midEndAngle = midStartAngle + _degreesToRadians(180);
+    midEndAngle = midStartAngle + degreesToRadians(180);
 
     path.arcTo(
         Rect.fromCircle(
@@ -183,18 +140,18 @@ Path _getRoundedCornerArcPath(
 
   path.arcTo(
       Rect.fromCircle(center: center, radius: innerRadius.toDouble()),
-      _degreesToRadians(endAngle.toDouble()).toDouble(),
-      (_degreesToRadians(startAngle.toDouble()) -
-              _degreesToRadians(endAngle.toDouble()))
+      degreesToRadians(endAngle.toDouble()).toDouble(),
+      (degreesToRadians(startAngle.toDouble()) -
+              degreesToRadians(endAngle.toDouble()))
           .toDouble(),
       false);
   return path;
 }
 
-/// To get point region
-_Region? _getCircularPointRegion(SfCircularChart chart, Offset? position,
-    CircularSeriesRenderer seriesRenderer) {
-  _Region? pointRegion;
+/// To get point region.
+Region? getCircularPointRegion(SfCircularChart chart, Offset? position,
+    CircularSeriesRendererExtension seriesRenderer) {
+  Region? pointRegion;
   const num chartStartAngle = -.5 * pi;
   num fromCenterX,
       fromCenterY,
@@ -202,18 +159,23 @@ _Region? _getCircularPointRegion(SfCircularChart chart, Offset? position,
       pointStartAngle,
       pointEndAngle,
       distanceFromCenter;
-  for (final _Region region in seriesRenderer._pointRegions) {
+  // ignore: prefer_is_empty
+  if (seriesRenderer.renderPoints?.length == 0 ||
+      seriesRenderer.renderPoints == null) {
+    seriesRenderer = seriesRenderer.stateProperties.prevSeriesRenderer!;
+  }
+  for (final Region region in seriesRenderer.pointRegions) {
     fromCenterX = position!.dx - region.center!.dx;
     fromCenterY = position.dy - region.center!.dy;
     tapAngle = (atan2(fromCenterY, fromCenterX) - chartStartAngle) % (2 * pi);
-    pointStartAngle = region.start - _degreesToRadians(-90);
-    pointEndAngle = region.end - _degreesToRadians(-90);
+    pointStartAngle = region.start - degreesToRadians(-90);
+    pointEndAngle = region.end - degreesToRadians(-90);
     if (chart.onDataLabelRender != null) {
-      seriesRenderer._dataPoints[region.pointIndex].labelRenderEvent = false;
+      seriesRenderer.dataPoints[region.pointIndex].labelRenderEvent = false;
     }
     if (((region.endAngle + 90) > 360) && (region.startAngle + 90) > 360) {
-      pointEndAngle = _degreesToRadians((region.endAngle + 90) % 360);
-      pointStartAngle = _degreesToRadians((region.startAngle + 90) % 360);
+      pointEndAngle = degreesToRadians((region.endAngle + 90) % 360);
+      pointStartAngle = degreesToRadians((region.startAngle + 90) % 360);
     } else if ((region.endAngle + 90) > 360) {
       tapAngle = tapAngle > pointStartAngle ? tapAngle : 2 * pi + tapAngle;
     }
@@ -230,8 +192,8 @@ _Region? _getCircularPointRegion(SfCircularChart chart, Offset? position,
   return pointRegion;
 }
 
-/// Draw the path
-void _drawPath(Canvas canvas, _StyleOptions style, Path path,
+/// Draw the path.
+void drawPath(Canvas canvas, StyleOptions style, Path path,
     [Rect? rect, Shader? shader]) {
   final Paint paint = Paint();
   if (shader != null) {
@@ -254,57 +216,60 @@ void _drawPath(Canvas canvas, _StyleOptions style, Path path,
   }
 }
 
-/// To convert degree to point and return position
-Offset _degreeToPoint(num degree, num radius, Offset center) {
-  degree = _degreesToRadians(degree);
+/// To convert degree to point and return position.
+Offset degreeToPoint(num degree, num radius, Offset center) {
+  degree = degreesToRadians(degree);
   return Offset(
       center.dx + cos(degree) * radius, center.dy + sin(degree) * radius);
 }
 
-/// To repaint circular chart
-void _needsRepaintCircularChart(
-    List<CircularSeriesRenderer> currentSeriesRenderers,
-    List<CircularSeriesRenderer?> oldSeriesRenderers) {
+/// To repaint circular chart.
+void needsRepaintCircularChart(
+    List<CircularSeriesRendererExtension> currentSeriesRenderers,
+    List<CircularSeriesRendererExtension?> oldSeriesRenderers) {
   if (currentSeriesRenderers.length == oldSeriesRenderers.length &&
-      currentSeriesRenderers[0]._series == oldSeriesRenderers[0]!._series) {
+      currentSeriesRenderers[0].series == oldSeriesRenderers[0]!.series) {
     for (int seriesIndex = 0;
         seriesIndex < oldSeriesRenderers.length;
         seriesIndex++) {
-      _canRepaintSeries(
-          currentSeriesRenderers, oldSeriesRenderers, seriesIndex);
+      canRepaintSeries(currentSeriesRenderers, oldSeriesRenderers, seriesIndex);
     }
   } else {
     // ignore: avoid_function_literals_in_foreach_calls
-    currentSeriesRenderers.forEach((CircularSeriesRenderer seriesRenderer) =>
-        seriesRenderer._needsRepaint = true);
+    currentSeriesRenderers.forEach(
+        (CircularSeriesRendererExtension seriesRenderer) =>
+            seriesRenderer.needsRepaint = true);
   }
 }
 
-/// To repaint series
-void _canRepaintSeries(List<CircularSeriesRenderer> currentSeriesRenderers,
-    List<CircularSeriesRenderer?> oldSeriesRenderers, int seriesIndex) {
-  final CircularSeriesRenderer seriesRenderer = currentSeriesRenderers[0];
-  final CircularSeriesRenderer oldWidgetSeriesRenderer =
+/// To repaint series.
+void canRepaintSeries(
+    List<CircularSeriesRendererExtension> currentSeriesRenderers,
+    List<CircularSeriesRendererExtension?> oldSeriesRenderers,
+    int seriesIndex) {
+  final CircularSeriesRendererExtension seriesRenderer =
+      currentSeriesRenderers[0];
+  final CircularSeriesRendererExtension oldWidgetSeriesRenderer =
       oldSeriesRenderers[seriesIndex]!;
-  final CircularSeries<dynamic, dynamic> series = seriesRenderer._series;
+  final CircularSeries<dynamic, dynamic> series = seriesRenderer.series;
   final CircularSeries<dynamic, dynamic> oldWidgetSeries =
-      oldWidgetSeriesRenderer._series;
-  if (seriesRenderer._center?.dy != oldWidgetSeriesRenderer._center?.dy ||
-      seriesRenderer._center?.dx != oldWidgetSeriesRenderer._center?.dx ||
+      oldWidgetSeriesRenderer.series;
+  if (seriesRenderer.center?.dy != oldWidgetSeriesRenderer.center?.dy ||
+      seriesRenderer.center?.dx != oldWidgetSeriesRenderer.center?.dx ||
       series.borderWidth != oldWidgetSeries.borderWidth ||
       series.name != oldWidgetSeries.name ||
       series.borderColor.value != oldWidgetSeries.borderColor.value ||
-      seriesRenderer._segmentRenderingValues['currentInnerRadius'] !=
+      seriesRenderer.segmentRenderingValues['currentInnerRadius'] !=
           oldWidgetSeriesRenderer
-              ._segmentRenderingValues['currentInnerRadius'] ||
-      seriesRenderer._segmentRenderingValues['currentRadius'] !=
-          oldWidgetSeriesRenderer._segmentRenderingValues['currentRadius'] ||
-      seriesRenderer._segmentRenderingValues['start'] !=
-          oldWidgetSeriesRenderer._segmentRenderingValues['start'] ||
-      seriesRenderer._segmentRenderingValues['totalAngle'] !=
-          oldWidgetSeriesRenderer._segmentRenderingValues['totalAngle'] ||
-      seriesRenderer._dataPoints.length !=
-          oldWidgetSeriesRenderer._dataPoints.length ||
+              .segmentRenderingValues['currentInnerRadius'] ||
+      seriesRenderer.segmentRenderingValues['currentRadius'] !=
+          oldWidgetSeriesRenderer.segmentRenderingValues['currentRadius'] ||
+      seriesRenderer.segmentRenderingValues['start'] !=
+          oldWidgetSeriesRenderer.segmentRenderingValues['start'] ||
+      seriesRenderer.segmentRenderingValues['totalAngle'] !=
+          oldWidgetSeriesRenderer.segmentRenderingValues['totalAngle'] ||
+      seriesRenderer.dataPoints.length !=
+          oldWidgetSeriesRenderer.dataPoints.length ||
       series.emptyPointSettings.borderWidth !=
           oldWidgetSeries.emptyPointSettings.borderWidth ||
       series.emptyPointSettings.borderColor.value !=
@@ -350,27 +315,23 @@ void _canRepaintSeries(List<CircularSeriesRenderer> currentSeriesRenderers,
       series.xValueMapper != oldWidgetSeries.xValueMapper ||
       series.yValueMapper != oldWidgetSeries.yValueMapper ||
       series.enableTooltip != oldWidgetSeries.enableTooltip) {
-    seriesRenderer._needsRepaint = true;
+    seriesRenderer.needsRepaint = true;
   } else {
-    seriesRenderer._needsRepaint = false;
+    seriesRenderer.needsRepaint = false;
   }
 }
 
-/// To return deviation angle
-num _findAngleDeviation(num innerRadius, num outerRadius, num totalAngle) {
+/// To return deviation angle.
+num findAngleDeviation(num innerRadius, num outerRadius, num totalAngle) {
   final num calcRadius = (innerRadius + outerRadius) / 2;
-
   final num circumference = 2 * pi * calcRadius;
-
   final num rimSize = (innerRadius - outerRadius).abs();
-
   final num deviation = ((rimSize / 2) / circumference) * 100;
-
   return (deviation * 360) / 100;
 }
 
-/// It returns the actual label value for tooltip and data label etc
-String _getDecimalLabelValue(num? value, [int? showDigits]) {
+/// It returns the actual label value for tooltip and data label etc.
+String getDecimalLabelValue(num? value, [int? showDigits]) {
   if (value != null && value.toString().split('.').length > 1) {
     final String str = value.toString();
     final List<String> list = str.split('.');
@@ -389,8 +350,115 @@ String _getDecimalLabelValue(num? value, [int? showDigits]) {
   return value.toString();
 }
 
-/// Method to rotate Sweep gradient
-Float64List _resolveTransform(Rect bounds, TextDirection textDirection) {
+/// Method to rotate Sweep gradient.
+Float64List resolveTransform(Rect bounds, TextDirection textDirection) {
   final GradientTransform transform = GradientRotation(degreeToRadian(-90));
   return transform.transform(bounds, textDirection: textDirection)!.storage;
+}
+
+/// Circular pixel to point.
+ChartPoint<dynamic> circularPixelToPoint(
+    Offset position, CircularStateProperties chartState) {
+  int pointIndex;
+  ChartPoint<dynamic>? dataPoint;
+  final Region? pointRegion = getCircularPointRegion(chartState.chart, position,
+      chartState.chartSeries.visibleSeriesRenderers[0]);
+  if (pointRegion != null) {
+    pointIndex = pointRegion.pointIndex;
+    // ignore: prefer_is_empty
+    if (chartState.chartSeries.visibleSeriesRenderers[0].renderPoints?.length ==
+            0 ||
+        chartState.chartSeries.visibleSeriesRenderers[0].renderPoints == null) {
+      dataPoint = chartState.chartSeries.visibleSeriesRenderers[0]
+          .stateProperties.prevSeriesRenderer!.dataPoints[pointIndex];
+    } else {
+      dataPoint = chartState
+          .chartSeries.visibleSeriesRenderers[0].dataPoints[pointIndex];
+    }
+  }
+  return dataPoint!;
+}
+
+/// Circular point to pixel.
+Offset circularPointToPixel(
+    ChartPoint<dynamic> point, CircularStateProperties chartState) {
+  Offset location;
+
+  if (point.midAngle == null) {
+    final String x = point.x;
+    final num y = point.y!;
+    final CircularSeriesRendererExtension seriesRenderer =
+        chartState.chartSeries.visibleSeriesRenderers[0];
+    for (int i = 0; i < seriesRenderer.dataPoints.length; i++) {
+      if (seriesRenderer.dataPoints[i].x == x &&
+          seriesRenderer.dataPoints[i].y == y) {
+        point = seriesRenderer.dataPoints[i];
+      }
+    }
+  }
+
+  location = degreeToPoint(point.midAngle!,
+      (point.innerRadius! + point.outerRadius!) / 2, point.center!);
+  location = Offset(location.dx, location.dy);
+  return location;
+}
+
+/// To find the current point overlapped with previous points.
+bool isOverlapWithPrevious(ChartPoint<dynamic> currentPoint,
+    List<ChartPoint<dynamic>> points, int currentPointIndex) {
+  for (int i = 0; i < currentPointIndex; i++) {
+    if (i != points.indexOf(currentPoint) &&
+        points[i].isVisible &&
+        isOverlap(currentPoint.labelRect, points[i].labelRect)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/// To find the current point overlapped with next points.
+bool isOverlapWithNext(ChartPoint<dynamic> point,
+    List<ChartPoint<dynamic>> points, int pointIndex) {
+  for (int i = pointIndex; i < points.length; i++) {
+    if (i != points.indexOf(point) &&
+        points[i].isVisible &&
+        // ignore: unnecessary_null_comparison
+        (points[i].labelRect != null && point.labelRect != null) &&
+        isOverlap(point.labelRect, points[i].labelRect)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/// Calculate the connected line path for shifted data label.
+ChartLocation getPerpendicularDistance(
+    ChartLocation startPoint, ChartPoint<dynamic> point) {
+  ChartLocation increasedLocation;
+  const num add = 10;
+  final num height = add + 10 * math.sin(point.midAngle! * math.pi / 360);
+  if (point.midAngle! > 270 && point.midAngle! < 360) {
+    increasedLocation = ChartLocation(
+        startPoint.x +
+            height * (math.cos((360 - point.midAngle!) * math.pi / 180)),
+        startPoint.y -
+            height * (math.sin((360 - point.midAngle!) * math.pi / 180)));
+  } else if (point.midAngle! > 0 && point.midAngle! < 90) {
+    increasedLocation = ChartLocation(
+        startPoint.x + height * (math.cos((point.midAngle)! * math.pi / 180)),
+        startPoint.y + height * (math.sin((point.midAngle)! * math.pi / 180)));
+  } else if (point.midAngle! > 0 && point.midAngle! < 90) {
+    increasedLocation = ChartLocation(
+        startPoint.x -
+            height * (math.cos((point.midAngle! - 90) * math.pi / 180)),
+        startPoint.y +
+            height * (math.sin((point.midAngle! - 90) * math.pi / 180)));
+  } else {
+    increasedLocation = ChartLocation(
+        startPoint.x -
+            height * (math.cos((point.midAngle! - 180) * math.pi / 180)),
+        startPoint.y -
+            height * (math.sin((point.midAngle! - 180) * math.pi / 180)));
+  }
+  return increasedLocation;
 }

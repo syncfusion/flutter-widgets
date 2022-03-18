@@ -1,11 +1,14 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../graphics/fonts/enums.dart';
+import 'text_word.dart';
 
 /// Details of the text present in a line
 class TextLine {
   //constructor
   TextLine._() {
     wordCollection = <TextWord>[];
-    bounds = const Rect.fromLTWH(0, 0, 0, 0);
+    bounds = Rect.zero;
     fontSize = 0;
     text = '';
     pageIndex = 0;
@@ -34,4 +37,13 @@ class TextLine {
 
   /// Gets the text.
   late String text;
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [TextLine] helper
+class TextLineHelper {
+  /// internal method
+  static TextLine initialize() {
+    return TextLine._();
+  }
 }

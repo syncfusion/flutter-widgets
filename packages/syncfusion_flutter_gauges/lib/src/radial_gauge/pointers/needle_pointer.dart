@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../radial_gauge/axis/radial_axis_scope.dart';
@@ -9,6 +8,7 @@ import '../../radial_gauge/renderers/needle_pointer_renderer.dart';
 import '../../radial_gauge/styles/radial_knob_style.dart';
 import '../../radial_gauge/styles/radial_tail_style.dart';
 import '../../radial_gauge/utils/enum.dart';
+import '../../radial_gauge/utils/helper.dart';
 import '../../radial_gauge/utils/radial_callback_args.dart';
 import '../../radial_gauge/utils/radial_gauge_typedef.dart';
 
@@ -506,6 +506,8 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
   RenderObject createRenderObject(BuildContext context) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+    final RadialAxisInheritedWidget ancestor = context
+        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
 
     NeedlePointerRenderer? needlePointerRenderer;
     if (onCreatePointerRenderer != null) {
@@ -514,7 +516,7 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
     }
 
     return RenderNeedlePointer(
-        value: value,
+        value: value.clamp(ancestor.minimum, ancestor.maximum),
         enableDragging: enableDragging,
         onValueChanged: onValueChanged,
         onValueChangeStart: onValueChangeStart,
@@ -536,7 +538,8 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
         enableAnimation: enableAnimation,
         animationType: animationType,
         repaintNotifier: radialAxisScope.repaintNotifier,
-        gaugeThemeData: gaugeTheme);
+        gaugeThemeData: gaugeTheme,
+        context: context);
   }
 
   @override
@@ -544,6 +547,8 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
       BuildContext context, RenderNeedlePointer renderObject) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+    final RadialAxisInheritedWidget ancestor = context
+        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
     NeedlePointerRenderer? needlePointerRenderer;
     if (onCreatePointerRenderer != null) {
       needlePointerRenderer = onCreatePointerRenderer!();
@@ -572,7 +577,7 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
       ..isRadialGaugeAnimationEnabled =
           radialAxisScope.isRadialGaugeAnimationEnabled
       ..gaugeThemeData = gaugeTheme
-      ..value = value;
+      ..value = value.clamp(ancestor.minimum, ancestor.maximum);
     super.updateRenderObject(context, renderObject);
   }
 }

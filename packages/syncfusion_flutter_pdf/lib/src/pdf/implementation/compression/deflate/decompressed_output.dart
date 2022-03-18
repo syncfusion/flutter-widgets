@@ -1,8 +1,11 @@
-part of pdf;
+import 'dart:math';
 
-class _DecompressedOutput {
-  //Constructor
-  _DecompressedOutput() {
+import 'in_buffer.dart';
+
+/// internal class
+class DecompressedOutput {
+  /// internal constructor
+  DecompressedOutput() {
     _dOutput = List<int>.filled(_dOutSize, 0);
     _end = 0;
     _usedBytes = 0;
@@ -16,17 +19,22 @@ class _DecompressedOutput {
   int _usedBytes = 0;
 
   //Properties
+  /// internal property
   int get unusedBytes => _dOutSize - _usedBytes;
+
+  /// internal property
   int? get usedBytes => _usedBytes;
 
   //Implementation
-  void _write(int b) {
+  /// internal method
+  void write(int b) {
     _dOutput![_end++] = b;
     _end &= _dOutMask;
     ++_usedBytes;
   }
 
-  void _writeLD(int length, int distance) {
+  /// internal method
+  void writeLD(int length, int distance) {
     _usedBytes += length;
     int copyStart = (_end - distance) & _dOutMask;
     final int border = _dOutSize - length;
@@ -49,24 +57,26 @@ class _DecompressedOutput {
     }
   }
 
-  int _copyFrom(_InBuffer input, int length) {
+  /// internal method
+  int copyFrom(InBuffer input, int length) {
     length = min(min(length, _dOutSize - _usedBytes), input.bytes);
     int copied;
     final int tailLen = _dOutSize - _end;
     if (length > tailLen) {
-      copied = input._copyTo(_dOutput, _end, tailLen);
+      copied = input.copyTo(_dOutput, _end, tailLen);
       if (copied == tailLen) {
-        copied += input._copyTo(_dOutput, 0, length - tailLen);
+        copied += input.copyTo(_dOutput, 0, length - tailLen);
       }
     } else {
-      copied = input._copyTo(_dOutput, _end, length);
+      copied = input.copyTo(_dOutput, _end, length);
     }
     _end = (_end + copied) & _dOutMask;
     _usedBytes += copied;
     return copied;
   }
 
-  Map<String, dynamic> _copyTo(List<int> output, int offset, int length) {
+  /// internal method
+  Map<String, dynamic> copyTo(List<int> output, int offset, int length) {
     int? end;
     if (length > _usedBytes) {
       end = _end;

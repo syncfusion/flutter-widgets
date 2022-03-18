@@ -34,6 +34,9 @@ class Workbook {
   /// Maximum digit width (used to evaluate different column width).
   final double _dMaxDigitWidth = 7.0;
 
+  //Represent the RTL direction for worksheet
+  bool _isRightToLeft = false;
+
   /// Represents the cell style collection in the workbok.
   Map<String, _GlobalStyle>? _cellStyles;
 
@@ -85,6 +88,15 @@ class Workbook {
 
   /// Represents the chart count in the workbook.
   int chartCount = 0;
+
+  /// Represents the table count in the workbook.
+  int _tableCount = 0;
+
+  /// Represents the previous table count in the workbook.
+  int _previousTableCount = 0;
+
+  /// Maximum used table index.
+  int _maxTableIndex = 0;
 
   /// Indicates whether the workbook is saving.
   bool _saving = false;
@@ -153,6 +165,27 @@ class Workbook {
   // ignore: unused_element
   set _mergedCellsStyle(Map<String, _ExtendStyle> value) {
     _mergedCellsStyles = value;
+  }
+
+  ///Indicates whether the worksheet is displayed from right to left.FALSE by default
+  ///
+  /// ```dart
+  /// Workbook workbook = Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// workbook.isRightToLeft = true;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ExcelRTL.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  bool get isRightToLeft {
+    return _isRightToLeft;
+  }
+
+  set isRightToLeft(bool value) {
+    for (int i = 0; i < _worksheets!.count; i++) {
+      _worksheets![i].isRightToLeft = value;
+    }
+    _isRightToLeft = value;
   }
 
   /// Returns the font metrics collections.
@@ -6131,6 +6164,9 @@ class Workbook {
     _imageCount = 0;
     _sharedStringCount = 0;
     chartCount = 0;
+    _tableCount = 0;
+    _previousTableCount = 0;
+    _maxTableIndex = 0;
   }
 
   /// Saves workbook as stream.
@@ -6158,7 +6194,7 @@ class Workbook {
       index++;
       String fontColor = '';
       if (toCompareStyle.fontColor.length == 7) {
-        fontColor = 'FF' + toCompareStyle.fontColor.replaceAll('#', '');
+        fontColor = 'FF${toCompareStyle.fontColor.replaceAll('#', '')}';
       } else {
         fontColor = toCompareStyle.fontColor;
       }
@@ -6575,8 +6611,8 @@ class Workbook {
     double currentWidth = 0;
     const double spaceWidth = 14;
     for (int i = 0; i < text.length; i++) {
-      currentWidth = (_getTextSizeFromFont(text[i].toString(), font)._width)
-          .ceilToDouble();
+      currentWidth =
+          (_getTextSizeFromFont(text[i], font)._width).ceilToDouble();
       if ((text[i] == _carriageReturn &&
               i < text.length - 1 &&
               text[i + 1] == _newLine) ||

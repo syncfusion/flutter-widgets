@@ -1,146 +1,164 @@
-part of pdf;
-
 /// Utility class for working with strings.
-class _StringTokenizer {
+class StringTokenizer {
   //Constructor
-  _StringTokenizer(String text) {
+  /// internal constructor
+  StringTokenizer(String text) {
     _text = text;
-    _position = 0;
+    position = 0;
   }
 
   //Constants
+  /// internal field
   static const String _tab = '\t';
-  static const String _whiteSpace = ' ';
-  static const List<String> _spaces = <String>[_whiteSpace, _tab];
+
+  /// internal field
+  static const String whiteSpace = ' ';
+
+  /// internal field
+  static const List<String> spaces = <String>[whiteSpace, _tab];
 
   //Fields
   String? _text;
-  int? _position;
+
+  /// internal field
+  int? position;
 
   //Properties
-  bool get _isEndOfFile => _position == _text!.length;
-  int get _length => _text!.length;
+  /// internal property
+  bool get isEndOfFile => position == _text!.length;
+
+  /// internal property
+  int get length => _text!.length;
 
   //Implementation
-  String? _peekLine() {
-    final int? position = _position;
-    final String? line = _readLine();
-    _position = position;
+  /// internal method
+  String? peekLine() {
+    final int? tempPosition = position;
+    final String? line = readLine();
+    position = tempPosition;
     return line;
   }
 
-  String? _readLine() {
-    int position = _position!;
-    while (position < _length) {
-      final String character = _text![position];
+  /// internal method
+  String? readLine() {
+    int tempPosition = position!;
+    while (tempPosition < length) {
+      final String character = _text![tempPosition];
       switch (character) {
         case '\r':
         case '\n':
           {
-            final String text = _text!.substring(_position!, position);
-            _position = position + 1;
-            if (((character == '\r') && (_position! < _length)) &&
-                (_text![_position!] == '\n')) {
-              _position = _position! + 1;
+            final String text = _text!.substring(position!, tempPosition);
+            position = tempPosition + 1;
+            if (((character == '\r') && (position! < length)) &&
+                (_text![position!] == '\n')) {
+              position = position! + 1;
             }
             return text;
           }
       }
-      position++;
+      tempPosition++;
     }
-    if (position > _position!) {
-      final String result = _text!.substring(_position!, position);
-      _position = position;
+    if (tempPosition > position!) {
+      final String result = _text!.substring(position!, tempPosition);
+      position = tempPosition;
       return result;
     }
     return null;
   }
 
-  String? _peekWord() {
-    final int? position = _position;
-    final String? word = _readWord();
-    _position = position;
+  /// internal method
+  String? peekWord() {
+    final int? tempPosition = position;
+    final String? word = readWord();
+    position = tempPosition;
     return word;
   }
 
-  String? _readWord() {
-    int position = _position!;
-    while (position < _length) {
-      final String character = _text![position];
+  /// internal method
+  String? readWord() {
+    int tempPosition = position!;
+    while (tempPosition < length) {
+      final String character = _text![tempPosition];
       switch (character) {
         case '\r':
         case '\n':
           {
-            final String text = _text!.substring(_position!, position);
-            _position = position + 1;
-            if (((character == '\r') && (_position! < _length)) &&
-                (_text![_position!] == '\n')) {
-              _position = _position! + 1;
+            final String text = _text!.substring(position!, tempPosition);
+            position = tempPosition + 1;
+            if (((character == '\r') && (position! < length)) &&
+                (_text![position!] == '\n')) {
+              position = position! + 1;
             }
             return text;
           }
         case ' ':
         case '\t':
           {
-            if (position == _position) {
-              position++;
+            if (tempPosition == position) {
+              tempPosition++;
             }
-            final String text = _text!.substring(_position!, position);
-            _position = position;
+            final String text = _text!.substring(position!, tempPosition);
+            position = tempPosition;
             return text;
           }
       }
-      position++;
+      tempPosition++;
     }
-    if (position > _position!) {
-      final String result = _text!.substring(_position!, position);
-      _position = position;
+    if (tempPosition > position!) {
+      final String result = _text!.substring(position!, tempPosition);
+      position = tempPosition;
       return result;
     }
     return null;
   }
 
-  String _peek() {
-    return (!_isEndOfFile) ? _text![_position!] : '\u0000';
+  /// internal method
+  String peek() {
+    return (!isEndOfFile) ? _text![position!] : '\u0000';
   }
 
-  String _read([int? count]) {
+  /// internal method
+  String read([int? count]) {
     if (count != null) {
-      int length = 0;
+      int tempLength = 0;
       String builder = '';
-      while (!_isEndOfFile && length < count) {
-        final String character = _read();
+      while (!isEndOfFile && tempLength < count) {
+        final String character = read();
         builder += character;
-        length++;
+        tempLength++;
       }
       return builder;
     } else {
       String character = '\u0000';
-      if (!_isEndOfFile) {
-        character = _text![_position!];
-        _position = _position! + 1;
+      if (!isEndOfFile) {
+        character = _text![position!];
+        position = position! + 1;
       }
       return character;
     }
   }
 
-  void _close() {
+  /// internal method
+  void close() {
     _text = null;
-    _position = null;
+    position = null;
   }
 
-  static int _getCharacterCount(String text, List<String> symbols) {
+  /// internal method
+  static int getCharacterCount(String text, List<String> symbols) {
     int count = 0;
     for (int i = 0; i < text.length; i++) {
       final String character = text[i];
-      if (_contains(symbols, character)) {
+      if (contains(symbols, character)) {
         count++;
       }
     }
     return count;
   }
 
-  static bool _contains(List<String> array, String symbol) {
+  /// internal method
+  static bool contains(List<String> array, String symbol) {
     bool contains = false;
     for (int i = 0; i < array.length; i++) {
       if (array[i] == symbol) {
@@ -151,10 +169,11 @@ class _StringTokenizer {
     return contains;
   }
 
-  String? _readToEnd() {
+  /// internal method
+  String? readToEnd() {
     final String? text =
-        _position == 0 ? _text : _text!.substring(_position!, _length);
-    _position = _length;
+        position == 0 ? _text : _text!.substring(position!, length);
+    position = length;
     return text;
   }
 }

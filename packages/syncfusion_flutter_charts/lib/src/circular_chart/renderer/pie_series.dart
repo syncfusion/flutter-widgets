@@ -1,4 +1,16 @@
-part of charts;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import '../../chart/common/data_label.dart';
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../base/circular_base.dart';
+import '../utils/enum.dart';
+import 'circular_series.dart';
+import 'renderer_base.dart';
+import 'renderer_extension.dart';
 
 /// This class has the properties of the pie series.
 ///
@@ -41,9 +53,9 @@ class PieSeries<T, D> extends CircularSeries<T, D> {
       double? opacity,
       DataLabelSettings? dataLabelSettings,
       bool? enableTooltip,
-      bool? enableSmartLabels,
       String? name,
       double? animationDuration,
+      double? animationDelay,
       SelectionBehavior? selectionBehavior,
       SortingOrder? sortingOrder,
       LegendIconType? legendIconType,
@@ -56,6 +68,7 @@ class PieSeries<T, D> extends CircularSeries<T, D> {
             onPointDoubleTap: onPointDoubleTap,
             onPointLongPress: onPointLongPress,
             animationDuration: animationDuration,
+            animationDelay: animationDelay,
             dataSource: dataSource,
             xValueMapper: (int index) =>
                 xValueMapper!(dataSource![index], index),
@@ -98,8 +111,7 @@ class PieSeries<T, D> extends CircularSeries<T, D> {
             name: name,
             selectionBehavior: selectionBehavior,
             legendIconType: legendIconType,
-            sortingOrder: sortingOrder,
-            enableSmartLabels: enableSmartLabels);
+            sortingOrder: sortingOrder);
 
   /// Create the  pie series renderer.
   PieSeriesRenderer? createRenderer(CircularSeries<T, D> series) {
@@ -111,7 +123,7 @@ class PieSeries<T, D> extends CircularSeries<T, D> {
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
     }
-    return PieSeriesRenderer();
+    return PieSeriesRendererExtension();
   }
 
   @override
@@ -126,13 +138,13 @@ class PieSeries<T, D> extends CircularSeries<T, D> {
 
     return other is PieSeries &&
         other.animationDuration == animationDuration &&
+        other.animationDelay == animationDelay &&
         other.borderColor == borderColor &&
         other.borderWidth == borderWidth &&
         other.dataLabelMapper == dataLabelMapper &&
         other.dataLabelSettings == dataLabelSettings &&
         other.dataSource == dataSource &&
         other.emptyPointSettings == emptyPointSettings &&
-        other.enableSmartLabels == enableSmartLabels &&
         other.enableTooltip == enableTooltip &&
         other.endAngle == endAngle &&
         other.explode == explode &&
@@ -170,13 +182,13 @@ class PieSeries<T, D> extends CircularSeries<T, D> {
   int get hashCode {
     final List<Object?> values = <Object?>[
       animationDuration,
+      animationDelay,
       borderColor,
       borderWidth,
       dataLabelMapper,
       dataLabelSettings,
       dataSource,
       emptyPointSettings,
-      enableSmartLabels,
       enableTooltip,
       endAngle,
       explode,
@@ -209,117 +221,4 @@ class PieSeries<T, D> extends CircularSeries<T, D> {
     ];
     return hashList(values);
   }
-}
-
-class _PieChartPainter extends CustomPainter {
-  _PieChartPainter({
-    required this.chartState,
-    required this.index,
-    required this.isRepaint,
-    this.animationController,
-    this.seriesAnimation,
-    required ValueNotifier<num> notifier,
-  })  : chart = chartState._chart,
-        super(repaint: notifier);
-  final SfCircularChartState chartState;
-  final SfCircularChart chart;
-  final int index;
-  final bool isRepaint;
-  final AnimationController? animationController;
-  final Animation<double>? seriesAnimation;
-
-  late PieSeriesRenderer seriesRenderer;
-
-  /// To paint series
-  @override
-  void paint(Canvas canvas, Size size) {
-    num? pointStartAngle;
-    seriesRenderer = chartState._chartSeries.visibleSeriesRenderers[index]
-        as PieSeriesRenderer;
-    pointStartAngle = seriesRenderer._segmentRenderingValues['start'];
-    seriesRenderer._pointRegions = <_Region>[];
-    bool isAnyPointNeedSelect = false;
-    if (chartState._renderingDetails.initialRender!) {
-      isAnyPointNeedSelect =
-          _checkIsAnyPointSelect(seriesRenderer, seriesRenderer._point, chart);
-    }
-    ChartPoint<dynamic>? _oldPoint;
-    ChartPoint<dynamic>? point = seriesRenderer._point;
-    final PieSeriesRenderer? oldSeriesRenderer =
-        (chartState._renderingDetails.widgetNeedUpdate &&
-                !chartState._renderingDetails.isLegendToggled &&
-                chartState._prevSeriesRenderer != null &&
-                chartState._prevSeriesRenderer!._seriesType == 'pie')
-            ? chartState._prevSeriesRenderer! as PieSeriesRenderer
-            : null;
-    seriesRenderer._renderPaths.clear();
-    seriesRenderer._renderList.clear();
-    for (int i = 0; i < seriesRenderer._renderPoints!.length; i++) {
-      point = seriesRenderer._renderPoints![i];
-      _oldPoint = (oldSeriesRenderer != null &&
-              oldSeriesRenderer._oldRenderPoints != null &&
-              (oldSeriesRenderer._oldRenderPoints!.length - 1 >= i))
-          ? oldSeriesRenderer._oldRenderPoints![i]
-          : ((chartState._renderingDetails.isLegendToggled &&
-                  chartState._prevSeriesRenderer?._seriesType == 'pie')
-              ? chartState._oldPoints![i]
-              : null);
-      point.innerRadius = 0.0;
-      pointStartAngle = seriesRenderer._circularRenderPoint(
-          chart,
-          seriesRenderer,
-          point,
-          pointStartAngle,
-          point.innerRadius,
-          point.outerRadius,
-          canvas,
-          index,
-          i,
-          seriesAnimation?.value ?? 1,
-          seriesAnimation?.value ?? 1,
-          isAnyPointNeedSelect,
-          _oldPoint,
-          chartState._oldPoints);
-    }
-    if (seriesRenderer._renderList.isNotEmpty) {
-      Shader? _chartShader;
-      if (chart.onCreateShader != null) {
-        ChartShaderDetails chartShaderDetails;
-        chartShaderDetails =
-            ChartShaderDetails(seriesRenderer._renderList[1], null, 'series');
-        _chartShader = chart.onCreateShader!(chartShaderDetails);
-      }
-      for (int k = 0; k < seriesRenderer._renderPaths.length; k++) {
-        _drawPath(
-            canvas,
-            seriesRenderer._renderList[0],
-            seriesRenderer._renderPaths[k],
-            seriesRenderer._renderList[1],
-            _chartShader);
-      }
-      if (seriesRenderer._renderList[0].strokeColor != null &&
-          seriesRenderer._renderList[0].strokeWidth != null &&
-          seriesRenderer._renderList[0].strokeWidth > 0 == true) {
-        final Paint paint = Paint();
-        paint.color = seriesRenderer._renderList[0].strokeColor;
-        paint.strokeWidth = seriesRenderer._renderList[0].strokeWidth;
-        paint.style = PaintingStyle.stroke;
-        for (int k = 0; k < seriesRenderer._renderPaths.length; k++) {
-          canvas.drawPath(seriesRenderer._renderPaths[k], paint);
-        }
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_PieChartPainter oldDelegate) => isRepaint;
-}
-
-/// Creates series renderer for Pie series
-class PieSeriesRenderer extends CircularSeriesRenderer {
-  /// Calling the default constructor of PieSeriesRenderer class.
-  PieSeriesRenderer();
-  @override
-  late CircularSeries<dynamic, dynamic> _series;
-  ChartPoint<dynamic>? _point;
 }

@@ -5,9 +5,6 @@ import 'package:syncfusion_flutter_calendar/src/calendar/common/calendar_view_he
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../common/calendar_view_helper.dart';
-import '../common/event_args.dart';
-import '../settings/resource_view_settings.dart';
-import 'calendar_resource.dart';
 
 /// Used to hold the resource view on all timeline views.
 class ResourceViewWidget extends StatefulWidget {
@@ -68,6 +65,7 @@ class ResourceViewWidget extends StatefulWidget {
   final ResourceViewHeaderBuilder? resourceViewHeaderBuilder;
 
   @override
+  // ignore: library_private_types_in_public_api
   _ResourceViewWidgetState createState() => _ResourceViewWidgetState();
 }
 
@@ -459,7 +457,7 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
         ? actualItemHeight / 2
         : actualItemWidth / 2;
     final Color resourceCellBorderColor =
-        cellBorderColor ?? calendarTheme.cellBorderColor;
+        cellBorderColor ?? calendarTheme.cellBorderColor!;
     final Color resourceHoveringColor =
         (calendarTheme.brightness == Brightness.dark
                 ? Colors.white
@@ -467,7 +465,7 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
             .withOpacity(0.04);
     final TextStyle displayNameTextStyle =
         resourceViewSettings.displayNameTextStyle ??
-            calendarTheme.displayNameTextStyle;
+            calendarTheme.displayNameTextStyle!;
     _circlePainter.color = resourceCellBorderColor;
     _circlePainter.strokeWidth = 0.5;
     _circlePainter.style = PaintingStyle.stroke;

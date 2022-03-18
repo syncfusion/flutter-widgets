@@ -1,13 +1,15 @@
-part of charts;
+import 'package:flutter/material.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import 'technical_indicator.dart';
 
-/// This class holds the properties of the Accumulation Distribution Indicator.
+/// This class holds the properties of the accumulation distribution indicator.
 ///
 /// Accumulation distribution indicator is a volume-based indicator designed to measure the accumulative flow of money into and out of a security.
 /// It requires [volumeValueMapper] property additionally with the data source to calculate the signal line.
 ///
 /// It provides options for series visible, axis name, series name, animation duration, legend visibility,
 /// signal line width, and color.
-///
 @immutable
 class AccumulationDistributionIndicator<T, D>
     extends TechnicalIndicators<T, D> {
@@ -19,6 +21,7 @@ class AccumulationDistributionIndicator<T, D>
       String? seriesName,
       List<double>? dashArray,
       double? animationDuration,
+      double? animationDelay,
       List<T>? dataSource,
       ChartValueMapper<T, D>? xValueMapper,
       ChartValueMapper<T, num>? highValueMapper,
@@ -42,6 +45,7 @@ class AccumulationDistributionIndicator<T, D>
             seriesName: seriesName,
             dashArray: dashArray,
             animationDuration: animationDuration,
+            animationDelay: animationDelay,
             dataSource: dataSource,
             xValueMapper: xValueMapper,
             highValueMapper: highValueMapper,
@@ -59,26 +63,26 @@ class AccumulationDistributionIndicator<T, D>
   ///
   /// This value is mapped to the series.
   ///
-  /// Defaults to `null`
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///  return Container(
-  ///       child: SfCartesianChart(
-  ///       indicators: <TechnicalIndicators<Sample, dynamic>>[
-  ///            AccumulationDistributionIndicator<Sample, dynamic>(
-  ///                seriesName: 'Balloon',
-  ///                animationDuration: 2000),
-  ///          ],
-  ///       series: <ChartSeries<Sample, dynamic>>[
-  ///       HiloOpenCloseSeries<Sample, dynamic>(
-  ///               volumeValueMapper: (Sample sales, _) => sales.volume,
-  ///               name: 'Balloon'
-  ///         )],
-  ///     ));
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      AccumulationDistributionIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        volumeValueMapper: (dynamic data, _) => data.y,
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        volumeValueMapper: (Sample sales, _) => sales.volume,
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
   /// }
-  ///```
-  ///
+  /// ```
   final ChartIndexedValueMapper<num>? volumeValueMapper;
 
   @override
@@ -97,6 +101,7 @@ class AccumulationDistributionIndicator<T, D>
         other.seriesName == seriesName &&
         other.dashArray == dashArray &&
         other.animationDuration == animationDuration &&
+        other.animationDelay == animationDelay &&
         other.dataSource == dataSource &&
         other.xValueMapper == xValueMapper &&
         other.highValueMapper == highValueMapper &&
@@ -120,6 +125,7 @@ class AccumulationDistributionIndicator<T, D>
       seriesName,
       dashArray,
       animationDuration,
+      animationDelay,
       dataSource,
       xValueMapper,
       highValueMapper,
@@ -134,62 +140,5 @@ class AccumulationDistributionIndicator<T, D>
       signalLineWidth
     ];
     return hashList(values);
-  }
-
-  /// To initialise indicators collections
-  // ignore:unused_element
-  void _initSeriesCollection(
-      TechnicalIndicators<dynamic, dynamic> indicator,
-      SfCartesianChart chart,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    technicalIndicatorsRenderer._targetSeriesRenderers =
-        <CartesianSeriesRenderer>[];
-  }
-
-  /// To initialise data source of technical indicators
-  // ignore:unused_element
-  void _initDataSource(
-      TechnicalIndicators<dynamic, dynamic> indicator,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
-      SfCartesianChart chart) {
-    final List<CartesianChartPoint<dynamic>> validData =
-        technicalIndicatorsRenderer._dataPoints!;
-    if (validData.isNotEmpty &&
-        indicator is AccumulationDistributionIndicator) {
-      _calculateADPoints(
-          indicator, validData, technicalIndicatorsRenderer, chart);
-    }
-  }
-
-  /// To calculate the rendering points of the accumulation distribution indicator
-  void _calculateADPoints(
-      AccumulationDistributionIndicator<dynamic, dynamic> indicator,
-      List<CartesianChartPoint<dynamic>> validData,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
-      SfCartesianChart chart) {
-    final List<CartesianChartPoint<dynamic>> points =
-        <CartesianChartPoint<dynamic>>[];
-    final List<dynamic> xValues = <dynamic>[];
-    CartesianChartPoint<dynamic> point;
-    num sum = 0, value = 0, high = 0, low = 0, close = 0;
-    for (int i = 0; i < validData.length; i++) {
-      high = validData[i].high ?? 0;
-      low = validData[i].low ?? 0;
-      close = validData[i].close ?? 0;
-      value = ((close - low) - (high - close)) / (high - low);
-      sum = sum + value * validData[i].volume!;
-      point = technicalIndicatorsRenderer._getDataPoint(
-          validData[i].x, sum, validData[i], points.length);
-      points.add(point);
-      xValues.add(point.x);
-    }
-    technicalIndicatorsRenderer._renderPoints = points;
-    technicalIndicatorsRenderer._setSeriesProperties(
-        indicator,
-        indicator.name ?? 'AD',
-        indicator.signalLineColor,
-        indicator.signalLineWidth,
-        chart);
-    technicalIndicatorsRenderer._setSeriesRange(points, indicator, xValues);
   }
 }

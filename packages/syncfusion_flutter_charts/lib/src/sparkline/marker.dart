@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'utils/enum.dart';
 
 /// Adds and customizes the markers.
@@ -16,7 +14,7 @@ import 'utils/enum.dart';
 class SparkChartMarker {
   /// Creates an instance of spark chart marker to add and customizes the marker
   /// in spark chart widget. To make, the marker visible, set `displayeMode`
-  /// property value as SparkChartMarkerDisplayMode.all.
+  /// property value as `SparkChartMarkerDisplayMode.all`.
   ///
   /// ```dart
   /// @override
@@ -25,10 +23,10 @@ class SparkChartMarker {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      marker: SparkChartMarker(
-  ///          size: 20, displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///          displayMode: SparkChartMarkerDisplayMode.all)
+  ///         )
+  ///      ),
+  ///   );
   /// }
   /// ```
   const SparkChartMarker(
@@ -48,7 +46,7 @@ class SparkChartMarker {
   /// * [SparkChartMarkerDisplayMode.high] allows displaying marker only on the
   ///  highest data points in the spark chart widget.
   /// * [SparkChartMarkerDisplayMode.low] allows displaying marker only on the
-  /// lowest data points
+  /// lowest data points.
   /// * [SparkChartMarkerDisplayMode.first] allows displaying marker only on the
   ///  first data points.
   /// * [SparkChartMarkerDisplayMode.last] allows displaying marker only on the
@@ -63,19 +61,19 @@ class SparkChartMarker {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      marker: SparkChartMarker(
-  ///          size: 20, displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///          displayMode: SparkChartMarkerDisplayMode.all)
+  ///         )
+  ///       ),
+  ///    );
   /// }
   /// ```
   final SparkChartMarkerDisplayMode displayMode;
 
   /// Customizes the border color of the marker. The color of the border gets
   /// applied based on the current theme of the application if the border color
-  /// value is set to null
+  /// value is set to null.
   ///
-  /// Defaults to `null`
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -83,14 +81,11 @@ class SparkChartMarker {
   ///   return Scaffold(
   ///     body: Center(
   ///        child: SfSparkAreaChart(
-  ///       borderWidth: 2,
   ///       marker: SparkChartMarker(
-  ///          borderWidth: 3,
-  ///          borderColor: Colors.red,
-  ///          displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///          borderColor: Colors.red)
+  ///         )
+  ///      ),
+  ///   );
   /// }
   /// ```
   final Color? borderColor;
@@ -105,20 +100,17 @@ class SparkChartMarker {
   ///   return Scaffold(
   ///     body: Center(
   ///        child: SfSparkAreaChart(
-  ///       borderWidth: 2,
   ///       marker: SparkChartMarker(
-  ///          borderWidth: 3,
-  ///          borderColor: Colors.red,
-  ///          displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///          borderWidth: 3),
+  ///         )
+  ///      ),
+  ///   );
   /// }
   /// ```
   final double borderWidth;
 
   /// Customizes the color of the marker. The color is set based on the current
-  ///  application theme, if its value is set to null.
+  /// application theme, if its value is set to null.
   ///
   /// Defaults to `null`.
   ///
@@ -129,16 +121,16 @@ class SparkChartMarker {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      marker: SparkChartMarker(
-  ///          color: Colors.red, displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///          color: Colors.red)
+  ///         )
+  ///      ),
+  ///   );
   /// }
   /// ```
   final Color? color;
 
   /// Customizes the marker size. This value is applied for both the width and
-  ///  height of the marker.
+  /// height of the marker.
   ///
   /// Defaults to `5`.
   ///
@@ -149,10 +141,10 @@ class SparkChartMarker {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      marker: SparkChartMarker(
-  ///          size: 20, displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///          size: 20)
+  ///         )
+  ///      ),
+  ///   );
   /// }
   /// ```
   final double size;
@@ -165,11 +157,11 @@ class SparkChartMarker {
   /// * [SparkChartMarkerShape.square] displays the square shape as a marker.
   /// * [SparkChartMarkerShape.triangle] displays the triangular shape as a marker.
   /// * [SparkChartMarkerShape.invertedTriangle] displays the inverted
-  /// triangular shape as a marker
+  /// triangular shape as a marker.
   ///
   /// Also refer [SparkChartMarkerShape].
   ///
-  /// Defaults to [SparkChartMarkerShape.circle].
+  /// Defaults to `SparkChartMarkerShape.circle`.
   ///
   /// ```dart
   /// @override
@@ -178,11 +170,10 @@ class SparkChartMarker {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      marker: SparkChartMarker(
-  ///          shape: SparkChartMarkerShape.square,
-  ///          displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///          shape: SparkChartMarkerShape.square)
+  ///         )
+  ///      ),
+  ///   );
   /// }
   /// ```
   final SparkChartMarkerShape shape;

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../radial_gauge/utils/enum.dart';
 import '../../radial_gauge/utils/radial_callback_args.dart';
@@ -7,16 +6,17 @@ import '../../radial_gauge/utils/radial_callback_args.dart';
 /// [GaugePointer] has properties for customizing gauge pointers.
 abstract class GaugePointer {
   /// Create a pointer with the default or required properties.
-  GaugePointer(
-      {this.value = 0,
-      this.enableDragging = false,
-      this.onValueChanged,
-      this.onValueChangeStart,
-      this.onValueChanging,
-      this.onValueChangeEnd,
-      this.enableAnimation = false,
-      this.animationType = AnimationType.ease,
-      this.animationDuration = 1000});
+  GaugePointer({
+    this.value = 0,
+    this.enableDragging = false,
+    this.onValueChanged,
+    this.onValueChangeStart,
+    this.onValueChanging,
+    this.onValueChangeEnd,
+    this.enableAnimation = false,
+    this.animationType = AnimationType.ease,
+    this.animationDuration = 1000,
+  });
 
   /// Specifies the value to the pointer.
   ///

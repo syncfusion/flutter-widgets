@@ -1,4 +1,28 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../interfaces/pdf_interface.dart';
+import '../annotations/pdf_annotation_border.dart';
+import '../drawing/drawing.dart';
+import '../graphics/brushes/pdf_solid_brush.dart';
+import '../graphics/enums.dart';
+import '../graphics/figures/pdf_path.dart';
+import '../graphics/figures/pdf_template.dart';
+import '../graphics/pdf_color.dart';
+import '../graphics/pdf_graphics.dart';
+import '../graphics/pdf_pen.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../pages/pdf_page.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_stream.dart';
+import 'pdf_annotation.dart';
+import 'pdf_annotation_collection.dart';
+import 'pdf_appearance.dart';
+import 'pdf_paintparams.dart';
 
 /// Represents a PDF ellipse annotation
 class PdfEllipseAnnotation extends PdfAnnotation {
@@ -27,248 +51,312 @@ class PdfEllipseAnnotation extends PdfAnnotation {
       String? subject,
       DateTime? modifiedDate,
       double? opacity,
-      bool? setAppearance})
-      : super._(
-            bounds: bounds,
-            text: text,
-            color: color,
-            innerColor: innerColor,
-            border: border,
-            author: author,
-            subject: subject,
-            modifiedDate: modifiedDate,
-            opacity: opacity,
-            setAppearance: setAppearance);
+      bool? setAppearance}) {
+    _helper = PdfEllipseAnnotationHelper(this, bounds, text,
+        color: color,
+        innerColor: innerColor,
+        border: border,
+        author: author,
+        subject: subject,
+        modifiedDate: modifiedDate,
+        opacity: opacity,
+        setAppearance: setAppearance);
+  }
 
   PdfEllipseAnnotation._(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable, String text)
-      : super._internal(dictionary, crossTable) {
-    _dictionary = dictionary;
-    _crossTable = crossTable;
+      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
+    _helper = PdfEllipseAnnotationHelper._(this, dictionary, crossTable);
     this.text = text;
   }
 
-  // Implementation
-  @override
-  void _initialize() {
-    super._initialize();
-    _dictionary.setProperty(
-        _DictionaryProperties.subtype, _PdfName(_DictionaryProperties.circle));
+  // fields
+  late PdfEllipseAnnotationHelper _helper;
+
+  // properties
+  IPdfPrimitive? get _element => PdfAnnotationHelper.getHelper(this).dictionary;
+  set _element(IPdfPrimitive? value) {
+    if (value != null && value is PdfDictionary) {
+      PdfAnnotationHelper.getHelper(this).dictionary = value;
+    }
+  }
+}
+
+/// [PdfEllipseAnnotation] helper
+class PdfEllipseAnnotationHelper extends PdfAnnotationHelper {
+  /// internal constructor
+  PdfEllipseAnnotationHelper(this.annotation, Rect bounds, String text,
+      {PdfColor? color,
+      PdfColor? innerColor,
+      PdfAnnotationBorder? border,
+      String? author,
+      String? subject,
+      DateTime? modifiedDate,
+      double? opacity,
+      bool? setAppearance})
+      : super(annotation) {
+    initializeAnnotation(
+        bounds: bounds,
+        text: text,
+        color: color,
+        innerColor: innerColor,
+        border: border,
+        author: author,
+        subject: subject,
+        modifiedDate: modifiedDate,
+        opacity: opacity,
+        setAppearance: setAppearance);
+    dictionary!.setProperty(PdfDictionaryProperties.subtype,
+        PdfName(PdfDictionaryProperties.circle));
   }
 
-  @override
-  void _save() {
-    if (page!.annotations._flatten) {
-      _flatten = true;
+  PdfEllipseAnnotationHelper._(
+      this.annotation, PdfDictionary dictionary, PdfCrossTable crossTable)
+      : super(annotation) {
+    initializeExistingAnnotation(dictionary, crossTable);
+  }
+
+  /// internal field
+  late PdfEllipseAnnotation annotation;
+
+  /// internal method
+  void save() {
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(annotation);
+    if (PdfAnnotationCollectionHelper.getHelper(annotation.page!.annotations)
+        .flatten) {
+      helper.flatten = true;
     }
-    if (_flatten || setAppearance || _pdfAppearance != null) {
+    final PdfAppearance? pdfAppearance = helper.appearance;
+    final bool isLoadedAnnotation = helper.isLoadedAnnotation;
+    if (helper.flatten || annotation.setAppearance || pdfAppearance != null) {
       PdfTemplate? appearance;
-      if (_pdfAppearance != null) {
-        appearance = _pdfAppearance!.normal;
+      if (pdfAppearance != null) {
+        appearance = pdfAppearance.normal;
       } else {
         appearance = _createAppearance();
       }
-      if (_flatten) {
-        if (appearance != null || _isLoadedAnnotation) {
-          if (page != null) {
-            _flattenAnnotation(page, appearance);
+      if (helper.flatten) {
+        if (appearance != null || isLoadedAnnotation) {
+          if (annotation.page != null) {
+            _flattenAnnotation(annotation.page, appearance);
           }
         }
       } else {
         if (appearance != null) {
-          this.appearance.normal = appearance;
-          _dictionary.setProperty(
-              _DictionaryProperties.ap, _PdfReferenceHolder(this.appearance));
+          annotation.appearance.normal = appearance;
+          helper.dictionary!.setProperty(PdfDictionaryProperties.ap,
+              PdfReferenceHolder(annotation.appearance));
         }
       }
     }
-    if (!_flatten && !_isLoadedAnnotation) {
-      super._save();
-      _dictionary.setProperty(_DictionaryProperties.bs, border);
+    if (!helper.flatten && !isLoadedAnnotation) {
+      helper.saveAnnotation();
+      helper.dictionary!
+          .setProperty(PdfDictionaryProperties.bs, annotation.border);
     }
-    if (_flattenPopups) {
-      _flattenPopup();
+    if (helper.flattenPopups) {
+      helper.flattenPopup();
     }
   }
 
   void _flattenAnnotation(PdfPage? page, PdfTemplate? appearance) {
-    if (_isLoadedAnnotation) {
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(annotation);
+    if (helper.isLoadedAnnotation) {
       final bool isContainsAP =
-          _dictionary.containsKey(_DictionaryProperties.ap);
-      if (isContainsAP && appearance == null) {
-        _PdfDictionary? appearanceDictionary =
-            _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.ap])
-                as _PdfDictionary?;
-        if (appearanceDictionary != null) {
-          appearanceDictionary = _PdfCrossTable._dereference(
-              appearanceDictionary[_DictionaryProperties.n]) as _PdfDictionary?;
+          helper.dictionary!.containsKey(PdfDictionaryProperties.ap);
+      if (appearance == null) {
+        if (isContainsAP) {
+          PdfDictionary? appearanceDictionary = PdfCrossTable.dereference(
+              helper.dictionary![PdfDictionaryProperties.ap]) as PdfDictionary?;
           if (appearanceDictionary != null) {
-            final _PdfStream appearanceStream =
-                appearanceDictionary as _PdfStream;
-            appearance = PdfTemplate._fromPdfStream(appearanceStream);
-            final bool isNormalMatrix =
-                _validateTemplateMatrix(appearanceDictionary);
-            _flattenAnnotationTemplate(appearance, isNormalMatrix);
-          } else {
-            setAppearance = true;
-            appearance = _createAppearance();
-            if (appearance != null) {
+            appearanceDictionary = PdfCrossTable.dereference(
+                    appearanceDictionary[PdfDictionaryProperties.n])
+                as PdfDictionary?;
+            if (appearanceDictionary != null) {
+              final PdfStream appearanceStream =
+                  appearanceDictionary as PdfStream;
+              appearance = PdfTemplateHelper.fromPdfStream(appearanceStream);
               final bool isNormalMatrix =
-                  _validateTemplateMatrix(appearance._content);
-              _flattenAnnotationTemplate(appearance, isNormalMatrix);
+                  helper.validateTemplateMatrix(appearanceDictionary);
+              helper.flattenAnnotationTemplate(appearance, isNormalMatrix);
+            } else {
+              annotation.setAppearance = true;
+              appearance = _createAppearance();
+              if (appearance != null) {
+                final bool isNormalMatrix = helper.validateTemplateMatrix(
+                    PdfTemplateHelper.getHelper(appearance).content);
+                helper.flattenAnnotationTemplate(appearance, isNormalMatrix);
+              }
             }
           }
-        }
-      } else if (!isContainsAP && appearance == null) {
-        setAppearance = true;
-        appearance = _createAppearance();
-        if (appearance != null) {
-          final bool isNormalMatrix =
-              _validateTemplateMatrix(appearance._content);
-          _flattenAnnotationTemplate(appearance, isNormalMatrix);
+        } else {
+          annotation.setAppearance = true;
+          appearance = _createAppearance();
+          if (appearance != null) {
+            final bool isNormalMatrix = helper.validateTemplateMatrix(
+                PdfTemplateHelper.getHelper(appearance).content);
+            helper.flattenAnnotationTemplate(appearance, isNormalMatrix);
+          }
         }
       } else {
-        final bool isNormalMatrix =
-            _validateTemplateMatrix(appearance!._content);
-        _flattenAnnotationTemplate(appearance, isNormalMatrix);
+        final bool isNormalMatrix = helper.validateTemplateMatrix(
+            PdfTemplateHelper.getHelper(appearance).content);
+        helper.flattenAnnotationTemplate(appearance, isNormalMatrix);
       }
     } else {
       page!.graphics.save();
-      final Rect rectangle =
-          super._calculateTemplateBounds(bounds, page, appearance, true);
-      if (opacity < 1) {
-        page.graphics.setTransparency(opacity, mode: PdfBlendMode.normal);
+      final Rect rectangle = helper.calculateTemplateBounds(
+          annotation.bounds, page, appearance, true);
+      if (annotation.opacity < 1) {
+        page.graphics
+            .setTransparency(annotation.opacity, mode: PdfBlendMode.normal);
       }
       page.graphics.drawPdfTemplate(
           appearance!, Offset(rectangle.left, rectangle.top), rectangle.size);
-      page.annotations.remove(this);
+      page.annotations.remove(annotation);
       page.graphics.restore();
     }
   }
 
   PdfTemplate? _createAppearance() {
-    if (_isLoadedAnnotation && !setAppearance) {
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(annotation);
+    final bool isLoadedAnnotation = helper.isLoadedAnnotation;
+    if (isLoadedAnnotation && !annotation.setAppearance) {
       return null;
     }
-    final _Rectangle nativeRectangle =
-        _Rectangle(0, 0, bounds.width, bounds.height);
-    final PdfTemplate template = PdfTemplate._fromRect(nativeRectangle.rect);
-    _setMatrix(template._content);
-    if (_isLoadedAnnotation &&
-        _dictionary.containsKey(_DictionaryProperties.be)) {
-      template._writeTransformation = false;
+    final PdfRectangle nativeRectangle =
+        PdfRectangle(0, 0, annotation.bounds.width, annotation.bounds.height);
+    final PdfTemplate template =
+        PdfTemplateHelper.fromRect(nativeRectangle.rect);
+    helper.setMatrix(PdfTemplateHelper.getHelper(template).content);
+    if (isLoadedAnnotation &&
+        helper.dictionary!.containsKey(PdfDictionaryProperties.be)) {
+      PdfTemplateHelper.getHelper(template).writeTransformation = false;
     }
-    final _PaintParams paintParams = _PaintParams();
-    final double borderWidth = border.width / 2;
-    final PdfPen mBorderPen = PdfPen(color, width: border.width.toDouble());
-    if (border.width > 0 && color._alpha != 0) {
-      paintParams._borderPen = mBorderPen;
+    final PaintParams paintParams = PaintParams();
+    final double borderWidth = annotation.border.width / 2;
+    final PdfPen mBorderPen =
+        PdfPen(annotation.color, width: annotation.border.width);
+    if (annotation.border.width > 0 &&
+        PdfColorHelper.getHelper(annotation.color).alpha != 0) {
+      paintParams.borderPen = mBorderPen;
     }
     PdfBrush? mBackBrush;
-    if (innerColor._alpha != 0) {
-      mBackBrush = PdfSolidBrush(innerColor);
+    if (PdfColorHelper.getHelper(annotation.color).alpha != 0) {
+      mBackBrush = PdfSolidBrush(annotation.innerColor);
     }
-    paintParams._foreBrush = PdfSolidBrush(color);
-    paintParams._backBrush = mBackBrush;
+    paintParams.foreBrush = PdfSolidBrush(annotation.color);
+    paintParams.backBrush = mBackBrush;
     final PdfGraphics? graphics = template.graphics;
-    if (opacity < 1) {
+    if (annotation.opacity < 1) {
       graphics!.save();
-      graphics.setTransparency(opacity);
+      graphics.setTransparency(annotation.opacity);
     }
-    if (_isLoadedAnnotation) {
-      final _Rectangle rectangle =
+    if (isLoadedAnnotation) {
+      final PdfRectangle rectangle =
           _obtainStyle(mBorderPen, nativeRectangle, borderWidth);
-      if (_dictionary.containsKey(_DictionaryProperties.be)) {
+      if (helper.dictionary!.containsKey(PdfDictionaryProperties.be)) {
         _drawAppearance(rectangle, borderWidth, graphics, paintParams);
       } else {
         graphics!.drawEllipse(
             Rect.fromLTWH(rectangle.x + borderWidth, rectangle.y,
-                rectangle.width - border.width, rectangle.height),
-            pen: paintParams._borderPen,
-            brush: paintParams._backBrush);
+                rectangle.width - annotation.border.width, rectangle.height),
+            pen: paintParams.borderPen,
+            brush: paintParams.backBrush);
       }
     } else {
       final Rect rect = Rect.fromLTWH(nativeRectangle.left, nativeRectangle.top,
           nativeRectangle.width, nativeRectangle.height);
       graphics!.drawEllipse(
-          Rect.fromLTWH(rect.left + borderWidth, rect.top + borderWidth,
-              rect.width - border.width, rect.height - border.width),
-          pen: paintParams._borderPen,
-          brush: paintParams._backBrush);
+          Rect.fromLTWH(
+              rect.left + borderWidth,
+              rect.top + borderWidth,
+              rect.width - annotation.border.width,
+              rect.height - annotation.border.width),
+          pen: paintParams.borderPen,
+          brush: paintParams.backBrush);
     }
-    if (opacity < 1) {
+    if (annotation.opacity < 1) {
       graphics!.restore();
     }
     return template;
   }
 
   // Obtain Style for annotation
-  _Rectangle _obtainStyle(
-      PdfPen mBorderPen, _Rectangle rectangle, double borderWidth) {
-    if (_dictionary.containsKey(_DictionaryProperties.bs)) {
-      final _PdfDictionary? bSDictionary =
-          _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.bs])
-              as _PdfDictionary?;
+  PdfRectangle _obtainStyle(
+      PdfPen mBorderPen, PdfRectangle rectangle, double borderWidth) {
+    final PdfDictionary dictionary =
+        PdfAnnotationHelper.getHelper(annotation).dictionary!;
+    if (dictionary.containsKey(PdfDictionaryProperties.bs)) {
+      final PdfDictionary? bSDictionary =
+          PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.bs])
+              as PdfDictionary?;
 
       if (bSDictionary != null &&
-          bSDictionary.containsKey(_DictionaryProperties.d)) {
-        final _PdfArray dashPatternArray =
-            _PdfCrossTable._dereference(bSDictionary[_DictionaryProperties.d])!
-                as _PdfArray;
+          bSDictionary.containsKey(PdfDictionaryProperties.d)) {
+        final PdfArray dashPatternArray =
+            PdfCrossTable.dereference(bSDictionary[PdfDictionaryProperties.d])!
+                as PdfArray;
         final List<double> dashPattern = <double>[];
         for (int i = 0; i < dashPatternArray.count; i++) {
           dashPattern.add(
-              (dashPatternArray._elements[i]! as _PdfNumber).value!.toDouble());
+              (dashPatternArray.elements[i]! as PdfNumber).value!.toDouble());
         }
         mBorderPen.dashStyle = PdfDashStyle.dash;
         mBorderPen.dashPattern = dashPattern;
       }
     }
-    if (!_isBounds && _dictionary[_DictionaryProperties.rd] != null) {
-      final _PdfArray? mRdArray =
-          _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.rd])
-              as _PdfArray?;
+    if (!PdfAnnotationHelper.getHelper(annotation).isBounds &&
+        dictionary[PdfDictionaryProperties.rd] != null) {
+      final PdfArray? mRdArray =
+          PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.rd])
+              as PdfArray?;
       if (mRdArray != null) {
-        final _PdfNumber num1 = mRdArray._elements[0]! as _PdfNumber;
-        final _PdfNumber num2 = mRdArray._elements[1]! as _PdfNumber;
-        final _PdfNumber num3 = mRdArray._elements[2]! as _PdfNumber;
-        final _PdfNumber num4 = mRdArray._elements[3]! as _PdfNumber;
+        final PdfNumber num1 = mRdArray.elements[0]! as PdfNumber;
+        final PdfNumber num2 = mRdArray.elements[1]! as PdfNumber;
+        final PdfNumber num3 = mRdArray.elements[2]! as PdfNumber;
+        final PdfNumber num4 = mRdArray.elements[3]! as PdfNumber;
         rectangle.x += num1.value!;
         rectangle.y += borderWidth + num2.value!;
         rectangle.width = rectangle.width - (2 * num3.value!);
-        rectangle.height = rectangle.height - border.width;
+        rectangle.height = rectangle.height - annotation.border.width;
         rectangle.height = rectangle.height - (2 * num4.value!);
       }
     } else {
       rectangle.y += borderWidth;
-      rectangle.height = bounds.height - border.width;
+      rectangle.height = annotation.bounds.height - annotation.border.width;
     }
     return rectangle;
   }
 
   // Draw appearance for annotation
-  void _drawAppearance(_Rectangle rectangle, double borderWidth,
-      PdfGraphics? graphics, _PaintParams paintParams) {
+  void _drawAppearance(PdfRectangle rectangle, double borderWidth,
+      PdfGraphics? graphics, PaintParams paintParams) {
     final PdfPath graphicsPath = PdfPath();
     graphicsPath.addEllipse(Rect.fromLTWH(
         rectangle.x + borderWidth,
         -rectangle.y - rectangle.height,
-        rectangle.width - border.width,
+        rectangle.width - annotation.border.width,
         rectangle.height));
     double? radius = 0;
-    if (_dictionary.containsKey(_DictionaryProperties.rd)) {
-      final _PdfArray? rdArray = _PdfCrossTable._dereference(
-              _dictionary._items![_PdfName(_DictionaryProperties.rd)])
-          as _PdfArray?;
+    if (PdfAnnotationHelper.getHelper(annotation)
+        .dictionary!
+        .containsKey(PdfDictionaryProperties.rd)) {
+      final PdfArray? rdArray = PdfCrossTable.dereference(
+          PdfAnnotationHelper.getHelper(annotation)
+              .dictionary!
+              .items![PdfName(PdfDictionaryProperties.rd)]) as PdfArray?;
       if (rdArray != null) {
-        radius = (rdArray._elements[0]! as _PdfNumber).value as double?;
+        radius = (rdArray.elements[0]! as PdfNumber).value as double?;
       }
     }
     if (radius! > 0) {
-      final _Rectangle rect = _Rectangle(
+      final PdfRectangle rect = PdfRectangle(
           rectangle.x + borderWidth,
           -rectangle.y - rectangle.height,
-          rectangle.width - border.width,
+          rectangle.width - annotation.border.width,
           rectangle.height);
       final List<Offset> startPointList = <Offset>[];
       final List<Offset> controlPointList = <Offset>[];
@@ -294,8 +382,14 @@ class PdfEllipseAnnotation extends PdfAnnotation {
         _createBezier(
             startPointList[i], controlPointList[i], endPointList[i], points);
       }
-      _drawCloudStyle(graphics!, paintParams._backBrush, paintParams._borderPen,
-          radius, 0.833, points, false);
+      PdfAnnotationHelper.getHelper(annotation).drawCloudStyle(
+          graphics!,
+          paintParams.backBrush,
+          paintParams.borderPen,
+          radius,
+          0.833,
+          points,
+          false);
       startPointList.clear();
       controlPointList.clear();
       endPointList.clear();
@@ -303,9 +397,9 @@ class PdfEllipseAnnotation extends PdfAnnotation {
     } else {
       graphics!.drawEllipse(
           Rect.fromLTWH(rectangle.x + borderWidth, -rectangle.y,
-              rectangle.width - border.width, -rectangle.height),
-          pen: paintParams._borderPen,
-          brush: paintParams._backBrush);
+              rectangle.width - annotation.border.width, -rectangle.height),
+          pen: paintParams.borderPen,
+          brush: paintParams.backBrush);
     }
   }
 
@@ -339,11 +433,25 @@ class PdfEllipseAnnotation extends PdfAnnotation {
     }
   }
 
+  /// internal property
   @override
-  _IPdfPrimitive get _element => _dictionary;
+  IPdfPrimitive? get element {
+    return annotation._element;
+  }
 
   @override
-  set _element(_IPdfPrimitive? value) {
-    _element = value;
+  set element(IPdfPrimitive? element) {
+    annotation._element = element;
+  }
+
+  /// internal method
+  static PdfEllipseAnnotation load(
+      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
+    return PdfEllipseAnnotation._(dictionary, crossTable, text);
+  }
+
+  /// internal method
+  static PdfEllipseAnnotationHelper getHelper(PdfEllipseAnnotation annotation) {
+    return annotation._helper;
   }
 }

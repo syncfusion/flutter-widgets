@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
+import '../../linear_gauge/gauge/linear_gauge.dart';
 import '../../linear_gauge/gauge/linear_gauge_scope.dart';
 import '../../linear_gauge/pointers/linear_marker_pointer.dart';
 import '../../linear_gauge/pointers/linear_widget_renderer.dart';
@@ -13,7 +13,9 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
   const LinearWidgetPointer(
       {Key? key,
       required this.value,
-      this.onValueChanged,
+      this.onChanged,
+      this.onChangeStart,
+      this.onChangeEnd,
       this.enableAnimation = true,
       this.animationDuration = 1000,
       this.animationType = LinearAnimationType.ease,
@@ -21,11 +23,12 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
       double offset = 0.0,
       this.position = LinearElementPosition.cross,
       this.markerAlignment = LinearMarkerAlignment.center,
+      this.dragBehavior = LinearMarkerDragBehavior.free,
       required Widget child})
       : offset = offset > 0 ? offset : 0,
         super(key: key, child: child);
 
-  /// Specifies the pointer value for [WidgetPointer].
+  /// Specifies the pointer value for [LinearWidgetPointer].
   /// This value must be between the min and max value of an axis track.
   ///
   /// Defaults to 0.
@@ -57,7 +60,7 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearWidgetPointer(
-  /// value: 20
+  /// value: 20,
   /// enableAnimation: true,
   ///  )])
   /// ```
@@ -77,7 +80,7 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearWidgetPointer(
-  /// value: 20
+  /// value: 20,
   /// enableAnimation: true,
   /// animationDuration: 4000
   ///  )])
@@ -98,7 +101,7 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearWidgetPointer(
-  /// value: 20
+  /// value: 20,
   /// enableAnimation: true,
   /// animationType: LinearAnimationType.linear
   ///  )])
@@ -121,7 +124,7 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearWidgetPointer(
-  /// value: 50
+  /// value: 50,
   /// margin: 15
   ///  )])
   /// ```
@@ -149,29 +152,80 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
   @override
   final LinearElementPosition position;
 
-  /// Signature for callbacks that report that an underlying value has changed.
+  /// Signature for a callback that report that a value was changed for a marker pointer.
   ///
-  /// This snippet shows how to call onvaluechange function in[SfLinearGauge].
+  /// This snippet shows how to call onChanged function in[SfLinearGauge].
   ///
   /// ```dart
   ///
   /// SfLinearGauge(
   /// markerPointers: [
   /// LinearWidgetPointer(
-  /// value: _pointerValue
-  /// onValueChanged: (value) =>
-  /// {setState(() =>
-  /// {_pointerValue = value})},
+  ///    value: _pointerValue,
+  ///    child: Container(
+  ///       height: 20,
+  ///       width: 20,
+  ///       color: Colors.red),
+  ///    onChanged: (double value){
+  ///      setState((){
+  ///         _pointerValue = value;
+  ///      })
+  ///    }
   /// )])
   ///
   /// ```
-  ///
   @override
-  final ValueChanged? onValueChanged;
+  final ValueChanged<double>? onChanged;
+
+  /// Signature for a callback that reports the value of a marker pointer has started to change.
+  ///
+  /// This snippet shows how to call onChangeStart function in [SfLinearGauge].
+  ///
+  /// ```dart
+  ///
+  /// SfLinearGauge(
+  /// markerPointers: [
+  /// LinearWidgetPointer(
+  ///    value: _pointerValue,
+  ///    child: Container(
+  ///       height: 20,
+  ///       width: 20,
+  ///       color: Colors.red),
+  ///    onChangeStart: (double startValue) {
+  ///       print('Start value $startValue');
+  ///   },
+  /// )])
+  ///
+  /// ```
+  @override
+  final ValueChanged<double>? onChangeStart;
+
+  /// Signature for a callback that reports the value changes are ended for a marker pointer.
+  ///
+  /// This snippet shows how to call onChangeEnd function in [SfLinearGauge].
+  ///
+  /// ```dart
+  ///
+  /// SfLinearGauge(
+  /// markerPointers: [
+  /// LinearWidgetPointer(
+  ///    value: _pointerValue,
+  ///    child: Container(
+  ///       height: 20,
+  ///       width: 20,
+  ///       color: Colors.red),
+  ///    onChangeEnd: (double endValue) {
+  ///        print('End value $endValue');
+  ///    },
+  /// )])
+  ///
+  /// ```
+  @override
+  final ValueChanged<double>? onChangeEnd;
 
   /// Specifies the marker alignment.
   ///
-  /// Defaults to [MarkerAlignment.center].
+  /// Defaults to [LinearMarkerAlignment.center].
   ///
   /// This snippet shows how to set marker alignment in[SfLinearGauge].
   ///
@@ -181,7 +235,7 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
   /// markerPointers: [
   /// LinearWidgetPointer(
   /// value: 30,
-  /// markerAlignment: MarkerAlignment.end
+  /// markerAlignment: LinearMarkerAlignment.end
   /// )])
   ///
   /// ```
@@ -207,18 +261,78 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
   @override
   final VoidCallback? onAnimationCompleted;
 
+  /// Specifies the drag behavior for widget marker pointer.
+  ///
+  /// Defaults to [LinearMarkerDragBehavior.free].
+  ///
+  /// This snippet shows how to set drag behavior for widget pointer.
+  ///
+  /// ```dart
+  /// double _startMarkerValue = 30.0;
+  /// double _endMarkerValue = 60.0;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return MaterialApp(
+  ///     home: Scaffold(
+  ///       appBar: AppBar(
+  ///         title: const Text('Drag behavior'),
+  ///       ),
+  ///       body: SfLinearGauge(
+  ///         markerPointers: [
+  ///           LinearWidgetPointer(
+  ///             value: _startMarkerValue,
+  ///             dragBehavior: LinearMarkerDragBehavior.constrained,
+  ///             onChanged: (double value) {
+  ///               setState(() {
+  ///                 _startMarkerValue = value;
+  ///               });
+  ///             },
+  ///             child: Container(
+  ///               height: 20.0,
+  ///               width: 20.0,
+  ///               color: Colors.red,
+  ///             ),
+  ///           ),
+  ///           LinearWidgetPointer(
+  ///             value: _endMarkerValue,
+  ///             onChanged: (double value) {
+  ///               setState(() {
+  ///                 _endMarkerValue = value;
+  ///               });
+  ///             },
+  ///             child: Container(
+  ///               height: 20.0,
+  ///               width: 20.0,
+  ///               color: Colors.red,
+  ///             ),
+  ///           )
+  ///         ],
+  ///       ),
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  @override
+  final LinearMarkerDragBehavior dragBehavior;
+
   @override
   RenderObject createRenderObject(BuildContext context) {
     final LinearGaugeScope scope = LinearGaugeScope.of(context);
     return RenderLinearWidgetPointer(
         value: value,
-        onValueChanged: onValueChanged,
+        onChanged: onChanged,
+        onChangeStart: onChangeStart,
+        onChangeEnd: onChangeEnd,
         offset: offset,
         position: position,
         markerAlignment: markerAlignment,
         animationController: scope.animationController,
         onAnimationCompleted: onAnimationCompleted,
-        pointerAnimation: scope.animation);
+        pointerAnimation: scope.animation,
+        isAxisInversed: scope.isAxisInversed,
+        isMirrored: scope.isMirrored,
+        dragBehavior: dragBehavior);
   }
 
   @override
@@ -228,11 +342,16 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
 
     renderObject
       ..value = value
-      ..onValueChanged = onValueChanged
+      ..onChanged = onChanged
+      ..onChangeStart = onChangeStart
+      ..onChangeEnd = onChangeEnd
       ..offset = offset
       ..position = position
       ..markerAlignment = markerAlignment
+      ..dragBehavior = dragBehavior
       ..onAnimationCompleted = onAnimationCompleted
+      ..isAxisInversed = scope.isAxisInversed
+      ..isMirrored = scope.isMirrored
       ..animationController = scope.animationController
       ..pointerAnimation = scope.animation;
 

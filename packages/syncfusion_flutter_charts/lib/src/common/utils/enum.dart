@@ -1,7 +1,4 @@
-part of charts;
-
 /// Legend Position in charts.
-
 enum LegendPosition {
   /// - `LegendPosition.auto`, places the legend either at the bottom when the height is
   /// greater than the width, or at right when the width is greater than height.
@@ -20,7 +17,7 @@ enum LegendPosition {
   top
 }
 
-/// Alignment of various elements in chart..
+/// Alignment of various elements in chart.
 enum ChartAlignment {
   /// - `ChartAlignment.near` aligns to the near position.
   near,
@@ -57,7 +54,7 @@ enum LegendItemOrientation {
   vertical
 }
 
-/// It used to change the legend icons in different type of series and indicators
+/// It used to change the legend icons in different type of series and indicators.
 enum LegendIconType {
   ///`LegendIconType.seriesType`, icon is same as seriestype.
   seriesType,
@@ -92,7 +89,7 @@ enum LegendIconType {
 
 /// Position of data labels in Cartesian chart.The position of data lables in cartesian charts can be changed using this property.
 ///
-/// Defaults to ChartDataLabelAlignment.auto.
+/// Defaults to `ChartDataLabelAlignment.auto`.
 enum ChartDataLabelAlignment {
   /// - ChartDataLabelAlignment.auto places the data label either top or bottom position
   /// of a point based on the position.
@@ -120,25 +117,13 @@ enum CircularLabelPosition {
   outside
 }
 
-/// PyramidMode for pyramid charts
+/// PyramidMode for pyramid charts.
 ///
-/// defaults to linear
+/// Defaults to `PyramidMode.linear`
 enum PyramidMode {
   /// - PyramidMode.linear, linear pyramid will be rendered
   linear,
 
   /// - PyramidMode.surface, Surface pyramid will be displayed
   surface
-}
-
-/// Action when labels get overlapped
-enum SmartLabelMode {
-  /// - SmartLabelMode.shift, Shifts the data label position when a label intersects with other label.
-  shift,
-
-  /// - SmartLabelMode.hide, Hides the intersecting data label, and it is the default value.
-  hide,
-
-  /// - SmartLabelMode.none, no action will be performed
-  none
 }

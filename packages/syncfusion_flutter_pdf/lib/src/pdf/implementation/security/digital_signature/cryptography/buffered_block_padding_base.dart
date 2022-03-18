@@ -1,15 +1,21 @@
-part of pdf;
+import 'dart:math';
 
-abstract class _BufferedBlockPaddingBase implements _IBufferedCipher {
-  _BufferedBlockPaddingBase();
+import '../asn1/asn1.dart';
+import 'ipadding.dart';
+
+/// internal class
+abstract class BufferedBlockPaddingBase implements IBufferedCipher {
+  /// internal constructor
+  BufferedBlockPaddingBase();
   //Fields
+  /// internal field
   static List<int> emptyBuffer = <int>[];
 
   //Implementation
   @override
   String? get algorithmName => null;
   @override
-  void initialize(bool forEncryption, _ICipherParameter? parameters);
+  void initialize(bool forEncryption, ICipherParameter? parameters);
   @override
   int? get blockSize => null;
   @override
@@ -111,8 +117,10 @@ abstract class _BufferedBlockPaddingBase implements _IBufferedCipher {
   }
 }
 
-class _BufferedCipher extends _BufferedBlockPaddingBase {
-  _BufferedCipher(_ICipher cipher) : super() {
+/// internal class
+class BufferedCipher extends BufferedBlockPaddingBase {
+  /// internal constructor
+  BufferedCipher(ICipher cipher) : super() {
     _cipher = cipher;
     _bytes = List<int>.generate(cipher.blockSize!, (int i) => 0);
     _offset = 0;
@@ -121,20 +129,23 @@ class _BufferedCipher extends _BufferedBlockPaddingBase {
   List<int>? _bytes;
   int? _offset;
   late bool _isEncryption;
-  late _ICipher _cipher;
+  late ICipher _cipher;
 
   //Implementation
   @override
   String? get algorithmName => _cipher.algorithmName;
   @override
   int? get blockSize => _cipher.blockSize;
+
+  /// internal method
   @override
-  void initialize(bool isEncryption, _ICipherParameter? parameters) {
+  void initialize(bool isEncryption, ICipherParameter? parameters) {
     _isEncryption = isEncryption;
     reset();
     _cipher.initialize(isEncryption, parameters);
   }
 
+  /// internal method
   @override
   int getUpdateOutputSize(int length) {
     final int total = length + _offset!;
@@ -142,6 +153,7 @@ class _BufferedCipher extends _BufferedBlockPaddingBase {
     return total - leftOver;
   }
 
+  /// internal method
   @override
   int getOutputSize(int length) {
     return length + _offset!;
@@ -154,6 +166,7 @@ class _BufferedCipher extends _BufferedBlockPaddingBase {
     _cipher.reset();
   }
 
+  /// internal method
   @override
   List<int>? processByte(int input) {
     final int length = getUpdateOutputSize(1);
@@ -204,6 +217,7 @@ class _BufferedCipher extends _BufferedBlockPaddingBase {
     return outBytes;
   }
 
+  /// internal method
   @override
   Map<String, dynamic> processBytes(List<int>? input, int inOffset, int length,
       List<int>? output, int outOffset) {
@@ -246,7 +260,7 @@ class _BufferedCipher extends _BufferedBlockPaddingBase {
 
   @override
   List<int>? doFinal() {
-    List<int>? bytes = _BufferedBlockPaddingBase.emptyBuffer;
+    List<int>? bytes = BufferedBlockPaddingBase.emptyBuffer;
     final int length = getOutputSize(0);
     if (length > 0) {
       bytes = List<int>.generate(length, (int i) => 0);
@@ -264,9 +278,10 @@ class _BufferedCipher extends _BufferedBlockPaddingBase {
     return bytes;
   }
 
+  /// internal method
   @override
   List<int>? readFinal(List<int>? input, int inOffset, int inLength) {
-    List<int>? outBytes = _BufferedBlockPaddingBase.emptyBuffer;
+    List<int>? outBytes = BufferedBlockPaddingBase.emptyBuffer;
     if (input != null) {
       final int length = getOutputSize(inLength);
       Map<String, dynamic> result;
@@ -312,18 +327,20 @@ class _BufferedCipher extends _BufferedBlockPaddingBase {
   }
 }
 
-class _BufferedBlockPadding extends _BufferedCipher {
-  _BufferedBlockPadding(_ICipher cipher, [_IPadding? padding]) : super(cipher) {
+/// internal class
+class BufferedBlockPadding extends BufferedCipher {
+  /// internal constructor
+  BufferedBlockPadding(ICipher cipher, [IPadding? padding]) : super(cipher) {
     _cipher = cipher;
-    _padding = padding ?? _Pkcs7Padding();
+    _padding = padding ?? Pkcs7Padding();
     _bytes = List<int>.generate(cipher.blockSize!, (int i) => 0);
     _offset = 0;
   }
   //Fields
-  late _IPadding _padding;
+  late IPadding _padding;
   //Implemntation
   @override
-  void initialize(bool isEncryption, _ICipherParameter? parameters) {
+  void initialize(bool isEncryption, ICipherParameter? parameters) {
     _isEncryption = isEncryption;
     Random? initRandom;
     reset();
@@ -450,11 +467,13 @@ class _BufferedBlockPadding extends _BufferedCipher {
   }
 }
 
-class _Pkcs7Padding implements _IPadding {
-  _Pkcs7Padding();
+/// internal class
+class Pkcs7Padding implements IPadding {
+  /// internal constructor
+  Pkcs7Padding();
   //Properties
   @override
-  String get paddingName => _Asn1Constants.pkcs7;
+  String get paddingName => Asn1.pkcs7;
   //Implementation
   @override
   void initialize(Random? random) {}

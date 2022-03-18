@@ -1,8 +1,10 @@
-part of charts;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import '../axis/axis.dart';
 
 /// Holds the zooming gestures.
 ///
-/// You can zoom in and zoom out using Zoombehavior. It can be used to customize the
+/// You can zoom in and zoom out using Zoom behavior. It can be used to customize the
 ///  DoubleTap zooming, selection zooming and zoomPinching.
 abstract class ZoomBehavior {
   ///Hits while double tapping on the chart.
@@ -13,7 +15,7 @@ abstract class ZoomBehavior {
   ///Hits while double tapping on the chart.
   ///* xPos - X value of the double tap position.
   ///* yPos - Y value of the double tap position.
-  ///* zoomFactor - zoomin and zoom out position
+  ///* zoomFactor - zoom in and zoom out position
   void onDoubleTap(double xPos, double yPos, double zoomFactor);
 
   /// To paint in the chart plot area.
@@ -23,8 +25,8 @@ abstract class ZoomBehavior {
 
   /// Chart can be zoomed by a rectangular selecting region on the plot area.
   ///
-  /// * startX - start position of selectionzooming in X axis.
-  /// * startY - start position of selectionzooming in Y axis.
+  /// * startX - start position of selection zooming in X axis.
+  /// * startY - start position of selection zooming in Y axis.
   /// * currentX - end position of the selection zooming in X axis.
   /// * currentY - end position of the selection zooming in Y axis.
   void onDrawSelectionZoomRect(
@@ -54,6 +56,6 @@ abstract class ZoomBehavior {
   ///
   ///* position - which position have to zoom in the axis.
   /// scaleFacator - scale factor is a number which scales some quantity in charts.
-  void onPinch(
-      ChartAxisRenderer axisRenderer, double position, double scaleFactor);
+  void onPinch(ChartAxisRendererDetails axisDetails, double position,
+      double scaleFactor);
 }

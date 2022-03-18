@@ -1,15 +1,19 @@
-part of pdf;
+/// internal constructor
+// ignore_for_file: text_direction_code_point_in_literal
 
-class _AdobeGlyphList {
+class AdobeGlyphList {
   // Constructor
-  _AdobeGlyphList() {
+  /// internal class
+  AdobeGlyphList() {
     initialize();
   }
 
   // Fields
+  /// internal field
   Map<String, String>? map;
 
   // Implementations
+  /// internal method
   void initialize() {
     map = <String, String>{};
     map!['A'] = 'A';
@@ -3160,7 +3164,7 @@ class _AdobeGlyphList {
     map!['quoteright'] = '’';
     map!['quoterightn'] = 'ŉ';
     map!['quotesinglbase'] = '‚';
-    map!['quotesingle'] = '\'';
+    map!['quotesingle'] = "'";
     map!['quotesinglemonospace'] = '＇';
     map!['r'] = 'r';
     map!['raarmenian'] = 'ռ';
@@ -4216,6 +4220,7 @@ class _AdobeGlyphList {
     map!['zukatakana'] = 'ズ';
   }
 
+  /// internal method
   String? getUnicode(String? names) {
     if (names == null) {
       return '\u0000';
@@ -4231,6 +4236,7 @@ class _AdobeGlyphList {
     return '\u0000';
   }
 
+  /// internal method
   String parseHex(String hex) {
     String result;
     try {
@@ -4241,6 +4247,7 @@ class _AdobeGlyphList {
     return result;
   }
 
+  /// internal method
   String? getUnicodeForName(String name) {
     if (map!.containsKey(name)) {
       return map![name];

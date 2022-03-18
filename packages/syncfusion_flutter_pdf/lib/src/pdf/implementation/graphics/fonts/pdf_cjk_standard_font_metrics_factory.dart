@@ -1,17 +1,20 @@
-part of pdf;
+import 'enums.dart';
+import 'pdf_font.dart';
+import 'pdf_font_metrics.dart';
 
 /// A Class representing PDF document which is used for
 /// Cjk Font Metrics Factory.
-class _PdfCjkStandardFontMetricsFactory {
-  _PdfCjkStandardFontMetricsFactory();
+class PdfCjkStandardFontMetricsFactory {
+  /// internal constructor
+  PdfCjkStandardFontMetricsFactory();
 
   /// Multiplier of subscript superscript.
   static const double _subSuperscriptFactor = 1.52;
 
   /// Returns font metrics depending on the font settings.
-  static _PdfFontMetrics _getMetrics(
+  static PdfFontMetrics getMetrics(
       PdfCjkFontFamily? fontFamily, int? fontStyle, double size) {
-    _PdfFontMetrics metrics;
+    PdfFontMetrics metrics;
 
     switch (fontFamily) {
       case PdfCjkFontFamily.hanyangSystemsGothicMedium:
@@ -48,7 +51,7 @@ class _PdfCjkStandardFontMetricsFactory {
         throw Exception('Unsupported font family, $fontFamily');
     }
 
-    metrics.name = PdfFont._standardCjkFontNames[fontFamily!.index];
+    metrics.name = PdfFontHelper.standardCjkFontNames[fontFamily!.index];
     metrics.subscriptSizeFactor = _subSuperscriptFactor;
     metrics.superscriptSizeFactor = _subSuperscriptFactor;
 
@@ -56,25 +59,27 @@ class _PdfCjkStandardFontMetricsFactory {
   }
 
   /// Gets the hanyang systems gothic medium font metrix.
-  static _PdfFontMetrics _getHanyangSystemsGothicMediumMetrix(
+  static PdfFontMetrics _getHanyangSystemsGothicMediumMetrix(
       PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
-    final _PdfFontMetrics metrics = _PdfFontMetrics();
-    final _CjkWidthTable widthTable = _CjkWidthTable(1000);
-    metrics._widthTable = widthTable;
-    widthTable.add(_CjkSameWidth(1, 127, 500));
-    widthTable.add(_CjkSameWidth(8094, 8190, 500));
+    final PdfFontMetrics metrics = PdfFontMetrics();
+    final CjkWidthTable widthTable = CjkWidthTable(1000);
+    metrics.widthTable = widthTable;
+    widthTable.add(CjkSameWidth(1, 127, 500));
+    widthTable.add(CjkSameWidth(8094, 8190, 500));
 
     metrics.ascent = 880;
     metrics.descent = -120;
     metrics.size = size;
     metrics.height = metrics.ascent - metrics.descent;
 
-    if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
-        (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) != 0) {
+    if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
+        (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) != 0) {
       metrics.postScriptName = 'HYGoThic-Medium,BoldItalic';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0) {
+    } else if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) !=
+        0) {
       metrics.postScriptName = 'HYGoThic-Medium,Bold';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) !=
+    } else if ((fontStyle &
+            PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) !=
         0) {
       metrics.postScriptName = 'HYGoThic-Medium,Italic';
     } else {
@@ -85,25 +90,27 @@ class _PdfCjkStandardFontMetricsFactory {
   }
 
   /// Gets the monotype hei medium metrix.
-  static _PdfFontMetrics _getMonotypeHeiMedium(
+  static PdfFontMetrics _getMonotypeHeiMedium(
       PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
-    final _PdfFontMetrics metrics = _PdfFontMetrics();
-    final _CjkWidthTable widthTable = _CjkWidthTable(1000);
-    metrics._widthTable = widthTable;
-    widthTable.add(_CjkSameWidth(1, 95, 500));
-    widthTable.add(_CjkSameWidth(13648, 13742, 500));
+    final PdfFontMetrics metrics = PdfFontMetrics();
+    final CjkWidthTable widthTable = CjkWidthTable(1000);
+    metrics.widthTable = widthTable;
+    widthTable.add(CjkSameWidth(1, 95, 500));
+    widthTable.add(CjkSameWidth(13648, 13742, 500));
 
     metrics.ascent = 880;
     metrics.descent = -120;
     metrics.size = size;
     metrics.height = metrics.ascent - metrics.descent;
 
-    if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
-        (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) != 0) {
+    if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
+        (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) != 0) {
       metrics.postScriptName = 'MHei-Medium,BoldItalic';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0) {
+    } else if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) !=
+        0) {
       metrics.postScriptName = 'MHei-Medium,Bold';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) !=
+    } else if ((fontStyle &
+            PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) !=
         0) {
       metrics.postScriptName = 'MHei-Medium,Italic';
     } else {
@@ -114,25 +121,27 @@ class _PdfCjkStandardFontMetricsFactory {
   }
 
   /// Gets the monotype sung light metrix.
-  static _PdfFontMetrics _getMonotypeSungLightMetrix(
+  static PdfFontMetrics _getMonotypeSungLightMetrix(
       PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
-    final _PdfFontMetrics metrics = _PdfFontMetrics();
-    final _CjkWidthTable widthTable = _CjkWidthTable(1000);
-    metrics._widthTable = widthTable;
-    widthTable.add(_CjkSameWidth(1, 95, 500));
-    widthTable.add(_CjkSameWidth(13648, 13742, 500));
+    final PdfFontMetrics metrics = PdfFontMetrics();
+    final CjkWidthTable widthTable = CjkWidthTable(1000);
+    metrics.widthTable = widthTable;
+    widthTable.add(CjkSameWidth(1, 95, 500));
+    widthTable.add(CjkSameWidth(13648, 13742, 500));
 
     metrics.ascent = 880;
     metrics.descent = -120;
     metrics.size = size;
     metrics.height = metrics.ascent - metrics.descent;
 
-    if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
-        (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) != 0) {
+    if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
+        (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) != 0) {
       metrics.postScriptName = 'MSung-Light,BoldItalic';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0) {
+    } else if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) !=
+        0) {
       metrics.postScriptName = 'MSung-Light,Bold';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) !=
+    } else if ((fontStyle &
+            PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) !=
         0) {
       metrics.postScriptName = 'MSung-Light,Italic';
     } else {
@@ -143,27 +152,29 @@ class _PdfCjkStandardFontMetricsFactory {
   }
 
   /// Gets the sino type song light font metrics.
-  static _PdfFontMetrics _getSinoTypeSongLight(
+  static PdfFontMetrics _getSinoTypeSongLight(
       PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
-    final _PdfFontMetrics metrics = _PdfFontMetrics();
-    final _CjkWidthTable widthTable = _CjkWidthTable(1000);
-    metrics._widthTable = widthTable;
-    widthTable.add(_CjkSameWidth(1, 95, 500));
-    widthTable.add(_CjkSameWidth(814, 939, 500));
-    widthTable.add(_CjkDifferentWidth(7712, <int>[500]));
-    widthTable.add(_CjkDifferentWidth(7716, <int>[500]));
+    final PdfFontMetrics metrics = PdfFontMetrics();
+    final CjkWidthTable widthTable = CjkWidthTable(1000);
+    metrics.widthTable = widthTable;
+    widthTable.add(CjkSameWidth(1, 95, 500));
+    widthTable.add(CjkSameWidth(814, 939, 500));
+    widthTable.add(CjkDifferentWidth(7712, <int>[500]));
+    widthTable.add(CjkDifferentWidth(7716, <int>[500]));
 
     metrics.ascent = 880;
     metrics.descent = -120;
     metrics.size = size;
     metrics.height = metrics.ascent - metrics.descent;
 
-    if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
-        (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) != 0) {
+    if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
+        (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) != 0) {
       metrics.postScriptName = 'STSong-Light,BoldItalic';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0) {
+    } else if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) !=
+        0) {
       metrics.postScriptName = 'STSong-Light,Bold';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) !=
+    } else if ((fontStyle &
+            PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) !=
         0) {
       metrics.postScriptName = 'STSong-Light,Italic';
     } else {
@@ -174,25 +185,27 @@ class _PdfCjkStandardFontMetricsFactory {
   }
 
   /// Gets the heisei mincho w3.
-  static _PdfFontMetrics _getHeiseiMinchoW3(
+  static PdfFontMetrics _getHeiseiMinchoW3(
       PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
-    final _PdfFontMetrics metrics = _PdfFontMetrics();
-    final _CjkWidthTable widthTable = _CjkWidthTable(1000);
-    metrics._widthTable = widthTable;
-    widthTable.add(_CjkSameWidth(1, 95, 500));
-    widthTable.add(_CjkSameWidth(231, 632, 500));
+    final PdfFontMetrics metrics = PdfFontMetrics();
+    final CjkWidthTable widthTable = CjkWidthTable(1000);
+    metrics.widthTable = widthTable;
+    widthTable.add(CjkSameWidth(1, 95, 500));
+    widthTable.add(CjkSameWidth(231, 632, 500));
 
     metrics.ascent = 857;
     metrics.descent = -143;
     metrics.size = size;
     metrics.height = metrics.ascent - metrics.descent;
 
-    if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
-        (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) != 0) {
+    if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
+        (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) != 0) {
       metrics.postScriptName = 'HeiseiMin-W3,BoldItalic';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0) {
+    } else if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) !=
+        0) {
       metrics.postScriptName = 'HeiseiMin-W3,Bold';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) !=
+    } else if ((fontStyle &
+            PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) !=
         0) {
       metrics.postScriptName = 'HeiseiMin-W3,Italic';
     } else {
@@ -203,25 +216,27 @@ class _PdfCjkStandardFontMetricsFactory {
   }
 
   /// Gets the heisei kaku gothic w5 metrix.
-  static _PdfFontMetrics _getHeiseiKakuGothicW5Metrix(
+  static PdfFontMetrics _getHeiseiKakuGothicW5Metrix(
       PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
-    final _PdfFontMetrics metrics = _PdfFontMetrics();
-    final _CjkWidthTable widthTable = _CjkWidthTable(1000);
-    metrics._widthTable = widthTable;
-    widthTable.add(_CjkSameWidth(1, 95, 500));
-    widthTable.add(_CjkSameWidth(231, 632, 500));
+    final PdfFontMetrics metrics = PdfFontMetrics();
+    final CjkWidthTable widthTable = CjkWidthTable(1000);
+    metrics.widthTable = widthTable;
+    widthTable.add(CjkSameWidth(1, 95, 500));
+    widthTable.add(CjkSameWidth(231, 632, 500));
 
     metrics.ascent = 857;
     metrics.descent = -125;
     metrics.size = size;
     metrics.height = metrics.ascent - metrics.descent;
 
-    if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
-        (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) != 0) {
+    if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
+        (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) != 0) {
       metrics.postScriptName = 'HeiseiKakuGo-W5,BoldItalic';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0) {
+    } else if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) !=
+        0) {
       metrics.postScriptName = 'HeiseiKakuGo-W5,Bold';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) !=
+    } else if ((fontStyle &
+            PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) !=
         0) {
       metrics.postScriptName = 'HeiseiKakuGo-W5,Italic';
     } else {
@@ -232,25 +247,27 @@ class _PdfCjkStandardFontMetricsFactory {
   }
 
   /// Gets the hanyang systems shin myeong jo medium metrix.
-  static _PdfFontMetrics _getHanyangSystemsShinMyeongJoMediumMetrix(
+  static PdfFontMetrics _getHanyangSystemsShinMyeongJoMediumMetrix(
       PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
-    final _PdfFontMetrics metrics = _PdfFontMetrics();
-    final _CjkWidthTable widthTable = _CjkWidthTable(1000);
-    metrics._widthTable = widthTable;
-    widthTable.add(_CjkSameWidth(1, 95, 500));
-    widthTable.add(_CjkSameWidth(8094, 8190, 500));
+    final PdfFontMetrics metrics = PdfFontMetrics();
+    final CjkWidthTable widthTable = CjkWidthTable(1000);
+    metrics.widthTable = widthTable;
+    widthTable.add(CjkSameWidth(1, 95, 500));
+    widthTable.add(CjkSameWidth(8094, 8190, 500));
 
     metrics.ascent = 880;
     metrics.descent = -120;
     metrics.size = size;
     metrics.height = metrics.ascent - metrics.descent;
 
-    if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
-        (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) != 0) {
+    if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) != 0 &&
+        (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) != 0) {
       metrics.postScriptName = 'HYSMyeongJo-Medium,BoldItalic';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold)) != 0) {
+    } else if ((fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold)) !=
+        0) {
       metrics.postScriptName = 'HYSMyeongJo-Medium,Bold';
-    } else if ((fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic)) !=
+    } else if ((fontStyle &
+            PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic)) !=
         0) {
       metrics.postScriptName = 'HYSMyeongJo-Medium,Italic';
     } else {

@@ -8,7 +8,7 @@ class LinearAxisLabel {
 
   /// An axis value as a text
   ///
-  /// Defaults to [String.Empty].
+  /// Defaults to [String.isEmpty].
   ///
   /// ```dart
   ///

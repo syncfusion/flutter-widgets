@@ -24,14 +24,14 @@ class _CharacterToken extends _FormatTokenBase {
       _strFormat = strFormat[iIndex];
       iIndex++;
     } else if (strFormat[iIndex] == _defaultStart) {
-      _strFormat = strFormat[iIndex + 1].toString();
-      if (_strFormat != _defaultFormatChar.toString()) {
+      _strFormat = strFormat[iIndex + 1];
+      if (_strFormat != _defaultFormatChar) {
         iIndex += 2;
       } else {
-        _strFormat = _defaultFormatChar.toString();
+        _strFormat = _defaultFormatChar;
       }
     } else if (strFormat[iIndex] == '[' && strFormat[iIndex + 2] == r'\$') {
-      _strFormat = strFormat[iIndex + 1].toString();
+      _strFormat = strFormat[iIndex + 1];
       iIndex = strFormat.indexOf(']', iIndex + 3) + 1;
     }
 

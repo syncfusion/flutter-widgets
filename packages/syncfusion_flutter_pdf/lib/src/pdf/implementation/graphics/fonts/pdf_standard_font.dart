@@ -1,4 +1,11 @@
-part of pdf;
+import '../../../interfaces/pdf_interface.dart';
+import '../../io/pdf_constants.dart';
+import '../../primitives/pdf_dictionary.dart';
+import '../../primitives/pdf_name.dart';
+import 'enums.dart';
+import 'pdf_font.dart';
+import 'pdf_standard_font_metrics_factory.dart';
+import 'pdf_string_format.dart';
 
 /// Represents one of the 14 standard PDF fonts.
 /// It's used to create a standard PDF font to draw the text in to the PDF
@@ -33,7 +40,9 @@ class PdfStandardFont extends PdfFont {
   /// ```
   PdfStandardFont(PdfFontFamily fontFamily, double size,
       {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
-    _initialize(size, style: style, multiStyle: multiStyle);
+    _helper = PdfStandardFontHelper(this);
+    PdfFontHelper.getHelper(this)
+        .initialize(size, style: style, multiStyle: multiStyle);
     _fontFamily = fontFamily;
     _checkStyle();
     _initializeInternals();
@@ -59,16 +68,20 @@ class PdfStandardFont extends PdfFont {
   /// ```
   PdfStandardFont.prototype(PdfStandardFont prototype, double size,
       {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
-    _initialize(size, style: style, multiStyle: multiStyle);
+    _helper = PdfStandardFontHelper(this);
+    PdfFontHelper.getHelper(this)
+        .initialize(size, style: style, multiStyle: multiStyle);
     _fontFamily = prototype.fontFamily;
     if (style == null && (multiStyle == null || multiStyle.isEmpty)) {
-      _setStyle(prototype.style, null);
+      PdfFontHelper.getHelper(this).setStyle(prototype.style, null);
     }
     _checkStyle();
     _initializeInternals();
   }
 
   //Fields
+  late PdfStandardFontHelper _helper;
+
   /// FontFamily of the font.
   PdfFontFamily _fontFamily = PdfFontFamily.helvetica;
 
@@ -93,6 +106,52 @@ class PdfStandardFont extends PdfFont {
   /// document.dispose();
   /// ```
   PdfFontFamily get fontFamily => _fontFamily;
+
+  //Implementation
+  /// Checks font style of the font.
+  void _checkStyle() {
+    if (fontFamily == PdfFontFamily.symbol ||
+        fontFamily == PdfFontFamily.zapfDingbats) {
+      PdfFontHelper.getHelper(this).fontStyle =
+          PdfFontHelper.getHelper(this).fontStyle &
+              ~(PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) |
+                  PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic));
+      PdfFontHelper.getHelper(this).style = PdfFontStyle.regular;
+    }
+  }
+
+  /// Initializes font internals.
+  void _initializeInternals() {
+    PdfFontHelper.getHelper(this).metrics =
+        PdfStandardFontMetricsFactory.getMetrics(
+            _fontFamily, PdfFontHelper.getHelper(this).fontStyle, size);
+    PdfFontHelper.getHelper(this).fontInternals = _createInternals();
+  }
+
+  /// Creates font's dictionary.
+  PdfDictionary _createInternals() {
+    final PdfDictionary dictionary = PdfDictionary();
+    dictionary[PdfDictionaryProperties.type] =
+        PdfName(PdfDictionaryProperties.font);
+    dictionary[PdfDictionaryProperties.subtype] =
+        PdfName(PdfDictionaryProperties.type1);
+    dictionary[PdfDictionaryProperties.baseFont] =
+        PdfName(PdfFontHelper.getHelper(this).metrics!.postScriptName);
+    if (fontFamily != PdfFontFamily.symbol &&
+        fontFamily != PdfFontFamily.zapfDingbats) {
+      dictionary[PdfDictionaryProperties.encoding] = PdfName('WinAnsiEncoding');
+    }
+    return dictionary;
+  }
+}
+
+/// [PdfStandardFont] helper
+class PdfStandardFontHelper {
+  /// internal constructor
+  PdfStandardFontHelper(this.base);
+
+  /// internal field
+  PdfStandardFont base;
   List<String>? _windows1252MapTable;
 
   List<String>? get _windowsMapTable {
@@ -136,7 +195,7 @@ class PdfStandardFont extends PdfFont {
       r'$',
       '%',
       '&',
-      '\'',
+      "'",
       '(',
       ')',
       '*',
@@ -356,78 +415,46 @@ class PdfStandardFont extends PdfFont {
     return _windows1252MapTable;
   }
 
-  //Implementation
-  /// Checks font style of the font.
-  void _checkStyle() {
-    if (fontFamily == PdfFontFamily.symbol ||
-        fontFamily == PdfFontFamily.zapfDingbats) {
-      _fontStyle = _fontStyle &
-          ~(PdfFont._getPdfFontStyle(PdfFontStyle.bold) |
-              PdfFont._getPdfFontStyle(PdfFontStyle.italic));
-      _style = PdfFontStyle.regular;
-    }
+  /// internal method
+  static PdfStandardFontHelper getHelper(PdfStandardFont base) {
+    return base._helper;
   }
 
-  /// Initializes font internals.
-  void _initializeInternals() {
-    _metrics = _PdfStandardFontMetricsFactory._getMetrics(
-        _fontFamily, _fontStyle, size);
-    _fontInternals = _createInternals();
-  }
-
+  /// internal method
   /// Returns width of the char.
   /// This methods doesn't takes into consideration font's size.
-  double _getCharWidthInternal(String charCode) {
+  double getCharWidthInternal(String charCode) {
     int code = 0;
     code = charCode.codeUnitAt(0);
     if (code >= 256 && _windowsMapTable!.contains(charCode)) {
       code = _windowsMapTable!.indexOf(charCode);
     }
-    if (PdfFont._standardFontNames.contains(name)) {
+    if (PdfFontHelper.standardFontNames.contains(base.name)) {
       code = code - PdfStandardFont._charOffset;
     }
     code = (code >= 0 && code != 128) ? code : 0;
-    return _metrics!._widthTable![code]!.toDouble();
+    return PdfFontHelper.getHelper(base).metrics!.widthTable![code]!.toDouble();
   }
 
-  /// Creates font's dictionary.
-  _PdfDictionary _createInternals() {
-    final _PdfDictionary dictionary = _PdfDictionary();
-    dictionary[_DictionaryProperties.type] =
-        _PdfName(_DictionaryProperties.font);
-    dictionary[_DictionaryProperties.subtype] =
-        _PdfName(_DictionaryProperties.type1);
-    dictionary[_DictionaryProperties.baseFont] =
-        _PdfName(_metrics!.postScriptName);
-    if (fontFamily != PdfFontFamily.symbol &&
-        fontFamily != PdfFontFamily.zapfDingbats) {
-      dictionary[_DictionaryProperties.encoding] = _PdfName('WinAnsiEncoding');
-    }
-    return dictionary;
+  /// internal property
+  IPdfPrimitive? get element => PdfFontHelper.getHelper(base).fontInternals;
+
+  //ignore: unused_element
+  set element(IPdfPrimitive? value) {
+    PdfFontHelper.getHelper(base).fontInternals = value;
   }
 
   /// Returns width of the line.
-  @override
-  double _getLineWidth(String line, [PdfStringFormat? format]) {
+  double getLineWidth(String line, [PdfStringFormat? format]) {
     double width = 0;
     for (int i = 0; i < line.length; i++) {
       final String character = line[i];
-      final double charWidth = _getCharWidthInternal(character);
+      final double charWidth = getCharWidthInternal(character);
       width += charWidth;
     }
-    final double size = _metrics!._getSize(format)!;
-    width *= PdfFont._characterSizeMultiplier * size;
-    width = _applyFormatSettings(line, format, width);
+    final double size = PdfFontHelper.getHelper(base).metrics!.getSize(format)!;
+    width *= PdfFontHelper.characterSizeMultiplier * size;
+    width = PdfFontHelper.applyFormatSettings(base, line, format, width);
     return width;
-  }
-
-  //_IPdfWrapper elements
-  @override
-  _IPdfPrimitive? get _element => _fontInternals;
-
-  @override
-  //ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    _fontInternals = value;
   }
 }

@@ -1,17 +1,20 @@
-part of charts;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import '../../chart/utils/enum.dart';
+import '../../circular_chart/utils/enum.dart';
 
 /// This is similar to the point of the Cartesian chart.
 class PointInfo<D> {
   /// Creating an argument constructor of PointInfo class.
   PointInfo(this.x, this.y);
 
-  /// X value of point info
+  /// X value of point info.
   dynamic x;
 
-  /// Y value of point info
+  /// Y value of point info.
   num? y;
 
-  /// Text value of point info
+  /// Text value of point info.
   String? text;
 
   /// Fill color of point info.
@@ -53,8 +56,11 @@ class PointInfo<D> {
   /// Stores the value of label rect.
   Rect? labelRect;
 
+  /// To check if labels collide.
+  bool _isLabelCollide = false;
+
   /// Stores the value data label size.
-  Size dataLabelSize = const Size(0, 0);
+  Size dataLabelSize = Size.zero;
 
   /// To set the saturation region.
   bool saturationRegionOutside = false;
@@ -84,10 +90,17 @@ class PointInfo<D> {
   /// To execute OnDataLabelRender event or not.
   // ignore: prefer_final_fields
   bool labelRenderEvent = false;
+}
 
-  /// Stores the tooltip label text.
-  String? _tooltipLabelText;
+// ignore: avoid_classes_with_only_static_members
+/// Helper class handling PointInfo class private fields.
+class PointInfoHelper {
+  /// Returns the value of isLabelCollide flag for the given point.
+  static bool getIsLabelCollide(PointInfo<dynamic> point) =>
+      point._isLabelCollide;
 
-  /// Stores the tooltip header text.
-  String? _tooltipHeaderText;
+  /// Sets the value of isLabelCollide flag for the given point.
+  static void setIsLabelCollide(PointInfo<dynamic> point, bool isLabelCollide) {
+    point._isLabelCollide = isLabelCollide;
+  }
 }

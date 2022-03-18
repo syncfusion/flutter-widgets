@@ -2,6 +2,40 @@
 
 ## Slider
 
+**Features**
+
+* Tooltip visibility - Provided an option to always show a tooltip.
+* Start and end callbacks - Provided callbacks to notify the user for start and end interactions performed with slider thumb.
+
+## Range Slider
+
+**Features**
+
+* Tooltip visibility - Provided an option to always show a tooltip.
+* Start and end callbacks - Provided callbacks to notify the user for start and end interactions performed with range slider thumb.
+
+## Range Selector
+
+**Features**
+
+* Tooltip visibility - Provided an option to always show a tooltip.
+* Start and end callbacks - Provided callbacks to notify the user for start and end interactions performed with range selector thumb.
+
+## [19.3.43] - 09/30/2021
+
+## Slider
+
+* Provides an option to change the minimum and maximum positions of the vertical slider.
+
+## Range Slider
+
+* Provides an option to change the minimum and maximum positions of the vertical range slider.
+* Provides various dragging options to control thumb dragging. The available options are `onThumb`, `betweenThumbs`, and `both`.
+
+## [19.2.44-beta] - 06/29/2021
+
+## Slider
+
 ### Breaking changes
 
 The following `divisor` related properties were renamed into `divider` but the behavior of those properties are same as before. The APIs changes are,

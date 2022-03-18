@@ -1,4 +1,5 @@
-part of charts;
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 /// This class has the properties of the bar series.
 ///
@@ -35,7 +36,7 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
       bool? isVisible,
       LinearGradient? gradient,
       LinearGradient? borderGradient,
-      this.borderRadius = const BorderRadius.all(Radius.zero),
+      this.borderRadius = BorderRadius.zero,
       bool? enableTooltip,
       double? animationDuration,
       this.trackColor = Colors.grey,
@@ -50,11 +51,13 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
       LegendIconType? legendIconType,
       String? legendItemText,
       double? opacity,
+      double? animationDelay,
       List<double>? dashArray,
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader,
       List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
@@ -91,158 +94,146 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader,
             initialSelectedDataIndexes: initialSelectedDataIndexes,
             dashArray: dashArray);
 
-  ///Color of the track.
+  /// Color of the track.
   ///
-  ///Defaults to `grey`
+  /// Defaults to `Colors.grey`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color trackColor;
 
-  ///Color of the track border.
+  /// Color of the track border.
   ///
-  ///Defaults to `transparent`
+  /// Defaults to `Colors.transparent`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackBorderColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackBorderColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color trackBorderColor;
 
-  ///Width of the track border.
+  /// Width of the track border.
   ///
-  ///Defaults to `1`
+  /// Defaults to `1`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackBorderColor: Colors.red,
-  ///                  trackBorderWidth: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackBorderColor: Colors.red,
+  ///         trackBorderWidth: 2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double trackBorderWidth;
 
-  ///Padding of the track.
+  /// Padding of the track.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackPadding: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackPadding: 2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double trackPadding;
 
-  ///Spacing between the bars. The value ranges from 0 to 1.
+  /// Spacing between the bars. The value ranges from 0 to 1.
   ///
-  ///1 represents 100% and
-  ///0 represents 0% of the available space.
+  /// 1 represents 100% and 0 represents 0% of the available space.
   ///
-  ///Spacing also affects the height of the bar. For example, setting 20% spacing
-  ///and 100% height renders the bar with 80% of total height.
+  /// Spacing also affects the height of the bar. For example, setting 20% spacing
+  /// and 100% height renders the bar with 80% of total height.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  spacing: 0,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         spacing: 0.5
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double spacing;
 
-  ///Customizes the corners of the bar.
+  /// Customizes the corners of the bar.
   ///
   /// Each corner can be customized with desired
-  ///value or with a single value.
+  /// value or with a single value.
   ///
-  ///Defaults to `Radius.zero`
+  /// Defaults to `Radius.zero`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  borderRadius: BorderRadius.all(Radius.circular(5)),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         borderRadius: BorderRadius.all(Radius.circular(5))
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BorderRadius borderRadius;
 
-  ///Renders bars with track.
+  /// Renders bars with track.
   ///
   /// Track is a rectangular bar rendered from the start to the
-  ///end of the axis.
+  /// end of the axis.
   ///
-  ///Bar series will be rendered above the track.
+  /// Bar series will be rendered above the track.
   ///
-  ///Defaults to `false`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  isTrackVisible: true
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         isTrackVisible: true
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool isTrackVisible;
 
   /// Create the bar series renderer.
@@ -298,6 +289,7 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.trackColor == trackColor &&
         other.trackBorderColor == trackBorderColor &&
         other.trackBorderWidth == trackBorderWidth &&
@@ -309,6 +301,7 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
         other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader &&
         other.initialSelectedDataIndexes == initialSelectedDataIndexes;
   }
 
@@ -345,6 +338,7 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
       legendIconType,
       legendItemText,
       opacity,
+      animationDelay,
       trackColor,
       trackBorderColor,
       trackBorderWidth,
@@ -360,131 +354,4 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
     ];
     return hashList(values);
   }
-}
-
-/// Creates series renderer for Bar series
-class BarSeriesRenderer extends XyDataSeriesRenderer {
-  /// Calling the default constructor of BarSeriesRenderer class.
-  BarSeriesRenderer();
-
-  // Store the rect position //
-  late num _rectPosition;
-
-  // Store the rect count //
-  late num _rectCount;
-
-  /// To add bar segments to chart segments
-  ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, double animateFactor) {
-    final BarSeries<dynamic, dynamic> _barSeries =
-        _series as BarSeries<dynamic, dynamic>;
-    final BarSegment segment = createSegment();
-    final List<CartesianSeriesRenderer> oldSeriesRenderers =
-        _chartState!._oldSeriesRenderers;
-    segment._series = _barSeries;
-    segment._chart = _chart;
-    segment._chartState = _chartState!;
-    segment._seriesRenderer = this;
-    segment._seriesIndex = seriesIndex;
-    segment.currentSegmentIndex = pointIndex;
-    segment.points
-        .add(Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
-    segment.animationFactor = animateFactor;
-    segment._currentPoint = currentPoint;
-    if (_renderingDetails!.widgetNeedUpdate &&
-        !_renderingDetails!.isLegendToggled &&
-        // ignore: unnecessary_null_comparison
-        oldSeriesRenderers != null &&
-        oldSeriesRenderers.isNotEmpty &&
-        oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
-        oldSeriesRenderers[segment._seriesIndex]._seriesName ==
-            segment._seriesRenderer._seriesName) {
-      segment._oldSeriesRenderer = oldSeriesRenderers[segment._seriesIndex];
-      segment._oldPoint = (segment._oldSeriesRenderer!._segments.isNotEmpty &&
-              segment._oldSeriesRenderer!._segments[0] is BarSegment &&
-              segment._oldSeriesRenderer!._dataPoints.length - 1 >= pointIndex)
-          ? segment._oldSeriesRenderer!._dataPoints[pointIndex]
-          : null;
-      segment._oldSegmentIndex = _getOldSegmentIndex(segment);
-      if ((_chartState!._selectedSegments.length - 1 >= pointIndex) &&
-          _chartState?._selectedSegments[pointIndex]._oldSegmentIndex == null) {
-        final ChartSegment selectedSegment =
-            _chartState?._selectedSegments[pointIndex] as ChartSegment;
-        selectedSegment._oldSeriesRenderer =
-            oldSeriesRenderers[selectedSegment._seriesIndex];
-        selectedSegment._seriesRenderer = this;
-        selectedSegment._oldSegmentIndex = _getOldSegmentIndex(selectedSegment);
-      }
-    } else if (_renderingDetails!.isLegendToggled &&
-        // ignore: unnecessary_null_comparison
-        _chartState!._segments != null &&
-        _chartState!._segments.isNotEmpty) {
-      segment._oldSeriesVisible =
-          _chartState!._oldSeriesVisible[segment._seriesIndex];
-      for (int i = 0; i < _chartState!._segments.length; i++) {
-        final BarSegment oldSegment = _chartState!._segments[i] as BarSegment;
-        if (oldSegment.currentSegmentIndex == segment.currentSegmentIndex &&
-            oldSegment._seriesIndex == segment._seriesIndex) {
-          segment._oldRegion = oldSegment.segmentRect.outerRect;
-        }
-      }
-    }
-    segment._path =
-        _findingRectSeriesDashedBorder(currentPoint, _barSeries.borderWidth);
-    segment.segmentRect =
-        _getRRectFromRect(currentPoint.region!, _barSeries.borderRadius);
-    //Tracker rect
-    if (_barSeries.isTrackVisible) {
-      segment._trackBarRect = _getRRectFromRect(
-          currentPoint.trackerRectRegion!, _barSeries.borderRadius);
-    }
-    segment._segmentRect = segment.segmentRect;
-    customizeSegment(segment);
-    _segments.add(segment);
-    return segment;
-  }
-
-  /// To draw bar segement
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment segment) {
-    if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex!], _chart);
-    }
-    segment.onPaint(canvas);
-  }
-
-  /// Creates a segment for a data point in the series.
-  @override
-  BarSegment createSegment() => BarSegment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  void customizeSegment(ChartSegment segment) {
-    final BarSegment barSegment = segment as BarSegment;
-    barSegment._color = segment._seriesRenderer._seriesColor;
-    barSegment._strokeColor = segment._series.borderColor;
-    barSegment._strokeWidth = segment._series.borderWidth;
-    barSegment.strokePaint = barSegment.getStrokePaint();
-    barSegment.fillPaint = barSegment.getFillPaint();
-    barSegment._trackerFillPaint = barSegment._getTrackerFillPaint();
-    barSegment._trackerStrokePaint = barSegment._getTrackerStrokePaint();
-  }
-
-  ///Draws marker with different shape and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {
-    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
-  }
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }

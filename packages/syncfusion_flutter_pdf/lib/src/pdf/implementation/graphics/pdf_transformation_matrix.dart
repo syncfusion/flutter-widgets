@@ -1,40 +1,47 @@
-part of pdf;
+import 'dart:math';
+import '../drawing/drawing.dart';
 
 /// Class for representing Root transformation matrix.
-class _PdfTransformationMatrix {
+class PdfTransformationMatrix {
   //Constructor
-  ///Initializes a new instance of the [_PdfTransformationMatrix] class as the
-  _PdfTransformationMatrix() {
-    _matrix = _Matrix(<double>[1, 0, 0, 1, 0, 0]);
+  ///Initializes a new instance of the [PdfTransformationMatrix] class as the
+  PdfTransformationMatrix() {
+    matrix = Matrix(<double>[1, 0, 0, 1, 0, 0]);
   }
 
   //Fields
-  late _Matrix _matrix;
+  /// internal field
+  late Matrix matrix;
 
   //Implementation
-  void _translate(double offsetX, double offsetY) {
-    _matrix._translate(offsetX, offsetY);
+  /// internal method
+  void translate(double offsetX, double offsetY) {
+    matrix.translate(offsetX, offsetY);
   }
 
-  void _scale(double scaleX, double scaleY) {
-    _matrix._scale(scaleX, scaleY);
+  /// internal method
+  void scale(double scaleX, double scaleY) {
+    matrix.scale(scaleX, scaleY);
   }
 
-  void _multiply(_PdfTransformationMatrix matrix) {
-    _matrix._multiply(matrix._matrix);
+  /// internal method
+  void multiply(PdfTransformationMatrix matrix) {
+    this.matrix.multiply(matrix.matrix);
   }
 
-  void _rotate(double angle) {
+  /// internal method
+  void rotate(double angle) {
     angle = double.parse(
         (angle * 3.1415926535897931 / 180).toStringAsExponential(9));
-    _matrix._elements[0] = cos(angle);
-    _matrix._elements[1] = sin(angle);
-    _matrix._elements[2] = -sin(angle);
-    _matrix._elements[3] = cos(angle);
+    matrix.elements[0] = cos(angle);
+    matrix.elements[1] = sin(angle);
+    matrix.elements[2] = -sin(angle);
+    matrix.elements[3] = cos(angle);
   }
 
-  void _skew(double angleX, double angleY) {
-    _matrix._multiply(_Matrix(<double>[
+  /// internal method
+  void skew(double angleX, double angleY) {
+    matrix.multiply(Matrix(<double>[
       1,
       tan((pi / 180) * angleX),
       tan((pi / 180) * angleY),
@@ -44,11 +51,12 @@ class _PdfTransformationMatrix {
     ]));
   }
 
-  String _toString() {
+  /// internal method
+  String getString() {
     String builder = '';
     const String whitespace = ' ';
-    for (int i = 0; i < _matrix._elements.length; i++) {
-      String value = _matrix._elements[i].toStringAsFixed(2);
+    for (int i = 0; i < matrix.elements.length; i++) {
+      String value = matrix.elements[i].toStringAsFixed(2);
       if (value.endsWith('.00')) {
         if (value.length == 3) {
           value = '0';
@@ -63,56 +71,59 @@ class _PdfTransformationMatrix {
 }
 
 /// Encapsulates a 3-by-3 affine matrix that represents a geometric transform.
-class _Matrix {
+class Matrix {
   // Constructor
-  ///Initializes a new instance of the [_Matrix] class as the
-  _Matrix(List<double> elements) {
-    _elements = elements;
-  }
+  /// Initializes a new instance of the [Matrix] class as the
+  Matrix(this.elements);
 
   //Fields
-  late List<double> _elements;
+  /// internal field
+  late List<double> elements;
 
   // Properties
-  double? get _offsetX => _elements[4];
-  double? get _offsetY => _elements[5];
+  double? get _offsetX => elements[4];
+  double? get _offsetY => elements[5];
 
   // Implementation
-  void _translate(double offsetX, double offsetY) {
-    _elements[4] = offsetX;
-    _elements[5] = offsetY;
+  /// internal field
+  void translate(double offsetX, double offsetY) {
+    elements[4] = offsetX;
+    elements[5] = offsetY;
   }
 
   // ignore: unused_element
-  _Point _transform(_Point point) {
+  /// internal method
+  PdfPoint transform(PdfPoint point) {
     final double x = point.x;
     final double y = point.y;
-    final double x2 = x * _elements[0] + y * _elements[2] + _offsetX!;
-    final double y2 = x * _elements[1] + y * _elements[3] + _offsetY!;
-    return _Point(x2, y2);
+    final double x2 = x * elements[0] + y * elements[2] + _offsetX!;
+    final double y2 = x * elements[1] + y * elements[3] + _offsetY!;
+    return PdfPoint(x2, y2);
   }
 
-  void _scale(double scaleX, double scaleY) {
-    _elements[0] = scaleX;
-    _elements[3] = scaleY;
+  /// internal method
+  void scale(double scaleX, double scaleY) {
+    elements[0] = scaleX;
+    elements[3] = scaleY;
   }
 
-  void _multiply(_Matrix matrix) {
+  /// internal method
+  void multiply(Matrix matrix) {
     final List<double> tempMatrix = List<double>.filled(6, 0, growable: true);
-    tempMatrix[0] = (_elements[0] * matrix._elements[0]) +
-        (_elements[1] * matrix._elements[2]);
-    tempMatrix[1] = (_elements[0] * matrix._elements[1]) +
-        (_elements[1] * matrix._elements[3]);
-    tempMatrix[2] = (_elements[2] * matrix._elements[0]) +
-        (_elements[3] * matrix._elements[2]);
-    tempMatrix[3] = (_elements[2] * matrix._elements[1]) +
-        (_elements[3] * matrix._elements[3]);
-    tempMatrix[4] = (_offsetX! * matrix._elements[0]) +
-        (_offsetY! * matrix._elements[2] + matrix._offsetX!);
-    tempMatrix[5] = (_offsetX! * matrix._elements[1]) +
-        (_offsetY! * matrix._elements[3] + matrix._offsetY!);
+    tempMatrix[0] =
+        (elements[0] * matrix.elements[0]) + (elements[1] * matrix.elements[2]);
+    tempMatrix[1] =
+        (elements[0] * matrix.elements[1]) + (elements[1] * matrix.elements[3]);
+    tempMatrix[2] =
+        (elements[2] * matrix.elements[0]) + (elements[3] * matrix.elements[2]);
+    tempMatrix[3] =
+        (elements[2] * matrix.elements[1]) + (elements[3] * matrix.elements[3]);
+    tempMatrix[4] = (_offsetX! * matrix.elements[0]) +
+        (_offsetY! * matrix.elements[2] + matrix._offsetX!);
+    tempMatrix[5] = (_offsetX! * matrix.elements[1]) +
+        (_offsetY! * matrix.elements[3] + matrix._offsetY!);
     for (int i = 0; i < tempMatrix.length; i++) {
-      _elements[i] = tempMatrix[i];
+      elements[i] = tempMatrix[i];
     }
   }
 }

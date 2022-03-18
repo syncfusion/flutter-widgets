@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
@@ -111,6 +110,7 @@ class AppointmentLayout extends StatefulWidget {
   }
 
   @override
+  // ignore: library_private_types_in_public_api
   _AppointmentLayoutState createState() => _AppointmentLayoutState();
 }
 
@@ -218,7 +218,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
                 date,
                 List<dynamic>.unmodifiable(<dynamic>[
                   CalendarViewHelper.getAppointmentDetail(
-                      appointmentView.appointment!)
+                      appointmentView.appointment!, widget.calendar.dataSource)
                 ]),
                 Rect.fromLTWH(
                     appointmentView.appointmentRect!.left,
@@ -257,7 +257,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
                   date,
                   List<dynamic>.unmodifiable(
                       CalendarViewHelper.getCustomAppointments(
-                          moreAppointments)),
+                          moreAppointments, widget.calendar.dataSource)),
                   Rect.fromLTWH(moreRegionRect.left, moreRegionRect.top,
                       moreRegionRect.width, moreRegionRect.height),
                   isMoreAppointmentRegion: true));
@@ -317,7 +317,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
       final List<int> keys = _monthAppointmentCountViews.keys.toList();
       for (int i = 0; i < keys.length; i++) {
         // ignore: unnecessary_nullable_for_final_variable_declarations
-        final RRect? rect = _monthAppointmentCountViews[keys[i]]!;
+        final RRect? rect = _monthAppointmentCountViews[keys[i]];
 
         if (rect != null &&
             rect.left <= x &&
@@ -506,7 +506,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         visibleStartIndex,
         visibleEndIndex);
     final TextStyle style =
-        widget.calendar.todayTextStyle ?? widget.calendarTheme.todayTextStyle;
+        widget.calendar.todayTextStyle ?? widget.calendarTheme.todayTextStyle!;
     final TextSpan dateText =
         TextSpan(text: DateTime.now().day.toString(), style: style);
     _textPainter = _updateTextPainter(
@@ -528,7 +528,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         (cellHeight - startPosition) / maximumDisplayCount;
     // right side padding used to add padding on appointment view right side
     // in month view
-    final double cellEndPadding = widget.calendar.cellEndPadding;
+    final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+        widget.calendar.cellEndPadding, widget.isMobilePlatform);
     for (int i = 0; i < _appointmentCollection.length; i++) {
       final AppointmentView appointmentView = _appointmentCollection[i];
       if (appointmentView.canReuse || appointmentView.appointment == null) {
@@ -611,7 +612,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
               yPosition,
               cellWidth - cellEndPadding > 0 ? cellWidth - cellEndPadding : 0,
               appointmentHeight - 1),
-          const Radius.circular(0));
+          Radius.zero);
 
       _monthAppointmentCountViews[index] = moreRegionRect;
     }
@@ -632,7 +633,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
     final double cellWidth = width / count;
     final double cellHeight = widget.timeIntervalHeight;
     double xPosition = timeLabelWidth;
-    final double cellEndPadding = widget.calendar.cellEndPadding;
+    final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+        widget.calendar.cellEndPadding, widget.isMobilePlatform);
 
     final int timeInterval = CalendarViewHelper.getTimeInterval(
         widget.calendar.timeSlotViewSettings);
@@ -660,7 +662,10 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
 
       if (column == -1 ||
           appointment.isSpanned ||
-          (appointment.endTime.difference(appointment.startTime).inDays > 0) ||
+          AppointmentHelper.getDifference(
+                      appointment.startTime, appointment.endTime)
+                  .inDays >
+              0 ||
           appointment.isAllDay) {
         continue;
       }
@@ -681,11 +686,10 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
             timeLabelWidth;
       }
 
-      Duration difference =
-          appointment.actualEndTime.difference(appointment.actualStartTime);
+      Duration difference = AppointmentHelper.getDifference(
+          appointment.actualStartTime, appointment.actualEndTime);
       final double minuteHeight = cellHeight / timeInterval;
       double yPosition = totalMins * minuteHeight;
-
       double height = difference.inMinutes * minuteHeight;
       if (widget.calendar.timeSlotViewSettings.minimumAppointmentDuration !=
               null &&
@@ -793,7 +797,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
     final double cellWidth = widget.timeIntervalHeight;
     double xPosition = 0;
     double yPosition = 0;
-    final double cellEndPadding = widget.calendar.cellEndPadding;
+    final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+        widget.calendar.cellEndPadding, widget.isMobilePlatform);
     final double slotHeight =
         isResourceEnabled ? widget.resourceItemHeight! : widget.height;
     final double timelineAppointmentHeight = _getTimelineAppointmentHeight(
@@ -842,7 +847,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
       }
 
       final DateTime endTime = appointment.actualEndTime;
-      final Duration difference = endTime.difference(startTime);
+      final Duration difference =
+          AppointmentHelper.getDifference(startTime, endTime);
 
       /// The width for the appointment UI, calculated based on the date
       /// difference between the start and end time of the appointment.
@@ -914,15 +920,17 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
     double yPosition = 0;
     final int timeInterval = CalendarViewHelper.getTimeInterval(
         widget.calendar.timeSlotViewSettings);
-    final double cellEndPadding = widget.calendar.cellEndPadding;
+    final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+        widget.calendar.cellEndPadding, widget.isMobilePlatform);
     final int viewStartHour =
         widget.calendar.timeSlotViewSettings.startHour.toInt();
     final double viewStartMinutes =
         (widget.calendar.timeSlotViewSettings.startHour - viewStartHour) * 60;
     final double timelineAppointmentHeight = _getTimelineAppointmentHeight(
         widget.calendar.timeSlotViewSettings, widget.view);
-    final double slotHeight =
-        isResourceEnabled ? widget.resourceItemHeight! : widget.height;
+    final double slotHeight = isResourceEnabled
+        ? widget.resourceItemHeight! - cellEndPadding
+        : widget.height - cellEndPadding;
     for (int i = 0; i < _appointmentCollection.length; i++) {
       final AppointmentView appointmentView = _appointmentCollection[i];
       if (appointmentView.canReuse || appointmentView.appointment == null) {
@@ -1031,8 +1039,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
       if (widget.calendar.timeSlotViewSettings.minimumAppointmentDuration !=
               null &&
           widget.calendar.timeSlotViewSettings.minimumAppointmentDuration! >
-              appointment.actualEndTime
-                  .difference(appointment.actualStartTime)) {
+              AppointmentHelper.getDifference(
+                  appointment.actualStartTime, appointment.actualEndTime)) {
         final double minWidth =
             AppointmentHelper.getAppointmentHeightFromDuration(
                 widget.calendar.timeSlotViewSettings.minimumAppointmentDuration,
@@ -1041,15 +1049,12 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         width = width > minWidth ? width : minWidth;
       }
 
-      width = width - cellEndPadding;
       final Radius cornerRadius = Radius.circular(
           (appointmentHeight * 0.1) > 2 ? 2 : (appointmentHeight * 0.1));
+      width = width > 1 ? width - 1 : 0;
       final RRect rect = RRect.fromRectAndRadius(
-          Rect.fromLTWH(
-              widget.isRTL ? xPosition - width : xPosition,
-              yPosition,
-              width > 0 ? width : 0,
-              appointmentHeight > 1 ? appointmentHeight - 1 : 0),
+          Rect.fromLTWH(widget.isRTL ? xPosition - width : xPosition, yPosition,
+              width, appointmentHeight > 1 ? appointmentHeight - 1 : 0),
           cornerRadius);
       appointmentView.appointmentRect = rect;
     }
@@ -2026,10 +2031,10 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
 
       double startXPosition = 0;
       if (isRTL) {
-        startXPosition = (6 - (i % DateTime.daysPerWeek).toInt()) * cellWidth;
+        startXPosition = (6 - (i % DateTime.daysPerWeek)) * cellWidth;
       } else {
-        startXPosition = (((i % DateTime.daysPerWeek).toInt()) * cellWidth) +
-            _weekNumberPanelWidth;
+        startXPosition =
+            ((i % DateTime.daysPerWeek) * cellWidth) + _weekNumberPanelWidth;
       }
 
       xPosition += startXPosition;
@@ -2226,9 +2231,9 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
 
     final double yPosition = rect.top + bottomPadding;
     canvas.translate(xPosition, yPosition);
-    final double radians = 90 * math.pi / 180;
+    const double radians = 90 * math.pi / 180;
     canvas.rotate(radians);
-    _textPainter.paint(canvas, const Offset(0, 0));
+    _textPainter.paint(canvas, Offset.zero);
     canvas.restore();
   }
 
@@ -2268,9 +2273,9 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     final double yPosition =
         rect.bottom - (textSize * textScaleFactor) - bottomPadding;
     canvas.translate(xPosition, yPosition);
-    final double radians = 90 * math.pi / 180;
+    const double radians = 90 * math.pi / 180;
     canvas.rotate(radians);
-    _textPainter.paint(canvas, const Offset(0, 0));
+    _textPainter.paint(canvas, Offset.zero);
     canvas.restore();
   }
 

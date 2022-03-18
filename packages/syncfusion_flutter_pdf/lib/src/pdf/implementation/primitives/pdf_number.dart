@@ -1,7 +1,11 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../io/enums.dart';
+import '../io/pdf_cross_table.dart';
 
-class _PdfNumber implements _IPdfPrimitive {
-  _PdfNumber(num number) {
+/// internal class
+class PdfNumber implements IPdfPrimitive {
+  /// internal constructor
+  PdfNumber(num number) {
     if (number.isNaN) {
       throw ArgumentError.value(number, 'is not a number');
     } else {
@@ -10,13 +14,14 @@ class _PdfNumber implements _IPdfPrimitive {
   }
 
   //Fields
+  /// internal field
   num? value;
   bool? _isSaving;
   int? _objectCollectionIndex;
   int? _position;
-  _ObjectStatus? _status;
+  PdfObjectStatus? _status;
 
-  //_IPdfPrimitive members
+  //IPdfPrimitive members
   @override
   bool? get isSaving {
     _isSaving ??= false;
@@ -51,21 +56,21 @@ class _PdfNumber implements _IPdfPrimitive {
   }
 
   @override
-  _ObjectStatus? get status {
-    _status ??= _ObjectStatus.none;
+  PdfObjectStatus? get status {
+    _status ??= PdfObjectStatus.none;
     return _status;
   }
 
   @override
-  set status(_ObjectStatus? value) {
+  set status(PdfObjectStatus? value) {
     _status = value;
   }
 
   @override
-  _IPdfPrimitive? clonedObject;
+  IPdfPrimitive? clonedObject;
 
   @override
-  void save(_IPdfWriter? writer) {
+  void save(IPdfWriter? writer) {
     if (value is double) {
       String numberValue = value!.toStringAsFixed(2);
       if (numberValue.endsWith('.00')) {
@@ -75,9 +80,9 @@ class _PdfNumber implements _IPdfPrimitive {
           numberValue = numberValue.substring(0, numberValue.length - 3);
         }
       }
-      writer!._write(numberValue);
+      writer!.write(numberValue);
     } else {
-      writer!._write(value.toString());
+      writer!.write(value.toString());
     }
   }
 
@@ -89,5 +94,5 @@ class _PdfNumber implements _IPdfPrimitive {
   }
 
   @override
-  _IPdfPrimitive _clone(_PdfCrossTable crossTable) => _PdfNumber(value!);
+  IPdfPrimitive cloneObject(PdfCrossTable crossTable) => PdfNumber(value!);
 }

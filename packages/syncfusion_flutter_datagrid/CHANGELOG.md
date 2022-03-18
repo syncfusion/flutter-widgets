@@ -1,5 +1,93 @@
 ## Unreleased
 
+**Bugs**
+
+* Other cell will not be moved into edit mode when trying to click it and returning false from `canSubmitCell` method for currentcell.
+
+**Features**
+
+* Provided the support to check whether the currentcell is in editing mode using `DataGridController.isCurrentCellInEditing` property.
+* Provided the support to set the custom sort icon using `SfDataGridThemeData.sortIcon` property.
+
+## [19.4.54] - 03/01/2022 
+
+**Bugs**
+
+* Horizontal scrollbar will no longer be shown when you type the text beyond the cell width on editing.
+
+## [19.4.50] - 02/08/2022
+
+**Bugs**
+
+* Cell will no longer be navigated to non visible column's cell which is placed in 0th index.
+
+## [19.4.42] - 01/11/2022
+
+**Bugs**
+
+* The null check operator exception will no longer be thrown when long press the table summary rows
+
+## [19.4.38] - 12/17/2021
+
+**Features**
+
+* Provided the support to set the different swipe offset for right and left swiping.
+* Provided the support to select multiple rows when tapping another row and press and hold the SHIFT key
+* Provided the support to wrap the DataGrid’s width and height based on number of rows and columns available when DataGrid’s  parent size is infinity.
+* Provided the support to show a dropdown button for choosing a different number of rows to show on each page.
+* Provided the support to set the number of rows to be added with the currently visible items in viewport size for reusing during vertical scrolling.
+
+**Bugs**
+
+* Range exception will no longer be thrown when DataGridSource is changed at run time with multiple rows are selected.
+
+## [19.3.55] - 11/23/2021
+
+**Bugs**
+
+* The `assertion failed` exception will no longer be thrown when you scroll horizontally using scrollbar thumb track and `isScrollbarAlwaysShown` is enabled.
+
+## [19.3.54] - 11/17/2021
+
+**Bugs**
+
+* Now, `onQueryRowHeight` callback will be called for all the rows in view when all the rows are available in view.
+
+## [19.3.53] - 11/12/2021
+
+**Breaking changes**
+
+* Now, [onCellLongPress](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/SfDataGrid/onCellLongPress.html) callback will be called when long a pointer has remained in contact with the screen at the same location for a long period of time.
+
+## [19.3.47] - 26/10/2021
+
+**Bugs**
+
+* `debugDisposed` and `debugDuringDeviceUpdate` errors are no longer occurred in debug mode when rebuilding the app from any of the DataGrid's `onCellDoubleTap` callback.
+
+## [19.3.44] - 10/05/2021
+
+**Features**
+* Provided the support to export the DataGrid content with sorted order.
+
+**Bugs**
+* The focus is now retained in the `TextField`, which is outside the DataGrid, when calling the `notifyListeners` from TextField’s `onPressed` callback to update the data in DataGrid.
+
+## [19.3.43] - 10/01/2021
+ 
+**Features**
+* Provided the support to resize the columns by tapping and dragging the right border of the column header.
+* Provided the support to show an additional unbound row to display a summary or totals. Users can display a minimum, maximum, average, and count in columns.
+* Provided the support to export the DataGrid content, such as rows, stacked header rows, and table summary rows, to Excel and PDF format with several customization options.
+* Provided the support to show a checkbox in each row to select entire rows when the boxes are checked. Users can select or deselect all the rows by selecting the checkbox in the header.
+* Provided the support to sort all the rows in DataGrid instead of current page alone when the paging is used.
+* Provided the support to set the size for the page buttons in `SfDataPager`.
+ 
+**Breaking changes**
+* The `onCellRenderersCreated` callback has been removed from the `SfDataGrid`.
+
+## [19.2.44-beta] - 06/30/2021
+
 **Features**
 * Provided the support to edit cell values. An editor widget can be loaded based on the column type to edit cell values.
 * Provided the support to fit the rows and columns based on the value of the cells to improve readability.
@@ -10,6 +98,8 @@
 
 **Breaking changes**
 * [GridTextColumn](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/GridTextColumn-class.html) class has been deprecated. Use [GridColumn](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/GridColumn-class.html) instead.
+* \#I324459 - The DataGrid's built-in left and top borders have been removed. Set the required border configuration in the [Container](https://api.flutter.dev/flutter/widgets/Container-class.html) widget and add `SfDataGrid` as a child.
+* The `DataGridSource` class's `handleSort` method has been removed. To write the whole logic for custom sorting, override the `performSorting` method in `DataGridSource` class.
 
 ## [19.1.67-beta] - 06/08/2021
 

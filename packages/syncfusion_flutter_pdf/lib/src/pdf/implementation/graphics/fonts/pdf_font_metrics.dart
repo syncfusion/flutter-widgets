@@ -1,7 +1,11 @@
-part of pdf;
+import '../../primitives/pdf_array.dart';
+import '../../primitives/pdf_number.dart';
+import 'enums.dart';
+import 'pdf_font.dart';
+import 'pdf_string_format.dart';
 
 /// Metrics of the font.
-class _PdfFontMetrics {
+class PdfFontMetrics {
   //Fields
   /// Gets ascent of the font.
   double ascent = 0;
@@ -35,14 +39,16 @@ class _PdfFontMetrics {
 
   /// Superscript size factor.
   double? superscriptSizeFactor;
-  _WidthTable? _widthTable;
+
+  /// internal field
+  WidthTable? widthTable;
 
   /// Indicate whether the true type font reader font has bold style.
   bool? isBold;
 
   //Implementation
   /// Calculates size of the font depending on the subscript/superscript value.
-  double? _getSize([PdfStringFormat? format]) {
+  double? getSize([PdfStringFormat? format]) {
     double? _size = size;
     if (format != null) {
       switch (format.subSuperscript) {
@@ -60,40 +66,42 @@ class _PdfFontMetrics {
   }
 
   /// Returns height taking into consideration font's size.
-  double _getHeight(PdfStringFormat? format) {
-    return _getDescent(format) < 0
-        ? (_getAscent(format) - _getDescent(format) + _getLineGap(format))
-        : (_getAscent(format) + _getDescent(format) + _getLineGap(format));
+  double getHeight(PdfStringFormat? format) {
+    return getDescent(format) < 0
+        ? (getAscent(format) - getDescent(format) + _getLineGap(format))
+        : (getAscent(format) + getDescent(format) + _getLineGap(format));
   }
 
   /// Returns descent taking into consideration font's size.
-  double _getDescent(PdfStringFormat? format) {
-    return descent * PdfFont._characterSizeMultiplier * _getSize(format)!;
+  double getDescent(PdfStringFormat? format) {
+    return descent * PdfFontHelper.characterSizeMultiplier * getSize(format)!;
   }
 
   /// Returns ascent taking into consideration font's size.
-  double _getAscent(PdfStringFormat? format) {
-    return ascent * PdfFont._characterSizeMultiplier * _getSize(format)!;
+  double getAscent(PdfStringFormat? format) {
+    return ascent * PdfFontHelper.characterSizeMultiplier * getSize(format)!;
   }
 
   /// Returns Line gap taking into consideration font's size.
   double _getLineGap(PdfStringFormat? format) {
-    return lineGap * PdfFont._characterSizeMultiplier * _getSize(format)!;
+    return lineGap * PdfFontHelper.characterSizeMultiplier * getSize(format)!;
   }
 }
 
 /// The base class for a width table.
-abstract class _WidthTable {
+abstract class WidthTable {
+  /// internal property
   int? operator [](int index);
 
   /// Toes the array.
-  _PdfArray toArray();
+  PdfArray toArray();
 }
 
 /// Implements a width table for standard fonts.
-class _StandardWidthTable extends _WidthTable {
+class StandardWidthTable extends WidthTable {
   //Constructor
-  _StandardWidthTable(List<int> widths) : super() {
+  /// internal constructor
+  StandardWidthTable(List<int> widths) : super() {
     _widths = widths;
   }
   // Fields
@@ -110,15 +118,16 @@ class _StandardWidthTable extends _WidthTable {
   }
 
   @override
-  _PdfArray toArray() {
-    final _PdfArray arr = _PdfArray(_widths);
+  PdfArray toArray() {
+    final PdfArray arr = PdfArray(_widths);
     return arr;
   }
 }
 
-class _CjkWidthTable extends _WidthTable {
+/// internal class
+class CjkWidthTable extends WidthTable {
   /// Initializes a new instance of the [CjkWidthTable] class.
-  _CjkWidthTable(this.defaultWidth) {
+  CjkWidthTable(this.defaultWidth) {
     width = <_CjkWidth>[];
   }
 
@@ -139,13 +148,14 @@ class _CjkWidthTable extends _WidthTable {
     return newWidth;
   }
 
+  /// internal method
   void add(_CjkWidth widths) {
     width.add(widths);
   }
 
   @override
-  _PdfArray toArray() {
-    final _PdfArray arr = _PdfArray();
+  PdfArray toArray() {
+    final PdfArray arr = PdfArray();
     for (final _CjkWidth widths in width) {
       widths.appendToArray(arr);
     }
@@ -165,12 +175,13 @@ abstract class _CjkWidth {
   int operator [](int index);
 
   /// Appends internal data to a PDF array.
-  void appendToArray(_PdfArray arr);
+  void appendToArray(PdfArray arr);
 }
 
 /// Implements capabilities to control a range of character with the same width.
-class _CjkSameWidth extends _CjkWidth {
-  _CjkSameWidth(this.from, this.to, this.width) {
+class CjkSameWidth extends _CjkWidth {
+  /// internal constructor
+  CjkSameWidth(this.from, this.to, this.width) {
     if (from > to) {
       throw ArgumentError("'From' can't be grater than 'to'.");
     }
@@ -196,17 +207,18 @@ class _CjkSameWidth extends _CjkWidth {
   }
 
   @override
-  void appendToArray(_PdfArray arr) {
-    arr._add(_PdfNumber(from));
-    arr._add(_PdfNumber(to));
-    arr._add(_PdfNumber(width));
+  void appendToArray(PdfArray arr) {
+    arr.add(PdfNumber(from));
+    arr.add(PdfNumber(to));
+    arr.add(PdfNumber(width));
   }
 }
 
 /// Implements capabilities to control a sequent range of characters
 /// with different width.
-class _CjkDifferentWidth extends _CjkWidth {
-  _CjkDifferentWidth(this.from, this.width);
+class CjkDifferentWidth extends _CjkWidth {
+  /// internal constructor
+  CjkDifferentWidth(this.from, this.width);
 
   /// The form
   @override
@@ -232,9 +244,9 @@ class _CjkDifferentWidth extends _CjkWidth {
   }
 
   @override
-  void appendToArray(_PdfArray arr) {
-    arr._add(_PdfNumber(from));
-    final _PdfArray widths = _PdfArray(width);
-    arr._add(widths);
+  void appendToArray(PdfArray arr) {
+    arr.add(PdfNumber(from));
+    final PdfArray widths = PdfArray(width);
+    arr.add(widths);
   }
 }

@@ -34,7 +34,7 @@ class _DayToken extends _FormatTokenBase {
     }
 
     final DateTime date = Range._fromOADate(tempValue);
-    return DateFormat(' ' + _strFormatLower).format(date).substring(1);
+    return DateFormat(' $_strFormatLower').format(date).substring(1);
   }
 
   @override

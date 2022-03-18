@@ -1,14 +1,17 @@
-part of charts;
+import 'package:flutter/material.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import 'technical_indicator.dart';
 
-///Renders relative strength index (RSI) indicator.
+/// Renders relative strength index (RSI) indicator.
 ///
-///The relative strength index (RSI) is a momentum indicator that measures the magnitude of recent price
+/// The relative strength index (RSI) is a momentum indicator that measures the magnitude of recent price
 /// changes to evaluate [overbought] or [oversold] conditions.
 ///
-///The RSI indicator has additional two lines other than the signal line.They indicate the [overbought] and [oversold] region.
+/// The RSI indicator has additional two lines other than the signal line.They indicate the [overbought] and [oversold] region.
 ///
-///The [upperLineColor] property is used to define the color for the line that indicates [overbought] region, and
-///the [lowerLineColor] property is used to define the color for the line that indicates [oversold] region.
+/// The [upperLineColor] property is used to define the color for the line that indicates [overbought] region, and
+/// the [lowerLineColor] property is used to define the color for the line that indicates [oversold] region.
 @immutable
 class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of RsiIndicator class.
@@ -19,6 +22,7 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
       String? seriesName,
       List<double>? dashArray,
       double? animationDuration,
+      double? animationDelay,
       List<T>? dataSource,
       ChartValueMapper<T, D>? xValueMapper,
       ChartValueMapper<T, num>? highValueMapper,
@@ -46,6 +50,7 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
             seriesName: seriesName,
             dashArray: dashArray,
             animationDuration: animationDuration,
+            animationDelay: animationDelay,
             dataSource: dataSource,
             xValueMapper: xValueMapper,
             highValueMapper: highValueMapper,
@@ -60,123 +65,165 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
             period: period,
             onRenderDetailsUpdate: onRenderDetailsUpdate);
 
-  ///ShowZones boolean value for RSI indicator
+  /// Show zones boolean value for RSI indicator.
   ///
-  ///Defaults to `true`.
+  /// Defaults to `true`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                showZones : false,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        showZones : false
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final bool showZones;
 
-  ///Overbought value for RSI indicator.
+  /// Overbought value for RSI indicator.
   ///
-  ///Defaults to `80`.
+  /// Defaults to `80`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                overbought : 50,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        overbought : 50
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double overbought;
 
-  ///Oversold value for RSI indicator.
+  /// Oversold value for RSI indicator.
   ///
-  ///Defaults to `20`.
+  /// Defaults to `20`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                oversold : 30,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        oversold : 30
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double oversold;
 
-  ///Color of the upperLine for RSI indicator.
+  /// Color of the upper line for RSI indicator.
   ///
-  ///Defaults to `red`.
+  /// Defaults to `Colors.red`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                 upperLineColor : Colors.greenAccent,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        upperLineColor : Colors.greenAccent
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final Color upperLineColor;
 
-  ///Width of the upperLine for RSI indicator.
+  /// Width of the upper line for RSI indicator.
   ///
-  ///Defaults to `2`.
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                 upperLineWidth : 4.0,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        upperLineWidth : 4.0
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double upperLineWidth;
 
-  ///Color of the lowerLine for RSI indicator.
+  /// Color of the lower line for RSI indicator.
   ///
-  ///Defaults to `green`.
+  /// Defaults to `Colors.green`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                 lowerLineColor : Colors.blue,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        lowerLineColor : Colors.blue
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final Color lowerLineColor;
 
-  ///Width of the upperLine for RSI indicator.
+  /// Width of the lower line for RSI indicator.
   ///
-  ///Defaults to `2`.
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                 lowerLineWidth : 4.0,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        lowerLineWidth : 4.0
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double lowerLineWidth;
 
   @override
@@ -195,6 +242,7 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
         other.seriesName == seriesName &&
         other.dashArray == dashArray &&
         other.animationDuration == animationDuration &&
+        other.animationDelay == animationDelay &&
         other.dataSource == dataSource &&
         other.xValueMapper == xValueMapper &&
         other.highValueMapper == highValueMapper &&
@@ -225,6 +273,7 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
       seriesName,
       dashArray,
       animationDuration,
+      animationDelay,
       dataSource,
       xValueMapper,
       highValueMapper,
@@ -246,118 +295,5 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
       lowerLineWidth
     ];
     return hashList(values);
-  }
-
-  /// To initialise indicators collections
-  // ignore:unused_element
-  void _initSeriesCollection(
-      RsiIndicator<dynamic, dynamic> indicator,
-      SfCartesianChart chart,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    technicalIndicatorsRenderer._targetSeriesRenderers =
-        <CartesianSeriesRenderer>[];
-  }
-
-  /// To initialise data source of technical indicators
-  // ignore:unused_element
-  void _initDataSource(
-    RsiIndicator<dynamic, dynamic> indicator,
-    TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
-    SfCartesianChart chart,
-  ) {
-    final List<CartesianChartPoint<dynamic>> signalCollection =
-            <CartesianChartPoint<dynamic>>[],
-        lowerCollection = <CartesianChartPoint<dynamic>>[],
-        upperCollection = <CartesianChartPoint<dynamic>>[],
-        validData = technicalIndicatorsRenderer._dataPoints!;
-
-    final List<dynamic> xValues = <dynamic>[], signalXValues = <dynamic>[];
-
-    if (validData.isNotEmpty &&
-        validData.length >= indicator.period &&
-        indicator.period > 0) {
-      if (indicator.showZones) {
-        for (int i = 0; i < validData.length; i++) {
-          upperCollection.add(technicalIndicatorsRenderer._getDataPoint(
-              validData[i].x,
-              indicator.overbought,
-              validData[i],
-              upperCollection.length));
-          lowerCollection.add(technicalIndicatorsRenderer._getDataPoint(
-              validData[i].x,
-              indicator.oversold,
-              validData[i],
-              lowerCollection.length));
-          xValues.add(validData[i].x);
-        }
-      }
-      num prevClose = validData[0].close ?? 0, gain = 0, loss = 0;
-      for (int i = 1; i <= indicator.period; i++) {
-        final num close = validData[i].close ?? 0.0;
-        if (close > prevClose) {
-          gain += close - prevClose;
-        } else {
-          loss += prevClose - close;
-        }
-        prevClose = close;
-      }
-      gain = gain / indicator.period;
-      loss = loss / indicator.period;
-
-      signalCollection.add(technicalIndicatorsRenderer._getDataPoint(
-          validData[indicator.period].x,
-          100 - (100 / (1 + (gain / loss))),
-          validData[indicator.period],
-          signalCollection.length));
-      signalXValues.add(validData[indicator.period].x);
-
-      for (int j = indicator.period + 1; j < validData.length; j++) {
-        if (!validData[j].isGap && !validData[j].isDrop) {
-          final num close = validData[j].close;
-          if (close > prevClose) {
-            gain = (gain * (indicator.period - 1) + (close - prevClose)) /
-                indicator.period;
-            loss = (loss * (indicator.period - 1)) / indicator.period;
-          } else if (close < prevClose) {
-            loss = (loss * (indicator.period - 1) + (prevClose - close)) /
-                indicator.period;
-            gain = (gain * (indicator.period - 1)) / indicator.period;
-          }
-          prevClose = close;
-          signalCollection.add(technicalIndicatorsRenderer._getDataPoint(
-              validData[j].x,
-              100 - (100 / (1 + (gain / loss))),
-              validData[j],
-              signalCollection.length));
-          signalXValues.add(validData[j].x);
-        }
-      }
-    }
-    technicalIndicatorsRenderer._renderPoints = signalCollection;
-    // Decides the type of renderer class to be used
-    const bool isLine = true;
-    // final CartesianSeriesRenderer signalSeriesRenderer =
-    //     technicalIndicatorsRenderer._targetSeriesRenderers[0];
-    technicalIndicatorsRenderer._setSeriesProperties(
-        indicator,
-        indicator.name ?? 'RSI',
-        indicator.signalLineColor,
-        indicator.signalLineWidth,
-        chart);
-    if (indicator.showZones == true) {
-      technicalIndicatorsRenderer._setSeriesProperties(indicator, 'UpperLine',
-          indicator.upperLineColor, indicator.upperLineWidth, chart, isLine);
-      technicalIndicatorsRenderer._setSeriesProperties(indicator, 'LowerLine',
-          indicator.lowerLineColor, indicator.lowerLineWidth, chart, isLine);
-    }
-
-    technicalIndicatorsRenderer._setSeriesRange(signalCollection, indicator,
-        signalXValues, technicalIndicatorsRenderer._targetSeriesRenderers[0]);
-    if (indicator.showZones) {
-      technicalIndicatorsRenderer._setSeriesRange(upperCollection, indicator,
-          xValues, technicalIndicatorsRenderer._targetSeriesRenderers[1]);
-      technicalIndicatorsRenderer._setSeriesRange(lowerCollection, indicator,
-          xValues, technicalIndicatorsRenderer._targetSeriesRenderers[2]);
-    }
   }
 }

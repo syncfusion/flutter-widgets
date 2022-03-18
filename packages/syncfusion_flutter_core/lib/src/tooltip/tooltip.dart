@@ -149,7 +149,7 @@ class SfTooltipState extends State<SfTooltip>
 
   Timer? _timer;
 
-  bool _hidden = false, _animating = false, _didUpdate = false;
+  bool _hidden = false, _animating = false, _didUpdate = false, _isRtl = false;
 
   Object? _previousTooltipData;
 
@@ -211,7 +211,7 @@ class SfTooltipState extends State<SfTooltip>
       }
     } else {
       if (!_animating) {
-        animationController!.duration = const Duration(milliseconds: 0);
+        animationController!.duration = Duration.zero;
       }
     }
   }
@@ -243,6 +243,12 @@ class SfTooltipState extends State<SfTooltip>
         duration: Duration(milliseconds: widget.animationDuration), vsync: this)
       ..addStatusListener(_animationStatusListener);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    _isRtl = Directionality.of(context) == TextDirection.rtl;
+    super.didChangeDependencies();
   }
 
   @override
@@ -427,7 +433,7 @@ class TooltipRenderBox extends RenderShiftedBox {
   ///Getter for size of marker rendered in tooltip
   double get markerSize => _markerSize;
 
-  Rect _boundaryRect = const Rect.fromLTWH(0, 0, 0, 0);
+  Rect _boundaryRect = Rect.zero;
 
   List<DataMarkerType?> _markerTypes = <DataMarkerType?>[];
 
@@ -465,6 +471,7 @@ class TooltipRenderBox extends RenderShiftedBox {
       _isRight = false,
       _isTop = false,
       _isOutOfBoundInTop = false;
+  final double _templateArrowHeight = 5.0;
   late double _markerPointY;
   Rect? _tooltipRect;
   final Path _arrowPath = Path();
@@ -475,7 +482,12 @@ class TooltipRenderBox extends RenderShiftedBox {
     if (child == null || _tooltipRect == null) {
       return false;
     } else {
-      return child!.hitTest(result, position: position - _tooltipRect!.topLeft);
+      return child!.hitTest(result,
+          position: position -
+              (_isOutOfBoundInTop
+                  ? _tooltipRect!.topLeft +
+                      Offset(0, _templateArrowHeight + _tooltipRect!.height)
+                  : _tooltipRect!.topLeft));
     }
   }
 
@@ -520,19 +532,19 @@ class TooltipRenderBox extends RenderShiftedBox {
         _renderDefaultTooltipView(context.canvas);
       } else {
         _renderTemplateTooltipView(context, relativeOffset);
+        context.canvas.translate(relativeOffset.dx, relativeOffset.dy);
       }
     }
     context.canvas.translate(-relativeOffset.dx, -relativeOffset.dy);
   }
 
-  /// renders the tooltip templaate view with tooltip background, arrow and
+  /// Renders the tooltip template view with tooltip background, arrow and
   /// template
   void _renderTemplateTooltipView(PaintingContext context, Offset offset) {
-    const double arrowHeight = 5.0;
     _templateSize = Size.copy(child!.size);
     _tooltipRect = Rect.fromLTWH(
         _x! - _templateSize.width / 2,
-        _y! - _templateSize.height - arrowHeight,
+        _y! - _templateSize.height - _templateArrowHeight,
         _templateSize.width,
         _templateSize.height);
 
@@ -542,13 +554,13 @@ class TooltipRenderBox extends RenderShiftedBox {
     final Offset tooltipLocation =
         _getTemplateLocation(_tooltipRect!, bounds, offset);
     Offset arrowLocation = Offset(_x! - _templateSize.width / 2,
-        _isOutOfBoundInTop ? _y! : _y! - arrowHeight);
+        _isOutOfBoundInTop ? _y! : _y! - _templateArrowHeight);
     if (_y! < bounds.top + offset.dy) {
-      paddingTop = bounds.top + offset.dy + arrowHeight;
+      paddingTop = bounds.top + offset.dy + _templateArrowHeight;
       top = tooltipLocation.dy;
       arrowLocation = Offset(arrowLocation.dx, tooltipLocation.dy);
     }
-    top = _isOutOfBoundInTop ? top + arrowHeight : _tooltipRect!.top;
+    top = _isOutOfBoundInTop ? top + _templateArrowHeight : _tooltipRect!.top;
     if (_y! >= bounds.top + offset.dy) {
       paddingTop = top;
     }
@@ -667,15 +679,14 @@ class TooltipRenderBox extends RenderShiftedBox {
     _y = position?.dy;
   }
 
-  /// renders the default tooltip view with a tooltip rect, arrow, header and
+  /// Renders the default tooltip view with a tooltip rect, arrow, header and
   /// content
   void _renderDefaultTooltipView(Canvas canvas) {
     _isLeft = false;
     _isRight = false;
     double height = 0, width = 0, headerTextWidth = 0, headerTextHeight = 0;
     _markerSize = 0;
-    _totalWidth =
-        _boundaryRect.left.toDouble() + _boundaryRect.width.toDouble();
+    _totalWidth = _boundaryRect.left + _boundaryRect.width;
     //ignore: prefer_final_locals
     TextStyle _textStyle = _tooltip.textStyle;
     final TextStyle textStyle =
@@ -853,21 +864,21 @@ class TooltipRenderBox extends RenderShiftedBox {
         _tooltipState.needMarker &&
         _markerTypes.isNotEmpty) {
       if (_markerTypes.length == 1) {
-        final Offset markerPoint = Offset(
-            tooltipRect.left + tooltipRect.width / 2 - result.width / 2,
-            ((tooltipRect.top + tooltipRect.height) - result.height / 2) -
-                markerSize);
+        final Offset markerPoint =
+            _getMarkerPosition(result, markerSize, tooltipRect);
         _drawMarkers(markerPoint, canvas, animationFactor, 0);
       } else {
         double height = 0;
-        Size textSize = const Size(0, 0);
+        Size textSize = Size.zero;
         final List<String> textValues = _stringValue!.split('\n');
         for (int i = 0; i < _markerTypes.length && i < textValues.length; i++) {
           String str = '';
           str += textValues[i];
           final Size result1 = measureText(str, textStyle);
           final Offset markerPoint = Offset(
-              tooltipRect.left + tooltipRect.width / 2 - result.width / 2,
+              _tooltipState._isRtl
+                  ? tooltipRect.right - tooltipRect.width / 2 + result.width / 2
+                  : tooltipRect.left + tooltipRect.width / 2 - result.width / 2,
               (_markerPointY + height) - markerSize);
           textSize = result1;
           height += textSize.height;
@@ -880,6 +891,16 @@ class TooltipRenderBox extends RenderShiftedBox {
     _xPos = null;
     _yPos = null;
   }
+
+  /// To get the marker offset.
+  Offset _getMarkerPosition(
+          Size textSize, double markerSize, RRect tooltipRect) =>
+      Offset(
+          _tooltipState._isRtl
+              ? tooltipRect.right - tooltipRect.width / 2 + textSize.width / 2
+              : tooltipRect.left + tooltipRect.width / 2 - textSize.width / 2,
+          ((tooltipRect.top + tooltipRect.height) - textSize.height / 2) -
+              markerSize);
 
   /// This method renders the tooltip marker shapes at the specific line indices
   ///  of the marker paint list
@@ -1031,7 +1052,7 @@ class TooltipRenderBox extends RenderShiftedBox {
                   headerResult.width / 2,
               tooltipRect.top + padding / 2),
           headerTextStyle,
-          maxLinesOfHeader);
+          maxLines: maxLinesOfHeader);
 
       final Paint dividerPaint = Paint();
       dividerPaint.color = _tooltip.labelColor.withOpacity(_tooltip.opacity);
@@ -1053,35 +1074,88 @@ class TooltipRenderBox extends RenderShiftedBox {
                 tooltipRect.top + headerResult.height + padding),
             dividerPaint);
       }
-      _drawText(
-          _tooltip,
-          canvas,
-          _stringValue!,
-          Offset(
-              (tooltipRect.left + 2 * _markerSize + tooltipRect.width / 2) -
-                  result.width / 2,
-              (tooltipRect.top + tooltipRect.height) - result.height - 5),
-          textStyle,
-          _maxLinesOfTooltipContent);
+    }
+    _renderTooltipText(
+        canvas, tooltipRect, result, textStyle, _maxLinesOfTooltipContent);
+  }
+
+  void _renderTooltipText(Canvas canvas, RRect tooltipRect, Size textSize,
+      TextStyle textStyle, int maxLines) {
+    if (_tooltipState._isRtl && _stringValue!.contains('\n')) {
+      _drawMultiLineRtlText(_tooltip, canvas, _stringValue!,
+          _getTextPosition(textSize, tooltipRect, maxLines), textStyle,
+          markerSize: markerSize,
+          tooltipRect: tooltipRect,
+          totalTextSize: textSize);
     } else {
       _drawText(
-          _tooltip,
+        _tooltip,
+        canvas,
+        _stringValue!,
+        _getTextPosition(textSize, tooltipRect, maxLines),
+        textStyle,
+        maxLines: maxLines,
+      );
+    }
+  }
+
+  Offset _getTextPosition(Size textSize, RRect tooltipRect, int maxLines) {
+    double textOffsetX = 0.0;
+    if (_tooltipState._isRtl) {
+      if (maxLines > 1 && !(markerSize > 0)) {
+        textOffsetX =
+            tooltipRect.left + tooltipRect.width / 2 - textSize.width / 2;
+      } else {
+        textOffsetX = tooltipRect.right -
+            tooltipRect.width / 2 -
+            textSize.width / 2 -
+            2 * markerSize;
+      }
+    } else {
+      textOffsetX =
+          (tooltipRect.left + 2 * markerSize + tooltipRect.width / 2) -
+              textSize.width / 2;
+    }
+    return Offset(
+        textOffsetX,
+        _header!.isNotEmpty
+            ? (tooltipRect.top + tooltipRect.height) - textSize.height - 5
+            : (tooltipRect.top + tooltipRect.height / 2) - textSize.height / 2);
+  }
+
+  void _drawMultiLineRtlText(SfTooltip tooltip, Canvas canvas, String text,
+      Offset point, TextStyle style,
+      {double? markerSize, RRect? tooltipRect, Size? totalTextSize}) {
+    final List<String> textCollections = text.split('\n');
+    final double rectEndPointBeforeMarker = _getMarkerPosition(
+                totalTextSize ?? Size.zero,
+                markerSize ?? 0.0,
+                tooltipRect ?? RRect.zero)
+            .dx -
+        (2 * (markerSize ?? 0.0));
+    for (int count = 0; count < textCollections.length; count++) {
+      final Size currentTextSize = measureText(textCollections[count], style);
+      _drawText(
+          tooltip,
           canvas,
-          _stringValue!,
-          Offset(
-              (tooltipRect.left + 2 * _markerSize + tooltipRect.width / 2) -
-                  result.width / 2,
-              (tooltipRect.top + tooltipRect.height / 2) - result.height / 2),
-          textStyle,
-          _maxLinesOfTooltipContent);
+          textCollections[count],
+          Offset(rectEndPointBeforeMarker - currentTextSize.width,
+              point.dy + (currentTextSize.height * count)),
+          style);
     }
   }
 
   /// This method paints the given text at the required offset for default
   /// tooltip mode
-  void _drawText(SfTooltip tooltip, Canvas canvas, String text, Offset point,
-      TextStyle style,
-      [int? maxLines, int? rotation]) {
+  void _drawText(
+    SfTooltip tooltip,
+    Canvas canvas,
+    String text,
+    Offset point,
+    TextStyle style, {
+    int? maxLines,
+    int? rotation,
+  }) {
     TextAlign tooltipTextAlign = TextAlign.start;
     double pointX = point.dx;
     // ignore: unnecessary_null_comparison
@@ -1106,7 +1180,6 @@ class TooltipRenderBox extends RenderShiftedBox {
       }
     }
     final TextSpan span = TextSpan(text: text, style: style);
-
     final TextPainter tp = TextPainter(
         text: span,
         textDirection: TextDirection.ltr,
@@ -1118,7 +1191,7 @@ class TooltipRenderBox extends RenderShiftedBox {
     if (rotation != null && rotation > 0) {
       canvas.rotate(degreeToRadian(rotation));
     }
-    tp.paint(canvas, const Offset(0.0, 0.0));
+    tp.paint(canvas, Offset.zero);
     canvas.restore();
   }
 
@@ -1156,14 +1229,12 @@ Path _getMarkerShapesPath(
   switch (markerType) {
     case DataMarkerType.circle:
       {
-        ShapeMaker.drawCircle(
-            path, position.dx, position.dy, size.width, size.height);
+        drawCircle(path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.rectangle:
       {
-        ShapeMaker.drawRectangle(
-            path, position.dx, position.dy, size.width, size.height);
+        drawRectangle(path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.image:
@@ -1171,38 +1242,35 @@ Path _getMarkerShapesPath(
       break;
     case DataMarkerType.pentagon:
       {
-        ShapeMaker.drawPentagon(
-            path, position.dx, position.dy, size.width, size.height);
+        drawPentagon(path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.verticalLine:
       {
-        ShapeMaker.drawVerticalLine(
+        drawVerticalLine(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.invertedTriangle:
       {
-        ShapeMaker.drawInvertedTriangle(
+        drawInvertedTriangle(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.horizontalLine:
       {
-        ShapeMaker.drawHorizontalLine(
+        drawHorizontalLine(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.diamond:
       {
-        ShapeMaker.drawDiamond(
-            path, position.dx, position.dy, size.width, size.height);
+        drawDiamond(path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.triangle:
       {
-        ShapeMaker.drawTriangle(
-            path, position.dx, position.dy, size.width, size.height);
+        drawTriangle(path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.none:

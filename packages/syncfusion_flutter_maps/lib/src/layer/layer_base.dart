@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../maps.dart';
-import '../layer/shape_layer.dart';
-import '../settings.dart';
 
 /// Base class for the [MapShapeLayer] and [MapTileLayer].
 ///
@@ -13,6 +11,7 @@ abstract class MapLayer extends StatelessWidget {
   /// Creates a [MapLayer].
   const MapLayer({
     Key? key,
+    this.initialLatLngBounds,
     this.sublayers,
     this.initialMarkersCount = 0,
     this.markerBuilder,
@@ -22,6 +21,18 @@ abstract class MapLayer extends StatelessWidget {
     this.onWillZoom,
     this.onWillPan,
   }) : super(key: key);
+
+  /// Option to set the LatLng bounds initially for the tile or shape layer.
+  ///
+  /// This property cannot be updated dynamically.
+  ///
+  /// The map will be rendered based on value of [initialLatLngBounds]
+  /// property in the visible bounds.
+  ///
+  /// See also:
+  /// * [MapZoomPanBehavior.latLngBounds], for dynamically updating the
+  /// LatLng bounds.
+  final MapLatLngBounds? initialLatLngBounds;
 
   /// Collection of [MapShapeSublayer], [MapLineLayer], [MapPolylineLayer],
   /// [MapPolygonLayer], [MapCircleLayer], and [MapArcLayer].

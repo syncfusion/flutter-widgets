@@ -1,24 +1,45 @@
-part of charts;
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_charts/src/chart/user_interaction/zooming_panning.dart';
+import 'package:syncfusion_flutter_core/core.dart';
 
-///Below class is for drawing zoomRct
-class _ZoomRectPainter extends CustomPainter {
-  _ZoomRectPainter(
+import '../../common/rendering_details.dart';
+import '../../common/utils/helper.dart';
+import '../axis/axis.dart';
+import '../base/chart_base.dart';
+import '../common/cartesian_state_properties.dart';
+import '../common/interactive_tooltip.dart';
+import '../utils/helper.dart';
+
+/// Class for drawing zooming rectangle.
+class ZoomRectPainter extends CustomPainter {
+  /// Creates an instance for zoom rect painter.
+  ZoomRectPainter(
       {this.isRepaint = true,
-      required this.chartState,
+      required this.stateProperties,
       ValueNotifier<int>? notifier})
-      : chart = chartState._chart,
+      : chart = stateProperties.chart,
         super(repaint: notifier);
+
+  /// Specifies whether to repaint the zoom rect.
   final bool isRepaint;
+
+  /// Holds the value of chart.
   final SfCartesianChart chart;
-  SfCartesianChartState chartState;
+
+  /// Specifies the cartesian state properties.
+  CartesianStateProperties stateProperties;
+
+  /// Specifies the value of stroke paint and fill paint.
   late Paint strokePaint, fillPaint;
-  _RenderingDetails get renderingDetails => chartState._renderingDetails;
+
+  /// Gets the value of rendering details.
+  RenderingDetails get renderingDetails => stateProperties.renderingDetails;
 
   @override
   void paint(Canvas canvas, Size size) =>
-      chartState._zoomPanBehaviorRenderer.onPaint(canvas);
+      stateProperties.zoomPanBehaviorRenderer.onPaint(canvas);
 
-  ///  To draw Rect
+  /// To draw zooming rectangle.
   void drawRect(Canvas canvas) {
     final Color? fillColor = chart.zoomPanBehavior.selectionRectColor;
     strokePaint = Paint()
@@ -35,18 +56,18 @@ class _ZoomRectPainter extends CustomPainter {
           : renderingDetails.chartTheme.selectionRectColor
       ..style = PaintingStyle.fill;
     strokePaint.isAntiAlias = false;
-    if (chartState._zoomPanBehaviorRenderer._rectPath != null) {
+    final ZoomingBehaviorDetails zoomingBehaviorDetails =
+        ZoomPanBehaviorHelper.getRenderingDetails(
+            stateProperties.zoomPanBehaviorRenderer);
+    if (zoomingBehaviorDetails.rectPath != null) {
       canvas.drawPath(
-          !kIsWeb
-              ? _dashPath(
-                  chartState._zoomPanBehaviorRenderer._rectPath!,
-                  dashArray: _CircularIntervalList<double>(<double>[5, 5]),
-                )!
-              : chartState._zoomPanBehaviorRenderer._rectPath!,
+          dashPath(
+            zoomingBehaviorDetails.rectPath!,
+            dashArray: CircularIntervalList<double>(<double>[5, 5]),
+          )!,
           strokePaint);
-      canvas.drawRect(
-          chartState._zoomPanBehaviorRenderer._zoomingRect, fillPaint);
-      final Rect zoomRect = chartState._zoomPanBehaviorRenderer._zoomingRect;
+      canvas.drawRect(zoomingBehaviorDetails.zoomingRect, fillPaint);
+      final Rect zoomRect = zoomingBehaviorDetails.zoomingRect;
 
       /// To show the interactive tooltip on selection zooming
       if (zoomRect.width != 0) {
@@ -58,52 +79,54 @@ class _ZoomRectPainter extends CustomPainter {
     }
   }
 
-  /// To draw connector line
+  /// To draw connector line.
   void _drawConnectorLine(Canvas canvas, Offset start, Offset end) {
-    _drawAxisTooltip(chartState._chartAxis._bottomAxisRenderers, canvas, start,
-        end, 'bottom');
+    _drawAxisTooltip(stateProperties.chartAxis.bottomAxisRenderers, canvas,
+        start, end, 'bottom');
     _drawAxisTooltip(
-        chartState._chartAxis._topAxisRenderers, canvas, start, end, 'top');
-    _drawAxisTooltip(
-        chartState._chartAxis._leftAxisRenderers, canvas, start, end, 'left');
-    _drawAxisTooltip(
-        chartState._chartAxis._rightAxisRenderers, canvas, start, end, 'right');
+        stateProperties.chartAxis.topAxisRenderers, canvas, start, end, 'top');
+    _drawAxisTooltip(stateProperties.chartAxis.leftAxisRenderers, canvas, start,
+        end, 'left');
+    _drawAxisTooltip(stateProperties.chartAxis.rightAxisRenderers, canvas,
+        start, end, 'right');
   }
 
-  /// Draw axis tootip connector line
+  /// Draw axis tootip connector line.
   void _drawAxisTooltip(List<ChartAxisRenderer> axisRenderers, Canvas canvas,
       Offset startPosition, Offset endPosition, String axisPosition) {
     for (int index = 0; index < axisRenderers.length; index++) {
-      final ChartAxisRenderer axisRenderer = axisRenderers[index];
-      if (axisRenderer._axis.interactiveTooltip.enable &&
-          axisRenderer._visibleLabels.isNotEmpty) {
+      final ChartAxisRendererDetails axisDetails =
+          AxisHelper.getAxisRendererDetails(axisRenderers[index]);
+      if (axisDetails.axis.interactiveTooltip.enable &&
+          axisDetails.visibleLabels.isNotEmpty) {
         _drawTooltipConnector(
-            axisRenderer, startPosition, endPosition, canvas, axisPosition);
+            axisDetails, startPosition, endPosition, canvas, axisPosition);
       }
     }
   }
 
-  /// It returns the tooltip label on zooming
-  String _getValue(
-      Offset position, ChartAxisRenderer axisRenderer, String axisPosition) {
-    final ChartAxis axis = axisRenderer._axis;
+  /// Returns the tooltip label on zooming.
+  String _getValue(Offset position,
+      ChartAxisRendererDetails axisRendererDetails, String axisPosition) {
+    final ChartAxis axis = axisRendererDetails.axis;
     final bool isHorizontal = axisPosition == 'bottom' || axisPosition == 'top';
-    final Rect axisClipRect = chartState._chartAxis._axisClipRect;
+    final Rect axisClipRect = stateProperties.chartAxis.axisClipRect;
     final num value = isHorizontal
-        ? _pointToXVal(
+        ? pointToXVal(
             chart,
-            axisRenderer,
-            axisRenderer._bounds,
+            axisRendererDetails.axisRenderer,
+            axisRendererDetails.bounds,
             position.dx - (axisClipRect.left + axis.plotOffset),
             position.dy - (axisClipRect.top + axis.plotOffset))
-        : _pointToYVal(
+        : pointToYVal(
             chart,
-            axisRenderer,
-            axisRenderer._bounds,
+            axisRendererDetails.axisRenderer,
+            axisRendererDetails.bounds,
             position.dx - (axisClipRect.left + axis.plotOffset),
             position.dy - (axisClipRect.top + axis.plotOffset));
 
-    dynamic result = _getInteractiveTooltipLabel(value, axisRenderer);
+    dynamic result =
+        getInteractiveTooltipLabel(value, axisRendererDetails.axisRenderer);
     if (axis.interactiveTooltip.format != null) {
       final String stringValue =
           axis.interactiveTooltip.format!.replaceAll('{value}', result);
@@ -124,30 +147,30 @@ class _ZoomRectPainter extends CustomPainter {
               : smallRect.right,
           smallRect.bottom);
 
-  /// Calculate the rect, based on the zoomed axis position
-  Rect _calculateRect(ChartAxisRenderer axisRenderer, Offset position,
-      Size labelSize, String axisPosition) {
+  /// Calculate the rect, based on the zoomed axis position.
+  Rect _calculateRect(ChartAxisRendererDetails axisRendererDetails,
+      Offset position, Size labelSize, String axisPosition) {
     Rect rect;
     const double paddingForRect = 10;
     final double arrowLength =
-        axisRenderer._axis.interactiveTooltip.arrowLength;
+        axisRendererDetails.axis.interactiveTooltip.arrowLength;
     if (axisPosition == 'bottom') {
       rect = Rect.fromLTWH(
           position.dx - (labelSize.width / 2 + paddingForRect / 2),
-          axisRenderer._bounds.top + arrowLength,
+          axisRendererDetails.bounds.top + arrowLength,
           labelSize.width + paddingForRect,
           labelSize.height + paddingForRect);
     } else if (axisPosition == 'top') {
       rect = Rect.fromLTWH(
           position.dx - (labelSize.width / 2 + paddingForRect / 2),
-          axisRenderer._bounds.top -
+          axisRendererDetails.bounds.top -
               (labelSize.height + paddingForRect) -
               arrowLength,
           labelSize.width + paddingForRect,
           labelSize.height + paddingForRect);
     } else if (axisPosition == 'left') {
       rect = Rect.fromLTWH(
-          axisRenderer._bounds.left -
+          axisRendererDetails.bounds.left -
               (labelSize.width + paddingForRect) -
               arrowLength,
           position.dy - (labelSize.height + paddingForRect) / 2,
@@ -155,7 +178,7 @@ class _ZoomRectPainter extends CustomPainter {
           labelSize.height + paddingForRect);
     } else {
       rect = Rect.fromLTWH(
-          axisRenderer._bounds.left + arrowLength,
+          axisRendererDetails.bounds.left + arrowLength,
           position.dy - (labelSize.height / 2 + paddingForRect / 2),
           labelSize.width + paddingForRect,
           labelSize.height + paddingForRect);
@@ -163,9 +186,9 @@ class _ZoomRectPainter extends CustomPainter {
     return rect;
   }
 
-  /// To draw tooltip connector
+  /// To draw tooltip connector.
   void _drawTooltipConnector(
-      ChartAxisRenderer axisRenderer,
+      ChartAxisRendererDetails axisRendererDetails,
       Offset startPosition,
       Offset endPosition,
       Canvas canvas,
@@ -174,7 +197,7 @@ class _ZoomRectPainter extends CustomPainter {
     String startValue, endValue;
     Size startLabelSize, endLabelSize;
     Rect startLabelRect, endLabelRect;
-    final ChartAxis axis = axisRenderer._axis;
+    final ChartAxis axis = axisRendererDetails.axis;
     final Paint labelFillPaint = Paint()
       ..color = renderingDetails.chartTheme.crosshairBackgroundColor
       ..strokeCap = StrokeCap.butt
@@ -200,14 +223,14 @@ class _ZoomRectPainter extends CustomPainter {
     final Path startLabelPath = Path();
     final Path endLabelPath = Path();
     final bool isHorizontal = axisPosition == 'bottom' || axisPosition == 'top';
-    startValue = _getValue(startPosition, axisRenderer, axisPosition);
-    endValue = _getValue(endPosition, axisRenderer, axisPosition);
+    startValue = _getValue(startPosition, axisRendererDetails, axisPosition);
+    endValue = _getValue(endPosition, axisRendererDetails, axisPosition);
     startLabelSize = measureText(startValue, axis.interactiveTooltip.textStyle);
     endLabelSize = measureText(endValue, axis.interactiveTooltip.textStyle);
     startLabelRect = _calculateRect(
-        axisRenderer, startPosition, startLabelSize, axisPosition);
-    endLabelRect =
-        _calculateRect(axisRenderer, endPosition, endLabelSize, axisPosition);
+        axisRendererDetails, startPosition, startLabelSize, axisPosition);
+    endLabelRect = _calculateRect(
+        axisRendererDetails, endPosition, endLabelSize, axisPosition);
     if (!isHorizontal && startLabelRect.width != endLabelRect.width) {
       (startLabelRect.width > endLabelRect.width)
           ? endLabelRect =
@@ -243,7 +266,7 @@ class _ZoomRectPainter extends CustomPainter {
         startPosition, endPosition, axis.interactiveTooltip, axisPosition);
   }
 
-  /// To draw connectors
+  /// To draw connectors.
   void _drawConnector(
       Canvas canvas,
       Paint connectorLinePaint,
@@ -277,16 +300,14 @@ class _ZoomRectPainter extends CustomPainter {
     }
     tooltip.connectorLineDashArray != null
         ? canvas.drawPath(
-            !kIsWeb
-                ? _dashPath(connectorPath,
-                    dashArray: _CircularIntervalList<double>(
-                        tooltip.connectorLineDashArray!))!
-                : connectorPath,
+            dashPath(connectorPath,
+                dashArray: CircularIntervalList<double>(
+                    tooltip.connectorLineDashArray!))!,
             connectorLinePaint)
         : canvas.drawPath(connectorPath, connectorLinePaint);
   }
 
-  /// To draw tooltip
+  /// To draw tooltip.
   RRect _drawTooltip(
       Canvas canvas,
       Paint fillPaint,
@@ -307,16 +328,16 @@ class _ZoomRectPainter extends CustomPainter {
 
     final bool isHorizontal = axisPosition == 'bottom' || axisPosition == 'top';
     labelRect =
-        _validateRectBounds(labelRect, renderingDetails.chartContainerRect);
+        validateRectBounds(labelRect, renderingDetails.chartContainerRect);
     labelRect = isHorizontal
-        ? _validateRectXPosition(labelRect, chartState)
-        : _validateRectYPosition(labelRect, chartState);
+        ? validateRectXPosition(labelRect, stateProperties)
+        : validateRectYPosition(labelRect, stateProperties);
     path.reset();
-    rect = _getRoundedCornerRect(labelRect, tooltip.borderRadius);
+    rect = getRoundedCornerRect(labelRect, tooltip.borderRadius);
     path.addRRect(rect);
     _calculateNeckPositions(canvas, fillPaint, strokePaint, path, axisPosition,
         position, rect, tooltip);
-    _drawText(
+    drawText(
         canvas,
         value,
         Offset((rect.left + rect.width / 2) - labelSize.width / 2,
@@ -332,7 +353,7 @@ class _ZoomRectPainter extends CustomPainter {
     return rect;
   }
 
-  /// To calculate tootip neck positions
+  /// To calculate tootip neck positions.
   void _calculateNeckPositions(
       Canvas canvas,
       Paint fillPaint,
@@ -380,7 +401,7 @@ class _ZoomRectPainter extends CustomPainter {
       x4 = rect.left - tooltip.arrowLength;
       y4 = position.dy;
     }
-    _drawTooltipArrowhead(
+    drawTooltipArrowhead(
         canvas, path, fillPaint, strokePaint, x1, y1, x2, y2, x3, y3, x4, y4);
   }
 

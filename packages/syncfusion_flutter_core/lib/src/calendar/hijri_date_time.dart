@@ -1858,7 +1858,7 @@ class HijriDateTime {
 
   @override
   String toString() {
-    return year.toString() + '-' + _twoDigits(month) + '-' + _twoDigits(day);
+    return '$year-${_twoDigits(month)}-${_twoDigits(day)}';
   }
 
   String _twoDigits(int n) {
@@ -2038,7 +2038,7 @@ HijriDateTime convertToHijriDate(DateTime date) {
   int hYear = ii + 1;
   int hMonth = iln - 12 * ii;
   int hDate = modifiedJulianDate - _kDateCollection[i - 1] + 1;
-  if ((hDate.toString() + '').length > 2) {
+  if ('$hDate'.length > 2) {
     hDate = tempDay;
     hMonth = im;
     hYear = iy;

@@ -213,7 +213,7 @@ class _DataBarImpl implements DataBar {
     _bHasExtensionList = value;
     if (_stGUID == null) {
       final _Guid guid = _Guid();
-      _stGUID = '{' + guid._newGuid() + '}';
+      _stGUID = '{${guid._newGuid()}}';
     }
   }
 

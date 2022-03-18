@@ -12,6 +12,20 @@ import '../common/enums.dart';
 /// [Appointment.recurrenceRule] for [Appointment] using the
 /// [SfCalendar.generateRRule] method.
 ///
+/// See more:
+/// * [Appointment.recurrenceRule],  which used to recur the appointment based
+/// on the given rule.
+/// * [SfCalendar.generateRRule], which used to generate recurrence rule
+/// based on the [RecurrenceProperties] values.
+/// * [SfCalendar.parseRRule], which used to get the recurrence properties
+/// based on the given recurrence rule.
+/// * [SfCalendar.getRecurrenceDateTimeCollection], to get the recurrence date
+/// time collection based on the given recurrence rule and start date.
+/// * Knowledge base: [How to use a negative value for bysetpos in rrule](https://www.syncfusion.com/kb/12552/how-to-use-a-negative-value-for-bysetpos-in-a-rrule-of-recurrence-appointment-in-the)
+/// * Knowledge base: [How to get the recurrence date collection](https://www.syncfusion.com/kb/12344/how-to-get-the-recurrence-date-collection-in-the-flutter-calendar)
+/// * Knowledge base: [How to add recurring appointments until specified date](https://www.syncfusion.com/kb/12158/how-to-add-recurring-appointments-until-the-specified-date-in-the-flutter-calendar)
+/// * Knowledge base: [How to get the recurrence properties from recurrence rule](https://www.syncfusion.com/kb/12370/how-to-get-the-recurrence-properties-from-rrule-in-the-flutter-calendar)
+///
 /// ```dart
 ///Widget build(BuildContext context) {
 ///   return Container(
@@ -87,7 +101,8 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// Defaults to `RecurrenceType.daily`.
   ///
-  /// Also refer: [RecurrenceType].
+  /// Also refer:
+  /// * [RecurrenceType], to know more about the available recurrence types.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -143,6 +158,9 @@ class RecurrenceProperties with Diagnosticable {
   /// _Note:_ It is applicable only when the [recurrenceRange] set as
   /// [RecurrenceRange.count].
   ///
+  /// See also:
+  /// * [recurrenceRange], to define the range for the recurring event.
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///   return Container(
@@ -189,6 +207,9 @@ class RecurrenceProperties with Diagnosticable {
   /// Defines the start date for the [Appointment] to recur.
   ///
   /// The [Appointment] starts to recur from the date set to this property.
+  ///
+  /// See also:
+  /// * [endDate], on which date the recurring event will end.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -242,7 +263,10 @@ class RecurrenceProperties with Diagnosticable {
   /// _Note:_ it is applicable only when the [recurrenceRange] set as
   /// [RecurrenceRange.endDate].
   ///
-  /// Defaults to the next date of current date.
+  /// Defaults to null.
+  ///
+  /// See also:
+  /// * [startDate], on or after the given date the recurring will be start.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -294,6 +318,10 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// Defaults to `1`.
   ///
+  /// See also:
+  /// * [recurrenceType], to define the recurrent type for the event.
+  /// * [recurrenceRange], to define the range for the recurring event.
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///   return Container(
@@ -341,7 +369,9 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// Defaults to `RecurrenceRange.noEndDate`.
   ///
-  /// Also refer: [RecurrenceRange].
+  /// Also refer:
+  /// * [RecurrenceRange], to know more about the available recurrence range in
+  /// calendar.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -390,6 +420,11 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// The [Appointment] will recur on the [WeekDays] set to this property,
   /// when the [recurrenceType] set as [RecurrenceType.weekly].
+  ///
+  /// See also:
+  /// * [WeekDays], to know more about the available week days to define.
+  /// * [recurrenceType], which used to define the the type of the recurring
+  /// event.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -444,6 +479,11 @@ class RecurrenceProperties with Diagnosticable {
   /// The [Appointment] will recur on the [Week] set to this property,
   /// when the [recurrenceType] set as [RecurrenceType.year].
   ///
+  /// See also:
+  /// * [recurrenceType], which used to define the the type of the recurring
+  /// event.
+  /// * Knowledge base: [How to use a negative value for bysetpos in rrule](https://www.syncfusion.com/kb/12552/how-to-use-a-negative-value-for-bysetpos-in-a-rrule-of-recurrence-appointment-in-the)
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///   return Container(
@@ -491,6 +531,10 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// The [Appointment] will recur on the day set to this property on specific
   /// month, when the [recurrenceType] set as [RecurrenceType.year].
+  ///
+  /// See also:
+  /// * [recurrenceType], which used to define the the type of the recurring
+  /// event.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -540,6 +584,10 @@ class RecurrenceProperties with Diagnosticable {
   /// The [Appointment] will recur on the day set to this property on specific
   /// week, when the [recurrenceType] set as [RecurrenceType.year] or
   /// [RecurrenceType.month].
+  ///
+  /// See also:
+  /// * [recurrenceType], which used to define the the type of the recurring
+  /// event.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -591,6 +639,10 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// The [Appointment] will recur on the month set to this property on specific
   /// year, when the [recurrenceType] set as [RecurrenceType.year].
+  ///
+  /// See also:
+  /// * [recurrenceType], which used to define the the type of the recurring
+  /// event.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {

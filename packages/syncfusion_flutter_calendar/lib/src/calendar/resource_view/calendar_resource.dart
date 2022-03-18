@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 /// The resource data for calendar.
 ///
@@ -18,6 +19,19 @@ import 'package:flutter/material.dart';
 ///
 /// The [id] property must not be null, to filter appointments based on
 /// resource.
+///
+/// See also:
+/// * [Appointment], the object to hold the data for the appointment in the
+/// calendar.
+/// * [TimeRegion], the object to hold the data for the special time region in
+/// the calendar.
+/// * [SfCalendar.resourceViewHeaderBuilder], to set custom widget for the
+/// resource view in the calendar.
+/// * [resourceViewSettings], to customize the resource view in the calendar.
+/// * Knowledge base: [How to add resources](https://www.syncfusion.com/kb/12070/how-to-add-resources-in-the-flutter-calendar)
+/// * Knowledge base: [How to handle appointments for multiple resources](https://www.syncfusion.com/kb/11812/how-to-handle-appointments-for-multiple-resources-in-the-flutter-calendar)
+/// * Knowledge base: [How to customize the resource view](https://www.syncfusion.com/kb/12351/how-to-customize-the-resource-view-in-the-flutter-calendar)
+/// * Knowledge base: [How to add appointment for the selected resources using appointment editor](https://www.syncfusion.com/kb/12109/how-to-add-appointment-for-the-selected-resources-using-appointment-editor-in-the-flutter)
 ///
 /// ``` dart
 ///
@@ -82,9 +96,9 @@ class CalendarResource with Diagnosticable {
   /// [ResourceViewSettings.displayNameTextStyle] property.
   ///
   /// See also:
-  ///
-  /// * [ResourceViewSettings], the settings have properties which allow to
-  /// customize the resource view of the [SfCalendar].
+  /// * [ResourceViewSettings.displayNameTextStyle], which allows to customize
+  /// the display name text in the resource view in [SfCalendar].
+  /// * Knowledge base: [How to customize the resource view](https://www.syncfusion.com/kb/12351/how-to-customize-the-resource-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///
@@ -115,7 +129,6 @@ class CalendarResource with Diagnosticable {
   /// The unique id for the [CalendarResource] view of [SfCalendar].
   ///
   /// See also:
-  ///
   /// * [Appointment.resourceIds], the ids of the [CalendarResource] that shares
   /// an [Appointment].
   /// * [TimeRegion.resourceIds], the ids of the [CalendarResource] that shares
@@ -154,6 +167,11 @@ class CalendarResource with Diagnosticable {
   ///
   /// Defaults to `Colors.lightBlue`.
   ///
+  /// See also:
+  /// * [ResourceViewSettings], to customize the resource view in the calendar.
+  /// * [SfCalendar.resourceViewHeaderBuilder], to customize the resource view
+  /// with a custom widget in calendar.
+  ///
   /// ``` dart
   ///
   ///DataSource _getCalendarDataSource() {
@@ -186,12 +204,15 @@ class CalendarResource with Diagnosticable {
   ///  `true`.
   ///
   /// See also:
-  ///
-  /// * [ResourceViewSettings], the settings have properties which allow to
-  /// customize the resource view of the [SfCalendar].
-  /// * [ResourceViewSettings.showAvatar], shows a circle that represents a
-  /// user.
-  /// * [ImageProvider], commonly used to add image in flutter
+  /// * [ResourceViewSettings], which allows to customize the resource view in
+  /// the calendar.
+  /// * [ResourceViewSettings.showAvatar], allows to display the [image] on the
+  /// resource view.
+  /// * [ImageProvider], commonly used to add image in flutter.
+  /// * [SfCalendar.resourceViewHeaderBuilder], to customize the resource view
+  /// with a custom widget in calendar.
+  /// * Knowledge base: [How to add resources](https://www.syncfusion.com/kb/12070/how-to-add-resources-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the resource view](https://www.syncfusion.com/kb/12351/how-to-customize-the-resource-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///

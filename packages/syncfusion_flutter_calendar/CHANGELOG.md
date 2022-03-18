@@ -1,4 +1,51 @@
-## [19.2.44]
+## [20.1.0.47]
+**Features**
+* Provided support for the number of days in view, it is used to customize the days count in the flutter event calendar.
+* Provided support for recurring appointments on the last day of month in the flutter event calendar.
+
+## [19.4.50] - 02/08/2022
+**Bug fixes**
+* Now, the week number is displayed properly when setting the `firstDayOfWeek` property in the Flutter event calendar.
+* Now, the appointments are added to the schedule view properly with an empty appointment schedule weeks are hidden using `hideEmptyScheduleWeek`.
+
+**Enhancements**
+* Now, improved the Flutter calendar allowedViews UI to show the `Scrollbar`.
+
+## [19.4.38] - 12/17/2021
+**Features**
+* Provided support to get calendar details based on the given offset passed through an argument by using the method of the `getCalendarDetailsAtOffset`.
+
+**Enhancements**
+* Now, improved the allowedViews UI in the flutter event calendar.
+
+## [19.3.57] - 12/06/2021
+**Bug fixes**
+* Now, the localization is working properly for the All day label text in schedule view of the Flutter event calendar.
+
+## [19.3.45] - 10/11/2021
+
+**Enhancements**
+* Now, the non-working dates are disabled in the date range picker for the work week views of the calendar.
+
+## [19.3.43] - 09/30/2021
+
+**Features**
+* Provided resize, drag-and-drop support to reschedule appointments in the event calendar.
+
+**Breaking changes**
+* The default `cellEndPadding` value has been changed in the SfCalendar.
+
+**Enhancements**
+* Now the calendar will return the recurrence appointment details in the given custom data type instead of `Appointment` type by overriding the `convertAppointmentToObject` method of the `CalendarDataSource`.
+
+## [19.2.55] - 08/11/2021
+**Bug fixes**
+* Now, the appointment will not intersect when the end time and start time of different appointment is 24 hours for two consecutive days.
+
+**Features**
+* Provided support to customize the background color of the all-day panel.
+
+## [19.2.44] - 06/30/2021
 **Features**
 * Provided support to display week numbers of the year.
 * Provided ID, recurrence ID, and appointment type support.

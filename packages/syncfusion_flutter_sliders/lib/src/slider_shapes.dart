@@ -1,8 +1,6 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import 'common.dart';
@@ -23,12 +21,27 @@ class SfTrackShape {
   Rect getPreferredRect(
       RenderBox parentBox, SfSliderThemeData themeData, Offset offset,
       {bool? isActive}) {
-    final double maxRadius = math.max(themeData.overlayRadius,
-        math.max(themeData.thumbRadius, themeData.tickSize!.width / 2));
+    final Size overlayPreferredSize = (parentBox as RenderBaseSlider)
+        .overlayShape
+        .getPreferredSize(themeData);
+    final Size thumbPreferredSize =
+        parentBox.thumbShape.getPreferredSize(themeData);
+    final Size tickPreferredSize =
+        parentBox.tickShape.getPreferredSize(themeData);
+    double maxRadius;
+    if (_isVertical(parentBox)) {
+      maxRadius = math.max(
+          overlayPreferredSize.height / 2,
+          math.max(
+              thumbPreferredSize.height / 2, tickPreferredSize.height / 2));
+    } else {
+      maxRadius = math.max(overlayPreferredSize.width / 2,
+          math.max(thumbPreferredSize.width / 2, tickPreferredSize.width / 2));
+    }
     final double maxTrackHeight =
         math.max(themeData.activeTrackHeight, themeData.inactiveTrackHeight);
     // ignore: avoid_as
-    if (_isVertical(parentBox as RenderBaseSlider)) {
+    if (_isVertical(parentBox)) {
       double left = offset.dx;
       if (isActive != null) {
         left += isActive
@@ -110,28 +123,31 @@ class SfTrackShape {
         context,
         activeTrackRect,
         // ignore: avoid_as
-        isVertical: _isVertical(parentBox as RenderBaseSlider));
+        isVertical: _isVertical(parentBox as RenderBaseSlider),
+        isInversed: parentBox.isInversed);
   }
 
   void _drawTrackRect(
-      TextDirection? textDirection,
-      Offset? thumbCenter,
-      Offset? startThumbCenter,
-      Offset? endThumbCenter,
-      Paint activePaint,
-      Paint inactivePaint,
-      Rect inactiveTrackRect,
-      Radius radius,
-      PaintingContext context,
-      Rect activeTrackRect,
-      {required bool isVertical}) {
+    TextDirection? textDirection,
+    Offset? thumbCenter,
+    Offset? startThumbCenter,
+    Offset? endThumbCenter,
+    Paint activePaint,
+    Paint inactivePaint,
+    Rect inactiveTrackRect,
+    Radius radius,
+    PaintingContext context,
+    Rect activeTrackRect, {
+    required bool isVertical,
+    required bool isInversed,
+  }) {
     Offset? leftThumbCenter;
     Offset? rightThumbCenter;
     Paint? leftTrackPaint;
     Paint? rightTrackPaint;
     Rect? leftTrackRect;
     Rect? rightTrackRect;
-    if (textDirection == TextDirection.rtl && !isVertical) {
+    if (isInversed) {
       if (startThumbCenter != null) {
         // For range slider and range selector widget.
         leftThumbCenter = endThumbCenter;
@@ -180,23 +196,7 @@ class SfTrackShape {
       Paint inactivePaint,
       {required bool isVertical}) {
     RRect inactiveTrackRRect;
-    if (isVertical) {
-      Rect trackRect = Rect.fromLTRB(activeTrackRect.left, thumbCenter.dy,
-          activeTrackRect.right, activeTrackRect.bottom);
-      final RRect activeTrackRRect = RRect.fromRectAndCorners(trackRect,
-          bottomRight: radius, bottomLeft: radius);
-      context.canvas.drawRRect(activeTrackRRect, activePaint);
-      // Drawing inactive track.
-      trackRect = Rect.fromLTRB(inactiveTrackRect.left, inactiveTrackRect.top,
-          inactiveTrackRect.right, thumbCenter.dy);
-      inactiveTrackRRect = RRect.fromRectAndCorners(trackRect,
-          topLeft: radius,
-          topRight: radius,
-          bottomLeft: Radius.zero,
-          bottomRight: Radius.zero);
-
-      context.canvas.drawRRect(inactiveTrackRRect, inactivePaint);
-    } else {
+    if (!isVertical) {
       // Drawing active track.
       Rect trackRect = Rect.fromLTRB(activeTrackRect.left, activeTrackRect.top,
           thumbCenter.dx, activeTrackRect.bottom);
@@ -217,46 +217,38 @@ class SfTrackShape {
           bottomRight: radius);
 
       context.canvas.drawRRect(inactiveTrackRRect, inactivePaint);
-    }
-  }
-
-  void _drawRangeSliderTrack(
-      Rect inactiveTrackRect,
-      Offset startThumbCenter,
-      Radius radius,
-      PaintingContext context,
-      Paint inactivePaint,
-      Rect activeTrackRect,
-      Offset endThumbCenter,
-      Paint activePaint,
-      {bool isVertical = false}) {
-    RRect inactiveTrackRRect;
-    if (isVertical) {
-      // Drawing inactive track
-      Rect trackRect = Rect.fromLTRB(
-          inactiveTrackRect.left,
-          startThumbCenter.dy,
-          inactiveTrackRect.right,
-          inactiveTrackRect.bottom);
-      inactiveTrackRRect = RRect.fromRectAndCorners(trackRect,
-          bottomLeft: radius, bottomRight: radius);
-      context.canvas.drawRRect(inactiveTrackRRect, inactivePaint);
-
-      // Drawing active track.
-      final Rect activeTrackRRect = Rect.fromLTRB(activeTrackRect.left,
-          startThumbCenter.dy, activeTrackRect.right, endThumbCenter.dy);
-      context.canvas.drawRect(activeTrackRRect, activePaint);
+    } else {
+      Rect trackRect = Rect.fromLTRB(activeTrackRect.left, thumbCenter.dy,
+          activeTrackRect.right, activeTrackRect.bottom);
+      final RRect activeTrackRRect = RRect.fromRectAndCorners(trackRect,
+          bottomRight: radius, bottomLeft: radius);
+      context.canvas.drawRRect(activeTrackRRect, activePaint);
 
       // Drawing inactive track.
       trackRect = Rect.fromLTRB(inactiveTrackRect.left, inactiveTrackRect.top,
-          inactiveTrackRect.right, endThumbCenter.dy);
+          inactiveTrackRect.right, thumbCenter.dy);
       inactiveTrackRRect = RRect.fromRectAndCorners(trackRect,
           topLeft: radius,
           topRight: radius,
           bottomLeft: Radius.zero,
           bottomRight: Radius.zero);
       context.canvas.drawRRect(inactiveTrackRRect, inactivePaint);
-    } else {
+    }
+  }
+
+  void _drawRangeSliderTrack(
+    Rect inactiveTrackRect,
+    Offset startThumbCenter,
+    Radius radius,
+    PaintingContext context,
+    Paint inactivePaint,
+    Rect activeTrackRect,
+    Offset endThumbCenter,
+    Paint activePaint, {
+    bool isVertical = false,
+  }) {
+    RRect inactiveTrackRRect;
+    if (!isVertical) {
       // Drawing inactive track.
       Rect trackRect = Rect.fromLTRB(inactiveTrackRect.left,
           inactiveTrackRect.top, startThumbCenter.dx, inactiveTrackRect.bottom);
@@ -281,6 +273,31 @@ class SfTrackShape {
           bottomLeft: Radius.zero,
           bottomRight: radius);
       context.canvas.drawRRect(inactiveTrackRRect, inactivePaint);
+    } else {
+      // Drawing inactive track
+      Rect trackRect = Rect.fromLTRB(
+          inactiveTrackRect.left,
+          startThumbCenter.dy,
+          inactiveTrackRect.right,
+          inactiveTrackRect.bottom);
+      inactiveTrackRRect = RRect.fromRectAndCorners(trackRect,
+          bottomLeft: radius, bottomRight: radius);
+      context.canvas.drawRRect(inactiveTrackRRect, inactivePaint);
+
+      // Drawing active track.
+      final Rect activeTrackRRect = Rect.fromLTRB(activeTrackRect.left,
+          startThumbCenter.dy, activeTrackRect.right, endThumbCenter.dy);
+      context.canvas.drawRect(activeTrackRRect, activePaint);
+
+      // Drawing inactive track.
+      trackRect = Rect.fromLTRB(inactiveTrackRect.left, inactiveTrackRect.top,
+          inactiveTrackRect.right, endThumbCenter.dy);
+      inactiveTrackRRect = RRect.fromRectAndCorners(trackRect,
+          topLeft: radius,
+          topRight: radius,
+          bottomLeft: Radius.zero,
+          bottomRight: Radius.zero);
+      context.canvas.drawRRect(inactiveTrackRRect, inactivePaint);
     }
   }
 }
@@ -291,7 +308,7 @@ class SfThumbShape {
   /// Enables subclasses to provide constant constructors.
   const SfThumbShape();
 
-  bool _isThumbOverlap(RenderBaseSlider parentBox) {
+  bool _isThumbOverlapping(RenderBaseSlider parentBox) {
     return parentBox.showOverlappingThumbStroke;
   }
 
@@ -312,7 +329,7 @@ class SfThumbShape {
       required TextDirection textDirection,
       required SfThumb? thumb}) {
     final double radius = getPreferredSize(themeData).width / 2;
-    final bool isThumbStroke = themeData.thumbStrokeColor != null &&
+    final bool hasThumbStroke = themeData.thumbStrokeColor != null &&
         themeData.thumbStrokeColor != Colors.transparent &&
         themeData.thumbStrokeWidth != null &&
         themeData.thumbStrokeWidth! > 0;
@@ -326,8 +343,7 @@ class SfThumbShape {
           (parentRenderBox.activeThumb == thumb || thumb == null) &&
               parentRenderBox.currentPointerType != null &&
               parentRenderBox.currentPointerType != PointerType.up;
-      path.addOval(
-          Rect.fromCircle(center: center, radius: themeData.thumbRadius));
+      path.addOval(Rect.fromCircle(center: center, radius: radius));
       final double thumbElevation = isThumbActive
           ? parentRenderBox.thumbElevationTween.evaluate(enableAnimation)
           : defaultElevation;
@@ -335,22 +351,19 @@ class SfThumbShape {
       context.canvas.drawShadow(path, shadowColor, thumbElevation, true);
     }
 
-    if (!isThumbStroke &&
-        _isThumbOverlap(parentBox) &&
-        themeData.thumbColor != Colors.transparent) {
-      final Color? thumbOverlappingStrokeColor =
-          themeData is SfRangeSliderThemeData
-              ? themeData.overlappingThumbStrokeColor
-              : null;
-      if (thumbOverlappingStrokeColor != null) {
-        final Paint strokePaint = Paint()
-          ..color = thumbOverlappingStrokeColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.0;
-
-        context.canvas.drawCircle(
-            center, getPreferredSize(themeData).width / 2, strokePaint);
-      }
+    if (themeData is SfRangeSliderThemeData &&
+        !hasThumbStroke &&
+        _isThumbOverlapping(parentBox) &&
+        themeData.thumbColor != Colors.transparent &&
+        themeData.overlappingThumbStrokeColor != null) {
+      context.canvas.drawCircle(
+          center,
+          radius,
+          Paint()
+            ..color = themeData.overlappingThumbStrokeColor!
+            ..style = PaintingStyle.stroke
+            ..isAntiAlias = true
+            ..strokeWidth = 1.0);
     }
 
     if (paint == null) {
@@ -361,8 +374,7 @@ class SfThumbShape {
           .evaluate(enableAnimation)!;
     }
 
-    context.canvas
-        .drawCircle(center, getPreferredSize(themeData).width / 2, paint);
+    context.canvas.drawCircle(center, radius, paint);
     if (child != null) {
       context.paintChild(
           child,
@@ -373,17 +385,18 @@ class SfThumbShape {
     if (themeData.thumbStrokeColor != null &&
         themeData.thumbStrokeWidth != null &&
         themeData.thumbStrokeWidth! > 0) {
+      final Paint strokePaint = Paint()
+        ..color = themeData.thumbStrokeColor!
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = themeData.thumbStrokeWidth! > radius
+            ? radius
+            : themeData.thumbStrokeWidth!;
       context.canvas.drawCircle(
           center,
           themeData.thumbStrokeWidth! > radius
               ? radius / 2
               : radius - themeData.thumbStrokeWidth! / 2,
-          paint
-            ..color = themeData.thumbStrokeColor!
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = themeData.thumbStrokeWidth! > radius
-                ? radius
-                : themeData.thumbStrokeWidth!);
+          strokePaint);
     }
   }
 }
@@ -418,35 +431,44 @@ class SfDividerShape {
       required Animation<double> enableAnimation,
       required TextDirection textDirection}) {
     late bool isActive;
-    switch (textDirection) {
-      case TextDirection.ltr:
-        // Added this condition to check whether consider single thumb or
-        // two thumbs for finding active range.
-        isActive = startThumbCenter != null
-            // ignore: avoid_as
-            ? (_isVertical(parentBox as RenderBaseSlider)
-                ? center.dy <= startThumbCenter.dy &&
-                    center.dy >= endThumbCenter!.dy
-                : center.dx >= startThumbCenter.dx &&
-                    center.dx <= endThumbCenter!.dx)
-            // ignore: avoid_as
-            : (_isVertical(parentBox as RenderBaseSlider)
-                ? center.dy >= thumbCenter!.dy
-                : center.dx <= thumbCenter!.dx);
-        break;
-      case TextDirection.rtl:
-        isActive = startThumbCenter != null
-            // ignore: avoid_as
-            ? (_isVertical(parentBox as RenderBaseSlider)
-                ? center.dy <= startThumbCenter.dy &&
-                    center.dy >= endThumbCenter!.dy
-                : center.dx >= endThumbCenter!.dx &&
-                    center.dx <= startThumbCenter.dx)
-            // ignore: avoid_as
-            : (_isVertical(parentBox as RenderBaseSlider)
-                ? center.dy >= thumbCenter!.dy
-                : center.dx >= thumbCenter!.dx);
-        break;
+    final bool isVertical = _isVertical(parentBox as RenderBaseSlider);
+
+    if (!isVertical) {
+      // Added this condition to check whether consider single thumb or
+      // two thumbs for finding active range.
+      if (startThumbCenter != null) {
+        if (!parentBox.isInversed) {
+          isActive = center.dx >= startThumbCenter.dx &&
+              center.dx <= endThumbCenter!.dx;
+        } else {
+          isActive = center.dx >= endThumbCenter!.dx &&
+              center.dx <= startThumbCenter.dx;
+        }
+      } else {
+        if (!parentBox.isInversed) {
+          isActive = center.dx <= thumbCenter!.dx;
+        } else {
+          isActive = center.dx >= thumbCenter!.dx;
+        }
+      }
+    } else {
+      // Added this condition to check whether consider single thumb or
+      // two thumbs for finding active range.
+      if (startThumbCenter != null) {
+        if (!parentBox.isInversed) {
+          isActive = center.dy <= startThumbCenter.dy &&
+              center.dy >= endThumbCenter!.dy;
+        } else {
+          isActive = center.dy >= startThumbCenter.dy &&
+              center.dy <= endThumbCenter!.dy;
+        }
+      } else {
+        if (!parentBox.isInversed) {
+          isActive = center.dy >= thumbCenter!.dy;
+        } else {
+          isActive = center.dy <= thumbCenter!.dy;
+        }
+      }
     }
 
     if (paint == null) {
@@ -549,42 +571,51 @@ class SfTickShape {
       required TextDirection textDirection}) {
     bool isInactive = false;
     final Size tickSize = getPreferredSize(themeData);
-    switch (textDirection) {
-      case TextDirection.ltr:
-        // Added this condition to check whether consider single thumb or
-        // two thumbs for finding inactive range.
-        isInactive = startThumbCenter != null
-            // ignore: avoid_as
-            ? (_isVertical(parentBox as RenderBaseSlider)
-                ? offset.dy > startThumbCenter.dy ||
-                    offset.dy < endThumbCenter!.dy
-                : offset.dx < startThumbCenter.dx ||
-                    offset.dx > endThumbCenter!.dx)
-            // ignore: avoid_as
-            : (_isVertical(parentBox as RenderBaseSlider)
-                ? offset.dy < thumbCenter!.dy
-                : offset.dx > thumbCenter!.dx);
-        break;
-      case TextDirection.rtl:
-        isInactive = startThumbCenter != null
-            // ignore: avoid_as
-            ? (_isVertical(parentBox as RenderBaseSlider)
-                ? offset.dy > startThumbCenter.dy ||
-                    offset.dy < endThumbCenter!.dy
-                : offset.dx > startThumbCenter.dx ||
-                    offset.dx < endThumbCenter!.dx)
-            // ignore: avoid_as
-            : (_isVertical(parentBox as RenderBaseSlider)
-                ? offset.dy < thumbCenter!.dy
-                : offset.dx < thumbCenter!.dx);
-        break;
+    final bool isVertical = _isVertical(parentBox as RenderBaseSlider);
+
+    if (!isVertical) {
+      // Added this condition to check whether consider single thumb or
+      // two thumbs for finding active range.
+      if (startThumbCenter != null) {
+        if (!parentBox.isInversed) {
+          isInactive =
+              offset.dx < startThumbCenter.dx || offset.dx > endThumbCenter!.dx;
+        } else {
+          isInactive =
+              offset.dx > startThumbCenter.dx || offset.dx < endThumbCenter!.dx;
+        }
+      } else {
+        if (!parentBox.isInversed) {
+          isInactive = offset.dx > thumbCenter!.dx;
+        } else {
+          isInactive = offset.dx < thumbCenter!.dx;
+        }
+      }
+    } else {
+      // Added this condition to check whether consider single thumb or
+      // two thumbs for finding active range.
+      if (startThumbCenter != null) {
+        if (!parentBox.isInversed) {
+          isInactive =
+              offset.dy > startThumbCenter.dy || offset.dy < endThumbCenter!.dy;
+        } else {
+          isInactive =
+              offset.dy < startThumbCenter.dy || offset.dy > endThumbCenter!.dy;
+        }
+      } else {
+        if (!parentBox.isInversed) {
+          isInactive = offset.dy < thumbCenter!.dy;
+        } else {
+          isInactive = offset.dy > thumbCenter!.dy;
+        }
+      }
     }
 
     final Color begin = isInactive
-        ? themeData.disabledInactiveTickColor
-        : themeData.disabledActiveTickColor;
+        ? themeData.disabledInactiveTickColor!
+        : themeData.disabledActiveTickColor!;
     final Color end =
-        isInactive ? themeData.inactiveTickColor : themeData.activeTickColor;
+        isInactive ? themeData.inactiveTickColor! : themeData.activeTickColor!;
     final Paint paint = Paint()
       ..isAntiAlias = true
       ..strokeWidth = _isVertical(parentBox) ? tickSize.height : tickSize.width
@@ -635,41 +666,52 @@ class SfMinorTickShape extends SfTickShape {
       required TextDirection textDirection}) {
     bool isInactive;
     final Size minorTickSize = getPreferredSize(themeData);
-    switch (textDirection) {
-      case TextDirection.ltr:
-        isInactive = startThumbCenter != null
-            // ignore: avoid_as
-            ? (_isVertical(parentBox as RenderBaseSlider)
-                ? offset.dy > startThumbCenter.dy ||
-                    offset.dy < endThumbCenter!.dy
-                : offset.dx < startThumbCenter.dx ||
-                    offset.dx > endThumbCenter!.dx)
-            // ignore: avoid_as
-            : (_isVertical(parentBox as RenderBaseSlider)
-                ? offset.dy < thumbCenter!.dy
-                : offset.dx > thumbCenter!.dx);
-        break;
-      case TextDirection.rtl:
-        isInactive = startThumbCenter != null
-            // ignore: avoid_as
-            ? (_isVertical(parentBox as RenderBaseSlider)
-                ? offset.dy > startThumbCenter.dy ||
-                    offset.dy < endThumbCenter!.dy
-                : offset.dx > startThumbCenter.dx ||
-                    offset.dx < endThumbCenter!.dx)
-            // ignore: avoid_as
-            : (_isVertical(parentBox as RenderBaseSlider)
-                ? offset.dy < thumbCenter!.dy
-                : offset.dx < thumbCenter!.dx);
-        break;
+    final bool isVertical = _isVertical(parentBox as RenderBaseSlider);
+
+    if (!isVertical) {
+      // Added this condition to check whether consider single thumb or
+      // two thumbs for finding active range.
+      if (startThumbCenter != null) {
+        if (!parentBox.isInversed) {
+          isInactive =
+              offset.dx < startThumbCenter.dx || offset.dx > endThumbCenter!.dx;
+        } else {
+          isInactive =
+              offset.dx > startThumbCenter.dx || offset.dx < endThumbCenter!.dx;
+        }
+      } else {
+        if (!parentBox.isInversed) {
+          isInactive = offset.dx > thumbCenter!.dx;
+        } else {
+          isInactive = offset.dx < thumbCenter!.dx;
+        }
+      }
+    } else {
+      // Added this condition to check whether consider single thumb or
+      // two thumbs for finding active range.
+      if (startThumbCenter != null) {
+        if (!parentBox.isInversed) {
+          isInactive =
+              offset.dy > startThumbCenter.dy || offset.dy < endThumbCenter!.dy;
+        } else {
+          isInactive =
+              offset.dy < startThumbCenter.dy || offset.dy > endThumbCenter!.dy;
+        }
+      } else {
+        if (!parentBox.isInversed) {
+          isInactive = offset.dy < thumbCenter!.dy;
+        } else {
+          isInactive = offset.dy > thumbCenter!.dy;
+        }
+      }
     }
 
     final Color begin = isInactive
-        ? themeData.disabledInactiveMinorTickColor
-        : themeData.disabledActiveMinorTickColor;
+        ? themeData.disabledInactiveMinorTickColor!
+        : themeData.disabledActiveMinorTickColor!;
     final Color end = isInactive
-        ? themeData.inactiveMinorTickColor
-        : themeData.activeMinorTickColor;
+        ? themeData.inactiveMinorTickColor!
+        : themeData.activeMinorTickColor!;
     final Paint paint = Paint()
       ..isAntiAlias = true
       ..strokeWidth =
@@ -691,7 +733,7 @@ class SfPaddleTooltipShape extends SfTooltipShape {
   ///
   /// A class which is used to render paddle shape tooltip.
   const SfPaddleTooltipShape();
-  bool _isTooltipOverlapStroke(RenderBaseSlider parentBox) {
+  bool _hasTooltipOverlapStroke(RenderBaseSlider parentBox) {
     return parentBox.showOverlappingTooltipStroke;
   }
 
@@ -711,15 +753,19 @@ class SfPaddleTooltipShape extends SfTooltipShape {
       PaintingContext context,
       Animation<double> animation,
       Paint? paint) {
+    final double thumbRadius = (parentBox as RenderBaseSlider)
+            .thumbShape
+            .getPreferredSize(sliderThemeData)
+            .width /
+        2;
     final double paddleTopCircleRadius =
         textPainter.height > minPaddleTopCircleRadius
             ? textPainter.height
             : minPaddleTopCircleRadius;
     final double topNeckRadius = paddleTopCircleRadius - neckDifference;
-    final double bottomNeckRadius =
-        sliderThemeData.thumbRadius > defaultThumbRadius
-            ? sliderThemeData.thumbRadius - neckDifference * 2
-            : minBottomNeckRadius;
+    final double bottomNeckRadius = thumbRadius > defaultThumbRadius
+        ? thumbRadius - neckDifference * 2
+        : minBottomNeckRadius;
     final double halfTextWidth = textPainter.width / 2 + textPadding;
     final double paddleTopCircleX = halfTextWidth > paddleTopCircleRadius
         ? halfTextWidth - paddleTopCircleRadius
@@ -736,8 +782,7 @@ class SfPaddleTooltipShape extends SfTooltipShape {
             bottomNeckRadius);
     final Offset bottomNeckCenter = Offset(
         bottomNeckRadius + neckDifference / 2,
-        -sliderThemeData.thumbRadius -
-            bottomNeckRadius * (1.0 - moveNeckValue));
+        -thumbRadius - bottomNeckRadius * (1.0 - moveNeckValue));
     final double leftShiftWidth = thumbCenter.dx - offset.dx - halfTextWidth;
     double shiftPaddleWidth = leftShiftWidth < 0 ? leftShiftWidth : 0;
     final double rightEndPosition =
@@ -806,14 +851,14 @@ class SfPaddleTooltipShape extends SfTooltipShape {
         adjustLeftNeckArcAngle,
         bottomNeckCenter,
         bottomNeckRadius,
+        thumbRadius,
         sliderThemeData);
 
     context.canvas.save();
     context.canvas.translate(thumbCenter.dx, thumbCenter.dy);
     context.canvas.scale(animation.value);
     final Paint strokePaint = Paint();
-    // ignore: avoid_as
-    if (_isTooltipOverlapStroke(parentBox as RenderBaseSlider) &&
+    if (_hasTooltipOverlapStroke(parentBox) &&
         sliderThemeData is SfRangeSliderThemeData &&
         sliderThemeData.tooltipBackgroundColor != Colors.transparent) {
       strokePaint
@@ -854,6 +899,7 @@ class SfPaddleTooltipShape extends SfTooltipShape {
       double adjustLeftNeckArcAngle,
       Offset bottomNeckCenter,
       double bottomNeckRadius,
+      double thumbRadius,
       SfSliderThemeData sliderThemeData) {
     final Path path = Path();
     path.moveTo(
@@ -900,20 +946,10 @@ class SfPaddleTooltipShape extends SfTooltipShape {
         0.0,
         math.pi / 3,
         false);
-    path.arcTo(
-        Rect.fromCircle(
-            center: const Offset(0.0, 0.0),
-            radius: sliderThemeData.thumbRadius),
-        3 * math.pi / 2,
-        -math.pi,
-        false);
-    path.arcTo(
-        Rect.fromCircle(
-            center: const Offset(0.0, 0.0),
-            radius: sliderThemeData.thumbRadius),
-        math.pi / 2,
-        -math.pi,
-        false);
+    path.arcTo(Rect.fromCircle(center: Offset.zero, radius: thumbRadius),
+        3 * math.pi / 2, -math.pi, false);
+    path.arcTo(Rect.fromCircle(center: Offset.zero, radius: thumbRadius),
+        math.pi / 2, -math.pi, false);
     path.arcTo(
         Rect.fromCircle(center: bottomNeckCenter, radius: bottomNeckRadius),
         2 * math.pi / 3,
@@ -956,7 +992,7 @@ class SfRectangularTooltipShape extends SfTooltipShape {
   ///
   /// A class which is used to render rectangular shape tooltip.
   const SfRectangularTooltipShape();
-  bool _isTooltipOverlapStroke(RenderBaseSlider parentBox) {
+  bool _hasTooltipOverlapStroke(RenderBaseSlider parentBox) {
     return parentBox.showOverlappingTooltipStroke;
   }
 
@@ -1235,7 +1271,7 @@ class SfRectangularTooltipShape extends SfTooltipShape {
     context.canvas.translate(thumbCenter.dx, thumbCenter.dy);
     context.canvas.scale(animation.value);
     final Paint strokePaint = Paint();
-    if (_isTooltipOverlapStroke(parentBox) &&
+    if (_hasTooltipOverlapStroke(parentBox) &&
         sliderThemeData.tooltipBackgroundColor != Colors.transparent) {
       if (sliderThemeData is SfRangeSliderThemeData) {
         strokePaint.color = sliderThemeData.overlappingTooltipStrokeColor!;

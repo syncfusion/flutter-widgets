@@ -1,9 +1,28 @@
 ## Unreleased
 
+**Features**
+
+* Legend pointer - Provided an option to show a pointer on the solid bar legend while hover over the shape or bubble.
+
+## [19.3.43-beta] - 09/30/2021
+
+**Features**
+
+* Vector line stroke cap - Provides a stroke cap option to customize the map vector lines and polylines.
+* Marker alignment - Marker can be aligned in various alignment positions based on its coordinate point.
+* Custom bounds - Provides an option to specify the visual limits for viewing a specific region in Maps.
+
+**Enhancements**
+
+* Support has been provided to increase or decrease the duration of the tooltip visibility. The duration will be measured in seconds.
+* Improved the hover color of the shapes, bubbles, and vector layer shapes.
+
+## [19.2.44-beta] - 06/29/2021
+
 ### Features
 
-* #I323663, I318077 - Provided multiple tile layer support in the maps.
-* **Legend pointer** - Show a pointer at the top of the legend while hovering.
+* #I323663, I318077 - Provided multiple tile layer support in the Maps.
+* **Legend pointer** - Show a pointer at the top of the gradient legend while hovering.
 
 ## [19.1.54-beta] - 03/30/2021
 

@@ -60,10 +60,10 @@ class FormatsCollection {
     '0.00',
     '#,##0',
     '#,##0.00',
-    '\'\$\'#,##0_);\\(\'\$\'#,##0\\)',
-    '\'\$\'#,##0_);[Red]\\(\'\$\'#,##0\\)',
-    '\'\$\'#,##0.00_);\\(\'\$\'#,##0.00\\)',
-    '\'\$\'#,##0.00_);[Red]\\(\'\$\'#,##0.00\\)',
+    r"'$'#,##0_);\('$'#,##0\)",
+    r"'$'#,##0_);[Red]\('$'#,##0\)",
+    r"'$'#,##0.00_);\('$'#,##0.00\)",
+    r"'$'#,##0.00_);[Red]\('$'#,##0.00\)",
     '0%',
     '0.00%',
     '0.00E+00',
@@ -82,10 +82,10 @@ class FormatsCollection {
     r'#,##0_);[Red](#,##0)',
     r'#,##0.00_);(#,##0.00)',
     r'#,##0.00_);[Red](#,##0.00)',
-    '_(* #,##0_);_(* \\(#,##0\\);_(* \'-\'_);_(@_)',
-    '_(\'\$\'* #,##0_);_(\'\$\'* \\(#,##0\\);_(\'\$\'* \'-\'_);_(@_)',
-    '_(* #,##0.00_);_(* \\(#,##0.00\\);_(* \'-\'??_);_(@_)',
-    '_(\'\$\'* #,##0.00_);_(\'\$\'* \\(#,##0.00\\);_(\'\$\'* \'-\'??_);_(@_)',
+    r"_(* #,##0_);_(* \(#,##0\);_(* '-'_);_(@_)",
+    r"_('$'* #,##0_);_('$'* \(#,##0\);_('$'* '-'_);_(@_)",
+    r"_(* #,##0.00_);_(* \(#,##0.00\);_(* '-'??_);_(@_)",
+    r"_('$'* #,##0.00_);_('$'* \(#,##0.00\);_('$'* '-'??_);_(@_)",
     'mm:ss',
     '[h]:mm:ss',
     'mm:ss.0',
@@ -113,6 +113,7 @@ class FormatsCollection {
   }
 
   /// Indexer of the class
+  // ignore: library_private_types_in_public_api
   _Format operator [](dynamic index) => _rawFormats[index]!;
 
   /// Inserts all default formats into list.
@@ -184,11 +185,11 @@ class FormatsCollection {
       return format._index;
     }
     if (_parent.cultureInfo._culture == 'en-US') {
-      final String localStr = formatString.replaceAll('\'\$\'', r'\$');
+      final String localStr = formatString.replaceAll(r"'$'", r'\$');
 
       /// To know if the format string to be created is a pre-defined one.
       for (final String formatStr in _hashFormatStrings.keys) {
-        if (formatStr.replaceAll(r'\\', '').replaceAll('\'\$\'', r'\$') ==
+        if (formatStr.replaceAll(r'\\', '').replaceAll(r"'$'", r'\$') ==
             localStr) {
           final _Format format = _hashFormatStrings[formatStr]!;
           return format._index;

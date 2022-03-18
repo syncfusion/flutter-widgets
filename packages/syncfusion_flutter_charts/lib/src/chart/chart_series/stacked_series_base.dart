@@ -1,7 +1,18 @@
-part of charts;
+import 'package:flutter/material.dart';
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../trendlines/trendlines.dart';
+import 'xy_data_series.dart';
 
-abstract class _StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
-  _StackedSeriesBase(
+/// Represents the stacked series base class.
+abstract class StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
+  /// Creates an instance of stacked series renderer.
+  StackedSeriesBase(
       {ValueKey<String>? key,
       ChartSeriesRendererFactory<T, D>? onCreateRenderer,
       required List<T> dataSource,
@@ -45,8 +56,10 @@ abstract class _StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader,
+      double? animationDelay,
       double? opacity})
-      : borderRadius = borderRadius ?? const BorderRadius.all(Radius.zero),
+      : borderRadius = borderRadius ?? BorderRadius.zero,
         trackColor = trackColor ?? Colors.grey,
         trackBorderColor = trackBorderColor ?? Colors.transparent,
         trackBorderWidth = trackBorderWidth ?? 1,
@@ -90,186 +103,147 @@ abstract class _StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
             onPointTap: onPointTap,
             onPointDoubleTap: onPointDoubleTap,
             onPointLongPress: onPointLongPress,
-            opacity: opacity);
+            opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader);
 
-  ///Customizes the corners of the column. Each corner can be customized with a desired
-  ///value or with a single value.
+  /// Customizes the corners of the column. Each corner can be customized with a desired
+  /// value or with a single value.
   ///
-  ///Defaults to `Radius.zero`
+  /// Defaults to `BorderRadius.zero`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  borderRadius: BorderRadius.circular(5),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         borderRadius: BorderRadius.circular(5),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BorderRadius borderRadius;
 
-  ///Spacing between the columns. The value ranges from 0 to 1.
-  ///1 represents 100% and 0 represents 0% of the available space.
+  /// Spacing between the columns. The value ranges from 0 to 1.
+  /// 1 represents 100% and 0 represents 0% of the available space.
   ///
-  ///Spacing also affects the width of the column. For example, setting 20% spacing
-  ///and 100% width renders the column with 80% of total width.
+  /// Spacing also affects the width of the column. For example, setting 20% spacing
+  /// and 100% width renders the column with 80% of total width.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  spacing: 0,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return SfCartesianChart(
+  ///      series: <StackedColumnSeries<SalesData, num>>[
+  ///        StackedColumnSeries<SalesData, num>(
+  ///          spacing: 0.5,
+  ///        ),
+  ///      ],
+  ///    );
+  /// }
+  /// ```
   final double spacing;
 
-  ///Renders column with track. Track is a rectangular bar rendered from the start
-  ///to the end of the axis. Column series will be rendered above the track.
+  /// Renders column with track. Track is a rectangular bar rendered from the start
+  /// to the end of the axis. Column series will be rendered above the track.
   ///
-  ///Defaults to `false`
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool isTrackVisible;
 
-  ///Color of the track.
+  /// Color of the track.
   ///
-  ///Defaults to `grey`
+  /// Defaults to `Colors.grey`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color trackColor;
 
-  ///Color of the track border.
+  /// Color of the track border.
   ///
-  ///Defaults to `transparent`
+  /// Defaults to `Colors.transparent`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackBorderColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackBorderColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color trackBorderColor;
 
-  ///Width of the track border.
+  /// Width of the track border.
   ///
-  ///Defaults to `1`
+  /// Defaults to `1`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackBorderColor: Colors.red ,
-  ///                  trackBorderWidth: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackBorderColor: Colors.red ,
+  ///         trackBorderWidth: 2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double trackBorderWidth;
 
-  ///Padding of the track.
+  /// Padding of the track.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackPadding: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackPadding: 2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double trackPadding;
+
+  /// Specifies the dash array.
   @override
   final List<double> dashArray;
+
+  /// Specifies the group name.
   final String groupName;
 }
 
-abstract class _StackedSeriesRenderer extends XyDataSeriesRenderer {
-  _StackedSeriesRenderer();
-
-  // Store the stacking values //
-  //ignore: prefer_final_fields
-  List<_StackedValues> _stackingValues = <_StackedValues>[];
-
-  // Store the percentage values //
-  //ignore: prefer_final_fields
-  List<num> _percentageValues = <num>[];
-
-  // Store the rect position //
-  late num _rectPosition;
-
-  // Store the rect count //
-  late num _rectCount;
-
-  @override
-  ChartSegment createSegment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  // ignore: unused_element
-  void customizeSegment(ChartSegment segment) {}
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-      double pointY, int angle, TextStyle style) {}
-
-  ///Draws marker with different shape and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {}
-}
+/// Represents the stacked series renderer class.
+abstract class StackedSeriesRenderer extends XyDataSeriesRenderer {}

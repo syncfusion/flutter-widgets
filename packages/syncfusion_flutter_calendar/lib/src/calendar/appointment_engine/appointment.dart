@@ -4,7 +4,6 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart'
     show IterableDiagnostics;
 
 import '../../../calendar.dart';
-import '../common/enums.dart';
 
 /// Appointment data for calendar.
 ///
@@ -13,6 +12,25 @@ import '../common/enums.dart';
 ///
 /// _Note:_ The [startTime] and [endTime] properties must not be null to render
 /// an appointment.
+///
+/// See also:
+/// * [CalendarDataSource], to set and handle the appointment collection to the
+/// calendar.
+/// * [SfCalendar.appointmentBuilder], to set custom widget for the appointment
+/// view in the calendar
+/// * [SfCalendar.loadMoreWidgetBuilder], the widget which will be displayed
+/// when the appointments loading on the view in calendar.
+/// * [SfCalendar.appointmentTextStyle], to customize the appointment text, when
+/// the builder not added.
+/// * [SfCalendar.appointmentTimeTextFormat], to customize the time text format
+/// in the appointment view of calendar.
+/// * Knowledge base: [How to customize appointment using builder](https://www.syncfusion.com/kb/12191/how-to-customize-the-appointments-using-custom-builder-in-the-flutter-calendar)
+/// * Knowledge base: [How to load appointments on demand](https://www.syncfusion.com/kb/12658/how-to-load-appointments-on-demand-in-flutter-calendar)
+/// * Knowledge base: [How to style appointments](https://www.syncfusion.com/kb/12162/how-to-style-the-appointment-in-the-flutter-calendar)
+/// * Knowledge base: [How to format appointment time](https://www.syncfusion.com/kb/11989/how-to-format-the-appointment-time-in-the-flutter-calendar)
+/// * Knowledge base: [How to create time table](https://www.syncfusion.com/kb/12392/how-to-create-time-table-using-flutter-event-calendar)
+/// * Knowledge base: [How to add a custom appointments of business objects](https://www.syncfusion.com/kb/11529/how-to-add-a-custom-appointments-or-objects-in-the-flutter-calendar)
+/// * Knowledge base: [How to delete an appointment](https://www.syncfusion.com/kb/11522/how-to-delete-an-appointment-in-the-flutter-calendar)
 ///
 /// ```dart
 /// Widget build(BuildContext context) {
@@ -77,6 +95,17 @@ class Appointment with Diagnosticable {
   ///
   /// Defaults to `DateTime.now()`.
   ///
+  /// See also:
+  /// * [CalendarDataSource.getStartTime], which maps the custom business
+  /// objects corresponding property to this property.
+  /// * [isAllDay], which defines whether the event is all-day long or not
+  /// * [endTime], the date time value in which the appointment will end
+  /// * [startTimeZone], the timezone for the start time, the appointment will
+  /// render by converting the start time based on the [startTimeZone], and
+  /// [SfCalendar.timeZone].
+  /// * [SfCalendar.timeZone], to set the timezone for the calendar.
+  /// * [The documentation for time zone](https://help.syncfusion.com/flutter/calendar/timezone)
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///   return Container(
@@ -123,6 +152,17 @@ class Appointment with Diagnosticable {
   /// If the difference between [startTime] and [endTime] is greater than 24
   /// hour the appointment will be rendered on the all day panel of the time
   /// slot views in [SfCalendar].
+  ///
+  /// See also:
+  /// * [CalendarDataSource.getEndTime], which maps the custom business
+  /// objects corresponding property to this property.
+  /// * [isAllDay], which defines whether the event is all-day long or not
+  /// * [startTime], the date time value in which the appointment will start.
+  /// * [endTimeZone], the timezone for the end time, the appointment will
+  /// render by converting the end time based on the [endTimeZone], and
+  /// [SfCalendar.timeZone].
+  /// * [SfCalendar.timeZone], to set the timezone for the calendar.
+  /// * [The documentation for time zone](https://help.syncfusion.com/flutter/calendar/timezone)
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -171,6 +211,20 @@ class Appointment with Diagnosticable {
   ///
   /// Defaults to `false`.
   ///
+  /// See also:
+  /// * [CalendarDataSource.isAllDay], which maps the custom business
+  /// objects corresponding property to this property.
+  /// * [startTime], the date time value in which the appointment will start.
+  /// * [endTime], the date time value in which the appointment will end
+  /// * [startTimeZone], the timezone for the start time, the appointment will
+  /// render by converting the start time based on the [startTimeZone], and
+  /// [SfCalendar.timeZone].
+  /// * [endTimeZone], the timezone for the start time, the appointment will
+  /// render by converting the end time based on the [endTimeZone], and
+  /// [SfCalendar.timeZone].
+  /// * [SfCalendar.timeZone], to set the timezone for the calendar.
+  /// * [The documentation for time zone](https://help.syncfusion.com/flutter/calendar/timezone)
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///   return Container(
@@ -209,6 +263,13 @@ class Appointment with Diagnosticable {
   /// The subject for the [Appointment] in [SfCalendar].
   ///
   /// Defaults to ` ` represents empty string.
+  ///
+  /// See also:
+  /// * [CalendarDataSource.getSubject], which maps the custom business
+  /// objects corresponding property to this property.
+  /// * [SfCalendar.appointmentTextStyle], to customize the appointment text,
+  /// when the builder not added.
+  /// * Knowledge base: [How to style appointments](https://www.syncfusion.com/kb/12162/how-to-style-the-appointment-in-the-flutter-calendar)
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -249,6 +310,15 @@ class Appointment with Diagnosticable {
   /// [SfCalendar].
   ///
   /// Defaults to `Colors.lightBlue`.
+  ///
+  /// See also:
+  /// * [CalendarDataSource.getColor], which maps the custom business
+  /// objects corresponding property to this property.
+  /// * [SfCalendar.appointmentTextStyle], to customize the appointment text,
+  /// when the builder not added.
+  /// * [SfCalendar.appointmentBuilder], to set custom widget for the
+  /// appointment view in the calendar
+  /// * Knowledge base: [How to style appointments](https://www.syncfusion.com/kb/12162/how-to-style-the-appointment-in-the-flutter-calendar)
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -291,6 +361,13 @@ class Appointment with Diagnosticable {
   /// the time zone set to this property and [SfCalendar.timeZone] property.
   ///
   /// Defaults to null.
+  ///
+  /// See also:
+  /// * [CalendarDataSource.getStartTimeZone], which maps the custom business
+  /// objects corresponding property to this property.
+  /// * [startTime], the date time value in which the appointment will start.
+  /// * [SfCalendar.timeZone], to set the timezone for the calendar.
+  /// * [The documentation for time zone](https://help.syncfusion.com/flutter/calendar/timezone)
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -337,6 +414,16 @@ class Appointment with Diagnosticable {
   /// Note:_ If the [startTimeZone] and [endTimeZone] set as different time
   /// zone's and it's value falls invalid, the appointment will render with half
   /// an hour duration from the start time of the appointment.
+  ///
+  /// See also:
+  /// * [CalendarDataSource.getEndTimeZone], which maps the custom business
+  /// objects corresponding property to this property.
+  /// * [endTime], the date time value in which the appointment will end.
+  /// * [endTimeZone], the timezone for the end time, the appointment will
+  /// render by converting the end time based on the [endTimeZone], and
+  /// [SfCalendar.timeZone].
+  /// * [SfCalendar.timeZone], to set the timezone for the calendar.
+  /// * [The documentation for time zone](https://help.syncfusion.com/flutter/calendar/timezone)
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -389,6 +476,20 @@ class Appointment with Diagnosticable {
   ///
   /// Defaults to null.
   ///
+  /// See also:
+  /// * [CalendarDataSource.getRecurrenceRule], which maps the custom business
+  /// objects corresponding property to this property.
+  /// * [RecurrenceProperties], which used to create the recurrence rule based
+  /// on the values set to these properties.
+  /// * [SfCalendar.generateRRule], which used to generate recurrence rule
+  /// based on the [RecurrenceProperties] values.
+  /// * [SfCalendar.getRecurrenceDateTimeCollection], to get the recurrence date
+  /// time collection based on the given recurrence rule and start date.
+  /// * Knowledge base: [How to use a negative value for bysetpos in rrule](https://www.syncfusion.com/kb/12552/how-to-use-a-negative-value-for-bysetpos-in-a-rrule-of-recurrence-appointment-in-the)
+  /// * Knowledge base: [How to get the recurrence date collection](https://www.syncfusion.com/kb/12344/how-to-get-the-recurrence-date-collection-in-the-flutter-calendar)
+  /// * Knowledge base: [How to add recurring appointments until specified date](https://www.syncfusion.com/kb/12158/how-to-add-recurring-appointments-until-the-specified-date-in-the-flutter-calendar)
+  ///
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///   return Container(
@@ -440,6 +541,17 @@ class Appointment with Diagnosticable {
   /// [Calendar].
   ///
   /// Defaults to `<DateTime>[]`.
+  ///
+  /// See also:
+  /// * [CalendarDataSource.getRecurrenceExceptionDates], which maps the custom
+  /// business objects corresponding property to this property.
+  /// * [recurrenceRule], which used to generate the recurrence appointment
+  /// based on the rule set.
+  /// * [RecurrenceProperties], which used to create the recurrence rule based
+  /// on the values set to these properties.
+  /// * [SfCalendar.generateRRule], which used to generate recurrence rule
+  /// based on the [RecurrenceProperties] values.
+  /// * Knowledge base: [How to exclude the dates from the recurrence appointments](https://www.syncfusion.com/kb/12161/how-to-exclude-the-dates-from-recurrence-appointments-in-the-flutter-calendar)
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -497,6 +609,12 @@ class Appointment with Diagnosticable {
   ///
   /// Defaults to null.
   ///
+  /// See also:
+  /// * [CalendarDataSource.getNotes], which maps the custom business objects
+  /// corresponding property to this property.
+  /// * [location], which used to store the location data of the appointment in
+  /// the calendar.
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///   return Container(
@@ -553,6 +671,12 @@ class Appointment with Diagnosticable {
   ///
   /// Defaults to null.
   ///
+  /// See also:
+  /// * [CalendarDataSource.getLocation], which maps the custom business objects
+  /// corresponding property to this property.
+  /// * [notes], which used to store some additional data or information about
+  /// the  appointment in the calendar.
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///   return Container(
@@ -608,12 +732,18 @@ class Appointment with Diagnosticable {
   /// resource in calendar view.
   ///
   /// See also:
-  ///
-  /// * [CalendarResource], the resource data for calendar.
+  /// * [CalendarDataSource.getResourceIds], which maps the custom business
+  /// objects corresponding property to this property.
+  /// * [CalendarResource], object which contains the resource data.
   /// * [ResourceViewSettings], the settings have properties which allow to
   /// customize the resource view of the [SfCalendar].
   /// * [CalendarResource.id], the unique id for the [CalendarResource] view of
   /// [SfCalendar].
+  /// * [CalendarDataSource], which used to set the resources collection to the
+  /// calendar.
+  /// * Knowledge base: [How to add appointment for the selected resource using appointment editor](https://www.syncfusion.com/kb/12109/how-to-add-appointment-for-the-selected-resources-using-appointment-editor-in-the-flutter)
+  /// * Knowledge base: [How to add resources](https://www.syncfusion.com/kb/12070/how-to-add-resources-in-the-flutter-calendar)
+  /// * Knowledge base: [How to handle appointments for muliple resources](https://www.syncfusion.com/kb/11812/how-to-handle-appointments-for-multiple-resources-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///
@@ -678,6 +808,14 @@ class Appointment with Diagnosticable {
   /// Exception recurrence appointment should not have a RRule. If the exception
   /// appointment has RRule, it will not be considered.
   ///
+  /// See also:
+  /// * [CalendarDataSource.getRecurrenceId], which maps the custom business
+  /// objects corresponding property to this property.
+  /// * [id], which used to set unique identification number for the
+  /// [Appointment] object.
+  /// * [appointmentType], which used to identify the different appointment
+  /// types.
+  ///
   /// ```dart
   ///AppointmentDataSource _getDataSource() {
   ///  List<Appointment> appointments = <Appointment>[];
@@ -721,7 +859,17 @@ class Appointment with Diagnosticable {
   /// The exception appointment should have the different [id] value compared
   /// to the pattern appointment. But the [recurrenceId] of the exception
   /// appointment and the [id] value of the pattern appointment should be same.
+  ///
+  /// See also:
+  /// * [CalendarDataSource.id], which maps the custom business objects
+  /// corresponding property to this property.
+  /// * [recurrenceId], which used to create an exception/changed occurrence
+  /// appointment.
+  /// * [appointmentType], which used to identify the different appointment
+  /// types.
+  ///
   /// ```dart
+  ///
   /// AppointmentDataSource _getDataSource() {
   ///     List<Appointment> appointments = <Appointment>[];
   ///
@@ -754,10 +902,14 @@ class Appointment with Diagnosticable {
 
   ///Specifies the appointment type, which is used to distinguish appointments
   /// based on their functionality.
+  ///
   /// This is read-only.
+  ///
   /// Defines the appointment type for the [Appointment].
   ///
-  /// Also refer: [AppointmentType].
+  /// Also refer:
+  /// [AppointmentType], to know more about the available appointment types in
+  /// calendar.
   ///
   /// ``` dart
   ///Widget build(BuildContext context) {

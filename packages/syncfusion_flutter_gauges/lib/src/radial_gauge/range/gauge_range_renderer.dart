@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -65,8 +64,6 @@ class RenderGaugeRange extends RenderBox {
   late double _labelAngle;
   late Offset _labelPosition;
   late Size _labelSize;
-  late double _actualStartValue;
-  late double _actualEndValue;
   late Rect _pathRect;
   Rect? _rangeRect;
 
@@ -335,10 +332,6 @@ class RenderGaugeRange extends RenderBox {
         ? axisRenderer!.getAxisOffset() + _actualRangeOffset
         : (_actualRangeOffset + axisRenderer!.getAxisOffset());
     _maxAngle = _sweepAngle;
-    _actualStartValue =
-        getMinMax(startValue, axisRenderer!.minimum, axisRenderer!.maximum);
-    _actualEndValue =
-        getMinMax(endValue, axisRenderer!.minimum, axisRenderer!.maximum);
     _calculateRangeAngle();
     if (_actualStartWidth != _actualEndWidth) {
       _calculateInEqualWidthArc();
@@ -390,33 +383,31 @@ class RenderGaugeRange extends RenderBox {
       _rangeStartValue = axisRenderer!.startAngle +
           (_maxAngle /
               ((axisRenderer!.maximum - axisRenderer!.minimum) /
-                  (_actualStartValue - axisRenderer!.minimum)));
+                  (startValue - axisRenderer!.minimum)));
       _rangeEndValue = axisRenderer!.startAngle +
           (_maxAngle /
               ((axisRenderer!.maximum - axisRenderer!.minimum) /
-                  (_actualEndValue - axisRenderer!.minimum)));
+                  (endValue - axisRenderer!.minimum)));
       _rangeMidValue = axisRenderer!.startAngle +
           (_maxAngle /
               ((axisRenderer!.maximum - axisRenderer!.minimum) /
-                  ((_actualEndValue - _actualStartValue) / 2 +
-                      _actualStartValue)));
+                  ((endValue - startValue) / 2 + startValue)));
     } else {
       _rangeStartValue = axisRenderer!.startAngle +
           _maxAngle -
           (_maxAngle /
               ((axisRenderer!.maximum - axisRenderer!.minimum) /
-                  (_actualStartValue - axisRenderer!.minimum)));
+                  (startValue - axisRenderer!.minimum)));
       _rangeEndValue = axisRenderer!.startAngle +
           _maxAngle -
           (_maxAngle /
               ((axisRenderer!.maximum - axisRenderer!.minimum) /
-                  (_actualEndValue - axisRenderer!.minimum)));
+                  (endValue - axisRenderer!.minimum)));
       _rangeMidValue = axisRenderer!.startAngle +
           _maxAngle -
           (_maxAngle /
               ((axisRenderer!.maximum - axisRenderer!.minimum) /
-                  ((_actualEndValue - _actualStartValue) / 2 +
-                      _actualStartValue)));
+                  ((endValue - startValue) / 2 + startValue)));
     }
 
     _rangeStartRadian = getDegreeToRadian(_rangeStartValue);
@@ -428,20 +419,37 @@ class RenderGaugeRange extends RenderBox {
   void _calculateEqualWidthArc() {
     _thickness = _actualStartWidth;
     final double startFactor = (axisRenderer!.renderer != null &&
-            axisRenderer!.renderer!.valueToFactor(_actualStartValue) != null)
-        ? axisRenderer!.renderer!.valueToFactor(_actualStartValue) ??
-            axisRenderer!.valueToFactor(_actualStartValue)
-        : axisRenderer!.valueToFactor(_actualStartValue);
+            axisRenderer!.renderer!.valueToFactor(startValue) != null)
+        ? axisRenderer!.renderer!.valueToFactor(startValue) ??
+            axisRenderer!.valueToFactor(startValue)
+        : axisRenderer!.valueToFactor(startValue);
     _rangeStartRadian = getDegreeToRadian(
         (startFactor * _sweepAngle) + axisRenderer!.startAngle);
     final double endFactor = (axisRenderer!.renderer != null &&
-            axisRenderer!.renderer!.valueToFactor(_actualEndValue) != null)
-        ? axisRenderer!.renderer!.valueToFactor(_actualEndValue) ??
-            axisRenderer!.valueToFactor(_actualEndValue)
-        : axisRenderer!.valueToFactor(_actualEndValue);
+            axisRenderer!.renderer!.valueToFactor(endValue) != null)
+        ? axisRenderer!.renderer!.valueToFactor(endValue) ??
+            axisRenderer!.valueToFactor(endValue)
+        : axisRenderer!.valueToFactor(endValue);
     final double endRadian =
         getDegreeToRadian((endFactor * _sweepAngle) + axisRenderer!.startAngle);
     _rangeEndRadian = endRadian - _rangeStartRadian;
+
+    // To render the range in clock wise if the start value is greater than the end value
+    // for full circle axis track.
+    if (axisRenderer!.startAngle == axisRenderer!.endAngle &&
+        startValue > endValue) {
+      final double midFactor = (axisRenderer!.renderer != null &&
+              axisRenderer!.renderer!.valueToFactor(axisRenderer!.maximum) !=
+                  null)
+          ? axisRenderer!.renderer!.valueToFactor(axisRenderer!.maximum) ??
+              axisRenderer!.valueToFactor(axisRenderer!.maximum)
+          : axisRenderer!.valueToFactor(axisRenderer!.maximum);
+      final double midRadian = getDegreeToRadian(
+          (midFactor * _sweepAngle) + axisRenderer!.startAngle);
+      final double startRadian = getDegreeToRadian(axisRenderer!.startAngle);
+      _rangeEndRadian =
+          (midRadian - _rangeStartRadian) + (endRadian - startRadian);
+    }
 
     _rangeRect = Rect.fromLTRB(
         -(_radius - (_actualStartWidth / 2 + _totalOffset)),
@@ -513,7 +521,7 @@ class RenderGaugeRange extends RenderBox {
       actualEndAngle += 360;
     }
 
-    if (_actualStartValue > _actualEndValue) {
+    if (startValue > endValue) {
       final double temp = actualEndAngle;
       actualEndAngle = actualStartAngle;
       actualStartAngle = temp;
@@ -585,14 +593,11 @@ class RenderGaugeRange extends RenderBox {
   void _calculateLabelPosition() {
     final double midValueFactor = (axisRenderer!.renderer != null &&
             axisRenderer!.renderer!
-                    .valueToFactor((_actualEndValue + _actualStartValue) / 2) !=
+                    .valueToFactor((endValue + startValue) / 2) !=
                 null)
-        ? axisRenderer!.renderer!
-                .valueToFactor((_actualEndValue + _actualStartValue) / 2) ??
-            axisRenderer!
-                .valueToFactor((_actualEndValue + _actualStartValue) / 2)
-        : axisRenderer!
-            .valueToFactor((_actualEndValue + _actualStartValue) / 2);
+        ? axisRenderer!.renderer!.valueToFactor((endValue + startValue) / 2) ??
+            axisRenderer!.valueToFactor((endValue + startValue) / 2)
+        : axisRenderer!.valueToFactor((endValue + startValue) / 2);
     final double midAngle =
         (midValueFactor * _sweepAngle) + axisRenderer!.startAngle;
     final double labelRadian = getDegreeToRadian(midAngle);
@@ -627,7 +632,7 @@ class RenderGaugeRange extends RenderBox {
     final Paint paint = Paint()
       ..style = isFill ? PaintingStyle.fill : PaintingStyle.stroke
       ..strokeWidth = strokeWidth
-      ..color = color ?? _gaugeThemeData.rangeColor;
+      ..color = color ?? _gaugeThemeData.rangeColor ?? const Color(0xFFF67280);
     final double actualOpacity = paint.color.opacity;
     paint.color = paint.color.withOpacity(opacity * actualOpacity);
     if (gradient != null && gradient!.colors.isNotEmpty) {
@@ -649,7 +654,7 @@ class RenderGaugeRange extends RenderBox {
         ? _rangeEndRadian - _rangeStartRadian
         : _rangeEndRadian;
     double rangeStartAngle =
-        axisRenderer!.valueToFactor(_actualStartValue) * _sweepAngle +
+        axisRenderer!.valueToFactor(startValue) * _sweepAngle +
             axisRenderer!.startAngle;
     if (rangeStartAngle < 0) {
       rangeStartAngle += 360;
@@ -689,7 +694,8 @@ class RenderGaugeRange extends RenderBox {
       opacity = _rangeAnimation!.value;
     }
 
-    final Color rangeColor = color ?? _gaugeThemeData.rangeColor;
+    final Color rangeColor =
+        color ?? _gaugeThemeData.rangeColor ?? const Color(0xFFF67280);
     final Color labelColor = labelStyle.color ?? getSaturationColor(rangeColor);
     final double actualOpacity = labelColor.opacity;
     final TextSpan span = TextSpan(
@@ -720,7 +726,7 @@ class RenderGaugeRange extends RenderBox {
     final Canvas canvas = context.canvas;
     final Path path = Path();
     _calculateRangePosition();
-    if (_actualStartValue != _actualEndValue) {
+    if (startValue != endValue) {
       canvas.save();
       if (!axisRenderer!.canScaleToFit) {
         canvas.translate(

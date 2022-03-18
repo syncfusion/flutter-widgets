@@ -1,15 +1,27 @@
-part of pdf;
+import 'dart:convert';
 
-class _JpegDecoder extends _ImageDecoder {
+import '../../../io/pdf_constants.dart';
+import '../../../primitives/pdf_boolean.dart';
+import '../../../primitives/pdf_dictionary.dart';
+import '../../../primitives/pdf_name.dart';
+import '../../../primitives/pdf_number.dart';
+import '../../../primitives/pdf_stream.dart';
+import '../enum.dart';
+import 'image_decoder.dart';
+
+/// internal class
+class JpegDecoder extends ImageDecoder {
   //Constructors
-  _JpegDecoder(List<int> imageData) {
+  /// internal constructor
+  JpegDecoder(List<int> imageData) {
     _isContainsLittleEndian = false;
     this.imageData = List<int>.from(imageData);
-    format = _ImageType.jpeg;
+    format = ImageType.jpeg;
     readHeader();
   }
 
   //Constants
+  /// internal field
   final List<int> jpegSegmentPreambleBytes = <int>[
     104,
     116,
@@ -43,14 +55,14 @@ class _JpegDecoder extends _ImageDecoder {
   ];
 
   //Fields
-  _PdfStream? _imageStream;
+  PdfStream? _imageStream;
   late bool _isContainsLittleEndian;
   int? _noOfComponents = -1;
 
   //Implementation
   @override
   void readHeader() {
-    _reset();
+    reset();
     bitsPerComponent = 8;
     int? imageOrientation = 0;
     final Map<String, dynamic> returnValue = _checkForExifData();
@@ -73,7 +85,7 @@ class _JpegDecoder extends _ImageDecoder {
           break;
       }
     }
-    _reset();
+    reset();
     bitsPerComponent = 8;
     int i = 4;
     bool isLengthExceed = false;
@@ -98,49 +110,49 @@ class _JpegDecoder extends _ImageDecoder {
       }
     }
     if (isLengthExceed) {
-      _reset();
-      _seek(2);
+      reset();
+      seek(2);
       _readExceededJpegImage();
     }
   }
 
   @override
-  _PdfStream? getImageDictionary() {
-    _imageStream = _PdfStream();
-    _imageStream!._dataStream = imageData;
+  PdfStream? getImageDictionary() {
+    _imageStream = PdfStream();
+    _imageStream!.dataStream = imageData;
     _imageStream!.compress = false;
 
-    _imageStream![_DictionaryProperties.type] =
-        _PdfName(_DictionaryProperties.xObject);
-    _imageStream![_DictionaryProperties.subtype] =
-        _PdfName(_DictionaryProperties.image);
-    _imageStream![_DictionaryProperties.width] = _PdfNumber(width);
-    _imageStream![_DictionaryProperties.height] = _PdfNumber(height);
-    _imageStream![_DictionaryProperties.bitsPerComponent] =
-        _PdfNumber(bitsPerComponent!);
-    _imageStream![_DictionaryProperties.filter] =
-        _PdfName(_DictionaryProperties.dctDecode);
-    _imageStream![_DictionaryProperties.colorSpace] =
-        _PdfName(_getColorSpace());
-    _imageStream![_DictionaryProperties.decodeParms] = _getDecodeParams();
+    _imageStream![PdfDictionaryProperties.type] =
+        PdfName(PdfDictionaryProperties.xObject);
+    _imageStream![PdfDictionaryProperties.subtype] =
+        PdfName(PdfDictionaryProperties.image);
+    _imageStream![PdfDictionaryProperties.width] = PdfNumber(width);
+    _imageStream![PdfDictionaryProperties.height] = PdfNumber(height);
+    _imageStream![PdfDictionaryProperties.bitsPerComponent] =
+        PdfNumber(bitsPerComponent!);
+    _imageStream![PdfDictionaryProperties.filter] =
+        PdfName(PdfDictionaryProperties.dctDecode);
+    _imageStream![PdfDictionaryProperties.colorSpace] =
+        PdfName(_getColorSpace());
+    _imageStream![PdfDictionaryProperties.decodeParms] = _getDecodeParams();
 
     return _imageStream;
   }
 
-  _PdfDictionary _getDecodeParams() {
-    final _PdfDictionary decodeParams = _PdfDictionary();
-    decodeParams[_DictionaryProperties.columns] = _PdfNumber(width);
-    decodeParams[_DictionaryProperties.blackIs1] = _PdfBoolean(true);
-    decodeParams[_DictionaryProperties.k] = _PdfNumber(-1);
-    decodeParams[_DictionaryProperties.predictor] = _PdfNumber(15);
-    decodeParams[_DictionaryProperties.bitsPerComponent] =
-        _PdfNumber(bitsPerComponent!);
+  PdfDictionary _getDecodeParams() {
+    final PdfDictionary decodeParams = PdfDictionary();
+    decodeParams[PdfDictionaryProperties.columns] = PdfNumber(width);
+    decodeParams[PdfDictionaryProperties.blackIs1] = PdfBoolean(true);
+    decodeParams[PdfDictionaryProperties.k] = PdfNumber(-1);
+    decodeParams[PdfDictionaryProperties.predictor] = PdfNumber(15);
+    decodeParams[PdfDictionaryProperties.bitsPerComponent] =
+        PdfNumber(bitsPerComponent!);
     return decodeParams;
   }
 
   Map<String, dynamic> _checkForExifData() {
     int? imageOrientation = 0;
-    _reset();
+    reset();
     if (_convertToUShort(_readJpegBytes(2)) != 0xFFD8) {
       return <String, dynamic>{
         'hasOrientation': false,
@@ -149,12 +161,12 @@ class _JpegDecoder extends _ImageDecoder {
     }
     int? jpegMarkerStart;
     int? jpegMarkerNum = 0;
-    while ((jpegMarkerStart = _readByte()) == 0xFF &&
-        (jpegMarkerNum = _readByte()) != 0xE1) {
+    while ((jpegMarkerStart = readByte()) == 0xFF &&
+        (jpegMarkerNum = readByte()) != 0xE1) {
       final int jpegDataLength = _convertToUShort(_readJpegBytes(2));
       final int jpegOffset = jpegDataLength - 2;
       final int jpegPosition = offset + jpegOffset;
-      _seek(jpegOffset);
+      seek(jpegOffset);
       if (offset != jpegPosition || offset > imageData.length) {
         return <String, dynamic>{
           'hasOrientation': false,
@@ -168,7 +180,7 @@ class _JpegDecoder extends _ImageDecoder {
         'imageOrientation': imageOrientation
       };
     } else {
-      _seek(2);
+      seek(2);
       if (utf8.decode(_readJpegBytes(4)) != 'Exif' ||
           _convertToUShort(_readJpegBytes(2)) != 0) {
         return <String, dynamic>{
@@ -176,7 +188,7 @@ class _JpegDecoder extends _ImageDecoder {
           'imageOrientation': imageOrientation
         };
       }
-      final int tiffTypeHeaderStart = offset.toInt();
+      final int tiffTypeHeaderStart = offset;
       final List<int> byteData = _readJpegBytes(2);
       _isContainsLittleEndian = utf8.decode(byteData) == 'II';
       if (_convertToUShort(_readJpegBytes(2)) != 0x002A) {
@@ -194,7 +206,7 @@ class _JpegDecoder extends _ImageDecoder {
         if (_convertToUShort(_readJpegBytes(2)) == 274) {
           orientationPosition = offset - 2;
         }
-        _seek(10);
+        seek(10);
       }
       if (orientationPosition >= 0) {
         offset = orientationPosition;
@@ -204,7 +216,7 @@ class _JpegDecoder extends _ImageDecoder {
             'imageOrientation': imageOrientation
           };
         }
-        _seek(6);
+        seek(6);
         final List<int> orientationData = _readJpegBytes(4);
         int? orientationAngle = 0;
         for (int i = 0; i < orientationData.length; i++) {
@@ -247,12 +259,12 @@ class _JpegDecoder extends _ImageDecoder {
         case 0x00CD:
         case 0x00CE:
         case 0x00CF:
-          _seek(3);
+          seek(3);
           height = imageData[offset] << 8 | imageData[offset + 1];
-          _seek(2);
+          seek(2);
           width = imageData[offset] << 8 | imageData[offset + 1];
           _noOfComponents = imageData[offset];
-          _seek(1);
+          seek(1);
           isContinueReading = false;
           break;
         default:
@@ -266,18 +278,18 @@ class _JpegDecoder extends _ImageDecoder {
     if (_isContainsLittleEndian) {
       data = List<int>.from(data.reversed);
     }
-    return _readUInt16(data, 0);
+    return readUInt16(data, 0);
   }
 
   int _convertToUInt(List<int> data) {
     if (_isContainsLittleEndian) {
       data = List<int>.from(data.reversed);
     }
-    return _readUInt32(data, 0);
+    return readUInt32(data, 0);
   }
 
   List<int> _readJpegBytes(int byteCount) {
-    final List<int> value = _readBytes(byteCount);
+    final List<int> value = readBytes(byteCount);
     if (value.length != byteCount) {
       throw RangeError('Invalid count');
     }
@@ -286,13 +298,13 @@ class _JpegDecoder extends _ImageDecoder {
 
   int _getMarker() {
     int skippedByte = 0;
-    int? marker = _readByte();
+    int? marker = readByte();
     while (marker != 255) {
       skippedByte++;
-      marker = _readByte();
+      marker = readByte();
     }
     do {
-      marker = _readByte();
+      marker = readByte();
     } while (marker == 255);
     if (skippedByte != 0) {
       throw UnsupportedError('Error decoding JPEG image');
@@ -302,24 +314,24 @@ class _JpegDecoder extends _ImageDecoder {
 
   void _skipStream() {
     final int length = imageData[offset] << 8 | imageData[offset + 1];
-    _seek(2);
+    seek(2);
     if (length < 2) {
       throw UnsupportedError('Error decoding JPEG image');
     } else if (length > 0) {
-      _seek(length - 2);
+      seek(length - 2);
     }
   }
 
   String _getColorSpace() {
-    const String colorSpace = _DictionaryProperties.deviceRGB;
+    const String colorSpace = PdfDictionaryProperties.deviceRGB;
     if (_noOfComponents == 1 || _noOfComponents == 3 || _noOfComponents == 4) {
       switch (_noOfComponents) {
         case 1:
-          return _DictionaryProperties.deviceGray;
+          return PdfDictionaryProperties.deviceGray;
         case 3:
-          return _DictionaryProperties.deviceRGB;
+          return PdfDictionaryProperties.deviceRGB;
         case 4:
-          return _DictionaryProperties.deviceCMYK;
+          return PdfDictionaryProperties.deviceCMYK;
       }
     } else {
       int i = 0;
@@ -347,13 +359,13 @@ class _JpegDecoder extends _ImageDecoder {
                   if (bitsPerComponent == 8) {
                     result = colorSpace;
                   } else {
-                    result = _DictionaryProperties.deviceGray;
+                    result = PdfDictionaryProperties.deviceGray;
                   }
                   return result;
                 case 3:
                   return colorSpace;
                 case 4:
-                  return _DictionaryProperties.deviceCMYK;
+                  return PdfDictionaryProperties.deviceCMYK;
               }
             } else if (marker == 0xD9FF) {
               break;

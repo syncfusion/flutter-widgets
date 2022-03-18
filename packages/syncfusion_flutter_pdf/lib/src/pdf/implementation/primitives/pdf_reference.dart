@@ -1,32 +1,37 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../io/enums.dart';
+import '../io/pdf_cross_table.dart';
 
-class _PdfReference implements _IPdfPrimitive {
-  _PdfReference(int objNum, int genNum) {
-    if (objNum.isNaN) {
+/// internal class
+class PdfReference implements IPdfPrimitive {
+  /// internal constructor
+  PdfReference(this.objNum, this.genNum) {
+    if (objNum!.isNaN) {
       throw ArgumentError.value(objNum, 'not a number');
     }
-    if (genNum.isNaN) {
+    if (genNum!.isNaN) {
       throw ArgumentError.value(genNum, 'not a number');
     }
-    _objNum = objNum;
-    _genNum = genNum;
   }
 
   //Fields
-  int? _objNum;
-  int? _genNum;
+  /// internal field
+  int? objNum;
+
+  /// internal field
+  int? genNum;
   bool? _isSaving;
   int? _objectCollectionIndex;
   int? _position;
-  _ObjectStatus? _status;
+  PdfObjectStatus? _status;
 
   //Implementation
   @override
   String toString() {
-    return '$_objNum $_genNum R';
+    return '$objNum $genNum R';
   }
 
-  //_IPdfPrimitive members
+  //IPdfPrimitive members
   @override
   bool? get isSaving {
     _isSaving ??= false;
@@ -61,22 +66,22 @@ class _PdfReference implements _IPdfPrimitive {
   }
 
   @override
-  _ObjectStatus? get status {
-    _status ??= _ObjectStatus.none;
+  PdfObjectStatus? get status {
+    _status ??= PdfObjectStatus.none;
     return _status;
   }
 
   @override
-  set status(_ObjectStatus? value) {
+  set status(PdfObjectStatus? value) {
     _status = value;
   }
 
   @override
-  _IPdfPrimitive? clonedObject;
+  IPdfPrimitive? clonedObject;
 
   @override
-  void save(_IPdfWriter? writer) {
-    writer!._write(toString());
+  void save(IPdfWriter? writer) {
+    writer!.write(toString());
   }
 
   @override
@@ -87,5 +92,5 @@ class _PdfReference implements _IPdfPrimitive {
   }
 
   @override
-  _IPdfPrimitive? _clone(_PdfCrossTable crossTable) => null;
+  IPdfPrimitive? cloneObject(PdfCrossTable crossTable) => null;
 }

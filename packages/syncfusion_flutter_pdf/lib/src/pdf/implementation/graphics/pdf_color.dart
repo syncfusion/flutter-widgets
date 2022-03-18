@@ -1,4 +1,6 @@
-part of pdf;
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_number.dart';
+import 'enums.dart';
 
 /// Implements structures and routines working with color.
 ///
@@ -31,6 +33,7 @@ class PdfColor {
   /// document.dispose();
   /// ```
   PdfColor(int red, int green, int blue, [int alpha = 255]) {
+    _helper = PdfColorHelper(this);
     _black = 0;
     _cyan = 0;
     _magenta = 0;
@@ -39,8 +42,8 @@ class PdfColor {
     _red = red;
     _green = green;
     _blue = blue;
-    _alpha = alpha;
-    _isFilled = _alpha != 0;
+    _helper.alpha = alpha;
+    _helper.isFilled = _helper.alpha != 0;
     _assignCMYK(_red, _green, _blue);
   }
 
@@ -60,6 +63,7 @@ class PdfColor {
   /// document.dispose();
   /// ```
   PdfColor.fromCMYK(double cyan, double magenta, double yellow, double black) {
+    _helper = PdfColorHelper(this);
     _red = 0;
     _cyan = cyan;
     _green = 0;
@@ -68,12 +72,13 @@ class PdfColor {
     _yellow = yellow;
     _black = black;
     _gray = 0;
-    _alpha = _maxColourChannelValue.toInt();
-    _isFilled = true;
+    _helper.alpha = _maxColourChannelValue.toInt();
+    _helper.isFilled = true;
     _assignRGB(cyan, magenta, yellow, black);
   }
 
   PdfColor._fromGray(double gray) {
+    _helper = PdfColorHelper(this);
     if (gray < 0) {
       gray = 0;
     }
@@ -88,11 +93,12 @@ class PdfColor {
     _yellow = gray;
     _black = gray;
     _gray = gray;
-    _alpha = _maxColourChannelValue.round().toUnsigned(8);
-    _isFilled = true;
+    _helper.alpha = _maxColourChannelValue.round().toUnsigned(8);
+    _helper.isFilled = true;
   }
 
   PdfColor._empty() {
+    _helper = PdfColorHelper(this);
     _red = 0;
     _cyan = 0;
     _green = 0;
@@ -101,8 +107,8 @@ class PdfColor {
     _yellow = 0;
     _black = 0;
     _gray = 0;
-    _alpha = 0;
-    _isFilled = false;
+    _helper.alpha = 0;
+    _helper.isFilled = false;
   }
 
   @override
@@ -117,13 +123,13 @@ class PdfColor {
         _yellow == other._yellow &&
         _black == other._black &&
         _gray == other._gray &&
-        _alpha == other._alpha &&
-        _isFilled == other._isFilled;
+        _helper.alpha == other._helper.alpha &&
+        _helper.isFilled == other._helper.isFilled;
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => _alpha.hashCode;
+  int get hashCode => _helper.alpha.hashCode;
 
   /// Gets the empty(null) color.
   ///
@@ -144,6 +150,8 @@ class PdfColor {
   }
 
   //Fields
+  late PdfColorHelper _helper;
+
   /// Holds RGB colors converted into strings.
   final Map<int, Object> _rgbStrings = <int, Object>{};
 
@@ -171,12 +179,6 @@ class PdfColor {
   /// Value of Gray channel.
   late double _gray;
 
-  /// Value of alpha channel.
-  late int _alpha;
-
-  /// Shows if the color is empty.
-  bool _isFilled = false;
-
   /// Max value of color channel.
   final double _maxColourChannelValue = 255.0;
 
@@ -199,7 +201,7 @@ class PdfColor {
   set r(int value) {
     _red = value;
     _assignCMYK(_red, _green, _blue);
-    _isFilled = true;
+    _helper.isFilled = true;
   }
 
   /// Gets or sets Green channel value.
@@ -220,7 +222,7 @@ class PdfColor {
   set g(int value) {
     _green = value;
     _assignCMYK(_red, _green, _blue);
-    _isFilled = true;
+    _helper.isFilled = true;
   }
 
   /// Gets or sets Blue channel value.
@@ -241,7 +243,7 @@ class PdfColor {
   set b(int value) {
     _blue = value;
     _assignCMYK(_red, _green, _blue);
-    _isFilled = true;
+    _helper.isFilled = true;
   }
 
   /// Gets whether the PDFColor is Empty or not.
@@ -260,7 +262,7 @@ class PdfColor {
   /// //Close the document.
   /// document.dispose();
   /// ```
-  bool get isEmpty => !_isFilled;
+  bool get isEmpty => !_helper.isFilled;
 
   //Implementation
   /// Converts RGB to CMYK.
@@ -304,9 +306,64 @@ class PdfColor {
     return b <= min ? b : min;
   }
 
+  PdfArray _toArray([PdfColorSpace colorSpace = PdfColorSpace.rgb]) {
+    final PdfArray array = PdfArray();
+    switch (colorSpace) {
+      case PdfColorSpace.cmyk:
+        array.add(PdfNumber(_cyan));
+        array.add(PdfNumber(_magenta));
+        array.add(PdfNumber(_yellow));
+        array.add(PdfNumber(_black));
+        break;
+      case PdfColorSpace.grayScale:
+        array.add(PdfNumber(_gray / _maxColourChannelValue));
+        break;
+      case PdfColorSpace.rgb:
+        array.add(PdfNumber(_red / _maxColourChannelValue));
+        array.add(PdfNumber(_green / _maxColourChannelValue));
+        array.add(PdfNumber(_blue / _maxColourChannelValue));
+        break;
+      default:
+        throw ArgumentError.value('Unsupported colour space.');
+    }
+    return array;
+  }
+}
+
+/// [PdfColor] helper
+class PdfColorHelper {
+  /// internal constructor
+  PdfColorHelper(this.base);
+
+  /// internal field
+  late PdfColor base;
+
+  /// internal method
+  static PdfColorHelper getHelper(PdfColor base) {
+    return base._helper;
+  }
+
+  /// internal method
+  static PdfColor fromGray(double gray) {
+    return PdfColor._fromGray(gray);
+  }
+
+  /// internal method
+  static PdfArray toArray(PdfColor color,
+      [PdfColorSpace colorSpace = PdfColorSpace.rgb]) {
+    return color._toArray(colorSpace);
+  }
+
+  /// Value of alpha channel.
+  late int alpha;
+
+  /// Shows if the color is empty.
+  bool isFilled = false;
+
+  /// internal method
   /// Converts [PdfColor] to PDF string representation.
-  String _toString(PdfColorSpace? colorSpace, bool stroke) {
-    if (isEmpty) {
+  String getString(PdfColorSpace? colorSpace, bool stroke) {
+    if (base.isEmpty) {
       return '';
     }
     return _rgbToString(stroke);
@@ -314,29 +371,25 @@ class PdfColor {
 
   /// Sets RGB color.
   String _rgbToString(bool ifStroking) {
-    int key = (r << 16) + (g << 8) + b;
+    int key = (base.r << 16) + (base.g << 8) + base.b;
     if (ifStroking) {
       key += 1 << 24;
     }
     String colour;
     Object? obj;
-    if (_rgbStrings.containsKey(key)) {
-      obj = _rgbStrings[key];
+    if (base._rgbStrings.containsKey(key)) {
+      obj = base._rgbStrings[key];
     }
     if (obj == null) {
-      dynamic red = r / _maxColourChannelValue;
-      dynamic green = g / _maxColourChannelValue;
-      dynamic blue = b / _maxColourChannelValue;
+      dynamic red = base.r / base._maxColourChannelValue;
+      dynamic green = base.g / base._maxColourChannelValue;
+      dynamic blue = base.b / base._maxColourChannelValue;
       red = red % 1 == 0 ? red.toInt() : red;
       green = green % 1 == 0 ? green.toInt() : green;
       blue = blue % 1 == 0 ? blue.toInt() : blue;
-      colour = _trimEnd(red.toString()) +
-          ' ' +
-          _trimEnd(green.toString()) +
-          ' ' +
-          _trimEnd(blue.toString()) +
-          (ifStroking ? ' RG' : ' rg');
-      _rgbStrings[key] = colour;
+      colour =
+          '${_trimEnd(red.toString())} ${_trimEnd(green.toString())} ${_trimEnd(blue.toString())}${ifStroking ? ' RG' : ' rg'}';
+      base._rgbStrings[key] = colour;
     } else {
       colour = obj.toString();
     }
@@ -348,28 +401,5 @@ class PdfColor {
       color = color.substring(0, color.length - 3);
     }
     return color.isEmpty ? '0' : color;
-  }
-
-  _PdfArray _toArray([PdfColorSpace colorSpace = PdfColorSpace.rgb]) {
-    final _PdfArray array = _PdfArray();
-    switch (colorSpace) {
-      case PdfColorSpace.cmyk:
-        array._add(_PdfNumber(_cyan));
-        array._add(_PdfNumber(_magenta));
-        array._add(_PdfNumber(_yellow));
-        array._add(_PdfNumber(_black));
-        break;
-      case PdfColorSpace.grayScale:
-        array._add(_PdfNumber(_gray / _maxColourChannelValue));
-        break;
-      case PdfColorSpace.rgb:
-        array._add(_PdfNumber(_red / _maxColourChannelValue));
-        array._add(_PdfNumber(_green / _maxColourChannelValue));
-        array._add(_PdfNumber(_blue / _maxColourChannelValue));
-        break;
-      default:
-        throw ArgumentError.value('Unsupported colour space.');
-    }
-    return array;
   }
 }

@@ -2,12 +2,10 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-
 import '../utils/shape_helper.dart';
+import '../utils/shape_helper.dart' as shape_helper;
 
 /// Callback which returns toggled indices and teh current toggled index.
 typedef ToggledIndicesChangedCallback = void Function(
@@ -44,6 +42,10 @@ enum LegendOverflowMode {
 
   /// It will wrap and place the remaining legend items to next line.
   wrap,
+
+  /// It will wrap and place the remaining legend items to next
+  /// line with scrolling.
+  wrapScroll,
 
   /// Exceeding items will be clipped.
   none,
@@ -135,13 +137,18 @@ class ItemRendererDetails {
 /// Represents the class of items in legends.
 class LegendItem {
   /// Creates a [LegendItem].
-  const LegendItem({
-    required this.text,
-    this.color,
-    this.shader,
-    this.imageProvider,
-    this.iconType,
-  }) : assert(color != null || shader != null || imageProvider != null);
+  const LegendItem(
+      {required this.text,
+      this.color,
+      this.shader,
+      this.imageProvider,
+      this.iconType,
+      this.iconStrokeWidth,
+      this.overlayMarkerType,
+      this.degree,
+      this.endAngle,
+      this.startAngle})
+      : assert(color != null || shader != null || imageProvider != null);
 
   /// Specifies the text of the legend.
   final String text;
@@ -157,6 +164,21 @@ class LegendItem {
 
   /// Specifies the type of the icon.
   final ShapeMarkerType? iconType;
+
+  /// Specifies the stroke width of the icon.
+  final double? iconStrokeWidth;
+
+  /// Specifies the overlay marker for cartesian line type icon.
+  final ShapeMarkerType? overlayMarkerType;
+
+  /// Specifies the start angle for radial bar icon.
+  final double? startAngle;
+
+  /// Specifies the degree for radial bar icon.
+  final double? degree;
+
+  /// Specifies the end angle for radial bar icon.
+  final double? endAngle;
 }
 
 /// Represents the class for legends.
@@ -172,14 +194,17 @@ class SfLegend extends StatefulWidget {
     this.overflowMode = LegendOverflowMode.wrap,
     this.spacing = 5.0,
     this.itemSpacing = 10.0,
+    this.itemRunSpacing,
     this.iconSize = const Size(8.0, 8.0),
     this.iconBorder,
     this.direction,
+    this.scrollDirection,
     this.width,
     this.height,
     this.alignment = LegendAlignment.center,
     this.offset,
     this.padding = const EdgeInsets.all(10.0),
+    this.margin,
     this.textStyle,
     this.iconType = ShapeMarkerType.circle,
     this.imageProvider,
@@ -218,11 +243,16 @@ class SfLegend extends StatefulWidget {
     this.border,
     this.offset,
     this.padding,
+    this.margin,
     this.position = LegendPosition.top,
     this.overflowMode = LegendOverflowMode.wrap,
     this.itemSpacing = 10.0,
+    this.itemRunSpacing,
     this.spacing = 5.0,
     this.direction,
+    this.scrollDirection,
+    this.width,
+    this.height,
     this.alignment = LegendAlignment.center,
     this.toggledItemColor,
     this.onToggledIndicesChanged,
@@ -238,8 +268,6 @@ class SfLegend extends StatefulWidget {
         iconBorder = null,
         segmentSize = null,
         labelsPlacement = null,
-        width = null,
-        height = null,
         edgeLabelsPlacement = null,
         labelOverflow = null,
         segmentPaintingStyle = null,
@@ -264,8 +292,10 @@ class SfLegend extends StatefulWidget {
     this.overflowMode = LegendOverflowMode.scroll,
     this.itemSpacing = 2.0,
     this.direction,
+    this.scrollDirection,
     this.offset,
     this.padding = const EdgeInsets.all(10.0),
+    this.margin,
     this.textStyle,
     this.segmentSize,
     this.labelsPlacement,
@@ -286,6 +316,7 @@ class SfLegend extends StatefulWidget {
         imageProvider = null,
         iconSize = Size.zero,
         iconBorder = null,
+        itemRunSpacing = null,
         spacing = 0.0,
         itemBuilder = null,
         itemCount = 0,
@@ -325,6 +356,9 @@ class SfLegend extends StatefulWidget {
   /// Specifies the space between the each legend items.
   final double itemSpacing;
 
+  /// Specifies the cross axis run spacing for the wrapped elements.
+  final double? itemRunSpacing;
+
   /// Specifies the shape of the legend icon.
   final ShapeMarkerType? iconType;
 
@@ -340,6 +374,9 @@ class SfLegend extends StatefulWidget {
   /// Arranges the legend items in either horizontal or vertical direction.
   final Axis? direction;
 
+  /// Scroll the legend items in either horizontal or vertical direction.
+  final Axis? scrollDirection;
+
   /// Specifies the alignment of legend.
   final LegendAlignment? alignment;
 
@@ -352,8 +389,11 @@ class SfLegend extends StatefulWidget {
   /// Places the legend in custom position.
   final Offset? offset;
 
-  /// Sets the padding around the legend.
+  /// Empty space inside the decoration.
   final EdgeInsetsGeometry? padding;
+
+  /// Empty space outside the decoration.
+  final EdgeInsetsGeometry? margin;
 
   /// Customizes the legend item's text style.
   final TextStyle? textStyle;
@@ -398,7 +438,7 @@ class SfLegend extends StatefulWidget {
   /// Specifies the toggle item's color. Applicable for vector builder.
   final Color? toggledItemColor;
 
-  /// Avoid the legend rendering is its size is greater than its child.
+  /// Avoid the legend rendering if its size is greater than its child.
   final bool isComplex;
 
   /// Returns a widget for the given value.
@@ -424,6 +464,7 @@ class SfLegend extends StatefulWidget {
   final _LegendType _type;
 
   @override
+  // ignore: library_private_types_in_public_api
   _SfLegendState createState() => _SfLegendState();
 }
 
@@ -543,6 +584,7 @@ class _SfLegendState extends State<SfLegend> {
           itemBuilder: widget.itemBuilder,
           itemCount: widget.itemCount,
           itemSpacing: widget.itemSpacing,
+          itemRunSpacing: widget.itemRunSpacing,
           overflowMode: widget.overflowMode,
           onItemRenderer: widget.onItemRenderer,
           onToggledIndicesChanged: widget.onToggledIndicesChanged,
@@ -567,6 +609,10 @@ class _SfLegendState extends State<SfLegend> {
           edgeLabelsPlacement: widget.edgeLabelsPlacement,
           labelOverflow: widget.labelOverflow,
           textStyle: _textStyle,
+          pointerBuilder: widget.pointerBuilder,
+          pointerColor: widget.pointerColor,
+          pointerSize: widget.pointerSize,
+          pointerController: widget.pointerController,
         );
         break;
       case _LegendType.gradientBar:
@@ -584,7 +630,7 @@ class _SfLegendState extends State<SfLegend> {
           pointerBuilder: widget.pointerBuilder,
           pointerColor: widget.pointerColor,
           pointerSize: widget.pointerSize,
-          pointController: widget.pointerController,
+          pointerController: widget.pointerController,
         );
         break;
     }
@@ -596,12 +642,27 @@ class _SfLegendState extends State<SfLegend> {
     if (widget.title == null) {
       if (widget.overflowMode == LegendOverflowMode.scroll) {
         current = SingleChildScrollView(
-          scrollDirection: widget.position == LegendPosition.top ||
-                  widget.position == LegendPosition.bottom
-              ? Axis.horizontal
-              : Axis.vertical,
+          scrollDirection: widget.scrollDirection ??
+              (widget.position == LegendPosition.top ||
+                      widget.position == LegendPosition.bottom
+                  ? Axis.horizontal
+                  : Axis.vertical),
           child: current,
         );
+      } else if (widget.overflowMode == LegendOverflowMode.wrapScroll) {
+        current = SingleChildScrollView(
+          scrollDirection: widget.direction == Axis.horizontal
+              ? Axis.vertical
+              : Axis.horizontal,
+          child: current,
+        );
+      } else if (widget.overflowMode == LegendOverflowMode.none) {
+        current = SingleChildScrollView(
+            scrollDirection: widget.scrollDirection == Axis.horizontal
+                ? Axis.horizontal
+                : Axis.vertical,
+            physics: const NeverScrollableScrollPhysics(),
+            child: current);
       }
     } else {
       if (widget.position == LegendPosition.top ||
@@ -613,10 +674,37 @@ class _SfLegendState extends State<SfLegend> {
           children: <Widget>[
             widget.title!,
             if (widget.overflowMode == LegendOverflowMode.scroll)
-              SingleChildScrollView(
-                  scrollDirection: Axis.horizontal, child: current)
+              (widget.width != null || widget.height != null)
+                  ? Expanded(
+                      child: SingleChildScrollView(
+                          scrollDirection:
+                              widget.scrollDirection ?? Axis.horizontal,
+                          child: current),
+                    )
+                  : SingleChildScrollView(
+                      scrollDirection:
+                          widget.scrollDirection ?? Axis.horizontal,
+                      child: current)
+            else if (widget.overflowMode == LegendOverflowMode.wrapScroll)
+              Expanded(
+                child: SingleChildScrollView(
+                    scrollDirection: widget.direction == Axis.horizontal
+                        ? Axis.vertical
+                        : Axis.horizontal,
+                    child: current),
+              )
+            else if (widget.overflowMode == LegendOverflowMode.none)
+              Expanded(
+                  child: SingleChildScrollView(
+                      scrollDirection: widget.direction == Axis.horizontal
+                          ? Axis.horizontal
+                          : Axis.vertical,
+                      physics: const NeverScrollableScrollPhysics(),
+                      child: current))
             else
-              current
+              (widget.width != null || widget.height != null)
+                  ? Expanded(child: current)
+                  : current
           ],
         );
       } else {
@@ -628,8 +716,23 @@ class _SfLegendState extends State<SfLegend> {
               fit: FlexFit.loose,
               child: widget.overflowMode == LegendOverflowMode.scroll
                   ? SingleChildScrollView(
-                      scrollDirection: Axis.vertical, child: current)
-                  : current,
+                      scrollDirection: widget.scrollDirection ?? Axis.vertical,
+                      child: current)
+                  : widget.overflowMode == LegendOverflowMode.wrapScroll
+                      ? SingleChildScrollView(
+                          scrollDirection: widget.direction == Axis.horizontal
+                              ? Axis.vertical
+                              : Axis.horizontal,
+                          child: current)
+                      : widget.overflowMode == LegendOverflowMode.none
+                          ? SingleChildScrollView(
+                              scrollDirection:
+                                  widget.direction == Axis.horizontal
+                                      ? Axis.vertical
+                                      : Axis.horizontal,
+                              physics: const NeverScrollableScrollPhysics(),
+                              child: current)
+                          : current,
             ),
           ],
         );
@@ -649,12 +752,16 @@ class _SfLegendState extends State<SfLegend> {
       );
     }
 
-    if (widget.width != null && widget.height != null) {
-      current = Container(
+    if (widget.width != null || widget.height != null) {
+      current = SizedBox(
         width: widget.width,
         height: widget.height,
         child: current,
       );
+    }
+
+    if (widget.margin != null) {
+      current = Padding(padding: widget.margin!, child: current);
     }
 
     return current;
@@ -756,6 +863,7 @@ class _VectorLegend extends StatefulWidget {
     this.itemBuilder,
     this.itemCount,
     this.itemSpacing,
+    this.itemRunSpacing,
     this.overflowMode,
     this.onItemRenderer,
     this.onToggledIndicesChanged,
@@ -819,6 +927,9 @@ class _VectorLegend extends StatefulWidget {
   /// Specifies the space between the each legend items.
   final double? itemSpacing;
 
+  /// Specifies the cross axis run spacing for the wrapped elements.
+  final double? itemRunSpacing;
+
   /// Arranges the legend items in either horizontal or vertical direction.
   final Axis? direction;
 
@@ -841,6 +952,7 @@ class _VectorLegendState extends State<_VectorLegend>
           text: item.text,
           textStyle: widget.textStyle,
           iconType: item.iconType ?? widget.iconType,
+          iconStrokeWidth: item.iconStrokeWidth,
           imageProvider: item.imageProvider ?? widget.imageProvider,
           shader: item.shader,
           iconSize: widget.iconSize,
@@ -852,6 +964,10 @@ class _VectorLegendState extends State<_VectorLegend>
           toggledTextOpacity: widget.toggledTextOpacity,
           onToggledIndicesChanged: widget.onToggledIndicesChanged,
           onItemRenderer: widget.onItemRenderer,
+          overlayMarkerType: item.overlayMarkerType,
+          degree: item.degree,
+          startAngle: item.startAngle,
+          endAngle: item.endAngle,
         ));
       }
     } else if (widget.itemCount != null &&
@@ -860,7 +976,7 @@ class _VectorLegendState extends State<_VectorLegend>
       for (int index = 0; index < widget.itemCount!; index++) {
         items.add(_LegendItem(
           index: index,
-          itemBuilder: widget.itemBuilder!,
+          itemBuilder: widget.itemBuilder,
           toggledColor: _getEffectiveToggledColor(themeData),
           toggledIndices: widget.toggledIndices,
           onToggledIndicesChanged: widget.onToggledIndicesChanged,
@@ -886,13 +1002,13 @@ class _VectorLegendState extends State<_VectorLegend>
 
   @override
   void dispose() {
-    widget.toggledIndices?.clear();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
+
     final Widget current = Wrap(
       direction: widget.direction ??
           (widget.position == LegendPosition.top ||
@@ -900,22 +1016,11 @@ class _VectorLegendState extends State<_VectorLegend>
               ? Axis.horizontal
               : Axis.vertical),
       spacing: widget.itemSpacing!,
-      runSpacing: 6,
+      runSpacing: widget.itemRunSpacing ?? 6.0,
       runAlignment: WrapAlignment.center,
       alignment: WrapAlignment.start,
       children: _buildLegendItems(themeData),
     );
-
-    if (widget.overflowMode == LegendOverflowMode.none) {
-      return SingleChildScrollView(
-        scrollDirection: widget.position == LegendPosition.top ||
-                widget.position == LegendPosition.bottom
-            ? Axis.horizontal
-            : Axis.vertical,
-        physics: const NeverScrollableScrollPhysics(),
-        child: current,
-      );
-    }
 
     return current;
   }
@@ -930,6 +1035,7 @@ class _LegendItem extends StatefulWidget {
     this.text,
     this.textStyle,
     this.iconType,
+    this.iconStrokeWidth,
     this.imageProvider,
     this.shader,
     this.iconSize = Size.zero,
@@ -941,6 +1047,10 @@ class _LegendItem extends StatefulWidget {
     required this.toggledIndices,
     required this.onToggledIndicesChanged,
     this.onItemRenderer,
+    this.overlayMarkerType,
+    this.degree,
+    this.startAngle,
+    this.endAngle,
   });
 
   /// Specifies the item index.
@@ -957,6 +1067,9 @@ class _LegendItem extends StatefulWidget {
 
   /// Specifies the shape of the legend icon.
   final ShapeMarkerType? iconType;
+
+  /// Specifies the stroke width of the legend icon.
+  final double? iconStrokeWidth;
 
   /// Identifies an image.
   final ImageProvider? imageProvider;
@@ -991,6 +1104,18 @@ class _LegendItem extends StatefulWidget {
   /// Called every time while rendering a legend item.
   final ItemRenderCallback? onItemRenderer;
 
+  /// Specifies the overlay marker  for cartesian line type icon.
+  final ShapeMarkerType? overlayMarkerType;
+
+  /// Specifies the start angle for radial bar icon.
+  final double? startAngle;
+
+  /// Specifies the degree for radial bar icon.
+  final double? degree;
+
+  /// Specifies the end angle for radial bar icon.
+  final double? endAngle;
+
   @override
   _LegendItemState createState() => _LegendItemState();
 }
@@ -1012,12 +1137,16 @@ class _LegendItemState extends State<_LegendItem>
     Widget current = CustomPaint(
       size: widget.iconSize,
       painter: _LegendIconShape(
-        color: details.color,
-        iconType: details.iconType,
-        iconBorder: details.iconBorder,
-        image: snapshot.data,
-        shader: widget.shader,
-      ),
+          color: details.color,
+          iconType: details.iconType,
+          iconBorder: details.iconBorder,
+          iconStrokeWidth: widget.iconStrokeWidth,
+          image: snapshot.data,
+          shader: widget.shader,
+          overlayMarkerType: widget.overlayMarkerType,
+          degree: widget.degree,
+          startAngle: widget.startAngle,
+          endAngle: widget.endAngle),
     );
 
     if (widget.shader != null &&
@@ -1042,15 +1171,14 @@ class _LegendItemState extends State<_LegendItem>
 
   void _handleTapUp(TapUpDetails details) {
     if (widget.toggledIndices != null) {
-      final List<int> toggledIndices = List<int>.from(widget.toggledIndices!);
-      if (!toggledIndices.contains(widget.index)) {
-        toggledIndices.add(widget.index);
-        _toggleAnimationController.forward();
+      final List<int> newToggledIndices =
+          List<int>.from(widget.toggledIndices!);
+      if (!newToggledIndices.contains(widget.index)) {
+        newToggledIndices.add(widget.index);
       } else {
-        toggledIndices.remove(widget.index);
-        _toggleAnimationController.reverse();
+        newToggledIndices.remove(widget.index);
       }
-      widget.onToggledIndicesChanged?.call(toggledIndices, widget.index);
+      widget.onToggledIndicesChanged?.call(newToggledIndices, widget.index);
     }
   }
 
@@ -1060,9 +1188,9 @@ class _LegendItemState extends State<_LegendItem>
       return null;
     }
 
-    _completer ??= Completer<ImageInfo>();
+    _completer = Completer<ImageInfo>();
     _imageStream?.removeListener(imageStreamListener(_completer!));
-    _imageStream = widget.imageProvider!.resolve(const ImageConfiguration());
+    _imageStream = widget.imageProvider!.resolve(ImageConfiguration.empty);
     _imageStream!.addListener(imageStreamListener(_completer!));
     _imageInfo?.dispose();
     _imageInfo = await _completer!.future;
@@ -1094,6 +1222,14 @@ class _LegendItemState extends State<_LegendItem>
         : null;
     _iconColorTween = ColorTween(begin: begin, end: widget.toggledColor);
     _opacityTween = Tween<double>(begin: 1.0, end: widget.toggledTextOpacity);
+
+    if (widget.toggledIndices != null) {
+      if (widget.toggledIndices!.contains(widget.index)) {
+        _toggleAnimationController.value = 1.0;
+      } else {
+        _toggleAnimationController.value = 0.0;
+      }
+    }
 
     _obtainImage = _retrieveImageFromProvider();
     super.initState();
@@ -1155,14 +1291,21 @@ class _LegendItemState extends State<_LegendItem>
             }
           }
         } else {
+          final Color? referenceIconColor =
+              _iconColorTween.evaluate(_toggleAnimation);
           final ItemRendererDetails details = ItemRendererDetails(
             index: widget.index,
             text: widget.text!,
-            color: _iconColorTween.evaluate(_toggleAnimation),
+            color: referenceIconColor,
             iconType: widget.iconType!,
             iconBorder: widget.iconBorder,
           );
           widget.onItemRenderer?.call(details);
+          if (referenceIconColor != null &&
+              referenceIconColor != details.color) {
+            _iconColorTween.begin = details.color;
+            details.color = _iconColorTween.evaluate(_toggleAnimation);
+          }
           current = Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -1171,9 +1314,10 @@ class _LegendItemState extends State<_LegendItem>
               Text(
                 details.text,
                 style: widget.textStyle!.copyWith(
-                  color: widget.textStyle!.color!.withOpacity(
-                    _opacityTween.evaluate(_toggleAnimation),
-                  ),
+                  color: widget.textStyle!.foreground == null
+                      ? widget.textStyle!.color!
+                          .withOpacity(_opacityTween.evaluate(_toggleAnimation))
+                      : widget.textStyle!.foreground!.color,
                 ),
               )
             ],
@@ -1200,13 +1344,17 @@ class _LegendItemState extends State<_LegendItem>
 /// Represents the class for rendering icon shape.
 class _LegendIconShape extends CustomPainter {
   /// Represents [LegendIconShape]
-  _LegendIconShape({
-    required this.color,
-    required this.iconType,
-    this.iconBorder,
-    this.image,
-    this.shader,
-  });
+  _LegendIconShape(
+      {required this.color,
+      required this.iconType,
+      this.iconBorder,
+      this.iconStrokeWidth,
+      this.image,
+      this.shader,
+      this.overlayMarkerType,
+      this.degree,
+      this.startAngle,
+      this.endAngle});
 
   /// Specifies the color of the icon.
   final Color? color;
@@ -1217,16 +1365,31 @@ class _LegendIconShape extends CustomPainter {
   /// Specifies the border of the icon.
   final BorderSide? iconBorder;
 
+  /// Specifies the stroke width of the icon.
+  final double? iconStrokeWidth;
+
   /// Identifies an image.
   final ui.Image? image;
 
   /// Specifies the shader of the icon.
   final Shader? shader;
 
+  /// Specifies the overlay marker for cartesian line icon type icon.
+  final ShapeMarkerType? overlayMarkerType;
+
+  /// Specifies the start angle for radial bar icon.
+  final double? startAngle;
+
+  /// Specifies the degree for radial bar icon.
+  final double? degree;
+
+  /// Specifies the end angle for radial bar icon.
+  final double? endAngle;
+
   Paint _getFillPaint() {
     final Paint paint = Paint();
     if (shader != null) {
-      paint.shader = shader!;
+      paint.shader = shader;
     } else if (color != null) {
       paint.color = color!;
     }
@@ -1234,18 +1397,32 @@ class _LegendIconShape extends CustomPainter {
     return paint;
   }
 
+  Paint? _getStrokePaint() {
+    if (iconStrokeWidth != null && color != null) {
+      return Paint()
+        ..style = PaintingStyle.stroke
+        ..color = color!
+        ..strokeWidth = iconStrokeWidth!;
+    }
+
+    return iconBorder?.toPaint();
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     if (iconType == ShapeMarkerType.image && image != null) {
       paintImage(canvas: canvas, rect: Offset.zero & size, image: image!);
     } else {
-      ShapePainter.paint(
-        canvas: canvas,
-        rect: Offset.zero & size,
-        shapeType: iconType!,
-        paint: _getFillPaint(),
-        borderPaint: iconBorder?.toPaint(),
-      );
+      shape_helper.paint(
+          canvas: canvas,
+          rect: Offset.zero & size,
+          shapeType: iconType!,
+          paint: _getFillPaint(),
+          borderPaint: _getStrokePaint(),
+          overlayMarkerType: overlayMarkerType,
+          degree: degree,
+          startAngle: startAngle,
+          endAngle: endAngle);
     }
   }
 
@@ -1267,6 +1444,10 @@ class _SolidBarLegend extends StatefulWidget {
     this.edgeLabelsPlacement,
     this.segmentSize,
     this.textStyle,
+    this.pointerSize,
+    this.pointerColor,
+    this.pointerBuilder,
+    this.pointerController,
   });
 
   /// Specifies the legend items.
@@ -1300,6 +1481,22 @@ class _SolidBarLegend extends StatefulWidget {
 
   /// Customizes the legend item's text style.
   final TextStyle? textStyle;
+
+  /// Set the pointer size for the pointer support in the bar legend.
+  final Size? pointerSize;
+
+  /// Set the pointer color for the pointer support in the  bar legend.
+  final Color? pointerColor;
+
+  /// Returns a widget for the given value.
+  /// Pointer which is used to denote the exact color on the segment
+  /// for the hovered shape or bubble. The [pointerBuilder] will be called
+  /// when the user interacts with the shapes or bubbles i.e., while tapping in
+  /// touch devices and hovering in the mouse enabled devices.
+  final LegendPointerBuilder? pointerBuilder;
+
+  /// Specifies the pointer controller.
+  final PointerController? pointerController;
 
   @override
   _SolidBarLegendState createState() => _SolidBarLegendState();
@@ -1353,19 +1550,25 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
     if (widget.items != null) {
       final int length = widget.items!.length;
       String? currentText;
+      String? startText;
       for (int i = 0; i < length; i++) {
         _isOverlapSegmentText = false;
         final LegendItem item = widget.items![i];
         if (widget.labelsPlacement == LegendLabelsPlacement.betweenItems) {
           if (i == length - 1) {
+            currentText = widget.items![i - 1].text;
             currentText = _getTrimmedText(item.text, currentText, i, length);
           } else {
             if (i == 0) {
               final List<String> firstSegmentLabels =
                   _getStartSegmentLabel(item.text);
-              currentText = firstSegmentLabels.length > 1
-                  ? firstSegmentLabels[1]
-                  : firstSegmentLabels[0];
+              if (firstSegmentLabels.length > 1) {
+                startText = firstSegmentLabels[0];
+                currentText = firstSegmentLabels[1];
+                startText = _getTrimmedText(startText, currentText, i, length);
+              } else {
+                currentText = firstSegmentLabels[0];
+              }
             } else {
               currentText = item.text;
             }
@@ -1379,10 +1582,31 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
               widget.labelsPlacement == LegendLabelsPlacement.onItem) {
             _isOverlapSegmentText =
                 _getTextWidth(currentText) > _segmentSize.width;
+            if (_isOverlapSegmentText &&
+                widget.labelOverflow == LegendLabelOverflow.hide) {
+              // Passing empty string in case of overlap segment.
+              currentText = '';
+            }
           }
         }
-
-        legendItems.add(_getSegment(currentText, item.color!, i, length, item));
+        legendItems.add(_SolidBarLegendItem(
+          labelsPlacement: widget.labelsPlacement,
+          labelOverflow: widget.labelOverflow,
+          segmentSize: _segmentSize,
+          iconColor: item.color,
+          direction: _direction,
+          textStyle: widget.textStyle,
+          index: i,
+          length: length,
+          startText: startText,
+          text: currentText,
+          itemSpacing: widget.itemSpacing,
+          edgeLabelsPlacement: widget.edgeLabelsPlacement,
+          pointerSize: widget.pointerSize,
+          pointerColor: widget.pointerColor,
+          pointerBuilder: widget.pointerBuilder,
+          pointerController: widget.pointerController,
+        ));
       }
     }
 
@@ -1434,7 +1658,13 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
       }
       _isOverlapSegmentText = refCurrentTextWidth + refNextTextWidth >
           barSize.width + widget.itemSpacing!;
-      if (widget.labelOverflow == LegendLabelOverflow.ellipsis) {
+
+      // Returning empty string in case of text overlapping the segment size
+      // and overflow mode is [LegendLabelOverflow.hide]
+      if (widget.labelOverflow == LegendLabelOverflow.hide &&
+          _isOverlapSegmentText) {
+        return '';
+      } else if (widget.labelOverflow == LegendLabelOverflow.ellipsis) {
         final double textWidth = refCurrentTextWidth + refNextTextWidth;
         return _getTrimText(
             currentText,
@@ -1455,67 +1685,87 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
     _textPainter.layout();
     return _textPainter.width;
   }
+}
 
-  /// Returns the bar legend icon and label.
-  Widget _getSegment(String text, Color color, int index, int length,
-      [LegendItem? startText]) {
-    final Color iconColor = color;
-    return _getBarWithLabel(iconColor, index, text, length, startText);
-  }
-
-  Widget _getBarWithLabel(Color iconColor, int index, String text,
-      int dataSourceLength, LegendItem? startText) {
-    Offset textOffset = _getTextOffset(index, text, dataSourceLength);
-    final CrossAxisAlignment crossAxisAlignment =
-        _getCrossAxisAlignment(index, dataSourceLength);
-    if (_direction == Axis.horizontal) {
-      textOffset =
-          _textDirection == TextDirection.rtl ? -textOffset : textOffset;
-      return Container(
-        width: _segmentSize.width,
-        child: Column(
-          crossAxisAlignment: crossAxisAlignment,
-          children: <Widget>[
-            Padding(
-              // Gap between segment text and icon.
-              padding: const EdgeInsets.only(bottom: 7.0),
-              child: Container(
-                height: _segmentSize.height,
-                color: iconColor,
-              ),
-            ),
-            _getTextWidget(index, text, startText, textOffset),
-          ],
-        ),
-      );
+String _getTrimText(String text, TextStyle style, double maxWidth,
+    TextPainter painter, double width,
+    [double? nextTextHalfWidth, bool isInsideLastItem = false]) {
+  final int actualTextLength = text.length;
+  String trimmedText = text;
+  int trimLength = 3; // 3 dots
+  while (width > maxWidth) {
+    if (trimmedText.length <= 4) {
+      trimmedText = '${trimmedText[0]}...';
+      painter.text = TextSpan(style: style, text: trimmedText);
+      painter.layout();
+      break;
     } else {
-      return _getVerticalBar(
-          crossAxisAlignment, iconColor, index, text, startText, textOffset);
+      trimmedText = text.replaceRange(
+          actualTextLength - trimLength, actualTextLength, '...');
+      painter.text = TextSpan(style: style, text: trimmedText);
+      painter.layout();
+      trimLength++;
+    }
+
+    if (isInsideLastItem && nextTextHalfWidth != null) {
+      width = painter.width + nextTextHalfWidth;
+    } else {
+      width = nextTextHalfWidth != null
+          ? painter.width / 2 + nextTextHalfWidth
+          : painter.width;
     }
   }
 
-  Widget _getVerticalBar(CrossAxisAlignment crossAxisAlignment, Color iconColor,
-      int index, String text, LegendItem? newText, Offset textOffset) {
-    return Container(
-      height: _segmentSize.width,
-      child: Row(
-        crossAxisAlignment: crossAxisAlignment,
-        children: <Widget>[
-          Padding(
-            // Gap between segment text and icon.
-            padding: const EdgeInsets.only(right: 7.0),
-            child: Container(
-              width: _segmentSize.height,
-              color: iconColor,
-            ),
-          ),
-          _getTextWidget(index, text, newText, textOffset),
-        ],
-      ),
-    );
-  }
+  return trimmedText;
+}
 
-  CrossAxisAlignment _getCrossAxisAlignment(int index, int length) {
+class _SolidBarLegendItem extends StatefulWidget {
+  const _SolidBarLegendItem({
+    Key? key,
+    this.labelsPlacement,
+    this.labelOverflow,
+    this.segmentSize,
+    this.iconColor,
+    this.direction,
+    this.textStyle,
+    this.index,
+    this.text,
+    this.startText,
+    this.edgeLabelsPlacement,
+    this.itemSpacing,
+    this.length,
+    this.pointerSize,
+    this.pointerColor,
+    this.pointerBuilder,
+    this.pointerController,
+  }) : super(key: key);
+
+  final LegendLabelsPlacement? labelsPlacement;
+  final LegendLabelOverflow? labelOverflow;
+  final Size? segmentSize;
+  final Color? iconColor;
+  final Axis? direction;
+  final TextStyle? textStyle;
+  final int? index;
+  final int? length;
+  final String? startText;
+  final String? text;
+  final LegendEdgeLabelsPlacement? edgeLabelsPlacement;
+  final double? itemSpacing;
+  final Size? pointerSize;
+  final Color? pointerColor;
+  final LegendPointerBuilder? pointerBuilder;
+  final PointerController? pointerController;
+
+  @override
+  __SolidBarLegendItemState createState() => __SolidBarLegendItemState();
+}
+
+class __SolidBarLegendItemState extends State<_SolidBarLegendItem> {
+  late TextPainter _textPainter;
+  late TextDirection _textDirection;
+
+  CrossAxisAlignment _getCrossAxisAlignment() {
     if (widget.labelsPlacement == LegendLabelsPlacement.onItem &&
         widget.labelOverflow != LegendLabelOverflow.visible) {
       return CrossAxisAlignment.center;
@@ -1524,63 +1774,105 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
     }
   }
 
-  Widget _getTextWidget(
-      int index, String text, LegendItem? startText, Offset legendOffset) {
-    if (index == 0 &&
-        startText != null &&
-        startText.text.isNotEmpty &&
-        startText.text[0] == '{' &&
-        widget.labelsPlacement == LegendLabelsPlacement.betweenItems) {
-      return _getStartSegmentText(startText, text, legendOffset);
-    } else {
-      return _getAlignedTextWidget(legendOffset, text, _isOverlapSegmentText);
+  @override
+  void initState() {
+    _textPainter = TextPainter(textDirection: TextDirection.ltr);
+    widget.pointerController!.addListener(_rebuild);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.pointerController!.removeListener(_rebuild);
+    super.dispose();
+  }
+
+  void _rebuild() {
+    if (widget.pointerController!.segmentIndex == widget.index ||
+        widget.pointerController!.previousSegmentIndex == widget.index) {
+      setState(() {
+        // Rebuilding the currently hovered segment with pointer and
+        // removing pointer in previously hovered segment.
+      });
     }
   }
 
-  Widget _getStartSegmentText(
-      LegendItem startText, String text, Offset legendOffset) {
-    bool isStartTextOverlapping = false;
-    String startSegmentLabel;
+  Offset _getTextOffset(
+      int index, String text, int dataSourceLength, bool isStartText) {
+    _textPainter.text = TextSpan(text: text, style: widget.textStyle);
+    _textPainter.layout();
 
-    final List<String> firstSegmentLabels =
-        _getStartSegmentLabel(startText.text);
-    startSegmentLabel = firstSegmentLabels[0];
-
-    if (_direction == Axis.horizontal &&
-        widget.labelOverflow != LegendLabelOverflow.visible &&
-        startSegmentLabel.isNotEmpty &&
-        text.isNotEmpty) {
-      final double refStartTextWidth =
-          widget.edgeLabelsPlacement == LegendEdgeLabelsPlacement.inside
-              ? _getTextWidth(startSegmentLabel)
-              : _getTextWidth(startSegmentLabel) / 2;
-      final double refCurrentTextWidth = _getTextWidth(text) / 2;
-      isStartTextOverlapping = refStartTextWidth + refCurrentTextWidth >
-          _segmentSize.width + widget.itemSpacing!;
-      if (widget.labelsPlacement == LegendLabelsPlacement.betweenItems &&
-          widget.labelOverflow == LegendLabelOverflow.ellipsis) {
-        startSegmentLabel = _getTrimText(
-            startSegmentLabel,
-            widget.textStyle!,
-            _segmentSize.width + widget.itemSpacing! / 2,
-            _textPainter,
-            refStartTextWidth + refCurrentTextWidth,
-            refCurrentTextWidth);
+    if (index == 0 && isStartText) {
+      if (widget.edgeLabelsPlacement == LegendEdgeLabelsPlacement.inside) {
+        return Offset.zero;
+      } else {
+        if (widget.direction == Axis.horizontal) {
+          return Offset(-_textPainter.width / 2, 0.0);
+        } else {
+          return Offset(0.0, -_textPainter.height / 2);
+        }
+      }
+    } else {
+      if (widget.labelsPlacement == LegendLabelsPlacement.onItem &&
+          widget.labelOverflow != LegendLabelOverflow.visible) {
+        return Offset.zero;
+      } else {
+        if (widget.direction == Axis.horizontal) {
+          return _getHorizontalTextOffset(index, text, dataSourceLength);
+        } else {
+          return _getVerticalTextOffset(index, text, dataSourceLength);
+        }
       }
     }
+  }
 
-    Offset startTextOffset = _getStartTextOffset(startSegmentLabel);
-    startTextOffset =
-        _textDirection == TextDirection.rtl && _direction == Axis.horizontal
-            ? -startTextOffset
-            : startTextOffset;
-    return Stack(
-      children: <Widget>[
-        _getAlignedTextWidget(
-            startTextOffset, startSegmentLabel, isStartTextOverlapping),
-        _getAlignedTextWidget(legendOffset, text, _isOverlapSegmentText),
-      ],
-    );
+  Offset _getHorizontalTextOffset(
+      int index, String text, int dataSourceLength) {
+    _textPainter.text = TextSpan(text: text, style: widget.textStyle);
+    _textPainter.layout();
+    if (widget.labelsPlacement == LegendLabelsPlacement.betweenItems) {
+      final double width = _textDirection == TextDirection.rtl &&
+              widget.segmentSize!.width < _textPainter.width
+          ? _textPainter.width
+          : widget.segmentSize!.width;
+      if (index == dataSourceLength - 1) {
+        if (widget.edgeLabelsPlacement == LegendEdgeLabelsPlacement.inside) {
+          return Offset(width - _textPainter.width, 0.0);
+        }
+        return Offset(width - _textPainter.width / 2, 0.0);
+      }
+
+      return Offset(
+          width - _textPainter.width / 2 + widget.itemSpacing! / 2, 0.0);
+    } else {
+      final double xPosition = _textDirection == TextDirection.rtl &&
+              widget.segmentSize!.width < _textPainter.width
+          ? _textPainter.width / 2 - widget.segmentSize!.width / 2
+          : widget.segmentSize!.width / 2 - _textPainter.width / 2;
+      return Offset(xPosition, 0.0);
+    }
+  }
+
+  Offset _getVerticalTextOffset(int index, String text, int dataSourceLength) {
+    _textPainter.text = TextSpan(text: text, style: widget.textStyle);
+    _textPainter.layout();
+    if (widget.labelsPlacement == LegendLabelsPlacement.betweenItems) {
+      if (index == dataSourceLength - 1) {
+        if (widget.edgeLabelsPlacement == LegendEdgeLabelsPlacement.inside) {
+          return Offset(0.0, widget.segmentSize!.width - _textPainter.height);
+        }
+        return Offset(0.0, widget.segmentSize!.width - _textPainter.height / 2);
+      }
+
+      return Offset(
+          0.0,
+          widget.segmentSize!.width -
+              _textPainter.height / 2 +
+              widget.itemSpacing! / 2);
+    } else {
+      return Offset(
+          0.0, widget.segmentSize!.width / 2 - _textPainter.height / 2);
+    }
   }
 
   Widget _getAlignedTextWidget(Offset offset, String text, bool isOverlapping) {
@@ -1614,112 +1906,142 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
     );
   }
 
-  Offset _getTextOffset(int index, String text, int dataSourceLength) {
-    if (widget.labelsPlacement == LegendLabelsPlacement.onItem &&
-        widget.labelOverflow != LegendLabelOverflow.visible) {
-      return Offset.zero;
+  Widget _getTextWidget(String? startText, String text) {
+    Offset? startTextOffset;
+    if (widget.index == 0 && startText != null) {
+      startTextOffset =
+          _getTextOffset(widget.index!, startText, widget.length!, true);
+      startTextOffset = _textDirection == TextDirection.rtl &&
+              widget.direction == Axis.horizontal
+          ? -startTextOffset
+          : startTextOffset;
     }
+    Offset textOffset =
+        _getTextOffset(widget.index!, text, widget.length!, false);
+    textOffset = _textDirection == TextDirection.rtl ? -textOffset : textOffset;
 
-    if (_direction == Axis.horizontal) {
-      return _getHorizontalTextOffset(index, text, dataSourceLength);
+    if (widget.index == 0 &&
+        widget.labelsPlacement == LegendLabelsPlacement.betweenItems &&
+        startText != null) {
+      return Stack(
+        children: <Widget>[
+          _getAlignedTextWidget(startTextOffset!, startText, false),
+          _getAlignedTextWidget(textOffset, text, false),
+        ],
+      );
     } else {
-      return _getVerticalTextOffset(index, text, dataSourceLength);
+      return _getAlignedTextWidget(textOffset, text, false);
     }
   }
 
-  Offset _getVerticalTextOffset(int index, String text, int dataSourceLength) {
-    _textPainter.text = TextSpan(text: text, style: widget.textStyle);
-    _textPainter.layout();
-    if (widget.labelsPlacement == LegendLabelsPlacement.betweenItems) {
-      if (index == dataSourceLength - 1) {
-        if (widget.edgeLabelsPlacement == LegendEdgeLabelsPlacement.inside) {
-          return Offset(0.0, _segmentSize.width - _textPainter.height);
-        }
-        return Offset(0.0, _segmentSize.width - _textPainter.height / 2);
+  Widget _buildPointer() {
+    Widget? current;
+    Matrix4 _matrix4;
+
+    if (widget.index == widget.pointerController!.segmentIndex &&
+        widget.pointerController!.position != null) {
+      if (widget.pointerBuilder != null &&
+          widget.pointerController!.colorValue != null) {
+        current = SizedBox(
+          width: widget.pointerSize!.width,
+          height: widget.pointerSize!.height,
+          child: widget.pointerBuilder!
+              .call(context, widget.pointerController!.colorValue),
+        );
+      } else {
+        current = CustomPaint(
+          size: widget.pointerSize!,
+          painter: _LegendIconShape(
+            color: widget.pointerColor ??
+                (Theme.of(context).brightness == Brightness.light
+                    ? const Color.fromRGBO(0, 0, 0, 0.54)
+                    : const Color.fromRGBO(255, 255, 255, 0.7)),
+            iconType: ShapeMarkerType.invertedTriangle,
+          ),
+        );
       }
 
-      return Offset(
-          0.0,
-          _segmentSize.width -
-              _textPainter.height / 2 +
-              widget.itemSpacing! / 2);
-    } else {
-      return Offset(0.0, _segmentSize.width / 2 - _textPainter.height / 2);
-    }
-  }
-
-  Offset _getHorizontalTextOffset(
-      int index, String text, int dataSourceLength) {
-    _textPainter.text = TextSpan(text: text, style: widget.textStyle);
-    _textPainter.layout();
-    if (widget.labelsPlacement == LegendLabelsPlacement.betweenItems) {
-      final double width = _textDirection == TextDirection.rtl &&
-              _segmentSize.width < _textPainter.width
-          ? _textPainter.width
-          : _segmentSize.width;
-      if (index == dataSourceLength - 1) {
-        if (widget.edgeLabelsPlacement == LegendEdgeLabelsPlacement.inside) {
-          return Offset(width - _textPainter.width, 0.0);
+      if (widget.direction == Axis.horizontal) {
+        _matrix4 = Matrix4.identity()
+          ..translate(
+              widget.pointerController!.position!.dx *
+                      widget.segmentSize!.width -
+                  (widget.pointerSize!.width / 2),
+              0.0);
+        if (_textDirection == TextDirection.rtl) {
+          _matrix4.invert();
         }
-        return Offset(width - _textPainter.width / 2, 0.0);
+        current = Transform(transform: _matrix4, child: current);
+      } else {
+        current = RotatedBox(quarterTurns: 3, child: current);
+        _matrix4 = Matrix4.identity()
+          ..translate(
+              0.0,
+              widget.pointerController!.position!.dy *
+                      widget.segmentSize!.width -
+                  (widget.pointerSize!.width / 2));
+        current = Transform(transform: _matrix4, child: current);
       }
-
-      return Offset(
-          width - _textPainter.width / 2 + widget.itemSpacing! / 2, 0.0);
     } else {
-      final double xPosition = _textDirection == TextDirection.rtl &&
-              _segmentSize.width < _textPainter.width
-          ? _textPainter.width / 2 - _segmentSize.width / 2
-          : _segmentSize.width / 2 - _textPainter.width / 2;
-      return Offset(xPosition, 0.0);
+      current = widget.direction == Axis.horizontal
+          ? SizedBox(
+              height: widget.pointerSize!.height,
+              width: widget.pointerSize!.width)
+          : SizedBox(
+              height: widget.pointerSize!.width,
+              width: widget.pointerSize!.height);
     }
+
+    return current;
   }
 
-  Offset _getStartTextOffset(String text) {
-    _textPainter.text = TextSpan(text: text, style: widget.textStyle);
-    _textPainter.layout();
-    if (widget.edgeLabelsPlacement == LegendEdgeLabelsPlacement.inside) {
-      return Offset.zero;
-    }
-
-    if (_direction == Axis.horizontal) {
-      return Offset(-_textPainter.width / 2, 0.0);
+  @override
+  Widget build(BuildContext context) {
+    _textDirection = Directionality.of(context);
+    if (widget.direction == Axis.horizontal) {
+      return SizedBox(
+        width: widget.segmentSize!.width,
+        child: Column(
+          crossAxisAlignment: _getCrossAxisAlignment(),
+          children: <Widget>[
+            Align(
+                alignment: _textDirection == TextDirection.ltr
+                    ? Alignment.centerLeft
+                    : Alignment.centerRight,
+                child: _buildPointer()),
+            Padding(
+              // Gap between segment text and icon.
+              padding: const EdgeInsets.only(bottom: 7.0),
+              child: Container(
+                height: widget.segmentSize!.height,
+                color: widget.iconColor,
+              ),
+            ),
+            _getTextWidget(widget.startText, widget.text!)
+          ],
+        ),
+      );
     } else {
-      return Offset(0.0, -_textPainter.height / 2);
+      return SizedBox(
+        height: widget.segmentSize!.width,
+        child: Row(
+          crossAxisAlignment: _getCrossAxisAlignment(),
+          children: <Widget>[
+            Align(alignment: Alignment.topCenter, child: _buildPointer()),
+            Padding(
+              // Gap between segment text and icon.
+              padding: const EdgeInsets.only(right: 7.0),
+              child: Container(
+                width: widget.segmentSize!.height,
+                color: widget.iconColor,
+              ),
+            ),
+            _getTextWidget(widget.startText, widget.text!)
+          ],
+        ),
+      );
     }
   }
-}
-
-String _getTrimText(String text, TextStyle style, double maxWidth,
-    TextPainter painter, double width,
-    [double? nextTextHalfWidth, bool isInsideLastItem = false]) {
-  final int actualTextLength = text.length;
-  String trimmedText = text;
-  int trimLength = 3; // 3 dots
-  while (width > maxWidth) {
-    if (trimmedText.length <= 4) {
-      trimmedText = trimmedText[0] + '...';
-      painter.text = TextSpan(style: style, text: trimmedText);
-      painter.layout();
-      break;
-    } else {
-      trimmedText = text.replaceRange(
-          actualTextLength - trimLength, actualTextLength, '...');
-      painter.text = TextSpan(style: style, text: trimmedText);
-      painter.layout();
-      trimLength++;
-    }
-
-    if (isInsideLastItem && nextTextHalfWidth != null) {
-      width = painter.width + nextTextHalfWidth;
-    } else {
-      width = nextTextHalfWidth != null
-          ? painter.width / 2 + nextTextHalfWidth
-          : painter.width;
-    }
-  }
-
-  return trimmedText;
 }
 
 class _GradientBarLegend extends StatefulWidget {
@@ -1737,7 +2059,7 @@ class _GradientBarLegend extends StatefulWidget {
     this.pointerBuilder,
     this.pointerColor,
     this.pointerSize,
-    this.pointController,
+    this.pointerController,
   });
 
   /// specifies the segment size in case of bar legend.
@@ -1785,7 +2107,7 @@ class _GradientBarLegend extends StatefulWidget {
   final Color? pointerColor;
 
   /// Specifies the pointer controller.
-  final PointerController? pointController;
+  final PointerController? pointerController;
 
   @override
   _GradientBarLegendState createState() => _GradientBarLegendState();
@@ -2101,7 +2423,7 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
       SizedBox(
           width: _direction == Axis.vertical ? 7.0 : 0.0,
           height: _direction == Axis.horizontal ? 7.0 : 0.0),
-      Container(
+      SizedBox(
           width: labelBoxWidth, height: labelBoxHeight, child: _getLabels()),
     ];
   }
@@ -2110,14 +2432,14 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
     Widget? current;
     Matrix4 _matrix4;
 
-    if (widget.pointController!.position != null) {
+    if (widget.pointerController!.position != null) {
       if (widget.pointerBuilder != null &&
-          widget.pointController!.colorValue != null) {
+          widget.pointerController!.colorValue != null) {
         current = SizedBox(
           width: widget.pointerSize!.width,
           height: widget.pointerSize!.height,
           child: widget.pointerBuilder!
-              .call(context, widget.pointController!.colorValue),
+              .call(context, widget.pointerController!.colorValue),
         );
       } else {
         current = CustomPaint(
@@ -2132,16 +2454,10 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
         );
       }
 
-      if (widget.position == LegendPosition.left ||
-          widget.position == LegendPosition.right) {
-        current = RotatedBox(quarterTurns: 3, child: current);
-      }
-
-      if (widget.position == LegendPosition.top ||
-          widget.position == LegendPosition.bottom) {
+      if (_direction == Axis.horizontal) {
         _matrix4 = Matrix4.identity()
           ..translate(
-              widget.pointController!.position!.dx * _segmentSize.width -
+              widget.pointerController!.position!.dx * _segmentSize.width -
                   (widget.pointerSize!.width / 2),
               0.0);
         if (_isRTL) {
@@ -2149,22 +2465,22 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
         }
         current = Transform(transform: _matrix4, child: current);
       } else {
+        current = RotatedBox(quarterTurns: 3, child: current);
         _matrix4 = Matrix4.identity()
           ..translate(
               0.0,
-              widget.pointController!.position!.dy * _segmentSize.height -
+              widget.pointerController!.position!.dy * _segmentSize.height -
                   (widget.pointerSize!.width / 2));
         current = Transform(transform: _matrix4, child: current);
       }
     } else {
-      current = widget.position == LegendPosition.left ||
-              widget.position == LegendPosition.right
+      current = _direction == Axis.horizontal
           ? SizedBox(
-              height: widget.pointerSize!.width,
-              width: widget.pointerSize!.height)
-          : SizedBox(
               height: widget.pointerSize!.height,
-              width: widget.pointerSize!.width);
+              width: widget.pointerSize!.width)
+          : SizedBox(
+              height: widget.pointerSize!.width,
+              width: widget.pointerSize!.height);
     }
 
     return current;
@@ -2205,7 +2521,7 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
   void initState() {
     _colors = <Color>[];
     _labels = <_GradientBarLabel>[];
-    widget.pointController!.addListener(_rebuild);
+    widget.pointerController!.addListener(_rebuild);
     super.initState();
   }
 
@@ -2213,7 +2529,7 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
   void dispose() {
     _colors.clear();
     _labels.clear();
-    widget.pointController!.removeListener(_rebuild);
+    widget.pointerController!.removeListener(_rebuild);
     super.dispose();
   }
 
@@ -2273,6 +2589,22 @@ class PointerController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Specifies the color value.
+  /// Specifies the color value for the particular legend segment.
   dynamic colorValue;
+
+  /// Specifies the hovered segment index to render the marker pointer
+  /// on that particulat segment in case of Solid bar legend type.
+  int? get segmentIndex => _segmentIndex;
+  int? _segmentIndex;
+  set segmentIndex(int? value) {
+    if (_segmentIndex == value) {
+      return;
+    }
+    previousSegmentIndex = _segmentIndex;
+    _segmentIndex = value;
+  }
+
+  /// Sepcifies the previous hovered segment index to
+  /// rebuild the older solid bar segment without marker pointer.
+  int? previousSegmentIndex;
 }

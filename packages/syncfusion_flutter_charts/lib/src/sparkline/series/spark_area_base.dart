@@ -1,6 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../marker.dart';
 import '../plot_band.dart';
 import '../renderers/spark_area_renderer.dart';
@@ -21,8 +20,8 @@ import '../utils/helper.dart';
 /// such as [color], [borderWidth], [borderColor]. To highlight the provided
 /// data, use either its [marker] property or its data label property.
 /// To highlight the data point, which is tapped, use its [trackball] property.
-///  To highlight the particular region along with the vertical value,
-///  use its [plotBand] property.
+/// To highlight the particular region along with the vertical value,
+/// use its [plotBand] property.
 
 class SfSparkAreaChart extends StatefulWidget {
   /// Creates a spark area chart for the provided set of data with its default view.
@@ -34,7 +33,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///    ),
   ///  );
   /// }
   /// ```
@@ -78,20 +78,20 @@ class SfSparkAreaChart extends StatefulWidget {
   /// The [dataCount] property allows declaring the total data count going to be
   /// displayed in the chart.
   ///
-  /// The [xValueMapper[ returns the x- value of the corresponding data point.
+  /// The [xValueMapper] returns the x- value of the corresponding data point.
   /// The [xValueMapper] allows providing num, DateTime, or string as x-value.
   ///
   /// The [yValueMapper] returns the y-value of the corresponding data point.
   ///
   /// ```dart
   /// class SalesData {
-  /// SalesData(this.month, this.sales);
-  /// final String month;
-  /// final double sales;
+  ///    SalesData(this.month, this.sales);
+  ///    final String month;
+  ///    final double sales;
   /// }
   ///
-  ///   List<SalesData> data;
-
+  ///  List<SalesData> data;
+  ///
   /// @override
   /// void initState() {
   ///  super.initState();
@@ -112,7 +112,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///         dataCount: 5,
   ///          xValueMapper: (int index) => data[index].month,
   ///          yValueMapper: (int index) => data[index].sales
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -123,10 +124,10 @@ class SfSparkAreaChart extends StatefulWidget {
       /// Data count for the spark charts.
       int? dataCount,
 
-      /// Specifies the x-value mapping field
+      /// Specifies the x-value mapping field.
       SparkChartIndexedValueMapper<dynamic>? xValueMapper,
 
-      /// Specifies the y-value maping field
+      /// Specifies the y-value maping field.
       SparkChartIndexedValueMapper<num>? yValueMapper,
       this.plotBand,
       this.borderWidth = 2,
@@ -172,7 +173,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///        child: SfSparkAreaChart(
   ///      isInversed: true,
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -181,7 +183,7 @@ class SfSparkAreaChart extends StatefulWidget {
   /// Customize the axis position based on the provided y-value.The axis line is
   /// rendered on the minimum y-value and can be repositioned to required y-value.
   ///
-  /// Defaults to `zero`.
+  /// Defaults to `0`.
   ///
   /// ```dart
   /// @override
@@ -191,7 +193,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///        child: SfSparkAreaChart(
   ///      axisCrossesAt: 14,
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -209,7 +212,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///        child: SfSparkAreaChart(
   ///      axisLineWidth: 4,
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -228,8 +232,9 @@ class SfSparkAreaChart extends StatefulWidget {
   ///        child: SfSparkAreaChart(
   ///      axisLineColor: Colors.red,
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///       )
+  ///     ),
+  ///   );
   /// }
   /// ```
   final Color axisLineColor;
@@ -237,7 +242,7 @@ class SfSparkAreaChart extends StatefulWidget {
   /// Dashes of the axis line. Any number of values can be provided on the list.
   /// Odd value is considered as rendering size and even value is considered a gap.
   ///
-  /// Defaults to `null`
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -247,7 +252,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///        child: SfSparkAreaChart(
   ///      axisLineDashArray: <double>[2,2],
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -268,8 +274,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///        child: SfSparkAreaChart(
   ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
   ///      highPointColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -290,8 +296,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///        child: SfSparkAreaChart(
   ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
   ///      lowPointColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -313,8 +319,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///        child: SfSparkAreaChart(
   ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
   ///      negativePointColor: Colors.red,
-  ///      data: <double>[18, 24, 30, -14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -335,8 +341,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///        child: SfSparkAreaChart(
   ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
   ///      firstPointColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -357,8 +363,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///        child: SfSparkAreaChart(
   ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
   ///      lastPointColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -366,7 +372,7 @@ class SfSparkAreaChart extends StatefulWidget {
 
   /// Customizes the spark area chart color.
   ///
-  /// Defaults to `blue`.
+  /// Defaults to `Colors.blue`.
   ///
   /// ```dart
   /// @override
@@ -375,8 +381,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      color: Colors.blue,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -390,8 +396,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///
   /// Plot bands are drawn based on the axis.
   ///
-  /// Provides the property of `start`, `end`, [color], [borderColor], and
-  /// [borderWidth] to customize the appearance.
+  /// Provides the property of `start`, `end`, `color`, `borderColor`, and
+  /// `borderWidth` to customize the appearance.
   ///
   /// Defaults to `null`.
   ///
@@ -401,9 +407,9 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      plotBand: SparkChartPlotBand(start: 15, end: 25),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      plotBand: SparkChartPlotBand(start: 15, end: 25)
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -423,9 +429,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      borderWidth: 2,
-  ///      borderColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -444,10 +449,9 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      borderWidth: 2,
-  ///      borderColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      borderColor: Colors.red
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -470,9 +474,9 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all)
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -507,8 +511,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      labelDisplayMode: SparkChartLabelDisplayMode.high,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -519,7 +523,7 @@ class SfSparkAreaChart extends StatefulWidget {
   /// Using the [TextStyle], add style data labels.
   ///
   /// Defaults to the [TextStyle] property with font size `12.0` and font
-  ///  family `Roboto`.
+  /// family `Roboto`.
   ///
   /// Also refer [TextStyle].
   ///
@@ -529,10 +533,9 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      labelDisplayMode: SparkChartLabelDisplayMode.high,
-  ///      labelStyle: TextStyle(fontStyle: FontStyle.italic),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      labelStyle: TextStyle(fontStyle: FontStyle.italic)
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -544,8 +547,8 @@ class SfSparkAreaChart extends StatefulWidget {
   /// to the point where you touch on the chart area. This feature can be
   /// enabled by creating an instance of [SparkChartTrackball].
   ///
-  /// Provides option to customizes the `activationMode`, `width`, [color],
-  /// [labelStyle], `backgroundColor`, [borderColor], [borderWidth].
+  /// Provides option to customizes the `activationMode`, `width`, `color`,
+  /// `labelStyle`, `backgroundColor`, `borderColor`, `borderWidth`.
   ///
   /// Defaults to `null`.
   ///
@@ -556,15 +559,15 @@ class SfSparkAreaChart extends StatefulWidget {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      trackball:
-  ///          SparkChartTrackball(borderWidth: 2, borderColor: Colors.black),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///          SparkChartTrackball(activationMode: SparkChartActivationMode.tap)
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
   final SparkChartTrackball? trackball;
 
-  /// Specifies the spark chart data details
+  /// Specifies the spark chart data details.
   final SparkChartDataDetails _sparkChartDataDetails;
 
   @override
@@ -573,15 +576,15 @@ class SfSparkAreaChart extends StatefulWidget {
   }
 }
 
-/// Represents the state class for spark area widget
+/// Represents the state class for spark area widget.
 class _SfSparkAreaChartState extends State<SfSparkAreaChart> {
-  /// specifies the theme of the chart
-  late ThemeData _themeData;
+  /// Specifies the theme of the chart.
+  late SfChartThemeData _chartThemeData;
 
-  /// Specifies the series screen coordinate points
+  /// Specifies the series screen coordinate points.
   late List<Offset> _coordinatePoints;
 
-  /// Specifies the series data points
+  /// Specifies the series data points.
   late List<SparkChartPoint> _dataPoints;
 
   /// Called when this object is inserted into the tree.
@@ -625,7 +628,7 @@ class _SfSparkAreaChartState extends State<SfSparkAreaChart> {
 
   @override
   void didChangeDependencies() {
-    _themeData = Theme.of(context);
+    _chartThemeData = SfChartTheme.of(context);
     super.didChangeDependencies();
   }
 
@@ -651,7 +654,7 @@ class _SfSparkAreaChartState extends State<SfSparkAreaChart> {
     }
   }
 
-  /// Method to return the spark area chart widget
+  /// Method to return the spark area chart widget.
   Widget _getSparkAreaChart() {
     return SparkChartContainer(
         child: Stack(children: <Widget>[
@@ -677,7 +680,7 @@ class _SfSparkAreaChartState extends State<SfSparkAreaChart> {
           marker: widget.marker,
           labelDisplayMode: widget.labelDisplayMode,
           labelStyle: widget.labelStyle,
-          themeData: _themeData,
+          themeData: _chartThemeData,
           sparkChartDataDetails: widget._sparkChartDataDetails,
           dataPoints: _dataPoints,
           coordinatePoints: _coordinatePoints),

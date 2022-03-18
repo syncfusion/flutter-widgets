@@ -1,13 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../maps.dart';
 import '../controller/map_controller.dart';
-import '../enum.dart';
-import '../settings.dart';
 
 // ignore_for_file: public_member_api_docs
 enum _ToolbarIcon { zoomIn, zoomOut, reset }
@@ -119,6 +114,10 @@ class _ToolbarItemState extends State<_ToolbarItem> {
     _updateToolbarItemState();
   }
 
+  void _handleZoomPanChange() {
+    _updateToolbarItemState();
+  }
+
   void _handleReset() {
     _updateToolbarItemState();
   }
@@ -155,6 +154,7 @@ class _ToolbarItemState extends State<_ToolbarItem> {
   void initState() {
     if (widget.controller != null) {
       widget.controller!
+        ..addZoomPanListener(_handleZoomPanChange)
         ..addZoomingListener(_handleZooming)
         ..addResetListener(_handleReset)
         ..addRefreshListener(_handleRefresh);
@@ -272,12 +272,6 @@ class _ToolbarItemState extends State<_ToolbarItem> {
 
     newZoomLevel = newZoomLevel.clamp(widget.zoomPanBehavior.minZoomLevel,
         widget.zoomPanBehavior.maxZoomLevel);
-    final MapZoomDetails details = MapZoomDetails(
-      previousZoomLevel: widget.zoomPanBehavior.zoomLevel,
-      newZoomLevel: newZoomLevel,
-    );
-    if (widget.onWillZoom == null || widget.onWillZoom!(details)) {
-      widget.zoomPanBehavior.onZooming(details);
-    }
+    widget.zoomPanBehavior.zoomLevel = newZoomLevel;
   }
 }

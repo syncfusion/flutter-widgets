@@ -95,9 +95,8 @@ class StylesCollection {
   Style? operator [](dynamic index) {
     if (index is String) {
       if (!_dictStyles.containsKey(index)) {
-        throw Exception('Style with specified name does not exist. Name: ' +
-            index.toString() +
-            ', value');
+        throw Exception(
+            'Style with specified name does not exist. Name: $index, value');
       }
       return _dictStyles[index];
     } else {

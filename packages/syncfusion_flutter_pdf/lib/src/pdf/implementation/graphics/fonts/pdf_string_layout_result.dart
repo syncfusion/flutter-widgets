@@ -1,16 +1,30 @@
-part of pdf;
+import '../../drawing/drawing.dart';
+import 'pdf_string_layouter.dart';
 
-class _PdfStringLayoutResult {
-  _PdfStringLayoutResult() {
-    _lineHeight = 0;
-    _size = _Size.empty;
+/// internal class
+class PdfStringLayoutResult {
+  /// internal constructor
+  PdfStringLayoutResult() {
+    lineHeight = 0;
+    size = PdfSize.empty;
   }
-  late double _lineHeight;
-  late _Size _size;
-  List<_LineInfo>? _lines;
-  //ignore:unused_field
-  String? _remainder;
 
-  bool get _isEmpty => _lines == null || (_lines != null && _lines!.isEmpty);
-  int get _lineCount => (!_isEmpty) ? _lines!.length : 0;
+  /// internal field
+  late double lineHeight;
+
+  /// internal field
+  late PdfSize size;
+
+  /// internal field
+  List<LineInfo>? lines;
+
+  /// internal field
+  //ignore:unused_field
+  String? remainder;
+
+  /// internal property
+  bool get isEmpty => lines == null || (lines != null && lines!.isEmpty);
+
+  /// internal property
+  int get lineCount => (!isEmpty) ? lines!.length : 0;
 }

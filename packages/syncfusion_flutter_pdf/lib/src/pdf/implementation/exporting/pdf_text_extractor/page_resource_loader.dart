@@ -1,54 +1,65 @@
-part of pdf;
+import '../../../interfaces/pdf_interface.dart';
+import '../../graphics/pdf_resources.dart';
+import '../../io/pdf_constants.dart';
+import '../../pages/enum.dart';
+import '../../pages/pdf_page.dart';
+import '../../primitives/pdf_dictionary.dart';
+import '../../primitives/pdf_name.dart';
+import '../../primitives/pdf_reference_holder.dart';
+import 'font_structure.dart';
+import 'xobject_element.dart';
 
-class _PageResourceLoader {
-  //Construcotr
-  _PageResourceLoader();
+/// internal class
+class PageResourceLoader {
+  /// internal constructor
+  PageResourceLoader();
 
   //Implementations
-  // Extracts the pageResource from the page
-  _PdfPageResources getPageResources(PdfPage page) {
-    _PdfPageResources pageResources = _PdfPageResources();
+  /// internal method
+  PdfPageResources getPageResources(PdfPage page) {
+    PdfPageResources pageResources = PdfPageResources();
     double resourceNumber = 0;
-    _PdfDictionary? resources = page._getResources();
+    PdfDictionary? resources = PdfPageHelper.getHelper(page).getResources();
     pageResources =
         updatePageResources(pageResources, getFontResources(resources, page));
     pageResources =
         updatePageResources(pageResources, getFormResources(resources));
     while (resources != null &&
-        resources.containsKey(_DictionaryProperties.xObject)) {
-      _PdfDictionary? tempResources = resources;
-      _PdfDictionary? xobjects;
-      if (resources[_DictionaryProperties.xObject] is _PdfReferenceHolder) {
+        resources.containsKey(PdfDictionaryProperties.xObject)) {
+      PdfDictionary? tempResources = resources;
+      PdfDictionary? xobjects;
+      if (resources[PdfDictionaryProperties.xObject] is PdfReferenceHolder) {
         xobjects =
-            (resources[_DictionaryProperties.xObject]! as _PdfReferenceHolder)
-                .object as _PdfDictionary?;
+            (resources[PdfDictionaryProperties.xObject]! as PdfReferenceHolder)
+                .object as PdfDictionary?;
       } else {
-        xobjects = resources[_DictionaryProperties.xObject] as _PdfDictionary?;
+        xobjects = resources[PdfDictionaryProperties.xObject] as PdfDictionary?;
       }
-      resources = xobjects![_DictionaryProperties.resources] as _PdfDictionary?;
-      for (final dynamic objValue in xobjects._items!.values) {
-        _PdfDictionary? xobjectDictionary;
-        if (objValue is _PdfReferenceHolder) {
-          xobjectDictionary = objValue.object as _PdfDictionary?;
+      resources =
+          xobjects![PdfDictionaryProperties.resources] as PdfDictionary?;
+      for (final dynamic objValue in xobjects.items!.values) {
+        PdfDictionary? xobjectDictionary;
+        if (objValue is PdfReferenceHolder) {
+          xobjectDictionary = objValue.object as PdfDictionary?;
         } else {
-          xobjectDictionary = objValue as _PdfDictionary?;
+          xobjectDictionary = objValue as PdfDictionary?;
         }
         if (xobjectDictionary != null &&
-            xobjectDictionary.containsKey(_DictionaryProperties.resources)) {
-          if (xobjectDictionary[_DictionaryProperties.resources]
-              is _PdfReferenceHolder) {
-            final _PdfReferenceHolder resourceReference =
-                xobjectDictionary[_DictionaryProperties.resources]!
-                    as _PdfReferenceHolder;
-            if (resourceNumber != resourceReference.reference!._objNum) {
-              resources = resourceReference.object as _PdfDictionary?;
-              resourceNumber = resourceReference.reference!._objNum!.toDouble();
+            xobjectDictionary.containsKey(PdfDictionaryProperties.resources)) {
+          if (xobjectDictionary[PdfDictionaryProperties.resources]
+              is PdfReferenceHolder) {
+            final PdfReferenceHolder resourceReference =
+                xobjectDictionary[PdfDictionaryProperties.resources]!
+                    as PdfReferenceHolder;
+            if (resourceNumber != resourceReference.reference!.objNum) {
+              resources = resourceReference.object as PdfDictionary?;
+              resourceNumber = resourceReference.reference!.objNum!.toDouble();
             } else {
               continue;
             }
           } else {
-            resources = xobjectDictionary[_DictionaryProperties.resources]
-                as _PdfDictionary?;
+            resources = xobjectDictionary[PdfDictionaryProperties.resources]
+                as PdfDictionary?;
           }
           if (resources == tempResources) {
             resources = null;
@@ -60,49 +71,50 @@ class _PageResourceLoader {
       }
     }
     // m_commonMatrix = commonMatrix;
-    if (page._rotation == PdfPageRotateAngle.rotateAngle90) {
-      pageResources.resources[_DictionaryProperties.rotate] = 90.toDouble();
-    } else if (page._rotation == PdfPageRotateAngle.rotateAngle180) {
-      pageResources.resources[_DictionaryProperties.rotate] = 180.toDouble();
-    } else if (page._rotation == PdfPageRotateAngle.rotateAngle270) {
-      pageResources.resources[_DictionaryProperties.rotate] = 270.toDouble();
+    if (page.rotation == PdfPageRotateAngle.rotateAngle90) {
+      pageResources.resources[PdfDictionaryProperties.rotate] = 90.toDouble();
+    } else if (page.rotation == PdfPageRotateAngle.rotateAngle180) {
+      pageResources.resources[PdfDictionaryProperties.rotate] = 180.toDouble();
+    } else if (page.rotation == PdfPageRotateAngle.rotateAngle270) {
+      pageResources.resources[PdfDictionaryProperties.rotate] = 270.toDouble();
     }
     return pageResources;
   }
 
-  Map<String?, dynamic> getFormResources(_PdfDictionary? resourceDictionary) {
+  /// internal method
+  Map<String?, dynamic> getFormResources(PdfDictionary? resourceDictionary) {
     final Map<String?, dynamic> pageResources = <String?, dynamic>{};
     if (resourceDictionary != null &&
-        resourceDictionary.containsKey(_DictionaryProperties.xObject)) {
-      final _IPdfPrimitive? primitive =
-          resourceDictionary[_DictionaryProperties.xObject];
-      _PdfDictionary? xObjects;
-      if (primitive is _PdfReferenceHolder) {
-        final _IPdfPrimitive? holder = primitive.object;
-        if (holder != null && holder is _PdfDictionary) {
+        resourceDictionary.containsKey(PdfDictionaryProperties.xObject)) {
+      final IPdfPrimitive? primitive =
+          resourceDictionary[PdfDictionaryProperties.xObject];
+      PdfDictionary? xObjects;
+      if (primitive is PdfReferenceHolder) {
+        final IPdfPrimitive? holder = primitive.object;
+        if (holder != null && holder is PdfDictionary) {
           xObjects = holder;
         }
-      } else if (primitive is _PdfDictionary) {
+      } else if (primitive is PdfDictionary) {
         xObjects = primitive;
       }
       if (xObjects != null) {
-        xObjects._items!.forEach((_PdfName? key, _IPdfPrimitive? value) {
-          _PdfDictionary? xObjectDictionary;
-          if (value is _PdfReferenceHolder && value.object is _PdfDictionary) {
-            xObjectDictionary = value.object as _PdfDictionary?;
-          } else if (value is _PdfDictionary) {
+        xObjects.items!.forEach((PdfName? key, IPdfPrimitive? value) {
+          PdfDictionary? xObjectDictionary;
+          if (value is PdfReferenceHolder && value.object is PdfDictionary) {
+            xObjectDictionary = value.object as PdfDictionary?;
+          } else if (value is PdfDictionary) {
             xObjectDictionary = value;
           }
           if (xObjectDictionary != null &&
-              xObjectDictionary.containsKey(_DictionaryProperties.subtype)) {
-            final _IPdfPrimitive? subType =
-                xObjectDictionary[_DictionaryProperties.subtype];
-            if (subType is _PdfName &&
-                (subType._name == _DictionaryProperties.form ||
-                    (subType._name != _DictionaryProperties.image &&
-                        !pageResources.containsKey(key!._name)))) {
-              pageResources[key!._name] =
-                  _XObjectElement(xObjectDictionary, key._name);
+              xObjectDictionary.containsKey(PdfDictionaryProperties.subtype)) {
+            final IPdfPrimitive? subType =
+                xObjectDictionary[PdfDictionaryProperties.subtype];
+            if (subType is PdfName &&
+                (subType.name == PdfDictionaryProperties.form ||
+                    (subType.name != PdfDictionaryProperties.image &&
+                        !pageResources.containsKey(key!.name)))) {
+              pageResources[key!.name] =
+                  XObjectElement(xObjectDictionary, key.name);
             }
           }
         });
@@ -113,56 +125,57 @@ class _PageResourceLoader {
 
   // Collects all the fonts in the page in a dictionary.
   // Returns dictionary containing font name and the font.
-  Map<String?, Object?> getFontResources(_PdfDictionary? resourceDictionary,
+  /// internal method
+  Map<String?, Object?> getFontResources(PdfDictionary? resourceDictionary,
       [PdfPage? page]) {
     final Map<String?, Object?> pageResources = <String?, Object?>{};
     if (resourceDictionary != null) {
-      _IPdfPrimitive? fonts = resourceDictionary[_DictionaryProperties.font];
+      IPdfPrimitive? fonts = resourceDictionary[PdfDictionaryProperties.font];
       if (fonts != null) {
-        _PdfDictionary? fontsDictionary;
-        if (fonts is _PdfReferenceHolder) {
-          fontsDictionary = fonts.object as _PdfDictionary?;
+        PdfDictionary? fontsDictionary;
+        if (fonts is PdfReferenceHolder) {
+          fontsDictionary = fonts.object as PdfDictionary?;
         } else {
-          fontsDictionary = fonts as _PdfDictionary;
+          fontsDictionary = fonts as PdfDictionary;
         }
 
         if (fontsDictionary != null) {
-          fontsDictionary._items!.forEach((_PdfName? k, _IPdfPrimitive? v) {
-            if (v is _PdfReferenceHolder) {
+          fontsDictionary.items!.forEach((PdfName? k, IPdfPrimitive? v) {
+            if (v is PdfReferenceHolder) {
               if (v.reference != null) {
-                pageResources[k!._name] =
-                    _FontStructure(v.object, v.reference.toString());
+                pageResources[k!.name] =
+                    FontStructure(v.object, v.reference.toString());
               } else {
-                pageResources[k!._name] = _FontStructure(v.object);
+                pageResources[k!.name] = FontStructure(v.object);
               }
             } else {
-              if (v is _PdfDictionary) {
-                pageResources[k!._name] = _FontStructure(v);
+              if (v is PdfDictionary) {
+                pageResources[k!.name] = FontStructure(v);
               } else {
-                pageResources[k!._name] = _FontStructure(
-                    v, (v! as _PdfReferenceHolder).reference.toString());
+                pageResources[k!.name] = FontStructure(
+                    v, (v! as PdfReferenceHolder).reference.toString());
               }
             }
           });
         }
       }
       if (page != null) {
-        final _IPdfPrimitive? parentPage =
-            page._dictionary[_DictionaryProperties.parent];
+        final IPdfPrimitive? parentPage = PdfPageHelper.getHelper(page)
+            .dictionary![PdfDictionaryProperties.parent];
         if (parentPage != null) {
-          final _IPdfPrimitive? parentRef =
-              (parentPage as _PdfReferenceHolder).object;
-          final _PdfResources parentResources =
-              _PdfResources(parentRef as _PdfDictionary?);
-          fonts = parentResources[_DictionaryProperties.font];
-          if (fonts != null && fonts is _PdfDictionary) {
-            final _PdfDictionary fontsDictionary = fonts;
-            fontsDictionary._items!.forEach((_PdfName? k, _IPdfPrimitive? v) {
-              if (v is _PdfDictionary) {
-                pageResources[k!._name] = (v as _PdfReferenceHolder).object;
+          final IPdfPrimitive? parentRef =
+              (parentPage as PdfReferenceHolder).object;
+          final PdfResources parentResources =
+              PdfResources(parentRef as PdfDictionary?);
+          fonts = parentResources[PdfDictionaryProperties.font];
+          if (fonts != null && fonts is PdfDictionary) {
+            final PdfDictionary fontsDictionary = fonts;
+            fontsDictionary.items!.forEach((PdfName? k, IPdfPrimitive? v) {
+              if (v is PdfDictionary) {
+                pageResources[k!.name] = (v as PdfReferenceHolder).object;
               }
-              pageResources[k!._name] = _FontStructure(
-                  v, (v! as _PdfReferenceHolder).reference.toString());
+              pageResources[k!.name] = FontStructure(
+                  v, (v! as PdfReferenceHolder).reference.toString());
             });
           }
         }
@@ -171,9 +184,9 @@ class _PageResourceLoader {
     return pageResources;
   }
 
-  // Updates the resources in the page
-  _PdfPageResources updatePageResources(
-      _PdfPageResources pageResources, Map<String?, Object?> objects) {
+  /// Updates the resources in the page
+  PdfPageResources updatePageResources(
+      PdfPageResources pageResources, Map<String?, Object?> objects) {
     objects.forEach((String? k, Object? v) {
       pageResources.add(k, v);
     });
@@ -181,17 +194,21 @@ class _PageResourceLoader {
   }
 }
 
-class _PdfPageResources {
-  // Initializes the new instance of the class [PdfPageResources].
-  _PdfPageResources() {
+/// internal class
+class PdfPageResources {
+  /// Initializes the new instance of the class [PdfPageResources].
+  PdfPageResources() {
     resources = <String?, Object?>{};
   }
 
   //Fields
+  /// internal field
   late Map<String?, Object?> resources;
-  final Map<String?, _FontStructure> _fontCollection =
-      <String?, _FontStructure>{};
 
+  /// internal field
+  final Map<String?, FontStructure> fontCollection = <String?, FontStructure>{};
+
+  /// internal property
   dynamic operator [](String key) => _returnValue(key);
 
   dynamic _returnValue(String key) {
@@ -205,8 +222,8 @@ class _PdfPageResources {
   /// Returns true if the FontCollection has same font face.
   bool isSameFont() {
     int i = 0;
-    _fontCollection.forEach((String? k, _FontStructure v) {
-      _fontCollection.forEach((String? k1, _FontStructure v1) {
+    fontCollection.forEach((String? k, FontStructure v) {
+      fontCollection.forEach((String? k1, FontStructure v1) {
         if (v.fontName != v1.fontName) {
           i = 1;
         }
@@ -219,20 +236,20 @@ class _PdfPageResources {
     }
   }
 
-  // Adds the resource with the specified name.
+  /// Adds the resource with the specified name.
   void add(String? resourceName, Object? resource) {
     if (resourceName == 'ProcSet') {
       return;
     }
     if (!resources.containsKey(resourceName)) {
       resources[resourceName] = resource;
-      if (resource is _FontStructure) {
-        _fontCollection[resourceName] = resource;
+      if (resource is FontStructure) {
+        fontCollection[resourceName] = resource;
       }
     }
   }
 
-  // Returns true if the key already exists.
+  /// internal method
   bool containsKey(String? key) {
     return resources.containsKey(key);
   }

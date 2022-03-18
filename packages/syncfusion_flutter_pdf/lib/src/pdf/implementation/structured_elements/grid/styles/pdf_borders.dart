@@ -1,4 +1,6 @@
-part of pdf;
+import '../../../graphics/enums.dart';
+import '../../../graphics/pdf_color.dart';
+import '../../../graphics/pdf_pen.dart';
 
 /// The class used represents the cell border of the PDF grid
 class PdfBorders {
@@ -63,6 +65,15 @@ class PdfBorders {
   }
 
   bool get _isAll => left == right && right == bottom && bottom == top;
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [PdfBorders] helper
+class PdfBordersHelper {
+  /// internal method
+  static bool isAll(PdfBorders borders) {
+    return borders._isAll;
+  }
 }
 
 /// The class used represents the cell padding of the PDF grid

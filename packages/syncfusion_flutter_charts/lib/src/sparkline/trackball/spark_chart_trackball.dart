@@ -1,7 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../utils/enum.dart';
 
 /// Enables and customizes the trackball.
@@ -27,7 +25,8 @@ class SparkChartTrackball {
   ///      trackball: SparkChartTrackball(borderWidth: 2,
   ///      borderColor: Colors.black, activationMode: SparkChartActivationMode.doubleTap),
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///    )
+  ///   ),
   ///  );
   /// }
   /// ```
@@ -59,10 +58,11 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball: SparkChartTrackball(width: 5,
-  ///      ),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///      trackball: SparkChartTrackball(
+  ///           width: 5,
+  ///        )
+  ///      )
+  ///    ),
   ///  );
   /// }
   /// ```
@@ -81,10 +81,10 @@ class SparkChartTrackball {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      trackball: SparkChartTrackball(
-  ///      color: Colors.black,),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///      color: Colors.black,)
+  ///       )
+  ///     ),
+  ///   );
   /// }
   /// ```
   final Color? color;
@@ -101,11 +101,11 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball: SparkChartTrackball(dashArray: <double>[2,2],
-  ///      ),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///      trackball: SparkChartTrackball(
+  ///         dashArray: <double>[2,2])
+  ///       )
+  ///     ),
+  ///   );
   /// }
   /// ```
   final List<double>? dashArray;
@@ -129,11 +129,11 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball: SparkChartTrackball(activationMode: SparkChartActivationMode.doubleTap),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
-  /// }
+  ///      trackball: SparkChartTrackball(activationMode: SparkChartActivationMode.doubleTap)
+  ///         )
+  ///       ),
+  ///     );
+  ///  }
   /// ```
   final SparkChartActivationMode activationMode;
 
@@ -152,10 +152,10 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball: SparkChartTrackball(labelStyle: TextStyle(fontSize: 15)),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///      trackball: SparkChartTrackball(labelStyle: TextStyle(fontSize: 15))
+  ///         )
+  ///      ),
+  ///   );
   /// }
   /// ```
   final TextStyle labelStyle;
@@ -173,17 +173,17 @@ class SparkChartTrackball {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      trackball:SparkChartTrackball(
-  ///      backgroundColor: Colors.black),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///      backgroundColor: Colors.black)
+  ///         )
+  ///       ),
+  ///    );
   /// }
   /// ```
   final Color? backgroundColor;
 
   /// Customizes the border color of the trackball tooltip.
   /// To make border visible for plot band, need to set both the border
-  ///  color and border width.
+  /// color and border width.
   ///
   /// Defaults to `null`.
   ///
@@ -193,11 +193,11 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball: SparkChartTrackball(borderWidth: 2,
-  ///      borderColor: Colors.black,),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///      trackball: SparkChartTrackball(
+  ///      borderColor: Colors.black)
+  ///         )
+  ///      ),
+  ///   );
   /// }
   /// ```
   final Color? borderColor;
@@ -214,10 +214,10 @@ class SparkChartTrackball {
   ///    body: Center(
   ///       child: SfSparkAreaChart(
   ///      trackball:
-  ///          SparkChartTrackball(borderWidth: 2, borderColor: Colors.black),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///          SparkChartTrackball(borderWidth: 2)
+  ///         )
+  ///      ),
+  ///   );
   /// }
   /// ```
   final double borderWidth;
@@ -235,10 +235,10 @@ class SparkChartTrackball {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      trackball: SparkChartTrackball(
-  ///          borderRadius: BorderRadius.all(Radius.circular(3))),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///          borderRadius: BorderRadius.all(Radius.circular(3)))
+  ///         )
+  ///      ),
+  ///   );
   /// }
   /// ```
   final BorderRadius borderRadius;
@@ -256,10 +256,10 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball: SparkChartTrackball(shouldAlwaysShow: true),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///      trackball: SparkChartTrackball(shouldAlwaysShow: true)
+  ///         )
+  ///      ),
+  ///   );
   /// }
   /// ```
   final bool shouldAlwaysShow;
@@ -278,12 +278,10 @@ class SparkChartTrackball {
   ///    body: Center(
   ///        child: SfSparkAreaChart(
   ///      trackball: SparkChartTrackball(
-  ///        shouldAlwaysShow: true,
-  ///        hideDelay: 200,
-  ///      ),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///        hideDelay: 200)
+  ///          )
+  ///       ),
+  ///    );
   /// }
   /// ```
   final double hideDelay;
@@ -291,27 +289,27 @@ class SparkChartTrackball {
   /// Callback that gets triggered when a trackball tooltip text is created.
   ///
   /// The [TooltipFormatterDetails] is passed as an argument and it provides
-  /// the closest data point x value, y value, and the tooltip text
+  /// the closest data point x value, y value, and the tooltip text.
   ///
   /// The string returned from this call back will be displayed as tooltip text.
   ///
   /// Defaults to `null`.
   ///
+  /// ```dart
   /// String handleTooltipFormatter(TooltipFormatterDetails details) {
   ///  return details.y.toStringAsFixed(0) + 'cm';
   /// }
   ///
-  /// ```dart
   /// @override
   /// Widget build(BuildContext context) {
   ///  return Scaffold(
   ///    body: Center(
   ///     child: SfSparkAreaChart(
   ///       trackball:
-  ///          SparkChartTrackball(tooltipFormatter: handleTooltipFormatter),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///          SparkChartTrackball(tooltipFormatter: handleTooltipFormatter)
+  ///       )
+  ///     ),
+  ///   );
   /// }
   /// ```
   final SparkChartTooltipCallback<String>? tooltipFormatter;

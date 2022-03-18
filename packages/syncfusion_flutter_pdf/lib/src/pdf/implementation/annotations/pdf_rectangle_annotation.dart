@@ -1,4 +1,27 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../interfaces/pdf_interface.dart';
+import '../annotations/pdf_annotation_border.dart';
+import '../drawing/drawing.dart';
+import '../graphics/brushes/pdf_solid_brush.dart';
+import '../graphics/enums.dart';
+import '../graphics/figures/pdf_path.dart';
+import '../graphics/figures/pdf_template.dart';
+import '../graphics/pdf_color.dart';
+import '../graphics/pdf_graphics.dart';
+import '../graphics/pdf_pen.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../pages/pdf_page.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_stream.dart';
+import 'pdf_annotation.dart';
+import 'pdf_annotation_collection.dart';
+import 'pdf_paintparams.dart';
 
 /// Represents a PDF rectangle annotation
 class PdfRectangleAnnotation extends PdfAnnotation {
@@ -22,153 +45,233 @@ class PdfRectangleAnnotation extends PdfAnnotation {
       String? subject,
       double? opacity,
       DateTime? modifiedDate,
-      bool? setAppearance})
-      : super._(
-            bounds: bounds,
-            text: text,
-            color: color,
-            innerColor: innerColor,
-            border: border,
-            author: author,
-            subject: subject,
-            modifiedDate: modifiedDate,
-            opacity: opacity,
-            setAppearance: setAppearance);
+      bool? setAppearance}) {
+    _helper = PdfRectangleAnnotationHelper(this, bounds, text,
+        color: color,
+        innerColor: innerColor,
+        border: border,
+        author: author,
+        subject: subject,
+        modifiedDate: modifiedDate,
+        opacity: opacity,
+        setAppearance: setAppearance);
+  }
 
   PdfRectangleAnnotation._(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable, String text)
-      : super._internal(dictionary, crossTable) {
-    _dictionary = dictionary;
-    _crossTable = crossTable;
+      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
+    _helper = PdfRectangleAnnotationHelper._(this, dictionary, crossTable);
     this.text = text;
   }
 
-  // Implementation
-  @override
-  void _initialize() {
-    super._initialize();
-    _dictionary.setProperty(
-        _DictionaryProperties.subtype, _PdfName(_DictionaryProperties.square));
+  // Fields
+  late PdfRectangleAnnotationHelper _helper;
+
+  // Properites
+  IPdfPrimitive? get _element => PdfAnnotationHelper.getHelper(this).dictionary;
+
+  set _element(IPdfPrimitive? value) {
+    if (value != null && value is PdfDictionary) {
+      PdfAnnotationHelper.getHelper(this).dictionary = value;
+    }
+  }
+}
+
+/// [PdfRectangleAnnotation] helper
+class PdfRectangleAnnotationHelper extends PdfAnnotationHelper {
+  /// internal constructor
+  PdfRectangleAnnotationHelper(
+      this.rectangleAnnotation, Rect bounds, String text,
+      {PdfColor? color,
+      PdfColor? innerColor,
+      PdfAnnotationBorder? border,
+      String? author,
+      String? subject,
+      double? opacity,
+      DateTime? modifiedDate,
+      bool? setAppearance})
+      : super(rectangleAnnotation) {
+    initializeAnnotation(
+        bounds: bounds,
+        text: text,
+        color: color,
+        innerColor: innerColor,
+        border: border,
+        author: author,
+        subject: subject,
+        modifiedDate: modifiedDate,
+        opacity: opacity,
+        setAppearance: setAppearance);
+    dictionary!.setProperty(PdfDictionaryProperties.subtype,
+        PdfName(PdfDictionaryProperties.square));
+  }
+  PdfRectangleAnnotationHelper._(this.rectangleAnnotation,
+      PdfDictionary dictionary, PdfCrossTable crossTable)
+      : super(rectangleAnnotation) {
+    initializeExistingAnnotation(dictionary, crossTable);
   }
 
+  /// internal field
+  late PdfRectangleAnnotation rectangleAnnotation;
+
+  /// internal method
+  static PdfRectangleAnnotationHelper getHelper(
+      PdfRectangleAnnotation annotation) {
+    return annotation._helper;
+  }
+
+  /// internal method
+  static PdfRectangleAnnotation load(
+      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
+    return PdfRectangleAnnotation._(dictionary, crossTable, text);
+  }
+
+  /// internal method
   @override
-  void _save() {
-    if (page!.annotations._flatten) {
-      _flatten = true;
+  IPdfPrimitive? get element => rectangleAnnotation._element;
+  @override
+  set element(IPdfPrimitive? value) {
+    rectangleAnnotation._element = value;
+  }
+
+  /// internal method
+  void save() {
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(rectangleAnnotation);
+    if (PdfAnnotationCollectionHelper.getHelper(
+            rectangleAnnotation.page!.annotations)
+        .flatten) {
+      helper.flatten = true;
     }
-    if (_flatten || setAppearance || _pdfAppearance != null) {
+    if (helper.flatten ||
+        rectangleAnnotation.setAppearance ||
+        helper.appearance != null) {
       PdfTemplate? appearance;
-      if (_pdfAppearance != null) {
-        appearance = _pdfAppearance!.normal;
+      if (helper.appearance != null) {
+        appearance = helper.appearance!.normal;
       } else {
         appearance = _createAppearance();
       }
-      if (_flatten) {
-        if (appearance != null || _isLoadedAnnotation) {
-          if (page != null) {
-            _flattenAnnotation(page, appearance);
+      if (helper.flatten) {
+        if (appearance != null || helper.isLoadedAnnotation) {
+          if (rectangleAnnotation.page != null) {
+            _flattenAnnotation(rectangleAnnotation.page, appearance);
           }
         }
       } else {
         if (appearance != null) {
-          this.appearance.normal = appearance;
-          _dictionary.setProperty(
-              _DictionaryProperties.ap, _PdfReferenceHolder(this.appearance));
+          rectangleAnnotation.appearance.normal = appearance;
+          helper.dictionary!.setProperty(PdfDictionaryProperties.ap,
+              PdfReferenceHolder(rectangleAnnotation.appearance));
         }
       }
     }
-    if (!_flatten && !_isLoadedAnnotation) {
-      super._save();
-      _dictionary.setProperty(_DictionaryProperties.bs, border);
+    if (!helper.flatten && !helper.isLoadedAnnotation) {
+      helper.saveAnnotation();
+      helper.dictionary!
+          .setProperty(PdfDictionaryProperties.bs, rectangleAnnotation.border);
     }
-    if (_flattenPopups) {
-      _flattenPopup();
+    if (helper.flattenPopups) {
+      helper.flattenPopup();
     }
   }
 
   PdfTemplate? _createAppearance() {
-    if (_isLoadedAnnotation) {
-      if (setAppearance) {
-        final _PaintParams paintParams = _PaintParams();
-        final double borderWidth = border.width / 2;
-        final PdfPen mBorderPen = PdfPen(color, width: border.width.toDouble());
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(rectangleAnnotation);
+    if (helper.isLoadedAnnotation) {
+      if (rectangleAnnotation.setAppearance) {
+        final PaintParams paintParams = PaintParams();
+        final double borderWidth = rectangleAnnotation.border.width / 2;
+        final PdfPen mBorderPen = PdfPen(rectangleAnnotation.color,
+            width: rectangleAnnotation.border.width);
         PdfBrush? mBackBrush;
         final Map<String, dynamic> result = _calculateCloudBorderBounds();
         final double borderIntensity = result['borderIntensity'] as double;
         final String? borderStyle = result['borderStyle'] as String?;
-        final _Rectangle nativeRectangle =
-            _Rectangle(0, 0, bounds.width, bounds.height);
+        final PdfRectangle nativeRectangle = PdfRectangle(
+            0,
+            0,
+            rectangleAnnotation.bounds.width,
+            rectangleAnnotation.bounds.height);
         final PdfTemplate template =
-            PdfTemplate._fromRect(nativeRectangle.rect);
-        _setMatrix(template._content);
+            PdfTemplateHelper.fromRect(nativeRectangle.rect);
+        helper.setMatrix(PdfTemplateHelper.getHelper(template).content);
         if (borderIntensity > 0 && borderStyle == 'C') {
-          template._writeTransformation = false;
+          PdfTemplateHelper.getHelper(template).writeTransformation = false;
         }
         final PdfGraphics? graphics = template.graphics;
-        if (innerColor._alpha != 0) {
-          mBackBrush = PdfSolidBrush(innerColor);
+        if (PdfColorHelper.getHelper(rectangleAnnotation.innerColor).alpha !=
+            0) {
+          mBackBrush = PdfSolidBrush(rectangleAnnotation.innerColor);
         }
-        if (border.width > 0) {
-          paintParams._borderPen = mBorderPen;
+        if (rectangleAnnotation.border.width > 0) {
+          paintParams.borderPen = mBorderPen;
         }
-        paintParams._foreBrush = PdfSolidBrush(color);
-        paintParams._backBrush = mBackBrush;
-        final _Rectangle rectangle = _obtainStyle(
+        paintParams.foreBrush = PdfSolidBrush(rectangleAnnotation.color);
+        paintParams.backBrush = mBackBrush;
+        final PdfRectangle rectangle = _obtainStyle(
             mBorderPen, nativeRectangle, borderWidth,
             borderIntensity: borderIntensity, borderStyle: borderStyle);
-        if (opacity < 1) {
+        if (rectangleAnnotation.opacity < 1) {
           graphics!.save();
-          graphics.setTransparency(opacity);
+          graphics.setTransparency(rectangleAnnotation.opacity);
         }
         if (borderIntensity > 0 && borderStyle == 'C') {
           _drawAppearance(
               rectangle, borderWidth, graphics, paintParams, borderIntensity);
         } else {
           graphics!.drawRectangle(
-              pen: paintParams._borderPen,
-              brush: paintParams._backBrush,
+              pen: paintParams.borderPen,
+              brush: paintParams.backBrush,
               bounds: Rect.fromLTWH(
                   rectangle.x, rectangle.y, rectangle.width, rectangle.height));
         }
-        if (opacity < 1) {
+        if (rectangleAnnotation.opacity < 1) {
           graphics!.restore();
         }
         return template;
       }
       return null;
     } else {
-      final Rect nativeRectangle =
-          Rect.fromLTWH(0, 0, bounds.width, bounds.height);
-      final PdfTemplate template = PdfTemplate(bounds.width, bounds.height);
-      _setMatrix(template._content);
-      final _PaintParams paintParams = _PaintParams();
+      final Rect nativeRectangle = Rect.fromLTWH(0, 0,
+          rectangleAnnotation.bounds.width, rectangleAnnotation.bounds.height);
+      final PdfTemplate template = PdfTemplate(
+          rectangleAnnotation.bounds.width, rectangleAnnotation.bounds.height);
+      helper.setMatrix(PdfTemplateHelper.getHelper(template).content);
+      final PaintParams paintParams = PaintParams();
       final PdfGraphics graphics = template.graphics!;
-      if (border.width > 0 && color._alpha != 0) {
-        final PdfPen mBorderPen = PdfPen(color, width: border.width.toDouble());
-        paintParams._borderPen = mBorderPen;
+      if (rectangleAnnotation.border.width > 0 &&
+          PdfColorHelper.getHelper(rectangleAnnotation.color).alpha != 0) {
+        final PdfPen mBorderPen = PdfPen(rectangleAnnotation.color,
+            width: rectangleAnnotation.border.width);
+        paintParams.borderPen = mBorderPen;
       }
       PdfBrush? mBackBrush;
-      if (innerColor._alpha != 0) {
-        mBackBrush = PdfSolidBrush(innerColor);
+      if (PdfColorHelper.getHelper(rectangleAnnotation.innerColor).alpha != 0) {
+        mBackBrush = PdfSolidBrush(rectangleAnnotation.innerColor);
       }
-      final double width = border.width / 2;
+      final double width = rectangleAnnotation.border.width / 2;
 
-      paintParams._backBrush = mBackBrush;
-      if (paintParams._foreBrush != PdfSolidBrush(color)) {
-        paintParams._foreBrush = PdfSolidBrush(color);
+      paintParams.backBrush = mBackBrush;
+      if (paintParams.foreBrush != PdfSolidBrush(rectangleAnnotation.color)) {
+        paintParams.foreBrush = PdfSolidBrush(rectangleAnnotation.color);
       }
       final Rect rect = Rect.fromLTWH(nativeRectangle.left, nativeRectangle.top,
           nativeRectangle.width, nativeRectangle.height);
-      if (opacity < 1) {
+      if (rectangleAnnotation.opacity < 1) {
         graphics.save();
-        graphics.setTransparency(opacity, mode: PdfBlendMode.normal);
+        graphics.setTransparency(rectangleAnnotation.opacity,
+            mode: PdfBlendMode.normal);
       }
       graphics.drawRectangle(
-          bounds: Rect.fromLTWH(rect.left + width, rect.top + width,
-              rect.width - border.width, rect.height - border.width),
-          pen: paintParams._borderPen,
-          brush: paintParams._backBrush);
-      if (opacity < 1) {
+          bounds: Rect.fromLTWH(
+              rect.left + width,
+              rect.top + width,
+              rect.width - rectangleAnnotation.border.width,
+              rect.height - rectangleAnnotation.border.width),
+          pen: paintParams.borderPen,
+          brush: paintParams.backBrush);
+      if (rectangleAnnotation.opacity < 1) {
         graphics.restore();
       }
       return template;
@@ -176,68 +279,87 @@ class PdfRectangleAnnotation extends PdfAnnotation {
   }
 
   Map<String, dynamic> _calculateCloudBorderBounds() {
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(rectangleAnnotation);
     double borderIntensity = 0;
     String borderStyle = '';
-    if (!_dictionary.containsKey(_DictionaryProperties.rd) &&
-        _dictionary.containsKey(_DictionaryProperties.be)) {
-      final _PdfDictionary dict =
-          _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.be])!
-              as _PdfDictionary;
-      if (dict.containsKey(_DictionaryProperties.s)) {
-        borderStyle =
-            _getEnumName((dict[_DictionaryProperties.s]! as _PdfName)._name);
+    final PdfDictionary dictionary = helper.dictionary!;
+    if (!dictionary.containsKey(PdfDictionaryProperties.rd) &&
+        dictionary.containsKey(PdfDictionaryProperties.be)) {
+      final PdfDictionary dict =
+          PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.be])!
+              as PdfDictionary;
+      if (dict.containsKey(PdfDictionaryProperties.s)) {
+        borderStyle = helper
+            .getEnumName((dict[PdfDictionaryProperties.s]! as PdfName).name);
       }
-      if (dict.containsKey(_DictionaryProperties.i)) {
+      if (dict.containsKey(PdfDictionaryProperties.i)) {
         borderIntensity =
-            (dict[_DictionaryProperties.i]! as _PdfNumber).value!.toDouble();
+            (dict[PdfDictionaryProperties.i]! as PdfNumber).value!.toDouble();
       }
       if (borderIntensity != 0 && borderStyle == 'C') {
         final Rect cloudRectangle = Rect.fromLTWH(
-            bounds.left - borderIntensity * 5 - border.width / 2,
-            bounds.top - borderIntensity * 5 - border.width / 2,
-            bounds.width + borderIntensity * 10 + border.width,
-            bounds.height + borderIntensity * 10 + border.width);
+            rectangleAnnotation.bounds.left -
+                borderIntensity * 5 -
+                rectangleAnnotation.border.width / 2,
+            rectangleAnnotation.bounds.top -
+                borderIntensity * 5 -
+                rectangleAnnotation.border.width / 2,
+            rectangleAnnotation.bounds.width +
+                borderIntensity * 10 +
+                rectangleAnnotation.border.width,
+            rectangleAnnotation.bounds.height +
+                borderIntensity * 10 +
+                rectangleAnnotation.border.width);
         final double radius = borderIntensity * 5;
         final List<double> arr = <double>[
-          radius + border.width / 2,
-          radius + border.width / 2,
-          radius + border.width / 2,
-          radius + border.width / 2
+          radius + rectangleAnnotation.border.width / 2,
+          radius + rectangleAnnotation.border.width / 2,
+          radius + rectangleAnnotation.border.width / 2,
+          radius + rectangleAnnotation.border.width / 2
         ];
-        _dictionary.setProperty(_DictionaryProperties.rd, _PdfArray(arr));
-        bounds = cloudRectangle;
+        dictionary.setProperty(PdfDictionaryProperties.rd, PdfArray(arr));
+        rectangleAnnotation.bounds = cloudRectangle;
       }
     }
-    if (!_isBounds && _dictionary[_DictionaryProperties.rd] != null) {
-      final _PdfArray mRdArray =
-          _dictionary[_DictionaryProperties.rd]! as _PdfArray;
-      final _PdfNumber num1 = mRdArray._elements[0]! as _PdfNumber;
-      final _PdfNumber num2 = mRdArray._elements[1]! as _PdfNumber;
-      final _PdfNumber num3 = mRdArray._elements[2]! as _PdfNumber;
-      final _PdfNumber num4 = mRdArray._elements[3]! as _PdfNumber;
+    if (!helper.isBounds && dictionary[PdfDictionaryProperties.rd] != null) {
+      final PdfArray mRdArray =
+          dictionary[PdfDictionaryProperties.rd]! as PdfArray;
+      final PdfNumber num1 = mRdArray.elements[0]! as PdfNumber;
+      final PdfNumber num2 = mRdArray.elements[1]! as PdfNumber;
+      final PdfNumber num3 = mRdArray.elements[2]! as PdfNumber;
+      final PdfNumber num4 = mRdArray.elements[3]! as PdfNumber;
       Rect cloudRectangle = Rect.fromLTWH(
-          bounds.left + num1.value!.toDouble(),
-          bounds.top + num2.value!.toDouble(),
-          bounds.width - num3.value!.toDouble() * 2,
-          bounds.height - num4.value!.toDouble() * 2);
+          rectangleAnnotation.bounds.left + num1.value!.toDouble(),
+          rectangleAnnotation.bounds.top + num2.value!.toDouble(),
+          rectangleAnnotation.bounds.width - num3.value!.toDouble() * 2,
+          rectangleAnnotation.bounds.height - num4.value!.toDouble() * 2);
       if (borderIntensity != 0 && borderStyle == 'C') {
         cloudRectangle = Rect.fromLTWH(
-            cloudRectangle.left - borderIntensity * 5 - border.width / 2,
-            cloudRectangle.top - borderIntensity * 5 - border.width / 2,
-            cloudRectangle.width + borderIntensity * 10 + border.width,
-            cloudRectangle.height + borderIntensity * 10 + border.width);
+            cloudRectangle.left -
+                borderIntensity * 5 -
+                rectangleAnnotation.border.width / 2,
+            cloudRectangle.top -
+                borderIntensity * 5 -
+                rectangleAnnotation.border.width / 2,
+            cloudRectangle.width +
+                borderIntensity * 10 +
+                rectangleAnnotation.border.width,
+            cloudRectangle.height +
+                borderIntensity * 10 +
+                rectangleAnnotation.border.width);
         final double radius = borderIntensity * 5;
         final List<double> arr = <double>[
-          radius + border.width / 2,
-          radius + border.width / 2,
-          radius + border.width / 2,
-          radius + border.width / 2
+          radius + rectangleAnnotation.border.width / 2,
+          radius + rectangleAnnotation.border.width / 2,
+          radius + rectangleAnnotation.border.width / 2,
+          radius + rectangleAnnotation.border.width / 2
         ];
-        _dictionary.setProperty(_DictionaryProperties.rd, _PdfArray(arr));
+        dictionary.setProperty(PdfDictionaryProperties.rd, PdfArray(arr));
       } else {
-        _dictionary.remove(_DictionaryProperties.rd);
+        dictionary.remove(PdfDictionaryProperties.rd);
       }
-      bounds = cloudRectangle;
+      rectangleAnnotation.bounds = cloudRectangle;
     }
     return <String, dynamic>{
       'borderIntensity': borderIntensity,
@@ -246,78 +368,85 @@ class PdfRectangleAnnotation extends PdfAnnotation {
   }
 
   void _flattenAnnotation(PdfPage? page, PdfTemplate? appearance) {
-    if (_isLoadedAnnotation) {
+    final PdfAnnotationHelper helper =
+        PdfAnnotationHelper.getHelper(rectangleAnnotation);
+    final PdfDictionary dictionary = helper.dictionary!;
+    if (helper.isLoadedAnnotation) {
       final bool isContainsAP =
-          _dictionary.containsKey(_DictionaryProperties.ap);
+          dictionary.containsKey(PdfDictionaryProperties.ap);
       if (isContainsAP && appearance == null) {
-        _PdfDictionary? appearanceDictionary =
-            _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.ap])
-                as _PdfDictionary?;
+        PdfDictionary? appearanceDictionary =
+            PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.ap])
+                as PdfDictionary?;
         if (appearanceDictionary != null) {
-          appearanceDictionary = _PdfCrossTable._dereference(
-              appearanceDictionary[_DictionaryProperties.n]) as _PdfDictionary?;
+          appearanceDictionary = PdfCrossTable.dereference(
+                  appearanceDictionary[PdfDictionaryProperties.n])
+              as PdfDictionary?;
           if (appearanceDictionary != null) {
-            final _PdfStream appearanceStream =
-                appearanceDictionary as _PdfStream;
-            appearance = PdfTemplate._fromPdfStream(appearanceStream);
+            final PdfStream appearanceStream =
+                appearanceDictionary as PdfStream;
+            appearance = PdfTemplateHelper.fromPdfStream(appearanceStream);
             final bool isNormalMatrix =
-                _validateTemplateMatrix(appearanceDictionary);
-            _flattenAnnotationTemplate(appearance, isNormalMatrix);
+                helper.validateTemplateMatrix(appearanceDictionary);
+            helper.flattenAnnotationTemplate(appearance, isNormalMatrix);
           } else {
-            setAppearance = true;
+            rectangleAnnotation.setAppearance = true;
             appearance = _createAppearance();
             if (appearance != null) {
-              final bool isNormalMatrix =
-                  _validateTemplateMatrix(appearance._content);
-              _flattenAnnotationTemplate(appearance, isNormalMatrix);
+              final bool isNormalMatrix = helper.validateTemplateMatrix(
+                  PdfTemplateHelper.getHelper(appearance).content);
+              helper.flattenAnnotationTemplate(appearance, isNormalMatrix);
             }
           }
         }
       } else if (!isContainsAP && appearance == null) {
-        setAppearance = true;
+        rectangleAnnotation.setAppearance = true;
         appearance = _createAppearance();
         if (appearance != null) {
-          final bool isNormalMatrix =
-              _validateTemplateMatrix(appearance._content);
-          _flattenAnnotationTemplate(appearance, isNormalMatrix);
+          final bool isNormalMatrix = helper.validateTemplateMatrix(
+              PdfTemplateHelper.getHelper(appearance).content);
+          helper.flattenAnnotationTemplate(appearance, isNormalMatrix);
         }
       } else {
-        final bool isNormalMatrix =
-            _validateTemplateMatrix(appearance!._content);
-        _flattenAnnotationTemplate(appearance, isNormalMatrix);
+        final bool isNormalMatrix = helper.validateTemplateMatrix(
+            PdfTemplateHelper.getHelper(appearance!).content);
+        helper.flattenAnnotationTemplate(appearance, isNormalMatrix);
       }
     } else {
       page!.graphics.save();
-      final Rect rectangle =
-          super._calculateTemplateBounds(bounds, page, appearance, true);
+      final Rect rectangle = helper.calculateTemplateBounds(
+          rectangleAnnotation.bounds, page, appearance, true);
 
-      if (opacity < 1) {
-        page.graphics.setTransparency(opacity, mode: PdfBlendMode.normal);
+      if (rectangleAnnotation.opacity < 1) {
+        page.graphics.setTransparency(rectangleAnnotation.opacity,
+            mode: PdfBlendMode.normal);
       }
       page.graphics.drawPdfTemplate(
           appearance!, Offset(rectangle.left, rectangle.top), rectangle.size);
-      page.annotations.remove(this);
+      page.annotations.remove(rectangleAnnotation);
       page.graphics.restore();
     }
   }
 
   // Obtain Style from annotation
-  _Rectangle _obtainStyle(
-      PdfPen mBorderPen, _Rectangle rectangle, double borderWidth,
+  PdfRectangle _obtainStyle(
+      PdfPen mBorderPen, PdfRectangle rectangle, double borderWidth,
       {double? borderIntensity, String? borderStyle}) {
-    if (_dictionary.containsKey(_DictionaryProperties.bs)) {
-      final _PdfDictionary? bSDictionary =
-          _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.bs])
-              as _PdfDictionary?;
+    if (PdfAnnotationHelper.getHelper(rectangleAnnotation)
+        .dictionary!
+        .containsKey(PdfDictionaryProperties.bs)) {
+      final PdfDictionary? bSDictionary = PdfCrossTable.dereference(
+          PdfAnnotationHelper.getHelper(rectangleAnnotation)
+              .dictionary![PdfDictionaryProperties.bs]) as PdfDictionary?;
       if (bSDictionary != null &&
-          bSDictionary.containsKey(_DictionaryProperties.d)) {
-        final _PdfArray dashPatternArray =
-            _PdfCrossTable._dereference(bSDictionary[_DictionaryProperties.d])!
-                as _PdfArray;
+          bSDictionary.containsKey(PdfDictionaryProperties.d)) {
+        final PdfArray dashPatternArray =
+            PdfCrossTable.dereference(bSDictionary[PdfDictionaryProperties.d])!
+                as PdfArray;
         final List<double> dashPattern = <double>[];
         for (int i = 0; i < dashPatternArray.count; i++) {
           dashPattern.add(
-              (dashPatternArray._elements[i]! as _PdfNumber).value!.toDouble());
+              (dashPatternArray.elements[i]! as PdfNumber).value!.toDouble());
         }
         mBorderPen.dashStyle = PdfDashStyle.dash;
         mBorderPen.dashPattern = dashPattern;
@@ -335,44 +464,47 @@ class PdfRectangleAnnotation extends PdfAnnotation {
     } else {
       rectangle.x += borderWidth;
       rectangle.y += borderWidth;
-      rectangle.width -= border.width;
-      rectangle.height -= border.width;
+      rectangle.width -= rectangleAnnotation.border.width;
+      rectangle.height -= rectangleAnnotation.border.width;
     }
     return rectangle;
   }
 
   // Draw appearance for annotation
-  void _drawAppearance(_Rectangle rectangle, double borderWidth,
-      PdfGraphics? graphics, _PaintParams paintParams, double borderIntensity) {
+  void _drawAppearance(PdfRectangle rectangle, double borderWidth,
+      PdfGraphics? graphics, PaintParams paintParams, double borderIntensity) {
     final PdfPath graphicsPath = PdfPath();
     graphicsPath.addRectangle(rectangle.rect);
     final double radius = borderIntensity * 4.25;
     if (radius > 0) {
-      if (graphicsPath._points.length == 5 &&
-          graphicsPath._points[4] == Offset.zero) {
-        graphicsPath._points.removeAt(4);
+      if (PdfPathHelper.getHelper(graphicsPath).points.length == 5 &&
+          PdfPathHelper.getHelper(graphicsPath).points[4] == Offset.zero) {
+        PdfPathHelper.getHelper(graphicsPath).points.removeAt(4);
       }
       final List<Offset> points = <Offset>[];
-      for (int i = 0; i < graphicsPath._points.length; i++) {
-        points.add(
-            Offset(graphicsPath._points[i].dx, -graphicsPath._points[i].dy));
+      for (int i = 0;
+          i < PdfPathHelper.getHelper(graphicsPath).points.length;
+          i++) {
+        points.add(Offset(PdfPathHelper.getHelper(graphicsPath).points[i].dx,
+            -PdfPathHelper.getHelper(graphicsPath).points[i].dy));
       }
-      _drawCloudStyle(graphics!, paintParams._backBrush, paintParams._borderPen,
-          radius, 0.833, points, false);
+      PdfAnnotationHelper.getHelper(rectangleAnnotation).drawCloudStyle(
+          graphics!,
+          paintParams.backBrush,
+          paintParams.borderPen,
+          radius,
+          0.833,
+          points,
+          false);
     } else {
       graphics!.drawRectangle(
-          pen: paintParams._borderPen,
-          brush: paintParams._backBrush,
-          bounds: Rect.fromLTWH(rectangle.x + borderWidth, rectangle.y,
-              rectangle.width - border.width, rectangle.height));
+          pen: paintParams.borderPen,
+          brush: paintParams.backBrush,
+          bounds: Rect.fromLTWH(
+              rectangle.x + borderWidth,
+              rectangle.y,
+              rectangle.width - rectangleAnnotation.border.width,
+              rectangle.height));
     }
-  }
-
-  @override
-  _IPdfPrimitive get _element => _dictionary;
-
-  @override
-  set _element(_IPdfPrimitive? value) {
-    _element = value;
   }
 }

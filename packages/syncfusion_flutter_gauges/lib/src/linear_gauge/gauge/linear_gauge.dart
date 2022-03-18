@@ -77,14 +77,14 @@ class SfLinearGauge extends StatefulWidget {
 
   ///Customizes each bar pointer by adding it to the [barPointers] collection.
   ///
-  /// Also refer [LinearGaugePointer]
+  /// Also refer [LinearMarkerPointer]
   ///
   final List<LinearBarPointer>? barPointers;
 
   /// Add a list of gauge shape and widget pointer to the linear gauge and customize
-  /// each pointer by adding it to the [pointers] collection.
+  /// each pointer by adding it to the [markerPointers] collection.
   ///
-  /// Also refer [LinearGaugePointer]
+  /// Also refer [LinearMarkerPointer]
   ///
   final List<LinearMarkerPointer>? markerPointers;
 
@@ -599,8 +599,7 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
     final Animation<double> animation = Tween<double>(begin: 0, end: 1).animate(
         CurvedAnimation(
             parent: pointerController,
-            curve: Interval(0, 1,
-                curve: LinearGaugeHelper.getCurveAnimation(animationType))));
+            curve: Interval(0, 1, curve: getCurveAnimation(animationType))));
 
     _pointerAnimations.add(animation);
     _pointerAnimationControllers.add(pointerController);

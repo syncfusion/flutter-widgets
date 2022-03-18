@@ -1,5 +1,3 @@
-part of pdf;
-
 /// Specifies type of paginating.
 enum PdfLayoutType {
   /// If the element exceeds the page, proceed it on the next page.
@@ -21,4 +19,17 @@ enum PdfLayoutBreakType {
   fitColumnsToPage
 }
 
-enum _PathPointType { start, line, bezier3, closeSubpath }
+/// Specifies path point type
+enum PathPointType {
+  /// start type
+  start,
+
+  /// line type
+  line,
+
+  /// bezier3 type
+  bezier3,
+
+  /// closeSubpath type
+  closeSubpath
+}

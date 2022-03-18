@@ -1,4 +1,12 @@
-part of pdf;
+import 'dart:convert';
+
+import '../../../interfaces/pdf_interface.dart';
+import '../enums.dart';
+import 'enums.dart';
+import 'pdf_font.dart';
+import 'pdf_string_format.dart';
+import 'rtl/arabic_shape_renderer.dart';
+import 'unicode_true_type_font.dart';
 
 /// Represents TrueType font.
 ///
@@ -39,6 +47,7 @@ class PdfTrueTypeFont extends PdfFont {
   /// ```
   PdfTrueTypeFont(List<int> fontData, double size,
       {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
+    _helper = PdfTrueTypeFontHelper(this);
     _initializeFont(fontData, size, style, multiStyle);
   }
 
@@ -68,6 +77,7 @@ class PdfTrueTypeFont extends PdfFont {
   /// ```
   PdfTrueTypeFont.fromBase64String(String fontData, double size,
       {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
+    _helper = PdfTrueTypeFontHelper(this);
     if (fontData.isEmpty) {
       throw ArgumentError.value(fontData, 'fontData', 'Invalid font data');
     }
@@ -75,76 +85,98 @@ class PdfTrueTypeFont extends PdfFont {
   }
 
   //Fields
-  bool? _unicode;
-  late _UnicodeTrueTypeFont _fontInternal;
+  late PdfTrueTypeFontHelper _helper;
 
   //Implementation
   void _initializeFont(List<int> fontData, double size, PdfFontStyle? style,
       List<PdfFontStyle>? multiStyle) {
-    _initialize(size, style: style, multiStyle: multiStyle);
-    _unicode = true;
+    PdfFontHelper.getHelper(this)
+        .initialize(size, style: style, multiStyle: multiStyle);
+    _helper.unicode = true;
     _createFontInternals(fontData);
   }
 
   void _createFontInternals(List<int> fontData) {
-    _fontInternal = _UnicodeTrueTypeFont(fontData, _size);
+    _helper.fontInternal = UnicodeTrueTypeFont(fontData, size);
     _calculateStyle(style);
     _initializeInternals();
   }
 
   void _calculateStyle(PdfFontStyle style) {
-    int? iStyle = _fontInternal._ttfMetrics!.macStyle;
-    if (_isUnderline) {
-      iStyle = iStyle! | PdfFont._getPdfFontStyle(PdfFontStyle.underline);
+    int? iStyle = _helper.fontInternal.ttfMetrics!.macStyle;
+    if (PdfFontHelper.getHelper(this).isUnderline) {
+      iStyle = iStyle! | PdfFontHelper.getPdfFontStyle(PdfFontStyle.underline);
     }
-    if (_isStrikeout) {
-      iStyle = iStyle! | PdfFont._getPdfFontStyle(PdfFontStyle.strikethrough);
+    if (PdfFontHelper.getHelper(this).isStrikeout) {
+      iStyle =
+          iStyle! | PdfFontHelper.getPdfFontStyle(PdfFontStyle.strikethrough);
     }
-    _fontStyle = iStyle!;
+    PdfFontHelper.getHelper(this).fontStyle = iStyle!;
   }
 
   void _initializeInternals() {
-    _fontInternal._createInternals();
-    final _IPdfPrimitive? internals = _fontInternal._fontDictionary;
-    _metrics = _fontInternal._metrics;
+    _helper.fontInternal.createInternals();
+    final IPdfPrimitive? internals = _helper.fontInternal.fontDictionary;
+    PdfFontHelper.getHelper(this).metrics = _helper.fontInternal.metrics;
     if (internals == null) {
       throw ArgumentError.value(internals, 'font internal cannot be null');
     }
-    _fontInternals = internals;
+    PdfFontHelper.getHelper(this).fontInternals = internals;
+  }
+}
+
+/// [PdfTrueTypeFont] helper
+class PdfTrueTypeFontHelper {
+  /// internal constructor
+  PdfTrueTypeFontHelper(this.base);
+
+  /// internal field
+  PdfTrueTypeFont base;
+
+  /// internal field
+  late UnicodeTrueTypeFont fontInternal;
+
+  /// internal field
+  bool? unicode;
+
+  /// internal method
+  static PdfTrueTypeFontHelper getHelper(PdfTrueTypeFont base) {
+    return base._helper;
   }
 
-  void _setSymbols(String text) {
-    _fontInternal._setSymbols(text);
-  }
+  /// internal property
+  IPdfPrimitive? get element => PdfFontHelper.getHelper(base).fontInternals;
 
-  double _getCharWidth(String charCode, PdfStringFormat? format) {
-    double codeWidth = _fontInternal._getCharWidth(charCode);
-    codeWidth *= 0.001 * _metrics!._getSize(format)!;
-    return codeWidth;
-  }
-
-  //_IPdfWrapper elements
-  @override
-  _IPdfPrimitive? get _element => _fontInternals;
-
-  @override
   //ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    _fontInternals = value;
+  set element(IPdfPrimitive? value) {
+    PdfFontHelper.getHelper(base).fontInternals = value;
   }
 
-  @override
-  double _getLineWidth(String line, PdfStringFormat? format) {
+  /// internal method
+  double getLineWidth(String line, PdfStringFormat? format) {
     double width = 0;
     String text = line;
     if (format != null && format.textDirection != PdfTextDirection.none) {
-      final _ArabicShapeRenderer renderer = _ArabicShapeRenderer();
+      final ArabicShapeRenderer renderer = ArabicShapeRenderer();
       text = renderer.shape(line.split(''), 0);
     }
-    width = _fontInternal._getLineWidth(text);
-    final double size = _metrics!._getSize(format)!;
+    width = fontInternal.getLineWidth(text);
+    final double size = PdfFontHelper.getHelper(base).metrics!.getSize(format)!;
     width *= 0.001 * size;
-    width = _applyFormatSettings(text, format, width);
+    width = PdfFontHelper.applyFormatSettings(base, text, format, width);
     return width;
+  }
+
+  /// internal method
+  void setSymbols(String text, List<String>? internalUsedChars) {
+    fontInternal.setSymbols(text, internalUsedChars);
+  }
+
+  /// internal method
+  double getCharWidth(String charCode, PdfStringFormat? format) {
+    double codeWidth = fontInternal.getCharWidth(charCode);
+    codeWidth *=
+        0.001 * PdfFontHelper.getHelper(base).metrics!.getSize(format)!;
+    return codeWidth;
   }
 }

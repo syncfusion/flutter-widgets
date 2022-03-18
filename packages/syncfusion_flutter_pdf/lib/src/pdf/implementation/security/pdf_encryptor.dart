@@ -1,8 +1,24 @@
-part of pdf;
+import 'dart:convert';
+import 'dart:math';
 
-class _PdfEncryptor {
-  //constructor
-  _PdfEncryptor() {
+import 'package:crypto/crypto.dart';
+
+import '../../interfaces/pdf_interface.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_boolean.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_string.dart';
+import 'digital_signature/cryptography/aes_cipher.dart';
+import 'enum.dart';
+
+/// internal class
+class PdfEncryptor {
+  /// internal constructor
+  PdfEncryptor() {
     _initialize();
   }
 
@@ -12,6 +28,8 @@ class _PdfEncryptor {
   int? _revisionNumber128Bit;
   int? _ownerLoopNum2;
   int? _ownerLoopNum;
+
+  /// internal field
   List<int>? paddingBytes;
   int? _bytesAmount;
   int? _permissionSet;
@@ -27,9 +45,16 @@ class _PdfEncryptor {
   int? _randomBytesAmount;
   int? _newKeyOffset;
 
-  bool? _encrypt;
-  bool? _isChanged;
-  bool? _hasComputedPasswordValues;
+  /// internal field
+  bool? isEncrypt;
+
+  /// internal field
+  bool? changed;
+
+  /// internal field
+  bool? hasComputedPasswordValues;
+
+  /// internal field
   PdfEncryptionAlgorithm? encryptionAlgorithm;
   List<PdfPermissionsFlags>? _permissions;
   int? _revision;
@@ -38,7 +63,11 @@ class _PdfEncryptor {
   List<int>? _ownerPasswordOut;
   List<int>? _userPasswordOut;
   List<int>? _encryptionKey;
+
+  /// internal field
   int? keyLength;
+
+  /// internal field
   List<int>? customArray;
   List<int>? _permissionFlagValues;
   List<int>? _fileEncryptionKey;
@@ -47,12 +76,18 @@ class _PdfEncryptor {
   List<int>? _permissionFlag;
   List<int>? _userRandomBytes;
   List<int>? _ownerRandomBytes;
-  bool? _encryptMetadata;
-  bool? _encryptOnlyAttachment;
-  late PdfEncryptionOptions _encryptionOptions;
+
+  /// internal field
+  bool? encryptOnlyMetadata;
+
+  /// internal field
+  bool? encryptAttachmentOnly;
+
+  /// internal field
+  late PdfEncryptionOptions encryptionOptions;
 
   //Properties
-
+  /// internal property
   int? get revisionNumber {
     return _revision == 0
         ? (encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x40Bit
@@ -63,6 +98,7 @@ class _PdfEncryptor {
         : _revision;
   }
 
+  /// internal property
   List<int>? get randomBytes {
     if (_randomBytes == null) {
       final Random random = Random.secure();
@@ -72,48 +108,52 @@ class _PdfEncryptor {
     return _randomBytes;
   }
 
+  /// internal property
   List<PdfPermissionsFlags> get permissions {
     return _permissions!;
   }
 
   set permissions(List<PdfPermissionsFlags> value) {
-    _isChanged = true;
+    changed = true;
     _permissions = value;
     _permissionValue = (_getPermissionValue(_permissions!) | _permissionSet!) &
         _permissionCleared!;
     if (revisionNumber! > 2) {
       _permissionValue = _permissionValue! & _permissionRevisionTwoMask!;
     }
-    _hasComputedPasswordValues = false;
+    hasComputedPasswordValues = false;
   }
 
+  /// internal property
   bool get encrypt {
     final List<PdfPermissionsFlags> perm = permissions;
     final bool bEncrypt =
         (!(perm.length == 1 && perm.contains(PdfPermissionsFlags.none))) ||
             _userPassword!.isNotEmpty ||
             _ownerPassword!.isNotEmpty;
-    return _encrypt! && bEncrypt;
+    return isEncrypt! && bEncrypt;
   }
 
   set encrypt(bool value) {
-    _encrypt = value;
+    isEncrypt = value;
   }
 
+  /// internal property
   String get userPassword {
     return _userPassword!;
   }
 
   set userPassword(String value) {
     if (_userPassword != value) {
-      _isChanged = true;
+      changed = true;
       _userPassword = value;
-      _hasComputedPasswordValues = false;
+      hasComputedPasswordValues = false;
     }
   }
 
+  /// internal property
   String get ownerPassword {
-    if (_encryptOnlyAttachment!) {
+    if (encryptAttachmentOnly!) {
       return '';
     }
     return _ownerPassword!;
@@ -121,45 +161,50 @@ class _PdfEncryptor {
 
   set ownerPassword(String value) {
     if (_ownerPassword != value) {
-      _isChanged = true;
+      changed = true;
       _ownerPassword = value;
-      _hasComputedPasswordValues = false;
+      hasComputedPasswordValues = false;
     }
   }
 
+  /// internal property
   bool get encryptOnlyAttachment {
-    return _encryptOnlyAttachment!;
+    return encryptAttachmentOnly!;
   }
 
   set encryptOnlyAttachment(bool value) {
-    _encryptOnlyAttachment = value;
-    _hasComputedPasswordValues = false;
+    encryptAttachmentOnly = value;
+    hasComputedPasswordValues = false;
   }
 
+  /// internal property
   bool get encryptMetadata {
-    return _encryptMetadata!;
+    return encryptOnlyMetadata!;
   }
 
   set encryptMetadata(bool value) {
-    _hasComputedPasswordValues = false;
-    _encryptMetadata = value;
+    hasComputedPasswordValues = false;
+    encryptOnlyMetadata = value;
   }
 
+  /// internal property
   List<int>? get ownerPasswordOut {
     _initializeData();
     return _ownerPasswordOut;
   }
 
+  /// internal property
   List<int>? get userPasswordOut {
     _initializeData();
     return _userPasswordOut;
   }
 
-  _PdfArray get fileID {
-    final _PdfString str = _PdfString.fromBytes(randomBytes!);
-    final _PdfArray array = _PdfArray();
-    array._add(str);
-    array._add(str);
+  /// internal property
+  PdfArray get fileID {
+    final PdfString str = PdfString.fromBytes(randomBytes);
+    final PdfArray array = PdfArray();
+    array.add(str);
+    array.add(str);
     return array;
   }
 
@@ -181,7 +226,7 @@ class _PdfEncryptor {
     _bytesAmount = 256;
     _randomBytesAmount = 16;
     keyLength = 0;
-    _encrypt = true;
+    isEncrypt = true;
     _permissionSet = ~0x00f3f;
     _permissionCleared = ~0x3;
     _permissionRevisionTwoMask = 0xfff;
@@ -199,7 +244,7 @@ class _PdfEncryptor {
       0x000800
     ];
     permissions = <PdfPermissionsFlags>[PdfPermissionsFlags.none];
-    _encryptionOptions = PdfEncryptionOptions.encryptAllContents;
+    encryptionOptions = PdfEncryptionOptions.encryptAllContents;
     paddingBytes = <int>[
       40,
       191,
@@ -235,14 +280,14 @@ class _PdfEncryptor {
       122
     ];
     customArray = List<int>.filled(_bytesAmount!, 0, growable: true);
-    _isChanged = false;
-    _hasComputedPasswordValues = false;
-    _encryptMetadata = true;
-    _encryptOnlyAttachment = false;
+    changed = false;
+    hasComputedPasswordValues = false;
+    encryptOnlyMetadata = true;
+    encryptAttachmentOnly = false;
   }
 
   void _initializeData() {
-    if (!_hasComputedPasswordValues!) {
+    if (!hasComputedPasswordValues!) {
       if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit) {
         _userPasswordOut = _create256BitUserPassword();
         _ownerPasswordOut = _create256BitOwnerPassword();
@@ -261,7 +306,7 @@ class _PdfEncryptor {
         _encryptionKey = _createEncryptionKey(userPassword, _ownerPasswordOut!);
         _userPasswordOut = _createUserPassword();
       }
-      _hasComputedPasswordValues = true;
+      hasComputedPasswordValues = true;
     }
   }
 
@@ -349,7 +394,7 @@ class _PdfEncryptor {
     hash.addAll(utf8.encode(userPassword));
     hash.addAll(List<int>.generate(8, (int i) => _userRandomBytes![i + 8]));
     final List<int> hashBytes = sha256.convert(hash).bytes;
-    return _AesCipherNoPadding(true, hashBytes)
+    return AesCipherNoPadding(true, hashBytes)
         .processBlock(_fileEncryptionKey, 0, _fileEncryptionKey!.length);
   }
 
@@ -361,16 +406,16 @@ class _PdfEncryptor {
     hash.addAll(List<int>.generate(8, (int i) => _ownerRandomBytes![i + 8]));
     hash.addAll(_userPasswordOut!);
     final List<int> hashBytes = sha256.convert(hash).bytes;
-    return _AesCipherNoPadding(true, hashBytes)
+    return AesCipherNoPadding(true, hashBytes)
         .processBlock(_fileEncryptionKey, 0, _fileEncryptionKey!.length);
   }
 
   List<int>? _createPermissionFlag() {
     final List<int> permissionFlagBytes = <int>[
-      _permissionValue!.toUnsigned(8).toInt(),
-      (_permissionValue! >> 8).toUnsigned(8).toInt(),
-      (_permissionValue! >> 16).toUnsigned(8).toInt(),
-      (_permissionValue! >> 24).toUnsigned(8).toInt(),
+      _permissionValue!.toUnsigned(8),
+      (_permissionValue! >> 8).toUnsigned(8),
+      (_permissionValue! >> 16).toUnsigned(8),
+      (_permissionValue! >> 24).toUnsigned(8),
       255,
       255,
       255,
@@ -385,7 +430,7 @@ class _PdfEncryptor {
       98,
       98
     ];
-    return _AesCipherNoPadding(true, _fileEncryptionKey!)
+    return AesCipherNoPadding(true, _fileEncryptionKey!)
         .processBlock(permissionFlagBytes, 0, permissionFlagBytes.length);
   }
 
@@ -408,7 +453,7 @@ class _PdfEncryptor {
     hash.addAll(userPasswordBytes);
     hash.addAll(userKeySalt);
     hash = _acrobatXComputeHash(hash, userPasswordBytes, null);
-    _userEncryptionKeyOut = _AesCipherNoPadding(true, hash)
+    _userEncryptionKeyOut = AesCipherNoPadding(true, hash)
         .processBlock(_fileEncryptionKey, 0, _fileEncryptionKey!.length);
   }
 
@@ -435,7 +480,7 @@ class _PdfEncryptor {
     hash.addAll(ownerKeySalt);
     hash.addAll(_userPasswordOut!);
     hash = _acrobatXComputeHash(hash, ownerPasswordBytes, _userPasswordOut);
-    _ownerEncryptionKeyOut = _AesCipherNoPadding(true, hash)
+    _ownerEncryptionKeyOut = AesCipherNoPadding(true, hash)
         .processBlock(_fileEncryptionKey, 0, _fileEncryptionKey!.length);
   }
 
@@ -459,7 +504,7 @@ class _PdfEncryptor {
       customArray![tmp2] = temp;
       final int byteXor = customArray![
           (customArray![tmp1] + customArray![tmp2]) % _bytesAmount!];
-      buffer[i] = (data[i] ^ byteXor).toUnsigned(8).toInt();
+      buffer[i] = (data[i] ^ byteXor).toUnsigned(8);
     }
     return buffer;
   }
@@ -469,7 +514,7 @@ class _PdfEncryptor {
         List<int>.filled(_bytesAmount!, 0, growable: true);
     for (int i = 0; i < _bytesAmount!; i++) {
       tempArray[i] = key![i % keyLength];
-      customArray![i] = i.toUnsigned(8).toInt();
+      customArray![i] = i.toUnsigned(8);
     }
     int temp = 0;
     for (int i = 0; i < _bytesAmount!; i++) {
@@ -525,7 +570,7 @@ class _PdfEncryptor {
     final List<int> result =
         List<int>.filled(originalKey.length, 0, growable: true);
     for (int i = 0; i < originalKey.length; i++) {
-      result[i] = (originalKey[i] ^ index).toUnsigned(8).toInt();
+      result[i] = (originalKey[i] ^ index).toUnsigned(8);
     }
     return result;
   }
@@ -538,10 +583,10 @@ class _PdfEncryptor {
     encryptionKeyData.addAll(passwordBytes);
     encryptionKeyData.addAll(ownerPasswordBytes);
     encryptionKeyData.addAll(<int>[
-      _permissionValue!.toUnsigned(8).toInt(),
-      (_permissionValue! >> 8).toUnsigned(8).toInt(),
-      (_permissionValue! >> 16).toUnsigned(8).toInt(),
-      (_permissionValue! >> 24).toUnsigned(8).toInt()
+      _permissionValue!.toUnsigned(8),
+      (_permissionValue! >> 8).toUnsigned(8),
+      (_permissionValue! >> 16).toUnsigned(8),
+      (_permissionValue! >> 24).toUnsigned(8)
     ]);
     encryptionKeyData.addAll(randomBytes!);
     int? revisionNumber;
@@ -599,8 +644,8 @@ class _PdfEncryptor {
       final List<int> hashFirst = List<int>.generate(16, (int i) => hash[i]);
       final List<int> hashSecond =
           List<int>.generate(16, (int i) => hash[i + 16]);
-      final _AesCipher encrypt = _AesCipher(true, hashFirst, hashSecond);
-      finalHashKey = encrypt._update(roundHash, 0, roundHash.length);
+      final AesCipher encrypt = AesCipher(true, hashFirst, hashSecond);
+      finalHashKey = encrypt.update(roundHash, 0, roundHash.length);
       final List<int> finalHashKeyFirst =
           List<int>.generate(16, (int i) => finalHashKey![i]);
       final BigInt finalKeyBigInteger =
@@ -635,62 +680,63 @@ class _PdfEncryptor {
             (BigInt.one << ((mid - start) * 8));
   }
 
-  void _readFromDictionary(_PdfDictionary dictionary) {
-    _IPdfPrimitive? obj;
-    if (dictionary.containsKey(_DictionaryProperties.filter)) {
+  /// internal method
+  void readFromDictionary(PdfDictionary dictionary) {
+    IPdfPrimitive? obj;
+    if (dictionary.containsKey(PdfDictionaryProperties.filter)) {
       obj =
-          _PdfCrossTable._dereference(dictionary[_DictionaryProperties.filter]);
+          PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.filter]);
     }
     if (obj != null &&
-        obj is _PdfName &&
-        obj._name != _DictionaryProperties.standard) {
+        obj is PdfName &&
+        obj.name != PdfDictionaryProperties.standard) {
       throw ArgumentError.value(
           obj, 'Invalid Format: Unsupported security filter');
     }
-    _permissionValue = dictionary._getInt(_DictionaryProperties.p);
+    _permissionValue = dictionary.getInt(PdfDictionaryProperties.p);
     _updatePermissions(_permissionValue! & ~_permissionSet!);
-    _versionNumberOut = dictionary._getInt(_DictionaryProperties.v);
-    _revisionNumberOut = dictionary._getInt(_DictionaryProperties.r);
+    _versionNumberOut = dictionary.getInt(PdfDictionaryProperties.v);
+    _revisionNumberOut = dictionary.getInt(PdfDictionaryProperties.r);
     if (_revisionNumberOut != null) {
       _revision = _revisionNumberOut;
     }
-    int keySize = dictionary._getInt(_DictionaryProperties.v);
+    int keySize = dictionary.getInt(PdfDictionaryProperties.v);
     if (keySize == 4 && keySize != _revisionNumberOut) {
       throw ArgumentError.value(
           'Invalid Format: V and R entries of the Encryption dictionary does not match.');
     }
     if (keySize == 5) {
       _userEncryptionKeyOut =
-          dictionary._getString(_DictionaryProperties.ue)!.data;
+          dictionary.getString(PdfDictionaryProperties.ue)!.data;
       _ownerEncryptionKeyOut =
-          dictionary._getString(_DictionaryProperties.oe)!.data;
+          dictionary.getString(PdfDictionaryProperties.oe)!.data;
       _permissionFlag =
-          dictionary._getString(_DictionaryProperties.perms)!.data;
+          dictionary.getString(PdfDictionaryProperties.perms)!.data;
     }
-    _userPasswordOut = dictionary._getString(_DictionaryProperties.u)!.data;
-    _ownerPasswordOut = dictionary._getString(_DictionaryProperties.o)!.data;
-    keyLength = dictionary.containsKey(_DictionaryProperties.length)
-        ? dictionary._getInt(_DictionaryProperties.length)
+    _userPasswordOut = dictionary.getString(PdfDictionaryProperties.u)!.data;
+    _ownerPasswordOut = dictionary.getString(PdfDictionaryProperties.o)!.data;
+    keyLength = dictionary.containsKey(PdfDictionaryProperties.length)
+        ? dictionary.getInt(PdfDictionaryProperties.length)
         : (keySize == 1 ? 40 : (keySize == 2 ? 128 : 256));
     if (keyLength == 128 && _revisionNumberOut! < 4) {
       keySize = 2;
       encryptionAlgorithm = PdfEncryptionAlgorithm.rc4x128Bit;
     } else if ((keyLength == 128 || keyLength == 256) &&
         _revisionNumberOut! >= 4) {
-      final _PdfDictionary cryptFilter =
-          dictionary[_DictionaryProperties.cf]! as _PdfDictionary;
-      final _PdfDictionary standardCryptFilter =
-          cryptFilter[_DictionaryProperties.stdCF]! as _PdfDictionary;
-      if (standardCryptFilter.containsKey(_DictionaryProperties.authEvent)) {
-        final _IPdfPrimitive? authEventPrimitive =
-            standardCryptFilter[_DictionaryProperties.authEvent];
-        if (authEventPrimitive is _PdfName &&
-            authEventPrimitive._name == _DictionaryProperties.efOpen) {
+      final PdfDictionary cryptFilter =
+          dictionary[PdfDictionaryProperties.cf]! as PdfDictionary;
+      final PdfDictionary standardCryptFilter =
+          cryptFilter[PdfDictionaryProperties.stdCF]! as PdfDictionary;
+      if (standardCryptFilter.containsKey(PdfDictionaryProperties.authEvent)) {
+        final IPdfPrimitive? authEventPrimitive =
+            standardCryptFilter[PdfDictionaryProperties.authEvent];
+        if (authEventPrimitive is PdfName &&
+            authEventPrimitive.name == PdfDictionaryProperties.efOpen) {
           encryptOnlyAttachment = true;
         }
       }
       final String? filterName =
-          (standardCryptFilter[_DictionaryProperties.cfm]! as _PdfName)._name;
+          (standardCryptFilter[PdfDictionaryProperties.cfm]! as PdfName).name;
       if (keyLength == 128) {
         keySize = 2;
         encryptionAlgorithm = filterName != 'V2'
@@ -723,7 +769,7 @@ class _PdfEncryptor {
       throw ArgumentError.value(
           'Invalid format: Invalid/Unsupported security dictionary.');
     }
-    _hasComputedPasswordValues = true;
+    hasComputedPasswordValues = true;
   }
 
   void _updatePermissions(int value) {
@@ -757,7 +803,8 @@ class _PdfEncryptor {
     }
   }
 
-  bool _checkPassword(String password, _PdfString key, bool attachEncryption) {
+  /// internal method
+  bool checkPassword(String password, PdfString key, bool attachEncryption) {
     bool result = false;
     final List<int>? fileId =
         _randomBytes != null ? List<int>.from(_randomBytes!) : _randomBytes;
@@ -831,7 +878,7 @@ class _PdfEncryptor {
         }
       }
     }
-    result = _PdfString._byteToString(array, length);
+    result = PdfString.byteToString(array, length);
     return result;
   }
 
@@ -1025,7 +1072,7 @@ class _PdfEncryptor {
       hashFound = sha256.convert(hash).bytes;
       forDecryption = _userEncryptionKeyOut;
     }
-    _fileEncryptionKey = _AesCipherNoPadding(false, hashFound)
+    _fileEncryptionKey = AesCipherNoPadding(false, hashFound)
         .processBlock(forDecryption, 0, forDecryption!.length);
   }
 
@@ -1088,7 +1135,7 @@ class _PdfEncryptor {
     final List<int> hash =
         _acrobatXComputeHash(combinedPassword, ownerPassword, _userPasswordOut);
     final List<int> fileEncryptionKey = List<int>.from(_ownerEncryptionKeyOut!);
-    _fileEncryptionKey = _AesCipherNoPadding(false, hash)
+    _fileEncryptionKey = AesCipherNoPadding(false, hash)
         .processBlock(fileEncryptionKey, 0, fileEncryptionKey.length);
   }
 
@@ -1106,7 +1153,7 @@ class _PdfEncryptor {
     final List<int> hash =
         _acrobatXComputeHash(combinedUserPassword, userpassword, null);
     final List<int> fileEncryptionKey = List<int>.from(_userEncryptionKeyOut!);
-    _fileEncryptionKey = _AesCipherNoPadding(false, hash)
+    _fileEncryptionKey = AesCipherNoPadding(false, hash)
         .processBlock(fileEncryptionKey, 0, fileEncryptionKey.length);
   }
 
@@ -1115,26 +1162,28 @@ class _PdfEncryptor {
     return List<int>.generate(16, (int i) => random.nextInt(256));
   }
 
-  _PdfDictionary _saveToDictionary(_PdfDictionary dictionary) {
-    if (_isChanged!) {
+  /// internal method
+  PdfDictionary saveToDictionary(PdfDictionary dictionary) {
+    if (changed!) {
       _revisionNumberOut = 0;
       _versionNumberOut = 0;
       _revision = 0;
       keyLength = 0;
     }
-    dictionary[_DictionaryProperties.filter] =
-        _PdfName(_DictionaryProperties.standard);
-    dictionary[_DictionaryProperties.p] = _PdfNumber(_permissionValue!);
-    dictionary[_DictionaryProperties.u] =
-        _PdfString.fromBytes(userPasswordOut!);
-    dictionary[_DictionaryProperties.o] =
-        _PdfString.fromBytes(ownerPasswordOut!);
-    if (dictionary.containsKey(_DictionaryProperties.length)) {
+    dictionary[PdfDictionaryProperties.filter] =
+        PdfName(PdfDictionaryProperties.standard);
+    dictionary[PdfDictionaryProperties.p] = PdfNumber(_permissionValue!);
+    dictionary[PdfDictionaryProperties.u] =
+        PdfString.fromBytes(userPasswordOut);
+    dictionary[PdfDictionaryProperties.o] =
+        PdfString.fromBytes(ownerPasswordOut);
+    if (dictionary.containsKey(PdfDictionaryProperties.length)) {
       keyLength = 0;
     }
-    dictionary[_DictionaryProperties.length] = _PdfNumber(_getKeyLength()! * 8);
+    dictionary[PdfDictionaryProperties.length] =
+        PdfNumber(_getKeyLength()! * 8);
     const bool isAes4Dict = false;
-    if (_encryptOnlyAttachment! &&
+    if (encryptAttachmentOnly! &&
         (encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit ||
             encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x40Bit)) {
       throw ArgumentError.value(encryptionAlgorithm,
@@ -1143,97 +1192,97 @@ class _PdfEncryptor {
     if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit ||
         encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
         encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
-      dictionary[_DictionaryProperties.r] = _PdfNumber(_getKeySize() + 3);
-      dictionary[_DictionaryProperties.v] = _PdfNumber(_getKeySize() + 3);
+      dictionary[PdfDictionaryProperties.r] = PdfNumber(_getKeySize() + 3);
+      dictionary[PdfDictionaryProperties.v] = PdfNumber(_getKeySize() + 3);
       if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
-        dictionary[_DictionaryProperties.v] = _PdfNumber(5);
-        dictionary[_DictionaryProperties.r] = _PdfNumber(6);
+        dictionary[PdfDictionaryProperties.v] = PdfNumber(5);
+        dictionary[PdfDictionaryProperties.r] = PdfNumber(6);
       } else if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit) {
-        dictionary[_DictionaryProperties.v] = _PdfNumber(5);
-        dictionary[_DictionaryProperties.r] = _PdfNumber(5);
+        dictionary[PdfDictionaryProperties.v] = PdfNumber(5);
+        dictionary[PdfDictionaryProperties.r] = PdfNumber(5);
       }
-      if (_encryptOnlyAttachment!) {
-        dictionary[_DictionaryProperties.stmF] =
-            _PdfName(_DictionaryProperties.identity);
-        dictionary[_DictionaryProperties.strF] =
-            _PdfName(_DictionaryProperties.identity);
-        dictionary[_DictionaryProperties.eff] =
-            _PdfName(_DictionaryProperties.stdCF);
-        dictionary[_DictionaryProperties.encryptMetadata] =
-            _PdfBoolean(_encryptMetadata);
+      if (encryptAttachmentOnly!) {
+        dictionary[PdfDictionaryProperties.stmF] =
+            PdfName(PdfDictionaryProperties.identity);
+        dictionary[PdfDictionaryProperties.strF] =
+            PdfName(PdfDictionaryProperties.identity);
+        dictionary[PdfDictionaryProperties.eff] =
+            PdfName(PdfDictionaryProperties.stdCF);
+        dictionary[PdfDictionaryProperties.encryptMetadata] =
+            PdfBoolean(encryptOnlyMetadata);
       } else {
-        dictionary[_DictionaryProperties.stmF] =
-            _PdfName(_DictionaryProperties.stdCF);
-        dictionary[_DictionaryProperties.strF] =
-            _PdfName(_DictionaryProperties.stdCF);
-        if (dictionary.containsKey(_DictionaryProperties.eff)) {
-          dictionary.remove(_DictionaryProperties.eff);
+        dictionary[PdfDictionaryProperties.stmF] =
+            PdfName(PdfDictionaryProperties.stdCF);
+        dictionary[PdfDictionaryProperties.strF] =
+            PdfName(PdfDictionaryProperties.stdCF);
+        if (dictionary.containsKey(PdfDictionaryProperties.eff)) {
+          dictionary.remove(PdfDictionaryProperties.eff);
         }
       }
-      if (!_encryptMetadata!) {
-        if (!dictionary.containsKey(_DictionaryProperties.encryptMetadata)) {
-          dictionary[_DictionaryProperties.encryptMetadata] =
-              _PdfBoolean(_encryptMetadata);
+      if (!encryptOnlyMetadata!) {
+        if (!dictionary.containsKey(PdfDictionaryProperties.encryptMetadata)) {
+          dictionary[PdfDictionaryProperties.encryptMetadata] =
+              PdfBoolean(encryptOnlyMetadata);
         }
       } else if (!encryptOnlyAttachment) {
-        if (dictionary.containsKey(_DictionaryProperties.encryptMetadata)) {
-          dictionary.remove(_DictionaryProperties.encryptMetadata);
+        if (dictionary.containsKey(PdfDictionaryProperties.encryptMetadata)) {
+          dictionary.remove(PdfDictionaryProperties.encryptMetadata);
         }
       }
-      dictionary[_DictionaryProperties.cf] = _getCryptFilterDictionary();
+      dictionary[PdfDictionaryProperties.cf] = _getCryptFilterDictionary();
       if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
           encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
-        dictionary[_DictionaryProperties.ue] =
-            _PdfString.fromBytes(_userEncryptionKeyOut!);
-        dictionary[_DictionaryProperties.oe] =
-            _PdfString.fromBytes(_ownerEncryptionKeyOut!);
-        dictionary[_DictionaryProperties.perms] =
-            _PdfString.fromBytes(_permissionFlag!);
+        dictionary[PdfDictionaryProperties.ue] =
+            PdfString.fromBytes(_userEncryptionKeyOut);
+        dictionary[PdfDictionaryProperties.oe] =
+            PdfString.fromBytes(_ownerEncryptionKeyOut);
+        dictionary[PdfDictionaryProperties.perms] =
+            PdfString.fromBytes(_permissionFlag);
       }
     } else {
-      dictionary[_DictionaryProperties.r] = _PdfNumber(
+      dictionary[PdfDictionaryProperties.r] = PdfNumber(
           (_revisionNumberOut! > 0 && !isAes4Dict)
               ? _revisionNumberOut!
-              : (_getKeySize() + 2).toInt());
-      dictionary[_DictionaryProperties.v] = _PdfNumber(
+              : (_getKeySize() + 2));
+      dictionary[PdfDictionaryProperties.v] = PdfNumber(
           (_versionNumberOut! > 0 && !isAes4Dict)
               ? _versionNumberOut!
-              : (_getKeySize() + 1).toInt());
+              : (_getKeySize() + 1));
     }
-    dictionary._archive = false;
+    dictionary.archive = false;
     return dictionary;
   }
 
-  _PdfDictionary _getCryptFilterDictionary() {
-    final _PdfDictionary standardCryptFilter = _PdfDictionary();
-    if (!standardCryptFilter.containsKey(_DictionaryProperties.cfm)) {
-      if (_encryptOnlyAttachment!) {
-        standardCryptFilter[_DictionaryProperties.cfm] =
-            _PdfName(_DictionaryProperties.aesv2);
-        standardCryptFilter[_DictionaryProperties.type] =
-            _PdfName(_DictionaryProperties.cryptFilter);
+  PdfDictionary _getCryptFilterDictionary() {
+    final PdfDictionary standardCryptFilter = PdfDictionary();
+    if (!standardCryptFilter.containsKey(PdfDictionaryProperties.cfm)) {
+      if (encryptAttachmentOnly!) {
+        standardCryptFilter[PdfDictionaryProperties.cfm] =
+            PdfName(PdfDictionaryProperties.aesv2);
+        standardCryptFilter[PdfDictionaryProperties.type] =
+            PdfName(PdfDictionaryProperties.cryptFilter);
       } else {
-        standardCryptFilter[_DictionaryProperties.cfm] = _PdfName(
+        standardCryptFilter[PdfDictionaryProperties.cfm] = PdfName(
             encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit
-                ? _DictionaryProperties.aesv3
-                : _DictionaryProperties.aesv2);
+                ? PdfDictionaryProperties.aesv3
+                : PdfDictionaryProperties.aesv2);
       }
     }
-    if (!standardCryptFilter.containsKey(_DictionaryProperties.authEvent)) {
-      standardCryptFilter[_DictionaryProperties.authEvent] = _PdfName(
-          _encryptOnlyAttachment!
-              ? _DictionaryProperties.efOpen
-              : _DictionaryProperties.docOpen);
+    if (!standardCryptFilter.containsKey(PdfDictionaryProperties.authEvent)) {
+      standardCryptFilter[PdfDictionaryProperties.authEvent] = PdfName(
+          encryptAttachmentOnly!
+              ? PdfDictionaryProperties.efOpen
+              : PdfDictionaryProperties.docOpen);
     }
-    standardCryptFilter[_DictionaryProperties.length] = _PdfNumber(
+    standardCryptFilter[PdfDictionaryProperties.length] = PdfNumber(
         encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit
             ? _key256!
             : ((encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit ||
                     encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit)
                 ? _key128!
                 : 128));
-    final _PdfDictionary cryptFilterDictionary = _PdfDictionary();
-    cryptFilterDictionary[_DictionaryProperties.stdCF] = standardCryptFilter;
+    final PdfDictionary cryptFilterDictionary = PdfDictionary();
+    cryptFilterDictionary[PdfDictionaryProperties.stdCF] = standardCryptFilter;
     return cryptFilterDictionary;
   }
 
@@ -1267,7 +1316,8 @@ class _PdfEncryptor {
     return result;
   }
 
-  List<int> _encryptData(
+  /// internal method
+  List<int> encryptData(
       int? currentObjectNumber, List<int> data, bool isEncryption) {
     if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
         encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
@@ -1332,15 +1382,15 @@ class _PdfEncryptor {
   List<int> _aesEncrypt(List<int> data, List<int> key) {
     final List<int> result = <int>[];
     final List<int> iv = _generateInitVector();
-    final _AesEncryptor encryptor = _AesEncryptor(key, iv, true);
-    int lengthNeeded = encryptor._getBlockSize(data.length);
+    final AesEncryptor encryptor = AesEncryptor(key, iv, true);
+    int lengthNeeded = encryptor.getBlockSize(data.length);
     final List<int> output = List<int>.filled(lengthNeeded, 0, growable: true);
-    encryptor._processBytes(data, 0, data.length, output, 0);
+    encryptor.processBytes(data, 0, data.length, output, 0);
     result.addAll(output);
-    lengthNeeded = encryptor._calculateOutputSize();
+    lengthNeeded = encryptor.calculateOutputSize();
     final List<int> tempOutput =
         List<int>.filled(lengthNeeded, 0, growable: true);
-    encryptor._finalize(tempOutput);
+    encryptor.finalize(tempOutput);
     result.addAll(tempOutput);
     return result;
   }
@@ -1355,16 +1405,16 @@ class _PdfEncryptor {
     length -= minBlock;
     ivPtr += minBlock;
     if (ivPtr == iv.length && length > 0) {
-      final _AesEncryptor decryptor = _AesEncryptor(key!, iv, false);
-      int lengthNeeded = decryptor._getBlockSize(length);
+      final AesEncryptor decryptor = AesEncryptor(key!, iv, false);
+      int lengthNeeded = decryptor.getBlockSize(length);
       final List<int> output =
           List<int>.filled(lengthNeeded, 0, growable: true);
-      decryptor._processBytes(data, ivPtr, length, output, 0);
+      decryptor.processBytes(data, ivPtr, length, output, 0);
       result.addAll(output);
-      lengthNeeded = decryptor._calculateOutputSize();
+      lengthNeeded = decryptor.calculateOutputSize();
       final List<int> tempOutput =
           List<int>.filled(lengthNeeded, 0, growable: true);
-      length = decryptor._finalize(tempOutput);
+      length = decryptor.finalize(tempOutput);
       if (tempOutput.length != length) {
         final List<int> temp = List<int>.filled(length, 0, growable: true);
         List.copyRange(temp, 0, tempOutput, 0, length);
@@ -1378,6 +1428,7 @@ class _PdfEncryptor {
     return result;
   }
 
+  /// internal method
   int getKeyLength() {
     if (encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x40Bit) {
       return 1;
@@ -1406,8 +1457,9 @@ class _PdfEncryptor {
     }
   }
 
-  _PdfEncryptor _clone() {
-    final _PdfEncryptor encryptor = _PdfEncryptor()
+  /// internal method
+  PdfEncryptor clone() {
+    final PdfEncryptor encryptor = PdfEncryptor()
       .._stringLength = _cloneInt(_stringLength)
       .._revisionNumber40Bit = _cloneInt(_revisionNumber40Bit)
       .._revisionNumber128Bit = _cloneInt(_revisionNumber128Bit)
@@ -1427,9 +1479,9 @@ class _PdfEncryptor {
       .._key256 = _cloneInt(_key256)
       .._randomBytesAmount = _cloneInt(_randomBytesAmount)
       .._newKeyOffset = _cloneInt(_newKeyOffset)
-      .._encrypt = _cloneBool(_encrypt)
-      .._isChanged = _cloneBool(_isChanged)
-      .._hasComputedPasswordValues = _cloneBool(_hasComputedPasswordValues)
+      ..isEncrypt = _cloneBool(isEncrypt)
+      ..changed = _cloneBool(changed)
+      ..hasComputedPasswordValues = _cloneBool(hasComputedPasswordValues)
       .._revision = _cloneInt(_revision)
       .._ownerPasswordOut = _cloneList(_ownerPasswordOut)
       .._userPasswordOut = _cloneList(_userPasswordOut)
@@ -1443,12 +1495,12 @@ class _PdfEncryptor {
       .._permissionFlag = _cloneList(_permissionFlag)
       .._userRandomBytes = _cloneList(_userRandomBytes)
       .._ownerRandomBytes = _cloneList(_ownerRandomBytes)
-      .._encryptMetadata = _cloneBool(_encryptMetadata)
-      .._encryptOnlyAttachment = _cloneBool(_encryptOnlyAttachment)
+      ..encryptOnlyMetadata = _cloneBool(encryptOnlyMetadata)
+      ..encryptAttachmentOnly = _cloneBool(encryptAttachmentOnly)
       ..encryptionAlgorithm = encryptionAlgorithm
       .._userPassword = _userPassword
       .._ownerPassword = _ownerPassword
-      .._encryptionOptions = _encryptionOptions;
+      ..encryptionOptions = encryptionOptions;
     encryptor._permissions = _permissions != null
         ? List<PdfPermissionsFlags>.generate(
             _permissions!.length, (int i) => _permissions![i])
@@ -1470,7 +1522,7 @@ class _PdfEncryptor {
 
   int? _cloneInt(int? value) {
     if (value != null) {
-      return value.toInt();
+      return value;
     } else {
       return null;
     }

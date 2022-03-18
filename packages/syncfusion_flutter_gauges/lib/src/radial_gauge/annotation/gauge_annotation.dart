@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../radial_gauge/annotation/gauge_annotation_renderer.dart';
 import '../../radial_gauge/axis/radial_axis_scope.dart';

@@ -1,11 +1,14 @@
-part of charts;
+import 'package:flutter/material.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import 'technical_indicator.dart';
 
-///Renders simple moving average (SMA) indicator.
+/// Renders simple moving average (SMA) indicator.
 ///
 /// A simple moving average (SMA) is an arithmetic moving average calculated by adding recent closing prices and
 /// then dividing the total by the number of time periods in the calculation average.
 ///
-///  It also has a [valueField] property. Based on this property, the indicator will be rendered.
+/// It also has a [valueField] property. Based on this property, the indicator will be rendered.
 @immutable
 class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of SmaIndicator class.
@@ -16,6 +19,7 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       String? seriesName,
       List<double>? dashArray,
       double? animationDuration,
+      double? animationDelay,
       List<T>? dataSource,
       ChartValueMapper<T, D>? xValueMapper,
       ChartValueMapper<T, num>? highValueMapper,
@@ -39,6 +43,7 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
             seriesName: seriesName,
             dashArray: dashArray,
             animationDuration: animationDuration,
+            animationDelay: animationDelay,
             dataSource: dataSource,
             xValueMapper: xValueMapper,
             highValueMapper: highValueMapper,
@@ -54,23 +59,30 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
             period: period,
             onRenderDetailsUpdate: onRenderDetailsUpdate);
 
-  ///ValueField value for sma indicator.
+  /// Value field value for SMA indicator.
   ///
-  ///Valuefield detemines the field for the rendering of sma indicator.
+  /// Value field determines the field for the rendering of SMA indicator.
   ///
-  ///Defaults to `close`.
+  /// Defaults to `close`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                valueField : 'high',
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      SmaIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        period: 4,
+  ///        valueField: 'low'
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final String valueField;
 
   @override
@@ -89,6 +101,7 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
         other.seriesName == seriesName &&
         other.dashArray == dashArray &&
         other.animationDuration == animationDuration &&
+        other.animationDelay == animationDelay &&
         other.dataSource == dataSource &&
         other.xValueMapper == xValueMapper &&
         other.highValueMapper == highValueMapper &&
@@ -114,6 +127,7 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       seriesName,
       dashArray,
       animationDuration,
+      animationDelay,
       dataSource,
       xValueMapper,
       highValueMapper,
@@ -130,76 +144,5 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       period
     ];
     return hashList(values);
-  }
-
-  /// To initialise indicators collections
-  // ignore:unused_element
-  void _initSeriesCollection(
-      TechnicalIndicators<dynamic, dynamic> indicator,
-      SfCartesianChart chart,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    technicalIndicatorsRenderer._targetSeriesRenderers =
-        <CartesianSeriesRenderer>[];
-  }
-
-  /// To initialise data source of technical indicators
-  // ignore:unused_element
-  void _initDataSource(
-    SmaIndicator<dynamic, dynamic> indicator,
-    TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
-    SfCartesianChart chart,
-  ) {
-    final List<CartesianChartPoint<dynamic>> smaPoints =
-        <CartesianChartPoint<dynamic>>[];
-    final List<CartesianChartPoint<dynamic>> points =
-        technicalIndicatorsRenderer._dataPoints!;
-    final List<dynamic> xValues = <dynamic>[];
-    CartesianChartPoint<dynamic> point;
-    if (points.isNotEmpty) {
-      final List<CartesianChartPoint<dynamic>> validData = points;
-
-      if (validData.length >= indicator.period && indicator.period > 0) {
-        num average = 0, sum = 0;
-
-        for (int i = 0; i < indicator.period; i++) {
-          sum += technicalIndicatorsRenderer._getFieldValue(
-              validData, i, valueField);
-        }
-
-        average = sum / indicator.period;
-        point = technicalIndicatorsRenderer._getDataPoint(
-            validData[indicator.period - 1].x,
-            average,
-            validData[indicator.period - 1],
-            smaPoints.length);
-        smaPoints.add(point);
-        xValues.add(point.x);
-
-        int index = indicator.period;
-        while (index < validData.length) {
-          sum -= technicalIndicatorsRenderer._getFieldValue(
-              validData, index - indicator.period, valueField);
-          sum += technicalIndicatorsRenderer._getFieldValue(
-              validData, index, valueField);
-          average = sum / indicator.period;
-          point = technicalIndicatorsRenderer._getDataPoint(
-              validData[index].x, average, validData[index], smaPoints.length);
-          smaPoints.add(point);
-          xValues.add(point.x);
-          index++;
-        }
-      }
-      technicalIndicatorsRenderer._renderPoints = smaPoints;
-      technicalIndicatorsRenderer._setSeriesProperties(
-          indicator,
-          indicator.name ?? 'SMA',
-          indicator.signalLineColor,
-          indicator.signalLineWidth,
-          chart);
-      // final CartesianSeriesRenderer signalSeriesRenderer =
-      // technicalIndicatorsRenderer._targetSeriesRenderers[0];
-      technicalIndicatorsRenderer._setSeriesRange(
-          smaPoints, indicator, xValues);
-    }
   }
 }

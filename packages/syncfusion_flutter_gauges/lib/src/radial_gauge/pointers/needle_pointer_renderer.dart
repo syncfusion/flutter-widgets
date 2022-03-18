@@ -1,7 +1,5 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -40,6 +38,7 @@ class RenderNeedlePointer extends RenderBox {
       required this.enableAnimation,
       required this.isRadialGaugeAnimationEnabled,
       required ValueNotifier<int> repaintNotifier,
+      required BuildContext context,
       required SfGaugeThemeData gaugeThemeData})
       : _value = value,
         _knobStyle = knobStyle,
@@ -53,6 +52,7 @@ class RenderNeedlePointer extends RenderBox {
         _repaintNotifier = repaintNotifier,
         _pointerAnimationController = pointerAnimationController,
         _needlePointerRenderer = needlePointerRenderer,
+        _themeData = Theme.of(context),
         _gaugeThemeData = gaugeThemeData;
 
   double _actualTailLength = 0;
@@ -86,6 +86,7 @@ class RenderNeedlePointer extends RenderBox {
   late double _radius;
   late double _sweepAngle;
   late Offset _axisCenter;
+  final ThemeData _themeData;
 
   /// Marker pointer old value.
   double? oldValue;
@@ -450,13 +451,11 @@ class RenderNeedlePointer extends RenderBox {
         axisRenderer!.getActualValue(needleLength, lengthUnit, false);
     _actualCapRadius = axisRenderer!
         .getActualValue(knobStyle.knobRadius, knobStyle.sizeUnit, false);
-    final double currentValue =
-        getMinMax(value, axisRenderer!.minimum, axisRenderer!.maximum);
     final double currentFactor = (axisRenderer!.renderer != null &&
-            axisRenderer!.renderer!.valueToFactor(currentValue) != null)
-        ? axisRenderer!.renderer!.valueToFactor(currentValue) ??
-            axisRenderer!.valueToFactor(currentValue)
-        : axisRenderer!.valueToFactor(currentValue);
+            axisRenderer!.renderer!.valueToFactor(value) != null)
+        ? axisRenderer!.renderer!.valueToFactor(value) ??
+            axisRenderer!.valueToFactor(value)
+        : axisRenderer!.valueToFactor(value);
     _angle = (currentFactor * _sweepAngle) + axisRenderer!.startAngle;
     _radian = getDegreeToRadian(_angle);
     _centerPoint = _axisCenter;
@@ -566,7 +565,9 @@ class RenderNeedlePointer extends RenderBox {
   /// To render the needle of the pointer
   void _renderNeedle(Canvas canvas, double pointerRadian) {
     final Paint paint = Paint()
-      ..color = needleColor ?? _gaugeThemeData.needleColor
+      ..color = needleColor ??
+          _gaugeThemeData.needleColor ??
+          _themeData.colorScheme.onSurface
       ..style = PaintingStyle.fill;
 
     final Path path = Path();
@@ -601,7 +602,10 @@ class RenderNeedlePointer extends RenderBox {
     canvas.rotate(pointerRadian);
 
     final Paint tailPaint = Paint()
-      ..color = tailStyle!.color ?? _gaugeThemeData.tailColor;
+      ..color = tailStyle!.color ??
+          _gaugeThemeData.tailColor ??
+          _themeData.colorScheme.onSurface;
+
     if (tailStyle!.gradient != null) {
       tailPaint.shader =
           tailStyle!.gradient!.createShader(tailPath.getBounds());
@@ -625,7 +629,9 @@ class RenderNeedlePointer extends RenderBox {
   void _renderCap(Canvas canvas, SfGaugeThemeData gaugeThemeData) {
     if (_actualCapRadius > 0) {
       final Paint knobPaint = Paint()
-        ..color = knobStyle.color ?? gaugeThemeData.knobColor;
+        ..color = knobStyle.color ??
+            gaugeThemeData.knobColor ??
+            _themeData.colorScheme.onSurface;
 
       canvas.drawCircle(_axisCenter, _actualCapRadius, knobPaint);
 

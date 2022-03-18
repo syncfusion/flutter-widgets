@@ -1,27 +1,37 @@
-part of pdf;
+import 'dart:collection';
 
-class _GraphicObjectDataCollection {
+import 'graphic_object_data.dart';
+
+/// internal class
+class GraphicObjectDataCollection {
   //constructor
-  _GraphicObjectDataCollection() {
-    _elements = Queue<_GraphicObjectData>();
+  /// internal constructor
+  GraphicObjectDataCollection() {
+    _elements = Queue<GraphicObjectData>();
   }
 
   //fields
-  late Queue<_GraphicObjectData> _elements;
+  late Queue<GraphicObjectData> _elements;
 
   //properties
-  _GraphicObjectData get last => _elements.last;
+  /// internal method
+  GraphicObjectData get last => _elements.last;
+
+  /// internal method
   int get count => _elements.length;
 
   //implementation
-  void _push(_GraphicObjectData element) {
+  /// internal method
+  void push(GraphicObjectData element) {
     _elements.addLast(element);
   }
 
-  _GraphicObjectData _pop() {
+  /// internal method
+  GraphicObjectData pop() {
     return _elements.removeLast();
   }
 
+  /// internal property
   double? get textLeading {
     double? result;
     if (last.currentFont != null) {
@@ -29,7 +39,7 @@ class _GraphicObjectDataCollection {
     } else {
       result = 0;
       for (int i = count - 1; i >= 0; i--) {
-        final _GraphicObjectData element = _elements.elementAt(i);
+        final GraphicObjectData element = _elements.elementAt(i);
         if (element.currentFont != null) {
           result = element.textLeading;
         }
@@ -38,6 +48,7 @@ class _GraphicObjectDataCollection {
     return result;
   }
 
+  /// internal property
   String? get currentFont {
     String? result;
     if (last.currentFont != null) {
@@ -45,7 +56,7 @@ class _GraphicObjectDataCollection {
     } else {
       result = '';
       for (int i = count - 1; i >= 0; i--) {
-        final _GraphicObjectData element = _elements.elementAt(i);
+        final GraphicObjectData element = _elements.elementAt(i);
         if (element.currentFont != null) {
           result = element.currentFont;
           break;
@@ -55,6 +66,7 @@ class _GraphicObjectDataCollection {
     return result;
   }
 
+  /// internal property
   double? get fontSize {
     double? result;
     if (last.currentFont != null) {
@@ -62,7 +74,7 @@ class _GraphicObjectDataCollection {
     } else {
       result = 0;
       for (int i = count - 1; i >= 0; i--) {
-        final _GraphicObjectData element = _elements.elementAt(i);
+        final GraphicObjectData element = _elements.elementAt(i);
         if (element.currentFont != null) {
           result = element.fontSize;
           break;
@@ -73,24 +85,29 @@ class _GraphicObjectDataCollection {
   }
 }
 
-class _GraphicStateCollection {
+/// internal class
+class GraphicStateCollection {
   //constructor
-  _GraphicStateCollection() {
-    _elements = Queue<_GraphicsState?>();
+  /// internal constructor
+  GraphicStateCollection() {
+    _elements = Queue<GraphicsState?>();
   }
 
   //fields
-  late Queue<_GraphicsState?> _elements;
+  late Queue<GraphicsState?> _elements;
 
   //Properties
+  /// internal property
   int get count => _elements.length;
 
   //Implementation
-  void _push(_GraphicsState? element) {
+  /// internal method
+  void push(GraphicsState? element) {
     _elements.addLast(element);
   }
 
-  _GraphicsState? _pop() {
+  /// internal method
+  GraphicsState? pop() {
     return _elements.removeLast();
   }
 }

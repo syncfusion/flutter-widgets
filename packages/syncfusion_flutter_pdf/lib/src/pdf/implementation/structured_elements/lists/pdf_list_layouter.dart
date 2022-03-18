@@ -1,9 +1,36 @@
-part of pdf;
+import 'dart:ui';
+
+import '../../drawing/drawing.dart';
+import '../../graphics/brushes/pdf_brush.dart';
+import '../../graphics/brushes/pdf_solid_brush.dart';
+import '../../graphics/enums.dart';
+import '../../graphics/figures/base/element_layouter.dart';
+import '../../graphics/figures/base/layout_element.dart';
+import '../../graphics/figures/base/text_layouter.dart';
+import '../../graphics/figures/enums.dart';
+import '../../graphics/fonts/enums.dart';
+import '../../graphics/fonts/pdf_font.dart';
+import '../../graphics/fonts/pdf_standard_font.dart';
+import '../../graphics/fonts/pdf_string_format.dart';
+import '../../graphics/fonts/pdf_string_layout_result.dart';
+import '../../graphics/fonts/pdf_string_layouter.dart';
+import '../../graphics/pdf_graphics.dart';
+import '../../graphics/pdf_pen.dart';
+import '../../pages/enum.dart';
+import '../../pages/pdf_page.dart';
+import 'bullets/enums.dart';
+import 'bullets/pdf_marker.dart';
+import 'bullets/pdf_ordered_marker.dart';
+import 'bullets/pdf_unordered_marker.dart';
+import 'pdf_list.dart';
+import 'pdf_list_item.dart';
+import 'pdf_ordered_list.dart';
+import 'pdf_unordered_list.dart';
 
 /// Layouts list.
-class _PdfListLayouter extends _ElementLayouter {
+class PdfListLayouter extends ElementLayouter {
   /// Initializes a new instance of the [PdfListLayouter] class.
-  _PdfListLayouter(PdfList element) : super(element);
+  PdfListLayouter(PdfList element) : super(element);
 
   /// Current graphics for lay outing.
   PdfGraphics? graphics;
@@ -27,13 +54,13 @@ class _PdfListLayouter extends _ElementLayouter {
   double? resultHeight;
 
   /// Lay outing bounds.
-  late _Rectangle bounds;
+  late PdfRectangle bounds;
 
   /// Current page for layout.
   PdfPage? currentPage;
 
-  /// _Size for item lay outing.
-  _Size size = _Size.empty;
+  /// PdfSize for item lay outing.
+  PdfSize size = PdfSize.empty;
 
   /// If true it use paginate bounds if it is set.
   bool usePaginateBounds = true;
@@ -56,9 +83,9 @@ class _PdfListLayouter extends _ElementLayouter {
   PdfList? get element => super.element as PdfList?;
 
   @override
-  PdfLayoutResult? _layoutInternal(_PdfLayoutParams param) {
+  PdfLayoutResult? layoutInternal(PdfLayoutParams param) {
     currentPage = param.page;
-    bounds = param.bounds!._clone();
+    bounds = param.bounds!.clone();
     if (param.bounds!.height == 0 &&
         param.bounds!.width == 0 &&
         currentPage != null) {
@@ -84,9 +111,9 @@ class _PdfListLayouter extends _ElementLayouter {
       currentBrush = PdfBrushes.black;
     }
 
-    if (element!._font == null) {
+    if (element!.font == null) {
       currentFont = PdfStandardFont(PdfFontFamily.helvetica, 8);
-      curList!.font = currentFont!;
+      curList!.font = currentFont;
     }
 
     if (curList is PdfOrderedList) {
@@ -111,7 +138,7 @@ class _PdfListLayouter extends _ElementLayouter {
         if ((endArgs != null) && (endArgs.nextPage != null)) {
           currentPage = endArgs.nextPage;
         } else {
-          currentPage = _getNextPage(currentPage!);
+          currentPage = getNextPage(currentPage!);
         }
         graphics = currentPage!.graphics;
         if (param.bounds!.width == 0 && param.bounds!.height == 0) {
@@ -121,9 +148,9 @@ class _PdfListLayouter extends _ElementLayouter {
           bounds.height = bounds.height - bounds.y;
         }
         if ((param.format != null) &&
-            param.format!._boundsSet &&
+            PdfLayoutFormatHelper.isBoundsSet(param.format!) &&
             usePaginateBounds) {
-          bounds = _Rectangle.fromRect(param.format!.paginateBounds);
+          bounds = PdfRectangle.fromRect(param.format!.paginateBounds);
         }
       }
     }
@@ -132,7 +159,7 @@ class _PdfListLayouter extends _ElementLayouter {
         Rect.fromLTWH(bounds.x, pageResult.y!, bounds.width, resultHeight ?? 0);
     if (currentPage != null) {
       final PdfLayoutResult result =
-          PdfLayoutResult._(currentPage!, finalBounds);
+          PdfLayoutResultHelper.load(currentPage!, finalBounds);
       return result;
     } else {
       return null;
@@ -145,7 +172,7 @@ class _PdfListLayouter extends _ElementLayouter {
     double resultantHeight = 0;
     double? y = bounds.y;
     final double x = bounds.x;
-    size = _Size(bounds.size.width, bounds.size.height);
+    size = PdfSize(bounds.size.width, bounds.size.height);
     size.width = size.width - indent!;
 
     while (true) {
@@ -173,9 +200,9 @@ class _PdfListLayouter extends _ElementLayouter {
         if (item.subList != null && item.subList!.items.count > 0) {
           if (curList is PdfOrderedList) {
             final PdfOrderedList oList = curList! as PdfOrderedList;
-            oList.marker._currentIndex = index;
-            final _ListInfo listInfo =
-                _ListInfo(curList, index, oList.marker._getNumber());
+            PdfOrderedMarkerHelper.getHelper(oList.marker).currentIndex = index;
+            final _ListInfo listInfo = _ListInfo(curList, index,
+                PdfOrderedMarkerHelper.getHelper(oList.marker).getNumber());
             listInfo.brush = currentBrush;
             listInfo.font = currentFont;
             listInfo.format = currentFormat;
@@ -233,9 +260,9 @@ class _PdfListLayouter extends _ElementLayouter {
       PdfListItem item,
       double height,
       double y) {
-    final _PdfStringLayouter layouter = _PdfStringLayouter();
-    _PdfStringLayoutResult? markerResult;
-    _PdfStringLayoutResult? result;
+    final PdfStringLayouter layouter = PdfStringLayouter();
+    PdfStringLayoutResult? markerResult;
+    PdfStringLayoutResult? result;
 
     bool wroteMaker = false;
     final double textIndent = curList.textIndent;
@@ -245,7 +272,7 @@ class _PdfListLayouter extends _ElementLayouter {
 
     double? itemHeight = 0;
     double? markerHeight = 0;
-    _Size itemSize = _Size(size.width, size.height);
+    PdfSize itemSize = PdfSize(size.width, size.height);
 
     String? text = item.text;
     String? markerText;
@@ -298,12 +325,12 @@ class _PdfListLayouter extends _ElementLayouter {
     if (markerText != null &&
         ((marker is PdfUnorderedMarker) &&
             (marker.style == PdfUnorderedMarkerStyle.customString))) {
-      markerResult = layouter._layout(markerText, _getMarkerFont(marker, item)!,
+      markerResult = layouter.layout(markerText, _getMarkerFont(marker, item)!,
           _getMarkerFormat(marker, item),
           width: size.width, height: size.height);
-      posX += markerResult._size.width;
-      pageResult.markerWidth = markerResult._size.width;
-      markerHeight = markerResult._size.height;
+      posX += markerResult.size.width;
+      pageResult.markerWidth = markerResult.size.width;
+      markerHeight = markerResult.size.height;
       canDrawMarker = true;
     } else {
       markerResult = _createMarkerResult(index, curList, info, item);
@@ -313,22 +340,25 @@ class _PdfListLayouter extends _ElementLayouter {
           posX += markerMaxWidth!;
           pageResult.markerWidth = markerMaxWidth as double?;
         } else {
-          posX += markerResult._size.width;
-          pageResult.markerWidth = markerResult._size.width;
+          posX += markerResult.size.width;
+          pageResult.markerWidth = markerResult.size.width;
         }
-        markerHeight = markerResult._size.height;
+        markerHeight = markerResult.size.height;
 
         if (currentPage != null) {
           canDrawMarker = markerHeight < size.height;
         }
 
-        if (markerResult._isEmpty) {
+        if (markerResult.isEmpty) {
           canDrawMarker = false;
         }
       } else {
-        posX += (marker as PdfUnorderedMarker)._size!.width;
-        pageResult.markerWidth = marker._size!.width;
-        markerHeight = marker._size!.height;
+        posX += PdfUnorderedMarkerHelper.getHelper(marker as PdfUnorderedMarker)
+            .size!
+            .width;
+        pageResult.markerWidth =
+            PdfUnorderedMarkerHelper.getHelper(marker).size!.width;
+        markerHeight = PdfUnorderedMarkerHelper.getHelper(marker).size!.height;
 
         if (currentPage != null) {
           canDrawMarker = markerHeight < size.height;
@@ -341,7 +371,7 @@ class _PdfListLayouter extends _ElementLayouter {
     }
 
     if ((text != null) && canDrawMarker) {
-      itemSize = _Size(size.width, size.height);
+      itemSize = PdfSize(size.width, size.height);
       itemSize.width = itemSize.width - pageResult.markerWidth!;
 
       if (item.textIndent == 0) {
@@ -358,7 +388,7 @@ class _PdfListLayouter extends _ElementLayouter {
 
       double itemX = posX;
 
-      if (!marker._rightToLeft) {
+      if (!PdfMarkerHelper.getHelper(marker).rightToLeft) {
         if (item.textIndent == 0) {
           itemX += textIndent;
         } else {
@@ -380,29 +410,29 @@ class _PdfListLayouter extends _ElementLayouter {
         }
       }
 
-      result = layouter._layout(text, itemFont!, itemFormat,
+      result = layouter.layout(text, itemFont!, itemFormat,
           width: itemSize.width, height: itemSize.height);
-      final _Rectangle rect =
-          _Rectangle(itemX, posY, itemSize.width, itemSize.height);
-      graphics!._drawStringLayoutResult(
+      final PdfRectangle rect =
+          PdfRectangle(itemX, posY, itemSize.width, itemSize.height);
+      PdfGraphicsHelper.getHelper(graphics!).drawStringLayoutResult(
           result, itemFont, itemPen, itemBrush, rect, itemFormat);
       y = posY;
-      itemHeight = result._size.height;
+      itemHeight = result.size.height;
     }
     height = (itemHeight < markerHeight) ? markerHeight : itemHeight;
     final bool isRemainder =
-        (result!._remainder == null) || (result._remainder == '');
+        (result!.remainder == null) || (result.remainder == '');
     if (!isRemainder ||
         (markerResult != null) && !isRemainder ||
         !canDrawMarker) {
       y = 0;
       height = 0;
-      pageResult.itemText = result._remainder;
-      if (result._remainder == item.text) {
+      pageResult.itemText = result.remainder;
+      if (result.remainder == item.text) {
         canDrawMarker = false;
       }
       if (markerResult != null) {
-        pageResult.markerText = markerResult._remainder;
+        pageResult.markerText = markerResult.remainder;
       } else {
         pageResult.markerText = null;
       }
@@ -417,11 +447,11 @@ class _PdfListLayouter extends _ElementLayouter {
     if (itemFormat != null) {
       switch (itemFormat.alignment) {
         case PdfTextAlignment.right:
-          pageResult.markerX = posX + itemSize.width - result._size.width;
+          pageResult.markerX = posX + itemSize.width - result.size.width;
           break;
         case PdfTextAlignment.center:
           pageResult.markerX =
-              posX + (itemSize.width / 2) - (result._size.width / 2);
+              posX + (itemSize.width / 2) - (result.size.width / 2);
           break;
         case PdfTextAlignment.left:
         case PdfTextAlignment.justify:
@@ -429,8 +459,8 @@ class _PdfListLayouter extends _ElementLayouter {
       }
     }
 
-    if (marker._rightToLeft) {
-      pageResult.markerX += result._size.width;
+    if (PdfMarkerHelper.getHelper(marker).rightToLeft) {
+      pageResult.markerX += result.size.width;
 
       if (item.textIndent == 0) {
         pageResult.markerX += textIndent;
@@ -451,7 +481,7 @@ class _PdfListLayouter extends _ElementLayouter {
         wroteMaker =
             _drawMarker(curList, item, markerResult, posY, pageResult.markerX);
         pageResult.markerWrote = true;
-        pageResult.markerWidth = markerResult._size.width;
+        pageResult.markerWidth = markerResult.size.width;
       }
     } else {
       if (canDrawMarker && !pageResult.markerWrote) {
@@ -460,9 +490,12 @@ class _PdfListLayouter extends _ElementLayouter {
         pageResult.markerWrote = wroteMaker;
 
         if (curList is PdfOrderedList) {
-          pageResult.markerWidth = markerResult!._size.width;
+          pageResult.markerWidth = markerResult!.size.width;
         } else {
-          pageResult.markerWidth = (marker as PdfUnorderedMarker)._size!.width;
+          pageResult.markerWidth =
+              PdfUnorderedMarkerHelper.getHelper(marker as PdfUnorderedMarker)
+                  .size!
+                  .width;
         }
       }
     }
@@ -494,27 +527,28 @@ class _PdfListLayouter extends _ElementLayouter {
     double? width = -1;
 
     for (int i = 0; i < list.items.count; i++) {
-      final _PdfStringLayoutResult result = _createOrderedMarkerResult(
+      final PdfStringLayoutResult result = _createOrderedMarkerResult(
           list, list.items[i], i + list.marker.startNumber, info, true);
 
-      if (width! < result._size.width) {
-        width = result._size.width;
+      if (width! < result.size.width) {
+        width = result.size.width;
       }
     }
     return width;
   }
 
   /// Creates the ordered marker result.
-  _PdfStringLayoutResult _createOrderedMarkerResult(PdfList list,
+  PdfStringLayoutResult _createOrderedMarkerResult(PdfList list,
       PdfListItem? item, int index, List<_ListInfo> info, bool findMaxWidth) {
     PdfOrderedList orderedList = list as PdfOrderedList;
     PdfOrderedMarker marker = orderedList.marker;
-    marker._currentIndex = index;
+    PdfOrderedMarkerHelper.getHelper(marker).currentIndex = index;
 
     String text = '';
 
     if (orderedList.marker.style != PdfNumberStyle.none) {
-      text = orderedList.marker._getNumber() + orderedList.marker.suffix;
+      text = PdfOrderedMarkerHelper.getHelper(orderedList.marker).getNumber() +
+          orderedList.marker.suffix;
     }
     if (orderedList.markerHierarchy) {
       final List<_ListInfo> listInfos = info;
@@ -534,17 +568,17 @@ class _PdfListLayouter extends _ElementLayouter {
         }
       }
     }
-    final _PdfStringLayouter layouter = _PdfStringLayouter();
+    final PdfStringLayouter layouter = PdfStringLayouter();
     orderedList = list;
     marker = orderedList.marker;
     final PdfFont markerFont = _getMarkerFont(marker, item)!;
     PdfStringFormat? markerFormat = _getMarkerFormat(marker, item);
-    final _Size markerSize = _Size(size.width, size.height);
+    final PdfSize markerSize = PdfSize(size.width, size.height);
     if (!findMaxWidth) {
       markerSize.width = markerMaxWidth! as double;
       markerFormat = _setMarkerStringFormat(marker, markerFormat);
     }
-    final _PdfStringLayoutResult result = layouter._layout(
+    final PdfStringLayoutResult result = layouter.layout(
         text, markerFont, markerFormat,
         width: markerSize.width, height: markerSize.height);
     return result;
@@ -583,7 +617,7 @@ class _PdfListLayouter extends _ElementLayouter {
         : _markerFormatClone(markerFormat);
     if (marker.stringFormat == null) {
       markerFormat.alignment = PdfTextAlignment.right;
-      if (marker._rightToLeft) {
+      if (PdfMarkerHelper.getHelper(marker).rightToLeft) {
         markerFormat.alignment = PdfTextAlignment.left;
       }
     }
@@ -607,7 +641,8 @@ class _PdfListLayouter extends _ElementLayouter {
     markerFormat.textDirection = format.textDirection;
     markerFormat.wordSpacing = format.wordSpacing;
     markerFormat.wordWrap = format.wordWrap;
-    markerFormat._firstLineIndent = format._firstLineIndent;
+    PdfStringFormatHelper.getHelper(markerFormat).firstLineIndent =
+        PdfStringFormatHelper.getHelper(format).firstLineIndent;
     return markerFormat;
   }
 
@@ -615,13 +650,14 @@ class _PdfListLayouter extends _ElementLayouter {
   bool _beforePageLayout(
       Rect currentBounds, PdfPage? currentPage, PdfList list) {
     bool cancel = false;
-    if (element!._raiseBeginPageLayout && currentPage != null) {
+    if (PdfLayoutElementHelper.getHelper(element!).raiseBeginPageLayout &&
+        currentPage != null) {
       final ListBeginPageLayoutArgs args =
           ListBeginPageLayoutArgs._(currentBounds, currentPage, list);
 
-      element!._onBeginPageLayout(args);
+      PdfLayoutElementHelper.getHelper(element!).onBeginPageLayout(args);
       cancel = args.cancel;
-      bounds = _Rectangle.fromRect(args.bounds);
+      bounds = PdfRectangle.fromRect(args.bounds);
       usePaginateBounds = false;
     }
     return cancel;
@@ -631,35 +667,38 @@ class _PdfListLayouter extends _ElementLayouter {
   ListEndPageLayoutArgs? _afterPageLayouted(
       Rect bounds, PdfPage? currentPage, PdfList list) {
     ListEndPageLayoutArgs? args;
-    if (element!._raisePageLayouted && currentPage != null) {
-      final PdfLayoutResult result = PdfLayoutResult._(currentPage, bounds);
+    if (PdfLayoutElementHelper.getHelper(element!).raisePageLayouted &&
+        currentPage != null) {
+      final PdfLayoutResult result =
+          PdfLayoutResultHelper.load(currentPage, bounds);
       args = ListEndPageLayoutArgs._internal(result, list);
-      element!._onEndPageLayout(args);
+      PdfLayoutElementHelper.getHelper(element!).onEndPageLayout(args);
     }
     return args;
   }
 
   /// Before the item layout.
   void _beforeItemLayout(PdfListItem item, PdfPage page) {
-    final BeginItemLayoutArgs args = BeginItemLayoutArgs._internal(item, page);
-    element!._onBeginItemLayout(args);
+    final BeginItemLayoutArgs args =
+        BeginItemLayoutArgsHelper.internal(item, page);
+    PdfListHelper.getHelper(element!).onBeginItemLayout(args);
   }
 
   /// Afters the item layouted.
   void _afterItemLayouted(PdfListItem item, PdfPage page) {
-    final EndItemLayoutArgs args = EndItemLayoutArgs._internal(item, page);
-    element!._onEndItemLayout(args);
+    final EndItemLayoutArgs args = EndItemLayoutArgsHelper.internal(item, page);
+    PdfListHelper.getHelper(element!).onEndItemLayout(args);
   }
 
   /// Draws the marker.
   bool _drawMarker(PdfList curList, PdfListItem item,
-      _PdfStringLayoutResult? markerResult, double posY, double posX) {
+      PdfStringLayoutResult? markerResult, double posY, double posX) {
     if (curList is PdfOrderedList) {
       if (markerResult != null) {
         if (curList.font != null &&
-            curList.font!.size > markerResult._size.height) {
-          posY += (curList.font!.size / 2) - (markerResult._size.height / 2);
-          markerResult._size.height = markerResult._size.height + posY;
+            curList.font!.size > markerResult.size.height) {
+          posY += (curList.font!.size / 2) - (markerResult.size.height / 2);
+          markerResult.size.height = markerResult.size.height + posY;
         }
       }
       _drawOrderedMarker(curList, markerResult!, item, posX, posY);
@@ -669,9 +708,9 @@ class _PdfListLayouter extends _ElementLayouter {
                 curList.font!.size > curList.marker.font!.size
             ? curList.font!
             : curList.marker.font!;
-        if (font.size > markerResult._size.height) {
-          posY += (font.height / 2) - (markerResult._size.height / 2);
-          markerResult._size.height = markerResult._size.height + posY;
+        if (font.size > markerResult.size.height) {
+          posY += (font.height / 2) - (markerResult.size.height / 2);
+          markerResult.size.height = markerResult.size.height + posY;
         }
       }
       _drawUnorderedMarker(curList, markerResult, item, posX, posY);
@@ -680,9 +719,9 @@ class _PdfListLayouter extends _ElementLayouter {
   }
 
   /// Draws the ordered marker.
-  _PdfStringLayoutResult _drawOrderedMarker(
+  PdfStringLayoutResult _drawOrderedMarker(
       PdfList curList,
-      _PdfStringLayoutResult markerResult,
+      PdfStringLayoutResult markerResult,
       PdfListItem item,
       double posX,
       double posY) {
@@ -692,19 +731,19 @@ class _PdfListLayouter extends _ElementLayouter {
     PdfStringFormat? markerFormat = _getMarkerFormat(marker, item);
     final PdfPen? markerPen = _getMarkerPen(marker, item);
     final PdfBrush? markerBrush = _getMarkerBrush(marker, item);
-    final _Rectangle rect = _Rectangle(posX - markerMaxWidth!, posY,
-        markerResult._size.width, markerResult._size.height);
+    final PdfRectangle rect = PdfRectangle(posX - markerMaxWidth!, posY,
+        markerResult.size.width, markerResult.size.height);
     rect.width = markerMaxWidth! as double;
     markerFormat = _setMarkerStringFormat(marker, markerFormat);
-    graphics!._drawStringLayoutResult(
+    PdfGraphicsHelper.getHelper(graphics!).drawStringLayoutResult(
         markerResult, markerFont, markerPen, markerBrush, rect, markerFormat);
     return markerResult;
   }
 
   /// Draws the unordered marker.
-  _PdfStringLayoutResult? _drawUnorderedMarker(
+  PdfStringLayoutResult? _drawUnorderedMarker(
       PdfList curList,
-      _PdfStringLayoutResult? markerResult,
+      PdfStringLayoutResult? markerResult,
       PdfListItem item,
       double posX,
       double posY) {
@@ -715,22 +754,30 @@ class _PdfListLayouter extends _ElementLayouter {
     final PdfBrush? markerBrush = _getMarkerBrush(marker, item);
     final PdfStringFormat? markerFormat = _getMarkerFormat(marker, item);
     if (markerResult != null) {
-      final _Point location = _Point(posX - markerResult._size.width, posY);
-      marker._size = markerResult._size;
+      final PdfPoint location = PdfPoint(posX - markerResult.size.width, posY);
+      PdfUnorderedMarkerHelper.getHelper(marker).size = markerResult.size;
       if (marker.style == PdfUnorderedMarkerStyle.customString) {
-        final _Rectangle rect = _Rectangle(location.x, location.y,
-            markerResult._size.width, markerResult._size.height);
-        graphics!._drawStringLayoutResult(markerResult, markerFont!, markerPen,
-            markerBrush, rect, markerFormat);
+        final PdfRectangle rect = PdfRectangle(location.x, location.y,
+            markerResult.size.width, markerResult.size.height);
+        PdfGraphicsHelper.getHelper(graphics!).drawStringLayoutResult(
+            markerResult,
+            markerFont!,
+            markerPen,
+            markerBrush,
+            rect,
+            markerFormat);
       } else {
-        marker._unicodeFont =
-            PdfStandardFont(PdfFontFamily.zapfDingbats, markerFont!._size);
-        marker._draw(graphics, location.offset, markerBrush, markerPen);
+        PdfUnorderedMarkerHelper.getHelper(marker).unicodeFont =
+            PdfStandardFont(PdfFontFamily.zapfDingbats, markerFont!.size);
+        PdfUnorderedMarkerHelper.getHelper(marker)
+            .draw(graphics, location.offset, markerBrush, markerPen);
       }
     } else {
-      marker._size = _Size(markerFont!._size, markerFont._size);
-      final _Point location = _Point(posX - markerFont._size, posY);
-      marker._draw(graphics, location.offset, markerBrush, markerPen, curList);
+      PdfUnorderedMarkerHelper.getHelper(marker).size =
+          PdfSize(markerFont!.size, markerFont.size);
+      final PdfPoint location = PdfPoint(posX - markerFont.size, posY);
+      PdfUnorderedMarkerHelper.getHelper(marker)
+          .draw(graphics, location.offset, markerBrush, markerPen, curList);
     }
     return null;
   }
@@ -760,49 +807,53 @@ class _PdfListLayouter extends _ElementLayouter {
   }
 
   /// Creates the marker result.
-  _PdfStringLayoutResult? _createMarkerResult(
+  PdfStringLayoutResult? _createMarkerResult(
       int index, PdfList curList, List<_ListInfo> listInfo, PdfListItem item) {
-    _PdfStringLayoutResult? markerResult;
+    PdfStringLayoutResult? markerResult;
     if (curList is PdfOrderedList) {
       markerResult =
           _createOrderedMarkerResult(curList, item, index, info, false);
     } else {
-      final _Size markerSize = _Size.empty;
+      final PdfSize markerSize = PdfSize.empty;
       markerResult = _createUnorderedMarkerResult(curList, item, markerSize);
     }
     return markerResult;
   }
 
   /// Creates the unordered marker result.
-  _PdfStringLayoutResult? _createUnorderedMarkerResult(
-      PdfList curList, PdfListItem item, _Size markerSize) {
+  PdfStringLayoutResult? _createUnorderedMarkerResult(
+      PdfList curList, PdfListItem item, PdfSize markerSize) {
     final PdfUnorderedMarker marker = (curList as PdfUnorderedList).marker;
-    _PdfStringLayoutResult? result;
+    PdfStringLayoutResult? result;
     final PdfFont? markerFont = _getMarkerFont(marker, item);
     final PdfStringFormat? markerFormat = _getMarkerFormat(marker, item);
-    final _PdfStringLayouter layouter = _PdfStringLayouter();
+    final PdfStringLayouter layouter = PdfStringLayouter();
     switch (marker.style) {
       case PdfUnorderedMarkerStyle.customImage:
-        // markerSize = _Size(markerFont.size, markerFont.size);
+        // markerSize = PdfSize(markerFont.size, markerFont.size);
         // marker._size = markerSize;
         break;
       case PdfUnorderedMarkerStyle.customTemplate:
-        markerSize = _Size(markerFont!.size, markerFont.size);
-        marker._size = markerSize;
+        markerSize = PdfSize(markerFont!.size, markerFont.size);
+        PdfUnorderedMarkerHelper.getHelper(marker).size = markerSize;
         break;
       case PdfUnorderedMarkerStyle.customString:
-        result = layouter._layout(marker.text!, markerFont!, markerFormat,
+        result = layouter.layout(marker.text!, markerFont!, markerFormat,
             width: size.width, height: size.height);
         break;
       default:
         final PdfStandardFont uFont =
             PdfStandardFont(PdfFontFamily.zapfDingbats, markerFont!.size);
-        result = layouter._layout(marker._getStyledText(), uFont, null,
-            width: size.width, height: size.height);
-        marker._size = result._size;
+        result = layouter.layout(
+            PdfUnorderedMarkerHelper.getHelper(marker).getStyledText(),
+            uFont,
+            null,
+            width: size.width,
+            height: size.height);
+        PdfUnorderedMarkerHelper.getHelper(marker).size = result.size;
         if (marker.pen != null) {
-          result._size = _Size(result._size.width + 2 * marker.pen!.width,
-              result._size.height + 2 * marker.pen!.width);
+          result.size = PdfSize(result.size.width + 2 * marker.pen!.width,
+              result.size.height + 2 * marker.pen!.width);
         }
         break;
     }
@@ -874,6 +925,16 @@ class ListBeginPageLayoutArgs extends BeginPageLayoutArgs {
   late PdfList list;
 }
 
+// ignore: avoid_classes_with_only_static_members
+/// [ListBeginPageLayoutArgs] helper
+class ListBeginPageLayoutArgsHelper {
+  /// internal method
+  static ListBeginPageLayoutArgs internal(
+      Rect bounds, PdfPage page, PdfList list) {
+    return ListBeginPageLayoutArgs._(bounds, page, list);
+  }
+}
+
 /// Represents begin page layout event arguments.
 class ListEndPageLayoutArgs extends EndPageLayoutArgs {
   /// Initializes a new instance of the [ListEndPageLayoutArgs] class.
@@ -882,4 +943,13 @@ class ListEndPageLayoutArgs extends EndPageLayoutArgs {
 
   /// Gets the ended layout
   PdfList list;
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// [ListEndPageLayoutArgs] helper
+class ListEndPageLayoutArgsHelper {
+  /// internal method
+  static ListEndPageLayoutArgs internal(PdfLayoutResult result, PdfList list) {
+    return ListEndPageLayoutArgs._internal(result, list);
+  }
 }

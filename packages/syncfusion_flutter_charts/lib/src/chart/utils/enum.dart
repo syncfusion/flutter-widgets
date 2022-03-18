@@ -1,8 +1,6 @@
-part of charts;
-
 /// Orientation of an axis.
 ///
-/// The Axis Orientation can be changed either to vertical or horizontal
+/// The axis orientation can be changed either to vertical or horizontal.
 enum AxisOrientation {
   /// - AxisOrientation.vertical, renders the axis vertically.
   vertical,
@@ -13,11 +11,11 @@ enum AxisOrientation {
 
 /// Padding for axis ranges.
 enum ChartRangePadding {
-  /// - ChartRangePadding.auto, will apply None as padding for horizontal numeric axis, while the
-  /// vertical numeric axis takes Normal as padding calculation.
+  /// - ChartRangePadding.auto, will apply `none` as padding for horizontal numeric axis, while the
+  /// vertical numeric axis takes `normal` as padding calculation.
   auto,
 
-  /// - ChartRangePadding.none, will not add any padding to the min and max values.
+  /// - ChartRangePadding.none, will not add any padding to the minimum and maximum values.
   none,
 
   /// - ChartRangePadding.normal, will apply padding to the axis based on the default range calculation.
@@ -26,7 +24,7 @@ enum ChartRangePadding {
   /// - ChartRangePadding.additional, will add an interval to the minimum and maximum of the axis.
   additional,
 
-  /// - ChartRangePadding.round, will round the minimum and maximum values to the nearest possible value,
+  /// - ChartRangePadding.round, will round the minimum and maximum values to the nearest possible value.
   round
 }
 
@@ -39,8 +37,7 @@ enum LabelPlacement {
   onTicks
 }
 
-/// Action while the axis label intersects.Axis Label placements can be determined when the axis labels get intesected.
-///
+/// Action while the axis label intersects. Axis label placements can be determined when the axis labels get intersected.
 enum AxisLabelIntersectAction {
   /// - AxisLabelIntersectAction.none, will not perform any action on intersecting labels.
   none,
@@ -146,7 +143,7 @@ enum EmptyPointMode {
 
 /// Sorting order of data points.
 ///
-/// Specifies the data points based on the specified sorting property
+/// Specifies the data points based on the specified sorting property.
 enum SortingOrder {
   /// - SortingOrder.ascending, arranges the points in ascending order.
   ascending,
@@ -169,24 +166,24 @@ enum TickPosition {
 
 /// Trendline type
 ///
-/// On the basis of the trend line type, the trend line is rendered
+/// On the basis of the trendline type, the trendline is rendered
 enum TrendlineType {
-  /// - TrendlineType.linear, displays linear trendline type
+  /// - TrendlineType.linear, displays linear trendline type.
   linear,
 
-  /// - TrendlineType.exponential, displays exponential trendline type
+  /// - TrendlineType.exponential, displays exponential trendline type.
   exponential,
 
-  /// - TrendlineType.power, displays power trendline type
+  /// - TrendlineType.power, displays power trendline type.
   power,
 
-  /// - TrendlineType.logarithmic, displays logarithmic trendline type
+  /// - TrendlineType.logarithmic, displays logarithmic trendline type.
   logarithmic,
 
-  /// - TrendlineType.polynomial, displays polynomial trendline type
+  /// - TrendlineType.polynomial, displays polynomial trendline type.
   polynomial,
 
-  /// - TrendlineType.movingAverage, displays movingAverage trendline type
+  /// - TrendlineType.movingAverage, displays movingAverage trendline type.
   movingAverage
 }
 
@@ -194,22 +191,22 @@ enum TrendlineType {
 ///
 ///  Based on the activation mode, the user interaction will be triggered.
 enum ActivationMode {
-  /// - ActivationMode.singleTap , activates the appropriate feature on single tap.
+  /// - ActivationMode.singleTap, activates the appropriate feature on single tap.
   singleTap,
 
-  /// - ActivationMode.doubleTap , activates on double tap.
+  /// - ActivationMode.doubleTap, activates on double tap.
   doubleTap,
 
-  /// - ActivationMode.longPress , activates on longPress.
+  /// - ActivationMode.longPress, activates on longPress.
   longPress,
 
-  /// - ActivationMode.none , does not activate any feature.
+  /// - ActivationMode.none, does not activate any feature.
   none
 }
 
 /// Trackball tooltip's display mode.
 ///
-/// Based on TrackballDisplayMode ,the trackball tooltip will be dispayed
+/// Based on TrackballDisplayMode, the trackball tooltip will be displayed.
 enum TrackballDisplayMode {
   /// - TrackballDisplayMode.none, will not show the tooltip.
   none,
@@ -281,7 +278,10 @@ enum CoordinateUnit {
   point,
 
   /// - CoordinateUnit.logicalPixel, places the annotation concerning to the pixel value.
-  logicalPixel
+  logicalPixel,
+
+  /// - CoordinateUnit.percentage, places the annotation concerning to the percentage value.
+  percentage
 }
 
 /// Annotation is a note by way of explanation or comment added to the chart.
@@ -309,7 +309,7 @@ enum BorderDrawMode {
   excludeBottom
 }
 
-/// Border mode of  range area series.
+/// Border mode of range area series.
 enum RangeAreaBorderMode {
   /// - RangeAreaBorderMode.all, renders border for all the sides of area.
   all,
@@ -318,19 +318,19 @@ enum RangeAreaBorderMode {
   excludeSides
 }
 
-/// Types of text rendering positions
+/// Types of text rendering positions.
 enum TextAnchor {
-  ///-TextAnchor.start,anchors the text at the start position
+  /// - TextAnchor.start, anchors the text at the start position.
   start,
 
-  ///-TextAnchor.middle,anchors the text at the middle position
+  /// - TextAnchor.middle, anchors the text at the middle position.
   middle,
 
-  ///-TextAnchor.end,anchors the text at the end position
+  /// - TextAnchor.end, anchors the text at the end position.
   end
 }
 
-/// Tooltip positioning
+/// Tooltip positioning.
 enum TooltipPosition {
   /// - TooltipPosition.auto, position of tooltip gets tp the default position.
   auto,
@@ -339,9 +339,9 @@ enum TooltipPosition {
   pointer
 }
 
-/// Macd indicator type
+/// Macd indicator type.
 enum MacdType {
-  /// - MacdType.both, indicator will have both line and histogram
+  /// - MacdType.both, indicator will have both line and histogram.
   both,
 
   /// - MacdType.line,  the indicator will have a line only.
@@ -373,55 +373,132 @@ enum BoxPlotMode {
 ///
 /// Aligns the data label text to near, center and far.
 enum LabelAlignment {
-  ///`LabelAlignment.end`, datalabel alignment is greater distance to series line.
+  /// `LabelAlignment.end`, datalabel alignment is greater distance to series line.
   end,
 
-  ///`LabelAlignment.start`, datalabel alignment is closer to series line.
+  /// `LabelAlignment.start`, datalabel alignment is closer to series line.
   start,
 
-  ///`LabelAlignment.center`, datalabel alignment is center of the series line.
+  /// `LabelAlignment.center`, datalabel alignment is center of the series line.
   center
 }
 
-///Whether marker should be visible or not when trackball is enabled.
+/// Whether marker should be visible or not when trackball is enabled.
 enum TrackballVisibilityMode {
-  ///* auto - If the `isVisible` property in the series `markerSettings` is set
-  ///to true, then the trackball marker will also be displayed for that particular
-  ///series, else it will not be displayed.
+  /// * TrackballVisibilityMode.auto - If the `isVisible` property in the series `markerSettings` is set
+  /// to true, then the trackball marker will also be displayed for that particular
+  /// series, else it will not be displayed.
   auto,
 
-  ///* visible - Makes the trackball marker visible for all the series,
-  ///irrespective of considering the `isVisible` property's value in the `markerSettings`.
+  /// * TrackballVisibilityMode.visible - Makes the trackball marker visible for all the series,
+  /// irrespective of considering the `isVisible` property's value in the `markerSettings`.
   visible,
 
-  ///* hidden - Hides the trackball marker for all the series.
+  /// * TrackballVisibilityMode.hidden - Hides the trackball marker for all the series.
   hidden
 }
 
-///The direction of swiping on the chart.
+/// The direction of swiping on the chart.
 ///
-///Provides the swiping direction information to the user.
+/// Provides the swiping direction information to the user.
 enum ChartSwipeDirection {
-  ///If the chart is swiped from left to right direction,
+  /// If the chart is swiped from left to right direction,
   /// the direction is `ChartSwipeDirection.start`
   start,
 
-  ///if the swipe happens from right to left direction, the
+  /// If the swipe happens from right to left direction, the
   /// direction is `ChartSwipeDirection.end`.
   end
 }
 
-///Determines whether the axis should be scrolled from the start position or end position.
+/// Determines whether the axis should be scrolled from the start position or end position.
 ///
-///For example, if there are 10 data points and `autoScrollingDelta` value is 5 and `AutoScrollingMode.end`
+/// For example, if there are 10 data points and `autoScrollingDelta` value is 5 and `AutoScrollingMode.end`
 /// is specified to this property, last 5 points will be displayed in the chart. If `AutoScrollingMode.start`
 /// is set to this property, first 5 points will be displayed.
 ///
-///Defaults to `AutoScrollingMode.end`.
+/// Defaults to `AutoScrollingMode.end`.
 enum AutoScrollingMode {
-  ///`AutoScrollingMode.start`, If the chart is scrolled from left to right direction
+  /// `AutoScrollingMode.start`, if the chart is scrolled from left to right direction.
   start,
 
-  ///`AutoScrollingMode.end`, If the chart is scrolled from right to left direction
+  /// `AutoScrollingMode.end`, if the chart is scrolled from right to left direction.
   end
+}
+
+/// Determines the type of the Error Bar.
+enum ErrorBarType {
+  /// `ErrorBarType.fixed` - The horizontal and vertical error values should be fixed.
+  fixed,
+
+  /// `ErrorBarType.percentage` - The horizontal and vertical error values changes into error percentages.
+  percentage,
+
+  /// `ErrorBarType.standardDeviation` - The horizontal and vertical error values changes depends on the deviation values.
+  standardDeviation,
+
+  /// `ErrorBarType.standardError` - The horizontal and vertical error values changes depends on approximate
+  /// error values of all points.
+  standardError,
+
+  /// `ErrorBarType.custom` - It determines the positive and negative error values in both horizontal
+  /// and vertical direction.
+  custom
+}
+
+/// Determines the error bar direction.
+enum Direction {
+  /// `Direction.plus` - Determines the error bar direction in positive side.
+  plus,
+
+  /// `Direction.minus` - Determines the error bar direction in negative side.
+  minus,
+
+  /// `Direction.both` - Determines the error bar direction in both positive and negative sides.
+  both
+}
+
+/// Determines mode of the error bar.
+enum RenderingMode {
+  /// `RenderingMode.vertical` - Determines the vertical side of the error bar.
+  vertical,
+
+  /// `RenderingMode.horizontal` - Determines the horizontal side of the error bar.
+  horizontal,
+
+  /// `RenderingMode.both` - Determines both the vertical and horizontal sides of the error bar.
+  both
+}
+
+/// Border type of the chart axis label.
+///
+/// Defaults to `AxisBorderType.rectangle`.
+enum AxisBorderType {
+  /// `AxisBorderType.rectangle` renders border for axis label with rectangle shape.
+  rectangle,
+
+  /// `AxisBorderType.withoutTopAndBottom` renders border for axis label without top
+  /// and bottom in the rectangle.
+  withoutTopAndBottom,
+}
+
+/// Border type of the chart axis multi-level label.
+///
+/// Defaults to `MultiLevelBorderType.rectangle`.
+enum MultiLevelBorderType {
+  /// `MultiLevelBorderType.rectangle` renders border for multi-level axis label
+  /// in rectangle shape.
+  rectangle,
+
+  /// `MultiLevelBorderType.withoutTopAndBottom` renders border for multi-level
+  /// axis label without top and bottom in a rectangle shape.
+  withoutTopAndBottom,
+
+  /// `MultiLevelBorderType.squareBrace` renders square brace as the border
+  /// for the multi-level label.
+  squareBrace,
+
+  /// `MultiLevelBorderType.curlyBrace` renders curly brace as the border
+  /// for the multi-level label.
+  curlyBrace,
 }

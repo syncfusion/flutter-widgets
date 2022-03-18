@@ -1,4 +1,4 @@
-part of pdf;
+import '../enum.dart';
 
 /// Interface for external signing to a PDF document
 class IPdfExternalSigner {

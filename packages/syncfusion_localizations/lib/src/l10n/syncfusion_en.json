@@ -3,7 +3,7 @@
   "noEventsCalendarLabel": "No events",
   "ofDataPagerLabel": "of",
   "pagesDataPagerLabel": "pages",
-  "itemsDataPagerLabel": "items",
+  "rowsPerPageDataPagerLabel": "Rows per page",
   "pdfBookmarksLabel": "Bookmarks",
   "pdfNoBookmarksLabel": "No bookmarks found",
   "pdfScrollStatusOfLabel": "of",
@@ -12,6 +12,12 @@
   "pdfInvalidPageNumberLabel": "Please enter a valid number",
   "pdfPaginationDialogOkLabel": "OK",
   "pdfPaginationDialogCancelLabel": "CANCEL",
+  "passwordDialogHeaderTextLabel": "Password Protected",
+  "passwordDialogContentLabel": "Enter the password to open this PDF file",
+  "passwordDialogHintTextLabel": "Enter Password",
+  "passwordDialogInvalidPasswordLabel": "Invalid Password",
+  "pdfPasswordDialogOpenLabel": "OPEN",
+  "pdfPasswordDialogCancelLabel": "CANCEL",
   "allowedViewDayLabel": "Day",
   "allowedViewWeekLabel": "Week",
   "allowedViewWorkWeekLabel": "Work Week",
@@ -22,6 +28,8 @@
   "allowedViewTimelineWorkWeekLabel": "Timeline Work Week",
   "allowedViewTimelineMonthLabel": "Timeline Month",
   "todayLabel": "Today",
+  "weeknumberLabel": "Week",
+  "allDayLabel": "All Day",
   "muharramLabel": "Muharram",
   "safarLabel": "Safar",
   "rabi1Label": "Rabi' al-awwal",
@@ -46,5 +54,6 @@
   "shortShawwalLabel": "Shaw.",
   "shortDhualqiLabel": "Dhu'l-Q",
   "shortDhualhiLabel": "Dhu'l-H",
-  "daySpanCountLabel": "Day"
+  "daySpanCountLabel": "Day",
+  "series": "Series"
 }

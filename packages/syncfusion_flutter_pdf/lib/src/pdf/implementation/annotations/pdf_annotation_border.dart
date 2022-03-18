@@ -1,8 +1,14 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../io/pdf_constants.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_number.dart';
+import 'enum.dart';
 
 /// Represents the appearance of an annotation's border.
 /// [PdfAnnotationBorder] class is used to create the annotation border
-class PdfAnnotationBorder implements _IPdfWrapper {
+class PdfAnnotationBorder implements IPdfWrapper {
   //constructor
   /// Initializes a new instance of the
   /// [PdfAnnotationBorder] class with specified border width,
@@ -15,40 +21,36 @@ class PdfAnnotationBorder implements _IPdfWrapper {
       double? verticalRadius,
       PdfBorderStyle? borderStyle,
       int? dashArray]) {
-    _array._add(_PdfNumber(0));
-    _array._add(_PdfNumber(0));
-    _array._add(_PdfNumber(1));
+    _helper.array.add(PdfNumber(0));
+    _helper.array.add(PdfNumber(0));
+    _helper.array.add(PdfNumber(1));
     this.horizontalRadius = horizontalRadius ??= 0;
     width = borderWidth ??= 1;
     this.verticalRadius = verticalRadius ??= 0;
     _borderStyle = borderStyle ??= PdfBorderStyle.solid;
-    _dictionary._setName(
-        _PdfName(_DictionaryProperties.s), _styleToString(_borderStyle));
+    _helper.dictionary.setName(
+        PdfName(PdfDictionaryProperties.s), _styleToString(_borderStyle));
     if (dashArray != null) {
       this.dashArray = dashArray;
     }
   }
 
   PdfAnnotationBorder._asWidgetBorder() {
-    _dictionary.setProperty(
-        _DictionaryProperties.type, _PdfName(_DictionaryProperties.border));
+    _helper.dictionary.setProperty(
+        PdfDictionaryProperties.type, PdfName(PdfDictionaryProperties.border));
     _borderStyle = PdfBorderStyle.solid;
-    _dictionary._setName(
-        _PdfName(_DictionaryProperties.s), _styleToString(_borderStyle));
-    _isWidgetBorder = true;
+    _helper.dictionary.setName(
+        PdfName(PdfDictionaryProperties.s), _styleToString(_borderStyle));
+    _helper.isWidgetBorder = true;
   }
 
   // fields
+  final PdfAnnotationBorderHelper _helper = PdfAnnotationBorderHelper();
   double _horizontalRadius = 0;
   double _verticalRadius = 0;
   double _borderWidth = 1;
   int? _dashArray;
   late PdfBorderStyle _borderStyle;
-  // ignore: prefer_final_fields
-  bool _isLineBorder = false;
-  bool _isWidgetBorder = false;
-  final _PdfDictionary _dictionary = _PdfDictionary();
-  final _PdfArray _array = _PdfArray();
 
   // properties
   /// Gets or sets the horizontal corner radius of the annotations.
@@ -77,10 +79,11 @@ class PdfAnnotationBorder implements _IPdfWrapper {
   set width(double value) {
     if (value != _borderWidth) {
       _borderWidth = value;
-      if (!_isWidgetBorder) {
+      if (!_helper.isWidgetBorder) {
         _setNumber(2, value);
       }
-      _dictionary._setNumber(_DictionaryProperties.w, _borderWidth.toInt());
+      _helper.dictionary
+          .setNumber(PdfDictionaryProperties.w, _borderWidth.toInt());
     }
   }
 
@@ -90,8 +93,8 @@ class PdfAnnotationBorder implements _IPdfWrapper {
   set borderStyle(PdfBorderStyle value) {
     if (value != _borderStyle) {
       _borderStyle = value;
-      _dictionary._setName(
-          _PdfName(_DictionaryProperties.s), _styleToString(_borderStyle));
+      _helper.dictionary.setName(
+          PdfName(PdfDictionaryProperties.s), _styleToString(_borderStyle));
     }
   }
 
@@ -101,15 +104,16 @@ class PdfAnnotationBorder implements _IPdfWrapper {
   set dashArray(int? value) {
     if (value != null && _dashArray != value) {
       _dashArray = value;
-      final _PdfArray dasharray = _PdfArray();
-      dasharray._add(_PdfNumber(_dashArray!));
-      dasharray._add(_PdfNumber(_dashArray!));
-      _dictionary.setProperty(_DictionaryProperties.d, dasharray);
+      final PdfArray dasharray = PdfArray();
+      dasharray.add(PdfNumber(_dashArray!));
+      dasharray.add(PdfNumber(_dashArray!));
+      _helper.dictionary.setProperty(PdfDictionaryProperties.d, dasharray);
     }
   }
 
+  //Implementation
   void _setNumber(int index, double value) {
-    final _PdfNumber number = _array[index]! as _PdfNumber;
+    final PdfNumber number = _helper.array[index]! as PdfNumber;
     number.value = value;
   }
 
@@ -128,19 +132,46 @@ class PdfAnnotationBorder implements _IPdfWrapper {
         return 'S';
     }
   }
+}
 
-  @override
-  _IPdfPrimitive get _element {
-    if (_isLineBorder || _isWidgetBorder) {
-      return _dictionary;
+/// [PdfAnnotationBorder] helper
+class PdfAnnotationBorderHelper {
+  /// internal field
+  bool isLineBorder = false;
+
+  /// internal field
+  PdfDictionary dictionary = PdfDictionary();
+
+  /// internal field
+  bool isWidgetBorder = false;
+
+  /// internal field
+  final PdfArray array = PdfArray();
+
+  /// internal property
+  IPdfPrimitive get element {
+    if (isLineBorder || isWidgetBorder) {
+      return dictionary;
     } else {
-      return _array;
+      return array;
     }
   }
 
-  @override
   // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    _element = value;
+  set element(IPdfPrimitive? value) {
+    if (value != null && value is PdfDictionary) {
+      dictionary = value;
+    }
+  }
+
+  /// internal method
+  static PdfAnnotationBorder getWidgetBorder() {
+    return PdfAnnotationBorder._asWidgetBorder();
+  }
+
+  /// internal method
+  static PdfAnnotationBorderHelper getHelper(
+      PdfAnnotationBorder annotationBorder) {
+    return annotationBorder._helper;
   }
 }

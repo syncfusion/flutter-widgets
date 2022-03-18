@@ -1,7 +1,4 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
@@ -77,7 +74,7 @@ enum TreemapLabelOverflow {
 /// Option to place the labels either between the bars or on the bar in bar
 /// legend.
 enum TreemapLegendLabelsPlacement {
-  /// [TreemapLegendLabelsPlacement.Item] places labels in the center
+  /// [TreemapLegendLabelsPlacement.onItem] places labels in the center
   /// of the bar.
   onItem,
 
@@ -678,7 +675,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// If the [offset] has been set and if the [position] is top, then the legend
   /// will be placed in top but in the position additional to the
   /// actual top position. Also, the legend will not take dedicated position for
-  /// it and will be drawn on the top of map.
+  /// it and will be drawn on the top of treemap.
   ///
   /// ```dart
   /// late List<SocialMediaUsers> _source;
@@ -1405,11 +1402,10 @@ class TreemapLegend extends DiagnosticableTree {
 
   /// Returns a widget for the given value.
   ///
-  /// The pointer is used to indicate the exact colour of the hovering
-  /// shape or bubble on the segment.
+  /// The pointer is used to indicate the exact color of the hovering tile.
   ///
   /// The [pointerBuilder] will be called when the user interacts with the
-  /// shapes or bubbles i.e., while tapping in touch devices and hovering in
+  /// tiles i.e., while tapping in touch devices and hovering in
   ///  the mouse enabled devices.
   final TreemapLegendPointerBuilder? pointerBuilder;
 

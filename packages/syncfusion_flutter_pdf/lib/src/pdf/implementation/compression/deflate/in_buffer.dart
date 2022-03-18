@@ -1,8 +1,7 @@
-part of pdf;
-
-class _InBuffer {
-  //Constructor
-  _InBuffer() {
+/// internal class
+class InBuffer {
+  /// internal constructor
+  InBuffer() {
     _bBuffer = 0;
     _bInBuffer = 0;
     _begin = 0;
@@ -17,11 +16,15 @@ class _InBuffer {
   late int _bInBuffer;
 
   //Properties
+  /// internal property
   int get bytes => (_end - _begin) + (_bInBuffer ~/ 8);
+
+  /// internal property
   int get bits => _bInBuffer;
 
   //Implementation
-  bool _availableBits(int count) {
+  /// internal method
+  bool availableBits(int count) {
     if (_bInBuffer < count) {
       if (_needsInput()) {
         return false;
@@ -39,7 +42,8 @@ class _InBuffer {
     return true;
   }
 
-  int? _load16Bits() {
+  /// internal method
+  int? load16Bits() {
     if (_bInBuffer < 8) {
       if (_begin < _end) {
         _bBuffer |= _buffer![_begin++].toUnsigned(32) << _bInBuffer;
@@ -62,17 +66,19 @@ class _InBuffer {
     return (1.toUnsigned(32) << count) - 1;
   }
 
-  int _getBits(int count) {
-    if (!_availableBits(count)) {
+  /// internal method
+  int getBits(int count) {
+    if (!availableBits(count)) {
       return -1;
     }
-    final int result = (_bBuffer & _getBitMask(count)).toInt();
+    final int result = _bBuffer & _getBitMask(count);
     _bBuffer >>= count;
     _bInBuffer -= count;
     return result;
   }
 
-  int _copyTo(List<int>? output, int offset, int length) {
+  /// internal method
+  int copyTo(List<int>? output, int offset, int length) {
     int bitBuffer = 0;
     while (_bInBuffer > 0 && length > 0) {
       output![offset++] = _bBuffer.toUnsigned(8);
@@ -103,18 +109,21 @@ class _InBuffer {
     return _begin == _end;
   }
 
-  void _setInput(List<int>? buffer, int offset, int length) {
+  /// internal method
+  void setInput(List<int>? buffer, int offset, int length) {
     _buffer = buffer;
     _begin = offset;
     _end = offset + length;
   }
 
-  void _skipBits(int n) {
+  /// internal method
+  void skipBits(int n) {
     _bBuffer >>= n;
     _bInBuffer -= n;
   }
 
-  void _skipByteBoundary() {
+  /// internal method
+  void skipByteBoundary() {
     _bBuffer >>= _bInBuffer % 8;
     _bInBuffer = _bInBuffer - (_bInBuffer % 8);
   }

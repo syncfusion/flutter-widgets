@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 /// Defines the localized resource values used by the Syncfusion Widgets.
 ///
@@ -63,6 +63,13 @@ abstract class SfLocalizations {
   /// Label that is displayed in the calendar header view when calendar shows
   /// date picker on header interaction.
   String get todayLabel;
+
+  /// Label that is displayed prefix to week number.
+  String get weeknumberLabel;
+
+  /// Label that is displayed in the calendar schedule view of the all day
+  /// appointment
+  String get allDayLabel;
 
   /// The header string for the first month of hirji calendar
   String get muharramLabel;
@@ -150,6 +157,9 @@ abstract class SfLocalizations {
   /// 1 of 2 pages.
   String get pagesDataPagerLabel;
 
+  /// Label that is displayed the rowsPerPages of datapager.
+  String get rowsPerPageDataPagerLabel;
+
   /// Label that is displayed in the bookmark view header of PdfViewer.
   String get pdfBookmarksLabel;
 
@@ -181,6 +191,33 @@ abstract class SfLocalizations {
   /// Label that is displayed in the pagination dialog of PdfViewer to represent
   /// the CANCEL confirmation button.
   String get pdfPaginationDialogCancelLabel;
+
+  /// Label that is displayed in the header of password dialog in PdfViewer
+  String get passwordDialogHeaderTextLabel;
+
+  /// Label that is displayed in the password dialog in PdfViewer
+  String get passwordDialogContentLabel;
+
+  /// Label that is displayed in the text field of password dialog in the
+  /// PdfViewer.
+  String get passwordDialogHintTextLabel;
+
+  /// Label that is displayed in the password dialog of PdfViewer when an
+  /// invalid password is entered in the text field.
+  String get passwordDialogInvalidPasswordLabel;
+
+  /// Label that is displayed in the password dialog of PdfViewer to represent
+  /// the OPEN confirmation button.
+  String get pdfPasswordDialogOpenLabel;
+
+  /// Label that is displayed in the password dialog of PdfViewer to represent
+  /// the CANCEL confirmation button.
+  String get pdfPasswordDialogCancelLabel;
+
+  /// The label is displayed as the text for the legend in the cartesian chart.
+  /// When the name of the series is not specified, then this label with the
+  /// series count is displayed as a legend.
+  String get series;
 
   /// A [LocalizationsDelegate] that uses [_DefaultLocalizations.load]
   /// to create an instance of this class.
@@ -252,34 +289,40 @@ class _DefaultLocalizations implements SfLocalizations {
   String get daySpanCountLabel => 'Day';
 
   @override
-  String get allowedViewDayLabel => 'DAY';
+  String get allowedViewDayLabel => 'Day';
 
   @override
-  String get allowedViewWeekLabel => 'WEEK';
+  String get allowedViewWeekLabel => 'Week';
 
   @override
-  String get allowedViewWorkWeekLabel => 'WORK WEEK';
+  String get allowedViewWorkWeekLabel => 'Work Week';
 
   @override
-  String get allowedViewMonthLabel => 'MONTH';
+  String get allowedViewMonthLabel => 'Month';
 
   @override
-  String get allowedViewScheduleLabel => 'SCHEDULE';
+  String get allowedViewScheduleLabel => 'Schedule';
 
   @override
-  String get allowedViewTimelineDayLabel => 'TIMELINE DAY';
+  String get allowedViewTimelineDayLabel => 'Timeline Day';
 
   @override
-  String get allowedViewTimelineWeekLabel => 'TIMELINE WEEK';
+  String get allowedViewTimelineWeekLabel => 'Timeline Week';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => 'TIMELINE WORK WEEK';
+  String get allowedViewTimelineWorkWeekLabel => 'Timeline Work Week';
 
   @override
-  String get allowedViewTimelineMonthLabel => 'TIMELINE MONTH';
+  String get allowedViewTimelineMonthLabel => 'Timeline Month';
 
   @override
-  String get todayLabel => 'TODAY';
+  String get todayLabel => 'Today';
+
+  @override
+  String get weeknumberLabel => 'Week';
+
+  @override
+  String get allDayLabel => 'All Day';
 
   @override
   String get muharramLabel => 'Muharram';
@@ -288,10 +331,10 @@ class _DefaultLocalizations implements SfLocalizations {
   String get safarLabel => 'Safar';
 
   @override
-  String get rabi1Label => 'Rabi\' al-awwal';
+  String get rabi1Label => "Rabi' al-awwal";
 
   @override
-  String get rabi2Label => 'Rabi\' al-thani';
+  String get rabi2Label => "Rabi' al-thani";
 
   @override
   String get jumada1Label => 'Jumada al-awwal';
@@ -303,7 +346,7 @@ class _DefaultLocalizations implements SfLocalizations {
   String get rajabLabel => 'Rajab';
 
   @override
-  String get shaabanLabel => 'Sha\'aban';
+  String get shaabanLabel => "Sha'aban";
 
   @override
   String get ramadanLabel => 'Ramadan';
@@ -312,7 +355,7 @@ class _DefaultLocalizations implements SfLocalizations {
   String get shawwalLabel => 'Shawwal';
 
   @override
-  String get dhualqiLabel => 'Dhu al-Qi\'dah';
+  String get dhualqiLabel => "Dhu al-Qi'dah";
 
   @override
   String get dhualhiLabel => 'Dhu al-Hijjah';
@@ -348,16 +391,19 @@ class _DefaultLocalizations implements SfLocalizations {
   String get shortShawwalLabel => 'Shaw.';
 
   @override
-  String get shortDhualqiLabel => 'Dhu\'l-Q';
+  String get shortDhualqiLabel => "Dhu'l-Q";
 
   @override
-  String get shortDhualhiLabel => 'Dhu\'l-H';
+  String get shortDhualhiLabel => "Dhu'l-H";
 
   @override
   String get ofDataPagerLabel => 'of';
 
   @override
   String get pagesDataPagerLabel => 'pages';
+
+  @override
+  String get rowsPerPageDataPagerLabel => 'Rows per page';
 
   @override
   String get pdfBookmarksLabel => 'Bookmarks';
@@ -382,6 +428,28 @@ class _DefaultLocalizations implements SfLocalizations {
 
   @override
   String get pdfPaginationDialogCancelLabel => 'CANCEL';
+
+  @override
+  String get passwordDialogHeaderTextLabel => 'Password Protected';
+
+  @override
+  String get passwordDialogContentLabel =>
+      'Enter the password to open this PDF file';
+
+  @override
+  String get passwordDialogHintTextLabel => 'Enter Password';
+
+  @override
+  String get passwordDialogInvalidPasswordLabel => 'Invalid Password';
+
+  @override
+  String get pdfPasswordDialogOpenLabel => 'OPEN';
+
+  @override
+  String get pdfPasswordDialogCancelLabel => 'CANCEL';
+
+  @override
+  String get series => 'Series';
 
   static Future<SfLocalizations> load(Locale locale) {
     return SynchronousFuture<SfLocalizations>(const _DefaultLocalizations());

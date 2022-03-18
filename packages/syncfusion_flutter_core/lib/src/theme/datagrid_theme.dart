@@ -120,76 +120,28 @@ class SfDataGridThemeData with Diagnosticable {
     Color? headerColor,
     double? frozenPaneElevation,
     Color? rowHoverColor,
+    Color? columnResizeIndicatorColor,
+    double? columnResizeIndicatorStrokeWidth,
     TextStyle? rowHoverTextStyle,
+    Widget? sortIcon,
   }) {
-    brightness = brightness ?? Brightness.light;
-    final bool isLight = brightness == Brightness.light;
-
-    gridLineColor ??= isLight
-        ? const Color.fromRGBO(0, 0, 0, 0.26)
-        : const Color.fromRGBO(255, 255, 255, 0.26);
-
-    gridLineStrokeWidth ??= 1;
-
-    selectionColor ??= isLight
-        ? const Color.fromRGBO(238, 238, 238, 1)
-        : const Color.fromRGBO(48, 48, 48, 1);
-
-    currentCellStyle ??= isLight
-        ? const DataGridCurrentCellStyle(
-            borderColor: Color.fromRGBO(0, 0, 0, 0.36), borderWidth: 1.0)
-        : const DataGridCurrentCellStyle(
-            borderColor: Color.fromRGBO(255, 255, 255, 0.36), borderWidth: 1.0);
-
-    frozenPaneLineColor ??= isLight
-        ? const Color.fromRGBO(0, 0, 0, 0.24)
-        : const Color.fromRGBO(255, 255, 255, 0.24);
-
-    frozenPaneLineWidth ??= 2;
-
-    headerHoverColor ??= isLight
-        ? const Color.fromRGBO(245, 245, 245, 1)
-        : const Color.fromRGBO(66, 66, 66, 1);
-
-    sortIconColor ??= isLight ? Colors.black54 : Colors.white54;
-
-    headerColor ??= isLight
-        ? const Color.fromRGBO(255, 255, 255, 1)
-        : const Color.fromRGBO(33, 33, 33, 1);
-
-    frozenPaneElevation ??= 5.0;
-
-    rowHoverColor ??= isLight
-        ? const Color.fromRGBO(0, 0, 0, 0.08)
-        : const Color.fromRGBO(255, 255, 255, 0.12);
-
-    rowHoverTextStyle ??= isLight
-        ? const TextStyle(
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.w400,
-            fontSize: 14,
-            color: Colors.black87)
-        : const TextStyle(
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.w400,
-            fontSize: 14,
-            color: Color.fromRGBO(255, 255, 255, 1));
-
     return SfDataGridThemeData.raw(
-      brightness: brightness,
-      gridLineColor: gridLineColor,
-      gridLineStrokeWidth: gridLineStrokeWidth,
-      selectionColor: selectionColor,
-      currentCellStyle: currentCellStyle,
-      frozenPaneLineColor: frozenPaneLineColor,
-      frozenPaneLineWidth: frozenPaneLineWidth,
-      headerHoverColor: headerHoverColor,
-      sortIconColor: sortIconColor,
-      headerColor: headerColor,
-      frozenPaneElevation: frozenPaneElevation,
-      rowHoverColor: rowHoverColor,
-      rowHoverTextStyle: rowHoverTextStyle,
-    );
+        brightness: brightness,
+        gridLineColor: gridLineColor,
+        gridLineStrokeWidth: gridLineStrokeWidth,
+        selectionColor: selectionColor,
+        currentCellStyle: currentCellStyle,
+        frozenPaneLineColor: frozenPaneLineColor,
+        frozenPaneLineWidth: frozenPaneLineWidth,
+        headerHoverColor: headerHoverColor,
+        sortIconColor: sortIconColor,
+        headerColor: headerColor,
+        frozenPaneElevation: frozenPaneElevation,
+        rowHoverColor: rowHoverColor,
+        columnResizeIndicatorColor: columnResizeIndicatorColor,
+        columnResizeIndicatorStrokeWidth: columnResizeIndicatorStrokeWidth,
+        rowHoverTextStyle: rowHoverTextStyle,
+        sortIcon: sortIcon);
   }
 
   /// Create a [SfDataGridThemeData] given a set of exact values.
@@ -199,27 +151,29 @@ class SfDataGridThemeData with Diagnosticable {
   /// create intermediate themes based on two themes created with the
   /// [SfDataGridThemeData] constructor.
   ///
-  const SfDataGridThemeData.raw({
-    required this.brightness,
-    required this.gridLineColor,
-    required this.gridLineStrokeWidth,
-    required this.selectionColor,
-    required this.currentCellStyle,
-    required this.frozenPaneLineColor,
-    required this.frozenPaneLineWidth,
-    required this.sortIconColor,
-    required this.headerColor,
-    required this.headerHoverColor,
-    required this.frozenPaneElevation,
-    required this.rowHoverColor,
-    required this.rowHoverTextStyle,
-  });
+  const SfDataGridThemeData.raw(
+      {required this.brightness,
+      required this.gridLineColor,
+      required this.gridLineStrokeWidth,
+      required this.selectionColor,
+      required this.currentCellStyle,
+      required this.frozenPaneLineColor,
+      required this.frozenPaneLineWidth,
+      required this.sortIconColor,
+      required this.headerColor,
+      required this.headerHoverColor,
+      required this.frozenPaneElevation,
+      required this.columnResizeIndicatorColor,
+      required this.columnResizeIndicatorStrokeWidth,
+      required this.rowHoverColor,
+      required this.rowHoverTextStyle,
+      required this.sortIcon});
 
   /// The brightness of the overall theme of the
   /// application for the [SfDataGrid] widgets.
   ///
   /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).brightness], brightness for
+  /// [Theme.of(context).colorScheme.brightness], brightness for
   /// datagrid widgets will be applied.
   ///
   /// Also refer [Brightness].
@@ -240,7 +194,7 @@ class SfDataGridThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Brightness brightness;
+  final Brightness? brightness;
 
   /// The color for grid line.
   ///
@@ -260,7 +214,7 @@ class SfDataGridThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color gridLineColor;
+  final Color? gridLineColor;
 
   /// The width for grid line.
   ///
@@ -280,7 +234,7 @@ class SfDataGridThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final double gridLineStrokeWidth;
+  final double? gridLineStrokeWidth;
 
   /// Defines the default configuration of selection in [SfDataGrid].
   ///
@@ -303,7 +257,7 @@ class SfDataGridThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color selectionColor;
+  final Color? selectionColor;
 
   /// Defines the default configuration of current cell in [SfDataGrid].
   ///
@@ -325,28 +279,28 @@ class SfDataGridThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final DataGridCurrentCellStyle currentCellStyle;
+  final DataGridCurrentCellStyle? currentCellStyle;
 
   /// The width of the line which indicates the frozen pane.
   ///
   /// This is applicable for both the frozen column and row.
-  final double frozenPaneLineWidth;
+  final double? frozenPaneLineWidth;
 
   /// The color of the line which indicates the frozen pane.
   ///
   /// This is applicable for both the frozen column and row.
-  final Color frozenPaneLineColor;
+  final Color? frozenPaneLineColor;
 
   /// The color of the sort icon which indicates the ascending or descending
   /// order.
-  final Color sortIconColor;
+  final Color? sortIconColor;
 
   /// The background color of header cells when a pointer is hovering over it
   /// in [SfDataGrid].
-  final Color headerHoverColor;
+  final Color? headerHoverColor;
 
   /// The color for the header cells in the [SfDataGrid].
-  final Color headerColor;
+  final Color? headerColor;
 
   /// The elevation of the frozen pane line.
   ///
@@ -358,13 +312,31 @@ class SfDataGridThemeData with Diagnosticable {
   /// property as 0.0.
   ///
   /// Defaults to 5.0. The value is always non-negative.
-  final double frozenPaneElevation;
+  final double? frozenPaneElevation;
+
+  /// The color of the line which indicates the column resizing.
+  final Color? columnResizeIndicatorColor;
+
+  /// The width of the line which indicates the column resizing.
+  final double? columnResizeIndicatorStrokeWidth;
 
   /// The color for the row when a pointer is hovering over it.
-  final Color rowHoverColor;
+  final Color? rowHoverColor;
 
   /// The default [TextStyle] for the row when a pointer is hovering over it.
-  final TextStyle rowHoverTextStyle;
+  final TextStyle? rowHoverTextStyle;
+
+  /// The icon to display for sort order.
+
+  ///
+
+  /// If icon is given, the animation will be automatically applied and
+  /// rotated according to sorting order.
+
+  ///
+
+  /// [SfDataGridThemeData.sortIconColor] – The color of the sort icon.
+  final Widget? sortIcon;
 
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
@@ -384,6 +356,7 @@ class SfDataGridThemeData with Diagnosticable {
     double? columnResizeIndicatorStrokeWidth,
     Color? rowHoverColor,
     TextStyle? rowHoverTextStyle,
+    Widget? sortIcon,
   }) {
     return SfDataGridThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -397,8 +370,13 @@ class SfDataGridThemeData with Diagnosticable {
       headerColor: headerColor ?? this.headerColor,
       headerHoverColor: headerHoverColor ?? this.headerHoverColor,
       frozenPaneElevation: frozenPaneElevation ?? this.frozenPaneElevation,
+      columnResizeIndicatorColor:
+          columnResizeIndicatorColor ?? this.columnResizeIndicatorColor,
+      columnResizeIndicatorStrokeWidth: columnResizeIndicatorStrokeWidth ??
+          this.columnResizeIndicatorStrokeWidth,
       rowHoverColor: rowHoverColor ?? this.rowHoverColor,
       rowHoverTextStyle: rowHoverTextStyle ?? this.rowHoverTextStyle,
+      sortIcon: sortIcon ?? this.sortIcon,
     );
   }
 
@@ -409,24 +387,31 @@ class SfDataGridThemeData with Diagnosticable {
       return null;
     }
     return SfDataGridThemeData(
-        gridLineColor: Color.lerp(a!.gridLineColor, b!.gridLineColor, t),
-        gridLineStrokeWidth:
-            lerpDouble(a.gridLineStrokeWidth, b.gridLineStrokeWidth, t),
-        selectionColor: Color.lerp(a.selectionColor, b.selectionColor, t),
-        currentCellStyle: DataGridCurrentCellStyle.lerp(
-            a.currentCellStyle, b.currentCellStyle, t),
-        frozenPaneLineColor:
-            Color.lerp(a.frozenPaneLineColor, b.frozenPaneLineColor, t),
-        frozenPaneLineWidth:
-            lerpDouble(a.frozenPaneLineWidth, b.frozenPaneLineWidth, t),
-        sortIconColor: Color.lerp(a.sortIconColor, b.sortIconColor, t),
-        headerHoverColor: Color.lerp(a.headerHoverColor, b.headerHoverColor, t),
-        headerColor: Color.lerp(a.headerColor, b.headerColor, t),
-        frozenPaneElevation:
-            lerpDouble(a.frozenPaneElevation, b.frozenPaneElevation, t),
-        rowHoverColor: Color.lerp(a.rowHoverColor, b.rowHoverColor, t),
-        rowHoverTextStyle:
-            TextStyle.lerp(a.rowHoverTextStyle, b.rowHoverTextStyle, t));
+      gridLineColor: Color.lerp(a!.gridLineColor, b!.gridLineColor, t),
+      gridLineStrokeWidth:
+          lerpDouble(a.gridLineStrokeWidth, b.gridLineStrokeWidth, t),
+      selectionColor: Color.lerp(a.selectionColor, b.selectionColor, t),
+      currentCellStyle: DataGridCurrentCellStyle.lerp(
+          a.currentCellStyle, b.currentCellStyle, t),
+      frozenPaneLineColor:
+          Color.lerp(a.frozenPaneLineColor, b.frozenPaneLineColor, t),
+      frozenPaneLineWidth:
+          lerpDouble(a.frozenPaneLineWidth, b.frozenPaneLineWidth, t),
+      sortIconColor: Color.lerp(a.sortIconColor, b.sortIconColor, t),
+      headerHoverColor: Color.lerp(a.headerHoverColor, b.headerHoverColor, t),
+      headerColor: Color.lerp(a.headerColor, b.headerColor, t),
+      frozenPaneElevation:
+          lerpDouble(a.frozenPaneElevation, b.frozenPaneElevation, t),
+      rowHoverColor: Color.lerp(a.rowHoverColor, b.rowHoverColor, t),
+      columnResizeIndicatorColor: Color.lerp(
+          a.columnResizeIndicatorColor, b.columnResizeIndicatorColor, t),
+      columnResizeIndicatorStrokeWidth: lerpDouble(
+          a.columnResizeIndicatorStrokeWidth,
+          b.columnResizeIndicatorStrokeWidth,
+          t),
+      rowHoverTextStyle:
+          TextStyle.lerp(a.rowHoverTextStyle, b.rowHoverTextStyle, t),
+    );
   }
 
   @override
@@ -451,12 +436,16 @@ class SfDataGridThemeData with Diagnosticable {
         other.headerColor == headerColor &&
         other.frozenPaneElevation == frozenPaneElevation &&
         other.rowHoverColor == rowHoverColor &&
-        other.rowHoverTextStyle == rowHoverTextStyle;
+        other.columnResizeIndicatorColor == columnResizeIndicatorColor &&
+        other.columnResizeIndicatorStrokeWidth ==
+            columnResizeIndicatorStrokeWidth &&
+        other.rowHoverTextStyle == rowHoverTextStyle &&
+        other.sortIcon == sortIcon;
   }
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       gridLineColor,
       gridLineStrokeWidth,
       selectionColor,
@@ -468,7 +457,10 @@ class SfDataGridThemeData with Diagnosticable {
       headerColor,
       frozenPaneElevation,
       rowHoverColor,
+      columnResizeIndicatorColor,
+      columnResizeIndicatorStrokeWidth,
       rowHoverTextStyle,
+      sortIcon
     ];
     return hashList(values);
   }
@@ -500,6 +492,12 @@ class SfDataGridThemeData with Diagnosticable {
         defaultValue: defaultData.headerColor));
     properties.add(DoubleProperty('frozenPaneElevation', frozenPaneElevation,
         defaultValue: defaultData.frozenPaneElevation));
+    properties.add(ColorProperty(
+        'columnResizeIndicatorColor', columnResizeIndicatorColor,
+        defaultValue: defaultData.columnResizeIndicatorColor));
+    properties.add(DoubleProperty(
+        'columnResizeIndicatorStrokeWidth', columnResizeIndicatorStrokeWidth,
+        defaultValue: defaultData.columnResizeIndicatorStrokeWidth));
     properties.add(ColorProperty('rowHoverColor', rowHoverColor,
         defaultValue: defaultData.rowHoverColor));
     properties.add(DiagnosticsProperty<TextStyle>(

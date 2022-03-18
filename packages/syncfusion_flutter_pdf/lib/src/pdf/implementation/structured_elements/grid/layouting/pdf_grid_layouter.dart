@@ -1,45 +1,75 @@
-part of pdf;
+import 'dart:math';
+import 'dart:ui';
 
-class _PdfGridLayouter extends _ElementLayouter {
-  _PdfGridLayouter(PdfGrid grid) : super(grid) {
+import '../../../drawing/drawing.dart';
+import '../../../graphics/figures/base/element_layouter.dart';
+import '../../../graphics/figures/base/layout_element.dart';
+import '../../../graphics/figures/base/text_layouter.dart';
+import '../../../graphics/figures/enums.dart';
+import '../../../graphics/fonts/pdf_string_format.dart';
+import '../../../graphics/fonts/pdf_string_layout_result.dart';
+import '../../../graphics/images/pdf_image.dart';
+import '../../../graphics/pdf_graphics.dart';
+import '../../../pages/enum.dart';
+import '../../../pages/pdf_page.dart';
+import '../../../pages/pdf_page_collection.dart';
+import '../../../pages/pdf_section.dart';
+import '../../../pdf_document/pdf_document.dart';
+import '../enums.dart';
+import '../pdf_grid.dart';
+import '../pdf_grid_cell.dart';
+import '../pdf_grid_column.dart';
+import '../pdf_grid_row.dart';
+import '../styles/style.dart';
+
+/// internal class
+class PdfGridLayouter extends ElementLayouter {
+  /// internal constructor
+  PdfGridLayouter(PdfGrid grid) : super(grid) {
     _initialize();
   }
 
   //Fields
   PdfGraphics? _currentGraphics;
   PdfPage? _currentPage;
-  late _Size _currentPageBounds;
-  late _Rectangle _currentBounds;
-  late _Point _startLocation;
+  late PdfSize _currentPageBounds;
+  late PdfRectangle _currentBounds;
+  late PdfPoint _startLocation;
   late double _childHeight;
   late PdfHorizontalOverflowType _hType;
   List<List<int>>? _columnRanges;
   late int _cellEndIndex;
   late int _cellStartIndex;
-  static int _repeatRowIndex = -1;
+
+  /// internal field
+  static int repeatRowIndex = -1;
   late List<int> _parentCellIndexList;
   late int _currentRowIndex;
   late int _currentHeaderRowIndex;
   late int _rowBreakPageHeightCellIndex;
+
+  /// internal field
   late bool flag;
   late bool _isChanged;
-  late _Point _currentLocation;
+  late PdfPoint _currentLocation;
   bool? _isChildGrid;
   late double _newheight;
 
   //Properties
-  PdfGrid? get _grid => _element as PdfGrid?;
+  PdfGrid? get _grid {
+    return element as PdfGrid?;
+  }
 
   //Implementation
   void _initialize() {
     _rowBreakPageHeightCellIndex = 0;
     _newheight = 0;
     _hType = PdfHorizontalOverflowType.nextPage;
-    _currentPageBounds = _Size.empty;
+    _currentPageBounds = PdfSize.empty;
     _currentRowIndex = 0;
     _currentHeaderRowIndex = 0;
-    _currentLocation = _Point.empty;
-    _currentBounds = _Rectangle.empty;
+    _currentLocation = PdfPoint.empty;
+    _currentBounds = PdfRectangle.empty;
     _columnRanges ??= <List<int>>[];
     _childHeight = 0;
     _cellStartIndex = 0;
@@ -47,21 +77,27 @@ class _PdfGridLayouter extends _ElementLayouter {
     _isChanged = false;
     flag = true;
     _isChildGrid ??= false;
-    _startLocation = _Point.empty;
+    _startLocation = PdfPoint.empty;
   }
 
-  void layout(PdfGraphics graphics, _Rectangle bounds) {
-    final _PdfLayoutParams param = _PdfLayoutParams();
+  /// internal method
+  void layoutGrid(PdfGraphics graphics, PdfRectangle bounds) {
+    final PdfLayoutParams param = PdfLayoutParams();
     param.bounds = bounds;
     _currentGraphics = graphics;
-    if (_currentGraphics!._layer != null && _currentGraphics!._page != null) {
-      final int index =
-          _currentGraphics!._page!._section!._indexOf(_currentGraphics!._page!);
-      if (!_grid!._listOfNavigatePages.contains(index)) {
-        _grid!._listOfNavigatePages.add(index);
+    if (PdfGraphicsHelper.getHelper(_currentGraphics!).layer != null &&
+        PdfGraphicsHelper.getHelper(_currentGraphics!).page != null) {
+      final int index = PdfSectionHelper.getHelper(PdfPageHelper.getHelper(
+                  PdfGraphicsHelper.getHelper(_currentGraphics!).page!)
+              .section!)
+          .indexOf(PdfGraphicsHelper.getHelper(_currentGraphics!).page!);
+      if (!PdfGridHelper.getHelper(_grid!)
+          .listOfNavigatePages
+          .contains(index)) {
+        PdfGridHelper.getHelper(_grid!).listOfNavigatePages.add(index);
       }
     }
-    _layoutInternal(param);
+    layoutInternal(param);
   }
 
   PdfLayoutFormat _getFormat(PdfLayoutFormat? format) {
@@ -98,7 +134,7 @@ class _PdfGridLayouter extends _ElementLayouter {
     }
   }
 
-  PdfLayoutResult? _layoutOnPage(_PdfLayoutParams param) {
+  PdfLayoutResult? _layoutOnPage(PdfLayoutParams param) {
     final PdfLayoutFormat format = _getFormat(param.format);
     late PdfGridEndPageLayoutArgs endArgs;
     PdfLayoutResult? result;
@@ -113,17 +149,22 @@ class _PdfGridLayouter extends _ElementLayouter {
       if (_currentPage != null) {
         final Map<String, dynamic> pageLayoutResult = _raiseBeforePageLayout(
             _currentPage, _currentBounds.rect, _currentRowIndex);
-        _currentBounds = _Rectangle.fromRect(pageLayoutResult['currentBounds']);
+        _currentBounds =
+            PdfRectangle.fromRect(pageLayoutResult['currentBounds']);
         _currentRowIndex = pageLayoutResult['currentRow'] as int;
         if (pageLayoutResult['cancel'] as bool) {
-          result = PdfLayoutResult._(_currentPage!, _currentBounds.rect);
+          result =
+              PdfLayoutResultHelper.load(_currentPage!, _currentBounds.rect);
           break;
         }
       }
       bool drawHeader;
-      if (_grid!._isBuiltinStyle && _grid!._parentCell == null) {
-        if (_grid!._gridBuiltinStyle != PdfGridBuiltInStyle.tableGrid) {
-          _grid!._applyBuiltinStyles(_grid!._gridBuiltinStyle);
+      if (PdfGridHelper.getHelper(_grid!).isBuiltinStyle &&
+          PdfGridHelper.getHelper(_grid!).parentCell == null) {
+        if (PdfGridHelper.getHelper(_grid!).gridBuiltinStyle !=
+            PdfGridBuiltInStyle.tableGrid) {
+          PdfGridHelper.getHelper(_grid!).applyBuiltinStyles(
+              PdfGridHelper.getHelper(_grid!).gridBuiltinStyle);
         }
       }
       for (int rowIndex = 0; rowIndex < _grid!.headers.count; rowIndex++) {
@@ -132,8 +173,9 @@ class _PdfGridLayouter extends _ElementLayouter {
         final double headerHeight = _currentBounds.y;
         if (startPage != _currentPage) {
           for (int k = _cellStartIndex; k <= _cellEndIndex; k++) {
-            if (row.cells[k]._isCellMergeContinue) {
-              row.cells[k]._isCellMergeContinue = false;
+            if (PdfGridCellHelper.getHelper(row.cells[k]).isCellMergeContinue) {
+              PdfGridCellHelper.getHelper(row.cells[k]).isCellMergeContinue =
+                  false;
               row.cells[k].value = '';
             }
           }
@@ -141,7 +183,7 @@ class _PdfGridLayouter extends _ElementLayouter {
         final _RowLayoutResult headerResult = _drawRow(row)!;
         if (headerHeight == _currentBounds.y) {
           drawHeader = true;
-          _repeatRowIndex = _grid!.rows._indexOf(row);
+          repeatRowIndex = PdfGridRowCollectionHelper.indexOf(_grid!.rows, row);
         } else {
           drawHeader = false;
         }
@@ -150,9 +192,10 @@ class _PdfGridLayouter extends _ElementLayouter {
             format.layoutType != PdfLayoutType.onePage &&
             drawHeader) {
           _startLocation.x = _currentBounds.x;
-          _currentPage = getNextPage(format);
+          _currentPage = _getNextPage(format);
           _startLocation.y = _currentBounds.y;
-          if (_Rectangle.fromRect(format.paginateBounds) == _Rectangle.empty) {
+          if (PdfRectangle.fromRect(format.paginateBounds) ==
+              PdfRectangle.empty) {
             _currentBounds.x = _currentBounds.x + _startLocation.x;
           }
           _drawRow(row);
@@ -164,33 +207,51 @@ class _PdfGridLayouter extends _ElementLayouter {
       double? startingHeight = 0;
       bool flag = true;
       if (isParentCell!) {
-        _cellEndIndex = _cellStartIndex = _grid!._parentCellIndex;
+        _cellEndIndex =
+            _cellStartIndex = PdfGridHelper.getHelper(_grid!).parentCellIndex;
         _parentCellIndexList = <int>[];
-        _parentCellIndexList.add(_grid!._parentCellIndex);
-        _grid!._parentCell!._present = true;
-        PdfGrid parentGrid = _grid!._parentCell!._row!._grid;
-        while (parentGrid._parentCell != null) {
-          _parentCellIndexList.add(parentGrid._parentCellIndex);
-          _cellEndIndex = parentGrid._parentCellIndex;
-          _cellStartIndex = parentGrid._parentCellIndex;
-          parentGrid._parentCell!._present = true;
-          parentGrid = parentGrid._parentCell!._row!._grid;
-          if (parentGrid._parentCell == null) {
+        _parentCellIndexList
+            .add(PdfGridHelper.getHelper(_grid!).parentCellIndex);
+        PdfGridCellHelper.getHelper(PdfGridHelper.getHelper(_grid!).parentCell!)
+            .present = true;
+        PdfGrid parentGrid = PdfGridRowHelper.getHelper(
+                PdfGridCellHelper.getHelper(
+                        PdfGridHelper.getHelper(_grid!).parentCell!)
+                    .row!)
+            .grid;
+        while (PdfGridHelper.getHelper(parentGrid).parentCell != null) {
+          _parentCellIndexList
+              .add(PdfGridHelper.getHelper(parentGrid).parentCellIndex);
+          _cellEndIndex = PdfGridHelper.getHelper(parentGrid).parentCellIndex;
+          _cellStartIndex = PdfGridHelper.getHelper(parentGrid).parentCellIndex;
+          PdfGridCellHelper.getHelper(
+                  PdfGridHelper.getHelper(parentGrid).parentCell!)
+              .present = true;
+          parentGrid = PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                      PdfGridHelper.getHelper(parentGrid).parentCell!)
+                  .row!)
+              .grid;
+          if (PdfGridHelper.getHelper(parentGrid).parentCell == null) {
             _parentCellIndexList.removeAt(_parentCellIndexList.length - 1);
           }
         }
-        PdfSection section = _currentPage!._section!;
-        int index = section._indexOf(_currentPage!);
-        if ((!parentGrid._isDrawn) ||
-            (!parentGrid._listOfNavigatePages.contains(index))) {
-          section = _currentGraphics!._page!._section!;
-          index = section._indexOf(_currentPage!);
-          parentGrid._isDrawn = true;
+        PdfSection section = PdfPageHelper.getHelper(_currentPage!).section!;
+        int index = PdfSectionHelper.getHelper(section).indexOf(_currentPage!);
+        if ((!PdfGridHelper.getHelper(parentGrid).isDrawn) ||
+            (!PdfGridHelper.getHelper(parentGrid)
+                .listOfNavigatePages
+                .contains(index))) {
+          section = PdfPageHelper.getHelper(
+                  PdfGraphicsHelper.getHelper(_currentGraphics!).page!)
+              .section!;
+          index = PdfSectionHelper.getHelper(section).indexOf(_currentPage!);
+          PdfGridHelper.getHelper(parentGrid).isDrawn = true;
           for (int rowIndex = 0; rowIndex < parentGrid.rows.count; rowIndex++) {
             final PdfGridRow row = parentGrid.rows[rowIndex];
             final PdfGridCell cell = row.cells[_cellStartIndex];
             cell.value = '';
-            final _Point location = _Point(_currentBounds.x, _currentBounds.y);
+            final PdfPoint location =
+                PdfPoint(_currentBounds.x, _currentBounds.y);
             double width = parentGrid.columns[_cellStartIndex].width;
             if (width > _currentGraphics!.clientSize.width) {
               width = _currentGraphics!.clientSize.width - 2 * location.x;
@@ -199,8 +260,8 @@ class _PdfGridLayouter extends _ElementLayouter {
             if (row.height > cell.height) {
               height = row.height;
             }
-            cell._draw(_currentGraphics,
-                _Rectangle(location.x, location.y, width, height), false);
+            PdfGridCellHelper.getHelper(cell).draw(_currentGraphics,
+                PdfRectangle(location.x, location.y, width, height), false);
             _currentBounds.y = _currentBounds.y + height;
           }
           _currentBounds.y = 0;
@@ -216,27 +277,45 @@ class _PdfGridLayouter extends _ElementLayouter {
         _currentRowIndex = i - 1;
         double? originalHeight = _currentBounds.y;
         startPage = _currentPage;
-        _repeatRowIndex = -1;
-        if (flag && row._grid._isChildGrid!) {
+        repeatRowIndex = -1;
+        if (flag &&
+            PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                .isChildGrid!) {
           startingHeight = originalHeight;
           flag = false;
         }
-        if (row._grid._isChildGrid! &&
-            row._grid._parentCell!.rowSpan > 1 &&
+        if (PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                .isChildGrid! &&
+            PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                    .parentCell!
+                    .rowSpan >
+                1 &&
             (startingHeight! + _childHeight).toInt() <
                 (_currentBounds.y + row.height).toInt()) {
           if (_grid!.rows.count > i) {
-            final PdfGrid temp = row._grid._parentCell!._row!._grid;
+            final PdfGrid temp = PdfGridRowHelper.getHelper(
+                    PdfGridCellHelper.getHelper(PdfGridHelper.getHelper(
+                                PdfGridRowHelper.getHelper(row).grid)
+                            .parentCell!)
+                        .row!)
+                .grid;
             for (int tempRowIndex = 0;
                 tempRowIndex < temp.rows.count;
                 tempRowIndex++) {
               final PdfGridRow tempRow = temp.rows[tempRowIndex];
-              if (tempRow.cells[row._grid._parentCellIndex] ==
-                  row._grid._parentCell) {
-                final dynamic grid =
-                    tempRow.cells[row._grid._parentCellIndex].value;
+              if (tempRow.cells[PdfGridHelper.getHelper(
+                          PdfGridRowHelper.getHelper(row).grid)
+                      .parentCellIndex] ==
+                  PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                      .parentCell) {
+                final dynamic grid = tempRow
+                    .cells[PdfGridHelper.getHelper(
+                            PdfGridRowHelper.getHelper(row).grid)
+                        .parentCellIndex]
+                    .value;
                 if (grid is PdfGrid) {
-                  grid.rows._rows.removeRange(0, i - 1);
+                  PdfGridRowCollectionHelper.getRows(grid.rows)
+                      .removeRange(0, i - 1);
                 }
               }
             }
@@ -245,7 +324,7 @@ class _PdfGridLayouter extends _ElementLayouter {
         }
         _RowLayoutResult rowResult = _drawRow(row)!;
         cellBounds.add(rowResult.bounds.width);
-        if (row._isRowBreaksNextPage) {
+        if (PdfGridRowHelper.getHelper(row).isRowBreaksNextPage) {
           double x = 0;
           for (int l = 0; l < row.cells.count; l++) {
             bool isNestedRowBreak = false;
@@ -253,16 +332,22 @@ class _PdfGridLayouter extends _ElementLayouter {
                 row.cells[l].value is PdfGrid) {
               final PdfGrid grid = row.cells[l].value as PdfGrid;
               for (int m = grid.rows.count; 0 < m; m--) {
-                if (grid.rows[m - 1]._rowBreakHeight > 0) {
+                if (PdfGridRowHelper.getHelper(grid.rows[m - 1])
+                        .rowBreakHeight >
+                    0) {
                   isNestedRowBreak = true;
                   break;
                 }
-                if (grid.rows[m - 1]._isRowBreaksNextPage) {
-                  row._rowBreakHeight = grid.rows[m - 1]._rowBreakHeight;
+                if (PdfGridRowHelper.getHelper(grid.rows[m - 1])
+                    .isRowBreaksNextPage) {
+                  PdfGridRowHelper.getHelper(row).rowBreakHeight =
+                      PdfGridRowHelper.getHelper(grid.rows[m - 1])
+                          .rowBreakHeight;
                   break;
                 }
-                row._rowBreakHeight =
-                    row._rowBreakHeight + grid.rows[m - 1].height;
+                PdfGridRowHelper.getHelper(row).rowBreakHeight =
+                    PdfGridRowHelper.getHelper(row).rowBreakHeight +
+                        grid.rows[m - 1].height;
               }
             }
             if (isNestedRowBreak) {
@@ -272,62 +357,102 @@ class _PdfGridLayouter extends _ElementLayouter {
           for (int j = 0; j < row.cells.count; j++) {
             if (row.height > row.cells[j].height) {
               row.cells[j].value = '';
-              _Rectangle rect;
-              PdfPage? page = _getNextPage(_currentPage!);
-              final PdfSection section = _currentPage!._section!;
-              final int index = section._indexOf(page!);
+              PdfRectangle rect;
+              PdfPage page = getNextPage(_currentPage!)!;
+              final PdfSection section =
+                  PdfPageHelper.getHelper(_currentPage!).section!;
+              final int index =
+                  PdfSectionHelper.getHelper(section).indexOf(page);
               for (int k = 0;
-                  k < (section._pageReferences!.count - 1) - index;
+                  k <
+                      (PdfSectionHelper.getHelper(section)
+                                  .pageReferences!
+                                  .count -
+                              1) -
+                          index;
                   k++) {
-                rect = _Rectangle(x, 0, row._grid.columns[j].width,
-                    page!.getClientSize().height);
-                _repeatRowIndex = -1;
-                row.cells[j]._draw(page.graphics, rect, false);
-                page = _getNextPage(page);
+                rect = PdfRectangle(
+                    x,
+                    0,
+                    PdfGridRowHelper.getHelper(row).grid.columns[j].width,
+                    page.getClientSize().height);
+                repeatRowIndex = -1;
+                PdfGridCellHelper.getHelper(row.cells[j])
+                    .draw(page.graphics, rect, false);
+                page = getNextPage(page)!;
               }
-              rect = _Rectangle(
-                  x, 0, row._grid.columns[j].width, row._rowBreakHeight);
-              row.cells[j]._draw(page!.graphics, rect, false);
+              rect = PdfRectangle(
+                  x,
+                  0,
+                  PdfGridRowHelper.getHelper(row).grid.columns[j].width,
+                  PdfGridRowHelper.getHelper(row).rowBreakHeight);
+              PdfGridCellHelper.getHelper(row.cells[j])
+                  .draw(page.graphics, rect, false);
             }
-            x += row._grid.columns[j].width;
+            x += PdfGridRowHelper.getHelper(row).grid.columns[j].width;
           }
         }
         if (originalHeight == _currentBounds.y) {
           repeatRow = true;
-          _repeatRowIndex = _grid!.rows._indexOf(row);
+          repeatRowIndex = PdfGridRowCollectionHelper.indexOf(_grid!.rows, row);
         } else {
           repeatRow = false;
-          _repeatRowIndex = -1;
+          repeatRowIndex = -1;
         }
         while (!rowResult.isFinish && startPage != null) {
           final PdfLayoutResult tempResult = _getLayoutResult();
           if (startPage != _currentPage) {
-            if (row._grid._isChildGrid! && row._grid._parentCell != null) {
-              final _Rectangle bounds = _Rectangle(
+            if (PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                    .isChildGrid! &&
+                PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                        .parentCell !=
+                    null) {
+              final PdfRectangle bounds = PdfRectangle(
                   format.paginateBounds.left,
                   format.paginateBounds.top,
                   param.bounds!.width,
                   tempResult.bounds.height);
               bounds.x = bounds.x + param.bounds!.x;
               bounds.y = bounds.y +
-                  row._grid._parentCell!._row!._grid.style.cellPadding.top;
+                  PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                              PdfGridHelper.getHelper(
+                                      PdfGridRowHelper.getHelper(row).grid)
+                                  .parentCell!)
+                          .row!)
+                      .grid
+                      .style
+                      .cellPadding
+                      .top;
               if (bounds.height > _currentPageBounds.height) {
                 bounds.height = _currentPageBounds.height - bounds.y;
                 bounds.height = bounds.height -
-                    row._grid._parentCell!._row!._grid.style.cellPadding.bottom;
+                    PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                                PdfGridHelper.getHelper(
+                                        PdfGridRowHelper.getHelper(row).grid)
+                                    .parentCell!)
+                            .row!)
+                        .grid
+                        .style
+                        .cellPadding
+                        .bottom;
               }
               for (int c = 0; c < row.cells.count; c++) {
                 final PdfGridCell cell = row.cells[c];
                 double cellWidth = 0.0;
                 if (cell.columnSpan > 1) {
                   for (; c < cell.columnSpan; c++) {
-                    cellWidth += row._grid.columns[c].width;
+                    cellWidth +=
+                        PdfGridRowHelper.getHelper(row).grid.columns[c].width;
                   }
                 } else {
-                  cellWidth = max(cell.width, row._grid.columns[c].width);
+                  cellWidth = max(cell.width,
+                      PdfGridRowHelper.getHelper(row).grid.columns[c].width);
                 }
-                _currentGraphics = cell._drawCellBorders(_currentGraphics!,
-                    _Rectangle(bounds.x, bounds.y, cellWidth, bounds.height));
+                _currentGraphics = PdfGridCellHelper.getHelper(cell)
+                    .drawCellBorders(
+                        _currentGraphics!,
+                        PdfRectangle(
+                            bounds.x, bounds.y, cellWidth, bounds.height));
                 bounds.x = bounds.x + cellWidth;
                 c += cell.columnSpan - 1;
               }
@@ -340,52 +465,99 @@ class _PdfGridLayouter extends _ElementLayouter {
           if (repeatRow) {
             break;
           } else if (_grid!.allowRowBreakingAcrossPages) {
-            _currentPage = getNextPage(format);
+            _currentPage = _getNextPage(format);
             originalHeight = _currentBounds.y;
-            final _Point location = _Point(
-                _grid!._defaultBorder.right.width / 2,
-                _grid!._defaultBorder.top.width / 2);
-            if (_Rectangle.fromRect(format.paginateBounds) ==
-                    _Rectangle.empty &&
+            final PdfPoint location = PdfPoint(
+                PdfGridHelper.getHelper(_grid!).defaultBorder.right.width / 2,
+                PdfGridHelper.getHelper(_grid!).defaultBorder.top.width / 2);
+            if (PdfRectangle.fromRect(format.paginateBounds) ==
+                    PdfRectangle.empty &&
                 _startLocation == location) {
               _currentBounds.x = _currentBounds.x + _startLocation.x;
               _currentBounds.y = _currentBounds.y + _startLocation.y;
             }
-            if (_grid!._isChildGrid! && row._grid._parentCell != null) {
-              if (_grid!._parentCell!._row!._grid.style._cellPadding != null) {
-                if (row._rowBreakHeight +
-                        _grid!._parentCell!._row!._grid.style.cellPadding.top <
+            if (PdfGridHelper.getHelper(_grid!).isChildGrid! &&
+                PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                        .parentCell !=
+                    null) {
+              if (PdfGridStyleHelper.getPadding(PdfGridRowHelper.getHelper(
+                          PdfGridCellHelper.getHelper(
+                                  PdfGridHelper.getHelper(_grid!).parentCell!)
+                              .row!)
+                      .grid
+                      .style) !=
+                  null) {
+                if (PdfGridRowHelper.getHelper(row).rowBreakHeight +
+                        PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                                    PdfGridHelper.getHelper(_grid!).parentCell!)
+                                .row!)
+                            .grid
+                            .style
+                            .cellPadding
+                            .top <
                     _currentBounds.height) {
-                  _currentBounds.y =
-                      _grid!._parentCell!._row!._grid.style.cellPadding.top;
+                  _currentBounds.y = PdfGridRowHelper.getHelper(
+                          PdfGridCellHelper.getHelper(
+                                  PdfGridHelper.getHelper(_grid!).parentCell!)
+                              .row!)
+                      .grid
+                      .style
+                      .cellPadding
+                      .top;
                 }
               }
             }
-            if (row._grid._parentCell != null) {
-              row._grid._parentCell!._row!._isRowBreaksNextPage = true;
-              row._grid._parentCell!._row!._rowBreakHeight =
-                  row._rowBreakHeight +
-                      _grid!._parentCell!._row!._grid.style.cellPadding.top +
-                      _grid!._parentCell!._row!._grid.style.cellPadding.bottom;
+            if (PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                    .parentCell !=
+                null) {
+              PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                          PdfGridHelper.getHelper(
+                                  PdfGridRowHelper.getHelper(row).grid)
+                              .parentCell!)
+                      .row!)
+                  .isRowBreaksNextPage = true;
+              PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                              PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                                  .parentCell!)
+                          .row!)
+                      .rowBreakHeight =
+                  PdfGridRowHelper.getHelper(row).rowBreakHeight +
+                      PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                                  PdfGridHelper.getHelper(_grid!).parentCell!)
+                              .row!)
+                          .grid
+                          .style
+                          .cellPadding
+                          .top +
+                      PdfGridRowHelper.getHelper(
+                              PdfGridCellHelper.getHelper(PdfGridHelper.getHelper(_grid!).parentCell!).row!)
+                          .grid
+                          .style
+                          .cellPadding
+                          .bottom;
             }
-            if (row._noOfPageCount > 1) {
-              final double temp = row._rowBreakHeight;
-              for (int j = 1; j < row._noOfPageCount; j++) {
-                row._rowBreakHeight = 0;
-                row.height = (row._noOfPageCount - 1) *
-                    _currentPage!.getClientSize().height;
+            if (PdfGridRowHelper.getHelper(row).noOfPageCount > 1) {
+              final double temp =
+                  PdfGridRowHelper.getHelper(row).rowBreakHeight;
+              for (int j = 1;
+                  j < PdfGridRowHelper.getHelper(row).noOfPageCount;
+                  j++) {
+                PdfGridRowHelper.getHelper(row).rowBreakHeight = 0;
+                row.height =
+                    (PdfGridRowHelper.getHelper(row).noOfPageCount - 1) *
+                        _currentPage!.getClientSize().height;
                 _drawRow(row);
-                _currentPage = getNextPage(format);
+                _currentPage = _getNextPage(format);
                 startPage = _currentPage;
               }
-              row._rowBreakHeight = temp;
-              row._noOfPageCount = 1;
+              PdfGridRowHelper.getHelper(row).rowBreakHeight = temp;
+              PdfGridRowHelper.getHelper(row).noOfPageCount = 1;
               rowResult = _drawRow(row)!;
             } else {
               rowResult = _drawRow(row)!;
             }
           } else if (!_grid!.allowRowBreakingAcrossPages && i < length) {
-            _currentPage = getNextPage(format);
+            _currentPage = _getNextPage(format);
             break;
           } else if (i >= length) {
             break;
@@ -397,7 +569,7 @@ class _PdfGridLayouter extends _ElementLayouter {
             repeatRow) {
           _startLocation.x = _currentBounds.x;
           bool isAddNextPage = false;
-          if (!_grid!._isSingleGrid) {
+          if (!PdfGridHelper.getHelper(_grid!).isSingleGrid) {
             for (int j = 0; j < _grid!.rows.count; j++) {
               bool isWidthGreaterthanParent = false;
               for (int k = 0; k < _grid!.rows[j].cells.count; k++) {
@@ -406,36 +578,46 @@ class _PdfGridLayouter extends _ElementLayouter {
                 }
               }
               if (isWidthGreaterthanParent &&
-                  _grid!.rows[j].cells[_rowBreakPageHeightCellIndex]
-                          ._pageCount >
+                  PdfGridCellHelper.getHelper(_grid!
+                              .rows[j].cells[_rowBreakPageHeightCellIndex])
+                          .pageCount >
                       0) {
                 isAddNextPage = true;
               }
             }
           }
-          if (!_grid!._isRearranged && isAddNextPage) {
-            final PdfSection section = _currentPage!._section!;
+          if (!PdfGridHelper.getHelper(_grid!).isRearranged && isAddNextPage) {
+            final PdfSection section =
+                PdfPageHelper.getHelper(_currentPage!).section!;
             final PdfPage page = PdfPage();
-            section._isNewPageSection = true;
-            section._add(page);
+            PdfSectionHelper.getHelper(section).isNewPageSection = true;
+            PdfSectionHelper.getHelper(section).add(page);
             _currentPage = page;
-            section._isNewPageSection = false;
+            PdfSectionHelper.getHelper(section).isNewPageSection = false;
             _currentGraphics = _currentPage!.graphics;
             final Size clientSize = _currentPage!.getClientSize();
             _currentBounds =
-                _Rectangle(0, 0, clientSize.width, clientSize.height);
-            final int pageindex = _currentGraphics!._page!._section!
-                ._indexOf(_currentGraphics!._page!);
-            if (!_grid!._listOfNavigatePages.contains(pageindex)) {
-              _grid!._listOfNavigatePages.add(pageindex);
+                PdfRectangle(0, 0, clientSize.width, clientSize.height);
+            final int pageindex = PdfSectionHelper.getHelper(
+                    PdfPageHelper.getHelper(
+                            PdfGraphicsHelper.getHelper(_currentGraphics!)
+                                .page!)
+                        .section!)
+                .indexOf(PdfGraphicsHelper.getHelper(_currentGraphics!).page!);
+            if (!PdfGridHelper.getHelper(_grid!)
+                .listOfNavigatePages
+                .contains(pageindex)) {
+              PdfGridHelper.getHelper(_grid!)
+                  .listOfNavigatePages
+                  .add(pageindex);
             }
           } else {
             if (endArgs.nextPage == null) {
-              _currentPage = getNextPage(format);
+              _currentPage = _getNextPage(format);
             } else {
               _currentPage = endArgs.nextPage;
               _currentGraphics = endArgs.nextPage!.graphics;
-              _currentBounds = _Rectangle(
+              _currentBounds = PdfRectangle(
                   0,
                   0,
                   _currentGraphics!.clientSize.width,
@@ -443,34 +625,37 @@ class _PdfGridLayouter extends _ElementLayouter {
             }
           }
           final bool isSameSection =
-              _currentPage!._section == param.page!._section;
+              PdfPageHelper.getHelper(_currentPage!).section ==
+                  PdfPageHelper.getHelper(param.page!).section;
           _currentBounds.y = format.paginateBounds.top == 0
-              ? _grid!._defaultBorder.top.width / 2
+              ? PdfGridHelper.getHelper(_grid!).defaultBorder.top.width / 2
               : format.paginateBounds.top;
           if (_currentPage != null) {
             final Map<String, dynamic> pageLayoutResult =
                 _raiseBeforePageLayout(
                     _currentPage, _currentBounds.rect, _currentRowIndex);
             _currentBounds =
-                _Rectangle.fromRect(pageLayoutResult['currentBounds']);
+                PdfRectangle.fromRect(pageLayoutResult['currentBounds']);
             _currentRowIndex = pageLayoutResult['currentRow'] as int;
             if (pageLayoutResult['cancel'] as bool) {
               break;
             }
           }
           if ((param.format != null) &&
-              !param.format!._boundsSet &&
+              !PdfLayoutFormatHelper.isBoundsSet(param.format!) &&
               param.bounds != null &&
               param.bounds!.height > 0 &&
-              !_grid!._isChildGrid! &&
+              !PdfGridHelper.getHelper(_grid!).isChildGrid! &&
               isSameSection) {
             _currentBounds.height = param.bounds!.height;
           }
           _startLocation.y = _currentBounds.y;
-          if (_Rectangle.fromRect(format.paginateBounds) == _Rectangle.empty) {
+          if (PdfRectangle.fromRect(format.paginateBounds) ==
+              PdfRectangle.empty) {
             _currentBounds.x = _currentBounds.x + _startLocation.x;
           }
-          if (_currentBounds.x == _grid!._defaultBorder.left.width / 2) {
+          if (_currentBounds.x ==
+              PdfGridHelper.getHelper(_grid!).defaultBorder.left.width / 2) {
             _currentBounds.y = _currentBounds.y + _startLocation.x;
           }
           if (_grid!.repeatHeader) {
@@ -486,33 +671,48 @@ class _PdfGridLayouter extends _ElementLayouter {
             layoutedPages[_currentPage] = range;
           }
         }
-        if (row._gridResult != null) {
-          _currentPage = row._gridResult!.page;
+        if (PdfGridRowHelper.getHelper(row).gridResult != null) {
+          _currentPage = PdfGridRowHelper.getHelper(row).gridResult!.page;
           _currentGraphics = _currentPage!.graphics;
-          _startLocation =
-              _Point(row._gridResult!.bounds.left, row._gridResult!.bounds.top);
-          _currentBounds.y = row._gridResult!.bounds.bottom;
+          _startLocation = PdfPoint(
+              PdfGridRowHelper.getHelper(row).gridResult!.bounds.left,
+              PdfGridRowHelper.getHelper(row).gridResult!.bounds.top);
+          _currentBounds.y =
+              PdfGridRowHelper.getHelper(row).gridResult!.bounds.bottom;
           if (startPage != _currentPage) {
-            final PdfSection secion = _currentPage!._section!;
-            final int startIndex = secion._indexOf(startPage!) + 1;
-            final int endIndex = secion._indexOf(_currentPage!);
+            final PdfSection secion =
+                PdfPageHelper.getHelper(_currentPage!).section!;
+            final int startIndex =
+                PdfSectionHelper.getHelper(secion).indexOf(startPage!) + 1;
+            final int endIndex =
+                PdfSectionHelper.getHelper(secion).indexOf(_currentPage!);
             for (int page = startIndex; page < endIndex + 1; page++) {
-              PdfGraphics pageGraphics = secion._getPageByIndex(page)!.graphics;
-              final _Point location =
-                  _Point(format.paginateBounds.left, format.paginateBounds.top);
-              if (location == _Point.empty &&
+              PdfGraphics pageGraphics = PdfSectionHelper.getHelper(secion)
+                  .getPageByIndex(page)!
+                  .graphics;
+              final PdfPoint location = PdfPoint(
+                  format.paginateBounds.left, format.paginateBounds.top);
+              if (location == PdfPoint.empty &&
                   _currentBounds.x > location.x &&
-                  !row._grid._isChildGrid! &&
-                  row._grid._parentCell == null) {
+                  !PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                      .isChildGrid! &&
+                  PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                          .parentCell ==
+                      null) {
                 location.x = _currentBounds.x;
               }
               double height = page == endIndex
-                  ? (row._gridResult!.bounds.height - param.bounds!.y)
+                  ? (PdfGridRowHelper.getHelper(row).gridResult!.bounds.height -
+                      param.bounds!.y)
                   : (_currentBounds.height - location.y);
               if (height <= pageGraphics.clientSize.height) {
                 height += param.bounds!.y;
               }
-              if (row._grid._isChildGrid! && row._grid._parentCell != null) {
+              if (PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                      .isChildGrid! &&
+                  PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+                          .parentCell !=
+                      null) {
                 location.x = location.x + param.bounds!.x;
               }
               location.y = format.paginateBounds.top;
@@ -521,15 +721,25 @@ class _PdfGridLayouter extends _ElementLayouter {
                 double cellWidth = 0.0;
                 if (cell.columnSpan > 1) {
                   for (; c < cell.columnSpan; c++) {
-                    cellWidth += row._grid.columns[c].width;
+                    cellWidth +=
+                        PdfGridRowHelper.getHelper(row).grid.columns[c].width;
                   }
                 } else {
-                  cellWidth = _grid!._isWidthSet
-                      ? min(cell.width, row._grid.columns[c].width)
-                      : max(cell.width, row._grid.columns[c].width);
+                  cellWidth = PdfGridHelper.getHelper(_grid!).isWidthSet
+                      ? min(cell.width,
+                          PdfGridRowHelper.getHelper(row).grid.columns[c].width)
+                      : max(
+                          cell.width,
+                          PdfGridRowHelper.getHelper(row)
+                              .grid
+                              .columns[c]
+                              .width);
                 }
-                pageGraphics = cell._drawCellBorders(pageGraphics,
-                    _Rectangle(location.x, location.y, cellWidth, height));
+                pageGraphics = PdfGridCellHelper.getHelper(cell)
+                    .drawCellBorders(
+                        pageGraphics,
+                        PdfRectangle(
+                            location.x, location.y, cellWidth, height));
                 location.x = location.x + cellWidth;
                 c += cell.columnSpan - 1;
               }
@@ -550,14 +760,18 @@ class _PdfGridLayouter extends _ElementLayouter {
             _grid!.rows[c].cells[_cellEndIndex].value is PdfGrid) {
           final PdfGrid grid =
               _grid!.rows[c].cells[_cellEndIndex].value as PdfGrid;
-          _grid!._rowLayoutBoundswidth = grid._rowLayoutBoundswidth;
+          PdfGridHelper.getHelper(_grid!).rowLayoutBoundswidth =
+              PdfGridHelper.getHelper(grid).rowLayoutBoundswidth;
           isPdfGrid = true;
-          if (largeNavigatePage[0][0]! < grid._listOfNavigatePages.length) {
-            largeNavigatePage[0][0] =
-                grid._listOfNavigatePages.length.toDouble();
+          if (largeNavigatePage[0][0]! <
+              PdfGridHelper.getHelper(grid).listOfNavigatePages.length) {
+            largeNavigatePage[0][0] = PdfGridHelper.getHelper(grid)
+                .listOfNavigatePages
+                .length
+                .toDouble();
             largeNavigatePage[0][1] = cellBounds[c];
           } else if ((largeNavigatePage[0][0] ==
-                  grid._listOfNavigatePages.length) &&
+                  PdfGridHelper.getHelper(grid).listOfNavigatePages.length) &&
               (largeNavigatePage[0][1]! < cellBounds[c]!)) {
             largeNavigatePage[0][1] = cellBounds[c];
           }
@@ -569,40 +783,55 @@ class _PdfGridLayouter extends _ElementLayouter {
             maximumCellBoundsWidth = cellBounds[c]!;
           }
         }
-        _grid!._rowLayoutBoundswidth = maximumCellBoundsWidth;
+        PdfGridHelper.getHelper(_grid!).rowLayoutBoundswidth =
+            maximumCellBoundsWidth;
       } else {
-        _grid!._rowLayoutBoundswidth = largeNavigatePage[0][1]!;
+        PdfGridHelper.getHelper(_grid!).rowLayoutBoundswidth =
+            largeNavigatePage[0][1]!;
       }
       if (_columnRanges!.indexOf(range) < _columnRanges!.length - 1 &&
           startPage != null &&
           format.layoutType != PdfLayoutType.onePage) {
-        isParentCell = _grid!._isChildGrid;
+        isParentCell = PdfGridHelper.getHelper(_grid!).isChildGrid;
         if (largeNavigatePage[0][0]!.toInt() != 0) {
-          final PdfSection section = _currentPage!._section!;
-          final int pageIndex = section._indexOf(_currentPage!);
-          if (section._count > pageIndex + largeNavigatePage[0][0]!.toInt()) {
-            _currentPage = section
-                ._getPageByIndex(pageIndex + largeNavigatePage[0][0]!.toInt());
+          final PdfSection section =
+              PdfPageHelper.getHelper(_currentPage!).section!;
+          final int pageIndex =
+              PdfSectionHelper.getHelper(section).indexOf(_currentPage!);
+          if (PdfSectionHelper.getHelper(section).count >
+              pageIndex + largeNavigatePage[0][0]!.toInt()) {
+            _currentPage = PdfSectionHelper.getHelper(section)
+                .getPageByIndex(pageIndex + largeNavigatePage[0][0]!.toInt());
           } else {
             _currentPage = PdfPage();
-            section._isNewPageSection = true;
-            section._add(_currentPage!);
-            section._isNewPageSection = false;
+            PdfSectionHelper.getHelper(section).isNewPageSection = true;
+            PdfSectionHelper.getHelper(section).add(_currentPage!);
+            PdfSectionHelper.getHelper(section).isNewPageSection = false;
           }
           _currentGraphics = _currentPage!.graphics;
-          _currentBounds = _Rectangle(0, 0, _currentGraphics!.clientSize.width,
+          _currentBounds = PdfRectangle(
+              0,
+              0,
+              _currentGraphics!.clientSize.width,
               _currentGraphics!.clientSize.height);
-          final int pageindex = _currentGraphics!._page!._section!
-              ._indexOf(_currentGraphics!._page!);
-          if (!_grid!._listOfNavigatePages.contains(pageindex)) {
-            _grid!._listOfNavigatePages.add(pageindex);
+          final int pageindex = PdfSectionHelper.getHelper(
+                  PdfPageHelper.getHelper(
+                          PdfGraphicsHelper.getHelper(_currentGraphics!).page!)
+                      .section!)
+              .indexOf(PdfGraphicsHelper.getHelper(_currentGraphics!).page!);
+          if (!PdfGridHelper.getHelper(_grid!)
+              .listOfNavigatePages
+              .contains(pageindex)) {
+            PdfGridHelper.getHelper(_grid!).listOfNavigatePages.add(pageindex);
           }
         } else {
-          _currentPage = getNextPage(format);
+          _currentPage = _getNextPage(format);
         }
-        final _Point location = _Point(_grid!._defaultBorder.right.width / 2,
-            _grid!._defaultBorder.top.width / 2);
-        if (_Rectangle.fromRect(format.paginateBounds) == _Rectangle.empty &&
+        final PdfPoint location = PdfPoint(
+            PdfGridHelper.getHelper(_grid!).defaultBorder.right.width / 2,
+            PdfGridHelper.getHelper(_grid!).defaultBorder.top.width / 2);
+        if (PdfRectangle.fromRect(format.paginateBounds) ==
+                PdfRectangle.empty &&
             _startLocation == location) {
           _currentBounds.x = _currentBounds.x + _startLocation.x;
           _currentBounds.y = _currentBounds.y + _startLocation.y;
@@ -625,37 +854,40 @@ class _PdfGridLayouter extends _ElementLayouter {
 
   bool _drawParentGridRow(PdfGrid grid) {
     bool present = false;
-    grid._isDrawn = true;
+    PdfGridHelper.getHelper(grid).isDrawn = true;
     double? y = _currentBounds.y;
     for (int rowIndex = 0; rowIndex < grid.rows.count; rowIndex++) {
       final PdfGridRow row = grid.rows[rowIndex];
       final PdfGridCell cell = row.cells[_cellStartIndex];
       cell.value = '';
-      final _Point location = _Point(_currentBounds.x, _currentBounds.y);
+      final PdfPoint location = PdfPoint(_currentBounds.x, _currentBounds.y);
       double width = grid.columns[_cellStartIndex].width;
       if (width > _currentGraphics!.clientSize.width) {
         width = _currentGraphics!.clientSize.width - 2 * location.x;
       }
       final double height = row.height > cell.height ? row.height : cell.height;
       if (_isChildGrid!) {
-        cell._draw(_currentGraphics,
-            _Rectangle(location.x, location.y, width, height), false);
+        PdfGridCellHelper.getHelper(cell).draw(_currentGraphics,
+            PdfRectangle(location.x, location.y, width, height), false);
       }
       _currentBounds.y = _currentBounds.y + height;
     }
     for (int j = 0; j < grid.rows.count; j++) {
-      if (grid.rows[j].cells[_cellStartIndex]._present) {
+      if (PdfGridCellHelper.getHelper(grid.rows[j].cells[_cellStartIndex])
+          .present) {
         present = true;
         if (grid.rows[j].cells[_cellStartIndex].value is PdfGrid) {
           final PdfGrid? childGrid =
               grid.rows[j].cells[_cellStartIndex].value as PdfGrid?;
-          grid.rows[j].cells[_cellStartIndex]._present = false;
+          PdfGridCellHelper.getHelper(grid.rows[j].cells[_cellStartIndex])
+              .present = false;
           if (childGrid == _grid) {
             if (!_isChildGrid!) {
               _currentBounds.y = y!;
             } else {
               if (j == 0) {
-                _currentBounds.y = _currentBounds.y - grid._size.height;
+                _currentBounds.y = _currentBounds.y -
+                    PdfGridHelper.getHelper(grid).size.height;
               } else {
                 int k = j;
                 while (k < grid.rows.count) {
@@ -664,7 +896,7 @@ class _PdfGridLayouter extends _ElementLayouter {
                 }
               }
             }
-            childGrid!._isDrawn = true;
+            PdfGridHelper.getHelper(childGrid!).isDrawn = true;
             grid.rows[j].cells[_cellStartIndex].value = childGrid;
             _currentBounds.x = _currentBounds.x +
                 grid.style.cellPadding.left +
@@ -690,7 +922,8 @@ class _PdfGridLayouter extends _ElementLayouter {
                 grid.style.cellPadding.bottom;
             final bool isPresent = _drawParentGridRow(childGrid!);
             if (!isPresent) {
-              _currentBounds.y = _currentBounds.y - childGrid._size.height;
+              _currentBounds.y = _currentBounds.y -
+                  PdfGridHelper.getHelper(childGrid).size.height;
             }
             _isChildGrid = false;
             break;
@@ -711,11 +944,12 @@ class _PdfGridLayouter extends _ElementLayouter {
       _RowLayoutResult result = _RowLayoutResult();
       double rowHeightWithSpan = 0;
       bool isHeader = false;
-      if (row!._rowSpanExists) {
-        int currRowIndex = _grid!.rows._indexOf(row);
-        int maxSpan = row._maximumRowSpan;
+      if (PdfGridRowHelper.getHelper(row!).rowSpanExists) {
+        int currRowIndex = PdfGridRowCollectionHelper.indexOf(_grid!.rows, row);
+        int maxSpan = PdfGridRowHelper.getHelper(row).maximumRowSpan;
         if (currRowIndex == -1) {
-          currRowIndex = _grid!.headers._indexOf(row);
+          currRowIndex = PdfGridHeaderCollectionHelper.getHelper(_grid!.headers)
+              .indexOf(row);
           if (currRowIndex != -1) {
             isHeader = true;
           }
@@ -726,9 +960,9 @@ class _PdfGridLayouter extends _ElementLayouter {
         }
         if ((rowHeightWithSpan > _currentBounds.height ||
                 rowHeightWithSpan + _currentBounds.y > _currentBounds.height) &&
-            !row._isPageBreakRowSpanApplied) {
+            !PdfGridRowHelper.getHelper(row).isPageBreakRowSpanApplied) {
           rowHeightWithSpan = 0;
-          row._isPageBreakRowSpanApplied = true;
+          PdfGridRowHelper.getHelper(row).isPageBreakRowSpanApplied = true;
           for (int cellIndex = 0; cellIndex < row.cells.count; cellIndex++) {
             final PdfGridCell cell = row.cells[cellIndex];
             maxSpan = cell.rowSpan;
@@ -747,8 +981,8 @@ class _PdfGridLayouter extends _ElementLayouter {
                       (_grid!.rows[currRowIndex].cells[j].rowSpan == maxSpan)) {
                     _grid!.rows[currRowIndex].cells[j].rowSpan =
                         newSpan == 0 ? 1 : newSpan;
-                    _grid!.rows[currRowIndex]._maximumRowSpan =
-                        newSpan == 0 ? 1 : newSpan;
+                    PdfGridRowHelper.getHelper(_grid!.rows[currRowIndex])
+                        .maximumRowSpan = newSpan == 0 ? 1 : newSpan;
                     _grid!.rows[i].cells[j].rowSpan = maxSpan - newSpan;
                     PdfGrid? pdfGrid;
                     if (_grid!.rows[currRowIndex].cells[j].value is PdfGrid) {
@@ -764,7 +998,7 @@ class _PdfGridLayouter extends _ElementLayouter {
                         _grid!.rows[currRowIndex].cells[j].columnSpan;
                     if (pdfGrid is PdfGrid &&
                         _currentBounds.y +
-                                pdfGrid._size.height +
+                                PdfGridHelper.getHelper(pdfGrid).size.height +
                                 _grid!.rows[i].height +
                                 pdfGrid.style.cellPadding.top +
                                 pdfGrid.style.cellPadding.bottom >=
@@ -776,9 +1010,11 @@ class _PdfGridLayouter extends _ElementLayouter {
                           _grid!.rows[currRowIndex].cells[j].value;
                     }
                     if (i > 0) {
-                      _grid!.rows[i - 1]._rowSpanExists = true;
+                      PdfGridRowHelper.getHelper(_grid!.rows[i - 1])
+                          .rowSpanExists = true;
                     }
-                    _grid!.rows[i].cells[j]._isRowMergeContinue = false;
+                    PdfGridCellHelper.getHelper(_grid!.rows[i].cells[j])
+                        .isRowMergeContinue = false;
                   } else if (isHeader &&
                       (_grid!.headers[currRowIndex].cells[j].rowSpan ==
                           maxSpan)) {
@@ -793,8 +1029,10 @@ class _PdfGridLayouter extends _ElementLayouter {
                         _grid!.headers[currRowIndex].cells[j].columnSpan;
                     _grid!.headers[i].cells[j].value =
                         _grid!.headers[currRowIndex].cells[j].value;
-                    _grid!.headers[i - 1]._rowSpanExists = false;
-                    _grid!.headers[i].cells[j]._isRowMergeContinue = false;
+                    PdfGridRowHelper.getHelper(_grid!.headers[i - 1])
+                        .rowSpanExists = false;
+                    PdfGridCellHelper.getHelper(_grid!.headers[i].cells[j])
+                        .isRowMergeContinue = false;
                   }
                 }
                 break;
@@ -804,49 +1042,108 @@ class _PdfGridLayouter extends _ElementLayouter {
           }
         }
       }
-      double? height =
-          row._rowBreakHeight > 0.0 ? row._rowBreakHeight : row.height;
-      if (_grid!._isChildGrid! && _grid!._parentCell != null) {
+      double? height = PdfGridRowHelper.getHelper(row).rowBreakHeight > 0.0
+          ? PdfGridRowHelper.getHelper(row).rowBreakHeight
+          : row.height;
+      if (PdfGridHelper.getHelper(_grid!).isChildGrid! &&
+          PdfGridHelper.getHelper(_grid!).parentCell != null) {
         if (height +
-                _grid!._parentCell!._row!._grid.style.cellPadding.bottom +
-                _grid!._parentCell!._row!._grid.style.cellPadding.top >
+                PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                            PdfGridHelper.getHelper(_grid!).parentCell!)
+                        .row!)
+                    .grid
+                    .style
+                    .cellPadding
+                    .bottom +
+                PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                            PdfGridHelper.getHelper(_grid!).parentCell!)
+                        .row!)
+                    .grid
+                    .style
+                    .cellPadding
+                    .top >
             _currentPageBounds.height) {
           if (_grid!.allowRowBreakingAcrossPages) {
             result.isFinish = true;
-            if (_grid!._isChildGrid! && row._rowBreakHeight > 0) {
+            if (PdfGridHelper.getHelper(_grid!).isChildGrid! &&
+                PdfGridRowHelper.getHelper(row).rowBreakHeight > 0) {
               _currentBounds.y = _currentBounds.y +
-                  _grid!._parentCell!._row!._grid.style.cellPadding.top;
+                  PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                              PdfGridHelper.getHelper(_grid!).parentCell!)
+                          .row!)
+                      .grid
+                      .style
+                      .cellPadding
+                      .top;
               _currentBounds.x = _startLocation.x;
             }
             result.bounds = _currentBounds;
             result = _drawRowWithBreak(row, result, height);
           } else {
             _currentBounds.y = _currentBounds.y +
-                _grid!._parentCell!._row!._grid.style.cellPadding.top;
+                PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                            PdfGridHelper.getHelper(_grid!).parentCell!)
+                        .row!)
+                    .grid
+                    .style
+                    .cellPadding
+                    .top;
             height = _currentBounds.height -
                 _currentBounds.y -
-                _grid!._parentCell!._row!._grid.style.cellPadding.bottom;
+                PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                            PdfGridHelper.getHelper(_grid!).parentCell!)
+                        .row!)
+                    .grid
+                    .style
+                    .cellPadding
+                    .bottom;
             result.isFinish = false;
             _drawRow(row, result, height);
           }
         } else if (_currentBounds.y +
-                    _grid!._parentCell!._row!._grid.style.cellPadding.bottom +
+                    PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                                PdfGridHelper.getHelper(_grid!).parentCell!)
+                            .row!)
+                        .grid
+                        .style
+                        .cellPadding
+                        .bottom +
                     height >
                 _currentPageBounds.height ||
             _currentBounds.y +
-                    _grid!._parentCell!._row!._grid.style.cellPadding.bottom +
+                    PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                                PdfGridHelper.getHelper(_grid!).parentCell!)
+                            .row!)
+                        .grid
+                        .style
+                        .cellPadding
+                        .bottom +
                     height >
                 _currentBounds.height ||
             _currentBounds.y +
-                    _grid!._parentCell!._row!._grid.style.cellPadding.bottom +
+                    PdfGridRowHelper.getHelper(
+                            PdfGridCellHelper.getHelper(PdfGridHelper.getHelper(_grid!).parentCell!)
+                                .row!)
+                        .grid
+                        .style
+                        .cellPadding
+                        .bottom +
                     rowHeightWithSpan >
                 _currentPageBounds.height) {
-          if (_repeatRowIndex > -1 && _repeatRowIndex == row._index) {
+          if (repeatRowIndex > -1 &&
+              repeatRowIndex == PdfGridRowHelper.getHelper(row).index) {
             if (_grid!.allowRowBreakingAcrossPages) {
               result.isFinish = true;
-              if (_grid!._isChildGrid! && row._rowBreakHeight > 0) {
+              if (PdfGridHelper.getHelper(_grid!).isChildGrid! &&
+                  PdfGridRowHelper.getHelper(row).rowBreakHeight > 0) {
                 _currentBounds.y = _currentBounds.y +
-                    _grid!._parentCell!._row!._grid.style.cellPadding.top;
+                    PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                                PdfGridHelper.getHelper(_grid!).parentCell!)
+                            .row!)
+                        .grid
+                        .style
+                        .cellPadding
+                        .top;
 
                 _currentBounds.x = _startLocation.x;
               }
@@ -861,8 +1158,15 @@ class _PdfGridLayouter extends _ElementLayouter {
           }
         } else {
           result.isFinish = true;
-          if (_grid!._isChildGrid! && row._rowBreakHeight > 0) {
-            height += _grid!._parentCell!._row!._grid.style.cellPadding.bottom;
+          if (PdfGridHelper.getHelper(_grid!).isChildGrid! &&
+              PdfGridRowHelper.getHelper(row).rowBreakHeight > 0) {
+            height += PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                        PdfGridHelper.getHelper(_grid!).parentCell!)
+                    .row!)
+                .grid
+                .style
+                .cellPadding
+                .bottom;
           }
           _drawRow(row, result, height);
         }
@@ -878,7 +1182,8 @@ class _PdfGridLayouter extends _ElementLayouter {
         } else if (_currentBounds.y + height > _currentPageBounds.height ||
             _currentBounds.y + height > _currentBounds.height ||
             _currentBounds.y + rowHeightWithSpan > _currentPageBounds.height) {
-          if (_repeatRowIndex > -1 && _repeatRowIndex == row._index) {
+          if (repeatRowIndex > -1 &&
+              repeatRowIndex == PdfGridRowHelper.getHelper(row).index) {
             if (_grid!.allowRowBreakingAcrossPages) {
               result.isFinish = true;
               result = _drawRowWithBreak(row, result, height);
@@ -897,28 +1202,32 @@ class _PdfGridLayouter extends _ElementLayouter {
       return result;
     } else {
       bool? skipcell = false;
-      final _Point location = _currentBounds.location;
-      if (row!._grid._isChildGrid! &&
-          row._grid.allowRowBreakingAcrossPages &&
+      final PdfPoint location = _currentBounds.location;
+      if (PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
+              .isChildGrid! &&
+          PdfGridRowHelper.getHelper(row).grid.allowRowBreakingAcrossPages &&
           _startLocation.x != _currentBounds.x &&
-          row._getWidth() < _currentPage!.getClientSize().width) {
+          PdfGridRowHelper.getHelper(row).getWidth() <
+              _currentPage!.getClientSize().width) {
         location.x = _startLocation.x;
       }
-      result!.bounds = _Rectangle(location.x, location.y, 0, 0);
+      result!.bounds = PdfRectangle(location.x, location.y, 0, 0);
       height = _reCalculateHeight(row, height!);
       for (int i = _cellStartIndex; i <= _cellEndIndex; i++) {
         final bool cancelSpans =
             i > _cellEndIndex + 1 && row.cells[i].columnSpan > 1;
         if (!cancelSpans) {
           for (int j = 1; j < row.cells[i].columnSpan; j++) {
-            row.cells[i + j]._isCellMergeContinue = true;
+            PdfGridCellHelper.getHelper(row.cells[i + j]).isCellMergeContinue =
+                true;
           }
         }
-        final _Size size = _Size(_grid!.columns[i].width, height);
+        final PdfSize size = PdfSize(_grid!.columns[i].width, height);
         if (size.width > _currentGraphics!.clientSize.width) {
           size.width = _currentGraphics!.clientSize.width;
         }
-        if (_grid!._isChildGrid! && _grid!.style.allowHorizontalOverflow) {
+        if (PdfGridHelper.getHelper(_grid!).isChildGrid! &&
+            _grid!.style.allowHorizontalOverflow) {
           if (size.width >= _currentGraphics!.clientSize.width) {
             size.width = size.width - 2 * _currentBounds.x;
           }
@@ -931,12 +1240,14 @@ class _PdfGridLayouter extends _ElementLayouter {
         PdfGridCellStyle cellstyle = row.cells[i].style;
         final Map<String, dynamic> bclResult = _raiseBeforeCellLayout(
             _currentGraphics,
-            row._isHeaderRow ? _currentHeaderRowIndex : _currentRowIndex,
+            PdfGridRowHelper.getHelper(row).isHeaderRow
+                ? _currentHeaderRowIndex
+                : _currentRowIndex,
             i,
-            _Rectangle(location.x, location.y, size.width, size.height),
+            PdfRectangle(location.x, location.y, size.width, size.height),
             (row.cells[i].value is String) ? row.cells[i].value.toString() : '',
             cellstyle,
-            row._isHeaderRow);
+            PdfGridRowHelper.getHelper(row).isHeaderRow);
         cellstyle = bclResult['style'] as PdfGridCellStyle;
         final PdfGridBeginCellLayoutArgs? gridbclArgs =
             bclResult['args'] as PdfGridBeginCellLayoutArgs?;
@@ -947,30 +1258,41 @@ class _PdfGridLayouter extends _ElementLayouter {
         if (!skipcell!) {
           if (row.cells[i].value is PdfGrid) {
             final PdfGrid grid = row.cells[i].value as PdfGrid;
-            grid._parentCellIndex = i;
+            PdfGridHelper.getHelper(grid).parentCellIndex = i;
           }
-          final _PdfStringLayoutResult? stringResult = row.cells[i]._draw(
-              _currentGraphics,
-              _Rectangle(location.x, location.y, size.width, size.height),
-              cancelSpans);
-          if (row._grid.style.allowHorizontalOverflow &&
+          final PdfStringLayoutResult? stringResult =
+              PdfGridCellHelper.getHelper(row.cells[i]).draw(
+                  _currentGraphics,
+                  PdfRectangle(location.x, location.y, size.width, size.height),
+                  cancelSpans);
+          if (PdfGridRowHelper.getHelper(row)
+                  .grid
+                  .style
+                  .allowHorizontalOverflow &&
               (row.cells[i].columnSpan > _cellEndIndex ||
                   i + row.cells[i].columnSpan > _cellEndIndex + 1) &&
               _cellEndIndex < row.cells.count - 1) {
-            row._rowOverflowIndex = _cellEndIndex;
+            PdfGridRowHelper.getHelper(row).rowOverflowIndex = _cellEndIndex;
           }
-          if (row._grid.style.allowHorizontalOverflow &&
-              (row._rowOverflowIndex > 0 &&
+          if (PdfGridRowHelper.getHelper(row)
+                  .grid
+                  .style
+                  .allowHorizontalOverflow &&
+              (PdfGridRowHelper.getHelper(row).rowOverflowIndex >= 0 &&
                   (row.cells[i].columnSpan > _cellEndIndex ||
                       i + row.cells[i].columnSpan > _cellEndIndex + 1)) &&
               row.cells[i].columnSpan - _cellEndIndex + i - 1 > 0) {
-            row.cells[row._rowOverflowIndex + 1].value =
-                stringResult != null ? stringResult._remainder : null;
-            row.cells[row._rowOverflowIndex + 1].stringFormat =
-                row.cells[i].stringFormat;
-            row.cells[row._rowOverflowIndex + 1].style = row.cells[i].style;
-            row.cells[row._rowOverflowIndex + 1].columnSpan =
-                row.cells[i].columnSpan - _cellEndIndex + i - 1;
+            row.cells[PdfGridRowHelper.getHelper(row).rowOverflowIndex + 1]
+                    .value =
+                stringResult != null && stringResult.remainder != null
+                    ? stringResult.remainder
+                    : '';
+            row.cells[PdfGridRowHelper.getHelper(row).rowOverflowIndex + 1]
+                .stringFormat = row.cells[i].stringFormat;
+            row.cells[PdfGridRowHelper.getHelper(row).rowOverflowIndex + 1]
+                .style = row.cells[i].style;
+            row.cells[PdfGridRowHelper.getHelper(row).rowOverflowIndex + 1]
+                .columnSpan = row.cells[i].columnSpan - _cellEndIndex + i - 1;
           }
         }
 
@@ -979,26 +1301,34 @@ class _PdfGridLayouter extends _ElementLayouter {
               _currentGraphics,
               _currentRowIndex,
               i,
-              _Rectangle(location.x, location.y, size.width, size.height),
+              PdfRectangle(location.x, location.y, size.width, size.height),
               (row.cells[i].value is String)
                   ? row.cells[i].value.toString()
                   : '',
               row.cells[i].style,
-              row._isHeaderRow);
+              PdfGridRowHelper.getHelper(row).isHeaderRow);
         }
 
         if (row.cells[i].value is PdfGrid) {
           final PdfGrid grid = row.cells[i].value as PdfGrid;
-          row.cells[i]._pageCount = grid._listOfNavigatePages.length;
+          PdfGridCellHelper.getHelper(row.cells[i]).pageCount =
+              PdfGridHelper.getHelper(grid).listOfNavigatePages.length;
           _rowBreakPageHeightCellIndex = i;
-          for (int k = 0; k < grid._listOfNavigatePages.length; k++) {
-            final int pageIndex = grid._listOfNavigatePages[k];
-            if (!_grid!._listOfNavigatePages.contains(pageIndex)) {
-              _grid!._listOfNavigatePages.add(pageIndex);
+          for (int k = 0;
+              k < PdfGridHelper.getHelper(grid).listOfNavigatePages.length;
+              k++) {
+            final int pageIndex =
+                PdfGridHelper.getHelper(grid).listOfNavigatePages[k];
+            if (!PdfGridHelper.getHelper(_grid!)
+                .listOfNavigatePages
+                .contains(pageIndex)) {
+              PdfGridHelper.getHelper(_grid!)
+                  .listOfNavigatePages
+                  .add(pageIndex);
             }
           }
           if (_grid!.columns[i].width >= _currentGraphics!.clientSize.width) {
-            location.x = grid._rowLayoutBoundswidth;
+            location.x = PdfGridHelper.getHelper(grid).rowLayoutBoundswidth;
             location.x = location.x + grid.style.cellSpacing;
           } else {
             location.x = location.x + _grid!.columns[i].width;
@@ -1007,11 +1337,12 @@ class _PdfGridLayouter extends _ElementLayouter {
           location.x = location.x + _grid!.columns[i].width;
         }
       }
-      if (!row._rowMergeComplete || row._isRowHeightSet) {
+      if (!PdfGridRowHelper.getHelper(row).rowMergeComplete ||
+          PdfGridRowHelper.getHelper(row).isRowHeightSet) {
         _currentBounds.y = _currentBounds.y + height;
       }
-      result.bounds =
-          _Rectangle(result.bounds.x, result.bounds.y, location.x, location.y);
+      result.bounds = PdfRectangle(
+          result.bounds.x, result.bounds.y, location.x, location.y);
       return null;
     }
   }
@@ -1019,9 +1350,12 @@ class _PdfGridLayouter extends _ElementLayouter {
   double _reCalculateHeight(PdfGridRow? row, double height) {
     double newHeight = 0.0;
     for (int i = _cellStartIndex; i <= _cellEndIndex; i++) {
-      if (row!.cells[i]._remainingString != null &&
-          row.cells[i]._remainingString!.isNotEmpty) {
-        newHeight = max(newHeight, row.cells[i]._measureHeight());
+      if (PdfGridCellHelper.getHelper(row!.cells[i]).remainingString != null &&
+          PdfGridCellHelper.getHelper(row.cells[i])
+              .remainingString!
+              .isNotEmpty) {
+        newHeight = max(newHeight,
+            PdfGridCellHelper.getHelper(row.cells[i]).measureHeight());
       }
     }
     return max(height, newHeight);
@@ -1029,33 +1363,34 @@ class _PdfGridLayouter extends _ElementLayouter {
 
   _RowLayoutResult _drawRowWithBreak(
       PdfGridRow row, _RowLayoutResult result, double? height) {
-    final _Point location = _currentBounds.location;
-    if (row._grid._isChildGrid! &&
-        row._grid.allowRowBreakingAcrossPages &&
+    final PdfPoint location = _currentBounds.location;
+    if (PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+            .isChildGrid! &&
+        PdfGridRowHelper.getHelper(row).grid.allowRowBreakingAcrossPages &&
         _startLocation.x != _currentBounds.x) {
       location.x = _startLocation.x;
     }
-    result.bounds = _Rectangle(location.x, location.y, 0, 0);
-    _newheight = row._rowBreakHeight > 0
+    result.bounds = PdfRectangle(location.x, location.y, 0, 0);
+    _newheight = PdfGridRowHelper.getHelper(row).rowBreakHeight > 0
         ? _currentBounds.height < _currentPageBounds.height
             ? _currentBounds.height
             : _currentPageBounds.height
         : 0;
-    if (row._grid.style.cellPadding.top +
+    if (PdfGridRowHelper.getHelper(row).grid.style.cellPadding.top +
             _currentBounds.y +
-            row._grid.style.cellPadding.bottom <
+            PdfGridRowHelper.getHelper(row).grid.style.cellPadding.bottom <
         _currentPageBounds.height) {
-      row._rowBreakHeight =
+      PdfGridRowHelper.getHelper(row).rowBreakHeight =
           _currentBounds.y + height! - _currentPageBounds.height;
     } else {
-      row._rowBreakHeight = height!;
+      PdfGridRowHelper.getHelper(row).rowBreakHeight = height!;
       result.isFinish = false;
       return result;
     }
     for (int cellIndex = 0; cellIndex < row.cells.count; cellIndex++) {
       final PdfGridCell cell = row.cells[cellIndex];
-      if (cell._measureHeight() == height) {
-        row._rowBreakHeight = cell.value is PdfGrid
+      if (PdfGridCellHelper.getHelper(cell).measureHeight() == height) {
+        PdfGridRowHelper.getHelper(row).rowBreakHeight = cell.value is PdfGrid
             ? 0
             : _currentBounds.y + height - _currentBounds.height <
                     _currentPageBounds.height
@@ -1069,10 +1404,11 @@ class _PdfGridLayouter extends _ElementLayouter {
               row.cells[i].columnSpan > 1;
       if (!cancelSpans) {
         for (int j = 1; j < row.cells[i].columnSpan; j++) {
-          row.cells[i + j]._isCellMergeContinue = true;
+          PdfGridCellHelper.getHelper(row.cells[i + j]).isCellMergeContinue =
+              true;
         }
       }
-      _Size size = _Size(
+      PdfSize size = PdfSize(
           _grid!.columns[i].width,
           _newheight > 0.0
               ? _newheight
@@ -1080,7 +1416,7 @@ class _PdfGridLayouter extends _ElementLayouter {
                   ? _currentBounds.height
                   : _currentPageBounds.height);
       if (size.width == 0) {
-        size = _Size(row.cells[i].width, size.height);
+        size = PdfSize(row.cells[i].width, size.height);
       }
       if (!_checkIfDefaultFormat(_grid!.columns[i].format) &&
           _checkIfDefaultFormat(row.cells[i].stringFormat)) {
@@ -1089,59 +1425,71 @@ class _PdfGridLayouter extends _ElementLayouter {
       PdfGridCellStyle cellstyle = row.cells[i].style;
       final Map<String, dynamic> cellLayoutResult = _raiseBeforeCellLayout(
           _currentGraphics,
-          row._isHeaderRow ? _currentHeaderRowIndex : _currentRowIndex,
+          PdfGridRowHelper.getHelper(row).isHeaderRow
+              ? _currentHeaderRowIndex
+              : _currentRowIndex,
           i,
-          _Rectangle(location.x, location.y, size.width, size.height),
+          PdfRectangle(location.x, location.y, size.width, size.height),
           row.cells[i].value is String ? row.cells[i].value.toString() : '',
           cellstyle,
-          row._isHeaderRow);
+          PdfGridRowHelper.getHelper(row).isHeaderRow);
       cellstyle = cellLayoutResult['style'] as PdfGridCellStyle;
       final PdfGridBeginCellLayoutArgs? bclArgs =
           cellLayoutResult['args'] as PdfGridBeginCellLayoutArgs?;
       row.cells[i].style = cellstyle;
       final bool skipcell = bclArgs != null && bclArgs.skip;
-      _PdfStringLayoutResult? stringResult;
+      PdfStringLayoutResult? stringResult;
       if (!skipcell) {
-        stringResult = row.cells[i]._draw(
+        stringResult = PdfGridCellHelper.getHelper(row.cells[i]).draw(
             _currentGraphics,
-            _Rectangle(location.x, location.y, size.width, size.height),
+            PdfRectangle(location.x, location.y, size.width, size.height),
             cancelSpans);
       }
-      if (row._rowBreakHeight > 0.0) {
+      if (PdfGridRowHelper.getHelper(row).rowBreakHeight > 0.0) {
         if (stringResult != null) {
-          row.cells[i]._finished = false;
-          row.cells[i]._remainingString = stringResult._remainder ?? '';
-          if (row._grid._isChildGrid!) {
-            row._rowBreakHeight = height - stringResult._size.height;
+          PdfGridCellHelper.getHelper(row.cells[i]).finished = false;
+          PdfGridCellHelper.getHelper(row.cells[i]).remainingString =
+              stringResult.remainder ?? '';
+          if (PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row).grid)
+              .isChildGrid!) {
+            PdfGridRowHelper.getHelper(row).rowBreakHeight =
+                height - stringResult.size.height;
           }
         } else if (row.cells[i].value is PdfImage) {
-          row.cells[i]._finished = false;
+          PdfGridCellHelper.getHelper(row.cells[i]).finished = false;
         }
       }
-      result.isFinish =
-          (!result.isFinish) ? result.isFinish : row.cells[i]._finished;
+      result.isFinish = (!result.isFinish)
+          ? result.isFinish
+          : PdfGridCellHelper.getHelper(row.cells[i]).finished;
       if (!cancelSpans) {
         _raiseAfterCellLayout(
             _currentGraphics,
             _currentRowIndex,
             i,
-            _Rectangle(location.x, location.y, size.width, size.height),
+            PdfRectangle(location.x, location.y, size.width, size.height),
             (row.cells[i].value is String) ? row.cells[i].value.toString() : '',
             row.cells[i].style,
-            row._isHeaderRow);
+            PdfGridRowHelper.getHelper(row).isHeaderRow);
       }
       if (row.cells[i].value is PdfGrid) {
         final PdfGrid grid = row.cells[i].value as PdfGrid;
         _rowBreakPageHeightCellIndex = i;
-        row.cells[i]._pageCount = grid._listOfNavigatePages.length;
-        for (int i = 0; i < grid._listOfNavigatePages.length; i++) {
-          final int pageIndex = grid._listOfNavigatePages[i];
-          if (!_grid!._listOfNavigatePages.contains(pageIndex)) {
-            _grid!._listOfNavigatePages.add(pageIndex);
+        PdfGridCellHelper.getHelper(row.cells[i]).pageCount =
+            PdfGridHelper.getHelper(grid).listOfNavigatePages.length;
+        for (int i = 0;
+            i < PdfGridHelper.getHelper(grid).listOfNavigatePages.length;
+            i++) {
+          final int pageIndex =
+              PdfGridHelper.getHelper(grid).listOfNavigatePages[i];
+          if (!PdfGridHelper.getHelper(_grid!)
+              .listOfNavigatePages
+              .contains(pageIndex)) {
+            PdfGridHelper.getHelper(_grid!).listOfNavigatePages.add(pageIndex);
           }
         }
         if (_grid!.columns[i].width >= _currentGraphics!.clientSize.width) {
-          location.x = grid._rowLayoutBoundswidth;
+          location.x = PdfGridHelper.getHelper(grid).rowLayoutBoundswidth;
           location.x = location.x + grid.style.cellSpacing;
         } else {
           location.x = location.x + _grid!.columns[i].width;
@@ -1153,7 +1501,7 @@ class _PdfGridLayouter extends _ElementLayouter {
     _currentBounds.y =
         _currentBounds.y + (_newheight > 0.0 ? _newheight : height);
     result.bounds =
-        _Rectangle(result.bounds.x, result.bounds.y, location.x, location.y);
+        PdfRectangle(result.bounds.x, result.bounds.y, location.x, location.y);
     return result;
   }
 
@@ -1162,8 +1510,10 @@ class _PdfGridLayouter extends _ElementLayouter {
     return format.alignment == defaultFormat.alignment &&
         format.characterSpacing == defaultFormat.characterSpacing &&
         format.clipPath == defaultFormat.clipPath &&
-        format._firstLineIndent == defaultFormat._firstLineIndent &&
-        format._scalingFactor == defaultFormat._scalingFactor &&
+        PdfStringFormatHelper.getHelper(format).firstLineIndent ==
+            PdfStringFormatHelper.getHelper(defaultFormat).firstLineIndent &&
+        PdfStringFormatHelper.getHelper(format).scalingFactor ==
+            PdfStringFormatHelper.getHelper(defaultFormat).scalingFactor &&
         format.lineAlignment == defaultFormat.lineAlignment &&
         format.lineLimit == defaultFormat.lineLimit &&
         format.lineSpacing == defaultFormat.lineSpacing &&
@@ -1177,12 +1527,13 @@ class _PdfGridLayouter extends _ElementLayouter {
   }
 
   void _reArrangeLayoutedPages(Map<PdfPage?, List<int>> layoutedPages) {
-    final PdfDocument? document = _currentPage!._document;
+    final PdfDocument? document =
+        PdfPageHelper.getHelper(_currentPage!).document;
     final List<PdfPage?> pages = layoutedPages.keys.toList();
     for (int i = 0; i < pages.length; i++) {
       final PdfPage page = pages[i]!;
-      page._section = null;
-      document!.pages._remove(page);
+      PdfPageHelper.getHelper(page).section = null;
+      PdfPageCollectionHelper.getHelper(document!.pages).remove(page);
     }
     for (int i = 0; i < layoutedPages.length; i++) {
       for (int j = i;
@@ -1190,7 +1541,7 @@ class _PdfGridLayouter extends _ElementLayouter {
           j += layoutedPages.length ~/ _columnRanges!.length) {
         final PdfPage page = pages[j]!;
         if (document!.pages.indexOf(page) == -1) {
-          document.pages._addPage(page);
+          PdfPageCollectionHelper.getHelper(document.pages).addPage(page);
         }
       }
     }
@@ -1198,27 +1549,28 @@ class _PdfGridLayouter extends _ElementLayouter {
 
   void _reArrangePages(PdfPage page) {
     final List<PdfPage?> pages = <PdfPage?>[];
-    int pageCount = page._document!.pages.count;
-    int m = 0;
+    final PdfDocument document = PdfPageHelper.getHelper(page).document!;
+    int pageCount = document.pages.count;
+    int m = document.pages.indexOf(page);
     int n = _columnRanges!.length;
     if (pageCount <= _columnRanges!.length) {
       for (int i = 0; i < _columnRanges!.length; i++) {
-        page._document!.pages.add();
-        if (page._document!.pages.count > _columnRanges!.length + 1) {
+        document.pages.add();
+        if (document.pages.count > _columnRanges!.length) {
           break;
         }
       }
     }
-    pageCount = page._document!.pages.count;
+    pageCount = document.pages.count;
     for (int i = 0; i < pageCount; i++) {
       if (m < pageCount && pages.length != pageCount) {
-        final PdfPage tempPage = page._document!.pages[m];
+        final PdfPage tempPage = document.pages[m];
         if (!pages.contains(tempPage)) {
           pages.add(tempPage);
         }
       }
       if (n < pageCount && pages.length != pageCount) {
-        final PdfPage tempPage = page._document!.pages[n];
+        final PdfPage tempPage = document.pages[n];
         if (!pages.contains(tempPage)) {
           pages.add(tempPage);
         }
@@ -1229,46 +1581,50 @@ class _PdfGridLayouter extends _ElementLayouter {
       m++;
       n++;
     }
-    final PdfDocument? document = page._document;
     for (int i = 0; i < pages.length; i++) {
       final PdfPage tempPage = pages[i]!;
-      tempPage._section = null;
-      document!.pages._remove(tempPage);
+      PdfPageHelper.getHelper(tempPage).section = null;
+      PdfPageCollectionHelper.getHelper(document.pages).remove(tempPage);
     }
     for (int i = 0; i < pages.length; i++) {
-      document!.pages._addPage(pages[i]!);
+      PdfPageCollectionHelper.getHelper(document.pages).addPage(pages[i]!);
     }
   }
 
-  PdfPage? getNextPage(PdfLayoutFormat format) {
-    final PdfSection section = _currentPage!._section!;
+  PdfPage? _getNextPage(PdfLayoutFormat format) {
+    final PdfSection section = PdfPageHelper.getHelper(_currentPage!).section!;
     PdfPage? nextPage;
-    final int index = section._indexOf(_currentPage!);
-    if (_currentPage!._document!.pages.count > 1 &&
+    final int index =
+        PdfSectionHelper.getHelper(section).indexOf(_currentPage!);
+    if (PdfPageHelper.getHelper(_currentPage!).document!.pages.count > 1 &&
         _hType == PdfHorizontalOverflowType.nextPage &&
         flag &&
         _columnRanges!.length > 1) {
-      _grid!._isRearranged = true;
+      PdfGridHelper.getHelper(_grid!).isRearranged = true;
       _reArrangePages(_currentPage!);
     }
     flag = false;
-    if (index == section._count - 1) {
+    if (index == PdfSectionHelper.getHelper(section).count - 1) {
       nextPage = PdfPage();
-      section._isNewPageSection = true;
-      section._add(nextPage);
-      section._isNewPageSection = false;
+      PdfSectionHelper.getHelper(section).isNewPageSection = true;
+      PdfSectionHelper.getHelper(section).add(nextPage);
+      PdfSectionHelper.getHelper(section).isNewPageSection = false;
     } else {
-      nextPage = section._getPageByIndex(index + 1);
+      nextPage = PdfSectionHelper.getHelper(section).getPageByIndex(index + 1);
     }
     _currentGraphics = nextPage!.graphics;
-    final int pageindex =
-        _currentGraphics!._page!._section!._indexOf(_currentGraphics!._page!);
-    if (!_grid!._listOfNavigatePages.contains(pageindex)) {
-      _grid!._listOfNavigatePages.add(pageindex);
+    final int pageindex = PdfSectionHelper.getHelper(PdfPageHelper.getHelper(
+                PdfGraphicsHelper.getHelper(_currentGraphics!).page!)
+            .section!)
+        .indexOf(PdfGraphicsHelper.getHelper(_currentGraphics!).page!);
+    if (!PdfGridHelper.getHelper(_grid!)
+        .listOfNavigatePages
+        .contains(pageindex)) {
+      PdfGridHelper.getHelper(_grid!).listOfNavigatePages.add(pageindex);
     }
-    _currentBounds = _Rectangle(0, 0, _currentGraphics!.clientSize.width,
+    _currentBounds = PdfRectangle(0, 0, _currentGraphics!.clientSize.width,
         _currentGraphics!.clientSize.height);
-    if (_Rectangle.fromRect(format.paginateBounds) != _Rectangle.empty) {
+    if (PdfRectangle.fromRect(format.paginateBounds) != PdfRectangle.empty) {
       _currentBounds.x = format.paginateBounds.left;
       _currentBounds.y = format.paginateBounds.top;
       _currentBounds.height = format.paginateBounds.height;
@@ -1277,11 +1633,12 @@ class _PdfGridLayouter extends _ElementLayouter {
   }
 
   PdfLayoutResult _getLayoutResult() {
-    if (_grid!._isChildGrid! && _grid!.allowRowBreakingAcrossPages) {
+    if (PdfGridHelper.getHelper(_grid!).isChildGrid! &&
+        _grid!.allowRowBreakingAcrossPages) {
       for (int rowIndex = 0; rowIndex < _grid!.rows.count; rowIndex++) {
         final PdfGridRow row = _grid!.rows[rowIndex];
-        if (row._rowBreakHeight > 0) {
-          _startLocation.y = _currentPage!._origin.dy;
+        if (PdfGridRowHelper.getHelper(row).rowBreakHeight > 0) {
+          _startLocation.y = PdfPageHelper.getHelper(_currentPage!).origin.dy;
         }
       }
     }
@@ -1290,21 +1647,22 @@ class _PdfGridLayouter extends _ElementLayouter {
             _currentBounds.width, _currentBounds.y - _currentLocation.y)
         : Rect.fromLTWH(_startLocation.x, _startLocation.y,
             _currentBounds.width, _currentBounds.y - _startLocation.y);
-    return PdfLayoutResult._(_currentPage!, bounds);
+    return PdfLayoutResultHelper.load(_currentPage!, bounds);
   }
 
   Map<String, dynamic> _raiseBeforePageLayout(
       PdfPage? currentPage, Rect currentBounds, int? currentRow) {
     bool cancel = false;
-    if (_element!._raiseBeginPageLayout) {
+    if (PdfLayoutElementHelper.getHelper(element!).raiseBeginPageLayout) {
       final PdfGridBeginPageLayoutArgs args =
-          PdfGridBeginPageLayoutArgs._(currentBounds, currentPage!, currentRow);
-      _element!._onBeginPageLayout(args);
-      if (_Rectangle.fromRect(currentBounds) !=
-          _Rectangle.fromRect(args.bounds)) {
+          PdfGridBeginPageLayoutArgsHelper.load(
+              currentBounds, currentPage!, currentRow);
+      PdfLayoutElementHelper.getHelper(element!).onBeginPageLayout(args);
+      if (PdfRectangle.fromRect(currentBounds) !=
+          PdfRectangle.fromRect(args.bounds)) {
         _isChanged = true;
-        _currentLocation = _Point(args.bounds.left, args.bounds.top);
-        _grid!._measureColumnsWidth(_Rectangle(
+        _currentLocation = PdfPoint(args.bounds.left, args.bounds.top);
+        PdfGridHelper.getHelper(_grid!).measureColumnsWidth(PdfRectangle(
             args.bounds.left,
             args.bounds.top,
             args.bounds.width + args.bounds.left,
@@ -1322,9 +1680,10 @@ class _PdfGridLayouter extends _ElementLayouter {
   }
 
   PdfGridEndPageLayoutArgs _raisePageLayouted(PdfLayoutResult result) {
-    final PdfGridEndPageLayoutArgs args = PdfGridEndPageLayoutArgs._(result);
-    if (_element!._raisePageLayouted) {
-      _element!._onEndPageLayout(args);
+    final PdfGridEndPageLayoutArgs args =
+        PdfGridEndPageLayoutArgsHelper.load(result);
+    if (PdfLayoutElementHelper.getHelper(element!).raisePageLayouted) {
+      PdfLayoutElementHelper.getHelper(element!).onEndPageLayout(args);
     }
     return args;
   }
@@ -1333,15 +1692,15 @@ class _PdfGridLayouter extends _ElementLayouter {
       PdfGraphics? graphics,
       int rowIndex,
       int cellIndex,
-      _Rectangle bounds,
+      PdfRectangle bounds,
       String value,
       PdfGridCellStyle? style,
       bool isHeaderRow) {
     PdfGridBeginCellLayoutArgs? args;
-    if (_grid!._raiseBeginCellLayout) {
-      args = PdfGridBeginCellLayoutArgs._(
+    if (PdfGridHelper.getHelper(_grid!).raiseBeginCellLayout) {
+      args = PdfGridBeginCellLayoutArgsHelper.load(
           graphics!, rowIndex, cellIndex, bounds, value, style, isHeaderRow);
-      _grid!._onBeginCellLayout(args);
+      PdfGridHelper.getHelper(_grid!).onBeginCellLayout(args);
       style = args.style;
     }
     return <String, dynamic>{'args': args, 'style': style};
@@ -1351,21 +1710,21 @@ class _PdfGridLayouter extends _ElementLayouter {
       PdfGraphics? graphics,
       int rowIndex,
       int cellIndex,
-      _Rectangle bounds,
+      PdfRectangle bounds,
       String value,
       PdfGridCellStyle? cellstyle,
       bool isHeaderRow) {
     PdfGridEndCellLayoutArgs args;
-    if (_grid!._raiseEndCellLayout) {
-      args = PdfGridEndCellLayoutArgs._(graphics!, rowIndex, cellIndex, bounds,
-          value, cellstyle, isHeaderRow);
-      _grid!._onEndCellLayout(args);
+    if (PdfGridHelper.getHelper(_grid!).raiseEndCellLayout) {
+      args = PdfGridEndCellLayoutArgsHelper.load(graphics!, rowIndex, cellIndex,
+          bounds, value, cellstyle, isHeaderRow);
+      PdfGridHelper.getHelper(_grid!).onEndCellLayout(args);
     }
   }
 
   //Override methods
   @override
-  PdfLayoutResult? _layoutInternal(_PdfLayoutParams param) {
+  PdfLayoutResult? layoutInternal(PdfLayoutParams param) {
     final PdfLayoutFormat format = _getFormat(param.format);
     _currentPage = param.page;
     if (_currentPage != null) {
@@ -1373,32 +1732,41 @@ class _PdfGridLayouter extends _ElementLayouter {
       final double pageHeight = size.height;
       final double pageWidth = size.width;
       if (pageHeight > pageWidth ||
-          (param.page!._orientation == PdfPageOrientation.landscape &&
+          (PdfPageHelper.getHelper(param.page!).orientation ==
+                  PdfPageOrientation.landscape &&
               format.breakType == PdfLayoutBreakType.fitPage)) {
-        _currentPageBounds = _Size.fromSize(size);
+        _currentPageBounds = PdfSize.fromSize(size);
       } else {
-        _currentPageBounds = _Size.fromSize(_currentPage!.size);
+        _currentPageBounds = PdfSize.fromSize(_currentPage!.size);
       }
     } else {
-      _currentPageBounds = _Size.fromSize(_currentGraphics!.clientSize);
+      _currentPageBounds = PdfSize.fromSize(_currentGraphics!.clientSize);
     }
     if (_currentPage != null) {
       _currentGraphics = _currentPage!.graphics;
     }
-    if (_currentGraphics!._layer != null) {
-      final int index = _currentGraphics!._page is PdfPage
-          ? _currentGraphics!._page!._section!
-              ._indexOf(_currentGraphics!._page!)
-          : _currentGraphics!._page!._defaultLayerIndex;
-      if (!_grid!._listOfNavigatePages.contains(index)) {
-        _grid!._listOfNavigatePages.add(index);
+    if (PdfGraphicsHelper.getHelper(_currentGraphics!).layer != null) {
+      final int index =
+          PdfGraphicsHelper.getHelper(_currentGraphics!).page is PdfPage
+              ? PdfSectionHelper.getHelper(PdfPageHelper.getHelper(
+                          PdfGraphicsHelper.getHelper(_currentGraphics!).page!)
+                      .section!)
+                  .indexOf(PdfGraphicsHelper.getHelper(_currentGraphics!).page!)
+              : PdfGraphicsHelper.getHelper(_currentGraphics!)
+                  .page!
+                  .defaultLayerIndex;
+      if (!PdfGridHelper.getHelper(_grid!)
+          .listOfNavigatePages
+          .contains(index)) {
+        PdfGridHelper.getHelper(_grid!).listOfNavigatePages.add(index);
       }
     }
-    _currentBounds = _Rectangle(
+    _currentBounds = PdfRectangle(
         param.bounds!.x,
         param.bounds!.y,
         format.breakType == PdfLayoutBreakType.fitColumnsToPage
-            ? _grid!.columns._width
+            ? PdfGridColumnCollectionHelper.getHelper(_grid!.columns)
+                .columnWidth
             : _currentGraphics!.clientSize.width,
         _currentGraphics!.clientSize.height);
     if (_grid!.rows.count != 0) {
@@ -1418,33 +1786,36 @@ class _PdfGridLayouter extends _ElementLayouter {
       _currentBounds.width =
           _currentGraphics!.clientSize.width - _currentBounds.x;
     }
-    if (_grid!._isChildGrid!) {
+    if (PdfGridHelper.getHelper(_grid!).isChildGrid!) {
       _childHeight = param.bounds!.height;
     }
-    if (param.format != null && param.format!._boundsSet) {
+    if (param.format != null &&
+        PdfLayoutFormatHelper.isBoundsSet(param.format!)) {
       if (param.format!.paginateBounds.height > 0) {
         _currentBounds.height = param.format!.paginateBounds.height;
       }
-    } else if (param.bounds!.height > 0 && !_grid!._isChildGrid!) {
+    } else if (param.bounds!.height > 0 &&
+        !PdfGridHelper.getHelper(_grid!).isChildGrid!) {
       _currentBounds.height = param.bounds!.height;
     }
-    if (!_grid!._isChildGrid!) {
+    if (PdfGridHelper.getHelper(_grid!).isChildGrid!) {
       _hType = _grid!.style.horizontalOverflowType;
     }
     if (!_grid!.style.allowHorizontalOverflow) {
-      _grid!._measureColumnsWidth(_currentBounds);
+      PdfGridHelper.getHelper(_grid!).measureColumnsWidth(_currentBounds);
       _columnRanges!.add(<int>[0, _grid!.columns.count - 1]);
     } else {
-      _grid!._measureColumnsWidth();
+      PdfGridHelper.getHelper(_grid!).measureColumnsWidth();
       _determineColumnDrawRanges();
     }
-    if (_grid!._hasRowSpan) {
+    if (PdfGridHelper.getHelper(_grid!).hasRowSpan) {
       for (int i = 0; i < _grid!.rows.count; i++) {
         _grid!.rows[i].height;
-        if (!_grid!.rows[i]._isRowHeightSet) {
-          _grid!.rows[i]._isRowHeightSet = true;
+        if (!PdfGridRowHelper.getHelper(_grid!.rows[i]).isRowHeightSet) {
+          PdfGridRowHelper.getHelper(_grid!.rows[i]).isRowHeightSet = true;
         } else {
-          _grid!.rows[i]._isRowSpanRowHeightSet = true;
+          PdfGridRowHelper.getHelper(_grid!.rows[i]).isRowSpanRowHeightSet =
+              true;
         }
       }
     }
@@ -1454,9 +1825,9 @@ class _PdfGridLayouter extends _ElementLayouter {
 
 class _RowLayoutResult {
   _RowLayoutResult() {
-    bounds = _Rectangle.empty;
+    bounds = PdfRectangle.empty;
     isFinish = false;
   }
   late bool isFinish;
-  late _Rectangle bounds;
+  late PdfRectangle bounds;
 }

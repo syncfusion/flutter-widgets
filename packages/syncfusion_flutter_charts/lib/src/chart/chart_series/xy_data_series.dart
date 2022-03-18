@@ -1,4 +1,15 @@
-part of charts;
+import 'package:flutter/material.dart';
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/event_args.dart' show ErrorBarValues;
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../trendlines/trendlines.dart';
 
 /// Renders the xy series.
 ///
@@ -12,6 +23,7 @@ abstract class XyDataSeries<T, D> extends CartesianSeries<T, D> {
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader,
       ChartValueMapper<T, D>? xValueMapper,
       ChartValueMapper<T, dynamic>? yValueMapper,
       ChartValueMapper<T, String>? dataLabelMapper,
@@ -44,6 +56,7 @@ abstract class XyDataSeries<T, D> extends CartesianSeries<T, D> {
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
       double? opacity,
+      double? animationDelay,
       Color? color,
       List<int>? initialSelectedDataIndexes,
       SortingOrder? sortingOrder})
@@ -106,13 +119,15 @@ abstract class XyDataSeries<T, D> extends CartesianSeries<T, D> {
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader,
             gradient: gradient,
             borderGradient: borderGradient,
             markerSettings: markerSettings,
             initialSelectedDataIndexes: initialSelectedDataIndexes);
 }
 
-/// This class has the properties of CartesianChartPoint.
+/// This class has the properties of [CartesianChartPoint].
 ///
 /// Chart point is a class that is used to store the current x and y values from the datasource.
 /// Contains x and y coordinates which are converted from the x and y values.
@@ -204,10 +219,10 @@ class CartesianChartPoint<D> {
   num? volume;
 
   /// Marker point location.
-  _ChartLocation? markerPoint;
+  ChartLocation? markerPoint;
 
   /// Second marker point location.
-  _ChartLocation? markerPoint2;
+  ChartLocation? markerPoint2;
 
   /// Size of the bubble.
   num? bubbleSize;
@@ -221,13 +236,19 @@ class CartesianChartPoint<D> {
   /// To set the drop value.
   bool isDrop = false;
 
+  /// To check marker event is triggered.
+  bool _isMarkerEventTriggered = false;
+
+  /// To store the marker color when callback is triggered.
+  MarkerDetails? _markerDetails;
+
   /// Sets the visibility of the series.
   bool isVisible = true;
 
   /// Used to map the color value from data points.
   Color? pointColorMapper;
 
-  /// Maps the datalabel value from data points.
+  /// Maps the data label value from data points.
   String? dataLabelMapper;
 
   /// Stores the region rect.
@@ -286,20 +307,8 @@ class CartesianChartPoint<D> {
   // ignore: prefer_final_fields
   bool isTooltipRenderEvent = false;
 
-  //specifies the style of data label in the onDataLabelEvent
-  TextStyle? _dataLabelStyle;
-
-  //specifies the color of the data label in onDataLabelEvent
-  Color? _dataLabelColor;
-
-  /// Stores the tooltip label text.
-  String? _tooltipLabelText;
-
-  /// Stores the tooltip header text.
-  String? _tooltipHeaderText;
-
   /// Stores the chart location.
-  _ChartLocation? openPoint,
+  ChartLocation? openPoint,
       closePoint,
       centerOpenPoint,
       centerClosePoint,
@@ -308,10 +317,6 @@ class CartesianChartPoint<D> {
       centerLowPoint,
       centerHighPoint,
       currentPoint,
-      // ignore:unused_field
-      _nextPoint,
-      // ignore:unused_field
-      _midPoint,
       startControl,
       endControl,
       highStartControl,
@@ -330,10 +335,17 @@ class CartesianChartPoint<D> {
       originValueLeftPoint,
       originValueRightPoint,
       endValueLeftPoint,
-      endValueRightPoint;
+      endValueRightPoint,
+      horizontalPositiveErrorPoint,
+      horizontalNegativeErrorPoint,
+      verticalPositiveErrorPoint,
+      verticalNegativeErrorPoint;
+
+  /// Stores the error values in all directions
+  ErrorBarValues? errorBarValues;
 
   /// Stores the outliers location.
-  List<_ChartLocation> outliersPoint = <_ChartLocation>[];
+  List<ChartLocation> outliersPoint = <ChartLocation>[];
 
   /// Control points for spline series.
   List<Offset>? controlPoint;
@@ -353,7 +365,7 @@ class CartesianChartPoint<D> {
   /// Stores the tracker rect region.
   Rect? trackerRectRegion;
 
-  /// Stores the yValue/high value data label text
+  /// Stores the y-value/high value data label text.
   String? label;
 
   /// Stores the data label text of low value.
@@ -390,22 +402,22 @@ class CartesianChartPoint<D> {
   List<RRect> outliersFillRect = <RRect>[];
 
   /// Stores the data label location.
-  _ChartLocation? labelLocation;
+  ChartLocation? labelLocation;
 
   /// Stores the second data label location.
-  _ChartLocation? labelLocation2;
+  ChartLocation? labelLocation2;
 
   /// Stores the third data label location.
-  _ChartLocation? labelLocation3;
+  ChartLocation? labelLocation3;
 
   /// Stores the fourth data label location.
-  _ChartLocation? labelLocation4;
+  ChartLocation? labelLocation4;
 
   /// Stores the median data label location.
-  _ChartLocation? labelLocation5;
+  ChartLocation? labelLocation5;
 
   /// Stores the outliers data label location.
-  List<_ChartLocation> outliersLocation = <_ChartLocation>[];
+  List<ChartLocation> outliersLocation = <ChartLocation>[];
 
   /// Data label region saturation.
   bool dataLabelSaturationRegionInside = false;
@@ -439,64 +451,88 @@ class CartesianChartPoint<D> {
 
   /// Stores the visible point index.
   int? visiblePointIndex;
+
+  TextStyle? _dataLabelTextStyle;
+
+  Color? _dataLabelColor;
 }
 
-class _ChartLocation {
-  _ChartLocation(this.x, this.y);
+// ignore: avoid_classes_with_only_static_members
+/// Helper class for Cartesian chart point.
+class CartesianPointHelper {
+  /// Returns the datalabel text style for a given point.
+  static TextStyle? getDataLabelTextStyle(CartesianChartPoint<dynamic> point) {
+    return point._dataLabelTextStyle;
+  }
+
+  /// Sets the datalabel text style in a given point.
+  static void setDataLabelTextStyle(
+      CartesianChartPoint<dynamic> point, TextStyle? style) {
+    point._dataLabelTextStyle = style;
+  }
+
+  /// Returns the datalabel color for a given point.
+  static Color? getDataLabelColor(CartesianChartPoint<dynamic> point) {
+    return point._dataLabelColor;
+  }
+
+  /// Sets the datalabel color in a given point.
+  static void setDataLabelColor(
+      CartesianChartPoint<dynamic> point, Color? color) {
+    point._dataLabelColor = color;
+  }
+
+  /// Returns the marker event triggered flag for a given point.
+  static bool getIsMarkerEventTriggered(CartesianChartPoint<dynamic> point) {
+    return point._isMarkerEventTriggered;
+  }
+
+  /// Sets the marker event triggered flag for a given point.
+  static void setIsMarkerEventTriggered(
+      CartesianChartPoint<dynamic> point, bool isMarkerEventTriggered) {
+    point._isMarkerEventTriggered = isMarkerEventTriggered;
+  }
+
+  /// Returns the MarkerDetails for a given point.
+  static MarkerDetails? getMarkerDetails(CartesianChartPoint<dynamic> point) {
+    return point._markerDetails;
+  }
+
+  /// Sets the MarkerDetails for a given point.
+  static void setMarkerDetails(
+      CartesianChartPoint<dynamic> point, MarkerDetails? details) {
+    point._markerDetails = details;
+  }
+}
+
+/// Represents the chart location.
+class ChartLocation {
+  /// Creates an instance of chart location.
+  ChartLocation(this.x, this.y);
+
+  /// Specifies the value of x.
   double x;
+
+  /// Specifies the value of y.
   double y;
 }
 
-/// To calculate dash array path for series
-Path? _dashPath(
-  Path? source, {
-  required _CircularIntervalList<double> dashArray,
-}) {
-  if (source == null) {
-    return null;
-  }
-  const double intialValue = 0.0;
-  final Path path = Path();
-  for (final PathMetric measurePath in source.computeMetrics()) {
-    double distance = intialValue;
-    bool draw = true;
-    while (distance < measurePath.length) {
-      final double length = dashArray.next;
-      if (draw) {
-        path.addPath(
-            measurePath.extractPath(distance, distance + length), Offset.zero);
-      }
-      distance += length;
-      draw = !draw;
-    }
-  }
-  return path;
-}
-
-/// A circular array for dash offsets and lengths.
-class _CircularIntervalList<T> {
-  _CircularIntervalList(this._values);
-  final List<T> _values;
-  int _index = 0;
-  T get next {
-    if (_index >= _values.length) {
-      _index = 0;
-    }
-    return _values[_index++];
-  }
-}
-
-/// Creates series renderer for Xy data series
+/// Creates series renderer for xy data series.
 abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
-  /// To calculate empty point value for the specific mode
+  /// To calculate empty point value for the specific mode.
   @override
   void calculateEmptyPointValue(
       int pointIndex, CartesianChartPoint<dynamic> currentPoint,
       [CartesianSeriesRenderer? seriesRenderer]) {
-    final int pointLength = seriesRenderer!._dataPoints.length - 1;
-    final String _seriesType = seriesRenderer._seriesType;
-    final CartesianChartPoint<dynamic> prevPoint = seriesRenderer._dataPoints[
-        seriesRenderer._dataPoints.length >= 2 ? pointLength - 1 : pointLength];
+    final SeriesRendererDetails seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(seriesRenderer!);
+    final int pointLength = seriesRendererDetails.dataPoints.length - 1;
+    final String _seriesType = seriesRendererDetails.seriesType;
+    final CartesianChartPoint<dynamic> prevPoint =
+        seriesRendererDetails.dataPoints[
+            seriesRendererDetails.dataPoints.length >= 2 == true
+                ? pointLength - 1
+                : pointLength];
     if (_seriesType.contains('range') ||
             _seriesType.contains('hilo') ||
             _seriesType == 'candle'
@@ -507,7 +543,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
                 currentPoint.close == null)
             : (currentPoint.low == null || currentPoint.high == null)
         : currentPoint.y == null) {
-      switch (seriesRenderer._series.emptyPointSettings.mode) {
+      switch (seriesRendererDetails.series.emptyPointSettings.mode) {
         case EmptyPointMode.zero:
           currentPoint.isEmpty = true;
           if (_seriesType.contains('range') ||
@@ -526,7 +562,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
 
         case EmptyPointMode.average:
           if (seriesRenderer is XyDataSeriesRenderer) {
-            _calculateAverageModeValue(
+            seriesRendererDetails.calculateAverageModeValue(
                 pointIndex, pointLength, currentPoint, prevPoint);
           }
           currentPoint.isEmpty = true;
@@ -546,7 +582,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
             currentPoint.y = pointIndex != 0 &&
                     (!_seriesType.contains('stackedcolumn') &&
                         !_seriesType.contains('stackedbar'))
-                ? prevPoint.y
+                ? prevPoint.y ?? 0
                 : 0;
             currentPoint.open = 0;
             currentPoint.close = 0;
@@ -568,9 +604,10 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
                       : 0
                   : currentPoint.high;
             } else {
-              currentPoint.y = pointIndex != 0 ? prevPoint.y : 0;
+              currentPoint.y = pointIndex != 0 ? prevPoint.y ?? 0 : 0;
             }
           }
+          currentPoint.isVisible = false;
           currentPoint.isGap = true;
           break;
         case EmptyPointMode.drop:
@@ -595,7 +632,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
                       _seriesType != 'steparea' &&
                       !_seriesType.contains('stackedcolumn') &&
                       !_seriesType.contains('stackedbar'))
-              ? prevPoint.y
+              ? prevPoint.y ?? 0
               : 0;
           currentPoint.isDrop = true;
           currentPoint.isVisible = false;
@@ -603,357 +640,6 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
         default:
           currentPoint.y = 0;
           break;
-      }
-    }
-  }
-
-  /// To render a series of elements for all series
-  void _renderSeriesElements(SfCartesianChart chart, Canvas canvas,
-      Animation<double>? animationController) {
-    _markerShapes = <Path?>[];
-    _markerShapes2 = <Path?>[];
-    assert(
-        // ignore: unnecessary_null_comparison
-        !(_series.markerSettings.height != null) ||
-            _series.markerSettings.height >= 0,
-        'The height of the marker should be greater than or equal to 0.');
-    assert(
-        // ignore: unnecessary_null_comparison
-        !(_series.markerSettings.width != null) ||
-            _series.markerSettings.width >= 0,
-        'The width of the marker must be greater than or equal to 0.');
-    for (int pointIndex = 0; pointIndex < _dataPoints.length; pointIndex++) {
-      final CartesianChartPoint<dynamic> point = _dataPoints[pointIndex];
-      if ((_series.markerSettings.isVisible &&
-              this is! BoxAndWhiskerSeriesRenderer) ||
-          this is ScatterSeriesRenderer) {
-        final MarkerSettingsRenderer? markerSettingsRenderer =
-            _markerSettingsRenderer!;
-        markerSettingsRenderer?.renderMarker(
-            this, point, animationController, canvas, pointIndex);
-      }
-    }
-  }
-
-  void _repaintSeriesElement() {
-    _repaintNotifier.value++;
-  }
-
-  void _animationStatusListener(AnimationStatus status) {
-    if (_chartState != null && status == AnimationStatus.completed) {
-      _reAnimate = false;
-      _animationCompleted = true;
-      _chartState!._animationCompleteCount++;
-      _setAnimationStatus(_chartState);
-    } else if (_chartState != null && status == AnimationStatus.forward) {
-      _renderingDetails!.animateCompleted = false;
-      _animationCompleted = false;
-    }
-  }
-
-  /// To store the series properties
-  void _storeSeriesProperties(SfCartesianChartState chartState, int index) {
-    _chartState = chartState;
-    _chart = chartState._chart;
-    _isRectSeries = _seriesType.contains('column') ||
-        _seriesType.contains('bar') ||
-        _seriesType == 'histogram';
-    _regionalData = <dynamic, dynamic>{};
-    _segmentPath = Path();
-    _segments = <ChartSegment>[];
-    _seriesColor =
-        _series.color ?? _chart.palette[index % _chart.palette.length];
-
-    // calculates the tooltip region for trenlines in this series
-    final List<Trendline>? trendlines = _series.trendlines;
-    if (trendlines != null &&
-        // ignore: unnecessary_null_comparison
-        _chart.tooltipBehavior != null &&
-        _chart.tooltipBehavior.enable) {
-      for (int j = 0; j < trendlines.length; j++) {
-        if (_trendlineRenderer[j]._isNeedRender) {
-          if (_trendlineRenderer[j]._pointsData != null) {
-            for (int k = 0;
-                k < _trendlineRenderer[j]._pointsData!.length;
-                k++) {
-              final CartesianChartPoint<dynamic> trendlinePoint =
-                  _trendlineRenderer[j]._pointsData![k];
-              _calculateTooltipRegion(trendlinePoint, index, this, _chartState!,
-                  trendlines[j], _trendlineRenderer[j], j);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  /// To find the region data of a series
-  void _calculateRegionData(
-      SfCartesianChartState _chartState,
-      CartesianSeriesRenderer seriesRenderer,
-      int seriesIndex,
-      CartesianChartPoint<dynamic> point,
-      int pointIndex,
-      [_VisibleRange? sideBySideInfo,
-      CartesianChartPoint<dynamic>? _nextPoint,
-      num? midX,
-      num? midY]) {
-    if (_withInRange(seriesRenderer._dataPoints[pointIndex].xValue,
-        seriesRenderer._xAxisRenderer!._visibleRange!)) {
-      seriesRenderer._visibleDataPoints!
-          .add(seriesRenderer._dataPoints[pointIndex]);
-      if (seriesRenderer._visibleDataPoints!.isNotEmpty) {
-        seriesRenderer._dataPoints[pointIndex].visiblePointIndex =
-            seriesRenderer._visibleDataPoints!.length - 1;
-      }
-    }
-    _chart = _chartState._chart;
-    final ChartAxis xAxis = _xAxisRenderer!._axis;
-    final ChartAxis yAxis = _yAxisRenderer!._axis;
-    final Rect rect = _calculatePlotOffset(_chartState._chartAxis._axisClipRect,
-        Offset(xAxis.plotOffset, yAxis.plotOffset));
-    _isRectSeries = _seriesType == 'column' ||
-        _seriesType == 'bar' ||
-        _seriesType.contains('stackedcolumn') ||
-        _seriesType.contains('stackedbar') ||
-        _seriesType == 'rangecolumn' ||
-        _seriesType == 'histogram' ||
-        _seriesType == 'waterfall';
-    CartesianChartPoint<dynamic> point;
-
-    final double markerHeight = _series.markerSettings.height,
-        markerWidth = _series.markerSettings.width;
-    final bool isPointSeries =
-        _seriesType == 'scatter' || _seriesType == 'bubble';
-    final bool isFastLine = _seriesType == 'fastline';
-    if ((!isFastLine ||
-            (isFastLine &&
-                (_series.markerSettings.isVisible ||
-                    _series.dataLabelSettings.isVisible ||
-                    _series.enableTooltip))) &&
-        _visible!) {
-      point = _dataPoints[pointIndex];
-      if (point.region == null ||
-          seriesRenderer._calculateRegion ||
-          _seriesType.contains('waterfall') ||
-          _seriesType.contains('stackedcolumn') ||
-          _seriesType.contains('stackedbar')) {
-        if (seriesRenderer._calculateRegion &&
-            _dataPoints.length == pointIndex - 1) {
-          seriesRenderer._calculateRegion = false;
-        }
-
-        /// side by side range calculated
-        seriesRenderer._sideBySideInfo = (_isRectSeries ||
-                (_seriesType.contains('candle') ||
-                    _seriesType.contains('hilo') ||
-                    _seriesType.contains('histogram') ||
-                    _seriesType.contains('box')))
-            ? _calculateSideBySideInfo(seriesRenderer, _chartState)
-            : seriesRenderer._sideBySideInfo;
-        if (_isRectSeries) {
-          _calculateRectSeriesRegion(point, pointIndex, this, _chartState);
-        } else if (isPointSeries) {
-          _calculatePointSeriesRegion(
-              point, pointIndex, this, _chartState, rect);
-        } else {
-          _calculatePathSeriesRegion(
-              point,
-              pointIndex,
-              this,
-              _chartState,
-              rect,
-              markerHeight,
-              markerWidth,
-              sideBySideInfo,
-              _nextPoint,
-              midX,
-              midY);
-        }
-      }
-      // ignore: unnecessary_null_comparison
-      if (_chart.tooltipBehavior != null &&
-          (_chart.tooltipBehavior.enable ||
-              _chart.onPointTapped != null ||
-              seriesRenderer._series.onPointTap != null ||
-              seriesRenderer._series.onPointDoubleTap != null ||
-              seriesRenderer._series.onPointLongPress != null) &&
-          _seriesType != 'boxandwhisker') {
-        _calculateTooltipRegion(point, seriesIndex, this, _chartState);
-      }
-    }
-  }
-
-  /// To find the region data of chart tooltip
-  void calculateTooltipRegion(SfCartesianChart chart, int seriesIndex,
-      CartesianChartPoint<dynamic> point, int pointIndex) {
-    /// For tooltip implementation
-    // ignore: unnecessary_null_comparison
-    if (_series.enableTooltip != null &&
-        _series.enableTooltip &&
-        // ignore: unnecessary_null_comparison
-        point != null &&
-        !point.isGap &&
-        !point.isDrop) {
-      final List<String> regionData = <String>[];
-      String? date;
-      final List<dynamic> regionRect = <dynamic>[];
-      final dynamic primaryAxisRenderer = _xAxisRenderer;
-      if (primaryAxisRenderer is DateTimeAxisRenderer) {
-        final DateTimeAxis _axis = primaryAxisRenderer._axis as DateTimeAxis;
-        final DateFormat dateFormat =
-            _axis.dateFormat ?? _getDateTimeLabelFormat(_xAxisRenderer!);
-        date = dateFormat
-            .format(DateTime.fromMillisecondsSinceEpoch(point.xValue));
-      } else if (primaryAxisRenderer is DateTimeCategoryAxisRenderer) {
-        date = primaryAxisRenderer._dateFormat
-            .format(DateTime.fromMillisecondsSinceEpoch(point.xValue.floor()));
-      }
-      _xAxisRenderer is CategoryAxisRenderer
-          ? regionData.add(point.x.toString())
-          : _xAxisRenderer is DateTimeAxisRenderer ||
-                  _xAxisRenderer is DateTimeCategoryAxisRenderer
-              ? regionData.add(date.toString())
-              : regionData.add(_getLabelValue(
-                      point.xValue,
-                      _xAxisRenderer!._axis,
-                      chart.tooltipBehavior.decimalPlaces)
-                  .toString());
-      if (_seriesType.contains('range')) {
-        regionData.add(_getLabelValue(point.high, _yAxisRenderer!._axis,
-                chart.tooltipBehavior.decimalPlaces)
-            .toString());
-        regionData.add(_getLabelValue(point.low, _yAxisRenderer!._axis,
-                chart.tooltipBehavior.decimalPlaces)
-            .toString());
-      } else {
-        regionData.add(_getLabelValue(point.yValue, _yAxisRenderer!._axis,
-                chart.tooltipBehavior.decimalPlaces)
-            .toString());
-      }
-      regionData.add(_series.name ?? 'series $seriesIndex');
-      regionRect.add(point.region);
-      regionRect.add(_isRectSeries
-          ? _seriesType == 'column' || _seriesType.contains('stackedcolumn')
-              ? (point.yValue > 0) == true
-                  ? point.region!.topCenter
-                  : point.region!.bottomCenter
-              : point.region!.topCenter
-          : (_seriesType == 'rangearea'
-              ? Offset(point.markerPoint!.x,
-                  (point.markerPoint!.y + point.markerPoint2!.y) / 2)
-              : point.region!.center));
-      regionRect.add(point.pointColorMapper);
-      regionRect.add(point.bubbleSize);
-      if (_seriesType.contains('stacked')) {
-        regionData.add((point.cumulativeValue).toString());
-      }
-      _regionalData![regionRect] = regionData;
-    }
-  }
-
-  /// To calculate the empty point average mode value
-  void _calculateAverageModeValue(
-      int pointIndex,
-      int pointLength,
-      CartesianChartPoint<dynamic> currentPoint,
-      CartesianChartPoint<dynamic> prevPoint) {
-    final List<dynamic> dataSource = _series.dataSource;
-    final CartesianChartPoint<dynamic> _nextPoint = _getPointFromData(
-        this,
-        pointLength < dataSource.length - 1
-            ? dataSource.indexOf(dataSource[pointLength + 1])
-            : dataSource.indexOf(dataSource[pointLength]));
-    if (_seriesType.contains('range') ||
-        _seriesType.contains('hilo') ||
-        _seriesType.contains('candle')) {
-      final CartesianSeries<dynamic, dynamic> _cartesianSeries = _series;
-      if (_cartesianSeries is _FinancialSeriesBase &&
-          _cartesianSeries.showIndicationForSameValues) {
-        if (currentPoint.low != null || currentPoint.high != null) {
-          currentPoint.low = currentPoint.low ?? currentPoint.high;
-          currentPoint.high = currentPoint.high ?? currentPoint.low;
-        } else {
-          currentPoint.low = 0;
-          currentPoint.high = 0;
-          currentPoint.open = 0;
-          currentPoint.close = 0;
-          currentPoint.isGap = true;
-        }
-        if (_seriesType == 'hiloopenclose' || _seriesType == 'candle') {
-          if (currentPoint.open != null || currentPoint.close != null) {
-            currentPoint.open = currentPoint.open ?? currentPoint.close;
-            currentPoint.close = currentPoint.close ?? currentPoint.open;
-          } else {
-            currentPoint.low = 0;
-            currentPoint.high = 0;
-            currentPoint.open = 0;
-            currentPoint.close = 0;
-            currentPoint.isGap = true;
-          }
-        }
-      } else {
-        if (pointIndex == 0) {
-          if (currentPoint.low == null) {
-            pointIndex == dataSource.length - 1
-                ? currentPoint.low = 0
-                : currentPoint.low = ((_nextPoint.low) ?? 0) / 2;
-          }
-          if (currentPoint.high == null) {
-            pointIndex == dataSource.length - 1
-                ? currentPoint.high = 0
-                : currentPoint.high = ((_nextPoint.high) ?? 0) / 2;
-          }
-          if (_seriesType == 'hiloopenclose' || _seriesType == 'candle') {
-            if (currentPoint.open == null) {
-              pointIndex == dataSource.length - 1
-                  ? currentPoint.open = 0
-                  : currentPoint.open = ((_nextPoint.open) ?? 0) / 2;
-            }
-            if (currentPoint.close == null) {
-              pointIndex == dataSource.length - 1
-                  ? currentPoint.close = 0
-                  : currentPoint.close = ((_nextPoint.close) ?? 0) / 2;
-            }
-          }
-        } else if (pointIndex == dataSource.length - 1) {
-          currentPoint.low = currentPoint.low ?? ((prevPoint.low) ?? 0) / 2;
-          currentPoint.high = currentPoint.high ?? ((prevPoint.high) ?? 0) / 2;
-
-          if (_seriesType == 'hiloopenclose' || _seriesType == 'candle') {
-            currentPoint.open =
-                currentPoint.open ?? ((prevPoint.open) ?? 0) / 2;
-            currentPoint.close =
-                currentPoint.close ?? ((prevPoint.close) ?? 0) / 2;
-          }
-        } else {
-          currentPoint.low = currentPoint.low ??
-              (((prevPoint.low) ?? 0) + ((_nextPoint.low) ?? 0)) / 2;
-          currentPoint.high = currentPoint.high ??
-              (((prevPoint.high) ?? 0) + ((_nextPoint.high) ?? 0)) / 2;
-
-          if (_seriesType == 'hiloopenclose' || _seriesType == 'candle') {
-            currentPoint.open = currentPoint.open ??
-                (((prevPoint.open) ?? 0) + ((_nextPoint.open) ?? 0)) / 2;
-            currentPoint.close = currentPoint.close ??
-                (((prevPoint.close) ?? 0) + ((_nextPoint.close) ?? 0)) / 2;
-          }
-        }
-      }
-    } else {
-      if (pointIndex == 0) {
-        ///Check the first point is null
-        pointIndex == dataSource.length - 1
-            ?
-
-            ///Check the series contains single point with null value
-            currentPoint.y = 0
-            : currentPoint.y = ((_nextPoint.y) ?? 0) / 2;
-      } else if (pointIndex == dataSource.length - 1) {
-        ///Check the last point is null
-        currentPoint.y = ((prevPoint.y) ?? 0) / 2;
-      } else {
-        currentPoint.y = (((prevPoint.y) ?? 0) + ((_nextPoint.y) ?? 0)) / 2;
       }
     }
   }

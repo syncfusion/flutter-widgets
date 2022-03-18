@@ -1,28 +1,52 @@
-part of pdf;
+import 'dart:collection';
 
-class _PdfParser {
+import '../../interfaces/pdf_interface.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_boolean.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_null.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_reference.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_stream.dart';
+import '../primitives/pdf_string.dart';
+import 'cross_table.dart';
+import 'decode_big_endian.dart';
+import 'enums.dart';
+import 'pdf_constants.dart';
+import 'pdf_cross_table.dart';
+import 'pdf_lexer.dart';
+import 'pdf_reader.dart';
+
+/// internal class
+class PdfParser {
   //Constructor
-  _PdfParser(_CrossTable cTable, _PdfReader reader, _PdfCrossTable crossTable) {
+  /// internal constructor
+  PdfParser(CrossTable cTable, PdfReader reader, PdfCrossTable crossTable) {
     _isColorSpace = false;
     _isPassword = false;
     _reader = reader;
     _cTable = cTable;
     _crossTable = crossTable;
-    _lexer = _PdfLexer(reader);
+    _lexer = PdfLexer(reader);
   }
 
   //Fields
-  _CrossTable? _cTable;
-  late _PdfReader _reader;
-  _PdfLexer? _lexer;
-  _TokenType? _next;
-  _PdfCrossTable? _crossTable;
+  CrossTable? _cTable;
+  late PdfReader _reader;
+  PdfLexer? _lexer;
+  PdfTokenType? _next;
+  PdfCrossTable? _crossTable;
+
+  /// internal field
   Queue<int> integerQueue = Queue<int>();
   late bool _isPassword;
   late bool _isColorSpace;
   List<String>? _windows1252MapTable;
 
   //Properties
+  /// internal property
   List<String>? get windows1252MapTable {
     _windows1252MapTable ??= <String>[
       '\u007f',
@@ -67,19 +91,20 @@ class _PdfParser {
   }
 
   //Implementation
-  void _setOffset(int offset) {
+  /// internal method
+  void setOffset(int offset) {
     _reader.position = offset;
     if (integerQueue.isNotEmpty) {
       integerQueue = Queue<int>();
     }
-    _lexer!._reset();
+    _lexer!.reset();
   }
 
-  _PdfNumber? _parseInteger() {
+  PdfNumber? _parseInteger() {
     final double? value = double.tryParse(_lexer!.text);
-    _PdfNumber? integer;
+    PdfNumber? integer;
     if (value != null) {
-      integer = _PdfNumber(value);
+      integer = PdfNumber(value);
     } else {
       _error(_ErrorType.badlyFormedInteger, _lexer!.text);
     }
@@ -87,22 +112,22 @@ class _PdfParser {
     return integer;
   }
 
-  _IPdfPrimitive? _number() {
-    _IPdfPrimitive? obj;
-    _PdfNumber? integer;
+  IPdfPrimitive? _number() {
+    IPdfPrimitive? obj;
+    PdfNumber? integer;
     if (integerQueue.isNotEmpty) {
-      integer = _PdfNumber(integerQueue.removeFirst());
+      integer = PdfNumber(integerQueue.removeFirst());
     } else {
-      _match(_next, _TokenType.number);
+      _match(_next, PdfTokenType.number);
       integer = _parseInteger();
     }
     obj = integer;
-    if (_next == _TokenType.number) {
-      final _PdfNumber? integer2 = _parseInteger();
-      if (_next == _TokenType.reference) {
-        final _PdfReference reference =
-            _PdfReference(integer!.value!.toInt(), integer2!.value!.toInt());
-        obj = _PdfReferenceHolder.fromReference(reference, _crossTable);
+    if (_next == PdfTokenType.number) {
+      final PdfNumber? integer2 = _parseInteger();
+      if (_next == PdfTokenType.reference) {
+        final PdfReference reference =
+            PdfReference(integer!.value!.toInt(), integer2!.value!.toInt());
+        obj = PdfReferenceHolder.fromReference(reference, _crossTable);
         _advance();
       } else {
         integerQueue.addLast(integer2!.value!.toInt());
@@ -111,19 +136,18 @@ class _PdfParser {
     return obj;
   }
 
-  void _parseOldXRef(
-      _CrossTable cTable, Map<int, _ObjectInformation>? objects) {
+  void _parseOldXRef(CrossTable cTable, Map<int, ObjectInformation>? objects) {
     _advance();
     while (_isSubsection()) {
-      cTable._parseSubsection(this, objects);
+      cTable.parseSubsection(this, objects);
     }
   }
 
   bool _isSubsection() {
     bool result = false;
-    if (_next == _TokenType.trailer) {
+    if (_next == PdfTokenType.trailer) {
       result = false;
-    } else if (_next == _TokenType.number) {
+    } else if (_next == PdfTokenType.number) {
       result = true;
     } else {
       throw ArgumentError.value(result, 'Invalid format');
@@ -131,112 +155,114 @@ class _PdfParser {
     return result;
   }
 
-  Map<String, dynamic> _parseCrossReferenceTable(
-      Map<int, _ObjectInformation>? objects, _CrossTable cTable) {
-    _IPdfPrimitive? obj;
+  /// internal method
+  Map<String, dynamic> parseCrossReferenceTable(
+      Map<int, ObjectInformation>? objects, CrossTable cTable) {
+    IPdfPrimitive? obj;
     _advance();
-    if (_next == _TokenType.xRef) {
+    if (_next == PdfTokenType.xRef) {
       _parseOldXRef(cTable, objects);
       obj = _trailer();
-      final _PdfDictionary trailerDic = obj as _PdfDictionary;
+      final PdfDictionary trailerDic = obj as PdfDictionary;
       if (trailerDic.containsKey('Size')) {
-        final int size = (trailerDic['Size']! as _PdfNumber).value!.toInt();
+        final int size = (trailerDic['Size']! as PdfNumber).value!.toInt();
         int initialNumber = 0;
-        if (cTable._initialSubsectionCount ==
-            cTable._initialNumberOfSubsection) {
-          initialNumber = cTable._initialNumberOfSubsection;
+        if (cTable.initialSubsectionCount == cTable.initialNumberOfSubsection) {
+          initialNumber = cTable.initialNumberOfSubsection;
         } else {
-          initialNumber = cTable._initialSubsectionCount;
+          initialNumber = cTable.initialSubsectionCount;
         }
         int total = 0;
-        total = cTable._totalNumberOfSubsection;
+        total = cTable.totalNumberOfSubsection;
         if (size < initialNumber + total &&
             initialNumber > 0 &&
             size == total) {
           final int difference = initialNumber + total - size;
-          final Map<int, _ObjectInformation> newObjects =
-              <int, _ObjectInformation>{};
+          final Map<int, ObjectInformation> newObjects =
+              <int, ObjectInformation>{};
           final List<int> keys = objects!.keys.toList();
           for (int i = 0; i < keys.length; i++) {
             newObjects[keys[i] - difference] = objects[keys[i]]!;
           }
           objects = newObjects;
-          cTable._objects = newObjects;
+          cTable.objects = newObjects;
         }
       }
     } else {
       obj = _parse();
-      objects = cTable._parseNewTable(obj as _PdfStream?, objects);
+      objects = cTable.parseNewTable(obj as PdfStream?, objects);
     }
     return <String, dynamic>{'object': obj, 'objects': objects};
   }
 
-  _IPdfPrimitive _trailer() {
-    _match(_next, _TokenType.trailer);
+  IPdfPrimitive _trailer() {
+    _match(_next, PdfTokenType.trailer);
     _advance();
     return _dictionary();
   }
 
-  _IPdfPrimitive? _parseOffset(int offset) {
-    _setOffset(offset);
+  /// internal method
+  IPdfPrimitive? parseOffset(int offset) {
+    setOffset(offset);
     _advance();
     return _parse();
   }
 
-  _IPdfPrimitive? _parse() {
-    _match(_next, _TokenType.number);
-    _simple();
-    _simple();
-    _match(_next, _TokenType.objectStart);
+  IPdfPrimitive? _parse() {
+    _match(_next, PdfTokenType.number);
+    simple();
+    simple();
+    _match(_next, PdfTokenType.objectStart);
     _advance();
-    final _IPdfPrimitive? obj = _simple();
-    if (_next != _TokenType.objectEnd) {
-      _next = _TokenType.objectEnd;
+    final IPdfPrimitive? obj = simple();
+    if (_next != PdfTokenType.objectEnd) {
+      _next = PdfTokenType.objectEnd;
     }
-    _match(_next, _TokenType.objectEnd);
-    if (!_lexer!._skip) {
+    _match(_next, PdfTokenType.objectEnd);
+    if (!_lexer!.skip) {
       _advance();
     } else {
-      _lexer!._skip = false;
+      _lexer!.skip = false;
     }
     return obj;
   }
 
-  _IPdfPrimitive? _simple() {
-    _IPdfPrimitive? obj;
+  /// internal method
+  IPdfPrimitive? simple() {
+    IPdfPrimitive? obj;
     if (integerQueue.isNotEmpty) {
       obj = _number();
     } else {
       switch (_next) {
-        case _TokenType.dictionaryStart:
+        case PdfTokenType.dictionaryStart:
           obj = _dictionary();
           break;
-        case _TokenType.arrayStart:
+        case PdfTokenType.arrayStart:
           obj = _array();
           break;
-        case _TokenType.hexStringStart:
+        case PdfTokenType.hexStringStart:
           obj = _hexString();
           break;
-        case _TokenType.string:
+        case PdfTokenType.string:
           obj = _readString();
           break;
-        case _TokenType.unicodeString:
+        case PdfTokenType.unicodeString:
           obj = _readUnicodeString();
           break;
-        case _TokenType.name:
+        case PdfTokenType.name:
           obj = _readName();
           break;
-        case _TokenType.boolean:
+        case PdfTokenType.boolean:
           obj = _readBoolean();
           break;
-        case _TokenType.real:
+        case PdfTokenType.real:
           obj = _real();
           break;
-        case _TokenType.number:
+        case PdfTokenType.number:
           obj = _number();
           break;
-        case _TokenType.nullType:
-          obj = _PdfNull();
+        case PdfTokenType.nullType:
+          obj = PdfNull();
           _advance();
           break;
         default:
@@ -247,12 +273,12 @@ class _PdfParser {
     return obj;
   }
 
-  _IPdfPrimitive? _real() {
-    _match(_next, _TokenType.real);
+  IPdfPrimitive? _real() {
+    _match(_next, PdfTokenType.real);
     final double? value = double.tryParse(_lexer!.text);
-    _PdfNumber? real;
+    PdfNumber? real;
     if (value != null) {
-      real = _PdfNumber(value);
+      real = PdfNumber(value);
     } else {
       _error(_ErrorType.badlyFormedReal, _lexer!.text);
     }
@@ -260,30 +286,32 @@ class _PdfParser {
     return real;
   }
 
-  _IPdfPrimitive _readBoolean() {
-    _match(_next, _TokenType.boolean);
+  IPdfPrimitive _readBoolean() {
+    _match(_next, PdfTokenType.boolean);
     final bool value = _lexer!.text == 'true';
-    final _PdfBoolean result = _PdfBoolean(value);
+    final PdfBoolean result = PdfBoolean(value);
     _advance();
     return result;
   }
 
-  _IPdfPrimitive _readName() {
-    _match(_next, _TokenType.name);
+  IPdfPrimitive _readName() {
+    _match(_next, PdfTokenType.name);
     final String name = _lexer!.text.substring(1);
-    final _PdfName result = _PdfName(name);
+    final PdfName result = PdfName(name);
     _advance();
     return result;
   }
 
-  void _startFrom(int offset) {
-    _setOffset(offset);
+  /// internal method
+  void startFrom(int offset) {
+    setOffset(offset);
     _advance();
   }
 
-  void _rebuildXrefTable(
-      Map<int, _ObjectInformation?> newObjects, _CrossTable? crosstable) {
-    final _PdfReader reader = _PdfReader(_reader._streamReader._data);
+  /// internal method
+  void rebuildXrefTable(
+      Map<int, ObjectInformation?> newObjects, CrossTable? crosstable) {
+    final PdfReader reader = PdfReader(_reader.streamReader.data);
     reader.position = 0;
     newObjects.clear();
     int? objNumber = 0;
@@ -293,8 +321,9 @@ class _PdfParser {
       if (reader.position >= reader.length! - 1) {
         break;
       }
+      final int previousPosition = reader.position;
       String str = '';
-      str = reader._readLine();
+      str = reader.readLine();
       if (str == '') {
         continue;
       }
@@ -320,9 +349,9 @@ class _PdfParser {
           if (objNumber != null) {
             marker = int.tryParse(words[1]);
             if (marker != null) {
-              if (marker == 0 && words[2] == _DictionaryProperties.obj) {
-                final _ObjectInformation objectInfo = _ObjectInformation(
-                    _reader.position - tokens.length - 1, null, crosstable);
+              if (marker == 0 && words[2] == PdfDictionaryProperties.obj) {
+                final ObjectInformation objectInfo =
+                    ObjectInformation(previousPosition, null, crosstable);
                 if (!newObjects.containsKey(objNumber)) {
                   newObjects[objNumber] = objectInfo;
                 }
@@ -334,8 +363,8 @@ class _PdfParser {
     }
   }
 
-  _IPdfPrimitive _readString() {
-    _match(_next, _TokenType.string);
+  IPdfPrimitive _readString() {
+    _match(_next, PdfTokenType.string);
     String text = _lexer!.stringText;
     bool unicode = false;
     if (_isPassword) {
@@ -361,13 +390,13 @@ class _PdfParser {
       if (_isColorSpace) {
         text = String.fromCharCodes(_processEscapes(text));
       }
-      text = 'ColorFound' + text;
+      text = 'ColorFound$text';
     }
-    final _PdfString str = _PdfString(text);
+    final PdfString str = PdfString(text);
     if (!unicode) {
-      str.encode = _ForceEncoding.ascii;
+      str.encode = ForceEncoding.ascii;
     } else {
-      str.encode = _ForceEncoding.unicode;
+      str.encode = ForceEncoding.unicode;
     }
     _advance();
     return str;
@@ -375,10 +404,10 @@ class _PdfParser {
 
   String _processUnicodeWithPreamble(String text) {
     final List<int> data = _processEscapes(text);
-    return _decodeBigEndian(data, 2, data.length - 2);
+    return decodeBigEndian(data, 2, data.length - 2);
   }
 
-  _IPdfPrimitive _readUnicodeString([String? validateText]) {
+  IPdfPrimitive _readUnicodeString([String? validateText]) {
     final String text = validateText ?? _lexer!.text;
     String value = text.substring(0);
     bool unicode = false;
@@ -391,16 +420,16 @@ class _PdfParser {
     } else {
       value = String.fromCharCodes(_processEscapes(value));
     }
-    final _PdfString str = _PdfString(value);
+    final PdfString str = PdfString(value);
     if (!unicode) {
-      str.encode = _ForceEncoding.ascii;
+      str.encode = ForceEncoding.ascii;
     } else {
-      str.encode = _ForceEncoding.unicode;
+      str.encode = ForceEncoding.unicode;
     }
-    if (!_lexer!._skip) {
+    if (!_lexer!.skip) {
       _advance();
     } else {
-      _next = _TokenType.dictionaryEnd;
+      _next = PdfTokenType.dictionaryEnd;
     }
     return str;
   }
@@ -501,102 +530,102 @@ class _PdfParser {
     return <String, dynamic>{'value': String.fromCharCode(value), 'index': i};
   }
 
-  _IPdfPrimitive _hexString() {
-    _match(_next, _TokenType.hexStringStart);
+  IPdfPrimitive _hexString() {
+    _match(_next, PdfTokenType.hexStringStart);
     _advance();
     String sb = '';
     bool isHex = true;
-    while (_next != _TokenType.hexStringEnd) {
+    while (_next != PdfTokenType.hexStringEnd) {
       String text = _lexer!.text;
-      if (_next == _TokenType.hexStringWeird) {
+      if (_next == PdfTokenType.hexStringWeird) {
         isHex = false;
-      } else if (_next == _TokenType.hexStringWeirdEscape) {
+      } else if (_next == PdfTokenType.hexStringWeirdEscape) {
         isHex = false;
         text = text.substring(1);
       }
       sb += text;
       _advance();
     }
-    _match(_next, _TokenType.hexStringEnd);
+    _match(_next, PdfTokenType.hexStringEnd);
     _advance();
-    final _PdfString result = _PdfString(sb, !isHex);
+    final PdfString result = PdfString(sb, !isHex);
     return result;
   }
 
-  _IPdfPrimitive _array() {
-    _match(_next, _TokenType.arrayStart);
+  IPdfPrimitive _array() {
+    _match(_next, PdfTokenType.arrayStart);
     _advance();
-    _IPdfPrimitive? obj;
-    final _PdfArray array = _PdfArray();
+    IPdfPrimitive? obj;
+    final PdfArray array = PdfArray();
     _lexer!.isArray = true;
-    while ((obj = _simple()) != null) {
-      array._add(obj!);
-      if (array[0] is _PdfName && (array[0]! as _PdfName)._name == 'Indexed') {
+    while ((obj = simple()) != null) {
+      array.add(obj!);
+      if (array[0] is PdfName && (array[0]! as PdfName).name == 'Indexed') {
         _isColorSpace = true;
       } else {
         _isColorSpace = false;
       }
-      if (_next == _TokenType.unknown) {
+      if (_next == PdfTokenType.unknown) {
         _advance();
       }
     }
-    _match(_next, _TokenType.arrayEnd);
+    _match(_next, PdfTokenType.arrayEnd);
     _advance();
     _lexer!.isArray = false;
     array.freezeChanges(this);
     return array;
   }
 
-  _IPdfPrimitive _dictionary() {
-    _match(_next, _TokenType.dictionaryStart);
+  IPdfPrimitive _dictionary() {
+    _match(_next, PdfTokenType.dictionaryStart);
     _advance();
-    final _PdfDictionary dic = _PdfDictionary();
+    final PdfDictionary dic = PdfDictionary();
     _Pair pair = _readPair();
-    while (pair._name != null && pair._value != null) {
+    while (pair.name != null && pair._value != null) {
       if (pair._value != null) {
-        dic[pair._name] = pair._value;
+        dic[pair.name] = pair._value;
       }
       pair = _readPair();
     }
-    if (_next != _TokenType.dictionaryEnd) {
-      _next = _TokenType.dictionaryEnd;
+    if (_next != PdfTokenType.dictionaryEnd) {
+      _next = PdfTokenType.dictionaryEnd;
     }
-    _match(_next, _TokenType.dictionaryEnd);
-    if (!_lexer!._skip) {
+    _match(_next, PdfTokenType.dictionaryEnd);
+    if (!_lexer!.skip) {
       _advance();
     } else {
-      _next = _TokenType.objectEnd;
-      _lexer!._skip = false;
+      _next = PdfTokenType.objectEnd;
+      _lexer!.skip = false;
     }
-    _IPdfPrimitive result;
-    if (_next == _TokenType.streamStart) {
+    IPdfPrimitive result;
+    if (_next == PdfTokenType.streamStart) {
       result = _readStream(dic);
     } else {
       result = dic;
     }
-    (result as _IPdfChangable).freezeChanges(this);
+    (result as IPdfChangable).freezeChanges(this);
     return result;
   }
 
-  _IPdfPrimitive _readStream(_PdfDictionary dic) {
-    _match(_next, _TokenType.streamStart);
-    _lexer!._skipToken();
-    _lexer!._skipNewLine();
+  IPdfPrimitive _readStream(PdfDictionary dic) {
+    _match(_next, PdfTokenType.streamStart);
+    _lexer!.skipToken();
+    _lexer!.skipNewLine();
 
-    _IPdfPrimitive? obj = dic[_DictionaryProperties.length];
-    _PdfNumber? length;
-    _PdfReferenceHolder? reference;
-    if (obj is _PdfNumber) {
+    IPdfPrimitive? obj = dic[PdfDictionaryProperties.length];
+    PdfNumber? length;
+    PdfReferenceHolder? reference;
+    if (obj is PdfNumber) {
       length = obj;
     }
-    if (obj is _PdfReferenceHolder) {
+    if (obj is PdfReferenceHolder) {
       reference = obj;
     }
     if (length == null && reference == null) {
       final int lexerPosition = _lexer!.position;
       final int position = _reader.position;
       _reader.position = lexerPosition;
-      final int end = _reader._searchForward('endstream');
+      final int end = _reader.searchForward('endstream');
       int streamLength;
       if (end > lexerPosition) {
         streamLength = end - lexerPosition;
@@ -604,37 +633,37 @@ class _PdfParser {
         streamLength = lexerPosition - end;
       }
       _reader.position = position;
-      final List<int> buffer = _lexer!._readBytes(streamLength);
-      final _PdfStream innerStream = _PdfStream(dic, buffer);
+      final List<int> buffer = _lexer!.readBytes(streamLength);
+      final PdfStream innerStream = PdfStream(dic, buffer);
       _advance();
-      if (_next != _TokenType.streamEnd) {
-        _next = _TokenType.streamEnd;
+      if (_next != PdfTokenType.streamEnd) {
+        _next = PdfTokenType.streamEnd;
       }
-      _match(_next, _TokenType.streamEnd);
+      _match(_next, PdfTokenType.streamEnd);
       _advance();
-      if (_next != _TokenType.objectEnd) {}
+      if (_next != PdfTokenType.objectEnd) {}
       return innerStream;
     } else if (reference != null) {
-      final _PdfReferenceHolder reference = obj! as _PdfReferenceHolder;
-      final _PdfLexer? lex = _lexer;
+      final PdfReferenceHolder reference = obj! as PdfReferenceHolder;
+      final PdfLexer? lex = _lexer;
       final int position = _reader.position;
-      _lexer = _PdfLexer(_reader);
-      obj = _cTable!._getObject(reference.reference);
-      length = obj as _PdfNumber?;
+      _lexer = PdfLexer(_reader);
+      obj = _cTable!.getObject(reference.reference);
+      length = obj as PdfNumber?;
       _reader.position = position;
       _lexer = lex;
     }
     final int intLength = length!.value!.toInt();
     final bool check = _checkStreamLength(_lexer!.position, intLength);
-    _PdfStream stream;
+    PdfStream stream;
     if (check) {
-      final List<int> buf = _lexer!._readBytes(intLength);
-      stream = _PdfStream(dic, buf);
+      final List<int> buf = _lexer!.readBytes(intLength);
+      stream = PdfStream(dic, buf);
     } else {
       final int lexerPosition = _lexer!.position;
       final int position = _reader.position;
       _reader.position = lexerPosition;
-      final int end = _reader._searchForward('endstream');
+      final int end = _reader.searchForward('endstream');
       int streamLength;
       if (end > lexerPosition) {
         streamLength = end - lexerPosition;
@@ -642,23 +671,24 @@ class _PdfParser {
         streamLength = lexerPosition - end;
       }
       _reader.position = position;
-      final List<int> buf = _lexer!._readBytes(streamLength);
-      stream = _PdfStream(dic, buf);
+      final List<int> buf = _lexer!.readBytes(streamLength);
+      stream = PdfStream(dic, buf);
     }
     _advance();
-    if (_next != _TokenType.streamEnd) {
-      _next = _TokenType.streamEnd;
+    if (_next != PdfTokenType.streamEnd) {
+      _next = PdfTokenType.streamEnd;
     }
-    _match(_next, _TokenType.streamEnd);
+    _match(_next, PdfTokenType.streamEnd);
     _advance();
-    if (_next != _TokenType.objectEnd) {
-      _next = _TokenType.objectEnd;
+    if (_next != PdfTokenType.objectEnd) {
+      _next = PdfTokenType.objectEnd;
     }
     return stream;
   }
 
-  String _getObjectFlag() {
-    _match(_next, _TokenType.objectType);
+  /// internal method
+  String getObjectFlag() {
+    _match(_next, PdfTokenType.objectType);
     final String type = _lexer!.text[0];
     _advance();
     return type;
@@ -670,7 +700,7 @@ class _PdfParser {
     final int position = _reader.position;
     _reader.position = lexPosition + value;
     final List<String> buff = List<String>.filled(20, '');
-    _reader._readBlock(buff, 0, 20);
+    _reader.readBlock(buff, 0, 20);
     for (int i = 0; i < buff.length; i++) {
       line += buff[i];
     }
@@ -685,35 +715,36 @@ class _PdfParser {
   }
 
   _Pair _readPair() {
-    _IPdfPrimitive? obj;
+    IPdfPrimitive? obj;
     try {
-      obj = _simple();
+      obj = simple();
     } catch (e) {
       obj = null;
     }
     if (obj == null) {
       return _Pair.empty;
     }
-    _PdfName? name;
-    if (obj is _PdfName) {
+    PdfName? name;
+    if (obj is PdfName) {
       name = obj;
     } else {
       _error(_ErrorType.badlyFormedDictionary, 'next should be a name.');
     }
-    if (name!._name == _DictionaryProperties.u ||
-        name._name == _DictionaryProperties.o) {
+    if (name!.name == PdfDictionaryProperties.u ||
+        name.name == PdfDictionaryProperties.o) {
       _isPassword = true;
     }
-    obj = _simple();
+    obj = simple();
     _isPassword = false;
     return _Pair(name, obj);
   }
 
+  /// internal method
   int startCrossReference() {
     _advance();
-    _match(_next, _TokenType.startXRef);
+    _match(_next, PdfTokenType.startXRef);
     _advance();
-    final _PdfNumber? number = _number() as _PdfNumber?;
+    final PdfNumber? number = _number() as PdfNumber?;
     if (number != null) {
       return number.value!.toInt();
     } else {
@@ -721,7 +752,7 @@ class _PdfParser {
     }
   }
 
-  void _match(_TokenType? token, _TokenType match) {
+  void _match(PdfTokenType? token, PdfTokenType match) {
     if (token != match) {
       _error(_ErrorType.unexpected, token.toString());
     }
@@ -759,7 +790,7 @@ class _PdfParser {
     }
 
     if (additional != null) {
-      message = message + additional + ' before ' + _lexer!.position.toString();
+      message = '$message$additional before ${_lexer!.position}';
     }
 
     throw ArgumentError.value(error, message);
@@ -767,9 +798,9 @@ class _PdfParser {
 
   void _advance() {
     if (_cTable != null && _cTable!.validateSyntax) {
-      _lexer!._getNextToken();
+      _lexer!.getNextToken();
     }
-    _next = _lexer!._getNextToken();
+    _next = _lexer!.getNextToken();
   }
 }
 
@@ -785,14 +816,13 @@ enum _ErrorType {
 
 class _Pair {
   //constructor
-  _Pair(_PdfName? name, _IPdfPrimitive? value) {
-    _name = name;
+  _Pair(this.name, IPdfPrimitive? value) {
     _value = value;
   }
 
   static _Pair get empty => _Pair(null, null);
 
   //Fields
-  _PdfName? _name;
-  _IPdfPrimitive? _value;
+  PdfName? name;
+  IPdfPrimitive? _value;
 }

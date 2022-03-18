@@ -1,17 +1,15 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../marker.dart';
 import '../plot_band.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import 'renderer_base.dart';
 
-/// Represents the render object for spark chart
+/// Represents the render object for spark chart.
 class SfSparkLineChartRenderObjectWidget
     extends SfSparkChartRenderObjectWidget {
-  /// Creates the render object for spark chart
+  /// Creates the render object for spark chart.
   const SfSparkLineChartRenderObjectWidget(
       {Key? key,
       this.width,
@@ -35,7 +33,7 @@ class SfSparkLineChartRenderObjectWidget
       this.marker,
       this.labelDisplayMode,
       this.labelStyle,
-      ThemeData? themeData,
+      SfChartThemeData? themeData,
       SparkChartDataDetails? sparkChartDataDetails,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
@@ -62,19 +60,19 @@ class SfSparkLineChartRenderObjectWidget
             coordinatePoints: coordinatePoints,
             dataPoints: dataPoints);
 
-  /// Specifies the line width
+  /// Specifies the line width.
   final double? width;
 
-  /// Specifies the dash array
+  /// Specifies the dash array.
   final List<double>? dashArray;
 
-  /// Specifies the area chart marker
+  /// Specifies the area chart marker.
   final SparkChartMarker? marker;
 
-  /// Specifies the spark chart data label
+  /// Specifies the spark chart data label.
   final SparkChartLabelDisplayMode? labelDisplayMode;
 
-  /// Specifies the spark chart data label style
+  /// Specifies the spark chart data label style.
   final TextStyle? labelStyle;
 
   @override
@@ -109,7 +107,9 @@ class SfSparkLineChartRenderObjectWidget
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderSparkLineChart renderObject) {
+      BuildContext context,
+      // ignore: library_private_types_in_public_api
+      _RenderSparkLineChart renderObject) {
     renderObject
       ..isInversed = isInversed
       ..axisCrossesAt = axisCrossesAt
@@ -138,9 +138,9 @@ class SfSparkLineChartRenderObjectWidget
   }
 }
 
-/// Represents the render spark line class
+/// Represents the render spark line class.
 class _RenderSparkLineChart extends RenderSparkChart {
-  /// Creates the render object widget
+  /// Creates the render object widget.
   _RenderSparkLineChart(
       {List<dynamic>? data,
       int? dataCount,
@@ -164,7 +164,7 @@ class _RenderSparkLineChart extends RenderSparkChart {
       SparkChartLabelDisplayMode? labelDisplayMode,
       TextStyle? labelStyle,
       SparkChartDataDetails? sparkChartDataDetails,
-      ThemeData? themeData,
+      SfChartThemeData? themeData,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
       : _width = width,
@@ -197,10 +197,10 @@ class _RenderSparkLineChart extends RenderSparkChart {
   /// Defines the line width.
   double? _width;
 
-  /// Returns the line width value
+  /// Returns the line width value.
   double? get width => _width;
 
-  /// Set the line width value
+  /// Set the line width value.
   set width(double? value) {
     if (_width != value) {
       _width = value;
@@ -211,10 +211,10 @@ class _RenderSparkLineChart extends RenderSparkChart {
   /// Defines the dash array.
   List<double>? _dashArray;
 
-  /// Returns the dash arry value
+  /// Returns the dash array value.
   List<double>? get dashArray => _dashArray;
 
-  /// Set the line width value
+  /// Set the line width value.
   set dashArray(List<double>? value) {
     if (_dashArray != value) {
       _dashArray = value;
@@ -222,13 +222,13 @@ class _RenderSparkLineChart extends RenderSparkChart {
     }
   }
 
-  /// Defines the marker for spark chart
+  /// Defines the marker for spark chart.
   SparkChartMarker? _marker;
 
-  /// Gets the marker for spark chart
+  /// Gets the marker for spark chart.
   SparkChartMarker? get marker => _marker;
 
-  /// Sets the marker for spark chart
+  /// Sets the marker for spark chart.
   set marker(SparkChartMarker? value) {
     if (_marker != value) {
       _marker = value;
@@ -236,13 +236,13 @@ class _RenderSparkLineChart extends RenderSparkChart {
     }
   }
 
-  /// Defines the spark chart data label mode
+  /// Defines the spark chart data label mode.
   SparkChartLabelDisplayMode? _labelDisplayMode;
 
-  /// Returns the spark chart data label mode
+  /// Returns the spark chart data label mode.
   SparkChartLabelDisplayMode? get labelDisplayMode => _labelDisplayMode;
 
-  /// Sets the spark chart data label mode
+  /// Sets the spark chart data label mode.
   set labelDisplayMode(SparkChartLabelDisplayMode? value) {
     if (_labelDisplayMode != value) {
       _labelDisplayMode = value;
@@ -250,13 +250,13 @@ class _RenderSparkLineChart extends RenderSparkChart {
     }
   }
 
-  /// Defines the spark chart data label text style
+  /// Defines the spark chart data label text style.
   TextStyle? _labelStyle;
 
-  /// Returns the spark chart data label text style
+  /// Returns the spark chart data label text style.
   TextStyle? get labelStyle => _labelStyle;
 
-  /// Sets the spark chart data label mode
+  /// Sets the spark chart data label mode.
   set labelStyle(TextStyle? value) {
     if (_labelStyle != value) {
       _labelStyle = value;
@@ -264,13 +264,13 @@ class _RenderSparkLineChart extends RenderSparkChart {
     }
   }
 
-  /// Specifies the low point in series
+  /// Specifies the low point in series.
   late num _lowPoint;
 
-  /// Specifies the high point in series
+  /// Specifies the high point in series.
   late num _highPoint;
 
-  /// Render line series
+  /// Render line series.
   void _renderLineSeries(Canvas canvas, Offset offset) {
     if (width != null && width! > 0) {
       final Paint paint = Paint()

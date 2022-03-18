@@ -1,20 +1,13 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-// ignore: unused_import
-import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/legend_internal.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:syncfusion_flutter_maps/maps.dart';
 import 'package:syncfusion_flutter_maps/src/controller/map_controller.dart';
 
 import '../common.dart';
-import '../enum.dart';
-import '../layer/shape_layer.dart';
-import '../settings.dart';
 
 /// Specifies the legend type.
 enum _LegendType {
@@ -542,8 +535,8 @@ class MapLegend extends DiagnosticableTree {
   /// icon will have the default color.
   ///
   /// See also:
-  /// * [legend], to enable the legend toggle interaction and customize
-  /// the appearance of the legend items.
+  /// * [MapShapeLayer.legend], to enable the legend toggle interaction and
+  /// customize the appearance of the legend items.
   final MapElement source;
 
   /// Sets a title for the legend.
@@ -1888,7 +1881,7 @@ class MapLegend extends DiagnosticableTree {
 
   /// Returns a widget for the given value.
   ///
-  /// The pointer is used to indicate the exact colour of the hovering
+  /// The pointer is used to indicate the exact color of the hovering
   /// shape or bubble on the segment.
   ///
   /// The [pointerBuilder] will be called when the user interacts with the
@@ -2199,7 +2192,7 @@ class Legend extends StatefulWidget {
   final SfMapsThemeData themeData;
 
   @override
-  _LegendState createState() => _LegendState();
+  State<Legend> createState() => _LegendState();
 }
 
 class _LegendState extends State<Legend> {
@@ -2393,7 +2386,7 @@ class _LegendState extends State<Legend> {
 
   Color? _getEffectiveToggledItemColor() {
     if (widget.themeData.toggledItemColor != Colors.transparent) {
-      return widget.themeData.toggledItemColor
+      return widget.themeData.toggledItemColor!
           .withOpacity(widget.legend.toggledItemOpacity);
     }
     return widget.themeData.toggledItemColor;

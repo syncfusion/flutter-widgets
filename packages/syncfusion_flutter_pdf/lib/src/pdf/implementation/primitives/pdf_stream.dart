@@ -1,36 +1,65 @@
-part of pdf;
+import 'dart:convert';
 
-class _PdfStream extends _PdfDictionary {
-  _PdfStream([_PdfDictionary? dictionary, List<int>? data]) {
+import '../../interfaces/pdf_interface.dart';
+import '../compression/compressed_stream_writer.dart';
+import '../compression/pdf_png_filter.dart';
+import '../compression/pdf_zlib_compressor.dart';
+import '../io/pdf_constants.dart';
+import '../io/pdf_cross_table.dart';
+import '../pdf_document/enums.dart';
+import '../pdf_document/pdf_document.dart';
+import '../primitives/pdf_array.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_null.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_reference_holder.dart';
+import '../primitives/pdf_string.dart';
+import '../security/pdf_encryptor.dart';
+import '../security/pdf_security.dart';
+
+/// internal class
+class PdfStream extends PdfDictionary {
+  /// internal constructor
+  PdfStream([PdfDictionary? dictionary, List<int>? data]) {
     if (dictionary == null && data == null) {
-      _dataStream = <int>[];
+      dataStream = <int>[];
       _compress = true;
     } else {
       ArgumentError.checkNotNull(data, 'data');
       ArgumentError.checkNotNull(dictionary, 'dictionary');
       _compress = false;
-      _dataStream = <int>[];
-      _dataStream!.addAll(data!);
-      _copyDictionary(dictionary);
-      this[_DictionaryProperties.length] = _PdfNumber(_dataStream!.length);
+      dataStream = <int>[];
+      dataStream!.addAll(data!);
+      copyDictionary(dictionary);
+      this[PdfDictionaryProperties.length] = PdfNumber(dataStream!.length);
     }
     decrypted = false;
-    _blockEncryption = false;
+    blockEncryption = false;
   }
 
   //Constants
+  /// internal field
   static const String prefix = 'stream';
+
+  /// internal field
   static const String suffix = 'endstream';
 
   //Fields
-  List<int>? _dataStream;
+  /// internal field
+  List<int>? dataStream;
   bool? _compress;
-  _PdfStream? _clonedObject;
+  PdfStream? _clonedObject;
+
+  /// internal field
   @override
-  bool? _isChanged;
-  late bool _blockEncryption;
+  bool? isChanged;
+
+  /// internal field
+  late bool blockEncryption;
 
   //Properties
+  /// internal property
   bool? get compress {
     return _compress;
   }
@@ -42,18 +71,18 @@ class _PdfStream extends _PdfDictionary {
 
   //Implementations
   void _modify() {
-    _isChanged = true;
+    isChanged = true;
   }
 
   List<int>? _compressContent(PdfDocument? document) {
-    final List<int>? data = _dataStream;
+    final List<int>? data = dataStream;
     if (compress! && document!.compressionLevel != PdfCompressionLevel.none) {
       final List<int> outputStream = <int>[];
-      final _CompressedStreamWriter compressedWriter = _CompressedStreamWriter(
+      final CompressedStreamWriter compressedWriter = CompressedStreamWriter(
           outputStream, false, document.compressionLevel, false);
       compressedWriter.write(data!, 0, data.length, false);
-      compressedWriter._close();
-      _addFilter(_DictionaryProperties.flateDecode);
+      compressedWriter.close();
+      _addFilter(PdfDictionaryProperties.flateDecode);
       compress = false;
       return outputStream;
     } else {
@@ -61,33 +90,34 @@ class _PdfStream extends _PdfDictionary {
     }
   }
 
-  void _decompress() {
+  /// internal method
+  void decompress() {
     String? filterName = '';
-    _IPdfPrimitive? primitive = this[_DictionaryProperties.filter];
-    if (primitive is _PdfReferenceHolder) {
-      final _PdfReferenceHolder holder = primitive;
+    IPdfPrimitive? primitive = this[PdfDictionaryProperties.filter];
+    if (primitive is PdfReferenceHolder) {
+      final PdfReferenceHolder holder = primitive;
       primitive = holder.object;
     }
     if (primitive != null) {
-      if (primitive is _PdfName) {
-        final _PdfName name = primitive;
-        if (name._name == 'ASCIIHexDecode') {
-          _dataStream = _decode(_dataStream);
+      if (primitive is PdfName) {
+        final PdfName name = primitive;
+        if (name.name == 'ASCIIHexDecode') {
+          dataStream = _decode(dataStream);
         } else {
-          _dataStream = _decompressData(_dataStream!, name._name!);
+          dataStream = _decompressData(dataStream!, name.name!);
         }
         _modify();
-      } else if (primitive is _PdfArray) {
-        final _PdfArray filter = primitive;
+      } else if (primitive is PdfArray) {
+        final PdfArray filter = primitive;
         for (int i = 0; i < filter.count; i++) {
-          final _IPdfPrimitive? pdfFilter = filter[i];
-          if (pdfFilter != null && pdfFilter is _PdfName) {
-            filterName = pdfFilter._name;
+          final IPdfPrimitive? pdfFilter = filter[i];
+          if (pdfFilter != null && pdfFilter is PdfName) {
+            filterName = pdfFilter.name;
           }
           if (filterName == 'ASCIIHexDecode') {
-            _dataStream = _decode(_dataStream);
+            dataStream = _decode(dataStream);
           } else {
-            _dataStream = _decompressData(_dataStream!, filterName!);
+            dataStream = _decompressData(dataStream!, filterName!);
           }
           _modify();
         }
@@ -95,7 +125,7 @@ class _PdfStream extends _PdfDictionary {
         throw ArgumentError.value(filterName, 'Invalid format');
       }
     }
-    remove(_DictionaryProperties.filter);
+    remove(PdfDictionaryProperties.filter);
     _compress = true;
   }
 
@@ -107,12 +137,18 @@ class _PdfStream extends _PdfDictionary {
     if (data.isEmpty) {
       return data;
     }
-    if (filter != _DictionaryProperties.crypt) {
-      if (filter == _DictionaryProperties.runLengthDecode) {
+    if (filter != PdfDictionaryProperties.crypt) {
+      if (filter == PdfDictionaryProperties.runLengthDecode) {
         return data;
-      } else if (filter == _DictionaryProperties.flateDecode ||
-          filter == _DictionaryProperties.flateDecodeShort) {
-        final _PdfZlibCompressor compressor = _PdfZlibCompressor();
+      } else if (filter == PdfDictionaryProperties.flateDecode ||
+          filter == PdfDictionaryProperties.flateDecodeShort) {
+        final PdfZlibCompressor compressor = PdfZlibCompressor();
+        data = compressor.decompress(data);
+        data = _postProcess(data, filter);
+        return data;
+      } else if (filter == PdfDictionaryProperties.ascii85Decode ||
+          filter == PdfDictionaryProperties.ascii85DecodeShort) {
+        final PdfAscii85Compressor compressor = PdfAscii85Compressor();
         data = compressor.decompress(data);
         data = _postProcess(data, filter);
         return data;
@@ -124,31 +160,31 @@ class _PdfStream extends _PdfDictionary {
   }
 
   List<int> _postProcess(List<int> data, String filter) {
-    _IPdfPrimitive? obj;
-    if (filter == _DictionaryProperties.flateDecode) {
-      obj = this[_DictionaryProperties.decodeParms];
+    IPdfPrimitive? obj;
+    if (filter == PdfDictionaryProperties.flateDecode) {
+      obj = this[PdfDictionaryProperties.decodeParms];
       if (obj == null) {
         return data;
       }
-      _PdfDictionary? decodeParams;
-      _PdfArray? decodeParamsArr;
-      _PdfNull? pdfNull;
-      if (obj is _PdfReferenceHolder) {
-        final _IPdfPrimitive? primitive = _PdfCrossTable._dereference(obj);
-        if (primitive is _PdfDictionary) {
+      PdfDictionary? decodeParams;
+      PdfArray? decodeParamsArr;
+      PdfNull? pdfNull;
+      if (obj is PdfReferenceHolder) {
+        final IPdfPrimitive? primitive = PdfCrossTable.dereference(obj);
+        if (primitive is PdfDictionary) {
           decodeParams = primitive;
         }
-        if (primitive is _PdfArray) {
+        if (primitive is PdfArray) {
           decodeParamsArr = primitive;
         }
-        if (primitive is _PdfNull) {
+        if (primitive is PdfNull) {
           pdfNull = primitive;
         }
-      } else if (obj is _PdfDictionary) {
+      } else if (obj is PdfDictionary) {
         decodeParams = obj;
-      } else if (obj is _PdfArray) {
+      } else if (obj is PdfArray) {
         decodeParamsArr = obj;
-      } else if (obj is _PdfNull) {
+      } else if (obj is PdfNull) {
         pdfNull = obj;
       }
       if (pdfNull != null) {
@@ -160,11 +196,11 @@ class _PdfStream extends _PdfDictionary {
         }
       }
       if (decodeParamsArr != null) {
-        final _IPdfPrimitive? decode = decodeParamsArr[0];
-        if (decode != null && decode is _PdfDictionary) {
-          if (decode.containsKey(_DictionaryProperties.name)) {
-            final _IPdfPrimitive? name = decode[_DictionaryProperties.name];
-            if (name != null && name is _PdfName && name._name == 'StdCF') {
+        final IPdfPrimitive? decode = decodeParamsArr[0];
+        if (decode != null && decode is PdfDictionary) {
+          if (decode.containsKey(PdfDictionaryProperties.name)) {
+            final IPdfPrimitive? name = decode[PdfDictionaryProperties.name];
+            if (name != null && name is PdfName && name.name == 'StdCF') {
               return data;
             }
           }
@@ -172,19 +208,19 @@ class _PdfStream extends _PdfDictionary {
       }
       int predictor = 1;
       if (decodeParams != null) {
-        if (decodeParams.containsKey(_DictionaryProperties.predictor)) {
-          final _IPdfPrimitive? number =
-              decodeParams[_DictionaryProperties.predictor];
-          if (number is _PdfNumber) {
+        if (decodeParams.containsKey(PdfDictionaryProperties.predictor)) {
+          final IPdfPrimitive? number =
+              decodeParams[PdfDictionaryProperties.predictor];
+          if (number is PdfNumber) {
             predictor = number.value!.toInt();
           }
         }
       } else if (decodeParamsArr != null && decodeParamsArr.count > 0) {
-        final _IPdfPrimitive? dictionary = decodeParamsArr[0];
+        final IPdfPrimitive? dictionary = decodeParamsArr[0];
         if (dictionary != null &&
-            dictionary is _PdfDictionary &&
-            dictionary.containsKey(_DictionaryProperties.predictor)) {
-          predictor = dictionary._getInt(_DictionaryProperties.predictor);
+            dictionary is PdfDictionary &&
+            dictionary.containsKey(PdfDictionaryProperties.predictor)) {
+          predictor = dictionary.getInt(PdfDictionaryProperties.predictor);
         } else {
           predictor = 1;
         }
@@ -196,15 +232,15 @@ class _PdfStream extends _PdfDictionary {
       } else if (predictor < 16 && predictor > 2) {
         int colors = 1;
         int columns = 1;
-        obj = decodeParams![_DictionaryProperties.colors];
-        if (obj != null && obj is _PdfNumber) {
+        obj = decodeParams![PdfDictionaryProperties.colors];
+        if (obj != null && obj is PdfNumber) {
           colors = obj.value!.toInt();
         }
-        obj = decodeParams[_DictionaryProperties.columns];
-        if (obj != null && obj is _PdfNumber) {
+        obj = decodeParams[PdfDictionaryProperties.columns];
+        if (obj != null && obj is PdfNumber) {
           columns = obj.value!.toInt();
         }
-        data = _PdfPngFilter()._decompress(data, colors * columns);
+        data = PdfPngFilter().decompress(data, colors * columns);
         return data;
       } else {
         throw ArgumentError.value(filter, 'Invalid Format');
@@ -214,32 +250,33 @@ class _PdfStream extends _PdfDictionary {
   }
 
   void _addFilter(String filterName) {
-    _IPdfPrimitive? filter = _items![_DictionaryProperties.filter];
-    if (filter is _PdfReferenceHolder) {
-      filter = filter._object;
+    IPdfPrimitive? filter = items![PdfDictionaryProperties.filter];
+    if (filter is PdfReferenceHolder) {
+      filter = filter.referenceObject;
     }
-    late _PdfName name;
-    _PdfArray? array;
-    if (filter is _PdfArray) {
+    late PdfName name;
+    PdfArray? array;
+    if (filter is PdfArray) {
       array = filter;
     }
-    if (filter is _PdfName) {
+    if (filter is PdfName) {
       name = filter;
     }
     if (filter != null) {
-      array = _PdfArray();
-      array._insert(0, name);
-      this[_DictionaryProperties.filter] = array;
+      array = PdfArray();
+      array.insert(0, name);
+      this[PdfDictionaryProperties.filter] = array;
     }
-    name = _PdfName(filterName);
+    name = PdfName(filterName);
     if (array == null) {
-      this[_DictionaryProperties.filter] = name;
+      this[PdfDictionaryProperties.filter] = name;
     } else {
-      array._insert(0, name);
+      array.insert(0, name);
     }
   }
 
-  void _write(dynamic pdfObject) {
+  /// internal method
+  void write(dynamic pdfObject) {
     if (pdfObject == null) {
       throw ArgumentError.value(pdfObject, 'pdfObject', 'value cannot be null');
     }
@@ -247,12 +284,12 @@ class _PdfStream extends _PdfDictionary {
       if ((pdfObject as String).isEmpty) {
         throw ArgumentError.value(pdfObject, 'value cannot be empty');
       }
-      _write(utf8.encode(pdfObject));
+      write(utf8.encode(pdfObject));
     } else if (pdfObject is List<int> || pdfObject is List<int?>) {
       if ((pdfObject as List<int>).isEmpty) {
         throw ArgumentError.value(pdfObject, 'value cannot be empty');
       }
-      _dataStream!.addAll(pdfObject);
+      dataStream!.addAll(pdfObject);
       _modify();
     } else {
       throw ArgumentError.value(
@@ -260,127 +297,131 @@ class _PdfStream extends _PdfDictionary {
     }
   }
 
-  void _clearStream() {
-    _dataStream!.clear();
-    if (containsKey(_DictionaryProperties.filter)) {
-      remove(_DictionaryProperties.filter);
+  /// internal method
+  void clearStream() {
+    dataStream!.clear();
+    if (containsKey(PdfDictionaryProperties.filter)) {
+      remove(PdfDictionaryProperties.filter);
     }
     compress = true;
     _modify();
   }
 
-  //_IPdfPrimitive members
+  //IPdfPrimitive members
   @override
-  void save(_IPdfWriter? writer) {
-    final _SavePdfPrimitiveArgs beginSaveArguments =
-        _SavePdfPrimitiveArgs(writer);
-    _onBeginSave(beginSaveArguments);
-    List<int>? data = _compressContent(writer!._document);
-    final PdfSecurity security = writer._document!.security;
-    if (security._encryptor.encrypt &&
-        security._encryptor._encryptOnlyAttachment!) {
+  void save(IPdfWriter? writer) {
+    final SavePdfPrimitiveArgs beginSaveArguments =
+        SavePdfPrimitiveArgs(writer);
+    onBeginSave(beginSaveArguments);
+    List<int>? data = _compressContent(writer!.document);
+    final PdfSecurity security = writer.document!.security;
+    if (PdfSecurityHelper.getHelper(security).encryptor.encrypt &&
+        PdfSecurityHelper.getHelper(security)
+            .encryptor
+            .encryptAttachmentOnly!) {
       bool attachmentEncrypted = false;
-      if (containsKey(_DictionaryProperties.type)) {
-        final _IPdfPrimitive? primitive = _items![_DictionaryProperties.type];
+      if (containsKey(PdfDictionaryProperties.type)) {
+        final IPdfPrimitive? primitive = items![PdfDictionaryProperties.type];
         if (primitive != null &&
-            primitive is _PdfName &&
-            primitive._name == _DictionaryProperties.embeddedFile) {
+            primitive is PdfName &&
+            primitive.name == PdfDictionaryProperties.embeddedFile) {
           bool? isArray;
           bool? isString;
-          _IPdfPrimitive? filterPrimitive;
-          if (containsKey(_DictionaryProperties.filter)) {
-            filterPrimitive = _items![_DictionaryProperties.filter];
-            isArray = filterPrimitive is _PdfArray;
-            isString = filterPrimitive is _PdfString;
+          IPdfPrimitive? filterPrimitive;
+          if (containsKey(PdfDictionaryProperties.filter)) {
+            filterPrimitive = items![PdfDictionaryProperties.filter];
+            isArray = filterPrimitive is PdfArray;
+            isString = filterPrimitive is PdfString;
           }
           if ((isArray == null && isString == null) ||
               !isArray! ||
               (isArray &&
-                  (filterPrimitive! as _PdfArray)
-                      ._contains(_PdfName(_DictionaryProperties.crypt)))) {
+                  (filterPrimitive! as PdfArray)
+                      .contains(PdfName(PdfDictionaryProperties.crypt)))) {
             if (_compress! ||
-                !containsKey(_DictionaryProperties.filter) ||
+                !containsKey(PdfDictionaryProperties.filter) ||
                 (isArray! &&
-                        (filterPrimitive! as _PdfArray)._contains(
-                            _PdfName(_DictionaryProperties.flateDecode)) ||
+                        (filterPrimitive! as PdfArray).contains(
+                            PdfName(PdfDictionaryProperties.flateDecode)) ||
                     (isString! &&
-                        (filterPrimitive! as _PdfString).value ==
-                            _DictionaryProperties.flateDecode))) {
-              data = _compressContent(writer._document);
+                        (filterPrimitive! as PdfString).value ==
+                            PdfDictionaryProperties.flateDecode))) {
+              data = _compressContent(writer.document);
             }
             attachmentEncrypted = true;
             data = _encryptContent(data, writer);
-            _addFilter(_DictionaryProperties.crypt);
+            _addFilter(PdfDictionaryProperties.crypt);
           }
-          if (!containsKey(_DictionaryProperties.decodeParms)) {
-            final _PdfArray decode = _PdfArray();
-            final _PdfDictionary decodeparms = _PdfDictionary();
-            decodeparms[_DictionaryProperties.name] =
-                _PdfName(_DictionaryProperties.stdCF);
-            decode._add(decodeparms);
-            decode._add(_PdfNull());
-            _items![_PdfName(_DictionaryProperties.decodeParms)] = decode;
+          if (!containsKey(PdfDictionaryProperties.decodeParms)) {
+            final PdfArray decode = PdfArray();
+            final PdfDictionary decodeparms = PdfDictionary();
+            decodeparms[PdfDictionaryProperties.name] =
+                PdfName(PdfDictionaryProperties.stdCF);
+            decode.add(decodeparms);
+            decode.add(PdfNull());
+            items![PdfName(PdfDictionaryProperties.decodeParms)] = decode;
           }
         }
       }
       if (!attachmentEncrypted) {
-        if (containsKey(_DictionaryProperties.decodeParms)) {
-          final _IPdfPrimitive? primitive =
-              _items![_DictionaryProperties.decodeParms];
-          if (primitive is _PdfArray) {
-            final _PdfArray decodeParamArray = primitive;
+        if (containsKey(PdfDictionaryProperties.decodeParms)) {
+          final IPdfPrimitive? primitive =
+              items![PdfDictionaryProperties.decodeParms];
+          if (primitive is PdfArray) {
+            final PdfArray decodeParamArray = primitive;
             if (decodeParamArray.count > 0 &&
-                decodeParamArray[0] is _PdfDictionary) {
-              final _PdfDictionary decode =
-                  decodeParamArray[0]! as _PdfDictionary;
-              if (decode.containsKey(_DictionaryProperties.name)) {
-                final _IPdfPrimitive? name = decode[_DictionaryProperties.name];
-                if (name is _PdfName &&
-                    name._name == _DictionaryProperties.stdCF) {
-                  _PdfArray? filter;
-                  if (containsKey(_DictionaryProperties.filter)) {
-                    final _IPdfPrimitive? filterType =
-                        _items![_DictionaryProperties.filter];
-                    if (filterType is _PdfArray) {
+                decodeParamArray[0] is PdfDictionary) {
+              final PdfDictionary decode =
+                  decodeParamArray[0]! as PdfDictionary;
+              if (decode.containsKey(PdfDictionaryProperties.name)) {
+                final IPdfPrimitive? name =
+                    decode[PdfDictionaryProperties.name];
+                if (name is PdfName &&
+                    name.name == PdfDictionaryProperties.stdCF) {
+                  PdfArray? filter;
+                  if (containsKey(PdfDictionaryProperties.filter)) {
+                    final IPdfPrimitive? filterType =
+                        items![PdfDictionaryProperties.filter];
+                    if (filterType is PdfArray) {
                       filter = filterType;
                     }
                   }
                   if (filter == null ||
-                      filter._contains(_PdfName(_DictionaryProperties.crypt))) {
+                      filter.contains(PdfName(PdfDictionaryProperties.crypt))) {
                     if (_compress!) {
-                      data = _compressContent(writer._document);
+                      data = _compressContent(writer.document);
                     }
                     data = _encryptContent(data, writer);
-                    _addFilter(_DictionaryProperties.crypt);
+                    _addFilter(PdfDictionaryProperties.crypt);
                   }
                 }
               }
             }
           }
-        } else if (containsKey(_DictionaryProperties.dl)) {
+        } else if (containsKey(PdfDictionaryProperties.dl)) {
           if (_compress!) {
-            data = _compressContent(writer._document);
+            data = _compressContent(writer.document);
           }
           data = _encryptContent(data, writer);
-          _addFilter(_DictionaryProperties.crypt);
-          if (!containsKey(_DictionaryProperties.decodeParms)) {
-            final _PdfArray decode = _PdfArray();
-            final _PdfDictionary decodeparms = _PdfDictionary();
-            decodeparms[_DictionaryProperties.name] =
-                _PdfName(_DictionaryProperties.stdCF);
-            decode._add(decodeparms);
-            decode._add(_PdfNull());
-            _items![_PdfName(_DictionaryProperties.decodeParms)] = decode;
+          _addFilter(PdfDictionaryProperties.crypt);
+          if (!containsKey(PdfDictionaryProperties.decodeParms)) {
+            final PdfArray decode = PdfArray();
+            final PdfDictionary decodeparms = PdfDictionary();
+            decodeparms[PdfDictionaryProperties.name] =
+                PdfName(PdfDictionaryProperties.stdCF);
+            decode.add(decodeparms);
+            decode.add(PdfNull());
+            items![PdfName(PdfDictionaryProperties.decodeParms)] = decode;
           }
         }
       }
     }
-    if (!security._encryptor._encryptMetadata! &&
-        containsKey(_DictionaryProperties.type)) {
-      final _IPdfPrimitive? primitive = _items![_DictionaryProperties.type];
-      if (primitive != null && primitive is _PdfName) {
-        final _PdfName fileType = primitive;
-        if (fileType._name != _DictionaryProperties.metadata) {
+    if (!PdfSecurityHelper.getHelper(security).encryptor.encryptOnlyMetadata! &&
+        containsKey(PdfDictionaryProperties.type)) {
+      final IPdfPrimitive? primitive = items![PdfDictionaryProperties.type];
+      if (primitive != null && primitive is PdfName) {
+        final PdfName fileType = primitive;
+        if (fileType.name != PdfDictionaryProperties.metadata) {
           data = _encryptContent(data, writer);
         }
       }
@@ -388,41 +429,40 @@ class _PdfStream extends _PdfDictionary {
       data = _encryptContent(data, writer);
     }
 
-    this[_DictionaryProperties.length] = _PdfNumber(data!.length);
-    super._saveDictionary(writer, false);
-    writer._write(prefix);
-    writer._write(_Operators.newLine);
+    this[PdfDictionaryProperties.length] = PdfNumber(data!.length);
+    super.saveDictionary(writer, false);
+    writer.write(prefix);
+    writer.write(PdfOperators.newLine);
     if (data.isNotEmpty) {
-      writer._write(data);
-      writer._write(_Operators.newLine);
+      writer.write(data);
+      writer.write(PdfOperators.newLine);
     }
-    writer._write(suffix);
-    writer._write(_Operators.newLine);
-    final _SavePdfPrimitiveArgs endSaveArguments =
-        _SavePdfPrimitiveArgs(writer);
-    _onEndSave(endSaveArguments);
+    writer.write(suffix);
+    writer.write(PdfOperators.newLine);
+    final SavePdfPrimitiveArgs endSaveArguments = SavePdfPrimitiveArgs(writer);
+    onEndSave(endSaveArguments);
     if (_compress!) {
-      remove(_DictionaryProperties.filter);
+      remove(PdfDictionaryProperties.filter);
     }
   }
 
   @override
   void dispose() {
-    if (_dataStream != null && _dataStream!.isNotEmpty) {
-      _dataStream!.clear();
-      _dataStream = null;
+    if (dataStream != null && dataStream!.isNotEmpty) {
+      dataStream!.clear();
+      dataStream = null;
     }
   }
 
   @override
-  _IPdfPrimitive? _clone(_PdfCrossTable crossTable) {
-    if (_clonedObject != null && _clonedObject!._crossTable == crossTable) {
+  IPdfPrimitive? cloneObject(PdfCrossTable crossTable) {
+    if (_clonedObject != null && _clonedObject!.crossTable == crossTable) {
       return _clonedObject;
     } else {
       _clonedObject = null;
     }
-    final _PdfDictionary? dict = super._clone(crossTable) as _PdfDictionary?;
-    final _PdfStream newStream = _PdfStream(dict, _dataStream);
+    final PdfDictionary? dict = super.cloneObject(crossTable) as PdfDictionary?;
+    final PdfStream newStream = PdfStream(dict, dataStream);
     newStream.compress = _compress;
     _clonedObject = newStream;
     return newStream;
@@ -431,21 +471,25 @@ class _PdfStream extends _PdfDictionary {
   @override
   bool? decrypted;
 
-  void decrypt(_PdfEncryptor encryptor, int? currentObjectNumber) {
+  /// internal method
+  void decrypt(PdfEncryptor encryptor, int? currentObjectNumber) {
     if (!decrypted!) {
       decrypted = true;
-      _dataStream =
-          encryptor._encryptData(currentObjectNumber, _dataStream!, false);
+      dataStream =
+          encryptor.encryptData(currentObjectNumber, dataStream!, false);
       _modify();
     }
   }
 
-  List<int>? _encryptContent(List<int>? data, _IPdfWriter writer) {
-    final PdfDocument doc = writer._document!;
-    final _PdfEncryptor encryptor = doc.security._encryptor;
-    if (encryptor.encrypt && !_blockEncryption) {
-      data = encryptor._encryptData(
-          doc._currentSavingObject!._objNum, data!, true);
+  List<int>? _encryptContent(List<int>? data, IPdfWriter writer) {
+    final PdfDocument doc = writer.document!;
+    final PdfEncryptor encryptor =
+        PdfSecurityHelper.getHelper(doc.security).encryptor;
+    if (encryptor.encrypt && !blockEncryption) {
+      data = encryptor.encryptData(
+          PdfDocumentHelper.getHelper(doc).currentSavingObject!.objNum,
+          data!,
+          true);
     }
     return data;
   }

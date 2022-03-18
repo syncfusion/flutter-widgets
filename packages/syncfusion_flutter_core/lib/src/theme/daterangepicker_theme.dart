@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../theme.dart';
@@ -137,84 +136,6 @@ class SfDateRangePickerThemeData with Diagnosticable {
     TextStyle? specialDatesTextStyle,
     TextStyle? weekNumberTextStyle,
   }) {
-    brightness = brightness ?? Brightness.light;
-    final bool isLight = brightness == Brightness.light;
-    backgroundColor ??= Colors.transparent;
-    headerBackgroundColor ??= Colors.transparent;
-    viewHeaderBackgroundColor ??= Colors.transparent;
-    weekNumberBackgroundColor = Colors.grey.withOpacity(0.19);
-    viewHeaderTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black87, fontSize: 11, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white, fontSize: 11, fontFamily: 'Roboto');
-    headerTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black87, fontSize: 16, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white, fontSize: 16, fontFamily: 'Roboto');
-    trailingDatesTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black54, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white54, fontSize: 13, fontFamily: 'Roboto');
-    leadingCellTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black54, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white54, fontSize: 13, fontFamily: 'Roboto');
-    activeDatesTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black87, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white, fontSize: 13, fontFamily: 'Roboto');
-    cellTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black87, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white, fontSize: 13, fontFamily: 'Roboto');
-    leadingDatesTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black54, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white54, fontSize: 13, fontFamily: 'Roboto');
-    rangeSelectionTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black87, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white, fontSize: 13, fontFamily: 'Roboto');
-    disabledDatesTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black26, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white38, fontSize: 13, fontFamily: 'Roboto');
-    disabledCellTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.black26, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white38, fontSize: 13, fontFamily: 'Roboto');
-    selectionTextStyle ??= isLight
-        ? const TextStyle(
-            color: Colors.white, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.black, fontSize: 13, fontFamily: 'Roboto');
-    todayTextStyle ??= isLight
-        ? const TextStyle(fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(fontSize: 13, fontFamily: 'Roboto');
-    todayCellTextStyle ??= isLight
-        ? const TextStyle(fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(fontSize: 13, fontFamily: 'Roboto');
-    specialDatesTextStyle ??= isLight
-        ? const TextStyle(
-            color: Color(0xFF339413), fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Color(0xFFEA75FF), fontSize: 13, fontFamily: 'Roboto');
-    weekNumberTextStyle = isLight
-        ? const TextStyle(
-            color: Colors.black87, fontSize: 13, fontFamily: 'Roboto')
-        : const TextStyle(
-            color: Colors.white, fontSize: 13, fontFamily: 'Roboto');
-
     return SfDateRangePickerThemeData.raw(
         brightness: brightness,
         backgroundColor: backgroundColor,
@@ -306,7 +227,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Brightness brightness;
+  final Brightness? brightness;
 
   /// Specifies the background color of date picker widget.
   ///
@@ -327,7 +248,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// Specify the date picker view header text style in month view.
   ///
@@ -349,7 +270,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle viewHeaderTextStyle;
+  final TextStyle? viewHeaderTextStyle;
 
   /// Specify the date picker header text style.
   ///
@@ -370,7 +291,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle headerTextStyle;
+  final TextStyle? headerTextStyle;
 
   /// Specify the date picker trailing dates cell text style.
   ///
@@ -391,7 +312,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle trailingDatesTextStyle;
+  final TextStyle? trailingDatesTextStyle;
 
   /// Specify the date picker leading year, decade or century cell text style
   ///
@@ -413,7 +334,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle leadingCellTextStyle;
+  final TextStyle? leadingCellTextStyle;
 
   /// Specify the date picker current month cells text style.
   ///
@@ -434,7 +355,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle activeDatesTextStyle;
+  final TextStyle? activeDatesTextStyle;
 
   /// Specify the date picker current year, decade or century cells text style.
   ///
@@ -455,7 +376,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle cellTextStyle;
+  final TextStyle? cellTextStyle;
 
   /// Specify the date picker in-between selected range text style in month
   /// view when selection mode as range/multi-range selection.
@@ -478,7 +399,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle rangeSelectionTextStyle;
+  final TextStyle? rangeSelectionTextStyle;
 
   /// Specify the date picker leading dates cell text style.
   ///
@@ -499,7 +420,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle leadingDatesTextStyle;
+  final TextStyle? leadingDatesTextStyle;
 
   /// Specify the date picker disabled cell text style.
   ///
@@ -520,7 +441,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle disabledDatesTextStyle;
+  final TextStyle? disabledDatesTextStyle;
 
   /// Specify the date picker disabled year, decade or century cell text style.
   ///
@@ -541,7 +462,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle disabledCellTextStyle;
+  final TextStyle? disabledCellTextStyle;
 
   /// Specify the date picker selected dates background color in
   /// month view single and multiple selection.
@@ -630,7 +551,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle selectionTextStyle;
+  final TextStyle? selectionTextStyle;
 
   /// Specify the date picker start date of selected range background color
   /// in month view when selection mode as range/multi-range selection.
@@ -695,7 +616,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color headerBackgroundColor;
+  final Color? headerBackgroundColor;
 
   /// Specify the view header background color in month view.
   ///
@@ -716,7 +637,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color viewHeaderBackgroundColor;
+  final Color? viewHeaderBackgroundColor;
 
   /// Specify the date picker blackout cell text style.
   ///
@@ -779,7 +700,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle todayTextStyle;
+  final TextStyle? todayTextStyle;
 
   /// Specify the date picker today month, decade or century cell text style.
   ///
@@ -800,7 +721,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle todayCellTextStyle;
+  final TextStyle? todayCellTextStyle;
 
   /// Specify the date picker weekend cell text style.
   ///
@@ -843,7 +764,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle specialDatesTextStyle;
+  final TextStyle? specialDatesTextStyle;
 
   /// Specifies the text style for the week number text in month view.
   ///
@@ -866,7 +787,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle weekNumberTextStyle;
+  final TextStyle? weekNumberTextStyle;
 
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.

@@ -35,6 +35,10 @@ class WeekNumberStyle with Diagnosticable {
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar
   ///
+  /// See also:
+  /// * [textStyle], which used to apply style for the text in the week number
+  /// view in calendar.
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -56,6 +60,10 @@ class WeekNumberStyle with Diagnosticable {
   ///
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar.
+  ///
+  /// See also:
+  /// * [backgroundColor], which used to fill the background of the weeknumber
+  /// panel in the calendar.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {

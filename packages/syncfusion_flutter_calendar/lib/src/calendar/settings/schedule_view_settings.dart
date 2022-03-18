@@ -8,6 +8,21 @@ import 'package:flutter/material.dart';
 /// [dayHeaderSettings], [appointmentTextStyle], [appointmentItemHeight] and
 ///  [hideEmptyScheduleWeek] in schedule view of calendar.
 ///
+/// See also:
+/// * [SfCalendar.scheduleViewMonthHeaderBuilder], which used to set custom
+/// widget for month header view of schedule view in calendar.
+/// * [SfCalendar.scheduleViewSettings], to know about the available
+/// customization options for schedule view.
+/// * [MonthViewSettings], to know more about the customization options for
+/// the month view of calendar.
+/// * [TimeSlotViewSettings], which is used to customize the timeslot view of
+/// calendar.
+/// * Knowledge base: [How to customize appointment height in schedule view](https://www.syncfusion.com/kb/12226/how-to-customize-the-appointment-height-in-schedule-view-of-the-flutter-calendar)
+/// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+/// * Knowledge base: [How to customize schedule view month header with builder](https://www.syncfusion.com/kb/12064/how-to-customize-the-schedule-view-month-header-using-builder-in-the-flutter-calendar)
+/// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+/// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+///
 /// ``` dart
 ///
 /// @override
@@ -48,6 +63,18 @@ class ScheduleViewSettings with Diagnosticable {
   /// [MonthHeaderSettings.labelTextStyle] in month label style of schedule view
   /// in calendar.
   ///
+  /// See also:
+  /// * [weekHeaderSettings], which used to customize the week header view
+  /// of the schedule view in calendar.
+  /// * [dayHeaderSettings], which used to customize the day header view of the
+  /// schedule view in calendar.
+  /// * [SfCalendar.scheduleViewMonthHeaderBuilder], which used to set custom
+  /// widget for month header view of schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize schedule view month header with builder](https://www.syncfusion.com/kb/12064/how-to-customize-the-schedule-view-month-header-using-builder-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+  ///
   /// ``` dart
   ///
   ///@override
@@ -79,6 +106,17 @@ class ScheduleViewSettings with Diagnosticable {
   /// [WeekHeaderSettings.textAlign], [WeekHeaderSettings.backgroundColor] and
   /// [WeekHeaderSettings.labelTextStyle] in week label style of schedule view
   /// in calendar.
+  ///
+  /// See also:
+  /// * [monthHeaderSettings], which used to customize the month header view
+  /// of the schedule view in calendar.
+  /// * [dayHeaderSettings], which used to customize the day header view of the
+  /// schedule view in calendar.
+  /// * [hideEmptyScheduleWeek], which used to hide the week header if the week
+  /// doesn't have any appointment on it.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///
@@ -112,6 +150,15 @@ class ScheduleViewSettings with Diagnosticable {
   /// [DayHeaderSettings.width], [DayHeaderSettings.backgroundColor],
   /// [DayHeaderSettings.dayTextStyle] and [DayHeaderSettings.dateTextStyle] in
   /// day label style of schedule view in calendar.
+  ///
+  /// See also:
+  /// * [weekHeaderSettings], which used to customize the week header view
+  /// of the schedule view in calendar.
+  /// * [monthHeaderSettings], which used to customize the month header view of
+  /// the schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///
@@ -149,6 +196,15 @@ class ScheduleViewSettings with Diagnosticable {
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar.
   ///
+  /// See also:
+  /// * [appointmentItemHeight], which is the size for the appointment view in
+  /// the schedule view of calendar.
+  /// * [SfCalendar.appointmentBuilder], which used to set custom widget for
+  /// appointment view in calendar
+  /// * Knowledge base: [How to customize appointment height in schedule view](https://www.syncfusion.com/kb/12226/how-to-customize-the-appointment-height-in-schedule-view-of-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+  ///
   /// ``` dart
   ///
   /// @override
@@ -171,6 +227,17 @@ class ScheduleViewSettings with Diagnosticable {
   /// view of [SfCalendar],.
   ///
   /// Defaults to `-1`.
+  ///
+  /// See also:
+  /// * [appointmentTextStyle], which used to customize the text style for the
+  /// text on the appointment view in calendar.
+  /// * [SfCalendar.appointmentBuilder], which used to set custom widget for
+  /// appointment view in calendar
+  /// * Knowledge base: [How to customize appointment height in schedule view](https://www.syncfusion.com/kb/12226/how-to-customize-the-appointment-height-in-schedule-view-of-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+  ///
+  ///
   /// ``` dart
   ///
   /// @override
@@ -191,6 +258,16 @@ class ScheduleViewSettings with Diagnosticable {
   /// Hides the weeks that doesn’t contain appointment on it.
   ///
   /// Defaults to false.
+  ///
+  /// See more:
+  /// * [weekHeaderSettings], which used to customize the week header view
+  /// of the schedule view in calendar.
+  /// * [appointmentItemHeight], which is the size for the appointment view in
+  /// the schedule view of calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize schedule view month header with builder](https://www.syncfusion.com/kb/12064/how-to-customize-the-schedule-view-month-header-using-builder-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///
@@ -265,6 +342,18 @@ class ScheduleViewSettings with Diagnosticable {
 /// [backgroundColor] and [monthTextStyle] in month label style of schedule view
 /// in calendar.
 ///
+/// See also:
+/// * [WeekHeaderSettings], which used to customize the week header view
+/// of the schedule view in calendar.
+/// * [DayHeaderSettings], which used to customize the day header view of the
+/// schedule view in calendar.
+/// * [SfCalendar.scheduleViewMonthHeaderBuilder], which used to set custom
+/// widget for month header view of schedule view in calendar.
+/// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+/// * Knowledge base: [How to customize schedule view month header with builder](https://www.syncfusion.com/kb/12064/how-to-customize-the-schedule-view-month-header-using-builder-in-the-flutter-calendar)
+/// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+/// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+///
 /// ``` dart
 ///
 ///@override
@@ -306,6 +395,18 @@ class MonthHeaderSettings with Diagnosticable {
   ///
   /// Defaults to `MMMM yyyy`.
   ///
+  /// See also:
+  /// * [monthTextStyle], which used to customize the text style for the text
+  /// in the month header view in calendar.
+  /// * [textAlign], which aligns the month header text in the month header view
+  /// of calendar.
+  /// * [SfCalendar.scheduleViewMonthHeaderBuilder], which used to set custom
+  /// widget for month header view of schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize schedule view month header with builder](https://www.syncfusion.com/kb/12064/how-to-customize-the-schedule-view-month-header-using-builder-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+  ///
   /// ``` dart
   ///
   /// @override
@@ -328,6 +429,16 @@ class MonthHeaderSettings with Diagnosticable {
   ///
   /// Defaults to `150`.
   ///
+  /// See also:
+  /// * [backgroundColor], which fills the background of the month header view
+  /// of schedule view in calendar.
+  /// * [SfCalendar.scheduleViewMonthHeaderBuilder], which used to set custom
+  /// widget for month header view of schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize schedule view month header with builder](https://www.syncfusion.com/kb/12064/how-to-customize-the-schedule-view-month-header-using-builder-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+  ///
   /// ``` dart
   ///
   /// @override
@@ -348,6 +459,18 @@ class MonthHeaderSettings with Diagnosticable {
   /// of schedule view.
   ///
   /// Defaults to `TextAlign.center`.
+  ///
+  /// See also:
+  /// * [monthTextStyle], which used to customize the text style for the text
+  /// in the month header view in calendar.
+  /// * [monthFormat], which formats the text on the month header view of
+  /// schedule view in calendar.
+  /// * [SfCalendar.scheduleViewMonthHeaderBuilder], which used to set custom
+  /// widget for month header view of schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize schedule view month header with builder](https://www.syncfusion.com/kb/12064/how-to-customize-the-schedule-view-month-header-using-builder-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///
@@ -374,6 +497,16 @@ class MonthHeaderSettings with Diagnosticable {
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar.
   ///
+  /// See also:
+  /// * [height], which is the size for the month header view of schedule view
+  /// in calendar.
+  /// * [SfCalendar.scheduleViewMonthHeaderBuilder], which used to set custom
+  /// widget for month header view of schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize schedule view month header with builder](https://www.syncfusion.com/kb/12064/how-to-customize-the-schedule-view-month-header-using-builder-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+  ///
   /// ``` dart
   ///
   /// @override
@@ -398,6 +531,18 @@ class MonthHeaderSettings with Diagnosticable {
   ///
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar.
+  ///
+  /// See also:
+  /// * [textAlign], which aligns the month header text in the month header view
+  /// of calendar.
+  /// * [monthFormat], which formats the text on the month header view of
+  /// schedule view in calendar.
+  /// * [SfCalendar.scheduleViewMonthHeaderBuilder], which used to set custom
+  /// widget for month header view of schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize schedule view month header with builder](https://www.syncfusion.com/kb/12064/how-to-customize-the-schedule-view-month-header-using-builder-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///
@@ -463,6 +608,17 @@ class MonthHeaderSettings with Diagnosticable {
 /// [textAlign], [backgroundColor] and [weekTextStyle] in week label style of
 /// schedule view in calendar.
 ///
+/// See also:
+/// * [MonthHeaderSettings], which used to customize the month header view
+/// of the schedule view in calendar.
+/// * [DayHeaderSettings], which used to customize the day header view of the
+/// schedule view in calendar.
+/// * [ScheduleViewSettings.hideEmptyScheduleWeek], which used to hide the week
+/// header if the week doesn't have any appointment on it.
+/// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+/// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+/// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+///
 /// ``` dart
 ///
 /// @override
@@ -507,6 +663,17 @@ class WeekHeaderSettings with Diagnosticable {
   ///
   /// Defaults to null.
   ///
+  /// See also:
+  /// * [endDateFormat], which used to format the end date text in the week
+  /// header view of schedule view in calendar.
+  /// * [textAlign], which used to align the text on the week header view of
+  /// schedule view in calendar.
+  /// * [weekTextStyle], which used to customize the text style for the text in
+  /// the week header view of schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+  ///
   /// ``` dart
   ///
   /// @override
@@ -529,6 +696,17 @@ class WeekHeaderSettings with Diagnosticable {
   /// schedule view.
   ///
   /// Defaults to null.
+  ///
+  /// See also:
+  /// * [startDateFormat], which used to format the start date text in the week
+  /// header view of schedule view in calendar.
+  /// * [textAlign], which used to align the text on the week header view of
+  /// schedule view in calendar.
+  /// * [weekTextStyle], which used to customize the text style for the text in
+  /// the week header view of schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///
@@ -553,6 +731,21 @@ class WeekHeaderSettings with Diagnosticable {
   ///
   /// Defaults to `30`.
   ///
+  /// See also:
+  /// * [backgroundColor], which used to fill the background of the week header
+  /// view in the schedule  view of calendar.
+  /// * [weekTextStyle], which used to customize the text style for the text in
+  /// the week header view of schedule view in calendar.
+  /// * [startDateFormat], which used to format the start date text in the week
+  /// header view of schedule view in calendar.
+  /// * [endDateFormat], which used to format the end date text in the week
+  /// header view of schedule view in calendar.
+  /// * [textAlign], which used to align the text on the week header view of
+  /// schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+  ///
   /// ``` dart
   ///
   /// @override
@@ -575,6 +768,21 @@ class WeekHeaderSettings with Diagnosticable {
   /// schedule view.
   ///
   /// Defaults to `TextAlign.start`.
+  ///
+  /// See also:
+  /// * [backgroundColor], which used to fill the background of the week header
+  /// view in the schedule  view of calendar.
+  /// * [weekTextStyle], which used to customize the text style for the text in
+  /// the week header view of schedule view in calendar.
+  /// * [startDateFormat], which used to format the start date text in the week
+  /// header view of schedule view in calendar.
+  /// * [endDateFormat], which used to format the end date text in the week
+  /// header view of schedule view in calendar.
+  /// * [height], which is the size for the week header view in the schedule
+  /// view of calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///
@@ -601,6 +809,21 @@ class WeekHeaderSettings with Diagnosticable {
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar.
   ///
+  /// See also:
+  /// * [height], which is the size for the week header view in the schedule
+  /// view of calendar.
+  /// * [weekTextStyle], which used to customize the text style for the text in
+  /// the week header view of schedule view in calendar.
+  /// * [startDateFormat], which used to format the start date text in the week
+  /// header view of schedule view in calendar.
+  /// * [endDateFormat], which used to format the end date text in the week
+  /// header view of schedule view in calendar.
+  /// * [textAlign], which used to align the text on the week header view of
+  /// schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+  ///
   /// ``` dart
   ///
   /// @override
@@ -625,6 +848,21 @@ class WeekHeaderSettings with Diagnosticable {
   ///
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar.
+  ///
+  /// See also:
+  /// * [backgroundColor], which used to fill the background of the week header
+  /// view in the schedule  view of calendar.
+  /// * [height], which is the size for the week header view in the schedule
+  /// view of calendar.
+  /// * [startDateFormat], which used to format the start date text in the week
+  /// header view of schedule view in calendar.
+  /// * [endDateFormat], which used to format the end date text in the week
+  /// header view of schedule view in calendar.
+  /// * [textAlign], which used to align the text on the week header view of
+  /// schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///
@@ -689,6 +927,15 @@ class WeekHeaderSettings with Diagnosticable {
 /// Allows to customize the [dayFormat], [width], [dayTextStyle]
 /// and [dateTextStyle] in day label style of schedule view in calendar.
 ///
+/// See also:
+/// * [WeekHeaderSettings], which used to customize the week header view
+/// of the schedule view in calendar.
+/// * [MonthHeaderSettings], which used to customize the month header view of
+/// the schedule view in calendar.
+/// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+/// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+/// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+///
 /// ``` dart
 ///
 /// @override
@@ -732,6 +979,15 @@ class DayHeaderSettings with Diagnosticable {
   ///
   /// Defaults to `EEE`.
   ///
+  /// See also:
+  /// * [dayTextStyle], which used to customize the text style for the day text
+  /// in the day header of schedule view in calendar.
+  /// * [dateTextStyle], which used to customize the text style for the date
+  /// text in the day header of schedule view in calendar
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
+  ///
   /// ``` dart
   ///
   /// @override
@@ -752,6 +1008,17 @@ class DayHeaderSettings with Diagnosticable {
   /// view.
   ///
   /// Defaults to `50`.
+  ///
+  /// See also:
+  /// * [dayTextStyle], which used to customize the text style for the day text
+  /// in the day header of schedule view in calendar.
+  /// * [dateTextStyle], which used to customize the text style for the date
+  /// text in the day header of schedule view in calendar.
+  /// * [dayFormat], which used to format the day text in the day header view
+  /// of schedule view in calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///
@@ -777,6 +1044,17 @@ class DayHeaderSettings with Diagnosticable {
   ///
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar.
+  ///
+  /// See also:
+  /// * [dateTextStyle], which used to customize the text style for the date
+  /// text in the day header of schedule view in calendar.
+  /// * [dayFormat], which used to format the day text in the day header view
+  /// of schedule view in calendar.
+  /// * [width], which is the size for the week header view of schedule view of
+  /// calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///
@@ -807,6 +1085,17 @@ class DayHeaderSettings with Diagnosticable {
   ///
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar.
+  ///
+  /// See also:
+  /// * [dayTextStyle], which used to customize the text style for the day text
+  /// in the day header of schedule view in calendar.
+  /// * [dayFormat], which used to format the day text in the day header view
+  /// of schedule view in calendar.
+  /// * [width], which is the size for the week header view of schedule view of
+  /// calendar.
+  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
   ///
   /// ``` dart
   ///

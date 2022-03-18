@@ -4,7 +4,7 @@ import 'dart:ui' as dart_ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_core/core.dart' as core;
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../radial_gauge/axis/radial_axis_widget.dart';
@@ -37,6 +37,7 @@ class RenderMarkerPointer extends RenderBox {
       String? imageUrl,
       MarkerPointerRenderer? markerPointerRenderer,
       required GaugeTextStyle textStyle,
+      required BuildContext context,
       Color? overlayColor,
       double? overlayRadius,
       double elevation = 0,
@@ -65,7 +66,9 @@ class RenderMarkerPointer extends RenderBox {
         _markerPointerRenderer = markerPointerRenderer,
         _pointerAnimationController = pointerAnimationController,
         _repaintNotifier = repaintNotifier,
-        _gaugeThemeData = gaugeThemeData;
+        _gaugeThemeData = gaugeThemeData,
+        _themeData = Theme.of(context),
+        _isDarkTheme = Theme.of(context).brightness == Brightness.dark;
 
   final double _margin = 15;
   dart_ui.Image? _image;
@@ -76,7 +79,7 @@ class RenderMarkerPointer extends RenderBox {
   late double _angle;
   late Offset _offset;
   late Rect _markerRect;
-  late ShapeMarkerType _shapeMarkerType;
+  late core.ShapeMarkerType _shapeMarkerType;
   bool _isAnimating = false;
   bool _isInitialLoading = true;
   late double _radius;
@@ -85,6 +88,8 @@ class RenderMarkerPointer extends RenderBox {
   late double _centerXPoint;
   late double _centerYPoint;
   late Offset _axisCenter;
+  final bool _isDarkTheme;
+  final ThemeData _themeData;
 
   /// Marker pointer old value.
   double? oldValue;
@@ -375,7 +380,7 @@ class RenderMarkerPointer extends RenderBox {
     }
 
     _imageUrl = value;
-    markNeedsPaint();
+    _loadImage();
   }
 
   /// Gets the textStyle assigned to [RenderMarkerPointer].
@@ -527,9 +532,7 @@ class RenderMarkerPointer extends RenderBox {
     _angle = _getPointerAngle();
     _radian = getDegreeToRadian(_angle);
     final Offset offset = _getMarkerOffset(_radian);
-    if (markerType == MarkerType.image && imageUrl != null) {
-      _loadImage();
-    } else if (markerType == MarkerType.text && text != null) {
+    if (markerType == MarkerType.text && text != null) {
       _textSize = getTextSize(text!, textStyle);
     }
 
@@ -543,6 +546,9 @@ class RenderMarkerPointer extends RenderBox {
   @override
   void performLayout() {
     size = Size(constraints.maxWidth, constraints.maxHeight);
+    if (markerType == MarkerType.image && imageUrl != null) {
+      _loadImage();
+    }
   }
 
   @override
@@ -556,7 +562,6 @@ class RenderMarkerPointer extends RenderBox {
 
   /// Method returns the angle of  current pointer value
   double _getPointerAngle() {
-    value = getMinMax(value, axisRenderer!.minimum, axisRenderer!.maximum);
     final double currentFactor = (axisRenderer!.renderer != null &&
             axisRenderer!.renderer?.valueToFactor(value) != null)
         ? axisRenderer!.renderer?.valueToFactor(value) ??
@@ -598,7 +603,10 @@ class RenderMarkerPointer extends RenderBox {
   /// To load the image from the image url
   // ignore: avoid_void_async
   void _loadImage() async {
-    await _renderImage();
+    await _renderImage().then((void value) {
+      WidgetsBinding.instance!
+          .addPostFrameCallback((Duration duration) => markNeedsPaint());
+    });
   }
 
   /// Renders the image from the image url
@@ -608,7 +616,6 @@ class RenderMarkerPointer extends RenderBox {
         await dart_ui.instantiateImageCodec(imageData.buffer.asUint8List());
     final dart_ui.FrameInfo frameInfo = await imageCodec.getNextFrame();
     _image = frameInfo.image;
-    markNeedsPaint();
   }
 
   /// Method to draw pointer the marker pointer.
@@ -619,7 +626,9 @@ class RenderMarkerPointer extends RenderBox {
   void drawPointer(Canvas canvas, PointerPaintingDetails pointerPaintingDetails,
       SfGaugeThemeData gaugeThemeData) {
     final Paint paint = Paint()
-      ..color = color ?? gaugeThemeData.markerColor
+      ..color = color ??
+          gaugeThemeData.markerColor ??
+          _themeData.colorScheme.secondaryContainer.withOpacity(0.8)
       ..style = PaintingStyle.fill;
     const Color shadowColor = Colors.black;
 
@@ -629,7 +638,8 @@ class RenderMarkerPointer extends RenderBox {
       overlayPaint = Paint()
         ..color = overlayColor ??
             color?.withOpacity(0.12) ??
-            gaugeThemeData.markerColor.withOpacity(0.12)
+            gaugeThemeData.markerColor?.withOpacity(0.12) ??
+            _themeData.colorScheme.secondaryContainer.withOpacity(0.12)
         ..style = PaintingStyle.fill;
     }
 
@@ -693,7 +703,7 @@ class RenderMarkerPointer extends RenderBox {
     }
 
     if (markerType != MarkerType.text && markerType != MarkerType.image) {
-      ShapePainter.paint(
+      core.paint(
           canvas: canvas,
           rect: _markerRect,
           paint: paint,
@@ -708,7 +718,11 @@ class RenderMarkerPointer extends RenderBox {
   /// To render the MarkerShape.Text
   void _drawText(Canvas canvas, Paint paint, Offset startPosition,
       double pointerAngle, SfGaugeThemeData gaugeThemeData) {
-    final Color labelColor = textStyle.color ?? gaugeThemeData.axisLabelColor;
+    final Color labelColor = textStyle.color ??
+        gaugeThemeData.axisLabelColor ??
+        (_isDarkTheme
+            ? _themeData.colorScheme.onSurface
+            : _themeData.colorScheme.onSurface.withOpacity(0.72));
 
     final TextSpan span = TextSpan(
         text: text,
@@ -761,7 +775,7 @@ class RenderMarkerPointer extends RenderBox {
       canvas.drawOval(overlayRect, overlayPaint);
     }
 
-    _shapeMarkerType = ShapeMarkerType.circle;
+    _shapeMarkerType = core.ShapeMarkerType.circle;
   }
 
   /// Renders the MarkerShape.rectangle
@@ -792,7 +806,7 @@ class RenderMarkerPointer extends RenderBox {
       canvas.drawRect(overlayRect, overlayPaint);
     }
 
-    _shapeMarkerType = ShapeMarkerType.rectangle;
+    _shapeMarkerType = core.ShapeMarkerType.rectangle;
   }
 
   /// Renders the MarkerShape.image
@@ -840,7 +854,7 @@ class RenderMarkerPointer extends RenderBox {
       canvas.drawPath(overlayPath, overlayPaint);
     }
 
-    _shapeMarkerType = ShapeMarkerType.diamond;
+    _shapeMarkerType = core.ShapeMarkerType.diamond;
   }
 
   /// Renders the triangle and the inverted triangle
@@ -880,7 +894,7 @@ class RenderMarkerPointer extends RenderBox {
       canvas.drawPath(overlayPath, overlayPaint);
     }
 
-    _shapeMarkerType = ShapeMarkerType.triangle;
+    _shapeMarkerType = core.ShapeMarkerType.triangle;
   }
 
   @override

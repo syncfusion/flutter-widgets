@@ -1,3 +1,8 @@
+## Unreleased
+
+**Features**
+* The [Flutter Maps](https://www.syncfusion.com/flutter-widgets/flutter-maps) and [Flutter Linear Gauge](https://www.syncfusion.com/flutter-widgets/flutter-linear-gauge) widgets have been developed to meet industry standards and are now marked as production-ready widgets.
+
 ## [18.3.35] - 10/01/2020
 
 **Breaking changes**

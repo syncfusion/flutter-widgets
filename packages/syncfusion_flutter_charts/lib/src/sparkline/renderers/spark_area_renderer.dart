@@ -1,17 +1,15 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import '../marker.dart';
 import '../plot_band.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import 'renderer_base.dart';
 
-/// Represents the render object for spark chart
+/// Represents the render object for spark chart.
 class SfSparkAreaChartRenderObjectWidget
     extends SfSparkChartRenderObjectWidget {
-  /// Creates the render object for spark chart
+  /// Creates the render object for spark chart.
   const SfSparkAreaChartRenderObjectWidget({
     Key? key,
     this.borderWidth,
@@ -35,7 +33,7 @@ class SfSparkAreaChartRenderObjectWidget
     this.marker,
     this.labelDisplayMode,
     this.labelStyle,
-    ThemeData? themeData,
+    SfChartThemeData? themeData,
     SparkChartDataDetails? sparkChartDataDetails,
     List<Offset>? coordinatePoints,
     List<SparkChartPoint>? dataPoints,
@@ -62,19 +60,19 @@ class SfSparkAreaChartRenderObjectWidget
             dataPoints: dataPoints,
             coordinatePoints: coordinatePoints);
 
-  /// Specifies the area chart border width
+  /// Specifies the area chart border width.
   final double? borderWidth;
 
-  /// Specifies the area chart border color
+  /// Specifies the area chart border color.
   final Color? borderColor;
 
-  /// Specifies the area chart marker
+  /// Specifies the area chart marker.
   final SparkChartMarker? marker;
 
-  /// Specifies the spark chart data label
+  /// Specifies the spark chart data label.
   final SparkChartLabelDisplayMode? labelDisplayMode;
 
-  /// Specifies the spark chart data label style
+  /// Specifies the spark chart data label style.
   final TextStyle? labelStyle;
 
   @override
@@ -109,7 +107,9 @@ class SfSparkAreaChartRenderObjectWidget
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderSparkAreaChart renderObject) {
+      BuildContext context,
+      // ignore: library_private_types_in_public_api
+      _RenderSparkAreaChart renderObject) {
     renderObject
       ..dataCount = dataCount
       ..data = data
@@ -138,9 +138,9 @@ class SfSparkAreaChartRenderObjectWidget
   }
 }
 
-/// Represents the render spark area chart class
+/// Represents the render spark area chart class.
 class _RenderSparkAreaChart extends RenderSparkChart {
-  /// Creates the render object widget
+  /// Creates the render object widget.
   _RenderSparkAreaChart(
       {List<dynamic>? data,
       int? dataCount,
@@ -164,7 +164,7 @@ class _RenderSparkAreaChart extends RenderSparkChart {
       SparkChartLabelDisplayMode? labelDisplayMode,
       TextStyle? labelStyle,
       SparkChartDataDetails? sparkChartDataDetails,
-      ThemeData? themeData,
+      SfChartThemeData? themeData,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
       : _borderWidth = borderWidth,
@@ -197,10 +197,10 @@ class _RenderSparkAreaChart extends RenderSparkChart {
   /// Defines the border width.
   double? _borderWidth;
 
-  /// Returns the border width value
+  /// Returns the border width value.
   double? get borderWidth => _borderWidth;
 
-  /// Set the border width value
+  /// Set the border width value.
   set borderWidth(double? value) {
     if (_borderWidth != value) {
       _borderWidth = value;
@@ -211,10 +211,10 @@ class _RenderSparkAreaChart extends RenderSparkChart {
   /// Defines the dash array.
   Color? _borderColor;
 
-  /// Returns the dash arry value
+  /// Returns the dash arry value.
   Color? get borderColor => _borderColor;
 
-  /// Set the line width value
+  /// Set the line width value.
   set borderColor(Color? value) {
     if (_borderColor != value) {
       _borderColor = value;
@@ -222,13 +222,13 @@ class _RenderSparkAreaChart extends RenderSparkChart {
     }
   }
 
-  /// Defines the marker for spark chart
+  /// Defines the marker for spark chart.
   SparkChartMarker? _marker;
 
-  /// Gets the marker for spark chart
+  /// Gets the marker for spark chart.
   SparkChartMarker? get marker => _marker;
 
-  /// Sets the marker for spark chart
+  /// Sets the marker for spark chart.
   set marker(SparkChartMarker? value) {
     if (_marker != value) {
       _marker = value;
@@ -236,13 +236,13 @@ class _RenderSparkAreaChart extends RenderSparkChart {
     }
   }
 
-  /// Defines the spark chart data label mode
+  /// Defines the spark chart data label mode.
   SparkChartLabelDisplayMode? _labelDisplayMode;
 
-  /// Returns the spark chart data label mode
+  /// Returns the spark chart data label mode.
   SparkChartLabelDisplayMode? get labelDisplayMode => _labelDisplayMode;
 
-  /// Sets the spark chart data label mode
+  /// Sets the spark chart data label mode.
   set labelDisplayMode(SparkChartLabelDisplayMode? value) {
     if (_labelDisplayMode != value) {
       _labelDisplayMode = value;
@@ -250,13 +250,13 @@ class _RenderSparkAreaChart extends RenderSparkChart {
     }
   }
 
-  /// Defines the spark chart data label text style
+  /// Defines the spark chart data label text style.
   TextStyle? _labelStyle;
 
-  /// Returns the spark chart data label text style
+  /// Returns the spark chart data label text style.
   TextStyle? get labelStyle => _labelStyle;
 
-  /// Sets the spark chart data label mode
+  /// Sets the spark chart data label mode.
   set labelStyle(TextStyle? value) {
     if (_labelStyle != value) {
       _labelStyle = value;
@@ -264,10 +264,10 @@ class _RenderSparkAreaChart extends RenderSparkChart {
     }
   }
 
-  /// Specifies the low point in series
+  /// Specifies the low point in series.
   num? _lowPoint;
 
-  /// Specifies the high point in series
+  /// Specifies the high point in series.
   num? _highPoint;
 
   @override
@@ -296,7 +296,7 @@ class _RenderSparkAreaChart extends RenderSparkChart {
     }
   }
 
-  /// Render area series
+  /// Render area series.
   void _renderAreaSeries(Canvas canvas, Offset offset) {
     final Paint paint = Paint()
       ..color = color!
@@ -388,7 +388,7 @@ class _RenderSparkAreaChart extends RenderSparkChart {
     }
   }
 
-  /// Method to render the area series border
+  /// Method to render the area series border.
   void _renderAreaSeriesBorder(Canvas canvas, Offset offset) {
     final Paint strokePaint = Paint()
       ..color = borderColor!

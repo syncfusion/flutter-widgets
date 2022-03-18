@@ -117,120 +117,8 @@ class SfPdfViewerThemeData with Diagnosticable {
       PdfScrollStatusStyle? scrollStatusStyle,
       PdfScrollHeadStyle? scrollHeadStyle,
       PdfBookmarkViewStyle? bookmarkViewStyle,
-      PdfPaginationDialogStyle? paginationDialogStyle}) {
-    brightness = brightness ?? Brightness.light;
-    final bool isLight = brightness == Brightness.light;
-    backgroundColor ??=
-        isLight ? const Color(0xFFD6D6D6) : const Color(0xFF303030);
-    scrollStatusStyle ??= const PdfScrollStatusStyle(
-        backgroundColor: Color(0xFF757575),
-        pageInfoTextStyle:
-            TextStyle(fontFamily: 'Roboto', fontSize: 16, color: Colors.white));
-    scrollHeadStyle ??= isLight
-        ? const PdfScrollHeadStyle(
-            backgroundColor: Color(0xFFFAFAFA),
-            pageNumberTextStyle: TextStyle(fontSize: 12, color: Colors.black))
-        : const PdfScrollHeadStyle(
-            backgroundColor: Color(0xFF424242),
-            pageNumberTextStyle: TextStyle(fontSize: 12, color: Colors.white));
-    bookmarkViewStyle ??= isLight
-        ? const PdfBookmarkViewStyle(
-            backgroundColor: Colors.white,
-            headerBarColor: Color(0xFFFAFAFA),
-            closeIconColor: Colors.black54,
-            backIconColor: Colors.black54,
-            navigationIconColor: Colors.black54,
-            selectionColor: Color.fromRGBO(0, 0, 0, 0.08),
-            titleSeparatorColor: Color.fromRGBO(0, 0, 0, 0.16),
-            headerTextStyle: TextStyle(
-              fontSize: 16,
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.normal,
-              color: Colors.black87,
-            ),
-            titleTextStyle: TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.normal,
-            ),
-          )
-        : PdfBookmarkViewStyle(
-            backgroundColor: const Color(0xFF212121),
-            headerBarColor: const Color(0xFF424242),
-            closeIconColor: Colors.white54,
-            backIconColor: Colors.white54,
-            navigationIconColor: Colors.white54,
-            selectionColor: const Color.fromRGBO(255, 255, 255, 0.12),
-            titleSeparatorColor: const Color.fromRGBO(255, 255, 255, 0.16),
-            headerTextStyle: TextStyle(
-              fontSize: 16,
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.normal,
-              color: Colors.white.withOpacity(0.87),
-            ),
-            titleTextStyle: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withOpacity(0.87),
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.normal,
-            ),
-          );
-    paginationDialogStyle ??= isLight
-        ? PdfPaginationDialogStyle(
-            backgroundColor: Colors.white,
-            headerTextStyle: const TextStyle(
-                fontFamily: 'Roboto',
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87),
-            inputFieldTextStyle: const TextStyle(
-                fontFamily: 'Roboto', fontSize: 16, color: Colors.black87),
-            hintTextStyle: TextStyle(
-                fontFamily: 'Roboto',
-                fontSize: 16,
-                color: Colors.black87.withOpacity(0.54)),
-            pageInfoTextStyle: const TextStyle(
-                fontFamily: 'Roboto',
-                fontSize: 12,
-                color: Color.fromRGBO(0, 0, 0, 0.6)),
-            validationTextStyle: const TextStyle(
-                fontFamily: 'Roboto', fontSize: 12, color: Color(0xFFC33F38)),
-            okTextStyle: const TextStyle(
-                fontFamily: 'Roboto',
-                fontSize: 14,
-                fontWeight: FontWeight.w500),
-            cancelTextStyle: const TextStyle(
-                fontFamily: 'Roboto',
-                fontSize: 14,
-                fontWeight: FontWeight.w500))
-        : PdfPaginationDialogStyle(
-            backgroundColor: const Color(0xFF424242),
-            headerTextStyle: TextStyle(
-                fontFamily: 'Roboto',
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Colors.white.withOpacity(0.87)),
-            inputFieldTextStyle: TextStyle(
-                fontFamily: 'Roboto',
-                fontSize: 16,
-                color: Colors.white.withOpacity(0.87)),
-            hintTextStyle: TextStyle(
-                fontFamily: 'Roboto',
-                fontSize: 16,
-                color: const Color(0xFFB3B3B3).withOpacity(0.54)),
-            pageInfoTextStyle: const TextStyle(
-                fontFamily: 'Roboto', fontSize: 12, color: Color(0xFFB3B3B3)),
-            validationTextStyle: const TextStyle(
-                fontFamily: 'Roboto', fontSize: 12, color: Color(0xFFFF8781)),
-            okTextStyle: const TextStyle(
-                fontFamily: 'Roboto',
-                fontSize: 14,
-                fontWeight: FontWeight.w500),
-            cancelTextStyle: const TextStyle(
-                fontFamily: 'Roboto',
-                fontSize: 14,
-                fontWeight: FontWeight.w500));
+      PdfPaginationDialogStyle? paginationDialogStyle,
+      PdfPasswordDialogStyle? passwordDialogStyle}) {
     return SfPdfViewerThemeData.raw(
         brightness: brightness,
         backgroundColor: backgroundColor,
@@ -238,7 +126,8 @@ class SfPdfViewerThemeData with Diagnosticable {
         scrollStatusStyle: scrollStatusStyle,
         scrollHeadStyle: scrollHeadStyle,
         bookmarkViewStyle: bookmarkViewStyle,
-        paginationDialogStyle: paginationDialogStyle);
+        paginationDialogStyle: paginationDialogStyle,
+        passwordDialogStyle: passwordDialogStyle);
   }
 
   /// Create a [SfPdfViewerThemeData] given a set of exact values.
@@ -256,13 +145,14 @@ class SfPdfViewerThemeData with Diagnosticable {
     required this.scrollHeadStyle,
     required this.bookmarkViewStyle,
     required this.paginationDialogStyle,
+    required this.passwordDialogStyle,
   });
 
   /// The brightness of the overall theme of the
   /// application for [SfPdfViewer] widget.
   ///
   /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).brightness], brightness for
+  /// [Theme.of(context).colorScheme.brightness], brightness for
   /// [SfPdfViewer] widgets will be applied.
   ///
   /// Also refer [Brightness].
@@ -285,7 +175,7 @@ class SfPdfViewerThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Brightness brightness;
+  final Brightness? brightness;
 
   /// Specifies the background color of [SfPdfViewer] widget.
   ///
@@ -307,7 +197,7 @@ class SfPdfViewerThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// Specifies the progress bar color of [SfPdfViewer] widget.
   ///
@@ -354,7 +244,7 @@ class SfPdfViewerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final PdfScrollStatusStyle scrollStatusStyle;
+  final PdfScrollStatusStyle? scrollStatusStyle;
 
   /// Specifies the scroll head style of [SfPdfViewer] widget.
   ///
@@ -379,7 +269,7 @@ class SfPdfViewerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final PdfScrollHeadStyle scrollHeadStyle;
+  final PdfScrollHeadStyle? scrollHeadStyle;
 
   /// Specifies the bookmark view style of [SfPdfViewer] widget.
   ///
@@ -411,7 +301,7 @@ class SfPdfViewerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final PdfBookmarkViewStyle bookmarkViewStyle;
+  final PdfBookmarkViewStyle? bookmarkViewStyle;
 
   /// Specifies the pagination dialog style of [SfPdfViewer] widget.
   ///
@@ -442,7 +332,41 @@ class SfPdfViewerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final PdfPaginationDialogStyle paginationDialogStyle;
+  final PdfPaginationDialogStyle? paginationDialogStyle;
+
+  /// Specifies the password dialog style of [SfPdfViewer] widget.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Center(
+  ///       child: SfTheme(
+  ///         data: SfThemeData(
+  ///           pdfViewerThemeData: SfPdfViewerThemeData(
+  ///             passwordDialogStyle: PdfPasswordDialogStyle(
+  ///               backgroundColor: Colors.black,
+  ///               headerTextStyle: TextStyle(color: Colors.white),
+  ///               contentTextStyle: TextStyle(color: Colors.grey),
+  ///               inputFieldTextStyle: TextStyle(color: Colors.white),
+  ///               hintTextStyle: TextStyle(color: Colors.grey),
+  ///               labelTextStyle: TextStyle(color: Colors.grey),
+  ///               validationTextStyle: TextStyle(color: Colors.red),
+  ///               openTextStyle: TextStyle(color: Colors.white),
+  ///               cancelTextStyle: TextStyle(color: Colors.white),
+  ///               closeIconColor: Colors.black,
+  ///               visibleIconColor: Colors.pink,
+  ///             )
+  ///           )
+  ///         ),
+  ///      child: SfPdfViewer.asset(
+  ///           'assets/flutter-succinctly.pdf',
+  ///          ),
+  ///       ),
+  ///     )
+  ///   );
+  /// }
+  /// ```
+  final PdfPasswordDialogStyle? passwordDialogStyle;
 
   /// Creates a copy of this [SfPdfViewer] theme data object with the
   /// matching fields replaced with the non-null parameter values.
@@ -453,16 +377,19 @@ class SfPdfViewerThemeData with Diagnosticable {
       PdfScrollStatusStyle? scrollStatusStyle,
       PdfScrollHeadStyle? scrollHeadStyle,
       PdfBookmarkViewStyle? bookmarkViewStyle,
-      PdfPaginationDialogStyle? paginationDialogStyle}) {
+      PdfPaginationDialogStyle? paginationDialogStyle,
+      PdfPasswordDialogStyle? passwordDialogStyle}) {
     return SfPdfViewerThemeData.raw(
-        brightness: brightness ?? this.brightness,
-        backgroundColor: backgroundColor ?? this.backgroundColor,
-        progressBarColor: progressBarColor ?? this.progressBarColor,
-        scrollStatusStyle: scrollStatusStyle ?? this.scrollStatusStyle,
-        scrollHeadStyle: scrollHeadStyle ?? this.scrollHeadStyle,
-        bookmarkViewStyle: bookmarkViewStyle ?? this.bookmarkViewStyle,
-        paginationDialogStyle:
-            paginationDialogStyle ?? this.paginationDialogStyle);
+      brightness: brightness ?? this.brightness,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      progressBarColor: progressBarColor ?? this.progressBarColor,
+      scrollStatusStyle: scrollStatusStyle ?? this.scrollStatusStyle,
+      scrollHeadStyle: scrollHeadStyle ?? this.scrollHeadStyle,
+      bookmarkViewStyle: bookmarkViewStyle ?? this.bookmarkViewStyle,
+      paginationDialogStyle:
+          paginationDialogStyle ?? this.paginationDialogStyle,
+      passwordDialogStyle: passwordDialogStyle ?? this.passwordDialogStyle,
+    );
   }
 
   /// Linearly interpolate between two themes.
@@ -481,7 +408,9 @@ class SfPdfViewerThemeData with Diagnosticable {
         bookmarkViewStyle: PdfBookmarkViewStyle.lerp(
             a.bookmarkViewStyle, b.bookmarkViewStyle, t),
         paginationDialogStyle: PdfPaginationDialogStyle.lerp(
-            a.paginationDialogStyle, b.paginationDialogStyle, t));
+            a.paginationDialogStyle, b.paginationDialogStyle, t),
+        passwordDialogStyle: PdfPasswordDialogStyle.lerp(
+            a.passwordDialogStyle, b.passwordDialogStyle, t));
   }
 
   @override
@@ -500,7 +429,8 @@ class SfPdfViewerThemeData with Diagnosticable {
         other.scrollStatusStyle == scrollStatusStyle &&
         other.scrollHeadStyle == scrollHeadStyle &&
         other.bookmarkViewStyle == bookmarkViewStyle &&
-        other.paginationDialogStyle == paginationDialogStyle;
+        other.paginationDialogStyle == paginationDialogStyle &&
+        other.passwordDialogStyle == passwordDialogStyle;
   }
 
   @override
@@ -511,7 +441,8 @@ class SfPdfViewerThemeData with Diagnosticable {
       scrollStatusStyle,
       scrollHeadStyle,
       bookmarkViewStyle,
-      paginationDialogStyle
+      paginationDialogStyle,
+      passwordDialogStyle,
     ];
     return hashList(values);
   }
@@ -538,6 +469,9 @@ class SfPdfViewerThemeData with Diagnosticable {
     properties.add(DiagnosticsProperty<PdfPaginationDialogStyle>(
         'paginationDialogStyle', paginationDialogStyle,
         defaultValue: defaultData.paginationDialogStyle));
+    properties.add(DiagnosticsProperty<PdfPasswordDialogStyle>(
+        'passwordDialogStyle', passwordDialogStyle,
+        defaultValue: defaultData.passwordDialogStyle));
   }
 }
 
@@ -835,5 +769,143 @@ class PdfPaginationDialogStyle {
         okTextStyle: TextStyle.lerp(a.okTextStyle, b.okTextStyle, t),
         cancelTextStyle:
             TextStyle.lerp(a.cancelTextStyle, b.cancelTextStyle, t));
+  }
+}
+
+/// Holds the color and text styles for the password dialog in
+/// the [SfPdfViewer].
+class PdfPasswordDialogStyle {
+  /// Creates a [PdfPasswordDialogStyle] that's used to configure styles for
+  /// the password dialog in [SfPdfViewer].
+  const PdfPasswordDialogStyle({
+    this.backgroundColor,
+    this.headerTextStyle,
+    this.contentTextStyle,
+    this.inputFieldTextStyle,
+    this.inputFieldHintTextStyle,
+    this.inputFieldLabelTextStyle,
+    this.errorTextStyle,
+    this.openTextStyle,
+    this.cancelTextStyle,
+    this.closeIconColor,
+    this.visibleIconColor,
+    this.inputFieldBorderColor,
+    this.errorBorderColor,
+  });
+
+  /// The background color of password dialog in [SfPdfViewer].
+  final Color? backgroundColor;
+
+  /// The style for the header text of password dialog in [SfPdfViewer].
+  final TextStyle? headerTextStyle;
+
+  /// The style for the content of password dialog in [SfPdfViewer].
+  final TextStyle? contentTextStyle;
+
+  /// The style for the input text field of password dialog in [SfPdfViewer].
+  final TextStyle? inputFieldTextStyle;
+
+  /// The style for the hint text of password dialog
+  /// text field in [SfPdfViewer].
+  final TextStyle? inputFieldHintTextStyle;
+
+  /// The style for the label text of password dialog text field
+  /// in [SfPdfViewer].
+  final TextStyle? inputFieldLabelTextStyle;
+
+  /// The style for the error text of password dialog in [SfPdfViewer].
+  final TextStyle? errorTextStyle;
+
+  /// The style for the Open button text of password dialog in [SfPdfViewer].
+  final TextStyle? openTextStyle;
+
+  /// The style for the Cancel button of password dialog in [SfPdfViewer].
+  final TextStyle? cancelTextStyle;
+
+  /// The close icon color of password dialog in [SfPdfViewer].
+  final Color? closeIconColor;
+
+  /// The visible icon color of password dialog in [SfPdfViewer].
+  final Color? visibleIconColor;
+
+  /// The border color for the text field of password dialog in [SfPdfViewer].
+  final Color? inputFieldBorderColor;
+
+  /// The error border color for the text field of
+  /// password dialog in [SfPdfViewer].
+  final Color? errorBorderColor;
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      backgroundColor,
+      headerTextStyle,
+      contentTextStyle,
+      inputFieldTextStyle,
+      inputFieldHintTextStyle,
+      inputFieldLabelTextStyle,
+      errorTextStyle,
+      openTextStyle,
+      cancelTextStyle,
+      closeIconColor,
+      visibleIconColor,
+      inputFieldBorderColor,
+      errorBorderColor
+    ];
+    return hashList(values);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is PdfPasswordDialogStyle &&
+        other.backgroundColor == backgroundColor &&
+        other.headerTextStyle == headerTextStyle &&
+        other.contentTextStyle == contentTextStyle &&
+        other.inputFieldTextStyle == inputFieldTextStyle &&
+        other.inputFieldHintTextStyle == inputFieldHintTextStyle &&
+        other.inputFieldLabelTextStyle == inputFieldLabelTextStyle &&
+        other.errorTextStyle == errorTextStyle &&
+        other.openTextStyle == openTextStyle &&
+        other.cancelTextStyle == cancelTextStyle &&
+        other.closeIconColor == closeIconColor &&
+        other.visibleIconColor == visibleIconColor &&
+        other.inputFieldBorderColor == inputFieldBorderColor &&
+        other.errorBorderColor == errorBorderColor;
+  }
+
+  /// Linearly interpolate between two styles.
+  static PdfPasswordDialogStyle? lerp(
+      PdfPasswordDialogStyle? a, PdfPasswordDialogStyle? b, double t) {
+    if (a == null && b == null) {
+      return null;
+    }
+    return PdfPasswordDialogStyle(
+      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
+      headerTextStyle: TextStyle.lerp(a.headerTextStyle, b.headerTextStyle, t),
+      contentTextStyle:
+          TextStyle.lerp(a.contentTextStyle, b.contentTextStyle, t),
+      inputFieldTextStyle:
+          TextStyle.lerp(a.inputFieldTextStyle, b.inputFieldTextStyle, t),
+      inputFieldHintTextStyle: TextStyle.lerp(
+          a.inputFieldHintTextStyle, b.inputFieldHintTextStyle, t),
+      inputFieldLabelTextStyle: TextStyle.lerp(
+          a.inputFieldLabelTextStyle, b.inputFieldLabelTextStyle, t),
+      errorTextStyle: TextStyle.lerp(a.errorTextStyle, b.errorTextStyle, t),
+      openTextStyle: TextStyle.lerp(a.openTextStyle, b.openTextStyle, t),
+      cancelTextStyle: TextStyle.lerp(a.cancelTextStyle, b.cancelTextStyle, t),
+      closeIconColor: Color.lerp(a.closeIconColor, b.closeIconColor, t),
+      visibleIconColor: Color.lerp(a.visibleIconColor, b.visibleIconColor, t),
+      inputFieldBorderColor:
+          Color.lerp(a.inputFieldBorderColor, b.inputFieldBorderColor, t),
+      errorBorderColor: Color.lerp(a.errorBorderColor, b.errorBorderColor, t),
+    );
   }
 }

@@ -1,20 +1,13 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-// ignore: unused_import
 import 'package:flutter/services.dart';
-import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_core/core.dart' as core;
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../maps.dart';
 import '../common.dart';
 import '../controller/map_controller.dart';
-import '../enum.dart';
-import '../layer/layer_base.dart';
-import '../layer/shape_layer.dart';
 import '../utils.dart';
 
 // ignore_for_file: public_member_api_docs
@@ -43,7 +36,9 @@ class MarkerContainer extends Stack {
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderMarkerContainer renderObject) {
+      BuildContext context,
+      // ignore: library_private_types_in_public_api
+      _RenderMarkerContainer renderObject) {
     renderObject
       ..markerTooltipBuilder = markerTooltipBuilder
       ..sublayer = sublayer
@@ -74,6 +69,10 @@ class _RenderMarkerContainer extends RenderStack {
     markNeedsLayout();
   }
 
+  void _handleZoomPanChange() {
+    markNeedsLayout();
+  }
+
   void _handleReset() {
     markNeedsLayout();
   }
@@ -86,6 +85,7 @@ class _RenderMarkerContainer extends RenderStack {
   void attach(PipelineOwner owner) {
     super.attach(owner);
     controller
+      ..addZoomPanListener(_handleZoomPanChange)
       ..addZoomingListener(_handleZooming)
       ..addPanningListener(_handlePanning)
       ..addResetListener(_handleReset)
@@ -95,6 +95,7 @@ class _RenderMarkerContainer extends RenderStack {
   @override
   void detach() {
     controller
+      ..removeZoomPanListener(_handleZoomPanChange)
       ..removeZoomingListener(_handleZooming)
       ..removePanningListener(_handlePanning)
       ..removeResetListener(_handleReset)
@@ -130,6 +131,18 @@ class _RenderMarkerContainer extends RenderStack {
       }
       childParentData.offset -=
           Offset(marker.size.width / 2, marker.size.height / 2);
+      if (marker.alignment != Alignment.center) {
+        final Alignment effectiveAlignment =
+            marker.alignment.resolve(textDirection);
+        childParentData.offset -= Offset(
+            effectiveAlignment.x * marker.size.width / 2,
+            effectiveAlignment.y * marker.size.height / 2);
+      }
+
+      if (marker.offset != Offset.zero) {
+        childParentData.offset += Offset(marker.offset.dx, marker.offset.dy);
+      }
+
       child = childParentData.nextSibling;
     }
   }
@@ -232,6 +245,8 @@ class MapMarker extends SingleChildRenderObjectWidget {
     required this.latitude,
     required this.longitude,
     this.size,
+    this.alignment = Alignment.center,
+    this.offset = Offset.zero,
     this.iconColor,
     this.iconStrokeColor,
     this.iconStrokeWidth,
@@ -442,6 +457,144 @@ class MapMarker extends SingleChildRenderObjectWidget {
   /// * [MapShapeLayerController], [MapTileLayerController] for dynamically
   /// updating the markers.
   final Size? size;
+
+  /// Sets the alignment for the marker on the map.
+  ///
+  /// Defaults to [Alignment.center].
+  ///
+  /// ```dart
+  /// late List<Model> data;
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///    data = const <Model>[
+  ///      Model('Brazil', -14.235004, -51.92528),
+  ///      Model('Germany', 51.16569, 10.451526),
+  ///      Model('Australia', -25.274398, 133.775136),
+  ///      Model('India', 20.593684, 78.96288),
+  ///      Model('Russia', 61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///      dataCount: data.length,
+  ///      primaryValueMapper: (int index) => data[index].country,
+  ///    );
+  ///    super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///            height: 350,
+  ///            child: Padding(
+  ///              padding: EdgeInsets.only(left: 15, right: 15),
+  ///              child: SfMaps(
+  ///                layers: <MapLayer>[
+  ///                  MapShapeLayer(
+  ///                    source: _mapSource,
+  ///                    initialMarkersCount: 5,
+  ///                    markerBuilder: (BuildContext context, int index) {
+  ///                      return MapMarker(
+  ///                        latitude: data[index].latitude,
+  ///                        longitude: data[index].longitude,
+  ///                        alignment: Alignment.topLeft,
+  ///                      );
+  ///                    },
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ),
+  ///          )
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.latitude, this.longitude);
+  ///
+  ///  final String country;
+  ///  final double latitude;
+  ///  final double longitude;
+  /// }
+  /// ```
+  /// See also:
+  /// * [MapShapeLayerController], [MapTileLayerController] for dynamically
+  /// updating the markers.
+  final AlignmentGeometry alignment;
+
+  /// Places the marker position in additional to the given offset.
+  ///
+  /// Defaults to Offset.zero.
+  ///
+  /// ```dart
+  /// late List<Model> data;
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///    data = const <Model>[
+  ///      Model('Brazil', -14.235004, -51.92528),
+  ///      Model('Germany', 51.16569, 10.451526),
+  ///      Model('Australia', -25.274398, 133.775136),
+  ///      Model('India', 20.593684, 78.96288),
+  ///      Model('Russia', 61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///      dataCount: data.length,
+  ///      primaryValueMapper: (int index) => data[index].country,
+  ///    );
+  ///    super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///            height: 350,
+  ///            child: Padding(
+  ///              padding: EdgeInsets.only(left: 15, right: 15),
+  ///              child: SfMaps(
+  ///                layers: <MapLayer>[
+  ///                  MapShapeLayer(
+  ///                    source: _mapSource,
+  ///                    initialMarkersCount: 5,
+  ///                    markerBuilder: (BuildContext context, int index) {
+  ///                      return MapMarker(
+  ///                        latitude: data[index].latitude,
+  ///                        longitude: data[index].longitude,
+  ///                        offset: Offset(20.0, 10.0),
+  ///                      );
+  ///                    },
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ),
+  ///          )
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.latitude, this.longitude);
+  ///
+  ///  final String country;
+  ///  final double latitude;
+  ///  final double longitude;
+  /// }
+  /// ```
+  /// See also:
+  /// * [MapShapeLayerController], [MapTileLayerController] for dynamically
+  /// updating the markers.
+  final Offset offset;
 
   /// Sets the icon color for the marker.
   ///
@@ -721,21 +874,27 @@ class MapMarker extends SingleChildRenderObjectWidget {
       longitude: longitude,
       latitude: latitude,
       markerSize: size,
+      alignment: alignment,
+      offset: offset,
       iconColor: iconColor,
       iconStrokeColor: iconStrokeColor,
       iconStrokeWidth: iconStrokeWidth,
       iconType: iconType,
       themeData: SfMapsTheme.of(context)!,
       marker: this,
+      context: context,
     );
   }
 
   @override
+  // ignore: library_private_types_in_public_api
   void updateRenderObject(BuildContext context, _RenderMapMarker renderObject) {
     renderObject
       ..longitude = longitude
       ..latitude = latitude
       ..markerSize = size
+      ..alignment = alignment
+      ..offset = offset
       ..iconColor = iconColor
       ..iconStrokeColor = iconStrokeColor
       ..iconStrokeWidth = iconStrokeWidth
@@ -751,23 +910,30 @@ class _RenderMapMarker extends RenderProxyBox
     required double longitude,
     required double latitude,
     required Size? markerSize,
+    required AlignmentGeometry alignment,
+    required Offset offset,
     required Color? iconColor,
     required Color? iconStrokeColor,
     required double? iconStrokeWidth,
     required MapIconType iconType,
     required SfMapsThemeData themeData,
+    required BuildContext context,
     required this.marker,
   })  : _longitude = longitude,
         _latitude = latitude,
         _markerSize = markerSize,
+        _alignment = alignment,
+        _offset = offset,
         _iconColor = iconColor,
         _iconStrokeColor = iconStrokeColor,
         _iconStrokeWidth = iconStrokeWidth,
         _iconType = iconType,
-        _themeData = themeData {
+        _themeData = themeData,
+        _theme = Theme.of(context) {
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUp;
   }
 
+  final ThemeData _theme;
   final Size _defaultMarkerSize = const Size(14.0, 14.0);
   late TapGestureRecognizer _tapGestureRecognizer;
 
@@ -800,6 +966,26 @@ class _RenderMapMarker extends RenderProxyBox
       return;
     }
     _markerSize = value;
+    markNeedsLayout();
+  }
+
+  AlignmentGeometry get alignment => _alignment;
+  AlignmentGeometry _alignment;
+  set alignment(AlignmentGeometry value) {
+    if (_alignment == value) {
+      return;
+    }
+    _alignment = value;
+    markNeedsLayout();
+  }
+
+  Offset get offset => _offset;
+  Offset _offset;
+  set offset(Offset value) {
+    if (_offset == value) {
+      return;
+    }
+    _offset = value;
     markNeedsLayout();
   }
 
@@ -960,16 +1146,16 @@ class _RenderMapMarker extends RenderProxyBox
     }
   }
 
-  ShapeMarkerType _getShapeType() {
+  core.ShapeMarkerType _getEffectiveShapeType() {
     switch (_iconType) {
       case MapIconType.circle:
-        return ShapeMarkerType.circle;
+        return core.ShapeMarkerType.circle;
       case MapIconType.diamond:
-        return ShapeMarkerType.diamond;
+        return core.ShapeMarkerType.diamond;
       case MapIconType.rectangle:
-        return ShapeMarkerType.rectangle;
+        return core.ShapeMarkerType.rectangle;
       case MapIconType.triangle:
-        return ShapeMarkerType.triangle;
+        return core.ShapeMarkerType.triangle;
     }
   }
 
@@ -987,11 +1173,16 @@ class _RenderMapMarker extends RenderProxyBox
   @override
   void paint(PaintingContext context, Offset offset) {
     if (child == null) {
-      ShapePainter.paint(
+      core.paint(
           canvas: context.canvas,
           rect: paintBounds,
-          shapeType: _getShapeType(),
-          paint: Paint()..color = _iconColor ?? _themeData.markerIconColor,
+          shapeType: _getEffectiveShapeType(),
+          paint: Paint()
+            ..color = _iconColor ??
+                _themeData.markerIconColor ??
+                (_theme.brightness == Brightness.light
+                    ? const Color.fromRGBO(98, 0, 238, 1)
+                    : const Color.fromRGBO(187, 134, 252, 1)),
           borderPaint: _getBorderPaint());
     } else {
       context.paintChild(child!, offset);

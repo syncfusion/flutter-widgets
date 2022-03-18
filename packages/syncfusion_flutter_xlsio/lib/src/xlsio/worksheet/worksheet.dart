@@ -5,6 +5,7 @@ class Worksheet {
   /// Creates an instance of Worksheet.
   Worksheet(Workbook workbook) {
     _book = workbook;
+    _isRightToLeft = workbook.isRightToLeft;
   }
 
   /// set summary row below
@@ -37,11 +38,20 @@ class Worksheet {
   /// Represent the hyperlink relation id
   final List<String> _hyperlinkRelationId = <String>[];
 
+  /// Represents the count of the number of tables
+  late int _count = 0;
+
+  ///Represents the datavalidation table
+  _DataValidationTable? _mdataValidation;
+
   /// Represents auto fit manager.
   _AutoFitManager get _autoFitManager {
     final _AutoFitManager autoFit = _AutoFitManager._withSheet(this);
     return autoFit;
   }
+
+  ///Get a collection of tables in the worksheet. Read-only.
+  ExcelTableCollection? _tableCollection;
 
   /// Sets the grid line visible.
   /// True if grid lines are visible. otherwise, False.
@@ -79,6 +89,9 @@ class Worksheet {
   /// ```
   ChartHelper? charts;
 
+  //Represent the RTL direction for worksheet
+  bool _isRightToLeft = false;
+
   /// Represents the chart count in the workbook.
   int chartCount = 0;
 
@@ -115,6 +128,40 @@ class Worksheet {
     return _columns!;
   }
 
+  ///Indicates whether worksheet is displayed right to left.FALSE by default
+  ///
+  /// ```dart
+  /// Workbook workbook = Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// sheet.isRightToLeft = true;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ExcelRTL.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  // ignore: unnecessary_getters_setters
+  bool get isRightToLeft {
+    return _isRightToLeft;
+  }
+
+  set isRightToLeft(bool value) {
+    _isRightToLeft = value;
+  }
+
+  /// Represents the method to create an instance for table if it is null
+  _DataValidationTable get _dvTable {
+    if (_mdataValidation == null) {
+      _mdataValidation = _DataValidationTable(this);
+      _count++;
+    }
+
+    return _mdataValidation!;
+  }
+
+  /// Represents the getter to get the table count
+  int get _tableCount {
+    return _count;
+  }
+
   /// Returns or sets the name of the worksheet.
   ///
   /// ```dart
@@ -127,7 +174,7 @@ class Worksheet {
   /// ```
   String get name {
     if (_name == '') {
-      _name = 'Sheet' + (index).toString();
+      _name = 'Sheet$index';
     }
     return _name;
   }
@@ -181,7 +228,14 @@ class Worksheet {
     return _hyperlinks!;
   }
 
+  ///Get a collection of tables in the worksheet. Read-only.
+  ExcelTableCollection get tableCollection {
+    _tableCollection ??= ExcelTableCollection(this);
+    return _tableCollection!;
+  }
+
   /// Gets/Sets a Conditional Format collections in the worksheet.
+  // ignore: library_private_types_in_public_api
   List<_ConditionalFormatsImpl> conditionalFormats =
       <_ConditionalFormatsImpl>[];
 
@@ -333,18 +387,14 @@ class Worksheet {
             _SecondToken._defaultMilliSecondHalf) {
       final String decimalSeparator =
           currentCulture.numberFormat.numberDecimalSeparator;
-      final RegExp regex = RegExp('([0-9]*:[0-9]*:[0-9]*"' +
-          decimalSeparator +
-          '[0-9]*' +
-          '|[0-9]*:[0-9]*:[0-9]*|[0-9]*:[0-9]*"' +
-          decimalSeparator +
-          '[0-9]*|[0-9]*:[0-9]*)');
+      final RegExp regex = RegExp(
+          '([0-9]*:[0-9]*:[0-9]*"$decimalSeparator[0-9]*|[0-9]*:[0-9]*:[0-9]*|[0-9]*:[0-9]*"$decimalSeparator[0-9]*|[0-9]*:[0-9]*)');
       final List<RegExpMatch> matches = regex.allMatches(value).toList();
       for (final Match match in matches) {
         final String semiColon = currentCulture.dateTimeFormat.timeSeparator;
         const String valueFormat = _SecondToken._defaultFormatLong;
         final List<String> timeValues =
-            match.pattern.toString().split(semiColon.toString());
+            match.pattern.toString().split(semiColon);
         final int minutesValue = Range._fromOADate(dNumber).minute;
         String updatedValue = timeValues[0];
         int updateMinutesValue = 0;
@@ -357,8 +407,7 @@ class Worksheet {
               updatedValue = updatedValue +
                   semiColon +
                   (timeValues[timeValues.length - 1]).replaceAll(
-                      timeValues[timeValues.length - 1].toString(),
-                      valueFormat);
+                      timeValues[timeValues.length - 1], valueFormat);
               value = value.replaceAll(match.pattern.toString(), updatedValue);
             }
             break;
@@ -582,7 +631,7 @@ class Worksheet {
     bool isNumber = true;
     if (value.contains(cultureInfo.numberFormat.numberDecimalSeparator)) {
       final RegExp decimalSepRegex =
-          RegExp('[' + cultureInfo.numberFormat.numberDecimalSeparator + ']');
+          RegExp('[${cultureInfo.numberFormat.numberDecimalSeparator}]');
       final List<RegExpMatch> decimalSepMatches =
           decimalSepRegex.allMatches(value).toList();
       //Checks whether the value has more than one decimal point.
@@ -620,7 +669,7 @@ class Worksheet {
     }
 
     final RegExp groupSepRegex =
-        RegExp('[' + cultureInfo.numberFormat.numberGroupSeparator + ']');
+        RegExp('[${cultureInfo.numberFormat.numberGroupSeparator}]');
     final List<RegExpMatch> groupSepMatches =
         groupSepRegex.allMatches(value).toList();
 
@@ -1096,9 +1145,8 @@ class Worksheet {
       if (!ignoreRotation && !isMerged && rotation > 0) {
         if (rotation == 255) {
           curSize._width = _book._convertToPixels(
-                  _autoFitManager
-                      ._calculateWrappedCell(format, strText, defWidth.toInt())
-                      .toDouble(),
+                  _autoFitManager._calculateWrappedCell(
+                      format, strText, defWidth.toInt()),
                   6) -
               defWidth;
         } else if (rotation != 90 && rotation != 180) {
@@ -1700,8 +1748,8 @@ class Worksheet {
           'Sheet is already protected, before use unprotect method');
     }
     if (password.length > _maxPassWordLength) {
-      throw Exception('Length of the password can\'t be more than ' +
-          _maxPassWordLength.toString());
+      throw Exception(
+          "Length of the password can't be more than $_maxPassWordLength");
     }
     if (options == null) {
       options = ExcelSheetProtectionOption();
@@ -1753,17 +1801,17 @@ class Worksheet {
 
   /// Protects the worksheet based on the Excel 2013.
   void _advancedSheetProtection(String password) {
-    _algorithmName = _SecurityHelper._sha512Alogrithm;
+    _algorithmName = _sha512Alogrithm;
     _saltValue = _createSalt(16);
-    final Hash algorithm = _SecurityHelper._getAlgorithm(_algorithmName!);
+    final Hash algorithm = _getAlgorithm(_algorithmName!);
     List<int> arrPassword = utf8.encode(password).toList();
     arrPassword = _convertCodeUnitsToUnicodeByteArray(arrPassword);
-    List<int> temp = _SecurityHelper._combineArray(_saltValue, arrPassword);
+    List<int> temp = _combineArray(_saltValue, arrPassword);
     final List<int> h0 = algorithm.convert(temp).bytes.toList();
     List<int> h1 = h0;
     for (int iterator = 0; iterator < _spinCount; iterator++) {
-      final List<int> arrIterator = _BitConverter._getBytes(iterator);
-      temp = _SecurityHelper._combineArray(h1, arrIterator);
+      final List<int> arrIterator = _getBytes(iterator);
+      temp = _combineArray(h1, arrIterator);
       temp = Uint8List.fromList(temp);
       h1 = algorithm.convert(temp).bytes.toList();
     }
@@ -1835,7 +1883,7 @@ class Worksheet {
     }
 
     if (count < 0) {
-      throw Exception('Count can\'t be less than zero');
+      throw Exception("Count can't be less than zero");
     }
 
     final List<bool> arrResult =
@@ -1950,10 +1998,46 @@ class Worksheet {
     return _book._pixelsToWidth(pixels);
   }
 
-  /// Sets column width in pixels for the specified column.
-  void _setColumnWidthInPixels(int iColumn, int value) {
-    final double dColumnWidth = _pixelsToColumnWidth(value);
-    _setColumnWidth(iColumn, dColumnWidth);
+  /// Sets column width in pixels for the specified row.
+  ///  ```dart
+  /// //Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// // set columnWidth in pixels.
+  /// sheet.setColumnWidthInPixels(2, 20);
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('ColumnWidth.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  void setColumnWidthInPixels(int iColumnIndex, int columnWidth) {
+    final double dColumnWidth = _pixelsToColumnWidth(columnWidth);
+    _setColumnWidth(iColumnIndex, dColumnWidth);
+  }
+
+  /// Sets Rows Heights in pixels for the specified column.
+  ///  ```dart
+  /// //Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// // set row height in pixels.
+  /// sheet.setRowHeightInPixels(2, 30);
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('RowHeight.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  void setRowHeightInPixels(int iRowIndex, double rowHeight) {
+    if (iRowIndex < 1 || iRowIndex > _book._maxRowCount) {
+      throw Exception(
+          'iRowIndex ,Value cannot be less 1 and greater than max row index.');
+    }
+
+    if (rowHeight < 0) {
+      throw Exception('value');
+    }
+
+    _innerSetRowHeight(iRowIndex, rowHeight, true, 5);
   }
 
   /// Sets column width for the specified column.
@@ -2149,7 +2233,7 @@ class Worksheet {
             final int height = picture.height;
             if (_innerGetColumnWidth(range.column) <
                 _pixelsToColumnWidth(width)) {
-              _setColumnWidthInPixels(range.column, width);
+              setColumnWidthInPixels(range.column, width);
             }
             if (range.rowHeight < height) {
               range._setRowHeight(
@@ -2180,6 +2264,18 @@ class Worksheet {
 
     if (_pictures != null) {
       _pictures!._clear();
+    }
+
+    if (_tableCollection != null) {
+      _tableCollection!._clear();
+      _tableCollection = null;
+    }
+
+    if (_dvTable != null) {
+      _dvTable._clear();
+      if (_mdataValidation != null) {
+        _mdataValidation = null;
+      }
     }
   }
 }

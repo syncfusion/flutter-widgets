@@ -6,6 +6,7 @@ import 'package:syncfusion_flutter_core/localizations.dart';
 import 'date_picker_manager.dart';
 import 'hijri_date_picker_manager.dart';
 
+// ignore: avoid_classes_with_only_static_members
 /// Holds the static helper methods of the date picker.
 class DateRangePickerHelper {
   /// Return the index value based on RTL.
@@ -215,6 +216,72 @@ class DateRangePickerHelper {
         (enablePastDates ||
             (!enablePastDates &&
                 isDateWithInDateRange(getToday(isHijri), endDate, date)));
+  }
+
+  /// Return the first date of the month, year and decade based on view.
+  /// Note: This method not applicable for month view.
+  static dynamic getFirstDate(
+      dynamic date, bool isHijri, DateRangePickerView pickerView) {
+    if (pickerView == DateRangePickerView.month) {
+      return date;
+    }
+
+    if (pickerView == DateRangePickerView.year) {
+      return DateRangePickerHelper.getDate(date.year, date.month, 1, isHijri);
+    } else if (pickerView == DateRangePickerView.decade) {
+      return DateRangePickerHelper.getDate(date.year, 1, 1, isHijri);
+    } else if (pickerView == DateRangePickerView.century) {
+      return DateRangePickerHelper.getDate(
+          (date.year ~/ 10) * 10, 1, 1, isHijri);
+    }
+
+    return date;
+  }
+
+  /// Check the date as enable date or disable date based on range start,
+  /// end date and extendable range selection direction.
+  /// is in between enabled used to enable the in between dates on selected
+  /// range while draw the cell.
+  static bool isDisableDirectionDate(
+      dynamic range,
+      dynamic currentDate,
+      ExtendableRangeSelectionDirection extendableRangeSelectionDirection,
+      DateRangePickerView view,
+      bool isHijri,
+      {bool isInBetweenEnabled = false}) {
+    if (range == null) {
+      return false;
+    }
+
+    if (range.startDate == null) {
+      return false;
+    }
+
+    final dynamic startDate = getFirstDate(range.startDate, isHijri, view);
+    final dynamic endDate = range.endDate != null
+        ? getFirstDate(range.endDate, isHijri, view)
+        : startDate;
+    final dynamic currentDateValue = getFirstDate(currentDate, isHijri, view);
+    switch (extendableRangeSelectionDirection) {
+      case ExtendableRangeSelectionDirection.none:
+        return !isSameCellDates(startDate, endDate, view) &&
+            (!isInBetweenEnabled ||
+                (isInBetweenEnabled &&
+                    ((startDate.isAfter(currentDateValue) == true &&
+                            !isSameCellDates(
+                                startDate, currentDateValue, view)) ||
+                        (endDate.isBefore(currentDateValue) == true &&
+                            !isSameCellDates(
+                                endDate, currentDateValue, view)))));
+      case ExtendableRangeSelectionDirection.forward:
+        return startDate.isAfter(currentDateValue) == true &&
+            !isSameCellDates(startDate, currentDateValue, view);
+      case ExtendableRangeSelectionDirection.backward:
+        return endDate.isBefore(currentDateValue) == true &&
+            !isSameCellDates(endDate, currentDateValue, view);
+      case ExtendableRangeSelectionDirection.both:
+        return false;
+    }
   }
 
   /// Check the date as current month date.
@@ -705,7 +772,7 @@ class DateRangePickerHelper {
 
     final DateRangePickerView pickerView = getPickerView(view);
     if (pickerView == DateRangePickerView.month) {
-      return false;
+      return isSameDate(date, currentDate);
     }
 
     if (pickerView == DateRangePickerView.year) {
@@ -930,15 +997,15 @@ class DateRangePickerHelper {
   }
 }
 
-///
+/// Holds the hovering data details
 class HoveringDetails {
-  ///
+  /// Create instance of hovering details.
   HoveringDetails(this.hoveringRange, this.offset);
 
-  ///
+  /// Holds the current hovering range for extendable range selection
   final dynamic hoveringRange;
 
-  ///
+  /// Current hovering offset.
   final Offset? offset;
 }
 

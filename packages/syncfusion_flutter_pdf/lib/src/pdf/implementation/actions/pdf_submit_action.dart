@@ -1,4 +1,12 @@
-part of pdf;
+import '../annotations/enum.dart';
+import '../forms/pdf_field.dart';
+import '../forms/pdf_form_field_collection.dart';
+import '../io/pdf_constants.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_number.dart';
+import '../primitives/pdf_string.dart';
+import 'pdf_action.dart';
 
 /// Represents PDF form's submit action.submit action allows submission of data
 /// that is entered in the PDF form
@@ -19,11 +27,15 @@ class PdfSubmitAction extends PdfFormAction {
       bool include = false,
       List<PdfField>? fields})
       : super._() {
+    final PdfActionHelper helper = PdfActionHelper.getHelper(this);
+    helper.dictionary.beginSave = _dictionaryBeginSave;
+    helper.dictionary.setProperty(
+        PdfDictionaryProperties.s, PdfName(PdfDictionaryProperties.submitForm));
     if (url.isEmpty) {
-      ArgumentError.value('The URL can\'t be an empty string.');
+      ArgumentError.value("The URL can't be an empty string.");
     }
     _url = url;
-    _dictionary.setProperty(_DictionaryProperties.f, _PdfString(_url));
+    helper.dictionary.setProperty(PdfDictionaryProperties.f, PdfString(_url));
     _initValues(
         httpMethod = HttpMethod.post,
         dataFormat,
@@ -202,18 +214,9 @@ class PdfSubmitAction extends PdfFormAction {
     }
   }
 
-  //Implementation
-  @override
-  void _initialize() {
-    super._initialize();
-    _dictionary._beginSave = _dictionaryBeginSave;
-    _dictionary.setProperty(
-        _DictionaryProperties.s, _PdfName(_DictionaryProperties.submitForm));
-  }
-
-  void _dictionaryBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
-    _dictionary.setProperty(
-        _DictionaryProperties.flags, _PdfNumber(_getFlagValue(_flags)));
+  void _dictionaryBeginSave(Object sender, SavePdfPrimitiveArgs? ars) {
+    PdfActionHelper.getHelper(this).dictionary.setProperty(
+        PdfDictionaryProperties.flags, PdfNumber(_getFlagValue(_flags)));
   }
 
   void _initValues(
@@ -290,5 +293,72 @@ class PdfSubmitAction extends PdfFormAction {
       }
     }
     return result;
+  }
+}
+
+/// Represents the action on form fields.
+class PdfFormAction extends PdfAction {
+  //Constrcutor
+  /// Initializes a new instance of the [PdfFormAction] class.
+  PdfFormAction._() : super();
+
+  //Fields
+  PdfFormFieldCollection? _fields;
+
+  /// Gets or sets a value indicating whether fields contained in the fields
+  /// collection will be included for resetting or submitting.
+  ///
+  /// If the [include] property is true, only the fields in this collection
+  /// will be reset or submitted.
+  /// If the [include] property is false, the fields in this collection
+  /// are not reset or submitted and only the remaining form fields are
+  /// reset or submitted.
+  /// If the collection is empty, then all the form fields are reset
+  /// and the [include] property is ignored.
+  bool include = false;
+
+  ///Gets the fields.
+  PdfFormFieldCollection get fields {
+    if (_fields == null) {
+      _fields = PdfFormFieldCollectionHelper.getCollection();
+      PdfActionHelper.getHelper(this)
+          .dictionary
+          .setProperty(PdfDictionaryProperties.fields, _fields);
+    }
+    PdfFormFieldCollectionHelper.getHelper(_fields!).isAction = true;
+    return _fields!;
+  }
+}
+
+/// Represents PDF form's reset action,this action allows a user to reset
+/// the form fields to their default values.
+class PdfResetAction extends PdfFormAction {
+  //Constructor
+  /// Initializes a new instance of the [PdfResetAction] class.
+  PdfResetAction({bool? include, List<PdfField>? fields}) : super._() {
+    PdfActionHelper.getHelper(this).dictionary.setProperty(
+        PdfDictionaryProperties.s, PdfName(PdfDictionaryProperties.resetForm));
+    _initValues(include, fields);
+  }
+
+  //Properties
+  @override
+  set include(bool value) {
+    if (super.include != value) {
+      super.include = value;
+      PdfActionHelper.getHelper(this)
+          .dictionary
+          .setNumber(PdfDictionaryProperties.flags, super.include ? 0 : 1);
+    }
+  }
+
+  void _initValues(bool? initInclude, List<PdfField>? field) {
+    if (initInclude != null) {
+      include = initInclude;
+    }
+    if (field != null) {
+      // ignore: avoid_function_literals_in_foreach_calls
+      field.forEach((PdfField f) => fields.add(f));
+    }
   }
 }

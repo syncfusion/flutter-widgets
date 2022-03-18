@@ -1,8 +1,10 @@
-part of pdf;
+import 'ipadding.dart';
 
-class _CipherBlockChainingMode implements _ICipher {
+/// internal class
+class CipherBlockChainingMode implements ICipher {
   //Constructor
-  _CipherBlockChainingMode(_ICipher? cipher) {
+  /// internal constructor
+  CipherBlockChainingMode(ICipher? cipher) {
     _cipher = cipher;
     _size = _cipher!.blockSize;
     _bytes = List<int>.filled(_size!, 0, growable: true);
@@ -12,7 +14,7 @@ class _CipherBlockChainingMode implements _ICipher {
   }
 
   //Fields
-  _ICipher? _cipher;
+  ICipher? _cipher;
   int? _size;
   late List<int> _bytes;
   List<int>? _cbcBytes;
@@ -23,22 +25,22 @@ class _CipherBlockChainingMode implements _ICipher {
   @override
   int? get blockSize => _cipher!.blockSize;
   @override
-  String get algorithmName => _cipher!.algorithmName! + '/CBC';
+  String get algorithmName => '${_cipher!.algorithmName!}/CBC';
   @override
   bool get isBlock => false;
 
   //Implementation
   @override
-  void initialize(bool? isEncryption, _ICipherParameter? parameters) {
+  void initialize(bool? isEncryption, ICipherParameter? parameters) {
     final bool? oldEncryption = _isEncryption;
     _isEncryption = isEncryption;
-    if (parameters is _InvalidParameter) {
+    if (parameters is InvalidParameter) {
       final List<int> bytes = parameters.keys;
       if (bytes.length != _size) {
         throw ArgumentError.value(parameters, 'Invalid size in block');
       }
       List.copyRange(_bytes, 0, bytes, 0, bytes.length);
-      parameters = parameters._parameters;
+      parameters = parameters.parameters;
     }
     reset();
     if (parameters != null) {
@@ -63,6 +65,7 @@ class _CipherBlockChainingMode implements _ICipher {
         : decryptBlock(inputBytes!, inputOffset, outputBytes, outputOffset);
   }
 
+  /// internal method
   Map<String, dynamic> encryptBlock(List<int> inputBytes, int inputOffset,
       List<int>? outputBytes, int outputOffset) {
     if ((inputOffset + _size!) > inputBytes.length) {
@@ -79,6 +82,7 @@ class _CipherBlockChainingMode implements _ICipher {
     return result;
   }
 
+  /// internal method
   Map<String, dynamic> decryptBlock(List<int> inputBytes, int inputOffset,
       List<int>? outputBytes, int? outputOffset) {
     if ((inputOffset + _size!) > inputBytes.length) {
@@ -99,64 +103,77 @@ class _CipherBlockChainingMode implements _ICipher {
   }
 }
 
-class _InvalidParameter implements _ICipherParameter {
+/// internal class
+class InvalidParameter implements ICipherParameter {
   //Constructor
-  _InvalidParameter(_ICipherParameter? parameter, List<int> bytes,
+  /// internal constructor
+  InvalidParameter(this.parameters, List<int> bytes,
       [int? offset, int? length]) {
-    _parameters = parameter;
     length ??= bytes.length;
     offset ??= 0;
-    _bytes = List<int>.filled(length, 0, growable: true);
-    List.copyRange(_bytes!, 0, bytes, offset, offset + length);
+    this.bytes = List<int>.filled(length, 0, growable: true);
+    List.copyRange(this.bytes!, 0, bytes, offset, offset + length);
   }
 
   //Fields
-  _ICipherParameter? _parameters;
-  List<int>? _bytes;
+  /// internal field
+  ICipherParameter? parameters;
+
+  /// internal field
+  List<int>? bytes;
 
   //Properties
   @override
-  List<int> get keys => List<int>.from(_bytes!);
+  List<int> get keys => List<int>.from(bytes!);
   @override
   set keys(List<int>? value) {
-    _bytes = value;
+    bytes = value;
   }
 }
 
-class _KeyParameter implements _ICipherParameter {
+/// internal class
+class KeyParameter implements ICipherParameter {
   //Constructor
-  _KeyParameter(List<int> bytes) {
-    _bytes = List<int>.from(bytes);
+  /// internal constructor
+  KeyParameter(List<int> bytes) {
+    this.bytes = List<int>.from(bytes);
   }
-  _KeyParameter.fromLengthValue(List<int> bytes, int offset, int length) {
+
+  /// internal constructor
+  KeyParameter.fromLengthValue(List<int> bytes, int offset, int length) {
     if (offset < 0 || offset > bytes.length) {
       throw ArgumentError.value(offset, 'offset', 'Out of range');
     }
     if (length < 0 || (offset + length) > bytes.length) {
       throw ArgumentError.value(length, 'length', 'Out of range');
     }
-    _bytes = List<int>.generate(length, (int i) => 0);
-    List.copyRange(_bytes!, 0, bytes, offset, offset + length);
+    this.bytes = List<int>.generate(length, (int i) => 0);
+    List.copyRange(this.bytes!, 0, bytes, offset, offset + length);
   }
 
   //Fields
-  List<int>? _bytes;
+  /// internal field
+  List<int>? bytes;
 
   //Properties
   @override
-  List<int> get keys => List<int>.from(_bytes!);
+  List<int> get keys => List<int>.from(bytes!);
   @override
   set keys(List<int>? value) {
-    _bytes = value;
+    bytes = value;
   }
 }
 
-class _CipherParameter implements _ICipherParameter {
-  _CipherParameter(bool privateKey) {
+/// internal class
+class CipherParameter implements ICipherParameter {
+  /// internal constructor
+  CipherParameter(bool privateKey) {
     _privateKey = privateKey;
   }
   //Fields
   bool? _privateKey;
+
+  /// internal property
   bool? get isPrivate => _privateKey;
   @override
   List<int>? get keys => null;
@@ -165,7 +182,7 @@ class _CipherParameter implements _ICipherParameter {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    if (other is _CipherParameter) {
+    if (other is CipherParameter) {
       return _privateKey == other._privateKey;
     } else {
       return false;
@@ -177,8 +194,10 @@ class _CipherParameter implements _ICipherParameter {
   int get hashCode => _privateKey.hashCode;
 }
 
-class _RsaKeyParam extends _CipherParameter {
-  _RsaKeyParam(bool isPrivate, BigInt? modulus, BigInt? exponent)
+/// internal class
+class RsaKeyParam extends CipherParameter {
+  /// internal constructor
+  RsaKeyParam(bool isPrivate, BigInt? modulus, BigInt? exponent)
       : super(isPrivate) {
     _modulus = modulus;
     _exponent = exponent;
@@ -187,7 +206,10 @@ class _RsaKeyParam extends _CipherParameter {
   BigInt? _modulus;
   BigInt? _exponent;
   //Properties
+  /// internal property
   BigInt? get modulus => _modulus;
+
+  /// internal property
   BigInt? get exponent => _exponent;
   @override
   List<int>? get keys => null;
@@ -197,7 +219,7 @@ class _RsaKeyParam extends _CipherParameter {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    if (other is _RsaKeyParam) {
+    if (other is RsaKeyParam) {
       return other.isPrivate == isPrivate &&
           other.modulus == _modulus &&
           other.exponent == _exponent;
@@ -212,40 +234,41 @@ class _RsaKeyParam extends _CipherParameter {
       _modulus.hashCode ^ _exponent.hashCode ^ isPrivate.hashCode;
 }
 
-class _RsaPrivateKeyParam extends _RsaKeyParam {
-  _RsaPrivateKeyParam(
-      BigInt? modulus,
-      BigInt publicExponent,
-      BigInt? privateExponent,
-      BigInt p,
-      BigInt q,
-      BigInt dP,
-      BigInt dQ,
-      BigInt inverse)
+/// internal class
+class RsaPrivateKeyParam extends RsaKeyParam {
+  /// internal constructor
+  RsaPrivateKeyParam(BigInt? modulus, this.publicExponent,
+      BigInt? privateExponent, this.p, this.q, this.dP, this.dQ, this.inverse)
       : super(true, modulus, privateExponent) {
-    validateValue(publicExponent);
-    validateValue(p);
-    validateValue(q);
-    validateValue(dP);
-    validateValue(dQ);
-    validateValue(inverse);
-    _publicExponent = publicExponent;
-    _p = p;
-    _q = q;
-    _dP = dP;
-    _dQ = dQ;
-    _inverse = inverse;
+    validateValue(publicExponent!);
+    validateValue(p!);
+    validateValue(q!);
+    validateValue(dP!);
+    validateValue(dQ!);
+    validateValue(inverse!);
   }
 
   //Fields
-  BigInt? _publicExponent;
-  BigInt? _p;
-  BigInt? _q;
-  BigInt? _dP;
-  BigInt? _dQ;
-  BigInt? _inverse;
+  /// internal field
+  BigInt? publicExponent;
+
+  /// internal field
+  BigInt? p;
+
+  /// internal field
+  BigInt? q;
+
+  /// internal field
+  BigInt? dP;
+
+  /// internal field
+  BigInt? dQ;
+
+  /// internal field
+  BigInt? inverse;
 
   //Implementation
+  /// internal method
   void validateValue(BigInt number) {
     if (number.sign <= 0) {
       throw ArgumentError.value(number, 'number', 'Invalid RSA entry');
@@ -260,15 +283,15 @@ class _RsaPrivateKeyParam extends _RsaKeyParam {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    if (other is _RsaPrivateKeyParam) {
-      return other._dP == _dP &&
-          other._dQ == _dQ &&
+    if (other is RsaPrivateKeyParam) {
+      return other.dP == dP &&
+          other.dQ == dQ &&
           other._exponent == _exponent &&
           other._modulus == _modulus &&
-          other._p == _p &&
-          other._q == _q &&
-          other._publicExponent == _publicExponent &&
-          other._inverse == _inverse;
+          other.p == p &&
+          other.q == q &&
+          other.publicExponent == publicExponent &&
+          other.inverse == inverse;
     } else {
       return false;
     }
@@ -277,12 +300,12 @@ class _RsaPrivateKeyParam extends _RsaKeyParam {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode =>
-      _dP.hashCode ^
-      _dQ.hashCode ^
+      dP.hashCode ^
+      dQ.hashCode ^
       _exponent.hashCode ^
       _modulus.hashCode ^
-      _p.hashCode ^
-      _q.hashCode ^
-      _publicExponent.hashCode ^
-      _inverse.hashCode;
+      p.hashCode ^
+      q.hashCode ^
+      publicExponent.hashCode ^
+      inverse.hashCode;
 }

@@ -1,48 +1,58 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../primitives/pdf_reference.dart';
 
-class _ObjectInfo {
+/// internal class
+class PdfObjectInfo {
   //Constructors
-  _ObjectInfo(_IPdfPrimitive? obj, [_PdfReference? reference]) {
+  /// internal constructor
+  PdfObjectInfo(IPdfPrimitive? obj, [PdfReference? reference]) {
     if (obj == null) {
       ArgumentError.notNull('obj');
     } else {
-      _object = obj;
+      object = obj;
       if (reference != null) {
-        _reference = reference;
+        this.reference = reference;
       }
-      _isModified = false;
+      isModified = false;
     }
   }
 
   //Fields
-  _IPdfPrimitive? _object;
-  _PdfReference? _reference;
-  late bool _isModified;
+  /// internal field
+  IPdfPrimitive? object;
+
+  /// internal field
+  PdfReference? reference;
+
+  /// internal field
+  late bool isModified;
 
   //Properties
-  bool? get _modified {
-    if (_object is _IPdfChangable) {
-      _isModified |= (_object! as _IPdfChangable).changed!;
+  /// internal property
+  bool? get modified {
+    if (object is IPdfChangable) {
+      isModified |= (object! as IPdfChangable).changed!;
     }
-    return _isModified;
+    return isModified;
   }
 
   //Implementation
-  void _setReference(_PdfReference reference) {
-    if (_reference != null) {
+  /// internal method
+  void setReference(PdfReference reference) {
+    if (this.reference != null) {
       throw ArgumentError.value(
-          _reference, 'The object has the reference bound to it.');
+          this.reference, 'The object has the reference bound to it.');
     }
-    _reference = reference;
+    this.reference = reference;
   }
 
   @override
   String toString() {
     String reference = '';
-    if (_reference != null) {
-      reference = _reference.toString();
+    if (this.reference != null) {
+      reference = this.reference.toString();
     }
-    reference += ' : ' + _object.runtimeType.toString();
+    reference += ' : ${object.runtimeType}';
     return reference;
   }
 }

@@ -3,8 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 //Local imports
-import 'helper/save_file_mobile.dart'
-    if (dart.library.html) 'helper/save_file_web.dart';
+import 'save_file_mobile.dart' if (dart.library.html) 'save_file_web.dart';
 
 void main() {
   runApp(CreatePdfWidget());
@@ -79,7 +78,7 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
     //Dispose the document.
     document.dispose();
     //Save and launch the file.
-    await FileSaveHelper.saveAndLaunchFile(bytes, 'Invoice.pdf');
+    await saveAndLaunchFile(bytes, 'Invoice.pdf');
   }
 
   //Draws the invoice header
@@ -117,8 +116,8 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
             lineAlignment: PdfVerticalAlignment.bottom));
     //Create data foramt and convert it to text.
     final DateFormat format = DateFormat.yMMMMd('en_US');
-    final String invoiceNumber = 'Invoice Number: 2058557939\r\n\r\nDate: ' +
-        format.format(DateTime.now());
+    final String invoiceNumber =
+        'Invoice Number: 2058557939\r\n\r\nDate: ${format.format(DateTime.now())}';
     final Size contentSize = contentFont.measureString(invoiceNumber);
     // ignore: leading_newlines_in_multiline_strings
     const String address = '''Bill To: \r\n\r\nAbraham Swearegin, 

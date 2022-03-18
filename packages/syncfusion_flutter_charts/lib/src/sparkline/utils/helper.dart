@@ -1,13 +1,15 @@
 import 'dart:math' as math;
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
-import 'package:flutter/foundation.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+
 import '../marker.dart';
 import 'enum.dart';
 
-/// Methods to get the saturation color
+/// Methods to get the saturation color.
 Color getSaturationColor(Color color) {
   Color saturationColor;
   final num contrast =
@@ -16,7 +18,7 @@ Color getSaturationColor(Color color) {
   return saturationColor;
 }
 
-/// Measure the text and return the text size
+/// Measure the text and return the text size.
 Size getTextSize(String textValue, TextStyle textStyle) {
   Size size;
   final TextPainter textPainter = TextPainter(
@@ -36,7 +38,7 @@ Size getTextSize(String textValue, TextStyle textStyle) {
   return size;
 }
 
-/// Draw the data label
+/// Draw the data label.
 void drawText(Canvas canvas, String dataLabel, Offset point, TextStyle style) {
   final num maxLines = getMaxLinesContent(dataLabel);
   final TextSpan span = TextSpan(text: dataLabel, style: style);
@@ -48,12 +50,12 @@ void drawText(Canvas canvas, String dataLabel, Offset point, TextStyle style) {
   tp.layout();
   canvas.save();
   canvas.translate(point.dx, point.dy);
-  const Offset labelOffset = Offset(0.0, 0.0);
+  const Offset labelOffset = Offset.zero;
   tp.paint(canvas, labelOffset);
   canvas.restore();
 }
 
-/// Draw the dashed line
+/// Draw the dashed line.
 void drawDashedPath(
     Canvas canvas, Paint paint, Offset moveToPoint, Offset lineToPoint,
     [List<double>? dashArray]) {
@@ -81,7 +83,7 @@ void drawDashedPath(
   }
 }
 
-/// To calculate dash array path for series
+/// To calculate dash array path for series.
 Path? _dashPath(
   Path? source, {
   @required DashArrayIntervalList<double>? dashArray,
@@ -109,14 +111,14 @@ Path? _dashPath(
   return path;
 }
 
-/// Returns the Rectangle marker type
+/// Returns the Rectangle marker type.
 Path drawRectangle(Path path, double x, double y, double size) {
   path.addRect(
       Rect.fromLTRB(x - size / 2, y - size / 2, x + size / 2, y + size / 2));
   return path;
 }
 
-/// Returns the circle marker type
+/// Returns the circle marker type.
 Path drawCircle(Path path, double x, double y, double size) {
   path.addArc(
       Rect.fromLTRB(x - size / 2, y - size / 2, x + size / 2, y + size / 2),
@@ -125,7 +127,7 @@ Path drawCircle(Path path, double x, double y, double size) {
   return path;
 }
 
-/// Returns the Inverted Triangle shape marker
+/// Returns the Inverted Triangle shape marker.
 Path drawInvertedTriangle(Path path, double x, double y, double size) {
   path.moveTo(x + size / 2, y - size / 2);
 
@@ -136,7 +138,7 @@ Path drawInvertedTriangle(Path path, double x, double y, double size) {
   return path;
 }
 
-///Returns the Diamond shape marker
+/// Returns the Diamond shape marker.
 Path drawDiamond(Path path, double x, double y, double size) {
   path.moveTo(x - size / 2, y);
   path.lineTo(x, y + size / 2);
@@ -147,7 +149,7 @@ Path drawDiamond(Path path, double x, double y, double size) {
   return path;
 }
 
-///Returns the Triangle shape marker
+/// Returns the Triangle shape marker.
 Path drawTriangle(Path path, double x, double y, double size) {
   path.moveTo(x - size / 2, y + size / 2);
   path.lineTo(x + size / 2, y + size / 2);
@@ -157,7 +159,7 @@ Path drawTriangle(Path path, double x, double y, double size) {
   return path;
 }
 
-/// Method to find the sorted spark chart points
+/// Method to find the sorted spark chart points.
 List<SparkChartPoint> sortSparkChartPoints(List<SparkChartPoint> dataPoints) {
   final List<SparkChartPoint> sortedPoints =
       List<SparkChartPoint>.from(dataPoints);
@@ -175,7 +177,7 @@ List<SparkChartPoint> sortSparkChartPoints(List<SparkChartPoint> dataPoints) {
   return sortedPoints;
 }
 
-/// Method to find the sorted visible points
+/// Method to find the sorted visible points.
 List<Offset> sortScreenCoordiantePoints(List<Offset> coordinatePoints) {
   coordinatePoints.sort((Offset firstPoint, Offset secondPoint) {
     firstPoint.dx.compareTo(secondPoint.dx);
@@ -191,7 +193,7 @@ List<Offset> sortScreenCoordiantePoints(List<Offset> coordinatePoints) {
   return coordinatePoints;
 }
 
-/// Converts the provided data point to visible point for rendering
+/// Converts the provided data point to visible point for rendering.
 Offset transformToCoordinatePoint(
     double minX,
     double maxX,
@@ -212,7 +214,7 @@ Offset transformToCoordinatePoint(
   return Offset(visibleXPoint, visibleYPoint);
 }
 
-/// Calculates and return the spark chart layout size
+/// Calculates and return the spark chart layout size.
 Size getLayoutSize(BoxConstraints constraints, BuildContext context) {
   const double minHeight = 270;
   const double minWidth = 480;
@@ -238,18 +240,18 @@ Size getLayoutSize(BoxConstraints constraints, BuildContext context) {
   return Size(width, height);
 }
 
-/// Represents the circular interval list
+/// Represents the circular interval list.
 class DashArrayIntervalList<T> {
-  /// Creates the circular interval list
+  /// Creates the circular interval list.
   DashArrayIntervalList(this._values);
 
-  /// Specifies the list of value
+  /// Specifies the list of value.
   final List<T> _values;
 
-  /// Specifies the index value
+  /// Specifies the index value.
   int _index = 0;
 
-  /// Returns the value
+  /// Returns the value.
   T get next {
     if (_index >= _values.length) {
       _index = 0;
@@ -258,55 +260,55 @@ class DashArrayIntervalList<T> {
   }
 }
 
-/// Represents the spark chart point
+/// Represents the spark chart point.
 class SparkChartPoint {
-  /// Creates the spark chart point
+  /// Creates the spark chart point.
   SparkChartPoint({this.x, this.y = 0});
 
-  /// Specifies the x point
+  /// Specifies the x point.
   dynamic x;
 
-  /// Specifies the y point
+  /// Specifies the y point.
   num y;
 
-  /// Specifes the pixel location of  data label
+  /// Specifes the pixel location of  data label.
   Offset? dataLabelOffset;
 
-  /// Specifies the x label
+  /// Specifies the x label.
   String? labelX;
 
-  /// Specifies the y label
+  /// Specifies the y label.
   String? labelY;
 
-  /// Specifies the actual x value
+  /// Specifies the actual x value.
   dynamic actualX;
 
-  /// Specifies the color of that particular segment in bar series
+  /// Specifies the color of that particular segment in bar series.
   Color? color;
 }
 
-/// Represents the spark chart data details
+/// Represents the spark chart data details.
 class SparkChartDataDetails {
-  /// Creates the spark chart container box
+  /// Creates the spark chart container box.
   SparkChartDataDetails(
       {this.data, this.dataCount, this.xValueMapper, this.yValueMapper});
 
-  /// Speficies the list of spark chart data
+  /// Speficies the list of spark chart data.
   final List<num>? data;
 
-  /// Specifies the spark chart data count
+  /// Specifies the spark chart data count.
   final int? dataCount;
 
-  /// Specifies the x-value mapper
+  /// Specifies the x-value mapper.
   final SparkChartIndexedValueMapper<dynamic>? xValueMapper;
 
-  /// Specifies the y-value mapper
+  /// Specifies the y-value mapper.
   final SparkChartIndexedValueMapper<num>? yValueMapper;
 }
 
-/// Represents the spark chart container
+/// Represents the spark chart container.
 class SparkChartContainer extends SingleChildRenderObjectWidget {
-  /// Creates the spark chart container
+  /// Creates the spark chart container.
   const SparkChartContainer({Widget? child}) : super(child: child);
 
   @override
@@ -315,7 +317,7 @@ class SparkChartContainer extends SingleChildRenderObjectWidget {
   }
 }
 
-/// Represents the spark chart container box
+/// Represents the spark chart container box.
 class _SparKChartContainerBox extends RenderShiftedBox {
   _SparKChartContainerBox(this.context) : super(null);
 
@@ -345,7 +347,7 @@ class _SparKChartContainerBox extends RenderShiftedBox {
   }
 }
 
-/// To draw the respective shapes for marker
+/// To draw the respective shapes for marker.
 Path getMarkerShapes(
     SparkChartMarkerShape markerShape, Offset position, double size) {
   final Path path = Path();
@@ -385,7 +387,7 @@ Path getMarkerShapes(
   return path;
 }
 
-/// TO render the marker for line and area series
+/// To render the marker for line and area series.
 void renderMarker(
     Canvas canvas,
     Offset offset,
@@ -397,7 +399,7 @@ void renderMarker(
     num highPoint,
     num lowPoint,
     double axisCrossesAt,
-    ThemeData themeData,
+    SfChartThemeData themeData,
     Color? lowPointColor,
     Color? highPointColor,
     Color? negativePointColor,
@@ -579,7 +581,7 @@ void renderMarker(
 Color _getDataLabelSaturationColor(
     Offset dataLabelOffset,
     Offset coordinateOffset,
-    ThemeData theme,
+    SfChartThemeData theme,
     Offset offset,
     Color seriesColor,
     String type,
@@ -621,7 +623,7 @@ TextStyle _getTextStyle(
     Offset dataLabelOffset,
     Offset coordinateOffset,
     Offset offset,
-    ThemeData theme,
+    SfChartThemeData theme,
     Color seriesColor,
     String type,
     [Rect? segment,
@@ -658,7 +660,7 @@ TextStyle _getTextStyle(
   return _textStyle;
 }
 
-/// To render the data label
+/// To render the data label.
 void renderDataLabel(
     Canvas canvas,
     List<String> dataLabels,
@@ -667,7 +669,7 @@ void renderDataLabel(
     TextStyle labelStyle,
     SparkChartLabelDisplayMode labelDisplayMode,
     String type,
-    ThemeData theme,
+    SfChartThemeData theme,
     Offset offset,
     Color seriesColor,
     num highPoint,

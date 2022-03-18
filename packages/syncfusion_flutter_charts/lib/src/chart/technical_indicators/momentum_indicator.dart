@@ -1,11 +1,14 @@
-part of charts;
+import 'package:flutter/material.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import 'technical_indicator.dart';
 
 /// Renders the momentum indicator.
 ///
-/// This class renders the momentum indicator, it also has a centerline. The [centerLineColor] and [centerLineWidth]
-/// property is used to define centerline.
+/// This class renders the momentum indicator, it also has a center line. The [centerLineColor] and [centerLineWidth]
+/// property is used to define center line.
 ///
-/// Provides the options for visibility, centerline color, centerline width, and period values to customize the appearance.
+/// Provides the options for visibility, center line color, center line width, and period values to customize the appearance.
 ///
 @immutable
 class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
@@ -17,6 +20,7 @@ class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
       String? seriesName,
       List<double>? dashArray,
       double? animationDuration,
+      double? animationDelay,
       List<T>? dataSource,
       ChartValueMapper<T, D>? xValueMapper,
       ChartValueMapper<T, num>? highValueMapper,
@@ -40,6 +44,7 @@ class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
             seriesName: seriesName,
             dashArray: dashArray,
             animationDuration: animationDuration,
+            animationDelay: animationDelay,
             dataSource: dataSource,
             xValueMapper: xValueMapper,
             highValueMapper: highValueMapper,
@@ -55,36 +60,48 @@ class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
             period: period,
             onRenderDetailsUpdate: onRenderDetailsUpdate);
 
-  /// Center line color of the momentum indicator
+  /// Center line color of the momentum indicator.
   ///
-  /// Defaults to `Colors.red`
+  /// Defaults to `Colors.red`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///                        MomentumIndicator<dynamic, dynamic>(
-  ///                        centerLineColor: Color.red,
-  ///                         ),]
-  ///         ));
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      MomentumIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        centerLineColor : Colors.green
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
   /// }
   /// ```
   final Color centerLineColor;
 
-  /// Center line width of the momentum indicator
+  /// Center line width of the momentum indicator.
   ///
-  /// Defaults to `2`
+  /// Defaults to `2`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///                        MomentumIndicator<dynamic, dynamic>(
-  ///                        centerLineWidth: 3,
-  ///                         ),]
-  ///         ));
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      MomentumIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        centerLineWidth: 3
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
   /// }
   /// ```
   final double centerLineWidth;
@@ -105,6 +122,7 @@ class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
         other.seriesName == seriesName &&
         other.dashArray == dashArray &&
         other.animationDuration == animationDuration &&
+        other.animationDelay == animationDelay &&
         other.dataSource == dataSource &&
         other.xValueMapper == xValueMapper &&
         other.highValueMapper == highValueMapper &&
@@ -131,6 +149,7 @@ class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
       seriesName,
       dashArray,
       animationDuration,
+      animationDelay,
       dataSource,
       xValueMapper,
       highValueMapper,
@@ -148,69 +167,5 @@ class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
       centerLineWidth
     ];
     return hashList(values);
-  }
-
-  /// To initialise indicators collections
-  // ignore:unused_element
-  void _initSeriesCollection(
-      MomentumIndicator<dynamic, dynamic> indicator,
-      SfCartesianChart chart,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    technicalIndicatorsRenderer._targetSeriesRenderers =
-        <CartesianSeriesRenderer>[];
-  }
-
-  /// To initialise data source of technical indicators
-  // ignore:unused_element
-  void _initDataSource(
-    MomentumIndicator<dynamic, dynamic> indicator,
-    TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
-    SfCartesianChart chart,
-  ) {
-    final List<CartesianChartPoint<dynamic>> signalCollection =
-            <CartesianChartPoint<dynamic>>[],
-        centerLineCollection = <CartesianChartPoint<dynamic>>[],
-        validData = technicalIndicatorsRenderer._dataPoints!;
-    final List<dynamic> centerXValues = <dynamic>[], xValues = <dynamic>[];
-    num value;
-
-    if (validData.isNotEmpty) {
-      final int length = indicator.period;
-      if (validData.length >= indicator.period && indicator.period > 0) {
-        for (int i = 0; i < validData.length; i++) {
-          centerLineCollection.add(technicalIndicatorsRenderer._getDataPoint(
-              validData[i].x, 100, validData[i], centerLineCollection.length));
-          centerXValues.add(validData[i].x);
-          if (!(i < length)) {
-            value = (validData[i].close ?? 0) /
-                (validData[i - length].close ?? 1) *
-                100;
-            signalCollection.add(technicalIndicatorsRenderer._getDataPoint(
-                validData[i].x, value, validData[i], signalCollection.length));
-            xValues.add(validData[i].x);
-          }
-        }
-      }
-      technicalIndicatorsRenderer._renderPoints = signalCollection;
-      technicalIndicatorsRenderer._momentumCenterLineValue =
-          centerLineCollection.first.y.toDouble();
-      // Decides the type of renderer class to be used
-      const bool isLine = true;
-      technicalIndicatorsRenderer._setSeriesProperties(
-          indicator,
-          indicator.name ?? 'Momentum',
-          indicator.signalLineColor,
-          indicator.signalLineWidth,
-          chart);
-      technicalIndicatorsRenderer._setSeriesProperties(indicator, 'CenterLine',
-          indicator.centerLineColor, indicator.centerLineWidth, chart, isLine);
-      technicalIndicatorsRenderer._setSeriesRange(signalCollection, indicator,
-          xValues, technicalIndicatorsRenderer._targetSeriesRenderers[0]);
-      technicalIndicatorsRenderer._setSeriesRange(
-          centerLineCollection,
-          indicator,
-          centerXValues,
-          technicalIndicatorsRenderer._targetSeriesRenderers[1]);
-    }
   }
 }

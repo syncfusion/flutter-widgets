@@ -1,12 +1,25 @@
+/// Syncfusion Flutter Maps package is a data visualization library for creating
+/// beautiful, interactive, and customizable maps from shape files or WMTS
+/// services to visualize the geographical area.
+///
+/// To use, import `package:syncfusion_flutter_maps/maps.dart`.
+///
+/// See also:
+/// * [Syncfusion Flutter Maps product page](https://www.syncfusion.com/flutter-widgets/flutter-maps)
+/// * [User guide documentation](https://help.syncfusion.com/flutter/maps/overview)
+/// * [Knowledge base](https://www.syncfusion.com/kb/flutter/sfmaps)
 library maps;
 
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart'
     show DiagnosticableTree, ObjectFlagProperty;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:syncfusion_flutter_core/theme.dart';
 
 import 'src/common.dart';
 import 'src/controller/map_controller.dart';
@@ -14,10 +27,11 @@ import 'src/elements/legend.dart';
 import 'src/layer/layer_base.dart';
 import 'src/layer/shape_layer.dart';
 import 'src/layer/tile_layer.dart';
+import 'src/layer/zoomable.dart';
 import 'src/settings.dart';
 import 'src/utils.dart';
 
-export 'maps.dart' hide BehaviorViewRenderObjectWidget;
+export 'maps.dart' hide BehaviorView, BehaviorViewRenderObjectWidget;
 export 'src/controller/layer_controller.dart';
 export 'src/elements/legend.dart' hide Legend;
 export 'src/elements/marker.dart' hide MarkerContainer;
@@ -191,8 +205,8 @@ Future<http.Response> _fetchResponse(String url) {
 /// Tile layer which renders the tiles returned from the Web Map Tile
 /// Services (WMTS) like OpenStreetMap, Bing Maps, Google Maps, TomTom etc.
 ///
-/// The [urlTemplate] accepts the URL in WMTS format i.e. {z} — zoom level, {x}
-/// and {y} — tile coordinates.
+/// The [MapTileLayer.urlTemplate] accepts the URL in WMTS format i.e.
+/// {z} — zoom level, {x} and {y} — tile coordinates.
 ///
 /// This URL might vary slightly depends on the providers. The formats can be,
 /// https://exampleprovider/{z}/{x}/{y}.png,
@@ -203,9 +217,10 @@ Future<http.Response> _fetchResponse(String url) {
 /// current center point and the zoom level.
 ///
 /// The subscription key may be needed for some of the providers. Please include
-/// them in the [urlTemplate] itself as mentioned in above example. Please note
-/// that the format may vary between the each map provider. You can check the
-/// exact URL format needed for the providers in their official websites.
+/// them in the [MapTileLayer.urlTemplate] itself as mentioned in above example.
+/// Please note that the format may vary between the each map provider. You can
+/// check the exact URL format needed for the providers in their official
+/// websites.
 ///
 /// Regarding the tile rendering, at the lowest zoom level (Level 0), the map is
 /// 256 x 256 pixels and the whole world map renders as a single tile. At each
@@ -216,11 +231,12 @@ Future<http.Response> _fetchResponse(String url) {
 /// (These details are just for your information and all these calculation are
 /// done internally.)
 ///
-/// However, based on the size of the [SfMaps] widget, [initialFocalLatLng] and
-/// [initialZoomLevel], number of initial tiles needed in the view port alone
-/// will be rendered. While zooming and panning, new tiles will be requested and
-/// rendered on demand based on the current zoom level and focal point.
-/// The current zoom level and focal point can be obtained from the
+/// However, based on the size of the [SfMaps] widget,
+/// [MapTileLayer.initialFocalLatLng] and [MapTileLayer.initialZoomLevel],
+/// number of initial tiles needed in the view port alone will be rendered.
+/// While zooming and panning, new tiles will be requested and rendered on
+/// demand based on the current zoom level and focal point. The current zoom
+/// level and focal point can be obtained from the
 /// [MapZoomPanBehavior.zoomLevel] and [MapZoomPanBehavior.focalLatLng]
 /// respectively. Once the particular tile is rendered, it will be stored in the
 /// cache and it will be used from it for the next time for better performance.
@@ -247,8 +263,8 @@ Future<http.Response> _fetchResponse(String url) {
 /// bubbles, legends, selection etc.
 /// * [MapShapeSource], for providing the data for the elements like data
 /// labels, tooltip, bubbles, legends etc.
-/// * For enabling zooming and panning, set [MapShapeLayer.zoomPanBehavior] or
-/// [MapTileLayer.zoomPanBehavior] with the instance of [MapZoomPanBehavior].
+/// * For enabling zooming and panning, set [MapLayer.zoomPanBehavior] with the
+/// instance of [MapZoomPanBehavior].
 class SfMaps extends StatefulWidget {
   /// Creates a [SfMaps].
   const SfMaps({
@@ -282,7 +298,7 @@ class SfMaps extends StatefulWidget {
   final List<MapLayer> layers;
 
   @override
-  _SfMapsState createState() => _SfMapsState();
+  State<SfMaps> createState() => _SfMapsState();
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -353,24 +369,24 @@ class _RenderMaps extends RenderProxyBox {
 /// [MapShapeSublayer.source]. The source can be set as the .json file from an
 /// asset bundle, network or from [Uint8List] as bytes.
 ///
-/// The [MapShapeSublayer.shapeDataField] property is used to
+/// The [MapShapeSource.shapeDataField] property is used to
 /// refer the unique field name in the .json file to identify each shapes and
 /// map with the respective data in the data source.
 ///
 /// By default, the value specified for the
-/// [MapShapeSublayer.shapeDataField] in the GeoJSON source will be used in
+/// [MapShapeSource.shapeDataField] in the GeoJSON source will be used in
 /// the elements like data labels, and tooltip for their respective
 /// shapes.
 ///
 /// However, it is possible to keep a data source and customize these elements
 /// based on the requirement. The value of the
-/// [MapShapeSublayer.shapeDataField] will be used to map with the
-/// respective data returned in [MapShapeSublayer.primaryValueMapper]
+/// [MapShapeSource.shapeDataField] will be used to map with the
+/// respective data returned in [MapShapeSource.primaryValueMapper]
 /// from the data source.
 ///
 /// Once the above mapping is done, you can customize the elements using the
-/// APIs like [MapShapeSublayer.dataLabelMapper],
-/// [MapShapeSublayer.shapeColorMappers], etc.
+/// APIs like [MapShapeSource.dataLabelMapper],
+/// [MapShapeSource.shapeColorMappers], etc.
 ///
 /// The snippet below shows how to render the basic world map using the data
 /// from .json file.
@@ -1003,6 +1019,7 @@ class MapShapeLayer extends MapLayer {
     required this.source,
     this.loadingBuilder,
     this.controller,
+    MapLatLngBounds? initialLatLngBounds,
     List<MapSublayer>? sublayers,
     int initialMarkersCount = 0,
     MapMarkerBuilder? markerBuilder,
@@ -1025,6 +1042,7 @@ class MapShapeLayer extends MapLayer {
     WillPanCallback? onWillPan,
   }) : super(
           key: key,
+          initialLatLngBounds: initialLatLngBounds,
           sublayers: sublayers,
           initialMarkersCount: initialMarkersCount,
           markerBuilder: markerBuilder,
@@ -1432,7 +1450,7 @@ class MapShapeLayer extends MapLayer {
   /// Customizes the appearance of the bubbles.
   ///
   /// See also:
-  /// * [MapShapeLayer.bubbleSizeMapper], to show the bubbles.
+  /// * [MapShapeSource.bubbleSizeMapper], to show the bubbles.
   final MapBubbleSettings bubbleSettings;
 
   /// Shows legend for the bubbles or shapes.
@@ -1599,6 +1617,7 @@ class MapShapeLayer extends MapLayer {
       source: source,
       loadingBuilder: loadingBuilder,
       controller: controller,
+      initialLatLngBounds: initialLatLngBounds,
       sublayers: sublayers,
       initialMarkersCount: initialMarkersCount,
       markerBuilder: markerBuilder,
@@ -1628,6 +1647,10 @@ class MapShapeLayer extends MapLayer {
     properties.add(source.toDiagnosticsNode(name: 'source'));
     properties.add(ObjectFlagProperty<MapLoadingBuilder>.has(
         'loadingBuilder', loadingBuilder));
+    if (initialLatLngBounds != null) {
+      properties.add(DiagnosticsProperty<MapLatLngBounds>(
+          'initialLatLngBounds', initialLatLngBounds));
+    }
     if (controller != null) {
       properties.add(IntProperty('markersCount', controller!.markersCount));
     } else {
@@ -1688,6 +1711,7 @@ class _ShapeLayer extends StatefulWidget {
     required this.source,
     required this.loadingBuilder,
     required this.controller,
+    required this.initialLatLngBounds,
     required this.sublayers,
     required this.initialMarkersCount,
     required this.markerBuilder,
@@ -1713,6 +1737,7 @@ class _ShapeLayer extends StatefulWidget {
   final MapShapeSource source;
   final MapLoadingBuilder? loadingBuilder;
   final MapShapeLayerController? controller;
+  final MapLatLngBounds? initialLatLngBounds;
   final List<MapSublayer>? sublayers;
   final int initialMarkersCount;
   final MapMarkerBuilder? markerBuilder;
@@ -1758,6 +1783,7 @@ class _ShapeLayerState extends State<_ShapeLayer> {
         source: widget.source,
         loadingBuilder: widget.loadingBuilder,
         controller: widget.controller,
+        initialLatLngBounds: widget.initialLatLngBounds,
         sublayers: widget.sublayers,
         initialMarkersCount: widget.initialMarkersCount,
         markerBuilder: widget.markerBuilder,
@@ -1821,8 +1847,7 @@ class _ShapeLayerState extends State<_ShapeLayer> {
 /// respectively. Once the particular tile is rendered, it will be stored in the
 /// cache and it will be used from it next time for better performance.
 ///
-/// Regarding the cache and clearing it, please check the APIs in [imageCache]
-/// (https://api.flutter.dev/flutter/painting/imageCache.html).
+/// Regarding the cache and clearing it, please check the APIs in [imageCache].
 ///
 /// ```dart
 /// @override
@@ -1849,6 +1874,7 @@ class MapTileLayer extends MapLayer {
     required this.urlTemplate,
     this.initialFocalLatLng = const MapLatLng(0.0, 0.0),
     this.initialZoomLevel = 1,
+    MapLatLngBounds? initialLatLngBounds,
     this.controller,
     List<MapSublayer>? sublayers,
     int initialMarkersCount = 0,
@@ -1863,6 +1889,7 @@ class MapTileLayer extends MapLayer {
             initialMarkersCount != 0 && markerBuilder != null),
         super(
           key: key,
+          initialLatLngBounds: initialLatLngBounds,
           sublayers: sublayers,
           initialMarkersCount: initialMarkersCount,
           markerBuilder: markerBuilder,
@@ -2081,6 +2108,7 @@ class MapTileLayer extends MapLayer {
       urlTemplate: urlTemplate,
       initialFocalLatLng: initialFocalLatLng,
       initialZoomLevel: initialZoomLevel,
+      initialLatLngBounds: initialLatLngBounds,
       sublayers: sublayers,
       initialMarkersCount: initialMarkersCount,
       markerBuilder: markerBuilder,
@@ -2102,6 +2130,10 @@ class MapTileLayer extends MapLayer {
     properties.add(DiagnosticsProperty<MapLatLng>(
         'initialFocalLatLng', initialFocalLatLng));
     properties.add(IntProperty('initialZoomLevel', initialZoomLevel));
+    if (initialLatLngBounds != null) {
+      properties.add(DiagnosticsProperty<MapLatLngBounds>(
+          'initialLatLngBounds', initialLatLngBounds));
+    }
     if (sublayers != null && sublayers!.isNotEmpty) {
       final DebugSublayerTree pointerTreeNode = DebugSublayerTree(sublayers!);
       properties.add(pointerTreeNode.toDiagnosticsNode());
@@ -2129,6 +2161,7 @@ class _TileLayer extends StatefulWidget {
     required this.urlTemplate,
     required this.initialFocalLatLng,
     required this.initialZoomLevel,
+    required this.initialLatLngBounds,
     required this.zoomPanBehavior,
     required this.sublayers,
     required this.initialMarkersCount,
@@ -2144,6 +2177,7 @@ class _TileLayer extends StatefulWidget {
   final String urlTemplate;
   final MapLatLng initialFocalLatLng;
   final int initialZoomLevel;
+  final MapLatLngBounds? initialLatLngBounds;
   final MapZoomPanBehavior? zoomPanBehavior;
   final List<MapSublayer>? sublayers;
   final int initialMarkersCount;
@@ -2166,7 +2200,12 @@ class _TileLayerState extends State<_TileLayer> {
   void initState() {
     _controller = MapController()
       ..tooltipKey = GlobalKey()
-      ..layerType = LayerType.tile;
+      ..layerType = LayerType.tile
+      ..tileCurrentLevelDetails = TileZoomLevelDetails();
+    if (widget.zoomPanBehavior != null &&
+        widget.zoomPanBehavior!._zoomController == null) {
+      widget.zoomPanBehavior!._zoomController = ZoomableController();
+    }
     super.initState();
   }
 
@@ -2174,11 +2213,13 @@ class _TileLayerState extends State<_TileLayer> {
   Widget build(BuildContext context) {
     return MapLayerInheritedWidget(
       controller: _controller,
+      zoomController: widget.zoomPanBehavior?._zoomController,
       sublayers: widget.sublayers,
       child: TileLayer(
         urlTemplate: widget.urlTemplate,
         initialFocalLatLng: widget.initialFocalLatLng,
         initialZoomLevel: widget.initialZoomLevel,
+        initialLatLngBounds: widget.initialLatLngBounds,
         sublayers: widget.sublayers,
         initialMarkersCount: widget.initialMarkersCount,
         markerBuilder: widget.markerBuilder,
@@ -2292,10 +2333,11 @@ abstract class MapBehavior extends DiagnosticableTree {
 class MapZoomPanBehavior extends MapBehavior {
   /// Creates a new [MapZoomPanBehavior].
   MapZoomPanBehavior({
-    double zoomLevel = 1.0,
+    double zoomLevel = kDefaultMinZoomLevel,
     MapLatLng? focalLatLng,
-    double minZoomLevel = 1.0,
-    double maxZoomLevel = 15.0,
+    MapLatLngBounds? latLngBounds,
+    double minZoomLevel = kDefaultMinZoomLevel,
+    double maxZoomLevel = kDefaultMaxZoomLevel,
     bool enablePinching = true,
     bool enablePanning = true,
     bool enableDoubleTapZooming = false,
@@ -2303,13 +2345,15 @@ class MapZoomPanBehavior extends MapBehavior {
     MapToolbarSettings toolbarSettings = const MapToolbarSettings(),
   })  : _zoomLevel = zoomLevel.clamp(minZoomLevel, maxZoomLevel),
         _focalLatLng = focalLatLng,
+        _latLngBounds = latLngBounds,
         _minZoomLevel = minZoomLevel,
         _maxZoomLevel = maxZoomLevel,
         _enablePinching = enablePinching,
         _enablePanning = enablePanning,
         _enableDoubleTapZooming = enableDoubleTapZooming,
         _showToolbar = showToolbar,
-        _toolbarSettings = toolbarSettings;
+        _toolbarSettings = toolbarSettings,
+        _zoomController = ZoomableController();
 
   /// Current zoom level of the map layer.
   ///
@@ -2325,13 +2369,26 @@ class MapZoomPanBehavior extends MapBehavior {
   double get zoomLevel => _zoomLevel;
   double _zoomLevel;
   set zoomLevel(double value) {
-    assert(value >= 1);
+    assert(value >= kDefaultMinZoomLevel);
     assert(value >= minZoomLevel && value <= maxZoomLevel);
     if (_zoomLevel == value || value < minZoomLevel || value > maxZoomLevel) {
       return;
     }
+
     _zoomLevel = value;
-    _controller?.onZoomLevelChange(zoomLevel);
+    if (_controller != null && _controller!.layerType == LayerType.shape) {
+      _controller!.onZoomLevelChange(value);
+      return;
+    }
+
+    if (_zoomController!.parentRect != null) {
+      _zoomController!.zoomLevel = value;
+      // Intimating the zoom controller to update the actual rect based on the
+      // new zoom level. This gets works only when there is simultaneous
+      // zoom pan property changes has been performed.
+      _updateZoomControllerActualRect();
+    }
+    return;
   }
 
   /// The [focalLatLng] is the focal point of the map layer based on which
@@ -2347,8 +2404,39 @@ class MapZoomPanBehavior extends MapBehavior {
     if (_focalLatLng == value) {
       return;
     }
+
     _focalLatLng = value;
-    _controller?.onPanChange(value);
+    if (_controller != null && _controller!.layerType == LayerType.shape) {
+      _controller!.onPanChange(value);
+      return;
+    }
+
+    if (_zoomController!.parentRect != null) {
+      _updateZoomControllerActualRect();
+    }
+  }
+
+  /// Specifies the current latlng bounds of the maps. The maps zoom level
+  /// and focalLatLng get updated based on the given bounds.
+  ///
+  /// For dynamic changes, the bounds value get updated with an animation.If
+  /// both [latLngBounds] and [MapTileLayer.initialLatLngBounds] or
+  /// [MapShapeLayer.initialLatLngBounds] are given, considered [latLngBounds]
+  /// values as load time value.
+  MapLatLngBounds? get latLngBounds => _latLngBounds;
+  MapLatLngBounds? _latLngBounds;
+  set latLngBounds(MapLatLngBounds? value) {
+    if (_latLngBounds == value) {
+      return;
+    }
+
+    _latLngBounds = value;
+    if (_controller != null) {
+      zoomLevel = getZoomLevel(_latLngBounds!, _controller!.layerType!,
+              renderBox.size, _controller!.shapeLayerSizeFactor / zoomLevel)
+          .clamp(minZoomLevel, maxZoomLevel);
+      focalLatLng = getFocalLatLng(_latLngBounds!);
+    }
   }
 
   /// Minimum zoom level of the map layer.
@@ -2357,7 +2445,7 @@ class MapZoomPanBehavior extends MapBehavior {
   double get minZoomLevel => _minZoomLevel;
   double _minZoomLevel;
   set minZoomLevel(double value) {
-    assert(value >= 1);
+    assert(value >= kDefaultMinZoomLevel);
     if (_minZoomLevel == value) {
       return;
     }
@@ -2446,6 +2534,13 @@ class MapZoomPanBehavior extends MapBehavior {
     _toolbarSettings = value;
   }
 
+  /// The controller which stores the actual zoomLevel and actual rect for the
+  /// interaction or animation changes.
+  ///
+  /// It intimate its listeners, when changing the zoomLevel and actual rect
+  /// values.
+  ZoomableController? _zoomController;
+
   /// Called whenever zooming is happening.
   ///
   /// Subclasses can override this method to do any custom operations based on
@@ -2473,8 +2568,18 @@ class MapZoomPanBehavior extends MapBehavior {
   ///   pointers in contact with the screen.
   void onZooming(MapZoomDetails details) {
     if (_controller != null) {
-      _controller!.notifyZoomingListeners(details);
-      _controller!.notifyListeners();
+      _latLngBounds = details.newVisibleBounds;
+      if (_controller!.layerType == LayerType.shape) {
+        _controller!.notifyZoomingListeners(details);
+        _controller!.notifyListeners();
+      } else {
+        _controller!
+          ..isInInteractive = true
+          ..gesture = Gesture.scale;
+        zoomLevel = details.newZoomLevel!;
+        focalLatLng = details.focalLatLng;
+        _controller!.notifyListeners();
+      }
     }
   }
 
@@ -2501,8 +2606,19 @@ class MapZoomPanBehavior extends MapBehavior {
   ///   pointers in contact with the screen.
   void onPanning(MapPanDetails details) {
     if (_controller != null) {
-      _controller!.notifyPanningListeners(details);
-      _controller!.notifyListeners();
+      _latLngBounds = details.newVisibleBounds;
+      if (_controller!.layerType == LayerType.shape) {
+        _controller!.notifyPanningListeners(details);
+        _controller!.notifyListeners();
+      } else {
+        _controller!
+          ..isInInteractive = true
+          ..gesture = Gesture.pan
+          ..localScale = 1.0
+          ..panDistance += details.delta!;
+        focalLatLng = details.focalLatLng;
+        _controller!.notifyListeners();
+      }
     }
   }
 
@@ -2510,8 +2626,27 @@ class MapZoomPanBehavior extends MapBehavior {
   /// [MapZoomPanBehavior.minZoomLevel].
   void reset() {
     if (_controller != null) {
-      _controller!.notifyResetListeners();
-      _controller!.notifyListeners();
+      zoomLevel = minZoomLevel;
+      if (_controller!.layerType == LayerType.shape) {
+        _controller!.notifyListeners();
+      }
+    }
+  }
+
+  // Converts the current focalLatLng into a offset and validates it with
+  // zoom controller actual rect to perform animation.
+  void _updateZoomControllerActualRect() {
+    final Offset center = pixelFromLatLng(_focalLatLng!.latitude,
+        _focalLatLng!.longitude, Size.square(getTotalTileWidth(_zoomLevel)));
+    final Offset newOffset = Offset(
+        _zoomController!.parentRect!.width / 2 - center.dx,
+        _zoomController!.parentRect!.height / 2 - center.dy);
+    final Offset delta = newOffset - _zoomController!.actualRect.topLeft;
+    if (delta != Offset.zero) {
+      _zoomController!.actualRect =
+          (_zoomController!.actualRect.topLeft + delta) &
+              _zoomController!.actualRect.size;
+      return;
     }
   }
 
@@ -2538,6 +2673,8 @@ class MapZoomPanBehavior extends MapBehavior {
         ifFalse: 'Double tap is disabled',
         showName: false));
     properties.add(DiagnosticsProperty<MapLatLng>('focalLatLng', focalLatLng));
+    properties.add(
+        DiagnosticsProperty<MapLatLngBounds>('latLngBounds', latLngBounds));
     properties.add(FlagProperty('showToolbar',
         value: showToolbar,
         ifTrue: 'Toolbar is enabled',
@@ -2636,19 +2773,20 @@ class MapLatLngBounds {
 class MapZoomDetails {
   /// Creates a [MapZoomDetails].
   MapZoomDetails({
-    this.newVisibleBounds,
     this.localFocalPoint,
     this.globalFocalPoint,
     this.previousZoomLevel,
     this.newZoomLevel,
+    this.focalLatLng,
     this.previousVisibleBounds,
+    this.newVisibleBounds,
   });
-
-  /// The global focal point of the pointers in contact with the screen.
-  final Offset? globalFocalPoint;
 
   /// The local focal point of the pointers in contact with the screen.
   final Offset? localFocalPoint;
+
+  /// The global focal point of the pointers in contact with the screen.
+  final Offset? globalFocalPoint;
 
   /// Provides the zoom level before the current zooming operation completes
   /// i.e. current zoom level.
@@ -2660,6 +2798,9 @@ class MapZoomDetails {
   /// changes in the UI.
   final double? newZoomLevel;
 
+  /// Represents the new focal latitude and longitude position.
+  final MapLatLng? focalLatLng;
+
   /// Provides the visible bounds before the current zooming operation completes
   /// i.e. current visible bounds.
   final MapLatLngBounds? previousVisibleBounds;
@@ -2669,35 +2810,32 @@ class MapZoomDetails {
   /// Hence, if the `super.onZooming(details)` is not called, there will be no
   /// changes in the UI.
   final MapLatLngBounds? newVisibleBounds;
-
-  /// Creates a copy of this class but with the given fields
-  /// replaced with the new values.
-  MapZoomDetails copyWith({double? newZoomLevel}) {
-    return MapZoomDetails(
-      localFocalPoint: localFocalPoint,
-      globalFocalPoint: globalFocalPoint,
-      previousZoomLevel: previousZoomLevel,
-      newZoomLevel: newZoomLevel ?? this.newZoomLevel,
-      previousVisibleBounds: previousVisibleBounds,
-      newVisibleBounds: newVisibleBounds,
-    );
-  }
 }
 
 /// Contains details about the current pan position.
 class MapPanDetails {
   /// Creates a [MapPanDetails].
   MapPanDetails({
-    this.newVisibleBounds,
+    this.localFocalPoint,
+    this.globalFocalPoint,
     this.zoomLevel,
+    this.focalLatLng,
     this.delta,
     this.previousVisibleBounds,
-    this.globalFocalPoint,
-    this.localFocalPoint,
+    this.newVisibleBounds,
   });
+
+  /// The local focal point of the pointers in contact with the screen.
+  final Offset? localFocalPoint;
+
+  /// The global focal point of the pointers in contact with the screen.
+  final Offset? globalFocalPoint;
 
   /// Provides the current zoom level.
   final double? zoomLevel;
+
+  /// Provides the current focal latLng.
+  final MapLatLng? focalLatLng;
 
   /// The difference in pixels between touch start and current touch position.
   final Offset? delta;
@@ -2711,12 +2849,258 @@ class MapPanDetails {
   /// Hence, if the `super.onPanning(details)` is not called, there will be no
   /// changes in the UI.
   final MapLatLngBounds? newVisibleBounds;
+}
 
-  /// The global focal point of the pointers in contact with the screen.
-  final Offset? globalFocalPoint;
+/// Widget for [MapZoomPanBehavior].
+class BehaviorView extends StatefulWidget {
+  /// Creates [BehaviorView].
+  const BehaviorView({
+    Key? key,
+    required this.zoomLevel,
+    required this.focalLatLng,
+    required this.controller,
+    required this.behavior,
+    required this.onWillZoom,
+    required this.onWillPan,
+  }) : super(key: key);
 
-  /// The local focal point of the pointers in contact with the screen.
-  final Offset? localFocalPoint;
+  /// Denotes the zoom level of the zoomable widget.
+  final double zoomLevel;
+
+  /// Denotes the focalLatLng of the zoomable widget.
+  final MapLatLng focalLatLng;
+
+  /// Used to coordinate with [MapShapeLayer] and its elements.
+  final MapController controller;
+
+  /// Enables zooming and panning in [MapShapeLayer] and [MapTileLayer].
+  final MapZoomPanBehavior behavior;
+
+  /// Called whenever zooming is happening.
+  final WillZoomCallback? onWillZoom;
+
+  /// Called whenever panning is happening.
+  final WillPanCallback? onWillPan;
+
+  @override
+  State<BehaviorView> createState() => _BehaviorViewState();
+}
+
+class _BehaviorViewState extends State<BehaviorView> {
+  Size? _size;
+  late double _currentZoomLevel;
+  late MapLatLng _currentFocalLatLng;
+  Rect? _initialRect;
+
+  Offset _pixelFromLatLng(MapLatLng latLng, double scale) {
+    final double latitude =
+        latLng.latitude.clamp(minimumLatitude, maximumLatitude);
+    final double longitude =
+        latLng.longitude.clamp(minimumLongitude, maximumLongitude);
+    return pixelFromLatLng(
+        latitude, longitude, Size.square(getTotalTileWidth(scale)));
+  }
+
+  MapLatLng _pixelToLatLng(Offset point, double scale) {
+    return pixelToLatLng(point, Size.square(getTotalTileWidth(scale)));
+  }
+
+  void _invokeOnZooming({
+    required Offset localFocalPoint,
+    required Offset globalFocalPoint,
+    required double newZoomLevel,
+    required MapLatLng newFocalLatLng,
+    required double scale,
+    required Offset? pinchCenter,
+  }) {
+    newZoomLevel = newZoomLevel.clamp(
+        widget.behavior.minZoomLevel, widget.behavior.maxZoomLevel);
+    final Rect previousVisibleBounds = Rect.fromCenter(
+      center: _pixelFromLatLng(
+          widget.behavior.focalLatLng!, widget.behavior.zoomLevel),
+      width: _size!.width,
+      height: _size!.height,
+    );
+    final MapLatLngBounds previousVisibleLatLngBounds = MapLatLngBounds(
+      _pixelToLatLng(previousVisibleBounds.topRight, widget.behavior.zoomLevel),
+      _pixelToLatLng(
+          previousVisibleBounds.bottomLeft, widget.behavior.zoomLevel),
+    );
+    widget.controller
+      ..localScale = scale
+      ..pinchCenter = pinchCenter ?? Offset.zero;
+
+    final Rect newVisibleBounds = Rect.fromCenter(
+      center: _pixelFromLatLng(newFocalLatLng, newZoomLevel),
+      width: _size!.width,
+      height: _size!.height,
+    );
+    final MapLatLngBounds newVisibleLatLngBounds = MapLatLngBounds(
+      _pixelToLatLng(newVisibleBounds.topRight, newZoomLevel),
+      _pixelToLatLng(newVisibleBounds.bottomLeft, newZoomLevel),
+    );
+
+    final MapZoomDetails zoomDetails = MapZoomDetails(
+      localFocalPoint: localFocalPoint,
+      globalFocalPoint: globalFocalPoint,
+      previousZoomLevel: widget.behavior.zoomLevel,
+      newZoomLevel: newZoomLevel,
+      previousVisibleBounds: previousVisibleLatLngBounds,
+      newVisibleBounds: newVisibleLatLngBounds,
+      focalLatLng: newFocalLatLng,
+    );
+    if (widget.onWillZoom == null || widget.onWillZoom!(zoomDetails)) {
+      widget.behavior.onZooming(zoomDetails);
+    }
+  }
+
+  void _invokeOnPanning({
+    required Offset localFocalPoint,
+    required Offset globalFocalPoint,
+    required double newZoomLevel,
+    required MapLatLng newFocalLatLng,
+    required Offset delta,
+  }) {
+    final Rect previousVisibleBounds = Rect.fromCenter(
+      center: _pixelFromLatLng(
+          widget.behavior.focalLatLng!, widget.behavior.zoomLevel),
+      width: _size!.width,
+      height: _size!.height,
+    );
+    final MapLatLngBounds previousVisibleLatLngBounds = MapLatLngBounds(
+      _pixelToLatLng(previousVisibleBounds.topRight, widget.behavior.zoomLevel),
+      _pixelToLatLng(
+          previousVisibleBounds.bottomLeft, widget.behavior.zoomLevel),
+    );
+
+    final Rect newVisibleBounds = Rect.fromCenter(
+      center: _pixelFromLatLng(newFocalLatLng, newZoomLevel),
+      width: _size!.width,
+      height: _size!.height,
+    );
+    final MapLatLngBounds newVisibleLatLngBounds = MapLatLngBounds(
+      _pixelToLatLng(newVisibleBounds.topRight, newZoomLevel),
+      _pixelToLatLng(newVisibleBounds.bottomLeft, newZoomLevel),
+    );
+
+    final MapPanDetails panDetails = MapPanDetails(
+      globalFocalPoint: globalFocalPoint,
+      localFocalPoint: localFocalPoint,
+      zoomLevel: widget.behavior.zoomLevel,
+      delta: delta,
+      previousVisibleBounds: previousVisibleLatLngBounds,
+      newVisibleBounds: newVisibleLatLngBounds,
+      focalLatLng: newFocalLatLng,
+    );
+    widget.controller.visibleLatLngBounds = panDetails.newVisibleBounds;
+    if (widget.onWillPan == null || widget.onWillPan!(panDetails)) {
+      widget.behavior.onPanning(panDetails);
+    }
+  }
+
+  void _handleZoomableChange(ZoomPanDetails details) {
+    final Offset focalPoint = Offset(
+        (_size!.width / 2) - details.actualRect.left,
+        (_size!.height / 2) - details.actualRect.top);
+    final MapLatLng newFocalLatLng = pixelToLatLng(
+        focalPoint, Size.square(getTotalTileWidth(details.newZoomLevel)));
+    _currentZoomLevel = details.newZoomLevel;
+    _currentFocalLatLng = newFocalLatLng;
+
+    if (widget.behavior._zoomController!.actionType == ActionType.pinch ||
+        widget.behavior._zoomController!.actionType == ActionType.tap) {
+      _invokeOnZooming(
+        localFocalPoint: details.localFocalPoint,
+        globalFocalPoint: details.globalFocalPoint,
+        newZoomLevel: _currentZoomLevel,
+        newFocalLatLng: newFocalLatLng,
+        scale: details.scale,
+        pinchCenter: details.pinchCenter,
+      );
+    } else if (widget.behavior._zoomController!.actionType == ActionType.pan) {
+      _invokeOnPanning(
+        localFocalPoint: details.localFocalPoint,
+        globalFocalPoint: details.globalFocalPoint,
+        newZoomLevel: _currentZoomLevel,
+        newFocalLatLng: newFocalLatLng,
+        delta: details.actualRect.topLeft - details.previousRect.topLeft,
+      );
+    }
+  }
+
+  void _handleZoomableEnd(ZoomPanDetails details) {
+    widget.controller
+      ..isInInteractive = false
+      ..normalize = Offset.zero
+      ..panDistance = Offset.zero
+      ..gesture = null
+      ..localScale = 1.0
+      ..notifyRefreshListeners();
+  }
+
+  Rect _getInitialRect() {
+    widget.behavior._zoomController!.parentRect = Offset.zero & _size!;
+    final double tileSize = getTotalTileWidth(_currentZoomLevel);
+    final Offset center =
+        _pixelFromLatLng(_currentFocalLatLng, _currentZoomLevel);
+    final Rect initialRect =
+        Offset(_size!.width / 2 - center.dx, _size!.height / 2 - center.dy) &
+            Size.square(tileSize);
+    return initialRect;
+  }
+
+  @override
+  void initState() {
+    _currentFocalLatLng = widget.focalLatLng;
+    _currentZoomLevel = widget.zoomLevel;
+    widget.behavior._zoomLevel = _currentZoomLevel;
+    widget.behavior._focalLatLng = _currentFocalLatLng;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.behavior
+      .._zoomController?.dispose()
+      .._zoomController = null;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final Size newSize = getBoxSize(constraints);
+        if (_size == null || _size != newSize) {
+          _size = newSize;
+          _currentFocalLatLng = widget.focalLatLng;
+          _currentZoomLevel = widget.zoomLevel;
+          widget.behavior
+            .._zoomLevel = _currentZoomLevel
+            .._focalLatLng = _currentFocalLatLng;
+          _initialRect = _getInitialRect();
+        }
+
+        return Zoomable(
+          initialZoomLevel: widget.behavior.zoomLevel,
+          initialRect: _initialRect!,
+          minZoomLevel: widget.behavior.minZoomLevel,
+          maxZoomLevel: widget.behavior.maxZoomLevel,
+          zoomController: widget.behavior._zoomController!,
+          enablePinching: widget.behavior.enablePinching,
+          enablePanning: widget.behavior.enablePanning,
+          enableDoubleTapZooming: widget.behavior.enableDoubleTapZooming,
+          onUpdate: _handleZoomableChange,
+          onComplete: _handleZoomableEnd,
+          frictionCoefficient: 0.009,
+          child: BehaviorViewRenderObjectWidget(
+            controller: widget.controller,
+            zoomPanBehavior: widget.behavior,
+          ),
+        );
+      },
+    );
+  }
 }
 
 /// Render object widget of the internal widget which handles
@@ -2745,14 +3129,16 @@ class BehaviorViewRenderObjectWidget extends LeafRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderBehaviorView renderObject) {
+      BuildContext context,
+      // ignore: library_private_types_in_public_api
+      _RenderBehaviorView renderObject) {
     renderObject
       ..controller = controller
       ..zoomPanBehavior = zoomPanBehavior;
   }
 }
 
-class _RenderBehaviorView extends RenderBox {
+class _RenderBehaviorView extends RenderBox implements MouseTrackerAnnotation {
   _RenderBehaviorView({
     required MapController listener,
     required MapZoomPanBehavior zoomPanBehavior,
@@ -2763,6 +3149,7 @@ class _RenderBehaviorView extends RenderBox {
   }
 
   MapController controller;
+  late bool _validForMouseTracker;
 
   MapZoomPanBehavior get zoomPanBehavior => _zoomPanBehavior;
   MapZoomPanBehavior _zoomPanBehavior;
@@ -2779,23 +3166,57 @@ class _RenderBehaviorView extends RenderBox {
     markNeedsPaint();
   }
 
+  void _handleEnter(PointerEnterEvent event) {
+    zoomPanBehavior.handleEvent(event);
+  }
+
+  void _handleExit(PointerExitEvent event) {
+    zoomPanBehavior.handleEvent(event);
+  }
+
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
+    _validForMouseTracker = true;
     controller.addListener(_handleBehaviorChange);
   }
 
   @override
   void detach() {
+    _validForMouseTracker = false;
     controller.removeListener(_handleBehaviorChange);
     super.detach();
   }
 
   @override
+  MouseCursor get cursor => controller.gesture == Gesture.pan
+      ? SystemMouseCursors.grabbing
+      : SystemMouseCursors.basic;
+
+  @override
+  PointerEnterEventListener? get onEnter => _handleEnter;
+
+  @override
+  PointerExitEventListener? get onExit => _handleExit;
+
+  @override
+  bool get validForMouseTracker => _validForMouseTracker;
+
+  @override
   bool get isRepaintBoundary => true;
 
   @override
-  bool hitTestSelf(Offset position) => false;
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (size.contains(position)) {
+      result.add(BoxHitTestEntry(this, position));
+    }
+    return false;
+  }
+
+  @override
+  void handleEvent(PointerEvent event, HitTestEntry entry) {
+    zoomPanBehavior.handleEvent(event);
+  }
 
   @override
   void performLayout() {

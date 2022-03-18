@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 // ignore_for_file: public_member_api_docs
@@ -27,8 +25,6 @@ const double cornerRadius = 4.0;
 const double defaultElevation = 1.0;
 const double tappedElevation = 6.0;
 const Color shadowColor = Colors.black;
-
-const double minPreferredTouchWidth = 20;
 
 enum PointerType { down, move, up }
 

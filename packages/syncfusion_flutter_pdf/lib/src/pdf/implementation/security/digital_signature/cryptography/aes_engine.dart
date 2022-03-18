@@ -1,8 +1,10 @@
-part of pdf;
+import 'ipadding.dart';
 
-class _AesEngine implements _ICipher {
+/// internal class
+class AesEngine implements ICipher {
   //Constructor
-  _AesEngine() {
+  /// internal constructor
+  AesEngine() {
     _initializeConstants();
   }
 
@@ -10,26 +12,66 @@ class _AesEngine implements _ICipher {
   @override
   int? blockSize;
   List<List<int>>? _key;
+
+  /// internal field
   late int rounds;
   bool? _isEncryption;
+
+  /// internal field
   late List<int> rcon;
+
+  /// internal field
   late List<int> sBox;
+
+  /// internal field
   late int mix1;
+
+  /// internal field
   late int mix2;
+
+  /// internal field
   late int mix3;
+
+  /// internal field
   late int c0;
+
+  /// internal field
   late int c1;
+
+  /// internal field
   late int c2;
+
+  /// internal field
   late int c3;
+
+  /// internal field
   int? c4;
+
+  /// internal field
   late List<int> r0;
+
+  /// internal field
   late List<int> r1;
+
+  /// internal field
   late List<int> r2;
+
+  /// internal field
   late List<int> r3;
+
+  /// internal field
   late List<int> sinv;
+
+  /// internal field
   late List<int> rinv0;
+
+  /// internal field
   late List<int> rinv1;
+
+  /// internal field
   late List<int> rinv2;
+
+  /// internal field
   late List<int> rinv3;
 
   //Properties
@@ -41,7 +83,7 @@ class _AesEngine implements _ICipher {
 
   //Initialize
   @override
-  void initialize(bool? isEncryption, _ICipherParameter? parameter) {
+  void initialize(bool? isEncryption, ICipherParameter? parameter) {
     if (parameter != null) {
       _key = _generateKey(parameter.keys!, isEncryption!);
       _isEncryption = isEncryption;
@@ -105,6 +147,7 @@ class _AesEngine implements _ICipher {
   @override
   void reset() {}
 
+  /// internal method
   void encryptBlock() {
     final List<List<int>> keys = _key!;
     int r = 0;
@@ -205,6 +248,7 @@ class _AesEngine implements _ICipher {
         kw[3];
   }
 
+  /// internal method
   void decryptBlock() {
     final List<List<int>> keys = _key!;
     int r = rounds;

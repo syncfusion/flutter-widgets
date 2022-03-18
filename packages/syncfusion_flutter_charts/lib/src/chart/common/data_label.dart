@@ -1,4 +1,14 @@
-part of charts;
+import 'package:flutter/material.dart';
+
+import '../../circular_chart/renderer/circular_chart_annotation.dart';
+import '../../circular_chart/utils/enum.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../chart_series/series_renderer_properties.dart';
+import '../chart_series/xy_data_series.dart';
+import '../common/cartesian_state_properties.dart';
+import '../common/data_label_renderer.dart';
+import '../utils/enum.dart';
 
 /// Customizes the data label.
 ///
@@ -31,399 +41,470 @@ class DataLabelSettings {
       this.showZeroValue = true,
       this.borderColor = Colors.transparent,
       this.borderWidth = 0,
-      this.labelIntersectAction = LabelIntersectAction.hide,
+      this.overflowMode = OverflowMode.none,
+      this.labelIntersectAction = LabelIntersectAction.shift,
       this.connectorLineSettings = const ConnectorLineSettings(),
       this.labelPosition = ChartDataLabelPosition.inside});
 
-  ///Alignment of the data label.
+  /// Alignment of the data label.
   ///
-  ///The data label can be aligned far, near, or center of the data point position.
+  /// The data label can be aligned far, near, or center of the data point position.
   ///
-  ///Defaults to `ChartAlignment.center`.
+  /// Defaults to `ChartAlignment.center`.
   ///
-  ///Also refer [ChartAlignment].
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(isVisible: true, alignment: ChartAlignment.center),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Also refer [ChartAlignment].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           alignment: ChartAlignment.center
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final ChartAlignment alignment;
 
-  ///Color of the data label.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(isVisible: true, color: Colors.red),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Color of the data label.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           color: Colors.red
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color? color;
 
-  ///Customizes the data label font.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(isVisible:true,
-  ///                    textStyle: TextStyle(color: Colors.red)),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-
+  /// Customizes the data label font.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           textStyle: TextStyle(
+  ///             fontSize: 12
+  ///           )
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final TextStyle textStyle;
 
-  ///Margin between the data label text and its shape.
+  /// Margin between the data label text and its shape.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,
-  ///                       margin: const EdgeInsets.all(2),
-  ///                       borderColor: Colors.red,
-  ///                       borderWidth: 2),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `EdgeInsets.fromLTRB(5, 5, 5, 5)`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           margin: const EdgeInsets.all(2),
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final EdgeInsets margin;
 
-  ///Opacity of the data label.
+  /// Opacity of the data label.
   ///
-  ///The value ranges from 0 to 1.
+  /// The value ranges from 0 to 1.
   ///
-  ///Defaults to `1`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,
-  ///                       color: Colors.pink,
-  ///                       opacity: 0.5),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `1`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           opacity: 0.8
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double opacity;
 
-  ///Uses the series color for filling the data label shape
+  /// Uses the series color for filling the data label shape.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,
-  ///                       useSeriesColor: true),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           useSeriesColor: true
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool useSeriesColor;
 
-  ///Position of the data label.
+  /// Position of the data label.
   ///
   /// _Note:_  This is applicable for Cartesian chart.
   ///
-  ///Defaults to `ChartDataLabelAlignment.auto`
+  /// Defaults to `ChartDataLabelAlignment.auto`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <LineSeries<SalesData, num>>[
-  ///                LineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                         isVisible: true,
-  ///                         labelAlignment: ChartDataLabelAlignment.auto),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Also refer [ChartDataLabelAlignment].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           labelAlignment: ChartDataLabelAlignment.top
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final ChartDataLabelAlignment labelAlignment;
 
   /// Customizes the data label border radius.
   ///
-  /// Defaults to `5`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,
-  ///                       borderRadius: 3,
-  ///                       borderColor: Colors.red,
-  ///                       borderWidth: 2),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `5`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           borderRadius: 3,
+  ///           borderColor: Colors.red,
+  ///           borderWidth: 2
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double borderRadius;
 
-  ///Toggles the visibility of the data label in the series.
-  ///
-  ///Defaults to `false`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true)
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-  final bool isVisible;
-
-  ///Rotation angle of the data label.
-  ///
-  ///Defaults to `0`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,
-  ///                       angle:40)
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-  final int angle;
-
-  ///Border color of the data label.
-  ///
-  ///Defaults to `Colors.transparent`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,
-  ///                       borderColor: Colors.red,
-  ///                       borderWidth: 2),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-  final Color borderColor;
-
-  ///Border width of the data label.
-  ///
-  ///Defaults to `0`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,
-  ///                       borderColor: Colors.red,
-  ///                       borderWidth: 2),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-  final double borderWidth;
-
-  ///Position of the data label.
-  ///
-  /// _Note:_  This is applicable for pie and doughnut series types alone.
-  ///
-  ///Defaults to `ChartDataLabelPosition.inside`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///            series: <PieSeries<SalesData, String>>[
-  ///                PieSeries<SalesData, String>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,
-  ///                       labelPosition: ChartDataLabelPosition.outside),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-  final ChartDataLabelPosition labelPosition;
-
-  ///Customizes the connector lines. Connector line is rendered when the data label is
-  /// placed outside the chart.
-  ///
-  ///  _Note:_ This is applicable for pie and doughnut series types alone.
-  /// ```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///            series: <PieSeries<SalesData, String>>[
-  ///                PieSeries<SalesData, String>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,
-  ///                       connectorLineSettings:ConnectorLineSettings(
-  ///                             width: 6,
-  ///                             type:ConnectorType.curve)),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-  final ConnectorLineSettings connectorLineSettings;
-
-  ///Action on data labels intersection.
-  ///
-  ///The intersecting data labels can be hidden.
-  ///
-  ///Defaults to `LabelIntersectAction.hide`.
-  ///
-  ///Also refer [LabelIntersectAction].
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,color: Colors.yellow
-  ///                       labelIntersectAction: LabelIntersectAction.none),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-  final LabelIntersectAction labelIntersectAction;
-
-  ///Builder for data label.
-  ///
-  /// Defaults to `null`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,color: Colors.yellow
-  ///                       builder: (dynamic data, dynamic point, dynamic series,
-  ///                           int pointIndex, int seriesIndex) {
-  ///                         return Container(height: 30, width: 30,
-  ///                          child: Image.asset('images/horse.jpg'));
-  ///          }),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-  final ChartWidgetBuilder<dynamic>? builder;
-
-  /// To show the cummulative values in stacked type series charts.
+  /// Toggles the visibility of the data label in the series.
   ///
   /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                StepAreaSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,color: Colors.yellow
-  ///                       showCumulativeValues:true,
-  ///          ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
+  final bool isVisible;
+
+  /// Rotation angle of the data label.
+  ///
+  /// Defaults to `0`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           angle:40
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
+  final int angle;
+
+  /// Border color of the data label.
+  ///
+  /// Defaults to `Colors.transparent`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           borderColor: Colors.red,
+  ///           borderWidth: 2
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
+  final Color borderColor;
+
+  /// Border width of the data label.
+  ///
+  /// Defaults to `0`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           borderColor: Colors.red,
+  ///           borderWidth: 2
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
+  final double borderWidth;
+
+  /// Position of the data label.
+  ///
+  /// _Note:_  This is applicable for pie and doughnut series types alone.
+  ///
+  /// Defaults to `ChartDataLabelPosition.inside`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCircularChart(
+  ///     series: <PieSeries<SalesData, num>>[
+  ///       PieSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           labelPosition: ChartDataLabelPosition.outside
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
+  final ChartDataLabelPosition labelPosition;
+
+  /// Action on data labels when it’s overflowing from its region area.
+  ///
+  /// The overflowing data label rendering behavior can be changed based
+  /// on this. If `overflowMode` property is set to `OverflowMode.none`
+  /// then the `labelIntersectAction` takes the priority, else
+  /// `overflowMode` takes the priority.
+  ///
+  /// _Note:_ This is applicable for pie, doughnut, pyramid, and funnel series
+  /// types alone.
+  ///
+  /// Defaults to `OverflowMode.none`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCircularChart(
+  ///     series: <PieSeries<SalesData, num>>[
+  ///       PieSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           overflowMode: OverflowMode.shift
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
+  final OverflowMode overflowMode;
+
+  /// Customizes the connector lines. Connector line is rendered when the data label is
+  /// placed outside the chart.
+  ///
+  ///  _Note:_ This is applicable for pie and doughnut series types alone.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCircularChart(
+  ///     series: <PieSeries<SalesData, String>>[
+  ///       PieSeries<SalesData, String>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           connectorLineSettings: ConnectorLineSettings(
+  ///             width: 6,
+  ///             type:ConnectorType.curve
+  ///           )
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
+  final ConnectorLineSettings connectorLineSettings;
+
+  /// Action on data labels intersection.
+  ///
+  /// The intersecting data labels can be hidden.
+  ///
+  /// _Note:_ This is applicable for pie, doughnut, funnel and pyramid series types alone.
+  ///
+  /// Defaults to `LabelIntersectAction.shift`.
+  ///
+  /// Also refer [LabelIntersectAction].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCircularChart(
+  ///     series: <PieSeries<SalesData, num>>[
+  ///       PieSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           labelIntersectAction: LabelIntersectAction.shift
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
+  final LabelIntersectAction labelIntersectAction;
+
+  /// Builder for data label.
+  ///
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+  ///             return Container(
+  ///               height: 30,
+  ///               width: 30,
+  ///               child: Image.asset('images/horse.jpg')
+  ///             );
+  ///           }
+  ///         )
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
+  final ChartWidgetBuilder<dynamic>? builder;
+
+  /// To show the cumulative values in stacked type series charts.
+  ///
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true
+  ///         ),
+  ///       ),
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           showCumulativeValues: true
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool showCumulativeValues;
 
-  ///Hides the data label and its connector line, if the data point value is 0 (Zero).
+  /// Hides the data label and its connector line, if the data point value is 0 (Zero).
   ///
-  ///If the data label is enabled, it will be visible for all the data points in the series.
-  ///By using this property, we can hide the data label and its connector line, for the data
-  ///points if its value is 0 (Zero).
+  /// If the data label is enabled, it will be visible for all the data points in the series.
+  /// By using this property, we can hide the data label and its connector line, for the data
+  /// points if its value is 0 (Zero).
   ///
-  ///Defaults to `true`
+  /// Defaults to `true`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///            series: <PieSeries<SalesData, num>>[
-  ///                PieSeries<SalesData, num>(
-  ///                  dataLabelSettings: DataLabelSettings(
-  ///                       isVisible: true,color: Colors.yellow,
-  ///                       showZeroValue: false
-  ///          ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCircularChart(
+  ///     series: <PieSeries<SalesData, num>>[
+  ///       PieSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           showZeroValue: false
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool showZeroValue;
 
-  ///Moves the data label vertically or horizontally from its position.
+  /// Moves the data label vertically or horizontally from its position.
   ///
-  ///If you wish to reposition the data label, you can achieve using this property.
-  ///You can move the data label in both vertical and horizontal direction from
-  ///its position. It takes the logical pixel value for x and y values as input.
+  /// If you wish to reposition the data label, you can achieve using this property.
+  /// You can move the data label in both vertical and horizontal direction from
+  /// its position. It takes the logical pixel value for x and y values as input.
   ///
-  ///Positive value for x, moves the data label to right and negative value
-  ///moves to left.
-  ///Positive value for y, moves the data label upwards and negative value
-  ///moves downwards.
+  /// Positive value for x, moves the data label to right and negative value
+  /// moves to left.
+  /// Positive value for y, moves the data label upwards and negative value
+  /// moves downwards.
   ///
-  ///These are applied to the data label's final position. i.e. after considering
-  ///the position and alignment values.
+  /// These are applied to the data label's final position. i.e. after considering
+  /// the position and alignment values.
   ///
-  ///Also refer [labelAlignment].
+  /// Also refer [labelAlignment].
   ///
-  ///_Note:_  This property is only applicable for Cartesian charts and not for
+  /// _Note:_  This property is only applicable for Cartesian charts and not for
   /// Circular, Pyramid and Funnel charts.
   ///
-  ///Defaults to `null`.
-
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         dataLabelSettings: DataLabelSettings(
+  ///           isVisible: true,
+  ///           offset: Offset(200,200)
+  ///         )
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Offset? offset;
 
   @override
@@ -452,6 +533,7 @@ class DataLabelSettings {
         other.showZeroValue == showZeroValue &&
         other.borderColor == borderColor &&
         other.borderWidth == borderWidth &&
+        other.overflowMode == overflowMode &&
         other.labelIntersectAction == labelIntersectAction &&
         other.connectorLineSettings == connectorLineSettings &&
         other.labelPosition == labelPosition;
@@ -476,6 +558,7 @@ class DataLabelSettings {
       showZeroValue,
       borderColor,
       borderWidth,
+      overflowMode,
       labelIntersectAction,
       connectorLineSettings,
       labelPosition
@@ -484,39 +567,52 @@ class DataLabelSettings {
   }
 }
 
-///Datalabel renderer class for mutable fields and methods
+/// Data label renderer class for mutable fields and methods.
 class DataLabelSettingsRenderer {
-  /// Creates an argument constructor for DataLabelSettings renderer class
-  DataLabelSettingsRenderer(this._dataLabelSettings) {
-    _angle = _dataLabelSettings.angle;
-    _offset = _dataLabelSettings.offset;
-    _color = _dataLabelSettings.color;
+  /// Creates an argument constructor for DataLabelSettings renderer class.
+  DataLabelSettingsRenderer(this.dataLabelSettings) {
+    angle = dataLabelSettings.angle;
+    offset = dataLabelSettings.offset;
+    color = dataLabelSettings.color;
   }
 
-  final DataLabelSettings _dataLabelSettings;
+  /// Represents the data label settings.
+  final DataLabelSettings dataLabelSettings;
 
-  Color? _color;
+  /// Holds the color value.
+  Color? color;
 
-  TextStyle? _textStyle;
+  /// Holds the text style value.
+  TextStyle? textStyle;
 
-  TextStyle? _originalStyle;
+  /// Holds the value of original style.
+  TextStyle? originalStyle;
 
-  late int _angle;
+  /// Holds the value of angle.
+  late int angle;
 
-  Offset? _offset;
+  /// Specifies the value of offset.
+  Offset? offset;
 
-  /// To render charts with data labels
-  void _renderDataLabel(
-      SfCartesianChartState chartState,
-      CartesianSeriesRenderer seriesRenderer,
+  /// To render charts with data labels.
+  void renderDataLabel(
+      CartesianStateProperties stateProperties,
+      SeriesRendererDetails seriesRendererDetails,
       CartesianChartPoint<dynamic> point,
       Animation<double> animationController,
       Canvas canvas,
       int labelIndex,
       DataLabelSettingsRenderer dataLabelSettingsRenderer) {
-    _calculateDataLabelPosition(seriesRenderer, point, labelIndex, chartState,
-        dataLabelSettingsRenderer, animationController);
-    _drawDataLabel(canvas, seriesRenderer, chartState, _dataLabelSettings,
-        point, labelIndex, animationController, dataLabelSettingsRenderer);
+    calculateDataLabelPosition(seriesRendererDetails, point, labelIndex,
+        stateProperties, dataLabelSettingsRenderer, animationController);
+    drawDataLabel(
+        canvas,
+        seriesRendererDetails,
+        stateProperties,
+        dataLabelSettings,
+        point,
+        labelIndex,
+        animationController,
+        dataLabelSettingsRenderer);
   }
 }

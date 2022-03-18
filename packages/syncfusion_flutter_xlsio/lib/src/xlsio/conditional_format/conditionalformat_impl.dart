@@ -407,31 +407,31 @@ class _ConditionalFormatImpl implements ConditionalFormat {
       case ExcelComparisonOperator.beginsWith:
         val = _defaultBeginsWithFormula;
         val = val.replaceAll('{0}', _cellList);
-        val = val.replaceAll('{1}', '"' + value.toString() + '"');
+        val = val.replaceAll('{1}', '"$value"');
         firstFormula = val;
         break;
       case ExcelComparisonOperator.endsWith:
         val = _defaultEndsWithFormula;
         val = val.replaceAll('{0}', _cellList);
-        val = val.replaceAll('{1}', '"' + value.toString() + '"');
+        val = val.replaceAll('{1}', '"$value"');
         firstFormula = val;
         break;
       case ExcelComparisonOperator.containsText:
         val = _defaultContainsTextFormula;
-        val = val.replaceAll('{0}', '"' + value.toString() + '"');
+        val = val.replaceAll('{0}', '"$value"');
         val = val.replaceAll('{1}', _cellList);
         firstFormula = val;
         break;
       case ExcelComparisonOperator.notContainsText:
         val = _defaultNotContainsTextFormula;
-        val = val.replaceAll('{0}', '"' + value.toString() + '"');
+        val = val.replaceAll('{0}', '"$value"');
         val = val.replaceAll('{1}', _cellList);
         firstFormula = val;
         break;
       default:
         operator = ExcelComparisonOperator.containsText;
         val = _defaultContainsTextFormula;
-        val = val.replaceAll('{0}', '"' + value.toString() + '"');
+        val = val.replaceAll('{0}', '"$value"');
         val = val.replaceAll('{1}', _cellList);
         firstFormula = val;
         break;
@@ -493,8 +493,7 @@ class _ConditionalFormatImpl implements ConditionalFormat {
         firstFormula = val;
         break;
       default:
-        throw Exception(
-            'Invalid time period type: ' + cfTimePeriods.toString());
+        throw Exception('Invalid time period type: $cfTimePeriods');
     }
   }
 

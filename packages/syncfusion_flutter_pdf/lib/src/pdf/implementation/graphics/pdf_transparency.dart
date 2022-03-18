@@ -1,10 +1,17 @@
-part of pdf;
+import '../../interfaces/pdf_interface.dart';
+import '../io/pdf_constants.dart';
+import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
+import '../primitives/pdf_number.dart';
+import 'enums.dart';
 
-class _PdfTransparency implements _IPdfWrapper {
+/// internal class
+class PdfTransparency implements IPdfWrapper {
   //Constructor
-  _PdfTransparency(double stroke, double fill, PdfBlendMode mode,
+  /// internal constructor
+  PdfTransparency(double stroke, double fill, PdfBlendMode mode,
       {bool conformance = false}) {
-    _dictionary = _PdfDictionary();
+    dictionary = PdfDictionary();
     if (stroke < 0) {
       throw ArgumentError.value(
           stroke, 'stroke', 'The value cannot be less then zero.');
@@ -20,24 +27,27 @@ class _PdfTransparency implements _IPdfWrapper {
       fill = 1;
       mode = (mode != PdfBlendMode.normal) ? PdfBlendMode.normal : mode;
     }
-    _dictionary![_DictionaryProperties.stroke] = _PdfNumber(stroke);
-    _dictionary![_DictionaryProperties.fill] = _PdfNumber(fill);
-    _dictionary![_DictionaryProperties.bm] = _PdfName(_getBlendMode(mode));
+    dictionary![PdfDictionaryProperties.stroke] = PdfNumber(stroke);
+    dictionary![PdfDictionaryProperties.fill] = PdfNumber(fill);
+    dictionary![PdfDictionaryProperties.bm] = PdfName(_getBlendMode(mode));
   }
 
   //Fields
-  _PdfDictionary? _dictionary;
+  /// internal field
+  PdfDictionary? dictionary = PdfDictionary();
 
   //Properties
-  double? get stroke => _getNumber(_DictionaryProperties.stroke);
-  double? get fill => _getNumber(_DictionaryProperties.fill);
+  /// internal property
+  double? get stroke => _getNumber(PdfDictionaryProperties.stroke);
+
+  /// internal property
+  double? get fill => _getNumber(PdfDictionaryProperties.fill);
 
   //Implementation
   double? _getNumber(String keyName) {
     double? result = 0;
-    if (_dictionary!.containsKey(keyName) &&
-        _dictionary![keyName] is _PdfNumber) {
-      final _PdfNumber numb = _dictionary![keyName]! as _PdfNumber;
+    if (dictionary!.containsKey(keyName) && dictionary![keyName] is PdfNumber) {
+      final PdfNumber numb = dictionary![keyName]! as PdfNumber;
       result = numb.value as double?;
     }
     return result;
@@ -80,12 +90,12 @@ class _PdfTransparency implements _IPdfWrapper {
     }
   }
 
-  //_IPdfWrapper elements
-  @override
-  _IPdfPrimitive? get _element => _dictionary;
-  @override
+  /// internal property
+  IPdfPrimitive? get element => dictionary;
   // ignore: unused_element
-  set _element(_IPdfPrimitive? value) {
-    _dictionary = value as _PdfDictionary?;
+  set element(IPdfPrimitive? value) {
+    if (value != null && value is PdfDictionary) {
+      dictionary = value;
+    }
   }
 }

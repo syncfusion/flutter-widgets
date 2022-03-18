@@ -1,19 +1,18 @@
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart'
     show
         DragStartBehavior,
         GestureArenaTeam,
         HitTestTarget,
         HorizontalDragGestureRecognizer,
-        TapGestureRecognizer,
         VerticalDragGestureRecognizer;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import '../../linear_gauge/axis/linear_axis_renderer.dart';
 import '../../linear_gauge/pointers/linear_bar_renderer.dart';
+import '../../linear_gauge/pointers/linear_marker_pointer.dart';
 import '../../linear_gauge/pointers/linear_shape_renderer.dart';
 import '../../linear_gauge/pointers/linear_widget_renderer.dart';
 import '../../linear_gauge/range/linear_gauge_range_renderer.dart';
@@ -114,27 +113,28 @@ class RenderLinearGauge extends RenderBox
     _barPointers = <RenderLinearBarPointer>[];
     _shapePointers = <RenderLinearShapePointer>[];
     _widgetPointers = <RenderLinearWidgetPointer>[];
-    _markerPointers = <RenderBox>[];
+    _markerPointers = <RenderLinearPointerBase>[];
     _verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
       ..team = _gestureArenaTeam
       ..onStart = _handleDragStart
       ..onUpdate = _handleDragUpdate
+      ..onEnd = _handleDragEnd
       ..dragStartBehavior = DragStartBehavior.start;
 
     _horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
       ..team = _gestureArenaTeam
       ..onStart = _handleDragStart
       ..onUpdate = _handleDragUpdate
+      ..onEnd = _handleDragEnd
       ..dragStartBehavior = DragStartBehavior.start;
-
-    _tapGestureRecognizer = TapGestureRecognizer()..onTapDown = _handleTapDown;
   }
 
   final GestureArenaTeam _gestureArenaTeam;
 
-  late TapGestureRecognizer _tapGestureRecognizer;
   late VerticalDragGestureRecognizer _verticalDragGestureRecognizer;
   late HorizontalDragGestureRecognizer _horizontalDragGestureRecognizer;
+
+  double? _dragStartValue;
 
   double _axisLineActualSize = 0,
       _axisTop = 0,
@@ -157,12 +157,12 @@ class RenderLinearGauge extends RenderBox
   late List<RenderLinearShapePointer> _shapePointers;
   late List<RenderLinearWidgetPointer> _widgetPointers;
   late List<RenderLinearRange> _ranges;
-  late List<RenderBox> _markerPointers;
+  late List<RenderLinearPointerBase> _markerPointers;
 
   late BoxConstraints _parentConstraints;
   late BoxConstraints _childConstraints;
 
-  late dynamic _markerRenderObject;
+  late RenderLinearPointerBase _markerRenderObject;
 
   /// Gets the axis assigned to [_RenderLinearGaugeRenderObject].
   RenderLinearAxis? get axis => _axis;
@@ -271,11 +271,9 @@ class RenderLinearGauge extends RenderBox
     final double tickSize = axis!.getTickSize();
     final double axisLineSize = axis!.getAxisLineThickness();
     final LinearElementPosition position =
-        LinearGaugeHelper.getEffectiveElementPosition(
-            axis!.tickPosition, axis!.isMirrored);
+        getEffectiveElementPosition(axis!.tickPosition, axis!.isMirrored);
     final LinearLabelPosition labelPosition =
-        LinearGaugeHelper.getEffectiveLabelPosition(
-            axis!.labelPosition, axis!.isMirrored);
+        getEffectiveLabelPosition(axis!.labelPosition, axis!.isMirrored);
     final bool isInsideLabel = labelPosition == LinearLabelPosition.inside;
 
     late double _insideElementSize;
@@ -330,11 +328,9 @@ class RenderLinearGauge extends RenderBox
     final double tickSize = axis!.getTickSize();
     final double axisSize = axis!.getAxisLineThickness();
     final LinearElementPosition position =
-        LinearGaugeHelper.getEffectiveElementPosition(
-            axis!.tickPosition, axis!.isMirrored);
+        getEffectiveElementPosition(axis!.tickPosition, axis!.isMirrored);
     final LinearLabelPosition labelPlacement =
-        LinearGaugeHelper.getEffectiveLabelPosition(
-            axis!.labelPosition, axis!.isMirrored);
+        getEffectiveLabelPosition(axis!.labelPosition, axis!.isMirrored);
     final bool isInsideLabel = labelPlacement == LinearLabelPosition.inside;
 
     switch (position) {
@@ -418,8 +414,7 @@ class RenderLinearGauge extends RenderBox
       required double thickness,
       required double offset}) {
     final LinearElementPosition pointerPosition =
-        LinearGaugeHelper.getEffectiveElementPosition(
-            position, axis!.isMirrored);
+        getEffectiveElementPosition(position, axis!.isMirrored);
 
     switch (pointerPosition) {
       case LinearElementPosition.inside:
@@ -463,8 +458,7 @@ class RenderLinearGauge extends RenderBox
     final double markerSize =
         _isHorizontalOrientation ? size.height : size.width;
     final LinearElementPosition pointerPosition =
-        LinearGaugeHelper.getEffectiveElementPosition(
-            elementPosition, axis!.isMirrored);
+        getEffectiveElementPosition(elementPosition, axis!.isMirrored);
     switch (pointerPosition) {
       case LinearElementPosition.inside:
         return _outsideWidgetElementSize +
@@ -504,13 +498,16 @@ class RenderLinearGauge extends RenderBox
     }
   }
 
-  void _updatePointerPositionOnDrag(dynamic pointer,
+  void _updatePointerPositionOnDrag(RenderLinearPointerBase pointer,
       {bool isDragCall = false}) {
     double animationValue = 1;
 
     if (!isDragCall) {
       if (pointer.pointerAnimation != null) {
-        animationValue = pointer.pointerAnimation.value as double;
+        animationValue = pointer.pointerAnimation!.value;
+      }
+      if (pointer.dragBehavior == LinearMarkerDragBehavior.constrained) {
+        _findDraggableRange(pointer);
       }
     }
 
@@ -524,6 +521,31 @@ class RenderLinearGauge extends RenderBox
         offset: pointer.offset,
         size: Size(pointer.size.width, pointer.size.height))!;
 
+    /// _pointX calculation is depends on animation, so the constrained marker
+    /// goes beyond the reference marker even though it's constrained. To avoid
+    /// this, restricting the pixel values by a min and max draggable range.
+    if (pointer.dragBehavior == LinearMarkerDragBehavior.constrained &&
+        pointer.constrainedBy != ConstrainedBy.none) {
+      final double minimum = axis!.valueToPixel(pointer.dragRangeMin!);
+      final double maximum = axis!.valueToPixel(pointer.dragRangeMax!);
+      if ((_isHorizontalOrientation && _isAxisInversed) ||
+          (!_isHorizontalOrientation && !_isAxisInversed)) {
+        if (_pointX < minimum) {
+          _pointX = maximum;
+        }
+        if (_pointX > maximum) {
+          _pointX = minimum;
+        }
+      } else if ((_isHorizontalOrientation && !_isAxisInversed) ||
+          (!_isHorizontalOrientation && _isAxisInversed)) {
+        if (_pointX < minimum) {
+          _pointX = minimum;
+        }
+        if (_pointX > maximum) {
+          _pointX = maximum;
+        }
+      }
+    }
     _positionChildElement(pointer);
   }
 
@@ -547,9 +569,10 @@ class RenderLinearGauge extends RenderBox
     _pointerEndPadding = 0;
 
     _markerPointers.clear();
-    _markerPointers = <List<RenderBox>>[_shapePointers, _widgetPointers]
-        .expand((List<RenderBox> x) => x)
-        .toList();
+    _markerPointers = <List<RenderLinearPointerBase>>[
+      _shapePointers,
+      _widgetPointers
+    ].expand((List<RenderLinearPointerBase> x) => x).toList();
 
     final double width = constraints.hasBoundedWidth
         ? constraints.maxWidth
@@ -628,8 +651,7 @@ class RenderLinearGauge extends RenderBox
         final double rangeThickness =
             _isHorizontalOrientation ? range.size.height : range.size.width;
         final LinearElementPosition position =
-            LinearGaugeHelper.getEffectiveElementPosition(
-                range.position, range.isMirrored);
+            getEffectiveElementPosition(range.position, range.isMirrored);
 
         switch (position) {
           case LinearElementPosition.inside:
@@ -737,8 +759,7 @@ class RenderLinearGauge extends RenderBox
         _pointX = axis!.valueToPixel(range.startValue).abs();
 
         final LinearElementPosition position =
-            LinearGaugeHelper.getEffectiveElementPosition(
-                range.position, range.isMirrored);
+            getEffectiveElementPosition(range.position, range.isMirrored);
         final double axisSize = axis!.showAxisTrack ? axis!.thickness : 0.0;
 
         switch (position) {
@@ -780,8 +801,7 @@ class RenderLinearGauge extends RenderBox
             : barPointer.size.height;
 
         final LinearElementPosition position =
-            LinearGaugeHelper.getEffectiveElementPosition(
-                barPointer.position, axis!.isMirrored);
+            getEffectiveElementPosition(barPointer.position, axis!.isMirrored);
 
         switch (position) {
           case LinearElementPosition.inside:
@@ -878,7 +898,7 @@ class RenderLinearGauge extends RenderBox
       if (child is RenderLinearShapePointer ||
           child is RenderLinearWidgetPointer) {
         _isMarkerPointerInteraction = true;
-        _markerRenderObject = child;
+        _markerRenderObject = child as RenderLinearPointerBase;
       } else {
         _isMarkerPointerInteraction = false;
       }
@@ -887,7 +907,7 @@ class RenderLinearGauge extends RenderBox
     return isHit;
   }
 
-  ///Get the value from position.
+  /// Get the value from position.
   double _getValueFromPosition(Offset localPosition) {
     final double actualAxisPadding = axis!.getChildPadding();
 
@@ -904,28 +924,119 @@ class RenderLinearGauge extends RenderBox
     return axis!.factorToValue(visualPosition.clamp(0.0, 1.0));
   }
 
-  /// Handles the drag update callback.
-  void _handleDragUpdate(DragUpdateDetails details) {
-    final double _currentValue = _getValueFromPosition(details.localPosition);
-    if (_markerRenderObject.onValueChanged != null &&
-        _markerRenderObject.value != _currentValue) {
-      _markerRenderObject.oldValue = _currentValue;
-      _markerRenderObject.onValueChanged(_currentValue);
-      _updatePointerPositionOnDrag(_markerRenderObject, isDragCall: true);
-      markNeedsPaint();
+  void _applyConstraintBehavior(
+      RenderLinearPointerBase markerRenderObject, double currentValue) {
+    if (currentValue > _markerRenderObject.dragRangeMin! &&
+        currentValue < _markerRenderObject.dragRangeMax!) {
+      _markerRenderObject.constrainedBy = ConstrainedBy.none;
+    } else {
+      if (currentValue <= _markerRenderObject.dragRangeMin!) {
+        currentValue = _markerRenderObject.dragRangeMin!;
+        _markerRenderObject.constrainedBy = ConstrainedBy.min;
+      } else if (currentValue >= _markerRenderObject.dragRangeMax!) {
+        currentValue = _markerRenderObject.dragRangeMax!;
+        _markerRenderObject.constrainedBy = ConstrainedBy.max;
+      }
+    }
+    markerRenderObject.onChanged!(currentValue);
+  }
+
+  // This method for pull drag behavior for markers.
+  // ignore: unused_element
+  void _applyPullBehavior(
+      RenderLinearPointerBase markerRenderObject, double currentValue) {
+    for (final RenderLinearPointerBase markerPointer in _markerPointers) {
+      if (markerPointer != markerRenderObject) {
+        if (currentValue < _dragStartValue!) {
+          if (markerPointer.value > currentValue &&
+              markerPointer.value < _dragStartValue!) {
+            markerPointer.onChanged?.call(currentValue);
+          }
+        } else if (currentValue > _dragStartValue!) {
+          if (markerPointer.value < currentValue &&
+              markerPointer.value > _dragStartValue!) {
+            markerPointer.onChanged?.call(currentValue);
+          }
+        }
+      }
+      markerRenderObject.onChanged!(currentValue);
     }
   }
 
-  void _handleDragStart(DragStartDetails details) {}
+  void _handleDragUpdate(DragUpdateDetails details) {
+    final double currentValue = _getValueFromPosition(details.localPosition);
+    if (_markerRenderObject.onChanged != null &&
+        _markerRenderObject.value != currentValue) {
+      _markerRenderObject.oldValue = currentValue;
 
-  void _handleTapDown(TapDownDetails details) {}
+      switch (_markerRenderObject.dragBehavior) {
+        case LinearMarkerDragBehavior.free:
+          _markerRenderObject.onChanged!(currentValue);
+          break;
+        case LinearMarkerDragBehavior.constrained:
+          _applyConstraintBehavior(_markerRenderObject, currentValue);
+          break;
+      }
+      _updatePointerPositionOnDrag(_markerRenderObject, isDragCall: true);
+    }
+  }
+
+  void _findDraggableRange(RenderLinearPointerBase pointer) {
+    pointer.dragRangeMin = pointer.constrainedBy == ConstrainedBy.min
+        ? pointer.value
+        : axis!.minimum;
+    pointer.dragRangeMax = pointer.constrainedBy == ConstrainedBy.max
+        ? pointer.value
+        : axis!.maximum;
+    for (int i = 0; i < _markerPointers.length; i++) {
+      final double currentValue = _markerPointers[i].value;
+      if (pointer.constrainedBy != ConstrainedBy.min &&
+          currentValue < pointer.value) {
+        if (pointer.dragRangeMin! < currentValue) {
+          pointer.dragRangeMin = currentValue;
+        }
+      } else if (pointer.constrainedBy != ConstrainedBy.max &&
+          currentValue > pointer.value) {
+        if (pointer.dragRangeMax! > currentValue) {
+          pointer.dragRangeMax = currentValue;
+        }
+      }
+    }
+  }
+
+  void _handleDragStart(DragStartDetails details) {
+    _markerRenderObject.onChangeStart?.call(_markerRenderObject.value);
+    _dragStartValue = _markerRenderObject.value;
+    if (_markerRenderObject.dragBehavior ==
+        LinearMarkerDragBehavior.constrained) {
+      int count = 0;
+      for (final RenderLinearPointerBase markerPointer in _markerPointers) {
+        if (markerPointer.constrainedBy != ConstrainedBy.none) {
+          for (final RenderLinearPointerBase pointer in _markerPointers) {
+            if (markerPointer.value == pointer.value) {
+              count++;
+            }
+          }
+        }
+        if (count <= 1) {
+          markerPointer.constrainedBy = ConstrainedBy.none;
+        }
+        count = 0;
+      }
+      _findDraggableRange(_markerRenderObject);
+    }
+  }
+
+  void _handleDragEnd(DragEndDetails details) {
+    _markerRenderObject.onChangeEnd?.call(_markerRenderObject.value);
+    _dragStartValue = null;
+  }
 
   @override
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
     assert(debugHandleEvent(event, entry));
     if (event is PointerDownEvent && _isMarkerPointerInteraction) {
       _restrictHitTestPointerChange = true;
-      _tapGestureRecognizer.addPointer(event);
       _horizontalDragGestureRecognizer.addPointer(event);
       _verticalDragGestureRecognizer.addPointer(event);
     } else if (event is PointerUpEvent || event is PointerCancelEvent) {
