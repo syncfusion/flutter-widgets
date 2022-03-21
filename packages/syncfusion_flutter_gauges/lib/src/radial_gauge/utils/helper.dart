@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../../radial_gauge/styles/radial_text_style.dart';

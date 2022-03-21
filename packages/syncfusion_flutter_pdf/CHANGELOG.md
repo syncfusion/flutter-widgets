@@ -1,4 +1,55 @@
-## Unreleased
+## [19.3.55-beta] - 11/23/2021 
+
+**Bugs**
+
+* Exception will no longer been thrown while extracting text from particular PDF document.
+
+## [19.3.48-beta] - 11/02/2021 
+
+**Bugs**
+
+* Emoji characters preservation issue has been resolved now.
+
+* Null check exception will no longer been thrown while removing password from PDF document.
+
+## [19.3.47-beta] - 10/26/2021 
+
+**Features**
+
+* Provided the support to identify whether the TextGlyph is rotated or not.
+
+## [19.3.46-beta] - 10/19/2021 
+**Bugs**
+
+* The text search bounds related issue has been resolved now.
+
+## [19.3.45-beta] - 10/12/2021 
+
+**Bugs**
+
+* PDF destination retrieval related issue has been resolved now.
+
+## [19.2.56-beta.1] - 08/17/2021
+
+**Bugs**
+
+* Resolved the RangeError while extracting text lines from the PDF document.
+* The TextLine extraction bounds related issue has been resolved now.
+
+## [19.2.56-beta] - 08/17/2021
+
+**Features**
+
+* Provided the support to get or set rotation in an existing PDF page.
+
+## [19.2.48-beta] - 07/20/2021
+
+**Bugs**
+
+* The white space missing issue while extracting text has been resolved now.
+* The unhandled exception when encrypting PDF document is resolved now.
+
+## [19.2.44-beta] - 06/30/2021
 
 **Features**
 
