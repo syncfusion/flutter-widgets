@@ -22,7 +22,7 @@ class ChartAxisPanel {
   /// Creates an instance of chart axis panel
   ChartAxisPanel(this.stateProperties) {
     innerPadding = 5;
-    axisPadding = 10;
+    axisPadding = 5;
     axisLineLabelPadding = 5;
     axisLabelTitlePadding = 3;
     axisClipRect = Rect.zero;
@@ -352,7 +352,10 @@ class ChartAxisPanel {
                   : axisDetails.totalSize;
             }
           }
-          bottomSize += axisDetails.totalSize;
+          bottomSize += axisDetails.totalSize +
+              (bottomAxesCount.isNotEmpty && bottomAxesCount.length > 1
+                  ? axisPadding
+                  : 0);
           bottomAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         } else {
           axisDetails.totalSize += topAxisRenderers.isNotEmpty &&
@@ -384,7 +387,10 @@ class ChartAxisPanel {
                   : axisDetails.totalSize;
             }
           }
-          topSize += axisDetails.totalSize;
+          topSize += axisDetails.totalSize +
+              (topAxesCount.isNotEmpty && topAxesCount.length > 1
+                  ? axisPadding
+                  : 0);
           topAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         }
       } else if (axisDetails.orientation == AxisOrientation.vertical) {
@@ -417,7 +423,10 @@ class ChartAxisPanel {
                   : axisDetails.totalSize;
             }
           }
-          leftSize += axisDetails.totalSize;
+          leftSize += axisDetails.totalSize +
+              (leftAxesCount.isNotEmpty && leftAxesCount.length > 1
+                  ? axisPadding
+                  : 0);
           leftAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         } else {
           axisDetails.totalSize += rightAxisRenderers.isNotEmpty &&
@@ -449,7 +458,10 @@ class ChartAxisPanel {
                   : axisDetails.totalSize;
             }
           }
-          rightSize += axisDetails.totalSize;
+          rightSize += axisDetails.totalSize +
+              (rightAxesCount.isNotEmpty && rightAxesCount.length > 1
+                  ? axisPadding
+                  : 0);
           rightAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         }
       }

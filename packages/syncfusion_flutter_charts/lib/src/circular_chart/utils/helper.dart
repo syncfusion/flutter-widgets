@@ -10,7 +10,7 @@ import '../../chart/chart_series/xy_data_series.dart';
 import '../renderer/common.dart';
 import '../renderer/renderer_extension.dart';
 
-/// To get equivalent value for the percentage
+/// To get equivalent value for the percentage.
 num? percentToValue(String? value, num size) {
   return value != null
       ? value.contains('%')
@@ -20,10 +20,10 @@ num? percentToValue(String? value, num size) {
       : null;
 }
 
-/// Convert degree to radian
+/// Convert degree to radian.
 num degreesToRadians(num deg) => deg * (pi / 180);
 
-/// To get arc  path for circular chart render
+/// To get arc path for circular chart render.
 Path getArcPath(num innerRadius, num radius, Offset center, num? startAngle,
     num? endAngle, num? degree, SfCircularChart chart, bool isAnimate) {
   final Path path = Path();
@@ -86,7 +86,7 @@ Path getArcPath(num innerRadius, num radius, Offset center, num? startAngle,
   return path;
 }
 
-/// To get rounded corners Arc path
+/// To get rounded corners Arc path.
 Path getRoundedCornerArcPath(
     num innerRadius,
     num outerRadius,
@@ -148,7 +148,7 @@ Path getRoundedCornerArcPath(
   return path;
 }
 
-/// To get point region
+/// To get point region.
 Region? getCircularPointRegion(SfCircularChart chart, Offset? position,
     CircularSeriesRendererExtension seriesRenderer) {
   Region? pointRegion;
@@ -192,7 +192,7 @@ Region? getCircularPointRegion(SfCircularChart chart, Offset? position,
   return pointRegion;
 }
 
-/// Draw the path
+/// Draw the path.
 void drawPath(Canvas canvas, StyleOptions style, Path path,
     [Rect? rect, Shader? shader]) {
   final Paint paint = Paint();
@@ -216,14 +216,14 @@ void drawPath(Canvas canvas, StyleOptions style, Path path,
   }
 }
 
-/// To convert degree to point and return position
+/// To convert degree to point and return position.
 Offset degreeToPoint(num degree, num radius, Offset center) {
   degree = degreesToRadians(degree);
   return Offset(
       center.dx + cos(degree) * radius, center.dy + sin(degree) * radius);
 }
 
-/// To repaint circular chart
+/// To repaint circular chart.
 void needsRepaintCircularChart(
     List<CircularSeriesRendererExtension> currentSeriesRenderers,
     List<CircularSeriesRendererExtension?> oldSeriesRenderers) {
@@ -242,7 +242,7 @@ void needsRepaintCircularChart(
   }
 }
 
-/// To repaint series
+/// To repaint series.
 void canRepaintSeries(
     List<CircularSeriesRendererExtension> currentSeriesRenderers,
     List<CircularSeriesRendererExtension?> oldSeriesRenderers,
@@ -321,7 +321,7 @@ void canRepaintSeries(
   }
 }
 
-/// To return deviation angle
+/// To return deviation angle.
 num findAngleDeviation(num innerRadius, num outerRadius, num totalAngle) {
   final num calcRadius = (innerRadius + outerRadius) / 2;
   final num circumference = 2 * pi * calcRadius;
@@ -330,7 +330,7 @@ num findAngleDeviation(num innerRadius, num outerRadius, num totalAngle) {
   return (deviation * 360) / 100;
 }
 
-/// It returns the actual label value for tooltip and data label etc
+/// It returns the actual label value for tooltip and data label etc.
 String getDecimalLabelValue(num? value, [int? showDigits]) {
   if (value != null && value.toString().split('.').length > 1) {
     final String str = value.toString();
@@ -350,13 +350,13 @@ String getDecimalLabelValue(num? value, [int? showDigits]) {
   return value.toString();
 }
 
-/// Method to rotate Sweep gradient
+/// Method to rotate Sweep gradient.
 Float64List resolveTransform(Rect bounds, TextDirection textDirection) {
   final GradientTransform transform = GradientRotation(degreeToRadian(-90));
   return transform.transform(bounds, textDirection: textDirection)!.storage;
 }
 
-/// Circular pixel to point
+/// Circular pixel to point.
 ChartPoint<dynamic> circularPixelToPoint(
     Offset position, CircularStateProperties chartState) {
   int pointIndex;
@@ -379,7 +379,7 @@ ChartPoint<dynamic> circularPixelToPoint(
   return dataPoint!;
 }
 
-/// Circular point to pixel
+/// Circular point to pixel.
 Offset circularPointToPixel(
     ChartPoint<dynamic> point, CircularStateProperties chartState) {
   Offset location;
@@ -403,7 +403,7 @@ Offset circularPointToPixel(
   return location;
 }
 
-/// To find the current point overlapped with previous points
+/// To find the current point overlapped with previous points.
 bool isOverlapWithPrevious(ChartPoint<dynamic> currentPoint,
     List<ChartPoint<dynamic>> points, int currentPointIndex) {
   for (int i = 0; i < currentPointIndex; i++) {
@@ -416,14 +416,14 @@ bool isOverlapWithPrevious(ChartPoint<dynamic> currentPoint,
   return false;
 }
 
-/// To find the current point overlapped with next points
+/// To find the current point overlapped with next points.
 bool isOverlapWithNext(ChartPoint<dynamic> point,
     List<ChartPoint<dynamic>> points, int pointIndex) {
   for (int i = pointIndex; i < points.length; i++) {
     if (i != points.indexOf(point) &&
         points[i].isVisible &&
-        points[i].labelRect != null &&
-        point.labelRect != null &&
+        // ignore: unnecessary_null_comparison
+        (points[i].labelRect != null && point.labelRect != null) &&
         isOverlap(point.labelRect, points[i].labelRect)) {
       return true;
     }

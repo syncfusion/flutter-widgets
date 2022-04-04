@@ -13,7 +13,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for error Bar series
+/// Creates series renderer for error bar series.
 class ErrorBarSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of ErrorBarSeriesRenderer class.
   ErrorBarSeriesRenderer();
@@ -21,7 +21,7 @@ class ErrorBarSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _currentSeriesDetails;
   late SeriesRendererDetails _segmentSeriesDetails;
 
-  /// To add error bar segments in segments list
+  /// To add error bar segments in segments list.
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
@@ -165,15 +165,24 @@ class ErrorBarChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRendererDetails.calculateRegionData(stateProperties,
-            seriesRendererDetails, painterKey.index, point, pointIndex);
-        if (point.isVisible && !point.isGap) {
-          seriesRendererDetails.drawSegment(
-              canvas,
-              seriesRenderer._createSegments(
-                  point, segmentIndex += 1, painterKey.index, animationFactor));
+        final bool withInXRange = withInRange(
+            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        final bool withInYRange = point != null &&
+            point.yValue != null &&
+            withInRange(point.yValue,
+                seriesRendererDetails.yAxisDetails!.visibleRange!);
+        if (withInXRange || withInYRange) {
+          seriesRendererDetails.calculateRegionData(stateProperties,
+              seriesRendererDetails, painterKey.index, point, pointIndex);
+          if (point.isVisible && !point.isGap) {
+            seriesRendererDetails.drawSegment(
+                canvas,
+                seriesRenderer._createSegments(point, segmentIndex += 1,
+                    painterKey.index, animationFactor));
+          }
         }
       }
       canvas.restore();

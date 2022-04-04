@@ -12,10 +12,10 @@ import '../state_properties.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 
-/// Represents the render template class
+/// Represents the render template class.
 // ignore: must_be_immutable
 class RenderTemplate extends StatefulWidget {
-  /// Creates an instance of render template
+  /// Creates an instance of render template.
   // ignore: prefer_const_constructors_in_immutables
   RenderTemplate(
       {required this.template,
@@ -24,22 +24,22 @@ class RenderTemplate extends StatefulWidget {
       required this.templateIndex,
       required this.stateProperties});
 
-  /// Hold the value of chart template info
+  /// Hold the value of chart template info.
   final ChartTemplateInfo template;
 
-  /// Specifies whether to measure the template
+  /// Specifies whether to measure the template.
   bool? needMeasure;
 
-  /// Specifies the template length
+  /// Specifies the template length.
   final int templateLength;
 
-  /// Specifies the template index value
+  /// Specifies the template index value.
   final int templateIndex;
 
-  /// Holds the value of state properties
+  /// Holds the value of state properties.
   final StateProperties stateProperties;
 
-  /// Specifies whether it is annotation
+  /// Specifies whether it is annotation.
   bool? isAnnotation;
 
   @override
@@ -213,13 +213,10 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
           seriesRendererDetails.dataLabelSettingsRenderer =
               DataLabelSettingsRenderer(
                   seriesRendererDetails.series.dataLabelSettings);
-          final CartesianChartPoint<dynamic>? point = seriesRendererDetails
-                      .dataPoints !=
-                  null
-              ? (seriesRendererDetails.dataPoints.isNotEmpty == true)
+          final CartesianChartPoint<dynamic>? point =
+              (seriesRendererDetails.dataPoints.isNotEmpty == true)
                   ? seriesRendererDetails.dataPoints[_templateInfo.pointIndex!]
-                  : null
-              : null;
+                  : null;
           if (seriesRendererDetails.isRectSeries == true ||
               seriesRendererDetails.seriesType.contains('hilo') == true ||
               seriesRendererDetails.seriesType.contains('candle') == true ||
@@ -244,6 +241,8 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
                 seriesRendererDetails.visibleDataPoints =
                     <CartesianChartPoint<dynamic>>[];
               }
+
+              seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
               seriesRendererDetails.calculateRegionData(
                   stateProperties,
                   seriesRendererDetails,
@@ -284,8 +283,7 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
               : stateProperties.annotationRegions.add(rect);
           childParentData.offset = Offset(locationX, locationY);
         } else {
-          child!.layout(constraints.copyWith(maxWidth: 0, maxHeight: 0),
-              parentUsesSize: true);
+          childParentData.offset = Offset.infinite;
         }
       }
     } else {
@@ -293,7 +291,7 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
     }
   }
 
-  /// To check template is within bounds
+  /// To check template is within bounds.
   bool _isTemplateWithinBounds(Rect bounds, Rect templateRect) =>
       templateRect.left >= bounds.left &&
       templateRect.left + templateRect.width <= bounds.left + bounds.width &&
@@ -301,26 +299,26 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
       templateRect.top + templateRect.height <= bounds.top + bounds.height;
 }
 
-/// Represents the chart template class
+/// Represents the chart template class.
 // ignore: must_be_immutable
 class ChartTemplate extends StatefulWidget {
-  /// Creates an instance of chart template class
+  /// Creates an instance of chart template class.
   // ignore: prefer_const_constructors_in_immutables
   ChartTemplate(
       {required this.templates,
       required this.render,
       required this.stateProperties});
 
-  /// Holds the list of chart template info
+  /// Holds the list of chart template info.
   List<ChartTemplateInfo> templates;
 
-  /// Specifies whether the template is rendered
+  /// Specifies whether the template is rendered.
   bool render = false;
 
-  /// Holds the value of state properties
+  /// Holds the value of state properties.
   StateProperties stateProperties;
 
-  /// Holds the value of chart template state
+  /// Holds the value of chart template state.
   // ignore: library_private_types_in_public_api
   late _ChartTemplateState state;
 
@@ -365,9 +363,9 @@ class _ChartTemplateState extends State<ChartTemplate> {
   }
 }
 
-/// Represents the chart template info class
+/// Represents the chart template info class.
 class ChartTemplateInfo {
-  /// Creates an instance of chart template info class
+  /// Creates an instance of chart template info class.
   ChartTemplateInfo(
       {required this.key,
       required this.widget,
@@ -383,48 +381,48 @@ class ChartTemplateInfo {
       : horizontalAlignment = horizontalAlignment ?? ChartAlignment.center,
         verticalAlignment = verticalAlignment ?? ChartAlignment.center;
 
-  /// Specifies the key value
+  /// Specifies the key value.
   Key? key;
 
-  /// Specifies the widget
+  /// Specifies the widget.
   Widget? widget;
 
-  /// Holds the size value
+  /// Holds the size value.
   late Size size;
 
-  /// Holds the point value
+  /// Holds the point value.
   late dynamic point;
 
-  /// Holds the value of location
+  /// Holds the value of location.
   Offset location;
 
-  /// Specifies the build context value
+  /// Specifies the build context value.
   late BuildContext context;
 
-  /// Specifies the animation duration
+  /// Specifies the animation duration.
   int animationDuration;
 
-  /// Specifies the value of animation controller
+  /// Specifies the value of animation controller.
   late AnimationController animationController;
 
-  /// Specifies the point index value
+  /// Specifies the point index value.
   int? pointIndex;
 
-  /// Specifies the series index value
+  /// Specifies the series index value.
   int? seriesIndex;
 
-  /// Specifies the clip rect value
+  /// Specifies the clip rect value.
   Rect clipRect;
 
-  /// Holds the template type
+  /// Holds the template type.
   String templateType;
 
-  /// Holds the value of horizontal alignment
+  /// Holds the value of horizontal alignment.
   ChartAlignment horizontalAlignment;
 
-  /// Holds the value of vertical alignment
+  /// Holds the value of vertical alignment.
   ChartAlignment verticalAlignment;
 
-  /// Specifies whether to measure the template
+  /// Specifies whether to measure the template.
   bool needMeasure;
 }

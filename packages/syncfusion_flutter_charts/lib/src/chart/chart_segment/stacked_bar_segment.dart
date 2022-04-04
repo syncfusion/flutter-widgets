@@ -12,12 +12,12 @@ import 'chart_segment.dart';
 ///
 /// Gets the path and color from the `series`.
 class StackedBarSegment extends ChartSegment {
-  /// Stacked values
+  /// Stacked values.
   late double stackValues;
 
   late StackedBarSeries<dynamic, dynamic> _stackedBarSeries;
 
-  /// Rectangle of the segment this could be used to render the segment while overriding this segment
+  /// Rectangle of the segment this could be used to render the segment while overriding this segment.
   late RRect segmentRect;
 
   /// Gets the color of the series.

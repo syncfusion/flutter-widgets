@@ -12,14 +12,14 @@ import '../utils/enum.dart';
 import '../utils/helper.dart';
 import 'crosshair.dart';
 
-/// Represents the crosshair painter
+/// Represents the crosshair painter.
 class CrosshairPainter extends CustomPainter {
   /// Calling the default constructor of CrosshairPainter class.
   CrosshairPainter({required this.stateProperties, required this.valueNotifier})
       : chart = stateProperties.chart,
         super(repaint: valueNotifier);
 
-  /// Represents the cartesian state properties
+  /// Represents the cartesian state properties.
   final CartesianStateProperties stateProperties;
 
   /// Represents the cartesian chart.
@@ -99,7 +99,7 @@ class CrosshairPainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 
-  /// Calculate trackball points
+  /// Calculate trackball points.
   void generateAllPoints(Offset position) {
     final Rect _axisClipRect = stateProperties.chartAxis.axisClipRect;
     double dx, dy;
@@ -118,10 +118,10 @@ class CrosshairPainter extends CustomPainter {
         .position = Offset(dx, dy);
   }
 
-  /// Gets the line painter
+  /// Gets the line painter.
   Paint getLinePainter(Paint crosshairLinePaint) => crosshairLinePaint;
 
-  /// Draw the path of the crosshair line
+  /// Draw the path of the crosshair line.
   void drawCrosshairLine(Canvas canvas, Paint paint, int? index) {
     final CrosshairRenderingDetails renderingDetails =
         CrosshairHelper.getRenderingDetails(
@@ -155,7 +155,7 @@ class CrosshairPainter extends CustomPainter {
     }
   }
 
-  /// To draw crosshair
+  /// To draw crosshair.
   void drawCrosshair(Canvas canvas) {
     final Paint fillPaint = Paint()
       ..color = _renderingDetails.chartTheme.crosshairBackgroundColor
@@ -201,7 +201,7 @@ class CrosshairPainter extends CustomPainter {
     }
   }
 
-  /// Draw bottom axes tooltip
+  /// Draw bottom axes tooltip.
   void _drawBottomAxesTooltip(
       Canvas canvas, Offset position, Paint strokePaint, Paint fillPaint) {
     ChartAxisRendererDetails axisDetails;
@@ -270,7 +270,7 @@ class CrosshairPainter extends CustomPainter {
     }
   }
 
-  /// Draw top axes tooltip
+  /// Draw top axes tooltip.
   void _drawTopAxesTooltip(
       Canvas canvas, Offset position, Paint strokePaint, Paint fillPaint) {
     ChartAxis axis;
@@ -342,7 +342,7 @@ class CrosshairPainter extends CustomPainter {
     }
   }
 
-  /// Draw left axes tooltip
+  /// Draw left axes tooltip.
   void _drawLeftAxesTooltip(
       Canvas canvas, Offset position, Paint strokePaint, Paint fillPaint) {
     ChartAxis axis;
@@ -418,7 +418,7 @@ class CrosshairPainter extends CustomPainter {
     }
   }
 
-  /// Draw right axes tooltip
+  /// Draw right axes tooltip.
   void _drawRightAxesTooltip(
       Canvas canvas, Offset position, Paint strokePaint, Paint fillPaint) {
     ChartAxis axis;
@@ -524,7 +524,7 @@ class CrosshairPainter extends CustomPainter {
         0);
   }
 
-  /// To find the x value of crosshair
+  /// To find the x value of crosshair.
   String _getXValue(ChartAxisRenderer axisRenderer, Offset position) {
     final ChartAxisRendererDetails axisDetails =
         AxisHelper.getAxisRendererDetails(axisRenderer);
@@ -548,7 +548,7 @@ class CrosshairPainter extends CustomPainter {
     return resultantString;
   }
 
-  /// To find the y value of crosshair
+  /// To find the y value of crosshair.
   String _getYValue(ChartAxisRenderer axisRenderer, Offset position) {
     final ChartAxisRendererDetails axisDetails =
         AxisHelper.getAxisRendererDetails(axisRenderer);
@@ -572,7 +572,7 @@ class CrosshairPainter extends CustomPainter {
     return resultantString;
   }
 
-  /// To add the tooltip for crosshair
+  /// To add the tooltip for crosshair.
   bool _needToAddTooltip(ChartAxisRendererDetails axisDetails) {
     return axisDetails.axis.interactiveTooltip.enable &&
         ((axisDetails is! CategoryAxisDetails &&

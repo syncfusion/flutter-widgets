@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "நிகழ்வுகள் இல்லை", 
 "ofDataPagerLabel" : "இன்", 
 "pagesDataPagerLabel" : "பக்கங்கள்", 
-"itemsDataPagerLabel" : "பொருட்களை", 
+"rowsPerPageDataPagerLabel" : "ஒரு பக்கத்திற்கு வரிசைகள்", 
 "pdfBookmarksLabel" : "புக்மார்க்குகள்", 
 "pdfNoBookmarksLabel" : "புக்மார்க்குகள் எதுவும் இல்லை", 
 "pdfScrollStatusOfLabel" : "இன்", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "ஷா.", 
 "shortDhualqiLabel" : "துல்-கே", 
 "shortDhualhiLabel" : "துல்-எச்", 
-"daySpanCountLabel" : "நாள்"
+"daySpanCountLabel" : "நாள்", 
+"series" : "தொடர்"
 }

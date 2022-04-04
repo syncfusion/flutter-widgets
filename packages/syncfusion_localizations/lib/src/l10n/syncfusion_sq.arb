@@ -3,9 +3,9 @@
 "noEventsCalendarLabel" : "Asnjë ngjarje", 
 "ofDataPagerLabel" : "e", 
 "pagesDataPagerLabel" : "faqet", 
-"itemsDataPagerLabel" : "artikujt", 
+"rowsPerPageDataPagerLabel" : "Rreshtat për faqe", 
 "pdfBookmarksLabel" : "Faqerojtësit", 
-"pdfNoBookmarksLabel" : "Nuk u gjet asnjë faqeshënues", 
+"pdfNoBookmarksLabel" : "Nuk u gjetën faqeshënues", 
 "pdfScrollStatusOfLabel" : "e", 
 "pdfGoToPageLabel" : "Shkoni në faqe", 
 "pdfEnterPageNumberLabel" : "Fut numrin e faqes", 
@@ -37,7 +37,7 @@
 "jumada1Label" : "Xhumada el-evvel", 
 "jumada2Label" : "Xhumada al-thani", 
 "rajabLabel" : "Rexheb", 
-"shaabanLabel" : "Shaban", 
+"shaabanLabel" : "Sha'ban", 
 "ramadanLabel" : "Ramazani", 
 "shawwalLabel" : "Shevali", 
 "dhualqiLabel" : "Dhul Kida", 
@@ -53,6 +53,7 @@
 "shortRamadanLabel" : "Ram.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-K", 
-"shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "ditë"
+"shortDhualhiLabel" : "Dhul-H", 
+"daySpanCountLabel" : "ditë", 
+"series" : "Seria"
 }

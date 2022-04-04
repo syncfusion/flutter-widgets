@@ -20,12 +20,12 @@ import 'chart_base.dart';
 import 'pyramid_plot_area.dart';
 import 'pyramid_state_properties.dart';
 
-///Renders the pyramid chart
+/// Renders the pyramid chart.
 ///
-///To render a pyramid chart, create an instance of PyramidSeries, and add it to the series property of SfPyramidChart
+/// To render a pyramid chart, create an instance of PyramidSeries, and add it to the series property of SfPyramidChart.
 ///
-///Properties such as opacity, [borderWidth], [borderColor], pointColorMapper
-///are used to customize the appearance of a pyramid segment.
+/// Properties such as opacity, [borderWidth], [borderColor], pointColorMapper
+/// are used to customize the appearance of a pyramid segment.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=t3Dczqj8-10}
 //ignore:must_be_immutable
@@ -74,55 +74,61 @@ class SfPyramidChart extends StatefulWidget {
         enableMultiSelection = enableMultiSelection ?? false,
         super(key: key);
 
-  ///Customizes the chart title
+  /// Customizes the chart title.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
   ///            title: ChartTitle(text: 'Pyramid Chart')
-  ///        ));
+  ///        )
+  ///   );
   ///}
   ///```
   final ChartTitle title;
 
-  ///Background color of the chart
+  /// Background color of the chart.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
   ///            backgroundColor: Colors.blue
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final Color? backgroundColor;
 
-  ///Background color of the chart
+  /// Border color of the chart.
   ///
+  /// Defaults to `Colors.transparent`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
-  ///            backgroundColor: Colors.blue
-  ///        ));
+  ///            borderColor: Colors.blue
+  ///        )
+  ///    );
   ///}
   ///```
   final Color borderColor;
 
-  ///Border width of the chart
+  /// Border width of the chart.
   ///
+  /// Defaults to `0.0`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
-  ///            backgroundColor: Colors.blue
-  ///        ));
+  ///            borderWidth: 2
+  ///        )
+  ///    );
   ///}
   ///```
   final double borderWidth;
 
-  ///Customizes the chart series.
+  /// Customizes the chart series.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -132,72 +138,87 @@ class SfPyramidChart extends StatefulWidget {
   ///                          dataSource: data,
   ///                          xValueMapper: (_PyramidData data, _) => data.xData,
   ///                          yValueMapper: (_PyramidData data, _) => data.yData)
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final PyramidSeries<dynamic, dynamic> series;
 
-  ///Margin for chart
+  /// Customizes the chart.
   ///
+  /// Defaults to `const EdgeInsets.fromLTRB(10, 10, 10, 10)`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
   ///            margin: const EdgeInsets.all(2),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final EdgeInsets margin;
 
-  ///Customizes the legend in the chart
+  /// Customizes the legend in the chart.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
   ///            legend: Legend(isVisible: true)
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final Legend legend;
 
-  ///Color palette for the data points in the chart series.
+  /// Color palette for the data points in the chart series.
   ///
-  ///If the series color is not specified, then the series will be rendered with appropriate palette color.
-  ///Ten colors are available by default.
+  /// If the series color is not specified, then the series will be rendered with the appropriate palette color.
+  /// Ten colors are available by default.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
   ///            palette: <Color>[Colors.red, Colors.green]
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final List<Color> palette;
 
-  ///Customizes the tooltip in chart
+  /// Customizes the tooltip in chart.
   ///
   ///```dart
+  ///TooltipBehavior _tooltipBehavior;
+  ///
+  ///@override
+  ///void initState() {
+  ///   _tooltipBehavior = TooltipBehavior(enable: true);
+  ///   super.initState();
+  ///}
+  ///
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
-  ///            tooltipBehavior: TooltipBehavior(enable: true)
-  ///        ));
+  ///            tooltipBehavior: _tooltipBehavior
+  ///        )
+  ///    );
   ///}
   ///```
   final TooltipBehavior tooltipBehavior;
 
-  /// Occurs while legend is rendered.
+  /// Occurs while the legend is rendered.
   ///
-  /// Here, you can get the legend's text, shape, series index, and point index case of circular series.
+  /// Here, you can get the legend's text, shape, series index, and point index case of the pyramid series.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
   ///            legend: Legend(isVisible: true),
   ///            onLegendItemRender: (LegendRendererArgs args) => legend(args),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///void legend(LegendRendererArgs args) {
   ///   args.legendIconType = LegendIconType.diamond;
@@ -207,90 +228,107 @@ class SfPyramidChart extends StatefulWidget {
 
   /// Occurs when the tooltip is rendered.
   ///
-  /// Here,you can get the tooltip arguments and customize the arguments.
+  /// Here, you can get the tooltip arguments and customize the arguments.
   final PyramidTooltipCallback? onTooltipRender;
 
-  /// Occurs when the data label is rendered,Here data label arguments can be customized.
+  /// Occurs when the data label is rendered, here data label arguments can be customized.
   final PyramidDataLabelRenderCallback? onDataLabelRender;
 
-  /// Occurs when the legend is tapped,the arguments can be used to customize the legend arguments
+  /// Occurs when the legend is tapped, the arguments can be used to customize the legend arguments.
   final ChartLegendTapCallback? onLegendTapped;
 
-  ///Data points or series can be selected while performing interaction on the chart.
+  /// Data points or series can be selected while performing interaction on the chart.
   ///
-  ///It can also be selected at the initial rendering using this property.
+  /// It can also be selected at the initial rendering using this property.
   ///
-  ///Defaults to `[]`.
+  /// Defaults to `[]`.
   ///
   ///```dart
+  ///SelectionBehavior _selectionBehavior;
+  ///
+  ///void initState() {
+  ///   _selectionBehavior = SelectionBehavior(enable: true);
+  ///   super.initState();
+  ///}
+  ///
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
   ///           series: PyramidSeries<ChartData, String>(
   ///                  initialSelectedDataIndexes: <int>[1,0],
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    selectedColor: Colors.red,
-  ///                    unselectedColor: Colors.grey
-  ///                  ),
-  ///                ),
-  ///        ));
+  ///                  selectionBehavior: _selectionBehavior
+  ///              ),
+  ///        )
+  ///    );
   ///}
   ///```
 
-  ///Gesture for activating the selection.
+  /// Gesture for activating the selection.
   ///
-  /// Selection can be activated in tap, double tap, and long press.
+  /// Selection can be activated in `ActivationMode.none`, `ActivationMode.singleTap`,
+  /// `ActivationMode.doubleTap` and `ActivationMode.longPress`.
   ///
-  ///Defaults to `ActivationMode.tap`.
+  /// Defaults to `ActivationMode.singleTap`.
   ///
-  ///Also refer [ActivationMode]
+  /// Also refer [ActivationMode].
   ///
   ///```dart
+  ///SelectionBehavior _selectionBehavior;
+  ///
+  ///void initState() {
+  ///   _selectionBehavior = SelectionBehavior(enable: true);
+  ///   super.initState();
+  ///}
+  ///
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
   ///           selectionGesture: ActivationMode.singleTap,
   ///           series: PyramidSeries<ChartData, String>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    selectedColor: Colors.red,
-  ///                    unselectedColor: Colors.grey
-  ///                  ),
-  ///                ),
-  ///        ));
+  ///                  selectionBehavior: _selectionBehavior
+  ///              ),
+  ///        )
+  ///    );
   ///}
   ///```
   final ActivationMode selectionGesture;
 
-  ///Enables or disables the multiple data points selection.
+  /// Enables or disables the multiple data points selection.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
   ///```dart
+  ///SelectionBehavior _selectionBehavior;
+  ///
+  ///void initState() {
+  ///   _selectionBehavior = SelectionBehavior(enable: true);
+  ///   super.initState();
+  ///}
+  ///
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
   ///           enableMultiSelection: true,
   ///           series: PyramidSeries<ChartData, String>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    selectedColor: Colors.red,
-  ///                    unselectedColor: Colors.grey
-  ///                  ),
-  ///                ),
-  ///        ));
+  ///                  selectionBehavior: _selectionBehavior
+  ///              ),
+  ///        )
+  ///    );
   ///}
   ///```
   final bool enableMultiSelection;
 
-  ///Background image for chart.
+  /// Background image for chart.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfPyramidChart(
   ///            backgroundImage: const AssetImage('image.png'),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final ImageProvider? backgroundImage;
@@ -303,7 +341,8 @@ class SfPyramidChart extends StatefulWidget {
   ///    return Container(
   ///        child: SfPyramidChart(
   ///            onSelectionChanged: (SelectionArgs args) => select(args),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///void select(SelectionArgs args) {
   ///   print(args.selectedBorderColor);
@@ -311,14 +350,14 @@ class SfPyramidChart extends StatefulWidget {
   ///```
   final PyramidSelectionCallback? onSelectionChanged;
 
-  //Called when the data label is tapped.
+  /// Called when the data label is tapped.
   ///
-  ///Whenever the data label is tapped, `onDataLabelTapped` callback will be called. Provides options to
+  /// Whenever the data label is tapped, the `onDataLabelTapped` callback will be called. Provides options to
   /// get the position of the data label, series index, point index and its text.
   ///
-  ///_Note:_  This callback will not be called, when the builder is specified for data label
+  /// _Note:_  This callback will not be called, when the builder is specified for data label
   /// (data label template). For this case, custom widget specified in the `DataLabelSettings.builder` property
-  /// can be wrapped using the `GestureDetector` and this functionality can be achieved in the application level.
+  /// can be wrapped using the `GestureDetector` and this functionality can be achieved at the application level.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -327,7 +366,8 @@ class SfPyramidChart extends StatefulWidget {
   ///            onDataLabelTapped: (DataLabelTapDetails args) {
   ///                 print(arg.seriesIndex);
   ///                  }
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///
   ///```
@@ -342,7 +382,8 @@ class SfPyramidChart extends StatefulWidget {
   ///               print(args.position.dx.toString());
   ///               print(args.position.dy.toString());
   ///             }
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final PyramidTouchInteractionCallback? onChartTouchInteractionUp;
@@ -356,7 +397,8 @@ class SfPyramidChart extends StatefulWidget {
   ///               print(args.position.dx.toString());
   ///               print(args.position.dy.toString());
   ///             }
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final PyramidTouchInteractionCallback? onChartTouchInteractionMove;
@@ -370,7 +412,8 @@ class SfPyramidChart extends StatefulWidget {
   ///               print(args.position.dx.toString());
   ///               print(args.position.dy.toString());
   ///             }
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final PyramidTouchInteractionCallback? onChartTouchInteractionDown;
@@ -379,11 +422,11 @@ class SfPyramidChart extends StatefulWidget {
   State<StatefulWidget> createState() => SfPyramidChartState();
 }
 
-/// Represents the state class of [SfPyramidChart] widget
+/// Represents the state class of [SfPyramidChart] widget.
 ///
 class SfPyramidChartState extends State<SfPyramidChart>
     with TickerProviderStateMixin {
-  /// Specifies the pyramid state properties
+  /// Specifies the pyramid state properties.
   late PyramidStateProperties _stateProperties;
 
   /// Called when this object is inserted into the tree.
@@ -420,12 +463,14 @@ class SfPyramidChartState extends State<SfPyramidChart>
   @override
   void didChangeDependencies() {
     _stateProperties.renderingDetails.chartTheme = SfChartTheme.of(context);
+    _stateProperties.renderingDetails.isRtl =
+        Directionality.of(context) == TextDirection.rtl;
     super.didChangeDependencies();
   }
 
   /// Called whenever the widget configuration changes.
   ///
-  /// If the parent widget rebuilds and request that this location in the tree update to display a new widget with the same [runtimeType] and [Widget.key],
+  /// If the parent widget rebuilds and requests that this location in the tree update display a new widget with the same [runtimeType] and [Widget.key],
   /// the framework will update the widget property of this [State] object to refer to the new widget and then call this method with the previous widget as an argument.
   ///
   /// Override this method to respond when the widget changes.
@@ -434,7 +479,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
   ///
   /// * In [didUpdateWidget] unsubscribe from the old object and subscribe to the new one if the updated widget configuration requires replacing the object.
   ///
-  /// Here it called whenever the series collection gets updated in [SfPyramidChart].
+  /// Here it is called whenever the series collection gets updated in [SfPyramidChart].
 
   @override
   void didUpdateWidget(SfPyramidChart oldWidget) {
@@ -515,10 +560,10 @@ class SfPyramidChartState extends State<SfPyramidChart>
 
   /// Method to convert the [SfPyramidChart] as an image.
   ///
-  /// Returns the `dart:ui.image`
+  /// Returns the `dart:ui.image`.
   ///
   /// As this method is in the widget’s state class,
-  ///  you have to use a global key to access the state to call this method.
+  /// you have to use a global key to access the state to call this method.
   ///
   /// ```dart
   ///final GlobalKey<SfPyramidChartState> _key = GlobalKey();
@@ -547,7 +592,6 @@ class SfPyramidChartState extends State<SfPyramidChart>
   ///    ),
   ///  );
   /// }
-
   /// Future<void> _renderImage() async {
   ///  dart_ui.Image data = await _key.currentState.toImage(pixelRatio: 3.0);
   ///  final bytes = await data.toByteData(format: dart_ui.ImageByteFormat.png);
@@ -580,7 +624,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
     return image;
   }
 
-  /// To initialize default chart elements value
+  /// To initialize default chart elements value.
   void _initializeDefaultValues() {
     _stateProperties.chartSeries = PyramidChartBase(_stateProperties);
     _stateProperties.renderingDetails.chartLegend =
@@ -652,7 +696,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
     _stateProperties.renderingDetails.seriesRepaintNotifier.value++;
   }
 
-  /// To render chart elements
+  /// To render chart elements.
   Widget _renderChartElements() {
     return Expanded(child: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
@@ -711,7 +755,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
     }
   }
 
-  /// To initialize chart container area
+  /// To initialize chart container area.
   void _initialize(BoxConstraints constraints) {
     _stateProperties.renderingDetails.chartWidgets = <Widget>[];
     final num width = constraints.maxWidth;
@@ -736,7 +780,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
         height - margin.top - margin.bottom);
   }
 
-  /// This will return tooltip chart point
+  /// This will return tooltip chart point.
   PointInfo<dynamic> _getChartPoints(PyramidStateProperties _stateProperties) {
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
         _stateProperties.renderingDetails.tooltipBehaviorRenderer;
@@ -760,7 +804,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
     return tooltipPoint;
   }
 
-  /// Here for orientation change/browser resize, the logic in this method will get executed
+  /// Here for orientation change/browser resize, the logic in this method will get executed.
   void _validateStateMaintenance(PyramidStateProperties _stateProperties,
       PointInfo<dynamic> tooltipPoint) {
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =

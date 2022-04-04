@@ -1,3 +1,7 @@
+## [19.4.38+1] - 12/20/2021
+
+* Added localization for `rowsPerPageDataPagerLabel` property.
+
 ## [18.3.35] - 10/01/2020
 
 No changes.

@@ -86,7 +86,7 @@ class FastLineSegment extends ChartSegment {
   @override
   void calculateSegmentPoints() {}
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

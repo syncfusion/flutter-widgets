@@ -9,7 +9,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import 'chart_segment.dart';
 
-/// Segment class for error bar
+/// Segment class for error bar.
 class ErrorBarSegment extends ChartSegment {
   final double _effectiveAnimationFactor = 0.05;
   late SegmentProperties _segmentProperties;
@@ -58,7 +58,7 @@ class ErrorBarSegment extends ChartSegment {
         errorBarSeries.dashArray);
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);
@@ -66,7 +66,7 @@ class ErrorBarSegment extends ChartSegment {
     }
   }
 
-  /// To animate error bar
+  /// To animate error bar.
   void _animateErrorBar(
       Canvas canvas,
       Paint errorBarPaint,
@@ -196,6 +196,7 @@ class ErrorBarSegment extends ChartSegment {
     verticalPath.close();
     capPath.close();
 
+    // ignore: unnecessary_null_comparison
     if (dashArray != null) {
       // Draws vertical line of the error bar.
       drawDashedLine(canvas, dashArray, errorBarPaint, verticalPath);
@@ -240,6 +241,7 @@ class ErrorBarSegment extends ChartSegment {
     horizontalPath.close();
     horizontalCapPath.close();
 
+    // ignore: unnecessary_null_comparison
     if (dashArray != null) {
       // Draws horizontal line of the error bar.
       drawDashedLine(canvas, dashArray, errorBarPaint, horizontalPath);

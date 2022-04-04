@@ -115,6 +115,7 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
     } else {
       return _defaultValue;
     }
+    return null;
   }
 
   /// Sets the default value used for filling gaps.

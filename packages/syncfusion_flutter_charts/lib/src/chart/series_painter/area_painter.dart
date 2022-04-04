@@ -16,7 +16,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Area series
+/// Creates series renderer for area series.
 class AreaSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of AreaSeriesRenderer class.
   AreaSeriesRenderer();
@@ -69,7 +69,7 @@ class AreaSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To draw area segments
+  /// To draw area segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
@@ -84,7 +84,7 @@ class AreaSeriesRenderer extends XyDataSeriesRenderer {
     segment.onPaint(canvas);
   }
 
-  /// To create area series segments
+  /// To create area series segments.
   @override
   AreaSegment createSegment() => AreaSegment();
 
@@ -226,6 +226,8 @@ class AreaChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRendererDetails.calculateRegionData(stateProperties,
@@ -354,7 +356,7 @@ class AreaChartPainter extends CustomPainter {
     }
   }
 
-  /// It returns the visibility of area series
+  /// It returns the visibility of area series.
   bool _getSeriesVisibility(
       List<CartesianChartPoint<dynamic>> points, int index) {
     for (int i = index; i < points.length - 1; i++) {

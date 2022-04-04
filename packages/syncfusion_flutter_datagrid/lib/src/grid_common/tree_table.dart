@@ -981,7 +981,6 @@ class TreeTable extends TreeTableBase {
       }
 
       final TreeTableEntryBase leaf = current! as TreeTableEntryBase;
-
       final TreeTableBranchBase? newBranch = leaf.createBranch(this);
 
       if (comparer != null) {

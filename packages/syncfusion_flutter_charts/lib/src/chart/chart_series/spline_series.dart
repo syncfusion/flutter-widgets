@@ -4,7 +4,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 /// Renders the spline series.
 ///
 /// The spline chart draws a curved line between the points in a data series.To render a spline chart, create an instance of
-/// SplineSeries, and add it to the series collection property of [SfCartesianChart].
+/// [SplineSeries], and add it to the series collection property of [SfCartesianChart].
 ///
 /// Provides options to customize the color, opacity and width of the spline series segments.
 @immutable
@@ -83,46 +83,41 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
             onPointLongPress: onPointLongPress,
             initialSelectedDataIndexes: initialSelectedDataIndexes);
 
-  ///Type of the spline curve. Various type of curves such as clamped, cardinal,
-  ///monotonic, and natural can be rendered between the data points.
+  /// Type of the spline curve. Various type of curves such as clamped, cardinal,
+  /// monotonic, and natural can be rendered between the data points.
   ///
-  ///Defaults to splineType.natural
+  /// Defaults to `SplineType.natural`.
   ///
-  ///Also refer [SplineType]
+  /// Also refer [SplineType].
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  splineType: SplineType.monotonic,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         splineType: SplineType.monotonic,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final SplineType? splineType;
 
-  ///Line tension of the cardinal spline. The value ranges from 0 to 1.
+  /// Line tension of the cardinal spline. The value ranges from 0 to 1.
   ///
-  ///Defaults to `0.5`.
+  /// Defaults to `0.5`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  splineType: SplineType.natural,
-  ///                  cardinalSplineTension: 0.4,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         cardinalSplineTension: 0.4,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double cardinalSplineTension;
 
   /// Create the spline area series renderer.

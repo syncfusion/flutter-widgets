@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Няма падзей", 
 "ofDataPagerLabel" : "з", 
 "pagesDataPagerLabel" : "старонак", 
-"itemsDataPagerLabel" : "прадметаў", 
+"rowsPerPageDataPagerLabel" : "Радкі на старонцы", 
 "pdfBookmarksLabel" : "Закладкі", 
 "pdfNoBookmarksLabel" : "Закладак не знойдзена", 
 "pdfScrollStatusOfLabel" : "з", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Шо.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Зуль-Х", 
-"daySpanCountLabel" : "Дзень"
+"daySpanCountLabel" : "Дзень", 
+"series" : "Серыял"
 }

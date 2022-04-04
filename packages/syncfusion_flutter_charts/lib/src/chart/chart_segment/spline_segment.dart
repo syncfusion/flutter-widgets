@@ -21,16 +21,16 @@ import 'chart_segment.dart';
 class SplineSegment extends ChartSegment {
   double? _oldX1, _oldY1, _oldX2, _oldY2, _oldX3, _oldY3, _oldX4, _oldY4;
 
-  /// Start point X value
+  /// Start point X value.
   double? startControlX;
 
-  /// Start point Y value
+  /// Start point Y value.
   double? startControlY;
 
-  /// End point X value
+  /// End point X value.
   double? endControlX;
 
-  /// End point Y value
+  /// End point Y value.
   double? endControlY;
 
   ChartLocation? _currentPointLocation, _nextPointLocation;
@@ -153,7 +153,7 @@ class SplineSegment extends ChartSegment {
               segmentSeriesRendererDetails.yAxisDetails!.axis.plotOffset));
     }
 
-    // Draw spline series
+    // Draw spline series.
     if (segmentProperties.series.animationDuration > 0 == true &&
         segmentSeriesRendererDetails.reAnimate == false &&
         segmentProperties.stateProperties.renderingDetails.widgetNeedUpdate ==

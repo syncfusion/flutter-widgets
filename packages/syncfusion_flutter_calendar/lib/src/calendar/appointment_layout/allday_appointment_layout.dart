@@ -3,12 +3,10 @@ import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
+import '../../../calendar.dart';
 import '../appointment_engine/appointment_helper.dart';
 import '../common/calendar_view_helper.dart';
 import '../common/date_time_engine.dart';
-import '../common/enums.dart';
-import '../common/event_args.dart';
-import '../sfcalendar.dart';
 
 /// Used to holds the all day appointment views in calendar widgets.
 class AllDayAppointmentLayout extends StatefulWidget {
@@ -954,7 +952,11 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
   void paint(PaintingContext context, Offset offset) {
     _textPainter.textScaleFactor = _textScaleFactor;
     double leftPosition = 0, rightPosition = size.width;
-    if (view == CalendarView.day) {
+    if (CalendarViewHelper.isDayView(
+        view,
+        calendar.timeSlotViewSettings.numberOfDaysInView,
+        calendar.timeSlotViewSettings.nonWorkingDays,
+        calendar.monthViewSettings.numberOfWeeksInView)) {
       _rectPainter.strokeWidth = 0.5;
       _rectPainter.color =
           calendar.cellBorderColor ?? calendarTheme.cellBorderColor!;
@@ -1185,7 +1187,12 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
   /// view  we display the current date, and total dates of the spanning
   /// appointment.
   String _getAllDayAppointmentText(CalendarAppointment appointment) {
-    if (view != CalendarView.day || !appointment.isSpanned) {
+    if (!CalendarViewHelper.isDayView(
+            view,
+            calendar.timeSlotViewSettings.numberOfDaysInView,
+            calendar.timeSlotViewSettings.nonWorkingDays,
+            calendar.monthViewSettings.numberOfWeeksInView) ||
+        !appointment.isSpanned) {
       return appointment.subject;
     }
 

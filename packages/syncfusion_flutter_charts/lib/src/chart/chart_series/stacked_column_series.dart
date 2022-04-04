@@ -5,13 +5,13 @@ import 'stacked_series_base.dart';
 
 /// Renders the stacked column series.
 ///
-/// In a stacked column chart, data series are stacked one on top of the other in vertical columns..
+/// In a stacked column chart, data series are stacked one on top of the other in vertical columns.
 ///
-/// To render a stacked column chart, create an instance of StackedColumnSeries,
+/// To render a stacked column chart, create an instance of [StackedColumnSeries],
 /// and add it to the series collection property of [SfCartesianChart].
 ///
-///Provides options to customize properties such as [color], [opacity],
-///[borderWidth], [borderColor], [borderRadius] of the Stackedcolumn segments.
+/// Provides options to customize properties such as [color], [opacity],
+/// [borderWidth], [borderColor], [borderRadius] of the stacked column segments.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=NCUDBD_ClHo}
 @immutable

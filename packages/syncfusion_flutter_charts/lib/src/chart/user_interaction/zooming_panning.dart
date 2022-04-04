@@ -13,17 +13,17 @@ import 'zooming_painter.dart';
 
 /// Customizes the zooming options.
 ///
-/// Customize the various zooming actions such as tapZooming, selectionZooming,
-///  zoomPinch. In selection zooming, you can long-press and drag to select a
+/// Customize the various zooming actions such as tap zooming, selection zooming,
+/// zoom pinch. In selection zooming, you can long-press and drag to select a
 /// range on the chart to be zoomed in and also you can customize the selection
-///  zooming rectangle using `selectionRectBorderWidth`,
+/// zooming rectangle using `selectionRectBorderWidth`,
 /// `selectionRectBorderColor` and `selectionRectColor` properties.
 ///
-/// zoomPinching can be performed by moving two fingers over the chart.
+/// Pinch zooming can be performed by moving two fingers over the chart.
 /// Default mode is [ZoomMode.xy]. Zooming will be stopped after reaching
 /// `maximumZoomLevel`.
 ///
-///_Note:_ This is only applicable for `SfCartesianChart`.
+/// _Note:_ This is only applicable for `SfCartesianChart`.
 class ZoomPanBehavior {
   /// Creating an argument constructor of ZoomPanBehavior class.
   ZoomPanBehavior(
@@ -38,169 +38,253 @@ class ZoomPanBehavior {
       this.selectionRectBorderColor,
       this.selectionRectColor});
 
-  ///Enables or disables the pinch zooming.
+  /// Enables or disables the pinch zooming.
   ///
   /// Pinching can be performed by moving two fingers over the
   /// chart. You can zoom the chart through pinch gesture in touch enabled devices.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           zoomPanBehavior: ZoomPanBehavior(enablePinchZooming: true),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior = ZoomPanBehavior(
+  ///     enablePinching: true
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior
+  ///   );
+  /// }
+  /// ```
   final bool enablePinching;
 
-  ///Enables or disables the double tap zooming.
+  /// Enables or disables the double tap zooming.
   ///
-  ///Zooming will enable when you tap double time in plotarea.
-  ///After reaching the maximum zoom level, zooming will be stopped.
+  /// Zooming will enable when you tap double time in plotarea.
+  /// After reaching the maximum zoom level, zooming will be stopped.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           zoomPanBehavior: ZoomPanBehavior(enableDoubleTapZooming: true),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior = ZoomPanBehavior(
+  ///     enableDoubleTapZooming: true
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior
+  ///   );
+  /// }
+  /// ```
   final bool enableDoubleTapZooming;
 
-  ///Enables or disables the panning.
+  /// Enables or disables the panning.
   ///
-  ///Panning can be performed on a zoomed axis.
+  /// Panning can be performed on a zoomed axis.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           zoomPanBehavior: ZoomPanBehavior(enablePanning: true),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior = ZoomPanBehavior(
+  ///     enablePanning: true
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior
+  ///   );
+  /// }
+  /// ```
   final bool enablePanning;
 
-  ///Enables or disables the selection zooming.
+  /// Enables or disables the selection zooming.
   ///
-  ///Selection zooming can be performed by long-press and then dragging.
+  /// Selection zooming can be performed by long-press and then dragging.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           zoomPanBehavior: ZoomPanBehavior(enableSelectionZooming: true),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior = ZoomPanBehavior(
+  ///     enableSelectionZooming: true
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior
+  ///   );
+  /// }
+  /// ```
   final bool enableSelectionZooming;
 
-  ///Enables or disables the mouseWheelZooming.
+  /// Enables or disables the mouseWheelZooming.
   ///
-  ///Mouse wheel zooming can be performed by rolling the mouse wheel up or
-  ///down. The place where the cursor is hovering gets zoomed in or out
-  ///according to the mouse wheel rolling up or down.
+  /// Mouse wheel zooming can be performed by rolling the mouse wheel up or
+  /// down. The place where the cursor is hovering gets zoomed in or out
+  /// according to the mouse wheel rolling up or down.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           zoomPanBehavior: ZoomPanBehavior(enableMouseWheelZooming: true),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior = ZoomPanBehavior(
+  ///     enableMouseWheelZooming: true
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior
+  ///   );
+  /// }
+  /// ```
   final bool enableMouseWheelZooming;
 
-  ///By default, both the x and y-axes in the chart can be zoomed.
+  /// By default, both the x and y-axes in the chart can be zoomed.
   ///
   /// It can be changed by setting value to this property.
   ///
-  ///Defaults to `ZoomMode.xy`.
+  /// Defaults to `ZoomMode.xy`.
   ///
-  ///Also refer [ZoomMode].
+  /// Also refer [ZoomMode].
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           zoomPanBehavior: ZoomPanBehavior(enableSelectionZooming: true, zoomMode: ZoomMode.x),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior = ZoomPanBehavior(
+  ///     zoomMode: ZoomMode.x
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior
+  ///   );
+  /// }
+  /// ```
   final ZoomMode zoomMode;
 
-  ///Maximum zoom level.
+  /// Maximum zoom level.
   ///
-  ///Zooming will be stopped after reached this value and ranges from 0 to 1.
+  /// Zooming will be stopped after reached this value and ranges from 0 to 1.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           zoomPanBehavior: ZoomPanBehavior(enableSelectionZooming: true, maximumZoomLevel: 0.8),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior = ZoomPanBehavior(
+  ///     maximumZoomLevel: 0.8
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior
+  ///   );
+  /// }
+  /// ```
   final double maximumZoomLevel;
 
-  ///Border width of the selection zooming rectangle.
+  /// Border width of the selection zooming rectangle.
   ///
-  ///Used to change the stroke width of the selection rectangle.
+  /// Used to change the stroke width of the selection rectangle.
   ///
-  ///Defaults to `1`.
+  /// Defaults to `1`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           zoomPanBehavior: ZoomPanBehavior(
-  ///              enableSelectionZooming: true, selectionRectBorderWidth: 2),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior = ZoomPanBehavior(
+  ///     enableSelectionZooming: true,
+  ///     selectionRectBorderWidth: 2
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior
+  ///   );
+  /// }
+  /// ```
   final double selectionRectBorderWidth;
 
-  ///Border color of the selection zooming rectangle.
+  /// Border color of the selection zooming rectangle.
   ///
-  ///It used to change the stroke color of the selection rectangle.
+  /// It used to change the stroke color of the selection rectangle.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           zoomPanBehavior: ZoomPanBehavior(
-  ///             enableSelectionZooming: true, selectionRectBorderColor: Colors.red),
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior = ZoomPanBehavior(
+  ///     enableSelectionZooming: true,
+  ///     selectionRectBorderColor: Colors.red
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior
+  ///   );
+  /// }
+  /// ```
   final Color? selectionRectBorderColor;
 
-  ///Color of the selection zooming rectangle.
+  /// Color of the selection zooming rectangle.
   ///
-  ///It used to change the background color of the selection rectangle.
+  /// It used to change the background color of the selection rectangle.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           zoomPanBehavior: ZoomPanBehavior(
-  ///             enableSelectionZooming: true, selectionRectColor: Colors.yellow),
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior = ZoomPanBehavior(
+  ///     enableSelectionZooming: true,
+  ///     selectionRectColor: Colors.yellow
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior
+  ///   );
+  /// }
+  /// ```
   final Color? selectionRectColor;
 
   @override
@@ -244,7 +328,7 @@ class ZoomPanBehavior {
     return hashList(values);
   }
 
-  /// Holds the value of cartesian state properties
+  /// Holds the value of cartesian state properties.
   late CartesianStateProperties _stateProperties;
 
   /// Increases the magnification of the plot area.
@@ -329,7 +413,7 @@ class ZoomPanBehavior {
   /// Changes the zoom level using zoom factor.
   ///
   /// Here, you can pass the zoom factor of an axis to magnify the plot
-  ///  area. The value ranges from 0 to 1.
+  /// area. The value ranges from 0 to 1.
   void zoomByFactor(double zoomFactor) {
     _stateProperties.canSetRangeController = true;
     final SfCartesianChart chart = _stateProperties.chart;
@@ -350,7 +434,7 @@ class ZoomPanBehavior {
 
   /// Zooms the chart for a given rectangle value.
   ///
-  ///  Here, you can pass the rectangle with the left, right, top, and bottom values,
+  /// Here, you can pass the rectangle with the left, right, top, and bottom values,
   /// using which the selection zooming will be performed.
   void zoomByRect(Rect rect) {
     _stateProperties.canSetRangeController = true;
@@ -368,6 +452,7 @@ class ZoomPanBehavior {
         axis, _stateProperties.chartAxis.axisRenderersCollection);
     final ChartAxisRendererDetails axisDetails =
         AxisHelper.getAxisRendererDetails(axisRenderer!);
+    // ignore: unnecessary_null_comparison
     if (axisRenderer != null) {
       axisDetails.zoomFactor = zoomFactor;
       axisDetails.zoomPosition = zoomPosition;
@@ -378,7 +463,7 @@ class ZoomPanBehavior {
 
   /// Pans the plot area for given left, right, top, and bottom directions.
   ///
-  ///  To perform this action, the plot area needs to be in zoomed state.
+  /// To perform this action, the plot area needs to be in zoomed state.
   void panToDirection(String direction) {
     _stateProperties.canSetRangeController = true;
     final SfCartesianChart chart = _stateProperties.chart;
@@ -453,14 +538,14 @@ class ZoomPanBehavior {
   }
 }
 
-/// Creates a renderer class for zoomPanBehavior class
+/// Creates a renderer class for [ZoomPanBehavior] class
 class ZoomPanBehaviorRenderer with ZoomBehavior {
-  /// Creates an argument constructor for ZoomPanBehavior renderer class
+  /// Creates an argument constructor for ZoomPanBehavior renderer class.
   ZoomPanBehaviorRenderer(this._stateProperties) {
     _zoomingBehaviorDetails = ZoomingBehaviorDetails(_stateProperties);
   }
 
-  /// Holds the value of zoom behavior details
+  /// Holds the value of zoom behavior details.
   late ZoomingBehaviorDetails _zoomingBehaviorDetails;
   final CartesianStateProperties _stateProperties;
 
@@ -474,7 +559,7 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
   void onDoubleTap(double xPos, double yPos, double? zoomFactor) =>
       _zoomingBehaviorDetails.doubleTapZooming(xPos, yPos, zoomFactor);
 
-  /// Draws selection zoomRect
+  /// Draws selection zoomRect.
   @override
   void onPaint(Canvas canvas) =>
       _zoomingBehaviorDetails.painter.drawRect(canvas);
@@ -505,54 +590,54 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
   }
 }
 
-/// Represents the zoom axis range class
+/// Represents the zoom axis range class.
 class ZoomAxisRange {
-  /// Creates an instance of zoom axis range class
+  /// Creates an instance of zoom axis range class.
   ZoomAxisRange({this.actualMin, this.actualDelta, this.min, this.delta});
 
-  /// Holds the value of actual minimum, actual delta, minimum and delta value
+  /// Holds the value of actual minimum, actual delta, minimum and delta value.
   double? actualMin, actualDelta, min, delta;
 }
 
-/// Represents the zooming behavior details class
+/// Represents the zooming behavior details class.
 class ZoomingBehaviorDetails {
-  /// Creates an instance for zooming behavior details
+  /// Creates an instance for zooming behavior details.
   ZoomingBehaviorDetails(this.stateProperties);
 
   ZoomPanBehavior get _zoomPanBehavior => _chart.zoomPanBehavior;
   SfCartesianChart get _chart => stateProperties.chart;
 
-  /// Creates an instance of cartesian state properties
+  /// Creates an instance of cartesian state properties.
   final CartesianStateProperties stateProperties;
 
-  /// Holds the value of zoom rect painter
+  /// Holds the value of zoom rect painter.
   late ZoomRectPainter painter;
 
-  /// Holds the previously moved position
+  /// Holds the previously moved position.
   Offset? previousMovedPosition;
 
-  /// Specifies whether the panning or pinching is done
+  /// Specifies whether the panning or pinching is done.
   bool? isPanning, isPinching;
 
-  /// Specifies whether to do perform selection
+  /// Specifies whether to do perform selection.
   bool canPerformSelection = false;
 
-  /// Holds the value of zooming rect
+  /// Holds the value of zooming rect.
   Rect zoomingRect = Rect.zero;
 
-  /// Specifies whether to draw with delay
+  /// Specifies whether to draw with delay.
   bool delayRedraw = false;
 
-  /// Specifies the value of zoom factor and zoom position
+  /// Specifies the value of zoom factor and zoom position.
   double? zoomFactor, _zoomPosition;
 
-  /// Specifies whether the zoom in or zoom out is performed
+  /// Specifies whether the zoom in or zoom out is performed.
   late bool isZoomIn, isZoomOut;
 
-  /// Specifies the value of rect path
+  /// Specifies the value of rect path.
   Path? rectPath;
 
-  /// Below method for double tap zooming
+  /// Below method for double tap zooming.
   void doubleTapZooming(double xPos, double yPos, double? zoomFactor) {
     stateProperties.canSetRangeController = true;
     stateProperties.zoomProgress = true;
@@ -616,7 +701,7 @@ class ZoomingBehaviorDetails {
     createZoomState();
   }
 
-  /// Below method is for panning the zoomed chart
+  /// Below method is for panning the zoomed chart.
   void doPan(double xPos, double yPos) {
     stateProperties.canSetRangeController = true;
     num currentScale, value;
@@ -677,7 +762,7 @@ class ZoomingBehaviorDetails {
     }
   }
 
-  ///Below method for drawing selection rectangle
+  /// Below method for drawing selection rectangle.
   void drawSelectionZoomRect(
       double currentX, double currentY, double startX, double startY) {
     stateProperties.canSetRangeController = true;
@@ -716,7 +801,7 @@ class ZoomingBehaviorDetails {
     stateProperties.repaintNotifiers['zoom']!.value++;
   }
 
-  /// Below method for zooming selected portion
+  /// Below method for zooming selected portion.
   void doSelectionZooming(Rect zoomRect) {
     stateProperties.canSetRangeController = true;
     final Rect rect = stateProperties.chartAxis.axisClipRect;
@@ -767,7 +852,7 @@ class ZoomingBehaviorDetails {
     createZoomState();
   }
 
-  /// Below method is for pinch zooming
+  /// Below method is for pinch zooming.
   void performPinchZooming(
       List<PointerEvent> touchStartList, List<PointerEvent> touchMoveList) {
     stateProperties.canSetRangeController = true;
@@ -811,7 +896,7 @@ class ZoomingBehaviorDetails {
     }
   }
 
-  /// To create zoomed states
+  /// To create zoomed states.
   void createZoomState() {
     stateProperties.rangeChangeBySlider = false;
     stateProperties.isRedrawByZoomPan = true;
@@ -822,7 +907,7 @@ class ZoomingBehaviorDetails {
     stateProperties.redraw();
   }
 
-  /// Below method is for pinch zooming
+  /// Below method is for pinch zooming.
   void _calculatePinchZoomFactor(SfCartesianChart chart, Rect pinchRect) {
     stateProperties.canSetRangeController = true;
     final ZoomMode mode = _zoomPanBehavior.zoomMode;
@@ -869,7 +954,7 @@ class ZoomingBehaviorDetails {
         maxZoomFactor = _zoomPanBehavior.maximumZoomLevel;
         if (axisDetails.axis.autoScrollingDelta != null &&
             axisDetails.scrollingDelta != null) {
-          //to find zoom factor for corresponding auto scroll delta
+          // To find zoom factor for corresponding auto scroll delta.
           minZoomFactor =
               axisDetails.scrollingDelta! / _zoomAxes[axisIndex].actualDelta!;
         }
@@ -878,7 +963,7 @@ class ZoomingBehaviorDetails {
           currentZoomFactor = maxZoomFactor;
         }
         if (currentZoomFactor > minZoomFactor) {
-          //to restrict zoom factor to corresponding auto scroll delta
+          // To restrict zoom factor to corresponding auto scroll delta.
           axisDetails.zoomFactor = minZoomFactor;
           currentZoomFactor = minZoomFactor;
         }
@@ -894,36 +979,39 @@ class ZoomingBehaviorDetails {
   num _minMax(num value, num min, num max) =>
       value > max ? max : (value < min ? min : value);
 
-  /// Below method is for storing calculated zoom range
+  /// Below method is for storing calculated zoom range.
   void _calculateZoomAxesRange(SfCartesianChart chart) {
     ChartAxisRendererDetails axisDetails;
     ZoomAxisRange range;
-    VisibleRange axisRange;
+    VisibleRange? axisRange;
     for (int index = 0;
         index < stateProperties.chartAxis.axisRenderersCollection.length;
         index++) {
       axisDetails = AxisHelper.getAxisRendererDetails(
           stateProperties.chartAxis.axisRenderersCollection[index]);
       range = ZoomAxisRange();
-      axisRange = axisDetails.visibleRange!;
+      if (axisDetails.visibleRange != null) {
+        axisRange = axisDetails.visibleRange!;
+      }
       if (stateProperties.zoomAxes.isNotEmpty &&
           index <= stateProperties.zoomAxes.length - 1) {
         if (!delayRedraw) {
-          stateProperties.zoomAxes[index].min = axisRange.minimum.toDouble();
+          stateProperties.zoomAxes[index].min = axisRange!.minimum.toDouble();
           stateProperties.zoomAxes[index].delta = axisRange.delta.toDouble();
         }
       } else {
-        // _stateProperties.zoomAxes ??= <_ZoomAxisRange>[];
-        range.actualMin = axisDetails.actualRange!.minimum.toDouble();
-        range.actualDelta = axisDetails.actualRange!.delta.toDouble();
-        range.min = axisRange.minimum.toDouble();
+        if (axisDetails.actualRange != null) {
+          range.actualMin = axisDetails.actualRange!.minimum.toDouble();
+          range.actualDelta = axisDetails.actualRange!.delta.toDouble();
+        }
+        range.min = axisRange!.minimum.toDouble();
         range.delta = axisRange.delta.toDouble();
         stateProperties.zoomAxes.add(range);
       }
     }
   }
 
-  /// Below method is for mouse wheel Zooming
+  /// Below method is for mouse wheel Zooming.
   void performMouseWheelZooming(
       PointerScrollEvent event, double mouseX, double mouseY) {
     stateProperties.canSetRangeController = true;
@@ -996,7 +1084,7 @@ class ZoomingBehaviorDetails {
     createZoomState();
   }
 
-  /// Below method is for zoomIn and zoomOut public methods
+  /// Below method is for zoomIn and zoomOut public methods.
   void setZoomFactorAndZoomPosition(SfCartesianChartState chartState,
       ChartAxisRendererDetails axisDetails, double? zoomFactor) {
     final Rect axisClipRect = stateProperties.chartAxis.axisClipRect;
@@ -1040,15 +1128,15 @@ class ZoomingBehaviorDetails {
 }
 
 // ignore: avoid_classes_with_only_static_members
-/// Helper class to get the zooming behavior rendering details instance from its renderer
+/// Helper class to get the zooming behavior rendering details instance from its renderer.
 class ZoomPanBehaviorHelper {
-  /// Gets the zooming behavior details
+  /// Gets the zooming behavior details.
   static ZoomingBehaviorDetails getRenderingDetails(
       ZoomPanBehaviorRenderer renderer) {
     return renderer._zoomingBehaviorDetails;
   }
 
-  /// Method to set the cartesian state properties
+  /// Method to set the cartesian state properties.
   static void setStateProperties(ZoomPanBehavior zoomPanBehavior,
       CartesianStateProperties stateProperties) {
     zoomPanBehavior._stateProperties = stateProperties;

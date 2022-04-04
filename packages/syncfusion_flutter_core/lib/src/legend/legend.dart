@@ -1314,9 +1314,10 @@ class _LegendItemState extends State<_LegendItem>
               Text(
                 details.text,
                 style: widget.textStyle!.copyWith(
-                  color: widget.textStyle!.color!.withOpacity(
-                    _opacityTween.evaluate(_toggleAnimation),
-                  ),
+                  color: widget.textStyle!.foreground == null
+                      ? widget.textStyle!.color!
+                          .withOpacity(_opacityTween.evaluate(_toggleAnimation))
+                      : widget.textStyle!.foreground!.color,
                 ),
               )
             ],

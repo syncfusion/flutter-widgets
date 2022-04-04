@@ -10,11 +10,11 @@ import '../../chart/user_interaction/selection_renderer.dart';
 import '../../chart/utils/helper.dart';
 import '../../circular_chart/renderer/common.dart';
 
-///Provides options for the selection of series or data points.
+/// Provides options for the selection of series or data points.
 ///
-///By using this class, The color and width of the selected and unselected series or data points can be customized.
+/// By using this class, The color and width of the selected and unselected series or data points can be customized.
 class SelectionBehavior {
-  /// Creating an argument constructor of SelectionBehaviorclass.
+  /// Creating an argument constructor of SelectionBehavior class.
   SelectionBehavior(
       {bool? enable,
       this.selectedColor,
@@ -32,217 +32,317 @@ class SelectionBehavior {
         unselectedOpacity = unselectedOpacity ?? 0.5,
         toggleSelection = toggleSelection ?? true;
 
-  ///Enables or disables the selection.
+  /// Enables or disables the selection.
   ///
-  ///By enabling this, each data point or series in the chart can be selected.
+  /// By enabling this, each data point or series in the chart can be selected.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    enable: true
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late SelectionBehavior selectionBehavior;
+  ///
+  /// void initState() {
+  ///   selectionBehavior = SelectionBehavior(
+  ///     enable: true
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         selectionBehavior: selectionBehavior
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool enable;
 
-  ///Color of the selected data points or series.
+  /// Color of the selected data points or series.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    selectedColor: Colors.red
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late SelectionBehavior selectionBehavior;
+  ///
+  /// void initState() {
+  ///   selectionBehavior = SelectionBehavior(
+  ///     enable: true,
+  ///     selectedColor: Colors.red
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         selectionBehavior: selectionBehavior
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color? selectedColor;
 
-  ///Border color of the selected data points or series.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    selectedBorderColor: Colors.red,
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Border color of the selected data points or series.
+  ///
+  /// ```dart
+  /// late SelectionBehavior selectionBehavior;
+  ///
+  /// void initState() {
+  ///   selectionBehavior = SelectionBehavior(
+  ///     enable: true,
+  ///     selectedBorderWidth: 4,
+  ///     selectedBorderColor: Colors.red
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         selectionBehavior: selectionBehavior
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color? selectedBorderColor;
 
-  ///Border width of the selected data points or series.
+  /// Border width of the selected data points or series.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    selectedColor: Colors.red,
-  ///                    selectedBorderWidth: 2
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late SelectionBehavior selectionBehavior;
+  ///
+  /// void initState() {
+  ///   selectionBehavior = SelectionBehavior(
+  ///     enable: true,
+  ///     selectedBorderWidth: 4,
+  ///     selectedBorderColor: Colors.red
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         selectionBehavior: selectionBehavior
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double? selectedBorderWidth;
 
-  ///Color of the unselected data points or series.
+  /// Color of the unselected data points or series.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    unselectedColor: Colors.grey,
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late SelectionBehavior selectionBehavior;
+  ///
+  /// void initState() {
+  ///   selectionBehavior = SelectionBehavior(
+  ///     enable: true,
+  ///     unselectedColor: Colors.red
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         selectionBehavior: selectionBehavior
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color? unselectedColor;
 
-  ///Border color of the unselected data points or series.
+  /// Border color of the unselected data points or series.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    unselectedBorderColor: Colors.grey,
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late SelectionBehavior selectionBehavior;
+  ///
+  /// void initState() {
+  ///   selectionBehavior = SelectionBehavior(
+  ///     enable: true,
+  ///     unselectedBorderWidth: 4,
+  ///     unselectedBorderColor: Colors.grey
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         selectionBehavior: selectionBehavior
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color? unselectedBorderColor;
 
-  ///Border width of the unselected data points or series.
+  /// Border width of the unselected data points or series.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    unselectedBorderWidth: 2
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late SelectionBehavior selectionBehavior;
+  ///
+  /// void initState() {
+  ///   selectionBehavior = SelectionBehavior(
+  ///     enable: true,
+  ///     unselectedBorderWidth: 4,
+  ///     unselectedBorderColor: Colors.grey
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         selectionBehavior: selectionBehavior
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double? unselectedBorderWidth;
 
-  ///Opacity of the selected series or data point.
+  /// Opacity of the selected series or data point.
   ///
-  ///Default to `1.0`.
+  /// Default to `1.0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    selectedOpacity: 0.5,
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late SelectionBehavior selectionBehavior;
+  ///
+  /// void initState() {
+  ///   selectionBehavior = SelectionBehavior(
+  ///     enable: true,
+  ///     selectedOpacity: 0.5
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         selectionBehavior: selectionBehavior
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double selectedOpacity;
 
-  ///Opacity of the unselected series or data point.
+  /// Opacity of the unselected series or data point.
   ///
-  ///Defaults to `0.5`.
+  /// Defaults to `0.5`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    unselectedOpacity: 0.4,
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///``
+  /// ```dart
+  /// late SelectionBehavior selectionBehavior;
+  ///
+  /// void initState() {
+  ///   selectionBehavior = SelectionBehavior(
+  ///     enable: true,
+  ///     unselectedOpacity: 0.4
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         selectionBehavior: selectionBehavior
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double unselectedOpacity;
 
-  /// Controller used to set the maximum and minimum values for the chart.By providing the selection controller, the maximum and
-  ///The minimum range of selected series or points can be customized
+  /// Controller used to set the maximum and minimum values for the chart.
+  /// By providing the selection controller, the maximum and
+  /// The minimum range of selected series or points can be customized.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionBehavior: SelectionBehavior(
-  ///                selectionController:  controller,
-  ///               ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   final RangeController rangeController= RangeController(
+  ///     start: 1,
+  ///     end: 4
+  ///   )
+  ///   return SfRangeSelector (
+  ///     min: 1,
+  ///     max: 4,
+  ///     controller: rangeController,
+  ///     child: SfCartesianChart(
+  ///       series: <ColumnSeries<SalesData, num>>[
+  ///         ColumnSeries<SalesData, num>(
+  ///           dataSource: chartData,
+  ///           xValueMapper: (SalesData sales, _) => sales.x,
+  ///           yValueMapper: (SalesData sales, _) => sales.y,
+  ///           selectionController: rangeController
+  ///         ),
+  ///       ],
+  ///     )
+  ///   );
+  /// }
+  /// final List<SalesData> chartData = <SalesData>[
+  ///   SalesData(1, 23),
+  ///   SalesData(2, 35),
+  ///   SalesData(3, 19),
+  ///   SalesData(4, 29),
+  ///   SalesData(5, 50)
+  ///   SalesData(6, 77)
+  /// ];
+  ///
+  /// class SalesData {
+  ///   SalesData(this.x, this.y);
+  ///     final double x;
+  ///     final double y;
+  /// }
+  /// ```
   final RangeController? selectionController;
 
-  ///Decides whether to deselect the selected item or not.
+  /// Decides whether to deselect the selected item or not.
   ///
-  ///Provides an option to decide, whether to deselect the selected data point/series
+  /// Provides an option to decide, whether to deselect the selected data point/series
   /// or remain selected, when interacted with it again.
   ///
-  ///If set to true, deselection will be performed else the point will not get deselected.
+  /// If set to true, deselection will be performed else the point will not get deselected.
   /// This works even while calling public methods, in various selection modes, with
   /// multi-selection, and also on dynamic changes.
   ///
-  ///Defaults to `true`.
+  /// Defaults to `true`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    enable: true,
-  ///                    toggleSelection: false,
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late SelectionBehavior selectionBehavior;
+  ///
+  /// void initState() {
+  ///   selectionBehavior = SelectionBehavior(
+  ///     enable: true,
+  ///     toggleSelection: false
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         selectionBehavior: selectionBehavior
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool toggleSelection;
 
   @override
@@ -284,44 +384,63 @@ class SelectionBehavior {
     return hashList(values);
   }
 
-  /// Specifies the value of selection behavior renderer
+  /// Specifies the value of selection behavior renderer.
   SelectionBehaviorRenderer? _selectionBehaviorRenderer;
 
-  ////Selects or deselects the specified data point in the series.
+  /// Selects or deselects the specified data point in the series.
   ///
-  ///The following are the arguments to be passed.
-  ///* `pointIndex` - index of the data point that needs to be selected.
-  ///* `seriesIndex` - index of the series in which the data point is selected.
+  /// The following are the arguments to be passed.
+  /// * `pointIndex` - index of the data point that needs to be selected.
+  /// * `seriesIndex` - index of the series in which the data point is selected.
   ///
-  ///Where the `pointIndex` is a required argument and `seriesIndex` is an optional argument. By default, 0 will
+  /// Where the `pointIndex` is a required argument and `seriesIndex` is an optional argument. By default, 0 will
   /// be considered as the series index. Thus it will take effect on the first series if no value is specified.
   ///
-  ///For Circular, Pyramid and Funnel charts, seriesIndex should always be 0, as it has only one series.
+  /// For circular, pyramid and funnel charts, series index should always be 0, as it has only one series.
   ///
-  ///If the specified data point is already selected, it will be deselected, else it will be selected.
+  /// If the specified data point is already selected, it will be deselected, else it will be selected.
   /// Selection type and multi-selection functionality is also applicable for this, but it is based on
   /// the API values specified in [ChartSelectionBehavior].
   ///
-  ///_Note:_ Even though, the [enable] property in [ChartSelectionBehavior] is set to false, this method
+  /// _Note:_ Even though, the [enable] property in [ChartSelectionBehavior] is set to false, this method
   /// will work.
+  ///
   /// ```dart
+  /// late SelectionBehavior selectionBehavior;
+  ///
+  /// void initState() {
+  ///   selectionBehavior = SelectionBehavior(
+  ///     enable: true
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
   /// Widget build(BuildContext context) {
-  /// selection = SelectionBehavior(enable: true);
-  /// chart = SfCartesianChart(series:getChartData);
-  ///   return Scaffold(
-  ///      child: Column(
-  ///        children: <Widget>[
-  ///       FlatButton(
-  ///            child: Text('Select'),
-  ///            onPressed: select),
-  ///          Container(child: chart)
-  ///        ]));
-  ///}
-  ///  void select() {
-  ///     selection.selectionIndex(1, 0);
-  ///}
-  ///```dart
-
+  ///   return Column(
+  ///     children: [
+  ///       TextButton(
+  ///         onPressed: () {
+  ///           setState(() {
+  ///             select();
+  ///           });
+  ///         },
+  ///         child: Text('Select data points')
+  ///       ),
+  ///       SfCartesianChart(
+  ///         series: <BarSeries<SalesData, num>>[
+  ///           BarSeries<SalesData, num>(
+  ///             selectionBehavior: selectionBehavior
+  ///           )
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  ///
+  /// void select() {
+  ///   _selectionBehavior.selectDataPoints(3);
+  /// }
+  /// ```
   void selectDataPoints(int pointIndex, [int seriesIndex = 0]) {
     if (_selectionBehaviorRenderer != null) {
       final dynamic seriesRenderer = _selectionBehaviorRenderer!
@@ -344,7 +463,7 @@ class SelectionBehavior {
     }
   }
 
-  /// provides the list of selected point indices for given series.
+  /// Provides the list of selected point indices for given series.
   List<int> getSelectedDataPoints(CartesianSeries<dynamic, dynamic> _series) {
     List<ChartSegment> selectedItems = <ChartSegment>[];
     final dynamic seriesRenderer = _selectionBehaviorRenderer!._selectionDetails
@@ -367,16 +486,16 @@ class SelectionBehavior {
   }
 }
 
-/// Selection renderer class for mutable fields and methods
+/// Selection renderer class for mutable fields and methods.
 class SelectionBehaviorRenderer with ChartSelectionBehavior {
-  /// Creates an argument constructor for SelectionSettings renderer class
+  /// Creates an argument constructor for SelectionSettings renderer class.
   SelectionBehaviorRenderer(SelectionBehavior selectionBehavior, dynamic chart,
       dynamic stateProperties) {
     _selectionDetails =
         SelectionDetails(selectionBehavior, chart, stateProperties, this);
   }
 
-  /// Holds the selection details instance for the chart
+  /// Holds the selection details instance for the chart.
   late SelectionDetails _selectionDetails;
 
   /// Specifies the index of the data point that needs to be selected initially while
@@ -451,29 +570,29 @@ class SelectionBehaviorRenderer with ChartSelectionBehavior {
       _selectionDetails.selectionRenderer?.performSelection(Offset(xPos, yPos));
 }
 
-/// Holds the properties of the selection behavior renderer
+/// Holds the properties of the selection behavior renderer.
 class SelectionDetails {
-  /// Argument constructor for SelectionDetails class
+  /// Argument constructor for SelectionDetails class.
   SelectionDetails(this.selectionBehavior, this.chart, this.stateProperties,
       this.selectionBehaviorRenderer);
 
-  /// Specifies the chart instance
+  /// Specifies the chart instance.
   final dynamic chart;
 
-  /// Holds the state properties value
+  /// Holds the state properties value.
   final dynamic stateProperties;
 
-  /// Holds the value of selection behavior
+  /// Holds the value of selection behavior.
   // ignore: deprecated_member_use_from_same_package
   final dynamic selectionBehavior;
 
-  /// Holds the selection renderer value
+  /// Holds the selection renderer value.
   SelectionRenderer? selectionRenderer;
 
-  /// Holds the selection behavior renderer instance
+  /// Holds the selection behavior renderer instance.
   final SelectionBehaviorRenderer selectionBehaviorRenderer;
 
-  /// Method to select the range
+  /// Method to select the range.
   void selectRange() {
     bool isSelect = false;
     final SeriesRendererDetails seriesRendererDetails =
@@ -525,13 +644,13 @@ class SelectionDetails {
 // ignore: avoid_classes_with_only_static_members
 /// Helper class to get the selection details instance from its renderer.
 class SelectionHelper {
-  /// Returns the selection details instance from its renderer
+  /// Returns the selection details instance from its renderer.
   static SelectionDetails getRenderingDetails(
       SelectionBehaviorRenderer renderer) {
     return renderer._selectionDetails;
   }
 
-  /// Method to set the selection behavior renderer
+  /// Method to set the selection behavior renderer.
   static void setSelectionBehaviorRenderer(SelectionBehavior selectionBehavior,
       SelectionBehaviorRenderer selectionBehaviorRenderer) {
     selectionBehavior._selectionBehaviorRenderer = selectionBehaviorRenderer;

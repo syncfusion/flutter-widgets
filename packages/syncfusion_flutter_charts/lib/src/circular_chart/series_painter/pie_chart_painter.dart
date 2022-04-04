@@ -7,10 +7,9 @@ import '../renderer/common.dart';
 import '../renderer/renderer_extension.dart';
 import '../utils/helper.dart';
 
-/// Represents the pie chart painter
-///
+/// Represents the pie chart painter.
 class PieChartPainter extends CustomPainter {
-  /// Creates an instance of pie chart painter
+  /// Creates an instance of pie chart painter.
   PieChartPainter({
     required this.stateProperties,
     required this.index,
@@ -21,28 +20,28 @@ class PieChartPainter extends CustomPainter {
   })  : chart = stateProperties.chart,
         super(repaint: notifier);
 
-  /// Specifies the circular state properties
+  /// Specifies the circular state properties.
   final CircularStateProperties stateProperties;
 
-  /// Holds the circularchart
+  /// Holds the circularchart.
   final SfCircularChart chart;
 
-  /// Holds the index value
+  /// Holds the index value.
   final int index;
 
-  /// Specifies whether to repaint the series
+  /// Specifies whether to repaint the series.
   final bool isRepaint;
 
-  /// Holds the animation controller
+  /// Holds the animation controller.
   final AnimationController? animationController;
 
-  /// Specifies the series animation
+  /// Specifies the series animation.
   final Animation<double>? seriesAnimation;
 
-  /// Specifies the pie series renderer extension
+  /// Specifies the pie series renderer extension.
   late PieSeriesRendererExtension seriesRenderer;
 
-  /// To paint series
+  /// To paint series.
   @override
   void paint(Canvas canvas, Size size) {
     num? pointStartAngle;

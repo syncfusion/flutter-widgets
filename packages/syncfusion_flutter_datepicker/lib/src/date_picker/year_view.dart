@@ -2621,16 +2621,18 @@ abstract class _IYearViewRenderObject extends RenderBox
 
   Decoration? _updateCellDecoration(int j, bool isCurrentDate,
       bool isEnableDate, bool isActiveDate, bool isDisabledDate) {
-    if (!isEnableDate || isDisabledDate) {
+    if ((!isEnableDate || isDisabledDate) &&
+        cellStyle.disabledDatesDecoration != null) {
       return cellStyle.disabledDatesDecoration as Decoration?;
     }
 
-    if (isCurrentDate) {
-      return cellStyle.todayCellDecoration as Decoration? ??
-          cellStyle.cellDecoration as Decoration?;
+    if (isCurrentDate && cellStyle.todayCellDecoration != null) {
+      return cellStyle.todayCellDecoration as Decoration?;
     }
 
-    if (!isActiveDate && !_isHijri) {
+    if (!isActiveDate &&
+        !_isHijri &&
+        cellStyle.leadingDatesDecoration != null) {
       return cellStyle.leadingDatesDecoration as Decoration?;
     }
 

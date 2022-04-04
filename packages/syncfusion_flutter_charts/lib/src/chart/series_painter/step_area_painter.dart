@@ -16,12 +16,12 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Step area series
+/// Creates series renderer for step area series.
 class StepAreaSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of StepAreaSeriesRenderer class.
   StepAreaSeriesRenderer();
 
-  /// StepArea segment is created here
+  /// Step area segment is created here.
   ChartSegment _createSegments(
       Path path, Path strokePath, int seriesIndex, double animateFactor,
       [List<Offset>? _points]) {
@@ -52,7 +52,7 @@ class StepAreaSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render step area series segments
+  /// To render step area series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -102,7 +102,7 @@ class StepAreaSeriesRenderer extends XyDataSeriesRenderer {
       drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }
 
-/// Represents the StepArea Chart painter
+/// Represents the Step area chart painter
 class StepAreaChartPainter extends CustomPainter {
   /// Calling the default constructor of StepAreaChartPainter class.
   StepAreaChartPainter(
@@ -215,6 +215,8 @@ class StepAreaChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRendererDetails.calculateRegionData(stateProperties,

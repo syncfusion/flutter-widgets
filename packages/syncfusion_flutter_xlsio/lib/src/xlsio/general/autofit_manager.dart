@@ -100,8 +100,7 @@ class _AutoFitManager {
           }
 
           for (int idx = 1; idx <= indentLevel; idx++) {
-            // ignore: prefer_interpolation_to_compose_strings
-            text = ' ' + text;
+            text = ' $text';
           }
         }
       }
@@ -287,8 +286,7 @@ class _AutoFitManager {
                 wordsN.length - 1 + wordNSplit.length, '',
                 growable: false);
             for (int i = 0; i < wordsN.length - 1; i++) {
-              // ignore: prefer_interpolation_to_compose_strings
-              words[i] = wordsN[i] + '\n';
+              words[i] = '${wordsN[i]}\n';
             }
             int j = wordsN.length - 1;
             for (int i = 0; i < wordNSplit.length; i++) {
@@ -298,8 +296,7 @@ class _AutoFitManager {
             String autoFitText;
             int biggestLength = 0;
             for (int index = 0; index < words.length; index++) {
-              // ignore: noop_primitive_operations
-              autoFitText = words[index].toString();
+              autoFitText = words[index];
               if (autoFitText.isNotEmpty) {
                 final int length =
                     _measureCharacterRanges(style, autoFitText, _num, ef);
@@ -312,8 +309,7 @@ class _AutoFitManager {
                     index = temp;
                     if (words.length != 1) {
                       if (!autoFitText.endsWith('\n')) {
-                        // ignore: prefer_interpolation_to_compose_strings
-                        autoFitText = autoFitText + ' ' + words[temp];
+                        autoFitText = '$autoFitText ${words[temp]}';
                       } else {
                         index--;
                       }
@@ -423,8 +419,7 @@ class _AutoFitManager {
     final _FontStyle regular = _FontStyle._regular;
 
     if (stringValue[stringValue.length - 1] == '\n') {
-      // ignore: prefer_interpolation_to_compose_strings
-      stringValue = stringValue + 'a';
+      stringValue = '${stringValue}a';
     }
 
     regular._bold = font.bold;

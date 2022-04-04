@@ -59,315 +59,483 @@ class TooltipBehavior {
         decimalPlaces = decimalPlaces ?? 3,
         shared = shared ?? false;
 
-  ///Toggles the visibility of the tooltip.
+  /// Toggles the visibility of the tooltip.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final bool enable;
 
-  ///Color of the tooltip.
+  /// Color of the tooltip.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true, color: Colors.yellow),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     color: Colors.red
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final Color? color;
 
   /// Header of the tooltip. By default, the series name will be displayed in the header.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true, header: 'Default'),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     header: 'Default'
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final String? header;
 
-  ///Opacity of the tooltip.
+  /// Opacity of the tooltip.
   ///
-  ///The value ranges from 0 to 1.
+  /// The value ranges from 0 to 1.
   ///
-  ///Defaults to `1`.
+  /// Defaults to `1`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true, opacity: 0.7),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     opacity: 0.7
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final double opacity;
 
-  ///Customizes the tooltip text
+  /// Customizes the tooltip text.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(
-  ///           enable: true,
-  ///            textStyle: TextStyle(color: Colors.green)),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     textStyle: TextStyle(
+  ///       color: Colors.green
+  ///     )
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final TextStyle textStyle;
 
-  ///Specifies the number decimals to be displayed in tooltip text
+  /// Specifies the number decimals to be displayed in tooltip text.
   ///
-  ///Defaults to `3`.
+  /// Defaults to `3`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(
-  ///           enable: true, decimalPlaces:5),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     decimalPlaces: 1
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final int decimalPlaces;
 
-  ///Formats the tooltip text.
+  /// Formats the tooltip text.
   ///
-  ///By default, the tooltip will be rendered with x and y-values.
+  /// By default, the tooltip will be rendered with x and y-values.
   ///
-  ///You can add prefix or suffix to x, y, and series name values in the
-  ///tooltip by formatting them.
+  /// You can add prefix or suffix to x, y, and series name values in the
+  /// tooltip by formatting them.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true, format: '{value}%'),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     format:'point.y %'
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final String? format;
 
-  ///Duration for animating the tooltip.
+  /// Duration for animating the tooltip.
   ///
-  ///Defaults to `350`.
+  /// Defaults to `350`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true, animationDuration: 1000),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     animationDuration: 1000
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final int animationDuration;
 
-  ///Toggles the visibility of the marker in the tooltip.
+  /// Toggles the visibility of the marker in the tooltip.
   ///
-  ///Defaults to `true`.
+  /// Defaults to `true`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true, canShowMarker: true),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     canShowMarker: false
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final bool canShowMarker;
 
-  ///Gesture for activating the tooltip.
+  /// Gesture for activating the tooltip.
   ///
-  ///Tooltip can be activated in tap, double tap, and long press.
+  /// Tooltip can be activated in tap, double tap, and long press.
   ///
-  ///Defaults to `ActivationMode.tap`.
+  /// Defaults to `ActivationMode.tap`.
   ///
-  ///Also refer [ActivationMode]
+  /// Also refer [ActivationMode].
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(
-  ///           enable: true,
-  ///           activationMode: ActivationMode.doubleTap),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     activationMode: ActivationMode.doubleTap
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final ActivationMode activationMode;
 
-  ///Border color of the tooltip.
+  /// Border color of the tooltip.
   ///
-  ///Defaults to `Colors.transparent`.
+  /// Defaults to `Colors.transparent`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true, borderColor: Colors.red),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     borderColor: Colors.red,
+  ///     borderWidth: 3
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final Color borderColor;
 
-  ///Border width of the tooltip.
+  /// Border width of the tooltip.
   ///
-  ///Defaults to `0`.
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(
-  ///           enable: true,
-  ///           borderWidth: 2,
-  ///           borderColor: Colors.red
-  ///         ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     borderColor: Colors.red,
+  ///     borderWidth: 3
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final double borderWidth;
 
-  ///Builder of the tooltip.
+  /// Builder of the tooltip.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(
-  ///           enable: true,
-  ///           builder: (dynamic data, dynamic point,
-  ///           dynamic series, int pointIndex, int seriesIndex) {
-  ///           return Container(
-  ///              height: 50,
-  ///              width: 100,
-  ///              decoration: const BoxDecoration(
-  ///              color: Color.fromRGBO(66, 244, 164, 1)),
-  ///              child: Row(
-  ///              children: <Widget>[
-  ///              Container(
-  ///              width: 50,
-  ///              child: Image.asset('images/bike.png')),],
-  ///         ));
-  ///         }),
-  ///        ));
-  ///}
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+  ///       return Container(
+  ///         height: 50,
+  ///         width: 100,
+  ///         decoration: const BoxDecoration(
+  ///           color: Color.fromRGBO(66, 244, 164, 1),
+  ///           child: Text('$pointIndex')
+  ///         )
+  ///       );
+  ///     }
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
   ///```
   final ChartWidgetBuilder<dynamic>? builder;
 
-  ///Color of the tooltip shadow.
+  /// Color of the tooltip shadow.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true, shadowColor: Colors.green),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     shadowColor: Colors.green
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final Color? shadowColor;
 
-  ///Elevation of the tooltip.
+  /// Elevation of the tooltip.
   ///
-  ///Defaults to `2.5`.
+  /// Defaults to `2.5`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true, elevation: 10),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     elevation: 10
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final double elevation;
 
-  ///Shows or hides the tooltip.
+  /// Shows or hides the tooltip.
   ///
   /// By default, the tooltip will be hidden on touch. To avoid this, set this property to true.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true, shouldAlwaysShow: true),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     shouldAlwaysShow: true
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final bool shouldAlwaysShow;
 
-  ///Duration for displaying the tooltip.
+  /// Duration for displaying the tooltip.
   ///
-  ///Defaults to `3000`.
+  /// Defaults to `3000`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true, duration: 1000),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     duration: 1000
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final double duration;
 
-  ///Alignment of the text in the tooltip
+  /// Alignment of the text in the tooltip.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true,textAlignment : ChartAlignment.near),
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `ChartAlignment.center`.
+  ///
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     textAlignment : ChartAlignment.near
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final ChartAlignment textAlignment;
 
-  ///Show tooltip at tapped position
+  /// Show tooltip at tapped position.
   ///
-  ///Defaults to `TooltipPosition.auto`.
+  /// Defaults to `TooltipPosition.auto`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true,
-  ///           tooltipPosition: TooltipPosition.pointer),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     tooltipPosition: TooltipPosition.pointer
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final TooltipPosition tooltipPosition;
 
-  ///Share the tooltip with same index points
+  /// Share the tooltip with same index points.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           tooltipBehavior: TooltipBehavior(enable: true,
-  ///           shared: true),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TooltipBehavior tooltipBehavior;
+  ///
+  /// void initState() {
+  ///   tooltipBehavior = TooltipBehavior(
+  ///     enable: true,
+  ///     shared: true
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     tooltipBehavior: tooltipBehavior
+  ///   );
+  /// }
+  /// ```
   final bool shared;
 
   @override
@@ -429,18 +597,13 @@ class TooltipBehavior {
     return hashList(values);
   }
 
-  /// Holds the state properties value
+  /// Holds the state properties value.
   dynamic _stateProperties;
 
   /// Displays the tooltip at the specified x and y-positions.
   ///
-  ///
   /// * x & y - logical pixel values to position the tooltip.
-  ///
-  // shouldInsidePointRegion - determines if whether the given pixel values remains within point region.
-  // Defaults to true.
   void showByPixel(double x, double y) {
-    //, [bool shouldInsidePointRegion]) {
     if (_stateProperties != null) {
       final TooltipRenderingDetails renderingDetails =
           TooltipHelper.getRenderingDetails(
@@ -453,9 +616,6 @@ class TooltipBehavior {
   ///
   ///
   /// *x & y - x & y point values at which the tooltip needs to be shown.
-  ///
-// shouldInsidePointRegion - determines if whether the given pixel values remains within point region.
-// Defaults to true.
   ///
   /// * xAxisName - name of the x axis the given point must be bind to.
   ///
@@ -541,7 +701,7 @@ class TooltipBehavior {
           tooltipBehaviorRenderer._tooltipRenderingDetails
               .showTooltip(position.x, position.y);
         } else {
-          //to show tooltip when the position is out of point region
+          // To show tooltip when the position is out of point region.
           tooltipBehaviorRenderer._tooltipRenderingDetails.show = true;
           tooltipState?.needMarker = false;
           renderingDetails.tooltipBehaviorRenderer._tooltipRenderingDetails
@@ -578,11 +738,11 @@ class TooltipBehavior {
         tooltipBehaviorRenderer._tooltipRenderingDetails.show = false;
       }
       if (builder != null) {
-        // hides tooltip template
+        // Hides tooltip template.
         tooltipBehaviorRenderer._tooltipRenderingDetails.chartTooltipState
             ?.hide(hideDelay: 0);
       } else {
-        //hides default tooltip
+        // Hides default tooltip.
         tooltipBehaviorRenderer._tooltipRenderingDetails.currentTooltipValue =
             tooltipBehaviorRenderer._tooltipRenderingDetails.prevTooltipValue =
                 null;
@@ -594,22 +754,22 @@ class TooltipBehavior {
   }
 }
 
-///Tooltip behavior renderer class for mutable fields and methods
+/// Tooltip behavior renderer class for mutable fields and methods.
 class TooltipBehaviorRenderer with ChartBehavior {
-  /// Creates an argument constructor for Tooltip renderer class
+  /// Creates an argument constructor for Tooltip renderer class.
   TooltipBehaviorRenderer(this._stateProperties) {
     _tooltipRenderingDetails = TooltipRenderingDetails(_stateProperties);
   }
 
   final dynamic _stateProperties;
 
-  /// Specifies the rendering details of tooltip;
+  /// Specifies the rendering details of tooltip.
   late TooltipRenderingDetails _tooltipRenderingDetails;
 
   /// Hides the Mouse tooltip if it is displayed.
   void _hideMouseTooltip() => _tooltipRenderingDetails.hide();
 
-  /// Draws tooltip
+  /// Draws tooltip.
   ///
   /// * canvas -Canvas used to draw tooltip
   @override
@@ -698,23 +858,23 @@ class TooltipBehaviorRenderer with ChartBehavior {
   }
 }
 
-/// Holds the tooltip series and point index
+/// Holds the tooltip series and point index.
 ///
 /// This class is used to provide the [seriesIndex] and [pointIndex] for the Tooltip.
 class TooltipValue {
   /// Creating an argument constructor of TooltipValue class.
   TooltipValue(this.seriesIndex, this.pointIndex, [this.outlierIndex]);
 
-  ///Index of the series.
+  /// Index of the series.
   final int? seriesIndex;
 
-  ///Index of data points.
+  /// Index of data points.
   final int pointIndex;
 
-  ///Index of outlier points.
+  /// Index of outlier points.
   final int? outlierIndex;
 
-  ///Position of the pointer when the tooltip position mode is set as pointer
+  /// Position of the pointer when the tooltip position mode is set as pointer.
   Offset? pointerPosition;
 
   @override
@@ -732,9 +892,9 @@ class TooltipValue {
 }
 
 // ignore: avoid_classes_with_only_static_members
-/// Helper class to get the cross hair rendering details instance from its renderer
+/// Helper class to get the cross hair rendering details instance from its renderer.
 class TooltipHelper {
-  /// Returns the cross hair rendering details instance from its renderer
+  /// Returns the cross hair rendering details instance from its renderer.
   static TooltipRenderingDetails getRenderingDetails(
       TooltipBehaviorRenderer renderer) {
     return renderer._tooltipRenderingDetails;
@@ -746,7 +906,7 @@ class TooltipHelper {
   //   return crosshairBehavior._stateProperties;
   // }
 
-  /// Method to set the Cartesian state properties
+  /// Method to set the Cartesian state properties.
   static void setStateProperties(
       TooltipBehavior tooltipBehavior, dynamic stateProperties) {
     tooltipBehavior._stateProperties = stateProperties;

@@ -1333,6 +1333,18 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
   }
 
   @override
+  void didUpdateWidget(_SquarifiedTreemap oldWidget) {
+    if (oldWidget.layoutDirection != widget.layoutDirection) {
+      if (widget.tooltipKey.currentContext != null) {
+        final RenderTooltip tooltipRenderBox = widget.tooltipKey.currentContext!
+            .findRenderObject()! as RenderTooltip;
+        tooltipRenderBox.hide(immediately: true);
+      }
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void dispose() {
     if (widget.enableDrillDown) {
       widget.controller.removeDrillDownListener(_handleDrillDown);
@@ -2123,6 +2135,11 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
     if (widget.sortAscending != oldWidget.sortAscending) {
       _colorTween =
           ColorTween(begin: widget.details.color, end: widget.details.color);
+      if (widget.details.level.tooltipBuilder != null) {
+        final RenderTooltip tooltipRenderBox = widget.tooltipKey.currentContext!
+            .findRenderObject()! as RenderTooltip;
+        tooltipRenderBox.hide(immediately: true);
+      }
     }
     super.didUpdateWidget(oldWidget);
   }

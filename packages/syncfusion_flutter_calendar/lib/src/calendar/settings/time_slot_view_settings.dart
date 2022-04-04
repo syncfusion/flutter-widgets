@@ -71,13 +71,15 @@ class TimeSlotViewSettings with Diagnosticable {
       this.dayFormat = 'EE',
       this.timeRulerSize = -1,
       this.timeTextStyle,
-      this.allDayPanelColor})
+      this.allDayPanelColor,
+      this.numberOfDaysInView = -1})
       : assert(startHour >= 0 && startHour <= 24),
         assert(endHour >= 0 && endHour <= 24),
         assert(timeIntervalHeight >= -1),
         assert(timeIntervalWidth >= -2),
         assert(timelineAppointmentHeight >= -1),
-        assert(timeRulerSize >= -1);
+        assert(timeRulerSize >= -1),
+        assert(numberOfDaysInView >= -1);
 
   /// The start hour for the time slot views in [SfCalendar].
   ///
@@ -664,6 +666,29 @@ class TimeSlotViewSettings with Diagnosticable {
   /// ```
   final Color? allDayPanelColor;
 
+  /// The number of days count in week in the [SfCalendar].
+  ///
+  /// Allows to customize the days count is applicable when calendar view is
+  /// [CalendarView.day], [CalendarView.week], [CalendarView.workWeek],
+  /// [CalendarView.timelineDay], [CalendarView.timelineWeek]
+  /// and [CalendarView.timelineWorkWeek] in calendar.
+  ///
+  /// Defaults to `-1`.
+  ///
+  /// ``` dart
+  ///
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///      child: SfCalendar(
+  ///        view: CalendarView.week,
+  ///        numberOfDaysInView: 3,
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  ///  ```
+  final int numberOfDaysInView;
+
   @override
   bool operator ==(dynamic other) {
     if (identical(this, other)) {
@@ -711,6 +736,7 @@ class TimeSlotViewSettings with Diagnosticable {
     properties.add(StringProperty('timeFormat', timeFormat));
     properties.add(StringProperty('dateFormat', dateFormat));
     properties.add(StringProperty('dayFormat', dayFormat));
+    properties.add(IntProperty('numberOfDaysInView', numberOfDaysInView));
   }
 
   @override

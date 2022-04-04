@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/src/chart/axis/axis.dart';
-import 'package:syncfusion_flutter_charts/src/circular_chart/base/circular_state_properties.dart';
 import 'package:syncfusion_flutter_charts/src/common/rendering_details.dart';
 import 'package:syncfusion_flutter_charts/src/pyramid_chart/utils/common.dart';
 import 'package:syncfusion_flutter_charts/src/pyramid_chart/utils/helper.dart';
@@ -49,7 +48,7 @@ void dataLabelTapEvent(dynamic chart, DataLabelSettings dataLabelSettings,
   position = datalabelArgs.position;
 }
 
-///To get saturation color
+/// To get saturation color.
 Color getSaturationColor(Color color) {
   Color saturationColor;
   final num contrast =
@@ -58,7 +57,7 @@ Color getSaturationColor(Color color) {
   return saturationColor;
 }
 
-/// To get point from data and return point data
+/// To get point from data and return point data.
 CartesianChartPoint<dynamic> getPointFromData(
     SeriesRendererDetails seriesRendererDetails, int pointIndex) {
   final XyDataSeries<dynamic, dynamic> series =
@@ -94,7 +93,7 @@ CartesianChartPoint<dynamic> getPointFromData(
   return point;
 }
 
-/// To calculate dash array path for series
+/// To calculate dash array path for series.
 Path? dashPath(
   Path? source, {
   required CircularIntervalList<double> dashArray,
@@ -120,7 +119,7 @@ Path? dashPath(
   return path;
 }
 
-/// To return textstyle
+/// To return textstyle.
 TextStyle getTextStyle(
     {TextStyle? textStyle,
     Color? fontColor,
@@ -169,7 +168,7 @@ TextStyle getTextStyle(
   }
 }
 
-/// Method to get the elements
+/// Method to get the elements.
 Widget? getElements(StateProperties stateProperties, Widget chartWidget,
     BoxConstraints constraints) {
   final dynamic chart = stateProperties.chart;
@@ -204,7 +203,7 @@ Widget? getElements(StateProperties stateProperties, Widget chartWidget,
     chartHeight = chartLegend.chartSize.height - legendHeight;
     chartWidth = chartLegend.chartSize.width - legendWidth;
 
-    // To determine the toggled indices of the legend items
+    // To determine the toggled indices of the legend items.
     final List<int> toggledIndices = chartLegend.toggledIndices;
     if (chart is SfCartesianChart) {
       toggledIndices.clear();
@@ -213,28 +212,15 @@ Widget? getElements(StateProperties stateProperties, Widget chartWidget,
             stateProperties.renderingDetails.chartLegend.legendCollections!;
         for (int i = 0; i < legendCollections.length; i++) {
           final LegendRenderContext context = legendCollections[i];
-          for (final LegendRenderContext toggledItem
-              in stateProperties.renderingDetails.legendToggleStates) {
-            final bool isTrendline = context.isTrendline ?? false;
-            if (context.text == toggledItem.text &&
-                (!isTrendline ||
-                    (context.series == toggledItem.series) ||
-                    (context.seriesRenderer.seriesName ==
-                        toggledItem.seriesRenderer.seriesName))) {
-              if (!isTrendline || !toggledIndices.contains(i)) {
-                toggledIndices.add(i);
-              }
-              if (!isTrendline &&
-                  context.indicatorRenderer == null &&
-                  context.series.trendlines != null) {
-                int trendlineCount = context.series.trendlines.length;
-                while (trendlineCount > 0) {
-                  toggledIndices.add(i + trendlineCount);
-                  trendlineCount--;
-                }
-              }
-              break;
-            }
+          context.isSelect = (context.trendline != null)
+              ? context.seriesRenderer
+                      .trendlineRenderer[context.trendlineIndex!]!.visible ==
+                  false
+              : context.seriesRenderer is TechnicalIndicators<dynamic, dynamic>
+                  ? !context.indicatorRenderer!.visible!
+                  : context.seriesRenderer.visible == false;
+          if (context.isSelect) {
+            toggledIndices.add(i);
           }
         }
       } else {
@@ -362,7 +348,7 @@ Widget? getElements(StateProperties stateProperties, Widget chartWidget,
   return element;
 }
 
-/// To get effective legend position for SfLegend
+/// To get effective legend position for SfLegend.
 legend_common.LegendPosition getEffectiveChartLegendPosition(
     LegendPosition position) {
   switch (position) {
@@ -379,7 +365,7 @@ legend_common.LegendPosition getEffectiveChartLegendPosition(
   }
 }
 
-/// To get effective legend orientation for SfLegend
+/// To get effective legend orientation for SfLegend.
 Axis getEffectiveChartLegendOrientation(
     Legend legend, LegendRenderer renderer) {
   final LegendItemOrientation legendOrientation = renderer.orientation;
@@ -398,7 +384,7 @@ Axis getEffectiveChartLegendOrientation(
   }
 }
 
-/// To get effective legend alignment for SfLegend
+/// To get effective legend alignment for SfLegend.
 LegendAlignment getEffectiveLegendAlignment(ChartAlignment alignment) {
   LegendAlignment legendAlignment;
   switch (alignment) {
@@ -415,7 +401,7 @@ LegendAlignment getEffectiveLegendAlignment(ChartAlignment alignment) {
   return legendAlignment;
 }
 
-/// To get effective legend items overflow mode for SfLegend
+/// To get effective legend items overflow mode for SfLegend.
 LegendOverflowMode getEffectiveLegendItemOverflowMode(
     LegendItemOverflowMode overflowMode, ChartLegend chartLegend) {
   LegendOverflowMode mode;
@@ -437,8 +423,9 @@ LegendOverflowMode getEffectiveLegendItemOverflowMode(
   return mode;
 }
 
-/// To get border for SfLegend container
+/// To get border for SfLegend container.
 BorderSide? getLegendBorder(Color borderColor, double borderWidth) {
+  // ignore: unnecessary_null_comparison
   if (borderColor != null && borderWidth > 0) {
     return BorderSide(color: borderColor, width: borderWidth);
   }
@@ -446,8 +433,9 @@ BorderSide? getLegendBorder(Color borderColor, double borderWidth) {
   return null;
 }
 
-/// To get icon border for legendItemsin SfLegend
+/// To get icon border for legendItemsin SfLegend.
 BorderSide? getLegendIconBorder(Color iconBorderColor, double iconBorderWidth) {
+  // ignore: unnecessary_null_comparison
   if (iconBorderColor != null && iconBorderWidth > 0) {
     return BorderSide(color: iconBorderColor, width: iconBorderWidth);
   }
@@ -455,7 +443,7 @@ BorderSide? getLegendIconBorder(Color iconBorderColor, double iconBorderWidth) {
   return null;
 }
 
-/// To get legend title widget for SfLegend
+/// To get legend title widget for SfLegend.
 Widget? getLegendTitleWidget(Legend legend, RenderingDetails renderingDetails) {
   final LegendTitle legendTitle = legend.title;
   if (legendTitle.text != null && legendTitle.text!.isNotEmpty) {
@@ -493,7 +481,7 @@ Widget? getLegendTitleWidget(Legend legend, RenderingDetails renderingDetails) {
   }
 }
 
-/// To get outer padding or margin for legend container
+/// To get outer padding or margin for legend container.
 EdgeInsetsGeometry getEffectiveLegendMargin(
     ChartLegend chartLegend, LegendPosition legendPosition) {
   final dynamic chart = chartLegend.chart;
@@ -537,7 +525,7 @@ EdgeInsetsGeometry getEffectiveLegendMargin(
   return margin;
 }
 
-/// To get internal padding for legend container
+/// To get internal padding for legend container.
 EdgeInsetsGeometry getEffectiveLegendPadding(ChartLegend chartLegend,
     LegendRenderer legendRenderer, LegendPosition legendPosition) {
   final dynamic chart = chartLegend.chart;
@@ -631,7 +619,7 @@ EdgeInsetsGeometry getEffectiveLegendPadding(ChartLegend chartLegend,
   return padding;
 }
 
-/// Method to handle cartesian series legend toggling for SfLegend
+/// Method to handle cartesian series legend toggling for SfLegend.
 void cartesianToggle(int index, CartesianStateProperties stateProperties) {
   LegendTapArgs legendTapArgs;
   MeasureWidgetContext _measureWidgetContext;
@@ -673,7 +661,7 @@ void cartesianToggle(int index, CartesianStateProperties stateProperties) {
   }
 }
 
-/// Method to handle Circular and triangular series legend toggling for SfLegend
+/// Method to handle Circular and triangular series legend toggling for SfLegend.
 void circularAndTriangularToggle(int index, dynamic stateProperties) {
   LegendTapArgs legendTapArgs;
   const int seriesIndex = 0;
@@ -698,16 +686,13 @@ void circularAndTriangularToggle(int index, dynamic stateProperties) {
       legendToggleState(chartLegend.legendCollections![index], stateProperties);
     }
     stateProperties.renderingDetails.isLegendToggled = true;
-    if (stateProperties is CircularStateProperties) {
-      stateProperties.isToggled = true;
-    }
     stateProperties.redraw();
   }
 }
 
-/// Represents the value of measure widget size
+/// Represents the value of measure widget size.
 class MeasureWidgetSize extends StatelessWidget {
-  /// Creates an instance of measure widget size
+  /// Creates an instance of measure widget size.
   const MeasureWidgetSize(
       {required this.stateProperties,
       this.currentWidget,
@@ -717,25 +702,25 @@ class MeasureWidgetSize extends StatelessWidget {
       this.pointIndex,
       this.type});
 
-  /// Holds the state properties value
+  /// Holds the state properties value.
   final StateProperties stateProperties;
 
-  /// Holds the value of current widget
+  /// Holds the value of current widget.
   final Widget? currentWidget;
 
-  /// Holds the opacity value
+  /// Holds the opacity value.
   final double? opacityValue;
 
-  /// Holds the current key value
+  /// Holds the current key value.
   final Key? currentKey;
 
-  /// Holds the series index value
+  /// Holds the series index value.
   final int? seriesIndex;
 
-  /// Holds the point index value
+  /// Holds the point index value.
   final int? pointIndex;
 
-  /// Holds the value of type
+  /// Holds the value of type.
   final String? type;
   @override
   Widget build(BuildContext context) {
@@ -753,7 +738,7 @@ class MeasureWidgetSize extends StatelessWidget {
   }
 }
 
-/// To return legend template toggled state
+/// To return legend template toggled state.
 bool legendToggleTemplateState(MeasureWidgetContext currentItem,
     StateProperties stateProperties, String checkType) {
   bool needSelect = false;
@@ -781,7 +766,7 @@ bool legendToggleTemplateState(MeasureWidgetContext currentItem,
   return needSelect;
 }
 
-/// To add legend toggle states in legend toggles list
+/// To add legend toggle states in legend toggles list.
 void legendToggleState(
     LegendRenderContext currentItem, StateProperties stateProperties) {
   bool needSelect = false;
@@ -803,7 +788,7 @@ void legendToggleState(
   }
 }
 
-/// To add cartesian legend toggle states
+/// To add cartesian legend toggle states.
 void cartesianLegendToggleState(
     LegendRenderContext currentItem, CartesianStateProperties stateProperties) {
   bool needSelect = false;
@@ -818,15 +803,18 @@ void cartesianLegendToggleState(
       for (int i = 0; i < legendToggles.length; i++) {
         final LegendRenderContext item = legendToggles[i];
         if (currentItem.trendline != null &&
-            currentItem.text == item.text &&
+            currentItem.trendline == item.trendline &&
             (currentItem.seriesIndex == item.seriesIndex &&
                 currentItem.trendlineIndex == item.trendlineIndex)) {
           needSelect = true;
           legendToggles.removeAt(i);
           break;
         } else if (currentItem.trendline == null &&
-            currentItem.seriesIndex == item.seriesIndex &&
-            currentItem.text == item.text) {
+                currentItem.seriesIndex == item.seriesIndex &&
+                !item.isTrendline! &&
+                item.seriesRenderer is! TechnicalIndicators
+            ? currentItem.series == item.series
+            : currentItem.text == item.text) {
           needSelect = true;
           legendToggles.removeAt(i);
           break;
@@ -835,7 +823,9 @@ void cartesianLegendToggleState(
     }
     if (!needSelect) {
       if (!(currentItem.seriesRenderer is TechnicalIndicators
-          ? !currentItem.indicatorRenderer!.visible!
+          ? !(currentItem.indicatorRenderer!.visible! &&
+              currentItem.indicatorRenderer!.technicalIndicatorRenderer.period >
+                  0)
           : SeriesHelper.getSeriesRendererDetails(
                           currentItem.seriesRenderer.renderer)
                       .visible ==
@@ -862,7 +852,7 @@ void cartesianLegendToggleState(
   }
 }
 
-/// For checking whether elements collide
+/// For checking whether elements collide.
 bool findingCollision(Rect rect, List<Rect> regions, [Rect? pathRect]) {
   bool isCollide = false;
   if (pathRect != null &&
@@ -895,9 +885,9 @@ bool isOverlap(Rect currentRect, Rect rect) {
       (currentRect.height + currentRect.top) > rect.top;
 }
 
-/// To trim the text by given width
+/// To trim the text by given width.
 String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
-    [ChartAxisRenderer? axisRenderer]) {
+    {ChartAxisRenderer? axisRenderer, bool? isRtl}) {
   String label = text;
   ChartAxisRendererDetails? axisRendererDetails;
   axisRendererDetails = axisRenderer != null
@@ -910,21 +900,34 @@ String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
       : measureText(label, labelStyle).width;
   if (size > labelsExtent) {
     final int textLength = text.length;
-    for (int i = textLength - 1; i >= 0; --i) {
-      label = '${text.substring(0, i)}...';
-      size = axisRenderer != null
-          ? measureText(label, labelStyle, axisRendererDetails!.labelRotation)
-              .width
-          : measureText(label, labelStyle).width;
-      if (size <= labelsExtent) {
-        return label == '...' ? '' : label;
+    if (isRtl == true) {
+      for (int i = 0; i < textLength - 1; i++) {
+        label = '...${text.substring(i + 1, textLength)}';
+        size = axisRenderer != null
+            ? measureText(label, labelStyle, axisRendererDetails!.labelRotation)
+                .width
+            : measureText(label, labelStyle).width;
+        if (size <= labelsExtent) {
+          return label == '...' ? '' : label;
+        }
+      }
+    } else {
+      for (int i = textLength - 1; i >= 0; --i) {
+        label = '${text.substring(0, i)}...';
+        size = axisRenderer != null
+            ? measureText(label, labelStyle, axisRendererDetails!.labelRotation)
+                .width
+            : measureText(label, labelStyle).width;
+        if (size <= labelsExtent) {
+          return label == '...' ? '' : label;
+        }
       }
     }
   }
   return label == '...' ? '' : label;
 }
 
-/// To get equivalent value for the percentage
+/// To get equivalent value for the percentage.
 num getValueByPercentage(num value1, num value2) {
   return value1.isNegative
       ? (num.tryParse(
@@ -932,7 +935,7 @@ num getValueByPercentage(num value1, num value2) {
       : (value1 % value2);
 }
 
-/// Method to render the chart title
+/// Method to render the chart title.
 Widget renderChartTitle(StateProperties stateProperties) {
   Widget titleWidget;
   final dynamic widget = stateProperties.chart;
@@ -980,7 +983,7 @@ Widget renderChartTitle(StateProperties stateProperties) {
   return titleWidget;
 }
 
-/// To get the legend template widgets
+/// To get the legend template widgets.
 List<Widget> bindLegendTemplateWidgets(dynamic stateProperties) {
   Widget legendWidget;
   final dynamic widget = stateProperties.chart;
@@ -1014,7 +1017,7 @@ List<Widget> bindLegendTemplateWidgets(dynamic stateProperties) {
   return templates;
 }
 
-/// To check whether indexes are valid
+/// To check whether indexes are valid.
 bool validIndex(int? _pointIndex, int? _seriesIndex, dynamic chart) {
   return _seriesIndex != null &&
       _pointIndex != null &&
@@ -1034,7 +1037,7 @@ void disposeAnimationController(
   }
 }
 
-/// Method to calculate the series point index
+/// Method to calculate the series point index.
 void calculatePointSeriesIndex(
     dynamic chart, dynamic stateProperties, Offset? position,
     [Region? pointRegion, ActivationMode? activationMode]) {
@@ -1058,7 +1061,7 @@ void calculatePointSeriesIndex(
           ? 0
           : 15;
 
-      /// Regional padding to detect smooth touch
+      /// Regional padding to detect smooth touch.
       seriesRendererDetails.regionalData!
           .forEach((dynamic regionRect, dynamic values) {
         final Rect region = regionRect[0];
@@ -1144,7 +1147,7 @@ void calculatePointSeriesIndex(
   }
 }
 
-/// Point to pixel
+/// Point to pixel.
 /// Used dynamic as the seriesRenderer can either be funnel or pyramid type series renderer.
 Offset pyramidFunnelPointToPixel(
     PointInfo<dynamic> point, dynamic seriesRenderer) {
@@ -1168,7 +1171,7 @@ Offset pyramidFunnelPointToPixel(
   return location;
 }
 
-/// Pixel to point
+/// Pixel to point.
 PointInfo<dynamic> pyramidFunnelPixelToPoint(
     Offset position, dynamic seriesRenderer) {
   final dynamic chartState = seriesRenderer.stateProperties;
@@ -1192,10 +1195,20 @@ PointInfo<dynamic> pyramidFunnelPixelToPoint(
   return chartPoint;
 }
 
-/// Add the ellipse with trimmed text
-String addEllipse(String text, int maxLength, String ellipse) {
-  maxLength--;
-  final int length = maxLength - ellipse.length;
-  final String trimText = text.substring(0, length);
-  return trimText + ellipse;
+/// Add the ellipse with trimmed text.
+String addEllipse(String text, int maxLength, String ellipse, {bool? isRtl}) {
+  if (isRtl == true) {
+    if (text.contains(ellipse)) {
+      text = text.replaceAll(ellipse, '');
+      text = text.substring(1, text.length);
+    } else {
+      text = text.substring(ellipse.length, text.length);
+    }
+    return ellipse + text;
+  } else {
+    maxLength--;
+    final int length = maxLength - ellipse.length;
+    final String trimText = text.substring(0, length);
+    return trimText + ellipse;
+  }
 }

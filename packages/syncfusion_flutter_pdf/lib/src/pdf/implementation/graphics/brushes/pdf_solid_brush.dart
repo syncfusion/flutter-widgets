@@ -36,30 +36,18 @@ class PdfSolidBrush implements PdfBrush {
       if (brush == null) {
         diff = true;
         streamWriter.setColorAndSpace(color, currentColorSpace, false);
-      } else if (brush != this) {
-        final PdfSolidBrush solidBrush = brush as PdfSolidBrush;
-        if (brush != null) {
-          if (solidBrush.color != color ||
-              solidBrush._colorSpace != currentColorSpace) {
-            diff = true;
-            streamWriter.setColorAndSpace(color, currentColorSpace, false);
-          } else if (solidBrush._colorSpace == currentColorSpace &&
-              currentColorSpace == PdfColorSpace.rgb) {
-            diff = true;
-            streamWriter.setColorAndSpace(color, currentColorSpace, false);
-          }
-        } else {
-          brush._resetChanges(streamWriter);
-          streamWriter.setColorAndSpace(color, currentColorSpace, false);
+      } else if (brush != this && brush is PdfSolidBrush) {
+        if (brush.color != color || brush._colorSpace != currentColorSpace) {
           diff = true;
+          streamWriter.setColorAndSpace(color, currentColorSpace, false);
+        } else if (brush._colorSpace == currentColorSpace &&
+            currentColorSpace == PdfColorSpace.rgb) {
+          diff = true;
+          streamWriter.setColorAndSpace(color, currentColorSpace, false);
         }
       }
     }
     return diff;
-  }
-
-  void _resetChanges(PdfStreamWriter streamWriter) {
-    streamWriter.setColorAndSpace(PdfColor(0, 0, 0), PdfColorSpace.rgb, false);
   }
 }
 

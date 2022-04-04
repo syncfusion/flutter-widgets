@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// Renders plot band..
+/// Renders plot band.
 ///
 /// Plot band is also known as stripline, which is used to shade the different
 /// ranges in plot area with different colors to improve the readability of the
-///  chart.
+/// chart.
 ///
 /// Plot bands are drawn based on the axis.
 ///
@@ -25,8 +25,9 @@ class SparkChartPlotBand {
   ///        child: SfSparkAreaChart(
   ///      plotBand: SparkChartPlotBand(start: 15, end: 25),
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///         )
+  ///      ),
+  ///   );
   /// }
   /// ```
   const SparkChartPlotBand(
@@ -40,7 +41,7 @@ class SparkChartPlotBand {
   /// above the axis line, you can customize the color of the plot band for a
   /// transparent view of the axis line.
   ///
-  /// Defaults to ` Color.fromRGBO(191, 212, 252, 0.5)`.
+  /// Defaults to `Color.fromRGBO(191, 212, 252, 0.5)`.
   ///
   /// ```dart
   /// @override
@@ -50,15 +51,16 @@ class SparkChartPlotBand {
   ///        child: SfSparkAreaChart(
   ///      plotBand: SparkChartPlotBand(start: 15, end: 25, color: Colors.red),
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///           )
+  ///       ),
+  ///   );
   /// }
   /// ```
   final Color color;
 
   /// Customizes the start position. Define any value between the provided data
   /// range as the start value. To make the plot band visible, need to set both
-  /// the start and [end] property.
+  /// the [start] and [end] property.
   ///
   /// Defaults to `null`.
   ///
@@ -70,15 +72,16 @@ class SparkChartPlotBand {
   ///        child: SfSparkAreaChart(
   ///      plotBand: SparkChartPlotBand(start: 15, end: 25),
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///           )
+  ///        ),
+  ///     );
   /// }
   /// ```
   final double? start;
 
   /// Customizes the end position. Define any value between the provided data
   /// range as the end value. To make the plot band visible, need to set both
-  /// the start and [end] property.
+  /// the [start] and [end] property.
   ///
   /// Defaults to `null`.
   ///
@@ -90,8 +93,9 @@ class SparkChartPlotBand {
   ///        child: SfSparkAreaChart(
   ///      plotBand: SparkChartPlotBand(start: 15, end: 25),
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///           )
+  ///        ),
+  ///    );
   /// }
   /// ```
   final double? end;
@@ -107,11 +111,11 @@ class SparkChartPlotBand {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      plotBand: SparkChartPlotBand(start: 15, end: 25, borderColor: Colors.black,
-  ///      borderWidth: 2),
+  ///      plotBand: SparkChartPlotBand(start: 15, end: 25, borderColor: Colors.black),
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///           )
+  ///       ),
+  ///    );
   /// }
   /// ```
   final Color? borderColor;
@@ -127,11 +131,12 @@ class SparkChartPlotBand {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      plotBand: SparkChartPlotBand(start: 15, end: 25, borderColor: Colors.black,
+  ///      plotBand: SparkChartPlotBand(start: 15, end: 25,
   ///      borderWidth: 2),
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///           )
+  ///        ),
+  ///    );
   /// }
   /// ```
   final double borderWidth;

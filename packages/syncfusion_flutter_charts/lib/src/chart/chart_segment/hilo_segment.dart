@@ -7,10 +7,10 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import 'chart_segment.dart';
 
-/// Creates the segments for Hilo series.
+/// Creates the segments for hilo series.
 ///
-/// Generates the Hilo series points and has the [calculateSegmentPoints] method overrided to customize
-/// the Hilo segment point calculation.
+/// Generates the hilo series points and has the [calculateSegmentPoints] method overrided to customize
+/// the hilo segment point calculation.
 ///
 /// Gets the path and color from the `series`.
 class HiloSegment extends ChartSegment {
@@ -190,7 +190,7 @@ class HiloSegment extends ChartSegment {
     }
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

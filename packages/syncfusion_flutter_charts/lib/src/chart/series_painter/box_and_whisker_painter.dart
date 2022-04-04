@@ -13,7 +13,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Box and Whisker series
+/// Creates series renderer for box and whisker series.
 class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of BoxAndWhiskerSeriesRenderer class.
   BoxAndWhiskerSeriesRenderer();
@@ -23,7 +23,7 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _segmentSeriesDetails;
   late SeriesRendererDetails _oldSeriesDetails;
 
-  /// Range box plot _segment is created here
+  /// Range box plot _segment is created here.
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
@@ -65,7 +65,7 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
       }
     }
     _segment.calculateSegmentPoints();
-    //stores the points for rendering box and whisker - high, low and rect points
+    // Stores the points for rendering box and whisker - high, low and rect points.
     _segment.points
       ..add(Offset(currentPoint.markerPoint!.x, segmentProperties.maxPoint.y))
       ..add(Offset(currentPoint.markerPoint!.x, segmentProperties.minPoint.y))
@@ -226,8 +226,8 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
     boxSegment.fillPaint = boxSegment.getFillPaint();
   }
 
-  ///Draws outlier with different shape and color of the appropriate
-  ///data point in the series.
+  /// Draws outlier with different shape and color of the appropriate
+  /// data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -326,6 +326,8 @@ class BoxAndWhiskerPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         assert(point.y != null,

@@ -659,7 +659,11 @@ class RecurrenceHelper {
     }
 
     if (byMonthDay == 'BYMONTHDAY') {
-      final int monthDate = int.parse(byMonthDayCount);
+      int monthDate = int.parse(byMonthDayCount);
+      final int byMonthDay = monthDate;
+      if (byMonthDay == -1) {
+        monthDate = AppointmentHelper.getMonthEndDate(addDate).day;
+      }
       final DateTime temp = DateTime(addDate.year, addDate.month, monthDate,
           recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
 
@@ -727,6 +731,11 @@ class RecurrenceHelper {
         }
 
         monthValue += monthlyMonthGap;
+        monthDate = byMonthDay == -1
+            ? AppointmentHelper.getMonthEndDate(
+                    DateTime(yearValue, monthValue, 1))
+                .day
+            : monthDate;
         addDate = DateTime(yearValue, monthValue, monthDate,
             recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
 
@@ -893,7 +902,13 @@ class RecurrenceHelper {
 
     if (byMonthDay == 'BYMONTHDAY') {
       final int monthIndex = int.parse(byMonthCount);
-      final int dayIndex = int.parse(byMonthDayCount);
+      int dayIndex = int.parse(byMonthDayCount);
+      final int byMonthDay = dayIndex;
+      if (byMonthDay == -1) {
+        dayIndex = AppointmentHelper.getMonthEndDate(
+                DateTime(addDate.year, monthIndex, 1))
+            .day;
+      }
       if (monthIndex < 0 || monthIndex > 12) {
         return recDateCollection;
       }
@@ -936,10 +951,16 @@ class RecurrenceHelper {
           recDateCollection.add(addDate);
         }
 
+        dayIndex = byMonthDay == -1
+            ? AppointmentHelper.getMonthEndDate(
+                    DateTime(addDate.year + yearlyYearGap, monthIndex, 1))
+                .day
+            : addDate.day;
+
         addDate = DateTime(
             addDate.year + yearlyYearGap,
             addDate.month,
-            addDate.day,
+            dayIndex,
             recurrenceStartHour,
             recurrenceStartMinute,
             recurrenceStartSecond);

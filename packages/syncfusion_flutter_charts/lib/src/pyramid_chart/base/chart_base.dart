@@ -16,25 +16,25 @@ import '../utils/helper.dart';
 import 'pyramid_base.dart';
 import 'pyramid_state_properties.dart';
 
-/// Represents the pyramid series base
+/// Represents the pyramid chart base.
 class PyramidChartBase {
-  /// Creates an instance of pyramid chart base
+  /// Creates an instance of pyramid chart base.
   PyramidChartBase(this.stateProperties);
 
-  /// Specifies the pyramid state properties
+  /// Specifies the pyramid state properties.
   final PyramidStateProperties stateProperties;
 
-  /// Specifies the current pyramid series
+  /// Specifies the current pyramid series.
   late PyramidSeries<dynamic, dynamic> currentSeries;
 
-  /// Specifies the list of visible series renderer
+  /// Specifies the list of the visible series renderers.
   List<PyramidSeriesRendererExtension> visibleSeriesRenderers =
       <PyramidSeriesRendererExtension>[];
 
-  /// Specifies the selection args
+  /// Specifies the selection args.
   SelectionArgs? _selectionArgs;
 
-  /// To find the visible series
+  /// To find the visible series.
   void findVisibleSeries() {
     stateProperties.chartSeries.visibleSeriesRenderers[0].dataPoints =
         <PointInfo<dynamic>>[];
@@ -60,7 +60,7 @@ class PyramidChartBase {
       ..add(seriesRenderer);
   }
 
-  /// To calculate empty point values if null values are provided
+  /// To calculate empty point values if null values are provided.
   void _calculatePyramidEmptyPoints(
       PyramidSeriesRendererExtension seriesRenderer) {
     for (int i = 0; i < seriesRenderer.dataPoints.length; i++) {
@@ -71,7 +71,7 @@ class PyramidChartBase {
     }
   }
 
-  /// To process the data points for series render
+  /// To process the data points for series render.
   void processDataPoints() {
     for (final PyramidSeriesRendererExtension seriesRenderer
         in visibleSeriesRenderers) {
@@ -83,7 +83,7 @@ class PyramidChartBase {
     }
   }
 
-  /// To calculate the visible points in a series
+  /// To calculate the visible points in a series.
   void _calculateVisiblePoints(PyramidSeriesRendererExtension seriesRenderer) {
     final List<PointInfo<dynamic>> points = seriesRenderer.dataPoints;
     seriesRenderer.renderPoints = <PointInfo<dynamic>>[];
@@ -94,7 +94,7 @@ class PyramidChartBase {
     }
   }
 
-  /// To set style properties for current point
+  /// To set style properties for the current point.
   void _setPointStyle(PyramidSeriesRendererExtension seriesRenderer) {
     currentSeries = seriesRenderer.series;
     final List<Color> palette = stateProperties.chart.palette;
@@ -161,7 +161,7 @@ class PyramidChartBase {
     }
   }
 
-  /// To find the sum of points
+  /// To find the sum of points.
   void _findSumOfPoints(PyramidSeriesRendererExtension seriesRenderer) {
     seriesRenderer.sumOfPoints = 0;
     for (final PointInfo<dynamic> point in seriesRenderer.renderPoints!) {
@@ -171,7 +171,7 @@ class PyramidChartBase {
     }
   }
 
-  /// To initialize the series properties in chart
+  /// To initialize the series properties in the chart.
   void initializeSeriesProperties(
       PyramidSeriesRendererExtension seriesRenderer) {
     final PyramidSeries<dynamic, dynamic> series = seriesRenderer.series;
@@ -189,7 +189,7 @@ class PyramidChartBase {
     }
   }
 
-  /// To initialize the surface size ratio in chart
+  /// To initialize the surface size ratio in the chart.
   void _initializeSurfaceSizeRatio(
       PyramidSeriesRendererExtension seriesRenderer) {
     final num count = seriesRenderer.renderPoints!.length;
@@ -221,11 +221,11 @@ class PyramidChartBase {
     }
   }
 
-  /// To get the surface height
+  /// To get the surface height.
   num _getSurfaceHeight(num y, num surface) =>
       _solveQuadraticEquation(1, 2 * y, -surface);
 
-  /// To solve quadratic equations
+  /// To solve quadratic equations.
   num _solveQuadraticEquation(num a, num b, num c) {
     num root1;
     num root2;
@@ -239,7 +239,7 @@ class PyramidChartBase {
     return 0;
   }
 
-  /// To initialize size ratio for the pyramid
+  /// To initialize the size ratio for the pyramid.
   void _initializeSizeRatio(PyramidSeriesRendererExtension seriesRenderer,
       [bool? reverse]) {
     final List<PointInfo<dynamic>> points = seriesRenderer.renderPoints!;
@@ -268,7 +268,7 @@ class PyramidChartBase {
     }
   }
 
-  /// To explode current point index
+  /// To explode current point index.
   void pointExplode(int pointIndex) {
     bool existExplodedRegion = false;
     final PyramidSeriesRendererExtension seriesRenderer =
@@ -297,7 +297,7 @@ class PyramidChartBase {
     }
   }
 
-  /// To calculate region path for rendering chart
+  /// To calculate region path for rendering chart.
   void calculatePathRegion(
       int pointIndex, PyramidSeriesRendererExtension seriesRenderer) {
     final PointInfo<dynamic> currentPoint =
@@ -338,7 +338,7 @@ class PyramidChartBase {
     _calculatePathSegment(seriesRenderer.seriesType, currentPoint);
   }
 
-  /// To calculate pyramid segments
+  /// To calculate pyramid segments.
   void calculatePyramidSegments(Canvas canvas, int pointIndex,
       PyramidSeriesRendererExtension seriesRenderer) {
     calculatePathRegion(pointIndex, seriesRenderer);
@@ -357,7 +357,7 @@ class PyramidChartBase {
     _segmentPaint(canvas, path, pointIndex, seriesRenderer);
   }
 
-  /// To paint the funnel segments
+  /// To paint the pyramid segments.
   void _segmentPaint(Canvas canvas, Path path, int pointIndex,
       PyramidSeriesRendererExtension seriesRenderer) {
     final PointInfo<dynamic> point = seriesRenderer.renderPoints![pointIndex];
@@ -391,7 +391,7 @@ class PyramidChartBase {
         path);
   }
 
-  /// To calculate the segment path
+  /// To calculate the segment path.
   void _calculatePathSegment(String seriesType, PointInfo<dynamic> point) {
     final List<Offset> pathRegion = point.pathRegion;
     final int bottom =
@@ -404,7 +404,7 @@ class PyramidChartBase {
         point.region!.top + point.region!.height / 2);
   }
 
-  /// To add selection points to selection list
+  /// To add selection points to selection list.
   void seriesPointSelection(int pointIndex, ActivationMode mode) {
     bool isPointAlreadySelected = false;
     final SfPyramidChart chart = stateProperties.chart;
@@ -470,7 +470,7 @@ class PyramidChartBase {
     }
   }
 
-  /// To return style options for the point on selection
+  /// To return style options for the point on selection.
   StyleOptions? _getPointStyle(
       int currentPointIndex,
       PyramidSeriesRendererExtension seriesRenderer,
@@ -518,7 +518,7 @@ class PyramidChartBase {
     return pointStyle;
   }
 
-  /// To perform selection event and return selectionArgs
+  /// To perform selection event and return selectionArgs.
   SelectionArgs _getSelectionEventArgs(
       PyramidSeriesRendererExtension seriesRenderer,
       int seriesIndex,

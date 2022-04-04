@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Няма събития", 
 "ofDataPagerLabel" : "на", 
 "pagesDataPagerLabel" : "страници", 
-"itemsDataPagerLabel" : "предмети", 
+"rowsPerPageDataPagerLabel" : "Редове на страница", 
 "pdfBookmarksLabel" : "Отметки", 
 "pdfNoBookmarksLabel" : "Няма намерени отметки", 
 "pdfScrollStatusOfLabel" : "на", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Шоу.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "ден"
+"daySpanCountLabel" : "ден", 
+"series" : "Серия"
 }

@@ -6,11 +6,9 @@ import '../renderer/common.dart';
 import '../renderer/renderer_extension.dart';
 import '../utils/helper.dart';
 
-/// Represents the painter of doughnut chart
-///
+/// Represents the painter of doughnut chart.
 class DoughnutChartPainter extends CustomPainter {
-  /// Creates the instance of doughnut chart painter
-  ///
+  /// Creates the instance of doughnut chart painter.
   DoughnutChartPainter({
     required this.stateProperties,
     required this.index,
@@ -20,25 +18,25 @@ class DoughnutChartPainter extends CustomPainter {
     required ValueNotifier<num> notifier,
   }) : super(repaint: notifier);
 
-  /// Specifies the circular chart state
+  /// Specifies the circular chart state.
   final CircularStateProperties stateProperties;
 
-  /// Specifies the value of index
+  /// Specifies the value of index.
   final int index;
 
-  /// Specifies whether to repaint the series
+  /// Specifies whether to repaint the series.
   final bool isRepaint;
 
-  /// Specifies the value of animation controller
+  /// Specifies the value of animation controller.
   final AnimationController? animationController;
 
-  /// Specifies the value of series animation
+  /// Specifies the value of series animation.
   final Animation<double>? seriesAnimation;
 
-  /// Specifies the value of series renderer
+  /// Specifies the value of series renderer.
   late DoughnutSeriesRendererExtension seriesRenderer;
 
-  /// To paint series
+  /// To paint series.
   @override
   void paint(Canvas canvas, Size size) {
     num? pointStartAngle;

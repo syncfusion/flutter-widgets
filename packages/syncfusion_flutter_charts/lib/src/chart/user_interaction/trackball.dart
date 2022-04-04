@@ -31,6 +31,7 @@ import 'trackball_template.dart';
 ///
 /// Provides options to customize the [activationMode], [tooltipDisplayMode], [lineType] and [tooltipSettings].
 @immutable
+// ignore: must_be_immutable
 class TrackballBehavior {
   /// Creating an argument constructor of TrackballBehavior class.
   TrackballBehavior({
@@ -49,270 +50,306 @@ class TrackballBehavior {
     this.hideDelay = 0,
   });
 
-  ///Toggles the visibility of the trackball.
+  /// Toggles the visibility of the trackball.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(enable: true);
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
+  /// ```
   final bool enable;
 
-  ///Width of the track line.
+  /// Width of the track line.
   ///
-  ///Defaults to `1`.
+  /// Defaults to `1`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true, lineWidth: 5),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(
+  ///     enable: true,
+  ///     lineWidth: 5
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
+  /// ```
   final double lineWidth;
 
-  ///Color of the track line.
+  /// Color of the track line.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true, lineColor: Colors.red),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(
+  ///     enable: true,
+  ///     lineColor: Colors.red
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
+  /// ```
   final Color? lineColor;
 
-  ///Dashes of the track line.
+  /// Dashes of the track line.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true, lineDashArray: [10,10]),
-  ///        ));
-  ///}``
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(
+  ///     enable: true,
+  ///     lineDashArray: [10,10]
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
+  /// ```
   final List<double>? lineDashArray;
 
-  ///Gesture for activating the trackball.
+  /// Gesture for activating the trackball.
   ///
   /// Trackball can be activated in tap, double tap and long press.
   ///
-  ///Defaults to `ActivationMode.longPress`.
+  /// Defaults to `ActivationMode.longPress`.
   ///
-  ///Also refer [ActivationMode]
+  /// Also refer [ActivationMode].
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(
-  ///           enable: true,
-  ///           activationMode: ActivationMode.doubleTap
-  ///          ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(
+  ///     enable: true,
+  ///     activationMode: ActivationMode.doubleTap
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
+  /// ```
   final ActivationMode activationMode;
 
-  ///Alignment of the trackball tooltip.
+  /// Alignment of the trackball tooltip.
   ///
   /// The trackball tooltip can be aligned at the top, bottom, and center position of the chart.
   ///
-  /// _Note:_ This is applicable only when the tooltipDisplay mode is set to groupAllPoints.
+  /// _Note:_ This is applicable only when the `tooltipDisplayMode` property is set to `TrackballDisplayMode.groupAllPoints`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(
-  ///           enable: true,
-  ///           tooltipAlignment: ChartAlignment.far,
-  ///           tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
-  ///          ),
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `ChartAlignment.center`
+  ///
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(
+  ///     enable: true,
+  ///     tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+  ///     tooltipAlignment: ChartAlignment.far
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
+  /// ```
   final ChartAlignment tooltipAlignment;
 
-  ///Type of trackball line. By default, vertical line will be displayed.
+  /// Type of trackball line. By default, vertical line will be displayed.
   ///
   /// You can change this by specifying values to this property.
   ///
-  ///Defaults to `TrackballLineType.vertical`.
+  /// Defaults to `TrackballLineType.vertical`.
   ///
-  ///Also refer [TrackballLineType]
+  /// Also refer [TrackballLineType]
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(
-  ///           enable: true,
-  ///           lineType: TrackballLineType.horizontal
-  ///        ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(
+  ///     enable: true,
+  ///     lineType: TrackballLineType.horizontal
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
+  /// ```
   final TrackballLineType lineType;
 
-  ///Display mode of tooltip.
+  /// Display mode of tooltip.
   ///
   /// By default, tooltip of all the series under the current point index value will be shown.
   ///
-  ///Defaults to `TrackballDisplayMode.floatAllPoints`.
+  /// Defaults to `TrackballDisplayMode.floatAllPoints`.
   ///
-  ///Also refer [TrackballDisplayMode]
+  /// Also refer [TrackballDisplayMode].
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(
-  ///            enable: true,
-  ///            tooltipDisplayMode: TrackballDisplayMode.floatAllPoints
-  ///         ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(
+  ///     enable: true,
+  ///     tooltipDisplayMode: TrackballDisplayMode.groupAllPoints
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
+  /// ```
   final TrackballDisplayMode tooltipDisplayMode;
 
-  ///Shows or hides the trackball.
+  /// Shows or hides the trackball.
   ///
   /// By default, the trackball will be hidden on touch. To avoid this, set this property to true.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true, shouldAlwaysShow: true),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(
+  ///     enable: true,
+  ///     shouldAlwaysShow: true
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
+  /// ```
   final bool shouldAlwaysShow;
 
-  ///Customizes the trackball tooltip.
+  /// Customizes the trackball tooltip.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(
-  ///           tooltipSettings: InteractiveTooltip(
-  ///            enable: true
-  ///        ),
-  ///        ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(
+  ///     enable: true,
+  ///     canShowMarker: false
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
+  /// ```
   InteractiveTooltip tooltipSettings;
 
-  ///Giving disappear delay for trackball
+  /// Giving disappear delay for trackball.
   ///
   /// Defaults to `0`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(
-  ///             duration: 2000,
-  ///             enable: true
-  ///        ),
-  ///        ));
-  ///}
-  ///```
+  ///
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(
+  ///     enable: true,
+  ///     hideDelay: 2000
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior,
+  ///   );
+  /// }
+  /// ```
   final double hideDelay;
 
-  ///Builder of the trackball tooltip.
+  /// Builder of the trackball tooltip.
   ///
-  ///Add any custom widget as the trackball template.
+  /// Add any custom widget as the trackball template.
   ///
-  ///If the trackball display mode is `groupAllPoints` or `nearestPoint` it will called once and if it is
+  /// If the trackball display mode is `groupAllPoints` or `nearestPoint` it will called once and if it is
   /// `floatAllPoints`, it will be called for each point.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(
-  ///           enable: true,
-  ///           builder: (BuildContext context, TrackballDetails trackballDetails) {
-  ///           return Container(
-  ///                        height: _selectDisplayMode ==
-  ///                                    TrackballDisplayMode.floatAllPoints ||
-  ///                                _selectDisplayMode ==
-  ///                                    TrackballDisplayMode.nearestPoint
-  ///                            ? 50
-  ///                            : 75,
-  ///                        width: 100,
-  ///                        decoration: const BoxDecoration(
-  ///                            color: Color.fromRGBO(66, 244, 164, 1)),
-  ///                        child: Row(
-  ///                          children: <Widget>[
-  ///                            Container(
-  ///                                width: 50,
-  ///                                child: Image.asset('images/bike.png')),
-  ///                            _selectDisplayMode ==
-  ///                                        TrackballDisplayMode.floatAllPoints ||
-  ///                                    _selectDisplayMode ==
-  ///                                        TrackballDisplayMode.nearestPoint
-  ///                                ? Container(
-  ///                                    width: 50,
-  ///                                    child: Column(
-  ///                                     children: <Widget>[
-  ///                                        Container(
-  ///                                            height: 25,
-  ///                                            alignment: Alignment.center,
-  ///                                            child: Text(
-  ///                                                '${trackballDetails.point.x.toString()}')),
-  ///                                        Container(
-  ///                                            height: 25,
-  ///                                            alignment: Alignment.center,
-  ///                                           child: Text(
-  ///                                                '${trackballDetails.point.y.toString()}'))
-  ///                                      ],
-  ///                                    ))
-  ///                                : Container(
-  ///                                    width: 50,
-  ///                                    child: Column(
-  ///                                      children: <Widget>[
-  ///                                        Container(
-  ///                                            height: 25,
-  ///                                            alignment: Alignment.center,
-  ///                                            child: Text(
-  ///                                                '${trackballDetails.dataValues[0].toString()}')),
-  ///                                        Container(
-  ///                                            height: 25,
-  ///                                            alignment: Alignment.center,
-  ///                                            child: Text(
-  ///                                                '${trackballDetails.dataValues[1].toString()}')),
-  ///                                        Container(
-  ///                                            height: 25,
-  ///                                            alignment: Alignment.center,
-  ///                                            child: Text(
-  ///                                                '${trackballDetails.dataValues[3].toString()}'))
-  ///                                      ],
-  ///                                    ))
-  ///                         ],
-  ///                        ));
-  ///         }),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(
+  ///     enable: true,
+  ///     builder: (BuildContext context, TrackballDetails trackballDetails) {
+  ///       return Container(
+  ///         width: 70,
+  ///         decoration:
+  ///           const BoxDecoration(color: Color.fromRGBO(66, 244, 164, 1)),
+  ///         child: Text('${trackballDetails.point?.cumulativeValue}')
+  ///       );
+  ///     }
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
+  /// ```
   final ChartTrackballBuilder<dynamic>? builder;
 
   @override
@@ -380,9 +417,9 @@ class TrackballBehavior {
   ///
   /// coordinateUnit - specify the type of x and y values given.
   ///
-  /// 'pixel' or 'point' for logical pixel and chart data point respectively.
+  /// `pixel` or `point` for logical pixel and chart data point respectively.
   ///
-  /// Defaults to 'point'.
+  /// Defaults to `point`.
   void show(dynamic x, double y, [String coordinateUnit = 'point']) {
     final CartesianStateProperties stateProperties = _stateProperties;
     final TrackballRenderingDetails _trackballRenderingDetails =
@@ -416,15 +453,14 @@ class TrackballBehavior {
         x = location.x;
         y = location.y;
       }
-      if (_trackballRenderingDetails.trackballPainter != null &&
-          seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
-        _trackballRenderingDetails.isTrackballTemplate = false;
-        _trackballRenderingDetails.generateAllPoints(Offset(x.toDouble(), y));
-      } else if (builder != null &&
-          (!_trackballRenderingDetails.isMoving) &&
-          seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
-        _trackballRenderingDetails
-            .showTemplateTrackball(Offset(x.toDouble(), y));
+      if (seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
+        if (_trackballRenderingDetails.trackballPainter != null) {
+          _trackballRenderingDetails.isTrackballTemplate = false;
+          _trackballRenderingDetails.generateAllPoints(Offset(x.toDouble(), y));
+        } else if (builder != null && (!_trackballRenderingDetails.isMoving)) {
+          _trackballRenderingDetails
+              .showTemplateTrackball(Offset(x.toDouble(), y));
+        }
       }
     }
 
@@ -1052,6 +1088,7 @@ class TrackballRenderingDetails {
       }
       _validateNearestXValue(
           leastX!, cartesianSeriesRendererDetails, position.dx, position.dy);
+      _validatePointsWithSeries(leastX);
     }
     if (visiblePoints.isNotEmpty) {
       invertedAxis
@@ -1120,7 +1157,6 @@ class TrackballRenderingDetails {
     CartesianChartPoint<dynamic> dataPoint;
     ChartAxisRendererDetails xAxisDetails, yAxisDetails;
     int i;
-
     for (i = 0; i < tempTrackballInfo.length; i++) {
       pointInfo = tempTrackballInfo[i];
       dataPoint = pointInfo
@@ -1135,39 +1171,45 @@ class TrackballRenderingDetails {
           pointInfo
               .seriesRendererDetails!.stateProperties.chartAxis.axisClipRect,
           Offset(xAxisDetails.axis.plotOffset, yAxisDetails.axis.plotOffset));
-      xPos = calculatePoint(
-              xValue,
-              yValue,
-              xAxisDetails,
-              yAxisDetails,
-              _stateProperties.requireInvertedAxis,
-              pointInfo.seriesRendererDetails!.series,
-              axisClipRect)
-          .x;
+      final ChartLocation chartPointOffset = calculatePoint(
+          xValue,
+          yValue,
+          xAxisDetails,
+          yAxisDetails,
+          _stateProperties.requireInvertedAxis,
+          pointInfo.seriesRendererDetails!.series,
+          axisClipRect);
+
+      xPos = chartPointOffset.x;
+      yPos = chartPointOffset.y;
       if (_stateProperties.chart.trackballBehavior.tooltipDisplayMode !=
-              TrackballDisplayMode.floatAllPoints &&
-          (pointInfo
-                  .seriesRendererDetails!.stateProperties.requireInvertedAxis ==
-              false)) {
-        if (leastX != xPos) {
+          TrackballDisplayMode.floatAllPoints) {
+        final bool isTransposed = pointInfo
+            .seriesRendererDetails!.stateProperties.requireInvertedAxis;
+        if (leastX != xPos && !isTransposed) {
           trackballInfo.remove(pointInfo);
         }
         yPos = touchYPos;
-      }
-      yPos = touchYPos;
-      if (_stateProperties.chart.trackballBehavior.tooltipDisplayMode !=
-          TrackballDisplayMode.floatAllPoints) {
-        ChartPointInfo point = trackballInfo[0];
-        for (i = 1; i < trackballInfo.length; i++) {
-          if (((point.yPosition! - yPos).abs() >
-                  (trackballInfo[i].yPosition! - yPos).abs()) &&
-              point.xPosition == trackballInfo[i].xPosition) {
-            point = trackballInfo[i];
+        xPos = touchXPos;
+        if (_stateProperties.chart.trackballBehavior.tooltipDisplayMode !=
+            TrackballDisplayMode.floatAllPoints) {
+          ChartPointInfo point = trackballInfo[0];
+          for (i = 1; i < trackballInfo.length; i++) {
+            final bool isXYPositioned = !isTransposed
+                ? (((point.yPosition! - yPos).abs() >
+                        (trackballInfo[i].yPosition! - yPos).abs()) &&
+                    point.xPosition == trackballInfo[i].xPosition)
+                : (((point.xPosition! - xPos).abs() >
+                        (trackballInfo[i].xPosition! - xPos).abs()) &&
+                    point.yPosition == trackballInfo[i].yPosition);
+            if (isXYPositioned) {
+              point = trackballInfo[i];
+            }
           }
+          trackballInfo
+            ..clear()
+            ..add(point);
         }
-        trackballInfo
-          ..clear()
-          ..add(point);
       }
     }
   }
@@ -1236,6 +1278,39 @@ class TrackballRenderingDetails {
     }
   }
 
+  void _validatePointsWithSeries(double leastX) {
+    final List<num> xValueList = <num>[];
+    for (final ChartPointInfo pointInfo in chartPointInfo) {
+      xValueList.add(pointInfo.chartDataPoint?.xValue);
+    }
+    if (xValueList.isNotEmpty) {
+      for (int count = 0; count < xValueList.length; count++) {
+        if (xValueList[0] != xValueList[count]) {
+          final List<ChartPointInfo> leastPointInfo = <ChartPointInfo>[];
+          for (final ChartPointInfo pointInfo in chartPointInfo) {
+            if (pointInfo.xPosition == leastX) {
+              leastPointInfo.add(pointInfo);
+              visiblePoints.clear();
+              visiblePoints.add(ClosestPoints(
+                  closestPointX: !isRangeSeries
+                      ? pointInfo.xPosition!
+                      : isBoxSeries
+                          ? pointInfo.maxXPosition!
+                          : pointInfo.highXPosition!,
+                  closestPointY: isRangeSeries
+                      ? pointInfo.highYPosition!
+                      : isBoxSeries
+                          ? pointInfo.maxYPosition!
+                          : pointInfo.yPosition!));
+            }
+          }
+          chartPointInfo.clear();
+          chartPointInfo = leastPointInfo;
+        }
+      }
+    }
+  }
+
   /// To get the lowest x value to render trackball
   double _getLeastX(ChartPointInfo pointInfo,
       SeriesRendererDetails seriesRendererDetails, Rect axisClipRect) {
@@ -1253,8 +1328,12 @@ class TrackballRenderingDetails {
   /// To render the trackball marker
   void renderTrackballMarker(SeriesRendererDetails seriesRendererDetails,
       Canvas canvas, TrackballBehavior trackballBehavior, int index) {
-    final CartesianChartPoint<dynamic> point =
-        seriesRendererDetails.dataPoints[index];
+    final CartesianChartPoint<dynamic> point = trackballBehavior
+        ._stateProperties
+        .trackballBehaviorRenderer
+        ._trackballRenderingDetails
+        .chartPointInfo[index]
+        .chartDataPoint!;
     final TrackballMarkerSettings markerSettings =
         trackballBehavior.markerSettings!;
     final RenderingDetails renderingDetails =
@@ -1603,8 +1682,7 @@ class TrackballRenderingDetails {
           seriesRendererDetails.xAxisDetails!;
       if (axisDetails is DateTimeAxisDetails) {
         final num interval = axisDetails.visibleRange!.minimum.ceil();
-        final num prevInterval = (axisDetails.visibleLabels.length != null &&
-                axisDetails.visibleLabels.isNotEmpty)
+        final num prevInterval = (axisDetails.visibleLabels.isNotEmpty)
             ? axisDetails
                 .visibleLabels[axisDetails.visibleLabels.length - 1].value
             : interval;
@@ -1617,7 +1695,17 @@ class TrackballRenderingDetails {
       } else if (axisDetails is CategoryAxisDetails) {
         x = dataPoint.x;
       } else if (axisDetails is DateTimeCategoryAxisDetails) {
-        x = axisDetails.dateFormat.format(dataPoint.x);
+        final num interval = axisDetails.visibleRange!.minimum.ceil();
+        final num prevInterval = (axisDetails.visibleLabels.isNotEmpty)
+            ? axisDetails
+                .visibleLabels[axisDetails.visibleLabels.length - 1].value
+            : interval;
+        final DateFormat dateFormat =
+            (axisDetails.axis as DateTimeCategoryAxis).dateFormat ??
+                getDateTimeLabelFormat(axisDetails.axisRenderer,
+                    interval.toInt(), prevInterval.toInt());
+        x = dateFormat.format(DateTime.fromMillisecondsSinceEpoch(
+            (dataPoint.x).millisecondsSinceEpoch));
       }
       labelValue = seriesRendererDetails.seriesType.contains('hilo') == true ||
               seriesRendererDetails.seriesType.contains('range') == true ||
@@ -1704,8 +1792,7 @@ class TrackballRenderingDetails {
     if (xAxisDetails is DateTimeAxisDetails) {
       final DateTimeAxis _xAxis = xAxisDetails.axis as DateTimeAxis;
       final num interval = xAxisDetails.visibleRange!.minimum.ceil();
-      final num prevInterval = (xAxisDetails.visibleLabels.length != null &&
-              xAxisDetails.visibleLabels.isNotEmpty)
+      final num prevInterval = (xAxisDetails.visibleLabels.isNotEmpty)
           ? xAxisDetails
               .visibleLabels[xAxisDetails.visibleLabels.length - 1].value
           : interval;

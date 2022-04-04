@@ -17,8 +17,8 @@ import 'series_base.dart';
 
 /// Renders Funnel series.
 ///
-///The FunnelSeries is the SfFunnelChart Type series.
-///To render a funnel chart, create an instance of FunnelSeries, and add it to the series property of [SfFunnelChart].
+/// The FunnelSeries is the SfFunnelChart Type series.
+/// To render a funnel chart, create an instance of FunnelSeries, and add it to the series property of [SfFunnelChart].
 ///
 /// Provides options to customize the [opacity], [borderWidth], [borderColor] and [pointColorMapper] of the funnel segments.
 ///
@@ -96,7 +96,7 @@ class FunnelSeries<T, D> extends FunnelSeriesBase<T, D> {
             selectionBehavior: selectionBehavior,
             initialSelectedDataIndexes: initialSelectedDataIndexes);
 
-  /// Create the  pie series renderer.
+  /// Create the funnel series renderer.
   FunnelSeriesRenderer createRenderer(FunnelSeries<T, D> series) {
     FunnelSeriesRenderer? seriesRenderer;
     if (onCreateRenderer != null) {
@@ -192,21 +192,21 @@ class FunnelSeries<T, D> extends FunnelSeriesBase<T, D> {
   }
 }
 
-/// Creates series renderer for Funnel series
+/// Creates series renderer for Funnel series.
 class FunnelSeriesRenderer extends ChartSeriesRenderer {
   /// Calling the default constructor of FunnelSeriesRenderer class.
   FunnelSeriesRenderer();
 }
 
-///We can redraw the series with updating or creating new points by using this controller.If we need to access the redrawing methods
-///in this before we must get the ChartSeriesController onRendererCreated event.
+/// We can redraw the series with updating or creating new points by using this controller.If we need to access the redrawing methods
+/// in this before we must get the ChartSeriesController onRendererCreated event.
 class FunnelSeriesController {
   /// Creating an argument constructor of FunnelSeriesController class.
   FunnelSeriesController(this.seriesRenderer);
 
-  ///Used to access the series properties.
+  /// Used to access the series properties.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -220,22 +220,23 @@ class FunnelSeriesController {
   ///                      print(_chartSeriesController.seriesRenderer.seriesRendererDetails.series.yAxisName);
   ///                    },
   ///                ),
-  ///        ));
+  ///        )
+  ///   );
   ///}
   ///```
   final FunnelSeriesRenderer seriesRenderer;
 
-  ///Used to process only the newly added, updated and removed data points in a series,
+  /// Used to process only the newly added, updated and removed data points in a series,
   /// instead of processing all the data points.
   ///
-  ///To re-render the chart with modified data points, setState() will be called.
+  /// To re-render the chart with modified data points, setState() will be called.
   /// This will render the process and render the chart from scratch.
   /// Thus, the app’s performance will be degraded on continuous update.
   /// To overcome this problem, [updateDataSource] method can be called by passing updated data points indexes.
   /// Chart will process only that point and skip various steps like bounds calculation,
   /// old data points processing, etc. Thus, this will improve the app’s performance.
   ///
-  ///The following are the arguments of this method.
+  /// The following are the arguments of this method.
   /// * addedDataIndexes – `List<int>` type – Indexes of newly added data points in the existing series.
   /// * removedDataIndexes – `List<int>` type – Indexes of removed data points in the existing series.
   /// * updatedDataIndexes – `List<int>` type – Indexes of updated data points in the existing series.
@@ -243,7 +244,7 @@ class FunnelSeriesController {
   /// * removedDataIndex – `int` type – Index of removed data point in the existing series.
   /// * updatedDataIndex – `int` type – Index of updated data point in the existing series.
   ///
-  ///Returns `void`.
+  /// Returns `void`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -258,7 +259,8 @@ class FunnelSeriesController {
   ///                       _funnelSeriesController = controller;
   ///                    },
   ///                ),
-  ///        )),
+  ///        )
+  ///   ),
   ///   Container(
   ///      child: RaisedButton(
   ///           onPressed: () {
@@ -298,7 +300,7 @@ class FunnelSeriesController {
     _updateFunnelSeries();
   }
 
-  /// Add or update the data points on dynamic series update
+  /// Add or update the data points on dynamic series update.
   void _addOrUpdateDataPoints(List<int> indexes, bool needUpdate) {
     int dataIndex;
     for (int i = 0; i < indexes.length; i++) {
@@ -307,7 +309,7 @@ class FunnelSeriesController {
     }
   }
 
-  /// add or update a data point in the given index
+  /// Add or update a data point in the given index.
   void _addOrUpdateDataPoint(int index, bool needUpdate) {
     final FunnelSeriesRendererExtension renderer =
         seriesRenderer as FunnelSeriesRendererExtension;
@@ -335,9 +337,9 @@ class FunnelSeriesController {
     }
   }
 
-  ///Remove list of points
+  /// Remove list of points.
   void _removeDataPointsList(List<int> removedDataIndexes) {
-    ///Remove the redundant index from the list
+    /// Remove the redundant index from the list.
     final List<int> indexList = removedDataIndexes.toSet().toList();
     indexList.sort((int b, int a) => a.compareTo(b));
     int dataIndex;
@@ -347,7 +349,7 @@ class FunnelSeriesController {
     }
   }
 
-  /// remove a data point in the given index
+  /// Remove a data point in the given index.
   void _removeDataPoint(int index) {
     final FunnelSeriesRendererExtension renderer =
         seriesRenderer as FunnelSeriesRendererExtension;
@@ -358,7 +360,7 @@ class FunnelSeriesController {
     }
   }
 
-  /// After add/remove/update data points, recalculate the chart segments
+  /// After add/remove/update data points, recalculate the chart segments.
   void _updateFunnelSeries() {
     final FunnelSeriesRendererExtension renderer =
         seriesRenderer as FunnelSeriesRendererExtension;
@@ -384,6 +386,7 @@ class FunnelSeriesController {
   ///
   /// _Note_: It returns the data point's center location value.
   ///
+  ///```Dart
   /// late FunnelSeriesController seriesController;
   /// SfFunnelChart(
   ///    onChartTouchInteractionDown: (ChartTouchInteractionArgs args) {
@@ -392,11 +395,13 @@ class FunnelSeriesController {
   ///     PointInfo<double> chartPoint1 = seriesController.pixelToPoint(value);
   ///   },
   ///     series: FunnelSeries<ChartSampleData, String>(
-  ///         dataSource: pieData,
+  ///         dataSource: funnelData,
   ///         onRendererCreated: (FunnelSeriesController funnelSeriesController) {
   ///           seriesController = FunnelSeriesController;
   ///         }
-  ///     ));
+  ///     )
+  /// );
+  /// ```
   // ignore: unused_element
   Offset _pointToPixel(PointInfo<dynamic> point) {
     return pyramidFunnelPointToPixel(point, seriesRenderer);
@@ -406,6 +411,7 @@ class FunnelSeriesController {
   ///
   /// The [pixelToPoint] method takes logical pixel value as input and returns a chart data point.
   ///
+  ///```dart
   /// late FunnelSeriesController seriesController;
   /// SfFunnelChart(
   ///    onChartTouchInteractionDown: (ChartTouchInteractionArgs args) {
@@ -413,11 +419,13 @@ class FunnelSeriesController {
   ///     Offset value = seriesController.pointToPixel(chartPoint);
   ///   },
   ///     series: FunnelSeries<ChartSampleData, String>(
-  ///         dataSource: pieData,
+  ///         dataSource: funnelData,
   ///         onRendererCreated: (FunnelSeriesController funnelSeriesController) {
   ///           seriesController = FunnelSeriesController;
   ///         }
-  ///     ));
+  ///     )
+  /// );
+  /// ```
   PointInfo<dynamic> pixelToPoint(Offset position) {
     return pyramidFunnelPixelToPoint(position, seriesRenderer);
   }

@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Không có sự kiện", 
 "ofDataPagerLabel" : "của", 
 "pagesDataPagerLabel" : "trang", 
-"itemsDataPagerLabel" : "mặt hàng", 
+"rowsPerPageDataPagerLabel" : "Hàng trên mỗi trang", 
 "pdfBookmarksLabel" : "Dấu trang", 
 "pdfNoBookmarksLabel" : "Không tìm thấy dấu trang", 
 "pdfScrollStatusOfLabel" : "của", 
@@ -16,7 +16,7 @@
 "passwordDialogContentLabel" : "Nhập mật khẩu để mở tệp PDF này", 
 "passwordDialogHintTextLabel" : "Nhập mật khẩu", 
 "passwordDialogInvalidPasswordLabel" : "Mật khẩu không hợp lệ", 
-"pdfPasswordDialogOpenLabel" : "MỞ RA", 
+"pdfPasswordDialogOpenLabel" : "MỞ", 
 "pdfPasswordDialogCancelLabel" : "SỰ HỦY BỎ", 
 "allowedViewDayLabel" : "Ngày", 
 "allowedViewWeekLabel" : "Tuần", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Ngày"
+"daySpanCountLabel" : "Ngày", 
+"series" : "Hàng loạt"
 }

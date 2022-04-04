@@ -3,13 +3,13 @@
 "noEventsCalendarLabel" : "Engir viðburðir", 
 "ofDataPagerLabel" : "af", 
 "pagesDataPagerLabel" : "síður", 
-"itemsDataPagerLabel" : "hlutir", 
+"rowsPerPageDataPagerLabel" : "Raðir á síðu", 
 "pdfBookmarksLabel" : "Bókamerki", 
 "pdfNoBookmarksLabel" : "Engin bókamerki fundust", 
 "pdfScrollStatusOfLabel" : "af", 
 "pdfGoToPageLabel" : "Farðu á síðu", 
 "pdfEnterPageNumberLabel" : "Sláðu inn blaðsíðunúmer", 
-"pdfInvalidPageNumberLabel" : "Vinsamlegast sláðu inn gilt númer", 
+"pdfInvalidPageNumberLabel" : "Vinsamlega sláðu inn gilt númer", 
 "pdfPaginationDialogOkLabel" : "Allt í lagi", 
 "pdfPaginationDialogCancelLabel" : "HÆTTA við", 
 "passwordDialogHeaderTextLabel" : "Lykilorð varið", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Dagur"
+"daySpanCountLabel" : "Dagur", 
+"series" : "Röð"
 }

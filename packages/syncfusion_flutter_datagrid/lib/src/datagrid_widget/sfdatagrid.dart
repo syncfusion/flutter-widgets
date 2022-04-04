@@ -602,11 +602,11 @@ class SfDataGrid extends StatefulWidget {
   /// twice in quick succession.
   final DataGridCellDoubleTapCallback? onCellDoubleTap;
 
-  /// Called when a long press gesture with a primary button has been
-  /// recognized for a cell.
+  /// Called when a tap with a cell has occurred with a secondary button.
   final DataGridCellTapCallback? onCellSecondaryTap;
 
-  /// Called when a tap with a cell has occurred with a secondary button.
+  /// Called when a long press gesture with a primary button has been
+  /// recognized for a cell.
   final DataGridCellLongPressCallback? onCellLongPress;
 
   /// The number of non-scrolling columns at the left side of [SfDataGrid].
@@ -3452,6 +3452,19 @@ class DataGridController extends DataGridSourceChangeNotifier {
   int get selectedIndex => _selectedIndex;
   int _selectedIndex;
 
+  /// Whether the currently selected cell is in editing mode.
+  bool get isCurrentCellInEditing => _isCurrentCellInEditing();
+
+  bool _isCurrentCellInEditing() {
+    if (_dataGridStateDetails != null) {
+      final DataGridConfiguration dataGridConfiguration =
+          _dataGridStateDetails!();
+      return dataGridConfiguration.currentCell.isEditing;
+    } else {
+      return false;
+    }
+  }
+
   /// An index of the corresponding selected row.
   set selectedIndex(int newSelectedIndex) {
     if (_selectedIndex == newSelectedIndex) {
@@ -3930,6 +3943,7 @@ class DataGridThemeHelper {
             fontWeight: FontWeight.w400,
             fontSize: 14,
             color: colorScheme!.onSurface.withOpacity(0.87));
+    sortIcon = dataGridThemeData.sortIcon;
   }
 
   ///ToDo
@@ -3988,4 +4002,8 @@ class DataGridThemeHelper {
   /// To do
 
   late TextStyle rowHoverTextStyle;
+
+  /// To do
+
+  late Widget? sortIcon;
 }

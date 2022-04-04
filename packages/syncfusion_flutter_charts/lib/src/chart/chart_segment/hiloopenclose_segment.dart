@@ -8,10 +8,10 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import 'chart_segment.dart';
 
-/// Creates the segments for HiloOpenClose series.
+/// Creates the segments for hilo open close series.
 ///
-/// Generates the HiloOpenClose series points and has the [calculateSegmentPoints] method overrided to customize
-/// the HiloOpenClose segment point calculation.
+/// Generates the hilo open close series points and has the [calculateSegmentPoints] method overrided to customize
+/// the hilo open close segment point calculation.
 ///
 /// Gets the path and color from the `series`.
 class HiloOpenCloseSegment extends ChartSegment {

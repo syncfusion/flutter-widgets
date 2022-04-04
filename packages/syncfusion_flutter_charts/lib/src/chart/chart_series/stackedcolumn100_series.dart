@@ -5,14 +5,14 @@ import 'stacked_series_base.dart';
 
 /// Renders the 100% stacked column series.
 ///
-/// A stackedcolumn100 is an  chart series type meant to show the relative
+/// A stacked column 100 is an  chart series type meant to show the relative
 /// percentage of multiple data series in stacked columns, where the total (cumulative) of stacked columns always equals 100%.
 ///
-/// To render a 100% stacked column chart, create an instance of StackedColumn100Series,
-///  and add it to the series collection property of [SfCartesianChart].
+/// To render a 100% stacked column chart, create an instance of [StackedColumn100Series],
+/// and add it to the series collection property of [SfCartesianChart].
 ///
-///Provides options to customize properties such as [color], [opacity],
-///[borderWidth], [borderColor], [borderRadius] of the StackedColumn100 segments.
+/// Provides options to customize properties such as [color], [opacity],
+/// [borderWidth], [borderColor], [borderRadius] of the Stacked column 100 segments.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=NCUDBD_ClHo}
 @immutable

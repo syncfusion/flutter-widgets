@@ -15,7 +15,7 @@ class StackedColumnSegment extends ChartSegment {
   /// Stack values.
   late double stackValues;
 
-  /// Represents the stacked column series
+  /// Represents the stacked column series.
   late StackedColumnSeries<dynamic, dynamic> _stackedColumnSeries;
 
   //We are using `segmentRect` to draw the histogram segment in the series.

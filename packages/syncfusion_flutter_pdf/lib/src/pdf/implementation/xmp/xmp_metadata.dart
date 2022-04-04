@@ -5,8 +5,8 @@ import '../io/pdf_constants.dart';
 import '../io/pdf_stream_writer.dart';
 import '../pdf_document/enums.dart';
 import '../pdf_document/pdf_document_information.dart';
-import '../primitives//pdf_name.dart';
 import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_name.dart';
 import '../primitives/pdf_stream.dart';
 
 /// Represents XMP metadata of the document.

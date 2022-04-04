@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Nema događaja", 
 "ofDataPagerLabel" : "od", 
 "pagesDataPagerLabel" : "stranicama", 
-"itemsDataPagerLabel" : "stavke", 
+"rowsPerPageDataPagerLabel" : "Redovi po stranici", 
 "pdfBookmarksLabel" : "Oznake", 
 "pdfNoBookmarksLabel" : "Nije pronađena nijedna oznaka", 
 "pdfScrollStatusOfLabel" : "od", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Dan"
+"daySpanCountLabel" : "Dan", 
+"series" : "Niz"
 }

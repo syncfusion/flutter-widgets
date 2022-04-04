@@ -20,36 +20,36 @@ import '../renderer/renderer_extension.dart';
 import 'pyramid_base.dart';
 import 'pyramid_state_properties.dart';
 
-/// Represents the pyramid plot areas
+/// Represents the pyramid plot areas.
 // ignore: must_be_immutable
 class PyramidPlotArea extends StatelessWidget {
-  /// Creates an instance of pyramid plot area
+  /// Creates an instance of a pyramid plot area.
   // ignore: prefer_const_constructors_in_immutables
   PyramidPlotArea({required this.stateProperties});
 
-  /// Creates the pyramid state properties
+  /// Creates the pyramid state properties.
   final PyramidStateProperties stateProperties;
 
-  ///Here, we are using get keyword in order to get the proper & updated instance of chart widget
-  ///When we initialize chart widget as a property to other classes like ChartSeries, the chart widget is not updated properly and by using get we can rectify this.
+  /// Here, we are using get keyword in order to get the proper & updated instance of chart widget.
+  /// When we initialize chart widget as a property to other classes like ChartSeries, the chart widget is not updated properly and by using get we can rectify this.
   SfPyramidChart get chart => stateProperties.chart;
 
-  /// Represents the pyramid series renderer
+  /// Represents the pyramid series renderer.
   late PyramidSeriesRendererExtension seriesRenderer;
 
-  /// Represents the value of render box
+  /// Represents the value of the render box.
   late RenderBox renderBox;
 
-  /// Represents the value of point region
+  /// Represents the value of the point region.
   Region? pointRegion;
 
-  /// Represents the value of tap down details
+  /// Represents the value of tap down details.
   late TapDownDetails tapDownDetails;
 
-  /// Represents the series animation
+  /// Represents the series animation.
   Animation<double>? seriesAnimation;
 
-  /// Represents the value of double tap position
+  /// Represents the value of double tap position.
   Offset? doubleTapPosition;
   final bool _enableMouseHover = kIsWeb;
 
@@ -104,7 +104,7 @@ class PyramidPlotArea extends StatelessWidget {
     });
   }
 
-  /// To initialize chart
+  /// To initialize the chart.
   Widget _initializeChart(BoxConstraints constraints, BuildContext context) {
     _calculateContainerSize(constraints);
     return GestureDetector(
@@ -113,7 +113,7 @@ class PyramidPlotArea extends StatelessWidget {
             child: _renderWidgets(constraints, context)));
   }
 
-  /// To calculate chart plot area
+  /// To calculate chart plot area.
   void _calculateContainerSize(BoxConstraints constraints) {
     final num width = constraints.maxWidth;
     final num height = constraints.maxHeight;
@@ -142,7 +142,7 @@ class PyramidPlotArea extends StatelessWidget {
             children: stateProperties.renderingDetails.chartWidgets!));
   }
 
-  /// To calculate region path of pyramid
+  /// To calculate region path of pyramid.
   void _calculatePathRegion() {
     final List<PyramidSeriesRendererExtension> visibleSeriesRenderers =
         stateProperties.chartSeries.visibleSeriesRenderers;
@@ -156,7 +156,7 @@ class PyramidPlotArea extends StatelessWidget {
     }
   }
 
-  /// To bind series widget together
+  /// To bind series widget together.
   void _bindSeriesWidgets() {
     late CustomPainter seriesPainter;
     PyramidSeries<dynamic, dynamic> series;
@@ -264,7 +264,7 @@ class PyramidPlotArea extends StatelessWidget {
     }
   }
 
-  /// To bind tooltip widgets
+  /// To bind tooltip widgets.
   void _bindTooltipWidgets(BoxConstraints constraints) {
     final TooltipBehavior tooltip = chart.tooltipBehavior;
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
@@ -305,7 +305,7 @@ class PyramidPlotArea extends StatelessWidget {
     }
   }
 
-  /// To perform pointer down event
+  /// To perform pointer down event.
   void _onTapDown(PointerDownEvent event) {
     final TooltipRenderingDetails tooltipRenderingDetails =
         TooltipHelper.getRenderingDetails(
@@ -358,7 +358,7 @@ class PyramidPlotArea extends StatelessWidget {
     }
   }
 
-  /// To perform pointer move event
+  /// To perform pointer move event.
   void _performPointerMove(PointerMoveEvent event) {
     ChartTouchInteractionArgs touchArgs;
     final Offset position = renderBox.globalToLocal(event.position);
@@ -369,7 +369,7 @@ class PyramidPlotArea extends StatelessWidget {
     }
   }
 
-  /// To perform double tap touch interactions
+  /// To perform double tap touch interactions.
   void _onDoubleTap() {
     const int seriesIndex = 0;
     if (doubleTapPosition != null &&
@@ -422,7 +422,7 @@ class PyramidPlotArea extends StatelessWidget {
     }
   }
 
-  /// To perform long press touch interactions
+  /// To perform long press touch interactions.
   void _onLongPress() {
     const int seriesIndex = 0;
     if (stateProperties.renderingDetails.tapPosition != null &&
@@ -477,7 +477,7 @@ class PyramidPlotArea extends StatelessWidget {
     }
   }
 
-  /// To perform pointer up event
+  /// To perform pointer up event.
   void _onTapUp(PointerUpEvent event) {
     TooltipHelper.getRenderingDetails(
             stateProperties.renderingDetails.tooltipBehaviorRenderer)
@@ -550,7 +550,7 @@ class PyramidPlotArea extends StatelessWidget {
     }
   }
 
-  /// To perform event on mouse hover
+  /// To perform event on mouse hover.
   void _onHover(PointerEvent event) {
     stateProperties.renderingDetails.currentActive = null;
     stateProperties.renderingDetails.tapPosition =
@@ -611,7 +611,7 @@ class PyramidPlotArea extends StatelessWidget {
     stateProperties.renderingDetails.tapPosition = null;
   }
 
-  /// This method gets executed for showing tooltip when builder is provided in behavior
+  /// This method gets executed for showing tooltip when builder is provided in behavior.
   void showPyramidTooltipTemplate([int? pointIndex]) {
     stateProperties.isTooltipHidden = false;
     final TooltipBehavior tooltip = chart.tooltipBehavior;

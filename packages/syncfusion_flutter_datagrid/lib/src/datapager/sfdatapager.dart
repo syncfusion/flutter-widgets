@@ -1190,13 +1190,16 @@ class SfDataPagerState extends State<SfDataPager> {
         child: Container(
           width: _dropdownSize.width,
           height: _dropdownSize.height,
-          padding: const EdgeInsets.fromLTRB(16, 8, 12, 8),
+          padding: !_isRTL
+              ? const EdgeInsets.fromLTRB(16, 8, 7, 8)
+              : const EdgeInsets.fromLTRB(7, 8, 16, 8),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(3.0),
               border: Border.all(
                   color: _dataPagerThemeHelper!.dropdownButtonBorderColor)),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<int>(
+              focusColor: Colors.transparent,
               itemHeight: 48,
               items: _availableRowsPerPage.cast<DropdownMenuItem<int>>(),
               value: _rowsPerPage,
@@ -1210,6 +1213,7 @@ class SfDataPagerState extends State<SfDataPager> {
         ),
       );
     }
+    return null;
   }
 
   // Footer

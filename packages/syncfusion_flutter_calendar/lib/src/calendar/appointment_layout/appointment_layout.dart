@@ -2231,7 +2231,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
 
     final double yPosition = rect.top + bottomPadding;
     canvas.translate(xPosition, yPosition);
-    final double radians = 90 * math.pi / 180;
+    const double radians = 90 * math.pi / 180;
     canvas.rotate(radians);
     _textPainter.paint(canvas, Offset.zero);
     canvas.restore();
@@ -2273,7 +2273,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     final double yPosition =
         rect.bottom - (textSize * textScaleFactor) - bottomPadding;
     canvas.translate(xPosition, yPosition);
-    final double radians = 90 * math.pi / 180;
+    const double radians = 90 * math.pi / 180;
     canvas.rotate(radians);
     _textPainter.paint(canvas, Offset.zero);
     canvas.restore();

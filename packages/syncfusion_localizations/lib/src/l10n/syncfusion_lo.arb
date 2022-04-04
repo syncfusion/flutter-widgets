@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "ບໍ່ມີເຫດການ", 
 "ofDataPagerLabel" : "ຂອງ", 
 "pagesDataPagerLabel" : "ໜ້າ", 
-"itemsDataPagerLabel" : "ລາຍການ", 
+"rowsPerPageDataPagerLabel" : "ແຖວຕໍ່ຫນ້າ", 
 "pdfBookmarksLabel" : "ບຸກມາກ", 
 "pdfNoBookmarksLabel" : "ບໍ່ພົບບຸກມາກ", 
 "pdfScrollStatusOfLabel" : "ຂອງ", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "ແຊວ.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "ມື້"
+"daySpanCountLabel" : "ມື້", 
+"series" : "ຊຸດ"
 }

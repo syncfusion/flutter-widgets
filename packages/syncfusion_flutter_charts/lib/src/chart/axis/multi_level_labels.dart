@@ -554,7 +554,8 @@ void renderHorizontalAxisBorder(
     double pointX,
     double pointY,
     bool isBetweenTicks,
-    double betweenTickPositionValue) {
+    double betweenTickPositionValue,
+    int index) {
   final Rect bounds = axisRendererDetails.bounds;
   final ChartAxis axis = axisRendererDetails.axis;
   final Paint borderPaint = Paint()
@@ -585,7 +586,7 @@ void renderHorizontalAxisBorder(
           bounds.right.roundToDouble() >
               borderStartOffset.dx.roundToDouble())) {
     canvas.drawLine(borderStartOffset, borderEndOffset, borderPaint);
-    if (axis.axisBorderType == AxisBorderType.rectangle) {
+    if (axis.axisBorderType == AxisBorderType.rectangle && index == 0) {
       canvas.drawLine(Offset(bounds.left, pointY), Offset(bounds.right, pointY),
           borderPaint);
       canvas.drawLine(Offset(bounds.left, borderEndOffset.dy),
@@ -601,7 +602,8 @@ void renderVerticalAxisBorder(
     double pointX,
     double pointY,
     bool isBetweenTicks,
-    double betweenTickPositionValue) {
+    double betweenTickPositionValue,
+    int index) {
   final ChartAxis axis = axisRendererDetails.axis;
   final Paint borderPaint = Paint()
     ..strokeWidth = axis.borderWidth
@@ -628,7 +630,7 @@ void renderVerticalAxisBorder(
       (bounds.bottom.roundToDouble() > borderEndOffset.dy.roundToDouble() &&
           bounds.top.roundToDouble() < borderEndOffset.dy.roundToDouble())) {
     canvas.drawLine(borderStartOffset, borderEndOffset, borderPaint);
-    if (axis.axisBorderType == AxisBorderType.rectangle) {
+    if (axis.axisBorderType == AxisBorderType.rectangle && index == 0) {
       canvas.drawLine(Offset(borderStartOffset.dx, bounds.top),
           Offset(borderStartOffset.dx, bounds.bottom), borderPaint);
       canvas.drawLine(Offset(borderEndOffset.dx, bounds.top),
@@ -650,6 +652,7 @@ void generateMultiLevelLabels(ChartAxisRendererDetails axisRendererDetails) {
         _getActualValue(axisRendererDetails, multiLevelLabelsList[index].end);
     _setMinMaxMultiLevelLabelRange(actualStart, actualEnd, axisRendererDetails);
     if ((axis is NumericAxis || axis is LogarithmicAxis) &&
+        // ignore: unnecessary_null_comparison
         (actualStart != null && actualEnd != null)) {
       assert((actualStart <= actualEnd) == true,
           'The start value should be less than the end value');
@@ -665,7 +668,7 @@ void generateMultiLevelLabels(ChartAxisRendererDetails axisRendererDetails) {
   _triggerMultiLabelRenderCallback(axisRendererDetails);
 }
 
-/// To trigger the multi-level axis label  event
+/// To trigger the multi-level axis label event
 void _triggerMultiLabelRenderCallback(
     ChartAxisRendererDetails axisRendererDetails) {
   final ChartAxis axis = axisRendererDetails.axis;
@@ -696,7 +699,7 @@ void _triggerMultiLabelRenderCallback(
     }
     final Size textSize = measureText(actualText, labelTextStyle, 0);
     if (axisRendererDetails.orientation == AxisOrientation.horizontal) {
-      if (axisRendererDetails.axis.plotOffset != null) {
+      if (axisRendererDetails.axis.plotOffset != 0) {
         final double plotOffset = axisRendererDetails.axis.plotOffset;
         axisBounds = Rect.fromLTRB(axisBounds.left + plotOffset, axisBounds.top,
             axisBounds.right - (2 * plotOffset), axisBounds.bottom);
@@ -719,7 +722,8 @@ void _triggerMultiLabelRenderCallback(
       if ((labelRectWidth > 0.0) && labelRectWidth <= textSize.width) {
         const double trimmedTextWidthPadding = 10.0;
         final num maxWidth = labelRectWidth - trimmedTextWidthPadding;
-        trimmedText = getTrimmedText(actualText, maxWidth, labelTextStyle);
+        trimmedText = getTrimmedText(actualText, maxWidth, labelTextStyle,
+            isRtl: axisRendererDetails.stateProperties.renderingDetails.isRtl);
       }
     }
     final String renderText = trimmedText ?? actualText;
@@ -1218,14 +1222,9 @@ void drawMultiLevelLabels(
   final bool isOpposed = axisRendererDetails.axis.opposedPosition;
   final bool isLabelPositionInside =
       axisRendererDetails.axis.labelPosition == ChartDataLabelPosition.inside;
-  final bool needProperClip = (isLabelPositionInside && !isOpposed) ||
-      (!isLabelPositionInside && isOpposed);
   final bool isNotDefaultChart = isLabelPositionInside ^ isOpposed;
-  const double clipRectPadding = 1;
   const double bracePadding = 5;
-  final double clipRectBorderPadding = isNotDefaultChart
-      ? -clipRectPadding - multiLevelBorderPaint.strokeWidth / 2
-      : clipRectPadding + multiLevelBorderPaint.strokeWidth / 2;
+  final double clipRectBorderPadding = multiLevelBorderPaint.strokeWidth / 2;
   final bool isBraceType =
       axisRendererDetails.axis.multiLevelLabelStyle.borderType ==
               MultiLevelBorderType.squareBrace ||
@@ -1251,33 +1250,37 @@ void drawMultiLevelLabels(
               ? (isNotDefaultChart ? -bracePadding : bracePadding)
               : 0);
       canvas.clipRect(Rect.fromLTRB(
-          axisRendererDetails.bounds.left -
-              (needProperClip ? -clipRectBorderPadding : clipRectBorderPadding),
-          multiLevelLabelStart - clipRectBorderPadding,
-          axisRendererDetails.bounds.right +
-              (needProperClip ? -clipRectBorderPadding : clipRectBorderPadding),
-          multiLevelLabelStart +
-              clipRectBorderPadding +
-              (isNotDefaultChart
-                  ? -axisRendererDetails.multiLevelLabelTotalSize.height
-                  : axisRendererDetails.multiLevelLabelTotalSize.height)));
+        axisRendererDetails.bounds.left - clipRectBorderPadding,
+        multiLevelLabelStart +
+            (isNotDefaultChart
+                ? clipRectBorderPadding
+                : -clipRectBorderPadding),
+        axisRendererDetails.bounds.right + clipRectBorderPadding,
+        multiLevelLabelStart +
+            (isNotDefaultChart
+                ? -axisRendererDetails.multiLevelLabelTotalSize.height -
+                    clipRectBorderPadding
+                : axisRendererDetails.multiLevelLabelTotalSize.height +
+                    clipRectBorderPadding),
+      ));
     } else {
       multiLevelLabelStart = multiLevelLabelStart +
           (isBraceType
               ? (isNotDefaultChart ? bracePadding : -bracePadding)
               : 0);
       canvas.clipRect(Rect.fromLTRB(
-        multiLevelLabelStart -
-            clipRectBorderPadding +
-            (isNotDefaultChart
-                ? axisRendererDetails.multiLevelLabelTotalSize.width
-                : -axisRendererDetails.multiLevelLabelTotalSize.width),
-        axisRendererDetails.bounds.top -
-            (needProperClip ? -clipRectBorderPadding : clipRectBorderPadding),
-        multiLevelLabelStart + clipRectBorderPadding,
-        axisRendererDetails.bounds.bottom +
-            (needProperClip ? -clipRectBorderPadding : clipRectBorderPadding),
-      ));
+          multiLevelLabelStart +
+              (isNotDefaultChart
+                  ? axisRendererDetails.multiLevelLabelTotalSize.width +
+                      clipRectBorderPadding
+                  : -axisRendererDetails.multiLevelLabelTotalSize.width -
+                      clipRectBorderPadding),
+          axisRendererDetails.bounds.top - clipRectBorderPadding,
+          multiLevelLabelStart +
+              (isNotDefaultChart
+                  ? -clipRectBorderPadding
+                  : clipRectBorderPadding),
+          axisRendererDetails.bounds.bottom + clipRectBorderPadding));
     }
     _drawMultiLevelLabelBorder(
         axisRendererDetails,

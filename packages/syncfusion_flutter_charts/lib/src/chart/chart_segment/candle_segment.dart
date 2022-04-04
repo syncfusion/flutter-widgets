@@ -8,7 +8,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import 'chart_segment.dart';
 
-/// Creates the segments for bubble series.
+/// Creates the segments for candle series.
 ///
 /// Generates the candle series points and has the [calculateSegmentPoints] override method
 /// used to customize the candle series segment point calculation.
@@ -154,7 +154,7 @@ class CandleSegment extends ChartSegment {
         _centersY + ((_centersY - _segmentProperties.openY).abs() * 1);
   }
 
-  /// To draw rect path of candle segments
+  /// To draw rect path of candle segments.
   void _drawRectPath() {
     _segmentProperties.path.moveTo(
         !_isTransposed ? _segmentProperties.openX : _segmentProperties.topRectY,
@@ -427,7 +427,7 @@ class CandleSegment extends ChartSegment {
     }
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

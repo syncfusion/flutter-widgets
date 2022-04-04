@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../linear_gauge/gauge/linear_gauge_scope.dart';
 import '../../linear_gauge/pointers/linear_marker_pointer.dart';
 import '../../linear_gauge/pointers/linear_shape_renderer.dart';

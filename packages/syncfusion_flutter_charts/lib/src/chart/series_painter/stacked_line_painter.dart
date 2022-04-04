@@ -13,12 +13,12 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Stacked line series
+/// Creates series renderer for stacked line series.
 class StackedLineSeriesRenderer extends StackedSeriesRenderer {
   /// Calling the default constructor of StackedLineSeriesRenderer class.
   StackedLineSeriesRenderer();
 
-  ///Stacked line segment is created here
+  /// Stacked line segment is created here.
   // ignore: unused_element
   ChartSegment _createSegments(
       CartesianChartPoint<dynamic> currentPoint,
@@ -84,7 +84,7 @@ class StackedLineSeriesRenderer extends StackedSeriesRenderer {
     return segment;
   }
 
-  /// To render stacked line series segments
+  /// To render stacked line series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -117,7 +117,7 @@ class StackedLineSeriesRenderer extends StackedSeriesRenderer {
     segmentProperties.strokeWidth = segmentProperties.series.width;
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -135,7 +135,7 @@ class StackedLineSeriesRenderer extends StackedSeriesRenderer {
       drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }
 
-/// Represents the StackedLine Chart painter
+/// Represents the stacked line chart painter
 class StackedLineChartPainter extends CustomPainter {
   /// Calling the default constructor of StackedLineChartPainter class.
   StackedLineChartPainter(
@@ -416,42 +416,76 @@ void _stackedLinePainter(
       seriesRendererDetails.visibleDataPoints =
           <CartesianChartPoint<dynamic>>[];
     }
+
+    seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
     for (int pointIndex = 0;
         pointIndex < seriesRendererDetails.dataPoints.length;
         pointIndex++) {
       currentPoint = seriesRendererDetails.dataPoints[pointIndex];
-      seriesRendererDetails.calculateRegionData(stateProperties,
-          seriesRendererDetails, seriesIndex, currentPoint, pointIndex);
-      if ((currentPoint.isVisible && !currentPoint.isGap) &&
-          startPoint == null &&
-          stackedValues != null) {
-        startPoint = currentPoint;
-        currentCummulativePos = stackedValues.endValues[pointIndex];
-      }
-      if (pointIndex + 1 < seriesRendererDetails.dataPoints.length) {
-        _nextPoint = seriesRendererDetails.dataPoints[pointIndex + 1];
-        if (startPoint != null && _nextPoint.isGap) {
-          startPoint = null;
-        } else if (_nextPoint.isVisible &&
-            !_nextPoint.isGap &&
-            stackedValues != null) {
-          endPoint = _nextPoint;
-          nextCummulativePos = stackedValues.endValues[pointIndex + 1];
+      bool withInXRange = withInRange(currentPoint.xValue,
+          seriesRendererDetails.xAxisDetails!.visibleRange!);
+      bool withInYRange = currentPoint != null &&
+          currentPoint.yValue != null &&
+          withInRange(currentPoint.yValue,
+              seriesRendererDetails.yAxisDetails!.visibleRange!);
+
+      bool inRange = withInXRange || withInYRange;
+      if (!inRange &&
+          pointIndex + 1 < seriesRendererDetails.dataPoints.length) {
+        final CartesianChartPoint<dynamic>? nextPoint =
+            seriesRendererDetails.dataPoints[pointIndex + 1];
+        withInXRange = withInRange(nextPoint!.xValue,
+            seriesRendererDetails.xAxisDetails!.visibleRange!);
+        withInYRange = nextPoint != null &&
+            nextPoint.yValue != null &&
+            withInRange(nextPoint.yValue,
+                seriesRendererDetails.yAxisDetails!.visibleRange!);
+        inRange = withInXRange || withInYRange;
+        if (!inRange && pointIndex - 1 >= 0) {
+          final CartesianChartPoint<dynamic>? prevPoint =
+              seriesRendererDetails.dataPoints[pointIndex - 1];
+          withInXRange = withInRange(prevPoint!.xValue,
+              seriesRendererDetails.xAxisDetails!.visibleRange!);
+          withInYRange = prevPoint != null &&
+              prevPoint.yValue != null &&
+              withInRange(prevPoint.yValue,
+                  seriesRendererDetails.yAxisDetails!.visibleRange!);
         }
       }
+      if (withInXRange || withInYRange) {
+        seriesRendererDetails.calculateRegionData(stateProperties,
+            seriesRendererDetails, seriesIndex, currentPoint, pointIndex);
+        if ((currentPoint.isVisible && !currentPoint.isGap) &&
+            startPoint == null &&
+            stackedValues != null) {
+          startPoint = currentPoint;
+          currentCummulativePos = stackedValues.endValues[pointIndex];
+        }
+        if (pointIndex + 1 < seriesRendererDetails.dataPoints.length) {
+          _nextPoint = seriesRendererDetails.dataPoints[pointIndex + 1];
+          if (startPoint != null && _nextPoint.isGap) {
+            startPoint = null;
+          } else if (_nextPoint.isVisible &&
+              !_nextPoint.isGap &&
+              stackedValues != null) {
+            endPoint = _nextPoint;
+            nextCummulativePos = stackedValues.endValues[pointIndex + 1];
+          }
+        }
 
-      if (startPoint != null && endPoint != null) {
-        seriesRendererDetails.drawSegment(
-            canvas,
-            seriesRenderer._createSegments(
-                startPoint,
-                endPoint,
-                segmentIndex += 1,
-                seriesIndex,
-                animationFactor,
-                currentCummulativePos!,
-                nextCummulativePos!));
-        endPoint = startPoint = null;
+        if (startPoint != null && endPoint != null) {
+          seriesRendererDetails.drawSegment(
+              canvas,
+              seriesRenderer._createSegments(
+                  startPoint,
+                  endPoint,
+                  segmentIndex += 1,
+                  seriesIndex,
+                  animationFactor,
+                  currentCummulativePos!,
+                  nextCummulativePos!));
+          endPoint = startPoint = null;
+        }
       }
     }
     clipRect = calculatePlotOffset(

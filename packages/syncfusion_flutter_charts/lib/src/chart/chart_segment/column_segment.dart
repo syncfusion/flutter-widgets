@@ -15,7 +15,7 @@ import 'chart_segment.dart';
 /// It gets the path, stroke color and fill color from the `series` to render the column segment.
 ///
 class ColumnSegment extends ChartSegment {
-  /// Rectangle of the segment this could be used to render the segment while overriding this segment
+  /// Rectangle of the segment. This could be used to render the segment while overriding this segment.
   late RRect segmentRect;
 
   late SegmentProperties _segmentProperties;
@@ -113,7 +113,7 @@ class ColumnSegment extends ChartSegment {
     }
   }
 
-  /// To draw segment rect for  column segment
+  /// To draw segment rect for column segment.
   void _drawSegmentRect(Canvas canvas, RRect segmentRect, Paint paint) {
     (_segmentProperties.series.animationDuration > 0 == true)
         ? animateRectSeries(
@@ -131,7 +131,7 @@ class ColumnSegment extends ChartSegment {
         : canvas.drawRRect(segmentRect, paint);
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

@@ -17,82 +17,82 @@ import 'common.dart';
 import 'radial_bar_series.dart';
 import 'renderer_base.dart';
 
-/// Creates a series renderer for Circular series
+/// Creates a series renderer for circular series.
 class CircularSeriesRendererExtension implements CircularSeriesRenderer {
-  /// Specifies the circular series
+  /// Specifies the circular series.
   late CircularSeries<dynamic, dynamic> series;
 
-  /// Specifies the chart series renderer
+  /// Specifies the chart series renderer.
   late ChartSeriesRender renderer;
 
-  /// Specifies the series type
+  /// Specifies the series type.
   late String seriesType;
 
-  /// Specifies the list of data points
+  /// Specifies the list of data points.
   late List<ChartPoint<dynamic>> dataPoints;
 
-  /// Specifies whether to repaint the series
+  /// Specifies whether to repaint the series.
   bool needsRepaint = true;
 
-  /// Specifies the list of rendering points
+  /// Specifies the list of rendering points.
   List<ChartPoint<dynamic>>? renderPoints;
 
-  /// Specifies the list of old render points
+  /// Specifies the list of old render points.
   List<ChartPoint<dynamic>>? oldRenderPoints;
 
   /// Specifies the map collection that holds all the values for rendering
-  /// the segment
+  /// the segment.
   Map<String, num> segmentRenderingValues = <String, num>{};
 
-  /// Specifies the value of center
+  /// Specifies the value of center.
   Offset? center;
 
   /// Specifies the value of point region
   late List<Region> pointRegions;
 
-  /// Specifies the value of rect
+  /// Specifies the value of rect.
   // ignore:unused_field
   late Rect rect;
 
-  /// Path saved for radial bar series
+  /// Path saved for radial bar series.
   List<Path> renderPaths = <Path>[];
 
-  /// Specifies the value of render list
+  /// Specifies the value of render list.
   List<dynamic> renderList = <dynamic>[];
 
-  /// Specifies the value of inner radial radius
+  /// Specifies the value of inner radial radius.
   num? innerRadialradius;
 
-  /// Specifies the value of selection args
+  /// Specifies the value of selection args.
   SelectionArgs? selectionArgs;
 
-  /// Determines whether there is a need for animation
+  /// Determines whether there is a need for animation.
   late bool needsAnimation;
 
-  ///We can redraw the series with updating or creating new points by using this controller.If we need to access the redrawing methods
-  ///in this before we must get the ChartSeriesController onRendererCreated event.
+  /// We can redraw the series by updating or creating new points by using this controller. If we need to access the redrawing methods
+  /// in this before we must get the ChartSeriesController onRendererCreated event.
   CircularSeriesController? controller;
 
-  /// Specifies the circular state properties
+  /// Specifies the circular state properties.
   late CircularStateProperties stateProperties;
 
-  /// Repaint notifier for series
+  /// Repaint notifier for series.
   late ValueNotifier<int> repaintNotifier;
 
-  /// Specifies the data label setting renderer
+  /// Specifies the data label setting renderer.
   late DataLabelSettingsRenderer dataLabelSettingsRenderer;
 
-  /// specifeis the  selection behavior renderer
+  /// Specifies the  selection behavior renderer.
   late SelectionBehaviorRenderer selectionBehaviorRenderer;
 
-  /// Specifies the selection behavior
+  /// Specifies the selection behavior.
   dynamic selectionBehavior;
 
-  /// Check whether the selection is enabled
+  /// Check whether the selection is enabled.
   // ignore: prefer_final_fields
   bool isSelectionEnable = false;
 
-  /// To set style properties for selected points
+  /// To set style properties for selected points.
   StyleOptions? selectPoint(
       int currentPointIndex,
       CircularSeriesRendererExtension seriesRenderer,
@@ -140,7 +140,7 @@ class CircularSeriesRendererExtension implements CircularSeriesRenderer {
     return pointStyle;
   }
 
-  /// To calculate point start and end angle
+  /// To calculate point start and end angle.
   num? circularRenderPoint(
       SfCircularChart chart,
       CircularSeriesRendererExtension seriesRenderer,
@@ -161,7 +161,7 @@ class CircularSeriesRendererExtension implements CircularSeriesRenderer {
     final num? oldEndAngle = oldPoint?.endAngle;
     num? degree, pointEndAngle;
 
-    /// below lines for dynamic dataSource changes
+    /// Below lines for dynamic dataSource changes.
     if (isDynamicUpdate) {
       if (!oldPoint.isVisible && point.isVisible) {
         final num val = point.startAngle ==
@@ -256,7 +256,7 @@ class CircularSeriesRendererExtension implements CircularSeriesRenderer {
     return pointEndAngle;
   }
 
-  /// calculating the data point path
+  /// Calculating the data point path.
   void _calculatePath(
       int pointIndex,
       int seriesIndex,
@@ -320,7 +320,7 @@ class CircularSeriesRendererExtension implements CircularSeriesRenderer {
         canvas, renderPath, degree, innerRadius);
   }
 
-  ///draw slice path
+  /// Draw slice path.
   void drawDataPoints(
       int pointIndex,
       int seriesIndex,
@@ -506,7 +506,7 @@ class CircularSeriesRendererExtension implements CircularSeriesRenderer {
   }
 }
 
-/// Creates series renderer for Pie series
+/// Creates series renderer for Pie series.
 class PieSeriesRendererExtension extends PieSeriesRenderer
     with CircularSeriesRendererExtension {
   /// Calling the default constructor of PieSeriesRenderer class.
@@ -517,11 +517,11 @@ class PieSeriesRendererExtension extends PieSeriesRenderer
   @override
   late CircularSeries<dynamic, dynamic> series;
 
-  /// Specifies the chart point info
+  /// Specifies the chart point info.
   ChartPoint<dynamic>? point;
 }
 
-/// Creates series renderer for Doughnut series
+/// Creates series renderer for Doughnut series.
 class DoughnutSeriesRendererExtension extends DoughnutSeriesRenderer
     with CircularSeriesRendererExtension {
   /// Calling the default constructor of DoughnutSeriesRenderer class.
@@ -529,18 +529,18 @@ class DoughnutSeriesRendererExtension extends DoughnutSeriesRenderer
     seriesType = 'doughnut';
   }
 
-  /// stores the series of the corresponding series for renderer
+  /// Stores the series of the corresponding series for renderer.
   @override
   late CircularSeries<dynamic, dynamic> series;
 
-  /// Specifies the inner radius value
+  /// Specifies the inner radius value.
   late num innerRadius;
 
-  /// Specifies the radius value
+  /// Specifies the radius value.
   late num radius;
 }
 
-/// Creates series renderer for RadialBar series
+/// Creates series renderer for RadialBar series.
 ///
 class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
     with CircularSeriesRendererExtension {
@@ -554,25 +554,25 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
   @override
   late CircularSeries<dynamic, dynamic> series;
 
-  /// Specifies the inner radius value
+  /// Specifies the inner radius value.
   late num innerRadius;
 
-  /// Specifies the radius value
+  /// Specifies the radius value.
   late num radius;
 
-  /// Specifies the value of fill color and stroke color
+  /// Specifies the value of fill color and stroke color.
   late Color fillColor, strokeColor;
 
-  /// Specifies the value of opacity and stroke width
+  /// Specifies the value of opacity and stroke width.
   late double opacity, strokeWidth;
 
-  /// Holds the value of shadow path
+  /// Holds the value of shadow path.
   late List<Path> shadowPaths;
 
-  /// Holds the value of over filled path
+  /// Holds the value of over filled path.
   late List<Path> overFilledPaths;
 
-  /// Represents the value of shadow paint
+  /// Represents the value of shadow paint.
   late Paint shadowPaint;
 
   /// Represents the value of over filles paint
@@ -581,7 +581,7 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
   @override
   Offset? center;
 
-  /// Method to find first visible point
+  /// Method to find first visible point.
   int? getFirstVisiblePointIndex(
       RadialBarSeriesRendererExtension seriesRenderer) {
     for (int i = 0; i < seriesRenderer.renderPoints!.length; i++) {
@@ -592,7 +592,7 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
     return null;
   }
 
-  /// Method for calculating animation for visible points on legend toggle
+  /// Method for calculating animation for visible points on legend toggle.
   ///
   void calculateVisiblePointLegendToggleAnimation(ChartPoint<dynamic> point,
       ChartPoint<dynamic>? _oldPoint, int i, num animationValue) {
@@ -619,7 +619,7 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
     }
   }
 
-  /// To draw data points of the radial bar series
+  /// To draw data points of the radial bar series.
   ///
   void drawDataPoint(
       ChartPoint<dynamic> point,
@@ -679,7 +679,7 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
     }
   }
 
-  /// Method to render radial data points
+  /// Method to render radial data points.
   ///
   void _renderRadialPoints(
       ChartPoint<dynamic> point,
@@ -771,7 +771,7 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
         actualDegree);
   }
 
-  /// Method to draw the radial bar series path
+  /// Method to draw the radial bar series path.
   ///
   void _drawRadialBarPath(
       Canvas canvas,
@@ -898,7 +898,7 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
     }
   }
 
-  /// Method to apply shadow at segment's end
+  /// Method to apply shadow at segment's end.
   void _applyShadow(
       bool hide,
       num? pointEndAngle,
@@ -991,7 +991,7 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
     }
   }
 
-  /// Method to convert the radius to sigma
+  /// Method to convert the radius to sigma.
   double _getSigmaFromRadius(double radius) {
     return radius * 0.57735 + 0.5;
   }

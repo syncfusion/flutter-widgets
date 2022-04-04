@@ -611,6 +611,7 @@ class ImageRenderer {
   void _renderTextElementWithLeading(
       List<String> textElements, String tokenType) {
     String text = textElements.join();
+    final List<dynamic> retrievedCharCodes = <dynamic>[];
     if (_resources!.containsKey(currentFont)) {
       final FontStructure structure =
           _resources![currentFont!] as FontStructure;
@@ -626,7 +627,8 @@ class ImageRenderer {
           structure.isStandardFont) {
         text = structure.getEncodedText(text, true);
       } else {
-        text = structure.decodeTextExtraction(text, _resources!.isSameFont());
+        text = structure.decodeTextExtraction(
+            text, _resources!.isSameFont(), retrievedCharCodes);
       }
       final TextElement element = TextElement(text, documentMatrix);
       element.fontStyle = structure.fontStyle!;
@@ -674,7 +676,8 @@ class ImageRenderer {
             structure.differenceTable,
             structure.differencesDictionary,
             structure.differenceEncoding,
-            tempTextMatrix);
+            tempTextMatrix,
+            retrievedCharCodes);
         _textElementWidth = renderedResult['textElementWidth'] as double;
         textMatrix = renderedResult['tempTextMatrix'] as MatrixHelper;
       } else {
@@ -726,6 +729,8 @@ class ImageRenderer {
   void _renderTextElementWithSpacing(
       List<String> textElements, String tokenType) {
     List<String> decodedList = <String>[];
+    Map<List<dynamic>, String> decodedListCollection =
+        <List<dynamic>, String>{};
     final String text = textElements.join();
     if (_resources!.containsKey(currentFont)) {
       final FontStructure structure =
@@ -738,8 +743,11 @@ class ImageRenderer {
           structure.font != null) {
         decodedList =
             structure.decodeCjkTextExtractionTJ(text, _resources!.isSameFont());
+        for (final String decodedString in decodedList) {
+          decodedListCollection[<dynamic>[]] = decodedString;
+        }
       } else {
-        decodedList =
+        decodedListCollection =
             structure.decodeTextExtractionTJ(text, _resources!.isSameFont());
       }
       final List<int> bytes =
@@ -799,7 +807,7 @@ class ImageRenderer {
       final Map<String, dynamic> renderedResult = element.renderWithSpacing(
           _graphicsObject,
           Offset(_endTextPosition.dx, _endTextPosition.dy - fontSize!),
-          decodedList,
+          decodedListCollection,
           characterSpacings,
           _textScaling,
           glyphWidths,

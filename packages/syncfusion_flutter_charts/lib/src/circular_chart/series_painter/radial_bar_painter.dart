@@ -7,11 +7,9 @@ import '../renderer/radial_bar_series.dart';
 import '../renderer/renderer_extension.dart';
 import '../utils/helper.dart';
 
-/// Represents the pointer to draw radial bar series
-///
+/// Represents the pointer to draw radial bar series.
 class RadialBarPainter extends CustomPainter {
-  /// Creates the instance for radial bar series
-  ///
+  /// Creates the instance for radial bar series.
   RadialBarPainter({
     required this.stateProperties,
     required this.index,
@@ -21,22 +19,22 @@ class RadialBarPainter extends CustomPainter {
     ValueNotifier<num>? notifier,
   }) : super(repaint: notifier);
 
-  /// Specifies the value of circular state properties
+  /// Specifies the value of circular state properties.
   final CircularStateProperties stateProperties;
 
-  /// Holds the index value
+  /// Holds the index value.
   final int index;
 
-  /// Specifies whether to repaint the series
+  /// Specifies whether to repaint the series.
   final bool isRepaint;
 
-  /// Specifies the value of animation controller
+  /// Specifies the value of animation controller.
   final AnimationController? animationController;
 
-  /// Specifies the value of series animation
+  /// Specifies the value of series animation.
   final Animation<double>? seriesAnimation;
 
-  /// Holds the value of radial bar series extension
+  /// Holds the value of radial bar series extension.
   late RadialBarSeriesRendererExtension seriesRenderer;
   late num _length, _sum, _ringSize, _animationValue, _actualStartAngle;
   late int? _firstVisible;
@@ -44,10 +42,10 @@ class RadialBarPainter extends CustomPainter {
   late bool _isLegendToggle;
   late RadialBarSeriesRendererExtension? _oldSeriesRenderer;
 
-  /// Specifies the value of actual length
+  /// Specifies the value of actual length.
   late double actualDegree;
 
-  /// Method to get length of the visible point
+  /// Method to get length of the visible point.
   num _getLength(Canvas canvas) {
     num length = 0;
     seriesRenderer = stateProperties.chartSeries.visibleSeriesRenderers[index]
@@ -67,8 +65,7 @@ class RadialBarPainter extends CustomPainter {
     return length;
   }
 
-  /// Method to initialize the values to draw the radial bar series
-  ///
+  /// Method to initialize the values to draw the radial bar series.
   void _initializeValues(Canvas canvas) {
     _length = _getLength(canvas);
     _sum = seriesRenderer.segmentRenderingValues['sumOfPoints']!;
@@ -96,8 +93,7 @@ class RadialBarPainter extends CustomPainter {
     seriesRenderer.renderPaths.clear();
   }
 
-  /// Method to paint radial bar series
-  ///
+  /// Method to paint radial bar series.
   @override
   void paint(Canvas canvas, Size size) {
     num? pointStartAngle, pointEndAngle, degree;
@@ -146,10 +142,14 @@ class RadialBarPainter extends CustomPainter {
           point.center = seriesRenderer.center!;
           point.innerRadius = seriesRenderer.innerRadius =
               seriesRenderer.innerRadius +
-                  ((i == _firstVisible) ? 0 : _ringSize);
+                  ((i == _firstVisible) ? 0 : _ringSize) -
+                  (series.trackBorderWidth / 2) / series.dataSource!.length;
           point.outerRadius = seriesRenderer.radius = _ringSize < _gap!
               ? 0
-              : seriesRenderer.innerRadius + _ringSize - _gap!;
+              : seriesRenderer.innerRadius +
+                  _ringSize -
+                  _gap! -
+                  (series.trackBorderWidth / 2) / series.dataSource!.length;
           if (_isLegendToggle) {
             seriesRenderer.calculateVisiblePointLegendToggleAnimation(
                 point, _oldPoint, i, _animationValue);
@@ -197,8 +197,7 @@ class RadialBarPainter extends CustomPainter {
     _renderRadialBarSeries(canvas);
   }
 
-  /// Method to render the radial bar series
-  ///
+  /// Method to render the radial bar series.
   void _renderRadialBarSeries(Canvas canvas) {
     if (seriesRenderer.renderList.isNotEmpty) {
       Shader? _chartShader;

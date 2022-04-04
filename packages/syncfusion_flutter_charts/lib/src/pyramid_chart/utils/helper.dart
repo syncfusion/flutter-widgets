@@ -18,7 +18,7 @@ import '../base/pyramid_state_properties.dart';
 import '../renderer/renderer_extension.dart';
 import '../utils/common.dart';
 
-/// Method for checking if point is within polygon
+/// Method for checking if point is within polygon.
 bool isPointInPolygon(List<Offset> polygon, Offset point) {
   bool p = false;
   int i = -1;
@@ -38,7 +38,7 @@ bool isPointInPolygon(List<Offset> polygon, Offset point) {
   return p;
 }
 
-/// To add chart templates
+/// To add chart templates.
 void findTemplates(dynamic _stateProperties) {
   Offset labelLocation;
   const num lineLength = 10;
@@ -94,7 +94,7 @@ void findTemplates(dynamic _stateProperties) {
   }
 }
 
-/// To render a template
+/// To render a template.
 void renderTemplates(StateProperties stateProperties) {
   if (stateProperties.renderingDetails.templates.isNotEmpty == true) {
     ChartTemplateInfo chartTemplateInfo;
@@ -116,7 +116,7 @@ void renderTemplates(StateProperties stateProperties) {
   }
 }
 
-///To get pyramid series data label saturation color
+/// To get pyramid series data label saturation color.
 Color getPyramidFunnelColor(PointInfo<dynamic> currentPoint,
     dynamic seriesRenderer, dynamic _stateProperties) {
   Color color;
@@ -142,12 +142,12 @@ Color getPyramidFunnelColor(PointInfo<dynamic> currentPoint,
   return getSaturationColor(color);
 }
 
-///To get inner data label color
+/// To get inner data label color.
 Color innerColor(
         Color? dataLabelColor, Color? pointColor, SfChartThemeData theme) =>
     dataLabelColor ?? pointColor ?? Colors.black;
 
-///To get outer data label color
+/// To get outer data label color.
 Color outerColor(Color? dataLabelColor, Color? backgroundColor,
         SfChartThemeData theme) =>
     // ignore: prefer_if_null_operators
@@ -160,7 +160,7 @@ Color outerColor(Color? dataLabelColor, Color? backgroundColor,
                 ? const Color.fromRGBO(255, 255, 255, 1)
                 : Colors.black;
 
-///To get outer data label text style
+/// To get outer data label text style.
 TextStyle getDataLabelTextStyle(
     dynamic seriesRenderer, PointInfo<dynamic> point, dynamic stateProperties,
     [double? animateOpacity]) {
@@ -194,7 +194,7 @@ TextStyle getDataLabelTextStyle(
   return textStyle;
 }
 
-/// To check the point explosion
+/// To check the point explosion.
 bool isNeedExplode(int pointIndex, dynamic series, dynamic stateProperties) {
   bool isNeedExplode = false;
   if (series.explode == true) {
@@ -212,7 +212,7 @@ bool isNeedExplode(int pointIndex, dynamic series, dynamic stateProperties) {
   return isNeedExplode;
 }
 
-/// To return data label rect calculation method based on position
+/// To return data label rect calculation method based on position.
 Rect? getDataLabelRect(Position position, ConnectorType connectorType,
     EdgeInsets margin, Path connectorPath, Offset endPoint, Size textSize) {
   Rect? rect;
@@ -251,7 +251,7 @@ Rect? getDataLabelRect(Position position, ConnectorType connectorType,
   return rect;
 }
 
-/// To render pyramid data labels
+/// To render pyramid data labels.
 void renderPyramidDataLabel(
     PyramidSeriesRendererExtension seriesRenderer,
     Canvas canvas,
@@ -366,7 +366,7 @@ void renderPyramidDataLabel(
   }
 }
 
-/// To calculate pyramid inside label position
+/// To calculate pyramid inside label position.
 void _setPyramidInsideLabelPosition(
     DataLabelSettings dataLabel,
     PointInfo<dynamic> point,
@@ -487,7 +487,7 @@ void _setPyramidInsideLabelPosition(
   }
 }
 
-/// To render outside pyramid data label
+/// To render outside pyramid data label.
 void _renderOutsidePyramidDataLabel(
     Canvas canvas,
     String label,
@@ -663,7 +663,7 @@ void _renderOutsidePyramidDataLabel(
   }
 }
 
-/// To check whether labels intersect
+/// To check whether labels intersect.
 bool _isPyramidLabelIntersect(Rect rect, Rect? previousRect) {
   bool isIntersect = false;
   const num padding = 2;
@@ -673,7 +673,7 @@ bool _isPyramidLabelIntersect(Rect rect, Rect? previousRect) {
   return isIntersect;
 }
 
-/// To draw pyramid data label
+/// To draw pyramid data label.
 void _drawPyramidLabel(
     Rect labelRect,
     Offset location,
@@ -751,7 +751,7 @@ void _drawPyramidLabel(
   }
 }
 
-/// method to trigger the pyramid data label event
+/// Method to trigger the pyramid data label event.
 void triggerPyramidDataLabelEvent(
     SfPyramidChart chart,
     PyramidSeriesRendererExtension seriesRenderer,
@@ -799,9 +799,10 @@ String getSegmentOverflowTrimmedText(
       label = '';
       break;
     }
-    if (label.length > minCharacterLength) {
-      label = addEllipse(label, label.length, ellipse);
-    } else {
+    if (label.length > minCharacterLength)
+      label = addEllipse(label, label.length, ellipse,
+          isRtl: stateProperties.renderingDetails.isRtl);
+    else {
       label = '';
       break;
     }
@@ -816,7 +817,7 @@ String getSegmentOverflowTrimmedText(
   return label == ellipse ? '' : label;
 }
 
-/// To check collide
+/// To check collide.
 bool isLabelsColliding(Rect rect, Rect? pathRect) {
   bool isCollide = false;
   if (pathRect != null &&
@@ -831,7 +832,7 @@ bool isLabelsColliding(Rect rect, Rect? pathRect) {
   return isCollide;
 }
 
-/// To check if labels collide
+/// To check if labels collide.
 bool checkCollide(int index, List<Rect> list) {
   final Rect currentRect = list[index];
   Rect nextRect;

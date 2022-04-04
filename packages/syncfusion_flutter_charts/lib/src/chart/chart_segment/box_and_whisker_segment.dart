@@ -16,7 +16,6 @@ import 'chart_segment.dart';
 /// used to customize the box and whisker series segment point calculation.
 ///
 /// Gets the path and fill color from the `series` to render the box and whisker segment.
-///
 class BoxAndWhiskerSegment extends ChartSegment {
   late double _maxY,
       _lowerY,
@@ -153,7 +152,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
         _centersY + ((_centersY - _lowerY).abs() * 1);
   }
 
-  /// To draw rect path of box and whisker segments
+  /// To draw rect path of box and whisker segments.
   void _drawRectPath() {
     _segmentProperties.path.moveTo(
         !_isTransposed
@@ -183,7 +182,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
     _segmentProperties.path.close();
   }
 
-  /// To draw line path of box and whisker segments
+  /// To draw line path of box and whisker segments.
   void _drawLine(Canvas canvas) {
     canvas.drawLine(Offset(_segmentProperties.lowerX, _topLineY),
         Offset(_segmentProperties.upperX, _topLineY), strokePaint!);
@@ -197,7 +196,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
         Offset(_segmentProperties.upperX, _bottomLineY), strokePaint!);
   }
 
-  /// To draw mean line path of box and whisker segments
+  /// To draw mean line path of box and whisker segments.
   void _drawMeanLine(
       Canvas canvas, Offset position, Size size, bool isTransposed) {
     final double x = !isTransposed ? position.dx : position.dy;
@@ -221,7 +220,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
     }
   }
 
-  /// To draw line path of box and whisker segments
+  /// To draw line path of box and whisker segments.
   void _drawFillLine(Canvas canvas) {
     final bool isOpen = _segmentProperties.currentPoint!.lowerQuartile! >
         _segmentProperties.currentPoint!.upperQuartile!;
@@ -501,7 +500,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
     }
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

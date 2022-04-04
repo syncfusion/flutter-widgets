@@ -24,7 +24,7 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -53,8 +53,8 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Syncfusion Flutter Range Selector'),
       ),
       body: Container(
-          margin: const EdgeInsets.all(0),
-          padding: const EdgeInsets.all(0),
+          margin: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
           child: Stack(
             children: <Widget>[
               Padding(
@@ -71,9 +71,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     dateFormat: DateFormat.y(),
                     showTicks: true,
                     showLabels: true,
-                    child: Container(
+                    child: SizedBox(
                       child: SfCartesianChart(
-                        margin: const EdgeInsets.all(0),
+                        margin: EdgeInsets.zero,
                         primaryXAxis: DateTimeAxis(
                           minimum: _dateMin,
                           maximum: _dateMax,

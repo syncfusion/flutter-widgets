@@ -7992,11 +7992,13 @@ class _PickerHeaderViewState extends State<_PickerHeaderView> {
     double arrowSize = widget.height * 0.5;
     arrowSize = arrowSize > 25 ? 25 : arrowSize;
     arrowSize = arrowSize * widget.textScaleFactor;
-    final Container leftArrow =
-        _getLeftArrow(arrowWidth, arrowColor, prevArrowColor, arrowSize);
+    final Container leftArrow = showNavigationArrow
+        ? _getLeftArrow(arrowWidth, arrowColor, prevArrowColor, arrowSize)
+        : Container();
 
-    final Container rightArrow =
-        _getRightArrow(arrowWidth, arrowColor, nextArrowColor, arrowSize);
+    final Container rightArrow = showNavigationArrow
+        ? _getRightArrow(arrowWidth, arrowColor, nextArrowColor, arrowSize)
+        : Container();
 
     if (widget.headerStyle.textAlign == TextAlign.left ||
         widget.headerStyle.textAlign == TextAlign.start) {
@@ -8972,6 +8974,9 @@ class _PickerScrollViewState extends State<_PickerScrollView>
 
   @override
   void dispose() {
+    _previousViewVisibleDates.clear();
+    _nextViewVisibleDates.clear();
+    _currentViewVisibleDates.clear();
     _animationController.dispose();
     _animation.removeListener(_animationListener);
     _focusNode.dispose();

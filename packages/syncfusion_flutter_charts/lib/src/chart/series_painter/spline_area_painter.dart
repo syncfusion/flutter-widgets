@@ -16,12 +16,12 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Spline area series
+/// Creates series renderer for spline area series.
 class SplineAreaSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of SplineAreaSeriesRenderer class.
   SplineAreaSeriesRenderer();
 
-  /// SplineArea segment is created here
+  /// Spline area segment is created here.
   ChartSegment _createSegments(int seriesIndex, SfCartesianChart chart,
       double animateFactor, Path path, Path strokePath,
       [List<Offset>? _points]) {
@@ -54,7 +54,7 @@ class SplineAreaSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render spline area series segments
+  /// To render spline area series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -90,7 +90,7 @@ class SplineAreaSeriesRenderer extends XyDataSeriesRenderer {
     segmentProperties.strokeWidth = segmentProperties.series.width;
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -219,6 +219,8 @@ class SplineAreaChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRendererDetails.calculateRegionData(stateProperties,

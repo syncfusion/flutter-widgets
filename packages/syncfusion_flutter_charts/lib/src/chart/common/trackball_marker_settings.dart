@@ -6,14 +6,14 @@ import '../common/marker.dart';
 import '../user_interaction/trackball_marker_setting_renderer.dart';
 import '../utils/enum.dart';
 
-///Options to customize the markers that are displayed when trackball is enabled.
+/// Options to customize the markers that are displayed when trackball is enabled.
 ///
-///Trackball markers are used to provide information about the exact point location,
+/// Trackball markers are used to provide information about the exact point location,
 /// when the trackball is visible. You can add a shape to adorn each data point.
 /// Trackball markers can be enabled by using the
 /// [markerVisibility] property in [TrackballMarkerSettings].
-///Provides the options like color, border width, border color and shape of the
-///marker to customize the appearance.
+/// Provides the options like color, border width, border color and shape of the
+/// marker to customize the appearance.
 class TrackballMarkerSettings extends MarkerSettings {
   /// Creating an argument constructor of TrackballMarkerSettings class.
   const TrackballMarkerSettings(
@@ -34,35 +34,39 @@ class TrackballMarkerSettings extends MarkerSettings {
             borderColor: borderColor,
             image: image);
 
-  ///Whether marker should be visible or not when trackball is enabled.
+  /// Whether marker should be visible or not when trackball is enabled.
   ///
-  ///The below values are applicable for this:
-  ///* auto - If the [isVisible] property in the series `markerSettings` is set
+  /// The below values are applicable for this:
+  /// * TrackballVisibilityMode.auto - If the [isVisible] property in the series `markerSettings` is set
   /// to true, then the trackball marker will also be displayed for that
   /// particular series, else it will not be displayed.
-  ///* visible - Makes the trackball marker visible for all the series,
+  /// * TrackballVisibilityMode.visible - Makes the trackball marker visible for all the series,
   /// irrespective of considering the [isVisible] property's value in the `markerSettings`.
-  ///* hidden - Hides the trackball marker for all the series.
+  /// * TrackballVisibilityMode.hidden - Hides the trackball marker for all the series.
   ///
-  ///Defaults to `TrackballVisibilityMode.auto`.
-
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(
-  ///                enable: true,
-  ///                markerSettings: TrackballMarkerSettings(
-  ///                    markerVisibility:  TrackballVisibilityMode.auto,
-  ///                    width: 10
-  ///             ),
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                  SplineSeries<SalesData, num>(
-  ///                    markerSettings: MarkerSettings(isVisible: true),
-  ///                 ),
-  ///            ],
-  /// );
-  ///}
+  /// Defaults to `TrackballVisibilityMode.auto`.
+  ///
+  /// Also refer [TrackballVisibilityMode].
+  ///
+  /// ```dart
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior = TrackballBehavior(
+  ///     enable: true,
+  ///     markerSettings: TrackballMarkerSettings(
+  ///       markerVisibility:  TrackballVisibilityMode.visible,
+  ///       width: 10
+  ///     )
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
   ///```
   final TrackballVisibilityMode markerVisibility;
 
@@ -102,10 +106,10 @@ class TrackballMarkerSettings extends MarkerSettings {
   }
 }
 
-///Options to show the details of the trackball template.
+/// Options to show the details of the trackball template.
 @immutable
 class TrackballDetails {
-  ///Constructor of TrackballDetails class.
+  /// Constructor of TrackballDetails class.
   const TrackballDetails(
       [this.point,
       this.series,

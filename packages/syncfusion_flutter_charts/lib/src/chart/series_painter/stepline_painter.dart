@@ -13,12 +13,12 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Step line series
+/// Creates series renderer for step line series.
 class StepLineSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of StepLineSeriesRenderer class.
   StepLineSeriesRenderer();
 
-  /// StepLine segment is created here
+  /// Step line segment is created here.
   ChartSegment _createSegments(
       CartesianChartPoint<dynamic> currentPoint,
       num midX,
@@ -74,7 +74,7 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render step line series segments
+  /// To render step line series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -107,7 +107,7 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
     segmentProperties.strokeWidth = segmentProperties.series.width;
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -125,7 +125,7 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
       drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }
 
-/// Represents the StepLine Chart painter
+/// Represents the Step line chart painter
 class StepLineChartPainter extends CustomPainter {
   /// Calling the default constructor of StepLineChartPainter class.
   StepLineChartPainter(
@@ -214,46 +214,81 @@ class StepLineChartPainter extends CustomPainter {
             <CartesianChartPoint<dynamic>>[];
       }
 
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         currentPoint = dataPoints[pointIndex];
-        if ((currentPoint.isVisible && !currentPoint.isGap) &&
-            startPoint == null) {
-          startPoint = currentPoint;
-        }
-        if (pointIndex + 1 < dataPoints.length) {
-          _nextPoint = dataPoints[pointIndex + 1];
+        bool withInXRange = withInRange(currentPoint.xValue,
+            seriesRendererDetails.xAxisDetails!.visibleRange!);
+        bool withInYRange = currentPoint != null &&
+            currentPoint.yValue != null &&
+            withInRange(currentPoint.yValue,
+                seriesRendererDetails.yAxisDetails!.visibleRange!);
+        bool inRange = withInXRange || withInYRange;
+        if (!inRange && pointIndex + 1 < dataPoints.length) {
+          final CartesianChartPoint<dynamic>? nextPoint =
+              dataPoints[pointIndex + 1];
+          withInXRange = withInRange(nextPoint!.xValue,
+              seriesRendererDetails.xAxisDetails!.visibleRange!);
+          withInYRange = nextPoint != null &&
+              nextPoint.yValue != null &&
+              withInRange(nextPoint.yValue,
+                  seriesRendererDetails.yAxisDetails!.visibleRange!);
 
-          if (startPoint != null && !_nextPoint.isVisible && _nextPoint.isGap) {
-            startPoint = null;
-          } else if (_nextPoint.isVisible && !_nextPoint.isGap) {
-            endPoint = _nextPoint;
-            midX = _nextPoint.xValue;
-            midY = currentPoint.yValue;
-          } else if (_nextPoint.isDrop) {
-            _nextPoint = _getDropValue(dataPoints, pointIndex);
-            midX = _nextPoint?.xValue;
-            midY = currentPoint.yValue;
+          inRange = withInXRange || withInYRange;
+          if (!inRange && pointIndex - 1 >= 0) {
+            final CartesianChartPoint<dynamic>? prevPoint =
+                dataPoints[pointIndex - 1];
+            withInXRange = withInRange(prevPoint!.xValue,
+                seriesRendererDetails.xAxisDetails!.visibleRange!);
+            withInYRange = prevPoint != null &&
+                prevPoint.yValue != null &&
+                withInRange(prevPoint.yValue,
+                    seriesRendererDetails.yAxisDetails!.visibleRange!);
           }
         }
-        seriesRendererDetails.calculateRegionData(
-            stateProperties,
-            seriesRendererDetails,
-            seriesIndex,
-            currentPoint,
-            pointIndex,
-            null,
-            _nextPoint,
-            midX,
-            midY);
-        if (startPoint != null &&
-            endPoint != null &&
-            midX != null &&
-            midY != null) {
-          seriesRendererDetails.drawSegment(
-              canvas,
-              seriesRenderer._createSegments(startPoint, midX, midY, endPoint,
-                  segmentIndex += 1, seriesIndex, animationFactor));
-          endPoint = startPoint = midX = midY = null;
+        if (withInXRange || withInYRange) {
+          if ((currentPoint.isVisible && !currentPoint.isGap) &&
+              startPoint == null) {
+            startPoint = currentPoint;
+          }
+          if (pointIndex + 1 < dataPoints.length) {
+            _nextPoint = dataPoints[pointIndex + 1];
+
+            if (startPoint != null &&
+                !_nextPoint.isVisible &&
+                _nextPoint.isGap) {
+              startPoint = null;
+            } else if (_nextPoint.isVisible && !_nextPoint.isGap) {
+              endPoint = _nextPoint;
+              midX = _nextPoint.xValue;
+              midY = currentPoint.yValue;
+            } else if (_nextPoint.isDrop) {
+              _nextPoint = _getDropValue(dataPoints, pointIndex);
+              midX = _nextPoint?.xValue;
+              midY = currentPoint.yValue;
+            }
+          }
+
+          seriesRendererDetails.calculateRegionData(
+              stateProperties,
+              seriesRendererDetails,
+              seriesIndex,
+              currentPoint,
+              pointIndex,
+              null,
+              _nextPoint,
+              midX,
+              midY);
+          if (startPoint != null &&
+              endPoint != null &&
+              midX != null &&
+              midY != null) {
+            seriesRendererDetails.drawSegment(
+                canvas,
+                seriesRenderer._createSegments(startPoint, midX, midY, endPoint,
+                    segmentIndex += 1, seriesIndex, animationFactor));
+            endPoint = startPoint = midX = midY = null;
+          }
         }
       }
       _drawSeries(canvas, animationFactor, seriesRendererDetails);

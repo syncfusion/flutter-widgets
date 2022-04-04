@@ -17,7 +17,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Stacked area series
+/// Creates series renderer for stacked area series.
 class StackedAreaSeriesRenderer extends StackedSeriesRenderer {
   /// Calling the default constructor of StackedAreaSeriesRenderer class.
   StackedAreaSeriesRenderer();
@@ -74,7 +74,7 @@ class StackedAreaSeriesRenderer extends StackedSeriesRenderer {
     return segment;
   }
 
-  /// To render stacked area series segments
+  /// To render stacked area series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -415,6 +415,8 @@ void stackedAreaPainter(
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRendererDetails.calculateRegionData(stateProperties,
@@ -499,6 +501,7 @@ void stackedAreaPainter(
     }
     // ignore: unnecessary_null_comparison
     if (_path != null &&
+        // ignore: unnecessary_null_comparison
         seriesRendererDetails.segments != null &&
         seriesRendererDetails.segments.isNotEmpty == true) {
       final ChartSegment areaSegment = seriesRendererDetails.segments[0];

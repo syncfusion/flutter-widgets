@@ -10,9 +10,9 @@ import '../common/cartesian_state_properties.dart';
 import '../common/interactive_tooltip.dart';
 import '../utils/helper.dart';
 
-///Class for drawing zooming rectangle
+/// Class for drawing zooming rectangle.
 class ZoomRectPainter extends CustomPainter {
-  /// Creates an instance for zoom rect painter
+  /// Creates an instance for zoom rect painter.
   ZoomRectPainter(
       {this.isRepaint = true,
       required this.stateProperties,
@@ -20,26 +20,26 @@ class ZoomRectPainter extends CustomPainter {
       : chart = stateProperties.chart,
         super(repaint: notifier);
 
-  /// Specifies whether to repaint the zoom rect
+  /// Specifies whether to repaint the zoom rect.
   final bool isRepaint;
 
-  /// Holds the value of chart
+  /// Holds the value of chart.
   final SfCartesianChart chart;
 
-  /// Specifies the cartesian state properties
+  /// Specifies the cartesian state properties.
   CartesianStateProperties stateProperties;
 
-  /// Specifies the value of stroke paint and fill paint
+  /// Specifies the value of stroke paint and fill paint.
   late Paint strokePaint, fillPaint;
 
-  /// Gets the value of rendering details
+  /// Gets the value of rendering details.
   RenderingDetails get renderingDetails => stateProperties.renderingDetails;
 
   @override
   void paint(Canvas canvas, Size size) =>
       stateProperties.zoomPanBehaviorRenderer.onPaint(canvas);
 
-  ///  To draw zooming rectangle
+  /// To draw zooming rectangle.
   void drawRect(Canvas canvas) {
     final Color? fillColor = chart.zoomPanBehavior.selectionRectColor;
     strokePaint = Paint()
@@ -79,7 +79,7 @@ class ZoomRectPainter extends CustomPainter {
     }
   }
 
-  /// To draw connector line
+  /// To draw connector line.
   void _drawConnectorLine(Canvas canvas, Offset start, Offset end) {
     _drawAxisTooltip(stateProperties.chartAxis.bottomAxisRenderers, canvas,
         start, end, 'bottom');
@@ -91,7 +91,7 @@ class ZoomRectPainter extends CustomPainter {
         start, end, 'right');
   }
 
-  /// Draw axis tootip connector line
+  /// Draw axis tootip connector line.
   void _drawAxisTooltip(List<ChartAxisRenderer> axisRenderers, Canvas canvas,
       Offset startPosition, Offset endPosition, String axisPosition) {
     for (int index = 0; index < axisRenderers.length; index++) {
@@ -105,7 +105,7 @@ class ZoomRectPainter extends CustomPainter {
     }
   }
 
-  /// Returns the tooltip label on zooming
+  /// Returns the tooltip label on zooming.
   String _getValue(Offset position,
       ChartAxisRendererDetails axisRendererDetails, String axisPosition) {
     final ChartAxis axis = axisRendererDetails.axis;
@@ -147,7 +147,7 @@ class ZoomRectPainter extends CustomPainter {
               : smallRect.right,
           smallRect.bottom);
 
-  /// Calculate the rect, based on the zoomed axis position
+  /// Calculate the rect, based on the zoomed axis position.
   Rect _calculateRect(ChartAxisRendererDetails axisRendererDetails,
       Offset position, Size labelSize, String axisPosition) {
     Rect rect;
@@ -186,7 +186,7 @@ class ZoomRectPainter extends CustomPainter {
     return rect;
   }
 
-  /// To draw tooltip connector
+  /// To draw tooltip connector.
   void _drawTooltipConnector(
       ChartAxisRendererDetails axisRendererDetails,
       Offset startPosition,
@@ -266,7 +266,7 @@ class ZoomRectPainter extends CustomPainter {
         startPosition, endPosition, axis.interactiveTooltip, axisPosition);
   }
 
-  /// To draw connectors
+  /// To draw connectors.
   void _drawConnector(
       Canvas canvas,
       Paint connectorLinePaint,
@@ -307,7 +307,7 @@ class ZoomRectPainter extends CustomPainter {
         : canvas.drawPath(connectorPath, connectorLinePaint);
   }
 
-  /// To draw tooltip
+  /// To draw tooltip.
   RRect _drawTooltip(
       Canvas canvas,
       Paint fillPaint,
@@ -353,7 +353,7 @@ class ZoomRectPainter extends CustomPainter {
     return rect;
   }
 
-  /// To calculate tootip neck positions
+  /// To calculate tootip neck positions.
   void _calculateNeckPositions(
       Canvas canvas,
       Paint fillPaint,

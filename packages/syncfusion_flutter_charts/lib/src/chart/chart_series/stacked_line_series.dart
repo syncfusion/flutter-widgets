@@ -9,8 +9,8 @@ import 'stacked_series_base.dart';
 ///
 /// A stacked line chart displays series as a set of points connected by a line.
 ///
-/// To render a stacked line chart, create an instance of StackedLineSeries, and add it to the series collection property of [SfCartesianChart].
-/// Provides options to customize [color], [opacity], [width] of the Stacked Line segments.
+/// To render a stacked line chart, create an instance of [StackedLineSeries], and add it to the series collection property of [SfCartesianChart].
+/// Provides options to customize [color], [opacity], [width] of the stacked line segments.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=NCUDBD_ClHo}
 @immutable
@@ -177,7 +177,7 @@ class StackedLineSeries<T, D> extends StackedSeriesBase<T, D> {
     return hashList(values);
   }
 
-  /// to create a Stacked line series renderer
+  /// To create a stacked line series renderer.
   StackedLineSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     StackedLineSeriesRenderer stackedLineSeriesRenderer;
     if (onCreateRenderer != null) {

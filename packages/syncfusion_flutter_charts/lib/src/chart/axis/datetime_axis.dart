@@ -124,114 +124,122 @@ class DateTimeAxis extends ChartAxis {
             autoScrollingMode: autoScrollingMode,
             axisLabelFormatter: axisLabelFormatter);
 
-  ///Formats the date-time axis labels. The default data-time axis label can be formatted
-  ///with various built-in date formats.
+  /// Formats the date-time axis labels. The default data-time axis label can be formatted
+  /// with various built-in date formats.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(dateFormat: DateFormat.y()),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateFormat? dateFormat;
 
-  ///Formats the date time-axis labels. The labels can be customized by adding desired
-  ///text to prefix or suffix.
+  /// Formats the date time-axis labels. The labels can be customized by adding desired
+  /// text to prefix or suffix.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(labelFormat: '{value}M'),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final String? labelFormat;
 
-  ///Customizes the date-time axis intervals. Intervals can be set to days, hours,
-  ///milliseconds, minutes, months, seconds, years, and auto. If it is set to auto,
-  ///interval type will be decided based on the data.
+  /// Customizes the date-time axis intervals. Intervals can be set to days, hours,
+  /// milliseconds, minutes, months, seconds, years, and auto. If it is set to auto,
+  /// interval type will be decided based on the data.
   ///
-  ///Defaults to `DateTimeIntervalType.auto`
+  /// Defaults to `DateTimeIntervalType.auto`.
   ///
-  ///Also refer [DateTimeIntervalType]
+  /// Also refer [DateTimeIntervalType].
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(intervalType: DateTimeIntervalType.years),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTimeIntervalType intervalType;
 
-  ///Minimum value of the axis. The axis will start from this date.
+  /// Minimum value of the axis. The axis will start from this date.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(minimum: DateTime(2000)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTime? minimum;
 
-  ///Maximum value of the axis. The axis will end at this date.
+  /// Maximum value of the axis. The axis will end at this date.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(maximum: DateTime(2019)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTime? maximum;
 
-  ///The minimum visible value of the axis. The axis will be rendered from this date initially.
+  /// The minimum visible value of the axis. The axis will be rendered from this date initially.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(visibleMinimum: DateTime(2000)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTime? visibleMinimum;
 
-  ///The maximum visible value of the axis. The axis will be rendered from this date initially.
+  /// The maximum visible value of the axis. The axis will be rendered from this date initially.
   ///
-  /// Defaults to `null`
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///          primaryXAxis: DateTimeAxis(visibleMaximum: DateTime(2019)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTime? visibleMaximum;
 
-  ///Defines the type of delta value in the DateTime axis.
+  /// Defines the type of delta value in the DateTime axis.
   ///
-  ///For example, if the [autoScrollingDelta] value is 5 and [autoScrollingDeltaType] is set to
+  /// For example, if the [autoScrollingDelta] value is 5 and [autoScrollingDeltaType] is set to
   /// `DateTimeIntervalType.days`, the data points with 5 days of values will be displayed.
   ///
-  ///The value can be set to years, months, days, hours, minutes, seconds and auto.
+  /// The value can be set to years, months, days, hours, minutes, seconds and auto.
   ///
-  ///Defaults to `DateTimeIntervalType.auto` and the delta will be calculated automatically based on the data.
+  /// Defaults to `DateTimeIntervalType.auto` and the delta will be calculated automatically based on the data.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(autoScrollingDeltaType: DateTimeIntervalType.months),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTimeIntervalType autoScrollingDeltaType;
@@ -503,7 +511,7 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
         this, interval, _axisDetails.visibleRange!.interval);
     while (interval <= _axisDetails.visibleRange!.maximum) {
       if (withInRange(interval, _axisDetails.visibleRange!)) {
-        prevInterval = (label.length != null && label.isNotEmpty)
+        prevInterval = (label.isNotEmpty)
             ? _axisDetails
                 .visibleLabels[_axisDetails.visibleLabels.length - 1].value
             : interval;

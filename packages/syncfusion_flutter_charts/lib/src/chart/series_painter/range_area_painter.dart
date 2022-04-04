@@ -14,7 +14,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Range area series
+/// Creates series renderer for range area series.
 class RangeAreaSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of RangeAreaSeriesRenderer class.
   RangeAreaSeriesRenderer();
@@ -22,7 +22,7 @@ class RangeAreaSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _currentSeriesDetails;
   late SeriesRendererDetails _segmentSeriesDetails;
 
-  /// Range Area segment is created here
+  /// Range area segment is created here.
   ChartSegment _createSegments(
       int seriesIndex, SfCartesianChart chart, double animateFactor,
       [List<Offset>? _points]) {
@@ -55,7 +55,7 @@ class RangeAreaSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render range area series segments
+  /// To render range area series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
@@ -207,6 +207,8 @@ class RangeAreaChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRendererDetails.calculateRegionData(stateProperties,

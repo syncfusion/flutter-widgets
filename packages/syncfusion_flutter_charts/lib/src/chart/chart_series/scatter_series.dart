@@ -3,10 +3,10 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 /// Renders the scatter series.
 ///
-/// To render a scatter chart, create an instance of ScatterSeries, and add it to the series collection property of [SfCartesianChart].
+/// To render a scatter chart, create an instance of [ScatterSeries], and add it to the series collection property of [SfCartesianChart].
 ///
 /// The following properties, such as [color], [opacity], [borderWidth], [borderColor] can be used to customize  the appearance of the scatter segment.
-
+///
 @immutable
 class ScatterSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of ScatterSeries class.

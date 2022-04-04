@@ -1111,12 +1111,21 @@ class RowSelectionManager extends SelectionManagerBase {
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
     final int lastCellIndex =
         selection_helper.getLastCellIndex(dataGridConfiguration);
-    final int nextCellIndex = selection_helper.getNextColumnIndex(
-        dataGridConfiguration, currentCell.columnIndex);
+    int nextCellIndex;
+    // Need to get previous column index only if the control key is
+    // pressed in RTL mode since it will perform the home key event.
+    if (keyEvent.isControlPressed &&
+        dataGridConfiguration.textDirection == TextDirection.rtl) {
+      nextCellIndex = selection_helper.getPreviousColumnIndex(
+          dataGridConfiguration, currentCell.columnIndex);
+    } else {
+      nextCellIndex = selection_helper.getNextColumnIndex(
+          dataGridConfiguration, currentCell.columnIndex);
+    }
 
     if (currentCell.rowIndex <=
             grid_helper.getHeaderIndex(dataGridConfiguration) ||
-        nextCellIndex > lastCellIndex ||
+        (nextCellIndex < 0 || nextCellIndex > lastCellIndex) ||
         currentCell.columnIndex == nextCellIndex) {
       return;
     }
@@ -1144,8 +1153,17 @@ class RowSelectionManager extends SelectionManagerBase {
     }
 
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
-    final int previousCellIndex = selection_helper.getPreviousColumnIndex(
-        dataGridConfiguration, currentCell.columnIndex);
+    int previousCellIndex;
+    // Need to get next column index only if the control key is
+    // pressed in RTL mode since it will perform the end key event.
+    if (keyEvent.isControlPressed &&
+        dataGridConfiguration.textDirection == TextDirection.rtl) {
+      previousCellIndex = selection_helper.getNextColumnIndex(
+          dataGridConfiguration, currentCell.columnIndex);
+    } else {
+      previousCellIndex = selection_helper.getPreviousColumnIndex(
+          dataGridConfiguration, currentCell.columnIndex);
+    }
 
     if (currentCell.rowIndex <=
             grid_helper.getHeaderIndex(dataGridConfiguration) ||

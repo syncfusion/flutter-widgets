@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "イベントなし", 
 "ofDataPagerLabel" : "の", 
 "pagesDataPagerLabel" : "ページ", 
-"itemsDataPagerLabel" : "アイテム", 
+"rowsPerPageDataPagerLabel" : "1ページあたりの行数", 
 "pdfBookmarksLabel" : "ブックマーク", 
 "pdfNoBookmarksLabel" : "ブックマークが見つかりません", 
 "pdfScrollStatusOfLabel" : "の", 
@@ -40,8 +40,8 @@
 "shaabanLabel" : "シャアバーン", 
 "ramadanLabel" : "ラマダン", 
 "shawwalLabel" : "シャウワール", 
-"dhualqiLabel" : "ズル・カイダ", 
-"dhualhiLabel" : "ズル・ヒッジャ", 
+"dhualqiLabel" : "ズーアルチーダー", 
+"dhualhiLabel" : "ズーアルヒジャ", 
 "shortMuharramLabel" : "ムー。", 
 "shortSafarLabel" : "Saf。", 
 "shortRabi1Label" : "ラビ。私", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "ショー。", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "日"
+"daySpanCountLabel" : "日", 
+"series" : "シリーズ"
 }

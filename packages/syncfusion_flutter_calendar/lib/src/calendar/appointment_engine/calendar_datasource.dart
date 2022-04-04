@@ -436,6 +436,7 @@ abstract class CalendarDataSource<T extends Object?>
 
       return occurrenceAppointments[0].convertToCalendarAppointment();
     }
+    return null;
   }
 
   /// Returns the Pattern appointment for the provided occurrence appointment.

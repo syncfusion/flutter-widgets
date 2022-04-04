@@ -418,6 +418,20 @@ class CalendarViewHelper {
     }
   }
 
+  /// Check the calendar view is day or not.
+  static bool isDayView(CalendarView view, int numberOfDays,
+      List<int>? nonWorkingDays, int numberOfWeeks) {
+    final int daysCount = DateTimeHelper.getViewDatesCount(
+        view, numberOfWeeks, numberOfDays, nonWorkingDays);
+    if ((view == CalendarView.day ||
+            view == CalendarView.week ||
+            view == CalendarView.workWeek) &&
+        daysCount == 1) {
+      return true;
+    }
+    return false;
+  }
+
   /// Return the cell end padding based on platform of calendar widget.
   static double getCellEndPadding(double cellEndPadding, bool isMobile) {
     if (cellEndPadding != -1) {

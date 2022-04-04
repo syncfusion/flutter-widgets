@@ -20,7 +20,7 @@ import 'chart_segment.dart';
 ///
 /// _Note:_ This is only applicable for [SfCartesianChart].
 class LineSegment extends ChartSegment {
-  /// segment points & old segment points
+  /// Old segment points.
   double? _oldX1, _oldY1, _oldX2, _oldY2;
 
   late bool _needAnimate, _newlyAddedSegment = false;
@@ -283,7 +283,7 @@ class LineSegment extends ChartSegment {
     }
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

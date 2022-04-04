@@ -22,46 +22,58 @@ import '../utils/helper.dart';
 import 'financial_series_base.dart';
 import 'histogram_series.dart';
 
-/// Represents the series renderer details
+/// Represents the series renderer details.
 class SeriesRendererDetails {
-  /// argument Constructor for SeriesRendererDetails class
+  /// Argument constructor for SeriesRendererDetails class.
   SeriesRendererDetails(this.renderer);
 
-  /// Specifies the value of Cartesian series renderer
+  /// Specifies the value of Cartesian series renderer.
   final CartesianSeriesRenderer renderer;
 
-  /// Specifies the value of series name
+  /// Specifies the value of series name.
   String? seriesName;
 
-  /// Holds whether the series is visible
+  /// Holds whether the series is visible.
   bool? visible;
 
-  /// Specifies whether to repaint the series
+  /// Specifies whether to repaint the series.
   bool needsRepaint = true;
 
-  ///Holds the value of Cartesian chart
+  /// Holds the value of Cartesian chart.
   late SfCartesianChart chart;
 
-  /// Stores the series type
+  /// Stores the series type.
   late String seriesType;
 
-  /// Whether to check the series is rect series or not
+  /// Whether to check the series is rect series or not.
   // ignore: prefer_final_fields
   bool isRectSeries = false;
+
+  /// Specifies whether the current point types series
+  bool isPointSeries = false;
+
+  /// Specifies whether the series has side by side info
+  bool hasSideBySideInfo = false;
+
+  /// Specifies whether the series has tooltip behavior
+  bool hasTooltip = false;
+
+  /// Specifies whether to calculate region for the waterfall/ stacked bar/ stacked column
+  bool needsToCalculateRegion = false;
 
   /// Specifies the histogram values
   late HistogramValues histogramValues;
 
-  /// Specifies the list of draw control points
+  /// Specifies the list of draw control points.
   final List<List<Offset>> drawControlPoints = <List<Offset>>[];
 
-  /// Specifies the list of low control points
+  /// Specifies the list of low control points.
   final List<List<Offset>> drawLowControlPoints = <List<Offset>>[];
 
-  /// Specifies the list of high control points
+  /// Specifies the list of high control points.
   final List<List<Offset>> drawHighControlPoints = <List<Offset>>[];
 
-  /// Specifies the segment path value
+  /// Specifies the segment path value.
   Path? segmentPath;
 
   /// Gets the Segments collection variable declarations.
@@ -74,90 +86,90 @@ class SeriesRendererDetails {
   /// Store the current series state
   late CartesianSeries<dynamic, dynamic> series;
 
-  /// Holds the collection of Cartesian data points
+  /// Holds the collection of Cartesian data points.
   // ignore: prefer_final_fields
   List<CartesianChartPoint<dynamic>> dataPoints =
       <CartesianChartPoint<dynamic>>[];
 
-  /// Holds the collection of Cartesian visible data points
+  /// Holds the collection of Cartesian visible data points.
   List<CartesianChartPoint<dynamic>>? visibleDataPoints;
 
-  /// Holds the collection of old data points
+  /// Holds the collection of old data points.
   List<CartesianChartPoint<dynamic>>? oldDataPoints;
 
-  /// Holds the old series initial selected data indexes
+  /// Holds the old series initial selected data indexes.
   List<int>? oldSelectedIndexes;
 
-  /// Holds the information for x Axis
+  /// Holds the information for x Axis.
   ChartAxisRendererDetails? xAxisDetails;
 
-  /// Holds the information for y Axis
+  /// Holds the information for y Axis.
   ChartAxisRendererDetails? yAxisDetails;
 
-  /// Minimum x value for Series
+  /// Minimum x value for Series.
   num? minimumX;
 
-  /// Maximum x value for Series
+  /// Maximum x value for Series.
   num? maximumX;
 
-  /// Minimum y value for Series
+  /// Minimum y value for Series.
   num? minimumY;
 
-  /// Maximum y value for Series
+  /// Maximum y value for Series.
   num? maximumY;
 
-  /// Hold the data about point regions
+  /// Hold the data about point regions.
   Map<dynamic, dynamic>? regionalData;
 
-  /// Color for the series based on color palette
+  /// Color for the series based on color palette.
   Color? seriesColor;
 
-  /// Specifies the list of x-values
+  /// Specifies the list of x-values.
   List<dynamic>? xValues;
 
-  /// Holds the Cartesian state properties
+  /// Holds the Cartesian state properties.
   late CartesianStateProperties stateProperties;
 
-  /// Contains the collection of path for markers
+  /// Contains the collection of path for markers.
   late List<Path?> markerShapes;
 
-  /// Specifies the value of marker shapes
+  /// Specifies the value of marker shapes.
   late List<Path?> markerShapes2;
 
-  /// Specifies whether the region is outer
+  /// Specifies whether the region is outer.
   // ignore: prefer_final_fields
   bool isOuterRegion = false;
 
-  /// used to differentiate indicator from series
+  /// Used to differentiate indicator from series.
   // ignore: prefer_final_fields
   bool isIndicator = false;
 
-  ///storing mindelta for rect series
+  /// Storing mindelta for rect series.
   num? minDelta;
 
-  /// Repaint notifier for series
+  /// Repaint notifier for series.
   late ValueNotifier<int> repaintNotifier;
 
-  /// Specifies whether the series elements need to animate
+  /// Specifies whether the series elements need to animate.
   // ignore: prefer_final_fields
   bool needAnimateSeriesElements = false;
 
-  /// Specifies whether needs to animate
+  /// Specifies whether needs to animate.
   bool needsAnimation = false;
 
-  /// Specifies whether to reanimate the elements
+  /// Specifies whether to reanimate the elements.
   bool reAnimate = false;
 
-  /// Specifies whether to calculate the region
+  /// Specifies whether to calculate the region.
   bool calculateRegion = false;
 
-  /// Specifies the series animation
+  /// Specifies the series animation.
   Animation<double>? seriesAnimation;
 
-  /// Specifies the series element animation
+  /// Specifies the series element animation.
   Animation<double>? seriesElementAnimation;
 
-  /// controls the animation of the corresponding series
+  /// Controls the animation of the corresponding series.
   late AnimationController animationController;
 
   ///We can redraw the series with updating or creating new points by using this controller.If we need to access the redrawing methods
@@ -299,11 +311,13 @@ class SeriesRendererDetails {
 
   /// Method to listen the animation status
   void animationStatusListener(AnimationStatus status) {
+    // ignore: unnecessary_null_comparison
     if (stateProperties != null && status == AnimationStatus.completed) {
       reAnimate = false;
       animationCompleted = true;
       stateProperties.animationCompleteCount++;
       setAnimationStatus(stateProperties);
+      // ignore: unnecessary_null_comparison
     } else if (stateProperties != null && status == AnimationStatus.forward) {
       stateProperties.renderingDetails.animateCompleted = false;
       animationCompleted = false;
@@ -361,7 +375,36 @@ class SeriesRendererDetails {
     histogramValues.sDValue = sDValue;
   }
 
-  /// To find the region data of a series
+  /// method to set the bool variables based on the series type
+  void setSeriesProperties(SeriesRendererDetails seriesRendererDetails) {
+    if (seriesType.contains('column') ||
+        seriesType.contains('stackedbar') ||
+        seriesType == 'bar' ||
+        seriesType == 'histogram' ||
+        seriesType == 'waterfall') {
+      isRectSeries = true;
+      needsToCalculateRegion = seriesType.contains('waterfall') ||
+          seriesType.contains('stackedcolumn') ||
+          seriesType.contains('stackedbar');
+    } else if (seriesType == 'scatter' || seriesType == 'bubble') {
+      isPointSeries = true;
+    }
+
+    hasSideBySideInfo = isRectSeries ||
+        (seriesType.contains('candle') ||
+            seriesType.contains('hilo') ||
+            seriesType.contains('histogram') ||
+            seriesType.contains('box'));
+
+    hasTooltip = chart.tooltipBehavior != null &&
+        seriesType != 'errorbar' &&
+        (chart.tooltipBehavior.enable ||
+            seriesRendererDetails.series.onPointTap != null ||
+            seriesRendererDetails.series.onPointDoubleTap != null ||
+            seriesRendererDetails.series.onPointLongPress != null) &&
+        seriesType != 'boxandwhisker';
+  }
+
   /// To find the region data of a series
   void calculateRegionData(
       CartesianStateProperties stateProperties,
@@ -377,54 +420,27 @@ class SeriesRendererDetails {
         seriesRendererDetails.xAxisDetails!.visibleRange!)) {
       seriesRendererDetails.visibleDataPoints!
           .add(seriesRendererDetails.dataPoints[pointIndex]);
-      if (seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
-        seriesRendererDetails.dataPoints[pointIndex].visiblePointIndex =
-            seriesRendererDetails.visibleDataPoints!.length - 1;
-      }
+      seriesRendererDetails.dataPoints[pointIndex].visiblePointIndex =
+          seriesRendererDetails.visibleDataPoints!.length - 1;
     }
     chart = stateProperties.chart;
-    final ChartAxis xAxis = xAxisDetails!.axis;
-    final ChartAxis yAxis = yAxisDetails!.axis;
     final Rect rect = calculatePlotOffset(
         stateProperties.chartAxis.axisClipRect,
-        Offset(xAxis.plotOffset, yAxis.plotOffset));
-    isRectSeries = seriesType == 'column' ||
-        seriesType == 'bar' ||
-        seriesType.contains('stackedcolumn') ||
-        seriesType.contains('stackedbar') ||
-        seriesType == 'rangecolumn' ||
-        seriesType == 'histogram' ||
-        seriesType == 'waterfall';
-    CartesianChartPoint<dynamic> point;
+        Offset(xAxisDetails!.axis.plotOffset, yAxisDetails!.axis.plotOffset));
 
-    final double markerHeight = series.markerSettings.height,
-        markerWidth = series.markerSettings.width;
-    final bool isPointSeries =
-        seriesType == 'scatter' || seriesType == 'bubble';
-    final bool isFastLine = seriesType == 'fastline';
-    if ((!isFastLine ||
-            (isFastLine &&
-                (series.markerSettings.isVisible ||
-                    series.dataLabelSettings.isVisible ||
-                    series.enableTooltip))) &&
-        visible!) {
+    CartesianChartPoint<dynamic> point;
+    if (visible!) {
       point = dataPoints[pointIndex];
       if (point.region == null ||
           seriesRendererDetails.calculateRegion == true ||
-          seriesType.contains('waterfall') ||
-          seriesType.contains('stackedcolumn') ||
-          seriesType.contains('stackedbar')) {
+          needsToCalculateRegion) {
         if (seriesRendererDetails.calculateRegion == true &&
             dataPoints.length == pointIndex - 1) {
           seriesRendererDetails.calculateRegion = false;
         }
 
         /// side by side range calculated
-        seriesRendererDetails.sideBySideInfo = (isRectSeries ||
-                (seriesType.contains('candle') ||
-                    seriesType.contains('hilo') ||
-                    seriesType.contains('histogram') ||
-                    seriesType.contains('box')))
+        seriesRendererDetails.sideBySideInfo = hasSideBySideInfo
             ? calculateSideBySideInfo(
                 seriesRendererDetails.renderer, stateProperties)
             : seriesRendererDetails.sideBySideInfo;
@@ -444,8 +460,8 @@ class SeriesRendererDetails {
               this,
               stateProperties,
               rect,
-              markerHeight,
-              markerWidth,
+              series.markerSettings.height,
+              series.markerSettings.width,
               sideBySideInfo,
               _nextPoint,
               midX,
@@ -453,13 +469,7 @@ class SeriesRendererDetails {
         }
       }
       // ignore: unnecessary_null_comparison
-      if (chart.tooltipBehavior != null &&
-          seriesType != 'errorbar' &&
-          (chart.tooltipBehavior.enable ||
-              seriesRendererDetails.series.onPointTap != null ||
-              seriesRendererDetails.series.onPointDoubleTap != null ||
-              seriesRendererDetails.series.onPointLongPress != null) &&
-          seriesType != 'boxandwhisker') {
+      if (hasTooltip) {
         calculateTooltipRegion(
             point, seriesIndex, seriesRendererDetails, stateProperties);
       }
@@ -484,13 +494,11 @@ class SeriesRendererDetails {
       if (primaryAxisDetails is DateTimeAxisDetails) {
         final DateTimeAxis _axis = primaryAxisDetails.axis as DateTimeAxis;
         final num interval = primaryAxisDetails.visibleRange!.minimum.ceil();
-        final num prevInterval =
-            (primaryAxisDetails.visibleLabels.length != null &&
-                    primaryAxisDetails.visibleLabels.isNotEmpty)
-                ? primaryAxisDetails
-                    .visibleLabels[primaryAxisDetails.visibleLabels.length - 1]
-                    .value
-                : interval;
+        final num prevInterval = (primaryAxisDetails.visibleLabels.isNotEmpty)
+            ? primaryAxisDetails
+                .visibleLabels[primaryAxisDetails.visibleLabels.length - 1]
+                .value
+            : interval;
         final DateFormat dateFormat = _axis.dateFormat ??
             getDateTimeLabelFormat(xAxisDetails!.axisRenderer, interval.toInt(),
                 prevInterval.toInt());

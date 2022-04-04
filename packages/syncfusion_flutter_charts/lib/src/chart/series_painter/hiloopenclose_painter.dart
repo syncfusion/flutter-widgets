@@ -13,7 +13,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Hilo open close series
+/// Creates series renderer for hilo open close series.
 class HiloOpenCloseSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of HiloOpenCloseSeriesRenderer class.
   HiloOpenCloseSeriesRenderer();
@@ -26,7 +26,7 @@ class HiloOpenCloseSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _segmentSeriesDetails;
   late SeriesRendererDetails _oldSeriesDetails;
 
-  /// HiloOpenClose _segment is created here
+  /// Hilo open close _segment is created here.
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
@@ -85,7 +85,7 @@ class HiloOpenCloseSeriesRenderer extends XyDataSeriesRenderer {
     return _segment;
   }
 
-  /// To render hilo open close series segments
+  /// To render hilo open close series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment _segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
@@ -118,7 +118,7 @@ class HiloOpenCloseSeriesRenderer extends XyDataSeriesRenderer {
     segmentProperties.strokeWidth = segmentProperties.series.borderWidth;
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -168,7 +168,6 @@ class HiloOpenClosePainter extends CustomPainter {
   /// Painter method for Hilo open-close  series
   @override
   void paint(Canvas canvas, Size size) {
-    Rect clipRect;
     double animationFactor;
     CartesianChartPoint<dynamic> point;
     final SeriesRendererDetails seriesRendererDetails =
@@ -210,47 +209,186 @@ class HiloOpenClosePainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
+      final bool hasTooltip = chart.tooltipBehavior != null &&
+          (chart.tooltipBehavior.enable ||
+              seriesRendererDetails.series.onPointTap != null ||
+              seriesRendererDetails.series.onPointDoubleTap != null ||
+              seriesRendererDetails.series.onPointLongPress != null);
+      final bool hasSeriesElements = seriesRendererDetails.visible! &&
+          (series.dataLabelSettings.isVisible ||
+              (chart.tooltipBehavior != null &&
+                  chart.tooltipBehavior.enable &&
+                  (chart.tooltipBehavior != null &&
+                      chart.tooltipBehavior.enable &&
+                      series.enableTooltip)));
+      seriesRendererDetails.sideBySideInfo = calculateSideBySideInfo(
+          seriesRendererDetails.renderer, stateProperties);
+      final num? sideBySideMinimumVal =
+          seriesRendererDetails.sideBySideInfo?.minimum;
+
+      final num? sideBySideMaximumVal =
+          seriesRendererDetails.sideBySideInfo?.maximum;
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRendererDetails.calculateRegionData(
-            stateProperties,
-            seriesRendererDetails,
-            painterKey.index,
-            point,
-            pointIndex,
-            seriesRendererDetails.sideBySideInfo);
+        final bool withInXRange = withInRange(
+            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        bool withInHighLowRange = false, withInOpenCloseRange = false;
+        if (point != null &&
+            point.high != null &&
+            point.low != null &&
+            point.open != null &&
+            point.close != null) {
+          withInHighLowRange = withInRange(point.high,
+                  seriesRendererDetails.yAxisDetails!.visibleRange!) &&
+              withInRange(
+                  point.low, seriesRendererDetails.yAxisDetails!.visibleRange!);
+          withInOpenCloseRange = withInRange(point.open,
+                  seriesRendererDetails.yAxisDetails!.visibleRange!) &&
+              withInRange(point.close,
+                  seriesRendererDetails.yAxisDetails!.visibleRange!);
 
-        if (point.isVisible && !point.isGap) {
-          seriesRendererDetails.drawSegment(
-              canvas,
-              seriesRenderer._createSegments(
-                  point, segmentIndex += 1, painterKey.index, animationFactor));
+          if (withInXRange || (withInHighLowRange && withInOpenCloseRange)) {
+            if (withInXRange) {
+              seriesRendererDetails.visibleDataPoints!
+                  .add(seriesRendererDetails.dataPoints[pointIndex]);
+              seriesRendererDetails.dataPoints[pointIndex].visiblePointIndex =
+                  seriesRendererDetails.visibleDataPoints!.length - 1;
+            }
+            point.openPoint = calculatePoint(
+                point.xValue + sideBySideMinimumVal,
+                point.open,
+                seriesRendererDetails.xAxisDetails!,
+                seriesRendererDetails.yAxisDetails!,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+
+            point.closePoint = calculatePoint(
+                point.xValue + sideBySideMaximumVal,
+                point.close,
+                seriesRendererDetails.xAxisDetails!,
+                seriesRendererDetails.yAxisDetails!,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+            point.lowPoint = calculatePoint(
+                point.xValue + sideBySideMinimumVal,
+                point.low,
+                seriesRendererDetails.xAxisDetails!,
+                seriesRendererDetails.yAxisDetails!,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+            point.highPoint = calculatePoint(
+                point.xValue + sideBySideMaximumVal,
+                point.high,
+                seriesRendererDetails.xAxisDetails!,
+                seriesRendererDetails.yAxisDetails!,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+            final num center = (point.xValue + sideBySideMinimumVal) +
+                (((point.xValue + sideBySideMaximumVal) -
+                        (point.xValue + sideBySideMinimumVal)) /
+                    2);
+
+            point.centerHighPoint = calculatePoint(
+                center,
+                point.high,
+                seriesRendererDetails.xAxisDetails!,
+                seriesRendererDetails.yAxisDetails!,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+
+            point.centerLowPoint = calculatePoint(
+                center,
+                point.low,
+                seriesRendererDetails.xAxisDetails!,
+                seriesRendererDetails.yAxisDetails!,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+            final num value1 =
+                (point.low < point.high) == true ? point.high : point.low;
+            final num value2 =
+                (point.low > point.high) == true ? point.high : point.low;
+            point.markerPoint = calculatePoint(
+                point.xValue,
+                yAxisDetails.axis.isInversed ? value2 : value1,
+                xAxisDetails,
+                yAxisDetails,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+
+            if (hasSeriesElements) {
+              if (point.region == null ||
+                  seriesRendererDetails.calculateRegion == true) {
+                if (seriesRendererDetails.calculateRegion == true &&
+                    dataPoints.length == pointIndex - 1) {
+                  seriesRendererDetails.calculateRegion = false;
+                }
+
+                point.markerPoint2 = calculatePoint(
+                    point.xValue,
+                    yAxisDetails.axis.isInversed ? value1 : value2,
+                    xAxisDetails,
+                    yAxisDetails,
+                    stateProperties.requireInvertedAxis,
+                    seriesRendererDetails.series,
+                    axisClipRect);
+                if (seriesRendererDetails.series.dataLabelSettings.isVisible ==
+                    true) {
+                  point.centerOpenPoint = calculatePoint(
+                      point.xValue,
+                      point.open,
+                      seriesRendererDetails.xAxisDetails!,
+                      seriesRendererDetails.yAxisDetails!,
+                      stateProperties.requireInvertedAxis,
+                      seriesRendererDetails.series,
+                      axisClipRect);
+
+                  point.centerClosePoint = calculatePoint(
+                      point.xValue,
+                      point.close,
+                      seriesRendererDetails.xAxisDetails!,
+                      seriesRendererDetails.yAxisDetails!,
+                      stateProperties.requireInvertedAxis,
+                      seriesRendererDetails.series,
+                      axisClipRect);
+                }
+
+                point.region = !stateProperties.requireInvertedAxis
+                    ? Rect.fromLTWH(
+                        point.markerPoint!.x,
+                        point.markerPoint!.y,
+                        seriesRendererDetails.series.borderWidth,
+                        point.markerPoint2!.y - point.markerPoint!.y)
+                    : Rect.fromLTWH(
+                        point.markerPoint2!.x,
+                        point.markerPoint2!.y,
+                        (point.markerPoint!.x - point.markerPoint2!.x).abs(),
+                        seriesRendererDetails.series.borderWidth);
+              }
+              if (hasTooltip) {
+                calculateTooltipRegion(
+                    point, seriesIndex, seriesRendererDetails, stateProperties);
+              }
+            }
+            if (point.isVisible && !point.isGap) {
+              seriesRendererDetails.drawSegment(
+                  canvas,
+                  seriesRenderer._createSegments(point, segmentIndex += 1,
+                      painterKey.index, animationFactor));
+            }
+          }
         }
       }
-      clipRect = calculatePlotOffset(
-          Rect.fromLTWH(
-              stateProperties.chartAxis.axisClipRect.left -
-                  series.markerSettings.width,
-              stateProperties.chartAxis.axisClipRect.top -
-                  series.markerSettings.height,
-              stateProperties.chartAxis.axisClipRect.right +
-                  series.markerSettings.width,
-              stateProperties.chartAxis.axisClipRect.bottom +
-                  series.markerSettings.height),
-          Offset(xAxisDetails.axis.plotOffset, yAxisDetails.axis.plotOffset));
 
       canvas.restore();
-      if ((series.animationDuration <= 0 ||
-              animationFactor >=
-                  seriesRendererDetails.stateProperties.seriesDurationFactor) &&
-          series.dataLabelSettings.isVisible) {
-        // ignore: unnecessary_null_comparison
-        assert(seriesRenderer != null,
-            'The Hilo open-close series should be available to render a marker on it.');
-        canvas.clipRect(clipRect);
-        seriesRendererDetails.renderSeriesElements(
-            chart, canvas, seriesRendererDetails.seriesElementAnimation);
-      }
       if (seriesRendererDetails.visible! == true && animationFactor >= 1) {
         stateProperties.setPainterKey(painterKey.index, painterKey.name, true);
       }

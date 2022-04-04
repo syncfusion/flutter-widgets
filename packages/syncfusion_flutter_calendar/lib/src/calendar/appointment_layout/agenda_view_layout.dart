@@ -1270,7 +1270,18 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
             calendarTheme.selectionBorderColor!.withOpacity(0.4);
         _rectPainter.style = PaintingStyle.stroke;
         _rectPainter.strokeWidth = 2;
-        canvas.drawRect(rect.outerRect, _rectPainter);
+        if (childCount == 0) {
+          final Radius cornerRadius = Radius.circular(
+              (rect.outerRect.height * 0.1) > 5
+                  ? 5
+                  : (rect.outerRect.height * 0.1));
+          canvas.drawRRect(
+              RRect.fromRectAndRadius(rect.outerRect, cornerRadius),
+              _rectPainter);
+        } else {
+          canvas.drawRect(rect.outerRect, _rectPainter);
+        }
+
         _rectPainter.style = PaintingStyle.fill;
       }
     }

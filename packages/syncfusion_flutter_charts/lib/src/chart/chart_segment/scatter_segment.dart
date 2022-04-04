@@ -30,8 +30,12 @@ class ScatterSegment extends ChartSegment {
               : ((hasPointColor &&
                       _segmentProperties.currentPoint!.pointColorMapper != null)
                   ? _segmentProperties.currentPoint!.pointColorMapper
-                  : _segmentProperties.series.markerSettings.color ??
-                      _segmentProperties.color)!
+                  : _segmentProperties.series.markerSettings.isVisible == true
+                      ? _segmentProperties.series.markerSettings.color ??
+                          SeriesHelper.getSeriesRendererDetails(
+                                  _segmentProperties.seriesRenderer)
+                              .seriesColor!
+                      : _segmentProperties.color)!
           ..style = PaintingStyle.fill;
       }
     } else {
@@ -98,33 +102,27 @@ class ScatterSegment extends ChartSegment {
   void onPaint(Canvas canvas) {
     _setSegmentProperties();
     if (fillPaint != null) {
-      _segmentProperties.series.animationDuration > 0 == true &&
-              _segmentProperties
-                      .stateProperties.renderingDetails.isLegendToggled ==
-                  false
-          ? animateScatterSeries(
-              SeriesHelper.getSeriesRendererDetails(
-                  _segmentProperties.seriesRenderer),
-              _segmentProperties.point!,
-              _segmentProperties.oldPoint,
-              animationFactor,
-              canvas,
-              fillPaint!,
-              strokePaint!,
-              currentSegmentIndex!,
-              this)
-          : _segmentProperties.seriesRenderer.drawDataMarker(
-              currentSegmentIndex!,
-              canvas,
-              fillPaint!,
-              strokePaint!,
-              _segmentProperties.point!.markerPoint!.x,
-              _segmentProperties.point!.markerPoint!.y,
-              _segmentProperties.seriesRenderer);
+      const double defaultAnimationFactor = 1;
+      animateScatterSeries(
+          SeriesHelper.getSeriesRendererDetails(
+              _segmentProperties.seriesRenderer),
+          _segmentProperties.point!,
+          _segmentProperties.oldPoint,
+          _segmentProperties.series.animationDuration > 0 == true &&
+                  _segmentProperties
+                          .stateProperties.renderingDetails.isLegendToggled ==
+                      false
+              ? animationFactor
+              : defaultAnimationFactor,
+          canvas,
+          fillPaint!,
+          strokePaint!,
+          currentSegmentIndex!,
+          this);
     }
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

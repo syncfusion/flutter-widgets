@@ -5,10 +5,10 @@ import '../utils/enum.dart';
 import '../utils/helper.dart';
 import 'renderer_base.dart';
 
-/// Represents the render object for spark chart
+/// Represents the render object for spark chart.
 class SfSparkWinLossChartRenderObjectWidget
     extends SfSparkChartRenderObjectWidget {
-  /// Creates the render object for spark chart
+  /// Creates the render object for spark chart.
   const SfSparkWinLossChartRenderObjectWidget(
       {Key? key,
       List<dynamic>? data,
@@ -57,13 +57,13 @@ class SfSparkWinLossChartRenderObjectWidget
             coordinatePoints: coordinatePoints,
             dataPoints: dataPoints);
 
-  /// Specifies the area chart border width
+  /// Specifies the area chart border width.
   final double? borderWidth;
 
-  /// Specifies the area chart border color
+  /// Specifies the area chart border color.
   final Color? borderColor;
 
-  /// Specifies the tie point color
+  /// Specifies the tie point color.
   final Color? tiePointColor;
 
   @override
@@ -125,9 +125,9 @@ class SfSparkWinLossChartRenderObjectWidget
   }
 }
 
-/// Represents the render spark win loss chart class
+/// Represents the render spark win loss chart class.
 class _RenderSparkWinLossChart extends RenderSparkChart {
-  /// Creates the render object widget
+  /// Creates the render object widget.
   _RenderSparkWinLossChart(
       {List<dynamic>? data,
       int? dataCount,
@@ -180,10 +180,10 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
   /// Defines the border width.
   double? _borderWidth;
 
-  /// Returns the border width value
+  /// Returns the border width value.
   double? get borderWidth => _borderWidth;
 
-  /// Set the border width value
+  /// Set the border width value.
   set borderWidth(double? value) {
     if (_borderWidth != value) {
       _borderWidth = value;
@@ -194,10 +194,10 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
   /// Defines the border color.
   Color? _borderColor;
 
-  /// Returns the border color
+  /// Returns the border color.
   Color? get borderColor => _borderColor;
 
-  /// Set the border color value
+  /// Set the border color value.
   set borderColor(Color? value) {
     if (_borderColor != value) {
       _borderColor = value;
@@ -208,10 +208,10 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
   /// Defines the tie point color.
   Color? _tiePointColor;
 
-  /// Returns the tie point color
+  /// Returns the tie point color.
   Color? get tiePointColor => _tiePointColor;
 
-  /// Set the tie point color
+  /// Set the tie point color.
   set tiePointColor(Color? value) {
     if (_tiePointColor != value) {
       _tiePointColor = value;
@@ -219,7 +219,7 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
     }
   }
 
-  /// Specifies the win loss segments
+  /// Specifies the win loss segments.
   late List<Rect> _segments;
 
   @override
@@ -271,7 +271,7 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
     }
   }
 
-  /// Method to render win loss series
+  /// Method to render win loss series.
   void _renderWinLossSeries(Canvas canvas, Offset offset) {
     final Paint tiePointPaint = Paint()
       ..color = tiePointColor ?? Colors.deepPurple;

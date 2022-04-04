@@ -127,110 +127,117 @@ class NumericAxis extends ChartAxis {
             autoScrollingMode: autoScrollingMode,
             axisLabelFormatter: axisLabelFormatter);
 
-  ///Formats the numeric axis labels.
+  /// Formats the numeric axis labels.
   ///
-  ///The labels can be customized by adding desired text as prefix or suffix.
+  /// The labels can be customized by adding desired text as prefix or suffix.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(labelFormat: '{value}M'),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final String? labelFormat;
 
-  ///Formats the numeric axis labels with globalized label formats.
+  /// Formats the numeric axis labels with globalized label formats.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(numberFormat: NumberFormat.currencyCompact()),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final NumberFormat? numberFormat;
 
-  ///The minimum value of the axis.
+  /// The minimum value of the axis.
   ///
   /// The axis will start from this value.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(minimum: 0),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double? minimum;
 
-  ///The maximum value of the axis.
+  /// The maximum value of the axis.
   ///
-  ///The axis will end at this value.
+  /// The axis will end at this value.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(maximum: 200),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double? maximum;
 
-  ///The minimum visible value of the axis.
+  /// The minimum visible value of the axis.
   ///
-  ///The axis will be rendered from this value initially.
+  /// The axis will be rendered from this value initially.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(visibleMinimum: 0),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double? visibleMinimum;
 
-  ///The maximum visible value of the axis.
+  /// The maximum visible value of the axis.
   ///
   /// The axis will be rendered till this value initially.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(visibleMaximum: 200),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double? visibleMaximum;
 
-  ///The rounding decimal value of the label.
+  /// The rounding decimal value of the label.
   ///
-  ///Defaults to `3`
+  /// Defaults to `3`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(decimalPlaces: 3),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final int decimalPlaces;

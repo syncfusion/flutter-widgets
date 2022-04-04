@@ -624,3 +624,288 @@ enum DataBarAxisPosition {
   /// Defines the axis position at the mid point.
   middle
 }
+
+///Represents a function used for total calculation.
+enum ExcelTableTotalFormula {
+  /// No calculation.
+  none,
+
+  /// Represents SUM function.
+  sum,
+
+  /// Represents AVERAGE function.
+  average,
+
+  /// Represents COUNT function.
+  count,
+
+  /// Represents COUNTNUMS function.
+  countNums,
+
+  /// Represents MIN function.
+  min,
+
+  /// Represents STDDEV function.
+  stdDev,
+
+  /// Represents VARIABLE function.
+  variable,
+
+  /// Represents MAX function.
+  max,
+
+  /// Represents CUSTOM function.
+  custom,
+}
+
+/// Represents Excel table styles which are built-in.
+enum ExcelTableBuiltInStyle {
+  /// Represents no style.
+  None,
+
+  /// Represents TableStyleMedium1 style.
+  tableStyleMedium1,
+
+  /// Represents TableStyleMedium2 style.
+  tableStyleMedium2,
+
+  /// Represents TableStyleMedium3 style.
+  tableStyleMedium3,
+
+  /// Represents TableStyleMedium4 style.
+  tableStyleMedium4,
+
+  /// Represents TableStyleMedium5 style.
+  tableStyleMedium5,
+
+  /// Represents TableStyleMedium6 style.
+  tableStyleMedium6,
+
+  /// Represents TableStyleMedium7 style.
+  tableStyleMedium7,
+
+  /// Represents TableStyleMedium8 style.
+  tableStyleMedium8,
+
+  /// Represents TableStyleMedium9 style.
+  tableStyleMedium9,
+
+  /// Represents TableStyleMedium10 style.
+  tableStyleMedium10,
+
+  /// Represents TableStyleMedium11 style.
+  tableStyleMedium11,
+
+  /// Represents TableStyleMedium12 style.
+  tableStyleMedium12,
+
+  /// Represents TableStyleMedium13 style.
+  tableStyleMedium13,
+
+  /// Represents TableStyleMedium14 style.
+  tableStyleMedium14,
+
+  /// Represents TableStyleMedium15 style.
+  tableStyleMedium15,
+
+  /// Represents TableStyleMedium16 style.
+  tableStyleMedium16,
+
+  /// Represents TableStyleMedium17 style.
+  tableStyleMedium17,
+
+  /// Represents TableStyleMedium18 style.
+  tableStyleMedium18,
+
+  /// Represents TableStyleMedium19 style.
+  tableStyleMedium19,
+
+  /// Represents TableStyleMedium20 style.
+  tableStyleMedium20,
+
+  /// Represents TableStyleMedium21 style.
+  tableStyleMedium21,
+
+  /// Represents TableStyleMedium22 style.
+  tableStyleMedium22,
+
+  /// Represents TableStyleMedium23 style.
+  tableStyleMedium23,
+
+  /// Represents TableStyleMedium24 style.
+  tableStyleMedium24,
+
+  /// Represents TableStyleMedium25 style.
+  tableStyleMedium25,
+
+  /// Represents TableStyleMedium26 style.
+  tableStyleMedium26,
+
+  /// Represents TableStyleMedium27 style.
+  tableStyleMedium27,
+
+  /// Represents TableStyleMedium28 style.
+  tableStyleMedium28,
+
+  /// Represents TableStyleLight1 style.
+  tableStyleLight1,
+
+  /// Represents TableStyleLight2 style.
+  tableStyleLight2,
+
+  /// Represents TableStyleLight3 style.
+  tableStyleLight3,
+
+  /// Represents TableStyleLight4 style.
+  tableStyleLight4,
+
+  /// Represents TableStyleLight5 style.
+  tableStyleLight5,
+
+  /// Represents TableStyleLight6 style.
+  tableStyleLight6,
+
+  /// Represents TableStyleLight7 style.
+  tableStyleLight7,
+
+  /// Represents TableStyleLight8 style.
+  tableStyleLight8,
+
+  /// Represents TableStyleLight9 style.
+  tableStyleLight9,
+
+  /// Represents TableStyleLight10 style.
+  tableStyleLight10,
+
+  /// Represents TableStyleLight11 style.
+  tableStyleLight11,
+
+  /// Represents TableStyleLight12 style.
+  tableStyleLight12,
+
+  /// Represents TableStyleLight13 style.
+  tableStyleLight13,
+
+  /// Represents TableStyleLight14 style.
+  tableStyleLight14,
+
+  /// Represents TableStyleLight15 style.
+  tableStyleLight15,
+
+  /// Represents TableStyleLight16 style.
+  tableStyleLight16,
+
+  /// Represents TableStyleLight17 style.
+  tableStyleLight17,
+
+  /// Represents TableStyleLight18 style.
+  tableStyleLight18,
+
+  /// Represents TableStyleLight19 style.
+  tableStyleLight19,
+
+  /// Represents TableStyleLight20 style.
+  tableStyleLight20,
+
+  /// Represents TableStyleLight21 style.
+  tableStyleLight21,
+
+  /// Represents TableStyleDark1 style.
+  tableStyleDark1,
+
+  /// Represents TableStyleDark2 style.
+  tableStyleDark2,
+
+  /// Represents TableStyleDark3 style.
+  tableStyleDark3,
+
+  /// Represents TableStyleDark4 style.
+  tableStyleDark4,
+
+  /// Represents TableStyleDark5 style.
+  tableStyleDark5,
+
+  /// Represents TableStyleDark6 style.
+  tableStyleDark6,
+
+  /// Represents TableStyleDark7 style.
+  tableStyleDark7,
+
+  /// Represents TableStyleDark8 style.
+  tableStyleDark8,
+
+  /// Represents TableStyleDark9 style.
+  tableStyleDark9,
+
+  /// Represents TableStyleDark10 style.
+  tableStyleDark10,
+
+  /// Represents TableStyleDark111 style.
+  tableStyleDark11,
+}
+
+/// Specifies the type of validation test to be performed in conjunction with values.
+enum ExcelDataValidationType {
+  /// Represents Any data type.
+  any,
+
+  /// Represents Integer data type.
+  integer,
+
+  /// Represents Decimal data type.
+  decimal,
+
+  /// Represents User data type.
+  user,
+
+  /// Represents Date data type.
+  date,
+
+  /// Represents Time data type.
+  time,
+
+  /// Represents TextLength data type.
+  textLength,
+
+  /// Represents Formula data type.
+  formula
+}
+
+/// Specifies comparison operators for data validation.
+enum ExcelDataValidationComparisonOperator {
+  /// Between.
+  between,
+
+  /// Not between.
+  notBetween,
+
+  /// Equal.
+  equal,
+
+  /// NotEqual.
+  notEqual,
+
+  /// Greater than.
+  greater,
+
+  /// Less than.
+  less,
+
+  /// Greater than or equal to.
+  greaterOrEqual,
+
+  /// Less than or equal to.
+  lessOrEqual
+}
+
+/// Represents possible error style values.
+enum ExcelDataValidationErrorStyle {
+  /// Stop icon is displayed.
+  stop,
+
+  /// Warning icon is displayed.
+  warning,
+
+  /// Information icon is displayed.
+  information
+}

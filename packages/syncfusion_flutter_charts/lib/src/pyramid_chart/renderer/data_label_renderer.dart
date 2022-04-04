@@ -5,22 +5,22 @@ import '../../pyramid_chart/utils/helper.dart';
 import '../base/pyramid_state_properties.dart';
 import 'renderer_extension.dart';
 
-/// Represnts the data lable renderer of pyramid chart
+/// Represents the data label renderer of the pyramid chart.
 // ignore: must_be_immutable
 class PyramidDataLabelRenderer extends StatefulWidget {
-  /// Creats an instance of pyramid data label renderer
+  /// Creates an instance of pyramid data label renderer.
   // ignore: prefer_const_constructors_in_immutables
   PyramidDataLabelRenderer(
       {required Key key, required this.stateProperties, required this.show})
       : super(key: key);
 
-  /// Represents the pyramid chart state
+  /// Represents the pyramid chart state.
   final PyramidStateProperties stateProperties;
 
-  /// Specifies whether to show the data label
+  /// Specifies whether to show the data label.
   bool show;
 
-  /// Specifies the state instance of data label renderer
+  /// Specifies the state instance of data label renderer.
   PyramidDataLabelRendererState? state;
 
   @override
@@ -29,16 +29,16 @@ class PyramidDataLabelRenderer extends StatefulWidget {
   }
 }
 
-/// Represents the state class of data label renderer state
+/// Represents the state class of data label renderer state.
 class PyramidDataLabelRendererState extends State<PyramidDataLabelRenderer>
     with SingleTickerProviderStateMixin {
-  /// Specifies the animation controller list
+  /// Specifies the animation controller list.
   late List<AnimationController> animationControllersList;
 
-  /// Animation controller for series
+  /// Animation controller for series.
   late AnimationController animationController;
 
-  /// Repaint notifier for crosshair container
+  /// Repaint notifier for data label container.
   late ValueNotifier<int> dataLabelRepaintNotifier;
 
   @override
@@ -81,12 +81,12 @@ class PyramidDataLabelRendererState extends State<PyramidDataLabelRenderer>
     super.dispose();
   }
 
-  /// Method to repaint the data label element
+  /// Method to repaint the data label element.
   void repaintDataLabelElements() {
     dataLabelRepaintNotifier.value++;
   }
 
-  /// Method to render the widget
+  /// Method to render the widget.
   void render() {
     setState(() {
       widget.show = true;
@@ -94,9 +94,9 @@ class PyramidDataLabelRendererState extends State<PyramidDataLabelRenderer>
   }
 }
 
-/// Represents the pyramid data label painter
+/// Represents the pyramid data label painter.
 class PyramidDataLabelPainter extends CustomPainter {
-  /// Creates an instance of pyramid data label painter
+  /// Creates an instance of pyramid data label painter.
   PyramidDataLabelPainter(
       {required this.stateProperties,
       required this.state,
@@ -105,16 +105,16 @@ class PyramidDataLabelPainter extends CustomPainter {
       required ValueNotifier<num> notifier})
       : super(repaint: notifier);
 
-  /// Represents the pyramid state properties
+  /// Represents the pyramid state properties.
   final PyramidStateProperties stateProperties;
 
-  /// Represents the data label renderer state
+  /// Represents the data label renderer state.
   final PyramidDataLabelRendererState state;
 
-  /// Represents the animation controller
+  /// Represents the animation controller.
   final AnimationController animationController;
 
-  /// Specifies the series animation
+  /// Specifies the series animation.
   final Animation<double> animation;
 
   @override

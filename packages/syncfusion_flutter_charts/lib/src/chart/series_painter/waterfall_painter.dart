@@ -17,14 +17,14 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for waterfall series
+/// Creates series renderer for waterfall series.
 class WaterfallSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of WaterfallSeriesRenderer class.
   WaterfallSeriesRenderer();
 
   late WaterfallSeries<dynamic, dynamic> _waterfallSeries;
 
-  /// To add waterfall segments in segments list
+  /// To add waterfall segments in segments list.
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -111,7 +111,7 @@ class WaterfallSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render waterfall series segments
+  /// To render waterfall series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -154,7 +154,7 @@ class WaterfallSeriesRenderer extends XyDataSeriesRenderer {
         segmentProperties.getConnectorLineStrokePaint();
   }
 
-  ///Draws the marker with different shapes and color of the appropriate data point in the series.
+  /// Draws the marker with different shapes and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -254,6 +254,8 @@ class WaterfallChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         currentEndValue +=
@@ -272,7 +274,8 @@ class WaterfallChartPainter extends CustomPainter {
         point.originValue = originValue;
         seriesRendererDetails.calculateRegionData(stateProperties,
             seriesRendererDetails, painterKey.index, point, pointIndex);
-        if (renderingDetails.templates.isNotEmpty) {
+        if (renderingDetails.templates.isNotEmpty &&
+            pointIndex < renderingDetails.templates.length) {
           renderingDetails.templates[pointIndex].location =
               Offset(point.markerPoint!.x, point.markerPoint!.y);
         }

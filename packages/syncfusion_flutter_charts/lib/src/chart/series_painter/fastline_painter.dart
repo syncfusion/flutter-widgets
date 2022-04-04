@@ -13,7 +13,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Fastline series
+/// Creates series renderer for fastline series.
 class FastLineSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of FastLineSeriesRenderer class.
   FastLineSeriesRenderer();
@@ -21,7 +21,7 @@ class FastLineSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _currentSeriesDetails;
   late SeriesRendererDetails _segmentSeriesDetails;
 
-  ///Adds the segment to the segments list
+  /// Adds the segment to the segments list.
   ChartSegment _createSegments(int seriesIndex, int pointIndex,
       SfCartesianChart chart, double animateFactor,
       [List<Offset>? _points]) {
@@ -48,7 +48,7 @@ class FastLineSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  ///Renders the segment.
+  /// Renders the segment.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
@@ -79,7 +79,7 @@ class FastLineSeriesRenderer extends XyDataSeriesRenderer {
     fastLineSegment.fillPaint = fastLineSegment.getFillPaint();
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -212,16 +212,17 @@ class FastLineChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
-
+      // ignore: unnecessary_null_comparison
+      final bool hasTooltipBehavior = chart.tooltipBehavior != null;
       final bool hasSeriesElements = seriesRendererDetails.visible! &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible ||
-              (chart.tooltipBehavior != null &&
+              (hasTooltipBehavior &&
                   chart.tooltipBehavior.enable &&
-                  (chart.tooltipBehavior != null &&
+                  (hasTooltipBehavior &&
                       chart.tooltipBehavior.enable &&
                       series.enableTooltip)));
-      final bool hasTooltip = chart.tooltipBehavior != null &&
+      final bool hasTooltip = hasTooltipBehavior &&
           (chart.tooltipBehavior.enable ||
               seriesRendererDetails.series.onPointTap != null ||
               seriesRendererDetails.series.onPointDoubleTap != null ||
@@ -236,10 +237,35 @@ class FastLineChartPainter extends CustomPainter {
             (prevYValue - yVal).abs() >= yTolerance) {
           point = currentPoint;
           dataPoints.add(currentPoint);
-          final bool withInXRange = withInRange(currentPoint.xValue,
+          bool withInXRange = withInRange(currentPoint.xValue,
               seriesRendererDetails.xAxisDetails!.visibleRange!);
-          final bool withInYRange = withInRange(currentPoint.yValue,
-              seriesRendererDetails.yAxisDetails!.visibleRange!);
+          bool withInYRange = currentPoint != null &&
+              currentPoint.yValue != null &&
+              withInRange(currentPoint.yValue,
+                  seriesRendererDetails.yAxisDetails!.visibleRange!);
+          bool inRange = withInXRange || withInYRange;
+          if (!inRange &&
+              (pointIndex + 1 < seriesRendererDetails.dataPoints.length)) {
+            final CartesianChartPoint<dynamic>? nextPoint =
+                seriesRendererDetails.dataPoints[pointIndex + 1];
+            withInXRange = withInRange(nextPoint!.xValue,
+                seriesRendererDetails.xAxisDetails!.visibleRange!);
+            withInYRange = nextPoint != null &&
+                nextPoint.yValue != null &&
+                withInRange(nextPoint.yValue,
+                    seriesRendererDetails.yAxisDetails!.visibleRange!);
+            inRange = withInXRange || withInYRange;
+            if (!inRange && pointIndex - 1 >= 0) {
+              final CartesianChartPoint<dynamic>? prevPoint =
+                  seriesRendererDetails.dataPoints[pointIndex - 1];
+              withInXRange = withInRange(prevPoint!.xValue,
+                  seriesRendererDetails.xAxisDetails!.visibleRange!);
+              withInYRange = prevPoint != null &&
+                  prevPoint.yValue != null &&
+                  withInRange(prevPoint.yValue,
+                      seriesRendererDetails.yAxisDetails!.visibleRange!);
+            }
+          }
           if (withInXRange || withInYRange) {
             currentLocation = calculatePoint(
                 xVal,
@@ -256,6 +282,7 @@ class FastLineChartPainter extends CustomPainter {
             }
 
             if (hasSeriesElements) {
+              // ignore: unnecessary_null_comparison
               if (series.markerSettings != null) {
                 final double markerHeight = series.markerSettings.height,
                     markerWidth = series.markerSettings.width;

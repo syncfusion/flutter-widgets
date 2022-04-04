@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -564,7 +565,7 @@ class RenderRangePointer extends RenderBox {
     final Paint paint = Paint()
       ..color = color ??
           gaugeThemeData.rangePointerColor ??
-          _themeData.colorScheme.secondaryVariant.withOpacity(0.8)
+          _themeData.colorScheme.secondaryContainer.withOpacity(0.8)
       ..strokeWidth = _actualRangeThickness
       ..style = isFill ? PaintingStyle.fill : PaintingStyle.stroke;
 

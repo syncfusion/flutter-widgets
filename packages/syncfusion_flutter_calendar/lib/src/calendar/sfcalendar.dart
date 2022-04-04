@@ -2956,6 +2956,9 @@ class _SfCalendarState extends State<SfCalendar>
         _resourcePanelScrollController ??=
             ScrollController(initialScrollOffset: 0, keepScrollOffset: true);
       }
+
+      _removeScheduleViewAppointmentDates();
+      _loadScheduleViewAppointmentDates(_appointments);
     }
 
     if (!CalendarViewHelper.isCollectionEqual(
@@ -4288,7 +4291,10 @@ class _SfCalendarState extends State<SfCalendar>
         ? widget.timeSlotViewSettings.nonWorkingDays
         : null;
     final int visibleDatesCount = DateTimeHelper.getViewDatesCount(
-        _view, widget.monthViewSettings.numberOfWeeksInView);
+        _view,
+        widget.monthViewSettings.numberOfWeeksInView,
+        widget.timeSlotViewSettings.numberOfDaysInView,
+        nonWorkingDays);
 
     _currentViewVisibleDates = getVisibleDates(_currentDate, nonWorkingDays,
             widget.firstDayOfWeek, visibleDatesCount)
@@ -4332,6 +4338,8 @@ class _SfCalendarState extends State<SfCalendar>
       case CalendarDataSourceAction.reset:
         {
           _getAppointment();
+          _removeScheduleViewAppointmentDates();
+          _loadScheduleViewAppointmentDates(_appointments);
         }
         break;
       case CalendarDataSourceAction.add:
@@ -4339,6 +4347,7 @@ class _SfCalendarState extends State<SfCalendar>
           final List<CalendarAppointment> collection =
               AppointmentHelper.generateCalendarAppointments(
                   widget.dataSource, widget.timeZone, data);
+          _loadScheduleViewAppointmentDates(collection);
 
           if (_view != CalendarView.schedule) {
             final int visibleDatesCount = _currentViewVisibleDates.length;
@@ -4385,6 +4394,8 @@ class _SfCalendarState extends State<SfCalendar>
             }
           }
 
+          _removeScheduleViewAppointmentDates();
+
           for (int i = 0; i < data.length; i++) {
             final dynamic appointment = data[i];
             for (int j = 0; j < visibleAppointmentCollection.length; j++) {
@@ -4419,6 +4430,179 @@ class _SfCalendarState extends State<SfCalendar>
           }
         }
         break;
+    }
+  }
+
+  /// Load the newly added appointments dates for schedule view when
+  /// hideEmptyScheduleWeek is used.
+  /// This method will call when reset, add, use new data source collection
+  /// operations, and Add appointments to the week that do not exist in the
+  /// schedule view.
+  void _loadScheduleViewAppointmentDates(List<CalendarAppointment> collection) {
+    /// Return when the calendar view is other than the schedule view or
+    /// hideEmptyScheduleWeek is disabled in mobile view.
+    if (_view != CalendarView.schedule ||
+        _nextDates.isEmpty ||
+        (!widget.scheduleViewSettings.hideEmptyScheduleWeek &&
+            _useMobilePlatformUI)) {
+      return;
+    }
+
+    /// Calculate and add newly appointments dates into previous or next dates
+    /// collection when hideEmptyScheduleWeek enabled in mobileUI and web UI and
+    /// hideEmptyScheduleWeek disabled in web UI with schedule view.
+    final DateTime startDate =
+        _previousDates.isEmpty ? _nextDates[0] : _previousDates[0];
+    final DateTime endDate = addDuration(_nextDates[_nextDates.length - 1],
+        const Duration(days: DateTime.daysPerWeek - 1)) as DateTime;
+    for (int i = 0; i < collection.length; i++) {
+      /// recursiveDates list used to store the newly added appointments dates
+      List<DateTime> recursiveDates = <DateTime>[];
+      final CalendarAppointment appointment = collection[i];
+      final List<DateTime> recursiveExceptionDates = <DateTime>[];
+      final Duration difference = AppointmentHelper.getDifference(
+          appointment.actualEndTime, appointment.actualStartTime);
+      if (appointment.recurrenceRule != null &&
+          appointment.recurrenceRule!.isNotEmpty) {
+        /// Calculate the occurrence dates collection.
+        recursiveDates = RecurrenceHelper.getRecurrenceDateTimeCollection(
+            appointment.recurrenceRule!, appointment.actualStartTime,
+            recurrenceDuration: difference,
+            specificStartDate: startDate,
+            specificEndDate: endDate);
+        if (appointment.recurrenceExceptionDates != null) {
+          for (int i = 0;
+              i < appointment.recurrenceExceptionDates!.length;
+              i++) {
+            recursiveExceptionDates.add(
+                AppointmentHelper.convertTimeToAppointmentTimeZone(
+                    appointment.recurrenceExceptionDates![i],
+                    '',
+                    widget.timeZone));
+          }
+        }
+      } else {
+        if (!isDateWithInDateRange(
+                startDate, endDate, appointment.actualStartTime) &&
+            !isDateWithInDateRange(
+                startDate, endDate, appointment.actualEndTime)) {
+          continue;
+        }
+
+        recursiveDates = <DateTime>[appointment.actualStartTime];
+      }
+
+      for (int j = 0; j < recursiveDates.length; j++) {
+        final DateTime appointmentDate = recursiveDates[j];
+        bool isExceptionDate = false;
+        for (int k = 0; k < recursiveExceptionDates.length; k++) {
+          if (isSameDate(appointmentDate, recursiveExceptionDates[k])) {
+            isExceptionDate = true;
+            break;
+          }
+        }
+
+        if (isExceptionDate) {
+          continue;
+        }
+
+        DateTime appEndDate =
+            addDuration(appointmentDate, difference) as DateTime;
+        appEndDate =
+            DateTime(appEndDate.year, appEndDate.month, appEndDate.day);
+        DateTime appDate = DateTime(
+            appointmentDate.year, appointmentDate.month, appointmentDate.day);
+
+        /// Calculate start date of the week.
+        int value = -(appDate.weekday % DateTime.daysPerWeek) +
+            widget.firstDayOfWeek -
+            DateTime.daysPerWeek;
+        if (value.abs() >= DateTime.daysPerWeek) {
+          value += DateTime.daysPerWeek;
+        }
+        appDate = addDuration(appDate, Duration(days: value)) as DateTime;
+
+        value = -(appEndDate.weekday % DateTime.daysPerWeek) +
+            widget.firstDayOfWeek -
+            DateTime.daysPerWeek;
+        if (value.abs() >= DateTime.daysPerWeek) {
+          value += DateTime.daysPerWeek;
+        }
+
+        appEndDate = addDuration(appEndDate, Duration(days: value)) as DateTime;
+
+        void _addNewAppointmentWeekDate(DateTime date) {
+          /// Add newly added appointment dates into previous and next date
+          /// collection based on the DateTime range. And it will ignore
+          /// the dates which is same as previous date or next date.
+          if (date.isBefore(_nextDates[0])) {
+            if (_previousDates.isEmpty || !_previousDates.contains(date)) {
+              _previousDates.add(date);
+            }
+          } else if (!_nextDates.contains(date) && date.isBefore(endDate)) {
+            _nextDates.add(date);
+          }
+        }
+
+        DateTime appCurrentDate = appDate;
+        while (appCurrentDate.isBefore(appEndDate) ||
+            isSameDate(appCurrentDate, appEndDate)) {
+          _addNewAppointmentWeekDate(appCurrentDate);
+          appCurrentDate = addDuration(
+                  appCurrentDate, const Duration(days: DateTime.daysPerWeek))
+              as DateTime;
+        }
+      }
+    }
+
+    //// Previous dates collection holds the date collection on reverse order.
+    _previousDates.sort((DateTime date1, DateTime date2) {
+      return date2.compareTo(date1);
+    });
+    _nextDates.sort();
+  }
+
+  void _removeScheduleViewAppointmentDates() {
+    if (_view != CalendarView.schedule ||
+        (!widget.scheduleViewSettings.hideEmptyScheduleWeek &&
+            _useMobilePlatformUI)) {
+      return;
+    }
+
+    for (int i = 0; i < _previousDates.length; i++) {
+      final DateTime weekStartDate = _previousDates[i];
+
+      final DateTime weekEndDate =
+          DateTimeHelper.getDateTimeValue(addDays(weekStartDate, 6));
+
+      /// Remove the week date when it does not have appointments
+      /// when [hideEmptyAgendaDays] as enabled.
+      if (!_isAppointmentBetweenDates(
+              _appointments, weekStartDate, weekEndDate, widget.timeZone) &&
+          !isDateWithInDateRange(weekStartDate, weekEndDate, DateTime.now()) &&
+          !isDateWithInDateRange(
+              weekStartDate, weekEndDate, _scheduleDisplayDate)) {
+        _previousDates.remove(weekStartDate);
+        i--;
+      }
+    }
+
+    for (int i = 0; i < _nextDates.length; i++) {
+      final DateTime weekStartDate = _nextDates[i];
+
+      final DateTime weekEndDate =
+          DateTimeHelper.getDateTimeValue(addDays(weekStartDate, 6));
+
+      /// Remove the week date when it does not have appointments
+      /// when [hideEmptyAgendaDays] as enabled.
+      if (!_isAppointmentBetweenDates(
+              _appointments, weekStartDate, weekEndDate, widget.timeZone) &&
+          !isDateWithInDateRange(weekStartDate, weekEndDate, DateTime.now()) &&
+          !isDateWithInDateRange(
+              weekStartDate, weekEndDate, _scheduleDisplayDate)) {
+        _nextDates.remove(weekStartDate);
+        i--;
+      }
     }
   }
 
@@ -5279,7 +5463,7 @@ class _SfCalendarState extends State<SfCalendar>
           widget.scheduleViewSettings.hideEmptyScheduleWeek ||
               !_useMobilePlatformUI;
 
-      if (index > 0) {
+      if (index >= 0) {
         /// Add next 100 dates to next dates collection when index
         /// reaches next dates collection end.
         if (_nextDates.isNotEmpty && index > _nextDates.length - 20) {
@@ -5320,7 +5504,9 @@ class _SfCalendarState extends State<SfCalendar>
             date = DateTimeHelper.getDateTimeValue(addDays(date, 700));
           }
         }
-      } else {
+      }
+
+      if (index <= 0) {
         /// Add previous 100 dates to previous dates collection when index
         /// reaches previous dates collection end.
         if (_previousDates.isNotEmpty && -index > _previousDates.length - 20) {
@@ -5387,7 +5573,7 @@ class _SfCalendarState extends State<SfCalendar>
             : _previousDates[0]
         : (index > 0
             ? _nextDates[index - 1]
-            : -index >= _previousDates.length - 1
+            : -index > _previousDates.length - 1
                 ? DateTimeHelper.getDateTimeValue(
                     addDays(startDate, -DateTime.daysPerWeek))
                 : _previousDates[-index]);
@@ -5467,9 +5653,34 @@ class _SfCalendarState extends State<SfCalendar>
 
     /// Check the week date needs month header at first or before of appointment
     /// view.
-    final bool isNeedMonthBuilder = _useMobilePlatformUI &&
+    bool isNeedMonthBuilder = _useMobilePlatformUI &&
         (prevEndDate.month != startDate.month ||
             prevEndDate.year != startDate.year);
+
+    /// Check the start date have month header and the current week have
+    /// different month dates(like Feb 27 - Mar 5). This scenario raised when
+    /// enabled hide schedule empty week property.
+    if (isNeedMonthBuilder &&
+        widget.scheduleViewSettings.hideEmptyScheduleWeek &&
+        startDate.month != endDate.month) {
+      /// Check the below condition(start date month have any views like
+      /// current date view, display date view or appointment view) to
+      /// remove the month header.
+      /// 1. Check the start date month have display date view.
+      /// 2. Check the start date month have today date view.
+      /// 3. Check the start date month have appointment view.
+      final DateTime? firstAppointmentDate =
+          dateAppointmentKeys.isNotEmpty ? dateAppointmentKeys[0] : null;
+      if ((startDate.month != scheduleDisplayDate.month ||
+              startDate.year != scheduleDisplayDate.year) &&
+          (startDate.month != scheduleCurrentDate.month ||
+              startDate.year != scheduleCurrentDate.year) &&
+          (firstAppointmentDate == null ||
+              (startDate.month != firstAppointmentDate.month ||
+                  startDate.year != firstAppointmentDate.year))) {
+        isNeedMonthBuilder = false;
+      }
+    }
 
     /// Web view does not have month label.
     height += isNeedMonthBuilder
@@ -6668,7 +6879,8 @@ class _SfCalendarState extends State<SfCalendar>
       /// Update the header date because the next dates insert the previous view
       /// dates at initial position.
       if (_nextDates.isNotEmpty && isNewDatesAdded) {
-        _headerUpdateNotifier.value = _nextDates[0];
+        _headerUpdateNotifier.value = DateTimeHelper.getDateTimeValue(
+            getValidDate(widget.minDate, widget.maxDate, _nextDates[0]));
       }
     }
 
@@ -6789,7 +7001,8 @@ class _SfCalendarState extends State<SfCalendar>
                     widget.showWeekNumber,
                     widget.weekNumberStyle,
                     _timelineMonthWeekNumberNotifier,
-                    widget.cellBorderColor)),
+                    widget.cellBorderColor,
+                    widget.timeSlotViewSettings.numberOfDaysInView)),
           ),
         ),
         Positioned(
@@ -7224,10 +7437,8 @@ class _SfCalendarState extends State<SfCalendar>
       /// dates at initial position.
       if (_nextDates.isNotEmpty && isNewDatesAdded) {
         final DateTime date = _nextDates[0];
-        _headerUpdateNotifier.value = _useMobilePlatformUI
-            ? date
-            : DateTimeHelper.getDateTimeValue(
-                getValidDate(_minDate, _maxDate, date));
+        _headerUpdateNotifier.value = DateTimeHelper.getDateTimeValue(
+            getValidDate(_minDate, _maxDate, date));
       }
     }
 
@@ -7635,7 +7846,8 @@ class _SfCalendarState extends State<SfCalendar>
                   widget.showWeekNumber,
                   widget.weekNumberStyle,
                   _timelineMonthWeekNumberNotifier,
-                  widget.cellBorderColor)),
+                  widget.cellBorderColor,
+                  widget.timeSlotViewSettings.numberOfDaysInView)),
         ),
       ),
       Positioned(
@@ -7859,8 +8071,8 @@ class _SfCalendarState extends State<SfCalendar>
     }
 
     /// Restrict the pop up height with max height(200)
-    double height = allowedViewLength * calendarViewTextHeight;
-    height = height > 200 ? 200 : height;
+    final double totalHeight = allowedViewLength * calendarViewTextHeight;
+    final double height = totalHeight > 200 ? 200 : totalHeight;
 
     double arrowWidth = 0;
     double iconWidth = _minWidth / 8;
@@ -7997,6 +8209,9 @@ class _SfCalendarState extends State<SfCalendar>
           : maxScrollPosition - height;
     }
 
+    final bool _showScrollbar = totalHeight > height;
+    final ScrollController _calendarViewPopupScrollController =
+        ScrollController(initialScrollOffset: scrollPosition);
     return Positioned(
         top: widget.headerHeight,
         left: left,
@@ -8016,11 +8231,13 @@ class _SfCalendarState extends State<SfCalendar>
                 ),
                 child: Material(
                   type: MaterialType.transparency,
-                  child: ListView(
-                      padding: EdgeInsets.zero,
-                      controller:
-                          ScrollController(initialScrollOffset: scrollPosition),
-                      children: children),
+                  child: Scrollbar(
+                      isAlwaysShown: _showScrollbar,
+                      controller: _calendarViewPopupScrollController,
+                      child: ListView(
+                          padding: EdgeInsets.zero,
+                          controller: _calendarViewPopupScrollController,
+                          children: children)),
                 ))));
   }
 
@@ -8283,7 +8500,8 @@ class _SfCalendarState extends State<SfCalendar>
                 widget.showWeekNumber,
                 widget.weekNumberStyle,
                 _timelineMonthWeekNumberNotifier,
-                widget.cellBorderColor)),
+                widget.cellBorderColor,
+                widget.timeSlotViewSettings.numberOfDaysInView)),
       ),
       _addResourcePanel(isResourceEnabled, resourceViewSize, height, isRTL),
       _addCustomScrollView(widget.headerHeight, resourceViewSize, isRTL,
@@ -9076,7 +9294,8 @@ class _CalendarHeaderView extends StatefulWidget {
       this.showWeekNumber,
       this.weekNumberStyle,
       this.timelineMonthWeekNumberNotifier,
-      this.cellBorderColor);
+      this.cellBorderColor,
+      this.numberOfDaysInView);
 
   final List<DateTime> visibleDates;
   final TextStyle? todayTextStyle;
@@ -9114,6 +9333,7 @@ class _CalendarHeaderView extends StatefulWidget {
   final bool showWeekNumber;
   final ValueNotifier<DateTime?> timelineMonthWeekNumberNotifier;
   final Color? cellBorderColor;
+  final int numberOfDaysInView;
 
   @override
   _CalendarHeaderViewState createState() => _CalendarHeaderViewState();
@@ -9656,131 +9876,137 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
         prevArrowColor != arrowColor || !widget.enableInteraction
             ? Colors.transparent
             : null;
-    final Container leftArrow = Container(
-      alignment: Alignment.center,
-      color: headerBackgroundColor,
-      width: arrowWidth,
-      height: headerHeight,
-      padding: const EdgeInsets.all(2),
-      child: Material(
-          color: headerBackgroundColor,
-          child: InkWell(
-            //// set splash color as transparent when arrow reaches min date(disabled)
-            splashColor: leftArrowSplashColor,
-            highlightColor: leftArrowSplashColor,
-            hoverColor: leftArrowSplashColor,
-            splashFactory: _CustomSplashFactory(),
-            onTap: _backward,
-            child: Semantics(
-              label: 'Backward',
-              child: Container(
-                  width: arrowWidth,
-                  height: headerHeight,
-                  alignment: Alignment.center,
-                  child: Icon(
-                    widget.navigationDirection ==
-                            MonthNavigationDirection.horizontal
-                        ? Icons.chevron_left
-                        : Icons.keyboard_arrow_up,
-                    color: prevArrowColor,
-                    size: arrowSize,
-                  )),
-            ),
-          )),
-    );
+    final Container leftArrow = navigationArrowEnabled
+        ? Container(
+            alignment: Alignment.center,
+            color: headerBackgroundColor,
+            width: arrowWidth,
+            height: headerHeight,
+            padding: const EdgeInsets.all(2),
+            child: Material(
+                color: headerBackgroundColor,
+                child: InkWell(
+                  //// set splash color as transparent when arrow reaches min date(disabled)
+                  splashColor: leftArrowSplashColor,
+                  highlightColor: leftArrowSplashColor,
+                  hoverColor: leftArrowSplashColor,
+                  splashFactory: _CustomSplashFactory(),
+                  onTap: _backward,
+                  child: Semantics(
+                    label: 'Backward',
+                    child: Container(
+                        width: arrowWidth,
+                        height: headerHeight,
+                        alignment: Alignment.center,
+                        child: Icon(
+                          widget.navigationDirection ==
+                                  MonthNavigationDirection.horizontal
+                              ? Icons.chevron_left
+                              : Icons.keyboard_arrow_up,
+                          color: prevArrowColor,
+                          size: arrowSize,
+                        )),
+                  ),
+                )),
+          )
+        : Container();
 
     final Color? rightArrowSplashColor =
         nextArrowColor != arrowColor || !widget.enableInteraction
             ? Colors.transparent
             : null;
-    final Container rightArrow = Container(
-      alignment: Alignment.center,
-      color: headerBackgroundColor,
-      width: arrowWidth,
-      height: headerHeight,
-      padding: const EdgeInsets.all(2),
-      child: Material(
-          color: headerBackgroundColor,
-          child: InkWell(
-            //// set splash color as transparent when arrow reaches max date(disabled)
-            splashColor: rightArrowSplashColor,
-            highlightColor: rightArrowSplashColor,
-            hoverColor: rightArrowSplashColor,
-            splashFactory: _CustomSplashFactory(),
-            onTap: _forward,
-            child: Semantics(
-              label: 'Forward',
-              child: Container(
-                  width: arrowWidth,
-                  height: headerHeight,
-                  alignment: Alignment.center,
-                  child: Icon(
-                    widget.navigationDirection ==
-                            MonthNavigationDirection.horizontal
-                        ? Icons.chevron_right
-                        : Icons.keyboard_arrow_down,
-                    color: nextArrowColor,
-                    size: arrowSize,
-                  )),
-            ),
-          )),
-    );
+    final Container rightArrow = navigationArrowEnabled
+        ? Container(
+            alignment: Alignment.center,
+            color: headerBackgroundColor,
+            width: arrowWidth,
+            height: headerHeight,
+            padding: const EdgeInsets.all(2),
+            child: Material(
+                color: headerBackgroundColor,
+                child: InkWell(
+                  //// set splash color as transparent when arrow reaches max date(disabled)
+                  splashColor: rightArrowSplashColor,
+                  highlightColor: rightArrowSplashColor,
+                  hoverColor: rightArrowSplashColor,
+                  splashFactory: _CustomSplashFactory(),
+                  onTap: _forward,
+                  child: Semantics(
+                    label: 'Forward',
+                    child: Container(
+                        width: arrowWidth,
+                        height: headerHeight,
+                        alignment: Alignment.center,
+                        child: Icon(
+                          widget.navigationDirection ==
+                                  MonthNavigationDirection.horizontal
+                              ? Icons.chevron_right
+                              : Icons.keyboard_arrow_down,
+                          color: nextArrowColor,
+                          size: arrowSize,
+                        )),
+                  ),
+                )),
+          )
+        : Container();
 
     final Color? todaySplashColor =
         !widget.enableInteraction ? Colors.transparent : null;
-    final Widget todayIcon = Container(
-      alignment: Alignment.center,
-      color: headerBackgroundColor,
-      width: todayIconWidth,
-      height: headerHeight,
-      padding: EdgeInsets.all(useMobilePlatformUI ? 2 : 4),
-      child: Material(
-          color: headerBackgroundColor,
-          child: InkWell(
-            splashColor: todaySplashColor,
-            highlightColor: todaySplashColor,
-            hoverColor: todaySplashColor,
-            splashFactory: _CustomSplashFactory(),
-            onTap: () {
-              if (!widget.enableInteraction) {
-                return;
-              }
+    final Widget todayIcon = widget.showDatePickerButton
+        ? Container(
+            alignment: Alignment.center,
+            color: headerBackgroundColor,
+            width: todayIconWidth,
+            height: headerHeight,
+            padding: EdgeInsets.all(useMobilePlatformUI ? 2 : 4),
+            child: Material(
+                color: headerBackgroundColor,
+                child: InkWell(
+                  splashColor: todaySplashColor,
+                  highlightColor: todaySplashColor,
+                  hoverColor: todaySplashColor,
+                  splashFactory: _CustomSplashFactory(),
+                  onTap: () {
+                    if (!widget.enableInteraction) {
+                      return;
+                    }
 
-              widget.removePicker();
-              widget.controller.displayDate = DateTime.now();
-            },
-            child: Semantics(
-              label: todayText,
-              child: useMobilePlatformUI
-                  ? Container(
-                      width: todayIconWidth,
-                      height: headerHeight,
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.today,
-                        color: style.color,
-                        size: style.fontSize,
-                      ))
-                  : Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                            color: widget.cellBorderColor ??
-                                widget.calendarTheme.cellBorderColor!),
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
-                      width: todayIconWidth,
-                      alignment: Alignment.center,
-                      child: Text(
-                        todayText,
-                        style: TextStyle(
-                            color: headerTextColor,
-                            fontSize: defaultCalendarViewTextSize),
-                        maxLines: 1,
-                        textDirection: TextDirection.ltr,
-                      )),
-            ),
-          )),
-    );
+                    widget.removePicker();
+                    widget.controller.displayDate = DateTime.now();
+                  },
+                  child: Semantics(
+                    label: todayText,
+                    child: useMobilePlatformUI
+                        ? Container(
+                            width: todayIconWidth,
+                            height: headerHeight,
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.today,
+                              color: style.color,
+                              size: style.fontSize,
+                            ))
+                        : Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: widget.cellBorderColor ??
+                                      widget.calendarTheme.cellBorderColor!),
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            width: todayIconWidth,
+                            alignment: Alignment.center,
+                            child: Text(
+                              todayText,
+                              style: TextStyle(
+                                  color: headerTextColor,
+                                  fontSize: defaultCalendarViewTextSize),
+                              maxLines: 1,
+                              textDirection: TextDirection.ltr,
+                            )),
+                  ),
+                )),
+          )
+        : Container();
 
     final Widget dividerWidget = widget.showDatePickerButton &&
             isNeedViewSwitchOption &&
@@ -10090,6 +10316,11 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
         widget.headerDateFormat != null && widget.headerDateFormat!.isNotEmpty
             ? widget.headerDateFormat
             : null;
+    final int visibleDatesCount = DateTimeHelper.getViewDatesCount(
+        widget.view,
+        widget.numberOfDaysInView,
+        widget.numberOfDaysInView,
+        widget.nonWorkingDays);
     switch (widget.view) {
       case CalendarView.schedule:
         {
@@ -10127,7 +10358,6 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
       case CalendarView.day:
       case CalendarView.week:
       case CalendarView.workWeek:
-      case CalendarView.timelineDay:
         {
           final DateTime headerDate = widget.visibleDates[0];
           if (headerDateFormat != null) {
@@ -10137,25 +10367,34 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           // ignore: lines_longer_than_80_chars
           return '${DateFormat(monthFormat, widget.locale).format(headerDate)} ${headerDate.year}';
         }
+      case CalendarView.timelineDay:
       case CalendarView.timelineWeek:
       case CalendarView.timelineWorkWeek:
         {
           final DateTime startDate = widget.visibleDates[0];
           final DateTime endDate =
               widget.visibleDates[widget.visibleDates.length - 1];
-          if (headerDateFormat != null) {
+          if (visibleDatesCount == 1) {
+            if (headerDateFormat != null) {
+              return DateFormat(headerDateFormat, widget.locale)
+                  .format(startDate);
+            }
             // ignore: lines_longer_than_80_chars
-            return '${DateFormat(headerDateFormat, widget.locale).format(startDate)} - ${DateFormat(headerDateFormat, widget.locale).format(endDate)}';
-          }
-          monthFormat = 'MMM';
-          String startText =
-              DateFormat(monthFormat, widget.locale).format(startDate);
-          startText = '${startDate.day} $startText - ';
-          final String endText =
+            return '${DateFormat(monthFormat, widget.locale).format(startDate)} ${startDate.year}';
+          } else {
+            if (headerDateFormat != null) {
               // ignore: lines_longer_than_80_chars
-              '${endDate.day} ${DateFormat(monthFormat, widget.locale).format(endDate)} ${endDate.year}';
-
-          return startText + endText;
+              return '${DateFormat(headerDateFormat, widget.locale).format(startDate)} - ${DateFormat(headerDateFormat, widget.locale).format(endDate)}';
+            }
+            monthFormat = 'MMM';
+            String startText =
+                DateFormat(monthFormat, widget.locale).format(startDate);
+            startText = '${startDate.day} $startText - ';
+            final String endText =
+                // ignore: lines_longer_than_80_chars
+                '${endDate.day} ${DateFormat(monthFormat, widget.locale).format(endDate)} ${endDate.year}';
+            return startText + endText;
+          }
         }
     }
   }

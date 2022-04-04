@@ -13,12 +13,12 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Spline series
+/// Creates series renderer for spline series.
 class SplineSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of SplineSeriesRenderer class.
   SplineSeriesRenderer();
 
-  /// Spline segment is created here
+  /// Spline segment is created here.
   ChartSegment _createSegments(
       CartesianChartPoint<dynamic> currentPoint,
       CartesianChartPoint<dynamic> nextPoint,
@@ -79,7 +79,7 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render spline series segments
+  /// To render spline series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -116,7 +116,7 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
     segmentProperties.strokeWidth = segmentProperties.series.width;
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -230,6 +230,7 @@ class SplineChartPainter extends CustomPainter {
             <CartesianChartPoint<dynamic>>[];
       }
 
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       //Draw spline for spline series
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];

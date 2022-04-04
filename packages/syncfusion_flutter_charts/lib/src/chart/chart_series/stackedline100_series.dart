@@ -6,10 +6,10 @@ import 'stacked_series_base.dart';
 /// Renders the 100% stacked line series.
 ///
 /// A stacked 100 line chart is a line chart in which lines do not overlap because they are cumulative at each point.
-/// In the stacked 100 line chart, the lines reach a total of 100% of the axis range at each point
+/// In the stacked 100 line chart, the lines reach a total of 100% of the axis range at each point.
 ///
-/// To render a 100% stacked line chart, create an instance of StackedLine100Series, and add it to the series collection property of [SfCartesianChart].
-///  Provides options to customize color,opacity and width  of the StackedLine100 segments.
+/// To render a 100% stacked line chart, create an instance of [StackedLine100Series], and add it to the series collection property of [SfCartesianChart].
+/// Provides options to customize color,opacity and width  of the StackedLine100 segments.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=NCUDBD_ClHo}
 @immutable
@@ -176,7 +176,7 @@ class StackedLine100Series<T, D> extends StackedSeriesBase<T, D> {
     return hashList(values);
   }
 
-  /// to create a Stacked line100 series renderer
+  /// to create a stacked line 100 series renderer.
   StackedLine100SeriesRenderer createRenderer(ChartSeries<T, D> series) {
     StackedLine100SeriesRenderer stackedLine100SeriesRenderer;
     if (onCreateRenderer != null) {

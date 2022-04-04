@@ -127,7 +127,7 @@ abstract class XyDataSeries<T, D> extends CartesianSeries<T, D> {
             initialSelectedDataIndexes: initialSelectedDataIndexes);
 }
 
-/// This class has the properties of CartesianChartPoint.
+/// This class has the properties of [CartesianChartPoint].
 ///
 /// Chart point is a class that is used to store the current x and y values from the datasource.
 /// Contains x and y coordinates which are converted from the x and y values.
@@ -365,7 +365,7 @@ class CartesianChartPoint<D> {
   /// Stores the tracker rect region.
   Rect? trackerRectRegion;
 
-  /// Stores the yValue/high value data label text
+  /// Stores the y-value/high value data label text.
   String? label;
 
   /// Stores the data label text of low value.
@@ -458,68 +458,68 @@ class CartesianChartPoint<D> {
 }
 
 // ignore: avoid_classes_with_only_static_members
-/// Helper class for Cartesian chart point
+/// Helper class for Cartesian chart point.
 class CartesianPointHelper {
-  /// Returns the datalabel text style for a given point
+  /// Returns the datalabel text style for a given point.
   static TextStyle? getDataLabelTextStyle(CartesianChartPoint<dynamic> point) {
     return point._dataLabelTextStyle;
   }
 
-  /// Sets the datalabel text style in a given point
+  /// Sets the datalabel text style in a given point.
   static void setDataLabelTextStyle(
       CartesianChartPoint<dynamic> point, TextStyle? style) {
     point._dataLabelTextStyle = style;
   }
 
-  /// Returns the datalabel color for a given point
+  /// Returns the datalabel color for a given point.
   static Color? getDataLabelColor(CartesianChartPoint<dynamic> point) {
     return point._dataLabelColor;
   }
 
-  /// Sets the datalabel color in a given point
+  /// Sets the datalabel color in a given point.
   static void setDataLabelColor(
       CartesianChartPoint<dynamic> point, Color? color) {
     point._dataLabelColor = color;
   }
 
-  /// Returns the marker event triggered flag for a given point
+  /// Returns the marker event triggered flag for a given point.
   static bool getIsMarkerEventTriggered(CartesianChartPoint<dynamic> point) {
     return point._isMarkerEventTriggered;
   }
 
-  /// Sets the marker event triggered flag for a given point
+  /// Sets the marker event triggered flag for a given point.
   static void setIsMarkerEventTriggered(
       CartesianChartPoint<dynamic> point, bool isMarkerEventTriggered) {
     point._isMarkerEventTriggered = isMarkerEventTriggered;
   }
 
-  /// Returns the MarkerDetails for a given point
+  /// Returns the MarkerDetails for a given point.
   static MarkerDetails? getMarkerDetails(CartesianChartPoint<dynamic> point) {
     return point._markerDetails;
   }
 
-  /// Sets the MarkerDetails for a given point
+  /// Sets the MarkerDetails for a given point.
   static void setMarkerDetails(
       CartesianChartPoint<dynamic> point, MarkerDetails? details) {
     point._markerDetails = details;
   }
 }
 
-/// Represents the chart location
+/// Represents the chart location.
 class ChartLocation {
-  /// Creates an instance of chart location
+  /// Creates an instance of chart location.
   ChartLocation(this.x, this.y);
 
-  /// Specifies the value of x
+  /// Specifies the value of x.
   double x;
 
-  /// Specifies the value of y
+  /// Specifies the value of y.
   double y;
 }
 
 /// Creates series renderer for xy data series.
 abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
-  /// To calculate empty point value for the specific mode
+  /// To calculate empty point value for the specific mode.
   @override
   void calculateEmptyPointValue(
       int pointIndex, CartesianChartPoint<dynamic> currentPoint,

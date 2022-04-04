@@ -15,10 +15,8 @@ import 'chart_segment.dart';
 /// used to customize the bubble series segment point calculation.
 ///
 /// Gets the path, stroke color and fill color from the `series` to render the bubble series.
-///
-
 class BubbleSegment extends ChartSegment {
-  ///Center position of the bubble and size
+  /// Center position of the bubble and size.
   late double _centerX, _centerY, _radius, _size;
 
   late SegmentProperties _segmentProperties;
@@ -115,12 +113,11 @@ class BubbleSegment extends ChartSegment {
         rect);
     _centerX = location.x;
     _centerY = location.y;
-    if (bubbleSegmentProperties.seriesRenderer is BubbleSeriesRenderer) {
+    if (bubbleSegmentProperties.seriesRenderer is BubbleSeriesRenderer)
       _radius = calculateBubbleRadius(
           seriesRendererDetails,
           bubbleSegmentProperties.series,
           bubbleSegmentProperties.currentPoint!);
-    }
     bubbleSegmentProperties.currentPoint!.region = Rect.fromLTRB(
         location.x - 2 * _radius,
         location.y - 2 * _radius,
@@ -190,7 +187,7 @@ class BubbleSegment extends ChartSegment {
     }
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

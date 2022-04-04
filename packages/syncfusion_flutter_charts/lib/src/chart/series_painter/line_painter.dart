@@ -12,7 +12,7 @@ import '../common/common.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Line series
+/// Creates series renderer for line series.
 class LineSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of LineSeriesRenderer class.
   LineSeriesRenderer();
@@ -24,7 +24,7 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _currentSeriesDetails;
   late SeriesRendererDetails _segmentSeriesDetails;
 
-  /// To add line segments to segments list
+  /// To add line segments to segments list.
   ChartSegment _createSegments(
       CartesianChartPoint<dynamic> currentPoint,
       CartesianChartPoint<dynamic> _nextPoint,
@@ -73,7 +73,7 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
     return _segment;
   }
 
-  /// To render line series segments
+  /// To render line series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment _segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
@@ -109,7 +109,7 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
     _lineSegment.fillPaint = _lineSegment.getFillPaint();
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -216,29 +216,64 @@ class LineChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         currentPoint = dataPoints[pointIndex];
-        seriesRendererDetails.calculateRegionData(stateProperties,
-            seriesRendererDetails, seriesIndex, currentPoint, pointIndex);
-        if ((currentPoint.isVisible && !currentPoint.isGap) &&
-            startPoint == null) {
-          startPoint = currentPoint;
-        }
-        if (pointIndex + 1 < dataPoints.length) {
-          _nextPoint = dataPoints[pointIndex + 1];
-          if (startPoint != null && !_nextPoint.isVisible && _nextPoint.isGap) {
-            startPoint = null;
-          } else if (_nextPoint.isVisible && !_nextPoint.isGap) {
-            endPoint = _nextPoint;
+        bool withInXRange = withInRange(currentPoint.xValue,
+            seriesRendererDetails.xAxisDetails!.visibleRange!);
+        bool withInYRange = currentPoint != null &&
+            currentPoint.yValue != null &&
+            withInRange(currentPoint.yValue,
+                seriesRendererDetails.yAxisDetails!.visibleRange!);
+
+        bool inRange = withInXRange || withInYRange;
+        if (!inRange && pointIndex + 1 < dataPoints.length) {
+          final CartesianChartPoint<dynamic>? nextPoint =
+              dataPoints[pointIndex + 1];
+          withInXRange = withInRange(nextPoint!.xValue,
+              seriesRendererDetails.xAxisDetails!.visibleRange!);
+          withInYRange = nextPoint != null &&
+              nextPoint.yValue != null &&
+              withInRange(nextPoint.yValue,
+                  seriesRendererDetails.yAxisDetails!.visibleRange!);
+          inRange = withInXRange || withInYRange;
+          if (!inRange && pointIndex - 1 >= 0) {
+            final CartesianChartPoint<dynamic>? prevPoint =
+                dataPoints[pointIndex - 1];
+            withInXRange = withInRange(prevPoint!.xValue,
+                seriesRendererDetails.xAxisDetails!.visibleRange!);
+            withInYRange = prevPoint != null &&
+                prevPoint.yValue != null &&
+                withInRange(prevPoint.yValue,
+                    seriesRendererDetails.yAxisDetails!.visibleRange!);
           }
         }
+        if (withInXRange || withInYRange) {
+          seriesRendererDetails.calculateRegionData(stateProperties,
+              seriesRendererDetails, seriesIndex, currentPoint, pointIndex);
+          if ((currentPoint.isVisible && !currentPoint.isGap) &&
+              startPoint == null) {
+            startPoint = currentPoint;
+          }
+          if (pointIndex + 1 < dataPoints.length) {
+            _nextPoint = dataPoints[pointIndex + 1];
+            if (startPoint != null &&
+                !_nextPoint.isVisible &&
+                _nextPoint.isGap) {
+              startPoint = null;
+            } else if (_nextPoint.isVisible && !_nextPoint.isGap) {
+              endPoint = _nextPoint;
+            }
+          }
 
-        if (startPoint != null && endPoint != null) {
-          seriesRendererDetails.drawSegment(
-              canvas,
-              seriesRenderer._createSegments(startPoint, endPoint,
-                  segmentIndex += 1, seriesIndex, animationFactor));
-          endPoint = startPoint = null;
+          if (startPoint != null && endPoint != null) {
+            seriesRendererDetails.drawSegment(
+                canvas,
+                seriesRenderer._createSegments(startPoint, endPoint,
+                    segmentIndex += 1, seriesIndex, animationFactor));
+            endPoint = startPoint = null;
+          }
         }
       }
       clipRect = calculatePlotOffset(

@@ -18,37 +18,37 @@ import '../series_painter/radial_bar_painter.dart';
 import '../utils/helper.dart';
 import 'circular_state_properties.dart';
 
-/// Represents the circular chart area
+/// Represents the circular chart area.
 ///
 // ignore: must_be_immutable
 class CircularArea extends StatelessWidget {
-  /// Creates an instance for circular area
+  /// Creates an instance for circular area.
   // ignore: prefer_const_constructors_in_immutables
   CircularArea({required this.stateProperties});
 
-  /// Here, we are using get keyword in order to get the proper & updated instance of chart widget
-  //When we initialize chart widget as a property to other classes like _ChartSeries, the chart widget is not updated properly and by using get we can rectify this.
+  /// Here, we are using get keyword in order to get the proper & updated instance of chart widget.
+  /// When we initialize chart widget as a property to other classes like _ChartSeries, the chart widget is not updated properly and by using get we can rectify this.
   SfCircularChart get chart => stateProperties.chart;
 
-  /// Specifies the chart state
+  /// Holds the chart state properties.
   final CircularStateProperties stateProperties;
 
-  /// Gets or sets the circular series
+  /// Gets or sets the circular series.
   CircularSeries<dynamic, dynamic>? series;
 
-  /// Holds the render box of the circular chart
+  /// Holds the render box of the circular chart.
   late RenderBox renderBox;
 
-  /// Specifies the point region
+  /// Specifies the point region.
   Region? pointRegion;
 
-  /// Holds the tap down details
+  /// Holds the tap down details.
   late TapDownDetails tapDownDetails;
 
-  /// Holds the double tap position
+  /// Holds the double tap position.
   Offset? doubleTapPosition;
 
-  /// Specifies whether the mouse is hovered
+  /// Specifies whether the mouse is hovered.
   final bool _enableMouseHover = kIsWeb;
 
   @override
@@ -93,7 +93,7 @@ class CircularArea extends StatelessWidget {
     });
   }
 
-  /// To perform the pointer down event
+  /// To perform the pointer down event.
   void _onTapDown(PointerDownEvent event) {
     ChartTouchInteractionArgs touchArgs;
     final TooltipRenderingDetails tooltipRenderingDetails =
@@ -132,7 +132,7 @@ class CircularArea extends StatelessWidget {
     }
   }
 
-  /// To perform the pointer move event
+  /// To perform the pointer move event.
   void _performPointerMove(PointerMoveEvent event) {
     ChartTouchInteractionArgs touchArgs;
     final Offset position = renderBox.globalToLocal(event.position);
@@ -143,7 +143,7 @@ class CircularArea extends StatelessWidget {
     }
   }
 
-  /// To perform double tap touch interactions
+  /// To perform double tap touch interactions.
   void _onDoubleTap() {
     if (doubleTapPosition != null && pointRegion != null) {
       if (chart.series[0].onPointDoubleTap != null && pointRegion != null) {
@@ -186,7 +186,7 @@ class CircularArea extends StatelessWidget {
     }
   }
 
-  /// To perform long press touch interactions
+  /// To perform long press touch interactions.
   void _onLongPress() {
     if (stateProperties.renderingDetails.tapPosition != null &&
         pointRegion != null) {
@@ -230,7 +230,7 @@ class CircularArea extends StatelessWidget {
     }
   }
 
-  /// To perform the pointer up event
+  /// To perform the pointer up event.
   void _onTapUp(PointerUpEvent event) {
     TooltipHelper.getRenderingDetails(
             stateProperties.renderingDetails.tooltipBehaviorRenderer)
@@ -284,7 +284,7 @@ class CircularArea extends StatelessWidget {
     stateProperties.renderingDetails.tapPosition = null;
   }
 
-  /// To perform  hover event
+  /// To perform the hover event.
   void _onHover(PointerEvent event) {
     final TooltipRenderingDetails tooltipRenderingDetails =
         TooltipHelper.getRenderingDetails(
@@ -338,8 +338,8 @@ class CircularArea extends StatelessWidget {
     stateProperties.renderingDetails.tapPosition = null;
   }
 
-  /// This method gets executed for showing tooltip when builder is provided in behavior
-  ///the optional parameters will take values once thee public method gets called
+  /// This method gets executed for showing tooltip when builder is provided in behavior.
+  /// The optional parameters will take values once the public method gets called.
   void showCircularTooltipTemplate([int? seriesIndex, int? pointIndex]) {
     stateProperties.isTooltipHidden = false;
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
@@ -395,7 +395,7 @@ class CircularArea extends StatelessWidget {
     }
   }
 
-  /// To initialize chart widgets
+  /// To initialize the chart widget.
   Widget _initializeChart(BoxConstraints constraints, BuildContext context) {
     _calculateContainerSize(constraints);
     if (chart.series.isNotEmpty) {
@@ -407,7 +407,7 @@ class CircularArea extends StatelessWidget {
         child: _renderWidgets(constraints, context));
   }
 
-  /// To calculate chart rect area size
+  /// To calculate chart rect area size.
   void _calculateContainerSize(BoxConstraints constraints) {
     final num width = constraints.maxWidth;
     final num height = constraints.maxHeight;
@@ -421,7 +421,7 @@ class CircularArea extends StatelessWidget {
         height - margin.top - margin.bottom);
   }
 
-  /// To render chart widgets
+  /// To render chart widgets.
   Widget _renderWidgets(BoxConstraints constraints, BuildContext context) {
     _bindSeriesWidgets(context);
     _findTemplates();
@@ -436,7 +436,7 @@ class CircularArea extends StatelessWidget {
             children: stateProperties.renderingDetails.chartWidgets!));
   }
 
-  /// To add chart templates
+  /// To add chart templates.
   void _findTemplates() {
     Offset labelLocation;
     const num lineLength = 10;
@@ -503,7 +503,7 @@ class CircularArea extends StatelessWidget {
     _setTemplateInfo();
   }
 
-  /// Method to set the template info
+  /// Method to set the template info.
   void _setTemplateInfo() {
     CircularChartAnnotation annotation;
     double radius, annotationHeight, annotationWidth;
@@ -546,7 +546,7 @@ class CircularArea extends StatelessWidget {
     }
   }
 
-  /// To render chart templates
+  /// To render chart templates.
   void _renderTemplates() {
     if (stateProperties.renderingDetails.templates.isNotEmpty) {
       for (int i = 0;
@@ -567,7 +567,7 @@ class CircularArea extends StatelessWidget {
     }
   }
 
-  /// To add tooltip widgets to chart
+  /// To add tooltip widgets to chart.
   void _bindTooltipWidgets(BoxConstraints constraints) {
     TooltipHelper.setStateProperties(chart.tooltipBehavior, stateProperties);
     final SfChartThemeData _chartTheme =
@@ -615,7 +615,7 @@ class CircularArea extends StatelessWidget {
     }
   }
 
-  /// To add series widgets in chart
+  /// To add series widgets in chart.
   void _bindSeriesWidgets(BuildContext context) {
     late CustomPainter seriesPainter;
     Animation<double>? seriesAnimation;
@@ -659,9 +659,7 @@ class CircularArea extends StatelessWidget {
           (stateProperties.renderingDetails.initialRender! ||
               (stateProperties.renderingDetails.widgetNeedUpdate &&
                   seriesRenderer.needsAnimation) ||
-              (stateProperties.renderingDetails.isLegendToggled &&
-                  stateProperties.isToggled &&
-                  !stateProperties.renderingDetails.widgetNeedUpdate))) {
+              stateProperties.renderingDetails.isLegendToggled)) {
         final int totalAnimationDuration =
             series.animationDuration.toInt() + series.animationDelay.toInt();
         stateProperties.renderingDetails.animationController.duration =
@@ -742,7 +740,6 @@ class CircularArea extends StatelessWidget {
       stateProperties.renderingDetails.chartWidgets!
           .add(stateProperties.renderDataLabel!);
     }
-    stateProperties.isToggled = false;
   }
 }
 

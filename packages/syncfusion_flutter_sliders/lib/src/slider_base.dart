@@ -865,7 +865,7 @@ class RenderBaseSlider extends RenderProxyBox
               currentDate.year + _stepDuration!.years,
               currentDate.month + _stepDuration!.months,
               currentDate.day + _stepDuration!.days,
-              currentDate.hour + _stepDuration!.days,
+              currentDate.hour + _stepDuration!.hours,
               currentDate.minute + _stepDuration!.minutes,
               currentDate.second + _stepDuration!.seconds);
 

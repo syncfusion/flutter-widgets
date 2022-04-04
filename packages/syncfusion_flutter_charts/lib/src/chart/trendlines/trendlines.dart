@@ -24,11 +24,11 @@ import '../utils/helper.dart';
 export 'package:syncfusion_flutter_core/core.dart'
     show DataMarkerType, TooltipAlignment;
 
-///Renders the chart trend line
+/// Renders the chart trendline.
 ///
-///A trend line is a straight line that connects two or more price points
-///and then extends into the future to act as a line of support.
-/// Trendlines provide Support for forward and backward forecastings.
+/// A trendline is a straight line that connects two or more price points
+/// and then extends into the future to act as a line of support.
+/// Trendlines provide support for forward and backward forecastings.
 ///
 /// Provides option to customize the trendline types, [width], [forwardForecast] and [backwardForecast].
 class Trendline {
@@ -55,23 +55,23 @@ class Trendline {
       this.period = 2,
       this.onRenderDetailsUpdate});
 
-  ///Determines the animation time of trendline.
+  /// Determines the animation time of trendline.
   ///
-  ///Defaults to `1500 `.
+  /// Defaults to `1500 `.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(animationDuration: 150)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(animationDuration: 150)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final double animationDuration;
 
   /// Delay duration of the trendline animation.
@@ -82,374 +82,368 @@ class Trendline {
   ///
   /// Defaults to '0'.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(animationDelay: 500)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(animationDelay: 500)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final double? animationDelay;
 
-  ///Specifies the backward forecasting of trendlines.
+  /// Specifies the backward forecasting of trendlines.
   ///
-  ///Defaults to `0`.
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(backwardForecast: 3)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(backwardForecast: 3)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final double backwardForecast;
 
-  ///Specifies the forward forecasting of trendlines.
+  /// Specifies the forward forecasting of trendlines.
   ///
-  ///Defaults to `0`.
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(forwardForecast: 3)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(forwardForecast: 3)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final double forwardForecast;
 
-  ///Width of trendlines.
+  /// Width of trendlines.
   ///
-  ///Defaults to `2`.
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(width: 4)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(width: 4)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final double width;
 
-  ///Opacity of the trendline.
+  /// Opacity of the trendline.
   ///
-  ///Defaults to `1`.
+  /// Defaults to `1`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(opacity: 0.85)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(opacity: 0.85)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final double opacity;
 
-  ///Pattern of dashes and gaps used to stroke the trendline.
+  /// Pattern of dashes and gaps used to stroke the trendline.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline()
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(dashArray: <double>[2,3])
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final List<double>? dashArray;
 
-  ///Enables the tooltip for trendlines.
+  /// Enables the tooltip for trendlines.
   ///
-  ///Defaults to `true`.
+  /// Defaults to `true`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(enableTooltip: false)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(enableTooltip: false)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final bool enableTooltip;
 
-  ///Color of the trendline.
+  /// Color of the trendline.
   ///
-  ///Defaults to `Colors.blue`.
+  /// Defaults to `Colors.blue`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(color: Colors.greenAccent)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(color: Colors.greenAccent)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final Color color;
 
-  ///Provides the name for trendline.
+  /// Provides the name for trendline.
   ///
-  ///Defaults to `type` of the trendline chosen.
+  /// Defaults to `type` of the trendline chosen.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline()
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(name: 'Trendline1')
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final String? name;
 
-  ///Specifies the intercept value of the trendlines.
+  /// Specifies the intercept value of the trendlines.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(intercept: 20)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(intercept: 20)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final double? intercept;
 
-  ///Determines the visibility of the trendline.
+  /// Determines the visibility of the trendline.
   ///
-  ///Defaults to `true`.
+  /// Defaults to `true`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(isVisible: true)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(isVisible: false)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final bool isVisible;
 
-  ///Specifies the type of legend icon for trendline.
+  /// Specifies the type of legend icon for trendline.
   ///
-  ///Defaults to `LegendIconType.HorizontalLine`.
+  /// Defaults to `LegendIconType.HorizontalLine`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(legendIconType: LegendIconType.circle)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(legendIconType: LegendIconType.circle)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final LegendIconType legendIconType;
 
-  ///Specifies the intercept value of the trendlines.
+  /// Specifies the intercept value of the trendlines.
   ///
-  ///Defaults to `TrendlineType.linear`.
+  /// Defaults to `TrendlineType.linear`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(type: TrendlineType.power)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// Also refer [TrendlineType].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(type: TrendlineType.power)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final TrendlineType type;
 
-  ///To choose the valueField(low or high) to render the trendline.
+  /// To choose the valueField(low or high) to render the trendline.
   ///
-  ///Defaults to `high`.
+  /// Defaults to `high`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(valueField: 'low')
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(valueField: 'low')
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final String valueField;
 
-  ///Settings to configure the Marker of trendline.
+  /// Settings to configure the marker of trendline.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(
-  ///                    markerSettings: MarkerSettings(color: Colors.red)
-  ///                  )
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(
+  ///             markerSettings: MarkerSettings(isVisible: true)
+  ///           )
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final MarkerSettings markerSettings;
 
-  ///Show/hides the legend for trendline.
+  /// Show/hides the legend for trendline.
   ///
-  ///Defaults to `true`.
+  /// Defaults to `true`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(isVisibleInLegend: true)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(isVisibleInLegend: false)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final bool isVisibleInLegend;
 
-  ///Specifies the order of the polynomial for polynomial trendline.
+  /// Specifies the order of the polynomial for polynomial trendline.
   ///
-  ///Defaults to `2`.
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(
-  ///                  type: TrendlineType.polynomial,
-  ///                  polynomialOrder: 4)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(
+  ///             type: TrendlineType.polynomial,
+  ///             polynomialOrder: 4
+  ///           )
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final int polynomialOrder;
 
-  ///Specifies the period for moving average trendline.
+  /// Specifies the period for moving average trendline.
   ///
-  ///Defaults to `2`.
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <CartseianSeries<dynamic,dynamic>>[
-  ///              LineSeries<dynamic,String>(
-  ///                trendlines: <TrendLine>[
-  ///                  Trendline(
-  ///                    type: TrendlineType.movingAverage,
-  ///                    period: 3)
-  ///                ])
-  ///            ]
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           Trendline(period: 3)
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final int period;
 
   /// Callback which gets called while rendering the trendline.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///     body: SfCartesianChart(
-  ///             series: <LineSeries<ChartSample, num>>[
-  ///               LineSeries<ChartSample, num>(
-  ///                   dataSource: chartData,
-  ///                   trendlines: <Trendline>[
-  ///                     Trendline(
-  ///                         type: TrendlineType.linear,
-  ///                         onRenderDetailsUpdate: (TrendlineRenderParams args) {
-  ///                           print('Slope value: ' + args.slope[0]);
-  ///                           print('r-squared value: ' + args.rSquaredValue);
-  ///                           print('Intercept value (x): ' + args.intercept);
-  ///                         }),
-  ///                   ],
-  ///                   xValueMapper: (ChartSample data, _) => data.x,
-  ///                   yValueMapper: (ChartSample data, _) => data.y)
-  ///             ],
-  ///          )
-  ///     );
-  ///}
-  ///```
-  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <CartesianSeries<ChartData,String>>[
+  ///       LineSeries<ChartData,String>(
+  ///         trendlines: <TrendLine>[
+  ///           onRenderDetailsUpdate: (TrendlineRenderParams args) {
+  ///             print('Slope value: ' + args.slope[0]);
+  ///             print('r-squared value: ' + args.rSquaredValue);
+  ///             print('Intercept value (x): ' + args.intercept);
+  ///           }
+  ///         ]
+  ///       )
+  ///     ]
+  ///   );
+  /// }
+  /// ```
   final ChartTrendlineRenderCallback? onRenderDetailsUpdate;
 
   @override
@@ -510,9 +504,9 @@ class Trendline {
   }
 }
 
-///Trendline renderer class for mutable fields and methods
+/// Trendline renderer class for mutable fields and methods.
 class TrendlineRenderer {
-  /// Creates an argument constructor for Trendline renderer class
+  /// Creates an argument constructor for Trendline renderer class.
   TrendlineRenderer(this.trendline) {
     opacity = trendline.opacity;
     dashArray = trendline.dashArray;
@@ -521,64 +515,64 @@ class TrendlineRenderer {
     name = trendline.name;
   }
 
-  /// Holds the value of trendline
+  /// Holds the value of trendline.
   final Trendline trendline;
 
-  /// Holds the collection of Cartesian data points
+  /// Holds the collection of Cartesian data points.
   List<CartesianChartPoint<dynamic>>? pointsData;
 
-  /// Holds the slope intercept
+  /// Holds the slope intercept.
   // ignore: library_private_types_in_public_api
   _SlopeIntercept slopeIntercept = _SlopeIntercept();
 
-  /// Holds the slope intercept value for equation
+  /// Holds the slope intercept value for equation.
   // ignore: library_private_types_in_public_api
   _SlopeIntercept slopeInterceptData = _SlopeIntercept();
 
-  /// Holds the polynomial slopes
+  /// Holds the polynomial slopes.
   List<dynamic>? polynomialSlopes;
 
-  /// Holds the polynomial slopes for equation
+  /// Holds the polynomial slopes for equation.
   List<double>? polynomialSlopesData;
 
-  /// Holds the list of marker shapes
+  /// Holds the list of marker shapes.
   late List<Path> markerShapes;
 
-  /// Holds the list of point value
+  /// Holds the list of point value.
   late List<Offset> points;
 
-  /// Holds the opacity value
+  /// Holds the opacity value.
   late double opacity;
 
-  /// Holds the list of dash array
+  /// Holds the list of dash array.
   List<double>? dashArray;
 
-  /// Holds the fill color value
+  /// Holds the fill color value.
   late Color fillColor;
 
-  /// Specifies whether the trendline is visible
+  /// Specifies whether the trendline is visible.
   late bool visible;
 
-  /// Specifies the value of name
+  /// Specifies the value of name.
   String? name;
 
-  /// Specifies whether the renderer is needed
+  /// Specifies whether the renderer is needed.
   late bool isNeedRender;
 
-  /// Holds the value of animation controller
+  /// Holds the value of animation controller.
   late AnimationController animationController;
 
-  /// Checks whether the trendline rendered event is specified
+  /// Checks whether the trendline rendered event is specified.
   bool isTrendlineRenderEvent = false;
 
   late SeriesRendererDetails _seriesRendererDetails;
 
   // In excel, the date is considered from Jan 1, 1900. To achieve the same scenario, we have considered the year from 1900.
   // Reference link: https://support.microsoft.com/en-us/office/datevalue-function-df8b07d4-7761-4a93-bc33-b7471bbff252
-  /// Holds the excel starting date value
+  /// Holds the excel starting date value.
   final DateTime excelDate = DateTime(1900, 01, 01);
 
-  /// Defines the data point of trendline
+  /// Defines the data point of trendline.
   CartesianChartPoint<dynamic> getDataPoint(
       dynamic x,
       num y,
@@ -593,7 +587,7 @@ class TrendlineRenderer {
     trendPoint.y = y;
     trendPoint.xValue = x;
     trendPoint.pointColorMapper = _seriesRendererDetails.series.color;
-    // trendPoint.index = index;
+    trendPoint.index = index;
     trendPoint.yValue = y;
     trendPoint.isVisible = true;
     seriesRendererDetails.minimumX =
@@ -607,7 +601,7 @@ class TrendlineRenderer {
     return trendPoint;
   }
 
-  ///Defines the linear points
+  /// Defines the linear points.
   List<CartesianChartPoint<dynamic>> getLinearPoints(
       List<CartesianChartPoint<dynamic>> points,
       dynamic xValues,
@@ -643,7 +637,7 @@ class TrendlineRenderer {
     return pts;
   }
 
-  /// Setting the linear range for trendline series
+  /// Setting the linear range for trendline series.
   void _setLinearRange(List<CartesianChartPoint<dynamic>> points,
       SeriesRendererDetails seriesRendererDetails) {
     final List<dynamic> xValues = <dynamic>[];
@@ -671,15 +665,14 @@ class TrendlineRenderer {
       index++;
     }
     slopeIntercept = _findSlopeIntercept(xValues, yValues, points);
-    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
+    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN)
       pointsData = getLinearPoints(
           points, xValues, yValues, seriesRendererDetails, slopeIntercept);
-    }
     slopeInterceptData =
         _findSlopeIntercept(slopeInterceptXValues, yValues, points);
   }
 
-  ///Defines Exponential Points
+  /// Defines Exponential Points.
   List<CartesianChartPoint<dynamic>> getExponentialPoints(
       List<CartesianChartPoint<dynamic>> points,
       dynamic xValues,
@@ -732,7 +725,7 @@ class TrendlineRenderer {
     return ptsExpo;
   }
 
-  /// Setting the exponential range for trendline series
+  /// Setting the exponential range for trendline series.
   void _setExponentialRange(List<CartesianChartPoint<dynamic>> points,
       SeriesRendererDetails seriesRendererDetails) {
     final List<dynamic> xValues = <dynamic>[];
@@ -763,15 +756,14 @@ class TrendlineRenderer {
     }
     xValues.sort();
     slopeIntercept = _findSlopeIntercept(xValues, yValues, points);
-    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
+    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN)
       pointsData = getExponentialPoints(
           points, xValues, yValues, seriesRendererDetails, slopeIntercept);
-    }
     slopeInterceptData =
         _findSlopeIntercept(slopeInterceptXValues, yValues, points);
   }
 
-  ///Defines Power Points
+  /// Defines Power Points.
   List<CartesianChartPoint<dynamic>> getPowerPoints(
       List<CartesianChartPoint<dynamic>> points,
       dynamic xValues,
@@ -822,7 +814,7 @@ class TrendlineRenderer {
     return ptsPow;
   }
 
-  /// Setting the power range values for trendline series
+  /// Setting the power range values for trendline series.
   void _setPowerRange(List<CartesianChartPoint<dynamic>> points,
       SeriesRendererDetails seriesRendererDetails) {
     final List<dynamic> xValues = <dynamic>[];
@@ -863,15 +855,14 @@ class TrendlineRenderer {
     }
     powerPoints.sort();
     slopeIntercept = _findSlopeIntercept(xValues, yValues, points);
-    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
+    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN)
       pointsData = getPowerPoints(
           points, powerPoints, yValues, seriesRendererDetails, slopeIntercept);
-    }
     slopeInterceptData =
         _findSlopeIntercept(slopeInterceptXValues, yValues, points);
   }
 
-  ///Defines Logarithmic Points
+  /// Defines Logarithmic Points.
   List<CartesianChartPoint<dynamic>> getLogarithmicPoints(
       List<CartesianChartPoint<dynamic>> points,
       dynamic xValues,
@@ -916,7 +907,7 @@ class TrendlineRenderer {
     return ptsLog;
   }
 
-  /// Setting the logarithmic range for trendline series
+  /// Setting the logarithmic range for trendline series.
   void _setLogarithmicRange(List<CartesianChartPoint<dynamic>> points,
       SeriesRendererDetails seriesRendererDetails) {
     final List<dynamic> xLogValue = <dynamic>[];
@@ -955,15 +946,14 @@ class TrendlineRenderer {
     }
     xPointsLgr.sort();
     slopeIntercept = _findSlopeIntercept(xLogValue, yLogValue, points);
-    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
+    if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN)
       pointsData = getLogarithmicPoints(
           points, xPointsLgr, yLogValue, seriesRendererDetails, slopeIntercept);
-    }
     slopeInterceptData =
         _findSlopeIntercept(slopeInterceptXLogValue, yLogValue, points);
   }
 
-  ///Defines Polynomial points
+  /// Defines Polynomial points.
   List<CartesianChartPoint<dynamic>> _getPolynomialPoints(
       List<CartesianChartPoint<dynamic>> points,
       dynamic xValues,
@@ -987,8 +977,8 @@ class TrendlineRenderer {
 
     final List<dynamic> matrix = _getMatrix(trendline, xValues);
     if (!_gaussJordanElimination(matrix, polynomialSlopes!)) {
-      //The trendline will not be generated if there is just one data point or if the x and y values are the same,
-      //for example (1,1), (1,1). So, the line was commented. And now marker alone will be rendered in this case.
+      // The trendline will not be generated if there is just one data point or if the x and y values are the same,
+      // for example (1,1), (1,1). So, the line was commented. And now marker alone will be rendered in this case.
       // _polynomialSlopes = null;
     }
     pts = _getPoints(points, xValues, yValues, seriesRendererDetails);
@@ -1022,7 +1012,7 @@ class TrendlineRenderer {
     return pts;
   }
 
-  /// Get matrix values for polynomial type
+  /// Get matrix values for polynomial type.
   List<dynamic> _getMatrix(Trendline trendline, dynamic xValues) {
     final List<dynamic> numArray =
         List<dynamic>.filled(2 * trendline.polynomialOrder + 1, null);
@@ -1051,7 +1041,7 @@ class TrendlineRenderer {
     return matrix;
   }
 
-  /// Setting the polynomial range for trendline series
+  /// Setting the polynomial range for trendline series.
   void _setPolynomialRange(List<CartesianChartPoint<dynamic>> points,
       SeriesRendererDetails seriesRendererDetails) {
     final List<dynamic> xPolyValues = <dynamic>[];
@@ -1076,7 +1066,7 @@ class TrendlineRenderer {
         points, xPolyValues, yPolyValues, seriesRendererDetails);
   }
 
-  /// To return points list
+  /// To return points list.
   List<CartesianChartPoint<dynamic>> _getPoints(
       List<CartesianChartPoint<dynamic>> points,
       dynamic xValues,
@@ -1132,7 +1122,7 @@ class TrendlineRenderer {
     return sum;
   }
 
-  ///Defines moving average points
+  /// Defines moving average points.
   List<CartesianChartPoint<dynamic>> getMovingAveragePoints(
       List<CartesianChartPoint<dynamic>> points,
       List<dynamic> xValues,
@@ -1167,7 +1157,7 @@ class TrendlineRenderer {
     return pts;
   }
 
-  /// Setting the moving average range for trendline series
+  /// Setting the moving average range for trendline series.
   void _setMovingAverageRange(List<CartesianChartPoint<dynamic>> points,
       SeriesRendererDetails seriesRendererDetails) {
     final List<dynamic> xValues = <dynamic>[], xAvgValues = <dynamic>[];
@@ -1192,7 +1182,7 @@ class TrendlineRenderer {
         points, xAvgValues, yValues, seriesRendererDetails);
   }
 
-  /// Setting the slope intercept for trendline series
+  /// Setting the slope intercept for trendline series.
   _SlopeIntercept _findSlopeIntercept(dynamic xValues, dynamic yValues,
       List<CartesianChartPoint<dynamic>> points) {
     double xAvg = 0.0, yAvg = 0.0, xyAvg = 0.0, xxAvg = 0.0;
@@ -1237,7 +1227,7 @@ class TrendlineRenderer {
     return slopeIntercept;
   }
 
-  /// To set initial data source for trendlines
+  /// To set initial data source for trendlines.
   void _initDataSource(
       SfCartesianChart chart, SeriesRendererDetails seriesRendererDetails) {
     if (pointsData!.isNotEmpty) {
@@ -1266,7 +1256,7 @@ class TrendlineRenderer {
     }
   }
 
-  /// To find the actual points of trend line series
+  /// To find the actual points of trend line series.
   void calculateTrendlinePoints(SeriesRendererDetails seriesRendererDetails,
       CartesianStateProperties stateProperties) {
     final Rect rect = calculatePlotOffset(
@@ -1297,7 +1287,7 @@ class TrendlineRenderer {
     }
   }
 
-  /// Calculate marker shapes for trendlines
+  /// Calculate marker shapes for trendlines.
   void _calculateMarkerShapesPoint(
       SeriesRendererDetails seriesRendererDetails) {
     markerShapes = <Path>[];
@@ -1314,7 +1304,7 @@ class TrendlineRenderer {
     }
   }
 
-  /// To set data source for trendlines
+  /// To set data source for trendlines.
   void setDataSource(
       SeriesRendererDetails? seriesRendererDetails, SfCartesianChart chart) {
     if (seriesRendererDetails?.series != null) {
@@ -1332,7 +1322,7 @@ class TrendlineRenderer {
     }
   }
 
-  /// To obtain control points for type curve trendlines
+  /// To obtain control points for type curve trendlines.
   List<Offset> getControlPoints(List<Offset> _dataPoints, int index) {
     List<num?> yCoef = <num?>[];
     final List<Offset> controlPoints = <Offset>[];
@@ -1347,7 +1337,7 @@ class TrendlineRenderer {
         yCoef[index + 1]!.toDouble(), index, controlPoints);
   }
 
-  /// It returns the date-time values of trendline series
+  /// It returns the date-time values of trendline series.
   int _increaseDateTimeForecast(
       DateTimeAxisRenderer axisRenderer, int value, num interval) {
     final DateTimeAxis axis =
@@ -1400,7 +1390,7 @@ class TrendlineRenderer {
     return dateTime.millisecondsSinceEpoch;
   }
 
-  /// Boolean for gaussJordanElimination in polynomial type trendlines
+  /// Boolean for gaussJordanElimination in polynomial type trendlines.
   bool _gaussJordanElimination(
       List<dynamic> matrix, List<dynamic> _polynomialSlopesList) {
     final int length = matrix.length;
@@ -1486,7 +1476,7 @@ class TrendlineRenderer {
     return true;
   }
 
-  /// It returns the polynomial points
+  /// It returns the polynomial points.
   List<Offset> getPolynomialCurve(
       List<CartesianChartPoint<dynamic>> points,
       SeriesRendererDetails seriesRendererDetails,
@@ -1517,7 +1507,7 @@ class TrendlineRenderer {
     return polyPoints;
   }
 
-  /// To return predicted forecast values
+  /// To return predicted forecast values.
   int _getForecastDate(
       ChartAxisRendererDetails axisRendererDetails, bool _isForward) {
     Duration duration = Duration.zero;

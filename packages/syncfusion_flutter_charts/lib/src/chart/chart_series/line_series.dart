@@ -3,7 +3,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 /// Renders the line series.
 ///
-/// This class holds the properties of line series. To render a Line chart,
+/// This class holds the properties of line series. To render a line chart,
 /// create an instance of [LineSeries], and add it to the series collection
 /// property of [SfCartesianChart]. A line chart requires two fields (X and Y)
 /// to plot a point.

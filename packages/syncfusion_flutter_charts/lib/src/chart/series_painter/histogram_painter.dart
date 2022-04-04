@@ -15,7 +15,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Histogram series
+/// Creates series renderer for histogram series.
 class HistogramSeriesRenderer extends XyDataSeriesRenderer {
   late HistogramSegment _segment;
   late HistogramSeries<dynamic, dynamic> _histogramSeries;
@@ -25,7 +25,7 @@ class HistogramSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _segmentSeriesDetails;
   late SeriesRendererDetails _oldSeriesDetails;
 
-  /// Find the path for distribution line in the histogram
+  /// Find the path for distribution line in the histogram.
   Path _findNormalDistributionPath(
       HistogramSeries<dynamic, dynamic> series, SfCartesianChart chart) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -64,7 +64,7 @@ class HistogramSeriesRenderer extends XyDataSeriesRenderer {
     return path;
   }
 
-  /// To add histogram segments to segments list
+  /// To add histogram segments to segments list.
   ChartSegment _createSegments(
       CartesianChartPoint<dynamic> currentPoint,
       int pointIndex,
@@ -200,7 +200,7 @@ class HistogramSeriesRenderer extends XyDataSeriesRenderer {
         segmentProperties.getTrackerStrokePaint();
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -305,24 +305,34 @@ class HistogramChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRendererDetails.calculateRegionData(
-            stateProperties,
-            seriesRendererDetails,
-            painterKey.index,
-            point,
-            pointIndex,
-            seriesRendererDetails.sideBySideInfo);
-        if (point.isVisible && !point.isGap) {
-          seriesRendererDetails.drawSegment(
-              canvas,
-              seriesRenderer._createSegments(
-                  point,
-                  segmentIndex += 1,
-                  seriesRendererDetails.sideBySideInfo!,
-                  painterKey.index,
-                  animationFactor));
+        final bool withInXRange = withInRange(
+            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        final bool withInYRange = point != null &&
+            point.yValue != null &&
+            withInRange(point.yValue,
+                seriesRendererDetails.yAxisDetails!.visibleRange!);
+        if (withInXRange || withInYRange) {
+          seriesRendererDetails.calculateRegionData(
+              stateProperties,
+              seriesRendererDetails,
+              painterKey.index,
+              point,
+              pointIndex,
+              seriesRendererDetails.sideBySideInfo);
+          if (point.isVisible && !point.isGap) {
+            seriesRendererDetails.drawSegment(
+                canvas,
+                seriesRenderer._createSegments(
+                    point,
+                    segmentIndex += 1,
+                    seriesRendererDetails.sideBySideInfo!,
+                    painterKey.index,
+                    animationFactor));
+          }
         }
       }
       if (series.showNormalDistributionCurve) {

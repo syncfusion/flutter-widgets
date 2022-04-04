@@ -3,14 +3,13 @@ import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import 'technical_indicator.dart';
 
-/// This class holds the properties of the Accumulation Distribution Indicator.
+/// This class holds the properties of the accumulation distribution indicator.
 ///
 /// Accumulation distribution indicator is a volume-based indicator designed to measure the accumulative flow of money into and out of a security.
 /// It requires [volumeValueMapper] property additionally with the data source to calculate the signal line.
 ///
 /// It provides options for series visible, axis name, series name, animation duration, legend visibility,
 /// signal line width, and color.
-///
 @immutable
 class AccumulationDistributionIndicator<T, D>
     extends TechnicalIndicators<T, D> {
@@ -64,26 +63,26 @@ class AccumulationDistributionIndicator<T, D>
   ///
   /// This value is mapped to the series.
   ///
-  /// Defaults to `null`
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///  return Container(
-  ///       child: SfCartesianChart(
-  ///       indicators: <TechnicalIndicators<Sample, dynamic>>[
-  ///            AccumulationDistributionIndicator<Sample, dynamic>(
-  ///                seriesName: 'Balloon',
-  ///                animationDuration: 2000),
-  ///          ],
-  ///       series: <ChartSeries<Sample, dynamic>>[
-  ///       HiloOpenCloseSeries<Sample, dynamic>(
-  ///               volumeValueMapper: (Sample sales, _) => sales.volume,
-  ///               name: 'Balloon'
-  ///         )],
-  ///     ));
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      AccumulationDistributionIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        volumeValueMapper: (dynamic data, _) => data.y,
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        volumeValueMapper: (Sample sales, _) => sales.volume,
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
   /// }
-  ///```
-  ///
+  /// ```
   final ChartIndexedValueMapper<num>? volumeValueMapper;
 
   @override

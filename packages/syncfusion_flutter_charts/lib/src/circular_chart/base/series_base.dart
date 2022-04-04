@@ -17,38 +17,38 @@ import '../utils/helper.dart';
 import 'circular_base.dart';
 import 'circular_state_properties.dart';
 
-/// Represents the circular series base
+/// Represents the circular series base.
 ///
 class CircularSeriesBase {
-  /// Creates the instance for the circular series base
+  /// Creates the instance for the circular series base.
   CircularSeriesBase(this.stateProperties);
 
-  /// Represents the  circular chart state
+  /// Represents the  circular chart state.
   final CircularStateProperties stateProperties;
 
-  /// Gets the chart widget from the state properties
+  /// Gets the chart widget from the state properties.
   SfCircularChart get chart => stateProperties.chart;
 
-  /// Specifies the current circular series
+  /// Specifies the current circular series.
   late CircularSeries<dynamic, dynamic> currentSeries;
 
-  /// Specifies the value of size
+  /// Specifies the value of size.
   late num size;
 
-  /// Specifies the value of sum of group
+  /// Specifies the value of sum of group.
   late num sumOfGroup;
 
-  /// Specifies the value of exploded region
+  /// Specifies the value of exploded region.
   late Region explodedRegion;
 
-  /// Specifies the value of select region
+  /// Specifies the value of select region.
   late Region selectRegion;
 
-  /// Specifies the list that holds the visible series renderers
+  /// Specifies the list that holds the visible series renderers.
   List<CircularSeriesRendererExtension> visibleSeriesRenderers =
       <CircularSeriesRendererExtension>[];
 
-  /// To find the visible series
+  /// To find the visible series.
   void findVisibleSeries() {
     CircularSeries<dynamic, dynamic> series;
     List<ChartPoint<dynamic>>? _oldPoints;
@@ -98,14 +98,14 @@ class CircularSeriesBase {
     }
   }
 
-  /// Method to check whether the data is updated
+  /// Method to check whether the data is updated.
   bool isDataUpdated(ChartPoint<dynamic> point, ChartPoint<dynamic> oldPoint) {
     return point.x != oldPoint.x ||
         point.y != oldPoint.y ||
         point.sortValue != oldPoint.sortValue;
   }
 
-  /// To calculate circular empty points in chart
+  /// To calculate circular empty points in chart.
   void _calculateCircularEmptyPoints(
       CircularSeriesRendererExtension seriesRenderer) {
     final List<ChartPoint<dynamic>> points = seriesRenderer.dataPoints;
@@ -117,14 +117,14 @@ class CircularSeriesBase {
     }
   }
 
-  /// To process data points from series
+  /// To process data points from series.
   void processDataPoints(CircularSeriesRendererExtension seriesRenderer) {
     currentSeries = seriesRenderer.series;
     _calculateCircularEmptyPoints(seriesRenderer);
     _findingGroupPoints();
   }
 
-  /// Sort the dataSource
+  /// Sort the dataSource.
   void _sortDataSource(CircularSeriesRendererExtension seriesRenderer) {
     seriesRenderer.dataPoints.sort(
         // ignore: missing_return
@@ -158,7 +158,7 @@ class CircularSeriesBase {
     });
   }
 
-  /// To group points based on group mode
+  /// To group points based on group mode.
   void _findingGroupPoints() {
     final List<CircularSeriesRendererExtension> seriesRenderers =
         stateProperties.chartSeries.visibleSeriesRenderers;
@@ -202,7 +202,7 @@ class CircularSeriesBase {
     _setPointStyle(seriesRenderer);
   }
 
-  /// To set point properties
+  /// To set point properties.
   void _setPointStyle(CircularSeriesRendererExtension seriesRenderer) {
     final EmptyPointSettings empty = currentSeries.emptyPointSettings;
     final List<Color> palette = chart.palette;
@@ -257,7 +257,7 @@ class CircularSeriesBase {
     }
   }
 
-  /// To calculate angle, radius and center positions of circular charts
+  /// To calculate angle, radius and center positions of circular charts.
   void calculateAngleAndCenterPositions(
       CircularSeriesRendererExtension seriesRenderer) {
     currentSeries = seriesRenderer.series;
@@ -269,7 +269,7 @@ class CircularSeriesBase {
     _calculateCenterPosition(seriesRenderer);
   }
 
-  /// To calculate circular rect position  for  rendering chart
+  /// To calculate circular rect position  for  rendering chart.
   void _calculateCenterPosition(
       CircularSeriesRendererExtension seriesRenderer) {
     if (stateProperties.needToMoveFromCenter &&
@@ -316,7 +316,7 @@ class CircularSeriesBase {
     }
   }
 
-  /// To calculate start and end angle of circular charts
+  /// To calculate start and end angle of circular charts.
   void _calculateStartAndEndAngle(
       CircularSeriesRendererExtension seriesRenderer) {
     int pointIndex = 0;
@@ -353,7 +353,7 @@ class CircularSeriesBase {
     }
   }
 
-  /// To check need for explode
+  /// To check need for explode.
   bool _needExplode(int pointIndex, CircularSeries<dynamic, dynamic> series) {
     bool isNeedExplode = false;
     if (series.explode) {
@@ -387,7 +387,7 @@ class CircularSeriesBase {
     return isNeedExplode;
   }
 
-  /// To find sum of points in the series
+  /// To find sum of points in the series.
   void _findSumOfPoints(CircularSeriesRendererExtension seriesRenderer) {
     seriesRenderer.segmentRenderingValues['sumOfPoints'] = 0;
     for (final ChartPoint<dynamic> point in seriesRenderer.renderPoints!) {
@@ -399,7 +399,7 @@ class CircularSeriesBase {
     }
   }
 
-  /// To calculate angle of series
+  /// To calculate angle of series.
   void _calculateAngle(CircularSeriesRendererExtension seriesRenderer) {
     seriesRenderer.segmentRenderingValues['start'] =
         currentSeries.startAngle < 0
@@ -440,7 +440,7 @@ class CircularSeriesBase {
                 .abs();
   }
 
-  /// To calculate radius of circular chart
+  /// To calculate radius of circular chart.
   void _calculateRadius(CircularSeriesRendererExtension seriesRenderer) {
     final Rect chartAreaRect = stateProperties.renderingDetails.chartAreaRect;
     size = min(chartAreaRect.width, chartAreaRect.height);
@@ -451,7 +451,7 @@ class CircularSeriesBase {
             seriesRenderer.segmentRenderingValues['currentRadius']!)!;
   }
 
-  /// To calculate center location of chart
+  /// To calculate center location of chart.
   void _calculateOrigin(CircularSeriesRendererExtension seriesRenderer) {
     final Rect chartAreaRect = stateProperties.renderingDetails.chartAreaRect;
     final Rect chartContainerRect =
@@ -467,7 +467,7 @@ class CircularSeriesBase {
     stateProperties.centerLocation = seriesRenderer.center!;
   }
 
-  /// To find explode center position
+  /// To find explode center position.
   Offset _findExplodeCenter(num midAngle,
       CircularSeriesRendererExtension seriesRenderer, num currentRadius) {
     final num explodeCenter =
@@ -475,14 +475,14 @@ class CircularSeriesBase {
     return degreeToPoint(midAngle, explodeCenter, seriesRenderer.center!);
   }
 
-  /// To calculate and return point radius
+  /// To calculate and return point radius.
   num _calculatePointRadius(
       dynamic value, ChartPoint<dynamic> point, num radius) {
     radius = value != null ? percentToValue(value, size / 2)! : radius;
     return radius;
   }
 
-  /// To add selection points to selection list
+  /// To add selection points to selection list.
   void seriesPointSelection(Region? pointRegion, ActivationMode mode,
       [int? pointIndex, int? seriesIndex]) {
     bool isPointAlreadySelected = false;
@@ -549,7 +549,7 @@ class CircularSeriesBase {
     }
   }
 
-  /// To perform selection event and return Selection Args
+  /// To perform selection event and return Selection Args.
   SelectionArgs _getSelectionEventArgs(
       dynamic seriesRenderer, int seriesIndex, int pointIndex) {
     if (seriesRenderer != null) {
@@ -571,7 +571,7 @@ class CircularSeriesBase {
     return seriesRenderer.selectionArgs as SelectionArgs;
   }
 
-  /// Method to explode the series point
+  /// Method to explode the series point.
   void seriesPointExplosion(Region? pointRegion) {
     bool existExplodedRegion = false;
     final CircularSeriesRendererExtension seriesRenderer = stateProperties
@@ -635,7 +635,7 @@ class CircularSeriesBase {
     }
   }
 
-  /// Setting series type
+  /// Setting series type.
   void _setSeriesType(CircularSeriesRendererExtension seriesRenderer) {
     if (seriesRenderer is PieSeriesRendererExtension) {
       seriesRenderer.seriesType = 'pie';

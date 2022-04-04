@@ -15,7 +15,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Range column series
+/// Creates series renderer for range column series
 class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of RangeColumnSeriesRenderer class.
   RangeColumnSeriesRenderer();
@@ -23,7 +23,7 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _currentSeriesDetails;
   late SeriesRendererDetails _segmentSeriesDetails;
 
-  /// To add range column segments in segments list
+  /// To add range column segments in segments list.
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
@@ -135,7 +135,7 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render range column series segments
+  /// To render range column series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
@@ -171,7 +171,7 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
         segmentProperties.getTrackerStrokePaint();
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -270,15 +270,28 @@ class RangeColumnChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRendererDetails.calculateRegionData(stateProperties,
-            seriesRendererDetails, painterKey.index, point, pointIndex);
-        if (point.isVisible && !point.isGap) {
-          seriesRendererDetails.drawSegment(
-              canvas,
-              seriesRenderer._createSegments(
-                  point, segmentIndex += 1, painterKey.index, animationFactor));
+        final bool withInXRange = withInRange(
+            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        final bool withInHighLowRange = point != null &&
+            point.high != null &&
+            withInRange(point.high,
+                seriesRendererDetails.yAxisDetails!.visibleRange!) &&
+            point.low != null &&
+            withInRange(
+                point.low, seriesRendererDetails.yAxisDetails!.visibleRange!);
+        if (withInXRange || withInHighLowRange) {
+          seriesRendererDetails.calculateRegionData(stateProperties,
+              seriesRendererDetails, painterKey.index, point, pointIndex);
+          if (point.isVisible && !point.isGap) {
+            seriesRendererDetails.drawSegment(
+                canvas,
+                seriesRenderer._createSegments(point, segmentIndex += 1,
+                    painterKey.index, animationFactor));
+          }
         }
       }
       clipRect = calculatePlotOffset(

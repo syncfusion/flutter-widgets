@@ -17,6 +17,9 @@ dependencies:
   syncfusion_flutter_datagrid_export:
     path: ../
 
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true

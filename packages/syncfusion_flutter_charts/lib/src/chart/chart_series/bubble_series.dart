@@ -92,42 +92,38 @@ class BubbleSeries<T, D> extends XyDataSeries<T, D> {
             onCreateShader: onCreateShader,
             initialSelectedDataIndexes: initialSelectedDataIndexes);
 
-  ///Maximum radius value of the bubble in the series.
+  /// Maximum radius value of the bubble in the series.
   ///
-  ///Defaults to `10`
+  /// Defaults to `10`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BubbleSeries<BubbleColors, num>>[
-  ///                BubbleSeries<BubbleColors, num>(
-  ///                  maximumRadius: 9
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BubbleSeries<BubbleColors, num>>[
+  ///       BubbleSeries<BubbleColors, num>(
+  ///         maximumRadius: 9
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final num maximumRadius;
 
-  ///Minimum radius value of the bubble in the series.
+  /// Minimum radius value of the bubble in the series.
   ///
-  ///Defaults to `3`
+  /// Defaults to `3`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BubbleSeries<BubbleColors, num>>[
-  ///                BubbleSeries<BubbleColors, num>(
-  ///                  minimumRadius: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BubbleSeries<BubbleColors, num>>[
+  ///       BubbleSeries<BubbleColors, num>(
+  ///         minimumRadius: 9
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final num minimumRadius;
 
   /// Create the bubble series renderer.

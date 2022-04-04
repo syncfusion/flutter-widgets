@@ -19,21 +19,21 @@ import 'chart_point.dart';
 import 'circular_chart_annotation.dart';
 import 'renderer_extension.dart';
 
-/// Represents the circular data label renderer
+/// Represents the circular data label renderer.
 // ignore: must_be_immutable
 class CircularDataLabelRenderer extends StatefulWidget {
-  /// Creates the instance of circular data label renderer
+  /// Creates the instance of circular data label renderer.
   // ignore: prefer_const_constructors_in_immutables
   CircularDataLabelRenderer(
       {required this.stateProperties, required this.show});
 
-  /// Specifies the circular chart state
+  /// Specifies the circular chart state.
   final CircularStateProperties stateProperties;
 
-  /// Specifies whether to the data label
+  /// Specifies whether to show the data label.
   bool show;
 
-  /// Specifies the state of circular data label renderer
+  /// Specifies the state of circular data label renderer.
   late CircularDataLabelRendererState state;
 
   @override
@@ -42,16 +42,16 @@ class CircularDataLabelRenderer extends StatefulWidget {
   }
 }
 
-/// Represents the circular data label renderer state
+/// Represents the circular data label renderer state.
 class CircularDataLabelRendererState extends State<CircularDataLabelRenderer>
     with SingleTickerProviderStateMixin {
-  /// Specifies the animation controller list
+  /// Specifies the animation controller list.
   late List<AnimationController> animationControllersList;
 
-  /// Animation controller for series
+  /// Animation controller for series.
   late AnimationController animationController;
 
-  /// Repaint notifier for crosshair container
+  /// Repaint notifier for data label container.
   late ValueNotifier<int> dataLabelRepaintNotifier;
 
   @override
@@ -94,12 +94,12 @@ class CircularDataLabelRendererState extends State<CircularDataLabelRenderer>
     super.dispose();
   }
 
-  /// Method to notify the repaint notifier
+  /// Method to notify the repaint notifier.
   void repaintDataLabelElements() {
     dataLabelRepaintNotifier.value++;
   }
 
-  /// Method to render the data label
+  /// Method to render the data label.
   void render() {
     setState(() {
       widget.show = true;
@@ -124,7 +124,7 @@ class _CircularDataLabelPainter extends CustomPainter {
 
   final Animation<double> animation;
 
-  /// To paint data labels
+  /// To paint data labels.
   @override
   void paint(Canvas canvas, Size size) {
     final List<CircularSeriesRendererExtension> visibleSeriesRenderers =
@@ -152,10 +152,10 @@ class _CircularDataLabelPainter extends CustomPainter {
 /// Decides to increase the angle or not.
 bool isIncreaseAngle = false;
 
-/// To store the points which render at left and positioned outside
+/// To store the points which render at left and positioned outside.
 List<ChartPoint<dynamic>> leftPoints = <ChartPoint<dynamic>>[];
 
-/// To store the points which render at right and positioned outside
+/// To store the points which render at right and positioned outside.
 List<ChartPoint<dynamic>> rightPoints = <ChartPoint<dynamic>>[];
 
 /// Decrease the angle of the label if it intersects with labels.
@@ -199,6 +199,7 @@ void _decreaseAngle(
       }
       _changeLabelAngle(previousPoint, newAngle, seriesRenderer);
       if (isOverlap(currentPoint.labelRect, previousPoint.labelRect) &&
+          // ignore: unnecessary_null_comparison
           leftPoints.indexOf(previousPoint) == null &&
           (newAngle - 1 < 90 && newAngle - 1 > 270)) {
         _changeLabelAngle(currentPoint,
@@ -326,6 +327,7 @@ void _arrangeLeftSidePoints(CircularSeriesRendererExtension seriesRenderer) {
       }
     } else {
       if (angleChanged &&
+          // ignore: unnecessary_null_comparison
           previousPoint != null &&
           PointHelper.getLabelUpdated(previousPoint) == 1) {
         startFresh = true;
@@ -383,6 +385,7 @@ void _arrangeRightSidePoints(CircularSeriesRendererExtension series) {
     } else {
       //If a point did not overlapped with previous points, increase the angle always for right side points.
       if (angleChanged &&
+          // ignore: unnecessary_null_comparison
           nextPoint != null &&
           PointHelper.getLabelUpdated(nextPoint) == 1) {
         startFresh = true;
@@ -391,7 +394,7 @@ void _arrangeRightSidePoints(CircularSeriesRendererExtension series) {
   }
 }
 
-/// To render data label
+/// To render data label.
 void renderCircularDataLabel(
     CircularSeriesRendererExtension seriesRenderer,
     Canvas canvas,
@@ -653,12 +656,14 @@ void renderCircularDataLabel(
         if (point.labelRect.left < containerRect.left &&
             point.renderPosition == ChartDataLabelPosition.outside) {
           point.trimmedText = getTrimmedText(point.trimmedText!,
-              point.labelRect.right - containerRect.left, dataLabelStyle, null);
+              point.labelRect.right - containerRect.left, dataLabelStyle,
+              axisRenderer: null, isRtl: stateProperties.isRtl);
         }
         if (point.labelRect.right > containerRect.right &&
             point.renderPosition == ChartDataLabelPosition.outside) {
           point.trimmedText = getTrimmedText(point.trimmedText!,
-              containerRect.right - point.labelRect.left, dataLabelStyle, null);
+              containerRect.right - point.labelRect.left, dataLabelStyle,
+              axisRenderer: null, isRtl: stateProperties.isRtl);
         }
         if (point.trimmedText != '' &&
             !isOverlapWithPrevious(
@@ -686,7 +691,7 @@ void renderCircularDataLabel(
   }
 }
 
-/// To set data label position
+/// To set data label position.
 void setLabelPosition(
     DataLabelSettings dataLabel,
     ChartPoint<dynamic> point,
@@ -1070,19 +1075,13 @@ void renderOutsideDataLabel(
   } else {
     if (seriesRenderer.series.dataLabelSettings.labelIntersectAction !=
         LabelIntersectAction.shift) {
-      canvas.drawPath(
-          connectorPath,
-          Paint()
-            ..color = connector.width <= 0
-                ? Colors.transparent
-                : connector.color ?? point.fill.withOpacity(animateOpacity)
-            ..strokeWidth = connector.width
-            ..style = PaintingStyle.stroke);
+      _drawConnectorLine(labelLocation, connectorPath, canvas, seriesRenderer,
+          point, animateOpacity, seriesRenderer.series.dataLabelSettings);
     }
   }
 }
 
-/// To draw label
+/// To draw label.
 void drawLabel(
     Rect labelRect,
     Offset location,
@@ -1101,16 +1100,9 @@ void drawLabel(
   final DataLabelSettings dataLabel = seriesRenderer.series.dataLabelSettings;
   final DataLabelSettingsRenderer dataLabelSettingsRenderer =
       seriesRenderer.dataLabelSettingsRenderer;
-  final ConnectorLineSettings connector = dataLabel.connectorLineSettings;
   if (connectorPath != null) {
-    canvas.drawPath(
-        connectorPath,
-        Paint()
-          ..color = connector.width <= 0
-              ? Colors.transparent
-              : connector.color ?? point.fill.withOpacity(animateOpacity)
-          ..strokeWidth = connector.width
-          ..style = PaintingStyle.stroke);
+    _drawConnectorLine(location, connectorPath, canvas, seriesRenderer, point,
+        animateOpacity, dataLabel);
   }
 
   if (dataLabel.builder == null) {
@@ -1168,7 +1160,7 @@ void drawLabel(
   }
 }
 
-/// Method to trigger the data label event
+/// Method to trigger the data label event.
 void triggerCircularDataLabelEvent(
     SfCircularChart chart,
     CircularSeriesRendererExtension seriesRenderer,
@@ -1215,7 +1207,7 @@ void drawLabelRect(
         RRect.fromRectAndRadius(labelRect, Radius.circular(borderRadius)),
         paint);
 
-/// To find data label position
+/// To find data label position.
 void findDataLabelPosition(ChartPoint<dynamic> point) {
   point.midAngle =
       point.midAngle! > 360 ? point.midAngle! - 360 : point.midAngle!;
@@ -1226,7 +1218,7 @@ void findDataLabelPosition(ChartPoint<dynamic> point) {
       : Position.left;
 }
 
-/// Method for setting color to data label
+/// Method for setting color to data label.
 Color findthemecolor(CircularStateProperties stateProperties,
     ChartPoint<dynamic> point, DataLabelSettings dataLabel) {
   return dataLabel.color ??
@@ -1253,7 +1245,8 @@ String _getSegmentOverflowTrimmedText(
   const String ellipse = '...';
   const int minCharacterLength = 3;
   // To reduce the additional padding around label rects
-  const double labelPadding = kIsWeb ? 4 : 2;
+  // ignore: prefer_const_declarations
+  final double labelPadding = kIsWeb ? 4 : 2;
 
   final bool labelLeftEnd = _isInsideSegment(
       point.labelRect.centerLeft - Offset(labelPadding, 0),
@@ -1278,10 +1271,11 @@ String _getSegmentOverflowTrimmedText(
         if (datalabelText == '') {
           break;
         }
-        if (datalabelText.length > minCharacterLength) {
-          datalabelText =
-              addEllipse(datalabelText, datalabelText.length, ellipse);
-        } else {
+        if (datalabelText.length > minCharacterLength)
+          datalabelText = addEllipse(
+              datalabelText, datalabelText.length, ellipse,
+              isRtl: chartState.isRtl);
+        else {
           datalabelText = '';
           break;
         }
@@ -1365,5 +1359,45 @@ bool _isInsideSegment(
     return labelAngle >= start && labelAngle <= end;
   } else {
     return false;
+  }
+}
+
+/// Method to render a connected line
+void _drawConnectorLine(
+    Offset location,
+    Path connectorPath,
+    Canvas canvas,
+    CircularSeriesRendererExtension seriesRenderer,
+    ChartPoint<dynamic> point,
+    double animateOpacity,
+    DataLabelSettings dataLabel) {
+  final ConnectorLineSettings line = dataLabel.connectorLineSettings;
+  if (dataLabel.builder != null) {
+    final List<Rect> datalabelTemplate = seriesRenderer
+        .stateProperties.renderingDetails.dataLabelTemplateRegions;
+    final Offset dataLabelLocation = seriesRenderer
+        .stateProperties.renderingDetails.templates[point.index].location;
+    for (int i = 0; i < datalabelTemplate.length; i++) {
+      if (datalabelTemplate[i].contains(location) ||
+          datalabelTemplate[i].contains(dataLabelLocation)) {
+        canvas.drawPath(
+            connectorPath,
+            Paint()
+              ..color = line.width <= 0
+                  ? Colors.transparent
+                  : line.color ?? point.fill.withOpacity(animateOpacity)
+              ..strokeWidth = line.width
+              ..style = PaintingStyle.stroke);
+      }
+    }
+  } else {
+    canvas.drawPath(
+        connectorPath,
+        Paint()
+          ..color = line.width <= 0
+              ? Colors.transparent
+              : line.color ?? point.fill.withOpacity(animateOpacity)
+          ..strokeWidth = line.width
+          ..style = PaintingStyle.stroke);
   }
 }

@@ -6,15 +6,15 @@ import 'stacked_series_base.dart';
 /// Renders the stacked area series.
 ///
 /// A stacked area chart is the extension of a basic area chart to display the
-///evolution of the value of several groups on the same graphic.
+/// evolution of the value of several groups on the same graphic.
 ///
 /// The values of each group are displayed on top of each other.
 ///
-/// Stackedarea100 series show the percentage-of-the-whole of each group
-/// and are plotted by the percentage of each value to the total amount in each group
+/// Stacked area 100 series show the percentage-of-the-whole of each group
+/// and are plotted by the percentage of each value to the total amount in each group.
 ///
 /// Provides options to customize the [color], [opacity], [borderWidth], [borderColor],
-/// [borderDrawMode] of the stackedarea100 series segments.
+/// [borderDrawMode] of the stacked area 100 series segments.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=NCUDBD_ClHo}
 @immutable
@@ -98,24 +98,23 @@ class StackedArea100Series<T, D> extends StackedSeriesBase<T, D> {
             animationDelay: animationDelay,
             onCreateShader: onCreateShader);
 
-  ///Border type of stacked area series.
+  /// Border type of stacked area 100 series.
   ///
-  ///Defaults to `BorderDrawMode.top`.
+  /// Defaults to `BorderDrawMode.top`.
   ///
-  ///Also refer [BorderDrawMode]
+  /// Also refer [BorderDrawMode].
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <AreaSeries<SalesData, num>>[
-  ///                AreaSeries<SalesData, num>(
-  ///                  borderDrawMode: BorderDrawMode.all,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedAreaSeries<SalesData, num>>[
+  ///       StackedAreaSeries<SalesData, num>(
+  ///         borderDrawMode: BorderDrawMode.all,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BorderDrawMode borderDrawMode;
 
   @override

@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Walang mga kaganapan", 
 "ofDataPagerLabel" : "ng", 
 "pagesDataPagerLabel" : "mga pahina", 
-"itemsDataPagerLabel" : "aytem", 
+"rowsPerPageDataPagerLabel" : "Mga hilera bawat pahina", 
 "pdfBookmarksLabel" : "Mga bookmark", 
 "pdfNoBookmarksLabel" : "Walang nakitang mga bookmark", 
 "pdfScrollStatusOfLabel" : "ng", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Araw"
+"daySpanCountLabel" : "Araw", 
+"series" : "Serye"
 }

@@ -99,155 +99,141 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
             initialSelectedDataIndexes: initialSelectedDataIndexes,
             dashArray: dashArray);
 
-  ///Color of the track.
+  /// Color of the track.
   ///
-  ///Defaults to `grey`
+  /// Defaults to `Colors.grey`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color trackColor;
 
-  ///Color of the track border.
+  /// Color of the track border.
   ///
-  ///Defaults to `transparent`
+  /// Defaults to `Colors.transparent`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackBorderColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackBorderColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color trackBorderColor;
 
-  ///Width of the track border.
+  /// Width of the track border.
   ///
-  ///Defaults to `1`
+  /// Defaults to `1`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackBorderColor: Colors.red,
-  ///                  trackBorderWidth: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackBorderColor: Colors.red,
+  ///         trackBorderWidth: 2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double trackBorderWidth;
 
-  ///Padding of the track.
+  /// Padding of the track.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackPadding: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackPadding: 2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double trackPadding;
 
-  ///Spacing between the bars. The value ranges from 0 to 1.
+  /// Spacing between the bars. The value ranges from 0 to 1.
   ///
-  ///1 represents 100% and
-  ///0 represents 0% of the available space.
+  /// 1 represents 100% and 0 represents 0% of the available space.
   ///
-  ///Spacing also affects the height of the bar. For example, setting 20% spacing
-  ///and 100% height renders the bar with 80% of total height.
+  /// Spacing also affects the height of the bar. For example, setting 20% spacing
+  /// and 100% height renders the bar with 80% of total height.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  spacing: 0,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         spacing: 0.5
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double spacing;
 
-  ///Customizes the corners of the bar.
+  /// Customizes the corners of the bar.
   ///
   /// Each corner can be customized with desired
-  ///value or with a single value.
+  /// value or with a single value.
   ///
-  ///Defaults to `Radius.zero`
+  /// Defaults to `Radius.zero`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  borderRadius: BorderRadius.all(Radius.circular(5)),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         borderRadius: BorderRadius.all(Radius.circular(5))
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BorderRadius borderRadius;
 
-  ///Renders bars with track.
+  /// Renders bars with track.
   ///
   /// Track is a rectangular bar rendered from the start to the
-  ///end of the axis.
+  /// end of the axis.
   ///
-  ///Bar series will be rendered above the track.
+  /// Bar series will be rendered above the track.
   ///
-  ///Defaults to `false`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  isTrackVisible: true
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BarSeries<SalesData, num>>[
+  ///       BarSeries<SalesData, num>(
+  ///         isTrackVisible: true
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool isTrackVisible;
 
   /// Create the bar series renderer.

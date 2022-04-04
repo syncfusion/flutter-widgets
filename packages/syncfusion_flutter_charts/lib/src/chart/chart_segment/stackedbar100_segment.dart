@@ -11,12 +11,10 @@ import 'chart_segment.dart';
 ///
 /// Gets the path and color from the `series`.
 class StackedBar100Segment extends ChartSegment {
-  /// staked value of the segment
+  /// Stacked value of the segments.
   late double stackValues;
 
-  //We are using `segmentRect` to draw the histogram segment in the series.
-  //we can override this class and customize the column segment by getting `segmentRect`.
-  ///Rectangle of the segment
+  /// Rectangle of the segment
   late RRect segmentRect;
 
   /// Gets the color of the series.

@@ -282,7 +282,10 @@ class PdfStringLayouter {
     if (lineResult.lines != null) {
       for (int i = 0; i < lineResult.lines!.length; i++) {
         final double expHeight = height! + lineResult.lineHeight;
-        if (expHeight <= maxHeight || maxHeight <= 0 || allowPartialLines) {
+        if (expHeight <= maxHeight ||
+            maxHeight <= 0 ||
+            allowPartialLines ||
+            (expHeight - maxHeight).abs() < 0.001) {
           LineInfo info = lineResult.lines![i];
           if (!_isTabReplaced) {
             numInserted = numInserted! + info.text!.length;

@@ -26,20 +26,20 @@ import 'trackball_marker_settings.dart';
 export 'package:syncfusion_flutter_core/core.dart'
     show DataMarkerType, TooltipAlignment;
 
-/// Represents the data label renderer class
+/// Represents the data label renderer class.
 // ignore: must_be_immutable
 class DataLabelRenderer extends StatefulWidget {
-  /// Creates an instance of data label renderer
+  /// Creates an instance of data label renderer.
   // ignore: prefer_const_constructors_in_immutables
   DataLabelRenderer({required this.stateProperties, required this.show});
 
-  /// Holds the value of state properties
+  /// Holds the value of state properties.
   final CartesianStateProperties stateProperties;
 
-  /// Specifies whether to show the data labels
+  /// Specifies whether to show the data labels.
   bool show;
 
-  /// Specifies the data label renderer state
+  /// Specifies the data label renderer state.
   // ignore: library_private_types_in_public_api
   _DataLabelRendererState? state;
 
@@ -55,10 +55,10 @@ class _DataLabelRendererState extends State<DataLabelRenderer>
     with SingleTickerProviderStateMixin {
   // List<AnimationController> animationControllersList;
 
-  /// Animation controller for series
+  /// Animation controller for series.
   late AnimationController animationController;
 
-  /// Repaint notifier for crosshair container
+  /// Repaint notifier for crosshair container.
   late ValueNotifier<int> dataLabelRepaintNotifier;
 
   @override
@@ -103,7 +103,7 @@ class _DataLabelRendererState extends State<DataLabelRenderer>
     super.dispose();
   }
 
-  /// To repaint data label elements
+  /// To repaint data label elements.
   void repaintDataLabelElements() {
     dataLabelRepaintNotifier.value++;
   }
@@ -191,7 +191,7 @@ class _DataLabelPainter extends CustomPainter {
   bool shouldRepaint(_DataLabelPainter oldDelegate) => true;
 }
 
-/// find rect type series region
+/// Find rect type series region.
 void calculateRectSeriesRegion(
     CartesianChartPoint<dynamic> point,
     int pointIndex,
@@ -212,7 +212,7 @@ void calculateRectSeriesRegion(
   final num origin =
       crossesAt ?? math.max(yAxisDetails.visibleRange!.minimum, 0);
 
-  /// Get the rectangle based on points
+  /// Get the rectangle based on points.
   final Rect rect =
       (seriesRendererDetails.seriesType.contains('stackedcolumn') == true ||
                   seriesRendererDetails.seriesType.contains('stackedbar') ==
@@ -250,7 +250,7 @@ void calculateRectSeriesRegion(
   point.region = rect;
   final dynamic series = seriesRendererDetails.series;
 
-  ///Get shadow rect region
+  ///Get shadow rect region.
   if (seriesRendererDetails.seriesType != 'stackedcolumn100' &&
       seriesRendererDetails.seriesType != 'stackedbar100' &&
       seriesRendererDetails.seriesType != 'waterfall' &&
@@ -344,7 +344,7 @@ void calculateRectSeriesRegion(
   }
 }
 
-/// calculate scatter, bubble series data points region
+/// Calculate scatter, bubble series data points region.
 void calculatePointSeriesRegion(
     CartesianChartPoint<dynamic> point,
     int pointIndex,
@@ -382,7 +382,7 @@ void calculatePointSeriesRegion(
   }
 }
 
-/// calculate errorBar series data points region
+/// Calculate errorBar series data points region.
 void calculateErrorBarSeriesRegion(
     CartesianChartPoint<dynamic> point,
     int pointIndex,
@@ -451,7 +451,7 @@ void calculateErrorBarSeriesRegion(
   }
 }
 
-///calculate data point region for path series like line, area, etc.,
+/// Calculate data point region for path series like line, area, etc.,
 void calculatePathSeriesRegion(
     CartesianChartPoint<dynamic> point,
     int pointIndex,
@@ -871,7 +871,7 @@ void calculatePathSeriesRegion(
   }
 }
 
-/// Finding outliers region
+/// Finding outliers region.
 void calculateOutlierRegion(CartesianChartPoint<dynamic> point,
     ChartLocation outlierPosition, num outlierWidth) {
   point.outlierRegion!.add(Rect.fromLTRB(
@@ -881,7 +881,7 @@ void calculateOutlierRegion(CartesianChartPoint<dynamic> point,
       outlierPosition.y + outlierWidth));
 }
 
-///Finding tooltip region
+/// Finding tooltip region.
 void calculateTooltipRegion(
     CartesianChartPoint<dynamic> point,
     int seriesIndex,
@@ -927,8 +927,7 @@ void calculateTooltipRegion(
     if (xAxisDetails is DateTimeAxisDetails) {
       final DateTimeAxis xAxis = xAxisDetails.axis as DateTimeAxis;
       final num interval = xAxisDetails.visibleRange!.minimum.ceil();
-      final num prevInterval = (xAxisDetails.visibleLabels.length != null &&
-              xAxisDetails.visibleLabels.isNotEmpty)
+      final num prevInterval = (xAxisDetails.visibleLabels.isNotEmpty)
           ? xAxisDetails
               .visibleLabels[xAxisDetails.visibleLabels.length - 1].value
           : interval;
@@ -1029,7 +1028,7 @@ void calculateTooltipRegion(
   }
 }
 
-/// Paint the image marker
+/// Paint the image marker.
 void drawImageMarker(SeriesRendererDetails? seriesRendererDetails,
     Canvas canvas, double pointX, double pointY,
     [TrackballMarkerSettings? trackballMarkerSettings,
@@ -1064,7 +1063,7 @@ void drawImageMarker(SeriesRendererDetails? seriesRendererDetails,
   }
 }
 
-/// This method is for to calculate and rendering the length and Offsets of the dashed lines
+/// This method is for to calculate and rendering the length and Offsets of the dashed lines.
 void drawDashedLine(
     Canvas canvas, List<double> dashArray, Paint paint, Path path) {
   bool even = false;

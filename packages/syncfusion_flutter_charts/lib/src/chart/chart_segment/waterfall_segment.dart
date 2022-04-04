@@ -17,7 +17,7 @@ class WaterfallSegment extends ChartSegment {
   /// To find the x and y values of connector lines between each data point.
   late double _x1, _y1, _x2, _y2;
 
-  /// Get the connector line paint
+  /// Get the connector line paint.
   Paint? connectorLineStrokePaint;
 
   /// We are using `segmentRect` to draw the bar segment in the series.

@@ -3,7 +3,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 /// This class renders the area series.
 ///
-/// To render an area chart, create an instance of AreaSeries, and add it to the series collection property of SfCartesianChart.
+/// To render an area chart, create an instance of [AreaSeries], and add it to the series collection property of [SfCartesianChart].
 /// The area chart shows the filled area to represent the data, but when there are more than a series, this may hide the other series.
 /// To get rid of this, increase or decrease the transparency of the series.
 ///
@@ -89,36 +89,36 @@ class AreaSeries<T, D> extends XyDataSeries<T, D> {
             animationDelay: animationDelay,
             onCreateShader: onCreateShader);
 
-  ///Border type of area series.
+  /// Border type of area series.
   ///
-  ///It has three types of [BorderDrawMode],
+  /// It has three types of [BorderDrawMode],
   ///
-  ///* [BorderDrawMode.all] renders border for all the sides of area.
+  /// * [BorderDrawMode.all] renders border for all the sides of area.
   ///
-  ///* [BorderDrawMode.top] renders border only for top side.
+  /// * [BorderDrawMode.top] renders border only for top side.
   ///
-  ///* [BorderDrawMode.excludeBottom] renders border except bottom side.
+  /// * [BorderDrawMode.excludeBottom] renders border except bottom side.
   ///
+  /// Defaults to `BorderDrawMode.top`.
   ///
-  ///Defaults to `BorderDrawMode.top`.
+  /// Also refer [BorderDrawMode].
   ///
-  ///Also refer [BorderDrawMode].
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <AreaSeries<SalesData, num>>[
-  ///                AreaSeries<SalesData, num>(
-  ///                  borderDrawMode: BorderDrawMode.all,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <AreaSeries<SalesData, num>>[
+  ///       AreaSeries<SalesData, num>(
+  ///         borderWidth: 3,
+  ///         borderColor: Colors.red,
+  ///         borderDrawMode: BorderDrawMode.all,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BorderDrawMode borderDrawMode;
 
-  /// Create the Area series renderer.
+  /// Create the area series renderer.
   AreaSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     AreaSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {

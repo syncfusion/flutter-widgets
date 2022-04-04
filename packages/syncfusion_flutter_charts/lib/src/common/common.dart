@@ -5,9 +5,9 @@ import 'utils/enum.dart';
 import 'utils/helper.dart';
 import 'utils/typedef.dart';
 
-/// Represents the chart container
+/// Represents the chart container.
 class ChartContainer extends SingleChildRenderObjectWidget {
-  /// Creates an instance for chart container
+  /// Creates an instance for chart container.
   const ChartContainer({required Widget child}) : super(child: child);
 
   @override
@@ -74,116 +74,120 @@ class ChartTitle {
             fontStyle: FontStyle.normal,
             fontWeight: FontWeight.normal);
 
-  ///Text to be displayed as chart title. Any desired text can be set as chart title.
-  ///If the width of the chart title exceeds the width of the chart, then the title will
-  ///be wrapped to multiple rows.
+  /// Text to be displayed as chart title. Any desired text can be set as chart title.
+  /// If the width of the chart title exceeds the width of the chart, then the title will
+  /// be wrapped to multiple rows.
+  ///
+  /// Defaults to `''`.
   ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            title: ChartTitle(
-  ///                    text: 'Chart Title'
-  ///                   )
-  ///        ));
-  ///}
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     title: ChartTitle(
+  ///       text: 'Chart Title'
+  ///     )
+  ///   );
+  /// }
   ///```
   final String text;
 
-  ///Customizes the appearance of the chart title text.
+  /// Customizes the appearance of the chart title text.
   ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            title: ChartTitle(
-  ///                    text: 'Chart Title',
-  ///                    textStyle: TextStyle(
-  ///                                 color: Colors.red,
-  ///                                 fontSize: 12,
-  ///                                 fontStyle: FontStyle.normal,
-  ///                                 fontWeight: FontWeight.w400,
-  ///                                 fontFamily: 'Roboto'
-  ///                               ))
-  ///        ));
-  ///}
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     title: ChartTitle(
+  ///       text: 'Chart Title'
+  ///       textStyle: TextStyle(
+  ///         color: Colors.red,
+  ///         fontSize: 12,
+  ///         fontStyle: FontStyle.normal,
+  ///         fontWeight: FontWeight.w400,
+  ///         fontFamily: 'Roboto'
+  ///       )
+  ///     )
+  ///   );
+  /// }
   ///```
   final TextStyle textStyle;
 
-  ///Aligns the chart title.
+  /// Aligns the chart title.
   ///
-  ///The alignment change is applicable only when the width of the
-  ///chart title is less than the width of the chart.
+  /// The alignment change is applicable only when the width of the
+  /// chart title is less than the width of the chart.
   ///
-  ///  * `ChartAlignment.near` places the chart title at the beginning of the chart
+  /// * `ChartAlignment.near` places the chart title at the beginning of the chart
   ///
-  ///  * `ChartAlignment.far` moves the chart title to end of the chart
+  /// * `ChartAlignment.far` moves the chart title to end of the chart
   ///
-  ///  * `ChartAlignment.center` places the title at the center position of the chart’s width.
+  /// * `ChartAlignment.center` places the title at the center position of the chart’s width.
   ///
-  ///Defaults to `ChartAlignment.center`
+  /// Defaults to `ChartAlignment.center`.
   ///
-  ///Also refer [ChartAlignment]
+  /// Also refer [ChartAlignment].
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            title: ChartTitle(
-  ///                    text: 'Chart Title',
-  ///                    alignment: ChartAlignment.near
-  ///                   )
-  ///        ));
-  ///}
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     title: ChartTitle(
+  ///       text: 'Chart Title',
+  ///       alignment: ChartAlignment.near
+  ///     )
+  ///   );
+  /// }
   ///```
   final ChartAlignment alignment;
 
-  ///Background color of the chart title.
+  /// Background color of the chart title.
   ///
-  ///Defaults to `Colors.transparent`
+  /// Defaults to `Colors.transparent`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            title: ChartTitle(
-  ///                    text: 'Chart Title',
-  ///                    backgroundColor: Colors.white,
-  ///                   )
-  ///        ));
-  ///}
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     title: ChartTitle(
+  ///       text: 'Chart Title',
+  ///       backgroundColor: Colors.white
+  ///     )
+  ///   );
+  /// }
   ///```
   final Color? backgroundColor;
 
-  ///Border color of the chart title.
+  /// Border color of the chart title.
   ///
-  ///Defaults to `Colors.transparent`.
+  /// Defaults to `Colors.transparent`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            title: ChartTitle(
-  ///                    text: 'Chart Title',
-  ///                    borderColor: Colors.red,
-  ///                   )
-  ///        ));
-  ///}
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     title: ChartTitle(
+  ///       text: 'Chart Title',
+  ///       borderColor: Colors.red,
+  ///       borderWidth: 4
+  ///     )
+  ///   );
+  /// }
   ///```
   final Color borderColor;
 
-  ///Border width of the chart title.
+  /// Border width of the chart title.
   ///
-  ///Defaults to `0`.
+  /// Defaults to `0`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            title: ChartTitle(
-  ///                    text: 'Chart Title',
-  ///                    borderWidth: 1
-  ///                   )
-  ///        ));
-  ///}
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     title: ChartTitle(
+  ///       text: 'Chart Title',
+  ///       borderColor: Colors.red,
+  ///       borderWidth: 4
+  ///     )
+  ///   );
+  /// }
   ///```
   final double borderWidth;
+
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
@@ -217,16 +221,16 @@ class ChartTitle {
   }
 }
 
-///Identify the series in chart.
+/// Identify the series in chart.
 ///
-///Legend contains list of chart series/data points in chart. It helps to
-///identify the corresponding data series in chart. The name property of
-///[SfCartesianChart] is used to define the label for the corresponding series
-///legend item and for [SfCircularChart] type chart by default values mapped with
-///xValueMapper will be displayed.
+/// Legend contains list of chart series/data points in chart. It helps to
+/// identify the corresponding data series in chart. The name property of
+/// [SfCartesianChart] is used to define the label for the corresponding series
+/// legend item and for [SfCircularChart] type chart by default values mapped with
+/// xValueMapper will be displayed.
 ///
 /// Provides options such as  isVisible, borderWidth, alignment, opacity, borderColor,
-///padding and so on to customize the appearance of the legend.
+/// padding and so on to customize the appearance of the legend.
 ///
 @immutable
 class Legend {
@@ -282,429 +286,461 @@ class Legend {
   /// Toggles the visibility of the legend.
   ///
   /// Defaults to `false`.
+  ///
   /// ```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true)
-  ///        ));
-  ///}
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true
+  ///     )
+  ///   );
+  /// }
   ///```
   final bool? isVisible;
 
-  ///Position of the legend.
+  /// Position of the legend.
   ///
-  ///If the chart width is greater than chart height, then the
-  ///legend will be placed at the right, else it will be placed
-  ///at the bottom of the chart.The available options are auto,
-  ///bottom, left, right, and top.
+  /// If the chart width is greater than chart height, then the
+  /// legend will be placed at the right, else it will be placed
+  /// at the bottom of the chart.The available options are auto,
+  /// bottom, left, right, and top.
   ///
-  ///Defaults to `LegendPosition.auto`
+  /// Defaults to `LegendPosition.auto`.
   ///
-  ///Also refer [LegendPosition]
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               position: LegendPosition.bottom)
-  ///        ));
-  ///}
+  /// Also refer [LegendPosition].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       position: LegendPosition.bottom
+  ///     )
+  ///   );
+  /// }
   ///```
   final LegendPosition position;
 
-  ///Alignment of the legend.
+  /// Alignment of the legend.
   ///
-  ///Alignment will work if the legend width is greater than
-  ///the total legend item's width.
+  /// Alignment will work if the legend width is greater than
+  /// the total legend item's width.
   ///
-  ///Defaults to `ChartAlignment.center`
+  /// Defaults to `ChartAlignment.center`.
   ///
-  ///Also refer [ChartAlignment]
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               alignment: ChartAlignment.near)
-  ///        ));
-  ///}
+  ///Also refer [ChartAlignment].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       alignment: ChartAlignment.near
+  ///     )
+  ///   );
+  /// }
   ///```
   final ChartAlignment alignment;
 
-  ///Background color of the legend.
+  /// Background color of the legend.
   ///
-  ///Used to change the background color of legend shape.
+  /// Used to change the background color of legend shape.
   ///
-  ///Defaults to `Colors.transparent`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               backgroundColor: Colors.transparent)
-  ///        ));
-  ///}
+  /// Defaults to `Colors.transparent`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       backgroundColor: Colors.grey
+  ///     )
+  ///   );
+  /// }
   ///```
   final Color? backgroundColor;
 
-  ///Border color of the legend.
+  /// Border color of the legend.
   ///
-  ///Used to change the stroke color of the legend shape.
+  /// Used to change the stroke color of the legend shape.
   ///
-  ///Defaults to `Colors.transparent`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               borderColor: Colors.brown)
-  ///        ));
-  ///}
+  /// Defaults to `Colors.transparent`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       borderColor: Colors.red,
+  ///       borderWidth: 3
+  ///     )
+  ///   );
+  /// }
   ///```
   final Color borderColor;
 
-  ///Border width of the legend.
+  /// Border width of the legend.
   ///
-  ///Used to change the stroke width of the legend shape.
+  /// Used to change the stroke width of the legend shape.
   ///
-  ///Defaults to `0.0`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               borderWidth: 3)
-  ///        ));
-  ///}
+  /// Defaults to `0.0`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       borderColor: Colors.red,
+  ///       borderWidth: 3
+  ///     )
+  ///   );
+  /// }
   ///```
   final double borderWidth;
 
-  ///Border color of the icon in the legend items.
+  /// Border color of the icon in the legend items.
   ///
-  ///Used to change the stroke color of the legend icon shape.
+  /// Used to change the stroke color of the legend icon shape.
   ///
-  ///Defaults to `Colors.transparent`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               iconBorderColor: Colors.yellow)
-  ///        ));
-  ///}
+  /// Defaults to `Colors.transparent`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       iconBorderColor: Colors.yellow,
+  ///       iconBorderWidth: 4
+  ///     )
+  ///   );
+  /// }
   ///```
   final Color iconBorderColor;
 
-  ///Border width of the icon in the legend items.
+  /// Border width of the icon in the legend items.
   ///
-  ///Used to change the stroke width of the legend icon shape.
+  /// Used to change the stroke width of the legend icon shape.
   ///
-  ///Defaults to `0.0`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               iconBorderWidth: 2)
-  ///        ));
-  ///}
+  /// Defaults to `0.0`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       iconBorderColor: Colors.yellow,
+  ///       iconBorderWidth: 4
+  ///     )
+  ///   );
+  /// }
   ///```
   final double iconBorderWidth;
 
-  ///Opacity of the legend.
+  /// Opacity of the legend.
   ///
-  ///Used to control the transparency of the legend icon shape.
-  ///The value ranges from 0 to 1.
+  /// Used to control the transparency of the legend icon shape.
+  /// The value ranges from 0 to 1.
   ///
-  ///Defaults to `1.0`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               opacity: 0.5)
-  ///        ));
-  ///}
+  /// Defaults to `1.0`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       opacity: 0.5
+  ///     )
+  ///   );
+  /// }
   ///```
   final double opacity;
 
-  ///The height of the legend.
+  /// The height of the legend.
   ///
-  ///It takes percentage value from the overall chart height.
+  /// It takes percentage value from the overall chart height.
   ///
-  ///Defaults to `null`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               height: '30%')
-  ///        ));
-  ///}
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       height: '30%'
+  ///     )
+  ///   );
+  /// }
   ///```
   final String? height;
 
-  ///The width of the legend.
+  /// The width of the legend.
   ///
-  ///It takes percentage value from the overall chart width.
+  /// It takes percentage value from the overall chart width.
   ///
-  ///Defaults to `null`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               width: '30%')
-  ///        ));
-  ///}
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       width: '30%'
+  ///     )
+  ///   );
+  /// }
   ///```
   final String? width;
 
-  ///Padding between the legend items.
+  /// Padding between the legend items.
   ///
-  ///Used to add padding between the icon shape and the text.
+  /// Used to add padding between the icon shape and the text.
   ///
-  ///Defaults to `5.0`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               padding: 4.0)
-  ///        ));
-  ///}
+  /// Defaults to `5.0`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       padding: 4.0
+  ///     )
+  ///   );
+  /// }
   ///```
   final double padding;
 
-  ///Height of the icon in legend item.
+  /// Height of the icon in legend item.
   ///
-  ///Used to change the height of the icon shape.
+  /// Used to change the height of the icon shape.
   ///
-  ///Defaults to `12`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               iconWidth: 14)
-  ///        ));
-  ///}
+  /// Defaults to `12`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       iconHeight: 14
+  ///     )
+  ///   );
+  /// }
   ///```
   final double iconHeight;
 
-  ///Width of the icon in legend item.
+  /// Width of the icon in legend item.
   ///
-  ///Used to change the width of the icon shape.
+  /// Used to change the width of the icon shape.
   ///
-  ///Defaults to `12`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               iconWidth: 14)
-  ///        ));
-  ///}
+  /// Defaults to `12`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       iconWidth: 14
+  ///     )
+  ///   );
+  /// }
   ///```
   final double iconWidth;
 
-  ///Toggles the series visibility.
+  /// Toggles the series visibility.
   ///
-  ///If it is set to false,
-  ///then on tapping the legend item, series visibility will not be toggled.
+  /// If it is set to false, then on tapping the legend item,
+  /// series visibility will not be toggled.
   ///
-  ///Defaults to `true`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               toggleSeriesVisibility: false)
-  ///        ));
-  ///}
+  /// Defaults to `true`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       toggleSeriesVisibility: false
+  ///     )
+  ///   );
+  /// }
   ///```
   final bool toggleSeriesVisibility;
 
-  ///Customizes the legend item text.
+  /// Customizes the legend item text.
   ///
-  ///Used to change the text color, size, font family,
-  ///fontStyle, and font weight.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               textStyle: TextStyle(color: Colors.red))
-  ///        ));
-  ///}
+  /// Used to change the text color, size, font family, font style, etc.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       textStyle: TextStyle(color: Colors.red)
+  ///     )
+  ///   );
+  /// }
   ///```
   final TextStyle textStyle;
 
-  ///Toggles the visibility of the legend.
+  /// Toggles the visibility of the legend.
   ///
   /// If the width or height of the legend is greater than the plot area bounds.
   ///
-  ///Defaults to `false`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               isResponsive: true)
-  ///        ));
-  ///}
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       isResponsive: true
+  ///     )
+  ///   );
+  /// }
   ///```
   final bool isResponsive;
 
-  ///Orientation of the legend.
+  /// Orientation of the legend.
   ///
-  ///The legend items will be placed either in horizontal or
-  ///in vertical orientation. By default, it is set to auto, i.e. if the legend position
-  ///is top or bottom, orientation is set
-  ///to horizontal, else it is set to vertical.
+  /// The legend items will be placed either in horizontal or
+  /// in vertical orientation. By default, it is set to auto, i.e. if the legend position
+  /// is top or bottom, orientation is set
+  /// to horizontal, else it is set to vertical.
   ///
-  ///Defaults to `LegendItemOrientation.auto`
+  /// Defaults to `LegendItemOrientation.auto`.
   ///
-  ///Also refer [LegendItemOrientation]
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               orientation: LegendItemOrientation.vertical)
-  ///        ));
-  ///}
+  /// Also refer [LegendItemOrientation].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       orientation: LegendItemOrientation.vertical
+  ///     )
+  ///   );
+  /// }
   ///```
   final LegendItemOrientation orientation;
 
-  ///Customizes the legend title.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               title: ChartTitle(
-  ///                    text: 'Countries'
-  ///            ))
-  ///        ));
-  ///}
+  /// Customizes the legend title.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       title: ChartTitle(
+  ///         text: 'Countries'
+  ///       )
+  ///     )
+  ///   );
+  /// }
   ///```
   final LegendTitle title;
 
-  ///Widget builder for legend items.
+  /// Widget builder for legend items.
   ///
-  ///Customize the appearance of legend items in
-  ///template by using `legendItemBuilder` property of legend.
+  /// Customize the appearance of legend items in
+  /// template by using `legendItemBuilder` property of legend.
   ///
-  ///Defaults to `null`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               legendItemBuilder: (String name, dynamic series,dynamic point, int index) {
-  ///                 return Container(
-  ///                  height: 30, width: 80,child: Row(children: <Widget>[
-  ///                         Container(child: Image.asset('images/bike.png')),
-  ///                       Container(child: Text(index.toString())),
-  ///                     ]));
-  ///               })
-  ///        ));
-  ///}
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       legendItemBuilder: (String name, dynamic series,dynamic point, int index) {
+  ///         return Container(
+  ///           height: 30,
+  ///           width: 80,
+  ///           child: Row(
+  ///             children: <Widget>[
+  ///               Container(child: Image.asset('images/bike.png')),
+  ///               Container(child: Text(index.toString())),
+  ///             ]
+  ///           )
+  ///         );
+  ///       }
+  ///     )
+  ///   );
+  /// }
   ///```
   final LegendItemBuilder? legendItemBuilder;
 
-  ///Overflow legend items.
+  /// Overflow legend items.
   ///
-  ///The legend items can be placed in multiple rows or scroll can be enabled
-  ///using the overflowMode property if size of the total legend items exceeds the available size.
-  ///It can be scrolled, wrapped, or left.
+  /// The legend items can be placed in multiple rows or scroll can be enabled
+  /// using the overflowMode property if size of the total legend items exceeds the available size.
+  /// It can be scrolled, wrapped, or left.
   ///
-  ///Defaults to `LegendItemOverflowMode.scroll`
+  /// Defaults to `LegendItemOverflowMode.scroll`.
   ///
-  ///Also refer [LegendItemOverflowMode]
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               overflowMode: LegendOverflowMode.wrap)
-  ///        ));
-  ///}
+  /// Also refer [LegendItemOverflowMode].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       overflowMode: LegendOverflowMode.wrap
+  ///     )
+  ///   );
+  /// }
   ///```
   final LegendItemOverflowMode overflowMode;
 
-  ///Padding of the legend items.
+  /// Padding of the legend items.
   ///
-  ///Used to add padding between the first legend text and the second legend icon shape.
+  /// Used to add padding between the first legend text and the second legend icon shape.
   ///
-  ///Defaults to `10.0`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               itemPadding: 5)
-  ///        ));
-  ///}
+  /// Defaults to `10.0`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       itemPadding: 5
+  ///     )
+  ///   );
+  /// }
   ///```
   final double itemPadding;
 
-  ///Places the legend in custom position.
+  /// Places the legend in custom position.
   ///
-  ///If the [offset] has been set, the legend is moved from its actual position.
+  /// If the [offset] has been set, the legend is moved from its actual position.
   /// For example, if the [position] is `top`, then the legend will be placed in the top
   /// but in the position added to the actual top position.
   ///
-  ///Also, the legend will not take a dedicated position for it and will be drawn
+  /// Also, the legend will not take a dedicated position for it and will be drawn
   /// on the top of the chart's plot area.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               offset: Offset(20,40))
-  ///        ));
-  ///}
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       offset: Offset(20,40)
+  ///     )
+  ///   );
+  /// }
   ///```
   final Offset? offset;
 
-  ///Used to add image to the legend icon.
+  /// Used to add image to the legend icon.
   ///
-  ///Default image size is `10.0`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               image: const AssetImage('images/bike.png'))
-  ///        ));
-  ///}
+  /// Default image size is `10.0`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       image: const AssetImage('images/bike.png')
+  ///     )
+  ///   );
+  /// }
   ///```
   final ImageProvider? image;
 
@@ -774,55 +810,55 @@ class Legend {
   }
 }
 
-/// Legend renderer class for mutable fields and methods
+/// Legend renderer class for mutable fields and methods.
 class LegendRenderer {
-  /// Creates an argument constructor for  Legend renderer class
+  /// Creates an argument constructor for  Legend renderer class.
   LegendRenderer(this.legend);
 
-  /// Holds the legend value
+  /// Holds the legend value.
   final Legend? legend;
 
-  /// Specifies the legend position value
+  /// Specifies the legend position value.
   late LegendPosition legendPosition;
 
-  /// Specifies the value of legend item orientation
+  /// Specifies the value of legend item orientation.
   late LegendItemOrientation orientation;
 }
 
-/// Represents the class of measure widget context
+/// Represents the class of measure widget context.
 class MeasureWidgetContext {
-  /// Creates an instance of measure widget context
+  /// Creates an instance of measure widget context.
   MeasureWidgetContext(
       {this.context, this.key, this.widget, this.seriesIndex, this.pointIndex});
 
-  /// Specifies the context value
+  /// Specifies the context value.
   BuildContext? context;
 
-  /// Holds the series index value
+  /// Holds the series index value.
   int? seriesIndex;
 
-  /// Holds the point index value
+  /// Holds the point index value.
   int? pointIndex;
 
-  /// Holds the value of key
+  /// Holds the value of key.
   Key? key;
 
-  /// Holds the value of size
+  /// Holds the value of size.
   Size? size;
 
-  /// Specifies the widget value
+  /// Specifies the widget value.
   Widget? widget;
 
-  /// Specifies whether to render the legend
+  /// Specifies whether to render the legend.
   bool isRender = false;
 }
 
 /// Customizes the legend title.
 ///
-///Takes a string and display the legend title.By default,the legend title horizontally center
-///aligned to the chart's width and it will placed at the bottom of the chart.
+/// Takes a string and display the legend title.By default,the legend title horizontally center
+/// aligned to the chart's width and it will placed at the bottom of the chart.
 ///
-///Provides Options to customize the [text], [textStyle] and [alignment] properties.
+/// Provides Options to customize the [text], [textStyle] and [alignment] properties.
 @immutable
 class LegendTitle {
   /// Creating an argument constructor of LegendTitle class.
@@ -834,22 +870,23 @@ class LegendTitle {
             fontFamily: 'Segoe UI'),
         alignment = alignment ?? ChartAlignment.center;
 
-  ///Legend title text.
+  /// Legend title text.
   ///
-  ///Used to change the text of the title.
+  /// Used to change the text of the title.
   ///
   /// Defaults to `‘’`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               title: ChartTitle(
-  ///                    text: 'Countries'
-  ///            ))
-  ///        ));
-  ///}
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       title: ChartTitle(
+  ///         text: 'Legend title'
+  ///       )
+  ///     )
+  ///   );
+  /// }
   ///```
   final String? text;
 
@@ -859,22 +896,17 @@ class LegendTitle {
   /// for the legend title.
   ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               title: ChartTitle(
-  ///                    text: 'Countries',
-  ///                    textStyle: TextStyle(
-  ///                                 color: Colors.red,
-  ///                                 fontSize: 12,
-  ///                                 fontStyle: FontStyle.normal,
-  ///                                 fontWeight: FontWeight.w400,
-  ///                                 fontFamily: 'Roboto')
-  ///            ))
-  ///        ));
-  ///}
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       title: ChartTitle(
+  ///         text: 'Legend title',
+  ///         textStyle: TextStyle(color: Colors.red)
+  ///       )
+  ///     )
+  ///   );
+  /// }
   ///```
   final TextStyle textStyle;
 
@@ -888,18 +920,19 @@ class LegendTitle {
   /// Defaults to `ChartAlignment.center`.
   ///
   /// Also refer [ChartAlignment]
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            legend: Legend(
-  ///               isVisible: true,
-  ///               title: ChartTitle(
-  ///                    text: 'Countries',
-  ///                    alignment: ChartAlignment.center
-  ///            ))
-  ///        ));
-  ///}
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     legend: Legend(
+  ///       isVisible: true,
+  ///       title: ChartTitle(
+  ///         text: 'Legend title',
+  ///         alignment: ChartAlignment.near
+  ///       )
+  ///     )
+  ///   );
+  /// }
   ///```
   final ChartAlignment alignment;
 
@@ -925,7 +958,7 @@ class LegendTitle {
   }
 }
 
-///Handling empty points in charts
+/// Handling empty points in charts
 ///
 /// Data points with a null value are considered empty points. Empty data points are ignored and are not plotted in the chart.
 /// By using the emptyPointSettings property in series, you can decide on the action taken for empty points.
@@ -942,78 +975,91 @@ class EmptyPointSettings {
       this.borderColor = Colors.transparent,
       this.borderWidth = 0});
 
-  ///Color of the empty data point.
+  /// Color of the empty data point.
   ///
-  ///Defaults to `grey`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BubbleSeries<BubbleColors, num>>[
-  ///                   BubbleSeries<BubbleColors, num>(
-  ///                       emptyPointSettings: EmptyPointSettings(color: Colors.black, mode:EmptyPointMode.Zero),
-  ///                  ),
-  ///             ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `Colors.grey`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BubbleSeries<BubbleColors, num>>[
+  ///       BubbleSeries<BubbleColors, num>(
+  ///         emptyPointSettings: EmptyPointSettings(
+  ///           color: Colors.black,
+  ///           mode: EmptyPointMode.average
+  ///         )
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color color;
 
-  ///Border color of the empty data point.
+  /// Border color of the empty data point.
   ///
-  ///Defaults to `transparent`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BubbleSeries<BubbleColors, num>>[
-  ///                   BubbleSeries<BubbleColors, num>(
-  ///                       emptyPointSettings: EmptyPointSettings(borderColor: Colors.black, EmptyPointMode.zero),
-  ///                  ),
-  ///             ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `Colors.transparent`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BubbleSeries<BubbleColors, num>>[
+  ///       BubbleSeries<BubbleColors, num>(
+  ///         emptyPointSettings: EmptyPointSettings(
+  ///           borderColor: Colors.black,
+  ///           borderWidth: 2,
+  ///           mode:EmptyPointMode.average
+  ///         )
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color borderColor;
 
-  ///Border width of the empty data point.
+  /// Border width of the empty data point.
   ///
-  ///Defaults to `null`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BubbleSeries<BubbleColors, num>>[
-  ///                   BubbleSeries<BubbleColors, num>(
-  ///                       emptyPointSettings: EmptyPointSettings(borderColor: Colors.black,
-  ///                         borderWidth:2, EmptyPointMode.average),
-  ///                  ),
-  ///             ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BubbleSeries<BubbleColors, num>>[
+  ///       BubbleSeries<BubbleColors, num>(
+  ///         emptyPointSettings: EmptyPointSettings(
+  ///           borderColor: Colors.black,
+  ///           borderWidth: 2,
+  ///           mode:EmptyPointMode.average
+  ///         )
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double borderWidth;
 
-  ///By default, gap will be generated for empty points, i.e. data points with null value.
+  /// By default, gap will be generated for empty points, i.e. data points with null value.
   ///
-  ///The empty points display the values that can be considered as zero, average, or gap.
+  /// The empty points display the values that can be considered as zero, average, or gap.
   ///
   /// Defaults to `EmptyPointMode.gap`.
   ///
   /// Also refer [EmptyPointMode].
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BubbleSeries<BubbleColors, num>>[
-  ///                   BubbleSeries<BubbleColors, num>(
-  ///                       emptyPointSettings: EmptyPointSettings(EmptyPointMode.zero),
-  ///                  ),
-  ///             ],
-  ///        ));
-  ///}
-  ///```
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BubbleSeries<BubbleColors, num>>[
+  ///       BubbleSeries<BubbleColors, num>(
+  ///         emptyPointSettings: EmptyPointSettings(
+  ///           mode:EmptyPointMode.average
+  ///         )
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final EmptyPointMode mode;
+
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {

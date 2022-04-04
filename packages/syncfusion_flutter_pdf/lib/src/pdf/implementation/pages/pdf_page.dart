@@ -543,7 +543,7 @@ class PdfPageHelper {
 
   /// internal property
   PdfDocument? get document {
-    if (isLoadedPage) {
+    if (isLoadedPage || _pdfDocument != null) {
       return _pdfDocument;
     } else {
       if (section != null) {
@@ -560,6 +560,10 @@ class PdfPageHelper {
         return null;
       }
     }
+  }
+
+  set document(PdfDocument? value) {
+    _pdfDocument = value;
   }
 
   /// Gets the crop box.
@@ -684,22 +688,19 @@ class PdfPageHelper {
                             as PdfDictionary?;
 
                     if (xObject != null) {
-                      final PdfArray? content = PdfCrossTable.dereference(
-                              dictionary![PdfDictionaryProperties.contents])
-                          as PdfArray?;
-
+                      final IPdfPrimitive? content = PdfCrossTable.dereference(
+                          dictionary![PdfDictionaryProperties.contents]);
                       if (content != null) {
-                        for (int i = 0; i < content.count; i++) {
-                          final PdfStream pageContent =
-                              PdfCrossTable.dereference(content[i])!
-                                  as PdfStream;
-                          pageContent.decompress();
+                        if (content is PdfArray) {
+                          for (int i = 0; i < content.count; i++) {
+                            final PdfStream pageContent =
+                                PdfCrossTable.dereference(content[i])!
+                                    as PdfStream;
+                            pageContent.decompress();
+                          }
+                        } else if (content is PdfStream) {
+                          content.decompress();
                         }
-                      } else {
-                        final PdfStream pageContent = PdfCrossTable.dereference(
-                                dictionary![PdfDictionaryProperties.contents])!
-                            as PdfStream;
-                        pageContent.decompress();
                       }
                       _resources!.setProperty(
                           PdfDictionaryProperties.xObject, xobjects);

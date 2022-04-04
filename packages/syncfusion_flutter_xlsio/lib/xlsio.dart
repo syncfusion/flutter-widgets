@@ -10,6 +10,7 @@ import 'dart:ui';
 
 import 'package:archive/archive.dart';
 import 'package:crypto/crypto.dart';
+
 import 'package:image/image.dart' as img;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/date_symbols.dart';
@@ -18,6 +19,8 @@ import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:syncfusion_officecore/officecore.dart';
 import 'package:xml/xml.dart';
+
+//testing
 
 part 'src/xlsio/calculate/calc_engine.dart';
 part 'src/xlsio/calculate/formula_info.dart';
@@ -56,6 +59,11 @@ part 'src/xlsio/conditional_format/icon_set/icon_set_wrapper.dart';
 part 'src/xlsio/conditional_format/top_bottom/top_bottom.dart';
 part 'src/xlsio/conditional_format/top_bottom/top_bottom_impl.dart';
 part 'src/xlsio/conditional_format/top_bottom/top_bottom_wrapper.dart';
+part 'src/xlsio/datavalidation/datavalidation.dart';
+part 'src/xlsio/datavalidation/datavalidation_collection.dart';
+part 'src/xlsio/datavalidation/datavalidation_impl.dart';
+part 'src/xlsio/datavalidation/datavalidation_table.dart';
+part 'src/xlsio/datavalidation/datavalidation_wrapper.dart';
 part 'src/xlsio/formats/format.dart';
 part 'src/xlsio/formats/format_parser.dart';
 part 'src/xlsio/formats/format_section.dart';
@@ -99,6 +107,12 @@ part 'src/xlsio/range/row.dart';
 part 'src/xlsio/range/row_collection.dart';
 part 'src/xlsio/security/excel_sheet_protection.dart';
 part 'src/xlsio/security/security_helper.dart';
+part 'src/xlsio/table/exceltable.dart';
+part 'src/xlsio/table/exceltable_impl.dart';
+part 'src/xlsio/table/exceltablecollection.dart';
+part 'src/xlsio/table/exceltablecolumn.dart';
+part 'src/xlsio/table/exceltablecolumn_impl.dart';
+part 'src/xlsio/table/table_serialization.dart';
 part 'src/xlsio/worksheet/excel_data_row.dart';
 part 'src/xlsio/worksheet/worksheet.dart';
 part 'src/xlsio/worksheet/worksheet_collection.dart';

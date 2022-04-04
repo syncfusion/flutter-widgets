@@ -121,500 +121,543 @@ abstract class ChartAxis {
         multiLevelLabelStyle =
             multiLevelLabelStyle ?? const MultiLevelLabelStyle();
 
-  ///Toggles the visibility of the axis.
+  /// Toggles the visibility of the axis.
   ///
-  ///Visibility of all the elements in the axis
-  ///such as title, labels, major tick lines, and major grid lines will be toggled together.
+  /// Visibility of all the elements in the axis
+  /// such as title, labels, major tick lines, and major grid lines will be toggled together.
   ///
-  ///Defaults to `true`.
+  /// Defaults to `true`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(isVisible: false),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final bool isVisible;
 
-  ///Determines the value axis range, based on the visible data points or based
+  /// Determines the value axis range, based on the visible data points or based
   /// on the overall data points available in chart.
   ///
-  ///By default, value axis range will be calculated automatically based on the visible data points on
+  /// By default, value axis range will be calculated automatically based on the visible data points on
   /// dynamic changes. The visible data points are changed on performing interactions like pinch
   /// zooming, selection zooming, panning and also on specifying `visibleMinimum` and `visibleMaximum` values.
   ///
-  ///To toggle this functionality, this property can be used. i.e. on setting false to this property,
+  /// To toggle this functionality, this property can be used. i.e. on setting false to this property,
   /// value axis range will be calculated based on all the data points in chart irrespective of
   /// visible points.
   ///
-  ///_Note:_ This is applicable only to the value axis and not for other axis.
+  /// _Note:_ This is applicable only to the value axis and not for other axis.
   ///
-  ///Defaults to `true`
+  /// Defaults to `true`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryYAxis: NumericAxis(anchorRangeToVisiblePoints: false),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final bool anchorRangeToVisiblePoints;
 
-  ///Customizes the appearance of the axis line. The axis line is visible by default.
+  /// Customizes the appearance of the axis line. The axis line is visible by default.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(axisLine: AxisLine(width: 10)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final AxisLine axisLine;
 
-  ///Customizes the appearance of the major tick lines.
+  /// Customizes the appearance of the major tick lines.
   ///
-  ///Major ticks are small lines
-  ///used to indicate the intervals in an axis. Major tick lines are visible by default.
+  /// Major ticks are small lines
+  /// used to indicate the intervals in an axis. Major tick lines are visible by default.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(majorTickLines: const MajorTickLines(width: 2)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final MajorTickLines majorTickLines;
 
-  ///Customizes the appearance of the minor tick lines.
+  /// Customizes the appearance of the minor tick lines.
   ///
   /// Minor ticks are small lines
-  ///used to indicate the minor intervals between a major interval.
+  /// used to indicate the minor intervals between a major interval.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(minorTickLines: MinorTickLines(width: 2)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final MinorTickLines minorTickLines;
 
-  ///Customizes the appearance of the major grid lines.
+  /// Customizes the appearance of the major grid lines.
   ///
   /// Major grids are the lines
-  ///drawn on the plot area at all the major intervals in an axis. Major grid lines
-  ///are visible by default.
+  /// drawn on the plot area at all the major intervals in an axis. Major grid lines
+  /// are visible by default.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(majorGridLines: MajorGridLines(width: 2)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final MajorGridLines majorGridLines;
 
-  ///Customizes the appearance of the minor grid lines.
+  /// Customizes the appearance of the minor grid lines.
   ///
   /// Minor grids are the lines drawn
-  ///on the plot area at all the minor intervals between the major intervals.
+  /// on the plot area at all the minor intervals between the major intervals.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(minorGridLines: MinorGridLines(width: 0)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final MinorGridLines minorGridLines;
 
-  ///Customizes the appearance of the axis labels.
+  /// Customizes the appearance of the axis labels.
   ///
-  ///Labels are the axis values
-  ///placed at each interval. Axis labels are visible by default.
+  /// Labels are the axis values
+  /// placed at each interval. Axis labels are visible by default.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(labelStyle: TextStyle(color: Colors.black)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   /// This property is used to show or hide the axis labels.
   final TextStyle labelStyle;
 
-  ///Customizes the appearance of the axis title.
+  /// Customizes the appearance of the axis title.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(title: AxisTitle( text: 'Year')),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final AxisTitle title;
 
-  ///Padding for minimum and maximum values in an axis.
+  /// Padding for minimum and maximum values in an axis.
   ///
   /// Various types of range padding
-  ///such as round, none, normal, and additional can be applied.
+  /// such as round, none, normal, and additional can be applied.
   ///
-  ///Also refer [ChartRangePadding]
+  /// Defaults to `ChartRangePadding.auto`.
+  ///
+  /// Also refer [ChartRangePadding].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(rangePadding:  ChartRangePadding.round),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final ChartRangePadding rangePadding;
 
-  ///The number of intervals in an axis.
+  /// The number of intervals in an axis.
   ///
   /// By default, the number of intervals is
-  ///calculated based on the minimum and maximum values and the axis width and height.
+  /// calculated based on the minimum and maximum values and the axis width and height.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(desiredIntervals: 2),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final int? desiredIntervals;
 
-  ///The maximum number of labels to be displayed in an axis in 100 logical pixels.
+  /// The maximum number of labels to be displayed in an axis in 100 logical pixels.
   ///
-  ///Defaults to `3`.
+  /// Defaults to `3`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(maximumLabels: 4),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final int maximumLabels;
 
-  ///Interval of the minor ticks.
+  /// Interval of the minor ticks.
   ///
-  ///Defaults to `0`.
+  /// Defaults to `0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(minorTicksPerInterval: 2),
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final int minorTicksPerInterval;
 
-  ///Angle for axis labels.
-  ///The axis labels can be rotated to any angle.
+  /// Angle for axis labels.
+  /// The axis labels can be rotated to any angle.
   ///
-  ///Defaults to `0`.
+  /// Defaults to `0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(labelRotation: 90),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final int labelRotation;
 
-  ///Axis labels intersecting action.
+  /// Axis labels intersecting action.
   ///
-  ///Various actions such as hide, trim, wrap, rotate
-  ///90 degree, rotate 45 degree, and placing the labels in multiple rows can be
-  ///handled when the axis labels collide with each other.
+  /// Various actions such as hide, trim, wrap, rotate
+  /// 90 degree, rotate 45 degree, and placing the labels in multiple rows can be
+  /// handled when the axis labels collide with each other.
   ///
-  ///Defaults to `AxisLabelIntersectAction.hide`.
+  /// Defaults to `AxisLabelIntersectAction.hide`.
   ///
-  ///Also refer [AxisLabelIntersectAction].
+  /// Also refer [AxisLabelIntersectAction].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(labelIntersectAction: AxisLabelIntersectAction.multipleRows),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final AxisLabelIntersectAction labelIntersectAction;
 
-  ///Opposes the axis position.
+  /// Opposes the axis position.
   ///
-  ///An axis can be placed at the opposite side of its default position.
+  /// An axis can be placed at the opposite side of its default position.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(opposedPosition: true),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final bool opposedPosition;
 
-  ///Inverts the axis.
+  /// Inverts the axis.
   ///
   /// Axis is rendered from the minimum value to maximum value by
-  ///default, and it can be inverted to render the axis from the maximum value
-  ///to minimum value.
+  /// default, and it can be inverted to render the axis from the maximum value
+  /// to minimum value.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(isInversed: true),
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final bool isInversed;
 
-  ///Position of the labels.
+  /// Position of the labels.
   ///
-  ///Axis labels can be placed either inside or
-  ///outside the plot area.
+  /// Axis labels can be placed either inside or
+  /// outside the plot area.
   ///
-  ///Defaults to `ChartDataLabelPosition.outside`.
+  /// Defaults to `ChartDataLabelPosition.outside`.
   ///
-  ///Also refer [ChartDataLabelPosition].
+  /// Also refer [ChartDataLabelPosition].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(labelPosition: ChartDataLabelPosition.inside),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final ChartDataLabelPosition labelPosition;
 
-  ///Alignment of the labels.
+  /// Alignment of the labels.
   ///
-  ///Axis labels can be placed either to the start,
-  ///end or center of the grid lines.
+  /// Axis labels can be placed either to the start,
+  /// end or center of the grid lines.
   ///
-  ///Defaults to `LabelAlignment.start`.
+  /// Defaults to `LabelAlignment.start`.
   ///
-  ///Also refer [LabelAlignment].
+  /// Also refer [LabelAlignment].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(labelAlignment: LabelAlignment.start),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final LabelAlignment labelAlignment;
 
-  ///Position of the tick lines.
+  /// Position of the tick lines.
   ///
   /// Tick lines can be placed either inside or
-  ///outside the plot area.
+  /// outside the plot area.
   ///
-  ///Defaults to `TickPosition.outside`.
+  /// Defaults to `TickPosition.outside`.
   ///
-  ///Also refer [TickPosition]
+  /// Also refer [TickPosition].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(tickPosition: TickPosition.inside),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final TickPosition tickPosition;
 
-  ///Position of the edge labels.
+  /// Position of the edge labels.
   ///
-  ///The edge labels in an axis can be hidden or shifted
-  ///inside the axis bounds.
+  /// The edge labels in an axis can be hidden or shifted
+  /// inside the axis bounds.
   ///
-  ///Defaults to `EdgeLabelPlacement.none`.
+  /// Defaults to `EdgeLabelPlacement.none`.
   ///
-  ///Also refer [EdgeLabelPlacement].
+  /// Also refer [EdgeLabelPlacement].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(edgeLabelPlacement: EdgeLabelPlacement.hide),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final EdgeLabelPlacement edgeLabelPlacement;
 
-  ///Axis interval value.
+  /// Axis interval value.
   ///
-  ///Using this, the axis labels can be displayed after
-  ///certain interval value. By default, interval will be
-  ///calculated based on the minimum and maximum values of the provided data.
+  /// Using this, the axis labels can be displayed after
+  /// certain interval value. By default, interval will be
+  /// calculated based on the minimum and maximum values of the provided data.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(interval: 1),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double? interval;
 
-  ///Padding for plot area. The axis is rendered in chart with padding.
+  /// Padding for plot area. The axis is rendered in chart with padding.
   ///
-  ///Defaults to `0`.
+  /// Defaults to `0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(plotOffset: 60),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double plotOffset;
 
-  ///Name of an axis.
+  /// Name of an axis.
   ///
   /// A unique name further used for linking the series to this
-  ///appropriate axis.
+  /// appropriate axis.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(name: 'primaryXAxis'),
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final String? name;
 
-  ///Zoom factor of an axis.
+  /// Zoom factor of an axis.
   ///
   /// Scale the axis based on this value, and it ranges
-  ///from 0 to 1.
+  /// from 0 to 1.
   ///
-  ///Defaults to `1`.
+  /// Defaults to `1`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(zoomFactor: 0.5),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double zoomFactor;
 
-  ///Position of the zoomed axis. The value ranges from 0 to 1.
+  /// Position of the zoomed axis. The value ranges from 0 to 1.
   ///
-  ///Defaults to `0`.
+  /// Defaults to `0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(zoomPosition: 0.6),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double zoomPosition;
 
-  ///Enables or disables the automatic interval while zooming.
+  /// Enables or disables the automatic interval while zooming.
   ///
-  ///Defaults to `true`.
+  /// Defaults to `true`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(enableAutoIntervalOnZooming: true),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final bool enableAutoIntervalOnZooming;
 
-  ///Customizes the crosshair and selection zooming tooltip. Tooltip displays the current
-  ///axis value based on the crosshair position/selectionZoomRect position at an axis.
+  /// Customizes the crosshair and selection zooming tooltip. Tooltip displays the current
+  /// axis value based on the crosshair position/selectionZoomRect position at an axis.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(interactiveTooltip: InteractiveTooltip(enable: true)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final InteractiveTooltip interactiveTooltip;
 
-  ///Customization to place the axis crossing on another axis based on the value
+  /// Customization to place the axis crossing on another axis based on the value.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: NumericAxis(crossesAt:10),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final dynamic crossesAt;
 
-  ///Axis line crossed on mentioned axis name, and applicable for plot band also.
+  /// Axis line crossed on mentioned axis name, and applicable for plot band also.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
-  ///           primaryXAxis: NumericAxis(associatedAxisName: 'primaryXAxis'),
-  ///        ));
+  ///           primaryXAxis: NumericAxis(
+  ///               associatedAxisName: 'primaryXAxis',
+  ///               plotBands: <PlotBand>[
+  ///                   PlotBand(
+  ///                      start: 2,
+  ///                      end: 5,
+  ///                      associatedAxisStart: 2,
+  ///                      ),
+  ///                  ],
+  ///             ),
+  ///        )
+  ///    );
   ///}
   ///```
   final String? associatedAxisName;
 
-  ///Consider to place the axis label respect to near axis line.
+  /// Consider to place the axis label respect to near axis line.
   ///
+  /// Defaults to `true`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
-  ///           primaryXAxis: NumericAxis(placeLabelsNearAxisLine: false),
-  ///        ));
+  ///           primaryXAxis: NumericAxis(placeLabelsNearAxisLine: false, crossesAt:10),
+  ///        )
+  ///    );
   ///}
   ///```
   final bool placeLabelsNearAxisLine;
 
-  ///Render the plot band in axis
+  /// Render the plot band in axis.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -623,7 +666,8 @@ abstract class ChartAxis {
   ///           primaryXAxis: NumericAxis(
   ///             plotBands:<PlotBand>[plotBands(start:20, end:30, color:Colors.red, text:'Flutter')]
   ///               ),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final List<PlotBand> plotBands;
@@ -740,19 +784,19 @@ abstract class ChartAxis {
   ///```
   final double? maximumLabelWidth;
 
-  ///Specifies the fixed width for the axis labels. This width represents the space between axis line and
+  /// Specifies the fixed width for the axis labels. This width represents the space between axis line and
   /// axis title.
   ///
-  ///If an axis label exceeds the specified value, as like [maximumLabelWidth] feature, axis label
+  /// If an axis label exceeds the specified value, as like [maximumLabelWidth] feature, axis label
   /// will get trimmed and ellipse(...) will be added at the end of the trimmed text.
   ///
-  ///Additionally, if an axis label width is within the specified value, white space will be added
+  /// Additionally, if an axis label width is within the specified value, white space will be added
   /// at the beginning for remaining width. This is done to maintain uniform bounds and to eliminate
   /// axis label flickering on zooming/panning.
   ///
-  ///Complete label text will be shown in a tooltip when tapping/clicking over the trimmed axis labels.
+  /// Complete label text will be shown in a tooltip when tapping/clicking over the trimmed axis labels.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -778,21 +822,21 @@ abstract class ChartAxis {
   ///```
   final double? labelsExtent;
 
-  ///The number of data points to be visible always in the chart.
+  /// The number of data points to be visible always in the chart.
   ///
-  ///For example, if there are 10 data points and `autoScrollingDelta` value is 5 and [autoScrollingMode]
+  /// For example, if there are 10 data points and `autoScrollingDelta` value is 5 and [autoScrollingMode]
   /// is `AutoScrollingMode.end`, the last 5 data points will be displayed in the chart and remaining
   /// data points can be viewed by panning the chart from left to right direction. If the [autoScrollingMode]
   /// is `AutoScrollingMode.start`, first 5 points will be displayed and remaining data points can be
   /// viewed by panning the chart from right to left direction.
   ///
-  ///If the data points are less than the specified `autoScrollingDelta` value, all those data points will
+  /// If the data points are less than the specified `autoScrollingDelta` value, all those data points will
   /// be displayed.
   ///
-  ///It always shows the recently added data points and scrolling will be reset to the start or end of
+  /// It always shows the recently added data points and scrolling will be reset to the start or end of
   /// the range, based on [autoScrollingMode] property's value, whenever a new point is added dynamically.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -801,18 +845,19 @@ abstract class ChartAxis {
   ///           primaryXAxis: NumericAxis(
   ///             autoScrollingDelta: 3,
   ///               ),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final int? autoScrollingDelta;
 
-  ///Determines whether the axis should be scrolled from the start position or end position.
+  /// Determines whether the axis should be scrolled from the start position or end position.
   ///
-  ///For example, if there are 10 data points and [autoScrollingDelta] value is 5 and `AutoScrollingMode.end`
+  /// For example, if there are 10 data points and [autoScrollingDelta] value is 5 and `AutoScrollingMode.end`
   /// is specified to this property, last 5 points will be displayed in the chart. If `AutoScrollingMode.start`
   /// is set to this property, first 5 points will be displayed.
   ///
-  ///Defaults to `AutoScrollingMode.end`.
+  /// Defaults to `AutoScrollingMode.end`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -821,7 +866,8 @@ abstract class ChartAxis {
   ///           primaryXAxis: NumericAxis(
   ///             autoScrollingMode: AutoScrollingMode.start,
   ///               ),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final AutoScrollingMode autoScrollingMode;
@@ -836,7 +882,6 @@ abstract class ChartAxis {
   ///     child: SfCartesianChart(
   ///       primaryXAxis: NumericAxis(
   ///         borderColor: Colors.black,
-  ///         borderWidth: 2,
   ///       )
   ///     )
   ///   );
@@ -853,7 +898,6 @@ abstract class ChartAxis {
   ///   return Container(
   ///     child: SfCartesianChart(
   ///       primaryXAxis: NumericAxis(
-  ///         borderColor: Colors.black,
   ///         borderWidth: 2,
   ///       )
   ///     )
@@ -986,12 +1030,12 @@ abstract class ChartAxis {
   ///```
   final MultiLevelLabelFormatterCallback? multiLevelLabelFormatter;
 
-  ///Called while rendering each axis label in the chart.
+  /// Called while rendering each axis label in the chart.
   ///
-  ///Provides label text, axis name, orientation of the axis, trimmed text and text styles such as color,
+  /// Provides label text, axis name, orientation of the axis, trimmed text and text styles such as color,
   /// font size, and font weight to the user using the `AxisLabelRenderDetails` class.
   ///
-  ///You can customize the text and text style using the `ChartAxisLabel` class and can return it.
+  /// You can customize the text and text style using the `ChartAxisLabel` class and can return it.
   ///
   /// Defaults to `null`.
   ///
@@ -1002,7 +1046,8 @@ abstract class ChartAxis {
   ///            primarXAxis: CategoryAxis(
   ///               axisLabelFormatter: (AxisLabelRenderDetails details) => axis(details),
   ///            ),
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///
   ///ChartAxisLabel axis(AxisLabelRenderDetails details) {
@@ -1018,7 +1063,6 @@ abstract class ChartAxis {
 ///
 /// Provides  options for label style, label size, text, and value to customize the appearance.
 ///
-@immutable
 class AxisLabel {
   /// Creating an argument constructor of AxisLabel class.
   AxisLabel(this.labelStyle, this.labelSize, this.text, this.value,
@@ -1034,7 +1078,8 @@ class AxisLabel {
   ///        child: SfCartesianChart(
   ///               primaryXAxis: CategoryAxis(
   ///                      labelStyle: TextStyle(color: Colors.black),
-  ///                  ));
+  ///                  )
+  ///         );
   ///}
   ///```
   TextStyle labelStyle;
@@ -1089,7 +1134,7 @@ class AxisLabel {
 
   int _index = 1;
 
-  ///Stores the location of an label.
+  /// Stores the location of an label.
   Rect? _labelRegion;
 
   bool _needRender = true;
@@ -1106,12 +1151,11 @@ class MajorTickLines {
   /// Creating an argument constructor of MajorTickLines class.
   const MajorTickLines({this.size = 5, this.width = 1, this.color});
 
-  ///Size of the major tick lines.
+  /// Size of the major tick lines.
   ///
-  ///Defaults to `8`.
+  /// Defaults to `8`.
   ///
-  ///
-  ///Size representation of the major ticks.
+  /// Size representation of the major ticks.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -1122,15 +1166,16 @@ class MajorTickLines {
   ///                    size: 6
   ///                  )
   ///                 ),
-  ///         ));
+  ///         )
+  ///     );
   /// }
   /// ```
   ///
   final double size;
 
-  ///Width of the major tick lines.
+  /// Width of the major tick lines.
   ///
-  ///Defaults to `1`.
+  /// Defaults to `1`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -1140,7 +1185,8 @@ class MajorTickLines {
   ///                   width: 2
   ///                 )
   ///                ),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double width;
@@ -1157,7 +1203,8 @@ class MajorTickLines {
   ///                   color: Colors.black
   ///                 )
   ///                ),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final Color? color;
@@ -1196,9 +1243,9 @@ class MinorTickLines {
   /// Creating an argument constructor of MinorTickLines class.
   const MinorTickLines({this.size = 3, this.width = 0.7, this.color});
 
-  ///Height of the minor tick lines.
+  /// Height of the minor tick lines.
   ///
-  ///Defaults to `5`.
+  /// Defaults to `3`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -1207,17 +1254,18 @@ class MinorTickLines {
   ///            primaryXAxis: NumericAxis(
   ///            minorTicksPerInterval: 5,
   ///            minorTickLines: MinorTickLines(
-  ///            size: 5.0,
+  ///            size: 5,
   ///           )
   ///         )
-  ///        ));
+  ///        )
+  ///   );
   ///}
   ///```
   final double size;
 
-  ///Width of the minor tick lines.
+  /// Width of the minor tick lines.
   ///
-  ///Defaults to `0.7`.
+  /// Defaults to `0.7`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -1229,14 +1277,15 @@ class MinorTickLines {
   ///            width: 0.5,
   ///           )
   ///         )
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final double width;
 
-  ///Color of the minor tick lines.
+  /// Color of the minor tick lines.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -1248,7 +1297,8 @@ class MinorTickLines {
   ///            color:Colors.red,
   ///           )
   ///         )
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final Color? color;
@@ -1289,9 +1339,10 @@ class MajorGridLines {
   /// Creating an argument constructor of MajorGridLines class.
   const MajorGridLines({this.width = 0.7, this.color, this.dashArray});
 
-  ///Dashes of the major grid lines.
+  /// Any number of values can be provided in the list. Odd value is considered as
+  /// rendering size and even value is considered as a gap.
   ///
-  ///Defaults to `[0,0]`.
+  /// Defaults to `[0,0]`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -1301,7 +1352,8 @@ class MajorGridLines {
   ///                   dashArray: [1,2]
   ///                 )
   ///                ),
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final List<double>? dashArray;
@@ -1318,14 +1370,15 @@ class MajorGridLines {
   ///                   width:2
   ///                 )
   ///                ),
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final double width;
 
-  ///Color of the major grid lines.
+  /// Color of the major grid lines.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -1335,7 +1388,8 @@ class MajorGridLines {
   ///                   color:Colors.red
   ///                 )
   ///                ),
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final Color? color;
@@ -1373,9 +1427,10 @@ class MinorGridLines {
   /// Creating an argument constructor of MinorGridLines class.
   const MinorGridLines({this.width = 0.5, this.color, this.dashArray});
 
-  ///Dashes of minor grid lines.
+  /// Any number of values can be provided in the list. Odd value is considered
+  /// as rendering size and even value is considered as a gap.
   ///
-  ///Defaults to `[0,0]`.
+  /// Defaults to `[0,0]`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -1387,14 +1442,15 @@ class MinorGridLines {
   ///            dashArray: <double>[10, 20],
   ///          )
   ///         )
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final List<double>? dashArray;
 
-  ///Width of the minor grid lines.
+  /// Width of the minor grid lines.
   ///
-  ///Defaults to `0.5`.
+  /// Defaults to `0.5`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -1406,14 +1462,15 @@ class MinorGridLines {
   ///            width: 0.7,
   ///         )
   ///         )
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final double width;
 
-  ///Color of the minor grid lines.
+  /// Color of the minor grid lines.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -1470,9 +1527,9 @@ class AxisTitle {
             fontStyle: FontStyle.normal,
             fontWeight: FontWeight.normal);
 
-  ///Text to be displayed as axis title.
+  /// Text to be displayed as axis title.
   ///
-  ///Defaults to `‘’`.
+  /// Defaults to `‘’`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -1482,12 +1539,13 @@ class AxisTitle {
   ///                   text: 'Axis Title',
   ///                 )
   ///                ),
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final String? text;
 
-  ///Customizes the appearance of text in axis title.
+  /// Customizes the appearance of text in axis title.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -1504,14 +1562,15 @@ class AxisTitle {
   ///                   )
   ///                 )
   ///                ),
-  ///        ));
+  ///        )
+  ///   );
   ///}
   ///```
   final TextStyle textStyle;
 
-  ///Aligns the axis title.
+  /// Aligns the axis title.
   ///
-  ///It is applicable for both vertical and horizontal axes.
+  /// It is applicable for both vertical and horizontal axes.
   ///
   /// * `ChartAlignment.near`, moves the axis title to the beginning of the axis
   ///
@@ -1519,7 +1578,7 @@ class AxisTitle {
   ///
   /// * `ChartAlignment.center`, moves the axis title to the center position of the axis.
   ///
-  ///Defaults to `ChartAlignment.center`.
+  /// Defaults to `ChartAlignment.center`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -1530,7 +1589,8 @@ class AxisTitle {
   ///                   alignment: ChartAlignment.far,
   ///                 )
   ///                ),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final ChartAlignment alignment;
@@ -1562,15 +1622,15 @@ class AxisTitle {
 /// It has the public properties to customize the axis line by increasing or decreasing the width of the axis line and
 /// render the axis line with dashes by defining the [dashArray] value.
 ///
-///Provides options for color, dash array, and width to customize the appearance of the axis line.
+/// Provides options for color, dash array, and width to customize the appearance of the axis line.
 ///
 class AxisLine {
   /// Creating an argument constructor of AxisLine class.
   const AxisLine({this.color, this.dashArray, this.width = 1});
 
-  ///Width of the axis line.
+  /// Width of the axis line.
   ///
-  ///Defaults to `1`.
+  /// Defaults to `1`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -1580,14 +1640,15 @@ class AxisLine {
   ///                   width: 2
   ///                 )
   ///                ),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double width;
 
-  ///Color of the axis line. Color will be applied based on the brightness property of the app.
+  /// Color of the axis line. Color will be applied based on the brightness property of the app.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -1602,10 +1663,10 @@ class AxisLine {
   ///```
   final Color? color;
 
-  ///Dashes of the axis line. Any number of values can be provided in the list. Odd value is
-  ///considered as rendering size and even value is considered as gap.
+  /// Dashes of the axis line. Any number of values can be provided in the list. Odd value is
+  /// considered as rendering size and even value is considered as gap.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -1616,7 +1677,8 @@ class AxisLine {
   ///                   dashArray: <double>[5,5],
   ///                 )
   ///                ),
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final List<double>? dashArray;
@@ -1643,7 +1705,7 @@ class AxisLine {
   }
 }
 
-///calculate visible range based on min, max values
+/// calculate visible range based on min, max values
 class VisibleRange {
   /// Creates an instance for visible range
   VisibleRange(dynamic min, dynamic max) {
@@ -2003,7 +2065,7 @@ class ChartAxisRendererDetails {
   /// Specifies the p
   double? previousZoomFactor, previousZoomPosition;
 
-  ///Internal variables
+  /// Internal variables
   String? name;
 
   /// Holds the value of label rotation
@@ -2012,7 +2074,7 @@ class ChartAxisRendererDetails {
   /// Holds the value of zoom factor and zoom position
   late double zoomFactor, zoomPosition;
 
-  ///Checking the axis label collision
+  /// Checking the axis label collision
   bool isCollide = false;
 
   /// Holds the value of minimum, maximum, lowest and highest minimum and maximum value
@@ -2107,7 +2169,6 @@ class ChartAxisRendererDetails {
     int length = visibleLabels.length;
     if (length > 0) {
       final MajorTickLines ticks = axis.majorTickLines;
-      const num padding = 1;
       final bool isBetweenTicks =
           (axis is CategoryAxis || axis is DateTimeCategoryAxis) &&
               chartAxis.labelPlacement == LabelPlacement.betweenTicks;
@@ -2124,8 +2185,7 @@ class ChartAxisRendererDetails {
         pointX = ((valueToCoefficient(tempInterval, this) * bounds.width) +
                 bounds.left)
             .roundToDouble();
-        pointY = bounds.top - padding + axis.axisLine.width / 2;
-
+        pointY = bounds.top;
         if (needAnimate!) {
           final double? oldLocation =
               _getPrevLocation(axisRenderer, oldAxisRenderer!, tempInterval);
@@ -2200,8 +2260,8 @@ class ChartAxisRendererDetails {
                     bounds.left;
             betweenTickPositionValue = (nextPoint.toDouble() - pointX) / 2;
           }
-          renderHorizontalAxisBorder(this, canvas, pointX, bounds.top,
-              isBetweenTicks, betweenTickPositionValue);
+          renderHorizontalAxisBorder(this, canvas, pointX, pointY,
+              isBetweenTicks, betweenTickPositionValue, i);
         }
       }
     }
@@ -2374,12 +2434,15 @@ class ChartAxisRendererDetails {
       (measureText(text, axis.labelStyle, labelRotation).width < labelsExtent)
           ? labelCollection.add(text)
           : labelCollection.add(getTrimmedText(
-              text, labelsExtent, axis.labelStyle, axisRenderer));
+              text, labelsExtent, axis.labelStyle,
+              axisRenderer: axisRenderer,
+              isRtl: axisRenderer._axisRendererDetails.stateProperties
+                  .renderingDetails.isRtl));
     }
     return labelCollection;
   }
 
-  ///Below method is for changing range while zooming
+  /// Below method is for changing range while zooming
   void calculateZoomRange(ChartAxisRenderer axisRenderer, Size axisSize) {
     ChartAxisRenderer? oldAxisRenderer;
     assert(axis.zoomFactor >= 0 && axis.zoomFactor <= 1,
@@ -2776,8 +2839,13 @@ class ChartAxisRendererDetails {
             : axisBounds.left + textSize.height / 2;
       }
     }
-    final Rect currentRegion =
-        Rect.fromLTWH(pointX, pointY, textSize.width, textSize.height);
+
+    final Rect currentRegion = axis.labelRotation == 0 &&
+            !(axis.labelIntersectAction == AxisLabelIntersectAction.rotate45 ||
+                axis.labelIntersectAction == AxisLabelIntersectAction.rotate90)
+        ? Rect.fromLTWH(pointX, pointY, textSize.width, textSize.height)
+        : Rect.fromLTWH(pointX - textSize.width / 2,
+            pointY - textSize.height / 2, textSize.width, textSize.height);
     final bool isIntersect = i > 0 &&
         i < axisRenderer._axisRendererDetails.visibleLabels.length - 1 &&
         axis.labelIntersectAction == AxisLabelIntersectAction.hide &&
@@ -2809,7 +2877,6 @@ class ChartAxisRendererDetails {
         axisRenderer._axisRendererDetails.visibleLabels;
     double tempInterval, pointX, pointY;
     int length = visibleLabels.length;
-    const num padding = 1;
     final bool isBetweenTicks =
         (axis is CategoryAxis || axis is DateTimeCategoryAxis) &&
             axis.labelPlacement == LabelPlacement.betweenTicks;
@@ -2831,7 +2898,7 @@ class ChartAxisRendererDetails {
               axisBounds.top;
       pointY = (axisBounds.top + axisBounds.height) -
           (pointY - axisBounds.top).abs();
-      pointX = axisBounds.left + padding - axis.axisLine.width / 2;
+      pointX = axisBounds.left;
 
       if (needAnimate!) {
         final double? oldLocation =
@@ -2899,8 +2966,8 @@ class ChartAxisRendererDetails {
               (nextPoint - axisBounds.top).abs();
           betweenTicksPointValue = (nextPoint.toDouble() - pointY) / 2;
         }
-        renderVerticalAxisBorder(this, canvas, axisBounds.left, pointY,
-            isBetweenTicks, betweenTicksPointValue);
+        renderVerticalAxisBorder(this, canvas, pointX, pointY, isBetweenTicks,
+            betweenTicksPointValue, i);
       }
     }
   }
@@ -3016,7 +3083,8 @@ class ChartAxisRendererDetails {
       final Rect axisBounds = bounds;
       int angle;
       TextStyle textStyle;
-
+      final bool isRtl = axisRenderer
+          ._axisRendererDetails.stateProperties.renderingDetails.isRtl;
       late double tempInterval, pointX, pointY, previousLabelEnd;
       for (int i = 0; i < visibleLabels.length; i++) {
         final AxisLabel label = visibleLabels[i];
@@ -3050,7 +3118,7 @@ class ChartAxisRendererDetails {
 
         ///  Edge label placement - shift for x-Axis
         pointX = _getShiftedPosition(
-            axisRenderer, axisBounds, pointX, pointY, textSize, i);
+            axisRenderer, axisBounds, pointX, pointY, rotatedTextSize, i);
         if (axis.labelAlignment == LabelAlignment.end) {
           pointX = pointX + textSize.height / 2;
         } else if (axis.labelAlignment == LabelAlignment.start) {
@@ -3095,24 +3163,25 @@ class ChartAxisRendererDetails {
         final Offset point = Offset(pointX, pointY);
         if (axisBounds.left - textSize.width <= pointX &&
             axisBounds.right + textSize.width >= pointX) {
-          drawText(canvas, labelText, point, textStyle, angle);
+          drawText(canvas, labelText, point, textStyle, angle, isRtl);
         }
         if (label._labelCollection != null &&
             label._labelCollection!.isNotEmpty &&
             axis.labelIntersectAction == AxisLabelIntersectAction.wrap) {
+          double? finalTextStartPoint;
           for (int j = 1; j < label._labelCollection!.length; j++) {
             final String wrapTxt = label._labelCollection![j];
-            drawText(
-                canvas,
-                wrapTxt,
-                Offset(
-                    pointX,
-                    pointY +
-                        (j *
-                            measureText(wrapTxt, axis.labelStyle, angle)
-                                .height)),
-                textStyle,
-                angle);
+            finalTextStartPoint = pointY +
+                (j * measureText(wrapTxt, axis.labelStyle, angle).height);
+            drawText(canvas, wrapTxt, Offset(pointX, finalTextStartPoint),
+                textStyle, angle, isRtl);
+            if (j == label._labelCollection!.length - 1) {
+              label._labelRegion = Rect.fromLTWH(
+                  pointX,
+                  pointY,
+                  label._labelRegion!.width,
+                  finalTextStartPoint + (label.labelSize.height) - pointY);
+            }
           }
         }
       }
@@ -3207,8 +3276,14 @@ class ChartAxisRendererDetails {
             continue;
           }
         }
-        visibleLabels[i]._labelRegion =
-            Rect.fromLTWH(pointX, pointY, textSize.width, textSize.height);
+        final Size rotatedTextSize = measureText(labelText, textStyle, angle);
+        visibleLabels[i]._labelRegion = axis.labelRotation == 0
+            ? Rect.fromLTWH(pointX, pointY, textSize.width, textSize.height)
+            : Rect.fromLTWH(
+                pointX - rotatedTextSize.width / 2,
+                pointY - rotatedTextSize.height / 2,
+                rotatedTextSize.width,
+                rotatedTextSize.height);
 
         if (needAnimate!) {
           final double? oldLocation = _getPrevLocation(
@@ -3221,7 +3296,14 @@ class ChartAxisRendererDetails {
         final Offset point = Offset(pointX, pointY);
         if (axisBounds.top - textSize.height <= pointY &&
             axisBounds.bottom + textSize.height >= pointY) {
-          drawText(canvas, labelText, point, textStyle, labelRotation);
+          drawText(
+              canvas,
+              labelText,
+              point,
+              textStyle,
+              labelRotation,
+              axisRenderer
+                  ._axisRendererDetails.stateProperties.renderingDetails.isRtl);
         }
       }
     }
@@ -3242,7 +3324,8 @@ class ChartAxisRendererDetails {
     double top = 0.0;
     final ChartAxisRendererDetails axisRendererDetails =
         axisRenderer._axisRendererDetails;
-    if (axis.borderWidth > 0 || isMultiLevelLabelEnabled) {
+    if ((axis.borderWidth > 0 || isMultiLevelLabelEnabled) &&
+        (visibleLabels.isNotEmpty)) {
       top = getHorizontalAxisTitleOffset(this, textSize);
     } else {
       if (axis.labelPosition == ChartDataLabelPosition.inside) {
@@ -3471,11 +3554,11 @@ class ChartAxisRendererDetails {
       if ((axis.maximumLabelWidth != null &&
               textSize.width > axis.maximumLabelWidth!) ||
           (axis.labelsExtent != null && textSize.width > axis.labelsExtent!)) {
-        labelText = getTrimmedText(
-            renderText,
-            (axis.labelsExtent ?? axis.maximumLabelWidth)!,
-            axis.labelStyle,
-            axisRenderer);
+        labelText = getTrimmedText(renderText,
+            (axis.labelsExtent ?? axis.maximumLabelWidth)!, axis.labelStyle,
+            axisRenderer: axisRenderer,
+            isRtl: axisRenderer
+                ._axisRendererDetails.stateProperties.renderingDetails.isRtl);
       }
       textSize = measureText(labelText, axis.labelStyle, 0);
     }
@@ -3790,7 +3873,7 @@ class ChartAxisRendererDetails {
     return padding;
   }
 
-  ///Applying range padding
+  /// Applying range padding
   void applyRangePaddings(
       ChartAxisRenderer axisRenderer,
       CartesianStateProperties stateProperties,

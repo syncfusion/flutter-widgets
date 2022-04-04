@@ -318,6 +318,7 @@ class CalendarController extends CalendarValueChangedNotifier {
   /// Get the calendar details by given the Offset by using the
   /// [getCalendarDetailsAtOffset] method.
   ///
+  /// ```dart
   /// class _MyHomePageState extends State<MyHomePage> {
   ///   final CalendarController _calendarController = CalendarController();
   ///
@@ -348,7 +349,7 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///     );
   ///   }
   /// }
-  ///
+  /// ```
   CalendarDetailsCallback? getCalendarDetailsAtOffset;
 
   /// Moves to the previous view programmatically with animation by checking

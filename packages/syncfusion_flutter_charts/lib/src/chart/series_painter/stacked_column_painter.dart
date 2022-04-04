@@ -14,12 +14,12 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Stacked column series
+/// Creates series renderer for stacked column series.
 class StackedColumnSeriesRenderer extends StackedSeriesRenderer {
   /// Calling the default constructor of StackedColumnSeriesRenderer class.
   StackedColumnSeriesRenderer();
 
-  /// Stacked Bar segment is created here.
+  /// Stacked column segment is created here.
   // ignore: unused_element
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
@@ -47,7 +47,7 @@ class StackedColumnSeriesRenderer extends StackedSeriesRenderer {
       segment.segmentRect = getRRectFromRect(
           currentPoint.region!, _stackedColumnSeries.borderRadius);
 
-      //Tracker rect
+      // Tracker rect.
       if (_stackedColumnSeries.isTrackVisible) {
         segmentProperties.trackRect = getRRectFromRect(
             currentPoint.trackerRectRegion!, _stackedColumnSeries.borderRadius);
@@ -66,7 +66,7 @@ class StackedColumnSeriesRenderer extends StackedSeriesRenderer {
     return segment;
   }
 
-  /// To render stacked column series segments
+  /// To render stacked column series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -360,17 +360,26 @@ void _stackedRectPainter(
       seriesRendererDetails.visibleDataPoints =
           <CartesianChartPoint<dynamic>>[];
     }
+    seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
     for (int pointIndex = 0;
         pointIndex < seriesRendererDetails.dataPoints.length;
         pointIndex++) {
       point = seriesRendererDetails.dataPoints[pointIndex];
-      seriesRendererDetails.calculateRegionData(stateProperties,
-          seriesRendererDetails, painterKey.index, point, pointIndex);
-      if (point.isVisible && !point.isGap) {
-        seriesRendererDetails.drawSegment(
-            canvas,
-            seriesRenderer._createSegments(
-                point, segmentIndex += 1, painterKey.index, animationFactor));
+      final bool withInXRange = withInRange(
+          point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+      final bool withInYRange = point != null &&
+          point.yValue != null &&
+          withInRange(
+              point.yValue, seriesRendererDetails.yAxisDetails!.visibleRange!);
+      if (withInXRange || withInYRange) {
+        seriesRendererDetails.calculateRegionData(stateProperties,
+            seriesRendererDetails, painterKey.index, point, pointIndex);
+        if (point.isVisible && !point.isGap) {
+          seriesRendererDetails.drawSegment(
+              canvas,
+              seriesRenderer._createSegments(
+                  point, segmentIndex += 1, painterKey.index, animationFactor));
+        }
       }
     }
     clipRect = calculatePlotOffset(

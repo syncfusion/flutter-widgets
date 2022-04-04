@@ -23,57 +23,57 @@ import '../state_properties.dart';
 import '../utils/enum.dart';
 import 'renderer.dart';
 
-/// Represents the chart legend class
+/// Represents the chart legend class.
 class ChartLegend {
-  /// Creates an instance of chart legend
+  /// Creates an instance of chart legend.
   ChartLegend(this.stateProperties);
 
-  /// Specifies the value of state properties
+  /// Specifies the value of state properties.
   final StateProperties stateProperties;
 
-  /// Holds the chart
+  /// Holds the chart.
   dynamic get chart => stateProperties.chart;
 
-  /// Specifies the value of legend
+  /// Specifies the value of legend.
   Legend? legend;
 
-  /// Specifies the list of legend renderer context
+  /// Specifies the list of legend renderer context.
   List<LegendRenderContext>? legendCollections;
 
   /// Specifies the list of legend items for SfLegend widget.
   late List<LegendItem> legendItems;
 
-  /// Specifies the value of row count
+  /// Specifies the value of row count.
   late int rowCount;
 
-  /// Specifies the value of column count
+  /// Specifies the value of column count.
   late int columnCount;
 
-  /// Specifies the legend size value
+  /// Specifies the legend size value.
   Size legendSize = Size.zero;
 
-  /// Specifies the value of chart size
+  /// Specifies the value of chart size.
   Size chartSize = Size.zero;
 
-  /// Specifies whether to render the legend
+  /// Specifies whether to render the legend.
   bool shouldRenderLegend = false;
 
-  /// Specifies whether the legend is scrollable
+  /// Specifies whether the legend is scrollable.
   late bool isNeedScrollable;
 
-  /// Specifies the legend's title height value
+  /// Specifies the legend's title height value.
   double titleHeight = 0.0;
 
-  /// Specifies the list of toggled legend indices for SfLegend
+  /// Specifies the list of toggled legend indices for SfLegend.
   List<int> toggledIndices = <int>[];
 
   /// Specifies the sum of points for circular chart types.
   num sumOfPoints = 0;
 
-  /// Specifies the toggled item color for Sflegend
+  /// Specifies the toggled item color for Sflegend.
   Color toggledItemColor = const Color.fromRGBO(211, 211, 211, 1);
 
-  /// To calculate legend bounds
+  /// To calculate legend bounds.
   void calculateLegendBounds(Size size) {
     legend = chart.legend;
     final LegendRenderer legendRenderer =
@@ -265,7 +265,7 @@ class ChartLegend {
     }
   }
 
-  /// To calculate legends in chart
+  /// To calculate legends in chart.
   void _calculateLegends(SfCartesianChart chart, int index,
       SeriesRendererDetails seriesRendererDetails,
       [Trendline? trendline, int? trendlineIndex]) {
@@ -420,7 +420,7 @@ class ChartLegend {
     }
   }
 
-  /// To calculate series legends
+  /// To calculate series legends.
   void _calculateSeriesLegends() {
     LegendRenderArgs? legendEventArgs;
     if (chart.legend.legendItemBuilder == null) {
@@ -546,7 +546,7 @@ class ChartLegend {
     }
   }
 
-  /// To calculate indicator legends
+  /// To calculate indicator legends.
   void _calculateIndicatorLegends() {
     LegendRenderArgs? legendEventArgs;
     final List<String> textCollection = <String>[];
@@ -603,6 +603,7 @@ class ChartLegend {
             text: legendEventArgs?.text ??
                 indicator.legendItemText ??
                 technicalIndicatorsRenderer.name,
+            isTrendline: false,
             iconColor: legendEventArgs?.color ?? indicator.signalLineColor,
             iconType:
                 legendEventArgs?.legendIconType ?? indicator.legendIconType);
@@ -643,7 +644,7 @@ class ChartLegend {
     }
   }
 
-  /// To find sum of points in radial bar series
+  /// To find sum of points in radial bar series.
   void _getSumOfPoints(CircularSeriesRendererExtension seriesRenderer) {
     num sum = 0;
     for (final ChartPoint<dynamic> point in seriesRenderer.renderPoints!) {
@@ -654,7 +655,7 @@ class ChartLegend {
     sumOfPoints = sum;
   }
 
-  /// To get the cartesian series gradient shader for SfLegend
+  /// To get the cartesian series gradient shader for SfLegend.
   Shader? _getCartesianSeriesGradientShader(
       LegendRenderContext legendRenderContext, Legend legend) {
     Shader? legendShader;
@@ -708,7 +709,7 @@ class ChartLegend {
     return cartesianShader;
   }
 
-  /// To get the circular series shader for SfLegend
+  /// To get the circular series shader for SfLegend.
   Shader? _getCircularSeriesShader(
       LegendRenderContext legendRenderContext, Legend legend) {
     Shader? legendShader;
@@ -768,7 +769,7 @@ class ChartLegend {
     return overlayMarkerType;
   }
 
-  /// To get legend icon shape based on series marker shape
+  /// To get legend icon shape based on series marker shape.
   ShapeMarkerType _getMarkerIconType(DataMarkerType shape) {
     ShapeMarkerType? iconType;
     switch (shape) {
@@ -805,7 +806,7 @@ class ChartLegend {
     return iconType!;
   }
 
-  /// To get the legend icon type for SfLegend
+  /// To get the legend icon type for SfLegend.
   ShapeMarkerType _getEffectiveLegendIconType(LegendIconType iconType,
       [LegendRenderContext? legendRenderContext, String? seriesType]) {
     ShapeMarkerType legendIconType;
@@ -845,7 +846,7 @@ class ChartLegend {
     return legendIconType;
   }
 
-  /// To get effective series type legend icon for SfLegend
+  /// To get effective series type legend icon for SfLegend.
   ShapeMarkerType _getSeriesLegendIconType(
       String seriesType, LegendRenderContext context) {
     switch (seriesType) {

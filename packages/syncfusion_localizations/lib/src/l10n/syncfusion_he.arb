@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "אין אירועים", 
 "ofDataPagerLabel" : "שֶׁל", 
 "pagesDataPagerLabel" : "דפים", 
-"itemsDataPagerLabel" : "פריטים", 
+"rowsPerPageDataPagerLabel" : "שורות בעמוד", 
 "pdfBookmarksLabel" : "סימניות", 
 "pdfNoBookmarksLabel" : "לא נמצאו סימניות", 
 "pdfScrollStatusOfLabel" : "שֶׁל", 
@@ -25,14 +25,14 @@
 "allowedViewScheduleLabel" : "לוח זמנים", 
 "allowedViewTimelineDayLabel" : "יום ציר הזמן", 
 "allowedViewTimelineWeekLabel" : "שבוע ציר הזמן", 
-"allowedViewTimelineWorkWeekLabel" : "שבוע העבודה של ציר זמן", 
+"allowedViewTimelineWorkWeekLabel" : "שבוע העבודה של ציר הזמן", 
 "allowedViewTimelineMonthLabel" : "חודש ציר הזמן", 
 "todayLabel" : "היום", 
 "weeknumberLabel" : "שָׁבוּעַ", 
 "allDayLabel" : "כל היום", 
 "muharramLabel" : "מוחרם", 
 "safarLabel" : "ספאר", 
-"rabi1Label" : "רבי אל-אוול", 
+"rabi1Label" : "רבי אל אווול", 
 "rabi2Label" : "רבי אל-תאני", 
 "jumada1Label" : "ג'ומדה אל-אוואל", 
 "jumada2Label" : "ג'ומדה אל-ת'אני", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "שו.", 
 "shortDhualqiLabel" : "דהו'ל-ק", 
 "shortDhualhiLabel" : "דהו''ל-ה", 
-"daySpanCountLabel" : "יְוֹם"
+"daySpanCountLabel" : "יְוֹם", 
+"series" : "סִדרָה"
 }

@@ -1244,9 +1244,16 @@ class RenderVirtualizingCellsWidget extends RenderBox
     final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
     DataCellBase? dataCell;
 
-    if (dataRow.rowType == RowType.headerRow ||
-        dataRow.rowType == RowType.stackedHeaderRow ||
-        dataRow.rowType == RowType.dataRow) {
+    // Issue:
+    // FLUT-6105 - Null check operator exception is thrown when long press the
+    // table summary rows.
+    //
+    // Fix:
+    // An issue occurred because of disallowing the table summary rows in the
+    // long-press event. So, the data cell field had been null to the table
+    // summary rows. Now, We have fixed it by allowing long-press events for all
+    // the row types except for the `footer` row type since it's not required.
+    if (dataRow.rowType != RowType.footerRow) {
       final double position = dataGridConfiguration.columnResizeController
           .getXPosition(dataGridConfiguration, details.localPosition.dx);
       final VisibleLineInfo? resizingLine =
@@ -1255,7 +1262,9 @@ class RenderVirtualizingCellsWidget extends RenderBox
               false,
               dataGridConfiguration.textDirection == TextDirection.rtl);
 
-      if (dataRow.rowType == RowType.stackedHeaderRow) {
+      if (dataRow.rowType == RowType.stackedHeaderRow ||
+          dataRow.rowType == RowType.tableSummaryRow ||
+          dataRow.rowType == RowType.tableSummaryCoveredRow) {
         dataCell =
             dataRow.visibleColumns.firstWhereOrNull((DataCellBase dataCell) {
           final int cellLeft = dataCell.columnIndex;
@@ -1272,7 +1281,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
                 element.columnIndex == resizingLine!.lineIndex);
       }
     }
-    return dataCell!;
+    return dataCell;
   }
 
   void _onLongPress() {
@@ -1835,8 +1844,10 @@ class RenderGridCell extends RenderBox
     }
 
     if (lineInfo != null) {
-      columnRect = _getCellRect(
-          dataGridConfiguration, lineInfo, origin!, lineWidth, lineHeight);
+      // If resizing a column to 0 width the origin value is return null
+      // So We need to set origin value as 0.0
+      columnRect = _getCellRect(dataGridConfiguration, lineInfo, origin ?? 0.0,
+          lineWidth, lineHeight);
     }
     return columnRect;
   }

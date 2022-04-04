@@ -1,6 +1,5 @@
 part of xlsio;
 
-// ignore: noop_primitive_operations
 /// Represnets a single conditional format. Used for single-cell range.
 class _ConditionalFormatImpl implements ConditionalFormat {
   /// Create a instances of conditionsal collection.
@@ -408,36 +407,31 @@ class _ConditionalFormatImpl implements ConditionalFormat {
       case ExcelComparisonOperator.beginsWith:
         val = _defaultBeginsWithFormula;
         val = val.replaceAll('{0}', _cellList);
-        // ignore: prefer_interpolation_to_compose_strings, noop_primitive_operations
-        val = val.replaceAll('{1}', '"' + value.toString() + '"');
+        val = val.replaceAll('{1}', '"$value"');
         firstFormula = val;
         break;
       case ExcelComparisonOperator.endsWith:
         val = _defaultEndsWithFormula;
         val = val.replaceAll('{0}', _cellList);
-        // ignore: prefer_interpolation_to_compose_strings, noop_primitive_operations
-        val = val.replaceAll('{1}', '"' + value.toString() + '"');
+        val = val.replaceAll('{1}', '"$value"');
         firstFormula = val;
         break;
       case ExcelComparisonOperator.containsText:
         val = _defaultContainsTextFormula;
-        // ignore: prefer_interpolation_to_compose_strings, noop_primitive_operations
-        val = val.replaceAll('{0}', '"' + value.toString() + '"');
+        val = val.replaceAll('{0}', '"$value"');
         val = val.replaceAll('{1}', _cellList);
         firstFormula = val;
         break;
       case ExcelComparisonOperator.notContainsText:
         val = _defaultNotContainsTextFormula;
-        // ignore: prefer_interpolation_to_compose_strings, noop_primitive_operations
-        val = val.replaceAll('{0}', '"' + value.toString() + '"');
+        val = val.replaceAll('{0}', '"$value"');
         val = val.replaceAll('{1}', _cellList);
         firstFormula = val;
         break;
       default:
         operator = ExcelComparisonOperator.containsText;
         val = _defaultContainsTextFormula;
-        // ignore: prefer_interpolation_to_compose_strings, noop_primitive_operations
-        val = val.replaceAll('{0}', '"' + value.toString() + '"');
+        val = val.replaceAll('{0}', '"$value"');
         val = val.replaceAll('{1}', _cellList);
         firstFormula = val;
         break;
@@ -499,9 +493,7 @@ class _ConditionalFormatImpl implements ConditionalFormat {
         firstFormula = val;
         break;
       default:
-        throw Exception(
-            // ignore: prefer_interpolation_to_compose_strings
-            'Invalid time period type: ' + cfTimePeriods.toString());
+        throw Exception('Invalid time period type: $cfTimePeriods');
     }
   }
 

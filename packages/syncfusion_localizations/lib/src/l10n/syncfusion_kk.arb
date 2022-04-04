@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Оқиғалар жоқ", 
 "ofDataPagerLabel" : "бойынша", 
 "pagesDataPagerLabel" : "беттер", 
-"itemsDataPagerLabel" : "заттар", 
+"rowsPerPageDataPagerLabel" : "Әр беттегі жолдар", 
 "pdfBookmarksLabel" : "Бетбелгілер", 
 "pdfNoBookmarksLabel" : "Ешқандай бетбелгі табылмады", 
 "pdfScrollStatusOfLabel" : "бойынша", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Шоу.", 
 "shortDhualqiLabel" : "Зул-Қ", 
 "shortDhualhiLabel" : "Зул-Х", 
-"daySpanCountLabel" : "Күн"
+"daySpanCountLabel" : "Күн", 
+"series" : "Сериялар"
 }

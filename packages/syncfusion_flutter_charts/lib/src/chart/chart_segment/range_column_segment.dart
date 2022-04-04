@@ -14,9 +14,8 @@ import 'chart_segment.dart';
 ///
 /// Gets the path and color from the `series`.
 class RangeColumnSegment extends ChartSegment {
-  //We are using `segmentRect` to draw the histogram segment in the series.
-  //we can override this class and customize the column segment by getting `segmentRect`.
-  /// Rectangle of the segment
+  // we can override this class and customize the range column segment by getting `segmentRect`.
+  /// Rectangle of the segment.
   late RRect segmentRect;
 
   late SegmentProperties _segmentProperties;
@@ -141,7 +140,7 @@ class RangeColumnSegment extends ChartSegment {
     }
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

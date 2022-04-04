@@ -15,9 +15,8 @@ class StackedColumn100Segment extends ChartSegment {
   /// Stacked value.
   late double stackValues;
 
-  //We are using `segmentRect` to draw the histogram segment in the series.
-  //we can override this class and customize the column segment by getting `segmentRect`.
-  /// Rectangle of the segment
+  // The rectangle of the segment. This could be used to render a segment while overriding this segment.
+  /// Rectangle of the segment.
   late RRect segmentRect;
 
   /// Gets the color of the series.

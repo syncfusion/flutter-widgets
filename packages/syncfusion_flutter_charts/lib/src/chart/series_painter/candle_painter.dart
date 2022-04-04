@@ -13,7 +13,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Candle series
+/// Creates series renderer for candle series.
 class CandleSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of CandleSeriesRenderer class.
   CandleSeriesRenderer();
@@ -28,7 +28,7 @@ class CandleSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _segmentSeriesDetails;
   late SeriesRendererDetails _oldSeriesDetails;
 
-  /// Range column _segment is created here
+  /// Range column _segment is created here.
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
@@ -119,27 +119,35 @@ class CandleSeriesRenderer extends XyDataSeriesRenderer {
     if (_currentSeriesDetails.candleSeries.enableSolidCandles! &&
         segmentProperties.isSolid) {
       return (candleSeriesDetails
-                      .dataPoints[_candleSegment.currentSegmentIndex!].open <
+                      .dataPoints[segmentProperties
+                          .currentPoint!.overallDataPointIndex!]
+                      .open <
                   candleSeriesDetails
-                      .dataPoints[_candleSegment.currentSegmentIndex!].close) ==
+                      .dataPoints[segmentProperties
+                          .currentPoint!.overallDataPointIndex!]
+                      .close) ==
               true
           ? _currentSeriesDetails.candleSeries.bullColor
           : _currentSeriesDetails.candleSeries.bearColor;
     }
-    final Color? color = _candleSegment.currentSegmentIndex! - 1 >= 0 &&
-            (candleSeriesDetails
-                        .dataPoints[_candleSegment.currentSegmentIndex! - 1]
-                        .close >
-                    candleSeriesDetails
-                        .dataPoints[_candleSegment.currentSegmentIndex!]
-                        .close) ==
-                true
-        ? _currentSeriesDetails.candleSeries.bearColor
-        : _currentSeriesDetails.candleSeries.bullColor;
+    final Color? color =
+        segmentProperties.currentPoint!.overallDataPointIndex! - 1 >= 0 &&
+                (candleSeriesDetails
+                            .dataPoints[segmentProperties
+                                    .currentPoint!.overallDataPointIndex! -
+                                1]
+                            .close >
+                        candleSeriesDetails
+                            .dataPoints[segmentProperties
+                                .currentPoint!.overallDataPointIndex!]
+                            .close) ==
+                    true
+            ? _currentSeriesDetails.candleSeries.bearColor
+            : _currentSeriesDetails.candleSeries.bullColor;
     return color;
   }
 
-  /// To draw candle series segments
+  /// To draw candle series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment _segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -156,7 +164,7 @@ class CandleSeriesRenderer extends XyDataSeriesRenderer {
     _segment.onPaint(canvas);
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -217,7 +225,6 @@ class CandlePainter extends CustomPainter {
         seriesRendererDetails.yAxisDetails!;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRendererDetails.dataPoints;
-    Rect clipRect;
     double animationFactor;
     final CandleSeries<dynamic, dynamic> series =
         seriesRendererDetails.series as CandleSeries<dynamic, dynamic>;
@@ -249,49 +256,185 @@ class CandlePainter extends CustomPainter {
             <CartesianChartPoint<dynamic>>[];
       }
 
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
+      final bool hasTooltip = chart.tooltipBehavior != null &&
+          (chart.tooltipBehavior.enable ||
+              seriesRendererDetails.series.onPointTap != null ||
+              seriesRendererDetails.series.onPointDoubleTap != null ||
+              seriesRendererDetails.series.onPointLongPress != null);
+      final bool hasSeriesElements = seriesRendererDetails.visible! &&
+          (series.markerSettings.isVisible ||
+              series.dataLabelSettings.isVisible ||
+              (chart.tooltipBehavior != null &&
+                  chart.tooltipBehavior.enable &&
+                  (chart.tooltipBehavior != null &&
+                      chart.tooltipBehavior.enable &&
+                      series.enableTooltip)));
+      seriesRendererDetails.sideBySideInfo = calculateSideBySideInfo(
+          seriesRendererDetails.renderer, stateProperties);
+      final num? sideBySideMinimumVal =
+          seriesRendererDetails.sideBySideInfo?.minimum;
+
+      final num? sideBySideMaximumVal =
+          seriesRendererDetails.sideBySideInfo?.maximum;
+
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        if (withInRange(seriesRendererDetails.dataPoints[pointIndex].xValue,
-            seriesRendererDetails.xAxisDetails!.visibleRange!)) {
-          seriesRendererDetails.calculateRegionData(
-              stateProperties,
-              seriesRendererDetails,
-              painterKey.index,
-              point,
-              pointIndex,
-              seriesRendererDetails.sideBySideInfo);
+        bool withInHighLowRange = false, withInOpenCloseRange = false;
+        if (point != null &&
+            point.high != null &&
+            point.low != null &&
+            point.open != null &&
+            point.close != null) {
+          withInHighLowRange = withInRange(point.high,
+                  seriesRendererDetails.yAxisDetails!.visibleRange!) &&
+              withInRange(
+                  point.low, seriesRendererDetails.yAxisDetails!.visibleRange!);
+          withInOpenCloseRange = withInRange(point.open,
+                  seriesRendererDetails.yAxisDetails!.visibleRange!) &&
+              withInRange(point.close,
+                  seriesRendererDetails.yAxisDetails!.visibleRange!);
+          final bool withInXRange = withInRange(
+              point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+          if (withInXRange || (withInHighLowRange && withInOpenCloseRange)) {
+            if (withInXRange) {
+              seriesRendererDetails.visibleDataPoints!
+                  .add(seriesRendererDetails.dataPoints[pointIndex]);
+              seriesRendererDetails.dataPoints[pointIndex].visiblePointIndex =
+                  seriesRendererDetails.visibleDataPoints!.length - 1;
+            }
+            point.openPoint = calculatePoint(
+                point.xValue + sideBySideMinimumVal,
+                point.open,
+                seriesRendererDetails.xAxisDetails!,
+                seriesRendererDetails.yAxisDetails!,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
 
-          if (point.isVisible && !point.isGap) {
-            seriesRendererDetails.drawSegment(
-                canvas,
-                seriesRenderer._createSegments(point, segmentIndex += 1,
-                    painterKey.index, animationFactor));
+            point.closePoint = calculatePoint(
+                point.xValue + sideBySideMaximumVal,
+                point.close,
+                seriesRendererDetails.xAxisDetails!,
+                seriesRendererDetails.yAxisDetails!,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+            point.lowPoint = calculatePoint(
+                point.xValue + sideBySideMinimumVal,
+                point.low,
+                seriesRendererDetails.xAxisDetails!,
+                seriesRendererDetails.yAxisDetails!,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+            point.highPoint = calculatePoint(
+                point.xValue + sideBySideMaximumVal,
+                point.high,
+                seriesRendererDetails.xAxisDetails!,
+                seriesRendererDetails.yAxisDetails!,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+            final num center = (point.xValue + sideBySideMinimumVal) +
+                (((point.xValue + sideBySideMaximumVal) -
+                        (point.xValue + sideBySideMinimumVal)) /
+                    2);
+
+            point.centerHighPoint = calculatePoint(
+                center,
+                point.high,
+                seriesRendererDetails.xAxisDetails!,
+                seriesRendererDetails.yAxisDetails!,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+
+            point.centerLowPoint = calculatePoint(
+                center,
+                point.low,
+                seriesRendererDetails.xAxisDetails!,
+                seriesRendererDetails.yAxisDetails!,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+            final num value1 =
+                (point.low < point.high) == true ? point.high : point.low;
+            final num value2 =
+                (point.low > point.high) == true ? point.high : point.low;
+            point.markerPoint = calculatePoint(
+                point.xValue,
+                yAxisDetails.axis.isInversed ? value2 : value1,
+                xAxisDetails,
+                yAxisDetails,
+                stateProperties.requireInvertedAxis,
+                seriesRendererDetails.series,
+                axisClipRect);
+
+            if (hasSeriesElements) {
+              if (point.region == null ||
+                  seriesRendererDetails.calculateRegion == true) {
+                if (seriesRendererDetails.calculateRegion == true &&
+                    dataPoints.length == pointIndex - 1) {
+                  seriesRendererDetails.calculateRegion = false;
+                }
+
+                point.markerPoint2 = calculatePoint(
+                    point.xValue,
+                    yAxisDetails.axis.isInversed ? value1 : value2,
+                    xAxisDetails,
+                    yAxisDetails,
+                    stateProperties.requireInvertedAxis,
+                    seriesRendererDetails.series,
+                    axisClipRect);
+                if (seriesRendererDetails.series.dataLabelSettings.isVisible ==
+                    true) {
+                  point.centerOpenPoint = calculatePoint(
+                      point.xValue,
+                      point.open,
+                      seriesRendererDetails.xAxisDetails!,
+                      seriesRendererDetails.yAxisDetails!,
+                      stateProperties.requireInvertedAxis,
+                      seriesRendererDetails.series,
+                      axisClipRect);
+
+                  point.centerClosePoint = calculatePoint(
+                      point.xValue,
+                      point.close,
+                      seriesRendererDetails.xAxisDetails!,
+                      seriesRendererDetails.yAxisDetails!,
+                      stateProperties.requireInvertedAxis,
+                      seriesRendererDetails.series,
+                      axisClipRect);
+                }
+
+                point.region = !stateProperties.requireInvertedAxis
+                    ? Rect.fromLTWH(
+                        point.markerPoint!.x,
+                        point.markerPoint!.y,
+                        seriesRendererDetails.series.borderWidth,
+                        point.markerPoint2!.y - point.markerPoint!.y)
+                    : Rect.fromLTWH(
+                        point.markerPoint2!.x,
+                        point.markerPoint2!.y,
+                        (point.markerPoint!.x - point.markerPoint2!.x).abs(),
+                        seriesRendererDetails.series.borderWidth);
+              }
+              if (hasTooltip) {
+                calculateTooltipRegion(
+                    point, seriesIndex, seriesRendererDetails, stateProperties);
+              }
+            }
+            if (point.isVisible && !point.isGap) {
+              seriesRendererDetails.drawSegment(
+                  canvas,
+                  seriesRenderer._createSegments(point, segmentIndex += 1,
+                      painterKey.index, animationFactor));
+            }
           }
         }
       }
-      clipRect = calculatePlotOffset(
-          Rect.fromLTWH(
-              stateProperties.chartAxis.axisClipRect.left -
-                  series.markerSettings.width,
-              stateProperties.chartAxis.axisClipRect.top -
-                  series.markerSettings.height,
-              stateProperties.chartAxis.axisClipRect.right +
-                  series.markerSettings.width,
-              stateProperties.chartAxis.axisClipRect.bottom +
-                  series.markerSettings.height),
-          Offset(xAxisDetails.axis.plotOffset, yAxisDetails.axis.plotOffset));
-
       canvas.restore();
-      if ((series.animationDuration <= 0 ||
-              animationFactor >= stateProperties.seriesDurationFactor) &&
-          series.dataLabelSettings.isVisible) {
-        // ignore: unnecessary_null_comparison
-        assert(seriesRenderer != null,
-            'The candle series should be available to render a data label on it.');
-        canvas.clipRect(clipRect);
-        seriesRendererDetails.renderSeriesElements(
-            chart, canvas, seriesRendererDetails.seriesElementAnimation);
-      }
       if (seriesRendererDetails.visible! == true && animationFactor >= 1) {
         stateProperties.setPainterKey(painterKey.index, painterKey.name, true);
       }

@@ -1560,8 +1560,11 @@ class PdfGraphicsHelper {
       final ArabicShapeRenderer renderer = ArabicShapeRenderer();
       final String txt = renderer.shape(line!.split(''), 0);
       final Bidi bidi = Bidi();
-      final String result = bidi.getLogicalToVisualString(
-          txt, format.textDirection == PdfTextDirection.rightToLeft);
+      bidi.isVisualOrder = false;
+      final String result = bidi.getLogicalToVisualString(txt,
+              format.textDirection == PdfTextDirection.rightToLeft)['rtlText']
+          as String;
+      bidi.isVisualOrder = true;
       final List<String> blocks = <String>[];
       if (useWordSpace) {
         final List<String> words = result.split(' ');

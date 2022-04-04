@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Tidak ada acara", 
 "ofDataPagerLabel" : "dari", 
 "pagesDataPagerLabel" : "halaman", 
-"itemsDataPagerLabel" : "item", 
+"rowsPerPageDataPagerLabel" : "Baris per halaman", 
 "pdfBookmarksLabel" : "Bookmark", 
 "pdfNoBookmarksLabel" : "Tidak ada bookmark yang ditemukan", 
 "pdfScrollStatusOfLabel" : "dari", 
@@ -44,9 +44,9 @@
 "dhualhiLabel" : "Dzulhijjah", 
 "shortMuharramLabel" : "Muh.", 
 "shortSafarLabel" : "saf.", 
-"shortRabi1Label" : "Rabi. Saya", 
+"shortRabi1Label" : "Rabi. saya", 
 "shortRabi2Label" : "Rabi. II", 
-"shortJumada1Label" : "Jum. Saya", 
+"shortJumada1Label" : "Jum. saya", 
 "shortJumada2Label" : "Jum. II", 
 "shortRajabLabel" : "Raj.", 
 "shortShaabanLabel" : "Sha.", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Shaw", 
 "shortDhualqiLabel" : "Dzul Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Hari"
+"daySpanCountLabel" : "Hari", 
+"series" : "Seri"
 }

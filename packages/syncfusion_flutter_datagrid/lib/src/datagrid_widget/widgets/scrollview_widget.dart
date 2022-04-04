@@ -195,7 +195,18 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     // based on the scrollbar.
     bool handleNotificationPredicate(
         ScrollNotification notification, Axis direction) {
-      return notification.metrics.axis == direction;
+      // Issue:
+      // FLUT-6320 - Horizontal scrollbar is showing when typing the text in
+      // TextField widget more than cell width in editing.
+      //
+      // Fix:
+      // An issue occurred by reason of handling the `notificationPredicate` based
+      // on the scroll direction. As the `notificationPredicate` callback will be
+      // called for all the scrollable views, can't process with the scroll direction
+      // alone. Hence, we have fixed the issue by considering the scroll view depth.
+      return direction == Axis.vertical
+          ? notification.depth == 0
+          : notification.depth == 1;
     }
 
     // Issue:

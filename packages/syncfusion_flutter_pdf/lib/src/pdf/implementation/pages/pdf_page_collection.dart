@@ -87,6 +87,7 @@ class PdfPageCollection {
     PdfPage page;
     if (PdfDocumentHelper.getHelper(_helper.document!).isLoadedDocument) {
       page = insert(count);
+      PdfPageHelper.getHelper(page).document = _helper.document;
     } else {
       page = PdfPage();
       PdfPageHelper.getHelper(page).isNewPage = true;

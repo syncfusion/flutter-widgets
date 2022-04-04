@@ -20,32 +20,32 @@ import '../renderer/funnel_chart_painter.dart';
 import '../renderer/funnel_series.dart';
 import '../renderer/renderer_extension.dart';
 
-/// Represents the funnel plot area
+/// Represents the funnel plot area.
 // ignore: must_be_immutable
 class FunnelPlotArea extends StatelessWidget {
-  /// Creates an instance of funnel plot area
+  /// Creates an instance of funnel plot area.
   // ignore: prefer_const_constructors_in_immutables
   FunnelPlotArea({required this.stateProperties});
 
-  /// Specifies the value of funnel state properties
+  /// Specifies the value of funnel state properties.
   final FunnelStateProperties stateProperties;
 
-  /// Gets the chart widget from the stateProperties
+  /// Gets the chart widget from the stateProperties.
   SfFunnelChart get chart => stateProperties.chart;
 
-  /// Specifies the value of funnel series renderer
+  /// Specifies the value of funnel series renderer.
   late FunnelSeriesRendererExtension seriesRenderer;
 
-  /// Holds the render box value
+  /// Holds the render box value.
   late RenderBox renderBox;
 
-  /// Holds the value of point region
+  /// Holds the value of point region.
   Region? pointRegion;
 
-  /// Holds the value of tap down details
+  /// Holds the value of tap down details.
   late TapDownDetails tapDownDetails;
 
-  /// Specifies the double tap position
+  /// Specifies the double tap position.
   Offset? doubleTapPosition;
   final bool _enableMouseHover = kIsWeb;
 
@@ -98,7 +98,7 @@ class FunnelPlotArea extends StatelessWidget {
     });
   }
 
-  /// To initialize chart elements
+  /// To initialize chart elements.
   Widget _initializeChart(BoxConstraints constraints, BuildContext context) {
     _calculateContainerSize(constraints);
     return GestureDetector(
@@ -107,7 +107,7 @@ class FunnelPlotArea extends StatelessWidget {
             child: _renderWidgets(constraints, context)));
   }
 
-  /// To calculate size of chart
+  /// To calculate size of chart.
   void _calculateContainerSize(BoxConstraints constraints) {
     final num width = constraints.maxWidth;
     final num height = constraints.maxHeight;
@@ -136,7 +136,7 @@ class FunnelPlotArea extends StatelessWidget {
             children: stateProperties.renderingDetails.chartWidgets!));
   }
 
-  /// To calculate region path for rendering funnel chart
+  /// To calculate region path for rendering funnel chart.
   void _calculatePathRegion() {
     if (stateProperties.chartSeries.visibleSeriesRenderers.isNotEmpty) {
       final FunnelSeriesRendererExtension seriesRenderer =
@@ -150,7 +150,7 @@ class FunnelPlotArea extends StatelessWidget {
     }
   }
 
-  /// To bind series widgets in chart
+  /// To bind series widgets in chart.
   void _bindSeriesWidgets() {
     CustomPainter seriesPainter;
     Animation<double>? seriesAnimation;
@@ -258,7 +258,7 @@ class FunnelPlotArea extends StatelessWidget {
     }
   }
 
-  /// To bind tooltip widgets to chart
+  /// To bind tooltip widgets to chart.
   void _bindTooltipWidgets(BoxConstraints constraints) {
     TooltipHelper.setStateProperties(chart.tooltipBehavior, stateProperties);
     final SfChartThemeData _chartTheme =
@@ -298,7 +298,7 @@ class FunnelPlotArea extends StatelessWidget {
     }
   }
 
-  /// To perform pointer down event
+  /// To perform pointer down event.
   void _onTapDown(PointerDownEvent event) {
     // renderBox = context.findRenderObject();
     final TooltipRenderingDetails tooltipRenderingDetails =
@@ -352,7 +352,7 @@ class FunnelPlotArea extends StatelessWidget {
     }
   }
 
-  /// To perform pointer move event
+  /// To perform pointer move event.
   void _performPointerMove(PointerMoveEvent event) {
     ChartTouchInteractionArgs touchArgs;
     final Offset position = renderBox.globalToLocal(event.position);
@@ -363,7 +363,7 @@ class FunnelPlotArea extends StatelessWidget {
     }
   }
 
-  /// To perform double tap touch interactions
+  /// To perform double tap touch interactions.
   void _onDoubleTap() {
     const int seriesIndex = 0;
     if (doubleTapPosition != null &&
@@ -416,7 +416,7 @@ class FunnelPlotArea extends StatelessWidget {
     }
   }
 
-  /// To perform long press touch interactions
+  /// To perform long press touch interactions.
   void _onLongPress() {
     const int seriesIndex = 0;
     if (stateProperties.renderingDetails.tapPosition != null &&
@@ -470,7 +470,7 @@ class FunnelPlotArea extends StatelessWidget {
     }
   }
 
-  /// To perform pointer up event
+  /// To perform pointer up event.
   void _onTapUp(PointerUpEvent event) {
     TooltipHelper.getRenderingDetails(
             stateProperties.renderingDetails.tooltipBehaviorRenderer)
@@ -532,7 +532,7 @@ class FunnelPlotArea extends StatelessWidget {
     }
   }
 
-  /// To perform event on mouse hover
+  /// To perform event on mouse hover.
   void _onHover(PointerEvent event) {
     final TooltipRenderingDetails tooltipRenderingDetails =
         TooltipHelper.getRenderingDetails(
@@ -588,7 +588,7 @@ class FunnelPlotArea extends StatelessWidget {
     stateProperties.renderingDetails.tapPosition = null;
   }
 
-  /// This method gets executed for showing tooltip when builder is provided in behavior
+  /// This method gets executed for showing tooltip when builder is provided in behavior.
   void showFunnelTooltipTemplate([int? pointIndex]) {
     stateProperties.isTooltipHidden = false;
     final TooltipRenderingDetails tooltipRenderingDetails =
