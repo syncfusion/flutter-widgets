@@ -45,8 +45,8 @@ dependencies:
   syncfusion_pdfviewer_windows:
     path: ../syncfusion_pdfviewer_windows
   syncfusion_flutter_core:
-    path: ../../syncfusion_flutter_core
+    path: ../syncfusion_flutter_core
   syncfusion_flutter_pdf:
-    path: ../../syncfusion_flutter_pdf
+    path: ../syncfusion_flutter_pdf
       
       
