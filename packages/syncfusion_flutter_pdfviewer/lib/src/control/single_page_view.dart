@@ -108,7 +108,6 @@ class SinglePageView extends StatefulWidget {
 class SinglePageViewState extends State<SinglePageView> {
   SfPdfViewerThemeData? _pdfViewerThemeData;
   SfLocalizations? _localizations;
-  bool _isScrollHeadDragged = false;
   double _scrollHeadPosition = 0;
   bool _canScroll = false;
   bool _isOverFlowed = false;
@@ -132,6 +131,9 @@ class SinglePageViewState extends State<SinglePageView> {
 
   /// If true , when API jump is enable
   bool isJumpOnZoomedDocument = false;
+
+  /// Represents whether scroll head is dragged
+  bool isScrollHeadDragged = false;
 
   /// Represent the old previous zoom level.
   double _oldPreviousZoomLevel = 1;
@@ -178,15 +180,19 @@ class SinglePageViewState extends State<SinglePageView> {
         : _paddingHeightScale;
     final double zoomLevel =
         _transformationController.value.getMaxScaleOnAxis();
-    final double imageWidth =
-        widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize.width *
-            zoomLevel;
+    final double imageWidth = widget.pdfPages.isNotEmpty
+        ? widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize
+                .width *
+            zoomLevel
+        : 0;
     final double childWidth = viewportDimension.width > imageWidth
         ? viewportDimension.width / widthFactor.clamp(1, 3)
         : imageWidth / widthFactor.clamp(1, 3);
-    final double imageHeight = widget
-            .pdfPages[widget.pdfViewerController.pageNumber]!.pageSize.height *
-        zoomLevel;
+    final double imageHeight = widget.pdfPages.isNotEmpty
+        ? widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize
+                .height *
+            zoomLevel
+        : 0;
     double childHeight = viewportDimension.height > imageHeight
         ? viewportDimension.height / heightFactor.clamp(1, 3)
         : imageHeight / heightFactor.clamp(1, 3);
@@ -609,7 +615,7 @@ class SinglePageViewState extends State<SinglePageView> {
           ),
         ),
         Visibility(
-            visible: _isScrollHeadDragged && widget.canShowScrollStatus,
+            visible: isScrollHeadDragged && widget.canShowScrollStatus,
             child: ScrollStatus(widget.pdfViewerController))
       ],
     );
@@ -676,7 +682,7 @@ class SinglePageViewState extends State<SinglePageView> {
   }
 
   void _handleDragStart(DragStartDetails details) {
-    _isScrollHeadDragged = true;
+    isScrollHeadDragged = true;
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
@@ -693,7 +699,7 @@ class SinglePageViewState extends State<SinglePageView> {
 
   void _handleDragEnd(DragEndDetails details) {
     setState(() {
-      _isScrollHeadDragged = false;
+      isScrollHeadDragged = false;
     });
   }
 
@@ -980,7 +986,6 @@ class SinglePageViewState extends State<SinglePageView> {
           onFieldSubmitted: (String value) {
             _handlePageNumberValidation();
           },
-          // ignore: missing_return
           validator: (String? value) {
             try {
               if (value != null) {
@@ -995,6 +1000,7 @@ class SinglePageViewState extends State<SinglePageView> {
               _textFieldController.clear();
               return _localizations!.pdfInvalidPageNumberLabel;
             }
+            return null;
           },
         ),
       ),
