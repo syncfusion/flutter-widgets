@@ -8060,7 +8060,7 @@ class _PickerHeaderViewState extends State<_PickerHeaderView> {
   }
 
   void _addListener() {
-    SchedulerBinding.instance?.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       widget.visibleDates.addListener(_listener);
     });
   }
@@ -9829,7 +9829,7 @@ class _PickerScrollViewState extends State<_PickerScrollView>
   // resets position to zero on the swipe end to avoid the unwanted date
   // updates.
   void _resetPosition() {
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (_position.abs() == widget.width || _position.abs() == widget.height) {
         _position = 0;
       }

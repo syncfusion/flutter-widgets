@@ -3568,7 +3568,7 @@ class _RenderGeoJSONLayer extends RenderStack
         ..addListener(_handleFocalLatLngAnimation)
         ..addStatusListener(_handleFocalLatLngAnimationStatusChange);
     }
-    SchedulerBinding.instance?.addPostFrameCallback(_initiateInitialAnimations);
+    SchedulerBinding.instance.addPostFrameCallback(_initiateInitialAnimations);
   }
 
   @override

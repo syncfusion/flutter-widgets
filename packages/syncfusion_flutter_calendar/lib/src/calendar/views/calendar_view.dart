@@ -3292,7 +3292,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       return;
     }
 
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (_currentChildIndex == 0) {
         _previousViewKey.currentState?._scrollToPosition();
       } else if (_currentChildIndex == 1) {
@@ -3631,7 +3631,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
   // resets position to zero on the swipe end to avoid the unwanted date updates
   void _resetPosition() {
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (_position.abs() == widget.width || _position.abs() == widget.height) {
         _position = 0;
       }
@@ -3639,7 +3639,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   void _updateScrollPosition() {
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (_previousViewKey.currentState == null ||
           _currentViewKey.currentState == null ||
           _nextViewKey.currentState == null ||
@@ -3788,7 +3788,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
           currentViewState._scrollController!.position.maxScrollExtent +
               currentViewState._scrollController!.position.viewportDimension) {
         _moveToNextViewWithAnimation();
-        SchedulerBinding.instance!.addPostFrameCallback((_) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
           _moveToSelectedTimeSlot();
         });
       }
@@ -3870,7 +3870,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
       if ((rowIndex * singleChildWidth) + xPosition == 0) {
         _moveToPreviousViewWithAnimation(isScrollToEnd: true);
-        SchedulerBinding.instance!.addPostFrameCallback((_) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
           _moveToSelectedTimeSlot();
         });
       }
@@ -6021,7 +6021,7 @@ class _CalendarViewState extends State<_CalendarView>
   }
 
   void _scrollToPosition() {
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (widget.view == CalendarView.month) {
         return;
       }
@@ -6118,7 +6118,7 @@ class _CalendarViewState extends State<_CalendarView>
         scrolledDate.year, scrolledDate.month, scrolledDate.day, hour, minute);
 
     /// Update the scrolled position after the widget generated.
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       _scrollController!.jumpTo(_getPositionFromDate(scrolledDate));
     });
   }
@@ -8167,7 +8167,7 @@ class _CalendarViewState extends State<_CalendarView>
   }
 
   void _resetResizingPainter() {
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       _resizingDetails.value.position.value = null;
     });
     _resizingDetails.value.isAllDayPanel = false;

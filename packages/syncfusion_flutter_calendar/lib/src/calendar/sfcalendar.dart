@@ -4160,7 +4160,7 @@ class _SfCalendarState extends State<SfCalendar>
         _fadeInController!.reset();
         _fadeInController!.forward();
         _agendaScrollController = ScrollController(initialScrollOffset: 0);
-        SchedulerBinding.instance?.addPostFrameCallback((_) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
           final Widget? currentWidget = _customScrollViewKey.currentWidget;
 
           /// When view switched from schedule view to other views we need to
@@ -4179,7 +4179,7 @@ class _SfCalendarState extends State<SfCalendar>
 
           _agendaScrollController?.removeListener(_handleScheduleViewScrolled);
           _initScheduleViewProperties();
-          SchedulerBinding.instance?.addPostFrameCallback((_) {
+          SchedulerBinding.instance.addPostFrameCallback((_) {
             if (!_focusNode.hasFocus) {
               _focusNode.requestFocus();
             }
@@ -4326,7 +4326,7 @@ class _SfCalendarState extends State<SfCalendar>
     }
 
     if (_isNeedLoadMore || _isScheduleStartLoadMore) {
-      SchedulerBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+      SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
         setState(() {
           _isNeedLoadMore = false;
           _isScheduleStartLoadMore = false;
@@ -4622,7 +4622,7 @@ class _SfCalendarState extends State<SfCalendar>
   void _updateVisibleAppointmentCollection(
       List<CalendarAppointment> visibleAppointmentCollection) {
     if (_view == CalendarView.schedule) {
-      SchedulerBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+      SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
         setState(() {
           /// Update the view when the appointment collection changed.
         });
@@ -4640,7 +4640,7 @@ class _SfCalendarState extends State<SfCalendar>
     /// Update all day appointment related implementation in calendar,
     /// because time label view needs the top position.
     _updateAllDayAppointment();
-    SchedulerBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+    SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
       setState(() {
         /// Update the UI.
       });
