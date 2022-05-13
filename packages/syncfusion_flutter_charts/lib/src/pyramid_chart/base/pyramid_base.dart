@@ -711,7 +711,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
 
         final PointInfo<dynamic> tooltipPoint =
             _getChartPoints(_stateProperties);
-        SchedulerBinding.instance!.addPostFrameCallback((_) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
           _validateStateMaintenance(_stateProperties, tooltipPoint);
         });
         _stateProperties.chartSeries.findVisibleSeries();
@@ -722,7 +722,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
             _stateProperties.renderingDetails.legendWidgetContext.isEmpty) {
           // ignore: avoid_unnecessary_containers
           element = Container(child: Stack(children: legendTemplates));
-          SchedulerBinding.instance!.addPostFrameCallback((_) => _refresh());
+          SchedulerBinding.instance.addPostFrameCallback((_) => _refresh());
         } else {
           _stateProperties.renderingDetails.chartLegend.calculateLegendBounds(
               _stateProperties.renderingDetails.chartLegend.chartSize);
