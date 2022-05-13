@@ -790,7 +790,7 @@ class CanvasRenderBox extends RenderBox {
         (isReachedTop ? -_jumpOffset : _jumpOffset);
 
     if (isSelectionScroll) {
-      WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
         if (isSinglePageView) {
           singlePageViewStateKey.currentState?.jumpTo(yOffset: position);
           _scrollWhileSelection();

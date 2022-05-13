@@ -285,7 +285,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
       _updateScrollHeadPosition();
     });
     // ignore: avoid_bool_literals_in_conditional_expressions

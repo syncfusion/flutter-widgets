@@ -394,7 +394,7 @@ class PdfScrollableState extends State<PdfScrollable> {
       _setPixel(offset);
     } else {
       // add post frame which is jumped once the layout is changed.
-      WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
         _setPixel(offset);
       });
     }
