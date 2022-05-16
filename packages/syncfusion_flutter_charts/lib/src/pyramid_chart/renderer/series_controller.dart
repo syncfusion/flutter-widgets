@@ -1,6 +1,7 @@
 import 'dart:ui';
-import 'package:syncfusion_flutter_charts/src/common/utils/helper.dart';
+
 import '../../chart/chart_series/series.dart';
+import '../../common/utils/helper.dart';
 import '../../common/utils/typedef.dart';
 import '../base/pyramid_state_properties.dart';
 import '../utils/common.dart';
@@ -128,18 +129,18 @@ class PyramidSeriesController {
         series.dataSource![index] != null) {
       final ChartIndexedValueMapper<dynamic>? xValue = series.xValueMapper;
       final ChartIndexedValueMapper<dynamic>? yValue = series.yValueMapper;
-      final PointInfo<dynamic> _currentPoint =
+      final PointInfo<dynamic> currentPoint =
           PointInfo<dynamic>(xValue!(index), yValue!(index));
-      if (_currentPoint.x != null) {
+      if (currentPoint.x != null) {
         if (needUpdate) {
           if (renderer.dataPoints.length > index) {
-            renderer.dataPoints[index] = _currentPoint;
+            renderer.dataPoints[index] = currentPoint;
           }
         } else {
           if (renderer.dataPoints.length == index) {
-            renderer.dataPoints.add(_currentPoint);
+            renderer.dataPoints.add(currentPoint);
           } else if (renderer.dataPoints.length > index && index >= 0) {
-            renderer.dataPoints.insert(index, _currentPoint);
+            renderer.dataPoints.insert(index, currentPoint);
           }
         }
       }

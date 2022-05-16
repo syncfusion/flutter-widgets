@@ -327,15 +327,10 @@ class _SparKChartContainerBox extends RenderShiftedBox {
   void performLayout() {
     size = getLayoutSize(constraints, context);
 
-    child!.layout(
-        BoxConstraints(
-          minHeight: 0.0,
-          maxHeight: size.height,
-          minWidth: 0.0,
-          maxWidth: size.width,
-        ),
-        parentUsesSize:
-            false); // True- Parent widget recomputes again respect to
+    child!.layout(BoxConstraints(
+      maxHeight: size.height,
+      maxWidth: size.width,
+    )); // True- Parent widget recomputes again respect to
     // every build of child widget,
     // False- Parent widget not rebuild respect to child widget build
   }
@@ -380,6 +375,7 @@ Path getMarkerShapes(
       }
       break;
 
+    // ignore: no_default_cases
     default:
       break;
   }
@@ -633,7 +629,7 @@ TextStyle _getTextStyle(
       _getDataLabelSaturationColor(dataLabelOffset, coordinateOffset, theme,
           offset, seriesColor, type, segment, yValue);
 
-  final TextStyle _textStyle = TextStyle(
+  final TextStyle textStyle = TextStyle(
       color: fontColor,
       fontFamily: font.fontFamily,
       fontSize: font.fontSize,
@@ -657,7 +653,7 @@ TextStyle _getTextStyle(
       debugLabel: font.debugLabel,
       fontFamilyFallback: font.fontFamilyFallback);
 
-  return _textStyle;
+  return textStyle;
 }
 
 /// To render the data label.
@@ -675,7 +671,7 @@ void renderDataLabel(
     num highPoint,
     num lowPoint,
     [List<Rect>? segments]) {
-  TextStyle _textStyle;
+  TextStyle textStyle;
 
   switch (labelDisplayMode) {
     case SparkChartLabelDisplayMode.all:
@@ -683,7 +679,7 @@ void renderDataLabel(
         for (int i = type == 'Area' ? 1 : 0;
             type == 'Area' ? i < dataPoints.length - 1 : i < dataPoints.length;
             i++) {
-          _textStyle = _getTextStyle(
+          textStyle = _getTextStyle(
               labelStyle,
               dataPoints[i].dataLabelOffset!,
               coordinatePoints[i],
@@ -693,8 +689,8 @@ void renderDataLabel(
               type,
               type == 'Bar' ? segments![i] : null,
               dataPoints[i].y);
-          drawText(canvas, dataLabels[i], dataPoints[i].dataLabelOffset!,
-              _textStyle);
+          drawText(
+              canvas, dataLabels[i], dataPoints[i].dataLabelOffset!, textStyle);
         }
       }
 
@@ -702,7 +698,7 @@ void renderDataLabel(
 
     case SparkChartLabelDisplayMode.first:
       {
-        _textStyle = _getTextStyle(
+        textStyle = _getTextStyle(
             labelStyle,
             dataPoints[type == 'Area' ? 1 : 0].dataLabelOffset!,
             coordinatePoints[type == 'Area' ? 1 : 0],
@@ -713,13 +709,13 @@ void renderDataLabel(
             type == 'Bar' ? segments![0] : null,
             dataPoints[0].y);
         drawText(canvas, dataLabels[type == 'Area' ? 1 : 0],
-            dataPoints[type == 'Area' ? 1 : 0].dataLabelOffset!, _textStyle);
+            dataPoints[type == 'Area' ? 1 : 0].dataLabelOffset!, textStyle);
       }
       break;
 
     case SparkChartLabelDisplayMode.last:
       {
-        _textStyle = _getTextStyle(
+        textStyle = _getTextStyle(
             labelStyle,
             dataPoints[type == 'Area'
                     ? dataPoints.length - 2
@@ -744,7 +740,7 @@ void renderDataLabel(
                     ? dataPoints.length - 2
                     : dataPoints.length - 1]
                 .dataLabelOffset!,
-            _textStyle);
+            textStyle);
       }
 
       break;
@@ -757,7 +753,7 @@ void renderDataLabel(
         final int index = type == 'Area' ? 1 : 0;
         for (int j = index; j < length; j++) {
           if (highPoint == coordinatePoints[j].dy) {
-            _textStyle = _getTextStyle(
+            textStyle = _getTextStyle(
                 labelStyle,
                 dataPoints[j].dataLabelOffset!,
                 coordinatePoints[j],
@@ -768,7 +764,7 @@ void renderDataLabel(
                 type == 'Bar' ? segments![j] : null,
                 dataPoints[j].y);
             drawText(canvas, dataLabels[j], dataPoints[j].dataLabelOffset!,
-                _textStyle);
+                textStyle);
           }
         }
       }
@@ -784,7 +780,7 @@ void renderDataLabel(
 
         for (int j = index; j < length; j++) {
           if (lowPoint == coordinatePoints[j].dy) {
-            _textStyle = _getTextStyle(
+            textStyle = _getTextStyle(
                 labelStyle,
                 dataPoints[j].dataLabelOffset!,
                 coordinatePoints[j],
@@ -795,7 +791,7 @@ void renderDataLabel(
                 type == 'Bar' ? segments![j] : null,
                 dataPoints[j].y);
             drawText(canvas, dataLabels[j], dataPoints[j].dataLabelOffset!,
-                _textStyle);
+                textStyle);
           }
         }
       }

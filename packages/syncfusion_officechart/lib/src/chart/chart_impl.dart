@@ -494,7 +494,9 @@ class Chart {
     final int iCount = _series.count;
 
     if (dataRange == null && iCount != 0) {
-      throw 'This property supported only in chart where can detect data range.';
+      final Error error = ArgumentError(
+          'This property supported only in chart where can detect data range.');
+      throw error;
     }
 
     if (_bSeriesInRows != value) {
@@ -696,7 +698,8 @@ class Chart {
     axisRange = _getSerieOrAxisRange(_serieValue, !_bSeriesInRows, _serieValue);
     // }
     if (!_validateSerieRangeForChartType(_serieValue, type, _bSeriesInRows)) {
-      throw "Can't set data range.";
+      final Error error = ArgumentError("Can't set data range.");
+      throw error;
     }
 
     primaryCategoryAxis._categoryLabels = axisRange;
@@ -715,7 +718,8 @@ class Chart {
   /// Gets data range that represents series name or category axis.
   Range? _getSerieOrAxisRange(Range? range, bool bIsInRow, Range? serieRange) {
     if (range == null) {
-      throw 'range-Value should not be null';
+      final Error error = ArgumentError('range-Value should not be null');
+      throw error;
     }
 
     final int iFirstLen = bIsInRow ? range.row : range.column;
@@ -820,7 +824,8 @@ class Chart {
   bool _validateSerieRangeForChartType(
       Range? serieValue, ExcelChartType type, bool isSeriesInRows) {
     if (serieValue == null) {
-      throw 'serieValue - Value cannot be null';
+      final Error error = ArgumentError('serieValue - Value cannot be null');
+      throw error;
     }
 
     final int iSeriesInRangeCount = isSeriesInRows

@@ -3,11 +3,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_page_view.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_scrollable.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/single_page_view.dart';
+
+import '../../pdfviewer.dart';
+import '../common/pdfviewer_helper.dart';
+import 'pdf_page_view.dart';
+import 'pdf_scrollable.dart';
+import 'single_page_view.dart';
 
 /// Instance of TextSelectionHelper.
 TextSelectionHelper _textSelectionHelper = TextSelectionHelper();
@@ -790,7 +791,7 @@ class CanvasRenderBox extends RenderBox {
         (isReachedTop ? -_jumpOffset : _jumpOffset);
 
     if (isSelectionScroll) {
-      WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
         if (isSinglePageView) {
           singlePageViewStateKey.currentState?.jumpTo(yOffset: position);
           _scrollWhileSelection();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series.dart';
+import '../../../charts.dart';
+import '../chart_series/series.dart';
 import '../common/common.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
@@ -25,7 +25,7 @@ class ScatterSegment extends ChartSegment {
     if (_segmentProperties.series.gradient == null) {
       if (_segmentProperties.color != null) {
         fillPaint = Paint()
-          ..color = _segmentProperties.currentPoint!.isEmpty == true
+          ..color = (_segmentProperties.currentPoint!.isEmpty ?? false)
               ? _segmentProperties.series.emptyPointSettings.color
               : ((hasPointColor &&
                       _segmentProperties.currentPoint!.pointColorMapper != null)
@@ -61,11 +61,11 @@ class ScatterSegment extends ChartSegment {
   @override
   Paint getStrokePaint() {
     _setSegmentProperties();
-    final ScatterSeriesRenderer _scatterRenderer =
+    final ScatterSeriesRenderer scatterRenderer =
         _segmentProperties.seriesRenderer as ScatterSeriesRenderer;
     final Paint strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+      ..strokeWidth = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderWidth
           : _segmentProperties.series.markerSettings.isVisible == true
               ? _segmentProperties.series.markerSettings.borderWidth
@@ -74,7 +74,7 @@ class ScatterSegment extends ChartSegment {
       strokePaint.shader = _segmentProperties.series.borderGradient!
           .createShader(_segmentProperties.currentPoint!.region!);
     } else {
-      strokePaint.color = _segmentProperties.currentPoint!.isEmpty == true
+      strokePaint.color = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderColor
           : _segmentProperties.series.markerSettings.isVisible == true
               ? _segmentProperties.series.markerSettings.borderColor ??
@@ -84,8 +84,7 @@ class ScatterSegment extends ChartSegment {
               : _segmentProperties.strokeColor!;
     }
     (strokePaint.strokeWidth == 0 &&
-            SeriesHelper.getSeriesRendererDetails(_scatterRenderer)
-                    .isLineType ==
+            SeriesHelper.getSeriesRendererDetails(scatterRenderer).isLineType ==
                 false)
         ? strokePaint.color = Colors.transparent
         : strokePaint.color;

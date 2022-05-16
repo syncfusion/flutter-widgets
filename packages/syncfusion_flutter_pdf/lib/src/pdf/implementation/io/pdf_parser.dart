@@ -265,6 +265,7 @@ class PdfParser {
           obj = PdfNull();
           _advance();
           break;
+        // ignore: no_default_cases
         default:
           obj = null;
           break;
@@ -784,7 +785,6 @@ class PdfParser {
 
       case _ErrorType.none:
       case _ErrorType.badlyFormedHexString:
-      default:
         message = 'Internal error.';
         break;
     }

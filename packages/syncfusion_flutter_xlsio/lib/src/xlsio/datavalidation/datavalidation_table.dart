@@ -30,10 +30,10 @@ class _DataValidationTable {
     for (int dvCollection = 0;
         dvCollection < _dataValidationCollectionList.length;
         dvCollection++) {
-      final _DataValidationImpl? _result =
+      final _DataValidationImpl? result =
           _dataValidationCollectionList[dvCollection]._findByCellIndex(dvValue);
-      if (_result != null) {
-        return _result;
+      if (result != null) {
+        return result;
       }
     }
     return null;

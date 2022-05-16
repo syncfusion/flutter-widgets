@@ -5,7 +5,7 @@ class CultureInfo {
   /// Create an instances of culture info class.
   CultureInfo(String name) {
     _culture = name;
-    initializeDateFormatting(_culture, null);
+    initializeDateFormatting(_culture);
     _dateTimeFormat = DateTimeFormatInfo(_culture);
     _numberFormat = NumberFormatInfo(_culture);
     _textInfo = TextInfo();
@@ -147,7 +147,7 @@ class DateTimeFormatInfo {
 
   /// Minimum supported date time.
   // ignore: unused_field
-  final DateTime _minSupportedDateTime = DateTime(0001, 01, 01);
+  final DateTime _minSupportedDateTime = DateTime(0001);
 
   /// Gets the date symbols.
   DateSymbols? get _dateSymbols {

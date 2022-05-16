@@ -464,10 +464,10 @@ class DateRangePickerHelper {
   }
 
   /// Get the visible dates based on the date value and visible dates count.
-  // ignore: always_specify_types
+  // ignore: always_specify_types, strict_raw_type
   static List getVisibleYearDates(
       dynamic date, DateRangePickerView view, bool isHijri) {
-    // ignore: always_specify_types
+    // ignore: always_specify_types, strict_raw_type
     List datesCollection;
     if (isHijri) {
       datesCollection = <HijriDateTime>[];

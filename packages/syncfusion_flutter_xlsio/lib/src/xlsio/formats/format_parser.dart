@@ -33,7 +33,8 @@ class _FormatParser {
   // ignore: unused_element
   _FormatSectionCollection _parse(Workbook workbook, String? strFormat) {
     if (strFormat == null) {
-      throw 'strFormat - string cannot be null';
+      final Error error = ArgumentError('strFormat - string cannot be null');
+      throw error;
     }
     strFormat = _numberFormatRegex.hasMatch(strFormat)
         ? strFormat.replaceAll(RegExp(r'strFormat'), '')
@@ -41,7 +42,8 @@ class _FormatParser {
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) {
-      throw 'strFormat - string cannot be empty';
+      final Error error = ArgumentError('strFormat - string cannot be empty');
+      throw error;
     }
 
     final List<_FormatTokenBase> arrParsedExpression = <_FormatTokenBase>[];

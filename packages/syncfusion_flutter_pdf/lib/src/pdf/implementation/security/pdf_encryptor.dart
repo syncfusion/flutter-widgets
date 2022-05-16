@@ -1309,6 +1309,7 @@ class PdfEncryptor {
       case PdfEncryptionAlgorithm.aesx256BitRevision6:
         result = 3;
         break;
+      // ignore: no_default_cases
       default:
         result = 1;
         break;
@@ -1530,8 +1531,7 @@ class PdfEncryptor {
 
   List<int>? _cloneList(List<int>? value) {
     if (value != null) {
-      return List<int>.generate(value.length, (int i) => value[i],
-          growable: true);
+      return List<int>.generate(value.length, (int i) => value[i]);
     } else {
       return null;
     }

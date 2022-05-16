@@ -333,7 +333,7 @@ class RowSelectionManager extends SelectionManagerBase {
       dataGridConfiguration.controller.selectedRows.clear();
       _refreshSelection();
       dataGridConfiguration.container.isDirty = true;
-      if (dataGridConfiguration.headerCheckboxState != false) {
+      if (dataGridConfiguration.headerCheckboxState!) {
         _updateCheckboxStateOnHeader(dataGridConfiguration);
       }
     }
@@ -382,13 +382,13 @@ class RowSelectionManager extends SelectionManagerBase {
   void _refreshSelection() {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
-    final DataGridRow? _selectedRow =
+    final DataGridRow? selectedRow =
         _selectedRows.isNotEmpty ? _selectedRows.last : null;
-    final int _recordIndex = _selectedRow == null
+    final int recordIndex = selectedRow == null
         ? -1
-        : effectiveRows(dataGridConfiguration.source).indexOf(_selectedRow);
-    updateSelectedRow(dataGridConfiguration.controller, _selectedRow);
-    updateSelectedIndex(dataGridConfiguration.controller, _recordIndex);
+        : effectiveRows(dataGridConfiguration.source).indexOf(selectedRow);
+    updateSelectedRow(dataGridConfiguration.controller, selectedRow);
+    updateSelectedIndex(dataGridConfiguration.controller, recordIndex);
   }
 
   void _addCurrentCell(
@@ -437,10 +437,10 @@ class RowSelectionManager extends SelectionManagerBase {
           return;
         }
 
-        final RowColumnIndex _currentRowColumnIndex =
+        final RowColumnIndex currentRowColumnIndex =
             _getRowColumnIndexOnModeChanged(dataGridConfiguration, lastRecord);
 
-        if (_currentRowColumnIndex.rowIndex <= 0) {
+        if (currentRowColumnIndex.rowIndex <= 0) {
           return;
         }
 
@@ -449,18 +449,18 @@ class RowSelectionManager extends SelectionManagerBase {
         // index's are same.
         final CurrentCellManager currentCell =
             dataGridConfiguration.currentCell;
-        if (currentCell.rowIndex == _currentRowColumnIndex.rowIndex &&
-            currentCell.columnIndex == _currentRowColumnIndex.columnIndex) {
+        if (currentCell.rowIndex == currentRowColumnIndex.rowIndex &&
+            currentCell.columnIndex == currentRowColumnIndex.columnIndex) {
           currentCell._updateCurrentCell(
             dataGridConfiguration,
-            _currentRowColumnIndex.rowIndex,
-            _currentRowColumnIndex.columnIndex,
+            currentRowColumnIndex.rowIndex,
+            currentRowColumnIndex.columnIndex,
           );
         } else {
           currentCell._moveCurrentCellTo(
               dataGridConfiguration,
-              RowColumnIndex(_currentRowColumnIndex.rowIndex,
-                  _currentRowColumnIndex.columnIndex),
+              RowColumnIndex(currentRowColumnIndex.rowIndex,
+                  currentRowColumnIndex.columnIndex),
               isSelectionChanged: true);
         }
       }
@@ -514,8 +514,7 @@ class RowSelectionManager extends SelectionManagerBase {
     final DataCellBase? headerDataCell = headerDataRow.visibleColumns
         .firstWhereOrNull((DataCellBase cell) => cell.columnIndex == 0);
 
-    if (_selectedRows.isEmpty &&
-        dataGridConfiguration.headerCheckboxState != false) {
+    if (_selectedRows.isEmpty && dataGridConfiguration.headerCheckboxState!) {
       dataGridConfiguration.headerCheckboxState = false;
       headerDataCell?.updateColumn();
     } else if (dataGridConfiguration.controller.selectedRows.length !=
@@ -763,10 +762,10 @@ class RowSelectionManager extends SelectionManagerBase {
       _clearSelection(dataGridConfiguration);
       if (dataGridConfiguration.navigationMode == GridNavigationMode.cell &&
           lastRecord != null) {
-        final RowColumnIndex _currentRowColumnIndex =
+        final RowColumnIndex currentRowColumnIndex =
             _getRowColumnIndexOnModeChanged(dataGridConfiguration, lastRecord);
 
-        if (_currentRowColumnIndex.rowIndex <= 0) {
+        if (currentRowColumnIndex.rowIndex <= 0) {
           return;
         }
 
@@ -774,13 +773,13 @@ class RowSelectionManager extends SelectionManagerBase {
             ? selection_helper.getRecord(
                 dataGridConfiguration,
                 grid_helper.resolveToRecordIndex(
-                    dataGridConfiguration, _currentRowColumnIndex.rowIndex))
+                    dataGridConfiguration, currentRowColumnIndex.rowIndex))
             : lastRecord;
 
         dataGridConfiguration.currentCell._moveCurrentCellTo(
             dataGridConfiguration,
-            RowColumnIndex(_currentRowColumnIndex.rowIndex,
-                _currentRowColumnIndex.columnIndex),
+            RowColumnIndex(currentRowColumnIndex.rowIndex,
+                currentRowColumnIndex.columnIndex),
             isSelectionChanged: true);
       }
 

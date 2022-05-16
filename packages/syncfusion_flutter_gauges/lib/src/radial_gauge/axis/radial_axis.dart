@@ -83,16 +83,8 @@ class RadialAxis extends StatefulWidget {
         assert(centerX >= 0, 'Center X must be a non-negative value.'),
         assert(centerY >= 0, 'Center Y must be a non-negative value.'),
         assert(minimum < maximum, 'Maximum should be greater than minimum.'),
-        axisLabelStyle = axisLabelStyle ??
-            const GaugeTextStyle(
-                fontSize: 12.0,
-                fontFamily: 'Segoe UI',
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.normal),
-        axisLineStyle = axisLineStyle ??
-            const AxisLineStyle(
-              thickness: 10,
-            ),
+        axisLabelStyle = axisLabelStyle ?? const GaugeTextStyle(),
+        axisLineStyle = axisLineStyle ?? const AxisLineStyle(),
         numberFormat = numberFormat ?? NumberFormat('#.##'),
         majorTickStyle = majorTickStyle ?? const MajorTickStyle(),
         minorTickStyle = minorTickStyle ?? const MinorTickStyle(),
@@ -835,6 +827,7 @@ class RadialAxis extends StatefulWidget {
   /// }
   ///
   /// ```
+  // ignore: strict_raw_type
   final GaugeAxisRendererFactory? onCreateAxisRenderer;
 
   @override
@@ -849,16 +842,11 @@ class _RadialAxisState extends State<RadialAxis> with TickerProviderStateMixin {
       _hasAnnotations = false;
 
   /// Specifies the axis line interval for animation
-  List<double?> _axisLineInterval =
-      List<double?>.filled(5, null, growable: false);
-  List<double?> _axisElementsInterval =
-      List<double?>.filled(5, null, growable: false);
-  List<double?> _rangesInterval =
-      List<double?>.filled(5, null, growable: false);
-  List<double?> _pointersInterval =
-      List<double?>.filled(5, null, growable: false);
-  List<double?> _annotationInterval =
-      List<double?>.filled(5, null, growable: false);
+  List<double?> _axisLineInterval = List<double?>.filled(5, null);
+  List<double?> _axisElementsInterval = List<double?>.filled(5, null);
+  List<double?> _rangesInterval = List<double?>.filled(5, null);
+  List<double?> _pointersInterval = List<double?>.filled(5, null);
+  List<double?> _annotationInterval = List<double?>.filled(5, null);
 
   AnimationController? _animationController;
 
@@ -1027,19 +1015,19 @@ class _RadialAxisState extends State<RadialAxis> with TickerProviderStateMixin {
 
     /// Adding the axis widget.
     _radialAxisWidgets.add(RadialAxisScope(
-        child: RadialAxisRenderObjectWidget(axis: widget),
         animation1: _axisElementAnimation,
         isRadialGaugeAnimationEnabled: _enableAnimation,
         repaintNotifier: _repaintNotifier,
-        animation: _axisAnimation));
+        animation: _axisAnimation,
+        child: RadialAxisRenderObjectWidget(axis: widget)));
 
     if (widget.ranges != null) {
       for (int i = 0; i < widget.ranges!.length; i++) {
         _radialAxisWidgets.add(RadialAxisScope(
-            child: widget.ranges![i],
             isRadialGaugeAnimationEnabled: _enableAnimation,
             repaintNotifier: _repaintNotifier,
-            animation: _rangeAnimation));
+            animation: _rangeAnimation,
+            child: widget.ranges![i]));
       }
     }
 
@@ -1057,21 +1045,21 @@ class _RadialAxisState extends State<RadialAxis> with TickerProviderStateMixin {
         }
 
         _radialAxisWidgets.add(RadialAxisScope(
-            child: widget.pointers![i] as Widget,
             animationController: pointerAnimationController,
             isRadialGaugeAnimationEnabled: _enableAnimation,
             repaintNotifier: _repaintNotifier,
-            pointerInterval: _pointersInterval));
+            pointerInterval: _pointersInterval,
+            child: widget.pointers![i] as Widget));
       }
     }
 
     if (widget.annotations != null) {
       for (int i = 0; i < widget.annotations!.length; i++) {
         _radialAxisWidgets.add(RadialAxisScope(
-            child: widget.annotations![i],
             isRadialGaugeAnimationEnabled: _enableAnimation,
             repaintNotifier: _repaintNotifier,
-            animation: _annotationAnimation));
+            animation: _annotationAnimation,
+            child: widget.annotations![i]));
       }
     }
 

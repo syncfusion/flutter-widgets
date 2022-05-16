@@ -867,6 +867,7 @@ class RenderLinearAxis extends RenderBox {
 
   /// Measures the axis element size.
   double _measureAxisSize() {
+    // ignore: no_leading_underscores_for_local_identifiers
     late double _axisWidgetThickness;
     final double tickMarginSize = showTicks ? tickOffset : 0;
     final double labelSize = getEffectiveLabelSize();
@@ -907,6 +908,7 @@ class RenderLinearAxis extends RenderBox {
             ((axisSize < tickSize) ? tickSize - axisSize : 0.0) +
             labelSize;
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
@@ -942,6 +944,7 @@ class RenderLinearAxis extends RenderBox {
                 ? labelSize + labelMarginSize + axisSize + tickMarginSize
                 : 0;
             break;
+          // ignore: no_default_cases
           default:
             break;
         }
@@ -968,6 +971,7 @@ class RenderLinearAxis extends RenderBox {
               axisOffset += tickMarginSize - (labelSize + labelMarginSize);
             }
             break;
+          // ignore: no_default_cases
           default:
             break;
         }
@@ -1010,10 +1014,12 @@ class RenderLinearAxis extends RenderBox {
               _tickTop = showTicks ? labelSize + labelMarginSize : 0;
             }
             break;
+          // ignore: no_default_cases
           default:
             break;
         }
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
@@ -1053,52 +1059,52 @@ class RenderLinearAxis extends RenderBox {
 
   /// Return the axis layout padding.
   double getAxisLayoutPadding() {
-    double _layoutStartPadding = 0;
-    double _layoutEndPadding = 0;
+    double layoutStartPadding = 0;
+    double layoutEndPadding = 0;
 
     final double labelStartPadding = _getStartLabelPadding();
     final double labelEndPadding = _getEndLabelPadding();
 
     if (axisTrackExtent == 0) {
       if (pointerStartPadding! > labelStartPadding) {
-        _layoutStartPadding = pointerStartPadding! - labelStartPadding;
+        layoutStartPadding = pointerStartPadding! - labelStartPadding;
       }
 
       if (pointerEndPadding! > labelEndPadding) {
-        _layoutEndPadding = pointerEndPadding! - labelEndPadding;
+        layoutEndPadding = pointerEndPadding! - labelEndPadding;
       }
     } else {
-      _layoutStartPadding = 0;
-      _layoutEndPadding = 0;
+      layoutStartPadding = 0;
+      layoutEndPadding = 0;
 
       /// Measure the layout start padding based on axis track extent.
       if (pointerStartPadding! > axisTrackExtent) {
-        _layoutStartPadding = pointerStartPadding! - axisTrackExtent;
+        layoutStartPadding = pointerStartPadding! - axisTrackExtent;
 
         if (labelStartPadding > axisTrackExtent) {
-          _layoutStartPadding -= labelStartPadding - axisTrackExtent;
+          layoutStartPadding -= labelStartPadding - axisTrackExtent;
         }
       }
 
       if (pointerStartPadding! < labelStartPadding) {
-        _layoutStartPadding = 0;
+        layoutStartPadding = 0;
       }
 
       /// Measure the layout end padding based on axis track extent.
       if (pointerEndPadding! > axisTrackExtent) {
-        _layoutEndPadding = pointerEndPadding! - axisTrackExtent;
+        layoutEndPadding = pointerEndPadding! - axisTrackExtent;
 
         if (labelEndPadding > axisTrackExtent) {
-          _layoutEndPadding -= labelEndPadding - axisTrackExtent;
+          layoutEndPadding -= labelEndPadding - axisTrackExtent;
         }
       }
 
       if (pointerEndPadding! < labelEndPadding) {
-        _layoutEndPadding = 0;
+        layoutEndPadding = 0;
       }
     }
 
-    return _layoutStartPadding + _layoutEndPadding;
+    return layoutStartPadding + layoutEndPadding;
   }
 
   /// Return the axis position padding.
@@ -1210,15 +1216,15 @@ class RenderLinearAxis extends RenderBox {
 
   @override
   void performLayout() {
-    double _parentWidgetSize;
+    double parentWidgetSize;
 
     final double actualParentWidth = constraints.maxWidth;
     final double actualParentHeight = constraints.maxHeight;
 
     if (_isHorizontalOrientation) {
-      _parentWidgetSize = actualParentWidth;
+      parentWidgetSize = actualParentWidth;
     } else {
-      _parentWidgetSize = actualParentHeight;
+      parentWidgetSize = actualParentHeight;
     }
 
     final double axisWidgetThickness = _measureAxisSize();
@@ -1230,9 +1236,9 @@ class RenderLinearAxis extends RenderBox {
     _calculateAxisElementPositions();
 
     if (_isHorizontalOrientation) {
-      _axisActualSize = Size(_parentWidgetSize, axisWidgetThickness);
+      _axisActualSize = Size(parentWidgetSize, axisWidgetThickness);
     } else {
-      _axisActualSize = Size(axisWidgetThickness, _parentWidgetSize);
+      _axisActualSize = Size(axisWidgetThickness, parentWidgetSize);
     }
 
     size = _axisActualSize;
@@ -1491,17 +1497,17 @@ class RenderLinearAxis extends RenderBox {
     Offset labelOffset;
 
     if (_isHorizontalOrientation) {
-      final double _labelLeftPosition =
+      final double labelLeftPosition =
           majorTickLeftPosition - (labelSize.width / 2);
-      labelOffset = Offset(_labelLeftPosition, _labelTop);
+      labelOffset = Offset(labelLeftPosition, _labelTop);
     } else {
-      final double _labelLeftPosition = top - (labelSize.height / 2);
+      final double labelLeftPosition = top - (labelSize.height / 2);
 
       if (_labelTop == 0 && _maxLabelWidth > labelSize.width) {
         labelOffset =
-            Offset(_maxLabelWidth - labelSize.width, _labelLeftPosition);
+            Offset(_maxLabelWidth - labelSize.width, labelLeftPosition);
       } else {
-        labelOffset = Offset(_labelTop, _labelLeftPosition);
+        labelOffset = Offset(_labelTop, labelLeftPosition);
       }
     }
 
@@ -1576,6 +1582,7 @@ class RenderLinearAxis extends RenderBox {
               rect: _axisLineRect,
               radius: thickness / 2));
           break;
+        // ignore: no_default_cases
         default:
           break;
       }

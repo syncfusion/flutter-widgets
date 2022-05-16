@@ -1,8 +1,7 @@
-
 name: syncfusion_pdfviewer_platform_interface
 description: A common platform interface for the Flutter PDF Viewer library that lets you view the PDF documents seamlessly and efficiently.
-version: 20.1.47
-homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_pdfviewer_platform_interface
+version: 19.1.0-beta
+homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_pdfviewer_platform_interface
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
@@ -12,3 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

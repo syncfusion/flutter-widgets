@@ -92,10 +92,10 @@ class CandleSeriesRenderer extends XyDataSeriesRenderer {
 
   /// Changes the series color, border color, and border width.
   @override
-  void customizeSegment(ChartSegment _segment) {
+  void customizeSegment(ChartSegment segment) {
     _currentSeriesDetails.candleSeries =
         _currentSeriesDetails.series as CandleSeries<dynamic, dynamic>;
-    _candelSeriesRenderer = SegmentHelper.getSegmentProperties(_segment)
+    _candelSeriesRenderer = SegmentHelper.getSegmentProperties(segment)
         .seriesRenderer as CandleSeriesRenderer;
     _candleSegment = _candelSeriesRenderer._candleSegment;
     final SegmentProperties segmentProperties =
@@ -119,12 +119,12 @@ class CandleSeriesRenderer extends XyDataSeriesRenderer {
     if (_currentSeriesDetails.candleSeries.enableSolidCandles! &&
         segmentProperties.isSolid) {
       return (candleSeriesDetails
-                      .dataPoints[segmentProperties
-                          .currentPoint!.overallDataPointIndex!]
+                      .overAllDataPoints[segmentProperties
+                          .currentPoint!.overallDataPointIndex!]!
                       .open <
                   candleSeriesDetails
-                      .dataPoints[segmentProperties
-                          .currentPoint!.overallDataPointIndex!]
+                      .overAllDataPoints[segmentProperties
+                          .currentPoint!.overallDataPointIndex!]!
                       .close) ==
               true
           ? _currentSeriesDetails.candleSeries.bullColor
@@ -133,15 +133,15 @@ class CandleSeriesRenderer extends XyDataSeriesRenderer {
     final Color? color =
         segmentProperties.currentPoint!.overallDataPointIndex! - 1 >= 0 &&
                 (candleSeriesDetails
-                            .dataPoints[segmentProperties
+                            .overAllDataPoints[segmentProperties
                                     .currentPoint!.overallDataPointIndex! -
-                                1]
+                                1]!
                             .close >
                         candleSeriesDetails
-                            .dataPoints[segmentProperties
-                                .currentPoint!.overallDataPointIndex!]
-                            .close) ==
-                    true
+                            .overAllDataPoints[segmentProperties
+                                .currentPoint!.overallDataPointIndex!]!
+                            .close ==
+                    true)
             ? _currentSeriesDetails.candleSeries.bearColor
             : _currentSeriesDetails.candleSeries.bullColor;
     return color;
@@ -149,7 +149,7 @@ class CandleSeriesRenderer extends XyDataSeriesRenderer {
 
   /// To draw candle series segments.
   //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment _segment) {
+  void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(this);
     if (_segmentSeriesDetails.isSelectionEnable == true) {
@@ -158,10 +158,10 @@ class CandleSeriesRenderer extends XyDataSeriesRenderer {
       SelectionHelper.getRenderingDetails(selectionBehaviorRenderer!)
           .selectionRenderer
           ?.checkWithSelectionState(
-              seriesRendererDetails.segments[_segment.currentSegmentIndex!],
+              seriesRendererDetails.segments[segment.currentSegmentIndex!],
               seriesRendererDetails.chart);
     }
-    _segment.onPaint(canvas);
+    segment.onPaint(canvas);
   }
 
   /// Draws marker with different shape and color of the appropriate data point in the series.
@@ -257,7 +257,9 @@ class CandlePainter extends CustomPainter {
       }
 
       seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
-      final bool hasTooltip = chart.tooltipBehavior != null &&
+      // ignore: unnecessary_null_comparison
+      final bool isTooltipEnabled = chart.tooltipBehavior != null;
+      final bool hasTooltip = isTooltipEnabled &&
           (chart.tooltipBehavior.enable ||
               seriesRendererDetails.series.onPointTap != null ||
               seriesRendererDetails.series.onPointDoubleTap != null ||
@@ -265,9 +267,9 @@ class CandlePainter extends CustomPainter {
       final bool hasSeriesElements = seriesRendererDetails.visible! &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible ||
-              (chart.tooltipBehavior != null &&
+              (isTooltipEnabled &&
                   chart.tooltipBehavior.enable &&
-                  (chart.tooltipBehavior != null &&
+                  (isTooltipEnabled &&
                       chart.tooltipBehavior.enable &&
                       series.enableTooltip)));
       seriesRendererDetails.sideBySideInfo = calculateSideBySideInfo(
@@ -281,6 +283,7 @@ class CandlePainter extends CustomPainter {
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         bool withInHighLowRange = false, withInOpenCloseRange = false;
+        // ignore: unnecessary_null_comparison
         if (point != null &&
             point.high != null &&
             point.low != null &&

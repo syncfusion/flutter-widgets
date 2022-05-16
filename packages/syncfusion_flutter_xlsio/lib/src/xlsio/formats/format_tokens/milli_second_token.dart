@@ -11,7 +11,8 @@ class _MilliSecondToken extends _FormatTokenBase {
   /// Tries to parse format string.
   @override
   int _tryParse(String strFormat, int iIndex) {
-    throw 'NotImplementedException';
+    final Error error = ArgumentError('NotImplementedException');
+    throw error;
   }
 
   /// Applies format to the value.

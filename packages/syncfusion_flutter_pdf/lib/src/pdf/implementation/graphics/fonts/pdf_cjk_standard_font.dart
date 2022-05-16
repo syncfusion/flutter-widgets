@@ -150,6 +150,7 @@ class PdfCjkStandardFont extends PdfFont {
       case PdfCjkFontFamily.sinoTypeSongLight:
         encoding = 'UniGB-UCS2-H';
         break;
+      // ignore: no_default_cases
       default:
         break;
     }

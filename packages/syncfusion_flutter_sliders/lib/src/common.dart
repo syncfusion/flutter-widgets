@@ -132,6 +132,7 @@ enum SliderDragMode {
   /// at the same time by dragging in the area between start and end thumbs.
   both
 }
+
 enum SliderTooltipPosition { left, right }
 
 /// Represents the current selected values of [SfRangeSlider]

@@ -60,7 +60,7 @@ class _TreemapTooltipState extends State<TreemapTooltip>
                 ? const Color.fromRGBO(117, 117, 117, 1)
                 : const Color.fromRGBO(245, 245, 245, 1)));
     return _TreemapTooltipRenderObjectWidget(
-        child: _child, settings: settings, state: this);
+        settings: settings, state: this, child: _child);
   }
 }
 

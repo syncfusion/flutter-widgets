@@ -11,6 +11,7 @@
 /// * [User guide documentation](https://help.syncfusion.com/flutter/pdf-viewer/overview)
 /// * [Video tutorials](https://www.syncfusion.com/tutorial-videos/flutter/pdf-viewer)
 /// * [Knowledge base](https://www.syncfusion.com/kb/flutter)
+// ignore_for_file: avoid_setters_without_getters, use_setters_to_change_properties
 
 import 'dart:io';
 import 'dart:math';
@@ -25,15 +26,15 @@ import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_plugin.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_page_view.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_scrollable.dart';
 
 import 'bookmark/bookmark_view.dart';
 import 'common/pdf_provider.dart';
 import 'common/pdfviewer_helper.dart';
+import 'common/pdfviewer_plugin.dart';
 import 'control/enums.dart';
 import 'control/pagination.dart';
+import 'control/pdf_page_view.dart';
+import 'control/pdf_scrollable.dart';
 import 'control/pdftextline.dart';
 import 'control/pdfviewer_callback_details.dart';
 import 'control/single_page_view.dart';
@@ -915,7 +916,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _loadPdfDocument(false);
     _previousPageNumber = 1;
     _maxPdfPageWidth = 0;
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
@@ -999,7 +1000,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _getWidthCancellableOperation?.cancel();
     _pdfViewerThemeData = null;
     _localizations = null;
-    imageCache?.clear();
+    imageCache.clear();
     _plugin.closeDocument();
     _disposeCollection(_originalHeight);
     _disposeCollection(_originalWidth);
@@ -1019,7 +1020,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           .onTextSelectionChanged!(PdfTextSelectionChangedDetails(null, null));
     }
     _pdfViewerController.removeListener(_handleControllerValueChange);
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -1049,7 +1050,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _pageTextExtractor.clear();
     _document?.dispose();
     _document = null;
-    imageCache?.clear();
+    imageCache.clear();
     _startPage = 0;
     _endPage = 0;
     _bufferCount = 0;
@@ -1324,7 +1325,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                                   ? Icons.visibility
                                   : Icons.visibility_off,
                               color: _pdfViewerThemeData!
-                                      .passwordDialogStyle?.closeIconColor ??
+                                      .passwordDialogStyle?.visibleIconColor ??
                                   Theme.of(context)
                                       .colorScheme
                                       .onSurface
@@ -1439,7 +1440,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           insetPadding: EdgeInsets.zero,
           contentPadding: orientation == Orientation.portrait
               ? const EdgeInsets.all(24)
-              : const EdgeInsets.only(top: 0, right: 24, left: 24, bottom: 0),
+              : const EdgeInsets.only(right: 24, left: 24),
           buttonPadding: orientation == Orientation.portrait
               ? const EdgeInsets.all(8)
               : const EdgeInsets.all(4),
@@ -1587,7 +1588,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                                       : Icons.visibility_off,
                                   color: _pdfViewerThemeData!
                                           .passwordDialogStyle
-                                          ?.closeIconColor ??
+                                          ?.visibleIconColor ??
                                       Theme.of(context)
                                           .colorScheme
                                           .onSurface
@@ -1768,11 +1769,11 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   /// Find whether device is mobile or Laptop.
   void _findDevice(BuildContext context) {
     /// Standard diagonal offset of tablet.
-    const double _kPdfStandardDiagonalOffset = 1100.0;
+    const double kPdfStandardDiagonalOffset = 1100.0;
     final Size size = MediaQuery.of(context).size;
     final double diagonal =
         sqrt((size.width * size.width) + (size.height * size.height));
-    _isMobile = diagonal < _kPdfStandardDiagonalOffset;
+    _isMobile = diagonal < kPdfStandardDiagonalOffset;
   }
 
   /// Get the global rect of viewport region.
@@ -1855,7 +1856,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                   builder:
                       (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                     if (snapshot.hasData) {
-                      final dynamic _pdfImages = snapshot.data;
+                      final dynamic pdfImages = snapshot.data;
                       _renderedImages.clear();
                       _viewportConstraints = context
                           .findRenderObject()!
@@ -1863,15 +1864,14 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           .constraints as BoxConstraints;
                       double totalHeight = 0.0;
                       _isKeyPadRaised =
-                          WidgetsBinding.instance?.window.viewInsets.bottom !=
+                          WidgetsBinding.instance.window.viewInsets.bottom !=
                               0.0;
                       Size viewportDimension = _viewportConstraints.biggest;
                       if (_isKeyPadRaised) {
                         _iskeypadClosed = true;
                         double keyPadHeight = EdgeInsets.fromWindowPadding(
-                                WidgetsBinding.instance!.window.viewInsets,
-                                WidgetsBinding
-                                    .instance!.window.devicePixelRatio)
+                                WidgetsBinding.instance.window.viewInsets,
+                                WidgetsBinding.instance.window.devicePixelRatio)
                             .bottom;
                         if ((widget.scrollDirection ==
                                     PdfScrollDirection.horizontal ||
@@ -1933,8 +1933,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                         final int pageIndex = index + 1;
                         final Size calculatedSize = _calculateSize(
                             BoxConstraints(
-                                maxWidth: _viewportConstraints.maxWidth,
-                                maxHeight: double.infinity),
+                                maxWidth: _viewportConstraints.maxWidth),
                             _originalWidth![index],
                             _originalHeight![index],
                             _viewportConstraints.maxWidth,
@@ -1953,7 +1952,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                                 _originalWidth![index] as double;
                           }
                         }
-                        if (_pdfImages[pageIndex] != null) {
+                        if (pdfImages[pageIndex] != null) {
                           if (_pageTextExtractor.isEmpty ||
                               !_pageTextExtractor.containsKey(index)) {
                             _pageTextExtractor[index] = _pdfTextExtractor!
@@ -1966,7 +1965,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                         }
                         final PdfPageView page = PdfPageView(
                             _pdfPagesKey[pageIndex]!,
-                            _pdfImages[pageIndex],
+                            pdfImages[pageIndex],
                             viewportGlobalRect,
                             viewportDimension,
                             widget.interactionMode,
@@ -2650,7 +2649,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       Offset initialOffset, int pageIndex, double totalHeight) {
     if (_viewportWidth != _viewportConstraints.maxWidth &&
         _deviceOrientation != MediaQuery.of(context).orientation) {
-      WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
         _checkMount();
       });
       if (pageIndex == 1 &&
@@ -2665,7 +2664,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
             _pdfScrollableStateKey.currentState != null) {
           if (_viewportWidth != 0) {
             final double targetOffset = initialOffset.dy * totalHeight;
-            WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+            WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
               _pdfPagesKey[_pdfViewerController.pageNumber]
                   ?.currentState
                   ?.canvasRenderBox
@@ -2689,7 +2688,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           } else {
             targetOffset = initialOffset.dx * totalHeight;
           }
-          WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+          WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
             _pdfPagesKey[_pdfViewerController.pageNumber]
                 ?.currentState
                 ?.canvasRenderBox
@@ -2787,7 +2786,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       Offset initialOffset, int pageIndex, double totalHeight) {
     if (_scrollDirection != _tempScrollDirection ||
         _pageLayoutMode != widget.pageLayoutMode) {
-      WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
         _checkMount();
       });
       if (pageIndex == 1 &&
@@ -2802,7 +2801,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           _pdfScrollableStateKey.currentState != null) {
         if (_viewportWidth != 0) {
           WidgetsBinding.instance
-              ?.addPostFrameCallback((Duration timeStamp) async {
+              .addPostFrameCallback((Duration timeStamp) async {
             _pdfPagesKey[_pdfViewerController.pageNumber]
                 ?.currentState
                 ?.canvasRenderBox
@@ -2882,20 +2881,17 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         _scrollDirection == PdfScrollDirection.horizontal &&
         widget.pageLayoutMode != PdfPageLayoutMode.single) {
       constraints = BoxConstraints.tightFor(
-        width: null,
         height: _viewportHeightInLandscape,
       ).enforce(constraints);
     } else {
       if (widget.pageLayoutMode == PdfPageLayoutMode.single &&
           (!_isMobile || _viewportConstraints.maxWidth > newHeight)) {
         constraints = BoxConstraints.tightFor(
-          width: null,
           height: newHeight,
         ).enforce(constraints);
       } else {
         constraints = BoxConstraints.tightFor(
           width: newWidth,
-          height: null,
         ).enforce(constraints);
       }
     }
@@ -2910,7 +2906,6 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       BoxConstraints newConstraints = BoxConstraints(
           maxWidth: _viewportConstraints.maxWidth, maxHeight: newHeight);
       newConstraints = BoxConstraints.tightFor(
-        width: null,
         height: newHeight,
       ).enforce(newConstraints);
       newSize = newConstraints.constrainSizeAndAttemptToPreserveAspectRatio(
@@ -3322,7 +3317,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
             Offset(topOffset.dx / widthPercentage,
                 topOffset.dy / heightPercentage));
       }
-      WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
         if (_isPageChanged) {
           _isPageChanged = false;
         }
@@ -3332,7 +3327,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           !viewport.contains(Offset(searchOffsetX, searchOffsetY))) {
         _pdfViewerController.jumpTo(
             xOffset: searchOffsetX, yOffset: searchOffsetY);
-        WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+        WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
           if (_isPageChanged) {
             _isPageChanged = false;
           }
@@ -3353,7 +3348,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
               ? _pdfViewerController._pdfTextSearchResult.currentInstanceIndex +
                   1
               : 1;
-          _jumpToSearchInstance(isNext: true);
+          _jumpToSearchInstance();
         });
       } else if (property == 'previousInstance') {
         setState(() {

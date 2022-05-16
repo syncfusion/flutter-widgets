@@ -1,4 +1,4 @@
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
+import '../common/pdfviewer_helper.dart';
 
 /// Pagination class used for page navigation.
 class Pagination {

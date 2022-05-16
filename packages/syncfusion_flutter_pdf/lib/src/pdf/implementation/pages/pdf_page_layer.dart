@@ -391,7 +391,7 @@ class PdfPageLayer implements IPdfWrapper {
                   ocgOFF;
             }
             ocgOFF.insert(ocgOFF.count, _helper.referenceHolder!);
-          } else if (value == true) {
+          } else if (value ?? true) {
             if (ocgOFF != null) {
               _removeContent(ocgOFF, _helper.referenceHolder);
             }

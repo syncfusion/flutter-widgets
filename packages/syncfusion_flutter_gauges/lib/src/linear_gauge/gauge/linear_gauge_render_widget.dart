@@ -276,41 +276,42 @@ class RenderLinearGauge extends RenderBox
         getEffectiveLabelPosition(axis!.labelPosition, axis!.isMirrored);
     final bool isInsideLabel = labelPosition == LinearLabelPosition.inside;
 
-    late double _insideElementSize;
+    late double insideElementSize;
 
     switch (position) {
       case LinearElementPosition.inside:
         if (isInsideLabel) {
-          _insideElementSize = (_axisWidgetThickness - axisLineSize) > thickness
+          insideElementSize = (_axisWidgetThickness - axisLineSize) > thickness
               ? 0
               : thickness - (_axisWidgetThickness - axisLineSize);
         } else {
-          _insideElementSize = thickness - tickSize;
+          insideElementSize = thickness - tickSize;
         }
         break;
       case LinearElementPosition.outside:
         if (isInsideLabel) {
-          _insideElementSize = thickness - labelSize;
+          insideElementSize = thickness - labelSize;
         } else {
-          _insideElementSize = thickness;
+          insideElementSize = thickness;
         }
         break;
       case LinearElementPosition.cross:
         if (isInsideLabel) {
-          _insideElementSize = (_axisWidgetThickness - axisLineSize) > thickness
+          insideElementSize = (_axisWidgetThickness - axisLineSize) > thickness
               ? 0
               : thickness - (_axisWidgetThickness - axisLineSize);
         } else {
-          _insideElementSize = (axis!.showLabels ? thickness : 0) -
+          insideElementSize = (axis!.showLabels ? thickness : 0) -
               (axisLineSize < tickSize ? (tickSize - axisLineSize) / 2 : 0);
         }
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
 
     _insideWidgetElementSize =
-        math.max(_insideWidgetElementSize, _insideElementSize);
+        math.max(_insideWidgetElementSize, insideElementSize);
   }
 
   void _updateInsideElementSize(double thickness) {
@@ -402,6 +403,7 @@ class RenderLinearGauge extends RenderBox
           }
         }
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
@@ -427,6 +429,7 @@ class RenderLinearGauge extends RenderBox
       case LinearElementPosition.cross:
         _measureCrossElementSize(thickness);
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
@@ -476,6 +479,7 @@ class RenderLinearGauge extends RenderBox
         return _outsideWidgetElementSize +
             _getCrossElementPosition(markerSize) +
             (_actualSizeDelta! / 2);
+      // ignore: no_default_cases
       default:
         break;
     }
@@ -664,6 +668,7 @@ class RenderLinearGauge extends RenderBox
           case LinearElementPosition.cross:
             _measureCrossElementSize(rangeThickness);
             break;
+          // ignore: no_default_cases
           default:
             break;
         }
@@ -781,6 +786,7 @@ class RenderLinearGauge extends RenderBox
                 (_actualSizeDelta! / 2) +
                 _getCrossElementPosition(thickness);
             break;
+          // ignore: no_default_cases
           default:
             break;
         }
@@ -825,6 +831,7 @@ class RenderLinearGauge extends RenderBox
                 (_actualSizeDelta! / 2) +
                 _getCrossElementPosition(barPointer.thickness);
             break;
+          // ignore: no_default_cases
           default:
             break;
         }

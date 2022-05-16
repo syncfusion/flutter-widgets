@@ -3043,7 +3043,6 @@ class SfTreemap extends StatelessWidget {
       tileHoverBorder: tileHoverBorder ??
           RoundedRectangleBorder(
             side: BorderSide(
-              width: 1,
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
             ),
           ),
@@ -3084,8 +3083,7 @@ class SfTreemap extends StatelessWidget {
     properties.add(FlagProperty('enableDrilldown',
         value: enableDrilldown,
         ifTrue: 'drilldown is enabled',
-        ifFalse: 'drilldown is disabled',
-        showName: false));
+        ifFalse: 'drilldown is disabled'));
     if (breadcrumbs != null) {
       properties.add(breadcrumbs!.toDiagnosticsNode(name: 'breadcrumbs'));
     }

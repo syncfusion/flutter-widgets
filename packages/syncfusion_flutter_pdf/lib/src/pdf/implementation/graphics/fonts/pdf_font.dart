@@ -255,7 +255,7 @@ class PdfFontHelper {
         return 4;
       case PdfFontStyle.strikethrough:
         return 8;
-      default:
+      case PdfFontStyle.regular:
         return 0;
     }
   }

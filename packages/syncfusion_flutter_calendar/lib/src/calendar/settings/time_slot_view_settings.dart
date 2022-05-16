@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
+import '../../../calendar.dart';
 
 /// The settings have properties which allow to customize the time slot views
 /// of the [SfCalendar].
@@ -674,6 +674,9 @@ class TimeSlotViewSettings with Diagnosticable {
   /// and [CalendarView.timelineWorkWeek] in calendar.
   ///
   /// Defaults to `-1`.
+  ///
+  /// The calendar supports customizing the day count only for valid values.
+  /// It ranges from 1 to 7 and shows default behavior for invalid values.
   ///
   /// ``` dart
   ///

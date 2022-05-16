@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/financial_series_base.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
+
+import '../chart_series/financial_series_base.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
@@ -66,21 +67,21 @@ class CandleSegment extends ChartSegment {
   Paint getStrokePaint() {
     _setSegmentProperties();
     final SegmentProperties candleSegmentProperties = _segmentProperties;
-    final Paint _strokePaint = Paint();
+    final Paint strokePaint = Paint();
     if (candleSegmentProperties.strokeColor != null) {
-      _strokePaint.color = _segmentProperties.pointColorMapper ??
+      strokePaint.color = _segmentProperties.pointColorMapper ??
           candleSegmentProperties.strokeColor!;
-      _strokePaint.color = (candleSegmentProperties.series.opacity < 1 &&
-              _strokePaint.color != Colors.transparent)
-          ? _strokePaint.color
+      strokePaint.color = (candleSegmentProperties.series.opacity < 1 &&
+              strokePaint.color != Colors.transparent)
+          ? strokePaint.color
               .withOpacity(candleSegmentProperties.series.opacity)
-          : _strokePaint.color;
+          : strokePaint.color;
     }
-    _strokePaint.strokeWidth = candleSegmentProperties.strokeWidth!;
-    _strokePaint.style = PaintingStyle.stroke;
-    _strokePaint.strokeCap = StrokeCap.round;
-    candleSegmentProperties.defaultStrokeColor = _strokePaint;
-    return _strokePaint;
+    strokePaint.strokeWidth = candleSegmentProperties.strokeWidth!;
+    strokePaint.style = PaintingStyle.stroke;
+    strokePaint.strokeCap = StrokeCap.round;
+    candleSegmentProperties.defaultStrokeColor = strokePaint;
+    return strokePaint;
   }
 
   /// Calculates the rendering bounds of a segment.

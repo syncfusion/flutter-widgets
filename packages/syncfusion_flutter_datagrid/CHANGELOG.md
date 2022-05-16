@@ -1,4 +1,25 @@
-## Unreleased
+## [20.1.55] - 05/12/2022
+
+**Bugs**
+
+* BoxConstraints has a negative minimum height exception will no longer be thrown when opening the keyboard for `TextField` which is adjacent to `DataGrid`.
+* Back key works properly while tapping the back key on an `Android` device and `DataGrid` has focus.
+
+## [20.1.52] - 05/03/2022
+
+**Bugs**
+
+* DataGrid is now extended to its maximum height when setting the shrinkWrapRows to true and onQueryRowHeight callback.
+
+## [20.1.48] - 04/12/2022
+
+**Bugs**
+
+* The animation will no longer be visible for checkbox column while scrolling when the `rowCacheExtent` property is set to the number of rows available in DataGrid.
+* The `DataGridSource.handlePageChange` method will now wait asynchronously until the `Future.delayed` value specified in the method.
+* Other cells will not be moved into edit mode when the last row is removed and a cell in that row is in edit mode.
+
+## [20.1.47] - 04/04/2022
 
 **Bugs**
 
@@ -28,65 +49,6 @@
 * The null check operator exception will no longer be thrown when long press the table summary rows
 
 ## [19.4.38] - 12/17/2021
-
-**Features**
-
-* Provided the support to set the different swipe offset for right and left swiping.
-* Provided the support to select multiple rows when tapping another row and press and hold the SHIFT key
-* Provided the support to wrap the DataGrid’s width and height based on number of rows and columns available when DataGrid’s  parent size is infinity.
-* Provided the support to show a dropdown button for choosing a different number of rows to show on each page.
-* Provided the support to set the number of rows to be added with the currently visible items in viewport size for reusing during vertical scrolling.
-
-**Bugs**
-
-* Range exception will no longer be thrown when DataGridSource is changed at run time with multiple rows are selected.
-
-## [19.3.55] - 11/23/2021
-
-**Bugs**
-
-* The `assertion failed` exception will no longer be thrown when you scroll horizontally using scrollbar thumb track and `isScrollbarAlwaysShown` is enabled.
-
-## [19.3.54] - 11/17/2021
-
-**Bugs**
-
-* Now, `onQueryRowHeight` callback will be called for all the rows in view when all the rows are available in view.
-
-## [19.3.53] - 11/12/2021
-
-**Breaking changes**
-
-* Now, [onCellLongPress](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/SfDataGrid/onCellLongPress.html) callback will be called when long a pointer has remained in contact with the screen at the same location for a long period of time.
-
-## [19.3.47] - 26/10/2021
-
-**Bugs**
-
-* `debugDisposed` and `debugDuringDeviceUpdate` errors are no longer occurred in debug mode when rebuilding the app from any of the DataGrid's `onCellDoubleTap` callback.
-
-## [19.3.44] - 10/05/2021
-
-**Features**
-* Provided the support to export the DataGrid content with sorted order.
-
-**Bugs**
-* The focus is now retained in the `TextField`, which is outside the DataGrid, when calling the `notifyListeners` from TextField’s `onPressed` callback to update the data in DataGrid.
-
-## [19.3.43] - 10/01/2021
- 
-**Features**
-* Provided the support to resize the columns by tapping and dragging the right border of the column header.
-* Provided the support to show an additional unbound row to display a summary or totals. Users can display a minimum, maximum, average, and count in columns.
-* Provided the support to export the DataGrid content, such as rows, stacked header rows, and table summary rows, to Excel and PDF format with several customization options.
-* Provided the support to show a checkbox in each row to select entire rows when the boxes are checked. Users can select or deselect all the rows by selecting the checkbox in the header.
-* Provided the support to sort all the rows in DataGrid instead of current page alone when the paging is used.
-* Provided the support to set the size for the page buttons in `SfDataPager`.
- 
-**Breaking changes**
-* The `onCellRenderersCreated` callback has been removed from the `SfDataGrid`.
-
-## [19.2.44-beta] - 06/30/2021
 
 **Features**
 

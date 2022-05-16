@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/segment_properties.dart';
+
+import '../../../charts.dart';
 import '../../common/user_interaction/selection_behavior.dart';
 import '../../common/utils/helper.dart';
 import '../axis/axis.dart';
@@ -17,6 +17,7 @@ import '../common/common.dart';
 import '../common/data_label.dart';
 import '../common/marker.dart';
 import '../common/renderer.dart';
+import '../common/segment_properties.dart';
 import '../trendlines/trendlines.dart';
 import '../utils/helper.dart';
 import 'financial_series_base.dart';
@@ -89,6 +90,13 @@ class SeriesRendererDetails {
   /// Holds the collection of Cartesian data points.
   // ignore: prefer_final_fields
   List<CartesianChartPoint<dynamic>> dataPoints =
+      <CartesianChartPoint<dynamic>>[];
+
+  /// Holds the sampled data points of the fast line series. In
+  /// fast line series with updateDataSource method the data will not be updated
+  /// with the sampled data, so added new list to maintain that data.
+  // ignore: prefer_final_fields
+  List<CartesianChartPoint<dynamic>> sampledDataPoints =
       <CartesianChartPoint<dynamic>>[];
 
   /// Holds the collection of Cartesian visible data points.
@@ -293,8 +301,10 @@ class SeriesRendererDetails {
         !(series.markerSettings.width != null) ||
             series.markerSettings.width >= 0,
         'The width of the marker must be greater than or equal to 0.');
-    for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
-      final CartesianChartPoint<dynamic> point = dataPoints[pointIndex];
+    final List<CartesianChartPoint<dynamic>> data =
+        seriesType == 'fastline' ? sampledDataPoints : dataPoints;
+    for (int pointIndex = 0; pointIndex < data.length; pointIndex++) {
+      final CartesianChartPoint<dynamic> point = data[pointIndex];
       if ((series.markerSettings.isVisible &&
               renderer is! BoxAndWhiskerSeriesRenderer) ||
           renderer is ScatterSeriesRenderer) {
@@ -396,6 +406,7 @@ class SeriesRendererDetails {
             seriesType.contains('histogram') ||
             seriesType.contains('box'));
 
+    // ignore: unnecessary_null_comparison
     hasTooltip = chart.tooltipBehavior != null &&
         seriesType != 'errorbar' &&
         (chart.tooltipBehavior.enable ||
@@ -413,7 +424,7 @@ class SeriesRendererDetails {
       CartesianChartPoint<dynamic> point,
       int pointIndex,
       [VisibleRange? sideBySideInfo,
-      CartesianChartPoint<dynamic>? _nextPoint,
+      CartesianChartPoint<dynamic>? nextPoint,
       num? midX,
       num? midY]) {
     if (withInRange(seriesRendererDetails.dataPoints[pointIndex].xValue,
@@ -463,7 +474,7 @@ class SeriesRendererDetails {
               series.markerSettings.height,
               series.markerSettings.width,
               sideBySideInfo,
-              _nextPoint,
+              nextPoint,
               midX,
               midY);
         }
@@ -492,14 +503,14 @@ class SeriesRendererDetails {
       final List<dynamic> regionRect = <dynamic>[];
       final dynamic primaryAxisDetails = xAxisDetails;
       if (primaryAxisDetails is DateTimeAxisDetails) {
-        final DateTimeAxis _axis = primaryAxisDetails.axis as DateTimeAxis;
+        final DateTimeAxis axis = primaryAxisDetails.axis as DateTimeAxis;
         final num interval = primaryAxisDetails.visibleRange!.minimum.ceil();
         final num prevInterval = (primaryAxisDetails.visibleLabels.isNotEmpty)
             ? primaryAxisDetails
                 .visibleLabels[primaryAxisDetails.visibleLabels.length - 1]
                 .value
             : interval;
-        final DateFormat dateFormat = _axis.dateFormat ??
+        final DateFormat dateFormat = axis.dateFormat ??
             getDateTimeLabelFormat(xAxisDetails!.axisRenderer, interval.toInt(),
                 prevInterval.toInt());
         date = dateFormat
@@ -556,7 +567,7 @@ class SeriesRendererDetails {
       CartesianChartPoint<dynamic> currentPoint,
       CartesianChartPoint<dynamic> prevPoint) {
     final List<dynamic> dataSource = series.dataSource;
-    final CartesianChartPoint<dynamic> _nextPoint = getPointFromData(
+    final CartesianChartPoint<dynamic> nextPoint = getPointFromData(
         this,
         pointLength < dataSource.length - 1
             ? dataSource.indexOf(dataSource[pointLength + 1])
@@ -564,9 +575,9 @@ class SeriesRendererDetails {
     if (seriesType.contains('range') ||
         seriesType.contains('hilo') ||
         seriesType.contains('candle')) {
-      final CartesianSeries<dynamic, dynamic> _cartesianSeries = series;
-      if (_cartesianSeries is FinancialSeriesBase &&
-          _cartesianSeries.showIndicationForSameValues) {
+      final CartesianSeries<dynamic, dynamic> cartesianSeries = series;
+      if (cartesianSeries is FinancialSeriesBase &&
+          cartesianSeries.showIndicationForSameValues) {
         if (currentPoint.low != null || currentPoint.high != null) {
           currentPoint.low = currentPoint.low ?? currentPoint.high;
           currentPoint.high = currentPoint.high ?? currentPoint.low;
@@ -594,23 +605,23 @@ class SeriesRendererDetails {
           if (currentPoint.low == null) {
             pointIndex == dataSource.length - 1
                 ? currentPoint.low = 0
-                : currentPoint.low = ((_nextPoint.low) ?? 0) / 2;
+                : currentPoint.low = ((nextPoint.low) ?? 0) / 2;
           }
           if (currentPoint.high == null) {
             pointIndex == dataSource.length - 1
                 ? currentPoint.high = 0
-                : currentPoint.high = ((_nextPoint.high) ?? 0) / 2;
+                : currentPoint.high = ((nextPoint.high) ?? 0) / 2;
           }
           if (seriesType == 'hiloopenclose' || seriesType == 'candle') {
             if (currentPoint.open == null) {
               pointIndex == dataSource.length - 1
                   ? currentPoint.open = 0
-                  : currentPoint.open = ((_nextPoint.open) ?? 0) / 2;
+                  : currentPoint.open = ((nextPoint.open) ?? 0) / 2;
             }
             if (currentPoint.close == null) {
               pointIndex == dataSource.length - 1
                   ? currentPoint.close = 0
-                  : currentPoint.close = ((_nextPoint.close) ?? 0) / 2;
+                  : currentPoint.close = ((nextPoint.close) ?? 0) / 2;
             }
           }
         } else if (pointIndex == dataSource.length - 1) {
@@ -625,15 +636,15 @@ class SeriesRendererDetails {
           }
         } else {
           currentPoint.low = currentPoint.low ??
-              (((prevPoint.low) ?? 0) + ((_nextPoint.low) ?? 0)) / 2;
+              (((prevPoint.low) ?? 0) + ((nextPoint.low) ?? 0)) / 2;
           currentPoint.high = currentPoint.high ??
-              (((prevPoint.high) ?? 0) + ((_nextPoint.high) ?? 0)) / 2;
+              (((prevPoint.high) ?? 0) + ((nextPoint.high) ?? 0)) / 2;
 
           if (seriesType == 'hiloopenclose' || seriesType == 'candle') {
             currentPoint.open = currentPoint.open ??
-                (((prevPoint.open) ?? 0) + ((_nextPoint.open) ?? 0)) / 2;
+                (((prevPoint.open) ?? 0) + ((nextPoint.open) ?? 0)) / 2;
             currentPoint.close = currentPoint.close ??
-                (((prevPoint.close) ?? 0) + ((_nextPoint.close) ?? 0)) / 2;
+                (((prevPoint.close) ?? 0) + ((nextPoint.close) ?? 0)) / 2;
           }
         }
       }
@@ -645,12 +656,12 @@ class SeriesRendererDetails {
 
             ///Check the series contains single point with null value
             currentPoint.y = 0
-            : currentPoint.y = ((_nextPoint.y) ?? 0) / 2;
+            : currentPoint.y = ((nextPoint.y) ?? 0) / 2;
       } else if (pointIndex == dataSource.length - 1) {
         ///Check the last point is null
         currentPoint.y = ((prevPoint.y) ?? 0) / 2;
       } else {
-        currentPoint.y = (((prevPoint.y) ?? 0) + ((_nextPoint.y) ?? 0)) / 2;
+        currentPoint.y = (((prevPoint.y) ?? 0) + ((nextPoint.y) ?? 0)) / 2;
       }
     }
   }

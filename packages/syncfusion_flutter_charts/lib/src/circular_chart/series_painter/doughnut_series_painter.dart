@@ -49,7 +49,7 @@ class DoughnutChartPainter extends CustomPainter {
         seriesRenderer.segmentRenderingValues['currentRadius']!;
     ChartPoint<dynamic> point;
     seriesRenderer.pointRegions = <Region>[];
-    ChartPoint<dynamic>? _oldPoint;
+    ChartPoint<dynamic>? oldPoint;
     final DoughnutSeriesRendererExtension? oldSeriesRenderer = (stateProperties
                 .renderingDetails.widgetNeedUpdate &&
             !stateProperties.renderingDetails.isLegendToggled &&
@@ -60,7 +60,7 @@ class DoughnutChartPainter extends CustomPainter {
     seriesRenderer.renderList.clear();
     for (int i = 0; i < seriesRenderer.renderPoints!.length; i++) {
       point = seriesRenderer.renderPoints![i];
-      _oldPoint = (oldSeriesRenderer != null &&
+      oldPoint = (oldSeriesRenderer != null &&
               oldSeriesRenderer.oldRenderPoints != null &&
               (oldSeriesRenderer.oldRenderPoints!.length - 1 >= i))
           ? oldSeriesRenderer.oldRenderPoints![i]
@@ -81,18 +81,17 @@ class DoughnutChartPainter extends CustomPainter {
           seriesAnimation?.value ?? 1,
           1,
           checkIsAnyPointSelect(seriesRenderer, point, stateProperties.chart),
-          _oldPoint,
+          oldPoint,
           stateProperties.oldPoints);
     }
 
     if (seriesRenderer.renderList.isNotEmpty) {
-      Shader? _chartShader;
+      Shader? chartShader;
       if (stateProperties.chart.onCreateShader != null) {
         ChartShaderDetails chartShaderDetails;
         chartShaderDetails = ChartShaderDetails(seriesRenderer.renderList[1],
             seriesRenderer.renderList[2], 'series');
-        _chartShader =
-            stateProperties.chart.onCreateShader!(chartShaderDetails);
+        chartShader = stateProperties.chart.onCreateShader!(chartShaderDetails);
       }
       for (int k = 0; k < seriesRenderer.renderPaths.length; k++) {
         drawPath(
@@ -100,7 +99,7 @@ class DoughnutChartPainter extends CustomPainter {
             seriesRenderer.renderList[0],
             seriesRenderer.renderPaths[k],
             seriesRenderer.renderList[1],
-            _chartShader);
+            chartShader);
       }
       if (seriesRenderer.renderList[0].strokeColor != null &&
           seriesRenderer.renderList[0].strokeWidth != null &&

@@ -1,12 +1,12 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
 
+import '../../../charts.dart';
 import '../../common/rendering_details.dart';
 import '../../common/template/rendering.dart';
 import '../../common/user_interaction/tooltip.dart';
+import '../../common/user_interaction/tooltip_rendering_details.dart';
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
 import '../axis/datetime_axis.dart';
@@ -1274,7 +1274,7 @@ class ChartSeriesController {
       int? addedDataIndex,
       int? removedDataIndex,
       int? updatedDataIndex}) {
-    bool _needUpdate = false;
+    bool needUpdate = false;
     if (removedDataIndexes != null && removedDataIndexes.isNotEmpty) {
       _removeDataPointsList(removedDataIndexes);
     } else if (removedDataIndex != null) {
@@ -1286,14 +1286,14 @@ class ChartSeriesController {
       _addOrUpdateDataPoint(addedDataIndex, false);
     }
     if (updatedDataIndexes != null && updatedDataIndexes.isNotEmpty) {
-      _needUpdate = true;
+      needUpdate = true;
       _addOrUpdateDataPoints(updatedDataIndexes, true);
     } else if (updatedDataIndex != null) {
-      _needUpdate = true;
+      needUpdate = true;
       _addOrUpdateDataPoint(updatedDataIndex, true);
     }
     _updateCartesianSeries(
-        _needXRecalculation, _needYRecalculation, _needUpdate);
+        _needXRecalculation, _needYRecalculation, needUpdate);
   }
 
   /// Add or update the data points on dynamic series update.
@@ -1589,8 +1589,8 @@ class ChartSeriesController {
     final List<int> indexList = removedDataIndexes.toSet().toList();
     indexList.sort((int b, int a) => a.compareTo(b));
     for (int i = 0; i < indexList.length; i++) {
-      final int _dataIndex = indexList[i];
-      _removeDataPoint(_dataIndex);
+      final int dataIndex = indexList[i];
+      _removeDataPoint(dataIndex);
     }
   }
 

@@ -1,4 +1,16 @@
-## Unreleased
+## unreleased
+**Bugs**
+* No memory leaks will occur while calling the setState() method repeatedly for refreshing the chart widget.
+* No exception will be thrown while using the trackball with multiple series.
+
+## [20.1.52] - 05/03/2022
+**Bugs**
+* Now the [updateDataSource](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartSeriesController/updateDataSource.html) method will work properly with the fast line series.
+
+## [20.1.47] - 04/04/2022
+
+**Bugs**
+* The [onAxisLabelTapped](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/onAxisLabelTapped.html) callback works properly with the rotated axis labels.
 
 **Features**
 * Provided support to display the trackball tooltip smartly when there is no space horizontally.

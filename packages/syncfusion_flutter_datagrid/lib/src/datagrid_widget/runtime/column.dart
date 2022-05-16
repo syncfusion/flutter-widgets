@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_datagrid/src/grid_common/enums.dart';
+import '../../grid_common/enums.dart';
 
 import '../../grid_common/line_size_host.dart';
 import '../../grid_common/visible_line_info.dart';
@@ -529,6 +529,7 @@ class ColumnSizer {
             calculatedColumns.add(column);
           }
           break;
+        // ignore: no_default_cases
         default:
           break;
       }
@@ -572,6 +573,7 @@ class ColumnSizer {
       case ColumnWidthMode.auto:
         width = _calculateAllCellsWidth(column);
         break;
+      // ignore: no_default_cases
       default:
         return width;
     }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/renderer.dart';
+
 import '../../../charts.dart';
 import '../../common/rendering_details.dart';
 import '../../common/user_interaction/selection_behavior.dart';
@@ -9,6 +9,7 @@ import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
+import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
@@ -27,7 +28,7 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
   /// To add line segments to segments list.
   ChartSegment _createSegments(
       CartesianChartPoint<dynamic> currentPoint,
-      CartesianChartPoint<dynamic> _nextPoint,
+      CartesianChartPoint<dynamic> nextPoint,
       int pointIndex,
       int seriesIndex,
       double animateFactor) {
@@ -46,7 +47,7 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
     segmentProperties.seriesIndex = seriesIndex;
     segmentProperties.currentPoint = currentPoint;
     _segment.currentSegmentIndex = pointIndex;
-    segmentProperties.nextPoint = _nextPoint;
+    segmentProperties.nextPoint = nextPoint;
     _segment.animationFactor = animateFactor;
     segmentProperties.pointColorMapper = currentPoint.pointColorMapper;
     _segmentSeriesDetails =
@@ -75,17 +76,17 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
 
   /// To render line series segments.
   //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment _segment) {
+  void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
       final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           _segmentSeriesDetails.selectionBehaviorRenderer;
       SelectionHelper.getRenderingDetails(selectionBehaviorRenderer!)
           .selectionRenderer
           ?.checkWithSelectionState(
-              _currentSeriesDetails.segments[_segment.currentSegmentIndex!],
+              _currentSeriesDetails.segments[segment.currentSegmentIndex!],
               _currentSeriesDetails.chart);
     }
-    _segment.onPaint(canvas);
+    segment.onPaint(canvas);
   }
 
   /// Creates a _segment for a data point in the series.
@@ -94,8 +95,8 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
 
   /// Changes the series color, border color, and border width.
   @override
-  void customizeSegment(ChartSegment _segment) {
-    _lineSegment = _segment as LineSegment;
+  void customizeSegment(ChartSegment segment) {
+    _lineSegment = segment as LineSegment;
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(_lineSegment);
     segmentProperties.color = segmentProperties.pointColorMapper ??
@@ -207,7 +208,7 @@ class LineChartPainter extends CustomPainter {
       }
       int segmentIndex = -1;
       CartesianChartPoint<dynamic>? currentPoint,
-          _nextPoint,
+          nextPoint,
           startPoint,
           endPoint;
 
@@ -222,6 +223,7 @@ class LineChartPainter extends CustomPainter {
         currentPoint = dataPoints[pointIndex];
         bool withInXRange = withInRange(currentPoint.xValue,
             seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
         bool withInYRange = currentPoint != null &&
             currentPoint.yValue != null &&
             withInRange(currentPoint.yValue,
@@ -233,6 +235,7 @@ class LineChartPainter extends CustomPainter {
               dataPoints[pointIndex + 1];
           withInXRange = withInRange(nextPoint!.xValue,
               seriesRendererDetails.xAxisDetails!.visibleRange!);
+          // ignore: unnecessary_null_comparison
           withInYRange = nextPoint != null &&
               nextPoint.yValue != null &&
               withInRange(nextPoint.yValue,
@@ -243,6 +246,7 @@ class LineChartPainter extends CustomPainter {
                 dataPoints[pointIndex - 1];
             withInXRange = withInRange(prevPoint!.xValue,
                 seriesRendererDetails.xAxisDetails!.visibleRange!);
+            // ignore: unnecessary_null_comparison
             withInYRange = prevPoint != null &&
                 prevPoint.yValue != null &&
                 withInRange(prevPoint.yValue,
@@ -257,13 +261,11 @@ class LineChartPainter extends CustomPainter {
             startPoint = currentPoint;
           }
           if (pointIndex + 1 < dataPoints.length) {
-            _nextPoint = dataPoints[pointIndex + 1];
-            if (startPoint != null &&
-                !_nextPoint.isVisible &&
-                _nextPoint.isGap) {
+            nextPoint = dataPoints[pointIndex + 1];
+            if (startPoint != null && !nextPoint.isVisible && nextPoint.isGap) {
               startPoint = null;
-            } else if (_nextPoint.isVisible && !_nextPoint.isGap) {
-              endPoint = _nextPoint;
+            } else if (nextPoint.isVisible && !nextPoint.isGap) {
+              endPoint = nextPoint;
             }
           }
 

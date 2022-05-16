@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/user_interaction/zooming_panning.dart';
 
 import '../../../charts.dart';
 import '../../common/rendering_details.dart';
@@ -15,6 +14,7 @@ import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
+import '../user_interaction/zooming_panning.dart';
 import '../utils/helper.dart';
 
 /// Creates series renderer for waterfall series.
@@ -262,7 +262,7 @@ class WaterfallChartPainter extends CustomPainter {
             (point.isIntermediateSum! || point.isTotalSum!) ? 0 : point.yValue;
         point.yValue =
             point.y = point.isTotalSum! ? currentEndValue : point.yValue;
-        originValue = point.isIntermediateSum == true
+        originValue = (point.isIntermediateSum ?? false)
             ? intermediateOrigin
             // ignore: unnecessary_null_comparison
             : ((prevEndValue != null) ? prevEndValue : origin);

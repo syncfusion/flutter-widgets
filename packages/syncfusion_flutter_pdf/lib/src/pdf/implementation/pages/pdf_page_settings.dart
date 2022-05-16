@@ -326,7 +326,7 @@ class PdfPageSettingsHelper {
       case PdfPageRotateAngle.rotateAngle270:
         result.rotate = PdfPageRotateAngle.rotateAngle270;
         break;
-      default:
+      case PdfPageRotateAngle.rotateAngle0:
         result.rotate = PdfPageRotateAngle.rotateAngle0;
         break;
     }

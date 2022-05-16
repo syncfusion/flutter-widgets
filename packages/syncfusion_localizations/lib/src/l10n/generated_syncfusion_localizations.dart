@@ -9166,6 +9166,372 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get weeknumberLabel => r'Week';
 }
 
+/// The translations for Norwegian (`no`).
+class SfLocalizationsNo extends SfGlobalLocalizations {
+  /// Creating an argument constructor of SfLocalizationsNo class
+  const SfLocalizationsNo({
+    String localeName = 'no',
+  }) : super(
+          localeName: localeName,
+        );
+
+  @override
+  String get allDayLabel => r'Hele dagen';
+
+  @override
+  String get allowedViewDayLabel => r'Dag';
+
+  @override
+  String get allowedViewMonthLabel => r'Måned';
+
+  @override
+  String get allowedViewScheduleLabel => r'Rute';
+
+  @override
+  String get allowedViewTimelineDayLabel => r'Tidslinjedag';
+
+  @override
+  String get allowedViewTimelineMonthLabel => r'Tidslinjemåned';
+
+  @override
+  String get allowedViewTimelineWeekLabel => r'Tidslinje uke';
+
+  @override
+  String get allowedViewTimelineWorkWeekLabel => r'Tidslinje Arbeidsuke';
+
+  @override
+  String get allowedViewWeekLabel => r'Uke';
+
+  @override
+  String get allowedViewWorkWeekLabel => r'Arbeidsuke';
+
+  @override
+  String get daySpanCountLabel => r'Dag';
+
+  @override
+  String get dhualhiLabel => r'Dhu al-Hijjah';
+
+  @override
+  String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
+
+  @override
+  String get jumada1Label => r'Jumada al-awwal';
+
+  @override
+  String get jumada2Label => r'Jumada al-thani';
+
+  @override
+  String get muharramLabel => r'Muharram';
+
+  @override
+  String get noEventsCalendarLabel => r'Ingen hendelser';
+
+  @override
+  String get noSelectedDateCalendarLabel => r'Ingen valgt dato';
+
+  @override
+  String get ofDataPagerLabel => r'av';
+
+  @override
+  String get pagesDataPagerLabel => r'sider';
+
+  @override
+  String get passwordDialogContentLabel =>
+      r'Skriv inn passordet for å åpne denne PDF-filen';
+
+  @override
+  String get passwordDialogHeaderTextLabel => r'Passordbeskyttet';
+
+  @override
+  String get passwordDialogHintTextLabel => r'Oppgi passord';
+
+  @override
+  String get passwordDialogInvalidPasswordLabel => r'Ugyldig passord';
+
+  @override
+  String get pdfBookmarksLabel => r'Bokmerker';
+
+  @override
+  String get pdfEnterPageNumberLabel => r'Skriv inn sidenummer';
+
+  @override
+  String get pdfGoToPageLabel => r'Gå til side';
+
+  @override
+  String get pdfInvalidPageNumberLabel => r'Vennligst oppgi et gyldig nummer';
+
+  @override
+  String get pdfNoBookmarksLabel => r'Fant ingen bokmerker';
+
+  @override
+  String get pdfPaginationDialogCancelLabel => r'AVBRYT';
+
+  @override
+  String get pdfPaginationDialogOkLabel => r'OK';
+
+  @override
+  String get pdfPasswordDialogCancelLabel => r'AVBRYT';
+
+  @override
+  String get pdfPasswordDialogOpenLabel => r'ÅPEN';
+
+  @override
+  String get pdfScrollStatusOfLabel => r'av';
+
+  @override
+  String get rabi1Label => r'Rabi' "'" r' al-awwal';
+
+  @override
+  String get rabi2Label => r'Rabi' "'" r' al-thani';
+
+  @override
+  String get rajabLabel => r'Rajab';
+
+  @override
+  String get ramadanLabel => r'Ramadan';
+
+  @override
+  String get rowsPerPageDataPagerLabel => r'Rader per side';
+
+  @override
+  String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serie';
+
+  @override
+  String get shaabanLabel => r'Sha' "'" r'aban';
+
+  @override
+  String get shawwalLabel => r'Shawwal';
+
+  @override
+  String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
+
+  @override
+  String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
+
+  @override
+  String get shortJumada1Label => r'Jum. Jeg';
+
+  @override
+  String get shortJumada2Label => r'Jum. II';
+
+  @override
+  String get shortMuharramLabel => r'Muh.';
+
+  @override
+  String get shortRabi1Label => r'Rabi. Jeg';
+
+  @override
+  String get shortRabi2Label => r'Rabi. II';
+
+  @override
+  String get shortRajabLabel => r'Raj.';
+
+  @override
+  String get shortRamadanLabel => r'RAM.';
+
+  @override
+  String get shortSafarLabel => r'Saf.';
+
+  @override
+  String get shortShaabanLabel => r'Sha.';
+
+  @override
+  String get shortShawwalLabel => r'Shaw.';
+
+  @override
+  String get todayLabel => r'I dag';
+
+  @override
+  String get weeknumberLabel => r'Uke';
+}
+
+/// The translations for Oriya (`or`).
+class SfLocalizationsOr extends SfGlobalLocalizations {
+  /// Creating an argument constructor of SfLocalizationsOr class
+  const SfLocalizationsOr({
+    String localeName = 'or',
+  }) : super(
+          localeName: localeName,
+        );
+
+  @override
+  String get allDayLabel => r'ଦିନ ସାରା';
+
+  @override
+  String get allowedViewDayLabel => r'ଦିନ';
+
+  @override
+  String get allowedViewMonthLabel => r'ମାସ';
+
+  @override
+  String get allowedViewScheduleLabel => r'କାର୍ଯ୍ୟସୂଚୀ';
+
+  @override
+  String get allowedViewTimelineDayLabel => r'ସମୟସୀମା ଦିନ |';
+
+  @override
+  String get allowedViewTimelineMonthLabel => r'ସମୟସୀମା ମାସ |';
+
+  @override
+  String get allowedViewTimelineWeekLabel => r'ସମୟସୀମା ସପ୍ତାହ |';
+
+  @override
+  String get allowedViewTimelineWorkWeekLabel => r'ସମୟସୀମା କାର୍ଯ୍ୟ ସପ୍ତାହ |';
+
+  @override
+  String get allowedViewWeekLabel => r'ସପ୍ତାହ';
+
+  @override
+  String get allowedViewWorkWeekLabel => r'କାର୍ଯ୍ୟ ସପ୍ତାହ';
+
+  @override
+  String get daySpanCountLabel => r'ଦିନ';
+
+  @override
+  String get dhualhiLabel => r'ଧୁ ଅଲ-ହିଜା';
+
+  @override
+  String get dhualqiLabel => r'ଧୁ ଅଲ-କଇଦା |';
+
+  @override
+  String get jumada1Label => r'ଜୁମାଡା ଅଲ-ଅୱାଲ |';
+
+  @override
+  String get jumada2Label => r'ଜୁମାଡା ଅଲ-ଥାନି |';
+
+  @override
+  String get muharramLabel => r'ମୁହରାମ |';
+
+  @override
+  String get noEventsCalendarLabel => r'କ events ଣସି ଘଟଣା ନାହିଁ |';
+
+  @override
+  String get noSelectedDateCalendarLabel =>
+      r'କ selected ଣସି ମନୋନୀତ ତାରିଖ ନାହିଁ |';
+
+  @override
+  String get ofDataPagerLabel => r'ର';
+
+  @override
+  String get pagesDataPagerLabel => r'ପୃଷ୍ଠାଗୁଡ଼ିକ |';
+
+  @override
+  String get passwordDialogContentLabel =>
+      r'ଏହି PDF ଫାଇଲ୍ ଖୋଲିବା ପାଇଁ ପାସୱାର୍ଡ ପ୍ରବେଶ କରନ୍ତୁ |';
+
+  @override
+  String get passwordDialogHeaderTextLabel => r'ପାସୱାର୍ଡ ସୁରକ୍ଷିତ |';
+
+  @override
+  String get passwordDialogHintTextLabel => r'ପାସୱାର୍ଡ ପ୍ରବେଶ କରନ୍ତୁ |';
+
+  @override
+  String get passwordDialogInvalidPasswordLabel => r'ଅବ val ଧ ପାସୱାର୍ଡ |';
+
+  @override
+  String get pdfBookmarksLabel => r'ବୁକମାର୍କସ୍';
+
+  @override
+  String get pdfEnterPageNumberLabel => r'ପୃଷ୍ଠା ନମ୍ବର ପ୍ରବେଶ କରନ୍ତୁ |';
+
+  @override
+  String get pdfGoToPageLabel => r'ପୃଷ୍ଠାକୁ ଯାଆନ୍ତୁ |';
+
+  @override
+  String get pdfInvalidPageNumberLabel =>
+      r'ଦୟାକରି ଏକ ବ valid ଧ ନମ୍ବର ପ୍ରବେଶ କରନ୍ତୁ |';
+
+  @override
+  String get pdfNoBookmarksLabel => r'କ book ଣସି ବୁକମାର୍କ ମିଳିଲା ନାହିଁ |';
+
+  @override
+  String get pdfPaginationDialogCancelLabel => r'ବାତିଲ୍';
+
+  @override
+  String get pdfPaginationDialogOkLabel => r'ଠିକ୍ ଅଛି';
+
+  @override
+  String get pdfPasswordDialogCancelLabel => r'ବାତିଲ୍';
+
+  @override
+  String get pdfPasswordDialogOpenLabel => r'ଖୋଲନ୍ତୁ |';
+
+  @override
+  String get pdfScrollStatusOfLabel => r'ର';
+
+  @override
+  String get rabi1Label => r'ରବି ' "'" r'ଅଲ-ଆୱାଲ୍ |';
+
+  @override
+  String get rabi2Label => r'ରବି ' "'" r'ଅଲ-ଥାନି |';
+
+  @override
+  String get rajabLabel => r'ରାଜାବ';
+
+  @override
+  String get ramadanLabel => r'ରମଜାନ |';
+
+  @override
+  String get rowsPerPageDataPagerLabel => r'ପ୍ରତି ପୃଷ୍ଠାରେ ଧାଡି |';
+
+  @override
+  String get safarLabel => r'ସଫର |';
+
+  @override
+  String get series => r'ସିରିଜ୍';
+
+  @override
+  String get shaabanLabel => r'ଶାବାନ୍ |';
+
+  @override
+  String get shawwalLabel => r'ଶାୱାଲ୍ |';
+
+  @override
+  String get shortDhualhiLabel => r'ଧୁଲ୍-ଏଚ୍';
+
+  @override
+  String get shortDhualqiLabel => r'ଧୁଲ୍-ପ୍ର';
+
+  @override
+  String get shortJumada1Label => r'ଜମ୍। ମୁଁ';
+
+  @override
+  String get shortJumada2Label => r'ଜମ୍। II';
+
+  @override
+  String get shortMuharramLabel => r'ମୁହ।';
+
+  @override
+  String get shortRabi1Label => r'ରବି | ମୁଁ';
+
+  @override
+  String get shortRabi2Label => r'ରବି | II';
+
+  @override
+  String get shortRajabLabel => r'ରାଜ।';
+
+  @override
+  String get shortRamadanLabel => r'ରାମ।';
+
+  @override
+  String get shortSafarLabel => r'ନିରାପଦ';
+
+  @override
+  String get shortShaabanLabel => r'ଶ।';
+
+  @override
+  String get shortShawwalLabel => r'ଶ।';
+
+  @override
+  String get todayLabel => r'ଆଜି |';
+
+  @override
+  String get weeknumberLabel => r'ସପ୍ତାହ';
+}
+
 /// The translations for Panjabi Punjabi (`pa`).
 class SfLocalizationsPa extends SfGlobalLocalizations {
   /// Creating an argument constructor of SfLocalizationsPa class
@@ -13794,6 +14160,8 @@ final Set<String> kSyncfusionSupportedLanguages =
   'nb', // Norwegian Bokmål
   'ne', // Nepali
   'nl', // Dutch Flemish
+  'no', // Norwegian
+  'or', // Oriya
   'pa', // Panjabi Punjabi
   'pl', // Polish
   'ps', // Pushto Pashto
@@ -13880,6 +14248,8 @@ final Set<String> kSyncfusionSupportedLanguages =
 ///  * `nb` - Norwegian Bokmål
 ///  * `ne` - Nepali
 ///  * `nl` - Dutch Flemish
+///  * `no` - Norwegian
+///  * `or` - Oriya
 ///  * `pa` - Panjabi Punjabi
 ///  * `pl` - Polish
 ///  * `ps` - Pushto Pashto
@@ -14012,6 +14382,10 @@ SfGlobalLocalizations? getSyncfusionTranslation(
       return const SfLocalizationsNe();
     case 'nl':
       return const SfLocalizationsNl();
+    case 'no':
+      return const SfLocalizationsNo();
+    case 'or':
+      return const SfLocalizationsOr();
     case 'pa':
       return const SfLocalizationsPa();
     case 'pl':

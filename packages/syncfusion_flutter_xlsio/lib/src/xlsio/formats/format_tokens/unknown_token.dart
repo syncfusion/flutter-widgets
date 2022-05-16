@@ -10,7 +10,8 @@ class _UnknownToken extends _FormatTokenBase {
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) {
-      throw 'strFormat - string cannot be empty';
+      final Error error = ArgumentError('strFormat - string cannot be empty');
+      throw error;
     }
     _strFormat = strFormat[iIndex];
     return iIndex + 1;

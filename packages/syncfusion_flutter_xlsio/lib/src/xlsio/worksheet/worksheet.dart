@@ -320,7 +320,9 @@ class Worksheet {
     } else if (cellReference.length < 2) {
       throw Exception('cellReference cannot be less then 2 symbols');
     } else if (cellReference.isEmpty) {
-      throw 'cellReference - Value cannot be empty.';
+      final Error error =
+          ArgumentError('cellReference - Value cannot be empty.');
+      throw error;
     }
     final List<String> cells = cellReference.split(':');
     int firstRow = 0;
@@ -355,7 +357,9 @@ class Worksheet {
         iLetterStart = 0;
       }
       if (cellReference.length < 2) {
-        throw 'cellReference - name cannot be less then 2 symbols.';
+        final Error error = ArgumentError(
+            'cellReference - name cannot be less then 2 symbols.');
+        throw error;
       }
 
       final String strNumber = cellReference.substring(iDigitStart);
@@ -473,7 +477,9 @@ class Worksheet {
   /// ```
   int getColumnIndex(String columnName) {
     if (columnName.isEmpty) {
-      throw 'columnName - name cannot be less then 1 symbols.';
+      final Error error =
+          ArgumentError('columnName - name cannot be less then 1 symbols.');
+      throw error;
     }
 
     int iColumn = 0;
@@ -609,7 +615,7 @@ class Worksheet {
           range._setFormulaBooleanValue(value);
         } else if (iserrorStrings) {
           range._setFormulaErrorStringValue(value);
-        } else if (value.contains('Exception:', 0) || istext) {
+        } else if (value.contains('Exception:') || istext) {
           range.setText(value);
         } else {
           range._setFormulaStringValue(value);
@@ -1823,7 +1829,7 @@ class Worksheet {
     if (length <= 0) {
       Exception('length');
     }
-    final List<int> result = List<int>.filled(length, 0, growable: false);
+    final List<int> result = List<int>.filled(length, 0);
     final Random rnd = Random(Range._toOADate(DateTime.now()).toInt());
     final int iMaxValue = _maxPassWordLength + 1;
 
@@ -1865,7 +1871,7 @@ class Worksheet {
 
   /// Converts character to 15 bits sequence
   static List<bool> _getCharBits15(String char) {
-    final List<bool> arrResult = List<bool>.filled(15, false, growable: false);
+    final List<bool> arrResult = List<bool>.filled(15, false);
     final int usSource = char.codeUnitAt(0);
     int curBit = 1;
     for (int i = 0; i < 15; i++) {
@@ -1886,8 +1892,7 @@ class Worksheet {
       throw Exception("Count can't be less than zero");
     }
 
-    final List<bool> arrResult =
-        List<bool>.filled(bits.length, false, growable: false);
+    final List<bool> arrResult = List<bool>.filled(bits.length, false);
     // ignore: prefer_final_locals
     for (int i = 0, len = bits.length; i < len; i++) {
       final int newPos = (i + count) % len;
@@ -2271,11 +2276,9 @@ class Worksheet {
       _tableCollection = null;
     }
 
-    if (_dvTable != null) {
-      _dvTable._clear();
-      if (_mdataValidation != null) {
-        _mdataValidation = null;
-      }
+    if (_mdataValidation != null) {
+      _mdataValidation!._clear();
+      _mdataValidation = null;
     }
   }
 }

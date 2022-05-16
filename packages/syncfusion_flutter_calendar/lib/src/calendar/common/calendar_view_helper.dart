@@ -16,7 +16,7 @@ const double kAllDayAppointmentHeight = 20;
 /// Signature for callback that used to get and update the calendar
 /// state details.
 typedef UpdateCalendarState = void Function(
-    UpdateCalendarStateDetails _updateCalendarStateDetails);
+    UpdateCalendarStateDetails updateCalendarStateDetails);
 
 //// Extra small devices (phones, 600px and down)
 //// @media only screen and (max-width: 600px) {...}

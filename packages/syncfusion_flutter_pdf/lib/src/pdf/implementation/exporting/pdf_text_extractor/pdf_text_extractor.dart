@@ -1370,8 +1370,8 @@ class PdfTextExtractor {
             }
           case 'BT':
             {
-              _textMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
-              _textLineMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
+              _textMatrix = MatrixHelper(1, 0, 0, 1, 0, 0);
+              _textLineMatrix = MatrixHelper(1, 0, 0, 1, 0, 0);
               break;
             }
           case 'T*':
@@ -1572,7 +1572,7 @@ class PdfTextExtractor {
           extractedText += ' ';
         }
       } else {
-        double _characterWidth = 1.0;
+        double characterWidth = 1.0;
         if (word != '' && word[word.length - 1] == 's') {
           word = word.substring(0, word.length - 1);
         }
@@ -1583,7 +1583,7 @@ class PdfTextExtractor {
               fontStructure.isStandardFont &&
               fontStructure.font != null) {
             final PdfStandardFont font = fontStructure.font! as PdfStandardFont;
-            _characterWidth = PdfStandardFontHelper.getHelper(font)
+            characterWidth = PdfStandardFontHelper.getHelper(font)
                     .getCharWidthInternal(renderedCharacter) *
                 PdfFontHelper.characterSizeMultiplier;
           } else if (!fontStructure.isEmbedded &&
@@ -1591,11 +1591,11 @@ class PdfTextExtractor {
               fontStructure.font != null) {
             final PdfCjkStandardFont font =
                 fontStructure.font! as PdfCjkStandardFont;
-            _characterWidth = PdfCjkStandardFontHelper.getHelper(font)
+            characterWidth = PdfCjkStandardFontHelper.getHelper(font)
                     .getCharWidthInternal(renderedCharacter) *
                 PdfFontHelper.characterSizeMultiplier;
           } else {
-            _characterWidth =
+            characterWidth =
                 _getCharacterWidth(renderedCharacter, fontStructure);
           }
           _textMatrix = _getTextRenderingMatrix(horizontalScaling!);
@@ -1619,7 +1619,7 @@ class PdfTextExtractor {
           final Rect boundingRect = Rect.fromLTWH(
               matrix.offsetX / 1.3333333333333333,
               (matrix.offsetY - tempFontSize!) / 1.3333333333333333,
-              _characterWidth * tempFontSize,
+              characterWidth * tempFontSize,
               tempFontSize);
           if (_tempBoundingRectangle != null) {
             final double boundingDifference =
@@ -1635,7 +1635,7 @@ class PdfTextExtractor {
           }
           extractedText += renderedCharacter;
           _textLineMatrix =
-              _updateTextMatrix(_characterWidth, horizontalScaling);
+              _updateTextMatrix(characterWidth, horizontalScaling);
           _tempBoundingRectangle = boundingRect;
           _textMatrix = _textLineMatrix!.clone();
         }
@@ -1743,11 +1743,11 @@ class PdfTextExtractor {
   }
 
   double _getCharacterWidth(String character, FontStructure structure) {
-    final int _charID = character.codeUnitAt(0);
+    final int charID = character.codeUnitAt(0);
     return (structure.fontGlyphWidths != null &&
             structure.fontType!.name == 'TrueType' &&
-            structure.fontGlyphWidths!.containsKey(_charID))
-        ? structure.fontGlyphWidths![_charID]! * 0.001
+            structure.fontGlyphWidths!.containsKey(charID))
+        ? structure.fontGlyphWidths![charID]! * 0.001
         : 1.0;
   }
 

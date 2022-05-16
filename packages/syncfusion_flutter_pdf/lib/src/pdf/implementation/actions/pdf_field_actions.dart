@@ -220,6 +220,7 @@ class PdfJavaScriptAction extends PdfAction {
     }
   }
 
+  // ignore: use_setters_to_change_properties
   void _initValue(String js) {
     javaScript = js;
   }

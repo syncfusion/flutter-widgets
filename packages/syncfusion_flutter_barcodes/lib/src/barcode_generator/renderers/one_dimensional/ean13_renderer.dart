@@ -18,16 +18,16 @@ class EAN13Renderer extends SymbologyRenderer {
       if (int.parse(value[12]) == _getCheckSumData(value)) {
         _encodedValue = value;
       } else {
-        throw 'Invalid check digit at the trailing end. '
+        throw ArgumentError('Invalid check digit at the trailing end. '
             'Provide the valid check digit or remove it. '
-            'Since, it has been calculated automatically.';
+            'Since, it has been calculated automatically.');
       }
     } else if (value.contains(RegExp(r'^(?=.*?[0-9]).{12}$'))) {
       _encodedValue = value + _getCheckSumData(value).toString();
     } else {
-      throw 'EAN13 supports only numeric characters. '
+      throw ArgumentError('EAN13 supports only numeric characters. '
           'The provided value should have 12 digits (without check digit) or'
-          ' with 13 digits.';
+          ' with 13 digits.');
     }
     return true;
   }

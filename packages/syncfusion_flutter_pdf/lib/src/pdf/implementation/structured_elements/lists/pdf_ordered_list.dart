@@ -129,6 +129,6 @@ class PdfOrderedList extends PdfList {
   //Static methods.
   //Creates the marker.
   static PdfOrderedMarker _createMarker(PdfNumberStyle style) {
-    return PdfOrderedMarker(style: style, font: null);
+    return PdfOrderedMarker(style: style);
   }
 }

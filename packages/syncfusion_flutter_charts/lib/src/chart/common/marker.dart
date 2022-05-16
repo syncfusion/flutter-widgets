@@ -1,7 +1,6 @@
 import 'dart:ui' as dart_ui;
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_core/core.dart';
 
 import './../../common/event_args.dart' show MarkerRenderArgs;
 import '../chart_series/series_renderer_properties.dart';
@@ -9,6 +8,7 @@ import '../chart_series/waterfall_series.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/data_label_renderer.dart';
 import '../utils/helper.dart';
+import 'common.dart';
 
 export 'package:syncfusion_flutter_core/core.dart'
     show DataMarkerType, TooltipAlignment;
@@ -300,8 +300,10 @@ class MarkerSettingsRenderer {
       Canvas canvas,
       int markerIndex,
       [int? outlierIndex]) {
-    final bool isDataPointVisible = isLabelWithinRange(
-        seriesRendererDetails, seriesRendererDetails.dataPoints[markerIndex]);
+    final List<CartesianChartPoint<dynamic>> dataPoints =
+        getSampledData(seriesRendererDetails);
+    final bool isDataPointVisible =
+        isLabelWithinRange(seriesRendererDetails, dataPoints[markerIndex]);
     Paint strokePaint, fillPaint;
     final XyDataSeries<dynamic, dynamic> series =
         seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
@@ -309,7 +311,7 @@ class MarkerSettingsRenderer {
     CartesianChartPoint<dynamic> point;
     DataMarkerType markerType = series.markerSettings.shape;
     Color? seriesColor = seriesRendererDetails.seriesColor;
-    point = seriesRendererDetails.dataPoints[markerIndex];
+    point = dataPoints[markerIndex];
     if (seriesRendererDetails.seriesType == 'waterfall') {
       seriesColor = getWaterfallSeriesColor(
           seriesRendererDetails.series as WaterfallSeries<dynamic, dynamic>,
@@ -338,7 +340,7 @@ class MarkerSettingsRenderer {
             seriesRendererDetails,
             size,
             markerType,
-            seriesRendererDetails.dataPoints[markerIndex].visiblePointIndex!,
+            dataPoints[markerIndex].visiblePointIndex!,
             animationController)!;
         markerType = event.shape;
         borderColor = event.borderColor;
@@ -490,7 +492,7 @@ class MarkerSettingsRenderer {
       MarkerDetails? pointMarkerDetails,
       double opacity) {
     return Paint()
-      ..color = point.isEmpty == true
+      ..color = (point.isEmpty ?? false)
           ? series.emptyPointSettings.color
           : color != Colors.transparent
               ? (pointMarkerDetails?.color ??
@@ -518,7 +520,7 @@ class MarkerSettingsRenderer {
       Animation<double>? animationController,
       Size size) {
     Paint strokePaint = Paint()
-      ..color = point.isEmpty == true
+      ..color = (point.isEmpty ?? false)
           ? (series.emptyPointSettings.borderWidth == 0
               ? Colors.transparent
               : series.emptyPointSettings.borderColor.withOpacity(opacity))
@@ -532,13 +534,14 @@ class MarkerSettingsRenderer {
                           ? borderColor!.withOpacity(opacity)
                           : seriesColor!.withOpacity(opacity))))
       ..style = PaintingStyle.stroke
-      ..strokeWidth = point.isEmpty == true
+      ..strokeWidth = (point.isEmpty ?? false)
           ? series.emptyPointSettings.borderWidth
           : pointMarkerDetails?.borderWidth ?? borderWidth;
 
     if (series.gradient != null &&
         series.markerSettings.borderColor == null &&
         ((pointMarkerDetails == null) ||
+            // ignore: unnecessary_null_comparison
             (pointMarkerDetails != null &&
                 pointMarkerDetails.borderColor == null))) {
       strokePaint = getLinearGradientPaint(
@@ -554,7 +557,7 @@ class MarkerSettingsRenderer {
               .getBounds(),
           seriesRendererDetails.stateProperties.requireInvertedAxis);
       strokePaint.style = PaintingStyle.stroke;
-      strokePaint.strokeWidth = point.isEmpty == true
+      strokePaint.strokeWidth = (point.isEmpty ?? false)
           ? series.emptyPointSettings.borderWidth
           : pointMarkerDetails?.borderWidth ??
               series.markerSettings.borderWidth;

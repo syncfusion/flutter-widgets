@@ -813,7 +813,7 @@ class TtfReader {
       case _TtfCmapEncoding.unicodeUCS4:
         collection = _unicodeUcs4Glyph;
         break;
-      default:
+      case _TtfCmapEncoding.unknown:
         break;
     }
     collection![glyph.charCode] = glyph;
@@ -829,7 +829,8 @@ class TtfReader {
       case _TtfCmapEncoding.symbol:
         collection = _macintoshGlyphs;
         break;
-      default:
+      case _TtfCmapEncoding.unknown:
+      case _TtfCmapEncoding.unicodeUCS4:
         break;
     }
     collection![glyph.index] = glyph;

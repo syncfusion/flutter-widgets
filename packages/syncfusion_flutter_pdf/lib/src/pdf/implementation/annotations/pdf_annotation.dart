@@ -421,7 +421,7 @@ class PdfAnnotationHelper {
     if (isLoadedAnnotation) {
       if (PdfColorHelper.getHelper(annotationInnerColor!).alpha != 0) {
         dictionary!.setProperty(PdfDictionaryProperties.iC,
-            PdfColorHelper.toArray(annotationInnerColor!, PdfColorSpace.rgb));
+            PdfColorHelper.toArray(annotationInnerColor!));
       } else if (dictionary!.containsKey(PdfDictionaryProperties.iC)) {
         dictionary!.remove(PdfDictionaryProperties.iC);
       }
@@ -645,7 +645,7 @@ class PdfAnnotationHelper {
         !annotationInnerColor!.isEmpty &&
         PdfColorHelper.getHelper(annotationInnerColor!).alpha != 0.0) {
       dictionary!.setProperty(PdfName(PdfDictionaryProperties.ic),
-          PdfColorHelper.toArray(annotationInnerColor!, PdfColorSpace.rgb));
+          PdfColorHelper.toArray(annotationInnerColor!));
     }
     dictionary!.setProperty(PdfName(PdfDictionaryProperties.rect),
         PdfArray.fromRectangle(nativeRectangle));
@@ -798,16 +798,16 @@ class PdfAnnotationHelper {
         border.borderStyle = _getBorderStyle(bstr.name.toString());
       }
       if (lbDic.containsKey(PdfDictionaryProperties.d)) {
-        final PdfArray? _dasharray =
+        final PdfArray? dasharray =
             PdfCrossTable.dereference(lbDic[PdfDictionaryProperties.d])
                 as PdfArray?;
-        if (_dasharray != null) {
-          final PdfNumber dashArray = _dasharray[0]! as PdfNumber;
-          final int _dashArray = dashArray.value!.toInt();
-          _dasharray.clear();
-          _dasharray.insert(0, PdfNumber(_dashArray));
-          _dasharray.insert(1, PdfNumber(_dashArray));
-          border.dashArray = _dashArray;
+        if (dasharray != null) {
+          final PdfNumber dashArray = dasharray[0]! as PdfNumber;
+          final int dashArrayValue = dashArray.value!.toInt();
+          dasharray.clear();
+          dasharray.insert(0, PdfNumber(dashArrayValue));
+          dasharray.insert(1, PdfNumber(dashArrayValue));
+          border.dashArray = dashArrayValue;
         }
       }
     }
@@ -1084,9 +1084,7 @@ class PdfAnnotationHelper {
             style: PdfFontStyle.bold),
         brush: PdfBrushes.black,
         bounds: bounds,
-        format: PdfStringFormat(
-            alignment: PdfTextAlignment.left,
-            lineAlignment: PdfVerticalAlignment.middle));
+        format: PdfStringFormat(lineAlignment: PdfVerticalAlignment.middle));
   }
 
   void _saveGraphics(PdfPage page, PdfBlendMode mode) {
@@ -1097,8 +1095,8 @@ class PdfAnnotationHelper {
 
   PdfColor _getForeColor(PdfColor c) {
     return (((c.r + c.b + c.g) / 3) > 128)
-        ? PdfColor(0, 0, 0, 255)
-        : PdfColor(255, 255, 255, 255);
+        ? PdfColor(0, 0, 0)
+        : PdfColor(255, 255, 255);
   }
 
   Map<String, double?> _drawAuthor(
@@ -1132,9 +1130,7 @@ class PdfAnnotationHelper {
               style: PdfFontStyle.bold),
           brush: aBrush,
           bounds: contentRect,
-          format: PdfStringFormat(
-              alignment: PdfTextAlignment.left,
-              lineAlignment: PdfVerticalAlignment.middle));
+          format: PdfStringFormat(lineAlignment: PdfVerticalAlignment.middle));
       contentRect = Rect.fromLTWH(
           contentRect.left,
           contentRect.top + contentRect.height - 2,
@@ -1154,9 +1150,7 @@ class PdfAnnotationHelper {
           author, PdfStandardFont(PdfFontFamily.helvetica, 10.5),
           brush: aBrush,
           bounds: contentRect,
-          format: PdfStringFormat(
-              alignment: PdfTextAlignment.left,
-              lineAlignment: PdfVerticalAlignment.middle));
+          format: PdfStringFormat(lineAlignment: PdfVerticalAlignment.middle));
       trackingHeight = titleRect.height;
       page.graphics.restore();
     }
@@ -1243,8 +1237,8 @@ class PdfAnnotationHelper {
   /// internal method
   PdfRectangle calculateLineBounds(
       List<int> linePoints,
-      int _leaderLineExt,
-      int _leaderLine,
+      int leaderLineExt,
+      int leaderLineValue,
       int leaderOffset,
       PdfArray lineStyle,
       double borderLength) {
@@ -1267,11 +1261,11 @@ class PdfAnnotationHelper {
       }
       int leaderLine = 0;
       double lineAngle = 0;
-      if (_leaderLine < 0) {
-        leaderLine = _leaderLine * -1;
+      if (leaderLineValue < 0) {
+        leaderLine = leaderLineValue * -1;
         lineAngle = angle + 180;
       } else {
-        leaderLine = _leaderLine;
+        leaderLine = leaderLineValue;
         lineAngle = angle;
       }
       final List<double> x1y1 = <double>[x1, y1];
@@ -1293,10 +1287,10 @@ class PdfAnnotationHelper {
           x2y2, lineAngle + 90, (leaderLine + leaderOffset).toDouble());
 
       final List<double> beginLineLeader = getAxisValue(x1y1, lineAngle + 90,
-          (_leaderLineExt + leaderLine + leaderOffset).toDouble());
+          (leaderLineExt + leaderLine + leaderOffset).toDouble());
 
       final List<double> endLineLeader = getAxisValue(x2y2, lineAngle + 90,
-          (_leaderLineExt + leaderLine + leaderOffset).toDouble());
+          (leaderLineExt + leaderLine + leaderOffset).toDouble());
 
       final List<PdfPoint> stylePoint = <PdfPoint>[];
 

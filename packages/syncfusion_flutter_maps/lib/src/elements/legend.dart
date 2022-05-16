@@ -4,10 +4,10 @@ import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/legend_internal.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_maps/maps.dart';
-import 'package:syncfusion_flutter_maps/src/controller/map_controller.dart';
 
+import '../../maps.dart';
 import '../common.dart';
+import '../controller/map_controller.dart';
 
 /// Specifies the legend type.
 enum _LegendType {
@@ -2126,8 +2126,7 @@ class MapLegend extends DiagnosticableTree {
       properties.add(FlagProperty('enableToggleInteraction',
           value: enableToggleInteraction,
           ifTrue: 'Toggle is enabled',
-          ifFalse: 'Toggle is disabled',
-          showName: false));
+          ifFalse: 'Toggle is disabled'));
       if (toggledItemColor != null) {
         properties.add(ColorProperty('toggledItemColor', toggledItemColor));
       }
@@ -2200,7 +2199,7 @@ class _LegendState extends State<Legend> {
 
   /// Generates the list of legend items based on the data source.
   List<LegendItem> _getLegendItems() {
-    final List<LegendItem> _legendItems = <LegendItem>[];
+    final List<LegendItem> legendItems = <LegendItem>[];
     final bool isLegendForBubbles = widget.legend.source == MapElement.bubble;
 
     if (widget.colorMappers != null && widget.colorMappers!.isNotEmpty) {
@@ -2214,24 +2213,24 @@ class _LegendState extends State<Legend> {
                 MapLegendLabelsPlacement.betweenItems) {
           if (index == 0) {
             final String startValue = _getStartSegmentLabel(colorMapper);
-            _legendItems
+            legendItems
                 .add(LegendItem(text: startValue, color: colorMapper.color));
           } else {
             final String text = colorMapper.text ??
                 colorMapper.value ??
                 colorMapper.to.toString();
-            _legendItems.add(LegendItem(text: text, color: colorMapper.color));
+            legendItems.add(LegendItem(text: text, color: colorMapper.color));
           }
         } else {
           final String text = colorMapper.text ??
               colorMapper.value ??
               '${colorMapper.from} - ${colorMapper.to}';
-          _legendItems.add(LegendItem(text: text, color: colorMapper.color));
+          legendItems.add(LegendItem(text: text, color: colorMapper.color));
         }
       }
     } else if (widget.dataSource != null && widget.dataSource!.isNotEmpty) {
       widget.dataSource!.forEach((String key, MapModel mapModel) {
-        _legendItems.add(
+        legendItems.add(
           LegendItem(
             text: mapModel.primaryKey,
             color: isLegendForBubbles
@@ -2242,7 +2241,7 @@ class _LegendState extends State<Legend> {
       });
     }
 
-    return _legendItems;
+    return legendItems;
   }
 
   String _getStartSegmentLabel(MapColorMapper colorMapper) {

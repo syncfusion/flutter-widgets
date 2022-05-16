@@ -841,6 +841,7 @@ class PdfListLayouter extends ElementLayouter {
         result = layouter.layout(marker.text!, markerFont!, markerFormat,
             width: size.width, height: size.height);
         break;
+      // ignore: no_default_cases
       default:
         final PdfStandardFont uFont =
             PdfStandardFont(PdfFontFamily.zapfDingbats, markerFont!.size);

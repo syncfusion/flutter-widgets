@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
 
 import '../../common/utils/typedef.dart';
 import '../axis/axis.dart';
@@ -13,6 +12,7 @@ import '../axis/numeric_axis.dart';
 import '../base/chart_base.dart';
 import '../chart_series/histogram_series.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/stacked_series_base.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
@@ -125,7 +125,8 @@ class ChartSeriesPanel {
           SeriesHelper.getSeriesRendererDetails(seriesRenderer);
       final CartesianSeries<dynamic, dynamic> series =
           seriesRendererDetails.series;
-      final ChartIndexedValueMapper<num>? _bubbleSize = series.sizeValueMapper;
+      final ChartIndexedValueMapper<num>? bubbleSizeValueMapper =
+          series.sizeValueMapper;
       seriesRendererDetails.minimumX = seriesRendererDetails.minimumY =
           seriesRendererDetails.minDelta = seriesRendererDetails.maximumX =
               seriesRendererDetails.maximumY = null;
@@ -204,8 +205,8 @@ class ChartSeriesPanel {
             final dynamic yMin = yAxis?.visibleMinimum;
             final dynamic yMax = yAxis?.visibleMaximum;
             dynamic xPointValue = xVal;
-            bool _isXVisibleRange = true;
-            bool _isYVisibleRange = true;
+            bool isXVisibleRange = true;
+            bool isYVisibleRange = true;
             if (xAxis is DateTimeAxis) {
               xMin = xMin != null ? xMin.millisecondsSinceEpoch : xMin;
               xMax = xMax != null ? xMax.millisecondsSinceEpoch : xMax;
@@ -218,10 +219,10 @@ class ChartSeriesPanel {
               xPointValue = xPointValue?.millisecondsSinceEpoch;
             }
             if (xMin != null || xMax != null) {
-              _isXVisibleRange = false;
+              isXVisibleRange = false;
             }
             if (yMin != null || yMax != null) {
-              _isYVisibleRange = false;
+              isYVisibleRange = false;
             }
 
             if ((xMin != null ||
@@ -234,15 +235,15 @@ class ChartSeriesPanel {
               final int seriesIndex = stateProperties
                   .chartSeries.visibleSeriesRenderers
                   .indexOf(seriesRenderer);
-              final CartesianSeriesRenderer? _oldSeriesRenderer =
+              final CartesianSeriesRenderer? oldSeriesRenderer =
                   stateProperties.oldSeriesRenderers.length - 1 >= seriesIndex
                       ? stateProperties.oldSeriesRenderers[seriesIndex]
                       : null;
-              if (_oldSeriesRenderer != null &&
+              if (oldSeriesRenderer != null &&
                   (stateProperties.chart.onSelectionChanged != null ||
-                      _needAxisAnimation(seriesRenderer, _oldSeriesRenderer))) {
+                      _needAxisAnimation(seriesRenderer, oldSeriesRenderer))) {
                 final SeriesRendererDetails oldSeriesRendererDetails =
-                    SeriesHelper.getSeriesRendererDetails(_oldSeriesRenderer);
+                    SeriesHelper.getSeriesRendererDetails(oldSeriesRenderer);
                 isSelectionRangeChangeByEvent =
                     oldSeriesRendererDetails.minimumX != xMin ||
                         oldSeriesRendererDetails.maximumX != xMax ||
@@ -253,7 +254,7 @@ class ChartSeriesPanel {
 
             if (!(!(isSelectionRangeChangeByEvent ||
                         stateProperties.rangeChangeBySlider ||
-                        stateProperties.zoomedState == true ||
+                        (stateProperties.zoomedState ?? false) ||
                         stateProperties.renderingDetails.didSizeChange ||
                         stateProperties.zoomProgress) &&
                     (xMin != null ||
@@ -279,14 +280,14 @@ class ChartSeriesPanel {
                                 ? (yVal ?? high) <= yMax
                                 : false) ==
                     true) {
-              _isXVisibleRange = true;
-              _isYVisibleRange = true;
+              isXVisibleRange = true;
+              isYVisibleRange = true;
               seriesRendererDetails.dataPoints.add(currentPoint!);
               seriesRendererDetails.xValues!.add(xVal);
               if (seriesRenderer is BubbleSeriesRenderer) {
                 bubbleSize = series.sizeValueMapper == null
                     ? 4
-                    : _bubbleSize!(pointIndex) ?? 4;
+                    : bubbleSizeValueMapper!(pointIndex) ?? 4;
                 currentPoint.bubbleSize = bubbleSize.toDouble();
                 seriesRendererDetails.maxSize ??=
                     currentPoint.bubbleSize!.toDouble();
@@ -379,8 +380,8 @@ class ChartSeriesPanel {
                   currentPoint!,
                   pointIndex,
                   series.dataSource.length,
-                  _isXVisibleRange,
-                  _isYVisibleRange);
+                  isXVisibleRange,
+                  isYVisibleRange);
             }
             if (seriesRenderer is SplineSeriesRenderer && !needSorting) {
               if (pointIndex == 0) {
@@ -409,6 +410,8 @@ class ChartSeriesPanel {
         }
       }
       if (seriesRenderer is FastLineSeriesRenderer) {
+        seriesRendererDetails.sampledDataPoints =
+            seriesRendererDetails.dataPoints;
         seriesRendererDetails.overallDataPoints
             .addAll(seriesRendererDetails.dataPoints);
       }
@@ -655,8 +658,14 @@ class ChartSeriesPanel {
     StackingInfo? currentNegativeStackInfo;
     final List<double> startValues = <double>[];
     final List<double> endValues = <double>[];
-    for (int j = 0; j < seriesRendererDetails.dataPoints.length; j++) {
-      point = seriesRendererDetails.dataPoints[j];
+    final List<CartesianChartPoint<dynamic>?> dataPoints =
+        (seriesRendererDetails.yAxisDetails?.axis.anchorRangeToVisiblePoints ??
+                    false) ||
+                isStacked100
+            ? seriesRendererDetails.dataPoints
+            : seriesRendererDetails.overAllDataPoints;
+    for (int j = 0; j < dataPoints.length; j++) {
+      point = dataPoints[j]!;
       value = point.y;
       if (positiveValues.isNotEmpty) {
         for (int k = 0; k < positiveValues.length; k++) {
@@ -853,7 +862,7 @@ class ChartSeriesPanel {
     if (chart.indicators != null && chart.indicators.isNotEmpty) {
       dynamic indicator;
       bool existField;
-      Map<String, int> _map = <String, int>{};
+      Map<String, int> map = <String, int>{};
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer;
       if (!chart.legend.isVisible!) {
         final List<String> textCollection = <String>[];
@@ -866,10 +875,10 @@ class ChartSeriesPanel {
           textCollection.add(technicalIndicatorsRenderer.indicatorType);
         }
         //ignore: prefer_collection_literals
-        _map = Map<String, int>();
+        map = Map<String, int>();
         //ignore: avoid_function_literals_in_foreach_calls
         textCollection.forEach((String str) =>
-            _map[str] = !_map.containsKey(str) ? (1) : (_map[str]! + 1));
+            map[str] = !map.containsKey(str) ? (1) : (map[str]! + 1));
       }
 
       final List<String> indicatorTextCollection = <String>[];
@@ -890,7 +899,7 @@ class ChartSeriesPanel {
               .add(technicalIndicatorsRenderer.indicatorType);
           technicalIndicatorsRenderer.name = indicator.name ??
               (technicalIndicatorsRenderer.indicatorType +
-                  (_map[technicalIndicatorsRenderer.indicatorType] == 1
+                  (map[technicalIndicatorsRenderer.indicatorType] == 1
                       ? ''
                       : ' $count'));
         }
@@ -912,7 +921,7 @@ class ChartSeriesPanel {
                 final dynamic xVal = indicator.xValueMapper(pointIndex);
                 num? highValue, lowValue, openValue, closeValue, volumeValue;
                 technicalIndicatorsRenderer.dataPoints!
-                    .add(CartesianChartPoint<dynamic>(xVal, null));
+                    .add(CartesianChartPoint<dynamic>(xVal));
                 currentPoint = technicalIndicatorsRenderer.dataPoints![
                     technicalIndicatorsRenderer.dataPoints!.length - 1];
                 if (indicator.highValueMapper != null) {

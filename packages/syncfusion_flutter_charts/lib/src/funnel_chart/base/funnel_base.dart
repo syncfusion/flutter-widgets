@@ -4,16 +4,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
+import '../../../charts.dart';
 import '../../chart/utils/helper.dart';
 import '../../common/common.dart';
 import '../../common/legend/legend.dart';
 import '../../common/legend/renderer.dart';
 import '../../common/rendering_details.dart';
 import '../../common/user_interaction/tooltip.dart';
+import '../../common/user_interaction/tooltip_rendering_details.dart';
 import '../../common/utils/helper.dart';
 import '../base/funnel_plot_area.dart';
 import '../base/funnel_state_properties.dart';
@@ -717,7 +717,7 @@ class SfFunnelChartState extends State<SfFunnelChart>
         _stateProperties.renderingDetails.prevSize = constraints.biggest;
         final PointInfo<dynamic> tooltipPoint =
             _getChartPoints(_stateProperties);
-        SchedulerBinding.instance!.addPostFrameCallback((_) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
           _validateStateMaintenance(_stateProperties, tooltipPoint);
         });
         _stateProperties.chartSeries.findVisibleSeries();
@@ -729,7 +729,7 @@ class SfFunnelChartState extends State<SfFunnelChart>
             _stateProperties.renderingDetails.legendWidgetContext.isEmpty) {
           // ignore: avoid_unnecessary_containers
           element = Container(child: Stack(children: legendTemplates));
-          SchedulerBinding.instance!.addPostFrameCallback((_) => _refresh());
+          SchedulerBinding.instance.addPostFrameCallback((_) => _refresh());
         } else {
           _stateProperties.renderingDetails.chartLegend.calculateLegendBounds(
               _stateProperties.renderingDetails.chartLegend.chartSize);
@@ -787,64 +787,64 @@ class SfFunnelChartState extends State<SfFunnelChart>
   }
 
   /// This will return tooltip chart point.
-  PointInfo<dynamic> _getChartPoints(FunnelStateProperties _stateProperties) {
+  PointInfo<dynamic> _getChartPoints(FunnelStateProperties stateProperties) {
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _stateProperties.renderingDetails.tooltipBehaviorRenderer;
+        stateProperties.renderingDetails.tooltipBehaviorRenderer;
     final TooltipRenderingDetails tooltipRenderingDetails =
         TooltipHelper.getRenderingDetails(tooltipBehaviorRenderer);
 
     PointInfo<dynamic> tooltipChartPoint = PointInfo<dynamic>(null, null);
 
-    if (_stateProperties.renderingDetails.oldDeviceOrientation !=
-            _stateProperties.renderingDetails.deviceOrientation ||
-        _stateProperties.renderingDetails.didSizeChange) {
+    if (stateProperties.renderingDetails.oldDeviceOrientation !=
+            stateProperties.renderingDetails.deviceOrientation ||
+        stateProperties.renderingDetails.didSizeChange) {
       if (tooltipRenderingDetails.showLocation != null &&
-          _stateProperties.chart.tooltipBehavior.enable == true &&
-          _stateProperties.isTooltipHidden == false) {
+          stateProperties.chart.tooltipBehavior.enable == true &&
+          stateProperties.isTooltipHidden == false) {
         tooltipChartPoint = pyramidFunnelPixelToPoint(
             tooltipRenderingDetails.showLocation!,
-            _stateProperties.chartSeries.visibleSeriesRenderers[0]);
+            stateProperties.chartSeries.visibleSeriesRenderers[0]);
       }
     }
     return tooltipChartPoint;
   }
 
   /// Here for orientation change/browser resize, the logic in this method will get executed.
-  void _validateStateMaintenance(FunnelStateProperties _stateProperties,
+  void _validateStateMaintenance(FunnelStateProperties stateProperties,
       PointInfo<dynamic> tooltipChartPoint) {
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _stateProperties.renderingDetails.tooltipBehaviorRenderer;
+        stateProperties.renderingDetails.tooltipBehaviorRenderer;
     final TooltipRenderingDetails tooltipRenderingDetails =
         TooltipHelper.getRenderingDetails(tooltipBehaviorRenderer);
-    if (_stateProperties.renderingDetails.oldDeviceOrientation !=
-            _stateProperties.renderingDetails.deviceOrientation ||
-        _stateProperties.renderingDetails.didSizeChange) {
+    if (stateProperties.renderingDetails.oldDeviceOrientation !=
+            stateProperties.renderingDetails.deviceOrientation ||
+        stateProperties.renderingDetails.didSizeChange) {
       if (tooltipRenderingDetails.showLocation != null &&
-          _stateProperties.chart.tooltipBehavior.enable == true &&
-          _stateProperties.isTooltipHidden == false) {
-        _stateProperties.isTooltipOrientationChanged = true;
+          stateProperties.chart.tooltipBehavior.enable == true &&
+          stateProperties.isTooltipHidden == false) {
+        stateProperties.isTooltipOrientationChanged = true;
         late PointInfo<dynamic> point;
         late int index;
         for (int i = 0;
             i <
-                _stateProperties
+                stateProperties
                     .chartSeries.visibleSeriesRenderers[0].dataPoints.length;
             i++) {
-          if (_stateProperties
+          if (stateProperties
                       .chartSeries.visibleSeriesRenderers[0].dataPoints[i].x ==
                   tooltipChartPoint.x &&
-              _stateProperties
+              stateProperties
                       .chartSeries.visibleSeriesRenderers[0].dataPoints[i].y ==
                   tooltipChartPoint.y) {
             index = i;
-            point = _stateProperties
+            point = stateProperties
                 .chartSeries.visibleSeriesRenderers[0].dataPoints[i];
           }
         }
         final Offset tooltipPosition = pyramidFunnelPointToPixel(
-            point, _stateProperties.chartSeries.visibleSeriesRenderers[0]);
-        if (_stateProperties.chart.tooltipBehavior.builder != null) {
-          _stateProperties.funnelplotArea.showFunnelTooltipTemplate(index);
+            point, stateProperties.chartSeries.visibleSeriesRenderers[0]);
+        if (stateProperties.chart.tooltipBehavior.builder != null) {
+          stateProperties.funnelplotArea.showFunnelTooltipTemplate(index);
         } else {
           tooltipRenderingDetails.internalShowByPixel(
               tooltipPosition.dx, tooltipPosition.dy);

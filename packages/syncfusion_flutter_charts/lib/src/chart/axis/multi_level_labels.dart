@@ -1,10 +1,12 @@
 // ignore_for_file: always_specify_types
 
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/common/utils/helper.dart';
 import 'package:syncfusion_flutter_core/core.dart';
+
 import '../../../charts.dart';
+import '../../common/utils/helper.dart';
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
 import '../axis/datetime_category_axis.dart';
@@ -642,6 +644,7 @@ void renderVerticalAxisBorder(
 /// To generate multi-level labels
 void generateMultiLevelLabels(ChartAxisRendererDetails axisRendererDetails) {
   final ChartAxis axis = axisRendererDetails.axis;
+  // ignore: strict_raw_type
   final List<ChartMultiLevelLabel> multiLevelLabelsList =
       axis.multiLevelLabels!;
   for (int index = 0; index < multiLevelLabelsList.length; index++) {

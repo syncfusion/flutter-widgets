@@ -804,12 +804,12 @@ class TreeTable extends TreeTableBase {
           throw Exception();
         }
 
-        final Object? _left = branch.parent?.left;
+        final Object? left = branch.parent?.left;
         if (!(branch.parent == null ||
             (branch.parent != null &&
                 branch.parent!.left != null &&
                 branch.parent!.left!.isEntry()) ||
-            (_left is TreeTableBranch && _left.right != branch))) {
+            (left is TreeTableBranch && left.right != branch))) {
           throw Exception();
         }
       }
@@ -876,8 +876,9 @@ class TreeTable extends TreeTableBase {
         if (cmp == 0) {
           current = branch.right;
           while (current != null && !current.isEntry()) {
-            final TreeTableBranchBase _current = current as TreeTableBranchBase;
-            current = _current.left;
+            final TreeTableBranchBase tableBranchBase =
+                current as TreeTableBranchBase;
+            current = tableBranchBase.left;
           }
 
           return current! as TreeTableEntryBase;
@@ -962,9 +963,9 @@ class TreeTable extends TreeTableBase {
           final dynamic right = branch.right!.getMinimum();
           cmp = Comparable.compare(minimum, right);
         } else if (value.getMinimum() is Comparable) {
-          final Object? _minimum = value.getMinimum();
-          if (_minimum != null && _minimum is Comparable) {
-            cmp = _minimum.compareTo(branch.right!.getMinimum());
+          final Object? minimum = value.getMinimum();
+          if (minimum != null && minimum is Comparable) {
+            cmp = minimum.compareTo(branch.right!.getMinimum());
           } else {
             cmp = null;
           }
@@ -990,9 +991,9 @@ class TreeTable extends TreeTableBase {
           cmp = Comparable.compare(minimum, sortKey);
         }
       } else if (value.getMinimum() is Comparable) {
-        final Object? _minimum = value.getMinimum();
-        if (_minimum != null && _minimum is Comparable) {
-          cmp = _minimum.compareTo(leaf.getSortKey());
+        final Object? minimum = value.getMinimum();
+        if (minimum != null && minimum is Comparable) {
+          cmp = minimum.compareTo(leaf.getSortKey());
         } else {
           cmp = null;
         }
@@ -1295,8 +1296,9 @@ class TreeTable extends TreeTableBase {
         } else if (lastLeft != null) {
           current = lastLeft;
           while (!current.isEntry()) {
-            final TreeTableBranchBase _current = current as TreeTableBranchBase;
-            current = _current.right!;
+            final TreeTableBranchBase tableBranchBase =
+                current as TreeTableBranchBase;
+            current = tableBranchBase.right!;
           }
 
           return cacheLastFoundEntry(
@@ -1516,8 +1518,8 @@ class TreeTable extends TreeTableBase {
     } else {
       next = parent.left;
       while (!next!.isEntry()) {
-        final TreeTableBranchBase _next = next as TreeTableBranchBase;
-        next = _next.left;
+        final TreeTableBranchBase tableBranchBase = next as TreeTableBranchBase;
+        next = tableBranchBase.left;
       }
     }
 
@@ -1957,22 +1959,22 @@ class TreeTableEnumerator implements EnumeratorBase {
 
     _cursor = _next;
 
-    TreeTableBranchBase? _parent = _cursor!.parent;
+    TreeTableBranchBase? parent = _cursor!.parent;
 
-    if (_parent == null) {
+    if (parent == null) {
       _next = null;
       return true;
     } else {
-      if (referenceEquals(_cursor, _parent.left)) {
-        _next = _parent.right;
+      if (referenceEquals(_cursor, parent.left)) {
+        _next = parent.right;
       } else {
-        TreeTableBranchBase? parentParent = _parent.parent;
+        TreeTableBranchBase? parentParent = parent.parent;
         if (parentParent == null) {
           _next = null;
           return true;
         } else {
-          while (referenceEquals(parentParent!.right, _parent)) {
-            _parent = parentParent;
+          while (referenceEquals(parentParent!.right, parent)) {
+            parent = parentParent;
             parentParent = parentParent.parent;
             if (parentParent == null) {
               _next = null;
@@ -2091,9 +2093,9 @@ class TreeTableEntrySourceCollection extends ListBase {
   void copyToBase(List<TreeTableEntryBaseSource>? array, int index) {
     final int count = inner.count;
     for (int n = 0; n < count; n++) {
-      final Object _n = <Object>[n];
-      if (_n is TreeTableEntryBaseSource && array != null) {
-        array[index + n] = _n;
+      final Object object = <Object>[n];
+      if (object is TreeTableEntryBaseSource && array != null) {
+        array[index + n] = object;
       }
     }
   }
@@ -2462,10 +2464,10 @@ class TreeTableWithCounterBranch extends TreeTableWithSummaryBranch
     if (tree!.isInitializing) {
       return null;
     } else if (counter == null) {
-      final TreeTableCounterBase? _left = getLeftNode()?.getCounterTotal();
-      final TreeTableCounterBase? _right = getRightNode()?.getCounterTotal();
-      if (_left != null && _right != null) {
-        counter = _left.combine(_right, TreeTableCounterCookies.countAll);
+      final TreeTableCounterBase? left = getLeftNode()?.getCounterTotal();
+      final TreeTableCounterBase? right = getRightNode()?.getCounterTotal();
+      if (left != null && right != null) {
+        counter = left.combine(right, TreeTableCounterCookies.countAll);
       }
     }
 
@@ -2521,18 +2523,18 @@ class TreeTableWithCounterBranch extends TreeTableWithSummaryBranch
     if (parent != null) {
       parent!.invalidateCounterBottomUp(notifyCounterSource);
     } else if (notifyCounterSource) {
-      final Object _tree = tree!;
-      if (_tree is TreeTableWithCounter) {
+      final Object object = tree!;
+      if (object is TreeTableWithCounter) {
         TreeTableCounterSourceBase? tcs;
-        if (_tree.tag is TreeTableCounterSourceBase) {
-          tcs = _tree.tag! as TreeTableCounterSourceBase;
+        if (object.tag is TreeTableCounterSourceBase) {
+          tcs = object.tag! as TreeTableCounterSourceBase;
         }
 
         if (tcs != null) {
           tcs.invalidateCounterBottomUp();
         }
 
-        tcs = _tree.parentCounterSource;
+        tcs = object.parentCounterSource;
         if (tcs != null) {
           tcs.invalidateCounterBottomUp();
         }
@@ -2656,19 +2658,19 @@ class TreeTableWithCounterEntry extends TreeTableWithSummaryEntryBase
     if (parent != null) {
       parent!.invalidateCounterBottomUp(notifyCounterSource);
     } else if (notifyCounterSource) {
-      final Object _tree = tree!;
-      if (_tree is TreeTableWithCounter) {
+      final Object object = tree!;
+      if (object is TreeTableWithCounter) {
         TreeTableCounterSourceBase? tcs;
 
-        if (_tree.tag is TreeTableCounterSourceBase) {
-          tcs = _tree.tag! as TreeTableCounterSourceBase;
+        if (object.tag is TreeTableCounterSourceBase) {
+          tcs = object.tag! as TreeTableCounterSourceBase;
         }
 
         if (tcs != null) {
           tcs.invalidateCounterBottomUp();
         }
 
-        tcs = _tree.parentCounterSource;
+        tcs = object.parentCounterSource;
         if (tcs != null) {
           tcs.invalidateCounterBottomUp();
         }
@@ -2727,9 +2729,9 @@ class TreeTableWithCounter extends TreeTableWithSummary {
       return _startPos;
     }
 
-    final Object? _root = root;
-    if (_root != null && _root is TreeTableCounterNodeBase) {
-      return _root.getCounterTotal();
+    final Object? object = root;
+    if (object != null && object is TreeTableCounterNodeBase) {
+      return object.getCounterTotal();
     } else {
       return null;
     }
@@ -2916,9 +2918,9 @@ class TreeTableWithCounter extends TreeTableWithSummary {
       // walk down to most left leaf that has visible entries
       while (!next!.isEntry()) {
         final TreeTableBranchBase branch = next as TreeTableBranchBase;
-        final TreeTableCounterNodeBase _left =
+        final TreeTableCounterNodeBase left =
             branch.left! as TreeTableCounterNodeBase;
-        next = !_left.getCounterTotal()!.isEmpty(cookie)
+        next = !left.getCounterTotal()!.isEmpty(cookie)
             ? branch.left
             : branch.right;
       }
@@ -2979,9 +2981,9 @@ class TreeTableWithCounter extends TreeTableWithSummary {
       // walk down to most left leaf that has visible entries
       while (!next!.isEntry()) {
         final TreeTableBranchBase branch = next as TreeTableBranchBase;
-        final TreeTableCounterNodeBase _right =
+        final TreeTableCounterNodeBase right =
             branch.right! as TreeTableCounterNodeBase;
-        next = !_right.getCounterTotal()!.isEmpty(cookie)
+        next = !right.getCounterTotal()!.isEmpty(cookie)
             ? branch.right
             : branch.left;
       }
@@ -3037,9 +3039,9 @@ class TreeTableWithCounter extends TreeTableWithSummary {
   /// * notifyCounterSource - _required_ - Boolean value
   void invalidateCounterTopDown(bool notifyCounterSource) {
     if (root != null) {
-      final Object _root = root!;
-      if (_root is TreeTableCounterNodeBase) {
-        _root.invalidateCounterTopDown(notifyCounterSource);
+      final Object object = root!;
+      if (object is TreeTableCounterNodeBase) {
+        object.invalidateCounterTopDown(notifyCounterSource);
       }
     }
   }
@@ -3302,9 +3304,9 @@ class TreeTableWithSummaryBranch extends TreeTableBranch
       parent!.invalidateSummariesBottomUp(notifyParentRecordSource);
     } else if (notifyParentRecordSource) {
       if (tree != null && tree!.tag is TreeTableSummaryArraySourceBase) {
-        final TreeTableSummaryArraySourceBase _treeTag =
+        final TreeTableSummaryArraySourceBase treeTag =
             tree!.tag! as TreeTableSummaryArraySourceBase;
-        _treeTag.invalidateSummariesBottomUp();
+        treeTag.invalidateSummariesBottomUp();
       }
     }
   }
@@ -3397,9 +3399,9 @@ class TreeTableWithSummaryEntryBase extends TreeTableEntry
   /// Returns an instance for newly created TreeTable
   @override
   TreeTableBranchBase? createBranch(TreeTable tree) {
-    final Object _tree = tree;
-    if (_tree is TreeTableWithSummaryBranch) {
-      return _tree;
+    final Object object = tree;
+    if (object is TreeTableWithSummaryBranch) {
+      return object;
     } else {
       return null;
     }
@@ -3422,18 +3424,18 @@ class TreeTableWithSummaryEntryBase extends TreeTableEntry
   void invalidateSummariesBottomUp(bool notifyParentRecordSource) {
     _summaries = null;
     if (value is TreeTableSummaryArraySourceBase && tree != null) {
-      final TreeTableSummaryArraySourceBase _tree =
+      final TreeTableSummaryArraySourceBase tableSummaryArraySourceBase =
           tree!.tag! as TreeTableSummaryArraySourceBase;
-      _tree.invalidateSummary();
+      tableSummaryArraySourceBase.invalidateSummary();
     }
 
     if (parent != null) {
       parent!.invalidateSummariesBottomUp(notifyParentRecordSource);
     } else if (notifyParentRecordSource) {
       if (tree != null && tree!.tag is TreeTableSummaryArraySourceBase) {
-        final TreeTableSummaryArraySourceBase _tree =
+        final TreeTableSummaryArraySourceBase tableSummaryArraySourceBase =
             tree!.tag! as TreeTableSummaryArraySourceBase;
-        _tree.invalidateSummariesBottomUp();
+        tableSummaryArraySourceBase.invalidateSummariesBottomUp();
       }
     }
   }
@@ -3470,9 +3472,9 @@ class TreeTableWithSummary extends TreeTable {
       return false;
     }
 
-    final Object _root = root!;
-    if (_root is TreeTableSummaryNodeBase) {
-      return _root.hasSummaries;
+    final Object object = root!;
+    if (object is TreeTableSummaryNodeBase) {
+      return object.hasSummaries;
     } else {
       return false;
     }
@@ -3489,9 +3491,9 @@ class TreeTableWithSummary extends TreeTable {
       return emptySummaries.getEmptySummaries();
     }
 
-    final Object _root = root!;
-    if (_root is TreeTableSummaryNodeBase) {
-      return _root.getSummaries(emptySummaries);
+    final Object object = root!;
+    if (object is TreeTableSummaryNodeBase) {
+      return object.getSummaries(emptySummaries);
     } else {
       return null;
     }
@@ -3503,9 +3505,9 @@ class TreeTableWithSummary extends TreeTable {
   /// summaries source.
   void invalidateSummariesTopDown(bool notifySummariesSource) {
     if (root != null) {
-      final Object _root = root!;
-      if (_root is TreeTableSummaryNodeBase) {
-        _root.invalidateSummariesTopDown(notifySummariesSource);
+      final Object object = root!;
+      if (object is TreeTableSummaryNodeBase) {
+        object.invalidateSummariesTopDown(notifySummariesSource);
       }
     }
   }

@@ -657,13 +657,13 @@ void renderCircularDataLabel(
             point.renderPosition == ChartDataLabelPosition.outside) {
           point.trimmedText = getTrimmedText(point.trimmedText!,
               point.labelRect.right - containerRect.left, dataLabelStyle,
-              axisRenderer: null, isRtl: stateProperties.isRtl);
+              isRtl: stateProperties.isRtl);
         }
         if (point.labelRect.right > containerRect.right &&
             point.renderPosition == ChartDataLabelPosition.outside) {
           point.trimmedText = getTrimmedText(point.trimmedText!,
               containerRect.right - point.labelRect.left, dataLabelStyle,
-              axisRenderer: null, isRtl: stateProperties.isRtl);
+              isRtl: stateProperties.isRtl);
         }
         if (point.trimmedText != '' &&
             !isOverlapWithPrevious(

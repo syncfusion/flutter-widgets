@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_core/tooltip_internal.dart';
 
+import '../../../charts.dart';
 import '../../chart/axis/axis.dart';
 import '../../chart/axis/category_axis.dart';
 import '../../chart/axis/datetime_category_axis.dart';

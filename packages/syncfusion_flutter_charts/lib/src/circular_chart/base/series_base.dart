@@ -11,6 +11,7 @@ import '../renderer/chart_point.dart';
 import '../renderer/circular_series.dart';
 import '../renderer/common.dart';
 import '../renderer/data_label_renderer.dart';
+import '../renderer/radial_bar_series.dart';
 import '../renderer/renderer_extension.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -51,7 +52,7 @@ class CircularSeriesBase {
   /// To find the visible series.
   void findVisibleSeries() {
     CircularSeries<dynamic, dynamic> series;
-    List<ChartPoint<dynamic>>? _oldPoints;
+    List<ChartPoint<dynamic>>? oldPoints;
     CircularSeries<dynamic, dynamic>? oldSeries;
     int oldPointIndex = 0;
     ChartPoint<dynamic> currentPoint;
@@ -61,7 +62,7 @@ class CircularSeriesBase {
       series = seriesRenderer.series = chart.series[0];
       seriesRenderer.dataPoints = <ChartPoint<dynamic>>[];
       seriesRenderer.needsAnimation = false;
-      _oldPoints = stateProperties.prevSeriesRenderer?.oldRenderPoints;
+      oldPoints = stateProperties.prevSeriesRenderer?.oldRenderPoints;
       oldSeries = stateProperties.prevSeriesRenderer?.series;
       oldPointIndex = 0;
       if (series.dataSource != null) {
@@ -78,11 +79,11 @@ class CircularSeriesBase {
                         (oldSeries.endAngle != series.endAngle);
               }
 
-              seriesRenderer.needsAnimation = !(_oldPoints != null &&
-                      _oldPoints.isNotEmpty &&
+              seriesRenderer.needsAnimation = !(oldPoints != null &&
+                      oldPoints.isNotEmpty &&
                       !seriesRenderer.needsAnimation &&
-                      oldPointIndex < _oldPoints.length) ||
-                  isDataUpdated(currentPoint, _oldPoints[oldPointIndex++]);
+                      oldPointIndex < oldPoints.length) ||
+                  isDataUpdated(currentPoint, oldPoints[oldPointIndex++]);
             }
           }
         }
@@ -324,30 +325,78 @@ class CircularSeriesBase {
     num pointStartAngle = seriesRenderer.segmentRenderingValues['start']!;
     final num innerRadius =
         seriesRenderer.segmentRenderingValues['currentInnerRadius']!;
+    num? ringSize;
+    int? firstVisible;
+    num? gap;
+    late RadialBarSeriesRendererExtension radialBarSeriesRenderer;
+    final bool radialSeries = seriesRenderer.seriesType == 'radialbar';
+    if (radialSeries) {
+      radialBarSeriesRenderer =
+          seriesRenderer as RadialBarSeriesRendererExtension;
+      radialBarSeriesRenderer.innerRadius =
+          seriesRenderer.segmentRenderingValues['currentInnerRadius']!;
+      firstVisible = seriesRenderer.getFirstVisiblePointIndex(seriesRenderer);
+      ringSize = (seriesRenderer.segmentRenderingValues['currentRadius']! -
+                  seriesRenderer.segmentRenderingValues['currentInnerRadius']!)
+              .abs() /
+          seriesRenderer.renderPoints!.length;
+      gap = percentToValue(
+          seriesRenderer.series.gap,
+          (seriesRenderer.segmentRenderingValues['currentRadius']! -
+                  seriesRenderer.segmentRenderingValues['currentInnerRadius']!)
+              .abs());
+    }
     for (final ChartPoint<dynamic> point in seriesRenderer.renderPoints!) {
       if (point.isVisible) {
-        point.innerRadius =
-            (seriesRenderer.seriesType == 'doughnut') ? innerRadius : 0.0;
-        point.degree = (point.y!.abs() /
-                (seriesRenderer.segmentRenderingValues['sumOfPoints']! != 0
-                    ? seriesRenderer.segmentRenderingValues['sumOfPoints']!
-                    : 1)) *
-            seriesRenderer.segmentRenderingValues['totalAngle']!;
-        pointEndAngle = pointStartAngle + point.degree!;
-        point.startAngle = pointStartAngle;
-        point.endAngle = pointEndAngle;
-        point.midAngle = (pointStartAngle + pointEndAngle) / 2;
-        point.outerRadius = _calculatePointRadius(point.radius, point,
-            seriesRenderer.segmentRenderingValues['currentRadius']!);
-        point.center = _needExplode(pointIndex, currentSeries)
-            ? _findExplodeCenter(
-                point.midAngle!, seriesRenderer, point.outerRadius!)
-            : seriesRenderer.center;
-        // ignore: unnecessary_null_comparison
-        if (currentSeries.dataLabelSettings != null) {
-          findDataLabelPosition(point);
+        if (radialSeries) {
+          num? degree;
+          final RadialBarSeries<dynamic, dynamic> series =
+              seriesRenderer.series as RadialBarSeries<dynamic, dynamic>;
+          degree = point.y!.abs() /
+              (series.maximumValue ??
+                  seriesRenderer.segmentRenderingValues['sumOfPoints']!);
+          degree = degree * (360 - 0.001);
+          pointEndAngle = pointStartAngle + degree;
+          point.midAngle = (pointStartAngle + pointEndAngle) / 2;
+          point.startAngle = pointStartAngle;
+          point.endAngle = pointEndAngle;
+          point.center = seriesRenderer.center!;
+          point.innerRadius = radialBarSeriesRenderer.innerRadius =
+              radialBarSeriesRenderer.innerRadius +
+                  ((point.index == firstVisible) ? 0 : ringSize!) -
+                  (series.trackBorderWidth / 2) / series.dataSource!.length;
+          point.outerRadius = seriesRenderer
+                  .renderPoints![point.index].outerRadius =
+              ringSize! < gap!
+                  ? 0
+                  : seriesRenderer.renderPoints![point.index].innerRadius! +
+                      ringSize -
+                      gap -
+                      (series.trackBorderWidth / 2) / series.dataSource!.length;
+        } else {
+          point.innerRadius =
+              (seriesRenderer.seriesType == 'doughnut') ? innerRadius : 0.0;
+          point.degree = (point.y!.abs() /
+                  (seriesRenderer.segmentRenderingValues['sumOfPoints']! != 0
+                      ? seriesRenderer.segmentRenderingValues['sumOfPoints']!
+                      : 1)) *
+              seriesRenderer.segmentRenderingValues['totalAngle']!;
+          pointEndAngle = pointStartAngle + point.degree!;
+          point.startAngle = pointStartAngle;
+          point.endAngle = pointEndAngle;
+          point.midAngle = (pointStartAngle + pointEndAngle) / 2;
+          point.outerRadius = _calculatePointRadius(point.radius, point,
+              seriesRenderer.segmentRenderingValues['currentRadius']!);
+          point.center = _needExplode(pointIndex, currentSeries)
+              ? _findExplodeCenter(
+                  point.midAngle!, seriesRenderer, point.outerRadius!)
+              : seriesRenderer.center;
+          // ignore: unnecessary_null_comparison
+          if (currentSeries.dataLabelSettings != null) {
+            findDataLabelPosition(point);
+          }
+          pointStartAngle = pointEndAngle;
         }
-        pointStartAngle = pointEndAngle;
       }
       pointIndex++;
     }

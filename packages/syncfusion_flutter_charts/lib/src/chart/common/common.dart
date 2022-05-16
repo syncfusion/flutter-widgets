@@ -3,11 +3,6 @@ import 'dart:math' as math;
 import 'dart:ui' as dart_ui;
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/axis/datetime_axis.dart'
-    show DateTimeAxisDetails;
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/marker.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/segment_properties.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../common/event_args.dart';
@@ -16,11 +11,13 @@ import '../../common/utils/enum.dart';
 import '../../common/utils/helper.dart';
 import '../../common/utils/typedef.dart';
 import '../axis/axis.dart';
+import '../axis/datetime_axis.dart' show DateTimeAxisDetails;
 import '../base/chart_base.dart';
 import '../chart_segment/chart_segment.dart';
 import '../chart_segment/scatter_segment.dart';
 import '../chart_series/error_bar_series.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/stacked_series_base.dart';
 import '../chart_series/waterfall_series.dart';
 import '../chart_series/xy_data_series.dart';
@@ -33,6 +30,8 @@ import '../user_interaction/trackball.dart';
 import '../utils/enum.dart'
     show ErrorBarType, RenderingMode, Direction, DateTimeIntervalType;
 import '../utils/helper.dart';
+import 'marker.dart';
+import 'segment_properties.dart';
 
 export 'package:syncfusion_flutter_core/core.dart'
     show DataMarkerType, TooltipAlignment;
@@ -1004,7 +1003,7 @@ double getAnimateValue(
 void animateScatterSeries(
     SeriesRendererDetails seriesRendererDetails,
     CartesianChartPoint<dynamic> point,
-    CartesianChartPoint<dynamic>? _oldPoint,
+    CartesianChartPoint<dynamic>? oldPoint,
     double animationFactor,
     Canvas canvas,
     Paint fillPaint,
@@ -1031,13 +1030,13 @@ void animateScatterSeries(
   double y = point.markerPoint!.y;
   if (seriesRendererDetails.stateProperties.renderingDetails.widgetNeedUpdate ==
           true &&
-      _oldPoint != null &&
+      oldPoint != null &&
       seriesRendererDetails.reAnimate == false &&
-      _oldPoint.markerPoint != null) {
+      oldPoint.markerPoint != null) {
     x = getAnimateValue(
-        animationFactor, x, _oldPoint.markerPoint!.x, x, seriesRendererDetails);
+        animationFactor, x, oldPoint.markerPoint!.x, x, seriesRendererDetails);
     y = getAnimateValue(
-        animationFactor, y, _oldPoint.markerPoint!.y, y, seriesRendererDetails);
+        animationFactor, y, oldPoint.markerPoint!.y, y, seriesRendererDetails);
     segment.animationFactor = 1;
   }
   final bool isMarkerEventTriggered =
@@ -2086,3 +2085,10 @@ double _updateDateTimeHorizontalErrorValue(
   }
   return errorXValue.millisecondsSinceEpoch.toDouble();
 }
+
+/// Returns the sampled data for fast line series
+List<CartesianChartPoint<dynamic>> getSampledData(
+        SeriesRendererDetails seriesRendererDetails) =>
+    seriesRendererDetails.seriesType == 'fastline'
+        ? seriesRendererDetails.sampledDataPoints
+        : seriesRendererDetails.dataPoints;

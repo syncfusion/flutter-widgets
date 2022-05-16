@@ -635,6 +635,14 @@ class RowGenerator {
             !row.isEditing)
         .toList(growable: false);
 
+    void reuseRow(int rowIndex, RowRegion rowRegion) {
+      List<DataRowBase>? rows = reUseRows();
+      if (rows.isNotEmpty) {
+        _updateRow(rows, rowIndex, rowRegion);
+        rows = null;
+      }
+    }
+
     for (final DataRowBase row in items) {
       row.isEnsured = false;
     }
@@ -656,28 +664,28 @@ class RowGenerator {
           index++) {
         DataRowBase? dr = _indexer(index);
         if (dr == null) {
-          int cacheLength = 0;
-          int footerRowsCount = 0;
-          if (dataGridStateDetails().rowsCacheExtent != null) {
-            cacheLength += (visibleRows.length - 1) +
-                dataGridStateDetails().rowsCacheExtent!;
-            footerRowsCount += dataGridStateDetails().footerFrozenRowsCount +
+          final DataGridConfiguration dataGridConfiguration =
+              dataGridStateDetails();
+          if (region == RowRegion.body &&
+              dataGridConfiguration.rowsCacheExtent != null &&
+              dataGridConfiguration.rowsCacheExtent! > 0) {
+            final int cacheLength =
+                visibleRows.length + dataGridConfiguration.rowsCacheExtent!;
+            final int footerRowsCount = dataGridConfiguration
+                    .footerFrozenRowsCount +
                 grid_helper.getTableSummaryCount(
-                    dataGridStateDetails(), GridTableSummaryRowPosition.bottom);
-          }
-          if (dataGridStateDetails().rowsCacheExtent != null &&
-              items.length < cacheLength &&
-              index >= (items.length - footerRowsCount) &&
-              region == RowRegion.body) {
-            dr = _createDataRow(index, visibleColumns);
-            dr.isEnsured = true;
-            items.add(dr);
-          } else {
-            List<DataRowBase>? rows = reUseRows();
-            if (rows.isNotEmpty) {
-              _updateRow(rows, index, region);
-              rows = null;
+                    dataGridConfiguration, GridTableSummaryRowPosition.bottom);
+
+            if (items.length < cacheLength &&
+                index >= (items.length - footerRowsCount)) {
+              dr = _createDataRow(index, visibleColumns);
+              dr.isEnsured = true;
+              items.add(dr);
+            } else {
+              reuseRow(index, region);
             }
+          } else {
+            reuseRow(index, region);
           }
         }
 

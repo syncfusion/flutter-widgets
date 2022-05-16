@@ -154,6 +154,7 @@ class PdfMargins {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
+  // ignore: avoid_setters_without_getters
   set all(double value) {
     if (!_helper.isPageAdded) {
       _helper.setMargins(value);

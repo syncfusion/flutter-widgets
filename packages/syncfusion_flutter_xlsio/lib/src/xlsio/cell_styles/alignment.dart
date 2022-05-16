@@ -1,7 +1,7 @@
 part of xlsio;
 
 /// Represent cell alignment class.
-class Alignment {
+class _Alignment {
   /// Gets/sets horizontal alignment.
   late String horizontal;
 

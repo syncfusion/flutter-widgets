@@ -12,11 +12,14 @@ abstract class _FormatTokenBase {
   int _tryParseRegex(RegExp regex, String strFormat, int iIndex) {
     final int iFormatLength = strFormat.length;
     if (iFormatLength == 0) {
-      throw 'strFormat - string cannot be empty';
+      final Error error = ArgumentError('strFormat - string cannot be empty');
+      throw error;
     }
 
     if (iIndex < 0 || iIndex > iFormatLength) {
-      throw 'iIndex - Value cannot be less than 0 or greater than Format Length';
+      final Error error = ArgumentError(
+          'iIndex - Value cannot be less than 0 or greater than Format Length');
+      throw error;
     }
     final Match? m = regex.matchAsPrefix(strFormat, iIndex);
     if (regex.hasMatch(strFormat) && m != null && m.start == iIndex) {
@@ -45,7 +48,8 @@ abstract class _FormatTokenBase {
 
   set _format(String value) {
     if (value.isEmpty) {
-      throw 'value - string cannot be empty.';
+      final Error error = ArgumentError('value - string cannot be empty.');
+      throw error;
     }
 
     if (_strFormat != value) {
@@ -61,11 +65,14 @@ abstract class _FormatTokenBase {
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) {
-      throw 'strFormat - string cannot be empty.';
+      final Error error = ArgumentError('strFormat - string cannot be empty.');
+      throw error;
     }
 
     if (iIndex < 0 || iIndex > iFormatLength - 1) {
-      throw 'iIndex - Value cannot be less than 0 and greater than than format length - 1.';
+      final Error error = ArgumentError(
+          'iIndex - Value cannot be less than 0 and greater than than format length - 1.');
+      throw error;
     }
     return -1;
   }

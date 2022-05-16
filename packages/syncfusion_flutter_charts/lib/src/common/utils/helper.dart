@@ -1,16 +1,13 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/axis/axis.dart';
-import 'package:syncfusion_flutter_charts/src/common/rendering_details.dart';
-import 'package:syncfusion_flutter_charts/src/pyramid_chart/utils/common.dart';
-import 'package:syncfusion_flutter_charts/src/pyramid_chart/utils/helper.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/legend_internal.dart'
     hide LegendPosition;
 import 'package:syncfusion_flutter_core/legend_internal.dart' as legend_common;
 import 'package:syncfusion_flutter_core/theme.dart';
 
+import '../../chart/axis/axis.dart';
 import '../../chart/base/chart_base.dart';
 import '../../chart/chart_series/financial_series_base.dart';
 import '../../chart/chart_series/series.dart';
@@ -25,10 +22,13 @@ import '../../circular_chart/base/circular_base.dart';
 import '../../circular_chart/renderer/common.dart';
 import '../../funnel_chart/base/funnel_base.dart';
 import '../../pyramid_chart/base/pyramid_base.dart';
+import '../../pyramid_chart/utils/common.dart';
+import '../../pyramid_chart/utils/helper.dart';
 import '../common.dart';
 import '../event_args.dart';
 import '../legend/legend.dart';
 import '../legend/renderer.dart';
+import '../rendering_details.dart';
 import '../state_properties.dart';
 import '../utils/enum.dart';
 import 'typedef.dart';
@@ -194,9 +194,9 @@ Widget? getElements(StateProperties stateProperties, Widget chartWidget,
   }
   if (!chartLegend.shouldRenderLegend) {
     element = SizedBox(
-        child: chartWidget,
         width: constraints.maxWidth,
-        height: constraints.maxHeight);
+        height: constraints.maxHeight,
+        child: chartWidget);
   } else {
     legendHeight = chartLegend.legendSize.height;
     legendWidth = chartLegend.legendSize.width;
@@ -243,7 +243,6 @@ Widget? getElements(StateProperties stateProperties, Widget chartWidget,
     if (legend.legendItemBuilder != null) {
       element = SfLegend.builder(
           title: getLegendTitleWidget(legend, stateProperties.renderingDetails),
-          child: chartWidget,
           itemCount: legendWidgetContext.length,
           toggledIndices: chartLegend.toggledIndices,
           color: chartLegend.legend!.backgroundColor,
@@ -286,11 +285,11 @@ Widget? getElements(StateProperties stateProperties, Widget chartWidget,
               circularAndTriangularToggle(toggledIndex, stateProperties);
               chartLegend.toggledIndices = toggledIndices;
             }
-          });
+          },
+          child: chartWidget);
     } else {
       element = SfLegend(
           title: getLegendTitleWidget(legend, stateProperties.renderingDetails),
-          child: chartWidget,
           toggledIndices: chartLegend.toggledIndices,
           items: chartLegend.legendItems,
           offset: legend.offset,
@@ -342,7 +341,8 @@ Widget? getElements(StateProperties stateProperties, Widget chartWidget,
               circularAndTriangularToggle(toggledIndex, stateProperties);
               chartLegend.toggledIndices = toggledIndices;
             }
-          });
+          },
+          child: chartWidget);
     }
   }
   return element;
@@ -360,6 +360,7 @@ legend_common.LegendPosition getEffectiveChartLegendPosition(
       return legend_common.LegendPosition.left;
     case LegendPosition.right:
       return legend_common.LegendPosition.right;
+    // ignore: no_default_cases
     default:
       return legend_common.LegendPosition.bottom;
   }
@@ -622,24 +623,24 @@ EdgeInsetsGeometry getEffectiveLegendPadding(ChartLegend chartLegend,
 /// Method to handle cartesian series legend toggling for SfLegend.
 void cartesianToggle(int index, CartesianStateProperties stateProperties) {
   LegendTapArgs legendTapArgs;
-  MeasureWidgetContext _measureWidgetContext;
-  LegendRenderContext _legendRenderContext;
+  MeasureWidgetContext measureWidgetContext;
+  LegendRenderContext legendRenderContext;
   final SfCartesianChart chart = stateProperties.chart;
   stateProperties.isTooltipHidden = true;
   if (chart.onLegendTapped != null) {
     if (chart.legend.legendItemBuilder != null) {
-      _measureWidgetContext =
+      measureWidgetContext =
           stateProperties.renderingDetails.legendWidgetContext[index];
       legendTapArgs = LegendTapArgs(
           stateProperties.chartSeries
-              .visibleSeriesRenderers[_measureWidgetContext.seriesIndex!],
-          _measureWidgetContext.seriesIndex!,
+              .visibleSeriesRenderers[measureWidgetContext.seriesIndex!],
+          measureWidgetContext.seriesIndex!,
           0);
     } else {
-      _legendRenderContext = stateProperties
+      legendRenderContext = stateProperties
           .renderingDetails.chartLegend.legendCollections![index];
       legendTapArgs = LegendTapArgs(
-          _legendRenderContext.series, _legendRenderContext.seriesIndex, 0);
+          legendRenderContext.series, legendRenderContext.seriesIndex, 0);
     }
     chart.onLegendTapped!(legendTapArgs);
   }
@@ -900,7 +901,7 @@ String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
       : measureText(label, labelStyle).width;
   if (size > labelsExtent) {
     final int textLength = text.length;
-    if (isRtl == true) {
+    if (isRtl ?? false) {
       for (int i = 0; i < textLength - 1; i++) {
         label = '...${text.substring(i + 1, textLength)}';
         size = axisRenderer != null
@@ -951,6 +952,13 @@ Widget renderChartTitle(StateProperties stateProperties) {
     titleWidget = Container(
       margin: EdgeInsets.fromLTRB(widget.margin.left, widget.margin.top,
           widget.margin.right, widget.margin.bottom),
+      alignment: (widget.title.alignment == ChartAlignment.near)
+          ? Alignment.topLeft
+          : (widget.title.alignment == ChartAlignment.far)
+              ? Alignment.topRight
+              : (widget.title.alignment == ChartAlignment.center)
+                  ? Alignment.topCenter
+                  : Alignment.topCenter,
       child: Container(
           padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
           decoration: BoxDecoration(
@@ -969,13 +977,6 @@ Widget renderChartTitle(StateProperties stateProperties) {
               textScaleFactor: 1.2,
               overflow: TextOverflow.clip,
               textAlign: TextAlign.center)),
-      alignment: (widget.title.alignment == ChartAlignment.near)
-          ? Alignment.topLeft
-          : (widget.title.alignment == ChartAlignment.far)
-              ? Alignment.topRight
-              : (widget.title.alignment == ChartAlignment.center)
-                  ? Alignment.topCenter
-                  : Alignment.topCenter,
     );
   } else {
     titleWidget = Container();
@@ -1018,13 +1019,13 @@ List<Widget> bindLegendTemplateWidgets(dynamic stateProperties) {
 }
 
 /// To check whether indexes are valid.
-bool validIndex(int? _pointIndex, int? _seriesIndex, dynamic chart) {
-  return _seriesIndex != null &&
-      _pointIndex != null &&
-      _seriesIndex >= 0 &&
-      _seriesIndex < chart.series.length &&
-      _pointIndex >= 0 &&
-      _pointIndex < chart.series[_seriesIndex].dataSource.length;
+bool validIndex(int? pointIndex, int? seriesIndex, dynamic chart) {
+  return seriesIndex != null &&
+      pointIndex != null &&
+      seriesIndex >= 0 &&
+      seriesIndex < chart.series.length &&
+      pointIndex >= 0 &&
+      pointIndex < chart.series[seriesIndex].dataSource.length;
 }
 
 /// This method removes the given listener from the animation controller and then dsiposes it.
@@ -1048,16 +1049,16 @@ void calculatePointSeriesIndex(
       final SeriesRendererDetails seriesRendererDetails =
           SeriesHelper.getSeriesRendererDetails(
               stateProperties.chartSeries.visibleSeriesRenderers[i]);
-      final String _seriesType = seriesRendererDetails.seriesType;
+      final String seriesType = seriesRendererDetails.seriesType;
       int? pointIndex;
-      final double padding = (_seriesType == 'bubble') ||
-              (_seriesType == 'scatter') ||
-              (_seriesType == 'bar') ||
-              (_seriesType == 'column' ||
-                  _seriesType == 'rangecolumn' ||
-                  _seriesType.contains('stackedcolumn') ||
-                  _seriesType.contains('stackedbar') ||
-                  _seriesType == 'waterfall')
+      final double padding = (seriesType == 'bubble') ||
+              (seriesType == 'scatter') ||
+              (seriesType == 'bar') ||
+              (seriesType == 'column' ||
+                  seriesType == 'rangecolumn' ||
+                  seriesType.contains('stackedcolumn') ||
+                  seriesType.contains('stackedbar') ||
+                  seriesType == 'waterfall')
           ? 0
           : 15;
 
@@ -1197,7 +1198,7 @@ PointInfo<dynamic> pyramidFunnelPixelToPoint(
 
 /// Add the ellipse with trimmed text.
 String addEllipse(String text, int maxLength, String ellipse, {bool? isRtl}) {
-  if (isRtl == true) {
+  if (isRtl ?? false) {
     if (text.contains(ellipse)) {
       text = text.replaceAll(ellipse, '');
       text = text.substring(1, text.length);

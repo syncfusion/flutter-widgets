@@ -260,8 +260,7 @@ class PdfRectangleAnnotationHelper extends PdfAnnotationHelper {
           nativeRectangle.width, nativeRectangle.height);
       if (rectangleAnnotation.opacity < 1) {
         graphics.save();
-        graphics.setTransparency(rectangleAnnotation.opacity,
-            mode: PdfBlendMode.normal);
+        graphics.setTransparency(rectangleAnnotation.opacity);
       }
       graphics.drawRectangle(
           bounds: Rect.fromLTWH(
@@ -418,8 +417,7 @@ class PdfRectangleAnnotationHelper extends PdfAnnotationHelper {
           rectangleAnnotation.bounds, page, appearance, true);
 
       if (rectangleAnnotation.opacity < 1) {
-        page.graphics.setTransparency(rectangleAnnotation.opacity,
-            mode: PdfBlendMode.normal);
+        page.graphics.setTransparency(rectangleAnnotation.opacity);
       }
       page.graphics.drawPdfTemplate(
           appearance!, Offset(rectangle.left, rectangle.top), rectangle.size);

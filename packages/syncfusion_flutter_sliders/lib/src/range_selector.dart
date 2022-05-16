@@ -1408,11 +1408,12 @@ class SfRangeSelector extends StatefulWidget {
         controller!.toDiagnosticsNode(name: 'controller'),
       );
     }
-    properties.add(FlagProperty('enabled',
-        value: enabled,
-        ifTrue: 'Range selector is enabled',
-        ifFalse: 'Range selector is disabled',
-        showName: false));
+    properties.add(FlagProperty(
+      'enabled',
+      value: enabled,
+      ifTrue: 'Range selector is enabled',
+      ifFalse: 'Range selector is disabled',
+    ));
     properties.add(DoubleProperty('interval', interval));
     properties.add(DoubleProperty('stepSize', stepSize));
     if (stepDuration != null) {
@@ -1423,40 +1424,32 @@ class SfRangeSelector extends StatefulWidget {
     properties.add(FlagProperty('showTicks',
         value: showTicks,
         ifTrue: 'Ticks are showing',
-        ifFalse: 'Ticks are not showing',
-        showName: false));
+        ifFalse: 'Ticks are not showing'));
     properties.add(FlagProperty('showLabels',
         value: showLabels,
         ifTrue: 'Labels are showing',
-        ifFalse: 'Labels are not showing',
-        showName: false));
+        ifFalse: 'Labels are not showing'));
     properties.add(FlagProperty('showDividers',
         value: showDividers,
         ifTrue: 'Dividers are  showing',
-        ifFalse: 'Dividers are not showing',
-        showName: false));
+        ifFalse: 'Dividers are not showing'));
     if (shouldAlwaysShowTooltip) {
       properties.add(FlagProperty('shouldAlwaysShowTooltip',
-          value: shouldAlwaysShowTooltip,
-          ifTrue: 'Tooltip is always visible',
-          showName: false));
+          value: shouldAlwaysShowTooltip, ifTrue: 'Tooltip is always visible'));
     } else {
       properties.add(FlagProperty('enableTooltip',
           value: enableTooltip,
           ifTrue: 'Tooltip is enabled',
-          ifFalse: 'Tooltip is disabled',
-          showName: false));
+          ifFalse: 'Tooltip is disabled'));
     }
     properties.add(FlagProperty('enableIntervalSelection',
         value: enableIntervalSelection,
         ifTrue: 'Interval selection is enabled',
-        ifFalse: 'Interval selection is disabled',
-        showName: false));
+        ifFalse: 'Interval selection is disabled'));
     properties.add(FlagProperty('enableDeferredUpdate',
         value: enableDeferredUpdate,
         ifTrue: 'Deferred update is enabled',
-        ifFalse: 'Deferred update is disabled',
-        showName: false));
+        ifFalse: 'Deferred update is disabled'));
     properties.add(EnumProperty<SliderDragMode>('dragMode', dragMode));
     properties.add(ColorProperty('activeColor', activeColor));
     properties.add(ColorProperty('inactiveColor', inactiveColor));
@@ -1738,11 +1731,11 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       tickShape: widget.tickShape,
       minorTickShape: widget.minorTickShape,
       tooltipShape: widget.tooltipShape,
-      child: widget.child,
       rangeSelectorThemeData: _getRangeSelectorThemeData(themeData),
       startThumbIcon: widget.startThumbIcon,
       endThumbIcon: widget.endThumbIcon,
       state: this,
+      child: widget.child,
     );
   }
 }

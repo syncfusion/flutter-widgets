@@ -1,7 +1,5 @@
 import 'dart:ui';
 
-import 'package:syncfusion_flutter_pdf/src/pdf/implementation/pdf_document/pdf_document_template.dart';
-
 import '../../interfaces/pdf_interface.dart';
 import '../drawing/drawing.dart';
 import '../general/pdf_collection.dart';
@@ -651,7 +649,7 @@ class PdfSectionHelper {
 
   /// internal method
   void dropCropBox() {
-    _setPageSettings(_section!, null);
+    _setPageSettings(_section!);
     _section![PdfDictionaryProperties.cropBox] =
         _section![PdfDictionaryProperties.mediaBox];
   }

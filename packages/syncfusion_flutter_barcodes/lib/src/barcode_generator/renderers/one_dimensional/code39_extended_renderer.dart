@@ -145,7 +145,8 @@ class Code39ExtendedRenderer extends Code39Renderer {
   bool getIsValidateInput(String value) {
     for (int i = 0; i < value.length; i++) {
       if (value[i].codeUnitAt(0) > 127) {
-        throw 'The provided input cannot be encoded : ${value[i]}';
+        throw ArgumentError(
+            'The provided input cannot be encoded : ${value[i]}');
       }
     }
     return true;

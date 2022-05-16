@@ -487,9 +487,9 @@ class Range {
 
   /// Represents the row height.
   double get rowHeight {
-    final Row? _rowObj = _worksheet.rows[row];
-    if (_rowObj != null) {
-      return _rowObj.height;
+    final Row? rowObj = _worksheet.rows[row];
+    if (rowObj != null) {
+      return rowObj.height;
     }
     return 0;
   }
@@ -507,13 +507,13 @@ class Range {
   /// ```
   set rowHeight(double value) {
     if (isSingleRange) {
-      Row? _rowObj = _worksheet.rows[row];
-      if (_rowObj == null) {
-        _rowObj = Row(_worksheet);
-        _rowObj.index = row;
-        worksheet.rows[row] = _rowObj;
+      Row? rowObj = _worksheet.rows[row];
+      if (rowObj == null) {
+        rowObj = Row(_worksheet);
+        rowObj.index = row;
+        worksheet.rows[row] = rowObj;
       }
-      _rowObj.height = value;
+      rowObj.height = value;
     } else {
       // ignore: prefer_final_locals
       for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
@@ -620,22 +620,22 @@ class Range {
   /// ```
   void showRows(bool? isVisible) {
     if (isSingleRange) {
-      Row? _row = _worksheet.rows[row];
-      if (_row == null) {
-        _row = Row(_worksheet);
-        _row.index = row;
-        worksheet.rows[row] = _row;
+      Row? row1 = _worksheet.rows[row];
+      if (row1 == null) {
+        row1 = Row(_worksheet);
+        row1.index = row;
+        worksheet.rows[row] = row1;
       }
-      _row._isHidden = !isVisible!;
+      row1._isHidden = !isVisible!;
     } else {
       for (int rowIndex = row; rowIndex <= lastRow; rowIndex++) {
-        Row? _row = _worksheet.rows[rowIndex];
-        if (_row == null) {
-          _row = Row(_worksheet);
-          _row.index = rowIndex;
-          worksheet.rows[rowIndex] = _row;
+        Row? row1 = _worksheet.rows[rowIndex];
+        if (row1 == null) {
+          row1 = Row(_worksheet);
+          row1.index = rowIndex;
+          worksheet.rows[rowIndex] = row1;
         }
-        _row._isHidden = !isVisible!;
+        row1._isHidden = !isVisible!;
       }
     }
   }
@@ -653,22 +653,22 @@ class Range {
   /// ```
   void showColumns(bool? isVisible) {
     if (isSingleRange) {
-      Column? _column = _worksheet.columns[column];
-      if (_column == null) {
-        _column = Column(_worksheet);
-        _column.index = column;
-        worksheet.columns[column] = _column;
+      Column? column1 = _worksheet.columns[column];
+      if (column1 == null) {
+        column1 = Column(_worksheet);
+        column1.index = column;
+        worksheet.columns[column] = column1;
       }
-      _column._isHidden = !isVisible!;
+      column1._isHidden = !isVisible!;
     } else {
       for (int columnIndex = column; columnIndex <= lastColumn; columnIndex++) {
-        Column? _column = _worksheet.columns[columnIndex];
-        if (_column == null) {
-          _column = Column(_worksheet);
-          _column.index = column;
-          worksheet.columns[columnIndex] = _column;
+        Column? column1 = _worksheet.columns[columnIndex];
+        if (column1 == null) {
+          column1 = Column(_worksheet);
+          column1.index = column;
+          worksheet.columns[columnIndex] = column1;
         }
-        _column._isHidden = !isVisible!;
+        column1._isHidden = !isVisible!;
       }
     }
   }
@@ -851,7 +851,7 @@ class Range {
 
   /// Get Range Date time value.
   DateTime? getDateTime() {
-    final DateTime minimumDateValue = DateTime(0001, 1, 1, 0, 0, 0);
+    final DateTime minimumDateValue = DateTime(0001);
     Range range = worksheet.getRangeByIndex(row, column);
     final double? dValue = range.number;
 
@@ -967,6 +967,7 @@ class Range {
   }
 
   /// Set formula number value to the range.
+  // ignore: use_setters_to_change_properties
   void _setFormulaNumberValue(double number) {
     _number = number;
   }
@@ -1115,8 +1116,6 @@ class Range {
           return _getNumberOrDateTime(formatImpl, number, row, column);
         }
         break;
-      default:
-        break;
     }
     return '';
   }
@@ -1178,7 +1177,11 @@ class Range {
           }
         }
         return displayText;
-      default:
+
+      case ExcelFormatType.percentage:
+      case ExcelFormatType.currency:
+      case ExcelFormatType.decimalPercentage:
+      case ExcelFormatType.exponential:
         break;
     }
     return displayText;
@@ -1642,13 +1645,13 @@ class Range {
 
   ///Represents the method to find whether the datavalidation exists for both single and multiple range
   _DataValidationImpl? _findDataValidation() {
-    final _DataValidationTable _dvtable = _worksheet._dvTable;
+    final _DataValidationTable dvtable = _worksheet._dvTable;
     if (isSingleRange) {
       _dvValue = _getColumnName(column) + row.toString();
     } else {
       _dvValue =
           '${_getColumnName(column)}${row.toString()}:${_getColumnName(lastColumn)}${lastRow.toString()}';
     }
-    return _dvtable._findDataValidation(_dvValue);
+    return dvtable._findDataValidation(_dvValue);
   }
 }

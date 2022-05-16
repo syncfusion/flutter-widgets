@@ -359,8 +359,8 @@ class CompressedStreamReader {
         throw ArgumentError.value(iCurrentCode, 'Wrong dynamic huffman codes.');
       }
 
-      final int _iRepSymbol = symbol - 16;
-      final int bits = def_huffman_dyntree_repeat_bits[_iRepSymbol];
+      final int iRepSymbol = symbol - 16;
+      final int bits = def_huffman_dyntree_repeat_bits[iRepSymbol];
 
       int count = _readBits(bits);
 
@@ -368,7 +368,7 @@ class CompressedStreamReader {
         throw ArgumentError.value(count, 'Wrong dynamic huffman codes.');
       }
 
-      count += def_huffman_dyntree_repeat_minimums[_iRepSymbol];
+      count += def_huffman_dyntree_repeat_minimums[iRepSymbol];
 
       if (iCurrentCode + count > iResultingCodeLengthsCount) {
         throw ArgumentError.value(iCurrentCode, 'Wrong dynamic huffman codes.');

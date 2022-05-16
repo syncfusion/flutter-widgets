@@ -41,6 +41,7 @@ class PdfCatalogNames implements IPdfWrapper {
   }
 
   /// internal property
+  // ignore: avoid_setters_without_getters
   set embeddedFiles(PdfAttachmentCollection value) {
     if (_attachments != value) {
       _attachments = value;

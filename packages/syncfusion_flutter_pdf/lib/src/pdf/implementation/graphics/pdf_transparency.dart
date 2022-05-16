@@ -85,7 +85,7 @@ class PdfTransparency implements IPdfWrapper {
         return 'Color';
       case PdfBlendMode.luminosity:
         return 'Luminosity';
-      default:
+      case PdfBlendMode.normal:
         return 'Normal';
     }
   }

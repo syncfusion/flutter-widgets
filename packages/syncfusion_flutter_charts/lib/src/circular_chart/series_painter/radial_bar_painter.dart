@@ -97,7 +97,7 @@ class RadialBarPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     num? pointStartAngle, pointEndAngle, degree;
-    ChartPoint<dynamic>? _oldPoint;
+    ChartPoint<dynamic>? oldPoint;
     late ChartPoint<dynamic> point;
     _initializeValues(canvas);
     late RadialBarSeries<dynamic, dynamic> series;
@@ -111,25 +111,25 @@ class RadialBarPainter extends CustomPainter {
       if (seriesRenderer.series is RadialBarSeries) {
         series = seriesRenderer.series as RadialBarSeries<dynamic, dynamic>;
       }
-      _oldPoint = (_oldSeriesRenderer != null &&
+      oldPoint = (_oldSeriesRenderer != null &&
               _oldSeriesRenderer!.oldRenderPoints != null &&
               (_oldSeriesRenderer!.oldRenderPoints!.length - 1 >= i))
           ? _oldSeriesRenderer!.oldRenderPoints![i]
           : (_isLegendToggle ? stateProperties.oldPoints![i] : null);
       pointStartAngle = _actualStartAngle;
-      isDynamicUpdate = _oldPoint != null;
+      isDynamicUpdate = oldPoint != null;
       hide = false;
       actualDegree = 0;
       if (!isDynamicUpdate ||
-          ((_oldPoint.isVisible && point.isVisible) ||
-              (_oldPoint.isVisible && !point.isVisible) ||
-              (!_oldPoint.isVisible && point.isVisible))) {
+          ((oldPoint.isVisible && point.isVisible) ||
+              (oldPoint.isVisible && !point.isVisible) ||
+              (!oldPoint.isVisible && point.isVisible))) {
         if (point.isVisible) {
           hide = false;
           if (isDynamicUpdate && !_isLegendToggle) {
-            value = (point.y! > _oldPoint.y!)
-                ? _oldPoint.y! + (point.y! - _oldPoint.y!) * _animationValue
-                : _oldPoint.y! - (_oldPoint.y! - point.y!) * _animationValue;
+            value = (point.y! > oldPoint.y!)
+                ? oldPoint.y! + (point.y! - oldPoint.y!) * _animationValue
+                : oldPoint.y! - (oldPoint.y! - point.y!) * _animationValue;
           }
           degree = (value ?? point.y!).abs() / (series.maximumValue ?? _sum);
           degree = degree * (360 - 0.001);
@@ -152,23 +152,23 @@ class RadialBarPainter extends CustomPainter {
                   (series.trackBorderWidth / 2) / series.dataSource!.length;
           if (_isLegendToggle) {
             seriesRenderer.calculateVisiblePointLegendToggleAnimation(
-                point, _oldPoint, i, _animationValue);
+                point, oldPoint, i, _animationValue);
           }
         } //animate on hiding
-        else if (_isLegendToggle && !point.isVisible && _oldPoint!.isVisible) {
+        else if (_isLegendToggle && !point.isVisible && oldPoint!.isVisible) {
           hide = true;
-          oldEnd = _oldPoint.endAngle;
-          oldStart = _oldPoint.startAngle;
-          degree = _oldPoint.y!.abs() / (series.maximumValue ?? _sum);
+          oldEnd = oldPoint.endAngle;
+          oldStart = oldPoint.startAngle;
+          degree = oldPoint.y!.abs() / (series.maximumValue ?? _sum);
           degree = degree * (360 - 0.001);
           actualDegree = degree.toDouble();
-          oldInnerRadius = _oldPoint.innerRadius! +
-              ((_oldPoint.outerRadius! + _oldPoint.innerRadius!) / 2 -
-                      _oldPoint.innerRadius!) *
+          oldInnerRadius = oldPoint.innerRadius! +
+              ((oldPoint.outerRadius! + oldPoint.innerRadius!) / 2 -
+                      oldPoint.innerRadius!) *
                   _animationValue;
-          oldRadius = _oldPoint.outerRadius! -
-              (_oldPoint.outerRadius! -
-                      (_oldPoint.outerRadius! + _oldPoint.innerRadius!) / 2) *
+          oldRadius = oldPoint.outerRadius! -
+              (oldPoint.outerRadius! -
+                      (oldPoint.outerRadius! + oldPoint.innerRadius!) / 2) *
                   _animationValue;
         }
         // ignore: unnecessary_type_check
@@ -182,7 +182,7 @@ class RadialBarPainter extends CustomPainter {
               hide,
               oldRadius,
               oldInnerRadius,
-              _oldPoint,
+              oldPoint,
               oldStart,
               oldEnd,
               i,
@@ -200,13 +200,12 @@ class RadialBarPainter extends CustomPainter {
   /// Method to render the radial bar series.
   void _renderRadialBarSeries(Canvas canvas) {
     if (seriesRenderer.renderList.isNotEmpty) {
-      Shader? _chartShader;
+      Shader? chartShader;
       if (stateProperties.chart.onCreateShader != null) {
         ChartShaderDetails chartShaderDetails;
         chartShaderDetails = ChartShaderDetails(seriesRenderer.renderList[1],
             seriesRenderer.renderList[2], 'series');
-        _chartShader =
-            stateProperties.chart.onCreateShader!(chartShaderDetails);
+        chartShader = stateProperties.chart.onCreateShader!(chartShaderDetails);
       }
 
       for (int k = 0; k < seriesRenderer.renderPaths.length; k++) {
@@ -215,7 +214,7 @@ class RadialBarPainter extends CustomPainter {
             seriesRenderer.renderList[0],
             seriesRenderer.renderPaths[k],
             seriesRenderer.renderList[1],
-            _chartShader!);
+            chartShader!);
       }
 
       for (int k = 0; k < seriesRenderer.shadowPaths.length; k++) {
@@ -223,8 +222,8 @@ class RadialBarPainter extends CustomPainter {
             seriesRenderer.shadowPaths[k], seriesRenderer.shadowPaint);
       }
 
-      if (_chartShader != null && seriesRenderer.overFilledPaint != null) {
-        seriesRenderer.overFilledPaint!.shader = _chartShader;
+      if (chartShader != null && seriesRenderer.overFilledPaint != null) {
+        seriesRenderer.overFilledPaint!.shader = chartShader;
       }
       for (int k = 0; k < seriesRenderer.overFilledPaths.length; k++) {
         canvas.drawPath(

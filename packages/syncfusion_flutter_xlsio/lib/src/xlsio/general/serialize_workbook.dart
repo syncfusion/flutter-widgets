@@ -301,8 +301,18 @@ class SerializeWorkbook {
                           if (cell._saveType != '') {
                             builder.attribute('t', cell._saveType);
                           }
-                          strFormula =
-                              strFormula.substring(1).replaceAll("'", '"');
+                          final int j = strFormula.lastIndexOf('!');
+                          if (j != -1) {
+                            strFormula = strFormula.substring(1);
+                            final String substring1 =
+                                strFormula.substring(0, j);
+                            final String substring2 = strFormula.substring(j);
+                            strFormula =
+                                substring1 + substring2.replaceAll("'", '"');
+                          } else {
+                            strFormula =
+                                strFormula.substring(1).replaceAll("'", '"');
+                          }
                           final int i = strFormula.indexOf('!');
                           if (i != -1 &&
                               strFormula[0] == '"' &&
@@ -415,9 +425,9 @@ class SerializeWorkbook {
         });
       }
 
-      final _TableSerialization _tableSerialization =
+      final _TableSerialization tableSerialization =
           _TableSerialization(_workbook);
-      _tableSerialization._serializeTables(builder, sheet);
+      tableSerialization._serializeTables(builder, sheet);
 
       builder.element('extLst', nest: () {
         _serializeConditionalFormattingExt(builder, sheet);
@@ -442,8 +452,7 @@ class SerializeWorkbook {
   void _serializeHyperlinks(XmlBuilder builder, Worksheet sheet) {
     if (sheet.hyperlinks.count > 0) {
       final int iCount = sheet.hyperlinks.count;
-      final List<String> hyperLinkType =
-          List<String>.filled(iCount, '', growable: false);
+      final List<String> hyperLinkType = List<String>.filled(iCount, '');
       for (int i = 0; i < sheet.hyperlinks.count; i++) {
         final Hyperlink hyperLink = sheet.hyperlinks[i];
         hyperLinkType[i] =
@@ -1450,7 +1459,7 @@ class SerializeWorkbook {
         }
       }
       //Add alignment
-      cellXfs._alignment = Alignment();
+      cellXfs._alignment = _Alignment();
       cellXfs._alignment!.indent = style.indent;
       cellXfs._alignment!.horizontal =
           style.hAlign.toString().split('.').toList().removeAt(1);
@@ -1765,11 +1774,7 @@ class SerializeWorkbook {
   void _serializeDataValidations(XmlBuilder builder, Worksheet sheet) {
     final _DataValidationTable dataValidationTable = sheet._dvTable;
 
-    if (builder == null) {
-      throw Exception('builder error');
-    }
-
-    if (dataValidationTable == null || dataValidationTable._count == 0) {
+    if (dataValidationTable._count == 0) {
       return;
     }
 
@@ -1788,12 +1793,7 @@ class SerializeWorkbook {
   ///Serialize DataValidation Collection
   void _serializeDataValidationCollection(
       XmlBuilder builder, _DataValidationCollection dataValidationCollection) {
-    if (builder == null) {
-      throw Exception('builder error');
-    }
-
-    if (dataValidationCollection == null ||
-        dataValidationCollection.count == 0) {
+    if (dataValidationCollection.count == 0) {
       return;
     }
 
@@ -1842,7 +1842,7 @@ class SerializeWorkbook {
       case ExcelDataValidationType.user:
         return 'list';
 
-      default:
+      case ExcelDataValidationType.any:
         return 'any';
     }
   }
@@ -1856,7 +1856,7 @@ class SerializeWorkbook {
       case ExcelDataValidationErrorStyle.warning:
         return 'warning';
 
-      default:
+      case ExcelDataValidationErrorStyle.stop:
         return 'stop';
     }
   }
@@ -1886,7 +1886,7 @@ class SerializeWorkbook {
       case ExcelDataValidationComparisonOperator.notEqual:
         return 'notEqual';
 
-      default:
+      case ExcelDataValidationComparisonOperator.between:
         return 'between';
     }
   }
@@ -1902,13 +1902,6 @@ class SerializeWorkbook {
   /// Serialize DataValidation
   void _serializeDataValidation(
       XmlBuilder builder, _DataValidationImpl dataValidationImpl) {
-    if (builder == null) {
-      throw Exception('builder error');
-    }
-
-    if (dataValidationImpl == null) {
-      throw Exception('dataValidationImpl cannot be Empty');
-    }
     builder.element('dataValidation', nest: () {
       final ExcelDataValidationType dataType = dataValidationImpl.allowType;
 
@@ -1961,139 +1954,136 @@ class SerializeWorkbook {
       if ('textLength' == _getDataType(dataType) ||
           'decimal' == _getDataType(dataType) ||
           'whole' == _getDataType(dataType)) {
-        final String _firstFormula = dataValidationImpl.firstFormula;
-        final String _secondFormula = dataValidationImpl.secondFormula;
-        if (_firstFormula != '') {
-          builder.element('formula1', nest: _firstFormula);
+        final String firstFormula = dataValidationImpl.firstFormula;
+        final String secondFormula = dataValidationImpl.secondFormula;
+        if (firstFormula != '') {
+          builder.element('formula1', nest: firstFormula);
         }
-        if (_secondFormula != '') {
-          builder.element('formula2', nest: _secondFormula);
+        if (secondFormula != '') {
+          builder.element('formula2', nest: secondFormula);
         }
       } else if ('time' == _getDataType(dataType)) {
-        final String _firstFormula = dataValidationImpl.firstFormula;
-        final String _secondFormula = dataValidationImpl.secondFormula;
-        final List<String> _firstFormulaCheck = _firstFormula.split(':');
-        final List<String> _secondFormulaCheck = _secondFormula.split(':');
-        late Duration _duration;
-        late double _firstFormulaVal;
-        late double _secondFormulaVal;
-        late String _firstTimeVal;
-        late String _secondTimeVal;
-        if (_firstFormulaCheck.length == 2) {
-          final int? _hour = int.tryParse(_firstFormulaCheck[0]);
-          final int? _min = int.tryParse(_firstFormulaCheck[1]);
+        final String firstFormula = dataValidationImpl.firstFormula;
+        final String secondFormula = dataValidationImpl.secondFormula;
+        final List<String> firstFormulaCheck = firstFormula.split(':');
+        final List<String> secondFormulaCheck = secondFormula.split(':');
+        late Duration duration;
+        late double firstFormulaVal;
+        late double secondFormulaVal;
+        late String firstTimeVal;
+        late String secondTimeVal;
+        if (firstFormulaCheck.length == 2) {
+          final int? hour = int.tryParse(firstFormulaCheck[0]);
+          final int? min = int.tryParse(firstFormulaCheck[1]);
 
-          if (_hour != null && _min != null) {
-            _duration = Duration(hours: _hour, minutes: _min);
+          if (hour != null && min != null) {
+            duration = Duration(hours: hour, minutes: min);
 
-            _firstFormulaVal = (_duration.inMinutes / 60) / 24;
-            _firstTimeVal = _firstFormulaVal.toString();
+            firstFormulaVal = (duration.inMinutes / 60) / 24;
+            firstTimeVal = firstFormulaVal.toString();
           } else {
-            _firstTimeVal = _firstFormula;
+            firstTimeVal = firstFormula;
           }
         }
 
-        if (_firstFormulaCheck.length == 3) {
-          final int? _hour = int.tryParse(_firstFormulaCheck[0]);
-          final int? _min = int.tryParse(_firstFormulaCheck[1]);
-          final int? _sec = int.tryParse(_firstFormulaCheck[2]);
+        if (firstFormulaCheck.length == 3) {
+          final int? hour = int.tryParse(firstFormulaCheck[0]);
+          final int? min = int.tryParse(firstFormulaCheck[1]);
+          final int? sec = int.tryParse(firstFormulaCheck[2]);
 
-          if (_hour != null && _min != null && _sec != null) {
-            _duration = Duration(hours: _hour, minutes: _min, seconds: _sec);
+          if (hour != null && min != null && sec != null) {
+            duration = Duration(hours: hour, minutes: min, seconds: sec);
 
-            _firstFormulaVal = ((_duration.inSeconds / 60) / 60) / 24;
-            _firstTimeVal = _firstFormulaVal.toString();
+            firstFormulaVal = ((duration.inSeconds / 60) / 60) / 24;
+            firstTimeVal = firstFormulaVal.toString();
           } else {
-            _firstTimeVal = _firstFormula;
+            firstTimeVal = firstFormula;
           }
         }
 
-        if (_secondFormulaCheck.length == 2) {
-          final int? _hour = int.tryParse(_secondFormulaCheck[0]);
-          final int? _min = int.tryParse(_secondFormulaCheck[1]);
+        if (secondFormulaCheck.length == 2) {
+          final int? hour = int.tryParse(secondFormulaCheck[0]);
+          final int? min = int.tryParse(secondFormulaCheck[1]);
 
-          if (_hour != null && _min != null) {
-            _duration = Duration(hours: _hour, minutes: _min);
+          if (hour != null && min != null) {
+            duration = Duration(hours: hour, minutes: min);
 
-            _secondFormulaVal = (_duration.inMinutes / 60) / 24;
-            _secondTimeVal = _secondFormulaVal.toString();
+            secondFormulaVal = (duration.inMinutes / 60) / 24;
+            secondTimeVal = secondFormulaVal.toString();
           } else {
-            _secondTimeVal = _secondFormula;
+            secondTimeVal = secondFormula;
           }
         }
 
-        if (_secondFormulaCheck.length == 3) {
-          final int? _hour = int.tryParse(_secondFormulaCheck[0]);
-          final int? _min = int.tryParse(_secondFormulaCheck[1]);
-          final int? _sec = int.tryParse(_secondFormulaCheck[2]);
+        if (secondFormulaCheck.length == 3) {
+          final int? hour = int.tryParse(secondFormulaCheck[0]);
+          final int? min = int.tryParse(secondFormulaCheck[1]);
+          final int? sec = int.tryParse(secondFormulaCheck[2]);
 
-          if (_hour != null && _min != null && _sec != null) {
-            _duration = Duration(hours: _hour, minutes: _min, seconds: _sec);
+          if (hour != null && min != null && sec != null) {
+            duration = Duration(hours: hour, minutes: min, seconds: sec);
 
-            _secondFormulaVal = ((_duration.inSeconds / 60) / 60) / 24;
-            _secondTimeVal = _secondFormulaVal.toString();
+            secondFormulaVal = ((duration.inSeconds / 60) / 60) / 24;
+            secondTimeVal = secondFormulaVal.toString();
           } else {
-            _secondTimeVal = _secondFormula;
+            secondTimeVal = secondFormula;
           }
         }
 
-        if (_firstFormulaCheck.length != 2 && _firstFormulaCheck.length != 3) {
-          _firstTimeVal = _firstFormula;
+        if (firstFormulaCheck.length != 2 && firstFormulaCheck.length != 3) {
+          firstTimeVal = firstFormula;
         }
-        if (_secondFormulaCheck.length != 2 &&
-            _secondFormulaCheck.length != 3) {
-          _secondTimeVal = _secondFormula;
+        if (secondFormulaCheck.length != 2 && secondFormulaCheck.length != 3) {
+          secondTimeVal = secondFormula;
         }
-        if (_firstTimeVal != '') {
-          builder.element('formula1', nest: _firstTimeVal);
+        if (firstTimeVal != '') {
+          builder.element('formula1', nest: firstTimeVal);
         }
-        if (_secondTimeVal != '') {
-          builder.element('formula2', nest: _secondTimeVal);
+        if (secondTimeVal != '') {
+          builder.element('formula2', nest: secondTimeVal);
         }
       } else if ('list' == _getDataType(dataType)) {
-        final List<String> _firstFormula = dataValidationImpl.listOfValues;
-        late String _listOfValues = '';
-        if (_firstFormula.isNotEmpty) {
-          for (int listVal = 0; listVal < _firstFormula.length; listVal++) {
-            late String _comma;
+        final List<String> firstFormula = dataValidationImpl.listOfValues;
+        late String listOfValues = '';
+        if (firstFormula.isNotEmpty) {
+          for (int listVal = 0; listVal < firstFormula.length; listVal++) {
+            late String comma;
             if (listVal == 0) {
-              _comma = '';
+              comma = '';
             } else {
-              _comma = ',';
+              comma = ',';
             }
 
-            _listOfValues = _listOfValues + _comma + _firstFormula[listVal];
+            listOfValues = listOfValues + comma + firstFormula[listVal];
           }
 
-          builder.element('formula1', nest: '" $_listOfValues"');
-        } else if (dataValidationImpl._dataRangeVal != null) {
-          final String _firstFormulaSelect =
+          builder.element('formula1', nest: '" $listOfValues"');
+        } else {
+          final String firstFormulaSelect =
               dataValidationImpl._dataRangeVal.addressGlobal;
 
-          builder.element('formula1', nest: _firstFormulaSelect);
+          builder.element('formula1', nest: firstFormulaSelect);
         }
       } else if ('custom' == _getDataType(dataType)) {
-        final String _firstFormula = dataValidationImpl.firstFormula;
-        final String _secondFormula = dataValidationImpl.secondFormula;
-        if (_firstFormula != null && _firstFormula.isNotEmpty) {
-          builder.element('formula1', nest: _firstFormula);
-        } else if (_firstFormula == '' &&
-            _secondFormula != null &&
-            _secondFormula.isNotEmpty) {
-          builder.element('formula1', nest: _secondFormula);
+        final String firstFormula = dataValidationImpl.firstFormula;
+        final String secondFormula = dataValidationImpl.secondFormula;
+        if (firstFormula.isNotEmpty) {
+          builder.element('formula1', nest: firstFormula);
+        } else if (firstFormula == '' && secondFormula.isNotEmpty) {
+          builder.element('formula1', nest: secondFormula);
         }
       } else {
-        final DateTime _firstDateTime = dataValidationImpl._firstDateTimeVal;
-        final DateTime _secondDateTime = dataValidationImpl.secondDateTime;
-        final String _firstDateTimeVal =
-            Range._toOADate(_firstDateTime).toString();
-        final String _secondDateTimeVal =
-            Range._toOADate(_secondDateTime).toString();
-        if (_firstDateTime != DateTime(1, 1, 0001)) {
-          builder.element('formula1', nest: _firstDateTimeVal);
+        final DateTime firstDateTime = dataValidationImpl._firstDateTimeVal;
+        final DateTime secondDateTime = dataValidationImpl.secondDateTime;
+        final String firstDateTimeVal =
+            Range._toOADate(firstDateTime).toString();
+        final String secondDateTimeVal =
+            Range._toOADate(secondDateTime).toString();
+        if (firstDateTime != DateTime(1)) {
+          builder.element('formula1', nest: firstDateTimeVal);
         }
-        if (_secondDateTime != DateTime(1, 1, 0001)) {
-          builder.element('formula2', nest: _secondDateTimeVal);
+        if (secondDateTime != DateTime(1)) {
+          builder.element('formula2', nest: secondDateTimeVal);
         }
       }
     });
@@ -2116,12 +2106,12 @@ class SerializeWorkbook {
     }
   }
 
-  List<dynamic> _serializeConditionalFormats(XmlBuilder builder, int _iDxfIndex,
+  List<dynamic> _serializeConditionalFormats(XmlBuilder builder, int iDxfIndex,
       int iPriority, int iPriorityCount, _ConditionalFormatsImpl formats) {
     final int iRulesCount = formats.count;
     bool serializeCF = false;
     if (iRulesCount == 0)
-      return <dynamic>[_iDxfIndex, iPriority, iPriorityCount];
+      return <dynamic>[iDxfIndex, iPriority, iPriorityCount];
     for (final _ConditionalFormatImpl format in formats.innerList) {
       if (format.formatType == ExcelCFType.iconSet) {
         _IconSetImpl? iconSet;
@@ -2149,22 +2139,22 @@ class SerializeWorkbook {
           final ConditionalFormat condition = formats.innerList[i];
           if (!(condition as _ConditionalFormatImpl)._bCFHasExtensionList) {
             final List<dynamic> result = _serializeCondition(
-                builder, condition, '', _iDxfIndex, iPriority, iCount);
-            _iDxfIndex = result[0] as int;
+                builder, condition, '', iDxfIndex, iPriority, iCount);
+            iDxfIndex = result[0] as int;
             iPriority = result[1] as int;
             iCount = result[2] as int;
           }
         }
       });
     }
-    return <dynamic>[_iDxfIndex, iPriority, iPriorityCount];
+    return <dynamic>[iDxfIndex, iPriority, iPriorityCount];
   }
 
   List<dynamic> _serializeCondition(
       XmlBuilder builder,
       ConditionalFormat condition,
       String prefix,
-      int _iDxfIndex,
+      int iDxfIndex,
       int iPriority,
       int iCount) {
     final _ConditionalFormatImpl condFormat =
@@ -2179,8 +2169,8 @@ class SerializeWorkbook {
     builder.element('${prefix}cfRule', nest: () {
       builder.attribute('type', _getCFType(cfType, comparisonOperator));
       if (_checkFormat(condition)) {
-        builder.attribute('dxfId', _iDxfIndex.toString());
-        _iDxfIndex++;
+        builder.attribute('dxfId', iDxfIndex.toString());
+        iDxfIndex++;
       }
       if (condition.stopIfTrue) {
         builder.attribute('stopIfTrue', '1');
@@ -2274,7 +2264,7 @@ class SerializeWorkbook {
         });
       }
     });
-    return <dynamic>[_iDxfIndex, iPriority, iCount];
+    return <dynamic>[iDxfIndex, iPriority, iCount];
   }
 
   /// Serializes color scale of conditional format.
@@ -2443,7 +2433,15 @@ class SerializeWorkbook {
             return 'endsWith';
           case ExcelComparisonOperator.notContainsText:
             return 'notContainsText';
-          default:
+          case ExcelComparisonOperator.none:
+          case ExcelComparisonOperator.between:
+          case ExcelComparisonOperator.notBetween:
+          case ExcelComparisonOperator.equal:
+          case ExcelComparisonOperator.notEqual:
+          case ExcelComparisonOperator.greater:
+          case ExcelComparisonOperator.less:
+          case ExcelComparisonOperator.greaterOrEqual:
+          case ExcelComparisonOperator.lessOrEqual:
             throw Exception('ComOperator');
         }
       case ExcelCFType.formula:
@@ -2472,8 +2470,6 @@ class SerializeWorkbook {
         return 'top10';
       case ExcelCFType.aboveBelowAverage:
         return 'aboveAverage';
-      default:
-        throw Exception('typeCF');
     }
   }
 
@@ -2507,8 +2503,6 @@ class SerializeWorkbook {
         return 'notBetween';
       case ExcelComparisonOperator.notEqual:
         return 'notEqual';
-      default:
-        throw Exception('filterCondition');
     }
   }
 
@@ -2535,8 +2529,6 @@ class SerializeWorkbook {
         return 'thisMonth';
       case CFTimePeriods.nextMonth:
         return 'nextMonth';
-      default:
-        throw Exception('timePeriod');
     }
   }
 
@@ -2671,9 +2663,9 @@ class SerializeWorkbook {
   void _serializeDxfBorder(XmlBuilder builder, String value,
       LineStyle borderStyle, String borderColor) {
     builder.element(value, nest: () {
-      final String _strStyle =
+      final String strStyle =
           borderStyle.toString().split('.').toList().removeAt(1).toLowerCase();
-      builder.attribute('style', _strStyle);
+      builder.attribute('style', strStyle);
       builder.element('color', nest: () {
         if (borderColor.length <= 7) {
           builder.attribute('rgb', 'FF${borderColor.replaceAll('#', '')}');

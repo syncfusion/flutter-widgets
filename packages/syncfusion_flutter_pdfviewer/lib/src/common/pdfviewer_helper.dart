@@ -3,10 +3,11 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/mobile_helper.dart'
+
+import '../control/pdftextline.dart';
+import 'mobile_helper.dart'
     if (dart.library.html) 'package:syncfusion_flutter_pdfviewer/src/common/web_helper.dart'
     as helper;
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdftextline.dart';
 
 /// Indicates whether the current environment is running in Desktop
 bool kIsDesktop = kIsWeb || Platform.isMacOS || Platform.isWindows;

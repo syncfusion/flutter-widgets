@@ -527,16 +527,16 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer!);
     final int pointLength = seriesRendererDetails.dataPoints.length - 1;
-    final String _seriesType = seriesRendererDetails.seriesType;
+    final String seriesType = seriesRendererDetails.seriesType;
     final CartesianChartPoint<dynamic> prevPoint =
         seriesRendererDetails.dataPoints[
             seriesRendererDetails.dataPoints.length >= 2 == true
                 ? pointLength - 1
                 : pointLength];
-    if (_seriesType.contains('range') ||
-            _seriesType.contains('hilo') ||
-            _seriesType == 'candle'
-        ? _seriesType == 'hiloopenclose' || _seriesType == 'candle'
+    if (seriesType.contains('range') ||
+            seriesType.contains('hilo') ||
+            seriesType == 'candle'
+        ? seriesType == 'hiloopenclose' || seriesType == 'candle'
             ? (currentPoint.low == null ||
                 currentPoint.high == null ||
                 currentPoint.open == null ||
@@ -546,12 +546,12 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
       switch (seriesRendererDetails.series.emptyPointSettings.mode) {
         case EmptyPointMode.zero:
           currentPoint.isEmpty = true;
-          if (_seriesType.contains('range') ||
-              _seriesType.contains('hilo') ||
-              _seriesType.contains('candle')) {
+          if (seriesType.contains('range') ||
+              seriesType.contains('hilo') ||
+              seriesType.contains('candle')) {
             currentPoint.high = 0;
             currentPoint.low = 0;
-            if (_seriesType == 'hiloopenclose' || _seriesType == 'candle') {
+            if (seriesType == 'hiloopenclose' || seriesType == 'candle') {
               currentPoint.open = 0;
               currentPoint.close = 0;
             }
@@ -569,28 +569,28 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
           break;
 
         case EmptyPointMode.gap:
-          if (_seriesType == 'scatter' ||
-              _seriesType == 'column' ||
-              _seriesType == 'bar' ||
-              _seriesType == 'bubble' ||
-              _seriesType == 'splinearea' ||
-              _seriesType == 'rangecolumn' ||
-              _seriesType.contains('hilo') ||
-              _seriesType.contains('candle') ||
-              _seriesType == 'rangearea' ||
-              _seriesType.contains('stacked')) {
+          if (seriesType == 'scatter' ||
+              seriesType == 'column' ||
+              seriesType == 'bar' ||
+              seriesType == 'bubble' ||
+              seriesType == 'splinearea' ||
+              seriesType == 'rangecolumn' ||
+              seriesType.contains('hilo') ||
+              seriesType.contains('candle') ||
+              seriesType == 'rangearea' ||
+              seriesType.contains('stacked')) {
             currentPoint.y = pointIndex != 0 &&
-                    (!_seriesType.contains('stackedcolumn') &&
-                        !_seriesType.contains('stackedbar'))
+                    (!seriesType.contains('stackedcolumn') &&
+                        !seriesType.contains('stackedbar'))
                 ? prevPoint.y ?? 0
                 : 0;
             currentPoint.open = 0;
             currentPoint.close = 0;
             currentPoint.isVisible = false;
-          } else if (_seriesType.contains('line') ||
-              _seriesType == 'area' ||
-              _seriesType == 'steparea') {
-            if (_seriesType == 'splinerangearea') {
+          } else if (seriesType.contains('line') ||
+              seriesType == 'area' ||
+              seriesType == 'steparea') {
+            if (seriesType == 'splinerangearea') {
               // ignore: prefer_if_null_operators
               currentPoint.low = currentPoint.low == null
                   ? pointIndex != 0
@@ -611,7 +611,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
           currentPoint.isGap = true;
           break;
         case EmptyPointMode.drop:
-          if (_seriesType == 'splinerangearea') {
+          if (seriesType == 'splinerangearea') {
             // ignore: prefer_if_null_operators
             currentPoint.low = currentPoint.low == null
                 ? pointIndex != 0
@@ -626,17 +626,18 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
                 : currentPoint.high;
           }
           currentPoint.y = pointIndex != 0 &&
-                  (_seriesType != 'area' &&
-                      _seriesType != 'splinearea' &&
-                      _seriesType != 'splinerangearea' &&
-                      _seriesType != 'steparea' &&
-                      !_seriesType.contains('stackedcolumn') &&
-                      !_seriesType.contains('stackedbar'))
+                  (seriesType != 'area' &&
+                      seriesType != 'splinearea' &&
+                      seriesType != 'splinerangearea' &&
+                      seriesType != 'steparea' &&
+                      !seriesType.contains('stackedcolumn') &&
+                      !seriesType.contains('stackedbar'))
               ? prevPoint.y ?? 0
               : 0;
           currentPoint.isDrop = true;
           currentPoint.isVisible = false;
           break;
+        // ignore: no_default_cases
         default:
           currentPoint.y = 0;
           break;

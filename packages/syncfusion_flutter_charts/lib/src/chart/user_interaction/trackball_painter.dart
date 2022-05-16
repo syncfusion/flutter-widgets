@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
+import '../../../charts.dart';
 import '../../common/rendering_details.dart';
 import '../axis/axis.dart';
 import '../chart_segment/chart_segment.dart';
@@ -11,6 +11,7 @@ import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
+import '../common/common.dart';
 import '../common/interactive_tooltip.dart';
 import '../common/renderer.dart';
 import '../utils/helper.dart';
@@ -552,7 +553,7 @@ class TrackballPainter extends CustomPainter {
     Offset pos;
     ChartAxisRendererDetails xAxisDetails, yAxisDetails;
     SeriesRendererDetails? seriesRendererDetails;
-    num? _minX, _maxX;
+    num? minX, maxX;
     stringValue = <TrackballElement>[];
     final String? format = chartPointInfo[index]
         .seriesRendererDetails!
@@ -582,10 +583,10 @@ class TrackballPainter extends CustomPainter {
         xAxisDetails = chartPointInfo[i].seriesRendererDetails!.xAxisDetails!;
         seriesRendererDetails = chartPointInfo[i].seriesRendererDetails;
         yAxisDetails = chartPointInfo[i].seriesRendererDetails!.yAxisDetails!;
-        _minX = seriesRendererDetails!.minimumX;
-        _maxX = seriesRendererDetails.maximumX;
+        minX = seriesRendererDetails!.minimumX;
+        maxX = seriesRendererDetails.maximumX;
         _minLocation = calculatePoint(
-            _minX!,
+            minX!,
             seriesRendererDetails.minimumY!,
             xAxisDetails,
             yAxisDetails,
@@ -593,7 +594,7 @@ class TrackballPainter extends CustomPainter {
             chartPointInfo[index].series,
             stateProperties.chartAxis.axisClipRect);
         _maxLocation = calculatePoint(
-            _maxX!,
+            maxX!,
             seriesRendererDetails.maximumY!,
             xAxisDetails,
             yAxisDetails,
@@ -1685,20 +1686,20 @@ class TrackballPainter extends CustomPainter {
   // To render marker for the chart tooltip.
   void _renderMarker(
       Offset markerPoint,
-      SeriesRendererDetails _seriesRendererDetails,
+      SeriesRendererDetails seriesRendererDetails,
       double animationFactor,
       Canvas canvas,
       int index) {
     final MarkerSettings markerSettings =
         chart.trackballBehavior.markerSettings == null
-            ? _seriesRendererDetails.series.markerSettings
+            ? seriesRendererDetails.series.markerSettings
             : chart.trackballBehavior.markerSettings!;
     final Path markerPath = getMarkerShapesPath(
         markerSettings.shape,
         markerPoint,
         Size((2 * markerSize) * animationFactor,
             (2 * markerSize) * animationFactor),
-        _seriesRendererDetails,
+        seriesRendererDetails,
         index,
         chart.trackballBehavior);
 
@@ -1707,63 +1708,63 @@ class TrackballPainter extends CustomPainter {
           chart.trackballBehavior.markerSettings, stateProperties);
     }
 
-    Color? _seriesColor;
-    if (_seriesRendererDetails.seriesType.contains('candle') == true) {
-      _seriesColor = SegmentHelper.getSegmentProperties(_seriesRendererDetails
+    Color? seriesColor;
+    if (seriesRendererDetails.seriesType.contains('candle') == true) {
+      seriesColor = SegmentHelper.getSegmentProperties(seriesRendererDetails
               .segments[chartPointInfo[index].dataPointIndex!])
           .color;
-    } else if (_seriesRendererDetails.seriesType.contains('hiloopenclose') ==
+    } else if (seriesRendererDetails.seriesType.contains('hiloopenclose') ==
         true) {
-      _seriesColor = SegmentHelper.getSegmentProperties(_seriesRendererDetails
+      seriesColor = SegmentHelper.getSegmentProperties(seriesRendererDetails
                       .segments[chartPointInfo[index].dataPointIndex!])
                   .isBull ==
               true
-          ? _seriesRendererDetails.hiloOpenCloseSeries.bullColor
-          : _seriesRendererDetails.hiloOpenCloseSeries.bearColor;
+          ? seriesRendererDetails.hiloOpenCloseSeries.bullColor
+          : seriesRendererDetails.hiloOpenCloseSeries.bearColor;
     } else {
-      _seriesColor = (chartPointInfo[index].dataPointIndex! <
-                  _seriesRendererDetails.dataPoints.length
-              ? _seriesRendererDetails
-                  .dataPoints[chartPointInfo[index].dataPointIndex!]
+      final List<CartesianChartPoint<dynamic>> dataPoints =
+          getSampledData(seriesRendererDetails);
+      seriesColor = (chartPointInfo[index].dataPointIndex! < dataPoints.length
+              ? dataPoints[chartPointInfo[index].dataPointIndex!]
                   .pointColorMapper
               : null) ??
-          _seriesRendererDetails.seriesColor;
+          seriesRendererDetails.seriesColor;
     }
 
     Paint markerPaint = Paint();
-    markerPaint.color = markerSettings.color ?? _seriesColor ?? Colors.white;
-    if (_seriesRendererDetails.series.gradient != null) {
+    markerPaint.color = markerSettings.color ?? seriesColor ?? Colors.white;
+    if (seriesRendererDetails.series.gradient != null) {
       markerPaint = getLinearGradientPaint(
-          _seriesRendererDetails.series.gradient!,
+          seriesRendererDetails.series.gradient!,
           getMarkerShapesPath(
                   markerSettings.shape,
                   Offset(markerPoint.dx, markerPoint.dy),
                   Size((2 * markerSize) * animationFactor,
                       (2 * markerSize) * animationFactor),
-                  _seriesRendererDetails)
+                  seriesRendererDetails)
               .getBounds(),
-          _seriesRendererDetails.stateProperties.requireInvertedAxis);
+          seriesRendererDetails.stateProperties.requireInvertedAxis);
     }
     canvas.drawPath(markerPath, markerPaint);
     Paint markerBorderPaint = Paint();
     markerBorderPaint.color = markerSettings.borderColor ??
-        _seriesColor ??
-        _seriesRendererDetails
+        seriesColor ??
+        seriesRendererDetails
             .stateProperties.renderingDetails.chartTheme.tooltipLabelColor;
     markerBorderPaint.strokeWidth = 1;
     markerBorderPaint.style = PaintingStyle.stroke;
 
-    if (_seriesRendererDetails.series.gradient != null) {
+    if (seriesRendererDetails.series.gradient != null) {
       markerBorderPaint = getLinearGradientPaint(
-          _seriesRendererDetails.series.gradient!,
+          seriesRendererDetails.series.gradient!,
           getMarkerShapesPath(
                   markerSettings.shape,
                   Offset(markerPoint.dx, markerPoint.dy),
                   Size((2 * markerSize) * animationFactor,
                       (2 * markerSize) * animationFactor),
-                  _seriesRendererDetails)
+                  seriesRendererDetails)
               .getBounds(),
-          _seriesRendererDetails.stateProperties.requireInvertedAxis);
+          seriesRendererDetails.stateProperties.requireInvertedAxis);
     }
     canvas.drawPath(markerPath, markerBorderPaint);
   }

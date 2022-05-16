@@ -2061,7 +2061,6 @@ abstract class _IYearViewRenderObject extends RenderBox
 
   /// Used to draw year cell text in month view.
   final TextPainter _textPainter = TextPainter(
-      textAlign: TextAlign.start,
       textDirection: TextDirection.ltr,
       maxLines: 2,
       textWidthBasis: TextWidthBasis.longestLine);

@@ -378,7 +378,7 @@ class CircularSeriesRendererExtension implements CircularSeriesRenderer {
         : seriesRenderer.renderer.getOpacity(seriesRenderer, point, pointIndex,
             seriesIndex, seriesRenderer.series.opacity);
 
-    Shader? _renderModeShader;
+    Shader? renderModeShader;
 
     if (chart.series[0].pointRenderMode == PointRenderMode.gradient &&
         point?.shader == null) {
@@ -406,7 +406,7 @@ class CircularSeriesRendererExtension implements CircularSeriesRenderer {
         }
       }
 
-      _renderModeShader = dart_ui.Gradient.sweep(
+      renderModeShader = dart_ui.Gradient.sweep(
           center!,
           colorsList,
           stopsList,
@@ -485,10 +485,10 @@ class CircularSeriesRendererExtension implements CircularSeriesRenderer {
                 opacity: opacity),
             renderPath,
             PointHelper.getPathRect(point!),
-            point.shader ?? _renderModeShader);
+            point.shader ?? renderModeShader);
         // ignore: unnecessary_null_comparison
         if (point != null &&
-            (_renderModeShader != null || point.shader != null)) {
+            (renderModeShader != null || point.shader != null)) {
           // ignore: unnecessary_null_comparison
           if (strokeColor != null &&
               strokeWidth != null &&
@@ -595,8 +595,8 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
   /// Method for calculating animation for visible points on legend toggle.
   ///
   void calculateVisiblePointLegendToggleAnimation(ChartPoint<dynamic> point,
-      ChartPoint<dynamic>? _oldPoint, int i, num animationValue) {
-    if (!_oldPoint!.isVisible && point.isVisible) {
+      ChartPoint<dynamic>? oldPoint, int i, num animationValue) {
+    if (!oldPoint!.isVisible && point.isVisible) {
       radius = i == 0
           ? point.outerRadius!
           : (point.innerRadius! +
@@ -606,16 +606,16 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
               (point.outerRadius! - point.innerRadius!) * animationValue)
           : innerRadius;
     } else {
-      radius = (point.outerRadius! > _oldPoint.outerRadius!)
-          ? _oldPoint.outerRadius! +
-              (point.outerRadius! - _oldPoint.outerRadius!) * animationValue
-          : _oldPoint.outerRadius! -
-              (_oldPoint.outerRadius! - point.outerRadius!) * animationValue;
-      innerRadius = (point.innerRadius! > _oldPoint.innerRadius!)
-          ? _oldPoint.innerRadius! +
-              (point.innerRadius! - _oldPoint.innerRadius!) * animationValue
-          : _oldPoint.innerRadius! -
-              (_oldPoint.innerRadius! - point.innerRadius!) * animationValue;
+      radius = (point.outerRadius! > oldPoint.outerRadius!)
+          ? oldPoint.outerRadius! +
+              (point.outerRadius! - oldPoint.outerRadius!) * animationValue
+          : oldPoint.outerRadius! -
+              (oldPoint.outerRadius! - point.outerRadius!) * animationValue;
+      innerRadius = (point.innerRadius! > oldPoint.innerRadius!)
+          ? oldPoint.innerRadius! +
+              (point.innerRadius! - oldPoint.innerRadius!) * animationValue
+          : oldPoint.innerRadius! -
+              (oldPoint.innerRadius! - point.innerRadius!) * animationValue;
     }
   }
 
@@ -630,7 +630,7 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
       bool hide,
       num? oldRadius,
       num? oldInnerRadius,
-      ChartPoint<dynamic>? _oldPoint,
+      ChartPoint<dynamic>? oldPoint,
       num? oldStart,
       num? oldEnd,
       int i,
@@ -668,7 +668,7 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
           hide,
           oldRadius,
           oldInnerRadius,
-          _oldPoint,
+          oldPoint,
           oldStart,
           oldEnd,
           i,
@@ -690,7 +690,7 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
       bool hide,
       num? oldRadius,
       num? oldInnerRadius,
-      ChartPoint<dynamic>? _oldPoint,
+      ChartPoint<dynamic>? oldPoint,
       num? oldStart,
       num? oldEnd,
       int i,
@@ -718,13 +718,13 @@ class RadialBarSeriesRendererExtension extends RadialBarSeriesRenderer
     if (cornerStyle == CornerStyle.bothCurve ||
         cornerStyle == CornerStyle.startCurve) {
       hide
-          ? oldStart = _oldPoint!.startAngle! + angleDeviation
+          ? oldStart = oldPoint!.startAngle! + angleDeviation
           : pointStartAngle += angleDeviation;
     }
     if (cornerStyle == CornerStyle.bothCurve ||
         cornerStyle == CornerStyle.endCurve) {
       hide
-          ? oldEnd = _oldPoint!.endAngle! - angleDeviation
+          ? oldEnd = oldPoint!.endAngle! - angleDeviation
           : pointEndAngle = pointEndAngle! - angleDeviation;
     }
     final StyleOptions? style =

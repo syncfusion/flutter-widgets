@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/common/utils/helper.dart';
 
 import '../../chart/chart_series/series.dart';
 import '../../chart/common/data_label.dart';
@@ -8,6 +7,7 @@ import '../../chart/utils/enum.dart';
 import '../../common/common.dart';
 import '../../common/user_interaction/selection_behavior.dart';
 import '../../common/utils/enum.dart';
+import '../../common/utils/helper.dart';
 import '../../common/utils/typedef.dart';
 import '../../pyramid_chart/utils/common.dart';
 import '../base/funnel_base.dart';

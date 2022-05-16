@@ -127,18 +127,18 @@ class CircularSeriesController {
     if (index >= 0 &&
         series.dataSource!.length > index &&
         series.dataSource![index] != null) {
-      final ChartPoint<dynamic> _currentPoint =
+      final ChartPoint<dynamic> currentPoint =
           getCircularPoint(renderer, index);
-      if (_currentPoint.x != null) {
+      if (currentPoint.x != null) {
         if (needUpdate) {
           if (renderer.dataPoints.length > index) {
-            renderer.dataPoints[index] = _currentPoint;
+            renderer.dataPoints[index] = currentPoint;
           }
         } else {
           if (renderer.dataPoints.length == index) {
-            renderer.dataPoints.add(_currentPoint);
+            renderer.dataPoints.add(currentPoint);
           } else if (renderer.dataPoints.length > index && index >= 0) {
-            renderer.dataPoints.insert(index, _currentPoint);
+            renderer.dataPoints.insert(index, currentPoint);
           }
         }
       }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import '../../pdfviewer.dart';
 
 /// Bottom position of the [ScrollStatus] widget.
 const double _kPdfScrollStatusBottomPosition = 25.0;

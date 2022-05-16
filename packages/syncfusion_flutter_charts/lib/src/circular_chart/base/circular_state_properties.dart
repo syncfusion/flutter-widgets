@@ -1,10 +1,12 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
+
+import '../../../charts.dart';
 import '../../common/rendering_details.dart';
 import '../../common/state_properties.dart';
 import '../../common/user_interaction/tooltip.dart';
+import '../../common/user_interaction/tooltip_rendering_details.dart';
 import '../renderer/data_label_renderer.dart';
 import '../renderer/renderer_extension.dart';
 import 'circular_area.dart';

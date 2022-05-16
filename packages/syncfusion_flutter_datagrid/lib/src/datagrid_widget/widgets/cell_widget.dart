@@ -168,8 +168,8 @@ class _GridCellState extends State<GridCell> {
       key: widget.key,
       dataCell: widget.dataCell,
       isDirty: widget.isDirty,
-      child: _wrapInsideGestureDetector(),
       dataGridStateDetails: dataGridStateDetails,
+      child: _wrapInsideGestureDetector(),
     );
   }
 
@@ -358,8 +358,8 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
       key: widget.key,
       dataCell: widget.dataCell,
       isDirty: widget.isDirty,
-      child: _wrapInsideGestureDetector(),
       dataGridStateDetails: dataGridStateDetails,
+      child: _wrapInsideGestureDetector(),
     );
   }
 
@@ -408,17 +408,15 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
       children.add(_getSortNumber());
     }
 
-    return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Flexible(
-            child: Container(child: child),
-          ),
-          Container(
-            padding: const EdgeInsets.only(left: 4.0, right: 4.0),
-            child: Center(child: Row(children: children)),
-          )
-        ]);
+    return Row(children: <Widget>[
+      Flexible(
+        child: Container(child: child),
+      ),
+      Container(
+        padding: const EdgeInsets.only(left: 4.0, right: 4.0),
+        child: Center(child: Row(children: children)),
+      )
+    ]);
   }
 
   Widget _getSortNumber() {
@@ -852,15 +850,14 @@ Widget _wrapInsideCellContainer(
           Container(
               width: width,
               height: height,
-              child: child,
-              color: backgroundColor),
+              color: backgroundColor,
+              child: child),
           Positioned(
               left: 0,
               top: 0,
               width: width,
               height: height,
               child: IgnorePointer(
-                ignoring: true,
                 child: Container(
                     key: key,
                     clipBehavior: Clip.antiAlias,
@@ -870,7 +867,7 @@ Widget _wrapInsideCellContainer(
       );
     } else {
       return Container(
-          width: width, height: height, child: child, color: backgroundColor);
+          width: width, height: height, color: backgroundColor, child: child);
     }
   }
 

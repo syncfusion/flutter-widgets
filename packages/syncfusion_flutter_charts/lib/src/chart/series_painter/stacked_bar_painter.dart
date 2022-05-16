@@ -30,7 +30,7 @@ class StackedBarSeriesRenderer extends StackedSeriesRenderer {
         SegmentProperties(seriesRendererDetails.stateProperties, segment));
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(segment);
-    final StackedBarSeries<dynamic, dynamic> _stackedBarSeries =
+    final StackedBarSeries<dynamic, dynamic> stackedBarSeries =
         seriesRendererDetails.series as StackedBarSeries<dynamic, dynamic>;
     seriesRendererDetails.isRectSeries = true;
     // ignore: unnecessary_null_comparison
@@ -40,20 +40,20 @@ class StackedBarSeriesRenderer extends StackedSeriesRenderer {
       segment.points.add(
           Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
       segmentProperties.seriesRenderer = this;
-      segmentProperties.series = _stackedBarSeries;
+      segmentProperties.series = stackedBarSeries;
       segmentProperties.currentPoint = currentPoint;
       segment.animationFactor = animateFactor;
       segmentProperties.path = findingRectSeriesDashedBorder(
-          currentPoint, _stackedBarSeries.borderWidth);
+          currentPoint, stackedBarSeries.borderWidth);
       // ignore: unnecessary_null_comparison
-      if (_stackedBarSeries.borderRadius != null) {
+      if (stackedBarSeries.borderRadius != null) {
         segment.segmentRect = getRRectFromRect(
-            currentPoint.region!, _stackedBarSeries.borderRadius);
+            currentPoint.region!, stackedBarSeries.borderRadius);
 
         //Tracker rect
-        if (_stackedBarSeries.isTrackVisible) {
+        if (stackedBarSeries.isTrackVisible) {
           segmentProperties.trackRect = getRRectFromRect(
-              currentPoint.trackerRectRegion!, _stackedBarSeries.borderRadius);
+              currentPoint.trackerRectRegion!, stackedBarSeries.borderRadius);
           segmentProperties.trackerFillPaint =
               segmentProperties.getTrackerFillPaint();
           segmentProperties.trackerStrokePaint =
@@ -186,7 +186,7 @@ class StackedBar100SeriesRenderer extends StackedSeriesRenderer {
     final SegmentProperties segmentProperties =
         SegmentProperties(seriesRendererDetails.stateProperties, segment);
 
-    final StackedBar100Series<dynamic, dynamic> _stackedBar100Series =
+    final StackedBar100Series<dynamic, dynamic> stackedBar100Series =
         seriesRendererDetails.series as StackedBar100Series<dynamic, dynamic>;
     seriesRendererDetails.isRectSeries = true;
 
@@ -197,13 +197,13 @@ class StackedBar100SeriesRenderer extends StackedSeriesRenderer {
       segment.points.add(
           Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
       segmentProperties.seriesRenderer = this;
-      segmentProperties.series = _stackedBar100Series;
+      segmentProperties.series = stackedBar100Series;
       segmentProperties.currentPoint = currentPoint;
       segment.animationFactor = animateFactor;
       segmentProperties.path = findingRectSeriesDashedBorder(
-          currentPoint, _stackedBar100Series.borderWidth);
+          currentPoint, stackedBar100Series.borderWidth);
       segment.segmentRect = getRRectFromRect(
-          currentPoint.region!, _stackedBar100Series.borderRadius);
+          currentPoint.region!, stackedBar100Series.borderRadius);
       segmentProperties.segmentRect = segment.segmentRect;
       SegmentHelper.setSegmentProperties(segment, segmentProperties);
       final SegmentProperties currentSegmentProperties =
@@ -331,7 +331,7 @@ void _stackedBarPainter(
     CartesianChartPoint<dynamic> point;
     final XyDataSeries<dynamic, dynamic> series =
         seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
-    final RenderingDetails _renderingDetails = stateProperties.renderingDetails;
+    final RenderingDetails renderingDetails = stateProperties.renderingDetails;
     final int seriesIndex = painterKey.index;
     final Animation<double> seriesAnimation =
         seriesRendererDetails.seriesAnimation!;
@@ -342,8 +342,8 @@ void _stackedBarPainter(
     // ignore: unnecessary_null_comparison
     animationFactor = seriesAnimation != null &&
             (seriesRendererDetails.reAnimate == true ||
-                (!(_renderingDetails.widgetNeedUpdate ||
-                    _renderingDetails.isLegendToggled)))
+                (!(renderingDetails.widgetNeedUpdate ||
+                    renderingDetails.isLegendToggled)))
         ? seriesAnimation.value
         : 1;
     stateProperties.shader = null;
@@ -372,6 +372,7 @@ void _stackedBarPainter(
       point = seriesRendererDetails.dataPoints[pointIndex];
       final bool withInXRange = withInRange(
           point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+      // ignore: unnecessary_null_comparison
       final bool withInYRange = point != null &&
           point.yValue != null &&
           withInRange(
@@ -401,7 +402,7 @@ void _stackedBarPainter(
             seriesRendererDetails.yAxisDetails!.axis.plotOffset));
     canvas.restore();
     if ((series.animationDuration <= 0 ||
-            !_renderingDetails.initialRender! ||
+            !renderingDetails.initialRender! ||
             animationFactor >= stateProperties.seriesDurationFactor) &&
         (series.markerSettings.isVisible ||
             series.dataLabelSettings.isVisible)) {

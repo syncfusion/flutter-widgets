@@ -187,6 +187,7 @@ class Inflater {
             'eob': endblock,
             'output': _output
           };
+        // ignore: no_default_cases
         default:
           break;
       }
@@ -298,6 +299,7 @@ class Inflater {
             };
           }
           break;
+        // ignore: no_default_cases
         default:
           break;
       }
@@ -403,6 +405,7 @@ class Inflater {
           return false;
         }
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
@@ -631,6 +634,7 @@ class Inflater {
         return 23;
       case InflaterState.done:
         return 24;
+      // ignore: no_default_cases
       default:
         return 0;
     }

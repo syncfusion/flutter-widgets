@@ -294,6 +294,7 @@ class RenderLinearShapePointer extends RenderLinearPointerBase {
         case LinearShapePointerType.diamond:
           markerType = core.ShapeMarkerType.diamond;
           break;
+        // ignore: no_default_cases
         default:
           break;
       }

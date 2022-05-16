@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
+import '../../../charts.dart';
+import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 
 import '../chart_series/xy_data_series.dart';
 import '../common/common.dart';
@@ -49,7 +49,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
     /// Get and set the paint options for box and whisker series.
     if (_segmentProperties.series.gradient == null) {
       fillPaint = Paint()
-        ..color = _segmentProperties.currentPoint!.isEmpty == true
+        ..color = (_segmentProperties.currentPoint!.isEmpty ?? false)
             ? _segmentProperties.series.emptyPointSettings.color
             : (_segmentProperties.currentPoint!.pointColorMapper ??
                 _segmentProperties.color!)
@@ -82,12 +82,12 @@ class BoxAndWhiskerSegment extends ChartSegment {
     _setSegmentProperties();
     strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+      ..strokeWidth = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderWidth
           : _segmentProperties.strokeWidth!;
     _meanPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+      ..strokeWidth = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderWidth
           : _segmentProperties.strokeWidth!;
     if (_segmentProperties.series.borderGradient != null) {
@@ -96,10 +96,10 @@ class BoxAndWhiskerSegment extends ChartSegment {
       _meanPaint.shader = _segmentProperties.series.borderGradient!
           .createShader(_segmentProperties.currentPoint!.region!);
     } else {
-      strokePaint!.color = _segmentProperties.currentPoint!.isEmpty == true
+      strokePaint!.color = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderColor
           : _segmentProperties.strokeColor!;
-      _meanPaint.color = _segmentProperties.currentPoint!.isEmpty == true
+      _meanPaint.color = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderColor
           : _segmentProperties.strokeColor!;
     }

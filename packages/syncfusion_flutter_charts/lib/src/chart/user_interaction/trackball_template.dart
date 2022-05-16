@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 import '../../common/rendering_details.dart';
 import '../common/cartesian_state_properties.dart';
@@ -87,7 +87,6 @@ class TrackballTemplateState extends State<TrackballTemplate> {
           _template = widget.trackballBehavior.builder!(context,
               TrackballDetails(null, null, null, null, groupingModeInfo));
           trackballWidget = _TrackballRenderObject(
-              child: _template,
               template: _template,
               stateProperties: widget.stateProperties,
               xPos: chartPointInfo![index].xPosition!,
@@ -96,7 +95,8 @@ class TrackballTemplateState extends State<TrackballTemplate> {
                   : _isBoxSeries
                       ? chartPointInfo![index].maxYPosition
                       : chartPointInfo![index].yPosition)!,
-              trackballBehavior: widget.trackballBehavior);
+              trackballBehavior: widget.trackballBehavior,
+              child: _template);
 
           trackballWidgets.add(trackballWidget);
 
@@ -106,16 +106,20 @@ class TrackballTemplateState extends State<TrackballTemplate> {
           _template = widget.trackballBehavior.builder!(
               context,
               TrackballDetails(
-                  chartPointInfo![index]
-                      .seriesRendererDetails!
-                      .dataPoints[chartPointInfo![index].dataPointIndex!],
+                  chartPointInfo![index].seriesRendererDetails!.seriesType ==
+                          'fastline'
+                      ? chartPointInfo![index]
+                              .seriesRendererDetails!
+                              .sampledDataPoints[
+                          chartPointInfo![index].dataPointIndex!]
+                      : chartPointInfo![index]
+                          .seriesRendererDetails!
+                          .dataPoints[chartPointInfo![index].dataPointIndex!],
                   chartPointInfo![index].seriesRendererDetails!.series,
                   chartPointInfo![index].dataPointIndex,
-                  chartPointInfo![index].seriesIndex,
-                  null));
+                  chartPointInfo![index].seriesIndex));
 
           trackballWidget = _TrackballRenderObject(
-              child: _template,
               template: _template,
               stateProperties: widget.stateProperties,
               xPos: chartPointInfo![index].xPosition!,
@@ -126,7 +130,8 @@ class TrackballTemplateState extends State<TrackballTemplate> {
                       : chartPointInfo![index].yPosition)!,
               trackballBehavior: widget.trackballBehavior,
               chartPointInfo: chartPointInfo!,
-              index: index);
+              index: index,
+              child: _template);
 
           trackballWidgets.add(trackballWidget);
         }

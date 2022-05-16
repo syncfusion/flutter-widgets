@@ -1082,7 +1082,7 @@ class PdfFieldHelper {
         return 1 << 21;
       case FieldFlags.commitOnSelChange:
         return 1 << 26;
-      default:
+      case FieldFlags.defaultFieldFlag:
         return 0;
     }
   }
@@ -2143,6 +2143,7 @@ class PdfFieldHelper {
         case PdfBorderStyle.underline:
           style = 'U';
           break;
+        // ignore: no_default_cases
         default:
           style = 'S';
           break;
@@ -2748,7 +2749,7 @@ class PdfFieldHelper {
   /// internal method
   PdfColor getBackColor(bool isBrush) {
     final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
-    PdfColor c = isBrush ? PdfColor(255, 255, 255, 255) : PdfColor(0, 0, 0);
+    PdfColor c = isBrush ? PdfColor(255, 255, 255) : PdfColor(0, 0, 0);
     if (widget.containsKey(PdfDictionaryProperties.mk)) {
       final IPdfPrimitive? bs =
           crossTable!.getObject(widget[PdfDictionaryProperties.mk]);

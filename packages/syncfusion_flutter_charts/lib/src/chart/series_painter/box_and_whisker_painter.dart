@@ -169,40 +169,40 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
   }
 
   /// To get the quartile values.
-  void _getQuartileValues(dynamic yValues, num count,
-      BoxPlotQuartileValues _boxPlotQuartileValues) {
+  void _getQuartileValues(
+      dynamic yValues, num count, BoxPlotQuartileValues boxPlotQuartileValues) {
     if (count == 1) {
-      _boxPlotQuartileValues.lowerQuartile = yValues[0];
-      _boxPlotQuartileValues.upperQuartile = yValues[0];
+      boxPlotQuartileValues.lowerQuartile = yValues[0];
+      boxPlotQuartileValues.upperQuartile = yValues[0];
     }
     final bool isEvenList = count % 2 == 0;
     final num halfLength = count ~/ 2;
     final List<num?> lowerQuartileArray = yValues.sublist(0, halfLength);
     final List<num?> upperQuartileArray =
         yValues.sublist(isEvenList ? halfLength : halfLength + 1, count);
-    _boxPlotQuartileValues.lowerQuartile = _getMedian(lowerQuartileArray);
-    _boxPlotQuartileValues.upperQuartile = _getMedian(upperQuartileArray);
+    boxPlotQuartileValues.lowerQuartile = _getMedian(lowerQuartileArray);
+    boxPlotQuartileValues.upperQuartile = _getMedian(upperQuartileArray);
   }
 
   /// To get the outliers values of box plot series.
   void _getMinMaxOutlier(List<num?> yValues, int count,
-      BoxPlotQuartileValues _boxPlotQuartileValues) {
-    final double interquartile = _boxPlotQuartileValues.upperQuartile! -
-        _boxPlotQuartileValues.lowerQuartile!;
+      BoxPlotQuartileValues boxPlotQuartileValues) {
+    final double interquartile = boxPlotQuartileValues.upperQuartile! -
+        boxPlotQuartileValues.lowerQuartile!;
     final num rangeIQR = 1.5 * interquartile;
     for (int i = 0; i < count; i++) {
-      if (yValues[i]! < _boxPlotQuartileValues.lowerQuartile! - rangeIQR) {
-        _boxPlotQuartileValues.outliers!.add(yValues[i]!);
+      if (yValues[i]! < boxPlotQuartileValues.lowerQuartile! - rangeIQR) {
+        boxPlotQuartileValues.outliers!.add(yValues[i]!);
       } else {
         _boxPlotQuartileValues.minimum = yValues[i];
         break;
       }
     }
     for (int i = count - 1; i >= 0; i--) {
-      if (yValues[i]! > _boxPlotQuartileValues.upperQuartile! + rangeIQR) {
-        _boxPlotQuartileValues.outliers!.add(yValues[i]!);
+      if (yValues[i]! > boxPlotQuartileValues.upperQuartile! + rangeIQR) {
+        boxPlotQuartileValues.outliers!.add(yValues[i]!);
       } else {
-        _boxPlotQuartileValues.maximum = yValues[i];
+        boxPlotQuartileValues.maximum = yValues[i];
         break;
       }
     }
@@ -213,8 +213,8 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
 
   /// Changes the series color, border color, and border width.
   @override
-  void customizeSegment(ChartSegment _segment) {
-    final BoxAndWhiskerSegment boxSegment = _segment as BoxAndWhiskerSegment;
+  void customizeSegment(ChartSegment segment) {
+    final BoxAndWhiskerSegment boxSegment = segment as BoxAndWhiskerSegment;
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(boxSegment);
     segmentProperties.color =

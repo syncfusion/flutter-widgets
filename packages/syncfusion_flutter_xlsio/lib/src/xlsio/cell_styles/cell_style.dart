@@ -207,30 +207,30 @@ class CellStyle implements Style {
 
   /// clone method of cell style
   CellStyle _clone() {
-    final CellStyle _cellStyle = CellStyle(_workbook);
-    _cellStyle.name = name;
-    _cellStyle.backColor = backColor;
-    _cellStyle.fontName = fontName;
-    _cellStyle.fontSize = fontSize;
-    _cellStyle.fontColor = fontColor;
-    _cellStyle.italic = italic;
-    _cellStyle.bold = bold;
-    _cellStyle.underline = underline;
-    _cellStyle.wrapText = wrapText;
-    _cellStyle.hAlign = hAlign;
-    _cellStyle.vAlign = vAlign;
-    _cellStyle.indent = indent;
-    _cellStyle.rotation = rotation;
-    _cellStyle.index = index;
-    _cellStyle._builtinId = _builtinId;
-    _cellStyle.numberFormat = numberFormat;
-    _cellStyle.numberFormatIndex = numberFormatIndex;
-    _cellStyle.isGlobalStyle = isGlobalStyle;
-    _cellStyle.locked = locked;
-    _cellStyle.borders = (borders as BordersCollection)._clone();
-    _cellStyle.backColorRgb = backColorRgb;
-    _cellStyle.fontColorRgb = fontColorRgb;
-    return _cellStyle;
+    final CellStyle cellStyle = CellStyle(_workbook);
+    cellStyle.name = name;
+    cellStyle.backColor = backColor;
+    cellStyle.fontName = fontName;
+    cellStyle.fontSize = fontSize;
+    cellStyle.fontColor = fontColor;
+    cellStyle.italic = italic;
+    cellStyle.bold = bold;
+    cellStyle.underline = underline;
+    cellStyle.wrapText = wrapText;
+    cellStyle.hAlign = hAlign;
+    cellStyle.vAlign = vAlign;
+    cellStyle.indent = indent;
+    cellStyle.rotation = rotation;
+    cellStyle.index = index;
+    cellStyle._builtinId = _builtinId;
+    cellStyle.numberFormat = numberFormat;
+    cellStyle.numberFormatIndex = numberFormatIndex;
+    cellStyle.isGlobalStyle = isGlobalStyle;
+    cellStyle.locked = locked;
+    cellStyle.borders = (borders as BordersCollection)._clone();
+    cellStyle.backColorRgb = backColorRgb;
+    cellStyle.fontColorRgb = fontColorRgb;
+    return cellStyle;
   }
 
   /// Compares two instances of the Cell styles.

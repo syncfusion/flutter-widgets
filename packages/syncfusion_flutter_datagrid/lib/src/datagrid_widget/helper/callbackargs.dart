@@ -1,9 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_datagrid/src/datagrid_widget/helper/datagrid_configuration.dart';
+
 import '../../grid_common/row_column_index.dart';
 import '../runtime/column.dart';
+import 'datagrid_configuration.dart';
 import 'enums.dart';
 
 /// A base class which provides the details for callbacks that use
@@ -175,6 +176,7 @@ class DataGridSwipeStartDetails {
   /// Sets the maximum offset in which a row can be swiped.
   ///
   /// Typically, this method can be used to set the different maximum offset for swiping based on the swipe direction.
+  // ignore: use_setters_to_change_properties
   void setSwipeMaxOffset(double offset) {
     _dataGridConfiguration.effectiveSwipeMaxOffset = offset;
   }

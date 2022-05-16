@@ -21,7 +21,7 @@ abstract class PdfMultipleValueField extends PdfDynamicField {
       <PdfGraphics, PdfTemplateValuePair>{};
 
   // implementation
-  void _performDraw(PdfGraphics graphics, PdfPoint? _location, double scalingX,
+  void _performDraw(PdfGraphics graphics, PdfPoint? location, double scalingX,
       double scalingY) {
     final String? value =
         PdfAutomaticFieldHelper.getHelper(this).getValue(graphics);
@@ -51,7 +51,7 @@ abstract class PdfMultipleValueField extends PdfDynamicField {
               PdfAutomaticFieldHelper.getHelper(this).obtainSize().height),
           format: stringFormat);
       final Offset drawLocation =
-          Offset(_location!.x + bounds.left, _location.y + bounds.top);
+          Offset(location!.x + bounds.left, location.y + bounds.top);
       graphics.drawPdfTemplate(
           template,
           drawLocation,
@@ -66,7 +66,7 @@ abstract class PdfMultipleValueField extends PdfDynamicField {
 class PdfMultipleValueFieldHelper {
   /// internal method
   static void performDraw(PdfMultipleValueField field, PdfGraphics graphics,
-      PdfPoint? _location, double scalingX, double scalingY) {
-    field._performDraw(graphics, _location, scalingX, scalingY);
+      PdfPoint? location, double scalingX, double scalingY) {
+    field._performDraw(graphics, location, scalingX, scalingY);
   }
 }

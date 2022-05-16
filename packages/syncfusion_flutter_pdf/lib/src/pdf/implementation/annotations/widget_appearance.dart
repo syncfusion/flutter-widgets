@@ -1,5 +1,4 @@
 import '../../interfaces/pdf_interface.dart';
-import '../graphics/enums.dart';
 import '../graphics/pdf_color.dart';
 import '../io/pdf_constants.dart';
 import '../primitives/pdf_array.dart';
@@ -9,10 +8,10 @@ import '../primitives/pdf_dictionary.dart';
 class WidgetAppearance implements IPdfWrapper {
   /// internal Constructor
   WidgetAppearance() : super() {
-    dictionary!.setProperty(PdfDictionaryProperties.bc,
-        PdfColorHelper.toArray(_borderColor, PdfColorSpace.rgb));
-    dictionary!.setProperty(PdfDictionaryProperties.bg,
-        PdfColorHelper.toArray(_backColor, PdfColorSpace.rgb));
+    dictionary!.setProperty(
+        PdfDictionaryProperties.bc, PdfColorHelper.toArray(_borderColor));
+    dictionary!.setProperty(
+        PdfDictionaryProperties.bg, PdfColorHelper.toArray(_backColor));
   }
 
   /// internal field
@@ -37,8 +36,8 @@ class WidgetAppearance implements IPdfWrapper {
       PdfColorHelper.getHelper(value).alpha == 0
           ? dictionary!
               .setProperty(PdfDictionaryProperties.bc, PdfArray(<int>[]))
-          : dictionary!.setProperty(PdfDictionaryProperties.bc,
-              PdfColorHelper.toArray(_borderColor, PdfColorSpace.rgb));
+          : dictionary!.setProperty(
+              PdfDictionaryProperties.bc, PdfColorHelper.toArray(_borderColor));
     }
   }
 
@@ -52,8 +51,8 @@ class WidgetAppearance implements IPdfWrapper {
             .setProperty(PdfDictionaryProperties.bc, PdfArray(<int>[0, 0, 0]));
         dictionary!.remove(PdfDictionaryProperties.bg);
       } else {
-        dictionary!.setProperty(PdfDictionaryProperties.bg,
-            PdfColorHelper.toArray(_backColor, PdfColorSpace.rgb));
+        dictionary!.setProperty(
+            PdfDictionaryProperties.bg, PdfColorHelper.toArray(_backColor));
       }
     }
   }

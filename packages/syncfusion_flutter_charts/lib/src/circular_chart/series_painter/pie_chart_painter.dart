@@ -54,7 +54,7 @@ class PieChartPainter extends CustomPainter {
       isAnyPointNeedSelect =
           checkIsAnyPointSelect(seriesRenderer, seriesRenderer.point, chart);
     }
-    ChartPoint<dynamic>? _oldPoint;
+    ChartPoint<dynamic>? oldPoint;
     ChartPoint<dynamic>? point = seriesRenderer.point;
     final PieSeriesRendererExtension? oldSeriesRenderer =
         (stateProperties.renderingDetails.widgetNeedUpdate &&
@@ -67,7 +67,7 @@ class PieChartPainter extends CustomPainter {
     seriesRenderer.renderList.clear();
     for (int i = 0; i < seriesRenderer.renderPoints!.length; i++) {
       point = seriesRenderer.renderPoints![i];
-      _oldPoint = (oldSeriesRenderer != null &&
+      oldPoint = (oldSeriesRenderer != null &&
               oldSeriesRenderer.oldRenderPoints != null &&
               (oldSeriesRenderer.oldRenderPoints!.length - 1 >= i))
           ? oldSeriesRenderer.oldRenderPoints![i]
@@ -89,16 +89,16 @@ class PieChartPainter extends CustomPainter {
           seriesAnimation?.value ?? 1,
           seriesAnimation?.value ?? 1,
           isAnyPointNeedSelect,
-          _oldPoint,
+          oldPoint,
           stateProperties.oldPoints);
     }
     if (seriesRenderer.renderList.isNotEmpty) {
-      Shader? _chartShader;
+      Shader? chartShader;
       if (chart.onCreateShader != null) {
         ChartShaderDetails chartShaderDetails;
         chartShaderDetails =
             ChartShaderDetails(seriesRenderer.renderList[1], null, 'series');
-        _chartShader = chart.onCreateShader!(chartShaderDetails);
+        chartShader = chart.onCreateShader!(chartShaderDetails);
       }
       for (int k = 0; k < seriesRenderer.renderPaths.length; k++) {
         drawPath(
@@ -106,7 +106,7 @@ class PieChartPainter extends CustomPainter {
             seriesRenderer.renderList[0],
             seriesRenderer.renderPaths[k],
             seriesRenderer.renderList[1],
-            _chartShader);
+            chartShader);
       }
       if (seriesRenderer.renderList[0].strokeColor != null &&
           seriesRenderer.renderList[0].strokeWidth != null &&

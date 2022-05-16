@@ -486,7 +486,7 @@ class FunnelChartBase {
   StyleOptions? _getPointStyle(
       int currentPointIndex,
       FunnelSeriesRendererExtension seriesRenderer,
-      SfFunnelChartState _chartState,
+      SfFunnelChartState chartState,
       PointInfo<dynamic> point) {
     StyleOptions? pointStyle;
     final dynamic selection = seriesRenderer.series.selectionBehavior;

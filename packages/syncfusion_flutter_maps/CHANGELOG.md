@@ -1,4 +1,8 @@
 ## Unreleased
+**Bugs**
+* Now, while performing mouse wheel zooming, the current segment color will be applied properly.
+
+## [19.4.38-beta] - 12/17/2021
 
 **Features**
 

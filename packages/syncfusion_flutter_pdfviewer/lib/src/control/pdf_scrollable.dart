@@ -1,12 +1,14 @@
+// ignore_for_file: use_if_null_to_convert_nulls_to_bools
+
 import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_page_view.dart';
 
+import '../../pdfviewer.dart';
 import '../common/pdfviewer_helper.dart';
+import 'pdf_page_view.dart';
 import 'scroll_head_overlay.dart';
 
 /// This callback triggered whenever offset is changed in PDF.
@@ -394,7 +396,7 @@ class PdfScrollableState extends State<PdfScrollable> {
       _setPixel(offset);
     } else {
       // add post frame which is jumped once the layout is changed.
-      WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
         _setPixel(offset);
       });
     }

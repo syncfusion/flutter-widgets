@@ -545,7 +545,7 @@ class _SfLegendState extends State<SfLegend> {
               childConstraints.biggest) {
             child = widget.child;
           } else {
-            SchedulerBinding.instance!.addPostFrameCallback(
+            SchedulerBinding.instance.addPostFrameCallback(
               (Duration timeStamp) {
                 setState(() {
                   _omitLegend = true;
@@ -713,7 +713,6 @@ class _SfLegendState extends State<SfLegend> {
           children: <Widget>[
             widget.title!,
             Flexible(
-              fit: FlexFit.loose,
               child: widget.overflowMode == LegendOverflowMode.scroll
                   ? SingleChildScrollView(
                       scrollDirection: widget.scrollDirection ?? Axis.vertical,
@@ -1018,7 +1017,6 @@ class _VectorLegendState extends State<_VectorLegend>
       spacing: widget.itemSpacing!,
       runSpacing: widget.itemRunSpacing ?? 6.0,
       runAlignment: WrapAlignment.center,
-      alignment: WrapAlignment.start,
       children: _buildLegendItems(themeData),
     );
 
@@ -1536,7 +1534,6 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
         spacing: widget.itemSpacing!,
         runSpacing: 6,
         runAlignment: WrapAlignment.center,
-        alignment: WrapAlignment.start,
         children: _getBarSegments(),
       ),
     );
@@ -1936,7 +1933,7 @@ class __SolidBarLegendItemState extends State<_SolidBarLegendItem> {
 
   Widget _buildPointer() {
     Widget? current;
-    Matrix4 _matrix4;
+    Matrix4 matrix4;
 
     if (widget.index == widget.pointerController!.segmentIndex &&
         widget.pointerController!.position != null) {
@@ -1962,25 +1959,23 @@ class __SolidBarLegendItemState extends State<_SolidBarLegendItem> {
       }
 
       if (widget.direction == Axis.horizontal) {
-        _matrix4 = Matrix4.identity()
-          ..translate(
-              widget.pointerController!.position!.dx *
-                      widget.segmentSize!.width -
-                  (widget.pointerSize!.width / 2),
-              0.0);
+        matrix4 = Matrix4.identity()
+          ..translate(widget.pointerController!.position!.dx *
+                  widget.segmentSize!.width -
+              (widget.pointerSize!.width / 2));
         if (_textDirection == TextDirection.rtl) {
-          _matrix4.invert();
+          matrix4.invert();
         }
-        current = Transform(transform: _matrix4, child: current);
+        current = Transform(transform: matrix4, child: current);
       } else {
         current = RotatedBox(quarterTurns: 3, child: current);
-        _matrix4 = Matrix4.identity()
+        matrix4 = Matrix4.identity()
           ..translate(
               0.0,
               widget.pointerController!.position!.dy *
                       widget.segmentSize!.width -
                   (widget.pointerSize!.width / 2));
-        current = Transform(transform: _matrix4, child: current);
+        current = Transform(transform: matrix4, child: current);
       }
     } else {
       current = widget.direction == Axis.horizontal
@@ -2430,7 +2425,7 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
 
   Widget _buildPointer(ThemeData themeData) {
     Widget? current;
-    Matrix4 _matrix4;
+    Matrix4 matrix4;
 
     if (widget.pointerController!.position != null) {
       if (widget.pointerBuilder != null &&
@@ -2455,23 +2450,22 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
       }
 
       if (_direction == Axis.horizontal) {
-        _matrix4 = Matrix4.identity()
+        matrix4 = Matrix4.identity()
           ..translate(
               widget.pointerController!.position!.dx * _segmentSize.width -
-                  (widget.pointerSize!.width / 2),
-              0.0);
+                  (widget.pointerSize!.width / 2));
         if (_isRTL) {
-          _matrix4.invert();
+          matrix4.invert();
         }
-        current = Transform(transform: _matrix4, child: current);
+        current = Transform(transform: matrix4, child: current);
       } else {
         current = RotatedBox(quarterTurns: 3, child: current);
-        _matrix4 = Matrix4.identity()
+        matrix4 = Matrix4.identity()
           ..translate(
               0.0,
               widget.pointerController!.position!.dy * _segmentSize.height -
                   (widget.pointerSize!.width / 2));
-        current = Transform(transform: _matrix4, child: current);
+        current = Transform(transform: matrix4, child: current);
       }
     } else {
       current = _direction == Axis.horizontal

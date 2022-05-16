@@ -1,4 +1,4 @@
-﻿*![syncfusion_flutter_pdfviewer](https://cdn.syncfusion.com/content/images/pdfviewer-banner.png)
+﻿![syncfusion_flutter_pdfviewer](https://cdn.syncfusion.com/content/images/pdfviewer-banner.png)
 
 # Flutter PDF Viewer library
 

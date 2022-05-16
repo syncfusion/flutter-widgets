@@ -1,19 +1,21 @@
 import Flutter
 import UIKit
 
+
+
 // SyncfusionFlutterPdfViewerPlugin
 public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
-    
     // Document repository
     var documentRepo = [String: CGPDFDocument?]()
-    
+
+    let dispatcher = DispatchQueue(label: "syncfusion_flutter_pdfviewer")
+
     // Registers the SyncfusionFlutterPdfViewerPlugin
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "syncfusion_flutter_pdfviewer", binaryMessenger: registrar.messenger())
         let instance = SwiftSyncfusionFlutterPdfViewerPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
-    
     // Invokes the method call operations.
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         if(call.method == "initializePdfRenderer")
@@ -22,7 +24,9 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         }
         else if(call.method == "getImage")
         {
-            getImage(call:call,result:result)
+            dispatcher.async {
+                self.getImage(call:call,result:result)
+            }
         }
         else if(call.method == "getPagesWidth")
         {
@@ -30,14 +34,14 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         }
         else if(call.method == "getPagesHeight")
         {
-            getPagesHeight(call:call,result:result)
+           getPagesHeight(call:call,result:result)
         }
         else if(call.method == "closeDocument")
         {
-            closeDocument(call:call,result:result)
+          closeDocument(call:call,result:result)
         }
     }
-    
+
     // Initializes the PDF Renderer and returns the page count.
     private func initializePdfRenderer( call: FlutterMethodCall, result: @escaping FlutterResult)
     {
@@ -53,7 +57,7 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         let pageCount = NSNumber(value: document!.numberOfPages)
         result(pageCount.stringValue);
     }
-    
+
     private func closeDocument(call: FlutterMethodCall, result: @escaping FlutterResult)
     {
         guard let argument = call.arguments else {return}
@@ -61,7 +65,7 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         self.documentRepo[documentID] = nil
         self.documentRepo.removeValue(forKey: documentID)
     }
-    
+
     // Returns the width collection of rendered pages.
     private func getPagesWidth( call: FlutterMethodCall, result: @escaping FlutterResult)
     {
@@ -82,7 +86,7 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         }
         result(pagesWidth)
     }
-    
+
     // Returns the height collection of rendered pages.
     private func getPagesHeight( call: FlutterMethodCall, result: @escaping FlutterResult)
     {
@@ -103,7 +107,7 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         }
         result(pagesHeight)
     }
-    
+
     // Gets the pdf page image from the specified page
     private func getImage( call: FlutterMethodCall, result: @escaping FlutterResult)
     {
@@ -118,7 +122,7 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         let documentID = args!["documentID"] as! String
         result(getImageForPlugin(index: index!,scale: scale,documentID: documentID))
     }
-    
+
     private func getImageForPlugin(index: Int,scale: CGFloat,documentID: String) -> FlutterStandardTypedData
     {
         let document = self.documentRepo[documentID]!!

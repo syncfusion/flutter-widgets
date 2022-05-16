@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column, Alignment;
+// ignore: depend_on_referenced_packages
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column;
 import 'package:syncfusion_officechart/officechart.dart';
 
 //Local imports
@@ -45,13 +46,13 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextButton(
-              child: const Text('Generate Excel Chart'),
               style: TextButton.styleFrom(
                 primary: Colors.white,
                 backgroundColor: Colors.lightBlue,
                 onSurface: Colors.grey,
               ),
               onPressed: generateOfficeChart,
+              child: const Text('Generate Excel Chart'),
             )
           ],
         ),

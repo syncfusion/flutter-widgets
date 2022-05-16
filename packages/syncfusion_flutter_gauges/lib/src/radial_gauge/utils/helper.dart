@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../../radial_gauge/styles/radial_text_style.dart';
@@ -84,11 +85,11 @@ List<double> calculateGradientStops(
   // Normalizes the provided offset values to the corresponding sweep angle
   for (int i = 0; i < offsets.length; i++) {
     final double offset = offsets[i]!;
-    double _stop = ((sweepAngle / 360) * offset).abs();
+    double stop = ((sweepAngle / 360) * offset).abs();
     if (isInversed) {
-      _stop = 1 - _stop;
+      stop = 1 - stop;
     }
-    gradientStops[i] = _stop;
+    gradientStops[i] = stop;
   }
 
   return isInversed ? gradientStops.reversed.toList() : gradientStops;

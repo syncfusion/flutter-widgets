@@ -6483,12 +6483,11 @@ class Workbook {
     while (text.endsWith('\n')) {
       text = text.substring(0, text.length - '\n'.length);
     }
-    final int _newLineCount =
-        text.length - text.replaceAll('\n', '').length + 1;
+    final int newLineCount = text.length - text.replaceAll('\n', '').length + 1;
     height = _convertToPixels(fontMetrics._getHeight(font), 6);
     width = _convertToPixels(width, 6);
     width = width * 0.001 * font.size;
-    return _SizeF(width, height * _newLineCount);
+    return _SizeF(width, height * newLineCount);
   }
 
   /// True if the text is an unicode else false will returned.

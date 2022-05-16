@@ -7,7 +7,6 @@ import '../../general/enum.dart';
 import '../../general/pdf_destination.dart';
 import '../../general/pdf_named_destination.dart';
 import '../../general/pdf_named_destination_collection.dart';
-import '../../graphics/enums.dart';
 import '../../graphics/pdf_color.dart';
 import '../../io/pdf_constants.dart';
 import '../../io/pdf_cross_table.dart';
@@ -385,7 +384,7 @@ class PdfBookmark extends PdfBookmarkBase {
       _helper.dictionary!.remove(PdfDictionaryProperties.c);
     } else {
       _helper.dictionary![PdfDictionaryProperties.c] =
-          PdfColorHelper.toArray(_color, PdfColorSpace.rgb);
+          PdfColorHelper.toArray(_color);
     }
   }
 

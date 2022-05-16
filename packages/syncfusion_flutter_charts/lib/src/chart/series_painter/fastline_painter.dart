@@ -24,7 +24,7 @@ class FastLineSeriesRenderer extends XyDataSeriesRenderer {
   /// Adds the segment to the segments list.
   ChartSegment _createSegments(int seriesIndex, int pointIndex,
       SfCartesianChart chart, double animateFactor,
-      [List<Offset>? _points]) {
+      [List<Offset>? points]) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
     final FastLineSegment segment = createSegment();
     SegmentHelper.setSegmentProperties(segment,
@@ -39,8 +39,8 @@ class FastLineSeriesRenderer extends XyDataSeriesRenderer {
     segment.animationFactor = animateFactor;
     _segmentSeriesDetails =
         SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer);
-    if (_points != null) {
-      segment.points = _points;
+    if (points != null) {
+      segment.points = points;
     }
     segmentProperties.oldSegmentIndex = 0;
     customizeSegment(segment);
@@ -143,7 +143,7 @@ class FastLineChartPainter extends CustomPainter {
         seriesRendererDetails.xAxisDetails!;
     final ChartAxisRendererDetails yAxisDetails =
         seriesRendererDetails.yAxisDetails!;
-    final List<Offset> _points = <Offset>[];
+    final List<Offset> points = <Offset>[];
     if (seriesRendererDetails.visible! == true) {
       canvas.save();
       assert(
@@ -239,6 +239,7 @@ class FastLineChartPainter extends CustomPainter {
           dataPoints.add(currentPoint);
           bool withInXRange = withInRange(currentPoint.xValue,
               seriesRendererDetails.xAxisDetails!.visibleRange!);
+          // ignore: unnecessary_null_comparison
           bool withInYRange = currentPoint != null &&
               currentPoint.yValue != null &&
               withInRange(currentPoint.yValue,
@@ -250,6 +251,7 @@ class FastLineChartPainter extends CustomPainter {
                 seriesRendererDetails.dataPoints[pointIndex + 1];
             withInXRange = withInRange(nextPoint!.xValue,
                 seriesRendererDetails.xAxisDetails!.visibleRange!);
+            // ignore: unnecessary_null_comparison
             withInYRange = nextPoint != null &&
                 nextPoint.yValue != null &&
                 withInRange(nextPoint.yValue,
@@ -260,6 +262,7 @@ class FastLineChartPainter extends CustomPainter {
                   seriesRendererDetails.dataPoints[pointIndex - 1];
               withInXRange = withInRange(prevPoint!.xValue,
                   seriesRendererDetails.xAxisDetails!.visibleRange!);
+              // ignore: unnecessary_null_comparison
               withInYRange = prevPoint != null &&
                   prevPoint.yValue != null &&
                   withInRange(prevPoint.yValue,
@@ -307,7 +310,7 @@ class FastLineChartPainter extends CustomPainter {
             }
 
             if (point.isVisible) {
-              _points.add(Offset(currentLocation.x, currentLocation.y));
+              points.add(Offset(currentLocation.x, currentLocation.y));
               if (prevPoint == null) {
                 seriesRendererDetails.segmentPath!
                     .moveTo(currentLocation.x, currentLocation.y);
@@ -337,11 +340,11 @@ class FastLineChartPainter extends CustomPainter {
       }
 
       if (seriesRendererDetails.segmentPath != null) {
-        seriesRendererDetails.dataPoints = dataPoints;
+        seriesRendererDetails.sampledDataPoints = dataPoints;
         seriesRendererDetails.drawSegment(
             canvas,
             seriesRenderer._createSegments(painterKey.index, segmentIndex += 1,
-                chart, animationFactor, _points));
+                chart, animationFactor, points));
       }
 
       canvas.restore();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/common.dart';
+
 import '../chart_series/series.dart';
+import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
@@ -55,22 +56,22 @@ class AreaSegment extends ChartSegment {
   @override
   Paint getStrokePaint() {
     _setSegmentProperties();
-    final Paint _strokePaint = Paint();
-    _strokePaint
+    final Paint strokePaint = Paint();
+    strokePaint
       ..style = PaintingStyle.stroke
       ..strokeWidth = _segmentProperties.series.borderWidth;
     if (_segmentProperties.series.borderGradient != null) {
-      _strokePaint.shader = _segmentProperties.series.borderGradient!
+      strokePaint.shader = _segmentProperties.series.borderGradient!
           .createShader(_segmentProperties.strokePath!.getBounds());
     } else if (_segmentProperties.strokeColor != null) {
-      _strokePaint.color = _segmentProperties.series.borderColor;
+      strokePaint.color = _segmentProperties.series.borderColor;
     }
     _segmentProperties.series.borderWidth == 0
-        ? _strokePaint.color = Colors.transparent
-        : _strokePaint.color;
-    _strokePaint.strokeCap = StrokeCap.round;
-    _segmentProperties.defaultStrokeColor = _strokePaint;
-    return _strokePaint;
+        ? strokePaint.color = Colors.transparent
+        : strokePaint.color;
+    strokePaint.strokeCap = StrokeCap.round;
+    _segmentProperties.defaultStrokeColor = strokePaint;
+    return strokePaint;
   }
 
   /// Calculates the rendering bounds of a segment.

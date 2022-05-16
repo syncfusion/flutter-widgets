@@ -23,7 +23,7 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
       CartesianChartPoint<dynamic> currentPoint,
       num midX,
       num midY,
-      CartesianChartPoint<dynamic> _nextPoint,
+      CartesianChartPoint<dynamic> nextPoint,
       int pointIndex,
       int seriesIndex,
       double animateFactor) {
@@ -33,7 +33,7 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
     final SegmentProperties segmentProperties =
         SegmentProperties(seriesRendererDetails.stateProperties, segment);
     SegmentHelper.setSegmentProperties(segment, segmentProperties);
-    final List<CartesianSeriesRenderer> _oldSeriesRenderers =
+    final List<CartesianSeriesRenderer> oldSeriesRenderers =
         seriesRendererDetails.stateProperties.oldSeriesRenderers;
     seriesRendererDetails.isRectSeries = false;
     segment.currentSegmentIndex = pointIndex;
@@ -44,24 +44,24 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
     segmentProperties.currentPoint = currentPoint;
     segmentProperties.midX = midX;
     segmentProperties.midY = midY;
-    segmentProperties.nextPoint = _nextPoint;
+    segmentProperties.nextPoint = nextPoint;
     segment.animationFactor = animateFactor;
     segmentProperties.pointColorMapper = currentPoint.pointColorMapper;
     if (seriesRendererDetails
                 .stateProperties.renderingDetails.widgetNeedUpdate ==
             true &&
         // ignore: unnecessary_null_comparison
-        _oldSeriesRenderers != null &&
-        _oldSeriesRenderers.isNotEmpty &&
-        _oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
+        oldSeriesRenderers != null &&
+        oldSeriesRenderers.isNotEmpty &&
+        oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
         SeriesHelper.getSeriesRendererDetails(
-                    _oldSeriesRenderers[segmentProperties.seriesIndex])
+                    oldSeriesRenderers[segmentProperties.seriesIndex])
                 .seriesName ==
             SeriesHelper.getSeriesRendererDetails(
                     segmentProperties.seriesRenderer)
                 .seriesName) {
       segmentProperties.oldSeriesRenderer =
-          _oldSeriesRenderers[segmentProperties.seriesIndex];
+          oldSeriesRenderers[segmentProperties.seriesIndex];
       segmentProperties.oldSegmentIndex = getOldSegmentIndex(segment);
     }
     segment.calculateSegmentPoints();
@@ -205,7 +205,7 @@ class StepLineChartPainter extends CustomPainter {
       CartesianChartPoint<dynamic>? startPoint,
           endPoint,
           currentPoint,
-          _nextPoint;
+          nextPoint;
       num? midX, midY;
 
       if (seriesRendererDetails.visibleDataPoints == null ||
@@ -219,6 +219,7 @@ class StepLineChartPainter extends CustomPainter {
         currentPoint = dataPoints[pointIndex];
         bool withInXRange = withInRange(currentPoint.xValue,
             seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
         bool withInYRange = currentPoint != null &&
             currentPoint.yValue != null &&
             withInRange(currentPoint.yValue,
@@ -229,6 +230,7 @@ class StepLineChartPainter extends CustomPainter {
               dataPoints[pointIndex + 1];
           withInXRange = withInRange(nextPoint!.xValue,
               seriesRendererDetails.xAxisDetails!.visibleRange!);
+          // ignore: unnecessary_null_comparison
           withInYRange = nextPoint != null &&
               nextPoint.yValue != null &&
               withInRange(nextPoint.yValue,
@@ -240,6 +242,7 @@ class StepLineChartPainter extends CustomPainter {
                 dataPoints[pointIndex - 1];
             withInXRange = withInRange(prevPoint!.xValue,
                 seriesRendererDetails.xAxisDetails!.visibleRange!);
+            // ignore: unnecessary_null_comparison
             withInYRange = prevPoint != null &&
                 prevPoint.yValue != null &&
                 withInRange(prevPoint.yValue,
@@ -252,19 +255,17 @@ class StepLineChartPainter extends CustomPainter {
             startPoint = currentPoint;
           }
           if (pointIndex + 1 < dataPoints.length) {
-            _nextPoint = dataPoints[pointIndex + 1];
+            nextPoint = dataPoints[pointIndex + 1];
 
-            if (startPoint != null &&
-                !_nextPoint.isVisible &&
-                _nextPoint.isGap) {
+            if (startPoint != null && !nextPoint.isVisible && nextPoint.isGap) {
               startPoint = null;
-            } else if (_nextPoint.isVisible && !_nextPoint.isGap) {
-              endPoint = _nextPoint;
-              midX = _nextPoint.xValue;
+            } else if (nextPoint.isVisible && !nextPoint.isGap) {
+              endPoint = nextPoint;
+              midX = nextPoint.xValue;
               midY = currentPoint.yValue;
-            } else if (_nextPoint.isDrop) {
-              _nextPoint = _getDropValue(dataPoints, pointIndex);
-              midX = _nextPoint?.xValue;
+            } else if (nextPoint.isDrop) {
+              nextPoint = _getDropValue(dataPoints, pointIndex);
+              midX = nextPoint?.xValue;
               midY = currentPoint.yValue;
             }
           }
@@ -276,7 +277,7 @@ class StepLineChartPainter extends CustomPainter {
               currentPoint,
               pointIndex,
               null,
-              _nextPoint,
+              nextPoint,
               midX,
               midY);
           if (startPoint != null &&
