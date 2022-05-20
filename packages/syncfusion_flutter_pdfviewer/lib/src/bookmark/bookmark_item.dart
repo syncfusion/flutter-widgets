@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
+import '../common/pdfviewer_helper.dart';
 
 /// Width of the back icon in the bookmark.
 const double _kPdfBackIconWidth = 24.0;

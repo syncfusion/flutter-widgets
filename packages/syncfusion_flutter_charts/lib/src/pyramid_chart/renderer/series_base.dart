@@ -706,6 +706,7 @@ class PyramidSeriesBase<T, D> extends ChartSeries<T, D>
           point.isVisible = true;
           point.isEmpty = true;
           break;
+        // ignore: no_default_cases
         default:
           point.isEmpty = true;
           point.isVisible = false;

@@ -296,6 +296,7 @@ void _setFunnelInsideLabelPosition(
       case OverflowMode.hide:
         label = '';
         break;
+      // ignore: no_default_cases
       default:
         break;
     }

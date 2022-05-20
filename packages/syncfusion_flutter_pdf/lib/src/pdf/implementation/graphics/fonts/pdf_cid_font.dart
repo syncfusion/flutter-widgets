@@ -51,6 +51,7 @@ class PdfCidFont extends PdfDictionary {
         sysInfo[PdfDictionaryProperties.ordering] = PdfString('GB1');
         sysInfo[PdfDictionaryProperties.supplement] = PdfNumber(2);
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
@@ -86,6 +87,7 @@ class PdfCidFont extends PdfDictionary {
       case PdfCjkFontFamily.sinoTypeSongLight:
         _fillSinoTypeSongLight(fontDescryptor, fontFamily, fontMetrics);
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
@@ -251,6 +253,7 @@ class PdfCidFont extends PdfDictionary {
       case PdfCjkFontFamily.heiseiMinchoW3:
         fontDescryptor[PdfDictionaryProperties.flags] = PdfNumber(6);
         break;
+      // ignore: no_default_cases
       default:
         break;
     }

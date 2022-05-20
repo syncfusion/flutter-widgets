@@ -5,13 +5,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:syncfusion_flutter_datagrid/src/datagrid_widget/helper/datagrid_helper.dart';
 
 import '../../grid_common/row_column_index.dart';
 import '../../grid_common/scroll_axis.dart';
 import '../../grid_common/visible_line_info.dart';
 import '../helper/callbackargs.dart';
 import '../helper/datagrid_configuration.dart';
+import '../helper/datagrid_helper.dart';
 import '../helper/datagrid_helper.dart' as grid_helper;
 import '../helper/enums.dart';
 import '../runtime/generator.dart';
@@ -1074,7 +1074,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
 
     RenderBox? child = firstChild;
     while (child != null) {
-      final _VirtualizingCellWidgetParentData _parentData =
+      final _VirtualizingCellWidgetParentData parentData =
           child.parentData! as _VirtualizingCellWidgetParentData;
       if (dataRow.isVisible &&
           child is RenderGridCell &&
@@ -1082,13 +1082,13 @@ class RenderVirtualizingCellsWidget extends RenderBox
         final Rect columnRect =
             child._measureColumnRect(constraints.maxHeight)!;
         size = constraints.constrain(Size(columnRect.width, columnRect.height));
-        _parentData
+        parentData
           ..width = columnRect.width
           ..height = columnRect.height
           ..cellClipRect = child._cellClipRect;
         _layout(
-            child: child, width: _parentData.width, height: _parentData.height);
-        _parentData.offset = Offset(columnRect.left, columnRect.top);
+            child: child, width: parentData.width, height: parentData.height);
+        parentData.offset = Offset(columnRect.left, columnRect.top);
       } else {
         if (dataRow.rowType == RowType.footerRow) {
           final DataGridConfiguration dataGridConfiguration =
@@ -1100,21 +1100,19 @@ class RenderVirtualizingCellsWidget extends RenderBox
               dataGridConfiguration.footerHeight);
 
           size = constraints.constrain(Size(cellRect.width, cellRect.height));
-          _parentData
+          parentData
             ..width = cellRect.width
             ..height = cellRect.height
             ..offset = Offset(cellRect.left, cellRect.top);
           _layout(
-              child: child,
-              width: _parentData.width,
-              height: _parentData.height);
+              child: child, width: parentData.width, height: parentData.height);
         } else {
           size = constraints.constrain(Size.zero);
           child.layout(const BoxConstraints.tightFor(width: 0, height: 0));
-          _parentData.reset();
+          parentData.reset();
         }
       }
-      child = _parentData.nextSibling;
+      child = parentData.nextSibling;
     }
   }
 

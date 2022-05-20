@@ -52,6 +52,7 @@ class WidgetAnnotation extends PdfAnnotation {
   }
 
   /// Sets the parent.
+  // ignore: avoid_setters_without_getters
   set parent(PdfField? value) {
     if (_parent != value) {
       _parent = value;
@@ -98,6 +99,7 @@ class WidgetAnnotation extends PdfAnnotation {
   }
 
   /// internal property
+  // ignore: avoid_setters_without_getters
   set appearanceState(String value) {
     if (_appearState != value) {
       _appearState = value;
@@ -235,6 +237,7 @@ class WidgetAnnotationHelper extends PdfAnnotationHelper {
         return 'O';
       case PdfHighlightMode.push:
         return 'P';
+      // ignore: no_default_cases
       default:
         return 'I';
     }

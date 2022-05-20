@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
+import '../../../charts.dart';
+import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/common.dart';
@@ -32,7 +31,7 @@ class BubbleSegment extends ChartSegment {
     if (bubbleSegmentProperties.series.gradient == null) {
       if (bubbleSegmentProperties.color != null) {
         fillPaint = Paint()
-          ..color = bubbleSegmentProperties.currentPoint!.isEmpty == true
+          ..color = (bubbleSegmentProperties.currentPoint!.isEmpty ?? false)
               ? bubbleSegmentProperties.series.emptyPointSettings.color
               : ((hasPointColor &&
                       bubbleSegmentProperties.currentPoint!.pointColorMapper !=
@@ -70,23 +69,23 @@ class BubbleSegment extends ChartSegment {
   Paint getStrokePaint() {
     _setSegmentProperties();
     final SegmentProperties bubbleSegmentProperties = _segmentProperties;
-    final Paint _strokePaint = Paint()
+    final Paint strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = bubbleSegmentProperties.currentPoint!.isEmpty == true
+      ..strokeWidth = (bubbleSegmentProperties.currentPoint!.isEmpty ?? false)
           ? bubbleSegmentProperties.series.emptyPointSettings.borderWidth
           : bubbleSegmentProperties.strokeWidth!;
     bubbleSegmentProperties.series.borderGradient != null
-        ? _strokePaint.shader = bubbleSegmentProperties.series.borderGradient!
+        ? strokePaint.shader = bubbleSegmentProperties.series.borderGradient!
             .createShader(bubbleSegmentProperties.currentPoint!.region!)
-        : _strokePaint.color =
-            bubbleSegmentProperties.currentPoint!.isEmpty == true
+        : strokePaint.color =
+            (bubbleSegmentProperties.currentPoint!.isEmpty ?? false)
                 ? bubbleSegmentProperties.series.emptyPointSettings.borderColor
                 : bubbleSegmentProperties.strokeColor!;
     bubbleSegmentProperties.series.borderWidth == 0
-        ? _strokePaint.color = Colors.transparent
-        : _strokePaint.color;
-    bubbleSegmentProperties.defaultStrokeColor = _strokePaint;
-    return _strokePaint;
+        ? strokePaint.color = Colors.transparent
+        : strokePaint.color;
+    bubbleSegmentProperties.defaultStrokeColor = strokePaint;
+    return strokePaint;
   }
 
   /// Calculates the rendering bounds of a segment.

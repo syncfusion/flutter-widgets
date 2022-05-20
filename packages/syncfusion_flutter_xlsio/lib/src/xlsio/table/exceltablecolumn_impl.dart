@@ -151,7 +151,7 @@ class _ExcelTableColumnImpl implements ExcelTableColumn {
       case ExcelTableTotalFormula.variable:
         return '110';
 
-      default:
+      case ExcelTableTotalFormula.none:
         return 'none';
     }
   }

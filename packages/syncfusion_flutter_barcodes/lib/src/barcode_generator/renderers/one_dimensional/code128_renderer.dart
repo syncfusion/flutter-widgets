@@ -437,7 +437,8 @@ class Code128Renderer extends SymbologyRenderer {
       } else if (currentCharacter < 127) {
         return true;
       } else {
-        throw 'The provided input cannot be encoded : ${value[i]}';
+        throw ArgumentError(
+            'The provided input cannot be encoded : ${value[i]}');
       }
     }
     return false;

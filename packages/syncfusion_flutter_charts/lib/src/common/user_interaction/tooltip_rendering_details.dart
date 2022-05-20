@@ -1,13 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/axis/multi_level_labels.dart'
-    show AxisMultiLevelLabel;
-import 'package:syncfusion_flutter_charts/src/chart/chart_segment/chart_segment.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/cartesian_state_properties.dart';
-import 'package:syncfusion_flutter_charts/src/circular_chart/base/circular_state_properties.dart';
-import 'package:syncfusion_flutter_charts/src/common/utils/helper.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/tooltip_internal.dart';
 
@@ -17,13 +10,18 @@ import '../../chart/axis/category_axis.dart';
 import '../../chart/axis/datetime_axis.dart';
 import '../../chart/axis/datetime_category_axis.dart';
 import '../../chart/axis/logarithmic_axis.dart';
+import '../../chart/axis/multi_level_labels.dart' show AxisMultiLevelLabel;
 import '../../chart/axis/numeric_axis.dart';
 import '../../chart/chart_series/series.dart';
+import '../../chart/chart_series/series_renderer_properties.dart';
+import '../../chart/common/cartesian_state_properties.dart';
 import '../../chart/utils/helper.dart';
+import '../../circular_chart/base/circular_state_properties.dart';
 import '../../circular_chart/renderer/common.dart';
 import '../../circular_chart/utils/helper.dart';
 import '../../pyramid_chart/utils/helper.dart';
 import '../rendering_details.dart';
+import '../utils/helper.dart';
 import 'tooltip.dart';
 
 export 'package:syncfusion_flutter_core/core.dart'
@@ -100,6 +98,7 @@ class TooltipRenderingDetails {
   ///  Holds the value of tooltip bounds.
   Rect? tooltipBounds;
   String? _stringVal, _header;
+  // ignore: avoid_setters_without_getters
   set _stringValue(String? value) {
     _stringVal = value;
   }
@@ -532,6 +531,7 @@ class TooltipRenderingDetails {
         final SeriesRendererDetails cartesianSeriesRendererDetails =
             SeriesHelper.getSeriesRendererDetails(_stateProperties
                 .chartSeries.visibleSeriesRenderers[seriesIndex]);
+        // ignore: unnecessary_null_comparison
         if (pointIndex != null &&
             pointIndex.abs() <
                 cartesianSeriesRendererDetails.dataPoints.length) {
@@ -826,7 +826,7 @@ class TooltipRenderingDetails {
           tooltipRenderingDetails.isInteraction == true ||
           (isInsidePointRegion ?? false)) {
         final bool isHovering = tooltipRenderingDetails.isHovering;
-        if (isInsidePointRegion == true ||
+        if ((isInsidePointRegion ?? false) ||
             isHovering ||
             (chart is SfCartesianChart) == false) {
           tooltipRenderingDetails.showTooltip(x, y);
@@ -1042,8 +1042,7 @@ class TooltipRenderingDetails {
         currentSeriesDetails != null &&
         pointIndex != null) {
       final int seriesIndex = _stateProperties.chart is SfCartesianChart
-          ? SegmentHelper.getSegmentProperties(currentSeriesDetails.segments[0])
-              .seriesIndex
+          ? currentSeriesDetails.seriesIndex
           : 0;
       if ((_stateProperties.chart is SfCartesianChart &&
               _stateProperties.requireAxisTooltip == false) ||
@@ -1091,7 +1090,7 @@ class TooltipRenderingDetails {
           args.location = Offset(x!, y!);
         } else if (_stateProperties.chart.onTooltipRender != null) {
           //Fires the on tooltip render event when the tooltip is shown outside point region
-          tooltipArgs = TooltipArgs(null, null, null);
+          tooltipArgs = TooltipArgs();
           tooltipArgs.text = stringValue;
           tooltipArgs.header = header;
           tooltipArgs.locationX = x;
@@ -1417,7 +1416,7 @@ class TooltipRenderingDetails {
                   TooltipValue(i, count, outlierTooltipIndex);
               currentSeriesDetails = _seriesRendererDetails;
               pointIndex = _stateProperties.chart is SfCartesianChart
-                  ? isTrendLine == true
+                  ? (isTrendLine ?? false)
                       ? regionRect[4].index
                       : regionRect[4].visiblePointIndex
                   : count;

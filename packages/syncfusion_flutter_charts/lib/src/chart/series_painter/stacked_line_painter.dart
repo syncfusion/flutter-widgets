@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 import '../../common/rendering_details.dart';
 import '../../common/user_interaction/selection_behavior.dart';
@@ -22,7 +22,7 @@ class StackedLineSeriesRenderer extends StackedSeriesRenderer {
   // ignore: unused_element
   ChartSegment _createSegments(
       CartesianChartPoint<dynamic> currentPoint,
-      CartesianChartPoint<dynamic> _nextPoint,
+      CartesianChartPoint<dynamic> nextPoint,
       int pointIndex,
       int seriesIndex,
       double animationFactor,
@@ -34,7 +34,7 @@ class StackedLineSeriesRenderer extends StackedSeriesRenderer {
     final SegmentProperties segmentProperties =
         SegmentProperties(seriesRendererDetails.stateProperties, segment);
     SegmentHelper.setSegmentProperties(segment, segmentProperties);
-    final List<CartesianSeriesRenderer>? _oldSeriesRenderers =
+    final List<CartesianSeriesRenderer>? oldSeriesRenderers =
         seriesRendererDetails.stateProperties.oldSeriesRenderers;
     seriesRendererDetails.isRectSeries = false;
     // ignore: unnecessary_null_comparison
@@ -45,7 +45,7 @@ class StackedLineSeriesRenderer extends StackedSeriesRenderer {
       segmentProperties.seriesIndex = seriesIndex;
       segmentProperties.currentPoint = currentPoint;
       segment.currentSegmentIndex = pointIndex;
-      segmentProperties.nextPoint = _nextPoint;
+      segmentProperties.nextPoint = nextPoint;
       segment.animationFactor = animationFactor;
       segmentProperties.pointColorMapper = currentPoint.pointColorMapper;
       segmentProperties.currentCummulativePos = currentCummulativePos;
@@ -55,17 +55,17 @@ class StackedLineSeriesRenderer extends StackedSeriesRenderer {
               true &&
           seriesRendererDetails.xAxisDetails!.zoomFactor == 1 &&
           seriesRendererDetails.yAxisDetails!.zoomFactor == 1 &&
-          _oldSeriesRenderers != null &&
-          _oldSeriesRenderers.isNotEmpty &&
-          _oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
+          oldSeriesRenderers != null &&
+          oldSeriesRenderers.isNotEmpty &&
+          oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
           SeriesHelper.getSeriesRendererDetails(
-                      _oldSeriesRenderers[segmentProperties.seriesIndex])
+                      oldSeriesRenderers[segmentProperties.seriesIndex])
                   .seriesName ==
               SeriesHelper.getSeriesRendererDetails(
                       segmentProperties.seriesRenderer)
                   .seriesName) {
         segmentProperties.oldSeriesRenderer =
-            _oldSeriesRenderers[segmentProperties.seriesIndex];
+            oldSeriesRenderers[segmentProperties.seriesIndex];
         SegmentHelper.setSegmentProperties(segment, segmentProperties);
         segmentProperties.oldSegmentIndex = getOldSegmentIndex(segment);
       }
@@ -196,7 +196,7 @@ class StackedLine100SeriesRenderer extends StackedSeriesRenderer {
   // ignore: unused_element
   ChartSegment _createSegments(
       CartesianChartPoint<dynamic> currentPoint,
-      CartesianChartPoint<dynamic> _nextPoint,
+      CartesianChartPoint<dynamic> nextPoint,
       int pointIndex,
       int seriesIndex,
       double animationFactor,
@@ -208,7 +208,7 @@ class StackedLine100SeriesRenderer extends StackedSeriesRenderer {
     final SegmentProperties segmentProperties =
         SegmentProperties(seriesRendererDetails.stateProperties, segment);
     SegmentHelper.setSegmentProperties(segment, segmentProperties);
-    final List<CartesianSeriesRenderer> _oldSeriesRenderers =
+    final List<CartesianSeriesRenderer> oldSeriesRenderers =
         seriesRendererDetails.stateProperties.oldSeriesRenderers;
     seriesRendererDetails.isRectSeries = false;
     // ignore: unnecessary_null_comparison
@@ -219,7 +219,7 @@ class StackedLine100SeriesRenderer extends StackedSeriesRenderer {
       segmentProperties.seriesIndex = seriesIndex;
       segmentProperties.currentPoint = currentPoint;
       segment.currentSegmentIndex = pointIndex;
-      segmentProperties.nextPoint = _nextPoint;
+      segmentProperties.nextPoint = nextPoint;
       segment.animationFactor = animationFactor;
       segmentProperties.pointColorMapper = currentPoint.pointColorMapper;
       segmentProperties.currentCummulativePos = currentCummulativePos;
@@ -230,17 +230,17 @@ class StackedLine100SeriesRenderer extends StackedSeriesRenderer {
           seriesRendererDetails.xAxisDetails!.zoomFactor == 1 &&
           seriesRendererDetails.yAxisDetails!.zoomFactor == 1 &&
           // ignore: unnecessary_null_comparison
-          _oldSeriesRenderers != null &&
-          _oldSeriesRenderers.isNotEmpty &&
-          _oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
+          oldSeriesRenderers != null &&
+          oldSeriesRenderers.isNotEmpty &&
+          oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
           SeriesHelper.getSeriesRendererDetails(
-                      _oldSeriesRenderers[segmentProperties.seriesIndex])
+                      oldSeriesRenderers[segmentProperties.seriesIndex])
                   .seriesName ==
               SeriesHelper.getSeriesRendererDetails(
                       segmentProperties.seriesRenderer)
                   .seriesName) {
         segmentProperties.oldSeriesRenderer =
-            _oldSeriesRenderers[segmentProperties.seriesIndex];
+            oldSeriesRenderers[segmentProperties.seriesIndex];
         segmentProperties.oldSegmentIndex = getOldSegmentIndex(segment);
       }
       segment.calculateSegmentPoints();
@@ -368,7 +368,7 @@ void _stackedLinePainter(
     PainterKey painterKey) {
   Rect clipRect;
   double animationFactor;
-  final RenderingDetails _renderingDetails = stateProperties.renderingDetails;
+  final RenderingDetails renderingDetails = stateProperties.renderingDetails;
   if (seriesRendererDetails.visible! == true) {
     final XyDataSeries<dynamic, dynamic> series =
         seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
@@ -397,8 +397,8 @@ void _stackedLinePainter(
             seriesRendererDetails.yAxisDetails!.axis.plotOffset));
     canvas.clipRect(axisClipRect);
     if (seriesRendererDetails.reAnimate == true ||
-        ((!(_renderingDetails.widgetNeedUpdate ||
-                    _renderingDetails.isLegendToggled) ||
+        ((!(renderingDetails.widgetNeedUpdate ||
+                    renderingDetails.isLegendToggled) ||
                 !stateProperties.oldSeriesKeys.contains(series.key)) &&
             series.animationDuration > 0)) {
       performLinearAnimation(stateProperties,
@@ -407,10 +407,7 @@ void _stackedLinePainter(
 
     int segmentIndex = -1;
     double? currentCummulativePos, nextCummulativePos;
-    CartesianChartPoint<dynamic>? startPoint,
-        endPoint,
-        currentPoint,
-        _nextPoint;
+    CartesianChartPoint<dynamic>? startPoint, endPoint, currentPoint, nextPoint;
     if (seriesRendererDetails.visibleDataPoints == null ||
         seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
       seriesRendererDetails.visibleDataPoints =
@@ -424,6 +421,7 @@ void _stackedLinePainter(
       currentPoint = seriesRendererDetails.dataPoints[pointIndex];
       bool withInXRange = withInRange(currentPoint.xValue,
           seriesRendererDetails.xAxisDetails!.visibleRange!);
+      // ignore: unnecessary_null_comparison
       bool withInYRange = currentPoint != null &&
           currentPoint.yValue != null &&
           withInRange(currentPoint.yValue,
@@ -436,6 +434,7 @@ void _stackedLinePainter(
             seriesRendererDetails.dataPoints[pointIndex + 1];
         withInXRange = withInRange(nextPoint!.xValue,
             seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
         withInYRange = nextPoint != null &&
             nextPoint.yValue != null &&
             withInRange(nextPoint.yValue,
@@ -446,6 +445,7 @@ void _stackedLinePainter(
               seriesRendererDetails.dataPoints[pointIndex - 1];
           withInXRange = withInRange(prevPoint!.xValue,
               seriesRendererDetails.xAxisDetails!.visibleRange!);
+          // ignore: unnecessary_null_comparison
           withInYRange = prevPoint != null &&
               prevPoint.yValue != null &&
               withInRange(prevPoint.yValue,
@@ -462,13 +462,13 @@ void _stackedLinePainter(
           currentCummulativePos = stackedValues.endValues[pointIndex];
         }
         if (pointIndex + 1 < seriesRendererDetails.dataPoints.length) {
-          _nextPoint = seriesRendererDetails.dataPoints[pointIndex + 1];
-          if (startPoint != null && _nextPoint.isGap) {
+          nextPoint = seriesRendererDetails.dataPoints[pointIndex + 1];
+          if (startPoint != null && nextPoint.isGap) {
             startPoint = null;
-          } else if (_nextPoint.isVisible &&
-              !_nextPoint.isGap &&
+          } else if (nextPoint.isVisible &&
+              !nextPoint.isGap &&
               stackedValues != null) {
-            endPoint = _nextPoint;
+            endPoint = nextPoint;
             nextCummulativePos = stackedValues.endValues[pointIndex + 1];
           }
         }
@@ -498,7 +498,7 @@ void _stackedLinePainter(
             seriesRendererDetails.yAxisDetails!.axis.plotOffset));
     canvas.restore();
     if ((series.animationDuration <= 0 ||
-            !_renderingDetails.initialRender! ||
+            !renderingDetails.initialRender! ||
             animationFactor >= stateProperties.seriesDurationFactor) &&
         (series.markerSettings.isVisible ||
             series.dataLabelSettings.isVisible)) {

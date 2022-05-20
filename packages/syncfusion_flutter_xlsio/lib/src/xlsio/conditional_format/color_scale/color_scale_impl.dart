@@ -4,8 +4,8 @@ part of xlsio;
 class _ColorScaleImpl implements ColorScale {
   /// Initializes new instance of the color scale object.
   _ColorScaleImpl() {
-    const int _defaultCount = 2;
-    setConditionCount(_defaultCount);
+    const int defaultCount = 2;
+    setConditionCount(defaultCount);
   }
 
   /// Default color sequence for two color gradient.

@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:syncfusion_flutter_calendar/src/calendar/common/date_time_engine.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
+import '../common/date_time_engine.dart';
 import '../common/enums.dart' show RecurrenceType, RecurrenceRange, WeekDays;
 import 'appointment_helper.dart';
 import 'recurrence_properties.dart';
@@ -732,8 +732,7 @@ class RecurrenceHelper {
 
         monthValue += monthlyMonthGap;
         monthDate = byMonthDay == -1
-            ? AppointmentHelper.getMonthEndDate(
-                    DateTime(yearValue, monthValue, 1))
+            ? AppointmentHelper.getMonthEndDate(DateTime(yearValue, monthValue))
                 .day
             : monthDate;
         addDate = DateTime(yearValue, monthValue, monthDate,
@@ -906,7 +905,7 @@ class RecurrenceHelper {
       final int byMonthDay = dayIndex;
       if (byMonthDay == -1) {
         dayIndex = AppointmentHelper.getMonthEndDate(
-                DateTime(addDate.year, monthIndex, 1))
+                DateTime(addDate.year, monthIndex))
             .day;
       }
       if (monthIndex < 0 || monthIndex > 12) {
@@ -914,7 +913,7 @@ class RecurrenceHelper {
       }
 
       final int daysInMonth = DateTimeHelper.getDateTimeValue(
-              addDays(DateTime(addDate.year, addDate.month + 1, 1), -1))
+              addDays(DateTime(addDate.year, addDate.month + 1), -1))
           .day;
       if (daysInMonth < dayIndex) {
         return recDateCollection;
@@ -953,7 +952,7 @@ class RecurrenceHelper {
 
         dayIndex = byMonthDay == -1
             ? AppointmentHelper.getMonthEndDate(
-                    DateTime(addDate.year + yearlyYearGap, monthIndex, 1))
+                    DateTime(addDate.year + yearlyYearGap, monthIndex))
                 .day
             : addDate.day;
 

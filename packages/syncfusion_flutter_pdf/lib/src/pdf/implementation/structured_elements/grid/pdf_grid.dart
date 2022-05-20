@@ -720,7 +720,7 @@ class PdfGrid extends PdfLayoutElement {
   }
 
   void _applyTableGridLight(PdfColor borderColor) {
-    final PdfPen borderPen = PdfPen(borderColor, width: 1);
+    final PdfPen borderPen = PdfPen(borderColor);
     if (headers.count > 0) {
       for (int i = 1; i <= headers.count; i++) {
         final PdfGridRow row = headers[i - 1];
@@ -4339,6 +4339,7 @@ class PdfGridHelper {
             PdfColor(226, 239, 217), PdfColor(83, 129, 53));
         break;
 
+      // ignore: no_default_cases
       default:
     }
   }

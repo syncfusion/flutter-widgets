@@ -986,7 +986,7 @@ abstract class ChartAxis {
   ///   );
   /// }
   ///```
-  // ignore: always_specify_types
+  // ignore: always_specify_types, strict_raw_type
   final List<ChartMultiLevelLabel>? multiLevelLabels;
 
   /// Called while rendering each multi-level label.
@@ -1964,8 +1964,8 @@ abstract class ChartAxisRenderer with CustomizeAxisElements {
   void generateVisibleLabels();
 
   /// To calculate the range points
-  void calculateRange(ChartAxisRenderer _axisRenderer) {
-    _axisRenderer._axisRendererDetails._calculateRange(_axisRenderer);
+  void calculateRange(ChartAxisRenderer axisRenderer) {
+    axisRenderer._axisRendererDetails._calculateRange(axisRenderer);
   }
 
   /// To dispose the objects.
@@ -2268,18 +2268,18 @@ class ChartAxisRendererDetails {
   }
 
   /// To change chart based on range controller
-  void updateRangeControllerValues(ChartAxisRendererDetails _axisRenderer) {
+  void updateRangeControllerValues(ChartAxisRendererDetails axisRenderer) {
     stateProperties.zoomProgress = false;
     stateProperties.isRedrawByZoomPan = false;
-    if (_axisRenderer is DateTimeAxisRenderer ||
-        _axisRenderer is DateTimeCategoryAxisRenderer) {
-      _axisRenderer.rangeMinimum =
+    if (axisRenderer is DateTimeAxisRenderer ||
+        axisRenderer is DateTimeCategoryAxisRenderer) {
+      axisRenderer.rangeMinimum =
           axis.rangeController!.start.millisecondsSinceEpoch;
-      _axisRenderer.rangeMaximum =
+      axisRenderer.rangeMaximum =
           axis.rangeController!.end.millisecondsSinceEpoch;
     } else {
-      _axisRenderer.rangeMinimum = axis.rangeController!.start;
-      _axisRenderer.rangeMaximum = axis.rangeController!.end;
+      axisRenderer.rangeMinimum = axis.rangeController!.start;
+      axisRenderer.rangeMaximum = axis.rangeController!.end;
     }
   }
 
@@ -2531,18 +2531,18 @@ class ChartAxisRendererDetails {
   }
 
   /// To provide chart changes to range controller
-  void setRangeControllerValues(ChartAxisRenderer _axisRenderer) {
-    if (_axisRenderer is DateTimeAxisRenderer ||
-        _axisRenderer is DateTimeCategoryAxisRenderer) {
+  void setRangeControllerValues(ChartAxisRenderer axisRenderer) {
+    if (axisRenderer is DateTimeAxisRenderer ||
+        axisRenderer is DateTimeCategoryAxisRenderer) {
       axis.rangeController!.start = DateTime.fromMillisecondsSinceEpoch(
-          _axisRenderer._axisRendererDetails.visibleRange!.minimum.toInt());
+          axisRenderer._axisRendererDetails.visibleRange!.minimum.toInt());
       axis.rangeController!.end = DateTime.fromMillisecondsSinceEpoch(
-          _axisRenderer._axisRendererDetails.visibleRange!.maximum.toInt());
+          axisRenderer._axisRendererDetails.visibleRange!.maximum.toInt());
     } else {
       axis.rangeController!.start =
-          _axisRenderer._axisRendererDetails.visibleRange!.minimum;
+          axisRenderer._axisRendererDetails.visibleRange!.minimum;
       axis.rangeController!.end =
-          _axisRenderer._axisRendererDetails.visibleRange!.maximum;
+          axisRenderer._axisRendererDetails.visibleRange!.maximum;
     }
   }
 
@@ -3649,7 +3649,7 @@ class ChartAxisRendererDetails {
 
         /// Based on below options, perform label intersection
         if (isCollide) {
-          final List<double> _list = _performLabelIntersectAction(
+          final List<double> list = _performLabelIntersectAction(
               label,
               action,
               maximumLabelWidth,
@@ -3659,8 +3659,8 @@ class ChartAxisRendererDetails {
               i,
               axisRenderer,
               chart);
-          maximumLabelWidth = _list[0];
-          maximumLabelHeight = _list[1];
+          maximumLabelWidth = list[0];
+          maximumLabelHeight = list[1];
         }
       }
     }
@@ -3714,18 +3714,19 @@ class ChartAxisRendererDetails {
           maximumLabelHeight = height;
         }
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
     return <double>[maximumLabelWidth, maximumLabelHeight];
   }
 
-  void _calculateRange(ChartAxisRenderer _axisRenderer) {
+  void _calculateRange(ChartAxisRenderer axisRenderer) {
     min = null;
     max = null;
     CartesianSeriesRenderer seriesRenderer;
     double paddingInterval = 0;
-    ChartAxisRendererDetails _xAxisDetails, _yAxisDetails;
+    ChartAxisRendererDetails xAxisDetails, yAxisDetails;
     num? minimumX, maximumX, minimumY, maximumY;
     String seriesType;
     final ChartAxisRendererDetails axisDetails =
@@ -3745,23 +3746,23 @@ class ChartAxisRendererDetails {
           minimumY != null &&
           maximumY != null) {
         paddingInterval = 0;
-        _xAxisDetails = seriesRendererDetails.xAxisDetails!;
-        _yAxisDetails = seriesRendererDetails.yAxisDetails!;
-        if (((_xAxisDetails is DateTimeAxisDetails ||
-                    _xAxisDetails is NumericAxisDetails) &&
-                _xAxisDetails.axis.rangePadding == ChartRangePadding.auto) &&
+        xAxisDetails = seriesRendererDetails.xAxisDetails!;
+        yAxisDetails = seriesRendererDetails.yAxisDetails!;
+        if (((xAxisDetails is DateTimeAxisDetails ||
+                    xAxisDetails is NumericAxisDetails) &&
+                xAxisDetails.axis.rangePadding == ChartRangePadding.auto) &&
             (seriesType.contains('column') ||
                 (seriesType.contains('bar') &&
                     seriesType.contains('errorbar') == false) ||
                 seriesType == 'histogram')) {
           seriesRendererDetails.minDelta = seriesRendererDetails.minDelta ??
               calculateMinPointsDelta(
-                  _xAxisDetails.axisRenderer, seriesRenderers, stateProperties);
+                  xAxisDetails.axisRenderer, seriesRenderers, stateProperties);
           paddingInterval = seriesRendererDetails.minDelta! / 2;
         }
         if (((stateProperties.requireInvertedAxis
-                    ? _yAxisDetails
-                    : _xAxisDetails) ==
+                    ? yAxisDetails
+                    : xAxisDetails) ==
                 axisDetails) &&
             orientation == AxisOrientation.horizontal) {
           stateProperties.requireInvertedAxis
@@ -3771,8 +3772,8 @@ class ChartAxisRendererDetails {
         }
 
         if (((stateProperties.requireInvertedAxis
-                    ? _xAxisDetails
-                    : _yAxisDetails) ==
+                    ? xAxisDetails
+                    : yAxisDetails) ==
                 axisDetails) &&
             orientation == AxisOrientation.vertical) {
           stateProperties.requireInvertedAxis

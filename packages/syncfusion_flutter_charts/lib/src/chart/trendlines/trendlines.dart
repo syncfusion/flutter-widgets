@@ -1,7 +1,8 @@
 import 'dart:math';
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
+
 import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import '../axis/axis.dart';
@@ -14,6 +15,7 @@ import '../chart_series/hilo_series.dart';
 import '../chart_series/hiloopenclose_series.dart';
 import '../chart_series/range_area_series.dart';
 import '../chart_series/range_column_series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/stacked_series_base.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
@@ -570,7 +572,7 @@ class TrendlineRenderer {
   // In excel, the date is considered from Jan 1, 1900. To achieve the same scenario, we have considered the year from 1900.
   // Reference link: https://support.microsoft.com/en-us/office/datevalue-function-df8b07d4-7761-4a93-bc33-b7471bbff252
   /// Holds the excel starting date value.
-  final DateTime excelDate = DateTime(1900, 01, 01);
+  final DateTime excelDate = DateTime(1900);
 
   /// Defines the data point of trendline.
   CartesianChartPoint<dynamic> getDataPoint(
@@ -1074,38 +1076,38 @@ class TrendlineRenderer {
       SeriesRendererDetails seriesRendererDetails) {
     //ignore: unused_local_variable
     final int midPoint = (points.length / 2).round();
-    final List<dynamic> _polynomialSlopesList = polynomialSlopes!;
+    final List<dynamic> polynomialSlopesList = polynomialSlopes!;
     final List<CartesianChartPoint<dynamic>> pts =
         <CartesianChartPoint<dynamic>>[];
 
     num x1 = 1;
     dynamic xVal;
     num yVal;
-    final num _backwardForecast =
+    final num backwardForecast =
         seriesRendererDetails.xAxisDetails is DateTimeAxisDetails
             ? _getForecastDate(seriesRendererDetails.xAxisDetails!, false)
             : trendline.backwardForecast;
-    final num _forwardForecast =
+    final num forwardForecast =
         seriesRendererDetails.xAxisDetails is DateTimeAxisDetails
             ? _getForecastDate(seriesRendererDetails.xAxisDetails!, true)
             : trendline.forwardForecast;
 
-    for (int index = 1; index <= _polynomialSlopesList.length; index++) {
+    for (int index = 1; index <= polynomialSlopesList.length; index++) {
       if (index == 1) {
-        xVal = xValues[0] - _backwardForecast.toDouble();
-        yVal = _getPolynomialYValue(_polynomialSlopesList, xVal);
+        xVal = xValues[0] - backwardForecast.toDouble();
+        yVal = _getPolynomialYValue(polynomialSlopesList, xVal);
         pts.add(getDataPoint(
             xVal, yVal, points[0], seriesRendererDetails, pts.length));
-      } else if (index == _polynomialSlopesList.length) {
-        xVal = xValues[points.length - 1] + _forwardForecast.toDouble();
-        yVal = _getPolynomialYValue(_polynomialSlopesList, xVal);
+      } else if (index == polynomialSlopesList.length) {
+        xVal = xValues[points.length - 1] + forwardForecast.toDouble();
+        yVal = _getPolynomialYValue(polynomialSlopesList, xVal);
         pts.add(getDataPoint(xVal, yVal, points[points.length - 1],
             seriesRendererDetails, pts.length));
       } else {
         x1 += (points.length + trendline.forwardForecast) /
-            _polynomialSlopesList.length;
+            polynomialSlopesList.length;
         xVal = xValues[x1.floor() - 1] * 1.0;
-        yVal = _getPolynomialYValue(_polynomialSlopesList, xVal);
+        yVal = _getPolynomialYValue(polynomialSlopesList, xVal);
         pts.add(getDataPoint(xVal, yVal, points[x1.floor() - 1],
             seriesRendererDetails, pts.length));
       }
@@ -1210,6 +1212,7 @@ class TrendlineRenderer {
         case TrendlineType.exponential:
           slope = (xyAvg - (math.log(intercept.abs()) * xAvg)) / xxAvg;
           break;
+        // ignore: no_default_cases
         default:
           break;
       }
@@ -1249,8 +1252,6 @@ class TrendlineRenderer {
           break;
         case TrendlineType.movingAverage:
           _setMovingAverageRange(pointsData!, seriesRendererDetails);
-          break;
-        default:
           break;
       }
     }
@@ -1323,13 +1324,13 @@ class TrendlineRenderer {
   }
 
   /// To obtain control points for type curve trendlines.
-  List<Offset> getControlPoints(List<Offset> _dataPoints, int index) {
+  List<Offset> getControlPoints(List<Offset> dataPoints, int index) {
     List<num?> yCoef = <num?>[];
     final List<Offset> controlPoints = <Offset>[];
     final List<num> xValues = <num>[], yValues = <num>[];
-    for (int i = 0; i < _dataPoints.length; i++) {
-      xValues.add(_dataPoints[i].dx);
-      yValues.add(_dataPoints[i].dy);
+    for (int i = 0; i < dataPoints.length; i++) {
+      xValues.add(dataPoints[i].dx);
+      yValues.add(dataPoints[i].dy);
     }
     yCoef = naturalSpline(
         xValues, yValues, yCoef, xValues.length, SplineType.natural);
@@ -1345,34 +1346,28 @@ class TrendlineRenderer {
     DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(value);
     switch (axis.intervalType) {
       case DateTimeIntervalType.years:
-        dateTime = DateTime(dateTime.year + interval.floor(), dateTime.month,
-            dateTime.day, 0, 0, 0, 0);
+        dateTime = DateTime(
+            dateTime.year + interval.floor(), dateTime.month, dateTime.day);
         break;
       case DateTimeIntervalType.months:
-        dateTime = DateTime(dateTime.year, dateTime.month + interval.floor(),
-            dateTime.day, 0, 0, 0, 0);
+        dateTime = DateTime(
+            dateTime.year, dateTime.month + interval.floor(), dateTime.day);
         break;
       case DateTimeIntervalType.days:
-        dateTime = DateTime(dateTime.year, dateTime.month,
-            dateTime.day + interval.floor(), 0, 0, 0, 0);
+        dateTime = DateTime(
+            dateTime.year, dateTime.month, dateTime.day + interval.floor());
         break;
       case DateTimeIntervalType.hours:
         dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-            dateTime.hour + interval.floor(), 0, 0, 0);
+            dateTime.hour + interval.floor());
         break;
       case DateTimeIntervalType.minutes:
         dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-            dateTime.hour, dateTime.minute + interval.floor(), 0, 0);
+            dateTime.hour, dateTime.minute + interval.floor());
         break;
       case DateTimeIntervalType.seconds:
-        dateTime = DateTime(
-            dateTime.year,
-            dateTime.month,
-            dateTime.day,
-            dateTime.hour,
-            dateTime.minute,
-            dateTime.second + interval.floor(),
-            0);
+        dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
+            dateTime.hour, dateTime.minute, dateTime.second + interval.floor());
         break;
       case DateTimeIntervalType.milliseconds:
         dateTime = DateTime(
@@ -1392,7 +1387,7 @@ class TrendlineRenderer {
 
   /// Boolean for gaussJordanElimination in polynomial type trendlines.
   bool _gaussJordanElimination(
-      List<dynamic> matrix, List<dynamic> _polynomialSlopesList) {
+      List<dynamic> matrix, List<dynamic> polynomialSlopesList) {
     final int length = matrix.length;
     final List<dynamic> numArray1 = List<dynamic>.filled(length, null);
     final List<dynamic> numArray2 = List<dynamic>.filled(length, null);
@@ -1429,9 +1424,9 @@ class TrendlineRenderer {
           matrix[index3][index4_1] = num2;
           ++index4_1;
         }
-        final num num3 = _polynomialSlopesList[index2];
-        _polynomialSlopesList[index2] = _polynomialSlopesList[index3];
-        _polynomialSlopesList[index3] = num3;
+        final num num3 = polynomialSlopesList[index2];
+        polynomialSlopesList[index2] = polynomialSlopesList[index3];
+        polynomialSlopesList[index3] = num3;
       }
       numArray2[index1] = index2;
       numArray1[index1] = index3;
@@ -1445,7 +1440,7 @@ class TrendlineRenderer {
         matrix[index3][iindex4] *= num4;
         ++iindex4;
       }
-      _polynomialSlopesList[index3] *= num4;
+      polynomialSlopesList[index3] *= num4;
       int iandex4 = 0;
       while (iandex4 < length) {
         if (iandex4 != index3) {
@@ -1456,8 +1451,7 @@ class TrendlineRenderer {
             matrix[iandex4][index5] -= matrix[index3][index5] * num2;
             ++index5;
           }
-          _polynomialSlopesList[iandex4] -=
-              _polynomialSlopesList[index3] * num2;
+          polynomialSlopesList[iandex4] -= polynomialSlopesList[index3] * num2;
         }
         ++iandex4;
       }
@@ -1509,7 +1503,7 @@ class TrendlineRenderer {
 
   /// To return predicted forecast values.
   int _getForecastDate(
-      ChartAxisRendererDetails axisRendererDetails, bool _isForward) {
+      ChartAxisRendererDetails axisRendererDetails, bool isForward) {
     Duration duration = Duration.zero;
     final DateTimeAxis axis = axisRendererDetails.axis as DateTimeAxis;
     switch (axis.intervalType) {
@@ -1519,7 +1513,7 @@ class TrendlineRenderer {
       case DateTimeIntervalType.years:
         duration = Duration(
             days: (365.25 *
-                    (_isForward
+                    (isForward
                         ? trendline.forwardForecast
                         : trendline.backwardForecast))
                 .round());
@@ -1527,42 +1521,42 @@ class TrendlineRenderer {
       case DateTimeIntervalType.months:
         duration = Duration(
             days: 31 *
-                (_isForward
+                (isForward
                         ? trendline.forwardForecast
                         : trendline.backwardForecast)
                     .round());
         break;
       case DateTimeIntervalType.days:
         duration = Duration(
-            days: (_isForward
+            days: (isForward
                     ? trendline.forwardForecast
                     : trendline.backwardForecast)
                 .round());
         break;
       case DateTimeIntervalType.hours:
         duration = Duration(
-            hours: (_isForward
+            hours: (isForward
                     ? trendline.forwardForecast
                     : trendline.backwardForecast)
                 .round());
         break;
       case DateTimeIntervalType.minutes:
         duration = Duration(
-            minutes: (_isForward
+            minutes: (isForward
                     ? trendline.forwardForecast
                     : trendline.backwardForecast)
                 .round());
         break;
       case DateTimeIntervalType.seconds:
         duration = Duration(
-            seconds: (_isForward
+            seconds: (isForward
                     ? trendline.forwardForecast
                     : trendline.backwardForecast)
                 .round());
         break;
       case DateTimeIntervalType.milliseconds:
         duration = Duration(
-            milliseconds: (_isForward
+            milliseconds: (isForward
                     ? trendline.forwardForecast
                     : trendline.backwardForecast)
                 .round());

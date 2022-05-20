@@ -403,6 +403,7 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
           case PdfAnnotationTypes.widgetAnnotation:
             annot = _createWidgetAnnotation(dictionary, crossTable!);
             break;
+          // ignore: no_default_cases
           default:
             break;
         }

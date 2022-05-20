@@ -1,26 +1,26 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-import 'package:syncfusion_flutter_charts/src/circular_chart/renderer/chart_point.dart';
-import 'package:syncfusion_flutter_charts/src/circular_chart/renderer/circular_series.dart';
-import 'package:syncfusion_flutter_charts/src/circular_chart/renderer/renderer_extension.dart';
-import 'package:syncfusion_flutter_charts/src/common/utils/typedef.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/legend_internal.dart'
     hide LegendPosition;
 
 import '../../chart/base/chart_base.dart';
 import '../../chart/chart_series/series.dart';
+import '../../chart/chart_series/series_renderer_properties.dart';
 import '../../chart/common/cartesian_state_properties.dart';
 import '../../chart/technical_indicators/technical_indicator.dart';
 import '../../chart/trendlines/trendlines.dart';
 import '../../chart/utils/helper.dart';
+import '../../circular_chart/renderer/chart_point.dart';
+import '../../circular_chart/renderer/circular_series.dart';
+import '../../circular_chart/renderer/renderer_extension.dart';
 import '../common.dart';
 import '../event_args.dart';
 import '../rendering_details.dart';
 import '../state_properties.dart';
 import '../utils/enum.dart';
+import '../utils/typedef.dart';
 import 'renderer.dart';
 
 /// Represents the chart legend class.
@@ -276,7 +276,7 @@ class ChartLegend {
         seriesRendererDetails.series;
     final CartesianStateProperties stateProperties =
         this.stateProperties as CartesianStateProperties;
-    final RenderingDetails _renderingDetails = stateProperties.renderingDetails;
+    final RenderingDetails renderingDetails = stateProperties.renderingDetails;
     final List<Color> palette = stateProperties.chart.palette;
     if (trendline != null) {
       isTrendlineadded = true;
@@ -378,8 +378,8 @@ class ChartLegend {
       legendItems.add(legendItem);
       if (seriesRendererDetails.visible! == false &&
           series.isVisibleInLegend &&
-          (_renderingDetails.widgetNeedUpdate ||
-              _renderingDetails.initialRender!) &&
+          (renderingDetails.widgetNeedUpdate ||
+              renderingDetails.initialRender!) &&
           (seriesRendererDetails.oldSeries == null ||
               (!series.isVisible &&
                   seriesRendererDetails.oldSeries!.isVisible == true))) {
@@ -390,7 +390,7 @@ class ChartLegend {
           stateProperties.renderingDetails.legendToggleStates
               .add(legendRenderContext);
         }
-      } else if (_renderingDetails.widgetNeedUpdate &&
+      } else if (renderingDetails.widgetNeedUpdate &&
           (seriesRendererDetails.oldSeries != null &&
               (series.isVisible &&
                   stateProperties.legendToggling == false &&
@@ -563,10 +563,10 @@ class ChartLegend {
       textCollection.add(technicalIndicatorsRenderer.indicatorType);
     }
     //ignore: prefer_collection_literals
-    final Map<String, int> _map = Map<String, int>();
+    final Map<String, int> map = Map<String, int>();
     //ignore: avoid_function_literals_in_foreach_calls
     textCollection.forEach((dynamic str) =>
-        _map[str] = !_map.containsKey(str) ? (1) : (_map[str]! + 1));
+        map[str] = !map.containsKey(str) ? (1) : (map[str]! + 1));
 
     final List<String> indicatorTextCollection = <String>[];
     for (int i = 0; i < chart.indicators.length; i++) {
@@ -582,7 +582,7 @@ class ChartLegend {
       indicatorTextCollection.add(technicalIndicatorsRenderer.indicatorType);
       technicalIndicatorsRenderer.name = indicator.name ??
           (technicalIndicatorsRenderer.indicatorType +
-              (_map[technicalIndicatorsRenderer.indicatorType] == 1
+              (map[technicalIndicatorsRenderer.indicatorType] == 1
                   ? ''
                   : ' $count'));
       if (indicator.isVisible && indicator.isVisibleInLegend) {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
@@ -32,7 +32,7 @@ class HistogramSegment extends ChartSegment {
     if (_segmentProperties.series.gradient == null) {
       if (_segmentProperties.color != null) {
         fillPaint = Paint()
-          ..color = _segmentProperties.currentPoint!.isEmpty == true
+          ..color = (_segmentProperties.currentPoint!.isEmpty ?? false)
               ? _segmentProperties.series.emptyPointSettings.color
               : ((_segmentProperties.currentPoint!.pointColorMapper != null)
                   ? _segmentProperties.currentPoint!.pointColorMapper!
@@ -64,14 +64,14 @@ class HistogramSegment extends ChartSegment {
     _setSegmentProperties();
     strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+      ..strokeWidth = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderWidth
           : _segmentProperties.strokeWidth!;
     if (_segmentProperties.series.borderGradient != null) {
       strokePaint!.shader = _segmentProperties.series.borderGradient!
           .createShader(_segmentProperties.currentPoint!.region!);
     } else if (_segmentProperties.strokeColor != null) {
-      strokePaint!.color = _segmentProperties.currentPoint!.isEmpty == true
+      strokePaint!.color = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderColor
           : _segmentProperties.strokeColor!;
     }

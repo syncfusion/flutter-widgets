@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/segment_properties.dart';
 
 import '../../circular_chart/base/circular_base.dart';
 import '../../common/event_args.dart';
-
 import '../../common/user_interaction/selection_behavior.dart';
 import '../../common/utils/helper.dart';
 import '../../common/utils/typedef.dart';
 import '../../funnel_chart/base/funnel_base.dart';
-
 import '../base/chart_base.dart';
-
 import '../chart_segment/box_and_whisker_segment.dart';
 import '../chart_segment/candle_segment.dart';
 import '../chart_segment/chart_segment.dart';
@@ -25,10 +20,10 @@ import '../chart_segment/stacked_line_segment.dart';
 import '../chart_segment/stackedline100_segment.dart';
 import '../chart_segment/stepline_segment.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
-
 import '../common/common.dart';
-
+import '../common/segment_properties.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 
@@ -164,10 +159,10 @@ class SelectionRenderer {
               chart, seriesRender, pointIndex, seriesIndex);
         }
         if (select) {
-          for (final CartesianSeriesRenderer _seriesRenderer
+          for (final CartesianSeriesRenderer seriesRenderer
               in stateProperties.chartSeries.visibleSeriesRenderers) {
             ValueNotifier<int>(
-                SeriesHelper.getSeriesRendererDetails(_seriesRenderer)
+                SeriesHelper.getSeriesRendererDetails(seriesRenderer)
                     .repaintNotifier
                     .value++);
           }
@@ -1805,12 +1800,11 @@ class SelectionRenderer {
     }
 
     if (select) {
-      for (final CartesianSeriesRenderer _seriesRenderer
+      for (final CartesianSeriesRenderer seriesRenderer
           in stateProperties.chartSeries.visibleSeriesRenderers) {
-        ValueNotifier<int>(
-            SeriesHelper.getSeriesRendererDetails(_seriesRenderer)
-                .repaintNotifier
-                .value++);
+        ValueNotifier<int>(SeriesHelper.getSeriesRendererDetails(seriesRenderer)
+            .repaintNotifier
+            .value++);
       }
     }
   }

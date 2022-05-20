@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 import '../chart_series/series.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
@@ -27,7 +27,7 @@ class BarSegment extends ChartSegment {
     _setSegmentProperties();
     if (_segmentProperties.series.gradient == null) {
       fillPaint = Paint()
-        ..color = _segmentProperties.currentPoint!.isEmpty == true
+        ..color = (_segmentProperties.currentPoint!.isEmpty ?? false)
             ? _segmentProperties.series.emptyPointSettings.color
             : (_segmentProperties.currentPoint!.pointColorMapper ??
                 _segmentProperties.color!)
@@ -60,15 +60,16 @@ class BarSegment extends ChartSegment {
     _setSegmentProperties();
     strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+      ..strokeWidth = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderWidth
           : _segmentProperties.strokeWidth!;
     (_segmentProperties.series.borderGradient != null)
         ? strokePaint!.shader = _segmentProperties.series.borderGradient!
             .createShader(_segmentProperties.currentPoint!.region!)
-        : strokePaint!.color = _segmentProperties.currentPoint!.isEmpty == true
-            ? _segmentProperties.series.emptyPointSettings.borderColor
-            : _segmentProperties.strokeColor!;
+        : strokePaint!.color =
+            (_segmentProperties.currentPoint!.isEmpty ?? false)
+                ? _segmentProperties.series.emptyPointSettings.borderColor
+                : _segmentProperties.strokeColor!;
     _segmentProperties.series.borderWidth == 0
         ? strokePaint!.color = Colors.transparent
         : strokePaint!.color;

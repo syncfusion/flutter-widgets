@@ -68,7 +68,6 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
       BoxShadow(
         color: Color.fromRGBO(0, 0, 0, 0.14),
         blurRadius: 2,
-        offset: Offset.zero,
       ),
       BoxShadow(
         color: Color.fromRGBO(0, 0, 0, 0.12),

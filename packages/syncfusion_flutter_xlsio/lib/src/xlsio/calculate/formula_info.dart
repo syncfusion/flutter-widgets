@@ -14,7 +14,7 @@ class FormulaInfo {
 /// that may be referenced by other formulas.
 /// GetAlphaLabel is a method that retrieves a String value for the column whose numerical index is passed in.
 String _getAlphaLabel(int col) {
-  final List<String> cols = List<String>.filled(10, '', growable: false);
+  final List<String> cols = List<String>.filled(10, '');
   int n = 0;
   while (col > 0 && n < 9) {
     col--;
@@ -23,7 +23,7 @@ String _getAlphaLabel(int col) {
     n++;
   }
 
-  final List<String> chs = List<String>.filled(n, '', growable: false);
+  final List<String> chs = List<String>.filled(n, '');
   for (int i = 0; i < n; i++) {
     chs[n - i - 1] = cols[i];
   }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/common.dart';
+
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
+import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import 'chart_segment.dart';
@@ -21,18 +22,18 @@ class FastLineSegment extends ChartSegment {
   Paint getFillPaint() {
     _setSegmentProperties();
 
-    final Paint _fillPaint = Paint();
+    final Paint fillPaint = Paint();
     assert(_segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the fast line series should be greater than or equal to 0.');
     assert(_segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the fast line series should be less than or equal to 1.');
     if (_segmentProperties.color != null) {
-      _fillPaint.color = _segmentProperties.color!
+      fillPaint.color = _segmentProperties.color!
           .withOpacity(_segmentProperties.series.opacity);
     }
-    _fillPaint.style = PaintingStyle.fill;
-    _segmentProperties.defaultFillColor = _fillPaint;
-    return _fillPaint;
+    fillPaint.style = PaintingStyle.fill;
+    _segmentProperties.defaultFillColor = fillPaint;
+    return fillPaint;
   }
 
   /// Gets the stroke color of the series.
@@ -40,14 +41,14 @@ class FastLineSegment extends ChartSegment {
   Paint getStrokePaint() {
     _setSegmentProperties();
 
-    final Paint _strokePaint = Paint();
+    final Paint strokePaint = Paint();
     assert(_segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the fast line series should be greater than or equal to 0.');
     assert(_segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the fast line series should be less than or equal to 1.');
     if (_segmentProperties.series.gradient == null) {
       if (_segmentProperties.strokeColor != null) {
-        _strokePaint.color = (_segmentProperties.series.opacity < 1 == true &&
+        strokePaint.color = (_segmentProperties.series.opacity < 1 == true &&
                 _segmentProperties.strokeColor != Colors.transparent)
             ? _segmentProperties.strokeColor!
                 .withOpacity(_segmentProperties.series.opacity)
@@ -57,15 +58,15 @@ class FastLineSegment extends ChartSegment {
       final SeriesRendererDetails seriesRendererDetails =
           SeriesHelper.getSeriesRendererDetails(
               _segmentProperties.seriesRenderer);
-      _strokePaint.shader = _segmentProperties.series.gradient!
+      strokePaint.shader = _segmentProperties.series.gradient!
           .createShader(seriesRendererDetails.segmentPath!.getBounds());
     }
-    _strokePaint.strokeWidth = _segmentProperties.strokeWidth!;
-    _strokePaint.style = PaintingStyle.stroke;
-    _strokePaint.strokeCap = StrokeCap.round;
-    _segmentProperties.defaultStrokeColor = _strokePaint;
-    setShader(_segmentProperties, _strokePaint);
-    return _strokePaint;
+    strokePaint.strokeWidth = _segmentProperties.strokeWidth!;
+    strokePaint.style = PaintingStyle.stroke;
+    strokePaint.strokeCap = StrokeCap.round;
+    _segmentProperties.defaultStrokeColor = strokePaint;
+    setShader(_segmentProperties, strokePaint);
+    return strokePaint;
   }
 
   /// Draws segment in series bounds.

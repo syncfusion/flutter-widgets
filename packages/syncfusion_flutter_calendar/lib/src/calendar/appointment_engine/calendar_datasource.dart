@@ -1,13 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_calendar/src/calendar/appointment_engine/appointment_helper.dart';
-import 'package:syncfusion_flutter_calendar/src/calendar/common/calendar_view_helper.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart'
     show IterableDiagnostics;
 
 import '../../../calendar.dart';
 import '../common/calendar_view_helper.dart';
+import 'appointment_helper.dart';
 
 /// An object that maintains the data source for [SfCalendar].
 ///

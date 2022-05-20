@@ -1,13 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_core/tooltip_internal.dart';
+
+import '../../../charts.dart';
 import '../../chart/user_interaction/selection_renderer.dart';
 import '../../common/template/rendering.dart';
 import '../../common/user_interaction/selection_behavior.dart';
 import '../../common/user_interaction/tooltip.dart';
+import '../../common/user_interaction/tooltip_rendering_details.dart';
 import '../../common/utils/helper.dart';
 import '../renderer/common.dart';
 import '../renderer/data_label_renderer.dart';
@@ -85,8 +86,8 @@ class CircularArea extends StatelessWidget {
                   child: Container(
                     height: constraints.maxHeight,
                     width: constraints.maxWidth,
-                    child: _initializeChart(constraints, context),
                     decoration: const BoxDecoration(color: Colors.transparent),
+                    child: _initializeChart(constraints, context),
                   )),
             )),
       );
@@ -464,9 +465,14 @@ class CircularArea extends StatelessWidget {
             labelWidget = series.dataLabelSettings.builder!(
                 series.dataSource![i], point, series, i, k);
             if (series.dataLabelSettings.labelPosition ==
-                ChartDataLabelPosition.inside) {
-              labelLocation = degreeToPoint(point.midAngle!,
-                  (point.innerRadius! + point.outerRadius!) / 2, point.center!);
+                    ChartDataLabelPosition.inside ||
+                seriesRenderer.seriesType == 'radialbar') {
+              labelLocation = degreeToPoint(
+                  seriesRenderer.seriesType == 'radialbar'
+                      ? point.startAngle!
+                      : point.midAngle!,
+                  (point.innerRadius! + point.outerRadius!) / 2,
+                  point.center!);
               labelLocation = Offset(labelLocation.dx, labelLocation.dy);
               labelAlign = ChartAlignment.center;
             } else {
@@ -488,7 +494,6 @@ class CircularArea extends StatelessWidget {
                 templateType: 'DataLabel',
                 pointIndex: i,
                 seriesIndex: k,
-                needMeasure: true,
                 clipRect: stateProperties.renderingDetails.chartAreaRect,
                 animationDuration: 500,
                 widget: labelWidget,
@@ -527,7 +532,6 @@ class CircularArea extends StatelessWidget {
           templateInfo = ChartTemplateInfo(
               key: GlobalKey(),
               templateType: 'Annotation',
-              needMeasure: true,
               horizontalAlignment: annotation.horizontalAlignment,
               verticalAlignment: annotation.verticalAlignment,
               clipRect: stateProperties.renderingDetails.chartContainerRect,
@@ -570,7 +574,7 @@ class CircularArea extends StatelessWidget {
   /// To add tooltip widgets to chart.
   void _bindTooltipWidgets(BoxConstraints constraints) {
     TooltipHelper.setStateProperties(chart.tooltipBehavior, stateProperties);
-    final SfChartThemeData _chartTheme =
+    final SfChartThemeData chartTheme =
         stateProperties.renderingDetails.chartTheme;
     const int seriesIndex = 0;
     final DataLabelSettings dataLabel = stateProperties.chartSeries
@@ -585,7 +589,7 @@ class CircularArea extends StatelessWidget {
       tooltipRenderingDetails.prevTooltipValue =
           tooltipRenderingDetails.currentTooltipValue = null;
       tooltipRenderingDetails.chartTooltip = SfTooltip(
-          color: tooltip.color ?? _chartTheme.tooltipColor,
+          color: tooltip.color ?? chartTheme.tooltipColor,
           key: GlobalKey(),
           textStyle: tooltip.textStyle,
           animationDuration: tooltip.animationDuration,
@@ -600,7 +604,7 @@ class CircularArea extends StatelessWidget {
           canShowMarker: tooltip.canShowMarker,
           textAlignment: tooltip.textAlignment,
           decimalPlaces: tooltip.decimalPlaces,
-          labelColor: tooltip.textStyle.color ?? _chartTheme.tooltipLabelColor,
+          labelColor: tooltip.textStyle.color ?? chartTheme.tooltipLabelColor,
           header: tooltip.header,
           format: tooltip.format,
           shadowColor: tooltip.shadowColor,
@@ -608,7 +612,6 @@ class CircularArea extends StatelessWidget {
               ? tooltipRenderingDetails.tooltipRenderingEvent
               : null);
       final Widget uiWidget = IgnorePointer(
-          ignoring: true,
           child:
               Stack(children: <Widget>[tooltipRenderingDetails.chartTooltip!]));
       stateProperties.renderingDetails.chartWidgets!.add(uiWidget);
@@ -673,8 +676,7 @@ class CircularArea extends StatelessWidget {
         seriesAnimation =
             Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
           parent: stateProperties.renderingDetails.animationController,
-          curve: Interval(minSeriesInterval, maxSeriesInterval,
-              curve: Curves.linear),
+          curve: Interval(minSeriesInterval, maxSeriesInterval),
         )..addStatusListener((AnimationStatus status) {
                 if (status == AnimationStatus.completed) {
                   stateProperties.renderingDetails.animateCompleted = true;

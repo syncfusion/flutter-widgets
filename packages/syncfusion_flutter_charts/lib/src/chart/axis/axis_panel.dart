@@ -1,8 +1,9 @@
 import 'dart:math' as math;
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
 import 'package:syncfusion_flutter_core/core.dart';
+
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
 import '../axis/datetime_axis.dart';
@@ -11,6 +12,7 @@ import '../axis/logarithmic_axis.dart';
 import '../axis/numeric_axis.dart';
 import '../base/chart_base.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
@@ -170,8 +172,8 @@ class ChartAxisPanel {
               : null);
       targetAxisDetails.calculateRangeAndInterval(stateProperties, 'AxisCross');
     } else if (targetAxisDetails is LogarithmicAxisDetails) {
-      final LogarithmicAxis _axis = targetAxisDetails.axis as LogarithmicAxis;
-      value = calculateLogBaseValue(value, _axis.logBase);
+      final LogarithmicAxis axis = targetAxisDetails.axis as LogarithmicAxis;
+      value = calculateLogBaseValue(value, axis.logBase);
       targetAxisDetails.calculateRangeAndInterval(stateProperties, 'AxisCross');
     } else if (targetAxisDetails is NumericAxisDetails) {
       targetAxisDetails.calculateRangeAndInterval(stateProperties, 'AxisCross');
@@ -932,7 +934,7 @@ class ChartAxisPanel {
     primaryXAxisDetails.name = (primaryXAxisDetails.name) ?? 'primaryXAxis';
     primaryYAxisDetails.name = primaryYAxisDetails.name ?? 'primaryYAxis';
 
-    final List<ChartAxis> _axesCollection = <ChartAxis>[
+    final List<ChartAxis> axesCollection = <ChartAxis>[
       chartWidget.primaryXAxis,
       chartWidget.primaryYAxis
     ];
@@ -940,15 +942,15 @@ class ChartAxisPanel {
         stateProperties.chartSeries.visibleSeriesRenderers;
     if (visibleSeriesRenderer.isNotEmpty) {
       if (chartWidget.axes.isNotEmpty) {
-        _axesCollection.addAll(chartWidget.axes);
+        axesCollection.addAll(chartWidget.axes);
       }
 
-      for (int axisIndex = 0; axisIndex < _axesCollection.length; axisIndex++) {
+      for (int axisIndex = 0; axisIndex < axesCollection.length; axisIndex++) {
         final ChartAxisRenderer axisRenderer = axisIndex == 0
             ? primaryXAxisRenderer!
             : (axisIndex == 1
                 ? primaryYAxisRenderer!
-                : _getAxisRenderer(_axesCollection[axisIndex]));
+                : _getAxisRenderer(axesCollection[axisIndex]));
         final ChartAxisRendererDetails axisDetails =
             AxisHelper.getAxisRendererDetails(axisRenderer);
         if (axisDetails is CategoryAxisDetails) {

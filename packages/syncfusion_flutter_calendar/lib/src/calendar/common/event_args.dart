@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
+import '../../../calendar.dart';
 
 /// The dates that visible on the view changes in [SfCalendar].
 ///

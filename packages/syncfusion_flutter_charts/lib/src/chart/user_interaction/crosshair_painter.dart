@@ -101,17 +101,17 @@ class CrosshairPainter extends CustomPainter {
 
   /// Calculate trackball points.
   void generateAllPoints(Offset position) {
-    final Rect _axisClipRect = stateProperties.chartAxis.axisClipRect;
+    final Rect axisClipRect = stateProperties.chartAxis.axisClipRect;
     double dx, dy;
-    dx = position.dx > _axisClipRect.right
-        ? _axisClipRect.right
-        : position.dx < _axisClipRect.left
-            ? _axisClipRect.left
+    dx = position.dx > axisClipRect.right
+        ? axisClipRect.right
+        : position.dx < axisClipRect.left
+            ? axisClipRect.left
             : position.dx;
-    dy = position.dy > _axisClipRect.bottom
-        ? _axisClipRect.bottom
-        : position.dy < _axisClipRect.top
-            ? _axisClipRect.top
+    dy = position.dy > axisClipRect.bottom
+        ? axisClipRect.bottom
+        : position.dy < axisClipRect.top
+            ? axisClipRect.top
             : position.dy;
     CrosshairHelper.getRenderingDetails(
             stateProperties.crosshairBehaviorRenderer)

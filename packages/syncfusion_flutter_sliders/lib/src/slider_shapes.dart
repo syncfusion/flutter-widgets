@@ -211,10 +211,7 @@ class SfTrackShape {
           inactiveTrackRect.width + inactiveTrackRect.left,
           inactiveTrackRect.bottom);
       inactiveTrackRRect = RRect.fromRectAndCorners(trackRect,
-          topLeft: Radius.zero,
-          topRight: radius,
-          bottomLeft: Radius.zero,
-          bottomRight: radius);
+          topRight: radius, bottomRight: radius);
 
       context.canvas.drawRRect(inactiveTrackRRect, inactivePaint);
     } else {
@@ -228,10 +225,7 @@ class SfTrackShape {
       trackRect = Rect.fromLTRB(inactiveTrackRect.left, inactiveTrackRect.top,
           inactiveTrackRect.right, thumbCenter.dy);
       inactiveTrackRRect = RRect.fromRectAndCorners(trackRect,
-          topLeft: radius,
-          topRight: radius,
-          bottomLeft: Radius.zero,
-          bottomRight: Radius.zero);
+          topLeft: radius, topRight: radius);
       context.canvas.drawRRect(inactiveTrackRRect, inactivePaint);
     }
   }
@@ -268,10 +262,7 @@ class SfTrackShape {
           inactiveTrackRect.width + inactiveTrackRect.left,
           inactiveTrackRect.bottom);
       inactiveTrackRRect = RRect.fromRectAndCorners(trackRect,
-          topLeft: Radius.zero,
-          topRight: radius,
-          bottomLeft: Radius.zero,
-          bottomRight: radius);
+          topRight: radius, bottomRight: radius);
       context.canvas.drawRRect(inactiveTrackRRect, inactivePaint);
     } else {
       // Drawing inactive track
@@ -293,10 +284,7 @@ class SfTrackShape {
       trackRect = Rect.fromLTRB(inactiveTrackRect.left, inactiveTrackRect.top,
           inactiveTrackRect.right, endThumbCenter.dy);
       inactiveTrackRRect = RRect.fromRectAndCorners(trackRect,
-          topLeft: radius,
-          topRight: radius,
-          bottomLeft: Radius.zero,
-          bottomRight: Radius.zero);
+          topLeft: radius, topRight: radius);
       context.canvas.drawRRect(inactiveTrackRRect, inactivePaint);
     }
   }

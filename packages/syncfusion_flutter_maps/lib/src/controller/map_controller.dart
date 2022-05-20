@@ -258,6 +258,7 @@ class MapController {
           context.canvas.translate(
               offset.dx + panDistance.dx, offset.dy + panDistance.dy);
           break;
+        // ignore: no_default_cases
         default:
           context.canvas
               .translate(offset.dx + normalize.dx, offset.dy + normalize.dy);

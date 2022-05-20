@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/user_interaction/zooming_panning.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../../common/rendering_details.dart';
@@ -9,6 +8,7 @@ import '../base/chart_base.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/interactive_tooltip.dart';
 import '../utils/helper.dart';
+import 'zooming_panning.dart';
 
 /// Class for drawing zooming rectangle.
 class ZoomRectPainter extends CustomPainter {

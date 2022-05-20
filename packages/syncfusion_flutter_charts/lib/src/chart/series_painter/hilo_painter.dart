@@ -223,7 +223,9 @@ class HiloPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
-      final bool hasTooltip = chart.tooltipBehavior != null &&
+      // ignore: unnecessary_null_comparison
+      final bool isTooltipEnabled = chart.tooltipBehavior != null;
+      final bool hasTooltip = isTooltipEnabled &&
           (chart.tooltipBehavior.enable ||
               seriesRendererDetails.series.onPointTap != null ||
               seriesRendererDetails.series.onPointDoubleTap != null ||
@@ -231,9 +233,9 @@ class HiloPainter extends CustomPainter {
       final bool hasSeriesElements = seriesRendererDetails.visible! &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible ||
-              (chart.tooltipBehavior != null &&
+              (isTooltipEnabled &&
                   chart.tooltipBehavior.enable &&
-                  (chart.tooltipBehavior != null &&
+                  (isTooltipEnabled &&
                       chart.tooltipBehavior.enable &&
                       series.enableTooltip)));
       seriesRendererDetails.sideBySideInfo = calculateSideBySideInfo(
@@ -268,6 +270,7 @@ class HiloPainter extends CustomPainter {
         point = dataPoints[pointIndex];
         final bool withInXRange = withInRange(
             point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
         final bool withInHighLowRange = point != null &&
             point.high != null &&
             point.low != null &&

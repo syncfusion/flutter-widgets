@@ -204,36 +204,38 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
         final PdfTemplate template = annotation.appearance.normal;
         PdfTemplateHelper.getHelper(template).writeTransformation = false;
         final PdfGraphics? graphics = template.graphics;
-        final PdfBrush? _backBrush = annotation.innerColor.isEmpty
+        final PdfBrush? backBrushColor = annotation.innerColor.isEmpty
             ? null
             : PdfSolidBrush(annotation.innerColor);
-        PdfPen? _borderPen;
+        PdfPen? borderPenColor;
         if (annotation.border.width > 0 &&
             PdfColorHelper.getHelper(annotation.color).alpha != 0) {
-          _borderPen = PdfPen(annotation.color, width: annotation.border.width);
+          borderPenColor =
+              PdfPen(annotation.color, width: annotation.border.width);
         }
         if (helper.flatten) {
           annotation.page!.annotations.remove(annotation);
           annotation.page!.graphics.drawPolygon(_getLinePoints()!,
-              pen: _borderPen, brush: _backBrush);
+              pen: borderPenColor, brush: backBrushColor);
         } else {
           graphics!.drawPolygon(_getLinePoints()!,
-              pen: _borderPen, brush: _backBrush);
+              pen: borderPenColor, brush: backBrushColor);
         }
       }
     }
     if (helper.flatten && !annotation.setAppearance) {
       annotation.page!.annotations.remove(annotation);
-      PdfPen? _borderPen;
+      PdfPen? borderPenColor;
       if (annotation.border.width > 0 &&
           PdfColorHelper.getHelper(annotation.color).alpha != 0) {
-        _borderPen = PdfPen(annotation.color, width: annotation.border.width);
+        borderPenColor =
+            PdfPen(annotation.color, width: annotation.border.width);
       }
-      final PdfBrush? _backBrush = annotation.innerColor.isEmpty
+      final PdfBrush? backBrushColor = annotation.innerColor.isEmpty
           ? null
           : PdfSolidBrush(annotation.innerColor);
-      annotation.page!.graphics
-          .drawPolygon(_getLinePoints()!, pen: _borderPen, brush: _backBrush);
+      annotation.page!.graphics.drawPolygon(_getLinePoints()!,
+          pen: borderPenColor, brush: backBrushColor);
     } else if (!helper.flatten) {
       helper.saveAnnotation();
       dictionary.setProperty(
@@ -276,9 +278,10 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
         if (PdfColorHelper.getHelper(annotation.innerColor).alpha != 0) {
           backgroundBrush = PdfSolidBrush(annotation.innerColor);
         }
-        PdfPen? _borderPen;
+        PdfPen? borderPenColor;
         if (annotation.border.width > 0) {
-          _borderPen = PdfPen(annotation.color, width: annotation.border.width);
+          borderPenColor =
+              PdfPen(annotation.color, width: annotation.border.width);
         }
         if (dictionary.containsKey(PdfDictionaryProperties.bs)) {
           PdfDictionary? bSDictionary;
@@ -307,9 +310,9 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
                   dashPattern[i] = pdfPrimitive.value!.toDouble();
                 }
               }
-              _borderPen!.dashStyle = PdfDashStyle.dash;
-              PdfPenHelper.getHelper(_borderPen).isSkipPatternWidth = true;
-              _borderPen.dashPattern = dashPattern;
+              borderPenColor!.dashStyle = PdfDashStyle.dash;
+              PdfPenHelper.getHelper(borderPenColor).isSkipPatternWidth = true;
+              borderPenColor.dashPattern = dashPattern;
             }
           }
         }
@@ -330,18 +333,18 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
             if (radius > 0) {
               final List<Offset> points = _getLinePoints()!;
               if (points[0].dy > points[points.length - 1].dy) {
-                helper.drawCloudStyle(graphics!, backgroundBrush, _borderPen,
-                    radius, 0.833, _getLinePoints()!, false);
+                helper.drawCloudStyle(graphics!, backgroundBrush,
+                    borderPenColor, radius, 0.833, _getLinePoints()!, false);
               }
               helper.drawCloudStyle(annotation.page!.graphics, backgroundBrush,
-                  _borderPen, radius, 0.833, _getLinePoints()!, false);
+                  borderPenColor, radius, 0.833, _getLinePoints()!, false);
             } else {
               annotation.page!.graphics.drawPolygon(_getLinePoints()!,
-                  pen: _borderPen, brush: backgroundBrush);
+                  pen: borderPenColor, brush: backgroundBrush);
             }
           } else {
             annotation.page!.graphics.drawPolygon(_getLinePoints()!,
-                pen: _borderPen, brush: backgroundBrush);
+                pen: borderPenColor, brush: backgroundBrush);
           }
           if (annotation.opacity < 1) {
             annotation.page!.graphics.restore(state);
@@ -366,15 +369,15 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
                 point.add(Offset(points[i].dx, -points[i].dy));
               }
               points = point;
-              helper.drawCloudStyle(graphics!, backgroundBrush, _borderPen,
+              helper.drawCloudStyle(graphics!, backgroundBrush, borderPenColor,
                   radius, 0.833, points, true);
             } else {
-              helper.drawCloudStyle(graphics!, backgroundBrush, _borderPen,
+              helper.drawCloudStyle(graphics!, backgroundBrush, borderPenColor,
                   radius, 0.833, points, false);
             }
           } else {
             graphics!.drawPolygon(_getLinePoints()!,
-                pen: _borderPen, brush: backgroundBrush);
+                pen: borderPenColor, brush: backgroundBrush);
           }
           if (annotation.opacity < 1) {
             graphics.restore(state);
@@ -410,7 +413,7 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
         }
       } else {
         annotation.page!.annotations.remove(annotation);
-        final PdfPen _borderPen =
+        final PdfPen borderPenColor =
             PdfPen(annotation.color, width: annotation.border.width);
         final PdfBrush? backgroundBrush = annotation.innerColor.isEmpty
             ? null
@@ -430,10 +433,10 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
               .value as double?;
           final double radius = iNumber == 1 ? 5 : 10;
           helper.drawCloudStyle(annotation.page!.graphics, backgroundBrush,
-              _borderPen, radius, 0.833, _getLinePoints()!, false);
+              borderPenColor, radius, 0.833, _getLinePoints()!, false);
         } else {
           annotation.page!.graphics.drawPolygon(_getLinePoints()!,
-              pen: _borderPen, brush: backgroundBrush);
+              pen: borderPenColor, brush: backgroundBrush);
         }
         if (annotation.opacity < 1) {
           annotation.page!.graphics.restore(state);

@@ -894,6 +894,7 @@ class PdfCrossTable {
           _saveLong(xRefStream, obj.offset, format[2]);
           break;
 
+        // ignore: no_default_cases
         default:
           throw ArgumentError('Internal error: Undefined object type.');
       }

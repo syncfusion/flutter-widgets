@@ -2,8 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/error_bar_series.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
 
 import '../../common/event_args.dart' show ErrorBarValues;
 import '../../common/utils/helper.dart';
@@ -12,7 +10,9 @@ import '../axis/category_axis.dart';
 import '../axis/datetime_axis.dart';
 import '../axis/datetime_category_axis.dart';
 import '../base/chart_base.dart';
+import '../chart_series/error_bar_series.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/stacked_series_base.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/data_label.dart';
@@ -461,7 +461,7 @@ void calculatePathSeriesRegion(
     double markerHeight,
     double markerWidth,
     [VisibleRange? sideBySideInfo,
-    CartesianChartPoint<dynamic>? _nextPoint,
+    CartesianChartPoint<dynamic>? nextPoint,
     num? midX,
     num? midY]) {
   final ChartAxisRendererDetails xAxisDetails =

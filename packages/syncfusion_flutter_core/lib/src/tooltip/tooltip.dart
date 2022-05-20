@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_setters_without_getters
+
 part of tooltip_internal;
 
 /// Renders the tooltip widget.
@@ -9,7 +11,7 @@ class SfTooltip extends StatefulWidget {
   SfTooltip(
       {this.textStyle = const TextStyle(),
       this.animationDuration = 500,
-      this.animationCurve = const Interval(0.0, 1.0, curve: Curves.linear),
+      this.animationCurve = const Interval(0.0, 1.0),
       this.enable = true,
       this.opacity = 1,
       this.borderColor = Colors.black,
@@ -688,14 +690,14 @@ class TooltipRenderBox extends RenderShiftedBox {
     _markerSize = 0;
     _totalWidth = _boundaryRect.left + _boundaryRect.width;
     //ignore: prefer_final_locals
-    TextStyle _textStyle = _tooltip.textStyle;
+    TextStyle style = _tooltip.textStyle;
     final TextStyle textStyle =
-        _textStyle.copyWith(color: _textStyle.color ?? _tooltip.labelColor);
+        style.copyWith(color: style.color ?? _tooltip.labelColor);
     width = measureText(_stringValue!, textStyle).width;
     height = measureText(_stringValue!, textStyle).height;
     if (_header!.isNotEmpty) {
-      final TextStyle headerTextStyle = _textStyle.copyWith(
-          color: _textStyle.color ?? _tooltip.labelColor,
+      final TextStyle headerTextStyle = style.copyWith(
+          color: style.color ?? _tooltip.labelColor,
           fontWeight: FontWeight.bold);
       headerTextWidth = measureText(_header!, headerTextStyle).width;
       headerTextHeight = measureText(_header!, headerTextStyle).height + 10;
@@ -1029,7 +1031,7 @@ class TooltipRenderBox extends RenderShiftedBox {
   void _drawTooltipText(Canvas canvas, RRect tooltipRect, TextStyle textStyle,
       Size result, double animationFactor) {
     const double padding = 10;
-    final int _maxLinesOfTooltipContent = getMaxLinesContent(_stringValue);
+    final int maxLinesOfTooltipContent = getMaxLinesContent(_stringValue);
     if (_header!.isNotEmpty) {
       final TextStyle headerTextStyle = _tooltip.textStyle.copyWith(
         color: textStyle.color?.withOpacity(_tooltip.opacity) ??
@@ -1076,7 +1078,7 @@ class TooltipRenderBox extends RenderShiftedBox {
       }
     }
     _renderTooltipText(
-        canvas, tooltipRect, result, textStyle, _maxLinesOfTooltipContent);
+        canvas, tooltipRect, result, textStyle, maxLinesOfTooltipContent);
   }
 
   void _renderTooltipText(Canvas canvas, RRect tooltipRect, Size textSize,

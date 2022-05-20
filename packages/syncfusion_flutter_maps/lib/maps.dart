@@ -934,8 +934,7 @@ class MapShapeSublayer extends MapSublayer {
     properties.add(FlagProperty('showDataLabels',
         value: showDataLabels,
         ifTrue: 'Data labels are showing',
-        ifFalse: 'Data labels are not showing',
-        showName: false));
+        ifFalse: 'Data labels are not showing'));
     if (color != null) {
       properties.add(ColorProperty('color', color));
     }
@@ -1671,8 +1670,7 @@ class MapShapeLayer extends MapLayer {
     properties.add(FlagProperty('showDataLabels',
         value: showDataLabels,
         ifTrue: 'Data labels are showing',
-        ifFalse: 'Data labels are not showing',
-        showName: false));
+        ifFalse: 'Data labels are not showing'));
     if (color != null) {
       properties.add(ColorProperty('color', color));
     }
@@ -2660,26 +2658,22 @@ class MapZoomPanBehavior extends MapBehavior {
     properties.add(FlagProperty('enablePanning',
         value: enablePanning,
         ifTrue: 'Panning is enabled',
-        ifFalse: 'Panning is disabled',
-        showName: false));
+        ifFalse: 'Panning is disabled'));
     properties.add(FlagProperty('enablePinching',
         value: enablePinching,
         ifTrue: 'Pinching is enabled',
-        ifFalse: 'Pinching is disabled',
-        showName: false));
+        ifFalse: 'Pinching is disabled'));
     properties.add(FlagProperty('enableDoubleTapZooming',
         value: enableDoubleTapZooming,
         ifTrue: 'Double tap is enabled',
-        ifFalse: 'Double tap is disabled',
-        showName: false));
+        ifFalse: 'Double tap is disabled'));
     properties.add(DiagnosticsProperty<MapLatLng>('focalLatLng', focalLatLng));
     properties.add(
         DiagnosticsProperty<MapLatLngBounds>('latLngBounds', latLngBounds));
     properties.add(FlagProperty('showToolbar',
         value: showToolbar,
         ifTrue: 'Toolbar is enabled',
-        ifFalse: 'Toolbar is disabled',
-        showName: false));
+        ifFalse: 'Toolbar is disabled'));
     properties.add(
       toolbarSettings.toDiagnosticsNode(name: 'toolbarSettings'),
     );

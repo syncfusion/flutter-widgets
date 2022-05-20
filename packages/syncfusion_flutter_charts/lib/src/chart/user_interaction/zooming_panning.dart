@@ -369,7 +369,7 @@ class ZoomPanBehavior {
         }
       }
     }
-    if (needZoom == true) {
+    if (needZoom ?? false) {
       zoomPanBehaviorRenderer._zoomingBehaviorDetails.createZoomState();
     }
   }
@@ -915,7 +915,7 @@ class ZoomingBehaviorDetails {
     double currentZoomPosition, currentZoomFactor;
     double currentFactor, currentPosition, maxZoomFactor, minZoomFactor = 1.0;
     final Rect clipRect = stateProperties.chartAxis.axisClipRect;
-    final List<ZoomAxisRange> _zoomAxes = stateProperties.zoomAxes;
+    final List<ZoomAxisRange> zoomAxes = stateProperties.zoomAxes;
     ChartAxisRendererDetails axisDetails;
     for (int axisIndex = 0;
         axisIndex < stateProperties.chartAxis.axisRenderersCollection.length;
@@ -930,25 +930,25 @@ class ZoomingBehaviorDetails {
               mode != ZoomMode.x)) {
         if (axisDetails.orientation == AxisOrientation.horizontal) {
           value = pinchRect.left - clipRect.left;
-          axisTrans = clipRect.width / _zoomAxes[axisIndex].delta!;
-          rangeMin = value / axisTrans + _zoomAxes[axisIndex].min!;
+          axisTrans = clipRect.width / zoomAxes[axisIndex].delta!;
+          rangeMin = value / axisTrans + zoomAxes[axisIndex].min!;
           value = pinchRect.left + pinchRect.width - clipRect.left;
-          rangeMax = value / axisTrans + _zoomAxes[axisIndex].min!;
+          rangeMax = value / axisTrans + zoomAxes[axisIndex].min!;
         } else {
           value = pinchRect.top - clipRect.top;
-          axisTrans = clipRect.height / _zoomAxes[axisIndex].delta!;
+          axisTrans = clipRect.height / zoomAxes[axisIndex].delta!;
           rangeMin = (value * -1 + clipRect.height) / axisTrans +
-              _zoomAxes[axisIndex].min!;
+              zoomAxes[axisIndex].min!;
           value = pinchRect.top + pinchRect.height - clipRect.top;
           rangeMax = (value * -1 + clipRect.height) / axisTrans +
-              _zoomAxes[axisIndex].min!;
+              zoomAxes[axisIndex].min!;
         }
         selectionMin = math.min(rangeMin, rangeMax);
         selectionMax = math.max(rangeMin, rangeMax);
-        currentPosition = (selectionMin - _zoomAxes[axisIndex].actualMin!) /
-            _zoomAxes[axisIndex].actualDelta!;
+        currentPosition = (selectionMin - zoomAxes[axisIndex].actualMin!) /
+            zoomAxes[axisIndex].actualDelta!;
         currentFactor =
-            (selectionMax - selectionMin) / _zoomAxes[axisIndex].actualDelta!;
+            (selectionMax - selectionMin) / zoomAxes[axisIndex].actualDelta!;
         currentZoomPosition = currentPosition < 0 ? 0 : currentPosition;
         currentZoomFactor = currentFactor > 1 ? 1 : currentFactor;
         maxZoomFactor = _zoomPanBehavior.maximumZoomLevel;
@@ -956,7 +956,7 @@ class ZoomingBehaviorDetails {
             axisDetails.scrollingDelta != null) {
           // To find zoom factor for corresponding auto scroll delta.
           minZoomFactor =
-              axisDetails.scrollingDelta! / _zoomAxes[axisIndex].actualDelta!;
+              axisDetails.scrollingDelta! / zoomAxes[axisIndex].actualDelta!;
         }
         if (currentZoomFactor < maxZoomFactor) {
           axisDetails.zoomFactor = maxZoomFactor;

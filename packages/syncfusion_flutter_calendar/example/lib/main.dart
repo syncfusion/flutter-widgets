@@ -41,8 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Meeting> _getDataSource() {
     final List<Meeting> meetings = <Meeting>[];
     final DateTime today = DateTime.now();
-    final DateTime startTime =
-        DateTime(today.year, today.month, today.day, 9, 0, 0);
+    final DateTime startTime = DateTime(today.year, today.month, today.day, 9);
     final DateTime endTime = startTime.add(const Duration(hours: 2));
     meetings.add(Meeting(
         'Conference', startTime, endTime, const Color(0xFF0F8644), false));

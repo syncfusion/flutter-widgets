@@ -2447,17 +2447,17 @@ class FontStructure {
   /// hexCode - Mapping string in the map table of the document</param>
   List<String> getHexCode(String hexCode) {
     final List<String> tmp = <String>[];
-    String _tmp = hexCode;
-    int _start = 0;
-    int _stop = 0;
-    String _txt;
-    for (int j1 = 0; _start >= 0; j1++) {
-      _start = _tmp.indexOf('<');
-      _stop = _tmp.indexOf('>');
-      if (_start >= 0 && _stop >= 0) {
-        _txt = _tmp.substring(_start + 1, _stop);
-        tmp.add(_txt);
-        _tmp = _tmp.substring(_stop + 1, _tmp.length);
+    String tmpvalue = hexCode;
+    int startValue = 0;
+    int stopValue = 0;
+    String txtValue;
+    for (int j1 = 0; startValue >= 0; j1++) {
+      startValue = tmpvalue.indexOf('<');
+      stopValue = tmpvalue.indexOf('>');
+      if (startValue >= 0 && stopValue >= 0) {
+        txtValue = tmpvalue.substring(startValue + 1, stopValue);
+        tmp.add(txtValue);
+        tmpvalue = tmpvalue.substring(stopValue + 1, tmpvalue.length);
       }
     }
     return tmp;
@@ -4450,9 +4450,8 @@ class FontStructure {
               //Update the octal index collection and char codes,
               //if character map table contains the escape sequence.
               for (int j = 0; j < octalIndexCollection.length; j++) {
-                if (characterMapTable != null &&
-                    characterMapTable
-                        .containsKey(escapeSequence[sequence]!.codeUnitAt(0))) {
+                if (characterMapTable
+                    .containsKey(escapeSequence[sequence]!.codeUnitAt(0))) {
                   if (i < octalIndexCollection[j]) {
                     octalIndexCollection.insert(j, i);
                     charCodes!
@@ -4478,15 +4477,13 @@ class FontStructure {
     int combinedGlyphDiff = 0;
     for (int i = 0; i < count; i++) {
       if (!octalIndexCollection.contains(i)) {
-        if (characterMapTable != null &&
-            characterMapTable.containsKey(str[i].codeUnitAt(0))) {
+        if (characterMapTable.containsKey(str[i].codeUnitAt(0))) {
           (charCodes ??= <dynamic>[])
               .insert(i + combinedGlyphDiff, str[i].codeUnitAt(0));
         } else {
           (charCodes ??= <dynamic>[]).insert(i + combinedGlyphDiff, 0);
         }
-      } else if (characterMapTable != null &&
-          characterMapTable.containsKey(str[i].codeUnitAt(0))) {
+      } else if (characterMapTable.containsKey(str[i].codeUnitAt(0))) {
         final String mappingString = characterMapTable[str[i].codeUnitAt(0)]!;
         final int mappingStringLength = mappingString.length;
         if (mappingStringLength > 1) {
@@ -4708,8 +4705,7 @@ class FontStructure {
       }
       int combinedGlyphDiff = 0;
       for (int i = 0; i < decodedText.length; i++) {
-        if (characterMapTable != null &&
-            characterMapTable.containsKey(decodedText[i].codeUnitAt(0))) {
+        if (characterMapTable.containsKey(decodedText[i].codeUnitAt(0))) {
           final String mappingString =
               characterMapTable[decodedText[i].codeUnitAt(0)]!;
           final int mappingStringLength = mappingString.length;

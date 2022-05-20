@@ -1,11 +1,10 @@
 import 'dart:ui';
 
-import 'package:syncfusion_flutter_pdf/src/pdf/implementation/pages/pdf_page_collection.dart';
-
 import '../../interfaces/pdf_interface.dart';
 import '../io/pdf_constants.dart';
 import '../io/pdf_cross_table.dart';
 import '../pages/pdf_page.dart';
+import '../pages/pdf_page_collection.dart';
 import '../primitives/pdf_array.dart';
 import '../primitives/pdf_dictionary.dart';
 import '../primitives/pdf_name.dart';

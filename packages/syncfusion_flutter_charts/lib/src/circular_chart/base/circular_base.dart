@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../chart/utils/enum.dart';
@@ -15,6 +14,7 @@ import '../../common/legend/renderer.dart';
 import '../../common/rendering_details.dart';
 import '../../common/template/rendering.dart';
 import '../../common/user_interaction/tooltip.dart';
+import '../../common/user_interaction/tooltip_rendering_details.dart';
 import '../../common/utils/enum.dart';
 import '../../common/utils/helper.dart';
 import '../../common/utils/typedef.dart';
@@ -945,7 +945,7 @@ class SfCircularChartState extends State<SfCircularChart>
         _stateProperties.renderingDetails.prevSize = constraints.biggest;
         final ChartPoint<dynamic> tooltipPoint =
             _getChartPoints(_stateProperties);
-        SchedulerBinding.instance!.addPostFrameCallback((_) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
           _validateStateMaintenance(_stateProperties, tooltipPoint);
         });
         _stateProperties.chartSeries.findVisibleSeries();
@@ -959,7 +959,7 @@ class SfCircularChartState extends State<SfCircularChart>
             _stateProperties.renderingDetails.legendWidgetContext.isEmpty) {
           // ignore: avoid_unnecessary_containers
           element = Container(child: Stack(children: legendTemplates));
-          SchedulerBinding.instance!.addPostFrameCallback((_) => _refresh());
+          SchedulerBinding.instance.addPostFrameCallback((_) => _refresh());
         } else {
           _stateProperties.renderingDetails.chartLegend.calculateLegendBounds(
               _stateProperties.renderingDetails.chartLegend.chartSize);
@@ -993,65 +993,64 @@ class SfCircularChartState extends State<SfCircularChart>
   }
 
   /// This will return tooltip chart point.
-  ChartPoint<dynamic> _getChartPoints(
-      CircularStateProperties _stateProperties) {
+  ChartPoint<dynamic> _getChartPoints(CircularStateProperties stateProperties) {
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _stateProperties.renderingDetails.tooltipBehaviorRenderer;
+        stateProperties.renderingDetails.tooltipBehaviorRenderer;
     final TooltipRenderingDetails tooltipRenderingDetails =
         TooltipHelper.getRenderingDetails(tooltipBehaviorRenderer);
 
-    ChartPoint<dynamic> tooltipChartPoint = ChartPoint<dynamic>(null, null);
+    ChartPoint<dynamic> tooltipChartPoint = ChartPoint<dynamic>();
 
-    if (_stateProperties.renderingDetails.oldDeviceOrientation !=
-            _stateProperties.renderingDetails.deviceOrientation ||
-        _stateProperties.renderingDetails.didSizeChange) {
+    if (stateProperties.renderingDetails.oldDeviceOrientation !=
+            stateProperties.renderingDetails.deviceOrientation ||
+        stateProperties.renderingDetails.didSizeChange) {
       if (tooltipRenderingDetails.showLocation != null &&
-          _stateProperties.chart.tooltipBehavior.enable == true &&
-          _stateProperties.isTooltipHidden == false &&
-          _stateProperties.requireDataLabelTooltip == null) {
+          stateProperties.chart.tooltipBehavior.enable == true &&
+          stateProperties.isTooltipHidden == false &&
+          stateProperties.requireDataLabelTooltip == null) {
         tooltipChartPoint = circularPixelToPoint(
-            tooltipRenderingDetails.showLocation!, _stateProperties);
+            tooltipRenderingDetails.showLocation!, stateProperties);
       }
     }
     return tooltipChartPoint;
   }
 
   /// Here for orientation change/browser resize, the logic in this method will get executed.
-  void _validateStateMaintenance(CircularStateProperties _stateProperties,
+  void _validateStateMaintenance(CircularStateProperties stateProperties,
       ChartPoint<dynamic> tooltipChartPoint) {
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _stateProperties.renderingDetails.tooltipBehaviorRenderer;
+        stateProperties.renderingDetails.tooltipBehaviorRenderer;
     final TooltipRenderingDetails tooltipRenderingDetails =
         TooltipHelper.getRenderingDetails(tooltipBehaviorRenderer);
-    if (_stateProperties.renderingDetails.oldDeviceOrientation !=
-            _stateProperties.renderingDetails.deviceOrientation ||
-        _stateProperties.renderingDetails.didSizeChange) {
+    if (stateProperties.renderingDetails.oldDeviceOrientation !=
+            stateProperties.renderingDetails.deviceOrientation ||
+        stateProperties.renderingDetails.didSizeChange) {
       if (tooltipRenderingDetails.showLocation != null &&
-          _stateProperties.chart.tooltipBehavior.enable &&
-          !_stateProperties.isTooltipHidden &&
-          _stateProperties.requireDataLabelTooltip == null) {
-        _stateProperties.isTooltipOrientationChanged = true;
+          stateProperties.chart.tooltipBehavior.enable &&
+          !stateProperties.isTooltipHidden &&
+          stateProperties.requireDataLabelTooltip == null) {
+        stateProperties.isTooltipOrientationChanged = true;
         ChartPoint<dynamic>? point;
         for (int i = 0;
             i <
-                _stateProperties
+                stateProperties
                     .chartSeries.visibleSeriesRenderers[0].dataPoints.length;
             i++) {
-          if (_stateProperties
+          if (stateProperties
                       .chartSeries.visibleSeriesRenderers[0].dataPoints[i].x ==
                   tooltipChartPoint.x &&
-              _stateProperties
+              stateProperties
                       .chartSeries.visibleSeriesRenderers[0].dataPoints[i].y ==
                   tooltipChartPoint.y) {
-            point = _stateProperties
+            point = stateProperties
                 .chartSeries.visibleSeriesRenderers[0].dataPoints[i];
           }
         }
         if (point != null) {
           final Offset tooltipPosition =
-              circularPointToPixel(point, _stateProperties);
-          if (_stateProperties.chart.tooltipBehavior.builder != null) {
-            _stateProperties.circularArea
+              circularPointToPixel(point, stateProperties);
+          if (stateProperties.chart.tooltipBehavior.builder != null) {
+            stateProperties.circularArea
                 .showCircularTooltipTemplate(0, point.index);
           } else {
             tooltipRenderingDetails.internalShowByPixel(

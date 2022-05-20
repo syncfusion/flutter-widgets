@@ -225,6 +225,7 @@ class BubbleChartPainter extends CustomPainter {
             dataPoints[pointIndex];
         final bool withInXRange = withInRange(currentPoint.xValue,
             seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
         final bool withInYRange = currentPoint != null &&
             currentPoint.yValue != null &&
             withInRange(currentPoint.yValue,

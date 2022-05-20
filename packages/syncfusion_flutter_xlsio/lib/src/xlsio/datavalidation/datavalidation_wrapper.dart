@@ -7,8 +7,7 @@ class _DataValidationWrapper implements DataValidation {
     _sheet = range.worksheet;
     _range = range;
     if (wrap == null) {
-      if (_sheet._dvTable._innerList != null &&
-          _sheet._dvTable._innerList.isNotEmpty) {
+      if (_sheet._dvTable._innerList.isNotEmpty) {
         _dvCollection = _sheet._dvTable._innerList[0];
       } else {
         _dvCollection = _sheet._dvTable._add();
@@ -103,7 +102,7 @@ class _DataValidationWrapper implements DataValidation {
 
   /// gets or sets the firstDateTime for DataValidation
   set firstDateTime(DateTime value) {
-    if (firstDateTime != value || firstDateTime == DateTime(1, 1, 0001)) {
+    if (firstDateTime != value || firstDateTime == DateTime(1)) {
       _mdataValidation.firstDateTime = value;
     }
   }
@@ -119,7 +118,7 @@ class _DataValidationWrapper implements DataValidation {
 
   /// gets or sets the secondDateTime for DataValidation
   set secondDateTime(DateTime value) {
-    if (secondDateTime != value || firstDateTime == DateTime(1, 1, 0001)) {
+    if (secondDateTime != value || firstDateTime == DateTime(1)) {
       _mdataValidation.secondDateTime = value;
     }
   }

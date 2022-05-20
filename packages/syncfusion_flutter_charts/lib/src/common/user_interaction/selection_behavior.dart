@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/cartesian_state_properties.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../../chart/chart_behavior/selection_behavior.dart';
 import '../../chart/chart_segment/chart_segment.dart';
 import '../../chart/chart_series/series.dart';
 import '../../chart/chart_series/series_renderer_properties.dart';
+import '../../chart/common/cartesian_state_properties.dart';
 import '../../chart/user_interaction/selection_renderer.dart';
 import '../../chart/utils/helper.dart';
 import '../../circular_chart/renderer/common.dart';
@@ -464,21 +464,21 @@ class SelectionBehavior {
   }
 
   /// Provides the list of selected point indices for given series.
-  List<int> getSelectedDataPoints(CartesianSeries<dynamic, dynamic> _series) {
+  List<int> getSelectedDataPoints(CartesianSeries<dynamic, dynamic> series) {
     List<ChartSegment> selectedItems = <ChartSegment>[];
     final dynamic seriesRenderer = _selectionBehaviorRenderer!._selectionDetails
         .stateProperties.chartSeries.visibleSeriesRenderers[0];
-    SelectionBehaviorRenderer _selectionRenderer;
+    SelectionBehaviorRenderer selectionRenderer;
     if (seriesRenderer is CartesianSeriesRenderer) {
-      _selectionRenderer = SeriesHelper.getSeriesRendererDetails(seriesRenderer)
+      selectionRenderer = SeriesHelper.getSeriesRendererDetails(seriesRenderer)
           .selectionBehaviorRenderer!;
     } else {
-      _selectionRenderer = seriesRenderer.selectionBehaviorRenderer;
+      selectionRenderer = seriesRenderer.selectionBehaviorRenderer;
     }
 
     final List<int> selectedPoints = <int>[];
-    selectedItems = _selectionRenderer
-        ._selectionDetails.selectionRenderer!.selectedSegments;
+    selectedItems =
+        selectionRenderer._selectionDetails.selectionRenderer!.selectedSegments;
     for (int i = 0; i < selectedItems.length; i++) {
       selectedPoints.add(selectedItems[i].currentSegmentIndex!);
     }
@@ -625,10 +625,10 @@ class SelectionDetails {
         selectionRenderer!
             .unselectedSegmentsColors(selectionRenderer!.unselectedSegments!);
 
-        for (final CartesianSeriesRenderer _seriesRenderer
+        for (final CartesianSeriesRenderer seriesRenderer
             in stateProperties.chartSeries.visibleSeriesRenderers) {
           ValueNotifier<int>(
-              SeriesHelper.getSeriesRendererDetails(_seriesRenderer)
+              SeriesHelper.getSeriesRendererDetails(seriesRenderer)
                   .repaintNotifier
                   .value++);
         }

@@ -47,6 +47,7 @@ class PdfCjkStandardFontMetricsFactory {
         metrics = _getSinoTypeSongLight(fontFamily, fontStyle!, size);
         break;
 
+      // ignore: no_default_cases
       default:
         throw Exception('Unsupported font family, $fontFamily');
     }

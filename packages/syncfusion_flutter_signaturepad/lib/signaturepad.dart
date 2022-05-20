@@ -327,13 +327,13 @@ class SfSignaturePadState extends State<SfSignaturePad> {
   ///  ```
   List<Path> toPathList() {
     final RenderObject? signatureRenderBox = context.findRenderObject();
-    List<Path> _paths = <Path>[];
+    List<Path> paths = <Path>[];
 
     if (signatureRenderBox is RenderSignaturePad) {
-      _paths = List<Path>.unmodifiable(signatureRenderBox._pathCollection);
+      paths = List<Path>.unmodifiable(signatureRenderBox._pathCollection);
     }
 
-    return _paths;
+    return paths;
   }
 
   /// Saves the signature as an image.
@@ -451,15 +451,15 @@ class SfSignaturePadState extends State<SfSignaturePad> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
-    final Color _backgroundColor = widget.backgroundColor ?? Colors.transparent;
-    final Color _strokeColor =
+    final Color backgroundColor = widget.backgroundColor ?? Colors.transparent;
+    final Color strokeColor =
         widget.strokeColor ?? (isDarkTheme ? Colors.white : Colors.black);
 
     return _SfSignaturePadRenderObjectWidget(
         minimumStrokeWidth: widget.minimumStrokeWidth,
         maximumStrokeWidth: widget.maximumStrokeWidth,
-        backgroundColor: _backgroundColor,
-        strokeColor: _strokeColor,
+        backgroundColor: backgroundColor,
+        strokeColor: strokeColor,
         onDrawStart: widget.onDrawStart,
         onDraw: widget.onDraw,
         onDrawEnd: widget.onDrawEnd);
@@ -765,21 +765,21 @@ class RenderSignaturePad extends RenderBox {
 
   @override
   void performLayout() {
-    double _width =
+    double width =
         constraints.hasBoundedWidth ? constraints.maxWidth : _kDefaultWidth;
 
     if (constraints.minWidth > _kDefaultWidth) {
-      _width = constraints.minWidth;
+      width = constraints.minWidth;
     }
 
-    double _height =
+    double height =
         constraints.hasBoundedHeight ? constraints.maxHeight : _kDefaultHeight;
 
     if (constraints.minHeight > _kDefaultHeight) {
-      _height = constraints.minHeight;
+      height = constraints.minHeight;
     }
 
-    size = Size(_width, _height);
+    size = Size(width, height);
   }
 
   void _handleDragStart(DragStartDetails details) {
@@ -1023,14 +1023,14 @@ class RenderSignaturePad extends RenderBox {
 
   /// Exports the signature to html canvas.
   void renderToContext2D(dynamic context2D) {
-    final String _strokePenColor =
+    final String strokePenColor =
         '${strokeColor.red},${strokeColor.green},${strokeColor.blue},${strokeColor.opacity.toStringAsFixed(2)}';
 
-    final String _backgroundFillColor =
+    final String backgroundFillColor =
         '${backgroundColor.red},${backgroundColor.green},${backgroundColor.blue},${backgroundColor.opacity.toStringAsFixed(2)}';
 
     //Drawing the background of the SignaturePad
-    context2D.fillStyle = 'rgba($_backgroundFillColor)';
+    context2D.fillStyle = 'rgba($backgroundFillColor)';
     context2D.fillRect(0, 0, size.width, size.height);
     context2D.fill();
 
@@ -1038,9 +1038,9 @@ class RenderSignaturePad extends RenderBox {
 
     if (!_restrictBezierPathCalculation) {
       for (int i = 0; i < _dotPoints.length; i++) {
-        final Offset _point = _dotPoints[i];
-        context2D.moveTo(_point.dx, _point.dy);
-        context2D.arc(_point.dx, _point.dy,
+        final Offset point = _dotPoints[i];
+        context2D.moveTo(point.dx, point.dy);
+        context2D.arc(point.dx, point.dy,
             (_minimumStrokeWidth + _maximumStrokeWidth) / 2, 0, pi * 2, true);
       }
 
@@ -1050,28 +1050,28 @@ class RenderSignaturePad extends RenderBox {
             _bezierPoints[i].width / 2, 0, 2 * pi, false);
       }
 
-      context2D.fillStyle = 'rgba($_strokePenColor)';
+      context2D.fillStyle = 'rgba($strokePenColor)';
       context2D.fill();
     } else {
       for (int i = 0; i < _data.length; i++) {
         if (_data[i].length == 1) {
-          final _TouchPoint _point = _data[i][0];
-          context2D.moveTo(_point.x, _point.y);
-          context2D.arc(_point.x, _point.y,
+          final _TouchPoint point = _data[i][0];
+          context2D.moveTo(point.x, point.y);
+          context2D.arc(point.x, point.y,
               (_minimumStrokeWidth + _maximumStrokeWidth) / 2, 0, pi * 2, true);
-          context2D.fillStyle = 'rgba($_strokePenColor)';
+          context2D.fillStyle = 'rgba($strokePenColor)';
           context2D.fill();
         } else {
-          final List<_TouchPoint> _drawPath = _data[i];
-          for (int i = 0; i < _drawPath.length; i++) {
-            if (i < _drawPath.length - 1) {
-              context2D.moveTo(_drawPath[i].x, _drawPath[i].y);
-              context2D.lineTo(_drawPath[i + 1].x, _drawPath[i + 1].y);
+          final List<_TouchPoint> drawPath = _data[i];
+          for (int i = 0; i < drawPath.length; i++) {
+            if (i < drawPath.length - 1) {
+              context2D.moveTo(drawPath[i].x, drawPath[i].y);
+              context2D.lineTo(drawPath[i + 1].x, drawPath[i + 1].y);
             }
           }
 
           context2D.lineWidth = _maximumStrokeWidth;
-          context2D.strokeStyle = 'rgba($_strokePenColor)';
+          context2D.strokeStyle = 'rgba($strokePenColor)';
           context2D.lineCap = 'round';
           context2D.stroke();
         }
@@ -1095,18 +1095,18 @@ class RenderSignaturePad extends RenderBox {
         _paintStrokeStyle.strokeWidth = _minimumStrokeWidth;
         for (int i = 0; i < _data.length; i++) {
           if (_data[i].length == 1) {
-            final _TouchPoint _point = _data[i][0];
+            final _TouchPoint point = _data[i][0];
             canvas.drawCircle(
-                Offset(_point.x, _point.y),
+                Offset(point.x, point.y),
                 (_minimumStrokeWidth + _maximumStrokeWidth) / 2,
                 _paintStrokeStyle);
           } else {
-            final List<_TouchPoint> _path = _data[i];
-            for (int i = 0; i < _path.length; i++) {
-              if (i < _path.length - 1) {
+            final List<_TouchPoint> path = _data[i];
+            for (int i = 0; i < path.length; i++) {
+              if (i < path.length - 1) {
                 canvas.drawLine(
-                  Offset(_path[i].x, _path[i].y),
-                  Offset(_path[i + 1].x, _path[i + 1].y),
+                  Offset(path[i].x, path[i].y),
+                  Offset(path[i + 1].x, path[i + 1].y),
                   _paintStrokeStyle,
                 );
               }

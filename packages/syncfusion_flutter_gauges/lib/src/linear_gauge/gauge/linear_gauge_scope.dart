@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_gauges/src/linear_gauge/utils/enum.dart';
 
 import '../../linear_gauge/gauge/linear_gauge.dart';
+import '../utils/enum.dart';
 
 /// Linear gauge scope class.
 class LinearGaugeScope extends InheritedWidget {
@@ -37,7 +37,7 @@ class LinearGaugeScope extends InheritedWidget {
 
     final InheritedWidget widget = context
         .getElementForInheritedWidgetOfExactType<LinearGaugeScope>()!
-        .widget;
+        .widget as InheritedWidget;
 
     if (widget is LinearGaugeScope) {
       scope = widget;

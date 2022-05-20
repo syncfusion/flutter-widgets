@@ -311,6 +311,7 @@ class HistogramChartPainter extends CustomPainter {
         point = dataPoints[pointIndex];
         final bool withInXRange = withInRange(
             point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
         final bool withInYRange = point != null &&
             point.yValue != null &&
             withInRange(point.yValue,
@@ -344,15 +345,15 @@ class HistogramChartPainter extends CustomPainter {
           performLinearAnimation(
               stateProperties, xAxisDetails.axis, canvas, animationFactor);
         }
-        final Path _path =
+        final Path path =
             seriesRenderer._findNormalDistributionPath(series, chart);
-        final Paint _paint = Paint()
+        final Paint paint = Paint()
           ..strokeWidth = series.curveWidth
           ..color = series.curveColor
           ..style = PaintingStyle.stroke;
         series.curveDashArray == null
-            ? canvas.drawPath(_path, _paint)
-            : drawDashedLine(canvas, series.curveDashArray!, _paint, _path);
+            ? canvas.drawPath(path, paint)
+            : drawDashedLine(canvas, series.curveDashArray!, paint, path);
       }
       clipRect = calculatePlotOffset(
           Rect.fromLTRB(

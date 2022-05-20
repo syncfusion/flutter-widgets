@@ -832,7 +832,7 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
             style: textStyle.copyWith(fontFamily: region.iconData!.fontFamily));
       }
 
-      painter.layout(minWidth: 0, maxWidth: rect.width - 4);
+      painter.layout(maxWidth: rect.width - 4);
       painter.paint(canvas, Offset(rect.left + 3, rect.top + 3));
     }
   }

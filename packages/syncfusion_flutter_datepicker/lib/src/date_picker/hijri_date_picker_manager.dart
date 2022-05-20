@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import '../../datepicker.dart';
 import 'picker_helper.dart';
 
 /// Options to customize the month view of the [SfHijriDateRangePicker].

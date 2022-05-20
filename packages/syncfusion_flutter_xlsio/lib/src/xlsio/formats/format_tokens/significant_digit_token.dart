@@ -30,11 +30,14 @@ class _SignificantDigitToken extends _FormatTokenBase {
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) {
-      throw 'strFormat - string cannot be empty';
+      final Error error = ArgumentError('strFormat - string cannot be empty');
+      throw error;
     }
 
     if (iIndex < 0 || iIndex > iFormatLength - 1) {
-      throw 'iIndex-Value cannot be less than 0 and greater than format length - 1.';
+      final Error error = ArgumentError(
+          'iIndex-Value cannot be less than 0 and greater than format length - 1.');
+      throw error;
     }
 
     final String chCurrent = strFormat[iIndex];

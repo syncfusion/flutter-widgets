@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_maps/maps.dart';
+import '../../maps.dart';
 
 import '../common.dart';
 import '../controller/map_controller.dart';

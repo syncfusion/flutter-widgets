@@ -31,15 +31,10 @@ class _ChartContainerBox extends RenderShiftedBox {
     if (width == double.infinity) {
       width = minWidth;
     }
-    child!.layout(
-        BoxConstraints(
-          minHeight: 0.0,
-          maxHeight: height,
-          minWidth: 0.0,
-          maxWidth: width,
-        ),
-        parentUsesSize:
-            false); // True- Parent widget recomputes again respect to every build of child widget, False- Parent widget not rebuild respect to child widget build
+    child!.layout(BoxConstraints(
+      maxHeight: height,
+      maxWidth: width,
+    )); // True- Parent widget recomputes again respect to every build of child widget, False- Parent widget not rebuild respect to child widget build
     size = Size(width,
         height); // constraints.maxHeight become infinity when widget is placed inside row/column
   }

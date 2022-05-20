@@ -1,12 +1,14 @@
 import 'dart:math' as math;
 import 'dart:math';
 import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/circular_chart/base/circular_state_properties.dart';
-import 'package:syncfusion_flutter_charts/src/common/utils/helper.dart';
 import 'package:syncfusion_flutter_core/core.dart';
+
+import '../../../charts.dart';
 import '../../chart/chart_series/xy_data_series.dart';
+import '../../common/utils/helper.dart';
+import '../base/circular_state_properties.dart';
 import '../renderer/common.dart';
 import '../renderer/renderer_extension.dart';
 
@@ -98,11 +100,11 @@ Path getRoundedCornerArcPath(
     ChartPoint<dynamic> point) {
   final Path path = Path();
 
-  Offset _midPoint;
+  Offset midPoint;
   num midStartAngle, midEndAngle;
   if (cornerStyle == CornerStyle.startCurve ||
       cornerStyle == CornerStyle.bothCurve) {
-    _midPoint =
+    midPoint =
         degreeToPoint(startAngle, (innerRadius + outerRadius) / 2, center!);
 
     midStartAngle = degreesToRadians(180);
@@ -111,7 +113,7 @@ Path getRoundedCornerArcPath(
 
     path.addArc(
         Rect.fromCircle(
-            center: _midPoint, radius: (innerRadius - outerRadius).abs() / 2),
+            center: midPoint, radius: (innerRadius - outerRadius).abs() / 2),
         midStartAngle.toDouble(),
         midEndAngle.toDouble());
   }
@@ -123,8 +125,7 @@ Path getRoundedCornerArcPath(
 
   if (cornerStyle == CornerStyle.endCurve ||
       cornerStyle == CornerStyle.bothCurve) {
-    _midPoint =
-        degreeToPoint(endAngle, (innerRadius + outerRadius) / 2, center);
+    midPoint = degreeToPoint(endAngle, (innerRadius + outerRadius) / 2, center);
 
     midStartAngle = degreesToRadians(endAngle / 2);
 
@@ -132,7 +133,7 @@ Path getRoundedCornerArcPath(
 
     path.arcTo(
         Rect.fromCircle(
-            center: _midPoint, radius: (innerRadius - outerRadius).abs() / 2),
+            center: midPoint, radius: (innerRadius - outerRadius).abs() / 2),
         midStartAngle.toDouble(),
         midEndAngle.toDouble(),
         false);

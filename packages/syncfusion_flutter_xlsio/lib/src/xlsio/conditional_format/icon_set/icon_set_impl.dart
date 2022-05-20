@@ -102,8 +102,7 @@ class _IconSetImpl implements IconSet {
     }
 
     _arrCriteria = List<ConditionValue>.filled(
-        iCount, _IconConditionValueImpl(_iconSet, 0),
-        growable: false);
+        iCount, _IconConditionValueImpl(_iconSet, 0));
 
     for (int i = 0; i < iCount; i++) {
       final int iValue = (i * 100 / iCount).round();

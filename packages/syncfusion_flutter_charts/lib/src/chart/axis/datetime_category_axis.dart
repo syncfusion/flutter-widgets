@@ -516,12 +516,12 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
   /// Generates the visible axis labels.
   @override
   void generateVisibleLabels() {
+    _axisDetails.visibleLabels = <AxisLabel>[];
     num tempInterval = _axisDetails.visibleRange!.minimum.ceil();
     int position;
     num prevInterval;
     String labelText;
     final List<AxisLabel> label = _axisDetails.visibleLabels;
-    _axisDetails.visibleLabels = <AxisLabel>[];
     prevInterval = (label.isNotEmpty)
         ? _axisDetails
             .visibleLabels[_axisDetails.visibleLabels.length - 1].value
@@ -606,7 +606,7 @@ class DateTimeCategoryAxisDetails extends ChartAxisRendererDetails {
   void findAxisMinMaxValues(SeriesRendererDetails seriesRendererDetails,
       CartesianChartPoint<dynamic> point, int pointIndex, int dataLength,
       [bool? isXVisibleRange, bool? isYVisibleRange]) {
-    final bool _anchorRangeToVisiblePoints =
+    final bool anchorRangeToVisiblePoints =
         seriesRendererDetails.yAxisDetails!.axis.anchorRangeToVisiblePoints;
     final String seriesType = seriesRendererDetails.seriesType;
 
@@ -619,7 +619,7 @@ class DateTimeCategoryAxisDetails extends ChartAxisRendererDetails {
       seriesRendererDetails.minimumX ??= point.xValue;
       seriesRendererDetails.maximumX ??= point.xValue;
     }
-    if ((isXVisibleRange! || !_anchorRangeToVisiblePoints) &&
+    if ((isXVisibleRange! || !anchorRangeToVisiblePoints) &&
         !seriesType.contains('range') &&
         !seriesType.contains('hilo') &&
         !seriesType.contains('candle') &&

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/user_interaction/zooming_panning.dart';
 
 import '../../../charts.dart';
 import '../../common/rendering_details.dart';
@@ -13,6 +12,7 @@ import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
+import '../user_interaction/zooming_panning.dart';
 import '../utils/helper.dart';
 
 /// Creates series renderer for range column series
@@ -35,9 +35,9 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
         SegmentHelper.getSegmentProperties(segment);
     final List<CartesianSeriesRenderer>? oldSeriesRenderers =
         _currentSeriesDetails.stateProperties.oldSeriesRenderers;
-    final RangeColumnSeries<dynamic, dynamic> _rangeColumnSeries =
+    final RangeColumnSeries<dynamic, dynamic> rangeColumnSeries =
         _currentSeriesDetails.series as RangeColumnSeries<dynamic, dynamic>;
-    final BorderRadius borderRadius = _rangeColumnSeries.borderRadius;
+    final BorderRadius borderRadius = rangeColumnSeries.borderRadius;
     segmentProperties.seriesIndex = seriesIndex;
     segment.currentSegmentIndex = pointIndex;
     segment.points
@@ -45,7 +45,7 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
     segment.points.add(
         Offset(currentPoint.markerPoint2!.x, currentPoint.markerPoint2!.y));
     segmentProperties.seriesRenderer = this;
-    segmentProperties.series = _rangeColumnSeries;
+    segmentProperties.series = rangeColumnSeries;
     segment.animationFactor = animateFactor;
     segmentProperties.currentPoint = currentPoint;
     _segmentSeriesDetails =
@@ -117,14 +117,14 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
       }
     }
     segmentProperties.path = findingRectSeriesDashedBorder(
-        currentPoint, _rangeColumnSeries.borderWidth);
+        currentPoint, rangeColumnSeries.borderWidth);
     // ignore: unnecessary_null_comparison
     if (borderRadius != null) {
       segment.segmentRect =
           getRRectFromRect(currentPoint.region!, borderRadius);
 
       //Tracker rect
-      if (_rangeColumnSeries.isTrackVisible) {
+      if (rangeColumnSeries.isTrackVisible) {
         segmentProperties.trackRect =
             getRRectFromRect(currentPoint.trackerRectRegion!, borderRadius);
       }
@@ -276,6 +276,7 @@ class RangeColumnChartPainter extends CustomPainter {
         point = dataPoints[pointIndex];
         final bool withInXRange = withInRange(
             point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
         final bool withInHighLowRange = point != null &&
             point.high != null &&
             withInRange(point.high,

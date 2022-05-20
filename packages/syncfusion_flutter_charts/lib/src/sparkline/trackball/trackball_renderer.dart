@@ -259,8 +259,12 @@ class _SparckChartTrackballRendererState
 /// Represnts the painter to render the trackball.
 class TrackballPainter extends CustomPainter {
   /// Creates the painter to render the trackball.
-  TrackballPainter(ValueNotifier<num> notifier, this._isRepaint,
-      this._trackball, this._rendererState)
+  TrackballPainter(
+      ValueNotifier<num> notifier,
+      this._isRepaint,
+      this._trackball,
+      // ignore: library_private_types_in_public_api
+      this._rendererState)
       : super(repaint: notifier);
 
   /// Specifies whether to repaint the series.

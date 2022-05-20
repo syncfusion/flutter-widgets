@@ -659,10 +659,10 @@ class TechnicalIndicatorsRenderer {
     if (indicator is MacdIndicator &&
         (indicator.macdType == MacdType.histogram ||
             indicator.macdType == MacdType.both)) {
-      final MacdIndicator<dynamic, dynamic> _indicator = indicator;
+      final MacdIndicator<dynamic, dynamic> macdIndicator = indicator;
       point.pointColorMapper = point.yValue >= 0 == true
-          ? _indicator.histogramPositiveColor
-          : _indicator.histogramNegativeColor;
+          ? macdIndicator.histogramPositiveColor
+          : macdIndicator.histogramNegativeColor;
     }
     return point;
   }
@@ -672,8 +672,7 @@ class TechnicalIndicatorsRenderer {
       CartesianChartPoint<dynamic> sourcePoint, int index,
       //ignore: unused_element
       [TechnicalIndicators<dynamic, dynamic>? indicator]) {
-    final CartesianChartPoint<dynamic> point =
-        CartesianChartPoint<dynamic>(x, null);
+    final CartesianChartPoint<dynamic> point = CartesianChartPoint<dynamic>(x);
     point.high = high;
     point.low = low;
     point.xValue = sourcePoint.xValue;
@@ -688,7 +687,7 @@ class TechnicalIndicatorsRenderer {
       [bool isLine = false,
       bool isRangeArea = false,
       bool isHistogram = false]) {
-    List<double>? _dashArray;
+    List<double>? dashArray;
     if (indicator.onRenderDetailsUpdate != null &&
         isRangeArea == false &&
         isHistogram == false &&
@@ -723,7 +722,7 @@ class TechnicalIndicatorsRenderer {
 
       color = indicators.signalLineColor ?? color;
       width = indicators.signalLineWidth ?? width;
-      _dashArray = indicators.signalLineDashArray ?? indicator.dashArray;
+      dashArray = indicators.signalLineDashArray ?? indicator.dashArray;
     }
     final CartesianSeries<dynamic, dynamic> series = isRangeArea == true
         ? RangeAreaSeries<dynamic, dynamic>(
@@ -760,7 +759,7 @@ class TechnicalIndicatorsRenderer {
             : LineSeries<dynamic, dynamic>(
                 name: name,
                 color: color,
-                dashArray: _dashArray ?? indicator.dashArray,
+                dashArray: dashArray ?? indicator.dashArray,
                 width: width,
                 xAxisName: indicator.xAxisName,
                 animationDuration: indicator.animationDuration,
@@ -1692,8 +1691,8 @@ class TechnicalIndicatorsRenderer {
           sum = sum + temp[i];
         }
         sum = sum / kPeriod;
-        final String _sum = sum.toStringAsFixed(2);
-        values.add(double.parse(_sum));
+        final String stochasticSum = sum.toStringAsFixed(2);
+        values.add(double.parse(stochasticSum));
         temp.removeRange(0, 1);
         length = temp.length;
       }

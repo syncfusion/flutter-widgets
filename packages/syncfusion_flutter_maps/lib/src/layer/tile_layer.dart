@@ -622,9 +622,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 
   void _handledZoomPanChange() {
-    if (SchedulerBinding.instance!.schedulerPhase ==
+    if (SchedulerBinding.instance.schedulerPhase ==
         SchedulerPhase.persistentCallbacks) {
-      SchedulerBinding.instance!.addPostFrameCallback((Duration duration) {
+      SchedulerBinding.instance.addPostFrameCallback((Duration duration) {
         _handledZoomPanChange();
       });
       return;

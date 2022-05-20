@@ -26,14 +26,14 @@ class StackedAreaSeriesRenderer extends StackedSeriesRenderer {
   // ignore: unused_element
   ChartSegment _createSegments(
       int seriesIndex, SfCartesianChart chart, double animateFactor,
-      [List<Offset>? _points]) {
+      [List<Offset>? points]) {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(this);
     final StackedAreaSegment segment = createSegment();
     final SegmentProperties segmentProperties =
         SegmentProperties(seriesRendererDetails.stateProperties, segment);
     SegmentHelper.setSegmentProperties(segment, segmentProperties);
-    final List<CartesianSeriesRenderer> _oldSeriesRenderers =
+    final List<CartesianSeriesRenderer> oldSeriesRenderers =
         seriesRendererDetails.stateProperties.oldSeriesRenderers;
     seriesRendererDetails.isRectSeries = false;
     // ignore: unnecessary_null_comparison
@@ -43,8 +43,8 @@ class StackedAreaSeriesRenderer extends StackedSeriesRenderer {
           seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
       segment.currentSegmentIndex = 0;
       segmentProperties.seriesIndex = seriesIndex;
-      if (_points != null) {
-        segment.points = _points;
+      if (points != null) {
+        segment.points = points;
       }
       segment.animationFactor = animateFactor;
       if (seriesRendererDetails
@@ -53,17 +53,17 @@ class StackedAreaSeriesRenderer extends StackedSeriesRenderer {
           seriesRendererDetails.xAxisDetails!.zoomFactor == 1 &&
           seriesRendererDetails.yAxisDetails!.zoomFactor == 1 &&
           // ignore: unnecessary_null_comparison
-          _oldSeriesRenderers != null &&
-          _oldSeriesRenderers.isNotEmpty &&
-          _oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
+          oldSeriesRenderers != null &&
+          oldSeriesRenderers.isNotEmpty &&
+          oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
           SeriesHelper.getSeriesRendererDetails(
-                      _oldSeriesRenderers[segmentProperties.seriesIndex])
+                      oldSeriesRenderers[segmentProperties.seriesIndex])
                   .seriesName ==
               SeriesHelper.getSeriesRendererDetails(
                       segmentProperties.seriesRenderer)
                   .seriesName) {
         segmentProperties.oldSeriesRenderer =
-            _oldSeriesRenderers[segmentProperties.seriesIndex];
+            oldSeriesRenderers[segmentProperties.seriesIndex];
         segmentProperties.oldSegmentIndex = 0;
       }
       customizeSegment(segment);
@@ -133,7 +133,7 @@ class StackedArea100SeriesRenderer extends StackedSeriesRenderer {
   // ignore: unused_element
   ChartSegment _createSegments(
       int seriesIndex, SfCartesianChart chart, double animateFactor,
-      [List<Offset>? _points]) {
+      [List<Offset>? points]) {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(this);
     // Clearing the old chart segments objects with a dispose call.
@@ -142,7 +142,7 @@ class StackedArea100SeriesRenderer extends StackedSeriesRenderer {
     final SegmentProperties segmentProperties =
         SegmentProperties(seriesRendererDetails.stateProperties, segment);
     SegmentHelper.setSegmentProperties(segment, segmentProperties);
-    final List<CartesianSeriesRenderer> _oldSeriesRenderers =
+    final List<CartesianSeriesRenderer> oldSeriesRenderers =
         seriesRendererDetails.stateProperties.oldSeriesRenderers;
     seriesRendererDetails.isRectSeries = false;
     // ignore: unnecessary_null_comparison
@@ -152,8 +152,8 @@ class StackedArea100SeriesRenderer extends StackedSeriesRenderer {
           seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
       segment.currentSegmentIndex = 0;
       segmentProperties.seriesIndex = seriesIndex;
-      if (_points != null) {
-        segment.points = _points;
+      if (points != null) {
+        segment.points = points;
       }
       segment.animationFactor = animateFactor;
       if (seriesRendererDetails
@@ -162,17 +162,17 @@ class StackedArea100SeriesRenderer extends StackedSeriesRenderer {
           seriesRendererDetails.xAxisDetails!.zoomFactor == 1 &&
           seriesRendererDetails.yAxisDetails!.zoomFactor == 1 &&
           // ignore: unnecessary_null_comparison
-          _oldSeriesRenderers != null &&
-          _oldSeriesRenderers.isNotEmpty &&
-          _oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
+          oldSeriesRenderers != null &&
+          oldSeriesRenderers.isNotEmpty &&
+          oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
           SeriesHelper.getSeriesRendererDetails(
-                      _oldSeriesRenderers[segmentProperties.seriesIndex])
+                      oldSeriesRenderers[segmentProperties.seriesIndex])
                   .seriesName ==
               SeriesHelper.getSeriesRendererDetails(
                       segmentProperties.seriesRenderer)
                   .seriesName) {
         segmentProperties.oldSeriesRenderer =
-            _oldSeriesRenderers[segmentProperties.seriesIndex];
+            oldSeriesRenderers[segmentProperties.seriesIndex];
         segmentProperties.oldSeries = SeriesHelper.getSeriesRendererDetails(
                 segmentProperties.oldSeriesRenderer!)
             .series as XyDataSeries<dynamic, dynamic>;
@@ -350,7 +350,7 @@ void stackedAreaPainter(
   Rect clipRect, axisClipRect;
   final int seriesIndex = painterKey.index;
   final SfCartesianChart chart = stateProperties.chart;
-  final RenderingDetails _renderingDetails = stateProperties.renderingDetails;
+  final RenderingDetails renderingDetails = stateProperties.renderingDetails;
 
   seriesRendererDetails.storeSeriesProperties(stateProperties, seriesIndex);
   double animationFactor;
@@ -374,23 +374,23 @@ void stackedAreaPainter(
           ShaderDetails(stateProperties.chartAxis.axisClipRect, 'series'));
     }
     if (seriesRendererDetails.reAnimate == true ||
-        ((!(_renderingDetails.widgetNeedUpdate ||
-                    _renderingDetails.isLegendToggled) ||
+        ((!(renderingDetails.widgetNeedUpdate ||
+                    renderingDetails.isLegendToggled) ||
                 !stateProperties.oldSeriesKeys.contains(series.key)) &&
             series.animationDuration > 0 == true)) {
       performLinearAnimation(stateProperties,
           seriesRendererDetails.xAxisDetails!.axis, canvas, animationFactor);
     }
 
-    final Path _path = Path(), _strokePath = Path();
+    final Path path = Path(), strokePath = Path();
     final Rect rect = stateProperties.chartAxis.axisClipRect;
     ChartLocation point1, point2;
     final ChartAxisRendererDetails xAxisDetails =
             seriesRendererDetails.xAxisDetails!,
         yAxisDetails = seriesRendererDetails.yAxisDetails!;
     CartesianChartPoint<dynamic>? point;
-    final dynamic _series = seriesRendererDetails.series;
-    final List<Offset> _points = <Offset>[];
+    final dynamic stackedAreaSeries = seriesRendererDetails.series;
+    final List<Offset> points = <Offset>[];
     if (dataPoints.isNotEmpty) {
       int startPoint = 0;
       final StackedValues stackedValues =
@@ -406,10 +406,10 @@ void stackedAreaPainter(
           xAxisDetails,
           yAxisDetails,
           stateProperties.requireInvertedAxis,
-          _series,
+          stackedAreaSeries,
           rect);
-      _path.moveTo(point1.x, point1.y);
-      _strokePath.moveTo(point1.x, point1.y);
+      path.moveTo(point1.x, point1.y);
+      strokePath.moveTo(point1.x, point1.y);
       if (seriesRendererDetails.visibleDataPoints == null ||
           seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
         seriesRendererDetails.visibleDataPoints =
@@ -428,13 +428,14 @@ void stackedAreaPainter(
               xAxisDetails,
               yAxisDetails,
               stateProperties.requireInvertedAxis,
-              _series,
+              stackedAreaSeries,
               rect);
-          _points.add(Offset(point1.x, point1.y));
-          _path.lineTo(point1.x, point1.y);
-          _strokePath.lineTo(point1.x, point1.y);
+          points.add(Offset(point1.x, point1.y));
+          path.lineTo(point1.x, point1.y);
+          strokePath.lineTo(point1.x, point1.y);
         } else {
-          if (_series.emptyPointSettings.mode != EmptyPointMode.drop) {
+          if (stackedAreaSeries.emptyPointSettings.mode !=
+              EmptyPointMode.drop) {
             for (int j = pointIndex - 1; j >= startPoint; j--) {
               point2 = calculatePoint(
                   dataPoints[j].xValue,
@@ -442,13 +443,15 @@ void stackedAreaPainter(
                   xAxisDetails,
                   yAxisDetails,
                   stateProperties.requireInvertedAxis,
-                  _series,
+                  stackedAreaSeries,
                   rect);
-              _path.lineTo(point2.x, point2.y);
-              if (_series.borderDrawMode == BorderDrawMode.excludeBottom) {
-                _strokePath.lineTo(point1.x, point2.y);
-              } else if (_series.borderDrawMode == BorderDrawMode.all) {
-                _strokePath.lineTo(point2.x, point2.y);
+              path.lineTo(point2.x, point2.y);
+              if (stackedAreaSeries.borderDrawMode ==
+                  BorderDrawMode.excludeBottom) {
+                strokePath.lineTo(point1.x, point2.y);
+              } else if (stackedAreaSeries.borderDrawMode ==
+                  BorderDrawMode.all) {
+                strokePath.lineTo(point2.x, point2.y);
               }
             }
             if (dataPoints.length > pointIndex + 1 &&
@@ -461,17 +464,17 @@ void stackedAreaPainter(
                   xAxisDetails,
                   yAxisDetails,
                   stateProperties.requireInvertedAxis,
-                  _series,
+                  stackedAreaSeries,
                   rect);
-              _path.moveTo(point1.x, point1.y);
-              _strokePath.moveTo(point1.x, point1.y);
+              path.moveTo(point1.x, point1.y);
+              strokePath.moveTo(point1.x, point1.y);
             }
             startPoint = pointIndex + 1;
           }
         }
         if (pointIndex >= dataPoints.length - 1) {
           seriesRenderer._createSegments(
-              painterKey.index, chart, animationFactor, _points);
+              painterKey.index, chart, animationFactor, points);
         }
       }
       for (int j = dataPoints.length - 1; j >= startPoint; j--) {
@@ -488,43 +491,44 @@ void stackedAreaPainter(
               xAxisDetails,
               yAxisDetails,
               stateProperties.requireInvertedAxis,
-              _series,
+              stackedAreaSeries,
               rect);
-          _path.lineTo(point2.x, point2.y);
-          if (_series.borderDrawMode == BorderDrawMode.excludeBottom) {
-            _strokePath.lineTo(point1.x, point2.y);
-          } else if (_series.borderDrawMode == BorderDrawMode.all) {
-            _strokePath.lineTo(point2.x, point2.y);
+          path.lineTo(point2.x, point2.y);
+          if (stackedAreaSeries.borderDrawMode ==
+              BorderDrawMode.excludeBottom) {
+            strokePath.lineTo(point1.x, point2.y);
+          } else if (stackedAreaSeries.borderDrawMode == BorderDrawMode.all) {
+            strokePath.lineTo(point2.x, point2.y);
           }
         }
       }
     }
     // ignore: unnecessary_null_comparison
-    if (_path != null &&
+    if (path != null &&
         // ignore: unnecessary_null_comparison
         seriesRendererDetails.segments != null &&
         seriesRendererDetails.segments.isNotEmpty == true) {
       final ChartSegment areaSegment = seriesRendererDetails.segments[0];
       SegmentHelper.getSegmentProperties(areaSegment)
-        ..path = _path
-        ..strokePath = _strokePath;
+        ..path = path
+        ..strokePath = strokePath;
       seriesRenderer._drawSegment(canvas, areaSegment);
     }
 
     clipRect = calculatePlotOffset(
         Rect.fromLTRB(
-            rect.left - _series.markerSettings.width,
-            rect.top - _series.markerSettings.height,
-            rect.right + _series.markerSettings.width,
-            rect.bottom + _series.markerSettings.height),
+            rect.left - stackedAreaSeries.markerSettings.width,
+            rect.top - stackedAreaSeries.markerSettings.height,
+            rect.right + stackedAreaSeries.markerSettings.width,
+            rect.bottom + stackedAreaSeries.markerSettings.height),
         Offset(seriesRendererDetails.xAxisDetails!.axis.plotOffset,
             seriesRendererDetails.yAxisDetails!.axis.plotOffset));
     canvas.restore();
-    if ((_series.animationDuration <= 0 == true ||
-            !_renderingDetails.initialRender! ||
+    if ((stackedAreaSeries.animationDuration <= 0 == true ||
+            !renderingDetails.initialRender! ||
             animationFactor >= stateProperties.seriesDurationFactor) &&
-        (_series.markerSettings.isVisible == true ||
-            _series.dataLabelSettings.isVisible == true)) {
+        (stackedAreaSeries.markerSettings.isVisible == true ||
+            stackedAreaSeries.dataLabelSettings.isVisible == true)) {
       canvas.clipRect(clipRect);
       seriesRendererDetails.renderSeriesElements(
           chart, canvas, chartElementAnimation);

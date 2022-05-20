@@ -25,7 +25,7 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
-    final BarSeries<dynamic, dynamic> _barSeries =
+    final BarSeries<dynamic, dynamic> barSeries =
         _currentSeriesDetails.series as BarSeries<dynamic, dynamic>;
     final BarSegment segment = createSegment();
     SegmentHelper.setSegmentProperties(segment,
@@ -34,7 +34,7 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
         SegmentHelper.getSegmentProperties(segment);
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
         _currentSeriesDetails.stateProperties.oldSeriesRenderers;
-    segmentProperties.series = _barSeries;
+    segmentProperties.series = barSeries;
     segmentProperties.seriesRenderer = this;
     segmentProperties.seriesIndex = seriesIndex;
     segment.currentSegmentIndex = pointIndex;
@@ -109,13 +109,13 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
       }
     }
     segmentProperties.path =
-        findingRectSeriesDashedBorder(currentPoint, _barSeries.borderWidth);
+        findingRectSeriesDashedBorder(currentPoint, barSeries.borderWidth);
     segment.segmentRect =
-        getRRectFromRect(currentPoint.region!, _barSeries.borderRadius);
+        getRRectFromRect(currentPoint.region!, barSeries.borderRadius);
     //Tracker rect
-    if (_barSeries.isTrackVisible) {
+    if (barSeries.isTrackVisible) {
       segmentProperties.trackBarRect = getRRectFromRect(
-          currentPoint.trackerRectRegion!, _barSeries.borderRadius);
+          currentPoint.trackerRectRegion!, barSeries.borderRadius);
     }
     segmentProperties.segmentRect = segment.segmentRect;
     customizeSegment(segment);
@@ -257,6 +257,7 @@ class BarChartPainter extends CustomPainter {
         point = dataPoints[pointIndex];
         final bool withInXRange = withInRange(
             point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
         final bool withInYRange = point != null &&
             point.yValue != null &&
             withInRange(point.yValue,

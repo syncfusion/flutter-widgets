@@ -14,7 +14,8 @@ class _CharacterToken extends _FormatTokenBase {
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) {
-      throw 'strFormat - string cannot be empty.';
+      final Error error = ArgumentError('strFormat - string cannot be empty.');
+      throw error;
     }
 
     if (strFormat[iIndex] == _defaultChar) {

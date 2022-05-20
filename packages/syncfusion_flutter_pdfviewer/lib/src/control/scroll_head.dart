@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
+import '../../pdfviewer.dart';
+import '../common/pdfviewer_helper.dart';
 
 /// Height of the ScrollHead.
 const double kPdfScrollHeadHeight = 32.0;
@@ -117,7 +117,6 @@ class _ScrollHeadState extends State<ScrollHead> {
       BoxShadow(
         color: Color.fromRGBO(0, 0, 0, 0.14),
         blurRadius: 2,
-        offset: Offset.zero,
       ),
       BoxShadow(
         color: Color.fromRGBO(0, 0, 0, 0.12),
@@ -174,7 +173,6 @@ class _ScrollHeadState extends State<ScrollHead> {
               constraints: const BoxConstraints.tightFor(
                   width: kPdfScrollHeadHeight, height: kPdfScrollHeadHeight),
               child: Align(
-                alignment: Alignment.center,
                 child: Text(
                   '${widget.pdfViewerController.pageNumber}',
                   style: _pdfViewerThemeData!

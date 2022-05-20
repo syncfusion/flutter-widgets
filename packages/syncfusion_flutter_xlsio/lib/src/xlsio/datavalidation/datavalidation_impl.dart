@@ -7,8 +7,8 @@ class _DataValidationImpl implements DataValidation {
     _allowTypeVal = ExcelDataValidationType.any;
     _isListInformulaVal = false;
     _comparisonOperatorVal = ExcelDataValidationComparisonOperator.between;
-    _firstDateTimeVal = DateTime(1, 1, 0001);
-    _secondDateTimeVal = DateTime(1, 1, 0001);
+    _firstDateTimeVal = DateTime(1);
+    _secondDateTimeVal = DateTime(1);
     _firstFormulaVal = '';
     _secondFormulaVal = '';
     _showErrorBoxVal = true;
@@ -397,7 +397,7 @@ class _DataValidationImpl implements DataValidation {
 
   /// Represents the method used for checking the limit for promptBoxTitle and errorBoxTitle
   void _checkLimit(String text, String value, int textLimit) {
-    if (value != null && value.length > textLimit) {
+    if (value.length > textLimit) {
       throw Exception('the textLimit should not exceed 225 characters');
     }
   }

@@ -1031,13 +1031,13 @@ class _PlotBandPainter extends CustomPainter {
         ..close();
 
       final Paint paint = Paint();
-      Path? _dashPath;
+      Path? dashedPath;
       if (needDashLine) {
         paint.isAntiAlias = false;
-        _dashPath =
+        dashedPath =
             dashPath(path, dashArray: CircularIntervalList<double>(dashArray));
       } else {
-        _dashPath = path;
+        dashedPath = path;
       }
       // ignore: unnecessary_null_comparison
       if (path != null) {
@@ -1056,9 +1056,9 @@ class _PlotBandPainter extends CustomPainter {
             // ignore: unnecessary_null_comparison
             plotBand.borderColor != null &&
             // ignore: unnecessary_null_comparison
-            _dashPath != null) {
+            dashedPath != null) {
           canvas.drawPath(
-              _dashPath,
+              dashedPath,
               paint
                 ..color = plotBand.borderColor.withOpacity(plotBand.opacity)
                 ..style = PaintingStyle.stroke

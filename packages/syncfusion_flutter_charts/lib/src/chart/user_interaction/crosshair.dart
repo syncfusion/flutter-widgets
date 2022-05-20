@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import '../../common/utils/helper.dart';
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
@@ -10,6 +12,7 @@ import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
+import '../common/common.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import 'crosshair_painter.dart';
@@ -306,11 +309,14 @@ class CrosshairBehavior {
                   .visibleSeriesRenderers;
           final SeriesRendererDetails seriesRendererDetails =
               SeriesHelper.getSeriesRendererDetails(visibleSeriesRenderer[0]);
+          final List<CartesianChartPoint<dynamic>> dataPoints =
+              getSampledData(seriesRendererDetails);
+          // ignore: unnecessary_null_comparison
           if (pointIndex != null &&
               pointIndex.abs() < seriesRendererDetails.dataPoints.length) {
             renderingDetails.crosshairPainter!.generateAllPoints(Offset(
-                seriesRendererDetails.dataPoints[pointIndex].markerPoint!.x,
-                seriesRendererDetails.dataPoints[pointIndex].markerPoint!.y));
+                dataPoints[pointIndex].markerPoint!.x,
+                dataPoints[pointIndex].markerPoint!.y));
           }
           renderingDetails.crosshairPainter!.canResetPath = false;
           renderingDetails.crosshairPainter!.stateProperties

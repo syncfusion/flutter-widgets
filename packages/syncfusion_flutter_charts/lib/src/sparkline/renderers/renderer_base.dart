@@ -143,7 +143,7 @@ abstract class RenderSparkChart extends RenderBox {
         _dataPoints = dataPoints,
         _coordinatePoints = coordinatePoints {
     processDataSource();
-    if (isInversed == true) {
+    if (isInversed ?? false) {
       inverseDataPoints();
     }
   }

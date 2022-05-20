@@ -536,7 +536,7 @@ class NumericAxisRenderer extends ChartAxisRenderer {
       axisDetails.updateAutoScrollingDelta(
           axisDetails.axis.autoScrollingDelta!, this);
     }
-    if ((!canAutoScroll || stateProperties.zoomedState == true) &&
+    if ((!canAutoScroll || (stateProperties.zoomedState ?? false)) &&
         !(stateProperties.rangeChangeBySlider &&
             !stateProperties.canSetRangeController)) {
       axisDetails.setZoomFactorAndPosition(
@@ -601,7 +601,7 @@ class NumericAxisDetails extends ChartAxisRendererDetails {
   void findAxisMinMaxValues(SeriesRendererDetails seriesRendererDetails,
       CartesianChartPoint<dynamic> point, int pointIndex, int dataLength,
       [bool? isXVisibleRange, bool? isYVisibleRange]) {
-    final bool _anchorRangeToVisiblePoints =
+    final bool anchorRangeToVisiblePoints =
         seriesRendererDetails.yAxisDetails!.axis.anchorRangeToVisiblePoints;
     final String seriesType = seriesRendererDetails.seriesType;
     point.xValue = point.x;
@@ -610,7 +610,7 @@ class NumericAxisDetails extends ChartAxisRendererDetails {
       seriesRendererDetails.minimumX ??= point.xValue;
       seriesRendererDetails.maximumX ??= point.xValue;
     }
-    if ((isXVisibleRange! || !_anchorRangeToVisiblePoints) &&
+    if ((isXVisibleRange! || !anchorRangeToVisiblePoints) &&
         !seriesType.contains('range') &&
         !seriesType.contains('hilo') &&
         !seriesType.contains('candle') &&
@@ -626,7 +626,7 @@ class NumericAxisDetails extends ChartAxisRendererDetails {
       seriesRendererDetails.maximumX =
           math.max(seriesRendererDetails.maximumX!, point.xValue as num);
     }
-    if (isXVisibleRange || !_anchorRangeToVisiblePoints) {
+    if (isXVisibleRange || !anchorRangeToVisiblePoints) {
       if (point.yValue != null &&
           (!seriesType.contains('range') &&
               !seriesType.contains('hilo') &&

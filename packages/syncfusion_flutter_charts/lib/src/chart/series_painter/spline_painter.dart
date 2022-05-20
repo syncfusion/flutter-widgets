@@ -28,7 +28,7 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(this);
     final SplineSegment segment = createSegment() as SplineSegment;
-    final List<CartesianSeriesRenderer> _oldSeriesRenderers =
+    final List<CartesianSeriesRenderer> oldSeriesRenderers =
         seriesRendererDetails.stateProperties.oldSeriesRenderers;
     seriesRendererDetails.isRectSeries = false;
     // ignore: unnecessary_null_comparison
@@ -52,15 +52,15 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
                   .stateProperties.renderingDetails.widgetNeedUpdate ==
               true &&
           // ignore: unnecessary_null_comparison
-          _oldSeriesRenderers != null &&
-          _oldSeriesRenderers.isNotEmpty &&
-          _oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
+          oldSeriesRenderers != null &&
+          oldSeriesRenderers.isNotEmpty &&
+          oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
           SeriesHelper.getSeriesRendererDetails(
-                      _oldSeriesRenderers[segmentProperties.seriesIndex])
+                      oldSeriesRenderers[segmentProperties.seriesIndex])
                   .seriesName ==
               seriesDetails.seriesName) {
         segmentProperties.oldSeriesRenderer =
-            _oldSeriesRenderers[segmentProperties.seriesIndex];
+            oldSeriesRenderers[segmentProperties.seriesIndex];
         segmentProperties.oldSeries = SeriesHelper.getSeriesRendererDetails(
                 segmentProperties.oldSeriesRenderer!)
             .series as XyDataSeries<dynamic, dynamic>;
@@ -222,7 +222,7 @@ class SplineChartPainter extends CustomPainter {
 
       int segmentIndex = -1;
 
-      CartesianChartPoint<dynamic>? point, _nextPoint, startPoint, endPoint;
+      CartesianChartPoint<dynamic>? point, nextPoint, startPoint, endPoint;
 
       if (seriesRendererDetails.visibleDataPoints == null ||
           seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
@@ -246,13 +246,11 @@ class SplineChartPainter extends CustomPainter {
             startPoint = point;
           }
           if (pointIndex + 1 < dataPoints.length) {
-            _nextPoint = dataPoints[pointIndex + 1];
-            if (startPoint != null &&
-                !_nextPoint.isVisible &&
-                _nextPoint.isGap) {
+            nextPoint = dataPoints[pointIndex + 1];
+            if (startPoint != null && !nextPoint.isVisible && nextPoint.isGap) {
               startPoint = null;
-            } else if (_nextPoint.isVisible && !_nextPoint.isGap) {
-              endPoint = _nextPoint;
+            } else if (nextPoint.isVisible && !nextPoint.isGap) {
+              endPoint = nextPoint;
             }
           }
           if (startPoint != null &&

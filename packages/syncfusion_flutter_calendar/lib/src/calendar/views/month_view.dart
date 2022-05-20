@@ -720,12 +720,12 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final bool _isNeedCustomPaint = childCount != 0;
+    final bool isNeedCustomPaint = childCount != 0;
     if (_blackoutDatesIndex.isEmpty) {
       _updateBlackoutDatesIndex();
     }
 
-    if (!_isNeedCustomPaint) {
+    if (!isNeedCustomPaint) {
       _drawMonthCells(context.canvas, size);
     } else {
       final double cellWidth =
@@ -834,7 +834,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     _textPainter.textScaleFactor = textScaleFactor;
 
     const double topPadding = 4;
-    _textPainter.layout(minWidth: 0, maxWidth: weekNumberPanelWidth);
+    _textPainter.layout(maxWidth: weekNumberPanelWidth);
     xPosition += (weekNumberPanelWidth - _textPainter.width) / 2;
     _textPainter.paint(canvas, Offset(xPosition, yPosition + topPadding));
   }
@@ -1036,7 +1036,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
       _textPainter.text = span;
 
-      _textPainter.layout(minWidth: 0, maxWidth: cellWidth);
+      _textPainter.layout(maxWidth: cellWidth);
 
       //// In web when the mouse hovering the cell, the painter style set as stroke,
       //// hence if background color set for an cell and mouse hovered for the

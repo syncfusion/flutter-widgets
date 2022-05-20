@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/segment_properties.dart';
+
+import '../../../charts.dart';
 import '../axis/axis.dart';
 import '../chart_series/series.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
+import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 import 'chart_segment.dart';
 
@@ -31,19 +32,19 @@ class StepLineSegment extends ChartSegment {
   Paint getFillPaint() {
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(this);
-    final Paint _fillPaint = Paint();
+    final Paint fillPaint = Paint();
     assert(segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the step line series should be greater than or equal to 0.');
     assert(segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the step line series should be less than or equal to 1.');
     if (segmentProperties.color != null) {
-      _fillPaint.color = segmentProperties.color!
+      fillPaint.color = segmentProperties.color!
           .withOpacity(segmentProperties.series.opacity);
     }
-    _fillPaint.strokeWidth = segmentProperties.strokeWidth!;
-    _fillPaint.style = PaintingStyle.stroke;
-    segmentProperties.defaultFillColor = _fillPaint;
-    return _fillPaint;
+    fillPaint.strokeWidth = segmentProperties.strokeWidth!;
+    fillPaint.style = PaintingStyle.stroke;
+    segmentProperties.defaultFillColor = fillPaint;
+    return fillPaint;
   }
 
   /// Gets the stroke color of the series.
@@ -51,21 +52,21 @@ class StepLineSegment extends ChartSegment {
   Paint getStrokePaint() {
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(this);
-    final Paint _strokePaint = Paint();
+    final Paint strokePaint = Paint();
     if (segmentProperties.strokeColor != null) {
-      _strokePaint.color =
+      strokePaint.color =
           segmentProperties.pointColorMapper ?? segmentProperties.strokeColor!;
-      _strokePaint.color = (segmentProperties.series.opacity < 1 == true &&
-              _strokePaint.color != Colors.transparent)
-          ? _strokePaint.color.withOpacity(segmentProperties.series.opacity)
-          : _strokePaint.color;
+      strokePaint.color = (segmentProperties.series.opacity < 1 == true &&
+              strokePaint.color != Colors.transparent)
+          ? strokePaint.color.withOpacity(segmentProperties.series.opacity)
+          : strokePaint.color;
     }
-    _strokePaint.strokeWidth = segmentProperties.strokeWidth!;
-    _strokePaint.style = PaintingStyle.stroke;
-    _strokePaint.strokeCap = StrokeCap.square;
-    segmentProperties.defaultStrokeColor = _strokePaint;
-    setShader(segmentProperties, _strokePaint);
-    return _strokePaint;
+    strokePaint.strokeWidth = segmentProperties.strokeWidth!;
+    strokePaint.style = PaintingStyle.stroke;
+    strokePaint.strokeCap = StrokeCap.square;
+    segmentProperties.defaultStrokeColor = strokePaint;
+    setShader(segmentProperties, strokePaint);
+    return strokePaint;
   }
 
   /// Calculates the rendering bounds of a segment.
@@ -73,13 +74,13 @@ class StepLineSegment extends ChartSegment {
   void calculateSegmentPoints() {
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(this);
-    final ChartAxisRendererDetails _xAxisRendererDetails =
+    final ChartAxisRendererDetails xAxisRendererDetails =
         SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer)
             .xAxisDetails!;
-    final ChartAxisRendererDetails _yAxisRendererDetails =
+    final ChartAxisRendererDetails yAxisRendererDetails =
         SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer)
             .yAxisDetails!;
-    final Rect _axisClipRect = calculatePlotOffset(
+    final Rect axisClipRect = calculatePlotOffset(
         segmentProperties.stateProperties.chartAxis.axisClipRect,
         Offset(
             SeriesHelper.getSeriesRendererDetails(
@@ -95,30 +96,30 @@ class StepLineSegment extends ChartSegment {
     _currentLocation = calculatePoint(
         segmentProperties.currentPoint!.xValue,
         segmentProperties.currentPoint!.yValue,
-        _xAxisRendererDetails,
-        _yAxisRendererDetails,
+        xAxisRendererDetails,
+        yAxisRendererDetails,
         segmentProperties.stateProperties.requireInvertedAxis,
         SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer)
             .series,
-        _axisClipRect);
+        axisClipRect);
     _nextLocation = calculatePoint(
         segmentProperties.nextPoint!.xValue,
         segmentProperties.nextPoint!.yValue,
-        _xAxisRendererDetails,
-        _yAxisRendererDetails,
+        xAxisRendererDetails,
+        yAxisRendererDetails,
         segmentProperties.stateProperties.requireInvertedAxis,
         SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer)
             .series,
-        _axisClipRect);
+        axisClipRect);
     _midLocation = calculatePoint(
         segmentProperties.midX,
         segmentProperties.midY,
-        _xAxisRendererDetails,
-        _yAxisRendererDetails,
+        xAxisRendererDetails,
+        yAxisRendererDetails,
         segmentProperties.stateProperties.requireInvertedAxis,
         SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer)
             .series,
-        _axisClipRect);
+        axisClipRect);
     segmentProperties.x1 = _currentLocation.x;
     segmentProperties.y1 = _currentLocation.y;
     segmentProperties.x2 = _nextLocation.x;
@@ -132,7 +133,7 @@ class StepLineSegment extends ChartSegment {
   void onPaint(Canvas canvas) {
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(this);
-    final Rect _rect = calculatePlotOffset(
+    final Rect rect = calculatePlotOffset(
         segmentProperties.stateProperties.chartAxis.axisClipRect,
         Offset(
             SeriesHelper.getSeriesRendererDetails(
@@ -176,30 +177,29 @@ class StepLineSegment extends ChartSegment {
       _currentSegment = SeriesHelper.getSeriesRendererDetails(
               segmentProperties.seriesRenderer)
           .segments[currentSegmentIndex!] as StepLineSegment;
-      final SegmentProperties _currentSegmentProperties =
+      final SegmentProperties currentSegmentProperties =
           SegmentHelper.getSegmentProperties(_currentSegment);
-      SegmentProperties? _oldSegmentProperties;
+      SegmentProperties? oldSegmentProperties;
       _oldSegment = (SeriesHelper.getSeriesRendererDetails(
-                              _currentSegmentProperties.oldSeriesRenderer!)
+                              currentSegmentProperties.oldSeriesRenderer!)
                           .segments
                           .length -
                       1 >=
                   currentSegmentIndex! ==
               true)
           ? SeriesHelper.getSeriesRendererDetails(
-                  _currentSegmentProperties.oldSeriesRenderer!)
+                  currentSegmentProperties.oldSeriesRenderer!)
               .segments[currentSegmentIndex!] as StepLineSegment?
           : null;
       if (_oldSegment != null) {
-        _oldSegmentProperties =
-            SegmentHelper.getSegmentProperties(_oldSegment!);
+        oldSegmentProperties = SegmentHelper.getSegmentProperties(_oldSegment!);
       }
-      _oldX1 = _oldSegmentProperties?.x1;
-      _oldY1 = _oldSegmentProperties?.y1;
-      _oldX2 = _oldSegmentProperties?.x2;
-      _oldY2 = _oldSegmentProperties?.y2;
-      _oldX3 = _oldSegmentProperties?.x3;
-      _oldY3 = _oldSegmentProperties?.y3;
+      _oldX1 = oldSegmentProperties?.x1;
+      _oldY1 = oldSegmentProperties?.y1;
+      _oldX2 = oldSegmentProperties?.x2;
+      _oldY2 = oldSegmentProperties?.y2;
+      _oldX3 = oldSegmentProperties?.x3;
+      _oldY3 = oldSegmentProperties?.y3;
 
       if (_oldSegment != null &&
           (_oldX1!.isNaN || _oldX2!.isNaN) &&
@@ -217,30 +217,30 @@ class StepLineSegment extends ChartSegment {
                 .yAxisDetails!
                 .axisRenderer,
             segmentProperties.stateProperties.oldAxisRenderers);
-        final ChartAxisRendererDetails _oldXAxisDetails =
+        final ChartAxisRendererDetails oldXAxisDetails =
             AxisHelper.getAxisRendererDetails(_oldXAxisRenderer!);
-        final ChartAxisRendererDetails _oldYAxisDetails =
+        final ChartAxisRendererDetails oldYAxisDetails =
             AxisHelper.getAxisRendererDetails(_oldYAxisRenderer!);
         if (_oldYAxisRenderer != null && _oldXAxisRenderer != null) {
-          _needAnimate = _oldYAxisDetails.visibleRange!.minimum !=
+          _needAnimate = oldYAxisDetails.visibleRange!.minimum !=
                   SeriesHelper.getSeriesRendererDetails(
                           segmentProperties.seriesRenderer)
                       .yAxisDetails!
                       .visibleRange!
                       .minimum ||
-              _oldYAxisDetails.visibleRange!.maximum !=
+              oldYAxisDetails.visibleRange!.maximum !=
                   SeriesHelper.getSeriesRendererDetails(
                           segmentProperties.seriesRenderer)
                       .yAxisDetails!
                       .visibleRange!
                       .maximum ||
-              _oldXAxisDetails.visibleRange!.minimum !=
+              oldXAxisDetails.visibleRange!.minimum !=
                   SeriesHelper.getSeriesRendererDetails(
                           segmentProperties.seriesRenderer)
                       .xAxisDetails!
                       .visibleRange!
                       .minimum ||
-              _oldXAxisDetails.visibleRange!.maximum !=
+              oldXAxisDetails.visibleRange!.maximum !=
                   SeriesHelper.getSeriesRendererDetails(
                           segmentProperties.seriesRenderer)
                       .xAxisDetails!
@@ -248,39 +248,39 @@ class StepLineSegment extends ChartSegment {
                       .maximum;
         }
         if (_needAnimate) {
-          final ChartAxisRendererDetails _oldXAxisDetails =
+          final ChartAxisRendererDetails oldXAxisDetails =
               AxisHelper.getAxisRendererDetails(_oldXAxisRenderer!);
-          final ChartAxisRendererDetails _oldYAxisDetails =
+          final ChartAxisRendererDetails oldYAxisDetails =
               AxisHelper.getAxisRendererDetails(_oldYAxisRenderer!);
           _oldLocation = calculatePoint(
               _x1Pos,
               _y1Pos,
-              _oldXAxisDetails,
-              _oldYAxisDetails,
+              oldXAxisDetails,
+              oldYAxisDetails,
               segmentProperties.stateProperties.requireInvertedAxis,
               segmentProperties.series,
-              _rect);
+              rect);
           _oldX1 = _oldLocation!.x;
           _oldY1 = _oldLocation!.y;
 
           _oldLocation = calculatePoint(
               _x2Pos,
               _y2Pos,
-              _oldXAxisDetails,
-              _oldYAxisDetails,
+              oldXAxisDetails,
+              oldYAxisDetails,
               segmentProperties.stateProperties.requireInvertedAxis,
               segmentProperties.series,
-              _rect);
+              rect);
           _oldX2 = _oldLocation!.x;
           _oldY2 = _oldLocation!.y;
           _oldLocation = calculatePoint(
               segmentProperties.midX,
               segmentProperties.midY,
-              _oldXAxisDetails,
-              _oldYAxisDetails,
+              oldXAxisDetails,
+              oldYAxisDetails,
               segmentProperties.stateProperties.requireInvertedAxis,
               segmentProperties.series,
-              _rect);
+              rect);
           _oldX3 = _oldLocation!.x;
           _oldY3 = _oldLocation!.y;
         }
@@ -290,16 +290,16 @@ class StepLineSegment extends ChartSegment {
         SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer),
         strokePaint!,
         animationFactor,
-        _currentSegmentProperties.x1,
-        _currentSegmentProperties.y1,
-        _currentSegmentProperties.x2,
-        _currentSegmentProperties.y2,
+        currentSegmentProperties.x1,
+        currentSegmentProperties.y1,
+        currentSegmentProperties.x2,
+        currentSegmentProperties.y2,
         _oldX1,
         _oldY1,
         _oldX2,
         _oldY2,
-        _currentSegmentProperties.x3,
-        _currentSegmentProperties.y3,
+        currentSegmentProperties.x3,
+        currentSegmentProperties.y3,
         _oldX3,
         _oldY3,
       );

@@ -227,7 +227,7 @@ class PdfPageLayerCollectionHelper extends PdfObjectCollectionHelper {
               ocDictionary[PdfDictionaryProperties.defaultView]
                   as PdfDictionary?;
           if (defaultView != null) {
-            PdfArray? _on = PdfCrossTable.dereference(
+            PdfArray? on = PdfCrossTable.dereference(
                 defaultView[PdfDictionaryProperties.ocgOn]) as PdfArray?;
             final PdfArray? order = PdfCrossTable.dereference(
                 defaultView[PdfDictionaryProperties.ocgOrder]) as PdfArray?;
@@ -237,9 +237,9 @@ class PdfPageLayerCollectionHelper extends PdfObjectCollectionHelper {
                     defaultView[PdfDictionaryProperties.usageApplication])
                 as PdfArray?;
 
-            if (_on == null) {
-              _on = PdfArray();
-              defaultView[PdfDictionaryProperties.ocgOn] = _on;
+            if (on == null) {
+              on = PdfArray();
+              defaultView[PdfDictionaryProperties.ocgOn] = on;
             }
 
             if (!layer.visible && off == null) {
@@ -253,8 +253,8 @@ class PdfPageLayerCollectionHelper extends PdfObjectCollectionHelper {
               order.insert(order.count, referenceHolder);
             }
 
-            if (layer.visible && !_on.contains(referenceHolder)) {
-              _on.insert(_on.count, referenceHolder);
+            if (layer.visible && !on.contains(referenceHolder)) {
+              on.insert(on.count, referenceHolder);
             }
             if (!layer.visible &&
                 off != null &&
@@ -474,7 +474,7 @@ class PdfPageLayerCollectionHelper extends PdfObjectCollectionHelper {
       final PdfDictionary? defaultView = PdfCrossTable.dereference(
           ocProperties[PdfDictionaryProperties.defaultView]) as PdfDictionary?;
       if (defaultView != null) {
-        final PdfArray? _on = PdfCrossTable.dereference(
+        final PdfArray? on = PdfCrossTable.dereference(
             defaultView[PdfDictionaryProperties.ocgOn]) as PdfArray?;
         final PdfArray? order = PdfCrossTable.dereference(
             defaultView[PdfDictionaryProperties.ocgOrder]) as PdfArray?;
@@ -502,9 +502,9 @@ class PdfPageLayerCollectionHelper extends PdfObjectCollectionHelper {
           _removeContent(
               order, PdfPageLayerHelper.getHelper(layer).referenceHolder);
         }
-        if (layer.visible && _on != null) {
+        if (layer.visible && on != null) {
           _removeContent(
-              _on, PdfPageLayerHelper.getHelper(layer).referenceHolder);
+              on, PdfPageLayerHelper.getHelper(layer).referenceHolder);
         } else if (off != null) {
           _removeContent(
               off, PdfPageLayerHelper.getHelper(layer).referenceHolder);

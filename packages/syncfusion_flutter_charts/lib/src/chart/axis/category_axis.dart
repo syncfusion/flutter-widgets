@@ -341,8 +341,8 @@ class CategoryAxis extends ChartAxis {
 class CategoryAxisRenderer extends ChartAxisRenderer {
   /// Creating an argument constructor of CategoryAxisRenderer class.
   CategoryAxisRenderer(
-      CategoryAxis _categoryAxis, CartesianStateProperties _stateProperties) {
-    _axisDetails = CategoryAxisDetails(_categoryAxis, this, _stateProperties);
+      CategoryAxis categoryAxis, CartesianStateProperties stateProperties) {
+    _axisDetails = CategoryAxisDetails(categoryAxis, this, stateProperties);
     AxisHelper.setAxisRendererDetails(this, _axisDetails);
   }
 
@@ -369,7 +369,8 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
       _axisDetails.updateAutoScrollingDelta(
           _axisDetails._categoryAxis.autoScrollingDelta!, this);
     }
-    if ((!canAutoScroll || _axisDetails.stateProperties.zoomedState == true) &&
+    if ((!canAutoScroll ||
+            (_axisDetails.stateProperties.zoomedState ?? false)) &&
         !(_axisDetails.stateProperties.rangeChangeBySlider &&
             !_axisDetails.stateProperties.canSetRangeController)) {
       _axisDetails.setZoomFactorAndPosition(
@@ -530,8 +531,8 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
 class CategoryAxisDetails extends ChartAxisRendererDetails {
   /// Creates an instance an in
   CategoryAxisDetails(this._categoryAxis, ChartAxisRenderer axisRenderer,
-      CartesianStateProperties _stateProperties)
-      : super(_categoryAxis, _stateProperties, axisRenderer) {
+      CartesianStateProperties stateProperties)
+      : super(_categoryAxis, stateProperties, axisRenderer) {
     labels = <String>[];
   }
 
@@ -601,7 +602,8 @@ class CategoryAxisDetails extends ChartAxisRendererDetails {
   void _calculateActualRange() {
     if (min == null &&
         max == null &&
-        (stateProperties.zoomedState == true || stateProperties.zoomProgress)) {
+        ((stateProperties.zoomedState ?? false) ||
+            stateProperties.zoomProgress)) {
       min ??= 0;
       max ??= 5;
     }

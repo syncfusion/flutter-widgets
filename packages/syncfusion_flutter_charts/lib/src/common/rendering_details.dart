@@ -90,8 +90,14 @@ class RenderingDetails {
   /// Specifies the previous chart size.
   Size? prevSize;
 
+  /// Specifies the previous locale of the context
+  Locale? prevLocale;
+
   /// Specifies whether the current chart size is changed.
   late bool didSizeChange;
+
+  /// Specifies whether the current locale is changed in the context.
+  late bool didLocaleChange;
 
   /// Specifies the list of chart widget.
   List<Widget>? chartWidgets;

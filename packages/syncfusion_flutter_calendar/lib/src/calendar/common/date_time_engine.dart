@@ -13,15 +13,17 @@ class DateTimeHelper {
         return DateTime.daysPerWeek * numberOfWeeks;
       case CalendarView.week:
       case CalendarView.timelineWeek:
-        return daysCount == -1 ? DateTime.daysPerWeek : daysCount;
+        return (daysCount >= 1 && daysCount <= 7)
+            ? daysCount
+            : DateTime.daysPerWeek;
       case CalendarView.workWeek:
       case CalendarView.timelineWorkWeek:
-        return daysCount == -1
-            ? DateTime.daysPerWeek - nonWorkingDays!.length
-            : daysCount;
+        return (daysCount >= 1 && daysCount <= 7)
+            ? daysCount
+            : DateTime.daysPerWeek - nonWorkingDays!.length;
       case CalendarView.timelineDay:
       case CalendarView.day:
-        return daysCount == -1 ? 1 : daysCount;
+        return (daysCount >= 1 && daysCount <= 7) ? daysCount : 1;
       case CalendarView.schedule:
         return 1;
       case CalendarView.timelineMonth:

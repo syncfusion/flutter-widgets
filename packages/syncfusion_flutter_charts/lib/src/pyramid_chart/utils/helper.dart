@@ -39,20 +39,20 @@ bool isPointInPolygon(List<Offset> polygon, Offset point) {
 }
 
 /// To add chart templates.
-void findTemplates(dynamic _stateProperties) {
+void findTemplates(dynamic stateProperties) {
   Offset labelLocation;
   const num lineLength = 10;
   PointInfo<dynamic> point;
   Widget labelWidget;
-  _stateProperties.renderingDetails.dataLabelTemplateRegions = <Rect>[];
-  _stateProperties.renderingDetails.templates = <ChartTemplateInfo>[];
+  stateProperties.renderingDetails.dataLabelTemplateRegions = <Rect>[];
+  stateProperties.renderingDetails.templates = <ChartTemplateInfo>[];
   dynamic series;
   dynamic seriesRenderer;
   ChartAlignment labelAlign;
   for (int k = 0;
-      k < _stateProperties.chartSeries.visibleSeriesRenderers.length;
+      k < stateProperties.chartSeries.visibleSeriesRenderers.length;
       k++) {
-    seriesRenderer = _stateProperties.chartSeries.visibleSeriesRenderers[k];
+    seriesRenderer = stateProperties.chartSeries.visibleSeriesRenderers[k];
     series = seriesRenderer.series;
     if (series.dataLabelSettings.isVisible == true &&
         series.dataLabelSettings.builder != null) {
@@ -76,13 +76,12 @@ void findTemplates(dynamic _stateProperties) {
                 ? ChartAlignment.far
                 : ChartAlignment.near;
           }
-          _stateProperties.renderingDetails.templates.add(ChartTemplateInfo(
+          stateProperties.renderingDetails.templates.add(ChartTemplateInfo(
               key: GlobalKey(),
               templateType: 'DataLabel',
               pointIndex: i,
               seriesIndex: k,
-              needMeasure: true,
-              clipRect: _stateProperties.renderingDetails.chartAreaRect,
+              clipRect: stateProperties.renderingDetails.chartAreaRect,
               animationDuration: 500,
               widget: labelWidget,
               horizontalAlignment: labelAlign,
@@ -118,7 +117,7 @@ void renderTemplates(StateProperties stateProperties) {
 
 /// To get pyramid series data label saturation color.
 Color getPyramidFunnelColor(PointInfo<dynamic> currentPoint,
-    dynamic seriesRenderer, dynamic _stateProperties) {
+    dynamic seriesRenderer, dynamic stateProperties) {
   Color color;
   final dynamic series = seriesRenderer.series;
   final DataLabelSettings dataLabel = series.dataLabelSettings;
@@ -128,16 +127,16 @@ Color getPyramidFunnelColor(PointInfo<dynamic> currentPoint,
           currentPoint.renderPosition == ChartDataLabelPosition.inside &&
               !currentPoint.saturationRegionOutside)
       ? innerColor(dataLabelSettingsRenderer.color, currentPoint.fill,
-          _stateProperties.renderingDetails.chartTheme)
+          stateProperties.renderingDetails.chartTheme)
       : outerColor(
           dataLabelSettingsRenderer.color,
           dataLabel.useSeriesColor
               ? currentPoint.fill
-              : (_stateProperties.chart.backgroundColor != null
-                  ? _stateProperties
+              : (stateProperties.chart.backgroundColor != null
+                  ? stateProperties
                       .renderingDetails.chartTheme.plotAreaBackgroundColor
                   : null),
-          _stateProperties.renderingDetails.chartTheme);
+          stateProperties.renderingDetails.chartTheme);
 
   return getSaturationColor(color);
 }
@@ -244,6 +243,7 @@ Rect? getDataLabelRect(Position position, ConnectorType connectorType,
           textSize.width + margin.left + margin.right,
           textSize.height + margin.top + margin.bottom);
       break;
+    // ignore: no_default_cases
     default:
       rect = null;
       break;
@@ -406,6 +406,7 @@ void _setPyramidInsideLabelPosition(
       case OverflowMode.hide:
         label = '';
         break;
+      // ignore: no_default_cases
       default:
         break;
     }

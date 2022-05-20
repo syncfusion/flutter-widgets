@@ -1,6 +1,6 @@
 name: syncfusion_flutter_barcodes
 description: Flutter Barcodes generator library is used to generate and display data in the machine-readable, industry-standard 1D and 2D barcodes.
-version: 20.1.47
+version: 18.3.35
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_barcodes
 
 environment:
@@ -10,7 +10,15 @@ dependencies:
   flutter:
     sdk: flutter
   syncfusion_flutter_core:
-    path: ../syncfusion_flutter_core
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-core
+      path: syncfusion_flutter_core
+      branch: hotfix/20.1.0.47_Vol1
+      ref: hotfix/20.1.0.47_Vol1 
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
 
 flutter:
 

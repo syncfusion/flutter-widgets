@@ -197,7 +197,7 @@ class _ExcelTableImpl implements ExcelTable {
   @override
   set showHeaderRow(bool value) {
     if (_showHeaderRow != value) {
-      if (!_worksheet.workbook._saving && dataRange != null) {
+      if (!_worksheet.workbook._saving) {
         if (value == false) {
           _worksheet
               .getRangeByIndex(dataRange.row, dataRange.column, dataRange.row,
@@ -330,10 +330,6 @@ class _ExcelTableImpl implements ExcelTable {
   }
 
   void _checkValidName(String name) {
-    if (name == null) {
-      throw Exception('name');
-    }
-
     if (name.isEmpty) {
       throw Exception('name');
     }

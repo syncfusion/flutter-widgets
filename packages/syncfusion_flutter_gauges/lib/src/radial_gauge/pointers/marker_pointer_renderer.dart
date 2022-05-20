@@ -604,7 +604,7 @@ class RenderMarkerPointer extends RenderBox {
   // ignore: avoid_void_async
   void _loadImage() async {
     await _renderImage().then((void value) {
-      WidgetsBinding.instance!
+      WidgetsBinding.instance
           .addPostFrameCallback((Duration duration) => markNeedsPaint());
     });
   }

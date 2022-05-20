@@ -165,26 +165,26 @@ Size measureText(String textValue, TextStyle textStyle, [int? angle]) {
 /// This method returns the rect for given size and angle
 Rect rotatedTextSize(Size size, int angle) {
   final Rect rect = Rect.fromLTWH(0, 0, size.width, size.height);
-  final vector.Matrix2 _rotatorMatrix =
+  final vector.Matrix2 rotatorMatrix =
       vector.Matrix2.rotation(degreeToRadian(angle));
 
   final Rect movedToCenterAsOrigin = rect.shift(-rect.center);
 
-  Offset _topLeft = movedToCenterAsOrigin.topLeft;
-  Offset _topRight = movedToCenterAsOrigin.topRight;
-  Offset _bottomLeft = movedToCenterAsOrigin.bottomLeft;
-  Offset _bottomRight = movedToCenterAsOrigin.bottomRight;
+  Offset topLeft = movedToCenterAsOrigin.topLeft;
+  Offset topRight = movedToCenterAsOrigin.topRight;
+  Offset bottomLeft = movedToCenterAsOrigin.bottomLeft;
+  Offset bottomRight = movedToCenterAsOrigin.bottomRight;
 
-  _topLeft = transform(_rotatorMatrix, _topLeft);
-  _topRight = transform(_rotatorMatrix, _topRight);
-  _bottomLeft = transform(_rotatorMatrix, _bottomLeft);
-  _bottomRight = transform(_rotatorMatrix, _bottomRight);
+  topLeft = transform(rotatorMatrix, topLeft);
+  topRight = transform(rotatorMatrix, topRight);
+  bottomLeft = transform(rotatorMatrix, bottomLeft);
+  bottomRight = transform(rotatorMatrix, bottomRight);
 
   final List<Offset> rotOffsets = <Offset>[
-    _topLeft,
-    _topRight,
-    _bottomLeft,
-    _bottomRight
+    topLeft,
+    topRight,
+    bottomLeft,
+    bottomRight
   ];
 
   final double minX =

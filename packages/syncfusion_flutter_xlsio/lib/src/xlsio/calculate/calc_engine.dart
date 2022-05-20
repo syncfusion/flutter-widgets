@@ -136,7 +136,7 @@ class CalcEngine {
   bool _multiTick = false;
   bool _isInteriorFunction = false;
 
-  final DateTime _dateTime1900 = DateTime(1900, 1, 1, 0, 0, 0);
+  final DateTime _dateTime1900 = DateTime(1900);
   late double _dateTime1900Double;
 
   /// This field holds equivalent double value of 1904(DateTime).
@@ -569,10 +569,10 @@ class CalcEngine {
         throw Exception(_formulaErrorStrings[_tooComplex]);
       }
 
-      final Stack _stack = Stack();
+      final Stack stack = Stack();
 
       int i = 0;
-      _stack._clear();
+      stack._clear();
       String sheet = '';
       // String book = '';
 
@@ -600,10 +600,10 @@ class CalcEngine {
         }
 
         if (formula.substring(i).startsWith(_trueValueStr)) {
-          _stack._push(_trueValueStr);
+          stack._push(_trueValueStr);
           i += _trueValueStr.length;
         } else if (formula.substring(i).startsWith(_falseValueStr)) {
-          _stack._push(_falseValueStr);
+          stack._push(_falseValueStr);
           i += _falseValueStr.length;
         } else if (formula[i] == _tic[0] || formula[i] == '|') {
           String s = formula[i];
@@ -616,7 +616,7 @@ class CalcEngine {
           if (_multiTick) {
             s = s.replaceAll('|', _tic);
           }
-          _stack._push(s + _tic);
+          stack._push(s + _tic);
           i += 1;
         } else if (_isUpper(formula[i])) {
           ////cell loc
@@ -629,7 +629,7 @@ class CalcEngine {
           if (_errorStrings.contains(s)) {
             return s;
           }
-          _stack._push(_getValueFromParentObject(s, true));
+          stack._push(_getValueFromParentObject(s, true));
         } else if (formula[i] == 'q') {
           formula = _computeInteriorFunctions(formula);
           final int ii = formula.substring(i + 1).indexOf(_leftBracket);
@@ -679,7 +679,7 @@ class CalcEngine {
                 }
                 _findNamedRange = false;
                 final String result = _func(function, args);
-                _stack._push(result);
+                stack._push(result);
               } catch (e) {
                 _exceptionThrown = true;
                 if (_errorStrings.contains(e.toString())) {
@@ -695,7 +695,7 @@ class CalcEngine {
           } else if (formula[0] == _bMarker) {
             ////Restart the processing with the formula without library finctions.
             i = 0;
-            _stack._clear();
+            stack._clear();
             continue;
           } else {
             return _formulaErrorStrings[_improperFormula];
@@ -720,17 +720,17 @@ class CalcEngine {
             }
           }
 
-          _stack._push(s);
+          stack._push(s);
         } else if (formula[i] == parseDateTimeSeparator) {
           String s = '';
           while (i < formula.length && formula[i] == parseDateTimeSeparator) {
             s = s + formula[i];
             i = i + 1;
           }
-          while (_stack._count > 0) {
-            s = _stack._pop().toString() + s;
+          while (stack._count > 0) {
+            s = stack._pop().toString() + s;
           }
-          _stack._push(s);
+          stack._push(s);
         } else if (formula[i] == parseArgumentSeparator) {
           i++;
           continue;
@@ -757,10 +757,10 @@ class CalcEngine {
                   } else {
                     errIndex = formula.substring(i).indexOf('!') + 1 + i;
                   }
-                  _stack._push(formula.substring(i, i + errIndex - i));
+                  stack._push(formula.substring(i, i + errIndex - i));
                 } else {
                   errIndex = i + 1;
-                  _stack._push(formula.substring(i, i + errIndex - i));
+                  stack._push(formula.substring(i, i + errIndex - i));
                 }
                 i = errIndex;
                 break;
@@ -802,18 +802,18 @@ class CalcEngine {
                     i = i + 1;
                   }
                 }
-                _stack._push(s);
+                stack._push(s);
               }
 
               break;
             case _tokenAdd:
               {
-                final double d = _pop(_stack);
-                final double d1 = _pop(_stack);
+                final double d = _pop(stack);
+                final double d1 = _pop(stack);
                 if (d == (double.nan) || d1 == (double.nan)) {
-                  _stack._push('#VALUE!');
+                  stack._push('#VALUE!');
                 } else {
-                  _stack._push((d1 + d).toString());
+                  stack._push((d1 + d).toString());
                 }
                 i = i + 1;
               }
@@ -821,12 +821,12 @@ class CalcEngine {
               break;
             case _tokenSubtract:
               {
-                final double d = _pop(_stack);
-                final double d1 = _pop(_stack);
+                final double d = _pop(stack);
+                final double d1 = _pop(stack);
                 if (d == (double.nan) || d1 == (double.nan)) {
-                  _stack._push('#VALUE!');
+                  stack._push('#VALUE!');
                 } else {
-                  _stack._push((d1 - d).toString());
+                  stack._push((d1 - d).toString());
                 }
                 i = i + 1;
               }
@@ -834,12 +834,12 @@ class CalcEngine {
               break;
             case _tokenMultiply:
               {
-                final double d = _pop(_stack);
-                final double d1 = _pop(_stack);
+                final double d = _pop(stack);
+                final double d1 = _pop(stack);
                 if (d == (double.nan) || d1 == (double.nan)) {
-                  _stack._push('#VALUE!');
+                  stack._push('#VALUE!');
                 } else {
-                  _stack._push((d1 * d).toString());
+                  stack._push((d1 * d).toString());
                 }
                 i = i + 1;
               }
@@ -847,14 +847,14 @@ class CalcEngine {
               break;
             case _tokenDivide:
               {
-                final double d = _pop(_stack);
-                final double d1 = _pop(_stack);
+                final double d = _pop(stack);
+                final double d1 = _pop(stack);
                 if (d == double.nan || d1 == double.nan) {
-                  _stack._push('#VALUE!');
+                  stack._push('#VALUE!');
                 } else if (d == 0) {
-                  _stack._push(_errorStrings[3]);
+                  stack._push(_errorStrings[3]);
                 } else {
-                  _stack._push((d1 / d).toString());
+                  stack._push((d1 / d).toString());
                 }
                 i = i + 1;
               }
@@ -862,8 +862,8 @@ class CalcEngine {
               break;
             case _tokenLess:
               {
-                final String s1 = _popString(_stack);
-                final String s2 = _popString(_stack);
+                final String s1 = _popString(stack);
+                final String s2 = _popString(stack);
 
                 double? d, d1;
                 String val = '';
@@ -894,15 +894,15 @@ class CalcEngine {
                   }
                 }
 
-                _stack._push(val);
+                stack._push(val);
                 i = i + 1;
               }
 
               break;
             case _tokenGreater:
               {
-                final String s1 = _popString(_stack);
-                final String s2 = _popString(_stack);
+                final String s1 = _popString(stack);
+                final String s2 = _popString(stack);
 
                 double? d, d1;
                 String val = '';
@@ -934,15 +934,15 @@ class CalcEngine {
                   }
                 }
 
-                _stack._push(val);
+                stack._push(val);
                 i = i + 1;
               }
 
               break;
             case _tokenEqual:
               {
-                final String s1 = _popString(_stack);
-                final String s2 = _popString(_stack);
+                final String s1 = _popString(stack);
+                final String s2 = _popString(stack);
 
                 String val = '';
                 double? d, d1;
@@ -966,15 +966,15 @@ class CalcEngine {
                       : _falseValueStr;
                 }
 
-                _stack._push(val);
+                stack._push(val);
                 i = i + 1;
               }
 
               break;
             case _tokenLesseq:
               {
-                final String s1 = _popString(_stack);
-                final String s2 = _popString(_stack);
+                final String s1 = _popString(stack);
+                final String s2 = _popString(stack);
 
                 double? d, d1;
                 String val = '';
@@ -1005,15 +1005,15 @@ class CalcEngine {
                         : _falseValueStr;
                   }
                 }
-                _stack._push(val);
+                stack._push(val);
                 i = i + 1;
               }
 
               break;
             case _tokenGreaterEq:
               {
-                final String s1 = _popString(_stack);
-                final String s2 = _popString(_stack);
+                final String s1 = _popString(stack);
+                final String s2 = _popString(stack);
 
                 double? d, d1;
                 String val = '';
@@ -1045,15 +1045,15 @@ class CalcEngine {
                   }
                 }
 
-                _stack._push(val);
+                stack._push(val);
                 i = i + 1;
               }
 
               break;
             case _tokenNoEqual:
               {
-                final String s1 = _popString(_stack);
-                final String s2 = _popString(_stack);
+                final String s1 = _popString(stack);
+                final String s2 = _popString(stack);
 
                 double? d, d1;
                 String val;
@@ -1084,22 +1084,22 @@ class CalcEngine {
                   }
                 }
 
-                _stack._push(val);
+                stack._push(val);
                 i = i + 1;
               }
 
               break;
             case _tokenAnd: ////and Strings....
               {
-                String s1 = _popString(_stack);
+                String s1 = _popString(stack);
                 if (s1.isNotEmpty && s1[0] == _tic[0]) {
                   if (s1.length > 1 && s1[s1.length - 1] == _tic[0]) {
                     s1 = s1.substring(1, 1 + s1.length - 2);
                   }
                 }
                 String s2 = '';
-                if (_stack._count > 0) {
-                  s2 = _popString(_stack);
+                if (stack._count > 0) {
+                  s2 = _popString(stack);
                 }
                 if (s2.isNotEmpty && s2[0] == _tic[0]) {
                   if (s2.length > 1 && s2[s2.length - 1] == _tic[0]) {
@@ -1113,14 +1113,14 @@ class CalcEngine {
                     s1[0] == '#' &&
                     // ignore: prefer_contains
                     _errorStrings.indexOf(s1) > -1) {
-                  _stack._push(s1);
+                  stack._push(s1);
                 } else if (s2.isNotEmpty &&
                     s2[0] == '#' &&
                     // ignore: prefer_contains
                     _errorStrings.indexOf(s2) > -1) {
-                  _stack._push(s2);
+                  stack._push(s2);
                 } else {
-                  _stack._push(_tic + s2 + s1 + _tic);
+                  stack._push(_tic + s2 + s1 + _tic);
                 }
 
                 i = i + 1;
@@ -1129,19 +1129,19 @@ class CalcEngine {
               break;
             case _tokenOr: // exponential
               {
-                final double d = _pop(_stack);
+                final double d = _pop(stack);
                 int? x = int.tryParse(d.toString());
                 if (x != null && _isErrorString) {
                   _isErrorString = false;
                   return _errorStrings[x];
                 }
-                final double d1 = _pop(_stack);
+                final double d1 = _pop(stack);
                 x = int.tryParse(d.toString());
                 if (x != null && _isErrorString) {
                   _isErrorString = false;
                   return _errorStrings[x];
                 }
-                _stack._push(pow(d1, d).toString());
+                stack._push(pow(d1, d).toString());
                 i = i + 1;
               }
 
@@ -1155,16 +1155,16 @@ class CalcEngine {
         }
       }
 
-      if (_stack._count == 0) {
+      if (stack._count == 0) {
         return '';
       } else {
         String s = '';
         double? d;
-        int cc = _stack._count;
+        int cc = stack._count;
         do {
           {
             //Checks if the stack element is a error String. If yes, then stops popping other stack element and returns the error String.
-            final String p = _stack._pop().toString();
+            final String p = stack._pop().toString();
             if (_errorStrings.contains(p)) {
               s = p;
               break;
@@ -2581,7 +2581,7 @@ class CalcEngine {
     String tempText = text;
     while (tempText.contains(r'$')) {
       final int d = tempText.indexOf(r'$');
-      final List<String> _markers = <String>[
+      final List<String> markers = <String>[
         ')',
         parseArgumentSeparator,
         '}',
@@ -2598,9 +2598,8 @@ class CalcEngine {
       ];
       if ((tempText.length == 1 && d == 0) ||
           tempText.length - 1 == d &&
-              (d > 0 && _indexOfAny(tempText[d - 1], _markers) > -1) ||
-          (d < tempText.length &&
-              _indexOfAny(tempText[d + 1], _markers) > -1)) {
+              (d > 0 && _indexOfAny(tempText[d - 1], markers) > -1) ||
+          (d < tempText.length && _indexOfAny(tempText[d + 1], markers) > -1)) {
         return _errorStrings[5];
       } else {
         tempText = tempText.replaceRange(d, d + 1, '');
@@ -2676,7 +2675,7 @@ class CalcEngine {
     return text;
   }
 
-  List<dynamic> _parseSimpleFromMarkers(String text, List<String> _markers,
+  List<dynamic> _parseSimpleFromMarkers(String text, List<String> markers,
       List<String> operators, bool needToContinue) {
     int i;
     String op = '';
@@ -3104,7 +3103,7 @@ class CalcEngine {
           }
 
           final int p = op.indexOf(text[i]);
-          String s = _bMarker + left + right + _markers[p] + _bMarker;
+          String s = _bMarker + left + right + markers[p] + _bMarker;
           if (leftIndex > 0) {
             s = text.substring(0, leftIndex) + s;
           }
@@ -3232,10 +3231,10 @@ class CalcEngine {
       return false;
     }
     args = _putTokensForSheets(args);
-    final String _sheetTokenStr = _getSheetToken(args);
+    final String sheetTokenStr = _getSheetToken(args);
     bool containsBoth = false;
-    if (!_textIsEmpty(_sheetTokenStr)) {
-      args = args.replaceAll(_sheetTokenStr, '');
+    if (!_textIsEmpty(sheetTokenStr)) {
+      args = args.replaceAll(sheetTokenStr, '');
     }
 
     bool isAlpha = false, isNum = false;
@@ -3599,8 +3598,7 @@ class CalcEngine {
     }
 
     final int numCells = (row2 - row1 + 1) * (col2 - col1 + 1);
-    final List<String?> cells =
-        List<String?>.filled(numCells, null, growable: false);
+    final List<String?> cells = List<String?>.filled(numCells, null);
     int k = 0;
     for (i = row1; i <= row2; ++i) {
       for (j = col1; j <= col2; ++j) {
@@ -3792,8 +3790,8 @@ class CalcEngine {
     return text;
   }
 
-  String _popString(Stack _stack) {
-    final Object? o = _stack._pop();
+  String _popString(Stack stack) {
+    final Object? o = stack._pop();
     final double? d = double.tryParse(o.toString());
     if (!_getValueFromArgPreserveLeadingZeros && d != null) {
       return d.toString();
@@ -3806,8 +3804,8 @@ class CalcEngine {
     }
   }
 
-  double _pop(Stack _stack) {
-    final dynamic o = _stack._pop();
+  double _pop(Stack stack) {
+    final dynamic o = stack._pop();
     String s = '';
     if (o.toString() == _tic + _tic) {
       return double.nan;
@@ -4243,7 +4241,7 @@ class CalcEngine {
       }
 
       isValidMonth = true;
-      final DateTime date = DateTime(y, m, 1);
+      final DateTime date = DateTime(y, m);
       int x = DateTime(date.year, date.month + 1, date.day - 1).day;
       // to check day with month in the string (for e.g day value as 32303)
       while (d > x) {
@@ -4253,20 +4251,20 @@ class CalcEngine {
           m -= 12;
           y++;
         }
-        final DateTime date = DateTime(y, m, 1);
+        final DateTime date = DateTime(y, m);
         x = DateTime(date.year, date.month + 1, date.day - 1).day;
         isValidMonth = false;
       }
       while (d < 1) {
         m--;
-        final DateTime date = DateTime(y, m + 1, 1);
+        final DateTime date = DateTime(y, m + 1);
         x = (DateTime(date.year, date.month, date.day)
                 .add(const Duration(hours: -1)))
             .day;
         d = x + d;
       }
     }
-    days = 1 + (DateTime(y, m, d, 0, 0, 0).difference(_dateTime1900)).inDays;
+    days = 1 + (DateTime(y, m, d).difference(_dateTime1900)).inDays;
     if (_treat1900AsLeapYear && days > 59) {
       days += 1;
     }
@@ -5540,7 +5538,7 @@ class CalcEngine {
           errorString = _errorStrings[1];
         } else if (vector == null) {
           count = (row2 - row1 + 1) * (col2 - col1 + 1);
-          vector = List<double>.filled(count, 0, growable: false);
+          vector = List<double>.filled(count, 0);
           for (i = 0; i < count; ++i) {
             vector[i] = 1;
           }
@@ -5637,7 +5635,7 @@ class CalcEngine {
       tempRangs = strArray.split(';');
       final int listLength = tempRangs.length *
           _splitArgsPreservingQuotedCommas(tempRangs[0]).length;
-      temArray = List<String>.filled(listLength, '', growable: false);
+      temArray = List<String>.filled(listLength, '');
     }
     //Below condition has been added to calculate the Sumproduct Value when parseArgument seperator is not comma(',') with Spain Culture.
     else if (strArray.contains(',')) {
@@ -5645,11 +5643,10 @@ class CalcEngine {
       temArray = List<String>.filled(
           tempRangs.length *
               _splitArgsPreservingQuotedCommas(tempRangs[0]).length,
-          '',
-          growable: false);
+          '');
     } else {
       tempRangs = _splitArgsPreservingQuotedCommas(strArray);
-      temArray = List<String>.filled(tempRangs.length, '', growable: false);
+      temArray = List<String>.filled(tempRangs.length, '');
     }
 
     for (int i = 0; i < tempRangs.length; ++i) {
@@ -5673,7 +5670,7 @@ class CalcEngine {
       errorString = _errorStrings[1];
     } else if (vector == null) {
       count = tempRangs.length;
-      vector = List<double>.filled(count, 0, growable: false);
+      vector = List<double>.filled(count, 0);
       for (int k = 0; k < count; ++k) {
         vector[k] = 1;
       }

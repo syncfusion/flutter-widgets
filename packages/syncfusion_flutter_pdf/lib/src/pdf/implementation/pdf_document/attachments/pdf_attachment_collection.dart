@@ -197,14 +197,14 @@ class PdfAttachmentCollectionHelper extends PdfObjectCollectionHelper {
   }
 
   //Internal method to get attachement information.
-  void _attachmentInformation(PdfArray _array) {
-    if (_array.count != 0) {
+  void _attachmentInformation(PdfArray array) {
+    if (array.count != 0) {
       int k = 1;
-      for (int i = 0; i < (_array.count ~/ 2); i++) {
-        if (_array[k] is PdfReferenceHolder || _array[k] is PdfDictionary) {
-          IPdfPrimitive? streamDictionary = _array[k];
-          if (_array[k] is PdfReferenceHolder) {
-            streamDictionary = (_array[k]! as PdfReferenceHolder).object;
+      for (int i = 0; i < (array.count ~/ 2); i++) {
+        if (array[k] is PdfReferenceHolder || array[k] is PdfDictionary) {
+          IPdfPrimitive? streamDictionary = array[k];
+          if (array[k] is PdfReferenceHolder) {
+            streamDictionary = (array[k]! as PdfReferenceHolder).object;
           }
           if (streamDictionary is PdfDictionary) {
             PdfStream? stream = PdfStream();
@@ -388,12 +388,12 @@ class PdfAttachmentCollectionHelper extends PdfObjectCollectionHelper {
 
   //Removing attachment dictionary and stream from main object collection.
   void _removeAttachementObjects(PdfDictionary attachmentDictionary) {
-    PdfMainObjectCollection? _objectCollection;
+    PdfMainObjectCollection? objectCollection;
     if (crossTable != null && crossTable!.document != null) {
-      _objectCollection =
+      objectCollection =
           PdfDocumentHelper.getHelper(crossTable!.document!).objects;
     }
-    if (_objectCollection != null) {
+    if (objectCollection != null) {
       if (attachmentDictionary.containsKey(PdfDictionaryProperties.ef)) {
         final IPdfPrimitive? embedded = PdfCrossTable.dereference(
             attachmentDictionary[PdfDictionaryProperties.ef]);
@@ -402,20 +402,20 @@ class PdfAttachmentCollectionHelper extends PdfObjectCollectionHelper {
             final IPdfPrimitive? stream =
                 PdfCrossTable.dereference(embedded[PdfDictionaryProperties.f]);
             if (stream != null) {
-              if (_objectCollection.contains(stream)) {
-                final int index = _objectCollection.lookFor(stream)!;
-                if (_objectCollection.objectCollection!.length > index) {
-                  _objectCollection.objectCollection!.removeAt(index);
+              if (objectCollection.contains(stream)) {
+                final int index = objectCollection.lookFor(stream)!;
+                if (objectCollection.objectCollection!.length > index) {
+                  objectCollection.objectCollection!.removeAt(index);
                 }
               }
             }
           }
         }
       }
-      if (_objectCollection.contains(attachmentDictionary)) {
-        final int index = _objectCollection.lookFor(attachmentDictionary)!;
-        if (_objectCollection.objectCollection!.length > index) {
-          _objectCollection.objectCollection!.removeAt(index);
+      if (objectCollection.contains(attachmentDictionary)) {
+        final int index = objectCollection.lookFor(attachmentDictionary)!;
+        if (objectCollection.objectCollection!.length > index) {
+          objectCollection.objectCollection!.removeAt(index);
         }
       }
       if (_dic.isNotEmpty) {

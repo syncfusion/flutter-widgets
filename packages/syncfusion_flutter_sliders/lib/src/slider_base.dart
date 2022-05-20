@@ -799,8 +799,7 @@ class RenderBaseSlider extends RenderProxyBox
     switch (intervalType!) {
       case DateIntervalType.months:
         // Make the label start date will always be 1 other than first label.
-        return DateTime(
-            currentDate.year, currentDate.month + interval.ceil(), 1);
+        return DateTime(currentDate.year, currentDate.month + interval.ceil());
       case DateIntervalType.days:
         currentDate = currentDate.add(Duration(days: interval.ceil()));
         return DateTime(currentDate.year, currentDate.month, currentDate.day);
@@ -813,7 +812,7 @@ class RenderBaseSlider extends RenderProxyBox
       case DateIntervalType.seconds:
         return currentDate.add(Duration(seconds: interval.ceil()));
       case DateIntervalType.years:
-        return DateTime(currentDate.year + interval.ceil(), 1, 1);
+        return DateTime(currentDate.year + interval.ceil());
     }
   }
 
@@ -1280,6 +1279,7 @@ class RenderBaseSlider extends RenderProxyBox
       double tickPosition,
       double dy,
       double halfTrackHeight,
+      // ignore: no_leading_underscores_for_local_identifiers
       int _dateTimePos,
       double dividerRadius,
       Rect trackRect,
@@ -1340,6 +1340,7 @@ class RenderBaseSlider extends RenderProxyBox
   }
 
   void _drawLabel(
+      // ignore: no_leading_underscores_for_local_identifiers
       int _dateTimePos,
       double dx,
       double tickPosition,
@@ -1503,7 +1504,7 @@ class RenderBaseSlider extends RenderProxyBox
         text: TextSpan(text: text, style: TextStyle(fontSize: fontSize)),
         maxLines: 1,
         textDirection: TextDirection.ltr)
-      ..layout(minWidth: 0, maxWidth: double.infinity);
+      ..layout();
     return textPainter.size;
   }
 

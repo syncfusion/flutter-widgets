@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/common.dart';
+import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';

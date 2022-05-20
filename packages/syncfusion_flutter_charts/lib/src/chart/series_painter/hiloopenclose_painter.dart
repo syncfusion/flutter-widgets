@@ -87,17 +87,17 @@ class HiloOpenCloseSeriesRenderer extends XyDataSeriesRenderer {
 
   /// To render hilo open close series segments.
   //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment _segment) {
+  void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
       final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           _segmentSeriesDetails.selectionBehaviorRenderer;
       SelectionHelper.getRenderingDetails(selectionBehaviorRenderer!)
           .selectionRenderer
           ?.checkWithSelectionState(
-              _currentSeriesDetails.segments[_segment.currentSegmentIndex!],
+              _currentSeriesDetails.segments[segment.currentSegmentIndex!],
               _currentSeriesDetails.chart);
     }
-    _segment.onPaint(canvas);
+    segment.onPaint(canvas);
   }
 
   @override
@@ -105,14 +105,14 @@ class HiloOpenCloseSeriesRenderer extends XyDataSeriesRenderer {
 
   /// Changes the series color, border color, and border width.
   @override
-  void customizeSegment(ChartSegment _segment) {
+  void customizeSegment(ChartSegment segment) {
     _currentSeriesDetails.hiloOpenCloseSeries =
         _currentSeriesDetails.series as HiloOpenCloseSeries<dynamic, dynamic>;
     final SegmentProperties segmentProperties =
-        SegmentHelper.getSegmentProperties(_segment);
+        SegmentHelper.getSegmentProperties(segment);
     segmentProperties.color = _segmentSeriesDetails.seriesColor;
     segmentProperties.strokeColor =
-        _segment is HiloOpenCloseSegment && segmentProperties.isBull == true
+        segment is HiloOpenCloseSegment && segmentProperties.isBull == true
             ? _currentSeriesDetails.hiloOpenCloseSeries.bullColor
             : _currentSeriesDetails.hiloOpenCloseSeries.bearColor;
     segmentProperties.strokeWidth = segmentProperties.series.borderWidth;
@@ -211,16 +211,18 @@ class HiloOpenClosePainter extends CustomPainter {
       }
 
       seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
-      final bool hasTooltip = chart.tooltipBehavior != null &&
+      // ignore: unnecessary_null_comparison
+      final bool isTooltipEnabled = chart.tooltipBehavior != null;
+      final bool hasTooltip = isTooltipEnabled &&
           (chart.tooltipBehavior.enable ||
               seriesRendererDetails.series.onPointTap != null ||
               seriesRendererDetails.series.onPointDoubleTap != null ||
               seriesRendererDetails.series.onPointLongPress != null);
       final bool hasSeriesElements = seriesRendererDetails.visible! &&
           (series.dataLabelSettings.isVisible ||
-              (chart.tooltipBehavior != null &&
+              (isTooltipEnabled &&
                   chart.tooltipBehavior.enable &&
-                  (chart.tooltipBehavior != null &&
+                  (isTooltipEnabled &&
                       chart.tooltipBehavior.enable &&
                       series.enableTooltip)));
       seriesRendererDetails.sideBySideInfo = calculateSideBySideInfo(
@@ -235,6 +237,7 @@ class HiloOpenClosePainter extends CustomPainter {
         final bool withInXRange = withInRange(
             point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
         bool withInHighLowRange = false, withInOpenCloseRange = false;
+        // ignore: unnecessary_null_comparison
         if (point != null &&
             point.high != null &&
             point.low != null &&

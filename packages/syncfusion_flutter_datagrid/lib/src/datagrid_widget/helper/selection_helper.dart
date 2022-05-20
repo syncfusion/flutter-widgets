@@ -353,9 +353,9 @@ double getVerticalCumulativeDistance(
   double verticalOffset = 0.0;
   final int headerRowIndex = grid_helper.getHeaderIndex(dataGridConfiguration);
   rowIndex = rowIndex > headerRowIndex ? rowIndex : headerRowIndex + 1;
-  final PixelScrollAxis _scrollRows =
+  final PixelScrollAxis scrollRows =
       dataGridConfiguration.container.scrollRows as PixelScrollAxis;
-  verticalOffset = _scrollRows.distances!.getCumulatedDistanceAt(rowIndex);
+  verticalOffset = scrollRows.distances!.getCumulatedDistanceAt(rowIndex);
   return verticalOffset;
 }
 
@@ -368,10 +368,10 @@ double getHorizontalCumulativeDistance(
   columnIndex = columnIndex < firstVisibleColumnIndex
       ? firstVisibleColumnIndex
       : columnIndex;
-  final PixelScrollAxis _scrollColumns =
+  final PixelScrollAxis scrollColumns =
       dataGridConfiguration.container.scrollColumns as PixelScrollAxis;
   horizontalOffset =
-      _scrollColumns.distances!.getCumulatedDistanceAt(columnIndex);
+      scrollColumns.distances!.getCumulatedDistanceAt(columnIndex);
   return horizontalOffset;
 }
 
@@ -493,7 +493,7 @@ void scrollInViewFromLeft(DataGridConfiguration dataGridConfiguration,
             : 0;
         if (nextCellIndex < firstBodyVisibleLineIndex) {
           scrollInViewFromRight(dataGridConfiguration,
-              previousCellIndex: nextCellIndex, needToScrollToMinExtent: false);
+              previousCellIndex: nextCellIndex);
         } else {
           measuredHorizontalOffset = getHorizontalCumulativeDistance(
               dataGridConfiguration, nextCellIndex);
@@ -605,7 +605,7 @@ void scrollInViewFromTop(DataGridConfiguration dataGridConfiguration,
             : 0;
         if (nextRowIndex < firstBodyVisibleLineIndex) {
           scrollInViewFromDown(dataGridConfiguration,
-              previousRowIndex: nextRowIndex, needToScrollToMinExtent: false);
+              previousRowIndex: nextRowIndex);
         } else {
           measuredVerticalOffset = getVerticalCumulativeDistance(
               dataGridConfiguration, nextRowIndex);

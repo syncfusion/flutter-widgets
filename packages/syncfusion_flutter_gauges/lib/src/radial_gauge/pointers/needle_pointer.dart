@@ -53,7 +53,7 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
       this.animationDuration = 1000,
       this.animationType = AnimationType.ease,
       this.needleColor})
-      : knobStyle = knobStyle ?? const KnobStyle(knobRadius: 0.08),
+      : knobStyle = knobStyle ?? const KnobStyle(),
         assert(animationDuration > 0,
             'Animation duration must be a non-negative value'),
         assert(needleLength >= 0, 'Needle length must be greater than zero.'),

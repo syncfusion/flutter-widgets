@@ -1,7 +1,7 @@
 import 'dart:convert' show utf8;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:syncfusion_flutter_barcodes/barcodes.dart';
+import '../../../../barcodes.dart';
 import '../../utils/helper.dart';
 import '../one_dimensional/symbology_base_renderer.dart';
 
@@ -690,6 +690,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
     length = codewords.length;
     while (length < dataCWLength) {
+      // ignore: no_leading_underscores_for_local_identifiers
       int _value = 129 + (((length + 1) * 149) % 253) + 1;
       if (_value > 254) {
         _value -= 254;
@@ -858,7 +859,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
         }
 
         if (bIndex != 0) {
-          throw 'Error in error correction code generation!';
+          throw ArgumentError('Error in error correction code generation!');
         }
       }
     }
@@ -912,11 +913,12 @@ class DataMatrixRenderer extends SymbologyRenderer {
       _encodedCodeword = List<int>.from(temp);
       dataLength = codeword.length;
     } else if (_symbolAttribute.dataCodeWords == 0) {
-      throw 'Data cannot be encoded as barcode';
+      throw ArgumentError('Data cannot be encoded as barcode');
     } else if (_symbolAttribute.dataCodeWords! < dataLength) {
       final String symbolRow = _symbolAttribute.symbolRow.toString();
       final String symbolColumn = _symbolAttribute.symbolColumn.toString();
-      throw 'Data too long for $symbolRow x $symbolColumn barcode.';
+      throw ArgumentError(
+          'Data too long for $symbolRow x $symbolColumn barcode.');
     }
   }
 
@@ -991,7 +993,8 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
       if (actualEncoding == DataMatrixEncoding.asciiNumeric &&
           _dataMatrixSymbology.encoding != actualEncoding) {
-        throw 'Data contains invalid characters and cannot be encoded as ASCIINumeric.';
+        throw ArgumentError(
+            'Data contains invalid characters and cannot be encoded as ASCIINumeric.');
       }
 
       _encoding = actualEncoding;
@@ -1100,7 +1103,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
         text: span,
         textDirection: TextDirection.ltr,
         textAlign: textAlign);
-    textPainter.layout(minWidth: 0, maxWidth: size.width);
+    textPainter.layout(maxWidth: size.width);
     double x;
     double y;
     switch (textAlign) {

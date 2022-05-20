@@ -128,6 +128,7 @@ class PdfAnnotationBorder implements IPdfWrapper {
         return 'I';
       case PdfBorderStyle.underline:
         return 'U';
+      // ignore: no_default_cases
       default:
         return 'S';
     }

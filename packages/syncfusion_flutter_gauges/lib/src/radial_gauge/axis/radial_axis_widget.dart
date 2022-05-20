@@ -1603,8 +1603,8 @@ class RenderRadialAxisWidget extends RenderBox {
         _startCornerRadian = !isInversed
             ? getDegreeToRadian(0)
             : getDegreeToRadian(startAngle + _sweepAngle);
-        final double _value = isInversed ? -1 : 1;
-        _sweepCornerRadian = getDegreeToRadian(_sweepAngle * _value);
+        _sweepCornerRadian =
+            getDegreeToRadian(_sweepAngle * (isInversed ? -1 : 1));
         break;
     }
   }
@@ -1653,8 +1653,8 @@ class RenderRadialAxisWidget extends RenderBox {
           ? renderer!.factorToValue(angleFactor) ?? factorToValue(angleFactor)
           : factorToValue(angleFactor);
       if (value >= minimum && value <= maximum) {
-        final double _tappedValue = _angleToValue(angle);
-        onAxisTapped!(_tappedValue);
+        final double tappedValue = _angleToValue(angle);
+        onAxisTapped!(tappedValue);
       }
     }
   }
@@ -2569,9 +2569,7 @@ class RenderRadialAxisWidget extends RenderBox {
     }
     for (int i = 0; i < length; i++) {
       if (!((i == 0 && !showFirstLabel) ||
-          (i == _axisLabels!.length - 1 &&
-              !showLastLabel &&
-              _isMaxiumValueIncluded))) {
+          (i == _axisLabels!.length - 1 && !showLastLabel))) {
         final CircularAxisLabel label = _axisLabels![i];
         final Color labelColor = label.labelStyle.color ??
             _gaugeThemeData.axisLabelColor ??

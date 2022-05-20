@@ -365,7 +365,7 @@ class _TableSerialization {
       case ExcelTableBuiltInStyle.tableStyleDark11:
         return 'TableStyleDark11';
 
-      default:
+      case ExcelTableBuiltInStyle.None:
         return 'None';
     }
   }
@@ -400,7 +400,7 @@ class _TableSerialization {
       case ExcelTableTotalFormula.count:
         return 'count';
 
-      default:
+      case ExcelTableTotalFormula.none:
         return 'none';
     }
   }

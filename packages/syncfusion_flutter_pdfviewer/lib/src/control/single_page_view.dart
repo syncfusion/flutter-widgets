@@ -1,14 +1,16 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/interactive_scroll_viewer_internal.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_page_view.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_scrollable.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/scroll_head.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/scroll_status.dart';
+
+import '../../pdfviewer.dart';
+import '../common/pdfviewer_helper.dart';
+import 'pdf_page_view.dart';
+import 'pdf_scrollable.dart';
+import 'scroll_head.dart';
+import 'scroll_status.dart';
 
 /// Signature for [SfPdfViewer.onPageChanged] callback.
 typedef PageChangedCallback = void Function(int newPage);
@@ -300,7 +302,7 @@ class SinglePageViewState extends State<SinglePageView> {
     final Size childSize = _getChildSize(widget.viewportDimension);
     currentOffset = _transformationController.toScene(Offset.zero);
     // ignore: avoid_bool_literals_in_conditional_expressions
-    final bool _enableDoubleTapZoom = ((!kIsDesktop &&
+    final bool enableDoubleTapZoom = ((!kIsDesktop &&
                 widget.enableDoubleTapZooming) ||
             (kIsDesktop && widget.interactionMode == PdfInteractionMode.pan) ||
             (kIsDesktop &&
@@ -359,7 +361,6 @@ class SinglePageViewState extends State<SinglePageView> {
               : 0,
         ),
         constrained: false,
-        panEnabled: true,
         onDoubleTapZoomInvoked: _onDoubleTapZoomInvoked,
         // ignore: avoid_bool_literals_in_conditional_expressions
         scaleEnabled: ((kIsDesktop && widget.isMobileWebView) ||
@@ -367,7 +368,7 @@ class SinglePageViewState extends State<SinglePageView> {
                 (kIsDesktop && widget.scaleEnabled))
             ? true
             : false,
-        enableDoubleTapZooming: _enableDoubleTapZoom,
+        enableDoubleTapZooming: enableDoubleTapZoom,
         transformationController: _transformationController,
         onInteractionStart: (ScaleStartDetails details) {
           _panStartOffset = details.localFocalPoint.dx;
@@ -853,7 +854,7 @@ class SinglePageViewState extends State<SinglePageView> {
             insetPadding: EdgeInsets.zero,
             contentPadding: orientation == Orientation.portrait
                 ? const EdgeInsets.all(24)
-                : const EdgeInsets.only(top: 0, right: 24, left: 24, bottom: 0),
+                : const EdgeInsets.only(right: 24, left: 24),
             buttonPadding: orientation == Orientation.portrait
                 ? const EdgeInsets.all(8)
                 : const EdgeInsets.all(4),

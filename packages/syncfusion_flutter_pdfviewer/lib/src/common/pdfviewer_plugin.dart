@@ -4,9 +4,10 @@ import 'dart:typed_data';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
 import 'package:syncfusion_pdfviewer_platform_interface/pdfviewer_platform_interface.dart';
 import 'package:uuid/uuid.dart';
+
+import 'pdfviewer_helper.dart';
 
 /// Establishes communication between native(Android and iOS) code
 /// and flutter code using [MethodChannel]
@@ -102,7 +103,7 @@ class PdfViewerPlugin {
       bool isZoomChanged,
       int currentPageNumber,
       bool canRenderImage) async {
-    imageCache!.clear();
+    imageCache.clear();
     if (!canRenderImage) {
       _nativeImage?.cancel();
       _renderingPages?.clear();
@@ -149,7 +150,7 @@ class PdfViewerPlugin {
 
   /// Dispose the rendered pages
   Future<void> closeDocument() async {
-    imageCache!.clear();
+    imageCache.clear();
     if (_documentID != null) {
       await PdfViewerPlatform.instance.closeDocument(_documentID!);
     }

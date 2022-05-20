@@ -231,7 +231,7 @@ abstract class LabelSegment {
       int pointIndex,
       int seriesIndex,
       TextStyle style,
-      SfCircularChartState _chartState);
+      SfCircularChartState chartState);
 
   /// To get data label color.
   Color? getDataLabelColor(CircularSeriesRendererExtension seriesRenderer,
@@ -308,7 +308,7 @@ class ChartSeriesRender with CircularChartSegment, LabelSegment {
       int pointIndex,
       int seriesIndex,
       TextStyle style,
-      SfCircularChartState _chartState) {
+      SfCircularChartState chartState) {
     final DataLabelSettings dataLabel = seriesRenderer.series.dataLabelSettings;
     final Color fontColor = dataLabel.textStyle.color ??
         getCircularDataLabelColor(

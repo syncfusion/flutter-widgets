@@ -1,11 +1,10 @@
 import 'dart:collection';
 import 'dart:convert';
 
-import 'package:syncfusion_flutter_pdf/src/pdf/implementation/forms/pdf_form_field_collection.dart';
-
 import '../../interfaces/pdf_interface.dart';
 import '../color_space/pdf_icc_color_profile.dart';
 import '../forms/pdf_form.dart';
+import '../forms/pdf_form_field_collection.dart';
 import '../general/file_specification_base.dart';
 import '../general/pdf_destination.dart';
 import '../general/pdf_named_destination.dart';
@@ -721,11 +720,11 @@ class PdfDocument {
   }
 
   void _readFileVersion() {
-    final PdfReader _reader = PdfReader(_data);
-    _reader.position = 0;
-    String token = _reader.getNextToken()!;
+    final PdfReader reader = PdfReader(_data);
+    reader.position = 0;
+    String token = reader.getNextToken()!;
     if (token.startsWith('%')) {
-      token = _reader.getNextToken()!;
+      token = reader.getNextToken()!;
       _setFileVersion(token);
     }
   }

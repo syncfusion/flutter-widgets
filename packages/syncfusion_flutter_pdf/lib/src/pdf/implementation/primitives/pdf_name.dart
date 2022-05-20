@@ -1,6 +1,6 @@
-import 'package:syncfusion_flutter_pdf/src/pdf/implementation/io/enums.dart';
-import 'package:syncfusion_flutter_pdf/src/pdf/implementation/io/pdf_cross_table.dart';
-import 'package:syncfusion_flutter_pdf/src/pdf/interfaces/pdf_interface.dart';
+import '../../interfaces/pdf_interface.dart';
+import '../io/enums.dart';
+import '../io/pdf_cross_table.dart';
 
 /// internal class
 class PdfName implements IPdfPrimitive {
