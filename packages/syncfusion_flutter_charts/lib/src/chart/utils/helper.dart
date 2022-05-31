@@ -1262,7 +1262,6 @@ String getLabelValue(dynamic value, dynamic axis, [int? showDigits]) {
   if (value.toString().split('.').length > 1) {
     final String str = value.toString();
     final List<dynamic> list = str.split('.');
-    value = axis is LogarithmicAxis ? math.pow(10, value) : value;
     value = double.parse(value.toStringAsFixed(showDigits ?? 3));
     value = (list[1] == '0' ||
             list[1] == '00' ||
