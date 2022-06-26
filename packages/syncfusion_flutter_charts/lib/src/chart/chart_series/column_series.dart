@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 /// This class has the properties of the column series.
 ///
@@ -97,150 +97,138 @@ class ColumnSeries<T, D> extends XyDataSeries<T, D> {
             onPointDoubleTap: onPointDoubleTap,
             onPointLongPress: onPointLongPress);
 
-  ///Color of the track.
+  /// Color of the track.
   ///
-  ///Defaults to `grey`
+  /// Defaults to `Colors.grey`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <ColumnSeries<SalesData, num>>[
-  ///                ColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <ColumnSeries<SalesData, num>>[
+  ///       ColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color trackColor;
 
-  ///Color of the track border.
+  /// Color of the track border.
   ///
-  ///Defaults to `transparent`
+  /// Defaults to `Colors.transparent`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <ColumnSeries<SalesData, num>>[
-  ///                ColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackBorderColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <ColumnSeries<SalesData, num>>[
+  ///       ColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackBorderColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color trackBorderColor;
 
-  ///Width of the track border.
+  /// Width of the track border.
   ///
-  ///Defaults to `1`
+  /// Defaults to `1`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <ColumnSeries<SalesData, num>>[
-  ///                ColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackBorderColor: Colors.red ,
-  ///                  trackBorderWidth: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <ColumnSeries<SalesData, num>>[
+  ///       ColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackBorderColor: Colors.red,
+  ///         trackBorderWidth: 2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double trackBorderWidth;
 
-  ///Padding of the track.
+  /// Padding of the track.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <ColumnSeries<SalesData, num>>[
-  ///                ColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackPadding: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <ColumnSeries<SalesData, num>>[
+  ///       ColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackPadding: 2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double trackPadding;
 
-  ///Spacing between the columns. The value ranges from 0 to 1.
-  ///1 represents 100% and 0 represents 0% of the available space.
+  /// Spacing between the columns. The value ranges from 0 to 1.
+  /// 1 represents 100% and 0 represents 0% of the available space.
   ///
-  ///Spacing also affects the width of the column. For example, setting 20% spacing
-  ///and 100% width renders the column with 80% of total width.
+  /// Spacing also affects the width of the column. For example, setting 20% spacing
+  /// and 100% width renders the column with 80% of total width.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <ColumnSeries<SalesData, num>>[
-  ///                ColumnSeries<SalesData, num>(
-  ///                  spacing: 0,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <ColumnSeries<SalesData, num>>[
+  ///       ColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         spacing: 0.5
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double spacing;
 
-  ///Renders column with track.
+  /// Renders column with track.
   ///
-  ///Track is a rectangular bar rendered from the start to the end of the axis. Column series will be rendered above the track.
+  /// Track is a rectangular bar rendered from the start to the end of the axis.
+  /// Column series will be rendered above the track.
   ///
-  ///Defaults to `false`
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <ColumnSeries<SalesData, num>>[
-  ///                ColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <ColumnSeries<SalesData, num>>[
+  ///       ColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool isTrackVisible;
 
-  ///Customizes the corners of the column.
+  /// Customizes the corners of the column.
   ///
   /// Each corner can be customized with a desired value or with a single value.
   ///
-  ///Defaults to `Radius.zero`
+  /// Defaults to `Radius.zero`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <ColumnSeries<SalesData, num>>[
-  ///                ColumnSeries<SalesData, num>(
-  ///                  borderRadius: BorderRadius.circular(5),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <ColumnSeries<SalesData, num>>[
+  ///       ColumnSeries<SalesData, num>(
+  ///         borderRadius: BorderRadius.all(Radius.circular(5))
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BorderRadius borderRadius;
 
   /// Create the column series renderer.

@@ -53,8 +53,8 @@ dynamic getPreviousMonthDate(dynamic date) {
         : HijriDateTime(date.year, date.month - 1, 1);
   }
   return date.month == 1
-      ? DateTime(date.year - 1, 12, 1)
-      : DateTime(date.year, date.month - 1, 1);
+      ? DateTime(date.year - 1, 12)
+      : DateTime(date.year, date.month - 1);
 }
 
 /// Returns the next month start date for the given date..
@@ -65,8 +65,8 @@ dynamic getNextMonthDate(dynamic date) {
         : HijriDateTime(date.year, date.month + 1, 1);
   }
   return date.month == 12
-      ? DateTime(date.year + 1, 1, 1)
-      : DateTime(date.year, date.month + 1, 1);
+      ? DateTime(date.year + 1)
+      : DateTime(date.year, date.month + 1);
 }
 
 /// Return the given date if the date in between first and last date
@@ -136,10 +136,10 @@ bool isSameOrAfterDate(dynamic firstDate, dynamic date) {
 }
 
 /// Get the visible dates based on the date value and visible dates count.
-// ignore: always_specify_types
+// ignore: always_specify_types, strict_raw_type
 List getVisibleDates(dynamic date, List<int>? nonWorkingDays,
     int firstDayOfWeek, int visibleDatesCount) {
-  // ignore: always_specify_types
+  // ignore: always_specify_types, strict_raw_type
   List datesCollection;
   if (date is HijriDateTime) {
     datesCollection = <HijriDateTime>[];
@@ -147,13 +147,16 @@ List getVisibleDates(dynamic date, List<int>? nonWorkingDays,
     datesCollection = <DateTime>[];
   }
 
-  final dynamic currentDate =
-      getFirstDayOfWeekDate(visibleDatesCount, date, firstDayOfWeek);
+  final int nonWorkingDaysCount =
+      nonWorkingDays == null ? 0 : nonWorkingDays.length;
+  final dynamic currentDate = getFirstDayOfWeekDate(
+      visibleDatesCount + nonWorkingDaysCount, date, firstDayOfWeek);
 
   for (int i = 0; i < visibleDatesCount; i++) {
     final dynamic visibleDate = addDays(currentDate, i);
     if (nonWorkingDays != null &&
         nonWorkingDays.contains(visibleDate.weekday)) {
+      visibleDatesCount++;
       continue;
     }
 
@@ -186,7 +189,7 @@ dynamic getFirstDayOfWeekDate(
     if (currentDate is HijriDateTime) {
       currentDate = HijriDateTime(currentDate.year, currentDate.month, 1);
     } else {
-      currentDate = DateTime(currentDate.year, currentDate.month, 1);
+      currentDate = DateTime(currentDate.year, currentDate.month);
     }
   }
 

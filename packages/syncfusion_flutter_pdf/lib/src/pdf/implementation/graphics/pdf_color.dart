@@ -323,6 +323,7 @@ class PdfColor {
         array.add(PdfNumber(_green / _maxColourChannelValue));
         array.add(PdfNumber(_blue / _maxColourChannelValue));
         break;
+      // ignore: no_default_cases
       default:
         throw ArgumentError.value('Unsupported colour space.');
     }

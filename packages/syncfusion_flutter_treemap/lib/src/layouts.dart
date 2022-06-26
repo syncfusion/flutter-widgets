@@ -736,6 +736,7 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
         : _sliceAndDice;
 
     if (widget.enableDrilldown) {
+      // ignore: no_leading_underscores_for_local_identifiers
       final _Breadcrumbs _breadcrumbs = _Breadcrumbs(
         key: _breadcrumbKey,
         settings: widget.breadcrumbs!,
@@ -1276,12 +1277,12 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
         layoutDirection: widget.layoutDirection,
         sortAscending: false,
         controller: widget.controller,
-        child: _getDescendants(
-            context, tileDetails, widget.controller, widget.enableDrillDown,
-            animationController: widget.drilldownAnimationController),
         onSelectionChanged: widget.onSelectionChanged,
         selectionSettings: widget.selectionSettings,
         drilldownAnimationController: widget.drilldownAnimationController,
+        child: _getDescendants(
+            context, tileDetails, widget.controller, widget.enableDrillDown,
+            animationController: widget.drilldownAnimationController),
       ));
     }
 
@@ -1330,6 +1331,18 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
     }
 
     super.initState();
+  }
+
+  @override
+  void didUpdateWidget(_SquarifiedTreemap oldWidget) {
+    if (oldWidget.layoutDirection != widget.layoutDirection) {
+      if (widget.tooltipKey.currentContext != null) {
+        final RenderTooltip tooltipRenderBox = widget.tooltipKey.currentContext!
+            .findRenderObject()! as RenderTooltip;
+        tooltipRenderBox.hide(immediately: true);
+      }
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -1448,6 +1461,9 @@ class _SliceAndDiceTreemapState extends State<_SliceAndDiceTreemap>
         layoutDirection: TreemapLayoutDirection.topLeft,
         sortAscending: widget.sortAscending,
         controller: widget.controller,
+        onSelectionChanged: widget.onSelectionChanged,
+        selectionSettings: widget.selectionSettings,
+        drilldownAnimationController: widget.drilldownAnimationController,
         child: _getDescendants(
           context,
           tile,
@@ -1455,9 +1471,6 @@ class _SliceAndDiceTreemapState extends State<_SliceAndDiceTreemap>
           widget.enableDrillDown,
           animationController: widget.drilldownAnimationController,
         ),
-        onSelectionChanged: widget.onSelectionChanged,
-        selectionSettings: widget.selectionSettings,
-        drilldownAnimationController: widget.drilldownAnimationController,
       ));
     }
 
@@ -1583,11 +1596,11 @@ class _Tile extends StatelessWidget {
       tooltipKey: tooltipKey,
       sortAscending: sortAscending,
       controller: controller,
-      child: child,
       onSelectionChanged: onSelectionChanged,
       selectionSettings: selectionSettings,
       drilldownAnimationController: drilldownAnimationController,
       ancestor: ancestor,
+      child: child,
     );
 
     if (details._padding != null) {
@@ -1838,7 +1851,7 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
       return;
     }
     final bool mouseIsConnected =
-        RendererBinding.instance!.mouseTracker.mouseIsConnected;
+        RendererBinding.instance.mouseTracker.mouseIsConnected;
     if (mouseIsConnected != _mouseIsConnected) {
       setState(() {
         _mouseIsConnected = mouseIsConnected;
@@ -2090,9 +2103,8 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    _mouseIsConnected =
-        RendererBinding.instance?.mouseTracker.mouseIsConnected ?? false;
-    RendererBinding.instance?.mouseTracker
+    _mouseIsConnected = RendererBinding.instance.mouseTracker.mouseIsConnected;
+    RendererBinding.instance.mouseTracker
         .addListener(_handleMouseTrackerChange);
 
     _controller = AnimationController(
@@ -2123,6 +2135,11 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
     if (widget.sortAscending != oldWidget.sortAscending) {
       _colorTween =
           ColorTween(begin: widget.details.color, end: widget.details.color);
+      if (widget.details.level.tooltipBuilder != null) {
+        final RenderTooltip tooltipRenderBox = widget.tooltipKey.currentContext!
+            .findRenderObject()! as RenderTooltip;
+        tooltipRenderBox.hide(immediately: true);
+      }
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -2136,7 +2153,7 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
       ..removeSelectionListener(_handleSelectionChange)
       ..removeHoverListener(_handleHover);
 
-    RendererBinding.instance?.mouseTracker
+    RendererBinding.instance.mouseTracker
         .removeListener(_handleMouseTrackerChange);
     super.dispose();
   }

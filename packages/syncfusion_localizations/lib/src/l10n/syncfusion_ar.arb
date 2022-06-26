@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "لا أحداث", 
 "ofDataPagerLabel" : "من", 
 "pagesDataPagerLabel" : "الصفحات", 
-"itemsDataPagerLabel" : "العناصر", 
+"rowsPerPageDataPagerLabel" : "عدد الصفوف في الصفحة", 
 "pdfBookmarksLabel" : "إشارات مرجعية", 
 "pdfNoBookmarksLabel" : "لم يتم العثور على إشارات مرجعية", 
 "pdfScrollStatusOfLabel" : "من", 
@@ -22,7 +22,7 @@
 "allowedViewWeekLabel" : "أسبوع", 
 "allowedViewWorkWeekLabel" : "أسبوع العمل", 
 "allowedViewMonthLabel" : "شهر", 
-"allowedViewScheduleLabel" : "جدول", 
+"allowedViewScheduleLabel" : "برنامج", 
 "allowedViewTimelineDayLabel" : "يوم المخطط الزمني", 
 "allowedViewTimelineWeekLabel" : "أسبوع المخطط الزمني", 
 "allowedViewTimelineWorkWeekLabel" : "أسبوع العمل المخطط الزمني", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "شو.", 
 "shortDhualqiLabel" : "ذو القعدة", 
 "shortDhualhiLabel" : "ذو الحجة", 
-"daySpanCountLabel" : "يوم"
+"daySpanCountLabel" : "يوم", 
+"series" : "مسلسل"
 }

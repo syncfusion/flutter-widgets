@@ -13,7 +13,7 @@ import '../utils/helper.dart';
 /// It presents the general shape of data in a simple and highly condensed way.
 ///
 /// To render a sparkline chart, create the instance of [SfSparkLineChart].
-///  Set the value for `data` property which of type List<num>. Now, it shows
+/// Set the value for `data` property which of type List<num>. Now, it shows
 /// the line to represent the provided data.
 ///
 /// It provides option to customize its appearance with the properties such as
@@ -32,7 +32,8 @@ class SfSparkLineChart extends StatefulWidget {
   ///    body: Center(
   ///        child: SfSparkLineChart(
   ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///     )
+  ///   ),
   ///  );
   /// }
   /// ```
@@ -76,20 +77,20 @@ class SfSparkLineChart extends StatefulWidget {
   /// The [dataCount] property allows declaring the total data count going to be
   /// displayed in the chart.
   ///
-  /// The [xValueMapper[ returns the x value of the corresponding data point.
+  /// The [xValueMapper] returns the x value of the corresponding data point.
   /// The [xValueMapper] allows providing num, DateTime, or string as x-value.
   ///
   /// The [yValueMapper] returns the y-value of the corresponding data point.
   ///
   /// ```dart
   /// class SalesData {
-  /// SalesData(this.month, this.sales);
-  /// final String month;
-  /// final double sales;
+  ///   SalesData(this.month, this.sales);
+  ///   final String month;
+  ///   final double sales;
   /// }
   ///
-  ///   List<SalesData> data;
-
+  /// List<SalesData> data;
+  ///
   /// @override
   /// void initState() {
   ///  super.initState();
@@ -110,8 +111,9 @@ class SfSparkLineChart extends StatefulWidget {
   ///         dataCount: 5,
   ///          xValueMapper: (int index) => data[index].month,
   ///          yValueMapper: (int index) => data[index].sales
-  ///    )),
-  ///  );
+  ///         )
+  ///       ),
+  ///   );
   /// }
   /// ```
 
@@ -121,10 +123,10 @@ class SfSparkLineChart extends StatefulWidget {
       /// Data count for the spark charts.
       int? dataCount,
 
-      /// Specifies the x-value mapping field
+      /// Specifies the x-value mapping field.
       SparkChartIndexedValueMapper<dynamic>? xValueMapper,
 
-      /// Specifies the y-value maping field
+      /// Specifies the y-value maping field.
       SparkChartIndexedValueMapper<num>? yValueMapper,
       this.plotBand,
       this.width = 2,
@@ -168,10 +170,11 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      isInversed: true,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///           isInversed: true,
+  ///           data: <double>[18, 24, 30, 14, 28],
+  ///       )
+  ///     ),
+  ///   );
   /// }
   /// ```
   final bool isInversed;
@@ -180,7 +183,7 @@ class SfSparkLineChart extends StatefulWidget {
   /// The axis line is rendered on the minimum y-value and
   /// can be repositioned to required y-value.
   ///
-  /// Defaults to `zero`.
+  /// Defaults to `0`.
   ///
   /// ```dart
   /// @override
@@ -188,10 +191,11 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      axisCrossesAt: 24,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///           axisCrossesAt: 24,
+  ///           data: <double>[18, 24, 30, 14, 28],
+  ///       )
+  ///     ),
+  ///   );
   /// }
   /// ```
   final double axisCrossesAt;
@@ -206,10 +210,11 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      axisLineWidth: 4,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///           axisLineWidth: 4,
+  ///           data: <double>[18, 24, 30, 14, 28],
+  ///       )
+  ///     ),
+  ///   );
   /// }
   /// ```
   final double axisLineWidth;
@@ -225,10 +230,11 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      axisLineColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///           axisLineColor: Colors.red,
+  ///           data: <double>[18, 24, 30, 14, 28],
+  ///       )
+  ///     ),
+  ///   );
   /// }
   /// ```
   final Color axisLineColor;
@@ -244,9 +250,10 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      axisLineDashArray: <double>[2,2],
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///           axisLineDashArray: <double>[2,2],
+  ///           data: <double>[18, 24, 30, 14, 28],
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -265,10 +272,10 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      highPointColor: Colors.red,
-  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///           highPointColor: Colors.red,
+  ///           marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -287,10 +294,10 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      lowPointColor: Colors.red,
-  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///           lowPointColor: Colors.red,
+  ///           marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all)
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -310,10 +317,10 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      negativePointColor: Colors.red,
-  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, -30, 14, 28],
-  ///    )),
+  ///           negativePointColor: Colors.red,
+  ///           marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all)
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -322,7 +329,7 @@ class SfSparkLineChart extends StatefulWidget {
   /// Customizes the [marker] color of the first data point.
   ///
   /// If the first data point is either the high data point or low data point,
-  /// then the priority will be given to firstPointColor property
+  /// then the priority will be given to firstPointColor property.
   ///
   /// Defaults to `null`.
   ///
@@ -332,11 +339,11 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      firstPointColor: Colors.red,
-  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, -30, 14, 28],
-  ///    )),
-  ///  );
+  ///           firstPointColor: Colors.red,
+  ///           marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all)
+  ///       )
+  ///     ),
+  ///   );
   /// }
   /// ```
   final Color? firstPointColor;
@@ -344,7 +351,7 @@ class SfSparkLineChart extends StatefulWidget {
   /// Customizes the [marker] color of the last data point.
   ///
   /// If the last data point is either the high data point or low data point,
-  ///  then the priority will be given to [lastPointColor].
+  /// then the priority will be given to [lastPointColor].
   ///
   /// Defaults to `null`.
   ///
@@ -354,18 +361,18 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      lastPointColor: Colors.red,
-  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, -30, 14, 28],
-  ///    )),
-  ///  );
+  ///           lastPointColor: Colors.red,
+  ///           marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all)
+  ///       )
+  ///     ),
+  ///   );
   /// }
   /// ```
   final Color? lastPointColor;
 
   /// Customizes the spark line chart color.
   ///
-  /// Defaults to `blue`.
+  /// Defaults to `Colors.blue`.
   ///
   /// ```dart
   /// @override
@@ -373,9 +380,9 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      color: Colors.blue,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///           color: Colors.blue
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -389,7 +396,7 @@ class SfSparkLineChart extends StatefulWidget {
   ///
   /// Plot bands are drawn based on the axis.
   ///
-  /// Provides the property of `start`, `end`, [color], `borderColor`, and
+  /// Provides the property of `start`, `end`, `color`, `borderColor`, and
   /// `borderWidth` to customize the appearance.
   ///
   /// Defaults to `null`.
@@ -399,11 +406,11 @@ class SfSparkLineChart extends StatefulWidget {
   /// Widget build(BuildContext context) {
   ///  return Scaffold(
   ///    body: Center(
-  ///        child: SfSparkLineChart(
-  ///      plotBand: SparkChartPlotBand(start: 15, end: 25),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
-  ///  );
+  ///      child: SfSparkLineChart(
+  ///           plotBand: SparkChartPlotBand(start: 15, end: 25)
+  ///           )
+  ///        ),
+  ///    );
   /// }
   /// ```
   final SparkChartPlotBand? plotBand;
@@ -417,10 +424,10 @@ class SfSparkLineChart extends StatefulWidget {
   /// Widget build(BuildContext context) {
   ///  return Scaffold(
   ///    body: Center(
-  ///        child: SfSparkLineChart(
-  ///      width: 4,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       child: SfSparkLineChart(
+  ///         width: 4
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -437,10 +444,10 @@ class SfSparkLineChart extends StatefulWidget {
   /// Widget build(BuildContext context) {
   ///  return Scaffold(
   ///    body: Center(
-  ///        child: SfSparkLineChart(
-  ///      dashArray: <double>[2,2],
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///       child: SfSparkLineChart(
+  ///         dashArray: <double>[2,2]
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -452,8 +459,8 @@ class SfSparkLineChart extends StatefulWidget {
   /// to the point where you touch on the chart area. This feature can be
   /// enabled by creating an instance of [SparkChartTrackball].
   ///
-  /// Provides option to customizes the `activationMode`, [width], [color],
-  /// [labelStyle], `backgroundColor`, `borderColor`, `borderWidth`.
+  /// Provides option to customizes the `activationMode`, `width`, `color`,
+  /// `labelStyle`, `backgroundColor`, `borderColor`, `borderWidth`.
   ///
   /// Defaults to `null`.
   ///
@@ -463,10 +470,9 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      trackball:SparkChartTrackball(borderWidth: 2,
-  ///      borderColor: Colors.black, activationMode: SparkChartActivationMode.doubleTap),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///           trackball:SparkChartTrackball(activationMode: SparkChartActivationMode.tap)
+  ///        )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -478,7 +484,7 @@ class SfSparkLineChart extends StatefulWidget {
   /// You can add a shape to adorn each data point. Markers can be enabled by
   /// using the `displayMode` property of [SparkChartMarker].
   ///
-  /// Provides the options of [color], `borderWidth`, `borderColor` and `shape`
+  /// Provides the options of `color`, `borderWidth`, `borderColor` and `shape`
   /// of the marker to customize the appearance.
   ///
   /// Defaults to `null`.
@@ -489,9 +495,9 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///           marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all)
+  ///        )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -524,9 +530,9 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      labelDisplayMode: SparkChartLabelDisplayMode.high,
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///           labelDisplayMode: SparkChartLabelDisplayMode.high
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
@@ -547,16 +553,15 @@ class SfSparkLineChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkLineChart(
-  ///      labelDisplayMode: SparkChartLabelDisplayMode.high,
-  ///      labelStyle: TextStyle(fontStyle: FontStyle.italic),
-  ///      data: <double>[18, 24, 30, 14, 28],
-  ///    )),
+  ///          labelStyle: TextStyle(fontStyle: FontStyle.italic)
+  ///       )
+  ///     ),
   ///  );
   /// }
   /// ```
   final TextStyle labelStyle;
 
-  /// Specifies the spark chart data details
+  /// Specifies the spark chart data details.
   final SparkChartDataDetails _sparkChartDataDetails;
 
   @override
@@ -565,15 +570,15 @@ class SfSparkLineChart extends StatefulWidget {
   }
 }
 
-/// Represents the state class for spark line chart widget
+/// Represents the state class for spark line chart widget.
 class _SfSparkLineChartState extends State<SfSparkLineChart> {
-  /// specifies the theme of the chart
+  /// Specifies the theme of the chart.
   late SfChartThemeData _chartThemeData;
 
-  /// Specifies the series screen coordinate points
+  /// Specifies the series screen coordinate points.
   late List<Offset> _coordinatePoints;
 
-  /// Specifies the series data points
+  /// Specifies the series data points.
   late List<SparkChartPoint> _dataPoints;
 
   /// Called when this object is inserted into the tree.
@@ -643,7 +648,7 @@ class _SfSparkLineChartState extends State<SfSparkLineChart> {
     }
   }
 
-  /// Method to return the spark line chart widget
+  /// Method to return the spark line chart widget.
   Widget _getSparkLineChart() {
     return SparkChartContainer(
         child: Stack(children: <Widget>[

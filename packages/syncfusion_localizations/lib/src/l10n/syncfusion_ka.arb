@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "არანაირი მოვლენა", 
 "ofDataPagerLabel" : "დან", 
 "pagesDataPagerLabel" : "გვერდები", 
-"itemsDataPagerLabel" : "ნივთები", 
+"rowsPerPageDataPagerLabel" : "რიგები თითო გვერდზე", 
 "pdfBookmarksLabel" : "სანიშნეები", 
 "pdfNoBookmarksLabel" : "სანიშნეები ვერ მოიძებნა", 
 "pdfScrollStatusOfLabel" : "დან", 
@@ -18,7 +18,7 @@
 "passwordDialogInvalidPasswordLabel" : "არასწორი პაროლი", 
 "pdfPasswordDialogOpenLabel" : "გახსენით", 
 "pdfPasswordDialogCancelLabel" : "გაუქმება", 
-"allowedViewDayLabel" : "Დღის", 
+"allowedViewDayLabel" : "Დღეს", 
 "allowedViewWeekLabel" : "კვირა", 
 "allowedViewWorkWeekLabel" : "Სამუშაო კვირა", 
 "allowedViewMonthLabel" : "თვე", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "შოუ.", 
 "shortDhualqiLabel" : "დულ-ქ", 
 "shortDhualhiLabel" : "დულ-ჰ", 
-"daySpanCountLabel" : "Დღის"
+"daySpanCountLabel" : "Დღეს", 
+"series" : "სერიალი"
 }

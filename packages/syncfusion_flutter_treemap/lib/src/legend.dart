@@ -1673,7 +1673,6 @@ class Legend extends StatelessWidget {
       case _LegendType.vector:
         return SfLegend(
           items: _getLegendItems(),
-          child: child,
           direction: legend.direction,
           offset: legend.offset,
           padding: legend.padding,
@@ -1684,11 +1683,11 @@ class Legend extends StatelessWidget {
           title: legend.title,
           iconType: _getEffectiveLegendIconType(legend.iconType),
           iconSize: legend.iconSize,
+          child: child,
         );
       case _LegendType.bar:
         return SfLegend.bar(
           items: _getLegendItems(),
-          child: child,
           title: legend.title,
           position: _getEffectivePosition(legend.position),
           overflowMode: _getEffectiveOverflowMode(legend.overflowMode),
@@ -1710,6 +1709,7 @@ class Legend extends StatelessWidget {
           pointerSize:
               legend.showPointerOnHover ? legend.pointerSize : Size.zero,
           pointerController: controller,
+          child: child,
         );
     }
   }

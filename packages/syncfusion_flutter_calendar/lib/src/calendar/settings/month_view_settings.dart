@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
+import '../../../calendar.dart';
 
 /// The settings have properties which allow to customize the month view of
 /// the [SfCalendar].

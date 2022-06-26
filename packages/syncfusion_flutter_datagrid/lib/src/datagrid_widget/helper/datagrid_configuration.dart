@@ -311,11 +311,11 @@ class DataGridConfiguration {
   /// twice in quick succession.
   DataGridCellDoubleTapCallback? onCellDoubleTap;
 
-  /// Called when a long press gesture with a primary button has been
-  /// recognized for a cell.
+  /// Called when a tap with a cell has occurred with a secondary button.
   DataGridCellTapCallback? onCellSecondaryTap;
 
-  /// Called when a tap with a cell has occurred with a secondary button.
+  /// Called when a long press gesture with a primary button has been
+  /// recognized for a cell.
   DataGridCellLongPressCallback? onCellLongPress;
 
   /// A builder that sets the widget to display at the bottom of the datagrid

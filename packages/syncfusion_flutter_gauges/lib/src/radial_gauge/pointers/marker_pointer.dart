@@ -61,12 +61,7 @@ class MarkerPointer extends LeafRenderObjectWidget implements GaugePointer {
     this.overlayColor,
     this.overlayRadius,
     this.elevation = 0,
-  })  : textStyle = textStyle ??
-            const GaugeTextStyle(
-                fontSize: 12.0,
-                fontFamily: 'Segoe UI',
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.normal),
+  })  : textStyle = textStyle ?? const GaugeTextStyle(),
         assert(animationDuration > 0,
             'Animation duration must be a non-negative value.'),
         assert(markerWidth >= 0, 'Marker width must be a non-negative value.'),

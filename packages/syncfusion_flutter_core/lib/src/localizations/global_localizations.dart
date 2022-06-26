@@ -214,6 +214,11 @@ abstract class SfLocalizations {
   /// the CANCEL confirmation button.
   String get pdfPasswordDialogCancelLabel;
 
+  /// The label is displayed as the text for the legend in the cartesian chart.
+  /// When the name of the series is not specified, then this label with the
+  /// series count is displayed as a legend.
+  String get series;
+
   /// A [LocalizationsDelegate] that uses [_DefaultLocalizations.load]
   /// to create an instance of this class.
   ///
@@ -442,6 +447,9 @@ class _DefaultLocalizations implements SfLocalizations {
 
   @override
   String get pdfPasswordDialogCancelLabel => 'CANCEL';
+
+  @override
+  String get series => 'Series';
 
   static Future<SfLocalizations> load(Locale locale) {
     return SynchronousFuture<SfLocalizations>(const _DefaultLocalizations());

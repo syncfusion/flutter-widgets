@@ -156,6 +156,7 @@ class PdfStandardFontMetricsFactory {
       case PdfFontFamily.zapfDingbats:
         metrics = _getZapfDingbatsMetrics(fontFamily, size);
         break;
+      // ignore: no_default_cases
       default:
         metrics =
             _getHelveticaMetrics(PdfFontFamily.helvetica, fontStyle!, size);

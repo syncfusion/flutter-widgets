@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../chart/utils/enum.dart';
@@ -15,6 +14,7 @@ import '../../common/legend/renderer.dart';
 import '../../common/rendering_details.dart';
 import '../../common/template/rendering.dart';
 import '../../common/user_interaction/tooltip.dart';
+import '../../common/user_interaction/tooltip_rendering_details.dart';
 import '../../common/utils/enum.dart';
 import '../../common/utils/helper.dart';
 import '../../common/utils/typedef.dart';
@@ -30,9 +30,9 @@ import 'circular_area.dart';
 import 'circular_state_properties.dart';
 import 'series_base.dart';
 
-///Renders the circular chart
+/// Renders the circular chart.
 ///
-///The SfCircularChart supports pie, doughnut and radial bar series that can be customized within the Circular Charts class.
+/// The SfCircularChart widget supports pie, doughnut, and radial bar series that can be customized within the circular chart's class.
 ///
 ///```dart
 ///Widget build(BuildContext context) {
@@ -113,19 +113,20 @@ class SfCircularChart extends StatefulWidget {
         enableMultiSelection = enableMultiSelection ?? false,
         super(key: key);
 
-  ///Customizes the chart title
+  /// Customizes the chart title.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            title: ChartTitle(text: 'Default rendering')
-  ///        ));
+  ///        )
+  ///   );
   ///}
   ///```
   final ChartTitle title;
 
-  ///Customizes the chart series.
+  /// Customizes the chart series.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -135,63 +136,79 @@ class SfCircularChart extends StatefulWidget {
   ///              PieSeries<ChartData, String>(
   ///                enableTooltip: true,
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///```
   final List<CircularSeries<dynamic, dynamic>> series;
 
-  ///Margin for chart
+  /// Specifies the margin for circular chart.
+  ///
+  /// Defaults to `const EdgeInsets.fromLTRB(10, 10, 10, 10)`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
-  ///            margin: const EdgeInsets.all(2),
-  ///            borderColor: Colors.blue
-  ///        ));
+  ///            margin: const EdgeInsets.all(2)
+  ///        )
+  ///    );
   ///}
   ///```
   final EdgeInsets margin;
 
-  ///Customizes the legend in the chart
+  /// Customizes the legend in the chart.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
-  ///            legend: Legend(isVisible: true, position: LegendPosition.auto)
-  ///        ));
+  ///            legend: Legend(isVisible: true)
+  ///        )
+  ///    );
   ///}
   ///```
   final Legend legend;
 
-  ///Customizes the tooltip in chart
+  /// Customizes the tooltip in chart.
   ///
   ///```dart
+  ///TooltipBehavior _tooltipBehavior;
+  ///
+  ///@override
+  ///void initState() {
+  ///   _tooltipBehavior = TooltipBehavior(enable: true);
+  ///   super.initState();
+  ///}
+  ///
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
-  ///            tooltipBehavior: TooltipBehavior(enable: true)
-  ///        ));
+  ///            tooltipBehavior: _tooltipBehavior
+  ///        )
+  ///    );
   ///}
   ///```
   final TooltipBehavior tooltipBehavior;
 
-  ///Background color of the chart
+  /// Background color of the chart.
+  ///
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            backgroundColor: Colors.blue
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final Color? backgroundColor;
 
-  ///Customizes the annotations. Annotations are used to mark the specific area
-  ///of interest in the plot area with texts, shapes, or images
+  /// Customizes the annotations. Annotations are used to mark the specific area
+  /// of interest in the plot area with texts, shapes, or images.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -199,81 +216,96 @@ class SfCircularChart extends StatefulWidget {
   ///        child: SfCircularChart(
   ///            annotations: <CircularChartAnnotation>[
   ///                CircularChartAnnotation(
-  ///                   child Container(
-  ///                   child: const Text('Empty data'),
-  ///                    angle: 200,
-  ///                    radius: '80%'
+  ///                   angle: 200,
+  ///                   radius: '80%',
+  ///                   widget: const Text('Circular Chart')
   ///                 ),
-  ///              ),
   ///             ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final List<CircularChartAnnotation>? annotations;
 
-  ///Border color of the chart
+  /// Border color of the chart.
+  ///
+  /// Defaults to `Colors.transparent`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            borderColor: Colors.red
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final Color borderColor;
 
-  ///Border width of the chart
+  /// Border width of the chart.
+  ///
+  /// Defaults to `0.0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
-  ///            borderWidth: 2,
-  ///            borderColor: Colors.red
-  ///        ));
+  ///            borderWidth: 2
+  ///        )
+  ///    );
   ///}
   ///```
   final double borderWidth;
 
-  ///Background image for chart.
+  /// Background image for chart.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            backgroundImage: const AssetImage('image.png'),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final ImageProvider? backgroundImage;
 
-  ///X value for placing the chart.
+  /// X value for placing the chart. The value ranges from 0% to 100% and also
+  /// if values are mentioned in pixel then the chart will moved accordingly.
   ///
-  ///Defaults to `null`.
+  /// For example, if set `50%` means the x value place center of the chart area or
+  /// we set `50` means the x value placed 50 pixel.
+  ///
+  /// Defaults to `50%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            centerX: '50%'
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final String centerX;
 
-  ///Y value for placing the chart.
+  /// Y value for placing the chart. The value ranges from 0% to 100% and also
+  /// if values are mentioned in pixel then the chart will moved accordingly.
   ///
-  ///Defaults to `null`.
+  /// For example,  if set `50%` means the y value place center of the chart area or
+  /// we set `50` means the y value placed 50 pixel.
+  ///
+  /// Defaults to `50%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            centerY: '50%'
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final String centerY;
@@ -286,7 +318,8 @@ class SfCircularChart extends StatefulWidget {
   ///        child: SfCircularChart(
   ///            legend: Legend(isVisible: true),
   ///            onLegendItemRender: (LegendRendererArgs args) => legend(args),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///void legend(LegendRendererArgs args) {
   ///   args.legendIconType = LegendIconType.diamond;
@@ -297,12 +330,21 @@ class SfCircularChart extends StatefulWidget {
   /// Occurs while tooltip is rendered. You can customize the position and header. Here,
   /// you can get the text, header, point index, series, x and y-positions.
   ///```dart
+  ///TooltipBehavior _tooltipBehavior;
+  ///
+  ///@override
+  ///void initState() {
+  ///   _tooltipBehavior = TooltipBehavior(enable: true);
+  ///   super.initState();
+  ///}
+  ///
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
-  ///            tooltipBehavior: TooltipBehavior(enable: true)
+  ///            tooltipBehavior: _tooltipBehavior,
   ///            onTooltipRender: (TooltipArgs args) => tool(args)
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///void tool(TooltipArgs args) {
   ///   args.locationX = 30;
@@ -320,10 +362,11 @@ class SfCircularChart extends StatefulWidget {
   ///            onDataLabelRender: (DataLabelRenderArgs args) => dataLabel(args),
   ///            series: <PieSeries<ChartData, String>>[
   ///              PieSeries<ChartData, String>(
-  ///                enableTooltip: true,
+  ///               dataLabelSettings: DataLabelSettings(isVisible: true)
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///void dataLabel(DataLabelRenderArgs args) {
   ///    args.text = 'dataLabel';
@@ -331,31 +374,52 @@ class SfCircularChart extends StatefulWidget {
   ///```
   final CircularDatalabelRenderCallback? onDataLabelRender;
 
-  ///Fills the data points with the gradient and image shaders.
+  /// Fills the data points with the gradient and image shaders.
   ///
-  ///The data points of pie, doughnut and radial bar charts can be filled with [gradient](https://api.flutter.dev/flutter/dart-ui/Gradient-class.html)
+  /// The data points of pie, doughnut and radial bar charts can be filled with [gradient](https://api.flutter.dev/flutter/dart-ui/Gradient-class.html)
   /// (linear, radial and sweep gradient) and [image shaders](https://api.flutter.dev/flutter/dart-ui/ImageShader-class.html).
   ///
-  ///All the data points are together considered as a single segment and the shader is applied commonly.
+  /// All the data points are together considered as a single segment and the shader is applied commonly.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
+  ///final List<Color> colors = <Color>[
+  ///   const Color.fromRGBO(75, 135, 185, 1),
+  ///   const Color.fromRGBO(192, 108, 132, 1),
+  ///   const Color.fromRGBO(246, 114, 128, 1),
+  ///   const Color.fromRGBO(248, 177, 149, 1),
+  ///   const Color.fromRGBO(116, 180, 155, 1)
+  /// ];
+  /// final List<double> stops = <double>[
+  ///    0.2,
+  ///    0.4,
+  ///    0.6,
+  ///    0.8,
+  ///    1,
+  /// ];
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
-  ///            onCreateShader: (ChartShaderDetails chartShaderDetails) => shader,
-  ///        ));
+  ///            onCreateShader: (ChartShaderDetails chartShaderDetails) {
+  ///                 return ui.Gradient.linear(
+  ///                   chartShaderDetails.outerRect.topRight,
+  ///                   chartShaderDetails.outerRect.centerLeft,
+  ///                   colors,
+  ///                   stops);
+  ///               },
+  ///        )
+  ///    );
   ///}
   ///```
   final CircularShaderCallback? onCreateShader;
 
-  //Called when the data label is tapped.
+  /// Called when the data label is tapped.
   ///
-  ///Whenever the data label is tapped, `onDataLabelTapped` callback will be called. Provides options to
+  /// Whenever the data label is tapped, `onDataLabelTapped` callback will be called. Provides options to
   /// get the position of the data label, series index, point index and its text.
   ///
-  ///_Note:_  This callback will not be called, when the builder is specified for data label
+  /// _Note:_  This callback will not be called, when the builder is specified for data label
   /// (data label template). For this case, custom widget specified in the `DataLabelSettings.builder` property
   /// can be wrapped using the `GestureDetector` and this functionality can be achieved in the application level.
   ///```dart
@@ -365,7 +429,8 @@ class SfCircularChart extends StatefulWidget {
   ///            onDataLabelTapped: (DataLabelTapDetails args) {
   ///                 print(arg.seriesIndex);
   ///                  }
-  ///        ));
+  ///           )
+  ///    );
   ///}
   ///
   ///```
@@ -379,7 +444,9 @@ class SfCircularChart extends StatefulWidget {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            onLegendTapped: (LegendTapArgs args) => legend(args),
-  ///        ));
+  ///            legend: Legend(isVisible: true),
+  ///        )
+  ///    );
   ///}
   ///void legend(LegendTapArgs args) {
   ///   print(args.pointIndex);
@@ -395,7 +462,8 @@ class SfCircularChart extends StatefulWidget {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            onSelectionChanged: (SelectionArgs args) => select(args),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///void select(SelectionArgs args) {
   ///   print(args.selectedBorderColor);
@@ -412,7 +480,8 @@ class SfCircularChart extends StatefulWidget {
   ///               print(args.position.dx.toString());
   ///               print(args.position.dy.toString());
   ///             }
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final CircularTouchInteractionCallback? onChartTouchInteractionUp;
@@ -426,7 +495,8 @@ class SfCircularChart extends StatefulWidget {
   ///               print(args.position.dx.toString());
   ///               print(args.position.dy.toString());
   ///             }
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   ///
@@ -441,68 +511,81 @@ class SfCircularChart extends StatefulWidget {
   ///               print(args.position.dx.toString());
   ///               print(args.position.dy.toString());
   ///             }
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final CircularTouchInteractionCallback? onChartTouchInteractionMove;
 
-  ///Color palette for the data points in the chart series. If the series color is
-  ///not specified, then the series will be rendered with appropriate palette color.
-  ///Ten colors are available by default.
+  /// Color palette for the data points in the chart series. If the series color is
+  /// not specified, then the series will be rendered with appropriate palette color.
+  /// Ten colors are available by default.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            palette: <Color>[Colors.red, Colors.green]
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final List<Color> palette;
 
-  ///Gesture for activating the selection. Selection can be activated in tap,
-  ///double tap, and long press.
+  /// Gesture for activating the selection.
   ///
-  ///Defaults to `ActivationMode.tap`.
+  /// Selection can be activated in `ActivationMode.none`, `ActivationMode.singleTap`,
+  /// `ActivationMode.doubleTap`, and `ActivationMode.longPress`.
   ///
-  ///Also refer [ActivationMode].
+  /// Defaults to `ActivationMode.singleTap`.
+  ///
+  /// Also refer [ActivationMode].
   ///
   ///```dart
+  ///SelectionBehavior _selectionBehavior;
+  ///
+  ///void initState() {
+  ///   _selectionBehavior = SelectionBehavior(enable: true);
+  ///   super.initState();
+  ///}
+  ///
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            selectionGesture: ActivationMode.singleTap,
   ///            series: <PieSeries<ChartData, String>>[
   ///                PieSeries<ChartData, String>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    selectedColor: Colors.red.withOpacity(0.8),
-  ///                    unselectedColor: Colors.grey.withOpacity(0.5)
-  ///                  ),
+  ///                  selectionBehavior: _selectionBehavior
   ///                ),
   ///              ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final ActivationMode selectionGesture;
 
-  ///Enables or disables the multiple data points or series selection.
+  /// Enables or disables the multiple data points or series selection.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
   ///```dart
+  ///SelectionBehavior _selectionBehavior;
+  ///
+  ///void initState() {
+  ///   _selectionBehavior = SelectionBehavior(enable: true);
+  ///   super.initState();
+  ///}
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            enableMultiSelection: true,
   ///            series: <PieSeries<ChartData, String>>[
   ///                PieSeries<ChartData, String>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    selectedColor: Colors.red.withOpacity(0.8),
-  ///                    unselectedColor: Colors.grey.withOpacity(0.5)
-  ///                  ),
+  ///                  selectionBehavior: _selectionBehavior
   ///                ),
   ///              ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final bool enableMultiSelection;
@@ -511,11 +594,11 @@ class SfCircularChart extends StatefulWidget {
   State<StatefulWidget> createState() => SfCircularChartState();
 }
 
-/// Represents the state class of [SfCircularChart] widget
+/// Represents the state class of [SfCircularChart] widget.
 ///
 class SfCircularChartState extends State<SfCircularChart>
     with TickerProviderStateMixin {
-  /// Specifies the chart rendering details
+  /// Specifies the chart rendering details.
   late CircularStateProperties _stateProperties;
 
   /// Called when this object is inserted into the tree.
@@ -553,6 +636,7 @@ class SfCircularChartState extends State<SfCircularChart>
   @override
   void didChangeDependencies() {
     _stateProperties.renderingDetails.chartTheme = SfChartTheme.of(context);
+    _stateProperties.isRtl = Directionality.of(context) == TextDirection.rtl;
     super.didChangeDependencies();
   }
 
@@ -673,7 +757,7 @@ class SfCircularChartState extends State<SfCircularChart>
   ///
   /// As this method is in the widget’s state class,
   /// you have to use a global key to access the state to call this method.
-  /// Returns the `dart:ui.image`
+  /// Returns the `dart:ui.image`.
   ///
   /// ```dart
   /// final GlobalKey<SfCircularChartState> _key = GlobalKey();
@@ -701,7 +785,7 @@ class SfCircularChartState extends State<SfCircularChart>
   ///    ),
   ///  );
   /// }
-
+  ///
   /// Future<void> _renderImage() async {
   ///  dart_ui.Image data = await _key.currentState.toImage(pixelRatio: 3.0);
   ///  final bytes = await data.toByteData(format: dart_ui.ImageByteFormat.png);
@@ -735,7 +819,7 @@ class SfCircularChartState extends State<SfCircularChart>
     return image;
   }
 
-  /// To initialize default values of circular chart
+  /// To initialize default values of circular chart.
   void _initializeDefaultValues() {
     _stateProperties.chartSeries = CircularSeriesBase(_stateProperties);
     _stateProperties.circularArea =
@@ -769,7 +853,7 @@ class SfCircularChartState extends State<SfCircularChart>
         LegendRenderer(widget.legend);
   }
 
-  /// In this method, create and update the series renderer for each series //
+  /// In this method, create and update the series renderer for each series.
   void _createAndUpdateSeriesRenderer([SfCircularChart? oldWidget]) {
     if (widget.series.isNotEmpty) {
       final CircularSeriesRendererExtension? oldSeriesRenderer =
@@ -847,7 +931,7 @@ class SfCircularChartState extends State<SfCircularChart>
     }
   }
 
-  /// To return widget with chart elements
+  /// To return widget with chart elements.
   Widget _renderChartElements() {
     return Expanded(
       child: LayoutBuilder(
@@ -861,7 +945,7 @@ class SfCircularChartState extends State<SfCircularChart>
         _stateProperties.renderingDetails.prevSize = constraints.biggest;
         final ChartPoint<dynamic> tooltipPoint =
             _getChartPoints(_stateProperties);
-        SchedulerBinding.instance!.addPostFrameCallback((_) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
           _validateStateMaintenance(_stateProperties, tooltipPoint);
         });
         _stateProperties.chartSeries.findVisibleSeries();
@@ -875,7 +959,7 @@ class SfCircularChartState extends State<SfCircularChart>
             _stateProperties.renderingDetails.legendWidgetContext.isEmpty) {
           // ignore: avoid_unnecessary_containers
           element = Container(child: Stack(children: legendTemplates));
-          SchedulerBinding.instance!.addPostFrameCallback((_) => _refresh());
+          SchedulerBinding.instance.addPostFrameCallback((_) => _refresh());
         } else {
           _stateProperties.renderingDetails.chartLegend.calculateLegendBounds(
               _stateProperties.renderingDetails.chartLegend.chartSize);
@@ -887,7 +971,7 @@ class SfCircularChartState extends State<SfCircularChart>
     );
   }
 
-  /// To initialize chart widgets
+  /// To initialize chart widgets.
   void _initialize(BoxConstraints constraints) {
     final num width = constraints.maxWidth;
     final num height = constraints.maxHeight;
@@ -908,66 +992,65 @@ class SfCircularChartState extends State<SfCircularChart>
         height - margin.top - margin.bottom);
   }
 
-  /// This will return tooltip chart point
-  ChartPoint<dynamic> _getChartPoints(
-      CircularStateProperties _stateProperties) {
+  /// This will return tooltip chart point.
+  ChartPoint<dynamic> _getChartPoints(CircularStateProperties stateProperties) {
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _stateProperties.renderingDetails.tooltipBehaviorRenderer;
+        stateProperties.renderingDetails.tooltipBehaviorRenderer;
     final TooltipRenderingDetails tooltipRenderingDetails =
         TooltipHelper.getRenderingDetails(tooltipBehaviorRenderer);
 
-    ChartPoint<dynamic> tooltipChartPoint = ChartPoint<dynamic>(null, null);
+    ChartPoint<dynamic> tooltipChartPoint = ChartPoint<dynamic>();
 
-    if (_stateProperties.renderingDetails.oldDeviceOrientation !=
-            _stateProperties.renderingDetails.deviceOrientation ||
-        _stateProperties.renderingDetails.didSizeChange) {
+    if (stateProperties.renderingDetails.oldDeviceOrientation !=
+            stateProperties.renderingDetails.deviceOrientation ||
+        stateProperties.renderingDetails.didSizeChange) {
       if (tooltipRenderingDetails.showLocation != null &&
-          _stateProperties.chart.tooltipBehavior.enable == true &&
-          _stateProperties.isTooltipHidden == false &&
-          _stateProperties.requireDataLabelTooltip == null) {
+          stateProperties.chart.tooltipBehavior.enable == true &&
+          stateProperties.isTooltipHidden == false &&
+          stateProperties.requireDataLabelTooltip == null) {
         tooltipChartPoint = circularPixelToPoint(
-            tooltipRenderingDetails.showLocation!, _stateProperties);
+            tooltipRenderingDetails.showLocation!, stateProperties);
       }
     }
     return tooltipChartPoint;
   }
 
-  /// Here for orientation change/browser resize, the logic in this method will get executed
-  void _validateStateMaintenance(CircularStateProperties _stateProperties,
+  /// Here for orientation change/browser resize, the logic in this method will get executed.
+  void _validateStateMaintenance(CircularStateProperties stateProperties,
       ChartPoint<dynamic> tooltipChartPoint) {
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _stateProperties.renderingDetails.tooltipBehaviorRenderer;
+        stateProperties.renderingDetails.tooltipBehaviorRenderer;
     final TooltipRenderingDetails tooltipRenderingDetails =
         TooltipHelper.getRenderingDetails(tooltipBehaviorRenderer);
-    if (_stateProperties.renderingDetails.oldDeviceOrientation !=
-            _stateProperties.renderingDetails.deviceOrientation ||
-        _stateProperties.renderingDetails.didSizeChange) {
+    if (stateProperties.renderingDetails.oldDeviceOrientation !=
+            stateProperties.renderingDetails.deviceOrientation ||
+        stateProperties.renderingDetails.didSizeChange) {
       if (tooltipRenderingDetails.showLocation != null &&
-          _stateProperties.chart.tooltipBehavior.enable &&
-          !_stateProperties.isTooltipHidden &&
-          _stateProperties.requireDataLabelTooltip == null) {
-        _stateProperties.isTooltipOrientationChanged = true;
+          stateProperties.chart.tooltipBehavior.enable &&
+          !stateProperties.isTooltipHidden &&
+          stateProperties.requireDataLabelTooltip == null) {
+        stateProperties.isTooltipOrientationChanged = true;
         ChartPoint<dynamic>? point;
         for (int i = 0;
             i <
-                _stateProperties
+                stateProperties
                     .chartSeries.visibleSeriesRenderers[0].dataPoints.length;
             i++) {
-          if (_stateProperties
+          if (stateProperties
                       .chartSeries.visibleSeriesRenderers[0].dataPoints[i].x ==
                   tooltipChartPoint.x &&
-              _stateProperties
+              stateProperties
                       .chartSeries.visibleSeriesRenderers[0].dataPoints[i].y ==
                   tooltipChartPoint.y) {
-            point = _stateProperties
+            point = stateProperties
                 .chartSeries.visibleSeriesRenderers[0].dataPoints[i];
           }
         }
         if (point != null) {
           final Offset tooltipPosition =
-              circularPointToPixel(point, _stateProperties);
-          if (_stateProperties.chart.tooltipBehavior.builder != null) {
-            _stateProperties.circularArea
+              circularPointToPixel(point, stateProperties);
+          if (stateProperties.chart.tooltipBehavior.builder != null) {
+            stateProperties.circularArea
                 .showCircularTooltipTemplate(0, point.index);
           } else {
             tooltipRenderingDetails.internalShowByPixel(

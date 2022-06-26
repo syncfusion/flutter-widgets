@@ -267,12 +267,18 @@ class DateRangePickerHelper {
         return !isSameCellDates(startDate, endDate, view) &&
             (!isInBetweenEnabled ||
                 (isInBetweenEnabled &&
-                    (currentDateValue.isBefore(startDate) == true ||
-                        currentDateValue.isAfter(endDate) == true)));
+                    ((startDate.isAfter(currentDateValue) == true &&
+                            !isSameCellDates(
+                                startDate, currentDateValue, view)) ||
+                        (endDate.isBefore(currentDateValue) == true &&
+                            !isSameCellDates(
+                                endDate, currentDateValue, view)))));
       case ExtendableRangeSelectionDirection.forward:
-        return startDate.isAfter(currentDateValue) == true;
+        return startDate.isAfter(currentDateValue) == true &&
+            !isSameCellDates(startDate, currentDateValue, view);
       case ExtendableRangeSelectionDirection.backward:
-        return endDate.isBefore(currentDateValue) == true;
+        return endDate.isBefore(currentDateValue) == true &&
+            !isSameCellDates(endDate, currentDateValue, view);
       case ExtendableRangeSelectionDirection.both:
         return false;
     }
@@ -458,10 +464,10 @@ class DateRangePickerHelper {
   }
 
   /// Get the visible dates based on the date value and visible dates count.
-  // ignore: always_specify_types
+  // ignore: always_specify_types, strict_raw_type
   static List getVisibleYearDates(
       dynamic date, DateRangePickerView view, bool isHijri) {
-    // ignore: always_specify_types
+    // ignore: always_specify_types, strict_raw_type
     List datesCollection;
     if (isHijri) {
       datesCollection = <HijriDateTime>[];

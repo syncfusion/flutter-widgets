@@ -13,8 +13,7 @@ import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/legend_internal.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_maps/maps.dart';
-
+import '../../maps.dart';
 import '../common.dart';
 import '../controller/map_controller.dart';
 import '../controller/map_provider.dart';
@@ -863,11 +862,7 @@ class _ShapeBounds {
   num? maxLongitude;
   num? maxLatitude;
 
-  _ShapeBounds get empty => _ShapeBounds(
-      minLongitude: null,
-      minLatitude: null,
-      maxLongitude: null,
-      maxLatitude: null);
+  _ShapeBounds get empty => _ShapeBounds();
 }
 
 class _ShapeFileData {
@@ -2055,7 +2050,7 @@ class _RenderGeoJSONLayer extends RenderStack
       _refresh();
       markNeedsPaint();
       SchedulerBinding.instance
-          ?.addPostFrameCallback(_initiateInitialAnimations);
+          .addPostFrameCallback(_initiateInitialAnimations);
     }
   }
 
@@ -2770,7 +2765,6 @@ class _RenderGeoJSONLayer extends RenderStack
       }
 
       if (_currentHoverItem != null) {
-        _previousHoverItem = _currentHoverItem;
         _currentHoverItem = null;
       }
       _downGlobalPoint ??= event.position;
@@ -2799,7 +2793,8 @@ class _RenderGeoJSONLayer extends RenderStack
       Offset? localFocalPoint,
       Offset? globalFocalPoint}) {
     final double newZoomLevel = _getZoomLevel(scale);
-    final double newShapeLayerSizeFactor = _getScale(newZoomLevel);
+    final double newShapeLayerSizeFactor =
+        _getScale(newZoomLevel) * _controller.shapeLayerSizeFactor;
     final Offset newShapeLayerOffset =
         _controller.getZoomingTranslation(origin: localFocalPoint);
     final Rect newVisibleBounds = _controller.getVisibleBounds(
@@ -2988,7 +2983,6 @@ class _RenderGeoJSONLayer extends RenderStack
     }
 
     if (_currentHoverItem != null) {
-      _previousHoverItem = _currentHoverItem;
       _currentHoverItem = null;
     }
 
@@ -3568,7 +3562,7 @@ class _RenderGeoJSONLayer extends RenderStack
         ..addListener(_handleFocalLatLngAnimation)
         ..addStatusListener(_handleFocalLatLngAnimationStatusChange);
     }
-    SchedulerBinding.instance?.addPostFrameCallback(_initiateInitialAnimations);
+    SchedulerBinding.instance.addPostFrameCallback(_initiateInitialAnimations);
   }
 
   @override

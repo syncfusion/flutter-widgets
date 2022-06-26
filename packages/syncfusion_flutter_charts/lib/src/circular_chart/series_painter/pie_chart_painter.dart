@@ -7,10 +7,9 @@ import '../renderer/common.dart';
 import '../renderer/renderer_extension.dart';
 import '../utils/helper.dart';
 
-/// Represents the pie chart painter
-///
+/// Represents the pie chart painter.
 class PieChartPainter extends CustomPainter {
-  /// Creates an instance of pie chart painter
+  /// Creates an instance of pie chart painter.
   PieChartPainter({
     required this.stateProperties,
     required this.index,
@@ -21,28 +20,28 @@ class PieChartPainter extends CustomPainter {
   })  : chart = stateProperties.chart,
         super(repaint: notifier);
 
-  /// Specifies the circular state properties
+  /// Specifies the circular state properties.
   final CircularStateProperties stateProperties;
 
-  /// Holds the circularchart
+  /// Holds the circularchart.
   final SfCircularChart chart;
 
-  /// Holds the index value
+  /// Holds the index value.
   final int index;
 
-  /// Specifies whether to repaint the series
+  /// Specifies whether to repaint the series.
   final bool isRepaint;
 
-  /// Holds the animation controller
+  /// Holds the animation controller.
   final AnimationController? animationController;
 
-  /// Specifies the series animation
+  /// Specifies the series animation.
   final Animation<double>? seriesAnimation;
 
-  /// Specifies the pie series renderer extension
+  /// Specifies the pie series renderer extension.
   late PieSeriesRendererExtension seriesRenderer;
 
-  /// To paint series
+  /// To paint series.
   @override
   void paint(Canvas canvas, Size size) {
     num? pointStartAngle;
@@ -55,7 +54,7 @@ class PieChartPainter extends CustomPainter {
       isAnyPointNeedSelect =
           checkIsAnyPointSelect(seriesRenderer, seriesRenderer.point, chart);
     }
-    ChartPoint<dynamic>? _oldPoint;
+    ChartPoint<dynamic>? oldPoint;
     ChartPoint<dynamic>? point = seriesRenderer.point;
     final PieSeriesRendererExtension? oldSeriesRenderer =
         (stateProperties.renderingDetails.widgetNeedUpdate &&
@@ -68,7 +67,7 @@ class PieChartPainter extends CustomPainter {
     seriesRenderer.renderList.clear();
     for (int i = 0; i < seriesRenderer.renderPoints!.length; i++) {
       point = seriesRenderer.renderPoints![i];
-      _oldPoint = (oldSeriesRenderer != null &&
+      oldPoint = (oldSeriesRenderer != null &&
               oldSeriesRenderer.oldRenderPoints != null &&
               (oldSeriesRenderer.oldRenderPoints!.length - 1 >= i))
           ? oldSeriesRenderer.oldRenderPoints![i]
@@ -90,16 +89,16 @@ class PieChartPainter extends CustomPainter {
           seriesAnimation?.value ?? 1,
           seriesAnimation?.value ?? 1,
           isAnyPointNeedSelect,
-          _oldPoint,
+          oldPoint,
           stateProperties.oldPoints);
     }
     if (seriesRenderer.renderList.isNotEmpty) {
-      Shader? _chartShader;
+      Shader? chartShader;
       if (chart.onCreateShader != null) {
         ChartShaderDetails chartShaderDetails;
         chartShaderDetails =
             ChartShaderDetails(seriesRenderer.renderList[1], null, 'series');
-        _chartShader = chart.onCreateShader!(chartShaderDetails);
+        chartShader = chart.onCreateShader!(chartShaderDetails);
       }
       for (int k = 0; k < seriesRenderer.renderPaths.length; k++) {
         drawPath(
@@ -107,7 +106,7 @@ class PieChartPainter extends CustomPainter {
             seriesRenderer.renderList[0],
             seriesRenderer.renderPaths[k],
             seriesRenderer.renderList[1],
-            _chartShader);
+            chartShader);
       }
       if (seriesRenderer.renderList[0].strokeColor != null &&
           seriesRenderer.renderList[0].strokeWidth != null &&

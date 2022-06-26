@@ -9,10 +9,10 @@ import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import '../../pyramid_chart/utils/common.dart';
 
-/// Represents the funnel series base
+/// Represents the funnel series base.
 class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
     implements TriangularChartEmptyPointBehavior {
-  /// Creates an instance of funnel series base
+  /// Creates an instance of funnel series base.
   FunnelSeriesBase({
     this.key,
     this.onCreateRenderer,
@@ -71,12 +71,11 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
     // _renderer = _FunnelSeriesRender();
   }
 
-  ///A collection of data required for rendering the series.
+  /// A collection of data required for rendering the series.
   ///
-  ///If no data source is specified,
-  ///empty chart will be rendered without series.
+  /// If no data source is specified, empty chart will be rendered without series.
   ///
-  ///Defaults to null
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -89,15 +88,16 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///                   ChartData('Russia', 9),
   ///                   ChartData('Germany', 10),
   ///                ],
-  ///              )],
-  ///        ));
+  ///              )
+  ///        )
+  ///   );
   ///}
   @override
   final List<T>? dataSource;
 
-  ///Maps the field name, which will be considered as x-values.
+  /// Maps the field name, which will be considered as x-values.
   ///
-  ///Defaults to null
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -111,8 +111,9 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///                   ChartData('Germany', 10),
   ///                ],
   ///                xValueMapper: (ChartData data, _) => data.xVal,
-  ///              )],
-  ///        ));
+  ///              )
+  ///        )
+  ///   );
   ///}
   ///class ChartData {
   ///   ChartData(this.xVal, this.yVal);
@@ -123,9 +124,9 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   @override
   final ChartIndexedValueMapper<D>? xValueMapper;
 
-  ///Maps the field name, which will be considered as y-values.
+  /// Maps the field name, which will be considered as y-values.
   ///
-  ///Defaults to null
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -139,8 +140,9 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///                   ChartData('Germany', 10),
   ///                ],
   ///                yValueMapper: (ChartData data, _) => data.yVal,
-  ///              )],
-  ///        ));
+  ///             )
+  ///         )
+  ///     );
   ///}
   ///class ChartData {
   ///   ChartData(this.xVal, this.yVal);
@@ -151,9 +153,7 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   @override
   final ChartIndexedValueMapper<num>? yValueMapper;
 
-  ///Name of the series.
-  ///
-  ///Defaults to ''
+  /// Name of the series.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -161,15 +161,16 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<ChartData, String>(
   ///                name: 'Pyramid'
-  ///        ));
+  ///        )
+  ///   );
   ///}
   ///```
   @override
   final String? name;
 
-  ///Neck height of funnel.
+  /// Neck height of funnel.
   ///
-  ///Defaults to '20%'
+  /// Defaults to `20%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -177,14 +178,15 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<ChartData, String>(
   ///                neckHeight: '10%'
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final String neckHeight;
 
-  ///Neck width of funnel.
+  /// Neck width of funnel.
   ///
-  ///Defaults to '20%'
+  /// Defaults to `20%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -192,14 +194,15 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<ChartData, String>(
   ///                neckWidth: '10%'
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final String neckWidth;
 
-  ///Height of the series.
+  /// Height of the series.
   ///
-  ///Defaults to '80%'
+  /// Defaults to `80%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -207,14 +210,15 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<ChartData, String>(
   ///               height:'50%'
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final String height;
 
-  ///Width of the series.
+  /// Width of the series.
   ///
-  ///Defaults to '80%'
+  /// Defaults to `80%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -222,16 +226,17 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<ChartData, String>(
   ///               width:'50%'
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final String width;
 
-  ///Gap ratio between the segments of pyramid.
+  /// Gap ratio between the segments of funnel.
   ///
-  /// Ranges from 0 to 1
+  /// Ranges from 0 to 1.
   ///
-  ///Defaults to 0.
+  /// Defaults to `0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -239,13 +244,13 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<ChartData, String>(
   ///               gapRatio: 0.3
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double gapRatio;
 
-  ///Customizes the empty data points in the series
-  ///
+  /// Customizes the empty data points in the series.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -253,15 +258,18 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<ChartData, String>(
   ///               emptyPointSettings: EmptyPointSettings (color: Colors.red))
-  ///        ));
+  ///        )
+  ///   );
   ///}
   ///```
   @override
   final EmptyPointSettings emptyPointSettings;
 
-  ///Offset of exploded slice.
+  /// Offset of exploded slice.
   ///
   /// The value ranges from 0% to 100%.
+  ///
+  /// Defaults to `10%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -269,14 +277,15 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<ChartData, String>(
   ///               explodeOffset: '5%')
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final String explodeOffset;
 
-  ///Enables or disables the explode of slices on tap.
+  /// Enables or disables the explode of slices on tap.
   ///
-  ///Default to false.
+  /// Default to `false`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -284,19 +293,20 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<ChartData, String>(
   ///               explode: true)
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final bool explode;
 
-  ///Gesture for activating the explode.
+  /// Gesture for activating the explode.
   ///
-  ///Explode can be activated in tap, double tap,
-  ///and long press.
+  /// Explode can be activated in `ActivationMode.none`, `ActivationMode.singleTap`, `ActivationMode.doubleTap`,
+  /// and `ActivationMode.longPress`.
   ///
-  ///Defaults to ActivationMode.tap
+  /// Defaults to `ActivationMode.singleTap`.
   ///
-  ///Also refer [ActivationMode]
+  /// Also refer [ActivationMode].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -306,14 +316,15 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///               explode: true,
   ///               explodeGesture: ActivationMode.singleTap
   ///             )
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final ActivationMode explodeGesture;
 
-  ///Border width of the data points in the series.
+  /// Border width of the data points in the series.
   ///
-  ///Defaults to 0
+  /// Defaults to `0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -322,15 +333,16 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///            series: FunnelSeries<ChartData, String>(
   ///               borderWidth: 2
   ///             )
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final double borderWidth;
 
-  ///Border color of the data points in the series.
+  /// Border color of the data points in the series.
   ///
-  ///
+  /// Defaults to `Colors.transparent`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -338,19 +350,20 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///            series: FunnelSeries<ChartData, String>(
   ///               borderColor: Colors.red
   ///             )
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final Color borderColor;
 
-  ///Shape of the legend icon.
+  /// Shape of the legend icon.
   ///
-  ///Any shape in the LegendIconType can be applied to this property.
-  ///By default, icon will be rendered based on the type of the series.
+  /// Any shape in the LegendIconType can be applied to this property.
   ///
+  /// Defaults to `LegendIconType.seriesType`.
   ///
-  ///Also refer [LegendIconType]
+  /// Also refer [LegendIconType].
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -358,13 +371,15 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///            series: FunnelSeries<ChartData, String>(
   ///               legendIconType: LegendIconType.diamond,
   ///             )
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final LegendIconType legendIconType;
 
-  ///Enables the data label of the series
+  /// Customizes the data labels in a series. Data label is a text, which displays
+  /// the details about the data point.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -373,15 +388,16 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///            series: FunnelSeries<ChartData, String>(
   ///               dataLabelSettings: DataLabelSettings(isVisible: true),
   ///             )
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final DataLabelSettings dataLabelSettings;
 
-  //Duration for animating the data points.
+  /// Duration for animating the data points.
   ///
-  ///Defaults to 1500
+  /// Defaults to `1500`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -390,7 +406,8 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///            series: FunnelSeries<ChartData, String>(
   ///               animationDuration: 2000,
   ///             )
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   @override
@@ -401,7 +418,7 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   /// If animationDelay is specified, then the series will begin to animate
   /// after the specified duration.
   ///
-  /// Defaults to 0.
+  /// Defaults to `0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -410,24 +427,28 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///            series: FunnelSeries<ChartData, String>(
   ///               animationDelay: 500,
   ///             )
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final double animationDelay;
 
-  ///Maps the field name, which will be considered as data point color.
+  /// Maps the field name, which will be considered as data point color.
   ///
-  ///Defaults to null
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<ChartData, String>(
+  ///               xValueMapper: (ChartData data, _) => data.xVal,
+  ///               yValueMapper: (ChartData data, _) => data.yVal,
   ///               pointColorMapper: (ChartData data, _) => data.pointColor,
   ///             )
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///class ChartData {
   ///   ChartData(this.xVal, this.yVal, [this.pointColor]);
@@ -439,33 +460,35 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   @override
   final ChartIndexedValueMapper<Color>? pointColorMapper;
 
-  ///Maps the field name, which will be considered as text for data label.
+  /// Maps the field name, which will be considered as a text.
   ///
-  ///Defaults to null
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<ChartData, String>(
+  ///               xValueMapper: (ChartData data, _) => data.xVal,
+  ///               yValueMapper: (ChartData data, _) => data.yVal,
   ///               textFieldMapper: (ChartData data, _) => data.xVal,
   ///             )
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///class ChartData {
-  ///   ChartData(this.xVal, this.yVal, [this.pointColor]);
+  ///   ChartData(this.xVal, this.yVal);
   ///   final String xVal;
   ///   final int yVal;
-  ///   final Color pointColor;
   ///}
   ///```
   final ChartIndexedValueMapper<String>? textFieldMapper;
 
-  ///Opacity of the series.
+  /// Opacity of the series.
   ///
   /// The value ranges from 0 to 1.
   ///
-  ///Defaults to 1
+  /// Defaults to `1`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -474,33 +497,39 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///            series: FunnelSeries<ChartData, String>(
   ///               opacity: 0.5,
   ///             )
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final double opacity;
 
-  ///Customizes the selection of series.
+  /// Customizes the selection of series.
   ///
   ///```dart
+  ///SelectionBehavior _selectionBehavior;
+  ///
+  ///void initState() {
+  ///   _selectionBehavior = SelectionBehavior(enable: true);
+  ///   super.initState();
+  ///}
+  ///
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<ChartData, String>(
-  ///               selectionBehavior: selectionBehavior(
-  ///                    selectedColor: Colors.red,
-  ///                    unselectedColor: Colors.grey
-  ///                  ),
+  ///               selectionBehavior: _selectionBehavior
   ///             )
-  ///        ));
+  ///        )
+  ///   );
   ///}
   ///```
   @override
   final SelectionBehavior selectionBehavior;
 
-  ///Index of the slice to explode it at the initial rendering.
+  /// Index of the slice to explode it at the initial rendering.
   ///
-  ///Defaults to null
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -510,12 +539,13 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///               explodeIndex: 1,
   ///               explode: true
   ///             )
-  ///        ));
+  ///        )
+  ///   );
   ///}
   ///```
   final num? explodeIndex;
 
-  /// List of data indexes initially selected
+  /// List of data indexes initially selected.
   ///
   /// Defaults to `null`.
   ///```dart
@@ -532,23 +562,15 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///  }
   List<int> initialSelectedDataIndexes;
 
-  ///Key to identify a series in a collection.
-
+  /// Key to identify a series in a collection.
   ///
-
-  ///On specifying [ValueKey] as the series [key], existing series index can be
+  /// On specifying [ValueKey] as the series [key], existing series index can be
   /// changed in the series collection without losing its state.
-
   ///
-
-  ///When a new series is added dynamically to the collection, existing series index will be changed. On that case,
-
+  /// When a new series is added dynamically to the collection, existing series index will be changed. On that case,
   /// the existing series and its state will be linked based on its chart type and this key value.
-
   ///
-
-  ///Defaults to `null`.
-
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -557,24 +579,25 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///            series: FunnelSeries<SalesData, num>(
   ///                      key: const ValueKey<String>('funnel_series_key'),
   ///                 ),
-  ///        ));
+  ///           )
+  ///    );
   ///}
   ///```
   final ValueKey<String>? key;
 
-  ///Used to create the renderer for custom series.
+  /// Used to create the renderer for custom series.
   ///
-  ///This is applicable only when the custom series is defined in the sample
+  /// This is applicable only when the custom series is defined in the sample
   /// and for built-in series types, it is not applicable.
   ///
-  ///Renderer created in this will hold the series state and
+  /// Renderer created in this will hold the series state and
   /// this should be created for each series. [onCreateRenderer] callback
   /// function should return the renderer class and should not return null.
   ///
-  ///Series state will be created only once per series and will not be created
-  ///again when we update the series.
+  /// Series state will be created only once per series and will not be created
+  /// again when we update the series.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -582,26 +605,23 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///        child: SfFunnelChart(
   ///            series: FunnelSeries<SalesData, num>(
   ///                  onCreateRenderer:(FunnelSeries<dynamic, dynamic> series){
-  ///                      return CustomLinerSeriesRenderer();
+  ///                      return CustomFunnelSeriesRenderer();
   ///                    }
   ///                ),
-  ///        ));
+  ///        )
+  ///    );
   /// }
-  ///  class CustomLinerSeriesRenderer extends FunnelSeriesRenderer {
+  ///  class CustomFunnelSeriesRenderer extends FunnelSeriesRenderer {
   ///       // custom implementation here...
   ///  }
   ///```
   final ChartSeriesRendererFactory<T, D>? onCreateRenderer;
 
-  ///Triggers when the series renderer is created.
-
+  /// Triggers when the series renderer is created.
   ///
-
-  ///Using this callback, able to get the [ChartSeriesController] instance, which is used to access the public methods in the series.
-
+  /// Using this callback, able to get the [ChartSeriesController] instance, which is used to access the public methods in the series.
   ///
-
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -613,14 +633,15 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///                       _chartSeriesController = controller;
   ///                    },
   ///              ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final FunnelSeriesRendererCreatedCallback? onRendererCreated;
 
-  ///Called when tapped on the chart data point.
+  /// Called when tapped on the chart data point.
   ///
-  ///The user can fetch the series index, point index, view port point index and
+  /// The user can fetch the series index, point index, view port index and
   /// data of the tapped data point.
   ///```dart
   ///Widget build(BuildContext context) {
@@ -633,15 +654,16 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///                       print(details.pointIndex);
   ///                    },
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///   );
   ///}
   ///```
   final ChartPointInteractionCallback? onPointTap;
 
-  ///Called when double tapped on the chart data point.
+  /// Called when double tapped on the chart data point.
   ///
-  ///The user can fetch the series index, point index, view port point index and
+  /// The user can fetch the series index, point index, view port index and
   /// data of the double-tapped data point.
   ///```dart
   ///Widget build(BuildContext context) {
@@ -654,15 +676,16 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///                       print(details.pointIndex);
   ///                    },
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final ChartPointInteractionCallback? onPointDoubleTap;
 
-  ///Called when long pressed on the chart data point.
+  /// Called when long pressed on the chart data point.
   ///
-  ///The user can fetch the series index, point index, view port point index and
+  /// The user can fetch the series index, point index, view port index and
   /// data of the long-pressed data point.
   ///```dart
   ///Widget build(BuildContext context) {
@@ -675,13 +698,14 @@ class FunnelSeriesBase<T, D> extends ChartSeries<T, D>
   ///                       print(details.pointIndex);
   ///                    },
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final ChartPointInteractionCallback? onPointLongPress;
 
-  /// To calculate empty point values if null values are provided
+  /// To calculate empty point values if null values are provided.
   @override
   void calculateEmptyPointValue(
       int pointIndex, dynamic currentPoint, dynamic seriesRenderer) {

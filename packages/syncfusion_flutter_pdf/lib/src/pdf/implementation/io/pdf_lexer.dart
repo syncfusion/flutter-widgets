@@ -865,6 +865,7 @@ class PdfLexer {
     return String.fromCharCodes(buffer.sublist(bufferStart, bufferEnd));
   }
 
+  // ignore: use_setters_to_change_properties
   void _begin(_State state) {
     lexicalState = state;
   }

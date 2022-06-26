@@ -1,14 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/interactive_scroll_viewer_internal.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_page_view.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_scrollable.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/scroll_head.dart';
 
+import '../../pdfviewer.dart';
 import '../common/pdfviewer_helper.dart';
+import 'pdf_page_view.dart';
+import 'pdf_scrollable.dart';
+import 'scroll_head.dart';
 import 'scroll_status.dart';
 
 /// Height of the scroll head.
@@ -147,7 +148,14 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   ThemeData? _themeData;
   SfLocalizations? _localizations;
   final GlobalKey _childKey = GlobalKey();
+  Timer? _scrollTimer;
+
+  /// Indicates whether the user interaction has ended.
   bool _isInteractionEnded = true;
+
+  /// Indicates whether the user scrolls continuously.
+  bool isScrolled = false;
+
   double _scale = 1;
 
   /// Scroll head y position.
@@ -157,7 +165,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   double _scrollHeadPositionX = 0;
 
   /// If true,scroll head dragging is ended.
-  bool _isScrollHeadDragged = false;
+  bool isScrollHeadDragged = false;
 
   @override
   void initState() {
@@ -177,6 +185,8 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
     _pdfViewerThemeData = null;
     _localizations = null;
     _focusNode.dispose();
+    _scrollTimer?.cancel();
+    _scrollTimer = null;
     super.dispose();
   }
 
@@ -274,11 +284,11 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
       _updateScrollHeadPosition();
     });
     // ignore: avoid_bool_literals_in_conditional_expressions
-    final bool _enableDoubleTapZoom = ((!kIsDesktop &&
+    final bool enableDoubleTapZoom = ((!kIsDesktop &&
                 widget.enableDoubleTapZooming) ||
             (kIsDesktop && widget.interactionMode == PdfInteractionMode.pan) ||
             (kIsDesktop &&
@@ -293,7 +303,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
       onDoubleTapZoomInvoked: _onDoubleTapZoomInvoked,
       transformationController: widget.transformationController,
       key: _childKey,
-      enableDoubleTapZooming: _enableDoubleTapZoom,
+      enableDoubleTapZooming: enableDoubleTapZoom,
       // ignore: avoid_bool_literals_in_conditional_expressions
       scaleEnabled: ((kIsDesktop && widget.isMobileWebView) ||
               !kIsDesktop ||
@@ -368,7 +378,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                   PdfPageLayoutMode.continuous)),
         ),
         Visibility(
-            visible: _isScrollHeadDragged && widget.canShowScrollStatus,
+            visible: isScrollHeadDragged && widget.canShowScrollStatus,
             child: ScrollStatus(widget.pdfViewerController)),
       ],
     );
@@ -392,11 +402,12 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
             insetPadding: EdgeInsets.zero,
             contentPadding: orientation == Orientation.portrait
                 ? const EdgeInsets.all(24)
-                : const EdgeInsets.only(top: 0, right: 24, left: 24, bottom: 0),
+                : const EdgeInsets.only(right: 24, left: 24),
             buttonPadding: orientation == Orientation.portrait
                 ? const EdgeInsets.all(8)
                 : const EdgeInsets.all(4),
-            backgroundColor: _pdfViewerThemeData!.backgroundColor ??
+            backgroundColor: _pdfViewerThemeData!
+                    .paginationDialogStyle?.backgroundColor ??
                 (Theme.of(context).colorScheme.brightness == Brightness.light
                     ? Colors.white
                     : const Color(0xFF424242)),
@@ -424,17 +435,13 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                 child: Text(
                   _localizations!.pdfPaginationDialogCancelLabel,
                   style: _pdfViewerThemeData!
-                              .paginationDialogStyle?.cancelTextStyle?.color ==
-                          null
-                      ? _pdfViewerThemeData!
-                          .paginationDialogStyle?.cancelTextStyle!
-                          .copyWith(color: _themeData!.colorScheme.primary)
-                      : _pdfViewerThemeData!
-                              .paginationDialogStyle?.cancelTextStyle ??
-                          const TextStyle(
-                              fontFamily: 'Roboto',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500),
+                          .paginationDialogStyle?.cancelTextStyle ??
+                      TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: _themeData!.colorScheme.primary,
+                      ),
                 ),
               ),
               TextButton(
@@ -443,17 +450,14 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                 },
                 child: Text(
                   _localizations!.pdfPaginationDialogOkLabel,
-                  style: _pdfViewerThemeData!
-                              .paginationDialogStyle?.okTextStyle!.color ==
-                          null
-                      ? _pdfViewerThemeData!.paginationDialogStyle?.okTextStyle!
-                          .copyWith(color: _themeData!.colorScheme.primary)
-                      : _pdfViewerThemeData!
-                              .paginationDialogStyle?.okTextStyle ??
-                          const TextStyle(
-                              fontFamily: 'Roboto',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500),
+                  style:
+                      _pdfViewerThemeData!.paginationDialogStyle?.okTextStyle ??
+                          TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: _themeData!.colorScheme.primary,
+                          ),
                 ),
               )
             ],
@@ -512,7 +516,6 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
           onFieldSubmitted: (String value) {
             _handlePageNumberValidation();
           },
-          // ignore: missing_return
           validator: (String? value) {
             try {
               if (value != null) {
@@ -527,6 +530,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
               _textFieldController.clear();
               return _localizations!.pdfInvalidPageNumberLabel;
             }
+            return null;
           },
         ),
       ),
@@ -549,9 +553,9 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
     _isInteractionEnded = false;
     if (widget.scrollDirection == PdfScrollDirection.horizontal &&
         isVerticalDrag) {
-      _isScrollHeadDragged = false;
+      isScrollHeadDragged = false;
     } else {
-      _isScrollHeadDragged = true;
+      isScrollHeadDragged = true;
     }
   }
 
@@ -611,12 +615,13 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   /// updates UI when scroll head is dragged.
   void _handleScrollHeadDragEnd(DragEndDetails details) {
     _isInteractionEnded = true;
-    _isScrollHeadDragged = false;
+    isScrollHeadDragged = false;
   }
 
   /// handles interaction start.
   void _handleInteractionStart(ScaleStartDetails details) {
     widget.onInteractionStart?.call(details);
+    isScrolled = true;
   }
 
   /// handles interaction changed.
@@ -631,6 +636,13 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   void _handleInteractionEnd(ScaleEndDetails details) {
     _isInteractionEnded = true;
     widget.onInteractionEnd?.call(details);
+    _scrollTimer?.cancel();
+    _scrollTimer = Timer(
+      const Duration(milliseconds: 300),
+      () {
+        isScrolled = false;
+      },
+    );
   }
 
   /// updates the scroll head position based on the interaction results.

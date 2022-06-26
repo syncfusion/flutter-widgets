@@ -3,12 +3,10 @@ import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import 'technical_indicator.dart';
 
-/// This class holds the properties of the Average True Range Indicator.
-///
+/// This class holds the properties of the average true range indicator.
 ///
 /// ATR indicator is a technical analysis volatility indicator. This indicator does not indicate the price trend,
-/// simply the degree of price volatility. The average true range is an N-day smoothed moving average (SMMA) of the true range values.
-///
+/// simply the degree of price volatility. The average true range is an N-day smoothed moving average (SMA) of the true range values.
 ///
 /// Provides options for series visible, axis name, series name, animation duration, legend visibility,
 /// signal line width, and color to customize the appearance of indicator.

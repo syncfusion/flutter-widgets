@@ -1,3 +1,5 @@
+// ignore_for_file: no_default_cases
+
 import '../../utils/enum.dart';
 import '../../utils/helper.dart';
 
@@ -780,6 +782,7 @@ class QRCodeValue {
         break;
     }
 
+    // ignore: no_leading_underscores_for_local_identifiers
     final int _version = getVersionNumber(codeVersion);
     return capacity[_version - 1];
   }

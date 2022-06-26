@@ -340,10 +340,6 @@ class PdfPen {
         case PdfDashStyle.solid:
           _dashPattern = <double>[];
           break;
-        default:
-          _dashStyle = PdfDashStyle.solid;
-          _dashPattern = <double>[];
-          break;
       }
     }
   }

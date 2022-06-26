@@ -122,7 +122,7 @@ class MatrixHelper {
         return 2;
       case MatrixTypes.scalingAndTranslation:
         return 3;
-      default:
+      case MatrixTypes.unknown:
         return 4;
     }
   }

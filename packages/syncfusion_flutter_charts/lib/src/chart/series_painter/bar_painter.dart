@@ -13,7 +13,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Bar series
+/// Creates series renderer for bar series.
 class BarSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of BarSeriesRenderer class.
   BarSeriesRenderer();
@@ -21,11 +21,11 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _currentSeriesDetails;
   late SeriesRendererDetails _segmentSeriesDetails;
 
-  /// To add bar segments to chart segments
+  /// To add bar segments to chart segments.
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
-    final BarSeries<dynamic, dynamic> _barSeries =
+    final BarSeries<dynamic, dynamic> barSeries =
         _currentSeriesDetails.series as BarSeries<dynamic, dynamic>;
     final BarSegment segment = createSegment();
     SegmentHelper.setSegmentProperties(segment,
@@ -34,7 +34,7 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
         SegmentHelper.getSegmentProperties(segment);
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
         _currentSeriesDetails.stateProperties.oldSeriesRenderers;
-    segmentProperties.series = _barSeries;
+    segmentProperties.series = barSeries;
     segmentProperties.seriesRenderer = this;
     segmentProperties.seriesIndex = seriesIndex;
     segment.currentSegmentIndex = pointIndex;
@@ -109,13 +109,13 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
       }
     }
     segmentProperties.path =
-        findingRectSeriesDashedBorder(currentPoint, _barSeries.borderWidth);
+        findingRectSeriesDashedBorder(currentPoint, barSeries.borderWidth);
     segment.segmentRect =
-        getRRectFromRect(currentPoint.region!, _barSeries.borderRadius);
+        getRRectFromRect(currentPoint.region!, barSeries.borderRadius);
     //Tracker rect
-    if (_barSeries.isTrackVisible) {
+    if (barSeries.isTrackVisible) {
       segmentProperties.trackBarRect = getRRectFromRect(
-          currentPoint.trackerRectRegion!, _barSeries.borderRadius);
+          currentPoint.trackerRectRegion!, barSeries.borderRadius);
     }
     segmentProperties.segmentRect = segment.segmentRect;
     customizeSegment(segment);
@@ -123,7 +123,7 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To draw bar segment
+  /// To draw bar segment.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
@@ -159,7 +159,7 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
         segmentProperties.getTrackerStrokePaint();
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -251,15 +251,26 @@ class BarChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRendererDetails.calculateRegionData(stateProperties,
-            seriesRendererDetails, painterKey.index, point, pointIndex);
-        if (point.isVisible && !point.isGap) {
-          seriesRendererDetails.drawSegment(
-              canvas,
-              seriesRenderer._createSegments(
-                  point, segmentIndex += 1, painterKey.index, animationFactor));
+        final bool withInXRange = withInRange(
+            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
+        final bool withInYRange = point != null &&
+            point.yValue != null &&
+            withInRange(point.yValue,
+                seriesRendererDetails.yAxisDetails!.visibleRange!);
+        if (withInXRange || withInYRange) {
+          seriesRendererDetails.calculateRegionData(stateProperties,
+              seriesRendererDetails, painterKey.index, point, pointIndex);
+          if (point.isVisible && !point.isGap) {
+            seriesRendererDetails.drawSegment(
+                canvas,
+                seriesRenderer._createSegments(point, segmentIndex += 1,
+                    painterKey.index, animationFactor));
+          }
         }
       }
       clipRect = calculatePlotOffset(

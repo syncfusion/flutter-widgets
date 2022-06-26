@@ -15,18 +15,18 @@ import '../common/interactive_tooltip.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 
-///An axis which is used to plot date-time values. It is similar to DateTimeAxis except that it
+/// An axis which is used to plot date-time values. It is similar to DateTimeAxis except that it
 /// excludes missing dates.
 ///
-///This is a unique type of axis used mainly with financial series. Like [CategoryAxis], all the data
+/// This is a unique type of axis used mainly with financial series. Like [CategoryAxis], all the data
 /// points are plotted with equal spaces by removing space for missing dates. Intervals and ranges
 /// for the axis are calculated similar to [DateTimeAxis]. There will be no visual gaps between points
 /// even when the difference between two points is more than a year.
 ///
-///A simple use case of this axis type is when the user wishes to visualize the working hours on an
+/// A simple use case of this axis type is when the user wishes to visualize the working hours on an
 /// employee for a month by excluding the weekends.
 ///
-///Provides options for label placement, interval, date format for customizing the appearance.
+/// Provides options for label placement, interval, date format for customizing the appearance.
 @immutable
 class DateTimeCategoryAxis extends ChartAxis {
   /// Creating an argument constructor of DateTimeCategoryAxis class.
@@ -125,26 +125,27 @@ class DateTimeCategoryAxis extends ChartAxis {
             autoScrollingMode: autoScrollingMode,
             axisLabelFormatter: axisLabelFormatter);
 
-  ///Formats the date-time category axis labels.
+  /// Formats the date-time category axis labels.
   ///
-  ///The axis label can be formatted with various built-in [date formats](https://pub.dev/documentation/intl/latest/intl/DateFormat-class.html).
+  /// The axis label can be formatted with various built-in [date formats](https://pub.dev/documentation/intl/latest/intl/DateFormat-class.html).
   ///
-  ///By default, date format will be applied to the axis labels based on the interval between the data points.
+  /// By default, date format will be applied to the axis labels based on the interval between the data points.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeCategoryAxis(dateFormat: DateFormat.y()),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateFormat? dateFormat;
 
-  ///Position of the date-time category axis labels.
+  /// Position of the date-time category axis labels.
   ///
-  ///The labels can be placed either between the ticks or at the major ticks.
+  /// The labels can be placed either between the ticks or at the major ticks.
   ///
-  ///Defaults to `LabelPlacement.betweenTicks`.
+  /// Defaults to `LabelPlacement.betweenTicks`.
   ///
   ///Also refer [LabelPlacement].
   ///```dart
@@ -152,17 +153,18 @@ class DateTimeCategoryAxis extends ChartAxis {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeCategoryAxis(labelPlacement: LabelPlacement.onTicks),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final LabelPlacement labelPlacement;
 
-  ///Customizes the date-time category axis interval.
+  /// Customizes the date-time category axis interval.
   ///
-  ///Intervals can be set to days, hours, minutes, months, seconds, years, and auto. If it is set to auto,
+  /// Intervals can be set to days, hours, minutes, months, seconds, years, and auto. If it is set to auto,
   /// the interval type will be decided based on the data.
   ///
-  ///Defaults to `DateTimeIntervalType.auto`.
+  /// Defaults to `DateTimeIntervalType.auto`.
   ///
   ///Also refer [DateTimeIntervalType].
   ///```dart
@@ -170,88 +172,94 @@ class DateTimeCategoryAxis extends ChartAxis {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeCategoryAxis(intervalType: DateTimeIntervalType.years),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTimeIntervalType intervalType;
 
-  ///Minimum value of the axis.
+  /// Minimum value of the axis.
   ///
-  ///The axis will start from this date and data points below this value will not be rendered.
+  /// The axis will start from this date and data points below this value will not be rendered.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeCategoryAxis(minimum: DateTime(2000)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTime? minimum;
 
-  ///Maximum value of the axis.
+  /// Maximum value of the axis.
   ///
-  ///The axis will end at this date and data points above this value will not be rendered.
+  /// The axis will end at this date and data points above this value will not be rendered.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeCategoryAxis(maximum: DateTime(2019)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTime? maximum;
 
-  ///The minimum visible value of the axis.
+  /// The minimum visible value of the axis.
   ///
-  ///The axis will start from this date and data points below this value will not be rendered initially.
+  /// The axis will start from this date and data points below this value will not be rendered initially.
   /// Further those data points can be viewed by panning from left to right direction.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeCategoryAxis(visibleMinimum: DateTime(2000)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTime? visibleMinimum;
 
-  ///The maximum visible value of the axis.
+  /// The maximum visible value of the axis.
   ///
-  ///The axis will end at this date and data points above this value will not be rendered initially.
+  /// The axis will end at this date and data points above this value will not be rendered initially.
   /// Further those data points can be viewed by panning from right to left direction.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///          primaryXAxis: DateTimeCategoryAxis(visibleMaximum: DateTime(2019)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTime? visibleMaximum;
 
-  ///Defines the type of delta value in the DateTime axis.
+  /// Defines the type of delta value in the DateTime axis.
   ///
-  ///For example, if the [autoScrollingDelta] value is 5 and [autoScrollingDeltaType] is set to
+  /// For example, if the [autoScrollingDelta] value is 5 and [autoScrollingDeltaType] is set to
   /// `DateTimeIntervalType.days`, the data points with 5 days of values will be displayed.
   ///
-  ///The value can be set to years, months, days, hours, minutes, seconds and auto.
+  /// The value can be set to years, months, days, hours, minutes, seconds and auto.
   ///
-  ///Defaults to `DateTimeIntervalType.auto` and the delta will be calculated automatically based on the data.
+  /// Defaults to `DateTimeIntervalType.auto` and the delta will be calculated automatically based on the data.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeCategoryAxis(autoScrollingDeltaType: DateTimeIntervalType.months),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTimeIntervalType autoScrollingDeltaType;
@@ -508,13 +516,13 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
   /// Generates the visible axis labels.
   @override
   void generateVisibleLabels() {
+    _axisDetails.visibleLabels = <AxisLabel>[];
     num tempInterval = _axisDetails.visibleRange!.minimum.ceil();
     int position;
     num prevInterval;
     String labelText;
     final List<AxisLabel> label = _axisDetails.visibleLabels;
-    _axisDetails.visibleLabels = <AxisLabel>[];
-    prevInterval = (label.length != null && label.isNotEmpty)
+    prevInterval = (label.isNotEmpty)
         ? _axisDetails
             .visibleLabels[_axisDetails.visibleLabels.length - 1].value
         : tempInterval;
@@ -531,8 +539,8 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
             (_axisDetails.labels.isNotEmpty &&
                 position >= _axisDetails.labels.length)) {
           continue;
-          // ignore: unnecessary_null_comparison
         } else if (_axisDetails.labels.isNotEmpty &&
+            // ignore: unnecessary_null_comparison
             _axisDetails.labels[position] != null) {
           labelText = _axisDetails.getFormattedLabel(
               _axisDetails.labels[position], _axisDetails.dateFormat);
@@ -598,7 +606,7 @@ class DateTimeCategoryAxisDetails extends ChartAxisRendererDetails {
   void findAxisMinMaxValues(SeriesRendererDetails seriesRendererDetails,
       CartesianChartPoint<dynamic> point, int pointIndex, int dataLength,
       [bool? isXVisibleRange, bool? isYVisibleRange]) {
-    final bool _anchorRangeToVisiblePoints =
+    final bool anchorRangeToVisiblePoints =
         seriesRendererDetails.yAxisDetails!.axis.anchorRangeToVisiblePoints;
     final String seriesType = seriesRendererDetails.seriesType;
 
@@ -611,7 +619,7 @@ class DateTimeCategoryAxisDetails extends ChartAxisRendererDetails {
       seriesRendererDetails.minimumX ??= point.xValue;
       seriesRendererDetails.maximumX ??= point.xValue;
     }
-    if ((isXVisibleRange! || !_anchorRangeToVisiblePoints) &&
+    if ((isXVisibleRange! || !anchorRangeToVisiblePoints) &&
         !seriesType.contains('range') &&
         !seriesType.contains('hilo') &&
         !seriesType.contains('candle') &&

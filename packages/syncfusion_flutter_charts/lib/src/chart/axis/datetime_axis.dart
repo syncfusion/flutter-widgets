@@ -124,114 +124,122 @@ class DateTimeAxis extends ChartAxis {
             autoScrollingMode: autoScrollingMode,
             axisLabelFormatter: axisLabelFormatter);
 
-  ///Formats the date-time axis labels. The default data-time axis label can be formatted
-  ///with various built-in date formats.
+  /// Formats the date-time axis labels. The default data-time axis label can be formatted
+  /// with various built-in date formats.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(dateFormat: DateFormat.y()),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateFormat? dateFormat;
 
-  ///Formats the date time-axis labels. The labels can be customized by adding desired
-  ///text to prefix or suffix.
+  /// Formats the date time-axis labels. The labels can be customized by adding desired
+  /// text to prefix or suffix.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(labelFormat: '{value}M'),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final String? labelFormat;
 
-  ///Customizes the date-time axis intervals. Intervals can be set to days, hours,
-  ///milliseconds, minutes, months, seconds, years, and auto. If it is set to auto,
-  ///interval type will be decided based on the data.
+  /// Customizes the date-time axis intervals. Intervals can be set to days, hours,
+  /// milliseconds, minutes, months, seconds, years, and auto. If it is set to auto,
+  /// interval type will be decided based on the data.
   ///
-  ///Defaults to `DateTimeIntervalType.auto`
+  /// Defaults to `DateTimeIntervalType.auto`.
   ///
-  ///Also refer [DateTimeIntervalType]
+  /// Also refer [DateTimeIntervalType].
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(intervalType: DateTimeIntervalType.years),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTimeIntervalType intervalType;
 
-  ///Minimum value of the axis. The axis will start from this date.
+  /// Minimum value of the axis. The axis will start from this date.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(minimum: DateTime(2000)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTime? minimum;
 
-  ///Maximum value of the axis. The axis will end at this date.
+  /// Maximum value of the axis. The axis will end at this date.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(maximum: DateTime(2019)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTime? maximum;
 
-  ///The minimum visible value of the axis. The axis will be rendered from this date initially.
+  /// The minimum visible value of the axis. The axis will be rendered from this date initially.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(visibleMinimum: DateTime(2000)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTime? visibleMinimum;
 
-  ///The maximum visible value of the axis. The axis will be rendered from this date initially.
+  /// The maximum visible value of the axis. The axis will be rendered from this date initially.
   ///
-  /// Defaults to `null`
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///          primaryXAxis: DateTimeAxis(visibleMaximum: DateTime(2019)),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTime? visibleMaximum;
 
-  ///Defines the type of delta value in the DateTime axis.
+  /// Defines the type of delta value in the DateTime axis.
   ///
-  ///For example, if the [autoScrollingDelta] value is 5 and [autoScrollingDeltaType] is set to
+  /// For example, if the [autoScrollingDelta] value is 5 and [autoScrollingDeltaType] is set to
   /// `DateTimeIntervalType.days`, the data points with 5 days of values will be displayed.
   ///
-  ///The value can be set to years, months, days, hours, minutes, seconds and auto.
+  /// The value can be set to years, months, days, hours, minutes, seconds and auto.
   ///
-  ///Defaults to `DateTimeIntervalType.auto` and the delta will be calculated automatically based on the data.
+  /// Defaults to `DateTimeIntervalType.auto` and the delta will be calculated automatically based on the data.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: DateTimeAxis(autoScrollingDeltaType: DateTimeIntervalType.months),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final DateTimeIntervalType autoScrollingDeltaType;
@@ -503,7 +511,7 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
         this, interval, _axisDetails.visibleRange!.interval);
     while (interval <= _axisDetails.visibleRange!.maximum) {
       if (withInRange(interval, _axisDetails.visibleRange!)) {
-        prevInterval = (label.length != null && label.isNotEmpty)
+        prevInterval = (label.isNotEmpty)
             ? _axisDetails
                 .visibleLabels[_axisDetails.visibleLabels.length - 1].value
             : interval;
@@ -567,7 +575,7 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
     if (point.x != null) {
       point.xValue = (point.x).millisecondsSinceEpoch;
     }
-    final bool _anchorRangeToVisiblePoints =
+    final bool anchorRangeToVisiblePoints =
         seriesRendererDetails.yAxisDetails!.axis.anchorRangeToVisiblePoints;
     final String seriesType = seriesRendererDetails.seriesType;
     point.yValue = point.y;
@@ -575,7 +583,7 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
       seriesRendererDetails.minimumX ??= point.xValue;
       seriesRendererDetails.maximumX ??= point.xValue;
     }
-    if ((isXVisibleRange! || !_anchorRangeToVisiblePoints) &&
+    if ((isXVisibleRange! || !anchorRangeToVisiblePoints) &&
         !seriesType.contains('range') &&
         !seriesType.contains('hilo') &&
         !seriesType.contains('candle') &&
@@ -590,7 +598,7 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
       seriesRendererDetails.maximumX =
           math.max(seriesRendererDetails.maximumX!, point.xValue as num);
     }
-    if (isXVisibleRange || !_anchorRangeToVisiblePoints) {
+    if (isXVisibleRange || !anchorRangeToVisiblePoints) {
       if (point.yValue != null &&
           (!seriesType.contains('range') &&
               !seriesType.contains('hilo') &&
@@ -720,39 +728,38 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
       case DateTimeIntervalType.years:
         final int year =
             ((dateTime.year / interval).floor() * interval).floor();
-        dateTime = DateTime(year, dateTime.month, dateTime.day, 0, 0, 0, 0);
+        dateTime = DateTime(year, dateTime.month, dateTime.day);
         break;
       case DateTimeIntervalType.months:
         final int month = ((dateTime.month / interval) * interval).floor();
-        dateTime = DateTime(dateTime.year, month, dateTime.day, 0, 0, 0, 0);
+        dateTime = DateTime(dateTime.year, month, dateTime.day);
         break;
       case DateTimeIntervalType.days:
         final int day = ((dateTime.day / interval) * interval).floor();
-        dateTime = DateTime(dateTime.year, dateTime.month, day, 0, 0, 0, 0);
+        dateTime = DateTime(dateTime.year, dateTime.month, day);
         break;
       case DateTimeIntervalType.hours:
         final int hour =
             ((dateTime.hour / interval).floor() * interval).floor();
-        dateTime = DateTime(
-            dateTime.year, dateTime.month, dateTime.day, hour, 0, 0, 0);
+        dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day, hour);
         break;
       case DateTimeIntervalType.minutes:
         final int minute =
             ((dateTime.minute / interval).floor() * interval).floor();
-        dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-            dateTime.hour, minute, 0, 0);
+        dateTime = DateTime(
+            dateTime.year, dateTime.month, dateTime.day, dateTime.hour, minute);
         break;
       case DateTimeIntervalType.seconds:
         final int second =
             ((dateTime.second / interval).floor() * interval).floor();
         dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-            dateTime.hour, dateTime.minute, second, 0);
+            dateTime.hour, dateTime.minute, second);
         break;
       case DateTimeIntervalType.milliseconds:
         final int millisecond =
             ((dateTime.millisecond / interval).floor() * interval).floor();
         dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-            dateTime.hour, dateTime.minute, dateTime.second, millisecond, 0);
+            dateTime.hour, dateTime.minute, dateTime.second, millisecond);
         break;
       case DateTimeIntervalType.auto:
         break;
@@ -772,11 +779,11 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
       switch (axisRenderer._axisDetails.actualIntervalType) {
         case DateTimeIntervalType.years:
           dateTime = DateTime(dateTime.year + interval, dateTime.month,
-              dateTime.day, dateTime.hour, dateTime.minute, dateTime.second, 0);
+              dateTime.day, dateTime.hour, dateTime.minute, dateTime.second);
           break;
         case DateTimeIntervalType.months:
           dateTime = DateTime(dateTime.year, dateTime.month + interval,
-              dateTime.day, dateTime.hour, dateTime.minute, dateTime.second, 0);
+              dateTime.day, dateTime.hour, dateTime.minute, dateTime.second);
           break;
         case DateTimeIntervalType.days:
           dateTime = DateTime(
@@ -785,20 +792,19 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
               dateTime.day + interval,
               dateTime.hour,
               dateTime.minute,
-              dateTime.second,
-              0);
+              dateTime.second);
           break;
         case DateTimeIntervalType.hours:
           dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-              dateTime.hour + interval, dateTime.minute, dateTime.second, 0);
+              dateTime.hour + interval, dateTime.minute, dateTime.second);
           break;
         case DateTimeIntervalType.minutes:
           dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-              dateTime.hour, dateTime.minute + interval, dateTime.second, 0);
+              dateTime.hour, dateTime.minute + interval, dateTime.second);
           break;
         case DateTimeIntervalType.seconds:
           dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-              dateTime.hour, dateTime.minute, dateTime.second + interval, 0);
+              dateTime.hour, dateTime.minute, dateTime.second + interval);
           break;
         case DateTimeIntervalType.milliseconds:
           dateTime = DateTime(
@@ -822,8 +828,7 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
               dateTime.day,
               dateTime.hour,
               dateTime.minute,
-              dateTime.second,
-              0);
+              dateTime.second);
           break;
         case DateTimeIntervalType.months:
           dateTime = DateTime(
@@ -832,8 +837,7 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
               dateTime.day + (interval * 30).floor(),
               dateTime.hour,
               dateTime.minute,
-              dateTime.second,
-              0);
+              dateTime.second);
           break;
         case DateTimeIntervalType.days:
           dateTime = DateTime(
@@ -842,8 +846,7 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
               dateTime.day,
               dateTime.hour + (interval * 24).floor(),
               dateTime.minute,
-              dateTime.second,
-              0);
+              dateTime.second);
           break;
         case DateTimeIntervalType.hours:
           dateTime = DateTime(
@@ -852,8 +855,7 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
               dateTime.day,
               dateTime.hour,
               dateTime.minute + (interval * 60).floor(),
-              dateTime.second,
-              0);
+              dateTime.second);
           break;
         case DateTimeIntervalType.minutes:
           dateTime = DateTime(
@@ -862,8 +864,7 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
               dateTime.day,
               dateTime.hour,
               dateTime.minute,
-              dateTime.second + (interval * 60).floor(),
-              0);
+              dateTime.second + (interval * 60).floor());
           break;
         case DateTimeIntervalType.seconds:
           dateTime = DateTime(
@@ -898,11 +899,10 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
     final int startYear = minimum.year;
     final int endYear = maximum.year;
     if (rangePadding == ChartRangePadding.additional) {
-      min =
-          DateTime(startYear - interval, 1, 1, 0, 0, 0).millisecondsSinceEpoch;
-      max = DateTime(endYear + interval, 1, 1, 0, 0, 0).millisecondsSinceEpoch;
+      min = DateTime(startYear - interval).millisecondsSinceEpoch;
+      max = DateTime(endYear + interval).millisecondsSinceEpoch;
     } else {
-      min = DateTime(startYear, 0, 0, 0, 0, 0).millisecondsSinceEpoch;
+      min = DateTime(startYear, 0, 0).millisecondsSinceEpoch;
       max = DateTime(endYear, 11, 30, 23, 59, 59).millisecondsSinceEpoch;
     }
   }
@@ -913,16 +913,14 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
     final int startMonth = minimum.month;
     final int endMonth = maximum.month;
     if (rangePadding == ChartRangePadding.round) {
-      min =
-          DateTime(minimum.year, startMonth, 0, 0, 0, 0).millisecondsSinceEpoch;
+      min = DateTime(minimum.year, startMonth, 0).millisecondsSinceEpoch;
       max = DateTime(maximum.year, endMonth,
               DateTime(maximum.year, maximum.month, 0).day, 23, 59, 59)
           .millisecondsSinceEpoch;
     } else {
-      min = DateTime(minimum.year, startMonth + (-interval), 1, 0, 0, 0)
+      min = DateTime(minimum.year, startMonth + (-interval))
           .millisecondsSinceEpoch;
-      max = DateTime(maximum.year, endMonth + interval, endMonth == 2 ? 28 : 30,
-              0, 0, 0)
+      max = DateTime(maximum.year, endMonth + interval, endMonth == 2 ? 28 : 30)
           .millisecondsSinceEpoch;
     }
   }
@@ -933,15 +931,14 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
     final int startDay = minimum.day;
     final int endDay = maximum.day;
     if (rangePadding == ChartRangePadding.round) {
-      min = DateTime(minimum.year, minimum.month, startDay, 0, 0, 0)
+      min = DateTime(minimum.year, minimum.month, startDay)
           .millisecondsSinceEpoch;
       max = DateTime(maximum.year, maximum.month, endDay, 23, 59, 59)
           .millisecondsSinceEpoch;
     } else {
-      min =
-          DateTime(minimum.year, minimum.month, startDay + (-interval), 0, 0, 0)
-              .millisecondsSinceEpoch;
-      max = DateTime(maximum.year, maximum.month, endDay + interval, 0, 0, 0)
+      min = DateTime(minimum.year, minimum.month, startDay + (-interval))
+          .millisecondsSinceEpoch;
+      max = DateTime(maximum.year, maximum.month, endDay + interval)
           .millisecondsSinceEpoch;
     }
   }
@@ -952,18 +949,18 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
     final int startHour = ((minimum.hour / interval) * interval).toInt();
     final int endHour = maximum.hour + (minimum.hour - startHour).toInt();
     if (rangePadding == ChartRangePadding.round) {
-      min = DateTime(minimum.year, minimum.month, minimum.day, startHour, 0, 0)
+      min = DateTime(minimum.year, minimum.month, minimum.day, startHour)
           .millisecondsSinceEpoch;
       max =
           DateTime(maximum.year, maximum.month, maximum.day, startHour, 59, 59)
               .millisecondsSinceEpoch;
     } else {
-      min = DateTime(minimum.year, minimum.month, minimum.day,
-              startHour + (-interval), 0, 0)
+      min = DateTime(
+              minimum.year, minimum.month, minimum.day, startHour + (-interval))
           .millisecondsSinceEpoch;
-      max = DateTime(maximum.year, maximum.month, maximum.day,
-              endHour + interval, 0, 0)
-          .millisecondsSinceEpoch;
+      max =
+          DateTime(maximum.year, maximum.month, maximum.day, endHour + interval)
+              .millisecondsSinceEpoch;
     }
   }
 
@@ -975,17 +972,17 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
         maximum.minute + (minimum.minute - startMinute).toInt();
     if (rangePadding == ChartRangePadding.round) {
       min = DateTime(minimum.year, minimum.month, minimum.day, minimum.hour,
-              startMinute, 0)
+              startMinute)
           .millisecondsSinceEpoch;
       max = DateTime(maximum.year, maximum.month, maximum.day, maximum.hour,
               endMinute, 59)
           .millisecondsSinceEpoch;
     } else {
       min = DateTime(minimum.year, minimum.month, minimum.day, minimum.hour,
-              startMinute + (-interval), 0)
+              startMinute + (-interval))
           .millisecondsSinceEpoch;
       max = DateTime(maximum.year, maximum.month, maximum.day, maximum.hour,
-              endMinute + interval, 0)
+              endMinute + interval)
           .millisecondsSinceEpoch;
     }
   }
@@ -998,17 +995,17 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
         maximum.second + (minimum.second - startSecond).toInt();
     if (rangePadding == ChartRangePadding.round) {
       min = DateTime(minimum.year, minimum.month, minimum.day, minimum.hour,
-              minimum.minute, startSecond, 0)
+              minimum.minute, startSecond)
           .millisecondsSinceEpoch;
       max = DateTime(maximum.year, maximum.month, maximum.day, maximum.hour,
-              maximum.minute, endSecond, 0)
+              maximum.minute, endSecond)
           .millisecondsSinceEpoch;
     } else {
       min = DateTime(minimum.year, minimum.month, minimum.day, minimum.hour,
-              minimum.minute, startSecond + (-interval), 0)
+              minimum.minute, startSecond + (-interval))
           .millisecondsSinceEpoch;
       max = DateTime(maximum.year, maximum.month, maximum.day, maximum.hour,
-              maximum.minute, endSecond + interval, 0)
+              maximum.minute, endSecond + interval)
           .millisecondsSinceEpoch;
     }
   }

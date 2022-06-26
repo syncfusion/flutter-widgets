@@ -1431,6 +1431,7 @@ class _CipherUtils {
       case _CipherAlgorithm.rsa:
         asymBlockCipher = RsaAlgorithm();
         break;
+      // ignore: no_default_cases
       default:
         throw ArgumentError.value(
             cipherAlgorithm, 'algorithm', 'Invalid cipher algorithm');
@@ -1464,6 +1465,7 @@ class _CipherUtils {
         case _CipherPaddingType.pkcs7Padding:
           padding = Pkcs7Padding();
           break;
+        // ignore: no_default_cases
         default:
           throw ArgumentError.value(cipherPadding, 'cpiher padding algorithm',
               'Invalid cipher algorithm');
@@ -1493,6 +1495,7 @@ class _CipherUtils {
         case _CipherMode.cts:
           blockCipher = CipherBlockChainingMode(blockCipher);
           break;
+        // ignore: no_default_cases
         default:
           throw ArgumentError.value(
               cipherMode, 'CipherMode', 'Invalid cipher algorithm');
@@ -1598,7 +1601,9 @@ class _CipherUtils {
 }
 
 enum _CipherAlgorithm { des, desede, rc2, rsa }
+
 enum _CipherMode { ecb, none, cbc, cts }
+
 enum _CipherPaddingType {
   noPadding,
   raw,

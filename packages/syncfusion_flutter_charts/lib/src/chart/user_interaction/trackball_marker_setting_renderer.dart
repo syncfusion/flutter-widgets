@@ -3,15 +3,15 @@ import '../chart_series/series.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/trackball_marker_settings.dart';
 
-/// Creates a class for TrackballMarkerSettingsRenderer
+/// Creates a class for TrackballMarkerSettingsRenderer.
 class TrackballMarkerSettingsRenderer {
-  /// Creates an argument constructor for TrackballMarkerSettings class
+  /// Creates an argument constructor for TrackballMarkerSettings class.
   TrackballMarkerSettingsRenderer(this._trackballMarkerSettings);
 
   ///ignore: unused_field
   final TrackballMarkerSettings? _trackballMarkerSettings;
 
-  /// Specifies the marker image
+  /// Specifies the marker image.
   dart_ui.Image? image;
 }
 

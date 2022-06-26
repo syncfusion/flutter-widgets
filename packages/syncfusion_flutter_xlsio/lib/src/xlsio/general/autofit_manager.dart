@@ -33,7 +33,7 @@ class _AutoFitManager {
 
   /// Measures the character ranges.
   int _measureCharacterRanges(
-      Style style, String strText, int _num, Rectangle<num> rectF) {
+      Style style, String strText, int num1, Rectangle<num> rectF) {
     Font? font2;
     final _FontStyle regular = _FontStyle._regular;
     double size = 10;
@@ -57,13 +57,13 @@ class _AutoFitManager {
 
     final Rectangle<num> bounds = _measureString(strText, font2, rectF, false);
     if (style.rotation == 0 || style.rotation == 0xff) {
-      int num2 = (bounds.width + 0.5).toInt() + _num;
+      int num2 = (bounds.width + 0.5).toInt() + num1;
       if (num2 > 100) {
         num2++;
       }
       return num2;
     }
-    final int num3 = (bounds.width + 0.5).toInt() + _num;
+    final int num3 = (bounds.width + 0.5).toInt() + num1;
     final int num4 = ((_getFontHeight(font2) * 1.1) + 0.5).toInt();
     final double d = (3.1415926535897931 * style.rotation.abs()) / 180.0;
     font2 = null;
@@ -73,21 +73,21 @@ class _AutoFitManager {
   /// Measures the character ranges.
   int _measureCharacterRangesStyle(_StyleWithText styleWithText, int paramNum,
       Rectangle<num> rectF, int column) {
-    int _num = 0;
+    int num = 0;
     final Font font = _createFont(
         styleWithText._fontName, styleWithText._size, styleWithText._style!);
 
     int defIndentWidthinPixels = 0;
-    const int _defaultPixel = 9;
-    const String _defaultChar = '0';
-    final double _indentLevel = _getIndentLevel(column);
+    const int defaultPixel = 9;
+    const String defaultChar = '0';
+    final double indentLevel1 = _getIndentLevel(column);
     for (int i = 0; i < styleWithText._strValues.length; i++) {
       String text = styleWithText._strValues[i];
-      double indentLevel = _indentLevel;
+      double indentLevel = indentLevel1;
       if (indentLevel > 0) {
         if (indentLevel < 10) {
-          defIndentWidthinPixels = (indentLevel * _defaultPixel).toInt();
-          text += _defaultChar;
+          defIndentWidthinPixels = (indentLevel * defaultPixel).toInt();
+          text += defaultChar;
         } else {
           if (text.length < 255 - text.length) //Max indent level is 255
           {
@@ -100,8 +100,7 @@ class _AutoFitManager {
           }
 
           for (int idx = 1; idx <= indentLevel; idx++) {
-            // ignore: prefer_interpolation_to_compose_strings
-            text = ' ' + text;
+            text = ' $text';
           }
         }
       }
@@ -115,12 +114,12 @@ class _AutoFitManager {
       if (num3 > 100) {
         num3++;
       }
-      if (_num < num3) {
-        _num = num3;
+      if (num < num3) {
+        num = num3;
       }
     }
 
-    return _num;
+    return num;
   }
 
   Font _createFont(String fontName, double size, _FontStyle fontStyle) {
@@ -213,7 +212,7 @@ class _AutoFitManager {
 
   /// Measures to fit column.
   void _measureToFitColumn() {
-    const int _num = 14;
+    const int num1 = 14;
     final int firstRow = _row;
     final int lastRow = _lastRow;
     final int firstColumn = _column;
@@ -283,12 +282,10 @@ class _AutoFitManager {
             final List<String> wordsN = text.split('\n');
             final List<String> wordNSplit =
                 wordsN[wordsN.length - 1].split(' ');
-            words = List<String>.filled(
-                wordsN.length - 1 + wordNSplit.length, '',
-                growable: false);
+            words =
+                List<String>.filled(wordsN.length - 1 + wordNSplit.length, '');
             for (int i = 0; i < wordsN.length - 1; i++) {
-              // ignore: prefer_interpolation_to_compose_strings
-              words[i] = wordsN[i] + '\n';
+              words[i] = '${wordsN[i]}\n';
             }
             int j = wordsN.length - 1;
             for (int i = 0; i < wordNSplit.length; i++) {
@@ -298,11 +295,10 @@ class _AutoFitManager {
             String autoFitText;
             int biggestLength = 0;
             for (int index = 0; index < words.length; index++) {
-              // ignore: noop_primitive_operations
-              autoFitText = words[index].toString();
+              autoFitText = words[index];
               if (autoFitText.isNotEmpty) {
                 final int length =
-                    _measureCharacterRanges(style, autoFitText, _num, ef);
+                    _measureCharacterRanges(style, autoFitText, num1, ef);
                 final CellType cellType = migrantRange.type;
                 final bool isNumberCellType = cellType == CellType.number;
                 if (length < columnWidth || isNumberCellType) {
@@ -312,14 +308,13 @@ class _AutoFitManager {
                     index = temp;
                     if (words.length != 1) {
                       if (!autoFitText.endsWith('\n')) {
-                        // ignore: prefer_interpolation_to_compose_strings
-                        autoFitText = autoFitText + ' ' + words[temp];
+                        autoFitText = '$autoFitText ${words[temp]}';
                       } else {
                         index--;
                       }
                     }
                     final int currentLength =
-                        _measureCharacterRanges(style, autoFitText, _num, ef);
+                        _measureCharacterRanges(style, autoFitText, num1, ef);
                     if (wordsN.length == 1 &&
                         (currentLength > biggestLength) &&
                         rowHeight >= _worksheet._standardHeight &&
@@ -356,7 +351,7 @@ class _AutoFitManager {
               }
             }
           } else {
-            final int num5 = _measureCharacterRanges(style, text, _num, ef);
+            final int num5 = _measureCharacterRanges(style, text, num1, ef);
             final int num6 =
                 (columnsWidth.containsKey(column)) ? columnsWidth[column]! : 0;
             if (num6 < num5) {
@@ -372,7 +367,7 @@ class _AutoFitManager {
       for (int k = 0; k < list3.length; k++) {
         final _StyleWithText styleWithText = list3[k] as _StyleWithText;
         final int num10 =
-            _measureCharacterRangesStyle(styleWithText, _num, ef, key);
+            _measureCharacterRangesStyle(styleWithText, num1, ef, key);
         if (num8 < num10) {
           num8 = num10;
         }
@@ -423,8 +418,7 @@ class _AutoFitManager {
     final _FontStyle regular = _FontStyle._regular;
 
     if (stringValue[stringValue.length - 1] == '\n') {
-      // ignore: prefer_interpolation_to_compose_strings
-      stringValue = stringValue + 'a';
+      stringValue = '${stringValue}a';
     }
 
     regular._bold = font.bold;

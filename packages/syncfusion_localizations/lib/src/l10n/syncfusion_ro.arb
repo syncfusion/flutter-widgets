@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Fără evenimente", 
 "ofDataPagerLabel" : "de", 
 "pagesDataPagerLabel" : "pagini", 
-"itemsDataPagerLabel" : "articole", 
+"rowsPerPageDataPagerLabel" : "Rânduri pe pagină", 
 "pdfBookmarksLabel" : "Marcaje", 
 "pdfNoBookmarksLabel" : "Nu s-au găsit marcaje", 
 "pdfScrollStatusOfLabel" : "de", 
@@ -50,9 +50,10 @@
 "shortJumada2Label" : "Jum. II", 
 "shortRajabLabel" : "Raj.", 
 "shortShaabanLabel" : "Sha.", 
-"shortRamadanLabel" : "RAM.", 
+"shortRamadanLabel" : "Berbec.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Zi"
+"daySpanCountLabel" : "Zi", 
+"series" : "Serie"
 }

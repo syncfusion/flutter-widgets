@@ -171,13 +171,12 @@ int getFirstCellIndex(DataGridConfiguration dataGridConfiguration) {
 
 /// Help to get the last column index in row
 int getLastCellIndex(DataGridConfiguration dataGridConfiguration) {
-  final GridColumn? lastColumn = dataGridConfiguration.columns
-      .lastWhereOrNull((GridColumn col) => col.visible);
-  if (lastColumn == null) {
-    return -1;
+  final GridColumn? lastColumn = dataGridConfiguration.columns.lastWhereOrNull(
+      (GridColumn col) => col.visible && col.actualWidth > 0.0);
+  if (lastColumn != null) {
+    return dataGridConfiguration.columns.indexOf(lastColumn);
   }
-
-  return dataGridConfiguration.columns.indexOf(lastColumn);
+  return -1;
 }
 
 /// Helps to get the previous row index on PageUp key
@@ -241,8 +240,10 @@ int getPreviousColumnIndex(
         dataGridConfiguration, dataGridConfiguration.columns.indexOf(column));
   }
 
+  // Need to set column index as -1 to disable navigation since there are no
+  // visible columns in the previous columns.
   if (previousCellIndex == currentColumnIndex) {
-    previousCellIndex = currentColumnIndex - 1;
+    previousCellIndex = -1;
   }
 
   return previousCellIndex;
@@ -262,11 +263,15 @@ int getNextColumnIndex(
         dataGridConfiguration, columnIndex);
   }
 
+  // Need to set column index to -1 to disable navigation since there are no
+  // visible columns in the next columns.
   if (nextCellIndex == currentColumnIndex) {
-    nextCellIndex = currentColumnIndex + 1;
+    nextCellIndex = -1;
   }
 
-  return nextCellIndex > lastCellIndex ? lastCellIndex : nextCellIndex;
+  return nextCellIndex >= 0 && nextCellIndex > lastCellIndex
+      ? lastCellIndex
+      : nextCellIndex;
 }
 
 /// Help to get the previous row index from current cell index.
@@ -348,9 +353,9 @@ double getVerticalCumulativeDistance(
   double verticalOffset = 0.0;
   final int headerRowIndex = grid_helper.getHeaderIndex(dataGridConfiguration);
   rowIndex = rowIndex > headerRowIndex ? rowIndex : headerRowIndex + 1;
-  final PixelScrollAxis _scrollRows =
+  final PixelScrollAxis scrollRows =
       dataGridConfiguration.container.scrollRows as PixelScrollAxis;
-  verticalOffset = _scrollRows.distances!.getCumulatedDistanceAt(rowIndex);
+  verticalOffset = scrollRows.distances!.getCumulatedDistanceAt(rowIndex);
   return verticalOffset;
 }
 
@@ -363,10 +368,10 @@ double getHorizontalCumulativeDistance(
   columnIndex = columnIndex < firstVisibleColumnIndex
       ? firstVisibleColumnIndex
       : columnIndex;
-  final PixelScrollAxis _scrollColumns =
+  final PixelScrollAxis scrollColumns =
       dataGridConfiguration.container.scrollColumns as PixelScrollAxis;
   horizontalOffset =
-      _scrollColumns.distances!.getCumulatedDistanceAt(columnIndex);
+      scrollColumns.distances!.getCumulatedDistanceAt(columnIndex);
   return horizontalOffset;
 }
 
@@ -488,7 +493,7 @@ void scrollInViewFromLeft(DataGridConfiguration dataGridConfiguration,
             : 0;
         if (nextCellIndex < firstBodyVisibleLineIndex) {
           scrollInViewFromRight(dataGridConfiguration,
-              previousCellIndex: nextCellIndex, needToScrollToMinExtent: false);
+              previousCellIndex: nextCellIndex);
         } else {
           measuredHorizontalOffset = getHorizontalCumulativeDistance(
               dataGridConfiguration, nextCellIndex);
@@ -600,7 +605,7 @@ void scrollInViewFromTop(DataGridConfiguration dataGridConfiguration,
             : 0;
         if (nextRowIndex < firstBodyVisibleLineIndex) {
           scrollInViewFromDown(dataGridConfiguration,
-              previousRowIndex: nextRowIndex, needToScrollToMinExtent: false);
+              previousRowIndex: nextRowIndex);
         } else {
           measuredVerticalOffset = getVerticalCumulativeDistance(
               dataGridConfiguration, nextRowIndex);

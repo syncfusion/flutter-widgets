@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Non hai eventos", 
 "ofDataPagerLabel" : "de", 
 "pagesDataPagerLabel" : "páxinas", 
-"itemsDataPagerLabel" : "elementos", 
+"rowsPerPageDataPagerLabel" : "Filas por páxina", 
 "pdfBookmarksLabel" : "Marcadores", 
 "pdfNoBookmarksLabel" : "Non se atoparon marcadores", 
 "pdfScrollStatusOfLabel" : "de", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Día"
+"daySpanCountLabel" : "Día", 
+"series" : "Serie"
 }

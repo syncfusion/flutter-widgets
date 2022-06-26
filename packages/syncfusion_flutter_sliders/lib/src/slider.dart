@@ -1168,29 +1168,23 @@ class SfSlider extends StatefulWidget {
     properties.add(FlagProperty('showTicks',
         value: showTicks,
         ifTrue: 'Ticks are showing',
-        ifFalse: 'Ticks are not showing',
-        showName: false));
+        ifFalse: 'Ticks are not showing'));
     properties.add(FlagProperty('showLabels',
         value: showLabels,
         ifTrue: 'Labels are showing',
-        ifFalse: 'Labels are not showing',
-        showName: false));
+        ifFalse: 'Labels are not showing'));
     properties.add(FlagProperty('showDividers',
         value: showDividers,
         ifTrue: 'Dividers are  showing',
-        ifFalse: 'Dividers are not showing',
-        showName: false));
+        ifFalse: 'Dividers are not showing'));
     if (shouldAlwaysShowTooltip) {
       properties.add(FlagProperty('shouldAlwaysShowTooltip',
-          value: shouldAlwaysShowTooltip,
-          ifTrue: 'Tooltip is always visible',
-          showName: false));
+          value: shouldAlwaysShowTooltip, ifTrue: 'Tooltip is always visible'));
     } else {
       properties.add(FlagProperty('enableTooltip',
           value: enableTooltip,
           ifTrue: 'Tooltip is enabled',
-          ifFalse: 'Tooltip is disabled',
-          showName: false));
+          ifFalse: 'Tooltip is disabled'));
     }
     properties.add(ColorProperty('activeColor', activeColor));
     properties.add(ColorProperty('inactiveColor', inactiveColor));
@@ -2209,7 +2203,6 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     trackShape.paint(context, actualTrackOffset, thumbCenter, null, null,
         parentBox: this,
         currentValue: _value,
-        currentValues: null,
         themeData: sliderThemeData,
         enableAnimation: _stateAnimation,
         textDirection: textDirection,

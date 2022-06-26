@@ -3,12 +3,12 @@ import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import 'technical_indicator.dart';
 
-///Renders Triangular Moving Average (TMA) indicator.
+/// Renders Triangular Moving Average (TMA) indicator.
 ///
-///The Triangular Moving Average (TMA) is a technical indicator similar to other moving averages.
-///The TMA shows the average (or average) price of an asset over a specified number of data points over a period of time.
+/// The Triangular Moving Average (TMA) is a technical indicator similar to other moving averages.
+/// The TMA shows the average (or average) price of an asset over a specified number of data points over a period of time.
 ///
-///The technical indicator is rendered on the basis of the [valueField] property.
+/// The technical indicator is rendered on the basis of the [valueField] property.
 @immutable
 class TmaIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of TmaIndicator class.
@@ -59,23 +59,30 @@ class TmaIndicator<T, D> extends TechnicalIndicators<T, D> {
             period: period,
             onRenderDetailsUpdate: onRenderDetailsUpdate);
 
-  ///ValueField value for tma indicator.
+  /// ValueField value for tma indicator.
   ///
   /// Value field determines the field for rendering the indicators.
   ///
-  ///Defaults to `close`.
+  /// Defaults to `close`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            TmaIndicator<dynamic, dynamic>(
-  ///                valueField : 'high',
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      TmaIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        period: 4,
+  ///        valueField: 'low'
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final String valueField;
 
   @override

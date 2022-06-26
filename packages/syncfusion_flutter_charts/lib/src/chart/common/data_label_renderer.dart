@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../../common/event_args.dart';
@@ -11,6 +10,7 @@ import '../axis/logarithmic_axis.dart';
 import '../axis/numeric_axis.dart';
 import '../base/chart_base.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/waterfall_series.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
@@ -18,7 +18,7 @@ import '../common/common.dart';
 import '../common/data_label.dart';
 import '../utils/helper.dart';
 
-///Calculating the label location based on alignment value
+/// Calculating the label location based on alignment value.
 List<ChartLocation?> _getAlignedLabelLocations(
     CartesianStateProperties stateProperties,
     SeriesRendererDetails seriesRendererDetails,
@@ -114,8 +114,8 @@ List<ChartLocation?> _getAlignedLabelLocations(
   return <ChartLocation?>[chartLocation, chartLocation2];
 }
 
-///calculating the label location based on dataLabel position value
-///(for range and rect series only)
+/// Calculating the label location based on dataLabel position value
+/// (for range and rect series only).
 List<ChartLocation?> _getLabelLocations(
     int index,
     CartesianStateProperties stateProperties,
@@ -198,7 +198,7 @@ List<ChartLocation?> _getLabelLocations(
   return <ChartLocation?>[chartLocation, chartLocation2];
 }
 
-///Finding range series second label location
+/// Finding range series second label location.
 ChartLocation _getSecondLabelLocation(
     int index,
     CartesianStateProperties stateProperties,
@@ -254,7 +254,7 @@ ChartLocation _getSecondLabelLocation(
   return chartLocation2;
 }
 
-///Setting data label region
+/// Setting data label region.
 void _calculateDataLabelRegion(
     CartesianChartPoint<dynamic> point,
     DataLabelSettings dataLabel,
@@ -532,7 +532,7 @@ void _calculateDataLabelRegion(
   }
 }
 
-/// To find the position of a series to render
+/// To find the position of a series to render.
 double _calculatePathPosition(
     double labelLocation,
     ChartDataLabelAlignment position,
@@ -603,7 +603,7 @@ double _calculatePathPosition(
   return labelLocation;
 }
 
-///Below method is for dataLabel alignment calculation
+/// Below method is for dataLabel alignment calculation.
 double _calculateAlignment(double value, double labelLocation,
     ChartAlignment alignment, bool isMinus, bool inverted) {
   switch (alignment) {
@@ -624,7 +624,7 @@ double _calculateAlignment(double value, double labelLocation,
   return labelLocation;
 }
 
-///Calculate label position for non rect series
+/// Calculate label position for non rect series.
 double _calculatePathActualPosition(
     SeriesRendererDetails seriesRendererDetails,
     Size size,
@@ -681,13 +681,13 @@ double _calculatePathActualPosition(
   return yLocation;
 }
 
-/// Finding the label position for non rect series
+/// Finding the label position for non rect series.
 ChartDataLabelAlignment _getActualPathDataLabelAlignment(
     SeriesRendererDetails seriesRendererDetails, int index, bool inversed) {
   final List<CartesianChartPoint<dynamic>> points =
       seriesRendererDetails.dataPoints;
   final num yValue = points[index].yValue;
-  final CartesianChartPoint<dynamic>? _nextPoint =
+  final CartesianChartPoint<dynamic>? nextPoint =
       points.length - 1 > index ? points[index + 1] : null;
   final CartesianChartPoint<dynamic>? previousPoint =
       index > 0 ? points[index - 1] : null;
@@ -697,9 +697,9 @@ ChartDataLabelAlignment _getActualPathDataLabelAlignment(
     position = ChartDataLabelAlignment.top;
   } else {
     if (index == 0) {
-      position = (!_nextPoint!.isVisible ||
-              yValue > _nextPoint.yValue ||
-              (yValue < _nextPoint.yValue && inversed))
+      position = (!nextPoint!.isVisible ||
+              yValue > nextPoint.yValue ||
+              (yValue < nextPoint.yValue && inversed))
           ? ChartDataLabelAlignment.top
           : ChartDataLabelAlignment.bottom;
     } else if (index == points.length - 1) {
@@ -709,17 +709,17 @@ ChartDataLabelAlignment _getActualPathDataLabelAlignment(
           ? ChartDataLabelAlignment.top
           : ChartDataLabelAlignment.bottom;
     } else {
-      if (!_nextPoint!.isVisible && !previousPoint!.isVisible) {
+      if (!nextPoint!.isVisible && !previousPoint!.isVisible) {
         position = ChartDataLabelAlignment.top;
-      } else if (!_nextPoint.isVisible) {
-        position = ((_nextPoint.yValue > yValue) == true ||
+      } else if (!nextPoint.isVisible) {
+        position = ((nextPoint.yValue > yValue) == true ||
                 (previousPoint!.yValue > yValue) == true)
             ? ChartDataLabelAlignment.bottom
             : ChartDataLabelAlignment.top;
       } else {
-        final num slope = (_nextPoint.yValue - previousPoint!.yValue) / 2;
+        final num slope = (nextPoint.yValue - previousPoint!.yValue) / 2;
         final num intersectY =
-            (slope * index) + (_nextPoint.yValue - (slope * (index + 1)));
+            (slope * index) + (nextPoint.yValue - (slope * (index + 1)));
         position = !inversed
             ? intersectY < yValue
                 ? ChartDataLabelAlignment.top
@@ -733,7 +733,7 @@ ChartDataLabelAlignment _getActualPathDataLabelAlignment(
   return position;
 }
 
-/// To get the data label position
+/// To get the data label position.
 ChartDataLabelAlignment _getPosition(int position) {
   late ChartDataLabelAlignment dataLabelPosition;
   switch (position) {
@@ -756,7 +756,7 @@ ChartDataLabelAlignment _getPosition(int position) {
   return dataLabelPosition;
 }
 
-/// getting label rect
+/// Getting label rect.
 Rect _calculateLabelRect(
     ChartLocation location, Size textSize, EdgeInsets margin, bool needRect) {
   return needRect
@@ -769,7 +769,7 @@ Rect _calculateLabelRect(
           location.y - (textSize.height / 2), textSize.width, textSize.height);
 }
 
-/// Below method is for Rendering data label
+/// Below method is for rendering data label.
 void drawDataLabel(
     Canvas canvas,
     SeriesRendererDetails seriesRendererDetails,
@@ -786,8 +786,8 @@ void drawDataLabel(
     y = dataLabelSettingsRenderer.offset!.dy;
   }
   final double opacity =
-      // ignore: unnecessary_null_comparison
       seriesRendererDetails.needAnimateSeriesElements == true &&
+              // ignore: unnecessary_null_comparison
               dataLabelAnimation != null
           ? dataLabelAnimation.value
           : 1;
@@ -818,11 +818,10 @@ void drawDataLabel(
     final bool isDatalabelCollide = (stateProperties.requireInvertedAxis ||
             (dataLabelSettingsRenderer.angle / 90) % 2 != 1) &&
         findingCollision(labelRect, stateProperties.renderDatalabelRegions);
-    if (!(label.isNotEmpty && isDatalabelCollide)
+    if ((label.isNotEmpty && !isDatalabelCollide) ||
         // ignore: unnecessary_null_comparison
-        ||
         dataLabel.labelIntersectAction == null) {
-      final TextStyle _textStyle = TextStyle(
+      final TextStyle textStyle = TextStyle(
           color: fontColor.withOpacity(opacity),
           fontSize: font.fontSize,
           fontFamily: font.fontFamily,
@@ -851,7 +850,7 @@ void drawDataLabel(
           index,
           dataLabel,
           point,
-          _textStyle,
+          textStyle,
           opacity,
           label,
           x,
@@ -863,7 +862,7 @@ void drawDataLabel(
   }
 }
 
-/// Method to trigger the data label event
+/// Method to trigger the data label event.
 void triggerDataLabelEvent(SfCartesianChart chart,
     List<CartesianSeriesRenderer> visibleSeriesRenderer, Offset position) {
   SeriesRendererDetails seriesRendererDetails;
@@ -891,14 +890,14 @@ void triggerDataLabelEvent(SfCartesianChart chart,
   }
 }
 
-///Draw the data label text and data label rect
+/// Draw the data label text and data label rect.
 void _drawDataLabelRectAndText(
     Canvas canvas,
     SeriesRendererDetails seriesRendererDetails,
     int index,
     DataLabelSettings dataLabel,
     CartesianChartPoint<dynamic> point,
-    TextStyle _textStyle,
+    TextStyle textStyle,
     double opacity,
     String label,
     double x,
@@ -1073,7 +1072,7 @@ void _drawDataLabelRectAndText(
           ? point.dataLabelRegion!.center.dy - y - padding
           : point.labelLocation!.y - y,
       dataLabelSettingsRenderer.angle,
-      _textStyle);
+      textStyle);
 
   if (isRangeSeries || isBoxSeries) {
     if (withInRange(isBoxSeries ? point.minimum : point.low,
@@ -1085,7 +1084,7 @@ void _drawDataLabelRectAndText(
           point.labelLocation2!.x + x,
           point.labelLocation2!.y - y,
           dataLabelSettingsRenderer.angle,
-          _textStyle);
+          textStyle);
     }
     if (seriesRendererDetails.seriesType == 'hiloopenclose' &&
         (label3 != null &&
@@ -1101,7 +1100,7 @@ void _drawDataLabelRectAndText(
           point.labelLocation3!.x + x,
           point.labelLocation3!.y + y,
           dataLabelSettingsRenderer.angle,
-          _textStyle);
+          textStyle);
       seriesRendererDetails.renderer.drawDataLabel(
           index,
           canvas,
@@ -1109,7 +1108,7 @@ void _drawDataLabelRectAndText(
           point.labelLocation4!.x + x,
           point.labelLocation3!.y + y,
           dataLabelSettingsRenderer.angle,
-          _textStyle);
+          textStyle);
     } else if (label3 != null &&
         label4 != null &&
         ((point.labelLocation3!.y - point.labelLocation4!.y).round() >= 8 ||
@@ -1117,29 +1116,29 @@ void _drawDataLabelRectAndText(
                 15)) {
       final Color fontColor =
           getOpenCloseDataLabelColor(point, seriesRendererDetails, chart!);
-      final TextStyle _textStyleOpenClose = TextStyle(
+      final TextStyle textStyleOpenClose = TextStyle(
           color: fontColor.withOpacity(opacity),
-          fontSize: _textStyle.fontSize,
-          fontFamily: _textStyle.fontFamily,
-          fontStyle: _textStyle.fontStyle,
-          fontWeight: _textStyle.fontWeight,
-          inherit: _textStyle.inherit,
-          backgroundColor: _textStyle.backgroundColor,
-          letterSpacing: _textStyle.letterSpacing,
-          wordSpacing: _textStyle.wordSpacing,
-          textBaseline: _textStyle.textBaseline,
-          height: _textStyle.height,
-          locale: _textStyle.locale,
-          foreground: _textStyle.foreground,
-          background: _textStyle.background,
-          shadows: _textStyle.shadows,
-          fontFeatures: _textStyle.fontFeatures,
-          decoration: _textStyle.decoration,
-          decorationColor: _textStyle.decorationColor,
-          decorationStyle: _textStyle.decorationStyle,
-          decorationThickness: _textStyle.decorationThickness,
-          debugLabel: _textStyle.debugLabel,
-          fontFamilyFallback: _textStyle.fontFamilyFallback);
+          fontSize: textStyle.fontSize,
+          fontFamily: textStyle.fontFamily,
+          fontStyle: textStyle.fontStyle,
+          fontWeight: textStyle.fontWeight,
+          inherit: textStyle.inherit,
+          backgroundColor: textStyle.backgroundColor,
+          letterSpacing: textStyle.letterSpacing,
+          wordSpacing: textStyle.wordSpacing,
+          textBaseline: textStyle.textBaseline,
+          height: textStyle.height,
+          locale: textStyle.locale,
+          foreground: textStyle.foreground,
+          background: textStyle.background,
+          shadows: textStyle.shadows,
+          fontFeatures: textStyle.fontFeatures,
+          decoration: textStyle.decoration,
+          decorationColor: textStyle.decorationColor,
+          decorationStyle: textStyle.decorationStyle,
+          decorationThickness: textStyle.decorationThickness,
+          debugLabel: textStyle.debugLabel,
+          fontFamilyFallback: textStyle.fontFamilyFallback);
       if ((point.labelLocation2!.y - point.labelLocation3!.y).abs() >= 8 ||
           (point.labelLocation2!.x - point.labelLocation3!.x).abs() >= 8) {
         seriesRendererDetails.renderer.drawDataLabel(
@@ -1149,7 +1148,7 @@ void _drawDataLabelRectAndText(
             point.labelLocation3!.x + x,
             point.labelLocation3!.y + y,
             dataLabelSettingsRenderer.angle,
-            _textStyleOpenClose);
+            textStyleOpenClose);
       }
       if ((point.labelLocation!.y - point.labelLocation4!.y).abs() >= 8 ||
           (point.labelLocation!.x - point.labelLocation4!.x).abs() >= 8) {
@@ -1160,7 +1159,7 @@ void _drawDataLabelRectAndText(
             point.labelLocation4!.x + x,
             point.labelLocation4!.y + y,
             dataLabelSettingsRenderer.angle,
-            _textStyleOpenClose);
+            textStyleOpenClose);
       }
       if (label5 != null && point.labelLocation5 != null) {
         seriesRendererDetails.renderer.drawDataLabel(
@@ -1170,7 +1169,7 @@ void _drawDataLabelRectAndText(
             point.labelLocation5!.x + x,
             point.labelLocation5!.y + y,
             dataLabelSettingsRenderer.angle,
-            _textStyleOpenClose);
+            textStyleOpenClose);
       }
 
       if (isBoxSeries) {
@@ -1294,7 +1293,7 @@ void _drawDataLabelRectAndText(
                 point.outliersLocation[outlierIndex].x + x,
                 point.outliersLocation[outlierIndex].y + y,
                 dataLabelSettingsRenderer.angle,
-                _textStyle);
+                textStyle);
           }
         }
       }
@@ -1302,7 +1301,7 @@ void _drawDataLabelRectAndText(
   }
 }
 
-/// Following method returns the data label text
+/// Following method returns the data label text.
 String _getLabelText(
     dynamic labelValue, SeriesRendererDetails seriesRendererDetails) {
   if (labelValue.toString().split('.').length > 1) {
@@ -1331,7 +1330,7 @@ String _getLabelText(
   }
 }
 
-/// Calculating rect position for dataLabel
+/// Calculating rect position for dataLabel.
 double _calculateRectPosition(
     double labelLocation,
     Rect rect,
@@ -1366,7 +1365,7 @@ double _calculateRectPosition(
         : position;
   }
 
-  /// Locating the data label based on position
+  /// Locating the data label based on position.
   switch (position) {
     case ChartDataLabelAlignment.bottom:
       labelLocation = !inverted
@@ -1419,7 +1418,7 @@ double _calculateRectPosition(
   return labelLocation;
 }
 
-/// Calculating the label location if position is given as auto
+/// Calculating the label location if position is given as auto.
 double _calculateRectActualPosition(
     double labelLocation,
     Rect rect,
@@ -1480,17 +1479,16 @@ double _calculateRectActualPosition(
               findingCollision(
                   labelRect, stateProperties.renderDatalabelRegions));
     }
-    seriesRendererDetails.dataPoints[index].dataLabelSaturationRegionInside =
-        isOverLap ||
-            seriesRendererDetails
-                    .dataPoints[index].dataLabelSaturationRegionInside ==
-                true;
+    final List<CartesianChartPoint<dynamic>> dataPoints =
+        getSampledData(seriesRendererDetails);
+    dataPoints[index].dataLabelSaturationRegionInside =
+        isOverLap || dataPoints[index].dataLabelSaturationRegionInside == true;
     position++;
   }
   return location;
 }
 
-///calculation for top and outer position of data label for rect series
+/// Calculation for top and outer position of data label for rect series.
 double _calculateTopAndOuterPosition(
     Size textSize,
     double location,
@@ -1524,7 +1522,7 @@ double _calculateTopAndOuterPosition(
   return location;
 }
 
-/// Add padding for fill rect (if data label fill color is given)
+/// Add padding for fill rect (if data label fill color is given).
 RRect _calculatePaddedFillRect(Rect rect, double radius, EdgeInsets margin) {
   rect = Rect.fromLTRB(rect.left - margin.left, rect.top - margin.top,
       rect.right + margin.right, rect.bottom + margin.bottom);
@@ -1532,14 +1530,14 @@ RRect _calculatePaddedFillRect(Rect rect, double radius, EdgeInsets margin) {
   return _rectToRrect(rect, radius);
 }
 
-/// Converting rect into rounded rect
+/// Converting rect into rounded rect.
 RRect _rectToRrect(Rect rect, double radius) => RRect.fromRectAndCorners(rect,
     topLeft: Radius.elliptical(radius, radius),
     topRight: Radius.elliptical(radius, radius),
     bottomLeft: Radius.elliptical(radius, radius),
     bottomRight: Radius.elliptical(radius, radius));
 
-/// Checking the condition whether data Label has been exist in the clip rect
+/// Checking the condition whether data Label has been exist in the clip rect.
 Rect _validateRect(Rect rect, Rect clipRect) {
   /// please don't add padding here
   double left, top;
@@ -1559,7 +1557,7 @@ Rect _validateRect(Rect rect, Rect clipRect) {
   return rect;
 }
 
-/// It returns a boolean value that labels within range or not
+/// It returns a boolean value that labels within range or not.
 bool isLabelWithinRange(SeriesRendererDetails seriesRendererDetails,
     CartesianChartPoint<dynamic> point) {
   bool isWithInRange = true;
@@ -1600,7 +1598,7 @@ bool isLabelWithinRange(SeriesRendererDetails seriesRendererDetails,
   return isWithInRange;
 }
 
-/// Calculating data label position and updating the label region for current data point
+/// Calculating data label position and updating the label region for current data point.
 void calculateDataLabelPosition(
     SeriesRendererDetails seriesRendererDetails,
     CartesianChartPoint<dynamic> point,
@@ -1924,7 +1922,7 @@ void calculateDataLabelPosition(
                     ? series.markerSettings.height / 2
                     : 0));
       } else {
-        final List<ChartLocation?> _locations = _getLabelLocations(
+        final List<ChartLocation?> locations = _getLabelLocations(
             index,
             stateProperties,
             seriesRendererDetails,
@@ -1934,8 +1932,8 @@ void calculateDataLabelPosition(
             chartLocation2,
             textSize,
             textSize2);
-        chartLocation = _locations[0];
-        chartLocation2 = _locations[1];
+        chartLocation = locations[0];
+        chartLocation2 = locations[1];
       }
       if (seriesRendererDetails.seriesType == 'hiloopenclose' ||
           seriesRendererDetails.seriesType.contains('candle') == true ||
@@ -2057,7 +2055,7 @@ void calculateDataLabelPosition(
                 point, dataLabel, chartLocation3, chartLocation4, textSize3!);
         chartLocation3 = alignedLabelLocations2[0];
         chartLocation4 = alignedLabelLocations2[1];
-        final List<ChartLocation?> _locations = _getLabelLocations(
+        final List<ChartLocation?> locations = _getLabelLocations(
             index,
             stateProperties,
             seriesRendererDetails,
@@ -2067,8 +2065,8 @@ void calculateDataLabelPosition(
             chartLocation4,
             textSize3,
             textSize4!);
-        chartLocation3 = _locations[0];
-        chartLocation4 = _locations[1];
+        chartLocation3 = locations[0];
+        chartLocation4 = locations[1];
       }
       _calculateDataLabelRegion(
           point,

@@ -29,7 +29,7 @@ import './../common/renderer.dart';
 import './../common/segment_properties.dart';
 import '../../../charts.dart';
 
-/// Return percentage to value
+/// Return percentage to value.
 num? percentageToValue(String? value, num size) {
   if (value != null) {
     return value.contains('%')
@@ -39,14 +39,16 @@ num? percentageToValue(String? value, num size) {
   return null;
 }
 
-/// Draw the text
+/// Draw the text.
 void drawText(Canvas canvas, String text, Offset point, TextStyle style,
-    [int? angle]) {
+    [int? angle, bool? isRtl]) {
   final int maxLines = getMaxLinesContent(text);
   final TextSpan span = TextSpan(text: text, style: style);
   final TextPainter tp = TextPainter(
       text: span,
-      textDirection: dart_ui.TextDirection.ltr,
+      textDirection: (isRtl ?? false)
+          ? dart_ui.TextDirection.rtl
+          : dart_ui.TextDirection.ltr,
       textAlign: TextAlign.center,
       maxLines: maxLines);
   tp.layout();
@@ -61,7 +63,7 @@ void drawText(Canvas canvas, String text, Offset point, TextStyle style,
   canvas.restore();
 }
 
-/// Draw the path
+/// Draw the path.
 void drawDashedPath(Canvas canvas, CustomPaintStyle style, Offset moveToPoint,
     Offset lineToPoint,
     [List<double>? dashArray]) {
@@ -93,7 +95,7 @@ void drawDashedPath(Canvas canvas, CustomPaintStyle style, Offset moveToPoint,
   }
 }
 
-/// Find the position of point
+/// Find the position of point.
 num valueToCoefficient(
     num? value, ChartAxisRendererDetails axisRendererDetails) {
   num result = 0;
@@ -108,11 +110,11 @@ num valueToCoefficient(
   return result;
 }
 
-/// Find logarithmic values
+/// Find logarithmic values.
 num calculateLogBaseValue(num value, num base) =>
     math.log(value) / math.log(base);
 
-/// To check if value is within range
+/// To check if value is within range.
 bool withInRange(num value, VisibleRange range) =>
 // ignore: unnecessary_null_comparison
     value != null && (value <= range.maximum) && (value >= range.minimum);
@@ -129,7 +131,7 @@ Color? getWaterfallSeriesColor(WaterfallSeries<dynamic, dynamic> series,
                 ? series.negativePointsColor ?? seriesColor
                 : seriesColor;
 
-/// Get the location of point
+/// Get the location of point.
 ChartLocation calculatePoint(
     num x,
     num? y,
@@ -171,7 +173,7 @@ ChartLocation calculatePoint(
   return ChartLocation(locationX, locationY);
 }
 
-/// Calculate the minimum points delta
+/// Calculate the minimum points delta.
 num calculateMinPointsDelta(
     ChartAxisRenderer axisRenderer,
     List<CartesianSeriesRenderer> seriesRenderers,
@@ -249,7 +251,7 @@ num calculateMinPointsDelta(
   return minDelta;
 }
 
-///Draw legend series type icon
+/// Draw legend series type icon.
 PaintingStyle calculateLegendShapes(Path path, Rect rect, String seriesType) {
   PaintingStyle style = PaintingStyle.fill;
   switch (seriesType) {
@@ -345,7 +347,7 @@ PaintingStyle calculateLegendShapes(Path path, Rect rect, String seriesType) {
   return style;
 }
 
-///Calculate bar legend icon path
+/// Calculate bar legend icon path.
 void calculateBarTypeIconPath(
     Path path, double x, double y, double width, double height) {
   const num padding = 10;
@@ -372,7 +374,7 @@ void calculateBarTypeIconPath(
   path.close();
 }
 
-///Calculate column legend icon path
+/// Calculate column legend icon path.
 void calculateColumnTypeIconPath(
     Path path, double x, double y, double width, double height) {
   const num padding = 10;
@@ -395,7 +397,7 @@ void calculateColumnTypeIconPath(
   path.close();
 }
 
-///Calculate area type legend icon path
+/// Calculate area type legend icon path.
 void calculateAreaTypeIconPath(
     Path path, double x, double y, double width, double height) {
   const num padding = 10;
@@ -407,7 +409,7 @@ void calculateAreaTypeIconPath(
   path.close();
 }
 
-///Calculate stepline legend icon path
+/// Calculate stepline legend icon path.
 void calculateSteplineIconPath(
     Path path, double x, double y, double width, double height) {
   const num padding = 10;
@@ -423,7 +425,7 @@ void calculateSteplineIconPath(
   path.lineTo(x + (width / 2) + (padding / 4), y + (height / 2));
 }
 
-///Calculate steparea legend icon path
+/// Calculate steparea legend icon path.
 void calculateStepAreaIconPath(
     Path path, double x, double y, double width, double height) {
   const num padding = 10;
@@ -440,7 +442,7 @@ void calculateStepAreaIconPath(
   path.close();
 }
 
-///Calculate pie legend icon path
+/// Calculate pie legend icon path.
 void calculatePieIconPath(
     Path path, double x, double y, double width, double height) {
   final double r = math.min(height, width) / 2;
@@ -456,7 +458,7 @@ void calculatePieIconPath(
   path.close();
 }
 
-///Calculate pyramid legend icon path
+/// Calculate pyramid legend icon path.
 void calculatePyramidIconPath(
     Path path, double x, double y, double width, double height) {
   path.moveTo(x - width / 2, y + height / 2);
@@ -466,7 +468,7 @@ void calculatePyramidIconPath(
   path.close();
 }
 
-///Calculate funnel legend icon path
+/// Calculate funnel legend icon path.
 void calculateFunnelIconPath(
     Path path, double x, double y, double width, double height) {
   path.moveTo(x + width / 2, y - height / 2);
@@ -514,7 +516,7 @@ Rect calculateRectangle(
       (point2.y - point1.y).abs());
 }
 
-///Calculate the tracker rect bounds for column series and bar series.
+/// Calculate the tracker rect bounds for column series and bar series.
 Rect calculateShadowRectangle(
     num x1,
     num y1,
@@ -613,7 +615,7 @@ Rect calculateShadowRectangle(
           histogramSeries);
 }
 
-/// Calculate shadow rectangle for normal rect series
+/// Calculate shadow rectangle for normal rect series.
 Rect _getNormalShadowRect(
     Rect rect,
     bool isColumn,
@@ -694,7 +696,7 @@ Rect _getNormalShadowRect(
                       barSeries.trackPadding * 2);
 }
 
-/// Calculate shadow rectangle for transposed rect series
+/// Calculate shadow rectangle for transposed rect series.
 Rect _getTransposedShadowRect(
     Rect rect,
     bool isColumn,
@@ -776,7 +778,7 @@ Rect _getTransposedShadowRect(
                               2 * plotOffset.dy));
 }
 
-/// Calculate the side by side range for column and bar series
+/// Calculate the side by side range for column and bar series.
 VisibleRange calculateSideBySideInfo(CartesianSeriesRenderer seriesRenderer,
     CartesianStateProperties stateProperties) {
   num? rectPosition;
@@ -941,7 +943,7 @@ VisibleRange calculateSideBySideInfo(CartesianSeriesRenderer seriesRenderer,
       !chart.enableSideBySideSeriesPlacement ? 0 : rectPosition!;
   final num rectCount = !chart.enableSideBySideSeriesPlacement ? 1 : count!;
 
-  /// Gets the minimum point delta in series
+  /// Gets the minimum point delta in series.
   final num minPointsDelta = seriesRendererDetails.minDelta ??
       calculateMinPointsDelta(seriesRendererDetails.xAxisDetails!.axisRenderer,
           stateProperties.seriesRenderers, stateProperties);
@@ -962,32 +964,32 @@ VisibleRange calculateSideBySideInfo(CartesianSeriesRenderer seriesRenderer,
   return doubleRange;
 }
 
-/// The method returns rotated text location for the given angle
+/// The method returns rotated text location for the given angle.
 ChartLocation getRotatedTextLocation(double pointX, double pointY,
     String labelText, TextStyle textStyle, int angle, ChartAxis axis) {
   if (angle > 0) {
     final Size textSize = measureText(labelText, textStyle);
     final Size rotateTextSize = measureText(labelText, textStyle, angle);
 
-    /// label rotation for 0 to 90
+    /// label rotation for 0 to 90.
     pointX += ((rotateTextSize.width - textSize.width).abs() / 2) +
         (((angle > 90 ? 90 : angle) / 90) * textSize.height);
 
-    /// label rotation for 90 to 180
+    /// label rotation for 90 to 180.
     pointX += (angle > 90) ? (rotateTextSize.width - textSize.height).abs() : 0;
     pointY += (angle > 90)
         ? (angle / 180) * textSize.height -
             (((180 - angle) / 180) * textSize.height)
         : 0;
 
-    /// label rotation 180 to 270
+    /// label rotation 180 to 270.
     pointX -= (angle > 180) ? (angle / 270) * textSize.height : 0;
     pointY += (angle > 180)
         ? (rotateTextSize.height - textSize.height).abs() -
             (angle / 270) * textSize.height
         : 0;
 
-    /// Label rotation 270 to 360
+    /// Label rotation 270 to 360.
     pointX -=
         (angle > 270) ? (rotateTextSize.width - textSize.height).abs() : 0;
     pointY -= (angle > 270)
@@ -1016,13 +1018,13 @@ ChartLocation getRotatedTextLocation(double pointX, double pointY,
   return ChartLocation(pointX, pointY);
 }
 
-/// Checking whether new series and old series are similar
+/// Checking whether new series and old series are similar.
 bool isSameSeries(dynamic oldSeries, dynamic newSeries) {
   return oldSeries.runtimeType == newSeries.runtimeType &&
       oldSeries.key == newSeries.key;
 }
 
-/// Calculate the side by side position for rect series
+/// Calculate the side by side position for rect series.
 void _calculateSideBySidePositions(CartesianSeriesRenderer seriesRenderer,
     CartesianStateProperties stateProperties) {
   final List<CartesianSeriesRenderer> seriesCollection =
@@ -1165,7 +1167,7 @@ List<CartesianSeriesRenderer> findSeriesCollection(
   return seriesRendererCollection;
 }
 
-/// Convert normal rect to rounded rect by using border radius
+/// Convert normal rect to rounded rect by using border radius.
 RRect getRRectFromRect(Rect rect, BorderRadius borderRadius) {
   return RRect.fromRectAndCorners(
     rect,
@@ -1229,14 +1231,14 @@ List<CartesianSeriesRenderer> _findRectSeriesCollection(
   return seriesRenderCollection;
 }
 
-/// To calculate plot offset
+/// To calculate plot offset.
 Rect calculatePlotOffset(Rect axisClipRect, Offset plotOffset) => Rect.fromLTWH(
     axisClipRect.left + plotOffset.dx,
     axisClipRect.top + plotOffset.dy,
     axisClipRect.width - 2 * plotOffset.dx,
     axisClipRect.height - 2 * plotOffset.dy);
 
-///Get gradient fill colors
+/// Get gradient fill colors.
 Paint getLinearGradientPaint(
     LinearGradient gradientFill, Rect region, bool isInvertedAxis) {
   Paint gradientPaint;
@@ -1246,7 +1248,7 @@ Paint getLinearGradientPaint(
   return gradientPaint;
 }
 
-/// Method to get the shader paint
+/// Method to get the shader paint.
 Paint getShaderPaint(Shader shader) {
   Paint shaderPaint;
   shaderPaint = Paint()
@@ -1255,7 +1257,7 @@ Paint getShaderPaint(Shader shader) {
   return shaderPaint;
 }
 
-/// Gets the the actual label value for tooltip and data label etc
+/// Gets the the actual label value for tooltip and data label etc.
 String getLabelValue(dynamic value, dynamic axis, [int? showDigits]) {
   if (value.toString().split('.').length > 1) {
     final String str = value.toString();
@@ -1280,12 +1282,12 @@ String getLabelValue(dynamic value, dynamic axis, [int? showDigits]) {
       : text.toString()) as String;
 }
 
-/// Calculate the X value from the current screen point
-double pointToXValue(bool _requireInvertedAxis, ChartAxisRenderer axisRenderer,
+/// Calculate the X value from the current screen point.
+double pointToXValue(bool requireInvertedAxis, ChartAxisRenderer axisRenderer,
     Rect rect, double x, double y) {
   // ignore: unnecessary_null_comparison
   if (axisRenderer != null) {
-    if (!_requireInvertedAxis) {
+    if (!requireInvertedAxis) {
       return _coefficientToValue(x / rect.width, axisRenderer);
     }
     return _coefficientToValue(1 - (y / rect.height), axisRenderer);
@@ -1293,13 +1295,13 @@ double pointToXValue(bool _requireInvertedAxis, ChartAxisRenderer axisRenderer,
   return double.nan;
 }
 
-/// Calculate the Y value from the current screen point
+/// Calculate the Y value from the current screen point.
 // ignore: unused_element
-double pointToYValue(bool _requireInvertedAxis, ChartAxisRenderer axisRenderer,
+double pointToYValue(bool requireInvertedAxis, ChartAxisRenderer axisRenderer,
     Rect rect, double x, double y) {
   // ignore: unnecessary_null_comparison
   if (axisRenderer != null) {
-    if (!_requireInvertedAxis) {
+    if (!requireInvertedAxis) {
       return _coefficientToValue(1 - (y / rect.height), axisRenderer);
     }
     return _coefficientToValue(x / rect.width, axisRenderer);
@@ -1307,7 +1309,7 @@ double pointToYValue(bool _requireInvertedAxis, ChartAxisRenderer axisRenderer,
   return double.nan;
 }
 
-/// Returns coefficient-based value
+/// Returns coefficient-based value.
 double _coefficientToValue(double coefficient, ChartAxisRenderer axisRenderer) {
   double result;
   final ChartAxisRendererDetails axisRendererDetails =
@@ -1319,7 +1321,7 @@ double _coefficientToValue(double coefficient, ChartAxisRenderer axisRenderer) {
   return result;
 }
 
-/// To repaint chart and axes
+/// To repaint chart and axes.
 void needsRepaintChart(
     CartesianStateProperties stateProperties,
     List<ChartAxisRenderer> oldChartAxisRenderers,
@@ -1354,7 +1356,7 @@ void needsRepaintChart(
   }
 }
 
-/// To check series repaint
+/// To check series repaint.
 void _canRepaintChartSeries(CartesianStateProperties stateProperties,
     List<CartesianSeriesRenderer> oldChartSeriesRenderers, int seriesIndex) {
   final CartesianSeriesRenderer seriesRenderer =
@@ -1504,7 +1506,7 @@ void _canRepaintChartSeries(CartesianStateProperties stateProperties,
   }
 }
 
-/// To check axis repaint
+/// To check axis repaint.
 void _canRepaintAxis(CartesianStateProperties stateProperties,
     List<ChartAxisRenderer> oldChartAxisRenderers, int axisIndex) {
   // ignore: unnecessary_null_comparison
@@ -1556,7 +1558,7 @@ void _canRepaintAxis(CartesianStateProperties stateProperties,
   }
 }
 
-/// To get interactive tooltip label
+/// To get interactive tooltip label.
 dynamic getInteractiveTooltipLabel(
     dynamic value, ChartAxisRenderer axisRenderer) {
   final ChartAxisRendererDetails axisRendererDetails =
@@ -1586,16 +1588,13 @@ dynamic getInteractiveTooltipLabel(
                 : value)
             .round()];
   } else if (axisRenderer is DateTimeAxisRenderer) {
-    final DateTimeAxis _dateTimeAxis = axisRendererDetails.axis as DateTimeAxis;
+    final DateTimeAxis dateTimeAxis = axisRendererDetails.axis as DateTimeAxis;
     final num interval = axisRendererDetails.visibleRange!.minimum.ceil();
-    final num previousInterval =
-        (axisRendererDetails.visibleLabels.length != null &&
-                axisRendererDetails.visibleLabels.isNotEmpty)
-            ? axisRendererDetails
-                .visibleLabels[axisRendererDetails.visibleLabels.length - 1]
-                .value
-            : interval;
-    final DateFormat dateFormat = _dateTimeAxis.dateFormat ??
+    final num previousInterval = (axisRendererDetails.visibleLabels.isNotEmpty)
+        ? axisRendererDetails
+            .visibleLabels[axisRendererDetails.visibleLabels.length - 1].value
+        : interval;
+    final DateFormat dateFormat = dateTimeAxis.dateFormat ??
         getDateTimeLabelFormat(
             axisRenderer, interval.toInt(), previousInterval.toInt());
     value =
@@ -1606,7 +1605,7 @@ dynamic getInteractiveTooltipLabel(
   return value;
 }
 
-/// Returns the path of marker shapes
+/// Returns the path of marker shapes.
 Path getMarkerShapesPath(DataMarkerType markerType, Offset position, Size size,
     [SeriesRendererDetails? seriesRendererDetails,
     int? index,
@@ -1614,8 +1613,14 @@ Path getMarkerShapesPath(DataMarkerType markerType, Offset position, Size size,
     Animation<double>? animationController,
     ChartSegment? segment]) {
   final Path path = Path();
-  final Rect rect = Rect.fromLTWH(position.dx - size.width / 2,
-      position.dy - size.height / 2, size.width, size.height);
+  final Rect rect = segment != null && segment is ScatterSegment
+      ? Rect.fromLTWH(
+          position.dx - ((segment.animationFactor * size.width) / 2),
+          position.dy - ((segment.animationFactor * size.height) / 2),
+          segment.animationFactor * size.width,
+          segment.animationFactor * size.height)
+      : Rect.fromLTWH(position.dx - size.width / 2,
+          position.dy - size.height / 2, size.width, size.height);
   switch (markerType) {
     case DataMarkerType.circle:
       {
@@ -1631,6 +1636,7 @@ Path getMarkerShapesPath(DataMarkerType markerType, Offset position, Size size,
       break;
     case DataMarkerType.image:
       {
+        // ignore: unnecessary_null_comparison
         if (seriesRendererDetails!.series != null) {
           _loadMarkerImage(seriesRendererDetails.renderer, trackballBehavior);
         }
@@ -1680,15 +1686,15 @@ Path getMarkerShapesPath(DataMarkerType markerType, Offset position, Size size,
   return path;
 }
 
-/// Represents the stacking info class
+/// Represents the stacking info class.
 class StackingInfo {
-  /// Creates an instance of stacking info class
+  /// Creates an instance of stacking info class.
   StackingInfo(this.groupName, this.stackingValues);
 
-  /// Holds the group name
+  /// Holds the group name.
   String groupName;
 
-  /// Holds the list of stacking values
+  /// Holds the list of stacking values.
   // ignore: prefer_final_fields
   List<double>? stackingValues;
 }
@@ -1700,7 +1706,7 @@ class _StackingGroup {
   int stackCount;
 }
 
-/// To load marker image
+/// To load marker image.
 // ignore: avoid_void_async
 void _loadMarkerImage(CartesianSeriesRenderer seriesRenderer,
     TrackballBehavior? trackballBehavior) async {
@@ -1723,7 +1729,7 @@ void _loadMarkerImage(CartesianSeriesRenderer seriesRenderer,
   }
 }
 
-/// Gets the chart location of the annotation
+/// Gets the chart location of the annotation.
 ChartLocation getAnnotationLocation(CartesianChartAnnotation annotation,
     CartesianStateProperties stateProperties) {
   final String? xAxisName = annotation.xAxisName;
@@ -1848,7 +1854,7 @@ ChartLocation getAnnotationLocation(CartesianChartAnnotation annotation,
   return location!;
 }
 
-/// Draw tooltip arrow head
+/// Draw tooltip arrow head.
 void drawTooltipArrowhead(
     Canvas canvas,
     Path backgroundPath,
@@ -1872,7 +1878,7 @@ void drawTooltipArrowhead(
   canvas.drawPath(backgroundPath, fillPaint);
 }
 
-/// Calculate rounded rect from rect and corner radius
+/// Calculate rounded rect from rect and corner radius.
 RRect getRoundedCornerRect(Rect rect, double cornerRadius) =>
     RRect.fromRectAndCorners(
       rect,
@@ -1882,7 +1888,7 @@ RRect getRoundedCornerRect(Rect rect, double cornerRadius) =>
       topRight: Radius.circular(cornerRadius),
     );
 
-/// Calculate the X value from the current screen point
+/// Calculate the X value from the current screen point.
 double pointToXVal(SfCartesianChart chart, ChartAxisRenderer axisRenderer,
     Rect rect, double x, double y) {
   // ignore: unnecessary_null_comparison
@@ -1892,7 +1898,7 @@ double pointToXVal(SfCartesianChart chart, ChartAxisRenderer axisRenderer,
   return double.nan;
 }
 
-/// Calculate the Y value from the current screen point
+/// Calculate the Y value from the current screen point.
 double pointToYVal(SfCartesianChart chart, ChartAxisRenderer axisRenderer,
     Rect rect, double x, double y) {
   // ignore: unnecessary_null_comparison
@@ -1902,7 +1908,7 @@ double pointToYVal(SfCartesianChart chart, ChartAxisRenderer axisRenderer,
   return double.nan;
 }
 
-/// Gets the x position of validated rect
+/// Gets the x position of validated rect.
 Rect validateRectXPosition(
     Rect labelRect, CartesianStateProperties stateProperties) {
   Rect validatedRect = labelRect;
@@ -1924,7 +1930,7 @@ Rect validateRectXPosition(
   return validatedRect;
 }
 
-/// Gets the y position of validated rect
+/// Gets the y position of validated rect.
 Rect validateRectYPosition(
     Rect labelRect, CartesianStateProperties stateProperties) {
   Rect validatedRect = labelRect;
@@ -1946,12 +1952,12 @@ Rect validateRectYPosition(
   return validatedRect;
 }
 
-/// This method will validate whether the tooltip exceeds the screen or not
+/// This method will validate whether the tooltip exceeds the screen or not.
 Rect validateRectBounds(Rect tooltipRect, Rect boundary) {
   Rect validatedRect = tooltipRect;
   double difference = 0;
 
-  /// Padding between the corners
+  /// Padding between the corners.
   const double padding = 0.5;
 
   if (tooltipRect.left < boundary.left) {
@@ -1991,7 +1997,7 @@ Rect validateRectBounds(Rect tooltipRect, Rect boundary) {
   return validatedRect;
 }
 
-/// To render a rect for stacked series
+/// To render a rect for stacked series.
 void renderStackingRectSeries(
     Paint? fillPaint,
     Paint? strokePaint,
@@ -2000,7 +2006,7 @@ void renderStackingRectSeries(
     CartesianSeriesRenderer seriesRenderer,
     Canvas canvas,
     RRect segmentRect,
-    CartesianChartPoint<dynamic> _currentPoint,
+    CartesianChartPoint<dynamic> currentPoint,
     int currentSegmentIndex) {
   final SeriesRendererDetails seriesRendererDetails =
       SeriesHelper.getSeriesRendererDetails(seriesRenderer);
@@ -2023,15 +2029,15 @@ void renderStackingRectSeries(
             fillPaint,
             seriesRendererDetails,
             animationFactor,
-            _currentPoint,
+            currentPoint,
             seriesRendererDetails.stateProperties)
         : canvas.drawRRect(segmentRect, fillPaint);
   }
   if (strokePaint != null) {
     if (series.dashArray[0] != 0 && series.dashArray[1] != 0) {
-      final XyDataSeries<dynamic, dynamic> _series =
+      final XyDataSeries<dynamic, dynamic> series =
           seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
-      drawDashedLine(canvas, _series.dashArray, strokePaint, path);
+      drawDashedLine(canvas, series.dashArray, strokePaint, path);
     } else {
       series.animationDuration > 0
           ? animateStackedRectSeries(
@@ -2040,32 +2046,32 @@ void renderStackingRectSeries(
               strokePaint,
               seriesRendererDetails,
               animationFactor,
-              _currentPoint,
+              currentPoint,
               seriesRendererDetails.stateProperties)
           : canvas.drawRRect(segmentRect, strokePaint);
     }
   }
 }
 
-/// Draw stacked area path
+/// Draw stacked area path.
 void drawStackedAreaPath(
-    Path _path,
-    Path _strokePath,
+    Path path,
+    Path strokePath,
     CartesianSeriesRenderer seriesRenderer,
     Canvas canvas,
     Paint fillPaint,
     Paint strokePaint) {
-  Rect _pathRect;
+  Rect pathRect;
   dynamic stackedAreaSegment;
-  _pathRect = _path.getBounds();
+  pathRect = path.getBounds();
   final SeriesRendererDetails seriesRendererDetails =
       SeriesHelper.getSeriesRendererDetails(seriesRenderer);
-  final XyDataSeries<dynamic, dynamic> _series =
+  final XyDataSeries<dynamic, dynamic> series =
       seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
   stackedAreaSegment = seriesRendererDetails.segments[0];
   final SegmentProperties segmentProperties =
       SegmentHelper.getSegmentProperties(stackedAreaSegment);
-  segmentProperties.pathRect = _pathRect;
+  segmentProperties.pathRect = pathRect;
   if (seriesRendererDetails.isSelectionEnable == true) {
     final SelectionBehaviorRenderer? selectionBehaviorRenderer =
         seriesRendererDetails.selectionBehaviorRenderer;
@@ -2075,18 +2081,18 @@ void drawStackedAreaPath(
             seriesRendererDetails.segments[0], seriesRendererDetails.chart);
   }
   canvas.drawPath(
-      _path,
-      (_series.gradient == null)
+      path,
+      (series.gradient == null)
           ? fillPaint
           : seriesRendererDetails.segments[0].getFillPaint());
   strokePaint = seriesRendererDetails.segments[0].getStrokePaint();
 
   if (strokePaint.color != Colors.transparent) {
-    drawDashedLine(canvas, _series.dashArray, strokePaint, _strokePath);
+    drawDashedLine(canvas, series.dashArray, strokePaint, strokePath);
   }
 }
 
-/// Render stacked line series
+/// Render stacked line series.
 void renderStackedLineSeries(
     StackedSeriesBase<dynamic, dynamic> series,
     Canvas canvas,
@@ -2101,22 +2107,22 @@ void renderStackedLineSeries(
   drawDashedLine(canvas, series.dashArray, strokePaint, path);
 }
 
-/// Painter method for stacked area series
+/// Painter method for stacked area series.
 void stackedAreaPainter(
     Canvas canvas,
     dynamic seriesRenderer,
-    CartesianStateProperties _stateProperties,
+    CartesianStateProperties stateProperties,
     Animation<double>? seriesAnimation,
     Animation<double>? chartElementAnimation,
     PainterKey painterKey) {
   Rect clipRect, axisClipRect;
   final int seriesIndex = painterKey.index;
-  final SfCartesianChart chart = _stateProperties.chart;
-  final RenderingDetails _renderingDetails = _stateProperties.renderingDetails;
+  final SfCartesianChart chart = stateProperties.chart;
+  final RenderingDetails renderingDetails = stateProperties.renderingDetails;
   seriesRenderer.seriesRendererDetails
-      .storeSeriesProperties(_stateProperties.chartState, seriesIndex);
+      .storeSeriesProperties(stateProperties.chartState, seriesIndex);
   double animationFactor;
-  final num? crossesAt = getCrossesAtValue(seriesRenderer, _stateProperties);
+  final num? crossesAt = getCrossesAtValue(seriesRenderer, stateProperties);
   final List<CartesianChartPoint<dynamic>> dataPoints =
       seriesRenderer.seriesRendererDetails.dataPoints;
 
@@ -2125,7 +2131,7 @@ void stackedAreaPainter(
     final dynamic series = seriesRenderer.seriesRendererDetails.series;
     canvas.save();
     axisClipRect = calculatePlotOffset(
-        _stateProperties.chartAxis.axisClipRect,
+        stateProperties.chartAxis.axisClipRect,
         Offset(
             seriesRenderer.seriesRendererDetails.xAxisDetails?.axis?.plotOffset,
             seriesRenderer
@@ -2133,82 +2139,86 @@ void stackedAreaPainter(
     canvas.clipRect(axisClipRect);
     animationFactor = seriesAnimation != null ? seriesAnimation.value : 1;
     if (seriesRenderer.seriesRendererDetails.reAnimate == true ||
-        ((!(_renderingDetails.widgetNeedUpdate ||
-                    _renderingDetails.isLegendToggled) ||
-                !_stateProperties.oldSeriesKeys.contains(series.key)) &&
+        ((!(renderingDetails.widgetNeedUpdate ||
+                    renderingDetails.isLegendToggled) ||
+                !stateProperties.oldSeriesKeys.contains(series.key)) &&
             series.animationDuration > 0 == true)) {
       performLinearAnimation(
-          _stateProperties,
+          stateProperties,
           seriesRenderer.seriesRendererDetails.xAxisDetails!.axis,
           canvas,
           animationFactor);
     }
 
-    final Path _path = Path(), _strokePath = Path();
-    final Rect rect = _stateProperties.chartAxis.axisClipRect;
+    final Path path = Path(), strokePath = Path();
+    final Rect rect = stateProperties.chartAxis.axisClipRect;
     ChartLocation point1, point2;
     final ChartAxisRendererDetails xAxisDetails =
             seriesRenderer.seriesRendererDetails.xAxisDetails!,
         yAxisDetails = seriesRenderer.seriesRendererDetails.yAxisDetails!;
     CartesianChartPoint<dynamic>? point;
-    final dynamic _series = seriesRenderer.seriesRendererDetails.series;
-    final List<Offset> _points = <Offset>[];
+    final dynamic stackAreaSeries = seriesRenderer.seriesRendererDetails.series;
+    final List<Offset> points = <Offset>[];
     if (dataPoints.isNotEmpty) {
       int startPoint = 0;
       final StackedValues stackedValues =
           seriesRenderer.seriesRendererDetails.stackingValues[0];
       List<CartesianSeriesRenderer> seriesRendererCollection;
       CartesianSeriesRenderer previousSeriesRenderer;
-      seriesRendererCollection = findSeriesCollection(_stateProperties);
+      seriesRendererCollection = findSeriesCollection(stateProperties);
       point1 = calculatePoint(
           dataPoints[0].xValue,
           math_lib.max(yAxisDetails.visibleRange!.minimum,
               crossesAt ?? stackedValues.startValues[0]),
           xAxisDetails,
           yAxisDetails,
-          _stateProperties.requireInvertedAxis,
-          _series,
+          stateProperties.requireInvertedAxis,
+          stackAreaSeries,
           rect);
-      _path.moveTo(point1.x, point1.y);
-      _strokePath.moveTo(point1.x, point1.y);
+      path.moveTo(point1.x, point1.y);
+      strokePath.moveTo(point1.x, point1.y);
       if (seriesRenderer.seriesRendererDetails.visibleDataPoints == null ||
           seriesRenderer.seriesRendererDetails.visibleDataPoints!.isNotEmpty ==
               true) {
         seriesRenderer.seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRenderer.seriesRendererDetails
+          .setSeriesProperties(seriesRenderer.seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRenderer.seriesRendererDetails.calculateRegionData(
-            _stateProperties, seriesRenderer, seriesIndex, point, pointIndex);
+            stateProperties, seriesRenderer, seriesIndex, point, pointIndex);
         if (point.isVisible) {
           point1 = calculatePoint(
               dataPoints[pointIndex].xValue,
               stackedValues.endValues[pointIndex],
               xAxisDetails,
               yAxisDetails,
-              _stateProperties.requireInvertedAxis,
-              _series,
+              stateProperties.requireInvertedAxis,
+              stackAreaSeries,
               rect);
-          _points.add(Offset(point1.x, point1.y));
-          _path.lineTo(point1.x, point1.y);
-          _strokePath.lineTo(point1.x, point1.y);
+          points.add(Offset(point1.x, point1.y));
+          path.lineTo(point1.x, point1.y);
+          strokePath.lineTo(point1.x, point1.y);
         } else {
-          if (_series.emptyPointSettings.mode != EmptyPointMode.drop) {
+          if (stackAreaSeries.emptyPointSettings.mode != EmptyPointMode.drop) {
             for (int j = pointIndex - 1; j >= startPoint; j--) {
               point2 = calculatePoint(
                   dataPoints[j].xValue,
                   crossesAt ?? stackedValues.startValues[j],
                   xAxisDetails,
                   yAxisDetails,
-                  _stateProperties.requireInvertedAxis,
-                  _series,
+                  stateProperties.requireInvertedAxis,
+                  stackAreaSeries,
                   rect);
-              _path.lineTo(point2.x, point2.y);
-              if (_series.borderDrawMode == BorderDrawMode.excludeBottom) {
-                _strokePath.lineTo(point1.x, point2.y);
-              } else if (_series.borderDrawMode == BorderDrawMode.all) {
-                _strokePath.lineTo(point2.x, point2.y);
+              path.lineTo(point2.x, point2.y);
+              if (stackAreaSeries.borderDrawMode ==
+                  BorderDrawMode.excludeBottom) {
+                strokePath.lineTo(point1.x, point2.y);
+              } else if (stackAreaSeries.borderDrawMode == BorderDrawMode.all) {
+                strokePath.lineTo(point2.x, point2.y);
               }
             }
             if (dataPoints.length > pointIndex + 1 &&
@@ -2220,18 +2230,18 @@ void stackedAreaPainter(
                   crossesAt ?? stackedValues.startValues[pointIndex + 1],
                   xAxisDetails,
                   yAxisDetails,
-                  _stateProperties.requireInvertedAxis,
-                  _series,
+                  stateProperties.requireInvertedAxis,
+                  stackAreaSeries,
                   rect);
-              _path.moveTo(point1.x, point1.y);
-              _strokePath.moveTo(point1.x, point1.y);
+              path.moveTo(point1.x, point1.y);
+              strokePath.moveTo(point1.x, point1.y);
             }
             startPoint = pointIndex + 1;
           }
         }
         if (pointIndex >= dataPoints.length - 1) {
           seriesRenderer._createSegments(
-              painterKey.index, chart, animationFactor, _points);
+              painterKey.index, chart, animationFactor, points);
         }
       }
       for (int j = dataPoints.length - 1; j >= startPoint; j--) {
@@ -2247,20 +2257,20 @@ void stackedAreaPainter(
               crossesAt ?? stackedValues.startValues[j],
               xAxisDetails,
               yAxisDetails,
-              _stateProperties.requireInvertedAxis,
-              _series,
+              stateProperties.requireInvertedAxis,
+              stackAreaSeries,
               rect);
-          _path.lineTo(point2.x, point2.y);
-          if (_series.borderDrawMode == BorderDrawMode.excludeBottom) {
-            _strokePath.lineTo(point1.x, point2.y);
-          } else if (_series.borderDrawMode == BorderDrawMode.all) {
-            _strokePath.lineTo(point2.x, point2.y);
+          path.lineTo(point2.x, point2.y);
+          if (stackAreaSeries.borderDrawMode == BorderDrawMode.excludeBottom) {
+            strokePath.lineTo(point1.x, point2.y);
+          } else if (stackAreaSeries.borderDrawMode == BorderDrawMode.all) {
+            strokePath.lineTo(point2.x, point2.y);
           }
         }
       }
     }
     // ignore: unnecessary_null_comparison
-    if (_path != null &&
+    if (path != null &&
         seriesRenderer.seriesRendererDetails.segments != null &&
         seriesRenderer.seriesRendererDetails.segments.isNotEmpty == true) {
       final dynamic areaSegment =
@@ -2268,38 +2278,38 @@ void stackedAreaPainter(
       seriesRenderer.seriesRendererDetails.drawSegment(
           canvas,
           areaSegment
-            .._path = _path
-            .._strokePath = _strokePath);
+            .._path = path
+            .._strokePath = strokePath);
     }
 
     clipRect = calculatePlotOffset(
         Rect.fromLTRB(
-            rect.left - _series.markerSettings.width,
-            rect.top - _series.markerSettings.height,
-            rect.right + _series.markerSettings.width,
-            rect.bottom + _series.markerSettings.height),
+            rect.left - stackAreaSeries.markerSettings.width,
+            rect.top - stackAreaSeries.markerSettings.height,
+            rect.right + stackAreaSeries.markerSettings.width,
+            rect.bottom + stackAreaSeries.markerSettings.height),
         Offset(
             seriesRenderer.seriesRendererDetails.xAxisDetails?.axis?.plotOffset,
             seriesRenderer
                 .seriesRendererDetails.yAxisDetails?.axis?.plotOffset));
     canvas.restore();
-    if ((_series.animationDuration <= 0 == true ||
-            !_renderingDetails.initialRender! ||
-            animationFactor >= _stateProperties.seriesDurationFactor) &&
-        (_series.markerSettings.isVisible == true ||
-            _series.dataLabelSettings.isVisible == true ||
-            _series.errorBarSettings.isVisible! == true)) {
+    if ((stackAreaSeries.animationDuration <= 0 == true ||
+            !renderingDetails.initialRender! ||
+            animationFactor >= stateProperties.seriesDurationFactor) &&
+        (stackAreaSeries.markerSettings.isVisible == true ||
+            stackAreaSeries.dataLabelSettings.isVisible == true ||
+            stackAreaSeries.errorBarSettings.isVisible! == true)) {
       canvas.clipRect(clipRect);
       seriesRenderer.seriesRendererDetails
           .renderSeriesElements(chart, canvas, chartElementAnimation);
     }
     if (animationFactor >= 1) {
-      _stateProperties.setPainterKey(painterKey.index, painterKey.name, true);
+      stateProperties.setPainterKey(painterKey.index, painterKey.name, true);
     }
   }
 }
 
-/// To get previous series renderer
+/// To get previous series renderer.
 CartesianSeriesRenderer getPreviousSeriesRenderer(
     List<CartesianSeriesRenderer> seriesRendererCollection, num seriesIndex) {
   for (int i = 0; i < seriesRendererCollection.length; i++) {
@@ -2312,36 +2322,35 @@ CartesianSeriesRenderer getPreviousSeriesRenderer(
   return seriesRendererCollection[0];
 }
 
-/// Rect painter for stacked series
+/// Rect painter for stacked series.
 void stackedRectPainter(Canvas canvas, dynamic seriesRenderer,
-    CartesianStateProperties _stateProperties, PainterKey painterKey) {
+    CartesianStateProperties stateProperties, PainterKey painterKey) {
   if (seriesRenderer.seriesRendererDetails.visible! == true) {
     canvas.save();
     Rect clipRect, axisClipRect;
     CartesianChartPoint<dynamic> point;
     final XyDataSeries<dynamic, dynamic> series =
         seriesRenderer.seriesRendererDetails.series;
-    final RenderingDetails _renderingDetails =
-        _stateProperties.renderingDetails;
+    final RenderingDetails renderingDetails = stateProperties.renderingDetails;
     final int seriesIndex = painterKey.index;
     final Animation<double> seriesAnimation =
         seriesRenderer.seriesRendererDetails.seriesAnimation;
     final Animation<double> chartElementAnimation =
         seriesRenderer.seriesRendererDetails.seriesElementAnimation;
     seriesRenderer.seriesRendererDetails
-        .storeSeriesProperties(_stateProperties.chartState, seriesIndex);
+        .storeSeriesProperties(stateProperties.chartState, seriesIndex);
     double animationFactor;
     // ignore: unnecessary_null_comparison
     animationFactor = seriesAnimation != null &&
             (seriesRenderer.seriesRendererDetails.reAnimate == true ||
-                (!(_renderingDetails.widgetNeedUpdate ||
-                    _renderingDetails.isLegendToggled)))
+                (!(renderingDetails.widgetNeedUpdate ||
+                    renderingDetails.isLegendToggled)))
         ? seriesAnimation.value
         : 1;
 
     /// Clip rect will be added for series.
     axisClipRect = calculatePlotOffset(
-        _stateProperties.chartAxis.axisClipRect,
+        stateProperties.chartAxis.axisClipRect,
         Offset(
             seriesRenderer.seriesRendererDetails.xAxisDetails?.axis?.plotOffset,
             seriesRenderer
@@ -2354,12 +2363,15 @@ void stackedRectPainter(Canvas canvas, dynamic seriesRenderer,
       seriesRenderer.seriesRendererDetails.visibleDataPoints =
           <CartesianChartPoint<dynamic>>[];
     }
+
+    seriesRenderer.seriesRendererDetails
+        .setSeriesProperties(seriesRenderer.seriesRendererDetails);
     for (int pointIndex = 0;
         pointIndex < seriesRenderer.seriesRendererDetails.dataPoints.length;
         pointIndex++) {
       point = seriesRenderer.seriesRendererDetails.dataPoints[pointIndex];
-      seriesRenderer.seriesRendererDetails.calculateRegionData(_stateProperties,
-          seriesRenderer, painterKey.index, point, pointIndex);
+      seriesRenderer.seriesRendererDetails.calculateRegionData(
+          stateProperties, seriesRenderer, painterKey.index, point, pointIndex);
       if (point.isVisible && !point.isGap) {
         seriesRenderer.seriesRendererDetails.drawSegment(
             canvas,
@@ -2369,13 +2381,13 @@ void stackedRectPainter(Canvas canvas, dynamic seriesRenderer,
     }
     clipRect = calculatePlotOffset(
         Rect.fromLTRB(
-            _stateProperties.chartAxis.axisClipRect.left -
+            stateProperties.chartAxis.axisClipRect.left -
                 series.markerSettings.width,
-            _stateProperties.chartAxis.axisClipRect.top -
+            stateProperties.chartAxis.axisClipRect.top -
                 series.markerSettings.height,
-            _stateProperties.chartAxis.axisClipRect.right +
+            stateProperties.chartAxis.axisClipRect.right +
                 series.markerSettings.width,
-            _stateProperties.chartAxis.axisClipRect.bottom +
+            stateProperties.chartAxis.axisClipRect.bottom +
                 series.markerSettings.height),
         Offset(
             seriesRenderer.seriesRendererDetails.xAxisDetails?.axis?.plotOffset,
@@ -2383,31 +2395,31 @@ void stackedRectPainter(Canvas canvas, dynamic seriesRenderer,
                 .seriesRendererDetails.yAxisDetails?.axis?.plotOffset));
     canvas.restore();
     if ((series.animationDuration <= 0 ||
-            !_renderingDetails.initialRender! ||
-            animationFactor >= _stateProperties.seriesDurationFactor) &&
+            !renderingDetails.initialRender! ||
+            animationFactor >= stateProperties.seriesDurationFactor) &&
         (series.markerSettings.isVisible ||
             series.dataLabelSettings.isVisible)) {
       canvas.clipRect(clipRect);
       seriesRenderer.seriesRendererDetails.renderSeriesElements(
-          _stateProperties.chart, canvas, chartElementAnimation);
+          stateProperties.chart, canvas, chartElementAnimation);
     }
     if (animationFactor >= 1) {
-      _stateProperties.setPainterKey(painterKey.index, painterKey.name, true);
+      stateProperties.setPainterKey(painterKey.index, painterKey.name, true);
     }
   }
 }
 
-/// Painter for stacked line series
+/// Painter for stacked line series.
 void stackedLinePainter(
     Canvas canvas,
     dynamic seriesRenderer,
     Animation<double>? seriesAnimation,
-    CartesianStateProperties _stateProperties,
+    CartesianStateProperties stateProperties,
     Animation<double>? chartElementAnimation,
     PainterKey painterKey) {
   Rect clipRect;
   double animationFactor;
-  final RenderingDetails _renderingDetails = _stateProperties.renderingDetails;
+  final RenderingDetails renderingDetails = stateProperties.renderingDetails;
   if (seriesRenderer.seriesRendererDetails.visible! == true) {
     final XyDataSeries<dynamic, dynamic> series =
         seriesRenderer.seriesRendererDetails.series;
@@ -2416,7 +2428,7 @@ void stackedLinePainter(
     final int seriesIndex = painterKey.index;
     StackedValues? stackedValues;
     seriesRenderer.seriesRendererDetails
-        .storeSeriesProperties(_stateProperties.chartState, seriesIndex);
+        .storeSeriesProperties(stateProperties.chartState, seriesIndex);
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer);
     if (seriesRenderer is StackedSeriesRenderer &&
@@ -2435,12 +2447,12 @@ void stackedLinePainter(
                 .seriesRendererDetails.yAxisDetails?.axis?.plotOffset));
     canvas.clipRect(axisClipRect);
     if (seriesRenderer.seriesRendererDetails.reAnimate == true ||
-        ((!(_renderingDetails.widgetNeedUpdate ||
-                    _renderingDetails.isLegendToggled) ||
-                !_stateProperties.oldSeriesKeys.contains(series.key)) &&
+        ((!(renderingDetails.widgetNeedUpdate ||
+                    renderingDetails.isLegendToggled) ||
+                !stateProperties.oldSeriesKeys.contains(series.key)) &&
             series.animationDuration > 0)) {
       performLinearAnimation(
-          _stateProperties,
+          stateProperties,
           seriesRenderer.seriesRendererDetails.xAxisDetails!.axis,
           canvas,
           animationFactor);
@@ -2448,22 +2460,22 @@ void stackedLinePainter(
 
     int segmentIndex = -1;
     double? currentCummulativePos, nextCummulativePos;
-    CartesianChartPoint<dynamic>? startPoint,
-        endPoint,
-        currentPoint,
-        _nextPoint;
+    CartesianChartPoint<dynamic>? startPoint, endPoint, currentPoint, nextPoint;
     if (seriesRenderer.seriesRendererDetails.visibleDataPoints == null ||
         seriesRenderer.seriesRendererDetails.visibleDataPoints!.isNotEmpty ==
             true) {
       seriesRenderer.seriesRendererDetails.visibleDataPoints =
           <CartesianChartPoint<dynamic>>[];
     }
+
+    seriesRenderer.seriesRendererDetails
+        .setSeriesProperties(seriesRenderer.seriesRendererDetails);
     for (int pointIndex = 0;
         pointIndex < seriesRenderer.seriesRendererDetails.dataPoints.length;
         pointIndex++) {
       currentPoint =
           seriesRenderer.seriesRendererDetails.dataPoints[pointIndex];
-      seriesRenderer.seriesRendererDetails.calculateRegionData(_stateProperties,
+      seriesRenderer.seriesRendererDetails.calculateRegionData(stateProperties,
           seriesRenderer, seriesIndex, currentPoint, pointIndex);
       if ((currentPoint!.isVisible && !currentPoint.isGap) &&
           startPoint == null &&
@@ -2473,14 +2485,14 @@ void stackedLinePainter(
       }
       if (pointIndex + 1 <
           seriesRenderer.seriesRendererDetails.dataPoints.length) {
-        _nextPoint =
+        nextPoint =
             seriesRenderer.seriesRendererDetails.dataPoints[pointIndex + 1];
-        if (startPoint != null && _nextPoint!.isGap) {
+        if (startPoint != null && nextPoint!.isGap) {
           startPoint = null;
-        } else if (_nextPoint!.isVisible &&
-            !_nextPoint.isGap &&
+        } else if (nextPoint!.isVisible &&
+            !nextPoint.isGap &&
             stackedValues != null) {
-          endPoint = _nextPoint;
+          endPoint = nextPoint;
           nextCummulativePos = stackedValues.endValues[pointIndex + 1];
         }
       }
@@ -2511,21 +2523,21 @@ void stackedLinePainter(
                 .seriesRendererDetails.yAxisDetails?.axis?.plotOffset));
     canvas.restore();
     if ((series.animationDuration <= 0 ||
-            !_renderingDetails.initialRender! ||
-            animationFactor >= _stateProperties.seriesDurationFactor) &&
+            !renderingDetails.initialRender! ||
+            animationFactor >= stateProperties.seriesDurationFactor) &&
         (series.markerSettings.isVisible ||
             series.dataLabelSettings.isVisible)) {
       canvas.clipRect(clipRect);
       seriesRenderer.seriesRendererDetails.renderSeriesElements(
-          _stateProperties.chart, canvas, chartElementAnimation);
+          stateProperties.chart, canvas, chartElementAnimation);
     }
     if (animationFactor >= 1) {
-      _stateProperties.setPainterKey(seriesIndex, painterKey.name, true);
+      stateProperties.setPainterKey(seriesIndex, painterKey.name, true);
     }
   }
 }
 
-/// To find MonotonicSpline
+/// To find MonotonicSpline.
 List<num?>? _getMonotonicSpline(List<num> xValues, List<num> yValues,
     List<num?> yCoef, int dataCount, List<num?> dx) {
   final int count = dataCount;
@@ -2560,11 +2572,11 @@ List<num?>? _getMonotonicSpline(List<num> xValues, List<num> yValues,
           coefficient[++index] = 0;
         } else {
           final double firstPoint = dx[i]!.toDouble(),
-              _nextPoint = dx[i + 1]!.toDouble();
-          final double interPoint = firstPoint + _nextPoint;
+              nextPoint = dx[i + 1]!.toDouble();
+          final double interPoint = firstPoint + nextPoint;
           coefficient[++index] = 3 *
               interPoint /
-              (((interPoint + _nextPoint) / m) +
+              (((interPoint + nextPoint) / m) +
                   ((interPoint + firstPoint) / next));
         }
       }
@@ -2579,7 +2591,7 @@ List<num?>? _getMonotonicSpline(List<num> xValues, List<num> yValues,
   return yCoef;
 }
 
-/// To find CardinalSpline
+/// To find CardinalSpline.
 List<num?> _getCardinalSpline(List<num> xValues, List<num> yValues,
     List<num?> yCoef, int dataCount, double tension) {
   if (tension < 0.1) {
@@ -2610,7 +2622,7 @@ List<num?> _getCardinalSpline(List<num> xValues, List<num> yValues,
   return yCoef;
 }
 
-/// To find NaturalSpline
+/// To find NaturalSpline.
 List<num?> naturalSpline(List<num> xValues, List<num> yValues,
     List<num?> yCoeff, int dataCount, SplineType? splineType) {
   const double a = 6;
@@ -2690,7 +2702,7 @@ List<num?> naturalSpline(List<num> xValues, List<num> yValues,
   return yCoeff;
 }
 
-/// To find Monotonic ControlPoints
+/// To find Monotonic ControlPoints.
 List<Offset> _calculateMonotonicControlPoints(
     double pointX,
     double pointY,
@@ -2711,7 +2723,7 @@ List<Offset> _calculateMonotonicControlPoints(
   return controlPoints;
 }
 
-/// To find Cardinal ControlPoints
+/// To find Cardinal ControlPoints.
 List<Offset> _calculateCardinalControlPoints(
     double pointX,
     double pointY,
@@ -2738,24 +2750,24 @@ List<Offset> _calculateCardinalControlPoints(
   return controlPoints;
 }
 
-/// Calculate the dateTime intervals for cardinal spline type
+/// Calculate the dateTime intervals for cardinal spline type.
 num dateTimeInterval(CartesianSeriesRenderer seriesRenderer) {
   final DateTimeAxis xAxis =
       SeriesHelper.getSeriesRendererDetails(seriesRenderer).xAxisDetails!.axis
           as DateTimeAxis;
-  final DateTimeIntervalType _actualIntervalType = xAxis.intervalType;
+  final DateTimeIntervalType actualIntervalType = xAxis.intervalType;
   num intervalInMilliseconds;
-  if (_actualIntervalType == DateTimeIntervalType.years) {
+  if (actualIntervalType == DateTimeIntervalType.years) {
     intervalInMilliseconds = 365 * 24 * 60 * 60 * 1000;
-  } else if (_actualIntervalType == DateTimeIntervalType.months) {
+  } else if (actualIntervalType == DateTimeIntervalType.months) {
     intervalInMilliseconds = 30 * 24 * 60 * 60 * 1000;
-  } else if (_actualIntervalType == DateTimeIntervalType.days) {
+  } else if (actualIntervalType == DateTimeIntervalType.days) {
     intervalInMilliseconds = 24 * 60 * 60 * 1000;
-  } else if (_actualIntervalType == DateTimeIntervalType.hours) {
+  } else if (actualIntervalType == DateTimeIntervalType.hours) {
     intervalInMilliseconds = 60 * 60 * 1000;
-  } else if (_actualIntervalType == DateTimeIntervalType.minutes) {
+  } else if (actualIntervalType == DateTimeIntervalType.minutes) {
     intervalInMilliseconds = 60 * 1000;
-  } else if (_actualIntervalType == DateTimeIntervalType.seconds) {
+  } else if (actualIntervalType == DateTimeIntervalType.seconds) {
     intervalInMilliseconds = 1000;
   } else {
     intervalInMilliseconds = 30 * 24 * 60 * 60 * 1000;
@@ -2763,7 +2775,7 @@ num dateTimeInterval(CartesianSeriesRenderer seriesRenderer) {
   return intervalInMilliseconds;
 }
 
-/// Triggers marker event
+/// Triggers marker event.
 MarkerRenderArgs? triggerMarkerRenderEvent(
     SeriesRendererDetails seriesRendererDetails,
     Size size,
@@ -2824,7 +2836,7 @@ MarkerRenderArgs? triggerMarkerRenderEvent(
   return markerargs;
 }
 
-/// To find Natural ControlPoints
+/// To find Natural ControlPoints.
 List<Offset> calculateControlPoints(List<num> xValues, List<num?> yValues,
     double yCoef, double nextyCoef, int i, List<Offset> controlPoints) {
   final List<double?> values = List<double?>.filled(4, null);
@@ -2852,7 +2864,7 @@ List<Offset> calculateControlPoints(List<num> xValues, List<num?> yValues,
   return controlPoints;
 }
 
-/// To calculate spline area control points
+/// To calculate spline area control points.
 void calculateSplineAreaControlPoints(CartesianSeriesRenderer seriesRenderer) {
   final SeriesRendererDetails seriesRendererDetails =
       SeriesHelper.getSeriesRendererDetails(seriesRenderer);
@@ -2880,7 +2892,7 @@ void calculateSplineAreaControlPoints(CartesianSeriesRenderer seriesRenderer) {
   if (xValues.isNotEmpty) {
     final List<num?> dx = List<num?>.filled(xValues.length - 1, null);
 
-    /// Check the type of spline
+    /// Check the type of spline.
     if (splineType == SplineType.monotonic) {
       if (seriesRenderer is SplineAreaSeriesRenderer ||
           seriesRenderer is SplineSeriesRenderer) {
@@ -2930,7 +2942,7 @@ void calculateSplineAreaControlPoints(CartesianSeriesRenderer seriesRenderer) {
   }
 }
 
-/// To update the dynamic points of the spline area
+/// To update the dynamic points of the spline area.
 void _updateSplineAreaControlPoints(
     dynamic seriesRenderer,
     SplineType? splineType,
@@ -2992,7 +3004,7 @@ void _updateSplineAreaControlPoints(
   }
 }
 
-/// Calculate spline range area control point
+/// Calculate spline range area control point.
 void _findSplineRangeAreaControlPoint(
     SplineRangeAreaSeriesRenderer seriesRenderer,
     SplineType? splineType,
@@ -3089,7 +3101,7 @@ void _findSplineRangeAreaControlPoint(
   }
 }
 
-///Get the old axis (for stock chart animation)
+/// Get the old axis (for stock chart animation).
 ChartAxisRenderer? getOldAxisRenderer(ChartAxisRenderer axisRenderer,
     List<ChartAxisRenderer> oldAxisRendererList) {
   for (int i = 0; i < oldAxisRendererList.length; i++) {
@@ -3101,7 +3113,7 @@ ChartAxisRenderer? getOldAxisRenderer(ChartAxisRenderer axisRenderer,
   return null;
 }
 
-/// To get chart point
+/// To get chart point.
 CartesianChartPoint<dynamic>? getChartPoint(
     CartesianSeriesRenderer seriesRenderer, dynamic data, int pointIndex) {
   dynamic xVal,
@@ -3123,20 +3135,18 @@ CartesianChartPoint<dynamic>? getChartPoint(
   final SeriesRendererDetails seriesRendererDetails =
       SeriesHelper.getSeriesRendererDetails(seriesRenderer);
   final dynamic series = seriesRendererDetails.series;
-  final ChartIndexedValueMapper<dynamic>? _xMap = series.xValueMapper;
-  final ChartIndexedValueMapper<dynamic>? _yMap = series.yValueMapper;
-  final ChartIndexedValueMapper<num>? _highMap = series.highValueMapper;
-  final ChartIndexedValueMapper<num>? _lowMap = series.lowValueMapper;
-  final ChartIndexedValueMapper<bool>? _isIntermediateSumMap =
+  final ChartIndexedValueMapper<dynamic>? xMap = series.xValueMapper;
+  final ChartIndexedValueMapper<dynamic>? yMap = series.yValueMapper;
+  final ChartIndexedValueMapper<num>? highMap = series.highValueMapper;
+  final ChartIndexedValueMapper<num>? lowMap = series.lowValueMapper;
+  final ChartIndexedValueMapper<bool>? isIntermediateSumMap =
       series.intermediateSumPredicate;
-  final ChartIndexedValueMapper<bool>? _isTotalSumMap =
-      series.totalSumPredicate;
-  final ChartIndexedValueMapper<dynamic>? _sortFieldMap =
+  final ChartIndexedValueMapper<bool>? isTotalSumMap = series.totalSumPredicate;
+  final ChartIndexedValueMapper<dynamic>? sortFieldMap =
       series.sortFieldValueMapper;
-  final ChartIndexedValueMapper<Color>? _pointColorMap =
-      series.pointColorMapper;
-  final dynamic _sizeMap = series.sizeValueMapper;
-  final ChartIndexedValueMapper<String>? _pointTextMap = series.dataLabelMapper;
+  final ChartIndexedValueMapper<Color>? pointColorMap = series.pointColorMapper;
+  final dynamic sizeMap = series.sizeValueMapper;
+  final ChartIndexedValueMapper<String>? pointTextMap = series.dataLabelMapper;
 
   if (seriesRenderer is HistogramSeriesRenderer) {
     minVal = seriesRendererDetails.histogramValues.minValue;
@@ -3150,11 +3160,11 @@ CartesianChartPoint<dynamic>? getChartPoint(
     minVal += seriesRendererDetails.histogramValues.binWidth;
     seriesRendererDetails.histogramValues.minValue = minVal;
   } else {
-    if (_xMap != null) {
-      xVal = _xMap(pointIndex);
+    if (xMap != null) {
+      xVal = xMap(pointIndex);
     }
 
-    if (_yMap != null) {
+    if (yMap != null) {
       yVal = (series is RangeColumnSeries ||
               series is RangeAreaSeries ||
               series is HiloSeries ||
@@ -3162,7 +3172,7 @@ CartesianChartPoint<dynamic>? getChartPoint(
               series is SplineRangeAreaSeries ||
               series is CandleSeries)
           ? null
-          : _yMap(pointIndex);
+          : yMap(pointIndex);
     }
   }
 
@@ -3187,62 +3197,62 @@ CartesianChartPoint<dynamic>? getChartPoint(
       maximumVal = yValues.cast<num>().reduce(max);
       minimumVal = yValues.cast<num>().reduce(min);
     }
-    if (_highMap != null) {
-      highVal = _highMap(pointIndex);
+    if (highMap != null) {
+      highVal = highMap(pointIndex);
     }
 
-    if (_lowMap != null) {
-      lowVal = _lowMap(pointIndex);
+    if (lowMap != null) {
+      lowVal = lowMap(pointIndex);
     }
 
     if (series is FinancialSeriesBase) {
       final FinancialSeriesBase<dynamic, dynamic> financialSeries =
           seriesRendererDetails.series as FinancialSeriesBase<dynamic, dynamic>;
-      final ChartIndexedValueMapper<num>? _openMap =
+      final ChartIndexedValueMapper<num>? openMap =
           financialSeries.openValueMapper;
-      final ChartIndexedValueMapper<num>? _closeMap =
+      final ChartIndexedValueMapper<num>? closeMap =
           financialSeries.closeValueMapper;
-      final ChartIndexedValueMapper<num>? _volumeMap =
+      final ChartIndexedValueMapper<num>? volumeMap =
           financialSeries.volumeValueMapper;
 
-      if (_openMap != null) {
-        openVal = _openMap(pointIndex);
+      if (openMap != null) {
+        openVal = openMap(pointIndex);
       }
 
-      if (_closeMap != null) {
-        closeVal = _closeMap(pointIndex);
+      if (closeMap != null) {
+        closeVal = closeMap(pointIndex);
       }
 
-      if (_volumeMap != null && financialSeries is HiloOpenCloseSeries) {
-        volumeVal = _volumeMap(pointIndex);
+      if (volumeMap != null && financialSeries is HiloOpenCloseSeries) {
+        volumeVal = volumeMap(pointIndex);
       }
     }
 
-    if (_sortFieldMap != null) {
-      sortVal = _sortFieldMap(pointIndex);
+    if (sortFieldMap != null) {
+      sortVal = sortFieldMap(pointIndex);
     }
 
-    if (_sizeMap != null) {
-      sizeVal = _sizeMap(pointIndex);
+    if (sizeMap != null) {
+      sizeVal = sizeMap(pointIndex);
     }
 
-    if (_pointColorMap != null) {
-      colorVal = _pointColorMap(pointIndex);
+    if (pointColorMap != null) {
+      colorVal = pointColorMap(pointIndex);
     }
 
-    if (_pointTextMap != null) {
-      textVal = _pointTextMap(pointIndex);
+    if (pointTextMap != null) {
+      textVal = pointTextMap(pointIndex);
     }
 
-    if (_isIntermediateSumMap != null) {
-      isIntermediateSum = _isIntermediateSumMap(pointIndex);
+    if (isIntermediateSumMap != null) {
+      isIntermediateSum = isIntermediateSumMap(pointIndex);
       isIntermediateSum ??= false;
     } else {
       isIntermediateSum = false;
     }
 
-    if (_isTotalSumMap != null) {
-      isTotalSum = _isTotalSumMap(pointIndex);
+    if (isTotalSumMap != null) {
+      isTotalSum = isTotalSumMap(pointIndex);
       isTotalSum ??= false;
     } else {
       isTotalSum = false;
@@ -3323,19 +3333,19 @@ bool findChangesInPoint(
   }
 }
 
-/// To calculate range Y on zoom mode X
+/// To calculate range Y on zoom mode X.
 VisibleRange calculateYRangeOnZoomX(
-    VisibleRange _actualRange, dynamic axisRenderer) {
-  num? _mini, _maxi;
+    VisibleRange actualRange, dynamic axisRenderer) {
+  num? mini, maxi;
   final dynamic axis = axisRenderer.axis;
-  final List<CartesianSeriesRenderer> _seriesRenderers =
+  final List<CartesianSeriesRenderer> seriesRenderers =
       axisRenderer.seriesRenderers;
   final num? minimum = axis.minimum, maximum = axis.maximum;
   for (int i = 0;
-      i < _seriesRenderers.length && _seriesRenderers.isNotEmpty;
+      i < seriesRenderers.length && seriesRenderers.isNotEmpty;
       i++) {
     final SeriesRendererDetails seriesRendererDetails =
-        SeriesHelper.getSeriesRendererDetails(_seriesRenderers[i]);
+        SeriesHelper.getSeriesRendererDetails(seriesRenderers[i]);
     final dynamic xAxisRenderer = seriesRendererDetails.xAxisDetails;
     xAxisRenderer.calculateRangeAndInterval(
         axisRenderer.stateProperties, 'AnchoringRange');
@@ -3344,38 +3354,42 @@ VisibleRange calculateYRangeOnZoomX(
         // ignore: unnecessary_null_comparison
         xRange != null &&
         seriesRendererDetails.visible! == true) {
-      for (int j = 0; j < seriesRendererDetails.dataPoints.length; j++) {
-        final CartesianChartPoint<dynamic> point =
-            seriesRendererDetails.dataPoints[j];
+      final List<CartesianChartPoint<dynamic>> dataPoints =
+          getSampledData(seriesRendererDetails);
+      for (int j = 0; j < dataPoints.length; j++) {
+        final CartesianChartPoint<dynamic> point = dataPoints[j];
         if (point.xValue >= xRange.minimum == true &&
             point.xValue <= xRange.maximum == true) {
-          if (point.yValue != null) {
-            _mini = min(_mini ?? point.yValue, point.yValue);
-            _maxi = max(_maxi ?? point.yValue, point.yValue);
+          if (point.cumulativeValue != null || point.yValue != null) {
+            final num yValue = point.cumulativeValue != null
+                ? point.cumulativeValue!
+                : point.yValue;
+            mini = min(mini ?? yValue, yValue);
+            maxi = max(maxi ?? yValue, yValue);
           } else if (point.high != null && point.low != null) {
-            _mini = min(_mini ?? point.low, point.low);
-            _maxi = max(_maxi ?? point.high, point.high);
+            mini = min(mini ?? point.low, point.low);
+            maxi = max(maxi ?? point.high, point.high);
           }
         }
       }
     }
   }
-  return VisibleRange(minimum ?? (_mini ?? _actualRange.minimum),
-      maximum ?? (_maxi ?? _actualRange.maximum));
+  return VisibleRange(minimum ?? (mini ?? actualRange.minimum),
+      maximum ?? (maxi ?? actualRange.maximum));
 }
 
-/// Bool to calculate for Y range
+/// Bool to calculate for Y range.
 bool needCalculateYrange(num? minimum, num? maximum,
-    CartesianStateProperties stateProperties, AxisOrientation _orientation) {
+    CartesianStateProperties stateProperties, AxisOrientation orientation) {
   final SfCartesianChart chart = stateProperties.chart;
   return !(minimum != null && maximum != null) &&
       (stateProperties.rangeChangeBySlider ||
-          ((stateProperties.zoomedState == true ||
+          (((stateProperties.zoomedState ?? false) ||
                   stateProperties.zoomProgress) &&
               (!stateProperties.requireInvertedAxis
-                  ? (_orientation == AxisOrientation.vertical &&
+                  ? (orientation == AxisOrientation.vertical &&
                       chart.zoomPanBehavior.zoomMode == ZoomMode.x)
-                  : (_orientation == AxisOrientation.horizontal &&
+                  : (orientation == AxisOrientation.horizontal &&
                       chart.zoomPanBehavior.zoomMode == ZoomMode.y))));
 }
 
@@ -3390,7 +3404,7 @@ ChartAxisRenderer? findExistingAxisRenderer(
   return null;
 }
 
-/// Method to get the old segment index value
+/// Method to get the old segment index value.
 int getOldSegmentIndex(ChartSegment segment) {
   final SegmentProperties segmentProperties =
       SegmentHelper.getSegmentProperties(segment);
@@ -3418,7 +3432,7 @@ int getOldSegmentIndex(ChartSegment segment) {
   return -1;
 }
 
-/// This method determines whether all the series animations have been completed and renders the datalabel
+/// This method determines whether all the series animations have been completed and renders the datalabel.
 void setAnimationStatus(CartesianStateProperties stateProperties) {
   if (stateProperties.totalAnimatingSeries ==
       stateProperties.animationCompleteCount) {
@@ -3434,7 +3448,7 @@ void setAnimationStatus(CartesianStateProperties stateProperties) {
   }
 }
 
-/// Calculate date time nice interval
+/// Calculate date time nice interval.
 int calculateDateTimeNiceInterval(
     ChartAxisRenderer axisRenderer, Size size, VisibleRange range,
     [DateTime? startDate, DateTime? endDate]) {
@@ -3502,7 +3516,7 @@ int calculateDateTimeNiceInterval(
       break;
     case DateTimeIntervalType.auto:
 
-      /// For years
+      /// For years.
       interval = axisRendererDetails.calculateNumericNiceInterval(
           axisRenderer, totalDays / 365, size);
       if (interval! >= 1) {
@@ -3510,7 +3524,7 @@ int calculateDateTimeNiceInterval(
         return interval.floor();
       }
 
-      /// For months
+      /// For months.
       interval = axisRendererDetails.calculateNumericNiceInterval(
           axisRenderer, totalDays / 30, size);
       if (interval! >= 1) {
@@ -3522,7 +3536,7 @@ int calculateDateTimeNiceInterval(
         return interval.floor();
       }
 
-      /// For days
+      /// For days.
       interval = axisRendererDetails.calculateNumericNiceInterval(
           axisRenderer, totalDays, size);
       if (interval! >= 1) {
@@ -3534,7 +3548,7 @@ int calculateDateTimeNiceInterval(
         return interval.floor();
       }
 
-      /// For hours
+      /// For hours.
       interval = axisRendererDetails.calculateNumericNiceInterval(
           axisRenderer, totalDays * 24, size);
       if (interval! >= 1) {
@@ -3546,7 +3560,7 @@ int calculateDateTimeNiceInterval(
         return interval.floor();
       }
 
-      /// For minutes
+      /// For minutes.
       interval = axisRendererDetails.calculateNumericNiceInterval(
           axisRenderer, totalDays * 24 * 60, size);
       if (interval! >= 1) {
@@ -3558,7 +3572,7 @@ int calculateDateTimeNiceInterval(
         return interval.floor();
       }
 
-      /// For seconds
+      /// For seconds.
       interval = axisRendererDetails.calculateNumericNiceInterval(
           axisRenderer, totalDays * 24 * 60 * 60, size);
       if (interval! >= 1) {
@@ -3570,7 +3584,7 @@ int calculateDateTimeNiceInterval(
         return interval.floor();
       }
 
-      /// For milliseconds
+      /// For milliseconds.
       interval = axisRendererDetails.calculateNumericNiceInterval(
           axisRenderer, totalDays * 24 * 60 * 60 * 1000, size);
       _setActualIntervalType(
@@ -3579,6 +3593,7 @@ int calculateDateTimeNiceInterval(
               ? DateTimeIntervalType.milliseconds
               : DateTimeIntervalType.seconds);
       return interval! < 1 ? interval.ceil() : interval.floor();
+    // ignore: no_default_cases
     default:
       break;
   }
@@ -3600,7 +3615,7 @@ void _setActualIntervalType(
   }
 }
 
-/// To get the label format of the date-time axis
+/// To get the label format of the date-time axis.
 DateFormat getDateTimeLabelFormat(ChartAxisRenderer axisRenderer,
     [int? interval, int? prevInterval]) {
   DateFormat? format;
@@ -3653,19 +3668,19 @@ DateFormat getDateTimeLabelFormat(ChartAxisRenderer axisRenderer,
       format = DateFormat.ms();
       break;
     case DateTimeIntervalType.milliseconds:
-      final DateFormat? _format = DateFormat('ss.SSS');
-      format = _format;
+      final DateFormat? dateFormat = DateFormat('ss.SSS');
+      format = dateFormat;
       break;
     case DateTimeIntervalType.auto:
       break;
+    // ignore: no_default_cases
     default:
       break;
   }
   return format!;
 }
 
-/// Calculate the dateTime format
-
+/// Calculate the dateTime format.
 DateFormat? _getDateTimeFormat(DateTimeIntervalType? actualIntervalType,
     VisibleRange? visibleRange, int? interval, int? prevInterval) {
   final DateTime minimum = DateTime.fromMillisecondsSinceEpoch(interval!);
@@ -3685,7 +3700,7 @@ DateFormat? _getDateTimeFormat(DateTimeIntervalType? actualIntervalType,
   return format;
 }
 
-/// Returns the first label format for date time values
+/// Returns the first label format for date time values.
 DateFormat? _getFirstLabelFormat(DateTimeIntervalType? actualIntervalType) {
   DateFormat? format;
 
@@ -3700,7 +3715,7 @@ DateFormat? _getFirstLabelFormat(DateTimeIntervalType? actualIntervalType) {
   return format;
 }
 
-/// Method to set the minimum and maximum value of category axis
+/// Method to set the minimum and maximum value of category axis.
 void setCategoryMinMaxValues(
     ChartAxisRenderer axisRenderer,
     bool isXVisibleRange,
@@ -3801,7 +3816,7 @@ void setCategoryMinMaxValues(
   }
 }
 
-/// Method to calculate the date time visible range
+/// Method to calculate the date time visible range.
 void calculateDateTimeVisibleRange(
     Size availableSize, ChartAxisRenderer axisRenderer) {
   final ChartAxisRendererDetails axisRendererDetails =
@@ -3837,7 +3852,7 @@ void calculateDateTimeVisibleRange(
           dateTimeCategoryAxisDetails.axis.autoScrollingDelta!, axisRenderer);
     }
   }
-  if ((!canAutoScroll || stateProperties.zoomedState == true) &&
+  if ((!canAutoScroll || (stateProperties.zoomedState ?? false)) &&
       !(stateProperties.rangeChangeBySlider &&
           !stateProperties.canSetRangeController)) {
     axisRendererDetails.setZoomFactorAndPosition(
@@ -3896,7 +3911,7 @@ num? getCrossesAtValue(CartesianSeriesRenderer seriesRenderer,
   return crossesAt;
 }
 
-/// Method to get the tooltip padding data
+/// Method to get the tooltip padding data.
 List<Offset?> getTooltipPaddingData(SeriesRendererDetails seriesRendererDetails,
     bool isTrendLine, Rect region, Rect paddedRegion, Offset? tooltipPosition) {
   Offset? padding, position;
@@ -3926,7 +3941,7 @@ List<Offset?> getTooltipPaddingData(SeriesRendererDetails seriesRendererDetails,
   return <Offset?>[padding, position ?? tooltipPosition];
 }
 
-/// Returns the old series renderer instance for the given series renderer
+/// Returns the old series renderer instance for the given series renderer.
 CartesianSeriesRenderer? getOldSeriesRenderer(
     CartesianStateProperties stateProperties,
     SeriesRendererDetails seriesRendererDetails,
@@ -3957,12 +3972,12 @@ CartesianChartPoint<dynamic>? getOldChartPoint(
     int pointIndex,
     CartesianSeriesRenderer? oldSeriesRenderer,
     List<CartesianSeriesRenderer> oldSeriesRenderers) {
-  final RenderingDetails _renderingDetails = stateProperties.renderingDetails;
+  final RenderingDetails renderingDetails = stateProperties.renderingDetails;
 
   return seriesRendererDetails.reAnimate == false &&
           (seriesRendererDetails.series.animationDuration > 0 &&
-              _renderingDetails.widgetNeedUpdate &&
-              !_renderingDetails.isLegendToggled &&
+              renderingDetails.widgetNeedUpdate &&
+              !renderingDetails.isLegendToggled &&
               // ignore: unnecessary_null_comparison
               oldSeriesRenderers != null &&
               oldSeriesRenderers.isNotEmpty &&
@@ -3981,8 +3996,11 @@ CartesianChartPoint<dynamic>? getOldChartPoint(
                           .length -
                       1 >=
                   pointIndex)
-      ? SeriesHelper.getSeriesRendererDetails(oldSeriesRenderer)
-          .dataPoints[pointIndex]
+      ? seriesRendererDetails.seriesType == 'fastline'
+          ? SeriesHelper.getSeriesRendererDetails(oldSeriesRenderer)
+              .sampledDataPoints[pointIndex]
+          : SeriesHelper.getSeriesRendererDetails(oldSeriesRenderer)
+              .dataPoints[pointIndex]
       : null;
 }
 
@@ -4008,33 +4026,30 @@ bool shouldShowAxisTooltip(CartesianStateProperties stateProperties) {
   return requireAxisTooltip;
 }
 
-/// Method to get the visible data point index
+/// Method to get the visible data point index.
 int? getVisibleDataPointIndex(
     int? pointIndex, SeriesRendererDetails seriesRendererDetails) {
   int? index;
+  final List<CartesianChartPoint<dynamic>> dataPoints =
+      getSampledData(seriesRendererDetails);
   if (pointIndex != null) {
-    if (pointIndex <
-            seriesRendererDetails.dataPoints[0].overallDataPointIndex! ||
-        pointIndex >
-            seriesRendererDetails
-                .dataPoints[seriesRendererDetails.dataPoints.length - 1]
-                .overallDataPointIndex!) {
+    if (pointIndex < dataPoints[0].overallDataPointIndex! ||
+        pointIndex > dataPoints[dataPoints.length - 1].overallDataPointIndex!) {
       index = null;
-    } else if (pointIndex > seriesRendererDetails.dataPoints.length - 1) {
-      for (int i = 0; i < seriesRendererDetails.dataPoints.length; i++) {
-        if (pointIndex ==
-            seriesRendererDetails.dataPoints[i].overallDataPointIndex) {
-          index = seriesRendererDetails.dataPoints[i].visiblePointIndex;
+    } else if (pointIndex > dataPoints.length - 1) {
+      for (int i = 0; i < dataPoints.length; i++) {
+        if (pointIndex == dataPoints[i].overallDataPointIndex) {
+          index = dataPoints[i].visiblePointIndex;
         }
       }
     } else {
-      index = seriesRendererDetails.dataPoints[pointIndex].visiblePointIndex;
+      index = dataPoints[pointIndex].visiblePointIndex;
     }
   }
   return index;
 }
 
-/// Method to check whether the series is line series type
+/// Method to check whether the series is line series type.
 bool isLineTypeSeries(String seriesType) {
   return seriesType == 'line' ||
       seriesType == 'spline' ||
@@ -4045,12 +4060,12 @@ bool isLineTypeSeries(String seriesType) {
 
 /// A circular array for dash offsets and lengths.
 class CircularIntervalList<T> {
-  /// Creates an instance of circular interval list
+  /// Creates an instance of circular interval list.
   CircularIntervalList(this._values);
   final List<T> _values;
   int _index = 0;
 
-  /// Returns the next value
+  /// Returns the next value.
   T get next {
     if (_index >= _values.length) {
       _index = 0;
@@ -4059,7 +4074,7 @@ class CircularIntervalList<T> {
   }
 }
 
-/// Gets the R-squared value
+/// Gets the R-squared value.
 double? getRSquaredValue(CartesianSeriesRenderer series, Trendline trendline,
     List<double>? slope, double? intercept) {
   double rSquare = 0.0;
@@ -4070,14 +4085,16 @@ double? getRSquaredValue(CartesianSeriesRenderer series, Trendline trendline,
       SeriesHelper.getSeriesRendererDetails(series);
   double yMean = 0;
   const int startXValue = 1;
-  final DateTime excelDate = DateTime(1900, 01, 01);
-  for (int i = 0; i < seriesRendererDetails.dataPoints.length; i++) {
+  final DateTime excelDate = DateTime(1900);
+  final List<CartesianChartPoint<dynamic>> dataPoints =
+      getSampledData(seriesRendererDetails);
+  for (int i = 0; i < dataPoints.length; i++) {
     xValue.add(
         seriesRendererDetails.xAxisDetails?.axisRenderer is DateTimeAxisRenderer
-            ? seriesRendererDetails.dataPoints[i].x.difference(excelDate).inDays
+            ? dataPoints[i].x.difference(excelDate).inDays
             : i + startXValue);
-    yValue.add(seriesRendererDetails.dataPoints[i].y.toDouble());
-    yMean += seriesRendererDetails.dataPoints[i].y.toDouble();
+    yValue.add(dataPoints[i].y.toDouble());
+    yMean += dataPoints[i].y.toDouble();
   }
   yMean = yMean / yValue.length;
   // Total sum of square (ssTot)
@@ -4123,7 +4140,7 @@ double? getRSquaredValue(CartesianSeriesRenderer series, Trendline trendline,
   return rSquare.isNaN ? 0 : rSquare;
 }
 
-/// To calculate and return the bubble size
+/// To calculate and return the bubble size.
 double calculateBubbleRadius(
     SeriesRendererDetails seriesRendererDetails,
     CartesianSeries<dynamic, dynamic> series,
@@ -4156,7 +4173,7 @@ double calculateBubbleRadius(
   return bubbleRadius.toDouble();
 }
 
-/// Cartesian point to pixel
+/// Cartesian point to pixel.
 Offset calculatePointToPixel(
     CartesianChartPoint<dynamic> point, dynamic seriesRenderer) {
   final num x = point.x;
@@ -4189,7 +4206,7 @@ Offset calculatePointToPixel(
   return Offset(location.x, location.y);
 }
 
-/// Cartesian pixel to point
+/// Cartesian pixel to point.
 CartesianChartPoint<dynamic> calculatePixelToPoint(
     Offset position, dynamic seriesRenderer) {
   SeriesRendererDetails seriesRendererDetails;
@@ -4258,7 +4275,7 @@ CartesianChartPoint<dynamic> calculatePixelToPoint(
   return CartesianChartPoint<dynamic>(xValue, yValue);
 }
 
-/// To get seriesType of the cartesian series renderer
+/// To get seriesType of the cartesian series renderer.
 String getSeriesType(CartesianSeriesRenderer seriesRenderer) {
   String seriesType = '';
 

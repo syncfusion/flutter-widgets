@@ -73,220 +73,211 @@ class ErrorBarSeries<T, D> extends XyDataSeries<T, D> {
 
   /// Type of the error bar.
   ///
-  /// Defaults to 'ErrorBarType.fixed'.
+  /// Defaults to `ErrorBarType.fixed`.
   ///
-  /// Other values are percentage, standardDeviation, custom, standardError.
+  /// Other values are `ErrorBarType.percentage`, `ErrorBarType.standardDeviation`,
+  /// `ErrorBarType.custom`, `ErrorBarType.standardError`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <ErrorBarSeries<SalesData, String>>[
-  ///                   ErrorBarSeries<SalesData, String>(
-  ///                      type:ErrorBarType.fixed,
-  ///                  ),
-  ///             ],
-  ///        ));
+  ///   return SfCartesianChart(
+  ///     series: <ErrorBarSeries<SalesData, String>>[
+  ///       ErrorBarSeries<SalesData, String>(
+  ///         type:ErrorBarType.fixed,
+  ///       ),
+  ///     ],
+  ///   );
   /// }
-  ///```
+  /// ```
   final ErrorBarType? type;
 
   /// Direction of error bar.
   ///
-  /// Defaults to 'Direction.both'.
+  /// Defaults to `Direction.both`.
+  ///
+  /// Also refer [Direction].
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <ErrorBarSeries<SalesData, String>>[
-  ///                   ErrorBarSeries<SalesData, String>(
-  ///                       direction: Direction.plus,
-  ///                  ),
-  ///             ],
-  ///        ));
+  ///   return SfCartesianChart(
+  ///     series: <ErrorBarSeries<SalesData, String>>[
+  ///       ErrorBarSeries<SalesData, String>(
+  ///         direction: Direction.plus,
+  ///       ),
+  ///     ],
+  ///   );
   /// }
-  ///```
+  /// ```
   final Direction? direction;
 
   /// Mode of error bar.
   ///
-  /// Defaults to 'RenderingMode.vertical'.
+  /// Defaults to `RenderingMode.vertical`.
   ///
-  /// Other values are horizontal and both.
+  /// Other values are `RenderingMode.horizontal` and `RenderingMode.both`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <ErrorBarSeries<SalesData, String>>[
-  ///                   ErrorBarSeries<SalesData, String>(
-  ///                       mode: RenderingMode.both,
-  ///                  ),
-  ///             ],
-  ///        ));
+  ///   return SfCartesianChart(
+  ///     series: <ErrorBarSeries<SalesData, String>>[
+  ///       ErrorBarSeries<SalesData, String>(
+  ///         mode: RenderingMode.both,
+  ///       ),
+  ///     ],
+  ///   );
   /// }
-  ///```
+  /// ```
   final RenderingMode? mode;
 
   /// Vertical error value in Y direction.
   ///
-  /// Defaults to '3'.
+  /// Defaults to `3`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <ErrorBarSeries<SalesData, String>>[
-  ///                   ErrorBarSeries<SalesData, String>(
-  ///                       verticalErrorValue:2,
-  ///                       mode: RenderingMode.vertical,
-  ///                  ),
-  ///             ],
-  ///        ));
+  ///   return SfCartesianChart(
+  ///     series: <ErrorBarSeries<SalesData, String>>[
+  ///       ErrorBarSeries<SalesData, String>(
+  ///         verticalErrorValue: 2,
+  ///         mode: RenderingMode.vertical,
+  ///       ),
+  ///     ],
+  ///   );
   /// }
-  ///```
+  /// ```
   final double? verticalErrorValue;
 
   /// Horizontal error value in X direction..
   ///
-  /// Defaults to '1'.
+  /// Defaults to `1`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <ErrorBarSeries<SalesData, String>>[
-  ///                   ErrorBarSeries<SalesData, String>(
-  ///                       horizontalErrorValue:2,
-  ///                       mode: RenderingMode.horizontal,
-  ///                  ),
-  ///             ],
-  ///        ));
+  ///   return SfCartesianChart(
+  ///     series: <ErrorBarSeries<SalesData, String>>[
+  ///       ErrorBarSeries<SalesData, String>(
+  ///         horizontalErrorValue:2,
+  ///         mode: RenderingMode.horizontal,
+  ///       ),
+  ///     ],
+  ///   );
   /// }
-  ///```
+  /// ```
   final double? horizontalErrorValue;
 
   /// Vertical error value in positive Y direction.
   /// It's only applicable for 'ErrorBarType.custom'.
   ///
-  /// Defaults to '3'.
+  /// Defaults to `3`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <ErrorBarSeries<SalesData, String>>[
-  ///                   ErrorBarSeries<SalesData, String>(
-  ///                       type:ErrorBarType.custom,
-  ///                       verticalPositiveErrorValue:2
-  ///                  ),
-  ///             ],
-  ///        ));
+  ///   return SfCartesianChart(
+  ///     series: <ErrorBarSeries<SalesData, String>>[
+  ///       ErrorBarSeries<SalesData, String>(
+  ///         type:ErrorBarType.custom,
+  ///         verticalPositiveErrorValue:2
+  ///       ),
+  ///     ],
+  ///   );
   /// }
-  ///```
+  /// ```
   final double? verticalPositiveErrorValue;
 
   /// Horizontal error value in positive X direction.
   /// It's only applicable for 'ErrorBarType.custom'.
   ///
-  /// Defaults to '1'.
+  /// Defaults to `1`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <ErrorBarSeries<SalesData, String>>[
-  ///                   ErrorBarSeries<SalesData, String>(
-  ///                       type:ErrorBarType.custom,
-  ///                       horizontalPositiveErrorValue:2
-  ///                  ),
-  ///             ],
-  ///        ));
+  ///   return SfCartesianChart(
+  ///     series: <ErrorBarSeries<SalesData, String>>[
+  ///       ErrorBarSeries<SalesData, String>(
+  ///         type:ErrorBarType.custom,
+  ///         horizontalPositiveErrorValue:2
+  ///       ),
+  ///     ],
+  ///   );
   /// }
-  ///```
+  /// ```
   final double? horizontalPositiveErrorValue;
 
   /// Vertical error value in negative Y direction.
   /// It's only applicable for 'ErrorBarType.custom'.
   ///
-  /// Defaults to '3'.
+  /// Defaults to `3`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <ErrorBarSeries<SalesData, String>>[
-  ///                   ErrorBarSeries<SalesData, String>(
-  ///                       type:ErrorBarType.custom,
-  ///                       verticalNegativeErrorValue:2
-  ///                  ),
-  ///             ],
-  ///        ));
+  ///   return SfCartesianChart(
+  ///     series: <ErrorBarSeries<SalesData, String>>[
+  ///       ErrorBarSeries<SalesData, String>(
+  ///         type:ErrorBarType.custom,
+  ///         verticalNegativeErrorValue:2
+  ///       ),
+  ///     ],
+  ///   );
   /// }
-  ///```
+  /// ```
   final double? verticalNegativeErrorValue;
 
   /// Horizontal error value in negative X direction.
   /// It's only applicable for 'ErrorBarType.custom'.
   ///
-  /// Defaults to '1'.
+  /// Defaults to `1`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <ErrorBarSeries<SalesData, String>>[
-  ///                   ErrorBarSeries<SalesData, String>(
-  ///                       type:ErrorBarType.custom,
-  ///                       horizontalNegativeErrorValue:2
-  ///                  ),
-  ///             ],
-  ///        ));
+  ///   return SfCartesianChart(
+  ///     series: <ErrorBarSeries<SalesData, String>>[
+  ///       ErrorBarSeries<SalesData, String>(
+  ///         type:ErrorBarType.custom,
+  ///         horizontalNegativeErrorValue:2
+  ///       ),
+  ///     ],
+  ///   );
   /// }
-  ///```
+  /// ```
   final double? horizontalNegativeErrorValue;
 
   /// Length of the error bar's cap.
   ///
-  /// Defaults to '10'.
+  /// Defaults to `10`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <ErrorBarSeries<SalesData, String>>[
-  ///                   ErrorBarSeries<SalesData, String>(
-  ///                       capLength:20.0,
-  ///                  ),
-  ///             ],
-  ///        ));
+  ///   return SfCartesianChart(
+  ///     series: <ErrorBarSeries<SalesData, String>>[
+  ///       ErrorBarSeries<SalesData, String>(
+  ///         capLength:20.0,
+  ///       ),
+  ///     ],
+  ///   );
   /// }
-  ///```
+  /// ```
   final double? capLength;
 
   /// Callback which gets called on error bar render.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <ErrorBarSeries<SalesData, String>>[
-  ///                   ErrorBarSeries<SalesData, String>(
-  ///                  onRenderDetailsUpdate:
-  ///                  (ErrorBarRenderDetails errorBarRenderDetails){
-  ///                   print(args.pointIndex);
-  ///                   print(args.viewPortPointIndex);
-  ///                   print(args.calculatedErrorBarValues!.horizontalPositiveErrorValue);
-  ///                   print(args.calculatedErrorBarValues!.horizontalNegativeErrorValue);
-  ///                   print(args.calculatedErrorBarValues!.verticalPositiveErrorValue);
-  ///                   print(args.calculatedErrorBarValues!.verticalNegativeErrorValue);
-  ///                  }),
-  ///                  ),
-  ///             ],
-  ///        ));
+  ///   return SfCartesianChart(
+  ///     series: <ErrorBarSeries<SalesData, String>>[
+  ///       ErrorBarSeries<SalesData, String>(
+  ///         onRenderDetailsUpdate: (ErrorBarRenderDetails errorBarRenderDetails){
+  ///           print(args.pointIndex);
+  ///           print(args.viewPortPointIndex);
+  ///           print(args.calculatedErrorBarValues!.horizontalPositiveErrorValue);
+  ///           print(args.calculatedErrorBarValues!.horizontalNegativeErrorValue);
+  ///           print(args.calculatedErrorBarValues!.verticalPositiveErrorValue);
+  ///           print(args.calculatedErrorBarValues!.verticalNegativeErrorValue);
+  ///         }
+  ///       ),
+  ///     ],
+  ///   );
   /// }
-  ///```
+  /// ```
   final ChartErrorBarRenderCallback? onRenderDetailsUpdate;
 
   /// Create the error bar series renderer.
@@ -397,10 +388,10 @@ class ChartErrorValues {
   ChartErrorValues(
       {this.errorX, this.errorY, this.customNegativeX, this.customNegativeY});
 
-  /// Specifies the value of x
+  /// Specifies the value of x.
   num? errorX;
 
-  /// Specifies the value of y
+  /// Specifies the value of y.
   num? errorY;
 
   /// Specifies the value of x in custom type error bar.

@@ -4,7 +4,7 @@ import '../utils/enum.dart';
 
 /// Customizes the annotation of the circular chart.
 ///
-///Circular chart allows you to mark the specific area of interest in the chart area.
+/// Circular chart allows you to mark the specific area of interest in the chart area.
 /// You can add the custom widgets using this annotation feature, It has the properties for customizing the appearance.
 ///
 /// The angle, orientation, height, and width of the inserted annotation can all be customized.
@@ -28,9 +28,9 @@ class CircularChartAnnotation {
         verticalAlignment = verticalAlignment ?? ChartAlignment.center,
         horizontalAlignment = horizontalAlignment ?? ChartAlignment.center;
 
-  ///Angle to rotate the annotation.
+  /// Angle to rotate the annotation.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -39,20 +39,22 @@ class CircularChartAnnotation {
   ///            annotations: <CircularChartAnnotation>[
   ///                CircularChartAnnotation(
   ///                    angle: 40,
-  ///                    child: Container(
-  ///                    child: const Text('Empty data')),
-  ///              ),
-  ///             ],
-  ///        ));
+  ///                    widget: const Text('Circular'),
+  ///               ),
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///```
   final int angle;
 
-  ///Radius for placing the annotation.
+  /// Radius for placing the annotation. The value ranges from 0% to 100% and also if values are
+  /// mentioned in pixel then the annotation will moved accordingly.
   ///
-  ///The value ranges from 0% to 100%.
+  /// For example, if set `50%` means the annotation starting text will be placed from the `50%`
+  /// chart area or we set `50` means the annotation starting text will be placed from 50 pixels.
   ///
-  ///Defaults to `0%`
+  /// Defaults to `0%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -61,19 +63,18 @@ class CircularChartAnnotation {
   ///            annotations: <CircularChartAnnotation>[
   ///                CircularChartAnnotation(
   ///                    radius: '10%'
-  ///                    child: Container(
-  ///                    child: const Text('Empty data'),
-  ///               ),
+  ///                    widget: const Text('Circular'),
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///```
   final String radius;
 
-  ///Considers any widget as annotation.
+  /// Considers any widget as annotation.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -81,18 +82,18 @@ class CircularChartAnnotation {
   ///        child: SfCircularChart(
   ///            annotations: <CircularChartAnnotation>[
   ///                CircularChartAnnotation(
-  ///                    child: Container(
-  ///                     child:Text('Annotation')),
+  ///                    widget: const Text('Circular'),
   ///              ),
-  ///             ],
-  ///        ));
+  ///            ],
+  ///         )
+  ///    );
   ///}
   ///```
   final Widget? widget;
 
-  ///Height of the annotation.
+  /// Height of the annotation.
   ///
-  ///Defaults to `0%`.
+  /// Defaults to `0%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -101,19 +102,19 @@ class CircularChartAnnotation {
   ///            annotations: <CircularChartAnnotation>[
   ///                CircularChartAnnotation(
   ///                    height: '10%',
-  ///                    child: Container(
-  ///                    child: const Text('Empty data'),
+  ///                    widget: const Text('Circular'),
   ///                 ),
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///```
   final String height;
 
-  ///Width of the annotation.
+  /// Width of the annotation.
   ///
-  ///Defaults to `0%`.
+  /// Defaults to `0%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -122,23 +123,23 @@ class CircularChartAnnotation {
   ///            annotations: <CircularChartAnnotation>[
   ///                CircularChartAnnotation(
   ///                    width: '10%',
-  ///                    child: Container(
-  ///                    child: const Text('Empty data'),
+  ///                    widget: const Text('Circular'),
   ///                 ),
   ///              ),
-  ///             ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final String width;
 
-  ///Aligns the annotation horizontally.
+  /// Aligns the annotation horizontally.
   ///
-  ///Alignment can be set to near, far, or center.
+  /// Alignment can be set to `ChartAlignment.center`, `ChartAlignment.far`, or `ChartAlignment.near`.
   ///
-  ///Defaults to `ChartAlignment.center`
+  /// Defaults to `ChartAlignment.center`.
   ///
-  ///Also refer [ChartAlignment]
+  /// Also refer [ChartAlignment].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -147,23 +148,23 @@ class CircularChartAnnotation {
   ///            annotations: <CircularChartAnnotation>[
   ///                CircularChartAnnotation(
   ///                    horizontalAlignment: ChartAlignment.near
-  ///                    child: Container(
-  ///                    child: const Text('Empty data'),
+  ///                    widget: const Text('Circular'),
   ///                 ),
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///```
   final ChartAlignment horizontalAlignment;
 
-  ///Aligns the annotation vertically.
+  /// Aligns the annotation vertically.
   ///
-  ///Alignment can be set to near, far, or center.
+  /// Alignment can be set to `ChartAlignment.center`, `ChartAlignment.far`, or `ChartAlignment.near`.
   ///
-  ///Defaults to `ChartAlignment.center`
+  /// Defaults to `ChartAlignment.center`.
   ///
-  ///Also refer [ChartAlignment]
+  /// Also refer [ChartAlignment].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -172,12 +173,12 @@ class CircularChartAnnotation {
   ///            annotations: <CircularChartAnnotation>[
   ///                CircularChartAnnotation(
   ///                    verticalAlignment: ChartAlignment.near
-  ///                    child: Container(
-  ///                    child: const Text('Empty data'),
+  ///                    widget: const Text('Circular'),
   ///                 ),
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///   );
   ///}
   ///```
   final ChartAlignment verticalAlignment;
@@ -230,9 +231,9 @@ class ConnectorLineSettings {
       : width = width ?? 1.0,
         type = type ?? ConnectorType.line;
 
-  ///Length of the connector line.
+  /// Length of the connector line. The value range from 0% to 100%.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -240,17 +241,18 @@ class ConnectorLineSettings {
   ///        child: SfCartesianChart(
   ///           dataLabelSettings: DataLabelSettings(
   ///            connectorLineSettings: ConnectorLineSettings(
-  ///            length: '8%
+  ///            length: '8%'
   ///           )
-  ///          )
-  ///        ));
+  ///         )
+  ///       )
+  ///    );
   ///}
   ///```
   final String? length;
 
-  ///Width of the connector line.
+  /// Width of the connector line.
   ///
-  ///Defaults to `1.0`
+  /// Defaults to `1.0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -260,15 +262,16 @@ class ConnectorLineSettings {
   ///            connectorLineSettings: ConnectorLineSettings(
   ///            width: 2
   ///           )
-  ///          )
-  ///        ));
+  ///         )
+  ///       )
+  ///    );
   ///}
   ///```
   final double width;
 
-  ///Color of the connector line.
+  /// Color of the connector line.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -278,15 +281,18 @@ class ConnectorLineSettings {
   ///            connectorLineSettings: ConnectorLineSettings(
   ///            color: Colors.red,
   ///           )
-  ///          )
-  ///        ));
+  ///         )
+  ///       )
+  ///    );
   ///}
   ///```
   final Color? color;
 
-  ///Type of the connector line.
+  /// Type of the connector line.
   ///
-  ///Defaults to `ConnectorType.line`
+  /// Defaults to `ConnectorType.line`.
+  ///
+  /// Also refer [ConnectorType].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -295,9 +301,10 @@ class ConnectorLineSettings {
   ///           dataLabelSettings: DataLabelSettings(
   ///            connectorLineSettings: ConnectorLineSettings(
   ///             type: ConnectorType.curve
+  ///             )
   ///           )
-  ///          )
-  ///        ));
+  ///        )
+  ///     );
   ///}
   ///```
   final ConnectorType type;

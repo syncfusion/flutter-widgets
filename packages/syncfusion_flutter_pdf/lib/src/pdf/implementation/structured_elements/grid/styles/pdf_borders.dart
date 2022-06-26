@@ -60,6 +60,7 @@ class PdfBorders {
 
   //Properties
   /// Sets all.
+  // ignore: avoid_setters_without_getters
   set all(PdfPen pen) {
     left = right = bottom = top = pen;
   }
@@ -106,6 +107,7 @@ class PdfPaddings {
   int get hashCode => _left.hashCode;
 
   /// Sets space value to all sides of a cell Left,Right,Top,Bottom.
+  // ignore: avoid_setters_without_getters
   set all(double value) {
     if (value < 0) {
       ArgumentError.value(

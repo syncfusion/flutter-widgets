@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 /// Renders the spline series.
 ///
-/// To render a spline area chart, create an instance of SplineAreaSeries, and add it to the series collection property of [SfCartesianChart].
-///  Properties such as [color], [opacity], [width] are used to customize the appearance of spline area chart.
+/// To render a spline area chart, create an instance of [SplineAreaSeries], and add it to the series collection property of [SfCartesianChart].
+/// Properties such as [color], [opacity], [width] are used to customize the appearance of spline area chart.
 @immutable
 class SplineAreaSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of SplineAreaSeries class.
@@ -84,66 +84,62 @@ class SplineAreaSeries<T, D> extends XyDataSeries<T, D> {
             animationDelay: animationDelay,
             onCreateShader: onCreateShader);
 
-  ///Border type of area series.
+  /// Border type of area series.
   ///
-  ///Defaults to `BorderDrawMode.top`
+  /// Defaults to `BorderDrawMode.top`.
   ///
-  ///Also refer [BorderDrawMode]
+  /// Also refer [BorderDrawMode].
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <AreaSeries<SalesData, num>>[
-  ///                AreaSeries<SalesData, num>(
-  ///                  borderDrawMode: BorderDrawMode.all,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineAreaSeries<SalesData, num>>[
+  ///       SplineAreaSeries<SalesData, num>(
+  ///         borderColor: Colors.red,
+  ///         borderWidth: 3,
+  ///         borderDrawMode: BorderDrawMode.all,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BorderDrawMode borderDrawMode;
 
-  ///Type of the spline curve. Various type of curves such as clamped, cardinal,
-  ///monotonic, and natural can be rendered between the data points.
+  /// Type of the spline curve. Various type of curves such as clamped, cardinal,
+  /// monotonic, and natural can be rendered between the data points.
   ///
-  ///Defaults to `splineType.natural`
+  /// Defaults to `SplineType.natural`.
   ///
-  ///Also refer [SplineType]
+  /// Also refer [SplineType].
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <SplineAreaSeries<SalesData, num>>[
-  ///                SplineAreaSeries<SalesData, num>(
-  ///                  splineType: SplineType.monotonic,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///      series: <SplineAreaSeries<SalesData, num>>[
+  ///        SplineAreaSeries<SalesData, num>(
+  ///          splineType: SplineType.monotonic,
+  ///        ),
+  ///      ],
+  ///   );
+  /// }
+  /// ```
   final SplineType? splineType;
 
-  ///Line tension of the cardinal spline. The value ranges from 0 to 1.
+  /// Line tension of the cardinal spline. The value ranges from 0 to 1.
   ///
-  ///Defaults to `0.5`
+  /// Defaults to `0.5`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <SplineAreaSeries<SalesData, num>>[
-  ///                SplineAreaSeries<SalesData, num>(
-  ///                  splineType: SplineType.natural,
-  ///                  cardinalSplineTension: 0.4,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineAreaSeries<SalesData, num>>[
+  ///       SplineAreaSeries<SalesData, num>(
+  ///         cardinalSplineTension: 0.4,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double cardinalSplineTension;
 
   /// Create the spline area series renderer.

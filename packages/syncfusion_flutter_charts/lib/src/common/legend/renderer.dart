@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 import '../../chart/chart_series/series.dart';
 import '../../chart/technical_indicators/technical_indicator.dart';
 
-/// Represents the legend render context chart
+/// Represents the legend render context chart.
 class LegendRenderContext {
-  /// Creates an instance of legend render context
+  /// Creates an instance of legend render context.
   LegendRenderContext(
       {this.size,
       required this.text,
@@ -26,51 +26,51 @@ class LegendRenderContext {
                 ? SeriesHelper.getSeriesRendererDetails(seriesRenderer).series
                 : seriesRenderer.series;
 
-  /// Specifies the value of text
+  /// Specifies the value of text.
   String text;
 
-  /// Holds the value of icon color
+  /// Holds the value of icon color.
   Color? iconColor;
 
-  /// Holds the value of text size
+  /// Holds the value of text size.
   Size? textSize;
 
-  /// Holds the value legend icon type
+  /// Holds the value legend icon type.
   LegendIconType iconType;
 
-  /// Specifies the size value
+  /// Specifies the size value.
   Size? size;
 
-  /// Specifies the value of template size
+  /// Specifies the value of template size.
   Size? templateSize;
 
-  /// Specifies the value of series
+  /// Specifies the value of series.
   dynamic series;
 
-  /// Holds the series renderer value
+  /// Holds the series renderer value.
   dynamic seriesRenderer;
 
-  /// Holds the indicator renderer
+  /// Holds the indicator renderer.
   TechnicalIndicatorsRenderer? indicatorRenderer;
 
-  /// Holds the value if trendline
+  /// Holds the value if trendline.
   Trendline? trendline;
 
-  /// Holds the value of point
+  /// Holds the value of point.
   dynamic point;
 
-  /// Specifies the series index value
+  /// Specifies the series index value.
   int seriesIndex;
 
-  /// Specifies the value of trendline index
+  /// Specifies the value of trendline index.
   int? trendlineIndex;
 
-  /// Specifies whether the legend is selected
+  /// Specifies whether the legend is selected.
   bool isSelect;
 
-  /// Specifies whether the legend is rendered
+  /// Specifies whether the legend is rendered.
   bool isRender = false;
 
-  /// Specifies whether it is trendline legend
+  /// Specifies whether it is trendline legend.
   bool? isTrendline = false;
 }

@@ -210,7 +210,7 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
 
     String? dataLabelText;
     final TextStyle textStyle = _effectiveTextStyle.copyWith(
-        color: _getAnimatedColor(_effectiveTextStyle.color!));
+        color: _getAnimatedColor(_effectiveTextStyle.color));
     final bool hasMapper = source.dataLabelMapper != null;
     mapDataSource.forEach((String key, MapModel model) {
       dataLabelText = controller!.isInInteractive
@@ -277,7 +277,10 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
     return model.shapeColor ?? _themeData.layerColor!;
   }
 
-  Color _getAnimatedColor(Color color) {
+  Color? _getAnimatedColor(Color? color) {
+    if (color == null) {
+      return null;
+    }
     return color.withOpacity(_opacityTween.evaluate(_dataLabelAnimation));
   }
 }

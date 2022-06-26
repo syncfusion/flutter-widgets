@@ -1,12 +1,12 @@
 {
 "noSelectedDateCalendarLabel" : "کوئی تاریخ منتخب نہیں ہے۔", 
 "noEventsCalendarLabel" : "کوئی واقعات نہیں۔", 
-"ofDataPagerLabel" : "کی", 
+"ofDataPagerLabel" : "کا", 
 "pagesDataPagerLabel" : "صفحات", 
-"itemsDataPagerLabel" : "اشیاء", 
+"rowsPerPageDataPagerLabel" : "قطار فی صفحہ", 
 "pdfBookmarksLabel" : "بک مارکس", 
 "pdfNoBookmarksLabel" : "کوئی بک مارکس نہیں ملے", 
-"pdfScrollStatusOfLabel" : "کی", 
+"pdfScrollStatusOfLabel" : "کا", 
 "pdfGoToPageLabel" : "صفحے پر جائیں", 
 "pdfEnterPageNumberLabel" : "صفحہ نمبر درج کریں۔", 
 "pdfInvalidPageNumberLabel" : "براہ مہربانی ایک درست نمبر درج کریں", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "شا", 
 "shortDhualqiLabel" : "ذوالقع", 
 "shortDhualhiLabel" : "ذوالحجہ", 
-"daySpanCountLabel" : "دن"
+"daySpanCountLabel" : "دن", 
+"series" : "سلسلہ"
 }

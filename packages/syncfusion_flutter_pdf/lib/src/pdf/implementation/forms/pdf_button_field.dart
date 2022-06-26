@@ -1,11 +1,10 @@
 import 'dart:ui';
 
-import 'package:syncfusion_flutter_pdf/src/pdf/implementation/annotations/pdf_annotation_collection.dart';
-
 import '../../interfaces/pdf_interface.dart';
 import '../actions/pdf_field_actions.dart';
 import '../annotations/enum.dart';
 import '../annotations/pdf_annotation.dart';
+import '../annotations/pdf_annotation_collection.dart';
 import '../annotations/pdf_appearance.dart';
 import '../annotations/pdf_paintparams.dart';
 import '../annotations/widget_annotation.dart';
@@ -63,7 +62,7 @@ class PdfButtonField extends PdfField {
     _helper.dictionary!.setProperty(
         PdfDictionaryProperties.ft, PdfName(PdfDictionaryProperties.btn));
     if (backColor == null) {
-      _helper.backColor = PdfColor(211, 211, 211, 255);
+      _helper.backColor = PdfColor(211, 211, 211);
     }
     _helper.flags.add(FieldFlags.pushButton);
     _helper.initValues(text, actions);

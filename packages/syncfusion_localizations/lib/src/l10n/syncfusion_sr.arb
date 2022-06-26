@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Нема догађаја", 
 "ofDataPagerLabel" : "оф", 
 "pagesDataPagerLabel" : "странице", 
-"itemsDataPagerLabel" : "ставке", 
+"rowsPerPageDataPagerLabel" : "Редова по страници", 
 "pdfBookmarksLabel" : "обележивача", 
 "pdfNoBookmarksLabel" : "Нема пронађених обележивача", 
 "pdfScrollStatusOfLabel" : "оф", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Схав.", 
 "shortDhualqiLabel" : "Дху'л-К", 
 "shortDhualhiLabel" : "Дху'л-Х", 
-"daySpanCountLabel" : "Дан"
+"daySpanCountLabel" : "Дан", 
+"series" : "Серије"
 }

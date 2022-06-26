@@ -5,9 +5,9 @@ import '../utils/enum.dart';
 import '../utils/helper.dart';
 import 'renderer_base.dart';
 
-/// Represents the render object for spark chart
+/// Represents the render object for spark chart.
 class SfSparkBarChartRenderObjectWidget extends SfSparkChartRenderObjectWidget {
-  /// Creates the render object for spark chart
+  /// Creates the render object for spark chart.
   const SfSparkBarChartRenderObjectWidget(
       {Key? key,
       this.borderWidth,
@@ -57,16 +57,16 @@ class SfSparkBarChartRenderObjectWidget extends SfSparkChartRenderObjectWidget {
             coordinatePoints: coordinatePoints,
             dataPoints: dataPoints);
 
-  /// Specifies the bar chart border width
+  /// Specifies the bar chart border width.
   final double? borderWidth;
 
-  /// Specifies the bar chart border color
+  /// Specifies the bar chart border color.
   final Color? borderColor;
 
-  /// Specifies the spark chart data label
+  /// Specifies the spark chart data label display mode.
   final SparkChartLabelDisplayMode? labelDisplayMode;
 
-  /// Specifies the spark chart data label style
+  /// Specifies the spark chart data label style.
   final TextStyle? labelStyle;
 
   @override
@@ -130,9 +130,9 @@ class SfSparkBarChartRenderObjectWidget extends SfSparkChartRenderObjectWidget {
   }
 }
 
-/// Represents the render spark bar chart class
+/// Represents the render spark bar chart class.
 class _RenderSparkBarChart extends RenderSparkChart {
-  /// Creates the render object widget
+  /// Creates the render object widget.
   _RenderSparkBarChart(
       {List<dynamic>? data,
       int? dataCount,
@@ -188,10 +188,10 @@ class _RenderSparkBarChart extends RenderSparkChart {
   /// Defines the border width.
   double? _borderWidth;
 
-  /// Returns the border width value
+  /// Returns the border width value.
   double? get borderWidth => _borderWidth;
 
-  /// Set the border width value
+  /// Set the border width value.
   set borderWidth(double? value) {
     if (_borderWidth != value) {
       _borderWidth = value;
@@ -202,10 +202,10 @@ class _RenderSparkBarChart extends RenderSparkChart {
   /// Defines the dash array.
   Color? _borderColor;
 
-  /// Returns the dash arry value
+  /// Returns the border color.
   Color? get borderColor => _borderColor;
 
-  /// Set the line width value
+  /// Set the border color.
   set borderColor(Color? value) {
     if (_borderColor != value) {
       _borderColor = value;
@@ -213,13 +213,13 @@ class _RenderSparkBarChart extends RenderSparkChart {
     }
   }
 
-  /// Defines the spark chart data label mode
+  /// Defines the spark chart data label mode.
   SparkChartLabelDisplayMode? _labelDisplayMode;
 
-  /// Returns the spark chart data label mode
+  /// Returns the spark chart data label display mode.
   SparkChartLabelDisplayMode? get labelDisplayMode => _labelDisplayMode;
 
-  /// Sets the spark chart data label mode
+  /// Sets the spark chart data label mode.
   set labelDisplayMode(SparkChartLabelDisplayMode? value) {
     if (_labelDisplayMode != value) {
       _labelDisplayMode = value;
@@ -227,13 +227,13 @@ class _RenderSparkBarChart extends RenderSparkChart {
     }
   }
 
-  /// Defines the spark chart data label text style
+  /// Defines the spark chart data label text style.
   TextStyle? _labelStyle;
 
-  /// Returns the spark chart data label text style
+  /// Returns the spark chart data label text style.
   TextStyle? get labelStyle => _labelStyle;
 
-  /// Sets the spark chart data label mode
+  /// Sets the spark chart data label mode.
   set labelStyle(TextStyle? value) {
     if (_labelStyle != value) {
       _labelStyle = value;
@@ -244,11 +244,11 @@ class _RenderSparkBarChart extends RenderSparkChart {
   /// Defines the horizontal axis line position.
   double? _axisCrossesAt;
 
-  /// Returns the axisCrossesAt value
+  /// Returns the axisCrossesAt value.
   @override
   double get axisCrossesAt => _axisCrossesAt!;
 
-  /// Set the axisCrossesAt value
+  /// Set the axisCrossesAt value.
   @override
   set axisCrossesAt(double? value) {
     if (_axisCrossesAt != value) {
@@ -258,10 +258,10 @@ class _RenderSparkBarChart extends RenderSparkChart {
     }
   }
 
-  /// Specifies the win loss segments
+  /// Specifies the win loss segments.
   List<Rect>? _segments;
 
-  /// Specifies the low point in series
+  /// Specifies the low point in series.
   late num _lowPoint;
 
   /// Specifies the high point in series
@@ -319,7 +319,7 @@ class _RenderSparkBarChart extends RenderSparkChart {
     }
   }
 
-  /// Method to calculate axis height
+  /// Returns the axis height.
   @override
   double getAxisHeight() {
     final double value = axisCrossesAt;
@@ -339,7 +339,7 @@ class _RenderSparkBarChart extends RenderSparkChart {
     return axisLineHeight!;
   }
 
-  /// Method to calculate the plot band position
+  /// Method to calculate the plot band position.
   @override
   void calculatePlotBandPosition() {
     final double height = areaSize!.height;
@@ -352,7 +352,7 @@ class _RenderSparkBarChart extends RenderSparkChart {
     plotBandEndHeight = height - ((height / diffY!) * (end - baseValue));
   }
 
-  /// Method to render bar series
+  /// Method to render bar series.
   void _renderBarSeries(Canvas canvas, Offset offset) {
     Color currentColor;
     Paint paint;

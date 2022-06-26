@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "ഇവന്റുകളൊന്നുമില്ല", 
 "ofDataPagerLabel" : "യുടെ", 
 "pagesDataPagerLabel" : "പേജുകൾ", 
-"itemsDataPagerLabel" : "ഇനങ്ങൾ", 
+"rowsPerPageDataPagerLabel" : "ഓരോ പേജിലും വരികൾ", 
 "pdfBookmarksLabel" : "ബുക്ക്മാർക്കുകൾ", 
 "pdfNoBookmarksLabel" : "ബുക്ക്‌മാർക്കുകളൊന്നും കണ്ടെത്തിയില്ല", 
 "pdfScrollStatusOfLabel" : "യുടെ", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "ഷാ.", 
 "shortDhualqiLabel" : "ദുൽ-ക്യു", 
 "shortDhualhiLabel" : "ദുൽ-എച്ച്", 
-"daySpanCountLabel" : "ദിവസം"
+"daySpanCountLabel" : "ദിവസം", 
+"series" : "പരമ്പര"
 }

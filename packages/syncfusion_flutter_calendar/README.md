@@ -65,6 +65,8 @@ The Flutter Calendar widget has built-in configurable views such as day, week, w
 
 ![flexible_working_days](https://cdn.syncfusion.com/content/images/FTControl/Flutter/Flexible+working+days+2.png)
 
+* **Number of days in view** - Customize the number of days in view in the flutter event calendar.
+
 * **First day of the week** - Customize the first day of the week as needed. The default is Sunday. 
 
 ![first_day_of_the_week](https://cdn.syncfusion.com/content/images/FTControl/Flutter/First+day+of+week+2.png)

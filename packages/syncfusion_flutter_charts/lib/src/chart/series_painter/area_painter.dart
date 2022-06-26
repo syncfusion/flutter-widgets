@@ -16,7 +16,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Area series
+/// Creates series renderer for area series.
 class AreaSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of AreaSeriesRenderer class.
   AreaSeriesRenderer();
@@ -27,7 +27,7 @@ class AreaSeriesRenderer extends XyDataSeriesRenderer {
   /// Creates a segment for a data point in the series.
   ChartSegment _createSegments(
       Path path, Path strokePath, int seriesIndex, double animateFactor,
-      [List<Offset>? _points]) {
+      [List<Offset>? points]) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
     final AreaSegment segment = createSegment();
     SegmentHelper.setSegmentProperties(segment,
@@ -39,8 +39,8 @@ class AreaSeriesRenderer extends XyDataSeriesRenderer {
     segmentProperties.series =
         _currentSeriesDetails.series as XyDataSeries<dynamic, dynamic>;
     segment.currentSegmentIndex = 0;
-    if (_points != null) {
-      segment.points = _points;
+    if (points != null) {
+      segment.points = points;
     }
     segmentProperties.seriesRenderer = this;
     segmentProperties.seriesIndex = seriesIndex;
@@ -69,7 +69,7 @@ class AreaSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To draw area segments
+  /// To draw area segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
@@ -84,7 +84,7 @@ class AreaSeriesRenderer extends XyDataSeriesRenderer {
     segment.onPaint(canvas);
   }
 
-  /// To create area series segments
+  /// To create area series segments.
   @override
   AreaSegment createSegment() => AreaSegment();
 
@@ -165,8 +165,8 @@ class AreaChartPainter extends CustomPainter {
         seriesRendererDetails.series as AreaSeries<dynamic, dynamic>;
     seriesRendererDetails.storeSeriesProperties(stateProperties, seriesIndex);
     double animationFactor;
-    CartesianChartPoint<dynamic>? prevPoint, point, _point;
-    ChartLocation? currentPoint, originPoint, _oldPoint;
+    CartesianChartPoint<dynamic>? prevPoint, point, oldChartPoint;
+    ChartLocation? currentPoint, originPoint, oldPoint;
     final ChartAxisRendererDetails xAxisDetails =
         seriesRendererDetails.xAxisDetails!;
     final ChartAxisRendererDetails yAxisDetails =
@@ -174,11 +174,11 @@ class AreaChartPainter extends CustomPainter {
     final RenderingDetails renderingDetails = stateProperties.renderingDetails;
     CartesianSeriesRenderer? oldSeriesRenderer;
     SeriesRendererDetails? oldSeriesRendererDetails;
-    final Path _path = Path();
-    final Path _strokePath = Path();
+    final Path path = Path();
+    final Path strokePath = Path();
     final num? crossesAt = getCrossesAtValue(seriesRenderer, stateProperties);
     final num origin = crossesAt ?? 0;
-    final List<Offset> _points = <Offset>[];
+    final List<Offset> points = <Offset>[];
     if (seriesRendererDetails.visible! == true) {
       assert(
           // ignore: unnecessary_null_comparison
@@ -226,12 +226,14 @@ class AreaChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRendererDetails.calculateRegionData(stateProperties,
             seriesRendererDetails, painterKey.index, point, pointIndex);
         if (point.isVisible && !point.isDrop) {
-          _point = getOldChartPoint(
+          oldChartPoint = getOldChartPoint(
               stateProperties,
               seriesRendererDetails,
               AreaSegment,
@@ -239,10 +241,10 @@ class AreaChartPainter extends CustomPainter {
               pointIndex,
               oldSeriesRenderer,
               oldSeriesRenderers);
-          _oldPoint = _point != null
+          oldPoint = oldChartPoint != null
               ? calculatePoint(
-                  _point.xValue,
-                  _point.yValue,
+                  oldChartPoint.xValue,
+                  oldChartPoint.yValue,
                   oldSeriesRendererDetails!.xAxisDetails!,
                   oldSeriesRendererDetails.yAxisDetails!,
                   isTransposed,
@@ -261,15 +263,15 @@ class AreaChartPainter extends CustomPainter {
               axisClipRect);
           double x = currentPoint.x;
           double y = currentPoint.y;
-          _points.add(Offset(x, y));
+          points.add(Offset(x, y));
           final bool closed =
               series.emptyPointSettings.mode == EmptyPointMode.drop &&
                   _getSeriesVisibility(dataPoints, pointIndex);
-          if (_oldPoint != null) {
+          if (oldPoint != null) {
             isTransposed
-                ? x = getAnimateValue(animationFactor, x, _oldPoint.x,
+                ? x = getAnimateValue(animationFactor, x, oldPoint.x,
                     currentPoint.x, seriesRendererDetails)
-                : y = getAnimateValue(animationFactor, y, _oldPoint.y,
+                : y = getAnimateValue(animationFactor, y, oldPoint.y,
                     currentPoint.y, seriesRendererDetails);
           }
           if (prevPoint == null ||
@@ -277,39 +279,39 @@ class AreaChartPainter extends CustomPainter {
               (dataPoints[pointIndex].isGap == true) ||
               (dataPoints[pointIndex - 1].isVisible == false &&
                   series.emptyPointSettings.mode == EmptyPointMode.gap)) {
-            _path.moveTo(originPoint.x, originPoint.y);
+            path.moveTo(originPoint.x, originPoint.y);
             if (series.borderDrawMode == BorderDrawMode.excludeBottom ||
                 series.borderDrawMode == BorderDrawMode.all) {
               if (dataPoints[pointIndex].isGap != true) {
-                _strokePath.moveTo(originPoint.x, originPoint.y);
-                _strokePath.lineTo(x, y);
+                strokePath.moveTo(originPoint.x, originPoint.y);
+                strokePath.lineTo(x, y);
               }
             } else if (series.borderDrawMode == BorderDrawMode.top) {
-              _strokePath.moveTo(x, y);
+              strokePath.moveTo(x, y);
             }
-            _path.lineTo(x, y);
+            path.lineTo(x, y);
           } else if (pointIndex == dataPoints.length - 1 ||
               dataPoints[pointIndex + 1].isGap == true) {
-            _strokePath.lineTo(x, y);
+            strokePath.lineTo(x, y);
             if (series.borderDrawMode == BorderDrawMode.excludeBottom) {
-              _strokePath.lineTo(originPoint.x, originPoint.y);
+              strokePath.lineTo(originPoint.x, originPoint.y);
             } else if (series.borderDrawMode == BorderDrawMode.all) {
-              _strokePath.lineTo(originPoint.x, originPoint.y);
-              _strokePath.close();
+              strokePath.lineTo(originPoint.x, originPoint.y);
+              strokePath.close();
             }
-            _path.lineTo(x, y);
-            _path.lineTo(originPoint.x, originPoint.y);
+            path.lineTo(x, y);
+            path.lineTo(originPoint.x, originPoint.y);
           } else {
-            _strokePath.lineTo(x, y);
-            _path.lineTo(x, y);
+            strokePath.lineTo(x, y);
+            path.lineTo(x, y);
 
             if (closed) {
-              _path.lineTo(originPoint.x, originPoint.y);
+              path.lineTo(originPoint.x, originPoint.y);
               if (series.borderDrawMode == BorderDrawMode.excludeBottom) {
-                _strokePath.lineTo(originPoint.x, originPoint.y);
+                strokePath.lineTo(originPoint.x, originPoint.y);
               } else if (series.borderDrawMode == BorderDrawMode.all) {
-                _strokePath.lineTo(originPoint.x, originPoint.y);
-                _strokePath.close();
+                strokePath.lineTo(originPoint.x, originPoint.y);
+                strokePath.close();
               }
             }
           }
@@ -317,11 +319,11 @@ class AreaChartPainter extends CustomPainter {
         }
       }
       // ignore: unnecessary_null_comparison
-      if (_path != null) {
+      if (path != null) {
         seriesRendererDetails.drawSegment(
             canvas,
-            seriesRenderer._createSegments(_path, _strokePath, painterKey.index,
-                animationFactor, _points));
+            seriesRenderer._createSegments(
+                path, strokePath, painterKey.index, animationFactor, points));
       }
       clipRect = calculatePlotOffset(
           Rect.fromLTRB(
@@ -354,7 +356,7 @@ class AreaChartPainter extends CustomPainter {
     }
   }
 
-  /// It returns the visibility of area series
+  /// It returns the visibility of area series.
   bool _getSeriesVisibility(
       List<CartesianChartPoint<dynamic>> points, int index) {
     for (int i = index; i < points.length - 1; i++) {

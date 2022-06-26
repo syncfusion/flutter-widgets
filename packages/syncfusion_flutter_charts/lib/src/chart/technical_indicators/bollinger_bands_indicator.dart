@@ -3,14 +3,13 @@ import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import 'technical_indicator.dart';
 
-/// This class has the property of BollingerBand Indicator.
+/// This class has the property of bollinger band indicator.
 ///
 /// This indicator also has [upperLineColor], [lowerLineColor] property for defining the brushes for the indicator lines.
-/// Also, we can specify standard deviation values for the BollingerBand indicator using [standardDeviation] property.
+/// Also, we can specify standard deviation values for the [BollingerBandIndicator] using [standardDeviation] property.
 ///
 /// Provides options for series visible, axis name, series name, animation duration, legend visibility,
 /// band color to customize the appearance.
-///
 @immutable
 class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of BollingerBandIndicator class.
@@ -59,106 +58,117 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
             period: period,
             onRenderDetailsUpdate: onRenderDetailsUpdate);
 
-  /// Standard Deviation value of the bollinger bands
+  /// Standard deviation value of the bollinger band.
   ///
-  /// Defaults to `2`
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            BollingerBandIndicator<dynamic, dynamic>(
-  ///                standardDeviation: 3,)},
-  ///        ));
-  ///}
-  ///```
-  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      BollingerBandIndicator<Sample, num>(
+  ///        period: 2,
+  ///        standardDeviation: 3
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final int standardDeviation;
 
-  /// UpperLine Color of the bollinger bands.
+  /// Upper line color of the bollinger band.
   ///
-  /// Defaults to `Colors.red`
+  /// Defaults to `Colors.red`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            BollingerBandIndicator<dynamic, dynamic>(
-  ///                upperLineColor: Colors.red,)},
-  ///        ));
-  ///}
-  ///```
-  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      BollingerBandIndicator<Sample, num>(
+  ///        period: 2,
+  ///        standardDeviation: 3,
+  ///        upperLineColor: Colors.yellow
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final Color upperLineColor;
 
-  /// UpperLine width value of the bollinger bands.
+  /// Upper line width value of the bollinger band.
   ///
-  /// Defaults to `2`
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            BollingerBandIndicator<dynamic, dynamic>(
-  ///                upperLineWidth: 2,)},
-  ///        ));
-  ///}
-  ///```
-  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      BollingerBandIndicator<Sample, num>(
+  ///        period: 2,
+  ///        standardDeviation: 3,
+  ///        upperLineWidth: 3
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final double upperLineWidth;
 
-  /// LowerLine Color value of the bollinger bands
+  /// Lower line color value of the bollinger band.
   ///
-  /// Defaults to `Colors.green`
+  /// Defaults to `Colors.green`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            BollingerBandIndicator<dynamic, dynamic>(
-  ///                lowerLineColor: Colors.green,)},
-  ///        ));
-  ///}
-  ///```
-  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      BollingerBandIndicator<Sample, num>(
+  ///        period: 2,
+  ///        standardDeviation: 3,
+  ///        lowerLineColor: Colors.red
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final Color lowerLineColor;
 
-  /// LowerLine Width value of the bollinger bands
+  /// Lower line width value of the bollinger band.
   ///
-  /// Defaults to `2`
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            BollingerBandIndicator<dynamic, dynamic>(
-  ///                lowerLineWidth: 2,)},
-  ///        ));
-  ///}
-  ///```
-  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      BollingerBandIndicator<Sample, num>(
+  ///        period: 2,
+  ///        standardDeviation: 3,
+  ///        lowerLineWidth: 4
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final double lowerLineWidth;
 
-  /// Band Color  of the Bollinger Band
+  /// Band color of the bollinger band.
   ///
-  /// Defaults to `Colors.grey.withOpacity(0.25)`
+  /// Default is `Color(0x409e9e9e)`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            BollingerBandIndicator<dynamic, dynamic>(
-  ///                bandColor: Colors.transparent,)},
-  ///        ));
-  ///}
-  ///```
-  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      BollingerBandIndicator<Sample, num>(
+  ///        period: 2,
+  ///        standardDeviation: 3,
+  ///        bandColor: Colors.blue
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final Color bandColor;
 
   @override

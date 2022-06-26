@@ -42,7 +42,8 @@ class CodabarRenderer extends SymbologyRenderer {
           value[i] == 'B' ||
           value[i] == 'C' ||
           value[i] == 'D') {
-        throw 'The provided input cannot be encoded : ${value[i]}';
+        throw ArgumentError(
+            'The provided input cannot be encoded : ${value[i]}');
       }
     }
     return true;

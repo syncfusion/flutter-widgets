@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
+import '../../../charts.dart';
 import '../../common/rendering_details.dart';
 import '../axis/axis.dart';
 import '../chart_segment/chart_segment.dart';
@@ -11,13 +11,14 @@ import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
+import '../common/common.dart';
 import '../common/interactive_tooltip.dart';
 import '../common/renderer.dart';
 import '../utils/helper.dart';
 import 'trackball.dart';
 import 'trackball_template.dart';
 
-/// Represents the Trackline painter
+/// Represents the Trackline painter.
 class TracklinePainter extends CustomPainter {
   /// Creates constructor of TracklinePainter class.
   TracklinePainter(this.trackballBehavior, this.stateProperties,
@@ -243,7 +244,7 @@ class TrackballPainter extends CustomPainter {
   /// To get the paint for trackball line painter.
   Paint getLinePainter(Paint trackballLinePaint) => trackballLinePaint;
 
-  /// To draw the trackball for all series
+  /// To draw the trackball for all series.
   void drawTrackball(Canvas canvas) {
     final RenderingDetails renderingDetails = stateProperties.renderingDetails;
     if (!_isSeriesAnimating()) {
@@ -307,6 +308,22 @@ class TrackballPainter extends CustomPainter {
       ChartPointInfo? trackLinePoint =
           chartPointInfo.isNotEmpty ? chartPointInfo[0] : null;
       for (int index = 0; index < chartPointInfo.length; index++) {
+        if (!canResetPath &&
+            trackLinePoint != null &&
+            chart.trackballBehavior.lineType != TrackballLineType.none) {
+          final Paint trackballLinePaint = Paint();
+          trackballLinePaint.color = chart.trackballBehavior.lineColor ??
+              renderingDetails.chartTheme.crosshairLineColor;
+          trackballLinePaint.strokeWidth = chart.trackballBehavior.lineWidth;
+          trackballLinePaint.style = PaintingStyle.stroke;
+          chart.trackballBehavior.lineWidth == 0
+              ? trackballLinePaint.color = Colors.transparent
+              : trackballLinePaint.color = trackballLinePaint.color;
+          trackballRenderingDetails.drawLine(
+              canvas,
+              trackballRenderingDetails.linePainter(trackballLinePaint),
+              chartPointInfo.indexOf(trackLinePoint));
+        }
         final ChartPointInfo next = chartPointInfo[index];
         final ChartPointInfo pres = trackLinePoint!;
         final Offset pos = trackballRenderingDetails.tapPosition;
@@ -317,24 +334,24 @@ class TrackballPainter extends CustomPainter {
                 (pos.dx - next.xPosition!).abs())) {
           trackLinePoint = chartPointInfo[index];
         }
-        if (((chartPointInfo[index]
-                            .seriesRendererDetails!
-                            .seriesType
-                            .contains('column') ==
-                        true ||
-                    chartPointInfo[index].seriesRendererDetails!.seriesType ==
-                        'candle' ||
-                    chartPointInfo[index]
-                            .seriesRendererDetails!
-                            .seriesType
-                            .contains('boxandwhisker') ==
-                        true ||
-                    chartPointInfo[index]
-                            .seriesRendererDetails!
-                            .seriesType
-                            .contains('hilo') ==
-                        true) &&
-                !stateProperties.requireInvertedAxis) ||
+        final bool isRectTypeSeries = chartPointInfo[index]
+                    .seriesRendererDetails!
+                    .seriesType
+                    .contains('column') ==
+                true ||
+            chartPointInfo[index].seriesRendererDetails!.seriesType ==
+                'candle' ||
+            chartPointInfo[index]
+                    .seriesRendererDetails!
+                    .seriesType
+                    .contains('boxandwhisker') ==
+                true ||
+            chartPointInfo[index]
+                    .seriesRendererDetails!
+                    .seriesType
+                    .contains('hilo') ==
+                true;
+        if ((isRectTypeSeries && !stateProperties.requireInvertedAxis) ||
             (chartPointInfo[index]
                         .seriesRendererDetails!
                         .seriesType
@@ -344,24 +361,7 @@ class TrackballPainter extends CustomPainter {
           isHorizontalOrientation = true;
         }
         isRectSeries = false;
-        if ((chartPointInfo[index]
-                        .seriesRendererDetails!
-                        .seriesType
-                        .contains('column') ==
-                    true ||
-                chartPointInfo[index].seriesRendererDetails!.seriesType ==
-                    'candle' ||
-                chartPointInfo[index]
-                        .seriesRendererDetails!
-                        .seriesType
-                        .contains('hilo') ==
-                    true ||
-                chartPointInfo[index]
-                            .seriesRendererDetails!
-                            .seriesType
-                            .contains('boxandwhisker') ==
-                        true &&
-                    stateProperties.requireInvertedAxis) ||
+        if ((isRectTypeSeries && stateProperties.requireInvertedAxis) ||
             (chartPointInfo[index]
                         .seriesRendererDetails!
                         .seriesType
@@ -403,6 +403,11 @@ class TrackballPainter extends CustomPainter {
                       chartPointInfo[index].header != '') ||
                   (chartPointInfo[index].label != null &&
                       chartPointInfo[index].label != ''))) {
+            for (int markerIndex = 0;
+                markerIndex < chartPointInfo.length;
+                markerIndex++) {
+              _renderEachMarkers(canvas, markerIndex);
+            }
             _calculateTrackballRect(
                 canvas, width, height, index, chartPointInfo);
           } else {
@@ -443,22 +448,6 @@ class TrackballPainter extends CustomPainter {
         }
       }
 
-      if (!canResetPath &&
-          trackLinePoint != null &&
-          chart.trackballBehavior.lineType != TrackballLineType.none) {
-        final Paint trackballLinePaint = Paint();
-        trackballLinePaint.color = chart.trackballBehavior.lineColor ??
-            renderingDetails.chartTheme.crosshairLineColor;
-        trackballLinePaint.strokeWidth = chart.trackballBehavior.lineWidth;
-        trackballLinePaint.style = PaintingStyle.stroke;
-        chart.trackballBehavior.lineWidth == 0
-            ? trackballLinePaint.color = Colors.transparent
-            : trackballLinePaint.color = trackballLinePaint.color;
-        trackballRenderingDetails.drawLine(
-            canvas,
-            trackballRenderingDetails.linePainter(trackballLinePaint),
-            chartPointInfo.indexOf(trackLinePoint));
-      }
 // ignore: unnecessary_null_comparison
       if (tooltipTop != null && tooltipTop.isNotEmpty) {
         _tooltipPosition = trackballRenderingDetails.smartTooltipPositions(
@@ -472,16 +461,8 @@ class TrackballPainter extends CustomPainter {
       }
 
       for (int index = 0; index < chartPointInfo.length; index++) {
-        trackballRenderingDetails.trackballMarker(index);
-
-        if (_markerShapes != null &&
-            _markerShapes!.isNotEmpty &&
-            _markerShapes!.length > index) {
-          trackballRenderingDetails.renderTrackballMarker(
-              chartPointInfo[index].seriesRendererDetails!,
-              canvas,
-              chart.trackballBehavior,
-              index);
+        if (!isGroupMode) {
+          _renderEachMarkers(canvas, index);
         }
 
         // Padding added for avoid tooltip and the data point are too close and
@@ -526,6 +507,19 @@ class TrackballPainter extends CustomPainter {
     }
   }
 
+  void _renderEachMarkers(Canvas canvas, int markerIndex) {
+    trackballRenderingDetails.trackballMarker(markerIndex);
+    if (_markerShapes != null &&
+        _markerShapes!.isNotEmpty &&
+        _markerShapes!.length > markerIndex) {
+      trackballRenderingDetails.renderTrackballMarker(
+          chartPointInfo[markerIndex].seriesRendererDetails!,
+          canvas,
+          chart.trackballBehavior,
+          markerIndex);
+    }
+  }
+
   bool _isSeriesAnimating() {
     for (int i = 0;
         i < stateProperties.chartSeries.visibleSeriesRenderers.length;
@@ -552,14 +546,14 @@ class TrackballPainter extends CustomPainter {
   /// Specifies whether the labelFormat contains colon or not.
   bool isColon = true;
 
-  /// To get tooltip size
+  /// To get tooltip size.
   Size _getTooltipSize(double height, double width, int index) {
     final Offset position = Offset(
         chartPointInfo[index].xPosition!, chartPointInfo[index].yPosition!);
     Offset pos;
     ChartAxisRendererDetails xAxisDetails, yAxisDetails;
     SeriesRendererDetails? seriesRendererDetails;
-    num? _minX, _maxX;
+    num? minX, maxX;
     stringValue = <TrackballElement>[];
     final String? format = chartPointInfo[index]
         .seriesRendererDetails!
@@ -589,10 +583,10 @@ class TrackballPainter extends CustomPainter {
         xAxisDetails = chartPointInfo[i].seriesRendererDetails!.xAxisDetails!;
         seriesRendererDetails = chartPointInfo[i].seriesRendererDetails;
         yAxisDetails = chartPointInfo[i].seriesRendererDetails!.yAxisDetails!;
-        _minX = seriesRendererDetails!.minimumX;
-        _maxX = seriesRendererDetails.maximumX;
+        minX = seriesRendererDetails!.minimumX;
+        maxX = seriesRendererDetails.maximumX;
         _minLocation = calculatePoint(
-            _minX!,
+            minX!,
             seriesRendererDetails.minimumY!,
             xAxisDetails,
             yAxisDetails,
@@ -600,7 +594,7 @@ class TrackballPainter extends CustomPainter {
             chartPointInfo[index].series,
             stateProperties.chartAxis.axisClipRect);
         _maxLocation = calculatePoint(
-            _maxX!,
+            maxX!,
             seriesRendererDetails.maximumY!,
             xAxisDetails,
             yAxisDetails,
@@ -680,8 +674,13 @@ class TrackballPainter extends CustomPainter {
               stringValue.add(TrackballElement('', null));
             }
             if (isLabel) {
+              final CartesianStateProperties stateProperties =
+                  chartPointInfo[i].seriesRendererDetails!.stateProperties;
               //ignore: avoid_bool_literals_in_conditional_expressions
-              if (chartPointInfo[i].seriesRendererDetails!.isIndicator == true
+              if (chartPointInfo[i].seriesRendererDetails!.isIndicator ==
+                          true &&
+                      stateProperties
+                          .renderingDetails.legendToggleStates.isEmpty
                   ? pos.dx >= _minLocation!.x && pos.dx <= _maxLocation!.x
                   : true) {
                 stringValue.add(TrackballElement(
@@ -717,14 +716,20 @@ class TrackballPainter extends CustomPainter {
         }
         height += measureText(measureString, labelStyle).height;
       }
-      x = position.dx;
-      if (chart.trackballBehavior.tooltipAlignment == ChartAlignment.center) {
-        y = boundaryRect.center.dy;
-      } else if (chart.trackballBehavior.tooltipAlignment ==
-          ChartAlignment.near) {
-        y = boundaryRect.top;
+      if (stateProperties.requireInvertedAxis) {
+        y = position.dy;
+        x = (chart.trackballBehavior.tooltipAlignment == ChartAlignment.center)
+            ? boundaryRect.center.dx
+            : (chart.trackballBehavior.tooltipAlignment == ChartAlignment.near)
+                ? boundaryRect.top
+                : boundaryRect.bottom;
       } else {
-        y = boundaryRect.bottom;
+        x = position.dx;
+        y = (chart.trackballBehavior.tooltipAlignment == ChartAlignment.center)
+            ? boundaryRect.center.dy
+            : (chart.trackballBehavior.tooltipAlignment == ChartAlignment.near)
+                ? boundaryRect.top
+                : boundaryRect.bottom;
       }
     } else {
       stringValue = <TrackballElement>[];
@@ -783,7 +788,7 @@ class TrackballPainter extends CustomPainter {
     return Size(width, height);
   }
 
-  /// To find the rect location of the trackball
+  /// To find the rect location of the trackball.
   void _calculateTrackballRect(
       Canvas canvas, double width, double height, int index,
       [List<ChartPointInfo>? chartPointInfo,
@@ -792,38 +797,11 @@ class TrackballPainter extends CustomPainter {
         chartPointInfo![index].seriesRendererDetails!.seriesType;
     const double widthPadding = 17;
     markerSize = 10;
-    Rect leftRect, rightRect;
     if (!chart.trackballBehavior.tooltipSettings.canShowMarker) {
       labelRect = Rect.fromLTWH(x!, y!, width + 15, height + 10);
-      final Rect backgroundRect = Rect.fromLTWH(boundaryRect.left + 25,
-          boundaryRect.top, boundaryRect.width - 50, boundaryRect.height);
-      leftRect = Rect.fromLTWH(boundaryRect.left - 5, boundaryRect.top,
-          backgroundRect.left - (boundaryRect.left - 5), boundaryRect.height);
-      rightRect = Rect.fromLTWH(backgroundRect.right, boundaryRect.top,
-          (boundaryRect.right + 5) - backgroundRect.right, boundaryRect.height);
     } else {
       labelRect = Rect.fromLTWH(
           x!, y!, width + (2 * markerSize) + widthPadding, height + 10);
-      final Rect backgroundRect = Rect.fromLTWH(boundaryRect.left + 20,
-          boundaryRect.top, boundaryRect.width - 40, boundaryRect.height);
-      leftRect = Rect.fromLTWH(
-          boundaryRect.left - 5,
-          boundaryRect.top - 20,
-          backgroundRect.left - (boundaryRect.left - 5),
-          boundaryRect.height + 40);
-      rightRect = Rect.fromLTWH(
-          backgroundRect.right,
-          boundaryRect.top - 20,
-          (boundaryRect.right + 5) + backgroundRect.right,
-          boundaryRect.height + 40);
-    }
-
-    if (leftRect.contains(Offset(x!, y!))) {
-      isLeft = true;
-      isRight = false;
-    } else if (rightRect.contains(Offset(x!, y!))) {
-      isLeft = false;
-      isRight = true;
     }
 
     if (y! > pointerLength + labelRect.height) {
@@ -853,23 +831,35 @@ class TrackballPainter extends CustomPainter {
         }
         nosePointX = labelRect.left;
         nosePointY = labelRect.top;
-
-        //ignore: prefer_final_locals
-        num? leftSideAvailableSize = xPos! - boundaryRect.left;
-        //ignore: prefer_final_locals
-        num? rightSideAvailableSize = boundaryRect.width - xPos!;
-
-        if (leftSideAvailableSize > rightSideAvailableSize) {
-          xPos = isGroupMode
-              ? (xPos! - (labelRect.width / 2) - groupAllPadding)
-              : xPos! - labelRect.width - _padding - pointerLength;
-
-          isRight = true;
+        if (!stateProperties.renderingDetails.isRtl) {
+          if ((isGroupMode
+                  ? (xPos! + (labelRect.width / 2) + groupAllPadding)
+                  : xPos! + labelRect.width + _padding + pointerLength) >
+              boundaryRect.right) {
+            xPos = isGroupMode
+                ? (xPos! - (labelRect.width / 2) - groupAllPadding)
+                : xPos! - labelRect.width - _padding - pointerLength;
+            isLeft = true;
+          } else {
+            xPos = isGroupMode
+                ? x! + groupAllPadding
+                : x! + _padding + pointerLength;
+          }
         } else {
-          xPos = isGroupMode
-              ? x! + groupAllPadding
-              : x! + _padding + pointerLength;
+          if (x! - labelRect.width - _padding - pointerLength >
+              boundaryRect.left) {
+            xPos = isGroupMode
+                ? (xPos! - (labelRect.width / 2) - groupAllPadding)
+                : xPos! - labelRect.width - _padding - pointerLength;
+            isLeft = true;
+          } else {
+            xPos = isGroupMode
+                ? x! + groupAllPadding
+                : x! + _padding + pointerLength;
+            isRight = true;
+          }
         }
+
         if (isGroupMode && (yPos! + labelRect.height) >= boundaryRect.bottom) {
           yPos = boundaryRect.bottom - labelRect.height;
         }
@@ -942,7 +932,7 @@ class TrackballPainter extends CustomPainter {
     }
   }
 
-  /// To find the trackball tooltip size
+  /// To find the trackball tooltip size.
   void _calculateTooltipSize(
       Rect labelRect,
       List<ChartPointInfo>? chartPointInfo,
@@ -976,20 +966,32 @@ class TrackballPainter extends CustomPainter {
       yPos = y! - labelRect.height / 2;
       nosePointY = yPos!;
       nosePointX = labelRect.left;
-      //ignore: prefer_final_locals
-      num? leftSideAvailableSize = xPos! - boundaryRect.left;
-      //ignore: prefer_final_locals
-      num? rightSideAvailableSize = boundaryRect.width - xPos!;
-
-      if (leftSideAvailableSize > rightSideAvailableSize) {
+      if (!stateProperties.renderingDetails.isRtl) {
+        if (xPos! + labelRect.width + _padding + pointerLength >
+            boundaryRect.right) {
+          xPos = isGroupMode
+              ? xPos! - labelRect.width - groupAllPadding
+              : xPos! - labelRect.width - _padding - pointerLength;
+          isLeft = true;
+        } else {
+          xPos = isGroupMode
+              ? x! + groupAllPadding
+              : x! + _padding + pointerLength;
+          isLeft = false;
+          isRight = true;
+        }
+      } else {
         xPos = isGroupMode
             ? xPos! - labelRect.width - groupAllPadding
             : xPos! - labelRect.width - _padding - pointerLength;
-
-        isRight = true;
-      } else {
-        xPos =
-            isGroupMode ? x! + groupAllPadding : x! + _padding + pointerLength;
+        if (xPos! < boundaryRect.left) {
+          xPos = isGroupMode
+              ? x! + groupAllPadding
+              : x! + _padding + pointerLength;
+          isRight = true;
+        } else {
+          isLeft = true;
+        }
       }
       if (yPos! + labelRect.height >= boundaryRect.bottom) {
         yPos = boundaryRect.bottom - labelRect.height;
@@ -997,7 +999,7 @@ class TrackballPainter extends CustomPainter {
     }
   }
 
-  /// To draw the line for the trackball
+  /// To draw the line for the trackball.
   void drawTrackBallLine(Canvas canvas, Paint paint, int index) {
     final Path dashArrayPath = Path();
     if (chartPointInfo[index]
@@ -1021,7 +1023,7 @@ class TrackballPainter extends CustomPainter {
         : canvas.drawPath(dashArrayPath, paint);
   }
 
-  /// To draw background of trackball tooltip
+  /// To draw background of trackball tooltip.
   void _drawTooltipBackground(
       Canvas canvas,
       Rect labelRect,
@@ -1074,10 +1076,10 @@ class TrackballPainter extends CustomPainter {
     }
   }
 
-  /// To draw the tooltip on the trackball
+  /// To draw the tooltip on the trackball.
   void _drawTooltip(
       Canvas canvas,
-      Rect rectF,
+      Rect tooltipRect,
       double? xPos,
       double? yPos,
       double startX,
@@ -1092,53 +1094,124 @@ class TrackballPainter extends CustomPainter {
       double? xPosition,
       double? yPosition) {
     backgroundPath.reset();
+    final Rect axisClipRect = stateProperties.chartAxis.axisClipRect;
     if (!canResetPath &&
         chart.trackballBehavior.tooltipDisplayMode !=
             TrackballDisplayMode.none) {
-      if (!isGroupMode && !(xPosition == null || yPosition == null)) {
+      if (!isGroupMode &&
+          !(xPosition == null || yPosition == null) &&
+          (tooltipRect.left > axisClipRect.left &&
+              tooltipRect.right < axisClipRect.right &&
+              tooltipRect.top > axisClipRect.top &&
+              tooltipRect.bottom < axisClipRect.bottom)) {
         if (stateProperties.requireInvertedAxis) {
           if (isLeft) {
-            startX = rectF.left + borderRadius;
+            startX = tooltipRect.left + borderRadius;
             endX = startX + pointerWidth;
           } else if (isRight) {
-            endX = rectF.right - borderRadius;
+            endX = tooltipRect.right - borderRadius;
             startX = endX - pointerWidth;
           }
           backgroundPath.moveTo(
-              (rectF.left + rectF.width / 2) - pointerWidth, startY);
+              (tooltipRect.left + tooltipRect.width / 2) - pointerWidth,
+              startY);
           backgroundPath.lineTo(xPosition, yPosition);
           backgroundPath.lineTo(
-              (rectF.right - rectF.width / 2) + pointerWidth, endY);
+              (tooltipRect.right - tooltipRect.width / 2) + pointerWidth, endY);
         } else {
-          if (isRight) {
-            backgroundPath.moveTo(
-                rectF.right, rectF.top + rectF.height / 2 - pointerWidth);
-            backgroundPath.lineTo(
-                rectF.right, rectF.bottom - rectF.height / 2 + pointerWidth);
-            backgroundPath.lineTo(rectF.right + pointerLength, yPosition);
-            backgroundPath.lineTo(rectF.right + pointerLength, yPosition);
-            backgroundPath.lineTo(
-                rectF.right, rectF.top + rectF.height / 2 - pointerWidth);
+          if (isLeft) {
+            backgroundPath.moveTo(tooltipRect.right,
+                tooltipRect.top + tooltipRect.height / 2 - pointerWidth);
+            backgroundPath.lineTo(tooltipRect.right,
+                tooltipRect.bottom - tooltipRect.height / 2 + pointerWidth);
+            backgroundPath.lineTo(tooltipRect.right + pointerLength, yPosition);
+            backgroundPath.lineTo(tooltipRect.right + pointerLength, yPosition);
+            backgroundPath.lineTo(tooltipRect.right,
+                tooltipRect.top + tooltipRect.height / 2 - pointerWidth);
           } else {
-            backgroundPath.moveTo(
-                rectF.left, rectF.top + rectF.height / 2 - pointerWidth);
-            backgroundPath.lineTo(
-                rectF.left, rectF.bottom - rectF.height / 2 + pointerWidth);
-            backgroundPath.lineTo(rectF.left - pointerLength, yPosition);
-            backgroundPath.lineTo(
-                rectF.left, rectF.top + rectF.height / 2 - pointerWidth);
+            backgroundPath.moveTo(tooltipRect.left,
+                tooltipRect.top + tooltipRect.height / 2 - pointerWidth);
+            backgroundPath.lineTo(tooltipRect.left,
+                tooltipRect.bottom - tooltipRect.height / 2 + pointerWidth);
+            backgroundPath.lineTo(tooltipRect.left - pointerLength, yPosition);
+            backgroundPath.lineTo(tooltipRect.left,
+                tooltipRect.top + tooltipRect.height / 2 - pointerWidth);
           }
         }
       }
-      _drawRectandText(canvas, backgroundPath, rectF, index);
+
+      double rectLeft = tooltipRect.left;
+      double rectRight = tooltipRect.right;
+
+      if (tooltipRect.width < axisClipRect.width &&
+          tooltipRect.height < axisClipRect.height) {
+        if (tooltipRect.left < axisClipRect.left) {
+          rectLeft = rectLeft + (axisClipRect.left - tooltipRect.left);
+          rectRight = rectRight + (axisClipRect.left - tooltipRect.left);
+        } else if (tooltipRect.right > axisClipRect.right) {
+          rectLeft = rectLeft - (tooltipRect.right - axisClipRect.right);
+          rectRight = rectRight - (tooltipRect.right - axisClipRect.right);
+        }
+        tooltipRect = Rect.fromLTRB(
+            rectLeft, tooltipRect.top, rectRight, tooltipRect.bottom);
+        if ((tooltipRect.left < axisClipRect.left) ||
+            tooltipRect.right > axisClipRect.right) {
+          tooltipRect = Rect.zero;
+        }
+
+        if (tooltipRect != Rect.zero) {
+          _drawRectandText(canvas, backgroundPath, tooltipRect, index);
+        }
+      } else {
+        tooltipRect = Rect.zero;
+      }
+
       xPos = null;
       yPos = null;
     }
   }
 
-  /// Draw trackball tooltip rect and text
+  TextStyle _getLabelStyle(FontWeight fontWeight, TextStyle labelStyle) {
+    return TextStyle(
+        fontWeight: fontWeight,
+        color: labelStyle.color,
+        fontSize: labelStyle.fontSize,
+        fontFamily: labelStyle.fontFamily,
+        fontStyle: labelStyle.fontStyle,
+        inherit: labelStyle.inherit,
+        backgroundColor: labelStyle.backgroundColor,
+        letterSpacing: labelStyle.letterSpacing,
+        wordSpacing: labelStyle.wordSpacing,
+        textBaseline: labelStyle.textBaseline,
+        height: labelStyle.height,
+        locale: labelStyle.locale,
+        foreground: labelStyle.foreground,
+        background: labelStyle.background,
+        shadows: labelStyle.shadows,
+        fontFeatures: labelStyle.fontFeatures,
+        decoration: labelStyle.decoration,
+        decorationColor: labelStyle.decorationColor,
+        decorationStyle: labelStyle.decorationStyle,
+        decorationThickness: labelStyle.decorationThickness,
+        debugLabel: labelStyle.debugLabel,
+        fontFamilyFallback: labelStyle.fontFamilyFallback);
+  }
+
+  double _getMultiLineTextOffset(RRect tooltipRect, String text, int index,
+      double totalLabelWidth, TextStyle style,
+      [double? previousWidth]) {
+    final double textOffsetX =
+        tooltipRect.left + tooltipRect.width / 2 + totalLabelWidth / 2;
+    final Size currentTextSize = measureText(text, style);
+    return textOffsetX -
+        currentTextSize.width -
+        (index == 0 ? 0 : previousWidth!);
+  }
+
+  /// Draw trackball tooltip rect and text.
   void _drawRectandText(
       Canvas canvas, Path backgroundPath, Rect rect, int index) {
+    const double textOffsetPadding = 4;
     final RenderingDetails renderingDetails = stateProperties.renderingDetails;
     final RRect tooltipRect = RRect.fromRectAndCorners(
       rect,
@@ -1156,7 +1229,7 @@ class TrackballPainter extends CustomPainter {
       ..isAntiAlias = false
       ..style = PaintingStyle.fill;
 
-    final Paint stokePaint = Paint()
+    final Paint strokePaint = Paint()
       ..color = chart.trackballBehavior.tooltipSettings.borderColor ??
           renderingDetails.chartTheme.crosshairBackgroundColor
       ..strokeWidth = chart.trackballBehavior.tooltipSettings.borderWidth
@@ -1164,7 +1237,7 @@ class TrackballPainter extends CustomPainter {
       ..isAntiAlias = false
       ..style = PaintingStyle.stroke;
 
-    canvas.drawPath(backgroundPath, stokePaint);
+    canvas.drawPath(backgroundPath, strokePaint);
     canvas.drawPath(backgroundPath, fillPaint);
     final Paint dividerPaint = Paint();
     dividerPaint.color = renderingDetails.chartTheme.tooltipSeparatorColor;
@@ -1182,6 +1255,7 @@ class TrackballPainter extends CustomPainter {
     double eachTextHeight = 0;
     Size labelSize;
     double totalHeight = 0;
+    final bool isRtl = stateProperties.renderingDetails.isRtl;
 
     for (int i = 0; i < stringValue.length; i++) {
       labelSize = measureText(stringValue[i].label, labelStyle);
@@ -1200,60 +1274,14 @@ class TrackballPainter extends CustomPainter {
           markerPadding = 10 - markerSize + 5;
         }
       }
-
       const double animationFactor = 1;
-      labelStyle = TextStyle(
-          fontWeight: FontWeight.normal,
-          color: labelStyle.color,
-          fontSize: labelStyle.fontSize,
-          fontFamily: labelStyle.fontFamily,
-          fontStyle: labelStyle.fontStyle,
-          inherit: labelStyle.inherit,
-          backgroundColor: labelStyle.backgroundColor,
-          letterSpacing: labelStyle.letterSpacing,
-          wordSpacing: labelStyle.wordSpacing,
-          textBaseline: labelStyle.textBaseline,
-          height: labelStyle.height,
-          locale: labelStyle.locale,
-          foreground: labelStyle.foreground,
-          background: labelStyle.background,
-          shadows: labelStyle.shadows,
-          fontFeatures: labelStyle.fontFeatures,
-          decoration: labelStyle.decoration,
-          decorationColor: labelStyle.decorationColor,
-          decorationStyle: labelStyle.decorationStyle,
-          decorationThickness: labelStyle.decorationThickness,
-          debugLabel: labelStyle.debugLabel,
-          fontFamilyFallback: labelStyle.fontFamilyFallback);
+      labelStyle = _getLabelStyle(FontWeight.normal, labelStyle);
       labelSize = measureText(stringValue[i].label, labelStyle);
       eachTextHeight += labelSize.height;
       if (!stringValue[i].label.contains(':') &&
           !stringValue[i].label.contains('<b>') &&
           !stringValue[i].label.contains('</b>')) {
-        labelStyle = TextStyle(
-            fontWeight: FontWeight.bold,
-            color: labelStyle.color,
-            fontSize: labelStyle.fontSize,
-            fontFamily: labelStyle.fontFamily,
-            fontStyle: labelStyle.fontStyle,
-            inherit: labelStyle.inherit,
-            backgroundColor: labelStyle.backgroundColor,
-            letterSpacing: labelStyle.letterSpacing,
-            wordSpacing: labelStyle.wordSpacing,
-            textBaseline: labelStyle.textBaseline,
-            height: labelStyle.height,
-            locale: labelStyle.locale,
-            foreground: labelStyle.foreground,
-            background: labelStyle.background,
-            shadows: labelStyle.shadows,
-            fontFeatures: labelStyle.fontFeatures,
-            decoration: labelStyle.decoration,
-            decorationColor: labelStyle.decorationColor,
-            decorationStyle: labelStyle.decorationStyle,
-            decorationThickness: labelStyle.decorationThickness,
-            debugLabel: labelStyle.debugLabel,
-            fontFamilyFallback: labelStyle.fontFamilyFallback);
-
+        labelStyle = _getLabelStyle(FontWeight.bold, labelStyle);
         _drawTooltipMarker(
             stringValue[i].label,
             canvas,
@@ -1270,9 +1298,9 @@ class TrackballPainter extends CustomPainter {
             canvas,
             stringValue[i].label,
             Offset(
-                markerPadding +
-                    (tooltipRect.left + tooltipRect.width / 2) -
-                    labelSize.width / 2,
+                (tooltipRect.left + tooltipRect.width / 2) -
+                    labelSize.width / 2 +
+                    (isRtl ? -markerPadding : markerPadding),
                 eachTextHeight - labelSize.height),
             labelStyle,
             0);
@@ -1286,32 +1314,18 @@ class TrackballPainter extends CustomPainter {
               final List<String> str1 = str[j].split(':');
               if (str1.length > 1) {
                 for (int k = 0; k < str1.length; k++) {
-                  final double width =
-                      k > 0 ? measureText(str1[k - 1], labelStyle).width : 0;
-                  str1[k] = k == 1 ? ':${str1[k]}' : str1[k];
-                  labelStyle = TextStyle(
-                      fontWeight: k > 0 ? FontWeight.bold : FontWeight.normal,
-                      color: labelStyle.color,
-                      fontSize: labelStyle.fontSize,
-                      fontFamily: labelStyle.fontFamily,
-                      fontStyle: labelStyle.fontStyle,
-                      inherit: labelStyle.inherit,
-                      backgroundColor: labelStyle.backgroundColor,
-                      letterSpacing: labelStyle.letterSpacing,
-                      wordSpacing: labelStyle.wordSpacing,
-                      textBaseline: labelStyle.textBaseline,
-                      height: labelStyle.height,
-                      locale: labelStyle.locale,
-                      foreground: labelStyle.foreground,
-                      background: labelStyle.background,
-                      shadows: labelStyle.shadows,
-                      fontFeatures: labelStyle.fontFeatures,
-                      decoration: labelStyle.decoration,
-                      decorationColor: labelStyle.decorationColor,
-                      decorationStyle: labelStyle.decorationStyle,
-                      decorationThickness: labelStyle.decorationThickness,
-                      debugLabel: labelStyle.debugLabel,
-                      fontFamilyFallback: labelStyle.fontFamilyFallback);
+                  double width = 0.0;
+                  if (isRtl) {
+                    str1[k] = k == 0 ? ': ${str1[k]}'.trim() : '${str1[k]} ';
+                    width = measureText(str1[0], labelStyle).width;
+                  } else {
+                    width =
+                        k > 0 ? measureText(str1[k - 1], labelStyle).width : 0;
+                    str1[k] = k == 1 ? ':${str1[k]}' : str1[k];
+                  }
+                  labelStyle = _getLabelStyle(
+                      k > 0 ? FontWeight.bold : FontWeight.normal, labelStyle);
+
                   if (k == 0) {
                     _drawTooltipMarker(
                         str1[k],
@@ -1329,48 +1343,47 @@ class TrackballPainter extends CustomPainter {
                   drawText(
                       canvas,
                       str1[k],
-                      Offset(
-                          (((!isGroupMode &&
+                      isRtl
+                          ? Offset(
+                              _getMultiLineTextOffset(
+                                    tooltipRect,
+                                    str1[k],
+                                    k,
+                                    labelSize.width,
+                                    labelStyle,
+                                    width,
+                                  ) -
+                                  ((!isGroupMode &&
                                           chart.trackballBehavior
                                               .tooltipSettings.canShowMarker)
-                                      ? (tooltipRect.left +
-                                          tooltipRect.width / 2 -
-                                          labelSize.width / 2)
-                                      : (tooltipRect.left + 4)) +
-                                  markerPadding) +
-                              width,
-                          (eachTextHeight - labelSize.height) + padding),
+                                      ? markerPadding
+                                      : textOffsetPadding),
+                              (eachTextHeight - labelSize.height) + padding)
+                          : Offset(
+                              (((!isGroupMode &&
+                                              chart
+                                                  .trackballBehavior
+                                                  .tooltipSettings
+                                                  .canShowMarker)
+                                          ? (tooltipRect.left +
+                                              tooltipRect.width / 2 -
+                                              labelSize.width / 2)
+                                          : (tooltipRect.left +
+                                              textOffsetPadding)) +
+                                      markerPadding) +
+                                  width,
+                              (eachTextHeight - labelSize.height) + padding),
                       labelStyle,
                       0);
+
                   padding = k > 0
                       ? padding +
                           (labelStyle.fontSize! + (labelStyle.fontSize! * 0.15))
                       : padding;
                 }
               } else {
-                labelStyle = TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: labelStyle.color,
-                    fontSize: labelStyle.fontSize,
-                    fontFamily: labelStyle.fontFamily,
-                    fontStyle: labelStyle.fontStyle,
-                    inherit: labelStyle.inherit,
-                    backgroundColor: labelStyle.backgroundColor,
-                    letterSpacing: labelStyle.letterSpacing,
-                    wordSpacing: labelStyle.wordSpacing,
-                    textBaseline: labelStyle.textBaseline,
-                    height: labelStyle.height,
-                    locale: labelStyle.locale,
-                    foreground: labelStyle.foreground,
-                    background: labelStyle.background,
-                    shadows: labelStyle.shadows,
-                    fontFeatures: labelStyle.fontFeatures,
-                    decoration: labelStyle.decoration,
-                    decorationColor: labelStyle.decorationColor,
-                    decorationStyle: labelStyle.decorationStyle,
-                    decorationThickness: labelStyle.decorationThickness,
-                    debugLabel: labelStyle.debugLabel,
-                    fontFamilyFallback: labelStyle.fontFamilyFallback);
+                labelStyle = _getLabelStyle(FontWeight.bold, labelStyle);
+
                 _drawTooltipMarker(
                     str1[str1.length - 1],
                     canvas,
@@ -1396,8 +1409,19 @@ class TrackballPainter extends CustomPainter {
                 drawText(
                     canvas,
                     str1[str1.length - 1],
-                    Offset(markerPadding + tooltipRect.left + 4,
-                        eachTextHeight - labelSize.height + padding),
+                    isRtl
+                        ? Offset(
+                            tooltipRect.right -
+                                measureText(str1[str1.length - 1], labelStyle)
+                                    .width -
+                                markerPadding -
+                                textOffsetPadding,
+                            eachTextHeight - labelSize.height + padding)
+                        : Offset(
+                            markerPadding +
+                                tooltipRect.left +
+                                textOffsetPadding,
+                            eachTextHeight - labelSize.height + padding),
                     labelStyle,
                     0);
                 padding = padding +
@@ -1405,6 +1429,8 @@ class TrackballPainter extends CustomPainter {
               }
             }
           } else {
+            final bool hasFormat =
+                chart.trackballBehavior.tooltipSettings.format != null;
             List<String> str1 = str[str.length - 1].split(':');
             final List<String> boldString = <String>[];
             if (str[str.length - 1].contains('<b>')) {
@@ -1436,41 +1462,28 @@ class TrackballPainter extends CustomPainter {
               final double width =
                   j > 0 ? measureText(str1[j - 1], labelStyle).width : 0;
               previousWidth += width;
-              final String colon = boldString.isNotEmpty
+              String colon = boldString.isNotEmpty
                   ? ''
                   : j > 0
                       ? ' :'
                       : '';
-              labelStyle = TextStyle(
-                  fontWeight:
-                      ((headerText && boldString.isEmpty) || xFormat || isBold)
-                          ? FontWeight.bold
-                          : j > 0
-                              ? boldString.isNotEmpty
-                                  ? FontWeight.normal
-                                  : FontWeight.bold
-                              : FontWeight.normal,
-                  color: labelStyle.color,
-                  fontSize: labelStyle.fontSize,
-                  fontFamily: labelStyle.fontFamily,
-                  fontStyle: labelStyle.fontStyle,
-                  inherit: labelStyle.inherit,
-                  backgroundColor: labelStyle.backgroundColor,
-                  letterSpacing: labelStyle.letterSpacing,
-                  wordSpacing: labelStyle.wordSpacing,
-                  textBaseline: labelStyle.textBaseline,
-                  height: labelStyle.height,
-                  locale: labelStyle.locale,
-                  foreground: labelStyle.foreground,
-                  background: labelStyle.background,
-                  shadows: labelStyle.shadows,
-                  fontFeatures: labelStyle.fontFeatures,
-                  decoration: labelStyle.decoration,
-                  decorationColor: labelStyle.decorationColor,
-                  decorationStyle: labelStyle.decorationStyle,
-                  decorationThickness: labelStyle.decorationThickness,
-                  debugLabel: labelStyle.debugLabel,
-                  fontFamilyFallback: labelStyle.fontFamilyFallback);
+              if (isRtl & !hasFormat) {
+                colon = boldString.isNotEmpty
+                    ? ''
+                    : j > 0
+                        ? ' : '
+                        : '';
+              }
+              labelStyle = _getLabelStyle(
+                  ((headerText && boldString.isEmpty) || xFormat || isBold)
+                      ? FontWeight.bold
+                      : j > 0
+                          ? boldString.isNotEmpty
+                              ? FontWeight.normal
+                              : FontWeight.bold
+                          : FontWeight.normal,
+                  labelStyle);
+
               if (j == 0) {
                 _drawTooltipMarker(
                     str1[j],
@@ -1485,7 +1498,6 @@ class TrackballPainter extends CustomPainter {
                     eachTextHeight,
                     index);
               }
-
               markerPadding =
                   chart.trackballBehavior.tooltipSettings.canShowMarker
                       ? markerPadding +
@@ -1495,16 +1507,33 @@ class TrackballPainter extends CustomPainter {
                                   ? 7
                                   : 0)
                       : 0;
-              drawText(
-                  canvas,
-                  colon + str1[j],
-                  Offset(
-                      markerPadding +
-                          (tooltipRect.left + 4) +
+              final Offset textEndPoint = Offset(
+                  isRtl
+                      ? tooltipRect.right - textOffsetPadding - markerPadding
+                      : markerPadding +
+                          (tooltipRect.left + textOffsetPadding) +
                           (previousWidth > width ? previousWidth : width),
-                      eachTextHeight - labelSize.height),
-                  labelStyle,
-                  0);
+                  eachTextHeight - labelSize.height);
+
+              if (!isRtl || (isRtl && !hasFormat)) {
+                drawText(
+                    canvas,
+                    isRtl ? str1[j] + colon : colon + str1[j],
+                    isRtl
+                        ? Offset(
+                            textEndPoint.dx -
+                                (previousWidth > width
+                                    ? previousWidth
+                                    : width) -
+                                measureText(str1[j] + colon, labelStyle).width,
+                            textEndPoint.dy)
+                        : textEndPoint,
+                    labelStyle,
+                    0);
+              } else {
+                _drawTextWithFormat(canvas, str1, labelStyle, textEndPoint);
+                break;
+              }
               headerText = false;
             }
           }
@@ -1513,7 +1542,55 @@ class TrackballPainter extends CustomPainter {
     }
   }
 
-  /// Draw marker inside the trackball tooltip
+  void _drawTextWithFormat(Canvas canvas, List<String> textCollection,
+      TextStyle labelStyle, Offset textEndPoint) {
+    final String arrangedText = _getRtlStringWithColon(textCollection);
+    final List<String> strings = arrangedText.split(':');
+    double previousWidth = 0.0;
+    for (int textCount = 0; textCount < strings.length; textCount++) {
+      final bool containsBackSpace = strings[textCount].endsWith(' ');
+      final bool containsFrontSpace = strings[textCount].startsWith(' ');
+      strings[textCount] = strings[textCount].trim();
+      if (containsFrontSpace) {
+        strings[textCount] = '${strings[textCount]} ';
+      }
+      if (containsBackSpace) {
+        strings[textCount] = ' ${strings[textCount]}';
+      }
+      final String currentText =
+          textCount > 0 ? '${strings[textCount]}:' : (strings[textCount]);
+      final Size currentTextSize = measureText(currentText, labelStyle);
+      previousWidth += currentTextSize.width;
+      drawText(
+          canvas,
+          currentText,
+          Offset(textEndPoint.dx - previousWidth, textEndPoint.dy),
+          labelStyle,
+          0);
+    }
+  }
+
+  String _getRtlStringWithColon(List<String> textCollection) {
+    String string = '';
+    for (int i = textCollection.length - 1; i >= 0; i--) {
+      final bool containsBackSpace = textCollection[i].endsWith(' ');
+      final bool containsFrontSpace = textCollection[i].startsWith(' ');
+      textCollection[i] = textCollection[i].trim();
+      if (containsFrontSpace) {
+        textCollection[i] = '${textCollection[i]} ';
+      }
+      if (containsBackSpace) {
+        textCollection[i] = ' ${textCollection[i]}';
+      }
+      string = string +
+          (i == textCollection.length - 1
+              ? textCollection[i]
+              : ':${textCollection[i]}');
+    }
+    return string;
+  }
+
+  /// Draw marker inside the trackball tooltip.
   void _drawTooltipMarker(
       String labelValue,
       Canvas canvas,
@@ -1530,26 +1607,27 @@ class TrackballPainter extends CustomPainter {
     final Size tooltipStringResult = tooltipMarkerResult;
     markerSize = 5;
     Offset markerPoint;
+    final bool isRtl = stateProperties.renderingDetails.isRtl;
     if (chart.trackballBehavior.tooltipSettings.canShowMarker) {
       if (!isGroupMode) {
         if (seriesRendererDetails!.seriesType.contains('hilo') == true ||
             seriesRendererDetails.seriesType.contains('candle') == true ||
             seriesRendererDetails.seriesType.contains('boxandwhisker') ==
                 true) {
+          final double markerStartPoint = isRtl
+              ? tooltipStringResult.width / 2 + markerSize
+              : -tooltipMarkerResult.width / 2 - markerSize;
           markerPoint = Offset(
-              tooltipRect.left +
-                  tooltipRect.width / 2 -
-                  tooltipStringResult.width / 2 -
-                  markerSize,
+              tooltipRect.left + tooltipRect.width / 2 + markerStartPoint,
               (eachTextHeight - tooltipStringResult.height / 2) + 0.0);
           _renderMarker(markerPoint, seriesRendererDetails, animationFactor,
               canvas, index);
         } else {
+          final double markerStartPoint = isRtl
+              ? tooltipStringResult.width / 2 + markerSize
+              : -tooltipMarkerResult.width / 2 - markerSize;
           markerPoint = Offset(
-              (tooltipRect.left +
-                      tooltipRect.width / 2 -
-                      tooltipStringResult.width / 2) -
-                  markerSize,
+              tooltipRect.left + tooltipRect.width / 2 + markerStartPoint,
               ((tooltipRect.top + tooltipRect.height) -
                       tooltipStringResult.height / 2) -
                   markerSize);
@@ -1567,15 +1645,17 @@ class TrackballPainter extends CustomPainter {
                       .chart.trackballBehavior.tooltipSettings.format ==
                   null) {
             if (previousWidth != null && width != null) {
+              final double markerStartPoint =
+                  isRtl ? (tooltipRect.right - 10) : (tooltipRect.left + 10);
               markerPoint = Offset(
-                  (tooltipRect.left + 10) +
+                  markerStartPoint +
                       (previousWidth > width ? previousWidth : width),
                   eachTextHeight - tooltipMarkerResult.height / 2);
               _renderMarker(markerPoint, seriesRendererDetails, animationFactor,
                   canvas, index);
             } else if (stringValue[i].needRender) {
               markerPoint = Offset(
-                  tooltipRect.left + 10,
+                  isRtl ? tooltipRect.right - 10 : tooltipRect.left + 10,
                   (headerSize!.height * 2 +
                           tooltipRect.top +
                           markerSize +
@@ -1589,10 +1669,11 @@ class TrackballPainter extends CustomPainter {
                   canvas, index);
             }
           } else {
+            final double markerStartPoint = isRtl
+                ? tooltipStringResult.width / 2 + markerSize
+                : -tooltipMarkerResult.width / 2 - markerSize;
             markerPoint = Offset(
-                ((tooltipRect.left + tooltipRect.width / 2) -
-                        tooltipMarkerResult.width / 2) -
-                    markerSize,
+                (tooltipRect.left + tooltipRect.width / 2) + markerStartPoint,
                 eachTextHeight - tooltipMarkerResult.height / 2);
             _renderMarker(markerPoint, seriesRendererDetails, animationFactor,
                 canvas, index);
@@ -1602,84 +1683,88 @@ class TrackballPainter extends CustomPainter {
     }
   }
 
-  // To render marker for the chart tooltip
+  // To render marker for the chart tooltip.
   void _renderMarker(
       Offset markerPoint,
-      SeriesRendererDetails _seriesRendererDetails,
+      SeriesRendererDetails seriesRendererDetails,
       double animationFactor,
       Canvas canvas,
       int index) {
     final MarkerSettings markerSettings =
         chart.trackballBehavior.markerSettings == null
-            ? _seriesRendererDetails.series.markerSettings
+            ? seriesRendererDetails.series.markerSettings
             : chart.trackballBehavior.markerSettings!;
     final Path markerPath = getMarkerShapesPath(
         markerSettings.shape,
         markerPoint,
         Size((2 * markerSize) * animationFactor,
             (2 * markerSize) * animationFactor),
-        _seriesRendererDetails);
+        seriesRendererDetails,
+        index,
+        chart.trackballBehavior);
 
-    Color? _seriesColor;
-    if (_seriesRendererDetails.seriesType.contains('candle') == true) {
-      _seriesColor = SegmentHelper.getSegmentProperties(_seriesRendererDetails
-                      .segments[chartPointInfo[index].dataPointIndex!])
-                  .isBull ==
-              true
-          ? _seriesRendererDetails.candleSeries.bullColor
-          : _seriesRendererDetails.candleSeries.bearColor;
-    } else if (_seriesRendererDetails.seriesType.contains('hiloopenclose') ==
+    if (markerSettings.shape == DataMarkerType.image) {
+      drawImageMarker(null, canvas, markerPoint.dx, markerPoint.dy,
+          chart.trackballBehavior.markerSettings, stateProperties);
+    }
+
+    Color? seriesColor;
+    if (seriesRendererDetails.seriesType.contains('candle') == true) {
+      seriesColor = SegmentHelper.getSegmentProperties(seriesRendererDetails
+              .segments[chartPointInfo[index].dataPointIndex!])
+          .color;
+    } else if (seriesRendererDetails.seriesType.contains('hiloopenclose') ==
         true) {
-      _seriesColor = SegmentHelper.getSegmentProperties(_seriesRendererDetails
+      seriesColor = SegmentHelper.getSegmentProperties(seriesRendererDetails
                       .segments[chartPointInfo[index].dataPointIndex!])
                   .isBull ==
               true
-          ? _seriesRendererDetails.hiloOpenCloseSeries.bullColor
-          : _seriesRendererDetails.hiloOpenCloseSeries.bearColor;
+          ? seriesRendererDetails.hiloOpenCloseSeries.bullColor
+          : seriesRendererDetails.hiloOpenCloseSeries.bearColor;
     } else {
-      _seriesColor = (chartPointInfo[index].dataPointIndex! <
-                  _seriesRendererDetails.dataPoints.length
-              ? _seriesRendererDetails
-                  .dataPoints[chartPointInfo[index].dataPointIndex!]
+      final List<CartesianChartPoint<dynamic>> dataPoints =
+          getSampledData(seriesRendererDetails);
+      seriesColor = (chartPointInfo[index].dataPointIndex! < dataPoints.length
+              ? dataPoints[chartPointInfo[index].dataPointIndex!]
                   .pointColorMapper
               : null) ??
-          _seriesRendererDetails.seriesColor;
+          seriesRendererDetails.seriesColor;
     }
 
     Paint markerPaint = Paint();
-    markerPaint.color = markerSettings.color ?? _seriesColor ?? Colors.white;
-    if (_seriesRendererDetails.series.gradient != null) {
+    markerPaint.color = markerSettings.color ?? seriesColor ?? Colors.white;
+    if (seriesRendererDetails.series.gradient != null) {
       markerPaint = getLinearGradientPaint(
-          _seriesRendererDetails.series.gradient!,
+          seriesRendererDetails.series.gradient!,
           getMarkerShapesPath(
                   markerSettings.shape,
                   Offset(markerPoint.dx, markerPoint.dy),
                   Size((2 * markerSize) * animationFactor,
                       (2 * markerSize) * animationFactor),
-                  _seriesRendererDetails)
+                  seriesRendererDetails)
               .getBounds(),
-          _seriesRendererDetails.stateProperties.requireInvertedAxis);
+          seriesRendererDetails.stateProperties.requireInvertedAxis);
     }
     canvas.drawPath(markerPath, markerPaint);
     Paint markerBorderPaint = Paint();
     markerBorderPaint.color = markerSettings.borderColor ??
-        _seriesColor ??
-        _seriesRendererDetails
+        seriesColor ??
+        seriesRendererDetails
             .stateProperties.renderingDetails.chartTheme.tooltipLabelColor;
     markerBorderPaint.strokeWidth = 1;
     markerBorderPaint.style = PaintingStyle.stroke;
 
-    if (_seriesRendererDetails.series.gradient != null) {
+    if (seriesRendererDetails.series.gradient != null) {
       markerBorderPaint = getLinearGradientPaint(
-          _seriesRendererDetails.series.gradient!,
+          seriesRendererDetails.series.gradient!,
           getMarkerShapesPath(
                   markerSettings.shape,
                   Offset(markerPoint.dx, markerPoint.dy),
                   Size((2 * markerSize) * animationFactor,
                       (2 * markerSize) * animationFactor),
-                  _seriesRendererDetails)
+                  seriesRendererDetails)
               .getBounds(),
-          _seriesRendererDetails.stateProperties.requireInvertedAxis);
+          seriesRendererDetails.stateProperties.requireInvertedAxis);
     }
     canvas.drawPath(markerPath, markerBorderPaint);
   }
@@ -1687,6 +1772,6 @@ class TrackballPainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 
-  /// Return value as string
+  /// Return value as string.
   String getFormattedValue(num value) => value.toString();
 }

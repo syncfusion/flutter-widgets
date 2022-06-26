@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "ምንም ክስተቶች የሉም", 
 "ofDataPagerLabel" : "የ", 
 "pagesDataPagerLabel" : "ገጾች", 
-"itemsDataPagerLabel" : "እቃዎች", 
+"rowsPerPageDataPagerLabel" : "ረድፎች በገጽ", 
 "pdfBookmarksLabel" : "ዕልባቶች", 
 "pdfNoBookmarksLabel" : "ምንም ዕልባቶች አልተገኙም።", 
 "pdfScrollStatusOfLabel" : "የ", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "ሻው", 
 "shortDhualqiLabel" : "ዙል-ቁ", 
 "shortDhualhiLabel" : "ዙል-ሀ", 
-"daySpanCountLabel" : "ቀን"
+"daySpanCountLabel" : "ቀን", 
+"series" : "ተከታታይ"
 }

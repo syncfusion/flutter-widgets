@@ -233,6 +233,7 @@ class CompressedStreamWriter {
         return 7;
       case PdfCompressionLevel.best:
         return 9;
+      // ignore: no_default_cases
       default:
         return null;
     }
@@ -338,6 +339,7 @@ class CompressedStreamWriter {
         case PdfCompressionLevel.belowNormal:
           success = _compressFast(canFlush, finish);
           break;
+        // ignore: no_default_cases
         default:
           success = _compressSlow(canFlush, finish);
           break;

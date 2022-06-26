@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 import '../chart_series/series.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
@@ -15,7 +15,7 @@ import 'chart_segment.dart';
 /// It gets the path, stroke color and fill color from the `series` to render the bar segment.
 ///
 class BarSegment extends ChartSegment {
-  /// Rectangle of the segment this could be used to render the segment while overriding this segment
+  /// The rectangle of the segment. This could be used to render a segment while overriding this segment.
   late RRect segmentRect;
 
   late SegmentProperties _segmentProperties;
@@ -27,7 +27,7 @@ class BarSegment extends ChartSegment {
     _setSegmentProperties();
     if (_segmentProperties.series.gradient == null) {
       fillPaint = Paint()
-        ..color = _segmentProperties.currentPoint!.isEmpty == true
+        ..color = (_segmentProperties.currentPoint!.isEmpty ?? false)
             ? _segmentProperties.series.emptyPointSettings.color
             : (_segmentProperties.currentPoint!.pointColorMapper ??
                 _segmentProperties.color!)
@@ -60,15 +60,16 @@ class BarSegment extends ChartSegment {
     _setSegmentProperties();
     strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+      ..strokeWidth = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderWidth
           : _segmentProperties.strokeWidth!;
     (_segmentProperties.series.borderGradient != null)
         ? strokePaint!.shader = _segmentProperties.series.borderGradient!
             .createShader(_segmentProperties.currentPoint!.region!)
-        : strokePaint!.color = _segmentProperties.currentPoint!.isEmpty == true
-            ? _segmentProperties.series.emptyPointSettings.borderColor
-            : _segmentProperties.strokeColor!;
+        : strokePaint!.color =
+            (_segmentProperties.currentPoint!.isEmpty ?? false)
+                ? _segmentProperties.series.emptyPointSettings.borderColor
+                : _segmentProperties.strokeColor!;
     _segmentProperties.series.borderWidth == 0
         ? strokePaint!.color = Colors.transparent
         : strokePaint!.color;
@@ -110,7 +111,7 @@ class BarSegment extends ChartSegment {
     }
   }
 
-  /// To draw Segment rect of bar segment
+  /// To draw Segment rect of bar segment.
   void _drawSegmentRect(Canvas canvas, RRect segmentRect, Paint paint) {
     (_segmentProperties.series.animationDuration > 0 == true)
         ? animateRectSeries(
@@ -126,7 +127,7 @@ class BarSegment extends ChartSegment {
         : canvas.drawRRect(segmentRect, paint);
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

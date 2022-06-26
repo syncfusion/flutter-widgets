@@ -43,12 +43,7 @@ class GaugeRange extends LeafRenderObjectWidget {
       : startWidth =
             startWidth = startWidth ?? (label != null ? startWidth : 10),
         endWidth = endWidth = endWidth ?? (label != null ? endWidth : 10),
-        labelStyle = labelStyle ??
-            const GaugeTextStyle(
-                fontSize: 12.0,
-                fontFamily: 'Segoe UI',
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.normal),
+        labelStyle = labelStyle ?? const GaugeTextStyle(),
         assert(
             (gradient != null && gradient is SweepGradient) || gradient == null,
             'The gradient must be null or else the gradient must be equal'

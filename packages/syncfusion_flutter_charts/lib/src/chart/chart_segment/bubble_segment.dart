@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
+import '../../../charts.dart';
+import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/common.dart';
@@ -15,10 +14,8 @@ import 'chart_segment.dart';
 /// used to customize the bubble series segment point calculation.
 ///
 /// Gets the path, stroke color and fill color from the `series` to render the bubble series.
-///
-
 class BubbleSegment extends ChartSegment {
-  ///Center position of the bubble and size
+  /// Center position of the bubble and size.
   late double _centerX, _centerY, _radius, _size;
 
   late SegmentProperties _segmentProperties;
@@ -34,7 +31,7 @@ class BubbleSegment extends ChartSegment {
     if (bubbleSegmentProperties.series.gradient == null) {
       if (bubbleSegmentProperties.color != null) {
         fillPaint = Paint()
-          ..color = bubbleSegmentProperties.currentPoint!.isEmpty == true
+          ..color = (bubbleSegmentProperties.currentPoint!.isEmpty ?? false)
               ? bubbleSegmentProperties.series.emptyPointSettings.color
               : ((hasPointColor &&
                       bubbleSegmentProperties.currentPoint!.pointColorMapper !=
@@ -72,23 +69,23 @@ class BubbleSegment extends ChartSegment {
   Paint getStrokePaint() {
     _setSegmentProperties();
     final SegmentProperties bubbleSegmentProperties = _segmentProperties;
-    final Paint _strokePaint = Paint()
+    final Paint strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = bubbleSegmentProperties.currentPoint!.isEmpty == true
+      ..strokeWidth = (bubbleSegmentProperties.currentPoint!.isEmpty ?? false)
           ? bubbleSegmentProperties.series.emptyPointSettings.borderWidth
           : bubbleSegmentProperties.strokeWidth!;
     bubbleSegmentProperties.series.borderGradient != null
-        ? _strokePaint.shader = bubbleSegmentProperties.series.borderGradient!
+        ? strokePaint.shader = bubbleSegmentProperties.series.borderGradient!
             .createShader(bubbleSegmentProperties.currentPoint!.region!)
-        : _strokePaint.color =
-            bubbleSegmentProperties.currentPoint!.isEmpty == true
+        : strokePaint.color =
+            (bubbleSegmentProperties.currentPoint!.isEmpty ?? false)
                 ? bubbleSegmentProperties.series.emptyPointSettings.borderColor
                 : bubbleSegmentProperties.strokeColor!;
     bubbleSegmentProperties.series.borderWidth == 0
-        ? _strokePaint.color = Colors.transparent
-        : _strokePaint.color;
-    bubbleSegmentProperties.defaultStrokeColor = _strokePaint;
-    return _strokePaint;
+        ? strokePaint.color = Colors.transparent
+        : strokePaint.color;
+    bubbleSegmentProperties.defaultStrokeColor = strokePaint;
+    return strokePaint;
   }
 
   /// Calculates the rendering bounds of a segment.
@@ -115,12 +112,11 @@ class BubbleSegment extends ChartSegment {
         rect);
     _centerX = location.x;
     _centerY = location.y;
-    if (bubbleSegmentProperties.seriesRenderer is BubbleSeriesRenderer) {
+    if (bubbleSegmentProperties.seriesRenderer is BubbleSeriesRenderer)
       _radius = calculateBubbleRadius(
           seriesRendererDetails,
           bubbleSegmentProperties.series,
           bubbleSegmentProperties.currentPoint!);
-    }
     bubbleSegmentProperties.currentPoint!.region = Rect.fromLTRB(
         location.x - 2 * _radius,
         location.y - 2 * _radius,
@@ -190,7 +186,7 @@ class BubbleSegment extends ChartSegment {
     }
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Tədbir yoxdur", 
 "ofDataPagerLabel" : "of", 
 "pagesDataPagerLabel" : "səhifələr", 
-"itemsDataPagerLabel" : "maddələr", 
+"rowsPerPageDataPagerLabel" : "Səhifə başına satırlar", 
 "pdfBookmarksLabel" : "Əlfəcinlər", 
 "pdfNoBookmarksLabel" : "Əlfəcin tapılmadı", 
 "pdfScrollStatusOfLabel" : "of", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Şou.", 
 "shortDhualqiLabel" : "Zül-Q", 
 "shortDhualhiLabel" : "Zül-H", 
-"daySpanCountLabel" : "Gün"
+"daySpanCountLabel" : "Gün", 
+"series" : "Serial"
 }

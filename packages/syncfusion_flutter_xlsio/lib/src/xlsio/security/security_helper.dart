@@ -32,8 +32,7 @@ List<int> _combineArray(List<int> buffer1, List<int> buffer2) {
 }
 
 List<int> _getBytes(int value) {
-  final Uint8List int32Bytes =
-      Uint8List.fromList(List<int>.filled(4, 0, growable: false))
-        ..buffer.asByteData().setInt32(0, value, Endian.big);
+  final Uint8List int32Bytes = Uint8List.fromList(List<int>.filled(4, 0))
+    ..buffer.asByteData().setInt32(0, value);
   return int32Bytes.toList().reversed.toList();
 }

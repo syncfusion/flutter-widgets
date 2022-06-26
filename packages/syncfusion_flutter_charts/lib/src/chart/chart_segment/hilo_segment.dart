@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
+
+import '../../../charts.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import 'chart_segment.dart';
 
-/// Creates the segments for Hilo series.
+/// Creates the segments for hilo series.
 ///
-/// Generates the Hilo series points and has the [calculateSegmentPoints] method overrided to customize
-/// the Hilo segment point calculation.
+/// Generates the hilo series points and has the [calculateSegmentPoints] method overrided to customize
+/// the hilo segment point calculation.
 ///
 /// Gets the path and color from the `series`.
 class HiloSegment extends ChartSegment {
@@ -28,48 +29,48 @@ class HiloSegment extends ChartSegment {
   Paint getFillPaint() {
     _setSegmentProperties();
 
-    final Paint _fillPaint = Paint();
+    final Paint fillPaint = Paint();
     assert(_segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the Hilo series will not accept negative numbers.');
     assert(_segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the Hilo series must be less than or equal to 1.');
     if (_segmentProperties.color != null) {
-      _fillPaint.color = _segmentProperties.pointColorMapper ??
+      fillPaint.color = _segmentProperties.pointColorMapper ??
           _segmentProperties.color!
               .withOpacity(_segmentProperties.series.opacity);
     }
-    _fillPaint.strokeWidth = _segmentProperties.strokeWidth!;
-    _fillPaint.style = PaintingStyle.fill;
-    _segmentProperties.defaultFillColor = _fillPaint;
-    return _fillPaint;
+    fillPaint.strokeWidth = _segmentProperties.strokeWidth!;
+    fillPaint.style = PaintingStyle.fill;
+    _segmentProperties.defaultFillColor = fillPaint;
+    return fillPaint;
   }
 
   /// Gets the stroke color of the series.
   @override
   Paint getStrokePaint() {
     _setSegmentProperties();
-    final Paint _strokePaint = Paint();
+    final Paint strokePaint = Paint();
     assert(_segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the Hilo series should be greater than or equal to 0.');
     assert(_segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the Hilo series should be less than or equal to 1.');
     if (_segmentProperties.strokeColor != null) {
-      _strokePaint.color = _segmentProperties.currentPoint!.isEmpty != null &&
+      strokePaint.color = _segmentProperties.currentPoint!.isEmpty != null &&
               _segmentProperties.currentPoint!.isEmpty! == true
           ? _segmentProperties.series.emptyPointSettings.color
           : _segmentProperties.pointColorMapper ??
               _segmentProperties.strokeColor!;
-      _strokePaint.color = (_segmentProperties.series.opacity < 1 == true &&
-              _strokePaint.color != Colors.transparent)
-          ? _strokePaint.color.withOpacity(_segmentProperties.series.opacity)
-          : _strokePaint.color;
+      strokePaint.color = (_segmentProperties.series.opacity < 1 == true &&
+              strokePaint.color != Colors.transparent)
+          ? strokePaint.color.withOpacity(_segmentProperties.series.opacity)
+          : strokePaint.color;
     }
-    _strokePaint.strokeWidth = _segmentProperties.strokeWidth!;
-    _strokePaint.style = PaintingStyle.stroke;
-    _strokePaint.strokeCap = StrokeCap.round;
-    _segmentProperties.defaultStrokeColor = _strokePaint;
-    setShader(_segmentProperties, _strokePaint);
-    return _strokePaint;
+    strokePaint.strokeWidth = _segmentProperties.strokeWidth!;
+    strokePaint.style = PaintingStyle.stroke;
+    strokePaint.strokeCap = StrokeCap.round;
+    _segmentProperties.defaultStrokeColor = strokePaint;
+    setShader(_segmentProperties, strokePaint);
+    return strokePaint;
   }
 
   /// Calculates the rendering bounds of a segment.
@@ -190,7 +191,7 @@ class HiloSegment extends ChartSegment {
     }
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

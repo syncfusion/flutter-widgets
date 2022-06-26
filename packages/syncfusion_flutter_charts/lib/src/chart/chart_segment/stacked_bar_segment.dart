@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/common.dart';
+import '../../../charts.dart';
+import '../common/common.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 import 'chart_segment.dart';
@@ -12,12 +12,12 @@ import 'chart_segment.dart';
 ///
 /// Gets the path and color from the `series`.
 class StackedBarSegment extends ChartSegment {
-  /// Stacked values
+  /// Stacked values.
   late double stackValues;
 
   late StackedBarSeries<dynamic, dynamic> _stackedBarSeries;
 
-  /// Rectangle of the segment this could be used to render the segment while overriding this segment
+  /// Rectangle of the segment this could be used to render the segment while overriding this segment.
   late RRect segmentRect;
 
   /// Gets the color of the series.

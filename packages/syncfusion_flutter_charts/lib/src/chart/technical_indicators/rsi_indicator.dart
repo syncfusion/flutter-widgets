@@ -3,15 +3,15 @@ import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import 'technical_indicator.dart';
 
-///Renders relative strength index (RSI) indicator.
+/// Renders relative strength index (RSI) indicator.
 ///
-///The relative strength index (RSI) is a momentum indicator that measures the magnitude of recent price
+/// The relative strength index (RSI) is a momentum indicator that measures the magnitude of recent price
 /// changes to evaluate [overbought] or [oversold] conditions.
 ///
-///The RSI indicator has additional two lines other than the signal line.They indicate the [overbought] and [oversold] region.
+/// The RSI indicator has additional two lines other than the signal line.They indicate the [overbought] and [oversold] region.
 ///
-///The [upperLineColor] property is used to define the color for the line that indicates [overbought] region, and
-///the [lowerLineColor] property is used to define the color for the line that indicates [oversold] region.
+/// The [upperLineColor] property is used to define the color for the line that indicates [overbought] region, and
+/// the [lowerLineColor] property is used to define the color for the line that indicates [oversold] region.
 @immutable
 class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of RsiIndicator class.
@@ -65,123 +65,165 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
             period: period,
             onRenderDetailsUpdate: onRenderDetailsUpdate);
 
-  ///ShowZones boolean value for RSI indicator
+  /// Show zones boolean value for RSI indicator.
   ///
-  ///Defaults to `true`.
+  /// Defaults to `true`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                showZones : false,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        showZones : false
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final bool showZones;
 
-  ///Overbought value for RSI indicator.
+  /// Overbought value for RSI indicator.
   ///
-  ///Defaults to `80`.
+  /// Defaults to `80`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                overbought : 50,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        overbought : 50
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double overbought;
 
-  ///Oversold value for RSI indicator.
+  /// Oversold value for RSI indicator.
   ///
-  ///Defaults to `20`.
+  /// Defaults to `20`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                oversold : 30,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        oversold : 30
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double oversold;
 
-  ///Color of the upperLine for RSI indicator.
+  /// Color of the upper line for RSI indicator.
   ///
-  ///Defaults to `red`.
+  /// Defaults to `Colors.red`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                 upperLineColor : Colors.greenAccent,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        upperLineColor : Colors.greenAccent
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final Color upperLineColor;
 
-  ///Width of the upperLine for RSI indicator.
+  /// Width of the upper line for RSI indicator.
   ///
-  ///Defaults to `2`.
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                 upperLineWidth : 4.0,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        upperLineWidth : 4.0
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double upperLineWidth;
 
-  ///Color of the lowerLine for RSI indicator.
+  /// Color of the lower line for RSI indicator.
   ///
-  ///Defaults to `green`.
+  /// Defaults to `Colors.green`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                 lowerLineColor : Colors.blue,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        lowerLineColor : Colors.blue
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final Color lowerLineColor;
 
-  ///Width of the upperLine for RSI indicator.
+  /// Width of the lower line for RSI indicator.
   ///
-  ///Defaults to `2`.
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            RsiIndicator<dynamic, dynamic>(
-  ///                 lowerLineWidth : 4.0,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      RsiIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        lowerLineWidth : 4.0
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double lowerLineWidth;
 
   @override

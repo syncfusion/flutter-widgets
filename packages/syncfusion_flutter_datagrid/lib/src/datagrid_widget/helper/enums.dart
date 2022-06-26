@@ -115,10 +115,9 @@ enum ColumnWidthMode {
   /// be added along with the auto size.
   fitByCellValue,
 
-  /// Applies `SfDataGrid.defaultColumnWidth` or [GridColumn.width] to all the
-  /// columns except last column which is visible and the remaining width
-  /// from total width of [SfDataGrid] is set to last column if `width` of this
-  /// column is not set.
+  /// Calculates the auto width for all the columns except the last column which
+  /// is visible and the remaining width from total width of [SfDataGrid] is set
+  /// to last column if `width` of this column is not set.
   lastColumnFill,
 
   /// Divides the total width equally for columns.

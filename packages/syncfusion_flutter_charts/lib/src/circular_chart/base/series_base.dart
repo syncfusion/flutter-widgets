@@ -11,47 +11,48 @@ import '../renderer/chart_point.dart';
 import '../renderer/circular_series.dart';
 import '../renderer/common.dart';
 import '../renderer/data_label_renderer.dart';
+import '../renderer/radial_bar_series.dart';
 import '../renderer/renderer_extension.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import 'circular_base.dart';
 import 'circular_state_properties.dart';
 
-/// Represents the circular series base
+/// Represents the circular series base.
 ///
 class CircularSeriesBase {
-  /// Creates the instance for the circular series base
+  /// Creates the instance for the circular series base.
   CircularSeriesBase(this.stateProperties);
 
-  /// Represents the  circular chart state
+  /// Represents the  circular chart state.
   final CircularStateProperties stateProperties;
 
-  /// Gets the chart widget from the state properties
+  /// Gets the chart widget from the state properties.
   SfCircularChart get chart => stateProperties.chart;
 
-  /// Specifies the current circular series
+  /// Specifies the current circular series.
   late CircularSeries<dynamic, dynamic> currentSeries;
 
-  /// Specifies the value of size
+  /// Specifies the value of size.
   late num size;
 
-  /// Specifies the value of sum of group
+  /// Specifies the value of sum of group.
   late num sumOfGroup;
 
-  /// Specifies the value of exploded region
+  /// Specifies the value of exploded region.
   late Region explodedRegion;
 
-  /// Specifies the value of select region
+  /// Specifies the value of select region.
   late Region selectRegion;
 
-  /// Specifies the list that holds the visible series renderers
+  /// Specifies the list that holds the visible series renderers.
   List<CircularSeriesRendererExtension> visibleSeriesRenderers =
       <CircularSeriesRendererExtension>[];
 
-  /// To find the visible series
+  /// To find the visible series.
   void findVisibleSeries() {
     CircularSeries<dynamic, dynamic> series;
-    List<ChartPoint<dynamic>>? _oldPoints;
+    List<ChartPoint<dynamic>>? oldPoints;
     CircularSeries<dynamic, dynamic>? oldSeries;
     int oldPointIndex = 0;
     ChartPoint<dynamic> currentPoint;
@@ -61,7 +62,7 @@ class CircularSeriesBase {
       series = seriesRenderer.series = chart.series[0];
       seriesRenderer.dataPoints = <ChartPoint<dynamic>>[];
       seriesRenderer.needsAnimation = false;
-      _oldPoints = stateProperties.prevSeriesRenderer?.oldRenderPoints;
+      oldPoints = stateProperties.prevSeriesRenderer?.oldRenderPoints;
       oldSeries = stateProperties.prevSeriesRenderer?.series;
       oldPointIndex = 0;
       if (series.dataSource != null) {
@@ -78,11 +79,11 @@ class CircularSeriesBase {
                         (oldSeries.endAngle != series.endAngle);
               }
 
-              seriesRenderer.needsAnimation = !(_oldPoints != null &&
-                      _oldPoints.isNotEmpty &&
+              seriesRenderer.needsAnimation = !(oldPoints != null &&
+                      oldPoints.isNotEmpty &&
                       !seriesRenderer.needsAnimation &&
-                      oldPointIndex < _oldPoints.length) ||
-                  isDataUpdated(currentPoint, _oldPoints[oldPointIndex++]);
+                      oldPointIndex < oldPoints.length) ||
+                  isDataUpdated(currentPoint, oldPoints[oldPointIndex++]);
             }
           }
         }
@@ -98,14 +99,14 @@ class CircularSeriesBase {
     }
   }
 
-  /// Method to check whether the data is updated
+  /// Method to check whether the data is updated.
   bool isDataUpdated(ChartPoint<dynamic> point, ChartPoint<dynamic> oldPoint) {
     return point.x != oldPoint.x ||
         point.y != oldPoint.y ||
         point.sortValue != oldPoint.sortValue;
   }
 
-  /// To calculate circular empty points in chart
+  /// To calculate circular empty points in chart.
   void _calculateCircularEmptyPoints(
       CircularSeriesRendererExtension seriesRenderer) {
     final List<ChartPoint<dynamic>> points = seriesRenderer.dataPoints;
@@ -117,14 +118,14 @@ class CircularSeriesBase {
     }
   }
 
-  /// To process data points from series
+  /// To process data points from series.
   void processDataPoints(CircularSeriesRendererExtension seriesRenderer) {
     currentSeries = seriesRenderer.series;
     _calculateCircularEmptyPoints(seriesRenderer);
     _findingGroupPoints();
   }
 
-  /// Sort the dataSource
+  /// Sort the dataSource.
   void _sortDataSource(CircularSeriesRendererExtension seriesRenderer) {
     seriesRenderer.dataPoints.sort(
         // ignore: missing_return
@@ -158,7 +159,7 @@ class CircularSeriesBase {
     });
   }
 
-  /// To group points based on group mode
+  /// To group points based on group mode.
   void _findingGroupPoints() {
     final List<CircularSeriesRendererExtension> seriesRenderers =
         stateProperties.chartSeries.visibleSeriesRenderers;
@@ -202,7 +203,7 @@ class CircularSeriesBase {
     _setPointStyle(seriesRenderer);
   }
 
-  /// To set point properties
+  /// To set point properties.
   void _setPointStyle(CircularSeriesRendererExtension seriesRenderer) {
     final EmptyPointSettings empty = currentSeries.emptyPointSettings;
     final List<Color> palette = chart.palette;
@@ -257,7 +258,7 @@ class CircularSeriesBase {
     }
   }
 
-  /// To calculate angle, radius and center positions of circular charts
+  /// To calculate angle, radius and center positions of circular charts.
   void calculateAngleAndCenterPositions(
       CircularSeriesRendererExtension seriesRenderer) {
     currentSeries = seriesRenderer.series;
@@ -269,7 +270,7 @@ class CircularSeriesBase {
     _calculateCenterPosition(seriesRenderer);
   }
 
-  /// To calculate circular rect position  for  rendering chart
+  /// To calculate circular rect position  for  rendering chart.
   void _calculateCenterPosition(
       CircularSeriesRendererExtension seriesRenderer) {
     if (stateProperties.needToMoveFromCenter &&
@@ -316,7 +317,7 @@ class CircularSeriesBase {
     }
   }
 
-  /// To calculate start and end angle of circular charts
+  /// To calculate start and end angle of circular charts.
   void _calculateStartAndEndAngle(
       CircularSeriesRendererExtension seriesRenderer) {
     int pointIndex = 0;
@@ -324,36 +325,84 @@ class CircularSeriesBase {
     num pointStartAngle = seriesRenderer.segmentRenderingValues['start']!;
     final num innerRadius =
         seriesRenderer.segmentRenderingValues['currentInnerRadius']!;
+    num? ringSize;
+    int? firstVisible;
+    num? gap;
+    late RadialBarSeriesRendererExtension radialBarSeriesRenderer;
+    final bool radialSeries = seriesRenderer.seriesType == 'radialbar';
+    if (radialSeries) {
+      radialBarSeriesRenderer =
+          seriesRenderer as RadialBarSeriesRendererExtension;
+      radialBarSeriesRenderer.innerRadius =
+          seriesRenderer.segmentRenderingValues['currentInnerRadius']!;
+      firstVisible = seriesRenderer.getFirstVisiblePointIndex(seriesRenderer);
+      ringSize = (seriesRenderer.segmentRenderingValues['currentRadius']! -
+                  seriesRenderer.segmentRenderingValues['currentInnerRadius']!)
+              .abs() /
+          seriesRenderer.renderPoints!.length;
+      gap = percentToValue(
+          seriesRenderer.series.gap,
+          (seriesRenderer.segmentRenderingValues['currentRadius']! -
+                  seriesRenderer.segmentRenderingValues['currentInnerRadius']!)
+              .abs());
+    }
     for (final ChartPoint<dynamic> point in seriesRenderer.renderPoints!) {
       if (point.isVisible) {
-        point.innerRadius =
-            (seriesRenderer.seriesType == 'doughnut') ? innerRadius : 0.0;
-        point.degree = (point.y!.abs() /
-                (seriesRenderer.segmentRenderingValues['sumOfPoints']! != 0
-                    ? seriesRenderer.segmentRenderingValues['sumOfPoints']!
-                    : 1)) *
-            seriesRenderer.segmentRenderingValues['totalAngle']!;
-        pointEndAngle = pointStartAngle + point.degree!;
-        point.startAngle = pointStartAngle;
-        point.endAngle = pointEndAngle;
-        point.midAngle = (pointStartAngle + pointEndAngle) / 2;
-        point.outerRadius = _calculatePointRadius(point.radius, point,
-            seriesRenderer.segmentRenderingValues['currentRadius']!);
-        point.center = _needExplode(pointIndex, currentSeries)
-            ? _findExplodeCenter(
-                point.midAngle!, seriesRenderer, point.outerRadius!)
-            : seriesRenderer.center;
-        // ignore: unnecessary_null_comparison
-        if (currentSeries.dataLabelSettings != null) {
-          findDataLabelPosition(point);
+        if (radialSeries) {
+          num? degree;
+          final RadialBarSeries<dynamic, dynamic> series =
+              seriesRenderer.series as RadialBarSeries<dynamic, dynamic>;
+          degree = point.y!.abs() /
+              (series.maximumValue ??
+                  seriesRenderer.segmentRenderingValues['sumOfPoints']!);
+          degree = degree * (360 - 0.001);
+          pointEndAngle = pointStartAngle + degree;
+          point.midAngle = (pointStartAngle + pointEndAngle) / 2;
+          point.startAngle = pointStartAngle;
+          point.endAngle = pointEndAngle;
+          point.center = seriesRenderer.center!;
+          point.innerRadius = radialBarSeriesRenderer.innerRadius =
+              radialBarSeriesRenderer.innerRadius +
+                  ((point.index == firstVisible) ? 0 : ringSize!) -
+                  (series.trackBorderWidth / 2) / series.dataSource!.length;
+          point.outerRadius = seriesRenderer
+                  .renderPoints![point.index].outerRadius =
+              ringSize! < gap!
+                  ? 0
+                  : seriesRenderer.renderPoints![point.index].innerRadius! +
+                      ringSize -
+                      gap -
+                      (series.trackBorderWidth / 2) / series.dataSource!.length;
+        } else {
+          point.innerRadius =
+              (seriesRenderer.seriesType == 'doughnut') ? innerRadius : 0.0;
+          point.degree = (point.y!.abs() /
+                  (seriesRenderer.segmentRenderingValues['sumOfPoints']! != 0
+                      ? seriesRenderer.segmentRenderingValues['sumOfPoints']!
+                      : 1)) *
+              seriesRenderer.segmentRenderingValues['totalAngle']!;
+          pointEndAngle = pointStartAngle + point.degree!;
+          point.startAngle = pointStartAngle;
+          point.endAngle = pointEndAngle;
+          point.midAngle = (pointStartAngle + pointEndAngle) / 2;
+          point.outerRadius = _calculatePointRadius(point.radius, point,
+              seriesRenderer.segmentRenderingValues['currentRadius']!);
+          point.center = _needExplode(pointIndex, currentSeries)
+              ? _findExplodeCenter(
+                  point.midAngle!, seriesRenderer, point.outerRadius!)
+              : seriesRenderer.center;
+          // ignore: unnecessary_null_comparison
+          if (currentSeries.dataLabelSettings != null) {
+            findDataLabelPosition(point);
+          }
+          pointStartAngle = pointEndAngle;
         }
-        pointStartAngle = pointEndAngle;
       }
       pointIndex++;
     }
   }
 
-  /// To check need for explode
+  /// To check need for explode.
   bool _needExplode(int pointIndex, CircularSeries<dynamic, dynamic> series) {
     bool isNeedExplode = false;
     if (series.explode) {
@@ -387,7 +436,7 @@ class CircularSeriesBase {
     return isNeedExplode;
   }
 
-  /// To find sum of points in the series
+  /// To find sum of points in the series.
   void _findSumOfPoints(CircularSeriesRendererExtension seriesRenderer) {
     seriesRenderer.segmentRenderingValues['sumOfPoints'] = 0;
     for (final ChartPoint<dynamic> point in seriesRenderer.renderPoints!) {
@@ -399,7 +448,7 @@ class CircularSeriesBase {
     }
   }
 
-  /// To calculate angle of series
+  /// To calculate angle of series.
   void _calculateAngle(CircularSeriesRendererExtension seriesRenderer) {
     seriesRenderer.segmentRenderingValues['start'] =
         currentSeries.startAngle < 0
@@ -440,7 +489,7 @@ class CircularSeriesBase {
                 .abs();
   }
 
-  /// To calculate radius of circular chart
+  /// To calculate radius of circular chart.
   void _calculateRadius(CircularSeriesRendererExtension seriesRenderer) {
     final Rect chartAreaRect = stateProperties.renderingDetails.chartAreaRect;
     size = min(chartAreaRect.width, chartAreaRect.height);
@@ -451,7 +500,7 @@ class CircularSeriesBase {
             seriesRenderer.segmentRenderingValues['currentRadius']!)!;
   }
 
-  /// To calculate center location of chart
+  /// To calculate center location of chart.
   void _calculateOrigin(CircularSeriesRendererExtension seriesRenderer) {
     final Rect chartAreaRect = stateProperties.renderingDetails.chartAreaRect;
     final Rect chartContainerRect =
@@ -467,7 +516,7 @@ class CircularSeriesBase {
     stateProperties.centerLocation = seriesRenderer.center!;
   }
 
-  /// To find explode center position
+  /// To find explode center position.
   Offset _findExplodeCenter(num midAngle,
       CircularSeriesRendererExtension seriesRenderer, num currentRadius) {
     final num explodeCenter =
@@ -475,14 +524,14 @@ class CircularSeriesBase {
     return degreeToPoint(midAngle, explodeCenter, seriesRenderer.center!);
   }
 
-  /// To calculate and return point radius
+  /// To calculate and return point radius.
   num _calculatePointRadius(
       dynamic value, ChartPoint<dynamic> point, num radius) {
     radius = value != null ? percentToValue(value, size / 2)! : radius;
     return radius;
   }
 
-  /// To add selection points to selection list
+  /// To add selection points to selection list.
   void seriesPointSelection(Region? pointRegion, ActivationMode mode,
       [int? pointIndex, int? seriesIndex]) {
     bool isPointAlreadySelected = false;
@@ -549,7 +598,7 @@ class CircularSeriesBase {
     }
   }
 
-  /// To perform selection event and return Selection Args
+  /// To perform selection event and return Selection Args.
   SelectionArgs _getSelectionEventArgs(
       dynamic seriesRenderer, int seriesIndex, int pointIndex) {
     if (seriesRenderer != null) {
@@ -571,7 +620,7 @@ class CircularSeriesBase {
     return seriesRenderer.selectionArgs as SelectionArgs;
   }
 
-  /// Method to explode the series point
+  /// Method to explode the series point.
   void seriesPointExplosion(Region? pointRegion) {
     bool existExplodedRegion = false;
     final CircularSeriesRendererExtension seriesRenderer = stateProperties
@@ -635,7 +684,7 @@ class CircularSeriesBase {
     }
   }
 
-  /// Setting series type
+  /// Setting series type.
   void _setSeriesType(CircularSeriesRendererExtension seriesRenderer) {
     if (seriesRenderer is PieSeriesRendererExtension) {
       seriesRenderer.seriesType = 'pie';

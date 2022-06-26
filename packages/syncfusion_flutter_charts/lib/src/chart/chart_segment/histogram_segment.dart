@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
@@ -14,8 +14,8 @@ import 'chart_segment.dart';
 /// It gets the path, stroke color and fill color from the `series` to render the column segment.
 ///
 class HistogramSegment extends ChartSegment {
-  //We are using `segmentRect` to draw the histogram segment in the series.
-  //we can override this class and customize the column segment by getting `segmentRect`.
+  // We are using `segmentRect` to draw the histogram segment in the series.
+  // we can override this class and customize the histogram segment by getting `segmentRect`.
   /// Rectangle of the segment
   late RRect segmentRect;
 
@@ -32,7 +32,7 @@ class HistogramSegment extends ChartSegment {
     if (_segmentProperties.series.gradient == null) {
       if (_segmentProperties.color != null) {
         fillPaint = Paint()
-          ..color = _segmentProperties.currentPoint!.isEmpty == true
+          ..color = (_segmentProperties.currentPoint!.isEmpty ?? false)
               ? _segmentProperties.series.emptyPointSettings.color
               : ((_segmentProperties.currentPoint!.pointColorMapper != null)
                   ? _segmentProperties.currentPoint!.pointColorMapper!
@@ -64,14 +64,14 @@ class HistogramSegment extends ChartSegment {
     _setSegmentProperties();
     strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+      ..strokeWidth = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderWidth
           : _segmentProperties.strokeWidth!;
     if (_segmentProperties.series.borderGradient != null) {
       strokePaint!.shader = _segmentProperties.series.borderGradient!
           .createShader(_segmentProperties.currentPoint!.region!);
     } else if (_segmentProperties.strokeColor != null) {
-      strokePaint!.color = _segmentProperties.currentPoint!.isEmpty == true
+      strokePaint!.color = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderColor
           : _segmentProperties.strokeColor!;
     }
@@ -117,7 +117,7 @@ class HistogramSegment extends ChartSegment {
     }
   }
 
-  /// To draw the rect of a given segment
+  /// To draw the rect of a given segment.
   void _drawSegmentRect(Paint getPaint, Canvas canvas, RRect getRect) {
     ((_segmentProperties.stateProperties.renderingDetails.initialRender! ==
                     true ||
@@ -144,7 +144,7 @@ class HistogramSegment extends ChartSegment {
         : canvas.drawRRect(getRect, getPaint);
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

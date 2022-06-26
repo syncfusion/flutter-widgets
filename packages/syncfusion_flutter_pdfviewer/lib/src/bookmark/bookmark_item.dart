@@ -1,9 +1,7 @@
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
+import '../common/pdfviewer_helper.dart';
 
 /// Width of the back icon in the bookmark.
 const double _kPdfBackIconWidth = 24.0;
@@ -267,7 +265,7 @@ class _BookmarkItemState extends State<BookmarkItem> {
         ),
       ),
     );
-    if ((kIsWeb || Platform.isMacOS) && !widget.isMobileWebView) {
+    if (kIsDesktop && !widget.isMobileWebView) {
       return MouseRegion(
         cursor: SystemMouseCursors.click,
         onEnter: (PointerEnterEvent details) {

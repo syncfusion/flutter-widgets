@@ -60,14 +60,10 @@ class FormatsCollection {
     '0.00',
     '#,##0',
     '#,##0.00',
-    // ignore: avoid_escaping_inner_quotes
-    '\'\$\'#,##0_);\\(\'\$\'#,##0\\)',
-    // ignore: avoid_escaping_inner_quotes
-    '\'\$\'#,##0_);[Red]\\(\'\$\'#,##0\\)',
-    // ignore: avoid_escaping_inner_quotes
-    '\'\$\'#,##0.00_);\\(\'\$\'#,##0.00\\)',
-    // ignore: avoid_escaping_inner_quotes
-    '\'\$\'#,##0.00_);[Red]\\(\'\$\'#,##0.00\\)',
+    r"'$'#,##0_);\('$'#,##0\)",
+    r"'$'#,##0_);[Red]\('$'#,##0\)",
+    r"'$'#,##0.00_);\('$'#,##0.00\)",
+    r"'$'#,##0.00_);[Red]\('$'#,##0.00\)",
     '0%',
     '0.00%',
     '0.00E+00',
@@ -86,14 +82,10 @@ class FormatsCollection {
     r'#,##0_);[Red](#,##0)',
     r'#,##0.00_);(#,##0.00)',
     r'#,##0.00_);[Red](#,##0.00)',
-    // ignore: avoid_escaping_inner_quotes
-    '_(* #,##0_);_(* \\(#,##0\\);_(* \'-\'_);_(@_)',
-    // ignore: avoid_escaping_inner_quotes
-    '_(\'\$\'* #,##0_);_(\'\$\'* \\(#,##0\\);_(\'\$\'* \'-\'_);_(@_)',
-    // ignore: avoid_escaping_inner_quotes
-    '_(* #,##0.00_);_(* \\(#,##0.00\\);_(* \'-\'??_);_(@_)',
-    // ignore: avoid_escaping_inner_quotes
-    '_(\'\$\'* #,##0.00_);_(\'\$\'* \\(#,##0.00\\);_(\'\$\'* \'-\'??_);_(@_)',
+    r"_(* #,##0_);_(* \(#,##0\);_(* '-'_);_(@_)",
+    r"_('$'* #,##0_);_('$'* \(#,##0\);_('$'* '-'_);_(@_)",
+    r"_(* #,##0.00_);_(* \(#,##0.00\);_(* '-'??_);_(@_)",
+    r"_('$'* #,##0.00_);_('$'* \(#,##0.00\);_('$'* '-'??_);_(@_)",
     'mm:ss',
     '[h]:mm:ss',
     'mm:ss.0',
@@ -193,13 +185,11 @@ class FormatsCollection {
       return format._index;
     }
     if (_parent.cultureInfo._culture == 'en-US') {
-      // ignore: avoid_escaping_inner_quotes
-      final String localStr = formatString.replaceAll('\'\$\'', r'\$');
+      final String localStr = formatString.replaceAll(r"'$'", r'\$');
 
       /// To know if the format string to be created is a pre-defined one.
       for (final String formatStr in _hashFormatStrings.keys) {
-        // ignore: avoid_escaping_inner_quotes
-        if (formatStr.replaceAll(r'\\', '').replaceAll('\'\$\'', r'\$') ==
+        if (formatStr.replaceAll(r'\\', '').replaceAll(r"'$'", r'\$') ==
             localStr) {
           final _Format format = _hashFormatStrings[formatStr]!;
           return format._index;

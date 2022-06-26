@@ -1,4 +1,38 @@
-## Unreleased
+## unreleased
+**Bugs**
+* No memory leaks will occur while calling the setState() method repeatedly for refreshing the chart widget.
+* No exception will be thrown while using the trackball with multiple series.
+
+## [20.1.52] - 05/03/2022
+**Bugs**
+* Now the [updateDataSource](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartSeriesController/updateDataSource.html) method will work properly with the fast line series.
+
+## [20.1.47] - 04/04/2022
+
+**Bugs**
+* The [onAxisLabelTapped](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/onAxisLabelTapped.html) callback works properly with the rotated axis labels.
+
+**Features**
+* Provided support to display the trackball tooltip smartly when there is no space horizontally.
+* Now, the tooltips and the trackball tooltips can be rendered in right-to-left direction.
+* Based on the current locale, the built-in texts in legends and tooltips are automatically translated now.
+
+## [19.4.55] - 03/08/2022
+
+**Bugs**
+* Now, the border in the edges of the radial bar chart renders properly and will not get cut off.
+
+## [19.4.50] - 02/08/2022
+
+**Bugs**
+* Now, the chart will not throw exceptions while showing the chart widget based on the connection state of the FutureBuilder widget and scrolling with the SingleChildScrollView widget.
+
+## [19.4.43] - 01/18/2022
+
+**Bugs**
+* The series will not be visible after calling the setstate when its visibility is set to false.
+
+## [19.4.38] - 12/17/2021
 
 **Features**
 * Implemented multilevel axis labels support in Cartesian charts to categorize the axis labels.

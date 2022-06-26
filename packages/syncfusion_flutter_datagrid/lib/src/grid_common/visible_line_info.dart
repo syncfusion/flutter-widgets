@@ -283,10 +283,10 @@ class VisibleLinesCollection extends ListBase<VisibleLineInfo> {
   ///
   /// Returns the first visible line for a line index that is not hidden.
   VisibleLineInfo? getVisibleLineNearLineIndex(int lineIndex) {
-    final List<VisibleLineInfo> _visibleLine =
+    final List<VisibleLineInfo> visibleLineInfo =
         visibleLines as List<VisibleLineInfo>;
     int index = binarySearch<VisibleLineInfo>(
-        _visibleLine, VisibleLineInfo.fromLineIndex(lineIndex));
+        visibleLineInfo, VisibleLineInfo.fromLineIndex(lineIndex));
     index = (index < 0) ? (~index) - 1 : index;
     if (index >= 0) {
       return this[index];
@@ -301,9 +301,9 @@ class VisibleLinesCollection extends ListBase<VisibleLineInfo> {
   ///
   /// Returns the visible line at point.
   VisibleLineInfo? getVisibleLineAtPoint(double point) {
-    final List<VisibleLineInfo> _visibleLines = visibleLines.cast();
+    final List<VisibleLineInfo> visibleLineInfo = visibleLines.cast();
     int index = binarySearch<VisibleLineInfo>(
-        _visibleLines, VisibleLineInfo.fromClippedOrigin(point));
+        visibleLineInfo, VisibleLineInfo.fromClippedOrigin(point));
     index = (index < 0) ? (~index) - 1 : index;
     if (index >= 0) {
       return this[index];

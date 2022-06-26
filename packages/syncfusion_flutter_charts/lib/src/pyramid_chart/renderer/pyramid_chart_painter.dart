@@ -3,9 +3,9 @@ import '../base/pyramid_state_properties.dart';
 import '../utils/common.dart';
 import 'renderer_extension.dart';
 
-/// Represents the pyramid chart painter
+/// Represents the pyramid chart painter.
 class PyramidChartPainter extends CustomPainter {
-  /// Creates an instance of pyramid chart painter
+  /// Creates an instance of pyramid chart painter.
   PyramidChartPainter({
     required this.stateProperties,
     required this.seriesIndex,
@@ -15,25 +15,25 @@ class PyramidChartPainter extends CustomPainter {
     required ValueNotifier<num> notifier,
   }) : super(repaint: notifier);
 
-  /// Specifies the pyramid state properties
+  /// Specifies the pyramid state properties.
   final PyramidStateProperties stateProperties;
 
-  /// Specifies the series index value
+  /// Specifies the series index value.
   final int seriesIndex;
 
-  /// Specifies whether to repaint the series
+  /// Specifies whether to repaint the series.
   final bool isRepaint;
 
-  /// Specifies the animation controller of series
+  /// Specifies the animation controller of series.
   final AnimationController? animationController;
 
-  /// Specifies the pyramid series animation
+  /// Specifies the pyramid series animation.
   final Animation<double>? seriesAnimation;
 
-  /// Specifies the pyramid series renderer
+  /// Specifies the pyramid series renderer.
   late PyramidSeriesRendererExtension seriesRenderer;
 
-  /// Specifies the point info
+  /// Specifies the point info.
   static late PointInfo<dynamic> point;
 
   @override

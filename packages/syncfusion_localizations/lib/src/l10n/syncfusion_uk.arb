@@ -3,14 +3,14 @@
 "noEventsCalendarLabel" : "Жодних подій", 
 "ofDataPagerLabel" : "з", 
 "pagesDataPagerLabel" : "сторінки", 
-"itemsDataPagerLabel" : "предметів", 
+"rowsPerPageDataPagerLabel" : "Рядків на сторінці", 
 "pdfBookmarksLabel" : "Закладки", 
 "pdfNoBookmarksLabel" : "Закладок не знайдено", 
 "pdfScrollStatusOfLabel" : "з", 
 "pdfGoToPageLabel" : "Перейти на сторінку", 
 "pdfEnterPageNumberLabel" : "Введіть номер сторінки", 
 "pdfInvalidPageNumberLabel" : "Введіть дійсне число", 
-"pdfPaginationDialogOkLabel" : "в порядку", 
+"pdfPaginationDialogOkLabel" : "гаразд", 
 "pdfPaginationDialogCancelLabel" : "СКАСУВАТИ", 
 "passwordDialogHeaderTextLabel" : "Захищено паролем", 
 "passwordDialogContentLabel" : "Введіть пароль, щоб відкрити цей PDF-файл", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Шоу.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "День"
+"daySpanCountLabel" : "День", 
+"series" : "Серія"
 }

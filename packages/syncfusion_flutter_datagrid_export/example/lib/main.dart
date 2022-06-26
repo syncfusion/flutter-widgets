@@ -1,10 +1,12 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:flutter/material.dart';
+
 // External package imports
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_datagrid_export/export.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:syncfusion_flutter_xlsio/xlsio.dart'
-    hide Alignment, Column, Row;
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column, Row;
 
 // Local import
 import 'helper/save_file_mobile.dart'
@@ -87,12 +89,12 @@ class MyHomePageState extends State<MyHomePage> {
                   width: 150.0,
                   child: MaterialButton(
                       color: Colors.blue,
+                      onPressed: _exportDataGridToExcel,
                       child: const Center(
                           child: Text(
                         'Export to Excel',
                         style: TextStyle(color: Colors.white),
-                      )),
-                      onPressed: _exportDataGridToExcel),
+                      ))),
                 ),
                 const Padding(padding: EdgeInsets.all(20)),
                 SizedBox(
@@ -100,12 +102,12 @@ class MyHomePageState extends State<MyHomePage> {
                   width: 150.0,
                   child: MaterialButton(
                       color: Colors.blue,
+                      onPressed: _exportDataGridToPdf,
                       child: const Center(
                           child: Text(
                         'Export to PDF',
                         style: TextStyle(color: Colors.white),
-                      )),
-                      onPressed: _exportDataGridToPdf),
+                      ))),
                 ),
               ],
             ),

@@ -10,87 +10,87 @@ import 'circular_series.dart';
 import 'radial_bar_series.dart';
 import 'renderer_extension.dart';
 
-/// Represents the region
+/// Represents the region.
 ///
 class Region {
-  /// Creates the instance for region
+  /// Creates the instance for region.
   ///
   Region(this.start, this.end, this.startAngle, this.endAngle, this.seriesIndex,
       this.pointIndex, this.center, this.innerRadius, this.outerRadius);
 
-  /// Specifies the series index
+  /// Specifies the series index.
   int seriesIndex;
 
-  /// Specifies the point index
+  /// Specifies the point index.
   int pointIndex;
 
-  /// Specifies the start angle
+  /// Specifies the start angle.
   num startAngle;
 
-  /// Specifies the start value
+  /// Specifies the start value.
   num start;
 
-  /// Specifies the end value
+  /// Specifies the end value.
   num end;
 
-  /// Specifies the end angle
+  /// Specifies the end angle.
   num endAngle;
 
-  ///Specifies the center value
+  ///Specifies the center value.
   Offset? center;
 
-  /// Specifies the value of inner radius
+  /// Specifies the value of inner radius.
   num? innerRadius;
 
-  /// Specifies the value of outer radius
+  /// Specifies the value of outer radius.
   num outerRadius;
 }
 
-/// Represents the style options
+/// Represents the style options.
 ///
 class StyleOptions {
-  /// Creates the instance of style options
+  /// Creates the instance of style options.
   ///
   StyleOptions({this.fill, this.strokeWidth, this.strokeColor, this.opacity});
 
-  /// Specifies the value of fill
+  /// Specifies the value of fill.
   Color? fill;
 
-  /// Specifies the value of stroke color
+  /// Specifies the value of stroke color.
   Color? strokeColor;
 
-  /// Specifies the value of opacity
+  /// Specifies the value of opacity.
   double? opacity;
 
-  /// Specifies the value of stroke width
+  /// Specifies the value of stroke width.
   num? strokeWidth;
 }
 
-/// Represents the circular chart interaction
+/// Represents the circular chart interaction.
 ///
 class ChartInteraction {
-  /// Creates the instance for circular chart interaction
+  /// Creates the instance for circular chart interaction.
   ///
   ChartInteraction(this.seriesIndex, this.pointIndex, this.series, this.point,
       [this.region]);
 
-  /// Specifies the value of series index
+  /// Specifies the value of series index.
   int? seriesIndex;
 
-  /// Specifies the value of point index
+  /// Specifies the value of point index.
   int? pointIndex;
 
-  /// Specifies the value of series
+  /// Specifies the value of series.
   dynamic series;
 
-  /// Specifies the point value
+  /// Specifies the point value.
   dynamic point;
 
-  /// Specifies the value of region
+  /// Specifies the value of region.
   Region? region;
 }
 
-///To get circular series data label saturation color
+/// To get circular series data label saturation color.
 Color getCircularDataLabelColor(
     ChartPoint<dynamic> currentPoint,
     CircularSeriesRendererExtension seriesRenderer,
@@ -133,7 +133,7 @@ Color getCircularDataLabelColor(
   return getSaturationColor(color);
 }
 
-///To get inner data label color
+/// To get inner data label color.
 Color getInnerColor(
         Color? dataLabelColor, Color? pointColor, SfChartThemeData theme) =>
     // ignore: prefer_if_null_operators
@@ -146,7 +146,7 @@ Color getInnerColor(
                 ? const Color.fromRGBO(255, 255, 255, 1)
                 : Colors.black;
 
-///To get outer data label color
+/// To get outer data label color.
 Color getOuterColor(
         Color? dataLabelColor, Color backgroundColor, SfChartThemeData theme) =>
     // ignore: prefer_if_null_operators
@@ -158,7 +158,7 @@ Color getOuterColor(
                 ? const Color.fromRGBO(255, 255, 255, 1)
                 : Colors.black;
 
-/// To check whether any point is selected
+/// To check whether any point is selected.
 bool checkIsAnyPointSelect(CircularSeriesRendererExtension seriesRenderer,
     ChartPoint<dynamic>? point, SfCircularChart chart) {
   bool isAnyPointSelected = false;
@@ -178,9 +178,9 @@ bool checkIsAnyPointSelect(CircularSeriesRendererExtension seriesRenderer,
   return isAnyPointSelected;
 }
 
-/// Represents the circular chart segment
+/// Represents the circular chart segment.
 abstract class CircularChartSegment {
-  /// To get point color of current point
+  /// To get point color of current point.
   Color? getPointColor(
       CircularSeriesRendererExtension seriesRenderer,
       ChartPoint<dynamic> point,
@@ -189,7 +189,7 @@ abstract class CircularChartSegment {
       Color color,
       double opacity);
 
-  /// To get opacity of current point
+  /// To get opacity of current point.
   double getOpacity(
       CircularSeriesRendererExtension seriesRenderer,
       ChartPoint<dynamic>? point,
@@ -197,7 +197,7 @@ abstract class CircularChartSegment {
       int seriesIndex,
       double opacity);
 
-  /// To get Stroke color of current point
+  /// To get Stroke color of current point.
   Color getPointStrokeColor(
       CircularSeriesRendererExtension seriesRenderer,
       ChartPoint<dynamic>? point,
@@ -205,7 +205,7 @@ abstract class CircularChartSegment {
       int seriesIndex,
       Color strokeColor);
 
-  /// To get Stroke width of current point
+  /// To get Stroke width of current point.
   num getPointStrokeWidth(
       CircularSeriesRendererExtension seriesRenderer,
       ChartPoint<dynamic>? point,
@@ -214,9 +214,9 @@ abstract class CircularChartSegment {
       num strokeWidth);
 }
 
-/// Represents the label segment
+/// Represents the label segment.
 abstract class LabelSegment {
-  /// To get label text content
+  /// To get label text content.
   String getLabelContent(
       CircularSeriesRendererExtension seriesRenderer,
       ChartPoint<dynamic> point,
@@ -224,20 +224,20 @@ abstract class LabelSegment {
       int seriesIndex,
       String content);
 
-  /// To get text style of current point
+  /// To get text style of current point.
   TextStyle getDataLabelStyle(
       CircularSeriesRendererExtension seriesRenderer,
       ChartPoint<dynamic> point,
       int pointIndex,
       int seriesIndex,
       TextStyle style,
-      SfCircularChartState _chartState);
+      SfCircularChartState chartState);
 
-  /// To get data label color
+  /// To get data label color.
   Color? getDataLabelColor(CircularSeriesRendererExtension seriesRenderer,
       ChartPoint<dynamic> point, int pointIndex, int seriesIndex, Color? color);
 
-  /// To get the data label stroke color
+  /// To get the data label stroke color.
   Color getDataLabelStrokeColor(
       CircularSeriesRendererExtension seriesRenderer,
       ChartPoint<dynamic> point,
@@ -245,7 +245,7 @@ abstract class LabelSegment {
       int seriesIndex,
       Color strokeColor);
 
-  /// To get label stroke width
+  /// To get label stroke width.
   double getDataLabelStrokeWidth(
       CircularSeriesRendererExtension seriesRenderer,
       ChartPoint<dynamic> point,
@@ -254,12 +254,12 @@ abstract class LabelSegment {
       double strokeWidth);
 }
 
-/// Represents the chart series renderer
+/// Represents the chart series renderer.
 class ChartSeriesRender with CircularChartSegment, LabelSegment {
-  /// Creates an instance for chart series renderer
+  /// Creates an instance for chart series renderer.
   ChartSeriesRender();
 
-  /// Creates an instance for chart series renderer
+  /// Creates an instance for chart series renderer.
   @override
   Color? getPointColor(
           CircularSeriesRendererExtension seriesRenderer,
@@ -270,7 +270,7 @@ class ChartSeriesRender with CircularChartSegment, LabelSegment {
           double opacity) =>
       color.withOpacity(opacity);
 
-  /// To get point stroke color
+  /// To get point stroke color.
   @override
   Color getPointStrokeColor(
           CircularSeriesRendererExtension seriesRenderer,
@@ -280,7 +280,7 @@ class ChartSeriesRender with CircularChartSegment, LabelSegment {
           Color strokeColor) =>
       strokeColor;
 
-  /// To get point stroke width
+  /// To get point stroke width.
   @override
   num getPointStrokeWidth(
           CircularSeriesRendererExtension seriesRenderer,
@@ -290,7 +290,7 @@ class ChartSeriesRender with CircularChartSegment, LabelSegment {
           num strokeWidth) =>
       strokeWidth;
 
-  /// To return label text
+  /// To return label text.
   @override
   String getLabelContent(
           CircularSeriesRendererExtension seriesRenderer,
@@ -300,7 +300,7 @@ class ChartSeriesRender with CircularChartSegment, LabelSegment {
           String content) =>
       content;
 
-  /// To return text style of label
+  /// To return text style of label.
   @override
   TextStyle getDataLabelStyle(
       CircularSeriesRendererExtension seriesRenderer,
@@ -308,7 +308,7 @@ class ChartSeriesRender with CircularChartSegment, LabelSegment {
       int pointIndex,
       int seriesIndex,
       TextStyle style,
-      SfCircularChartState _chartState) {
+      SfCircularChartState chartState) {
     final DataLabelSettings dataLabel = seriesRenderer.series.dataLabelSettings;
     final Color fontColor = dataLabel.textStyle.color ??
         getCircularDataLabelColor(
@@ -322,7 +322,7 @@ class ChartSeriesRender with CircularChartSegment, LabelSegment {
     return textStyle;
   }
 
-  /// To return label color
+  /// To return label color.
   @override
   Color? getDataLabelColor(
           CircularSeriesRendererExtension seriesRenderer,
@@ -332,7 +332,7 @@ class ChartSeriesRender with CircularChartSegment, LabelSegment {
           Color? color) =>
       color;
 
-  /// To return label stroke color
+  /// To return label stroke color.
   @override
   Color getDataLabelStrokeColor(
           CircularSeriesRendererExtension seriesRenderer,
@@ -342,7 +342,7 @@ class ChartSeriesRender with CircularChartSegment, LabelSegment {
           Color? strokeColor) =>
       strokeColor ?? point.fill;
 
-  /// To return label stroke width
+  /// To return label stroke width.
   @override
   double getDataLabelStrokeWidth(
           CircularSeriesRendererExtension seriesRenderer,
@@ -352,7 +352,7 @@ class ChartSeriesRender with CircularChartSegment, LabelSegment {
           double strokeWidth) =>
       strokeWidth;
 
-  /// To return opacity of current point
+  /// To return opacity of current point.
   @override
   double getOpacity(
           CircularSeriesRendererExtension seriesRenderer,

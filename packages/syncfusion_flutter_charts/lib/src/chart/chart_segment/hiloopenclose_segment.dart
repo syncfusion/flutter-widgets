@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
+
+import '../../../charts.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import 'chart_segment.dart';
 
-/// Creates the segments for HiloOpenClose series.
+/// Creates the segments for hilo open close series.
 ///
-/// Generates the HiloOpenClose series points and has the [calculateSegmentPoints] method overrided to customize
-/// the HiloOpenClose segment point calculation.
+/// Generates the hilo open close series points and has the [calculateSegmentPoints] method overrided to customize
+/// the hilo open close segment point calculation.
 ///
 /// Gets the path and color from the `series`.
 class HiloOpenCloseSegment extends ChartSegment {

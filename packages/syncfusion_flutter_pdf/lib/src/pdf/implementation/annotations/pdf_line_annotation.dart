@@ -202,17 +202,17 @@ class PdfLineAnnotation extends PdfAnnotation {
     if (!helper.isLoadedAnnotation) {
       _beginLineStyle = value;
     } else {
-      PdfArray? _lineStyle = _helper._obtainLineStyle();
-      if (_lineStyle == null) {
-        _lineStyle = PdfArray();
+      PdfArray? lineStyle = _helper._obtainLineStyle();
+      if (lineStyle == null) {
+        lineStyle = PdfArray();
       } else {
-        _lineStyle.elements.removeAt(0);
+        lineStyle.elements.removeAt(0);
       }
-      _lineStyle.insert(
+      lineStyle.insert(
           0,
           PdfName(helper.getEnumName(
               _helper._getLineStyle(helper.getEnumName(value.toString())))));
-      helper.dictionary!.setProperty(PdfDictionaryProperties.le, _lineStyle);
+      helper.dictionary!.setProperty(PdfDictionaryProperties.le, lineStyle);
     }
   }
 
@@ -228,17 +228,17 @@ class PdfLineAnnotation extends PdfAnnotation {
     if (!helper.isLoadedAnnotation) {
       _endLineStyle = value;
     } else {
-      PdfArray? _lineStyle = _helper._obtainLineStyle();
-      if (_lineStyle == null) {
-        _lineStyle = PdfArray();
+      PdfArray? lineStyle = _helper._obtainLineStyle();
+      if (lineStyle == null) {
+        lineStyle = PdfArray();
       } else {
-        _lineStyle.elements.removeAt(1);
+        lineStyle.elements.removeAt(1);
       }
-      _lineStyle.insert(
+      lineStyle.insert(
           1,
           PdfName(helper.getEnumName(
               _helper._getLineStyle(helper.getEnumName(value.toString())))));
-      helper.dictionary!.setProperty(PdfDictionaryProperties.le, _lineStyle);
+      helper.dictionary!.setProperty(PdfDictionaryProperties.le, lineStyle);
     }
   }
 
@@ -411,10 +411,10 @@ class PdfLineAnnotationHelper extends PdfAnnotationHelper {
     if (!lineAnnotation.innerColor.isEmpty &&
         PdfColorHelper.getHelper(lineAnnotation.innerColor).alpha != 0) {
       dictionary.setProperty(PdfDictionaryProperties.ic,
-          PdfColorHelper.toArray(lineAnnotation.innerColor, PdfColorSpace.rgb));
+          PdfColorHelper.toArray(lineAnnotation.innerColor));
     }
     dictionary[PdfDictionaryProperties.c] =
-        PdfColorHelper.toArray(lineAnnotation.color, PdfColorSpace.rgb);
+        PdfColorHelper.toArray(lineAnnotation.color);
 
     dictionary.setProperty(PdfDictionaryProperties.it,
         PdfName(helper.getEnumName(lineAnnotation.lineIntent)));
@@ -711,16 +711,16 @@ class PdfLineAnnotationHelper extends PdfAnnotationHelper {
 
   // Gets the line intent of the annotation.
   PdfLineIntent _obtainLineIntent() {
-    PdfLineIntent _lineintent = PdfLineIntent.lineArrow;
+    PdfLineIntent lineintentValue = PdfLineIntent.lineArrow;
     final PdfAnnotationHelper helper =
         PdfAnnotationHelper.getHelper(lineAnnotation);
     if (helper.dictionary!.containsKey(PdfDictionaryProperties.it)) {
       final PdfName lineintent = helper.crossTable
               .getObject(helper.dictionary![PdfDictionaryProperties.it])!
           as PdfName;
-      _lineintent = _getLineIntentText(lineintent.name.toString());
+      lineintentValue = _getLineIntentText(lineintent.name.toString());
     }
-    return _lineintent;
+    return lineintentValue;
   }
 
   // Get the Line Intent Text.
@@ -912,15 +912,15 @@ class PdfLineAnnotationHelper extends PdfAnnotationHelper {
 
   // Gets caption type of the annotation.
   PdfLineCaptionType _obtainCaptionType() {
-    PdfLineCaptionType _captiontype = PdfLineCaptionType.inline;
+    PdfLineCaptionType captiontypeValue = PdfLineCaptionType.inline;
     if (PdfAnnotationHelper.getHelper(lineAnnotation)
         .dictionary!
         .containsKey(PdfDictionaryProperties.cp)) {
       final PdfName cType = PdfAnnotationHelper.getHelper(lineAnnotation)
           .dictionary![PdfDictionaryProperties.cp]! as PdfName;
-      _captiontype = _getCaptionType(cType.name.toString());
+      captiontypeValue = _getCaptionType(cType.name.toString());
     }
-    return _captiontype;
+    return captiontypeValue;
   }
 
   // Gets caption type of the annotation.

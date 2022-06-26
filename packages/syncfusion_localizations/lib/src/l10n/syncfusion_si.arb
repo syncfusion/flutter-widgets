@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "සිදුවීම් නැත", 
 "ofDataPagerLabel" : "වල", 
 "pagesDataPagerLabel" : "පිටු", 
-"itemsDataPagerLabel" : "අයිතම", 
+"rowsPerPageDataPagerLabel" : "පිටුවකට පේළි", 
 "pdfBookmarksLabel" : "පිටු සලකුණු", 
 "pdfNoBookmarksLabel" : "පිටු සලකුණු හමු නොවීය", 
 "pdfScrollStatusOfLabel" : "වල", 
@@ -24,7 +24,7 @@
 "allowedViewMonthLabel" : "මාසික", 
 "allowedViewScheduleLabel" : "කාලසටහන", 
 "allowedViewTimelineDayLabel" : "කාලරේඛා දිනය", 
-"allowedViewTimelineWeekLabel" : "කාලසටහන් සතිය", 
+"allowedViewTimelineWeekLabel" : "කාලරේඛා සතිය", 
 "allowedViewTimelineWorkWeekLabel" : "කාලසටහන වැඩ සතිය", 
 "allowedViewTimelineMonthLabel" : "කාලරේඛා මාසය", 
 "todayLabel" : "අද", 
@@ -41,7 +41,7 @@
 "ramadanLabel" : "රාමසාන්", 
 "shawwalLabel" : "ෂව්වාල්", 
 "dhualqiLabel" : "Dhu al-Qi'dah", 
-"dhualhiLabel" : "දු අල්-හිජ්ජා", 
+"dhualhiLabel" : "Dhu al-Hijjah", 
 "shortMuharramLabel" : "මුහ්", 
 "shortSafarLabel" : "Saf.", 
 "shortRabi1Label" : "රබී. මම", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "ෂෝ.", 
 "shortDhualqiLabel" : "දුල්-කිව්", 
 "shortDhualhiLabel" : "දුල්-එච්", 
-"daySpanCountLabel" : "දිනය"
+"daySpanCountLabel" : "දිනය", 
+"series" : "මාලාවක්"
 }

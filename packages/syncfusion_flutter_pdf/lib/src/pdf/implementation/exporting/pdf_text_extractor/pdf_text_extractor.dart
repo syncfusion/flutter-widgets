@@ -1,15 +1,18 @@
 import 'dart:ui';
 
-import 'package:syncfusion_flutter_pdf/src/pdf/implementation/pages/pdf_page_layer_collection.dart';
+import 'package:intl/intl.dart' as bidi;
 
 import '../../../interfaces/pdf_interface.dart';
 import '../../graphics/fonts/enums.dart';
 import '../../graphics/fonts/pdf_cjk_standard_font.dart';
 import '../../graphics/fonts/pdf_font.dart';
 import '../../graphics/fonts/pdf_standard_font.dart';
+import '../../graphics/fonts/rtl/arabic_shape_renderer.dart';
+import '../../graphics/fonts/rtl/bidi.dart';
 import '../../io/pdf_constants.dart';
 import '../../pages/enum.dart';
 import '../../pages/pdf_page.dart';
+import '../../pages/pdf_page_layer_collection.dart';
 import '../../pdf_document/pdf_document.dart';
 import '../../primitives/pdf_array.dart';
 import '../../primitives/pdf_dictionary.dart';
@@ -70,6 +73,11 @@ class PdfTextExtractor {
   bool _hasLeading = false;
   late MatrixHelper _currentTransformationMatrix;
   bool _hasBDC = false;
+  Bidi? _bidiInstance;
+  Bidi get _bidi {
+    _bidiInstance ??= Bidi();
+    return _bidiInstance!;
+  }
 
   //Public methods
   /// Extract text from an existing PDF document
@@ -402,8 +410,13 @@ class PdfTextExtractor {
                 wordBound = Rect.fromLTWH(dx, dy, width - dx, height);
               }
               i = lastIndex + 1;
+              String word = words[x];
+              if (word.isNotEmpty && bidi.Bidi.hasAnyRtl(word)) {
+                word = _bidi.getLogicalToVisualString(word, true)['rtlText']
+                    as String;
+              }
               textwords = TextWordHelper.initialize(
-                  words[x],
+                  word,
                   textElement.fontName,
                   textElement.fontStyle,
                   glyphs,
@@ -490,24 +503,14 @@ class PdfTextExtractor {
   List<MatchedItem> _searchInBackground(
       PdfPage page, List<String> searchString, TextSearchOption? searchOption) {
     final List<MatchedItem> result = <MatchedItem>[];
+    _isLayout = true;
     final String pageText = _getText(page);
+    _isLayout = false;
+    final bool containsRtl = bidi.Bidi.hasAnyRtl(pageText);
     if (pageText != '') {
-      bool isMatched = false;
-      for (int i = 0; i < searchString.length; i++) {
-        final String term = searchString[i];
-        if (searchOption != null &&
-            (searchOption == TextSearchOption.caseSensitive ||
-                searchOption == TextSearchOption.both)) {
-          if (pageText.contains(term)) {
-            isMatched = true;
-            break;
-          }
-        } else if (pageText.toLowerCase().contains(term.toLowerCase())) {
-          isMatched = true;
-          break;
-        }
-      }
-      if (isMatched) {
+      bool isMatched =
+          _isMatchFound(searchString, searchOption, pageText, containsRtl);
+      if (isMatched || containsRtl) {
         _currentPage = page;
         _fontSize = 0;
         PdfPageHelper.getHelper(page).isTextExtraction = true;
@@ -531,67 +534,114 @@ class PdfTextExtractor {
             }
             renderedString = renderedString + glyph.toUnicode;
           }
-          if (renderedString != '') {
-            final Map<String, List<int>> mappedIndexes = <String, List<int>>{};
-            if (searchOption == null ||
-                (searchOption != TextSearchOption.caseSensitive &&
-                    searchOption != TextSearchOption.both)) {
-              renderedString = renderedString.toLowerCase();
-            }
-            final int textLength = renderedString.length;
-            for (final String term in searchString) {
-              if (term != '' && !mappedIndexes.containsKey(term)) {
-                final List<int> indexes = <int>[];
-                final String currentText = (searchOption != null &&
-                        (searchOption == TextSearchOption.caseSensitive ||
-                            searchOption == TextSearchOption.both))
-                    ? term
-                    : term.toLowerCase();
-                int startIndex = 0;
-                final int length = currentText.length;
-                while (startIndex <= textLength &&
-                    renderedString.contains(currentText, startIndex)) {
-                  int index = renderedString.indexOf(currentText, startIndex);
-                  final int tempIndex = index;
-                  if (searchOption != null &&
-                      (searchOption == TextSearchOption.wholeWords ||
-                          searchOption == TextSearchOption.both)) {
-                    if (index == 0 ||
-                        _hasEscapeCharacter(renderedString[index - 1])) {
-                      if (index + length == textLength) {
-                        if (combinedGlyphLength.isNotEmpty) {
-                          index = _checkCombinedTextIndex(
-                              index, combinedGlyphLength);
-                        }
-                        indexes.add(index);
-                      } else if (_hasEscapeCharacter(
-                          renderedString[index + length])) {
-                        if (combinedGlyphLength.isNotEmpty) {
-                          index = _checkCombinedTextIndex(
-                              index, combinedGlyphLength);
-                        }
-                        indexes.add(index);
-                      }
-                    }
-                  } else {
-                    if (combinedGlyphLength.isNotEmpty) {
-                      index =
-                          _checkCombinedTextIndex(index, combinedGlyphLength);
-                    }
-                    indexes.add(index);
+          List<Glyph>? visualOrderedTextGlyph;
+          if (containsRtl) {
+            final Map<String, dynamic> visualOrderResult =
+                _bidi.getLogicalToVisualString(renderedString, true);
+            renderedString = visualOrderResult['rtlText'] as String;
+            final List<int> visualOrderIndexes =
+                visualOrderResult['orderedIndexes'] as List<int>;
+            visualOrderedTextGlyph = <Glyph>[];
+            if (combinedGlyphLength.isNotEmpty) {
+              combinedGlyphLength.forEach((int key, int value) {
+                if (visualOrderIndexes.contains(key)) {
+                  final int newIndex = visualOrderIndexes.indexOf(key);
+                  if (newIndex + 1 < visualOrderIndexes.length &&
+                      visualOrderIndexes[newIndex + 1] == key + 1) {
+                    visualOrderIndexes.removeRange(
+                        newIndex + 1, newIndex + value);
+                  } else if (newIndex - 1 > -1 &&
+                      visualOrderIndexes[newIndex - 1] == key + 1) {
+                    visualOrderIndexes.removeRange(
+                        newIndex - value + 1, newIndex);
                   }
-                  startIndex = tempIndex + 1;
                 }
-                if (indexes.isNotEmpty) {
-                  for (final int index in indexes) {
-                    final Rect rect = _calculatedTextounds(
-                        renderer.imageRenderGlyphList, term, index, page);
-                    result.add(MatchedItemHelper.initialize(
-                        term, rect, _currentPageIndex));
+              });
+            }
+            final int glyphListLength = renderer.imageRenderGlyphList.length;
+            for (int i = 0; i < visualOrderIndexes.length; i++) {
+              int index = visualOrderIndexes[i];
+              if (combinedGlyphLength.isNotEmpty) {
+                int tempValue = 0;
+                for (final int element in combinedGlyphLength.values) {
+                  tempValue += element - 1;
+                }
+                for (final int key
+                    in combinedGlyphLength.keys.toList().reversed) {
+                  if (index > key) {
+                    index -= tempValue;
+                    break;
                   }
+                  tempValue -= combinedGlyphLength[key]! - 1;
+                }
+              }
+              if (index < glyphListLength) {
+                visualOrderedTextGlyph
+                    .add(renderer.imageRenderGlyphList[index]);
+              }
+            }
+          }
+          final List<String> renderedStringCollection = <String>[
+            renderedString
+          ];
+          final List<List<Glyph>?> textGlyphCollection = <List<Glyph>?>[
+            visualOrderedTextGlyph ?? renderer.imageRenderGlyphList
+          ];
+          if (renderedString.contains('  ') ||
+              renderedString.contains('\t\t')) {
+            String innerSpaceTrimmedString = renderedString;
+            final List<Glyph> innerSpaceTrimmedTextGlyph =
+                (visualOrderedTextGlyph ?? renderer.imageRenderGlyphList)
+                    .toList();
+            while (innerSpaceTrimmedString.contains('  ') ||
+                innerSpaceTrimmedString.contains('\t\t')) {
+              int spaceStartIndex = innerSpaceTrimmedString.indexOf('  ');
+              if (spaceStartIndex < 0) {
+                spaceStartIndex = innerSpaceTrimmedString.indexOf('\t\t');
+              }
+              if (spaceStartIndex >= 0) {
+                final List<String> stringList =
+                    innerSpaceTrimmedString.split('');
+                int i = spaceStartIndex + 2;
+                for (i = spaceStartIndex + 2; i < stringList.length; i++) {
+                  if (stringList[i] == ' ' || stringList[i] == '\t') {
+                    continue;
+                  } else if (i == stringList.length - 1) {
+                    break;
+                  } else {
+                    stringList.removeRange(spaceStartIndex + 1, i);
+                    innerSpaceTrimmedTextGlyph.removeRange(
+                        spaceStartIndex + 1, i);
+                    break;
+                  }
+                }
+                innerSpaceTrimmedString = stringList.join();
+                if (i >= stringList.length) {
+                  break;
                 }
               }
             }
+            renderedStringCollection.add(innerSpaceTrimmedString);
+            textGlyphCollection.add(innerSpaceTrimmedTextGlyph);
+          }
+          if (!isMatched) {
+            for (final String renderedText in renderedStringCollection) {
+              isMatched = _isMatchFound(
+                  searchString, searchOption, renderedText, containsRtl);
+              if (isMatched) {
+                break;
+              }
+            }
+          }
+          if (isMatched) {
+            _getMatchedItems(
+                page,
+                searchString,
+                searchOption,
+                renderedStringCollection,
+                combinedGlyphLength,
+                textGlyphCollection,
+                result);
           }
         }
         PdfPageHelper.getHelper(page).contents.changed = isContentChanged;
@@ -600,6 +650,164 @@ class PdfTextExtractor {
       }
     }
     return result;
+  }
+
+  bool _isMatchFound(List<String> searchString, TextSearchOption? searchOption,
+      String pageText, bool containsRtl) {
+    ArabicShapeRenderer? shapeRenderer;
+    if (containsRtl) {
+      shapeRenderer = ArabicShapeRenderer();
+    }
+    bool isMatched = false;
+    for (int i = 0; i < searchString.length; i++) {
+      final String term = searchString[i];
+      if (searchOption != null &&
+          (searchOption == TextSearchOption.caseSensitive ||
+              searchOption == TextSearchOption.both)) {
+        if (pageText.contains(term)) {
+          isMatched = true;
+          if (!containsRtl) {
+            break;
+          }
+        }
+      } else if (pageText.toLowerCase().contains(term.toLowerCase())) {
+        isMatched = true;
+        if (!containsRtl) {
+          break;
+        }
+      }
+      if (containsRtl && bidi.Bidi.hasAnyRtl(term)) {
+        final String renderedTerm = shapeRenderer!.shape(term.split(''), 0);
+        if (pageText.toLowerCase().contains(renderedTerm.toLowerCase())) {
+          if (!searchString.contains(renderedTerm)) {
+            searchString.add(renderedTerm);
+          }
+          isMatched = true;
+        }
+        if (term != renderedTerm && term.length < 5) {
+          List<String> termCollection = <String>[term];
+          for (int j = 0; j < term.length; j++) {
+            if (shapeRenderer.arabicMapTable.containsKey(term[j])) {
+              final List<String>? shapedChars =
+                  shapeRenderer.arabicMapTable[term[j]];
+              if (shapedChars != null && shapedChars.isNotEmpty) {
+                final List<String> tempTermCollection = termCollection.toList();
+                for (final String char in shapedChars) {
+                  for (final String tempTerm in termCollection) {
+                    final List<String> termList = tempTerm.split('');
+                    termList[j] = char;
+                    final String tempRenderedTerm = termList.join();
+                    if (!tempTermCollection.contains(tempRenderedTerm)) {
+                      tempTermCollection.add(tempRenderedTerm);
+                      if (!searchString.contains(tempRenderedTerm) &&
+                          pageText
+                              .toLowerCase()
+                              .contains(tempRenderedTerm.toLowerCase())) {
+                        searchString.add(tempRenderedTerm);
+                        isMatched = true;
+                      }
+                    }
+                  }
+                }
+                termCollection.clear();
+                termCollection = tempTermCollection.toList();
+                tempTermCollection.clear();
+              }
+            }
+          }
+          termCollection.clear();
+        }
+      }
+    }
+    return isMatched;
+  }
+
+  void _getMatchedItems(
+      PdfPage page,
+      List<String> searchString,
+      TextSearchOption? searchOption,
+      List<String> renderedStringCollection,
+      Map<int, int> combinedGlyphLength,
+      List<List<Glyph>?> glyphListCollection,
+      List<MatchedItem> result) {
+    if (renderedStringCollection.isNotEmpty &&
+        renderedStringCollection[0] != '') {
+      final Map<String, List<int>> mappedIndexes = <String, List<int>>{};
+      final List<int> textLengthCollection = <int>[];
+      for (int i = 0; i < renderedStringCollection.length; i++) {
+        if (searchOption == null ||
+            (searchOption != TextSearchOption.caseSensitive &&
+                searchOption != TextSearchOption.both)) {
+          renderedStringCollection[i] =
+              renderedStringCollection[i].toLowerCase();
+        }
+        textLengthCollection.add(renderedStringCollection[i].length);
+      }
+      for (final String term in searchString) {
+        if (term != '' && !mappedIndexes.containsKey(term)) {
+          final List<int> indexes = <int>[];
+          final String currentText = (searchOption != null &&
+                  (searchOption == TextSearchOption.caseSensitive ||
+                      searchOption == TextSearchOption.both))
+              ? term
+              : term.toLowerCase();
+          int startIndex = 0;
+          final int length = currentText.length;
+          for (int i = 0; i < renderedStringCollection.length; i++) {
+            while (startIndex <= textLengthCollection[i] &&
+                renderedStringCollection[i].contains(currentText, startIndex)) {
+              int index =
+                  renderedStringCollection[i].indexOf(currentText, startIndex);
+              final int tempIndex = index;
+              if (searchOption != null &&
+                  (searchOption == TextSearchOption.wholeWords ||
+                      searchOption == TextSearchOption.both)) {
+                if (index == 0 ||
+                    _hasEscapeCharacter(
+                        renderedStringCollection[i][index - 1])) {
+                  if (index + length == textLengthCollection[i]) {
+                    if (combinedGlyphLength.isNotEmpty) {
+                      index =
+                          _checkCombinedTextIndex(index, combinedGlyphLength);
+                    }
+                    indexes.add(index);
+                  } else if (_hasEscapeCharacter(
+                      renderedStringCollection[i][index + length])) {
+                    if (combinedGlyphLength.isNotEmpty) {
+                      index =
+                          _checkCombinedTextIndex(index, combinedGlyphLength);
+                    }
+                    indexes.add(index);
+                  }
+                }
+              } else {
+                if (combinedGlyphLength.isNotEmpty) {
+                  index = _checkCombinedTextIndex(index, combinedGlyphLength);
+                }
+                indexes.add(index);
+              }
+              startIndex = tempIndex + 1;
+            }
+            if (indexes.isNotEmpty) {
+              for (final int index in indexes) {
+                if (glyphListCollection[i] != null &&
+                    index < glyphListCollection[i]!.length) {
+                  final List<Rect> rect = _calculatedTextounds(
+                      glyphListCollection[i]!,
+                      term,
+                      index,
+                      page,
+                      bidi.Bidi.hasAnyRtl(term));
+                  result.add(MatchedItemHelper.initialize(
+                      term, rect, _currentPageIndex));
+                }
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
   }
 
   int _checkCombinedTextIndex(
@@ -698,14 +906,64 @@ class PdfTextExtractor {
     };
   }
 
-  Rect _calculatedTextounds(
-      List<Glyph> glyphs, String text, int index, PdfPage page) {
+  List<Rect> _calculatedTextounds(
+      List<Glyph> glyphs, String text, int index, PdfPage page, bool isRTL) {
+    Rect textBounds = Rect.zero;
+    if (!isRTL) {
+      textBounds = _getLTRBounds(glyphs, text, index, page);
+    } else {
+      final bool isBidi = bidi.Bidi.hasAnyLtr(text);
+      String tempString = '';
+      if (isBidi) {
+        final Map<int, String> textCollection = <int, String>{};
+        final List<Rect> boundsCollection = <Rect>[];
+        int indexValue = index;
+        for (int i = 0; i < text.length; i++) {
+          if (i < text.length - 1 &&
+              (((bidi.Bidi.startsWithRtl(text[i]) || text[i] == ' ') &&
+                      (glyphs[index + i].boundingRect.left -
+                                  (glyphs[index + i + 1].boundingRect.left +
+                                      glyphs[index + i + 1].boundingRect.width))
+                              .abs() <
+                          0.001) ||
+                  (bidi.Bidi.startsWithLtr(text[i]) &&
+                      ((glyphs[index + i].boundingRect.left +
+                                      glyphs[index + i].boundingRect.width) -
+                                  glyphs[index + i + 1].boundingRect.left)
+                              .abs() <
+                          0.001))) {
+            tempString += glyphs[index + i].toUnicode;
+          } else {
+            tempString += glyphs[index + i].toUnicode;
+            textCollection[indexValue] = tempString;
+            indexValue = index + i + 1;
+            tempString = '';
+          }
+        }
+        textCollection.forEach((int key, String value) {
+          if (bidi.Bidi.hasAnyRtl(value)) {
+            boundsCollection
+                .add(_calculateBounds(_getRTLBounds(glyphs, value, key, page)));
+          } else {
+            boundsCollection
+                .add(_calculateBounds(_getLTRBounds(glyphs, value, key, page)));
+          }
+        });
+        return boundsCollection;
+      } else {
+        textBounds = _getRTLBounds(glyphs, text, index, page);
+      }
+    }
+    return <Rect>[_calculateBounds(textBounds)];
+  }
+
+  Rect _getLTRBounds(List<Glyph> glyphs, String text, int index, PdfPage page) {
     final Glyph startGlyph = glyphs[index];
     double x = startGlyph.boundingRect.left;
     double y = startGlyph.boundingRect.top;
     double width = 0;
     double height = startGlyph.boundingRect.height;
-    //For conmplex script glyph mapping
+    //For complex script glyph mapping
     int endIndex = index + text.length - 1;
     int length = text.length;
     String tempString = '';
@@ -778,7 +1036,33 @@ class PdfTextExtractor {
         }
       }
     }
-    return _calculateBounds(Rect.fromLTWH(x, y, width, height));
+    return Rect.fromLTWH(x, y, width, height);
+  }
+
+  Rect _getRTLBounds(List<Glyph> glyphs, String text, int index, PdfPage page) {
+    final Glyph startGlyph = glyphs[index];
+    double x = startGlyph.boundingRect.left;
+    final double y = startGlyph.boundingRect.top;
+    double width = 0;
+    final double height = startGlyph.boundingRect.height;
+    //For complex script glyph mapping
+    int endIndex = index + text.length - 1;
+    String tempString = '';
+    for (int i = 0; i < text.length; i++) {
+      tempString += glyphs[index + i].toUnicode;
+      if (tempString == text) {
+        endIndex = index + i;
+        break;
+      }
+    }
+    final Glyph endGlyph = glyphs[endIndex];
+    if (startGlyph.boundingRect.top == endGlyph.boundingRect.top ||
+        (startGlyph.boundingRect.top - endGlyph.boundingRect.top).abs() <
+            0.001) {
+      width = (x - endGlyph.boundingRect.left) + startGlyph.boundingRect.width;
+      x = startGlyph.boundingRect.left + startGlyph.boundingRect.width - width;
+    }
+    return Rect.fromLTWH(x, y, width, height);
   }
 
   bool _hasEscapeCharacter(String text) {
@@ -872,6 +1156,10 @@ class PdfTextExtractor {
       if (!isSameFontStyle) {
         isSameFontStyle = true;
       }
+    }
+    if (textLine.text.isNotEmpty && bidi.Bidi.hasAnyRtl(textLine.text)) {
+      textLine.text = _bidi.getLogicalToVisualString(
+          textLine.text, true)['rtlText'] as String;
     }
     return textLine;
   }
@@ -1082,8 +1370,8 @@ class PdfTextExtractor {
             }
           case 'BT':
             {
-              _textMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
-              _textLineMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
+              _textMatrix = MatrixHelper(1, 0, 0, 1, 0, 0);
+              _textLineMatrix = MatrixHelper(1, 0, 0, 1, 0, 0);
               break;
             }
           case 'T*':
@@ -1239,6 +1527,7 @@ class PdfTextExtractor {
   String _renderTextElementTJ(List<String> elements, String tokenType,
       PdfPageResources pageResources, double? horizontalScaling) {
     List<String> decodedList = <String>[];
+    Map<List<dynamic>?, String> decodedListCollection = <List<int?>?, String>{};
     final String text = elements.join();
     String tempText = '';
     if (pageResources.containsKey(_currentFont)) {
@@ -1255,12 +1544,17 @@ class PdfTextExtractor {
         decodedList = fontStructure.decodeCjkTextExtractionTJ(
             text, pageResources.isSameFont());
       } else {
-        decodedList = fontStructure.decodeTextExtractionTJ(
+        decodedListCollection = fontStructure.decodeTextExtractionTJ(
             text, pageResources.isSameFont());
+        decodedList = decodedListCollection.values.toList();
       }
       fontStructure.isTextExtraction = false;
       tempText =
           _renderTextFromTJ(decodedList, horizontalScaling, fontStructure);
+      if (bidi.Bidi.hasAnyRtl(tempText)) {
+        tempText =
+            _bidi.getLogicalToVisualString(tempText, true)['rtlText'] as String;
+      }
     }
     return tempText;
   }
@@ -1278,7 +1572,7 @@ class PdfTextExtractor {
           extractedText += ' ';
         }
       } else {
-        double _characterWidth = 1.0;
+        double characterWidth = 1.0;
         if (word != '' && word[word.length - 1] == 's') {
           word = word.substring(0, word.length - 1);
         }
@@ -1289,7 +1583,7 @@ class PdfTextExtractor {
               fontStructure.isStandardFont &&
               fontStructure.font != null) {
             final PdfStandardFont font = fontStructure.font! as PdfStandardFont;
-            _characterWidth = PdfStandardFontHelper.getHelper(font)
+            characterWidth = PdfStandardFontHelper.getHelper(font)
                     .getCharWidthInternal(renderedCharacter) *
                 PdfFontHelper.characterSizeMultiplier;
           } else if (!fontStructure.isEmbedded &&
@@ -1297,11 +1591,11 @@ class PdfTextExtractor {
               fontStructure.font != null) {
             final PdfCjkStandardFont font =
                 fontStructure.font! as PdfCjkStandardFont;
-            _characterWidth = PdfCjkStandardFontHelper.getHelper(font)
+            characterWidth = PdfCjkStandardFontHelper.getHelper(font)
                     .getCharWidthInternal(renderedCharacter) *
                 PdfFontHelper.characterSizeMultiplier;
           } else {
-            _characterWidth =
+            characterWidth =
                 _getCharacterWidth(renderedCharacter, fontStructure);
           }
           _textMatrix = _getTextRenderingMatrix(horizontalScaling!);
@@ -1325,7 +1619,7 @@ class PdfTextExtractor {
           final Rect boundingRect = Rect.fromLTWH(
               matrix.offsetX / 1.3333333333333333,
               (matrix.offsetY - tempFontSize!) / 1.3333333333333333,
-              _characterWidth * tempFontSize,
+              characterWidth * tempFontSize,
               tempFontSize);
           if (_tempBoundingRectangle != null) {
             final double boundingDifference =
@@ -1341,7 +1635,7 @@ class PdfTextExtractor {
           }
           extractedText += renderedCharacter;
           _textLineMatrix =
-              _updateTextMatrix(_characterWidth, horizontalScaling);
+              _updateTextMatrix(characterWidth, horizontalScaling);
           _tempBoundingRectangle = boundingRect;
           _textMatrix = _textLineMatrix!.clone();
         }
@@ -1369,6 +1663,9 @@ class PdfTextExtractor {
         fontStructure.fontSize = _fontSize;
         text = fontStructure.decodeTextExtraction(text, true);
         fontStructure.isTextExtraction = false;
+      }
+      if (bidi.Bidi.hasAnyRtl(text)) {
+        text = _bidi.getLogicalToVisualString(text, true)['rtlText'] as String;
       }
       return text;
     } catch (e) {
@@ -1446,11 +1743,11 @@ class PdfTextExtractor {
   }
 
   double _getCharacterWidth(String character, FontStructure structure) {
-    final int _charID = character.codeUnitAt(0);
+    final int charID = character.codeUnitAt(0);
     return (structure.fontGlyphWidths != null &&
             structure.fontType!.name == 'TrueType' &&
-            structure.fontGlyphWidths!.containsKey(_charID))
-        ? structure.fontGlyphWidths![_charID]! * 0.001
+            structure.fontGlyphWidths!.containsKey(charID))
+        ? structure.fontGlyphWidths![charID]! * 0.001
         : 1.0;
   }
 

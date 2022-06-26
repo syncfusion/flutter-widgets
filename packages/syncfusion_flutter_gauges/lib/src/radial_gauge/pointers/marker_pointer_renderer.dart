@@ -604,7 +604,7 @@ class RenderMarkerPointer extends RenderBox {
   // ignore: avoid_void_async
   void _loadImage() async {
     await _renderImage().then((void value) {
-      WidgetsBinding.instance!
+      WidgetsBinding.instance
           .addPostFrameCallback((Duration duration) => markNeedsPaint());
     });
   }
@@ -628,7 +628,7 @@ class RenderMarkerPointer extends RenderBox {
     final Paint paint = Paint()
       ..color = color ??
           gaugeThemeData.markerColor ??
-          _themeData.colorScheme.secondaryVariant.withOpacity(0.8)
+          _themeData.colorScheme.secondaryContainer.withOpacity(0.8)
       ..style = PaintingStyle.fill;
     const Color shadowColor = Colors.black;
 
@@ -639,7 +639,7 @@ class RenderMarkerPointer extends RenderBox {
         ..color = overlayColor ??
             color?.withOpacity(0.12) ??
             gaugeThemeData.markerColor?.withOpacity(0.12) ??
-            _themeData.colorScheme.secondaryVariant.withOpacity(0.12)
+            _themeData.colorScheme.secondaryContainer.withOpacity(0.12)
         ..style = PaintingStyle.fill;
     }
 

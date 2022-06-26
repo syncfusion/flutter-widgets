@@ -1,11 +1,14 @@
+// ignore_for_file: use_if_null_to_convert_nulls_to_bools
+
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_page_view.dart';
 
+import '../../pdfviewer.dart';
 import '../common/pdfviewer_helper.dart';
+import 'pdf_page_view.dart';
 import 'scroll_head_overlay.dart';
 
 /// This callback triggered whenever offset is changed in PDF.
@@ -118,6 +121,7 @@ class PdfScrollableState extends State<PdfScrollable> {
   double? _currentScale;
   bool? _setZoomLevel;
   bool _isOverFlowed = false;
+  Timer? _scrollTimer;
 
   /// Current Offset.
   late Offset currentOffset;
@@ -134,6 +138,11 @@ class PdfScrollableState extends State<PdfScrollable> {
   /// Padding scale for height used in mobile for single page document.
   double paddingHeightScale = 0;
 
+  /// State of scroll head overlay.
+  final GlobalKey<ScrollHeadOverlayState> scrollHeadStateKey = GlobalKey();
+
+  /// Indicates whether the user scrolls continuously.
+  bool isScrolled = false;
   @override
   void initState() {
     super.initState();
@@ -148,6 +157,8 @@ class PdfScrollableState extends State<PdfScrollable> {
   @override
   void dispose() {
     _transformationController.dispose();
+    _scrollTimer?.cancel();
+    _scrollTimer = null;
     super.dispose();
   }
 
@@ -187,6 +198,7 @@ class PdfScrollableState extends State<PdfScrollable> {
       onInteractionEnd: _handleInteractionEnd,
       transformationController: _transformationController,
       onPdfOffsetChanged: _handlePdfOffsetChanged,
+      key: scrollHeadStateKey,
     );
   }
 
@@ -282,11 +294,18 @@ class PdfScrollableState extends State<PdfScrollable> {
 
   ///Triggers when scrolling performed by touch pad.
   void receivedPointerSignal(PointerSignalEvent event) {
+    isScrolled = true;
     if (event is PointerScrollEvent) {
       jumpTo(
           xOffset: currentOffset.dx + event.scrollDelta.dx,
           yOffset: currentOffset.dy + event.scrollDelta.dy);
     }
+    _scrollTimer = Timer(
+      const Duration(milliseconds: 2000),
+      () {
+        isScrolled = false;
+      },
+    );
   }
 
   ///Triggers when scrolling performed by touch.
@@ -377,7 +396,7 @@ class PdfScrollableState extends State<PdfScrollable> {
       _setPixel(offset);
     } else {
       // add post frame which is jumped once the layout is changed.
-      WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
         _setPixel(offset);
       });
     }

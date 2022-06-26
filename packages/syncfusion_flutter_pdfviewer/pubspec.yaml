@@ -21,9 +21,11 @@ flutter:
       ios:
         pluginClass: SyncfusionFlutterPdfViewerPlugin
       web:
-        default_package: syncfusion_flutter_pdfviewer_web
+        default_package: syncfusion_pdfviewer_web
       macos:
-        default_package: syncfusion_flutter_pdfviewer_macos
+        default_package: syncfusion_pdfviewer_macos
+      windows:
+        default_package: syncfusion_pdfviewer_windows
 
 dependencies:
   flutter:
@@ -33,17 +35,48 @@ dependencies:
   http: ^0.13.0
   uuid: ^3.0.5
 
-  syncfusion_flutter_pdfviewer_platform_interface:
-    path: ../syncfusion_flutter_pdfviewer_platform_interface
-  
-  syncfusion_flutter_pdfviewer_web:
-    path: ../syncfusion_flutter_pdfviewer_web
+  syncfusion_pdfviewer_platform_interface:
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdfviewer
+      path: flutter_pdfviewer/syncfusion_pdfviewer_platform_interface
+      branch: hotfix/20.1.0.47_Vol1
+      ref: hotfix/20.1.0.47_Vol1
 
-  syncfusion_flutter_pdfviewer_macos:
-    path: ../syncfusion_flutter_pdfviewer_macos
+  syncfusion_pdfviewer_web:
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdfviewer
+      path: flutter_pdfviewer/syncfusion_pdfviewer_web
+      branch: hotfix/20.1.0.47_Vol1
+      ref: hotfix/20.1.0.47_Vol1
+
+  syncfusion_pdfviewer_macos:
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdfviewer
+      path: flutter_pdfviewer/syncfusion_pdfviewer_macos
+      branch: hotfix/20.1.0.47_Vol1
+      ref: hotfix/20.1.0.47_Vol1
+  
+  syncfusion_pdfviewer_windows:
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdfviewer
+      path: flutter_pdfviewer/syncfusion_pdfviewer_windows
+      branch: hotfix/20.1.0.47_Vol1
+      ref: hotfix/20.1.0.47_Vol1
 
   syncfusion_flutter_core:
-    path: ../syncfusion_flutter_core
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-core
+      path: syncfusion_flutter_core
+      branch: hotfix/20.1.0.47_Vol1
+      ref: hotfix/20.1.0.47_Vol1
 
   syncfusion_flutter_pdf:
-    path: ../syncfusion_flutter_pdf
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdf
+      path: flutter_pdf/syncfusion_flutter_pdf
+      branch: hotfix/20.1.0.47_Vol1
+      ref: hotfix/20.1.0.47_Vol1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

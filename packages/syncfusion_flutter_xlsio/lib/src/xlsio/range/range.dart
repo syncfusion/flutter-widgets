@@ -49,6 +49,12 @@ class Range {
   String _errorValue = '';
   late String _cfValue;
 
+  /// Represents the variable store single and multiple range values
+  late String _dvValue;
+
+  /// Represents a variable used for checking whether dataValidation wrapper is null
+  _DataValidationWrapper? _dataValidationWrapper;
+
   /// Represents the row span.
   int _rowSpan = 0;
 
@@ -91,16 +97,14 @@ class Range {
   /// workbook.dispose();
   /// ```
   String get addressGlobal {
-    // ignore: prefer_interpolation_to_compose_strings
-    final String result = worksheet.name + '!';
+    final String result = '${worksheet.name}!';
     final String cell0 = r'$' + _getCellNameWithSymbol(row, column);
 
     if (isSingleRange) {
       return result + cell0;
     } else {
       final String cell1 = r'$' + _getCellNameWithSymbol(lastRow, lastColumn);
-      // ignore: prefer_interpolation_to_compose_strings
-      return result + cell0 + ':' + cell1;
+      return '$result$cell0:$cell1';
     }
   }
 
@@ -116,7 +120,7 @@ class Range {
   /// workbook.dispose();
   /// ```
   String get addressLocal {
-    return _getCellName(row, column);
+    return _getAddressLocal(row, column, lastRow, lastColumn);
   }
 
   /// Represent the range formula.
@@ -483,9 +487,9 @@ class Range {
 
   /// Represents the row height.
   double get rowHeight {
-    final Row? _rowObj = _worksheet.rows[row];
-    if (_rowObj != null) {
-      return _rowObj.height;
+    final Row? rowObj = _worksheet.rows[row];
+    if (rowObj != null) {
+      return rowObj.height;
     }
     return 0;
   }
@@ -503,13 +507,13 @@ class Range {
   /// ```
   set rowHeight(double value) {
     if (isSingleRange) {
-      Row? _rowObj = _worksheet.rows[row];
-      if (_rowObj == null) {
-        _rowObj = Row(_worksheet);
-        _rowObj.index = row;
-        worksheet.rows[row] = _rowObj;
+      Row? rowObj = _worksheet.rows[row];
+      if (rowObj == null) {
+        rowObj = Row(_worksheet);
+        rowObj.index = row;
+        worksheet.rows[row] = rowObj;
       }
-      _rowObj.height = value;
+      rowObj.height = value;
     } else {
       // ignore: prefer_final_locals
       for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
@@ -601,6 +605,88 @@ class Range {
       rows[row] = currRow;
       currRow.ranges[column] = this;
     }
+  }
+
+  /// Shows or hides rows in the given range. TRUE by default.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// Range range = sheet.getRangeByName('A1');
+  /// range.showRows(false);
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Number.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  void showRows(bool? isVisible) {
+    if (isSingleRange) {
+      Row? row1 = _worksheet.rows[row];
+      if (row1 == null) {
+        row1 = Row(_worksheet);
+        row1.index = row;
+        worksheet.rows[row] = row1;
+      }
+      row1._isHidden = !isVisible!;
+    } else {
+      for (int rowIndex = row; rowIndex <= lastRow; rowIndex++) {
+        Row? row1 = _worksheet.rows[rowIndex];
+        if (row1 == null) {
+          row1 = Row(_worksheet);
+          row1.index = rowIndex;
+          worksheet.rows[rowIndex] = row1;
+        }
+        row1._isHidden = !isVisible!;
+      }
+    }
+  }
+
+  /// Shows or hides columns in the given range. TRUE by default.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// Range range = sheet.getRangeByName('A1');
+  /// range.showColumns(false);
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Number.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  void showColumns(bool? isVisible) {
+    if (isSingleRange) {
+      Column? column1 = _worksheet.columns[column];
+      if (column1 == null) {
+        column1 = Column(_worksheet);
+        column1.index = column;
+        worksheet.columns[column] = column1;
+      }
+      column1._isHidden = !isVisible!;
+    } else {
+      for (int columnIndex = column; columnIndex <= lastColumn; columnIndex++) {
+        Column? column1 = _worksheet.columns[columnIndex];
+        if (column1 == null) {
+          column1 = Column(_worksheet);
+          column1.index = column;
+          worksheet.columns[columnIndex] = column1;
+        }
+        column1._isHidden = !isVisible!;
+      }
+    }
+  }
+
+  /// Shows or hides rows and columns in the given range. TRUE by default.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// Range range = sheet.getRangeByName('A1:A2');
+  /// range.showRange(false);
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Number.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  void showRange(bool? isVisible) {
+    showRows(isVisible);
+    showColumns(isVisible);
   }
 
   /// Set number value to the range.
@@ -765,7 +851,7 @@ class Range {
 
   /// Get Range Date time value.
   DateTime? getDateTime() {
-    final DateTime minimumDateValue = DateTime(0001, 1, 1, 0, 0, 0);
+    final DateTime minimumDateValue = DateTime(0001);
     Range range = worksheet.getRangeByIndex(row, column);
     final double? dValue = range.number;
 
@@ -808,8 +894,7 @@ class Range {
     if (formula != null) {
       if (isSingleRange) {
         if (formula[0] != '=') {
-          // ignore: prefer_interpolation_to_compose_strings
-          formula = '=' + formula;
+          formula = '=$formula';
         }
         _formula = formula;
         type = CellType.formula;
@@ -882,6 +967,7 @@ class Range {
   }
 
   /// Set formula number value to the range.
+  // ignore: use_setters_to_change_properties
   void _setFormulaNumberValue(double number) {
     _number = number;
   }
@@ -914,9 +1000,18 @@ class Range {
 
   /// Set formula error string value.
   void _setFormulaErrorStringValue(String eValue) {
-    // ignore: noop_primitive_operations
-    _errorValue = eValue.split(' ').toList().removeAt(1).toString();
+    _errorValue = eValue.split(' ').toList().removeAt(1);
     _saveType = 'e';
+  }
+
+  String _getAddressLocal(int row, int column, int lastRow, int lastColumn) {
+    final String cell0 = _getCellName(row, column);
+    if (row == lastRow || column == lastColumn) {
+      return cell0;
+    } else {
+      final String cell1 = _getCellName(lastRow, lastColumn);
+      return '$cell0:$cell1';
+    }
   }
 
   /// Get cell name from row and column.
@@ -986,8 +1081,7 @@ class Range {
       final int currencyIndex = inputFormat.indexOf(currencySymbol);
       if (currencyIndex != -1) {
         inputFormat =
-            // ignore: prefer_interpolation_to_compose_strings
-            inputFormat.replaceAll('"' + currencySymbol + '"', currencySymbol);
+            inputFormat.replaceAll('"$currencySymbol"', currencySymbol);
       }
     }
     return inputFormat;
@@ -1021,8 +1115,6 @@ class Range {
         if (number != null || dateTime != null) {
           return _getNumberOrDateTime(formatImpl, number, row, column);
         }
-        break;
-      default:
         break;
     }
     return '';
@@ -1085,7 +1177,11 @@ class Range {
           }
         }
         return displayText;
-      default:
+
+      case ExcelFormatType.percentage:
+      case ExcelFormatType.currency:
+      case ExcelFormatType.decimalPercentage:
+      case ExcelFormatType.exponential:
         break;
     }
     return displayText;
@@ -1122,8 +1218,7 @@ class Range {
 
         case 'NOW':
           numberFormat =
-              // ignore: prefer_interpolation_to_compose_strings
-              dateTime.shortDatePattern + ' ' + dateTime.shortTimePattern;
+              '${dateTime.shortDatePattern} ${dateTime.shortTimePattern}';
           updated = true;
           break;
 
@@ -1263,8 +1358,7 @@ class Range {
   /// Set built-in-style.
   void setBuiltInStyle(BuiltInStyles? value) {
     if (value != null) {
-      // ignore: noop_primitive_operations
-      _styleName = value.toString().split('.').toList().removeAt(1).toString();
+      _styleName = value.toString().split('.').toList().removeAt(1);
       final Style globalStyle = workbook.styles.add(_styleName);
       if (isSingleRange) {
         _cellStyle = globalStyle;
@@ -1494,12 +1588,8 @@ class Range {
     if (isSingleRange) {
       _cfValue = _getColumnName(column) + row.toString();
     } else {
-      // ignore: prefer_interpolation_to_compose_strings
-      _cfValue = _getColumnName(column) +
-          row.toString() +
-          ':' +
-          _getColumnName(lastColumn) +
-          lastRow.toString();
+      _cfValue =
+          '${_getColumnName(column)}$row:${_getColumnName(lastColumn)}$lastRow';
     }
     return _worksheet._createCondFormatCollectionWrapper(this, _cfValue);
   }
@@ -1510,5 +1600,58 @@ class Range {
       (_cellStyle! as CellStyle)._clear();
       _cellStyle = null;
     }
+  }
+
+  /// Gets the dataValidation for the Range.
+  /// ```dart
+  /// //Creating one worksheet and accessing the first sheet
+  /// final Workbook workbook = Workbook(1);
+  /// final Worksheet sheet = workbook.worksheets[0];
+  ///
+  /// //Accessing the first cell in worksheet and applying the Formula with Between property
+  /// final DataValidation formulaValidation =
+  ///     sheet.getRangeByName('A1').dataValidation;
+  ///
+  /// //sets the allowType
+  /// formulaValidation.allowType = ExcelDataType.formula;
+  ///
+  /// //sets the compareOperator
+  /// formulaValidation.compareOperator =
+  ///     ExcelDataValidationComparisonOperator.between;
+  ///
+  /// //sets the listofValues
+  /// formulaValidation.listOfValues = <String>['List1', 'List2', 'List3'];
+  ///
+  /// //Save and dispose Workbook
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'ExcelFormulaValidationbetween.xlsx');
+  /// workbook.dispose();
+  /// ```
+  DataValidation get dataValidation {
+    if (isSingleRange) {
+      if (_dataValidationWrapper == null) {
+        final _DataValidationImpl? dv = _findDataValidation();
+        _dataValidationWrapper = _DataValidationWrapper(this, dv);
+      }
+      return _dataValidationWrapper!;
+    } else {
+      if (_dataValidationWrapper == null) {
+        final _DataValidationImpl? dv = _findDataValidation();
+        _dataValidationWrapper = _DataValidationWrapper(this, dv);
+      }
+      return _dataValidationWrapper!;
+    }
+  }
+
+  ///Represents the method to find whether the datavalidation exists for both single and multiple range
+  _DataValidationImpl? _findDataValidation() {
+    final _DataValidationTable dvtable = _worksheet._dvTable;
+    if (isSingleRange) {
+      _dvValue = _getColumnName(column) + row.toString();
+    } else {
+      _dvValue =
+          '${_getColumnName(column)}${row.toString()}:${_getColumnName(lastColumn)}${lastRow.toString()}';
+    }
+    return dvtable._findDataValidation(_dvValue);
   }
 }

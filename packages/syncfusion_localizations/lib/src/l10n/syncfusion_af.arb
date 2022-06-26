@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Geen gebeure nie", 
 "ofDataPagerLabel" : "van", 
 "pagesDataPagerLabel" : "bladsye", 
-"itemsDataPagerLabel" : "items", 
+"rowsPerPageDataPagerLabel" : "Rye per bladsy", 
 "pdfBookmarksLabel" : "Boekmerke", 
 "pdfNoBookmarksLabel" : "Geen boekmerke gevind nie", 
 "pdfScrollStatusOfLabel" : "van", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Dag"
+"daySpanCountLabel" : "Dag", 
+"series" : "Reeks"
 }

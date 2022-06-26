@@ -4553,7 +4553,7 @@ void _drawWeekNumber(
   monthView._textPainter.textAlign = TextAlign.left;
   monthView._textPainter.textDirection = TextDirection.ltr;
   monthView._textPainter.textWidthBasis = TextWidthBasis.longestLine;
-  monthView._textPainter.layout(minWidth: 0, maxWidth: weekNumberPanelWidth);
+  monthView._textPainter.layout(maxWidth: weekNumberPanelWidth);
 
   double weekNumberPosition =
       (weekNumberPanelWidth - monthView._textPainter.width) / 2;
@@ -4585,13 +4585,13 @@ void _drawWeekNumberPanel(Canvas canvas, Size size, double weekNumberPanelWidth,
   final double padding = monthView.isMobilePlatform ? 5 : 0;
   final Rect rect = Rect.fromLTRB(xPosition + padding, padding,
       (xPosition + weekNumberPanelWidth) - padding, size.height - padding);
-  final Paint _linePainter = Paint();
-  _linePainter.style = PaintingStyle.fill;
-  _linePainter.color = monthView.weekNumberStyle.backgroundColor ??
+  final Paint linePainter = Paint();
+  linePainter.style = PaintingStyle.fill;
+  linePainter.color = monthView.weekNumberStyle.backgroundColor ??
       monthView.datePickerTheme.weekNumberBackgroundColor!;
   final RRect roundedRect =
       RRect.fromRectAndRadius(rect, Radius.circular(padding));
-  canvas.drawRRect(roundedRect, _linePainter);
+  canvas.drawRRect(roundedRect, linePainter);
 }
 
 /// Add the hovering effect when the selection mode set as extendable and the
@@ -4866,19 +4866,20 @@ Decoration? _updateDecoration(
   final Decoration? dateDecoration =
       monthView.cellStyle.cellDecoration as Decoration?;
 
-  if (isBlackedDate) {
-    return monthView.cellStyle.blackoutDatesDecoration as Decoration?;
+  if (isBlackedDate && monthView.cellStyle.blackoutDatesDecoration != null) {
+    return monthView.cellStyle.blackoutDatesDecoration as Decoration;
   }
 
-  if (isSpecialDate) {
-    return monthView.cellStyle.specialDatesDecoration as Decoration?;
+  if (isSpecialDate && monthView.cellStyle.specialDatesDecoration != null) {
+    return monthView.cellStyle.specialDatesDecoration as Decoration;
   }
 
-  if (!isEnableDate || isDisabledDate) {
-    return monthView.cellStyle.disabledDatesDecoration as Decoration?;
+  if ((!isEnableDate || isDisabledDate) &&
+      monthView.cellStyle.disabledDatesDecoration != null) {
+    return monthView.cellStyle.disabledDatesDecoration as Decoration;
   }
 
-  if (isCurrentDate) {
+  if (isCurrentDate && monthView.cellStyle.todayCellDecoration != null) {
     return monthView.cellStyle.todayCellDecoration as Decoration? ??
         dateDecoration;
   }
@@ -4887,10 +4888,14 @@ Decoration? _updateDecoration(
     return monthView.cellStyle.weekendDatesDecoration as Decoration;
   }
 
-  if (isNextMonth && !monthView.isHijri) {
-    return monthView.cellStyle.leadingDatesDecoration as Decoration?;
-  } else if (isPreviousMonth && !monthView.isHijri) {
-    return monthView.cellStyle.trailingDatesDecoration as Decoration?;
+  if (isNextMonth &&
+      !monthView.isHijri &&
+      monthView.cellStyle.leadingDatesDecoration != null) {
+    return monthView.cellStyle.leadingDatesDecoration as Decoration;
+  } else if (isPreviousMonth &&
+      !monthView.isHijri &&
+      monthView.cellStyle.trailingDatesDecoration != null) {
+    return monthView.cellStyle.trailingDatesDecoration as Decoration;
   }
 
   return dateDecoration;

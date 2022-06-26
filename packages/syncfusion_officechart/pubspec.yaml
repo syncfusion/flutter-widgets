@@ -9,7 +9,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  xml: ^5.0.2
-  archive: ^3.1.2
+  xml: ">=5.1.0 <7.0.0"
+  archive: ">=3.1.2 <4.0.0"
   syncfusion_flutter_xlsio: 
-    path: ../syncfusion_flutter_xlsio
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-xlsio
+      path: flutter_xlsio/syncfusion_flutter_xlsio
+      branch: hotfix/20.1.0.47_Vol1
+      ref: hotfix/20.1.0.47_Vol1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

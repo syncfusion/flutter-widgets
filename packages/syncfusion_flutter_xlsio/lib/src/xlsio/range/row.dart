@@ -5,7 +5,11 @@ class Row {
   /// Create an instance of Row.
   Row(Worksheet sheet) {
     _worksheet = sheet;
+    _isHidden = false;
   }
+
+  ///Represents the indicate wheather row hide or not.
+  late bool _isHidden;
 
   /// Represents the row height.
   double height = 0;

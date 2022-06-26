@@ -29,7 +29,7 @@ import 'tma_indicator.dart';
 
 /// Customize the technical indicators.
 ///
-///The technical indicator is a mathematical calculation based on historical price, volume or (in the case of futures contracts) open interest information,
+/// The technical indicator is a mathematical calculation based on historical price, volume or (in the case of futures contracts) open interest information,
 /// which is intended to predict the direction of the financial market.
 ///
 /// Indicators generally overlay the  chart data to show the data flow over a period of time.
@@ -87,100 +87,124 @@ class TechnicalIndicators<T, D> {
   /// Boolean property to change  the visibility of the technical indicators.
   ///
   /// Defaults to `true`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                isVisible : false,
-  ///              ),
-  ///           ],
-  ///        ));
-  ///}
-  ///```
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        isVisible: false
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final bool isVisible;
 
-  ///  Property to map the technical indicators with the axes.
+  /// Property to map the technical indicators with the axes.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                xAxisName : 'bird',
-  ///              ),
-  ///            ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    primaryXAxis: NumericAxis(name: 'xAxis')
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        xAxisName: 'xAxis',
+  ///        showZones : false
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final String? xAxisName;
 
   /// Property to map the technical indicators with the axes.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                yAxisName : 'ballon',
-  ///              ),
-  ///           ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    primaryYAxis: NumericAxis(name: 'yAxis')
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        xAxisName: 'yAxis',
+  ///        showZones : false
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final String? yAxisName;
 
   /// Property to link indicators to a series based on names.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                seriesName : 'series1',
-  ///              ),
-  ///            ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final String? seriesName;
 
-  /// Property to provide DashArray for the technical indicators.
+  /// Property to provide dash array for the technical indicators.
   ///
   /// Defaults to `<double>[0, 0]`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                dashArray : <double>[3,3],
-  ///              ),
-  ///            ],
-  ///        ));
-  ///}
-  ///```
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        dashArray: <double>[2, 3]
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final List<double> dashArray;
 
   /// Animation duration for the technical indicators.
   ///
   /// Defaults to `1500`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                animationDuration : 0,
-  ///              ),
-  ///           ],
-  ///        ));
-  ///}
-  ///```
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        animationDuration: 1000
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final double animationDuration;
 
   /// Delay duration of the technical indicator's animation.
@@ -189,317 +213,440 @@ class TechnicalIndicators<T, D> {
   /// If animationDelay is specified, then the technical indicator will begin to animate
   /// after the specified duration.
   ///
-  /// Defaults to '0'.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                animationDelay : 500,
-  ///              ),
-  ///           ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `0`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        animationDelay: 500
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final double? animationDelay;
 
-  /// Property to provide data  for the technical indicators without any series.
+  /// Property to provide data for the technical indicators without any series.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                dataSource : Sample,
-  ///              ),
-  ///           ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to 'null'.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<ChartData, num>>[
+  ///      StochasticIndicator<ChartData, num>(
+  ///        dataSource: chartData,
+  ///        xValueMapper: (chartData data, _) => data.x,
+  ///        lowValueMapper: (chartData data, _) => data.low,
+  ///        highValueMapper: (chartData data, _) => data.high,
+  ///        openValueMapper: (chartData data, _) => data.open,
+  ///        closeValueMapper: (chartData data, _) => data.close,
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// final List<ChartData> chartData = <ChartData>[
+  ///   ChartData(1, 23, 50, 28, 38),
+  ///   ChartData(2, 35, 80, 58, 78),
+  ///   ChartData(3, 19, 90, 38, 58)
+  /// ];
+  ///
+  /// class ChartData {
+  ///   ChartData(this.x, this.low, this.high, this.open, this.close);
+  ///     final double x;
+  ///     final double low;
+  ///     final double high;
+  ///     final double open;
+  ///     final double close;
+  /// }
+  /// ```
   final List<T>? dataSource;
 
   /// Value mapper to map the x values with technical indicators.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                xValueMapper: (Sample sales, _) => sales.x,
-  ///              ),
-  ///           ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to 'null'.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<ChartData, num>>[
+  ///      StochasticIndicator<ChartData, num>(
+  ///        dataSource: chartData,
+  ///        xValueMapper: (chartData data, _) => data.x,
+  ///        lowValueMapper: (chartData data, _) => data.low,
+  ///        highValueMapper: (chartData data, _) => data.high,
+  ///        openValueMapper: (chartData data, _) => data.open,
+  ///        closeValueMapper: (chartData data, _) => data.close,
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// final List<ChartData> chartData = <ChartData>[
+  ///   ChartData(1, 23, 50, 28, 38),
+  ///   ChartData(2, 35, 80, 58, 78),
+  ///   ChartData(3, 19, 90, 38, 58)
+  /// ];
+  ///
+  /// class ChartData {
+  ///   ChartData(this.x, this.low, this.high, this.open, this.close);
+  ///     final double x;
+  ///     final double low;
+  ///     final double high;
+  ///     final double open;
+  ///     final double close;
+  /// }
+  /// ```
   final ChartIndexedValueMapper<D>? xValueMapper;
 
   /// Value mapper to map the low values with technical indicators.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                lowValueMapper: (Sample sales, _) => sales.low,
-  ///              ),
-  ///        ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to 'null'.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<ChartData, num>>[
+  ///      StochasticIndicator<ChartData, num>(
+  ///        dataSource: chartData,
+  ///        xValueMapper: (chartData data, _) => data.x,
+  ///        lowValueMapper: (chartData data, _) => data.low,
+  ///        highValueMapper: (chartData data, _) => data.high,
+  ///        openValueMapper: (chartData data, _) => data.open,
+  ///        closeValueMapper: (chartData data, _) => data.close,
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// final List<ChartData> chartData = <ChartData>[
+  ///   ChartData(1, 23, 50, 28, 38),
+  ///   ChartData(2, 35, 80, 58, 78),
+  ///   ChartData(3, 19, 90, 38, 58)
+  /// ];
+  ///
+  /// class ChartData {
+  ///   ChartData(this.x, this.low, this.high, this.open, this.close);
+  ///     final double x;
+  ///     final double low;
+  ///     final double high;
+  ///     final double open;
+  ///     final double close;
+  /// }
+  /// ```
   final ChartIndexedValueMapper<num>? lowValueMapper;
 
   /// Value mapper to map the high values with technical indicators.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                 highValueMapper: (Sample sales, _) => sales.high,
-  ///              ),
-  ///           ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to 'null'.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<ChartData, num>>[
+  ///      StochasticIndicator<ChartData, num>(
+  ///        dataSource: chartData,
+  ///        xValueMapper: (chartData data, _) => data.x,
+  ///        lowValueMapper: (chartData data, _) => data.low,
+  ///        highValueMapper: (chartData data, _) => data.high,
+  ///        openValueMapper: (chartData data, _) => data.open,
+  ///        closeValueMapper: (chartData data, _) => data.close,
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// final List<ChartData> chartData = <ChartData>[
+  ///   ChartData(1, 23, 50, 28, 38),
+  ///   ChartData(2, 35, 80, 58, 78),
+  ///   ChartData(3, 19, 90, 38, 58)
+  /// ];
+  ///
+  /// class ChartData {
+  ///   ChartData(this.x, this.low, this.high, this.open, this.close);
+  ///     final double x;
+  ///     final double low;
+  ///     final double high;
+  ///     final double open;
+  ///     final double close;
+  /// }
+  /// ```
   final ChartIndexedValueMapper<num>? highValueMapper;
 
   /// Value mapper to map the open values with technical indicators.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///               openValueMapper: (Sample sales, _) => sales.open,
-  ///              ),
-  ///            ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to 'null'.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<ChartData, num>>[
+  ///      StochasticIndicator<ChartData, num>(
+  ///        dataSource: chartData,
+  ///        xValueMapper: (chartData data, _) => data.x,
+  ///        lowValueMapper: (chartData data, _) => data.low,
+  ///        highValueMapper: (chartData data, _) => data.high,
+  ///        openValueMapper: (chartData data, _) => data.open,
+  ///        closeValueMapper: (chartData data, _) => data.close,
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// final List<ChartData> chartData = <ChartData>[
+  ///   ChartData(1, 23, 50, 28, 38),
+  ///   ChartData(2, 35, 80, 58, 78),
+  ///   ChartData(3, 19, 90, 38, 58)
+  /// ];
+  ///
+  /// class ChartData {
+  ///   ChartData(this.x, this.low, this.high, this.open, this.close);
+  ///     final double x;
+  ///     final double low;
+  ///     final double high;
+  ///     final double open;
+  ///     final double close;
+  /// }
+  /// ```
   final ChartIndexedValueMapper<num>? openValueMapper;
 
   /// Value mapper to map the close values with technical indicators.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///              closeValueMapper: (Sample sales, _) => sales.close,
-  ///              ),
-  ///            ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to 'null'.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<ChartData, num>>[
+  ///      StochasticIndicator<ChartData, num>(
+  ///        dataSource: chartData,
+  ///        xValueMapper: (chartData data, _) => data.x,
+  ///        lowValueMapper: (chartData data, _) => data.low,
+  ///        highValueMapper: (chartData data, _) => data.high,
+  ///        openValueMapper: (chartData data, _) => data.open,
+  ///        closeValueMapper: (chartData data, _) => data.close,
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// final List<ChartData> chartData = <ChartData>[
+  ///   ChartData(1, 23, 50, 28, 38),
+  ///   ChartData(2, 35, 80, 58, 78),
+  ///   ChartData(3, 19, 90, 38, 58)
+  /// ];
+  ///
+  /// class ChartData {
+  ///   ChartData(this.x, this.low, this.high, this.open, this.close);
+  ///     final double x;
+  ///     final double low;
+  ///     final double high;
+  ///     final double open;
+  ///     final double close;
+  /// }
+  /// ```
   final ChartIndexedValueMapper<num>? closeValueMapper;
 
   /// Property to provide name for the technical indicators.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                name :'indicators',
-  ///              ),
-  ///           ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to 'null'.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        name: 'indicators'
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final String? name;
 
   /// Boolean property to determine the rendering of legends for the technical indicators.
   ///
   /// Defaults to `true`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                isVisibleInLegend : false,
-  ///              ),
-  ///           ],
-  ///        ));
-  ///}
-  ///```
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        isVisibleInLegend : false
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final bool isVisibleInLegend;
 
   /// Property to provide icon type for the technical indicators legend.
   ///
   /// Defaults to `LegendIconType.seriesType`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                legendIconType :  LegendIconType.diamond,
-  ///              ),
-  ///            ],
-  ///        ));
-  ///}
-  ///```
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        legendIconType:  LegendIconType.diamond
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final LegendIconType legendIconType;
 
   /// Property to provide the text for the technical indicators legend.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                legendItemText : 'SMA',
-  ///              ),
-  ///            ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to 'null'.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        legendItemText : 'SMA',
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final String? legendItemText;
 
   /// Property to provide the color of the signal line in the technical indicators.
   ///
-  /// Defaults to `blue`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                signalLineColor : Colors.red,
-  ///              ),
-  ///            ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `Colors.blue`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        signalLineColor : Colors.red,
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final Color signalLineColor;
 
   /// Property to provide the width of the signal line in the technical indicators.
   ///
   /// Defaults to `2`.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                signalLineWidth : 4.0,
-  ///              ),
-  ///            ],
-  ///        ));
-  ///}
-  ///```
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        signalLineWidth : 4.0
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final double signalLineWidth;
 
   /// Period determines the start point for the rendering of technical indicators.
   ///
-  /// Defaults to `14`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                period : 4,
-  ///              ),
-  ///            ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `14`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        period : 4
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final int period;
 
-  /// Callback which gets called while rendering the indicators
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///  indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  /// onRenderDetailsUpdate: (IndicatorRenderParams params) {
-  ///             return TechnicalIndicatorRenderDetails(Colors.cyan, 3.0, <double>[5,5]);
-  ///                },
-  /// )],
-  ///        ));
-  ///}
-  ///```
+  /// Callback which gets called while rendering the indicators.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        onRenderDetailsUpdate: (IndicatorRenderParams params) {
+  ///          return TechnicalIndicatorRenderDetails(Colors.cyan, 3.0, <double>[5,5]);
+  ///        },
+  ///      ),
+  ///    ],
+  ///  );
+  /// }
+  /// ```
   final ChartIndicatorRenderCallback? onRenderDetailsUpdate;
 }
 
-///Technical indicator renderer class for mutable fields and methods
+/// Technical indicator renderer class for mutable fields and methods.
 class TechnicalIndicatorsRenderer {
-  /// Creates an argument constructor for TechnicalIndicator renderer class
+  /// Creates an argument constructor for TechnicalIndicator renderer class.
   TechnicalIndicatorsRenderer(
       this.technicalIndicatorRenderer, this.stateProperties);
 
-  /// Specifies the technical indicator renderer
+  /// Specifies the technical indicator renderer.
   final TechnicalIndicators<dynamic, dynamic> technicalIndicatorRenderer;
 
-  /// Holds the state properties
+  /// Holds the state properties.
   final CartesianStateProperties stateProperties;
 
-  /// Specifies the name value
+  /// Specifies the name value.
   late String name;
 
-  /// Specifies whether the indicator is visible
+  /// Specifies whether the indicator is visible.
   bool? visible;
 
-  /// Specifies whether it is indicator
+  /// Specifies whether it is indicator.
   bool isIndicator = true;
 
-  /// Represents the series type
+  /// Represents the series type.
   final String seriesType = 'indicator';
 
-  /// Represents the indicator type
+  /// Represents the indicator type.
   late String indicatorType;
 
-  /// Specifies the value of index
+  /// Specifies the value of index.
   late int index;
 
-  /// Specifies the list of target series renderer
+  /// Specifies the list of target series renderer.
   List<CartesianSeriesRenderer> targetSeriesRenderers =
       <CartesianSeriesRenderer>[];
 
-  /// Specifies the list of data points
+  /// Specifies the list of data points.
   List<CartesianChartPoint<dynamic>>? dataPoints =
       <CartesianChartPoint<dynamic>>[];
 
-  ///used for test case
+  /// Used for test case.
   List<CartesianChartPoint<dynamic>> renderPoints =
       <CartesianChartPoint<dynamic>>[];
 
-  ///used for events
+  /// Used for events.
   List<CartesianChartPoint<dynamic>>? bollingerUpper =
       <CartesianChartPoint<dynamic>>[];
 
-  ///used for events
+  /// Used for events.
   List<CartesianChartPoint<dynamic>>? bollingerLower =
       <CartesianChartPoint<dynamic>>[];
 
-  ///used for events
+  /// Used for events.
   List<CartesianChartPoint<dynamic>>? macdLine =
       <CartesianChartPoint<dynamic>>[];
 
-  ///used for events
+  /// Used for events.
   List<CartesianChartPoint<dynamic>>? macdHistogram =
       <CartesianChartPoint<dynamic>>[];
 
-  ///used for events
+  /// Used for events.
   List<CartesianChartPoint<dynamic>>? stochasticperiod =
       <CartesianChartPoint<dynamic>>[];
 
-  ///used for events
+  /// Used for events.
   double? momentumCenterLineValue;
 
-  /// To get and return  CartesianChartPoint
+  /// To get and return CartesianChartPoint.
   CartesianChartPoint<dynamic> getDataPoint(
       dynamic x, num y, CartesianChartPoint<dynamic> sourcePoint, int index,
       [TechnicalIndicators<dynamic, dynamic>? indicator]) {
@@ -512,21 +659,20 @@ class TechnicalIndicatorsRenderer {
     if (indicator is MacdIndicator &&
         (indicator.macdType == MacdType.histogram ||
             indicator.macdType == MacdType.both)) {
-      final MacdIndicator<dynamic, dynamic> _indicator = indicator;
+      final MacdIndicator<dynamic, dynamic> macdIndicator = indicator;
       point.pointColorMapper = point.yValue >= 0 == true
-          ? _indicator.histogramPositiveColor
-          : _indicator.histogramNegativeColor;
+          ? macdIndicator.histogramPositiveColor
+          : macdIndicator.histogramNegativeColor;
     }
     return point;
   }
 
-  /// To get chart point of range type series
+  /// To get chart point of range type series.
   CartesianChartPoint<dynamic> getRangePoint(dynamic x, num high, num low,
       CartesianChartPoint<dynamic> sourcePoint, int index,
       //ignore: unused_element
       [TechnicalIndicators<dynamic, dynamic>? indicator]) {
-    final CartesianChartPoint<dynamic> point =
-        CartesianChartPoint<dynamic>(x, null);
+    final CartesianChartPoint<dynamic> point = CartesianChartPoint<dynamic>(x);
     point.high = high;
     point.low = low;
     point.xValue = sourcePoint.xValue;
@@ -535,13 +681,13 @@ class TechnicalIndicatorsRenderer {
     return point;
   }
 
-  /// To set properties of technical indicators
+  /// To set properties of technical indicators.
   void setSeriesProperties(TechnicalIndicators<dynamic, dynamic> indicator,
       String name, Color color, double width, SfCartesianChart chart,
       [bool isLine = false,
       bool isRangeArea = false,
       bool isHistogram = false]) {
-    List<double>? _dashArray;
+    List<double>? dashArray;
     if (indicator.onRenderDetailsUpdate != null &&
         isRangeArea == false &&
         isHistogram == false &&
@@ -576,7 +722,7 @@ class TechnicalIndicatorsRenderer {
 
       color = indicators.signalLineColor ?? color;
       width = indicators.signalLineWidth ?? width;
-      _dashArray = indicators.signalLineDashArray ?? indicator.dashArray;
+      dashArray = indicators.signalLineDashArray ?? indicator.dashArray;
     }
     final CartesianSeries<dynamic, dynamic> series = isRangeArea == true
         ? RangeAreaSeries<dynamic, dynamic>(
@@ -613,7 +759,7 @@ class TechnicalIndicatorsRenderer {
             : LineSeries<dynamic, dynamic>(
                 name: name,
                 color: color,
-                dashArray: _dashArray ?? indicator.dashArray,
+                dashArray: dashArray ?? indicator.dashArray,
                 width: width,
                 xAxisName: indicator.xAxisName,
                 animationDuration: indicator.animationDuration,
@@ -642,7 +788,7 @@ class TechnicalIndicatorsRenderer {
     targetSeriesRenderers.add(seriesRenderer);
   }
 
-  /// Set series range of technical indicators
+  /// Set series range of technical indicators.
   void setSeriesRange(List<CartesianChartPoint<dynamic>> points,
       TechnicalIndicators<dynamic, dynamic> indicator, List<dynamic> xValues,
       [CartesianSeriesRenderer? seriesRenderer]) {
@@ -659,7 +805,7 @@ class TechnicalIndicatorsRenderer {
     }
   }
 
-  /// To get the value field value of technical indicators
+  /// To get the value field value of technical indicators.
   num getFieldValue(List<CartesianChartPoint<dynamic>?> dataPoints, int index,
       String valueField) {
     num? val;
@@ -680,7 +826,7 @@ class TechnicalIndicatorsRenderer {
     return val;
   }
 
-  /// To initialize data source of technical indicators
+  /// To initialize data source of technical indicators.
   void initDataSource(
       TechnicalIndicators<dynamic, dynamic> indicator,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
@@ -695,10 +841,11 @@ class TechnicalIndicatorsRenderer {
           indicator, validData, technicalIndicatorsRenderer, chart);
     } else if (validData.isNotEmpty &&
         validData.length > indicator.period &&
-        indicator is AtrIndicator) {
+        indicator is AtrIndicator &&
+        indicator.period > 0) {
       _calculateATRPoints(
           indicator, validData, technicalIndicatorsRenderer, chart);
-    } else if (indicator is BollingerBandIndicator) {
+    } else if (indicator is BollingerBandIndicator && indicator.period > 0) {
       _calculateBollingerBandPoints(
           indicator, technicalIndicatorsRenderer, chart);
     } else if (validData.isNotEmpty &&
@@ -707,27 +854,28 @@ class TechnicalIndicatorsRenderer {
         indicator.period > 0) {
       _calculateEMAPoints(
           indicator, validData, technicalIndicatorsRenderer, chart);
-    } else if (indicator is MacdIndicator) {
+    } else if (indicator is MacdIndicator && indicator.period > 0) {
       _calculateMacdPoints(indicator, technicalIndicatorsRenderer, chart);
-    } else if (indicator is MomentumIndicator) {
+    } else if (indicator is MomentumIndicator && indicator.period > 0) {
       _calculateMomentumIndicatorPoints(
           indicator, technicalIndicatorsRenderer, chart);
-    } else if (indicator is RsiIndicator) {
+    } else if (indicator is RsiIndicator && indicator.period > 0) {
       _calculateRSIPoints(indicator, technicalIndicatorsRenderer, chart);
-    } else if (indicator is SmaIndicator) {
+    } else if (indicator is SmaIndicator && indicator.period > 0) {
       _calculateSMAPoints(indicator, technicalIndicatorsRenderer, chart);
-    } else if (indicator is StochasticIndicator) {
+    } else if (indicator is StochasticIndicator && indicator.period > 0) {
       _calculateStochasticIndicatorPoints(
           indicator, technicalIndicatorsRenderer, chart);
     } else if (validData.isNotEmpty &&
         validData.length > indicator.period &&
-        indicator is TmaIndicator) {
+        indicator is TmaIndicator &&
+        indicator.period > 0) {
       _calculateTMAPoints(
           indicator, validData, technicalIndicatorsRenderer, chart);
     }
   }
 
-  /// To calculate the rendering points of the accumulation distribution indicator
+  /// To calculate the rendering points of the accumulation distribution indicator.
   void _calculateADPoints(
       AccumulationDistributionIndicator<dynamic, dynamic> indicator,
       List<CartesianChartPoint<dynamic>> validData,
@@ -759,7 +907,7 @@ class TechnicalIndicatorsRenderer {
     technicalIndicatorsRenderer.setSeriesRange(points, indicator, xValues);
   }
 
-  /// To calculate the rendering points of the ATR indicator
+  /// To calculate the rendering points of the ATR indicator.
   void _calculateATRPoints(
     AtrIndicator<dynamic, dynamic> indicator,
     List<CartesianChartPoint<dynamic>> validData,
@@ -959,7 +1107,7 @@ class TechnicalIndicatorsRenderer {
         xValues, technicalIndicatorsRenderer.targetSeriesRenderers[start + 2]);
   }
 
-  /// To calculate the rendering points of the EMA indicator
+  /// To calculate the rendering points of the EMA indicator.
   void _calculateEMAPoints(
       EmaIndicator<dynamic, dynamic> indicator,
       List<CartesianChartPoint<dynamic>> validData,
@@ -1071,11 +1219,11 @@ class TechnicalIndicatorsRenderer {
         indicator.signalLineColor,
         indicator.signalLineWidth,
         chart);
-    // To describe the type of series renderer to be assigned
+    // To describe the type of series renderer to be assigned.
     bool isLine, isRangeArea, isHistogram;
     if (indicator.macdType == MacdType.line ||
         indicator.macdType == MacdType.both) {
-      // Decides the type of renderer class to be used
+      // Decides the type of renderer class to be used.
       isLine = true;
       technicalIndicatorsRenderer.setSeriesProperties(indicator, 'MacdLine',
           indicator.macdLineColor, indicator.macdLineWidth, chart, isLine);
@@ -1118,7 +1266,7 @@ class TechnicalIndicatorsRenderer {
     }
   }
 
-  /// Calculates the EMA values for the given period
+  /// Calculates the EMA values for the given period.
   List<num> _calculateEMAValues(
       num period,
       List<CartesianChartPoint<dynamic>> validData,
@@ -1145,7 +1293,7 @@ class TechnicalIndicatorsRenderer {
     return emaValues;
   }
 
-  ///Defines the MACD Points
+  /// Defines the MACD Points.
   List<dynamic> _getMACDPoints(
       MacdIndicator<dynamic, dynamic> indicator,
       List<num> macdPoints,
@@ -1168,7 +1316,7 @@ class TechnicalIndicatorsRenderer {
     return <dynamic>[macdCollection, xValues];
   }
 
-  ///Calculates the signal points
+  /// Calculates the signal points.
   List<dynamic> _getSignalPoints(
       MacdIndicator<dynamic, dynamic> indicator,
       List<num> signalEma,
@@ -1192,7 +1340,7 @@ class TechnicalIndicatorsRenderer {
     return <dynamic>[signalCollection, xValues];
   }
 
-  ///Calculates the MACD values
+  /// Calculates the MACD values.
   List<num> _getMACDVales(MacdIndicator<dynamic, dynamic> indicator,
       List<num> shortEma, List<num> longEma) {
     final List<num> macdPoints = <num>[];
@@ -1203,7 +1351,7 @@ class TechnicalIndicatorsRenderer {
     return macdPoints;
   }
 
-  ///Calculates the Histogram Points
+  /// Calculates the Histogram Points.
   List<dynamic> _getHistogramPoints(
       MacdIndicator<dynamic, dynamic> indicator,
       List<num> macdPoints,
@@ -1356,7 +1504,7 @@ class TechnicalIndicatorsRenderer {
       }
     }
     technicalIndicatorsRenderer.renderPoints = signalCollection;
-    // Decides the type of renderer class to be used
+    // Decides the type of renderer class to be used.
     const bool isLine = true;
     // final CartesianSeriesRenderer signalSeriesRenderer =
     //     technicalIndicatorsRenderer.targetSeriesRenderers[0];
@@ -1441,7 +1589,7 @@ class TechnicalIndicatorsRenderer {
     }
   }
 
-  /// To calculate the stochastic indicator points
+  /// To calculate the stochastic indicator points.
   void _calculateStochasticIndicatorPoints(
     StochasticIndicator<dynamic, dynamic> indicator,
     TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
@@ -1492,7 +1640,7 @@ class TechnicalIndicatorsRenderer {
     }
     technicalIndicatorsRenderer.renderPoints = signalCollection;
     technicalIndicatorsRenderer.stochasticperiod = periodCollection;
-    // Decides the type of renderer class to be used
+    // Decides the type of renderer class to be used.
     const bool isLine = true;
     technicalIndicatorsRenderer.setSeriesProperties(
         indicator,
@@ -1520,7 +1668,7 @@ class TechnicalIndicatorsRenderer {
     }
   }
 
-  /// To calculate the values of the stochastic indicator
+  /// To calculate the values of the stochastic indicator.
   List<dynamic> _stochasticCalculation(
       int period,
       int kPeriod,
@@ -1543,8 +1691,8 @@ class TechnicalIndicatorsRenderer {
           sum = sum + temp[i];
         }
         sum = sum / kPeriod;
-        final String _sum = sum.toStringAsFixed(2);
-        values.add(double.parse(_sum));
+        final String stochasticSum = sum.toStringAsFixed(2);
+        values.add(double.parse(stochasticSum));
         temp.removeRange(0, 1);
         length = temp.length;
       }
@@ -1562,7 +1710,7 @@ class TechnicalIndicatorsRenderer {
     return <dynamic>[pointCollection, xValues];
   }
 
-  /// To return list of stochastic indicator points
+  /// To return list of stochastic indicator points.
   List<CartesianChartPoint<dynamic>> calculatePeriod(
       int period,
       int kPeriod,
@@ -1613,7 +1761,7 @@ class TechnicalIndicatorsRenderer {
     return modifiedSource;
   }
 
-  /// To calculate the values of the TMA indicator
+  /// To calculate the values of the TMA indicator.
   void _calculateTMAPoints(
       TmaIndicator<dynamic, dynamic> indicator,
       List<CartesianChartPoint<dynamic>> validData,

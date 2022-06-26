@@ -140,8 +140,6 @@ class PdfDestination implements IPdfWrapper {
         _array.add(PdfName(PdfDictionaryProperties.fitH));
         _array.add(PdfNumber(value));
         break;
-      default:
-        break;
     }
     _helper.element = _array;
   }

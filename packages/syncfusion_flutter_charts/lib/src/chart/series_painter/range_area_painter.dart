@@ -14,7 +14,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Range area series
+/// Creates series renderer for range area series.
 class RangeAreaSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of RangeAreaSeriesRenderer class.
   RangeAreaSeriesRenderer();
@@ -22,10 +22,10 @@ class RangeAreaSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _currentSeriesDetails;
   late SeriesRendererDetails _segmentSeriesDetails;
 
-  /// Range Area segment is created here
+  /// Range area segment is created here.
   ChartSegment _createSegments(
       int seriesIndex, SfCartesianChart chart, double animateFactor,
-      [List<Offset>? _points]) {
+      [List<Offset>? points]) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
     final RangeAreaSegment segment = createSegment();
     SegmentHelper.setSegmentProperties(segment,
@@ -42,8 +42,8 @@ class RangeAreaSeriesRenderer extends XyDataSeriesRenderer {
           _currentSeriesDetails.series as XyDataSeries<dynamic, dynamic>;
       _segmentSeriesDetails = SeriesHelper.getSeriesRendererDetails(
           segmentProperties.seriesRenderer);
-      if (_points != null) {
-        segment.points = _points;
+      if (points != null) {
+        segment.points = points;
       }
       segment.currentSegmentIndex = 0;
       customizeSegment(segment);
@@ -55,7 +55,7 @@ class RangeAreaSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render range area series segments
+  /// To render range area series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
@@ -155,13 +155,13 @@ class RangeAreaChartPainter extends CustomPainter {
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRendererDetails.dataPoints;
     CartesianChartPoint<dynamic>? point, prevPoint, oldPoint;
-    final Path _path = Path();
+    final Path path = Path();
     ChartLocation? currentPointLow, currentPointHigh, oldPointLow, oldPointHigh;
     double currentLowX, currentLowY, currentHighX, currentHighY;
     double animationFactor;
-    final Path _borderPath = Path();
+    final Path borderPath = Path();
     RangeAreaSegment rangeAreaSegment;
-    final List<Offset> _points = <Offset>[];
+    final List<Offset> points = <Offset>[];
     if (seriesRendererDetails.visible! == true) {
       assert(
           // ignore: unnecessary_null_comparison
@@ -207,6 +207,8 @@ class RangeAreaChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRendererDetails.calculateRegionData(stateProperties,
@@ -244,8 +246,8 @@ class RangeAreaChartPainter extends CustomPainter {
               xAxisDetails, yAxisDetails, isTransposed, series, axisClipRect);
           currentPointHigh = calculatePoint(point.xValue, point.high,
               xAxisDetails, yAxisDetails, isTransposed, series, axisClipRect);
-          _points.add(Offset(currentPointLow.x, currentPointLow.y));
-          _points.add(Offset(currentPointHigh.x, currentPointHigh.y));
+          points.add(Offset(currentPointLow.x, currentPointLow.y));
+          points.add(Offset(currentPointHigh.x, currentPointHigh.y));
 
           currentLowX = currentPointLow.x;
           currentLowY = currentPointLow.y;
@@ -274,24 +276,24 @@ class RangeAreaChartPainter extends CustomPainter {
               (dataPoints[pointIndex].isGap == true) ||
               (dataPoints[pointIndex - 1].isVisible == false &&
                   series.emptyPointSettings.mode == EmptyPointMode.gap)) {
-            _path.moveTo(currentLowX, currentLowY);
-            _path.lineTo(currentHighX, currentHighY);
-            _borderPath.moveTo(currentHighX, currentHighY);
+            path.moveTo(currentLowX, currentLowY);
+            path.lineTo(currentHighX, currentHighY);
+            borderPath.moveTo(currentHighX, currentHighY);
           } else if (pointIndex == dataPoints.length - 1 ||
               dataPoints[pointIndex + 1].isGap == true) {
-            _path.lineTo(currentHighX, currentHighY);
-            _path.lineTo(currentLowX, currentLowY);
-            _borderPath.lineTo(currentHighX, currentHighY);
-            _borderPath.moveTo(currentLowX, currentLowY);
+            path.lineTo(currentHighX, currentHighY);
+            path.lineTo(currentLowX, currentLowY);
+            borderPath.lineTo(currentHighX, currentHighY);
+            borderPath.moveTo(currentLowX, currentLowY);
           } else {
-            _borderPath.lineTo(currentHighX, currentHighY);
-            _path.lineTo(currentHighX, currentHighY);
+            borderPath.lineTo(currentHighX, currentHighY);
+            path.lineTo(currentHighX, currentHighY);
           }
           prevPoint = point;
         }
         if (pointIndex >= dataPoints.length - 1) {
           seriesRenderer._createSegments(
-              painterKey.index, chart, animationFactor, _points);
+              painterKey.index, chart, animationFactor, points);
         }
       }
       for (int pointIndex = dataPoints.length - 2;
@@ -356,31 +358,31 @@ class RangeAreaChartPainter extends CustomPainter {
             }
           }
           if (dataPoints[pointIndex + 1].isGap == true) {
-            _borderPath.moveTo(currentLowX, currentLowY);
-            _path.moveTo(currentLowX, currentLowY);
+            borderPath.moveTo(currentLowX, currentLowY);
+            path.moveTo(currentLowX, currentLowY);
           } else if (dataPoints[pointIndex].isGap != true) {
             if (pointIndex + 1 == dataPoints.length - 1 &&
                 dataPoints[pointIndex + 1].isDrop) {
-              _borderPath.moveTo(currentLowX, currentLowY);
+              borderPath.moveTo(currentLowX, currentLowY);
             } else {
-              _borderPath.lineTo(currentLowX, currentLowY);
+              borderPath.lineTo(currentLowX, currentLowY);
             }
-            _path.lineTo(currentLowX, currentLowY);
+            path.lineTo(currentLowX, currentLowY);
           }
 
           prevPoint = point;
         }
       }
       // ignore: unnecessary_null_comparison
-      if (_path != null &&
+      if (path != null &&
           // ignore: unnecessary_null_comparison
           seriesRendererDetails.segments != null &&
           seriesRendererDetails.segments.isNotEmpty == true) {
         rangeAreaSegment =
             seriesRendererDetails.segments[0] as RangeAreaSegment;
         SegmentHelper.getSegmentProperties(rangeAreaSegment)
-          ..path = _path
-          ..borderPath = _borderPath;
+          ..path = path
+          ..borderPath = borderPath;
         seriesRendererDetails.drawSegment(canvas, rangeAreaSegment);
       }
 

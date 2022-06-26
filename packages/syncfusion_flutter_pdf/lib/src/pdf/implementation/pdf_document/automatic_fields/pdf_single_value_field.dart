@@ -24,7 +24,7 @@ abstract class PdfSingleValueField extends PdfDynamicField {
   final List<PdfGraphics> _painterGraphics = <PdfGraphics>[];
 
   // implementation
-  void _performDraw(PdfGraphics graphics, PdfPoint? _location, double scalingX,
+  void _performDraw(PdfGraphics graphics, PdfPoint? location, double scalingX,
       double scalingY) {
     if (PdfGraphicsHelper.getHelper(graphics).page is PdfPage) {
       final PdfPage page = PdfDynamicField.getPageFromGraphics(graphics);
@@ -47,7 +47,7 @@ abstract class PdfSingleValueField extends PdfDynamicField {
 
         if (!_painterGraphics.contains(graphics)) {
           final Offset drawLocation =
-              Offset(_location!.x + bounds.left, _location.y + bounds.top);
+              Offset(location!.x + bounds.left, location.y + bounds.top);
           graphics.drawPdfTemplate(
               pair.template,
               drawLocation,
@@ -68,7 +68,7 @@ abstract class PdfSingleValueField extends PdfDynamicField {
                 bounds.left, bounds.top, bounds.width, bounds.height),
             format: stringFormat);
         final Offset drawLocation =
-            Offset(_location!.x + bounds.left, _location.y + bounds.top);
+            Offset(location!.x + bounds.left, location.y + bounds.top);
         graphics.drawPdfTemplate(
             pair.template,
             drawLocation,
@@ -85,7 +85,7 @@ abstract class PdfSingleValueField extends PdfDynamicField {
 class PdfSingleValueFieldHelper {
   /// internal method
   static void performDraw(PdfSingleValueField field, PdfGraphics graphics,
-      PdfPoint? _location, double scalingX, double scalingY) {
-    field._performDraw(graphics, _location, scalingX, scalingY);
+      PdfPoint? location, double scalingX, double scalingY) {
+    field._performDraw(graphics, location, scalingX, scalingY);
   }
 }

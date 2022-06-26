@@ -171,19 +171,19 @@ class SfRadialGaugeState extends State<SfRadialGauge>
                   color:
                       widget.title!.borderColor ?? _gaugeTheme.titleBorderColor,
                   width: widget.title!.borderWidth)),
-          child: Text(
-            widget.title!.text,
-            style: widget.title!.textStyle,
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.clip,
-          ),
           alignment: (widget.title!.alignment == GaugeAlignment.near)
               ? Alignment.topLeft
               : (widget.title!.alignment == GaugeAlignment.far)
                   ? Alignment.topRight
                   : (widget.title!.alignment == GaugeAlignment.center)
                       ? Alignment.topCenter
-                      : Alignment.topCenter);
+                      : Alignment.topCenter,
+          child: Text(
+            widget.title!.text,
+            style: widget.title!.textStyle,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.clip,
+          ));
 
       return titleWidget;
     } else {
@@ -193,10 +193,10 @@ class SfRadialGaugeState extends State<SfRadialGauge>
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _radialAxes = <Widget>[];
+    final List<Widget> radialAxes = <Widget>[];
 
     for (int i = 0; i < widget.axes.length; i++) {
-      _radialAxes.add(RadialGaugeScope(
+      radialAxes.add(RadialGaugeScope(
           enableLoadingAnimation: widget.enableLoadingAnimation,
           animationDuration: widget.animationDuration.toInt(),
           child: widget.axes[i]));
@@ -213,7 +213,7 @@ class SfRadialGaugeState extends State<SfRadialGauge>
                   Expanded(
                       child: Stack(
                           textDirection: TextDirection.ltr,
-                          children: _radialAxes))
+                          children: radialAxes))
                 ]))));
   }
 

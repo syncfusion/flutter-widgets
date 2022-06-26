@@ -1,7 +1,5 @@
 import 'dart:ui';
 
-import 'package:syncfusion_flutter_pdf/src/pdf/implementation/pages/pdf_page_settings.dart';
-
 import '../../interfaces/pdf_interface.dart';
 import '../annotations/pdf_annotation_collection.dart';
 import '../forms/pdf_field.dart';
@@ -24,6 +22,7 @@ import '../primitives/pdf_string.dart';
 import 'enum.dart';
 import 'pdf_page_layer.dart';
 import 'pdf_page_layer_collection.dart';
+import 'pdf_page_settings.dart';
 import 'pdf_section.dart';
 import 'pdf_section_collection.dart';
 
@@ -384,8 +383,8 @@ class PdfPage implements IPdfWrapper {
     if (hasBackTemplates) {
       final PdfPageLayer backLayer =
           PdfPageLayerHelper.fromClipPageTemplate(this, false);
-      final PdfPageLayerCollection _layer = PdfPageLayerCollection(this);
-      _layers = _layer;
+      final PdfPageLayerCollection layer = PdfPageLayerCollection(this);
+      _layers = layer;
       _layers!.addLayer(backLayer);
       PdfSectionHelper.getHelper(_helper.section!)
           .drawTemplates(this, backLayer, doc, false);
@@ -398,8 +397,8 @@ class PdfPage implements IPdfWrapper {
     if (hasFrontTemplates) {
       final PdfPageLayer frontLayer =
           PdfPageLayerHelper.fromClipPageTemplate(this, false);
-      final PdfPageLayerCollection _layer = PdfPageLayerCollection(this);
-      _layers = _layer;
+      final PdfPageLayerCollection layer = PdfPageLayerCollection(this);
+      _layers = layer;
       _layers!.addLayer(frontLayer);
       PdfSectionHelper.getHelper(_helper.section!)
           .drawTemplates(this, frontLayer, doc, true);
@@ -543,7 +542,7 @@ class PdfPageHelper {
 
   /// internal property
   PdfDocument? get document {
-    if (isLoadedPage) {
+    if (isLoadedPage || _pdfDocument != null) {
       return _pdfDocument;
     } else {
       if (section != null) {
@@ -560,6 +559,10 @@ class PdfPageHelper {
         return null;
       }
     }
+  }
+
+  set document(PdfDocument? value) {
+    _pdfDocument = value;
   }
 
   /// Gets the crop box.
@@ -684,22 +687,19 @@ class PdfPageHelper {
                             as PdfDictionary?;
 
                     if (xObject != null) {
-                      final PdfArray? content = PdfCrossTable.dereference(
-                              dictionary![PdfDictionaryProperties.contents])
-                          as PdfArray?;
-
+                      final IPdfPrimitive? content = PdfCrossTable.dereference(
+                          dictionary![PdfDictionaryProperties.contents]);
                       if (content != null) {
-                        for (int i = 0; i < content.count; i++) {
-                          final PdfStream pageContent =
-                              PdfCrossTable.dereference(content[i])!
-                                  as PdfStream;
-                          pageContent.decompress();
+                        if (content is PdfArray) {
+                          for (int i = 0; i < content.count; i++) {
+                            final PdfStream pageContent =
+                                PdfCrossTable.dereference(content[i])!
+                                    as PdfStream;
+                            pageContent.decompress();
+                          }
+                        } else if (content is PdfStream) {
+                          content.decompress();
                         }
-                      } else {
-                        final PdfStream pageContent = PdfCrossTable.dereference(
-                                dictionary![PdfDictionaryProperties.contents])!
-                            as PdfStream;
-                        pageContent.decompress();
                       }
                       _resources!.setProperty(
                           PdfDictionaryProperties.xObject, xobjects);
@@ -981,7 +981,7 @@ class PdfPageHelper {
 
   /// internal method
   List<int> getWidgetReferences() {
-    final List<int> _widgetReferences = <int>[];
+    final List<int> widgetReferences = <int>[];
     final PdfFormFieldCollection collection = document!.form.fields;
     for (int i = 0; i < collection.count; i++) {
       final PdfField field = collection[i];
@@ -993,14 +993,14 @@ class PdfPageHelper {
             PdfDocumentHelper.getHelper(document!)
                 .objects
                 .getReference(widget, false);
-        _widgetReferences.add(((widgetReference['isNew'] as bool)
+        widgetReferences.add(((widgetReference['isNew'] as bool)
                 ? crossTable!.getReference(widget).objNum
                 : (widgetReference['reference'] as PdfReference).objNum)!
             .toSigned(64));
         widgetReference.clear();
       }
     }
-    return _widgetReferences;
+    return widgetReferences;
   }
 
   /// internal method

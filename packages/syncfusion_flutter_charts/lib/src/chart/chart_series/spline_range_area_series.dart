@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 /// Renders the spline range area series.
 ///
-/// To render a spline range area chart, create an instance of SplineRangeAreaSeries, and add it to the series collection property of [SfCartesianChart].
-///  Properties such as [color], [opacity], [width] are used to customize the appearance of spline area chart.
+/// To render a spline range area chart, create an instance of [SplineRangeAreaSeries], and add it to the series collection property of [SfCartesianChart].
+/// Properties such as [color], [opacity], [width] are used to customize the appearance of spline area chart.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=uSsKhlRzC2Q}
 @immutable
@@ -88,35 +88,73 @@ class SplineRangeAreaSeries<T, D> extends XyDataSeries<T, D> {
             animationDelay: animationDelay,
             onCreateShader: onCreateShader);
 
-  ///Border type of the spline range area series.
+  /// Border type of the spline range area series.
   ///
-  ///It takes the following two values:
+  /// It takes the following two values:
   ///
-  ///* [RangeAreaBorderMode.all] renders border for all the sides of the series.
-  ///* [RangeAreaBorderMode.excludeSides] renders border at the top and bottom of the series,
+  /// * [RangeAreaBorderMode.all] renders border for all the sides of the series.
+  /// * [RangeAreaBorderMode.excludeSides] renders border at the top and bottom of the series,
   /// and excludes both sides.
   ///
-  ///Defaults to `RangeAreaBorderMode.all`
+  /// Defaults to `RangeAreaBorderMode.all`.
   ///
-  ///Also refer [RangeAreaBorderMode]
-
+  /// Also refer [RangeAreaBorderMode].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineRangeAreaSeries<SalesData, num>>[
+  ///       SplineRangeAreaSeries<SalesData, num>(
+  ///         borderColor: Colors.red,
+  ///         borderWidth: 3,
+  ///         borderDrawMode: RangeAreaBorderMode.excludeSides,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final RangeAreaBorderMode borderDrawMode;
 
-  ///Type of the spline curve in spline range area series.
+  /// Type of the spline curve in spline range area series.
   ///
-  ///Various type of curves such as clamped, cardinal, monotonic, and natural can be rendered
-  /// between the data points.
+  /// Various type of curves such as `SplineType.clamped`, `SplineType.cardinal`, `SplineType.monotonic`
+  /// and `SplineType.natural` can be rendered between the data points.
   ///
-  ///Defaults to `SplineType.natural`
+  /// Defaults to `SplineType.natural`.
   ///
-  ///Also refer [SplineType]
-
+  /// Also refer [SplineType].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineRangeAreaSeries<SalesData, num>>[
+  ///       SplineRangeAreaSeries<SalesData, num>(
+  ///         splineType: SplineType.monotonic
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final SplineType? splineType;
 
-  ///Line tension of the cardinal spline curve.
+  /// Line tension of the cardinal spline curve.
   ///
-  ///This is applicable only when `SplineType.cardinal` is set to [splineType] property.
-
+  /// This is applicable only when `SplineType.cardinal` is set to [splineType] property.
+  ///
+  /// Defaults to `0.5`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineRangeAreaSeries<SalesData, num>>[
+  ///       SplineRangeAreaSeries<SalesData, num>(
+  ///         splineType: SplineType.cardinal,
+  ///         cardinalSplineTension: 0.2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double cardinalSplineTension;
 
   /// Create the spline area series renderer.

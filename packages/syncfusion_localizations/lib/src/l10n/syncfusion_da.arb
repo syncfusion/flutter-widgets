@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Ingen begivenheder", 
 "ofDataPagerLabel" : "af", 
 "pagesDataPagerLabel" : "sider", 
-"itemsDataPagerLabel" : "genstande", 
+"rowsPerPageDataPagerLabel" : "Rækker pr. side", 
 "pdfBookmarksLabel" : "Bogmærker", 
 "pdfNoBookmarksLabel" : "Ingen bogmærker fundet", 
 "pdfScrollStatusOfLabel" : "af", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Dag"
+"daySpanCountLabel" : "Dag", 
+"series" : "Serie"
 }

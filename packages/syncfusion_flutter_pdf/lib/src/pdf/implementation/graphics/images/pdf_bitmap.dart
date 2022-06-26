@@ -223,6 +223,7 @@ class PdfBitmap extends PdfImage {
         stream[PdfDictionaryProperties.colorSpace] =
             (_decoder! as PngDecoder).colorSpace;
         break;
+      // ignore: no_default_cases
       default:
         break;
     }

@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "ಯಾವುದೇ ಘಟನೆಗಳಿಲ್ಲ", 
 "ofDataPagerLabel" : "ನ", 
 "pagesDataPagerLabel" : "ಪುಟಗಳು", 
-"itemsDataPagerLabel" : "ವಸ್ತುಗಳು", 
+"rowsPerPageDataPagerLabel" : "ಪ್ರತಿ ಪುಟಕ್ಕೆ ಸಾಲುಗಳು", 
 "pdfBookmarksLabel" : "ಬುಕ್‌ಮಾರ್ಕ್‌ಗಳು", 
 "pdfNoBookmarksLabel" : "ಯಾವುದೇ ಬುಕ್‌ಮಾರ್ಕ್‌ಗಳು ಕಂಡುಬಂದಿಲ್ಲ", 
 "pdfScrollStatusOfLabel" : "ನ", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "ಶಾ.", 
 "shortDhualqiLabel" : "ಧುಲ್-ಕ್ಯೂ", 
 "shortDhualhiLabel" : "ಧುಲ್-ಎಚ್", 
-"daySpanCountLabel" : "ದಿನ"
+"daySpanCountLabel" : "ದಿನ", 
+"series" : "ಸರಣಿ"
 }

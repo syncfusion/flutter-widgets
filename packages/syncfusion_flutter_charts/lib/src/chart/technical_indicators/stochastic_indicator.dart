@@ -3,13 +3,13 @@ import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import 'technical_indicator.dart';
 
-///Renders stochastic indicator.
+/// Renders stochastic indicator.
 ///
-///The stochastic indicator  is used to measure the range and momentum of price movements. It contains kPeriod and dPeriod properties defining
-///the ‘k’ percentage and ‘d’ percentage respectively.
+/// The stochastic indicator  is used to measure the range and momentum of price movements. It contains kPeriod and dPeriod properties defining
+/// the ‘k’ percentage and ‘d’ percentage respectively.
 ///
 /// In this indicator [upperLineColor], [lowerLineColor] and [periodLineColor] property are used to define the color for
-/// the Stochastic indicator lines.
+/// the stochastic indicator lines.
 @immutable
 class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of StochasticIndicator class.
@@ -69,191 +69,257 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
             period: period,
             onRenderDetailsUpdate: onRenderDetailsUpdate);
 
-  ///ShowZones boolean value for Stochastic indicator
+  /// Show zones boolean value for stochastic indicator.
   ///
-  ///Defaults to `true`.
+  /// Defaults to `true`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            StochasticIndicator<dynamic, dynamic>(
-  ///                showZones : false,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        showZones : false
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final bool showZones;
 
-  ///Overbought value for stochastic indicator
+  /// Overbought value for stochastic indicator
   ///
-  ///Defaults to `80`.
+  /// Defaults to `80`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            StochasticIndicator<dynamic, dynamic>(
-  ///                overbought : 50,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        overbought: 50
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double overbought;
 
-  ///Oversold value for Stochastic Indicator.
+  /// Oversold value for stochastic Indicator.
   ///
-  ///Defaults to `20`.
+  /// Defaults to `20`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            StochasticIndicator<dynamic, dynamic>(
-  ///                oversold : 30,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        oversold: 30
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double oversold;
 
-  ///Color of the upperLine for Stochastic Indicator.
+  /// Color of the upper line for stochastic Indicator.
   ///
-  ///Defaults to `red`.
+  /// Defaults to `Colors.red`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            StochasticIndicator<dynamic, dynamic>(
-  ///                 upperLineColor : Colors.greenAccent,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        upperLineColor: Colors.greenAccent
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final Color upperLineColor;
 
-  ///Width of the upperLine for Stochastic Indicator.
+  /// Width of the upper line for stochastic Indicator.
   ///
-  ///Defaults to `2`.
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            StochasticIndicator<dynamic, dynamic>(
-  ///                 upperLineWidth : 4.0,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        upperLineWidth: 4.0
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double upperLineWidth;
 
-  ///Color of the lowerLine for Stochastic Indicator.
+  /// Color of the lower line for stochastic Indicator.
   ///
-  ///Defaults to `green`.
+  /// Defaults to `Colors.green`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            StochasticIndicator<dynamic, dynamic>(
-  ///                 lowerLineColor : Colors.blue,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        lowerLineColor: Colors.blue
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final Color lowerLineColor;
 
-  ///Width of lowerline for Stochastic Indicator.
+  /// Width of lower line for stochastic Indicator.
   ///
-  ///Defaults to `2`.
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            StochasticIndicator<dynamic, dynamic>(
-  ///                 lowerLineWidth : 4.0,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        lowerLineWidth: 4.0
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double lowerLineWidth;
 
-  ///Color of the periodLine for Stochastic Indicator.
+  /// Color of the period line for stochastic Indicator.
   ///
-  ///Defaults to `yellow`.
+  /// Defaults to `Colors.yellow`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            StochasticIndicator<dynamic, dynamic>(
-  ///                 periodLineColor :Colors.orange,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        periodLineColor: Colors.orange
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final Color periodLineColor;
 
-  ///Width of the periodLIne for Stochastic Indicator.
+  /// Width of the period line for stochastic Indicator.
   ///
-  ///Defaults to `2`.
+  /// Defaults to `2`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            StochasticIndicator<dynamic, dynamic>(
-  ///                 periodLineWidth :5.0,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        periodLineWidth: 5.0
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final double periodLineWidth;
 
-  ///Value of Kperiod  in Stochastic Indicator.
+  /// Value of kPeriod  in stochastic Indicator.
   ///
-  ///Defaults to `3`.
+  /// Defaults to `3`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            StochasticIndicator<dynamic, dynamic>(
-  ///                 kPeriod:4,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        kPeriod: 4
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final num kPeriod;
 
-  ///Value of dperiod  in Stochastic Indicator.
+  /// Value of dPeriod  in stochastic Indicator.
   ///
-  ///Defaults to `5`.
+  /// Defaults to `5`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            StochasticIndicator<dynamic, dynamic>(
-  ///                 dPeriod:4,
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      StochasticIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        dPeriod: 4
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final num dPeriod;
 
   @override

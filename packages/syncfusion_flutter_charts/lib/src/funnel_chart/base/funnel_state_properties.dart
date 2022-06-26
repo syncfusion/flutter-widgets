@@ -1,45 +1,47 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
+
+import '../../../charts.dart';
 import '../../common/rendering_details.dart';
 import '../../common/state_properties.dart';
 import '../../common/user_interaction/tooltip.dart';
+import '../../common/user_interaction/tooltip_rendering_details.dart';
 import '../base/funnel_plot_area.dart';
 import '../base/series_base.dart';
 import '../renderer/data_label_renderer.dart';
 
-/// Specifies the funnel state properties
+/// Specifies the funnel state properties.
 class FunnelStateProperties extends StateProperties {
-  /// Creates an instance of funnel chart properties
+  /// Creates an instance of funnel chart properties.
   FunnelStateProperties(
       {required this.renderingDetails, required this.chartState})
       : super(renderingDetails, chartState) {
     renderingDetails.didSizeChange = false;
   }
 
-  /// Specifies the funnel chart
+  /// Specifies the funnel chart.
   @override
   SfFunnelChart get chart => chartState.widget;
 
-  /// Specifies the funnel chart state
+  /// Specifies the funnel chart state.
   @override
   final SfFunnelChartState chartState;
 
-  /// Specifies the rendering details value
+  /// Specifies the rendering details value.
   @override
   final RenderingDetails renderingDetails;
 
-  /// Specifies the funnel data label renderer
+  /// Specifies the funnel data label renderer.
   FunnelDataLabelRenderer? renderDataLabel;
 
-  /// Specifies the tooltip point index
+  /// Specifies the tooltip point index.
   int? tooltipPointIndex;
 
-  /// Specifies the series type
+  /// Specifies the series type.
   late String seriesType;
 
-  ///  Specifies the data points
+  ///  Specifies the data points.
   late List<PointInfo<dynamic>> dataPoints;
 
   /// Specifies the render points
@@ -48,16 +50,19 @@ class FunnelStateProperties extends StateProperties {
   /// Specifies the data label rects.
   late List<Rect> labelRects = <Rect>[];
 
-  /// Specifies the outside render labels
+  /// Specifies the outside render labels.
   late List<Rect> outsideRects = <Rect>[];
 
-  /// Specifies the funnel series
+  /// Specifies the funnel series.
   late FunnelChartBase chartSeries;
 
-  /// Specifies the funnel plot area
+  /// Specifies the funnel plot area.
   late FunnelPlotArea funnelplotArea;
 
-  /// To redraw chart elements
+  /// Specifies whether the text direction of chart widget is RTL or LTR.
+  late bool isRtl;
+
+  /// To redraw chart elements.
   void redraw() {
     renderingDetails.initialRender = false;
     final TooltipRenderingDetails tooltipRenderingDetails =
@@ -72,13 +77,13 @@ class FunnelStateProperties extends StateProperties {
     });
   }
 
-  /// Method when called, once animation completed
+  /// Method when called, once animation completed.
   bool get animationCompleted {
     return renderingDetails.animationController.status !=
         AnimationStatus.forward;
   }
 
-  /// Tooltip timer
+  /// Tooltip timer.
   Timer? tooltipTimer;
 
   /// To check the tooltip orientation changes.

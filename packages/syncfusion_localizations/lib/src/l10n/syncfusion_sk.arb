@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Žiadne udalosti", 
 "ofDataPagerLabel" : "z", 
 "pagesDataPagerLabel" : "stránky", 
-"itemsDataPagerLabel" : "položky", 
+"rowsPerPageDataPagerLabel" : "Počet riadkov na stránku", 
 "pdfBookmarksLabel" : "Záložky", 
 "pdfNoBookmarksLabel" : "Nenašli sa žiadne záložky", 
 "pdfScrollStatusOfLabel" : "z", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "deň"
+"daySpanCountLabel" : "deň", 
+"series" : "séria"
 }

@@ -12,14 +12,30 @@ dependencies:
     sdk: flutter
   
   syncfusion_flutter_datagrid:
-    path: ../syncfusion_flutter_datagrid
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-datagrid
+      path: flutter_datagrid/syncfusion_flutter_datagrid
+      branch: hotfix/20.1.0.47_Vol1
+      ref: hotfix/20.1.0.47_Vol1
   
   syncfusion_flutter_xlsio:
-    path: ../syncfusion_flutter_xlsio
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-xlsio
+      path: flutter_xlsio/syncfusion_flutter_xlsio
+      branch: hotfix/20.1.0.47_Vol1
+      ref: hotfix/20.1.0.47_Vol1
   
   syncfusion_flutter_pdf:
-    path: ../syncfusion_flutter_pdf   
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdf
+      path: flutter_pdf/syncfusion_flutter_pdf
+      branch: hotfix/20.1.0.47_Vol1
+      ref: hotfix/20.1.0.47_Vol1
 
-  collection: ">=1.9.0 <=1.15.0"
+  collection: ">=1.9.0 <=2.0.0"
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
 
 flutter: null

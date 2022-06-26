@@ -1,7 +1,6 @@
 import 'dart:ui' as dart_ui;
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_core/core.dart';
 
 import './../../common/event_args.dart' show MarkerRenderArgs;
 import '../chart_series/series_renderer_properties.dart';
@@ -9,6 +8,7 @@ import '../chart_series/waterfall_series.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/data_label_renderer.dart';
 import '../utils/helper.dart';
+import 'common.dart';
 
 export 'package:syncfusion_flutter_core/core.dart'
     show DataMarkerType, TooltipAlignment;
@@ -38,161 +38,166 @@ class MarkerSettings {
         shape = shape ?? DataMarkerType.circle,
         borderWidth = borderWidth ?? 2;
 
-  ///Toggles the visibility of the marker.
+  /// Toggles the visibility of the marker.
   ///
-  ///Defaults to `false`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  markerSettings: MarkerSettings(isVisible: true),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         markerSettings: MarkerSettings(isVisible: true),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool isVisible;
 
-  ///Height of the marker shape.
+  /// Height of the marker shape.
   ///
-  ///Defaults to `4`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  markerSettings: MarkerSettings(
-  ///                         isVisible: true, height: 10),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `4`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         markerSettings: MarkerSettings(
+  ///           isVisible: true,
+  ///           height: 6
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double height;
 
-  ///Width of the marker shape.
+  /// Width of the marker shape.
   ///
-  ///Defaults to `4`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  markerSettings: MarkerSettings(
-  ///                         isVisible: true, width: 10),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `4`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         markerSettings: MarkerSettings(
+  ///           isVisible: true,
+  ///           width: 10
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double width;
 
-  ///Color of the marker shape.
+  /// Color of the marker shape.
   ///
-  ///Defaults to `null`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  markerSettings: MarkerSettings(
-  ///                         isVisible: true, color: Colors.red),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         markerSettings: MarkerSettings(
+  ///           isVisible: true,
+  ///           color: Colors.red
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color? color;
 
-  ///Shape of the marker.
+  /// Shape of the marker.
   ///
-  ///Defaults to `DataMarkerType.circle`.
+  /// Defaults to `DataMarkerType.circle`.
   ///
-  ///Also refer [DataMarkerType]
+  /// Also refer [DataMarkerType].
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  markerSettings: MarkerSettings(
-  ///                         isVisible: true, shape: DataMarkerType.diamond),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         markerSettings: MarkerSettings(
+  ///           isVisible: true,
+  ///           shape: DataMarkerType.rectangle
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final DataMarkerType shape;
 
-  ///Border color of the marker.
+  /// Border color of the marker.
   ///
-  ///Defaults to `null`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  markerSettings: MarkerSettings(
-  ///                          isVisible: true,
-  ///                          borderColor: Colors.red, borderWidth: 3),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         markerSettings: MarkerSettings(
+  ///           isVisible: true,
+  ///           borderColor: Colors.red,
+  ///           borderWidth: 3
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color? borderColor;
 
-  ///Border width of the marker.
+  /// Border width of the marker.
   ///
-  ///Defaults to `2`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  markerSettings: MarkerSettings(
-  ///                         isVisible: true,
-  ///                         borderWidth: 2, borderColor: Colors.pink),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `2`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         markerSettings: MarkerSettings(
+  ///           isVisible: true,
+  ///           borderColor: Colors.red,
+  ///           borderWidth: 3
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double borderWidth;
 
-  ///Image to be used as marker.
+  /// Image to be used as marker.
   ///
-  ///Defaults to `null`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <SplineSeries<SalesData, num>>[
-  ///                SplineSeries<SalesData, num>(
-  ///                  markerSettings: MarkerSettings(
-  ///                         isVisible: true, image: const AssetImage('images/bike.png'),
-  ///                         shape: DataMarkerType.image),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <SplineSeries<SalesData, num>>[
+  ///       SplineSeries<SalesData, num>(
+  ///         markerSettings: MarkerSettings(
+  ///           isVisible: true,
+  ///           shape: DataMarkerType.rectangle,
+  ///           image: const AssetImage('images/bike.png')
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final ImageProvider? image;
 
   @override
@@ -231,7 +236,7 @@ class MarkerSettings {
   }
 }
 
-/// To hold the individual point's marker details for the onMarkerRender event
+/// To hold the individual point's marker details for the onMarkerRender event.
 class MarkerDetails {
   /// Creates an argument constructor for MarkerDetails class.
   const MarkerDetails(
@@ -257,9 +262,9 @@ class MarkerDetails {
   final Size? size;
 }
 
-/// Marker settings renderer class for mutable fields and methods
+/// Marker settings renderer class for mutable fields and methods.
 class MarkerSettingsRenderer {
-  /// Creates an argument constructor for MarkerSettings renderer class
+  /// Creates an argument constructor for MarkerSettings renderer class.
   MarkerSettingsRenderer(this.markerSettings) {
     color = markerSettings.color;
 
@@ -268,26 +273,26 @@ class MarkerSettingsRenderer {
     borderWidth = markerSettings.borderWidth;
   }
 
-  /// Holds the marker settings value
+  /// Holds the marker settings value.
   final MarkerSettings markerSettings;
 
-  /// Holds the color value
+  /// Holds the color value.
   // ignore: prefer_final_fields
   Color? color;
 
   /// Holds the value of border color
   Color? borderColor;
 
-  /// Holds the value of border width
+  /// Holds the value of border width.
   late double borderWidth;
 
-  /// Holds the value of image
+  /// Holds the value of image.
   dart_ui.Image? image;
 
   /// Specifies the image drawn in the marker or not.
   bool isImageDrawn = false;
 
-  /// To paint the marker here
+  /// To paint the marker here.
   void renderMarker(
       SeriesRendererDetails seriesRendererDetails,
       CartesianChartPoint<dynamic> point,
@@ -295,8 +300,10 @@ class MarkerSettingsRenderer {
       Canvas canvas,
       int markerIndex,
       [int? outlierIndex]) {
-    final bool isDataPointVisible = isLabelWithinRange(
-        seriesRendererDetails, seriesRendererDetails.dataPoints[markerIndex]);
+    final List<CartesianChartPoint<dynamic>> dataPoints =
+        getSampledData(seriesRendererDetails);
+    final bool isDataPointVisible =
+        isLabelWithinRange(seriesRendererDetails, dataPoints[markerIndex]);
     Paint strokePaint, fillPaint;
     final XyDataSeries<dynamic, dynamic> series =
         seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
@@ -304,7 +311,7 @@ class MarkerSettingsRenderer {
     CartesianChartPoint<dynamic> point;
     DataMarkerType markerType = series.markerSettings.shape;
     Color? seriesColor = seriesRendererDetails.seriesColor;
-    point = seriesRendererDetails.dataPoints[markerIndex];
+    point = dataPoints[markerIndex];
     if (seriesRendererDetails.seriesType == 'waterfall') {
       seriesColor = getWaterfallSeriesColor(
           seriesRendererDetails.series as WaterfallSeries<dynamic, dynamic>,
@@ -333,7 +340,7 @@ class MarkerSettingsRenderer {
             seriesRendererDetails,
             size,
             markerType,
-            seriesRendererDetails.dataPoints[markerIndex].visiblePointIndex!,
+            dataPoints[markerIndex].visiblePointIndex!,
             animationController)!;
         markerType = event.shape;
         borderColor = event.borderColor;
@@ -384,8 +391,7 @@ class MarkerSettingsRenderer {
                 null,
                 animationController)
             : null);
-    if (seriesRendererDetails.seriesType.contains('range') == true ||
-        seriesRendererDetails.seriesType == 'hilo') {
+    if (seriesRendererDetails.seriesType.contains('range') == true) {
       seriesRendererDetails.markerShapes2.add(isDataPointVisible
           ? getMarkerShapesPath(
               pointMarkerDetails?.markerType ?? markerType,
@@ -397,77 +403,28 @@ class MarkerSettingsRenderer {
               animationController)
           : null);
     }
-    strokePaint = Paint()
-      ..color = point.isEmpty == true
-          ? (series.emptyPointSettings.borderWidth == 0
-              ? Colors.transparent
-              : series.emptyPointSettings.borderColor.withOpacity(opacity))
-          : (series.markerSettings.borderWidth == 0
-              ? Colors.transparent
-              : (pointMarkerDetails?.borderColor != null
-                  ? pointMarkerDetails!.borderColor!.withOpacity(opacity)
-                  : (hasPointColor && point.pointColorMapper != null)
-                      ? point.pointColorMapper!.withOpacity(opacity)
-                      : (borderColor != null
-                          ? borderColor!.withOpacity(opacity)
-                          : seriesColor!.withOpacity(opacity))))
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = point.isEmpty == true
-          ? series.emptyPointSettings.borderWidth
-          : pointMarkerDetails?.borderWidth ?? borderWidth;
+    strokePaint = getStrokePaint(
+        point,
+        series,
+        pointMarkerDetails,
+        opacity,
+        hasPointColor,
+        seriesColor,
+        markerType,
+        seriesRendererDetails,
+        animationController,
+        size);
 
-    if (series.gradient != null &&
-        series.markerSettings.borderColor == null &&
-        ((pointMarkerDetails == null) ||
-            (pointMarkerDetails != null &&
-                pointMarkerDetails.borderColor == null))) {
-      strokePaint = getLinearGradientPaint(
-          series.gradient!,
-          getMarkerShapesPath(
-                  pointMarkerDetails?.markerType ?? markerType,
-                  Offset(
-                      isBoxSeries
-                          ? point.outliersPoint[outlierIndex!].x
-                          : point.markerPoint!.x,
-                      isBoxSeries
-                          ? point.outliersPoint[outlierIndex!].y
-                          : point.markerPoint!.y),
-                  pointMarkerDetails?.size ?? size,
-                  seriesRendererDetails,
-                  null,
-                  null,
-                  animationController)
-              .getBounds(),
-          seriesRendererDetails.stateProperties.requireInvertedAxis);
-      strokePaint.style = PaintingStyle.stroke;
-      strokePaint.strokeWidth = point.isEmpty == true
-          ? series.emptyPointSettings.borderWidth
-          : pointMarkerDetails?.borderWidth ??
-              series.markerSettings.borderWidth;
-    }
-
-    fillPaint = Paint()
-      ..color = point.isEmpty == true
-          ? series.emptyPointSettings.color
-          : color != Colors.transparent
-              ? (pointMarkerDetails?.color ??
-                      color ??
-                      (seriesRendererDetails.stateProperties.renderingDetails
-                                  .chartTheme.brightness ==
-                              Brightness.light
-                          ? Colors.white
-                          : Colors.black))
-                  .withOpacity(opacity)
-              : color!
-      ..style = PaintingStyle.fill;
+    fillPaint = getFillPaint(
+        point, series, seriesRendererDetails, pointMarkerDetails, opacity);
     final bool isScatter = seriesRendererDetails.seriesType == 'scatter';
     final Rect axisClipRect =
         seriesRendererDetails.stateProperties.chartAxis.axisClipRect;
 
-    // Render marker points
+    // Render marker points.
     if ((series.markerSettings.isVisible || isScatter || isBoxSeries) &&
         point.isVisible &&
-        _withInRect(seriesRendererDetails, point.markerPoint, axisClipRect) &&
+        withInRect(seriesRendererDetails, point.markerPoint, axisClipRect) &&
         (point.markerPoint != null ||
             // ignore: unnecessary_null_comparison
             point.outliersPoint[outlierIndex!] != null) &&
@@ -505,6 +462,15 @@ class MarkerSettingsRenderer {
         }
       }
     }
+    setMarkerEventTrigged(point, seriesRendererDetails, animationController);
+  }
+
+  ///  Method to set whether the marker is triggered
+  void setMarkerEventTrigged(
+    CartesianChartPoint<dynamic> point,
+    SeriesRendererDetails seriesRendererDetails,
+    Animation<double>? animationController,
+  ) {
     if (seriesRendererDetails.chart.onMarkerRender != null &&
         seriesRendererDetails.isMarkerRenderEvent == false) {
       if (animationController == null ||
@@ -518,8 +484,90 @@ class MarkerSettingsRenderer {
     }
   }
 
-  /// To determine if the marker is within axis clip rect
-  bool _withInRect(SeriesRendererDetails seriesRendererDetails,
+  /// To get the marker fill paint
+  Paint getFillPaint(
+      CartesianChartPoint<dynamic> point,
+      XyDataSeries<dynamic, dynamic> series,
+      SeriesRendererDetails seriesRendererDetails,
+      MarkerDetails? pointMarkerDetails,
+      double opacity) {
+    return Paint()
+      ..color = (point.isEmpty ?? false)
+          ? series.emptyPointSettings.color
+          : color != Colors.transparent
+              ? (pointMarkerDetails?.color ??
+                      color ??
+                      (seriesRendererDetails.stateProperties.renderingDetails
+                                  .chartTheme.brightness ==
+                              Brightness.light
+                          ? Colors.white
+                          : Colors.black))
+                  .withOpacity(opacity)
+              : color!
+      ..style = PaintingStyle.fill;
+  }
+
+  /// To get the marker stroke paint
+  Paint getStrokePaint(
+      CartesianChartPoint<dynamic> point,
+      XyDataSeries<dynamic, dynamic> series,
+      MarkerDetails? pointMarkerDetails,
+      double opacity,
+      bool hasPointColor,
+      Color? seriesColor,
+      DataMarkerType markerType,
+      SeriesRendererDetails seriesRendererDetails,
+      Animation<double>? animationController,
+      Size size) {
+    Paint strokePaint = Paint()
+      ..color = (point.isEmpty ?? false)
+          ? (series.emptyPointSettings.borderWidth == 0
+              ? Colors.transparent
+              : series.emptyPointSettings.borderColor.withOpacity(opacity))
+          : (series.markerSettings.borderWidth == 0
+              ? Colors.transparent
+              : (pointMarkerDetails?.borderColor != null
+                  ? pointMarkerDetails!.borderColor!.withOpacity(opacity)
+                  : (hasPointColor && point.pointColorMapper != null)
+                      ? point.pointColorMapper!.withOpacity(opacity)
+                      : (borderColor != null
+                          ? borderColor!.withOpacity(opacity)
+                          : seriesColor!.withOpacity(opacity))))
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = (point.isEmpty ?? false)
+          ? series.emptyPointSettings.borderWidth
+          : pointMarkerDetails?.borderWidth ?? borderWidth;
+
+    if (series.gradient != null &&
+        series.markerSettings.borderColor == null &&
+        ((pointMarkerDetails == null) ||
+            // ignore: unnecessary_null_comparison
+            (pointMarkerDetails != null &&
+                pointMarkerDetails.borderColor == null))) {
+      strokePaint = getLinearGradientPaint(
+          series.gradient!,
+          getMarkerShapesPath(
+                  pointMarkerDetails?.markerType ?? markerType,
+                  Offset(point.markerPoint!.x, point.markerPoint!.y),
+                  pointMarkerDetails?.size ?? size,
+                  seriesRendererDetails,
+                  null,
+                  null,
+                  animationController)
+              .getBounds(),
+          seriesRendererDetails.stateProperties.requireInvertedAxis);
+      strokePaint.style = PaintingStyle.stroke;
+      strokePaint.strokeWidth = (point.isEmpty ?? false)
+          ? series.emptyPointSettings.borderWidth
+          : pointMarkerDetails?.borderWidth ??
+              series.markerSettings.borderWidth;
+    }
+
+    return strokePaint;
+  }
+
+  /// To determine if the marker is within axis clip rect.
+  bool withInRect(SeriesRendererDetails seriesRendererDetails,
       ChartLocation? markerPoint, Rect axisClipRect) {
     bool withInRect = false;
 
@@ -532,7 +580,7 @@ class MarkerSettingsRenderer {
     return withInRect;
   }
 
-  /// Paint the image marker
+  /// Paint the image marker.
   void drawImageMarker(SeriesRendererDetails seriesRendererDetails,
       Canvas canvas, double pointX, double pointY) {
     if (seriesRendererDetails.markerSettingsRenderer!.image != null) {

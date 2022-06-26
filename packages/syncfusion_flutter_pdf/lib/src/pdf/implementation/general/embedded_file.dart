@@ -110,6 +110,7 @@ class EmbeddedFileParams implements IPdfWrapper {
 
   // int get _size => _fileSize;
   /// internal property
+  // ignore: avoid_setters_without_getters
   set size(int value) {
     if (_fileSize != value) {
       _fileSize = value;

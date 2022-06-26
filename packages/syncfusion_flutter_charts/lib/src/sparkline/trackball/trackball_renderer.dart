@@ -9,10 +9,10 @@ import '../utils/enum.dart';
 import '../utils/helper.dart';
 import 'spark_chart_trackball.dart';
 
-/// Represents the trackball renderer
+/// Represents the trackball renderer.
 @immutable
 class SparkChartTrackballRenderer extends StatefulWidget {
-  /// Creates the trackball renderer
+  /// Creates the trackball renderer.
   const SparkChartTrackballRenderer(
       {Key? key,
       this.trackball,
@@ -21,16 +21,16 @@ class SparkChartTrackballRenderer extends StatefulWidget {
       this.sparkChart})
       : super(key: key);
 
-  /// Specifies the spark chart trackball
+  /// Specifies the spark chart trackball.
   final SparkChartTrackball? trackball;
 
-  /// Specifies the coordinate points
+  /// Specifies the coordinate points.
   final List<Offset>? coordinatePoints;
 
-  /// Specifies the spark chart data points
+  /// Specifies the spark chart data points.
   final List<SparkChartPoint>? dataPoints;
 
-  /// Specifie the spark chart widget
+  /// Specifie the spark chart widget.
   final Widget? sparkChart;
 
   @override
@@ -39,43 +39,43 @@ class SparkChartTrackballRenderer extends StatefulWidget {
   }
 }
 
-/// Represents the state class of spark chart trackball renderer
+/// Represents the state class of spark chart trackball renderer.
 class _SparckChartTrackballRendererState
     extends State<SparkChartTrackballRenderer> {
-  /// Holds the trackball repaint notifier
+  /// Holds the trackball repaint notifier.
   ValueNotifier<int>? _trackballRepaintNotifier;
 
-  /// Specifies whether the track ball is enabled
+  /// Specifies whether the track ball is enabled.
   bool _isTrackballEnabled = false;
 
-  /// Specifies the current touch position
+  /// Specifies the current touch position.
   Offset? _touchPosition;
 
   /// Specifies the spark area bounds
   Rect? _areaBounds;
 
-  /// Specifies the local rect
+  /// Specifies the local rect.
   Rect? _localBounds;
 
-  /// Specifies the nearest point index
+  /// Specifies the nearest point index.
   int? _currentIndex;
 
-  /// Specifies the global position
+  /// Specifies the global position.
   Offset? _globalPosition;
 
-  /// Specifies the theme of the chart
+  /// Specifies the theme of the chart.
   SfChartThemeData? _themeData;
 
-  /// Specifies the current data point
+  /// Specifies the current data point.
   SparkChartPoint? _currentDataPoint;
 
-  /// Specifies the current coordinate point
+  /// Specifies the current coordinate point.
   Offset? _currentCoordinatePoint;
 
-  /// Specifies the trackball timer
+  /// Specifies the trackball timer.
   Timer? _timer;
 
-  /// Specifies whether to render the trackball on top
+  /// Specifies whether to render the trackball on top.
   bool? _isTop;
 
   final bool _enableMouseHover = kIsWeb;
@@ -151,7 +151,7 @@ class _SparckChartTrackballRendererState
         ));
   }
 
-  /// Method to hide the trackball
+  /// Method to hide the trackball.
   void _hide() {
     if (widget.trackball != null && !widget.trackball!.shouldAlwaysShow) {
       if (_timer != null) {
@@ -167,7 +167,7 @@ class _SparckChartTrackballRendererState
     }
   }
 
-  /// Method to add the trackball painter
+  /// Method to add the trackball painter.
   Widget _addTrackballPainter() {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
@@ -184,7 +184,7 @@ class _SparckChartTrackballRendererState
     );
   }
 
-  /// Method to enable the trackball behavior
+  /// Method to enable the trackball behavior.
   void _enableTrackballBehavior(BuildContext context, Offset globalPosition) {
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final Size renderBoxSize = renderBox.size;
@@ -200,7 +200,7 @@ class _SparckChartTrackballRendererState
     }
   }
 
-  /// Method to disable the trackball dragging
+  /// Method to disable the trackball dragging.
   void _endTrackballDragging() {
     if (_isTrackballEnabled) {
       _isTrackballEnabled = false;
@@ -213,7 +213,7 @@ class _SparckChartTrackballRendererState
     }
   }
 
-  /// Method to update the trackball value
+  /// Method to update the trackball value.
   void _updateDragValue(BuildContext context, Offset globalPosition) {
     _currentIndex = null;
     _isTop = false;
@@ -249,27 +249,31 @@ class _SparckChartTrackballRendererState
     }
   }
 
-  /// Method to enable and update the track ball value
+  /// Method to enable and update the track ball value.
   void _enableAndUpdateTrackball(BuildContext context, Offset globalPosition) {
     _enableTrackballBehavior(context, globalPosition);
     _updateDragValue(context, globalPosition);
   }
 }
 
-/// Represnts the painter to render the trackball
+/// Represnts the painter to render the trackball.
 class TrackballPainter extends CustomPainter {
-  /// Creates the painter to render the trackball
-  TrackballPainter(ValueNotifier<num> notifier, this._isRepaint,
-      this._trackball, this._rendererState)
+  /// Creates the painter to render the trackball.
+  TrackballPainter(
+      ValueNotifier<num> notifier,
+      this._isRepaint,
+      this._trackball,
+      // ignore: library_private_types_in_public_api
+      this._rendererState)
       : super(repaint: notifier);
 
-  /// Specifies whether to repaint the series
+  /// Specifies whether to repaint the series.
   final bool _isRepaint;
 
-  /// Specifies the trackball of spark chart
+  /// Specifies the trackball of spark chart.
   final SparkChartTrackball? _trackball;
 
-  /// Specifies the trackball renderer state
+  /// Specifies the trackball renderer state.
   final _SparckChartTrackballRendererState _rendererState;
 
   @override
@@ -282,7 +286,7 @@ class TrackballPainter extends CustomPainter {
     }
   }
 
-  /// Method to render the trackball tooltip
+  /// Method to render the trackball tooltip.
   void _renderTrackballTooltip(
       Canvas canvas, Offset? screenPoint, num index, Size size) {
     Offset labelOffset = screenPoint!;
@@ -374,7 +378,7 @@ class TrackballPainter extends CustomPainter {
     }
   }
 
-  /// Method returns the trackball label
+  /// Method returns the trackball label.
   String _getTrackballLabel() {
     final SparkChartPoint currentPoint = _rendererState._currentDataPoint!;
     String dataLabel = currentPoint.labelY!;
@@ -390,7 +394,7 @@ class TrackballPainter extends CustomPainter {
     return dataLabel;
   }
 
-  /// Method to return the trackball label style
+  /// Method to return the trackball label style.
   TextStyle _getTrackballLabelStyle() {
     return _trackball!.labelStyle.copyWith(
         color: _trackball!.labelStyle.color ??
@@ -399,7 +403,7 @@ class TrackballPainter extends CustomPainter {
                 : const Color.fromRGBO(0, 0, 0, 1)));
   }
 
-  /// Method to get the border radius
+  /// Method to get the border radius.
   BorderRadius _getBorderRadius(BorderRadius borderRadius, double value) {
     return BorderRadius.only(
         topLeft: borderRadius.topLeft.x > value
@@ -416,7 +420,7 @@ class TrackballPainter extends CustomPainter {
             : borderRadius.bottomRight);
   }
 
-  /// Method to draw the trackball rect
+  /// Method to draw the trackball rect.
   void _drawTrackballRect(
       Canvas canvas,
       Size textSize,
@@ -479,7 +483,7 @@ class TrackballPainter extends CustomPainter {
     }
   }
 
-  /// Method to render the trackball line
+  /// Method to render the trackball line.
   void _drawTrackLine(
       Canvas canvas, Rect areaBounds, Offset screenPoint, Size size) {
     final Paint paint = Paint()

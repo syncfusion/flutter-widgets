@@ -101,7 +101,7 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
 
   // Gets the destination of the document link annotation
   PdfDestination? _obtainDestination() {
-    PdfDestination? _destination;
+    PdfDestination? dest;
     final PdfDictionary dictionary =
         PdfAnnotationHelper.getHelper(this).dictionary!;
     final PdfCrossTable crossTable =
@@ -144,37 +144,37 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
                 (top == null) ? 0 : page.size.height - (top.value!.toDouble());
             final double leftValue =
                 (left == null) ? 0 : left.value!.toDouble();
-            _destination = PdfDestination(page, Offset(leftValue, topValue));
+            dest = PdfDestination(page, Offset(leftValue, topValue));
             if (zoom != null) {
-              _destination.zoom = zoom.value!.toDouble();
+              dest.zoom = zoom.value!.toDouble();
             }
-            _destination.mode = PdfDestinationMode.location;
+            dest.mode = PdfDestinationMode.location;
           } else if (mode.name == 'Fit' || mode.name == 'FitV') {
-            _destination = PdfDestination(page);
-            _destination.mode = PdfDestinationMode.fitToPage;
+            dest = PdfDestination(page);
+            dest.mode = PdfDestinationMode.fitToPage;
           } else if (mode.name == 'FitH') {
             late PdfNumber top;
             if (array[2] is PdfNumber) {
               top = array[2]! as PdfNumber;
             }
             final double topValue = page.size.height - top.value!;
-            _destination = PdfDestination(page, Offset(0, topValue));
-            _destination.mode = PdfDestinationMode.fitH;
+            dest = PdfDestination(page, Offset(0, topValue));
+            dest.mode = PdfDestinationMode.fitH;
           } else if (mode.name == 'FitR') {
             if (array.count == 6) {
               final double left = (array[2]! as PdfNumber).value!.toDouble();
               final double top = (array[3]! as PdfNumber).value!.toDouble();
               final double width = (array[4]! as PdfNumber).value!.toDouble();
               final double height = (array[5]! as PdfNumber).value!.toDouble();
-              _destination = PdfDestinationHelper.getDestination(
+              dest = PdfDestinationHelper.getDestination(
                   page, PdfRectangle(left, top, width, height));
-              _destination.mode = PdfDestinationMode.fitR;
+              dest.mode = PdfDestinationMode.fitR;
             }
           }
         }
       }
     } else if (dictionary.containsKey(PdfDictionaryProperties.a) &&
-        (_destination == null)) {
+        (dest == null)) {
       IPdfPrimitive obj =
           crossTable.getObject(dictionary[PdfDictionaryProperties.a])!;
       final PdfDictionary destDic = obj as PdfDictionary;
@@ -210,8 +210,8 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
             }
             final double topValue =
                 (top == null) ? 0 : page.size.height - (top.value!.toDouble());
-            _destination = PdfDestination(page, Offset(0, topValue));
-            _destination.mode = PdfDestinationMode.fitH;
+            dest = PdfDestination(page, Offset(0, topValue));
+            dest.mode = PdfDestinationMode.fitH;
           } else if (mode.name == 'XYZ') {
             PdfNumber? left;
             PdfNumber? top;
@@ -229,33 +229,33 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
                 (top == null) ? 0 : page.size.height - (top.value!.toDouble());
             final double leftValue =
                 (left == null) ? 0 : left.value!.toDouble();
-            _destination = PdfDestination(page, Offset(leftValue, topValue));
+            dest = PdfDestination(page, Offset(leftValue, topValue));
             if (zoom != null) {
-              _destination.zoom = zoom.value!.toDouble();
+              dest.zoom = zoom.value!.toDouble();
             }
-            _destination.mode = PdfDestinationMode.location;
+            dest.mode = PdfDestinationMode.location;
           } else if (mode.name == 'FitR') {
             if (array.count == 6) {
               final PdfNumber left = array[2]! as PdfNumber;
               final PdfNumber bottom = array[3]! as PdfNumber;
               final PdfNumber right = array[4]! as PdfNumber;
               final PdfNumber top = array[5]! as PdfNumber;
-              _destination = PdfDestinationHelper.getDestination(
+              dest = PdfDestinationHelper.getDestination(
                   page,
                   PdfRectangle(left.value!.toDouble(), bottom.value!.toDouble(),
                       right.value!.toDouble(), top.value!.toDouble()));
-              _destination.mode = PdfDestinationMode.fitR;
+              dest.mode = PdfDestinationMode.fitR;
             }
           } else {
             if (mode.name == 'Fit' || mode.name == 'FitV') {
-              _destination = PdfDestination(page);
-              _destination.mode = PdfDestinationMode.fitToPage;
+              dest = PdfDestination(page);
+              dest.mode = PdfDestinationMode.fitToPage;
             }
           }
         }
       }
     }
-    return _destination;
+    return dest;
   }
 }
 

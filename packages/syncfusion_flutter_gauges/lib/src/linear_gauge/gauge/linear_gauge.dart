@@ -65,7 +65,7 @@ class SfLinearGauge extends StatefulWidget {
         tickOffset = tickOffset > 0 ? tickOffset : 0,
         labelOffset = labelOffset > 0 ? labelOffset : 4,
         majorTickStyle = majorTickStyle ?? const LinearTickStyle(length: 8.0),
-        minorTickStyle = minorTickStyle ?? const LinearTickStyle(length: 4.0),
+        minorTickStyle = minorTickStyle ?? const LinearTickStyle(),
         numberFormat = numberFormat ?? NumberFormat('#.##'),
         super(key: key);
 
@@ -675,12 +675,12 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
   void _addChild(Widget child, Animation<double>? animation,
       AnimationController? controller) {
     _linearGaugeWidgets.add(LinearGaugeScope(
-        child: child,
         animation: animation,
         orientation: widget.orientation,
         isAxisInversed: widget.isAxisInversed,
         isMirrored: widget.isMirrored,
-        animationController: controller));
+        animationController: controller,
+        child: child));
   }
 
   List<Widget> _buildChildWidgets(BuildContext context) {
@@ -761,8 +761,8 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
   @override
   Widget build(BuildContext context) {
     return LinearGaugeRenderWidget(
-        children: _buildChildWidgets(context),
-        pointerAnimations: _pointerAnimations);
+        pointerAnimations: _pointerAnimations,
+        children: _buildChildWidgets(context));
   }
 
   void _disposeAnimationControllers() {

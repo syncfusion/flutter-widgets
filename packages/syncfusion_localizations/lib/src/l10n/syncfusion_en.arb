@@ -23,9 +23,9 @@
       "type": "text"
   },
 
-  "itemsDataPagerLabel": "items",
-  "@itemsDataPagerLabel": {
-      "description": "Label that is displayed in the information panel of DataPager to represent the number of items.",
+  "rowsPerPageDataPagerLabel": "Rows per page",
+  "@rowsPerPageDataPagerLabel": {
+      "description": "Label that is displayed the rowsPerPages of datapager.",
       "type": "text"
   },
 
@@ -332,6 +332,12 @@
   "daySpanCountLabel": "Day",
   "@daySpanCountLabel": {
       "description": "A label that is shown on a spanned appointment. This label will be displayed on appointment views for all-day, month agenda view and schedule view.",
+      "type": "text"
+  },
+
+  "series": "Series",
+  "@series": {
+      "description": "The label is displayed as the text for the legend in the cartesian chart. When the name of the series is not specified, then this label with the series count is displayed as a legend.",
       "type": "text"
   }
 }

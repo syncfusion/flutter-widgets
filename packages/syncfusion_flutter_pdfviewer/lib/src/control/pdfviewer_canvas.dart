@@ -3,11 +3,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_page_view.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_scrollable.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/single_page_view.dart';
+
+import '../../pdfviewer.dart';
+import '../common/pdfviewer_helper.dart';
+import 'pdf_page_view.dart';
+import 'pdf_scrollable.dart';
+import 'single_page_view.dart';
 
 /// Instance of TextSelectionHelper.
 TextSelectionHelper _textSelectionHelper = TextSelectionHelper();
@@ -30,7 +31,8 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
     this.onTextSelectionDragStarted,
     this.onTextSelectionDragEnded,
     this.textCollection,
-    this.searchTextHighlightColor,
+    this.currentSearchTextHighlightColor,
+    this.otherSearchTextHighlightColor,
     this.pdfTextSearchResult,
     this.isMobileWebView,
     this.pdfScrollableStateKey,
@@ -73,8 +75,11 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
   /// Triggers when text selection is changed.
   final PdfTextSelectionChangedCallback? onTextSelectionChanged;
 
-  ///Highlighting color of searched text
-  final Color searchTextHighlightColor;
+  /// Current instance search text highlight color.
+  final Color currentSearchTextHighlightColor;
+
+  ///Other instance search text highlight color.
+  final Color otherSearchTextHighlightColor;
 
   ///searched text details
   final List<MatchedItem>? textCollection;
@@ -120,7 +125,8 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
         onTextSelectionDragStarted,
         onTextSelectionDragEnded,
         textCollection,
-        searchTextHighlightColor,
+        currentSearchTextHighlightColor,
+        otherSearchTextHighlightColor,
         isMobileWebView,
         pdfTextSearchResult,
         pdfScrollableStateKey,
@@ -141,7 +147,8 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
       ..interactionMode = interactionMode
       ..enableTextSelection = enableTextSelection
       ..enableDocumentLinkNavigation = enableDocumentLinkNavigation
-      ..searchTextHighlightColor = searchTextHighlightColor
+      ..currentSearchTextHighlightColor = currentSearchTextHighlightColor
+      ..otherSearchTextHighlightColor = otherSearchTextHighlightColor
       ..scrollDirection = scrollDirection
       ..isSinglePageView = isSinglePageView
       ..viewportGlobalRect = viewportGlobalRect
@@ -170,7 +177,8 @@ class CanvasRenderBox extends RenderBox {
       this.onTextSelectionDragStarted,
       this.onTextSelectionDragEnded,
       this.textCollection,
-      this.searchTextHighlightColor,
+      this.currentSearchTextHighlightColor,
+      this.otherSearchTextHighlightColor,
       this.isMobileWebView,
       this.pdfTextSearchResult,
       this.pdfScrollableStateKey,
@@ -237,8 +245,11 @@ class CanvasRenderBox extends RenderBox {
   /// Indicates interaction mode of pdfViewer.
   late PdfInteractionMode interactionMode;
 
-  ///Highlighting color of searched text
-  late Color searchTextHighlightColor;
+  /// Current instance search text highlight color.
+  late Color currentSearchTextHighlightColor;
+
+  ///Other instance search text highlight color.
+  late Color otherSearchTextHighlightColor;
 
   ///searched text details
   late List<MatchedItem>? textCollection;
@@ -780,7 +791,7 @@ class CanvasRenderBox extends RenderBox {
         (isReachedTop ? -_jumpOffset : _jumpOffset);
 
     if (isSelectionScroll) {
-      WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
         if (isSinglePageView) {
           singlePageViewStateKey.currentState?.jumpTo(yOffset: position);
           _scrollWhileSelection();
@@ -1161,11 +1172,10 @@ class CanvasRenderBox extends RenderBox {
   /// Perform text search.
   void _performTextSearch(Canvas canvas, Offset offset) {
     if (textCollection != null && !_textSelectionHelper.selectionEnabled) {
-      final Paint searchTextPaint = Paint()
-        ..color = searchTextHighlightColor.withOpacity(0.3);
       final Paint currentInstancePaint = Paint()
-        ..color = searchTextHighlightColor.withOpacity(0.6);
-      int _pageNumber = 0;
+        ..color = currentSearchTextHighlightColor;
+      final Paint otherInstancePaint = Paint()
+        ..color = otherSearchTextHighlightColor;
       for (int i = 0; i < textCollection!.length; i++) {
         final MatchedItem item = textCollection![i];
         final double heightPercentage =
@@ -1177,21 +1187,9 @@ class CanvasRenderBox extends RenderBox {
                       textCollection![i].bounds.top / heightPercentage) &
                   Size(textCollection![i].bounds.width / heightPercentage,
                       textCollection![i].bounds.height / heightPercentage),
-              searchTextPaint);
-        }
-        final MatchedItem matchedItem =
-            textCollection![pdfTextSearchResult.currentInstanceIndex - 1];
-        if (matchedItem.pageIndex == pageIndex) {
-          if (matchedItem.pageIndex + 1 != _pageNumber) {
-            final Rect bounds = matchedItem.bounds;
-            canvas.drawRect(
-                offset.translate(bounds.left / heightPercentage,
-                        bounds.top / heightPercentage) &
-                    Size(bounds.width / heightPercentage,
-                        bounds.height / heightPercentage),
-                currentInstancePaint);
-            _pageNumber = matchedItem.pageIndex + 1;
-          }
+              i == pdfTextSearchResult.currentInstanceIndex - 1
+                  ? currentInstancePaint
+                  : otherInstancePaint);
         } else if (item.pageIndex > pageIndex) {
           break;
         }

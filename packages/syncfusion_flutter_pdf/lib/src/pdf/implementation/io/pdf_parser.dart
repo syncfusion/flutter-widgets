@@ -265,6 +265,7 @@ class PdfParser {
           obj = PdfNull();
           _advance();
           break;
+        // ignore: no_default_cases
         default:
           obj = null;
           break;
@@ -321,6 +322,7 @@ class PdfParser {
       if (reader.position >= reader.length! - 1) {
         break;
       }
+      final int previousPosition = reader.position;
       String str = '';
       str = reader.readLine();
       if (str == '') {
@@ -349,8 +351,8 @@ class PdfParser {
             marker = int.tryParse(words[1]);
             if (marker != null) {
               if (marker == 0 && words[2] == PdfDictionaryProperties.obj) {
-                final ObjectInformation objectInfo = ObjectInformation(
-                    _reader.position - tokens.length - 1, null, crosstable);
+                final ObjectInformation objectInfo =
+                    ObjectInformation(previousPosition, null, crosstable);
                 if (!newObjects.containsKey(objNumber)) {
                   newObjects[objNumber] = objectInfo;
                 }
@@ -783,7 +785,6 @@ class PdfParser {
 
       case _ErrorType.none:
       case _ErrorType.badlyFormedHexString:
-      default:
         message = 'Internal error.';
         break;
     }

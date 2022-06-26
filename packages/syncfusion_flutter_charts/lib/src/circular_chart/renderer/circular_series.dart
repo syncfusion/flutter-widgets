@@ -90,9 +90,9 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
         initialSelectedDataIndexes = initialSelectedDataIndexes ?? <int>[],
         super(name: name);
 
-  ///Opacity of the series. The value ranges from 0 to 1.
+  /// Opacity of the series. The value ranges from 0 to 1.
   ///
-  ///Defaults to `1`
+  /// Defaults to `1`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -108,16 +108,16 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                ],
   ///                 opacity: 1,
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///   );
   ///}
   ///```
   @override
   final double opacity;
 
-  ///Toggles the visibility of the tooltip for this series.
-  ///
-  ///Defaults to `true`
+  /// Customizes the data labels in a series. Data label is a text, which displays
+  /// the details about the data point.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -125,27 +125,22 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///        child: SfCircularChart(
   ///            series: <PieSeries<ChartData, String>>[
   ///              PieSeries<ChartData, String>(
-  ///                dataSource: <ChartData>[
-  ///                   ChartData('USA', 10),
-  ///                   ChartData('China', 11),
-  ///                   ChartData('Russia', 9),
-  ///                   ChartData('Germany', 10),
-  ///                ],
   ///                dataLabelSettings: DataLabelSettings(isVisible: true),
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///     );
   ///}
   ///```
   @override
   final DataLabelSettings dataLabelSettings;
 
-  ///A collection of data required for rendering the series.
+  /// A collection of data required for rendering the series.
   ///
   /// If no data source is specified,
-  ///empty chart will be rendered without series.
+  /// empty chart will be rendered without series.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -160,16 +155,17 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                   ChartData('Germany', 10),
   ///                ],
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final List<T>? dataSource;
 
-  ///Maps the field name, which will be considered as x-values.
+  /// Maps the field name, which will be considered as x-values.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -184,23 +180,24 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                   ChartData('Germany', 10),
   ///                ],
   ///                xValueMapper: (ChartData data, _) => data.xVal,
+  ///                yValueMapper: (ChartData data, _) => data.yVal,
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///class ChartData {
-  ///   ChartData(this.xVal, this.yVal, [this.radius]);
+  ///   ChartData(this.xVal, this.yVal);
   ///   final String xVal;
   ///   final int yVal;
-  ///   final String radius;
   ///}
   ///```
   @override
   final ChartIndexedValueMapper<D>? xValueMapper;
 
-  ///Maps the field name, which will be considered as y-values.
+  /// Maps the field name, which will be considered as y-values.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -214,24 +211,25 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                   ChartData('Russia', 9),
   ///                   ChartData('Germany', 10),
   ///                ],
+  ///                xValueMapper: (ChartData data, _) => data.xVal,
   ///                yValueMapper: (ChartData data, _) => data.yVal,
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///   );
   ///}
   ///class ChartData {
-  ///   ChartData(this.xVal, this.yVal, [this.radius]);
+  ///   ChartData(this.xVal, this.yVal);
   ///   final String xVal;
   ///   final int yVal;
-  ///   final String radius;
   ///}
   ///```
   @override
   final ChartIndexedValueMapper<num>? yValueMapper;
 
-  ///Maps the field name, which will be considered as x-values.
+  /// Maps the field name, which will be considered as data point color.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -245,10 +243,13 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                   ChartData('Russia', 9, Colors.blue),
   ///                   ChartData('Germany', 10, Colors.voilet),
   ///                ],
+  ///                xValueMapper: (ChartData data, _) => data.xVal,
+  ///                yValueMapper: (ChartData data, _) => data.yVal,
   ///                pointColorMapper: (ChartData data, _) => data.pointColor,
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///class ChartData {
   ///   ChartData(this.xVal, this.yVal, [this.pointColor]);
@@ -260,20 +261,22 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   @override
   final ChartIndexedValueMapper<Color>? pointColorMapper;
 
-  ///Returns the shaders to fill each data point.
+  /// Returns the shaders to fill each data point.
   ///
-  ///The data points of pie, doughnut and radial bar charts can be filled with [gradient](https://api.flutter.dev/flutter/dart-ui/Gradient-class.html)
+  /// The data points of pie, doughnut and radial bar charts can be filled with [gradient](https://api.flutter.dev/flutter/dart-ui/Gradient-class.html)
   /// (linear, radial and sweep gradient) and [image shaders](https://api.flutter.dev/flutter/dart-ui/ImageShader-class.html).
   ///
-  ///A shader specified in a data source cell will be applied to that specific data point. Also, a data point may have gradient
-  /// and another data point may have image shader.
+  /// A shader specified in a data source cell will be applied to that specific data point. Also, a data point may have a gradient
+  /// and another data point may have an image shader.
   ///
-  ///The user can also get the data, index, color and rect values of the specific data point from [ChartShaderMapper] and
-  /// can use in this method, for creating shaders.
+  /// The user can also get the data, index, color and rect values of the specific data point from [ChartShaderMapper] and
+  /// can use this method, for creating shaders.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
+  ///import 'dart:ui' as ui;
+  ///
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
@@ -295,13 +298,16 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                          0.5,
   ///                          ]),),
   ///                ],
+  ///                xValueMapper: (ChartData data, _) => data.xVal,
+  ///                yValueMapper: (ChartData data, _) => data.yVal,
   ///                pointShaderMapper: (ChartData data, _, Color color, Rect rect) => data.pointShader,
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///   );
   ///}
   ///class ChartData {
-  ///   ChartData(this.xVal, this.yVal, [this.pointColor]);
+  ///   ChartData(this.xVal, this.yVal, [this.pointShader]);
   ///   final String xVal;
   ///   final int yVal;
   ///   final Shader pointShader;
@@ -309,10 +315,10 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///```
   final ChartShaderMapper<dynamic>? pointShaderMapper;
 
-  ///Maps the field name, which will be considered for calculating the radius of
+  /// Maps the field name, which will be considered for calculating the radius of
   /// all the data points.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -326,10 +332,13 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                   ChartData('Russia', 9, '60%'),
   ///                   ChartData('Germany', 10, '65%'),
   ///                ],
+  ///                xValueMapper: (ChartData data, _) => data.xVal,
+  ///                yValueMapper: (ChartData data, _) => data.yVal,
   ///                pointRadiusMapper: (ChartData data, _) => data.radius,
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///class ChartData {
   ///   ChartData(this.xVal, this.yVal, [this.radius]);
@@ -340,9 +349,9 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///```
   final ChartIndexedValueMapper<String>? pointRadiusMapper;
 
-  ///Maps the field name, which will be considered as text for the data points.
+  /// Maps the field name, which will be considered as a text for the data points.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -356,25 +365,26 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                   ChartData('Russia', 9),
   ///                   ChartData('Germany', 10),
   ///                ],
+  ///                xValueMapper: (ChartData data, _) => data.xVal,
+  ///                yValueMapper: (ChartData data, _) => data.yVal,
   ///                dataLabelMapper: (ChartData data, _) => data.xVal,
   ///              ),
   ///             ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///class ChartData {
-  ///   ChartData(this.xVal, this.yVal, [this.radius]);
+  ///   ChartData(this.xVal, this.yVal);
   ///   final String xVal;
   ///   final int yVal;
-  ///   final String radius;
   ///}
   ///```
   @override
   final ChartIndexedValueMapper<String>? dataLabelMapper;
 
-  ///Field in the data source for performing sorting. Sorting will be performed
-  ///based on this field.
+  /// Field in the data source for performing sorting.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -388,29 +398,31 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                   ChartData('Russia', 9),
   ///                   ChartData('Germany', 10),
   ///                ],
+  ///                xValueMapper: (ChartData data, _) => data.xVal,
+  ///                yValueMapper: (ChartData data, _) => data.yVal,
   ///                sortFieldValueMapper: (ChartData data, _) => data.xVal,
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///class ChartData {
-  ///   ChartData(this.xVal, this.yVal, [this.radius]);
+  ///   ChartData(this.xVal, this.yVal);
   ///   final String xVal;
   ///   final int yVal;
-  ///   final String radius;
   ///}
   ///```
   @override
   final ChartIndexedValueMapper<dynamic>? sortFieldValueMapper;
 
-  ///Shape of the legend icon.
+  /// Shape of the legend icon.
   ///
-  ///Any shape in the LegendIconType can be applied to this property.
-  ///By default, icon will be rendered based on the type of the series.
+  /// Any shape in the LegendIconType can be applied to this property.
+  /// By default, icon will be rendered based on the type of the series.
   ///
-  ///Defaults to `LegendIconType.seriesType`
+  /// Defaults to `LegendIconType.seriesType`.
   ///
-  ///Also refer [LegendIconType]
+  /// Also refer [LegendIconType].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -421,21 +433,22 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                  legendIconType: LegendIconType.diamond,
   ///                  )
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final LegendIconType legendIconType;
 
-  ///Type of sorting.
+  /// Type of sorting.
   ///
-  ///The data points in the series can be sorted in ascending or descending
-  ///order.The data points will be rendered in the specified order if it is set to none.
+  /// The data points in the series can be sorted in ascending or descending
+  /// order.The data points will be rendered in the specified order if it is set to none.
   ///
-  ///Default to `none`
+  /// Default to `SortingOrder.none`.
   ///
-  ///Also refer [SortingOrder]
+  /// Also refer [SortingOrder].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -446,16 +459,17 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                  sortingOrder: SortingOrder.ascending,
   ///                  )
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final SortingOrder sortingOrder;
 
-  ///Toggles the visibility of the tooltip for this series.
+  /// Determines whether to enable tooltip.
   ///
-  ///Defaults to `true`
+  /// Defaults to `true`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -465,45 +479,47 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///              PieSeries<ChartData, String>(
   ///                enableTooltip: true,
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final bool enableTooltip;
 
-  ///Border width of the data points in the series.
+  /// Border width of the data points in the series.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
-  ///            borderColor: Colors.red,
   ///            borderWidth: 2
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final double borderWidth;
 
-  ///Border color of the data points in the series.
+  /// Border color of the data points in the series.
   ///
-  ///Defaults to `Colors.transparent`
+  /// Defaults to `Colors.transparent`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            borderColor: Colors.red
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final Color borderColor;
 
-  ///Customizes the empty data points in the series
+  /// Customizes the empty data points in the series.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -514,35 +530,41 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                  emptyPointSettings: EmptyPointSettings (color: Colors.red)
   ///                ),
   ///              ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final EmptyPointSettings emptyPointSettings;
 
-  ///Customizes the selection of series.
+  /// Customizes the selection of series.
   ///
   ///```dart
+  ///SelectionBehavior _selectionBehavior;
+  ///
+  ///void initState() {
+  ///   _selectionBehavior = SelectionBehavior(enable: true);
+  ///   super.initState();
+  ///}
+  ///
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
   ///           series: <PieSeries<ChartData, String>>[
   ///                PieSeries<ChartData, String>(
-  ///                  selectionBehavior: SelectionBehavior(
-  ///                    selectedColor: Colors.red,
-  ///                    unselectedColor: Colors.grey
-  ///                  ),
+  ///                  selectionBehavior: _selectionBehavior
   ///                ),
   ///              ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final SelectionBehavior selectionBehavior;
 
-  ///Starting angle of the series.
+  /// Starting angle of the series.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -552,15 +574,16 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                PieSeries<ChartData, String>(
   ///                  startAngle: 270;
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final int startAngle;
 
-  ///Ending angle of the series.
+  /// Ending angle of the series.
   ///
-  ///Defaults to `360`
+  /// Defaults to `360`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -570,17 +593,18 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                PieSeries<ChartData, String>(
   ///                  endAngle: 270;
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final int endAngle;
 
-  ///Radius of the series.
+  /// Radius of the series.
   ///
   /// The value ranges from 0% to 100%.
   ///
-  ///Defaults to `‘80%’`
+  /// Defaults to `80%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -590,17 +614,18 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                PieSeries<ChartData, String>(
   ///                  radius: '10%';
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final String radius;
 
-  ///Inner radius of the series.
+  /// Inner radius of the series.
   ///
-  ///The value ranges from 0% to 100%.
+  /// The value ranges from 0% to 100%.
   ///
-  ///Defaults to `‘50%’`
+  /// Defaults to `50%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -610,15 +635,16 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                DoughnutSeries<ChartData, String>(
   ///                  innerRadius: '20%';
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final String innerRadius;
 
-  ///Enables or disables the explode of slices on tap.
+  /// Enables or disables the explode of slices on tap.
   ///
-  ///Default to `false`.
+  /// Default to `false`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -628,15 +654,16 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                PieSeries<ChartData, String>(
   ///                  explode: true;
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final bool explode;
 
-  ///Enables or disables exploding all the slices at the initial rendering.
+  /// Enables or disables exploding all the slices at the initial rendering.
   ///
-  ///Defaults to `false`.
+  /// Defaults to `false`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -646,15 +673,16 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                PieSeries<ChartData, String>(
   ///                  explodeAll: true
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final bool explodeAll;
 
-  ///Index of the slice to explode it at the initial rendering.
+  /// Index of the slice to explode it at the initial rendering.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -665,15 +693,16 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                  explode: true,
   ///                  explodeIndex: 2
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final int? explodeIndex;
 
-  ///Offset of exploded slice. The value ranges from 0% to 100%.
+  /// Offset of exploded slice. The value ranges from 0% to 100%.
   ///
-  ///Defaults to `20%`.
+  /// Defaults to `20%`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -684,20 +713,21 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                  explode: true,
   ///                  explodeOffset: '30%'
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final String explodeOffset;
 
-  ///Gesture for activating the explode.
+  /// Gesture for activating the explode.
   ///
-  ///Explode can be activated in tap, double tap,
-  ///and long press.
+  /// Explode can be activated in `ActivationMode.none`, `ActivationMode.singleTap`, `ActivationMode.doubleTap`,
+  /// and `ActivationMode.longPress`.
   ///
-  ///Defaults to `ActivationMode.tap`
+  /// Defaults to `ActivationMode.singleTap`.
   ///
-  ///Also refer [ActivationMode]
+  /// Also refer [ActivationMode].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -708,15 +738,16 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                  explode: true,
   ///                  explodeGesture: ActivationMode.singleTap
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final ActivationMode explodeGesture;
 
-  ///Groups the data points of the series based on their index or values.
+  /// Groups the data points of the series based on their index or values.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -725,19 +756,19 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///            series: <PieSeries<ChartData, String>>[
   ///                PieSeries<ChartData, String>(
   ///                  groupTo: 4,
-  ///                  groupMode: CircularChartGroupMode.point
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final double? groupTo;
 
-  ///Slice can also be grouped based on the data points value or based on index.
+  /// Slice can also be grouped based on the data points value or based on index.
   ///
-  ///Defaults to `CircularChartGroupMode.point`
+  /// Defaults to `CircularChartGroupMode.point`.
   ///
-  ///Also refer [CircularChartGroupMode]
+  /// Also refer [CircularChartGroupMode].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -745,35 +776,36 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///        child: SfCircularChart(
   ///            series: <PieSeries<ChartData, String>>[
   ///                PieSeries<ChartData, String>(
-  ///                  groupTo: 3,
-  ///                  groupMode: CircularChartGroupMode.point,
+  ///                  groupMode: CircularChartGroupMode.value,
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///   );
   ///}
   ///```
   final CircularChartGroupMode? groupMode;
 
-  ///Defines the painting mode of the data points.
+  /// Defines the painting mode of the data points.
   ///
-  ///The data points in pie and doughnut chart can be filled either with solid colors or with sweep gradient
+  /// The data points in pie and doughnut chart can be filled either with solid colors or with sweep gradient
   /// by using this property.
   ///
-  ///* If `PointRenderMode.segment` is specified, the data points are filled with solid colors from palette
+  /// * If `PointRenderMode.segment` is specified, the data points are filled with solid colors from palette
   /// or with the colors mentioned in `pointColorMapping` property.
-  ///* If `PointRenderMode.gradient` is specified, a sweep gradient is formed with the solid colors and fills
+  /// * If `PointRenderMode.gradient` is specified, a sweep gradient is formed with the solid colors and fills
   /// the data points.
   ///
-  ///_Note:_ This property is applicable only if the `onCreateShader` or `pointShaderMapper` is null.
+  /// _Note:_ This property is applicable only if the `onCreateShader` or `pointShaderMapper` is null and
+  /// not applicable for radial bar series.
   ///
-  ///Also refer [PointRenderMode].
+  /// Also refer [PointRenderMode].
   ///
-  ///Defaults to `pointRenderMode.segment`.
+  /// Defaults to `pointRenderMode.segment`.
   final PointRenderMode? pointRenderMode;
 
-  ///Specifies the gap between the radial bars in percentage.
+  /// Specifies the gap between the radial bars in percentage.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -783,19 +815,20 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                RadialBarSeries<ChartData, String>(
   ///                  gap: '10%',
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final String gap;
 
-  ///Specifies the radial bar’s corner type.
+  /// Specifies the radial bar’s corner type.
   ///
   /// _Note:_ This is applicable only for radial bar series type.
   ///
-  ///Defaults to `CornerStyle.bothFlat`
+  /// Defaults to `CornerStyle.bothFlat`.
   ///
-  ///Also refer [CornerStyle]
+  /// Also refer [CornerStyle].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -805,15 +838,14 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                RadialBarSeries<ChartData, String>(
   ///                  cornerStyle: CornerStyle.bothCurve,
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final CornerStyle cornerStyle;
 
-  ///Name of the series.
-  ///
-  ///Defaults to `‘’`
+  /// Name of the series.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -823,16 +855,17 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///              PieSeries<ChartData, String>(
   ///                name: 'default',
   ///              ),
-  ///             ],
-  ///        ));
+  ///           ],
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final String? name;
 
-  ///Duration for animating the data points.
+  /// Duration for animating the data points.
   ///
-  ///Defaults to `1500`
+  /// Defaults to `1500`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -842,19 +875,20 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                PieSeries<ChartData, String>(
   ///                  animationDuration: 3000;
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final double animationDuration;
 
-  /// Delay duration of the series animation.It takes a millisecond value as input.
+  /// Delay duration of the series animation. It takes a millisecond value as input.
   /// By default, the series will get animated for the specified duration.
   /// If animationDelay is specified, then the series will begin to animate
   /// after the specified duration.
   ///
-  /// Defaults to 0.
+  /// Defaults to `0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -864,14 +898,15 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                PieSeries<ChartData, String>(
   ///                  animationDelay: 500;
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   @override
   final double animationDelay;
 
-  /// List of data indexes initially selected
+  /// List of data indexes initially selected.
   ///
   /// Defaults to `null`.
   ///```dart
@@ -888,22 +923,14 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///  }
   List<int> initialSelectedDataIndexes;
 
-  ///Key to identify a series in a collection.
-
+  /// Key to identify a series in a collection.
   ///
-
-  ///On specifying [ValueKey] as the series [key], existing series index can be changed in the series collection without losing its state.
-
+  /// On specifying [ValueKey] as the series [key], existing series index can be changed in the series collection without losing its state.
   ///
-
-  ///When a new series is added dynamically to the collection, existing series index will be changed. On that case,
-
+  /// When a new series is added dynamically to the collection, existing series index will be changed. On that case,
   /// the existing series and its state will be linked based on its chart type and this key value.
-
   ///
-
-  ///Defaults to `null`.
-
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -913,25 +940,26 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                PieSeries<SalesData, num>(
   ///                      key: const ValueKey<String>('pie_series_key'),
   ///                 ),
-  ///              ],
-  ///        ));
+  ///             ],
+  ///        )
+  ///    );
   ///}
   ///```
   final ValueKey<String>? key;
 
-  ///Used to create the renderer for custom series.
+  /// Used to create the renderer for custom series.
   ///
-  ///This is applicable only when the custom series is defined in the sample
+  /// This is applicable only when the custom series is defined in the sample
   /// and for built-in series types, it is not applicable.
   ///
-  ///Renderer created in this will hold the series state and
+  /// Renderer created in this will hold the series state and
   /// this should be created for each series. [onCreateRenderer] callback
   /// function should return the renderer class and should not return null.
   ///
-  ///Series state will be created only once per series and will not be created
-  ///again when we update the series.
+  /// Series state will be created only once per series and will not be created
+  /// again when we update the series.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -940,21 +968,22 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///            series: <PieSeries<SalesData, num>>[
   ///                PieSeries<SalesData, num>(
   ///                  onCreateRenderer:(CircularSeries<dynamic, dynamic> series){
-  ///                      return CustomLinerSeriesRenderer();
+  ///                      return CustomPieSeriesRenderer();
   ///                    }
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   /// }
-  ///  class CustomLinerSeriesRenderer extends PieSeriesRenderer {
+  ///  class CustomPieSeriesRenderer extends PieSeriesRenderer {
   ///       // custom implementation here...
   ///  }
   ///```
   final ChartSeriesRendererFactory<T, D>? onCreateRenderer;
 
-  ///Called when tapped on the chart data point.
+  /// Called when tapped on the chart data point.
   ///
-  ///The user can fetch the series index, point index, view port point index and
+  /// The user can fetch the series index, point index, view port index and
   /// data of the tapped data point.
   ///```dart
   ///Widget build(BuildContext context) {
@@ -967,15 +996,16 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                       print(details.pointIndex);
   ///                    },
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final ChartPointInteractionCallback? onPointTap;
 
-  ///Called when double tapped on the chart data point.
+  /// Called when double tapped on the chart data point.
   ///
-  ///The user can fetch the series index, point index, view port point index and
+  /// The user can fetch the series index, point index, view port index and
   /// data of the double-tapped data point.
   ///```dart
   ///Widget build(BuildContext context) {
@@ -988,15 +1018,16 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                       print(details.pointIndex);
   ///                    },
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final ChartPointInteractionCallback? onPointDoubleTap;
 
-  ///Called when long pressed on the chart data point.
+  /// Called when long pressed on the chart data point.
   ///
-  ///The user can fetch the series index, point index, view port point index and
+  /// The user can fetch the series index, point index, view port index and
   /// data of the long-pressed data point.
   ///```dart
   ///Widget build(BuildContext context) {
@@ -1009,21 +1040,18 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                       print(details.pointIndex);
   ///                    },
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final ChartPointInteractionCallback? onPointLongPress;
 
-  ///Triggers when the series renderer is created.
-
+  /// Triggers when the series renderer is created.
   ///
-
-  ///Using this callback, able to get the [ChartSeriesController] instance, which is used to access the public methods in the series.
-
+  /// Using this callback, able to get the [ChartSeriesController] instance, which is used to access the public methods in the series.
   ///
-
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -1036,13 +1064,14 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///                       _chartSeriesController = controller;
   ///                    },
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final CircularSeriesRendererCreatedCallback? onRendererCreated;
 
-  /// To calculate empty point values
+  /// To calculate empty point values.
   @override
   void calculateEmptyPointValue(
       int pointIndex, ChartPoint<dynamic> currentPoint,
@@ -1079,7 +1108,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   }
 }
 
-/// To get visible point index
+/// To get visible point index.
 int? getVisiblePointIndex(
     List<ChartPoint<dynamic>?> points, String loc, int index) {
   if (loc == 'before') {

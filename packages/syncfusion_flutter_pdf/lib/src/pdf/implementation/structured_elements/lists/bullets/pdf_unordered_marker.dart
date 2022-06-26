@@ -198,6 +198,7 @@ class PdfUnorderedMarkerHelper extends PdfMarkerHelper {
         //  templete.graphics.drawImage(
         //      _image, 1, 1, _size.width - 2, _size.height - 2);
         break;
+      // ignore: no_default_cases
       default:
         final PdfPoint location = PdfPoint.empty;
         if (pen != null) {
@@ -229,6 +230,7 @@ class PdfUnorderedMarkerHelper extends PdfMarkerHelper {
       case PdfUnorderedMarkerStyle.circle:
         text = '\x6D';
         break;
+      // ignore: no_default_cases
       default:
         break;
     }

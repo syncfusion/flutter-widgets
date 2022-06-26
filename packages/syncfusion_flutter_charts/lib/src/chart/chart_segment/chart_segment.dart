@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/segment_properties.dart';
+import '../common/segment_properties.dart';
 
 /// Creates the segments for chart series.
 ///
@@ -12,34 +12,34 @@ import 'package:syncfusion_flutter_charts/src/chart/common/segment_properties.da
 /// change each segment in the chart.
 ///
 abstract class ChartSegment {
-  ///Gets the color of the series
+  /// Gets the color of the series.
   Paint getFillPaint();
 
-  ///Gets the border color of the series
+  /// Gets the border color of the series.
   Paint getStrokePaint();
 
-  ///Calculates the rendering bounds of a segment
+  /// Calculates the rendering bounds of a segment.
   void calculateSegmentPoints();
 
-  ///Draws segment in series bounds.
+  /// Draws segment in series bounds.
   void onPaint(Canvas canvas);
 
-  ///Fill paint of the segment
+  /// Fill paint of the segment.
   Paint? fillPaint;
 
-  ///Stroke paint of the segment
+  /// Stroke paint of the segment.
   Paint? strokePaint;
 
-  ///Animation factor value
+  /// Animation factor value.
   late double animationFactor;
 
-  ///Current point offset value
+  /// Current point offset value.
   List<Offset> points = <Offset>[];
 
   /// Current index value.
   int? currentSegmentIndex;
 
-  /// Represents the segment properties
+  /// Represents the segment properties.
   SegmentProperties? _segmentProperties;
 
   /// To dispose the objects.
@@ -51,11 +51,11 @@ abstract class ChartSegment {
 // ignore: avoid_classes_with_only_static_members
 /// Helper class to get the private fields of chart segment
 class SegmentHelper {
-  /// Method to get the segment properties of corresponding chart segment
+  /// Method to get the segment properties of corresponding chart segment.
   static SegmentProperties getSegmentProperties(ChartSegment chartSegment) =>
       chartSegment._segmentProperties!;
 
-  /// Method to set the segment properties of corresponding chart segment
+  /// Method to set the segment properties of corresponding chart segment.
   static void setSegmentProperties(
           ChartSegment segment, SegmentProperties segmentProperties) =>
       segment._segmentProperties = segmentProperties;

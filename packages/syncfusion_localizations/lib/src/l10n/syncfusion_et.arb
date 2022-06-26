@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Sündmusi pole", 
 "ofDataPagerLabel" : "kohta", 
 "pagesDataPagerLabel" : "lehekülgi", 
-"itemsDataPagerLabel" : "esemed", 
+"rowsPerPageDataPagerLabel" : "Rida lehekülje kohta", 
 "pdfBookmarksLabel" : "Järjehoidjad", 
 "pdfNoBookmarksLabel" : "Järjehoidjaid ei leitud", 
 "pdfScrollStatusOfLabel" : "kohta", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "päev"
+"daySpanCountLabel" : "päev", 
+"series" : "seeria"
 }

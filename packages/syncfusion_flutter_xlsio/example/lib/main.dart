@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column, Alignment;
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column;
 
 //Local imports
 import 'helper/save_file_mobile.dart'
@@ -44,13 +44,13 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextButton(
-              child: const Text('Generate Excel'),
               style: TextButton.styleFrom(
                 primary: Colors.white,
                 backgroundColor: Colors.lightBlue,
                 onSurface: Colors.grey,
               ),
               onPressed: generateExcel,
+              child: const Text('Generate Excel'),
             )
           ],
         ),

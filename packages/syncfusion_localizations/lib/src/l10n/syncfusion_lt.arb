@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Jokių įvykių", 
 "ofDataPagerLabel" : "apie", 
 "pagesDataPagerLabel" : "puslapių", 
-"itemsDataPagerLabel" : "daiktų", 
+"rowsPerPageDataPagerLabel" : "Eilučių puslapyje", 
 "pdfBookmarksLabel" : "Žymės", 
 "pdfNoBookmarksLabel" : "Žymių nerasta", 
 "pdfScrollStatusOfLabel" : "apie", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Diena"
+"daySpanCountLabel" : "Diena", 
+"series" : "Serija"
 }

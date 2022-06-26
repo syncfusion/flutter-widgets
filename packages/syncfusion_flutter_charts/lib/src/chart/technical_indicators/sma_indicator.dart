@@ -3,12 +3,12 @@ import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import 'technical_indicator.dart';
 
-///Renders simple moving average (SMA) indicator.
+/// Renders simple moving average (SMA) indicator.
 ///
 /// A simple moving average (SMA) is an arithmetic moving average calculated by adding recent closing prices and
 /// then dividing the total by the number of time periods in the calculation average.
 ///
-///  It also has a [valueField] property. Based on this property, the indicator will be rendered.
+/// It also has a [valueField] property. Based on this property, the indicator will be rendered.
 @immutable
 class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of SmaIndicator class.
@@ -59,23 +59,30 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
             period: period,
             onRenderDetailsUpdate: onRenderDetailsUpdate);
 
-  ///ValueField value for sma indicator.
+  /// Value field value for SMA indicator.
   ///
-  ///Value field determines the field for the rendering of sma indicator.
+  /// Value field determines the field for the rendering of SMA indicator.
   ///
-  ///Defaults to `close`.
+  /// Defaults to `close`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            SmaIndicator<dynamic, dynamic>(
-  ///                valueField : 'high',
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      SmaIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        period: 4,
+  ///        valueField: 'low'
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final String valueField;
 
   @override

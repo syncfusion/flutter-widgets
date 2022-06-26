@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "কোনো ঘটনা নেই", 
 "ofDataPagerLabel" : "এর", 
 "pagesDataPagerLabel" : "পৃষ্ঠাগুলি", 
-"itemsDataPagerLabel" : "আইটেম", 
+"rowsPerPageDataPagerLabel" : "প্রতি পৃষ্ঠায় সারি", 
 "pdfBookmarksLabel" : "বুকমার্ক", 
 "pdfNoBookmarksLabel" : "কোন বুকমার্ক পাওয়া যায়নি", 
 "pdfScrollStatusOfLabel" : "এর", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "শ.", 
 "shortDhualqiLabel" : "যুল-ক্ব", 
 "shortDhualhiLabel" : "ধুল-এইচ", 
-"daySpanCountLabel" : "দিন"
+"daySpanCountLabel" : "দিন", 
+"series" : "সিরিজ"
 }

@@ -16,8 +16,8 @@ import 'renderer_extension.dart';
 /// The radial bar chart is used for showing the comparisons among the categories using the circular shapes.
 /// To render a radial bar chart, create an instance of RadialBarSeries, and add to the series collection property of [SfCircularChart].
 ///
-///Provides options to customize the [maximumValue], [trackColor], [trackBorderColor], [trackBorderWidth], [trackOpacity]
-///and [useSeriesColor] of the pie segments.
+/// Provides options to customize the [maximumValue], [trackColor], [trackBorderColor], [trackBorderWidth], [trackOpacity]
+/// and [useSeriesColor] of the radial segments.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=VJxPp7-2nGk}
 class RadialBarSeries<T, D> extends CircularSeries<T, D> {
@@ -104,7 +104,9 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
           initialSelectedDataIndexes: initialSelectedDataIndexes,
         );
 
-  ///Color of the track
+  /// Color of the track.
+  ///
+  /// Defaults to `const Color.fromRGBO(234, 236, 239, 1.0)`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -114,17 +116,18 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
   ///                RadialBarSeries<ChartData, String>(
   ///                  trackColor: Colors.red,
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final Color trackColor;
 
-  ///Specifies the maximum value of the radial bar.
+  /// Specifies the maximum value of the radial bar.
   ///
   /// By default, the sum of the data points values will be considered as maximum value.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -134,15 +137,16 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
   ///                RadialBarSeries<ChartData, String>(
   ///                  maximumValue: 100,
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final double? maximumValue;
 
-  ///Border color of the track
+  /// Border color of the track.
   ///
-  ///Defaults to `colors.Transparent`.
+  /// Defaults to `Colors.Transparent`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -151,33 +155,34 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
   ///                RadialBarSeries<ChartData, String>(
   ///                  trackBorderColor: Colors.red,
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final Color trackBorderColor;
 
-  ///Border width of the track
+  /// Border width of the track.
   ///
-  ///Defaults to `0.0`.
+  /// Defaults to `0.0`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCircularChart(
   ///            series: <RadialBarSeries<ChartData, String>>[
   ///                RadialBarSeries<ChartData, String>(
-  ///                  trackBorderColor: Colors.red,
   ///                  trackBorderWidth: 2,
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final double trackBorderWidth;
 
-  ///Opacity of the track
+  /// Opacity of the track.
   ///
-  ///Defaults to `1`.
+  /// Defaults to `1`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -186,15 +191,16 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
   ///                RadialBarSeries<ChartData, String>(
   ///                  trackOpacity: 0.2,
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///    );
   ///}
   ///```
   final double trackOpacity;
 
-  ///Uses the point color for filling the track
+  /// Uses the point color for filling the track.
   ///
-  ///Defaults to `false`
+  /// Defaults to `false`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -204,26 +210,14 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
   ///                RadialBarSeries<ChartData, String>(
   ///                  useSeriesColor:true
   ///                ),
-  ///              ],
-  ///        ));
+  ///            ],
+  ///        )
+  ///   );
   ///}
   ///```
   final bool useSeriesColor;
 
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///            series: <RadialBarSeries<ChartData, String>>[
-  ///                RadialBarSeries<ChartData, String>(
-  ///                  useSeriesColor:true
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-
-// Create the  Radial bar series renderer.
+  /// Create the Radial bar series renderer.
   RadialBarSeriesRenderer createRenderer(CircularSeries<T, D> series) {
     RadialBarSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {

@@ -56,7 +56,7 @@ class GridStackedHeaderCellRenderer
 
 /// A cell renderer which displays the String value in the cell.
 ///
-/// This renderer is typically used for [GridTextColumn].
+/// This renderer is typically used for `GridTextColumn`.
 class GridCellTextFieldRenderer
     extends GridVirtualizingCellRendererBase<Text, TextField> {
   @override

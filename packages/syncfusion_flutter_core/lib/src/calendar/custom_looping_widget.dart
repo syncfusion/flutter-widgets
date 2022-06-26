@@ -198,8 +198,6 @@ class _CustomScrollViewLayout extends RenderWrap {
 
     children.forEach((dynamic child) => child.layout(
         BoxConstraints(
-          minWidth: 0,
-          minHeight: 0,
           maxWidth: width,
           maxHeight: height,
         ),

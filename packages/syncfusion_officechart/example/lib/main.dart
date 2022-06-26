@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column, Alignment;
+// ignore: depend_on_referenced_packages
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column;
 import 'package:syncfusion_officechart/officechart.dart';
 
 //Local imports
@@ -45,13 +46,13 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextButton(
-              child: const Text('Generate Excel Chart'),
               style: TextButton.styleFrom(
                 primary: Colors.white,
                 backgroundColor: Colors.lightBlue,
                 onSurface: Colors.grey,
               ),
               onPressed: generateOfficeChart,
+              child: const Text('Generate Excel Chart'),
             )
           ],
         ),
@@ -115,10 +116,8 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
     sheet1.getRangeByIndex(12, 1).setText('Seating & Decor');
     sheet1.getRangeByIndex(13, 1).setText('Technical team');
     sheet1.getRangeByIndex(14, 1).setText('Performers');
-    // ignore: avoid_escaping_inner_quotes
-    sheet1.getRangeByIndex(15, 1).setText('Performer\'s transport');
-    // ignore: avoid_escaping_inner_quotes
-    sheet1.getRangeByIndex(16, 1).setText('Performer\'s stay');
+    sheet1.getRangeByIndex(15, 1).setText("Performer's transport");
+    sheet1.getRangeByIndex(16, 1).setText("Performer's stay");
     sheet1.getRangeByIndex(17, 1).setText('Marketing');
     sheet1.getRangeByIndex(18, 1).setText('Total');
 

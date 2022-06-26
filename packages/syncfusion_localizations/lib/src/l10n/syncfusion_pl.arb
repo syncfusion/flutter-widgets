@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Brak wydarzeń", 
 "ofDataPagerLabel" : "z", 
 "pagesDataPagerLabel" : "strony", 
-"itemsDataPagerLabel" : "rzeczy", 
+"rowsPerPageDataPagerLabel" : "Wiersze na stronę", 
 "pdfBookmarksLabel" : "Zakładki", 
 "pdfNoBookmarksLabel" : "Nie znaleziono zakładek", 
 "pdfScrollStatusOfLabel" : "z", 
@@ -54,5 +54,6 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Dzień"
+"daySpanCountLabel" : "Dzień", 
+"series" : "Seria"
 }

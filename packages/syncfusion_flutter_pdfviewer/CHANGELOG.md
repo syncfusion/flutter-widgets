@@ -1,4 +1,38 @@
-## Unreleased
+## [20.1.47-beta] - 04/04/2022
+
+**Features**
+
+* Windows platform support has been provided.
+
+**Bugs**
+
+* The scrolling and panning performance in zoomed documents has now been improved.
+
+**Breaking changes**
+
+The following platform packages have been renamed. No changes in your pubspec.yaml is required since these changes will be reflected automatically.
+
+| Old package name                                  | New package name                        |
+|:-------------------------------------------------:|:---------------------------------------:|
+| syncfusion_flutter_pdfviewer_platform_interface   | syncfusion_pdfviewer_platform_interface |
+| syncfusion_flutter_pdfviewer_web                  | syncfusion_pdfviewer_web                |
+| syncfusion_flutter_pdfviewer_macos                | syncfusion_pdfviewer_macos              |
+
+## [19.4.55-beta] - 03/08/2022
+
+* Now, the SfPdfViewer widget won't be crashed when scrolling continuously over the zoomed document.
+
+## [19.4.48-beta] - 01/31/2022
+
+**Breaking changes**
+
+* `searchTextHighlightColor` property has been deprecated, instead use the `currentSearchTextHighlightColor` and `otherSearchTextHighlightColor` for customizing the search text highlight color.
+
+## [19.4.40-beta] - 12/28/2021
+
+* Now, PDF document will be loaded from the page of first occurrence when `searchText` is performed in `onDocumentLoaded` callback.
+
+## [19.4.38-beta] - 12/17/2021
 
 **Features**
 

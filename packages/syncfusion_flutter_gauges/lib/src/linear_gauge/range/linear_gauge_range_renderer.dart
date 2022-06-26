@@ -42,7 +42,7 @@ class RenderLinearRange extends RenderOpacity {
         _isAxisInversed = isAxisInversed,
         _isMirrored = isMirrored {
     _rangePaint = Paint()..color = Colors.black12;
-    _rangeOffsets = List<Offset>.filled(5, Offset.zero, growable: false);
+    _rangeOffsets = List<Offset>.filled(5, Offset.zero);
     _isHorizontal = orientation == LinearGaugeOrientation.horizontal;
     _path = Path();
   }
@@ -341,31 +341,31 @@ class RenderLinearRange extends RenderOpacity {
   void _getRangeOffsets() {
     final LinearElementPosition rangeElementPosition =
         getEffectiveElementPosition(position, isMirrored);
-    double _bottom = _rangeOffset.dy + _rangeRect.height;
+    double bottom = _rangeOffset.dy + _rangeRect.height;
 
     if (orientation == LinearGaugeOrientation.vertical) {
-      _bottom = _rangeOffset.dx + _rangeRect.width;
+      bottom = _rangeOffset.dx + _rangeRect.width;
     }
 
-    final double _leftStart = _getPosition(startValue);
-    final double _leftMid = _getPosition(midValue.clamp(startValue, endValue));
-    final double _leftEnd = _getPosition(endValue);
-    double _topStart = _bottom - startThickness;
-    double _topMid = _bottom - midThickness;
-    double _topEnd = _bottom - endThickness;
+    final double leftStart = _getPosition(startValue);
+    final double leftMid = _getPosition(midValue.clamp(startValue, endValue));
+    final double leftEnd = _getPosition(endValue);
+    double topStart = bottom - startThickness;
+    double topMid = bottom - midThickness;
+    double topEnd = bottom - endThickness;
 
     if (rangeElementPosition == LinearElementPosition.inside) {
-      _topStart = _getRangePosition() + startThickness;
-      _topMid = _getRangePosition() + midThickness;
-      _topEnd = _getRangePosition() + endThickness;
-      _bottom = _getRangePosition();
+      topStart = _getRangePosition() + startThickness;
+      topMid = _getRangePosition() + midThickness;
+      topEnd = _getRangePosition() + endThickness;
+      bottom = _getRangePosition();
     }
 
-    _rangeOffsets[0] = Offset(_leftStart, _topStart);
-    _rangeOffsets[1] = Offset(_leftMid, _topMid);
-    _rangeOffsets[2] = Offset(_leftEnd, _topEnd);
-    _rangeOffsets[3] = Offset(_leftEnd, _bottom);
-    _rangeOffsets[4] = Offset(_leftStart, _bottom);
+    _rangeOffsets[0] = Offset(leftStart, topStart);
+    _rangeOffsets[1] = Offset(leftMid, topMid);
+    _rangeOffsets[2] = Offset(leftEnd, topEnd);
+    _rangeOffsets[3] = Offset(leftEnd, bottom);
+    _rangeOffsets[4] = Offset(leftStart, bottom);
 
     if (orientation == LinearGaugeOrientation.vertical) {
       for (int i = 0; i < 5; i++) {
@@ -420,6 +420,7 @@ class RenderLinearRange extends RenderOpacity {
               rect: rangeRect,
               radius: startThickness / 2));
           break;
+        // ignore: no_default_cases
         default:
           break;
       }

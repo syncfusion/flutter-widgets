@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 import 'financial_series_base.dart';
 
-/// Renders the HiloOpenClose series.
+/// Renders the hilo open close series.
 ///
-/// HiLoOpenClose series is used to represent the low, high, open and closing values over time.
+/// Hilo open close series is used to represent the low, high, open and closing values over time.
 ///
-///To render a HiloOpenClose chart, create an instance of HiloOpenCloseSeries,
+/// To render a hilo open close chart, create an instance of [HiloOpenCloseSeries],
 /// and add it to the series collection property of [SfCartesianChart].
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=g5cniDExpRw}

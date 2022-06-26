@@ -3,12 +3,6 @@ import 'dart:math' as math;
 import 'dart:ui' as dart_ui;
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/axis/datetime_axis.dart'
-    show DateTimeAxisDetails;
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/segment_properties.dart';
-import 'package:syncfusion_flutter_core/core.dart';
-
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../common/event_args.dart';
@@ -17,11 +11,13 @@ import '../../common/utils/enum.dart';
 import '../../common/utils/helper.dart';
 import '../../common/utils/typedef.dart';
 import '../axis/axis.dart';
+import '../axis/datetime_axis.dart' show DateTimeAxisDetails;
 import '../base/chart_base.dart';
 import '../chart_segment/chart_segment.dart';
 import '../chart_segment/scatter_segment.dart';
 import '../chart_series/error_bar_series.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/stacked_series_base.dart';
 import '../chart_series/waterfall_series.dart';
 import '../chart_series/xy_data_series.dart';
@@ -34,88 +30,90 @@ import '../user_interaction/trackball.dart';
 import '../utils/enum.dart'
     show ErrorBarType, RenderingMode, Direction, DateTimeIntervalType;
 import '../utils/helper.dart';
+import 'marker.dart';
+import 'segment_properties.dart';
 
 export 'package:syncfusion_flutter_core/core.dart'
     show DataMarkerType, TooltipAlignment;
 
-/// Represents the custom paint style class
+/// Represents the custom paint style class.
 class CustomPaintStyle {
-  /// Creates an instance of custom paint class
+  /// Creates an instance of custom paint class.
   CustomPaintStyle(this.strokeWidth, this.color, this.paintStyle);
 
-  /// Specifies the color value
+  /// Specifies the color value.
   Color color;
 
-  /// Specifies the value of stroke width
+  /// Specifies the value of stroke width.
   double strokeWidth;
 
-  /// Specifies the value of painting style
+  /// Specifies the value of painting style.
   PaintingStyle paintStyle;
 }
 
-/// Represents the axis size class
+/// Represents the axis size class.
 class AxisSize {
-  /// Creates an instance of axis size class
+  /// Creates an instance of axis size class.
   AxisSize(this.axisRenderer, this.size);
 
-  /// Holds the value of size
+  /// Holds the value of size.
   double size;
 
-  /// Holds the value of axis renderer
+  /// Holds the value of axis renderer.
   ChartAxisRenderer axisRenderer;
 }
 
-/// Represents the painter key
+/// Represents the painter key.
 class PainterKey {
-  /// Creates an instance for painter key
+  /// Creates an instance for painter key.
   PainterKey(
       {required this.index,
       required this.name,
       required this.isRenderCompleted});
 
-  /// Represents the value of index
+  /// Represents the value of index.
   final int index;
 
-  /// Specifies the key name
+  /// Specifies the key name.
   final String name;
 
-  /// Specifies whether the rendering is completed
+  /// Specifies whether the rendering is completed.
   bool isRenderCompleted;
 }
 
-/// Represents the class of stacked values
+/// Represents the class of stacked values.
 class StackedValues {
-  /// Creates the instance of stacked values
+  /// Creates the instance of stacked values.
   StackedValues(this.startValues, this.endValues);
 
-  /// Represents the start value
+  /// Represents the start value.
   List<double> startValues;
 
-  /// Represents the end values
+  /// Represents the end values.
   List<double> endValues;
 }
 
-/// Represents the cluster stacked item info class
+/// Represents the cluster stacked item info class.
 class ClusterStackedItemInfo {
-  /// Creates an instance of cluster stacked info
+  /// Creates an instance of cluster stacked info.
   ClusterStackedItemInfo(this.stackName, this.stackedItemInfo);
 
-  /// Holds the stack name value
+  /// Holds the stack name value.
   String stackName;
 
-  /// Holds the list of stacked item info
+  /// Holds the list of stacked item info.
   List<StackedItemInfo> stackedItemInfo;
 }
 
-/// Represents the stacked item info class
+/// Represents the stacked item info class.
 class StackedItemInfo {
-  /// Creates an instance of stacked item info
+  /// Creates an instance of stacked item info.
   StackedItemInfo(this.seriesIndex, this.seriesRenderer);
 
-  /// Specifies the value of series index
+  /// Specifies the value of series index.
   int seriesIndex;
 
-  /// Specifies the value of stacked series renderer
+  /// Specifies the value of stacked series renderer.
   StackedSeriesRenderer seriesRenderer;
 }
 
@@ -213,13 +211,13 @@ Color getDataLabelSaturationColor(
 /// Get the data label color of open-close series
 Color getOpenCloseDataLabelColor(CartesianChartPoint<dynamic> currentPoint,
     SeriesRendererDetails seriesRendererDetails, SfCartesianChart chart) {
-  final Color color = seriesRendererDetails
-              .segments[seriesRendererDetails.dataPoints.indexOf(currentPoint)]
-              .fillPaint!
-              .style ==
+  final int index = seriesRendererDetails.seriesType.contains('candle')
+      ? seriesRendererDetails.visibleDataPoints!.indexOf(currentPoint)
+      : seriesRendererDetails.dataPoints.indexOf(currentPoint);
+  final Color color = seriesRendererDetails.segments[index].fillPaint!.style ==
           PaintingStyle.fill
-      ? SegmentHelper.getSegmentProperties(seriesRendererDetails
-              .segments[seriesRendererDetails.dataPoints.indexOf(currentPoint)])
+      ? SegmentHelper.getSegmentProperties(
+              seriesRendererDetails.segments[index])
           .color!
       : const Color.fromRGBO(255, 255, 255, 1);
   return getSaturationColor(color);
@@ -496,15 +494,26 @@ Rect _performTransposedLegendToggleAnimation(
     height = bottom - top;
   } else {
     if (series == seriesRendererDetails.chart.series[0] && !isSingleSeries) {
-      bottom = segmentRect.bottom;
-      top = bottom - (segmentRect.height * animationFactor);
-      height = bottom - top;
+      if (seriesRendererDetails.xAxisDetails!.axis.isInversed) {
+        top = segmentRect.top;
+        height = segmentRect.height * animationFactor;
+      } else {
+        bottom = segmentRect.bottom;
+        top = bottom - (segmentRect.height * animationFactor);
+        height = bottom - top;
+      }
     } else if (series ==
             seriesRendererDetails
                 .chart.series[seriesRendererDetails.chart.series.length - 1] &&
         !isSingleSeries) {
-      top = segmentRect.top;
-      height = segmentRect.height * animationFactor;
+      if (seriesRendererDetails.xAxisDetails!.axis.isInversed) {
+        bottom = segmentRect.bottom;
+        top = bottom - (segmentRect.height * animationFactor);
+        height = bottom - top;
+      } else {
+        top = segmentRect.top;
+        height = segmentRect.height * animationFactor;
+      }
     } else {
       height = segmentRect.height * animationFactor;
       top = segmentRect.center.dy - height / 2;
@@ -677,15 +686,26 @@ Rect _performLegendToggleAnimation(
     width = right - left;
   } else {
     if (series == seriesRendererDetails.chart.series[0] && !isSingleSeries) {
-      left = segmentRect.left;
-      width = segmentRect.width * animationFactor;
+      if (seriesRendererDetails.xAxisDetails!.axis.isInversed) {
+        right = segmentRect.right;
+        left = right - (segmentRect.width * animationFactor);
+        width = right - left;
+      } else {
+        left = segmentRect.left;
+        width = segmentRect.width * animationFactor;
+      }
     } else if (series ==
             seriesRendererDetails
                 .chart.series[seriesRendererDetails.chart.series.length - 1] &&
         !isSingleSeries) {
-      right = segmentRect.right;
-      left = right - (segmentRect.width * animationFactor);
-      width = right - left;
+      if (seriesRendererDetails.xAxisDetails!.axis.isInversed) {
+        left = segmentRect.left;
+        width = segmentRect.width * animationFactor;
+      } else {
+        right = segmentRect.right;
+        left = right - (segmentRect.width * animationFactor);
+        width = right - left;
+      }
     } else {
       width = segmentRect.width * animationFactor;
       left = segmentRect.center.dx - width / 2;
@@ -983,7 +1003,7 @@ double getAnimateValue(
 void animateScatterSeries(
     SeriesRendererDetails seriesRendererDetails,
     CartesianChartPoint<dynamic> point,
-    CartesianChartPoint<dynamic>? _oldPoint,
+    CartesianChartPoint<dynamic>? oldPoint,
     double animationFactor,
     Canvas canvas,
     Paint fillPaint,
@@ -991,23 +1011,44 @@ void animateScatterSeries(
     int index,
     ScatterSegment segment) {
   final CartesianSeries<dynamic, dynamic> series = seriesRendererDetails.series;
-  double width = series.markerSettings.width,
-      height = series.markerSettings.height;
-  DataMarkerType markerType = series.markerSettings.shape;
+  final MarkerDetails? pointMarkerDetails =
+      CartesianPointHelper.getMarkerDetails(point);
+  double width = pointMarkerDetails != null
+          ? pointMarkerDetails.size!.width
+          : series.markerSettings.width,
+      height = pointMarkerDetails != null
+          ? pointMarkerDetails.size!.height
+          : series.markerSettings.height;
+  DataMarkerType markerType = pointMarkerDetails != null
+      ? pointMarkerDetails.markerType!
+      : series.markerSettings.shape;
+  if (pointMarkerDetails != null) {
+    fillPaint.color = pointMarkerDetails.color!;
+  }
+
   double x = point.markerPoint!.x;
   double y = point.markerPoint!.y;
   if (seriesRendererDetails.stateProperties.renderingDetails.widgetNeedUpdate ==
           true &&
-      _oldPoint != null &&
+      oldPoint != null &&
       seriesRendererDetails.reAnimate == false &&
-      _oldPoint.markerPoint != null) {
+      oldPoint.markerPoint != null) {
     x = getAnimateValue(
-        animationFactor, x, _oldPoint.markerPoint!.x, x, seriesRendererDetails);
+        animationFactor, x, oldPoint.markerPoint!.x, x, seriesRendererDetails);
     y = getAnimateValue(
-        animationFactor, y, _oldPoint.markerPoint!.y, y, seriesRendererDetails);
-    animationFactor = 1;
+        animationFactor, y, oldPoint.markerPoint!.y, y, seriesRendererDetails);
+    segment.animationFactor = 1;
   }
-  if (seriesRendererDetails.chart.onMarkerRender != null) {
+  final bool isMarkerEventTriggered =
+      CartesianPointHelper.getIsMarkerEventTriggered(point);
+  if (seriesRendererDetails.chart.onMarkerRender != null &&
+      ((seriesRendererDetails.animationController.value == 0.0 &&
+              !isMarkerEventTriggered &&
+              seriesRendererDetails.animationController.status ==
+                  AnimationStatus.forward) ||
+          (seriesRendererDetails.animationController.duration!.inMilliseconds ==
+                  0 &&
+              !isMarkerEventTriggered))) {
     final MarkerRenderArgs markerRenderArgs = triggerMarkerRenderEvent(
         seriesRendererDetails,
         Size(width, height),
@@ -1015,62 +1056,27 @@ void animateScatterSeries(
         index,
         seriesRendererDetails.seriesAnimation,
         segment)!;
-
+    CartesianPointHelper.setIsMarkerEventTriggered(point, true);
     width = markerRenderArgs.markerWidth;
     height = markerRenderArgs.markerHeight;
     markerType = markerRenderArgs.shape;
-  }
 
-  final Path path = Path();
-  final double animateWidth = (animationFactor * width) / 2;
-  final double animateHeight = (animationFactor * height) / 2;
-  final Rect rect = Rect.fromLTWH(x - animateWidth, y - animateHeight,
-      animationFactor * width, animationFactor * height);
-  {
-    switch (markerType) {
-      case DataMarkerType.circle:
-        getShapesPath(
-            path: path, rect: rect, shapeType: ShapeMarkerType.circle);
-        break;
-      case DataMarkerType.rectangle:
-        getShapesPath(
-            path: path, rect: rect, shapeType: ShapeMarkerType.rectangle);
-        break;
-      case DataMarkerType.image:
-        drawImageMarker(seriesRendererDetails, canvas, x, y);
-        break;
-      case DataMarkerType.pentagon:
-        getShapesPath(
-            path: path, rect: rect, shapeType: ShapeMarkerType.pentagon);
-        break;
-      case DataMarkerType.verticalLine:
-        getShapesPath(
-            path: path, rect: rect, shapeType: ShapeMarkerType.verticalLine);
-        break;
-      case DataMarkerType.invertedTriangle:
-        getShapesPath(
-            path: path,
-            rect: rect,
-            shapeType: ShapeMarkerType.invertedTriangle);
-        break;
-      case DataMarkerType.horizontalLine:
-        getShapesPath(
-            path: path, rect: rect, shapeType: ShapeMarkerType.horizontalLine);
-        break;
-      case DataMarkerType.diamond:
-        getShapesPath(
-            path: path, rect: rect, shapeType: ShapeMarkerType.diamond);
-        break;
-      case DataMarkerType.triangle:
-        getShapesPath(
-            path: path, rect: rect, shapeType: ShapeMarkerType.triangle);
-        break;
-      case DataMarkerType.none:
-        break;
-    }
+    final Size size =
+        Size(markerRenderArgs.markerHeight, markerRenderArgs.markerWidth);
+    CartesianPointHelper.setMarkerDetails(
+        point,
+        MarkerDetails(
+            markerType: markerType,
+            borderColor: markerRenderArgs.borderColor,
+            color: markerRenderArgs.color,
+            borderWidth: markerRenderArgs.borderWidth,
+            size: size));
   }
-  canvas.drawPath(path, strokePaint);
-  canvas.drawPath(path, fillPaint);
+  final SegmentProperties segmentProperties =
+      SegmentHelper.getSegmentProperties(segment);
+
+  segmentProperties.seriesRenderer.drawDataMarker(index, canvas, fillPaint,
+      strokePaint, x, y, segmentProperties.seriesRenderer);
 }
 
 /// To animate bubble series
@@ -2079,3 +2085,10 @@ double _updateDateTimeHorizontalErrorValue(
   }
   return errorXValue.millisecondsSinceEpoch.toDouble();
 }
+
+/// Returns the sampled data for fast line series
+List<CartesianChartPoint<dynamic>> getSampledData(
+        SeriesRendererDetails seriesRendererDetails) =>
+    seriesRendererDetails.seriesType == 'fastline'
+        ? seriesRendererDetails.sampledDataPoints
+        : seriesRendererDetails.dataPoints;

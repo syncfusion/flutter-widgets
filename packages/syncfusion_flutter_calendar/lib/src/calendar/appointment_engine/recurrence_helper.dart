@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:syncfusion_flutter_calendar/src/calendar/common/date_time_engine.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
+import '../common/date_time_engine.dart';
 import '../common/enums.dart' show RecurrenceType, RecurrenceRange, WeekDays;
 import 'appointment_helper.dart';
 import 'recurrence_properties.dart';
@@ -659,7 +659,11 @@ class RecurrenceHelper {
     }
 
     if (byMonthDay == 'BYMONTHDAY') {
-      final int monthDate = int.parse(byMonthDayCount);
+      int monthDate = int.parse(byMonthDayCount);
+      final int byMonthDay = monthDate;
+      if (byMonthDay == -1) {
+        monthDate = AppointmentHelper.getMonthEndDate(addDate).day;
+      }
       final DateTime temp = DateTime(addDate.year, addDate.month, monthDate,
           recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
 
@@ -727,6 +731,10 @@ class RecurrenceHelper {
         }
 
         monthValue += monthlyMonthGap;
+        monthDate = byMonthDay == -1
+            ? AppointmentHelper.getMonthEndDate(DateTime(yearValue, monthValue))
+                .day
+            : monthDate;
         addDate = DateTime(yearValue, monthValue, monthDate,
             recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
 
@@ -893,13 +901,19 @@ class RecurrenceHelper {
 
     if (byMonthDay == 'BYMONTHDAY') {
       final int monthIndex = int.parse(byMonthCount);
-      final int dayIndex = int.parse(byMonthDayCount);
+      int dayIndex = int.parse(byMonthDayCount);
+      final int byMonthDay = dayIndex;
+      if (byMonthDay == -1) {
+        dayIndex = AppointmentHelper.getMonthEndDate(
+                DateTime(addDate.year, monthIndex))
+            .day;
+      }
       if (monthIndex < 0 || monthIndex > 12) {
         return recDateCollection;
       }
 
       final int daysInMonth = DateTimeHelper.getDateTimeValue(
-              addDays(DateTime(addDate.year, addDate.month + 1, 1), -1))
+              addDays(DateTime(addDate.year, addDate.month + 1), -1))
           .day;
       if (daysInMonth < dayIndex) {
         return recDateCollection;
@@ -936,10 +950,16 @@ class RecurrenceHelper {
           recDateCollection.add(addDate);
         }
 
+        dayIndex = byMonthDay == -1
+            ? AppointmentHelper.getMonthEndDate(
+                    DateTime(addDate.year + yearlyYearGap, monthIndex))
+                .day
+            : addDate.day;
+
         addDate = DateTime(
             addDate.year + yearlyYearGap,
             addDate.month,
-            addDate.day,
+            dayIndex,
             recurrenceStartHour,
             recurrenceStartMinute,
             recurrenceStartSecond);

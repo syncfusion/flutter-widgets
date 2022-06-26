@@ -720,12 +720,12 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final bool _isNeedCustomPaint = childCount != 0;
+    final bool isNeedCustomPaint = childCount != 0;
     if (_blackoutDatesIndex.isEmpty) {
       _updateBlackoutDatesIndex();
     }
 
-    if (!_isNeedCustomPaint) {
+    if (!isNeedCustomPaint) {
       _drawMonthCells(context.canvas, size);
     } else {
       final double cellWidth =
@@ -742,26 +742,29 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
       for (int i = 0; i < visibleDatesCount; i++) {
         final DateTime currentVisibleDate = visibleDates[i];
 
-        if (weekNumberPanelWidth != 0 &&
-            !showTrailingAndLeadingDates &&
-            ((i <= DateTime.daysPerWeek &&
-                    visibleDates[DateTime.daysPerWeek].month == currentMonth) ||
-                (i > DateTime.daysPerWeek &&
-                    i <= (DateTime.daysPerWeek * 2) &&
-                    visibleDates[DateTime.daysPerWeek * 2].month ==
-                        currentMonth) ||
-                (i > visibleDatesCount - (DateTime.daysPerWeek * 2) &&
-                    (i < visibleDatesCount - DateTime.daysPerWeek) &&
-                    visibleDates[visibleDatesCount - (DateTime.daysPerWeek * 2)]
-                            .month ==
-                        currentMonth) ||
-                ((i >= visibleDatesCount - DateTime.daysPerWeek) &&
-                    visibleDates[visibleDatesCount - DateTime.daysPerWeek]
-                            .month ==
-                        currentMonth)) &&
-            currentVisibleDate.weekday == DateTime.monday) {
-          _drawWeekNumber(
-              context.canvas, size, currentVisibleDate, cellHeight, yPosition);
+        /// Based on ISO, Monday is the first day of the week. So we can
+        /// calculate the week number is Monday of the week for the current
+        /// date.
+        if (currentVisibleDate.weekday == DateTime.monday) {
+          /// Calculate the row start date based on visible dates index.
+          final DateTime startDate =
+              visibleDates[(i ~/ DateTime.daysPerWeek) * DateTime.daysPerWeek];
+
+          /// Calculate the row end date based on visible dates index.
+          final DateTime endDate = addDuration(
+                  startDate, const Duration(days: DateTime.daysPerWeek - 1))
+              as DateTime;
+
+          /// Used to check the start and end date is current month date or not.
+          final bool isCurrentMonthWeek =
+              startDate.month == currentMonth || endDate.month == currentMonth;
+
+          if (weekNumberPanelWidth != 0 &&
+              (showTrailingLeadingDates ||
+                  (!showTrailingLeadingDates && isCurrentMonthWeek))) {
+            _drawWeekNumber(context.canvas, size, currentVisibleDate,
+                cellHeight, yPosition);
+          }
         }
 
         if (!showTrailingLeadingDates &&
@@ -784,16 +787,6 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
             !_blackoutDatesIndex.contains(i)) {
           _addMouseHovering(context.canvas, size, cellWidth, cellHeight,
               isRTL ? xPosition - weekNumberPanelWidth : xPosition, yPosition);
-        }
-
-        if (weekNumberPanelWidth != 0 &&
-            currentVisibleDate.weekday == DateTime.monday &&
-            (showTrailingAndLeadingDates ||
-                (!showTrailingAndLeadingDates &&
-                    (i > (DateTime.daysPerWeek * 2)) &&
-                    (i < visibleDatesCount - (DateTime.daysPerWeek * 2))))) {
-          _drawWeekNumber(
-              context.canvas, size, currentVisibleDate, cellHeight, yPosition);
         }
 
         xPosition += cellWidth;
@@ -841,7 +834,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     _textPainter.textScaleFactor = textScaleFactor;
 
     const double topPadding = 4;
-    _textPainter.layout(minWidth: 0, maxWidth: weekNumberPanelWidth);
+    _textPainter.layout(maxWidth: weekNumberPanelWidth);
     xPosition += (weekNumberPanelWidth - _textPainter.width) / 2;
     _textPainter.paint(canvas, Offset(xPosition, yPosition + topPadding));
   }
@@ -941,28 +934,33 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     for (int i = 0; i < visibleDatesCount; i++) {
       isCurrentDate = false;
       final DateTime currentVisibleDate = visibleDates[i];
-      if (weekNumberPanelWidth != 0 &&
-          !showTrailingAndLeadingDates &&
-          ((i <= DateTime.daysPerWeek &&
-                  visibleDates[DateTime.daysPerWeek].month ==
-                      currentMonthDate.month) ||
-              (i > DateTime.daysPerWeek &&
-                  i <= (DateTime.daysPerWeek * 2) &&
-                  visibleDates[DateTime.daysPerWeek * 2].month ==
-                      currentMonthDate.month) ||
-              (i > visibleDatesCount - (DateTime.daysPerWeek * 2) &&
-                  (i < visibleDatesCount - DateTime.daysPerWeek) &&
-                  visibleDates[visibleDatesCount - (DateTime.daysPerWeek * 2)]
-                          .month ==
-                      currentMonthDate.month) ||
-              ((i >= visibleDatesCount - DateTime.daysPerWeek) &&
-                  visibleDates[visibleDatesCount - DateTime.daysPerWeek]
-                          .month ==
-                      currentMonthDate.month)) &&
-          currentVisibleDate.weekday == DateTime.monday) {
-        _drawWeekNumber(
-            canvas, size, currentVisibleDate, cellHeight, yPosition);
+
+      /// Based on ISO, Monday is the first day of the week. So we can
+      /// calculate the week number is Monday of the week for the current
+      /// date.
+      if (currentVisibleDate.weekday == DateTime.monday) {
+        /// Calculate the row start date based on visible dates index.
+        final DateTime startDate =
+            visibleDates[(i ~/ DateTime.daysPerWeek) * DateTime.daysPerWeek];
+
+        /// Calculate the row end date based on visible dates index.
+        final DateTime endDate = addDuration(
+                startDate, const Duration(days: DateTime.daysPerWeek - 1))
+            as DateTime;
+
+        /// Used to check the start and end date is current month date or not.
+        final bool isCurrentMonthWeek =
+            startDate.month == currentMonthDate.month ||
+                endDate.month == currentMonthDate.month;
+
+        if (weekNumberPanelWidth != 0 &&
+            (showTrailingLeadingDates ||
+                (!showTrailingLeadingDates && isCurrentMonthWeek))) {
+          _drawWeekNumber(
+              canvas, size, currentVisibleDate, cellHeight, yPosition);
+        }
       }
+
       textStyle = currentMonthTextStyle;
       _linePainter.color = currentMonthBackgroundColor;
       if (currentVisibleDate.month == nextMonth) {
@@ -1038,7 +1036,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
       _textPainter.text = span;
 
-      _textPainter.layout(minWidth: 0, maxWidth: cellWidth);
+      _textPainter.layout(maxWidth: cellWidth);
 
       //// In web when the mouse hovering the cell, the painter style set as stroke,
       //// hence if background color set for an cell and mouse hovered for the
@@ -1073,16 +1071,6 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
           canvas,
           Offset(xPosition + (cellWidth / 2 - _textPainter.width / 2),
               yPosition + circlePadding));
-
-      if (weekNumberPanelWidth != 0 &&
-          currentVisibleDate.weekday == DateTime.monday &&
-          (showTrailingAndLeadingDates ||
-              (!showTrailingAndLeadingDates &&
-                  (i > (DateTime.daysPerWeek * 2)) &&
-                  (i < visibleDatesCount - (DateTime.daysPerWeek * 2))))) {
-        _drawWeekNumber(
-            canvas, size, currentVisibleDate, cellHeight, yPosition);
-      }
 
       if (isRTL) {
         if (xPosition - 1 < 0) {
@@ -1201,17 +1189,37 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     final int currentMonth = visibleDates[visibleDates.length ~/ 2].month;
     for (int i = 0; i < visibleDates.length; i++) {
       final DateTime currentVisibleDate = visibleDates[i];
-      if (weekNumberPanelWidth != 0 &&
-          currentVisibleDate.weekday == DateTime.monday) {
-        final int weekNumber =
-            DateTimeHelper.getWeekNumberOfYear(currentVisibleDate);
-        semanticsBuilder.add(CustomPainterSemantics(
-            rect: Rect.fromLTWH(isRTL ? (size.width - left - cellWidth) : 0,
-                top, weekNumberPanelWidth, cellHeight),
-            properties: SemanticsProperties(
-              label: 'week$weekNumber',
-              textDirection: TextDirection.ltr,
-            )));
+
+      /// Based on ISO, Monday is the first day of the week. So we can
+      /// calculate the week number is Monday of the week for the current
+      /// date.
+      if (currentVisibleDate.weekday == DateTime.monday) {
+        /// Calculate the row start date based on visible dates index.
+        final DateTime startDate =
+            visibleDates[(i ~/ DateTime.daysPerWeek) * DateTime.daysPerWeek];
+
+        /// Calculate the row end date based on visible dates index.
+        final DateTime endDate = addDuration(
+                startDate, const Duration(days: DateTime.daysPerWeek - 1))
+            as DateTime;
+
+        /// Used to check the start and end date is current month date or not.
+        final bool isCurrentMonthWeek =
+            startDate.month == currentMonth || endDate.month == currentMonth;
+
+        if (weekNumberPanelWidth != 0 &&
+            (showTrailingLeadingDates ||
+                (!showTrailingLeadingDates && isCurrentMonthWeek))) {
+          final int weekNumber =
+              DateTimeHelper.getWeekNumberOfYear(currentVisibleDate);
+          semanticsBuilder.add(CustomPainterSemantics(
+              rect: Rect.fromLTWH(isRTL ? (size.width - left - cellWidth) : 0,
+                  top, weekNumberPanelWidth, cellHeight),
+              properties: SemanticsProperties(
+                label: 'week$weekNumber',
+                textDirection: TextDirection.ltr,
+              )));
+        }
       }
       if (showTrailingLeadingDates ||
           currentMonth == currentVisibleDate.month) {

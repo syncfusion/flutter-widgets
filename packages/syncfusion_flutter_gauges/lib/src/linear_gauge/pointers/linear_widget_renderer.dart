@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_gauges/src/linear_gauge/pointers/linear_marker_pointer.dart';
 
 import '../../linear_gauge/utils/enum.dart';
+import 'linear_marker_pointer.dart';
 
 /// Represents the render object of shape pointer.
 class RenderLinearWidgetPointer extends RenderLinearPointerBase {
