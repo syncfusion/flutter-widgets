@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../charts.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
@@ -121,9 +122,13 @@ class WaterfallSegment extends ChartSegment {
           : canvas.drawRRect(segmentRect, fillPaint!);
     }
     if (strokePaint != null) {
-      (series.dashArray[0] != 0 && series.dashArray[1] != 0)
-          ? drawDashedLine(
-              canvas, series.dashArray, strokePaint!, segmentProperties.path)
+      final SeriesRendererDetails seriesRendererDetails =
+          SeriesHelper.getSeriesRendererDetails(
+              segmentProperties.seriesRenderer);
+      (seriesRendererDetails.dashArray![0] != 0 &&
+              seriesRendererDetails.dashArray![1] != 0)
+          ? drawDashedLine(canvas, seriesRendererDetails.dashArray!,
+              strokePaint!, segmentProperties.path)
           : (series.animationDuration > 0 &&
                   segmentProperties
                           .stateProperties.renderingDetails.isLegendToggled ==

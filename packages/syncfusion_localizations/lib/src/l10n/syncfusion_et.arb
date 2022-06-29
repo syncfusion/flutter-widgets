@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "päev", 
-"series" : "seeria"
+"series" : "seeria", 
+"pdfHyperlinkLabel" : "Ava veebileht", 
+"pdfHyperlinkContentLabel" : "Kas soovite lehe avada aadressil", 
+"pdfHyperlinkDialogOpenLabel" : "AVATUD", 
+"pdfHyperlinkDialogCancelLabel" : "TÜHISTA"
 }

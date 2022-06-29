@@ -1,3 +1,5 @@
+// ignore_for_file: use_setters_to_change_properties
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -176,7 +178,6 @@ class DataGridSwipeStartDetails {
   /// Sets the maximum offset in which a row can be swiped.
   ///
   /// Typically, this method can be used to set the different maximum offset for swiping based on the swipe direction.
-  // ignore: use_setters_to_change_properties
   void setSwipeMaxOffset(double offset) {
     _dataGridConfiguration.effectiveSwipeMaxOffset = offset;
   }

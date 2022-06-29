@@ -243,10 +243,6 @@ Rect? getDataLabelRect(Position position, ConnectorType connectorType,
           textSize.width + margin.left + margin.right,
           textSize.height + margin.top + margin.bottom);
       break;
-    // ignore: no_default_cases
-    default:
-      rect = null;
-      break;
   }
   return rect;
 }

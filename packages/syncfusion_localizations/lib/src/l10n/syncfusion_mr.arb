@@ -33,7 +33,7 @@
 "muharramLabel" : "मोहरम", 
 "safarLabel" : "सफर", 
 "rabi1Label" : "रबी अल अव्वल", 
-"rabi2Label" : "रबी अल-थानी", 
+"rabi2Label" : "रबी अल-थानी",
 "jumada1Label" : "जुमदा अल-अव्वल", 
 "jumada2Label" : "जुमादा अल-थानी", 
 "rajabLabel" : "रजब", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "धूल-प्र", 
 "shortDhualhiLabel" : "धुल-एच", 
 "daySpanCountLabel" : "दिवस", 
-"series" : "मालिका"
+"series" : "मालिका", 
+"pdfHyperlinkLabel" : "वेब पृष्ठ उघडा", 
+"pdfHyperlinkContentLabel" : "तुम्हाला येथे पृष्ठ उघडायचे आहे का", 
+"pdfHyperlinkDialogOpenLabel" : "उघडा", 
+"pdfHyperlinkDialogCancelLabel" : "रद्द करा"
 }

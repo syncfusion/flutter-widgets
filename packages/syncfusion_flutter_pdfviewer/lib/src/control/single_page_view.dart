@@ -1,10 +1,8 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/interactive_scroll_viewer_internal.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-
 import '../../pdfviewer.dart';
 import '../common/pdfviewer_helper.dart';
 import 'pdf_page_view.dart';
@@ -44,6 +42,7 @@ class SinglePageView extends StatefulWidget {
       this.onDoubleTap,
       this.onPdfOffsetChanged,
       this.isBookmarkViewOpen,
+      this.textDirection,
       this.children)
       : super(key: key);
 
@@ -101,6 +100,9 @@ class SinglePageView extends StatefulWidget {
   /// Indicates whether the built-in bookmark view in the [SfPdfViewer] is
   /// opened or not.
   final bool isBookmarkViewOpen;
+
+  ///A direction of text flow.
+  final TextDirection textDirection;
 
   @override
   SinglePageViewState createState() => SinglePageViewState();
@@ -568,6 +570,9 @@ class SinglePageViewState extends State<SinglePageView> {
             },
             child: PageView(
               controller: widget.pageController,
+              reverse:
+                  // ignore: avoid_bool_literals_in_conditional_expressions
+                  widget.textDirection == TextDirection.ltr ? false : true,
               onPageChanged: (int value) {
                 _transformationController = TransformationController();
                 widget.onPageChanged(value);

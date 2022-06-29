@@ -321,6 +321,10 @@ class ChartSeriesPanel {
                   : currentPoint.y == null) {
                 if (seriesRenderer is XyDataSeriesRenderer &&
                     seriesType != 'waterfall') {
+                  if (seriesRenderer is FastLineSeriesRenderer &&
+                      !seriesRendererDetails.containsEmptyPoints) {
+                    seriesRendererDetails.containsEmptyPoints = true;
+                  }
                   seriesRenderer.calculateEmptyPointValue(
                       pointIndex, currentPoint, seriesRenderer);
                 }

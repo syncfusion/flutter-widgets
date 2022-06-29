@@ -52,7 +52,7 @@ class PdfLineAnnotation extends PdfAnnotation {
   ///     lineCaption: true,
   ///     captionType: PdfLineCaptionType.top);
   /// page.annotations.add(lineAnnotation);
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfLineAnnotation(List<int> linePoints, String text,

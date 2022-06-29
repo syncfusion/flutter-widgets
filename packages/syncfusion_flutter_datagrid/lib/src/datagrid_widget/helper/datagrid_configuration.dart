@@ -339,4 +339,12 @@ class DataGridConfiguration {
   /// An instance of a [ThemeData.colorScheme] that can be used to configure the
   /// color properties in the [SfDataGrid].
   ColorScheme? colorScheme;
+
+  /// Decides whether the Vertical ScrollController can be disposed of in the source itself.
+  /// Default to true.
+  bool disposeVerticalScrollController = true;
+
+  /// Decides whether the Horizontal ScrollController can be disposed of in the source itself.
+  /// Default to true.
+  bool disposeHorizontalScrollController = true;
 }

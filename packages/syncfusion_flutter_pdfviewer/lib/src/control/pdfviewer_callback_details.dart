@@ -129,3 +129,21 @@ class PdfTextSelectionChangedDetails {
     return _globalSelectedRegion;
   }
 }
+
+/// Holds the details for the [SfPdfViewer.onHyperlinkClicked] callback,
+/// such as [uri].
+class PdfHyperlinkClickedDetails {
+  /// Creates details for [SfPdfViewer.onHyperlinkClicked] callback.
+  PdfHyperlinkClickedDetails(
+    String uri,
+  ) {
+    _uri = uri;
+  }
+
+  late String _uri;
+
+  /// Holds the uri of the selected text
+  String get uri {
+    return _uri;
+  }
+}

@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "ಧುಲ್-ಕ್ಯೂ", 
 "shortDhualhiLabel" : "ಧುಲ್-ಎಚ್", 
 "daySpanCountLabel" : "ದಿನ", 
-"series" : "ಸರಣಿ"
+"series" : "ಸರಣಿ", 
+"pdfHyperlinkLabel" : "ವೆಬ್ ಪುಟವನ್ನು ತೆರೆಯಿರಿ", 
+"pdfHyperlinkContentLabel" : "ನೀವು ಪುಟವನ್ನು ತೆರೆಯಲು ಬಯಸುವಿರಾ", 
+"pdfHyperlinkDialogOpenLabel" : "ತೆರೆಯಿರಿ", 
+"pdfHyperlinkDialogCancelLabel" : "ರದ್ದುಮಾಡು"
 }

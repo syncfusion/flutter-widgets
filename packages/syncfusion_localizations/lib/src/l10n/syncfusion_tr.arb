@@ -17,7 +17,7 @@
 "passwordDialogHintTextLabel" : "Parolanı Gir", 
 "passwordDialogInvalidPasswordLabel" : "geçersiz şifre", 
 "pdfPasswordDialogOpenLabel" : "AÇIK", 
-"pdfPasswordDialogCancelLabel" : "İPTAL ETMEK", 
+"pdfPasswordDialogCancelLabel" : "İPTAL ETMEK",
 "allowedViewDayLabel" : "Gün", 
 "allowedViewWeekLabel" : "Hafta", 
 "allowedViewWorkWeekLabel" : "Çalışma haftası", 
@@ -46,7 +46,7 @@
 "shortSafarLabel" : "Saf.", 
 "shortRabi1Label" : "Rabi. i", 
 "shortRabi2Label" : "Rabi. II", 
-"shortJumada1Label" : "Jum. i", 
+"shortJumada1Label" : "Jum. i",  
 "shortJumada2Label" : "Jum. II", 
 "shortRajabLabel" : "Raj.", 
 "shortShaabanLabel" : "Sha.", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Zil-Q", 
 "shortDhualhiLabel" : "Zül-H", 
 "daySpanCountLabel" : "Gün", 
-"series" : "Dizi"
+"series" : "Seri", 
+"pdfHyperlinkLabel" : "Web Sayfasını Aç", 
+"pdfHyperlinkContentLabel" : "Sayfayı açmak ister misin?", 
+"pdfHyperlinkDialogOpenLabel" : "AÇIK", 
+"pdfHyperlinkDialogCancelLabel" : "İPTAL ET"
 }

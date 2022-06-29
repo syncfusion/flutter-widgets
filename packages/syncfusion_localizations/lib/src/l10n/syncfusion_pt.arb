@@ -1,12 +1,12 @@
 {
 "noSelectedDateCalendarLabel" : "Nenhuma data selecionada", 
 "noEventsCalendarLabel" : "Sem eventos", 
-"ofDataPagerLabel" : "do", 
+"ofDataPagerLabel" : "do",
 "pagesDataPagerLabel" : "Páginas", 
 "rowsPerPageDataPagerLabel" : "Linhas por página", 
 "pdfBookmarksLabel" : "Favoritos", 
 "pdfNoBookmarksLabel" : "Nenhum favorito encontrado", 
-"pdfScrollStatusOfLabel" : "do", 
+"pdfScrollStatusOfLabel" : "do",
 "pdfGoToPageLabel" : "Vá para página", 
 "pdfEnterPageNumberLabel" : "Digite o número da página", 
 "pdfInvalidPageNumberLabel" : "Por favor insira um número válido", 
@@ -22,7 +22,7 @@
 "allowedViewWeekLabel" : "Semana", 
 "allowedViewWorkWeekLabel" : "Semana de trabalho", 
 "allowedViewMonthLabel" : "Mês", 
-"allowedViewScheduleLabel" : "Agendar", 
+"allowedViewScheduleLabel" : "Agendar",
 "allowedViewTimelineDayLabel" : "Dia da linha do tempo", 
 "allowedViewTimelineWeekLabel" : "Semana da linha do tempo", 
 "allowedViewTimelineWorkWeekLabel" : "Semana de trabalho da linha do tempo", 
@@ -46,7 +46,7 @@
 "shortSafarLabel" : "Saf.", 
 "shortRabi1Label" : "Rabino. eu", 
 "shortRabi2Label" : "Rabino. II", 
-"shortJumada1Label" : "Jum. eu", 
+"shortJumada1Label" : "Jum. eu",
 "shortJumada2Label" : "Jum. II", 
 "shortRajabLabel" : "Raj.", 
 "shortShaabanLabel" : "Sha.", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Dia", 
-"series" : "Series"
+"series" : "Series", 
+"pdfHyperlinkLabel" : "Abrir página da Web", 
+"pdfHyperlinkContentLabel" : "Deseja abrir a página em", 
+"pdfHyperlinkDialogOpenLabel" : "ABRIR", 
+"pdfHyperlinkDialogCancelLabel" : "CANCELAR"
 }

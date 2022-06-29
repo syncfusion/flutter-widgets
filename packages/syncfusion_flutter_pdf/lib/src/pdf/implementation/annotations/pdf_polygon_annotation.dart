@@ -46,7 +46,7 @@ class PdfPolygonAnnotation extends PdfAnnotation {
   /// polygonAnnotation.color = PdfColor(255, 0, 0);
   /// polygonAnnotation.innerColor = PdfColor(255, 0, 255);
   /// page.annotations.add(polygonAnnotation);
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfPolygonAnnotation(List<int> points, String text,

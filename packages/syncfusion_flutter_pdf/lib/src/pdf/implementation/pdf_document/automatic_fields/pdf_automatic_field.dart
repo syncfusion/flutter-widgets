@@ -75,7 +75,7 @@ abstract class PdfAutomaticField {
   /// //Add the header at top of the document
   /// document.template.top = header;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   ///```
@@ -116,7 +116,7 @@ abstract class PdfAutomaticField {
   /// //Add the header at top of the document
   /// document.template.top = header;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   ///```
@@ -155,7 +155,7 @@ abstract class PdfAutomaticField {
   /// //Add the header at top of the document
   /// document.template.top = header;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -199,7 +199,7 @@ abstract class PdfAutomaticField {
   /// //Add the header at top of the document
   /// document.template.top = header;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   ///```
@@ -246,7 +246,7 @@ abstract class PdfAutomaticField {
   /// //Add the header at top of the document
   /// document.template.top = header;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   ///```
@@ -290,7 +290,7 @@ abstract class PdfAutomaticField {
   /// //Add the header at top of the document
   /// document.template.top = header;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   ///```

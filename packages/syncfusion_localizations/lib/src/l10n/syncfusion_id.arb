@@ -10,7 +10,7 @@
 "pdfGoToPageLabel" : "Buka halaman", 
 "pdfEnterPageNumberLabel" : "Masukkan nomor halaman", 
 "pdfInvalidPageNumberLabel" : "Harap masukkan nomor yang valid", 
-"pdfPaginationDialogOkLabel" : "oke", 
+"pdfPaginationDialogOkLabel" : "oke",
 "pdfPaginationDialogCancelLabel" : "MEMBATALKAN", 
 "passwordDialogHeaderTextLabel" : "Dilindungi Kata Sandi", 
 "passwordDialogContentLabel" : "Masukkan kata sandi untuk membuka file PDF ini", 
@@ -20,7 +20,7 @@
 "pdfPasswordDialogCancelLabel" : "MEMBATALKAN", 
 "allowedViewDayLabel" : "Hari", 
 "allowedViewWeekLabel" : "Pekan", 
-"allowedViewWorkWeekLabel" : "minggu kerja", 
+"allowedViewWorkWeekLabel" : "minggu kerja",
 "allowedViewMonthLabel" : "Bulan", 
 "allowedViewScheduleLabel" : "Jadwal", 
 "allowedViewTimelineDayLabel" : "Hari Garis Waktu", 
@@ -46,7 +46,7 @@
 "shortSafarLabel" : "saf.", 
 "shortRabi1Label" : "Rabi. saya", 
 "shortRabi2Label" : "Rabi. II", 
-"shortJumada1Label" : "Jum. saya", 
+"shortJumada1Label" : "Jum. saya",
 "shortJumada2Label" : "Jum. II", 
 "shortRajabLabel" : "Raj.", 
 "shortShaabanLabel" : "Sha.", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dzul Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Hari", 
-"series" : "Seri"
+"series" : "Seri", 
+"pdfHyperlinkLabel" : "Buka Halaman Web", 
+"pdfHyperlinkContentLabel" : "Apakah Anda ingin membuka halaman di", 
+"pdfHyperlinkDialogOpenLabel" : "MEMBUKA", 
+"pdfHyperlinkDialogCancelLabel" : "MEMBATALKAN"
 }

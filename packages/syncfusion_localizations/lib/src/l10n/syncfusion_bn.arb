@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "যুল-ক্ব", 
 "shortDhualhiLabel" : "ধুল-এইচ", 
 "daySpanCountLabel" : "দিন", 
-"series" : "সিরিজ"
+"series" : "সিরিজ", 
+"pdfHyperlinkLabel" : "ওয়েব পেজ খুলুন", 
+"pdfHyperlinkContentLabel" : "আপনি পৃষ্ঠা খুলতে চান", 
+"pdfHyperlinkDialogOpenLabel" : "খোলা", 
+"pdfHyperlinkDialogCancelLabel" : "বাতিল করুন"
 }

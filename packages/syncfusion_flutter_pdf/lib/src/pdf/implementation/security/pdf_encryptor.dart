@@ -1253,7 +1253,132 @@ class PdfEncryptor {
     return dictionary;
   }
 
+  /// internal method
+  Future<PdfDictionary> saveToDictionaryAsync(PdfDictionary dictionary) async {
+    if (changed!) {
+      _revisionNumberOut = 0;
+      _versionNumberOut = 0;
+      _revision = 0;
+      keyLength = 0;
+    }
+    dictionary[PdfDictionaryProperties.filter] =
+        PdfName(PdfDictionaryProperties.standard);
+    dictionary[PdfDictionaryProperties.p] = PdfNumber(_permissionValue!);
+    dictionary[PdfDictionaryProperties.u] =
+        PdfString.fromBytes(userPasswordOut);
+    dictionary[PdfDictionaryProperties.o] =
+        PdfString.fromBytes(ownerPasswordOut);
+    if (dictionary.containsKey(PdfDictionaryProperties.length)) {
+      keyLength = 0;
+    }
+    dictionary[PdfDictionaryProperties.length] =
+        PdfNumber(_getKeyLength()! * 8);
+    const bool isAes4Dict = false;
+    if (encryptAttachmentOnly! &&
+        (encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit ||
+            encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x40Bit)) {
+      throw ArgumentError.value(encryptionAlgorithm,
+          'Encrypt only attachment is supported in AES algorithm with 128, 256 and 256Revision6 encryptions only.');
+    }
+    if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit ||
+        encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
+        encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
+      dictionary[PdfDictionaryProperties.r] = PdfNumber(_getKeySize() + 3);
+      dictionary[PdfDictionaryProperties.v] = PdfNumber(_getKeySize() + 3);
+      if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
+        dictionary[PdfDictionaryProperties.v] = PdfNumber(5);
+        dictionary[PdfDictionaryProperties.r] = PdfNumber(6);
+      } else if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit) {
+        dictionary[PdfDictionaryProperties.v] = PdfNumber(5);
+        dictionary[PdfDictionaryProperties.r] = PdfNumber(5);
+      }
+      if (encryptAttachmentOnly!) {
+        dictionary[PdfDictionaryProperties.stmF] =
+            PdfName(PdfDictionaryProperties.identity);
+        dictionary[PdfDictionaryProperties.strF] =
+            PdfName(PdfDictionaryProperties.identity);
+        dictionary[PdfDictionaryProperties.eff] =
+            PdfName(PdfDictionaryProperties.stdCF);
+        dictionary[PdfDictionaryProperties.encryptMetadata] =
+            PdfBoolean(encryptOnlyMetadata);
+      } else {
+        dictionary[PdfDictionaryProperties.stmF] =
+            PdfName(PdfDictionaryProperties.stdCF);
+        dictionary[PdfDictionaryProperties.strF] =
+            PdfName(PdfDictionaryProperties.stdCF);
+        if (dictionary.containsKey(PdfDictionaryProperties.eff)) {
+          dictionary.remove(PdfDictionaryProperties.eff);
+        }
+      }
+      if (!encryptOnlyMetadata!) {
+        if (!dictionary.containsKey(PdfDictionaryProperties.encryptMetadata)) {
+          dictionary[PdfDictionaryProperties.encryptMetadata] =
+              PdfBoolean(encryptOnlyMetadata);
+        }
+      } else if (!encryptOnlyAttachment) {
+        if (dictionary.containsKey(PdfDictionaryProperties.encryptMetadata)) {
+          dictionary.remove(PdfDictionaryProperties.encryptMetadata);
+        }
+      }
+      dictionary[PdfDictionaryProperties.cf] =
+          await _getCryptFilterDictionaryAsync();
+      if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
+          encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
+        dictionary[PdfDictionaryProperties.ue] =
+            PdfString.fromBytes(_userEncryptionKeyOut);
+        dictionary[PdfDictionaryProperties.oe] =
+            PdfString.fromBytes(_ownerEncryptionKeyOut);
+        dictionary[PdfDictionaryProperties.perms] =
+            PdfString.fromBytes(_permissionFlag);
+      }
+    } else {
+      dictionary[PdfDictionaryProperties.r] = PdfNumber(
+          (_revisionNumberOut! > 0 && !isAes4Dict)
+              ? _revisionNumberOut!
+              : (_getKeySize() + 2));
+      dictionary[PdfDictionaryProperties.v] = PdfNumber(
+          (_versionNumberOut! > 0 && !isAes4Dict)
+              ? _versionNumberOut!
+              : (_getKeySize() + 1));
+    }
+    dictionary.archive = false;
+    return dictionary;
+  }
+
   PdfDictionary _getCryptFilterDictionary() {
+    final PdfDictionary standardCryptFilter = PdfDictionary();
+    if (!standardCryptFilter.containsKey(PdfDictionaryProperties.cfm)) {
+      if (encryptAttachmentOnly!) {
+        standardCryptFilter[PdfDictionaryProperties.cfm] =
+            PdfName(PdfDictionaryProperties.aesv2);
+        standardCryptFilter[PdfDictionaryProperties.type] =
+            PdfName(PdfDictionaryProperties.cryptFilter);
+      } else {
+        standardCryptFilter[PdfDictionaryProperties.cfm] = PdfName(
+            encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit
+                ? PdfDictionaryProperties.aesv3
+                : PdfDictionaryProperties.aesv2);
+      }
+    }
+    if (!standardCryptFilter.containsKey(PdfDictionaryProperties.authEvent)) {
+      standardCryptFilter[PdfDictionaryProperties.authEvent] = PdfName(
+          encryptAttachmentOnly!
+              ? PdfDictionaryProperties.efOpen
+              : PdfDictionaryProperties.docOpen);
+    }
+    standardCryptFilter[PdfDictionaryProperties.length] = PdfNumber(
+        encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit
+            ? _key256!
+            : ((encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit ||
+                    encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit)
+                ? _key128!
+                : 128));
+    final PdfDictionary cryptFilterDictionary = PdfDictionary();
+    cryptFilterDictionary[PdfDictionaryProperties.stdCF] = standardCryptFilter;
+    return cryptFilterDictionary;
+  }
+
+  Future<PdfDictionary> _getCryptFilterDictionaryAsync() async {
     final PdfDictionary standardCryptFilter = PdfDictionary();
     if (!standardCryptFilter.containsKey(PdfDictionaryProperties.cfm)) {
       if (encryptAttachmentOnly!) {

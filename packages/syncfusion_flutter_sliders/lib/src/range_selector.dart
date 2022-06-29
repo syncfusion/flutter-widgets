@@ -137,6 +137,7 @@ class SfRangeSelector extends StatefulWidget {
       this.inactiveColor,
       this.activeColor,
       this.labelPlacement = LabelPlacement.onTicks,
+      this.edgeLabelPlacement = EdgeLabelPlacement.auto,
       this.numberFormat,
       this.dateFormat,
       this.dateIntervalType,
@@ -1062,6 +1063,26 @@ class SfRangeSelector extends StatefulWidget {
   /// ```
   final LabelPlacement labelPlacement;
 
+  /// Position of the edge labels.
+  ///
+  /// The edge labels in an axis can be shifted inside
+  /// the axis bounds or placed at the edges.
+  ///
+  /// Defaults to `EdgeLabelPlacement.auto`.
+  ///
+  /// Also refer [EdgeLabelPlacement].
+  ///
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return  SfRangeSelector(
+  ///        edgeLabelPlacement: EdgeLabelPlacement.inside,
+  ///    );
+  ///}
+  ///```
+
+  final EdgeLabelPlacement edgeLabelPlacement;
+
   /// Formats the numeric labels.
   ///
   /// Defaults to `null`.
@@ -1408,12 +1429,10 @@ class SfRangeSelector extends StatefulWidget {
         controller!.toDiagnosticsNode(name: 'controller'),
       );
     }
-    properties.add(FlagProperty(
-      'enabled',
-      value: enabled,
-      ifTrue: 'Range selector is enabled',
-      ifFalse: 'Range selector is disabled',
-    ));
+    properties.add(FlagProperty('enabled',
+        value: enabled,
+        ifTrue: 'Range selector is enabled',
+        ifFalse: 'Range selector is disabled'));
     properties.add(DoubleProperty('interval', interval));
     properties.add(DoubleProperty('stepSize', stepSize));
     if (stepDuration != null) {
@@ -1455,6 +1474,8 @@ class SfRangeSelector extends StatefulWidget {
     properties.add(ColorProperty('inactiveColor', inactiveColor));
     properties
         .add(EnumProperty<LabelPlacement>('labelPlacement', labelPlacement));
+    properties.add(EnumProperty<EdgeLabelPlacement>(
+        'edgeLabelPlacement', edgeLabelPlacement));
     properties
         .add(DiagnosticsProperty<NumberFormat>('numberFormat', numberFormat));
     if (initialValues != null &&
@@ -1716,6 +1737,7 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
           widget.inactiveColor ?? themeData.primaryColor.withOpacity(0.24),
       activeColor: widget.activeColor ?? themeData.primaryColor,
       labelPlacement: widget.labelPlacement,
+      edgeLabelPlacement: widget.edgeLabelPlacement,
       numberFormat: widget.numberFormat ?? NumberFormat('#.##'),
       dateFormat: widget.dateFormat,
       dateIntervalType: widget.dateIntervalType,
@@ -1765,6 +1787,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
     required this.inactiveColor,
     required this.activeColor,
     required this.labelPlacement,
+    required this.edgeLabelPlacement,
     required this.numberFormat,
     required this.dateFormat,
     required this.dateIntervalType,
@@ -1810,6 +1833,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
   final Color activeColor;
 
   final LabelPlacement labelPlacement;
+  final EdgeLabelPlacement edgeLabelPlacement;
   final NumberFormat numberFormat;
   final DateFormat? dateFormat;
   final DateIntervalType? dateIntervalType;
@@ -1857,6 +1881,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       deferUpdate: deferUpdate,
       dragMode: dragMode,
       labelPlacement: labelPlacement,
+      edgeLabelPlacement: edgeLabelPlacement,
       numberFormat: numberFormat,
       dateFormat: dateFormat,
       dateIntervalType: dateIntervalType,
@@ -1901,6 +1926,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       ..deferUpdate = deferUpdate
       ..dragMode = dragMode
       ..labelPlacement = labelPlacement
+      ..edgeLabelPlacement = edgeLabelPlacement
       ..numberFormat = numberFormat
       ..dateFormat = dateFormat
       ..dateIntervalType = dateIntervalType
@@ -2039,6 +2065,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     required bool deferUpdate,
     required SliderDragMode dragMode,
     required LabelPlacement labelPlacement,
+    required EdgeLabelPlacement edgeLabelPlacement,
     required NumberFormat numberFormat,
     required DateFormat? dateFormat,
     required DateIntervalType? dateIntervalType,
@@ -2080,6 +2107,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
             enableIntervalSelection: enableIntervalSelection,
             dragMode: dragMode,
             labelPlacement: labelPlacement,
+            edgeLabelPlacement: edgeLabelPlacement,
             numberFormat: numberFormat,
             dateFormat: dateFormat,
             dateIntervalType: dateIntervalType,

@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Eguna", 
-"series" : "Seriea"
+"series" : "Seriea", 
+"pdfHyperlinkLabel" : "Ireki Web orria", 
+"pdfHyperlinkContentLabel" : "Orria ireki nahi al duzu hemen", 
+"pdfHyperlinkDialogOpenLabel" : "IREKI", 
+"pdfHyperlinkDialogCancelLabel" : "Utzi"
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: no_default_cases
+
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -529,7 +531,6 @@ class ColumnSizer {
             calculatedColumns.add(column);
           }
           break;
-        // ignore: no_default_cases
         default:
           break;
       }
@@ -573,7 +574,6 @@ class ColumnSizer {
       case ColumnWidthMode.auto:
         width = _calculateAllCellsWidth(column);
         break;
-      // ignore: no_default_cases
       default:
         return width;
     }

@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Zül-Q", 
 "shortDhualhiLabel" : "Zül-H", 
 "daySpanCountLabel" : "Gün", 
-"series" : "Serial"
+"series" : "Serial", 
+"pdfHyperlinkLabel" : "Veb səhifəni açın", 
+"pdfHyperlinkContentLabel" : "ünvanında səhifəni açmaq istəyirsiniz", 
+"pdfHyperlinkDialogOpenLabel" : "AÇIQ", 
+"pdfHyperlinkDialogCancelLabel" : "LƏĞV EDİN"
 }

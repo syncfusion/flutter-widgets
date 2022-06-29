@@ -7,6 +7,7 @@ import '../../chart/common/cartesian_state_properties.dart';
 import '../../chart/common/data_label.dart';
 import '../../chart/common/data_label_renderer.dart';
 import '../../chart/utils/helper.dart';
+import '../../circular_chart/base/circular_state_properties.dart';
 import '../state_properties.dart';
 
 import '../utils/enum.dart';
@@ -70,7 +71,8 @@ class _RenderTemplateState extends State<RenderTemplate>
           animationController: animationController,
           child: templateInfo.widget!);
     } else {
-      renderWidget = templateInfo.templateType == 'Annotation'
+      renderWidget = templateInfo.templateType == 'Annotation' &&
+              widget.stateProperties is! CircularStateProperties
           ? templateInfo.widget!
           : _ChartTemplateRenderObject(
               templateInfo: templateInfo,
@@ -114,7 +116,8 @@ class _RenderTemplateState extends State<RenderTemplate>
     } else {
       currentWidget = renderWidget;
     }
-    return templateInfo.templateType != 'Annotation'
+    return templateInfo.templateType != 'Annotation' ||
+            widget.stateProperties is CircularStateProperties
         ? currentWidget
         : Positioned(
             left: templateInfo.location.dx,

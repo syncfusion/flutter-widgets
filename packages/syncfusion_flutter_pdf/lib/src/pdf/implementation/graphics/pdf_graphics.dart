@@ -665,7 +665,7 @@ class PdfGraphics {
   ///       pen: PdfPens.red)
   ///   ..restore();
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

@@ -10,7 +10,7 @@
 include: package:flutter_lints/flutter.yaml
 
 # Specify analysis options.
-#  
+# 
 # Until there are meta linter rules, each desired lint must be explicitly enabled.
 # See: https://github.com/dart-lang/linter/issues/288
 #

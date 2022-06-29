@@ -16,7 +16,7 @@
 "passwordDialogContentLabel" : "Digite a senha para abrir este arquivo PDF", 
 "passwordDialogHintTextLabel" : "Digite a senha", 
 "passwordDialogInvalidPasswordLabel" : "Senha inválida", 
-"pdfPasswordDialogOpenLabel" : "ABERTO", 
+"pdfPasswordDialogOpenLabel" : "ABERTO",  
 "pdfPasswordDialogCancelLabel" : "CANCELAR", 
 "allowedViewDayLabel" : "Dia", 
 "allowedViewWeekLabel" : "Semana", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Dia", 
-"series" : "Série"
+"series" : "Series", 
+"pdfHyperlinkLabel" : "Abrir página da Web", 
+"pdfHyperlinkContentLabel" : "Deseja abrir a página em", 
+"pdfHyperlinkDialogOpenLabel" : "ABRIR", 
+"pdfHyperlinkDialogCancelLabel" : "CANCELAR"
 }

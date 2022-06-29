@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "ദുൽ-ക്യു", 
 "shortDhualhiLabel" : "ദുൽ-എച്ച്", 
 "daySpanCountLabel" : "ദിവസം", 
-"series" : "പരമ്പര"
+"series" : "പരമ്പര", 
+"pdfHyperlinkLabel" : "വെബ് പേജ് തുറക്കുക", 
+"pdfHyperlinkContentLabel" : "എന്നതിൽ പേജ് തുറക്കണോ?", 
+"pdfHyperlinkDialogOpenLabel" : "തുറക്കുക", 
+"pdfHyperlinkDialogCancelLabel" : "റദ്ദാക്കുക"
 }

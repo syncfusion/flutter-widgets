@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "ذوالق", 
 "shortDhualhiLabel" : "ذوالح", 
 "daySpanCountLabel" : "روز", 
-"series" : "سلسله"
+"series" : "سلسله", 
+"pdfHyperlinkLabel" : "صفحه وب را باز کنید", 
+"pdfHyperlinkContentLabel" : "آیا می خواهید صفحه را در", 
+"pdfHyperlinkDialogOpenLabel" : "باز کن", 
+"pdfHyperlinkDialogCancelLabel" : "لغو"
 }

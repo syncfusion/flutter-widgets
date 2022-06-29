@@ -8,7 +8,7 @@
 ///   ..destination = PdfDestination(document.pages.add(), Offset(20, 20))
 ///   ..textStyle = [PdfTextStyle.bold];
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```

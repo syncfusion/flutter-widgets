@@ -785,6 +785,12 @@ class TechnicalIndicatorsRenderer {
         isRangeArea ? 'rangearea' : (isHistogram ? 'column' : 'line');
     seriesRendererDetails.isIndicator = true;
     seriesRendererDetails.seriesName = name;
+    if (series.dashArray != null) {
+      seriesRendererDetails.dashArray = series.dashArray;
+      if (seriesRendererDetails.dashArray!.length == 1) {
+        seriesRendererDetails.dashArray!.add(series.dashArray[0]);
+      }
+    }
     targetSeriesRenderers.add(seriesRenderer);
   }
 

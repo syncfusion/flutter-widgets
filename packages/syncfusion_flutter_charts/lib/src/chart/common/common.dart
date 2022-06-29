@@ -1410,12 +1410,11 @@ void animateBoxSeries(
       path.close();
     }
   }
-  if (seriesRendererDetails.series.dashArray[0] != 0 &&
-      seriesRendererDetails.series.dashArray[1] != 0 &&
+  if (seriesRendererDetails.dashArray![0] != 0 &&
+      seriesRendererDetails.dashArray![1] != 0 &&
       seriesRendererDetails.series.animationDuration <= 0) {
     canvas.drawPath(path, fillPaint);
-    drawDashedLine(
-        canvas, seriesRendererDetails.series.dashArray, strokePaint, path);
+    drawDashedLine(canvas, seriesRendererDetails.dashArray!, strokePaint, path);
   } else {
     canvas.drawPath(path, fillPaint);
     canvas.drawPath(path, strokePaint);
@@ -1590,12 +1589,11 @@ void animateCandleSeries(
     }
   }
 
-  (seriesRendererDetails.series.dashArray[0] != 0 &&
-          seriesRendererDetails.series.dashArray[1] != 0 &&
+  (seriesRendererDetails.dashArray![0] != 0 &&
+          seriesRendererDetails.dashArray![1] != 0 &&
           paint.style != PaintingStyle.fill &&
           seriesRendererDetails.series.animationDuration <= 0)
-      ? drawDashedLine(
-          canvas, seriesRendererDetails.series.dashArray, paint, path)
+      ? drawDashedLine(canvas, seriesRendererDetails.dashArray!, paint, path)
       : canvas.drawPath(path, paint);
   if (paint.style == PaintingStyle.fill) {
     if (transposed) {
@@ -1651,51 +1649,53 @@ List<CartesianChartPoint<dynamic>>? getNearestChartPoints(
         : yValues.add(
             dataList[i].yValue ?? (dataList[i].high + dataList[i].low) / 2);
   }
-  num nearPointX = dataList[0].xValue;
-  num nearPointY = actualYAxisDetails.visibleRange!.minimum;
+  if (dataList.isNotEmpty) {
+    num nearPointX = dataList[0].xValue;
+    num nearPointY = actualYAxisDetails.visibleRange!.minimum;
 
-  final Rect rect = calculatePlotOffset(
-      seriesRendererDetails.stateProperties.chartAxis.axisClipRect,
-      Offset(seriesRendererDetails.xAxisDetails!.axis.plotOffset,
-          seriesRendererDetails.yAxisDetails!.axis.plotOffset));
+    final Rect rect = calculatePlotOffset(
+        seriesRendererDetails.stateProperties.chartAxis.axisClipRect,
+        Offset(seriesRendererDetails.xAxisDetails!.axis.plotOffset,
+            seriesRendererDetails.yAxisDetails!.axis.plotOffset));
 
-  final num touchXValue = pointToXValue(
-      seriesRendererDetails.stateProperties.requireInvertedAxis,
-      actualXAxisRenderer,
-      actualXAxisDetails.axis.isVisible
-          ? actualXAxisDetails.bounds
-          : seriesRendererDetails.stateProperties.chartAxis.axisClipRect,
-      pointX - rect.left,
-      pointY - rect.top);
-  final num touchYValue = pointToYValue(
-      seriesRendererDetails.stateProperties.requireInvertedAxis,
-      actualYAxisRenderer,
-      actualYAxisDetails.axis.isVisible
-          ? actualYAxisDetails.bounds
-          : seriesRendererDetails.stateProperties.chartAxis.axisClipRect,
-      pointX - rect.left,
-      pointY - rect.top);
-  double delta = 0;
-  for (int i = 0; i < dataList.length; i++) {
-    final double currX = xValues[i].toDouble();
-    final double currY = yValues[i].toDouble();
-    if (delta == touchXValue - currX) {
-      final CartesianChartPoint<dynamic> dataPoint = dataList[i];
-      if (dataPoint.isDrop != true && dataPoint.isGap != true) {
-        if ((touchYValue - currY).abs() > (touchYValue - nearPointY).abs()) {
-          dataPointList.clear();
+    final num touchXValue = pointToXValue(
+        seriesRendererDetails.stateProperties.requireInvertedAxis,
+        actualXAxisRenderer,
+        actualXAxisDetails.axis.isVisible
+            ? actualXAxisDetails.bounds
+            : seriesRendererDetails.stateProperties.chartAxis.axisClipRect,
+        pointX - rect.left,
+        pointY - rect.top);
+    final num touchYValue = pointToYValue(
+        seriesRendererDetails.stateProperties.requireInvertedAxis,
+        actualYAxisRenderer,
+        actualYAxisDetails.axis.isVisible
+            ? actualYAxisDetails.bounds
+            : seriesRendererDetails.stateProperties.chartAxis.axisClipRect,
+        pointX - rect.left,
+        pointY - rect.top);
+    double delta = 0;
+    for (int i = 0; i < dataList.length; i++) {
+      final double currX = xValues[i].toDouble();
+      final double currY = yValues[i].toDouble();
+      if (delta == touchXValue - currX) {
+        final CartesianChartPoint<dynamic> dataPoint = dataList[i];
+        if (dataPoint.isDrop != true && dataPoint.isGap != true) {
+          if ((touchYValue - currY).abs() > (touchYValue - nearPointY).abs()) {
+            dataPointList.clear();
+          }
+          dataPointList.add(dataPoint);
         }
-        dataPointList.add(dataPoint);
-      }
-    } else if ((touchXValue - currX).abs() <=
-        (touchXValue - nearPointX).abs()) {
-      nearPointX = currX;
-      nearPointY = currY;
-      delta = touchXValue - currX;
-      final CartesianChartPoint<dynamic> dataPoint = dataList[i];
-      dataPointList.clear();
-      if (dataPoint.isDrop != true && dataPoint.isGap != true) {
-        dataPointList.add(dataPoint);
+      } else if ((touchXValue - currX).abs() <=
+          (touchXValue - nearPointX).abs()) {
+        nearPointX = currX;
+        nearPointY = currY;
+        delta = touchXValue - currX;
+        final CartesianChartPoint<dynamic> dataPoint = dataList[i];
+        dataPointList.clear();
+        if (dataPoint.isDrop != true && dataPoint.isGap != true) {
+          dataPointList.add(dataPoint);
+        }
       }
     }
   }

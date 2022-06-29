@@ -1695,6 +1695,12 @@ class SfDataGridState extends State<SfDataGrid>
 
     _controller!._addDataGridPropertyChangeListener(
         _handleDataGridPropertyChangeListeners);
+    if (widget.verticalScrollController != null) {
+      _dataGridConfiguration.disposeVerticalScrollController = false;
+    }
+    if (widget.horizontalScrollController != null) {
+      _dataGridConfiguration.disposeHorizontalScrollController = false;
+    }
 
     _dataGridConfiguration.verticalScrollController =
         widget.verticalScrollController ?? ScrollController();
@@ -2307,12 +2313,18 @@ class SfDataGridState extends State<SfDataGrid>
         widget.rowsPerPage != oldWidget.rowsPerPage;
 
     if (oldWidget.verticalScrollController != widget.verticalScrollController) {
+      if (widget.verticalScrollController != null) {
+        _dataGridConfiguration.disposeVerticalScrollController = false;
+      }
       _dataGridConfiguration.verticalScrollController =
           widget.verticalScrollController ?? ScrollController();
     }
 
     if (oldWidget.horizontalScrollController !=
         widget.horizontalScrollController) {
+      if (widget.horizontalScrollController != null) {
+        _dataGridConfiguration.disposeHorizontalScrollController = false;
+      }
       _dataGridConfiguration.horizontalScrollController =
           widget.horizontalScrollController ?? ScrollController();
     }
@@ -2769,7 +2781,7 @@ class SfDataGridState extends State<SfDataGrid>
           constraints.maxWidth.isInfinite ? _minWidth : constraints.maxWidth;
 
       // FLUT-6545 if shrinkWrapColumns is true, we need to set the container extended width value to the viewWidth
-      // because the row selection colors are applied based on this size while cell is in editing.
+      // because the row selection colors are applied based on this size while cell is in editing
       if (_dataGridConfiguration.shrinkWrapColumns) {
         measuredWidth = _dataGridConfiguration.viewWidth =
             _dataGridConfiguration.container.extentWidth;

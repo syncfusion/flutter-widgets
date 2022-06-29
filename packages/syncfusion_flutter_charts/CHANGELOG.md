@@ -1,11 +1,11 @@
-## unreleased
-**Bugs**
-* No memory leaks will occur while calling the setState() method repeatedly for refreshing the chart widget.
-* No exception will be thrown while using the trackball with multiple series.
+## Unreleased
 
-## [20.1.52] - 05/03/2022
-**Bugs**
-* Now the [updateDataSource](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartSeriesController/updateDataSource.html) method will work properly with the fast line series.
+**Features**
+* Provided the support to customize the date-time axis labels based on the interval type.
+
+* Now, the scrollbar can be displayed always or on-demand when the legend [overflowMode](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/Legend/overflowMode.html) is set to `scroll`.
+
+* Provided the support to trim the intersecting axis labels when the [labelIntersectAction](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/labelIntersectAction.html) property is set to `AxisLabelIntersectAction.trim`.
 
 ## [20.1.47] - 04/04/2022
 

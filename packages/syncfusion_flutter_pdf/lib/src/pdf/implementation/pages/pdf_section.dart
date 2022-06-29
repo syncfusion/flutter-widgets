@@ -33,7 +33,7 @@ import 'pdf_section_template.dart';
 ///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
 ///     brush: PdfBrushes.darkBlue, bounds: const Rect.fromLTWH(170, 100, 0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -79,7 +79,7 @@ class PdfSection implements IPdfWrapper {
   ///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
   ///     brush: PdfBrushes.darkBlue, bounds: const Rect.fromLTWH(170, 100, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -103,7 +103,7 @@ class PdfSection implements IPdfWrapper {
   ///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
   ///     brush: PdfBrushes.darkBlue, bounds: const Rect.fromLTWH(170, 100, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -128,7 +128,7 @@ class PdfSection implements IPdfWrapper {
   ///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
   ///     brush: PdfBrushes.darkBlue, bounds: const Rect.fromLTWH(170, 100, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

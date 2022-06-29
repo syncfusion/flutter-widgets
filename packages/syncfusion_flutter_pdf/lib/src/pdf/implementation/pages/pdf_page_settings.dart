@@ -22,7 +22,7 @@ class PdfPageSettings {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfPageSettings([Size? size, PdfPageOrientation? orientation]) {
@@ -58,7 +58,7 @@ class PdfPageSettings {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfMargins get margins => _margins;
@@ -83,7 +83,7 @@ class PdfPageSettings {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, width, height));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   double get width => _size.width;
@@ -102,7 +102,7 @@ class PdfPageSettings {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, width, height));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   double get height => _size.height;
@@ -119,7 +119,7 @@ class PdfPageSettings {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH.(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfPageOrientation get orientation => _orientation;
@@ -136,7 +136,7 @@ class PdfPageSettings {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   set orientation(PdfPageOrientation value) {
@@ -158,7 +158,7 @@ class PdfPageSettings {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   Size get size => _size.size;
@@ -175,7 +175,7 @@ class PdfPageSettings {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   set size(Size value) {
@@ -199,7 +199,7 @@ class PdfPageSettings {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfPageRotateAngle get rotate => _rotateAngle;
@@ -219,7 +219,7 @@ class PdfPageSettings {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   set rotate(PdfPageRotateAngle value) {
@@ -242,7 +242,7 @@ class PdfPageSettings {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   void setMargins(double all, [double? top, double? right, double? bottom]) {

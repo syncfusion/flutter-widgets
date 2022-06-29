@@ -23,7 +23,7 @@
 "allowedViewWorkWeekLabel" : "வேலை வாரம்", 
 "allowedViewMonthLabel" : "மாதம்", 
 "allowedViewScheduleLabel" : "அட்டவணை", 
-"allowedViewTimelineDayLabel" : "காலவரிசை நாள்", 
+"allowedViewTimelineDayLabel" : "காலவரிசை நாள்",
 "allowedViewTimelineWeekLabel" : "காலவரிசை வாரம்", 
 "allowedViewTimelineWorkWeekLabel" : "காலக்கெடு வேலை வாரம்", 
 "allowedViewTimelineMonthLabel" : "காலவரிசை மாதம்", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "துல்-கே", 
 "shortDhualhiLabel" : "துல்-எச்", 
 "daySpanCountLabel" : "நாள்", 
-"series" : "தொடர்"
+"series" : "தொடர்", 
+"pdfHyperlinkLabel" : "இணையப் பக்கத்தைத் திற", 
+"pdfHyperlinkContentLabel" : "நீங்கள் பக்கத்தைத் திறக்க விரும்புகிறீர்களா?", 
+"pdfHyperlinkDialogOpenLabel" : "திறந்த", 
+"pdfHyperlinkDialogCancelLabel" : "ரத்துசெய்"
 }

@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "日", 
-"series" : "シリーズ"
+"series" : "シリーズ", 
+"pdfHyperlinkLabel" : "Webページを開く", 
+"pdfHyperlinkContentLabel" : "次のページを開きますか", 
+"pdfHyperlinkDialogOpenLabel" : "開いた", 
+"pdfHyperlinkDialogCancelLabel" : "キャンセル"
 }

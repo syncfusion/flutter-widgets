@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Nap", 
-"series" : "Sorozat"
+"series" : "Sorozat", 
+"pdfHyperlinkLabel" : "Weboldal megnyitása", 
+"pdfHyperlinkContentLabel" : "Meg akarja nyitni az oldalt a címen", 
+"pdfHyperlinkDialogOpenLabel" : "NYISD KI", 
+"pdfHyperlinkDialogCancelLabel" : "MEGSZÜNTETI"
 }

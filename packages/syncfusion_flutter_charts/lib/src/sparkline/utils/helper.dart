@@ -327,10 +327,12 @@ class _SparKChartContainerBox extends RenderShiftedBox {
   void performLayout() {
     size = getLayoutSize(constraints, context);
 
-    child!.layout(BoxConstraints(
-      maxHeight: size.height,
-      maxWidth: size.width,
-    )); // True- Parent widget recomputes again respect to
+    child!.layout(
+      BoxConstraints(
+        maxHeight: size.height,
+        maxWidth: size.width,
+      ),
+    ); // True- Parent widget recomputes again respect to
     // every build of child widget,
     // False- Parent widget not rebuild respect to child widget build
   }
@@ -373,10 +375,6 @@ Path getMarkerShapes(
       {
         drawTriangle(path, position.dx, position.dy, size);
       }
-      break;
-
-    // ignore: no_default_cases
-    default:
       break;
   }
 

@@ -31,7 +31,7 @@ import 'pdf_list_layouter.dart';
 ///   ..draw(
 ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -55,7 +55,7 @@ abstract class PdfList extends PdfLayoutElement {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -79,7 +79,7 @@ abstract class PdfList extends PdfLayoutElement {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -104,7 +104,7 @@ abstract class PdfList extends PdfLayoutElement {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -129,7 +129,7 @@ abstract class PdfList extends PdfLayoutElement {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -153,7 +153,7 @@ abstract class PdfList extends PdfLayoutElement {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -174,7 +174,7 @@ abstract class PdfList extends PdfLayoutElement {
   ///   ..items.add(PdfListItem(text: 'PDF'))
   ///   ..draw(page: document.pages.add(), bounds: Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -201,7 +201,7 @@ abstract class PdfList extends PdfLayoutElement {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -237,7 +237,7 @@ abstract class PdfList extends PdfLayoutElement {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -267,7 +267,7 @@ abstract class PdfList extends PdfLayoutElement {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -359,7 +359,7 @@ class PdfListHelper {
 ///   ..draw(
 ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -399,7 +399,7 @@ class BeginItemLayoutArgs {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -430,7 +430,7 @@ class BeginItemLayoutArgs {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -468,7 +468,7 @@ class BeginItemLayoutArgsHelper {
 /// oList.draw(
 ///     page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -509,7 +509,7 @@ class EndItemLayoutArgs {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -539,7 +539,7 @@ class EndItemLayoutArgs {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -579,7 +579,7 @@ class EndItemLayoutArgsHelper {
 ///   ..draw(
 ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -610,7 +610,7 @@ typedef BeginItemLayoutCallback = void Function(
 ///   ..draw(
 ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```

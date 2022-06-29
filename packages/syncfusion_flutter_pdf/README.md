@@ -108,7 +108,7 @@ document.pages.add().graphics.drawString(
     brush: PdfSolidBrush(PdfColor(0, 0, 0)),
     bounds: const Rect.fromLTWH(0, 0, 150, 20));
 // Save the document.
-File('HelloWorld.pdf').writeAsBytes(document.save());
+File('HelloWorld.pdf').writeAsBytes(await document.save());
 // Dispose the document.
 document.dispose();
 ```
@@ -128,7 +128,7 @@ final PdfFont font = PdfTrueTypeFont(fontData, 12);
 document.pages.add().graphics.drawString('Hello World!!!', font,
     bounds: const Rect.fromLTWH(0, 0, 200, 50));
 // Save the document.
-File('TrueType.pdf').writeAsBytes(document.save());
+File('TrueType.pdf').writeAsBytes(await document.save());
 // Dispose the document.
 document.dispose();
 ```
@@ -150,7 +150,7 @@ document.pages
     .graphics
     .drawImage(image, const Rect.fromLTWH(0, 0, 500, 200));
 // Save the document.
-File('ImageToPDF.pdf').writeAsBytes(document.save());
+File('ImageToPDF.pdf').writeAsBytes(await document.save());
 // Dispose the document.
 document.dispose();
 ```
@@ -187,7 +187,7 @@ page.graphics.drawLine(
     Offset(0, layoutResult.bounds.bottom + 10),
     Offset(page.getClientSize().width, layoutResult.bounds.bottom + 10));
 // Save the document.
-File('TextFlow.pdf').writeAsBytes(document.save());
+File('TextFlow.pdf').writeAsBytes(await document.save());
 // Dispose the document.
 document.dispose();
 ```
@@ -236,7 +236,7 @@ orderedList.draw(
     bounds: Rect.fromLTWH(
         0, 0, page.getClientSize().width, page.getClientSize().height));
 // Save the document.
-File('BulletandList.pdf').writeAsBytes(document.save());
+File('BulletandList.pdf').writeAsBytes(await document.save());
 // Dispose the document.
 document.dispose();
 ```
@@ -285,7 +285,7 @@ grid.draw(
     bounds: Rect.fromLTWH(
         0, 0, page.getClientSize().width, page.getClientSize().height));
 // Save the document.
-File('PDFTable.pdf').writeAsBytes(document.save());
+File('PDFTable.pdf').writeAsBytes(await document.save());
 // Dispose the document.
 document.dispose();
 ```
@@ -319,7 +319,7 @@ document.template.bottom = footerTemplate;
 document.pages.add();
 document.pages.add();
 // Save the document.
-File('HeaderandFooter.pdf').writeAsBytes(document.save());
+File('HeaderandFooter.pdf').writeAsBytes(await document.save());
 // Dispose the document.
 document.dispose();
 ```
@@ -340,7 +340,7 @@ page.graphics.drawString(
     brush: PdfSolidBrush(PdfColor(0, 0, 0)),
     bounds: const Rect.fromLTWH(0, 0, 150, 20));
 //Save the document.
-File('output.pdf').writeAsBytes(document.save());
+File('output.pdf').writeAsBytes(await document.save());
 //Dispose the document.
 document.dispose();
 ```
@@ -359,7 +359,7 @@ document.pages.add().graphics.drawString(
     brush: PdfSolidBrush(PdfColor(0, 0, 0)),
     bounds: const Rect.fromLTWH(0, 0, 150, 20));
 //Save the document.
-File('output.pdf').writeAsBytes(document.save());
+File('output.pdf').writeAsBytes(await document.save());
 //Dispose the document.
 document.dispose();
 ```
@@ -379,7 +379,7 @@ document.pages[0].annotations.add(PdfRectangleAnnotation(
       Rect.fromLTWH(0, 0, 150, 100), 'Rectangle',
       color: PdfColor(255, 0, 0), setAppearance: true));
 //Save the document.
-File('annotations.pdf').writeAsBytes(document.save());
+File('annotations.pdf').writeAsBytes(await document.save());
 //Dispose the document.
 document.dispose();
 ```
@@ -411,7 +411,7 @@ bookmark.destination = PdfDestination(document.pages[1], Offset(20, 20));
 //Set the bookmark color.
 bookmark.color = PdfColor(255, 0, 0);
 //Save the document.
-File('bookmark.pdf').writeAsBytes(document.save());
+File('bookmark.pdf').writeAsBytes(await document.save());
 //Dispose the document.
 document.dispose();
 ```
@@ -497,7 +497,7 @@ security.ownerPassword = 'ownerpassword@123';
 security.algorithm = PdfEncryptionAlgorithm.aesx256Bit;
 
 //Save the document.
-File('secured.pdf').writeAsBytes(document.save());
+File('secured.pdf').writeAsBytes(await document.save());
 
 //Dispose the document.
 document.dispose();
@@ -522,7 +522,7 @@ final PdfDocument document = PdfDocument(conformanceLevel: PdfConformanceLevel.a
       PdfTrueTypeFont(File('Roboto-Regular.ttf').readAsBytesSync(), 12),
       bounds: Rect.fromLTWH(20, 20, 200, 50), brush: PdfBrushes.black);
 //Save and dispose the document.
-File('conformance.pdf').writeAsBytesSync(document.save());
+File('conformance.pdf').writeAsBytesSync(await document.save());
 document.dispose();
 ```
 
@@ -552,7 +552,7 @@ document.form.fields.add(PdfCheckBoxField(
     isChecked: true));
 
 //Save and dispose the document.
-File('form.pdf').writeAsBytesSync(document.save());
+File('form.pdf').writeAsBytesSync(await document.save());
 document.dispose();
 ```
 
@@ -575,7 +575,7 @@ PdfRadioButtonListField gender = form.fields[1] as PdfRadioButtonListField;
 gender.selectedIndex = 1;
 
 //Save and dispose the document.
-File('output.pdf').writeAsBytesSync(document.save());
+File('output.pdf').writeAsBytesSync(await document.save());
 document.dispose();
 ```
 
@@ -593,7 +593,7 @@ PdfForm form = document.form;
 form.flattenAllFields();
 
 //Save and dispose the document.
-File('output.pdf').writeAsBytesSync(document.save());
+File('output.pdf').writeAsBytesSync(await document.save());
 document.dispose();
 ```
 
@@ -624,7 +624,7 @@ PdfSignatureField signatureField = PdfSignatureField(page, 'Signature',
 document.form.fields.add(signatureField);
 
 //Save and dispose the PDF document
-File('signed.pdf').writeAsBytes(document.save());
+File('signed.pdf').writeAsBytes(await document.save());
 document.dispose();
 ```
 Add the following code to sign the existing PDF document.
@@ -645,7 +645,7 @@ signatureField.signature = PdfSignature(
 );
 
 //Save and dispose the document.
-File('output.pdf').writeAsBytesSync(document.save());
+File('output.pdf').writeAsBytesSync(await document.save());
 document.dispose();
 ```
 

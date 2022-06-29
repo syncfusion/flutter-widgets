@@ -10,7 +10,7 @@
 "pdfGoToPageLabel" : "Idź do strony", 
 "pdfEnterPageNumberLabel" : "Wpisz numer strony", 
 "pdfInvalidPageNumberLabel" : "Proszę wprowadzić poprawny numer", 
-"pdfPaginationDialogOkLabel" : "ok", 
+"pdfPaginationDialogOkLabel" : "ok",
 "pdfPaginationDialogCancelLabel" : "ANULUJ", 
 "passwordDialogHeaderTextLabel" : "Hasło chronione", 
 "passwordDialogContentLabel" : "Wprowadź hasło, aby otworzyć ten plik PDF", 
@@ -46,7 +46,7 @@
 "shortSafarLabel" : "Saf.", 
 "shortRabi1Label" : "Rabi. i", 
 "shortRabi2Label" : "Rabi. II", 
-"shortJumada1Label" : "Skok. i", 
+"shortJumada1Label" : "Skok. i",  
 "shortJumada2Label" : "Skok. II", 
 "shortRajabLabel" : "Raj.", 
 "shortShaabanLabel" : "Sha.", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Dzień", 
-"series" : "Seria"
+"series" : "Seria", 
+"pdfHyperlinkLabel" : "Otwórz stronę internetową", 
+"pdfHyperlinkContentLabel" : "Czy chcesz otworzyć stronę pod adresem?", 
+"pdfHyperlinkDialogOpenLabel" : "OTWARTY", 
+"pdfHyperlinkDialogCancelLabel" : "ANULUJ"
 }

@@ -17,7 +17,7 @@
 "passwordDialogHintTextLabel" : "Введите пароль", 
 "passwordDialogInvalidPasswordLabel" : "неправильный пароль", 
 "pdfPasswordDialogOpenLabel" : "ОТКРЫТЫМ", 
-"pdfPasswordDialogCancelLabel" : "ОТМЕНИТЬ", 
+"pdfPasswordDialogCancelLabel" : "ОТМЕНИТЬ",
 "allowedViewDayLabel" : "День", 
 "allowedViewWeekLabel" : "Неделю", 
 "allowedViewWorkWeekLabel" : "Рабочая неделя", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Зуль-Кью", 
 "shortDhualhiLabel" : "Зуль-Х", 
 "daySpanCountLabel" : "День", 
-"series" : "Ряд"
+"series" : "Ряд", 
+"pdfHyperlinkLabel" : "Открыть веб-страницу", 
+"pdfHyperlinkContentLabel" : "Вы хотите открыть страницу в", 
+"pdfHyperlinkDialogOpenLabel" : "ОТКРЫТЫМ", 
+"pdfHyperlinkDialogCancelLabel" : "ОТМЕНА"
 }

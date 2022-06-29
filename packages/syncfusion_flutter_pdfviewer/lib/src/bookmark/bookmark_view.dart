@@ -25,8 +25,8 @@ const double _kPdfSubBookmarkTitlePosition = 55.0;
 /// BookmarkView of PdfViewer
 class BookmarkView extends StatefulWidget {
   /// BookmarkView Constructor.
-  const BookmarkView(
-      Key key, this.pdfDocument, this.controller, this._bookmarkView)
+  const BookmarkView(Key key, this.pdfDocument, this.controller,
+      this._bookmarkView, this.textDirection)
       : super(key: key);
 
   /// [PdfViewerController] instance of PdfViewer.
@@ -37,6 +37,9 @@ class BookmarkView extends StatefulWidget {
 
   ///Triggers when the bookmark is opened or closed
   final _BookmarkView _bookmarkView;
+
+  ///A direction of text flow.
+  final TextDirection textDirection;
 
   @override
   State<StatefulWidget> createState() => BookmarkViewControllerState();
@@ -163,6 +166,7 @@ class BookmarkViewControllerState extends State<BookmarkView> {
       _bookmarkList?.add(BookmarkItem(
         title: _childBookmark!.title,
         isBackIconVisible: true,
+        textDirection: widget.textDirection,
         textPosition: _kPdfSubBookmarkTitlePosition,
         onBackPressed: _handleBackPress,
         isMobileWebView: !_isTablet,
@@ -180,6 +184,7 @@ class BookmarkViewControllerState extends State<BookmarkView> {
       final BookmarkItem bookmarkItem = BookmarkItem(
         title: _isExpanded ? _childBookmark![i].title : _bookmarkBase![i].title,
         isMobileWebView: !_isTablet,
+        textDirection: widget.textDirection,
         isExpandIconVisible: _isExpanded
             ? _childBookmark![i].count != 0
             : _bookmarkBase![i].count != 0,
@@ -230,7 +235,7 @@ class BookmarkViewControllerState extends State<BookmarkView> {
                     : const Color(0xFF212121)),
             width: _isTablet ? _kPdfTabletBookmarkWidth : _totalWidth,
             child: Column(children: <Widget>[
-              BookmarkToolbar(_handleClose),
+              BookmarkToolbar(_handleClose, widget.textDirection),
               Expanded(
                 child: hasBookmark
                     ? ListView.builder(

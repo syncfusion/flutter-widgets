@@ -295,6 +295,7 @@ Widget? getElements(StateProperties stateProperties, Widget chartWidget,
           offset: legend.offset,
           width: legendWidth,
           height: legendHeight,
+          shouldAlwaysShowScrollbar: legend.shouldAlwaysShowScrollbar,
           onItemRenderer: (ItemRendererDetails args) {
             args.text = chartLegend.legendItems[args.index].text;
             if (chartLegend.legendItems[args.index].shader == null ||

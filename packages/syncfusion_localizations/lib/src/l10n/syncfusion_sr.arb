@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Дху'л-К", 
 "shortDhualhiLabel" : "Дху'л-Х", 
 "daySpanCountLabel" : "Дан", 
-"series" : "Серије"
+"series" : "Серије", 
+"pdfHyperlinkLabel" : "Отворите веб страницу", 
+"pdfHyperlinkContentLabel" : "Да ли желите да отворите страницу на", 
+"pdfHyperlinkDialogOpenLabel" : "ОПЕН", 
+"pdfHyperlinkDialogCancelLabel" : "ПОНИШТИТИ, ОТКАЗАТИ"
 }

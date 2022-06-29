@@ -1315,18 +1315,16 @@ class PdfFormHelper {
       final PdfName fieldsDict = PdfName(PdfDictionaryProperties.fields);
       final PdfArray fields =
           crossTable!.getObject(dictionary![fieldsDict])! as PdfArray;
-      late PdfReferenceHolder holder;
       for (int i = 0; i < fields.elements.length; i++) {
         final IPdfPrimitive? obj = fields.elements[i];
         if (obj != null &&
             obj is PdfReferenceHolder &&
             obj.object is PdfDictionary &&
             obj.object == helper.dictionary) {
-          holder = obj;
+          fields.remove(obj);
           break;
         }
       }
-      fields.remove(holder);
       fields.changed = true;
       if (!formHasKids ||
           !helper.dictionary!.items!
@@ -1344,8 +1342,9 @@ class PdfFormHelper {
               final IPdfPrimitive? obj = kids[i];
               if (obj != null &&
                   obj is PdfReferenceHolder &&
-                  obj.object == holder.object) {
+                  obj.object == helper.dictionary) {
                 kids.remove(obj);
+                break;
               }
             }
           }
@@ -1362,8 +1361,9 @@ class PdfFormHelper {
           for (int k = 0; k < kids.count; k++) {
             final PdfReferenceHolder kidsReference =
                 kids[k]! as PdfReferenceHolder;
-            if (kidsReference.object == holder.object) {
+            if (kidsReference.object == helper.dictionary) {
               kids.remove(kidsReference);
+              break;
             }
           }
         }

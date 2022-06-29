@@ -17,7 +17,7 @@
 "passwordDialogHintTextLabel" : "پاسورډ دننه کړئ", 
 "passwordDialogInvalidPasswordLabel" : "بې اعتباره پټنوم", 
 "pdfPasswordDialogOpenLabel" : "خلاص", 
-"pdfPasswordDialogCancelLabel" : "لغوه کول", 
+"pdfPasswordDialogCancelLabel" : "لغوه کول",
 "allowedViewDayLabel" : "ورځ", 
 "allowedViewWeekLabel" : "اونۍ", 
 "allowedViewWorkWeekLabel" : "کاري اونۍ", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "ذوالق", 
 "shortDhualhiLabel" : "ذوالح", 
 "daySpanCountLabel" : "ورځ", 
-"series" : "لړۍ"
+"series" : "لړۍ", 
+"pdfHyperlinkLabel" : "ویب پاڼه پرانیزئ", 
+"pdfHyperlinkContentLabel" : "ایا تاسو غواړئ چې پاڼه پرانیزئ", 
+"pdfHyperlinkDialogOpenLabel" : "خلاص", 
+"pdfHyperlinkDialogCancelLabel" : "فسخه کول"
 }

@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Den", 
-"series" : "Série"
+"series" : "Série", 
+"pdfHyperlinkLabel" : "Otevřete webovou stránku", 
+"pdfHyperlinkContentLabel" : "Chcete otevřít stránku na", 
+"pdfHyperlinkDialogOpenLabel" : "OTEVŘENO", 
+"pdfHyperlinkDialogCancelLabel" : "ZRUŠENÍ"
 }

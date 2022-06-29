@@ -43,6 +43,10 @@ import 'control/single_page_view.dart';
 typedef PdfTextSelectionChangedCallback = void Function(
     PdfTextSelectionChangedDetails details);
 
+/// Signature for [SfPdfViewer.onHyperlinkClicked] callback.
+typedef PdfHyperlinkClickedCallback = void Function(
+    PdfHyperlinkClickedDetails details);
+
 /// Signature for [SfPdfViewer.onDocumentLoaded] callback.
 typedef PdfDocumentLoadedCallback = void Function(
     PdfDocumentLoadedDetails details);
@@ -131,6 +135,7 @@ class SfPdfViewer extends StatefulWidget {
     this.enableDoubleTapZooming = true,
     this.enableTextSelection = true,
     this.onTextSelectionChanged,
+    this.onHyperlinkClicked,
     this.onDocumentLoadFailed,
     this.enableDocumentLinkAnnotation = true,
     this.canShowPaginationDialog = true,
@@ -144,6 +149,8 @@ class SfPdfViewer extends StatefulWidget {
     this.otherSearchTextHighlightColor = const Color.fromRGBO(229, 110, 0, 0.3),
     this.password,
     this.canShowPasswordDialog = true,
+    this.canShowHyperlinkDialog = true,
+    this.enableHyperlinkNavigation = true,
   })  : _provider = AssetPdf(name, bundle),
         assert(pageSpacing >= 0),
         super(key: key);
@@ -183,6 +190,7 @@ class SfPdfViewer extends StatefulWidget {
     this.enableDoubleTapZooming = true,
     this.enableTextSelection = true,
     this.onTextSelectionChanged,
+    this.onHyperlinkClicked,
     this.onDocumentLoaded,
     this.onDocumentLoadFailed,
     this.enableDocumentLinkAnnotation = true,
@@ -197,6 +205,8 @@ class SfPdfViewer extends StatefulWidget {
     this.otherSearchTextHighlightColor = const Color.fromRGBO(229, 110, 0, 0.3),
     this.password,
     this.canShowPasswordDialog = true,
+    this.canShowHyperlinkDialog = true,
+    this.enableHyperlinkNavigation = true,
   })  : _provider = NetworkPdf(src, headers),
         assert(pageSpacing >= 0),
         super(key: key);
@@ -234,6 +244,7 @@ class SfPdfViewer extends StatefulWidget {
     this.enableDoubleTapZooming = true,
     this.enableTextSelection = true,
     this.onTextSelectionChanged,
+    this.onHyperlinkClicked,
     this.onDocumentLoaded,
     this.onDocumentLoadFailed,
     this.enableDocumentLinkAnnotation = true,
@@ -248,6 +259,8 @@ class SfPdfViewer extends StatefulWidget {
     this.otherSearchTextHighlightColor = const Color.fromRGBO(229, 110, 0, 0.3),
     this.password,
     this.canShowPasswordDialog = true,
+    this.canShowHyperlinkDialog = true,
+    this.enableHyperlinkNavigation = true,
   })  : _provider = MemoryPdf(bytes),
         assert(pageSpacing >= 0),
         super(key: key);
@@ -289,6 +302,7 @@ class SfPdfViewer extends StatefulWidget {
     this.enableDoubleTapZooming = true,
     this.enableTextSelection = true,
     this.onTextSelectionChanged,
+    this.onHyperlinkClicked,
     this.onDocumentLoaded,
     this.onDocumentLoadFailed,
     this.enableDocumentLinkAnnotation = true,
@@ -303,6 +317,8 @@ class SfPdfViewer extends StatefulWidget {
     this.otherSearchTextHighlightColor = const Color.fromRGBO(229, 110, 0, 0.3),
     this.password,
     this.canShowPasswordDialog = true,
+    this.canShowHyperlinkDialog = true,
+    this.enableHyperlinkNavigation = true,
   })  : _provider = FilePdf(file),
         assert(pageSpacing >= 0),
         super(key: key);
@@ -663,6 +679,13 @@ class SfPdfViewer extends StatefulWidget {
   /// ```
   final PdfTextSelectionChangedCallback? onTextSelectionChanged;
 
+  ///Called when the hyperlink is tapped in [SfPdfViewer].
+  ///
+  /// It holds the [uri] of the selected text.
+  ///
+  /// See also: [PdfHyperlinkClickedDetails].
+  final PdfHyperlinkClickedCallback? onHyperlinkClicked;
+
   /// Called when the page changes in [SfPdfViewer].
   ///
   /// Called in the following scenarios where the page changes
@@ -801,6 +824,21 @@ class SfPdfViewer extends StatefulWidget {
   /// Defaults to `true`.
   final bool canShowPasswordDialog;
 
+  /// Indicates whether the hyperlink dialog in [SfPdfViewer] can be displayed or not.
+  ///
+  /// If this property is set as `false`, the hyperlink dialog in [SfPdfViewer] will
+  /// not be displayed.
+  ///
+  /// Defaults to `true`.
+  final bool canShowHyperlinkDialog;
+
+  /// Indicates whether the hyperlink navigation can be performed or not .
+  ///
+  /// If this property is set as `false`, then the hyperlink will not be navigated.
+  ///
+  /// Defaults to `true`.
+  final bool enableHyperlinkNavigation;
+
   @override
   SfPdfViewerState createState() => SfPdfViewerState();
 }
@@ -883,6 +921,8 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   bool _visibility = false;
   bool _isPasswordUsed = false;
   double _previousTiledZoomLevel = 1;
+  TextDirection _textDirection = TextDirection.ltr;
+  bool _isOrientationChanged = false;
 
   /// PdfViewer theme data.
   SfPdfViewerThemeData? _pdfViewerThemeData;
@@ -925,6 +965,8 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
     _themeData = Theme.of(context);
     _localizations = SfLocalizations.of(context);
+    _isOrientationChanged = _deviceOrientation != null &&
+        _deviceOrientation != MediaQuery.of(context).orientation;
   }
 
   @override
@@ -955,7 +997,8 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         : widget.scrollDirection;
     _compareDocument(oldWidget._provider.getPdfBytes(context),
         widget._provider.getPdfBytes(context), oldWidget.password);
-    if (oldWidget.pageLayoutMode != widget.pageLayoutMode) {
+    if (oldWidget.pageLayoutMode != widget.pageLayoutMode &&
+        oldWidget.controller != null) {
       _updateOffsetOnLayoutChange(oldWidget.controller!.zoomLevel,
           oldWidget.controller!.scrollOffset, oldWidget.pageLayoutMode);
     }
@@ -1430,253 +1473,260 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
 
   /// Show the password dialog box for mobile
   Future<void> _showPasswordDialog() async {
+    final TextDirection textDirection = Directionality.of(context);
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         final Orientation orientation = MediaQuery.of(context).orientation;
-
-        return AlertDialog(
-          scrollable: true,
-          insetPadding: EdgeInsets.zero,
-          contentPadding: orientation == Orientation.portrait
-              ? const EdgeInsets.all(24)
-              : const EdgeInsets.only(right: 24, left: 24),
-          buttonPadding: orientation == Orientation.portrait
-              ? const EdgeInsets.all(8)
-              : const EdgeInsets.all(4),
-          backgroundColor: _pdfViewerThemeData!.backgroundColor ??
-              (Theme.of(context).colorScheme.brightness == Brightness.light
-                  ? Colors.white
-                  : const Color(0xFF424242)),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(
-                _localizations!.passwordDialogHeaderTextLabel,
-                style:
-                    _pdfViewerThemeData!.passwordDialogStyle?.headerTextStyle ??
-                        TextStyle(
-                          fontFamily: 'Roboto',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: _themeData!.colorScheme.onSurface
-                              .withOpacity(0.87),
-                        ),
-              ),
-              SizedBox(
-                height: 36,
-                width: 36,
-                child: RawMaterialButton(
-                  onPressed: () {
-                    _focusNode.unfocus();
-                    _textFieldController.clear();
-                    Navigator.of(context).pop();
-                  },
-                  child: Icon(
-                    Icons.clear,
-                    color: _pdfViewerThemeData!
-                            .passwordDialogStyle?.closeIconColor ??
-                        _themeData!.colorScheme.onSurface.withOpacity(0.6),
-                    size: 24,
+        return Directionality(
+          textDirection: textDirection,
+          child: AlertDialog(
+            scrollable: true,
+            insetPadding: EdgeInsets.zero,
+            contentPadding: orientation == Orientation.portrait
+                ? const EdgeInsets.all(24)
+                : const EdgeInsets.only(right: 24, left: 24),
+            buttonPadding: orientation == Orientation.portrait
+                ? const EdgeInsets.all(8)
+                : const EdgeInsets.all(4),
+            backgroundColor: _pdfViewerThemeData!.backgroundColor ??
+                (Theme.of(context).colorScheme.brightness == Brightness.light
+                    ? Colors.white
+                    : const Color(0xFF424242)),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  _localizations!.passwordDialogHeaderTextLabel,
+                  style: _pdfViewerThemeData!
+                          .passwordDialogStyle?.headerTextStyle ??
+                      TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color:
+                            _themeData!.colorScheme.onSurface.withOpacity(0.87),
+                      ),
+                ),
+                SizedBox(
+                  height: 36,
+                  width: 36,
+                  child: RawMaterialButton(
+                    onPressed: () {
+                      _focusNode.unfocus();
+                      _textFieldController.clear();
+                      Navigator.of(context).pop();
+                    },
+                    child: Icon(
+                      Icons.clear,
+                      color: _pdfViewerThemeData!
+                              .passwordDialogStyle?.closeIconColor ??
+                          _themeData!.colorScheme.onSurface.withOpacity(0.6),
+                      size: 24,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4.0))),
-          content: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-            return SingleChildScrollView(
-              child: SizedBox(
-                width: 328,
-                child: Column(
-                  children: <Widget>[
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 24),
-                        child: Text(
-                          _localizations!.passwordDialogContentLabel,
-                          style: _pdfViewerThemeData!
-                                  .passwordDialogStyle?.contentTextStyle ??
-                              TextStyle(
-                                fontFamily: 'Roboto',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: _themeData!.colorScheme.onSurface
-                                    .withOpacity(0.6),
-                              ),
+              ],
+            ),
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(4.0))),
+            content: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+              return SingleChildScrollView(
+                child: SizedBox(
+                  width: 328,
+                  child: Column(
+                    children: <Widget>[
+                      Align(
+                        alignment: textDirection == TextDirection.ltr
+                            ? Alignment.centerLeft
+                            : Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 24),
+                          child: Text(
+                            _localizations!.passwordDialogContentLabel,
+                            style: _pdfViewerThemeData!
+                                    .passwordDialogStyle?.contentTextStyle ??
+                                TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  color: _themeData!.colorScheme.onSurface
+                                      .withOpacity(0.6),
+                                ),
+                          ),
                         ),
                       ),
-                    ),
-                    Form(
-                      key: _formKey,
-                      child: TextFormField(
-                        style: _pdfViewerThemeData!
-                                .passwordDialogStyle?.inputFieldTextStyle ??
-                            TextStyle(
-                              fontFamily: 'Roboto',
-                              fontSize: 17,
-                              fontWeight: FontWeight.w400,
-                              color: _themeData!.colorScheme.onSurface
-                                  .withOpacity(0.87),
-                            ),
-                        obscureText: _passwordVisible,
-                        obscuringCharacter: '*',
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(
-                            color: _pdfViewerThemeData!.passwordDialogStyle
-                                    ?.inputFieldBorderColor ??
-                                _themeData!.colorScheme.primary,
-                          )),
-                          errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(3.5),
-                              borderSide: BorderSide(
-                                color: _pdfViewerThemeData!.passwordDialogStyle
-                                        ?.errorBorderColor ??
-                                    _themeData!.colorScheme.error,
-                              )),
-                          focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                            color: _pdfViewerThemeData!.passwordDialogStyle
-                                    ?.inputFieldBorderColor ??
-                                _themeData!.colorScheme.primary,
-                          )),
-                          focusedErrorBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                            color: _pdfViewerThemeData!
-                                    .passwordDialogStyle?.errorBorderColor ??
-                                _themeData!.colorScheme.error,
-                          )),
-                          hintText: _localizations!.passwordDialogHintTextLabel,
-                          hintStyle: _pdfViewerThemeData!.passwordDialogStyle
-                                  ?.inputFieldHintTextStyle ??
+                      Form(
+                        key: _formKey,
+                        child: TextFormField(
+                          style: _pdfViewerThemeData!
+                                  .passwordDialogStyle?.inputFieldTextStyle ??
                               TextStyle(
                                 fontFamily: 'Roboto',
-                                fontSize: 16,
+                                fontSize: 17,
                                 fontWeight: FontWeight.w400,
                                 color: _themeData!.colorScheme.onSurface
-                                    .withOpacity(0.6),
+                                    .withOpacity(0.87),
                               ),
-                          labelText:
-                              _localizations!.passwordDialogHintTextLabel,
-                          labelStyle: _pdfViewerThemeData!.passwordDialogStyle
-                                  ?.inputFieldLabelTextStyle ??
-                              TextStyle(
-                                fontFamily: 'Roboto',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: _errorTextPresent
-                                    ? _themeData!.colorScheme.error
-                                    : _themeData!.colorScheme.onSurface
-                                        .withOpacity(0.87),
-                              ),
-                          errorStyle: _pdfViewerThemeData!
-                                  .passwordDialogStyle?.errorTextStyle ??
-                              TextStyle(
-                                fontFamily: 'Roboto',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: _themeData!.colorScheme.error,
-                              ),
-                          suffixIcon: IconButton(
-                              icon: Icon(
-                                  _passwordVisible
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
+                          obscureText: _passwordVisible,
+                          obscuringCharacter: '*',
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                              color: _pdfViewerThemeData!.passwordDialogStyle
+                                      ?.inputFieldBorderColor ??
+                                  _themeData!.colorScheme.primary,
+                            )),
+                            errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(3.5),
+                                borderSide: BorderSide(
                                   color: _pdfViewerThemeData!
                                           .passwordDialogStyle
-                                          ?.visibleIconColor ??
-                                      Theme.of(context)
-                                          .colorScheme
-                                          .onSurface
-                                          .withOpacity(0.6)),
-                              onPressed: () {
-                                setState(() {
-                                  _passwordVisible = !_passwordVisible;
-                                });
-                              }),
-                        ),
-                        enableInteractiveSelection: false,
-                        controller: _textFieldController,
-                        autofocus: true,
-                        focusNode: _focusNode,
-                        onFieldSubmitted: (String value) {
-                          _handlePasswordValidation();
-                        },
-                        validator: (String? value) {
-                          try {
-                            _decryptedProtectedDocument(_pdfBytes, value);
-                          } catch (e) {
-                            if (widget.onDocumentLoadFailed != null) {
-                              if (value!.isEmpty) {
-                                widget.onDocumentLoadFailed!(
-                                    PdfDocumentLoadFailedDetails(
-                                        'Empty Password Error',
-                                        'The provided `password` property is empty so unable to load the encrypted document.'));
-                              } else {
-                                widget.onDocumentLoadFailed!(
-                                    PdfDocumentLoadFailedDetails(
-                                        'Invalid Password Error',
-                                        'The provided `password` property is invalid so unable to load the encrypted document.'));
+                                          ?.errorBorderColor ??
+                                      _themeData!.colorScheme.error,
+                                )),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                              color: _pdfViewerThemeData!.passwordDialogStyle
+                                      ?.inputFieldBorderColor ??
+                                  _themeData!.colorScheme.primary,
+                            )),
+                            focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                              color: _pdfViewerThemeData!
+                                      .passwordDialogStyle?.errorBorderColor ??
+                                  _themeData!.colorScheme.error,
+                            )),
+                            hintText:
+                                _localizations!.passwordDialogHintTextLabel,
+                            hintStyle: _pdfViewerThemeData!.passwordDialogStyle
+                                    ?.inputFieldHintTextStyle ??
+                                TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  color: _themeData!.colorScheme.onSurface
+                                      .withOpacity(0.6),
+                                ),
+                            labelText:
+                                _localizations!.passwordDialogHintTextLabel,
+                            labelStyle: _pdfViewerThemeData!.passwordDialogStyle
+                                    ?.inputFieldLabelTextStyle ??
+                                TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: _errorTextPresent
+                                      ? _themeData!.colorScheme.error
+                                      : _themeData!.colorScheme.onSurface
+                                          .withOpacity(0.87),
+                                ),
+                            errorStyle: _pdfViewerThemeData!
+                                    .passwordDialogStyle?.errorTextStyle ??
+                                TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: _themeData!.colorScheme.error,
+                                ),
+                            suffixIcon: IconButton(
+                                icon: Icon(
+                                    _passwordVisible
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: _pdfViewerThemeData!
+                                            .passwordDialogStyle
+                                            ?.visibleIconColor ??
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withOpacity(0.6)),
+                                onPressed: () {
+                                  setState(() {
+                                    _passwordVisible = !_passwordVisible;
+                                  });
+                                }),
+                          ),
+                          enableInteractiveSelection: false,
+                          controller: _textFieldController,
+                          autofocus: true,
+                          focusNode: _focusNode,
+                          onFieldSubmitted: (String value) {
+                            _handlePasswordValidation();
+                          },
+                          validator: (String? value) {
+                            try {
+                              _decryptedProtectedDocument(_pdfBytes, value);
+                            } catch (e) {
+                              if (widget.onDocumentLoadFailed != null) {
+                                if (value!.isEmpty) {
+                                  widget.onDocumentLoadFailed!(
+                                      PdfDocumentLoadFailedDetails(
+                                          'Empty Password Error',
+                                          'The provided `password` property is empty so unable to load the encrypted document.'));
+                                } else {
+                                  widget.onDocumentLoadFailed!(
+                                      PdfDocumentLoadFailedDetails(
+                                          'Invalid Password Error',
+                                          'The provided `password` property is invalid so unable to load the encrypted document.'));
+                                }
                               }
+                              _textFieldController.clear();
+                              setState(() {
+                                _errorTextPresent = true;
+                              });
+                              _focusNode.requestFocus();
+                              return 'Invalid Password';
                             }
-                            _textFieldController.clear();
-                            setState(() {
-                              _errorTextPresent = true;
-                            });
-                            _focusNode.requestFocus();
-                            return 'Invalid Password';
-                          }
-                          return null;
-                        },
+                            return null;
+                          },
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+              );
+            }),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  _textFieldController.clear();
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  _localizations!.pdfPasswordDialogCancelLabel,
+                  style: _pdfViewerThemeData!
+                          .passwordDialogStyle?.cancelTextStyle ??
+                      TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: _themeData!.colorScheme.primary,
+                      ),
                 ),
               ),
-            );
-          }),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                _textFieldController.clear();
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                _localizations!.pdfPasswordDialogCancelLabel,
-                style:
-                    _pdfViewerThemeData!.passwordDialogStyle?.cancelTextStyle ??
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+                child: TextButton(
+                  onPressed: () {
+                    _handlePasswordValidation();
+                  },
+                  child: Text(
+                    _localizations!.pdfPasswordDialogOpenLabel,
+                    style: _pdfViewerThemeData!
+                            .passwordDialogStyle?.openTextStyle ??
                         TextStyle(
                           fontFamily: 'Roboto',
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           color: _themeData!.colorScheme.primary,
                         ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
-              child: TextButton(
-                onPressed: () {
-                  _handlePasswordValidation();
-                },
-                child: Text(
-                  _localizations!.pdfPasswordDialogOpenLabel,
-                  style:
-                      _pdfViewerThemeData!.passwordDialogStyle?.openTextStyle ??
-                          TextStyle(
-                            fontFamily: 'Roboto',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: _themeData!.colorScheme.primary,
-                          ),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -1696,7 +1746,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         PdfDocument(inputBytes: pdfBytes, password: password);
     document.security.userPassword = '';
     document.security.ownerPassword = '';
-    final List<int> bytes = document.save();
+    final List<int> bytes = document.saveSync();
     _decryptedBytes = Uint8List.fromList(bytes);
     _isEncrypted = true;
     _loadPdfDocument(true);
@@ -1858,6 +1908,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                     if (snapshot.hasData) {
                       final dynamic pdfImages = snapshot.data;
                       _renderedImages.clear();
+                      _textDirection = Directionality.of(context);
                       _viewportConstraints = context
                           .findRenderObject()!
                           // ignore: invalid_use_of_protected_member, avoid_as
@@ -1964,48 +2015,53 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           viewportGlobalRect = _getViewportGlobalRect();
                         }
                         final PdfPageView page = PdfPageView(
-                            _pdfPagesKey[pageIndex]!,
-                            pdfImages[pageIndex],
-                            viewportGlobalRect,
-                            viewportDimension,
-                            widget.interactionMode,
-                            (kIsDesktop &&
-                                    !_isMobile &&
-                                    !_isOverflowed &&
-                                    widget.pageLayoutMode ==
-                                        PdfPageLayoutMode.continuous)
-                                ? _originalWidth![index]
-                                : calculatedSize.width,
-                            (kIsDesktop &&
-                                    !_isMobile &&
-                                    !_isOverflowed &&
-                                    widget.pageLayoutMode ==
-                                        PdfPageLayoutMode.continuous)
-                                ? _originalHeight![index]
-                                : calculatedSize.height,
-                            widget.pageSpacing,
-                            _document,
-                            _pdfPages,
-                            index,
-                            _pdfViewerController,
-                            widget.enableDocumentLinkAnnotation,
-                            widget.enableTextSelection,
-                            widget.onTextSelectionChanged,
-                            _handleTextSelectionDragStarted,
-                            _handleTextSelectionDragEnded,
-                            widget.currentSearchTextHighlightColor,
-                            widget.otherSearchTextHighlightColor,
-                            _textCollection,
-                            _isMobile,
-                            _pdfViewerController._pdfTextSearchResult,
-                            _pdfScrollableStateKey,
-                            _singlePageViewKey,
-                            _scrollDirection,
-                            _handlePdfPagePointerDown,
-                            _handlePdfPagePointerMove,
-                            _handlePdfPagePointerUp,
-                            isBookmarkViewOpen ? '' : _pageTextExtractor[index],
-                            widget.pageLayoutMode == PdfPageLayoutMode.single);
+                          _pdfPagesKey[pageIndex]!,
+                          pdfImages[pageIndex],
+                          viewportGlobalRect,
+                          viewportDimension,
+                          widget.interactionMode,
+                          (kIsDesktop &&
+                                  !_isMobile &&
+                                  !_isOverflowed &&
+                                  widget.pageLayoutMode ==
+                                      PdfPageLayoutMode.continuous)
+                              ? _originalWidth![index]
+                              : calculatedSize.width,
+                          (kIsDesktop &&
+                                  !_isMobile &&
+                                  !_isOverflowed &&
+                                  widget.pageLayoutMode ==
+                                      PdfPageLayoutMode.continuous)
+                              ? _originalHeight![index]
+                              : calculatedSize.height,
+                          widget.pageSpacing,
+                          _document,
+                          _pdfPages,
+                          index,
+                          _pdfViewerController,
+                          widget.enableDocumentLinkAnnotation,
+                          widget.enableTextSelection,
+                          widget.onTextSelectionChanged,
+                          widget.onHyperlinkClicked,
+                          _handleTextSelectionDragStarted,
+                          _handleTextSelectionDragEnded,
+                          widget.currentSearchTextHighlightColor,
+                          widget.otherSearchTextHighlightColor,
+                          _textCollection,
+                          _isMobile,
+                          _pdfViewerController._pdfTextSearchResult,
+                          _pdfScrollableStateKey,
+                          _singlePageViewKey,
+                          _scrollDirection,
+                          _handlePdfPagePointerDown,
+                          _handlePdfPagePointerMove,
+                          _handlePdfPagePointerUp,
+                          isBookmarkViewOpen ? '' : _pageTextExtractor[index],
+                          widget.pageLayoutMode == PdfPageLayoutMode.single,
+                          _textDirection,
+                          widget.canShowHyperlinkDialog,
+                          widget.enableHyperlinkNavigation,
+                        );
                         final double pageSpacing =
                             index == _pdfViewerController.pageCount - 1
                                 ? 0.0
@@ -2113,6 +2169,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                               _handleDoubleTap,
                               _handlePdfOffsetChanged,
                               isBookmarkViewOpen,
+                              _textDirection,
                               children),
                         );
                         if (_isSinglePageViewPageChanged &&
@@ -2191,6 +2248,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           _pdfPages,
                           _scrollDirection,
                           isBookmarkViewOpen,
+                          _textDirection,
                           child,
                           key: _pdfScrollableStateKey,
                           onDoubleTap: _handleDoubleTap,
@@ -2205,8 +2263,12 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                       return Stack(
                         children: <Widget>[
                           pdfContainer,
-                          BookmarkView(_bookmarkKey, _document,
-                              _pdfViewerController, _handleBookmarkViewChanged),
+                          BookmarkView(
+                              _bookmarkKey,
+                              _document,
+                              _pdfViewerController,
+                              _handleBookmarkViewChanged,
+                              _textDirection),
                         ],
                       );
                     } else if (snapshot.hasError) {
@@ -2527,13 +2589,16 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
               startPage,
               endPage,
               _pdfViewerController.zoomLevel,
-              _isZoomChanged || _isPageChanged,
+              _isZoomChanged || (_isPageChanged && !_isOrientationChanged),
               _pdfViewerController.pageNumber,
-              canRenderImage)
+              canRenderImage && !_isOrientationChanged)
           .then((Map<int, List<dynamic>>? value) {
         _isZoomChanged = false;
         return value;
       });
+      if (_isOrientationChanged && canRenderImage) {
+        _isOrientationChanged = false;
+      }
       if (!_renderedImages.contains(_pdfViewerController.pageNumber)) {
         renderedPages.whenComplete(_checkMount);
       }
@@ -2562,7 +2627,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       if (_pdfViewerController.zoomLevel >= 2) {
         startPage = _endPage = _pdfViewerController.pageNumber;
       }
-      final bool canRenderImage = !(_pdfScrollableStateKey.currentState
+      bool canRenderImage = !(_pdfScrollableStateKey.currentState
                   ?.scrollHeadStateKey.currentState?.isScrollHeadDragged ??
               true) &&
           !(widget.scrollDirection == PdfScrollDirection.vertical
@@ -2570,14 +2635,17 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                       .currentState?.isScrolled ??
                   false
               : (_pdfScrollableStateKey.currentState?.isScrolled ?? false));
+      if (_pdfScrollableStateKey.currentState?.isZoomChanged ?? false)
+        canRenderImage = true;
       renderedPages = _plugin
           .getSpecificPages(
               startPage,
               endPage,
               _pdfViewerController.zoomLevel,
-              _isZoomChanged || _isPageChanged,
+              _isZoomChanged || (_isPageChanged && !_isOrientationChanged),
               _pdfViewerController.pageNumber,
-              canRenderImage || !_isDocumentLoadInitiated)
+              (canRenderImage || !_isDocumentLoadInitiated) &&
+                  !_isOrientationChanged)
           .then((Map<int, List<dynamic>>? value) {
         if ((_pdfPages.isNotEmpty && !_pdfDimension.isEmpty) ||
             _isZoomChanged) {
@@ -2591,6 +2659,17 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         }
         return value;
       });
+      if (_isOrientationChanged &&
+          widget.scrollDirection == PdfScrollDirection.horizontal &&
+          _deviceOrientation == MediaQuery.of(context).orientation) {
+        _isOrientationChanged = false;
+      }
+      if (_isOrientationChanged &&
+          (!canRenderImage ||
+              _deviceOrientation == MediaQuery.of(context).orientation) &&
+          widget.scrollDirection == PdfScrollDirection.vertical) {
+        _isOrientationChanged = false;
+      }
       if ((_startPage != startPage && _endPage != endPage) ||
           (_bufferCount > 0 && _bufferCount <= (endPage - startPage) + 1)) {
         renderedPages.whenComplete(_checkMount);
@@ -2599,6 +2678,11 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         _bufferCount++;
       } else {
         _bufferCount = 0;
+      }
+      if (canRenderImage) {
+        renderedPages.whenComplete(() {
+          _checkMount();
+        });
       }
       return renderedPages;
     }
@@ -2881,7 +2965,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         _scrollDirection == PdfScrollDirection.horizontal &&
         widget.pageLayoutMode != PdfPageLayoutMode.single) {
       constraints = BoxConstraints.tightFor(
-        height: _viewportHeightInLandscape,
+        height: _viewportHeightInLandscape ?? newHeight,
       ).enforce(constraints);
     } else {
       if (widget.pageLayoutMode == PdfPageLayoutMode.single &&

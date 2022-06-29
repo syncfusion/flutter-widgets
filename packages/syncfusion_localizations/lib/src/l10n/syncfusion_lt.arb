@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Diena", 
-"series" : "Serija"
+"series" : "Serija", 
+"pdfHyperlinkLabel" : "Atidarykite tinklalapį", 
+"pdfHyperlinkContentLabel" : "Ar norite atidaryti puslapį adresu", 
+"pdfHyperlinkDialogOpenLabel" : "ATVIRAS", 
+"pdfHyperlinkDialogCancelLabel" : "ATŠAUKTI"
 }

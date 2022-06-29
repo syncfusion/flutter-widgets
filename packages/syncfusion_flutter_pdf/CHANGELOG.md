@@ -1,3 +1,23 @@
+## Unreleased
+
+**Breaking changes**
+
+* The `save` method has been changed to an asynchronous type in the `PdfDocument` and the `saveSync` method has been added for synchronous.
+
+**Features**
+
+* Provided asynchronous save support for PDF documents.
+
+**Bugs**
+
+* The preservation issue when flattening the PDF text box field is now resolved.
+
+## [20.1.48-beta] - 04/12/2022
+
+**Bugs**
+
+* The layout issue when extracting text from the PDF document is now resolved.
+
 ## [20.1.47-beta] - 04/04/2022
 
 **Features**

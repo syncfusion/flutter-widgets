@@ -400,6 +400,7 @@ class CalcEngine {
     _addFunction('SumIf', '_computeSumIf');
     _addFunction('SumProduct', '_computeSumProduct');
     _addFunction('Product', '_computeProduct');
+    _addFunction('Row', '_computeRow');
   }
 
   /// A method that increases the calculation level of the CalcEngine.
@@ -2466,7 +2467,8 @@ class CalcEngine {
 
       if (len > 0 &&
           _libraryFunctions![formula.substring(i + 1, i + 1 + len)] != null) {
-        if (formula.substring(i + 1, i + 1 + len) == 'AREAS') {
+        if (formula.substring(i + 1, i + 1 + len) == 'AREAS' ||
+            formula.substring(i + 1, i + 1 + len) == 'ROW') {
           _ignoreBracet = true;
         } else {
           _ignoreBracet = false;

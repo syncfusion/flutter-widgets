@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Dag", 
-"series" : "Serier"
+"series" : "Serier", 
+"pdfHyperlinkLabel" : "Öppna webbsidan", 
+"pdfHyperlinkContentLabel" : "Vill du öppna sidan på", 
+"pdfHyperlinkDialogOpenLabel" : "ÖPPEN", 
+"pdfHyperlinkDialogCancelLabel" : "AVBRYT"
 }

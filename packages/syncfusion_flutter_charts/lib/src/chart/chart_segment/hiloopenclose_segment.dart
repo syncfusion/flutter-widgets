@@ -287,9 +287,9 @@ class HiloOpenCloseSegment extends ChartSegment {
                   _segmentProperties.seriesRenderer));
         }
       } else {
-        (_segmentProperties.series.dashArray[0] != 0 &&
-                _segmentProperties.series.dashArray[1] != 0)
-            ? drawDashedLine(canvas, _segmentProperties.series.dashArray,
+        (seriesRendererDetails.dashArray![0] != 0 &&
+                seriesRendererDetails.dashArray![1] != 0)
+            ? drawDashedLine(canvas, seriesRendererDetails.dashArray!,
                 strokePaint!, _drawDashedHiloOpenClosePath(canvas))
             : drawHiloOpenClosePath(canvas);
       }

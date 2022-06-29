@@ -91,7 +91,8 @@ class ActualRangeChangedArgs {
 /// font size, and font weight for label formatter event.
 class AxisLabelRenderDetails {
   /// Creating an argument constructor of AxisLabelRenderDetails class.
-  AxisLabelRenderDetails(this.value, this.text, this.textStyle, this.axis);
+  AxisLabelRenderDetails(this.value, this.text, this.textStyle, this.axis,
+      this.currentDateTimeIntervalType, this.currentDateFormat);
 
   /// Actual text value of the axis label.
   final String text;
@@ -104,6 +105,18 @@ class AxisLabelRenderDetails {
 
   /// Get the text style of an axis label.
   final TextStyle textStyle;
+
+  /// Specifies the date time interval type calculated internally for the date-time values that are
+  /// displayed on the axis.
+  ///
+  /// _Note:_ This is applicable for DateTimeAxis and DateTimeCategoryAxis.
+  final DateTimeIntervalType? currentDateTimeIntervalType;
+
+  /// Specifies the date format calculated internally for the current date-time values that are
+  /// displayed on the axis.
+  ///
+  /// _Note:_ This is applicable for DateTimeAxis and DateTimeCategoryAxis.
+  final String? currentDateFormat;
 }
 
 /// Holds multi-level label text, name of the axis, index, actual level of the

@@ -192,6 +192,20 @@ abstract class SfLocalizations {
   /// the CANCEL confirmation button.
   String get pdfPaginationDialogCancelLabel;
 
+  /// Label that is displayed in the hyperlink dialog header of PdfViewer.
+  String get pdfHyperlinkLabel;
+
+  /// Label that is displayed in the url of the hyperlink.
+  String get pdfHyperlinkContentLabel;
+
+  /// Label that is displayed in the hyperlink dialog of PdfViewer to represent
+  /// the OPEN confirmation button.
+  String get pdfHyperlinkDialogOpenLabel;
+
+  /// Label that is displayed in the hyperlink dialog of PdfViewer to represent
+  /// the CANCEL confirmation button.
+  String get pdfHyperlinkDialogCancelLabel;
+
   /// Label that is displayed in the header of password dialog in PdfViewer
   String get passwordDialogHeaderTextLabel;
 
@@ -428,6 +442,18 @@ class _DefaultLocalizations implements SfLocalizations {
 
   @override
   String get pdfPaginationDialogCancelLabel => 'CANCEL';
+
+  @override
+  String get pdfHyperlinkLabel => 'Open Web Page';
+
+  @override
+  String get pdfHyperlinkContentLabel => 'Do you want to open the page at';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => 'OPEN';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => 'CANCEL';
 
   @override
   String get passwordDialogHeaderTextLabel => 'Password Protected';

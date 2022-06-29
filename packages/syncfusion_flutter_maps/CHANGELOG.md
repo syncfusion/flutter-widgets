@@ -1,4 +1,12 @@
 ## Unreleased
+
+**Bug**
+* The null exception will not be thrown when simultaneously calling the setstate and zooming the map.
+
+**Features**
+* Provided an option to enable or disable the mouse wheel zoom functionality.
+
+## [20.1.56] - 05/17/2022
 **Bugs**
 * Now, while performing mouse wheel zooming, the current segment color will be applied properly.
 

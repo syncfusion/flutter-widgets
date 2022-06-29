@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "אין אירועים", 
 "ofDataPagerLabel" : "שֶׁל", 
 "pagesDataPagerLabel" : "דפים", 
-"rowsPerPageDataPagerLabel" : "שורות בעמוד", 
+"rowsPerPageDataPagerLabel" : "שורות בעמוד",
 "pdfBookmarksLabel" : "סימניות", 
 "pdfNoBookmarksLabel" : "לא נמצאו סימניות", 
 "pdfScrollStatusOfLabel" : "שֶׁל", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "דהו'ל-ק", 
 "shortDhualhiLabel" : "דהו''ל-ה", 
 "daySpanCountLabel" : "יְוֹם", 
-"series" : "סִדרָה"
+"series" : "סִדרָה", 
+"pdfHyperlinkLabel" : "פתח את דף האינטרנט", 
+"pdfHyperlinkContentLabel" : "האם אתה רוצה לפתוח את הדף ב", 
+"pdfHyperlinkDialogOpenLabel" : "לִפְתוֹחַ", 
+"pdfHyperlinkDialogCancelLabel" : "לְבַטֵל"
 }

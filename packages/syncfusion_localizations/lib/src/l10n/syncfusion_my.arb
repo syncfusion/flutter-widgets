@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "နေ့", 
-"series" : "စီးရီး"
+"series" : "စီးရီး", 
+"pdfHyperlinkLabel" : "ဝဘ်စာမျက်နှာကိုဖွင့်ပါ။", 
+"pdfHyperlinkContentLabel" : "စာမျက်နှာမှာ ဖွင့်ချင်ပါသလား။", 
+"pdfHyperlinkDialogOpenLabel" : "ဖွင့်ပါ။", 
+"pdfHyperlinkDialogCancelLabel" : "မလုပ်တော့ပါ။"
 }

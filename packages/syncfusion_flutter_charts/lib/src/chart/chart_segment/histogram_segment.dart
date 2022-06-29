@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../charts.dart';
+import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
@@ -109,9 +111,12 @@ class HistogramSegment extends ChartSegment {
       _drawSegmentRect(fillPaint!, canvas, segmentRect);
     }
     if (strokePaint != null) {
-      (_segmentProperties.series.dashArray[0] != 0 &&
-              _segmentProperties.series.dashArray[1] != 0)
-          ? drawDashedLine(canvas, _segmentProperties.series.dashArray,
+      final SeriesRendererDetails seriesRendererDetails =
+          SeriesHelper.getSeriesRendererDetails(
+              _segmentProperties.seriesRenderer);
+      (seriesRendererDetails.dashArray![0] != 0 &&
+              seriesRendererDetails.dashArray![1] != 0)
+          ? drawDashedLine(canvas, seriesRendererDetails.dashArray!,
               strokePaint!, _segmentProperties.path)
           : _drawSegmentRect(strokePaint!, canvas, segmentRect);
     }

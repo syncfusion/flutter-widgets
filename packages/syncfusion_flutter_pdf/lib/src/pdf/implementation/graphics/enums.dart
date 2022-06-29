@@ -7,7 +7,7 @@
 ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
 ///       format: PdfStringFormat(alignment: PdfTextAlignment.left));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -34,7 +34,7 @@ enum PdfTextAlignment {
 ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
 ///       format: PdfStringFormat(lineAlignment: PdfVerticalAlignment.top));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -58,7 +58,7 @@ enum PdfVerticalAlignment {
 ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
 ///       format: PdfStringFormat(textDirection: PdfTextDirection.none));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -113,7 +113,7 @@ enum PdfColorSpace {
 ///         ..dashPattern = [4, 2, 1, 3],
 ///       bounds: Rect.fromLTWH(0, 0, 200, 100));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -148,7 +148,7 @@ enum PdfDashStyle {
 ///         ..dashPattern = [4, 2, 1, 3],
 ///       bounds: Rect.fromLTWH(0, 0, 200, 100));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -178,7 +178,7 @@ enum PdfLineJoin {
 ///         ..dashPattern = [4, 2, 1, 3],
 ///       bounds: Rect.fromLTWH(0, 0, 200, 100));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```

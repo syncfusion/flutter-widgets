@@ -1521,9 +1521,12 @@ class SelectionRenderer {
       return false;
     }
     for (final CartesianChartPoint<dynamic> dataPoint in nearestDataPoints) {
-      dataPointIndex = seriesRendererDetails
-          .dataPoints[seriesRendererDetails.dataPoints.indexOf(dataPoint)]
-          .visiblePointIndex;
+      final int actualIndex =
+          seriesRendererDetails.dataPoints.indexOf(dataPoint);
+      if (actualIndex >= 0) {
+        dataPointIndex =
+            seriesRendererDetails.dataPoints[actualIndex].visiblePointIndex;
+      }
     }
 
     if (dataPointIndex != null &&

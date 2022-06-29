@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "धुल-क", 
 "shortDhualhiLabel" : "धुल-एच", 
 "daySpanCountLabel" : "दिन", 
-"series" : "शृङ्खला"
+"series" : "शृङ्खला", 
+"pdfHyperlinkLabel" : "वेब पृष्ठ खोल्नुहोस्", 
+"pdfHyperlinkContentLabel" : "के तपाइँ पृष्ठ खोल्न चाहनुहुन्छ", 
+"pdfHyperlinkDialogOpenLabel" : "खोल्नुहोस्", 
+"pdfHyperlinkDialogCancelLabel" : "रद्द गर्नुहोस्"
 }

@@ -40,7 +40,7 @@
 "shaabanLabel" : "ชะอฺบาน", 
 "ramadanLabel" : "รอมฎอน", 
 "shawwalLabel" : "เชาวาล", 
-"dhualqiLabel" : "ญุมาดา อัล-ธานี", 
+"dhualqiLabel" : "ญุมาดา อัล-ธานี",
 "dhualhiLabel" : "ดูอัลฮิจญะฮ์", 
 "shortMuharramLabel" : "มุ้ย.", 
 "shortSafarLabel" : "เซฟ.", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "ดุล-คิว", 
 "shortDhualhiLabel" : "ดุลฮัก", 
 "daySpanCountLabel" : "วัน", 
-"series" : "ชุด"
+"series" : "ชุด", 
+"pdfHyperlinkLabel" : "เปิดหน้าเว็บ", 
+"pdfHyperlinkContentLabel" : "ต้องการเปิดเพจที่", 
+"pdfHyperlinkDialogOpenLabel" : "เปิด", 
+"pdfHyperlinkDialogCancelLabel" : "ยกเลิก"
 }

@@ -818,7 +818,7 @@ void drawDataLabel(
     final bool isDatalabelCollide = (stateProperties.requireInvertedAxis ||
             (dataLabelSettingsRenderer.angle / 90) % 2 != 1) &&
         findingCollision(labelRect, stateProperties.renderDatalabelRegions);
-    if ((label.isNotEmpty && !isDatalabelCollide) ||
+    if (!(label.isNotEmpty && isDatalabelCollide) ||
         // ignore: unnecessary_null_comparison
         dataLabel.labelIntersectAction == null) {
       final TextStyle textStyle = TextStyle(

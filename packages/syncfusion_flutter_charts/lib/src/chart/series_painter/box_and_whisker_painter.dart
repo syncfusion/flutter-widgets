@@ -191,15 +191,15 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
         boxPlotQuartileValues.lowerQuartile!;
     final num rangeIQR = 1.5 * interquartile;
     for (int i = 0; i < count; i++) {
-      if (yValues[i]! < boxPlotQuartileValues.lowerQuartile! - rangeIQR) {
+      if (yValues[i]! < _boxPlotQuartileValues.lowerQuartile! - rangeIQR) {
         boxPlotQuartileValues.outliers!.add(yValues[i]!);
       } else {
-        _boxPlotQuartileValues.minimum = yValues[i];
+        boxPlotQuartileValues.minimum = yValues[i];
         break;
       }
     }
     for (int i = count - 1; i >= 0; i--) {
-      if (yValues[i]! > boxPlotQuartileValues.upperQuartile! + rangeIQR) {
+      if (yValues[i]! > _boxPlotQuartileValues.upperQuartile! + rangeIQR) {
         boxPlotQuartileValues.outliers!.add(yValues[i]!);
       } else {
         boxPlotQuartileValues.maximum = yValues[i];

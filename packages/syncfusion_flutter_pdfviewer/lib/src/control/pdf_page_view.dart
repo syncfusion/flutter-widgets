@@ -9,6 +9,7 @@ import '../../pdfviewer.dart';
 import '../common/mobile_helper.dart'
     if (dart.library.html) 'package:syncfusion_flutter_pdfviewer/src/common/web_helper.dart'
     as helper;
+
 import '../common/pdfviewer_helper.dart';
 import 'pdf_scrollable.dart';
 import 'pdfviewer_canvas.dart';
@@ -33,6 +34,7 @@ class PdfPageView extends StatefulWidget {
     this.enableDocumentLinkAnnotation,
     this.enableTextSelection,
     this.onTextSelectionChanged,
+    this.onHyperlinkClicked,
     this.onTextSelectionDragStarted,
     this.onTextSelectionDragEnded,
     this.currentSearchTextHighlightColor,
@@ -48,6 +50,9 @@ class PdfPageView extends StatefulWidget {
     this.onPdfPagePointerUp,
     this.semanticLabel,
     this.isSinglePageView,
+    this.textDirection,
+    this.canShowHyperlinkDialog,
+    this.enableHyperlinkNavigation,
   ) : super(key: key);
 
   /// Image stream
@@ -74,6 +79,12 @@ class PdfPageView extends StatefulWidget {
   /// If true, document link annotation is enabled.
   final bool enableDocumentLinkAnnotation;
 
+  /// If true, hyperlink navigation is enabled.
+  final bool enableHyperlinkNavigation;
+
+  /// Indicates whether hyperlink dialog must be shown or not.
+  final bool canShowHyperlinkDialog;
+
   /// Index of  page
   final int pageIndex;
 
@@ -91,6 +102,9 @@ class PdfPageView extends StatefulWidget {
 
   /// Triggers when text selection is changed.
   final PdfTextSelectionChangedCallback? onTextSelectionChanged;
+
+  /// Triggers when Hyperlink is clicked.
+  final PdfHyperlinkClickedCallback? onHyperlinkClicked;
 
   /// Triggers when text selection dragging started.
   final VoidCallback onTextSelectionDragStarted;
@@ -136,6 +150,9 @@ class PdfPageView extends StatefulWidget {
 
   /// Determines layout option in PdfViewer.
   final bool isSinglePageView;
+
+  ///A direction of text flow.
+  final TextDirection textDirection;
 
   @override
   State<StatefulWidget> createState() {
@@ -265,29 +282,34 @@ class PdfPageViewState extends State<PdfPageView> {
           width: isRotatedTo90or270 ? widget.height : widget.width,
           alignment: Alignment.topCenter,
           child: PdfViewerCanvas(
-              _canvasKey,
-              isRotatedTo90or270 ? widget.width : widget.height,
-              isRotatedTo90or270 ? widget.height : widget.width,
-              widget.pdfDocument,
-              widget.pageIndex,
-              widget.pdfPages,
-              widget.interactionMode,
-              widget.pdfViewerController,
-              widget.enableDocumentLinkAnnotation,
-              widget.enableTextSelection,
-              widget.onTextSelectionChanged,
-              widget.onTextSelectionDragStarted,
-              widget.onTextSelectionDragEnded,
-              widget.textCollection,
-              widget.currentSearchTextHighlightColor,
-              widget.otherSearchTextHighlightColor,
-              widget.pdfTextSearchResult,
-              widget.isMobileWebView,
-              widget.pdfScrollableStateKey,
-              widget.singlePageViewStateKey,
-              widget.viewportGlobalRect,
-              widget.scrollDirection,
-              widget.isSinglePageView));
+            _canvasKey,
+            isRotatedTo90or270 ? widget.width : widget.height,
+            isRotatedTo90or270 ? widget.height : widget.width,
+            widget.pdfDocument,
+            widget.pageIndex,
+            widget.pdfPages,
+            widget.interactionMode,
+            widget.pdfViewerController,
+            widget.enableDocumentLinkAnnotation,
+            widget.enableTextSelection,
+            widget.onTextSelectionChanged,
+            widget.onHyperlinkClicked,
+            widget.onTextSelectionDragStarted,
+            widget.onTextSelectionDragEnded,
+            widget.textCollection,
+            widget.currentSearchTextHighlightColor,
+            widget.otherSearchTextHighlightColor,
+            widget.pdfTextSearchResult,
+            widget.isMobileWebView,
+            widget.pdfScrollableStateKey,
+            widget.singlePageViewStateKey,
+            widget.viewportGlobalRect,
+            widget.scrollDirection,
+            widget.isSinglePageView,
+            widget.textDirection,
+            widget.canShowHyperlinkDialog,
+            widget.enableHyperlinkNavigation,
+          ));
       final Widget canvas = (kIsDesktop &&
               !widget.isMobileWebView &&
               canvasRenderBox != null)

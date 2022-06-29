@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Siku", 
-"series" : "Msururu"
+"series" : "Msururu", 
+"pdfHyperlinkLabel" : "Fungua Ukurasa wa Wavuti", 
+"pdfHyperlinkContentLabel" : "Je, unataka kufungua ukurasa katika", 
+"pdfHyperlinkDialogOpenLabel" : "FUNGUA", 
+"pdfHyperlinkDialogCancelLabel" : "GHAIRI"
 }

@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "День", 
-"series" : "Серія"
+"series" : "Серія", 
+"pdfHyperlinkLabel" : "Відкрийте веб-сторінку", 
+"pdfHyperlinkContentLabel" : "Бажаєте відкрити сторінку за адресою", 
+"pdfHyperlinkDialogOpenLabel" : "ВІДЧИНЕНО", 
+"pdfHyperlinkDialogCancelLabel" : "СКАСУВАТИ"
 }

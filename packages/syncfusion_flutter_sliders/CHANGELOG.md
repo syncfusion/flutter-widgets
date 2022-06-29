@@ -3,6 +3,23 @@
 ## Slider
 
 **Features**
+* Now, the edge labels in the axis can be shifted inside the axis bounds if their position exceeds the axis bounds using the `edgeLabelPlacement` property.
+
+## Range Slider
+
+**Features**
+* Now, the edge labels in the axis can be shifted inside the axis bounds if their position exceeds the axis bounds using the `edgeLabelPlacement` property.
+
+## Range Selector
+
+**Features**
+* Now, the edge labels in the axis can be shifted inside the axis bounds if their position exceeds the axis bounds using the `edgeLabelPlacement` property.
+
+## [19.4.38] - 12/17/2021
+
+## Slider
+
+**Features**
 
 * Tooltip visibility - Provided an option to always show a tooltip.
 * Start and end callbacks - Provided callbacks to notify the user for start and end interactions performed with slider thumb.

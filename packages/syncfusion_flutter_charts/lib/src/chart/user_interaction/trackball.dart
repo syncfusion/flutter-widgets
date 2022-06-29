@@ -428,7 +428,11 @@ class TrackballBehavior {
     final List<CartesianSeriesRenderer> visibleSeriesRenderer =
         stateProperties.chartSeries.visibleSeriesRenderers;
     final SeriesRendererDetails seriesRendererDetails =
-        SeriesHelper.getSeriesRendererDetails(visibleSeriesRenderer[0]);
+        SeriesHelper.getSeriesRendererDetails(visibleSeriesRenderer.firstWhere(
+            (CartesianSeriesRenderer element) =>
+                SeriesHelper.getSeriesRendererDetails(element)
+                    .visibleDataPoints !=
+                null));
     if (trackballRenderingDetails.trackballPainter != null || builder != null) {
       final ChartAxisRendererDetails xAxisDetails =
           seriesRendererDetails.xAxisDetails!;
@@ -930,157 +934,161 @@ class TrackballRenderingDetails {
         for (final CartesianChartPoint<dynamic> dataPoint
             in nearestDataPoints!) {
           index = dataPoints.indexOf(dataPoint);
-          chartDataPoint = dataPoints[index];
-          xAxisDetails = cartesianSeriesRendererDetails.xAxisDetails!;
-          yAxisDetails = cartesianSeriesRendererDetails.yAxisDetails!;
-          chartAxis = cartesianSeriesRendererDetails.stateProperties.chartAxis;
-          invertedAxis = _stateProperties.requireInvertedAxis;
-          series = cartesianSeriesRendererDetails.series;
-          xValue = chartDataPoint.xValue;
-          if (seriesType != 'boxandwhisker') {
-            yValue = chartDataPoint.yValue;
-          }
-          minimumValue = chartDataPoint.minimum;
-          maximumValue = chartDataPoint.maximum;
-          lowerQuartileValue = chartDataPoint.lowerQuartile;
-          upperQuartileValue = chartDataPoint.upperQuartile;
-          meanValue = chartDataPoint.mean;
-          highValue = chartDataPoint.high;
-          lowValue = chartDataPoint.low;
-          openValue = chartDataPoint.open;
-          closeValue = chartDataPoint.close;
-          seriesName = cartesianSeriesRendererDetails.series.name ??
-              'Series $seriesIndex';
-          bubbleSize = chartDataPoint.bubbleSize;
-          cumulativeValue = chartDataPoint.cumulativeValue;
-          axisClipRect = calculatePlotOffset(
-              chartAxis.axisClipRect,
-              Offset(
-                  xAxisDetails.axis.plotOffset, yAxisDetails.axis.plotOffset));
-          cummulativePos = calculatePoint(
-                  xValue!,
-                  cumulativeValue,
-                  xAxisDetails,
-                  yAxisDetails,
-                  invertedAxis,
-                  series,
-                  axisClipRect)
-              .y;
-          xPos = calculatePoint(
-                  xValue,
-                  seriesType.contains('stacked') ? cumulativeValue : yValue,
-                  xAxisDetails,
-                  yAxisDetails,
-                  invertedAxis,
-                  series,
-                  axisClipRect)
-              .x;
-          if (!xPos.toDouble().isNaN) {
-            if (seriesIndex == 0 ||
-                ((leastX! - position.dx).abs() > (xPos - position.dx).abs())) {
-              leastX = xPos;
+          if (index >= 0) {
+            chartDataPoint = dataPoints[index];
+            xAxisDetails = cartesianSeriesRendererDetails.xAxisDetails!;
+            yAxisDetails = cartesianSeriesRendererDetails.yAxisDetails!;
+            chartAxis =
+                cartesianSeriesRendererDetails.stateProperties.chartAxis;
+            invertedAxis = _stateProperties.requireInvertedAxis;
+            series = cartesianSeriesRendererDetails.series;
+            xValue = chartDataPoint.xValue;
+            if (seriesType != 'boxandwhisker') {
+              yValue = chartDataPoint.yValue;
             }
-            labelValue = _getTrackballLabelText(
-                cartesianSeriesRendererDetails,
-                xValue,
-                yValue,
-                lowValue,
-                highValue,
-                openValue,
-                closeValue,
-                minimumValue,
-                maximumValue,
-                lowerQuartileValue,
-                upperQuartileValue,
-                meanValue,
-                seriesName,
-                bubbleSize,
-                cumulativeValue,
-                dataPoint);
-            yPos = seriesType.contains('stacked')
-                ? cummulativePos
-                : calculatePoint(xValue, yValue, xAxisDetails, yAxisDetails,
-                        invertedAxis, series, axisClipRect)
-                    .y;
-            if (isRangeSeries) {
-              lowYPos = calculatePoint(xValue, lowValue, xAxisDetails,
-                      yAxisDetails, invertedAxis, series, axisClipRect)
-                  .y;
-              highLocation = calculatePoint(xValue, highValue, xAxisDetails,
-                  yAxisDetails, invertedAxis, series, axisClipRect);
-              highYPos = highLocation.y;
-              highXPos = highLocation.x;
-              if (seriesType == 'hiloopenclose' || seriesType == 'candle') {
-                openXPos = dataPoint.openPoint!.x;
-                openYPos = dataPoint.openPoint!.y;
-                closeXPos = dataPoint.closePoint!.x;
-                closeYPos = dataPoint.closePoint!.y;
+            minimumValue = chartDataPoint.minimum;
+            maximumValue = chartDataPoint.maximum;
+            lowerQuartileValue = chartDataPoint.lowerQuartile;
+            upperQuartileValue = chartDataPoint.upperQuartile;
+            meanValue = chartDataPoint.mean;
+            highValue = chartDataPoint.high;
+            lowValue = chartDataPoint.low;
+            openValue = chartDataPoint.open;
+            closeValue = chartDataPoint.close;
+            seriesName = cartesianSeriesRendererDetails.series.name ??
+                'Series $seriesIndex';
+            bubbleSize = chartDataPoint.bubbleSize;
+            cumulativeValue = chartDataPoint.cumulativeValue;
+            axisClipRect = calculatePlotOffset(
+                chartAxis.axisClipRect,
+                Offset(xAxisDetails.axis.plotOffset,
+                    yAxisDetails.axis.plotOffset));
+            cummulativePos = calculatePoint(
+                    xValue!,
+                    cumulativeValue,
+                    xAxisDetails,
+                    yAxisDetails,
+                    invertedAxis,
+                    series,
+                    axisClipRect)
+                .y;
+            xPos = calculatePoint(
+                    xValue,
+                    seriesType.contains('stacked') ? cumulativeValue : yValue,
+                    xAxisDetails,
+                    yAxisDetails,
+                    invertedAxis,
+                    series,
+                    axisClipRect)
+                .x;
+            if (!xPos.toDouble().isNaN) {
+              if (seriesIndex == 0 ||
+                  ((leastX! - position.dx).abs() >
+                      (xPos - position.dx).abs())) {
+                leastX = xPos;
               }
-            } else if (seriesType == 'boxandwhisker') {
-              minYPos = calculatePoint(xValue, minimumValue, xAxisDetails,
-                      yAxisDetails, invertedAxis, series, axisClipRect)
-                  .y;
-              maxLocation = calculatePoint(xValue, maximumValue, xAxisDetails,
-                  yAxisDetails, invertedAxis, series, axisClipRect);
-              maxXPos = maxLocation.x;
-              maxYPos = maxLocation.y;
-              lowerXPos = dataPoint.lowerQuartilePoint!.x;
-              lowerYPos = dataPoint.lowerQuartilePoint!.y;
-              upperXPos = dataPoint.upperQuartilePoint!.x;
-              upperYPos = dataPoint.upperQuartilePoint!.y;
-            }
-            final Rect rect = seriesBounds.intersect(Rect.fromLTWH(
-                xPos - 1,
-                isRangeSeries
-                    ? highYPos! - 1
-                    : isBoxSeries
-                        ? maxYPos! - 1
-                        : yPos - 1,
-                2,
-                2));
-            if (seriesBounds.contains(Offset(
-                    xPos,
-                    isRangeSeries
+              labelValue = _getTrackballLabelText(
+                  cartesianSeriesRendererDetails,
+                  xValue,
+                  yValue,
+                  lowValue,
+                  highValue,
+                  openValue,
+                  closeValue,
+                  minimumValue,
+                  maximumValue,
+                  lowerQuartileValue,
+                  upperQuartileValue,
+                  meanValue,
+                  seriesName,
+                  bubbleSize,
+                  cumulativeValue,
+                  dataPoint);
+              yPos = seriesType.contains('stacked')
+                  ? cummulativePos
+                  : calculatePoint(xValue, yValue, xAxisDetails, yAxisDetails,
+                          invertedAxis, series, axisClipRect)
+                      .y;
+              if (isRangeSeries) {
+                lowYPos = calculatePoint(xValue, lowValue, xAxisDetails,
+                        yAxisDetails, invertedAxis, series, axisClipRect)
+                    .y;
+                highLocation = calculatePoint(xValue, highValue, xAxisDetails,
+                    yAxisDetails, invertedAxis, series, axisClipRect);
+                highYPos = highLocation.y;
+                highXPos = highLocation.x;
+                if (seriesType == 'hiloopenclose' || seriesType == 'candle') {
+                  openXPos = dataPoint.openPoint!.x;
+                  openYPos = dataPoint.openPoint!.y;
+                  closeXPos = dataPoint.closePoint!.x;
+                  closeYPos = dataPoint.closePoint!.y;
+                }
+              } else if (seriesType == 'boxandwhisker') {
+                minYPos = calculatePoint(xValue, minimumValue, xAxisDetails,
+                        yAxisDetails, invertedAxis, series, axisClipRect)
+                    .y;
+                maxLocation = calculatePoint(xValue, maximumValue, xAxisDetails,
+                    yAxisDetails, invertedAxis, series, axisClipRect);
+                maxXPos = maxLocation.x;
+                maxYPos = maxLocation.y;
+                lowerXPos = dataPoint.lowerQuartilePoint!.x;
+                lowerYPos = dataPoint.lowerQuartilePoint!.y;
+                upperXPos = dataPoint.upperQuartilePoint!.x;
+                upperYPos = dataPoint.upperQuartilePoint!.y;
+              }
+              final Rect rect = seriesBounds.intersect(Rect.fromLTWH(
+                  xPos - 1,
+                  isRangeSeries
+                      ? highYPos! - 1
+                      : isBoxSeries
+                          ? maxYPos! - 1
+                          : yPos - 1,
+                  2,
+                  2));
+              if (seriesBounds.contains(Offset(
+                      xPos,
+                      isRangeSeries
+                          ? highYPos!
+                          : isBoxSeries
+                              ? maxYPos!
+                              : yPos)) ||
+                  seriesBounds.overlaps(rect)) {
+                visiblePoints.add(ClosestPoints(
+                    closestPointX: !isRangeSeries
+                        ? xPos
+                        : isBoxSeries
+                            ? maxXPos!
+                            : highXPos!,
+                    closestPointY: isRangeSeries
                         ? highYPos!
                         : isBoxSeries
                             ? maxYPos!
-                            : yPos)) ||
-                seriesBounds.overlaps(rect)) {
-              visiblePoints.add(ClosestPoints(
-                  closestPointX: !isRangeSeries
-                      ? xPos
-                      : isBoxSeries
-                          ? maxXPos!
-                          : highXPos!,
-                  closestPointY: isRangeSeries
-                      ? highYPos!
-                      : isBoxSeries
-                          ? maxYPos!
-                          : yPos));
-              _addChartPointInfo(
-                  cartesianSeriesRendererDetails,
-                  xPos,
-                  yPos,
-                  index,
-                  !isTrackballTemplate ? labelValue : null,
-                  seriesIndex,
-                  lowYPos,
-                  highXPos,
-                  highYPos,
-                  openXPos,
-                  openYPos,
-                  closeXPos,
-                  closeYPos,
-                  minYPos,
-                  maxXPos,
-                  maxYPos,
-                  lowerXPos,
-                  lowerYPos,
-                  upperXPos,
-                  upperYPos);
-              if (tooltipDisplayMode == TrackballDisplayMode.groupAllPoints &&
-                  leastX >= seriesBounds.left) {
-                invertedAxis ? yPos = leastX : xPos = leastX;
+                            : yPos));
+                _addChartPointInfo(
+                    cartesianSeriesRendererDetails,
+                    xPos,
+                    yPos,
+                    index,
+                    !isTrackballTemplate ? labelValue : null,
+                    seriesIndex,
+                    lowYPos,
+                    highXPos,
+                    highYPos,
+                    openXPos,
+                    openYPos,
+                    closeXPos,
+                    closeYPos,
+                    minYPos,
+                    maxXPos,
+                    maxYPos,
+                    lowerXPos,
+                    lowerYPos,
+                    upperXPos,
+                    upperYPos);
+                if (tooltipDisplayMode == TrackballDisplayMode.groupAllPoints &&
+                    leastX >= seriesBounds.left) {
+                  invertedAxis ? yPos = leastX : xPos = leastX;
+                }
               }
             }
           }
@@ -1291,10 +1299,10 @@ class TrackballRenderingDetails {
       for (int count = 0; count < xValueList.length; count++) {
         if (xValueList[0] != xValueList[count]) {
           final List<ChartPointInfo> leastPointInfo = <ChartPointInfo>[];
-          visiblePoints.clear();
           for (final ChartPointInfo pointInfo in chartPointInfo) {
             if (pointInfo.xPosition == leastX) {
               leastPointInfo.add(pointInfo);
+              visiblePoints.clear();
               visiblePoints.add(ClosestPoints(
                   closestPointX: !isRangeSeries
                       ? pointInfo.xPosition!

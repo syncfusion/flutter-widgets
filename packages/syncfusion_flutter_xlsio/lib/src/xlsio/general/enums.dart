@@ -909,3 +909,239 @@ enum ExcelDataValidationErrorStyle {
   /// Information icon is displayed.
   information
 }
+
+///Represents filtertype of AutoFilter
+enum _ExcelFilterType {
+  ///Represents the No Filters are used to avoid Exception While Instance Creation
+  notUsed,
+
+  /// Represents applying filter with conditions.
+  customFilter,
+
+  /// Represents applying filter with combination.
+  combinationFilter,
+
+  ///Represents applying filter with specified relative date constant.
+  dynamicFilter,
+
+  ///Represents applying filter with color (Fill and Font color).
+  colorFilter,
+
+  ///Represents applying Icon Filter for the icons from Conditional Formatting.
+  iconFilter
+}
+
+///Represents filter data type
+/// Data type for autofilters.
+enum _ExcelFilterDataType {
+  /// Represents the filter data type.
+  notUsed,
+
+  /// Represents the String filter data type.
+  floatingPoint,
+
+  ///	Represents the String filter data type.
+  string,
+
+  ///Represents the Boolean filter data type.
+  boolean,
+
+  ///	Represents the ErrorCode filter data type.
+  errorCode,
+
+  ///Represents the MatchAllBlanks filter data type.
+  matchAllBlanks,
+
+  ///Represents the MatchAllNonBlanks filter data type.
+  matchAllNonBlanks
+}
+
+/// Possible conditions in autofilter.
+enum ExcelFilterCondition {
+  ///	Represents the Less filter condition type.
+  less,
+
+  ///Represents the Equal filter condition type.
+  equal,
+
+  ///	Represents the LessOrEqual filter condition type.
+  lessOrEqual,
+
+  ///Represents the Greater filter condition type.
+  greater,
+
+  ///	Represents the NotEqual filter condition type.
+  notEqual,
+
+  ///Represents the GreaterOrEqual filter condition type.
+  greaterOrEqual,
+
+  ///Represents the Contains filter condition type.
+  contains,
+
+  ///Represents the DoesNotContain filter condition type.
+  doesNotContain,
+
+  ///Represents the BeginsWith filter condition type.
+  beginsWith,
+
+  ///	Represents the DoesNotBeginWith filter condition type.
+  doesNotBeginWith,
+
+  ///Represents the EndsWith filter condition type.
+  endsWith,
+
+  ///	Represents the DoesNotEndWith filter condition type.
+  doesNotEndWith,
+}
+
+///used to find Combinatioanal Filter Type
+
+enum _ExcelCombinationFilterType {
+  /// Represents text value filter.
+  textFilter,
+
+  /// Represents date filter.
+  dateTimeFilter,
+}
+
+/// Represents the dynamic filter type.
+enum DynamicFilterType {
+  /// None of the filter type used.
+  none,
+
+  /// Represents Tomorrow.
+  tomorrow,
+
+  /// Represents Today.
+  today,
+
+  /// Represents Yesterday.
+  yesterday,
+
+  /// Represents next week of the current week.
+  nextWeek,
+
+  /// Represents current week.
+  thisWeek,
+
+  /// Represents last week of the current week.
+  lastWeek,
+
+  /// Represents next month of the current month.
+  nextMonth,
+
+  /// Represents current month.
+  thisMonth,
+
+  /// Represent last month of the current month.
+  lastMonth,
+
+  /// Represent next quarter of the current quarter year.
+  nextQuarter,
+
+  /// Represent current quarter year.
+  thisQuarter,
+
+  /// Represent last quarter of the current quarter year.
+  lastQuarter,
+
+  ///  Represent next year.
+  nextYear,
+
+  /// Represent current year.
+  thisYear,
+
+  /// Represent last year.
+  lastYear,
+
+  /// Represent first quarter of the years.
+  quarter1,
+
+  /// Represent second quarter of the years.
+  quarter2,
+
+  /// Represent third quarter of the years.
+  quarter3,
+
+  /// Represent fourth quarter of the years.
+  quarter4,
+
+  /// Represent January month.
+  january,
+
+  /// Represent February month.
+  february,
+
+  /// Represent March month.
+  march,
+
+  /// Represent April month.
+  april,
+
+  /// Represent May month.
+  may,
+
+  /// Represent June month.
+  june,
+
+  /// Represent July month.
+  july,
+
+  /// Represent August month.
+  august,
+
+  /// Represent September month.
+  september,
+
+  /// Represent October month.
+  october,
+
+  /// Represent November month.
+  november,
+
+  /// Represent December month.
+  december,
+
+  /// Represent dates from starting of the current year till today.
+  yearToDate,
+}
+
+/// Represents grouping type applied for DateTime filter.
+enum DateTimeFilterType {
+  /// Filter by year.
+  year,
+
+  /// Filter by month and year.
+  month,
+
+  /// Filter by day, month, and year.
+  day,
+
+  /// Filter by hour, day, month, and year.
+  hour,
+
+  /// Filter by minute, hour, day, month, and year.
+  minute,
+
+  /// Filter by second, minute, hour, day, month, and year.
+  second,
+}
+
+/// Represents the color filter type.
+enum ExcelColorFilterType {
+  /// Represents the back color filter.
+  cellColor,
+
+  /// Represents the font color filter.
+  fontColor,
+}
+
+/// Represents the logical operators filters.
+enum ExcelLogicalOperator {
+  /// Represents the logical OR operation.
+  or,
+
+  /// Represents the logical AND operation.
+  and
+}

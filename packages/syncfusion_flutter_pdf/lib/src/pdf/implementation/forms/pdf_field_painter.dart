@@ -519,7 +519,8 @@ class FieldPainter {
         bounds: rectangle,
         format: PdfStringFormat(
             alignment: format.alignment,
-            lineAlignment: PdfVerticalAlignment.middle));
+            lineAlignment: PdfVerticalAlignment.middle)
+          ..lineLimit = false);
   }
 
   /// internal method

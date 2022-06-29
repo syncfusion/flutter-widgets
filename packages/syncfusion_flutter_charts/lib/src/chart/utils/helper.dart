@@ -155,13 +155,7 @@ ChartLocation calculatePoint(
       y != null
           ? y.isInfinite
               ? 0
-              : y < 0 &&
-                      yAxis is LogarithmicAxis &&
-                      (series is SplineSeries ||
-                          series is SplineAreaSeries ||
-                          series is SplineRangeAreaSeries)
-                  ? 0
-                  : y
+              : y
           : y,
       yAxisRendererDetails);
   final num xLength = isInverted ? rect.height : rect.width;
@@ -2034,10 +2028,10 @@ void renderStackingRectSeries(
         : canvas.drawRRect(segmentRect, fillPaint);
   }
   if (strokePaint != null) {
-    if (series.dashArray[0] != 0 && series.dashArray[1] != 0) {
-      final XyDataSeries<dynamic, dynamic> series =
-          seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
-      drawDashedLine(canvas, series.dashArray, strokePaint, path);
+    if (seriesRendererDetails.dashArray![0] != 0 &&
+        seriesRendererDetails.dashArray![1] != 0) {
+      drawDashedLine(
+          canvas, seriesRendererDetails.dashArray!, strokePaint, path);
     } else {
       series.animationDuration > 0
           ? animateStackedRectSeries(
@@ -3868,7 +3862,8 @@ void calculateDateTimeVisibleRange(
         axisRendererDetails.axis.enableAutoIntervalOnZooming &&
                 stateProperties.zoomProgress &&
                 !canAutoScroll &&
-                axisRenderer is DateTimeAxisRenderer
+                (axisRenderer is DateTimeAxisRenderer ||
+                    axisRenderer is DateTimeCategoryAxisRenderer)
             ? axisRenderer.calculateInterval(visibleRange, availableSize)
             : visibleRange.interval;
     if (axisRenderer is DateTimeAxisRenderer) {
@@ -3973,7 +3968,6 @@ CartesianChartPoint<dynamic>? getOldChartPoint(
     CartesianSeriesRenderer? oldSeriesRenderer,
     List<CartesianSeriesRenderer> oldSeriesRenderers) {
   final RenderingDetails renderingDetails = stateProperties.renderingDetails;
-
   return seriesRendererDetails.reAnimate == false &&
           (seriesRendererDetails.series.animationDuration > 0 &&
               renderingDetails.widgetNeedUpdate &&

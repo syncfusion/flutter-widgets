@@ -301,18 +301,8 @@ class SerializeWorkbook {
                           if (cell._saveType != '') {
                             builder.attribute('t', cell._saveType);
                           }
-                          final int j = strFormula.lastIndexOf('!');
-                          if (j != -1) {
-                            strFormula = strFormula.substring(1);
-                            final String substring1 =
-                                strFormula.substring(0, j);
-                            final String substring2 = strFormula.substring(j);
-                            strFormula =
-                                substring1 + substring2.replaceAll("'", '"');
-                          } else {
-                            strFormula =
-                                strFormula.substring(1).replaceAll("'", '"');
-                          }
+                          strFormula =
+                              strFormula.substring(1).replaceAll("'", '"');
                           final int i = strFormula.indexOf('!');
                           if (i != -1 &&
                               strFormula[0] == '"' &&
@@ -370,6 +360,9 @@ class SerializeWorkbook {
           }
         });
       }
+      //Serializing AutoFilter
+      _serializeAutoFilters(builder, sheet.autoFilters);
+
       if (sheet.mergeCells.innerList.isNotEmpty) {
         builder.element('mergeCells', nest: () {
           builder.attribute(
@@ -2536,6 +2529,15 @@ class SerializeWorkbook {
   void _serialiseDxfs(XmlBuilder builder) {
     builder.element('dxfs', nest: () {
       for (final Worksheet sheet in _workbook.worksheets.innerList) {
+        if (sheet.autoFilters._innerList.isNotEmpty) {
+          for (int i = 0; i < sheet.autoFilters.count; i++) {
+            if (sheet.autoFilters[i]._filtertype ==
+                _ExcelFilterType.colorFilter) {
+              _serializeDxfColorFilter(
+                  builder, sheet.autoFilters[i] as _AutoFilterImpl);
+            }
+          }
+        }
         if (sheet.conditionalFormats.isNotEmpty) {
           final int iCount = sheet.conditionalFormats.length;
           for (int i = 0; i < iCount; i++) {
@@ -2550,6 +2552,51 @@ class SerializeWorkbook {
           }
         }
       }
+    });
+  }
+
+  ///Serialize color filter dxf style.
+  void _serializeDxfColorFilter(
+      XmlBuilder builder, _AutoFilterImpl autoFilter) {
+    builder.element('dxf', nest: () {
+      _serializeDxfColorFilterFill(
+          builder, autoFilter._filteredItems as _ColorFilter);
+    });
+  }
+
+  ///Serialize dxf color filter style fill.
+  void _serializeDxfColorFilterFill(
+      XmlBuilder builder, _ColorFilter colorFilter) {
+    String foreColor;
+    builder.element('fill', nest: () {
+      builder.element('patternFill', nest: () {
+        if (colorFilter._colorFilterType == ExcelColorFilterType.cellColor &&
+            colorFilter._color == '#000000')
+          builder.attribute('patternType', 'none');
+        else
+          builder.attribute('patternType', 'solid');
+
+        if (colorFilter._color == '#000000') {
+          if (colorFilter._colorFilterType == ExcelColorFilterType.cellColor) {
+            builder.element('fgColor', nest: () {
+              builder.attribute('indexed', '64');
+            });
+          } else {
+            builder.element('fgColor', nest: () {
+              builder.attribute('indexed', '66');
+            });
+          }
+        } else {
+          if (colorFilter._color.length == 7) {
+            foreColor = 'FF${colorFilter._color.replaceAll('#', '')}';
+          } else {
+            foreColor = colorFilter._color;
+          }
+          builder.element('fgColor', nest: () {
+            builder.attribute('rgb', foreColor);
+          });
+        }
+      });
     });
   }
 
@@ -2973,5 +3020,472 @@ class SerializeWorkbook {
       }
     }
     return iColumnIndex;
+  }
+
+  ///Serializes auto filters.
+  void _serializeAutoFilters(
+      XmlBuilder builder, AutoFilterCollection? autoFilters) {
+    if (builder == null) {
+      throw Exception('writer');
+    }
+    if (autoFilters == null ||
+        autoFilters._innerList.isEmpty ||
+        autoFilters.filterRange == null) {
+      return;
+    }
+    builder.element('autoFilter', nest: () {
+      builder.attribute('ref', autoFilters.filterRange.addressLocal);
+
+      // ignore: always_specify_types
+      for (int i = 0; i < autoFilters.count; i++) {
+        final _AutoFilterImpl autoFilter = autoFilters[i] as _AutoFilterImpl;
+
+        if (autoFilter._isFiltered) {
+          _serializeFilterColumn(builder, autoFilter);
+        }
+      }
+    });
+  }
+
+  /// Serializes filter column.
+  void _serializeFilterColumn(
+    XmlBuilder builder,
+    _AutoFilterImpl autoFilter,
+  ) {
+    if (builder == null) {
+      throw Exception('writer');
+    }
+
+    if (autoFilter == null) {
+      throw Exception('AutoFilter');
+    }
+
+    builder.element('filterColumn', nest: () {
+      _serializeAttributeInt(builder, 'colId', autoFilter._colIndex - 1, -1);
+
+      switch (autoFilter._typeOfFilter) {
+        case _ExcelFilterType.combinationFilter:
+          _serializeFilters(builder, autoFilter);
+          break;
+        case _ExcelFilterType.customFilter:
+          _serializeCustomFilter(builder, autoFilter);
+          break;
+        case _ExcelFilterType.dynamicFilter:
+          _serializeDateFilter(
+              builder, autoFilter._filteredItems as _DynamicFilter);
+          break;
+        case _ExcelFilterType.colorFilter:
+          _serializeColorFilter(
+              builder, autoFilter._filteredItems as _ColorFilter);
+          break;
+        case _ExcelFilterType.iconFilter:
+          break;
+        case _ExcelFilterType.notUsed:
+          break;
+      }
+    });
+  }
+
+  /// Serialize color filter.
+  void _serializeColorFilter(XmlBuilder builder, _ColorFilter filter) {
+    if (builder == null) {
+      throw Exception('writer');
+    }
+
+    if (filter == null) {
+      throw Exception('filter');
+    }
+    builder.element('colorFilter', nest: () {
+      builder.attribute('dxfId', _iDxfIndex.toString());
+      _iDxfIndex++;
+      if (filter._colorFilterType == ExcelColorFilterType.fontColor) {
+        builder.attribute('cellColor', '0');
+      }
+    });
+  }
+
+  /// Serialize the dynmaic filter.
+  void _serializeDateFilter(XmlBuilder builder, _DynamicFilter filter) {
+    if (builder == null) {
+      throw Exception('writer');
+    }
+
+    if (filter == null) {
+      throw Exception('filter');
+    }
+
+    if (filter._dateFilterType != DynamicFilterType.none) {
+      builder.element('dynamicFilter', nest: () {
+        final String? dateTime =
+            _convertDateFilterTypeToString(filter._dateFilterType);
+        builder.attribute('type', dateTime.toString());
+      });
+    }
+  }
+
+  /// Convert dynamic filter type to string.
+  String? _convertDateFilterTypeToString(DynamicFilterType filterType) {
+    switch (filterType) {
+      case DynamicFilterType.tomorrow:
+        return 'tomorrow';
+
+      case DynamicFilterType.today:
+        return 'today';
+
+      case DynamicFilterType.yesterday:
+        return 'yesterday';
+
+      case DynamicFilterType.nextWeek:
+        return 'nextWeek';
+
+      case DynamicFilterType.thisWeek:
+        return 'thisWeek';
+
+      case DynamicFilterType.lastWeek:
+        return 'lastWeek';
+
+      case DynamicFilterType.nextMonth:
+        return 'nextMonth';
+
+      case DynamicFilterType.thisMonth:
+        return 'thisMonth';
+
+      case DynamicFilterType.lastMonth:
+        return 'lastMonth';
+
+      case DynamicFilterType.nextQuarter:
+        return 'nextQuarter';
+
+      case DynamicFilterType.thisQuarter:
+        return 'thisQuarter';
+
+      case DynamicFilterType.lastQuarter:
+        return 'lastQuarter';
+
+      case DynamicFilterType.nextYear:
+        return 'nextYear';
+
+      case DynamicFilterType.thisYear:
+        return 'thisYear';
+
+      case DynamicFilterType.lastYear:
+        return 'lastYear';
+
+      case DynamicFilterType.yearToDate:
+        return 'yearToDate';
+
+      case DynamicFilterType.january:
+        return 'M1';
+
+      case DynamicFilterType.february:
+        return 'M2';
+
+      case DynamicFilterType.march:
+        return 'M3';
+
+      case DynamicFilterType.april:
+        return 'M4';
+
+      case DynamicFilterType.may:
+        return 'M5';
+
+      case DynamicFilterType.june:
+        return 'M6';
+
+      case DynamicFilterType.july:
+        return 'M7';
+
+      case DynamicFilterType.august:
+        return 'M8';
+
+      case DynamicFilterType.september:
+        return 'M9';
+
+      case DynamicFilterType.october:
+        return 'M10';
+
+      case DynamicFilterType.november:
+        return 'M11';
+
+      case DynamicFilterType.december:
+        return 'M12';
+
+      case DynamicFilterType.quarter1:
+        return 'Q1';
+
+      case DynamicFilterType.quarter2:
+        return 'Q2';
+
+      case DynamicFilterType.quarter3:
+        return 'Q3';
+
+      case DynamicFilterType.quarter4:
+        return 'Q4';
+      case DynamicFilterType.none:
+        break;
+    }
+    return null;
+  }
+
+  ///SerializeCombination filter
+  void _serializeFilters(XmlBuilder builder, _AutoFilterImpl autoFilter) {
+    if (builder == null) {
+      throw Exception('writer');
+    }
+
+    if (autoFilter == null) {
+      throw Exception('AutoFilter');
+    }
+
+    builder.element('filters', nest: () {
+      if (autoFilter._filteredItems._filterType ==
+          _ExcelFilterType.combinationFilter) {
+        _serializeCombinationFilters(
+            builder, autoFilter._filteredItems as _CombinationFilter);
+      }
+    });
+  }
+
+  ///SerializeCombination filter
+  void _serializeCombinationFilters(
+      XmlBuilder builder, _CombinationFilter combinationFilter) {
+    if (builder == null) {
+      throw Exception('writer');
+    }
+    if (combinationFilter == null) {
+      throw Exception('CombinationFilter');
+    }
+    if (combinationFilter._isBlank) {
+      builder.attribute('blank', 1);
+    }
+    for (final _MultipleFilter multipleFilter
+        in combinationFilter._filterCollection) {
+      switch (multipleFilter._combinationFilterType) {
+        case _ExcelCombinationFilterType.textFilter:
+          _serializeFilter(builder, (multipleFilter as _TextFilter)._text);
+          break;
+        case _ExcelCombinationFilterType.dateTimeFilter:
+          _serializeDateTimeFilter(builder, multipleFilter as _DateTimeFilter);
+          break;
+      }
+    }
+  }
+
+  /// Serialize the date time filter.
+  void _serializeDateTimeFilter(XmlBuilder builder, _DateTimeFilter filter) {
+    if (builder == null) {
+      throw Exception('writer');
+    }
+
+    if (filter == null) {
+      throw Exception('filter');
+    }
+    final DateTimeFilterType dateGroup = filter._groupingType;
+    final DateTime date = filter._dateTimeValue;
+    builder.element('dateGroupItem', nest: () {
+      if (_getDateTimevalue(dateGroup) >=
+          _getDateTimevalue(DateTimeFilterType.year))
+        builder.attribute('year', date.year.toString());
+      if (_getDateTimevalue(dateGroup) >=
+          _getDateTimevalue(DateTimeFilterType.month))
+        builder.attribute('month', date.month.toString());
+      if (_getDateTimevalue(dateGroup) >=
+          _getDateTimevalue(DateTimeFilterType.day))
+        builder.attribute('day', date.day.toString());
+      if (_getDateTimevalue(dateGroup) >=
+          _getDateTimevalue(DateTimeFilterType.hour))
+        builder.attribute('hour', date.hour.toString());
+      if (_getDateTimevalue(dateGroup) >=
+          _getDateTimevalue(DateTimeFilterType.minute))
+        builder.attribute('minute', date.minute.toString());
+      if (_getDateTimevalue(dateGroup) >=
+          _getDateTimevalue(DateTimeFilterType.second))
+        builder.attribute('second', date.second.toString());
+      final String dateTimeStr = _getDateTimeString(dateGroup);
+      builder.attribute('dateTimeGrouping', dateTimeStr);
+    });
+  }
+
+  /// Get the int value based on date time grouping type.
+  int _getDateTimevalue(DateTimeFilterType date) {
+    switch (date) {
+      case DateTimeFilterType.year:
+        return 0;
+      case DateTimeFilterType.month:
+        return 1;
+      case DateTimeFilterType.day:
+        return 2;
+      case DateTimeFilterType.hour:
+        return 3;
+      case DateTimeFilterType.minute:
+        return 4;
+      case DateTimeFilterType.second:
+        return 5;
+    }
+  }
+
+  /// Get the string value based on date time grouping type.
+  String _getDateTimeString(DateTimeFilterType date) {
+    switch (date) {
+      case DateTimeFilterType.year:
+        return 'year';
+      case DateTimeFilterType.month:
+        return 'month';
+      case DateTimeFilterType.day:
+        return 'day';
+      case DateTimeFilterType.hour:
+        return 'hour';
+      case DateTimeFilterType.minute:
+        return 'minute';
+      case DateTimeFilterType.second:
+        return 'second';
+    }
+  }
+
+  ///Serialization of filter
+  void _serializeFilter(XmlBuilder builder, String strFilterValue) {
+    if (builder == null) {
+      throw Exception('writer');
+    }
+    builder.element('filter', nest: () {
+      builder.attribute('val', strFilterValue);
+    });
+  }
+
+  /// Serializes custom filters.
+  void _serializeCustomFilter(XmlBuilder builder, _AutoFilterImpl autoFilter) {
+    if (builder == null) {
+      throw Exception('writer');
+    }
+
+    if (autoFilter == null) {
+      throw Exception('AutoFilter');
+    }
+
+    builder.element('customFilters', nest: () {
+      final bool isAnd = autoFilter.logicalOperator == ExcelLogicalOperator.and;
+      _serializeAttributes(builder, 'and', isAnd, false);
+      if (autoFilter.isFirstCondition) {
+        __serializeCustomFilters(
+            builder, autoFilter.firstCondition, autoFilter);
+      }
+      if (autoFilter.isSecondCondition) {
+        __serializeCustomFilters(
+            builder, autoFilter.firstCondition, autoFilter);
+        __serializeCustomFilters(
+            builder, autoFilter.secondCondition, autoFilter);
+      }
+    });
+  }
+
+  /// Serializes custom filters.
+  void __serializeCustomFilters(XmlBuilder builder,
+      AutoFilterCondition autoFilterCondition, _AutoFilterImpl autoFilter) {
+    if (builder == null) {
+      throw Exception('writer');
+    }
+
+    if (autoFilterCondition == null) {
+      throw Exception('AutoFilterCondition');
+    }
+
+    _customFilterCondition(builder, autoFilterCondition, autoFilter, 0);
+  }
+
+  /// Returns auto filter condition operator name.
+  String _getAFconditionalOperatorName(ExcelFilterCondition filterCondition) {
+    String empty = '';
+    switch (filterCondition) {
+      case ExcelFilterCondition.less:
+        empty = 'lessThan';
+        break;
+      case ExcelFilterCondition.endsWith:
+      case ExcelFilterCondition.beginsWith:
+      case ExcelFilterCondition.contains:
+      case ExcelFilterCondition.equal:
+        empty = 'equal';
+        break;
+      case ExcelFilterCondition.lessOrEqual:
+        empty = 'lessThanOrEqual';
+        break;
+      case ExcelFilterCondition.greater:
+        empty = 'greaterThan';
+        break;
+      case ExcelFilterCondition.doesNotContain:
+      case ExcelFilterCondition.doesNotBeginWith:
+      case ExcelFilterCondition.doesNotEndWith:
+      case ExcelFilterCondition.notEqual:
+        empty = 'notEqual';
+        break;
+      case ExcelFilterCondition.greaterOrEqual:
+        empty = 'greaterThanOrEqual';
+        break;
+    }
+    return empty;
+  }
+
+  ///Serialize custom filter
+  void _customFilterCondition(
+      XmlBuilder builder,
+      AutoFilterCondition autoFilterCondition,
+      _AutoFilterImpl autoFilter,
+      int dataindex) {
+    ExcelFilterCondition conditionOperator =
+        autoFilterCondition.conditionOperator;
+    builder.element('customFilter', nest: () {
+      if (autoFilterCondition._dataType ==
+          _ExcelFilterDataType.matchAllNonBlanks) {
+        builder.attribute('operator', 'notEqual');
+        builder.attribute('val', 0);
+      } else if (autoFilterCondition.conditionOperator != null) {
+        conditionOperator = autoFilterCondition.conditionOperator;
+        final String operatorValue =
+            _getAFconditionalOperatorName(conditionOperator);
+
+        if (operatorValue != 'equal') {
+          builder.attribute('operator', operatorValue);
+        }
+        Object strval = _conditionValue(autoFilterCondition);
+        if (conditionOperator == ExcelFilterCondition.contains ||
+            conditionOperator == ExcelFilterCondition.doesNotContain ||
+            conditionOperator == ExcelFilterCondition.beginsWith ||
+            conditionOperator == ExcelFilterCondition.doesNotBeginWith) {
+          strval = '$strval*';
+        }
+
+        if (conditionOperator == ExcelFilterCondition.contains ||
+            conditionOperator == ExcelFilterCondition.doesNotContain ||
+            conditionOperator == ExcelFilterCondition.endsWith ||
+            conditionOperator == ExcelFilterCondition.doesNotEndWith) {
+          strval = '*$strval';
+        }
+
+        builder.attribute('val', strval);
+      }
+    });
+  }
+
+  /// Returns auto filter condition value.
+  Object _conditionValue(AutoFilterCondition autoFilterCondition) {
+    Object empty = '';
+    switch (autoFilterCondition._dataType) {
+      case _ExcelFilterDataType.notUsed:
+        break;
+      case _ExcelFilterDataType.floatingPoint:
+        empty = autoFilterCondition.numberValue;
+        break;
+      case _ExcelFilterDataType.string:
+        empty = autoFilterCondition.textValue;
+        break;
+      case _ExcelFilterDataType.boolean:
+        break;
+      case _ExcelFilterDataType.errorCode:
+        break;
+      case _ExcelFilterDataType.matchAllBlanks:
+        break;
+      case _ExcelFilterDataType.matchAllNonBlanks:
+        break;
+    }
+    return empty;
   }
 }

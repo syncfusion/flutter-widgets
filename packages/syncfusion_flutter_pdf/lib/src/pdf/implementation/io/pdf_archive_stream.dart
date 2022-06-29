@@ -81,6 +81,15 @@ class PdfArchiveStream extends PdfStream {
     obj.save(_objectWriter);
     _objectWriter!.write(PdfOperators.newLine);
   }
+
+  /// internal method
+  Future<void> saveObjectAsync(
+      IPdfPrimitive obj, PdfReference reference) async {
+    final int? position = _objectWriter!.position;
+    _indices![position] = reference.objNum;
+    obj.save(_objectWriter);
+    _objectWriter!.write(PdfOperators.newLine);
+  }
 }
 
 /// internal class

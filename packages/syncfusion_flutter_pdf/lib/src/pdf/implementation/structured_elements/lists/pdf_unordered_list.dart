@@ -22,7 +22,7 @@ import 'pdf_list_item_collection.dart';
 ///   ..draw(
 ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -45,7 +45,7 @@ class PdfUnorderedList extends PdfList {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -92,7 +92,7 @@ class PdfUnorderedList extends PdfList {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

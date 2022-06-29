@@ -2339,6 +2339,7 @@ class MapZoomPanBehavior extends MapBehavior {
     bool enablePinching = true,
     bool enablePanning = true,
     bool enableDoubleTapZooming = false,
+    bool enableMouseWheelZooming = false,
     bool showToolbar = true,
     MapToolbarSettings toolbarSettings = const MapToolbarSettings(),
   })  : _zoomLevel = zoomLevel.clamp(minZoomLevel, maxZoomLevel),
@@ -2349,6 +2350,7 @@ class MapZoomPanBehavior extends MapBehavior {
         _enablePinching = enablePinching,
         _enablePanning = enablePanning,
         _enableDoubleTapZooming = enableDoubleTapZooming,
+        _enableMouseWheelZooming = enableMouseWheelZooming,
         _showToolbar = showToolbar,
         _toolbarSettings = toolbarSettings,
         _zoomController = ZoomableController();
@@ -2505,6 +2507,18 @@ class MapZoomPanBehavior extends MapBehavior {
       return;
     }
     _enableDoubleTapZooming = value;
+  }
+
+  /// Enables mouse wheel zooming in map
+  ///
+  /// Defaults to `false`.
+  bool get enableMouseWheelZooming => _enableMouseWheelZooming;
+  bool _enableMouseWheelZooming;
+  set enableMouseWheelZooming(bool value) {
+    if (_enableMouseWheelZooming == value) {
+      return;
+    }
+    _enableMouseWheelZooming = value;
   }
 
   /// Shows zooming toolbar in the web platform.
@@ -2667,6 +2681,10 @@ class MapZoomPanBehavior extends MapBehavior {
         value: enableDoubleTapZooming,
         ifTrue: 'Double tap is enabled',
         ifFalse: 'Double tap is disabled'));
+    properties.add(FlagProperty('enableMouseWheelZooming',
+        value: enableMouseWheelZooming,
+        ifTrue: 'Mouse wheel is enabled',
+        ifFalse: 'Mouse wheel is disabled'));
     properties.add(DiagnosticsProperty<MapLatLng>('focalLatLng', focalLatLng));
     properties.add(
         DiagnosticsProperty<MapLatLngBounds>('latLngBounds', latLngBounds));
@@ -2855,6 +2873,7 @@ class BehaviorView extends StatefulWidget {
     required this.controller,
     required this.behavior,
     required this.onWillZoom,
+    this.enableMouseWheelZooming,
     required this.onWillPan,
   }) : super(key: key);
 
@@ -2875,6 +2894,22 @@ class BehaviorView extends StatefulWidget {
 
   /// Called whenever panning is happening.
   final WillPanCallback? onWillPan;
+
+  /// Enables mouse wheel zooming in map
+  ///
+  /// Defaults to `false` in web platform.
+  ///
+  /// ```dart
+  /// SfMaps(
+  ///    layers: [
+  ///    MapShapeLayer(
+  ///      zoomPanBehavior: MapZoomPanBehavior(
+  ///       enableMouseWheelZooming : true ),
+  ///         ),
+  ///      ]
+  ///   ),
+  ///```
+  final bool? enableMouseWheelZooming;
 
   @override
   State<BehaviorView> createState() => _BehaviorViewState();
@@ -3084,6 +3119,7 @@ class _BehaviorViewState extends State<BehaviorView> {
           enablePinching: widget.behavior.enablePinching,
           enablePanning: widget.behavior.enablePanning,
           enableDoubleTapZooming: widget.behavior.enableDoubleTapZooming,
+          enableMouseWheelZooming: widget.behavior.enableMouseWheelZooming,
           onUpdate: _handleZoomableChange,
           onComplete: _handleZoomableEnd,
           frictionCoefficient: 0.009,

@@ -105,6 +105,18 @@ class SfLocalizationsAf extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Gaan na bladsy';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Wil jy die bladsy oopmaak by';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'KANSELLEER';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OOP';
+
+  @override
+  String get pdfHyperlinkLabel => r'Maak webblad oop';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'Voer asseblief ' "'" r'n geldige nommer in';
 
@@ -285,6 +297,18 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'ወደ ገጽ ይሂዱ';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'ገጹን በ ላይ መክፈት ይፈልጋሉ';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ሰርዝ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ክፈት';
+
+  @override
+  String get pdfHyperlinkLabel => r'ድህረ ገጽ ክፈት';
 
   @override
   String get pdfInvalidPageNumberLabel => r'እባክህ የሚሰራ ቁጥር አስገባ';
@@ -468,6 +492,18 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'انتقل إلى صفحة';
 
   @override
+  String get pdfHyperlinkContentLabel => r'هل تريد فتح الصفحة في';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'إلغاء';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'افتح';
+
+  @override
+  String get pdfHyperlinkLabel => r'افتح صفحة الويب';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'من فضلك أدخل رقما صالحا';
 
   @override
@@ -541,7 +577,7 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
 
   @override
   String get shortRamadanLabel =>
-      r'الرامات الذاكرة العشوائية في الهواتف والحواسيب.';
+      r'الرامات  الذاكرة العشوائية في الهواتف والحواسيب.';
 
   @override
   String get shortSafarLabel => r'ساف.';
@@ -649,6 +685,19 @@ class SfLocalizationsAz extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Səhifəyə daxil ol';
+
+  @override
+  String get pdfHyperlinkContentLabel =>
+      r'ünvanında səhifəni açmaq istəyirsiniz';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'LƏĞV EDİN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'AÇIQ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Veb səhifəni açın';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Etibarlı nömrə daxil edin';
@@ -831,6 +880,19 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Перайсці на старонку';
+
+  @override
+  String get pdfHyperlinkContentLabel =>
+      r'Вы хочаце адкрыць старонку па адрасе';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'АДМЕНАЦЬ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'АДКРЫЦЬ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Адкрыйце вэб-старонку';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -1016,6 +1078,18 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Отиди на страница';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Искате ли да отворите страницата на';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ОТМЕНИ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ОТВОРЕНО';
+
+  @override
+  String get pdfHyperlinkLabel => r'Отворете уеб страница';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Моля въведете валиден номер';
 
   @override
@@ -1196,6 +1270,18 @@ class SfLocalizationsBn extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'পৃষ্ঠায় যান';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'আপনি পৃষ্ঠা খুলতে চান';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'বাতিল করুন';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'খোলা';
+
+  @override
+  String get pdfHyperlinkLabel => r'ওয়েব পেজ খুলুন';
 
   @override
   String get pdfInvalidPageNumberLabel => r'একটি বৈধ নম্বর লিখুন';
@@ -1381,6 +1467,19 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Idi na stranicu';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Da li želite da otvorite stranicu na';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'OTKAZI';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OTVOREN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Otvorite web stranicu';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Unesite ispravan broj';
 
   @override
@@ -1562,6 +1661,18 @@ class SfLocalizationsCa extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Ves a la pàgina';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Vols obrir la pàgina a';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'CANCEL · LAR';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OBERT';
+
+  @override
+  String get pdfHyperlinkLabel => r'Obre la pàgina web';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Introduïu un número vàlid';
@@ -1747,6 +1858,18 @@ class SfLocalizationsCs extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Jdi na stránku';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Chcete otevřít stránku na';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ZRUŠENÍ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OTEVŘENO';
+
+  @override
+  String get pdfHyperlinkLabel => r'Otevřete webovou stránku';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Prosím zadejte platné číslo';
 
   @override
@@ -1929,6 +2052,18 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Gå til side';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Vil du åbne siden kl';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'AFBESTILLE';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ÅBEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Åbn webside';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Indtast venligst et gyldigt nummer';
 
   @override
@@ -2109,6 +2244,18 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Gehen Sie zur Seite';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Möchten Sie die Seite öffnen unter';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ABBRECHEN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OFFEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Webseite öffnen';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -2296,6 +2443,18 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Πήγαινε στην σελίδα';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Θέλετε να ανοίξετε τη σελίδα στο';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ΜΑΤΑΙΩΣΗ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ΑΝΟΙΞΕ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Ανοίξτε την ιστοσελίδα';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'Παρακαλώ εισάγετε έναν έγκυρο αριθμό';
 
@@ -2477,6 +2636,18 @@ class SfLocalizationsEn extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Go to page';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Do you want to open the page at';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'CANCEL';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OPEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Open Web Page';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Please enter a valid number';
@@ -2662,6 +2833,18 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ir a la página';
 
   @override
+  String get pdfHyperlinkContentLabel => r'¿Quieres abrir la página en';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'CANCELAR';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ABIERTO';
+
+  @override
+  String get pdfHyperlinkLabel => r'Abrir página web';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'por favor ingrese un número valido';
 
   @override
@@ -2844,6 +3027,18 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Mine lehele';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Kas soovite lehe avada aadressil';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'TÜHISTA';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'AVATUD';
+
+  @override
+  String get pdfHyperlinkLabel => r'Ava veebileht';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Sisestage kehtiv number';
 
   @override
@@ -3024,6 +3219,18 @@ class SfLocalizationsEu extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Joan orrialdera';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Orria ireki nahi al duzu hemen';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'Utzi';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'IREKI';
+
+  @override
+  String get pdfHyperlinkLabel => r'Ireki Web orria';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -3209,6 +3416,18 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'برو به صفحه';
 
   @override
+  String get pdfHyperlinkContentLabel => r'آیا می خواهید صفحه را در';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'لغو';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'باز کن';
+
+  @override
+  String get pdfHyperlinkLabel => r'صفحه وب را باز کنید';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'لطفا یک شماره معتبر وارد کنید';
 
   @override
@@ -3389,6 +3608,18 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Mene sivulle';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Haluatko avata sivun osoitteessa';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'PERUUTTAA';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'AVATA';
+
+  @override
+  String get pdfHyperlinkLabel => r'Avaa Web-sivu';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Anna kelvollinen numero';
@@ -3572,6 +3803,18 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Pumunta sa pahina';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Gusto mo bang buksan ang pahina sa';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'KANSELAHIN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'BUKAS';
+
+  @override
+  String get pdfHyperlinkLabel => r'Buksan ang Web Page';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -3758,6 +4001,18 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Aller à la page';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Voulez-vous ouvrir la page à';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ANNULER';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OUVRIR';
+
+  @override
+  String get pdfHyperlinkLabel => r'Ouvrir la page Web';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'S' "'" r'il vous plait, entrez un nombre valide';
 
@@ -3846,7 +4101,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get todayLabel => r'Aujourd' "'" r'hui';
 
   @override
-  String get weeknumberLabel => r'Semaine';
+  String get weeknumberLabel => r'La semaine';
 }
 
 /// The translations for Galician (`gl`).
@@ -3939,6 +4194,18 @@ class SfLocalizationsGl extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Ir á páxina';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Queres abrir a páxina en';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'CANCELAR';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ABERTO';
+
+  @override
+  String get pdfHyperlinkLabel => r'Abrir páxina web';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Introduce un número válido';
@@ -4123,6 +4390,18 @@ class SfLocalizationsGu extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'પૃષ્ઠ પર જાઓ';
 
   @override
+  String get pdfHyperlinkContentLabel => r'શું તમે પાનું ખોલવા માંગો છો';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'રદ કરો';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ખુલ્લા';
+
+  @override
+  String get pdfHyperlinkLabel => r'વેબ પેજ ખોલો';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'કૃપા કરીને માન્ય નંબર દાખલ કરો';
 
   @override
@@ -4305,6 +4584,18 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'לך לעמוד';
 
   @override
+  String get pdfHyperlinkContentLabel => r'האם אתה רוצה לפתוח את הדף ב';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'לְבַטֵל';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'לִפְתוֹחַ';
+
+  @override
+  String get pdfHyperlinkLabel => r'פתח את דף האינטרנט';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'נא הכנס מספר תקף';
 
   @override
@@ -4485,6 +4776,18 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'पृष्ठ पर जाओ';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'क्या आप यहां पेज खोलना चाहते हैं';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'रद्द करें';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'खुला';
+
+  @override
+  String get pdfHyperlinkLabel => r'वेब पेज खोलें';
 
   @override
   String get pdfInvalidPageNumberLabel => r'कृपया एक सही संख्या डालिये';
@@ -4670,6 +4973,18 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Idi na stranicu';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Želite li otvoriti stranicu na';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'OTKAZATI';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OTVOREN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Otvorite web stranicu';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Unesite valjani broj';
 
   @override
@@ -4850,6 +5165,18 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Menj az oldalra';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Meg akarja nyitni az oldalt a címen';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'MEGSZÜNTETI';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'NYISD KI';
+
+  @override
+  String get pdfHyperlinkLabel => r'Weboldal megnyitása';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Adjon meg egy érvényes számot';
@@ -5035,6 +5362,18 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Գնալ դեպի էջ';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Ցանկանու՞մ եք բացել էջը ժամը';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ՉԵՂԱՐԿԵԼ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ԲԱՑ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Բացեք վեբ էջը';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Խնդրում ենք մուտքագրել վավեր համար';
 
   @override
@@ -5217,6 +5556,19 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Buka halaman';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Apakah Anda ingin membuka halaman di';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'MEMBATALKAN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'MEMBUKA';
+
+  @override
+  String get pdfHyperlinkLabel => r'Buka Halaman Web';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Harap masukkan nomor yang valid';
 
   @override
@@ -5397,6 +5749,18 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Farðu á síðu';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Viltu opna síðuna á';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'HÆTTA við';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OPNA';
+
+  @override
+  String get pdfHyperlinkLabel => r'Opnaðu vefsíðu';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Vinsamlega sláðu inn gilt númer';
@@ -5584,6 +5948,18 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Vai alla pagina';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Vuoi aprire la pagina a';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ANNULLA';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'APRIRE';
+
+  @override
+  String get pdfHyperlinkLabel => r'Apri pagina web';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'Per favore, inserire un numero valido';
 
@@ -5764,6 +6140,18 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'ページに移動';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'次のページを開きますか';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'キャンセル';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'開いた';
+
+  @override
+  String get pdfHyperlinkLabel => r'Webページを開く';
 
   @override
   String get pdfInvalidPageNumberLabel => r'有効な数値を入力してください';
@@ -5948,6 +6336,18 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Გადადით გვერდზე';
 
   @override
+  String get pdfHyperlinkContentLabel => r'გსურთ გახსნათ გვერდი:';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'გაუქმება';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'გახსენით';
+
+  @override
+  String get pdfHyperlinkLabel => r'გახსენით ვებ გვერდი';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'გთხოვთ, შეიყვანოთ სწორი ნომერი';
 
   @override
@@ -6128,6 +6528,18 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Бетке өту';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'бетті ашқыңыз келе ме?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'БАС ТАРТУ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'АШЫҚ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Веб-бетті ашыңыз';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Жарамды нөмірді енгізіңіз';
@@ -6311,6 +6723,18 @@ class SfLocalizationsKm extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'ទៅកាន់​ទំព័រ';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'តើអ្នកចង់បើកទំព័រនៅ';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'បោះបង់';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'បើក';
+
+  @override
+  String get pdfHyperlinkLabel => r'បើកគេហទំព័រ';
 
   @override
   String get pdfInvalidPageNumberLabel => r'សូមបញ្ចូលលេខត្រឹមត្រូវ។';
@@ -6516,6 +6940,22 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
       '\u{caa}\u{cc1}\u{c9f}\u{c95}\u{ccd}\u{c95}\u{cc6}\u{20}\u{cb9}\u{cc6}\u{cc2}\u{cd5}\u{c97}\u{cbf}\u{cb0}\u{cbf}';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      '\u{ca8}\u{cc0}\u{cb5}\u{cc1}\u{20}\u{caa}\u{cc1}\u{c9f}\u{cb5}\u{ca8}\u{ccd}\u{ca8}\u{cc1}\u{20}\u{ca4}\u{cc6}\u{cb0}\u{cc6}\u{caf}\u{cb2}\u{cc1}\u{20}\u{cac}\u{caf}\u{cb8}\u{cc1}\u{cb5}\u{cbf}\u{cb0}\u{cbe}';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel =>
+      '\u{cb0}\u{ca6}\u{ccd}\u{ca6}\u{cc1}\u{cae}\u{cbe}\u{ca1}\u{cc1}';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel =>
+      '\u{ca4}\u{cc6}\u{cb0}\u{cc6}\u{caf}\u{cbf}\u{cb0}\u{cbf}';
+
+  @override
+  String get pdfHyperlinkLabel =>
+      '\u{cb5}\u{cc6}\u{cac}\u{ccd}\u{20}\u{caa}\u{cc1}\u{c9f}\u{cb5}\u{ca8}\u{ccd}\u{ca8}\u{cc1}\u{20}\u{ca4}\u{cc6}\u{cb0}\u{cc6}\u{caf}\u{cbf}\u{cb0}\u{cbf}';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       '\u{ca6}\u{caf}\u{cb5}\u{cbf}\u{c9f}\u{ccd}\u{c9f}\u{cc1}\u{20}\u{cae}\u{cbe}\u{ca8}\u{ccd}\u{caf}\u{cb5}\u{cbe}\u{ca6}\u{20}\u{cb8}\u{c82}\u{c96}\u{ccd}\u{caf}\u{cc6}\u{caf}\u{ca8}\u{ccd}\u{ca8}\u{cc1}\u{20}\u{ca8}\u{cae}\u{cc2}\u{ca6}\u{cbf}\u{cb8}\u{cbf}';
 
@@ -6708,6 +7148,18 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'페이지로 이동';
 
   @override
+  String get pdfHyperlinkContentLabel => r'페이지를 열시겠습니까?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'취소';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'열려 있는';
+
+  @override
+  String get pdfHyperlinkLabel => r'웹 페이지 열기';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'유효한 숫자를 입력하세요';
 
   @override
@@ -6890,6 +7342,18 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Баракка өтүү';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Баракчаны ачкыңыз келеби?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ЖОК КЫЛУУ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'АЧУУ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Веб баракчаны ачуу';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Жарактуу номер киргизиңиз';
 
   @override
@@ -7069,6 +7533,18 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'ໄປທີ່ໜ້າ';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'ທ່ານຕ້ອງການເປີດຫນ້າຢູ່';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ຍົກເລີກ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ເປີດ';
+
+  @override
+  String get pdfHyperlinkLabel => r'ເປີດໜ້າເວັບ';
 
   @override
   String get pdfInvalidPageNumberLabel => r'ກະລຸນາໃສ່ຕົວເລກທີ່ຖືກຕ້ອງ';
@@ -7253,6 +7729,18 @@ class SfLocalizationsLt extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Eiti į puslapį';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Ar norite atidaryti puslapį adresu';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ATŠAUKTI';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ATVIRAS';
+
+  @override
+  String get pdfHyperlinkLabel => r'Atidarykite tinklalapį';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Įveskite tinkamą numerį';
 
   @override
@@ -7433,6 +7921,18 @@ class SfLocalizationsLv extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Iet uz lapu';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Vai vēlaties atvērt lapu vietnē';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ATCELT';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ATVĒRTS';
+
+  @override
+  String get pdfHyperlinkLabel => r'Atveriet tīmekļa lapu';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Lūdzu, ievadiet derīgu numuru';
@@ -7618,6 +8118,19 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Оди на страна';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Дали сакате да ја отворите страницата на';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ОТКАЖИ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ОТВОРЕНО';
+
+  @override
+  String get pdfHyperlinkLabel => r'Отворете веб-страница';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Ве молиме внесете важечки број';
 
   @override
@@ -7798,6 +8311,18 @@ class SfLocalizationsMl extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'പേജിലേക്ക് പോകുക';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'എന്നതിൽ പേജ് തുറക്കണോ?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'റദ്ദാക്കുക';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'തുറക്കുക';
+
+  @override
+  String get pdfHyperlinkLabel => r'വെബ് പേജ് തുറക്കുക';
 
   @override
   String get pdfInvalidPageNumberLabel => r'ദയവായി ഒരു സാധുവായ നമ്പർ നൽകുക';
@@ -7982,6 +8507,19 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Хуудас руу оч';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'хаягаар хуудсыг нээхийг хүсэж байна уу';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'Цуцлах';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'НЭЭЛТТЭЙ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Вэб хуудсыг нээх';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Хүчинтэй дугаар оруулна уу';
 
   @override
@@ -8162,6 +8700,18 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'पृष्ठावर जा';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'तुम्हाला येथे पृष्ठ उघडायचे आहे का';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'रद्द करा';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'उघडा';
+
+  @override
+  String get pdfHyperlinkLabel => r'वेब पृष्ठ उघडा';
 
   @override
   String get pdfInvalidPageNumberLabel => r'कृपया वैध क्रमांक प्रविष्ट करा';
@@ -8346,6 +8896,19 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Pergi ke halaman';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Adakah anda ingin membuka halaman di';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'BATALKAN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'BUKA';
+
+  @override
+  String get pdfHyperlinkLabel => r'Buka Halaman Web';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'sila masukkan nombor yang sah';
 
   @override
@@ -8526,6 +9089,18 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'စာမျက်နှာသို့သွားပါ';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'စာမျက်နှာမှာ ဖွင့်ချင်ပါသလား။';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'မလုပ်တော့ပါ။';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ဖွင့်ပါ။';
+
+  @override
+  String get pdfHyperlinkLabel => r'ဝဘ်စာမျက်နှာကိုဖွင့်ပါ။';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -8711,6 +9286,18 @@ class SfLocalizationsNb extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Gå til side';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Vil du åpne siden på';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'AVBRYT';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ÅPEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Åpne webside';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Vennligst oppgi et gyldig nummer';
 
   @override
@@ -8891,6 +9478,18 @@ class SfLocalizationsNe extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'पृष्ठमा जानुहोस्';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'के तपाइँ पृष्ठ खोल्न चाहनुहुन्छ';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'रद्द गर्नुहोस्';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'खोल्नुहोस्';
+
+  @override
+  String get pdfHyperlinkLabel => r'वेब पृष्ठ खोल्नुहोस्';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -9076,6 +9675,18 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Ga naar pagina';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Wil je de pagina openen op';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ANNULEREN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OPEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Webpagina openen';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Gelieve een geldig nummer invoeren';
 
   @override
@@ -9256,6 +9867,18 @@ class SfLocalizationsNo extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Gå til side';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Vil du åpne siden på';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'AVBRYT';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ÅPEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Åpne webside';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Vennligst oppgi et gyldig nummer';
@@ -9441,6 +10064,18 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ପୃଷ୍ଠାକୁ ଯାଆନ୍ତୁ |';
 
   @override
+  String get pdfHyperlinkContentLabel => r'ଆପଣ ପେଜ୍ ଖୋଲିବାକୁ ଚାହୁଁଛନ୍ତି କି?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ବାତିଲ୍';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ଖୋଲନ୍ତୁ |';
+
+  @override
+  String get pdfHyperlinkLabel => r'ୱେବ୍ ପୃଷ୍ଠା ଖୋଲନ୍ତୁ |';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'ଦୟାକରି ଏକ ବ valid ଧ ନମ୍ବର ପ୍ରବେଶ କରନ୍ତୁ |';
 
@@ -9622,6 +10257,19 @@ class SfLocalizationsPa extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'ਪੰਨੇ ' "'" r'ਤੇ ਜਾਓ';
+
+  @override
+  String get pdfHyperlinkContentLabel =>
+      r'ਕੀ ਤੁਸੀਂ ' "'" r'ਤੇ ਪੰਨਾ ਖੋਲ੍ਹਣਾ ਚਾਹੁੰਦੇ ਹੋ';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ਰੱਦ ਕਰੋ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ਖੋਲ੍ਹੋ';
+
+  @override
+  String get pdfHyperlinkLabel => r'ਵੈੱਬ ਪੰਨਾ ਖੋਲ੍ਹੋ';
 
   @override
   String get pdfInvalidPageNumberLabel => r'ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਵੈਧ ਨੰਬਰ ਦਾਖਲ ਕਰੋ';
@@ -9806,6 +10454,19 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Idź do strony';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Czy chcesz otworzyć stronę pod adresem?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ANULUJ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OTWARTY';
+
+  @override
+  String get pdfHyperlinkLabel => r'Otwórz stronę internetową';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Proszę wprowadzić poprawny numer';
 
   @override
@@ -9986,6 +10647,18 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'پاڼې ته لاړ شئ';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'ایا تاسو غواړئ چې پاڼه پرانیزئ';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'فسخه کول';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'خلاص';
+
+  @override
+  String get pdfHyperlinkLabel => r'ویب پاڼه پرانیزئ';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -10172,6 +10845,18 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Vá para página';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Deseja abrir a página em';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'CANCELAR';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ABRIR';
+
+  @override
+  String get pdfHyperlinkLabel => r'Abrir página da Web';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Por favor insira um número válido';
 
   @override
@@ -10306,9 +10991,6 @@ class SfLocalizationsPtPt extends SfLocalizationsPt {
 
   @override
   String get shortRamadanLabel => r'Carneiro.';
-
-  @override
-  String get series => r'Série';
 }
 
 /// The translations for Romanian Moldavian Moldovan (`ro`).
@@ -10402,6 +11084,18 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Mergi la pagina';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Doriți să deschideți pagina la';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ANULARE';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'DESCHIS';
+
+  @override
+  String get pdfHyperlinkLabel => r'Deschideți pagina web';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -10587,6 +11281,18 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Перейти на страницу';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Вы хотите открыть страницу в';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ОТМЕНА';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ОТКРЫТЫМ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Открыть веб-страницу';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'пожалуйста введите правильное число';
 
@@ -10768,6 +11474,18 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'පිටුවට යන්න';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'ඔබට පිටුව විවෘත කිරීමට අවශ්‍යද';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'අවලංගු කරන්න';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'විවෘත';
+
+  @override
+  String get pdfHyperlinkLabel => r'වෙබ් පිටුව විවෘත කරන්න';
 
   @override
   String get pdfInvalidPageNumberLabel => r'කරුණාකර වලංගු අංකයක් ඇතුළත් කරන්න';
@@ -10952,6 +11670,18 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Chod na stranu';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Chcete otvoriť stránku na';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ZRUŠIŤ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OTVORENÉ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Otvorte webovú stránku';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Prosím zadajte platné číslo';
 
   @override
@@ -11132,6 +11862,18 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Pojdi na stran';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Ali želite odpreti stran na';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'PREKLIC';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ODPRTO';
+
+  @override
+  String get pdfHyperlinkLabel => r'Odprite spletno stran';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Vnesite veljavno številko';
@@ -11316,6 +12058,18 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Shkoni në faqe';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Dëshironi të hapni faqen në';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ANULON';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'HAPUR';
+
+  @override
+  String get pdfHyperlinkLabel => r'Hapni faqen e internetit';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'Ju lutemi shkruani një numër të vlefshëm';
 
@@ -11498,6 +12252,19 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Иди на страну';
+
+  @override
+  String get pdfHyperlinkContentLabel =>
+      r'Да ли желите да отворите страницу на';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ПОНИШТИТИ, ОТКАЗАТИ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ОПЕН';
+
+  @override
+  String get pdfHyperlinkLabel => r'Отворите веб страницу';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Молимо Вас да унесете важећи број';
@@ -11692,6 +12459,18 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Gå till sidan';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Vill du öppna sidan på';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'AVBRYT';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ÖPPEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Öppna webbsidan';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'var vänlig skriv in ett giltigt nummer';
 
@@ -11873,6 +12652,18 @@ class SfLocalizationsSw extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Nenda kwa ukurasa';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Je, unataka kufungua ukurasa katika';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'GHAIRI';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'FUNGUA';
+
+  @override
+  String get pdfHyperlinkLabel => r'Fungua Ukurasa wa Wavuti';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Tafadhali weka nambari halali';
@@ -12057,6 +12848,19 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'பக்கத்திற்கு செல்';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'நீங்கள் பக்கத்தைத் திறக்க விரும்புகிறீர்களா?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ரத்துசெய்';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'திறந்த';
+
+  @override
+  String get pdfHyperlinkLabel => r'இணையப் பக்கத்தைத் திற';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'சரியான எண்ணை உள்ளிடவும்';
 
   @override
@@ -12237,6 +13041,19 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'పుటకు వెళ్ళు';
+
+  @override
+  String get pdfHyperlinkContentLabel =>
+      r'మీరు పేజీని ఇక్కడ తెరవాలనుకుంటున్నారా';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'రద్దు చేయండి';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'తెరవండి';
+
+  @override
+  String get pdfHyperlinkLabel => r'వెబ్ పేజీని తెరవండి';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -12421,6 +13238,18 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ไปที่หน้า';
 
   @override
+  String get pdfHyperlinkContentLabel => r'ต้องการเปิดเพจที่';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ยกเลิก';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'เปิด';
+
+  @override
+  String get pdfHyperlinkLabel => r'เปิดหน้าเว็บ';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'กรุณาใส่ตัวเลขที่ถูกต้อง';
 
   @override
@@ -12602,6 +13431,18 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Pumunta sa pahina';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Gusto mo bang buksan ang pahina sa';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'KANSELAHIN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'BUKAS';
+
+  @override
+  String get pdfHyperlinkLabel => r'Buksan ang Web Page';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -12788,6 +13629,18 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Sayfaya git';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Sayfayı açmak ister misin?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'İPTAL ET';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'AÇIK';
+
+  @override
+  String get pdfHyperlinkLabel => r'Web Sayfasını Aç';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Lütfen geçerli bir numara girin';
 
   @override
@@ -12827,7 +13680,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get safarLabel => r'Safar';
 
   @override
-  String get series => r'Dizi';
+  String get series => r'Seri';
 
   @override
   String get shaabanLabel => r'Şaban';
@@ -12968,6 +13821,19 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Перейти на сторінку';
+
+  @override
+  String get pdfHyperlinkContentLabel =>
+      r'Бажаєте відкрити сторінку за адресою';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'СКАСУВАТИ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ВІДЧИНЕНО';
+
+  @override
+  String get pdfHyperlinkLabel => r'Відкрийте веб-сторінку';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Введіть дійсне число';
@@ -13150,6 +14016,18 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'صفحے پر جائیں';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'کیا آپ صفحہ کو کھولنا چاہتے ہیں۔';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'منسوخ کریں۔';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'کھولیں';
+
+  @override
+  String get pdfHyperlinkLabel => r'ویب صفحہ کھولیں۔';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -13335,6 +14213,18 @@ class SfLocalizationsUz extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Sahifaga o' "'" r'tish';
 
   @override
+  String get pdfHyperlinkContentLabel => r'sahifani ochmoqchimisiz';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'BEKOR';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OCHIQ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Veb-sahifani oching';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Yaroqli raqam kiriting';
 
   @override
@@ -13515,6 +14405,18 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Đi tới trang';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Bạn có muốn mở trang này tại';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'SỰ HỦY BỎ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'MỞ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Mở trang web';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Vui lòng nhập một số hợp lệ';
@@ -13698,6 +14600,18 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'转到页面';
 
   @override
+  String get pdfHyperlinkContentLabel => r'您要在以下位置打开页面吗';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'取消';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'打开';
+
+  @override
+  String get pdfHyperlinkLabel => r'打开网页';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'请输入有效号码';
 
   @override
@@ -13865,6 +14779,15 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get pdfGoToPageLabel => r'轉到頁面';
 
   @override
+  String get pdfHyperlinkContentLabel => r'您要在以下位置打開頁面嗎';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'打開';
+
+  @override
+  String get pdfHyperlinkLabel => r'打開網頁';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'請輸入有效號碼';
 
   @override
@@ -14015,6 +14938,18 @@ class SfLocalizationsZu extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'Yiya ekhasini';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Ingabe ufuna ukuvula ikhasi ku';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'KHANSELA';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'VULA';
+
+  @override
+  String get pdfHyperlinkLabel => r'Vula Ikhasi Lewebhu';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Sicela ufake inombolo evumelekile';

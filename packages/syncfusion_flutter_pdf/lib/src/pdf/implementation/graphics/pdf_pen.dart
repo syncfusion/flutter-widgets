@@ -111,7 +111,7 @@ class PdfPen {
   ///       pen: PdfPen(PdfColor(255, 0, 0)),
   ///       bounds: Rect.fromLTWH(10, 10, 200, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -131,7 +131,7 @@ class PdfPen {
   ///       pen: PdfPen(PdfColor(255, 0, 0))..brush = PdfBrushes.green,
   ///       bounds: Rect.fromLTWH(10, 10, 200, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -151,7 +151,7 @@ class PdfPen {
   ///       pen: PdfPen(PdfColor(255, 0, 0))..dashOffset = 0.5,
   ///       bounds: Rect.fromLTWH(10, 10, 200, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -171,7 +171,7 @@ class PdfPen {
   ///       pen: PdfPen(PdfColor(255, 0, 0))..dashPattern = [4, 2, 1, 3],
   ///       bounds: Rect.fromLTWH(10, 10, 200, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -196,7 +196,7 @@ class PdfPen {
   ///         ..dashPattern = [4, 2, 1, 3],
   ///       bounds: Rect.fromLTWH(0, 0, 200, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -217,7 +217,7 @@ class PdfPen {
   ///         ..dashPattern = [4, 2, 1, 3],
   ///       bounds: Rect.fromLTWH(0, 0, 200, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -237,7 +237,7 @@ class PdfPen {
   ///       pen: PdfPen(PdfColor(255, 0, 0), width: 4),
   ///       bounds: Rect.fromLTWH(10, 10, 200, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -258,7 +258,7 @@ class PdfPen {
   ///         ..miterLimit = 2,
   ///       bounds: Rect.fromLTWH(10, 10, 200, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -279,7 +279,7 @@ class PdfPen {
   ///         ..dashPattern = [4, 2, 1, 3],
   ///       bounds: Rect.fromLTWH(0, 0, 200, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```

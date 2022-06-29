@@ -16,7 +16,7 @@
 "passwordDialogContentLabel" : "Unesite lozinku za otvaranje ove PDF datoteke", 
 "passwordDialogHintTextLabel" : "Upišite lozinku", 
 "passwordDialogInvalidPasswordLabel" : "Netočna zaporka", 
-"pdfPasswordDialogOpenLabel" : "OTVORENA", 
+"pdfPasswordDialogOpenLabel" : "OTVORENA",
 "pdfPasswordDialogCancelLabel" : "OTKAZATI", 
 "allowedViewDayLabel" : "Dan", 
 "allowedViewWeekLabel" : "Tjedan", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Dan", 
-"series" : "Niz"
+"series" : "Niz", 
+"pdfHyperlinkLabel" : "Otvorite web stranicu", 
+"pdfHyperlinkContentLabel" : "Želite li otvoriti stranicu na", 
+"pdfHyperlinkDialogOpenLabel" : "OTVOREN", 
+"pdfHyperlinkDialogCancelLabel" : "OTKAZATI"
 }

@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "ዙል-ቁ", 
 "shortDhualhiLabel" : "ዙል-ሀ", 
 "daySpanCountLabel" : "ቀን", 
-"series" : "ተከታታይ"
+"series" : "ተከታታይ", 
+"pdfHyperlinkLabel" : "ድህረ ገጽ ክፈት", 
+"pdfHyperlinkContentLabel" : "ገጹን በ ላይ መክፈት ይፈልጋሉ", 
+"pdfHyperlinkDialogOpenLabel" : "ክፈት", 
+"pdfHyperlinkDialogCancelLabel" : "ሰርዝ"
 }

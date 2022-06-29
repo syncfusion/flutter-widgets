@@ -1,9 +1,8 @@
-## [20.1.0.48] - 04/12/2022
-**Bug fixes**
-* Now, the recurrence and spanned icons will be displayed properly when the recurrence appointment is spanned in the flutter event calendar.
-* Now, the header icon will not be overlapped while hiding the calendar header.
+## [20.2.36]
+**Features**
+* Now, we have improved the behavior of the month header of ScheduleView with a minimum date in the Flutter event calendar.
 
-## [20.1.0.47] - 04/04/2022
+## [20.1.47]
 **Features**
 * Provided support for the number of days in view, it is used to customize the days count in the flutter event calendar.
 * Provided support for recurring appointments on the last day of month in the flutter event calendar.

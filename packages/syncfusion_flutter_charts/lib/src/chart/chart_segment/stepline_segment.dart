@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../charts.dart';
 import '../axis/axis.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
@@ -304,15 +305,18 @@ class StepLineSegment extends ChartSegment {
         _oldY3,
       );
     } else {
-      if (segmentProperties.series.dashArray[0] != 0 &&
-          segmentProperties.series.dashArray[1] != 0) {
+      final SeriesRendererDetails seriesRendererDetails =
+          SeriesHelper.getSeriesRendererDetails(
+              segmentProperties.seriesRenderer);
+      if (seriesRendererDetails.dashArray![0] != 0 &&
+          seriesRendererDetails.dashArray![1] != 0) {
         segmentProperties.path
             .moveTo(segmentProperties.x1, segmentProperties.y1);
         segmentProperties.path
             .lineTo(segmentProperties.x3, segmentProperties.y3);
         segmentProperties.path
             .lineTo(segmentProperties.x2, segmentProperties.y2);
-        drawDashedLine(canvas, segmentProperties.series.dashArray, strokePaint!,
+        drawDashedLine(canvas, seriesRendererDetails.dashArray!, strokePaint!,
             segmentProperties.path);
       } else {
         canvas.drawLine(Offset(segmentProperties.x1, segmentProperties.y1),

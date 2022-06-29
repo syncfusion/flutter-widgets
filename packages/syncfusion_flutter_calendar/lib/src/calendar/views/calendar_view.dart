@@ -743,7 +743,9 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                           widget.isRTL,
                           widget.textScaleFactor,
                           widget.isMobilePlatform,
-                          widget.calendar.appointmentTextStyle,
+                          AppointmentHelper.getAppointmentTextStyle(
+                              widget.calendar.appointmentTextStyle,
+                              widget.view),
                           widget.calendar.dragAndDropSettings,
                           widget.view,
                           _updateCalendarStateDetails.allDayPanelHeight,
@@ -2542,7 +2544,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     final _CalendarViewState? viewKey = _getCurrentViewByVisibleDates();
     if (event is PointerScrollEvent && viewKey != null) {
       final double scrolledPosition =
-          widget.isRTL ? -event.scrollDelta.dy : event.scrollDelta.dy;
+          widget.isRTL ? -event.scrollDelta.dx : event.scrollDelta.dx;
       final double targetScrollOffset = math.min(
           math.max(
               viewKey._scrollController!.position.pixels + scrolledPosition,
@@ -8335,7 +8337,8 @@ class _CalendarViewState extends State<_CalendarView>
                     _isRTL,
                     widget.textScaleFactor,
                     widget.isMobilePlatform,
-                    widget.calendar.appointmentTextStyle,
+                    AppointmentHelper.getAppointmentTextStyle(
+                        widget.calendar.appointmentTextStyle, widget.view),
                     allDayPanelHeight,
                     viewHeaderHeight,
                     timeLabelWidth,
