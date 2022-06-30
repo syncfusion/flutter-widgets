@@ -47,7 +47,7 @@ import 'pdf_multiple_value_field.dart';
 /// //Add the footer at the bottom of the document
 /// document.template.bottom = footer;
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -88,7 +88,7 @@ class PdfPageNumberField extends PdfMultipleValueField {
   /// //Add the footer at the bottom of the document
   /// document.template.bottom = footer;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -135,7 +135,7 @@ class PdfPageNumberField extends PdfMultipleValueField {
   /// //Add the footer at the bottom of the document
   /// document.template.bottom = footer;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

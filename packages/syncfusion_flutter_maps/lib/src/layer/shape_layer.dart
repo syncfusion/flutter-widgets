@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/legend_internal.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import '../../maps.dart';
+
 import '../common.dart';
 import '../controller/map_controller.dart';
 import '../controller/map_provider.dart';
@@ -2757,7 +2758,7 @@ class _RenderGeoJSONLayer extends RenderStack
 
   /// Handling zooming using mouse wheel scrolling.
   void _handleScrollEvent(PointerScrollEvent event) {
-    if (_zoomPanBehavior != null && _zoomPanBehavior!.enablePinching) {
+    if (_zoomPanBehavior != null && _zoomPanBehavior!.enableMouseWheelZooming) {
       _controller.isInInteractive = true;
       _controller.gesture ??= Gesture.scale;
       if (_controller.gesture != Gesture.scale) {
@@ -2765,6 +2766,7 @@ class _RenderGeoJSONLayer extends RenderStack
       }
 
       if (_currentHoverItem != null) {
+        _previousHoverItem = _currentHoverItem;
         _currentHoverItem = null;
       }
       _downGlobalPoint ??= event.position;
@@ -2797,6 +2799,8 @@ class _RenderGeoJSONLayer extends RenderStack
         _getScale(newZoomLevel) * _controller.shapeLayerSizeFactor;
     final Offset newShapeLayerOffset =
         _controller.getZoomingTranslation(origin: localFocalPoint);
+    _controller.visibleFocalLatLng = _controller.getVisibleFocalLatLng(
+        newShapeLayerOffset, newShapeLayerSizeFactor);
     final Rect newVisibleBounds = _controller.getVisibleBounds(
         newShapeLayerOffset, newShapeLayerSizeFactor);
     final MapLatLngBounds newVisibleLatLngBounds =
@@ -2983,6 +2987,7 @@ class _RenderGeoJSONLayer extends RenderStack
     }
 
     if (_currentHoverItem != null) {
+      _previousHoverItem = _currentHoverItem;
       _currentHoverItem = null;
     }
 
@@ -3407,6 +3412,7 @@ class _RenderGeoJSONLayer extends RenderStack
             _state.widget.shapeTooltipBuilder != null ||
             hasShapeHoverColor) &&
         element != MapLayerElement.bubble &&
+        mapModel.shapePath != null &&
         mapModel.shapePath!.contains(position);
   }
 

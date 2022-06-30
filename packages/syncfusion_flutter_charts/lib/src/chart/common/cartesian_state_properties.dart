@@ -371,6 +371,7 @@ class CartesianStateProperties extends StateProperties {
     renderingDetails.widgetNeedUpdate = false;
 
     if (chartState.mounted) {
+      isRedrawByZoomPan = true;
       // ignore: invalid_use_of_protected_member
       chartState.setState(() {
         /// check the "mounted" property of this object and  to ensure the object is still in the tree.

@@ -243,6 +243,7 @@ class Legend {
       double? padding,
       double? iconHeight,
       double? iconWidth,
+      bool? shouldAlwaysShowScrollbar,
       bool? toggleSeriesVisibility,
       TextStyle? textStyle,
       bool? isResponsive,
@@ -256,6 +257,7 @@ class Legend {
       this.offset,
       this.image})
       : isVisible = isVisible ?? false,
+        shouldAlwaysShowScrollbar = shouldAlwaysShowScrollbar ?? false,
         position = position ?? LegendPosition.auto,
         alignment = alignment ?? ChartAlignment.center,
         borderColor = borderColor ?? Colors.transparent,
@@ -354,6 +356,23 @@ class Legend {
   /// }
   ///```
   final Color? backgroundColor;
+
+  ///Toggles the scrollbar visibility.
+  ///
+  ///When set to false, the scrollbar appears only when scrolling else the scrollbar fades out. When true, the
+  ///scrollbar will never fade out and will always be visible when the items are overflown.
+  ///
+  ///Defaults to `false`.
+  ///
+  ///```dart
+  /// SfCartesianChart(
+  ///            legend:Legend(
+  ///              isVisible: true,
+  ///               shouldAlwaysShowScrollbar: true
+  ///             )
+  ///           )
+  ///```
+  final bool shouldAlwaysShowScrollbar;
 
   /// Border color of the legend.
   ///

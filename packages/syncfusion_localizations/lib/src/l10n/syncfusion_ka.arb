@@ -40,7 +40,7 @@
 "shaabanLabel" : "შააბანი", 
 "ramadanLabel" : "რამადანი", 
 "shawwalLabel" : "შავვალი", 
-"dhualqiLabel" : "დჰულ-ქიდა", 
+"dhualqiLabel" : "დჰულ-ქიდა",
 "dhualhiLabel" : "დჰულ-ჰიჯა", 
 "shortMuharramLabel" : "მუჰ.", 
 "shortSafarLabel" : "საფ.", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "დულ-ქ", 
 "shortDhualhiLabel" : "დულ-ჰ", 
 "daySpanCountLabel" : "Დღეს", 
-"series" : "სერიალი"
+"series" : "სერიალი", 
+"pdfHyperlinkLabel" : "გახსენით ვებ გვერდი", 
+"pdfHyperlinkContentLabel" : "გსურთ გახსნათ გვერდი:", 
+"pdfHyperlinkDialogOpenLabel" : "გახსენით", 
+"pdfHyperlinkDialogCancelLabel" : "გაუქმება"
 }

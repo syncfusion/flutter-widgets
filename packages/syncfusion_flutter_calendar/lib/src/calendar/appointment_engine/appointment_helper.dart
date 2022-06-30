@@ -255,6 +255,19 @@ class AppointmentHelper {
     return appointmentCollection;
   }
 
+  /// Return calendar appointment text style.
+  static TextStyle getAppointmentTextStyle(
+      TextStyle appointmentTextStyle, CalendarView view) {
+    if (appointmentTextStyle.fontSize != -1) {
+      return appointmentTextStyle;
+    }
+    return TextStyle(
+        color: appointmentTextStyle.color,
+        fontSize: 12,
+        fontWeight: appointmentTextStyle.fontWeight,
+        fontFamily: appointmentTextStyle.fontFamily);
+  }
+
   static CalendarAppointment _copy(CalendarAppointment appointment) {
     final CalendarAppointment copyAppointment = CalendarAppointment(
         startTime: appointment.startTime,
@@ -1364,6 +1377,24 @@ class AppointmentHelper {
             specificStartDate: visibleStartDate,
             specificEndDate: visibleEndDate);
 
+    List<DateTime> recDates = <DateTime>[];
+    if (recursiveDates.isNotEmpty) {
+      String countRule = recurrenceRule;
+
+      /// To check whether the appointment is pattern or not, we need to get
+      /// the first appointment of the rrule, hence added count as 1 in rrule,
+      /// if the count is not given in the rrule, we didn't change
+      /// the appointment's rrule we used a separate property internally
+      /// for our purpose.
+      if (!countRule.contains('COUNT')) {
+        countRule = '$countRule;COUNT=1';
+      }
+
+      recDates = RecurrenceHelper.getRecurrenceDateTimeCollection(
+          countRule, appointment.actualStartTime,
+          specificStartDate: appointment.startTime);
+    }
+
     for (int j = 0; j < recursiveDates.length; j++) {
       final DateTime recursiveDate = recursiveDates[j];
       if (appointment.recurrenceExceptionDates != null) {
@@ -1386,20 +1417,6 @@ class AppointmentHelper {
       final CalendarAppointment occurrenceAppointment =
           _cloneRecurrenceAppointment(
               appointment, recursiveDate, scheduleTimeZone);
-      String recurrenceRule = appointment.recurrenceRule!;
-
-      /// To check whether the appointment is pattern or not, we need to get
-      /// the first appointment of the rrule, hence added count as 1 in rrule,
-      /// if count not given in the rrule, here we didn't change
-      /// the appointment's rrule we used a separate property internally
-      /// for our purpose.
-      if (!recurrenceRule.contains('COUNT')) {
-        recurrenceRule = '$recurrenceRule;COUNT=1';
-      }
-      final List<DateTime> recDates =
-          RecurrenceHelper.getRecurrenceDateTimeCollection(
-              recurrenceRule, appointment.actualStartTime,
-              specificStartDate: appointment.startTime);
 
       /// Here we used isOccurrenceAppointment keyword to identify the
       /// occurrence appointment When we clone the pattern appointment for

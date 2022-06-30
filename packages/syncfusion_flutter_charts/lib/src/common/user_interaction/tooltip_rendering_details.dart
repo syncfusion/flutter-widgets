@@ -70,6 +70,9 @@ class TooltipRenderingDetails {
   TooltipValue? prevTooltipValue;
   TooltipValue? _presentTooltipValue;
 
+  /// Hold the previous tooltip values and this is used to show the tooltip in dynamic update cases using the public methods.
+  TooltipValue? prevTooltipData;
+
   /// Specifies the current tooltip value.
   TooltipValue? currentTooltipValue;
 
@@ -94,6 +97,12 @@ class TooltipRenderingDetails {
 
   /// Holds the offset value of show location.
   Offset? showLocation;
+
+  /// Holds the boolean value to decide rendering position of tooltip.
+  bool showTooltipPosition = false;
+
+  /// Holds the dynamic values of the tooltip enabled data point.
+  dynamic dataPointValues;
 
   ///  Holds the value of tooltip bounds.
   Rect? tooltipBounds;
@@ -629,6 +638,8 @@ class TooltipRenderingDetails {
 
   /// Tooltip show by pixel.
   void internalShowByPixel(double x, double y) {
+    prevTooltipData = null;
+    showTooltipPosition = true;
     _stateProperties.isTooltipHidden = false;
     final dynamic chart = _stateProperties.chart;
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
@@ -1345,6 +1356,10 @@ class TooltipRenderingDetails {
     final CartesianStateProperties stateProperties =
         _stateProperties as CartesianStateProperties;
     bool isContains = false;
+    //To hide the tooltip on dynamic update when the point is not in viewport,
+    if (!_isPointWithInRect(position, stateProperties.chartAxis.axisClipRect)) {
+      chartTooltipState?.hide(hideDelay: 0);
+    }
     if (_isPointWithInRect(position, stateProperties.chartAxis.axisClipRect)) {
       Offset? tooltipPosition;
       double touchPadding;
@@ -1415,15 +1430,15 @@ class TooltipRenderingDetails {
               _presentTooltipValue =
                   TooltipValue(i, count, outlierTooltipIndex);
               currentSeriesDetails = _seriesRendererDetails;
-              pointIndex = _stateProperties.chart is SfCartesianChart
-                  ? (isTrendLine ?? false)
-                      ? regionRect[4].index
-                      : regionRect[4].visiblePointIndex
-                  : count;
               _dataPoint = regionRect[4];
               _markerType = _seriesRendererDetails!.series.markerSettings.shape;
               Color? seriesColor = _seriesRendererDetails!.seriesColor;
               if (_seriesRendererDetails!.seriesType == 'waterfall') {
+                pointIndex = _stateProperties.chart is SfCartesianChart
+                    ? (isTrendLine ?? false)
+                        ? regionRect[4].index
+                        : regionRect[4].visiblePointIndex
+                    : count;
                 seriesColor = getWaterfallSeriesColor(
                     _seriesRendererDetails!.series
                         as WaterfallSeries<dynamic, dynamic>,
@@ -1468,9 +1483,24 @@ class TooltipRenderingDetails {
               padding = paddingData[0];
               tooltipPosition = paddingData[1];
               showLocation = tooltipPosition;
-              dataValues = values;
+              if (prevTooltipData == null ||
+                  prevTooltipData!.pointIndex ==
+                      _presentTooltipValue!.pointIndex) {
+                dataValues = values;
+                pointIndex = _stateProperties.chart is SfCartesianChart
+                    ? (isTrendLine ?? false)
+                        ? regionRect[4].index
+                        : regionRect[4].visiblePointIndex
+                    : count;
+
+                showTooltipPosition = prevTooltipData != null &&
+                    prevTooltipData!.pointIndex ==
+                        _presentTooltipValue!.pointIndex;
+              }
+              dataPointValues = dataValues ?? dataPointValues;
               dataRect = regionRect;
               isContains = _mouseTooltip = true;
+              prevTooltipData = prevTooltipData ?? _presentTooltipValue;
             }
             count++;
           });
@@ -1586,12 +1616,12 @@ class TooltipRenderingDetails {
           _stringValue = _calculateCartesianTooltipText(
               currentSeriesDetails,
               dataRect[4],
-              dataValues,
-              tooltipPosition!,
+              dataValues ?? dataPointValues,
+              !showTooltipPosition ? tooltipPosition! : position,
               outlierTooltip,
               outlierTooltipIndex);
         }
-        showLocation = tooltipPosition;
+        showLocation = !showTooltipPosition ? tooltipPosition : position;
       } else {
         _stringValue = null;
         if (!isHovering) {

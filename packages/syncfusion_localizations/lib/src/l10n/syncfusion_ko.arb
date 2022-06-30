@@ -18,7 +18,7 @@
 "passwordDialogInvalidPasswordLabel" : "유효하지 않은 비밀번호", 
 "pdfPasswordDialogOpenLabel" : "열려있는", 
 "pdfPasswordDialogCancelLabel" : "취소", 
-"allowedViewDayLabel" : "일", 
+"allowedViewDayLabel" : "일",
 "allowedViewWeekLabel" : "주", 
 "allowedViewWorkWeekLabel" : "작업 주간", 
 "allowedViewMonthLabel" : "월", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "둘큐", 
 "shortDhualhiLabel" : "둘-H", 
 "daySpanCountLabel" : "일", 
-"series" : "시리즈"
+"series" : "시리즈", 
+"pdfHyperlinkLabel" : "웹 페이지 열기", 
+"pdfHyperlinkContentLabel" : "페이지를 열시겠습니까?", 
+"pdfHyperlinkDialogOpenLabel" : "열려 있는", 
+"pdfHyperlinkDialogCancelLabel" : "취소"
 }

@@ -38,7 +38,7 @@ import 'pdf_section_collection.dart';
 ///     brush: PdfBrushes.darkBlue,
 ///     bounds: const Rect.fromLTWH(170, 100, 0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -57,7 +57,7 @@ class PdfPage implements IPdfWrapper {
   ///     brush: PdfBrushes.darkBlue,
   ///     bounds: const Rect.fromLTWH(170, 100, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -95,7 +95,7 @@ class PdfPage implements IPdfWrapper {
   /// //Create a new PDF page and Gets the size of its page
   /// Size size = document.pages.add().size;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -144,7 +144,7 @@ class PdfPage implements IPdfWrapper {
   /// //Create a new PDF page and Adds the annotation to the PDF page
   /// document.pages.add().annotations.add(rectangleAnnotation);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -189,7 +189,7 @@ class PdfPage implements IPdfWrapper {
   ///     brush: PdfBrushes.darkBlue,
   ///     bounds: const Rect.fromLTWH(170, 100, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -219,7 +219,7 @@ class PdfPage implements IPdfWrapper {
   /// graphics.drawArc(Rect.fromLTWH(0, 0, 50, 50), 360, 360,
   ///     pen: PdfPen(PdfColor(0, 250, 0), width: 10));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -240,7 +240,7 @@ class PdfPage implements IPdfWrapper {
   /// //Create a new PDF page and gets the default layer
   /// PdfPageLayer defaultLayer = document.pages.add().defaultLayer;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -253,7 +253,7 @@ class PdfPage implements IPdfWrapper {
   /// //Create a new PDF page and gets the default layer index
   /// int layerIndex = document.pages.add().defaultLayerIndex;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -294,7 +294,7 @@ class PdfPage implements IPdfWrapper {
   /// //Rotation of the PDF page
   /// PdfPageRotateAngle rotation = document.pages[0].rotation;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -327,7 +327,7 @@ class PdfPage implements IPdfWrapper {
   ///     brush: PdfBrushes.darkBlue,
   ///     bounds: Rect.fromLTWH(400, 600, clientSize.width, clientSize.height));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -357,7 +357,7 @@ class PdfPage implements IPdfWrapper {
   /// page.graphics.drawPdfTemplate(
   ///     template, Offset(20, 0), Size(page.size.width / 2, page.size.height));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

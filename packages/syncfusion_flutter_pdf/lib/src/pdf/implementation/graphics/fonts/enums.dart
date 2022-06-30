@@ -6,7 +6,7 @@
 ///   ..pages.add().graphics.drawString('Hello World!',
 ///       PdfStandardFont(PdfFontFamily.helvetica, 12, style: PdfFontStyle.bold));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -36,7 +36,7 @@ enum PdfFontStyle {
 ///       'Hello world!', PdfStandardFont(PdfFontFamily.helvetica, 12),
 ///       brush: PdfBrushes.black);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -68,7 +68,7 @@ enum PdfFontFamily {
 ///           alignment: PdfTextAlignment.left,
 ///           subSuperscript: PdfSubSuperscript.subscript));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -92,7 +92,7 @@ enum PdfSubSuperscript {
 ///       'こんにちは世界', PdfCjkStandardFont(PdfCjkFontFamily.heiseiMinchoW3, 20),
 ///       brush: PdfBrushes.black);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -129,7 +129,7 @@ enum PdfCjkFontFamily {
 ///       format: PdfStringFormat(
 ///           alignment: PdfTextAlignment.left, wordWrap: PdfWordWrapType.word));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```

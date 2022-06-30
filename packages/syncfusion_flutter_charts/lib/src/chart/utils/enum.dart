@@ -48,6 +48,9 @@ enum AxisLabelIntersectAction {
   /// - AxisLabelIntersectAction.wrap, wraps and places the intersecting labels in the next line.
   wrap,
 
+  /// - AxisLabelIntersectAction.trim, trim the intersecting labels. The tooltip will be shown by tapping or hovering the trimmed label
+  trim,
+
   /// - AxisLabelIntersectAction.multipleRows, places the axis labels in multiple rows.
   multipleRows,
 

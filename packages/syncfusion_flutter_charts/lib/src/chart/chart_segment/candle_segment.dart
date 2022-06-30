@@ -348,11 +348,11 @@ class CandleSegment extends ChartSegment {
             : _drawRectPath();
       }
 
-      if (_segmentProperties.series.dashArray[0] != 0 &&
-          _segmentProperties.series.dashArray[1] != 0 &&
+      if (seriesRendererDetails.dashArray![0] != 0 &&
+          seriesRendererDetails.dashArray![1] != 0 &&
           fillPaint!.style != PaintingStyle.fill &&
           _segmentProperties.series.animationDuration <= 0 == true) {
-        drawDashedLine(canvas, _segmentProperties.series.dashArray, fillPaint!,
+        drawDashedLine(canvas, seriesRendererDetails.dashArray!, fillPaint!,
             _segmentProperties.path);
       } else {
         canvas.drawPath(_segmentProperties.path, fillPaint!);

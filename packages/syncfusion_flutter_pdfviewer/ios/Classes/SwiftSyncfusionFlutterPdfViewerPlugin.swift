@@ -131,10 +131,7 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         let imageRect = CGRect(x: 0,y: 0,width: pageRect.size.width*CGFloat(scale),height: pageRect.size.height*CGFloat(scale))
         if #available(iOS 10.0, *) {
             let format = UIGraphicsImageRendererFormat()
-            if(imageRect.width > 4000 || imageRect.height > 4000)
-            {
                 format.scale = 1
-            }
             if #available(iOS 12.0, *) {
                 format.preferredRange = .standard
             } else {

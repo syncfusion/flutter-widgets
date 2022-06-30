@@ -34,7 +34,7 @@ class PdfRectangleAnnotation extends PdfAnnotation {
   ///     const Rect.fromLTWH(0, 30, 80, 80), 'SquareAnnotation',
   ///     innerColor: PdfColor(255, 0, 0), color: PdfColor(255, 255, 0));
   /// page.annotations.add(rectangleAnnotation);
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfRectangleAnnotation(Rect bounds, String text,

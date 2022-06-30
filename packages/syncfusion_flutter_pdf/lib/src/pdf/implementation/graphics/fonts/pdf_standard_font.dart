@@ -18,7 +18,7 @@ import 'pdf_string_format.dart';
 ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
 ///       brush: PdfBrushes.black);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -34,7 +34,7 @@ class PdfStandardFont extends PdfFont {
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///       brush: PdfBrushes.black);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -62,7 +62,7 @@ class PdfStandardFont extends PdfFont {
   ///     'The font family name is ${font.fontFamily}', font,
   ///     brush: PdfBrushes.black);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -101,7 +101,7 @@ class PdfStandardFont extends PdfFont {
   ///     'The font family name is ${font.fontFamily}', font,
   ///     brush: PdfBrushes.black);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```

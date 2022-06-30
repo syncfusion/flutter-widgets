@@ -40,7 +40,7 @@ class PdfEllipseAnnotation extends PdfAnnotation {
   /// //Add annotation to the page.
   /// page.annotations.add(ellipseAnnotation);
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfEllipseAnnotation(Rect bounds, String text,

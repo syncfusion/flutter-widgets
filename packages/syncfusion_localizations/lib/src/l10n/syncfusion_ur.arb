@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "ذوالقع", 
 "shortDhualhiLabel" : "ذوالحجہ", 
 "daySpanCountLabel" : "دن", 
-"series" : "سلسلہ"
+"series" : "سلسلہ", 
+"pdfHyperlinkLabel" : "ویب صفحہ کھولیں۔", 
+"pdfHyperlinkContentLabel" : "کیا آپ صفحہ کو کھولنا چاہتے ہیں۔", 
+"pdfHyperlinkDialogOpenLabel" : "کھولیں", 
+"pdfHyperlinkDialogCancelLabel" : "منسوخ کریں۔"
 }

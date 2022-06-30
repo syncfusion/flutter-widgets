@@ -64,7 +64,7 @@ class MyHomePageState extends State<MyHomePage> {
     final PdfDocument document =
         _key.currentState!.exportToPdfDocument(fitAllColumnsInOnePage: true);
 
-    final List<int> bytes = document.save();
+    final List<int> bytes = document.saveSync();
     await helper.saveAndLaunchFile(bytes, 'DataGrid.pdf');
     document.dispose();
   }

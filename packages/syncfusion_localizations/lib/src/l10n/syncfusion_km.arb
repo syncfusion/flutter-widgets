@@ -37,7 +37,7 @@
 "jumada1Label" : "Jumada al-awwal", 
 "jumada2Label" : "ជូម៉ាដា អាល់ថានី", 
 "rajabLabel" : "រ៉ាចាប", 
-"shaabanLabel" : "សារ៉ាបាន", 
+"shaabanLabel" : "សារ៉ាបាន",
 "ramadanLabel" : "រ៉ាម៉ាដាន", 
 "shawwalLabel" : "Shawwal", 
 "dhualqiLabel" : "Dhu al-Qi'dah", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "ថ្ងៃ", 
-"series" : "ស៊េរី"
+"series" : "ស៊េរី", 
+"pdfHyperlinkLabel" : "បើកគេហទំព័រ", 
+"pdfHyperlinkContentLabel" : "តើអ្នកចង់បើកទំព័រនៅ", 
+"pdfHyperlinkDialogOpenLabel" : "បើក", 
+"pdfHyperlinkDialogCancelLabel" : "បោះបង់"
 }

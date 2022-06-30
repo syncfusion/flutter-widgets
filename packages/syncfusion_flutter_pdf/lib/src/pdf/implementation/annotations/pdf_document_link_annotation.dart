@@ -28,7 +28,7 @@ import 'pdf_annotation.dart';
 ///     Rect.fromLTWH(10, 40, 30, 30),
 ///     PdfDestination(document.pages.add(), Offset(10, 0))));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -44,7 +44,7 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
   ///     Rect.fromLTWH(10, 40, 30, 30),
   ///     PdfDestination(document.pages.add(), Offset(10, 0))));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -78,7 +78,7 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
   /// //Add the document link to the page
   /// page.annotations.add(documentLinkAnnotation);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

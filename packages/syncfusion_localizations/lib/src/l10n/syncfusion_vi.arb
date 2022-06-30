@@ -10,7 +10,7 @@
 "pdfGoToPageLabel" : "Đi tới trang", 
 "pdfEnterPageNumberLabel" : "Nhập số trang", 
 "pdfInvalidPageNumberLabel" : "Vui lòng nhập một số hợp lệ", 
-"pdfPaginationDialogOkLabel" : "VÂNG", 
+"pdfPaginationDialogOkLabel" : "VÂNG",
 "pdfPaginationDialogCancelLabel" : "SỰ HỦY BỎ", 
 "passwordDialogHeaderTextLabel" : "Mật khẩu được bảo vệ", 
 "passwordDialogContentLabel" : "Nhập mật khẩu để mở tệp PDF này", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Ngày", 
-"series" : "Hàng loạt"
+"series" : "Hàng loạt", 
+"pdfHyperlinkLabel" : "Mở trang web", 
+"pdfHyperlinkContentLabel" : "Bạn có muốn mở trang này tại", 
+"pdfHyperlinkDialogOpenLabel" : "MỞ", 
+"pdfHyperlinkDialogCancelLabel" : "SỰ HỦY BỎ"
 }

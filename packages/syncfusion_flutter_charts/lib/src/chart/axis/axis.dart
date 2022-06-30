@@ -2425,8 +2425,16 @@ class ChartAxisRendererDetails {
 
   /// To get the label collection
   List<String> _gettingLabelCollection(
-      String currentLabel, num labelsExtent, ChartAxisRenderer axisRenderer) {
-    final List<String> textCollection = currentLabel.split(RegExp(' '));
+      String currentLabel,
+      num labelsExtent,
+      ChartAxisRenderer axisRenderer,
+      AxisLabelIntersectAction labelIntersectAction) {
+    late List<String> textCollection = <String>[];
+    if (labelIntersectAction == AxisLabelIntersectAction.wrap) {
+      textCollection = currentLabel.split(RegExp(' '));
+    } else {
+      textCollection.add(currentLabel);
+    }
     final List<String> labelCollection = <String>[];
     String text;
     for (int i = 0; i < textCollection.length; i++) {
@@ -3528,13 +3536,20 @@ class ChartAxisRendererDetails {
   }
 
   /// To trigger the render label event
-  void triggerLabelRenderEvent(String labelText, num labelValue) {
+  void triggerLabelRenderEvent(String labelText, num labelValue,
+      [DateTimeIntervalType? currentDateTimeIntervalType,
+      String? currentDateFormat]) {
     TextStyle fontStyle = axis.labelStyle;
     final String actualText = labelText;
     String renderText = actualText;
     String? eventActualText;
-    final AxisLabelRenderDetails axisLabelDetails =
-        AxisLabelRenderDetails(labelValue, actualText, fontStyle, axis);
+    final AxisLabelRenderDetails axisLabelDetails = AxisLabelRenderDetails(
+        labelValue,
+        actualText,
+        fontStyle,
+        axis,
+        currentDateTimeIntervalType,
+        currentDateFormat);
     if (axis.axisLabelFormatter != null) {
       final ChartAxisLabel axisLabel =
           axis.axisLabelFormatter!(axisLabelDetails);
@@ -3704,8 +3719,9 @@ class ChartAxisRendererDetails {
         }
         break;
       case AxisLabelIntersectAction.wrap:
+      case AxisLabelIntersectAction.trim:
         label._labelCollection = _gettingLabelCollection(
-            label.renderText!, labelMaximumWidth, axisRenderer);
+            label.renderText!, labelMaximumWidth, axisRenderer, action);
         if (label._labelCollection!.isNotEmpty) {
           label.renderText = label._labelCollection![0];
         }

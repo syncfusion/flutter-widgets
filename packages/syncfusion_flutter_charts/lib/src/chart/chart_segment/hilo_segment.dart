@@ -173,15 +173,15 @@ class HiloSegment extends ChartSegment {
             _segmentProperties.seriesRenderer);
       }
     } else {
-      if (_segmentProperties.series.dashArray[0] != 0 &&
-          _segmentProperties.series.dashArray[1] != 0) {
+      if (seriesRendererDetails.dashArray![0] != 0 &&
+          seriesRendererDetails.dashArray![1] != 0) {
         _segmentProperties.path = Path();
         _segmentProperties.path
             .moveTo(_segmentProperties.lowPoint.x, _segmentProperties.high);
         _segmentProperties.path
             .lineTo(_segmentProperties.highPoint.x, _segmentProperties.low);
-        drawDashedLine(canvas, _segmentProperties.series.dashArray,
-            strokePaint!, _segmentProperties.path);
+        drawDashedLine(canvas, seriesRendererDetails.dashArray!, strokePaint!,
+            _segmentProperties.path);
       } else {
         canvas.drawLine(
             Offset(_segmentProperties.lowPoint.x, _segmentProperties.high),

@@ -303,6 +303,7 @@ class MapLegend extends DiagnosticableTree {
   /// * `MapLegend.bar()` named constructor, for bar legend type.
   const MapLegend(
     this.source, {
+    this.shouldAlwaysShowScrollbar = false,
     this.title,
     this.position = MapLegendPosition.top,
     this.offset,
@@ -462,6 +463,7 @@ class MapLegend extends DiagnosticableTree {
   /// diamond, rectangle and triangle.
   const MapLegend.bar(
     this.source, {
+    this.shouldAlwaysShowScrollbar = false,
     this.title,
     this.overflowMode = MapLegendOverflowMode.scroll,
     this.padding = const EdgeInsets.all(10.0),
@@ -583,6 +585,25 @@ class MapLegend extends DiagnosticableTree {
   ///
   /// * `MapLegend()`, to know about the legend in maps.
   final Widget? title;
+
+  ///Toggles the scrollbar visibility.
+  ///
+  /// When set to false, the scrollbar appears only when scrolling else the
+  /// scrollbar fades out. When true, the scrollbar will never fade out and
+  /// will always be visible when the items are overflown.
+  ///
+  ///Defaults to `false`.
+  ///
+  ///```dart
+  /// MapShapeLayer(
+  ///            legend:MapLegend(
+  ///              isVisible: true,
+  ///              shouldAlwaysShowScrollbar: true,
+  ///                  overflowMode: MapLegendOverflowMode.scroll,
+  ///             )
+  ///           )
+  ///```
+  final bool shouldAlwaysShowScrollbar;
 
   /// Sets the padding around the legend.
   ///
@@ -2396,6 +2417,7 @@ class _LegendState extends State<Legend> {
     switch (widget.legend._type) {
       case _LegendType.vector:
         return SfLegend(
+          shouldAlwaysShowScrollbar: widget.legend.shouldAlwaysShowScrollbar,
           items: _getLegendItems(),
           title: widget.legend.title,
           direction: widget.legend.direction,
@@ -2426,6 +2448,7 @@ class _LegendState extends State<Legend> {
         return SfLegend.bar(
           items: _getLegendItems(),
           title: widget.legend.title,
+          shouldAlwaysShowScrollbar: widget.legend.shouldAlwaysShowScrollbar,
           position: _getEffectivePosition(widget.legend.position),
           overflowMode: _getEffectiveOverflowMode(widget.legend.overflowMode),
           itemSpacing: widget.legend.spacing,

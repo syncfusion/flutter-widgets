@@ -196,7 +196,7 @@ class SfCalendar extends StatefulWidget {
     DateTime? maxDate,
     this.appointmentTextStyle = const TextStyle(
         color: Colors.white,
-        fontSize: 10,
+        fontSize: -1,
         fontWeight: FontWeight.w500,
         fontFamily: 'Roboto'),
     this.showNavigationArrow = false,
@@ -5157,7 +5157,8 @@ class _SfCalendarState extends State<SfCalendar>
         final List<String> rRule = RecurrenceHelper.splitRule(
             appointment.recurrenceRule!, ruleSeparator);
         final String untilValue = rRule[rRule.indexOf('UNTIL') + 1];
-        DateTime recurrenceEndDate = DateTime.parse(untilValue);
+        DateTime recurrenceEndDate =
+            RecurrenceHelper.getUntilEndDate(untilValue);
         recurrenceEndDate = DateTime(recurrenceEndDate.year,
             recurrenceEndDate.month, recurrenceEndDate.day, 23, 59, 59);
         if (recurrenceEndDate.isAfter(currentMaxDate)) {
@@ -5298,7 +5299,8 @@ class _SfCalendarState extends State<SfCalendar>
           RecurrenceHelper.splitRule(rule, ruleSeparator);
       if (rRule.contains('UNTIL')) {
         final String untilValue = rRule[rRule.indexOf('UNTIL') + 1];
-        DateTime recurrenceEndDate = DateTime.parse(untilValue);
+        DateTime recurrenceEndDate =
+            RecurrenceHelper.getUntilEndDate(untilValue);
         recurrenceEndDate = DateTime(recurrenceEndDate.year,
             recurrenceEndDate.month, recurrenceEndDate.day, 23, 59, 59);
         if (recurrenceEndDate.isBefore(startDate)) {
@@ -5575,6 +5577,13 @@ class _SfCalendarState extends State<SfCalendar>
     final DateTime endDate =
         DateTimeHelper.getDateTimeValue(addDays(startDate, 6));
 
+    bool initialMonthHeader = false;
+    if (((index == 0 && _previousDates.isEmpty) ||
+            (index < 0 && -index > _previousDates.length - 1)) &&
+        startDate.month == _minDate!.month) {
+      initialMonthHeader = true;
+    }
+
     /// Get the visible week appointment and split the appointments based on
     /// date.
     final List<CalendarAppointment> appointmentCollection =
@@ -5646,9 +5655,11 @@ class _SfCalendarState extends State<SfCalendar>
 
     /// Check the week date needs month header at first or before of appointment
     /// view.
+
     bool isNeedMonthBuilder = _useMobilePlatformUI &&
         (prevEndDate.month != startDate.month ||
-            prevEndDate.year != startDate.year);
+            prevEndDate.year != startDate.year ||
+            initialMonthHeader);
 
     /// Check the start date have month header and the current week have
     /// different month dates(like Feb 27 - Mar 5). This scenario raised when
@@ -5821,7 +5832,8 @@ class _SfCalendarState extends State<SfCalendar>
     /// next month dates does not have appointments and is before max date.
     if (isNeedInBetweenMonthBuilder &&
         (!isNextMonthHasNoAppointment ||
-            isSameOrBeforeDate(_maxDate, endDate))) {
+            isSameOrBeforeDate(
+                _maxDate, DateTime(endDate.year, endDate.month)))) {
       /// Add the height of month label to total height of view and
       /// Add the month header top padding value to height when in between
       /// week needs month header
@@ -6166,7 +6178,7 @@ class _SfCalendarState extends State<SfCalendar>
     if (_useMobilePlatformUI &&
         isNeedInBetweenMonthBuilder &&
         isNextMonthHasNoAppointment &&
-        isSameOrBeforeDate(_maxDate, endDate)) {
+        isSameOrBeforeDate(_maxDate, DateTime(endDate.year, endDate.month))) {
       /// Calculate and assign the intersection point because the current
       /// view holds next month label. if scrolling reaches this position
       /// then we update the header date so add the location to intersecting
@@ -8295,26 +8307,30 @@ class _SfCalendarState extends State<SfCalendar>
                         top + widget.headerHeight, 0, isResourceEnabled);
                   },
                   child: GestureDetector(
-                    child: ListView(
-                        padding: EdgeInsets.zero,
-                        physics: const ClampingScrollPhysics(),
-                        controller: _resourcePanelScrollController,
-                        children: <Widget>[
-                          ResourceViewWidget(
-                              _resourceCollection,
-                              widget.resourceViewSettings,
-                              resourceItemHeight,
-                              widget.cellBorderColor,
-                              _calendarTheme,
-                              _resourceImageNotifier,
-                              isRTL,
-                              _textScaleFactor,
-                              _resourceHoverNotifier.value,
-                              _imagePainterCollection,
-                              resourceViewSize,
-                              panelHeight,
-                              widget.resourceViewHeaderBuilder),
-                        ]),
+                    child: ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context)
+                          .copyWith(scrollbars: false),
+                      child: ListView(
+                          padding: EdgeInsets.zero,
+                          physics: const ClampingScrollPhysics(),
+                          controller: _resourcePanelScrollController,
+                          children: <Widget>[
+                            ResourceViewWidget(
+                                _resourceCollection,
+                                widget.resourceViewSettings,
+                                resourceItemHeight,
+                                widget.cellBorderColor,
+                                _calendarTheme,
+                                _resourceImageNotifier,
+                                isRTL,
+                                _textScaleFactor,
+                                _resourceHoverNotifier.value,
+                                _imagePainterCollection,
+                                resourceViewSize,
+                                panelHeight,
+                                widget.resourceViewHeaderBuilder),
+                          ]),
+                    ),
                     onTapUp: (TapUpDetails details) {
                       _handleOnTapForResourcePanel(details, resourceItemHeight);
                     },

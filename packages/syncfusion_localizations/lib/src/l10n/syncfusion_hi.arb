@@ -11,7 +11,7 @@
 "pdfEnterPageNumberLabel" : "पेज नंबर दर्ज करें", 
 "pdfInvalidPageNumberLabel" : "कृपया एक सही संख्या डालिये", 
 "pdfPaginationDialogOkLabel" : "ठीक", 
-"pdfPaginationDialogCancelLabel" : "रद्द करना", 
+"pdfPaginationDialogCancelLabel" : "रद्द करना",
 "passwordDialogHeaderTextLabel" : "पासवर्ड से सुरक्षित", 
 "passwordDialogContentLabel" : "इस पीडीएफ फाइल को खोलने के लिए पासवर्ड दर्ज करें", 
 "passwordDialogHintTextLabel" : "पास वर्ड दर्ज करें", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "धुल-क्यू", 
 "shortDhualhiLabel" : "धुल-हो", 
 "daySpanCountLabel" : "दिन", 
-"series" : "श्रृंखला"
+"series" : "श्रृंखला", 
+"pdfHyperlinkLabel" : "वेब पेज खोलें", 
+"pdfHyperlinkContentLabel" : "क्या आप यहां पेज खोलना चाहते हैं", 
+"pdfHyperlinkDialogOpenLabel" : "खुला", 
+"pdfHyperlinkDialogCancelLabel" : "रद्द करें"
 }

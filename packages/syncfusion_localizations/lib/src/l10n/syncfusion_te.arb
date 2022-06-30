@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "ధుల్-క్యూ", 
 "shortDhualhiLabel" : "ధుల్-హెచ్", 
 "daySpanCountLabel" : "రోజు", 
-"series" : "సిరీస్"
+"series" : "సిరీస్", 
+"pdfHyperlinkLabel" : "వెబ్ పేజీని తెరవండి", 
+"pdfHyperlinkContentLabel" : "మీరు పేజీని ఇక్కడ తెరవాలనుకుంటున్నారా", 
+"pdfHyperlinkDialogOpenLabel" : "తెరవండి", 
+"pdfHyperlinkDialogCancelLabel" : "రద్దు చేయండి"
 }

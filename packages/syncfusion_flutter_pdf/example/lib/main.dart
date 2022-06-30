@@ -75,7 +75,7 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
     //Add invoice footer
     drawFooter(page, pageSize);
     //Save the PDF document
-    final List<int> bytes = document.save();
+    final List<int> bytes = document.saveSync();
     //Dispose the document.
     document.dispose();
     //Save and launch the file.

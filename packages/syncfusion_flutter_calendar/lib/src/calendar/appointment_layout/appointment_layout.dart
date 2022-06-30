@@ -1067,7 +1067,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
     }
 
     if (view == CalendarView.timelineMonth) {
-      return 20;
+      return 25;
     }
 
     return 60;
@@ -1743,7 +1743,8 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
             showTrailingLeadingDates: showTrailingLeadingDates);
 
         paint.color = appointment.color;
-        TextStyle style = calendar.appointmentTextStyle;
+        TextStyle style = AppointmentHelper.getAppointmentTextStyle(
+            calendar.appointmentTextStyle, view);
         TextSpan span = TextSpan(text: appointment.subject, style: style);
         _textPainter =
             _updateTextPainter(span, _textPainter, isRTL, _textScaleFactor);
@@ -2118,7 +2119,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
           calendarTheme.selectionBorderColor!.withOpacity(0.4);
       _appointmentPainter.strokeWidth = 2;
       _appointmentPainter.style = PaintingStyle.stroke;
-      canvas.drawRect(rect.outerRect, _appointmentPainter);
+      canvas.drawRRect(rect, _appointmentPainter);
       _appointmentPainter.style = PaintingStyle.fill;
     }
   }
@@ -2146,6 +2147,9 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       final bool canAddSpanIcon =
           AppointmentHelper.canAddSpanIcon(visibleDates, appointment, view);
       bool canAddForwardIcon = false;
+      final TextStyle appointmentTextStyle =
+          AppointmentHelper.getAppointmentTextStyle(
+              calendar.appointmentTextStyle, view);
       if (canAddSpanIcon) {
         if (CalendarViewHelper.isSameTimeSlot(
                 appointment.exactStartTime, appointment.actualStartTime) &&
@@ -2157,13 +2161,13 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
             CalendarViewHelper.isSameTimeSlot(
                 appointment.exactEndTime, appointment.actualEndTime)) {
           yPosition += _getTextSize(appointmentRect,
-              calendar.appointmentTextStyle.fontSize! * textScaleFactor);
+              appointmentTextStyle.fontSize! * textScaleFactor);
         }
       }
 
       final TextSpan span = TextSpan(
         text: appointment.subject,
-        style: calendar.appointmentTextStyle,
+        style: appointmentTextStyle,
       );
 
       _textPainter =
@@ -2187,9 +2191,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       final double textWidth = appointmentRect.width - textStartPadding;
       if (textWidth < _textPainter.minIntrinsicWidth &&
           textWidth < _textPainter.width &&
-          textWidth <
-              (calendar.appointmentTextStyle.fontSize ?? 15) *
-                  textScaleFactor) {
+          textWidth < (appointmentTextStyle.fontSize ?? 15) * textScaleFactor) {
         _updateAppointmentHovering(appointmentRect, canvas);
 
         continue;
@@ -2215,11 +2217,11 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
 
       if (canAddSpanIcon) {
         if (canAddForwardIcon) {
-          _addForwardSpanIconForDay(
-              canvas, appointmentRect, size, appointmentRect.tlRadius, paint);
+          _addForwardSpanIconForDay(canvas, appointmentRect, size,
+              appointmentRect.tlRadius, paint, appointmentTextStyle);
         } else {
-          _addBackwardSpanIconForDay(
-              canvas, appointmentRect, size, appointmentRect.tlRadius, paint);
+          _addBackwardSpanIconForDay(canvas, appointmentRect, size,
+              appointmentRect.tlRadius, paint, appointmentTextStyle);
         }
       }
 
@@ -2233,21 +2235,21 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
             paint,
             appointmentRect.tlRadius,
             useMobilePlatformUI,
-            isRecurrenceAppointment);
+            isRecurrenceAppointment,
+            appointmentTextStyle);
       }
 
       _updateAppointmentHovering(appointmentRect, canvas);
     }
   }
 
-  void _addBackwardSpanIconForDay(
-      Canvas canvas, RRect rect, Size size, Radius cornerRadius, Paint paint) {
+  void _addBackwardSpanIconForDay(Canvas canvas, RRect rect, Size size,
+      Radius cornerRadius, Paint paint, TextStyle appointmentTextStyle) {
     canvas.save();
     const double bottomPadding = 2;
-    final double textSize =
-        _getTextSize(rect, calendar.appointmentTextStyle.fontSize!);
+    final double textSize = _getTextSize(rect, appointmentTextStyle.fontSize!);
     final TextSpan icon = AppointmentHelper.getSpanIcon(
-        calendar.appointmentTextStyle.color!, textSize, false);
+        appointmentTextStyle.color!, textSize, false);
     _textPainter =
         _updateTextPainter(icon, _textPainter, isRTL, _textScaleFactor);
     _textPainter.layout(maxWidth: rect.width);
@@ -2282,14 +2284,13 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
         iconStartPosition;
   }
 
-  void _addForwardSpanIconForDay(
-      Canvas canvas, RRect rect, Size size, Radius cornerRadius, Paint paint) {
+  void _addForwardSpanIconForDay(Canvas canvas, RRect rect, Size size,
+      Radius cornerRadius, Paint paint, TextStyle appointmentTextStyle) {
     canvas.save();
     const double bottomPadding = 2;
-    final double textSize =
-        _getTextSize(rect, calendar.appointmentTextStyle.fontSize!);
+    final double textSize = _getTextSize(rect, appointmentTextStyle.fontSize!);
     final TextSpan icon = AppointmentHelper.getSpanIcon(
-        calendar.appointmentTextStyle.color!, textSize, true);
+        appointmentTextStyle.color!, textSize, true);
     _textPainter =
         _updateTextPainter(icon, _textPainter, isRTL, _textScaleFactor);
     _textPainter.layout(maxWidth: rect.width);
@@ -2331,18 +2332,17 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       Paint paint,
       Radius cornerRadius,
       bool useMobilePlatformUI,
-      bool isRecurrenceAppointment) {
+      bool isRecurrenceAppointment,
+      TextStyle appointmentTextStyle) {
     final double xPadding = useMobilePlatformUI ? 1 : 2;
     const double bottomPadding = 2;
-    double textSize = calendar.appointmentTextStyle.fontSize!;
+    double textSize = appointmentTextStyle.fontSize!;
     if (rect.width < textSize || rect.height < textSize) {
       textSize = rect.width > rect.height ? rect.height : rect.width;
     }
 
     final TextSpan icon = AppointmentHelper.getRecurrenceIcon(
-        calendar.appointmentTextStyle.color!,
-        textSize,
-        isRecurrenceAppointment);
+        appointmentTextStyle.color!, textSize, isRecurrenceAppointment);
     _textPainter.text = icon;
     double maxTextWidth = appointmentWidth - textPadding - 2;
     maxTextWidth = maxTextWidth > 0 ? maxTextWidth : 0;
@@ -2385,8 +2385,11 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       double forwardSpanIconSize = 0;
       double backwardSpanIconSize = 0;
       const double iconPadding = 2;
+      final TextStyle appointmentTextStyle =
+          AppointmentHelper.getAppointmentTextStyle(
+              calendar.appointmentTextStyle, view);
       final double iconSize = _getTextSize(appointmentRect,
-              calendar.appointmentTextStyle.fontSize! * textScaleFactor) +
+              appointmentTextStyle.fontSize! * textScaleFactor) +
           (2 * iconPadding);
 
       if (canAddSpanIcon) {
@@ -2415,7 +2418,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       maxWidth = maxWidth > 0 ? maxWidth : 0;
       final TextSpan span = TextSpan(
         text: _getTimelineAppointmentText(appointment, canAddSpanIcon),
-        style: calendar.appointmentTextStyle,
+        style: appointmentTextStyle,
       );
 
       _textPainter =
@@ -2457,8 +2460,8 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
             canvas,
             appointmentRect,
             textStartPadding,
-            calendar.appointmentTextStyle,
-            calendar.appointmentTextStyle.fontSize!,
+            appointmentTextStyle,
+            appointmentTextStyle.fontSize!,
             isRecurrenceAppointment,
             isRecurrenceAppointment || appointment.recurrenceId != null
                 ? iconSize
@@ -2471,13 +2474,27 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
             canvas, Offset(xPosition, appointmentRect.top + textStartPadding));
 
         if (forwardSpanIconSize != 0) {
-          _addForwardSpanIconForTimeline(canvas, size, appointmentRect,
-              maxWidth, appointmentRect.tlRadius, paint, isMobilePlatform);
+          _addForwardSpanIconForTimeline(
+              canvas,
+              size,
+              appointmentRect,
+              maxWidth,
+              appointmentRect.tlRadius,
+              paint,
+              isMobilePlatform,
+              appointmentTextStyle);
         }
 
         if (backwardSpanIconSize != 0) {
-          _addBackwardSpanIconForTimeline(canvas, size, appointmentRect,
-              maxWidth, appointmentRect.tlRadius, paint, isMobilePlatform);
+          _addBackwardSpanIconForTimeline(
+              canvas,
+              size,
+              appointmentRect,
+              maxWidth,
+              appointmentRect.tlRadius,
+              paint,
+              isMobilePlatform,
+              appointmentTextStyle);
         }
 
         if (isRecurrenceAppointment || appointment.recurrenceId != null) {
@@ -2489,7 +2506,8 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
               appointmentRect.tlRadius,
               paint,
               useMobilePlatformUI,
-              isRecurrenceAppointment);
+              isRecurrenceAppointment,
+              appointmentTextStyle);
         }
       }
 
@@ -2539,13 +2557,12 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       double maxWidth,
       Radius cornerRadius,
       Paint paint,
-      bool isMobilePlatform) {
+      bool isMobilePlatform,
+      TextStyle appointmentTextStyle) {
     const double xPadding = 2;
-    final double textSize =
-        _getTextSize(rect, calendar.appointmentTextStyle.fontSize!);
-
+    final double textSize = _getTextSize(rect, appointmentTextStyle.fontSize!);
     final TextSpan icon = AppointmentHelper.getSpanIcon(
-        calendar.appointmentTextStyle.color!, textSize, !isRTL);
+        appointmentTextStyle.color!, textSize, !isRTL);
     _textPainter =
         _updateTextPainter(icon, _textPainter, isRTL, _textScaleFactor);
     _textPainter.layout(maxWidth: maxWidth);
@@ -2571,13 +2588,12 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       double maxWidth,
       Radius cornerRadius,
       Paint paint,
-      bool isMobilePlatform) {
+      bool isMobilePlatform,
+      TextStyle appointmentTextStyle) {
     const double xPadding = 2;
-    final double textSize =
-        _getTextSize(rect, calendar.appointmentTextStyle.fontSize!);
-
+    final double textSize = _getTextSize(rect, appointmentTextStyle.fontSize!);
     final TextSpan icon = AppointmentHelper.getSpanIcon(
-        calendar.appointmentTextStyle.color!, textSize, isRTL);
+        appointmentTextStyle.color!, textSize, isRTL);
     _textPainter =
         _updateTextPainter(icon, _textPainter, isRTL, _textScaleFactor);
     _textPainter.layout(maxWidth: maxWidth);
@@ -2604,16 +2620,14 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       Radius cornerRadius,
       Paint paint,
       bool useMobilePlatformUI,
-      bool isRecurrenceAppointment) {
+      bool isRecurrenceAppointment,
+      TextStyle appointmentTextStyle) {
     final double xPadding = useMobilePlatformUI ? 1 : 2;
     const double bottomPadding = 2;
-    final double textSize =
-        _getTextSize(rect, calendar.appointmentTextStyle.fontSize!);
+    final double textSize = _getTextSize(rect, appointmentTextStyle.fontSize!);
 
     final TextSpan icon = AppointmentHelper.getRecurrenceIcon(
-        calendar.appointmentTextStyle.color!,
-        textSize,
-        isRecurrenceAppointment);
+        appointmentTextStyle.color!, textSize, isRecurrenceAppointment);
     _textPainter.text = icon;
     _textPainter.layout(maxWidth: maxWidth);
     canvas.drawRRect(

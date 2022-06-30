@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "ມື້", 
-"series" : "ຊຸດ"
+"series" : "ຊຸດ", 
+"pdfHyperlinkLabel" : "ເປີດໜ້າເວັບ", 
+"pdfHyperlinkContentLabel" : "ທ່ານຕ້ອງການເປີດຫນ້າຢູ່", 
+"pdfHyperlinkDialogOpenLabel" : "ເປີດ", 
+"pdfHyperlinkDialogCancelLabel" : "ຍົກເລີກ"
 }

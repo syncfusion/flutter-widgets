@@ -57,7 +57,7 @@ class MonthViewSettings with Diagnosticable {
   ///
   /// The properties allows to customize the month view of [SfCalendar].
   const MonthViewSettings(
-      {this.appointmentDisplayCount = 4,
+      {this.appointmentDisplayCount = 3,
       this.numberOfWeeksInView = 6,
       this.appointmentDisplayMode = MonthAppointmentDisplayMode.indicator,
       this.showAgenda = false,
@@ -413,7 +413,7 @@ class MonthViewSettings with Diagnosticable {
 
   /// The number of appointments to be displayed in month cell of [SfCalendar].
   ///
-  /// Defaults to `4`.
+  /// Defaults to `3`.
   ///
   /// _Note:_ if the appointment count is less than the value set to this
   /// property in a particular day, then the month cell will display the

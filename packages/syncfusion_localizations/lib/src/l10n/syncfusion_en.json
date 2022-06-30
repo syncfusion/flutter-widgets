@@ -55,5 +55,9 @@
   "shortDhualqiLabel": "Dhu'l-Q",
   "shortDhualhiLabel": "Dhu'l-H",
   "daySpanCountLabel": "Day",
-  "series": "Series"
+  "series": "Series",
+  "pdfHyperlinkLabel": "Open Web Page",
+  "pdfHyperlinkContentLabel": "Do you want to open the page at",
+  "pdfHyperlinkDialogOpenLabel": "OPEN",
+  "pdfHyperlinkDialogCancelLabel": "CANCEL"
 }

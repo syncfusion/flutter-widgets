@@ -333,7 +333,12 @@ class RowSelectionManager extends SelectionManagerBase {
       dataGridConfiguration.controller.selectedRows.clear();
       _refreshSelection();
       dataGridConfiguration.container.isDirty = true;
-      if (dataGridConfiguration.headerCheckboxState!) {
+      // Issue:
+      // FLUT-6620-The null check operator used on the null value exception occurred
+      // While headerCheckboxState is in the intermediate state and deselecting all the selected rows in the Datagrid by using DataGridController.
+      // We have resolved the issue by checking if it's null
+      if (dataGridConfiguration.headerCheckboxState == null ||
+          dataGridConfiguration.headerCheckboxState!) {
         _updateCheckboxStateOnHeader(dataGridConfiguration);
       }
     }
@@ -514,7 +519,13 @@ class RowSelectionManager extends SelectionManagerBase {
     final DataCellBase? headerDataCell = headerDataRow.visibleColumns
         .firstWhereOrNull((DataCellBase cell) => cell.columnIndex == 0);
 
-    if (_selectedRows.isEmpty && dataGridConfiguration.headerCheckboxState!) {
+    // Issue:
+    // FLUT-6617-The null check operator used on the null value exception occurred
+    // While selecting and deselecting the same row in the datagrid since the selected rows are empty and headerCheckboxState is null
+    // We have resolved the issue by checking the if it's null
+    if (_selectedRows.isEmpty &&
+        (dataGridConfiguration.headerCheckboxState == null ||
+            dataGridConfiguration.headerCheckboxState!)) {
       dataGridConfiguration.headerCheckboxState = false;
       headerDataCell?.updateColumn();
     } else if (dataGridConfiguration.controller.selectedRows.length !=

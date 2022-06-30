@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "ਧੂਲ-ਕਿਊ", 
 "shortDhualhiLabel" : "ਧੂਲ-ਐੱਚ", 
 "daySpanCountLabel" : "ਦਿਨ", 
-"series" : "ਲੜੀ"
+"series" : "ਲੜੀ", 
+"pdfHyperlinkLabel" : "ਵੈੱਬ ਪੰਨਾ ਖੋਲ੍ਹੋ", 
+"pdfHyperlinkContentLabel" : "ਕੀ ਤੁਸੀਂ 'ਤੇ ਪੰਨਾ ਖੋਲ੍ਹਣਾ ਚਾਹੁੰਦੇ ਹੋ", 
+"pdfHyperlinkDialogOpenLabel" : "ਖੋਲ੍ਹੋ", 
+"pdfHyperlinkDialogCancelLabel" : "ਰੱਦ ਕਰੋ"
 }

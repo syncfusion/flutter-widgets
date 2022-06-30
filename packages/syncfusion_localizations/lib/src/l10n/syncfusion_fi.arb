@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Päivä", 
-"series" : "Sarja"
+"series" : "Sarja", 
+"pdfHyperlinkLabel" : "Avaa Web-sivu", 
+"pdfHyperlinkContentLabel" : "Haluatko avata sivun osoitteessa", 
+"pdfHyperlinkDialogOpenLabel" : "AVATA", 
+"pdfHyperlinkDialogCancelLabel" : "PERUUTTAA"
 }

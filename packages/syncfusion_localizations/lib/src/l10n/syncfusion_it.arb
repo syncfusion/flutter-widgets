@@ -10,7 +10,7 @@
 "pdfGoToPageLabel" : "Vai alla pagina", 
 "pdfEnterPageNumberLabel" : "Inserisci il numero di pagina", 
 "pdfInvalidPageNumberLabel" : "Per favore, inserire un numero valido", 
-"pdfPaginationDialogOkLabel" : "ok", 
+"pdfPaginationDialogOkLabel" : "ok",
 "pdfPaginationDialogCancelLabel" : "ANNULLA", 
 "passwordDialogHeaderTextLabel" : "Protetto da password", 
 "passwordDialogContentLabel" : "Inserisci la password per aprire questo file PDF", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Giorno", 
-"series" : "Serie"
+"series" : "Serie", 
+"pdfHyperlinkLabel" : "Apri pagina web", 
+"pdfHyperlinkContentLabel" : "Vuoi aprire la pagina a", 
+"pdfHyperlinkDialogOpenLabel" : "APRIRE", 
+"pdfHyperlinkDialogCancelLabel" : "ANNULLA"
 }

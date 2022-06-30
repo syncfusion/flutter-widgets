@@ -26,7 +26,7 @@ abstract class PdfLinkAnnotation extends PdfAnnotation implements IPdfWrapper {
   ///       PdfDestination(document.pages.add(), Offset(10, 0)))
   ///     ..highlightMode = PdfHighlightMode.outline);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

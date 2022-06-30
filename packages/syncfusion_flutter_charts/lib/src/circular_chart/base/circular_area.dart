@@ -74,6 +74,7 @@ class CircularArea extends StatelessWidget {
               onPointerMove: (PointerMoveEvent event) =>
                   _performPointerMove(event),
               child: GestureDetector(
+                  onTap: _onTap,
                   onLongPress: _onLongPress,
                   onTapUp: (TapUpDetails details) {
                     if (chart.series[0].onPointTap != null &&
@@ -92,6 +93,16 @@ class CircularArea extends StatelessWidget {
             )),
       );
     });
+  }
+
+  /// To perform tap touch interactions.
+  void _onTap() {
+    if (stateProperties.renderingDetails.currentActive != null &&
+        stateProperties.renderingDetails.currentActive!.series != null &&
+        stateProperties.renderingDetails.currentActive!.series.explodeGesture ==
+            ActivationMode.singleTap) {
+      stateProperties.chartSeries.seriesPointExplosion(pointRegion);
+    }
   }
 
   /// To perform the pointer down event.
@@ -248,15 +259,6 @@ class CircularArea extends StatelessWidget {
           stateProperties.renderingDetails.tapPosition);
     }
     if (stateProperties.renderingDetails.tapPosition != null) {
-      if (stateProperties.renderingDetails.currentActive != null &&
-          stateProperties.renderingDetails.currentActive!.series != null &&
-          stateProperties
-                  .renderingDetails.currentActive!.series.explodeGesture ==
-              ActivationMode.singleTap) {
-        stateProperties.chartSeries.seriesPointExplosion(
-            stateProperties.renderingDetails.currentActive!.region);
-      }
-
       if (stateProperties.renderingDetails.tapPosition != null &&
           stateProperties.renderingDetails.currentActive != null) {
         stateProperties.chartSeries.seriesPointSelection(

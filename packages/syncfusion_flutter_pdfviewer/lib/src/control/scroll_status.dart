@@ -68,6 +68,7 @@ class _ScrollStatusState extends State<ScrollStatus> {
               child: Text(
                 '${widget.pdfViewerController.pageNumber} ${_localizations!.pdfScrollStatusOfLabel} ${widget.pdfViewerController.pageCount}',
                 textAlign: TextAlign.center,
+                textDirection: TextDirection.ltr,
                 style:
                     _pdfViewerThemeData!.scrollStatusStyle?.pageInfoTextStyle ??
                         const TextStyle(

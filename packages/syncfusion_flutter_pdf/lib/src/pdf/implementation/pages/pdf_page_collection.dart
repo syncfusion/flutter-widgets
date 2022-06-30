@@ -199,7 +199,7 @@ class PdfPageCollection {
   /// //Remove the first page.
   /// document.pages.remove(page);
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   void remove(PdfPage page) {
@@ -214,7 +214,7 @@ class PdfPageCollection {
   /// //Remove the page at index 0.
   /// document.pages.removeAt(0);
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   void removeAt(int index) {

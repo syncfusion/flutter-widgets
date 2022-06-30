@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "ଧୁଲ୍-ପ୍ର", 
 "shortDhualhiLabel" : "ଧୁଲ୍-ଏଚ୍", 
 "daySpanCountLabel" : "ଦିନ", 
-"series" : "ସିରିଜ୍"
+"series" : "ସିରିଜ୍", 
+"pdfHyperlinkLabel" : "ୱେବ୍ ପୃଷ୍ଠା ଖୋଲନ୍ତୁ |", 
+"pdfHyperlinkContentLabel" : "ଆପଣ ପେଜ୍ ଖୋଲିବାକୁ ଚାହୁଁଛନ୍ତି କି?", 
+"pdfHyperlinkDialogOpenLabel" : "ଖୋଲନ୍ତୁ |", 
+"pdfHyperlinkDialogCancelLabel" : "ବାତିଲ୍"
 }

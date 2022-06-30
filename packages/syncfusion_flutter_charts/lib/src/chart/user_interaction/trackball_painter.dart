@@ -1221,7 +1221,6 @@ class TrackballPainter extends CustomPainter {
       topRight: Radius.circular(borderRadius),
     );
     const double padding = 10;
-    backgroundPath.addRRect(tooltipRect);
 
     final Paint fillPaint = Paint()
       ..color = chart.trackballBehavior.tooltipSettings.color ??
@@ -1229,16 +1228,19 @@ class TrackballPainter extends CustomPainter {
       ..isAntiAlias = false
       ..style = PaintingStyle.fill;
 
-    final Paint strokePaint = Paint()
-      ..color = chart.trackballBehavior.tooltipSettings.borderColor ??
-          renderingDetails.chartTheme.crosshairBackgroundColor
-      ..strokeWidth = chart.trackballBehavior.tooltipSettings.borderWidth
-      ..strokeCap = StrokeCap.butt
-      ..isAntiAlias = false
-      ..style = PaintingStyle.stroke;
-
-    canvas.drawPath(backgroundPath, strokePaint);
+    if (chart.trackballBehavior.tooltipSettings.borderWidth > 0) {
+      final Paint strokePaint = Paint()
+        ..color = chart.trackballBehavior.tooltipSettings.borderColor ??
+            renderingDetails.chartTheme.crosshairBackgroundColor
+        ..strokeWidth = chart.trackballBehavior.tooltipSettings.borderWidth
+        ..strokeCap = StrokeCap.butt
+        ..isAntiAlias = false
+        ..style = PaintingStyle.stroke;
+      canvas.drawPath(backgroundPath, strokePaint);
+      canvas.drawRRect(tooltipRect, strokePaint);
+    }
     canvas.drawPath(backgroundPath, fillPaint);
+    canvas.drawRRect(tooltipRect, fillPaint);
     final Paint dividerPaint = Paint();
     dividerPaint.color = renderingDetails.chartTheme.tooltipSeparatorColor;
     dividerPaint.strokeWidth = 1;

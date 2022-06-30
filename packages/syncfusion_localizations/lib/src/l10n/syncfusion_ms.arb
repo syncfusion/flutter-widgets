@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dzul-Q", 
 "shortDhualhiLabel" : "Dzul-H", 
 "daySpanCountLabel" : "Hari", 
-"series" : "Siri"
+"series" : "Siri", 
+"pdfHyperlinkLabel" : "Buka Halaman Web", 
+"pdfHyperlinkContentLabel" : "Adakah anda ingin membuka halaman di", 
+"pdfHyperlinkDialogOpenLabel" : "BUKA", 
+"pdfHyperlinkDialogCancelLabel" : "BATALKAN"
 }

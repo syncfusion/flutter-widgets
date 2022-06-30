@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Зуль-К", 
 "shortDhualhiLabel" : "Зул-Х", 
 "daySpanCountLabel" : "Күн", 
-"series" : "Сериялар"
+"series" : "Сериялар", 
+"pdfHyperlinkLabel" : "Веб баракчаны ачуу", 
+"pdfHyperlinkContentLabel" : "Баракчаны ачкыңыз келеби?", 
+"pdfHyperlinkDialogOpenLabel" : "АЧУУ", 
+"pdfHyperlinkDialogCancelLabel" : "ЖОК КЫЛУУ"
 }

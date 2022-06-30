@@ -16,7 +16,7 @@ class PdfFileStructure {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfFileStructure() {
@@ -46,7 +46,7 @@ class PdfFileStructure {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   late PdfCrossReferenceType crossReferenceType;
@@ -64,7 +64,7 @@ class PdfFileStructure {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfVersion get version => _version;
@@ -81,7 +81,7 @@ class PdfFileStructure {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   set version(PdfVersion value) {
     _version = value;

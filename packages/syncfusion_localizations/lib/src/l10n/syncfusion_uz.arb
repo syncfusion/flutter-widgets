@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Zul-q", 
 "shortDhualhiLabel" : "Zul-h", 
 "daySpanCountLabel" : "kun", 
-"series" : "Seriya"
+"series" : "Seriya", 
+"pdfHyperlinkLabel" : "Veb-sahifani oching", 
+"pdfHyperlinkContentLabel" : "sahifani ochmoqchimisiz", 
+"pdfHyperlinkDialogOpenLabel" : "OCHIQ", 
+"pdfHyperlinkDialogCancelLabel" : "BEKOR"
 }

@@ -1,3 +1,8 @@
+## Unreleased
+
+**Features**
+* The [Flutter PDF Library](https://www.syncfusion.com/document-processing/pdf-framework/flutter/pdf-library) has been developed to meet industry standards and is now marked as a production-ready.
+
 ## [20.1.47] - 04/04/2022
 
 **Features**

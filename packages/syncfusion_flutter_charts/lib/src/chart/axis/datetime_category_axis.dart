@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:syncfusion_flutter_core/core.dart';
@@ -421,7 +420,8 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
             _axisDetails.dateTimeCategoryAxis.visibleMaximum != null) &&
         (_axisDetails.dateTimeCategoryAxis.visibleMinimum !=
             _axisDetails.dateTimeCategoryAxis.visibleMaximum) &&
-        _axisDetails.stateProperties.zoomedAxisRendererStates.isEmpty) {
+        (!_axisDetails.stateProperties.isRedrawByZoomPan)) {
+      _axisDetails.stateProperties.isRedrawByZoomPan = false;
       _axisDetails.visibleRange!.minimum = _axisDetails.visibleMinimum != null
           ? _axisDetails.getEffectiveRange(
               DateTime.fromMillisecondsSinceEpoch(
@@ -518,6 +518,13 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
   void generateVisibleLabels() {
     _axisDetails.visibleLabels = <AxisLabel>[];
     num tempInterval = _axisDetails.visibleRange!.minimum.ceil();
+    num interval = _axisDetails.visibleRange!.interval;
+    interval = interval.toString().split('.').length >= 2
+        ? interval.toString().split('.')[1].length == 1 &&
+                interval.toString().split('.')[1] == '0'
+            ? interval.floor()
+            : interval.ceil()
+        : interval;
     int position;
     num prevInterval;
     String labelText;
@@ -532,7 +539,7 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
                 this, tempInterval.toInt(), prevInterval.toInt());
     for (;
         tempInterval <= _axisDetails.visibleRange!.maximum;
-        tempInterval += _axisDetails.visibleRange!.interval) {
+        tempInterval += interval) {
       if (withInRange(tempInterval, _axisDetails.visibleRange!)) {
         position = tempInterval.round();
         if (position <= -1 ||
@@ -548,7 +555,17 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
         } else {
           continue;
         }
-        _axisDetails.triggerLabelRenderEvent(labelText, tempInterval);
+        _axisDetails.triggerLabelRenderEvent(
+            labelText,
+            tempInterval,
+            _axisDetails.actualIntervalType,
+            _axisDetails.dateTimeFormat!.pattern);
+
+        /// Here the loop is terminated to avoid the format exception
+        /// while there is only one data point in data source.
+        if (interval == 0) {
+          break;
+        }
       }
     }
 
@@ -563,15 +580,10 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
 
   /// Finds the interval of an axis.
   @override
-  num calculateInterval(VisibleRange range, Size availableSize) => math
-      .max(
-          1,
-          (_axisDetails.actualRange!.delta /
-                  _axisDetails.calculateDesiredIntervalCount(
-                      Size(_axisDetails.rect.width, _axisDetails.rect.height),
-                      this))
-              .floor())
-      .toInt();
+  num calculateInterval(VisibleRange range, Size availableSize) {
+    return _axisDetails.calculateNumericNiceInterval(
+        this, range.delta, availableSize);
+  }
 }
 
 /// This class holds the details of DateTimeCategoryAxis
@@ -706,8 +718,18 @@ class DateTimeCategoryAxisDetails extends ChartAxisRendererDetails {
   }
 
   List<DateTime> _getStartAndEndDate(List<String> labels) {
-    final List<String> values = <String>[...labels]
-      ..sort((String first, String second) {
+    List<String> values = <String>[];
+    // To avoid the format exception issue during dynamic update of charts.
+    for (final String label in labels) {
+      if (label.contains(RegExp(r'^-?[0-9]+$')) &&
+          // The value 2592000000 refers to the milliseconds value of January 1, 1970.
+          (int.parse(label)) > 2592000000) {
+        values.add(label);
+      } else {
+        values.add((dateFormat.parse(label).microsecondsSinceEpoch).toString());
+      }
+    }
+    values = <String>[...values]..sort((String first, String second) {
         return int.parse(first) < int.parse(second) ? -1 : 1;
       });
     return <DateTime>[

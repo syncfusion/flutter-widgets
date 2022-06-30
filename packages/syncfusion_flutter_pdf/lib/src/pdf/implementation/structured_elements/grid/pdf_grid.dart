@@ -57,7 +57,7 @@ import 'styles/style.dart';
 /// grid.draw(
 ///     page: document.pages.add(), bounds: Rect.zero);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -90,7 +90,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -134,7 +134,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -175,7 +175,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -237,7 +237,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -288,7 +288,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -329,7 +329,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -372,7 +372,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -415,7 +415,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -458,7 +458,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -523,7 +523,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -587,7 +587,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4407,7 +4407,7 @@ class PdfGridBeginCellLayoutArgs extends GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4540,7 +4540,7 @@ abstract class GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4591,7 +4591,7 @@ abstract class GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4642,7 +4642,7 @@ abstract class GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4693,7 +4693,7 @@ abstract class GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4744,7 +4744,7 @@ abstract class GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4795,7 +4795,7 @@ abstract class GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4888,7 +4888,7 @@ class PdfGridBuiltInStyleSettings {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4929,7 +4929,7 @@ class PdfGridBuiltInStyleSettings {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4970,7 +4970,7 @@ class PdfGridBuiltInStyleSettings {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -5011,7 +5011,7 @@ class PdfGridBuiltInStyleSettings {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -5052,7 +5052,7 @@ class PdfGridBuiltInStyleSettings {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -5093,7 +5093,7 @@ class PdfGridBuiltInStyleSettings {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

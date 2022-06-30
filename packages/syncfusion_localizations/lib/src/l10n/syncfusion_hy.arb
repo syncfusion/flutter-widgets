@@ -52,8 +52,12 @@
 "shortShaabanLabel" : "Շա.", 
 "shortRamadanLabel" : "Խոյ.", 
 "shortShawwalLabel" : "Շոու.", 
-"shortDhualqiLabel" : "Դհուլ-Ք", 
+"shortDhualqiLabel" : "Դհուլ-Ք",
 "shortDhualhiLabel" : "Դհուլ-Հ", 
 "daySpanCountLabel" : "Օր", 
-"series" : "Սերիա"
+"series" : "Սերիա", 
+"pdfHyperlinkLabel" : "Բացեք վեբ էջը", 
+"pdfHyperlinkContentLabel" : "Ցանկանու՞մ եք բացել էջը ժամը", 
+"pdfHyperlinkDialogOpenLabel" : "ԲԱՑ", 
+"pdfHyperlinkDialogCancelLabel" : "ՉԵՂԱՐԿԵԼ"
 }

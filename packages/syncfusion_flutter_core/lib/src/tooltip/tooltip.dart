@@ -155,6 +155,8 @@ class SfTooltipState extends State<SfTooltip>
 
   Object? _previousTooltipData;
 
+  Offset? _previouslocation;
+
   late int _showDuration;
 
   ///Setter for the boundary rect within which the tooltip could be shown
@@ -191,7 +193,9 @@ class SfTooltipState extends State<SfTooltip>
     }
     _timer?.cancel();
     if (_previousTooltipData == null ||
-        !(_previousTooltipData == tooltipData)) {
+        !(_previousTooltipData == tooltipData) ||
+        (_previouslocation == null || _previouslocation != position)) {
+      _previouslocation = position;
       _show = true;
       _template = template;
       _previousTooltipData = tooltipData;

@@ -33,7 +33,7 @@ import 'pdf_uri_annotation.dart';
 ///             lineAlignment: PdfVerticalAlignment.middle))
 ///     .draw(document.pages.add(), Offset(50, 40));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -55,7 +55,7 @@ class PdfTextWebLink extends PdfAnnotation {
   ///             lineAlignment: PdfVerticalAlignment.middle))
   ///     .draw(document.pages.add(), Offset(50, 40));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -100,7 +100,7 @@ class PdfTextWebLink extends PdfAnnotation {
   /// //Draw the web link in the PDF page
   /// textWebLink.draw(document.pages.add(), Offset(50, 40));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -124,7 +124,7 @@ class PdfTextWebLink extends PdfAnnotation {
   /// //Draw the web link in the PDF page
   /// textWebLink.draw(document.pages.add(), Offset(50, 40));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -148,7 +148,7 @@ class PdfTextWebLink extends PdfAnnotation {
   /// //Draw the web link in the PDF page
   /// textWebLink.draw(document.pages.add(), Offset(50, 40));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -172,7 +172,7 @@ class PdfTextWebLink extends PdfAnnotation {
   /// //Draw the web link in the PDF page
   /// textWebLink.draw(document.pages.add(), Offset(50, 40));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -198,7 +198,7 @@ class PdfTextWebLink extends PdfAnnotation {
   /// //Draw the web link in the PDF page
   /// textWebLink.draw(document.pages.add(), Offset(50, 40));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -265,7 +265,7 @@ class PdfTextWebLink extends PdfAnnotation {
   /// //Draw the web link in the PDF page
   /// textWebLink.draw(document.pages.add(), Offset(50, 40));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

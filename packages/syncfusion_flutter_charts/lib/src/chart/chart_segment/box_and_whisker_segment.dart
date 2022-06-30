@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../charts.dart';
 import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
-
 import '../chart_series/xy_data_series.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
@@ -397,12 +396,12 @@ class BoxAndWhiskerSegment extends ChartSegment {
             : _drawRectPath();
       }
 
-      if (_segmentProperties.series.dashArray[0] != 0 &&
-          _segmentProperties.series.dashArray[1] != 0 &&
+      if (seriesRendererDetails.dashArray![0] != 0 &&
+          seriesRendererDetails.dashArray![1] != 0 &&
           _segmentProperties.series.animationDuration <= 0 == true) {
         canvas.drawPath(_segmentProperties.path, fillPaint!);
-        drawDashedLine(canvas, _segmentProperties.series.dashArray,
-            strokePaint!, _segmentProperties.path);
+        drawDashedLine(canvas, seriesRendererDetails.dashArray!, strokePaint!,
+            _segmentProperties.path);
       } else {
         canvas.drawPath(_segmentProperties.path, fillPaint!);
         canvas.drawPath(_segmentProperties.path, strokePaint!);

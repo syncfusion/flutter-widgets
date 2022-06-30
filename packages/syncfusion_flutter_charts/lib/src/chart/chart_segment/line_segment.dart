@@ -269,14 +269,14 @@ class LineSegment extends ChartSegment {
               _oldY2,
             );
     } else {
-      if (_segmentProperties.series.dashArray[0] != 0 &&
-          _segmentProperties.series.dashArray[1] != 0) {
+      if (seriesRendererDetails.dashArray![0] != 0 &&
+          seriesRendererDetails.dashArray![1] != 0) {
         _segmentProperties.path
             .moveTo(_segmentProperties.x1, _segmentProperties.y1);
         _segmentProperties.path
             .lineTo(_segmentProperties.x2, _segmentProperties.y2);
-        drawDashedLine(canvas, _segmentProperties.series.dashArray,
-            strokePaint!, _segmentProperties.path);
+        drawDashedLine(canvas, seriesRendererDetails.dashArray!, strokePaint!,
+            _segmentProperties.path);
       } else {
         canvas.drawLine(Offset(_segmentProperties.x1, _segmentProperties.y1),
             Offset(_segmentProperties.x2, _segmentProperties.y2), strokePaint!);

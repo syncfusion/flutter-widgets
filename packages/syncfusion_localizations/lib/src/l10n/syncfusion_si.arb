@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "දුල්-කිව්", 
 "shortDhualhiLabel" : "දුල්-එච්", 
 "daySpanCountLabel" : "දිනය", 
-"series" : "මාලාවක්"
+"series" : "මාලාවක්", 
+"pdfHyperlinkLabel" : "වෙබ් පිටුව විවෘත කරන්න", 
+"pdfHyperlinkContentLabel" : "ඔබට පිටුව විවෘත කිරීමට අවශ්‍යද", 
+"pdfHyperlinkDialogOpenLabel" : "විවෘත", 
+"pdfHyperlinkDialogCancelLabel" : "අවලංගු කරන්න"
 }

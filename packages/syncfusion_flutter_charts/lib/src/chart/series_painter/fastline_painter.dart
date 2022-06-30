@@ -311,27 +311,32 @@ class FastLineChartPainter extends CustomPainter {
 
             if (point.isVisible) {
               points.add(Offset(currentLocation.x, currentLocation.y));
-              if (prevPoint == null) {
-                seriesRendererDetails.segmentPath!
-                    .moveTo(currentLocation.x, currentLocation.y);
-              } else if (seriesRendererDetails
-                          .dataPoints[pointIndex - 1].isVisible ==
-                      false &&
-                  series.emptyPointSettings.mode == EmptyPointMode.gap) {
-                seriesRendererDetails.segmentPath!
-                    .moveTo(currentLocation.x, currentLocation.y);
-              } else if (point.isGap != true &&
-                  seriesRendererDetails.dataPoints[pointIndex - 1].isGap !=
-                      true &&
-                  seriesRendererDetails.dataPoints[pointIndex].isVisible ==
-                      true) {
-                seriesRendererDetails.segmentPath!
-                    .lineTo(currentLocation.x, currentLocation.y);
-              } else {
-                seriesRendererDetails.segmentPath!
-                    .moveTo(currentLocation.x, currentLocation.y);
+              if ((series.emptyPointSettings.mode == EmptyPointMode.gap &&
+                      seriesRendererDetails.containsEmptyPoints) ||
+                  (seriesRendererDetails.dashArray![0] != 0.0 &&
+                      seriesRendererDetails.dashArray![1] != 0.0)) {
+                if (prevPoint == null) {
+                  seriesRendererDetails.segmentPath!
+                      .moveTo(currentLocation.x, currentLocation.y);
+                } else if (seriesRendererDetails
+                            .dataPoints[pointIndex - 1].isVisible ==
+                        false &&
+                    series.emptyPointSettings.mode == EmptyPointMode.gap) {
+                  seriesRendererDetails.segmentPath!
+                      .moveTo(currentLocation.x, currentLocation.y);
+                } else if (point.isGap != true &&
+                    seriesRendererDetails.dataPoints[pointIndex - 1].isGap !=
+                        true &&
+                    seriesRendererDetails.dataPoints[pointIndex].isVisible ==
+                        true) {
+                  seriesRendererDetails.segmentPath!
+                      .lineTo(currentLocation.x, currentLocation.y);
+                } else {
+                  seriesRendererDetails.segmentPath!
+                      .moveTo(currentLocation.x, currentLocation.y);
+                }
+                prevPoint = point;
               }
-              prevPoint = point;
             }
             prevXValue = xVal;
             prevYValue = yVal;

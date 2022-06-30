@@ -1911,7 +1911,8 @@ class _DataPagerItemPanelRenderBox extends RenderBox
                   width: childRect.width, height: childRect.height),
               parentUsesSize: true);
         } else {
-          child.layout(const BoxConstraints.tightFor(width: 0.0, height: 0.0));
+          child.layout(const BoxConstraints.tightFor(width: 0.0, height: 0.0),
+              parentUsesSize: false);
         }
       }
       child = childParentData.nextSibling;

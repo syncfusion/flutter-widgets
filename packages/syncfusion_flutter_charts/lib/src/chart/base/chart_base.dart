@@ -1656,6 +1656,12 @@ class SfCartesianChartState extends State<SfCartesianChart>
         seriesRendererDetails.visible = null;
         seriesRendererDetails.chart = widget;
         seriesRendererDetails.hasDataLabelTemplate = false;
+        if (series.dashArray != null) {
+          seriesRendererDetails.dashArray = series.dashArray;
+          if (seriesRendererDetails.dashArray!.length == 1) {
+            seriesRendererDetails.dashArray!.add(series.dashArray[0]);
+          }
+        }
 
         if (oldWidgetSeriesRenderers != null &&
             oldSeriesIndex != null &&
@@ -3060,9 +3066,9 @@ class ContainerArea extends StatelessWidget {
       seriesRenderer = _stateProperties.chartSeries.visibleSeriesRenderers[i];
       final SeriesRendererDetails seriesRendererDetails =
           SeriesHelper.getSeriesRendererDetails(seriesRenderer);
+      final String seriesType = seriesRendererDetails.seriesType;
       final List<CartesianChartPoint<dynamic>> dataPoints =
           getSampledData(seriesRendererDetails);
-      final String seriesType = seriesRendererDetails.seriesType;
       if (seriesType == 'column' ||
           seriesType == 'bar' ||
           seriesType == 'scatter' ||
@@ -3340,7 +3346,9 @@ class ContainerArea extends StatelessWidget {
         axisDetails.zoomFactor = zoomEndArgs.currentZoomFactor;
         axisDetails.zoomPosition = zoomEndArgs.currentZoomPosition;
       }
-      if (axisDetails.zoomFactor.toInt() == 1 &&
+      if (!axisDetails.zoomFactor.isNaN &&
+          !axisDetails.zoomFactor.isInfinite &&
+          axisDetails.zoomFactor.toInt() == 1 &&
           axisDetails.zoomPosition.toInt() == 0 &&
           chart.onZoomReset != null) {
         resetFlag = true;

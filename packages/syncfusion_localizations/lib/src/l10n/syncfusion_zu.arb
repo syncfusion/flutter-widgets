@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "U-Dhu'l-H", 
 "daySpanCountLabel" : "Usuku", 
-"series" : "Uchungechunge"
+"series" : "Uchungechunge", 
+"pdfHyperlinkLabel" : "Vula Ikhasi Lewebhu", 
+"pdfHyperlinkContentLabel" : "Ingabe ufuna ukuvula ikhasi ku", 
+"pdfHyperlinkDialogOpenLabel" : "VULA", 
+"pdfHyperlinkDialogCancelLabel" : "KHANSELA"
 }

@@ -1,3 +1,28 @@
+## Undefined
+
+**Features**
+
+* Open URLs or website links in the default browser just by clicking them. Also, hide or customize the built-in hyperlink navigation dialog.
+* Now, the `SfPdfViewer` supports changing the user interface and functionalities like text search and copying text to suit the RTL languages.
+* Enhanced the performance of the scroll fling animation to provide smoother and fluid scrolling. That is, the time taken by scroll fling action has been reduced up to 60%.
+
+**Bugs**
+
+* The application will no longer crash while loading a high-quality document in the `SfPdfViewer` widget.
+* Now, the PDF pages will be rendered properly while switching the device orientation from portrait to landscape or vice versa.
+
+
+## [20.1.57-beta] - 05/24/2022
+
+**Bugs**
+
+* Now,  the application will not close unexpectedly when scrolling the specific PDF document on the iOS device.
+* Now,  the clarity of the PDF page is updated properly when changing the orientation.
+
+## [20.1.56-beta] - 05/17/2022
+
+* Resolved linter warnings due to Flutter 3 SDK upgradation.
+
 ## [20.1.47-beta] - 04/04/2022
 
 **Features**

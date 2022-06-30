@@ -44,6 +44,9 @@ class Worksheet {
   ///Represents the datavalidation table
   _DataValidationTable? _mdataValidation;
 
+  ///Represents autoFilter class
+  AutoFilterCollection? _autoFilters;
+
   /// Represents auto fit manager.
   _AutoFitManager get _autoFitManager {
     final _AutoFitManager autoFit = _AutoFitManager._withSheet(this);
@@ -253,6 +256,12 @@ class Worksheet {
   RowCollection get rows {
     _rows ??= RowCollection(this);
     return _rows!;
+  }
+
+  // ignore: public_member_api_docs
+  AutoFilterCollection get autoFilters {
+    _autoFilters ??= AutoFilterCollection(this);
+    return _autoFilters!;
   }
 
   /// Checks if specified cell has correct row and column index.

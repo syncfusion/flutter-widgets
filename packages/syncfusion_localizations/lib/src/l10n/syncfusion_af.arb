@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Dag", 
-"series" : "Reeks"
+"series" : "Reeks", 
+"pdfHyperlinkLabel" : "Maak webblad oop", 
+"pdfHyperlinkContentLabel" : "Wil jy die bladsy oopmaak by", 
+"pdfHyperlinkDialogOpenLabel" : "OOP", 
+"pdfHyperlinkDialogCancelLabel" : "KANSELLEER"
 }

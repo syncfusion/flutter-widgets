@@ -53,7 +53,11 @@
 "shortRamadanLabel" : "Рам.", 
 "shortShawwalLabel" : "Шоу.", 
 "shortDhualqiLabel" : "Зуль-К", 
-"shortDhualhiLabel" : "Зуль-Х", 
+"shortDhualhiLabel" : "Зуль-Х",
 "daySpanCountLabel" : "Өдөр", 
-"series" : "Цуврал"
+"series" : "Цуврал", 
+"pdfHyperlinkLabel" : "Вэб хуудсыг нээх", 
+"pdfHyperlinkContentLabel" : "хаягаар хуудсыг нээхийг хүсэж байна уу", 
+"pdfHyperlinkDialogOpenLabel" : "НЭЭЛТТЭЙ", 
+"pdfHyperlinkDialogCancelLabel" : "Цуцлах"
 }

@@ -138,6 +138,7 @@ class ChartLegend {
             : isBottomOrTop
                 ? size.width
                 : percentageToValue('30%', size.width);
+
         // To reduce the container width based on offset.
         if (chartLegend.legend!.offset != null &&
             (chartLegend.legend!.offset?.dx.isNegative == false)) {
@@ -694,7 +695,9 @@ class ChartLegend {
 
     // ignore: prefer_if_null_operators
     cartesianShader = legendShader == null
-        ? !seriesType.contains('line') &&
+        ? (!seriesType.contains('line') ||
+                    (seriesType.contains('splinearea') ||
+                        seriesType.contains('splinerangearea'))) &&
                 (legendRenderContext.series is CartesianSeries &&
                     legendRenderContext.series.gradient != null &&
                     !legendRenderContext.isTrendline!)

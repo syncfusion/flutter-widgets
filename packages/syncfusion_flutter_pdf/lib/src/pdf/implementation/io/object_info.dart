@@ -46,6 +46,15 @@ class PdfObjectInfo {
     this.reference = reference;
   }
 
+  /// internal method
+  Future<void> setReferenceAsync(PdfReference reference) async {
+    if (this.reference != null) {
+      throw ArgumentError.value(
+          this.reference, 'The object has the reference bound to it.');
+    }
+    this.reference = reference;
+  }
+
   @override
   String toString() {
     String reference = '';

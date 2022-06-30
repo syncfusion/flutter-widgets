@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "ધુલ-પ્ર", 
 "shortDhualhiLabel" : "ધુલ-એચ", 
 "daySpanCountLabel" : "દિવસ", 
-"series" : "શ્રેણી"
+"series" : "શ્રેણી", 
+"pdfHyperlinkLabel" : "વેબ પેજ ખોલો", 
+"pdfHyperlinkContentLabel" : "શું તમે પાનું ખોલવા માંગો છો", 
+"pdfHyperlinkDialogOpenLabel" : "ખુલ્લા", 
+"pdfHyperlinkDialogCancelLabel" : "રદ કરો"
 }

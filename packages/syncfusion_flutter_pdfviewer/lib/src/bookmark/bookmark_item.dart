@@ -52,7 +52,8 @@ class BookmarkItem extends StatefulWidget {
       this.isBorderEnabled = false,
       this.isExpandIconVisible = false,
       this.isBackIconVisible = false,
-      required this.isMobileWebView});
+      required this.isMobileWebView,
+      required this.textDirection});
 
   /// Title for the bookmark.
   final String title;
@@ -93,6 +94,9 @@ class BookmarkItem extends StatefulWidget {
 
   /// If true,MobileWebView is enabled.Default value is false.
   final bool isMobileWebView;
+
+  ///A direction of text flow.
+  final TextDirection textDirection;
 
   @override
   _BookmarkItemState createState() => _BookmarkItemState();
@@ -206,7 +210,9 @@ class _BookmarkItemState extends State<BookmarkItem> {
                 child: RawMaterialButton(
                   onPressed: _handleBackToParent,
                   child: Icon(
-                    Icons.arrow_back,
+                    widget.textDirection == TextDirection.rtl
+                        ? Icons.arrow_forward
+                        : Icons.arrow_back,
                     size: _kPdfBackIconSize,
                     color:
                         _pdfViewerThemeData!.bookmarkViewStyle?.backIconColor ??
@@ -248,7 +254,9 @@ class _BookmarkItemState extends State<BookmarkItem> {
                 child: RawMaterialButton(
                   onPressed: _handleExpandBookmarkList,
                   child: Icon(
-                    Icons.arrow_forward_ios,
+                    widget.textDirection == TextDirection.rtl
+                        ? Icons.arrow_back_ios
+                        : Icons.arrow_forward_ios,
                     size: _kPdfExpandIconSize,
                     color: _pdfViewerThemeData!
                             .bookmarkViewStyle?.navigationIconColor ??

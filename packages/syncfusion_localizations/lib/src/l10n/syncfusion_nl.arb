@@ -10,7 +10,7 @@
 "pdfGoToPageLabel" : "Ga naar pagina", 
 "pdfEnterPageNumberLabel" : "Voer paginanummer in", 
 "pdfInvalidPageNumberLabel" : "Gelieve een geldig nummer invoeren", 
-"pdfPaginationDialogOkLabel" : "Oke", 
+"pdfPaginationDialogOkLabel" : "Oke",
 "pdfPaginationDialogCancelLabel" : "ANNULEREN", 
 "passwordDialogHeaderTextLabel" : "Beschermd met een wachtwoord", 
 "passwordDialogContentLabel" : "Voer het wachtwoord in om dit PDF-bestand te openen", 
@@ -22,7 +22,7 @@
 "allowedViewWeekLabel" : "Week", 
 "allowedViewWorkWeekLabel" : "Werkweek", 
 "allowedViewMonthLabel" : "Maand", 
-"allowedViewScheduleLabel" : "Schema", 
+"allowedViewScheduleLabel" : "Schema",
 "allowedViewTimelineDayLabel" : "Tijdlijn Dag", 
 "allowedViewTimelineWeekLabel" : "Tijdlijnweek", 
 "allowedViewTimelineWorkWeekLabel" : "Tijdlijn Werkweek", 
@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Dag", 
-"series" : "Serie"
+"series" : "Serie", 
+"pdfHyperlinkLabel" : "Webpagina openen", 
+"pdfHyperlinkContentLabel" : "Wil je de pagina openen op", 
+"pdfHyperlinkDialogOpenLabel" : "OPEN", 
+"pdfHyperlinkDialogCancelLabel" : "ANNULEREN"
 }

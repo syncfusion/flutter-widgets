@@ -1,8 +1,13 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:intl/intl.dart' as intl;
+import 'package:syncfusion_flutter_core/localizations.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../pdfviewer.dart';
 import '../common/pdfviewer_helper.dart';
@@ -28,6 +33,7 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
     this.enableDocumentLinkNavigation,
     this.enableTextSelection,
     this.onTextSelectionChanged,
+    this.onHyperlinkClicked,
     this.onTextSelectionDragStarted,
     this.onTextSelectionDragEnded,
     this.textCollection,
@@ -40,6 +46,9 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
     this.viewportGlobalRect,
     this.scrollDirection,
     this.isSinglePageView,
+    this.textDirection,
+    this.canShowHyperlinkDialog,
+    this.enableHyperlinkNavigation,
   ) : super(key: key);
 
   /// Height of page
@@ -75,6 +84,9 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
   /// Triggers when text selection is changed.
   final PdfTextSelectionChangedCallback? onTextSelectionChanged;
 
+  /// Triggers when Hyperlink is clicked.
+  final PdfHyperlinkClickedCallback? onHyperlinkClicked;
+
   /// Current instance search text highlight color.
   final Color currentSearchTextHighlightColor;
 
@@ -108,32 +120,46 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
   /// Determines layout option in PdfViewer.
   final bool isSinglePageView;
 
+  ///A direction of text flow.
+  final TextDirection textDirection;
+
+  /// Indicates whether hyperlink dialog must be shown or not.
+  final bool canShowHyperlinkDialog;
+
+  /// If true, hyperlink navigation is enabled.
+  final bool enableHyperlinkNavigation;
+
   @override
   RenderObject createRenderObject(BuildContext context) {
     return CanvasRenderBox(
-        height,
-        width,
-        context,
-        pdfDocument,
-        pdfPages,
-        pageIndex,
-        interactionMode,
-        pdfViewerController,
-        enableDocumentLinkNavigation,
-        enableTextSelection,
-        onTextSelectionChanged,
-        onTextSelectionDragStarted,
-        onTextSelectionDragEnded,
-        textCollection,
-        currentSearchTextHighlightColor,
-        otherSearchTextHighlightColor,
-        isMobileWebView,
-        pdfTextSearchResult,
-        pdfScrollableStateKey,
-        singlePageViewStateKey,
-        viewportGlobalRect,
-        scrollDirection,
-        isSinglePageView);
+      height,
+      width,
+      context,
+      pdfDocument,
+      pdfPages,
+      pageIndex,
+      interactionMode,
+      pdfViewerController,
+      enableDocumentLinkNavigation,
+      enableTextSelection,
+      onTextSelectionChanged,
+      onHyperlinkClicked,
+      onTextSelectionDragStarted,
+      onTextSelectionDragEnded,
+      textCollection,
+      currentSearchTextHighlightColor,
+      otherSearchTextHighlightColor,
+      isMobileWebView,
+      pdfTextSearchResult,
+      pdfScrollableStateKey,
+      singlePageViewStateKey,
+      viewportGlobalRect,
+      scrollDirection,
+      isSinglePageView,
+      textDirection,
+      canShowHyperlinkDialog,
+      enableHyperlinkNavigation,
+    );
   }
 
   @override
@@ -142,11 +168,14 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
       ..height = height
       ..width = width
       ..onTextSelectionChanged = onTextSelectionChanged
+      ..onHyperlinkClicked = onHyperlinkClicked
       ..pageIndex = pageIndex
       ..textCollection = textCollection
       ..interactionMode = interactionMode
       ..enableTextSelection = enableTextSelection
       ..enableDocumentLinkNavigation = enableDocumentLinkNavigation
+      ..enableHyperlinkNavigation = enableHyperlinkNavigation
+      ..canShowHyperlinkDialog = canShowHyperlinkDialog
       ..currentSearchTextHighlightColor = currentSearchTextHighlightColor
       ..otherSearchTextHighlightColor = otherSearchTextHighlightColor
       ..scrollDirection = scrollDirection
@@ -163,29 +192,34 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
 class CanvasRenderBox extends RenderBox {
   /// Constructor of CanvasRenderBox.
   CanvasRenderBox(
-      this.height,
-      this.width,
-      this.context,
-      this.pdfDocument,
-      this.pdfPages,
-      this.pageIndex,
-      this.interactionMode,
-      this.pdfViewerController,
-      this.enableDocumentLinkNavigation,
-      this.enableTextSelection,
-      this.onTextSelectionChanged,
-      this.onTextSelectionDragStarted,
-      this.onTextSelectionDragEnded,
-      this.textCollection,
-      this.currentSearchTextHighlightColor,
-      this.otherSearchTextHighlightColor,
-      this.isMobileWebView,
-      this.pdfTextSearchResult,
-      this.pdfScrollableStateKey,
-      this.singlePageViewStateKey,
-      this.viewportGlobalRect,
-      this.scrollDirection,
-      this.isSinglePageView) {
+    this.height,
+    this.width,
+    this.context,
+    this.pdfDocument,
+    this.pdfPages,
+    this.pageIndex,
+    this.interactionMode,
+    this.pdfViewerController,
+    this.enableDocumentLinkNavigation,
+    this.enableTextSelection,
+    this.onTextSelectionChanged,
+    this.onHyperlinkClicked,
+    this.onTextSelectionDragStarted,
+    this.onTextSelectionDragEnded,
+    this.textCollection,
+    this.currentSearchTextHighlightColor,
+    this.otherSearchTextHighlightColor,
+    this.isMobileWebView,
+    this.pdfTextSearchResult,
+    this.pdfScrollableStateKey,
+    this.singlePageViewStateKey,
+    this.viewportGlobalRect,
+    this.scrollDirection,
+    this.isSinglePageView,
+    this.textDirection,
+    this.canShowHyperlinkDialog,
+    this.enableHyperlinkNavigation,
+  ) {
     final GestureArenaTeam team = GestureArenaTeam();
     _tapRecognizer = TapGestureRecognizer()
       ..onTapUp = handleTapUp
@@ -198,12 +232,16 @@ class CanvasRenderBox extends RenderBox {
       ..onUpdate = handleDragUpdate
       ..onEnd = handleDragEnd
       ..onDown = handleDragDown;
+    _dragRecognizer.gestureSettings =
+        const DeviceGestureSettings(touchSlop: 10);
     _verticalDragRecognizer = VerticalDragGestureRecognizer()
       ..team = team
       ..onStart = handleDragStart
       ..onUpdate = handleDragUpdate
       ..onEnd = handleDragEnd
       ..onDown = handleDragDown;
+    _verticalDragRecognizer.gestureSettings =
+        const DeviceGestureSettings(touchSlop: 10);
   }
 
   /// Height of Page
@@ -242,6 +280,9 @@ class CanvasRenderBox extends RenderBox {
   /// Triggers when text selection is changed.
   late PdfTextSelectionChangedCallback? onTextSelectionChanged;
 
+  /// Triggers when Hyperlink is clicked.
+  late PdfHyperlinkClickedCallback? onHyperlinkClicked;
+
   /// Indicates interaction mode of pdfViewer.
   late PdfInteractionMode interactionMode;
 
@@ -275,10 +316,20 @@ class CanvasRenderBox extends RenderBox {
   /// Determines layout option in PdfViewer.
   late bool isSinglePageView;
 
+  ///A direction of text flow.
+  late TextDirection textDirection;
+
+  /// Indicates whether hyperlink dialog must be shown or not.
+  late bool canShowHyperlinkDialog;
+
+  /// If true, hyperlink navigation is enabled.
+  late bool enableHyperlinkNavigation;
+
   int? _viewId;
   int? _destinationPageIndex;
   late Offset _totalPageOffset;
   bool _isTOCTapped = false;
+  bool _isHyperLinkTapped = false;
   bool _isMousePointer = false;
   double _startBubbleTapX = 0;
   double _endBubbleTapX = 0;
@@ -288,6 +339,7 @@ class CanvasRenderBox extends RenderBox {
   bool _longPressed = false;
   bool _startBubbleDragging = false;
   bool _endBubbleDragging = false;
+  bool _isRTLText = false;
   double _zoomPercentage = 0.0;
   Offset? _tapDetails;
   Offset? _dragDetails;
@@ -299,6 +351,7 @@ class CanvasRenderBox extends RenderBox {
   late LongPressGestureRecognizer _longPressRecognizer;
   late VerticalDragGestureRecognizer _verticalDragRecognizer;
   late PdfDocumentLinkAnnotation? _documentLinkAnnotation;
+  late PdfUriAnnotation? _pdfUriAnnotation;
   late final PdfPageRotateAngle _rotatedAngle =
       pdfDocument!.pages[pageIndex].rotation;
 
@@ -356,6 +409,331 @@ class CanvasRenderBox extends RenderBox {
     }
   }
 
+  SfPdfViewerThemeData? _pdfViewerThemeData;
+  ThemeData? _themeData;
+  SfLocalizations? _localizations;
+
+  Future<void> _showHyperLinkDialog(Uri url) {
+    _pdfViewerThemeData = SfPdfViewerTheme.of(context);
+    _themeData = Theme.of(context);
+    _localizations = SfLocalizations.of(context);
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          final Orientation orientation = MediaQuery.of(context).orientation;
+          return Directionality(
+            textDirection: textDirection,
+            child: AlertDialog(
+              scrollable: true,
+              insetPadding: EdgeInsets.zero,
+              contentPadding: orientation == Orientation.portrait
+                  ? const EdgeInsets.all(24)
+                  : const EdgeInsets.all(15),
+              buttonPadding: orientation == Orientation.portrait
+                  ? const EdgeInsets.all(8)
+                  : const EdgeInsets.all(6),
+              backgroundColor: _pdfViewerThemeData!
+                      .hyperlinkDialogStyle?.backgroundColor ??
+                  (Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Colors.white
+                      : const Color(0xFF424242)),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    _localizations!.pdfHyperlinkLabel,
+                    style: _pdfViewerThemeData!
+                            .hyperlinkDialogStyle?.headerTextStyle ??
+                        TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 20,
+                          letterSpacing: 0.15,
+                          fontWeight: FontWeight.w500,
+                          color: _themeData!.colorScheme.onSurface
+                              .withOpacity(0.87),
+                        ),
+                  ),
+                  SizedBox(
+                    height: 36,
+                    width: 36,
+                    child: RawMaterialButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _isHyperLinkTapped = false;
+                      },
+                      child: Icon(
+                        Icons.clear,
+                        color: _pdfViewerThemeData!
+                                .hyperlinkDialogStyle?.closeIconColor ??
+                            _themeData!.colorScheme.onSurface.withOpacity(0.6),
+                        size: 24,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
+              content: SingleChildScrollView(
+                child: SizedBox(
+                  width: 296,
+                  child: Column(
+                    children: <Widget>[
+                      Align(
+                        alignment: textDirection == TextDirection.rtl
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Padding(
+                          padding: orientation == Orientation.portrait
+                              ? const EdgeInsets.fromLTRB(2, 0, 0, 8)
+                              : const EdgeInsets.fromLTRB(10, 0, 0, 8),
+                          child: Text(
+                            _localizations!.pdfHyperlinkContentLabel,
+                            style: _pdfViewerThemeData!
+                                    .hyperlinkDialogStyle?.contentTextStyle ??
+                                TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 14,
+                                  letterSpacing: 0.25,
+                                  fontWeight: FontWeight.w400,
+                                  color: _themeData!.colorScheme.onSurface
+                                      .withOpacity(0.87),
+                                ),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: textDirection == TextDirection.rtl
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Padding(
+                          padding: orientation == Orientation.portrait
+                              ? const EdgeInsets.fromLTRB(2, 0, 0, 0)
+                              : const EdgeInsets.fromLTRB(10, 0, 0, 4),
+                          child: Text(
+                            '$url?',
+                            textDirection: TextDirection.ltr,
+                            style: _pdfViewerThemeData!
+                                    .hyperlinkDialogStyle?.contentTextStyle ??
+                                TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 14,
+                                  letterSpacing: 0.25,
+                                  fontWeight: FontWeight.w400,
+                                  color: _themeData!.colorScheme.onSurface
+                                      .withOpacity(0.87),
+                                ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _isHyperLinkTapped = false;
+                  },
+                  child: Text(
+                    _localizations!.pdfHyperlinkDialogCancelLabel,
+                    style: _pdfViewerThemeData!
+                            .hyperlinkDialogStyle?.cancelTextStyle ??
+                        TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 14,
+                            letterSpacing: 1.25,
+                            fontWeight: FontWeight.w500,
+                            color: _themeData!.colorScheme.onSurface
+                                .withOpacity(0.6)),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+                  child: TextButton(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await launchUrl(
+                        url,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    },
+                    child: Text(
+                      _localizations!.pdfHyperlinkDialogOpenLabel,
+                      style: _pdfViewerThemeData!
+                              .hyperlinkDialogStyle?.openTextStyle ??
+                          TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: 14,
+                              letterSpacing: 1.25,
+                              fontWeight: FontWeight.w500,
+                              color: _themeData!.colorScheme.primary),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  Future<void> _showWebHyperLinkDialog(Uri url) {
+    _pdfViewerThemeData = SfPdfViewerTheme.of(context);
+    _themeData = Theme.of(context);
+    _localizations = SfLocalizations.of(context);
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return Directionality(
+            textDirection: textDirection,
+            child: AlertDialog(
+              scrollable: true,
+              insetPadding: EdgeInsets.zero,
+              titlePadding: const EdgeInsets.all(16),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              buttonPadding: const EdgeInsets.all(24),
+              backgroundColor: _pdfViewerThemeData!
+                      .hyperlinkDialogStyle?.backgroundColor ??
+                  (Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Colors.white
+                      : const Color(0xFF424242)),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    _localizations!.pdfHyperlinkLabel,
+                    style: _pdfViewerThemeData!
+                            .hyperlinkDialogStyle?.headerTextStyle ??
+                        TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 20,
+                          letterSpacing: 0.15,
+                          fontWeight: FontWeight.w500,
+                          color: _themeData!.colorScheme.onSurface
+                              .withOpacity(0.87),
+                        ),
+                  ),
+                  SizedBox(
+                    height: 36,
+                    width: 36,
+                    child: RawMaterialButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _isHyperLinkTapped = false;
+                      },
+                      child: Icon(
+                        Icons.clear,
+                        color: _pdfViewerThemeData!
+                                .hyperlinkDialogStyle?.closeIconColor ??
+                            _themeData!.colorScheme.onSurface.withOpacity(0.6),
+                        size: 24,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
+              content: SingleChildScrollView(
+                child: SizedBox(
+                  width: 361,
+                  child: Column(
+                    children: <Widget>[
+                      Align(
+                        alignment: textDirection == TextDirection.rtl
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(2, 0, 0, 8),
+                          child: Text(
+                            _localizations!.pdfHyperlinkContentLabel,
+                            style: _pdfViewerThemeData!
+                                    .hyperlinkDialogStyle?.contentTextStyle ??
+                                TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 14,
+                                  letterSpacing: 0.25,
+                                  fontWeight: FontWeight.w400,
+                                  color: _themeData!.colorScheme.onSurface
+                                      .withOpacity(0.87),
+                                ),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: textDirection == TextDirection.rtl
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(2, 0, 0, 0),
+                          child: Text(
+                            '$url?',
+                            textDirection: TextDirection.ltr,
+                            style: _pdfViewerThemeData!
+                                    .hyperlinkDialogStyle?.contentTextStyle ??
+                                TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 14,
+                                  letterSpacing: 0.25,
+                                  fontWeight: FontWeight.w400,
+                                  color: _themeData!.colorScheme.onSurface
+                                      .withOpacity(0.87),
+                                ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _isHyperLinkTapped = false;
+                  },
+                  child: Text(
+                    _localizations!.pdfHyperlinkDialogCancelLabel,
+                    style: _pdfViewerThemeData!
+                            .hyperlinkDialogStyle?.cancelTextStyle ??
+                        TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 14,
+                            letterSpacing: 1.25,
+                            fontWeight: FontWeight.w500,
+                            color: _themeData!.colorScheme.onSurface
+                                .withOpacity(0.6)),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    await launchUrl(
+                      url,
+                      mode: LaunchMode.externalApplication,
+                    );
+                  },
+                  child: Text(
+                    _localizations!.pdfHyperlinkDialogOpenLabel,
+                    style: _pdfViewerThemeData!
+                            .hyperlinkDialogStyle?.openTextStyle ??
+                        TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 14,
+                            letterSpacing: 1.25,
+                            fontWeight: FontWeight.w500,
+                            color: _themeData!.colorScheme.primary),
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
   /// Handles the tap up event
   void handleTapUp(TapUpDetails details) {
     if (textCollection == null && !_textSelectionHelper.enableTapSelection) {
@@ -366,15 +744,45 @@ class CanvasRenderBox extends RenderBox {
       updateContextMenuPosition();
       _textSelectionHelper.enableTapSelection = false;
     }
-    if (enableDocumentLinkNavigation && pdfDocument != null) {
-      _viewId = pageIndex;
-      final double heightPercentage =
-          pdfDocument!.pages[_viewId!].size.height / height;
-      final double widthPercentage =
-          pdfDocument!.pages[_viewId!].size.width / width;
-      final PdfPage page = pdfDocument!.pages[pageIndex];
-      final int length = page.annotations.count;
-      for (int index = 0; index < length; index++) {
+    _viewId = pageIndex;
+    final double heightPercentage =
+        pdfDocument!.pages[_viewId!].size.height / height;
+    final double widthPercentage =
+        pdfDocument!.pages[_viewId!].size.width / width;
+    final PdfPage page = pdfDocument!.pages[pageIndex];
+    final int length = page.annotations.count;
+    for (int index = 0; index < length; index++) {
+      if (page.annotations[index] is PdfUriAnnotation &&
+          enableHyperlinkNavigation) {
+        _pdfUriAnnotation = page.annotations[index] as PdfUriAnnotation;
+        assert(_pdfUriAnnotation != null);
+        if ((details.localPosition.dy >=
+                (_pdfUriAnnotation!.bounds.top / heightPercentage)) &&
+            (details.localPosition.dy <=
+                (_pdfUriAnnotation!.bounds.bottom / heightPercentage)) &&
+            (details.localPosition.dx >=
+                (_pdfUriAnnotation!.bounds.left / heightPercentage)) &&
+            (details.localPosition.dx <=
+                (_pdfUriAnnotation!.bounds.right / heightPercentage))) {
+          if (_pdfUriAnnotation!.uri != null) {
+            _isHyperLinkTapped = true;
+            final Uri uri = Uri.parse(_pdfUriAnnotation!.uri);
+            if (canShowHyperlinkDialog) {
+              if (_pdfUriAnnotation!.uri.contains('mailto')) {
+                launchUrl(uri);
+              } else {
+                kIsDesktop
+                    ? _showWebHyperLinkDialog(uri)
+                    : _showHyperLinkDialog(uri);
+              }
+            }
+            triggerHyperLinkCallback();
+            markNeedsPaint();
+            break;
+          }
+        }
+      }
+      if (enableDocumentLinkNavigation) {
         if (page.annotations[index] is PdfDocumentLinkAnnotation) {
           _documentLinkAnnotation =
               // ignore: avoid_as
@@ -671,12 +1079,21 @@ class CanvasRenderBox extends RenderBox {
     }
   }
 
-  /// Triggers value callback for text selection.
+  /// Triggers value callback for text selection and hyperlink navigation.
   void triggerValueCallback() {
     if (onTextSelectionChanged != null) {
       onTextSelectionChanged!(PdfTextSelectionChangedDetails(
           _textSelectionHelper.copiedText,
           _textSelectionHelper.globalSelectedRegion));
+    }
+  }
+
+  /// Triggers callback for hyperlink navigation.
+  void triggerHyperLinkCallback() {
+    if (onHyperlinkClicked != null) {
+      onHyperlinkClicked!(PdfHyperlinkClickedDetails(
+        _pdfUriAnnotation!.uri,
+      ));
     }
   }
 
@@ -955,6 +1372,7 @@ class CanvasRenderBox extends RenderBox {
 
   /// clears Text Selection.
   bool clearSelection() {
+    _isRTLText = false;
     clearMouseSelection();
     final bool clearTextSelection = !_textSelectionHelper.selectionEnabled;
     if (_textSelectionHelper.selectionEnabled) {
@@ -1023,7 +1441,12 @@ class CanvasRenderBox extends RenderBox {
             height;
     final Offset hoverDetails = details * heightPercentage;
     for (int index = 0; index < page.annotations.count; index++) {
-      if (page.annotations[index] is PdfDocumentLinkAnnotation) {
+      final bool hasTOC =
+          page.annotations[index] is PdfDocumentLinkAnnotation &&
+              enableDocumentLinkNavigation;
+      final bool hasURI = page.annotations[index] is PdfUriAnnotation &&
+          enableHyperlinkNavigation;
+      if (hasTOC) {
         _documentLinkAnnotation =
             // ignore: avoid_as
             page.annotations[index] as PdfDocumentLinkAnnotation;
@@ -1031,6 +1454,16 @@ class CanvasRenderBox extends RenderBox {
             (hoverDetails.dy <= (_documentLinkAnnotation!.bounds.bottom)) &&
             (hoverDetails.dx >= (_documentLinkAnnotation!.bounds.left)) &&
             (hoverDetails.dx <= (_documentLinkAnnotation!.bounds.right))) {
+          return true;
+        }
+      } else if (hasURI) {
+        _pdfUriAnnotation =
+            // ignore: avoid_as
+            page.annotations[index] as PdfUriAnnotation;
+        if ((hoverDetails.dy >= (_pdfUriAnnotation!.bounds.top)) &&
+            (hoverDetails.dy <= (_pdfUriAnnotation!.bounds.bottom)) &&
+            (hoverDetails.dx >= (_pdfUriAnnotation!.bounds.left)) &&
+            (hoverDetails.dx <= (_pdfUriAnnotation!.bounds.right))) {
           return true;
         }
       }
@@ -1137,6 +1570,27 @@ class CanvasRenderBox extends RenderBox {
     return null;
   }
 
+  void _performHyperLinkNavigation(Canvas canvas, Offset offset) {
+    if (pageIndex == _viewId) {
+      if (_isHyperLinkTapped && enableHyperlinkNavigation) {
+        final double heightPercentage =
+            pdfDocument!.pages[_viewId!].size.height / height;
+        final Paint wordPaint = Paint()
+          ..color = const Color.fromRGBO(228, 238, 244, 0.75);
+        canvas.drawRect(
+            offset.translate(_pdfUriAnnotation!.bounds.left / heightPercentage,
+                    _pdfUriAnnotation!.bounds.top / heightPercentage) &
+                Size(_pdfUriAnnotation!.bounds.width / heightPercentage,
+                    _pdfUriAnnotation!.bounds.height / heightPercentage),
+            wordPaint);
+        _isHyperLinkTapped = false;
+        Future<dynamic>.delayed(Duration.zero, () async {
+          markNeedsPaint();
+        });
+      }
+    }
+  }
+
   /// Perform document link navigation.
   void _performDocumentLinkNavigation(Canvas canvas, Offset offset) {
     if (pageIndex == _viewId) {
@@ -1234,9 +1688,9 @@ class CanvasRenderBox extends RenderBox {
             if (canSelectGlyph) {
               startPoint ??= glyph.bounds;
               endPoint = glyph.bounds;
-              glyphText = glyphText + glyph.text;
-              _textSelectionHelper.copiedText =
-                  _textSelectionHelper.copiedText! + glyph.text;
+              glyphText =
+                  _getSelectedGlyphText(glyphText, glyph, textWord, glyphIndex);
+              _textSelectionHelper.copiedText = glyphText;
               final Rect textRectOffset = offset.translate(
                       glyph.bounds.left / heightPercentage,
                       glyph.bounds.top / heightPercentage) &
@@ -1278,7 +1732,7 @@ class CanvasRenderBox extends RenderBox {
 
       /// forum link:  https://www.syncfusion.com/forums/170024/
       /// copy-text-from-pdf-content-does-not-consider-linefeed
-      if (_textSelectionHelper.selectedTextLines.length > 1 && kIsDesktop) {
+      if (_textSelectionHelper.selectedTextLines.length > 1) {
         _textSelectionHelper.copiedText =
             _copiedTextLines(_textSelectionHelper.selectedTextLines);
       }
@@ -1300,6 +1754,29 @@ class CanvasRenderBox extends RenderBox {
             canvas, offset, textPaint, heightPercentage, false);
       }
     }
+  }
+
+  /// Gets selected glyph text.
+  String _getSelectedGlyphText(
+      String glyphText, TextGlyph glyph, TextWord textWord, int glyphIndex) {
+    final bool isRTLGlyph = intl.Bidi.detectRtlDirectionality(glyph.text);
+    if (isRTLGlyph) {
+      _isRTLText = true;
+    }
+    if (_isRTLText) {
+      String rtlText = '';
+      final bool isRTLWord = intl.Bidi.detectRtlDirectionality(textWord.text);
+      if (!isRTLWord) {
+        rtlText =
+            textWord.glyphs[textWord.glyphs.length - (glyphIndex + 1)].text;
+      } else {
+        rtlText = glyph.text;
+      }
+      glyphText = rtlText + glyphText;
+    } else {
+      glyphText = glyphText + glyph.text;
+    }
+    return glyphText;
   }
 
   /// Consider the line feed for the copied TextLines.
@@ -1416,6 +1893,7 @@ class CanvasRenderBox extends RenderBox {
         : pdfViewerController.zoomLevel;
 
     _performDocumentLinkNavigation(canvas, offset);
+    _performHyperLinkNavigation(canvas, offset);
     _performTextSearch(canvas, offset);
 
     if (_textSelectionHelper.mouseSelectionEnabled &&

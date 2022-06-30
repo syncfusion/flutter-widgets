@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../chart_series/series.dart';
@@ -5,6 +7,7 @@ import '../chart_series/series_renderer_properties.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
+import '../utils/enum.dart';
 import 'chart_segment.dart';
 
 /// Creates the segments for fast line series.
@@ -76,11 +79,19 @@ class FastLineSegment extends ChartSegment {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(
             _segmentProperties.seriesRenderer);
-    // ignore: unnecessary_null_comparison
-    _segmentProperties.series.dashArray != null
-        ? drawDashedLine(canvas, _segmentProperties.series.dashArray,
-            strokePaint!, seriesRendererDetails.segmentPath!)
-        : canvas.drawPath(seriesRendererDetails.segmentPath!, strokePaint!);
+    final bool isDashArray = seriesRendererDetails.dashArray![0] != 0 &&
+        seriesRendererDetails.dashArray![1] != 0;
+    if ((seriesRendererDetails.series.emptyPointSettings.mode ==
+                EmptyPointMode.gap &&
+            seriesRendererDetails.containsEmptyPoints) ||
+        isDashArray) {
+      isDashArray
+          ? drawDashedLine(canvas, _segmentProperties.series.dashArray,
+              strokePaint!, seriesRendererDetails.segmentPath!)
+          : canvas.drawPath(seriesRendererDetails.segmentPath!, strokePaint!);
+    } else {
+      canvas.drawPoints(PointMode.polygon, points, strokePaint!);
+    }
   }
 
   /// Calculates the rendering bounds of a segment.

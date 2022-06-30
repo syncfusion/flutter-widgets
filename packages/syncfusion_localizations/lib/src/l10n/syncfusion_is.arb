@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Dagur", 
-"series" : "Röð"
+"series" : "Röð", 
+"pdfHyperlinkLabel" : "Opnaðu vefsíðu", 
+"pdfHyperlinkContentLabel" : "Viltu opna síðuna á", 
+"pdfHyperlinkDialogOpenLabel" : "OPNA", 
+"pdfHyperlinkDialogCancelLabel" : "HÆTTA við"
 }

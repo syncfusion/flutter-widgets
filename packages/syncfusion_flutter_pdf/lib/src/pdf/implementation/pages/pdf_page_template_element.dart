@@ -32,7 +32,7 @@ import 'pdf_section.dart';
 ///       bounds: Rect.fromLTWH(250, 0, 515, 100));
 /// }
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -65,7 +65,7 @@ class PdfPageTemplateElement {
   /// //Add the footer at the bottom of the document
   /// document.template.bottom = footer;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -106,7 +106,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///    bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -140,7 +140,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -170,7 +170,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -197,7 +197,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -226,7 +226,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -255,7 +255,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -284,7 +284,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -313,7 +313,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -343,7 +343,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -371,7 +371,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -395,7 +395,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

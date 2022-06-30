@@ -50,10 +50,14 @@
 "shortJumada2Label" : "جام. ثانيًا", 
 "shortRajabLabel" : "راج.", 
 "shortShaabanLabel" : "شا.", 
-"shortRamadanLabel" : "الرامات الذاكرة العشوائية في الهواتف والحواسيب.", 
+"shortRamadanLabel" : "الرامات الذاكرة العشوائية في الهواتف والحواسيب.",
 "shortShawwalLabel" : "شو.", 
 "shortDhualqiLabel" : "ذو القعدة", 
 "shortDhualhiLabel" : "ذو الحجة", 
 "daySpanCountLabel" : "يوم", 
-"series" : "مسلسل"
+"series" : "مسلسل", 
+"pdfHyperlinkLabel" : "افتح صفحة الويب", 
+"pdfHyperlinkContentLabel" : "هل تريد فتح الصفحة في", 
+"pdfHyperlinkDialogOpenLabel" : "افتح", 
+"pdfHyperlinkDialogCancelLabel" : "إلغاء"
 }

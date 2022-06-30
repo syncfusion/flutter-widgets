@@ -21,7 +21,7 @@ import 'string_tokenizer.dart';
 ///       PdfStandardFont(PdfFontFamily.helvetica, 12),
 ///       brush: PdfBrushes.black);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -41,7 +41,7 @@ abstract class PdfFont implements IPdfWrapper {
   ///     'Font Name: ${font.name}\nFont Size: ${font.size}\nFont Height: ${font.height}\nFont Style: ${font.style}',
   ///     font);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -59,7 +59,7 @@ abstract class PdfFont implements IPdfWrapper {
   ///     'Font Name: ${font.name}\nFont Size: ${font.size}\nFont Height: ${font.height}\nFont Style: ${font.style}',
   ///     font);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -77,7 +77,7 @@ abstract class PdfFont implements IPdfWrapper {
   ///     'Font Name: ${font.name}\nFont Size: ${font.size}\nFont Height: ${font.height}\nFont Style: ${font.style}',
   ///     font);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -95,7 +95,7 @@ abstract class PdfFont implements IPdfWrapper {
   ///     'Font Name: ${font.name}\nFont Size: ${font.size}\nFont Height: ${font.height}\nFont Style: ${font.style}',
   ///     font);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -121,7 +121,7 @@ abstract class PdfFont implements IPdfWrapper {
   ///     brush: PdfBrushes.black,
   ///     bounds: Rect.fromLTWH(0, 0, size.width, size.height));
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

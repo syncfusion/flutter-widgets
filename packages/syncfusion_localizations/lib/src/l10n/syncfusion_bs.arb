@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Dan", 
-"series" : "Serije"
+"series" : "Serije", 
+"pdfHyperlinkLabel" : "Otvorite web stranicu", 
+"pdfHyperlinkContentLabel" : "Da li želite da otvorite stranicu na", 
+"pdfHyperlinkDialogOpenLabel" : "OTVOREN", 
+"pdfHyperlinkDialogCancelLabel" : "OTKAZI"
 }

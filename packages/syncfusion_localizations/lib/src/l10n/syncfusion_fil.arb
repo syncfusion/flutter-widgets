@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Araw", 
-"series" : "Serye"
+"series" : "Serye", 
+"pdfHyperlinkLabel" : "Buksan ang Web Page", 
+"pdfHyperlinkContentLabel" : "Gusto mo bang buksan ang pahina sa", 
+"pdfHyperlinkDialogOpenLabel" : "BUKAS", 
+"pdfHyperlinkDialogCancelLabel" : "KANSELAHIN"
 }

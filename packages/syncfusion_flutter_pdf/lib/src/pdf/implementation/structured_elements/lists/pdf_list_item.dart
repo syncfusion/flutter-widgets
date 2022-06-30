@@ -18,7 +18,7 @@ import 'pdf_list.dart';
 ///       PdfListItem(text: 'PDF'))
 ///   ..draw(page: document.pages.add(), bounds: Rect.fromLTWH(10, 10, 0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -38,7 +38,7 @@ class PdfListItem {
   ///       PdfListItem(text: 'PDF'))
   ///   ..draw(page: document.pages.add(), bounds: Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -68,7 +68,7 @@ class PdfListItem {
   ///       brush: PdfBrushes.red))
   ///   ..draw(page: document.pages.add(), bounds: Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -89,7 +89,7 @@ class PdfListItem {
   ///       brush: PdfBrushes.red))
   ///   ..draw(page: document.pages.add(), bounds: Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -110,7 +110,7 @@ class PdfListItem {
   ///       brush: PdfBrushes.red))
   ///   ..draw(page: document.pages.add(), bounds: Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -131,7 +131,7 @@ class PdfListItem {
   ///       brush: PdfBrushes.red))
   ///   ..draw(page: document.pages.add(), bounds: Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -149,7 +149,7 @@ class PdfListItem {
   ///     ..subList = PdfOrderedList(items: PdfListItemCollection(['PDF'])))
   ///   ..draw(page: document.pages.add(), bounds: Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -171,7 +171,7 @@ class PdfListItem {
   ///         ..textIndent = 10)
   ///   ..draw(page: document.pages.add(), bounds: Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -193,7 +193,7 @@ class PdfListItem {
   ///       brush: PdfBrushes.red))
   ///   ..draw(page: document.pages.add(), bounds: Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

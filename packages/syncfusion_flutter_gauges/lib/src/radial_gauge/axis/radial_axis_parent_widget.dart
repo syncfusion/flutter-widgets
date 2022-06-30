@@ -121,6 +121,7 @@ class RenderRadialAxisParent extends RenderBox
       ..team = _gestureArenaTeam
       ..onStart = _handleDragStart
       ..onUpdate = _handleDragUpdate
+      ..onEnd = _handleDragEnd
       ..dragStartBehavior = DragStartBehavior.start;
 
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUP;
@@ -483,7 +484,7 @@ class RenderRadialAxisParent extends RenderBox
     _pointerRenderObject = null;
   }
 
-  /// Method to update the drag value
+  /// Method to update the drag value.
   void _updateDragValue(double x, double y, dynamic pointer) {
     final double actualCenterX = axis!.canScaleToFit
         ? axis!.getAxisCenter().dx
@@ -502,24 +503,6 @@ class RenderRadialAxisParent extends RenderBox
 
     if (angle > endAngle) {
       angle %= 360;
-    }
-
-    // Restricts the dragging of pointer once the maximum or minimum
-    // value of axis is reached, if it is not a full circle
-    if (axis!.startAngle != axis!.endAngle) {
-      final double pointerAngle = angle > 360 ? angle % 360 : angle;
-      final double startAngle =
-          axis!.startAngle > 360 ? axis!.startAngle % 360 : axis!.startAngle;
-      final double endAngle =
-          axis!.endAngle > 360 ? axis!.endAngle % 360 : axis!.endAngle;
-      final bool isPointerInsideRange = startAngle < endAngle
-          ? pointerAngle > (startAngle == 360 ? 0 : startAngle) &&
-              pointerAngle < (endAngle == 0 ? 360 : endAngle)
-          : pointerAngle > (startAngle == 360 ? 0 : startAngle) ||
-              pointerAngle < (endAngle == 0 ? 360 : endAngle);
-      if (!isPointerInsideRange) {
-        _checkPointerIsDragged();
-      }
     }
 
     if (angle >= axis!.startAngle && angle <= endAngle) {

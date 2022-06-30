@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/interactive_scroll_viewer_internal.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-
 import '../../pdfviewer.dart';
 import '../common/pdfviewer_helper.dart';
 import 'pdf_page_view.dart';
@@ -45,6 +44,7 @@ class ScrollHeadOverlay extends StatefulWidget {
       this.pdfPages,
       this.scrollDirection,
       this.isBookmarkViewOpen,
+      this.textDirection,
       this.child,
       {Key? key,
       this.transformationController,
@@ -134,6 +134,9 @@ class ScrollHeadOverlay extends StatefulWidget {
   /// Indicates whether the built-in bookmark view in the [SfPdfViewer] is
   /// opened or not.
   final bool isBookmarkViewOpen;
+
+  /// Direction of text flow.
+  final TextDirection textDirection;
 
   @override
   ScrollHeadOverlayState createState() => ScrollHeadOverlayState();
@@ -296,25 +299,28 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                 widget.enableDoubleTapZooming))
         ? true
         : false;
-    final Widget scrollable = InteractiveScrollViewer(
-      widget.child,
-      minScale: widget.minScale,
-      maxScale: widget.maxScale,
-      onDoubleTapZoomInvoked: _onDoubleTapZoomInvoked,
-      transformationController: widget.transformationController,
-      key: _childKey,
-      enableDoubleTapZooming: enableDoubleTapZoom,
-      // ignore: avoid_bool_literals_in_conditional_expressions
-      scaleEnabled: ((kIsDesktop && widget.isMobileWebView) ||
-              !kIsDesktop ||
-              (kIsDesktop && widget.scaleEnabled))
-          ? true
-          : false,
-      panEnabled: widget.isPanEnabled,
-      onInteractionStart: _handleInteractionStart,
-      onInteractionUpdate: _handleInteractionChanged,
-      onInteractionEnd: _handleInteractionEnd,
-      constrained: false,
+    final Widget scrollable = Directionality(
+      textDirection: TextDirection.ltr,
+      child: InteractiveScrollViewer(
+        widget.child,
+        minScale: widget.minScale,
+        maxScale: widget.maxScale,
+        onDoubleTapZoomInvoked: _onDoubleTapZoomInvoked,
+        transformationController: widget.transformationController,
+        key: _childKey,
+        enableDoubleTapZooming: enableDoubleTapZoom,
+        // ignore: avoid_bool_literals_in_conditional_expressions
+        scaleEnabled: ((kIsDesktop && widget.isMobileWebView) ||
+                !kIsDesktop ||
+                (kIsDesktop && widget.scaleEnabled))
+            ? true
+            : false,
+        panEnabled: widget.isPanEnabled,
+        onInteractionStart: _handleInteractionStart,
+        onInteractionUpdate: _handleInteractionChanged,
+        onInteractionEnd: _handleInteractionEnd,
+        constrained: false,
+      ),
     );
     final Offset scrollHeadOffset =
         Offset(_scrollHeadPositionX, _scrollHeadPositionY);
@@ -397,70 +403,74 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
         barrierDismissible: true,
         builder: (BuildContext context) {
           final Orientation orientation = MediaQuery.of(context).orientation;
-          return AlertDialog(
-            scrollable: true,
-            insetPadding: EdgeInsets.zero,
-            contentPadding: orientation == Orientation.portrait
-                ? const EdgeInsets.all(24)
-                : const EdgeInsets.only(right: 24, left: 24),
-            buttonPadding: orientation == Orientation.portrait
-                ? const EdgeInsets.all(8)
-                : const EdgeInsets.all(4),
-            backgroundColor: _pdfViewerThemeData!
-                    .paginationDialogStyle?.backgroundColor ??
-                (Theme.of(context).colorScheme.brightness == Brightness.light
-                    ? Colors.white
-                    : const Color(0xFF424242)),
-            title: Text(
-              _localizations!.pdfGoToPageLabel,
-              style: _pdfViewerThemeData!
-                      .paginationDialogStyle?.headerTextStyle ??
-                  TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: _themeData!.colorScheme.onSurface.withOpacity(0.87),
-                  ),
-            ),
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(4.0))),
-            content:
-                SingleChildScrollView(child: _paginationTextField(context)),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  _textFieldController.clear();
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  _localizations!.pdfPaginationDialogCancelLabel,
-                  style: _pdfViewerThemeData!
-                          .paginationDialogStyle?.cancelTextStyle ??
-                      TextStyle(
-                        fontFamily: 'Roboto',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: _themeData!.colorScheme.primary,
-                      ),
-                ),
+          return Directionality(
+            textDirection: widget.textDirection,
+            child: AlertDialog(
+              scrollable: true,
+              insetPadding: EdgeInsets.zero,
+              contentPadding: orientation == Orientation.portrait
+                  ? const EdgeInsets.all(24)
+                  : const EdgeInsets.only(right: 24, left: 24),
+              buttonPadding: orientation == Orientation.portrait
+                  ? const EdgeInsets.all(8)
+                  : const EdgeInsets.all(4),
+              backgroundColor: _pdfViewerThemeData!
+                      .paginationDialogStyle?.backgroundColor ??
+                  (Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Colors.white
+                      : const Color(0xFF424242)),
+              title: Text(
+                _localizations!.pdfGoToPageLabel,
+                style: _pdfViewerThemeData!
+                        .paginationDialogStyle?.headerTextStyle ??
+                    TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color:
+                          _themeData!.colorScheme.onSurface.withOpacity(0.87),
+                    ),
               ),
-              TextButton(
-                onPressed: () {
-                  _handlePageNumberValidation();
-                },
-                child: Text(
-                  _localizations!.pdfPaginationDialogOkLabel,
-                  style:
-                      _pdfViewerThemeData!.paginationDialogStyle?.okTextStyle ??
-                          TextStyle(
-                            fontFamily: 'Roboto',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: _themeData!.colorScheme.primary,
-                          ),
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
+              content:
+                  SingleChildScrollView(child: _paginationTextField(context)),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    _textFieldController.clear();
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    _localizations!.pdfPaginationDialogCancelLabel,
+                    style: _pdfViewerThemeData!
+                            .paginationDialogStyle?.cancelTextStyle ??
+                        TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: _themeData!.colorScheme.primary,
+                        ),
+                  ),
                 ),
-              )
-            ],
+                TextButton(
+                  onPressed: () {
+                    _handlePageNumberValidation();
+                  },
+                  child: Text(
+                    _localizations!.pdfPaginationDialogOkLabel,
+                    style: _pdfViewerThemeData!
+                            .paginationDialogStyle?.okTextStyle ??
+                        TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: _themeData!.colorScheme.primary,
+                        ),
+                  ),
+                )
+              ],
+            ),
           );
         });
   }
@@ -638,7 +648,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
     widget.onInteractionEnd?.call(details);
     _scrollTimer?.cancel();
     _scrollTimer = Timer(
-      const Duration(milliseconds: 300),
+      const Duration(milliseconds: 100),
       () {
         isScrolled = false;
       },

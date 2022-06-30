@@ -20,7 +20,7 @@ import 'unicode_true_type_font.dart';
 ///     brush: PdfBrushes.black,
 ///     bounds: Rect.fromLTWH(0, 0, 100, 50));
 /// //Saves the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -41,7 +41,7 @@ class PdfTrueTypeFont extends PdfFont {
   ///     brush: PdfBrushes.black,
   ///     bounds: Rect.fromLTWH(0, 0, 100, 50));
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

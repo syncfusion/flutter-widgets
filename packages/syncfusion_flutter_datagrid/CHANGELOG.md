@@ -1,3 +1,21 @@
+## Unreleased
+
+**Bugs**
+
+* The [verticalScrollController](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/SfDataGrid/verticalScrollController.html) and [horizontalScrollController](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/SfDataGrid/horizontalScrollController.html) are no longer disposed when the user sets in the application level.
+
+## [20.1.58] - 05/31/2022
+
+**Bugs**
+
+* The null check operator used on a null value exception will no longer be thrown when deselecting all the selected rows programmatically.
+
+## [20.1.57] - 05/24/2022
+
+**Bugs**
+
+* Checkbox is now properly unchecked when it is unchecked after being ticked
+
 ## [20.1.55] - 05/12/2022
 
 **Bugs**
@@ -46,7 +64,7 @@
 
 **Bugs**
 
-* The null check operator exception will no longer be thrown when long press the table summary rows
+* The null check operator exception will no longer be thrown when long press the table summary rows.
 
 ## [19.4.38] - 12/17/2021
 

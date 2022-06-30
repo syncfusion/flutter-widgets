@@ -133,15 +133,15 @@ class CandleSeriesRenderer extends XyDataSeriesRenderer {
     final Color? color =
         segmentProperties.currentPoint!.overallDataPointIndex! - 1 >= 0 &&
                 (candleSeriesDetails
-                            .overAllDataPoints[segmentProperties
+                            .dataPoints[segmentProperties
                                     .currentPoint!.overallDataPointIndex! -
-                                1]!
+                                1]
                             .close >
                         candleSeriesDetails
-                            .overAllDataPoints[segmentProperties
-                                .currentPoint!.overallDataPointIndex!]!
-                            .close ==
-                    true)
+                            .dataPoints[segmentProperties
+                                .currentPoint!.overallDataPointIndex!]
+                            .close) ==
+                    true
             ? _currentSeriesDetails.candleSeries.bearColor
             : _currentSeriesDetails.candleSeries.bullColor;
     return color;

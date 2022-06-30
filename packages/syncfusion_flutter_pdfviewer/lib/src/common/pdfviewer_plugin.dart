@@ -76,7 +76,7 @@ class PdfViewerPlugin {
       });
       if (!kIsDesktop) {
         final Future<Uint8List?> image = imageFuture;
-        imageFuture = imageFuture.timeout(const Duration(milliseconds: 1000),
+        imageFuture = imageFuture.timeout(const Duration(milliseconds: 3000),
             onTimeout: () {
           _renderingPages?.remove(renderedImage);
           return null;

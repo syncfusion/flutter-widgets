@@ -376,11 +376,8 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
     }
 
     _panelHeight = value;
-    if (childCount == 0) {
-      markNeedsPaint();
-    } else {
-      markNeedsLayout();
-    }
+    markNeedsLayout();
+    markNeedsPaint();
   }
 
   @override

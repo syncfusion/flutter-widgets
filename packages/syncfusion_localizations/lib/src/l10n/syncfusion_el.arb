@@ -55,5 +55,9 @@
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
 "daySpanCountLabel" : "Ημέρα", 
-"series" : "Σειρά"
+"series" : "Σειρά", 
+"pdfHyperlinkLabel" : "Ανοίξτε την ιστοσελίδα", 
+"pdfHyperlinkContentLabel" : "Θέλετε να ανοίξετε τη σελίδα στο", 
+"pdfHyperlinkDialogOpenLabel" : "ΑΝΟΙΞΕ", 
+"pdfHyperlinkDialogCancelLabel" : "ΜΑΤΑΙΩΣΗ"
 }
