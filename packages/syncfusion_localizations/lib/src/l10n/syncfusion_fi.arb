@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Ei tapahtumia", 
 "ofDataPagerLabel" : "/", 
 "pagesDataPagerLabel" : "sivuja", 
-"itemsDataPagerLabel" : "kohteita", 
+"rowsPerPageDataPagerLabel" : "Rivejä per sivu", 
 "pdfBookmarksLabel" : "Kirjanmerkit", 
 "pdfNoBookmarksLabel" : "Kirjanmerkkejä ei löytynyt", 
 "pdfScrollStatusOfLabel" : "/", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Päivä"
+"daySpanCountLabel" : "Päivä", 
+"series" : "Sarja", 
+"pdfHyperlinkLabel" : "Avaa Web-sivu", 
+"pdfHyperlinkContentLabel" : "Haluatko avata sivun osoitteessa", 
+"pdfHyperlinkDialogOpenLabel" : "AVATA", 
+"pdfHyperlinkDialogCancelLabel" : "PERUUTTAA"
 }

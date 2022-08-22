@@ -261,8 +261,8 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         /// Find the previous index when the end date as non working date.
         if (endDate.isAfter(regionEndTime)) {
           for (int k = visibleDatesCount - 2; k >= 0; k--) {
-            final DateTime _currentDate = widget.visibleDates[k];
-            if (_currentDate.isAfter(regionEndTime)) {
+            final DateTime currentDate = widget.visibleDates[k];
+            if (currentDate.isAfter(regionEndTime)) {
               continue;
             }
 
@@ -1004,7 +1004,7 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
             style: textStyle.copyWith(fontFamily: region.iconData!.fontFamily));
       }
 
-      painter.layout(minWidth: 0, maxWidth: rect.width - 4);
+      painter.layout(maxWidth: rect.width - 4);
       painter.paint(canvas, Offset(rect.left + 3, rect.top + 3));
     }
   }
@@ -1300,8 +1300,8 @@ class TimelineViewHeaderView extends CustomPainter {
       _dateTextPainter.textWidthBasis = TextWidthBasis.longestLine;
       _dateTextPainter.textScaleFactor = textScaleFactor;
 
-      _dayTextPainter.layout(minWidth: 0, maxWidth: childWidth);
-      _dateTextPainter.layout(minWidth: 0, maxWidth: childWidth);
+      _dayTextPainter.layout(maxWidth: childWidth);
+      _dateTextPainter.layout(maxWidth: childWidth);
       if (isTimelineMonth) {
         canvas.save();
         _drawTimelineMonthViewHeader(canvas, childWidth, size, isBlackoutDate);

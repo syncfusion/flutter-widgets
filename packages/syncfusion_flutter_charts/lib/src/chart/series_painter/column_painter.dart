@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/user_interaction/zooming_panning.dart';
 
 import '../../../charts.dart';
 import '../../common/rendering_details.dart';
@@ -13,9 +12,10 @@ import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
+import '../user_interaction/zooming_panning.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Column series
+/// Creates series renderer for column series.
 class ColumnSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of ColumnSeriesRenderer class.
   ColumnSeriesRenderer();
@@ -23,7 +23,7 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _currentSeriesDetails;
   late SeriesRendererDetails _segmentSeriesDetails;
 
-  /// To add column segments in segments list
+  /// To add column segments in segments list.
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
@@ -32,14 +32,14 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
         SegmentProperties(_currentSeriesDetails.stateProperties, segment));
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(segment);
-    final CartesianStateProperties _stateProperties =
+    final CartesianStateProperties stateProperties =
         _currentSeriesDetails.stateProperties;
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
         _currentSeriesDetails.stateProperties.oldSeriesRenderers;
-    final ColumnSeries<dynamic, dynamic> _columnSeries =
+    final ColumnSeries<dynamic, dynamic> columnSeries =
         _currentSeriesDetails.series as ColumnSeries<dynamic, dynamic>;
     segmentProperties.seriesRenderer = this;
-    segmentProperties.series = _columnSeries;
+    segmentProperties.series = columnSeries;
     segmentProperties.seriesIndex = seriesIndex;
     segment.currentSegmentIndex = pointIndex;
     segment.points
@@ -48,12 +48,12 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
     segmentProperties.currentPoint = currentPoint;
     final ZoomingBehaviorDetails zoomingBehaviorDetails =
         ZoomPanBehaviorHelper.getRenderingDetails(
-            _stateProperties.zoomPanBehaviorRenderer);
+            stateProperties.zoomPanBehaviorRenderer);
     _segmentSeriesDetails =
         SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer);
-    if (_stateProperties.renderingDetails.widgetNeedUpdate &&
+    if (stateProperties.renderingDetails.widgetNeedUpdate &&
         zoomingBehaviorDetails.isPinching != true &&
-        !_stateProperties.renderingDetails.isLegendToggled &&
+        !stateProperties.renderingDetails.isLegendToggled &&
         // ignore: unnecessary_null_comparison
         oldSeriesRenderers != null &&
         oldSeriesRenderers.isNotEmpty &&
@@ -75,7 +75,7 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
           ? segmentOldSeriesDetails.dataPoints[pointIndex]
           : null;
       segmentProperties.oldSegmentIndex = getOldSegmentIndex(segment);
-      if ((_stateProperties.selectedSegments.length - 1 >= pointIndex) &&
+      if ((stateProperties.selectedSegments.length - 1 >= pointIndex) &&
           SegmentHelper.getSegmentProperties(_currentSeriesDetails
                       .stateProperties.selectedSegments[pointIndex])
                   .oldSegmentIndex ==
@@ -90,16 +90,16 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
         selectedSegmentProperties.oldSegmentIndex =
             getOldSegmentIndex(selectedSegment);
       }
-    } else if (_stateProperties.renderingDetails.isLegendToggled &&
+    } else if (stateProperties.renderingDetails.isLegendToggled &&
         // ignore: unnecessary_null_comparison
-        _stateProperties.segments != null &&
-        _stateProperties.segments.isNotEmpty) {
+        stateProperties.segments != null &&
+        stateProperties.segments.isNotEmpty) {
       segmentProperties.oldSeriesVisible =
-          _stateProperties.oldSeriesVisible[segmentProperties.seriesIndex];
+          stateProperties.oldSeriesVisible[segmentProperties.seriesIndex];
 
       ColumnSegment oldSegment;
-      for (int i = 0; i < _stateProperties.segments.length; i++) {
-        oldSegment = _stateProperties.segments[i] as ColumnSegment;
+      for (int i = 0; i < stateProperties.segments.length; i++) {
+        oldSegment = stateProperties.segments[i] as ColumnSegment;
         if (oldSegment.currentSegmentIndex == segment.currentSegmentIndex &&
             SegmentHelper.getSegmentProperties(oldSegment).seriesIndex ==
                 segmentProperties.seriesIndex) {
@@ -109,16 +109,16 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
     }
 
     segmentProperties.path =
-        findingRectSeriesDashedBorder(currentPoint, _columnSeries.borderWidth);
+        findingRectSeriesDashedBorder(currentPoint, columnSeries.borderWidth);
     // ignore: unnecessary_null_comparison
-    if (_columnSeries.borderRadius != null) {
+    if (columnSeries.borderRadius != null) {
       segment.segmentRect =
-          getRRectFromRect(currentPoint.region!, _columnSeries.borderRadius);
+          getRRectFromRect(currentPoint.region!, columnSeries.borderRadius);
 
       //Tracker rect
-      if (_columnSeries.isTrackVisible) {
+      if (columnSeries.isTrackVisible) {
         segmentProperties.trackRect = getRRectFromRect(
-            currentPoint.trackerRectRegion!, _columnSeries.borderRadius);
+            currentPoint.trackerRectRegion!, columnSeries.borderRadius);
       }
     }
     segmentProperties.segmentRect = segment.segmentRect;
@@ -127,7 +127,7 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To draw column series segments
+  /// To draw column series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
@@ -165,7 +165,7 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
         segmentProperties.getTrackerStrokePaint();
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -262,15 +262,26 @@ class ColumnChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRendererDetails.calculateRegionData(stateProperties,
-            seriesRendererDetails, painterKey.index, point, pointIndex);
-        if (point.isVisible && !point.isGap) {
-          seriesRendererDetails.drawSegment(
-              canvas,
-              seriesRenderer._createSegments(
-                  point, segmentIndex += 1, painterKey.index, animationFactor));
+        final bool withInXRange = withInRange(
+            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
+        final bool withInYRange = point != null &&
+            point.yValue != null &&
+            withInRange(point.yValue,
+                seriesRendererDetails.yAxisDetails!.visibleRange!);
+        if (withInXRange || withInYRange) {
+          seriesRendererDetails.calculateRegionData(stateProperties,
+              seriesRendererDetails, painterKey.index, point, pointIndex);
+          if (point.isVisible && !point.isGap) {
+            seriesRendererDetails.drawSegment(
+                canvas,
+                seriesRenderer._createSegments(point, segmentIndex += 1,
+                    painterKey.index, animationFactor));
+          }
         }
       }
       clipRect = calculatePlotOffset(

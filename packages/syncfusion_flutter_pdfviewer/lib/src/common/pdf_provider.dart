@@ -1,10 +1,12 @@
+// ignore_for_file: only_throw_errors
+
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import '../../pdfviewer.dart';
 
 /// Represents a base class of PDF document provider.
 /// The PDF provider can be from Asset, Memory, File and Network.

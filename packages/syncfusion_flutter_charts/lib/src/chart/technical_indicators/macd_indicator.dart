@@ -4,16 +4,15 @@ import '../../common/utils/typedef.dart';
 import '../utils/enum.dart';
 import 'technical_indicator.dart';
 
-/// This class Holds the properties of the Macd Indicator.
+/// This class holds the properties of the Macd Indicator.
 ///
-/// The Macd indicator has [shortPeriod] and [longPeriod] for defining the motion of the indicator.
-/// Also, you can draw Line, Histogram MACD or Both using the [macdType] property.
+/// The macd indicator has [shortPeriod] and [longPeriod] for defining the motion of the indicator.
+/// Also, you can draw line, histogram macd or both using the [macdType] property.
 ///
-///  The [macdLineColor] property is used to define the color for the
-/// MACD line and the [histogramNegativeColor] and [histogramPositiveColor] property is used to define the color for the MACD histogram.
+/// The [macdLineColor] property is used to define the color for the
+/// macd line and the [histogramNegativeColor] and [histogramPositiveColor] property is used to define the color for the macd histogram.
 ///
 /// Provides the options of macd type, name, short Period, long period and macd line color is used to customize the appearance.
-///
 @immutable
 class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of MacdIndicator class.
@@ -65,121 +64,165 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
 
   /// Short period value of the macd indicator.
   ///
-  /// Defaults to `12`
+  /// Defaults to `12`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///                       MacdIndicator<dynamic, dynamic>(
-  ///                             shortPeriod: 2,)]
-  ///                  ));
-  ///}
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      MacdIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        shortPeriod: 2
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
   /// ```
-  ///
   final int shortPeriod;
 
   /// Long period value of the macd indicator.
   ///
-  /// Defaults to `26`
+  /// Defaults to `26`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///                       MacdIndicator<dynamic, dynamic>(
-  ///                             longPeriod: 31,)]
-  ///                  ));
-  ///}
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      MacdIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        longPeriod: 31
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
   /// ```
-  ///
   final int longPeriod;
 
-  /// MacdLine color  of the macd indicator.
+  /// Macd line color  of the macd indicator.
   ///
-  /// Defaults to `Colors.orange`
+  /// Defaults to `Colors.orange`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///                       MacdIndicator<dynamic, dynamic>(
-  ///                             macdLineColor: Colors.orange,)]
-  ///                  ));
-  ///}
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      MacdIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        macdLineColor: Colors.red
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
   /// ```
-  ///
   final Color macdLineColor;
 
-  /// MacdLine width  of the macd indicator.
+  /// Macd line width  of the macd indicator.
   ///
-  /// Defaults to `2`
+  /// Defaults to `2`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///                       MacdIndicator<dynamic, dynamic>(
-  ///                             macdLineWidth: 2,)]
-  ///                  ));
-  ///}
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      MacdIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        macdLineWidth: 3
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
   /// ```
-  ///
   final double macdLineWidth;
 
   /// Macd type line of the macd indicator.
   ///
-  /// Defaults to `MacdType.both`
+  /// Defaults to `MacdType.both`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///                       MacdIndicator<dynamic, dynamic>(
-  ///                             macdType: MacdType.both,)]
-  ///                  ));
-  ///}
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      MacdIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        macdType: MacdType.histogram
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
   /// ```
-  ///
   final MacdType macdType;
 
-  /// Histogram Positive color  of the macd indicator.
+  /// Histogram positive color of the macd indicator.
   ///
-  /// Defaults to `Colors.green`
+  /// Defaults to `Colors.green`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///                       MacdIndicator<dynamic, dynamic>(
-  ///                             histogramPositiveColor: Colors.green,)]
-  ///                  ));
-  ///}
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      MacdIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        macdType: MacdType.histogram,
+  ///        histogramPositiveColor: Colors.red
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
   /// ```
-  ///
   final Color histogramPositiveColor;
 
-  /// Histogram Negative color  of the macd indicator.
+  /// Histogram negative color of the macd indicator.
   ///
-  /// Defaults to `Colors.red`
+  /// Defaults to `Colors.red`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///                       MacdIndicator<dynamic, dynamic>(
-  ///                             histogramNegativeColor: Colors.red,)]
-  ///                  ));
-  ///}
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      MacdIndicator<Sample, num>(
+  ///        seriesName: 'Series1',
+  ///        macdType: MacdType.histogram,
+  ///        histogramNegativeColor: Colors.green
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
   /// ```
-  ///
   final Color histogramNegativeColor;
 
   @override

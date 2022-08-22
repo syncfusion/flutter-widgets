@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 import '../../common/user_interaction/selection_behavior.dart';
 import '../axis/axis.dart';
@@ -21,16 +21,16 @@ import 'chart_segment.dart';
 class SplineSegment extends ChartSegment {
   double? _oldX1, _oldY1, _oldX2, _oldY2, _oldX3, _oldY3, _oldX4, _oldY4;
 
-  /// Start point X value
+  /// Start point X value.
   double? startControlX;
 
-  /// Start point Y value
+  /// Start point Y value.
   double? startControlY;
 
-  /// End point X value
+  /// End point X value.
   double? endControlX;
 
-  /// End point Y value
+  /// End point Y value.
   double? endControlY;
 
   ChartLocation? _currentPointLocation, _nextPointLocation;
@@ -46,19 +46,19 @@ class SplineSegment extends ChartSegment {
   Paint getFillPaint() {
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(this);
-    final Paint _fillPaint = Paint();
+    final Paint fillPaint = Paint();
     assert(segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the spline series should be greater than or equal to 0.');
     assert(segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the spline series should be less than or equal to 1.');
     if (segmentProperties.strokeColor != null) {
-      _fillPaint.color = segmentProperties.strokeColor!
+      fillPaint.color = segmentProperties.strokeColor!
           .withOpacity(segmentProperties.series.opacity);
     }
-    _fillPaint.strokeWidth = segmentProperties.strokeWidth!;
-    _fillPaint.style = PaintingStyle.stroke;
-    segmentProperties.defaultFillColor = _fillPaint;
-    return _fillPaint;
+    fillPaint.strokeWidth = segmentProperties.strokeWidth!;
+    fillPaint.style = PaintingStyle.stroke;
+    segmentProperties.defaultFillColor = fillPaint;
+    return fillPaint;
   }
 
   /// Gets the stroke color of the series.
@@ -66,26 +66,26 @@ class SplineSegment extends ChartSegment {
   Paint getStrokePaint() {
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(this);
-    final Paint _strokePaint = Paint();
+    final Paint strokePaint = Paint();
     assert(segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the spline series should be greater than or equal to 0.');
     assert(segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the spline series should be less than or equal to 1.');
     if (segmentProperties.strokeColor != null) {
-      _strokePaint.color = segmentProperties.pointColorMapper ??
+      strokePaint.color = segmentProperties.pointColorMapper ??
           segmentProperties.strokeColor!
               .withOpacity(segmentProperties.series.opacity);
-      _strokePaint.color = (segmentProperties.series.opacity < 1 == true &&
-              _strokePaint.color != Colors.transparent)
-          ? _strokePaint.color.withOpacity(segmentProperties.series.opacity)
-          : _strokePaint.color;
+      strokePaint.color = (segmentProperties.series.opacity < 1 == true &&
+              strokePaint.color != Colors.transparent)
+          ? strokePaint.color.withOpacity(segmentProperties.series.opacity)
+          : strokePaint.color;
     }
-    _strokePaint.strokeWidth = segmentProperties.strokeWidth!;
-    _strokePaint.style = PaintingStyle.stroke;
-    _strokePaint.strokeCap = StrokeCap.round;
-    segmentProperties.defaultStrokeColor = _strokePaint;
-    setShader(segmentProperties, _strokePaint);
-    return _strokePaint;
+    strokePaint.strokeWidth = segmentProperties.strokeWidth!;
+    strokePaint.style = PaintingStyle.stroke;
+    strokePaint.strokeCap = StrokeCap.round;
+    segmentProperties.defaultStrokeColor = strokePaint;
+    setShader(segmentProperties, strokePaint);
+    return strokePaint;
   }
 
   /// Calculates the rendering bounds of a segment.
@@ -153,7 +153,7 @@ class SplineSegment extends ChartSegment {
               segmentSeriesRendererDetails.yAxisDetails!.axis.plotOffset));
     }
 
-    // Draw spline series
+    // Draw spline series.
     if (segmentProperties.series.animationDuration > 0 == true &&
         segmentSeriesRendererDetails.reAnimate == false &&
         segmentProperties.stateProperties.renderingDetails.widgetNeedUpdate ==
@@ -185,26 +185,25 @@ class SplineSegment extends ChartSegment {
         segmentProperties.nextPoint!.isGap != true) {
       _currentSegment = segmentSeriesRendererDetails
           .segments[currentSegmentIndex!] as SplineSegment;
-      final SegmentProperties _currentSegmentProperties =
+      final SegmentProperties currentSegmentProperties =
           SegmentHelper.getSegmentProperties(_currentSegment!);
-      SegmentProperties? _oldSegmentProperties;
-      final SeriesRendererDetails _currentOldSeriesRendererDetails =
+      SegmentProperties? oldSegmentProperties;
+      final SeriesRendererDetails currentOldSeriesRendererDetails =
           SeriesHelper.getSeriesRendererDetails(
-              _currentSegmentProperties.oldSeriesRenderer!);
-      _oldSegment = (_currentOldSeriesRendererDetails.segments.length - 1 >=
+              currentSegmentProperties.oldSeriesRenderer!);
+      _oldSegment = (currentOldSeriesRendererDetails.segments.length - 1 >=
                   currentSegmentIndex! ==
               true)
-          ? _currentOldSeriesRendererDetails.segments[currentSegmentIndex!]
+          ? currentOldSeriesRendererDetails.segments[currentSegmentIndex!]
               as SplineSegment?
           : null;
       if (_oldSegment != null) {
-        _oldSegmentProperties =
-            SegmentHelper.getSegmentProperties(_oldSegment!);
+        oldSegmentProperties = SegmentHelper.getSegmentProperties(_oldSegment!);
       }
-      _oldX1 = _oldSegmentProperties?.x1;
-      _oldY1 = _oldSegmentProperties?.y1;
-      _oldX2 = _oldSegmentProperties?.x2;
-      _oldY2 = _oldSegmentProperties?.y2;
+      _oldX1 = oldSegmentProperties?.x1;
+      _oldY1 = oldSegmentProperties?.y1;
+      _oldX2 = oldSegmentProperties?.x2;
+      _oldY2 = oldSegmentProperties?.y2;
       _oldX3 = _oldSegment?.startControlX;
       _oldY3 = _oldSegment?.startControlY;
       _oldX4 = _oldSegment?.endControlX;
@@ -214,7 +213,7 @@ class SplineSegment extends ChartSegment {
           (_oldX1!.isNaN || _oldX2!.isNaN) &&
           segmentProperties.stateProperties.oldAxisRenderers.isNotEmpty ==
               true) {
-        ChartLocation _oldPoint;
+        ChartLocation oldPoint;
         _oldXAxisRenderer = getOldAxisRenderer(
             segmentSeriesRendererDetails.xAxisDetails!.axisRenderer,
             segmentProperties.stateProperties.oldAxisRenderers);
@@ -222,68 +221,68 @@ class SplineSegment extends ChartSegment {
             segmentSeriesRendererDetails.yAxisDetails!.axisRenderer,
             segmentProperties.stateProperties.oldAxisRenderers);
         if (_oldYAxisRenderer != null && _oldXAxisRenderer != null) {
-          final ChartAxisRendererDetails _oldXAxisDetails =
+          final ChartAxisRendererDetails oldXAxisDetails =
               AxisHelper.getAxisRendererDetails(_oldXAxisRenderer!);
-          final ChartAxisRendererDetails _oldYAxisDetails =
+          final ChartAxisRendererDetails oldYAxisDetails =
               AxisHelper.getAxisRendererDetails(_oldYAxisRenderer!);
-          _needAnimate = _oldYAxisDetails.visibleRange!.minimum !=
+          _needAnimate = oldYAxisDetails.visibleRange!.minimum !=
                   segmentSeriesRendererDetails
                       .yAxisDetails!.visibleRange!.minimum ||
-              _oldYAxisDetails.visibleRange!.maximum !=
+              oldYAxisDetails.visibleRange!.maximum !=
                   segmentSeriesRendererDetails
                       .yAxisDetails!.visibleRange!.maximum ||
-              _oldXAxisDetails.visibleRange!.minimum !=
+              oldXAxisDetails.visibleRange!.minimum !=
                   segmentSeriesRendererDetails
                       .xAxisDetails!.visibleRange!.minimum ||
-              _oldXAxisDetails.visibleRange!.maximum !=
+              oldXAxisDetails.visibleRange!.maximum !=
                   segmentSeriesRendererDetails
                       .xAxisDetails!.visibleRange!.maximum;
         }
         if (_needAnimate) {
-          final ChartAxisRendererDetails _oldXAxisDetails =
+          final ChartAxisRendererDetails oldXAxisDetails =
               AxisHelper.getAxisRendererDetails(_oldXAxisRenderer!);
-          final ChartAxisRendererDetails _oldYAxisDetails =
+          final ChartAxisRendererDetails oldYAxisDetails =
               AxisHelper.getAxisRendererDetails(_oldYAxisRenderer!);
-          _oldPoint = calculatePoint(
+          oldPoint = calculatePoint(
               segmentProperties.currentPoint!.xValue,
               segmentProperties.currentPoint!.yValue,
-              _oldXAxisDetails,
-              _oldYAxisDetails,
+              oldXAxisDetails,
+              oldYAxisDetails,
               segmentProperties.stateProperties.requireInvertedAxis,
               segmentProperties.series,
               rect);
-          _oldX1 = _oldPoint.x;
-          _oldY1 = _oldPoint.y;
-          _oldPoint = calculatePoint(
+          _oldX1 = oldPoint.x;
+          _oldY1 = oldPoint.y;
+          oldPoint = calculatePoint(
               segmentProperties.nextPoint!.xValue,
               segmentProperties.nextPoint!.xValue,
-              _oldXAxisDetails,
-              _oldYAxisDetails,
+              oldXAxisDetails,
+              oldYAxisDetails,
               segmentProperties.stateProperties.requireInvertedAxis,
               segmentProperties.series,
               rect);
-          _oldX2 = _oldPoint.x;
-          _oldY2 = _oldPoint.y;
-          _oldPoint = calculatePoint(
+          _oldX2 = oldPoint.x;
+          _oldY2 = oldPoint.y;
+          oldPoint = calculatePoint(
               startControlX!,
               startControlY!,
-              _oldXAxisDetails,
-              _oldYAxisDetails,
+              oldXAxisDetails,
+              oldYAxisDetails,
               segmentProperties.stateProperties.requireInvertedAxis,
               segmentProperties.series,
               rect);
-          _oldX3 = _oldPoint.x;
-          _oldY3 = _oldPoint.y;
-          _oldPoint = calculatePoint(
+          _oldX3 = oldPoint.x;
+          _oldY3 = oldPoint.y;
+          oldPoint = calculatePoint(
               endControlX!,
               endControlY!,
-              _oldXAxisDetails,
-              _oldYAxisDetails,
+              oldXAxisDetails,
+              oldYAxisDetails,
               segmentProperties.stateProperties.requireInvertedAxis,
               segmentProperties.series,
               rect);
-          _oldX4 = _oldPoint.x;
-          _oldY4 = _oldPoint.y;
+          _oldX4 = oldPoint.x;
+          _oldY4 = oldPoint.y;
         }
       }
       animateLineTypeSeries(
@@ -291,10 +290,10 @@ class SplineSegment extends ChartSegment {
         SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer),
         strokePaint!,
         animationFactor,
-        _currentSegmentProperties.x1,
-        _currentSegmentProperties.y1,
-        _currentSegmentProperties.x2,
-        _currentSegmentProperties.y2,
+        currentSegmentProperties.x1,
+        currentSegmentProperties.y1,
+        currentSegmentProperties.x2,
+        currentSegmentProperties.y2,
         _oldX1,
         _oldY1,
         _oldX2,

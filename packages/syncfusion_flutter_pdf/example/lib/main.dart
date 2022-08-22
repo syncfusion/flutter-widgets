@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
@@ -40,13 +41,13 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextButton(
-              child: const Text('Generate PDF'),
               style: TextButton.styleFrom(
                 primary: Colors.white,
                 backgroundColor: Colors.lightBlue,
                 onSurface: Colors.grey,
               ),
               onPressed: generateInvoice,
+              child: const Text('Generate PDF'),
             )
           ],
         ),
@@ -64,7 +65,7 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
     //Draw rectangle
     page.graphics.drawRectangle(
         bounds: Rect.fromLTWH(0, 0, pageSize.width, pageSize.height),
-        pen: PdfPen(PdfColor(142, 170, 219, 255)));
+        pen: PdfPen(PdfColor(142, 170, 219)));
     //Generate PDF grid.
     final PdfGrid grid = getGrid();
     //Draw the header section by creating text element
@@ -74,7 +75,7 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
     //Add invoice footer
     drawFooter(page, pageSize);
     //Save the PDF document
-    final List<int> bytes = document.save();
+    final List<int> bytes = document.saveSync();
     //Dispose the document.
     document.dispose();
     //Save and launch the file.
@@ -85,7 +86,7 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
   PdfLayoutResult drawHeader(PdfPage page, Size pageSize, PdfGrid grid) {
     //Draw rectangle
     page.graphics.drawRectangle(
-        brush: PdfSolidBrush(PdfColor(91, 126, 215, 255)),
+        brush: PdfSolidBrush(PdfColor(91, 126, 215)),
         bounds: Rect.fromLTWH(0, 0, pageSize.width - 115, 90));
     //Draw string
     page.graphics.drawString(
@@ -172,7 +173,7 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
   //Draw the invoice footer data.
   void drawFooter(PdfPage page, Size pageSize) {
     final PdfPen linePen =
-        PdfPen(PdfColor(142, 170, 219, 255), dashStyle: PdfDashStyle.custom);
+        PdfPen(PdfColor(142, 170, 219), dashStyle: PdfDashStyle.custom);
     linePen.dashPattern = <double>[3, 3];
     //Draw line
     page.graphics.drawLine(linePen, Offset(0, pageSize.height - 100),

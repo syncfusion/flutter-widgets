@@ -35,7 +35,7 @@ import 'pdf_grid_row.dart';
 /// grid.draw(
 ///     page: document.pages.add(), bounds: Rect.zero);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -74,7 +74,7 @@ class PdfGridColumn {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -127,7 +127,7 @@ class PdfGridColumn {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -173,7 +173,7 @@ class PdfGridColumn {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -218,7 +218,7 @@ class PdfGridColumn {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -284,7 +284,7 @@ class PdfGridColumnHelper {
 /// grid.draw(
 ///     page: document.pages.add(), bounds: Rect.zero);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -342,7 +342,7 @@ class PdfGridColumnCollection {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -386,7 +386,7 @@ class PdfGridColumnCollection {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -432,7 +432,7 @@ class PdfGridColumnCollection {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

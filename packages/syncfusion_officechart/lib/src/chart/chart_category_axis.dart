@@ -21,6 +21,7 @@ class ChartCategoryAxis extends ChartAxis {
   late Chart _chart;
 
   /// sets the category labels for the chart.
+  // ignore: avoid_setters_without_getters
   set _categoryLabels(Range? value) {
     final ChartSeriesCollection coll = _chart.series;
     final int iLen = coll.count;

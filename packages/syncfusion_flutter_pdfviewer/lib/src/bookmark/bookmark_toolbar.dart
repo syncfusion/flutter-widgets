@@ -32,12 +32,15 @@ const double _kPdfCloseIconRightPosition = 16.0;
 /// A material design bookmark toolbar.
 class BookmarkToolbar extends StatefulWidget {
   /// Creates a material design bookmark toolbar.
-  const BookmarkToolbar(this.onCloseButtonPressed);
+  const BookmarkToolbar(this.onCloseButtonPressed, this.textDirection);
 
   /// A tap with a close button is occurred.
   ///
   /// This triggers when close button in bookmark toolbar is tapped.
   final GestureTapCallback onCloseButtonPressed;
+
+  ///A direction of text flow.
+  final TextDirection textDirection;
 
   @override
   State<StatefulWidget> createState() => _BookmarkToolbarState();
@@ -68,7 +71,6 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
       BoxShadow(
         color: Color.fromRGBO(0, 0, 0, 0.14),
         blurRadius: 2,
-        offset: Offset.zero,
       ),
       BoxShadow(
         color: Color.fromRGBO(0, 0, 0, 0.12),
@@ -95,9 +97,10 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
         ),
         child: Stack(
           children: <Widget>[
-            Positioned(
+            Positioned.directional(
+              textDirection: widget.textDirection,
               top: _kPdfHeaderTextTopPosition,
-              left: _kPdfHeaderTextLeftPosition,
+              start: _kPdfHeaderTextLeftPosition,
               height: _kPdfHeaderTextHeight,
               child: Text(
                 _localizations!.pdfBookmarksLabel,
@@ -115,9 +118,10 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
                 semanticsLabel: '',
               ),
             ),
-            Positioned(
+            Positioned.directional(
+              textDirection: widget.textDirection,
               top: _kPdfCloseIconTopPosition,
-              right: _kPdfCloseIconRightPosition,
+              end: _kPdfCloseIconRightPosition,
               height: _kPdfCloseIconHeight,
               width: _kPdfCloseIconWidth,
               child: RawMaterialButton(

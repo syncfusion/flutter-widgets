@@ -1,66 +1,71 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/common/user_interaction/tooltip_rendering_details.dart';
+
+import '../../../charts.dart';
 import '../../common/rendering_details.dart';
 import '../../common/state_properties.dart';
 import '../../common/user_interaction/tooltip.dart';
+import '../../common/user_interaction/tooltip_rendering_details.dart';
 import '../renderer/data_label_renderer.dart';
 import '../renderer/renderer_extension.dart';
 import 'circular_area.dart';
 import 'series_base.dart';
 
-/// Specifies the circular state properties
+/// Specifies the circular state properties.
 class CircularStateProperties extends StateProperties {
-  /// Creates an instance of circular chart properties
+  /// Creates an instance of circular chart properties.
   CircularStateProperties(
       {required RenderingDetails renderingDetails, required this.chartState})
       : super(renderingDetails, chartState) {
     renderingDetails.didSizeChange = false;
   }
 
-  /// Specifies the circular chart
+  /// Specifies the circular chart.
   @override
   SfCircularChart get chart => chartState.widget;
 
-  /// Specifies the circular chart state
+  /// Specifies the circular chart state.
   @override
   final SfCircularChartState chartState;
 
   /// Specifies the center location
   late Offset centerLocation;
 
-  /// Specifies the annotation region
+  /// Specifies the annotation region.
   late List<Rect> annotationRegions;
 
-  /// Specifies the data label renderer
+  /// Specifies the data label renderer.
   CircularDataLabelRenderer? renderDataLabel;
 
-  /// Specifies the previous series renderer
+  /// Specifies the previous series renderer.
   CircularSeriesRendererExtension? prevSeriesRenderer;
 
-  /// Specifies the previous chart points
+  /// Specifies the previous chart points.
   List<ChartPoint<dynamic>?>? oldPoints;
 
-  /// Holds the information of SeriesBase class
+  /// Holds the information of the series base class.
   late CircularSeriesBase chartSeries;
 
-  /// Specifies the  circular chart area
+  /// Specifies the  circular chart area.
   late CircularArea circularArea;
 
-  /// Specifies whether move the label from center
+  /// Specifies whether move the label from center.
   late bool needToMoveFromCenter;
 
-  /// Specifies whether to explode the segments
+  /// Specifies whether to explode the segments.
   late bool needExplodeAll;
 
   /// Gets or sets the value for is toggled
   late bool isToggled;
 
-  /// Specifies whether the tooltip needs to render for data label or not
+  /// Specifies whether the tooltip needs to render for data label or not.
   bool? requireDataLabelTooltip;
 
-  /// To redraw chart elements
+  /// Specifies whether the text direction of chart widget is RTL or LTR.
+  late bool isRtl;
+
+  /// To redraw chart elements.
   void redraw() {
     renderingDetails.initialRender = false;
     if (renderingDetails.isLegendToggled) {
@@ -84,13 +89,13 @@ class CircularStateProperties extends StateProperties {
     });
   }
 
-  /// Method when called, once animation completed
+  /// Method when called, once animation completed.
   bool get animationCompleted {
     return renderingDetails.animationController.status !=
         AnimationStatus.forward;
   }
 
-  /// Tooltip timer
+  /// Tooltip timer.
   Timer? tooltipTimer;
 
   /// To check the tooltip orientation changes.

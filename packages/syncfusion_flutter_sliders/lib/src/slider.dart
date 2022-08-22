@@ -130,6 +130,7 @@ class SfSlider extends StatefulWidget {
       this.activeColor,
       this.inactiveColor,
       this.labelPlacement = LabelPlacement.onTicks,
+      this.edgeLabelPlacement = EdgeLabelPlacement.auto,
       this.numberFormat,
       this.dateFormat,
       this.dateIntervalType,
@@ -214,6 +215,7 @@ class SfSlider extends StatefulWidget {
       this.activeColor,
       this.inactiveColor,
       this.labelPlacement = LabelPlacement.onTicks,
+      this.edgeLabelPlacement = EdgeLabelPlacement.auto,
       this.numberFormat,
       this.dateFormat,
       this.dateIntervalType,
@@ -863,6 +865,24 @@ class SfSlider extends StatefulWidget {
   /// ```
   final LabelPlacement labelPlacement;
 
+  /// Position of the edge labels.
+  ///
+  /// The edge labels in an axis can be shifted inside
+  /// the axis bounds or placed at the edges.
+  ///
+  /// Defaults to `EdgeLabelPlacement.auto`.
+  ///
+  /// Also refer [EdgeLabelPlacement].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return  SfSlider(
+  ///        edgeLabelPlacement: EdgeLabelPlacement.inside,
+  ///    );
+  ///}
+  ///```
+  final EdgeLabelPlacement edgeLabelPlacement;
+
   /// Formats the numeric labels.
   ///
   /// Defaults to `null`.
@@ -1168,34 +1188,30 @@ class SfSlider extends StatefulWidget {
     properties.add(FlagProperty('showTicks',
         value: showTicks,
         ifTrue: 'Ticks are showing',
-        ifFalse: 'Ticks are not showing',
-        showName: false));
+        ifFalse: 'Ticks are not showing'));
     properties.add(FlagProperty('showLabels',
         value: showLabels,
         ifTrue: 'Labels are showing',
-        ifFalse: 'Labels are not showing',
-        showName: false));
+        ifFalse: 'Labels are not showing'));
     properties.add(FlagProperty('showDividers',
         value: showDividers,
         ifTrue: 'Dividers are  showing',
-        ifFalse: 'Dividers are not showing',
-        showName: false));
+        ifFalse: 'Dividers are not showing'));
     if (shouldAlwaysShowTooltip) {
       properties.add(FlagProperty('shouldAlwaysShowTooltip',
-          value: shouldAlwaysShowTooltip,
-          ifTrue: 'Tooltip is always visible',
-          showName: false));
+          value: shouldAlwaysShowTooltip, ifTrue: 'Tooltip is always visible'));
     } else {
       properties.add(FlagProperty('enableTooltip',
           value: enableTooltip,
           ifTrue: 'Tooltip is enabled',
-          ifFalse: 'Tooltip is disabled',
-          showName: false));
+          ifFalse: 'Tooltip is disabled'));
     }
     properties.add(ColorProperty('activeColor', activeColor));
     properties.add(ColorProperty('inactiveColor', inactiveColor));
     properties
         .add(EnumProperty<LabelPlacement>('labelPlacement', labelPlacement));
+    properties.add(EnumProperty<EdgeLabelPlacement>(
+        'edgeLabelPlacement', edgeLabelPlacement));
     properties
         .add(DiagnosticsProperty<NumberFormat>('numberFormat', numberFormat));
     if (value.runtimeType == DateTime && dateFormat != null) {
@@ -1418,6 +1434,7 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
             widget.inactiveColor ?? themeData.primaryColor.withOpacity(0.24),
         activeColor: widget.activeColor ?? themeData.primaryColor,
         labelPlacement: widget.labelPlacement,
+        edgeLabelPlacement: widget.edgeLabelPlacement,
         numberFormat: widget.numberFormat ?? NumberFormat('#.##'),
         dateIntervalType: widget.dateIntervalType,
         dateFormat: widget.dateFormat,
@@ -1463,6 +1480,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       required this.inactiveColor,
       required this.activeColor,
       required this.labelPlacement,
+      required this.edgeLabelPlacement,
       required this.numberFormat,
       required this.dateFormat,
       required this.dateIntervalType,
@@ -1507,6 +1525,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
   final Color activeColor;
 
   final LabelPlacement labelPlacement;
+  final EdgeLabelPlacement edgeLabelPlacement;
   final NumberFormat numberFormat;
   final DateIntervalType? dateIntervalType;
   final DateFormat? dateFormat;
@@ -1547,6 +1566,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
         shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
         isInversed: isInversed,
         labelPlacement: labelPlacement,
+        edgeLabelPlacement: edgeLabelPlacement,
         numberFormat: numberFormat,
         dateFormat: dateFormat,
         dateIntervalType: dateIntervalType,
@@ -1588,6 +1608,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       ..shouldAlwaysShowTooltip = shouldAlwaysShowTooltip
       ..isInversed = isInversed
       ..labelPlacement = labelPlacement
+      ..edgeLabelPlacement = edgeLabelPlacement
       ..numberFormat = numberFormat
       ..dateFormat = dateFormat
       ..dateIntervalType = dateIntervalType
@@ -1712,6 +1733,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     required bool shouldAlwaysShowTooltip,
     required bool isInversed,
     required LabelPlacement labelPlacement,
+    required EdgeLabelPlacement edgeLabelPlacement,
     required NumberFormat numberFormat,
     required DateFormat? dateFormat,
     required DateIntervalType? dateIntervalType,
@@ -1750,6 +1772,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
           shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
           isInversed: isInversed,
           labelPlacement: labelPlacement,
+          edgeLabelPlacement: edgeLabelPlacement,
           numberFormat: numberFormat,
           dateFormat: dateFormat,
           dateIntervalType: dateIntervalType,
@@ -2209,7 +2232,6 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     trackShape.paint(context, actualTrackOffset, thumbCenter, null, null,
         parentBox: this,
         currentValue: _value,
-        currentValues: null,
         themeData: sliderThemeData,
         enableAnimation: _stateAnimation,
         textDirection: textDirection,

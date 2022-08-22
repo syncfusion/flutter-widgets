@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 import 'stacked_series_base.dart';
 
 /// Renders the 100% stacked bar series.
 ///
-/// A StackedBar100Series is a chart series type designed to show the relative percentage of multiple data series in stacked bars,
-///  where the total (cumulative) of each stacked bar always equals 100.
+/// A [StackedBar100Series] is a chart series type designed to show the relative percentage of multiple data series in stacked bars,
+/// where the total (cumulative) of each stacked bar always equals 100.
 ///
-/// To render a 100% stacked bar chart, create an instance of StackedBar100Series, and add it to
-///  the series collection property of [SfCartesianChart].
+/// To render a 100% stacked bar chart, create an instance of [StackedBar100Series], and add it to
+/// the series collection property of [SfCartesianChart].
 ///
-///Provides options to customize properties such as [color], [opacity],
-///[borderWidth], [borderColor], [borderRadius] of the Stackedbar100 segments.
+/// Provides options to customize properties such as [color], [opacity],
+/// [borderWidth], [borderColor], [borderRadius] of the stacked bar 100 segments.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=NCUDBD_ClHo}
 @immutable

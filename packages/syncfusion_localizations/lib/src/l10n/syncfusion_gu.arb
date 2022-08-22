@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "કોઈ ઇવેન્ટ નથી", 
 "ofDataPagerLabel" : "ના", 
 "pagesDataPagerLabel" : "પૃષ્ઠો", 
-"itemsDataPagerLabel" : "વસ્તુઓ", 
+"rowsPerPageDataPagerLabel" : "પૃષ્ઠ દીઠ પંક્તિઓ", 
 "pdfBookmarksLabel" : "બુકમાર્ક્સ", 
 "pdfNoBookmarksLabel" : "કોઈ બુકમાર્ક્સ મળ્યાં નથી", 
 "pdfScrollStatusOfLabel" : "ના", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "શૉ.", 
 "shortDhualqiLabel" : "ધુલ-પ્ર", 
 "shortDhualhiLabel" : "ધુલ-એચ", 
-"daySpanCountLabel" : "દિવસ"
+"daySpanCountLabel" : "દિવસ", 
+"series" : "શ્રેણી", 
+"pdfHyperlinkLabel" : "વેબ પેજ ખોલો", 
+"pdfHyperlinkContentLabel" : "શું તમે પાનું ખોલવા માંગો છો", 
+"pdfHyperlinkDialogOpenLabel" : "ખુલ્લા", 
+"pdfHyperlinkDialogCancelLabel" : "રદ કરો"
 }

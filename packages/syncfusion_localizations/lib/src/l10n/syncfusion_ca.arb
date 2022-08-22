@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "No hi ha esdeveniments", 
 "ofDataPagerLabel" : "de", 
 "pagesDataPagerLabel" : "pàgines", 
-"itemsDataPagerLabel" : "elements", 
+"rowsPerPageDataPagerLabel" : "Files per pàgina", 
 "pdfBookmarksLabel" : "Adreces d'interès", 
 "pdfNoBookmarksLabel" : "No s'han trobat adreces d'interès", 
 "pdfScrollStatusOfLabel" : "de", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Dia"
+"daySpanCountLabel" : "Dia", 
+"series" : "Sèrie", 
+"pdfHyperlinkLabel" : "Obre la pàgina web", 
+"pdfHyperlinkContentLabel" : "Vols obrir la pàgina a", 
+"pdfHyperlinkDialogOpenLabel" : "OBERT", 
+"pdfHyperlinkDialogCancelLabel" : "CANCEL · LAR"
 }

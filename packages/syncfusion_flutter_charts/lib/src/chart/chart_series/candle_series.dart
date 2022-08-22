@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 import 'financial_series_base.dart';
 
@@ -8,7 +8,7 @@ import 'financial_series_base.dart';
 /// To render a candle chart, create an instance of [CandleSeries], and add it to the `series` collection property of [SfCartesianChart].
 /// The candle chart represents the hollow rectangle with the open, close, high and low value in the given data.
 ///
-///  It has the [bearColor] and [bullColor] properties to change the appearance of the candle series.
+/// It has the [bearColor] and [bullColor] properties to change the appearance of the candle series.
 ///
 /// Provides options for color, opacity, border color, and border width
 /// to customize the appearance.

@@ -240,7 +240,30 @@ class _FormatSection {
             _bFraction = false;
           }
           break;
-        default:
+
+        case _TokenType.unknown:
+        case _TokenType.section:
+        case _TokenType.hour:
+        case _TokenType.hour24:
+        case _TokenType.minuteTotal:
+        case _TokenType.second:
+        case _TokenType.secondTotal:
+        case _TokenType.year:
+        case _TokenType.month:
+        case _TokenType.day:
+        case _TokenType.string:
+        case _TokenType.reservedPlace:
+        case _TokenType.character:
+        case _TokenType.color:
+        case _TokenType.condition:
+        case _TokenType.text:
+        case _TokenType.percent:
+        case _TokenType.general:
+        case _TokenType.thousandsSeparator:
+        case _TokenType.asterix:
+        case _TokenType.milliSecond:
+        case _TokenType.culture:
+        case _TokenType.dollar:
           break;
       }
     }
@@ -420,7 +443,8 @@ class _FormatSection {
     final _FormatTokenBase token = _arrTokens[iTokenIndex];
 
     if (token._tokenType != _TokenType.minute) {
-      throw 'Wrong token type.';
+      final Error error = ArgumentError('Wrong token type.');
+      throw error;
     }
 
     final bool bMinute = (_findTimeToken(iTokenIndex - 1, _defultBreakHour,

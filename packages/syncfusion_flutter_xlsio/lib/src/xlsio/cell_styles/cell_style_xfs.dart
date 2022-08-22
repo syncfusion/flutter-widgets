@@ -19,7 +19,7 @@ class _CellStyleXfs {
   int _borderId = 0;
 
   /// Represents alignment.
-  Alignment? _alignment;
+  _Alignment? _alignment;
 
   /// Represent protection.
   // ignore: prefer_final_fields

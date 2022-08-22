@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-
+import '../../../charts.dart';
+import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
@@ -16,7 +15,6 @@ import 'chart_segment.dart';
 /// used to customize the box and whisker series segment point calculation.
 ///
 /// Gets the path and fill color from the `series` to render the box and whisker segment.
-///
 class BoxAndWhiskerSegment extends ChartSegment {
   late double _maxY,
       _lowerY,
@@ -50,7 +48,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
     /// Get and set the paint options for box and whisker series.
     if (_segmentProperties.series.gradient == null) {
       fillPaint = Paint()
-        ..color = _segmentProperties.currentPoint!.isEmpty == true
+        ..color = (_segmentProperties.currentPoint!.isEmpty ?? false)
             ? _segmentProperties.series.emptyPointSettings.color
             : (_segmentProperties.currentPoint!.pointColorMapper ??
                 _segmentProperties.color!)
@@ -83,12 +81,12 @@ class BoxAndWhiskerSegment extends ChartSegment {
     _setSegmentProperties();
     strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+      ..strokeWidth = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderWidth
           : _segmentProperties.strokeWidth!;
     _meanPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+      ..strokeWidth = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderWidth
           : _segmentProperties.strokeWidth!;
     if (_segmentProperties.series.borderGradient != null) {
@@ -97,10 +95,10 @@ class BoxAndWhiskerSegment extends ChartSegment {
       _meanPaint.shader = _segmentProperties.series.borderGradient!
           .createShader(_segmentProperties.currentPoint!.region!);
     } else {
-      strokePaint!.color = _segmentProperties.currentPoint!.isEmpty == true
+      strokePaint!.color = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderColor
           : _segmentProperties.strokeColor!;
-      _meanPaint.color = _segmentProperties.currentPoint!.isEmpty == true
+      _meanPaint.color = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderColor
           : _segmentProperties.strokeColor!;
     }
@@ -153,7 +151,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
         _centersY + ((_centersY - _lowerY).abs() * 1);
   }
 
-  /// To draw rect path of box and whisker segments
+  /// To draw rect path of box and whisker segments.
   void _drawRectPath() {
     _segmentProperties.path.moveTo(
         !_isTransposed
@@ -183,7 +181,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
     _segmentProperties.path.close();
   }
 
-  /// To draw line path of box and whisker segments
+  /// To draw line path of box and whisker segments.
   void _drawLine(Canvas canvas) {
     canvas.drawLine(Offset(_segmentProperties.lowerX, _topLineY),
         Offset(_segmentProperties.upperX, _topLineY), strokePaint!);
@@ -197,7 +195,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
         Offset(_segmentProperties.upperX, _bottomLineY), strokePaint!);
   }
 
-  /// To draw mean line path of box and whisker segments
+  /// To draw mean line path of box and whisker segments.
   void _drawMeanLine(
       Canvas canvas, Offset position, Size size, bool isTransposed) {
     final double x = !isTransposed ? position.dx : position.dy;
@@ -221,7 +219,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
     }
   }
 
-  /// To draw line path of box and whisker segments
+  /// To draw line path of box and whisker segments.
   void _drawFillLine(Canvas canvas) {
     final bool isOpen = _segmentProperties.currentPoint!.lowerQuartile! >
         _segmentProperties.currentPoint!.upperQuartile!;
@@ -398,12 +396,12 @@ class BoxAndWhiskerSegment extends ChartSegment {
             : _drawRectPath();
       }
 
-      if (_segmentProperties.series.dashArray[0] != 0 &&
-          _segmentProperties.series.dashArray[1] != 0 &&
+      if (seriesRendererDetails.dashArray![0] != 0 &&
+          seriesRendererDetails.dashArray![1] != 0 &&
           _segmentProperties.series.animationDuration <= 0 == true) {
         canvas.drawPath(_segmentProperties.path, fillPaint!);
-        drawDashedLine(canvas, _segmentProperties.series.dashArray,
-            strokePaint!, _segmentProperties.path);
+        drawDashedLine(canvas, seriesRendererDetails.dashArray!, strokePaint!,
+            _segmentProperties.path);
       } else {
         canvas.drawPath(_segmentProperties.path, fillPaint!);
         canvas.drawPath(_segmentProperties.path, strokePaint!);
@@ -501,7 +499,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
     }
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

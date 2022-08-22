@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 import 'stacked_series_base.dart';
 
 /// Renders the stacked bar series.
 ///
-///Stacked Bar Chart consists of multiple bar series stacked horizontally one after another.
-///The length of each series is determined by the value in each data point.
+/// Stacked bar chart consists of multiple bar series stacked horizontally one after another.
+/// The length of each series is determined by the value in each data point.
 ///
-/// To render a stacked bar chart, create an instance of StackedBarSeries, and add it to
-///  the series collection property of [SfCartesianChart].
+/// To render a stacked bar chart, create an instance of [StackedBarSeries], and add it to
+/// the series collection property of [SfCartesianChart].
 ///
-///Provides options to customize properties such as [color], [opacity],
-///[borderWidth], [borderColor], [borderRadius] of the Stackedbar segments.
+/// Provides options to customize properties such as [color], [opacity],
+/// [borderWidth], [borderColor], [borderRadius] of the Stackedbar segments.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=NCUDBD_ClHo}
 

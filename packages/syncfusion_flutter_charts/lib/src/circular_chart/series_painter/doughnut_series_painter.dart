@@ -6,11 +6,9 @@ import '../renderer/common.dart';
 import '../renderer/renderer_extension.dart';
 import '../utils/helper.dart';
 
-/// Represents the painter of doughnut chart
-///
+/// Represents the painter of doughnut chart.
 class DoughnutChartPainter extends CustomPainter {
-  /// Creates the instance of doughnut chart painter
-  ///
+  /// Creates the instance of doughnut chart painter.
   DoughnutChartPainter({
     required this.stateProperties,
     required this.index,
@@ -20,25 +18,25 @@ class DoughnutChartPainter extends CustomPainter {
     required ValueNotifier<num> notifier,
   }) : super(repaint: notifier);
 
-  /// Specifies the circular chart state
+  /// Specifies the circular chart state.
   final CircularStateProperties stateProperties;
 
-  /// Specifies the value of index
+  /// Specifies the value of index.
   final int index;
 
-  /// Specifies whether to repaint the series
+  /// Specifies whether to repaint the series.
   final bool isRepaint;
 
-  /// Specifies the value of animation controller
+  /// Specifies the value of animation controller.
   final AnimationController? animationController;
 
-  /// Specifies the value of series animation
+  /// Specifies the value of series animation.
   final Animation<double>? seriesAnimation;
 
-  /// Specifies the value of series renderer
+  /// Specifies the value of series renderer.
   late DoughnutSeriesRendererExtension seriesRenderer;
 
-  /// To paint series
+  /// To paint series.
   @override
   void paint(Canvas canvas, Size size) {
     num? pointStartAngle;
@@ -51,7 +49,7 @@ class DoughnutChartPainter extends CustomPainter {
         seriesRenderer.segmentRenderingValues['currentRadius']!;
     ChartPoint<dynamic> point;
     seriesRenderer.pointRegions = <Region>[];
-    ChartPoint<dynamic>? _oldPoint;
+    ChartPoint<dynamic>? oldPoint;
     final DoughnutSeriesRendererExtension? oldSeriesRenderer = (stateProperties
                 .renderingDetails.widgetNeedUpdate &&
             !stateProperties.renderingDetails.isLegendToggled &&
@@ -62,7 +60,7 @@ class DoughnutChartPainter extends CustomPainter {
     seriesRenderer.renderList.clear();
     for (int i = 0; i < seriesRenderer.renderPoints!.length; i++) {
       point = seriesRenderer.renderPoints![i];
-      _oldPoint = (oldSeriesRenderer != null &&
+      oldPoint = (oldSeriesRenderer != null &&
               oldSeriesRenderer.oldRenderPoints != null &&
               (oldSeriesRenderer.oldRenderPoints!.length - 1 >= i))
           ? oldSeriesRenderer.oldRenderPoints![i]
@@ -83,18 +81,17 @@ class DoughnutChartPainter extends CustomPainter {
           seriesAnimation?.value ?? 1,
           1,
           checkIsAnyPointSelect(seriesRenderer, point, stateProperties.chart),
-          _oldPoint,
+          oldPoint,
           stateProperties.oldPoints);
     }
 
     if (seriesRenderer.renderList.isNotEmpty) {
-      Shader? _chartShader;
+      Shader? chartShader;
       if (stateProperties.chart.onCreateShader != null) {
         ChartShaderDetails chartShaderDetails;
         chartShaderDetails = ChartShaderDetails(seriesRenderer.renderList[1],
             seriesRenderer.renderList[2], 'series');
-        _chartShader =
-            stateProperties.chart.onCreateShader!(chartShaderDetails);
+        chartShader = stateProperties.chart.onCreateShader!(chartShaderDetails);
       }
       for (int k = 0; k < seriesRenderer.renderPaths.length; k++) {
         drawPath(
@@ -102,7 +99,7 @@ class DoughnutChartPainter extends CustomPainter {
             seriesRenderer.renderList[0],
             seriesRenderer.renderPaths[k],
             seriesRenderer.renderList[1],
-            _chartShader);
+            chartShader);
       }
       if (seriesRenderer.renderList[0].strokeColor != null &&
           seriesRenderer.renderList[0].strokeWidth != null &&

@@ -8,7 +8,7 @@ import 'cartesian_state_properties.dart';
 
 /// Represents the segment properties class
 class SegmentProperties {
-  ///argument constructor for SegmentProperties class
+  /// Argument constructor for SegmentProperties class
   SegmentProperties(this.stateProperties, this.segment);
 
   ///Color of the segment

@@ -23,7 +23,7 @@ import '../pdf_resources.dart';
 ///             brush: PdfBrushes.black, bounds: Rect.fromLTWH(5, 5, 0, 0)),
 ///       Offset(0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -39,7 +39,7 @@ class PdfTemplate implements IPdfWrapper {
   ///             brush: PdfBrushes.black, bounds: Rect.fromLTWH(5, 5, 0, 0)),
   ///       Offset(0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -117,7 +117,7 @@ class PdfTemplate implements IPdfWrapper {
   /// //Add a new page and draw the template on the page graphics of the document.
   /// document.pages.add().graphics.drawPdfTemplate(template, Offset(0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -139,7 +139,7 @@ class PdfTemplate implements IPdfWrapper {
   /// //Add a new page and draw the template on the page graphics of the document.
   /// document.pages.add().graphics.drawPdfTemplate(template, Offset(0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -177,7 +177,7 @@ class PdfTemplate implements IPdfWrapper {
   /// //Add a new page and draw the template on the page graphics of the document.
   /// document.pages.add().graphics.drawPdfTemplate(template, Offset(0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

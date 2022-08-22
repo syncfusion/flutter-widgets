@@ -1,9 +1,11 @@
+// ignore_for_file: no_default_cases
+
 import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_datagrid/src/grid_common/enums.dart';
+import '../../grid_common/enums.dart';
 
 import '../../grid_common/line_size_host.dart';
 import '../../grid_common/visible_line_info.dart';
@@ -1259,7 +1261,15 @@ class ColumnResizeController {
         if (!isPressed) {
           return _resizingLine;
         }
-
+        // Issue:
+        // FLUT-6123 - The column resizing indicator is showing over the footer frozen column in the Android Platform.
+        //
+        // Fix:
+        // An issue occurred due to not considering the column which is corner clipped by the frozen columns.
+        // Now, we have restricted the clipped columns to disable resizing for the columns.
+        if (_resizingLine!.isClippedCorner) {
+          return null;
+        }
         _ensureDataCell(dx, resizingDataCell);
         _onResizingStart();
         return _resizingLine;
@@ -1267,6 +1277,7 @@ class ColumnResizeController {
         return null;
       }
     }
+    return null;
   }
 
   void _onResizingStart() {
@@ -1305,15 +1316,22 @@ class ColumnResizeController {
             isRightToLeft:
                 dataGridConfiguration.textDirection == TextDirection.rtl);
 
-    // Sets indicator position.
-    indicatorPosition = indicatorXPosition;
-
     if (dataGridConfiguration.columnResizeMode == ColumnResizeMode.onResize) {
       dataGridConfiguration.container.isDirty = true;
       if (!_raiseColumnResizeUpdate(currentColumnWidth)) {
         return;
       }
+      // Issue:
+      // FLUT-6123 - The column resizing Indicator position is applied improperly
+      // when setting width limit to a particular column in `onColumnsResizeUpdate` callback.
+      //
+      // Fix:
+      // The position changed because of update the indicator position before the `onColumnResizeUpdate` callback.
+      // We have resolved the issue by updating the indicator position after the `onColumnResizeUpdate` callback.
+      indicatorPosition = indicatorXPosition;
     } else {
+      // Sets indicator position.
+      indicatorPosition = indicatorXPosition;
       // Rebuild to update the resizing indicator alone.
       _rebuild();
     }

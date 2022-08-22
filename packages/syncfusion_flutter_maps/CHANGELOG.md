@@ -1,5 +1,17 @@
 ## Unreleased
 
+**Bug**
+* The null exception will not be thrown when simultaneously calling the setstate and zooming the map.
+
+**Features**
+* Provided an option to enable or disable the mouse wheel zoom functionality.
+
+## [20.1.56] - 05/17/2022
+**Bugs**
+* Now, while performing mouse wheel zooming, the current segment color will be applied properly.
+
+## [19.4.38-beta] - 12/17/2021
+
 **Features**
 
 * Legend pointer - Provided an option to show a pointer on the solid bar legend while hover over the shape or bubble.

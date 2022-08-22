@@ -15,19 +15,19 @@ import '../utils/helper.dart';
 export 'package:syncfusion_flutter_core/core.dart'
     show DataMarkerType, TooltipAlignment;
 
-/// Represents the trend line painter
+/// Represents the trend line painter.
 class TrendlinePainter extends CustomPainter {
-  /// Creates an instance for trend line painter
+  /// Creates an instance for trend line painter.
   TrendlinePainter(
       {required this.stateProperties,
       required this.trendlineAnimations,
       required ValueNotifier<num> notifier})
       : super(repaint: notifier);
 
-  /// Holds the Cartesian state properties value
+  /// Holds the cartesian state properties value.
   final CartesianStateProperties stateProperties;
 
-  /// Holds the list of trend line animation
+  /// Holds the list of trend line animation.
   final Map<String, Animation<double>> trendlineAnimations;
 
   @override
@@ -160,7 +160,7 @@ class TrendlinePainter extends CustomPainter {
     }
   }
 
-  ///To draw the marker on trendline
+  /// To draw the marker on trendline.
   void _drawTrendlineMarker(
     TrendlineRenderer trendlineRenderer,
     Trendline trendline,
@@ -171,17 +171,17 @@ class TrendlinePainter extends CustomPainter {
     Paint paint,
   ) {
     Rect clipRect;
-    final Rect _axisClipRect = stateProperties.chartAxis.axisClipRect;
+    final Rect axisClipRect = stateProperties.chartAxis.axisClipRect;
     final RenderingDetails renderingDetails = stateProperties.renderingDetails;
     (trendlineRenderer.dashArray != null)
         ? drawDashedLine(canvas, trendlineRenderer.dashArray!, paint, path)
         : canvas.drawPath(path, paint);
     clipRect = calculatePlotOffset(
         Rect.fromLTRB(
-            _axisClipRect.left - trendline.markerSettings.width,
-            _axisClipRect.top - trendline.markerSettings.height,
-            _axisClipRect.right + trendline.markerSettings.width,
-            _axisClipRect.bottom + trendline.markerSettings.height),
+            axisClipRect.left - trendline.markerSettings.width,
+            axisClipRect.top - trendline.markerSettings.height,
+            axisClipRect.right + trendline.markerSettings.width,
+            axisClipRect.bottom + trendline.markerSettings.height),
         Offset(seriesRendererDetails.xAxisDetails!.axis.plotOffset,
             seriesRendererDetails.yAxisDetails!.axis.plotOffset));
     canvas.restore();
@@ -220,7 +220,7 @@ class TrendlinePainter extends CustomPainter {
     }
   }
 
-  /// Setting the values of render trend line event
+  /// Setting the values of render trend line event.
   void renderTrendlineEvent(SfCartesianChart chart, Trendline trendline,
       int trendlineIndex, int seriesIndex, String seriesName) {
     TrendlineRenderParams args;

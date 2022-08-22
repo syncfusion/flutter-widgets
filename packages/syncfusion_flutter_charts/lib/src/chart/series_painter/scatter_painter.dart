@@ -15,7 +15,7 @@ import '../utils/helper.dart';
 
 export 'package:syncfusion_flutter_core/core.dart' show DataMarkerType;
 
-/// Creates series renderer for Scatter series
+/// Creates series renderer for scatter series
 class ScatterSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of ScatterSeriesRenderer class.
   ScatterSeriesRenderer();
@@ -25,7 +25,7 @@ class ScatterSeriesRenderer extends XyDataSeriesRenderer {
 
   ScatterSegment? _segment;
 
-  ///Adds the points to the segments .
+  /// Adds the points to the segments .
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -118,7 +118,7 @@ class ScatterSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render scatter series segments
+  /// To render scatter series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -165,7 +165,7 @@ class ScatterSeriesRenderer extends XyDataSeriesRenderer {
     scatterSegment.fillPaint = scatterSegment.getFillPaint();
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -183,8 +183,8 @@ class ScatterSeriesRenderer extends XyDataSeriesRenderer {
         null,
         seriesRendererDetails.seriesElementAnimation,
         _segment);
-    canvas.drawPath(markerPath, fillPaint);
     canvas.drawPath(markerPath, strokePaint);
+    canvas.drawPath(markerPath, fillPaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.
@@ -268,16 +268,31 @@ class ScatterChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         final CartesianChartPoint<dynamic> currentPoint =
             dataPoints[pointIndex];
-        seriesRendererDetails.calculateRegionData(stateProperties,
-            seriesRendererDetails, painterKey.index, currentPoint, pointIndex);
-        if (currentPoint.isVisible && !currentPoint.isGap) {
-          seriesRendererDetails.drawSegment(
-              canvas,
-              seriesRenderer._createSegments(currentPoint, segmentIndex += 1,
-                  seriesIndex, animationFactor));
+        final bool withInXRange = withInRange(currentPoint.xValue,
+            seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
+        final bool withInYRange = currentPoint != null &&
+            currentPoint.yValue != null &&
+            withInRange(currentPoint.yValue,
+                seriesRendererDetails.yAxisDetails!.visibleRange!);
+        if (withInXRange || withInYRange) {
+          seriesRendererDetails.calculateRegionData(
+              stateProperties,
+              seriesRendererDetails,
+              painterKey.index,
+              currentPoint,
+              pointIndex);
+          if (currentPoint.isVisible && !currentPoint.isGap) {
+            seriesRendererDetails.drawSegment(
+                canvas,
+                seriesRenderer._createSegments(currentPoint, segmentIndex += 1,
+                    seriesIndex, animationFactor));
+          }
         }
       }
       if (series.animationDuration <= 0 ||

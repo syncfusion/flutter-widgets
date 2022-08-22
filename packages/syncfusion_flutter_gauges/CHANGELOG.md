@@ -1,3 +1,14 @@
+## Unreleased
+
+## Radial Gauge
+
+**Features**
+* Now, the pointer focus will not get lost until the user interaction ends.
+
+## [20.1.55] - 05/12/2022
+**Bugs**
+* Now, on setting the [`showLastLabel`](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/RadialAxis/showLastLabel.html) property as `false`, the last label will not be visible in the [`SfRadialGauge`](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/SfRadialGauge-class.html) widget. To make it visible, set the [`showLastLabel`](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/RadialAxis/showLastLabel.html) property as `true`.
+
 ## [19.3.43] - 09/30/2021
 
 ## Linear Gauge

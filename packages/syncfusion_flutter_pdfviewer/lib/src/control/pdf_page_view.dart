@@ -5,14 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/mobile_helper.dart'
+import '../../pdfviewer.dart';
+import '../common/mobile_helper.dart'
     if (dart.library.html) 'package:syncfusion_flutter_pdfviewer/src/common/web_helper.dart'
     as helper;
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_scrollable.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdfviewer_canvas.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/single_page_view.dart';
+
+import '../common/pdfviewer_helper.dart';
+import 'pdf_scrollable.dart';
+import 'pdfviewer_canvas.dart';
+import 'single_page_view.dart';
 
 /// Wrapper class of [Image] widget which shows the PDF pages as an image
 class PdfPageView extends StatefulWidget {
@@ -33,9 +34,11 @@ class PdfPageView extends StatefulWidget {
     this.enableDocumentLinkAnnotation,
     this.enableTextSelection,
     this.onTextSelectionChanged,
+    this.onHyperlinkClicked,
     this.onTextSelectionDragStarted,
     this.onTextSelectionDragEnded,
-    this.searchTextHighlightColor,
+    this.currentSearchTextHighlightColor,
+    this.otherSearchTextHighlightColor,
     this.textCollection,
     this.isMobileWebView,
     this.pdfTextSearchResult,
@@ -47,6 +50,9 @@ class PdfPageView extends StatefulWidget {
     this.onPdfPagePointerUp,
     this.semanticLabel,
     this.isSinglePageView,
+    this.textDirection,
+    this.canShowHyperlinkDialog,
+    this.enableHyperlinkNavigation,
   ) : super(key: key);
 
   /// Image stream
@@ -73,6 +79,12 @@ class PdfPageView extends StatefulWidget {
   /// If true, document link annotation is enabled.
   final bool enableDocumentLinkAnnotation;
 
+  /// If true, hyperlink navigation is enabled.
+  final bool enableHyperlinkNavigation;
+
+  /// Indicates whether hyperlink dialog must be shown or not.
+  final bool canShowHyperlinkDialog;
+
   /// Index of  page
   final int pageIndex;
 
@@ -91,14 +103,20 @@ class PdfPageView extends StatefulWidget {
   /// Triggers when text selection is changed.
   final PdfTextSelectionChangedCallback? onTextSelectionChanged;
 
+  /// Triggers when Hyperlink is clicked.
+  final PdfHyperlinkClickedCallback? onHyperlinkClicked;
+
   /// Triggers when text selection dragging started.
   final VoidCallback onTextSelectionDragStarted;
 
   /// Triggers when text selection dragging ended.
   final VoidCallback onTextSelectionDragEnded;
 
-  /// Highlighting color of searched text
-  final Color searchTextHighlightColor;
+  /// Current instance search text highlight color.
+  final Color currentSearchTextHighlightColor;
+
+  ///Other instance search text highlight color.
+  final Color otherSearchTextHighlightColor;
 
   /// Searched text details
   final List<MatchedItem>? textCollection;
@@ -132,6 +150,9 @@ class PdfPageView extends StatefulWidget {
 
   /// Determines layout option in PdfViewer.
   final bool isSinglePageView;
+
+  ///A direction of text flow.
+  final TextDirection textDirection;
 
   @override
   State<StatefulWidget> createState() {
@@ -180,8 +201,8 @@ class PdfPageViewState extends State<PdfPageView> {
 
   @override
   void dispose() {
-    PaintingBinding.instance?.imageCache?.clear();
-    PaintingBinding.instance?.imageCache?.clearLiveImages();
+    PaintingBinding.instance.imageCache.clear();
+    PaintingBinding.instance.imageCache.clearLiveImages();
     _pdfViewerThemeData = null;
     super.dispose();
   }
@@ -189,8 +210,8 @@ class PdfPageViewState extends State<PdfPageView> {
   @override
   Widget build(BuildContext context) {
     if (!kIsDesktop) {
-      PaintingBinding.instance?.imageCache?.clear();
-      PaintingBinding.instance?.imageCache?.clearLiveImages();
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
     }
     final double pageSpacing =
         widget.pageIndex == widget.pdfViewerController.pageCount - 1
@@ -215,7 +236,6 @@ class PdfPageViewState extends State<PdfPageView> {
         gaplessPlayback: true,
         fit: BoxFit.fitWidth,
         semanticLabel: widget.semanticLabel,
-        alignment: Alignment.center,
       );
       final Widget pdfPage = Container(
         height: widget.height + heightSpacing,
@@ -262,28 +282,34 @@ class PdfPageViewState extends State<PdfPageView> {
           width: isRotatedTo90or270 ? widget.height : widget.width,
           alignment: Alignment.topCenter,
           child: PdfViewerCanvas(
-              _canvasKey,
-              isRotatedTo90or270 ? widget.width : widget.height,
-              isRotatedTo90or270 ? widget.height : widget.width,
-              widget.pdfDocument,
-              widget.pageIndex,
-              widget.pdfPages,
-              widget.interactionMode,
-              widget.pdfViewerController,
-              widget.enableDocumentLinkAnnotation,
-              widget.enableTextSelection,
-              widget.onTextSelectionChanged,
-              widget.onTextSelectionDragStarted,
-              widget.onTextSelectionDragEnded,
-              widget.textCollection,
-              widget.searchTextHighlightColor,
-              widget.pdfTextSearchResult,
-              widget.isMobileWebView,
-              widget.pdfScrollableStateKey,
-              widget.singlePageViewStateKey,
-              widget.viewportGlobalRect,
-              widget.scrollDirection,
-              widget.isSinglePageView));
+            _canvasKey,
+            isRotatedTo90or270 ? widget.width : widget.height,
+            isRotatedTo90or270 ? widget.height : widget.width,
+            widget.pdfDocument,
+            widget.pageIndex,
+            widget.pdfPages,
+            widget.interactionMode,
+            widget.pdfViewerController,
+            widget.enableDocumentLinkAnnotation,
+            widget.enableTextSelection,
+            widget.onTextSelectionChanged,
+            widget.onHyperlinkClicked,
+            widget.onTextSelectionDragStarted,
+            widget.onTextSelectionDragEnded,
+            widget.textCollection,
+            widget.currentSearchTextHighlightColor,
+            widget.otherSearchTextHighlightColor,
+            widget.pdfTextSearchResult,
+            widget.isMobileWebView,
+            widget.pdfScrollableStateKey,
+            widget.singlePageViewStateKey,
+            widget.viewportGlobalRect,
+            widget.scrollDirection,
+            widget.isSinglePageView,
+            widget.textDirection,
+            widget.canShowHyperlinkDialog,
+            widget.enableHyperlinkNavigation,
+          ));
       final Widget canvas = (kIsDesktop &&
               !widget.isMobileWebView &&
               canvasRenderBox != null)

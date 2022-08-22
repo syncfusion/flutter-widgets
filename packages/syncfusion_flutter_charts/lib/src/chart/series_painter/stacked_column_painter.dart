@@ -14,12 +14,12 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Stacked column series
+/// Creates series renderer for stacked column series.
 class StackedColumnSeriesRenderer extends StackedSeriesRenderer {
   /// Calling the default constructor of StackedColumnSeriesRenderer class.
   StackedColumnSeriesRenderer();
 
-  /// Stacked Bar segment is created here.
+  /// Stacked column segment is created here.
   // ignore: unused_element
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
@@ -29,7 +29,7 @@ class StackedColumnSeriesRenderer extends StackedSeriesRenderer {
     final SegmentProperties segmentProperties =
         SegmentProperties(seriesRendererDetails.stateProperties, segment);
     SegmentHelper.setSegmentProperties(segment, segmentProperties);
-    final StackedColumnSeries<dynamic, dynamic> _stackedColumnSeries =
+    final StackedColumnSeries<dynamic, dynamic> stackedColumnSeries =
         seriesRendererDetails.series as StackedColumnSeries<dynamic, dynamic>;
     seriesRendererDetails.isRectSeries = true;
     // ignore: unnecessary_null_comparison
@@ -39,18 +39,18 @@ class StackedColumnSeriesRenderer extends StackedSeriesRenderer {
       segment.points.add(
           Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
       segmentProperties.seriesRenderer = this;
-      segmentProperties.series = _stackedColumnSeries;
+      segmentProperties.series = stackedColumnSeries;
       segmentProperties.currentPoint = currentPoint;
       segment.animationFactor = animateFactor;
       segmentProperties.path = findingRectSeriesDashedBorder(
-          currentPoint, _stackedColumnSeries.borderWidth);
+          currentPoint, stackedColumnSeries.borderWidth);
       segment.segmentRect = getRRectFromRect(
-          currentPoint.region!, _stackedColumnSeries.borderRadius);
+          currentPoint.region!, stackedColumnSeries.borderRadius);
 
-      //Tracker rect
-      if (_stackedColumnSeries.isTrackVisible) {
+      // Tracker rect.
+      if (stackedColumnSeries.isTrackVisible) {
         segmentProperties.trackRect = getRRectFromRect(
-            currentPoint.trackerRectRegion!, _stackedColumnSeries.borderRadius);
+            currentPoint.trackerRectRegion!, stackedColumnSeries.borderRadius);
         segmentProperties.trackerFillPaint =
             segmentProperties.getTrackerFillPaint();
         segmentProperties.trackerStrokePaint =
@@ -66,7 +66,7 @@ class StackedColumnSeriesRenderer extends StackedSeriesRenderer {
     return segment;
   }
 
-  /// To render stacked column series segments
+  /// To render stacked column series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -178,7 +178,7 @@ class StackedColumn100SeriesRenderer extends StackedSeriesRenderer {
     final SegmentProperties segmentProperties =
         SegmentProperties(seriesRendererDetails.stateProperties, segment);
     SegmentHelper.setSegmentProperties(segment, segmentProperties);
-    final StackedColumn100Series<dynamic, dynamic> _stackedColumn100Series =
+    final StackedColumn100Series<dynamic, dynamic> stackedColumn100Series =
         seriesRendererDetails.series
             as StackedColumn100Series<dynamic, dynamic>;
     seriesRendererDetails.isRectSeries = true;
@@ -189,13 +189,13 @@ class StackedColumn100SeriesRenderer extends StackedSeriesRenderer {
       segment.points.add(
           Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
       segmentProperties.seriesRenderer = this;
-      segmentProperties.series = _stackedColumn100Series;
+      segmentProperties.series = stackedColumn100Series;
       segmentProperties.currentPoint = currentPoint;
       segment.animationFactor = animateFactor;
       segmentProperties.path = findingRectSeriesDashedBorder(
-          currentPoint, _stackedColumn100Series.borderWidth);
+          currentPoint, stackedColumn100Series.borderWidth);
       segment.segmentRect = getRRectFromRect(
-          currentPoint.region!, _stackedColumn100Series.borderRadius);
+          currentPoint.region!, stackedColumn100Series.borderRadius);
       segmentProperties.segmentRect = segment.segmentRect;
       segmentProperties.oldSegmentIndex = getOldSegmentIndex(segment);
       customizeSegment(segment);
@@ -328,7 +328,7 @@ void _stackedRectPainter(
     CartesianChartPoint<dynamic> point;
     final XyDataSeries<dynamic, dynamic> series =
         seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
-    final RenderingDetails _renderingDetails = stateProperties.renderingDetails;
+    final RenderingDetails renderingDetails = stateProperties.renderingDetails;
     final int seriesIndex = painterKey.index;
     final Animation<double> seriesAnimation =
         seriesRendererDetails.seriesAnimation!;
@@ -339,8 +339,8 @@ void _stackedRectPainter(
     // ignore: unnecessary_null_comparison
     animationFactor = seriesAnimation != null &&
             (seriesRendererDetails.reAnimate == true ||
-                (!(_renderingDetails.widgetNeedUpdate ||
-                    _renderingDetails.isLegendToggled)))
+                (!(renderingDetails.widgetNeedUpdate ||
+                    renderingDetails.isLegendToggled)))
         ? seriesAnimation.value
         : 1;
     stateProperties.shader = null;
@@ -360,17 +360,27 @@ void _stackedRectPainter(
       seriesRendererDetails.visibleDataPoints =
           <CartesianChartPoint<dynamic>>[];
     }
+    seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
     for (int pointIndex = 0;
         pointIndex < seriesRendererDetails.dataPoints.length;
         pointIndex++) {
       point = seriesRendererDetails.dataPoints[pointIndex];
-      seriesRendererDetails.calculateRegionData(stateProperties,
-          seriesRendererDetails, painterKey.index, point, pointIndex);
-      if (point.isVisible && !point.isGap) {
-        seriesRendererDetails.drawSegment(
-            canvas,
-            seriesRenderer._createSegments(
-                point, segmentIndex += 1, painterKey.index, animationFactor));
+      final bool withInXRange = withInRange(
+          point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+      // ignore: unnecessary_null_comparison
+      final bool withInYRange = point != null &&
+          point.yValue != null &&
+          withInRange(
+              point.yValue, seriesRendererDetails.yAxisDetails!.visibleRange!);
+      if (withInXRange || withInYRange) {
+        seriesRendererDetails.calculateRegionData(stateProperties,
+            seriesRendererDetails, painterKey.index, point, pointIndex);
+        if (point.isVisible && !point.isGap) {
+          seriesRendererDetails.drawSegment(
+              canvas,
+              seriesRenderer._createSegments(
+                  point, segmentIndex += 1, painterKey.index, animationFactor));
+        }
       }
     }
     clipRect = calculatePlotOffset(
@@ -387,7 +397,7 @@ void _stackedRectPainter(
             seriesRendererDetails.yAxisDetails!.axis.plotOffset));
     canvas.restore();
     if ((series.animationDuration <= 0 ||
-            !_renderingDetails.initialRender! ||
+            !renderingDetails.initialRender! ||
             animationFactor >= stateProperties.seriesDurationFactor) &&
         (series.markerSettings.isVisible ||
             series.dataLabelSettings.isVisible)) {

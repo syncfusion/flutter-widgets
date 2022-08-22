@@ -624,3 +624,524 @@ enum DataBarAxisPosition {
   /// Defines the axis position at the mid point.
   middle
 }
+
+///Represents a function used for total calculation.
+enum ExcelTableTotalFormula {
+  /// No calculation.
+  none,
+
+  /// Represents SUM function.
+  sum,
+
+  /// Represents AVERAGE function.
+  average,
+
+  /// Represents COUNT function.
+  count,
+
+  /// Represents COUNTNUMS function.
+  countNums,
+
+  /// Represents MIN function.
+  min,
+
+  /// Represents STDDEV function.
+  stdDev,
+
+  /// Represents VARIABLE function.
+  variable,
+
+  /// Represents MAX function.
+  max,
+
+  /// Represents CUSTOM function.
+  custom,
+}
+
+/// Represents Excel table styles which are built-in.
+enum ExcelTableBuiltInStyle {
+  /// Represents no style.
+  None,
+
+  /// Represents TableStyleMedium1 style.
+  tableStyleMedium1,
+
+  /// Represents TableStyleMedium2 style.
+  tableStyleMedium2,
+
+  /// Represents TableStyleMedium3 style.
+  tableStyleMedium3,
+
+  /// Represents TableStyleMedium4 style.
+  tableStyleMedium4,
+
+  /// Represents TableStyleMedium5 style.
+  tableStyleMedium5,
+
+  /// Represents TableStyleMedium6 style.
+  tableStyleMedium6,
+
+  /// Represents TableStyleMedium7 style.
+  tableStyleMedium7,
+
+  /// Represents TableStyleMedium8 style.
+  tableStyleMedium8,
+
+  /// Represents TableStyleMedium9 style.
+  tableStyleMedium9,
+
+  /// Represents TableStyleMedium10 style.
+  tableStyleMedium10,
+
+  /// Represents TableStyleMedium11 style.
+  tableStyleMedium11,
+
+  /// Represents TableStyleMedium12 style.
+  tableStyleMedium12,
+
+  /// Represents TableStyleMedium13 style.
+  tableStyleMedium13,
+
+  /// Represents TableStyleMedium14 style.
+  tableStyleMedium14,
+
+  /// Represents TableStyleMedium15 style.
+  tableStyleMedium15,
+
+  /// Represents TableStyleMedium16 style.
+  tableStyleMedium16,
+
+  /// Represents TableStyleMedium17 style.
+  tableStyleMedium17,
+
+  /// Represents TableStyleMedium18 style.
+  tableStyleMedium18,
+
+  /// Represents TableStyleMedium19 style.
+  tableStyleMedium19,
+
+  /// Represents TableStyleMedium20 style.
+  tableStyleMedium20,
+
+  /// Represents TableStyleMedium21 style.
+  tableStyleMedium21,
+
+  /// Represents TableStyleMedium22 style.
+  tableStyleMedium22,
+
+  /// Represents TableStyleMedium23 style.
+  tableStyleMedium23,
+
+  /// Represents TableStyleMedium24 style.
+  tableStyleMedium24,
+
+  /// Represents TableStyleMedium25 style.
+  tableStyleMedium25,
+
+  /// Represents TableStyleMedium26 style.
+  tableStyleMedium26,
+
+  /// Represents TableStyleMedium27 style.
+  tableStyleMedium27,
+
+  /// Represents TableStyleMedium28 style.
+  tableStyleMedium28,
+
+  /// Represents TableStyleLight1 style.
+  tableStyleLight1,
+
+  /// Represents TableStyleLight2 style.
+  tableStyleLight2,
+
+  /// Represents TableStyleLight3 style.
+  tableStyleLight3,
+
+  /// Represents TableStyleLight4 style.
+  tableStyleLight4,
+
+  /// Represents TableStyleLight5 style.
+  tableStyleLight5,
+
+  /// Represents TableStyleLight6 style.
+  tableStyleLight6,
+
+  /// Represents TableStyleLight7 style.
+  tableStyleLight7,
+
+  /// Represents TableStyleLight8 style.
+  tableStyleLight8,
+
+  /// Represents TableStyleLight9 style.
+  tableStyleLight9,
+
+  /// Represents TableStyleLight10 style.
+  tableStyleLight10,
+
+  /// Represents TableStyleLight11 style.
+  tableStyleLight11,
+
+  /// Represents TableStyleLight12 style.
+  tableStyleLight12,
+
+  /// Represents TableStyleLight13 style.
+  tableStyleLight13,
+
+  /// Represents TableStyleLight14 style.
+  tableStyleLight14,
+
+  /// Represents TableStyleLight15 style.
+  tableStyleLight15,
+
+  /// Represents TableStyleLight16 style.
+  tableStyleLight16,
+
+  /// Represents TableStyleLight17 style.
+  tableStyleLight17,
+
+  /// Represents TableStyleLight18 style.
+  tableStyleLight18,
+
+  /// Represents TableStyleLight19 style.
+  tableStyleLight19,
+
+  /// Represents TableStyleLight20 style.
+  tableStyleLight20,
+
+  /// Represents TableStyleLight21 style.
+  tableStyleLight21,
+
+  /// Represents TableStyleDark1 style.
+  tableStyleDark1,
+
+  /// Represents TableStyleDark2 style.
+  tableStyleDark2,
+
+  /// Represents TableStyleDark3 style.
+  tableStyleDark3,
+
+  /// Represents TableStyleDark4 style.
+  tableStyleDark4,
+
+  /// Represents TableStyleDark5 style.
+  tableStyleDark5,
+
+  /// Represents TableStyleDark6 style.
+  tableStyleDark6,
+
+  /// Represents TableStyleDark7 style.
+  tableStyleDark7,
+
+  /// Represents TableStyleDark8 style.
+  tableStyleDark8,
+
+  /// Represents TableStyleDark9 style.
+  tableStyleDark9,
+
+  /// Represents TableStyleDark10 style.
+  tableStyleDark10,
+
+  /// Represents TableStyleDark111 style.
+  tableStyleDark11,
+}
+
+/// Specifies the type of validation test to be performed in conjunction with values.
+enum ExcelDataValidationType {
+  /// Represents Any data type.
+  any,
+
+  /// Represents Integer data type.
+  integer,
+
+  /// Represents Decimal data type.
+  decimal,
+
+  /// Represents User data type.
+  user,
+
+  /// Represents Date data type.
+  date,
+
+  /// Represents Time data type.
+  time,
+
+  /// Represents TextLength data type.
+  textLength,
+
+  /// Represents Formula data type.
+  formula
+}
+
+/// Specifies comparison operators for data validation.
+enum ExcelDataValidationComparisonOperator {
+  /// Between.
+  between,
+
+  /// Not between.
+  notBetween,
+
+  /// Equal.
+  equal,
+
+  /// NotEqual.
+  notEqual,
+
+  /// Greater than.
+  greater,
+
+  /// Less than.
+  less,
+
+  /// Greater than or equal to.
+  greaterOrEqual,
+
+  /// Less than or equal to.
+  lessOrEqual
+}
+
+/// Represents possible error style values.
+enum ExcelDataValidationErrorStyle {
+  /// Stop icon is displayed.
+  stop,
+
+  /// Warning icon is displayed.
+  warning,
+
+  /// Information icon is displayed.
+  information
+}
+
+///Represents filtertype of AutoFilter
+enum _ExcelFilterType {
+  ///Represents the No Filters are used to avoid Exception While Instance Creation
+  notUsed,
+
+  /// Represents applying filter with conditions.
+  customFilter,
+
+  /// Represents applying filter with combination.
+  combinationFilter,
+
+  ///Represents applying filter with specified relative date constant.
+  dynamicFilter,
+
+  ///Represents applying filter with color (Fill and Font color).
+  colorFilter,
+
+  ///Represents applying Icon Filter for the icons from Conditional Formatting.
+  iconFilter
+}
+
+///Represents filter data type
+/// Data type for autofilters.
+enum _ExcelFilterDataType {
+  /// Represents the filter data type.
+  notUsed,
+
+  /// Represents the String filter data type.
+  floatingPoint,
+
+  ///	Represents the String filter data type.
+  string,
+
+  ///Represents the Boolean filter data type.
+  boolean,
+
+  ///	Represents the ErrorCode filter data type.
+  errorCode,
+
+  ///Represents the MatchAllBlanks filter data type.
+  matchAllBlanks,
+
+  ///Represents the MatchAllNonBlanks filter data type.
+  matchAllNonBlanks
+}
+
+/// Possible conditions in autofilter.
+enum ExcelFilterCondition {
+  ///	Represents the Less filter condition type.
+  less,
+
+  ///Represents the Equal filter condition type.
+  equal,
+
+  ///	Represents the LessOrEqual filter condition type.
+  lessOrEqual,
+
+  ///Represents the Greater filter condition type.
+  greater,
+
+  ///	Represents the NotEqual filter condition type.
+  notEqual,
+
+  ///Represents the GreaterOrEqual filter condition type.
+  greaterOrEqual,
+
+  ///Represents the Contains filter condition type.
+  contains,
+
+  ///Represents the DoesNotContain filter condition type.
+  doesNotContain,
+
+  ///Represents the BeginsWith filter condition type.
+  beginsWith,
+
+  ///	Represents the DoesNotBeginWith filter condition type.
+  doesNotBeginWith,
+
+  ///Represents the EndsWith filter condition type.
+  endsWith,
+
+  ///	Represents the DoesNotEndWith filter condition type.
+  doesNotEndWith,
+}
+
+///used to find Combinatioanal Filter Type
+
+enum _ExcelCombinationFilterType {
+  /// Represents text value filter.
+  textFilter,
+
+  /// Represents date filter.
+  dateTimeFilter,
+}
+
+/// Represents the dynamic filter type.
+enum DynamicFilterType {
+  /// None of the filter type used.
+  none,
+
+  /// Represents Tomorrow.
+  tomorrow,
+
+  /// Represents Today.
+  today,
+
+  /// Represents Yesterday.
+  yesterday,
+
+  /// Represents next week of the current week.
+  nextWeek,
+
+  /// Represents current week.
+  thisWeek,
+
+  /// Represents last week of the current week.
+  lastWeek,
+
+  /// Represents next month of the current month.
+  nextMonth,
+
+  /// Represents current month.
+  thisMonth,
+
+  /// Represent last month of the current month.
+  lastMonth,
+
+  /// Represent next quarter of the current quarter year.
+  nextQuarter,
+
+  /// Represent current quarter year.
+  thisQuarter,
+
+  /// Represent last quarter of the current quarter year.
+  lastQuarter,
+
+  ///  Represent next year.
+  nextYear,
+
+  /// Represent current year.
+  thisYear,
+
+  /// Represent last year.
+  lastYear,
+
+  /// Represent first quarter of the years.
+  quarter1,
+
+  /// Represent second quarter of the years.
+  quarter2,
+
+  /// Represent third quarter of the years.
+  quarter3,
+
+  /// Represent fourth quarter of the years.
+  quarter4,
+
+  /// Represent January month.
+  january,
+
+  /// Represent February month.
+  february,
+
+  /// Represent March month.
+  march,
+
+  /// Represent April month.
+  april,
+
+  /// Represent May month.
+  may,
+
+  /// Represent June month.
+  june,
+
+  /// Represent July month.
+  july,
+
+  /// Represent August month.
+  august,
+
+  /// Represent September month.
+  september,
+
+  /// Represent October month.
+  october,
+
+  /// Represent November month.
+  november,
+
+  /// Represent December month.
+  december,
+
+  /// Represent dates from starting of the current year till today.
+  yearToDate,
+}
+
+/// Represents grouping type applied for DateTime filter.
+enum DateTimeFilterType {
+  /// Filter by year.
+  year,
+
+  /// Filter by month and year.
+  month,
+
+  /// Filter by day, month, and year.
+  day,
+
+  /// Filter by hour, day, month, and year.
+  hour,
+
+  /// Filter by minute, hour, day, month, and year.
+  minute,
+
+  /// Filter by second, minute, hour, day, month, and year.
+  second,
+}
+
+/// Represents the color filter type.
+enum ExcelColorFilterType {
+  /// Represents the back color filter.
+  cellColor,
+
+  /// Represents the font color filter.
+  fontColor,
+}
+
+/// Represents the logical operators filters.
+enum ExcelLogicalOperator {
+  /// Represents the logical OR operation.
+  or,
+
+  /// Represents the logical AND operation.
+  and
+}

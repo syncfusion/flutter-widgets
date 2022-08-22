@@ -68,7 +68,8 @@ class Code39Renderer extends SymbologyRenderer {
   bool getIsValidateInput(String value) {
     for (int i = 0; i < value.length; i++) {
       if (!_character.contains(value[i])) {
-        throw 'The provided input cannot be encoded : ${value[i]}';
+        throw ArgumentError(
+            'The provided input cannot be encoded : ${value[i]}');
       }
     }
     return true;

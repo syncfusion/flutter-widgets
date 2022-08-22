@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "ఈవెంట్‌లు లేవు", 
 "ofDataPagerLabel" : "యొక్క", 
 "pagesDataPagerLabel" : "పేజీలు", 
-"itemsDataPagerLabel" : "అంశాలు", 
+"rowsPerPageDataPagerLabel" : "ప్రతి పేజీకి వరుసలు", 
 "pdfBookmarksLabel" : "బుక్‌మార్క్‌లు", 
 "pdfNoBookmarksLabel" : "బుక్‌మార్క్‌లు ఏవీ కనుగొనబడలేదు", 
 "pdfScrollStatusOfLabel" : "యొక్క", 
@@ -40,7 +40,7 @@
 "shaabanLabel" : "షాబాన్", 
 "ramadanLabel" : "రంజాన్", 
 "shawwalLabel" : "షవ్వాల్", 
-"dhualqiLabel" : "ధు అల్-కి'దా", 
+"dhualqiLabel" : "ధు అల్-ఖైదా", 
 "dhualhiLabel" : "ధు అల్-హిజ్జా", 
 "shortMuharramLabel" : "ముహ్.", 
 "shortSafarLabel" : "సాఫ్.", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "షా", 
 "shortDhualqiLabel" : "ధుల్-క్యూ", 
 "shortDhualhiLabel" : "ధుల్-హెచ్", 
-"daySpanCountLabel" : "రోజు"
+"daySpanCountLabel" : "రోజు", 
+"series" : "సిరీస్", 
+"pdfHyperlinkLabel" : "వెబ్ పేజీని తెరవండి", 
+"pdfHyperlinkContentLabel" : "మీరు పేజీని ఇక్కడ తెరవాలనుకుంటున్నారా", 
+"pdfHyperlinkDialogOpenLabel" : "తెరవండి", 
+"pdfHyperlinkDialogCancelLabel" : "రద్దు చేయండి"
 }

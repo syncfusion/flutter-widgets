@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 import './../axis/axis.dart';
+import '../../../charts.dart';
 import '../axis/axis.dart';
 import '../chart_segment/chart_segment.dart';
 import '../chart_series/series.dart';
@@ -13,7 +13,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for error Bar series
+/// Creates series renderer for error bar series.
 class ErrorBarSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of ErrorBarSeriesRenderer class.
   ErrorBarSeriesRenderer();
@@ -21,7 +21,7 @@ class ErrorBarSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _currentSeriesDetails;
   late SeriesRendererDetails _segmentSeriesDetails;
 
-  /// To add error bar segments in segments list
+  /// To add error bar segments in segments list.
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
@@ -30,21 +30,21 @@ class ErrorBarSeriesRenderer extends XyDataSeriesRenderer {
         SegmentProperties(_currentSeriesDetails.stateProperties, segment));
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(segment);
-    final ErrorBarSeries<dynamic, dynamic> _errorBarSeries =
+    final ErrorBarSeries<dynamic, dynamic> errorBarSeries =
         _currentSeriesDetails.series as ErrorBarSeries<dynamic, dynamic>;
     segmentProperties.seriesRenderer = this;
-    segmentProperties.series = _errorBarSeries;
+    segmentProperties.series = errorBarSeries;
     segmentProperties.seriesIndex = seriesIndex;
     segment.currentSegmentIndex = pointIndex;
     segment.animationFactor = animateFactor;
-    if (_errorBarSeries.onRenderDetailsUpdate != null &&
+    if (errorBarSeries.onRenderDetailsUpdate != null &&
         _currentSeriesDetails.animationController.status ==
             AnimationStatus.completed) {
       final ErrorBarRenderDetails errorBarRenderDetails = ErrorBarRenderDetails(
           currentPoint.visiblePointIndex,
           currentPoint.overallDataPointIndex,
           currentPoint.errorBarValues);
-      _errorBarSeries.onRenderDetailsUpdate!(errorBarRenderDetails);
+      errorBarSeries.onRenderDetailsUpdate!(errorBarRenderDetails);
     }
     segmentProperties.currentPoint = currentPoint;
     _segmentSeriesDetails =
@@ -165,15 +165,25 @@ class ErrorBarChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRendererDetails.calculateRegionData(stateProperties,
-            seriesRendererDetails, painterKey.index, point, pointIndex);
-        if (point.isVisible && !point.isGap) {
-          seriesRendererDetails.drawSegment(
-              canvas,
-              seriesRenderer._createSegments(
-                  point, segmentIndex += 1, painterKey.index, animationFactor));
+        final bool withInXRange = withInRange(
+            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
+        final bool withInYRange = point != null &&
+            point.yValue != null &&
+            withInRange(point.yValue,
+                seriesRendererDetails.yAxisDetails!.visibleRange!);
+        if (withInXRange || withInYRange) {
+          seriesRendererDetails.calculateRegionData(stateProperties,
+              seriesRendererDetails, painterKey.index, point, pointIndex);
+          if (point.isVisible && !point.isGap) {
+            seriesRendererDetails.drawSegment(
+                canvas,
+                seriesRenderer._createSegments(point, segmentIndex += 1,
+                    painterKey.index, animationFactor));
+          }
         }
       }
       canvas.restore();

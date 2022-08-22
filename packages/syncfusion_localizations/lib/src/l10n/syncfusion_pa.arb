@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "ਕੋਈ ਸਮਾਗਮ ਨਹੀਂ", 
 "ofDataPagerLabel" : "ਦੇ", 
 "pagesDataPagerLabel" : "ਪੰਨੇ", 
-"itemsDataPagerLabel" : "ਇਕਾਈ", 
+"rowsPerPageDataPagerLabel" : "ਪ੍ਰਤੀ ਪੰਨਾ ਕਤਾਰਾਂ", 
 "pdfBookmarksLabel" : "ਬੁੱਕਮਾਰਕਸ", 
 "pdfNoBookmarksLabel" : "ਕੋਈ ਬੁੱਕਮਾਰਕ ਨਹੀਂ ਮਿਲੇ", 
 "pdfScrollStatusOfLabel" : "ਦੇ", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "ਸ਼ਾ.", 
 "shortDhualqiLabel" : "ਧੂਲ-ਕਿਊ", 
 "shortDhualhiLabel" : "ਧੂਲ-ਐੱਚ", 
-"daySpanCountLabel" : "ਦਿਨ"
+"daySpanCountLabel" : "ਦਿਨ", 
+"series" : "ਲੜੀ", 
+"pdfHyperlinkLabel" : "ਵੈੱਬ ਪੰਨਾ ਖੋਲ੍ਹੋ", 
+"pdfHyperlinkContentLabel" : "ਕੀ ਤੁਸੀਂ 'ਤੇ ਪੰਨਾ ਖੋਲ੍ਹਣਾ ਚਾਹੁੰਦੇ ਹੋ", 
+"pdfHyperlinkDialogOpenLabel" : "ਖੋਲ੍ਹੋ", 
+"pdfHyperlinkDialogCancelLabel" : "ਰੱਦ ਕਰੋ"
 }

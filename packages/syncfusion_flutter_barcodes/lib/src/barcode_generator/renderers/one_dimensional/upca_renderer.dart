@@ -20,14 +20,14 @@ class UPCARenderer extends SymbologyRenderer {
       if (int.parse(value[11]) == _getCheckSumData(value)) {
         _encodedValue = value;
       } else {
-        throw 'Invalid check digit at the trailing end.'
+        throw ArgumentError('Invalid check digit at the trailing end.'
             ' Provide the valid check digit or remove it.'
-            ' Since, it has been calculated automatically.';
+            ' Since, it has been calculated automatically.');
       }
     } else {
-      throw 'UPCA supports only numeric characters. '
+      throw ArgumentError('UPCA supports only numeric characters. '
           'The provided value should have 11 digits (without check digit) '
-          'or with 12 digits.';
+          'or with 12 digits.');
     }
     return true;
   }

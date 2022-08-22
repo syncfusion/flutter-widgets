@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "هیچ رویدادی وجود ندارد", 
 "ofDataPagerLabel" : "از", 
 "pagesDataPagerLabel" : "صفحات", 
-"itemsDataPagerLabel" : "موارد", 
+"rowsPerPageDataPagerLabel" : "ردیف در هر صفحه", 
 "pdfBookmarksLabel" : "نشانک ها", 
 "pdfNoBookmarksLabel" : "هیچ نشانکی یافت نشد", 
 "pdfScrollStatusOfLabel" : "از", 
@@ -26,7 +26,7 @@
 "allowedViewTimelineDayLabel" : "روز جدول زمانی", 
 "allowedViewTimelineWeekLabel" : "هفته جدول زمانی", 
 "allowedViewTimelineWorkWeekLabel" : "جدول زمانی هفته کاری", 
-"allowedViewTimelineMonthLabel" : "ماه جدول زمانی", 
+"allowedViewTimelineMonthLabel" : "ماه خط زمانی", 
 "todayLabel" : "امروز", 
 "weeknumberLabel" : "هفته", 
 "allDayLabel" : "تمام روز", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "شاو", 
 "shortDhualqiLabel" : "ذوالق", 
 "shortDhualhiLabel" : "ذوالح", 
-"daySpanCountLabel" : "روز"
+"daySpanCountLabel" : "روز", 
+"series" : "سلسله", 
+"pdfHyperlinkLabel" : "صفحه وب را باز کنید", 
+"pdfHyperlinkContentLabel" : "آیا می خواهید صفحه را در", 
+"pdfHyperlinkDialogOpenLabel" : "باز کن", 
+"pdfHyperlinkDialogCancelLabel" : "لغو"
 }

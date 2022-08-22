@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Нема настани", 
 "ofDataPagerLabel" : "на", 
 "pagesDataPagerLabel" : "страници", 
-"itemsDataPagerLabel" : "предмети", 
+"rowsPerPageDataPagerLabel" : "Редови по страница", 
 "pdfBookmarksLabel" : "Обележувачи", 
 "pdfNoBookmarksLabel" : "Не се пронајдени обележувачи", 
 "pdfScrollStatusOfLabel" : "на", 
@@ -27,7 +27,7 @@
 "allowedViewTimelineWeekLabel" : "Недела на времеплов", 
 "allowedViewTimelineWorkWeekLabel" : "Временска рамка Работна недела", 
 "allowedViewTimelineMonthLabel" : "Времеплов месец", 
-"todayLabel" : "Денес", 
+"todayLabel" : "Денеска", 
 "weeknumberLabel" : "Недела", 
 "allDayLabel" : "Цел ден", 
 "muharramLabel" : "Мухарам", 
@@ -52,7 +52,12 @@
 "shortShaabanLabel" : "Ша.", 
 "shortRamadanLabel" : "Рам.", 
 "shortShawwalLabel" : "Шо.", 
-"shortDhualqiLabel" : "Дул-Ку", 
+"shortDhualqiLabel" : "Дул-К", 
 "shortDhualhiLabel" : "Дул-Х", 
-"daySpanCountLabel" : "Ден"
+"daySpanCountLabel" : "Ден", 
+"series" : "Серии", 
+"pdfHyperlinkLabel" : "Отворете веб-страница", 
+"pdfHyperlinkContentLabel" : "Дали сакате да ја отворите страницата на", 
+"pdfHyperlinkDialogOpenLabel" : "ОТВОРЕНО", 
+"pdfHyperlinkDialogCancelLabel" : "ОТКАЖИ"
 }

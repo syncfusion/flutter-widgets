@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 /// Renders the waterfall series.
 ///
-/// To render a waterfall chart, create an instance of WaterfallSeries and add to the series collection property of [SfCartesianChart].
+/// To render a waterfall chart, create an instance of [WaterfallSeries] and add to the series collection property of [SfCartesianChart].
 ///
-/// WaterfallSeries is similar to range column series,
+/// [WaterfallSeries] is similar to range column series,
 /// in range column high and low value should be there, but in waterfall
 /// we have find the endValue and originValue of each data point.
 @immutable
@@ -98,140 +98,131 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
             onPointLongPress: onPointLongPress,
             initialSelectedDataIndexes: initialSelectedDataIndexes);
 
-  ///Color of the negative data points in the series.
+  /// Color of the negative data points in the series.
   ///
-  ///If no color is specified, then the negative data points will be rendered with the
+  /// If no color is specified, then the negative data points will be rendered with the
   /// series default color.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <WaterfallSeries<SalesData, num>>[
-  ///                WaterfallSeries<SalesData, num>(
-  ///                  negativePointsColor: Colors.red,
-  ///                ),
-  ///              ],
-  ///        )
-  ///     );
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <WaterfallSeries<SalesData, num>>[
+  ///       WaterfallSeries<SalesData, num>(
+  ///         negativePointsColor: Colors.red,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color? negativePointsColor;
 
-  ///Color of the intermediate sum points in the series.
+  /// Color of the intermediate sum points in the series.
   ///
-  ///If no color is specified, then the intermediate sum points will be rendered with the
+  /// If no color is specified, then the intermediate sum points will be rendered with the
   /// series default color.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <WaterfallSeries<SalesData, num>>[
-  ///                WaterfallSeries<SalesData, num>(
-  ///                  intermediateSumColor: Colors.red,
-  ///                ),
-  ///              ],
-  ///        )
-  ///     );
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <WaterfallSeries<SalesData, num>>[
+  ///       WaterfallSeries<SalesData, num>(
+  ///         intermediateSumColor: Colors.red,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color? intermediateSumColor;
 
-  ///Color of the total sum points in the series.
+  /// Color of the total sum points in the series.
   ///
-  ///If no color is specified, then the total sum points will be rendered with the
+  /// If no color is specified, then the total sum points will be rendered with the
   /// series default color.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <WaterfallSeries<SalesData, num>>[
-  ///                WaterfallSeries<SalesData, num>(
-  ///                  totalSumColor: Colors.red,
-  ///                ),
-  ///              ],
-  ///        )
-  ///     );
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <WaterfallSeries<SalesData, num>>[
+  ///       WaterfallSeries<SalesData, num>(
+  ///         totalSumColor: Colors.red,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color? totalSumColor;
 
-  ///Options to customize the waterfall chart connector line.
+  /// Options to customize the waterfall chart connector line.
   ///
-  ///Data points in waterfall chart are connected using the connector line. Provides the options to
+  /// Data points in waterfall chart are connected using the connector line. Provides the options to
   /// change the width, color and dash array of the connector line to customize the appearance.
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <WaterfallSeries<SalesData, num>>[
-  ///                WaterfallSeries<SalesData, num>(
-  ///                  connectorLineSettings: WaterfallConnectorLineSettings(
-  ///                    width: 2,
-  ///                    color: Colors.black,
-  ///                    dashArray: [2,3]
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        )
-  ///     );
-  ///}
-  ///```
+  ///
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <WaterfallSeries<SalesData, num>>[
+  ///       WaterfallSeries<SalesData, num>(
+  ///         connectorLineSettings: WaterfallConnectorLineSettings(
+  ///           width: 2,
+  ///           color: Colors.black,
+  ///           dashArray: [2,3]
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final WaterfallConnectorLineSettings connectorLineSettings;
 
-  ///Spacing between the data points in waterfall chart.
+  /// Spacing between the data points in waterfall chart.
   ///
-  ///The value ranges from 0 to 1, where 1 represents 100% and 0 represents 0% of the available space.
+  /// The value ranges from 0 to 1, where 1 represents 100% and 0 represents 0% of the available space.
   ///
-  ///Spacing affects the width of the bars in waterfall. For example, setting 20% spacing and 100% width
+  /// Spacing affects the width of the bars in waterfall. For example, setting 20% spacing and 100% width
   /// renders the bars with 80% of total width.
   ///
-  ///Also refer [CartesianSeries.width].
+  /// Also refer [CartesianSeries.width].
   ///
-  ///Defaults to `0`.
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <WaterfallSeries<SalesData, num>>[
-  ///                WaterfallSeries<SalesData, num>(
-  ///                  spacing: 0,
-  ///                ),
-  ///              ],
-  ///        )
-  ///    );
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <WaterfallSeries<SalesData, num>>[
+  ///       WaterfallSeries<SalesData, num>(
+  ///         spacing: 0.5,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double spacing;
 
-  ///Customizes the corners of the waterfall.
+  /// Customizes the corners of the waterfall.
   ///
-  ///Each corner can be customized with a desired value or with a single value.
+  /// Each corner can be customized with a desired value or with a single value.
   ///
-  ///Defaults to `zero`.
+  /// Defaults to `Radius.zero`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <WaterfallSeries<SalesData, num>>[
-  ///                WaterfallSeries<SalesData, num>(
-  ///                  borderRadius: BorderRadius.circular(5),
-  ///                ),
-  ///              ],
-  ///        )
-  ///     );
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <WaterfallSeries<SalesData, num>>[
+  ///       WaterfallSeries<SalesData, num>(
+  ///         borderRadius: BorderRadius.circular(5),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BorderRadius borderRadius;
 
   @override
@@ -358,12 +349,12 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
   }
 }
 
-///Options to customize the waterfall chart connector line.
+/// Options to customize the waterfall chart connector line.
 ///
-///Data points in waterfall chart are connected using the connector line and this class hold the
+/// Data points in waterfall chart are connected using the connector line and this class hold the
 /// properties to customize it.
 ///
-///It provides the options to change the width, color and dash array of the connector line to
+/// It provides the options to change the width, color and dash array of the connector line to
 /// customize the appearance.
 ///
 class WaterfallConnectorLineSettings extends ConnectorLineSettings {
@@ -372,24 +363,25 @@ class WaterfallConnectorLineSettings extends ConnectorLineSettings {
       {double? width, Color? color, this.dashArray = const <double>[0, 0]})
       : super(color: color, width: width ?? 1);
 
-  ///Dashes of the waterfall chart connector line.
+  /// Dashes of the waterfall chart connector line.
   ///
-  ///Any number of values can be provided in the list. Odd values are considered as rendering
+  /// Any number of values can be provided in the list. Odd values are considered as rendering
   /// size and even values are considered as gap.
   ///
-  ///Defaults to `null.`
+  /// Defaults to `null.`
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           dataLabelSettings: DataLabelSettings(
-  ///            connectorLineSettings: ConnectorLineSettings(
-  ///             dashArray: [1, 2],
-  ///           )
-  ///          )
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <WaterfallSeries<SalesData, num>>[
+  ///       WaterfallSeries<SalesData, num>(
+  ///         connectorLineSettings: WaterfallConnectorLineSettings(
+  ///           dashArray: [2,3]
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final List<double>? dashArray;
 }

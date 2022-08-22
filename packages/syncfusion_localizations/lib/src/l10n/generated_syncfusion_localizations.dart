@@ -62,9 +62,6 @@ class SfLocalizationsAf extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'items';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -108,6 +105,18 @@ class SfLocalizationsAf extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Gaan na bladsy';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Wil jy die bladsy oopmaak by';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'KANSELLEER';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OOP';
+
+  @override
+  String get pdfHyperlinkLabel => r'Maak webblad oop';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'Voer asseblief ' "'" r'n geldige nommer in';
 
@@ -142,7 +151,13 @@ class SfLocalizationsAf extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Rye per bladsy';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Reeks';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -242,9 +257,6 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ዙ አል-ቂዳህ';
 
   @override
-  String get itemsDataPagerLabel => r'እቃዎች';
-
-  @override
   String get jumada1Label => r'ጁማዳ አል-አወል';
 
   @override
@@ -287,6 +299,18 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ወደ ገጽ ይሂዱ';
 
   @override
+  String get pdfHyperlinkContentLabel => r'ገጹን በ ላይ መክፈት ይፈልጋሉ';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ሰርዝ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ክፈት';
+
+  @override
+  String get pdfHyperlinkLabel => r'ድህረ ገጽ ክፈት';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'እባክህ የሚሰራ ቁጥር አስገባ';
 
   @override
@@ -320,7 +344,13 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
   String get ramadanLabel => r'ረመዳን';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'ረድፎች በገጽ';
+
+  @override
   String get safarLabel => r'ሳፋራ';
+
+  @override
+  String get series => r'ተከታታይ';
 
   @override
   String get shaabanLabel => r'ሻዕባን';
@@ -390,7 +420,7 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get allowedViewMonthLabel => r'شهر';
 
   @override
-  String get allowedViewScheduleLabel => r'جدول';
+  String get allowedViewScheduleLabel => r'برنامج';
 
   @override
   String get allowedViewTimelineDayLabel => r'يوم المخطط الزمني';
@@ -418,9 +448,6 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
 
   @override
   String get dhualqiLabel => r'ذو القعدة';
-
-  @override
-  String get itemsDataPagerLabel => r'العناصر';
 
   @override
   String get jumada1Label => r'جمادى الاول';
@@ -465,6 +492,18 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'انتقل إلى صفحة';
 
   @override
+  String get pdfHyperlinkContentLabel => r'هل تريد فتح الصفحة في';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'إلغاء';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'افتح';
+
+  @override
+  String get pdfHyperlinkLabel => r'افتح صفحة الويب';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'من فضلك أدخل رقما صالحا';
 
   @override
@@ -498,7 +537,13 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get ramadanLabel => r'رمضان';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'عدد الصفوف في الصفحة';
+
+  @override
   String get safarLabel => r'سفر';
+
+  @override
+  String get series => r'مسلسل';
 
   @override
   String get shaabanLabel => r'شعبان';
@@ -532,7 +577,7 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
 
   @override
   String get shortRamadanLabel =>
-      r'الرامات الذاكرة العشوائية في الهواتف والحواسيب.';
+      r'الرامات  الذاكرة العشوائية في الهواتف والحواسيب.';
 
   @override
   String get shortSafarLabel => r'ساف.';
@@ -599,9 +644,6 @@ class SfLocalizationsAz extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Zilqidə';
 
   @override
-  String get itemsDataPagerLabel => r'maddələr';
-
-  @override
   String get jumada1Label => r'Cümə əl-əvvəl';
 
   @override
@@ -645,6 +687,19 @@ class SfLocalizationsAz extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Səhifəyə daxil ol';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'ünvanında səhifəni açmaq istəyirsiniz';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'LƏĞV EDİN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'AÇIQ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Veb səhifəni açın';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Etibarlı nömrə daxil edin';
 
   @override
@@ -678,7 +733,13 @@ class SfLocalizationsAz extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramazan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Səhifə başına satırlar';
+
+  @override
   String get safarLabel => r'Səfər';
+
+  @override
+  String get series => r'Serial';
 
   @override
   String get shaabanLabel => r'Şaban';
@@ -778,9 +839,6 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Зу аль-Кіда';
 
   @override
-  String get itemsDataPagerLabel => r'прадметаў';
-
-  @override
   String get jumada1Label => r'Джумада аль-авваль';
 
   @override
@@ -824,6 +882,19 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Перайсці на старонку';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Вы хочаце адкрыць старонку па адрасе';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'АДМЕНАЦЬ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'АДКРЫЦЬ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Адкрыйце вэб-старонку';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'Калі ласка, увядзіце сапраўдны нумар';
 
@@ -858,7 +929,13 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get ramadanLabel => r'Рамадан';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Радкі на старонцы';
+
+  @override
   String get safarLabel => r'Сафар';
+
+  @override
+  String get series => r'Серыял';
 
   @override
   String get shaabanLabel => r'Шаабан';
@@ -958,9 +1035,6 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'предмети';
-
-  @override
   String get jumada1Label => r'Джумада ал-аввал';
 
   @override
@@ -1004,6 +1078,18 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Отиди на страница';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Искате ли да отворите страницата на';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ОТМЕНИ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ОТВОРЕНО';
+
+  @override
+  String get pdfHyperlinkLabel => r'Отворете уеб страница';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Моля въведете валиден номер';
 
   @override
@@ -1037,7 +1123,13 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get ramadanLabel => r'Рамадан';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Редове на страница';
+
+  @override
   String get safarLabel => r'Сафар';
+
+  @override
+  String get series => r'Серия';
 
   @override
   String get shaabanLabel => r'Шаабан';
@@ -1137,9 +1229,6 @@ class SfLocalizationsBn extends SfGlobalLocalizations {
   String get dhualqiLabel => r'যুল-কিদাহ';
 
   @override
-  String get itemsDataPagerLabel => r'আইটেম';
-
-  @override
   String get jumada1Label => r'জুমাদা আল আউয়াল';
 
   @override
@@ -1183,6 +1272,18 @@ class SfLocalizationsBn extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'পৃষ্ঠায় যান';
 
   @override
+  String get pdfHyperlinkContentLabel => r'আপনি পৃষ্ঠা খুলতে চান';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'বাতিল করুন';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'খোলা';
+
+  @override
+  String get pdfHyperlinkLabel => r'ওয়েব পেজ খুলুন';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'একটি বৈধ নম্বর লিখুন';
 
   @override
@@ -1216,7 +1317,13 @@ class SfLocalizationsBn extends SfGlobalLocalizations {
   String get ramadanLabel => r'রমজান';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'প্রতি পৃষ্ঠায় সারি';
+
+  @override
   String get safarLabel => r'সাফার';
+
+  @override
+  String get series => r'সিরিজ';
 
   @override
   String get shaabanLabel => r'শা' "'" r'বান';
@@ -1317,9 +1424,6 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'stavke';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -1363,6 +1467,19 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Idi na stranicu';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Da li želite da otvorite stranicu na';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'OTKAZI';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OTVOREN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Otvorite web stranicu';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Unesite ispravan broj';
 
   @override
@@ -1396,7 +1513,13 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramazan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Redova po stranici';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serije';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -1497,9 +1620,6 @@ class SfLocalizationsCa extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'elements';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -1543,6 +1663,18 @@ class SfLocalizationsCa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Ves a la pàgina';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Vols obrir la pàgina a';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'CANCEL · LAR';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OBERT';
+
+  @override
+  String get pdfHyperlinkLabel => r'Obre la pàgina web';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Introduïu un número vàlid';
 
   @override
@@ -1577,7 +1709,13 @@ class SfLocalizationsCa extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadà';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Files per pàgina';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Sèrie';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -1677,9 +1815,6 @@ class SfLocalizationsCs extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'položky';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -1723,6 +1858,18 @@ class SfLocalizationsCs extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Jdi na stránku';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Chcete otevřít stránku na';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ZRUŠENÍ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OTEVŘENO';
+
+  @override
+  String get pdfHyperlinkLabel => r'Otevřete webovou stránku';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Prosím zadejte platné číslo';
 
   @override
@@ -1756,7 +1903,13 @@ class SfLocalizationsCs extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadán';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Řádky na stránku';
+
+  @override
   String get safarLabel => r'Šafář';
+
+  @override
+  String get series => r'Série';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -1856,9 +2009,6 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'genstande';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -1902,6 +2052,18 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Gå til side';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Vil du åbne siden kl';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'AFBESTILLE';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ÅBEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Åbn webside';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Indtast venligst et gyldigt nummer';
 
   @override
@@ -1935,7 +2097,13 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Rækker pr. side';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serie';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -2005,7 +2173,7 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get allowedViewMonthLabel => r'Monat';
 
   @override
-  String get allowedViewScheduleLabel => r'Zeitlicher Ablauf';
+  String get allowedViewScheduleLabel => r'Zeitplan';
 
   @override
   String get allowedViewTimelineDayLabel => r'Zeitleiste Tag';
@@ -2032,16 +2200,13 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get dhualhiLabel => r'Dhu al-Hijjah';
 
   @override
-  String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
-
-  @override
-  String get itemsDataPagerLabel => r'Produkte';
+  String get dhualqiLabel => r'Dhu al-Qidah';
 
   @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
-  String get jumada2Label => r'Dschumada al-Thani';
+  String get jumada2Label => r'Jumada al-thani';
 
   @override
   String get muharramLabel => r'Muharram';
@@ -2078,7 +2243,19 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get pdfEnterPageNumberLabel => r'Seitenzahl eingeben';
 
   @override
-  String get pdfGoToPageLabel => r'Gehe zu Seite';
+  String get pdfGoToPageLabel => r'Gehen Sie zur Seite';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Möchten Sie die Seite öffnen unter';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ABBRECHEN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OFFEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Webseite öffnen';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -2106,7 +2283,7 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get rabi1Label => r'Rabi' "'" r' al-awwal';
 
   @override
-  String get rabi2Label => r'Rabi' "'" r' al-Thani';
+  String get rabi2Label => r'Rabi' "'" r' al-thani';
 
   @override
   String get rajabLabel => r'Rajab';
@@ -2115,10 +2292,16 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
-  String get safarLabel => r'Safari';
+  String get rowsPerPageDataPagerLabel => r'Zeilen pro Seite';
 
   @override
-  String get shaabanLabel => r'Sha' "'" r'aban';
+  String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serie';
+
+  @override
+  String get shaabanLabel => r'Schaaban';
 
   @override
   String get shawwalLabel => r'Shawwal';
@@ -2154,10 +2337,10 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get shortSafarLabel => r'Sicher.';
 
   @override
-  String get shortShaabanLabel => r'Sha.';
+  String get shortShaabanLabel => r'Scha.';
 
   @override
-  String get shortShawwalLabel => r'Shaw.';
+  String get shortShawwalLabel => r'Schau.';
 
   @override
   String get todayLabel => r'Heute';
@@ -2216,13 +2399,10 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'είδη';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
-  String get jumada2Label => r'Τζουμάντα αλ Θάνι';
+  String get jumada2Label => r'Τζουμάντα αλ-θάνι';
 
   @override
   String get muharramLabel => r'Μουχαράμ';
@@ -2263,6 +2443,18 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Πήγαινε στην σελίδα';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Θέλετε να ανοίξετε τη σελίδα στο';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ΜΑΤΑΙΩΣΗ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ΑΝΟΙΞΕ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Ανοίξτε την ιστοσελίδα';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'Παρακαλώ εισάγετε έναν έγκυρο αριθμό';
 
@@ -2297,7 +2489,13 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ραμαζάνι';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Σειρές ανά σελίδα';
+
+  @override
   String get safarLabel => r'Σαφάρ';
+
+  @override
+  String get series => r'Σειρά';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -2397,9 +2595,6 @@ class SfLocalizationsEn extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'items';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -2443,6 +2638,18 @@ class SfLocalizationsEn extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Go to page';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Do you want to open the page at';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'CANCEL';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OPEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Open Web Page';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Please enter a valid number';
 
   @override
@@ -2476,7 +2683,13 @@ class SfLocalizationsEn extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Rows per page';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Series';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -2552,14 +2765,14 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'Día de la línea de tiempo';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Mes de la cronología';
+  String get allowedViewTimelineMonthLabel => r'Mes de la línea de tiempo';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Semana de la cronología';
+  String get allowedViewTimelineWeekLabel => r'Semana de la línea de tiempo';
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
-      r'Semana laboral de la línea de tiempo';
+      r'Línea de tiempo Semana laboral';
 
   @override
   String get allowedViewWeekLabel => r'Semana';
@@ -2571,13 +2784,10 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'Día';
 
   @override
-  String get dhualhiLabel => r'Dhu al-Hijjah';
+  String get dhualhiLabel => r'Dhu al-Hiyyah';
 
   @override
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
-
-  @override
-  String get itemsDataPagerLabel => r'elementos';
 
   @override
   String get jumada1Label => r'Jumada al-awwal';
@@ -2586,7 +2796,7 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get jumada2Label => r'Jumada al-thani';
 
   @override
-  String get muharramLabel => r'Muharram';
+  String get muharramLabel => r'muharram';
 
   @override
   String get noEventsCalendarLabel => r'No hay eventos';
@@ -2602,7 +2812,7 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
 
   @override
   String get passwordDialogContentLabel =>
-      r'Ingrese la contraseña para abrir este archivo PDF';
+      r'Introduzca la contraseña para abrir este archivo PDF';
 
   @override
   String get passwordDialogHeaderTextLabel => r'Contraseña protegida';
@@ -2617,10 +2827,22 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get pdfBookmarksLabel => r'Marcadores';
 
   @override
-  String get pdfEnterPageNumberLabel => r'Ingrese el número de página';
+  String get pdfEnterPageNumberLabel => r'Introduzca el número de página';
 
   @override
-  String get pdfGoToPageLabel => r'Ir a la pagina';
+  String get pdfGoToPageLabel => r'ir a la página';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'¿Quieres abrir la página en';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'CANCELAR';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ABIERTO';
+
+  @override
+  String get pdfHyperlinkLabel => r'Abrir página web';
 
   @override
   String get pdfInvalidPageNumberLabel => r'por favor ingrese un número valido';
@@ -2644,19 +2866,25 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'de';
 
   @override
-  String get rabi1Label => r'Rabi ' "'" r'al-awwal';
+  String get rabi1Label => r'Rabí al-awwal';
 
   @override
-  String get rabi2Label => r'Rabi ' "'" r'al-thani';
+  String get rabi2Label => r'Rabí al-thani';
 
   @override
-  String get rajabLabel => r'Rajab';
+  String get rajabLabel => r'Rayab';
 
   @override
   String get ramadanLabel => r'Ramadán';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Filas por página';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serie';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -2680,7 +2908,7 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get shortMuharramLabel => r'Muh.';
 
   @override
-  String get shortRabi1Label => r'Rabi. I';
+  String get shortRabi1Label => r'Rabí. I';
 
   @override
   String get shortRabi2Label => r'Rabi. II';
@@ -2692,7 +2920,7 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get shortRamadanLabel => r'RAM.';
 
   @override
-  String get shortSafarLabel => r'Saf.';
+  String get shortSafarLabel => r'seguro';
 
   @override
   String get shortShaabanLabel => r'Sha.';
@@ -2756,9 +2984,6 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'esemed';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -2802,6 +3027,18 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Mine lehele';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Kas soovite lehe avada aadressil';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'TÜHISTA';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'AVATUD';
+
+  @override
+  String get pdfHyperlinkLabel => r'Ava veebileht';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Sisestage kehtiv number';
 
   @override
@@ -2835,7 +3072,13 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Rida lehekülje kohta';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'seeria';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -2935,9 +3178,6 @@ class SfLocalizationsEu extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'elementuak';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -2981,6 +3221,18 @@ class SfLocalizationsEu extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Joan orrialdera';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Orria ireki nahi al duzu hemen';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'Utzi';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'IREKI';
+
+  @override
+  String get pdfHyperlinkLabel => r'Ireki Web orria';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'Mesedez, sartu baliozko zenbaki bat';
 
@@ -3015,7 +3267,13 @@ class SfLocalizationsEu extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadana';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Orrialde bakoitzeko errenkadak';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Seriea';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -3091,7 +3349,7 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'روز جدول زمانی';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'ماه جدول زمانی';
+  String get allowedViewTimelineMonthLabel => r'ماه خط زمانی';
 
   @override
   String get allowedViewTimelineWeekLabel => r'هفته جدول زمانی';
@@ -3113,9 +3371,6 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
 
   @override
   String get dhualqiLabel => r'ذی القعده';
-
-  @override
-  String get itemsDataPagerLabel => r'موارد';
 
   @override
   String get jumada1Label => r'جمادی الاول';
@@ -3161,6 +3416,18 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'برو به صفحه';
 
   @override
+  String get pdfHyperlinkContentLabel => r'آیا می خواهید صفحه را در';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'لغو';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'باز کن';
+
+  @override
+  String get pdfHyperlinkLabel => r'صفحه وب را باز کنید';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'لطفا یک شماره معتبر وارد کنید';
 
   @override
@@ -3194,7 +3461,13 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
   String get ramadanLabel => r'رمضان';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'ردیف در هر صفحه';
+
+  @override
   String get safarLabel => r'صفر';
+
+  @override
+  String get series => r'سلسله';
 
   @override
   String get shaabanLabel => r'شعبان';
@@ -3294,9 +3567,6 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'kohteita';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -3340,6 +3610,18 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Mene sivulle';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Haluatko avata sivun osoitteessa';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'PERUUTTAA';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'AVATA';
+
+  @override
+  String get pdfHyperlinkLabel => r'Avaa Web-sivu';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Anna kelvollinen numero';
 
   @override
@@ -3373,7 +3655,13 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Rivejä per sivu';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Sarja';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -3474,9 +3762,6 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'aytem';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -3520,6 +3805,18 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Pumunta sa pahina';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Gusto mo bang buksan ang pahina sa';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'KANSELAHIN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'BUKAS';
+
+  @override
+  String get pdfHyperlinkLabel => r'Buksan ang Web Page';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'Mangyaring magpasok ng wastong numero';
 
@@ -3554,7 +3851,13 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Mga hilera bawat pahina';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serye';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -3624,23 +3927,23 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get allowedViewMonthLabel => r'Mois';
 
   @override
-  String get allowedViewScheduleLabel => r'Calendrier';
+  String get allowedViewScheduleLabel => r'Programme';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Jour de la chronologie';
+  String get allowedViewTimelineDayLabel => r'Chronologie Jour';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Mois de la chronologie';
+  String get allowedViewTimelineMonthLabel => r'Chronologie Mois';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Semaine de la chronologie';
+  String get allowedViewTimelineWeekLabel => r'Chronologie Semaine';
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
-      r'Calendrier Semaine de travail';
+      r'Chronologie de la semaine de travail';
 
   @override
-  String get allowedViewWeekLabel => r'La semaine';
+  String get allowedViewWeekLabel => r'Semaine';
 
   @override
   String get allowedViewWorkWeekLabel => r'Semaine de travail';
@@ -3649,19 +3952,16 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'Jour';
 
   @override
-  String get dhualhiLabel => r'Dhu al-Hijjah';
+  String get dhualhiLabel => r'Safar';
 
   @override
-  String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
+  String get dhualqiLabel => r'Dhou al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'éléments';
+  String get jumada1Label => r'Djoumada al-awwal';
 
   @override
-  String get jumada1Label => r'Joumada al-awwal';
-
-  @override
-  String get jumada2Label => r'Joumada al-thani';
+  String get jumada2Label => r'Djoumada al-thani';
 
   @override
   String get muharramLabel => r'Mouharram';
@@ -3695,17 +3995,29 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get pdfBookmarksLabel => r'Signets';
 
   @override
-  String get pdfEnterPageNumberLabel => r'Entrez le numéro de page';
+  String get pdfEnterPageNumberLabel => r'Entrer le numéro de page';
 
   @override
   String get pdfGoToPageLabel => r'Aller à la page';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Voulez-vous ouvrir la page à';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ANNULER';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OUVRIR';
+
+  @override
+  String get pdfHyperlinkLabel => r'Ouvrir la page Web';
 
   @override
   String get pdfInvalidPageNumberLabel =>
       r'S' "'" r'il vous plait, entrez un nombre valide';
 
   @override
-  String get pdfNoBookmarksLabel => r'Aucun signet trouvé';
+  String get pdfNoBookmarksLabel => r'Aucun favori trouvé';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'ANNULER';
@@ -3717,7 +4029,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get pdfPasswordDialogCancelLabel => r'ANNULER';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'OUVERT';
+  String get pdfPasswordDialogOpenLabel => r'OUVRIR';
 
   @override
   String get pdfScrollStatusOfLabel => r'de';
@@ -3726,7 +4038,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get rabi1Label => r'Rabi' "'" r' al-awwal';
 
   @override
-  String get rabi2Label => r'Rabi ' "'" r'al-thani';
+  String get rabi2Label => r'Rabi' "'" r' al-thani';
 
   @override
   String get rajabLabel => r'Rajab';
@@ -3735,7 +4047,13 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Lignes par page';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Séries';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -3756,7 +4074,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get shortJumada2Label => r'Jum. II';
 
   @override
-  String get shortMuharramLabel => r'Muh.';
+  String get shortMuharramLabel => r'Mouh.';
 
   @override
   String get shortRabi1Label => r'Rabi. je';
@@ -3774,7 +4092,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get shortSafarLabel => r'Saf.';
 
   @override
-  String get shortShaabanLabel => r'Sha.';
+  String get shortShaabanLabel => r'Cha.';
 
   @override
   String get shortShawwalLabel => r'Shaw.';
@@ -3835,9 +4153,6 @@ class SfLocalizationsGl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'elementos';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -3881,6 +4196,18 @@ class SfLocalizationsGl extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Ir á páxina';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Queres abrir a páxina en';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'CANCELAR';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ABERTO';
+
+  @override
+  String get pdfHyperlinkLabel => r'Abrir páxina web';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Introduce un número válido';
 
   @override
@@ -3914,7 +4241,13 @@ class SfLocalizationsGl extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadán';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Filas por páxina';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serie';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -4014,9 +4347,6 @@ class SfLocalizationsGu extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ધુ અલ-કિદાહ';
 
   @override
-  String get itemsDataPagerLabel => r'વસ્તુઓ';
-
-  @override
   String get jumada1Label => r'જુમાદા અલ-અવ્વલ';
 
   @override
@@ -4060,6 +4390,18 @@ class SfLocalizationsGu extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'પૃષ્ઠ પર જાઓ';
 
   @override
+  String get pdfHyperlinkContentLabel => r'શું તમે પાનું ખોલવા માંગો છો';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'રદ કરો';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ખુલ્લા';
+
+  @override
+  String get pdfHyperlinkLabel => r'વેબ પેજ ખોલો';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'કૃપા કરીને માન્ય નંબર દાખલ કરો';
 
   @override
@@ -4093,7 +4435,13 @@ class SfLocalizationsGu extends SfGlobalLocalizations {
   String get ramadanLabel => r'રમઝાન';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'પૃષ્ઠ દીઠ પંક્તિઓ';
+
+  @override
   String get safarLabel => r'સફર';
+
+  @override
+  String get series => r'શ્રેણી';
 
   @override
   String get shaabanLabel => r'શાઅબાન';
@@ -4175,7 +4523,7 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get allowedViewTimelineWeekLabel => r'שבוע ציר הזמן';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'שבוע העבודה של ציר זמן';
+  String get allowedViewTimelineWorkWeekLabel => r'שבוע העבודה של ציר הזמן';
 
   @override
   String get allowedViewWeekLabel => r'שָׁבוּעַ';
@@ -4191,9 +4539,6 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
 
   @override
   String get dhualqiLabel => r'דהו אל-קיאדה';
-
-  @override
-  String get itemsDataPagerLabel => r'פריטים';
 
   @override
   String get jumada1Label => r'ג' "'" r'ומדה אל-אוואל';
@@ -4239,6 +4584,18 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'לך לעמוד';
 
   @override
+  String get pdfHyperlinkContentLabel => r'האם אתה רוצה לפתוח את הדף ב';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'לְבַטֵל';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'לִפְתוֹחַ';
+
+  @override
+  String get pdfHyperlinkLabel => r'פתח את דף האינטרנט';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'נא הכנס מספר תקף';
 
   @override
@@ -4260,7 +4617,7 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'שֶׁל';
 
   @override
-  String get rabi1Label => r'רבי אל-אוול';
+  String get rabi1Label => r'רבי אל אווול';
 
   @override
   String get rabi2Label => r'רבי אל-תאני';
@@ -4272,7 +4629,13 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get ramadanLabel => r'רמדאן';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'שורות בעמוד';
+
+  @override
   String get safarLabel => r'ספאר';
+
+  @override
+  String get series => r'סִדרָה';
 
   @override
   String get shaabanLabel => r'שעבן';
@@ -4372,13 +4735,10 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get dhualqiLabel => r'धू अल क़िदाही';
 
   @override
-  String get itemsDataPagerLabel => r'आइटम';
-
-  @override
   String get jumada1Label => r'जुमादा अल-अव्वल';
 
   @override
-  String get jumada2Label => r'जुमादा अल-थानि';
+  String get jumada2Label => r'जुमादा अल-थानी';
 
   @override
   String get muharramLabel => r'मुहर्रम';
@@ -4418,6 +4778,18 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'पृष्ठ पर जाओ';
 
   @override
+  String get pdfHyperlinkContentLabel => r'क्या आप यहां पेज खोलना चाहते हैं';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'रद्द करें';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'खुला';
+
+  @override
+  String get pdfHyperlinkLabel => r'वेब पेज खोलें';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'कृपया एक सही संख्या डालिये';
 
   @override
@@ -4427,13 +4799,13 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'रद्द करना';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'ठीक है';
+  String get pdfPaginationDialogOkLabel => r'ठीक';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'रद्द करना';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'खोलना';
+  String get pdfPasswordDialogOpenLabel => r'खुला हुआ';
 
   @override
   String get pdfScrollStatusOfLabel => r'का';
@@ -4451,7 +4823,13 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get ramadanLabel => r'रमजान';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'प्रति पृष्ठ पंक्तियाँ';
+
+  @override
   String get safarLabel => r'सफ़र';
+
+  @override
+  String get series => r'श्रृंखला';
 
   @override
   String get shaabanLabel => r'शाबानो';
@@ -4552,9 +4930,6 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'stavke';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -4598,6 +4973,18 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Idi na stranicu';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Želite li otvoriti stranicu na';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'OTKAZATI';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OTVOREN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Otvorite web stranicu';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Unesite valjani broj';
 
   @override
@@ -4631,7 +5018,13 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get ramadanLabel => r'ramazana';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Redovi po stranici';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Niz';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -4731,9 +5124,6 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'tételeket';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -4777,6 +5167,18 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Menj az oldalra';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Meg akarja nyitni az oldalt a címen';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'MEGSZÜNTETI';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'NYISD KI';
+
+  @override
+  String get pdfHyperlinkLabel => r'Weboldal megnyitása';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Adjon meg egy érvényes számot';
 
   @override
@@ -4810,7 +5212,13 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Sorok oldalanként';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Sorozat';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -4911,16 +5319,13 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Դհու ալ-Քիդա';
 
   @override
-  String get itemsDataPagerLabel => r'իրեր';
-
-  @override
   String get jumada1Label => r'Ջումադա ալ-ավալ';
 
   @override
   String get jumada2Label => r'Ջումադա ալ-Թանի';
 
   @override
-  String get muharramLabel => r'Մուհարրամ';
+  String get muharramLabel => r'Մուհարամ';
 
   @override
   String get noEventsCalendarLabel => r'Միջոցառումներ չկան';
@@ -4957,6 +5362,18 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Գնալ դեպի էջ';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Ցանկանու՞մ եք բացել էջը ժամը';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ՉԵՂԱՐԿԵԼ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ԲԱՑ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Բացեք վեբ էջը';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Խնդրում ենք մուտքագրել վավեր համար';
 
   @override
@@ -4990,7 +5407,13 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ռամադան';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Տողեր մեկ էջի համար';
+
+  @override
   String get safarLabel => r'Սաֆար';
+
+  @override
+  String get series => r'Սերիա';
 
   @override
   String get shaabanLabel => r'Շաաբան';
@@ -5002,7 +5425,7 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get shortDhualhiLabel => r'Դհուլ-Հ';
 
   @override
-  String get shortDhualqiLabel => r'Դուլ-Ք';
+  String get shortDhualqiLabel => r'Դհուլ-Ք';
 
   @override
   String get shortJumada1Label => r'Jum. Ի';
@@ -5090,9 +5513,6 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dzulqidah';
 
   @override
-  String get itemsDataPagerLabel => r'item';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -5136,6 +5556,19 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Buka halaman';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Apakah Anda ingin membuka halaman di';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'MEMBATALKAN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'MEMBUKA';
+
+  @override
+  String get pdfHyperlinkLabel => r'Buka Halaman Web';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Harap masukkan nomor yang valid';
 
   @override
@@ -5169,7 +5602,13 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Baris per halaman';
+
+  @override
   String get safarLabel => r'Safari';
+
+  @override
+  String get series => r'Seri';
 
   @override
   String get shaabanLabel => r'Sya' "'" r'ban';
@@ -5184,7 +5623,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'Dzul Q';
 
   @override
-  String get shortJumada1Label => r'Jum. Saya';
+  String get shortJumada1Label => r'Jum. saya';
 
   @override
   String get shortJumada2Label => r'Jum. II';
@@ -5193,7 +5632,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get shortMuharramLabel => r'Muh.';
 
   @override
-  String get shortRabi1Label => r'Rabi. Saya';
+  String get shortRabi1Label => r'Rabi. saya';
 
   @override
   String get shortRabi2Label => r'Rabi. II';
@@ -5269,9 +5708,6 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'hlutir';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -5315,7 +5751,19 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Farðu á síðu';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Vinsamlegast sláðu inn gilt númer';
+  String get pdfHyperlinkContentLabel => r'Viltu opna síðuna á';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'HÆTTA við';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OPNA';
+
+  @override
+  String get pdfHyperlinkLabel => r'Opnaðu vefsíðu';
+
+  @override
+  String get pdfInvalidPageNumberLabel => r'Vinsamlega sláðu inn gilt númer';
 
   @override
   String get pdfNoBookmarksLabel => r'Engin bókamerki fundust';
@@ -5348,7 +5796,13 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Raðir á síðu';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Röð';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -5421,17 +5875,19 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'Programma';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Timeline giorno';
+  String get allowedViewTimelineDayLabel =>
+      r'Giornata della sequenza temporale';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Cronologia del mese';
+  String get allowedViewTimelineMonthLabel => r'Mese della sequenza temporale';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Timeline settimana';
+  String get allowedViewTimelineWeekLabel =>
+      r'Settimana della sequenza temporale';
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
-      r'Cronologia della settimana lavorativa';
+      r'Settimana del lavoro cronologico';
 
   @override
   String get allowedViewWeekLabel => r'Settimana';
@@ -5447,9 +5903,6 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
 
   @override
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
-
-  @override
-  String get itemsDataPagerLabel => r'Oggetti';
 
   @override
   String get jumada1Label => r'Jumada al-awwal';
@@ -5486,13 +5939,25 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get passwordDialogInvalidPasswordLabel => r'Password non valida';
 
   @override
-  String get pdfBookmarksLabel => r'segnalibri';
+  String get pdfBookmarksLabel => r'Segnalibri';
 
   @override
   String get pdfEnterPageNumberLabel => r'Inserisci il numero di pagina';
 
   @override
   String get pdfGoToPageLabel => r'Vai alla pagina';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Vuoi aprire la pagina a';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ANNULLA';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'APRIRE';
+
+  @override
+  String get pdfHyperlinkLabel => r'Apri pagina web';
 
   @override
   String get pdfInvalidPageNumberLabel =>
@@ -5529,7 +5994,13 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
-  String get safarLabel => r'Safari';
+  String get rowsPerPageDataPagerLabel => r'Righe per pagina';
+
+  @override
+  String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serie';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -5544,13 +6015,13 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
 
   @override
-  String get shortJumada1Label => r'Jum. io';
+  String get shortJumada1Label => r'Salto. io';
 
   @override
-  String get shortJumada2Label => r'Jum. II';
+  String get shortJumada2Label => r'Salto. II';
 
   @override
-  String get shortMuharramLabel => r'mah.';
+  String get shortMuharramLabel => r'Mah.';
 
   @override
   String get shortRabi1Label => r'Rabi. io';
@@ -5562,10 +6033,10 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get shortRajabLabel => r'Raj.';
 
   @override
-  String get shortRamadanLabel => r'Ram.';
+  String get shortRamadanLabel => r'Ariete.';
 
   @override
-  String get shortSafarLabel => r'sicuro';
+  String get shortSafarLabel => r'Saf.';
 
   @override
   String get shortShaabanLabel => r'Sha.';
@@ -5574,7 +6045,7 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get shortShawwalLabel => r'Shaw.';
 
   @override
-  String get todayLabel => r'Oggi';
+  String get todayLabel => r'In data odierna';
 
   @override
   String get weeknumberLabel => r'Settimana';
@@ -5623,13 +6094,10 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'日';
 
   @override
-  String get dhualhiLabel => r'ズル・ヒッジャ';
+  String get dhualhiLabel => r'ズーアルヒジャ';
 
   @override
-  String get dhualqiLabel => r'ズル・カイダ';
-
-  @override
-  String get itemsDataPagerLabel => r'アイテム';
+  String get dhualqiLabel => r'ズーアルチーダー';
 
   @override
   String get jumada1Label => r'ジュマーダ・アル・アウワル';
@@ -5674,6 +6142,18 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ページに移動';
 
   @override
+  String get pdfHyperlinkContentLabel => r'次のページを開きますか';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'キャンセル';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'開いた';
+
+  @override
+  String get pdfHyperlinkLabel => r'Webページを開く';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'有効な数値を入力してください';
 
   @override
@@ -5707,7 +6187,13 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get ramadanLabel => r'ラマダン';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'1ページあたりの行数';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'シリーズ';
 
   @override
   String get shaabanLabel => r'シャアバーン';
@@ -5771,7 +6257,7 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get allDayLabel => r'Მთელი დღე';
 
   @override
-  String get allowedViewDayLabel => r'Დღის';
+  String get allowedViewDayLabel => r'Დღეს';
 
   @override
   String get allowedViewMonthLabel => r'თვე';
@@ -5798,16 +6284,13 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get allowedViewWorkWeekLabel => r'Სამუშაო კვირა';
 
   @override
-  String get daySpanCountLabel => r'Დღის';
+  String get daySpanCountLabel => r'Დღეს';
 
   @override
   String get dhualhiLabel => r'დჰულ-ჰიჯა';
 
   @override
   String get dhualqiLabel => r'დჰულ-ქიდა';
-
-  @override
-  String get itemsDataPagerLabel => r'ნივთები';
 
   @override
   String get jumada1Label => r'ჯუმადა ალ-ავვალი';
@@ -5853,6 +6336,18 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Გადადით გვერდზე';
 
   @override
+  String get pdfHyperlinkContentLabel => r'გსურთ გახსნათ გვერდი:';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'გაუქმება';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'გახსენით';
+
+  @override
+  String get pdfHyperlinkLabel => r'გახსენით ვებ გვერდი';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'გთხოვთ, შეიყვანოთ სწორი ნომერი';
 
   @override
@@ -5886,7 +6381,13 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get ramadanLabel => r'რამადანი';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'რიგები თითო გვერდზე';
+
+  @override
   String get safarLabel => r'საფარი';
+
+  @override
+  String get series => r'სერიალი';
 
   @override
   String get shaabanLabel => r'შააბანი';
@@ -5986,9 +6487,6 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Зу әл-Қида';
 
   @override
-  String get itemsDataPagerLabel => r'заттар';
-
-  @override
   String get jumada1Label => r'Жұмада әл-әууәл';
 
   @override
@@ -6032,6 +6530,18 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Бетке өту';
 
   @override
+  String get pdfHyperlinkContentLabel => r'бетті ашқыңыз келе ме?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'БАС ТАРТУ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'АШЫҚ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Веб-бетті ашыңыз';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Жарамды нөмірді енгізіңіз';
 
   @override
@@ -6065,7 +6575,13 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get ramadanLabel => r'Рамазан';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Әр беттегі жолдар';
+
+  @override
   String get safarLabel => r'Сафар';
+
+  @override
+  String get series => r'Сериялар';
 
   @override
   String get shaabanLabel => r'Шағбан';
@@ -6165,9 +6681,6 @@ class SfLocalizationsKm extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'ធាតុ';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -6212,6 +6725,18 @@ class SfLocalizationsKm extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ទៅកាន់​ទំព័រ';
 
   @override
+  String get pdfHyperlinkContentLabel => r'តើអ្នកចង់បើកទំព័រនៅ';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'បោះបង់';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'បើក';
+
+  @override
+  String get pdfHyperlinkLabel => r'បើកគេហទំព័រ';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'សូមបញ្ចូលលេខត្រឹមត្រូវ។';
 
   @override
@@ -6245,10 +6770,16 @@ class SfLocalizationsKm extends SfGlobalLocalizations {
   String get ramadanLabel => r'រ៉ាម៉ាដាន';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'ជួរដេកក្នុងមួយទំព័រ';
+
+  @override
   String get safarLabel => r'សាហ្វារ';
 
   @override
-  String get shaabanLabel => r'សាបាន';
+  String get series => r'ស៊េរី';
+
+  @override
+  String get shaabanLabel => r'សារ៉ាបាន';
 
   @override
   String get shawwalLabel => r'Shawwal';
@@ -6355,10 +6886,6 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
       '\u{ca7}\u{cc1}\u{20}\u{c85}\u{cb2}\u{ccd}\u{2d}\u{c96}\u{cbf}\u{ca6}\u{cbe}';
 
   @override
-  String get itemsDataPagerLabel =>
-      '\u{cb5}\u{cb8}\u{ccd}\u{ca4}\u{cc1}\u{c97}\u{cb3}\u{cc1}';
-
-  @override
   String get jumada1Label =>
       '\u{c9c}\u{cc1}\u{cae}\u{cbe}\u{ca6}\u{cbe}\u{20}\u{c85}\u{cb2}\u{ccd}\u{2d}\u{c85}\u{cb5}\u{ccd}\u{cb5}\u{cb2}\u{ccd}';
 
@@ -6413,6 +6940,22 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
       '\u{caa}\u{cc1}\u{c9f}\u{c95}\u{ccd}\u{c95}\u{cc6}\u{20}\u{cb9}\u{cc6}\u{cc2}\u{cd5}\u{c97}\u{cbf}\u{cb0}\u{cbf}';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      '\u{ca8}\u{cc0}\u{cb5}\u{cc1}\u{20}\u{caa}\u{cc1}\u{c9f}\u{cb5}\u{ca8}\u{ccd}\u{ca8}\u{cc1}\u{20}\u{ca4}\u{cc6}\u{cb0}\u{cc6}\u{caf}\u{cb2}\u{cc1}\u{20}\u{cac}\u{caf}\u{cb8}\u{cc1}\u{cb5}\u{cbf}\u{cb0}\u{cbe}';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel =>
+      '\u{cb0}\u{ca6}\u{ccd}\u{ca6}\u{cc1}\u{cae}\u{cbe}\u{ca1}\u{cc1}';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel =>
+      '\u{ca4}\u{cc6}\u{cb0}\u{cc6}\u{caf}\u{cbf}\u{cb0}\u{cbf}';
+
+  @override
+  String get pdfHyperlinkLabel =>
+      '\u{cb5}\u{cc6}\u{cac}\u{ccd}\u{20}\u{caa}\u{cc1}\u{c9f}\u{cb5}\u{ca8}\u{ccd}\u{ca8}\u{cc1}\u{20}\u{ca4}\u{cc6}\u{cb0}\u{cc6}\u{caf}\u{cbf}\u{cb0}\u{cbf}';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       '\u{ca6}\u{caf}\u{cb5}\u{cbf}\u{c9f}\u{ccd}\u{c9f}\u{cc1}\u{20}\u{cae}\u{cbe}\u{ca8}\u{ccd}\u{caf}\u{cb5}\u{cbe}\u{ca6}\u{20}\u{cb8}\u{c82}\u{c96}\u{ccd}\u{caf}\u{cc6}\u{caf}\u{ca8}\u{ccd}\u{ca8}\u{cc1}\u{20}\u{ca8}\u{cae}\u{cc2}\u{ca6}\u{cbf}\u{cb8}\u{cbf}';
 
@@ -6453,7 +6996,14 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
   String get ramadanLabel => '\u{cb0}\u{c82}\u{c9c}\u{cbe}\u{ca8}\u{ccd}';
 
   @override
+  String get rowsPerPageDataPagerLabel =>
+      '\u{caa}\u{ccd}\u{cb0}\u{ca4}\u{cbf}\u{20}\u{caa}\u{cc1}\u{c9f}\u{c95}\u{ccd}\u{c95}\u{cc6}\u{20}\u{cb8}\u{cbe}\u{cb2}\u{cc1}\u{c97}\u{cb3}\u{cc1}';
+
+  @override
   String get safarLabel => '\u{cb8}\u{cab}\u{cb0}\u{ccd}';
+
+  @override
+  String get series => '\u{cb8}\u{cb0}\u{ca3}\u{cbf}';
 
   @override
   String get shaabanLabel => '\u{cb6}\u{cbe}\u{cac}\u{cbe}\u{ca8}\u{ccd}';
@@ -6556,9 +7106,6 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get dhualqiLabel => r'두 알 키다';
 
   @override
-  String get itemsDataPagerLabel => r'아이템';
-
-  @override
   String get jumada1Label => r'주마다 알-아왈';
 
   @override
@@ -6574,7 +7121,7 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get noSelectedDateCalendarLabel => r'선택한 날짜가 없습니다';
 
   @override
-  String get ofDataPagerLabel => r'NS';
+  String get ofDataPagerLabel => r'의';
 
   @override
   String get pagesDataPagerLabel => r'페이지';
@@ -6589,7 +7136,7 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get passwordDialogHintTextLabel => r'암호를 입력';
 
   @override
-  String get passwordDialogInvalidPasswordLabel => r'잘못된 비밀번호';
+  String get passwordDialogInvalidPasswordLabel => r'유효하지 않은 비밀번호';
 
   @override
   String get pdfBookmarksLabel => r'책갈피';
@@ -6599,6 +7146,18 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
 
   @override
   String get pdfGoToPageLabel => r'페이지로 이동';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'페이지를 열시겠습니까?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'취소';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'열려 있는';
+
+  @override
+  String get pdfHyperlinkLabel => r'웹 페이지 열기';
 
   @override
   String get pdfInvalidPageNumberLabel => r'유효한 숫자를 입력하세요';
@@ -6619,7 +7178,7 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get pdfPasswordDialogOpenLabel => r'열려있는';
 
   @override
-  String get pdfScrollStatusOfLabel => r'NS';
+  String get pdfScrollStatusOfLabel => r'의';
 
   @override
   String get rabi1Label => r'라비 알-아왈';
@@ -6634,7 +7193,13 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get ramadanLabel => r'라마단';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'페이지당 행';
+
+  @override
   String get safarLabel => r'사파르';
+
+  @override
+  String get series => r'시리즈';
 
   @override
   String get shaabanLabel => r'샤아반';
@@ -6649,7 +7214,7 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'둘큐';
 
   @override
-  String get shortJumada1Label => r'줌. NS';
+  String get shortJumada1Label => r'줌. 나';
 
   @override
   String get shortJumada2Label => r'줌. II';
@@ -6658,7 +7223,7 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get shortMuharramLabel => r'음.';
 
   @override
-  String get shortRabi1Label => r'라비. NS';
+  String get shortRabi1Label => r'라비. 나';
 
   @override
   String get shortRabi2Label => r'라비. II';
@@ -6734,9 +7299,6 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Зул кыда';
 
   @override
-  String get itemsDataPagerLabel => r'буюмдар';
-
-  @override
   String get jumada1Label => r'Жумада аль-аввал';
 
   @override
@@ -6780,6 +7342,18 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Баракка өтүү';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Баракчаны ачкыңыз келеби?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ЖОК КЫЛУУ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'АЧУУ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Веб баракчаны ачуу';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Жарактуу номер киргизиңиз';
 
   @override
@@ -6810,10 +7384,16 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   String get rajabLabel => r'Ражаб';
 
   @override
-  String get ramadanLabel => r'Орозо айт';
+  String get ramadanLabel => r'Рамазан';
+
+  @override
+  String get rowsPerPageDataPagerLabel => r'Ар бир беттеги саптар';
 
   @override
   String get safarLabel => r'Сафар';
+
+  @override
+  String get series => r'Сериялар';
 
   @override
   String get shaabanLabel => r'Шаабан';
@@ -6913,9 +7493,6 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'ລາຍການ';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -6958,6 +7535,18 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ໄປທີ່ໜ້າ';
 
   @override
+  String get pdfHyperlinkContentLabel => r'ທ່ານຕ້ອງການເປີດຫນ້າຢູ່';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ຍົກເລີກ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ເປີດ';
+
+  @override
+  String get pdfHyperlinkLabel => r'ເປີດໜ້າເວັບ';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'ກະລຸນາໃສ່ຕົວເລກທີ່ຖືກຕ້ອງ';
 
   @override
@@ -6991,7 +7580,13 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get ramadanLabel => r'ຣາມາດານ';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'ແຖວຕໍ່ຫນ້າ';
+
+  @override
   String get safarLabel => r'ຊາຟາ';
+
+  @override
+  String get series => r'ຊຸດ';
 
   @override
   String get shaabanLabel => r'ຊາອາບານ';
@@ -7091,9 +7686,6 @@ class SfLocalizationsLt extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'daiktų';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -7137,6 +7729,18 @@ class SfLocalizationsLt extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Eiti į puslapį';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Ar norite atidaryti puslapį adresu';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ATŠAUKTI';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ATVIRAS';
+
+  @override
+  String get pdfHyperlinkLabel => r'Atidarykite tinklalapį';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Įveskite tinkamą numerį';
 
   @override
@@ -7170,7 +7774,13 @@ class SfLocalizationsLt extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadanas';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Eilučių puslapyje';
+
+  @override
   String get safarLabel => r'Safaras';
+
+  @override
+  String get series => r'Serija';
 
   @override
   String get shaabanLabel => r'Šaabanas';
@@ -7270,9 +7880,6 @@ class SfLocalizationsLv extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'preces';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -7316,6 +7923,18 @@ class SfLocalizationsLv extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Iet uz lapu';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Vai vēlaties atvērt lapu vietnē';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ATCELT';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ATVĒRTS';
+
+  @override
+  String get pdfHyperlinkLabel => r'Atveriet tīmekļa lapu';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Lūdzu, ievadiet derīgu numuru';
 
   @override
@@ -7349,13 +7968,19 @@ class SfLocalizationsLv extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadāns';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Rindas vienā lapā';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'sērija';
 
   @override
   String get shaabanLabel => r'Šaabans';
 
   @override
-  String get shawwalLabel => r'Šovāls';
+  String get shawwalLabel => r'Šovals';
 
   @override
   String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
@@ -7450,9 +8075,6 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Зу ал-Кида';
 
   @override
-  String get itemsDataPagerLabel => r'предмети';
-
-  @override
   String get jumada1Label => r'Џумада ал-аввал';
 
   @override
@@ -7496,6 +8118,19 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Оди на страна';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Дали сакате да ја отворите страницата на';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ОТКАЖИ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ОТВОРЕНО';
+
+  @override
+  String get pdfHyperlinkLabel => r'Отворете веб-страница';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Ве молиме внесете важечки број';
 
   @override
@@ -7529,7 +8164,13 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get ramadanLabel => r'Рамазан';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Редови по страница';
+
+  @override
   String get safarLabel => r'Сафар';
+
+  @override
+  String get series => r'Серии';
 
   @override
   String get shaabanLabel => r'Шаабан';
@@ -7541,7 +8182,7 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get shortDhualhiLabel => r'Дул-Х';
 
   @override
-  String get shortDhualqiLabel => r'Дул-Ку';
+  String get shortDhualqiLabel => r'Дул-К';
 
   @override
   String get shortJumada1Label => r'Џум. Јас';
@@ -7574,7 +8215,7 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get shortShawwalLabel => r'Шо.';
 
   @override
-  String get todayLabel => r'Денес';
+  String get todayLabel => r'Денеска';
 
   @override
   String get weeknumberLabel => r'Недела';
@@ -7629,9 +8270,6 @@ class SfLocalizationsMl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ദു അൽ-ക്വിദ';
 
   @override
-  String get itemsDataPagerLabel => r'ഇനങ്ങൾ';
-
-  @override
   String get jumada1Label => r'ജുമാദ അൽ അവ്വൽ';
 
   @override
@@ -7675,6 +8313,18 @@ class SfLocalizationsMl extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'പേജിലേക്ക് പോകുക';
 
   @override
+  String get pdfHyperlinkContentLabel => r'എന്നതിൽ പേജ് തുറക്കണോ?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'റദ്ദാക്കുക';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'തുറക്കുക';
+
+  @override
+  String get pdfHyperlinkLabel => r'വെബ് പേജ് തുറക്കുക';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'ദയവായി ഒരു സാധുവായ നമ്പർ നൽകുക';
 
   @override
@@ -7708,7 +8358,13 @@ class SfLocalizationsMl extends SfGlobalLocalizations {
   String get ramadanLabel => r'റമദാൻ';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'ഓരോ പേജിലും വരികൾ';
+
+  @override
   String get safarLabel => r'സഫർ';
+
+  @override
+  String get series => r'പരമ്പര';
 
   @override
   String get shaabanLabel => r'ശഅബാൻ';
@@ -7808,9 +8464,6 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Зу аль-Кида';
 
   @override
-  String get itemsDataPagerLabel => r'зүйлс';
-
-  @override
   String get jumada1Label => r'Жумада аль-аввал';
 
   @override
@@ -7854,6 +8507,19 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Хуудас руу оч';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'хаягаар хуудсыг нээхийг хүсэж байна уу';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'Цуцлах';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'НЭЭЛТТЭЙ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Вэб хуудсыг нээх';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Хүчинтэй дугаар оруулна уу';
 
   @override
@@ -7887,7 +8553,13 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
   String get ramadanLabel => r'Рамадан';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Хуудас бүрийн мөр';
+
+  @override
   String get safarLabel => r'Сафар';
+
+  @override
+  String get series => r'Цуврал';
 
   @override
   String get shaabanLabel => r'Шаабан';
@@ -7896,7 +8568,7 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
   String get shawwalLabel => r'Шаввал';
 
   @override
-  String get shortDhualhiLabel => r'Зул-Х';
+  String get shortDhualhiLabel => r'Зуль-Х';
 
   @override
   String get shortDhualqiLabel => r'Зуль-К';
@@ -7987,9 +8659,6 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   String get dhualqiLabel => r'धु अल-किदाह';
 
   @override
-  String get itemsDataPagerLabel => r'आयटम';
-
-  @override
   String get jumada1Label => r'जुमदा अल-अव्वल';
 
   @override
@@ -8033,6 +8702,18 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'पृष्ठावर जा';
 
   @override
+  String get pdfHyperlinkContentLabel => r'तुम्हाला येथे पृष्ठ उघडायचे आहे का';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'रद्द करा';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'उघडा';
+
+  @override
+  String get pdfHyperlinkLabel => r'वेब पृष्ठ उघडा';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'कृपया वैध क्रमांक प्रविष्ट करा';
 
   @override
@@ -8057,7 +8738,7 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   String get rabi1Label => r'रबी अल अव्वल';
 
   @override
-  String get rabi2Label => r'रबी ' "'" r'अल-थानी';
+  String get rabi2Label => r'रबी अल-थानी';
 
   @override
   String get rajabLabel => r'रजब';
@@ -8066,7 +8747,13 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   String get ramadanLabel => r'रमजान';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'प्रति पृष्ठ पंक्ती';
+
+  @override
   String get safarLabel => r'सफर';
+
+  @override
+  String get series => r'मालिका';
 
   @override
   String get shaabanLabel => r'शाबान';
@@ -8166,9 +8853,6 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'barang';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -8212,6 +8896,19 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Pergi ke halaman';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Adakah anda ingin membuka halaman di';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'BATALKAN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'BUKA';
+
+  @override
+  String get pdfHyperlinkLabel => r'Buka Halaman Web';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'sila masukkan nombor yang sah';
 
   @override
@@ -8245,7 +8942,13 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadhan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Baris setiap halaman';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Siri';
 
   @override
   String get shaabanLabel => r'Sya' "'" r'aban';
@@ -8345,9 +9048,6 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'ပစ္စည်းများ';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -8376,7 +9076,7 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get passwordDialogHeaderTextLabel => r'စကားဝှက်ကို ကာကွယ်ထားသည်။';
 
   @override
-  String get passwordDialogHintTextLabel => r'Password ရိုက်ထည့်ပါ။';
+  String get passwordDialogHintTextLabel => r'စကားဝှက်ထည့်ပါ။';
 
   @override
   String get passwordDialogInvalidPasswordLabel => r'မမှန်ကန်သော စကားဝှက်';
@@ -8391,6 +9091,18 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'စာမျက်နှာသို့သွားပါ';
 
   @override
+  String get pdfHyperlinkContentLabel => r'စာမျက်နှာမှာ ဖွင့်ချင်ပါသလား။';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'မလုပ်တော့ပါ။';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ဖွင့်ပါ။';
+
+  @override
+  String get pdfHyperlinkLabel => r'ဝဘ်စာမျက်နှာကိုဖွင့်ပါ။';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'ကျေးဇူးပြု၍ တရားဝင်နံပါတ်တစ်ခုထည့်ပါ။';
 
@@ -8401,7 +9113,7 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'မလုပ်တော့ပါ။';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'အိုကေ';
+  String get pdfPaginationDialogOkLabel => r'အိုကေတယ်နော်';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'မလုပ်တော့ပါ။';
@@ -8425,7 +9137,13 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get ramadanLabel => r'ရမ်ဇာန်';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'စာမျက်နှာအလိုက် အတန်းများ';
+
+  @override
   String get safarLabel => r'ဆာဖာရာ';
+
+  @override
+  String get series => r'စီးရီး';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -8525,9 +9243,6 @@ class SfLocalizationsNb extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'gjenstander';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -8571,6 +9286,18 @@ class SfLocalizationsNb extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Gå til side';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Vil du åpne siden på';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'AVBRYT';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ÅPEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Åpne webside';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Vennligst oppgi et gyldig nummer';
 
   @override
@@ -8604,7 +9331,13 @@ class SfLocalizationsNb extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Rader per side';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serie';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -8704,10 +9437,7 @@ class SfLocalizationsNe extends SfGlobalLocalizations {
   String get dhualqiLabel => r'धु अल-किदाह';
 
   @override
-  String get itemsDataPagerLabel => r'वस्तुहरू';
-
-  @override
-  String get jumada1Label => r'जुमाद अल-अव्वल';
+  String get jumada1Label => r'जुमाद अल अव्वल';
 
   @override
   String get jumada2Label => r'जुमादा अल थानी';
@@ -8750,6 +9480,18 @@ class SfLocalizationsNe extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'पृष्ठमा जानुहोस्';
 
   @override
+  String get pdfHyperlinkContentLabel => r'के तपाइँ पृष्ठ खोल्न चाहनुहुन्छ';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'रद्द गर्नुहोस्';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'खोल्नुहोस्';
+
+  @override
+  String get pdfHyperlinkLabel => r'वेब पृष्ठ खोल्नुहोस्';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'कृपया मान्य नम्बर प्रविष्ट गर्नुहोस्';
 
@@ -8784,7 +9526,13 @@ class SfLocalizationsNe extends SfGlobalLocalizations {
   String get ramadanLabel => r'रमजान';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'प्रति पृष्ठ पङ्क्तिहरू';
+
+  @override
   String get safarLabel => r'सफार';
+
+  @override
+  String get series => r'शृङ्खला';
 
   @override
   String get shaabanLabel => r'शाबान';
@@ -8884,9 +9632,6 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'artikelen';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -8930,19 +9675,31 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Ga naar pagina';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Wil je de pagina openen op';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ANNULEREN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OPEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Webpagina openen';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Gelieve een geldig nummer invoeren';
 
   @override
   String get pdfNoBookmarksLabel => r'Geen bladwijzers gevonden';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'ANNULEER';
+  String get pdfPaginationDialogCancelLabel => r'ANNULEREN';
 
   @override
   String get pdfPaginationDialogOkLabel => r'Oke';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'ANNULEER';
+  String get pdfPasswordDialogCancelLabel => r'ANNULEREN';
 
   @override
   String get pdfPasswordDialogOpenLabel => r'OPEN';
@@ -8963,7 +9720,13 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Rijen per pagina';
+
+  @override
   String get safarLabel => r'Safari';
+
+  @override
+  String get series => r'Serie';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -8984,7 +9747,7 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get shortJumada2Label => r'jum. II';
 
   @override
-  String get shortMuharramLabel => r'mwah.';
+  String get shortMuharramLabel => r'Muh.';
 
   @override
   String get shortRabi1Label => r'Rabi. l';
@@ -9012,6 +9775,396 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
 
   @override
   String get weeknumberLabel => r'Week';
+}
+
+/// The translations for Norwegian (`no`).
+class SfLocalizationsNo extends SfGlobalLocalizations {
+  /// Creating an argument constructor of SfLocalizationsNo class
+  const SfLocalizationsNo({
+    String localeName = 'no',
+  }) : super(
+          localeName: localeName,
+        );
+
+  @override
+  String get allDayLabel => r'Hele dagen';
+
+  @override
+  String get allowedViewDayLabel => r'Dag';
+
+  @override
+  String get allowedViewMonthLabel => r'Måned';
+
+  @override
+  String get allowedViewScheduleLabel => r'Rute';
+
+  @override
+  String get allowedViewTimelineDayLabel => r'Tidslinjedag';
+
+  @override
+  String get allowedViewTimelineMonthLabel => r'Tidslinjemåned';
+
+  @override
+  String get allowedViewTimelineWeekLabel => r'Tidslinje uke';
+
+  @override
+  String get allowedViewTimelineWorkWeekLabel => r'Tidslinje Arbeidsuke';
+
+  @override
+  String get allowedViewWeekLabel => r'Uke';
+
+  @override
+  String get allowedViewWorkWeekLabel => r'Arbeidsuke';
+
+  @override
+  String get daySpanCountLabel => r'Dag';
+
+  @override
+  String get dhualhiLabel => r'Dhu al-Hijjah';
+
+  @override
+  String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
+
+  @override
+  String get jumada1Label => r'Jumada al-awwal';
+
+  @override
+  String get jumada2Label => r'Jumada al-thani';
+
+  @override
+  String get muharramLabel => r'Muharram';
+
+  @override
+  String get noEventsCalendarLabel => r'Ingen hendelser';
+
+  @override
+  String get noSelectedDateCalendarLabel => r'Ingen valgt dato';
+
+  @override
+  String get ofDataPagerLabel => r'av';
+
+  @override
+  String get pagesDataPagerLabel => r'sider';
+
+  @override
+  String get passwordDialogContentLabel =>
+      r'Skriv inn passordet for å åpne denne PDF-filen';
+
+  @override
+  String get passwordDialogHeaderTextLabel => r'Passordbeskyttet';
+
+  @override
+  String get passwordDialogHintTextLabel => r'Oppgi passord';
+
+  @override
+  String get passwordDialogInvalidPasswordLabel => r'Ugyldig passord';
+
+  @override
+  String get pdfBookmarksLabel => r'Bokmerker';
+
+  @override
+  String get pdfEnterPageNumberLabel => r'Skriv inn sidenummer';
+
+  @override
+  String get pdfGoToPageLabel => r'Gå til side';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'Vil du åpne siden på';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'AVBRYT';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ÅPEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Åpne webside';
+
+  @override
+  String get pdfInvalidPageNumberLabel => r'Vennligst oppgi et gyldig nummer';
+
+  @override
+  String get pdfNoBookmarksLabel => r'Fant ingen bokmerker';
+
+  @override
+  String get pdfPaginationDialogCancelLabel => r'AVBRYT';
+
+  @override
+  String get pdfPaginationDialogOkLabel => r'OK';
+
+  @override
+  String get pdfPasswordDialogCancelLabel => r'AVBRYT';
+
+  @override
+  String get pdfPasswordDialogOpenLabel => r'ÅPEN';
+
+  @override
+  String get pdfScrollStatusOfLabel => r'av';
+
+  @override
+  String get rabi1Label => r'Rabi' "'" r' al-awwal';
+
+  @override
+  String get rabi2Label => r'Rabi' "'" r' al-thani';
+
+  @override
+  String get rajabLabel => r'Rajab';
+
+  @override
+  String get ramadanLabel => r'Ramadan';
+
+  @override
+  String get rowsPerPageDataPagerLabel => r'Rader per side';
+
+  @override
+  String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serie';
+
+  @override
+  String get shaabanLabel => r'Sha' "'" r'aban';
+
+  @override
+  String get shawwalLabel => r'Shawwal';
+
+  @override
+  String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
+
+  @override
+  String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
+
+  @override
+  String get shortJumada1Label => r'Jum. Jeg';
+
+  @override
+  String get shortJumada2Label => r'Jum. II';
+
+  @override
+  String get shortMuharramLabel => r'Muh.';
+
+  @override
+  String get shortRabi1Label => r'Rabi. Jeg';
+
+  @override
+  String get shortRabi2Label => r'Rabi. II';
+
+  @override
+  String get shortRajabLabel => r'Raj.';
+
+  @override
+  String get shortRamadanLabel => r'RAM.';
+
+  @override
+  String get shortSafarLabel => r'Saf.';
+
+  @override
+  String get shortShaabanLabel => r'Sha.';
+
+  @override
+  String get shortShawwalLabel => r'Shaw.';
+
+  @override
+  String get todayLabel => r'I dag';
+
+  @override
+  String get weeknumberLabel => r'Uke';
+}
+
+/// The translations for Oriya (`or`).
+class SfLocalizationsOr extends SfGlobalLocalizations {
+  /// Creating an argument constructor of SfLocalizationsOr class
+  const SfLocalizationsOr({
+    String localeName = 'or',
+  }) : super(
+          localeName: localeName,
+        );
+
+  @override
+  String get allDayLabel => r'ଦିନ ସାରା';
+
+  @override
+  String get allowedViewDayLabel => r'ଦିନ';
+
+  @override
+  String get allowedViewMonthLabel => r'ମାସ';
+
+  @override
+  String get allowedViewScheduleLabel => r'କାର୍ଯ୍ୟସୂଚୀ';
+
+  @override
+  String get allowedViewTimelineDayLabel => r'ସମୟସୀମା ଦିନ |';
+
+  @override
+  String get allowedViewTimelineMonthLabel => r'ସମୟସୀମା ମାସ |';
+
+  @override
+  String get allowedViewTimelineWeekLabel => r'ସମୟସୀମା ସପ୍ତାହ |';
+
+  @override
+  String get allowedViewTimelineWorkWeekLabel => r'ସମୟସୀମା କାର୍ଯ୍ୟ ସପ୍ତାହ |';
+
+  @override
+  String get allowedViewWeekLabel => r'ସପ୍ତାହ';
+
+  @override
+  String get allowedViewWorkWeekLabel => r'କାର୍ଯ୍ୟ ସପ୍ତାହ';
+
+  @override
+  String get daySpanCountLabel => r'ଦିନ';
+
+  @override
+  String get dhualhiLabel => r'ଧୁ ଅଲ-ହିଜା';
+
+  @override
+  String get dhualqiLabel => r'ଧୁ ଅଲ-କଇଦା |';
+
+  @override
+  String get jumada1Label => r'ଜୁମାଡା ଅଲ-ଅୱାଲ |';
+
+  @override
+  String get jumada2Label => r'ଜୁମାଡା ଅଲ-ଥାନି |';
+
+  @override
+  String get muharramLabel => r'ମୁହରାମ |';
+
+  @override
+  String get noEventsCalendarLabel => r'କ events ଣସି ଘଟଣା ନାହିଁ |';
+
+  @override
+  String get noSelectedDateCalendarLabel =>
+      r'କ selected ଣସି ମନୋନୀତ ତାରିଖ ନାହିଁ |';
+
+  @override
+  String get ofDataPagerLabel => r'ର';
+
+  @override
+  String get pagesDataPagerLabel => r'ପୃଷ୍ଠାଗୁଡ଼ିକ |';
+
+  @override
+  String get passwordDialogContentLabel =>
+      r'ଏହି PDF ଫାଇଲ୍ ଖୋଲିବା ପାଇଁ ପାସୱାର୍ଡ ପ୍ରବେଶ କରନ୍ତୁ |';
+
+  @override
+  String get passwordDialogHeaderTextLabel => r'ପାସୱାର୍ଡ ସୁରକ୍ଷିତ |';
+
+  @override
+  String get passwordDialogHintTextLabel => r'ପାସୱାର୍ଡ ପ୍ରବେଶ କରନ୍ତୁ |';
+
+  @override
+  String get passwordDialogInvalidPasswordLabel => r'ଅବ val ଧ ପାସୱାର୍ଡ |';
+
+  @override
+  String get pdfBookmarksLabel => r'ବୁକମାର୍କସ୍';
+
+  @override
+  String get pdfEnterPageNumberLabel => r'ପୃଷ୍ଠା ନମ୍ବର ପ୍ରବେଶ କରନ୍ତୁ |';
+
+  @override
+  String get pdfGoToPageLabel => r'ପୃଷ୍ଠାକୁ ଯାଆନ୍ତୁ |';
+
+  @override
+  String get pdfHyperlinkContentLabel => r'ଆପଣ ପେଜ୍ ଖୋଲିବାକୁ ଚାହୁଁଛନ୍ତି କି?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ବାତିଲ୍';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ଖୋଲନ୍ତୁ |';
+
+  @override
+  String get pdfHyperlinkLabel => r'ୱେବ୍ ପୃଷ୍ଠା ଖୋଲନ୍ତୁ |';
+
+  @override
+  String get pdfInvalidPageNumberLabel =>
+      r'ଦୟାକରି ଏକ ବ valid ଧ ନମ୍ବର ପ୍ରବେଶ କରନ୍ତୁ |';
+
+  @override
+  String get pdfNoBookmarksLabel => r'କ book ଣସି ବୁକମାର୍କ ମିଳିଲା ନାହିଁ |';
+
+  @override
+  String get pdfPaginationDialogCancelLabel => r'ବାତିଲ୍';
+
+  @override
+  String get pdfPaginationDialogOkLabel => r'ଠିକ୍ ଅଛି';
+
+  @override
+  String get pdfPasswordDialogCancelLabel => r'ବାତିଲ୍';
+
+  @override
+  String get pdfPasswordDialogOpenLabel => r'ଖୋଲନ୍ତୁ |';
+
+  @override
+  String get pdfScrollStatusOfLabel => r'ର';
+
+  @override
+  String get rabi1Label => r'ରବି ' "'" r'ଅଲ-ଆୱାଲ୍ |';
+
+  @override
+  String get rabi2Label => r'ରବି ' "'" r'ଅଲ-ଥାନି |';
+
+  @override
+  String get rajabLabel => r'ରାଜାବ';
+
+  @override
+  String get ramadanLabel => r'ରମଜାନ |';
+
+  @override
+  String get rowsPerPageDataPagerLabel => r'ପ୍ରତି ପୃଷ୍ଠାରେ ଧାଡି |';
+
+  @override
+  String get safarLabel => r'ସଫର |';
+
+  @override
+  String get series => r'ସିରିଜ୍';
+
+  @override
+  String get shaabanLabel => r'ଶାବାନ୍ |';
+
+  @override
+  String get shawwalLabel => r'ଶାୱାଲ୍ |';
+
+  @override
+  String get shortDhualhiLabel => r'ଧୁଲ୍-ଏଚ୍';
+
+  @override
+  String get shortDhualqiLabel => r'ଧୁଲ୍-ପ୍ର';
+
+  @override
+  String get shortJumada1Label => r'ଜମ୍। ମୁଁ';
+
+  @override
+  String get shortJumada2Label => r'ଜମ୍। II';
+
+  @override
+  String get shortMuharramLabel => r'ମୁହ।';
+
+  @override
+  String get shortRabi1Label => r'ରବି | ମୁଁ';
+
+  @override
+  String get shortRabi2Label => r'ରବି | II';
+
+  @override
+  String get shortRajabLabel => r'ରାଜ।';
+
+  @override
+  String get shortRamadanLabel => r'ରାମ।';
+
+  @override
+  String get shortSafarLabel => r'ନିରାପଦ';
+
+  @override
+  String get shortShaabanLabel => r'ଶ।';
+
+  @override
+  String get shortShawwalLabel => r'ଶ।';
+
+  @override
+  String get todayLabel => r'ଆଜି |';
+
+  @override
+  String get weeknumberLabel => r'ସପ୍ତାହ';
 }
 
 /// The translations for Panjabi Punjabi (`pa`).
@@ -9063,9 +10216,6 @@ class SfLocalizationsPa extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ਧੂ ਅਲ-ਕਾਇਦਾ';
 
   @override
-  String get itemsDataPagerLabel => r'ਇਕਾਈ';
-
-  @override
   String get jumada1Label => r'ਜੁਮਾਦਾ ਅਲ-ਅੱਵਲ';
 
   @override
@@ -9109,6 +10259,19 @@ class SfLocalizationsPa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ਪੰਨੇ ' "'" r'ਤੇ ਜਾਓ';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'ਕੀ ਤੁਸੀਂ ' "'" r'ਤੇ ਪੰਨਾ ਖੋਲ੍ਹਣਾ ਚਾਹੁੰਦੇ ਹੋ';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ਰੱਦ ਕਰੋ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ਖੋਲ੍ਹੋ';
+
+  @override
+  String get pdfHyperlinkLabel => r'ਵੈੱਬ ਪੰਨਾ ਖੋਲ੍ਹੋ';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਵੈਧ ਨੰਬਰ ਦਾਖਲ ਕਰੋ';
 
   @override
@@ -9142,7 +10305,13 @@ class SfLocalizationsPa extends SfGlobalLocalizations {
   String get ramadanLabel => r'ਰਮਜ਼ਾਨ';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'ਪ੍ਰਤੀ ਪੰਨਾ ਕਤਾਰਾਂ';
+
+  @override
   String get safarLabel => r'ਸਫਰ';
+
+  @override
+  String get series => r'ਲੜੀ';
 
   @override
   String get shaabanLabel => r'ਸ਼ਾਅਬਾਨ';
@@ -9242,9 +10411,6 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Zu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'rzeczy';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -9288,6 +10454,19 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Idź do strony';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Czy chcesz otworzyć stronę pod adresem?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ANULUJ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OTWARTY';
+
+  @override
+  String get pdfHyperlinkLabel => r'Otwórz stronę internetową';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Proszę wprowadzić poprawny numer';
 
   @override
@@ -9321,7 +10500,13 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Wiersze na stronę';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Seria';
 
   @override
   String get shaabanLabel => r'Szaaban';
@@ -9421,9 +10606,6 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ذو القعده';
 
   @override
-  String get itemsDataPagerLabel => r'توکي';
-
-  @override
   String get jumada1Label => r'جمادی الاول';
 
   @override
@@ -9467,6 +10649,18 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'پاڼې ته لاړ شئ';
 
   @override
+  String get pdfHyperlinkContentLabel => r'ایا تاسو غواړئ چې پاڼه پرانیزئ';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'فسخه کول';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'خلاص';
+
+  @override
+  String get pdfHyperlinkLabel => r'ویب پاڼه پرانیزئ';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'مهرباني وکړئ یو باوري شمیره دننه کړئ';
 
@@ -9474,13 +10668,13 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'هیڅ بک مارک ونه موندل شو';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'فسخه کول';
+  String get pdfPaginationDialogCancelLabel => r'لغوه کول';
 
   @override
   String get pdfPaginationDialogOkLabel => r'سمه ده';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'فسخه کول';
+  String get pdfPasswordDialogCancelLabel => r'لغوه کول';
 
   @override
   String get pdfPasswordDialogOpenLabel => r'خلاص';
@@ -9501,7 +10695,13 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get ramadanLabel => r'رمضان';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'په هره پاڼه کې قطارونه';
+
+  @override
   String get safarLabel => r'صفر';
+
+  @override
+  String get series => r'لړۍ';
 
   @override
   String get shaabanLabel => r'شعبان';
@@ -9571,20 +10771,20 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get allowedViewMonthLabel => r'Mês';
 
   @override
-  String get allowedViewScheduleLabel => r'Cronograma';
+  String get allowedViewScheduleLabel => r'Agendar';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Dia da Linha do Tempo';
+  String get allowedViewTimelineDayLabel => r'Dia da linha do tempo';
 
   @override
   String get allowedViewTimelineMonthLabel => r'Mês da linha do tempo';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Semana do cronograma';
+  String get allowedViewTimelineWeekLabel => r'Semana da linha do tempo';
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
-      r'Cronograma da semana de trabalho';
+      r'Semana de trabalho da linha do tempo';
 
   @override
   String get allowedViewWeekLabel => r'Semana';
@@ -9602,13 +10802,10 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'Itens';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
-  String get jumada2Label => r'Jumada al-Thani';
+  String get jumada2Label => r'Jumada al-thani';
 
   @override
   String get muharramLabel => r'Muharram';
@@ -9617,7 +10814,7 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get noEventsCalendarLabel => r'Sem eventos';
 
   @override
-  String get noSelectedDateCalendarLabel => r'Sem data selecionada';
+  String get noSelectedDateCalendarLabel => r'Nenhuma data selecionada';
 
   @override
   String get ofDataPagerLabel => r'do';
@@ -9648,10 +10845,22 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Vá para página';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Deseja abrir a página em';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'CANCELAR';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ABRIR';
+
+  @override
+  String get pdfHyperlinkLabel => r'Abrir página da Web';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Por favor insira um número válido';
 
   @override
-  String get pdfNoBookmarksLabel => r'Nenhum marcador encontrado';
+  String get pdfNoBookmarksLabel => r'Nenhum favorito encontrado';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'CANCELAR';
@@ -9669,10 +10878,10 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'do';
 
   @override
-  String get rabi1Label => r'Rabi ' "'" r'al-awwal';
+  String get rabi1Label => r'Rabi' "'" r' al-awwal';
 
   @override
-  String get rabi2Label => r'Rabi ' "'" r'al-Thani';
+  String get rabi2Label => r'Rabi' "'" r' al-thani';
 
   @override
   String get rajabLabel => r'Rajab';
@@ -9681,7 +10890,13 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadã';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Linhas por página';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Series';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -9705,10 +10920,10 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get shortMuharramLabel => r'Muh.';
 
   @override
-  String get shortRabi1Label => r'Rabi. eu';
+  String get shortRabi1Label => r'Rabino. eu';
 
   @override
-  String get shortRabi2Label => r'Rabi. II';
+  String get shortRabi2Label => r'Rabino. II';
 
   @override
   String get shortRajabLabel => r'Raj.';
@@ -9742,13 +10957,13 @@ class SfLocalizationsPtPt extends SfLocalizationsPt {
         );
 
   @override
+  String get noEventsCalendarLabel => r'Nenhum evento';
+
+  @override
   String get ofDataPagerLabel => r'de';
 
   @override
   String get pagesDataPagerLabel => r'páginas';
-
-  @override
-  String get itemsDataPagerLabel => r'itens';
 
   @override
   String get pdfBookmarksLabel => r'Marcadores';
@@ -9757,10 +10972,10 @@ class SfLocalizationsPtPt extends SfLocalizationsPt {
   String get pdfScrollStatusOfLabel => r'de';
 
   @override
-  String get pdfGoToPageLabel => r'Vá para a página';
+  String get pdfGoToPageLabel => r'Ir para a página';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'Ok';
+  String get pdfInvalidPageNumberLabel => r'Insira um número válido';
 
   @override
   String get passwordDialogInvalidPasswordLabel => r'Senha inválida';
@@ -9769,16 +10984,13 @@ class SfLocalizationsPtPt extends SfLocalizationsPt {
   String get pdfPasswordDialogOpenLabel => r'ABERTO';
 
   @override
-  String get allDayLabel => r'O dia todo';
+  String get allowedViewScheduleLabel => r'Cronograma';
 
   @override
-  String get shortRabi1Label => r'Rabi. Eu';
+  String get allDayLabel => r'Todo o dia';
 
   @override
-  String get shortJumada1Label => r'Jum. Eu';
-
-  @override
-  String get shortRamadanLabel => r'Ram.';
+  String get shortRamadanLabel => r'Carneiro.';
 }
 
 /// The translations for Romanian Moldavian Moldovan (`ro`).
@@ -9831,9 +11043,6 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'articole';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -9877,6 +11086,18 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Mergi la pagina';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Doriți să deschideți pagina la';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ANULARE';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'DESCHIS';
+
+  @override
+  String get pdfHyperlinkLabel => r'Deschideți pagina web';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'Vă rugăm să introduceți un număr valid';
 
@@ -9911,7 +11132,13 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadanul';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Rânduri pe pagină';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serie';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -9944,7 +11171,7 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get shortRajabLabel => r'Raj.';
 
   @override
-  String get shortRamadanLabel => r'RAM.';
+  String get shortRamadanLabel => r'Berbec.';
 
   @override
   String get shortSafarLabel => r'Saf.';
@@ -9984,19 +11211,19 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'Расписание';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Хронология День';
+  String get allowedViewTimelineDayLabel => r'День';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Хронология Месяц';
+  String get allowedViewTimelineMonthLabel => r'Месяц';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Хронология недели';
+  String get allowedViewTimelineWeekLabel => r'Неделя временной шкалы';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'График работы за неделю';
+  String get allowedViewTimelineWorkWeekLabel => r'Рабочая неделя';
 
   @override
-  String get allowedViewWeekLabel => r'Неделя';
+  String get allowedViewWeekLabel => r'Неделю';
 
   @override
   String get allowedViewWorkWeekLabel => r'Рабочая неделя';
@@ -10008,13 +11235,10 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get dhualhiLabel => r'Зу аль-Хиджа';
 
   @override
-  String get dhualqiLabel => r'Зу аль-Киада';
+  String get dhualqiLabel => r'Зу аль-Кида';
 
   @override
-  String get itemsDataPagerLabel => r'Предметы';
-
-  @override
-  String get jumada1Label => r'Джумада аль-Аввал';
+  String get jumada1Label => r'Джумада аль-авваль';
 
   @override
   String get jumada2Label => r'Джумада аль-тани';
@@ -10036,7 +11260,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
 
   @override
   String get passwordDialogContentLabel =>
-      r'Введите пароль, чтобы открыть этот PDF-файл';
+      r'Введите пароль, чтобы открыть этот файл PDF';
 
   @override
   String get passwordDialogHeaderTextLabel => r'Пароль защищен';
@@ -10045,7 +11269,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get passwordDialogHintTextLabel => r'Введите пароль';
 
   @override
-  String get passwordDialogInvalidPasswordLabel => r'Неверный пароль';
+  String get passwordDialogInvalidPasswordLabel => r'неправильный пароль';
 
   @override
   String get pdfBookmarksLabel => r'Закладки';
@@ -10057,6 +11281,18 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Перейти на страницу';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Вы хотите открыть страницу в';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ОТМЕНА';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ОТКРЫТЫМ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Открыть веб-страницу';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'пожалуйста введите правильное число';
 
@@ -10064,13 +11300,13 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Закладки не найдены';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'ОТМЕНА';
+  String get pdfPaginationDialogCancelLabel => r'ОТМЕНИТЬ';
 
   @override
   String get pdfPaginationDialogOkLabel => r'Ok';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'ОТМЕНА';
+  String get pdfPasswordDialogCancelLabel => r'ОТМЕНИТЬ';
 
   @override
   String get pdfPasswordDialogOpenLabel => r'ОТКРЫТЫМ';
@@ -10079,10 +11315,10 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'из';
 
   @override
-  String get rabi1Label => r'Раби аль-Аввал';
+  String get rabi1Label => r'Раби аль-авваль';
 
   @override
-  String get rabi2Label => r'Раби аль-тани';
+  String get rabi2Label => r'Раби аль-Тани';
 
   @override
   String get rajabLabel => r'Раджаб';
@@ -10091,7 +11327,13 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get ramadanLabel => r'Рамадан';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Строк на странице';
+
+  @override
   String get safarLabel => r'Сафар';
+
+  @override
+  String get series => r'Ряд';
 
   @override
   String get shaabanLabel => r'Шаабан';
@@ -10103,31 +11345,31 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get shortDhualhiLabel => r'Зуль-Х';
 
   @override
-  String get shortDhualqiLabel => r'Зуль-К';
+  String get shortDhualqiLabel => r'Зуль-Кью';
 
   @override
-  String get shortJumada1Label => r'Джам. я';
+  String get shortJumada1Label => r'Джум. я';
 
   @override
-  String get shortJumada2Label => r'Джам. II';
+  String get shortJumada2Label => r'Джум. II';
 
   @override
   String get shortMuharramLabel => r'Мух.';
 
   @override
-  String get shortRabi1Label => r'Лави. я';
+  String get shortRabi1Label => r'Раби. я';
 
   @override
-  String get shortRabi2Label => r'Лави. II';
+  String get shortRabi2Label => r'Раби. II';
 
   @override
   String get shortRajabLabel => r'Радж.';
 
   @override
-  String get shortRamadanLabel => r'Баран.';
+  String get shortRamadanLabel => r'ОЗУ.';
 
   @override
-  String get shortSafarLabel => r'Saf.';
+  String get shortSafarLabel => r'Саф.';
 
   @override
   String get shortShaabanLabel => r'Ша.';
@@ -10139,7 +11381,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get todayLabel => r'Сегодня';
 
   @override
-  String get weeknumberLabel => r'Неделя';
+  String get weeknumberLabel => r'Неделю';
 }
 
 /// The translations for Sinhala Sinhalese (`si`).
@@ -10170,7 +11412,7 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   String get allowedViewTimelineMonthLabel => r'කාලරේඛා මාසය';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'කාලසටහන් සතිය';
+  String get allowedViewTimelineWeekLabel => r'කාලරේඛා සතිය';
 
   @override
   String get allowedViewTimelineWorkWeekLabel => r'කාලසටහන වැඩ සතිය';
@@ -10185,13 +11427,10 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'දිනය';
 
   @override
-  String get dhualhiLabel => r'දු අල්-හිජ්ජා';
+  String get dhualhiLabel => r'Dhu al-Hijjah';
 
   @override
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
-
-  @override
-  String get itemsDataPagerLabel => r'අයිතම';
 
   @override
   String get jumada1Label => r'Jumada al-awwal';
@@ -10237,6 +11476,18 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'පිටුවට යන්න';
 
   @override
+  String get pdfHyperlinkContentLabel => r'ඔබට පිටුව විවෘත කිරීමට අවශ්‍යද';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'අවලංගු කරන්න';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'විවෘත';
+
+  @override
+  String get pdfHyperlinkLabel => r'වෙබ් පිටුව විවෘත කරන්න';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'කරුණාකර වලංගු අංකයක් ඇතුළත් කරන්න';
 
   @override
@@ -10270,7 +11521,13 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   String get ramadanLabel => r'රාමසාන්';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'පිටුවකට පේළි';
+
+  @override
   String get safarLabel => r'සෆාර්';
+
+  @override
+  String get series => r'මාලාවක්';
 
   @override
   String get shaabanLabel => r'ෂාබාන්';
@@ -10370,9 +11627,6 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'položky';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -10416,6 +11670,18 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Chod na stranu';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Chcete otvoriť stránku na';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ZRUŠIŤ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OTVORENÉ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Otvorte webovú stránku';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Prosím zadajte platné číslo';
 
   @override
@@ -10449,7 +11715,13 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadán';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Počet riadkov na stránku';
+
+  @override
   String get safarLabel => r'Šafár';
+
+  @override
+  String get series => r'séria';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -10549,9 +11821,6 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'predmetov';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -10595,6 +11864,18 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Pojdi na stran';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Ali želite odpreti stran na';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'PREKLIC';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ODPRTO';
+
+  @override
+  String get pdfHyperlinkLabel => r'Odprite spletno stran';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Vnesite veljavno številko';
 
   @override
@@ -10628,7 +11909,13 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Vrstice na stran';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serija';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -10728,9 +12015,6 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhul Kida';
 
   @override
-  String get itemsDataPagerLabel => r'artikujt';
-
-  @override
   String get jumada1Label => r'Xhumada el-evvel';
 
   @override
@@ -10774,11 +12058,23 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Shkoni në faqe';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Dëshironi të hapni faqen në';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ANULON';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'HAPUR';
+
+  @override
+  String get pdfHyperlinkLabel => r'Hapni faqen e internetit';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'Ju lutemi shkruani një numër të vlefshëm';
 
   @override
-  String get pdfNoBookmarksLabel => r'Nuk u gjet asnjë faqeshënues';
+  String get pdfNoBookmarksLabel => r'Nuk u gjetën faqeshënues';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'ANULON';
@@ -10808,16 +12104,22 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramazani';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Rreshtat për faqe';
+
+  @override
   String get safarLabel => r'Safar';
 
   @override
-  String get shaabanLabel => r'Shaban';
+  String get series => r'Seria';
+
+  @override
+  String get shaabanLabel => r'Sha' "'" r'ban';
 
   @override
   String get shawwalLabel => r'Shevali';
 
   @override
-  String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
+  String get shortDhualhiLabel => r'Dhul-H';
 
   @override
   String get shortDhualqiLabel => r'Dhu' "'" r'l-K';
@@ -10909,9 +12211,6 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Дху ал-Ки' "'" r'дах';
 
   @override
-  String get itemsDataPagerLabel => r'ставке';
-
-  @override
   String get jumada1Label => r'Јумада ал-аввал';
 
   @override
@@ -10955,6 +12254,19 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Иди на страну';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Да ли желите да отворите страницу на';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ПОНИШТИТИ, ОТКАЗАТИ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ОПЕН';
+
+  @override
+  String get pdfHyperlinkLabel => r'Отворите веб страницу';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Молимо Вас да унесете важећи број';
 
   @override
@@ -10988,7 +12300,13 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
   String get ramadanLabel => r'Рамазана';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Редова по страници';
+
+  @override
   String get safarLabel => r'Сафар';
+
+  @override
+  String get series => r'Серије';
 
   @override
   String get shaabanLabel => r'Сха' "'" r'абан';
@@ -11071,7 +12389,7 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'Schema';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Tidslinjens dag';
+  String get allowedViewTimelineDayLabel => r'Tidslinjedagen';
 
   @override
   String get allowedViewTimelineMonthLabel => r'Tidslinje månad';
@@ -11096,9 +12414,6 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
 
   @override
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
-
-  @override
-  String get itemsDataPagerLabel => r'föremål';
 
   @override
   String get jumada1Label => r'Jumada al-awwal';
@@ -11144,6 +12459,18 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Gå till sidan';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Vill du öppna sidan på';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'AVBRYT';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ÖPPEN';
+
+  @override
+  String get pdfHyperlinkLabel => r'Öppna webbsidan';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'var vänlig skriv in ett giltigt nummer';
 
@@ -11151,16 +12478,16 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Inga bokmärken hittades';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'AVBRYT';
+  String get pdfPaginationDialogCancelLabel => r'ANNULLERA';
 
   @override
   String get pdfPaginationDialogOkLabel => r'OK';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'AVBRYT';
+  String get pdfPasswordDialogCancelLabel => r'ANNULLERA';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'ÖPPEN';
+  String get pdfPasswordDialogOpenLabel => r'ÖPPET';
 
   @override
   String get pdfScrollStatusOfLabel => r'av';
@@ -11178,7 +12505,13 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Rader per sida';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serier';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -11278,9 +12611,6 @@ class SfLocalizationsSw extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'vitu';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -11324,6 +12654,18 @@ class SfLocalizationsSw extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Nenda kwa ukurasa';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Je, unataka kufungua ukurasa katika';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'GHAIRI';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'FUNGUA';
+
+  @override
+  String get pdfHyperlinkLabel => r'Fungua Ukurasa wa Wavuti';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Tafadhali weka nambari halali';
 
   @override
@@ -11357,7 +12699,13 @@ class SfLocalizationsSw extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadhani';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Safu kwa kila ukurasa';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Msururu';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -11457,9 +12805,6 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   String get dhualqiLabel => r'து அல்-கிடா';
 
   @override
-  String get itemsDataPagerLabel => r'பொருட்களை';
-
-  @override
   String get jumada1Label => r'ஜுமாதா அல்-அவ்வல்';
 
   @override
@@ -11503,6 +12848,19 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'பக்கத்திற்கு செல்';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'நீங்கள் பக்கத்தைத் திறக்க விரும்புகிறீர்களா?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ரத்துசெய்';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'திறந்த';
+
+  @override
+  String get pdfHyperlinkLabel => r'இணையப் பக்கத்தைத் திற';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'சரியான எண்ணை உள்ளிடவும்';
 
   @override
@@ -11536,7 +12894,13 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   String get ramadanLabel => r'ரமலான்';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'ஒரு பக்கத்திற்கு வரிசைகள்';
+
+  @override
   String get safarLabel => r'சஃபர்';
+
+  @override
+  String get series => r'தொடர்';
 
   @override
   String get shaabanLabel => r'ஷஅபான்';
@@ -11633,10 +12997,7 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
   String get dhualhiLabel => r'ధు అల్-హిజ్జా';
 
   @override
-  String get dhualqiLabel => r'ధు అల్-కి' "'" r'దా';
-
-  @override
-  String get itemsDataPagerLabel => r'అంశాలు';
+  String get dhualqiLabel => r'ధు అల్-ఖైదా';
 
   @override
   String get jumada1Label => r'జుమాదా అల్-అవ్వల్';
@@ -11682,6 +13043,19 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'పుటకు వెళ్ళు';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'మీరు పేజీని ఇక్కడ తెరవాలనుకుంటున్నారా';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'రద్దు చేయండి';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'తెరవండి';
+
+  @override
+  String get pdfHyperlinkLabel => r'వెబ్ పేజీని తెరవండి';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'దయచేసి చెల్లుబాటు అయ్యే నంబర్‌ను నమోదు చేయండి';
 
@@ -11716,7 +13090,13 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
   String get ramadanLabel => r'రంజాన్';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'ప్రతి పేజీకి వరుసలు';
+
+  @override
   String get safarLabel => r'సఫర్';
+
+  @override
+  String get series => r'సిరీస్';
 
   @override
   String get shaabanLabel => r'షాబాన్';
@@ -11813,10 +13193,7 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get dhualhiLabel => r'ดูอัลฮิจญะฮ์';
 
   @override
-  String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
-
-  @override
-  String get itemsDataPagerLabel => r'รายการ';
+  String get dhualqiLabel => r'ญุมาดา อัล-ธานี';
 
   @override
   String get jumada1Label => r'ญุมาดา อัลเอาวัล';
@@ -11861,7 +13238,19 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ไปที่หน้า';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'โปรดป้อนหมายเลขที่ถูกต้อง';
+  String get pdfHyperlinkContentLabel => r'ต้องการเปิดเพจที่';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'ยกเลิก';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'เปิด';
+
+  @override
+  String get pdfHyperlinkLabel => r'เปิดหน้าเว็บ';
+
+  @override
+  String get pdfInvalidPageNumberLabel => r'กรุณาใส่ตัวเลขที่ถูกต้อง';
 
   @override
   String get pdfNoBookmarksLabel => r'ไม่พบบุ๊คมาร์ค';
@@ -11894,7 +13283,13 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get ramadanLabel => r'รอมฎอน';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'แถวต่อหน้า';
+
+  @override
   String get safarLabel => r'ซาฟาร์';
+
+  @override
+  String get series => r'ชุด';
 
   @override
   String get shaabanLabel => r'ชะอฺบาน';
@@ -11909,7 +13304,7 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'ดุล-คิว';
 
   @override
-  String get shortJumada1Label => r'จั้ม. ผม';
+  String get shortJumada1Label => r'จั้ม. ฉัน';
 
   @override
   String get shortJumada2Label => r'จั้ม. II';
@@ -11918,7 +13313,7 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get shortMuharramLabel => r'มุ้ย.';
 
   @override
-  String get shortRabi1Label => r'รบี. ผม';
+  String get shortRabi1Label => r'รบี. ฉัน';
 
   @override
   String get shortRabi2Label => r'รบี. II';
@@ -11995,9 +13390,6 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'aytem';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -12041,6 +13433,18 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Pumunta sa pahina';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Gusto mo bang buksan ang pahina sa';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'KANSELAHIN';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'BUKAS';
+
+  @override
+  String get pdfHyperlinkLabel => r'Buksan ang Web Page';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'Mangyaring magpasok ng wastong numero';
 
@@ -12075,7 +13479,13 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Mga hilera bawat pahina';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Serye';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -12176,10 +13586,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Zil Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'öğeler';
-
-  @override
-  String get jumada1Label => r'Cumade el-evvel';
+  String get jumada1Label => r'Cumada el-evvel';
 
   @override
   String get jumada2Label => r'Jumada al-thani';
@@ -12222,6 +13629,18 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Sayfaya git';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Sayfayı açmak ister misin?';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'İPTAL ET';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'AÇIK';
+
+  @override
+  String get pdfHyperlinkLabel => r'Web Sayfasını Aç';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Lütfen geçerli bir numara girin';
 
   @override
@@ -12255,7 +13674,13 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramazan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Sayfa başına satır sayısı';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Seri';
 
   @override
   String get shaabanLabel => r'Şaban';
@@ -12270,7 +13695,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'Zil-Q';
 
   @override
-  String get shortJumada1Label => r'Jum. ben';
+  String get shortJumada1Label => r'Jum. i';
 
   @override
   String get shortJumada2Label => r'Jum. II';
@@ -12279,7 +13704,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get shortMuharramLabel => r'Müh.';
 
   @override
-  String get shortRabi1Label => r'Rabi. ben';
+  String get shortRabi1Label => r'Rabi. i';
 
   @override
   String get shortRabi2Label => r'Rabi. II';
@@ -12355,9 +13780,6 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Зу аль-Кіда';
 
   @override
-  String get itemsDataPagerLabel => r'предметів';
-
-  @override
   String get jumada1Label => r'Джумада аль-авваль';
 
   @override
@@ -12401,6 +13823,19 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Перейти на сторінку';
 
   @override
+  String get pdfHyperlinkContentLabel =>
+      r'Бажаєте відкрити сторінку за адресою';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'СКАСУВАТИ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'ВІДЧИНЕНО';
+
+  @override
+  String get pdfHyperlinkLabel => r'Відкрийте веб-сторінку';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Введіть дійсне число';
 
   @override
@@ -12410,7 +13845,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'СКАСУВАТИ';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'в порядку';
+  String get pdfPaginationDialogOkLabel => r'гаразд';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'СКАСУВАТИ';
@@ -12434,7 +13869,13 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get ramadanLabel => r'Рамадан';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Рядків на сторінці';
+
+  @override
   String get safarLabel => r'Сафар';
+
+  @override
+  String get series => r'Серія';
 
   @override
   String get shaabanLabel => r'Шаабан';
@@ -12534,9 +13975,6 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ذی القعدہ';
 
   @override
-  String get itemsDataPagerLabel => r'اشیاء';
-
-  @override
   String get jumada1Label => r'جمادی الاول';
 
   @override
@@ -12552,7 +13990,7 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get noSelectedDateCalendarLabel => r'کوئی تاریخ منتخب نہیں ہے۔';
 
   @override
-  String get ofDataPagerLabel => r'کی';
+  String get ofDataPagerLabel => r'کا';
 
   @override
   String get pagesDataPagerLabel => r'صفحات';
@@ -12580,6 +14018,18 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'صفحے پر جائیں';
 
   @override
+  String get pdfHyperlinkContentLabel => r'کیا آپ صفحہ کو کھولنا چاہتے ہیں۔';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'منسوخ کریں۔';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'کھولیں';
+
+  @override
+  String get pdfHyperlinkLabel => r'ویب صفحہ کھولیں۔';
+
+  @override
   String get pdfInvalidPageNumberLabel =>
       r'براہ مہربانی ایک درست نمبر درج کریں';
 
@@ -12599,7 +14049,7 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get pdfPasswordDialogOpenLabel => r'کھولیں';
 
   @override
-  String get pdfScrollStatusOfLabel => r'کی';
+  String get pdfScrollStatusOfLabel => r'کا';
 
   @override
   String get rabi1Label => r'ربیع الاول';
@@ -12614,7 +14064,13 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get ramadanLabel => r'رمضان';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'قطار فی صفحہ';
+
+  @override
   String get safarLabel => r'صفر';
+
+  @override
+  String get series => r'سلسلہ';
 
   @override
   String get shaabanLabel => r'شعبان';
@@ -12714,9 +14170,6 @@ class SfLocalizationsUz extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Zulqida';
 
   @override
-  String get itemsDataPagerLabel => r'buyumlar';
-
-  @override
   String get jumada1Label => r'Jumada ul-avval';
 
   @override
@@ -12760,6 +14213,18 @@ class SfLocalizationsUz extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Sahifaga o' "'" r'tish';
 
   @override
+  String get pdfHyperlinkContentLabel => r'sahifani ochmoqchimisiz';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'BEKOR';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'OCHIQ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Veb-sahifani oching';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Yaroqli raqam kiriting';
 
   @override
@@ -12793,7 +14258,13 @@ class SfLocalizationsUz extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramazon';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Har bir sahifadagi qatorlar';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Seriya';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'bon';
@@ -12894,9 +14365,6 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'mặt hàng';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -12939,6 +14407,18 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Đi tới trang';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Bạn có muốn mở trang này tại';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'SỰ HỦY BỎ';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'MỞ';
+
+  @override
+  String get pdfHyperlinkLabel => r'Mở trang web';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Vui lòng nhập một số hợp lệ';
 
   @override
@@ -12954,7 +14434,7 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get pdfPasswordDialogCancelLabel => r'SỰ HỦY BỎ';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'MỞ RA';
+  String get pdfPasswordDialogOpenLabel => r'MỞ';
 
   @override
   String get pdfScrollStatusOfLabel => r'của';
@@ -12972,7 +14452,13 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Hàng trên mỗi trang';
+
+  @override
   String get safarLabel => r'Safar';
+
+  @override
+  String get series => r'Hàng loạt';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -13048,10 +14534,10 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'时间表日';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'时间轴月';
+  String get allowedViewTimelineMonthLabel => r'时间线月份';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'时间轴周';
+  String get allowedViewTimelineWeekLabel => r'时间线周';
 
   @override
   String get allowedViewTimelineWorkWeekLabel => r'时间表工作周';
@@ -13072,19 +14558,16 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get dhualqiLabel => r'杜阿尔-基达';
 
   @override
-  String get itemsDataPagerLabel => r'项目';
+  String get jumada1Label => r'胡玛达·奥瓦尔';
 
   @override
-  String get jumada1Label => r'Jumada al-awwal';
+  String get jumada2Label => r'朱马达·萨尼';
 
   @override
-  String get jumada2Label => r'Jumada al-thani';
+  String get muharramLabel => r'穆哈拉姆';
 
   @override
-  String get muharramLabel => r'穆哈兰姆';
-
-  @override
-  String get noEventsCalendarLabel => r'没有活动';
+  String get noEventsCalendarLabel => r'没有事件';
 
   @override
   String get noSelectedDateCalendarLabel => r'未选择日期';
@@ -13093,7 +14576,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get ofDataPagerLabel => r'的';
 
   @override
-  String get pagesDataPagerLabel => r'页';
+  String get pagesDataPagerLabel => r'页面';
 
   @override
   String get passwordDialogContentLabel => r'输入密码以打开此 PDF 文件';
@@ -13117,6 +14600,18 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'转到页面';
 
   @override
+  String get pdfHyperlinkContentLabel => r'您要在以下位置打开页面吗';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'取消';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'打开';
+
+  @override
+  String get pdfHyperlinkLabel => r'打开网页';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'请输入有效号码';
 
   @override
@@ -13138,7 +14633,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'的';
 
   @override
-  String get rabi1Label => r'Rabi' "'" r' al-awwal';
+  String get rabi1Label => r'拉比奥瓦尔';
 
   @override
   String get rabi2Label => r'拉比阿勒萨尼';
@@ -13150,7 +14645,13 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get ramadanLabel => r'斋月';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'每页行数';
+
+  @override
   String get safarLabel => r'萨法尔';
+
+  @override
+  String get series => r'系列';
 
   @override
   String get shaabanLabel => r'沙班';
@@ -13165,10 +14666,10 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'杜尔-Q';
 
   @override
-  String get shortJumada1Label => r'赞。一世';
+  String get shortJumada1Label => r'朱姆。一世';
 
   @override
-  String get shortJumada2Label => r'赞。二';
+  String get shortJumada2Label => r'朱姆。二';
 
   @override
   String get shortMuharramLabel => r'嗯。';
@@ -13180,7 +14681,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get shortRabi2Label => r'拉比。二';
 
   @override
-  String get shortRajabLabel => r'拉杰。';
+  String get shortRajabLabel => r'拉吉。';
 
   @override
   String get shortRamadanLabel => r'内存。';
@@ -13224,10 +14725,10 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get allowedViewTimelineDayLabel => r'時間表日';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'時間軸月';
+  String get allowedViewTimelineMonthLabel => r'時間線月份';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'時間軸週';
+  String get allowedViewTimelineWeekLabel => r'時間線週';
 
   @override
   String get allowedViewTimelineWorkWeekLabel => r'時間表工作週';
@@ -13242,19 +14743,19 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get dhualqiLabel => r'杜阿爾-基達';
 
   @override
-  String get itemsDataPagerLabel => r'項目';
+  String get jumada1Label => r'胡瑪達·奧瓦爾';
 
   @override
-  String get muharramLabel => r'穆哈蘭姆';
+  String get jumada2Label => r'朱馬達·薩尼';
 
   @override
-  String get noEventsCalendarLabel => r'沒有活動';
+  String get noEventsCalendarLabel => r'沒有事件';
 
   @override
   String get noSelectedDateCalendarLabel => r'未選擇日期';
 
   @override
-  String get pagesDataPagerLabel => r'頁';
+  String get pagesDataPagerLabel => r'頁面';
 
   @override
   String get passwordDialogContentLabel => r'輸入密碼以打開此 PDF 文件';
@@ -13278,6 +14779,15 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get pdfGoToPageLabel => r'轉到頁面';
 
   @override
+  String get pdfHyperlinkContentLabel => r'您要在以下位置打開頁面嗎';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'打開';
+
+  @override
+  String get pdfHyperlinkLabel => r'打開網頁';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'請輸入有效號碼';
 
   @override
@@ -13287,6 +14797,9 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get pdfPasswordDialogOpenLabel => r'打開';
 
   @override
+  String get rabi1Label => r'拉比奧瓦爾';
+
+  @override
   String get rabi2Label => r'拉比阿勒薩尼';
 
   @override
@@ -13294,6 +14807,9 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
 
   @override
   String get ramadanLabel => r'齋月';
+
+  @override
+  String get rowsPerPageDataPagerLabel => r'每頁行數';
 
   @override
   String get safarLabel => r'薩法爾';
@@ -13306,15 +14822,6 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
 
   @override
   String get shortDhualqiLabel => r'杜爾-Q';
-
-  @override
-  String get shortJumada1Label => r'贊。一世';
-
-  @override
-  String get shortJumada2Label => r'贊。二';
-
-  @override
-  String get shortRajabLabel => r'拉傑。';
 
   @override
   String get shortRamadanLabel => r'內存。';
@@ -13390,9 +14897,6 @@ class SfLocalizationsZu extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get itemsDataPagerLabel => r'izinto';
-
-  @override
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
@@ -13436,6 +14940,18 @@ class SfLocalizationsZu extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Yiya ekhasini';
 
   @override
+  String get pdfHyperlinkContentLabel => r'Ingabe ufuna ukuvula ikhasi ku';
+
+  @override
+  String get pdfHyperlinkDialogCancelLabel => r'KHANSELA';
+
+  @override
+  String get pdfHyperlinkDialogOpenLabel => r'VULA';
+
+  @override
+  String get pdfHyperlinkLabel => r'Vula Ikhasi Lewebhu';
+
+  @override
   String get pdfInvalidPageNumberLabel => r'Sicela ufake inombolo evumelekile';
 
   @override
@@ -13469,7 +14985,13 @@ class SfLocalizationsZu extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadan';
 
   @override
+  String get rowsPerPageDataPagerLabel => r'Imigqa ekhasini ngalinye';
+
+  @override
   String get safarLabel => r'I-Safar';
+
+  @override
+  String get series => r'Uchungechunge';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -13573,6 +15095,8 @@ final Set<String> kSyncfusionSupportedLanguages =
   'nb', // Norwegian Bokmål
   'ne', // Nepali
   'nl', // Dutch Flemish
+  'no', // Norwegian
+  'or', // Oriya
   'pa', // Panjabi Punjabi
   'pl', // Polish
   'ps', // Pushto Pashto
@@ -13659,6 +15183,8 @@ final Set<String> kSyncfusionSupportedLanguages =
 ///  * `nb` - Norwegian Bokmål
 ///  * `ne` - Nepali
 ///  * `nl` - Dutch Flemish
+///  * `no` - Norwegian
+///  * `or` - Oriya
 ///  * `pa` - Panjabi Punjabi
 ///  * `pl` - Polish
 ///  * `ps` - Pushto Pashto
@@ -13791,6 +15317,10 @@ SfGlobalLocalizations? getSyncfusionTranslation(
       return const SfLocalizationsNe();
     case 'nl':
       return const SfLocalizationsNl();
+    case 'no':
+      return const SfLocalizationsNo();
+    case 'or':
+      return const SfLocalizationsOr();
     case 'pa':
       return const SfLocalizationsPa();
     case 'pl':

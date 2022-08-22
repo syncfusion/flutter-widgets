@@ -1,11 +1,10 @@
 import 'dart:collection';
 import 'dart:convert';
 
-import 'package:syncfusion_flutter_pdf/src/pdf/implementation/forms/pdf_form_field_collection.dart';
-
 import '../../interfaces/pdf_interface.dart';
 import '../color_space/pdf_icc_color_profile.dart';
 import '../forms/pdf_form.dart';
+import '../forms/pdf_form_field_collection.dart';
 import '../general/file_specification_base.dart';
 import '../general/pdf_destination.dart';
 import '../general/pdf_named_destination.dart';
@@ -65,7 +64,7 @@ class PdfDocument {
   ///     brush: PdfSolidBrush(PdfColor(0, 0, 0)),
   ///     bounds: Rect.fromLTWH(0, 0, 150, 20));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -98,7 +97,7 @@ class PdfDocument {
   ///     brush: PdfSolidBrush(PdfColor(0, 0, 0)),
   ///     bounds: Rect.fromLTWH(0, 0, 150, 20));
   /// //Save the updated PDF document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -172,7 +171,7 @@ class PdfDocument {
   /// security.userPassword = 'password';
   /// security.ownerPassword = 'syncfusion';
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -196,7 +195,7 @@ class PdfDocument {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///      brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfSectionCollection? get sections => _sections;
@@ -213,7 +212,7 @@ class PdfDocument {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfPageSettings get pageSettings {
@@ -239,7 +238,7 @@ class PdfDocument {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   set pageSettings(PdfPageSettings settings) {
@@ -307,7 +306,7 @@ class PdfDocument {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfPageCollection get pages => _getPageCollection();
@@ -323,7 +322,7 @@ class PdfDocument {
   ///   ..textStyle = [PdfTextStyle.bold]
   ///   ..color = PdfColor(255, 0, 0);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -533,10 +532,10 @@ class PdfDocument {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = document.saveSync();
   /// document.dispose();
   /// ```
-  List<int> save() {
+  List<int> saveSync() {
     final List<int> buffer = <int>[];
     final PdfWriter writer = PdfWriter(buffer);
     writer.document = this;
@@ -617,7 +616,109 @@ class PdfDocument {
     return writer.buffer!;
   }
 
+  /// Saves the document and return the saved bytes as future list of int.
+  /// ```dart
+  /// //Create a PDF document instance.
+  /// PdfDocument document = PdfDocument();
+  /// //Get the page and draw text.
+  /// document.pages.add().graphics.drawString(
+  ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+  ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save and dispose document.
+  /// List<int> bytes = await document.save();
+  /// document.dispose();
+  /// ```
+  Future<List<int>> save() async {
+    final List<int> buffer = <int>[];
+    final PdfWriter writer = PdfWriter(buffer);
+    writer.document = this;
+    await _checkPagesAsync();
+    if (PdfSecurityHelper.getHelper(security).encryptAttachments &&
+        security.userPassword == '') {
+      throw ArgumentError.value(
+          'User password cannot be empty for encrypt only attachment.');
+    }
+    if (_helper.isLoadedDocument) {
+      if (_helper._security != null) {
+        if (PdfSecurityHelper.getHelper(_helper._security!)
+            .encryptAttachments) {
+          fileStructure.incrementalUpdate = false;
+          if (PdfSecurityHelper.getHelper(_helper._security!)
+              .encryptor
+              .userPassword
+              .isEmpty) {
+            PdfSecurityHelper.getHelper(_helper._security!)
+                .encryptor
+                .encryptOnlyAttachment = false;
+          }
+        }
+      }
+      if (fileStructure.incrementalUpdate &&
+          (_helper._security == null ||
+              (_helper._security != null &&
+                  !PdfSecurityHelper.getHelper(_helper._security!)
+                      .modifiedSecurity &&
+                  !PdfPermissionsHelper.isModifiedPermissions(
+                      _helper._security!.permissions)))) {
+        await _copyOldStreamAsync(writer).then((_) {
+          if (_helper.catalog.changed!) {
+            _readDocumentInfoAsync();
+          }
+        });
+      } else {
+        _helper.crossTable = PdfCrossTable.fromCatalog(
+            _helper.crossTable.count,
+            _helper.crossTable.encryptorDictionary,
+            _helper.crossTable.pdfDocumentCatalog);
+        _helper.crossTable.document = this;
+        _helper.crossTable.trailer![PdfDictionaryProperties.info] =
+            PdfReferenceHolder(documentInformation);
+      }
+      await _appendDocumentAsync(writer);
+    } else {
+      if (_helper.conformanceLevel == PdfConformanceLevel.a1b ||
+          _helper.conformanceLevel == PdfConformanceLevel.a2b ||
+          _helper.conformanceLevel == PdfConformanceLevel.a3b) {
+        PdfDocumentInformationHelper.getHelper(documentInformation).xmpMetadata;
+        if (_helper.conformanceLevel == PdfConformanceLevel.a3b &&
+            _helper.catalog.names != null &&
+            attachments.count > 0) {
+          final PdfName fileRelationShip =
+              PdfName(PdfDictionaryProperties.afRelationship);
+          final PdfArray fileAttachmentAssociationArray = PdfArray();
+          for (int i = 0; i < attachments.count; i++) {
+            if (!PdfFileSpecificationBaseHelper.getHelper(attachments[i])
+                .dictionary!
+                .items!
+                .containsKey(fileRelationShip)) {
+              PdfFileSpecificationBaseHelper.getHelper(attachments[i])
+                  .dictionary!
+                  .items![fileRelationShip] = PdfName('Alternative');
+            }
+            fileAttachmentAssociationArray.add(PdfReferenceHolder(
+                PdfFileSpecificationBaseHelper.getHelper(attachments[i])
+                    .dictionary));
+          }
+          _helper.catalog.items![PdfName(PdfDictionaryProperties.af)] =
+              fileAttachmentAssociationArray;
+        }
+      }
+      await _helper.crossTable.saveAsync(writer);
+      final DocumentSavedArgs argsSaved = DocumentSavedArgs(writer);
+      await _onDocumentSavedAsync(argsSaved);
+    }
+    return writer.buffer!;
+  }
+
   void _checkPages() {
+    if (!_helper.isLoadedDocument) {
+      if (pages.count == 0) {
+        pages.add();
+      }
+    }
+  }
+
+  Future<void> _checkPagesAsync() async {
     if (!_helper.isLoadedDocument) {
       if (pages.count == 0) {
         pages.add();
@@ -635,7 +736,7 @@ class PdfDocument {
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 0, 0));
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   void dispose() {
@@ -712,6 +813,11 @@ class PdfDocument {
     _helper.isStreamCopied = true;
   }
 
+  Future<void> _copyOldStreamAsync(PdfWriter writer) async {
+    writer.writeAsync(_data);
+    _helper.isStreamCopied = true;
+  }
+
   void _appendDocument(PdfWriter writer) {
     writer.document = this;
     _helper.crossTable.save(writer);
@@ -720,12 +826,21 @@ class PdfDocument {
     _onDocumentSaved(argsSaved);
   }
 
+  Future<void> _appendDocumentAsync(PdfWriter writer) async {
+    writer.document = this;
+    await _helper.crossTable.saveAsync(writer).then((_) async {
+      PdfSecurityHelper.getHelper(security).encryptor.encrypt = true;
+      final DocumentSavedArgs argsSaved = DocumentSavedArgs(writer);
+      await _onDocumentSavedAsync(argsSaved);
+    });
+  }
+
   void _readFileVersion() {
-    final PdfReader _reader = PdfReader(_data);
-    _reader.position = 0;
-    String token = _reader.getNextToken()!;
+    final PdfReader reader = PdfReader(_data);
+    reader.position = 0;
+    String token = reader.getNextToken()!;
     if (token.startsWith('%')) {
-      token = _reader.getNextToken()!;
+      token = reader.getNextToken()!;
       _setFileVersion(token);
     }
   }
@@ -867,6 +982,39 @@ class PdfDocument {
     }
   }
 
+  Future<void> _readDocumentInfoAsync() async {
+    // Read document's info if present.
+    final PdfDictionary? info = PdfCrossTable.dereference(
+            _helper.crossTable.trailer![PdfDictionaryProperties.info])
+        as PdfDictionary?;
+    if (info != null && _documentInfo == null) {
+      _documentInfo = PdfDocumentInformationHelper.load(_helper.catalog,
+          dictionary: info,
+          isLoaded: true,
+          conformance: _helper.conformanceLevel);
+    }
+    if (info != null &&
+        !info.changed! &&
+        _helper.crossTable.trailer![PdfDictionaryProperties.info]
+            is PdfReferenceHolder) {
+      _documentInfo = PdfDocumentInformationHelper.load(_helper.catalog,
+          dictionary: info,
+          isLoaded: true,
+          conformance: _helper.conformanceLevel);
+      if (_helper.catalog.changed!) {
+        _documentInfo!.modificationDate = DateTime.now();
+      }
+      if ((await _helper.objects
+              .lookForAsync(IPdfWrapper.getElement(_documentInfo!)!))! >
+          -1) {
+        await _helper.objects.reregisterReferenceAsync(
+            (await _helper.objects.lookForAsync(info))!,
+            IPdfWrapper.getElement(_documentInfo!)!);
+        IPdfWrapper.getElement(_documentInfo!)!.position = -1;
+      }
+    }
+  }
+
   void _initializeConformance(PdfConformanceLevel conformance) {
     _helper.conformanceLevel = conformance;
     if (_helper.conformanceLevel == PdfConformanceLevel.a1b ||
@@ -899,6 +1047,15 @@ class PdfDocument {
 
   //Raises DocumentSaved event.
   void _onDocumentSaved(DocumentSavedArgs args) {
+    if (_helper.documentSavedList != null &&
+        _helper.documentSavedList!.isNotEmpty) {
+      for (int i = 0; i < _helper.documentSavedList!.length; i++) {
+        _helper.documentSavedList![i](this, args);
+      }
+    }
+  }
+
+  Future<void> _onDocumentSavedAsync(DocumentSavedArgs args) async {
     if (_helper.documentSavedList != null &&
         _helper.documentSavedList!.isNotEmpty) {
       for (int i = 0; i < _helper.documentSavedList!.length; i++) {

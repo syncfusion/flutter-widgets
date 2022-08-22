@@ -665,7 +665,7 @@ class PdfGraphics {
   ///       pen: PdfPens.red)
   ///   ..restore();
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -1017,6 +1017,7 @@ class PdfGraphics {
           _helper.streamWriter!.closePath();
           break;
 
+        // ignore: no_default_cases
         default:
           throw ArgumentError('Incorrect path formation.');
       }
@@ -1036,7 +1037,7 @@ class PdfGraphics {
         throw ArgumentError(errorMsg);
       }
     } else {
-      throw throw ArgumentError(errorMsg);
+      throw ArgumentError(errorMsg);
     }
     return <String, dynamic>{
       'i': i,
@@ -1505,7 +1506,8 @@ class PdfGraphicsHelper {
         case PdfTextAlignment.right:
           shift = boundsWidth - lineWidth!;
           break;
-        default:
+        case PdfTextAlignment.left:
+        case PdfTextAlignment.justify:
           break;
       }
     }
@@ -1560,8 +1562,11 @@ class PdfGraphicsHelper {
       final ArabicShapeRenderer renderer = ArabicShapeRenderer();
       final String txt = renderer.shape(line!.split(''), 0);
       final Bidi bidi = Bidi();
-      final String result = bidi.getLogicalToVisualString(
-          txt, format.textDirection == PdfTextDirection.rightToLeft);
+      bidi.isVisualOrder = false;
+      final String result = bidi.getLogicalToVisualString(txt,
+              format.textDirection == PdfTextDirection.rightToLeft)['rtlText']
+          as String;
+      bidi.isVisualOrder = true;
       final List<String> blocks = <String>[];
       if (useWordSpace) {
         final List<String> words = result.split(' ');
@@ -1836,7 +1841,8 @@ class PdfGraphicsHelper {
         case PdfTextAlignment.right:
           layoutedRectangle.x -= layoutedRectangle.width;
           break;
-        default:
+        case PdfTextAlignment.left:
+        case PdfTextAlignment.justify:
           break;
       }
       switch (format.lineAlignment) {
@@ -1846,7 +1852,7 @@ class PdfGraphicsHelper {
         case PdfVerticalAlignment.bottom:
           layoutedRectangle.y -= layoutedRectangle.height;
           break;
-        default:
+        case PdfVerticalAlignment.top:
           break;
       }
     }
@@ -2034,11 +2040,10 @@ class PdfGraphicsHelper {
         case PdfVerticalAlignment.middle:
           shift = (boundsHeight - textHeight!) / 2;
           break;
-
         case PdfVerticalAlignment.bottom:
           shift = boundsHeight - textHeight!;
           break;
-        default:
+        case PdfVerticalAlignment.top:
           break;
       }
     }
@@ -2097,7 +2102,7 @@ class PdfGraphicsHelper {
     PdfTrueTypeFontHelper.getHelper(font)
         .setSymbols(text, ttfReader.internalUsedChars);
     ttfReader.internalUsedChars = null;
-    final List<int> bytes = PdfString.toUnicodeArray(token, false);
+    final List<int> bytes = PdfString.toUnicodeArray(token);
     token = PdfString.byteToString(bytes);
     return token;
   }

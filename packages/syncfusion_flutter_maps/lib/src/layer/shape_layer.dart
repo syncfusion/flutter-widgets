@@ -13,7 +13,7 @@ import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/legend_internal.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_maps/maps.dart';
+import '../../maps.dart';
 
 import '../common.dart';
 import '../controller/map_controller.dart';
@@ -863,11 +863,7 @@ class _ShapeBounds {
   num? maxLongitude;
   num? maxLatitude;
 
-  _ShapeBounds get empty => _ShapeBounds(
-      minLongitude: null,
-      minLatitude: null,
-      maxLongitude: null,
-      maxLatitude: null);
+  _ShapeBounds get empty => _ShapeBounds();
 }
 
 class _ShapeFileData {
@@ -2055,7 +2051,7 @@ class _RenderGeoJSONLayer extends RenderStack
       _refresh();
       markNeedsPaint();
       SchedulerBinding.instance
-          ?.addPostFrameCallback(_initiateInitialAnimations);
+          .addPostFrameCallback(_initiateInitialAnimations);
     }
   }
 
@@ -2762,7 +2758,7 @@ class _RenderGeoJSONLayer extends RenderStack
 
   /// Handling zooming using mouse wheel scrolling.
   void _handleScrollEvent(PointerScrollEvent event) {
-    if (_zoomPanBehavior != null && _zoomPanBehavior!.enablePinching) {
+    if (_zoomPanBehavior != null && _zoomPanBehavior!.enableMouseWheelZooming) {
       _controller.isInInteractive = true;
       _controller.gesture ??= Gesture.scale;
       if (_controller.gesture != Gesture.scale) {
@@ -2799,9 +2795,12 @@ class _RenderGeoJSONLayer extends RenderStack
       Offset? localFocalPoint,
       Offset? globalFocalPoint}) {
     final double newZoomLevel = _getZoomLevel(scale);
-    final double newShapeLayerSizeFactor = _getScale(newZoomLevel);
+    final double newShapeLayerSizeFactor =
+        _getScale(newZoomLevel) * _controller.shapeLayerSizeFactor;
     final Offset newShapeLayerOffset =
         _controller.getZoomingTranslation(origin: localFocalPoint);
+    _controller.visibleFocalLatLng = _controller.getVisibleFocalLatLng(
+        newShapeLayerOffset, newShapeLayerSizeFactor);
     final Rect newVisibleBounds = _controller.getVisibleBounds(
         newShapeLayerOffset, newShapeLayerSizeFactor);
     final MapLatLngBounds newVisibleLatLngBounds =
@@ -3413,6 +3412,7 @@ class _RenderGeoJSONLayer extends RenderStack
             _state.widget.shapeTooltipBuilder != null ||
             hasShapeHoverColor) &&
         element != MapLayerElement.bubble &&
+        mapModel.shapePath != null &&
         mapModel.shapePath!.contains(position);
   }
 
@@ -3568,7 +3568,7 @@ class _RenderGeoJSONLayer extends RenderStack
         ..addListener(_handleFocalLatLngAnimation)
         ..addStatusListener(_handleFocalLatLngAnimationStatusChange);
     }
-    SchedulerBinding.instance?.addPostFrameCallback(_initiateInitialAnimations);
+    SchedulerBinding.instance.addPostFrameCallback(_initiateInitialAnimations);
   }
 
   @override

@@ -8,13 +8,13 @@ class PointInfo<D> {
   /// Creating an argument constructor of PointInfo class.
   PointInfo(this.x, this.y);
 
-  /// X value of point info
+  /// X value of point info.
   dynamic x;
 
-  /// Y value of point info
+  /// Y value of point info.
   num? y;
 
-  /// Text value of point info
+  /// Text value of point info.
   String? text;
 
   /// Fill color of point info.
@@ -93,13 +93,13 @@ class PointInfo<D> {
 }
 
 // ignore: avoid_classes_with_only_static_members
-/// Helper class handling PointInfo class private fields
+/// Helper class handling PointInfo class private fields.
 class PointInfoHelper {
-  /// Returns the value of isLabelCollide flag for the given point
+  /// Returns the value of isLabelCollide flag for the given point.
   static bool getIsLabelCollide(PointInfo<dynamic> point) =>
       point._isLabelCollide;
 
-  /// Sets the value of isLabelCollide flag for the given point
+  /// Sets the value of isLabelCollide flag for the given point.
   static void setIsLabelCollide(PointInfo<dynamic> point, bool isLabelCollide) {
     point._isLabelCollide = isLabelCollide;
   }

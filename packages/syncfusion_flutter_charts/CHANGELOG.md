@@ -1,6 +1,40 @@
 ## Unreleased
 
 **Features**
+* Provided the support to customize the date-time axis labels based on the interval type.
+
+* Now, the scrollbar can be displayed always or on-demand when the legend [overflowMode](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/Legend/overflowMode.html) is set to `scroll`.
+
+* Provided the support to trim the intersecting axis labels when the [labelIntersectAction](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/labelIntersectAction.html) property is set to `AxisLabelIntersectAction.trim`.
+
+## [20.1.47] - 04/04/2022
+
+**Bugs**
+* The [onAxisLabelTapped](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/onAxisLabelTapped.html) callback works properly with the rotated axis labels.
+
+**Features**
+* Provided support to display the trackball tooltip smartly when there is no space horizontally.
+* Now, the tooltips and the trackball tooltips can be rendered in right-to-left direction.
+* Based on the current locale, the built-in texts in legends and tooltips are automatically translated now.
+
+## [19.4.55] - 03/08/2022
+
+**Bugs**
+* Now, the border in the edges of the radial bar chart renders properly and will not get cut off.
+
+## [19.4.50] - 02/08/2022
+
+**Bugs**
+* Now, the chart will not throw exceptions while showing the chart widget based on the connection state of the FutureBuilder widget and scrolling with the SingleChildScrollView widget.
+
+## [19.4.43] - 01/18/2022
+
+**Bugs**
+* The series will not be visible after calling the setstate when its visibility is set to false.
+
+## [19.4.38] - 12/17/2021
+
+**Features**
 * Implemented multilevel axis labels support in Cartesian charts to categorize the axis labels.
 * Improved the date-time axis label’s default format to display additional detail about the date.
 * Provided support to trim, shift, or hide data labels that overflow from their segments in pie, doughnut, pyramid, and funnel charts. 

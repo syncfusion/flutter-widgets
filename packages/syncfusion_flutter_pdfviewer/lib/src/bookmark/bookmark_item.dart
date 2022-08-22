@@ -1,9 +1,7 @@
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
+import '../common/pdfviewer_helper.dart';
 
 /// Width of the back icon in the bookmark.
 const double _kPdfBackIconWidth = 24.0;
@@ -54,7 +52,8 @@ class BookmarkItem extends StatefulWidget {
       this.isBorderEnabled = false,
       this.isExpandIconVisible = false,
       this.isBackIconVisible = false,
-      required this.isMobileWebView});
+      required this.isMobileWebView,
+      required this.textDirection});
 
   /// Title for the bookmark.
   final String title;
@@ -95,6 +94,9 @@ class BookmarkItem extends StatefulWidget {
 
   /// If true,MobileWebView is enabled.Default value is false.
   final bool isMobileWebView;
+
+  ///A direction of text flow.
+  final TextDirection textDirection;
 
   @override
   _BookmarkItemState createState() => _BookmarkItemState();
@@ -208,7 +210,9 @@ class _BookmarkItemState extends State<BookmarkItem> {
                 child: RawMaterialButton(
                   onPressed: _handleBackToParent,
                   child: Icon(
-                    Icons.arrow_back,
+                    widget.textDirection == TextDirection.rtl
+                        ? Icons.arrow_forward
+                        : Icons.arrow_back,
                     size: _kPdfBackIconSize,
                     color:
                         _pdfViewerThemeData!.bookmarkViewStyle?.backIconColor ??
@@ -250,7 +254,9 @@ class _BookmarkItemState extends State<BookmarkItem> {
                 child: RawMaterialButton(
                   onPressed: _handleExpandBookmarkList,
                   child: Icon(
-                    Icons.arrow_forward_ios,
+                    widget.textDirection == TextDirection.rtl
+                        ? Icons.arrow_back_ios
+                        : Icons.arrow_forward_ios,
                     size: _kPdfExpandIconSize,
                     color: _pdfViewerThemeData!
                             .bookmarkViewStyle?.navigationIconColor ??
@@ -267,7 +273,7 @@ class _BookmarkItemState extends State<BookmarkItem> {
         ),
       ),
     );
-    if ((kIsWeb || Platform.isMacOS) && !widget.isMobileWebView) {
+    if (kIsDesktop && !widget.isMobileWebView) {
       return MouseRegion(
         cursor: SystemMouseCursors.click,
         onEnter: (PointerEnterEvent details) {

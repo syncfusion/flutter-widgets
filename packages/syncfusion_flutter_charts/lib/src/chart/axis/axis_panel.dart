@@ -1,8 +1,9 @@
 import 'dart:math' as math;
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
 import 'package:syncfusion_flutter_core/core.dart';
+
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
 import '../axis/datetime_axis.dart';
@@ -11,6 +12,7 @@ import '../axis/logarithmic_axis.dart';
 import '../axis/numeric_axis.dart';
 import '../base/chart_base.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
 import '../common/common.dart';
@@ -22,7 +24,7 @@ class ChartAxisPanel {
   /// Creates an instance of chart axis panel
   ChartAxisPanel(this.stateProperties) {
     innerPadding = 5;
-    axisPadding = 10;
+    axisPadding = 5;
     axisLineLabelPadding = 5;
     axisLabelTitlePadding = 3;
     axisClipRect = Rect.zero;
@@ -170,8 +172,8 @@ class ChartAxisPanel {
               : null);
       targetAxisDetails.calculateRangeAndInterval(stateProperties, 'AxisCross');
     } else if (targetAxisDetails is LogarithmicAxisDetails) {
-      final LogarithmicAxis _axis = targetAxisDetails.axis as LogarithmicAxis;
-      value = calculateLogBaseValue(value, _axis.logBase);
+      final LogarithmicAxis axis = targetAxisDetails.axis as LogarithmicAxis;
+      value = calculateLogBaseValue(value, axis.logBase);
       targetAxisDetails.calculateRangeAndInterval(stateProperties, 'AxisCross');
     } else if (targetAxisDetails is NumericAxisDetails) {
       targetAxisDetails.calculateRangeAndInterval(stateProperties, 'AxisCross');
@@ -352,7 +354,10 @@ class ChartAxisPanel {
                   : axisDetails.totalSize;
             }
           }
-          bottomSize += axisDetails.totalSize;
+          bottomSize += axisDetails.totalSize +
+              (bottomAxesCount.isNotEmpty && bottomAxesCount.length > 1
+                  ? axisPadding
+                  : 0);
           bottomAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         } else {
           axisDetails.totalSize += topAxisRenderers.isNotEmpty &&
@@ -384,7 +389,10 @@ class ChartAxisPanel {
                   : axisDetails.totalSize;
             }
           }
-          topSize += axisDetails.totalSize;
+          topSize += axisDetails.totalSize +
+              (topAxesCount.isNotEmpty && topAxesCount.length > 1
+                  ? axisPadding
+                  : 0);
           topAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         }
       } else if (axisDetails.orientation == AxisOrientation.vertical) {
@@ -417,7 +425,10 @@ class ChartAxisPanel {
                   : axisDetails.totalSize;
             }
           }
-          leftSize += axisDetails.totalSize;
+          leftSize += axisDetails.totalSize +
+              (leftAxesCount.isNotEmpty && leftAxesCount.length > 1
+                  ? axisPadding
+                  : 0);
           leftAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         } else {
           axisDetails.totalSize += rightAxisRenderers.isNotEmpty &&
@@ -449,7 +460,10 @@ class ChartAxisPanel {
                   : axisDetails.totalSize;
             }
           }
-          rightSize += axisDetails.totalSize;
+          rightSize += axisDetails.totalSize +
+              (rightAxesCount.isNotEmpty && rightAxesCount.length > 1
+                  ? axisPadding
+                  : 0);
           rightAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         }
       }
@@ -920,7 +934,7 @@ class ChartAxisPanel {
     primaryXAxisDetails.name = (primaryXAxisDetails.name) ?? 'primaryXAxis';
     primaryYAxisDetails.name = primaryYAxisDetails.name ?? 'primaryYAxis';
 
-    final List<ChartAxis> _axesCollection = <ChartAxis>[
+    final List<ChartAxis> axesCollection = <ChartAxis>[
       chartWidget.primaryXAxis,
       chartWidget.primaryYAxis
     ];
@@ -928,15 +942,15 @@ class ChartAxisPanel {
         stateProperties.chartSeries.visibleSeriesRenderers;
     if (visibleSeriesRenderer.isNotEmpty) {
       if (chartWidget.axes.isNotEmpty) {
-        _axesCollection.addAll(chartWidget.axes);
+        axesCollection.addAll(chartWidget.axes);
       }
 
-      for (int axisIndex = 0; axisIndex < _axesCollection.length; axisIndex++) {
+      for (int axisIndex = 0; axisIndex < axesCollection.length; axisIndex++) {
         final ChartAxisRenderer axisRenderer = axisIndex == 0
             ? primaryXAxisRenderer!
             : (axisIndex == 1
                 ? primaryYAxisRenderer!
-                : _getAxisRenderer(_axesCollection[axisIndex]));
+                : _getAxisRenderer(axesCollection[axisIndex]));
         final ChartAxisRendererDetails axisDetails =
             AxisHelper.getAxisRendererDetails(axisRenderer);
         if (axisDetails is CategoryAxisDetails) {

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 /// Renders the step area series.
 ///
-///A step area chart is a form of area chart which is useful for displaying changing numeric values over a period of time.
+/// A step area chart is a form of area chart which is useful for displaying changing numeric values over a period of time.
 ///
-///The x-axis in a step area chart represents a period of time,
-///and values are plotted on the  y-axis at constant or irregular time intervals.
+/// The x-axis in a step area chart represents a period of time,
+/// and values are plotted on the  y-axis at constant or irregular time intervals.
 ///
-///Step area charts are similar to step line charts, except in a step area chart
-///the area occupied by the data series is filled in with color.
+/// Step area charts are similar to step line charts, except in a step area chart
+/// the area occupied by the data series is filled in with color.
 ///
-///To render a spline area chart, create an instance of StepAreaSeries, and add it to the series collection property of [SfCartesianChart].
+/// To render a spline area chart, create an instance of [StepAreaSeries], and add it to the series collection property of [SfCartesianChart].
 ///
-///Provides options to customize the [color], [opacity], [width] of the StepArea segments.
+/// Provides options to customize the [color], [opacity], [width] of the step area segments.
 @immutable
 class StepAreaSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of StepAreaSeries class.
@@ -93,27 +93,26 @@ class StepAreaSeries<T, D> extends XyDataSeries<T, D> {
             animationDelay: animationDelay,
             onCreateShader: onCreateShader);
 
-  ///Border type of step area series.
+  /// Border type of step area series.
   ///
-  ///Defaults to BorderDrawMode.top
+  /// Defaults to `BorderDrawMode.top`.
   ///
-  ///Also refer [BorderDrawMode]
+  /// Also refer [BorderDrawMode].
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <StepAreaSeries<SalesData, num>>[
-  ///                StepAreaSeries<SalesData, num>(
-  ///                  borderDrawMode: BorderDrawMode.all,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StepAreaSeries<SalesData, num>>[
+  ///       StepAreaSeries<SalesData, num>(
+  ///         borderDrawMode: BorderDrawMode.all,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BorderDrawMode borderDrawMode;
 
-  /// to create a Step area series renderer
+  /// To create a step area series renderer.
   StepAreaSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     StepAreaSeriesRenderer stepAreaRenderer;
     if (onCreateRenderer != null) {

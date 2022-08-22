@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
-/// This class has the properties of the column series.
+/// This class has the properties of the histogram series.
 ///
-/// To render a column chart, create an instance of [HistogramSeries], and add it to the series collection property of [SfCartesianChart].
-/// The column series is a rectangular column with heights or lengths proportional to the values that they represent. It has the spacing
-/// property to separate the column.
+/// To render a histogram chart, create an instance of [HistogramSeries], and add it to the series collection property of [SfCartesianChart].
+/// The histogram series is a rectangular histogram with heights or lengths proportional to the values that they represent. It has the spacing
+/// property to separate the histogram.
 ///
 /// Provide the options of color, opacity, border color, and border width to customize the appearance.
 ///
@@ -98,250 +98,238 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
             onCreateShader: onCreateShader,
             dashArray: dashArray);
 
-  ///Interval value by which the data points are grouped and rendered as bars, in histogram series.
+  /// Interval value by which the data points are grouped and rendered as bars, in histogram series.
   ///
-  ///For example, if the [binInterval] is set to 20, the x-axis will split with 20 as the interval.
+  /// For example, if the [binInterval] is set to 20, the x-axis will split with 20 as the interval.
   /// The first bar in the histogram represents the count of values lying between 0 to 20
-  ///  in the provided data and the second bar will represent 20 to 40.
+  /// in the provided data and the second bar will represent 20 to 40.
   ///
-  ///If no value is specified for this property, then the interval will be calculated
+  /// If no value is specified for this property, then the interval will be calculated
   /// automatically based on the data points count and value.
   ///
-  ///Defaults to `null`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <HistogramSeries<SalesData, num>>[
-  ///                HistogramSeries<SalesData, num>(
-  ///                   binInterval: 4
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <HistogramSeries<SalesData, num>>[
+  ///       HistogramSeries<SalesData, num>(
+  ///         binInterval: 4
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double? binInterval;
 
-  ///Renders a spline curve for the normal distribution, calculated based on the series data points.
+  /// Renders a spline curve for the normal distribution, calculated based on the series data points.
   ///
-  ///This spline curve type can be changed using the `splineType` property.
+  /// This spline curve type can be changed using the `splineType` property.
   ///
-  ///Defaults to `false`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <HistogramSeries<SalesData, num>>[
-  ///                HistogramSeries<SalesData, num>(
-  ///                   showNormalDistributionCurve: true
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <HistogramSeries<SalesData, num>>[
+  ///       HistogramSeries<SalesData, num>(
+  ///         showNormalDistributionCurve: true
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool showNormalDistributionCurve;
 
-  ///Color of the normal distribution spline curve.
+  /// Color of the normal distribution spline curve.
   ///
-  ///Defaults to `Colors.blue`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <HistogramSeries<SalesData, num>>[
-  ///                HistogramSeries<SalesData, num>(
-  ///                   curveColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `Colors.blue`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <HistogramSeries<SalesData, num>>[
+  ///       HistogramSeries<SalesData, num>(
+  ///         curveColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color curveColor;
 
-  ///Width of the normal distribution spline curve.
+  /// Width of the normal distribution spline curve.
   ///
-  ///Defaults to `2`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <HistogramSeries<SalesData, num>>[
-  ///                HistogramSeries<SalesData, num>(
-  ///                   curveWidth: 4
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `2`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <HistogramSeries<SalesData, num>>[
+  ///       HistogramSeries<SalesData, num>(
+  ///         curveWidth: 4
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double curveWidth;
 
-  ///Dash array of the normal distribution spline curve.
+  /// Dash array of the normal distribution spline curve.
   ///
-  ///Defaults to `null`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <HistogramSeries<SalesData, num>>[
-  ///                HistogramSeries<SalesData, num>(
-  ///                   curveDashArray: [2, 3]
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <HistogramSeries<SalesData, num>>[
+  ///       HistogramSeries<SalesData, num>(
+  ///         curveDashArray: [2, 3]
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final List<double>? curveDashArray;
 
-  ///Color of the track.
+  /// Color of the track.
   ///
-  ///Defaults to `Colors.grey`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <HistogramSeries<SalesData, num>>[
-  ///                HistogramSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `Colors.grey`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <HistogramSeries<SalesData, num>>[
+  ///       HistogramSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color trackColor;
 
-  ///Color of the track border.
+  /// Color of the track border.
   ///
-  ///Defaults to `Colors.transparent`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <HistogramSeries<SalesData, num>>[
-  ///                HistogramSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackBorderColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `Colors.transparent`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <HistogramSeries<SalesData, num>>[
+  ///       HistogramSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackBorderColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color trackBorderColor;
 
-  ///Width of the track border.
+  /// Width of the track border.
   ///
-  ///Defaults to `1`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <HistogramSeries<SalesData, num>>[
-  ///                HistogramSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackBorderColor: Colors.red ,
-  ///                  trackBorderWidth: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `1`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <HistogramSeries<SalesData, num>>[
+  ///       HistogramSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackBorderColor: Colors.red,
+  ///         trackBorderWidth: 2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double trackBorderWidth;
 
-  ///Padding of the track.
+  /// Padding of the track.
   ///
-  ///By default, track will be rendered based on the bar’s available width and spacing.
+  /// By default, track will be rendered based on the bar’s available width and spacing.
   /// If you wish to change the track width, you can use this property.
   ///
-  ///Defaults to `0`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <HistogramSeries<SalesData, num>>[
-  ///                HistogramSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackPadding: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `0`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <HistogramSeries<SalesData, num>>[
+  ///       HistogramSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackPadding: 2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double trackPadding;
 
-  ///Spacing between the bars in histogram series.
+  /// Spacing between the bars in histogram series.
   ///
-  ///The value ranges from 0 to 1. 1 represents 100% and 0 represents 0% of the available space.
+  /// The value ranges from 0 to 1. 1 represents 100% and 0 represents 0% of the available space.
   ///
-  ///Spacing also affects the width of the bar. For example, setting 20% spacing
-  ///and 100% width renders the bar with 80% of total width.
+  /// Spacing also affects the width of the bar. For example, setting 20% spacing
+  /// and 100% width renders the bar with 80% of total width.
   ///
-  ///Defaults to `0`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <HistogramSeries<SalesData, num>>[
-  ///                HistogramSeries<SalesData, num>(
-  ///                  spacing: 0,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `0`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <HistogramSeries<SalesData, num>>[
+  ///       HistogramSeries<SalesData, num>(
+  ///         spacing: 0.5,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double spacing;
 
-  ///Renders the bar in histogram series with track.
+  /// Renders the bar in histogram series with track.
   ///
-  ///Track is a rectangular bar rendered from the start to the end of the axis.
+  /// Track is a rectangular bar rendered from the start to the end of the axis.
   /// Bars in the histogram will be rendered above the track.
   ///
-  ///Defaults to `false`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <HistogramSeries<SalesData, num>>[
-  ///                HistogramSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <HistogramSeries<SalesData, num>>[
+  ///       HistogramSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///       ),
+  ///     ],
+  ///    );
+  /// }
+  /// ```
   final bool isTrackVisible;
 
-  ///Customizes the corners of the bars in histogram series.
+  /// Customizes the corners of the bars in histogram series.
   ///
-  ///Each corner can be customized individually or can be customized together, by specifying a single value.
+  /// Each corner can be customized individually or can be customized together, by specifying a single value.
   ///
-  ///Defaults to `Radius.zero`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <HistogramSeries<SalesData, num>>[
-  ///                HistogramSeries<SalesData, num>(
-  ///                  borderRadius: BorderRadius.circular(5),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `Radius.zero`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <HistogramSeries<SalesData, num>>[
+  ///       HistogramSeries<SalesData, num>(
+  ///         borderRadius: BorderRadius.circular(5),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BorderRadius borderRadius;
 
-  /// Create the Histogram series renderer.
+  /// Create the histogram series renderer.
   HistogramSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     HistogramSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
@@ -469,24 +457,24 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
   }
 }
 
-/// Represents the histogram values
+/// Represents the histogram values.
 class HistogramValues {
-  /// Creates an instance of histogram values
+  /// Creates an instance of histogram values.
   HistogramValues(
       {this.sDValue, this.mean, this.binWidth, this.yValues, this.minValue});
 
-  /// Specifies the value of SD
+  /// Specifies the value of SD.
   num? sDValue;
 
-  /// Specifies the value of mean
+  /// Specifies the value of mean.
   num? mean;
 
-  /// Specifies the value of bin width
+  /// Specifies the value of bin width.
   num? binWidth;
 
-  /// Specifies the minimum value
+  /// Specifies the minimum value.
   num? minValue;
 
-  /// Specifies the list of y values
+  /// Specifies the list of y values.
   List<num>? yValues = <num>[];
 }

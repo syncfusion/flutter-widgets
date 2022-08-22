@@ -32,7 +32,7 @@ import 'pdf_section.dart';
 ///       bounds: Rect.fromLTWH(250, 0, 515, 100));
 /// }
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -65,7 +65,7 @@ class PdfPageTemplateElement {
   /// //Add the footer at the bottom of the document
   /// document.template.bottom = footer;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -106,7 +106,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///    bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -140,7 +140,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -170,7 +170,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -197,7 +197,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -226,7 +226,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -255,7 +255,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -284,7 +284,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -313,7 +313,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -343,7 +343,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -371,7 +371,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -395,7 +395,7 @@ class PdfPageTemplateElement {
   ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
   ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -442,7 +442,7 @@ class PdfPageTemplateElement {
           canBeSet = alignment == PdfAlignmentStyle.middleCenter ||
               alignment == PdfAlignmentStyle.none;
           break;
-        default:
+        case PdfDockStyle.none:
           break;
       }
       if (canBeSet) {
@@ -494,7 +494,7 @@ class PdfPageTemplateElementHelper {
         case TemplateType.right:
           base.dock = PdfDockStyle.right;
           break;
-        default:
+        case TemplateType.none:
           break;
       }
       _resetAlignment();
@@ -607,8 +607,6 @@ class PdfPageTemplateElementHelper {
         break;
       case PdfAlignmentStyle.none:
         break;
-      default:
-        break;
     }
 
     return Offset(x, y) & result.size;
@@ -632,51 +630,52 @@ class PdfPageTemplateElementHelper {
         .getActualBounds(page, false, document);
     double x = base.location.dx;
     double y = base.location.dy;
-    double? _width = base.width;
-    double? _height = base.height;
+    double? width = base.width;
+    double? height = base.height;
 
     switch (_dockStyle) {
       case PdfDockStyle.left:
         x = 0.0;
         y = 0.0;
-        _width = base.width;
-        _height = actualBounds.height;
+        width = base.width;
+        height = actualBounds.height;
         break;
 
       case PdfDockStyle.top:
         x = 0.0;
         y = 0.0;
-        _width = actualBounds.width;
-        _height = base.height;
+        width = actualBounds.width;
+        height = base.height;
         break;
 
       case PdfDockStyle.right:
         x = actualBounds.width - base.width;
         y = 0.0;
-        _width = base.width;
-        _height = actualBounds.height;
+        width = base.width;
+        height = actualBounds.height;
         break;
 
       case PdfDockStyle.bottom:
         x = 0.0;
         y = actualBounds.height - base.height;
-        _width = actualBounds.width;
-        _height = base.height;
+        width = actualBounds.width;
+        height = base.height;
         break;
 
       case PdfDockStyle.fill:
         x = 0.0;
         x = 0.0;
-        _width = actualBounds.width;
-        _height = actualBounds.height;
+        width = actualBounds.width;
+        height = actualBounds.height;
         break;
       case PdfDockStyle.none:
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
 
-    result = Rect.fromLTWH(x, y, _width, _height);
+    result = Rect.fromLTWH(x, y, width, height);
 
     return result;
   }
@@ -689,22 +688,22 @@ class PdfPageTemplateElementHelper {
         PdfPageSettingsHelper.getHelper(section.pageSettings).getActualSize());
     double x = base.location.dx;
     double y = base.location.dy;
-    double? _width = base.width;
-    double? _height = base.height;
+    double? width = base.width;
+    double? height = base.height;
 
     switch (_dockStyle) {
       case PdfDockStyle.left:
         x = -actualBounds.x;
         y = 0.0;
-        _width = base.width;
-        _height = actualBounds.height;
+        width = base.width;
+        height = actualBounds.height;
         break;
 
       case PdfDockStyle.top:
         x = -actualBounds.x;
         y = -actualBounds.y;
-        _width = actualSize.width;
-        _height = base.height;
+        width = actualSize.width;
+        height = base.height;
 
         if (actualBounds.height < 0) {
           y = -actualBounds.y + actualSize.height;
@@ -717,8 +716,8 @@ class PdfPageTemplateElementHelper {
                 .getRightIndentWidth(document, page, false) -
             base.width;
         y = 0.0;
-        _width = base.width;
-        _height = actualBounds.height;
+        width = base.width;
+        height = actualBounds.height;
         break;
 
       case PdfDockStyle.bottom:
@@ -727,8 +726,8 @@ class PdfPageTemplateElementHelper {
             PdfSectionHelper.getHelper(section)
                 .getBottomIndentHeight(document, page, false) -
             base.height;
-        _width = actualSize.width;
-        _height = base.height;
+        width = actualSize.width;
+        height = base.height;
         if (actualBounds.height < 0) {
           y -= actualSize.height;
         }
@@ -737,14 +736,15 @@ class PdfPageTemplateElementHelper {
       case PdfDockStyle.fill:
         x = 0.0;
         x = 0.0;
-        _width = actualBounds.width;
-        _height = actualBounds.height;
+        width = actualBounds.width;
+        height = actualBounds.height;
         break;
       case PdfDockStyle.none:
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
-    return Rect.fromLTWH(x, y, _width, _height);
+    return Rect.fromLTWH(x, y, width, height);
   }
 }

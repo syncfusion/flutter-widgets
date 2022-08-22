@@ -493,10 +493,10 @@ class DataGridToPdfConverter {
 
     //if fit all columns in one page is false then auto column width is true
     if (!fitAllColumnsInOnePage && !autoColumnWidth) {
-      int _columnIndex = 0;
+      int columnIndex = 0;
       for (final GridColumn column in columns) {
-        pdfGrid.columns[_columnIndex].width = column.actualWidth;
-        _columnIndex++;
+        pdfGrid.columns[columnIndex].width = column.actualWidth;
+        columnIndex++;
       }
     }
 

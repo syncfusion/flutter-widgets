@@ -19,7 +19,7 @@ import 'pdf_list_item.dart';
 ///     textIndent: 10)
 ///   ..draw(page: document.pages.add(), bounds: Rect.fromLTWH(20, 20, 0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -43,7 +43,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   ///     textIndent: 10)
   ///   ..draw(page: document.pages.add(), bounds: Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -70,7 +70,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -93,7 +93,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -117,7 +117,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -143,7 +143,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -168,7 +168,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -196,7 +196,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   /// oList.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -222,7 +222,7 @@ class PdfListItemCollection extends PdfObjectCollection {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

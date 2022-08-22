@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Tiada acara", 
 "ofDataPagerLabel" : "daripada", 
 "pagesDataPagerLabel" : "muka surat", 
-"itemsDataPagerLabel" : "barang", 
+"rowsPerPageDataPagerLabel" : "Baris setiap halaman", 
 "pdfBookmarksLabel" : "Penanda buku", 
 "pdfNoBookmarksLabel" : "Tiada penanda halaman ditemui", 
 "pdfScrollStatusOfLabel" : "daripada", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dzul-Q", 
 "shortDhualhiLabel" : "Dzul-H", 
-"daySpanCountLabel" : "Hari"
+"daySpanCountLabel" : "Hari", 
+"series" : "Siri", 
+"pdfHyperlinkLabel" : "Buka Halaman Web", 
+"pdfHyperlinkContentLabel" : "Adakah anda ingin membuka halaman di", 
+"pdfHyperlinkDialogOpenLabel" : "BUKA", 
+"pdfHyperlinkDialogCancelLabel" : "BATALKAN"
 }

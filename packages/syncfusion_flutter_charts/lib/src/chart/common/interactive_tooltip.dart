@@ -7,12 +7,12 @@ export 'package:syncfusion_flutter_core/core.dart'
 
 /// Customizes the interactive tooltip.
 ///
-///Shows the information about the segments.To enable the interactiveToolTip, set the property to true.
+/// Shows the information about the segments. To enable the interactive tooltip, set that [enable] property to true.
 ///
 /// By using this,to customize the [color], [borderWidth], [borderRadius],
 /// [format] and so on.
 ///
-/// _Note:_ IntereactivetoolTip applicable for axis types and trackball.
+/// _Note:_ Intereactive tooltip applicable for axis types and trackball.
 
 @immutable
 class InteractiveTooltip {
@@ -37,226 +37,382 @@ class InteractiveTooltip {
           fontWeight: FontWeight.normal,
           fontSize: 12)});
 
-  ///Toggles the visibility of the interactive tooltip in an axis.
+  /// Toggles the visibility of the interactive tooltip in an axis.
   ///
   /// This tooltip will be displayed at the axis for crosshair and
   /// will be displayed near to the trackline for trackball.
   ///
-  ///Defaults to `true`.
+  /// Defaults to `true`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true,
-  ///           tooltipSettings: InteractiveTooltip(enable:false)),
-  ///        ));
-  ///}
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior: TrackballBehavior(
+  ///     enable: true,
+  ///     tooltipSettings: InteractiveTooltip(enable: false)
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
   ///```
   final bool enable;
 
-  ///Color of the interactive tooltip.
+  /// Color of the interactive tooltip.
   ///
-  ///Used to change the [color] of the tooltip text.
+  /// Used to change the [color] of the tooltip text.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true,
-  ///           tooltipSettings: InteractiveTooltip(
-  ///             color:Colors.grey)),
-  ///        ));
-  ///}
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior: TrackballBehavior(
+  ///     enable: true,
+  ///     tooltipSettings: InteractiveTooltip(
+  ///       color: Colors.grey
+  ///     )
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
   ///```
   final Color? color;
 
-  ///Border color of the interactive tooltip.
+  /// Border color of the interactive tooltip.
   ///
-  ///Used to change the stroke color of the axis tooltip.
+  /// Used to change the stroke color of the axis tooltip.
   ///
-  ///Defaults to `Colors.black`.
+  /// Defaults to `Colors.black`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true,
-  ///           tooltipSettings: InteractiveTooltip(
-  ///             borderColor:Colors.white,
-  ///             borderWidth:2)),
-  ///        ));
-  ///}
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior: TrackballBehavior(
+  ///     enable: true,
+  ///     tooltipSettings: InteractiveTooltip(
+  ///       borderColor: Colors.red,
+  ///       borderWidth: 3
+  ///     )
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
   ///```
   final Color? borderColor;
 
-  ///Border width of the interactive tooltip.
+  /// Border width of the interactive tooltip.
   ///
-  ///Used to change the stroke width of the axis tooltip.
+  /// Used to change the stroke width of the axis tooltip.
   ///
-  ///Defaults to `0`.
+  /// Defaults to `0`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true,
-  ///           tooltipSettings: InteractiveTooltip(
-  ///             borderColor:Colors.white,
-  ///             borderWidth:2)),
-  ///        ));
-  ///}
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior: TrackballBehavior(
+  ///     enable: true,
+  ///     tooltipSettings: InteractiveTooltip(
+  ///       borderColor: Colors.red,
+  ///       borderWidth: 3
+  ///     )
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
   ///```
   final double borderWidth;
 
-  ///Customizes the text in the interactive tooltip.
+  /// Customizes the text in the interactive tooltip.
   ///
-  ///Used to change the text color, size, font family, fontStyle, and font weight.
+  /// Used to change the text color, size, font family, font style, etc.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true,
-  ///           tooltipSettings: InteractiveTooltip(
-  ///             textStyle: TextStyle(color:Colors.red))),
-  ///        ));
-  ///}
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior: TrackballBehavior(
+  ///     enable: true,
+  ///     tooltipSettings: InteractiveTooltip(
+  ///       textStyle: TextStyle(
+  ///         fontSize: 14
+  ///       )
+  ///     )
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
   ///```
   final TextStyle textStyle;
 
-  ///Customizes the corners of the interactive tooltip.
+  /// Customizes the corners of the interactive tooltip.
   ///
-  ///Each corner can be customized with a desired value or a single value.
+  /// Each corner can be customized with a desired value or a single value.
   ///
-  ///Defaults to `Radius.zero`.
+  /// Defaults to `Radius.zero`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true,
-  ///           tooltipSettings: InteractiveTooltip(
-  ///             borderColor:Colors.white,
-  ///             borderWidth:3,
-  ///             borderRadius:2)),
-  ///        ));
-  ///}
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior: TrackballBehavior(
+  ///     enable: true,
+  ///     tooltipSettings: InteractiveTooltip(
+  ///       borderColor: Colors.red,
+  ///       borderWidth: 3,
+  ///       borderRadius: 2
+  ///     )
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
   ///```
   final double borderRadius;
 
-  ///It Specifies the length of the tooltip.
+  /// It Specifies the length of the tooltip.
   ///
-  ///Defaults to `7`.
+  /// Defaults to `7`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true,
-  ///           tooltipSettings: InteractiveTooltip(
-  ///             arrowLength:4)),
-  ///        ));
-  ///}
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior: TrackballBehavior(
+  ///     enable: true,
+  ///     tooltipSettings: InteractiveTooltip(
+  ///       arrowLength: 5
+  ///     )
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior:trackballBehavior
+  ///   );
+  /// }
   ///```
   final double arrowLength;
 
-  ///It specifies the width of the tooltip arrow.
+  /// It specifies the width of the tooltip arrow.
   ///
-  ///Defaults to `5`.
+  /// Defaults to `5`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true,
-  ///           tooltipSettings: InteractiveTooltip(
-  ///             arrowWidth:4)),
-  ///        ));
-  ///}
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior: TrackballBehavior(
+  ///     enable: true,
+  ///     tooltipSettings: InteractiveTooltip(
+  ///       arrowWidth: 4
+  ///     )
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
   ///```
   final double arrowWidth;
 
-  ///Text format of the interactive tooltip.
+  /// Text format of the interactive tooltip.
   ///
   /// By default, axis value will be displayed in the tooltip, and it can be customized by
   /// adding desired text as prefix or suffix.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           trackballBehavior: TrackballBehavior(enable: true,
-  ///           tooltipSettings: InteractiveTooltip(
-  ///             format:'point.x %')),
-  ///        ));
-  ///}
+  /// late TrackballBehavior trackballBehavior;
+  ///
+  /// void initState() {
+  ///   trackballBehavior: TrackballBehavior(
+  ///     enable: true,
+  ///     tooltipSettings: InteractiveTooltip(
+  ///       format: 'point.y %'
+  ///     )
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     trackballBehavior: trackballBehavior
+  ///   );
+  /// }
   ///```
   final String? format;
 
-  ///Width of the selection zooming tooltip connector line.
+  /// Width of the selection zooming tooltip connector line.
   ///
-  ///Defaults to `1.5`.
+  /// Defaults to `1.5`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           primaryXAxis: NumericAxis(interactiveTooltip:
-  ///                               InteractiveTooltip(connectorLineWidth:2)),
-  ///        ));
-  ///}
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior: ZoomPanBehavior(
+  ///     enableSelectionZooming: true,
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior,
+  ///     primaryXAxis: NumericAxis(
+  ///       interactiveTooltip: InteractiveTooltip(
+  ///         connectorLineWidth: 2
+  ///       )
+  ///     ),
+  ///   );
+  /// }
   ///```
   final double connectorLineWidth;
 
-  ///Color of the selection zooming tooltip connector line.
+  /// Color of the selection zooming tooltip connector line.
   ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           primaryXAxis: NumericAxis(
-  ///             interactiveTooltip: InteractiveTooltip(connectorLineColor:Colors.red)),
-  ///        ));
-  ///}
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior: ZoomPanBehavior(
+  ///     enableSelectionZooming: true,
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior,
+  ///     primaryXAxis: NumericAxis(
+  ///       interactiveTooltip: InteractiveTooltip(
+  ///         connectorLineColor: Colors.red
+  ///       )
+  ///     ),
+  ///   );
+  /// }
   ///```
   final Color? connectorLineColor;
 
-  ///Giving dashArray to the selection zooming tooltip connector line.
+  /// Giving dash array to the selection zooming tooltip connector line.
   ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           primaryXAxis: NumericAxis(
-  ///              interactiveTooltip: InteractiveTooltip(connectorLineDashArray:[2,3])),
-  ///        ));
-  ///}
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior: ZoomPanBehavior(
+  ///     enableSelectionZooming: true,
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior,
+  ///     primaryXAxis: NumericAxis(
+  ///       interactiveTooltip: InteractiveTooltip(
+  ///         connectorLineDashArray: <double>[10,10]
+  ///       )
+  ///     ),
+  ///   );
+  /// }
   ///```
   final List<double>? connectorLineDashArray;
 
-  ///Rounding decimal places of the selection zooming tooltip or trackball tooltip label.
+  /// Rounding decimal places of the selection zooming tooltip or trackball tooltip label.
   ///
-  ///Defaults to `3`.
+  /// Defaults to `3`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           primaryXAxis: NumericAxis(interactiveTooltip: InteractiveTooltip(decimalPlaces:4)),
-  ///        ));
-  ///}
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior: ZoomPanBehavior(
+  ///     enableSelectionZooming: true,
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior,
+  ///     primaryXAxis: NumericAxis(
+  ///       interactiveTooltip: InteractiveTooltip(
+  ///         decimalPlaces: 4
+  ///       )
+  ///     ),
+  ///   );
+  /// }
   ///```
   final int decimalPlaces;
 
-  ///Toggles the visibility of the marker in the trackball tooltip.
+  /// Toggles the visibility of the marker in the trackball tooltip.
   ///
-  ///Markers are rendered with the series color and placed near the value in trackball
-  ///tooltip to convey which value belongs to which series.
+  /// Markers are rendered with the series color and placed near the value in trackball
+  /// tooltip to convey which value belongs to which series.
   ///
-  ///Trackball tooltip marker uses the same shape specified for the series marker. But
-  ///trackball tooltip marker will render based on the value specified to this property
-  ///irrespective of considering the series marker's visibility.
+  /// Trackball tooltip marker uses the same shape specified for the series marker. But
+  /// trackball tooltip marker will render based on the value specified to this property
+  /// irrespective of considering the series marker's visibility.
   ///
-  /// Defaults to `true`
+  /// Defaults to `true`.
+  ///
   ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           primaryXAxis: NumericAxis(interactiveTooltip: InteractiveTooltip(canSHowMarker:true)),
-  ///        ));
-  ///}
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior: ZoomPanBehavior(
+  ///     enableSelectionZooming: true,
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior,
+  ///     primaryXAxis: NumericAxis(
+  ///       interactiveTooltip: InteractiveTooltip(
+  ///         canShowMarker: false
+  ///       )
+  ///     ),
+  ///   );
+  /// }
   ///```
   final bool canShowMarker;
 

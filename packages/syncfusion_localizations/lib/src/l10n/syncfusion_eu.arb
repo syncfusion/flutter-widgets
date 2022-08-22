@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Ez dago ekitaldirik", 
 "ofDataPagerLabel" : "de", 
 "pagesDataPagerLabel" : "orrialdeak", 
-"itemsDataPagerLabel" : "elementuak", 
+"rowsPerPageDataPagerLabel" : "Orrialde bakoitzeko errenkadak", 
 "pdfBookmarksLabel" : "Laster-markak", 
 "pdfNoBookmarksLabel" : "Ez da laster-markarik aurkitu", 
 "pdfScrollStatusOfLabel" : "de", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Eguna"
+"daySpanCountLabel" : "Eguna", 
+"series" : "Seriea", 
+"pdfHyperlinkLabel" : "Ireki Web orria", 
+"pdfHyperlinkContentLabel" : "Orria ireki nahi al duzu hemen", 
+"pdfHyperlinkDialogOpenLabel" : "IREKI", 
+"pdfHyperlinkDialogCancelLabel" : "Utzi"
 }

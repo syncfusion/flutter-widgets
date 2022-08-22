@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Žádné události", 
 "ofDataPagerLabel" : "z", 
 "pagesDataPagerLabel" : "stránky", 
-"itemsDataPagerLabel" : "položky", 
+"rowsPerPageDataPagerLabel" : "Řádky na stránku", 
 "pdfBookmarksLabel" : "Záložky", 
 "pdfNoBookmarksLabel" : "Nebyly nalezeny žádné záložky", 
 "pdfScrollStatusOfLabel" : "z", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Den"
+"daySpanCountLabel" : "Den", 
+"series" : "Série", 
+"pdfHyperlinkLabel" : "Otevřete webovou stránku", 
+"pdfHyperlinkContentLabel" : "Chcete otevřít stránku na", 
+"pdfHyperlinkDialogOpenLabel" : "OTEVŘENO", 
+"pdfHyperlinkDialogCancelLabel" : "ZRUŠENÍ"
 }

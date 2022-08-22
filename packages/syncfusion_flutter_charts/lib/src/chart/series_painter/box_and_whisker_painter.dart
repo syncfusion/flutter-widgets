@@ -13,7 +13,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Box and Whisker series
+/// Creates series renderer for box and whisker series.
 class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of BoxAndWhiskerSeriesRenderer class.
   BoxAndWhiskerSeriesRenderer();
@@ -23,7 +23,7 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _segmentSeriesDetails;
   late SeriesRendererDetails _oldSeriesDetails;
 
-  /// Range box plot _segment is created here
+  /// Range box plot _segment is created here.
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
@@ -65,7 +65,7 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
       }
     }
     _segment.calculateSegmentPoints();
-    //stores the points for rendering box and whisker - high, low and rect points
+    // Stores the points for rendering box and whisker - high, low and rect points.
     _segment.points
       ..add(Offset(currentPoint.markerPoint!.x, segmentProperties.maxPoint.y))
       ..add(Offset(currentPoint.markerPoint!.x, segmentProperties.minPoint.y))
@@ -169,40 +169,40 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
   }
 
   /// To get the quartile values.
-  void _getQuartileValues(dynamic yValues, num count,
-      BoxPlotQuartileValues _boxPlotQuartileValues) {
+  void _getQuartileValues(
+      dynamic yValues, num count, BoxPlotQuartileValues boxPlotQuartileValues) {
     if (count == 1) {
-      _boxPlotQuartileValues.lowerQuartile = yValues[0];
-      _boxPlotQuartileValues.upperQuartile = yValues[0];
+      boxPlotQuartileValues.lowerQuartile = yValues[0];
+      boxPlotQuartileValues.upperQuartile = yValues[0];
     }
     final bool isEvenList = count % 2 == 0;
     final num halfLength = count ~/ 2;
     final List<num?> lowerQuartileArray = yValues.sublist(0, halfLength);
     final List<num?> upperQuartileArray =
         yValues.sublist(isEvenList ? halfLength : halfLength + 1, count);
-    _boxPlotQuartileValues.lowerQuartile = _getMedian(lowerQuartileArray);
-    _boxPlotQuartileValues.upperQuartile = _getMedian(upperQuartileArray);
+    boxPlotQuartileValues.lowerQuartile = _getMedian(lowerQuartileArray);
+    boxPlotQuartileValues.upperQuartile = _getMedian(upperQuartileArray);
   }
 
   /// To get the outliers values of box plot series.
   void _getMinMaxOutlier(List<num?> yValues, int count,
-      BoxPlotQuartileValues _boxPlotQuartileValues) {
-    final double interquartile = _boxPlotQuartileValues.upperQuartile! -
-        _boxPlotQuartileValues.lowerQuartile!;
+      BoxPlotQuartileValues boxPlotQuartileValues) {
+    final double interquartile = boxPlotQuartileValues.upperQuartile! -
+        boxPlotQuartileValues.lowerQuartile!;
     final num rangeIQR = 1.5 * interquartile;
     for (int i = 0; i < count; i++) {
       if (yValues[i]! < _boxPlotQuartileValues.lowerQuartile! - rangeIQR) {
-        _boxPlotQuartileValues.outliers!.add(yValues[i]!);
+        boxPlotQuartileValues.outliers!.add(yValues[i]!);
       } else {
-        _boxPlotQuartileValues.minimum = yValues[i];
+        boxPlotQuartileValues.minimum = yValues[i];
         break;
       }
     }
     for (int i = count - 1; i >= 0; i--) {
       if (yValues[i]! > _boxPlotQuartileValues.upperQuartile! + rangeIQR) {
-        _boxPlotQuartileValues.outliers!.add(yValues[i]!);
+        boxPlotQuartileValues.outliers!.add(yValues[i]!);
       } else {
-        _boxPlotQuartileValues.maximum = yValues[i];
+        boxPlotQuartileValues.maximum = yValues[i];
         break;
       }
     }
@@ -213,8 +213,8 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
 
   /// Changes the series color, border color, and border width.
   @override
-  void customizeSegment(ChartSegment _segment) {
-    final BoxAndWhiskerSegment boxSegment = _segment as BoxAndWhiskerSegment;
+  void customizeSegment(ChartSegment segment) {
+    final BoxAndWhiskerSegment boxSegment = segment as BoxAndWhiskerSegment;
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(boxSegment);
     segmentProperties.color =
@@ -226,8 +226,8 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
     boxSegment.fillPaint = boxSegment.getFillPaint();
   }
 
-  ///Draws outlier with different shape and color of the appropriate
-  ///data point in the series.
+  /// Draws outlier with different shape and color of the appropriate
+  /// data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -326,6 +326,8 @@ class BoxAndWhiskerPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         assert(point.y != null,

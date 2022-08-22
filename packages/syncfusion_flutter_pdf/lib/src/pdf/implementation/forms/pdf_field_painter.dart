@@ -44,6 +44,7 @@ class FieldPainter {
         drawRightBottomShadow(
             graphics, params.bounds!, params.borderWidth!, params.shadowBrush);
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
@@ -103,6 +104,7 @@ class FieldPainter {
           drawRightBottomShadow(g, paintParams.bounds!,
               paintParams.borderWidth!, PdfBrushes.white);
           break;
+        // ignore: no_default_cases
         default:
       }
     } else {
@@ -120,6 +122,7 @@ class FieldPainter {
           drawRightBottomShadow(g, paintParams.bounds!,
               paintParams.borderWidth!, paintParams.shadowBrush);
           break;
+        // ignore: no_default_cases
         default:
       }
     }
@@ -175,6 +178,7 @@ class FieldPainter {
                 alignment: PdfTextAlignment.center,
                 lineAlignment: PdfVerticalAlignment.middle));
         break;
+      // ignore: no_default_cases
       default:
     }
   }
@@ -209,7 +213,7 @@ class FieldPainter {
       String checkSymbol, PdfCheckFieldState state) {
     //if the symbol is not a circle type ("l") then we need to draw the checkbox appearance
     if (checkSymbol != 'l') {
-      drawCheckBox(g!, paintParams, checkSymbol, state, null);
+      drawCheckBox(g!, paintParams, checkSymbol, state);
     } else {
       switch (state) {
         case PdfCheckFieldState.unchecked:
@@ -248,6 +252,7 @@ class FieldPainter {
           g.drawEllipse(checkedBounds,
               brush: paintParams.foreBrush ?? PdfBrushes.black);
           break;
+        // ignore: no_default_cases
         default:
           break;
       }
@@ -299,6 +304,7 @@ class FieldPainter {
         g.drawRectangle(
             brush: paintParams.shadowBrush, bounds: paintParams.bounds!);
         break;
+      // ignore: no_default_cases
       default:
         g.drawRectangle(
             brush: paintParams.backBrush, bounds: paintParams.bounds!);
@@ -331,6 +337,7 @@ class FieldPainter {
             g, paintParams.bounds!, paintParams.borderWidth!, PdfBrushes.white);
         break;
 
+      // ignore: no_default_cases
       default:
         drawLeftTopShadow(g, paintParams.bounds!, paintParams.borderWidth!,
             paintParams.shadowBrush);
@@ -378,6 +385,7 @@ class FieldPainter {
             leftTopPen = PdfPen(PdfColor(255, 255, 255), width: borderWidth);
             rightBottomPen = PdfPen(shadowColor, width: borderWidth);
             break;
+          // ignore: no_default_cases
           default:
         }
         break;
@@ -399,6 +407,7 @@ class FieldPainter {
             break;
         }
         break;
+      // ignore: no_default_cases
       default:
     }
     if (leftTopPen != null && rightBottomPen != null) {
@@ -456,11 +465,11 @@ class FieldPainter {
           x += borderWidth;
           width -= doubleBorderWidth;
         }
-        brush = PdfSolidBrush(PdfColor(51, 153, 255, 255));
+        brush = PdfSolidBrush(PdfColor(51, 153, 255));
         graphics.drawRectangle(
             brush: brush,
             bounds: Rect.fromLTWH(x, point.dy, width, font.height));
-        brush = PdfSolidBrush(PdfColor(255, 255, 255, 255));
+        brush = PdfSolidBrush(PdfColor(255, 255, 255));
       }
       final String value = item.text;
       final PdfRectangle itemTextBound =
@@ -510,7 +519,8 @@ class FieldPainter {
         bounds: rectangle,
         format: PdfStringFormat(
             alignment: format.alignment,
-            lineAlignment: PdfVerticalAlignment.middle));
+            lineAlignment: PdfVerticalAlignment.middle)
+          ..lineLimit = false);
   }
 
   /// internal method

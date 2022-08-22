@@ -117,93 +117,99 @@ class CategoryAxis extends ChartAxis {
             autoScrollingMode: autoScrollingMode,
             axisLabelFormatter: axisLabelFormatter);
 
-  ///Position of the category axis labels.
+  /// Position of the category axis labels.
   ///
-  ///The labels can be placed either
-  ///between the ticks or at the major ticks.
+  /// The labels can be placed either
+  /// between the ticks or at the major ticks.
   ///
-  ///Defaults to `LabelPlacement.betweenTicks`
+  /// Defaults to `LabelPlacement.betweenTicks`.
   ///
+  /// Also refer [LabelPlacement].
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: CategoryAxis(labelPlacement: LabelPlacement.onTicks),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final LabelPlacement labelPlacement;
 
-  ///Plots the data points based on the index value.
+  /// Plots the data points based on the index value.
   ///
-  ///By default, data points will be
-  ///grouped and plotted based on the x-value. They can also be grouped by the data
-  ///point index value.
+  /// By default, data points will be
+  /// grouped and plotted based on the x-value. They can also be grouped by the data
+  /// point index value.
   ///
-  ///Defaults to `false`
+  /// Defaults to `false`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: CategoryAxis(arrangeByIndex: true),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final bool arrangeByIndex;
 
-  ///The minimum value of the axis.
+  /// The minimum value of the axis.
   ///
-  ///The axis will start from this value.
+  /// The axis will start from this value.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryYAxis: CategoryAxis(minimum: 0),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double? minimum;
 
-  ///The maximum value of the axis.
+  /// The maximum value of the axis.
   ///
   /// The axis will end at this value.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryYAxis: CategoryAxis(maximum: 10),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double? maximum;
 
-  ///The minimum visible value of the axis. The axis is rendered from this value
-  ///initially.
+  /// The minimum visible value of the axis. The axis is rendered from this value
+  /// initially.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryYAxis: CategoryAxis(visibleMinimum: 0),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double? visibleMinimum;
 
-  ///The maximum visible value of the axis.
+  /// The maximum visible value of the axis.
   ///
   /// The axis is rendered to this value initially.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -335,8 +341,8 @@ class CategoryAxis extends ChartAxis {
 class CategoryAxisRenderer extends ChartAxisRenderer {
   /// Creating an argument constructor of CategoryAxisRenderer class.
   CategoryAxisRenderer(
-      CategoryAxis _categoryAxis, CartesianStateProperties _stateProperties) {
-    _axisDetails = CategoryAxisDetails(_categoryAxis, this, _stateProperties);
+      CategoryAxis categoryAxis, CartesianStateProperties stateProperties) {
+    _axisDetails = CategoryAxisDetails(categoryAxis, this, stateProperties);
     AxisHelper.setAxisRendererDetails(this, _axisDetails);
   }
 
@@ -363,7 +369,8 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
       _axisDetails.updateAutoScrollingDelta(
           _axisDetails._categoryAxis.autoScrollingDelta!, this);
     }
-    if ((!canAutoScroll || _axisDetails.stateProperties.zoomedState == true) &&
+    if ((!canAutoScroll ||
+            (_axisDetails.stateProperties.zoomedState ?? false)) &&
         !(_axisDetails.stateProperties.rangeChangeBySlider &&
             !_axisDetails.stateProperties.canSetRangeController)) {
       _axisDetails.setZoomFactorAndPosition(
@@ -487,8 +494,8 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
             (_axisDetails.labels.isNotEmpty &&
                 position >= _axisDetails.labels.length)) {
           continue;
-          // ignore: unnecessary_null_comparison
         } else if (_axisDetails.labels.isNotEmpty &&
+            // ignore: unnecessary_null_comparison
             _axisDetails.labels[position] != null) {
           labelText = _axisDetails.labels[position];
         } else {
@@ -524,8 +531,8 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
 class CategoryAxisDetails extends ChartAxisRendererDetails {
   /// Creates an instance an in
   CategoryAxisDetails(this._categoryAxis, ChartAxisRenderer axisRenderer,
-      CartesianStateProperties _stateProperties)
-      : super(_categoryAxis, _stateProperties, axisRenderer) {
+      CartesianStateProperties stateProperties)
+      : super(_categoryAxis, stateProperties, axisRenderer) {
     labels = <String>[];
   }
 
@@ -593,6 +600,13 @@ class CategoryAxisDetails extends ChartAxisRendererDetails {
 
   /// Calculate the required values of the actual range for the category axis
   void _calculateActualRange() {
+    if (min == null &&
+        max == null &&
+        ((stateProperties.zoomedState ?? false) ||
+            stateProperties.zoomProgress)) {
+      min ??= 0;
+      max ??= 5;
+    }
     if (min != null && max != null) {
       actualRange = VisibleRange(
           _categoryAxis.minimum ?? min, _categoryAxis.maximum ?? max);

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:syncfusion_flutter_calendar/src/calendar/common/calendar_view_helper.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
+import '../../../calendar.dart';
 import '../common/calendar_view_helper.dart';
 
 /// Used to hold the resource view on all timeline views.
@@ -377,11 +376,8 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
     }
 
     _panelHeight = value;
-    if (childCount == 0) {
-      markNeedsPaint();
-    } else {
-      markNeedsLayout();
-    }
+    markNeedsLayout();
+    markNeedsPaint();
   }
 
   @override
@@ -413,9 +409,9 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final bool _isNeedCustomPaint = childCount != 0;
+    final bool isNeedCustomPaint = childCount != 0;
 
-    if (!_isNeedCustomPaint) {
+    if (!isNeedCustomPaint) {
       _resourceViewHeader(context.canvas, size);
     } else {
       double yPosition = 0;
@@ -571,7 +567,7 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
     final TextSpan span =
         TextSpan(text: resource.displayName, style: displayNameTextStyle);
     _updateNamePainter(span);
-    _namePainter.layout(minWidth: 0, maxWidth: size.width);
+    _namePainter.layout(maxWidth: size.width);
     final double startXPosition = (size.width - _namePainter.width) / 2;
     final double startYPosition = resourceViewSettings.showAvatar
         ? (yPosition + (actualItemHeight / 2)) +
@@ -674,7 +670,7 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
             fontWeight: FontWeight.w500,
             fontFamily: 'Roboto'));
     _updateNamePainter(span);
-    _namePainter.layout(minWidth: 0, maxWidth: innerCircleWidth);
+    _namePainter.layout(maxWidth: innerCircleWidth);
     startXPosition =
         innerCircleXPosition + ((innerCircleWidth - _namePainter.width) / 2);
     startYPosition =

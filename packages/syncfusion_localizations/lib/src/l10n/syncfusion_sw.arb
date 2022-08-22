@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Hakuna matukio", 
 "ofDataPagerLabel" : "ya", 
 "pagesDataPagerLabel" : "kurasa", 
-"itemsDataPagerLabel" : "vitu", 
+"rowsPerPageDataPagerLabel" : "Safu kwa kila ukurasa", 
 "pdfBookmarksLabel" : "Alamisho", 
 "pdfNoBookmarksLabel" : "Hakuna alamisho zilizopatikana", 
 "pdfScrollStatusOfLabel" : "ya", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Siku"
+"daySpanCountLabel" : "Siku", 
+"series" : "Msururu", 
+"pdfHyperlinkLabel" : "Fungua Ukurasa wa Wavuti", 
+"pdfHyperlinkContentLabel" : "Je, unataka kufungua ukurasa katika", 
+"pdfHyperlinkDialogOpenLabel" : "FUNGUA", 
+"pdfHyperlinkDialogCancelLabel" : "GHAIRI"
 }

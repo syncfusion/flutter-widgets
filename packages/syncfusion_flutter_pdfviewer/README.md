@@ -1,8 +1,8 @@
-﻿*![syncfusion_flutter_pdfviewer](https://cdn.syncfusion.com/content/images/pdfviewer-banner.png)
+﻿![syncfusion_flutter_pdfviewer](https://cdn.syncfusion.com/content/images/pdfviewer-banner.png)
 
 # Flutter PDF Viewer library
 
-The Flutter PDF Viewer plugin lets you view the PDF documents seamlessly and efficiently in the Android, iOS, Web and macOS platforms. It has highly interactive and customizable features such as magnification, virtual scrolling, page navigation, text selection, text search, document link navigation, and bookmark navigation.
+The Flutter PDF Viewer plugin lets you view the PDF documents seamlessly and efficiently in the Android, iOS, Web, Windows and macOS platforms. It has highly interactive and customizable features such as magnification, virtual bidirectional scrolling, page navigation, text selection, text search, page layout options, document link navigation, and bookmark navigation.
 
 **Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
@@ -131,8 +131,8 @@ Widget build(BuildContext context) {
   return Scaffold(
       body: Container(
           child: SfPdfViewer.network(
-              'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
-              password: "syncfusion")));
+              'https://cdn.syncfusion.com/content/PDFViewer/encrypted.pdf',
+              password: 'syncfusion')));
 }
 ```
 
@@ -177,7 +177,7 @@ Widget build(BuildContext context) {
   return Scaffold(
       body: Container(
           child: SfPdfViewer.network(
-              'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
+              'https://cdn.syncfusion.com/content/PDFViewer/encrypted.pdf',
               canShowPasswordDialog: false)));
 }
 ```

@@ -67,7 +67,7 @@ import 'styles/style.dart';
 /// grid.draw(
 ///     page: document.pages.add(), bounds: Rect.zero);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -114,7 +114,7 @@ class PdfGridCell {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -195,7 +195,7 @@ class PdfGridCell {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -255,7 +255,7 @@ class PdfGridCell {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -309,7 +309,7 @@ class PdfGridCell {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -378,7 +378,7 @@ class PdfGridCell {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -451,7 +451,7 @@ class PdfGridCell {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -499,7 +499,7 @@ class PdfGridCell {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -551,7 +551,7 @@ class PdfGridCell {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -593,7 +593,7 @@ class PdfGridCell {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -1849,7 +1849,7 @@ class PdfGridCellHelper {
 /// grid.draw(
 ///     page: document.pages.add(), bounds: Rect.zero);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -1902,7 +1902,7 @@ class PdfGridCellCollection {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -1943,7 +1943,7 @@ class PdfGridCellCollection {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -1985,7 +1985,7 @@ class PdfGridCellCollection {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

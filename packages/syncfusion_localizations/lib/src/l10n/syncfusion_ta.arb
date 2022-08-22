@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "நிகழ்வுகள் இல்லை", 
 "ofDataPagerLabel" : "இன்", 
 "pagesDataPagerLabel" : "பக்கங்கள்", 
-"itemsDataPagerLabel" : "பொருட்களை", 
+"rowsPerPageDataPagerLabel" : "ஒரு பக்கத்திற்கு வரிசைகள்", 
 "pdfBookmarksLabel" : "புக்மார்க்குகள்", 
 "pdfNoBookmarksLabel" : "புக்மார்க்குகள் எதுவும் இல்லை", 
 "pdfScrollStatusOfLabel" : "இன்", 
@@ -23,7 +23,7 @@
 "allowedViewWorkWeekLabel" : "வேலை வாரம்", 
 "allowedViewMonthLabel" : "மாதம்", 
 "allowedViewScheduleLabel" : "அட்டவணை", 
-"allowedViewTimelineDayLabel" : "காலவரிசை நாள்", 
+"allowedViewTimelineDayLabel" : "காலவரிசை நாள்",
 "allowedViewTimelineWeekLabel" : "காலவரிசை வாரம்", 
 "allowedViewTimelineWorkWeekLabel" : "காலக்கெடு வேலை வாரம்", 
 "allowedViewTimelineMonthLabel" : "காலவரிசை மாதம்", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "ஷா.", 
 "shortDhualqiLabel" : "துல்-கே", 
 "shortDhualhiLabel" : "துல்-எச்", 
-"daySpanCountLabel" : "நாள்"
+"daySpanCountLabel" : "நாள்", 
+"series" : "தொடர்", 
+"pdfHyperlinkLabel" : "இணையப் பக்கத்தைத் திற", 
+"pdfHyperlinkContentLabel" : "நீங்கள் பக்கத்தைத் திறக்க விரும்புகிறீர்களா?", 
+"pdfHyperlinkDialogOpenLabel" : "திறந்த", 
+"pdfHyperlinkDialogCancelLabel" : "ரத்துசெய்"
 }

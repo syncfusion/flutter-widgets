@@ -118,7 +118,201 @@ class SfPdfViewerThemeData with Diagnosticable {
       PdfScrollHeadStyle? scrollHeadStyle,
       PdfBookmarkViewStyle? bookmarkViewStyle,
       PdfPaginationDialogStyle? paginationDialogStyle,
+      PdfHyperlinkDialogStyle? hyperlinkDialogStyle,
       PdfPasswordDialogStyle? passwordDialogStyle}) {
+    brightness = brightness ?? Brightness.light;
+    final bool isLight = brightness == Brightness.light;
+    backgroundColor ??=
+        isLight ? const Color(0xFFD6D6D6) : const Color(0xFF303030);
+    scrollHeadStyle ??= PdfScrollHeadStyle(
+        backgroundColor:
+            isLight ? const Color(0xFFFAFAFA) : const Color(0xFF424242),
+        pageNumberTextStyle: TextStyle(
+          fontSize: 12,
+          color: isLight
+              ? Colors.black.withOpacity(0.87)
+              : Colors.white.withOpacity(0.87),
+        ));
+    bookmarkViewStyle ??= PdfBookmarkViewStyle(
+      backgroundColor: isLight ? Colors.white : const Color(0xFF212121),
+      headerTextStyle: TextStyle(
+        fontSize: 16,
+        fontFamily: 'Roboto',
+        fontWeight: FontWeight.normal,
+        color: isLight
+            ? Colors.black.withOpacity(0.87)
+            : Colors.white.withOpacity(0.87),
+      ),
+      closeIconColor: isLight
+          ? Colors.black.withOpacity(0.54)
+          : Colors.white.withOpacity(0.54),
+      backIconColor: isLight
+          ? Colors.black.withOpacity(0.54)
+          : Colors.white.withOpacity(0.54),
+      headerBarColor:
+          isLight ? const Color(0xFFFAFAFA) : const Color(0xFF424242),
+      navigationIconColor: isLight
+          ? Colors.black.withOpacity(0.54)
+          : Colors.white.withOpacity(0.54),
+      selectionColor: isLight
+          ? const Color.fromRGBO(0, 0, 0, 0.08)
+          : const Color.fromRGBO(255, 255, 255, 0.12),
+      titleSeparatorColor: isLight
+          ? const Color.fromRGBO(0, 0, 0, 0.16)
+          : const Color.fromRGBO(255, 255, 255, 0.16),
+      titleTextStyle: TextStyle(
+        fontSize: 14,
+        color: isLight
+            ? Colors.black.withOpacity(0.87)
+            : Colors.white.withOpacity(0.87),
+        fontFamily: 'Roboto',
+        fontWeight: FontWeight.normal,
+      ),
+    );
+    paginationDialogStyle ??= PdfPaginationDialogStyle(
+      backgroundColor: isLight ? Colors.white : const Color(0xFF424242),
+      headerTextStyle: TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
+        color: isLight
+            ? Colors.black.withOpacity(0.87)
+            : Colors.white.withOpacity(0.87),
+      ),
+      hintTextStyle: TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: isLight
+            ? Colors.black.withOpacity(0.6)
+            : Colors.white.withOpacity(0.6),
+      ),
+      pageInfoTextStyle: TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 12,
+        color: isLight
+            ? Colors.black.withOpacity(0.6)
+            : Colors.white.withOpacity(0.6),
+      ),
+      inputFieldTextStyle: TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 16,
+        color: isLight
+            ? Colors.black.withOpacity(0.87)
+            : Colors.white.withOpacity(0.87),
+      ),
+      validationTextStyle: const TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 12,
+      ),
+      okTextStyle: const TextStyle(
+          fontFamily: 'Roboto', fontSize: 14, fontWeight: FontWeight.w500),
+      cancelTextStyle: const TextStyle(
+          fontFamily: 'Roboto', fontSize: 14, fontWeight: FontWeight.w500),
+    );
+    hyperlinkDialogStyle ??= PdfHyperlinkDialogStyle(
+      backgroundColor: isLight ? Colors.white : const Color(0xFF424242),
+      headerTextStyle: TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0.15,
+        color: isLight
+            ? Colors.black.withOpacity(0.87)
+            : Colors.white.withOpacity(0.87),
+      ),
+      contentTextStyle: TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0.25,
+        color: isLight
+            ? Colors.black.withOpacity(0.87)
+            : Colors.white.withOpacity(0.87),
+      ),
+      openTextStyle: const TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 1.25,
+      ),
+      cancelTextStyle: TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 1.25,
+        color: isLight
+            ? Colors.black.withOpacity(0.6)
+            : Colors.white.withOpacity(0.6),
+      ),
+      closeIconColor: isLight
+          ? Colors.black.withOpacity(0.6)
+          : Colors.white.withOpacity(0.6),
+    );
+    passwordDialogStyle ??= PdfPasswordDialogStyle(
+      backgroundColor: isLight ? Colors.white : const Color(0xFF424242),
+      headerTextStyle: TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
+        color: isLight
+            ? Colors.black.withOpacity(0.87)
+            : Colors.white.withOpacity(0.87),
+      ),
+      inputFieldTextStyle: TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 17,
+        fontWeight: FontWeight.w400,
+        color: isLight
+            ? Colors.black.withOpacity(0.87)
+            : Colors.white.withOpacity(0.87),
+      ),
+      closeIconColor: isLight
+          ? Colors.black.withOpacity(0.6)
+          : Colors.white.withOpacity(0.6),
+      visibleIconColor: isLight
+          ? Colors.black.withOpacity(0.6)
+          : Colors.white.withOpacity(0.6),
+      contentTextStyle: TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: isLight
+            ? Colors.black.withOpacity(0.6)
+            : Colors.white.withOpacity(0.6),
+      ),
+      errorTextStyle: const TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ),
+      inputFieldHintTextStyle: TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: isLight
+            ? Colors.black.withOpacity(0.6)
+            : Colors.white.withOpacity(0.6),
+      ),
+      inputFieldLabelTextStyle: TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+        color: isLight
+            ? Colors.black.withOpacity(0.87)
+            : Colors.white.withOpacity(0.87),
+      ),
+      openTextStyle: const TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ),
+      cancelTextStyle: const TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ),
+    );
     return SfPdfViewerThemeData.raw(
         brightness: brightness,
         backgroundColor: backgroundColor,
@@ -127,6 +321,7 @@ class SfPdfViewerThemeData with Diagnosticable {
         scrollHeadStyle: scrollHeadStyle,
         bookmarkViewStyle: bookmarkViewStyle,
         paginationDialogStyle: paginationDialogStyle,
+        hyperlinkDialogStyle: hyperlinkDialogStyle,
         passwordDialogStyle: passwordDialogStyle);
   }
 
@@ -145,6 +340,7 @@ class SfPdfViewerThemeData with Diagnosticable {
     required this.scrollHeadStyle,
     required this.bookmarkViewStyle,
     required this.paginationDialogStyle,
+    required this.hyperlinkDialogStyle,
     required this.passwordDialogStyle,
   });
 
@@ -334,6 +530,35 @@ class SfPdfViewerThemeData with Diagnosticable {
   /// ```
   final PdfPaginationDialogStyle? paginationDialogStyle;
 
+  /// Specifies the hyperlink dialog style of [SfPdfViewer] widget.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Center(
+  ///       child: SfTheme(
+  ///         data: SfThemeData(
+  ///           pdfViewerThemeData: SfPdfViewerThemeData(
+  ///             hyperlinkDialogStyle: PdfHyperlinkDialogStyle(
+  ///               backgroundColor: Colors.black,
+  ///               headerTextStyle: TextStyle(color: Colors.white)
+  ///               contentTextStyle: TextStyle(color: Colors.grey)
+  ///               openTextStyle: TextStyle(color: Colors.white)
+  ///               cancelTextStyle: TextStyle(color: Colors.white)
+  ///               closeIconColor: Colors.black,
+  ///             )
+  ///           )
+  ///         ),
+  ///      child: SfPdfViewer.asset(
+  ///           'assets/flutter-succinctly.pdf',
+  ///          ),
+  ///       ),
+  ///     )
+  ///   );
+  /// }
+  /// ```
+  final PdfHyperlinkDialogStyle? hyperlinkDialogStyle;
+
   /// Specifies the password dialog style of [SfPdfViewer] widget.
   ///
   /// ```dart
@@ -378,6 +603,7 @@ class SfPdfViewerThemeData with Diagnosticable {
       PdfScrollHeadStyle? scrollHeadStyle,
       PdfBookmarkViewStyle? bookmarkViewStyle,
       PdfPaginationDialogStyle? paginationDialogStyle,
+      PdfHyperlinkDialogStyle? hyperlinkDialogStyle,
       PdfPasswordDialogStyle? passwordDialogStyle}) {
     return SfPdfViewerThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -388,6 +614,7 @@ class SfPdfViewerThemeData with Diagnosticable {
       bookmarkViewStyle: bookmarkViewStyle ?? this.bookmarkViewStyle,
       paginationDialogStyle:
           paginationDialogStyle ?? this.paginationDialogStyle,
+      hyperlinkDialogStyle: hyperlinkDialogStyle ?? this.hyperlinkDialogStyle,
       passwordDialogStyle: passwordDialogStyle ?? this.passwordDialogStyle,
     );
   }
@@ -409,6 +636,8 @@ class SfPdfViewerThemeData with Diagnosticable {
             a.bookmarkViewStyle, b.bookmarkViewStyle, t),
         paginationDialogStyle: PdfPaginationDialogStyle.lerp(
             a.paginationDialogStyle, b.paginationDialogStyle, t),
+        hyperlinkDialogStyle: PdfHyperlinkDialogStyle.lerp(
+            a.hyperlinkDialogStyle, b.hyperlinkDialogStyle, t),
         passwordDialogStyle: PdfPasswordDialogStyle.lerp(
             a.passwordDialogStyle, b.passwordDialogStyle, t));
   }
@@ -430,6 +659,7 @@ class SfPdfViewerThemeData with Diagnosticable {
         other.scrollHeadStyle == scrollHeadStyle &&
         other.bookmarkViewStyle == bookmarkViewStyle &&
         other.paginationDialogStyle == paginationDialogStyle &&
+        other.hyperlinkDialogStyle == hyperlinkDialogStyle &&
         other.passwordDialogStyle == passwordDialogStyle;
   }
 
@@ -442,6 +672,7 @@ class SfPdfViewerThemeData with Diagnosticable {
       scrollHeadStyle,
       bookmarkViewStyle,
       paginationDialogStyle,
+      hyperlinkDialogStyle,
       passwordDialogStyle,
     ];
     return hashList(values);
@@ -469,6 +700,9 @@ class SfPdfViewerThemeData with Diagnosticable {
     properties.add(DiagnosticsProperty<PdfPaginationDialogStyle>(
         'paginationDialogStyle', paginationDialogStyle,
         defaultValue: defaultData.paginationDialogStyle));
+    properties.add(DiagnosticsProperty<PdfHyperlinkDialogStyle>(
+        'hyperlinkDialogStyle', hyperlinkDialogStyle,
+        defaultValue: defaultData.hyperlinkDialogStyle));
     properties.add(DiagnosticsProperty<PdfPasswordDialogStyle>(
         'passwordDialogStyle', passwordDialogStyle,
         defaultValue: defaultData.passwordDialogStyle));
@@ -769,6 +1003,89 @@ class PdfPaginationDialogStyle {
         okTextStyle: TextStyle.lerp(a.okTextStyle, b.okTextStyle, t),
         cancelTextStyle:
             TextStyle.lerp(a.cancelTextStyle, b.cancelTextStyle, t));
+  }
+}
+
+/// Holds the color and text styles for the hyperlink dialog in
+/// the [SfPdfViewer].
+class PdfHyperlinkDialogStyle {
+  /// Creates a [PdfHyperlinkDialogStyle] that's used to configure styles for
+  /// the hyperlink dialog in [SfPdfViewer].
+  const PdfHyperlinkDialogStyle(
+      {this.backgroundColor,
+      this.headerTextStyle,
+      this.contentTextStyle,
+      this.openTextStyle,
+      this.cancelTextStyle,
+      this.closeIconColor});
+
+  /// The background color of hyperlink dialog in [SfPdfViewer].
+  final Color? backgroundColor;
+
+  /// The style for the header text of hyperlink dialog in [SfPdfViewer].
+  final TextStyle? headerTextStyle;
+
+  /// The style for the content text of hyperlink dialog
+  /// in [SfPdfViewer].
+  final TextStyle? contentTextStyle;
+
+  /// The style for the Open button text of hyperlink dialog in [SfPdfViewer].
+  final TextStyle? openTextStyle;
+
+  /// The style for the Cancel button of hyperlink dialog in [SfPdfViewer].
+  final TextStyle? cancelTextStyle;
+
+  /// The close icon color of hyperlink dialog in [SfPdfViewer].
+  final Color? closeIconColor;
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      backgroundColor,
+      headerTextStyle,
+      contentTextStyle,
+      openTextStyle,
+      cancelTextStyle,
+      closeIconColor,
+    ];
+    return hashList(values);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is PdfHyperlinkDialogStyle &&
+        other.backgroundColor == backgroundColor &&
+        other.headerTextStyle == headerTextStyle &&
+        other.contentTextStyle == contentTextStyle &&
+        other.openTextStyle == openTextStyle &&
+        other.cancelTextStyle == cancelTextStyle &&
+        other.closeIconColor == closeIconColor;
+  }
+
+  /// Linearly interpolate between two styles.
+  static PdfHyperlinkDialogStyle? lerp(
+      PdfHyperlinkDialogStyle? a, PdfHyperlinkDialogStyle? b, double t) {
+    if (a == null && b == null) {
+      return null;
+    }
+    return PdfHyperlinkDialogStyle(
+        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
+        headerTextStyle:
+            TextStyle.lerp(a.headerTextStyle, b.headerTextStyle, t),
+        contentTextStyle:
+            TextStyle.lerp(a.contentTextStyle, b.contentTextStyle, t),
+        openTextStyle: TextStyle.lerp(a.openTextStyle, b.openTextStyle, t),
+        cancelTextStyle:
+            TextStyle.lerp(a.cancelTextStyle, b.cancelTextStyle, t),
+        closeIconColor: Color.lerp(a.closeIconColor, b.closeIconColor, t));
   }
 }
 

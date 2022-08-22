@@ -1,3 +1,5 @@
+// ignore_for_file: no_default_cases, avoid_setters_without_getters
+
 import 'dart:math';
 
 import 'distance_counter.dart';
@@ -632,7 +634,7 @@ abstract class ScrollAxisBase {
           int visibleIndex = 0;
           int scrollLineIndex = 0;
           double scrollOffset = 0.0;
-          final int _headerLineCount = headerLineCount;
+          final int headerLineCounts = headerLineCount;
           final List<dynamic> scrollLineValues =
               getScrollLineIndex(scrollLineIndex, scrollOffset, true);
           scrollLineIndex = scrollLineValues[0] as int;
@@ -648,7 +650,7 @@ abstract class ScrollAxisBase {
               index != -1 &&
                   strictlyLessThan(point, headerExtent) &&
                   index < firstFooterLine &&
-                  index < _headerLineCount;
+                  index < headerLineCounts;
               index = getNextScrollLineIndex(index)) {
             final double size = getLineSize(index);
             _visibleLines.add(VisibleLineInfo(visibleIndex++, index, size,
@@ -2166,10 +2168,10 @@ class PixelScrollAxis extends ScrollAxisBase {
       if (!isDistanceCounterSubset) {
         // Nested Grid cells in GridControl is not
         // DistanceRangeCounterCollection type.
-        final DistanceRangeCounterCollection _distances =
+        final DistanceRangeCounterCollection distance =
             distances! as DistanceRangeCounterCollection;
         super.footerExtent = distances!.totalDistance -
-            _distances.paddingDistance -
+            distance.paddingDistance -
             distances!.getCumulatedDistanceAt(n);
       } else {
         super.footerExtent =
@@ -2316,9 +2318,9 @@ class LineScrollAxis extends ScrollAxisBase {
             footerExtent: 0.0,
             defaultLineSize: 0.0,
             viewSize: 0.0) {
-    final Object _distancesHost = scrollLinesHost;
-    if (_distancesHost is DistancesHostBase) {
-      _distances = _distancesHost.distances;
+    final Object distancesHost = scrollLinesHost;
+    if (distancesHost is DistancesHostBase) {
+      _distances = distancesHost.distances;
     } else {
       _distances = DistanceRangeCounterCollection();
     }

@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Үйл явдал алга", 
 "ofDataPagerLabel" : "-ийн", 
 "pagesDataPagerLabel" : "хуудаснууд", 
-"itemsDataPagerLabel" : "зүйлс", 
+"rowsPerPageDataPagerLabel" : "Хуудас бүрийн мөр", 
 "pdfBookmarksLabel" : "Хавчуурга", 
 "pdfNoBookmarksLabel" : "Хавчуурга олдсонгүй", 
 "pdfScrollStatusOfLabel" : "-ийн", 
@@ -53,6 +53,11 @@
 "shortRamadanLabel" : "Рам.", 
 "shortShawwalLabel" : "Шоу.", 
 "shortDhualqiLabel" : "Зуль-К", 
-"shortDhualhiLabel" : "Зул-Х", 
-"daySpanCountLabel" : "Өдөр"
+"shortDhualhiLabel" : "Зуль-Х",
+"daySpanCountLabel" : "Өдөр", 
+"series" : "Цуврал", 
+"pdfHyperlinkLabel" : "Вэб хуудсыг нээх", 
+"pdfHyperlinkContentLabel" : "хаягаар хуудсыг нээхийг хүсэж байна уу", 
+"pdfHyperlinkDialogOpenLabel" : "НЭЭЛТТЭЙ", 
+"pdfHyperlinkDialogCancelLabel" : "Цуцлах"
 }

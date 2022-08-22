@@ -20,9 +20,9 @@ import '../common/interactive_tooltip.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 
-///Logarithmic axis uses logarithmic scale and displays numbers as axis labels.
+/// Logarithmic axis uses logarithmic scale and displays numbers as axis labels.
 ///
-///provides options to customize the range of log axis, use the [minimum], [maximum], and [interval] properties.
+/// Provides options to customize the range of log axis, use the [minimum], [maximum], and [interval] properties.
 /// By default, the range will be calculated automatically based on the provided data.
 ///
 /// _Note:_ This is only applicable for [SfCartesianChart].
@@ -125,112 +125,119 @@ class LogarithmicAxis extends ChartAxis {
             autoScrollingMode: autoScrollingMode,
             axisLabelFormatter: axisLabelFormatter);
 
-  ///Formats the numeric axis labels.
+  /// Formats the numeric axis labels.
   ///
   /// The labels can be customized by adding desired text as prefix or suffix.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: LogaithmicAxis(labelFormat: '{value}M'),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final String? labelFormat;
 
-  ///Formats the logarithmic axis labels with globalized label formats.
+  /// Formats the logarithmic axis labels with globalized label formats.
   ///
-  ///Provides the ability to format a number in a locale-specific way.
+  /// Provides the ability to format a number in a locale-specific way.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: LogarithmicAxis(numberFormat: NumberFormat.currencyCompact()),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final NumberFormat? numberFormat;
 
-  ///The minimum value of the axis.
+  /// The minimum value of the axis.
   ///
-  ///The axis will start from this value.
+  /// The axis will start from this value.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryYAxis: LogarithmicAxis(minimum: 0),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double? minimum;
 
-  ///The maximum value of the axis.
-  ///The axis will end at this value.
+  /// The maximum value of the axis.
+  /// The axis will end at this value.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryYAxis: LogarithmicAxis(maximum: 10),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double? maximum;
 
-  ///The base value for logarithmic axis.
-  ///The axislabel will render this base value.i.e 10,100,1000 and so on.
+  /// The base value for logarithmic axis.
+  /// The axislabel will render this base value.i.e 10,100,1000 and so on.
   ///
-  ///Defaults to `10`.
+  /// Defaults to `10`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryYAxis: LogarithmicAxis(logBase: 10),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double logBase;
 
-  ///The minimum visible value of the axis.
+  /// The minimum visible value of the axis.
   ///
-  ///The axis will be rendered from this value initially.
+  /// The axis will be rendered from this value initially.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: LogarithmicAxis(visibleMinimum: 0),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double? visibleMinimum;
 
-  ///The minimum visible value of the axis.
+  /// The minimum visible value of the axis.
   ///
   /// The axis will be rendered from this value initially.
   ///
-  ///Defaults to `null`.
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///           primaryXAxis: LogarithmicAxis(visibleMaximum: 200),
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final double? visibleMaximum;
@@ -385,7 +392,8 @@ class LogarithmicAxisRenderer extends ChartAxisRenderer {
       _axisDetails.updateAutoScrollingDelta(
           _axisDetails.logarithmicAxis.autoScrollingDelta!, this);
     }
-    if ((!canAutoScroll || _axisDetails.stateProperties.zoomedState == true) &&
+    if ((!canAutoScroll ||
+            (_axisDetails.stateProperties.zoomedState ?? false)) &&
         !(_axisDetails.stateProperties.rangeChangeBySlider &&
             !_axisDetails.stateProperties.canSetRangeController)) {
       _axisDetails.setZoomFactorAndPosition(

@@ -13,12 +13,12 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Spline series
+/// Creates series renderer for spline series.
 class SplineSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of SplineSeriesRenderer class.
   SplineSeriesRenderer();
 
-  /// Spline segment is created here
+  /// Spline segment is created here.
   ChartSegment _createSegments(
       CartesianChartPoint<dynamic> currentPoint,
       CartesianChartPoint<dynamic> nextPoint,
@@ -28,7 +28,7 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(this);
     final SplineSegment segment = createSegment() as SplineSegment;
-    final List<CartesianSeriesRenderer> _oldSeriesRenderers =
+    final List<CartesianSeriesRenderer> oldSeriesRenderers =
         seriesRendererDetails.stateProperties.oldSeriesRenderers;
     seriesRendererDetails.isRectSeries = false;
     // ignore: unnecessary_null_comparison
@@ -52,15 +52,15 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
                   .stateProperties.renderingDetails.widgetNeedUpdate ==
               true &&
           // ignore: unnecessary_null_comparison
-          _oldSeriesRenderers != null &&
-          _oldSeriesRenderers.isNotEmpty &&
-          _oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
+          oldSeriesRenderers != null &&
+          oldSeriesRenderers.isNotEmpty &&
+          oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
           SeriesHelper.getSeriesRendererDetails(
-                      _oldSeriesRenderers[segmentProperties.seriesIndex])
+                      oldSeriesRenderers[segmentProperties.seriesIndex])
                   .seriesName ==
               seriesDetails.seriesName) {
         segmentProperties.oldSeriesRenderer =
-            _oldSeriesRenderers[segmentProperties.seriesIndex];
+            oldSeriesRenderers[segmentProperties.seriesIndex];
         segmentProperties.oldSeries = SeriesHelper.getSeriesRendererDetails(
                 segmentProperties.oldSeriesRenderer!)
             .series as XyDataSeries<dynamic, dynamic>;
@@ -79,7 +79,7 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render spline series segments
+  /// To render spline series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -116,7 +116,7 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
     segmentProperties.strokeWidth = segmentProperties.series.width;
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -222,7 +222,7 @@ class SplineChartPainter extends CustomPainter {
 
       int segmentIndex = -1;
 
-      CartesianChartPoint<dynamic>? point, _nextPoint, startPoint, endPoint;
+      CartesianChartPoint<dynamic>? point, nextPoint, startPoint, endPoint;
 
       if (seriesRendererDetails.visibleDataPoints == null ||
           seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
@@ -230,6 +230,7 @@ class SplineChartPainter extends CustomPainter {
             <CartesianChartPoint<dynamic>>[];
       }
 
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       //Draw spline for spline series
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
@@ -245,13 +246,11 @@ class SplineChartPainter extends CustomPainter {
             startPoint = point;
           }
           if (pointIndex + 1 < dataPoints.length) {
-            _nextPoint = dataPoints[pointIndex + 1];
-            if (startPoint != null &&
-                !_nextPoint.isVisible &&
-                _nextPoint.isGap) {
+            nextPoint = dataPoints[pointIndex + 1];
+            if (startPoint != null && !nextPoint.isVisible && nextPoint.isGap) {
               startPoint = null;
-            } else if (_nextPoint.isVisible && !_nextPoint.isGap) {
-              endPoint = _nextPoint;
+            } else if (nextPoint.isVisible && !nextPoint.isGap) {
+              endPoint = nextPoint;
             }
           }
           if (startPoint != null &&

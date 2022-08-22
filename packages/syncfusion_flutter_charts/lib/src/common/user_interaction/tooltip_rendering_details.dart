@@ -1,13 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/axis/multi_level_labels.dart'
-    show AxisMultiLevelLabel;
-import 'package:syncfusion_flutter_charts/src/chart/chart_segment/chart_segment.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/cartesian_state_properties.dart';
-import 'package:syncfusion_flutter_charts/src/circular_chart/base/circular_state_properties.dart';
-import 'package:syncfusion_flutter_charts/src/common/utils/helper.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/tooltip_internal.dart';
 
@@ -17,93 +10,109 @@ import '../../chart/axis/category_axis.dart';
 import '../../chart/axis/datetime_axis.dart';
 import '../../chart/axis/datetime_category_axis.dart';
 import '../../chart/axis/logarithmic_axis.dart';
+import '../../chart/axis/multi_level_labels.dart' show AxisMultiLevelLabel;
 import '../../chart/axis/numeric_axis.dart';
 import '../../chart/chart_series/series.dart';
+import '../../chart/chart_series/series_renderer_properties.dart';
+import '../../chart/common/cartesian_state_properties.dart';
 import '../../chart/utils/helper.dart';
+import '../../circular_chart/base/circular_state_properties.dart';
 import '../../circular_chart/renderer/common.dart';
 import '../../circular_chart/utils/helper.dart';
 import '../../pyramid_chart/utils/helper.dart';
 import '../rendering_details.dart';
+import '../utils/helper.dart';
 import 'tooltip.dart';
 
 export 'package:syncfusion_flutter_core/core.dart'
     show DataMarkerType, TooltipAlignment;
 
-/// Represents the tooltip rendering details
+/// Represents the tooltip rendering details.
 class TooltipRenderingDetails {
-  /// Creates an instance of tooltip rendering details
+  /// Creates an instance of tooltip rendering details.
   TooltipRenderingDetails(this._stateProperties);
   final dynamic _stateProperties;
 
-  /// Gets the instance of tooltip behavior
+  /// Gets the instance of tooltip behavior.
   TooltipBehavior get tooltipBehavior =>
       _stateProperties.chart.tooltipBehavior as TooltipBehavior;
 
-  /// Specifies the chart tooltip value
+  /// Specifies the chart tooltip value.
   SfTooltip? chartTooltip;
 
-  /// Specifies whether interaction is done
+  /// Specifies whether interaction is done.
   bool isInteraction = false;
 
-  /// Specifies the tooltip is hovered
+  /// Specifies the tooltip is hovered.
   bool isHovering = false, _mouseTooltip = false;
 
-  /// Specifies the toopltip template
+  /// Specifies the toopltip template.
   Widget? tooltipTemplate;
 
-  /// specifies the value of tooltip render box
+  /// Specifies the value of tooltip render box.
   TooltipRenderBox? get renderBox => chartTooltipState?.renderBox;
 
-  /// Specifies the chart tooltip state
+  /// Specifies the chart tooltip state.
   SfTooltipState? get chartTooltipState {
+    State? state;
     if (chartTooltip != null) {
-      final State? state = (chartTooltip?.key as GlobalKey).currentState;
-      //ignore: avoid_as
-      return state != null ? state as SfTooltipState : null;
+      state = (chartTooltip?.key as GlobalKey).currentState;
     }
+    //ignore: avoid_as
+    return state != null ? state as SfTooltipState : null;
   }
 
   List<String> _textValues = <String>[];
   List<CartesianSeriesRenderer> _seriesRendererCollection =
       <CartesianSeriesRenderer>[];
 
-  /// Specifies the previous tooltip value
+  /// Specifies the previous tooltip value.
   TooltipValue? prevTooltipValue;
   TooltipValue? _presentTooltipValue;
 
-  /// Specifies the current tooltip value
+  /// Hold the previous tooltip values and this is used to show the tooltip in dynamic update cases using the public methods.
+  TooltipValue? prevTooltipData;
+
+  /// Specifies the current tooltip value.
   TooltipValue? currentTooltipValue;
 
   SeriesRendererDetails? _seriesRendererDetails;
 
-  /// Specifies the value of current series and the current datat point
+  /// Specifies the value of current series and the current data point.
   dynamic currentSeriesDetails, _dataPoint;
 
-  /// Specifies tooltip point index
+  /// Specifies tooltip point index.
   int? pointIndex;
 
-  /// Holds the series index value
+  /// Holds the series index value.
   late int seriesIndex;
   late Color _markerColor;
   late DataMarkerType _markerType;
 
-  /// Specifies the tooltip timer
+  /// Specifies the tooltip timer.
   Timer? timer;
 
-  /// Specifies whether the tooltip is shown
+  /// Specifies whether the tooltip is shown.
   bool show = false;
 
-  /// Holds the offset value of show location
+  /// Holds the offset value of show location.
   Offset? showLocation;
 
-  ///  Holds the value of tooltip bounds
+  /// Holds the boolean value to decide rendering position of tooltip.
+  bool showTooltipPosition = false;
+
+  /// Holds the dynamic values of the tooltip enabled data point.
+  dynamic dataPointValues;
+
+  ///  Holds the value of tooltip bounds.
   Rect? tooltipBounds;
   String? _stringVal, _header;
+  // ignore: avoid_setters_without_getters
   set _stringValue(String? value) {
     _stringVal = value;
   }
 
-  /// To render chart tooltip
+  /// To render chart tooltip.
   // ignore:unused_element
   void _renderTooltipView(Offset position) {
     if (_stateProperties.chart is SfCartesianChart) {
@@ -115,7 +124,7 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// To show tooltip with position offsets
+  /// To show tooltip with position offsets.
   void showTooltip(double? x, double? y) {
     if (x != null &&
         y != null &&
@@ -128,7 +137,7 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// To show the chart tooltip
+  /// To show the chart tooltip.
   void showTooltipView(double x, double y) {
     if (tooltipBehavior.enable &&
         renderBox != null &&
@@ -198,7 +207,7 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// this method resolves the position issue when the markerPoint is residing
+  /// This method resolves the position issue when the markerPoint is residing.
   /// out of the axis cliprect
   void _resolveLocation() {
     if (_stateProperties.chart is SfCartesianChart &&
@@ -227,7 +236,7 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// This method shows the tooltip for any logical pixel outside point region
+  /// This method shows the tooltip for any logical pixel outside point region.
   //ignore: unused_element
   void showChartAreaTooltip(
       Offset position,
@@ -273,8 +282,7 @@ class TooltipRenderingDetails {
         if (xAxisDetails is DateTimeAxisDetails) {
           final DateTimeAxis xAxis = xAxisDetails.axis as DateTimeAxis;
           final num interval = xAxisDetails.visibleRange!.minimum.ceil();
-          final num prevInterval = (xAxisDetails.visibleLabels.length != null &&
-                  xAxisDetails.visibleLabels.isNotEmpty)
+          final num prevInterval = (xAxisDetails.visibleLabels.isNotEmpty)
               ? xAxisDetails
                   .visibleLabels[xAxisDetails.visibleLabels.length - 1].value
               : interval;
@@ -283,7 +291,16 @@ class TooltipRenderingDetails {
                       interval.toInt(), prevInterval.toInt()))
               .format(DateTime.fromMillisecondsSinceEpoch(xValue.floor()));
         } else if (xAxisDetails is DateTimeCategoryAxisDetails) {
-          xValue = xAxisDetails.dateFormat
+          final DateTimeCategoryAxis xAxis =
+              xAxisDetails.axis as DateTimeCategoryAxis;
+          final num interval = xAxisDetails.visibleRange!.minimum.ceil();
+          final num prevInterval = (xAxisDetails.visibleLabels.isNotEmpty)
+              ? xAxisDetails
+                  .visibleLabels[xAxisDetails.visibleLabels.length - 1].value
+              : interval;
+          xValue = (xAxis.dateFormat ??
+                  getDateTimeLabelFormat(xAxisDetails.axisRenderer,
+                      interval.toInt(), prevInterval.toInt()))
               .format(DateTime.fromMillisecondsSinceEpoch(xValue.floor()));
         } else if (xAxisDetails is CategoryAxisDetails) {
           xValue = xAxisDetails.visibleLabels[xValue.toInt()].text;
@@ -292,7 +309,6 @@ class TooltipRenderingDetails {
               ? xValue.floor()
               : xValue.toStringAsFixed(2);
         }
-
         if (yAxisDetails is NumericAxisDetails ||
             yAxisDetails is LogarithmicAxisDetails) {
           yValue = yValue.toStringAsFixed(2).contains('.00') == true
@@ -302,17 +318,21 @@ class TooltipRenderingDetails {
         _stringValue = ' $xValue :  $yValue ';
         showLocation = position;
       }
-
-      if (showLocation != null && _stringVal != null && tooltipBounds != null) {
-        chartTooltipState?.needMarker = false;
-        chartTooltipState?.show(
-            tooltipHeader: _header,
-            tooltipContent: _stringVal,
-            tooltipData: _presentTooltipValue,
-            position: showLocation,
-            duration: _stateProperties.isTooltipOrientationChanged == true
-                ? 0
-                : tooltipBehavior.animationDuration);
+      if (_isPointWithInRect(
+          position, cartesianStateProperties.chartAxis.axisClipRect)) {
+        if (showLocation != null &&
+            _stringVal != null &&
+            tooltipBounds != null) {
+          chartTooltipState?.needMarker = false;
+          chartTooltipState?.show(
+              tooltipHeader: _header,
+              tooltipContent: _stringVal,
+              tooltipData: _presentTooltipValue,
+              position: showLocation,
+              duration: _stateProperties.isTooltipOrientationChanged == true
+                  ? 0
+                  : tooltipBehavior.animationDuration);
+        }
       }
 
       if (!tooltipBehavior.shouldAlwaysShow) {
@@ -324,7 +344,7 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// Method to show the tooltip with template
+  /// Method to show the tooltip with template.
   void showTemplateTooltip(Offset position, [dynamic xValue, dynamic yValue]) {
     _stateProperties.isTooltipHidden = false;
     final CartesianStateProperties cartesianStateProperties =
@@ -341,7 +361,7 @@ class TooltipRenderingDetails {
       int outlierIndex = -1;
       bool isTooltipRegion = false;
       if (!isHovering) {
-        //assigning null for the previous and current tooltip values in case of mouse not hovering
+        // Assigning null for the previous and current tooltip values in case of mouse not hovering.
         prevTooltipValue = null;
         currentTooltipValue = null;
       }
@@ -441,7 +461,7 @@ class TooltipRenderingDetails {
           (currentSeriesDetails != null &&
               currentSeriesDetails.isRectSeries == true &&
               tooltipBehavior.tooltipPosition != TooltipPosition.auto)) {
-        //Current point is different than previous one so tooltip re-renders
+        // Current point is different than previous one so tooltip re-renders.
         if (seriesIndex != null && pointIndex != null) {
           _presentTooltipValue =
               TooltipValue(seriesIndex, pointIndex!, outlierIndex);
@@ -455,7 +475,7 @@ class TooltipRenderingDetails {
           }
         }
       } else {
-        //Current point is same as previous one so timer is reset and tooltip is not re-rendered
+        // Current point is same as previous one so timer is reset and tooltip is not re-rendered.
         if (!isHovering) {
           hideTooltipTemplate();
         }
@@ -464,7 +484,7 @@ class TooltipRenderingDetails {
       if (!isTooltipRegion &&
           !isInteraction &&
           chart.series.isNotEmpty == true) {
-        //to show tooltip template when the position resides outside point region
+        // To show tooltip template when the position resides outside point region.
         final dynamic x = xValue ??
             pointToXValue(
                 cartesianStateProperties.requireInvertedAxis,
@@ -505,7 +525,7 @@ class TooltipRenderingDetails {
     isInteraction = false;
   }
 
-  /// Tooltip show by Index
+  /// Tooltip show by Index.
   void internalShowByIndex(int seriesIndex, int pointIndex) {
     final dynamic chart = _stateProperties.chart;
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
@@ -520,34 +540,39 @@ class TooltipRenderingDetails {
         final SeriesRendererDetails cartesianSeriesRendererDetails =
             SeriesHelper.getSeriesRendererDetails(_stateProperties
                 .chartSeries.visibleSeriesRenderers[seriesIndex]);
-        if (cartesianSeriesRendererDetails.visible! == true) {
-          if ((currentSeriesRenderer is BarSeriesRenderer ||
-                  currentSeriesRenderer is StackedBarSeriesRenderer ||
-                  currentSeriesRenderer is StackedBar100SeriesRenderer &&
-                      !chart.isTransposed) ||
-              (currentSeriesRenderer is ColumnSeriesRenderer ||
-                  currentSeriesRenderer is StackedColumnSeriesRenderer ||
-                  currentSeriesRenderer is StackedColumn100SeriesRenderer &&
-                      chart.isTransposed) ||
-              currentSeriesRenderer is RangeColumnSeriesRenderer &&
-                  chart.isTransposed ||
-              currentSeriesRenderer is BoxAndWhiskerSeriesRenderer) {
-            if (currentSeriesRenderer is BoxAndWhiskerSeriesRenderer) {
-              x = cartesianSeriesRendererDetails
-                  .dataPoints[pointIndex].region?.centerRight.dx;
-              y = cartesianSeriesRendererDetails
-                  .dataPoints[pointIndex].region?.centerRight.dy;
+        // ignore: unnecessary_null_comparison
+        if (pointIndex != null &&
+            pointIndex.abs() <
+                cartesianSeriesRendererDetails.dataPoints.length) {
+          if (cartesianSeriesRendererDetails.visible! == true) {
+            if ((currentSeriesRenderer is BarSeriesRenderer ||
+                    currentSeriesRenderer is StackedBarSeriesRenderer ||
+                    currentSeriesRenderer is StackedBar100SeriesRenderer &&
+                        !chart.isTransposed) ||
+                (currentSeriesRenderer is ColumnSeriesRenderer ||
+                    currentSeriesRenderer is StackedColumnSeriesRenderer ||
+                    currentSeriesRenderer is StackedColumn100SeriesRenderer &&
+                        chart.isTransposed) ||
+                currentSeriesRenderer is RangeColumnSeriesRenderer &&
+                    chart.isTransposed ||
+                currentSeriesRenderer is BoxAndWhiskerSeriesRenderer) {
+              if (currentSeriesRenderer is BoxAndWhiskerSeriesRenderer) {
+                x = cartesianSeriesRendererDetails
+                    .dataPoints[pointIndex].region?.centerRight.dx;
+                y = cartesianSeriesRendererDetails
+                    .dataPoints[pointIndex].region?.centerRight.dy;
+              } else {
+                x = cartesianSeriesRendererDetails
+                    .dataPoints[pointIndex].region?.topCenter.dx;
+                y = cartesianSeriesRendererDetails
+                    .dataPoints[pointIndex].region?.topCenter.dy;
+              }
             } else {
               x = cartesianSeriesRendererDetails
-                  .dataPoints[pointIndex].region?.topCenter.dx;
+                  .dataPoints[pointIndex].markerPoint!.x;
               y = cartesianSeriesRendererDetails
-                  .dataPoints[pointIndex].region?.topCenter.dy;
+                  .dataPoints[pointIndex].markerPoint!.y;
             }
-          } else {
-            x = cartesianSeriesRendererDetails
-                .dataPoints[pointIndex].markerPoint!.x;
-            y = cartesianSeriesRendererDetails
-                .dataPoints[pointIndex].markerPoint!.y;
           }
         }
       }
@@ -565,7 +590,7 @@ class TooltipRenderingDetails {
               _stateProperties.chartSeries.visibleSeriesRenderers[seriesIndex]
                   .dataPoints.length &&
           chart.series[seriesIndex].enableTooltip) {
-        //to show the tooltip template when the provided indices are valid
+        // To show the tooltip template when the provided indices are valid.
         _stateProperties.circularArea
             ._showCircularTooltipTemplate(seriesIndex, pointIndex);
       } else if (chart.tooltipBehavior.builder == null &&
@@ -590,7 +615,7 @@ class TooltipRenderingDetails {
         pointIndex <
             _stateProperties
                 .chartSeries.visibleSeriesRenderers[0].dataPoints.length) {
-      //this shows the tooltip for triangular type of charts (funnel and pyramid)
+      // This shows the tooltip for triangular type of charts (funnel and pyramid).
       if (chart.tooltipBehavior.builder == null) {
         _stateProperties.tooltipPointIndex = pointIndex;
         final Offset? position = _stateProperties.chartSeries
@@ -611,8 +636,10 @@ class TooltipRenderingDetails {
     tooltipRenderingDetails.isInteraction = false;
   }
 
-  /// Tooltip show by pixel
+  /// Tooltip show by pixel.
   void internalShowByPixel(double x, double y) {
+    prevTooltipData = null;
+    showTooltipPosition = true;
     _stateProperties.isTooltipHidden = false;
     final dynamic chart = _stateProperties.chart;
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
@@ -810,7 +837,7 @@ class TooltipRenderingDetails {
           tooltipRenderingDetails.isInteraction == true ||
           (isInsidePointRegion ?? false)) {
         final bool isHovering = tooltipRenderingDetails.isHovering;
-        if (isInsidePointRegion == true ||
+        if ((isInsidePointRegion ?? false) ||
             isHovering ||
             (chart is SfCartesianChart) == false) {
           tooltipRenderingDetails.showTooltip(x, y);
@@ -843,7 +870,7 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// To hide the tooltip when the timer ends
+  /// To hide the tooltip when the timer ends.
   void hide() {
     if (!tooltipBehavior.shouldAlwaysShow) {
       show = false;
@@ -878,7 +905,7 @@ class TooltipRenderingDetails {
   //   }
   // }
 
-  /// To hide tooltip templates
+  /// To hide tooltip templates.
   void hideTooltipTemplate() {
     if (tooltipBehavior.shouldAlwaysShow == false) {
       show = false;
@@ -902,9 +929,9 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// To perform rendering of tooltip
+  /// To perform rendering of tooltip.
   void performTooltip() {
-    //for mouse hover the tooltip is redrawn only when the current tooltip value differs from the previous one
+    // For mouse hover the tooltip is redrawn only when the current tooltip value differs from the previous one.
     if (show &&
         ((prevTooltipValue == null && currentTooltipValue == null) ||
             (_stateProperties.chartState is SfCartesianChartState &&
@@ -924,9 +951,8 @@ class TooltipRenderingDetails {
           prevTooltipValue!.outlierIndex == currentTooltipValue!.outlierIndex;
       if (tooltipBehavior.builder != null && tooltipBounds != null) {
         chartTooltipState!.boundaryRect = tooltipBounds!;
-        if (tooltipBehavior.tooltipPosition != TooltipPosition.auto) {
+        if (tooltipBehavior.tooltipPosition != TooltipPosition.auto)
           _presentTooltipValue!.pointerPosition = showLocation;
-        }
         if (showLocation != null) {
           _resolveLocation();
           chartTooltipState?.show(
@@ -943,7 +969,7 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// To show tooltip on mouse pointer actions
+  /// To show tooltip on mouse pointer actions.
   void _showMouseTooltip(double x, double y) {
     if (tooltipBehavior.enable &&
         renderBox != null &&
@@ -971,9 +997,8 @@ class TooltipRenderingDetails {
             (currentTooltipValue == null ||
                 tooltipBehavior.tooltipPosition == TooltipPosition.auto)) {
           chartTooltipState!.boundaryRect = tooltipBounds!;
-          if (tooltipBehavior.tooltipPosition != TooltipPosition.auto) {
+          if (tooltipBehavior.tooltipPosition != TooltipPosition.auto)
             _presentTooltipValue!.pointerPosition = showLocation;
-          }
           if (showLocation != null) {
             chartTooltipState?.needMarker =
                 _stateProperties.chart is SfCartesianChart;
@@ -1015,7 +1040,7 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// Method to trigger the tooltip rendering event
+  /// Method to trigger the tooltip rendering event.
   void tooltipRenderingEvent(TooltipRenderArgs args) {
     String? header = args.header;
     String? stringValue = args.text;
@@ -1025,10 +1050,10 @@ class TooltipRenderingDetails {
     if (x != null &&
         y != null &&
         stringValue != null &&
-        currentSeriesDetails != null) {
+        currentSeriesDetails != null &&
+        pointIndex != null) {
       final int seriesIndex = _stateProperties.chart is SfCartesianChart
-          ? SegmentHelper.getSegmentProperties(currentSeriesDetails.segments[0])
-              .seriesIndex
+          ? currentSeriesDetails.seriesIndex
           : 0;
       if ((_stateProperties.chart is SfCartesianChart &&
               _stateProperties.requireAxisTooltip == false) ||
@@ -1076,7 +1101,7 @@ class TooltipRenderingDetails {
           args.location = Offset(x!, y!);
         } else if (_stateProperties.chart.onTooltipRender != null) {
           //Fires the on tooltip render event when the tooltip is shown outside point region
-          tooltipArgs = TooltipArgs(null, null, null);
+          tooltipArgs = TooltipArgs();
           tooltipArgs.text = stringValue;
           tooltipArgs.header = header;
           tooltipArgs.locationX = x;
@@ -1096,12 +1121,13 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// To render a chart tooltip for circular series
+  /// To render a chart tooltip for circular series.
   void _renderCircularChartTooltip(Offset position) {
     final CircularStateProperties circularStateProperties =
         _stateProperties as CircularStateProperties;
     final SfCircularChart chart = circularStateProperties.chart;
     tooltipBounds = circularStateProperties.renderingDetails.chartContainerRect;
+    final bool isRtl = circularStateProperties.isRtl;
     bool isContains = false;
     final Region? pointRegion = getCircularPointRegion(chart, position,
         circularStateProperties.chartSeries.visibleSeriesRenderers[0]);
@@ -1150,6 +1176,7 @@ class TooltipRenderingDetails {
               : null
           : header;
       _header = header ?? '';
+      _header = isRtl ? _getRtlFormattedText(_header!) : _header;
       if (chart.tooltipBehavior.format != null) {
         final String resultantString = chart.tooltipBehavior.format!
             .replaceAll('point.x', chartPoint.x.toString())
@@ -1162,11 +1189,13 @@ class TooltipRenderingDetails {
                         .series
                         .name ??
                     'series.name');
-        _stringValue = resultantString;
+        _stringValue =
+            isRtl ? _getRtlFormattedText(resultantString) : resultantString;
         showLocation = location;
       } else {
-        _stringValue =
-            '${chartPoint.x} : ${getDecimalLabelValue(chartPoint.y, digits)}';
+        _stringValue = isRtl
+            ? '${getDecimalLabelValue(chartPoint.y, digits)} : ${chartPoint.x}'
+            : '${chartPoint.x} : ${getDecimalLabelValue(chartPoint.y, digits)}';
         showLocation = location;
       }
       if (chart.series[0].explode) {
@@ -1182,10 +1211,10 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// To render a chart tooltip for triangular series
+  /// To render a chart tooltip for triangular series.
   void _renderTriangularChartTooltip(Offset position) {
     final dynamic chart = _stateProperties.chart;
-
+    final bool isRtl = _stateProperties.renderingDetails.isRtl == true;
     tooltipBounds = _stateProperties.renderingDetails.chartContainerRect;
     bool isContains = false;
     const int seriesIndex = 0;
@@ -1252,6 +1281,7 @@ class TooltipRenderingDetails {
               : null
           : header;
       _header = header ?? '';
+      _header = isRtl ? _getRtlFormattedText(_header!) : header;
       if (chart.tooltipBehavior.format != null) {
         final String resultantString = chart.tooltipBehavior.format
             .replaceAll('point.x', chartPoint.x.toString())
@@ -1261,11 +1291,13 @@ class TooltipRenderingDetails {
                 _stateProperties.chartSeries.visibleSeriesRenderers[seriesIndex]
                         .series.name ??
                     'series.name');
-        _stringValue = resultantString;
+        _stringValue =
+            isRtl ? _getRtlFormattedText(resultantString) : resultantString;
         showLocation = location;
       } else {
-        _stringValue =
-            '${chartPoint.x} : ${getDecimalLabelValue(chartPoint.y, digits)}';
+        _stringValue = isRtl
+            ? '${getDecimalLabelValue(chartPoint.y, digits)} : ${chartPoint.x}'
+            : '${chartPoint.x} : ${getDecimalLabelValue(chartPoint.y, digits)}';
         showLocation = location;
       }
       isContains = true;
@@ -1319,11 +1351,15 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// To render a chart tooltip for Cartesian series
+  /// To render a chart tooltip for Cartesian series.
   void _renderCartesianChartTooltip(Offset position) {
     final CartesianStateProperties stateProperties =
         _stateProperties as CartesianStateProperties;
     bool isContains = false;
+    //To hide the tooltip on dynamic update when the point is not in viewport,
+    if (!_isPointWithInRect(position, stateProperties.chartAxis.axisClipRect)) {
+      chartTooltipState?.hide(hideDelay: 0);
+    }
     if (_isPointWithInRect(position, stateProperties.chartAxis.axisClipRect)) {
       Offset? tooltipPosition;
       double touchPadding;
@@ -1394,13 +1430,15 @@ class TooltipRenderingDetails {
               _presentTooltipValue =
                   TooltipValue(i, count, outlierTooltipIndex);
               currentSeriesDetails = _seriesRendererDetails;
-              pointIndex = _stateProperties.chart is SfCartesianChart
-                  ? regionRect[4].visiblePointIndex
-                  : count;
               _dataPoint = regionRect[4];
               _markerType = _seriesRendererDetails!.series.markerSettings.shape;
               Color? seriesColor = _seriesRendererDetails!.seriesColor;
               if (_seriesRendererDetails!.seriesType == 'waterfall') {
+                pointIndex = _stateProperties.chart is SfCartesianChart
+                    ? (isTrendLine ?? false)
+                        ? regionRect[4].index
+                        : regionRect[4].visiblePointIndex
+                    : count;
                 seriesColor = getWaterfallSeriesColor(
                     _seriesRendererDetails!.series
                         as WaterfallSeries<dynamic, dynamic>,
@@ -1445,9 +1483,24 @@ class TooltipRenderingDetails {
               padding = paddingData[0];
               tooltipPosition = paddingData[1];
               showLocation = tooltipPosition;
-              dataValues = values;
+              if (prevTooltipData == null ||
+                  prevTooltipData!.pointIndex ==
+                      _presentTooltipValue!.pointIndex) {
+                dataValues = values;
+                pointIndex = _stateProperties.chart is SfCartesianChart
+                    ? (isTrendLine ?? false)
+                        ? regionRect[4].index
+                        : regionRect[4].visiblePointIndex
+                    : count;
+
+                showTooltipPosition = prevTooltipData != null &&
+                    prevTooltipData!.pointIndex ==
+                        _presentTooltipValue!.pointIndex;
+              }
+              dataPointValues = dataValues ?? dataPointValues;
               dataRect = regionRect;
               isContains = _mouseTooltip = true;
+              prevTooltipData = prevTooltipData ?? _presentTooltipValue;
             }
             count++;
           });
@@ -1527,6 +1580,9 @@ class TooltipRenderingDetails {
                         currentSeriesDetails.seriesName))
             : header;
         _header = header ?? '';
+        _header = stateProperties.renderingDetails.isRtl
+            ? _getRtlFormattedText(_header!)
+            : _header;
         _stringValue = '';
         if (tooltipBehavior.shared) {
           _textValues = <String>[];
@@ -1560,12 +1616,12 @@ class TooltipRenderingDetails {
           _stringValue = _calculateCartesianTooltipText(
               currentSeriesDetails,
               dataRect[4],
-              dataValues,
-              tooltipPosition!,
+              dataValues ?? dataPointValues,
+              !showTooltipPosition ? tooltipPosition! : position,
               outlierTooltip,
               outlierTooltipIndex);
         }
-        showLocation = tooltipPosition;
+        showLocation = !showTooltipPosition ? tooltipPosition : position;
       } else {
         _stringValue = null;
         if (!isHovering) {
@@ -1577,7 +1633,7 @@ class TooltipRenderingDetails {
     }
   }
 
-  /// It returns the tooltip text of Cartesian series
+  /// It returns the tooltip text of Cartesian series.
   String _calculateCartesianTooltipText(
       SeriesRendererDetails seriesRendererDetails,
       CartesianChartPoint<dynamic> point,
@@ -1585,6 +1641,8 @@ class TooltipRenderingDetails {
       Offset tooltipPosition,
       bool outlierTooltip,
       int outlierTooltipIndex) {
+    final bool isRtl =
+        seriesRendererDetails.stateProperties.renderingDetails.isRtl == true;
     final bool isTrendLine = values[values.length - 1].contains('true');
     String resultantString;
     final ChartAxisRendererDetails axisRenderer =
@@ -1618,8 +1676,9 @@ class TooltipRenderingDetails {
           ? getLabelValue(
               point.outliers![outlierTooltipIndex], axisRenderer.axis, digits)
           : null;
-      boxPlotString =
-          '\nMinimum : $minimumValue\nMaximum : $maximumValue\nMedian : $medianValue\nMean : $meanValue\nLQ : $lowerQuartileValue\nHQ : $upperQuartileValue';
+      boxPlotString = isRtl
+          ? '\n$minimumValue : Minimum\n$maximumValue : Maximum\n$medianValue : Median\n$meanValue : Mean\n$lowerQuartileValue : LQ\n$upperQuartileValue : HQ'
+          : '\nMinimum : $minimumValue\nMaximum : $maximumValue\nMedian : $medianValue\nMean : $meanValue\nLQ : $lowerQuartileValue\nHQ : $upperQuartileValue';
     } else if (seriesRendererDetails.seriesType.contains('range') == true ||
         seriesRendererDetails.seriesType == 'hilo' ||
         seriesRendererDetails.seriesType == 'hiloopenclose' ||
@@ -1678,25 +1737,90 @@ class TooltipRenderingDetails {
                       : seriesRendererDetails.seriesType == 'bubble'
                           ? tooltip.format!.replaceAll('point.x', values[0]).replaceAll('point.y', getLabelValue(point.y, axisRenderer.axis, digits)).replaceAll('series.name', seriesRendererDetails.series.name ?? seriesRendererDetails.seriesName!).replaceAll('point.size', getLabelValue(point.bubbleSize, axisRenderer.axis, digits))
                           : tooltip.format!.replaceAll('point.x', values[0]).replaceAll('point.y', getLabelValue(point.y, axisRenderer.axis, digits)).replaceAll('series.name', seriesRendererDetails.series.name ?? seriesRendererDetails.seriesName!);
+      resultantString =
+          isRtl ? _getRtlFormattedText(resultantString) : resultantString;
     } else {
-      resultantString = (tooltipBehavior.shared
-              ? seriesRendererDetails.series.name ??
-                  seriesRendererDetails.seriesName
-              : values[0]) +
-          (((seriesRendererDetails.seriesType.contains('range') == true ||
-                      seriesRendererDetails.seriesType == 'hilo') &&
-                  !isTrendLine)
-              ? ('\nHigh : ${highValue!}\nLow : ${lowValue!}')
-              : (seriesRendererDetails.seriesType == 'hiloopenclose' ||
-                      seriesRendererDetails.seriesType == 'candle'
-                  ? ('\nHigh : ${highValue!}\nLow : ${lowValue!}\nOpen : ${openValue!}\nClose : ${closeValue!}')
-                  : seriesRendererDetails.seriesType == 'boxandwhisker'
-                      ? outlierValue != null
-                          ? ('\nOutliers : $outlierValue')
-                          : boxPlotString
-                      : ' : ${getLabelValue(point.y, axisRenderer.axis, digits)}'));
+      final String xValue =
+          '${tooltipBehavior.shared ? seriesRendererDetails.series.name ?? seriesRendererDetails.seriesName : values[0]}';
+      String result = '';
+      if ((seriesRendererDetails.seriesType.contains('range') == true ||
+              seriesRendererDetails.seriesType == 'hilo') &&
+          !isTrendLine) {
+        result = xValue +
+            (isRtl
+                ? '\n${highValue!} : High\n${lowValue!} : Low'
+                : '\nHigh : ${highValue!}\nLow : ${lowValue!}');
+      } else if (seriesRendererDetails.seriesType == 'hiloopenclose' ||
+          seriesRendererDetails.seriesType == 'candle') {
+        result = xValue +
+            (isRtl
+                ? '\n${highValue!} : High\n${lowValue!} : Low\n${openValue!} : Open\n${closeValue!} : Close'
+                : '\nHigh : ${highValue!}\nLow : ${lowValue!}\nOpen : ${openValue!}\nClose : ${closeValue!}');
+      } else if (seriesRendererDetails.seriesType == 'boxandwhisker') {
+        result = xValue +
+            (outlierValue != null
+                ? isRtl
+                    ? '\n$outlierValue : Outliers'
+                    : '\nOutliers : $outlierValue'
+                : boxPlotString!);
+      } else {
+        final String yValue = getLabelValue(point.y, axisRenderer.axis, digits);
+        result = isRtl ? '$yValue : $xValue' : '$xValue : $yValue';
+      }
+      resultantString = result;
     }
     return resultantString;
+  }
+
+  String _getRtlFormattedText(String formattedText) {
+    String resultantString = '';
+    List<String> textCollection = <String>[];
+    final List<String> firstStringCollection = <String>[];
+    if (formattedText.contains('\n')) {
+      textCollection = formattedText.split('\n');
+      for (int j = 0; j < textCollection.length; j++) {
+        if (textCollection[j].contains(':')) {
+          final List<String> secondStringCollection =
+              textCollection[j].split(':');
+          firstStringCollection
+              .add(_getRtlStringWithColon(secondStringCollection));
+        } else {
+          firstStringCollection.add(textCollection[j]);
+        }
+      }
+    } else if (formattedText.contains(':')) {
+      textCollection = formattedText.split(':');
+      formattedText = _getRtlStringWithColon(textCollection);
+    }
+    if (firstStringCollection.isNotEmpty) {
+      for (int i = 0; i < firstStringCollection.length; i++) {
+        resultantString =
+            resultantString + (i == 0 ? '' : '\n') + firstStringCollection[i];
+      }
+    } else {
+      resultantString = formattedText;
+    }
+    return resultantString;
+  }
+
+  String _getRtlStringWithColon(List<String> textCollection) {
+    String string = '';
+    for (int i = textCollection.length - 1; i >= 0; i--) {
+      final bool containsBackSpace = textCollection[i].endsWith(' ');
+      final bool containsFrontSpace = textCollection[i].startsWith(' ');
+      textCollection[i] = textCollection[i].trim();
+      if (containsFrontSpace) {
+        textCollection[i] = '${textCollection[i]} ';
+      }
+      if (containsBackSpace) {
+        textCollection[i] = ' ${textCollection[i]}';
+      }
+      string = string +
+          (i == textCollection.length - 1
+              ? textCollection[i]
+              : ':${textCollection[i]}');
+    }
+    return string;
   }
 
   /// Returns the cumulative length of the number of new line character '\n'
@@ -1711,8 +1835,9 @@ class TooltipRenderingDetails {
     return value;
   }
 
-  /// finds whether the point resides inside the given rect including its edges
+  /// Finds whether the point resides inside the given rect including its edges.
   bool _isPointWithInRect(Offset point, Rect rect) {
+    // ignore: unnecessary_null_comparison
     return point != null &&
         point.dx >= rect.left &&
         point.dx <= rect.right &&

@@ -380,7 +380,7 @@ class PdfFormFieldCollectionHelper extends PdfObjectCollectionHelper {
       case PdfFieldTypes.signatureField:
         field = _createSignatureField(dictionary, crossTable!);
         break;
-      default:
+      case PdfFieldTypes.none:
         break;
     }
     if (field != null) {
@@ -512,24 +512,24 @@ class PdfFormFieldCollectionHelper extends PdfObjectCollectionHelper {
   /// internal method
   int getFieldIndex(String name) {
     int i = -1;
-    final List<String> _fieldNames = <String>[];
-    final List<String> _indexedFieldNames = <String>[];
+    final List<String> fieldNames = <String>[];
+    final List<String> indexedFieldNames = <String>[];
     for (int j = 0; j < formFieldCollection.count; j++) {
       if (PdfObjectCollectionHelper.getHelper(formFieldCollection).list[j]
           is PdfField) {
         final PdfField field =
             PdfObjectCollectionHelper.getHelper(formFieldCollection).list[j]
                 as PdfField;
-        _fieldNames.add(field.name!);
+        fieldNames.add(field.name!);
         if (field.name != null) {
-          _indexedFieldNames.add(field.name!.split('[')[0]);
+          indexedFieldNames.add(field.name!.split('[')[0]);
         }
       }
     }
-    if (_fieldNames.contains(name)) {
-      i = _fieldNames.indexOf(name);
-    } else if (_indexedFieldNames.contains(name)) {
-      i = _indexedFieldNames.indexOf(name);
+    if (fieldNames.contains(name)) {
+      i = fieldNames.indexOf(name);
+    } else if (indexedFieldNames.contains(name)) {
+      i = indexedFieldNames.indexOf(name);
     }
     return i;
   }

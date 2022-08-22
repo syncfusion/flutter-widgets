@@ -309,6 +309,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// See also:
   /// * [TreemapLegend.bar] named constructor, for bar legend type.
   const TreemapLegend({
+    this.shouldAlwaysShowScrollbar = false,
     this.title,
     this.position = TreemapLegendPosition.top,
     this.offset,
@@ -422,6 +423,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// * [TreemapLegend], for adding default legend type with different icon
   /// styles like circle, diamond, rectangle and triangle.
   const TreemapLegend.bar({
+    this.shouldAlwaysShowScrollbar = false,
     this.title,
     this.overflowMode = TreemapLegendOverflowMode.scroll,
     this.padding = const EdgeInsets.all(10.0),
@@ -669,6 +671,25 @@ class TreemapLegend extends DiagnosticableTree {
   /// See also:
   /// * [offset], to place the legend in custom position.
   final TreemapLegendPosition position;
+
+  ///Toggles the scrollbar visibility.
+  ///
+  /// When set to false, the scrollbar appears only when scrolling else the
+  /// scrollbar fades out. When true, the scrollbar will never fade out and
+  /// will always be visible when the items are overflown.
+  ///
+  ///Defaults to `false`.
+  ///
+  ///```dart
+  /// SfTreemap(
+  ///            legend:Legend(
+  ///              isVisible: true,
+  ///              shouldAlwaysShowScrollbar: true,
+  ///              overflowMode: TreemapLegendOverflowMode.scroll,
+  ///             )
+  ///           )
+  ///```
+  final bool shouldAlwaysShowScrollbar;
 
   /// Places the legend in custom position.
   ///
@@ -1672,8 +1693,8 @@ class Legend extends StatelessWidget {
     switch (legend._type) {
       case _LegendType.vector:
         return SfLegend(
+          shouldAlwaysShowScrollbar: legend.shouldAlwaysShowScrollbar,
           items: _getLegendItems(),
-          child: child,
           direction: legend.direction,
           offset: legend.offset,
           padding: legend.padding,
@@ -1684,11 +1705,12 @@ class Legend extends StatelessWidget {
           title: legend.title,
           iconType: _getEffectiveLegendIconType(legend.iconType),
           iconSize: legend.iconSize,
+          child: child,
         );
       case _LegendType.bar:
         return SfLegend.bar(
+          shouldAlwaysShowScrollbar: legend.shouldAlwaysShowScrollbar,
           items: _getLegendItems(),
-          child: child,
           title: legend.title,
           position: _getEffectivePosition(legend.position),
           overflowMode: _getEffectiveOverflowMode(legend.overflowMode),
@@ -1710,6 +1732,7 @@ class Legend extends StatelessWidget {
           pointerSize:
               legend.showPointerOnHover ? legend.pointerSize : Size.zero,
           pointerController: controller,
+          child: child,
         );
     }
   }

@@ -389,6 +389,7 @@ class RenderLinearBarPointer extends RenderOpacity {
             rect: _barRect,
             radius: thickness / 2));
         break;
+      // ignore: no_default_cases
       default:
         break;
     }

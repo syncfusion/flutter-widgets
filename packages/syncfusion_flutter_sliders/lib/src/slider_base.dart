@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
+import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import 'common.dart';
@@ -29,6 +30,7 @@ class RenderBaseSlider extends RenderProxyBox
     required bool enableTooltip,
     required bool shouldAlwaysShowTooltip,
     required LabelPlacement labelPlacement,
+    required EdgeLabelPlacement edgeLabelPlacement,
     required bool isInversed,
     required NumberFormat numberFormat,
     required DateFormat? dateFormat,
@@ -60,6 +62,7 @@ class RenderBaseSlider extends RenderProxyBox
         _shouldAlwaysShowTooltip = shouldAlwaysShowTooltip,
         _isInversed = isInversed,
         _labelPlacement = labelPlacement,
+        _edgeLabelPlacement = edgeLabelPlacement,
         _numberFormat = numberFormat,
         _dateFormat = dateFormat,
         _dateIntervalType = dateIntervalType,
@@ -97,6 +100,8 @@ class RenderBaseSlider extends RenderProxyBox
   final double minTrackWidth = kMinInteractiveDimension * 3;
 
   final TextPainter textPainter = TextPainter();
+
+  bool isInactive = false;
 
   late double _minInMilliseconds;
 
@@ -292,6 +297,16 @@ class RenderBaseSlider extends RenderProxyBox
       return;
     }
     _labelPlacement = value;
+    markNeedsPaint();
+  }
+
+  EdgeLabelPlacement get edgeLabelPlacement => _edgeLabelPlacement;
+  EdgeLabelPlacement _edgeLabelPlacement;
+  set edgeLabelPlacement(EdgeLabelPlacement value) {
+    if (_edgeLabelPlacement == value) {
+      return;
+    }
+    _edgeLabelPlacement = value;
     markNeedsPaint();
   }
 
@@ -799,8 +814,7 @@ class RenderBaseSlider extends RenderProxyBox
     switch (intervalType!) {
       case DateIntervalType.months:
         // Make the label start date will always be 1 other than first label.
-        return DateTime(
-            currentDate.year, currentDate.month + interval.ceil(), 1);
+        return DateTime(currentDate.year, currentDate.month + interval.ceil());
       case DateIntervalType.days:
         currentDate = currentDate.add(Duration(days: interval.ceil()));
         return DateTime(currentDate.year, currentDate.month, currentDate.day);
@@ -813,7 +827,7 @@ class RenderBaseSlider extends RenderProxyBox
       case DateIntervalType.seconds:
         return currentDate.add(Duration(seconds: interval.ceil()));
       case DateIntervalType.years:
-        return DateTime(currentDate.year + interval.ceil(), 1, 1);
+        return DateTime(currentDate.year + interval.ceil());
     }
   }
 
@@ -865,7 +879,7 @@ class RenderBaseSlider extends RenderProxyBox
               currentDate.year + _stepDuration!.years,
               currentDate.month + _stepDuration!.months,
               currentDate.day + _stepDuration!.days,
-              currentDate.hour + _stepDuration!.days,
+              currentDate.hour + _stepDuration!.hours,
               currentDate.minute + _stepDuration!.minutes,
               currentDate.second + _stepDuration!.seconds);
 
@@ -1112,7 +1126,7 @@ class RenderBaseSlider extends RenderProxyBox
           }
         }
 
-        // Drawing label.
+        // Drawing labels.
         if (_showLabels) {
           final double dx = sliderType == SliderType.horizontal
               ? trackRect.left
@@ -1140,6 +1154,29 @@ class RenderBaseSlider extends RenderProxyBox
                     ((_majorTickPositions[dateTimePos + 1]) - tickPosition) / 2;
               } else {
                 break;
+              }
+            }
+          }
+
+          if (_edgeLabelPlacement == EdgeLabelPlacement.inside &&
+              _labelPlacement == LabelPlacement.onTicks) {
+            final Size labelSize = measureText(
+              _visibleLabels[dateTimePos],
+              isInactive
+                  ? sliderThemeData.inactiveLabelStyle!
+                  : sliderThemeData.activeLabelStyle!,
+            );
+            if (sliderType == SliderType.horizontal) {
+              if (dateTimePos == 0) {
+                offsetX += labelSize.width / 2;
+              } else if (dateTimePos == _majorTickPositions.length - 1) {
+                offsetX -= labelSize.width / 2;
+              }
+            } else {
+              if (dateTimePos == 0) {
+                offsetX -= labelSize.height / 2;
+              } else if (dateTimePos == _majorTickPositions.length - 1) {
+                offsetX += labelSize.height / 2;
               }
             }
           }
@@ -1280,6 +1317,7 @@ class RenderBaseSlider extends RenderProxyBox
       double tickPosition,
       double dy,
       double halfTrackHeight,
+      // ignore: no_leading_underscores_for_local_identifiers
       int _dateTimePos,
       double dividerRadius,
       Rect trackRect,
@@ -1340,6 +1378,7 @@ class RenderBaseSlider extends RenderProxyBox
   }
 
   void _drawLabel(
+      // ignore: no_leading_underscores_for_local_identifiers
       int _dateTimePos,
       double dx,
       double tickPosition,
@@ -1382,7 +1421,6 @@ class RenderBaseSlider extends RenderProxyBox
       required Animation<double> enableAnimation,
       required TextPainter textPainter,
       required TextDirection textDirection}) {
-    bool isInactive;
     if (sliderType == SliderType.horizontal) {
       // Added this condition to check whether consider single thumb or
       // two thumbs for finding inactive range.
@@ -1503,7 +1541,7 @@ class RenderBaseSlider extends RenderProxyBox
         text: TextSpan(text: text, style: TextStyle(fontSize: fontSize)),
         maxLines: 1,
         textDirection: TextDirection.ltr)
-      ..layout(minWidth: 0, maxWidth: double.infinity);
+      ..layout();
     return textPainter.size;
   }
 

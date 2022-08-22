@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/segment_properties.dart';
+
+import '../../../charts.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
+import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 import 'chart_segment.dart';
 
@@ -17,7 +19,7 @@ class WaterfallSegment extends ChartSegment {
   /// To find the x and y values of connector lines between each data point.
   late double _x1, _y1, _x2, _y2;
 
-  /// Get the connector line paint
+  /// Get the connector line paint.
   Paint? connectorLineStrokePaint;
 
   /// We are using `segmentRect` to draw the bar segment in the series.
@@ -29,7 +31,7 @@ class WaterfallSegment extends ChartSegment {
   Paint getFillPaint() {
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(this);
-    final CartesianChartPoint<dynamic>? _currentPoint =
+    final CartesianChartPoint<dynamic>? currentPoint =
         segmentProperties.currentPoint;
     final bool hasPointColor =
         segmentProperties.series.pointColorMapper != null;
@@ -37,15 +39,15 @@ class WaterfallSegment extends ChartSegment {
     /// Get and set the paint options for waterfall series.
     if (segmentProperties.series.gradient == null) {
       fillPaint = Paint()
-        ..color = ((hasPointColor && _currentPoint!.pointColorMapper != null)
-            ? _currentPoint.pointColorMapper
-            : _currentPoint!.isIntermediateSum!
+        ..color = ((hasPointColor && currentPoint!.pointColorMapper != null)
+            ? currentPoint.pointColorMapper
+            : currentPoint!.isIntermediateSum!
                 ? segmentProperties.intermediateSumColor ??
                     segmentProperties.color!
-                : _currentPoint.isTotalSum!
+                : currentPoint.isTotalSum!
                     ? segmentProperties.totalSumColor ??
                         segmentProperties.color!
-                    : _currentPoint.yValue < 0 == true
+                    : currentPoint.yValue < 0 == true
                         ? segmentProperties.negativePointsColor ??
                             segmentProperties.color!
                         : segmentProperties.color!)!
@@ -97,13 +99,13 @@ class WaterfallSegment extends ChartSegment {
   void onPaint(Canvas canvas) {
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(this);
-    final WaterfallSeries<dynamic, dynamic> _series =
+    final WaterfallSeries<dynamic, dynamic> series =
         segmentProperties.series as WaterfallSeries<dynamic, dynamic>;
     CartesianChartPoint<dynamic> oldPaint;
     final Path linePath = Path();
 
     if (fillPaint != null) {
-      (_series.animationDuration > 0 &&
+      (series.animationDuration > 0 &&
               segmentProperties
                       .stateProperties.renderingDetails.isLegendToggled ==
                   false)
@@ -120,10 +122,14 @@ class WaterfallSegment extends ChartSegment {
           : canvas.drawRRect(segmentRect, fillPaint!);
     }
     if (strokePaint != null) {
-      (_series.dashArray[0] != 0 && _series.dashArray[1] != 0)
-          ? drawDashedLine(
-              canvas, _series.dashArray, strokePaint!, segmentProperties.path)
-          : (_series.animationDuration > 0 &&
+      final SeriesRendererDetails seriesRendererDetails =
+          SeriesHelper.getSeriesRendererDetails(
+              segmentProperties.seriesRenderer);
+      (seriesRendererDetails.dashArray![0] != 0 &&
+              seriesRendererDetails.dashArray![1] != 0)
+          ? drawDashedLine(canvas, seriesRendererDetails.dashArray!,
+              strokePaint!, segmentProperties.path)
+          : (series.animationDuration > 0 &&
                   segmentProperties
                           .stateProperties.renderingDetails.isLegendToggled ==
                       false)
@@ -155,14 +161,14 @@ class WaterfallSegment extends ChartSegment {
         _x2 = segmentProperties.currentPoint!.originValueLeftPoint!.x;
         _y2 = segmentProperties.currentPoint!.originValueLeftPoint!.y;
       }
-      if (_series.animationDuration <= 0 ||
+      if (series.animationDuration <= 0 ||
           animationFactor >=
               segmentProperties.stateProperties.seriesDurationFactor) {
-        if (_series.connectorLineSettings.dashArray![0] != 0 &&
-            _series.connectorLineSettings.dashArray![1] != 0) {
+        if (series.connectorLineSettings.dashArray![0] != 0 &&
+            series.connectorLineSettings.dashArray![1] != 0) {
           linePath.moveTo(_x1, _y1);
           linePath.lineTo(_x2, _y2);
-          drawDashedLine(canvas, _series.connectorLineSettings.dashArray!,
+          drawDashedLine(canvas, series.connectorLineSettings.dashArray!,
               connectorLineStrokePaint!, linePath);
         } else {
           canvas.drawLine(

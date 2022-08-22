@@ -31,10 +31,7 @@ class MergedCellCollection {
         intersectingCell.height =
             max(mCell.height + mCell.y, mergeCell.height + mergeCell.y);
         intersectingCell._reference =
-            // ignore: prefer_interpolation_to_compose_strings, noop_primitive_operations
-            (this[count]._reference.split(':')[0].toString()) +
-                ':' +
-                (mergeCell._reference.split(':')[1]);
+            '${this[count]._reference.split(':')[0]}:${mergeCell._reference.split(':')[1]}';
         innerList[count] = intersectingCell;
         mergeCell = intersectingCell;
         inserted = true;

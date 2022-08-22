@@ -17,38 +17,38 @@ import '../base/funnel_state_properties.dart';
 import 'funnel_series.dart';
 import 'renderer_extension.dart';
 
-/// Represents the data label renderer of funnel chart
+/// Represents the data label renderer of the funnel chart.
 // ignore: must_be_immutable
 class FunnelDataLabelRenderer extends StatefulWidget {
-  /// Creates an instance for funnel data label renderer
+  /// Creates an instance for funnel data label renderer.
   // ignore: prefer_const_constructors_in_immutables
   FunnelDataLabelRenderer(
       {required Key key, required this.stateProperties, required this.show})
       : super(key: key);
 
-  /// Creates the instance of funnel chart state
+  /// Creates the instance of funnel chart state.
   final FunnelStateProperties stateProperties;
 
-  /// Specifies whether to show data label renderer
+  /// Specifies whether to show data label renderer.
   bool show;
 
-  /// Specifies the state of funnel data label renderer
+  /// Specifies the state of funnel data label renderer.
   FunnelDataLabelRendererState? state;
 
   @override
   State<StatefulWidget> createState() => FunnelDataLabelRendererState();
 }
 
-/// Represents the data label renderer state
+/// Represents the data label renderer state.
 class FunnelDataLabelRendererState extends State<FunnelDataLabelRenderer>
     with SingleTickerProviderStateMixin {
-  /// Specifies the animation controller list
+  /// Specifies the animation controller list.
   late List<AnimationController> animationControllersList;
 
-  /// Animation controller for series
+  /// Animation controller for series.
   late AnimationController animationController;
 
-  /// Repaint notifier for crosshair container
+  /// Repaint notifier for data label container.
   late ValueNotifier<int> dataLabelRepaintNotifier;
 
   @override
@@ -91,12 +91,12 @@ class FunnelDataLabelRendererState extends State<FunnelDataLabelRenderer>
     super.dispose();
   }
 
-  /// Method to repaint the data label element
+  /// Method to repaint the data label element.
   void repaintDataLabelElements() {
     dataLabelRepaintNotifier.value++;
   }
 
-  /// Method to render the widget
+  /// Method to render the widget.
   void render() {
     setState(() {
       widget.show = true;
@@ -121,7 +121,7 @@ class _FunnelDataLabelPainter extends CustomPainter {
 
   final Animation<double>? animation;
 
-  /// To paint funnel data label
+  /// To paint funnel data label.
   @override
   void paint(Canvas canvas, Size size) {
     final FunnelSeriesRendererExtension seriesRenderer =
@@ -141,7 +141,7 @@ class _FunnelDataLabelPainter extends CustomPainter {
   bool shouldRepaint(_FunnelDataLabelPainter oldDelegate) => true;
 }
 
-/// To render funnel data label
+/// To render funnel data label.
 void _renderFunnelDataLabel(
     FunnelSeriesRendererExtension seriesRenderer,
     Canvas canvas,
@@ -190,7 +190,7 @@ void _renderFunnelDataLabel(
           : dataLabelStyle;
       textSize = measureText(label!, dataLabelStyle);
 
-      ///Label check after event
+      /// Label check after event.
       if (label != '') {
         stateProperties.labelRects.clear();
         for (int index = 0;
@@ -256,7 +256,7 @@ void _renderFunnelDataLabel(
   }
 }
 
-/// To render inside positioned funnel data labels
+/// To render inside positioned funnel data labels.
 void _setFunnelInsideLabelPosition(
     DataLabelSettings dataLabel,
     PointInfo<dynamic> point,
@@ -296,6 +296,7 @@ void _setFunnelInsideLabelPosition(
       case OverflowMode.hide:
         label = '';
         break;
+      // ignore: no_default_cases
       default:
         break;
     }
@@ -376,7 +377,7 @@ void _setFunnelInsideLabelPosition(
   }
 }
 
-/// To render outside position funnel data labels
+/// To render outside position funnel data labels.
 void _renderOutsideFunnelDataLabel(
     Canvas canvas,
     String? label,
@@ -558,7 +559,7 @@ void _renderOutsideFunnelDataLabel(
   }
 }
 
-/// To check whether labels intersect
+/// To check whether labels intersect.
 bool _isFunnelLabelIntersect(Rect rect, Rect? previousRect) {
   bool isIntersect = false;
   const num padding = 2;
@@ -568,7 +569,7 @@ bool _isFunnelLabelIntersect(Rect rect, Rect? previousRect) {
   return isIntersect;
 }
 
-/// To draw funnel data label
+/// To draw funnel data label.
 void _drawFunnelLabel(
     Rect labelRect,
     Offset location,
@@ -646,7 +647,7 @@ void _drawFunnelLabel(
   }
 }
 
-/// Method to trigger the funnel data label event
+/// Method to trigger the funnel data label event.
 void triggerFunnelDataLabelEvent(
     SfFunnelChart chart,
     FunnelSeriesRendererExtension seriesRenderer,

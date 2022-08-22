@@ -7,7 +7,6 @@ import '../../general/enum.dart';
 import '../../general/pdf_destination.dart';
 import '../../general/pdf_named_destination.dart';
 import '../../general/pdf_named_destination_collection.dart';
-import '../../graphics/enums.dart';
 import '../../graphics/pdf_color.dart';
 import '../../io/pdf_constants.dart';
 import '../../io/pdf_cross_table.dart';
@@ -34,7 +33,7 @@ import 'enums.dart';
 ///   ..textStyle = [PdfTextStyle.bold]
 ///   ..color = PdfColor(255, 0, 0);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -112,7 +111,7 @@ class PdfBookmark extends PdfBookmarkBase {
   ///   ..textStyle = [PdfTextStyle.bold]
   ///   ..color = PdfColor(255, 0, 0);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -151,7 +150,7 @@ class PdfBookmark extends PdfBookmarkBase {
   ///   ..namedDestination = namedDestination
   ///   ..color = PdfColor(255, 0, 0);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -190,7 +189,7 @@ class PdfBookmark extends PdfBookmarkBase {
   ///   //Set the bookmark title.
   ///   ..title = 'Bookmark';
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -224,7 +223,7 @@ class PdfBookmark extends PdfBookmarkBase {
   ///   ..color = PdfColor(255, 0, 0)
   ///   ..title = 'Bookmark';
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -259,7 +258,7 @@ class PdfBookmark extends PdfBookmarkBase {
   ///   ..color = PdfColor(255, 0, 0)
   ///   ..title = 'Bookmark';
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -295,7 +294,7 @@ class PdfBookmark extends PdfBookmarkBase {
   ///   //Set the bookmark action.
   ///   ..action = PdfUriAction('http://www.google.com');
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -321,7 +320,7 @@ class PdfBookmark extends PdfBookmarkBase {
   /// //Get if is expanded.
   /// bool expand = bookmark.isExpanded;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -385,7 +384,7 @@ class PdfBookmark extends PdfBookmarkBase {
       _helper.dictionary!.remove(PdfDictionaryProperties.c);
     } else {
       _helper.dictionary![PdfDictionaryProperties.c] =
-          PdfColorHelper.toArray(_color, PdfColorSpace.rgb);
+          PdfColorHelper.toArray(_color);
     }
   }
 
@@ -773,7 +772,7 @@ class PdfBookmark extends PdfBookmarkBase {
 ///   ..textStyle = [PdfTextStyle.bold]
 ///   ..title = 'Changed title';
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -816,7 +815,7 @@ class PdfBookmarkBase implements IPdfWrapper {
   /// //get the bookmark count.
   /// int count = document.bookmarks.count;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -847,7 +846,7 @@ class PdfBookmarkBase implements IPdfWrapper {
   ///   ..textStyle = [PdfTextStyle.bold]
   ///   ..title = 'Changed title';
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -890,7 +889,7 @@ class PdfBookmarkBase implements IPdfWrapper {
   ///   ..textStyle = [PdfTextStyle.bold]
   ///   ..color = PdfColor(255, 0, 0);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -922,7 +921,7 @@ class PdfBookmarkBase implements IPdfWrapper {
   /// //check whether the specified bookmark present in the collection
   /// bool contains = document.bookmarks.contains(bookmark);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -940,7 +939,7 @@ class PdfBookmarkBase implements IPdfWrapper {
   /// //Remove specified bookmark.
   /// bookmarks.remove('bookmark');
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -972,7 +971,7 @@ class PdfBookmarkBase implements IPdfWrapper {
   /// //Remove specified bookmark using index.
   /// document.bookmarks.removeAt(0);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -1031,7 +1030,7 @@ class PdfBookmarkBase implements IPdfWrapper {
   /// //Clear all the bookmarks.
   /// document.bookmarks.clear();
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -1055,7 +1054,7 @@ class PdfBookmarkBase implements IPdfWrapper {
   /// document.bookmarks.insert(0, 'bookmark')
   ///   ..destination = PdfDestination(document.pages.add(), Offset(20, 20));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

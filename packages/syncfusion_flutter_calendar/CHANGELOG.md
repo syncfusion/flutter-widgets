@@ -1,4 +1,21 @@
-## [19.4.xx]
+## [20.2.36]
+**Features**
+* Now, we have improved the behavior of the month header of ScheduleView with a minimum date in the Flutter event calendar.
+
+## [20.1.47]
+**Features**
+* Provided support for the number of days in view, it is used to customize the days count in the flutter event calendar.
+* Provided support for recurring appointments on the last day of month in the flutter event calendar.
+
+## [19.4.50] - 02/08/2022
+**Bug fixes**
+* Now, the week number is displayed properly when setting the `firstDayOfWeek` property in the Flutter event calendar.
+* Now, the appointments are added to the schedule view properly with an empty appointment schedule weeks are hidden using `hideEmptyScheduleWeek`.
+
+**Enhancements**
+* Now, improved the Flutter calendar allowedViews UI to show the `Scrollbar`.
+
+## [19.4.38] - 12/17/2021
 **Features**
 * Provided support to get calendar details based on the given offset passed through an argument by using the method of the `getCalendarDetailsAtOffset`.
 

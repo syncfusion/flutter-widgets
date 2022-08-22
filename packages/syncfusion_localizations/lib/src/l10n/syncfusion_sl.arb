@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Brez dogodkov", 
 "ofDataPagerLabel" : "od", 
 "pagesDataPagerLabel" : "strani", 
-"itemsDataPagerLabel" : "predmetov", 
+"rowsPerPageDataPagerLabel" : "Vrstice na stran", 
 "pdfBookmarksLabel" : "Zaznamki", 
 "pdfNoBookmarksLabel" : "Najden ni bil noben zaznamek", 
 "pdfScrollStatusOfLabel" : "od", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "dan"
+"daySpanCountLabel" : "dan", 
+"series" : "Serija", 
+"pdfHyperlinkLabel" : "Odprite spletno stran", 
+"pdfHyperlinkContentLabel" : "Ali želite odpreti stran na", 
+"pdfHyperlinkDialogOpenLabel" : "ODPRTO", 
+"pdfHyperlinkDialogCancelLabel" : "PREKLIC"
 }

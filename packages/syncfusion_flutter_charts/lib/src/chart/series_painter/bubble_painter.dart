@@ -13,7 +13,7 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Bubble series
+/// Creates series renderer for bubble series.
 class BubbleSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of BubbleSeriesRenderer class.
   BubbleSeriesRenderer();
@@ -21,7 +21,7 @@ class BubbleSeriesRenderer extends XyDataSeriesRenderer {
   late SeriesRendererDetails _currentSeriesDetails;
   late SeriesRendererDetails _segmentSeriesDetails;
 
-  /// To add bubble segments to segment list
+  /// To add bubble segments to segment list.
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
     _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
@@ -90,7 +90,7 @@ class BubbleSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To draw bubble segments
+  /// To draw bubble segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (_segmentSeriesDetails.isSelectionEnable == true) {
@@ -123,13 +123,14 @@ class BubbleSeriesRenderer extends XyDataSeriesRenderer {
     bubbleSegment.fillPaint = bubbleSegment.getFillPaint();
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
       [CartesianSeriesRenderer? seriesRenderer]) {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer!);
+    // ignore: unnecessary_null_comparison
     if (seriesRenderer != null) {
       canvas.drawPath(seriesRendererDetails.markerShapes[index]!, fillPaint);
       canvas.drawPath(seriesRendererDetails.markerShapes[index]!, strokePaint);
@@ -217,16 +218,31 @@ class BubbleChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         final CartesianChartPoint<dynamic> currentPoint =
             dataPoints[pointIndex];
-        seriesRendererDetails.calculateRegionData(stateProperties,
-            seriesRendererDetails, painterKey.index, currentPoint, pointIndex);
-        if (currentPoint.isVisible && !currentPoint.isGap) {
-          seriesRendererDetails.drawSegment(
-              canvas,
-              seriesRenderer._createSegments(currentPoint, segmentIndex += 1,
-                  seriesIndex, animationFactor));
+        final bool withInXRange = withInRange(currentPoint.xValue,
+            seriesRendererDetails.xAxisDetails!.visibleRange!);
+        // ignore: unnecessary_null_comparison
+        final bool withInYRange = currentPoint != null &&
+            currentPoint.yValue != null &&
+            withInRange(currentPoint.yValue,
+                seriesRendererDetails.yAxisDetails!.visibleRange!);
+        if (withInXRange || withInYRange) {
+          seriesRendererDetails.calculateRegionData(
+              stateProperties,
+              seriesRendererDetails,
+              painterKey.index,
+              currentPoint,
+              pointIndex);
+          if (currentPoint.isVisible && !currentPoint.isGap) {
+            seriesRendererDetails.drawSegment(
+                canvas,
+                seriesRenderer._createSegments(currentPoint, segmentIndex += 1,
+                    seriesIndex, animationFactor));
+          }
         }
       }
       canvas.restore();

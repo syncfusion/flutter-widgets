@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:syncfusion_flutter_calendar/src/calendar/common/date_time_engine.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
+import '../common/date_time_engine.dart';
 import '../common/enums.dart' show RecurrenceType, RecurrenceRange, WeekDays;
 import 'appointment_helper.dart';
 import 'recurrence_properties.dart';
@@ -69,8 +69,7 @@ class RecurrenceHelper {
     DateTime? endDate;
     if (rRule.contains('UNTIL')) {
       /// Set the end date value from until date value.
-      endDate = DateTime.parse(untilValueString);
-      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+      endDate = getUntilEndDate(untilValueString);
       if (isSpecificDateRange) {
         final DateTime startTime = DateTime(
             endDate.year,
@@ -192,7 +191,7 @@ class RecurrenceHelper {
 
     while (recurrenceIncrementCount < recurrenceCount ||
         (endDate != null &&
-            (addDate.isBefore(endDate) || isSameDate(addDate, endDate)))) {
+            (addDate.isBefore(endDate) || addDate == endDate))) {
       if (isSpecificDateRange) {
         if (_isRecurrenceInBetweenSpecificRange(
             addDate, recurrenceDuration, specificStartDate, specificEndDate)) {
@@ -288,8 +287,7 @@ class RecurrenceHelper {
     DateTime? endDate;
     if (rRule.contains('UNTIL')) {
       /// Set the end date value from until date value.
-      endDate = DateTime.parse(untilValueString);
-      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+      endDate = getUntilEndDate(untilValueString);
       if (isSpecificDateRange) {
         final DateTime startTime = DateTime(
             endDate.year,
@@ -608,8 +606,8 @@ class RecurrenceHelper {
         : 1;
     DateTime? endDate;
     if (rRule.contains('UNTIL')) {
-      endDate = DateTime.parse(untilValue);
-      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+      endDate = getUntilEndDate(untilValue);
+
       if (isSpecificDateRange) {
         final DateTime startTime = DateTime(
             endDate.year,
@@ -659,7 +657,11 @@ class RecurrenceHelper {
     }
 
     if (byMonthDay == 'BYMONTHDAY') {
-      final int monthDate = int.parse(byMonthDayCount);
+      int monthDate = int.parse(byMonthDayCount);
+      final int byMonthDay = monthDate;
+      if (byMonthDay == -1) {
+        monthDate = AppointmentHelper.getMonthEndDate(addDate).day;
+      }
       final DateTime temp = DateTime(addDate.year, addDate.month, monthDate,
           recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
 
@@ -727,6 +729,10 @@ class RecurrenceHelper {
         }
 
         monthValue += monthlyMonthGap;
+        monthDate = byMonthDay == -1
+            ? AppointmentHelper.getMonthEndDate(DateTime(yearValue, monthValue))
+                .day
+            : monthDate;
         addDate = DateTime(yearValue, monthValue, monthDate,
             recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
 
@@ -846,8 +852,7 @@ class RecurrenceHelper {
 
     DateTime? endDate;
     if (rRule.contains('UNTIL')) {
-      endDate = DateTime.parse(untilValue);
-      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+      endDate = getUntilEndDate(untilValue);
       if (isSpecificDateRange) {
         final DateTime startTime = DateTime(
             endDate.year,
@@ -893,13 +898,19 @@ class RecurrenceHelper {
 
     if (byMonthDay == 'BYMONTHDAY') {
       final int monthIndex = int.parse(byMonthCount);
-      final int dayIndex = int.parse(byMonthDayCount);
+      int dayIndex = int.parse(byMonthDayCount);
+      final int byMonthDay = dayIndex;
+      if (byMonthDay == -1) {
+        dayIndex = AppointmentHelper.getMonthEndDate(
+                DateTime(addDate.year, monthIndex))
+            .day;
+      }
       if (monthIndex < 0 || monthIndex > 12) {
         return recDateCollection;
       }
 
       final int daysInMonth = DateTimeHelper.getDateTimeValue(
-              addDays(DateTime(addDate.year, addDate.month + 1, 1), -1))
+              addDays(DateTime(addDate.year, addDate.month + 1), -1))
           .day;
       if (daysInMonth < dayIndex) {
         return recDateCollection;
@@ -936,10 +947,16 @@ class RecurrenceHelper {
           recDateCollection.add(addDate);
         }
 
+        dayIndex = byMonthDay == -1
+            ? AppointmentHelper.getMonthEndDate(
+                    DateTime(addDate.year + yearlyYearGap, monthIndex))
+                .day
+            : addDate.day;
+
         addDate = DateTime(
             addDate.year + yearlyYearGap,
             addDate.month,
-            addDate.day,
+            dayIndex,
             recurrenceStartHour,
             recurrenceStartMinute,
             recurrenceStartSecond);
@@ -1113,9 +1130,7 @@ class RecurrenceHelper {
           recurCount.isNotEmpty ? int.parse(recurCount) : 0;
     } else if (rRule.contains('UNTIL')) {
       recProp.recurrenceRange = RecurrenceRange.endDate;
-      final DateTime endDate = DateTime.parse(untilValue);
-      recProp.endDate =
-          DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+      recProp.endDate = getUntilEndDate(untilValue);
     } else {
       recProp.recurrenceRange = RecurrenceRange.noEndDate;
     }
@@ -1183,6 +1198,15 @@ class RecurrenceHelper {
     return recProp;
   }
 
+  /// Returns the until rule based on the end date value.
+  static String _getUntilRRule(DateTime endDate, String rRule) {
+    endDate = endDate.toUtc();
+    final String dateString = DateFormat('yyyyMMdd').format(endDate);
+    final String timeString = DateFormat('HHmmss').format(endDate);
+    rRule = '$rRule;UNTIL=${'${dateString}T${timeString}Z'}';
+    return rRule;
+  }
+
   static String _getRRuleForDaily(
       int recCount,
       RecurrenceProperties recurrenceProperties,
@@ -1210,8 +1234,7 @@ class RecurrenceHelper {
         rRule = '$rRule;COUNT=$recCount';
       } else if (recurrenceProperties.recurrenceRange ==
           RecurrenceRange.endDate) {
-        final DateFormat format = DateFormat('yyyyMMdd');
-        rRule = '$rRule;UNTIL=${format.format(endDate!)}';
+        rRule = RecurrenceHelper._getUntilRRule(endDate!, rRule);
       }
     }
 
@@ -1433,8 +1456,7 @@ class RecurrenceHelper {
         rRule = '$rRule;COUNT=$recCount';
       } else if (recurrenceProperties.recurrenceRange ==
           RecurrenceRange.endDate) {
-        final DateFormat format = DateFormat('yyyyMMdd');
-        rRule = '$rRule;UNTIL=${format.format(endDate!)}';
+        rRule = RecurrenceHelper._getUntilRRule(endDate!, rRule);
       }
     }
 
@@ -1489,8 +1511,7 @@ class RecurrenceHelper {
         rRule = '$rRule;COUNT=$recCount';
       } else if (recurrenceProperties.recurrenceRange ==
           RecurrenceRange.endDate) {
-        final DateFormat format = DateFormat('yyyyMMdd');
-        rRule = '$rRule;UNTIL=${format.format(endDate!)}';
+        rRule = RecurrenceHelper._getUntilRRule(endDate!, rRule);
       }
 
       if (AppointmentHelper.getDifference(
@@ -1559,8 +1580,7 @@ class RecurrenceHelper {
         rRule = '$rRule;COUNT=$recCount';
       } else if (recurrenceProperties.recurrenceRange ==
           RecurrenceRange.endDate) {
-        final DateFormat format = DateFormat('yyyyMMdd');
-        rRule = '$rRule;UNTIL=${format.format(endDate!)}';
+        rRule = RecurrenceHelper._getUntilRRule(endDate!, rRule);
       }
 
       if (AppointmentHelper.getDifference(
@@ -1789,6 +1809,23 @@ class RecurrenceHelper {
     }
 
     return result;
+  }
+
+  /// Returns the date time value of until end date based on given string.
+  static DateTime getUntilEndDate(String untilString) {
+    /// Checks the time value of T is provided in the until end date value.
+    if (untilString.contains('T')) {
+      /// Z specifies UTC timezone offset, Checks the time zone is provided in
+      /// the until end date value.
+      final DateTime endDate = untilString.contains('Z')
+          ? DateTime.parse(untilString).toLocal()
+          : DateTime.parse(untilString);
+      return endDate;
+    } else {
+      DateTime endDate = DateTime.parse(untilString);
+      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+      return endDate;
+    }
   }
 
   /// Returns the recurrence start date for negative recurrence value.

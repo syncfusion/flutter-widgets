@@ -60,10 +60,7 @@ class ChartSerialization {
       });
       final String stringXml = builder.buildDocument().copy().toString();
       final List<int> bytes = utf8.encode(stringXml);
-      _addToArchive(
-          bytes,
-          // ignore: prefer_interpolation_to_compose_strings
-          'xl/charts/chart' + sheet.workbook.chartCount.toString() + '.xml');
+      _addToArchive(bytes, 'xl/charts/chart${sheet.workbook.chartCount}.xml');
     }
   }
 
@@ -128,10 +125,7 @@ class ChartSerialization {
               builder.attribute(
                   'id', 1024 + sheet.workbook.chartCount + chart.index);
               builder.attribute(
-                  'name',
-                  // ignore: prefer_interpolation_to_compose_strings
-                  'Chart ' +
-                      (sheet.workbook.chartCount + chart.index).toString());
+                  'name', 'Chart ${sheet.workbook.chartCount + chart.index}');
             });
             builder.element('xdr:cNvGraphicFramePr', nest: () {});
           });
@@ -151,8 +145,7 @@ class ChartSerialization {
                   'http://schemas.openxmlformats.org/drawingml/2006/chart');
 
               builder.element('c:chart', nest: () {
-                // ignore: prefer_interpolation_to_compose_strings
-                builder.attribute('p7:id', 'rId' + chart.index.toString());
+                builder.attribute('p7:id', 'rId${chart.index}');
                 builder.attribute('xmlns:p7',
                     'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
                 builder.attribute('xmlns:c',
@@ -520,11 +513,9 @@ class ChartSerialization {
             for (final Worksheet sheet
                 in firstSerie._chart._worksheet.workbook.worksheets.innerList) {
               if (firstSerie._categoryLabels!.addressGlobal
-                      // ignore: prefer_interpolation_to_compose_strings
-                      .contains(RegExp(sheet.name + '!')) ||
+                      .contains(RegExp('${sheet.name}!')) ||
                   firstSerie._categoryLabels!.addressGlobal
-                      // ignore: prefer_interpolation_to_compose_strings
-                      .contains(RegExp(sheet.name + "'" + '!'))) {
+                      .contains(RegExp("${sheet.name}'!"))) {
                 tempSheet = sheet;
                 break;
               }
@@ -568,11 +559,9 @@ class ChartSerialization {
               for (final Worksheet sheet in firstSerie
                   ._chart._worksheet.workbook.worksheets.innerList) {
                 if (firstSerie._values!.addressGlobal
-                        // ignore: prefer_interpolation_to_compose_strings
-                        .contains(RegExp(sheet.name + '!')) ||
+                        .contains(RegExp('${sheet.name}!')) ||
                     firstSerie._values!.addressGlobal
-                        // ignore: prefer_interpolation_to_compose_strings
-                        .contains(RegExp(sheet.name + "'" + '!'))) {
+                        .contains(RegExp("${sheet.name}'!"))) {
                   tempSheet = sheet;
                   break;
                 }
@@ -688,16 +677,17 @@ class ChartSerialization {
       });
       int index = 0;
       while (index < count) {
-        final String value = dataSheet != null
+        final String? value = dataSheet != null
             ? dataSheet
                 .getRangeByIndex(serieStartRow + index, serieStartColumn)
-                .text!
+                .text
             : '';
-
-        builder.element('c:pt', nest: () {
-          builder.attribute('idx', index);
-          builder.element('c:v', nest: value);
-        });
+        if (value != null) {
+          builder.element('c:pt', nest: () {
+            builder.attribute('idx', index);
+            builder.element('c:v', nest: value);
+          });
+        }
         index++;
       }
     }

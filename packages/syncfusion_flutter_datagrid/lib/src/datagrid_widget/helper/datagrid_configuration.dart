@@ -311,11 +311,11 @@ class DataGridConfiguration {
   /// twice in quick succession.
   DataGridCellDoubleTapCallback? onCellDoubleTap;
 
-  /// Called when a long press gesture with a primary button has been
-  /// recognized for a cell.
+  /// Called when a tap with a cell has occurred with a secondary button.
   DataGridCellTapCallback? onCellSecondaryTap;
 
-  /// Called when a tap with a cell has occurred with a secondary button.
+  /// Called when a long press gesture with a primary button has been
+  /// recognized for a cell.
   DataGridCellLongPressCallback? onCellLongPress;
 
   /// A builder that sets the widget to display at the bottom of the datagrid
@@ -339,4 +339,12 @@ class DataGridConfiguration {
   /// An instance of a [ThemeData.colorScheme] that can be used to configure the
   /// color properties in the [SfDataGrid].
   ColorScheme? colorScheme;
+
+  /// Decides whether the Vertical ScrollController can be disposed of in the source itself.
+  /// Default to true.
+  bool disposeVerticalScrollController = true;
+
+  /// Decides whether the Horizontal ScrollController can be disposed of in the source itself.
+  /// Default to true.
+  bool disposeHorizontalScrollController = true;
 }

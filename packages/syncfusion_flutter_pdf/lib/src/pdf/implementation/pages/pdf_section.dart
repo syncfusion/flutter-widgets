@@ -1,7 +1,5 @@
 import 'dart:ui';
 
-import 'package:syncfusion_flutter_pdf/src/pdf/implementation/pdf_document/pdf_document_template.dart';
-
 import '../../interfaces/pdf_interface.dart';
 import '../drawing/drawing.dart';
 import '../general/pdf_collection.dart';
@@ -35,7 +33,7 @@ import 'pdf_section_template.dart';
 ///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
 ///     brush: PdfBrushes.darkBlue, bounds: const Rect.fromLTWH(170, 100, 0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -81,7 +79,7 @@ class PdfSection implements IPdfWrapper {
   ///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
   ///     brush: PdfBrushes.darkBlue, bounds: const Rect.fromLTWH(170, 100, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -105,7 +103,7 @@ class PdfSection implements IPdfWrapper {
   ///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
   ///     brush: PdfBrushes.darkBlue, bounds: const Rect.fromLTWH(170, 100, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -130,7 +128,7 @@ class PdfSection implements IPdfWrapper {
   ///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
   ///     brush: PdfBrushes.darkBlue, bounds: const Rect.fromLTWH(170, 100, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -651,7 +649,7 @@ class PdfSectionHelper {
 
   /// internal method
   void dropCropBox() {
-    _setPageSettings(_section!, null);
+    _setPageSettings(_section!);
     _section![PdfDictionaryProperties.cropBox] =
         _section![PdfDictionaryProperties.mediaBox];
   }

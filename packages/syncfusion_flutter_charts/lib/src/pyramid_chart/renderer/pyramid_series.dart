@@ -10,16 +10,17 @@ import 'renderer_extension.dart';
 import 'series_base.dart';
 import 'series_controller.dart';
 
-/// Renders the pyramid series
+/// Renders the pyramid series.
 ///
 /// To render a pyramid chart, create an instance of [PyramidSeries], and add it to the series property of [SfPyramidChart],
 /// it is the form of a triangle with lines dividing it into sections.
 ///
-/// Provides the property of color, [opacity], border color and border width for customizing the appearance.
+/// Provides the property of color, opacity, border color and border width for customizing the appearance.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=t3Dczqj8-10}
 ///
 @immutable
+// ignore: must_be_immutable
 class PyramidSeries<T, D> extends PyramidSeriesBase<T, D> {
   /// Creating an argument constructor of PyramidSeries class.
   PyramidSeries({
@@ -90,7 +91,7 @@ class PyramidSeries<T, D> extends PyramidSeriesBase<T, D> {
           initialSelectedDataIndexes: initialSelectedDataIndexes,
         );
 
-  /// Create the  pie series renderer.
+  /// Create the pyramid series renderer.
   PyramidSeriesRenderer createRenderer(PyramidSeries<T, D> series) {
     PyramidSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {

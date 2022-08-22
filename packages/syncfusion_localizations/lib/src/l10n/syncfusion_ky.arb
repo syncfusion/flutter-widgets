@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Окуялар жок", 
 "ofDataPagerLabel" : "нын", 
 "pagesDataPagerLabel" : "барактар", 
-"itemsDataPagerLabel" : "буюмдар", 
+"rowsPerPageDataPagerLabel" : "Ар бир беттеги саптар", 
 "pdfBookmarksLabel" : "Кыстармалар", 
 "pdfNoBookmarksLabel" : "Кыстармалар табылган жок", 
 "pdfScrollStatusOfLabel" : "нын", 
@@ -38,7 +38,7 @@
 "jumada2Label" : "Жумада ал-Тани", 
 "rajabLabel" : "Ражаб", 
 "shaabanLabel" : "Шаабан", 
-"ramadanLabel" : "Орозо айт", 
+"ramadanLabel" : "Рамазан", 
 "shawwalLabel" : "Шаввал", 
 "dhualqiLabel" : "Зул кыда", 
 "dhualhiLabel" : "Зул Хижжа", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Шоу.", 
 "shortDhualqiLabel" : "Зуль-К", 
 "shortDhualhiLabel" : "Зул-Х", 
-"daySpanCountLabel" : "Күн"
+"daySpanCountLabel" : "Күн", 
+"series" : "Сериялар", 
+"pdfHyperlinkLabel" : "Веб баракчаны ачуу", 
+"pdfHyperlinkContentLabel" : "Баракчаны ачкыңыз келеби?", 
+"pdfHyperlinkDialogOpenLabel" : "АЧУУ", 
+"pdfHyperlinkDialogCancelLabel" : "ЖОК КЫЛУУ"
 }

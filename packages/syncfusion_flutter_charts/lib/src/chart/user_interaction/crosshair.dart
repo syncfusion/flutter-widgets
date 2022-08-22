@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import '../../common/utils/helper.dart';
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
@@ -10,6 +12,7 @@ import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/cartesian_state_properties.dart';
+import '../common/common.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import 'crosshair_painter.dart';
@@ -21,7 +24,6 @@ import 'crosshair_painter.dart';
 ///
 /// Provide options for activation mode, line type, line color, line width, hide delay for customizing the
 /// behavior of the crosshair.
-///
 class CrosshairBehavior {
   /// Creating an argument constructor of CrosshairBehavior class.
   CrosshairBehavior({
@@ -37,45 +39,68 @@ class CrosshairBehavior {
 
   /// Toggles the visibility of the crosshair.
   ///
-  ///Defaults to `false`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           crosshairBehavior: CrosshairBehavior(enable: true),
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// late CrosshairBehavior _crosshairBehavior;
+  ///
+  /// void initState() {
+  ///   _crosshairBehavior = CrosshairBehavior(enable: true);
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     crosshairBehavior: _crosshairBehavior
+  ///   );
+  /// }
+  /// ```
   final bool enable;
 
   /// Width of the crosshair line.
   ///
-  /// Defaults to `1`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           crosshairBehavior: CrosshairBehavior(
-  ///                   enable: true, lineWidth: 5),
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `1`.
+  ///
+  /// ```dart
+  /// late CrosshairBehavior _crosshairBehavior;
+  ///
+  /// void initState() {
+  ///   _crosshairBehavior = CrosshairBehavior(
+  ///     enable: true,
+  ///     lineWidth: 5
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     crosshairBehavior: _crosshairBehavior
+  /// }
+  /// ```
   final double lineWidth;
 
-  ///Color of the crosshair line.
+  /// Color of the crosshair line.
   ///
   /// Color will be applied based on the brightness
-  ///property of the app.
+  /// property of the app.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           crosshairBehavior: CrosshairBehavior(
-  ///                   enable: true, lineColor: Colors.red),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// late CrosshairBehavior _crosshairBehavior;
+  ///
+  /// void initState() {
+  ///   _crosshairBehavior = CrosshairBehavior(enable: true);
+  ///     enable: true,
+  ///     lineColor: Colors.red
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     crosshairBehavior: _crosshairBehavior
+  ///   );
+  /// }
+  /// ```
   final Color? lineColor;
 
   /// Dashes of the crosshair line.
@@ -83,16 +108,25 @@ class CrosshairBehavior {
   /// Any number of values can be provided in the list.
   /// Odd value is considered as rendering size and even value is considered as gap.
   ///
-  /// Dafaults to `[0,0]`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           crosshairBehavior: CrosshairBehavior(
-  ///                   enable: true, lineDashArray: [10,10]),
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `[0,0]`.
+  ///
+  /// ```dart
+  /// late CrosshairBehavior _crosshairBehavior;
+  ///
+  /// void initState() {
+  ///   _crosshairBehavior = CrosshairBehavior(
+  ///     enable: true,
+  ///     lineDashArray: [10,10]
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     crosshairBehavior: _crosshairBehavior
+  ///   );
+  /// }
+  /// ```
   final List<double>? lineDashArray;
 
   /// Gesture for activating the crosshair.
@@ -100,18 +134,27 @@ class CrosshairBehavior {
   /// Crosshair can be activated in tap, double tap
   /// and long press.
   ///
-  /// Defaults to `ActivationMode.longPress`
+  /// Defaults to `ActivationMode.longPress`.
   ///
-  /// Also refer [ActivationMode]
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           crosshairBehavior: CrosshairBehavior(
-  ///               enable: true, activationMode: ActivationMode.doubleTap),
-  ///        ));
-  ///}
-  ///```
+  /// Also refer [ActivationMode].
+  ///
+  /// ```dart
+  /// late CrosshairBehavior _crosshairBehavior;
+  ///
+  /// void initState() {
+  ///   _crosshairBehavior = CrosshairBehavior(
+  ///     enable: true,
+  ///     activationMode: ActivationMode.doubleTap
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     crosshairBehavior: _crosshairBehavior
+  ///   );
+  /// }
+  /// ```
   final ActivationMode activationMode;
 
   /// Type of crosshair line.
@@ -119,18 +162,27 @@ class CrosshairBehavior {
   /// By default, both vertical and horizontal lines will be
   /// displayed. You can change this by specifying values to this property.
   ///
-  /// Defaults to `CrosshairLineType.both`
+  /// Defaults to `CrosshairLineType.both`.
   ///
-  /// Also refer CrosshairLineType
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           crosshairBehavior: CrosshairBehavior(
-  ///                 enable: true, lineType: CrosshairLineType.horizontal),
-  ///        ));
-  ///}
-  ///```
+  /// Also refer [CrosshairLineType].
+  ///
+  /// ```dart
+  /// late CrosshairBehavior _crosshairBehavior;
+  ///
+  /// void initState() {
+  ///   _crosshairBehavior = CrosshairBehavior(
+  ///     enable: true,
+  ///     lineType: CrosshairLineType.horizontal
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     crosshairBehavior: _crosshairBehavior
+  ///   );
+  /// }
+  /// ```
   final CrosshairLineType lineType;
 
   /// Enables or disables the crosshair.
@@ -138,28 +190,48 @@ class CrosshairBehavior {
   /// By default, the crosshair will be hidden on touch.
   /// To avoid this, set this property to true.
   ///
-  /// Defaults to `false`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           crosshairBehavior: CrosshairBehavior(enable: true, shouldAlwaysShow: true),
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// late CrosshairBehavior _crosshairBehavior;
+  ///
+  /// void initState() {
+  ///   _crosshairBehavior = CrosshairBehavior(
+  ///     enable: true,
+  ///     shouldAlwaysShow: true
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     crosshairBehavior: _crosshairBehavior
+  ///   );
+  /// }
+  /// ```
   final bool shouldAlwaysShow;
 
-  ///Time delay for hiding the crosshair.
+  /// Time delay for hiding the crosshair.
   ///
-  /// Defaults to `0`
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           crosshairBehavior: CrosshairBehavior(enable: true, duration: 3000),
-  ///        ));
-  ///}
-  ///```
+  /// Defaults to `0`.
+  ///
+  /// ```dart
+  /// late CrosshairBehavior _crosshairBehavior;
+  ///
+  /// void initState() {
+  ///   _crosshairBehavior = CrosshairBehavior(
+  ///     enable: true,
+  ///     hideDelay: 3000
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     crosshairBehavior: _crosshairBehavior
+  ///   );
+  /// }
+  /// ```
   final double hideDelay;
 
   @override
@@ -199,17 +271,18 @@ class CrosshairBehavior {
     return hashList(values);
   }
 
-  /// Represents the cartesian state properties
+  /// Represents the cartesian state properties.
   late CartesianStateProperties _stateProperties;
 
   /// Displays the crosshair at the specified x and y-positions.
   ///
-  ///
   /// x & y - x and y values/pixel where the crosshair needs to be shown.
   ///
-  /// coordinateUnit - specify the type of x and y values given.'pixel' or 'point' for logica pixel and chart data point respectively.
-  /// Defaults to `'point'`.
+  /// coordinateUnit - specify the type of x and y values given. `pixel` or `point` for logical pixel and chart data point respectively.
+  ///
+  /// Defaults to `point`.
   void show(dynamic x, double y, [String coordinateUnit = 'point']) {
+    // ignore: unnecessary_null_comparison
     if (_stateProperties != null) {
       final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
           _stateProperties.crosshairBehaviorRenderer;
@@ -221,9 +294,9 @@ class CrosshairBehavior {
 
   /// Displays the crosshair at the specified point index.
   ///
-  ///
   /// pointIndex - index of point at which the crosshair needs to be shown.
   void showByIndex(int pointIndex) {
+    // ignore: unnecessary_null_comparison
     if (_stateProperties != null) {
       final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
           _stateProperties.crosshairBehaviorRenderer;
@@ -236,9 +309,15 @@ class CrosshairBehavior {
                   .visibleSeriesRenderers;
           final SeriesRendererDetails seriesRendererDetails =
               SeriesHelper.getSeriesRendererDetails(visibleSeriesRenderer[0]);
-          renderingDetails.crosshairPainter!.generateAllPoints(Offset(
-              seriesRendererDetails.dataPoints[pointIndex].markerPoint!.x,
-              seriesRendererDetails.dataPoints[pointIndex].markerPoint!.y));
+          final List<CartesianChartPoint<dynamic>> dataPoints =
+              getSampledData(seriesRendererDetails);
+          // ignore: unnecessary_null_comparison
+          if (pointIndex != null &&
+              pointIndex.abs() < seriesRendererDetails.dataPoints.length) {
+            renderingDetails.crosshairPainter!.generateAllPoints(Offset(
+                dataPoints[pointIndex].markerPoint!.x,
+                dataPoints[pointIndex].markerPoint!.y));
+          }
           renderingDetails.crosshairPainter!.canResetPath = false;
           renderingDetails.crosshairPainter!.stateProperties
               .repaintNotifiers['crosshair']!.value++;
@@ -249,6 +328,7 @@ class CrosshairBehavior {
 
   /// Hides the crosshair if it is displayed.
   void hide() {
+    // ignore: unnecessary_null_comparison
     if (_stateProperties != null) {
       final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
           _stateProperties.crosshairBehaviorRenderer;
@@ -286,16 +366,16 @@ class CrosshairBehavior {
   }
 }
 
-/// Crosshair renderer class for mutable fields and methods
+/// Crosshair renderer class for mutable fields and methods.
 class CrosshairBehaviorRenderer with ChartBehavior {
-  /// Creates an argument constructor for Crosshair renderer class
+  /// Creates an argument constructor for Crosshair renderer class.
   CrosshairBehaviorRenderer(this._stateProperties) {
     _crosshairRenderingDetails = CrosshairRenderingDetails(_stateProperties);
   }
 
   final CartesianStateProperties _stateProperties;
 
-  /// Specifies the value of crosshair rendering details
+  /// Specifies the value of crosshair rendering details.
   late CrosshairRenderingDetails _crosshairRenderingDetails;
 
   /// Enables the crosshair on double tap.
@@ -342,9 +422,9 @@ class CrosshairBehaviorRenderer with ChartBehavior {
   }
 }
 
-/// Represents the class that holds the rendering details of cross hair
+/// Represents the class that holds the rendering details of cross hair.
 class CrosshairRenderingDetails {
-  /// Creates an instance of cross hair rendering details
+  /// Creates an instance of cross hair rendering details.
   CrosshairRenderingDetails(this._stateProperties);
 
   final CartesianStateProperties _stateProperties;
@@ -353,16 +433,16 @@ class CrosshairRenderingDetails {
 
   CrosshairBehavior get _crosshairBehavior => _chart.crosshairBehavior;
 
-  /// Touch position
+  /// Touch position.
   Offset? position;
 
-  /// Holds the instance of CrosshairPainter
+  /// Holds the instance of CrosshairPainter.
   CrosshairPainter? crosshairPainter;
 
   /// Check whether long press activated or not.
   bool isLongPressActivated = false;
 
-  /// To draw cross hair line
+  /// To draw cross hair line.
   void drawLine(Canvas canvas, Paint? paint, int? seriesIndex) {
     assert(_crosshairBehavior.lineWidth >= 0,
         'Line width value of crosshair should be greater than 0.');
@@ -374,7 +454,7 @@ class CrosshairRenderingDetails {
   /// To get the paint value for the crosshair.
   Paint? linePainter(Paint paint) => crosshairPainter?.getLinePainter(paint);
 
-  /// To show the crosshair with provided coordinates
+  /// To show the crosshair with provided coordinates.
   void internalShow(dynamic x, double y, [String coordinateUnit = 'point']) {
     final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
         _stateProperties.crosshairBehaviorRenderer;
@@ -416,15 +496,15 @@ class CrosshairRenderingDetails {
 }
 
 // ignore: avoid_classes_with_only_static_members
-/// Helper class to get the crosshair rendering details instance from its renderer
+/// Helper class to get the crosshair rendering details instance from its renderer.
 class CrosshairHelper {
-  /// Returns the crosshair rendering details instance from its renderer
+  /// Returns the crosshair rendering details instance from its renderer.
   static CrosshairRenderingDetails getRenderingDetails(
       CrosshairBehaviorRenderer renderer) {
     return renderer._crosshairRenderingDetails;
   }
 
-  /// Method to set the cartesian state properties
+  /// Method to set the cartesian state properties.
   static void setStateProperties(CrosshairBehavior crosshairBehavior,
       CartesianStateProperties stateProperties) {
     crosshairBehavior._stateProperties = stateProperties;

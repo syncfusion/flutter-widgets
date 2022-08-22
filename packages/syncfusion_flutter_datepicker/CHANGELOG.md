@@ -1,4 +1,4 @@
-## [19.4.xx]
+## [19.4.38] - 12/17/2021
 **Features**
 * Provided support to extendable range selection direction in the date range picker.
 

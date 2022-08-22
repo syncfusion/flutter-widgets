@@ -8,7 +8,7 @@
 ///   ..pages.add().graphics.drawString(
 ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
 /// //Saves the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -24,7 +24,7 @@ class PdfMargins {
   ///   ..pages.add().graphics.drawString(
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -54,7 +54,7 @@ class PdfMargins {
   ///   ..pages.add().graphics.drawString(
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -79,7 +79,7 @@ class PdfMargins {
   ///   ..pages.add().graphics.drawString(
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -104,7 +104,7 @@ class PdfMargins {
   ///   ..pages.add().graphics.drawString(
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -129,7 +129,7 @@ class PdfMargins {
   ///   ..pages.add().graphics.drawString(
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -150,10 +150,11 @@ class PdfMargins {
   ///   ..pages.add().graphics.drawString(
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
+  // ignore: avoid_setters_without_getters
   set all(double value) {
     if (!_helper.isPageAdded) {
       _helper.setMargins(value);

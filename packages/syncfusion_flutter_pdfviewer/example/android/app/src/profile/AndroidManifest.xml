@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.syncfusion.syncfusion_flutter_pdfviewer_example">
+    package="com.syncfusion.flutter.pdfviewer.example">
     <!-- Flutter needs it to communicate with the running application
          to allow setting breakpoints, to provide hot reload, etc.
     -->

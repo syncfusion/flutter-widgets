@@ -623,7 +623,7 @@ class PdfLayerCollectionHelper extends PdfObjectCollectionHelper {
                     ocPropertie[PdfDictionaryProperties.defaultView])
                 as PdfDictionary?;
             if (defaultView != null) {
-              PdfArray? _on, off;
+              PdfArray? on, off;
               if (defaultView.containsKey(PdfDictionaryProperties.ocgOrder)) {
                 final PdfArray? order = PdfCrossTable.dereference(
                     defaultView[PdfDictionaryProperties.ocgOrder]) as PdfArray?;
@@ -645,10 +645,10 @@ class PdfLayerCollectionHelper extends PdfObjectCollectionHelper {
                     defaultView[PdfDictionaryProperties.ocgOff]) as PdfArray?;
               }
               if (defaultView.containsKey(PdfDictionaryProperties.ocgOn)) {
-                _on = PdfCrossTable.dereference(
+                on = PdfCrossTable.dereference(
                     defaultView[PdfDictionaryProperties.ocgOn]) as PdfArray?;
-              } else if (_on == null && defaultView.containsKey('ON')) {
-                _on = PdfCrossTable.dereference(defaultView['ON']) as PdfArray?;
+              } else if (on == null && defaultView.containsKey('ON')) {
+                on = PdfCrossTable.dereference(defaultView['ON']) as PdfArray?;
               }
               if (defaultView
                   .containsKey(PdfDictionaryProperties.usageApplication)) {
@@ -660,7 +660,7 @@ class PdfLayerCollectionHelper extends PdfObjectCollectionHelper {
                       usage, PdfLayerHelper.getHelper(layer).referenceHolder);
                 }
               }
-              _removeVisible(layer, _on, off);
+              _removeVisible(layer, on, off);
             }
           }
         }
@@ -671,11 +671,11 @@ class PdfLayerCollectionHelper extends PdfObjectCollectionHelper {
     }
   }
 
-  void _removeVisible(PdfLayer layer, PdfArray? _on, PdfArray? off) {
+  void _removeVisible(PdfLayer layer, PdfArray? on, PdfArray? off) {
     if (layer.visible) {
-      if (_on != null) {
+      if (on != null) {
         _removeOCProperties(
-            _on, PdfLayerHelper.getHelper(layer).referenceHolder);
+            on, PdfLayerHelper.getHelper(layer).referenceHolder);
       }
     } else {
       if (off != null) {

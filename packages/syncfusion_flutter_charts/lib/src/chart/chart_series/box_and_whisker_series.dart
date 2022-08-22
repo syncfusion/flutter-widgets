@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
-/// This class holds the properties of the Box and Whisker series.
+/// This class holds the properties of the box and whisker series.
 ///
-/// To render a Box and Whisker chart, create an instance of [BoxAndWhiskerSeries], and add it to the `series` collection property of [SfCartesianChart].
-/// The Box and Whisker chart represents the hollow rectangle with the lower quartile, upper quartile, maximum and minimum value in the given data.
+/// To render a box and whisker chart, create an instance of [BoxAndWhiskerSeries], and add it to the `series` collection property of [SfCartesianChart].
+/// The box and whisker chart represents the hollow rectangle with the lower quartile, upper quartile, maximum and minimum value in the given data.
 ///
 /// Provides options for color, opacity, border color, and border width
 /// to customize the appearance.
@@ -90,85 +90,81 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
             onCreateShader: onCreateShader,
             trendlines: trendlines);
 
-  ///To change the box plot rendering mode.
+  /// To change the box plot rendering mode.
   ///
-  ///The box plot series rendering mode can be changed by
-  ///using [BoxPlotMode] property. The below values are applicable for this:
+  /// The box plot series rendering mode can be changed by
+  /// using [BoxPlotMode] property. The below values are applicable for this,
   ///
-  ///* `normal` - The quartile values are calculated by splitting the list and
+  /// * `BoxPlotMode.normal` - The quartile values are calculated by splitting the list and
   /// by getting the median values.
-  ///* `exclusive` - The quartile values are calculated by using the formula
+  /// * `BoxPlotMode.exclusive` - The quartile values are calculated by using the formula
   /// (N+1) * P (N count, P percentile), and their index value starts
   /// from 1 in the list.
-  /// * `inclusive` - The quartile values are calculated by using the formula
+  /// * `BoxPlotMode.inclusive` - The quartile values are calculated by using the formula
   /// (N−1) * P (N count, P percentile), and their index value starts
   /// from 0 in the list.
   ///
-  ///Also refer [BoxPlotMode].
+  /// Also refer [BoxPlotMode].
   ///
-  ///Defaults to `BoxPlotMode.normal`.
+  /// Defaults to `BoxPlotMode.normal`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BoxAndWhiskerSeries<SalesData, num>>[
-  ///                BoxAndWhiskerSeries<SalesData, num>(
-  ///                  boxPlotMode: BoxPlotMode.normal
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BoxAndWhiskerSeries<SalesData, num>>[
+  ///       BoxAndWhiskerSeries<SalesData, num>(
+  ///         boxPlotMode: BoxPlotMode.normal
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BoxPlotMode boxPlotMode;
 
-  ///Indication for mean value in box plot.
+  /// Indication for mean value in box plot.
   ///
-  ///If [showMean] property value is set to true, a cross symbol will be
-  ///displayed at the mean value, for each data point in box plot. Else,
-  ///it will not be displayed.
+  /// If [showMean] property value is set to true, a cross symbol will be
+  /// displayed at the mean value, for each data point in box plot. Else,
+  /// it will not be displayed.
   ///
-  ///Defaults to `true`.
+  /// Defaults to `true`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BoxAndWhiskerSeries<SalesData, num>>[
-  ///                BoxAndWhiskerSeries<SalesData, num>(
-  ///                  showMean: true
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BoxAndWhiskerSeries<SalesData, num>>[
+  ///       BoxAndWhiskerSeries<SalesData, num>(
+  ///         showMean: false
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool showMean;
 
-  ///Spacing between the box plots.
+  /// Spacing between the box plots.
   ///
-  ///The value ranges from 0 to 1, where 1 represents 100% and 0 represents 0%
-  ///of the available space.
+  /// The value ranges from 0 to 1, where 1 represents 100% and 0 represents 0%
+  /// of the available space.
   ///
-  ///Spacing affects the width of the box plots. For example, setting 20%
-  ///spacing and 100% width renders the box plots with 80% of total width.
+  /// Spacing affects the width of the box plots. For example, setting 20%
+  /// spacing and 100% width renders the box plots with 80% of total width.
   ///
-  ///Also refer [CartesianSeries.width].
+  /// Also refer [CartesianSeries.width].
   ///
-  ///Defaults to `0`.
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <BoxAndWhiskerSeries<SalesData, num>>[
-  ///                BoxAndWhiskerSeries<SalesData, num>(
-  ///                  spacing: 0,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <BoxAndWhiskerSeries<SalesData, num>>[
+  ///       BoxAndWhiskerSeries<SalesData, num>(
+  ///         spacing: 0.5,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double spacing;
 
   /// Create the Box and Whisker series renderer.
@@ -281,9 +277,9 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
   }
 }
 
-/// Represents the class for box plot quartile values
+/// Represents the class for box plot quartile values.
 class BoxPlotQuartileValues {
-  /// Creates an instance of box plot quartile values
+  /// Creates an instance of box plot quartile values.
   BoxPlotQuartileValues(
       {this.minimum,
       this.maximum,
@@ -295,27 +291,27 @@ class BoxPlotQuartileValues {
       this.median,
       this.mean});
 
-  /// Specifies the value of minimum
+  /// Specifies the value of minimum.
   num? minimum;
 
-  /// Specifies the value of maximum
+  /// Specifies the value of maximum.
   num? maximum;
 
-  /// Specifies the list of outliers
+  /// Specifies the list of outliers.
   List<num>? outliers = <num>[];
 
-  /// Specifies the value of the upper quartiles
+  /// Specifies the value of the upper quartiles.
   double? upperQuartile;
 
-  /// Specifies the value of lower quartiles
+  /// Specifies the value of lower quartiles.
   double? lowerQuartile;
 
-  /// Specifies the value of average
+  /// Specifies the value of average.
   num? average;
 
-  /// Specifies the value of median
+  /// Specifies the value of median.
   num? median;
 
-  /// Specifies the mean value
+  /// Specifies the mean value.
   num? mean;
 }

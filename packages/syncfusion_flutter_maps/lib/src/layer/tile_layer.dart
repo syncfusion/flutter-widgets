@@ -587,13 +587,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     children.add(current);
     if (widget.zoomPanBehavior != null) {
       children.add(BehaviorView(
-        zoomLevel: _currentZoomLevel,
-        focalLatLng: _currentFocalLatLng,
-        controller: _controller!,
-        behavior: widget.zoomPanBehavior!,
-        onWillZoom: widget.onWillZoom,
-        onWillPan: widget.onWillPan,
-      ));
+          zoomLevel: _currentZoomLevel,
+          focalLatLng: _currentFocalLatLng,
+          controller: _controller!,
+          behavior: widget.zoomPanBehavior!,
+          onWillZoom: widget.onWillZoom,
+          onWillPan: widget.onWillPan,
+          enableMouseWheelZooming:
+              widget.zoomPanBehavior!.enableMouseWheelZooming));
       if (_isDesktop && widget.zoomPanBehavior!.showToolbar) {
         children.add(MapToolbar(
           onWillZoom: widget.onWillZoom,
@@ -622,9 +623,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 
   void _handledZoomPanChange() {
-    if (SchedulerBinding.instance!.schedulerPhase ==
+    if (SchedulerBinding.instance.schedulerPhase ==
         SchedulerPhase.persistentCallbacks) {
-      SchedulerBinding.instance!.addPostFrameCallback((Duration duration) {
+      SchedulerBinding.instance.addPostFrameCallback((Duration duration) {
         _handledZoomPanChange();
       });
       return;

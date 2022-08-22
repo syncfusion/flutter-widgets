@@ -3,12 +3,12 @@ import '../../common/utils/enum.dart';
 import '../../common/utils/typedef.dart';
 import 'technical_indicator.dart';
 
-///Renders EMA indicator
+/// Renders EMA indicator
 ///
-///An EMA indicator is a simple, arithmetic moving average that is calculated by adding the closing price for the number of time periods and dividing the total value by the number of periods.
+/// An EMA indicator is a simple, arithmetic moving average that is calculated by adding the
+/// closing price for the number of time periods and dividing the total value by the number of periods.
 ///
-/// It also has the [valueField] property. Based on this property Indicator will be rendered
-///
+/// It also has the [valueField] property. Based on this property indicator will be rendered.
 @immutable
 class EmaIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of EmaIndicator class.
@@ -59,23 +59,30 @@ class EmaIndicator<T, D> extends TechnicalIndicators<T, D> {
             period: period,
             onRenderDetailsUpdate: onRenderDetailsUpdate);
 
-  ///ValueField property for ema indicator.
+  /// Value field property for EMA indicator.
   ///
-  ///Based on the valueField property, the moving average is calculated and the indicator is rendered.
+  /// Based on the value field property, the moving average is calculated and the indicator is rendered.
   ///
-  ///Defaults to `close`.
+  /// Defaults to `close`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///            EmaIndicator<dynamic, dynamic>(
-  ///                valueField : 'high',
-  ///              ),
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      EmaIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        period: 4,
+  ///        valueField: 'low'
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
+  /// }
+  /// ```
   final String valueField;
 
   @override

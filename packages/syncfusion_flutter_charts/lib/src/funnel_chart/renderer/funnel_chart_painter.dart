@@ -3,9 +3,9 @@ import '../../pyramid_chart/utils/common.dart';
 import '../base/funnel_state_properties.dart';
 import 'renderer_extension.dart';
 
-/// Represents the funnel chart painter
+/// Represents the funnel chart painter.
 class FunnelChartPainter extends CustomPainter {
-  /// Creates an instance of funnel chart painter
+  /// Creates an instance of funnel chart painter.
   FunnelChartPainter({
     required this.stateProperties,
     required this.seriesIndex,
@@ -15,25 +15,25 @@ class FunnelChartPainter extends CustomPainter {
     required ValueNotifier<num> notifier,
   }) : super(repaint: notifier);
 
-  /// Specifies the value of funnel state properties
+  /// Specifies the value of funnel state properties.
   final FunnelStateProperties stateProperties;
 
-  /// Holds the series index details
+  /// Holds the series index details.
   final int seriesIndex;
 
-  /// Specifies whether to repaint the chart
+  /// Specifies whether to repaint the chart.
   final bool isRepaint;
 
-  /// Specifies the value of animation controller
+  /// Specifies the value of animation controller.
   final AnimationController? animationController;
 
-  /// Specifies the value of series animation
+  /// Specifies the value of series animation.
   final Animation<double>? seriesAnimation;
 
-  /// Specifies the value of funnel series renderer extension
+  /// Specifies the value of funnel series renderer extension.
   late FunnelSeriesRendererExtension seriesRenderer;
 
-  /// Holds the point value
+  /// Holds the point value.
   static late PointInfo<dynamic> point;
 
   @override

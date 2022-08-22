@@ -2447,17 +2447,17 @@ class FontStructure {
   /// hexCode - Mapping string in the map table of the document</param>
   List<String> getHexCode(String hexCode) {
     final List<String> tmp = <String>[];
-    String _tmp = hexCode;
-    int _start = 0;
-    int _stop = 0;
-    String _txt;
-    for (int j1 = 0; _start >= 0; j1++) {
-      _start = _tmp.indexOf('<');
-      _stop = _tmp.indexOf('>');
-      if (_start >= 0 && _stop >= 0) {
-        _txt = _tmp.substring(_start + 1, _stop);
-        tmp.add(_txt);
-        _tmp = _tmp.substring(_stop + 1, _tmp.length);
+    String tmpvalue = hexCode;
+    int startValue = 0;
+    int stopValue = 0;
+    String txtValue;
+    for (int j1 = 0; startValue >= 0; j1++) {
+      startValue = tmpvalue.indexOf('<');
+      stopValue = tmpvalue.indexOf('>');
+      if (startValue >= 0 && stopValue >= 0) {
+        txtValue = tmpvalue.substring(startValue + 1, stopValue);
+        tmp.add(txtValue);
+        tmpvalue = tmpvalue.substring(stopValue + 1, tmpvalue.length);
       }
     }
     return tmp;
@@ -2483,7 +2483,8 @@ class FontStructure {
   }
 
   /// internal method
-  String decodeTextExtraction(String textToDecode, bool isSameFont) {
+  String decodeTextExtraction(String textToDecode, bool isSameFont,
+      [List<dynamic>? charcodes]) {
     String decodedText = '';
     String encodedText = textToDecode;
     this.isSameFont = isSameFont;
@@ -2498,7 +2499,7 @@ class FontStructure {
             encodedText = str.join();
           }
           encodedText = encodedText.substring(1, encodedText.length - 1);
-          decodedText = getLiteralString(encodedText);
+          decodedText = getLiteralString(encodedText, charcodes);
           // ignore: use_raw_strings
           if (decodedText.contains('\\\\') && fontEncoding == 'Identity-H') {
             hasEscapeChar = true;
@@ -2573,9 +2574,9 @@ class FontStructure {
             final String tempString =
                 encodedText.substring(textStart + 1, textEnd);
             if (isHex) {
-              decodedText += getHexaDecimalString(tempString);
+              decodedText += getHexaDecimalString(tempString, charcodes);
             } else {
-              decodedText += getLiteralString(tempString);
+              decodedText += getLiteralString(tempString, charcodes);
             }
 
             encodedText =
@@ -2587,7 +2588,7 @@ class FontStructure {
         {
           final String hexEncodedText =
               encodedText.substring(1, encodedText.length - 1);
-          decodedText = getHexaDecimalString(hexEncodedText);
+          decodedText = getHexaDecimalString(hexEncodedText, charcodes);
         }
         break;
       default:
@@ -2765,12 +2766,14 @@ class FontStructure {
   }
 
   /// internal method
-  List<String> decodeTextExtractionTJ(String textToDecode, bool isSameFont) {
+  Map<List<dynamic>, String> decodeTextExtractionTJ(
+      String textToDecode, bool isSameFont) {
     String decodedText = '';
     String encodedText = textToDecode;
     String listElement;
+    List<dynamic> charCodes = <dynamic>[];
     this.isSameFont = isSameFont;
-    final List<String> decodedList = <String>[];
+    final Map<List<dynamic>, String> decodedList = <List<dynamic>, String>{};
     switch (encodedText[0]) {
       case '(':
         {
@@ -2835,7 +2838,8 @@ class FontStructure {
               } else {
                 listElement = encodedText;
                 if (listElement.trim() != '') {
-                  decodedList.add(listElement);
+                  decodedList[charCodes] = listElement;
+                  charCodes = <dynamic>[];
                 }
                 break;
               }
@@ -2843,7 +2847,8 @@ class FontStructure {
             if (textEnd < 0 && encodedText.isNotEmpty) {
               listElement = encodedText;
               if (listElement.trim() != '') {
-                decodedList.add(listElement);
+                decodedList[charCodes] = listElement;
+                charCodes = <dynamic>[];
               }
               break;
             } else if (textEnd > 0) {
@@ -2861,20 +2866,21 @@ class FontStructure {
             if (textStart != 0) {
               listElement = encodedText.substring(0, textStart);
               if (listElement.trim() != '') {
-                decodedList.add(listElement);
+                decodedList[charCodes] = listElement;
+                charCodes = <dynamic>[];
               }
             }
             final String tempString =
                 encodedText.substring(textStart + 1, textEnd);
             if (isHex) {
-              listElement = getHexaDecimalString(tempString);
+              listElement = getHexaDecimalString(tempString, charCodes);
               if (listElement.contains(r'\')) {
                 // ignore: use_raw_strings
                 listElement = listElement.replaceAll('\\', '\\\\');
               }
               decodedText += listElement;
             } else {
-              listElement = getLiteralString(tempString);
+              listElement = getLiteralString(tempString, charCodes);
               decodedText += listElement;
             }
             if (listElement.contains('\u0000') &&
@@ -2911,35 +2917,38 @@ class FontStructure {
               if (listElement[0].codeUnitAt(0) >= 3584 &&
                   listElement[0].codeUnitAt(0) <= 3711 &&
                   decodedList.isNotEmpty) {
-                String previous = decodedList[0];
+                String previous = decodedList.values.toList()[0];
                 previous = previous.replaceRange(
                     previous.length - 1, previous.length, '');
                 previous += listElement;
                 listElement = previous;
-                decodedList[0] = '${listElement}s';
+                decodedList[decodedList.keys.toList()[0]] = '${listElement}s';
               } else if ((listElement[0].codeUnitAt(0) == 32 ||
                       listElement[0].codeUnitAt(0) == 47) &&
                   listElement.length > 1) {
                 if (listElement[1].codeUnitAt(0) >= 3584 &&
                     listElement[1].codeUnitAt(0) <= 3711 &&
                     decodedList.isNotEmpty) {
-                  String previous = decodedList[0];
+                  String previous = decodedList.values.toList()[0];
                   previous = previous.replaceRange(
                       previous.length - 1, previous.length, '');
                   previous += listElement;
                   listElement = previous;
-                  decodedList[0] = '${listElement}s';
+                  decodedList[decodedList.keys.toList()[0]] = '${listElement}s';
                 } else {
                   listElement += 's';
-                  decodedList.add(listElement);
+                  decodedList[charCodes] = listElement;
+                  charCodes = <dynamic>[];
                 }
               } else {
                 listElement += 's';
-                decodedList.add(listElement);
+                decodedList[charCodes] = listElement;
+                charCodes = <dynamic>[];
               }
             } else {
               listElement = '${listElement.trimRight()}s';
-              decodedList.add(listElement);
+              decodedList[charCodes] = listElement;
+              charCodes = <dynamic>[];
             }
             encodedText =
                 encodedText.substring(textEnd + 1, encodedText.length);
@@ -2950,7 +2959,7 @@ class FontStructure {
         {
           final String hexEncodedText =
               encodedText.substring(1, encodedText.length - 1);
-          decodedText = getHexaDecimalString(hexEncodedText);
+          decodedText = getHexaDecimalString(hexEncodedText, charCodes);
         }
         break;
       default:
@@ -4322,12 +4331,13 @@ class FontStructure {
   }
 
   /// Decodes the octal text in the encoded text.
-  String getLiteralString(String encodedText) {
+  String getLiteralString(String encodedText, [List<dynamic>? charCodes]) {
     String decodedText = encodedText;
     int octalIndex = -1;
     int limit = 3;
     bool isMacCharProcessed = false;
     bool isWinAnsiProcessed = false;
+    final List<int> octalIndexCollection = <int>[];
     // ignore: use_raw_strings
     while ((decodedText.contains(r'\') && (!decodedText.contains('\\\\'))) ||
         decodedText.contains('\u0000')) {
@@ -4388,9 +4398,9 @@ class FontStructure {
             isWinAnsiProcessed = true;
           } else {
             final List<int> charbytes = <int>[decimalValue.toUnsigned(8)];
-            temp = utf8.decode(charbytes);
+            temp = String.fromCharCodes(charbytes);
             final List<String> tempchar = <String>[
-              utf8.decode(<int>[decimalValue.toUnsigned(8)])
+              String.fromCharCodes(<int>[decimalValue.toUnsigned(8)])
             ];
             int charvalue = 0;
             for (final String tempchar1 in tempchar) {
@@ -4402,11 +4412,86 @@ class FontStructure {
             isMacCharProcessed = true;
           }
         }
+        (charCodes ??= <dynamic>[]).add(decimalValue);
         decodedText =
             decodedText.replaceRange(octalIndex, octalIndex + limit + 1, '');
         final List<String> str = decodedText.split('');
         str.insert(octalIndex, temp);
+        octalIndexCollection.add(octalIndex);
         decodedText = str.join();
+      }
+    }
+    final List<String> str = decodedText.split('');
+    int count = str.length;
+    if (octalIndexCollection.length != str.length) {
+      final Map<String, String> escapeSequence = <String, String>{
+        'b': '\b',
+        'e': r'\e',
+        'f': '\f',
+        'n': '\n',
+        'r': '\r',
+        't': '\t',
+        'v': '\v',
+        "'": "'"
+      };
+      if (decodedText.contains(r'\')) {
+        for (int i = count - 2; i >= 0; i--) {
+          if (str[i] == r'\') {
+            final String sequence = str[i + 1];
+            if (escapeSequence.containsKey(sequence)) {
+              str.removeAt(i + 1);
+              str[i] = escapeSequence[sequence]!;
+              //Re-initializes octal index based on escape sequence.
+              for (int j = 0; j < octalIndexCollection.length; j++) {
+                if (octalIndexCollection[j] > i) {
+                  octalIndexCollection[j] = octalIndexCollection[j] - 1;
+                }
+              }
+              //Update the octal index collection and char codes,
+              //if character map table contains the escape sequence.
+              for (int j = 0; j < octalIndexCollection.length; j++) {
+                if (characterMapTable
+                    .containsKey(escapeSequence[sequence]!.codeUnitAt(0))) {
+                  if (i < octalIndexCollection[j]) {
+                    octalIndexCollection.insert(j, i);
+                    charCodes!
+                        .insert(j, escapeSequence[sequence]!.codeUnitAt(0));
+                    break;
+                  } else if (j == octalIndexCollection.length - 1 &&
+                      i > octalIndexCollection[j]) {
+                    octalIndexCollection.add(i);
+                    charCodes!.add(escapeSequence[sequence]!.codeUnitAt(0));
+                    break;
+                  }
+                } else {
+                  break;
+                }
+              }
+              count--;
+            }
+          }
+        }
+      }
+      escapeSequence.clear();
+    }
+    int combinedGlyphDiff = 0;
+    for (int i = 0; i < count; i++) {
+      if (!octalIndexCollection.contains(i)) {
+        if (characterMapTable.containsKey(str[i].codeUnitAt(0))) {
+          (charCodes ??= <dynamic>[])
+              .insert(i + combinedGlyphDiff, str[i].codeUnitAt(0));
+        } else {
+          (charCodes ??= <dynamic>[]).insert(i + combinedGlyphDiff, 0);
+        }
+      } else if (characterMapTable.containsKey(str[i].codeUnitAt(0))) {
+        final String mappingString = characterMapTable[str[i].codeUnitAt(0)]!;
+        final int mappingStringLength = mappingString.length;
+        if (mappingStringLength > 1) {
+          for (int j = i + 1; j < i + mappingStringLength; j++) {
+            charCodes!.insert(j + combinedGlyphDiff, 'combined');
+          }
+          combinedGlyphDiff += mappingStringLength - 1;
+        }
       }
     }
     if (decodedText.contains(r'\') && fontEncoding != 'Identity-H') {
@@ -4475,7 +4560,8 @@ class FontStructure {
   }
 
   /// Decodes the HEX encoded string and returns Decoded string.
-  String getHexaDecimalString(String hexEncodedText) {
+  String getHexaDecimalString(String hexEncodedText,
+      [List<dynamic>? charCodes]) {
     String decodedText = '';
     // IsHexaDecimalString = true;
     if (hexEncodedText.isNotEmpty) {
@@ -4500,10 +4586,9 @@ class FontStructure {
         if (fontDictionary
                 .containsKey(PdfDictionaryProperties.descendantFonts) &&
             !fontDictionary.containsKey(PdfDictionaryProperties.toUnicode)) {
-          final PdfArray? descendantArray =
-              fontDictionary[PdfDictionaryProperties.descendantFonts]
-                  as PdfArray?;
-          if (descendantArray != null) {
+          final IPdfPrimitive? descendantArray =
+              fontDictionary[PdfDictionaryProperties.descendantFonts];
+          if (descendantArray != null && descendantArray is PdfArray) {
             PdfDictionary? descendantDictionary;
             if (descendantArray[0] is PdfReferenceHolder) {
               descendantDictionary = (descendantArray[0]! as PdfReferenceHolder)
@@ -4601,8 +4686,9 @@ class FontStructure {
             }
           }
         }
-        decodedText +=
-            String.fromCharCode(int.parse(hexChar, radix: 16).toSigned(64));
+        final int hexNum = int.parse(hexChar, radix: 16).toSigned(64);
+        (charCodes ??= <dynamic>[]).add(hexNum);
+        decodedText += String.fromCharCode(hexNum);
         hexEncodedText = hexEncodedText.substring(limit, hexEncodedText.length);
         decodedTxt = decodedText;
       }
@@ -4613,8 +4699,23 @@ class FontStructure {
         decodedText = tempDecodedText;
         final int hexNum =
             int.parse(tempHexEncodedText, radix: 16).toSigned(32);
+        (charCodes ??= <dynamic>[]).add(hexNum);
         hexEncodedText = String.fromCharCode(hexNum);
         decodedText += hexEncodedText;
+      }
+      int combinedGlyphDiff = 0;
+      for (int i = 0; i < decodedText.length; i++) {
+        if (characterMapTable.containsKey(decodedText[i].codeUnitAt(0))) {
+          final String mappingString =
+              characterMapTable[decodedText[i].codeUnitAt(0)]!;
+          final int mappingStringLength = mappingString.length;
+          if (mappingStringLength > 1) {
+            for (int j = i + 1; j < i + mappingStringLength; j++) {
+              charCodes!.insert(j + combinedGlyphDiff, 'combined');
+            }
+            combinedGlyphDiff += mappingStringLength - 1;
+          }
+        }
       }
     }
     return decodedText;

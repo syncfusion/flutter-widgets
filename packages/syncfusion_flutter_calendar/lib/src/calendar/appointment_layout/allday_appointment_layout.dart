@@ -3,12 +3,10 @@ import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
+import '../../../calendar.dart';
 import '../appointment_engine/appointment_helper.dart';
 import '../common/calendar_view_helper.dart';
 import '../common/date_time_engine.dart';
-import '../common/enums.dart';
-import '../common/event_args.dart';
-import '../sfcalendar.dart';
 
 /// Used to holds the all day appointment views in calendar widgets.
 class AllDayAppointmentLayout extends StatefulWidget {
@@ -174,8 +172,7 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
                     appointmentView.appointmentRect!.left,
                     appointmentView.appointmentRect!.top,
                     appointmentView.appointmentRect!.width,
-                    appointmentView.appointmentRect!.right),
-                isMoreAppointmentRegion: false));
+                    appointmentView.appointmentRect!.right)));
 
         _children.add(RepaintBoundary(child: child));
       }
@@ -954,7 +951,11 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
   void paint(PaintingContext context, Offset offset) {
     _textPainter.textScaleFactor = _textScaleFactor;
     double leftPosition = 0, rightPosition = size.width;
-    if (view == CalendarView.day) {
+    if (CalendarViewHelper.isDayView(
+        view,
+        calendar.timeSlotViewSettings.numberOfDaysInView,
+        calendar.timeSlotViewSettings.nonWorkingDays,
+        calendar.monthViewSettings.numberOfWeeksInView)) {
       _rectPainter.strokeWidth = 0.5;
       _rectPainter.color =
           calendar.cellBorderColor ?? calendarTheme.cellBorderColor!;
@@ -1044,90 +1045,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
         context.paintChild(child, Offset(rect.left, rect.top));
         child = childAfter(child);
       } else {
-        final CalendarAppointment appointment = appointmentView.appointment!;
-        _rectPainter.color = appointment.color;
-        context.canvas.drawRRect(rect, _rectPainter);
-        final TextSpan span = TextSpan(
-          text: _getAllDayAppointmentText(appointment),
-          style: calendar.appointmentTextStyle,
-        );
-
-        _textPainter.text = span;
-        _textPainter.layout(
-            minWidth: 0,
-            maxWidth:
-                rect.width - textPadding >= 0 ? rect.width - textPadding : 0);
-        if (_textPainter.maxLines == 1 && _textPainter.height > rect.height) {
-          continue;
-        }
-
-        final bool canAddSpanIcon =
-            AppointmentHelper.canAddSpanIcon(visibleDates, appointment, view);
-        bool canAddForwardIcon = false;
-        bool canAddBackwardIcon = false;
-
-        double xPosition = isRTL
-            ? rect.right - _textPainter.width - textPadding
-            : rect.left + textPadding;
-
-        if (canAddSpanIcon) {
-          final DateTime appStartTime = appointment.exactStartTime;
-          final DateTime appEndTime = appointment.exactEndTime;
-          final DateTime viewStartDate =
-              AppointmentHelper.convertToStartTime(visibleDates[0]);
-          final DateTime viewEndDate = AppointmentHelper.convertToEndTime(
-              visibleDates[visibleDates.length - 1]);
-          double? iconSize = _getTextSize(
-              rect,
-              calendar.appointmentTextStyle.fontSize! *
-                  _textPainter.textScaleFactor);
-          if (AppointmentHelper.canAddForwardSpanIcon(
-              appStartTime, appEndTime, viewStartDate, viewEndDate)) {
-            canAddForwardIcon = true;
-            iconSize = null;
-          } else if (AppointmentHelper.canAddBackwardSpanIcon(
-              appStartTime, appEndTime, viewStartDate, viewEndDate)) {
-            canAddBackwardIcon = true;
-          } else {
-            canAddForwardIcon = true;
-            canAddBackwardIcon = true;
-          }
-
-          if (iconSize != null) {
-            if (isRTL) {
-              xPosition -= iconSize + (isMobilePlatform ? 0 : 2);
-            } else {
-              xPosition += iconSize + (isMobilePlatform ? 0 : 2);
-            }
-          }
-        }
-
-        _textPainter.paint(
-            context.canvas,
-            Offset(
-                xPosition, rect.top + (rect.height - _textPainter.height) / 2));
-        final bool isRecurrenceAppointment =
-            appointment.recurrenceRule != null &&
-                appointment.recurrenceRule!.isNotEmpty;
-        if (isRecurrenceAppointment || appointment.recurrenceId != null) {
-          _addRecurrenceIcon(
-              context.canvas, rect, textPadding, isRecurrenceAppointment);
-        }
-
-        if (canAddSpanIcon) {
-          if (canAddForwardIcon && canAddBackwardIcon) {
-            _addForwardSpanIconForAllDay(
-                context.canvas, rect, textPadding, isMobilePlatform);
-            _addBackwardSpanIconForAllDay(
-                context.canvas, rect, textPadding, isMobilePlatform);
-          } else if (canAddBackwardIcon) {
-            _addBackwardSpanIconForAllDay(
-                context.canvas, rect, textPadding, isMobilePlatform);
-          } else {
-            _addForwardSpanIconForAllDay(
-                context.canvas, rect, textPadding, isMobilePlatform);
-          }
-        }
+        _drawAllDayAppointmentView(context, offset, appointmentView);
       }
 
       _addMouseHoveringForAppointment(context.canvas, rect);
@@ -1185,7 +1103,12 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
   /// view  we display the current date, and total dates of the spanning
   /// appointment.
   String _getAllDayAppointmentText(CalendarAppointment appointment) {
-    if (view != CalendarView.day || !appointment.isSpanned) {
+    if (!CalendarViewHelper.isDayView(
+            view,
+            calendar.timeSlotViewSettings.numberOfDaysInView,
+            calendar.timeSlotViewSettings.nonWorkingDays,
+            calendar.monthViewSettings.numberOfWeeksInView) ||
+        !appointment.isSpanned) {
       return appointment.subject;
     }
 
@@ -1202,64 +1125,158 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
   }
 
   void _addForwardSpanIconForAllDay(
-      Canvas canvas, RRect rect, double textPadding, bool isMobilePlatform) {
-    final double textSize =
-        _getTextSize(rect, calendar.appointmentTextStyle.fontSize!);
+      Canvas canvas,
+      RRect rect,
+      double iconTextSize,
+      double forwardIconSize,
+      TextStyle appointmentTextStyle) {
     final TextSpan icon = AppointmentHelper.getSpanIcon(
-        calendar.appointmentTextStyle.color!, textSize, !isRTL);
-    final double leftPadding = isMobilePlatform ? 1 : 2;
+        appointmentTextStyle.color!, iconTextSize, !isRTL);
     _textPainter.text = icon;
-    _textPainter.layout(
-        minWidth: 0,
-        maxWidth: rect.width - textPadding >= 0 ? rect.width - textPadding : 0);
+    _textPainter.layout(maxWidth: rect.width >= 0 ? rect.width : 0);
 
     final double yPosition =
         AppointmentHelper.getYPositionForSpanIcon(icon, _textPainter, rect);
     canvas.drawRRect(
         RRect.fromRectAndRadius(
-            Rect.fromLTRB(isRTL ? rect.left : rect.right - textSize, rect.top,
-                isRTL ? rect.left : rect.right, rect.bottom),
+            Rect.fromLTRB(
+                isRTL ? rect.left : rect.right - forwardIconSize,
+                rect.top,
+                isRTL ? rect.left + forwardIconSize : rect.right,
+                rect.bottom),
             rect.brRadius),
         _rectPainter);
+    double iconPadding = (forwardIconSize - _textPainter.width) / 2;
+    if (iconPadding < 0) {
+      iconPadding = 0;
+    }
+
     _textPainter.paint(
         canvas,
-        Offset(
-            isRTL
-                ? rect.left + leftPadding
-                : rect.right -
-                    (textSize * _textPainter.textScaleFactor) -
-                    leftPadding,
+        Offset((isRTL ? rect.left : rect.right - forwardIconSize) + iconPadding,
             yPosition));
   }
 
-  void _addBackwardSpanIconForAllDay(
-      Canvas canvas, RRect rect, double textPadding, bool isMobilePlatform) {
-    final double textSize =
-        _getTextSize(rect, calendar.appointmentTextStyle.fontSize!);
-    final TextSpan icon = AppointmentHelper.getSpanIcon(
-        calendar.appointmentTextStyle.color!, textSize, isRTL);
-    final double leftPadding = isMobilePlatform ? 1 : 2;
-    _textPainter.text = icon;
+  void _drawAllDayAppointmentView(
+      PaintingContext context, Offset offset, AppointmentView appointmentView) {
+    final CalendarAppointment appointment = appointmentView.appointment!;
+    final RRect rect = appointmentView.appointmentRect!;
+
+    _rectPainter.color = appointment.color;
+    context.canvas.drawRRect(rect, _rectPainter);
+
+    final TextStyle appointmentTextStyle =
+        AppointmentHelper.getAppointmentTextStyle(
+            calendar.appointmentTextStyle, view);
+    final double iconTextSize = _getTextSize(
+        rect, appointmentTextStyle.fontSize! * _textPainter.textScaleFactor);
+    const double iconPadding = 2;
+    //// Padding 4 is left and right 2 padding.
+    final double iconSize = iconTextSize + (2 * iconPadding);
+    final bool isRecurrenceAppointment = appointment.recurrenceRule != null &&
+        appointment.recurrenceRule!.isNotEmpty;
+    final double recurrenceIconSize =
+        isRecurrenceAppointment || appointment.recurrenceId != null
+            ? iconSize
+            : 0;
+    double forwardSpanIconSize = 0;
+    double backwardSpanIconSize = 0;
+
+    final bool canAddSpanIcon =
+        AppointmentHelper.canAddSpanIcon(visibleDates, appointment, view);
+    if (canAddSpanIcon) {
+      final DateTime appStartTime = appointment.exactStartTime;
+      final DateTime appEndTime = appointment.exactEndTime;
+      final DateTime viewStartDate =
+          AppointmentHelper.convertToStartTime(visibleDates[0]);
+      final DateTime viewEndDate = AppointmentHelper.convertToEndTime(
+          visibleDates[visibleDates.length - 1]);
+      if (AppointmentHelper.canAddForwardSpanIcon(
+          appStartTime, appEndTime, viewStartDate, viewEndDate)) {
+        forwardSpanIconSize = iconSize;
+      } else if (AppointmentHelper.canAddBackwardSpanIcon(
+          appStartTime, appEndTime, viewStartDate, viewEndDate)) {
+        backwardSpanIconSize = iconSize;
+      } else {
+        forwardSpanIconSize = iconSize;
+        backwardSpanIconSize = iconSize;
+      }
+    }
+
+    final TextSpan span = TextSpan(
+      text: _getAllDayAppointmentText(appointment),
+      style: appointmentTextStyle,
+    );
+    _textPainter.text = span;
+    final double totalIconSize =
+        recurrenceIconSize + forwardSpanIconSize + backwardSpanIconSize;
+    const double textPadding = 1;
     _textPainter.layout(
-        minWidth: 0,
-        maxWidth: rect.width - textPadding >= 0 ? rect.width - textPadding : 0);
+        maxWidth: rect.width - totalIconSize - (2 * textPadding) >= 0
+            ? rect.width - totalIconSize - (2 * textPadding)
+            : 0);
+    if (_textPainter.maxLines == 1 && _textPainter.height > rect.height) {
+      return;
+    }
+    final double xPosition = isRTL
+        ? rect.right - _textPainter.width - backwardSpanIconSize - textPadding
+        : rect.left + backwardSpanIconSize + textPadding;
+    _textPainter.paint(context.canvas,
+        Offset(xPosition, rect.top + (rect.height - _textPainter.height) / 2));
+
+    if (backwardSpanIconSize != 0) {
+      _addBackwardSpanIconForAllDay(context.canvas, rect, iconTextSize,
+          backwardSpanIconSize, appointmentTextStyle);
+    }
+
+    if (recurrenceIconSize != 0) {
+      _addRecurrenceIcon(
+          context.canvas,
+          rect,
+          isRecurrenceAppointment,
+          iconTextSize,
+          recurrenceIconSize,
+          forwardSpanIconSize,
+          appointmentTextStyle);
+    }
+
+    if (forwardSpanIconSize != 0) {
+      _addForwardSpanIconForAllDay(context.canvas, rect, iconTextSize,
+          forwardSpanIconSize, appointmentTextStyle);
+    }
+  }
+
+  void _addBackwardSpanIconForAllDay(
+      Canvas canvas,
+      RRect rect,
+      double iconTextSize,
+      double backwardIconSize,
+      TextStyle appointmentTextStyle) {
+    final TextSpan icon = AppointmentHelper.getSpanIcon(
+        appointmentTextStyle.color!, iconTextSize, isRTL);
+    _textPainter.text = icon;
+    _textPainter.layout(maxWidth: rect.width >= 0 ? rect.width : 0);
 
     final double yPosition =
         AppointmentHelper.getYPositionForSpanIcon(icon, _textPainter, rect);
     canvas.drawRRect(
         RRect.fromRectAndRadius(
-            Rect.fromLTRB(isRTL ? rect.right - textSize : rect.left, rect.top,
-                isRTL ? rect.right : rect.left, rect.bottom),
+            Rect.fromLTRB(
+                isRTL ? rect.right - backwardIconSize : rect.left,
+                rect.top,
+                isRTL ? rect.right : rect.left + iconTextSize,
+                rect.bottom),
             rect.brRadius),
         _rectPainter);
+    double iconPadding = (backwardIconSize - _textPainter.width) / 2;
+    if (iconPadding < 0) {
+      iconPadding = 0;
+    }
+
     _textPainter.paint(
         canvas,
         Offset(
-            isRTL
-                ? rect.right -
-                    (textSize * _textPainter.textScaleFactor) -
-                    leftPadding
-                : rect.left + leftPadding,
+            (isRTL ? rect.right - backwardIconSize : rect.left) + iconPadding,
             yPosition));
   }
 
@@ -1275,7 +1292,6 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
       );
       _textPainter.text = span;
       _textPainter.layout(
-          minWidth: 0,
           maxWidth:
               _cellWidth - textPadding >= 0 ? _cellWidth - textPadding : 0);
 
@@ -1311,7 +1327,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
         ));
     _expanderTextPainter.textScaleFactor = textScaleFactor;
     _expanderTextPainter.text = icon;
-    _expanderTextPainter.layout(minWidth: 0, maxWidth: timeLabelWidth);
+    _expanderTextPainter.layout(maxWidth: timeLabelWidth);
     _expanderTextPainter.paint(
         canvas,
         Offset(
@@ -1360,7 +1376,6 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
           border:
               Border.all(color: calendarTheme.selectionBorderColor!, width: 2),
           borderRadius: const BorderRadius.all(Radius.circular(2)),
-          shape: BoxShape.rectangle,
         );
 
         break;
@@ -1373,7 +1388,6 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
       color: Colors.transparent,
       border: Border.all(color: calendarTheme.selectionBorderColor!, width: 2),
       borderRadius: const BorderRadius.all(Radius.circular(2)),
-      shape: BoxShape.rectangle,
     );
 
     Rect rect;
@@ -1410,7 +1424,6 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
       color: Colors.transparent,
       border: Border.all(color: calendarTheme.selectionBorderColor!, width: 2),
       borderRadius: const BorderRadius.all(Radius.circular(1)),
-      shape: BoxShape.rectangle,
     );
 
     Rect rect = appointmentView.appointmentRect!.outerRect;
@@ -1433,33 +1446,50 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
       _rectPainter.color = calendarTheme.selectionBorderColor!.withOpacity(0.4);
       _rectPainter.strokeWidth = 2;
       _rectPainter.style = PaintingStyle.stroke;
-      canvas.drawRect(rect.outerRect, _rectPainter);
+      canvas.drawRRect(rect, _rectPainter);
       _rectPainter.style = PaintingStyle.fill;
       _isHoveringAppointment = true;
     }
   }
 
-  void _addRecurrenceIcon(Canvas canvas, RRect rect, double textPadding,
-      bool isRecurrenceAppointment) {
-    final double textSize =
-        _getTextSize(rect, calendar.appointmentTextStyle.fontSize!);
+  void _addRecurrenceIcon(
+      Canvas canvas,
+      RRect rect,
+      bool isRecurrenceAppointment,
+      double iconTextSize,
+      double recurrenceIconSize,
+      double forwardSpanIconSize,
+      TextStyle appointmentTextStyle) {
     final TextSpan icon = AppointmentHelper.getRecurrenceIcon(
-        calendar.appointmentTextStyle.color!,
-        textSize,
-        isRecurrenceAppointment);
+        appointmentTextStyle.color!, iconTextSize, isRecurrenceAppointment);
     _textPainter.text = icon;
-    _textPainter.layout(
-        minWidth: 0,
-        maxWidth: rect.width - textPadding >= 0 ? rect.width - textPadding : 0);
+    _textPainter.layout(maxWidth: rect.width >= 0 ? rect.width : 0);
+
     canvas.drawRRect(
         RRect.fromRectAndRadius(
-            Rect.fromLTRB(isRTL ? rect.left : rect.right - textSize, rect.top,
-                isRTL ? rect.left : rect.right, rect.bottom),
+            Rect.fromLTRB(
+                isRTL
+                    ? rect.left + forwardSpanIconSize
+                    : rect.right - recurrenceIconSize - forwardSpanIconSize,
+                rect.top,
+                isRTL
+                    ? rect.left + recurrenceIconSize + forwardSpanIconSize
+                    : rect.right - forwardSpanIconSize,
+                rect.bottom),
             rect.brRadius),
         _rectPainter);
+    double iconPadding = (recurrenceIconSize - _textPainter.width) / 2;
+    if (iconPadding < 0) {
+      iconPadding = 0;
+    }
+
     _textPainter.paint(
         canvas,
-        Offset(isRTL ? rect.left + 1 : rect.right - textSize - 1,
+        Offset(
+            (isRTL
+                    ? rect.left + forwardSpanIconSize
+                    : rect.right - recurrenceIconSize - forwardSpanIconSize) +
+                iconPadding,
             rect.top + (rect.height - _textPainter.height) / 2));
   }
 

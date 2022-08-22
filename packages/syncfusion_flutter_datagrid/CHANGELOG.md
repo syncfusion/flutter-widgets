@@ -1,5 +1,73 @@
 ## Unreleased
 
+**Bugs**
+
+* The [verticalScrollController](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/SfDataGrid/verticalScrollController.html) and [horizontalScrollController](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/SfDataGrid/horizontalScrollController.html) are no longer disposed when the user sets in the application level.
+
+## [20.1.58] - 05/31/2022
+
+**Bugs**
+
+* The null check operator used on a null value exception will no longer be thrown when deselecting all the selected rows programmatically.
+
+## [20.1.57] - 05/24/2022
+
+**Bugs**
+
+* Checkbox is now properly unchecked when it is unchecked after being ticked
+
+## [20.1.55] - 05/12/2022
+
+**Bugs**
+
+* BoxConstraints has a negative minimum height exception will no longer be thrown when opening the keyboard for `TextField` which is adjacent to `DataGrid`.
+* Back key works properly while tapping the back key on an `Android` device and `DataGrid` has focus.
+
+## [20.1.52] - 05/03/2022
+
+**Bugs**
+
+* DataGrid is now extended to its maximum height when setting the shrinkWrapRows to true and onQueryRowHeight callback.
+
+## [20.1.48] - 04/12/2022
+
+**Bugs**
+
+* The animation will no longer be visible for checkbox column while scrolling when the `rowCacheExtent` property is set to the number of rows available in DataGrid.
+* The `DataGridSource.handlePageChange` method will now wait asynchronously until the `Future.delayed` value specified in the method.
+* Other cells will not be moved into edit mode when the last row is removed and a cell in that row is in edit mode.
+
+## [20.1.47] - 04/04/2022
+
+**Bugs**
+
+* Other cell will not be moved into edit mode when trying to click it and returning false from `canSubmitCell` method for currentcell.
+
+**Features**
+
+* Provided the support to check whether the currentcell is in editing mode using `DataGridController.isCurrentCellInEditing` property.
+* Provided the support to set the custom sort icon using `SfDataGridThemeData.sortIcon` property.
+
+## [19.4.54] - 03/01/2022 
+
+**Bugs**
+
+* Horizontal scrollbar will no longer be shown when you type the text beyond the cell width on editing.
+
+## [19.4.50] - 02/08/2022
+
+**Bugs**
+
+* Cell will no longer be navigated to non visible column's cell which is placed in 0th index.
+
+## [19.4.42] - 01/11/2022
+
+**Bugs**
+
+* The null check operator exception will no longer be thrown when long press the table summary rows.
+
+## [19.4.38] - 12/17/2021
+
 **Features**
 
 * Provided the support to set the different swipe offset for right and left swiping.

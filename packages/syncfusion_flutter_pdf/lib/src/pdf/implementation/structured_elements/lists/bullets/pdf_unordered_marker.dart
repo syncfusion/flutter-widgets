@@ -25,7 +25,7 @@ import 'pdf_marker.dart';
 ///   ..draw(
 ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -47,7 +47,7 @@ class PdfUnorderedMarker extends PdfMarker {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -84,7 +84,7 @@ class PdfUnorderedMarker extends PdfMarker {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -118,7 +118,7 @@ class PdfUnorderedMarker extends PdfMarker {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -144,7 +144,7 @@ class PdfUnorderedMarker extends PdfMarker {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -198,6 +198,7 @@ class PdfUnorderedMarkerHelper extends PdfMarkerHelper {
         //  templete.graphics.drawImage(
         //      _image, 1, 1, _size.width - 2, _size.height - 2);
         break;
+      // ignore: no_default_cases
       default:
         final PdfPoint location = PdfPoint.empty;
         if (pen != null) {
@@ -229,6 +230,7 @@ class PdfUnorderedMarkerHelper extends PdfMarkerHelper {
       case PdfUnorderedMarkerStyle.circle:
         text = '\x6D';
         break;
+      // ignore: no_default_cases
       default:
         break;
     }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
+
+import '../../../charts.dart';
 import '../axis/axis.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/xy_data_series.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
@@ -20,7 +21,7 @@ import 'chart_segment.dart';
 ///
 /// _Note:_ This is only applicable for [SfCartesianChart].
 class LineSegment extends ChartSegment {
-  /// segment points & old segment points
+  /// Old segment points.
   double? _oldX1, _oldY1, _oldX2, _oldY2;
 
   late bool _needAnimate, _newlyAddedSegment = false;
@@ -42,20 +43,20 @@ class LineSegment extends ChartSegment {
   Paint getFillPaint() {
     _setSegmentProperties();
 
-    final Paint _fillPaint = Paint();
+    final Paint fillPaint = Paint();
     assert(_segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the line series should be greater than or equal to 0.');
     assert(_segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the line series should be less than or equal to 1.');
     if (_segmentProperties.color != null) {
-      _fillPaint.color = _segmentProperties.pointColorMapper ??
+      fillPaint.color = _segmentProperties.pointColorMapper ??
           _segmentProperties.color!
               .withOpacity(_segmentProperties.series.opacity);
     }
-    _fillPaint.strokeWidth = _segmentProperties.strokeWidth!;
-    _fillPaint.style = PaintingStyle.fill;
-    _segmentProperties.defaultFillColor = _fillPaint;
-    return _fillPaint;
+    fillPaint.strokeWidth = _segmentProperties.strokeWidth!;
+    fillPaint.style = PaintingStyle.fill;
+    _segmentProperties.defaultFillColor = fillPaint;
+    return fillPaint;
   }
 
   /// Gets the stroke color of the series.
@@ -199,37 +200,37 @@ class LineSegment extends ChartSegment {
             seriesRendererDetails.yAxisDetails!.axisRenderer,
             _segmentProperties.stateProperties.oldAxisRenderers);
         if (_oldYAxisRenderer != null && _oldXAxisRenderer != null) {
-          final ChartAxisRendererDetails _oldXAxisDetails =
+          final ChartAxisRendererDetails oldXAxisDetails =
               AxisHelper.getAxisRendererDetails(_oldXAxisRenderer!);
-          final ChartAxisRendererDetails _oldYAxisDetails =
+          final ChartAxisRendererDetails oldYAxisDetails =
               AxisHelper.getAxisRendererDetails(_oldYAxisRenderer!);
-          _needAnimate = _oldYAxisDetails.visibleRange!.minimum !=
+          _needAnimate = oldYAxisDetails.visibleRange!.minimum !=
                   seriesRendererDetails.yAxisDetails!.visibleRange!.minimum ||
-              _oldYAxisDetails.visibleRange!.maximum !=
+              oldYAxisDetails.visibleRange!.maximum !=
                   seriesRendererDetails.yAxisDetails!.visibleRange!.maximum ||
-              _oldXAxisDetails.visibleRange!.minimum !=
+              oldXAxisDetails.visibleRange!.minimum !=
                   seriesRendererDetails.xAxisDetails!.visibleRange!.minimum ||
-              _oldXAxisDetails.visibleRange!.maximum !=
+              oldXAxisDetails.visibleRange!.maximum !=
                   seriesRendererDetails.xAxisDetails!.visibleRange!.maximum;
         }
         if (_needAnimate) {
-          final ChartAxisRendererDetails _oldXAxisDetails =
+          final ChartAxisRendererDetails oldXAxisDetails =
               AxisHelper.getAxisRendererDetails(_oldXAxisRenderer!);
-          final ChartAxisRendererDetails _oldYAxisDetails =
+          final ChartAxisRendererDetails oldYAxisDetails =
               AxisHelper.getAxisRendererDetails(_oldYAxisRenderer!);
           _first = calculatePoint(
               _segmentProperties.currentPoint!.xValue,
               _segmentProperties.currentPoint!.yValue,
-              _oldXAxisDetails,
-              _oldYAxisDetails,
+              oldXAxisDetails,
+              oldYAxisDetails,
               _segmentProperties.stateProperties.requireInvertedAxis,
               _segmentProperties.series,
               rect);
           _second = calculatePoint(
               _segmentProperties.nextPoint!.xValue,
               _segmentProperties.nextPoint!.yValue,
-              _oldXAxisDetails,
-              _oldYAxisDetails,
+              oldXAxisDetails,
+              oldYAxisDetails,
               _segmentProperties.stateProperties.requireInvertedAxis,
               _segmentProperties.series,
               rect);
@@ -268,14 +269,14 @@ class LineSegment extends ChartSegment {
               _oldY2,
             );
     } else {
-      if (_segmentProperties.series.dashArray[0] != 0 &&
-          _segmentProperties.series.dashArray[1] != 0) {
+      if (seriesRendererDetails.dashArray![0] != 0 &&
+          seriesRendererDetails.dashArray![1] != 0) {
         _segmentProperties.path
             .moveTo(_segmentProperties.x1, _segmentProperties.y1);
         _segmentProperties.path
             .lineTo(_segmentProperties.x2, _segmentProperties.y2);
-        drawDashedLine(canvas, _segmentProperties.series.dashArray,
-            strokePaint!, _segmentProperties.path);
+        drawDashedLine(canvas, seriesRendererDetails.dashArray!, strokePaint!,
+            _segmentProperties.path);
       } else {
         canvas.drawLine(Offset(_segmentProperties.x1, _segmentProperties.y1),
             Offset(_segmentProperties.x2, _segmentProperties.y2), strokePaint!);
@@ -283,7 +284,7 @@ class LineSegment extends ChartSegment {
     }
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

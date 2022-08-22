@@ -12,7 +12,7 @@ import 'enums.dart';
 ///       //Using PDF color set pen.
 ///       pen: PdfPen(PdfColor(200, 120, 80)));
 /// //Saves the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -28,7 +28,7 @@ class PdfColor {
   ///       //Using PDF color set pen.
   ///       pen: PdfPen(PdfColor(200, 120, 80)));
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -58,7 +58,7 @@ class PdfColor {
   ///       //Using PDF color set pen.
   ///       pen: PdfPen(PdfColor.fromCMYK(200, 120, 80, 40)));
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -141,7 +141,7 @@ class PdfColor {
   ///       //Create PDF color.
   ///       pen: PdfPen(PdfColor.empty));
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -193,7 +193,7 @@ class PdfColor {
   ///       pen: PdfPen(PdfColor(0, 0, 0)..r = 255),
   ///       bounds: Rect.fromLTWH(10, 10, 200, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -214,7 +214,7 @@ class PdfColor {
   ///       pen: PdfPen(PdfColor(0, 0, 0)..g = 255),
   ///       bounds: Rect.fromLTWH(10, 10, 200, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -235,7 +235,7 @@ class PdfColor {
   ///       pen: PdfPen(PdfColor(0, 0, 0)..b = 255),
   ///       bounds: Rect.fromLTWH(10, 10, 200, 100));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -258,7 +258,7 @@ class PdfColor {
   ///     PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     pen: PdfPen(color));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -323,6 +323,7 @@ class PdfColor {
         array.add(PdfNumber(_green / _maxColourChannelValue));
         array.add(PdfNumber(_blue / _maxColourChannelValue));
         break;
+      // ignore: no_default_cases
       default:
         throw ArgumentError.value('Unsupported colour space.');
     }

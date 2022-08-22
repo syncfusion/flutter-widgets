@@ -16,7 +16,7 @@ const double kAllDayAppointmentHeight = 20;
 /// Signature for callback that used to get and update the calendar
 /// state details.
 typedef UpdateCalendarState = void Function(
-    UpdateCalendarStateDetails _updateCalendarStateDetails);
+    UpdateCalendarStateDetails updateCalendarStateDetails);
 
 //// Extra small devices (phones, 600px and down)
 //// @media only screen and (max-width: 600px) {...}
@@ -416,6 +416,20 @@ class CalendarViewHelper {
       case CalendarView.schedule:
         return 0;
     }
+  }
+
+  /// Check the calendar view is day or not.
+  static bool isDayView(CalendarView view, int numberOfDays,
+      List<int>? nonWorkingDays, int numberOfWeeks) {
+    final int daysCount = DateTimeHelper.getViewDatesCount(
+        view, numberOfWeeks, numberOfDays, nonWorkingDays);
+    if ((view == CalendarView.day ||
+            view == CalendarView.week ||
+            view == CalendarView.workWeek) &&
+        daysCount == 1) {
+      return true;
+    }
+    return false;
   }
 
   /// Return the cell end padding based on platform of calendar widget.

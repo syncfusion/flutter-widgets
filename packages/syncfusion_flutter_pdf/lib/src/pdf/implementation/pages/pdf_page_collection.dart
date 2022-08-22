@@ -87,6 +87,7 @@ class PdfPageCollection {
     PdfPage page;
     if (PdfDocumentHelper.getHelper(_helper.document!).isLoadedDocument) {
       page = insert(count);
+      PdfPageHelper.getHelper(page).document = _helper.document;
     } else {
       page = PdfPage();
       PdfPageHelper.getHelper(page).isNewPage = true;
@@ -198,7 +199,7 @@ class PdfPageCollection {
   /// //Remove the first page.
   /// document.pages.remove(page);
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   void remove(PdfPage page) {
@@ -213,7 +214,7 @@ class PdfPageCollection {
   /// //Remove the page at index 0.
   /// document.pages.removeAt(0);
   /// //Save and dispose document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   void removeAt(int index) {

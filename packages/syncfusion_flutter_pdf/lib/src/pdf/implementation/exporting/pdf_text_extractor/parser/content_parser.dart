@@ -114,7 +114,7 @@ class ContentParser {
 
   void _parseObject(PdfToken stop) {
     PdfToken symbol;
-    final List<String> _operands = <String>[];
+    final List<String> operands = <String>[];
 
     while ((symbol = _getNextToken()) != PdfToken.eof) {
       if (symbol == stop || symbol == PdfToken.nullType) {
@@ -125,37 +125,37 @@ class ContentParser {
           break;
 
         case PdfToken.integer:
-          _operands.add(_operatorParams.toString());
+          operands.add(_operatorParams.toString());
           break;
 
         case PdfToken.real:
-          _operands.add(_operatorParams.toString());
+          operands.add(_operatorParams.toString());
           break;
 
         case PdfToken.string:
         case PdfToken.hexString:
         case PdfToken.unicodeString:
         case PdfToken.unicodeHexString:
-          _operands.add(_operatorParams.toString());
+          operands.add(_operatorParams.toString());
           break;
 
         case PdfToken.name:
           if (_operatorParams.toString() == '/Artifact') {
             _lexer.isContainsArtifacts = true;
           }
-          _operands.add(_operatorParams.toString());
+          operands.add(_operatorParams.toString());
           break;
 
         case PdfToken.operators:
           if (_operatorParams.toString() == 'true') {
-            _operands.add(_operatorParams.toString());
+            operands.add(_operatorParams.toString());
           } else if (_operatorParams.toString() == 'ID') {
-            _createRecord(_operands);
-            _operands.clear();
-            _consumeValue(_operands);
+            _createRecord(operands);
+            operands.clear();
+            _consumeValue(operands);
           } else {
-            _createRecord(_operands);
-            _operands.clear();
+            _createRecord(operands);
+            operands.clear();
           }
           break;
 
@@ -166,6 +166,7 @@ class ContentParser {
           ArgumentError.value('Error while parsing content');
           break;
 
+        // ignore: no_default_cases
         default:
           break;
       }
@@ -207,7 +208,7 @@ class ContentParser {
     String currentChar = '0';
     String nextChar = '0';
     String secondNextChar = '0';
-    final List<int> _inlineImageBytes = <int>[];
+    final List<int> inlineImageBytes = <int>[];
     if (_conformanceEnabled) {
       List<String> thirdChar;
       while (true) {
@@ -253,41 +254,41 @@ class ContentParser {
                 _operatorParams!
                     .write(String.fromCharCode(int.parse(nextChar)));
                 _isByteOperands = true;
-                _createRecord(operands, _inlineImageBytes);
+                _createRecord(operands, inlineImageBytes);
                 _isByteOperands = false;
-                _inlineImageBytes.clear();
+                inlineImageBytes.clear();
                 nextChar = _lexer.getNextInlineChar();
                 break;
               } else {
-                _inlineImageBytes.add(int.parse(currentChar));
-                _inlineImageBytes.add(int.parse(nextChar));
-                _inlineImageBytes.add(int.parse(secondNextChar));
+                inlineImageBytes.add(int.parse(currentChar));
+                inlineImageBytes.add(int.parse(nextChar));
+                inlineImageBytes.add(int.parse(secondNextChar));
                 if (thirdChar.length > 1) {
                   thirdChar.removeAt(0);
                   thirdChar.removeAt(thirdChar.length - 1);
                 }
                 for (final String c in thirdChar) {
-                  _inlineImageBytes.add(int.parse(c));
+                  inlineImageBytes.add(int.parse(c));
                 }
                 currentChar = _lexer.getNextCharforInlineStream();
               }
             } else {
-              _inlineImageBytes.add(int.parse(currentChar));
-              _inlineImageBytes.add(int.parse(nextChar));
-              _inlineImageBytes.add(int.parse(secondNextChar));
+              inlineImageBytes.add(int.parse(currentChar));
+              inlineImageBytes.add(int.parse(nextChar));
+              inlineImageBytes.add(int.parse(secondNextChar));
               if (thirdChar.isNotEmpty) {
                 for (final String tc in thirdChar) {
-                  _inlineImageBytes.add(int.parse(tc));
+                  inlineImageBytes.add(int.parse(tc));
                 }
               }
               currentChar = _lexer.getNextCharforInlineStream();
             }
           } else {
-            _inlineImageBytes.add(int.parse(currentChar));
-            _inlineImageBytes.add(int.parse(nextChar));
+            inlineImageBytes.add(int.parse(currentChar));
+            inlineImageBytes.add(int.parse(nextChar));
           }
         } else {
-          _inlineImageBytes.add(int.parse(currentChar));
+          inlineImageBytes.add(int.parse(currentChar));
         }
         thirdChar.clear();
       }
@@ -324,25 +325,25 @@ class ContentParser {
                 _operatorParams!
                     .write(String.fromCharCode(int.parse(nextChar)));
                 _isByteOperands = true;
-                _createRecord(operands, _inlineImageBytes);
+                _createRecord(operands, inlineImageBytes);
                 _isByteOperands = false;
-                _inlineImageBytes.clear();
+                inlineImageBytes.clear();
                 nextChar = _lexer.getNextInlineChar();
                 break;
               }
             } else {
-              _inlineImageBytes.add(int.parse(currentChar));
-              _inlineImageBytes.add(int.parse(nextChar));
-              _inlineImageBytes.add(int.parse(secondNextChar));
-              _inlineImageBytes.add(int.parse(thirdChar));
+              inlineImageBytes.add(int.parse(currentChar));
+              inlineImageBytes.add(int.parse(nextChar));
+              inlineImageBytes.add(int.parse(secondNextChar));
+              inlineImageBytes.add(int.parse(thirdChar));
               currentChar = _lexer.getNextCharforInlineStream();
             }
           } else {
-            _inlineImageBytes.add(int.parse(currentChar));
-            _inlineImageBytes.add(int.parse(nextChar));
+            inlineImageBytes.add(int.parse(currentChar));
+            inlineImageBytes.add(int.parse(nextChar));
           }
         } else {
-          _inlineImageBytes.add(int.parse(currentChar));
+          inlineImageBytes.add(int.parse(currentChar));
         }
       }
     }

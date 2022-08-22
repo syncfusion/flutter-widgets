@@ -15,23 +15,23 @@ import '../renderer/funnel_series.dart';
 import '../renderer/renderer_extension.dart';
 import '../renderer/series_base.dart';
 
-/// Represents the funnel series base
+/// Represents the funnel series base.
 class FunnelChartBase {
-  /// Creates an instance for funnel series base
+  /// Creates an instance for funnel series base.
   FunnelChartBase(this.stateProperties);
 
-  /// Specifies the funnel chart state
+  /// Specifies the funnel chart state.
   final FunnelStateProperties stateProperties;
 
-  /// Specifies the current series
+  /// Specifies the current series.
   late FunnelSeriesBase<dynamic, dynamic> currentSeries;
 
-  /// Specifies the list of visible series renderer
+  /// Specifies the list of visible series renderer.
   List<FunnelSeriesRendererExtension> visibleSeriesRenderers =
       <FunnelSeriesRendererExtension>[];
   SelectionArgs? _selectionArgs;
 
-  /// To find the visible series
+  /// To find the visible series.
   void findVisibleSeries() {
     stateProperties.chartSeries.visibleSeriesRenderers[0].dataPoints =
         <PointInfo<dynamic>>[];
@@ -58,7 +58,7 @@ class FunnelChartBase {
       ..add(seriesRenderer);
   }
 
-  /// To calculate empty point values for null values in chart
+  /// To calculate empty point values for null values in chart.
   void _calculateFunnelEmptyPoints(
       FunnelSeriesRendererExtension seriesRenderer) {
     for (int i = 0; i < seriesRenderer.dataPoints.length; i++) {
@@ -78,7 +78,7 @@ class FunnelChartBase {
     _findSumOfPoints(seriesRenderer);
   }
 
-  /// To calculate the visible points in the series
+  /// To calculate the visible points in the series.
   void _calculateVisiblePoints(FunnelSeriesRendererExtension seriesRenderer) {
     final List<PointInfo<dynamic>> points = seriesRenderer.dataPoints;
     seriesRenderer.renderPoints = <PointInfo<dynamic>>[];
@@ -89,7 +89,7 @@ class FunnelChartBase {
     }
   }
 
-  /// To set point style properties
+  /// To set point style properties.
   void _setPointStyle(FunnelSeriesRendererExtension seriesRenderer) {
     currentSeries = seriesRenderer.series;
     final List<Color> palette = stateProperties.chart.palette;
@@ -158,7 +158,7 @@ class FunnelChartBase {
     }
   }
 
-  /// To find the sum of data points
+  /// To find the sum of data points.
   void _findSumOfPoints(FunnelSeriesRendererExtension seriesRenderer) {
     seriesRenderer.sumOfPoints = 0;
     for (final PointInfo<dynamic> point in seriesRenderer.renderPoints) {
@@ -168,7 +168,7 @@ class FunnelChartBase {
     }
   }
 
-  /// To initialize series properties
+  /// To initialize series properties.
   void initializeSeriesProperties(
       FunnelSeriesRendererExtension seriesRenderer) {
     final Rect chartAreaRect = stateProperties.renderingDetails.chartAreaRect;
@@ -185,7 +185,7 @@ class FunnelChartBase {
     _initializeSizeRatio(seriesRenderer, reverse);
   }
 
-  /// To initialize size ratio for the funnel
+  /// To initialize size ratio for the funnel.
   void _initializeSizeRatio(FunnelSeriesRendererExtension seriesRenderer,
       [bool? reverse]) {
     final List<PointInfo<dynamic>> points = seriesRenderer.renderPoints;
@@ -214,7 +214,7 @@ class FunnelChartBase {
     }
   }
 
-  /// To calculate the segment path
+  /// To calculate the segment path.
   void _calculatePathSegment(String seriesType, PointInfo<dynamic> point) {
     final List<Offset> pathRegion = point.pathRegion;
     final int bottom =
@@ -227,7 +227,7 @@ class FunnelChartBase {
         point.region!.top + point.region!.height / 2);
   }
 
-  /// To perform point explode
+  /// To perform point explode.
   void pointExplode(int pointIndex) {
     bool existExplodedRegion = false;
     final FunnelSeriesRendererExtension seriesRenderer =
@@ -256,7 +256,7 @@ class FunnelChartBase {
     }
   }
 
-  /// To calculate Path for the segment regions
+  /// To calculate Path for the segment regions.
   void calculateFunnelPathRegion(
       int pointIndex, FunnelSeriesRendererExtension seriesRenderer) {
     num lineWidth, topRadius, bottomRadius, endTop, endBottom, top, bottom;
@@ -363,7 +363,7 @@ class FunnelChartBase {
     currentPoint.pathRegion.add(Offset(line6X.toDouble(), line6Y.toDouble()));
   }
 
-  /// To calculate the funnel segments and render path
+  /// To calculate the funnel segments and render path.
   void calculateFunnelSegments(Canvas canvas, int pointIndex,
       FunnelSeriesRendererExtension seriesRenderer) {
     calculateFunnelPathRegion(pointIndex, seriesRenderer);
@@ -383,7 +383,7 @@ class FunnelChartBase {
     _segmentPaint(canvas, path, pointIndex, seriesRenderer);
   }
 
-  /// To paint the funnel segments
+  /// To paint the funnel segments.
   void _segmentPaint(Canvas canvas, Path path, int pointIndex,
       FunnelSeriesRendererExtension seriesRenderer) {
     final PointInfo<dynamic> point = seriesRenderer.renderPoints[pointIndex];
@@ -417,7 +417,7 @@ class FunnelChartBase {
         path);
   }
 
-  /// To add selection points to selection list
+  /// To add selection points to selection list.
   void seriesPointSelection(int pointIndex, ActivationMode mode) {
     bool isPointAlreadySelected = false;
     final SfFunnelChart chart = stateProperties.chart;
@@ -482,11 +482,11 @@ class FunnelChartBase {
     }
   }
 
-  /// To return style options for the point on selection
+  /// To return style options for the point on selection.
   StyleOptions? _getPointStyle(
       int currentPointIndex,
       FunnelSeriesRendererExtension seriesRenderer,
-      SfFunnelChartState _chartState,
+      SfFunnelChartState chartState,
       PointInfo<dynamic> point) {
     StyleOptions? pointStyle;
     final dynamic selection = seriesRenderer.series.selectionBehavior;
@@ -529,7 +529,7 @@ class FunnelChartBase {
     return pointStyle;
   }
 
-  /// To perform selection event and return selectionArgs
+  /// To perform selection event and return selectionArgs.
   SelectionArgs _getSelectionEventArgs(
       FunnelSeriesRendererExtension seriesRenderer,
       int seriesIndex,

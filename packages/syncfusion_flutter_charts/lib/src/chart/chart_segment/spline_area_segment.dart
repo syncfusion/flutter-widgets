@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/common.dart';
+import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
@@ -86,7 +86,7 @@ class SplineAreaSegment extends ChartSegment {
         _segmentProperties.strokePath!);
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);

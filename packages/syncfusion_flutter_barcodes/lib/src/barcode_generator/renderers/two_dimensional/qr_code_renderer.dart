@@ -947,7 +947,8 @@ class QRCodeRenderer extends SymbologyRenderer {
               _errorCorrectionLevel, _codeVersion);
         }
         if (capacity < _encodedText.length) {
-          throw 'The input value length is greater than version capacity';
+          throw ArgumentError(
+              'The input value length is greater than version capacity');
         }
       } else {
         int capacityLow = 0,
@@ -992,7 +993,8 @@ class QRCodeRenderer extends SymbologyRenderer {
         } else if (capacityLow > _encodedText.length) {
           _errorCorrectionLevel = ErrorCorrectionLevel.low;
         } else {
-          throw 'The input value length is greater than version capacity';
+          throw ArgumentError(
+              'The input value length is greater than version capacity');
         }
       }
     }
@@ -1626,7 +1628,8 @@ class QRCodeRenderer extends SymbologyRenderer {
           _encodedText[i].codeUnitAt(0) <= 382) {
         /// European Encoding
       } else {
-        throw 'The provided input value contains non-convertible characters';
+        throw ArgumentError(
+            'The provided input value contains non-convertible characters');
       }
 
       final List<bool?> numberInBool = _getIntToBoolArray(number, 8);
@@ -1926,7 +1929,7 @@ class QRCodeRenderer extends SymbologyRenderer {
         text: span,
         textDirection: TextDirection.ltr,
         textAlign: textAlign);
-    textPainter.layout(minWidth: 0, maxWidth: size.width);
+    textPainter.layout(maxWidth: size.width);
     double x;
     double y;
     switch (textAlign) {

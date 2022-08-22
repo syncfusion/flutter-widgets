@@ -43,6 +43,16 @@ enum LabelPlacement {
   betweenTicks
 }
 
+/// Placement of edge labels in the axis.
+enum EdgeLabelPlacement {
+  /// - EdgeLabelPlacement.auto, places the edge labels in its own position.
+  auto,
+
+  /// - EdgeLabelPlacement.inside, shift the edge labels inside the plot area
+  /// bounds.
+  inside
+}
+
 /// The type of date interval. It can be years to seconds.
 enum DateIntervalType {
   /// Date interval is year.
@@ -132,6 +142,7 @@ enum SliderDragMode {
   /// at the same time by dragging in the area between start and end thumbs.
   both
 }
+
 enum SliderTooltipPosition { left, right }
 
 /// Represents the current selected values of [SfRangeSlider]

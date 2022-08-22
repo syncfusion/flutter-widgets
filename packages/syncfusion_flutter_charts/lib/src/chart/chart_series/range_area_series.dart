@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 /// Renders the range area series.
 ///
-/// To render a range area chart, create an instance of RangeAreaSeries and add to the series collection property of [SfCartesianChart].
-/// RangeAreaSeries is similar to Areaseries requires two Y values for a point, data should contain high and low values.
+/// To render a range area chart, create an instance of [RangeAreaSeries] and add to the series collection property of [SfCartesianChart].
+/// [RangeAreaSeries] is similar to [Areaseries] requires two Y values for a point, data should contain high and low values.
 ///
 /// High and low value specify the maximum and minimum range of the point.
 ///
@@ -92,24 +92,23 @@ class RangeAreaSeries<T, D> extends XyDataSeries<T, D> {
             animationDelay: animationDelay,
             onCreateShader: onCreateShader);
 
-  ///Border type of area series.
+  /// Border type of area series.
   ///
-  ///Defaults to BorderDrawMode.top
+  /// Defaults to `BorderDrawMode.top`.
   ///
-  ///Also refer [BorderDrawMode]
+  /// Also refer [BorderDrawMode].
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <RangeAreaSeries<SalesData, num>>[
-  ///                RangeAreaSeries<SalesData, num>(
-  ///                  borderDrawMode: RangeAreaBorderMode.all,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <RangeAreaSeries<SalesData, num>>[
+  ///       RangeAreaSeries<SalesData, num>(
+  ///         borderDrawMode: BorderDrawMode.all,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final RangeAreaBorderMode borderDrawMode;
 
   /// Create the range area series renderer.

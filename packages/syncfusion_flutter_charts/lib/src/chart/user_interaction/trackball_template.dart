@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 import '../../common/rendering_details.dart';
 import '../common/cartesian_state_properties.dart';
@@ -8,19 +8,19 @@ import '../common/interactive_tooltip.dart';
 import 'trackball.dart';
 import 'trackball_painter.dart';
 
-/// Widget class which is used to display the trackball template
+/// Widget class which is used to display the trackball template.
 class TrackballTemplate extends StatefulWidget {
-  /// Creates an instance of trackball template
+  /// Creates an instance of trackball template.
   const TrackballTemplate(
       {required Key key,
       required this.stateProperties,
       required this.trackballBehavior})
       : super(key: key);
 
-  /// Specifies the value of cartesian state properties
+  /// Specifies the value of cartesian state properties.
   final CartesianStateProperties stateProperties;
 
-  /// Holds the value of trackball behavior
+  /// Holds the value of trackball behavior.
   final TrackballBehavior trackballBehavior;
 
   @override
@@ -29,28 +29,28 @@ class TrackballTemplate extends StatefulWidget {
   }
 }
 
-/// Represents the trackball template state
+/// Represents the trackball template state.
 class TrackballTemplateState extends State<TrackballTemplate> {
   bool _isRender = false;
 
   //ignore: unused_field
   late TrackballTemplateState _state;
 
-  /// Holds the chart point info
+  /// Holds the chart point info.
   List<ChartPointInfo>? chartPointInfo;
 
-  /// Holds the list of marker shapes
+  /// Holds the list of marker shapes.
   List<Path>? markerShapes;
 
-  /// Holds the value of trackball grouping mode info
+  /// Holds the value of trackball grouping mode info.
   late TrackballGroupingModeInfo groupingModeInfo;
   late Widget _template;
 
-  /// Specifies the trackball duration value
+  /// Specifies the trackball duration value.
   //ignore: unused_field
   late double duration;
 
-  /// Specifies whether to show the trackball always
+  /// Specifies whether to show the trackball always.
   bool? alwaysShow;
 
   bool _isRangeSeries = false, _isBoxSeries = false;
@@ -87,7 +87,6 @@ class TrackballTemplateState extends State<TrackballTemplate> {
           _template = widget.trackballBehavior.builder!(context,
               TrackballDetails(null, null, null, null, groupingModeInfo));
           trackballWidget = _TrackballRenderObject(
-              child: _template,
               template: _template,
               stateProperties: widget.stateProperties,
               xPos: chartPointInfo![index].xPosition!,
@@ -96,7 +95,8 @@ class TrackballTemplateState extends State<TrackballTemplate> {
                   : _isBoxSeries
                       ? chartPointInfo![index].maxYPosition
                       : chartPointInfo![index].yPosition)!,
-              trackballBehavior: widget.trackballBehavior);
+              trackballBehavior: widget.trackballBehavior,
+              child: _template);
 
           trackballWidgets.add(trackballWidget);
 
@@ -106,16 +106,20 @@ class TrackballTemplateState extends State<TrackballTemplate> {
           _template = widget.trackballBehavior.builder!(
               context,
               TrackballDetails(
-                  chartPointInfo![index]
-                      .seriesRendererDetails!
-                      .dataPoints[chartPointInfo![index].dataPointIndex!],
+                  chartPointInfo![index].seriesRendererDetails!.seriesType ==
+                          'fastline'
+                      ? chartPointInfo![index]
+                              .seriesRendererDetails!
+                              .sampledDataPoints[
+                          chartPointInfo![index].dataPointIndex!]
+                      : chartPointInfo![index]
+                          .seriesRendererDetails!
+                          .dataPoints[chartPointInfo![index].dataPointIndex!],
                   chartPointInfo![index].seriesRendererDetails!.series,
                   chartPointInfo![index].dataPointIndex,
-                  chartPointInfo![index].seriesIndex,
-                  null));
+                  chartPointInfo![index].seriesIndex));
 
           trackballWidget = _TrackballRenderObject(
-              child: _template,
               template: _template,
               stateProperties: widget.stateProperties,
               xPos: chartPointInfo![index].xPosition!,
@@ -126,16 +130,17 @@ class TrackballTemplateState extends State<TrackballTemplate> {
                       : chartPointInfo![index].yPosition)!,
               trackballBehavior: widget.trackballBehavior,
               chartPointInfo: chartPointInfo!,
-              index: index);
+              index: index,
+              child: _template);
 
           trackballWidgets.add(trackballWidget);
         }
       }
       return Stack(children: <Widget>[
-        Stack(children: trackballWidgets),
         CustomPaint(
             painter: TracklinePainter(widget.trackballBehavior,
-                widget.stateProperties, chartPointInfo, markerShapes))
+                widget.stateProperties, chartPointInfo, markerShapes)),
+        Stack(children: trackballWidgets),
       ]);
     } else {
       trackballWidget = Container();
@@ -143,14 +148,14 @@ class TrackballTemplateState extends State<TrackballTemplate> {
     }
   }
 
-  /// Notify the object changes to framework
+  /// Notify the object changes to framework.
   void refresh() {
     setState(() {
       _isRender = true;
     });
   }
 
-  /// To hide tooltip templates
+  /// To hide tooltip templates.
   void hideTrackballTemplate() {
     if (mounted && alwaysShow != null && !alwaysShow!) {
       setState(() {
@@ -201,7 +206,7 @@ class _TrackballRenderObject extends SingleChildRenderObjectWidget {
 
 /// Render the annotation widget in the respective position.
 class TrackballTemplateRenderBox extends RenderShiftedBox {
-  /// Creates an instance of trackball template render box
+  /// Creates an instance of trackball template render box.
   TrackballTemplateRenderBox(
       this._template, this.stateProperties, this.xPos, this.yPos,
       [this.chartPointInfo, this.index, RenderBox? child])
@@ -209,64 +214,64 @@ class TrackballTemplateRenderBox extends RenderShiftedBox {
 
   Widget _template;
 
-  /// Holds the value of cartesian state properties
+  /// Holds the value of cartesian state properties.
   final CartesianStateProperties stateProperties;
 
-  /// Holds the value of x and y position
+  /// Holds the value of x and y position.
   double xPos, yPos;
 
-  /// Specifies the list of chart point info
+  /// Specifies the list of chart point info.
   List<ChartPointInfo>? chartPointInfo;
 
-  /// Holds the value of index
+  /// Holds the value of index.
   int? index;
 
-  /// Holds the value of pointer length and pointer width respectively
+  /// Holds the value of pointer length and pointer width respectively.
   late double pointerLength, pointerWidth;
 
-  /// Holds the value of trackball template rect
+  /// Holds the value of trackball template rect.
   Rect? trackballTemplateRect;
 
-  /// Holds the value of boundary rect
+  /// Holds the value of boundary rect.
   late Rect boundaryRect;
 
-  /// Specifies the value of padding
+  /// Specifies the value of padding.
   num padding = 10;
 
-  /// Specifies the value of trackball behavior
+  /// Specifies the value of trackball behavior.
   late TrackballBehavior trackballBehavior;
 
-  /// Specifies whether to group all the points
+  /// Specifies whether to group all the points.
   bool isGroupAllPoints = false;
 
-  /// Specifies whether it is the nearest point
+  /// Specifies whether it is the nearest point.
   bool isNearestPoint = false;
 
-  /// Gets the template widget
+  /// Gets the template widget.
   Widget get template => _template;
 
-  /// Specifies whether tooltip is present at right
+  /// Specifies whether tooltip is present at right.
   bool isRight = false;
 
-  /// Specifies whether tooltip is present at bottom
+  /// Specifies whether tooltip is present at bottom.
   bool isBottom = false;
 
-  /// Specifies whether the template is present inside the bounds
+  /// Specifies whether the template is present inside the bounds.
   bool isTemplateInBounds = true;
   // Offset arrowOffset;
 
-  /// Holds the tooltip position
+  /// Holds the tooltip position.
   TooltipPositions? tooltipPosition;
 
-  /// Holds the value of box parent data
+  /// Holds the value of box parent data.
   late BoxParentData childParentData;
 
-  /// Gets the trackball rendering details
+  /// Gets the trackball rendering details.
   TrackballRenderingDetails get trackballRenderingDetails =>
       TrackballHelper.getRenderingDetails(
           stateProperties.trackballBehaviorRenderer);
 
-  /// Sets the template value
+  /// Sets the template value.
   set template(Widget value) {
     if (_template != value) {
       _template = value;
@@ -399,6 +404,7 @@ class TrackballTemplateRenderBox extends RenderShiftedBox {
             if (top + size.height > boundaryRect.bottom) {
               isBottom = true;
               top = yPos -
+                  pointerLength -
                   size.height -
                   (isTrackballMarkerEnabled
                       ? (trackballBehavior.markerSettings!.height)
@@ -409,11 +415,55 @@ class TrackballTemplateRenderBox extends RenderShiftedBox {
           }
           trackballTemplateRect =
               Rect.fromLTWH(left, top, size.width, size.height);
+          double xPlotOffset = visiblePoints.first.closestPointX -
+              trackballTemplateRect!.width / 2;
+          final double rightTemplateEnd =
+              xPlotOffset + trackballTemplateRect!.width;
+          final double leftTemplateEnd = xPlotOffset;
 
           if (_isTemplateWithinBounds(
               boundaryRect, trackballTemplateRect!, offset)) {
             isTemplateInBounds = true;
             childParentData.offset = Offset(left, top);
+          } else if (boundaryRect.width > trackballTemplateRect!.width &&
+              boundaryRect.height > trackballTemplateRect!.height) {
+            isTemplateInBounds = true;
+            if (rightTemplateEnd > boundaryRect.right) {
+              xPlotOffset =
+                  xPlotOffset - (rightTemplateEnd - boundaryRect.right);
+              if (xPlotOffset < boundaryRect.left) {
+                xPlotOffset = xPlotOffset + (boundaryRect.left - xPlotOffset);
+                if (xPlotOffset + trackballTemplateRect!.width >
+                    boundaryRect.right) {
+                  xPlotOffset = xPlotOffset -
+                      (totalWidth +
+                          trackballTemplateRect!.width -
+                          boundaryRect.right);
+                }
+                if (xPlotOffset < boundaryRect.left ||
+                    xPlotOffset > boundaryRect.right) {
+                  isTemplateInBounds = false;
+                }
+              }
+            } else if (leftTemplateEnd < boundaryRect.left) {
+              xPlotOffset = xPlotOffset + (boundaryRect.left - leftTemplateEnd);
+              if (xPlotOffset + trackballTemplateRect!.width >
+                  boundaryRect.right) {
+                xPlotOffset = xPlotOffset -
+                    (totalWidth +
+                        trackballTemplateRect!.width -
+                        boundaryRect.right);
+                if (xPlotOffset < boundaryRect.left) {
+                  xPlotOffset = xPlotOffset + (boundaryRect.left - xPlotOffset);
+                }
+                if (xPlotOffset < boundaryRect.left ||
+                    xPlotOffset + trackballTemplateRect!.width >
+                        boundaryRect.right) {
+                  isTemplateInBounds = false;
+                }
+              }
+            }
+            childParentData.offset = Offset(xPlotOffset, yPos);
           } else {
             child!.layout(constraints.copyWith(maxWidth: 0),
                 parentUsesSize: true);
@@ -431,17 +481,66 @@ class TrackballTemplateRenderBox extends RenderShiftedBox {
 
           trackballTemplateRect =
               Rect.fromLTWH(xPos, yPos, size.width, size.height);
+          double xPlotOffset = visiblePoints.first.closestPointX -
+              trackballTemplateRect!.width / 2;
+          final double rightTemplateEnd =
+              xPlotOffset + trackballTemplateRect!.width;
+          final double leftTemplateEnd = xPlotOffset;
 
           if (_isTemplateWithinBounds(
-              boundaryRect, trackballTemplateRect!, offset)) {
+                  boundaryRect, trackballTemplateRect!, offset) &&
+              (boundaryRect.right > trackballTemplateRect!.right &&
+                  boundaryRect.left < trackballTemplateRect!.left)) {
             isTemplateInBounds = true;
             childParentData.offset = Offset(
                 xPos +
-                    padding +
+                    (trackballTemplateRect!.right + padding > boundaryRect.right
+                        ? trackballTemplateRect!.right +
+                            padding -
+                            boundaryRect.right
+                        : padding) +
                     (isTrackballMarkerEnabled
                         ? trackballBehavior.markerSettings!.width / 2
                         : 0),
                 yPos);
+          } else if (boundaryRect.width > trackballTemplateRect!.width &&
+              boundaryRect.height > trackballTemplateRect!.height) {
+            isTemplateInBounds = true;
+            if (rightTemplateEnd > boundaryRect.right) {
+              xPlotOffset =
+                  xPlotOffset - (rightTemplateEnd - boundaryRect.right);
+              if (xPlotOffset < boundaryRect.left) {
+                xPlotOffset = xPlotOffset + (boundaryRect.left - xPlotOffset);
+                if (xPlotOffset + trackballTemplateRect!.width >
+                    boundaryRect.right) {
+                  xPlotOffset = xPlotOffset -
+                      (totalWidth +
+                          trackballTemplateRect!.width -
+                          boundaryRect.right);
+                }
+                if (xPlotOffset < boundaryRect.left ||
+                    xPlotOffset > boundaryRect.right) {
+                  isTemplateInBounds = false;
+                }
+              }
+            } else if (leftTemplateEnd < boundaryRect.left) {
+              xPlotOffset = xPlotOffset + (boundaryRect.left - leftTemplateEnd);
+              if (xPlotOffset + trackballTemplateRect!.width >
+                  boundaryRect.right) {
+                xPlotOffset = xPlotOffset -
+                    (xPlotOffset +
+                        trackballTemplateRect!.width -
+                        boundaryRect.right);
+                if (xPlotOffset < boundaryRect.left) {
+                  xPlotOffset = xPlotOffset + (boundaryRect.left - xPlotOffset);
+                }
+                if (xPlotOffset < boundaryRect.left ||
+                    xPlotOffset > boundaryRect.right) {
+                  isTemplateInBounds = false;
+                }
+              }
+            }
+            childParentData.offset = Offset(xPlotOffset, yPos);
           } else {
             child!.layout(constraints.copyWith(maxWidth: 0),
                 parentUsesSize: true);
@@ -460,7 +559,7 @@ class TrackballTemplateRenderBox extends RenderShiftedBox {
     }
   }
 
-  /// To check template is within bounds
+  /// To check template is within bounds.
   bool _isTemplateWithinBounds(Rect bounds, Rect templateRect, Offset? offset) {
     final Rect rect = Rect.fromLTWH(
         padding + templateRect.left,
@@ -477,7 +576,14 @@ class TrackballTemplateRenderBox extends RenderShiftedBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    super.paint(context, offset);
+    final bool isTemplateWithInBoundsInTransposedChart =
+        _isTemplateWithinBounds(boundaryRect, trackballTemplateRect!, offset);
+    if ((!stateProperties.requireInvertedAxis && isTemplateInBounds) ||
+        (stateProperties.requireInvertedAxis &&
+            isTemplateWithInBoundsInTransposedChart)) {
+      super.paint(context, offset);
+    }
+
     final RenderingDetails renderingDetails = stateProperties.renderingDetails;
     if (!isGroupAllPoints) {
       final Rect templateRect = Rect.fromLTWH(
@@ -485,7 +591,6 @@ class TrackballTemplateRenderBox extends RenderShiftedBox {
           offset.dy + trackballTemplateRect!.top,
           trackballTemplateRect!.width,
           trackballTemplateRect!.height);
-
       final Paint fillPaint = Paint()
         ..color = trackballBehavior.tooltipSettings.color ??
             (chartPointInfo![index!].seriesRendererDetails!.series.color ??
@@ -501,85 +606,92 @@ class TrackballTemplateRenderBox extends RenderShiftedBox {
         ..isAntiAlias = false
         ..style = PaintingStyle.stroke;
       final Path path = Path();
-      if (!stateProperties.requireInvertedAxis) {
-        if (!isRight) {
-          path.moveTo(templateRect.left,
-              templateRect.top + templateRect.height / 2 - pointerWidth);
-          path.lineTo(templateRect.left,
-              templateRect.bottom - templateRect.height / 2 + pointerWidth);
-          path.lineTo(templateRect.left - pointerLength, yPos + offset.dy);
-          path.lineTo(templateRect.left,
-              templateRect.top + templateRect.height / 2 - pointerWidth);
-        } else {
-          path.moveTo(templateRect.right,
-              templateRect.top + templateRect.height / 2 - pointerWidth);
-          path.lineTo(templateRect.right,
-              templateRect.bottom - templateRect.height / 2 + pointerWidth);
-          path.lineTo(templateRect.right + pointerLength, yPos + offset.dy);
-          path.lineTo(templateRect.right,
-              templateRect.top + templateRect.height / 2 - pointerWidth);
+      if (trackballTemplateRect!.left > boundaryRect.left &&
+          trackballTemplateRect!.right < boundaryRect.right) {
+        if (!stateProperties.requireInvertedAxis) {
+          if (!isRight) {
+            path.moveTo(templateRect.left,
+                templateRect.top + templateRect.height / 2 - pointerWidth);
+            path.lineTo(templateRect.left,
+                templateRect.bottom - templateRect.height / 2 + pointerWidth);
+            path.lineTo(templateRect.left - pointerLength, yPos + offset.dy);
+            path.lineTo(templateRect.left,
+                templateRect.top + templateRect.height / 2 - pointerWidth);
+          } else {
+            path.moveTo(templateRect.right,
+                templateRect.top + templateRect.height / 2 - pointerWidth);
+            path.lineTo(templateRect.right,
+                templateRect.bottom - templateRect.height / 2 + pointerWidth);
+            path.lineTo(templateRect.right + pointerLength, yPos + offset.dy);
+            path.lineTo(templateRect.right,
+                templateRect.top + templateRect.height / 2 - pointerWidth);
+          }
+        } else if (isTemplateInBounds &&
+            isTemplateWithInBoundsInTransposedChart) {
+          if (!isBottom) {
+            path.moveTo(
+                templateRect.left + templateRect.width / 2 + pointerWidth,
+                templateRect.top);
+            path.lineTo(
+                templateRect.right - templateRect.width / 2 - pointerWidth,
+                templateRect.top);
+            path.lineTo(xPos + offset.dx, yPos + offset.dy);
+          } else {
+            path.moveTo(
+                templateRect.left + templateRect.width / 2 + pointerWidth,
+                templateRect.bottom);
+            path.lineTo(
+                templateRect.right - templateRect.width / 2 - pointerWidth,
+                templateRect.bottom);
+            path.lineTo(xPos + offset.dx, yPos + offset.dy);
+          }
         }
-      } else if (isTemplateInBounds) {
-        if (!isBottom) {
-          path.moveTo(templateRect.left + templateRect.width / 2 + pointerWidth,
-              templateRect.top);
-          path.lineTo(
-              templateRect.right - templateRect.width / 2 - pointerWidth,
-              templateRect.top);
-          path.lineTo(xPos + offset.dx, yPos + offset.dy);
-        } else {
-          path.moveTo(templateRect.left + templateRect.width / 2 + pointerWidth,
-              templateRect.bottom);
-          path.lineTo(
-              templateRect.right - templateRect.width / 2 - pointerWidth,
-              templateRect.bottom);
-          path.lineTo(xPos + offset.dx, yPos + offset.dy);
+
+        if (isTemplateInBounds) {
+          context.canvas.drawPath(path, fillPaint);
+          context.canvas.drawPath(path, strokePaint);
         }
-      }
-      if (isTemplateInBounds) {
-        context.canvas.drawPath(path, fillPaint);
-        context.canvas.drawPath(path, strokePaint);
       }
     }
   }
 }
 
-/// Class to store about the details of the closest points
+/// Class to store about the details of the closest points.
 class ClosestPoints {
-  /// Creates the parameterized constructor for class ClosestPoints
+  /// Creates the parameterized constructor for class ClosestPoints.
   const ClosestPoints(
       {required this.closestPointX, required this.closestPointY});
 
-  /// Holds the closest x point value
+  /// Holds the closest x point value.
   final double closestPointX;
 
-  /// Holds the closest y point value
+  /// Holds the closest y point value.
   final double closestPointY;
 }
 
-/// Class to store trackball tooltip start and end positions
+/// Class to store trackball tooltip start and end positions.
 class TooltipPositions {
-  /// Creates the parameterized constructor for the class TooltipPositions
+  /// Creates the parameterized constructor for the class TooltipPositions.
   const TooltipPositions(this.tooltipTop, this.tooltipBottom);
 
-  /// Specifies the tooltip top value
+  /// Specifies the tooltip top value.
   final List<num> tooltipTop;
 
-  /// Specifies the tooltip bottom value
+  /// Specifies the tooltip bottom value.
   final List<num> tooltipBottom;
 }
 
-/// Class to store the string values with their corresponding series renderer
+/// Class to store the string values with their corresponding series renderer.
 class TrackballElement {
-  /// Creates the parameterized constructor for the class _TrackballElement
+  /// Creates the parameterized constructor for the class _TrackballElement.
   TrackballElement(this.label, this.seriesRenderer);
 
-  /// Specifies the trackball label value
+  /// Specifies the trackball label value.
   final String label;
 
-  /// Specifies the value of cartesian series renderer
+  /// Specifies the value of cartesian series renderer.
   final CartesianSeriesRenderer? seriesRenderer;
 
-  /// Specifies whether to render the trackball element
+  /// Specifies whether to render the trackball element.
   bool needRender = true;
 }

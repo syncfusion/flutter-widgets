@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "कार्यक्रम नाहीत", 
 "ofDataPagerLabel" : "च्या", 
 "pagesDataPagerLabel" : "पृष्ठे", 
-"itemsDataPagerLabel" : "आयटम", 
+"rowsPerPageDataPagerLabel" : "प्रति पृष्ठ पंक्ती", 
 "pdfBookmarksLabel" : "बुकमार्क", 
 "pdfNoBookmarksLabel" : "कोणतेही बुकमार्क आढळले नाहीत", 
 "pdfScrollStatusOfLabel" : "च्या", 
@@ -33,7 +33,7 @@
 "muharramLabel" : "मोहरम", 
 "safarLabel" : "सफर", 
 "rabi1Label" : "रबी अल अव्वल", 
-"rabi2Label" : "रबी 'अल-थानी", 
+"rabi2Label" : "रबी अल-थानी",
 "jumada1Label" : "जुमदा अल-अव्वल", 
 "jumada2Label" : "जुमादा अल-थानी", 
 "rajabLabel" : "रजब", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "शॉ.", 
 "shortDhualqiLabel" : "धूल-प्र", 
 "shortDhualhiLabel" : "धुल-एच", 
-"daySpanCountLabel" : "दिवस"
+"daySpanCountLabel" : "दिवस", 
+"series" : "मालिका", 
+"pdfHyperlinkLabel" : "वेब पृष्ठ उघडा", 
+"pdfHyperlinkContentLabel" : "तुम्हाला येथे पृष्ठ उघडायचे आहे का", 
+"pdfHyperlinkDialogOpenLabel" : "उघडा", 
+"pdfHyperlinkDialogCancelLabel" : "रद्द करा"
 }

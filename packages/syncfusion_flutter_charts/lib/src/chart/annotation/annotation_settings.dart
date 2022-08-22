@@ -27,9 +27,9 @@ class CartesianChartAnnotation {
       this.xAxisName,
       this.yAxisName});
 
-  ///Considers any widget as annotation.
+  /// Considers any widget as annotation.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -38,23 +38,24 @@ class CartesianChartAnnotation {
   ///            annotations: <CartesianChartAnnotation>[
   ///                CartesianChartAnnotation(
   ///                    widget: Container(
-  ///                    child: const Text('Empty Data')),
+  ///                    child: const Text('Annotation')),
   ///                    coordinateUnit: CoordinateUnit.point,
   ///                    region: AnnotationRegion.chartArea,
-  ///                    x: 3.5,
+  ///                    x: 3,
   ///                    y: 60
   ///                 ),
   ///             ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final Widget? widget;
 
-  ///Specifies the coordinate units for placing the annotation in either logicalPixel or point.
+  /// Specifies the coordinate units for placing the annotation in either logicalPixel or point.
   ///
-  ///Defaults to `CoordinateUnit.logicalPixel`
+  /// Defaults to `CoordinateUnit.logicalPixel`
   ///
-  ///Also refer [CoordinateUnit]
+  /// Also refer [CoordinateUnit].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -62,22 +63,22 @@ class CartesianChartAnnotation {
   ///        child: SfCartesianChart(
   ///            annotations: <CartesianChartAnnotation>[
   ///                CartesianChartAnnotation(
-  ///                    child: Container(
-  ///                    child: const Text('Empty data')),
+  ///                    widget: Container(
+  ///                    child: const Text('Annotation')),
   ///                    coordinateUnit: CoordinateUnit.point,
-  ///                    region: AnnotationRegion.chartArea,
-  ///                    x: 3.5,
+  ///                    x: 3,
   ///                    y: 60
-  ///              ),
+  ///                 ),
   ///             ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final CoordinateUnit coordinateUnit;
 
-  ///Annotations can be placed with respect to either plotArea or chart.
+  /// Annotations can be placed with respect to either plotArea or chart.
   ///
-  ///Defaults to `AnnotationRegion.chart`
+  /// Defaults to `AnnotationRegion.chart`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -85,24 +86,24 @@ class CartesianChartAnnotation {
   ///        child: SfCartesianChart(
   ///            annotations: <CartesianChartAnnotation>[
   ///                CartesianChartAnnotation(
-  ///                    child: Container(
-  ///                    child: const Text('Empty data')),
-  ///                    coordinateUnit: CoordinateUnit.point,
+  ///                    widget: Container(
+  ///                    child: const Text('Annotation')),
   ///                    region: AnnotationRegion.chartArea,
-  ///                    x: 3.5,
+  ///                    x: 3,
   ///                    y: 60
-  ///               ),
+  ///                 ),
   ///             ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final AnnotationRegion region;
 
-  ///Specifies the x-values as pixel, point or percentage values based on the coordinateUnit.
+  /// Specifies the x-values as pixel, point or percentage values based on the coordinateUnit.
   ///
   /// Percentage value refers to the overall width of the chart. i.e. 100% is equal to the width of the chart.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -110,24 +111,23 @@ class CartesianChartAnnotation {
   ///        child: SfCartesianChart(
   ///            annotations: <CartesianChartAnnotation>[
   ///                CartesianChartAnnotation(
-  ///                    child: Container(
-  ///                    child: const Text('Empty data')),
-  ///                    coordinateUnit: CoordinateUnit.point,
-  ///                    region: AnnotationRegion.chartArea,
-  ///                    x: 3.5,
+  ///                    widget: Container(
+  ///                    child: const Text('Annotation')),
+  ///                    x: 3,
   ///                    y: 60
-  ///               ),
+  ///                 ),
   ///             ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final dynamic x;
 
-  ///Specifies the y-values as pixel , point or percentage values based on the coordinateUnit.
+  /// Specifies the y-values as pixel, point or percentage values based on the coordinateUnit.
   ///
   /// Percentage value refers to the overall height of the chart. i.e. 100% is equal to the height of the chart.
   ///
-  ///Defaults to `null`
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -135,84 +135,80 @@ class CartesianChartAnnotation {
   ///        child: SfCartesianChart(
   ///            annotations: <CartesianChartAnnotation>[
   ///                CartesianChartAnnotation(
-  ///                    child: Container(
-  ///                    child: const Text('Empty data')),
-  ///                    coordinateUnit: CoordinateUnit.point,
-  ///                    region: AnnotationRegion.chartArea,
-  ///                    x: 3.5,
+  ///                    widget: Container(
+  ///                    child: const Text('Annotation')),
+  ///                    x: 3,
   ///                    y: 60
-  ///               ),
+  ///                 ),
   ///             ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final dynamic y;
 
-  ///Specifies the x-axis name to the annotation that should be bound.
+  /// Specifies the x-axis name to the annotation that should be bound.
   ///
-  ///Defaults to `‘’`
+  /// Defaults to `‘’`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
-  ///              series: <ChartSeries<SalesData, num>>[
+  ///            series: <ChartSeries<SalesData, num>>[
   ///                LineSeries<SalesData, num>(
   ///                    xAxisName: 'Gold'
   ///                ),
   ///              ],
   ///            annotations: <CartesianChartAnnotation>[
   ///                CartesianChartAnnotation(
-  ///                    child: Container(
-  ///                    child: const Text('Empty data')),
-  ///                    coordinateUnit: CoordinateUnit.point,
-  ///                    region: AnnotationRegion.chartArea,
-  ///                    x: 3.5,
+  ///                    widget: Container(
+  ///                    child: const Text('Annotation')),
+  ///                    x: 3,
   ///                    y: 60,
   ///                    xAxisName: 'Gold'
-  ///               ),
+  ///                 ),
   ///             ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final String? xAxisName;
 
-  ///Specifies the y-axis name to the annotation that should  be bound.
+  /// Specifies the y-axis name to the annotation that should  be bound.
   ///
-  ///Defaults to `‘’`
+  /// Defaults to `‘’`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
-  ///             series: <ChartSeries<SalesData, num>>[
+  ///            series: <ChartSeries<SalesData, num>>[
   ///                LineSeries<SalesData, num>(
   ///                    yAxisName: 'Gold'
   ///                ),
   ///              ],
   ///            annotations: <CartesianChartAnnotation>[
   ///                CartesianChartAnnotation(
-  ///                    child: Container(
-  ///                    child: const Text('Empty data')),
-  ///                    coordinateUnit: CoordinateUnit.point,
-  ///                    region: AnnotationRegion.chartArea,
-  ///                    x: 3.5,
+  ///                    widget: Container(
+  ///                    child: const Text('Annotation')),
+  ///                    x: 3,
   ///                    y: 60,
-  ///                    yAxisName: 'Diamond'
-  ///               ),
-  ///             ],
-  ///        ));
+  ///                    yAxisName: 'Gold'
+  ///              ),
+  ///        )
+  ///    );
   ///}
   ///```
   final String? yAxisName;
 
-  ///Aligns the annotations horizontally.
+  /// Aligns the annotations horizontally.
   ///
-  ///Alignment can be set to near, far, or center.
+  /// Alignment can be set to `ChartAlignment.near`, `ChartAlignment.far`, or `ChartAlignment.center`.
   ///
-  ///Defaults to `ChartAlignment.center`
+  /// Defaults to `ChartAlignment.center`
   ///
-  ///Also refer [ChartAlignment]
+  /// Also refer [ChartAlignment].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -220,27 +216,26 @@ class CartesianChartAnnotation {
   ///        child: SfCartesianChart(
   ///            annotations: <CartesianChartAnnotation>[
   ///                CartesianChartAnnotation(
-  ///                    child: Container(
-  ///                    child: const Text('Empty data')),
-  ///                    coordinateUnit: CoordinateUnit.point,
-  ///                    region: AnnotationRegion.chartArea,
-  ///                    x: 3.5,
+  ///                    widget: Container(
+  ///                    child: const Text('Annotation')),
+  ///                    x: 3,
   ///                    y: 60,
-  ///                    HorizontalAlignment: HorizontalAlignment.near,
-  ///               ),
+  ///                    HorizontalAlignment: ChartAlignment.near
+  ///                 )
   ///             ],
-  ///        ));
+  ///        )
+  ///    );
   ///}
   ///```
   final ChartAlignment horizontalAlignment;
 
-  ///Aligns the annotations vertically.
+  /// Aligns the annotations vertically.
   ///
-  /// Alignment can be set to near, far, or center.
+  /// Alignment can be set to `ChartAlignment.near`, `ChartAlignment.far`, or `ChartAlignment.center`.
   ///
-  ///Defaults to `ChartAlignment.center`
+  /// Defaults to `ChartAlignment.center`.
   ///
-  ///Also refer [ChartAlignment]
+  /// Also refer [ChartAlignment].
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -248,16 +243,15 @@ class CartesianChartAnnotation {
   ///        child: SfCartesianChart(
   ///            annotations: <CartesianChartAnnotation>[
   ///                CartesianChartAnnotation(
-  ///                    child: Container(
-  ///                    child: const Text('Empty data')),
-  ///                    coordinateUnit: CoordinateUnit.point,
-  ///                    region: AnnotationRegion.chartArea,
-  ///                    x: 3.5,
+  ///                    widget: Container(
+  ///                    child: const Text('Annotation')),
+  ///                    x: 3,
   ///                    y: 60,
-  ///                    verticalAllignment: VerticalAlignment.bottom,
-  ///               ),
+  ///                    verticalAllignment: ChartAlignment.near
+  ///                 )
   ///             ],
-  ///        ));
+  ///         )
+  ///     );
   ///}
   ///```
   final ChartAlignment verticalAlignment;

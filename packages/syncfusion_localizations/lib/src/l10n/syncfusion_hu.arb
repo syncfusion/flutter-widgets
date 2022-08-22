@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Nincsenek események", 
 "ofDataPagerLabel" : "nak,-nek", 
 "pagesDataPagerLabel" : "oldalakat", 
-"itemsDataPagerLabel" : "tételeket", 
+"rowsPerPageDataPagerLabel" : "Sorok oldalanként", 
 "pdfBookmarksLabel" : "Könyvjelzők", 
 "pdfNoBookmarksLabel" : "Nem találhatók könyvjelzők", 
 "pdfScrollStatusOfLabel" : "nak,-nek", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Nap"
+"daySpanCountLabel" : "Nap", 
+"series" : "Sorozat", 
+"pdfHyperlinkLabel" : "Weboldal megnyitása", 
+"pdfHyperlinkContentLabel" : "Meg akarja nyitni az oldalt a címen", 
+"pdfHyperlinkDialogOpenLabel" : "NYISD KI", 
+"pdfHyperlinkDialogCancelLabel" : "MEGSZÜNTETI"
 }

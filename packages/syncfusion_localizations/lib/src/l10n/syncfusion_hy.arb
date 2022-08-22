@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Միջոցառումներ չկան", 
 "ofDataPagerLabel" : "-ից", 
 "pagesDataPagerLabel" : "էջեր", 
-"itemsDataPagerLabel" : "իրեր", 
+"rowsPerPageDataPagerLabel" : "Տողեր մեկ էջի համար", 
 "pdfBookmarksLabel" : "Էջանիշեր", 
 "pdfNoBookmarksLabel" : "Էջանիշեր չեն գտնվել", 
 "pdfScrollStatusOfLabel" : "-ից", 
@@ -30,7 +30,7 @@
 "todayLabel" : "Այսօր", 
 "weeknumberLabel" : "Շաբաթ", 
 "allDayLabel" : "Ամբողջ օրը", 
-"muharramLabel" : "Մուհարրամ", 
+"muharramLabel" : "Մուհարամ", 
 "safarLabel" : "Սաֆար", 
 "rabi1Label" : "Ռաբի ալ-ավալ", 
 "rabi2Label" : "Ռաբի ալ-Թանի", 
@@ -52,7 +52,12 @@
 "shortShaabanLabel" : "Շա.", 
 "shortRamadanLabel" : "Խոյ.", 
 "shortShawwalLabel" : "Շոու.", 
-"shortDhualqiLabel" : "Դուլ-Ք", 
+"shortDhualqiLabel" : "Դհուլ-Ք",
 "shortDhualhiLabel" : "Դհուլ-Հ", 
-"daySpanCountLabel" : "Օր"
+"daySpanCountLabel" : "Օր", 
+"series" : "Սերիա", 
+"pdfHyperlinkLabel" : "Բացեք վեբ էջը", 
+"pdfHyperlinkContentLabel" : "Ցանկանու՞մ եք բացել էջը ժամը", 
+"pdfHyperlinkDialogOpenLabel" : "ԲԱՑ", 
+"pdfHyperlinkDialogCancelLabel" : "ՉԵՂԱՐԿԵԼ"
 }

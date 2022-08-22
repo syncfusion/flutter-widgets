@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_core/src/theme/range_slider_theme.dart';
-import 'package:syncfusion_flutter_core/src/theme/slider_theme.dart';
+
 import 'barcodes_theme.dart';
 import 'calendar_theme.dart';
 import 'charts_theme.dart';
@@ -12,6 +11,8 @@ import 'gauges_theme.dart';
 import 'maps_theme.dart';
 import 'pdfviewer_theme.dart';
 import 'range_selector_theme.dart';
+import 'range_slider_theme.dart';
+import 'slider_theme.dart';
 
 /// Applies a theme to descendant Syncfusion widgets.
 ///

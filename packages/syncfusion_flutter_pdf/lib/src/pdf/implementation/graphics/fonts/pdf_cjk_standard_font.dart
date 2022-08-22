@@ -20,7 +20,7 @@ import 'pdf_string_format.dart';
 ///           PdfCjkFontFamily.heiseiMinchoW3, 20),
 ///       brush: PdfBrushes.black);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -38,7 +38,7 @@ class PdfCjkStandardFont extends PdfFont {
   ///           PdfCjkFontFamily.heiseiMinchoW3, 20),
   ///       brush: PdfBrushes.black);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -64,7 +64,7 @@ class PdfCjkStandardFont extends PdfFont {
   ///         PdfCjkStandardFont(PdfCjkFontFamily.heiseiMinchoW3, 12), 12),
   ///     brush: PdfBrushes.black);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -100,7 +100,7 @@ class PdfCjkStandardFont extends PdfFont {
   ///     '"The CJK font family name is ${font.fontFamily}', font,
   ///     brush: PdfBrushes.black);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -150,6 +150,7 @@ class PdfCjkStandardFont extends PdfFont {
       case PdfCjkFontFamily.sinoTypeSongLight:
         encoding = 'UniGB-UCS2-H';
         break;
+      // ignore: no_default_cases
       default:
         break;
     }

@@ -93,6 +93,7 @@ class PngDecoder extends ImageDecoder {
         case _PngChunkTypes.unknown:
           _ignoreChunk();
           break;
+        // ignore: no_default_cases
         default:
           break;
       }
@@ -322,6 +323,7 @@ class PngDecoder extends ImageDecoder {
           case _PngFilterTypes.paeth:
             _decompressPaeth(current, prior, bytesPerRow, _bitsPerPixel);
             break;
+          // ignore: no_default_cases
           default:
             throw Exception('Unknown PNG filter');
         }

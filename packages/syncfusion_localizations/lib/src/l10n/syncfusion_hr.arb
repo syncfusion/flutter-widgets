@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Nema događaja", 
 "ofDataPagerLabel" : "od", 
 "pagesDataPagerLabel" : "stranicama", 
-"itemsDataPagerLabel" : "stavke", 
+"rowsPerPageDataPagerLabel" : "Redovi po stranici", 
 "pdfBookmarksLabel" : "Oznake", 
 "pdfNoBookmarksLabel" : "Nije pronađena nijedna oznaka", 
 "pdfScrollStatusOfLabel" : "od", 
@@ -16,7 +16,7 @@
 "passwordDialogContentLabel" : "Unesite lozinku za otvaranje ove PDF datoteke", 
 "passwordDialogHintTextLabel" : "Upišite lozinku", 
 "passwordDialogInvalidPasswordLabel" : "Netočna zaporka", 
-"pdfPasswordDialogOpenLabel" : "OTVORENA", 
+"pdfPasswordDialogOpenLabel" : "OTVORENA",
 "pdfPasswordDialogCancelLabel" : "OTKAZATI", 
 "allowedViewDayLabel" : "Dan", 
 "allowedViewWeekLabel" : "Tjedan", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Dan"
+"daySpanCountLabel" : "Dan", 
+"series" : "Niz", 
+"pdfHyperlinkLabel" : "Otvorite web stranicu", 
+"pdfHyperlinkContentLabel" : "Želite li otvoriti stranicu na", 
+"pdfHyperlinkDialogOpenLabel" : "OTVOREN", 
+"pdfHyperlinkDialogCancelLabel" : "OTKAZATI"
 }

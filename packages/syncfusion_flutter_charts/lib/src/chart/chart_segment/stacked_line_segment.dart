@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-import 'package:syncfusion_flutter_charts/src/chart/common/common.dart';
+
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../chart_series/stacked_series_base.dart';
 import '../chart_series/xy_data_series.dart';
+import '../common/common.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 import 'chart_segment.dart';
@@ -20,20 +21,20 @@ class StackedLineSegment extends ChartSegment {
   Paint getFillPaint() {
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(this);
-    final Paint _fillPaint = Paint();
+    final Paint fillPaint = Paint();
     assert(segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the stacked line series should be greater than or equal to 0.');
     assert(segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the stacked line series should be less than or equal to 1.');
     if (segmentProperties.color != null) {
-      _fillPaint.color = segmentProperties.pointColorMapper ??
+      fillPaint.color = segmentProperties.pointColorMapper ??
           segmentProperties.color!
               .withOpacity(segmentProperties.series.opacity);
     }
-    _fillPaint.strokeWidth = segmentProperties.strokeWidth!;
-    _fillPaint.style = PaintingStyle.fill;
-    segmentProperties.defaultFillColor = _fillPaint;
-    return _fillPaint;
+    fillPaint.strokeWidth = segmentProperties.strokeWidth!;
+    fillPaint.style = PaintingStyle.fill;
+    segmentProperties.defaultFillColor = fillPaint;
+    return fillPaint;
   }
 
   /// Gets the stroke color of the series.
@@ -41,25 +42,25 @@ class StackedLineSegment extends ChartSegment {
   Paint getStrokePaint() {
     final SegmentProperties segmentProperties =
         SegmentHelper.getSegmentProperties(this);
-    final Paint _strokePaint = Paint();
+    final Paint strokePaint = Paint();
     assert(segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the stacked line series should be greater than or equal to 0.');
     assert(segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the stacked line series should be less than or equal to 1.');
     if (segmentProperties.strokeColor != null) {
-      _strokePaint.color =
+      strokePaint.color =
           segmentProperties.pointColorMapper ?? segmentProperties.strokeColor!;
-      _strokePaint.color = (segmentProperties.series.opacity < 1 == true &&
-              _strokePaint.color != Colors.transparent)
-          ? _strokePaint.color.withOpacity(segmentProperties.series.opacity)
-          : _strokePaint.color;
+      strokePaint.color = (segmentProperties.series.opacity < 1 == true &&
+              strokePaint.color != Colors.transparent)
+          ? strokePaint.color.withOpacity(segmentProperties.series.opacity)
+          : strokePaint.color;
     }
-    _strokePaint.strokeWidth = segmentProperties.strokeWidth!;
-    _strokePaint.style = PaintingStyle.stroke;
-    _strokePaint.strokeCap = StrokeCap.round;
-    segmentProperties.defaultStrokeColor = _strokePaint;
-    setShader(segmentProperties, _strokePaint);
-    return _strokePaint;
+    strokePaint.strokeWidth = segmentProperties.strokeWidth!;
+    strokePaint.style = PaintingStyle.stroke;
+    strokePaint.strokeCap = StrokeCap.round;
+    segmentProperties.defaultStrokeColor = strokePaint;
+    setShader(segmentProperties, strokePaint);
+    return strokePaint;
   }
 
   /// Calculates the rendering bounds of a segment.
@@ -83,7 +84,7 @@ class StackedLineSegment extends ChartSegment {
         segmentProperties.stateProperties.requireInvertedAxis,
         segmentProperties.series,
         rect);
-    final ChartLocation _nextLocation = calculatePoint(
+    final ChartLocation nextLocation = calculatePoint(
         segmentProperties.nextPoint!.xValue,
         segmentProperties.nextCummulativePos,
         segmentSeriesRendererDetails.xAxisDetails!,
@@ -112,8 +113,8 @@ class StackedLineSegment extends ChartSegment {
 
     segmentProperties.x1 = currentChartPoint.x;
     segmentProperties.y1 = currentChartPoint.y;
-    segmentProperties.x2 = _nextLocation.x;
-    segmentProperties.y2 = _nextLocation.y;
+    segmentProperties.x2 = nextLocation.x;
+    segmentProperties.y2 = nextLocation.y;
     segmentProperties.currentCummulativeValue = currentCummulativePoint.y;
     segmentProperties.nextCummulativeValue = nextCummulativePoint.y;
   }

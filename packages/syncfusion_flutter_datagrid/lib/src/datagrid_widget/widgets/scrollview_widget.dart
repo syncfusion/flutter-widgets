@@ -195,7 +195,18 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     // based on the scrollbar.
     bool handleNotificationPredicate(
         ScrollNotification notification, Axis direction) {
-      return notification.metrics.axis == direction;
+      // Issue:
+      // FLUT-6320 - Horizontal scrollbar is showing when typing the text in
+      // TextField widget more than cell width in editing.
+      //
+      // Fix:
+      // An issue occurred by reason of handling the `notificationPredicate` based
+      // on the scroll direction. As the `notificationPredicate` callback will be
+      // called for all the scrollable views, can't process with the scroll direction
+      // alone. Hence, we have fixed the issue by considering the scroll view depth.
+      return direction == Axis.vertical
+          ? notification.depth == 0
+          : notification.depth == 1;
     }
 
     // Issue:
@@ -212,12 +223,12 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     // For more info: https://github.com/flutter/flutter/issues/70380#issuecomment-841502797
     Widget scrollView = Scrollbar(
       controller: _verticalController,
-      isAlwaysShown: dataGridConfiguration.isScrollbarAlwaysShown,
+      thumbVisibility: dataGridConfiguration.isScrollbarAlwaysShown,
       notificationPredicate: (ScrollNotification notification) =>
           handleNotificationPredicate(notification, Axis.vertical),
       child: Scrollbar(
         controller: _horizontalController,
-        isAlwaysShown: dataGridConfiguration.isScrollbarAlwaysShown,
+        thumbVisibility: dataGridConfiguration.isScrollbarAlwaysShown,
         notificationPredicate: (ScrollNotification notification) =>
             handleNotificationPredicate(notification, Axis.horizontal),
         child: SingleChildScrollView(
@@ -226,8 +237,10 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
               ? const NeverScrollableScrollPhysics()
               : dataGridConfiguration.verticalScrollPhysics,
           child: ConstrainedBox(
-            constraints:
-                BoxConstraints(minHeight: min(scrollViewHeight, extentHeight)),
+            // FLUT-6553-BoxConstraints has a negative minimum height exception has been thrown.
+            // we need to set height as 0 if it's negative value
+            constraints: BoxConstraints(
+                minHeight: max(0, min(scrollViewHeight, extentHeight))),
             child: SingleChildScrollView(
               controller: _horizontalController,
               scrollDirection: Axis.horizontal,
@@ -235,7 +248,10 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
                   ? const NeverScrollableScrollPhysics()
                   : dataGridConfiguration.horizontalScrollPhysics,
               child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: min(_width, extentWidth)),
+                // FLUT-6553-BoxConstraints has a negative minimum width exception has been thrown.
+                // we need to set width as 0 if it's negative value
+                constraints:
+                    BoxConstraints(minWidth: max(0, min(_width, extentWidth))),
                 child: _VisualContainer(
                   key: const ValueKey<String>('SfDataGrid-VisualContainer'),
                   isDirty: _container.isDirty,
@@ -252,11 +268,11 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
 
     if (_dataGridConfiguration.allowPullToRefresh) {
       scrollView = RefreshIndicator(
-        child: scrollView,
         key: dataGridConfiguration.refreshIndicatorKey,
         onRefresh: () => handleRefresh(dataGridConfiguration.source),
         strokeWidth: dataGridConfiguration.refreshIndicatorStrokeWidth,
         displacement: dataGridConfiguration.refreshIndicatorDisplacement,
+        child: scrollView,
       );
     }
 
@@ -499,7 +515,6 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
                   boxShadow: <BoxShadow>[
                     BoxShadow(
                       color: frozenLineColor,
-                      offset: Offset.zero,
                       spreadRadius: spreadRadiusValue,
                       blurRadius: blurRadiusValue,
                     )
@@ -510,8 +525,8 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         end: end,
         start: start,
         bottom: bottom,
-        child: elevationLine,
         textDirection: dataGridConfiguration.textDirection,
+        child: elevationLine,
       ));
     }
 
@@ -997,6 +1012,14 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
       _container
         ..setRowHeights()
         ..needToRefreshColumn = true;
+
+      // FLUT-6545 if shrinkWrapRows is ture, we need to the set the DataGrid maximum height
+      // based on the row value set in the onQueryRowHeight callback
+      if (_dataGridConfiguration.shrinkWrapRows) {
+        _height = _dataGridConfiguration.viewHeight =
+            (_container.scrollRows as PixelScrollAxis).totalExtent;
+        _updateAxis();
+      }
     }
 
     if (_container.needToSetHorizontalOffset) {
@@ -1022,6 +1045,20 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     _container.isDirty = false;
     _isScrolling = false;
 
+    Widget _addContainer() {
+      return Container(
+        height: _height,
+        width: _width,
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+            fit: StackFit.passthrough,
+            children: List<Positioned>.from(children)),
+      );
+    }
+
     // return RawKeyboardListener(
     //     focusNode: _dataGridFocusNode!,
     //     onKey: _handleKeyOperation,
@@ -1041,32 +1078,25 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     // So, we have used the focus widget. Need to remove [Focus] widget when
     // below mentioned issue is resolved on framework end.
     // [https://github.com/flutter/flutter/issues/83023]
-    return Focus(
-      focusNode: _dataGridFocusNode,
-      onKey: _handleKeyOperation,
-      child: Container(
-        height: _height,
-        width: _width,
-        decoration: const BoxDecoration(
-          color: Colors.transparent,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-            fit: StackFit.passthrough,
-            children: List<Positioned>.from(children)),
-      ),
-    );
+    return _dataGridConfiguration.isDesktop
+        ? Focus(
+            focusNode: _dataGridFocusNode,
+            onKey: _handleKeyOperation,
+            child: _addContainer())
+        : _addContainer();
   }
 
   @override
   void dispose() {
-    if (_verticalController != null) {
+    if (_verticalController != null &&
+        _dataGridConfiguration.disposeVerticalScrollController) {
       _verticalController!
         ..removeListener(_verticalListener)
         ..dispose();
     }
 
-    if (_horizontalController != null) {
+    if (_horizontalController != null &&
+        _dataGridConfiguration.disposeHorizontalScrollController) {
       _horizontalController!
         ..removeListener(_horizontalListener)
         ..dispose();
@@ -1317,8 +1347,8 @@ class _VisualContainerState extends State<_VisualContainer> {
       key: widget.key,
       containerSize: widget.containerSize,
       isDirty: widget.isDirty,
-      children: children,
       dataGridStateDetails: widget.dataGridStateDetails,
+      children: children,
     );
   }
 }
@@ -1361,8 +1391,8 @@ class _VirtualizingCellsWidgetState extends State<_VirtualizingCellsWidget> {
       key: widget.key!,
       dataRow: widget.dataRow,
       isDirty: widget.isDirty,
-      children: List<Widget>.from(children),
       dataGridStateDetails: widget.dataGridStateDetails,
+      children: List<Widget>.from(children),
     );
   }
 }
@@ -1577,14 +1607,14 @@ class VisualContainerHelper {
 
   /// Returns total width of all the columns in the data grid.
   double get extentWidth {
-    final PixelScrollAxis _scrollColumns = scrollColumns as PixelScrollAxis;
-    return _scrollColumns.totalExtent;
+    final PixelScrollAxis pixelScrollColumns = scrollColumns as PixelScrollAxis;
+    return pixelScrollColumns.totalExtent;
   }
 
   /// Returns total height of all the rows in the data grid.
   double get extentHeight {
-    final PixelScrollAxis _scrollRows = scrollRows as PixelScrollAxis;
-    return _scrollRows.totalExtent;
+    final PixelScrollAxis pixelScrollRows = scrollRows as PixelScrollAxis;
+    return pixelScrollRows.totalExtent;
   }
 
   /// Sets the row height of all the data grid rows.
@@ -1638,7 +1668,9 @@ class VisualContainerHelper {
         rowHeights as LineSizeCollection;
     lineSizeCollection.suspendUpdates();
     for (int index = bodyStartLineIndex;
-        (current <= bodyEnd || (current <= dataGridConfiguration.viewHeight)) &&
+        ((current <= bodyEnd ||
+                    (current <= dataGridConfiguration.viewHeight)) ||
+                dataGridConfiguration.shrinkWrapRows) &&
             index < scrollRows.firstFooterLineIndex;
         index++) {
       double height = rowHeights[index];
@@ -1758,10 +1790,10 @@ class VisualContainerHelper {
   ScrollAxisBase _createScrollAxis(
       bool isPixelScroll, ScrollBarBase scrollBar, LineSizeHostBase lineSizes) {
     if (isPixelScroll) {
-      final Object _lineSizes = lineSizes;
+      final Object lineSize = lineSizes;
       if (lineSizes is DistancesHostBase) {
         return PixelScrollAxis.fromPixelScrollAxis(
-            scrollBar, lineSizes, _lineSizes as DistancesHostBase);
+            scrollBar, lineSizes, lineSize as DistancesHostBase);
       } else {
         return PixelScrollAxis.fromPixelScrollAxis(scrollBar, lineSizes, null);
       }
@@ -1878,15 +1910,15 @@ class VisualContainerHelper {
     final LineSizeCollection lineSizeCollection =
         rowHeights as LineSizeCollection;
     lineSizeCollection.suspendUpdates();
-    int _rowCount = 0;
-    _rowCount = effectiveRows(dataGridConfiguration.source).isNotEmpty
+    int rowsCount = 0;
+    rowsCount = effectiveRows(dataGridConfiguration.source).isNotEmpty
         ? effectiveRows(dataGridConfiguration.source).length
         : 0;
-    _rowCount += dataGridConfiguration.headerLineCount;
+    rowsCount += dataGridConfiguration.headerLineCount;
 
-    _rowCount += _getFooterLineCount(dataGridConfiguration);
+    rowsCount += _getFooterLineCount(dataGridConfiguration);
 
-    rowCount = _rowCount;
+    rowCount = rowsCount;
 
     // Sets footer row height
     if (dataGridConfiguration.footer != null) {
@@ -1984,7 +2016,23 @@ class VisualContainerHelper {
       dataRow.rowIndex = -1;
     }
 
-    rowGenerator.items.forEach(resetRowIndex);
+    // Issue:
+    // FLUT-6349 - Checkbox animation is happening for checkbox column
+    // when setting rowCacheExtent count as available rows count.
+    //
+    // Fix:
+    // We have resolved the issue by removing old data rows and creating
+    // a new row for the corresponding index to restrict the checkbox state
+    // changing animation issue when reusing.
+    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
+    if (dataGridConfiguration.rowsCacheExtent != null &&
+        dataGridConfiguration.rowsCacheExtent! > 0) {
+      rowGenerator.items.removeWhere(
+          (DataRowBase dataRow) => dataRow.rowRegion == RowRegion.body);
+      rowGenerator.items.forEach(resetRowIndex);
+    } else {
+      rowGenerator.items.forEach(resetRowIndex);
+    }
   }
 
   /// Refreshes the data cell to update the current changes.

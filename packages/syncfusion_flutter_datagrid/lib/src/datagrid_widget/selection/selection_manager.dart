@@ -333,7 +333,12 @@ class RowSelectionManager extends SelectionManagerBase {
       dataGridConfiguration.controller.selectedRows.clear();
       _refreshSelection();
       dataGridConfiguration.container.isDirty = true;
-      if (dataGridConfiguration.headerCheckboxState != false) {
+      // Issue:
+      // FLUT-6620-The null check operator used on the null value exception occurred
+      // While headerCheckboxState is in the intermediate state and deselecting all the selected rows in the Datagrid by using DataGridController.
+      // We have resolved the issue by checking if it's null
+      if (dataGridConfiguration.headerCheckboxState == null ||
+          dataGridConfiguration.headerCheckboxState!) {
         _updateCheckboxStateOnHeader(dataGridConfiguration);
       }
     }
@@ -382,13 +387,13 @@ class RowSelectionManager extends SelectionManagerBase {
   void _refreshSelection() {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
-    final DataGridRow? _selectedRow =
+    final DataGridRow? selectedRow =
         _selectedRows.isNotEmpty ? _selectedRows.last : null;
-    final int _recordIndex = _selectedRow == null
+    final int recordIndex = selectedRow == null
         ? -1
-        : effectiveRows(dataGridConfiguration.source).indexOf(_selectedRow);
-    updateSelectedRow(dataGridConfiguration.controller, _selectedRow);
-    updateSelectedIndex(dataGridConfiguration.controller, _recordIndex);
+        : effectiveRows(dataGridConfiguration.source).indexOf(selectedRow);
+    updateSelectedRow(dataGridConfiguration.controller, selectedRow);
+    updateSelectedIndex(dataGridConfiguration.controller, recordIndex);
   }
 
   void _addCurrentCell(
@@ -437,10 +442,10 @@ class RowSelectionManager extends SelectionManagerBase {
           return;
         }
 
-        final RowColumnIndex _currentRowColumnIndex =
+        final RowColumnIndex currentRowColumnIndex =
             _getRowColumnIndexOnModeChanged(dataGridConfiguration, lastRecord);
 
-        if (_currentRowColumnIndex.rowIndex <= 0) {
+        if (currentRowColumnIndex.rowIndex <= 0) {
           return;
         }
 
@@ -449,18 +454,18 @@ class RowSelectionManager extends SelectionManagerBase {
         // index's are same.
         final CurrentCellManager currentCell =
             dataGridConfiguration.currentCell;
-        if (currentCell.rowIndex == _currentRowColumnIndex.rowIndex &&
-            currentCell.columnIndex == _currentRowColumnIndex.columnIndex) {
+        if (currentCell.rowIndex == currentRowColumnIndex.rowIndex &&
+            currentCell.columnIndex == currentRowColumnIndex.columnIndex) {
           currentCell._updateCurrentCell(
             dataGridConfiguration,
-            _currentRowColumnIndex.rowIndex,
-            _currentRowColumnIndex.columnIndex,
+            currentRowColumnIndex.rowIndex,
+            currentRowColumnIndex.columnIndex,
           );
         } else {
           currentCell._moveCurrentCellTo(
               dataGridConfiguration,
-              RowColumnIndex(_currentRowColumnIndex.rowIndex,
-                  _currentRowColumnIndex.columnIndex),
+              RowColumnIndex(currentRowColumnIndex.rowIndex,
+                  currentRowColumnIndex.columnIndex),
               isSelectionChanged: true);
         }
       }
@@ -514,8 +519,13 @@ class RowSelectionManager extends SelectionManagerBase {
     final DataCellBase? headerDataCell = headerDataRow.visibleColumns
         .firstWhereOrNull((DataCellBase cell) => cell.columnIndex == 0);
 
+    // Issue:
+    // FLUT-6617-The null check operator used on the null value exception occurred
+    // While selecting and deselecting the same row in the datagrid since the selected rows are empty and headerCheckboxState is null
+    // We have resolved the issue by checking the if it's null
     if (_selectedRows.isEmpty &&
-        dataGridConfiguration.headerCheckboxState != false) {
+        (dataGridConfiguration.headerCheckboxState == null ||
+            dataGridConfiguration.headerCheckboxState!)) {
       dataGridConfiguration.headerCheckboxState = false;
       headerDataCell?.updateColumn();
     } else if (dataGridConfiguration.controller.selectedRows.length !=
@@ -763,10 +773,10 @@ class RowSelectionManager extends SelectionManagerBase {
       _clearSelection(dataGridConfiguration);
       if (dataGridConfiguration.navigationMode == GridNavigationMode.cell &&
           lastRecord != null) {
-        final RowColumnIndex _currentRowColumnIndex =
+        final RowColumnIndex currentRowColumnIndex =
             _getRowColumnIndexOnModeChanged(dataGridConfiguration, lastRecord);
 
-        if (_currentRowColumnIndex.rowIndex <= 0) {
+        if (currentRowColumnIndex.rowIndex <= 0) {
           return;
         }
 
@@ -774,13 +784,13 @@ class RowSelectionManager extends SelectionManagerBase {
             ? selection_helper.getRecord(
                 dataGridConfiguration,
                 grid_helper.resolveToRecordIndex(
-                    dataGridConfiguration, _currentRowColumnIndex.rowIndex))
+                    dataGridConfiguration, currentRowColumnIndex.rowIndex))
             : lastRecord;
 
         dataGridConfiguration.currentCell._moveCurrentCellTo(
             dataGridConfiguration,
-            RowColumnIndex(_currentRowColumnIndex.rowIndex,
-                _currentRowColumnIndex.columnIndex),
+            RowColumnIndex(currentRowColumnIndex.rowIndex,
+                currentRowColumnIndex.columnIndex),
             isSelectionChanged: true);
       }
 
@@ -1111,12 +1121,21 @@ class RowSelectionManager extends SelectionManagerBase {
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
     final int lastCellIndex =
         selection_helper.getLastCellIndex(dataGridConfiguration);
-    final int nextCellIndex = selection_helper.getNextColumnIndex(
-        dataGridConfiguration, currentCell.columnIndex);
+    int nextCellIndex;
+    // Need to get previous column index only if the control key is
+    // pressed in RTL mode since it will perform the home key event.
+    if (keyEvent.isControlPressed &&
+        dataGridConfiguration.textDirection == TextDirection.rtl) {
+      nextCellIndex = selection_helper.getPreviousColumnIndex(
+          dataGridConfiguration, currentCell.columnIndex);
+    } else {
+      nextCellIndex = selection_helper.getNextColumnIndex(
+          dataGridConfiguration, currentCell.columnIndex);
+    }
 
     if (currentCell.rowIndex <=
             grid_helper.getHeaderIndex(dataGridConfiguration) ||
-        nextCellIndex > lastCellIndex ||
+        (nextCellIndex < 0 || nextCellIndex > lastCellIndex) ||
         currentCell.columnIndex == nextCellIndex) {
       return;
     }
@@ -1144,8 +1163,17 @@ class RowSelectionManager extends SelectionManagerBase {
     }
 
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
-    final int previousCellIndex = selection_helper.getPreviousColumnIndex(
-        dataGridConfiguration, currentCell.columnIndex);
+    int previousCellIndex;
+    // Need to get next column index only if the control key is
+    // pressed in RTL mode since it will perform the end key event.
+    if (keyEvent.isControlPressed &&
+        dataGridConfiguration.textDirection == TextDirection.rtl) {
+      previousCellIndex = selection_helper.getNextColumnIndex(
+          dataGridConfiguration, currentCell.columnIndex);
+    } else {
+      previousCellIndex = selection_helper.getPreviousColumnIndex(
+          dataGridConfiguration, currentCell.columnIndex);
+    }
 
     if (currentCell.rowIndex <=
             grid_helper.getHeaderIndex(dataGridConfiguration) ||

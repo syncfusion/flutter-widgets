@@ -152,6 +152,7 @@ class PdfCheckBoxField extends PdfCheckFieldBase {
   /// Gets the collection of check box field items.
   PdfFieldItemCollection? get items => _items;
 
+  // ignore: use_setters_to_change_properties
   void _setCheckBoxValue(bool isChecked) {
     this.isChecked = isChecked;
   }
@@ -737,7 +738,6 @@ class PdfCheckFieldBaseHelper extends PdfFieldHelper {
       case PdfCheckBoxStyle.star:
         return 'H';
       case PdfCheckBoxStyle.check:
-      default:
         return '4';
     }
   }

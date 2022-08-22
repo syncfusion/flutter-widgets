@@ -23,9 +23,9 @@
       "type": "text"
   },
 
-  "itemsDataPagerLabel": "items",
-  "@itemsDataPagerLabel": {
-      "description": "Label that is displayed in the information panel of DataPager to represent the number of items.",
+  "rowsPerPageDataPagerLabel": "Rows per page",
+  "@rowsPerPageDataPagerLabel": {
+      "description": "Label that is displayed the rowsPerPages of datapager.",
       "type": "text"
   },
 
@@ -332,6 +332,36 @@
   "daySpanCountLabel": "Day",
   "@daySpanCountLabel": {
       "description": "A label that is shown on a spanned appointment. This label will be displayed on appointment views for all-day, month agenda view and schedule view.",
+      "type": "text"
+  },
+
+  "series": "Series",
+  "@series": {
+      "description": "The label is displayed as the text for the legend in the cartesian chart. When the name of the series is not specified, then this label with the series count is displayed as a legend.",
+      "type": "text"
+  },
+
+  "pdfHyperlinkLabel": "Open Web Page",
+  "@pdfHyperlinkLabel": {
+      "description": "Label that is displayed in the hyperlink dialog header of PdfViewer.",
+      "type": "text"
+  },
+
+  "pdfHyperlinkContentLabel": "Do you want to open the page at",
+  "@pdfHyperlinkContentLabel": {
+      "description": "Label that is displayed in the url of the hyperlink.",
+      "type": "text"
+  },
+
+  "pdfHyperlinkDialogOpenLabel": "OPEN",
+  "@pdfHyperlinkDialogOpenLabel": {
+      "description": "Label that is displayed in the hyperlink dialog of PdfViewer to represent the OPEN confirmation button.",
+      "type": "text"
+  },
+
+  "pdfHyperlinkDialogCancelLabel": "CANCEL",
+  "@pdfHyperlinkDialogCancelLabel": {
+      "description": "Label that is displayed in the hyperlink dialog of PdfViewer to represent the CANCEL confirmation button.",
       "type": "text"
   }
 }

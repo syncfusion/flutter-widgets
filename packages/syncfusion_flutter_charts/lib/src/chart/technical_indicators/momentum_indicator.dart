@@ -60,36 +60,48 @@ class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
             period: period,
             onRenderDetailsUpdate: onRenderDetailsUpdate);
 
-  /// Center line color of the momentum indicator
+  /// Center line color of the momentum indicator.
   ///
-  /// Defaults to `Colors.red`
+  /// Defaults to `Colors.red`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///                        MomentumIndicator<dynamic, dynamic>(
-  ///                        centerLineColor: Color.red,
-  ///                         ),]
-  ///         ));
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      MomentumIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        centerLineColor : Colors.green
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
   /// }
   /// ```
   final Color centerLineColor;
 
-  /// Center line width of the momentum indicator
+  /// Center line width of the momentum indicator.
   ///
-  /// Defaults to `2`
+  /// Defaults to `2`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               indicators: <TechnicalIndicators<dynamic, dynamic>>[
-  ///                        MomentumIndicator<dynamic, dynamic>(
-  ///                        centerLineWidth: 3,
-  ///                         ),]
-  ///         ));
+  ///  return SfCartesianChart(
+  ///    indicators: <TechnicalIndicators<Sample, num>>[
+  ///      MomentumIndicator<Sample, num>(
+  ///        seriesName: 'Series1'
+  ///        centerLineWidth: 3
+  ///      ),
+  ///    ],
+  ///    series: <ChartSeries<Sample, num>>[
+  ///      HiloOpenCloseSeries<Sample, num>(
+  ///        name: 'Series1'
+  ///      )
+  ///    ]
+  ///  );
   /// }
   /// ```
   final double centerLineWidth;

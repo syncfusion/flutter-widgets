@@ -127,7 +127,7 @@ abstract class XyDataSeries<T, D> extends CartesianSeries<T, D> {
             initialSelectedDataIndexes: initialSelectedDataIndexes);
 }
 
-/// This class has the properties of CartesianChartPoint.
+/// This class has the properties of [CartesianChartPoint].
 ///
 /// Chart point is a class that is used to store the current x and y values from the datasource.
 /// Contains x and y coordinates which are converted from the x and y values.
@@ -365,7 +365,7 @@ class CartesianChartPoint<D> {
   /// Stores the tracker rect region.
   Rect? trackerRectRegion;
 
-  /// Stores the yValue/high value data label text
+  /// Stores the y-value/high value data label text.
   String? label;
 
   /// Stores the data label text of low value.
@@ -458,68 +458,68 @@ class CartesianChartPoint<D> {
 }
 
 // ignore: avoid_classes_with_only_static_members
-/// Helper class for Cartesian chart point
+/// Helper class for Cartesian chart point.
 class CartesianPointHelper {
-  /// Returns the datalabel text style for a given point
+  /// Returns the datalabel text style for a given point.
   static TextStyle? getDataLabelTextStyle(CartesianChartPoint<dynamic> point) {
     return point._dataLabelTextStyle;
   }
 
-  /// Sets the datalabel text style in a given point
+  /// Sets the datalabel text style in a given point.
   static void setDataLabelTextStyle(
       CartesianChartPoint<dynamic> point, TextStyle? style) {
     point._dataLabelTextStyle = style;
   }
 
-  /// Returns the datalabel color for a given point
+  /// Returns the datalabel color for a given point.
   static Color? getDataLabelColor(CartesianChartPoint<dynamic> point) {
     return point._dataLabelColor;
   }
 
-  /// Sets the datalabel color in a given point
+  /// Sets the datalabel color in a given point.
   static void setDataLabelColor(
       CartesianChartPoint<dynamic> point, Color? color) {
     point._dataLabelColor = color;
   }
 
-  /// Returns the marker event triggered flag for a given point
+  /// Returns the marker event triggered flag for a given point.
   static bool getIsMarkerEventTriggered(CartesianChartPoint<dynamic> point) {
     return point._isMarkerEventTriggered;
   }
 
-  /// Sets the marker event triggered flag for a given point
+  /// Sets the marker event triggered flag for a given point.
   static void setIsMarkerEventTriggered(
       CartesianChartPoint<dynamic> point, bool isMarkerEventTriggered) {
     point._isMarkerEventTriggered = isMarkerEventTriggered;
   }
 
-  /// Returns the MarkerDetails for a given point
+  /// Returns the MarkerDetails for a given point.
   static MarkerDetails? getMarkerDetails(CartesianChartPoint<dynamic> point) {
     return point._markerDetails;
   }
 
-  /// Sets the MarkerDetails for a given point
+  /// Sets the MarkerDetails for a given point.
   static void setMarkerDetails(
       CartesianChartPoint<dynamic> point, MarkerDetails? details) {
     point._markerDetails = details;
   }
 }
 
-/// Represents the chart location
+/// Represents the chart location.
 class ChartLocation {
-  /// Creates an instance of chart location
+  /// Creates an instance of chart location.
   ChartLocation(this.x, this.y);
 
-  /// Specifies the value of x
+  /// Specifies the value of x.
   double x;
 
-  /// Specifies the value of y
+  /// Specifies the value of y.
   double y;
 }
 
 /// Creates series renderer for xy data series.
 abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
-  /// To calculate empty point value for the specific mode
+  /// To calculate empty point value for the specific mode.
   @override
   void calculateEmptyPointValue(
       int pointIndex, CartesianChartPoint<dynamic> currentPoint,
@@ -527,16 +527,16 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(seriesRenderer!);
     final int pointLength = seriesRendererDetails.dataPoints.length - 1;
-    final String _seriesType = seriesRendererDetails.seriesType;
+    final String seriesType = seriesRendererDetails.seriesType;
     final CartesianChartPoint<dynamic> prevPoint =
         seriesRendererDetails.dataPoints[
             seriesRendererDetails.dataPoints.length >= 2 == true
                 ? pointLength - 1
                 : pointLength];
-    if (_seriesType.contains('range') ||
-            _seriesType.contains('hilo') ||
-            _seriesType == 'candle'
-        ? _seriesType == 'hiloopenclose' || _seriesType == 'candle'
+    if (seriesType.contains('range') ||
+            seriesType.contains('hilo') ||
+            seriesType == 'candle'
+        ? seriesType == 'hiloopenclose' || seriesType == 'candle'
             ? (currentPoint.low == null ||
                 currentPoint.high == null ||
                 currentPoint.open == null ||
@@ -546,12 +546,12 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
       switch (seriesRendererDetails.series.emptyPointSettings.mode) {
         case EmptyPointMode.zero:
           currentPoint.isEmpty = true;
-          if (_seriesType.contains('range') ||
-              _seriesType.contains('hilo') ||
-              _seriesType.contains('candle')) {
+          if (seriesType.contains('range') ||
+              seriesType.contains('hilo') ||
+              seriesType.contains('candle')) {
             currentPoint.high = 0;
             currentPoint.low = 0;
-            if (_seriesType == 'hiloopenclose' || _seriesType == 'candle') {
+            if (seriesType == 'hiloopenclose' || seriesType == 'candle') {
               currentPoint.open = 0;
               currentPoint.close = 0;
             }
@@ -569,28 +569,28 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
           break;
 
         case EmptyPointMode.gap:
-          if (_seriesType == 'scatter' ||
-              _seriesType == 'column' ||
-              _seriesType == 'bar' ||
-              _seriesType == 'bubble' ||
-              _seriesType == 'splinearea' ||
-              _seriesType == 'rangecolumn' ||
-              _seriesType.contains('hilo') ||
-              _seriesType.contains('candle') ||
-              _seriesType == 'rangearea' ||
-              _seriesType.contains('stacked')) {
+          if (seriesType == 'scatter' ||
+              seriesType == 'column' ||
+              seriesType == 'bar' ||
+              seriesType == 'bubble' ||
+              seriesType == 'splinearea' ||
+              seriesType == 'rangecolumn' ||
+              seriesType.contains('hilo') ||
+              seriesType.contains('candle') ||
+              seriesType == 'rangearea' ||
+              seriesType.contains('stacked')) {
             currentPoint.y = pointIndex != 0 &&
-                    (!_seriesType.contains('stackedcolumn') &&
-                        !_seriesType.contains('stackedbar'))
+                    (!seriesType.contains('stackedcolumn') &&
+                        !seriesType.contains('stackedbar'))
                 ? prevPoint.y ?? 0
                 : 0;
             currentPoint.open = 0;
             currentPoint.close = 0;
             currentPoint.isVisible = false;
-          } else if (_seriesType.contains('line') ||
-              _seriesType == 'area' ||
-              _seriesType == 'steparea') {
-            if (_seriesType == 'splinerangearea') {
+          } else if (seriesType.contains('line') ||
+              seriesType == 'area' ||
+              seriesType == 'steparea') {
+            if (seriesType == 'splinerangearea') {
               // ignore: prefer_if_null_operators
               currentPoint.low = currentPoint.low == null
                   ? pointIndex != 0
@@ -611,7 +611,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
           currentPoint.isGap = true;
           break;
         case EmptyPointMode.drop:
-          if (_seriesType == 'splinerangearea') {
+          if (seriesType == 'splinerangearea') {
             // ignore: prefer_if_null_operators
             currentPoint.low = currentPoint.low == null
                 ? pointIndex != 0
@@ -626,17 +626,18 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
                 : currentPoint.high;
           }
           currentPoint.y = pointIndex != 0 &&
-                  (_seriesType != 'area' &&
-                      _seriesType != 'splinearea' &&
-                      _seriesType != 'splinerangearea' &&
-                      _seriesType != 'steparea' &&
-                      !_seriesType.contains('stackedcolumn') &&
-                      !_seriesType.contains('stackedbar'))
+                  (seriesType != 'area' &&
+                      seriesType != 'splinearea' &&
+                      seriesType != 'splinerangearea' &&
+                      seriesType != 'steparea' &&
+                      !seriesType.contains('stackedcolumn') &&
+                      !seriesType.contains('stackedbar'))
               ? prevPoint.y ?? 0
               : 0;
           currentPoint.isDrop = true;
           currentPoint.isVisible = false;
           break;
+        // ignore: no_default_cases
         default:
           currentPoint.y = 0;
           break;

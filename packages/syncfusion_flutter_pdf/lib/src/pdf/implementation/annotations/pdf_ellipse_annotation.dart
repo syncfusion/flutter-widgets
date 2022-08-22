@@ -40,7 +40,7 @@ class PdfEllipseAnnotation extends PdfAnnotation {
   /// //Add annotation to the page.
   /// page.annotations.add(ellipseAnnotation);
   /// //Saves the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
   PdfEllipseAnnotation(Rect bounds, String text,
@@ -209,8 +209,7 @@ class PdfEllipseAnnotationHelper extends PdfAnnotationHelper {
       final Rect rectangle = helper.calculateTemplateBounds(
           annotation.bounds, page, appearance, true);
       if (annotation.opacity < 1) {
-        page.graphics
-            .setTransparency(annotation.opacity, mode: PdfBlendMode.normal);
+        page.graphics.setTransparency(annotation.opacity);
       }
       page.graphics.drawPdfTemplate(
           appearance!, Offset(rectangle.left, rectangle.top), rectangle.size);

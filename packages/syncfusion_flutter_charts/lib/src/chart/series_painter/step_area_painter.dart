@@ -16,15 +16,15 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Step area series
+/// Creates series renderer for step area series.
 class StepAreaSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of StepAreaSeriesRenderer class.
   StepAreaSeriesRenderer();
 
-  /// StepArea segment is created here
+  /// Step area segment is created here.
   ChartSegment _createSegments(
       Path path, Path strokePath, int seriesIndex, double animateFactor,
-      [List<Offset>? _points]) {
+      [List<Offset>? points]) {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(this);
     final StepAreaSegment segment = createSegment();
@@ -39,8 +39,8 @@ class StepAreaSeriesRenderer extends XyDataSeriesRenderer {
     segmentProperties.seriesRenderer = this;
     segmentProperties.series =
         seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
-    if (_points != null) {
-      segment.points = _points;
+    if (points != null) {
+      segment.points = points;
     }
     segment.animationFactor = animateFactor;
     segment.calculateSegmentPoints();
@@ -52,7 +52,7 @@ class StepAreaSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render step area series segments
+  /// To render step area series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -102,7 +102,7 @@ class StepAreaSeriesRenderer extends XyDataSeriesRenderer {
       drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }
 
-/// Represents the StepArea Chart painter
+/// Represents the Step area chart painter
 class StepAreaChartPainter extends CustomPainter {
   /// Calling the default constructor of StepAreaChartPainter class.
   StepAreaChartPainter(
@@ -157,10 +157,10 @@ class StepAreaChartPainter extends CustomPainter {
     final ChartAxisRendererDetails yAxisDetails =
         seriesRendererDetails.yAxisDetails!;
     final RenderingDetails renderingDetails = stateProperties.renderingDetails;
-    final StepAreaSeries<dynamic, dynamic> _series =
+    final StepAreaSeries<dynamic, dynamic> stepAreaSeries =
         seriesRendererDetails.series as StepAreaSeries<dynamic, dynamic>;
-    final Path _path = Path(), _strokePath = Path();
-    final List<Offset> _points = <Offset>[];
+    final Path path = Path(), strokePath = Path();
+    final List<Offset> points = <Offset>[];
     final num? crossesAt = getCrossesAtValue(seriesRenderer, stateProperties);
     final num origin = crossesAt ?? 0;
 
@@ -168,8 +168,8 @@ class StepAreaChartPainter extends CustomPainter {
     if (seriesRendererDetails.visible! == true) {
       assert(
           // ignore: unnecessary_null_comparison
-          !(_series.animationDuration != null) ||
-              _series.animationDuration >= 0,
+          !(stepAreaSeries.animationDuration != null) ||
+              stepAreaSeries.animationDuration >= 0,
           'The animation duration of the step area series must be greater or equal to 0.');
       canvas.save();
       final List<CartesianChartPoint<dynamic>> dataPoints =
@@ -215,6 +215,8 @@ class StepAreaChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRendererDetails.calculateRegionData(stateProperties,
@@ -264,10 +266,10 @@ class StepAreaChartPainter extends CustomPainter {
               seriesRendererDetails.stateProperties.requireInvertedAxis,
               series,
               axisClipRect);
-          _points.add(Offset(currentPoint.x, currentPoint.y));
+          points.add(Offset(currentPoint.x, currentPoint.y));
           _drawStepAreaPath(
-              _path,
-              _strokePath,
+              path,
+              strokePath,
               prevPoint,
               currentPoint,
               originPoint,
@@ -276,18 +278,18 @@ class StepAreaChartPainter extends CustomPainter {
               prevOldPoint,
               pointIndex,
               animationFactor,
-              _series,
+              stepAreaSeries,
               seriesRendererDetails);
           prevPoint = point;
           prevOldPoint = oldPoint;
         }
       }
       // ignore: unnecessary_null_comparison
-      if (_path != null && _strokePath != null) {
+      if (path != null && strokePath != null) {
         seriesRenderer._drawSegment(
             canvas,
-            seriesRenderer._createSegments(_path, _strokePath, painterKey.index,
-                animationFactor, _points));
+            seriesRenderer._createSegments(
+                path, strokePath, painterKey.index, animationFactor, points));
       }
       _drawSeries(canvas, animationFactor, seriesRendererDetails);
     }
@@ -333,8 +335,8 @@ class StepAreaChartPainter extends CustomPainter {
 
   /// To draw the step area path
   void _drawStepAreaPath(
-      Path _path,
-      Path _strokePath,
+      Path path,
+      Path strokePath,
       CartesianChartPoint<dynamic>? prevPoint,
       ChartLocation currentPoint,
       ChartLocation originPoint,
@@ -369,46 +371,46 @@ class StepAreaChartPainter extends CustomPainter {
         (seriesRendererDetails.dataPoints[pointIndex].isGap == true) ||
         (seriesRendererDetails.dataPoints[pointIndex - 1].isVisible == false &&
             stepAreaSeries.emptyPointSettings.mode == EmptyPointMode.gap)) {
-      _path.moveTo(originPoint.x, originPoint.y);
+      path.moveTo(originPoint.x, originPoint.y);
       if (stepAreaSeries.borderDrawMode == BorderDrawMode.excludeBottom) {
         if (seriesRendererDetails.dataPoints[pointIndex].isGap != true) {
-          _strokePath.moveTo(originPoint.x, originPoint.y);
-          _strokePath.lineTo(x, y);
+          strokePath.moveTo(originPoint.x, originPoint.y);
+          strokePath.lineTo(x, y);
         }
       } else if (stepAreaSeries.borderDrawMode == BorderDrawMode.all) {
         if (seriesRendererDetails.dataPoints[pointIndex].isGap != true) {
-          _strokePath.moveTo(originPoint.x, originPoint.y);
-          _strokePath.lineTo(x, y);
+          strokePath.moveTo(originPoint.x, originPoint.y);
+          strokePath.lineTo(x, y);
         }
       } else if (stepAreaSeries.borderDrawMode == BorderDrawMode.top) {
-        _strokePath.moveTo(x, y);
+        strokePath.moveTo(x, y);
       }
-      _path.lineTo(x, y);
+      path.lineTo(x, y);
     } else if (pointIndex == seriesRendererDetails.dataPoints.length - 1 ||
         seriesRendererDetails.dataPoints[pointIndex + 1].isGap == true) {
-      _strokePath.lineTo(x, previousPointY!);
-      _strokePath.lineTo(x, y);
+      strokePath.lineTo(x, previousPointY!);
+      strokePath.lineTo(x, y);
       if (stepAreaSeries.borderDrawMode == BorderDrawMode.excludeBottom) {
-        _strokePath.lineTo(originPoint.x, originPoint.y);
+        strokePath.lineTo(originPoint.x, originPoint.y);
       } else if (stepAreaSeries.borderDrawMode == BorderDrawMode.all) {
-        _strokePath.lineTo(originPoint.x, originPoint.y);
-        _strokePath.close();
+        strokePath.lineTo(originPoint.x, originPoint.y);
+        strokePath.close();
       }
-      _path.lineTo(x, previousPointY);
-      _path.lineTo(x, y);
-      _path.lineTo(originPoint.x, originPoint.y);
+      path.lineTo(x, previousPointY);
+      path.lineTo(x, y);
+      path.lineTo(originPoint.x, originPoint.y);
     } else {
-      _path.lineTo(x, previousPointY!);
-      _strokePath.lineTo(x, previousPointY);
-      _strokePath.lineTo(x, y);
-      _path.lineTo(x, y);
+      path.lineTo(x, previousPointY!);
+      strokePath.lineTo(x, previousPointY);
+      strokePath.lineTo(x, y);
+      path.lineTo(x, y);
       if (closed) {
-        _path.lineTo(originPoint.x, originPoint.y);
+        path.lineTo(originPoint.x, originPoint.y);
         if (stepAreaSeries.borderDrawMode == BorderDrawMode.excludeBottom) {
-          _strokePath.lineTo(originPoint.x, originPoint.y);
+          strokePath.lineTo(originPoint.x, originPoint.y);
         } else if (stepAreaSeries.borderDrawMode == BorderDrawMode.all) {
-          _strokePath.lineTo(originPoint.x, originPoint.y);
-          _strokePath.close();
+          strokePath.lineTo(originPoint.x, originPoint.y);
+          strokePath.close();
         }
       }
     }

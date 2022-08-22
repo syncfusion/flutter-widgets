@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 import 'financial_series_base.dart';
 
-/// Renders the Hilo series.
+/// Renders the hilo series.
 ///
-///HiLo series illustrates the price movements in stock using the high and low values.
+/// [HiloSeries] illustrates the price movements in stock using the high and low values.
 ///
-///To render a HiLo chart, create an instance of HiloSeries, and add it to the series collection property of [SfCartesianChart].
+/// To render a hilo chart, create an instance of [HiloSeries], and add it to the series collection property of [SfCartesianChart].
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=uSsKhlRzC2Q}
 class HiloSeries<T, D> extends FinancialSeriesBase<T, D> {

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:syncfusion_flutter_calendar/src/calendar/common/date_time_engine.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:timezone/timezone.dart';
 
 import '../common/calendar_view_helper.dart';
+import '../common/date_time_engine.dart';
 import '../common/enums.dart';
 import '../sfcalendar.dart';
 import 'appointment.dart';
@@ -17,7 +17,7 @@ import 'recurrence_helper.dart';
 class AppointmentHelper {
   /// Return the date with start time value for the date value.
   static DateTime convertToStartTime(DateTime date) {
-    return DateTime(date.year, date.month, date.day, 0, 0, 0);
+    return DateTime(date.year, date.month, date.day);
   }
 
   /// Return the date with end time value for the date value.
@@ -27,7 +27,7 @@ class AppointmentHelper {
 
   /// Return the start date of the month specified in date.
   static DateTime getMonthStartDate(DateTime date) {
-    return DateTime(date.year, date.month, 1);
+    return DateTime(date.year, date.month);
   }
 
   /// Return the end date of the month specified in date.
@@ -255,6 +255,19 @@ class AppointmentHelper {
     return appointmentCollection;
   }
 
+  /// Return calendar appointment text style.
+  static TextStyle getAppointmentTextStyle(
+      TextStyle appointmentTextStyle, CalendarView view) {
+    if (appointmentTextStyle.fontSize != -1) {
+      return appointmentTextStyle;
+    }
+    return TextStyle(
+        color: appointmentTextStyle.color,
+        fontSize: 12,
+        fontWeight: appointmentTextStyle.fontWeight,
+        fontFamily: appointmentTextStyle.fontFamily);
+  }
+
   static CalendarAppointment _copy(CalendarAppointment appointment) {
     final CalendarAppointment copyAppointment = CalendarAppointment(
         startTime: appointment.startTime,
@@ -469,9 +482,9 @@ class AppointmentHelper {
 
   /// Resets the appointment views used on appointment layout rendering.
   static void resetAppointmentView(
-      List<AppointmentView> _appointmentCollection) {
-    for (int i = 0; i < _appointmentCollection.length; i++) {
-      final AppointmentView obj = _appointmentCollection[i];
+      List<AppointmentView> appointmentCollection) {
+    for (int i = 0; i < appointmentCollection.length; i++) {
+      final AppointmentView obj = appointmentCollection[i];
       obj.canReuse = true;
       obj.appointment = null;
       obj.position = -1;
@@ -938,24 +951,39 @@ class AppointmentHelper {
     final int count = appointments.length;
 
     for (int j = 0; j < count; j++) {
-      final CalendarAppointment appointment = appointments[j];
-      appointment.actualStartTime = convertTimeToAppointmentTimeZone(
-          appointment.startTime, appointment.startTimeZone, calendarTimeZone);
-      appointment.actualEndTime = convertTimeToAppointmentTimeZone(
-          appointment.endTime, appointment.endTimeZone, calendarTimeZone);
+      final CalendarAppointment calendarAppointment = appointments[j];
+      calendarAppointment.actualStartTime = convertTimeToAppointmentTimeZone(
+          calendarAppointment.startTime,
+          calendarAppointment.startTimeZone,
+          calendarTimeZone);
+      calendarAppointment.actualEndTime = convertTimeToAppointmentTimeZone(
+          calendarAppointment.endTime,
+          calendarAppointment.endTimeZone,
+          calendarTimeZone);
 
-      if (appointment.recurrenceRule == null ||
-          appointment.recurrenceRule == '') {
+      final List<CalendarAppointment> tempAppointments =
+          <CalendarAppointment>[];
+
+      /// Stored the actual start time to exact start time to use the value,
+      /// since, we split the span appointment into multiple instances and
+      /// change the actual start and end time based on the rendering, hence
+      /// to get the actual start and end time of the appointment we have
+      /// stored the value in the exact start and end time.
+      calendarAppointment.exactStartTime = calendarAppointment.actualStartTime;
+      calendarAppointment.exactEndTime = calendarAppointment.actualEndTime;
+      if (calendarAppointment.recurrenceRule != null &&
+          calendarAppointment.recurrenceRule != '') {
+        _getRecurrenceAppointments(calendarAppointment, tempAppointments,
+            startDate, endDate, calendarTimeZone);
+      } else {
+        tempAppointments.add(calendarAppointment);
+      }
+
+      final int appointmentLength = tempAppointments.length;
+      for (int i = 0; i < appointmentLength; i++) {
+        final CalendarAppointment appointment = tempAppointments[i];
         if (isAppointmentWithinVisibleDateRange(
             appointment, startDate, endDate)) {
-          /// Stored the actual start time to exact start time to use the value,
-          /// since, we split the span appointment into multiple instances and
-          /// change the actual start and end time based on the rendering, hence
-          /// to get the actual start and end time of the appointment we have
-          /// stored the value in the exact start and end time.
-          appointment.exactStartTime = appointment.actualStartTime;
-          appointment.exactEndTime = appointment.actualEndTime;
-
           /// can create new appointment boolean is used to skip the new
           /// appointment creation while the appointment start and end date as
           /// different and appointment duration is not more than 24 hours.
@@ -991,10 +1019,7 @@ class AppointmentHelper {
                 spannedAppointment.actualStartTime = DateTime(
                     appointment.exactEndTime.year,
                     appointment.exactEndTime.month,
-                    appointment.exactEndTime.day,
-                    0,
-                    0,
-                    0);
+                    appointment.exactEndTime.day);
               }
 
               spannedAppointment.startTime = spannedAppointment.isAllDay
@@ -1040,8 +1065,8 @@ class AppointmentHelper {
                   spannedAppointment.actualEndTime = DateTime(
                       endDate.year, endDate.month, endDate.day, 23, 59, 59);
                 } else {
-                  spannedAppointment.actualStartTime = DateTime(
-                      endDate.year, endDate.month, endDate.day, 0, 0, 0);
+                  spannedAppointment.actualStartTime =
+                      DateTime(endDate.year, endDate.month, endDate.day);
                 }
 
                 spannedAppointment.startTime = spannedAppointment.isAllDay
@@ -1080,8 +1105,8 @@ class AppointmentHelper {
                   spannedAppointment.actualEndTime =
                       DateTime(date.year, date.month, date.day, 23, 59, 59);
                 } else {
-                  spannedAppointment.actualStartTime = DateTime(
-                      startDate.year, startDate.month, startDate.day, 0, 0, 0);
+                  spannedAppointment.actualStartTime =
+                      DateTime(startDate.year, startDate.month, startDate.day);
                 }
 
                 spannedAppointment.startTime = spannedAppointment.isAllDay
@@ -1120,15 +1145,15 @@ class AppointmentHelper {
                   spannedAppointment.actualEndTime =
                       DateTime(date.year, date.month, date.day, 23, 59, 59);
                 } else if (i == 1) {
-                  spannedAppointment.actualStartTime = DateTime(
-                      startDate.year, startDate.month, startDate.day, 0, 0, 0);
+                  spannedAppointment.actualStartTime =
+                      DateTime(startDate.year, startDate.month, startDate.day);
                   spannedAppointment.actualEndTime = DateTime(
                       endDate.year, endDate.month, endDate.day, 23, 59, 59);
                 } else {
                   final DateTime date =
                       DateTimeHelper.getDateTimeValue(addDays(endDate, 1));
                   spannedAppointment.actualStartTime =
-                      DateTime(date.year, date.month, date.day, 0, 0, 0);
+                      DateTime(date.year, date.month, date.day);
                 }
 
                 spannedAppointment.startTime = spannedAppointment.isAllDay
@@ -1160,19 +1185,7 @@ class AppointmentHelper {
             appointmentColl.add(appointment);
           }
         }
-
-        continue;
       }
-
-      /// Stored the actual start time to exact start time to use the value,
-      /// since, we split the span appointment into multiple instances and
-      /// change the actual start and end time based on the rendering, hence
-      /// to get the actual start and end time of the appointment we have
-      /// stored the value in the exact start and end time.
-      appointment.exactStartTime = appointment.actualStartTime;
-      appointment.exactEndTime = appointment.actualEndTime;
-      _getRecurrenceAppointments(
-          appointment, appointmentColl, startDate, endDate, calendarTimeZone);
     }
 
     return appointmentColl;
@@ -1364,6 +1377,24 @@ class AppointmentHelper {
             specificStartDate: visibleStartDate,
             specificEndDate: visibleEndDate);
 
+    List<DateTime> recDates = <DateTime>[];
+    if (recursiveDates.isNotEmpty) {
+      String countRule = recurrenceRule;
+
+      /// To check whether the appointment is pattern or not, we need to get
+      /// the first appointment of the rrule, hence added count as 1 in rrule,
+      /// if the count is not given in the rrule, we didn't change
+      /// the appointment's rrule we used a separate property internally
+      /// for our purpose.
+      if (!countRule.contains('COUNT')) {
+        countRule = '$countRule;COUNT=1';
+      }
+
+      recDates = RecurrenceHelper.getRecurrenceDateTimeCollection(
+          countRule, appointment.actualStartTime,
+          specificStartDate: appointment.startTime);
+    }
+
     for (int j = 0; j < recursiveDates.length; j++) {
       final DateTime recursiveDate = recursiveDates[j];
       if (appointment.recurrenceExceptionDates != null) {
@@ -1386,20 +1417,6 @@ class AppointmentHelper {
       final CalendarAppointment occurrenceAppointment =
           _cloneRecurrenceAppointment(
               appointment, recursiveDate, scheduleTimeZone);
-      String recurrenceRule = appointment.recurrenceRule!;
-
-      /// To check whether the appointment is pattern or not, we need to get
-      /// the first appointment of the rrule, hence added count as 1 in rrule,
-      /// if count not given in the rrule, here we didn't change
-      /// the appointment's rrule we used a separate property internally
-      /// for our purpose.
-      if (!recurrenceRule.contains('COUNT')) {
-        recurrenceRule = '$recurrenceRule;COUNT=1';
-      }
-      final List<DateTime> recDates =
-          RecurrenceHelper.getRecurrenceDateTimeCollection(
-              recurrenceRule, appointment.actualStartTime,
-              specificStartDate: appointment.startTime);
 
       /// Here we used isOccurrenceAppointment keyword to identify the
       /// occurrence appointment When we clone the pattern appointment for

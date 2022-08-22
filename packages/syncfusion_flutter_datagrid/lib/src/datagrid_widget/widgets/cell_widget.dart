@@ -59,7 +59,7 @@ class _GridCellState extends State<GridCell> {
           dataGridConfiguration.editingGestureType ==
               EditingGestureType.doubleTap);
 
-  void _handleOnTapDown(TapDownDetails details) {
+  void _handleOnTapDown(TapDownDetails details, bool isSecondaryTapDown) {
     _kind = details.kind!;
     final DataCellBase dataCell = widget.dataCell;
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
@@ -71,12 +71,13 @@ class _GridCellState extends State<GridCell> {
     }
 
     if (_isDoubleTapEnabled(dataGridConfiguration)) {
-      _handleDoubleTapOnEditing(dataGridConfiguration, dataCell, details);
+      _handleDoubleTapOnEditing(
+          dataGridConfiguration, dataCell, details, isSecondaryTapDown);
     }
   }
 
   void _handleDoubleTapOnEditing(DataGridConfiguration dataGridConfiguration,
-      DataCellBase dataCell, TapDownDetails details) {
+      DataCellBase dataCell, TapDownDetails details, bool isSecondaryTapDown) {
     if (tapTimer != null && tapTimer!.isActive) {
       tapTimer!.cancel();
     } else {
@@ -89,6 +90,7 @@ class _GridCellState extends State<GridCell> {
           return;
         }
         _handleOnTapUp(
+            isSecondaryTapDown: isSecondaryTapDown,
             tapDownDetails: details,
             tapUpDetails: null,
             dataGridConfiguration: dataGridConfiguration,
@@ -118,7 +120,7 @@ class _GridCellState extends State<GridCell> {
                   dataCell: dataCell,
                   kind: _kind);
             },
-      onTapDown: _handleOnTapDown,
+      onTapDown: (TapDownDetails details) => _handleOnTapDown(details, false),
       onTap: isDoubleTapEnabled
           ? () {
               if (tapTimer != null && !tapTimer!.isActive) {
@@ -140,7 +142,8 @@ class _GridCellState extends State<GridCell> {
             dataCell: dataCell,
             kind: _kind);
       },
-      onSecondaryTapDown: _handleOnTapDown,
+      onSecondaryTapDown: (TapDownDetails details) =>
+          _handleOnTapDown(details, true),
       child: _wrapInsideContainer(),
     );
   }
@@ -165,8 +168,8 @@ class _GridCellState extends State<GridCell> {
       key: widget.key,
       dataCell: widget.dataCell,
       isDirty: widget.isDirty,
-      child: _wrapInsideGestureDetector(),
       dataGridStateDetails: dataGridStateDetails,
+      child: _wrapInsideGestureDetector(),
     );
   }
 
@@ -218,6 +221,7 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
   Color _sortNumberBackgroundColor = Colors.transparent;
   Color _sortNumberTextColor = Colors.transparent;
   late PointerDeviceKind _kind;
+  late Widget? _sortIcon;
 
   DataGridStateDetails get dataGridStateDetails => widget.dataGridStateDetails;
 
@@ -354,8 +358,8 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
       key: widget.key,
       dataCell: widget.dataCell,
       isDirty: widget.isDirty,
-      child: _wrapInsideGestureDetector(),
       dataGridStateDetails: dataGridStateDetails,
+      child: _wrapInsideGestureDetector(),
     );
   }
 
@@ -373,6 +377,7 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
         _sortDirection = sortColumn.sortDirection;
         _sortIconColor =
             dataGridConfiguration.dataGridThemeHelper!.sortIconColor;
+        _sortIcon = dataGridConfiguration.dataGridThemeHelper!.sortIcon;
         _sortNumberBackgroundColor =
             dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.12);
         _sortNumberTextColor =
@@ -396,23 +401,22 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
     children.add(_SortIcon(
       sortDirection: _sortDirection!,
       sortIconColor: _sortIconColor,
+      sortIcon: _sortIcon,
     ));
 
     if (_sortNumber != -1) {
       children.add(_getSortNumber());
     }
 
-    return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Flexible(
-            child: Container(child: child),
-          ),
-          Container(
-            padding: const EdgeInsets.only(left: 4.0, right: 4.0),
-            child: Center(child: Row(children: children)),
-          )
-        ]);
+    return Row(children: <Widget>[
+      Flexible(
+        child: Container(child: child),
+      ),
+      Container(
+        padding: const EdgeInsets.only(left: 4.0, right: 4.0),
+        child: Center(child: Row(children: children)),
+      )
+    ]);
   }
 
   Widget _getSortNumber() {
@@ -530,9 +534,13 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
 }
 
 class _SortIcon extends StatefulWidget {
-  const _SortIcon({required this.sortDirection, required this.sortIconColor});
+  const _SortIcon(
+      {required this.sortDirection,
+      required this.sortIconColor,
+      required this.sortIcon});
   final DataGridSortDirection sortDirection;
   final Color sortIconColor;
+  final Widget? sortIcon;
   @override
   _SortIconState createState() => _SortIconState();
 }
@@ -575,8 +583,9 @@ class _SortIconState extends State<_SortIcon>
         builder: (BuildContext context, Widget? child) {
           return Transform.rotate(
               angle: _sortingAnimation.value,
-              child: Icon(Icons.arrow_upward,
-                  color: widget.sortIconColor, size: 16));
+              child: widget.sortIcon ??
+                  Icon(Icons.arrow_upward,
+                      color: widget.sortIconColor, size: 16));
         });
   }
 
@@ -841,15 +850,14 @@ Widget _wrapInsideCellContainer(
           Container(
               width: width,
               height: height,
-              child: child,
-              color: backgroundColor),
+              color: backgroundColor,
+              child: child),
           Positioned(
               left: 0,
               top: 0,
               width: width,
               height: height,
               child: IgnorePointer(
-                ignoring: true,
                 child: Container(
                     key: key,
                     clipBehavior: Clip.antiAlias,
@@ -859,7 +867,7 @@ Widget _wrapInsideCellContainer(
       );
     } else {
       return Container(
-          width: width, height: height, child: child, color: backgroundColor);
+          width: width, height: height, color: backgroundColor, child: child);
     }
   }
 
@@ -876,17 +884,20 @@ void _handleOnTapUp(
     required TapDownDetails? tapDownDetails,
     required DataCellBase dataCell,
     required DataGridConfiguration dataGridConfiguration,
-    required PointerDeviceKind kind}) {
+    required PointerDeviceKind kind,
+    bool isSecondaryTapDown = false}) {
   // End edit the current editing cell if its editing mode is differed
   if (dataGridConfiguration.currentCell.isEditing) {
     if (dataGridConfiguration.currentCell
         .canSubmitCell(dataGridConfiguration)) {
       dataGridConfiguration.currentCell
           .onCellSubmit(dataGridConfiguration, cancelCanSubmitCell: true);
+    } else {
+      return;
     }
   }
 
-  if (dataGridConfiguration.onCellTap != null) {
+  if (!isSecondaryTapDown && dataGridConfiguration.onCellTap != null) {
     final DataGridCellTapDetails details = DataGridCellTapDetails(
         rowColumnIndex: RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex),
         column: dataCell.gridColumn!,

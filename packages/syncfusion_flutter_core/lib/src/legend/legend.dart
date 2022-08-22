@@ -1,9 +1,11 @@
 import 'dart:async';
+
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+
 import '../utils/shape_helper.dart';
 import '../utils/shape_helper.dart' as shape_helper;
 
@@ -187,6 +189,7 @@ class SfLegend extends StatefulWidget {
   const SfLegend({
     Key? key,
     required this.items,
+    this.shouldAlwaysShowScrollbar = false,
     this.title,
     this.color,
     this.border,
@@ -239,6 +242,7 @@ class SfLegend extends StatefulWidget {
     required this.itemCount,
     required this.itemBuilder,
     this.title,
+    this.shouldAlwaysShowScrollbar = false,
     this.color,
     this.border,
     this.offset,
@@ -285,6 +289,7 @@ class SfLegend extends StatefulWidget {
   const SfLegend.bar({
     Key? key,
     required this.items,
+    this.shouldAlwaysShowScrollbar = false,
     this.title,
     this.color,
     this.border,
@@ -349,6 +354,14 @@ class SfLegend extends StatefulWidget {
 
   /// Wraps or scrolls the legend items when it overflows.
   final LegendOverflowMode overflowMode;
+
+  ///Toggles the scrollbar visibility.
+  ///
+  ///When set to false, the scrollbar appears only when scrolling else the
+  ///scrollbar fades out. When true, the scrollbar will never fade out and
+  ///will always be visible when the items are overflown.
+  ///
+  final bool shouldAlwaysShowScrollbar;
 
   /// Specifies the space between the legend text and the icon.
   final double spacing;
@@ -471,7 +484,7 @@ class SfLegend extends StatefulWidget {
 class _SfLegendState extends State<SfLegend> {
   bool _omitLegend = false;
   TextStyle? _textStyle;
-
+  final ScrollController _scrollController = ScrollController();
   Widget _buildResponsiveLayout(Widget? current,
       [BoxConstraints? baseConstraints]) {
     if (current == null) {
@@ -545,7 +558,7 @@ class _SfLegendState extends State<SfLegend> {
               childConstraints.biggest) {
             child = widget.child;
           } else {
-            SchedulerBinding.instance!.addPostFrameCallback(
+            SchedulerBinding.instance.addPostFrameCallback(
               (Duration timeStamp) {
                 setState(() {
                   _omitLegend = true;
@@ -639,30 +652,59 @@ class _SfLegendState extends State<SfLegend> {
       current = Padding(padding: widget.padding!, child: current);
     }
 
+    final double scrollbarThickness =
+        defaultTargetPlatform == TargetPlatform.iOS ||
+                defaultTargetPlatform == TargetPlatform.android
+            ? 4
+            : 5;
+
     if (widget.title == null) {
       if (widget.overflowMode == LegendOverflowMode.scroll) {
-        current = SingleChildScrollView(
-          scrollDirection: widget.scrollDirection ??
-              (widget.position == LegendPosition.top ||
-                      widget.position == LegendPosition.bottom
-                  ? Axis.horizontal
-                  : Axis.vertical),
-          child: current,
+        current = Scrollbar(
+          thickness: scrollbarThickness,
+          controller: _scrollController,
+          thumbVisibility: widget.shouldAlwaysShowScrollbar,
+          child: ScrollConfiguration(
+            behavior:
+                ScrollConfiguration.of(context).copyWith(scrollbars: false),
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              scrollDirection: widget.scrollDirection ??
+                  (widget.position == LegendPosition.top ||
+                          widget.position == LegendPosition.bottom
+                      ? Axis.horizontal
+                      : Axis.vertical),
+              child: current,
+            ),
+          ),
         );
       } else if (widget.overflowMode == LegendOverflowMode.wrapScroll) {
-        current = SingleChildScrollView(
-          scrollDirection: widget.direction == Axis.horizontal
-              ? Axis.vertical
-              : Axis.horizontal,
-          child: current,
+        current = Scrollbar(
+          thickness: scrollbarThickness,
+          controller: _scrollController,
+          thumbVisibility: widget.shouldAlwaysShowScrollbar,
+          child: ScrollConfiguration(
+            behavior:
+                ScrollConfiguration.of(context).copyWith(scrollbars: false),
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              scrollDirection: widget.direction == Axis.horizontal
+                  ? Axis.vertical
+                  : Axis.horizontal,
+              child: current,
+            ),
+          ),
         );
       } else if (widget.overflowMode == LegendOverflowMode.none) {
-        current = SingleChildScrollView(
-            scrollDirection: widget.scrollDirection == Axis.horizontal
-                ? Axis.horizontal
-                : Axis.vertical,
-            physics: const NeverScrollableScrollPhysics(),
-            child: current);
+        current = ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: SingleChildScrollView(
+              scrollDirection: widget.scrollDirection == Axis.horizontal
+                  ? Axis.horizontal
+                  : Axis.vertical,
+              physics: const NeverScrollableScrollPhysics(),
+              child: current),
+        );
       }
     } else {
       if (widget.position == LegendPosition.top ||
@@ -676,31 +718,76 @@ class _SfLegendState extends State<SfLegend> {
             if (widget.overflowMode == LegendOverflowMode.scroll)
               (widget.width != null || widget.height != null)
                   ? Expanded(
-                      child: SingleChildScrollView(
-                          scrollDirection:
-                              widget.scrollDirection ?? Axis.horizontal,
-                          child: current),
+                      child: Scrollbar(
+                        thickness: scrollbarThickness,
+                        controller: _scrollController,
+                        thumbVisibility: widget.shouldAlwaysShowScrollbar,
+                        child: ScrollConfiguration(
+                          behavior: ScrollConfiguration.of(context)
+                              .copyWith(scrollbars: false),
+                          child: SingleChildScrollView(
+                            controller: _scrollController,
+                            scrollDirection: widget.scrollDirection ??
+                                (widget.position == LegendPosition.top ||
+                                        widget.position == LegendPosition.bottom
+                                    ? Axis.horizontal
+                                    : Axis.vertical),
+                            child: current,
+                          ),
+                        ),
+                      ),
                     )
-                  : SingleChildScrollView(
-                      scrollDirection:
-                          widget.scrollDirection ?? Axis.horizontal,
-                      child: current)
+                  : Scrollbar(
+                      thickness: scrollbarThickness,
+                      controller: _scrollController,
+                      thumbVisibility: widget.shouldAlwaysShowScrollbar,
+                      child: ScrollConfiguration(
+                        behavior: ScrollConfiguration.of(context)
+                            .copyWith(scrollbars: false),
+                        child: SingleChildScrollView(
+                          controller: _scrollController,
+                          scrollDirection: widget.scrollDirection ??
+                              (widget.position == LegendPosition.top ||
+                                      widget.position == LegendPosition.bottom
+                                  ? Axis.horizontal
+                                  : Axis.vertical),
+                          child: current,
+                        ),
+                      ),
+                    )
             else if (widget.overflowMode == LegendOverflowMode.wrapScroll)
               Expanded(
-                child: SingleChildScrollView(
-                    scrollDirection: widget.direction == Axis.horizontal
-                        ? Axis.vertical
-                        : Axis.horizontal,
-                    child: current),
+                child: Scrollbar(
+                  thickness: scrollbarThickness,
+                  controller: _scrollController,
+                  thumbVisibility: widget.shouldAlwaysShowScrollbar,
+                  child: ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context)
+                        .copyWith(scrollbars: false),
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      scrollDirection: widget.scrollDirection ??
+                          (widget.position == LegendPosition.top ||
+                                  widget.position == LegendPosition.bottom
+                              ? Axis.horizontal
+                              : Axis.vertical),
+                      child: current,
+                    ),
+                  ),
+                ),
               )
             else if (widget.overflowMode == LegendOverflowMode.none)
-              Expanded(
-                  child: SingleChildScrollView(
-                      scrollDirection: widget.direction == Axis.horizontal
-                          ? Axis.horizontal
-                          : Axis.vertical,
-                      physics: const NeverScrollableScrollPhysics(),
-                      child: current))
+              ScrollConfiguration(
+                behavior:
+                    ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                child: SingleChildScrollView(
+                    controller: _scrollController,
+                    scrollDirection: widget.scrollDirection == Axis.horizontal
+                        ? Axis.horizontal
+                        : Axis.vertical,
+                    physics: const NeverScrollableScrollPhysics(),
+                    child: current),
+              )
             else
               (widget.width != null || widget.height != null)
                   ? Expanded(child: current)
@@ -713,7 +800,6 @@ class _SfLegendState extends State<SfLegend> {
           children: <Widget>[
             widget.title!,
             Flexible(
-              fit: FlexFit.loose,
               child: widget.overflowMode == LegendOverflowMode.scroll
                   ? SingleChildScrollView(
                       scrollDirection: widget.scrollDirection ?? Axis.vertical,
@@ -1018,7 +1104,6 @@ class _VectorLegendState extends State<_VectorLegend>
       spacing: widget.itemSpacing!,
       runSpacing: widget.itemRunSpacing ?? 6.0,
       runAlignment: WrapAlignment.center,
-      alignment: WrapAlignment.start,
       children: _buildLegendItems(themeData),
     );
 
@@ -1314,9 +1399,10 @@ class _LegendItemState extends State<_LegendItem>
               Text(
                 details.text,
                 style: widget.textStyle!.copyWith(
-                  color: widget.textStyle!.color!.withOpacity(
-                    _opacityTween.evaluate(_toggleAnimation),
-                  ),
+                  color: widget.textStyle!.foreground == null
+                      ? widget.textStyle!.color!
+                          .withOpacity(_opacityTween.evaluate(_toggleAnimation))
+                      : widget.textStyle!.foreground!.color,
                 ),
               )
             ],
@@ -1535,7 +1621,6 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
         spacing: widget.itemSpacing!,
         runSpacing: 6,
         runAlignment: WrapAlignment.center,
-        alignment: WrapAlignment.start,
         children: _getBarSegments(),
       ),
     );
@@ -1935,7 +2020,7 @@ class __SolidBarLegendItemState extends State<_SolidBarLegendItem> {
 
   Widget _buildPointer() {
     Widget? current;
-    Matrix4 _matrix4;
+    Matrix4 matrix4;
 
     if (widget.index == widget.pointerController!.segmentIndex &&
         widget.pointerController!.position != null) {
@@ -1961,25 +2046,23 @@ class __SolidBarLegendItemState extends State<_SolidBarLegendItem> {
       }
 
       if (widget.direction == Axis.horizontal) {
-        _matrix4 = Matrix4.identity()
-          ..translate(
-              widget.pointerController!.position!.dx *
-                      widget.segmentSize!.width -
-                  (widget.pointerSize!.width / 2),
-              0.0);
+        matrix4 = Matrix4.identity()
+          ..translate(widget.pointerController!.position!.dx *
+                  widget.segmentSize!.width -
+              (widget.pointerSize!.width / 2));
         if (_textDirection == TextDirection.rtl) {
-          _matrix4.invert();
+          matrix4.invert();
         }
-        current = Transform(transform: _matrix4, child: current);
+        current = Transform(transform: matrix4, child: current);
       } else {
         current = RotatedBox(quarterTurns: 3, child: current);
-        _matrix4 = Matrix4.identity()
+        matrix4 = Matrix4.identity()
           ..translate(
               0.0,
               widget.pointerController!.position!.dy *
                       widget.segmentSize!.width -
                   (widget.pointerSize!.width / 2));
-        current = Transform(transform: _matrix4, child: current);
+        current = Transform(transform: matrix4, child: current);
       }
     } else {
       current = widget.direction == Axis.horizontal
@@ -2429,7 +2512,7 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
 
   Widget _buildPointer(ThemeData themeData) {
     Widget? current;
-    Matrix4 _matrix4;
+    Matrix4 matrix4;
 
     if (widget.pointerController!.position != null) {
       if (widget.pointerBuilder != null &&
@@ -2454,23 +2537,22 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
       }
 
       if (_direction == Axis.horizontal) {
-        _matrix4 = Matrix4.identity()
+        matrix4 = Matrix4.identity()
           ..translate(
               widget.pointerController!.position!.dx * _segmentSize.width -
-                  (widget.pointerSize!.width / 2),
-              0.0);
+                  (widget.pointerSize!.width / 2));
         if (_isRTL) {
-          _matrix4.invert();
+          matrix4.invert();
         }
-        current = Transform(transform: _matrix4, child: current);
+        current = Transform(transform: matrix4, child: current);
       } else {
         current = RotatedBox(quarterTurns: 3, child: current);
-        _matrix4 = Matrix4.identity()
+        matrix4 = Matrix4.identity()
           ..translate(
               0.0,
               widget.pointerController!.position!.dy * _segmentSize.height -
                   (widget.pointerSize!.width / 2));
-        current = Transform(transform: _matrix4, child: current);
+        current = Transform(transform: matrix4, child: current);
       }
     } else {
       current = _direction == Axis.horizontal

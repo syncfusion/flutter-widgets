@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
-///Renders the FastLineSeries.
+/// Renders the [FastLineSeries].
 ///
-///FastLineSeries is a line chart, but it loads faster than LineSeries.
+/// [FastLineSeries] is a line chart, but it loads faster than [LineSeries].
 ///
 /// You can use this when there are large number of points to be loaded in a chart. To render a fast line chart,
-///  create an instance of FastLineSeries, and add it to the series collection property of [SfCartesianChart].
+/// create an instance of [FastLineSeries], and add it to the series collection property of [SfCartesianChart].
 ///
 /// The following properties are used to customize the appearance of fast line segment:
 ///

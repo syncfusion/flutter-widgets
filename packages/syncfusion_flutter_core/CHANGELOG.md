@@ -1,3 +1,13 @@
+## Unreleased
+
+**Features**
+* The [Flutter PDF Library](https://www.syncfusion.com/document-processing/pdf-framework/flutter/pdf-library) has been developed to meet industry standards and is now marked as a production-ready.
+
+## [20.1.47] - 04/04/2022
+
+**Features**
+* The [Flutter Maps](https://www.syncfusion.com/flutter-widgets/flutter-maps) and [Flutter Linear Gauge](https://www.syncfusion.com/flutter-widgets/flutter-linear-gauge) widgets have been developed to meet industry standards and are now marked as production-ready widgets.
+
 ## [18.3.35] - 10/01/2020
 
 **Breaking changes**

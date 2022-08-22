@@ -88,6 +88,7 @@ class Zoomable extends StatefulWidget {
     required this.minZoomLevel,
     required this.maxZoomLevel,
     required this.zoomController,
+    this.enableMouseWheelZooming = false,
     this.enablePinching = true,
     this.enablePanning = true,
     this.enableDoubleTapZooming = false,
@@ -115,6 +116,11 @@ class Zoomable extends StatefulWidget {
   /// It can't be null and must be greater than or equal to `1` and lesser than
   /// [maxZoomLevel].
   final double minZoomLevel;
+
+  /// Option to enable mouse wheel in web.
+  ///
+  /// By default it will be `false`.
+  final bool enableMouseWheelZooming;
 
   /// Specifies the maximum zoomLevel of the widget.
   ///
@@ -727,7 +733,8 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
         onPointerDown: _handlePointerDown,
         onPointerUp: _handlePointerUp,
         onPointerCancel: _handlePointerCancel,
-        onPointerSignal: _handleMouseWheelZooming,
+        onPointerSignal:
+            widget.enableMouseWheelZooming ? _handleMouseWheelZooming : null,
         behavior: HitTestBehavior.translucent,
         child: GestureDetector(
           onScaleStart: _handleScaleStart,

@@ -21,7 +21,7 @@ import 'enums.dart';
 ///           measureTrailingSpaces: true,
 ///           wordWrap: PdfWordWrapType.word));
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Close the document.
 /// document.dispose();
 /// ```
@@ -48,7 +48,7 @@ class PdfStringFormat {
   ///           measureTrailingSpaces: true,
   ///           wordWrap: PdfWordWrapType.word));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -89,7 +89,7 @@ class PdfStringFormat {
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///       format: PdfStringFormat(alignment: PdfTextAlignment.left));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -104,7 +104,7 @@ class PdfStringFormat {
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///       format: PdfStringFormat(lineAlignment: PdfVerticalAlignment.top));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -119,7 +119,7 @@ class PdfStringFormat {
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///       format: PdfStringFormat(textDirection: PdfTextDirection.rightToLeft));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -137,7 +137,7 @@ class PdfStringFormat {
   ///     .drawString('Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///         format: PdfStringFormat(characterSpacing: 0.5));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -155,7 +155,7 @@ class PdfStringFormat {
   ///     .drawString('Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///         format: PdfStringFormat(wordSpacing: 0.5));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -173,7 +173,7 @@ class PdfStringFormat {
   ///     .drawString('Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///         format: PdfStringFormat(lineSpacing: 0.5));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -194,7 +194,7 @@ class PdfStringFormat {
   ///         //Set the clip path.
   ///         ..clipPath = true);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -214,7 +214,7 @@ class PdfStringFormat {
   ///           characterSpacing: 1,
   ///           subSuperscript: PdfSubSuperscript.subscript));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -244,7 +244,7 @@ class PdfStringFormat {
   ///         //Set line limit.
   ///         ..lineLimit = true);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -260,7 +260,7 @@ class PdfStringFormat {
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///       format: PdfStringFormat(measureTrailingSpaces: true));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -289,7 +289,7 @@ class PdfStringFormat {
   ///         ..noClip = true
   ///         ..lineLimit = true);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -304,7 +304,7 @@ class PdfStringFormat {
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///       format: PdfStringFormat(wordWrap: PdfWordWrapType.word));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```
@@ -323,7 +323,7 @@ class PdfStringFormat {
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///       format: PdfStringFormat(paragraphIndent: 2.1));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Close the document.
   /// document.dispose();
   /// ```

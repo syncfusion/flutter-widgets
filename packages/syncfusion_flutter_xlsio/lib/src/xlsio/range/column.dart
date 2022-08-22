@@ -3,7 +3,9 @@ part of xlsio;
 /// Represents the colunm class.
 class Column {
   /// Create an instance of column.
-  Column(this.worksheet);
+  Column(this.worksheet) {
+    _isHidden = false;
+  }
 
   /// Represents the column width.
   double width = 0;
@@ -13,4 +15,7 @@ class Column {
 
   /// Parent worksheet.
   late Worksheet worksheet;
+
+  ///Represents the indicate wheather column hide or not.
+  late bool _isHidden;
 }

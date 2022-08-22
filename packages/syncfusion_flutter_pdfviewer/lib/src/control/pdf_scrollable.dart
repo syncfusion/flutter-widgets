@@ -1,11 +1,14 @@
+// ignore_for_file: use_if_null_to_convert_nulls_to_bools
+
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_page_view.dart';
 
+import '../../pdfviewer.dart';
 import '../common/pdfviewer_helper.dart';
+import 'pdf_page_view.dart';
 import 'scroll_head_overlay.dart';
 
 /// This callback triggered whenever offset is changed in PDF.
@@ -36,6 +39,7 @@ class PdfScrollable extends StatefulWidget {
       this.pdfPages,
       this.scrollDirection,
       this.isBookmarkViewOpen,
+      this.textDirection,
       this.child,
       {Key? key,
       this.onDoubleTap})
@@ -108,6 +112,9 @@ class PdfScrollable extends StatefulWidget {
   /// opened or not.
   final bool isBookmarkViewOpen;
 
+  ///A direction of text flow.
+  final TextDirection textDirection;
+
   @override
   PdfScrollableState createState() => PdfScrollableState();
 }
@@ -116,8 +123,13 @@ class PdfScrollable extends StatefulWidget {
 class PdfScrollableState extends State<PdfScrollable> {
   late TransformationController _transformationController;
   double? _currentScale;
+  double _previousScale = 1;
   bool? _setZoomLevel;
   bool _isOverFlowed = false;
+  Timer? _scrollTimer;
+
+  /// Indicates whether zoom value is changed.
+  bool isZoomChanged = false;
 
   /// Current Offset.
   late Offset currentOffset;
@@ -134,6 +146,11 @@ class PdfScrollableState extends State<PdfScrollable> {
   /// Padding scale for height used in mobile for single page document.
   double paddingHeightScale = 0;
 
+  /// State of scroll head overlay.
+  final GlobalKey<ScrollHeadOverlayState> scrollHeadStateKey = GlobalKey();
+
+  /// Indicates whether the user scrolls continuously.
+  bool isScrolled = false;
   @override
   void initState() {
     super.initState();
@@ -148,6 +165,8 @@ class PdfScrollableState extends State<PdfScrollable> {
   @override
   void dispose() {
     _transformationController.dispose();
+    _scrollTimer?.cancel();
+    _scrollTimer = null;
     super.dispose();
   }
 
@@ -180,6 +199,7 @@ class PdfScrollableState extends State<PdfScrollable> {
       widget.pdfPages,
       widget.scrollDirection,
       widget.isBookmarkViewOpen,
+      widget.textDirection,
       widget.child,
       isPanEnabled: widget.isPanEnabled,
       onInteractionStart: _handleInteractionStart,
@@ -187,11 +207,13 @@ class PdfScrollableState extends State<PdfScrollable> {
       onInteractionEnd: _handleInteractionEnd,
       transformationController: _transformationController,
       onPdfOffsetChanged: _handlePdfOffsetChanged,
+      key: scrollHeadStateKey,
     );
   }
 
   /// Handles interaction start and updates the UI
   void _handleInteractionStart(ScaleStartDetails details) {
+    _previousScale = _transformationController.value.getMaxScaleOnAxis();
     if (!kIsDesktop ||
         (kIsDesktop && widget.isMobileWebView) ||
         (kIsDesktop && widget.scaleEnabled)) {
@@ -199,6 +221,7 @@ class PdfScrollableState extends State<PdfScrollable> {
     }
     paddingWidthScale = 0;
     paddingHeightScale = 0;
+    isZoomChanged = false;
   }
 
   void _onDoubleTapZoomInvoked(double scale) {
@@ -278,15 +301,65 @@ class PdfScrollableState extends State<PdfScrollable> {
         }
       }
     }
+    if (_previousScale != _transformationController.value.getMaxScaleOnAxis()) {
+      setState(() {
+        isZoomChanged = true;
+      });
+    }
+    final double scale = _transformationController.value.getMaxScaleOnAxis();
+    if (widget.scrollDirection == PdfScrollDirection.vertical &&
+        scale == 1 &&
+        previousZoomLevel == scale &&
+        details.velocity != Velocity.zero &&
+        widget.pdfViewerController.scrollOffset.dy.round() != 0 &&
+        widget.pdfViewerController.scrollOffset.dy.round() !=
+            widget.maxScrollExtent.round()) {
+      final double scrollFilOffset = details.velocity.pixelsPerSecond.dy;
+      double currentX = _transformationController.toScene(Offset.zero).dx;
+      // To make translation smoother, add the following codes.
+      final double diffOffset = scrollFilOffset / 100;
+      int scrollCount = 0;
+      while (scrollCount < 100) {
+        currentX = _transformationController.toScene(Offset.zero).dx;
+        _transformationController.value.translate(currentX, diffOffset);
+        scrollCount++;
+      }
+    }
+    if (widget.scrollDirection == PdfScrollDirection.horizontal &&
+        scale == 1 &&
+        previousZoomLevel == scale &&
+        details.velocity != Velocity.zero &&
+        widget.pdfViewerController.scrollOffset.dx.round() != 0 &&
+        widget.pdfViewerController.scrollOffset.dx.round() !=
+            widget.maxScrollExtent.round()) {
+      final double scrollFilOffset = details.velocity.pixelsPerSecond.dx;
+      double currentX = _transformationController.toScene(Offset.zero).dy;
+      // To make translation smoother, add the following codes.
+      final double diffOffset = scrollFilOffset / 100;
+      int scrollCount = 0;
+      while (scrollCount < 100) {
+        currentX = _transformationController.toScene(Offset.zero).dy;
+        _transformationController.value.translate(diffOffset, currentX);
+        scrollCount++;
+      }
+    }
   }
 
   ///Triggers when scrolling performed by touch pad.
   void receivedPointerSignal(PointerSignalEvent event) {
+    isScrolled = true;
     if (event is PointerScrollEvent) {
       jumpTo(
           xOffset: currentOffset.dx + event.scrollDelta.dx,
           yOffset: currentOffset.dy + event.scrollDelta.dy);
     }
+    _scrollTimer?.cancel();
+    _scrollTimer = Timer(
+      const Duration(milliseconds: 100),
+      () {
+        isScrolled = false;
+      },
+    );
   }
 
   ///Triggers when scrolling performed by touch.
@@ -377,7 +450,7 @@ class PdfScrollableState extends State<PdfScrollable> {
       _setPixel(offset);
     } else {
       // add post frame which is jumped once the layout is changed.
-      WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
         _setPixel(offset);
       });
     }

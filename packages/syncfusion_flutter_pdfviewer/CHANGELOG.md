@@ -1,4 +1,63 @@
-## Unreleased
+## Undefined
+
+**Features**
+
+* Open URLs or website links in the default browser just by clicking them. Also, hide or customize the built-in hyperlink navigation dialog.
+* Now, the `SfPdfViewer` supports changing the user interface and functionalities like text search and copying text to suit the RTL languages.
+* Enhanced the performance of the scroll fling animation to provide smoother and fluid scrolling. That is, the time taken by scroll fling action has been reduced up to 60%.
+
+**Bugs**
+
+* The application will no longer crash while loading a high-quality document in the `SfPdfViewer` widget.
+* Now, the PDF pages will be rendered properly while switching the device orientation from portrait to landscape or vice versa.
+
+
+## [20.1.57-beta] - 05/24/2022
+
+**Bugs**
+
+* Now,  the application will not close unexpectedly when scrolling the specific PDF document on the iOS device.
+* Now,  the clarity of the PDF page is updated properly when changing the orientation.
+
+## [20.1.56-beta] - 05/17/2022
+
+* Resolved linter warnings due to Flutter 3 SDK upgradation.
+
+## [20.1.47-beta] - 04/04/2022
+
+**Features**
+
+* Windows platform support has been provided.
+
+**Bugs**
+
+* The scrolling and panning performance in zoomed documents has now been improved.
+
+**Breaking changes**
+
+The following platform packages have been renamed. No changes in your pubspec.yaml is required since these changes will be reflected automatically.
+
+| Old package name                                  | New package name                        |
+|:-------------------------------------------------:|:---------------------------------------:|
+| syncfusion_flutter_pdfviewer_platform_interface   | syncfusion_pdfviewer_platform_interface |
+| syncfusion_flutter_pdfviewer_web                  | syncfusion_pdfviewer_web                |
+| syncfusion_flutter_pdfviewer_macos                | syncfusion_pdfviewer_macos              |
+
+## [19.4.55-beta] - 03/08/2022
+
+* Now, the SfPdfViewer widget won't be crashed when scrolling continuously over the zoomed document.
+
+## [19.4.48-beta] - 01/31/2022
+
+**Breaking changes**
+
+* `searchTextHighlightColor` property has been deprecated, instead use the `currentSearchTextHighlightColor` and `otherSearchTextHighlightColor` for customizing the search text highlight color.
+
+## [19.4.40-beta] - 12/28/2021
+
+* Now, PDF document will be loaded from the page of first occurrence when `searchText` is performed in `onDocumentLoaded` callback.
+
+## [19.4.38-beta] - 12/17/2021
 
 **Features**
 

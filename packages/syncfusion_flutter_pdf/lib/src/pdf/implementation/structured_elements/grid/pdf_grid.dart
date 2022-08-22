@@ -57,7 +57,7 @@ import 'styles/style.dart';
 /// grid.draw(
 ///     page: document.pages.add(), bounds: Rect.zero);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -90,7 +90,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -134,7 +134,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -175,7 +175,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -237,7 +237,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -288,7 +288,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -329,7 +329,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -372,7 +372,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -415,7 +415,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -458,7 +458,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -523,7 +523,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -587,7 +587,7 @@ class PdfGrid extends PdfLayoutElement {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -720,7 +720,7 @@ class PdfGrid extends PdfLayoutElement {
   }
 
   void _applyTableGridLight(PdfColor borderColor) {
-    final PdfPen borderPen = PdfPen(borderColor, width: 1);
+    final PdfPen borderPen = PdfPen(borderColor);
     if (headers.count > 0) {
       for (int i = 1; i <= headers.count; i++) {
         final PdfGridRow row = headers[i - 1];
@@ -4339,6 +4339,7 @@ class PdfGridHelper {
             PdfColor(226, 239, 217), PdfColor(83, 129, 53));
         break;
 
+      // ignore: no_default_cases
       default:
     }
   }
@@ -4406,7 +4407,7 @@ class PdfGridBeginCellLayoutArgs extends GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4539,7 +4540,7 @@ abstract class GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4590,7 +4591,7 @@ abstract class GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4641,7 +4642,7 @@ abstract class GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4692,7 +4693,7 @@ abstract class GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4743,7 +4744,7 @@ abstract class GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4794,7 +4795,7 @@ abstract class GridCellLayoutArgs {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: Rect.zero);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4887,7 +4888,7 @@ class PdfGridBuiltInStyleSettings {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4928,7 +4929,7 @@ class PdfGridBuiltInStyleSettings {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -4969,7 +4970,7 @@ class PdfGridBuiltInStyleSettings {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -5010,7 +5011,7 @@ class PdfGridBuiltInStyleSettings {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -5051,7 +5052,7 @@ class PdfGridBuiltInStyleSettings {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -5092,7 +5093,7 @@ class PdfGridBuiltInStyleSettings {
   /// grid.draw(
   ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Voqea yoʻq", 
 "ofDataPagerLabel" : "ning", 
 "pagesDataPagerLabel" : "sahifalar", 
-"itemsDataPagerLabel" : "buyumlar", 
+"rowsPerPageDataPagerLabel" : "Har bir sahifadagi qatorlar", 
 "pdfBookmarksLabel" : "Xatcho‘plar", 
 "pdfNoBookmarksLabel" : "Hech qanday xatcho‘p topilmadi", 
 "pdfScrollStatusOfLabel" : "ning", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Shou.", 
 "shortDhualqiLabel" : "Zul-q", 
 "shortDhualhiLabel" : "Zul-h", 
-"daySpanCountLabel" : "kun"
+"daySpanCountLabel" : "kun", 
+"series" : "Seriya", 
+"pdfHyperlinkLabel" : "Veb-sahifani oching", 
+"pdfHyperlinkContentLabel" : "sahifani ochmoqchimisiz", 
+"pdfHyperlinkDialogOpenLabel" : "OCHIQ", 
+"pdfHyperlinkDialogCancelLabel" : "BEKOR"
 }

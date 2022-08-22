@@ -9,9 +9,9 @@ import '../common/marker.dart';
 import '../trendlines/trendlines.dart';
 import 'xy_data_series.dart';
 
-/// Represents the stacked series base class
+/// Represents the stacked series base class.
 abstract class StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
-  /// Creates an instance of stacked series renderer
+  /// Creates an instance of stacked series renderer.
   StackedSeriesBase(
       {ValueKey<String>? key,
       ChartSeriesRendererFactory<T, D>? onCreateRenderer,
@@ -107,154 +107,143 @@ abstract class StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
             animationDelay: animationDelay,
             onCreateShader: onCreateShader);
 
-  ///Customizes the corners of the column. Each corner can be customized with a desired
-  ///value or with a single value.
+  /// Customizes the corners of the column. Each corner can be customized with a desired
+  /// value or with a single value.
   ///
-  ///Defaults to `Radius.zero`
+  /// Defaults to `BorderRadius.zero`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  borderRadius: BorderRadius.circular(5),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         borderRadius: BorderRadius.circular(5),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final BorderRadius borderRadius;
 
-  ///Spacing between the columns. The value ranges from 0 to 1.
-  ///1 represents 100% and 0 represents 0% of the available space.
+  /// Spacing between the columns. The value ranges from 0 to 1.
+  /// 1 represents 100% and 0 represents 0% of the available space.
   ///
-  ///Spacing also affects the width of the column. For example, setting 20% spacing
-  ///and 100% width renders the column with 80% of total width.
+  /// Spacing also affects the width of the column. For example, setting 20% spacing
+  /// and 100% width renders the column with 80% of total width.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  spacing: 0,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return SfCartesianChart(
+  ///      series: <StackedColumnSeries<SalesData, num>>[
+  ///        StackedColumnSeries<SalesData, num>(
+  ///          spacing: 0.5,
+  ///        ),
+  ///      ],
+  ///    );
+  /// }
+  /// ```
   final double spacing;
 
-  ///Renders column with track. Track is a rectangular bar rendered from the start
-  ///to the end of the axis. Column series will be rendered above the track.
+  /// Renders column with track. Track is a rectangular bar rendered from the start
+  /// to the end of the axis. Column series will be rendered above the track.
   ///
-  ///Defaults to `false`
+  /// Defaults to `false`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final bool isTrackVisible;
 
-  ///Color of the track.
+  /// Color of the track.
   ///
-  ///Defaults to `grey`
+  /// Defaults to `Colors.grey`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color trackColor;
 
-  ///Color of the track border.
+  /// Color of the track border.
   ///
-  ///Defaults to `transparent`
+  /// Defaults to `Colors.transparent`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackBorderColor: Colors.red
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackBorderColor: Colors.red
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final Color trackBorderColor;
 
-  ///Width of the track border.
+  /// Width of the track border.
   ///
-  ///Defaults to `1`
+  /// Defaults to `1`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackBorderColor: Colors.red ,
-  ///                  trackBorderWidth: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackBorderColor: Colors.red ,
+  ///         trackBorderWidth: 2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double trackBorderWidth;
 
-  ///Padding of the track.
+  /// Padding of the track.
   ///
-  ///Defaults to `0`
+  /// Defaults to `0`.
   ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            selectionGesture: ActivationMode.doubleTap,
-  ///            series: <StackedColumnSeries<SalesData, num>>[
-  ///                StackedColumnSeries<SalesData, num>(
-  ///                  isTrackVisible: true,
-  ///                  trackPadding: 2
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     series: <StackedColumnSeries<SalesData, num>>[
+  ///       StackedColumnSeries<SalesData, num>(
+  ///         isTrackVisible: true,
+  ///         trackPadding: 2
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
   final double trackPadding;
 
-  /// Specifies the dash array
+  /// Specifies the dash array.
   @override
   final List<double> dashArray;
 
-  /// Specifies the group name
+  /// Specifies the group name.
   final String groupName;
 }
 
-/// Represents the Stacked series renderer class
+/// Represents the stacked series renderer class.
 abstract class StackedSeriesRenderer extends XyDataSeriesRenderer {}

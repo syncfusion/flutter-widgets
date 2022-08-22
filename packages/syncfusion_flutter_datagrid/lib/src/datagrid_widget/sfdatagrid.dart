@@ -602,11 +602,11 @@ class SfDataGrid extends StatefulWidget {
   /// twice in quick succession.
   final DataGridCellDoubleTapCallback? onCellDoubleTap;
 
-  /// Called when a long press gesture with a primary button has been
-  /// recognized for a cell.
+  /// Called when a tap with a cell has occurred with a secondary button.
   final DataGridCellTapCallback? onCellSecondaryTap;
 
-  /// Called when a tap with a cell has occurred with a secondary button.
+  /// Called when a long press gesture with a primary button has been
+  /// recognized for a cell.
   final DataGridCellLongPressCallback? onCellLongPress;
 
   /// The number of non-scrolling columns at the left side of [SfDataGrid].
@@ -1695,6 +1695,12 @@ class SfDataGridState extends State<SfDataGrid>
 
     _controller!._addDataGridPropertyChangeListener(
         _handleDataGridPropertyChangeListeners);
+    if (widget.verticalScrollController != null) {
+      _dataGridConfiguration.disposeVerticalScrollController = false;
+    }
+    if (widget.horizontalScrollController != null) {
+      _dataGridConfiguration.disposeHorizontalScrollController = false;
+    }
 
     _dataGridConfiguration.verticalScrollController =
         widget.verticalScrollController ?? ScrollController();
@@ -1894,6 +1900,9 @@ class SfDataGridState extends State<SfDataGrid>
       return;
     }
     setState(() {
+      // Resets the editing before processing the `onCellSubmit`.
+      _processEditing();
+
       // Need to endEdit the editing [DataGridCell] before perform refreshing.
       if (_dataGridConfiguration.currentCell.isEditing) {
         _dataGridConfiguration.currentCell
@@ -2001,6 +2010,51 @@ class SfDataGridState extends State<SfDataGrid>
         ..refreshView()
         ..isDirty = true;
     });
+  }
+
+  void _processEditing() {
+    if (!_dataGridConfiguration.currentCell.isEditing) {
+      return;
+    }
+
+    final DataRowBase? dataRow = _dataGridConfiguration.rowGenerator.items
+        .firstWhereOrNull((DataRowBase dataRow) => dataRow.isEditing);
+
+    if (dataRow == null) {
+      return;
+    }
+
+    final DataCellBase? dataCell = dataRow.visibleColumns
+        .firstWhereOrNull((DataCellBase dataCell) => dataCell.isEditing);
+
+    if (dataCell == null || !dataCell.isEditing) {
+      return;
+    }
+
+    final RowColumnIndex rowColumnIndex =
+        grid_helper.resolveToRecordRowColumnIndex(_dataGridConfiguration,
+            RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex));
+
+    /// Issue:
+    /// FLUT-6409 - Other cells are not moving into edit mode when removing
+    /// last row and the cell in that row is in edit mode
+    ///
+    /// Fix:
+    /// The issue occurred due to not resetting the editing properties after
+    /// removing a row or column from the collection. If a row or column has
+    /// a negative index, that row or column currently does not exist in the
+    /// data grid. We have fixed the issue by resetting the editing properties.
+    if (rowColumnIndex.rowIndex.isNegative ||
+        rowColumnIndex.columnIndex.isNegative) {
+      dataCell.editingWidget = null;
+      dataCell.isDirty = true;
+      dataCell.isEditing = dataRow.isEditing = false;
+
+      _dataGridConfiguration.currentCell
+        ..isEditing = false
+        ..rowIndex = -1
+        ..columnIndex = -1;
+    }
   }
 
   void _resetColumn({bool clearEditing = true}) {
@@ -2259,12 +2313,18 @@ class SfDataGridState extends State<SfDataGrid>
         widget.rowsPerPage != oldWidget.rowsPerPage;
 
     if (oldWidget.verticalScrollController != widget.verticalScrollController) {
+      if (widget.verticalScrollController != null) {
+        _dataGridConfiguration.disposeVerticalScrollController = false;
+      }
       _dataGridConfiguration.verticalScrollController =
           widget.verticalScrollController ?? ScrollController();
     }
 
     if (oldWidget.horizontalScrollController !=
         widget.horizontalScrollController) {
+      if (widget.horizontalScrollController != null) {
+        _dataGridConfiguration.disposeHorizontalScrollController = false;
+      }
       _dataGridConfiguration.horizontalScrollController =
           widget.horizontalScrollController ?? ScrollController();
     }
@@ -2714,14 +2774,18 @@ class SfDataGridState extends State<SfDataGrid>
     }
 
     return LayoutBuilder(
-        builder: (BuildContext _context, BoxConstraints _constraints) {
-      final double _measuredHeight = _dataGridConfiguration.viewHeight =
-          _constraints.maxHeight.isInfinite
-              ? _minHeight
-              : _constraints.maxHeight;
-      final double _measuredWidth = _dataGridConfiguration.viewWidth =
-          _constraints.maxWidth.isInfinite ? _minWidth : _constraints.maxWidth;
+        builder: (BuildContext context, BoxConstraints constraints) {
+      final double measuredHeight = _dataGridConfiguration.viewHeight =
+          constraints.maxHeight.isInfinite ? _minHeight : constraints.maxHeight;
+      double measuredWidth = _dataGridConfiguration.viewWidth =
+          constraints.maxWidth.isInfinite ? _minWidth : constraints.maxWidth;
 
+      // FLUT-6545 if shrinkWrapColumns is true, we need to set the container extended width value to the viewWidth
+      // because the row selection colors are applied based on this size while cell is in editing
+      if (_dataGridConfiguration.shrinkWrapColumns) {
+        measuredWidth = _dataGridConfiguration.viewWidth =
+            _dataGridConfiguration.container.extentWidth;
+      }
       if (!_container.isGridLoaded) {
         _gridLoaded();
         if (_textDirection == TextDirection.rtl) {
@@ -2733,8 +2797,8 @@ class SfDataGridState extends State<SfDataGrid>
       }
 
       return ScrollViewWidget(
-        width: _measuredWidth,
-        height: _measuredHeight,
+        width: measuredWidth,
+        height: measuredHeight,
         dataGridStateDetails: _dataGridStateDetails!,
       );
     });
@@ -3335,19 +3399,18 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
 
     final int rowsPerPage = dataGridConfiguration.rowsPerPage ??
         (effectiveRows.length / _pageCount).ceil();
-    final int _startIndex = newPageIndex * rowsPerPage;
-    int _endIndex = _startIndex + rowsPerPage;
+    final int startIndex = newPageIndex * rowsPerPage;
+    int endIndex = startIndex + rowsPerPage;
 
     /// Need to calculate endIndex for the last page, when the number of rows is
     /// lesser than rowsPerPage.
-    if (_endIndex > effectiveRows.length) {
-      _endIndex = effectiveRows.length;
+    if (endIndex > effectiveRows.length) {
+      endIndex = effectiveRows.length;
     }
 
     /// Get particular range from the sorted collection.
-    if (_startIndex < effectiveRows.length &&
-        _endIndex <= effectiveRows.length) {
-      _paginatedRows = effectiveRows.getRange(_startIndex, _endIndex).toList();
+    if (startIndex < effectiveRows.length && endIndex <= effectiveRows.length) {
+      _paginatedRows = effectiveRows.getRange(startIndex, endIndex).toList();
     } else {
       _paginatedRows = <DataGridRow>[];
     }
@@ -3451,6 +3514,19 @@ class DataGridController extends DataGridSourceChangeNotifier {
   /// An index of the corresponding selected row.
   int get selectedIndex => _selectedIndex;
   int _selectedIndex;
+
+  /// Whether the currently selected cell is in editing mode.
+  bool get isCurrentCellInEditing => _isCurrentCellInEditing();
+
+  bool _isCurrentCellInEditing() {
+    if (_dataGridStateDetails != null) {
+      final DataGridConfiguration dataGridConfiguration =
+          _dataGridStateDetails!();
+      return dataGridConfiguration.currentCell.isEditing;
+    } else {
+      return false;
+    }
+  }
 
   /// An index of the corresponding selected row.
   set selectedIndex(int newSelectedIndex) {
@@ -3569,14 +3645,14 @@ class DataGridController extends DataGridSourceChangeNotifier {
         return;
       }
 
-      final int _rowIndex = grid_helper.resolveToRowIndex(
+      final int getRowIndex = grid_helper.resolveToRowIndex(
           dataGridConfiguration, rowIndex.toInt());
-      final int _columnIndex = grid_helper.resolveToGridVisibleColumnIndex(
+      final int getColumnIndex = grid_helper.resolveToGridVisibleColumnIndex(
           dataGridConfiguration, columnIndex.toInt());
       double verticalOffset =
-          grid_helper.getVerticalOffset(dataGridConfiguration, _rowIndex);
-      double horizontalOffset =
-          grid_helper.getHorizontalOffset(dataGridConfiguration, _columnIndex);
+          grid_helper.getVerticalOffset(dataGridConfiguration, getRowIndex);
+      double horizontalOffset = grid_helper.getHorizontalOffset(
+          dataGridConfiguration, getColumnIndex);
 
       if (dataGridConfiguration.textDirection == TextDirection.rtl &&
           columnIndex == -1) {
@@ -3599,7 +3675,7 @@ class DataGridController extends DataGridSourceChangeNotifier {
           scrollRows.footerExtent,
           dataGridConfiguration.rowHeight,
           dataGridConfiguration.container.verticalOffset,
-          _rowIndex);
+          getRowIndex);
 
       horizontalOffset = grid_helper.resolveScrollOffsetToPosition(
           columnPosition,
@@ -3610,7 +3686,7 @@ class DataGridController extends DataGridSourceChangeNotifier {
           scrollColumns.footerExtent,
           dataGridConfiguration.defaultColumnWidth,
           dataGridConfiguration.container.horizontalOffset,
-          _columnIndex);
+          getColumnIndex);
 
       grid_helper.scrollVertical(
           dataGridConfiguration, verticalOffset, canAnimate);
@@ -3837,7 +3913,7 @@ void setPageCount(DataPagerDelegate delegate, double pageCount) {
   /// If the pageCount is changed during CRUD operation(while removing last page), we should update the
   /// current page.
   if (oldPageCount != pageCount) {
-    WidgetsBinding.instance!.addPostFrameCallback((Duration timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
       source.notifyListeners();
     });
   }
@@ -3847,7 +3923,7 @@ void setPageCount(DataPagerDelegate delegate, double pageCount) {
   if (source._paginatedRows.isNotEmpty && source._pageCount == 0.0) {
     /// We couldn't refresh the view at same time when framework doing an
     /// frame refreshing.
-    WidgetsBinding.instance!.addPostFrameCallback((Duration timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
       source._paginatedRows = <DataGridRow>[];
       source.notifyDataSourceListeners();
     });
@@ -3930,6 +4006,7 @@ class DataGridThemeHelper {
             fontWeight: FontWeight.w400,
             fontSize: 14,
             color: colorScheme!.onSurface.withOpacity(0.87));
+    sortIcon = dataGridThemeData.sortIcon;
   }
 
   ///ToDo
@@ -3988,4 +4065,8 @@ class DataGridThemeHelper {
   /// To do
 
   late TextStyle rowHoverTextStyle;
+
+  /// To do
+
+  late Widget? sortIcon;
 }

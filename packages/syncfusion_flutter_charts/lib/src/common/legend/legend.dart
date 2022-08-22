@@ -1,79 +1,79 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
-import 'package:syncfusion_flutter_charts/src/circular_chart/renderer/chart_point.dart';
-import 'package:syncfusion_flutter_charts/src/circular_chart/renderer/circular_series.dart';
-import 'package:syncfusion_flutter_charts/src/circular_chart/renderer/renderer_extension.dart';
-import 'package:syncfusion_flutter_charts/src/common/utils/typedef.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/legend_internal.dart'
     hide LegendPosition;
 
 import '../../chart/base/chart_base.dart';
 import '../../chart/chart_series/series.dart';
+import '../../chart/chart_series/series_renderer_properties.dart';
 import '../../chart/common/cartesian_state_properties.dart';
 import '../../chart/technical_indicators/technical_indicator.dart';
 import '../../chart/trendlines/trendlines.dart';
 import '../../chart/utils/helper.dart';
+import '../../circular_chart/renderer/chart_point.dart';
+import '../../circular_chart/renderer/circular_series.dart';
+import '../../circular_chart/renderer/renderer_extension.dart';
 import '../common.dart';
 import '../event_args.dart';
 import '../rendering_details.dart';
 import '../state_properties.dart';
 import '../utils/enum.dart';
+import '../utils/typedef.dart';
 import 'renderer.dart';
 
-/// Represents the chart legend class
+/// Represents the chart legend class.
 class ChartLegend {
-  /// Creates an instance of chart legend
+  /// Creates an instance of chart legend.
   ChartLegend(this.stateProperties);
 
-  /// Specifies the value of state properties
+  /// Specifies the value of state properties.
   final StateProperties stateProperties;
 
-  /// Holds the chart
+  /// Holds the chart.
   dynamic get chart => stateProperties.chart;
 
-  /// Specifies the value of legend
+  /// Specifies the value of legend.
   Legend? legend;
 
-  /// Specifies the list of legend renderer context
+  /// Specifies the list of legend renderer context.
   List<LegendRenderContext>? legendCollections;
 
   /// Specifies the list of legend items for SfLegend widget.
   late List<LegendItem> legendItems;
 
-  /// Specifies the value of row count
+  /// Specifies the value of row count.
   late int rowCount;
 
-  /// Specifies the value of column count
+  /// Specifies the value of column count.
   late int columnCount;
 
-  /// Specifies the legend size value
+  /// Specifies the legend size value.
   Size legendSize = Size.zero;
 
-  /// Specifies the value of chart size
+  /// Specifies the value of chart size.
   Size chartSize = Size.zero;
 
-  /// Specifies whether to render the legend
+  /// Specifies whether to render the legend.
   bool shouldRenderLegend = false;
 
-  /// Specifies whether the legend is scrollable
+  /// Specifies whether the legend is scrollable.
   late bool isNeedScrollable;
 
-  /// Specifies the legend's title height value
+  /// Specifies the legend's title height value.
   double titleHeight = 0.0;
 
-  /// Specifies the list of toggled legend indices for SfLegend
+  /// Specifies the list of toggled legend indices for SfLegend.
   List<int> toggledIndices = <int>[];
 
   /// Specifies the sum of points for circular chart types.
   num sumOfPoints = 0;
 
-  /// Specifies the toggled item color for Sflegend
+  /// Specifies the toggled item color for Sflegend.
   Color toggledItemColor = const Color.fromRGBO(211, 211, 211, 1);
 
-  /// To calculate legend bounds
+  /// To calculate legend bounds.
   void calculateLegendBounds(Size size) {
     legend = chart.legend;
     final LegendRenderer legendRenderer =
@@ -138,6 +138,7 @@ class ChartLegend {
             : isBottomOrTop
                 ? size.width
                 : percentageToValue('30%', size.width);
+
         // To reduce the container width based on offset.
         if (chartLegend.legend!.offset != null &&
             (chartLegend.legend!.offset?.dx.isNegative == false)) {
@@ -265,7 +266,7 @@ class ChartLegend {
     }
   }
 
-  /// To calculate legends in chart
+  /// To calculate legends in chart.
   void _calculateLegends(SfCartesianChart chart, int index,
       SeriesRendererDetails seriesRendererDetails,
       [Trendline? trendline, int? trendlineIndex]) {
@@ -276,7 +277,7 @@ class ChartLegend {
         seriesRendererDetails.series;
     final CartesianStateProperties stateProperties =
         this.stateProperties as CartesianStateProperties;
-    final RenderingDetails _renderingDetails = stateProperties.renderingDetails;
+    final RenderingDetails renderingDetails = stateProperties.renderingDetails;
     final List<Color> palette = stateProperties.chart.palette;
     if (trendline != null) {
       isTrendlineadded = true;
@@ -378,8 +379,8 @@ class ChartLegend {
       legendItems.add(legendItem);
       if (seriesRendererDetails.visible! == false &&
           series.isVisibleInLegend &&
-          (_renderingDetails.widgetNeedUpdate ||
-              _renderingDetails.initialRender!) &&
+          (renderingDetails.widgetNeedUpdate ||
+              renderingDetails.initialRender!) &&
           (seriesRendererDetails.oldSeries == null ||
               (!series.isVisible &&
                   seriesRendererDetails.oldSeries!.isVisible == true))) {
@@ -390,7 +391,7 @@ class ChartLegend {
           stateProperties.renderingDetails.legendToggleStates
               .add(legendRenderContext);
         }
-      } else if (_renderingDetails.widgetNeedUpdate &&
+      } else if (renderingDetails.widgetNeedUpdate &&
           (seriesRendererDetails.oldSeries != null &&
               (series.isVisible &&
                   stateProperties.legendToggling == false &&
@@ -420,7 +421,7 @@ class ChartLegend {
     }
   }
 
-  /// To calculate series legends
+  /// To calculate series legends.
   void _calculateSeriesLegends() {
     LegendRenderArgs? legendEventArgs;
     if (chart.legend.legendItemBuilder == null) {
@@ -546,7 +547,7 @@ class ChartLegend {
     }
   }
 
-  /// To calculate indicator legends
+  /// To calculate indicator legends.
   void _calculateIndicatorLegends() {
     LegendRenderArgs? legendEventArgs;
     final List<String> textCollection = <String>[];
@@ -563,10 +564,10 @@ class ChartLegend {
       textCollection.add(technicalIndicatorsRenderer.indicatorType);
     }
     //ignore: prefer_collection_literals
-    final Map<String, int> _map = Map<String, int>();
+    final Map<String, int> map = Map<String, int>();
     //ignore: avoid_function_literals_in_foreach_calls
     textCollection.forEach((dynamic str) =>
-        _map[str] = !_map.containsKey(str) ? (1) : (_map[str]! + 1));
+        map[str] = !map.containsKey(str) ? (1) : (map[str]! + 1));
 
     final List<String> indicatorTextCollection = <String>[];
     for (int i = 0; i < chart.indicators.length; i++) {
@@ -582,7 +583,7 @@ class ChartLegend {
       indicatorTextCollection.add(technicalIndicatorsRenderer.indicatorType);
       technicalIndicatorsRenderer.name = indicator.name ??
           (technicalIndicatorsRenderer.indicatorType +
-              (_map[technicalIndicatorsRenderer.indicatorType] == 1
+              (map[technicalIndicatorsRenderer.indicatorType] == 1
                   ? ''
                   : ' $count'));
       if (indicator.isVisible && indicator.isVisibleInLegend) {
@@ -603,6 +604,7 @@ class ChartLegend {
             text: legendEventArgs?.text ??
                 indicator.legendItemText ??
                 technicalIndicatorsRenderer.name,
+            isTrendline: false,
             iconColor: legendEventArgs?.color ?? indicator.signalLineColor,
             iconType:
                 legendEventArgs?.legendIconType ?? indicator.legendIconType);
@@ -643,7 +645,7 @@ class ChartLegend {
     }
   }
 
-  /// To find sum of points in radial bar series
+  /// To find sum of points in radial bar series.
   void _getSumOfPoints(CircularSeriesRendererExtension seriesRenderer) {
     num sum = 0;
     for (final ChartPoint<dynamic> point in seriesRenderer.renderPoints!) {
@@ -654,7 +656,7 @@ class ChartLegend {
     sumOfPoints = sum;
   }
 
-  /// To get the cartesian series gradient shader for SfLegend
+  /// To get the cartesian series gradient shader for SfLegend.
   Shader? _getCartesianSeriesGradientShader(
       LegendRenderContext legendRenderContext, Legend legend) {
     Shader? legendShader;
@@ -693,7 +695,9 @@ class ChartLegend {
 
     // ignore: prefer_if_null_operators
     cartesianShader = legendShader == null
-        ? !seriesType.contains('line') &&
+        ? (!seriesType.contains('line') ||
+                    (seriesType.contains('splinearea') ||
+                        seriesType.contains('splinerangearea'))) &&
                 (legendRenderContext.series is CartesianSeries &&
                     legendRenderContext.series.gradient != null &&
                     !legendRenderContext.isTrendline!)
@@ -708,7 +712,7 @@ class ChartLegend {
     return cartesianShader;
   }
 
-  /// To get the circular series shader for SfLegend
+  /// To get the circular series shader for SfLegend.
   Shader? _getCircularSeriesShader(
       LegendRenderContext legendRenderContext, Legend legend) {
     Shader? legendShader;
@@ -768,7 +772,7 @@ class ChartLegend {
     return overlayMarkerType;
   }
 
-  /// To get legend icon shape based on series marker shape
+  /// To get legend icon shape based on series marker shape.
   ShapeMarkerType _getMarkerIconType(DataMarkerType shape) {
     ShapeMarkerType? iconType;
     switch (shape) {
@@ -805,7 +809,7 @@ class ChartLegend {
     return iconType!;
   }
 
-  /// To get the legend icon type for SfLegend
+  /// To get the legend icon type for SfLegend.
   ShapeMarkerType _getEffectiveLegendIconType(LegendIconType iconType,
       [LegendRenderContext? legendRenderContext, String? seriesType]) {
     ShapeMarkerType legendIconType;
@@ -845,7 +849,7 @@ class ChartLegend {
     return legendIconType;
   }
 
-  /// To get effective series type legend icon for SfLegend
+  /// To get effective series type legend icon for SfLegend.
   ShapeMarkerType _getSeriesLegendIconType(
       String seriesType, LegendRenderContext context) {
     switch (seriesType) {

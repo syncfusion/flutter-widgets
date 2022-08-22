@@ -14,15 +14,15 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Spline range area series
+/// Creates series renderer for spline range area series.
 class SplineRangeAreaSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of SplineRangeAreaSeriesRenderer class.
   SplineRangeAreaSeriesRenderer();
 
-  /// SplineRangeArea segment is created here
+  /// Spline range area segment is created here.
   ChartSegment _createSegments(int seriesIndex, SfCartesianChart chart,
       double animateFactor, Path path, Path strokePath,
-      [List<Offset>? _points]) {
+      [List<Offset>? points]) {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(this);
     final SplineRangeAreaSegment segment = createSegment();
@@ -39,8 +39,8 @@ class SplineRangeAreaSeriesRenderer extends XyDataSeriesRenderer {
       segmentProperties.series =
           seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
       segmentProperties.seriesRenderer = this;
-      if (_points != null) {
-        segment.points = _points;
+      if (points != null) {
+        segment.points = points;
       }
       segmentProperties.path = path;
       segmentProperties.strokePath = strokePath;
@@ -54,7 +54,7 @@ class SplineRangeAreaSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render spline range area series segments
+  /// To render spline range area series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -89,7 +89,7 @@ class SplineRangeAreaSeriesRenderer extends XyDataSeriesRenderer {
     segmentProperties.strokeWidth = segmentProperties.series.width;
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -153,13 +153,13 @@ class SplineRangeAreaChartPainter extends CustomPainter {
 
     final int pointsLength = seriesRendererDetails.dataPoints.length;
     CartesianChartPoint<dynamic>? prevPoint, point, oldChartPoint;
-    final Path _path = Path();
-    final Path _strokePath = Path();
+    final Path path = Path();
+    final Path strokePath = Path();
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRendererDetails.dataPoints;
     CartesianSeriesRenderer? oldSeriesRenderer;
 
-    final List<Offset> _points = <Offset>[];
+    final List<Offset> points = <Offset>[];
     final ChartAxisRendererDetails xAxisDetails =
         seriesRendererDetails.xAxisDetails!;
     final ChartAxisRendererDetails yAxisDetails =
@@ -225,6 +225,8 @@ class SplineRangeAreaChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < pointsLength; pointIndex++) {
         point = seriesRendererDetails.dataPoints[pointIndex];
         seriesRendererDetails.calculateRegionData(stateProperties,
@@ -253,8 +255,8 @@ class SplineRangeAreaChartPainter extends CustomPainter {
               xAxisDetails, yAxisDetails, isTransposed, series, axisClipRect);
           currentPointHigh = calculatePoint(point.xValue, point.high,
               xAxisDetails, yAxisDetails, isTransposed, series, axisClipRect);
-          _points.add(Offset(currentPointLow.x, currentPointLow.y));
-          _points.add(Offset(currentPointHigh.x, currentPointHigh.y));
+          points.add(Offset(currentPointLow.x, currentPointLow.y));
+          points.add(Offset(currentPointHigh.x, currentPointHigh.y));
 
           currentPointLowX = currentPointLow.x;
           currentPointLowY = currentPointLow.y;
@@ -323,26 +325,26 @@ class SplineRangeAreaChartPainter extends CustomPainter {
               (dataPoints[pointIndex].isGap == true) ||
               (dataPoints[pointIndex - 1].isVisible == false &&
                   series.emptyPointSettings.mode == EmptyPointMode.gap)) {
-            _path.moveTo(currentPointLowX, currentPointLowY);
-            _path.lineTo(currentPointHighX, currentPointHighY);
-            _strokePath.moveTo(currentPointHighX, currentPointHighY);
+            path.moveTo(currentPointLowX, currentPointLowY);
+            path.lineTo(currentPointHighX, currentPointHighY);
+            strokePath.moveTo(currentPointHighX, currentPointHighY);
           } else if (pointIndex == dataPoints.length - 1 ||
               dataPoints[pointIndex + 1].isGap == true) {
-            _path.cubicTo(startControlX!, startControlY!, endControlX!,
+            path.cubicTo(startControlX!, startControlY!, endControlX!,
                 endControlY!, currentPointHighX, currentPointHighY);
 
-            _strokePath.cubicTo(startControlX, startControlY, endControlX,
+            strokePath.cubicTo(startControlX, startControlY, endControlX,
                 endControlY, currentPointHighX, currentPointHighY);
 
-            _path.lineTo(currentPointLowX, currentPointLowY);
+            path.lineTo(currentPointLowX, currentPointLowY);
 
-            _strokePath.lineTo(currentPointHighX, currentPointHighY);
-            _strokePath.moveTo(currentPointLowX, currentPointLowY);
+            strokePath.lineTo(currentPointHighX, currentPointHighY);
+            strokePath.moveTo(currentPointLowX, currentPointLowY);
           } else {
-            _path.cubicTo(startControlX!, startControlY!, endControlX!,
+            path.cubicTo(startControlX!, startControlY!, endControlX!,
                 endControlY!, currentPointHighX, currentPointHighY);
 
-            _strokePath.cubicTo(startControlX, startControlY, endControlX,
+            strokePath.cubicTo(startControlX, startControlY, endControlX,
                 endControlY, currentPointHighX, currentPointHighY);
           }
 
@@ -350,7 +352,7 @@ class SplineRangeAreaChartPainter extends CustomPainter {
         }
         if (pointIndex >= dataPoints.length - 1) {
           seriesRenderer._createSegments(painterKey.index, chart,
-              animationFactor, _path, _strokePath, _points);
+              animationFactor, path, strokePath, points);
         }
       }
 
@@ -444,21 +446,16 @@ class SplineRangeAreaChartPainter extends CustomPainter {
           }
 
           if (dataPoints[pointIndex + 1].isGap == true) {
-            _strokePath.moveTo(currentPointLowX, currentPointLowY);
-            _path.moveTo(currentPointLowX, currentPointLowY);
+            strokePath.moveTo(currentPointLowX, currentPointLowY);
+            path.moveTo(currentPointLowX, currentPointLowY);
           } else if (dataPoints[pointIndex].isGap != true) {
             (pointIndex + 1 == dataPoints.length - 1 &&
                     dataPoints[pointIndex + 1].isDrop)
-                ? _strokePath.moveTo(currentPointLowX, currentPointLowY)
-                : _strokePath.cubicTo(
-                    endControlX!,
-                    endControlY!,
-                    startControlX!,
-                    startControlY!,
-                    currentPointLowX,
-                    currentPointLowY);
+                ? strokePath.moveTo(currentPointLowX, currentPointLowY)
+                : strokePath.cubicTo(endControlX!, endControlY!, startControlX!,
+                    startControlY!, currentPointLowX, currentPointLowY);
 
-            _path.cubicTo(endControlX!, endControlY!, startControlX!,
+            path.cubicTo(endControlX!, endControlY!, startControlX!,
                 startControlY!, currentPointLowX, currentPointLowY);
           }
         }
@@ -466,15 +463,15 @@ class SplineRangeAreaChartPainter extends CustomPainter {
 
       /// Draw the spline range area series
       // ignore: unnecessary_null_comparison
-      if (_path != null &&
+      if (path != null &&
           // ignore: unnecessary_null_comparison
           seriesRendererDetails.segments.isNotEmpty) {
         splineRangeAreaSegment =
             seriesRendererDetails.segments[0] as SplineRangeAreaSegment;
         final SegmentProperties segmentProperties =
             SegmentHelper.getSegmentProperties(splineRangeAreaSegment);
-        segmentProperties.path = _path;
-        segmentProperties.strokePath = _strokePath;
+        segmentProperties.path = path;
+        segmentProperties.strokePath = strokePath;
         seriesRendererDetails.drawSegment(canvas, splineRangeAreaSegment);
       }
 

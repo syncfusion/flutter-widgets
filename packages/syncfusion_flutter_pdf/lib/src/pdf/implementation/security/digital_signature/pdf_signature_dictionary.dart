@@ -436,6 +436,7 @@ class PdfSignatureDictionary implements IPdfWrapper {
       case DigestAlgorithm.sha512:
         digestAlgorithm = MessageDigestAlgorithms.secureHash512;
         break;
+      // ignore: no_default_cases
       default:
         digestAlgorithm = MessageDigestAlgorithms.secureHash256;
         break;

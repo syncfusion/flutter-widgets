@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 
 /// Renders the step line series.
 ///
 /// A step line chart is a line chart in which points are connected
-///  by horizontal and vertical line segments, looking like steps of a staircase.
+/// by horizontal and vertical line segments, looking like steps of a staircase.
 ///
-/// To render a step line chart, create an instance of StepLineSeries, and add it to the series collection property of [SfCartesianChart].
-/// Provides option to customize the [color], [opacity], [width] of the stepline segments
+/// To render a step line chart, create an instance of [StepLineSeries], and add it to the series collection property of [SfCartesianChart].
+/// Provides option to customize the [color], [opacity], [width] of the step line segments.
 @immutable
 class StepLineSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of StepLineSeries class.

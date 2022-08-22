@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Δεν υπάρχουν εκδηλώσεις", 
 "ofDataPagerLabel" : "του", 
 "pagesDataPagerLabel" : "σελίδες", 
-"itemsDataPagerLabel" : "είδη", 
+"rowsPerPageDataPagerLabel" : "Σειρές ανά σελίδα", 
 "pdfBookmarksLabel" : "Σελιδοδείκτες", 
 "pdfNoBookmarksLabel" : "Δεν βρέθηκαν σελιδοδείκτες", 
 "pdfScrollStatusOfLabel" : "του", 
@@ -35,7 +35,7 @@
 "rabi1Label" : "Rabi' al-awwal", 
 "rabi2Label" : "Ραμπί' αλ-θάνι", 
 "jumada1Label" : "Jumada al-awwal", 
-"jumada2Label" : "Τζουμάντα αλ Θάνι", 
+"jumada2Label" : "Τζουμάντα αλ-θάνι", 
 "rajabLabel" : "Ρατζάμπ", 
 "shaabanLabel" : "Sha'aban", 
 "ramadanLabel" : "Ραμαζάνι", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "Dhu'l-H", 
-"daySpanCountLabel" : "Ημέρα"
+"daySpanCountLabel" : "Ημέρα", 
+"series" : "Σειρά", 
+"pdfHyperlinkLabel" : "Ανοίξτε την ιστοσελίδα", 
+"pdfHyperlinkContentLabel" : "Θέλετε να ανοίξετε τη σελίδα στο", 
+"pdfHyperlinkDialogOpenLabel" : "ΑΝΟΙΞΕ", 
+"pdfHyperlinkDialogCancelLabel" : "ΜΑΤΑΙΩΣΗ"
 }

@@ -13,7 +13,7 @@ import 'pdf_encryptor.dart';
 /// security.userPassword = 'password';
 /// security.ownerPassword = 'syncfusion';
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -37,7 +37,7 @@ class PdfSecurity {
   /// //Get encryption algorithm
   /// PdfEncryptionAlgorithm algorithm = document.security.algorithm;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -57,7 +57,7 @@ class PdfSecurity {
   /// security.userPassword = 'password';
   /// security.ownerPassword = 'syncfusion';
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -80,7 +80,7 @@ class PdfSecurity {
   /// //Get the owner password.
   /// String ownerPassword = document.security.ownerPassword;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -103,7 +103,7 @@ class PdfSecurity {
   /// security.userPassword = 'password';
   /// security.ownerPassword = 'syncfusion';
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -127,7 +127,7 @@ class PdfSecurity {
   /// //Get the user password.
   /// String userPassword = document.security.userPassword;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -149,7 +149,7 @@ class PdfSecurity {
   /// security.userPassword = 'password';
   /// security.ownerPassword = 'syncfusion';
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -178,7 +178,7 @@ class PdfSecurity {
   /// //Remove permissions
   /// permissions.remove(<PdfPermissionsFlags>[PdfPermissionsFlags.editContent, PdfPermissionsFlags.copyContent]);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -207,7 +207,7 @@ class PdfSecurity {
   ///   'input.txt', File('input.txt').readAsBytesSync(),
   ///   description: 'Text File', mimeType: 'application/txt'));
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -304,7 +304,7 @@ class PdfSecurityHelper {
 /// //Add permissions.
 /// permissions.add(<PdfPermissionsFlags>[PdfPermissionsFlags.print]);
 /// //Save the document.
-/// List<int> bytes = document.save();
+/// List<int> bytes = await document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -334,7 +334,7 @@ class PdfPermissions {
   /// //Gets the permission option at index 0.
   /// PdfPermissionsFlags permission = permissions[0];
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -366,7 +366,7 @@ class PdfPermissions {
   ///   }
   /// });
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -392,7 +392,7 @@ class PdfPermissions {
   /// //Gets the permissions count.
   /// int count = permissions.count;
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -408,7 +408,7 @@ class PdfPermissions {
   /// //Add permission.
   /// security.permissions.add(PdfPermissionsFlags.editContent);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -433,7 +433,7 @@ class PdfPermissions {
   ///     PdfPermissionsFlags.editContent,
   ///     PdfPermissionsFlags.copyContent]);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -467,7 +467,7 @@ class PdfPermissions {
   /// //Remove permission.
   /// permissions.remove(PdfPermissionsFlags.editContent);
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -492,7 +492,7 @@ class PdfPermissions {
   /// //Remove all permissions and set default.
   /// permissions.clear();
   /// //Save the document.
-  /// List<int> bytes = document.save();
+  /// List<int> bytes = await document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

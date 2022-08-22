@@ -17,8 +17,8 @@ class UPCERenderer extends SymbologyRenderer {
     if (value.contains(RegExp(r'^(?=.*?[0-9]).{6}$'))) {
       return true;
     }
-    throw 'UPCE supports only numeric characters. '
-        'The provided value should have 6 digits.';
+    throw ArgumentError('UPCE supports only numeric characters. '
+        'The provided value should have 6 digits.');
   }
 
   /// This is quite a large method. This method could not be

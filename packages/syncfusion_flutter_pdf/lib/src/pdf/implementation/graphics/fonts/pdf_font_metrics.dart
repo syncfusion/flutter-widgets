@@ -49,20 +49,21 @@ class PdfFontMetrics {
   //Implementation
   /// Calculates size of the font depending on the subscript/superscript value.
   double? getSize([PdfStringFormat? format]) {
-    double? _size = size;
+    double? sizeValue = size;
     if (format != null) {
       switch (format.subSuperscript) {
         case PdfSubSuperscript.subscript:
-          _size = _size / 1.5;
+          sizeValue = sizeValue / 1.5;
           break;
         case PdfSubSuperscript.superscript:
-          _size = _size / 1.5;
+          sizeValue = sizeValue / 1.5;
           break;
+        // ignore: no_default_cases
         default:
           break;
       }
     }
-    return _size;
+    return sizeValue;
   }
 
   /// Returns height taking into consideration font's size.

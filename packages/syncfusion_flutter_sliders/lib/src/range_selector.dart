@@ -137,6 +137,7 @@ class SfRangeSelector extends StatefulWidget {
       this.inactiveColor,
       this.activeColor,
       this.labelPlacement = LabelPlacement.onTicks,
+      this.edgeLabelPlacement = EdgeLabelPlacement.auto,
       this.numberFormat,
       this.dateFormat,
       this.dateIntervalType,
@@ -1062,6 +1063,26 @@ class SfRangeSelector extends StatefulWidget {
   /// ```
   final LabelPlacement labelPlacement;
 
+  /// Position of the edge labels.
+  ///
+  /// The edge labels in an axis can be shifted inside
+  /// the axis bounds or placed at the edges.
+  ///
+  /// Defaults to `EdgeLabelPlacement.auto`.
+  ///
+  /// Also refer [EdgeLabelPlacement].
+  ///
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return  SfRangeSelector(
+  ///        edgeLabelPlacement: EdgeLabelPlacement.inside,
+  ///    );
+  ///}
+  ///```
+
+  final EdgeLabelPlacement edgeLabelPlacement;
+
   /// Formats the numeric labels.
   ///
   /// Defaults to `null`.
@@ -1411,8 +1432,7 @@ class SfRangeSelector extends StatefulWidget {
     properties.add(FlagProperty('enabled',
         value: enabled,
         ifTrue: 'Range selector is enabled',
-        ifFalse: 'Range selector is disabled',
-        showName: false));
+        ifFalse: 'Range selector is disabled'));
     properties.add(DoubleProperty('interval', interval));
     properties.add(DoubleProperty('stepSize', stepSize));
     if (stepDuration != null) {
@@ -1423,45 +1443,39 @@ class SfRangeSelector extends StatefulWidget {
     properties.add(FlagProperty('showTicks',
         value: showTicks,
         ifTrue: 'Ticks are showing',
-        ifFalse: 'Ticks are not showing',
-        showName: false));
+        ifFalse: 'Ticks are not showing'));
     properties.add(FlagProperty('showLabels',
         value: showLabels,
         ifTrue: 'Labels are showing',
-        ifFalse: 'Labels are not showing',
-        showName: false));
+        ifFalse: 'Labels are not showing'));
     properties.add(FlagProperty('showDividers',
         value: showDividers,
         ifTrue: 'Dividers are  showing',
-        ifFalse: 'Dividers are not showing',
-        showName: false));
+        ifFalse: 'Dividers are not showing'));
     if (shouldAlwaysShowTooltip) {
       properties.add(FlagProperty('shouldAlwaysShowTooltip',
-          value: shouldAlwaysShowTooltip,
-          ifTrue: 'Tooltip is always visible',
-          showName: false));
+          value: shouldAlwaysShowTooltip, ifTrue: 'Tooltip is always visible'));
     } else {
       properties.add(FlagProperty('enableTooltip',
           value: enableTooltip,
           ifTrue: 'Tooltip is enabled',
-          ifFalse: 'Tooltip is disabled',
-          showName: false));
+          ifFalse: 'Tooltip is disabled'));
     }
     properties.add(FlagProperty('enableIntervalSelection',
         value: enableIntervalSelection,
         ifTrue: 'Interval selection is enabled',
-        ifFalse: 'Interval selection is disabled',
-        showName: false));
+        ifFalse: 'Interval selection is disabled'));
     properties.add(FlagProperty('enableDeferredUpdate',
         value: enableDeferredUpdate,
         ifTrue: 'Deferred update is enabled',
-        ifFalse: 'Deferred update is disabled',
-        showName: false));
+        ifFalse: 'Deferred update is disabled'));
     properties.add(EnumProperty<SliderDragMode>('dragMode', dragMode));
     properties.add(ColorProperty('activeColor', activeColor));
     properties.add(ColorProperty('inactiveColor', inactiveColor));
     properties
         .add(EnumProperty<LabelPlacement>('labelPlacement', labelPlacement));
+    properties.add(EnumProperty<EdgeLabelPlacement>(
+        'edgeLabelPlacement', edgeLabelPlacement));
     properties
         .add(DiagnosticsProperty<NumberFormat>('numberFormat', numberFormat));
     if (initialValues != null &&
@@ -1723,6 +1737,7 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
           widget.inactiveColor ?? themeData.primaryColor.withOpacity(0.24),
       activeColor: widget.activeColor ?? themeData.primaryColor,
       labelPlacement: widget.labelPlacement,
+      edgeLabelPlacement: widget.edgeLabelPlacement,
       numberFormat: widget.numberFormat ?? NumberFormat('#.##'),
       dateFormat: widget.dateFormat,
       dateIntervalType: widget.dateIntervalType,
@@ -1738,11 +1753,11 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       tickShape: widget.tickShape,
       minorTickShape: widget.minorTickShape,
       tooltipShape: widget.tooltipShape,
-      child: widget.child,
       rangeSelectorThemeData: _getRangeSelectorThemeData(themeData),
       startThumbIcon: widget.startThumbIcon,
       endThumbIcon: widget.endThumbIcon,
       state: this,
+      child: widget.child,
     );
   }
 }
@@ -1772,6 +1787,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
     required this.inactiveColor,
     required this.activeColor,
     required this.labelPlacement,
+    required this.edgeLabelPlacement,
     required this.numberFormat,
     required this.dateFormat,
     required this.dateIntervalType,
@@ -1817,6 +1833,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
   final Color activeColor;
 
   final LabelPlacement labelPlacement;
+  final EdgeLabelPlacement edgeLabelPlacement;
   final NumberFormat numberFormat;
   final DateFormat? dateFormat;
   final DateIntervalType? dateIntervalType;
@@ -1864,6 +1881,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       deferUpdate: deferUpdate,
       dragMode: dragMode,
       labelPlacement: labelPlacement,
+      edgeLabelPlacement: edgeLabelPlacement,
       numberFormat: numberFormat,
       dateFormat: dateFormat,
       dateIntervalType: dateIntervalType,
@@ -1908,6 +1926,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       ..deferUpdate = deferUpdate
       ..dragMode = dragMode
       ..labelPlacement = labelPlacement
+      ..edgeLabelPlacement = edgeLabelPlacement
       ..numberFormat = numberFormat
       ..dateFormat = dateFormat
       ..dateIntervalType = dateIntervalType
@@ -2046,6 +2065,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     required bool deferUpdate,
     required SliderDragMode dragMode,
     required LabelPlacement labelPlacement,
+    required EdgeLabelPlacement edgeLabelPlacement,
     required NumberFormat numberFormat,
     required DateFormat? dateFormat,
     required DateIntervalType? dateIntervalType,
@@ -2087,6 +2107,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
             enableIntervalSelection: enableIntervalSelection,
             dragMode: dragMode,
             labelPlacement: labelPlacement,
+            edgeLabelPlacement: edgeLabelPlacement,
             numberFormat: numberFormat,
             dateFormat: dateFormat,
             dateIntervalType: dateIntervalType,

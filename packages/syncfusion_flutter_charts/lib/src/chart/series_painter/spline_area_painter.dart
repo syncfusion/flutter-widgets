@@ -16,15 +16,15 @@ import '../common/renderer.dart';
 import '../common/segment_properties.dart';
 import '../utils/helper.dart';
 
-/// Creates series renderer for Spline area series
+/// Creates series renderer for spline area series.
 class SplineAreaSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of SplineAreaSeriesRenderer class.
   SplineAreaSeriesRenderer();
 
-  /// SplineArea segment is created here
+  /// Spline area segment is created here.
   ChartSegment _createSegments(int seriesIndex, SfCartesianChart chart,
       double animateFactor, Path path, Path strokePath,
-      [List<Offset>? _points]) {
+      [List<Offset>? points]) {
     final SeriesRendererDetails seriesRendererDetails =
         SeriesHelper.getSeriesRendererDetails(this);
     final SplineAreaSegment segment = createSegment();
@@ -39,8 +39,8 @@ class SplineAreaSeriesRenderer extends XyDataSeriesRenderer {
       segmentProperties.series =
           seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
       segmentProperties.seriesRenderer = this;
-      if (_points != null) {
-        segment.points = _points;
+      if (points != null) {
+        segment.points = points;
       }
       segmentProperties.path = path;
       segmentProperties.strokePath = strokePath;
@@ -54,7 +54,7 @@ class SplineAreaSeriesRenderer extends XyDataSeriesRenderer {
     return segment;
   }
 
-  /// To render spline area series segments
+  /// To render spline area series segments.
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     final SeriesRendererDetails seriesRendererDetails =
@@ -90,7 +90,7 @@ class SplineAreaSeriesRenderer extends XyDataSeriesRenderer {
     segmentProperties.strokeWidth = segmentProperties.series.width;
   }
 
-  ///Draws marker with different shape and color of the appropriate data point in the series.
+  /// Draws marker with different shape and color of the appropriate data point in the series.
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
@@ -163,9 +163,9 @@ class SplineAreaChartPainter extends CustomPainter {
     if (seriesRendererDetails.hasDataLabelTemplate == false) {
       seriesRendererDetails.drawControlPoints.clear();
     }
-    final Path _path = Path();
-    final Path _strokePath = Path();
-    final List<Offset> _points = <Offset>[];
+    final Path path = Path();
+    final Path strokePath = Path();
+    final List<Offset> points = <Offset>[];
     final num? crossesAt = getCrossesAtValue(seriesRenderer, stateProperties);
     final num origin = crossesAt ?? 0;
     double? startControlX, startControlY, endControlX, endControlY;
@@ -219,6 +219,8 @@ class SplineAreaChartPainter extends CustomPainter {
         seriesRendererDetails.visibleDataPoints =
             <CartesianChartPoint<dynamic>>[];
       }
+
+      seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRendererDetails.calculateRegionData(stateProperties,
@@ -256,7 +258,7 @@ class SplineAreaChartPainter extends CustomPainter {
           double x = currentPoint.x;
           double y = currentPoint.y;
           startControlX = startControlY = endControlX = endControlY = null;
-          _points.add(Offset(currentPoint.x, currentPoint.y));
+          points.add(Offset(currentPoint.x, currentPoint.y));
           final bool closed =
               series.emptyPointSettings.mode == EmptyPointMode.drop &&
                   _getSeriesVisibility(dataPoints, pointIndex);
@@ -312,45 +314,45 @@ class SplineAreaChartPainter extends CustomPainter {
               (dataPoints[pointIndex].isGap == true) ||
               (dataPoints[pointIndex - 1].isVisible == false &&
                   series.emptyPointSettings.mode == EmptyPointMode.gap)) {
-            _path.moveTo(originPoint.x, originPoint.y);
+            path.moveTo(originPoint.x, originPoint.y);
             if (series.borderDrawMode == BorderDrawMode.excludeBottom ||
                 series.borderDrawMode == BorderDrawMode.all) {
               if (dataPoints[pointIndex].isGap != true) {
-                _strokePath.moveTo(originPoint.x, originPoint.y);
-                _strokePath.lineTo(x, y);
+                strokePath.moveTo(originPoint.x, originPoint.y);
+                strokePath.lineTo(x, y);
               }
             } else if (series.borderDrawMode == BorderDrawMode.top) {
-              _strokePath.moveTo(x, y);
+              strokePath.moveTo(x, y);
             }
-            _path.lineTo(x, y);
+            path.lineTo(x, y);
           } else if (pointIndex == dataPoints.length - 1 ||
               dataPoints[pointIndex + 1].isGap == true) {
-            _strokePath.cubicTo(startControlX!, startControlY!, endControlX!,
+            strokePath.cubicTo(startControlX!, startControlY!, endControlX!,
                 endControlY!, x, y);
             if (series.borderDrawMode == BorderDrawMode.excludeBottom) {
-              _strokePath.lineTo(originPoint.x, originPoint.y);
+              strokePath.lineTo(originPoint.x, originPoint.y);
             } else if (series.borderDrawMode == BorderDrawMode.all) {
-              _strokePath.lineTo(originPoint.x, originPoint.y);
-              _strokePath.close();
+              strokePath.lineTo(originPoint.x, originPoint.y);
+              strokePath.close();
             }
-            _path.cubicTo(
+            path.cubicTo(
                 startControlX, startControlY, endControlX, endControlY, x, y);
-            _path.lineTo(originPoint.x, originPoint.y);
+            path.lineTo(originPoint.x, originPoint.y);
           } else {
-            _strokePath.cubicTo(startControlX!, startControlY!, endControlX!,
+            strokePath.cubicTo(startControlX!, startControlY!, endControlX!,
                 endControlY!, x, y);
-            _path.cubicTo(
+            path.cubicTo(
                 startControlX, startControlY, endControlX, endControlY, x, y);
 
             if (closed) {
-              _path.cubicTo(startControlX, startControlY, endControlX,
+              path.cubicTo(startControlX, startControlY, endControlX,
                   endControlY, originPoint.x, originPoint.y);
               if (series.borderDrawMode == BorderDrawMode.excludeBottom) {
-                _strokePath.lineTo(originPoint.x, originPoint.y);
+                strokePath.lineTo(originPoint.x, originPoint.y);
               } else if (series.borderDrawMode == BorderDrawMode.all) {
-                _strokePath.cubicTo(startControlX, startControlY, endControlX,
+                strokePath.cubicTo(startControlX, startControlY, endControlX,
                     endControlY, originPoint.x, originPoint.y);
-                _strokePath.close();
+                strokePath.close();
               }
             }
           }
@@ -358,11 +360,11 @@ class SplineAreaChartPainter extends CustomPainter {
         }
       }
       // ignore: unnecessary_null_comparison
-      if (_path != null) {
+      if (path != null) {
         seriesRenderer._drawSegment(
             canvas,
             seriesRenderer._createSegments(
-                painterKey.index, chart, animationFactor, _path, _strokePath));
+                painterKey.index, chart, animationFactor, path, strokePath));
       }
 
       clipRect = calculatePlotOffset(

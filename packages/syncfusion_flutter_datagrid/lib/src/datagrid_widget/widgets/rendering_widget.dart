@@ -5,13 +5,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:syncfusion_flutter_datagrid/src/datagrid_widget/helper/datagrid_helper.dart';
 
 import '../../grid_common/row_column_index.dart';
 import '../../grid_common/scroll_axis.dart';
 import '../../grid_common/visible_line_info.dart';
 import '../helper/callbackargs.dart';
 import '../helper/datagrid_configuration.dart';
+import '../helper/datagrid_helper.dart';
 import '../helper/datagrid_helper.dart' as grid_helper;
 import '../helper/enums.dart';
 import '../runtime/generator.dart';
@@ -1074,7 +1074,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
 
     RenderBox? child = firstChild;
     while (child != null) {
-      final _VirtualizingCellWidgetParentData _parentData =
+      final _VirtualizingCellWidgetParentData parentData =
           child.parentData! as _VirtualizingCellWidgetParentData;
       if (dataRow.isVisible &&
           child is RenderGridCell &&
@@ -1082,13 +1082,13 @@ class RenderVirtualizingCellsWidget extends RenderBox
         final Rect columnRect =
             child._measureColumnRect(constraints.maxHeight)!;
         size = constraints.constrain(Size(columnRect.width, columnRect.height));
-        _parentData
+        parentData
           ..width = columnRect.width
           ..height = columnRect.height
           ..cellClipRect = child._cellClipRect;
         _layout(
-            child: child, width: _parentData.width, height: _parentData.height);
-        _parentData.offset = Offset(columnRect.left, columnRect.top);
+            child: child, width: parentData.width, height: parentData.height);
+        parentData.offset = Offset(columnRect.left, columnRect.top);
       } else {
         if (dataRow.rowType == RowType.footerRow) {
           final DataGridConfiguration dataGridConfiguration =
@@ -1100,21 +1100,19 @@ class RenderVirtualizingCellsWidget extends RenderBox
               dataGridConfiguration.footerHeight);
 
           size = constraints.constrain(Size(cellRect.width, cellRect.height));
-          _parentData
+          parentData
             ..width = cellRect.width
             ..height = cellRect.height
             ..offset = Offset(cellRect.left, cellRect.top);
           _layout(
-              child: child,
-              width: _parentData.width,
-              height: _parentData.height);
+              child: child, width: parentData.width, height: parentData.height);
         } else {
           size = constraints.constrain(Size.zero);
           child.layout(const BoxConstraints.tightFor(width: 0, height: 0));
-          _parentData.reset();
+          parentData.reset();
         }
       }
-      child = _parentData.nextSibling;
+      child = parentData.nextSibling;
     }
   }
 
@@ -1244,9 +1242,16 @@ class RenderVirtualizingCellsWidget extends RenderBox
     final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
     DataCellBase? dataCell;
 
-    if (dataRow.rowType == RowType.headerRow ||
-        dataRow.rowType == RowType.stackedHeaderRow ||
-        dataRow.rowType == RowType.dataRow) {
+    // Issue:
+    // FLUT-6105 - Null check operator exception is thrown when long press the
+    // table summary rows.
+    //
+    // Fix:
+    // An issue occurred because of disallowing the table summary rows in the
+    // long-press event. So, the data cell field had been null to the table
+    // summary rows. Now, We have fixed it by allowing long-press events for all
+    // the row types except for the `footer` row type since it's not required.
+    if (dataRow.rowType != RowType.footerRow) {
       final double position = dataGridConfiguration.columnResizeController
           .getXPosition(dataGridConfiguration, details.localPosition.dx);
       final VisibleLineInfo? resizingLine =
@@ -1255,7 +1260,9 @@ class RenderVirtualizingCellsWidget extends RenderBox
               false,
               dataGridConfiguration.textDirection == TextDirection.rtl);
 
-      if (dataRow.rowType == RowType.stackedHeaderRow) {
+      if (dataRow.rowType == RowType.stackedHeaderRow ||
+          dataRow.rowType == RowType.tableSummaryRow ||
+          dataRow.rowType == RowType.tableSummaryCoveredRow) {
         dataCell =
             dataRow.visibleColumns.firstWhereOrNull((DataCellBase dataCell) {
           final int cellLeft = dataCell.columnIndex;
@@ -1272,7 +1279,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
                 element.columnIndex == resizingLine!.lineIndex);
       }
     }
-    return dataCell!;
+    return dataCell;
   }
 
   void _onLongPress() {
@@ -1835,8 +1842,10 @@ class RenderGridCell extends RenderBox
     }
 
     if (lineInfo != null) {
-      columnRect = _getCellRect(
-          dataGridConfiguration, lineInfo, origin!, lineWidth, lineHeight);
+      // If resizing a column to 0 width the origin value is return null
+      // So We need to set origin value as 0.0
+      columnRect = _getCellRect(dataGridConfiguration, lineInfo, origin ?? 0.0,
+          lineWidth, lineHeight);
     }
     return columnRect;
   }

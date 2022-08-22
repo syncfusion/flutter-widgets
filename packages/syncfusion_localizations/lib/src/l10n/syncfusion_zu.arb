@@ -3,7 +3,7 @@
 "noEventsCalendarLabel" : "Ayikho imicimbi", 
 "ofDataPagerLabel" : "kwe", 
 "pagesDataPagerLabel" : "amakhasi", 
-"itemsDataPagerLabel" : "izinto", 
+"rowsPerPageDataPagerLabel" : "Imigqa ekhasini ngalinye", 
 "pdfBookmarksLabel" : "Amabhukumaka", 
 "pdfNoBookmarksLabel" : "Awekho amabhukumaka atholiwe", 
 "pdfScrollStatusOfLabel" : "kwe", 
@@ -54,5 +54,10 @@
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
 "shortDhualhiLabel" : "U-Dhu'l-H", 
-"daySpanCountLabel" : "Usuku"
+"daySpanCountLabel" : "Usuku", 
+"series" : "Uchungechunge", 
+"pdfHyperlinkLabel" : "Vula Ikhasi Lewebhu", 
+"pdfHyperlinkContentLabel" : "Ingabe ufuna ukuvula ikhasi ku", 
+"pdfHyperlinkDialogOpenLabel" : "VULA", 
+"pdfHyperlinkDialogCancelLabel" : "KHANSELA"
 }

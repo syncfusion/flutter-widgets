@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../charts.dart';
 import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
 import '../common/common.dart';
 import '../common/renderer.dart';
 import '../common/segment_properties.dart';
@@ -14,9 +15,8 @@ import 'chart_segment.dart';
 ///
 /// Gets the path and color from the `series`.
 class RangeColumnSegment extends ChartSegment {
-  //We are using `segmentRect` to draw the histogram segment in the series.
-  //we can override this class and customize the column segment by getting `segmentRect`.
-  /// Rectangle of the segment
+  // we can override this class and customize the range column segment by getting `segmentRect`.
+  /// Rectangle of the segment.
   late RRect segmentRect;
 
   late SegmentProperties _segmentProperties;
@@ -32,7 +32,7 @@ class RangeColumnSegment extends ChartSegment {
     /// Get and set the paint options for range column series.
     if (_segmentProperties.series.gradient == null) {
       fillPaint = Paint()
-        ..color = _segmentProperties.currentPoint!.isEmpty == true
+        ..color = (_segmentProperties.currentPoint!.isEmpty ?? false)
             ? _segmentProperties.series.emptyPointSettings.color
             : ((hasPointColor &&
                     _segmentProperties.currentPoint!.pointColorMapper != null)
@@ -64,16 +64,17 @@ class RangeColumnSegment extends ChartSegment {
     _setSegmentProperties();
     strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+      ..strokeWidth = (_segmentProperties.currentPoint!.isEmpty ?? false)
           ? _segmentProperties.series.emptyPointSettings.borderWidth
           : _segmentProperties.strokeWidth!;
     _segmentProperties.defaultStrokeColor = strokePaint;
     _segmentProperties.series.borderGradient != null
         ? strokePaint!.shader = _segmentProperties.series.borderGradient!
             .createShader(_segmentProperties.currentPoint!.region!)
-        : strokePaint!.color = _segmentProperties.currentPoint!.isEmpty == true
-            ? _segmentProperties.series.emptyPointSettings.borderColor
-            : _segmentProperties.strokeColor!;
+        : strokePaint!.color =
+            (_segmentProperties.currentPoint!.isEmpty ?? false)
+                ? _segmentProperties.series.emptyPointSettings.borderColor
+                : _segmentProperties.strokeColor!;
     _segmentProperties.series.borderWidth == 0
         ? strokePaint!.color = Colors.transparent
         : strokePaint!.color;
@@ -88,22 +89,22 @@ class RangeColumnSegment extends ChartSegment {
   @override
   void onPaint(Canvas canvas) {
     _setSegmentProperties();
-    final RangeColumnSeries<dynamic, dynamic> _series =
+    final RangeColumnSeries<dynamic, dynamic> series =
         _segmentProperties.series as RangeColumnSeries<dynamic, dynamic>;
 
-    if (_segmentProperties.trackerFillPaint != null && _series.isTrackVisible) {
+    if (_segmentProperties.trackerFillPaint != null && series.isTrackVisible) {
       canvas.drawRRect(
           _segmentProperties.trackRect, _segmentProperties.trackerFillPaint!);
     }
 
     if (_segmentProperties.trackerStrokePaint != null &&
-        _series.isTrackVisible) {
+        series.isTrackVisible) {
       canvas.drawRRect(
           _segmentProperties.trackRect, _segmentProperties.trackerStrokePaint!);
     }
 
     if (fillPaint != null) {
-      (_series.animationDuration > 0 &&
+      (series.animationDuration > 0 &&
               _segmentProperties
                       .stateProperties.renderingDetails.isLegendToggled ==
                   false)
@@ -120,10 +121,14 @@ class RangeColumnSegment extends ChartSegment {
           : canvas.drawRRect(segmentRect, fillPaint!);
     }
     if (strokePaint != null) {
-      (_series.dashArray[0] != 0 && _series.dashArray[1] != 0)
-          ? drawDashedLine(
-              canvas, _series.dashArray, strokePaint!, _segmentProperties.path)
-          : (_series.animationDuration > 0 &&
+      final SeriesRendererDetails seriesRendererDetails =
+          SeriesHelper.getSeriesRendererDetails(
+              _segmentProperties.seriesRenderer);
+      (seriesRendererDetails.dashArray![0] != 0 &&
+              seriesRendererDetails.dashArray![1] != 0)
+          ? drawDashedLine(canvas, seriesRendererDetails.dashArray!,
+              strokePaint!, _segmentProperties.path)
+          : (series.animationDuration > 0 &&
                   _segmentProperties
                           .stateProperties.renderingDetails.isLegendToggled ==
                       false)
@@ -141,7 +146,7 @@ class RangeColumnSegment extends ChartSegment {
     }
   }
 
-  /// Method to set segment properties
+  /// Method to set segment properties.
   void _setSegmentProperties() {
     if (!_isInitialize) {
       _segmentProperties = SegmentHelper.getSegmentProperties(this);
