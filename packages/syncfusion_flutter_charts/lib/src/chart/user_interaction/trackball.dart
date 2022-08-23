@@ -1068,7 +1068,9 @@ class TrackballRenderingDetails {
                           : isBoxSeries
                               ? maxYPos!
                               : yPos)) ||
-                  seriesBounds.overlaps(rect)) {
+                  seriesBounds.overlaps(rect) ||
+                  (trackballBehavior.includeYAxisExceedingPoints &&
+                      _fitsHorizontally(seriesBounds, xPos))) {
                 visiblePoints.add(ClosestPoints(
                     closestPointX: !isRangeSeries
                         ? xPos
@@ -1079,45 +1081,32 @@ class TrackballRenderingDetails {
                         ? highYPos!
                         : isBoxSeries
                             ? maxYPos!
-                            : yPos)) ||
-                seriesBounds.overlaps(rect) ||
-                (trackballBehavior.includeYAxisExceedingPoints &&
-                    _fitsHorizontally(seriesBounds, xPos))) {
-              visiblePoints.add(ClosestPoints(
-                  closestPointX: !isRangeSeries
-                      ? xPos
-                      : isBoxSeries
-                          ? maxXPos!
-                          : highXPos!,
-                  closestPointY: isRangeSeries
-                      ? highYPos!
-                      : isBoxSeries
-                          ? maxYPos!
-                          : yPos));
-              _addChartPointInfo(
-                  cartesianSeriesRendererDetails,
-                  xPos,
-                  yPos,
-                  index,
-                  !isTrackballTemplate ? labelValue : null,
-                  seriesIndex,
-                  lowYPos,
-                  highXPos,
-                  highYPos,
-                  openXPos,
-                  openYPos,
-                  closeXPos,
-                  closeYPos,
-                  minYPos,
-                  maxXPos,
-                  maxYPos,
-                  lowerXPos,
-                  lowerYPos,
-                  upperXPos,
-                  upperYPos);
-              if (tooltipDisplayMode == TrackballDisplayMode.groupAllPoints &&
-                  leastX >= seriesBounds.left) {
-                invertedAxis ? yPos = leastX : xPos = leastX;
+                            : yPos));
+                _addChartPointInfo(
+                    cartesianSeriesRendererDetails,
+                    xPos,
+                    yPos,
+                    index,
+                    !isTrackballTemplate ? labelValue : null,
+                    seriesIndex,
+                    lowYPos,
+                    highXPos,
+                    highYPos,
+                    openXPos,
+                    openYPos,
+                    closeXPos,
+                    closeYPos,
+                    minYPos,
+                    maxXPos,
+                    maxYPos,
+                    lowerXPos,
+                    lowerYPos,
+                    upperXPos,
+                    upperYPos);
+                if (tooltipDisplayMode == TrackballDisplayMode.groupAllPoints &&
+                    leastX >= seriesBounds.left) {
+                  invertedAxis ? yPos = leastX : xPos = leastX;
+                }
               }
             }
           }
