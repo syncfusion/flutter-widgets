@@ -77,12 +77,10 @@ packages:
   syncfusion_flutter_core:
     dependency: transitive
     description:
-      path: syncfusion_flutter_core
-      ref: "release/20.2.0.1"
-      resolved-ref: c663ccc1422d1fc2dc15aeba68d1b37f22207444
-      url: "https://SyncfusionBuild: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@github.com/essential-studio/flutter-core"
-    source: git
-    version: "18.3.40"
+      name: syncfusion_flutter_core
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "20.2.44"
   vector_math:
     dependency: transitive
     description:
