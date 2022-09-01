@@ -939,7 +939,7 @@ class ColumnSizer {
     return _measureCellHeight(
         column,
         grid_helper.getHeaderIndex(_dataGridStateDetails!()),
-        column.columnName,
+        column.label,
         textStyle);
   }
 
