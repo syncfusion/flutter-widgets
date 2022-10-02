@@ -8,4 +8,3 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'core.dart';
 part 'src/tooltip/tooltip.dart';
-part 'src/test/tooltip_tests.dart';

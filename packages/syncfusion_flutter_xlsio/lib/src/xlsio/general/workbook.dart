@@ -6186,6 +6186,50 @@ class Workbook {
     return bytes!;
   }
 
+  /// Saves workbook as CSV format.
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = workbook.saveAsCSV(',');
+  /// worksheet.getRangeByName('A1').setText('Hello world');
+  /// final List<int> bytes = workbook.saveAsCSV(',');
+  /// saveAsExcel(bytes, 'Output.csv');
+  /// workbook.dispose();
+  /// ```
+  List<int> saveAsCSV(String separator) {
+    final StringBuffer stringBuffer = StringBuffer();
+    final Worksheet sheet = _worksheets![0];
+    for (int i = sheet.getFirstRow(); i <= sheet.getLastRow(); i++) {
+      for (int j = sheet.getFirstColumn(); j <= sheet.getLastColumn(); j++) {
+        final Range range = sheet.getRangeByIndex(i, j);
+        final CellType valType = range.type;
+        String results = '';
+        if (valType != CellType.blank) {
+          results = range.displayText;
+          //serializing formula
+          if ((valType == CellType.formula) && (results == '')) {
+            if (range.calculatedValue != null) {
+              results = range.calculatedValue.toString();
+            } else {
+              results = range.formula.toString();
+            }
+          }
+          if (results.contains(separator)) {
+            results = '"$results"';
+          }
+          stringBuffer.write(results);
+        }
+        if (j != sheet.getLastColumn()) {
+          stringBuffer.write(separator);
+        }
+      }
+      stringBuffer.writeln();
+    }
+    final String stringCSV = stringBuffer.toString();
+    final List<int> bytes = utf8.encode(stringCSV);
+    return bytes;
+  }
+
   /// Check whether the cell style font already exists.
   _ExtendCompareStyle _isNewFont(CellStyle toCompareStyle) {
     bool result = false;

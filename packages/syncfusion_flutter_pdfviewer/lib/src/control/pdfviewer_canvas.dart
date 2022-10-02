@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -419,7 +418,6 @@ class CanvasRenderBox extends RenderBox {
     _localizations = SfLocalizations.of(context);
     return showDialog<void>(
         context: context,
-        barrierDismissible: true,
         builder: (BuildContext context) {
           final Orientation orientation = MediaQuery.of(context).orientation;
           return Directionality(
@@ -585,7 +583,6 @@ class CanvasRenderBox extends RenderBox {
     _localizations = SfLocalizations.of(context);
     return showDialog<void>(
         context: context,
-        barrierDismissible: true,
         builder: (BuildContext context) {
           return Directionality(
             textDirection: textDirection,
@@ -736,7 +733,7 @@ class CanvasRenderBox extends RenderBox {
 
   /// Handles the tap up event
   void handleTapUp(TapUpDetails details) {
-    if (textCollection == null && !_textSelectionHelper.enableTapSelection) {
+    if (textCollection!.isEmpty && !_textSelectionHelper.enableTapSelection) {
       clearSelection();
     }
     if (_textSelectionHelper.enableTapSelection &&
@@ -764,7 +761,7 @@ class CanvasRenderBox extends RenderBox {
                 (_pdfUriAnnotation!.bounds.left / heightPercentage)) &&
             (details.localPosition.dx <=
                 (_pdfUriAnnotation!.bounds.right / heightPercentage))) {
-          if (_pdfUriAnnotation!.uri != null) {
+          if (_pdfUriAnnotation!.uri.isNotEmpty) {
             _isHyperLinkTapped = true;
             final Uri uri = Uri.parse(_pdfUriAnnotation!.uri);
             if (canShowHyperlinkDialog) {
@@ -1363,7 +1360,8 @@ class CanvasRenderBox extends RenderBox {
 
   /// Remove history for Text Selection.
   void _handleHistoryEntryRemoved() {
-    if (textCollection != null && _textSelectionHelper.historyEntry != null) {
+    if (textCollection!.isNotEmpty &&
+        _textSelectionHelper.historyEntry != null) {
       Navigator.of(context).maybePop();
     }
     _textSelectionHelper.historyEntry = null;
@@ -1625,7 +1623,7 @@ class CanvasRenderBox extends RenderBox {
 
   /// Perform text search.
   void _performTextSearch(Canvas canvas, Offset offset) {
-    if (textCollection != null && !_textSelectionHelper.selectionEnabled) {
+    if (textCollection!.isNotEmpty && !_textSelectionHelper.selectionEnabled) {
       final Paint currentInstancePaint = Paint()
         ..color = currentSearchTextHighlightColor;
       final Paint otherInstancePaint = Paint()

@@ -1464,7 +1464,7 @@ class TreemapLegend extends DiagnosticableTree {
   }
 
   @override
-  int get hashCode => hashValues(padding, offset, spacing, direction,
+  int get hashCode => Object.hash(padding, offset, spacing, direction,
       overflowMode, position, textStyle, title);
 
   @override

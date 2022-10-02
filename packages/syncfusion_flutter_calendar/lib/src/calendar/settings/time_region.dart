@@ -598,15 +598,20 @@ class TimeRegion with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         startTime,
         endTime,
         color,
         recurrenceRule,
         textStyle,
         enablePointerInteraction,
-        hashList(recurrenceExceptionDates),
-        hashList(resourceIds),
+
+        /// Below condition is referred from text style class
+        /// https://api.flutter.dev/flutter/painting/TextStyle/hashCode.html
+        recurrenceExceptionDates == null
+            ? null
+            : Object.hashAll(recurrenceExceptionDates!),
+        resourceIds == null ? null : Object.hashAll(resourceIds!),
         text,
         iconData,
         timeZone);

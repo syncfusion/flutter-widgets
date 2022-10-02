@@ -471,7 +471,7 @@ class SfSliderThemeData with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashList(<Object?>[
+    return Object.hashAll(<Object?>[
       brightness,
       activeTrackHeight,
       inactiveTrackHeight,

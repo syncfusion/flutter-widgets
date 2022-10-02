@@ -212,7 +212,7 @@ class ChartTitle {
       borderWidth,
       backgroundColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
@@ -820,7 +820,7 @@ class Legend {
       itemPadding,
       image
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
@@ -968,7 +968,7 @@ class LegendTitle {
   @override
   int get hashCode {
     final List<Object?> values = <Object?>[text, textStyle, alignment];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
@@ -1100,6 +1100,6 @@ class EmptyPointSettings {
       borderColor,
       borderWidth
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

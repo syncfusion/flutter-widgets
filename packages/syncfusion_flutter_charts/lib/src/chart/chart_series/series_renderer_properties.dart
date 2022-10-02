@@ -221,9 +221,6 @@ class SeriesRendererDetails {
   /// Store the rect position
   late num rectPosition;
 
-  /// Store the rect count
-  late num rectCount;
-
   /// Represents the old series renderer
   List<CartesianSeriesRenderer>? oldSeriesRenderers;
 

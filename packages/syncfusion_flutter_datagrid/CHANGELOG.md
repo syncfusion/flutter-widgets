@@ -1,5 +1,42 @@
 ## Unreleased
 
+**Breaking changes**
+
+* The left and border is now drawn by default in DataGrid. Hence, there is no need to add `Container` widget as parent for DataGrid to set left and top borders.
+* If sorting is enabled for columns, an icon to notify the unsorted state of columns will be shown by default.
+
+**Bugs**
+
+* The `onSelectionChanged` callback is now properly called with the collection of deselected rows while deselecting through the checkbox in the column header.
+* The parent scrollview widget of DataGrid is not now scrolled at application level when swiping a row in DataGrid.
+
+**Features**
+
+* Provided the support to perform Excel-like UI filtering and programmatic filtering of columns. Users can filter numeric, text, and date type columns with different filtering options.
+* Provided the support to show the unsort icon in header cells when sorting is not applied to columns. When sorting, the ascending or descending icon will be shown.
+* Using the `canSubmitCell` method, disallow the focus from the cell to other widgets outside the DataGrid or other cells in the DataGrid when editing is canceled.
+
+## [20.2.43] - 08/23/2022
+
+**Bugs**
+
+* The `handlePageChange` method will not be called infinite times when using it asynchronously and switching between the pages very fast.
+
+## [20.2.39] - 07/19/2022
+
+**Bugs**
+
+* The `handlePageChange` method is now called only once on initial loading of `SfDataPager`.
+* The widths are properly set to columns when hiding some columns and using `columnWidthMode`.
+
+## [20.2.38] - 07/12/2022
+
+**Bugs**
+
+* The next and previous buttons in `SfDataPager` are disabled even though the currently selected page is the last and the first page, respectively.
+
+## [20.2.36] - 06/30/2022
+
 **Bugs**
 
 * The [verticalScrollController](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/SfDataGrid/verticalScrollController.html) and [horizontalScrollController](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/SfDataGrid/horizontalScrollController.html) are no longer disposed when the user sets in the application level.

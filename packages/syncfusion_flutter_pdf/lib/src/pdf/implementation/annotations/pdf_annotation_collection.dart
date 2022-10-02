@@ -76,7 +76,10 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
         ++i) {
       final PdfAnnotation? annot = _getAnnotation(i);
       if (annot != null) {
+        final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(annot);
+        helper.isOldAnnotation = true;
         _doAdd(annot);
+        helper.isOldAnnotation = false;
       }
     }
   }
@@ -204,7 +207,8 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
       array ??= PdfArray();
       final PdfReferenceHolder reference =
           PdfReferenceHolder(PdfAnnotationHelper.getHelper(annot).dictionary);
-      if (!_checkPresence(array, reference)) {
+      if (!PdfAnnotationHelper.getHelper(annot).isOldAnnotation &&
+          !_checkPresence(array, reference)) {
         array.add(reference);
         dictionary.setProperty(PdfDictionaryProperties.annots, array);
       }

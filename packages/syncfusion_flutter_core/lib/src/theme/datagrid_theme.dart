@@ -330,12 +330,63 @@ class SfDataGridThemeData with Diagnosticable {
 
   ///
 
-  /// If icon is given, the animation will be automatically applied and
-  /// rotated according to sorting order.
+  /// If the [Icon] type is assigned,
+  /// the animation will be automatically applied and rotated
+  /// according to sorting order.
+  ///
+  /// If you want to change the icon based on each state of the sorting,
+  /// you can use the [Builder] widget and return
+  /// the respective icon for the state.
+  /// You have to return the icons for all the three states even
+  /// if you want to change the icon for specific state.
+  ///
+  /// The below example shows how to load different icon for each state
+  /// i.e. ascending, descending and unsorted order.
+  ///
 
   ///
 
-  /// [SfDataGridThemeData.sortIconColor] – The color of the sort icon.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     appBar: AppBar(title: const Text('Flutter SfDataGrid')),
+  ///     body: SfDataGridTheme(
+  ///       data: SfDataGridThemeData(
+  ///         sortIcon: Builder(
+  ///           builder: (context) {
+  ///             Widget? icon;
+  ///             String columnName = '';
+  ///             context.visitAncestorElements((element) {
+  ///               if (element is GridHeaderCellElement) {
+  ///                 columnName = element.column.columnName;
+  ///               }
+  ///               return true;
+  ///             });
+
+  ///             var column = _employeeDataSource.sortedColumns
+  ///                 .where((element) => element.name == columnName)
+  ///                 .firstOrNull;
+  ///             if (column != null) {
+  ///               if (column.sortDirection ==
+  ///                      DataGridSortDirection.ascending) {
+  ///                 icon = const Icon(Icons.arrow_circle_up_rounded,
+  ///                         size: 16);
+  ///               } else if (column.sortDirection ==
+  ///                      DataGridSortDirection.descending) {
+  ///                 icon = const Icon(Icons.arrow_circle_down_rounded,
+  ///                         size: 16);
+  ///               }
+  ///             }
+
+  ///             return icon ?? const Icon(Icons.sort_rounded, size: 16);
+  ///           },
+  ///         ),
+  ///       ),
+  ///       child: SfDataGrid(),
+  ///     ),
+  ///   );
+  /// }
+  /// ```
   final Widget? sortIcon;
 
   /// Creates a copy of this theme but with the given
@@ -462,7 +513,7 @@ class SfDataGridThemeData with Diagnosticable {
       rowHoverTextStyle,
       sortIcon
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override
@@ -540,7 +591,7 @@ class DataGridCurrentCellStyle {
       borderColor,
       borderWidth,
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   /// Linearly interpolate between two styles.

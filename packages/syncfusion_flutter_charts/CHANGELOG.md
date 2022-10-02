@@ -1,5 +1,26 @@
 ## Unreleased
 
+**Bugs**
+* #FB37559 - Now, the `NoSuchMethodError` exception will not be thrown when a tooltip is activated using the `showByIndex` method in circular charts.
+* #FB37311 - The FastLineSeries renders when all the y-values are the same.
+* #FB36534 – Now, the pie series will explode immediately.
+* #FB37039 - When panning the X-axis with `zoomMode` as `ZoomMode.X`, the Y-axis range does not change.
+* #I392604, G821 - Now, the candle series width will not decrease when having the MACD indicator.
+* #I373783 - Now, the hollow candle will not throw an exception when setting the visible range.
+
+## [20.2.44] - 08/16/2022
+
+**Bugs**
+* Now, the 'size should not be infinite' assertion failed exception will not be thrown when having the SVG image as an annotation at the start and end point in the chart.
+
+## [20.2.43] - 08/08/2022
+
+**Bugs**
+* Now, the startup animation will work for circular, funnel, and pyramid charts when having the [legendItemBuilder](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/Legend/legendItemBuilder.html) in legend.
+* Now, the tooltip will display the correct value when using the logarithmic axis.
+
+## [20.2.36] - 07/01/2022
+
 **Features**
 * Provided the support to customize the date-time axis labels based on the interval type.
 

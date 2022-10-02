@@ -378,7 +378,7 @@ class ErrorBarSeries<T, D> extends XyDataSeries<T, D> {
       capLength,
       onRenderDetailsUpdate
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 

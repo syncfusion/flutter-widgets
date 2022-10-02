@@ -191,7 +191,7 @@ class DateRangePickerHeaderStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       textStyle,
       textAlign,
       backgroundColor,
@@ -346,7 +346,7 @@ class DateRangePickerViewHeaderStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       backgroundColor,
       textStyle,
     );
@@ -473,7 +473,7 @@ class DateRangePickerWeekNumberStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       textStyle,
       backgroundColor,
     );
@@ -1119,7 +1119,7 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         dayFormat,
         firstDayOfWeek,
         viewHeaderStyle,
@@ -1129,9 +1129,12 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
         numberOfWeeksInView,
         showWeekNumber,
         weekNumberStyle,
-        hashList(specialDates),
-        hashList(blackoutDates),
-        hashList(weekendDays));
+
+        /// Below condition is referred from text style class
+        /// https://api.flutter.dev/flutter/painting/TextStyle/hashCode.html
+        specialDates == null ? null : Object.hashAll(specialDates!),
+        blackoutDates == null ? null : Object.hashAll(blackoutDates!),
+        Object.hashAll(weekendDays));
   }
 }
 
@@ -1672,7 +1675,7 @@ class DateRangePickerYearCellStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         textStyle,
         todayTextStyle,
         leadingDatesTextStyle,
@@ -3120,7 +3123,7 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashList(<dynamic>[
+    return Object.hashAll(<dynamic>[
       textStyle,
       todayTextStyle,
       trailingDatesTextStyle,

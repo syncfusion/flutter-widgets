@@ -240,7 +240,7 @@ class SfDataPagerThemeData with Diagnosticable {
       itemBorderRadius,
       dropdownButtonBorderColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override

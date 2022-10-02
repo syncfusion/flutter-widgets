@@ -749,6 +749,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
         renderBox = templateContext.context!.findRenderObject() as RenderBox;
         templateContext.size = renderBox.size;
       }
+      _stateProperties.legendRefresh = true;
       setState(() {
         /// The chart will be rebuilding again, Once legend template sizes will be calculated.
       });

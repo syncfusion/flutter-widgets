@@ -161,6 +161,6 @@ class KnobStyle {
       borderColor,
       color
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

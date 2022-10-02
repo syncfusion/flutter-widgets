@@ -38,85 +38,74 @@ class AutoFilterCollection {
 
   ///Get filterRange
   Range get filterRange {
-    if (_range != null) {
-      return _range;
-    } else {
-      throw Exception('value Not Declared yet');
-    }
+    return _range;
   }
 
   ///Set range to be filtered.
   set filterRange(Range value) {
-    if (value == null) {
-      throw Exception("Can't filter ranges from  worksheet");
-    }
-
     value = _updateFilterRange(value);
     _range = value;
 
     _innerList.clear();
 
-    if (value != null) {
-      for (int i = value.column; i <= value.lastColumn; i++) {
-        _innerList.add(_AutoFilterImpl(this, _worksheet, _topRow, _bottomRow));
+    for (int i = value.column; i <= value.lastColumn; i++) {
+      _innerList.add(_AutoFilterImpl(this, _worksheet, _topRow, _bottomRow));
 
-        final _AutoFilterImpl filter =
-            _innerList[_innerList.length - 1] as _AutoFilterImpl;
+      final _AutoFilterImpl filter =
+          _innerList[_innerList.length - 1] as _AutoFilterImpl;
 
-        filter._colIndex = i;
-      }
+      filter._colIndex = i;
     }
   }
 
   /// Update range to be filtered.
   Range _updateFilterRange(Range filterRange) {
-    if (filterRange != null) {
-      _initializeFilterRange(filterRange.row, filterRange.column,
-          filterRange.lastRow, filterRange.lastColumn);
-      final int tempTopRow = _topRow;
-      final int tempLeftColumn = _leftColumn;
-      final int tempBottomRow = _bottomRow;
-      final int tempRightColumn = _rightColumn;
+    _initializeFilterRange(filterRange.row, filterRange.column,
+        filterRange.lastRow, filterRange.lastColumn);
+    final int tempTopRow = _topRow;
+    final int tempLeftColumn = _leftColumn;
+    final int tempBottomRow = _bottomRow;
+    final int tempRightColumn = _rightColumn;
 
-      if (filterRange.isSingleRange) {
-        //checkRange(_topRow, _leftColumn);
-        bool isEmptyCell = false;
-        if ((filterRange.worksheet)
-            .getRangeByIndex(_topRow, _leftColumn)
-            .cells
-            .isEmpty) {
-          isEmptyCell = true;
+    if (filterRange.isSingleRange) {
+      //checkRange(_topRow, _leftColumn);
+      bool isEmptyCell = false;
+      if ((filterRange.worksheet)
+          .getRangeByIndex(_topRow, _leftColumn)
+          .cells
+          .isEmpty) {
+        isEmptyCell = true;
+      }
+      filterRange = _includeAdjacents(
+          _topRow, _leftColumn, _bottomRow, _rightColumn, filterRange, true);
+      if (isEmptyCell) {
+        if (tempTopRow == _topRow) {
+          if (!_isRowNotEmpty(
+              _topRow, _leftColumn, _rightColumn, filterRange)) {
+            _topRow++;
+          }
         }
-        filterRange = _includeAdjacents(
-            _topRow, _leftColumn, _bottomRow, _rightColumn, filterRange, true);
-        if (isEmptyCell) {
-          if (tempTopRow == _topRow) {
-            if (!_isRowNotEmpty(
-                _topRow, _leftColumn, _rightColumn, filterRange)) {
-              _topRow++;
-            }
+        if (tempLeftColumn == _leftColumn) {
+          if (!_isColumnNotEmpty(
+              _leftColumn, _topRow, _bottomRow, filterRange)) {
+            _leftColumn++;
           }
-          if (tempLeftColumn == _leftColumn) {
-            if (!_isColumnNotEmpty(
-                _leftColumn, _topRow, _bottomRow, filterRange)) {
-              _leftColumn++;
-            }
+        }
+        if (tempBottomRow == _bottomRow) {
+          if (!_isRowNotEmpty(
+              _bottomRow, _leftColumn, _rightColumn, filterRange)) {
+            _bottomRow--;
           }
-          if (tempBottomRow == _bottomRow) {
-            if (!_isRowNotEmpty(
-                _bottomRow, _leftColumn, _rightColumn, filterRange)) {
-              _bottomRow--;
-            }
-          }
-          if (tempRightColumn == _rightColumn) {
-            if (!_isColumnNotEmpty(
-                _rightColumn, _topRow, _bottomRow, filterRange)) {
-              _rightColumn--;
-            }
+        }
+        if (tempRightColumn == _rightColumn) {
+          if (!_isColumnNotEmpty(
+              _rightColumn, _topRow, _bottomRow, filterRange)) {
+            _rightColumn--;
           }
         }
       }
     }
+
     return filterRange;
   }
 
@@ -285,9 +274,6 @@ class AutoFilterCollection {
 
   ///Operator for get column index
   AutoFilter operator [](int columnIndex) {
-    if (columnIndex == null) {
-      throw Exception('index Cant be Null');
-    }
     if (columnIndex > _innerList.length) {
       throw Exception('index Out of Range');
     }

@@ -166,6 +166,6 @@ class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
       centerLineColor,
       centerLineWidth
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

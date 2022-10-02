@@ -1370,6 +1370,8 @@ class RowSelectionManager extends SelectionManagerBase {
   }
 }
 
+final FocusScopeNode _focusScopeNode = FocusScopeNode();
+
 /// A class that can be used to manage the current cell operations in the
 /// [SfDataGrid].
 class CurrentCellManager {
@@ -1761,8 +1763,22 @@ class CurrentCellManager {
         /// To bring the focus automatically to editing widget.
         /// canRequestFocus need to set true to auto detect the focus
         /// User need to set the autoFocus to true in their editable widget.
-        editingDataCell.editingWidget =
-            FocusScope(canRequestFocus: true, child: child);
+        editingDataCell.editingWidget = FocusScope(
+            canRequestFocus: true,
+            node: _focusScopeNode,
+            onFocusChange: (bool details) {
+              /// We should not allow the focus to the other widgets
+              /// when the cell is in the edit mode and return false from the canSubmitCell
+              /// So, we need to request the focus here.
+              /// Also, if we return false from the canSubmitCell method and tap other cells
+              /// We need to retain the focus on the text field instead of losing focus.
+              if (!_focusScopeNode.hasFocus &&
+                  !dataGridConfiguration.dataGridFocusNode!.hasFocus &&
+                  dataGridConfiguration.controller.isCurrentCellInEditing) {
+                _focusScopeNode.requestFocus();
+              }
+            },
+            child: child);
         editingDataCell.isEditing =
             editingDataCell.dataRow!.isEditing = isEditing = true;
 
@@ -1862,9 +1878,13 @@ class CurrentCellManager {
 
       if (canRefresh) {
         /// Refresh the visible [DataRow]'s on editing the [DataCell] when
-        /// sorting enabled
-        if (dataGridConfiguration.allowSorting) {
+        /// sorting or filtering is enabled.
+        if (dataGridConfiguration.allowSorting ||
+            dataGridConfiguration.allowFiltering) {
           updateDataSource(dataGridConfiguration.source);
+          if (dataGridConfiguration.source.filterConditions.isNotEmpty) {
+            dataGridConfiguration.container.updateRowAndColumnCount();
+          }
           dataGridConfiguration.container
             ..updateDataGridRows(dataGridConfiguration)
             ..isDirty = true;
@@ -2040,8 +2060,13 @@ void handleSelectionFromCheckbox(DataGridConfiguration dataGridConfiguration,
         } else if (oldValue) {
           dataGridConfiguration.headerCheckboxState = false;
           dataCell.updateColumn();
+
+          // Issue:
+          // FLUT-6838-The onSelectionChanged callback is not being called with deselected rows
+          // while deselecting through the checkbox column header
+          // We have resolved the issue by creating the list instead of the reference.
           final List<DataGridRow> oldSelectedItems =
-              rowSelectionManager._selectedRows;
+              rowSelectionManager._selectedRows.toList();
           if (rowSelectionManager._raiseSelectionChanging(
               newItems: <DataGridRow>[], oldItems: oldSelectedItems)) {
             rowSelectionManager._clearSelectedRows(dataGridConfiguration);
@@ -2049,6 +2074,8 @@ void handleSelectionFromCheckbox(DataGridConfiguration dataGridConfiguration,
             rowSelectionManager._raiseSelectionChanged(
                 oldItems: oldSelectedItems, newItems: <DataGridRow>[]);
           }
+          // Cleared the oldSelectedItems list after the callback is called.
+          oldSelectedItems.clear();
         }
       } else {
         dataCell.onTouchUp();

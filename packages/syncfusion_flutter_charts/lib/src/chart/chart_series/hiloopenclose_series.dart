@@ -215,6 +215,6 @@ class HiloOpenCloseSeries<T, D> extends FinancialSeriesBase<T, D> {
       onPointDoubleTap,
       onPointLongPress
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

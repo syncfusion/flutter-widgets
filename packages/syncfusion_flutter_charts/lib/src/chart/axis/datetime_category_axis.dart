@@ -377,7 +377,7 @@ class DateTimeCategoryAxis extends ChartAxis {
       dateFormat,
       axisLabelFormatter
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 

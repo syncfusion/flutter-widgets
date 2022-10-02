@@ -417,14 +417,17 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       _position = 0;
     }
 
-    if (widget.calendar.monthViewSettings.numberOfWeeksInView !=
-            oldWidget.calendar.monthViewSettings.numberOfWeeksInView ||
-        !CalendarViewHelper.isCollectionEqual(
-            widget.calendar.timeSlotViewSettings.nonWorkingDays,
-            oldWidget.calendar.timeSlotViewSettings.nonWorkingDays) ||
+    if ((widget.view == CalendarView.month &&
+            widget.calendar.monthViewSettings.numberOfWeeksInView !=
+                oldWidget.calendar.monthViewSettings.numberOfWeeksInView) ||
         widget.calendar.firstDayOfWeek != oldWidget.calendar.firstDayOfWeek ||
-        widget.calendar.timeSlotViewSettings.numberOfDaysInView !=
-            oldWidget.calendar.timeSlotViewSettings.numberOfDaysInView ||
+        (widget.view != CalendarView.month &&
+            (!CalendarViewHelper.isCollectionEqual(
+                    widget.calendar.timeSlotViewSettings.nonWorkingDays,
+                    oldWidget.calendar.timeSlotViewSettings.nonWorkingDays) ||
+                widget.calendar.timeSlotViewSettings.numberOfDaysInView !=
+                    oldWidget
+                        .calendar.timeSlotViewSettings.numberOfDaysInView)) ||
         widget.isRTL != oldWidget.isRTL) {
       _updateVisibleDates();
       _position = 0;
@@ -1018,7 +1021,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
             _dragDetails.value.position.value!.dy <=
                 viewHeaderHeight + allDayHeight &&
             currentState._scrollController!.position.pixels != 0) {
-          Future<void> _updateScrollPosition() async {
+          Future<void> updateScrollPosition() async {
             double scrollPosition =
                 currentState._scrollController!.position.pixels -
                     timeIntervalHeight;
@@ -1048,14 +1051,14 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                 _dragDetails.value.position.value!.dy <=
                     viewHeaderHeight + allDayHeight &&
                 currentState._scrollController!.position.pixels != 0) {
-              _updateScrollPosition();
+              updateScrollPosition();
             } else if (_timer != null) {
               _timer!.cancel();
               _timer = null;
             }
           }
 
-          _updateScrollPosition();
+          updateScrollPosition();
         } else if (_timer != null) {
           _timer!.cancel();
           _timer = null;
@@ -1079,7 +1082,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                 widget.height &&
             currentState._scrollController!.position.pixels !=
                 currentState._scrollController!.position.maxScrollExtent) {
-          Future<void> _updateScrollPosition() async {
+          Future<void> updateScrollPosition() async {
             double scrollPosition =
                 currentState._scrollController!.position.pixels +
                     timeIntervalHeight;
@@ -1115,14 +1118,14 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                     widget.height &&
                 currentState._scrollController!.position.pixels !=
                     currentState._scrollController!.position.maxScrollExtent) {
-              _updateScrollPosition();
+              updateScrollPosition();
             } else if (_timer != null) {
               _timer!.cancel();
               _timer = null;
             }
           }
 
-          _updateScrollPosition();
+          updateScrollPosition();
         } else if (_timer != null) {
           _timer!.cancel();
           _timer = null;
@@ -1269,7 +1272,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                             ._scrollController!.position.maxScrollExtent) ||
                 (!widget.isRTL &&
                     currentState._scrollController!.position.pixels != 0))) {
-          Future<void> _updateScrollPosition() async {
+          Future<void> updateScrollPosition() async {
             double scrollPosition =
                 currentState._scrollController!.position.pixels -
                     timeIntervalHeight;
@@ -1313,7 +1316,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                     (!widget.isRTL &&
                         currentState._scrollController!.position.pixels !=
                             0))) {
-              _updateScrollPosition();
+              updateScrollPosition();
             } else if (_timer != null) {
               _timer!.cancel();
               _timer = null;
@@ -1334,7 +1337,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
             }
           }
 
-          _updateScrollPosition();
+          updateScrollPosition();
         } else if (_timer != null) {
           _timer!.cancel();
           _timer = null;
@@ -1382,7 +1385,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                     currentState._scrollController!.position.pixels !=
                         currentState
                             ._scrollController!.position.maxScrollExtent))) {
-          Future<void> _updateScrollPosition() async {
+          Future<void> updateScrollPosition() async {
             double scrollPosition =
                 currentState._scrollController!.position.pixels +
                     timeIntervalHeight;
@@ -1430,7 +1433,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                         currentState._scrollController!.position.pixels !=
                             currentState._scrollController!.position
                                 .maxScrollExtent))) {
-              _updateScrollPosition();
+              updateScrollPosition();
             } else if (_timer != null) {
               _timer!.cancel();
               _timer = null;
@@ -1451,7 +1454,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
             }
           }
 
-          _updateScrollPosition();
+          updateScrollPosition();
         } else if (_timer != null) {
           _timer!.cancel();
           _timer = null;
@@ -1509,7 +1512,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
               currentState
                       ._timelineViewVerticalScrollController!.position.pixels !=
                   0) {
-            Future<void> _updateScrollPosition() async {
+            Future<void> updateScrollPosition() async {
               double scrollPosition = currentState
                       ._timelineViewVerticalScrollController!.position.pixels -
                   resourceItemHeight;
@@ -1531,14 +1534,14 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                   currentState._timelineViewVerticalScrollController!.position
                           .pixels !=
                       0) {
-                _updateScrollPosition();
+                updateScrollPosition();
               } else if (_timer != null) {
                 _timer!.cancel();
                 _timer = null;
               }
             }
 
-            _updateScrollPosition();
+            updateScrollPosition();
           } else if (_timer != null) {
             _timer!.cancel();
             _timer = null;
@@ -1564,7 +1567,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                       ._timelineViewVerticalScrollController!.position.pixels !=
                   currentState._timelineViewVerticalScrollController!.position
                       .maxScrollExtent) {
-            Future<void> _updateScrollPosition() async {
+            Future<void> updateScrollPosition() async {
               double scrollPosition = currentState
                       ._timelineViewVerticalScrollController!.position.pixels +
                   resourceItemHeight;
@@ -1593,14 +1596,14 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                           .pixels !=
                       currentState._timelineViewVerticalScrollController!
                           .position.maxScrollExtent) {
-                _updateScrollPosition();
+                updateScrollPosition();
               } else if (_timer != null) {
                 _timer!.cancel();
                 _timer = null;
               }
             }
 
-            _updateScrollPosition();
+            updateScrollPosition();
           } else if (_timer != null) {
             _timer!.cancel();
             _timer = null;
@@ -2543,8 +2546,20 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   void _handlePointerSignal(PointerSignalEvent event) {
     final _CalendarViewState? viewKey = _getCurrentViewByVisibleDates();
     if (event is PointerScrollEvent && viewKey != null) {
-      final double scrolledPosition =
+      double scrolledPosition =
           widget.isRTL ? -event.scrollDelta.dx : event.scrollDelta.dx;
+
+      /// Check the scrolling is vertical and timeline view does not have
+      /// vertical scroll view then scroll the vertical movement on
+      /// Horizontal direction.
+      if (event.scrollDelta.dy.abs() > event.scrollDelta.dx.abs() &&
+          viewKey._timelineViewVerticalScrollController!.position
+                  .maxScrollExtent ==
+              0) {
+        scrolledPosition =
+            widget.isRTL ? -event.scrollDelta.dy : event.scrollDelta.dy;
+      }
+
       final double targetScrollOffset = math.min(
           math.max(
               viewKey._scrollController!.position.pixels + scrolledPosition,
@@ -7569,7 +7584,7 @@ class _CalendarViewState extends State<_CalendarView>
         if (yPosition != null &&
             yPosition! <= viewHeaderHeight + allDayPanelHeight &&
             _scrollController!.offset != 0) {
-          Future<void> _updateScrollPosition() async {
+          Future<void> updateScrollPosition() async {
             double scrollPosition =
                 _scrollController!.position.pixels - timeIntervalHeight;
             if (scrollPosition < 0) {
@@ -7621,14 +7636,14 @@ class _CalendarViewState extends State<_CalendarView>
             if (yPosition != null &&
                 yPosition! <= viewHeaderHeight + allDayPanelHeight &&
                 _scrollController!.offset != 0) {
-              _updateScrollPosition();
+              updateScrollPosition();
             } else if (_autoScrollTimer != null) {
               _autoScrollTimer!.cancel();
               _autoScrollTimer = null;
             }
           }
 
-          _updateScrollPosition();
+          updateScrollPosition();
         } else if (_autoScrollTimer != null) {
           _autoScrollTimer!.cancel();
           _autoScrollTimer = null;
@@ -7646,7 +7661,7 @@ class _CalendarViewState extends State<_CalendarView>
             yPosition! >= widget.height &&
             _scrollController!.position.pixels !=
                 _scrollController!.position.maxScrollExtent) {
-          Future<void> _updateScrollPosition() async {
+          Future<void> updateScrollPosition() async {
             double scrollPosition =
                 _scrollController!.position.pixels + timeIntervalHeight;
             if (scrollPosition > _scrollController!.position.maxScrollExtent) {
@@ -7700,14 +7715,14 @@ class _CalendarViewState extends State<_CalendarView>
                 yPosition! >= widget.height &&
                 _scrollController!.position.pixels !=
                     _scrollController!.position.maxScrollExtent) {
-              _updateScrollPosition();
+              updateScrollPosition();
             } else if (_autoScrollTimer != null) {
               _autoScrollTimer!.cancel();
               _autoScrollTimer = null;
             }
           }
 
-          _updateScrollPosition();
+          updateScrollPosition();
         } else if (_autoScrollTimer != null) {
           _autoScrollTimer!.cancel();
           _autoScrollTimer = null;
@@ -7747,7 +7762,7 @@ class _CalendarViewState extends State<_CalendarView>
                     _scrollController!.position.pixels !=
                         _scrollController!.position.maxScrollExtent) ||
                 (!_isRTL && _scrollController!.position.pixels != 0))) {
-          Future<void> _updateScrollPosition() async {
+          Future<void> updateScrollPosition() async {
             double scrollPosition =
                 _scrollController!.position.pixels - timeIntervalHeight;
             if (_isRTL) {
@@ -7804,14 +7819,14 @@ class _CalendarViewState extends State<_CalendarView>
                         _scrollController!.position.pixels !=
                             _scrollController!.position.maxScrollExtent) ||
                     (!_isRTL && _scrollController!.position.pixels != 0))) {
-              _updateScrollPosition();
+              updateScrollPosition();
             } else if (_autoScrollTimer != null) {
               _autoScrollTimer!.cancel();
               _autoScrollTimer = null;
             }
           }
 
-          _updateScrollPosition();
+          updateScrollPosition();
         } else if (_autoScrollTimer != null) {
           _autoScrollTimer!.cancel();
           _autoScrollTimer = null;
@@ -7833,7 +7848,7 @@ class _CalendarViewState extends State<_CalendarView>
                     _scrollController!.position.pixels !=
                         _scrollController!.position.maxScrollExtent) ||
                 (_isRTL && _scrollController!.position.pixels != 0))) {
-          Future<void> _updateScrollPosition() async {
+          Future<void> updateScrollPosition() async {
             double scrollPosition =
                 _scrollController!.position.pixels + timeIntervalHeight;
             if (_isRTL) {
@@ -7890,14 +7905,14 @@ class _CalendarViewState extends State<_CalendarView>
                         _scrollController!.position.pixels !=
                             _scrollController!.position.maxScrollExtent) ||
                     (_isRTL && _scrollController!.position.pixels != 0))) {
-              _updateScrollPosition();
+              updateScrollPosition();
             } else if (_autoScrollTimer != null) {
               _autoScrollTimer!.cancel();
               _autoScrollTimer = null;
             }
           }
 
-          _updateScrollPosition();
+          updateScrollPosition();
         } else if (_autoScrollTimer != null) {
           _autoScrollTimer!.cancel();
           _autoScrollTimer = null;

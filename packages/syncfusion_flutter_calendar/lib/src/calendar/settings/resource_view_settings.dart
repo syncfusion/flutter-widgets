@@ -252,7 +252,7 @@ class ResourceViewSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         size, visibleResourceCount, showAvatar, displayNameTextStyle);
   }
 }

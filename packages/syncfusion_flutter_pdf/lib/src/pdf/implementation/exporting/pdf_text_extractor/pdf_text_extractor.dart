@@ -606,7 +606,7 @@ class PdfTextExtractor {
                 for (i = spaceStartIndex + 2; i < stringList.length; i++) {
                   if (stringList[i] == ' ' || stringList[i] == '\t') {
                     continue;
-                  } else if (i == stringList.length - 1) {
+                  } else if (i >= stringList.length) {
                     break;
                   } else {
                     stringList.removeRange(spaceStartIndex + 1, i);

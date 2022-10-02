@@ -32,7 +32,7 @@ abstract class DataCellBase {
   /// Decides whether [DataCell] is dirty, to refresh it.
   bool isDirty = false;
 
-  /// Decides whether the [DataCell] has the currentcell.
+  /// Decides whether the [DataCell] has the current-cell.
   bool isCurrentCell = false;
 
   /// Decide whether the [DataCell] is in edit mode.

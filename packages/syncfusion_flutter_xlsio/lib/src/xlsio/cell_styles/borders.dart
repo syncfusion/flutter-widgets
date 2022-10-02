@@ -224,7 +224,7 @@ class BordersCollection implements Borders {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => hashValues(all, left, right, top, bottom);
+  int get hashCode => Object.hash(all, left, right, top, bottom);
 
   /// Crear all the borders.
   void _clear() {}

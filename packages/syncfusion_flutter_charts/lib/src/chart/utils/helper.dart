@@ -789,21 +789,23 @@ VisibleRange calculateSideBySideInfo(CartesianSeriesRenderer seriesRenderer,
         seriesRenderer as ColumnSeriesRenderer;
     _calculateSideBySidePositions(columnSeriesRenderer, stateProperties);
     rectPosition = seriesRendererDetails.rectPosition;
-    count = seriesRendererDetails.rectCount;
+    count = seriesRendererDetails.isIndicator
+        ? stateProperties.sideBySideIndicatorCount
+        : stateProperties.sideBySideSeriesCount;
   } else if (seriesRendererDetails.seriesType == 'histogram' &&
       chart.enableSideBySideSeriesPlacement) {
     final HistogramSeriesRenderer histogramSeriesRenderer =
         seriesRenderer as HistogramSeriesRenderer;
     _calculateSideBySidePositions(histogramSeriesRenderer, stateProperties);
     rectPosition = seriesRendererDetails.rectPosition;
-    count = seriesRendererDetails.rectCount;
+    count = stateProperties.sideBySideSeriesCount;
   } else if (seriesRendererDetails.seriesType == 'bar' &&
       chart.enableSideBySideSeriesPlacement) {
     final BarSeriesRenderer barSeriesRenderer =
         seriesRenderer as BarSeriesRenderer;
     _calculateSideBySidePositions(barSeriesRenderer, stateProperties);
     rectPosition = seriesRendererDetails.rectPosition;
-    count = seriesRendererDetails.rectCount;
+    count = stateProperties.sideBySideSeriesCount;
   } else if ((seriesRendererDetails.seriesType.contains('stackedcolumn') ==
               true ||
           seriesRendererDetails.seriesType.contains('stackedbar') == true) &&
@@ -812,49 +814,49 @@ VisibleRange calculateSideBySideInfo(CartesianSeriesRenderer seriesRenderer,
         seriesRenderer as StackedSeriesRenderer;
     _calculateSideBySidePositions(stackedRectSeriesRenderer, stateProperties);
     rectPosition = seriesRendererDetails.rectPosition;
-    count = seriesRendererDetails.rectCount;
+    count = stateProperties.sideBySideSeriesCount;
   } else if (seriesRendererDetails.seriesType == 'rangecolumn' &&
       chart.enableSideBySideSeriesPlacement) {
     final RangeColumnSeriesRenderer rangeColumnSeriesRenderer =
         seriesRenderer as RangeColumnSeriesRenderer;
     _calculateSideBySidePositions(rangeColumnSeriesRenderer, stateProperties);
     rectPosition = seriesRendererDetails.rectPosition;
-    count = seriesRendererDetails.rectCount;
+    count = stateProperties.sideBySideSeriesCount;
   } else if (seriesRendererDetails.seriesType == 'hilo' &&
       chart.enableSideBySideSeriesPlacement) {
     final HiloSeriesRenderer hiloSeriesRenderer =
         seriesRenderer as HiloSeriesRenderer;
     _calculateSideBySidePositions(hiloSeriesRenderer, stateProperties);
     rectPosition = seriesRendererDetails.rectPosition;
-    count = seriesRendererDetails.rectCount;
+    count = stateProperties.sideBySideSeriesCount;
   } else if (seriesRendererDetails.seriesType == 'hiloopenclose' &&
       chart.enableSideBySideSeriesPlacement) {
     final HiloOpenCloseSeriesRenderer hiloOpenCloseSeriesRenderer =
         seriesRenderer as HiloOpenCloseSeriesRenderer;
     _calculateSideBySidePositions(hiloOpenCloseSeriesRenderer, stateProperties);
     rectPosition = seriesRendererDetails.rectPosition;
-    count = seriesRendererDetails.rectCount;
+    count = stateProperties.sideBySideSeriesCount;
   } else if (seriesRendererDetails.seriesType == 'candle' &&
       chart.enableSideBySideSeriesPlacement) {
     final CandleSeriesRenderer candleSeriesRenderer =
         seriesRenderer as CandleSeriesRenderer;
     _calculateSideBySidePositions(candleSeriesRenderer, stateProperties);
     rectPosition = seriesRendererDetails.rectPosition;
-    count = seriesRendererDetails.rectCount;
+    count = stateProperties.sideBySideSeriesCount;
   } else if (seriesRendererDetails.seriesType == 'boxandwhisker' &&
       chart.enableSideBySideSeriesPlacement) {
     final BoxAndWhiskerSeriesRenderer boxAndWhiskerSeriesRenderer =
         seriesRenderer as BoxAndWhiskerSeriesRenderer;
     _calculateSideBySidePositions(boxAndWhiskerSeriesRenderer, stateProperties);
     rectPosition = seriesRendererDetails.rectPosition;
-    count = seriesRendererDetails.rectCount;
+    count = stateProperties.sideBySideSeriesCount;
   } else if (seriesRendererDetails.seriesType == 'waterfall' &&
       chart.enableSideBySideSeriesPlacement) {
     final WaterfallSeriesRenderer waterfallSeriesRenderer =
         seriesRenderer as WaterfallSeriesRenderer;
     _calculateSideBySidePositions(waterfallSeriesRenderer, stateProperties);
     rectPosition = seriesRendererDetails.rectPosition;
-    count = seriesRendererDetails.rectCount;
+    count = stateProperties.sideBySideSeriesCount;
   }
 
   if (seriesRendererDetails.seriesType == 'column') {
@@ -1024,8 +1026,8 @@ void _calculateSideBySidePositions(CartesianSeriesRenderer seriesRenderer,
   final List<CartesianSeriesRenderer> seriesCollection =
       _findRectSeriesCollection(stateProperties);
   int rectCount = 0;
+  int indicatorPosition = 0;
   num? position;
-  final num seriesLength = seriesCollection.length;
   List<_StackingGroup>? stackingGroupPos;
   final SeriesRendererDetails seriesRendererDetails =
       SeriesHelper.getSeriesRendererDetails(seriesRenderer);
@@ -1041,8 +1043,8 @@ void _calculateSideBySidePositions(CartesianSeriesRenderer seriesRenderer,
         seriesRenderer is WaterfallSeriesRenderer) {
       final SeriesRendererDetails seriesRendererDetails =
           SeriesHelper.getSeriesRendererDetails(seriesRenderer);
-      seriesRendererDetails.rectPosition = rectCount++;
-      seriesRendererDetails.rectCount = seriesLength;
+      seriesRendererDetails.rectPosition =
+          seriesRendererDetails.isIndicator ? indicatorPosition++ : rectCount++;
     }
   }
   if (seriesRenderer is StackedSeriesRenderer) {
@@ -1091,17 +1093,7 @@ void _calculateSideBySidePositions(CartesianSeriesRenderer seriesRenderer,
   }
   if (seriesRendererDetails.seriesType.contains('stackedcolumn') == true ||
       seriesRendererDetails.seriesType.contains('stackedbar') == true) {
-    for (int i = 0; i < seriesCollection.length; i++) {
-      StackedSeriesRenderer? seriesRenderer;
-      final SeriesRendererDetails seriesRendererDetails =
-          SeriesHelper.getSeriesRendererDetails(seriesCollection[i]);
-      if (seriesCollection[i] is StackedSeriesRenderer) {
-        seriesRenderer = seriesCollection[i] as StackedSeriesRenderer;
-      }
-      if (seriesRenderer != null) {
-        seriesRendererDetails.rectCount = rectCount;
-      }
-    }
+    stateProperties.sideBySideSeriesCount = rectCount;
   }
 }
 
@@ -1175,6 +1167,8 @@ RRect getRRectFromRect(Rect rect, BorderRadius borderRadius) {
 /// Find the rect series collection in axes.
 List<CartesianSeriesRenderer> _findRectSeriesCollection(
     CartesianStateProperties stateProperties) {
+  int rectSeriesCount = 0;
+  int rectIndicatorCount = 0;
   final List<CartesianSeriesRenderer> seriesRenderCollection =
       <CartesianSeriesRenderer>[];
   for (int xAxisIndex = 0;
@@ -1216,12 +1210,19 @@ List<CartesianSeriesRenderer> _findRectSeriesCollection(
               seriesRendererDetails.visible! == true) {
             if (!seriesRenderCollection.contains(yAxisSeriesRenderer)) {
               seriesRenderCollection.add(yAxisSeriesRenderer);
+              if (seriesRendererDetails.isIndicator) {
+                rectIndicatorCount++;
+              } else {
+                rectSeriesCount++;
+              }
             }
           }
         }
       }
     }
   }
+  stateProperties.sideBySideSeriesCount = rectSeriesCount;
+  stateProperties.sideBySideIndicatorCount = rectIndicatorCount;
   return seriesRenderCollection;
 }
 
@@ -1256,7 +1257,6 @@ String getLabelValue(dynamic value, dynamic axis, [int? showDigits]) {
   if (value.toString().split('.').length > 1) {
     final String str = value.toString();
     final List<dynamic> list = str.split('.');
-    value = axis is LogarithmicAxis ? math.pow(10, value) : value;
     value = double.parse(value.toStringAsFixed(showDigits ?? 3));
     value = (list[1] == '0' ||
             list[1] == '00' ||
@@ -1594,6 +1594,7 @@ dynamic getInteractiveTooltipLabel(
     value =
         dateFormat.format(DateTime.fromMillisecondsSinceEpoch(value.toInt()));
   } else {
+    value = axis is LogarithmicAxis ? math.pow(10, value) : value;
     value = getLabelValue(value, axis, axis.interactiveTooltip.decimalPlaces);
   }
   return value;
@@ -3373,13 +3374,14 @@ VisibleRange calculateYRangeOnZoomX(
 }
 
 /// Bool to calculate for Y range.
-bool needCalculateYrange(num? minimum, num? maximum,
+bool needCalculateYRange(num? minimum, num? maximum,
     CartesianStateProperties stateProperties, AxisOrientation orientation) {
   final SfCartesianChart chart = stateProperties.chart;
   return !(minimum != null && maximum != null) &&
       (stateProperties.rangeChangeBySlider ||
           (((stateProperties.zoomedState ?? false) ||
-                  stateProperties.zoomProgress) &&
+                  stateProperties.zoomProgress ||
+                  stateProperties.chart.indicators.isNotEmpty) &&
               (!stateProperties.requireInvertedAxis
                   ? (orientation == AxisOrientation.vertical &&
                       chart.zoomPanBehavior.zoomMode == ZoomMode.x)

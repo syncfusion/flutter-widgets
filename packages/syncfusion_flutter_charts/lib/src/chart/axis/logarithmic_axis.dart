@@ -355,7 +355,7 @@ class LogarithmicAxis extends ChartAxis {
       autoScrollingMode,
       axisLabelFormatter
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
@@ -649,7 +649,7 @@ class LogarithmicAxisDetails extends ChartAxisRendererDetails {
     this.max = logarithmicAxis.maximum ?? this.max;
     actualRange = VisibleRange(this.min, this.max);
     if (axis.anchorRangeToVisiblePoints &&
-        needCalculateYrange(logarithmicAxis.minimum, logarithmicAxis.maximum,
+        needCalculateYRange(logarithmicAxis.minimum, logarithmicAxis.maximum,
             stateProperties, orientation!)) {
       final VisibleRange range = calculateYRangeOnZoomX(actualRange!, this);
       this.min = range.minimum;

@@ -142,6 +142,6 @@ class CalendarHeaderStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(textStyle, textAlign, backgroundColor);
+    return Object.hash(textStyle, textAlign, backgroundColor);
   }
 }

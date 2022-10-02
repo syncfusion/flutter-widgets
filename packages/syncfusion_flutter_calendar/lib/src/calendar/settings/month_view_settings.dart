@@ -665,7 +665,7 @@ class MonthViewSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       dayFormat,
       monthCellStyle,
       agendaStyle,
@@ -984,7 +984,7 @@ class AgendaStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       appointmentTextStyle,
       dayTextStyle,
       dateTextStyle,
@@ -1558,7 +1558,7 @@ class MonthCellStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       textStyle,
       trailingDatesTextStyle,
       leadingDatesTextStyle,
