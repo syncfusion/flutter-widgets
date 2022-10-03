@@ -746,7 +746,6 @@ class TechnicalIndicatorsRenderer {
             ? ColumnSeries<dynamic, dynamic>(
                 name: name,
                 color: color,
-                width: width,
                 xAxisName: indicator.xAxisName,
                 animationDuration: indicator.animationDuration,
                 animationDelay: indicator.animationDelay,
@@ -785,6 +784,7 @@ class TechnicalIndicatorsRenderer {
         isRangeArea ? 'rangearea' : (isHistogram ? 'column' : 'line');
     seriesRendererDetails.isIndicator = true;
     seriesRendererDetails.seriesName = name;
+    // ignore: unnecessary_null_comparison
     if (series.dashArray != null) {
       seriesRendererDetails.dashArray = series.dashArray;
       if (seriesRendererDetails.dashArray!.length == 1) {

@@ -353,6 +353,6 @@ class SparkChartTrackball {
       borderRadius,
       tooltipFormatter!
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

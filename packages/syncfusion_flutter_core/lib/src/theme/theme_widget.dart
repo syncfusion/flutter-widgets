@@ -591,7 +591,7 @@ class SfThemeData with Diagnosticable {
       rangeSliderThemeData,
       mapsThemeData
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import './../axis/axis.dart';
 import '../../../charts.dart';
-import '../axis/axis.dart';
 import '../chart_segment/chart_segment.dart';
 import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';

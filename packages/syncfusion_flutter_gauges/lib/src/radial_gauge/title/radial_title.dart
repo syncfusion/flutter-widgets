@@ -189,6 +189,6 @@ class GaugeTitle {
       borderColor,
       backgroundColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

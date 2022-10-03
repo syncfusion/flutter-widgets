@@ -1,19 +1,24 @@
-name: syncfusion_flutter_signaturepad
-description: The Flutter Signature Pad widget allows you to capture smooth and more realistic signatures through drawn gestures and save it as an image.
-version: 20.2.36
-homepage: https://github.com/syncfusion/flutter-examples
+name: syncfusion_pdfviewer_macos
+description: macOS platform implementation of the Flutter PDF Viewer library that lets you view the PDF documents seamlessly and efficiently.
+version: 20.3.47
+homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_pdfviewer_macos
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
+  flutter: ">=1.20.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  syncfusion_flutter_core: ^20.2.36
+
+  syncfusion_pdfviewer_platform_interface: ^20.3.47
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-
 flutter:
+  plugin:
+    platforms:
+     macos:
+        pluginClass: SyncfusionFlutterPdfViewerPlugin

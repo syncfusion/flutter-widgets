@@ -460,7 +460,7 @@ class InteractiveTooltip {
       canShowMarker,
       textStyle
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 

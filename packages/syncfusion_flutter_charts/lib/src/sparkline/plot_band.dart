@@ -166,6 +166,6 @@ class SparkChartPlotBand {
       borderColor!,
       borderWidth,
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

@@ -1058,43 +1058,48 @@ class _RenderMapMarker extends RenderProxyBox
   }
 
   void _handlePointerExit(PointerExitEvent event) {
-    final _RenderMarkerContainer markerContainer =
-        // ignore: avoid_as
-        parent! as _RenderMarkerContainer;
-    if (markerContainer.markerTooltipBuilder != null) {
-      final ShapeLayerChildRenderBoxBase tooltipRenderBox =
-          markerContainer.controller.tooltipKey!.currentContext!
-              // ignore: avoid_as
-              .findRenderObject()! as ShapeLayerChildRenderBoxBase;
-      tooltipRenderBox.hideTooltip();
+    if (owner != null) {
+      final _RenderMarkerContainer markerContainer =
+          // ignore: avoid_as
+          parent! as _RenderMarkerContainer;
+      if (markerContainer.markerTooltipBuilder != null) {
+        final ShapeLayerChildRenderBoxBase tooltipRenderBox =
+            markerContainer.controller.tooltipKey!.currentContext!
+                // ignore: avoid_as
+                .findRenderObject()! as ShapeLayerChildRenderBoxBase;
+        tooltipRenderBox.hideTooltip();
+      }
     }
   }
 
   void _handleInteraction([PointerKind kind = PointerKind.touch]) {
-    int? sublayerIndex;
-    final _RenderMarkerContainer markerContainerRenderBox =
-        // ignore: avoid_as
-        parent! as _RenderMarkerContainer;
-    if (markerContainerRenderBox.markerTooltipBuilder != null) {
-      if (markerContainerRenderBox.sublayer != null) {
-        sublayerIndex = markerContainerRenderBox.container.ancestor!.sublayers!
-            .indexOf(markerContainerRenderBox.sublayer!);
-      }
+    if (owner != null) {
+      int? sublayerIndex;
+      final _RenderMarkerContainer markerContainerRenderBox =
+          // ignore: avoid_as
+          parent! as _RenderMarkerContainer;
+      if (markerContainerRenderBox.markerTooltipBuilder != null) {
+        if (markerContainerRenderBox.sublayer != null) {
+          sublayerIndex = markerContainerRenderBox
+              .container.ancestor!.sublayers!
+              .indexOf(markerContainerRenderBox.sublayer!);
+        }
 
-      final ShapeLayerChildRenderBoxBase tooltipRenderBox =
-          markerContainerRenderBox.controller.tooltipKey!.currentContext!
-              // ignore: avoid_as
-              .findRenderObject()! as ShapeLayerChildRenderBoxBase;
-      // ignore: avoid_as
-      final StackParentData childParentData = parentData! as StackParentData;
-      tooltipRenderBox.paintTooltip(
-          markerContainerRenderBox.getMarkerIndex(marker),
-          childParentData.offset & size,
-          MapLayerElement.marker,
-          kind,
-          // [sublayerIndex] is applicable only when the markers
-          // added to the [MapShapeSublayer].
-          sublayerIndex);
+        final ShapeLayerChildRenderBoxBase tooltipRenderBox =
+            markerContainerRenderBox.controller.tooltipKey!.currentContext!
+                // ignore: avoid_as
+                .findRenderObject()! as ShapeLayerChildRenderBoxBase;
+        // ignore: avoid_as
+        final StackParentData childParentData = parentData! as StackParentData;
+        tooltipRenderBox.paintTooltip(
+            markerContainerRenderBox.getMarkerIndex(marker),
+            childParentData.offset & size,
+            MapLayerElement.marker,
+            kind,
+            // [sublayerIndex] is applicable only when the markers
+            // added to the [MapShapeSublayer].
+            sublayerIndex);
+      }
     }
   }
 

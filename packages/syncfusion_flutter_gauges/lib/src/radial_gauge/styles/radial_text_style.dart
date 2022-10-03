@@ -60,6 +60,6 @@ class GaugeTextStyle {
       fontWeight,
       fontSize
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

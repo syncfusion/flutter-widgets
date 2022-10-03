@@ -400,7 +400,6 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
     await _clearSelection();
     return showDialog<void>(
         context: context,
-        barrierDismissible: true,
         builder: (BuildContext context) {
           final Orientation orientation = MediaQuery.of(context).orientation;
           return Directionality(

@@ -781,10 +781,14 @@ class PdfPageHelper {
           .getObject(dictionary![PdfDictionaryProperties.annots]) as PdfArray?;
       if (annots != null) {
         for (int count = 0; count < annots.count; ++count) {
-          final PdfDictionary? annotDicrionary =
-              crossTable!.getObject(annots[count]) as PdfDictionary?;
-          final PdfReferenceHolder annotReference =
-              annots[count]! as PdfReferenceHolder;
+          PdfDictionary? annotDictionary;
+          if (crossTable!.getObject(annots[count]) is PdfDictionary)
+            annotDictionary =
+                crossTable!.getObject(annots[count]) as PdfDictionary?;
+          PdfReferenceHolder? annotReference;
+          if (crossTable!.getObject(annots[count]) is PdfReferenceHolder)
+            annotReference =
+                crossTable!.getObject(annots[count]) as PdfReferenceHolder?;
           if (document != null &&
               PdfDocumentHelper.getHelper(document!).crossTable.encryptor !=
                   null &&
@@ -792,15 +796,15 @@ class PdfPageHelper {
                   .crossTable
                   .encryptor!
                   .encryptAttachmentOnly!) {
-            if (annotDicrionary != null &&
-                annotDicrionary.containsKey(PdfDictionaryProperties.subtype)) {
-              final IPdfPrimitive? primitive = annotDicrionary
+            if (annotDictionary != null &&
+                annotDictionary.containsKey(PdfDictionaryProperties.subtype)) {
+              final IPdfPrimitive? primitive = annotDictionary
                   .items![PdfName(PdfDictionaryProperties.subtype)];
               if (primitive is PdfName &&
                   primitive.name == 'FileAttachment' &&
-                  annotDicrionary.containsKey(PdfDictionaryProperties.fs)) {
+                  annotDictionary.containsKey(PdfDictionaryProperties.fs)) {
                 final IPdfPrimitive? file =
-                    annotDicrionary[PdfDictionaryProperties.fs];
+                    annotDictionary[PdfDictionaryProperties.fs];
                 if (file != null && file is PdfReferenceHolder) {
                   final IPdfPrimitive? streamDictionary = file.object;
                   if (streamDictionary != null &&
@@ -860,20 +864,25 @@ class PdfPageHelper {
               }
             }
           }
-          if (annotDicrionary != null &&
-              annotDicrionary.containsKey(PdfDictionaryProperties.subtype)) {
-            final PdfName? name = annotDicrionary
+          if (annotDictionary != null &&
+              annotDictionary.containsKey(PdfDictionaryProperties.subtype)) {
+            final PdfName? name = annotDictionary
                 .items![PdfName(PdfDictionaryProperties.subtype)] as PdfName?;
-            if (name != null && name.name.toString() == 'Widget') {
-              if (annotDicrionary.containsKey(PdfDictionaryProperties.parent)) {
-                final PdfDictionary? annotParentDictionary = (annotDicrionary
+            if (name != null && name.name.toString() != 'Widget') {
+              if (!terminalAnnotation.contains(annotDictionary)) {
+                terminalAnnotation.add(annotDictionary);
+              }
+            } else if (name != null && name.name.toString() == 'Widget') {
+              if (annotDictionary.containsKey(PdfDictionaryProperties.parent)) {
+                final PdfDictionary? annotParentDictionary = (annotDictionary
                             .items![PdfName(PdfDictionaryProperties.parent)]!
                         as PdfReferenceHolder)
                     .object as PdfDictionary?;
                 if (annotParentDictionary != null) {
                   if (!annotParentDictionary
                       .containsKey(PdfDictionaryProperties.fields)) {
-                    if (annotReference.reference != null &&
+                    if (annotReference != null &&
+                        annotReference.reference != null &&
                         !widgetReferences
                             .contains(annotReference.reference!.objNum)) {
                       if (!PdfFormHelper.getHelper(document!.form)
@@ -886,16 +895,16 @@ class PdfPageHelper {
                     } else if (annotParentDictionary
                             .containsKey(PdfDictionaryProperties.kids) &&
                         annotParentDictionary.count == 1) {
-                      annotDicrionary.remove(PdfDictionaryProperties.parent);
+                      annotDictionary.remove(PdfDictionaryProperties.parent);
                     }
                   } else if (!annotParentDictionary
                       .containsKey(PdfDictionaryProperties.kids)) {
-                    annotDicrionary.remove(PdfDictionaryProperties.parent);
+                    annotDictionary.remove(PdfDictionaryProperties.parent);
                   }
                 }
               } else if (!PdfFormHelper.getHelper(document!.form)
                   .terminalFields
-                  .contains(annotDicrionary)) {
+                  .contains(annotDictionary)) {
                 Map<String?, List<PdfDictionary>>? widgetDictionary =
                     PdfFormHelper.getHelper(document!.form).widgetDictionary;
                 if (widgetDictionary == null) {
@@ -904,22 +913,22 @@ class PdfPageHelper {
                   widgetDictionary =
                       PdfFormHelper.getHelper(document!.form).widgetDictionary;
                 }
-                if (annotDicrionary.containsKey(PdfDictionaryProperties.t)) {
-                  final String? fieldName = (annotDicrionary
+                if (annotDictionary.containsKey(PdfDictionaryProperties.t)) {
+                  final String? fieldName = (annotDictionary
                               .items![PdfName(PdfDictionaryProperties.t)]!
                           as PdfString)
                       .value;
                   if (widgetDictionary!.containsKey(fieldName)) {
                     final List<PdfDictionary> dict =
                         widgetDictionary[fieldName]!;
-                    dict.add(annotDicrionary);
+                    dict.add(annotDictionary);
                   } else {
                     if (!PdfFormFieldCollectionHelper.getHelper(
                             document!.form.fields)
                         .addedFieldNames
                         .contains(fieldName)) {
                       widgetDictionary[fieldName] = <PdfDictionary>[
-                        annotDicrionary
+                        annotDictionary
                       ];
                     }
                   }
@@ -927,7 +936,7 @@ class PdfPageHelper {
               }
             }
           }
-          if (annotReference.reference != null) {
+          if (annotReference != null && annotReference.reference != null) {
             if (!annotsReference.contains(annotReference.reference!)) {
               annotsReference.add(annotReference.reference!);
             }
@@ -952,12 +961,12 @@ class PdfPageHelper {
                 }
               }
             }
-            if (annotDicrionary != null && annotReference.reference != null) {
+            if (annotDictionary != null && annotReference.reference != null) {
               if (!widgetReferences
                       .contains(annotReference.reference!.objNum) &&
                   !skip) {
-                if (!terminalAnnotation.contains(annotDicrionary)) {
-                  terminalAnnotation.add(annotDicrionary);
+                if (!terminalAnnotation.contains(annotDictionary)) {
+                  terminalAnnotation.add(annotDictionary);
                 }
               }
             }

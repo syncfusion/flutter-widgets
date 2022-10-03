@@ -6,7 +6,7 @@ import 'package:syncfusion_flutter_core/theme.dart';
 const double _kPdfHeaderBarHeight = 53.0;
 
 /// Height of the header text.
-const double _kPdfHeaderTextHeight = 18.0;
+const double _kPdfHeaderTextHeight = 24.0;
 
 /// Height of the close icon.
 const double _kPdfCloseIconHeight = 24.0;

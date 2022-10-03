@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_core/tooltip_internal.dart';
@@ -52,6 +53,9 @@ class CircularArea extends StatelessWidget {
   /// Specifies whether the mouse is hovered.
   final bool _enableMouseHover = kIsWeb;
 
+  /// Stores pointer down time to determine whether a long press interaction is handled at pointer up
+  DateTime? pointerHoldingTime;
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -69,12 +73,11 @@ class CircularArea extends StatelessWidget {
                   .isHovering = false;
             },
             child: Listener(
-              onPointerUp: (PointerUpEvent event) => _onTapUp(event),
-              onPointerDown: (PointerDownEvent event) => _onTapDown(event),
+              onPointerUp: (PointerUpEvent event) => _onPointerUp(event),
+              onPointerDown: (PointerDownEvent event) => _onPointerDown(event),
               onPointerMove: (PointerMoveEvent event) =>
                   _performPointerMove(event),
               child: GestureDetector(
-                  onTap: _onTap,
                   onLongPress: _onLongPress,
                   onTapUp: (TapUpDetails details) {
                     if (chart.series[0].onPointTap != null &&
@@ -95,18 +98,14 @@ class CircularArea extends StatelessWidget {
     });
   }
 
-  /// To perform tap touch interactions.
-  void _onTap() {
+  /// To perform the pointer down event.
+  void _onPointerDown(PointerDownEvent event) {
     if (stateProperties.renderingDetails.currentActive != null &&
         stateProperties.renderingDetails.currentActive!.series != null &&
         stateProperties.renderingDetails.currentActive!.series.explodeGesture ==
             ActivationMode.singleTap) {
-      stateProperties.chartSeries.seriesPointExplosion(pointRegion);
+      pointerHoldingTime = DateTime.now();
     }
-  }
-
-  /// To perform the pointer down event.
-  void _onTapDown(PointerDownEvent event) {
     ChartTouchInteractionArgs touchArgs;
     final TooltipRenderingDetails tooltipRenderingDetails =
         TooltipHelper.getRenderingDetails(
@@ -172,12 +171,12 @@ class CircularArea extends StatelessWidget {
               .visibleSeriesRenderers[pointRegion!.seriesIndex]
               .renderPoints![pointRegion!.pointIndex],
           pointRegion);
-      if (stateProperties.renderingDetails.currentActive != null) {
-        if (stateProperties
-                .renderingDetails.currentActive?.series.explodeGesture ==
-            ActivationMode.doubleTap) {
-          stateProperties.chartSeries.seriesPointExplosion(
-              stateProperties.renderingDetails.currentActive?.region);
+      final ChartInteraction? currentActive =
+          stateProperties.renderingDetails.currentActive;
+      if (currentActive != null) {
+        if (currentActive.series.explodeGesture == ActivationMode.doubleTap) {
+          stateProperties.chartSeries
+              .seriesPointExplosion(currentActive.region);
         }
       }
       stateProperties.chartSeries
@@ -218,12 +217,12 @@ class CircularArea extends StatelessWidget {
           pointRegion);
       stateProperties.chartSeries
           .seriesPointSelection(pointRegion, ActivationMode.longPress);
-      if (stateProperties.renderingDetails.currentActive != null) {
-        if (stateProperties
-                .renderingDetails.currentActive?.series.explodeGesture ==
-            ActivationMode.longPress) {
-          stateProperties.chartSeries.seriesPointExplosion(
-              stateProperties.renderingDetails.currentActive?.region);
+      final ChartInteraction? currentActive =
+          stateProperties.renderingDetails.currentActive;
+      if (currentActive != null) {
+        if (currentActive.series.explodeGesture == ActivationMode.longPress) {
+          stateProperties.chartSeries
+              .seriesPointExplosion(currentActive.region);
         }
       }
       if (chart.tooltipBehavior.enable &&
@@ -243,7 +242,9 @@ class CircularArea extends StatelessWidget {
   }
 
   /// To perform the pointer up event.
-  void _onTapUp(PointerUpEvent event) {
+  void _onPointerUp(PointerUpEvent event) {
+    final ChartInteraction? currentActive =
+        stateProperties.renderingDetails.currentActive;
     TooltipHelper.getRenderingDetails(
             stateProperties.renderingDetails.tooltipBehaviorRenderer)
         .isHovering = false;
@@ -259,17 +260,25 @@ class CircularArea extends StatelessWidget {
           stateProperties.renderingDetails.tapPosition);
     }
     if (stateProperties.renderingDetails.tapPosition != null) {
+      if (currentActive != null &&
+          currentActive.series != null &&
+          currentActive.series.explodeGesture == ActivationMode.singleTap &&
+          pointerHoldingTime != null &&
+          DateTime.now().difference(pointerHoldingTime!).inMilliseconds <
+              kLongPressTimeout.inMilliseconds) {
+        stateProperties.chartSeries.seriesPointExplosion(currentActive.region);
+      }
+
       if (stateProperties.renderingDetails.tapPosition != null &&
-          stateProperties.renderingDetails.currentActive != null) {
+          currentActive != null) {
         stateProperties.chartSeries.seriesPointSelection(
-            stateProperties.renderingDetails.currentActive!.region,
-            ActivationMode.singleTap);
+            currentActive.region, ActivationMode.singleTap);
       }
       if (chart.tooltipBehavior.enable &&
           stateProperties.renderingDetails.animateCompleted &&
           chart.tooltipBehavior.activationMode == ActivationMode.singleTap &&
-          stateProperties.renderingDetails.currentActive != null &&
-          stateProperties.renderingDetails.currentActive!.series != null) {
+          currentActive != null &&
+          currentActive.series != null) {
         stateProperties.requireDataLabelTooltip = null;
         if (chart.tooltipBehavior.builder != null) {
           showCircularTooltipTemplate();
@@ -431,6 +440,7 @@ class CircularArea extends StatelessWidget {
     _renderTemplates();
     _bindTooltipWidgets(constraints);
     stateProperties.circularArea = this;
+    stateProperties.legendRefresh = false;
     renderBox = context.findRenderObject() as RenderBox;
     // ignore: avoid_unnecessary_containers
     return Container(
@@ -661,10 +671,11 @@ class CircularArea extends StatelessWidget {
           !stateProperties.renderingDetails.didSizeChange &&
           (stateProperties.renderingDetails.oldDeviceOrientation ==
               stateProperties.renderingDetails.deviceOrientation) &&
-          (stateProperties.renderingDetails.initialRender! ||
-              (stateProperties.renderingDetails.widgetNeedUpdate &&
-                  seriesRenderer.needsAnimation) ||
-              stateProperties.renderingDetails.isLegendToggled)) {
+          ((stateProperties.renderingDetails.initialRender! ||
+                  (stateProperties.renderingDetails.widgetNeedUpdate &&
+                      seriesRenderer.needsAnimation) ||
+                  stateProperties.renderingDetails.isLegendToggled) ||
+              stateProperties.legendRefresh)) {
         final int totalAnimationDuration =
             series.animationDuration.toInt() + series.animationDelay.toInt();
         stateProperties.renderingDetails.animationController.duration =

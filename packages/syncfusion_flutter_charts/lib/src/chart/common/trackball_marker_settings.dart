@@ -102,7 +102,7 @@ class TrackballMarkerSettings extends MarkerSettings {
       borderColor,
       image
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
@@ -157,6 +157,6 @@ class TrackballDetails {
       seriesIndex,
       groupingModeInfo
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

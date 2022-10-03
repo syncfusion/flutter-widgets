@@ -438,10 +438,13 @@ class SfDataPagerState extends State<SfDataPager> {
   bool _isPregenerateItems = false;
   bool _isDesktop = false;
 
-  // Checks whether the `SfDataPager` is rebuild by `addPostFrameCallback` or
-  // not. This flag is used to ignore the unnecessary rebuild of data pager in
-  // between that time through the `notifyListner`.
-  bool _hasPostFrameCallbackBegin = false;
+  // Checks whether the `SfDataPager` is loading initially or not.
+  // This flag is used to restrict calling the handlePageChange twice
+  // at the initial loading
+  bool _isInitialLoading = true;
+
+  // Checks whether the `Rows Per Page` is changed or not.
+  bool _isRowsPerPageChanged = false;
 
   int? _rowsPerPage;
 
@@ -501,25 +504,7 @@ class SfDataPagerState extends State<SfDataPager> {
     _controller = widget.controller ?? DataPagerController()
       ..addListener(_handleDataPagerControlPropertyChanged);
     _addDelegateListener();
-    _onInitialDataPagerLoaded();
   }
-
-  void _onInitialDataPagerLoaded() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _hasPostFrameCallbackBegin = true;
-      if (widget.initialPageIndex > 0) {
-        await _handleDataPagerControlPropertyChanged(
-            property: 'initialPageIndex');
-      } else {
-        _currentPageIndex = widget.initialPageIndex;
-        _controller!._selectedPageIndex = _currentPageIndex;
-        await _handlePageItemTapped(_currentPageIndex);
-      }
-      _hasPostFrameCallbackBegin = false;
-    });
-  }
-
-  // Delegate
 
   void _addDelegateListener() {
     final Object delegate = widget.delegate;
@@ -545,17 +530,40 @@ class SfDataPagerState extends State<SfDataPager> {
 
   void _handleDataPagerDelegatePropertyChanged() {
     // Issue:
-    // FLUT-6395 - `handlePageChange` method is not waited until the Future.delayed value
+    // FLUT-6628 - `handlePageChange` method is called twice on initial loading
     //
     // Fix:
-    // The `addPostFrameCallback` method won't wait for the futures to complete. So, it is
-    // called immediately after the initial call of the `handlePageChange` method. As the
-    // future time interval resets the `_suspendDataPagerUpdate` property before the
-    // `addPostFrameCallback` call doesn't complete, this method is called recursively by
-    // `notifyListener`. Hence, We introduced a flag to restrict the unnecessary listens
-    // until the `addPostFrameCallback` is completed.
-    if (!_hasPostFrameCallbackBegin && !_suspendDataPagerUpdate) {
+    // We called the `handlePageChange` method twice in _addDelegateListener and `_onInitialDataPagerLoaded` methods.
+    // In the `_addDelegateListener` method with `_currentPageIndex` index 0 by default.
+    // In `_onInitialDataPagerLoaded` method, we called with `initialPageIndex` set in the API.
+    // Now, we have called both in the `_addDelegateListener` method.
+    // Hence, we removed the _onInitialDataPagerLoaded method.
+    // Also, introduced  the flag _isInitialLoading to restrict unwanted calling.
+    if (!_suspendDataPagerUpdate && _isInitialLoading) {
+      _isInitialLoading = false;
+      if (widget.initialPageIndex > 0) {
+        final int index = _resolveToItemIndex(widget.initialPageIndex);
+        _handlePageItemTapped(index);
+        WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
+          final double distance = _getCumulativeSize(index);
+          _scrollTo(distance, canUpdate: true);
+          _setCurrentPageIndex(index);
+        });
+      } else {
+        _handlePageItemTapped(_currentPageIndex);
+      }
+    } else if (!_suspendDataPagerUpdate && _isRowsPerPageChanged) {
+      _isRowsPerPageChanged = false;
       _handlePageItemTapped(_currentPageIndex);
+      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
+        final double distance = _getCumulativeSize(_currentPageIndex);
+        _scrollTo(distance, canUpdate: true);
+        _setCurrentPageIndex(_currentPageIndex);
+      });
+    } else if (!_suspendDataPagerUpdate) {
+      _handlePageItemTapped(_currentPageIndex);
+    } else {
+      return;
     }
   }
 
@@ -568,7 +576,18 @@ class SfDataPagerState extends State<SfDataPager> {
   }
 
   Future<void> _handlePageItemTapped(int index) async {
+    // Issue:
+    // FLUT-6759 - `handlePageChange` method is called infinite times when switch between pages so fast
+    //
+    // Fix:
+    // If the user changes the page so fast before the fetch data from API, it calls infinite times.
+    // We didn't wait in `_handlePageItemTapped` until the `handlePageChange` method completed.
+    // Now, we have called the _handlePageChange method again after completing the first process.
+    if (_suspendDataPagerUpdate) {
+      return;
+    }
     _suspendDataPagerUpdate = true;
+
     if (index > widget.pageCount - 1) {
       index -= 1;
     }
@@ -651,13 +670,10 @@ class SfDataPagerState extends State<SfDataPager> {
         }
 
         final int index = _resolveToItemIndex(widget.initialPageIndex);
-        final bool canChangePage = await _canChangePage(index);
-        if (canChangePage) {
-          final double distance = _getCumulativeSize(index);
-          await _scrollTo(distance, canUpdate: true);
-          _setCurrentPageIndex(index);
-        }
-        _raisePageNavigationEnd(canChangePage ? index : _currentPageIndex);
+        final double distance = _getCumulativeSize(index);
+        await _scrollTo(distance, canUpdate: true);
+        _setCurrentPageIndex(index);
+        _raisePageNavigationEnd(index);
         break;
       case 'pageCount':
         _currentPageIndex = 0;
@@ -669,6 +685,7 @@ class SfDataPagerState extends State<SfDataPager> {
         if (selectedPageIndex < 0 ||
             selectedPageIndex > _lastPageIndex ||
             selectedPageIndex == _currentPageIndex) {
+          _suspendDataPagerUpdate = false;
           return;
         }
         final bool canChangePage = await _canChangePage(selectedPageIndex);
@@ -1042,7 +1059,7 @@ class SfDataPagerState extends State<SfDataPager> {
       pagerItem = widget.pageItemBuilder!(type ?? element!.index.toString());
     }
 
-    void _setBorder() {
+    void setBorder() {
       border = _dataPagerThemeHelper!.itemBorderWidth != null &&
               _dataPagerThemeHelper!.itemBorderWidth! > 0.0
           ? Border.all(
@@ -1080,9 +1097,34 @@ class SfDataPagerState extends State<SfDataPager> {
         );
         pagerItemKey = element.key;
       }
+    } else {
+      // Issue:
+      //
+      // FLUT-6687-The next and previous buttons are enabled even though
+      // the current page is the last and the first page respectively.
+      //
+      // Fix:
+      //
+      // We have applied the disabled and selected Items Color based on the visible and selected properties.
+      // But, we only update this bool properties when the pagerItem is null.
+      // So, the visible property is true by default hence the disabled color is not applied.
+      // Also, the selected item Color is applied only when the pagerItem is null.
+      // Now, we are updating those properties even though the pagerItem is not null.
+
+      if (element == null) {
+        visible = !_isNavigatorItemVisible(type!);
+        itemColor = visible
+            ? _dataPagerThemeHelper!.itemColor
+            : _dataPagerThemeHelper!.disabledItemColor;
+      } else {
+        final bool isSelected = _checkIsSelectedIndex(element.index);
+        itemColor = isSelected
+            ? _dataPagerThemeHelper!.selectedItemColor
+            : _dataPagerThemeHelper!.itemColor;
+      }
     }
 
-    _setBorder();
+    setBorder();
 
     return SizedBox(
       key: pagerItemKey,
@@ -1222,6 +1264,7 @@ class SfDataPagerState extends State<SfDataPager> {
               value: _rowsPerPage,
               iconSize: 22.0,
               onChanged: (int? value) {
+                _isRowsPerPageChanged = true;
                 _rowsPerPage = value;
                 widget.onRowsPerPageChanged!(_rowsPerPage);
               },
@@ -1381,7 +1424,7 @@ class SfDataPagerState extends State<SfDataPager> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _handleScrollPositionChanged();
         if (oldPageCount != _pageCount) {
-          if (_currentPageIndex > _pageCount - 1) {
+          if (_currentPageIndex >= _pageCount - 1) {
             _canChangePage(_pageCount - 1);
           } else {
             _canChangePage(0);
@@ -1472,7 +1515,7 @@ class SfDataPagerState extends State<SfDataPager> {
     final bool canEnablePagerLabel = _canEnableDataPagerLabel(constraint);
     final Widget? dropDown = _buildDropDownWidget();
 
-    double _getRowsPerPageLabelWidth() {
+    double getRowsPerPageLabelWidth() {
       if (dropDown != null) {
         return _rowsPerPageLabelWidth + _dropdownSize.width + 32;
       } else {
@@ -1483,7 +1526,7 @@ class SfDataPagerState extends State<SfDataPager> {
     // DataPager
     final BoxConstraints dataPagerConstraint = BoxConstraints(
         maxWidth: canEnablePagerLabel
-            ? _getTotalDataPagerWidth(constraint) - _getRowsPerPageLabelWidth()
+            ? _getTotalDataPagerWidth(constraint) - getRowsPerPageLabelWidth()
             : _getTotalDataPagerWidth(constraint),
         maxHeight: _getTotalDataPagerHeight(constraint));
 

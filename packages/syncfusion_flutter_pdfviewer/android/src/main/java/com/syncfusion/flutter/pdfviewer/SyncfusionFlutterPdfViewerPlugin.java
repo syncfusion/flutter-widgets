@@ -155,6 +155,7 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
       PdfFileRenderer fileRenderer = new PdfFileRenderer(fileDescriptor, renderer);
       documentRepo.put(documentID, fileRenderer);
       int pageCount = renderer.getPageCount();
+      file.delete();
       return String.valueOf(pageCount);
     } catch (Exception e) {
       return e.toString();

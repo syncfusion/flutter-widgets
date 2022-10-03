@@ -173,7 +173,7 @@ class StackedLine100Series<T, D> extends StackedSeriesBase<T, D> {
       onPointDoubleTap,
       onPointLongPress
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   /// to create a stacked line 100 series renderer.

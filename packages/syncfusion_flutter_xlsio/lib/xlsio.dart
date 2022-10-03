@@ -22,36 +22,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:syncfusion_officecore/officecore.dart';
 import 'package:xml/xml.dart';
 
-//testing
-part 'src/test/autofilters.dart';
-part 'src/test/autofit.dart';
-part 'src/test/build_in_style.dart';
-part 'src/test/cell_style.dart';
-part 'src/test/conditional_formatting.dart';
-part 'src/test/culture.dart';
-part 'src/test/datavalidation.dart';
-part 'src/test/date_time.dart';
-part 'src/test/delete_column.dart';
-part 'src/test/delete_row.dart';
-part 'src/test/display_text.dart';
-part 'src/test/formulas.dart';
-part 'src/test/hyperlink.dart';
-part 'src/test/image.dart';
-part 'src/test/image_hyperlink.dart';
-part 'src/test/images.dart';
-part 'src/test/import_data.dart';
-part 'src/test/insert_column.dart';
-part 'src/test/insert_row.dart';
-part 'src/test/merge_un_merge_cell.dart';
-part 'src/test/number.dart';
-part 'src/test/number_format.dart';
-part 'src/test/sample_browser_samples.dart';
-part 'src/test/table.dart';
-part 'src/test/text.dart';
-part 'src/test/workbook_protection.dart';
-part 'src/test/worksheet_protection.dart';
-part 'src/test/xlsio_workbook.dart';
-part 'src/test/xlsio_worksheet.dart';
+
 part 'src/xlsio/autoFilters/auto_filter.dart';
 part 'src/xlsio/autoFilters/autofilter_impl.dart';
 part 'src/xlsio/autoFilters/autofiltercollection.dart';

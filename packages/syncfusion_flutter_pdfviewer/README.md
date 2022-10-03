@@ -84,7 +84,7 @@ Take a look at the following to learn more about Syncfusion Flutter PDF Viewer:
 
 ## Installation
 
-Install the latest version from [pub](https://pub.dartlang.org/packages/syncfusion_flutter_pdfviewer#-installing-tab-).
+Install the latest version from [pub](https://pub.dev/packages/syncfusion_flutter_pdfviewer/install).
 
 ## Getting started
 
@@ -406,76 +406,90 @@ Widget build(BuildContext context) {
 Text can be searched for in a PDF document and you can then navigate to all its occurrences. The navigation of searched text can be controlled using the **nextInstance**, **previousInstance**, and **clear** methods.
 
 ```dart
-PdfViewerController _pdfViewerController;
 
-@override
-void initState() {
-  _pdfViewerController = PdfViewerController();
-  super.initState();
-}
-PdfTextSearchResult _searchResult;
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-      appBar: AppBar(
-        title: Text('Syncfusion Flutter PdfViewer'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.search,
-              color: Colors.white,
-            ),
-            onPressed: () async {
-              _searchResult = await _pdfViewerController?.searchText('the',
-                  searchOption: TextSearchOption.caseSensitive);
-              setState(() {});
-            },
-          ),
-          Visibility(
-            visible: _searchResult?.hasResult ?? false,
-            child: IconButton(
-              icon: Icon(
-                Icons.clear,
+  late PdfViewerController _pdfViewerController;
+  late PdfTextSearchResult _searchResult;
+
+  @override
+  void initState() {
+    _pdfViewerController = PdfViewerController();
+    _searchResult = PdfTextSearchResult();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Syncfusion Flutter PdfViewer'),
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(
+                Icons.search,
                 color: Colors.white,
               ),
               onPressed: () {
-                setState(() {
-                  _searchResult.clear();
-                });
+                _searchResult = _pdfViewerController.searchText('the',
+                    searchOption: TextSearchOption.caseSensitive);
+                if (kIsWeb) {
+                  setState(() {});
+                } else {
+                  _searchResult.addListener(() {
+                    if (_searchResult.hasResult) {
+                      setState(() {});
+                    }
+                  });
+                }
               },
             ),
-          ),
-          Visibility(
-            visible: _searchResult?.hasResult ?? false,
-            child: IconButton(
-              icon: Icon(
-                Icons.keyboard_arrow_up,
-                color: Colors.white,
+            Visibility(
+              visible: _searchResult.hasResult,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.clear,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _searchResult.clear();
+                  });
+                },
               ),
-              onPressed: () {
-                  _searchResult?.previousInstance();
-              },
             ),
-          ),
-          Visibility(
-            visible: _searchResult?.hasResult ?? false,
-            child: IconButton(
-              icon: Icon(
-                Icons.keyboard_arrow_down,
-                color: Colors.white,
+            Visibility(
+              visible: _searchResult.hasResult,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.keyboard_arrow_up,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  _searchResult.previousInstance();
+                },
               ),
-              onPressed: () {
-                _searchResult?.nextInstance();
-              },
             ),
-          ),
-        ],
-      ),
-      body: SfPdfViewer.network(
+            Visibility(
+              visible: _searchResult.hasResult,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  _searchResult.nextInstance();
+                },
+              ),
+            ),
+          ],
+        ),
+        body: SfPdfViewer.network(
           'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
-          controller:_pdfViewerController,
-          searchTextHighlightColor: Colors.yellow));
-}
+          controller: _pdfViewerController,
+          currentSearchTextHighlightColor: Colors.yellow.withOpacity(0.6),
+          otherSearchTextHighlightColor: Colors.yellow.withOpacity(0.3),
+        ));
+  }
+
 ```
 
 ## Enable or disable the document link annotation

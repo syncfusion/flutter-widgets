@@ -216,6 +216,6 @@ class TailStyle {
       lengthUnit,
       borderColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

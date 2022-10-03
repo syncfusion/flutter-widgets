@@ -161,7 +161,7 @@ class ViewHeaderStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       backgroundColor,
       dayTextStyle,
       dateTextStyle,

@@ -2740,7 +2740,7 @@ class MapLatLng {
   }
 
   @override
-  int get hashCode => hashValues(latitude, longitude);
+  int get hashCode => Object.hash(latitude, longitude);
 
   @override
   String toString() =>
@@ -2774,7 +2774,7 @@ class MapLatLngBounds {
   }
 
   @override
-  int get hashCode => hashValues(northeast, southwest);
+  int get hashCode => Object.hash(northeast, southwest);
 
   @override
   String toString() =>

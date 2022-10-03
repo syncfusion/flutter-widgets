@@ -1145,3 +1145,12 @@ enum ExcelLogicalOperator {
   /// Represents the logical AND operation.
   and
 }
+
+///Represents visible/hidden of worksheets.
+enum WorksheetVisibility {
+  ///Worksheet is visible to the user.
+  visible,
+
+  ///Worksheet is hidden to the user.
+  hidden
+}

@@ -255,6 +255,27 @@ class ColumnResizeEndDetails {
   final double width;
 }
 
+/// Details for callbacks that use [DataGridFilterChangeDetails].
+///
+/// See also:
+///
+/// * [DataGridFilterChangingCallback]
+/// * [DataGridFilterChangedCallback]
+@immutable
+class DataGridFilterChangeDetails {
+  /// Creates the [DataGridFilterChangeDetails] for the
+  /// `DataGridFilterChangingCallback` and `DataGridFilterChangedCallback`.
+  const DataGridFilterChangeDetails(
+      {required this.column, required this.filterConditions});
+
+  /// The column where the current filtering is applied.
+  final GridColumn column;
+
+  /// Holds the collection of [FilterCondition] which are applied currently to
+  /// the column.
+  final List<FilterCondition> filterConditions;
+}
+
 /// Sets the `columnSizer` instance to the [RowHeightDetails] class.
 void setColumnSizerInRowHeightDetailsArgs(
     RowHeightDetails rowHeightDetails, ColumnSizer columnSizer) {

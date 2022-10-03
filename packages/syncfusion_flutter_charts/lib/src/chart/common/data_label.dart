@@ -563,7 +563,7 @@ class DataLabelSettings {
       connectorLineSettings,
       labelPosition
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 

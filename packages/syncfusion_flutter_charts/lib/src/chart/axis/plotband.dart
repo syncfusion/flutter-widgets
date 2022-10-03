@@ -668,7 +668,7 @@ class PlotBand {
       horizontalTextAlignment,
       gradient
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 

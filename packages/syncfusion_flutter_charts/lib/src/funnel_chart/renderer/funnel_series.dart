@@ -188,7 +188,7 @@ class FunnelSeries<T, D> extends FunnelSeriesBase<T, D> {
       explodeIndex,
       initialSelectedDataIndexes
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 

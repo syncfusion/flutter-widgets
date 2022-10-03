@@ -1,5 +1,12 @@
 ## Unreleased
 
+## Range Slider
+
+**Bug**
+* #FB37062 - Now, the discrete RangeSlider thumbs get overlapped when placed inside a Row widget.
+
+## [20.2.36] - 07/01/2022
+
 ## Slider
 
 **Features**

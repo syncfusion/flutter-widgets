@@ -143,7 +143,7 @@ class LinearAxisTrackStyle {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       thickness,
       color,
       borderColor,

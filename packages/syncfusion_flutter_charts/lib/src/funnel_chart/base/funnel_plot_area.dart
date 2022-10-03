@@ -129,6 +129,7 @@ class FunnelPlotArea extends StatelessWidget {
     _bindTooltipWidgets(constraints);
     renderBox = context.findRenderObject() as RenderBox;
     stateProperties.funnelplotArea = this;
+    stateProperties.legendRefresh = false;
     // ignore: avoid_unnecessary_containers
     return Container(
         child: Stack(
@@ -189,9 +190,10 @@ class FunnelPlotArea extends StatelessWidget {
           !stateProperties.renderingDetails.didSizeChange &&
           (stateProperties.renderingDetails.oldDeviceOrientation ==
               stateProperties.renderingDetails.deviceOrientation) &&
-          ((!stateProperties.renderingDetails.widgetNeedUpdate &&
-                  stateProperties.renderingDetails.initialRender!) ||
-              stateProperties.renderingDetails.isLegendToggled)) {
+          (((!stateProperties.renderingDetails.widgetNeedUpdate &&
+                      stateProperties.renderingDetails.initialRender!) ||
+                  stateProperties.renderingDetails.isLegendToggled) ||
+              stateProperties.legendRefresh)) {
         final int totalAnimationDuration =
             series.animationDuration.toInt() + series.animationDelay.toInt();
         stateProperties.renderingDetails.animationController.duration =

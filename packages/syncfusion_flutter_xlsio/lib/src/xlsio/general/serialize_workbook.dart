@@ -84,14 +84,30 @@ class SerializeWorkbook {
       _serializeWorkbookProtection(builder);
       builder.element('bookViews', nest: () {
         builder.element('workbookView', nest: () {
-          builder.attribute('activeTab', '0');
+          int firstsheet = 0;
+          if (_workbook.worksheets[0].visibility ==
+              WorksheetVisibility.hidden) {
+            for (int i = 1; i < _workbook.worksheets.count; i++) {
+              if (_workbook.worksheets[i].visibility ==
+                  WorksheetVisibility.visible) {
+                firstsheet = i;
+                break;
+              }
+            }
+          }
+          builder.attribute('activeTab', firstsheet.toString());
         });
       });
       builder.element('sheets', nest: () {
         for (int i = 0; i < _workbook.worksheets.count; i++) {
           builder.element('sheet', nest: () {
             builder.attribute('name', _workbook.worksheets[i].name);
-            builder.attribute('sheetId', (i + 1).toString());
+            builder.attribute(
+                'sheetId', (_workbook.worksheets[i].index).toString());
+            if (_workbook.worksheets[i].visibility ==
+                WorksheetVisibility.hidden) {
+              builder.attribute('state', 'hidden');
+            }
             builder.attribute('r:id', 'rId${i + 1}');
           });
         }
@@ -196,7 +212,11 @@ class SerializeWorkbook {
           });
         });
       } else {
-        builder.element('sheetPr', nest: () {});
+        builder.element('sheetPr', nest: () {
+          if (sheet._isTapColorApplied) {
+            _serializeTabColor(sheet, builder);
+          }
+        });
       }
       _saveSheetView(sheet, builder);
       builder.element('sheetFormatPr', nest: () {
@@ -427,7 +447,7 @@ class SerializeWorkbook {
       });
       final List<int> rel = _saveSheetRelations(sheet);
 
-      _addToArchive(rel, 'xl/worksheets/_rels/sheet${sheet.index}.xml.rels');
+      _addToArchive(rel, 'xl/worksheets/_rels/sheet${index + 1}.xml.rels');
     });
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
@@ -3025,12 +3045,7 @@ class SerializeWorkbook {
   ///Serializes auto filters.
   void _serializeAutoFilters(
       XmlBuilder builder, AutoFilterCollection? autoFilters) {
-    if (builder == null) {
-      throw Exception('writer');
-    }
-    if (autoFilters == null ||
-        autoFilters._innerList.isEmpty ||
-        autoFilters.filterRange == null) {
+    if (autoFilters == null || autoFilters._innerList.isEmpty) {
       return;
     }
     builder.element('autoFilter', nest: () {
@@ -3052,14 +3067,6 @@ class SerializeWorkbook {
     XmlBuilder builder,
     _AutoFilterImpl autoFilter,
   ) {
-    if (builder == null) {
-      throw Exception('writer');
-    }
-
-    if (autoFilter == null) {
-      throw Exception('AutoFilter');
-    }
-
     builder.element('filterColumn', nest: () {
       _serializeAttributeInt(builder, 'colId', autoFilter._colIndex - 1, -1);
 
@@ -3088,13 +3095,6 @@ class SerializeWorkbook {
 
   /// Serialize color filter.
   void _serializeColorFilter(XmlBuilder builder, _ColorFilter filter) {
-    if (builder == null) {
-      throw Exception('writer');
-    }
-
-    if (filter == null) {
-      throw Exception('filter');
-    }
     builder.element('colorFilter', nest: () {
       builder.attribute('dxfId', _iDxfIndex.toString());
       _iDxfIndex++;
@@ -3229,14 +3229,6 @@ class SerializeWorkbook {
 
   ///SerializeCombination filter
   void _serializeFilters(XmlBuilder builder, _AutoFilterImpl autoFilter) {
-    if (builder == null) {
-      throw Exception('writer');
-    }
-
-    if (autoFilter == null) {
-      throw Exception('AutoFilter');
-    }
-
     builder.element('filters', nest: () {
       if (autoFilter._filteredItems._filterType ==
           _ExcelFilterType.combinationFilter) {
@@ -3249,12 +3241,6 @@ class SerializeWorkbook {
   ///SerializeCombination filter
   void _serializeCombinationFilters(
       XmlBuilder builder, _CombinationFilter combinationFilter) {
-    if (builder == null) {
-      throw Exception('writer');
-    }
-    if (combinationFilter == null) {
-      throw Exception('CombinationFilter');
-    }
     if (combinationFilter._isBlank) {
       builder.attribute('blank', 1);
     }
@@ -3273,13 +3259,6 @@ class SerializeWorkbook {
 
   /// Serialize the date time filter.
   void _serializeDateTimeFilter(XmlBuilder builder, _DateTimeFilter filter) {
-    if (builder == null) {
-      throw Exception('writer');
-    }
-
-    if (filter == null) {
-      throw Exception('filter');
-    }
     final DateTimeFilterType dateGroup = filter._groupingType;
     final DateTime date = filter._dateTimeValue;
     builder.element('dateGroupItem', nest: () {
@@ -3344,9 +3323,6 @@ class SerializeWorkbook {
 
   ///Serialization of filter
   void _serializeFilter(XmlBuilder builder, String strFilterValue) {
-    if (builder == null) {
-      throw Exception('writer');
-    }
     builder.element('filter', nest: () {
       builder.attribute('val', strFilterValue);
     });
@@ -3354,14 +3330,6 @@ class SerializeWorkbook {
 
   /// Serializes custom filters.
   void _serializeCustomFilter(XmlBuilder builder, _AutoFilterImpl autoFilter) {
-    if (builder == null) {
-      throw Exception('writer');
-    }
-
-    if (autoFilter == null) {
-      throw Exception('AutoFilter');
-    }
-
     builder.element('customFilters', nest: () {
       final bool isAnd = autoFilter.logicalOperator == ExcelLogicalOperator.and;
       _serializeAttributes(builder, 'and', isAnd, false);
@@ -3381,14 +3349,6 @@ class SerializeWorkbook {
   /// Serializes custom filters.
   void __serializeCustomFilters(XmlBuilder builder,
       AutoFilterCondition autoFilterCondition, _AutoFilterImpl autoFilter) {
-    if (builder == null) {
-      throw Exception('writer');
-    }
-
-    if (autoFilterCondition == null) {
-      throw Exception('AutoFilterCondition');
-    }
-
     _customFilterCondition(builder, autoFilterCondition, autoFilter, 0);
   }
 
@@ -3437,7 +3397,7 @@ class SerializeWorkbook {
           _ExcelFilterDataType.matchAllNonBlanks) {
         builder.attribute('operator', 'notEqual');
         builder.attribute('val', 0);
-      } else if (autoFilterCondition.conditionOperator != null) {
+      } else {
         conditionOperator = autoFilterCondition.conditionOperator;
         final String operatorValue =
             _getAFconditionalOperatorName(conditionOperator);
@@ -3487,5 +3447,19 @@ class SerializeWorkbook {
         break;
     }
     return empty;
+  }
+
+  ///Serialize tabcolor
+  void _serializeTabColor(Worksheet sheet, XmlBuilder builder) {
+    String worksheetTabColor = '';
+
+    if (sheet.tabColor.length == 7) {
+      worksheetTabColor = 'FF${sheet.tabColor.replaceAll('#', '')}';
+    } else {
+      worksheetTabColor = sheet.tabColor;
+    }
+    builder.element('tabColor', nest: () {
+      builder.attribute('rgb', worksheetTabColor);
+    });
   }
 }

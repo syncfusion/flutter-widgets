@@ -318,7 +318,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
             ? _width
             : max(_width, _container.extentWidth);
 
-    List<Widget> _buildHeaderRows() {
+    List<Widget> buildHeaderRows() {
       final List<Widget> headerRows = <Widget>[];
 
       // Adds stacked header rows
@@ -384,7 +384,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     }
 
     if (rowGenerator.items.isNotEmpty) {
-      final List<Widget> headerRows = _buildHeaderRows();
+      final List<Widget> headerRows = buildHeaderRows();
       for (int i = 0; i < headerRows.length; i++) {
         final VisibleLineInfo? lineInfo =
             _container.scrollRows.getVisibleLineAtLineIndex(i);
@@ -1045,7 +1045,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     _container.isDirty = false;
     _isScrolling = false;
 
-    Widget _addContainer() {
+    Widget addContainer() {
       return Container(
         height: _height,
         width: _width,
@@ -1082,8 +1082,8 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         ? Focus(
             focusNode: _dataGridFocusNode,
             onKey: _handleKeyOperation,
-            child: _addContainer())
-        : _addContainer();
+            child: addContainer())
+        : addContainer();
   }
 
   @override

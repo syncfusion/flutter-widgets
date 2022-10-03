@@ -675,7 +675,7 @@ class SfPdfViewerThemeData with Diagnosticable {
       hyperlinkDialogStyle,
       passwordDialogStyle,
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override
@@ -725,7 +725,7 @@ class PdfScrollStatusStyle {
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     final List<Object?> values = <Object?>[backgroundColor, pageInfoTextStyle];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override
@@ -774,7 +774,7 @@ class PdfScrollHeadStyle {
       backgroundColor,
       pageNumberTextStyle
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override
@@ -860,7 +860,7 @@ class PdfBookmarkViewStyle {
       titleTextStyle,
       headerTextStyle
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override
@@ -960,7 +960,7 @@ class PdfPaginationDialogStyle {
       okTextStyle,
       cancelTextStyle
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override
@@ -1049,7 +1049,7 @@ class PdfHyperlinkDialogStyle {
       cancelTextStyle,
       closeIconColor,
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override
@@ -1170,7 +1170,7 @@ class PdfPasswordDialogStyle {
       inputFieldBorderColor,
       errorBorderColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override

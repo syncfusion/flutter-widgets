@@ -39,10 +39,11 @@ class PageResourceLoader {
           xobjects![PdfDictionaryProperties.resources] as PdfDictionary?;
       for (final dynamic objValue in xobjects.items!.values) {
         PdfDictionary? xobjectDictionary;
-        if (objValue is PdfReferenceHolder) {
+        if (objValue is PdfReferenceHolder &&
+            objValue.object is PdfDictionary) {
           xobjectDictionary = objValue.object as PdfDictionary?;
-        } else {
-          xobjectDictionary = objValue as PdfDictionary?;
+        } else if (objValue is PdfDictionary) {
+          xobjectDictionary = objValue;
         }
         if (xobjectDictionary != null &&
             xobjectDictionary.containsKey(PdfDictionaryProperties.resources)) {

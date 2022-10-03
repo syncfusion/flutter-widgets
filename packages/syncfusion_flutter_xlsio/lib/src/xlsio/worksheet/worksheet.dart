@@ -107,8 +107,17 @@ class Worksheet {
   ///Collection of all merged cells in the current worksheet.
   MergedCellCollection? _mergeCells;
 
+  /// Represents tab color of the sheet.
+  late String _tabColor;
+
+  ///Determine whether the tab color is applied on the worksheet or not.
+  bool _isTapColorApplied = false;
+
   /// Collection of all hyperlinks in the current worksheet.
   HyperlinkCollection? _hyperlinks;
+
+  /// Represents the visibility of worksheet.
+  WorksheetVisibility _visibility = WorksheetVisibility.visible;
 
   /// Represents parent workbook.
   Workbook get workbook {
@@ -258,10 +267,37 @@ class Worksheet {
     return _rows!;
   }
 
+  ///Get the tab color for the worksheet.
+  String get tabColor {
+    return _tabColor;
+  }
+
+  ///Set the tab color for the worksheet.
+  set tabColor(String value) {
+    _tabColor = value;
+    _isTapColorApplied = true;
+  }
+
   // ignore: public_member_api_docs
   AutoFilterCollection get autoFilters {
     _autoFilters ??= AutoFilterCollection(this);
     return _autoFilters!;
+  }
+
+  ///Get the visibility of worksheet.
+  WorksheetVisibility get visibility {
+    return _visibility;
+  }
+
+  ///Set the visibility of worksheet.
+  set visibility(WorksheetVisibility visibilty) {
+    if (_book.worksheets.innerList.length <= 1 &&
+        visibilty == WorksheetVisibility.hidden) {
+      throw Exception(
+          'A workbook must contain at least one visible worksheet.');
+    } else {
+      _visibility = visibilty;
+    }
   }
 
   /// Checks if specified cell has correct row and column index.
@@ -584,9 +620,15 @@ class Worksheet {
     if (value.isNotEmpty && value[0] == '=') {
       range.setFormula(value.substring(1));
     } else {
+      double? doubleValue;
+      DateTime? dateValue;
+      if (value.runtimeType == double) {
+        doubleValue = double.tryParse(value);
+      } else {
+        dateValue = DateTime.tryParse(value);
+      }
+
       final CultureInfo cultureInfo = _book._getCultureInfo();
-      final double? doubleValue = double.tryParse(value);
-      final DateTime? dateValue = DateTime.tryParse(value);
       final bool bDateTime =
           !value.contains(cultureInfo.dateTimeFormat.dateSeparator) &&
               dateValue != null;
