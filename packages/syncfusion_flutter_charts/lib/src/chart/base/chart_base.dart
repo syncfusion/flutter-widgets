@@ -3527,6 +3527,8 @@ class ContainerArea extends StatelessWidget {
             chart.trackballBehavior.enable == true &&
             chart.trackballBehavior.activationMode ==
                 ActivationMode.longPress) &&
+        position != null &&
+        _findSeries(position) != null &&
         SeriesHelper.getSeriesRendererDetails(_findSeries(position!)!).series
             is! ErrorBarSeries &&
         // ignore: unnecessary_null_comparison
@@ -3543,6 +3545,8 @@ class ContainerArea extends StatelessWidget {
             chart.crosshairBehavior.enable == true &&
             chart.crosshairBehavior.activationMode ==
                 ActivationMode.longPress) &&
+        position != null &&
+        _findSeries(position) != null &&
         SeriesHelper.getSeriesRendererDetails(_findSeries(position!)!).series
             is! ErrorBarSeries &&
         !chart.zoomPanBehavior.enableSelectionZooming &&
