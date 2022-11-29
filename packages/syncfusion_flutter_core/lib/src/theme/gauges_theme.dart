@@ -828,7 +828,7 @@ class SfGaugeThemeData with Diagnosticable {
       titleBorderColor,
       titleBackgroundColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override

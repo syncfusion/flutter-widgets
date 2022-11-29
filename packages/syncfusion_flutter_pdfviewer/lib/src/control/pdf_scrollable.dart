@@ -158,7 +158,9 @@ class PdfScrollableState extends State<PdfScrollable> {
     currentOffset = Offset.zero;
     currentZoomLevel = 1;
     if (widget.pdfViewerController.zoomLevel > 1) {
-      scaleTo(widget.pdfViewerController.zoomLevel, isZoomed: false);
+      Future<dynamic>.delayed(Duration.zero, () async {
+        scaleTo(widget.pdfViewerController.zoomLevel, isZoomed: false);
+      });
     }
   }
 
@@ -305,43 +307,6 @@ class PdfScrollableState extends State<PdfScrollable> {
       setState(() {
         isZoomChanged = true;
       });
-    }
-    final double scale = _transformationController.value.getMaxScaleOnAxis();
-    if (widget.scrollDirection == PdfScrollDirection.vertical &&
-        scale == 1 &&
-        previousZoomLevel == scale &&
-        details.velocity != Velocity.zero &&
-        widget.pdfViewerController.scrollOffset.dy.round() != 0 &&
-        widget.pdfViewerController.scrollOffset.dy.round() !=
-            widget.maxScrollExtent.round()) {
-      final double scrollFilOffset = details.velocity.pixelsPerSecond.dy;
-      double currentX = _transformationController.toScene(Offset.zero).dx;
-      // To make translation smoother, add the following codes.
-      final double diffOffset = scrollFilOffset / 100;
-      int scrollCount = 0;
-      while (scrollCount < 100) {
-        currentX = _transformationController.toScene(Offset.zero).dx;
-        _transformationController.value.translate(currentX, diffOffset);
-        scrollCount++;
-      }
-    }
-    if (widget.scrollDirection == PdfScrollDirection.horizontal &&
-        scale == 1 &&
-        previousZoomLevel == scale &&
-        details.velocity != Velocity.zero &&
-        widget.pdfViewerController.scrollOffset.dx.round() != 0 &&
-        widget.pdfViewerController.scrollOffset.dx.round() !=
-            widget.maxScrollExtent.round()) {
-      final double scrollFilOffset = details.velocity.pixelsPerSecond.dx;
-      double currentX = _transformationController.toScene(Offset.zero).dy;
-      // To make translation smoother, add the following codes.
-      final double diffOffset = scrollFilOffset / 100;
-      int scrollCount = 0;
-      while (scrollCount < 100) {
-        currentX = _transformationController.toScene(Offset.zero).dy;
-        _transformationController.value.translate(diffOffset, currentX);
-        scrollCount++;
-      }
     }
   }
 

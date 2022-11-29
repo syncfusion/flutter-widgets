@@ -119,29 +119,27 @@ class CandleSeriesRenderer extends XyDataSeriesRenderer {
     if (_currentSeriesDetails.candleSeries.enableSolidCandles! &&
         segmentProperties.isSolid) {
       return (candleSeriesDetails
-                      .overAllDataPoints[segmentProperties
-                          .currentPoint!.overallDataPointIndex!]!
-                      .open <
-                  candleSeriesDetails
-                      .overAllDataPoints[segmentProperties
-                          .currentPoint!.overallDataPointIndex!]!
-                      .close) ==
-              true
+                  .overAllDataPoints[
+                      segmentProperties.currentPoint!.overallDataPointIndex!]!
+                  .open <
+              candleSeriesDetails
+                  .overAllDataPoints[
+                      segmentProperties.currentPoint!.overallDataPointIndex!]!
+                  .close)
           ? _currentSeriesDetails.candleSeries.bullColor
           : _currentSeriesDetails.candleSeries.bearColor;
     }
     final Color? color =
         segmentProperties.currentPoint!.overallDataPointIndex! - 1 >= 0 &&
                 (candleSeriesDetails
-                            .dataPoints[segmentProperties
-                                    .currentPoint!.overallDataPointIndex! -
-                                1]
-                            .close >
-                        candleSeriesDetails
-                            .dataPoints[segmentProperties
-                                .currentPoint!.overallDataPointIndex!]
-                            .close) ==
-                    true
+                        .overAllDataPoints[segmentProperties
+                                .currentPoint!.overallDataPointIndex! -
+                            1]!
+                        .close >
+                    candleSeriesDetails
+                        .overAllDataPoints[segmentProperties
+                            .currentPoint!.overallDataPointIndex!]!
+                        .close)
             ? _currentSeriesDetails.candleSeries.bearColor
             : _currentSeriesDetails.candleSeries.bullColor;
     return color;

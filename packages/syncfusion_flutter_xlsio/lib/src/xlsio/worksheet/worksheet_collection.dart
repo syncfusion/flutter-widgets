@@ -113,4 +113,50 @@ class WorksheetCollection {
     }
     _worksheets.clear();
   }
+
+  /// Represents moving worksheet .
+  void moveTo(Worksheet sourceWorksheet, int destinationIndex) {
+    if (innerList.length <= 1)
+      throw Exception('It requires at least two sheets to change positions.');
+    if (innerList.length - 1 < destinationIndex)
+      throw Exception(
+          'destinationIndex should be in the range of worksheet count');
+    if (destinationIndex < 0)
+      throw Exception('destinationIndex should be starts from 0');
+
+    if (sourceWorksheet.index - 1 != destinationIndex) {
+      final List<Worksheet> tempInnerList = <Worksheet>[];
+      bool isDestinationWorksheet = false;
+      final int sourceWorkSheetIndex = sourceWorksheet.index - 1;
+      if (sourceWorkSheetIndex > -1) {
+        for (int count = 0; count <= innerList.length - 1; count++) {
+          if (count == destinationIndex) {
+            tempInnerList.add(sourceWorksheet);
+            if (destinationIndex != innerList.length - 1) {
+              isDestinationWorksheet = true;
+            }
+          }
+          if (count < destinationIndex || count > destinationIndex) {
+            if (!tempInnerList.contains(innerList[count]) &&
+                innerList[count] != sourceWorksheet) {
+              tempInnerList.add(innerList[count]);
+              if (innerList[count] == innerList[innerList.length - 1] &&
+                  destinationIndex - 1 == innerList.length - 1) {
+                tempInnerList.add(sourceWorksheet);
+              }
+            } else {
+              destinationIndex += 1;
+            }
+          }
+          if (isDestinationWorksheet) {
+            tempInnerList.add(innerList[destinationIndex]);
+            isDestinationWorksheet = false;
+          }
+        }
+      }
+      for (int count1 = 0; count1 <= tempInnerList.length - 1; count1++) {
+        innerList[count1] = tempInnerList[count1];
+      }
+    }
+  }
 }

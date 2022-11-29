@@ -145,6 +145,7 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
   Widget build(BuildContext context) {
     /// Create the widgets when appointment builder is not null.
     if (_children.isEmpty && widget.calendar.appointmentBuilder != null) {
+      final DateTime initialVisibleDate = widget.visibleDates[0];
       for (int i = 0; i < _appointmentCollection.length; i++) {
         final AppointmentView appointmentView = _appointmentCollection[i];
 
@@ -156,10 +157,14 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
           continue;
         }
 
-        final DateTime date = DateTime(
+        final DateTime appStartTime = DateTime(
             appointmentView.appointment!.actualStartTime.year,
             appointmentView.appointment!.actualStartTime.month,
             appointmentView.appointment!.actualStartTime.day);
+        final DateTime date = appStartTime.isBefore(initialVisibleDate)
+            ? initialVisibleDate
+            : appStartTime;
+
         final Widget child = widget.calendar.appointmentBuilder!(
             context,
             CalendarAppointmentDetails(

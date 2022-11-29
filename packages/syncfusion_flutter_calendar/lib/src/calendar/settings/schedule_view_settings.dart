@@ -326,7 +326,7 @@ class ScheduleViewSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         appointmentTextStyle,
         appointmentItemHeight,
         hideEmptyScheduleWeek,
@@ -597,7 +597,7 @@ class MonthHeaderSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         monthFormat, height, textAlign, backgroundColor, monthTextStyle);
   }
 }
@@ -917,7 +917,7 @@ class WeekHeaderSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(startDateFormat, endDateFormat, height, textAlign,
+    return Object.hash(startDateFormat, endDateFormat, height, textAlign,
         backgroundColor, weekTextStyle);
   }
 }
@@ -1151,6 +1151,6 @@ class DayHeaderSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(dayFormat, width, dayTextStyle, dateTextStyle);
+    return Object.hash(dayFormat, width, dayTextStyle, dateTextStyle);
   }
 }

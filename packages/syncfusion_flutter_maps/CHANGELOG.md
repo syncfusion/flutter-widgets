@@ -1,6 +1,11 @@
 ## Unreleased
 
 **Bug**
+* #FB37232 – Now, the data labels get rendered when enabling it programmatically.
+
+## [20.2.36] - 07/01/2022
+
+**Bug**
 * The null exception will not be thrown when simultaneously calling the setstate and zooming the map.
 
 **Features**

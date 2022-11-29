@@ -602,7 +602,7 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
 
   @override
   int get hashCode {
-    return hashList(<Object?>[
+    return Object.hashAll(<Object?>[
       brightness,
       activeTrackHeight,
       inactiveTrackHeight,

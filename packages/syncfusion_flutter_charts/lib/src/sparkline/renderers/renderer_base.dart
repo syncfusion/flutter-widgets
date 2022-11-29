@@ -463,6 +463,9 @@ abstract class RenderSparkChart extends RenderBox {
   /// Specifies the area size.
   Size? areaSize;
 
+  /// Spark chart area size
+  Rect? sparkChartAreaRect;
+
   /// Specifies the data label values.
   List<String>? dataLabels;
 
@@ -592,8 +595,6 @@ abstract class RenderSparkChart extends RenderBox {
     if (minX != null && maxX != null && minY != null && maxY != null) {
       diffX = maxX! - minX!;
       diffY = maxY! - minY!;
-      diffX = diffX == 0 ? 1 : diffX;
-      diffY = diffY == 0 ? 1 : diffY;
       axisHeight = getAxisHeight();
       if (coordinatePoints!.isNotEmpty) {
         coordinatePoints!.clear();
@@ -660,14 +661,17 @@ abstract class RenderSparkChart extends RenderBox {
           offset.dy + plotBandStartHeight!,
           offset.dx + areaSize!.width,
           offset.dy + plotBandEndHeight!);
-      canvas.drawRect(plotBandRect, paint);
-      if (plotBand!.borderColor != Colors.transparent &&
-          plotBand!.borderWidth > 0) {
-        final Paint borderPaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = plotBand!.borderWidth
-          ..color = plotBand!.borderColor!;
-        canvas.drawRect(plotBandRect, borderPaint);
+      if (plotBandRect.top >= sparkChartAreaRect!.top &&
+          plotBandRect.bottom >= sparkChartAreaRect!.bottom) {
+        canvas.drawRect(plotBandRect, paint);
+        if (plotBand!.borderColor != Colors.transparent &&
+            plotBand!.borderWidth > 0) {
+          final Paint borderPaint = Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = plotBand!.borderWidth
+            ..color = plotBand!.borderColor!;
+          canvas.drawRect(plotBandRect, borderPaint);
+        }
       }
     } else {
       final Paint paint = Paint()
@@ -706,7 +710,7 @@ abstract class RenderSparkChart extends RenderBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     renderAxisline(context.canvas, offset);
-
+    sparkChartAreaRect = context.estimatedBounds;
     if (plotBand != null) {
       renderPlotBand(context.canvas, offset);
     }

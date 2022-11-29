@@ -179,6 +179,6 @@ class PyramidSeries<T, D> extends PyramidSeriesBase<T, D> {
       selectionBehavior,
       initialSelectedDataIndexes
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

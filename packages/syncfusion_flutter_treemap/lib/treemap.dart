@@ -776,7 +776,7 @@ class TreemapLevel extends DiagnosticableTree {
   }
 
   @override
-  int get hashCode => hashValues(
+  int get hashCode => Object.hash(
       groupMapper, color, border, colorValueMapper, padding, tooltipBuilder);
 }
 
@@ -996,7 +996,7 @@ class TreemapSelectionSettings extends DiagnosticableTree {
   }
 
   @override
-  int get hashCode => hashValues(color, border);
+  int get hashCode => Object.hash(color, border);
 }
 
 /// Customizes the appearance of the tooltip.
@@ -1212,7 +1212,7 @@ class TreemapTooltipSettings extends DiagnosticableTree {
 
   @override
   int get hashCode =>
-      hashValues(color, hideDelay, borderColor, borderWidth, borderRadius);
+      Object.hash(color, hideDelay, borderColor, borderWidth, borderRadius);
 
   /// Creates a copy of this class but with the given fields
   /// replaced with the new values.

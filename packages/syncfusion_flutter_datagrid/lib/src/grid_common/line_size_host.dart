@@ -680,7 +680,7 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
       for (final RangeValuePair<bool> entry in _lineHidden.rangeValues) {
         final bool entryValue = entry.value as bool;
         if (entryValue) {
-          setRange(entry.start, entry.end, 0.0);
+          _distances!.setRange(entry.start, entry.end, 0.0);
         }
       }
     }
@@ -891,7 +891,7 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
   /// the lines. If set to true hide the lines.
   @override
   void setHidden(int from, int to, bool hide) {
-    _lineHidden.setRange(from, to - from + 1, hide);
+    _lineHidden.setRange(from, to - from + 1, hide, false);
 
     if (isSuspendUpdates) {
       return;
@@ -1076,7 +1076,7 @@ class DistancesUtil {
       final bool hide = hiddenLine[0] as bool;
       repeatSizeCount = hiddenLine[1] as int;
 
-      void _setRange() {
+      void setRange() {
         final int rangeTo = getRangeToHelper(n, to, repeatSizeCount);
         if (hide) {
           distances.setRange(n, rangeTo, 0.0);
@@ -1089,12 +1089,12 @@ class DistancesUtil {
 
       if (ndh is NestedDistancesHostBase) {
         if (ndh.getDistances(n) == null) {
-          _setRange();
+          setRange();
         } else {
           distances.setNestedDistances(n, hide ? null : ndh.getDistances(n));
         }
       } else {
-        _setRange();
+        setRange();
       }
     }
   }
@@ -1110,7 +1110,7 @@ class DistancesUtil {
     final Object ndh = linesHost;
 
     for (int n = from; n <= to; n++) {
-      void _setRange() {
+      void setRange() {
         int repeatSizeCount = -1;
         final List<dynamic> lineSize = linesHost.getSize(n, repeatSizeCount);
         final double size = lineSize[0] as double;
@@ -1122,12 +1122,12 @@ class DistancesUtil {
 
       if (ndh is NestedDistancesHostBase) {
         if (ndh.getDistances(n) == null) {
-          _setRange();
+          setRange();
         } else {
           distances.setNestedDistances(n, ndh.getDistances(n));
         }
       } else {
-        _setRange();
+        setRange();
       }
     }
   }

@@ -410,7 +410,7 @@ class TrackballBehavior {
       builder,
       hideDelay
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   /// Holds the value of cartesian state properties

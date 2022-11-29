@@ -233,6 +233,6 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
       lowerLineWidth,
       bandColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

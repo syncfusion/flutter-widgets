@@ -5,8 +5,9 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import '../../grid_common/enums.dart';
+import 'package:syncfusion_flutter_core/localizations.dart';
 
+import '../../grid_common/enums.dart';
 import '../../grid_common/line_size_host.dart';
 import '../../grid_common/visible_line_info.dart';
 import '../helper/callbackargs.dart';
@@ -29,7 +30,8 @@ class GridColumn {
       this.minimumWidth = double.nan,
       this.maximumWidth = double.nan,
       this.width = double.nan,
-      this.allowEditing = true}) {
+      this.allowEditing = true,
+      this.allowFiltering = true}) {
     _actualWidth = double.nan;
     _autoWidth = double.nan;
   }
@@ -68,6 +70,9 @@ class GridColumn {
   /// Defaults to [double.nan]
   double get actualWidth => _actualWidth;
   late double _actualWidth;
+
+  /// Determines how the filter menu is supposed to be shown.
+  FilteredFrom _filterFrom = FilteredFrom.none;
 
   /// The minimum width of the column.
   ///
@@ -138,6 +143,20 @@ class GridColumn {
   /// [ColumnWidthMode.fitByCellValue] or [ColumnWidthMode.fitByColumnName]
   /// option.
   final EdgeInsets autoFitPadding;
+
+  /// Decides whether the UI filtering should be enabled for this column.
+  ///
+  /// This property has the highest priority over [SfDataGrid.allowFiltering]
+  /// property.
+  ///
+  /// See also,
+  /// * [SfDataGrid.onFilterChanging] – This callback will be called if the
+  /// column is being filtered through UI filtering.
+  /// * [SfDataGrid.onFilterChanged] – This callback will be called if the
+  /// column is filtered through UI filtering.
+  /// * [DataGridSource.filterConditions] – This property holds the collection
+  /// of the filter conditions which are applied for various columns.
+  final bool allowFiltering;
 }
 
 /// A column which displays the values of the string in its cells.
@@ -299,6 +318,7 @@ class ColumnSizer {
 
   static const double _sortIconWidth = 20.0;
   static const double _sortNumberWidth = 18.0;
+  static const double _filterIconWidth = 34.0;
 
   void _initialRefresh(double availableWidth) {
     final LineSizeCollection lineSizeCollection =
@@ -590,8 +610,9 @@ class ColumnSizer {
 
   double _calculateColumnHeaderWidth(GridColumn column,
       {bool setWidth = true}) {
-    final double width =
-        _getHeaderCellWidth(column) + _getSortIconWidth(column);
+    final double width = _getHeaderCellWidth(column) +
+        _getSortIconWidth(column) +
+        _getFilterIconWidth(column);
     _updateSetWidth(setWidth, column, width);
     return width;
   }
@@ -782,7 +803,10 @@ class ColumnSizer {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
     double width = 0.0;
-    if (column.allowSorting && dataGridConfiguration.allowSorting) {
+    final bool isSortedColumn = dataGridConfiguration.source.sortedColumns
+        .any((SortColumnDetails element) => element.name == column.columnName);
+    if (isSortedColumn ||
+        (column.allowSorting && dataGridConfiguration.allowSorting)) {
       width += _sortIconWidth;
       if (dataGridConfiguration.allowMultiColumnSorting &&
           dataGridConfiguration.showSortNumbers) {
@@ -790,6 +814,13 @@ class ColumnSizer {
       }
     }
     return width;
+  }
+
+  double _getFilterIconWidth(GridColumn column) {
+    if (_dataGridStateDetails!().allowFiltering && column.allowFiltering) {
+      return _filterIconWidth;
+    }
+    return 0.0;
   }
 
   double _setColumnWidth(DataGridConfiguration dataGridConfiguration,
@@ -1041,7 +1072,10 @@ class ColumnSizer {
 
     // Removed the padding and gridline stroke width from the column width to
     // measure the accurate height for the cell content.
-    columnWidth -= _getSortIconWidth(column) + horizontalPadding + strokeWidth;
+    columnWidth -= _getSortIconWidth(column) +
+        _getFilterIconWidth(column) +
+        horizontalPadding +
+        strokeWidth;
 
     return _calculateTextSize(
       column: column,
@@ -1155,6 +1189,11 @@ void updateColumnSizerLoadedInitiallyFlag(
 /// Returns the width of a sorting icon.
 double getSortIconWidth(ColumnSizer columnSizer, GridColumn column) {
   return columnSizer._getSortIconWidth(column);
+}
+
+/// Returns the width of a filter icon.
+double getFilterIconWidth(ColumnSizer columnSizer, GridColumn column) {
+  return columnSizer._getFilterIconWidth(column);
 }
 
 /// Returns the auto fit row height of the given row based on index.
@@ -1743,4 +1782,1088 @@ class ColumnResizeController {
     notifyDataGridPropertyChangeListeners(dataGridStateDetails().source,
         propertyName: 'columnResizing');
   }
+}
+
+/// Controls how the filtering should be applied in [SfDataGrid].
+@immutable
+class FilterCondition {
+  /// Creates the [FilterCondition] for [SfDataGrid].
+  const FilterCondition(
+      {required this.type,
+      required this.value,
+      this.isCaseSensitive = false,
+      this.filterOperator = FilterOperator.or,
+      this.filterBehavior = FilterBehavior.strongDataType});
+
+  /// The type of the filter should be applied for filter condition.
+  final FilterType type;
+
+  /// The value which should be compared for filtering.
+  final Object? value;
+
+  /// Decides whether the filtering should be considered based on case sensitive.
+  final bool isCaseSensitive;
+
+  /// The type of the logical operator.
+  final FilterOperator filterOperator;
+
+  /// The behavior of the filtering for the filter condition.
+  final FilterBehavior filterBehavior;
+
+  @override
+  bool operator ==(Object other) {
+    return other is FilterCondition &&
+        type == other.type &&
+        value == other.value &&
+        isCaseSensitive == other.isCaseSensitive &&
+        filterOperator == other.filterOperator &&
+        filterBehavior == other.filterBehavior;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      type,
+      value,
+      isCaseSensitive,
+      filterOperator,
+      filterBehavior
+    ];
+    return Object.hashAll(values);
+  }
+}
+
+/// Provides the base functionalities to process the filtering in [SfDataGrid].
+class DataGridFilterHelper {
+  /// Creates the [DataGridFilterHelper] for [SfDataGrid].
+  DataGridFilterHelper(this._dataGridStateDetails) {
+    checkboxFilterHelper = DataGridCheckboxFilterHelper();
+    advancedFilterHelper = DataGridAdvancedFilterHelper(_dataGridStateDetails);
+  }
+
+  /// Checks whether the column is already filtered and needs to use the
+  /// previous source without current filter conditions or not.
+  bool canUsePreviousSource = false;
+
+  /// Checks whether the UI view filtering is applied or not.
+  bool isViewFilterAppiled = false;
+
+  /// This flag is used to check whether the filtering popup menu is currently
+  /// showing or not in the view.
+  bool isFilterPopupMenuShowing = false;
+
+  /// Determines how the filter menu should be opened
+  FilteredFrom filterFrom = FilteredFrom.none;
+
+  final DataGridStateDetails _dataGridStateDetails;
+
+  late int _checkedItemsCount, _unCheckedItemsCount;
+
+  /// Holds the instance of a [DataGridCheckboxFilterHelper] class.
+  late DataGridCheckboxFilterHelper checkboxFilterHelper;
+
+  /// Holds the instance of a [DataGridAdvancedFilterHelper] class.
+  late DataGridAdvancedFilterHelper advancedFilterHelper;
+
+  /// Provides the height of the popup menu tile.
+  double get tileHeight => _dataGridStateDetails().isDesktop ? 40.0 : 52.0;
+
+  /// Provides the icon color.
+  Color get iconColor =>
+      _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.6);
+
+  /// Provides the disable icon color.
+  Color get disableIconColor =>
+      _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.38);
+
+  /// Provides the broder color.
+  Color get borderColor =>
+      _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.12);
+
+  /// Provides the background color.
+  Color get backgroundColor =>
+      _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.001);
+
+  /// Provides the text color.
+  Color get textColor =>
+      _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.89);
+
+  /// Provides the primary color.
+  Color get primaryColor => _dataGridStateDetails().colorScheme!.primary;
+
+  /// Provides the text style to the tiles.
+  TextStyle get textStyle => TextStyle(
+      fontSize: 14.0,
+      color: textColor,
+      fontFamily: 'Roboto',
+      fontWeight: FontWeight.normal);
+
+  /// Provides the text style to the disabled tiles.
+  TextStyle get disableTextStyle => TextStyle(
+      fontSize: 14.0,
+      color: disableIconColor,
+      fontFamily: 'Roboto',
+      fontWeight: FontWeight.normal);
+
+  /// Apply filter to the effective rows based on `filterConditions`.
+  void applyFilter() {
+    if (_dataGridStateDetails().source.filterConditions.isNotEmpty) {
+      if (isViewFilterAppiled) {
+        _refreshViewFilter();
+      } else {
+        _refreshFilter();
+      }
+    }
+  }
+
+  /// Creates filter conditions based on the UI filtering.
+  void createFilterConditions(bool isCheckboxFilter, GridColumn column) {
+    // Creates filter conditions if it's a checkbox filter.
+    if (isCheckboxFilter) {
+      _checkedItemsCount = checkboxFilterHelper.items
+          .where((FilterElement element) => element.isSelected)
+          .length;
+      _unCheckedItemsCount =
+          checkboxFilterHelper.items.length - _checkedItemsCount;
+
+      _createCheckboxFilterConditions(column);
+    } else {
+      _createAdvancedFilterConditions(column);
+    }
+  }
+
+  /// Applies filtering based on the filter conditions in orders.
+  void _refreshViewFilter() {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    final Map<String, List<FilterCondition>> filterConditions =
+        dataGridConfiguration.source.filterConditions;
+
+    if (filterConditions.isNotEmpty) {
+      for (final String columnName in filterConditions.keys) {
+        final Map<String, List<FilterCondition>> currentFilterCondition =
+            <String, List<FilterCondition>>{
+          columnName: filterConditions[columnName]!
+        };
+
+        final List<DataGridRow> filteredRows = _getFilterRows(
+            dataGridConfiguration.source.effectiveRows, currentFilterCondition);
+
+        refreshEffectiveRows(dataGridConfiguration.source, filteredRows);
+      }
+    }
+  }
+
+  void _createCheckboxFilterConditions(GridColumn column) {
+    final DataGridSource source = _dataGridStateDetails().source;
+    if (_unCheckedItemsCount == 0 &&
+        checkboxFilterHelper._searchedItems.isEmpty) {
+      if (source.filterConditions.isNotEmpty) {
+        removeFilterConditions(source, column.columnName);
+      }
+    } else {
+      final bool useSelected = !(_checkedItemsCount > _unCheckedItemsCount &&
+          _unCheckedItemsCount > 0);
+      final List<FilterCondition> conditions = checkboxFilterHelper.items
+          .where((FilterElement element) => element.isSelected == useSelected)
+          .map<FilterCondition>((FilterElement value) {
+        final FilterType filterType =
+            useSelected ? FilterType.equals : FilterType.notEqual;
+        final FilterOperator filterOperator =
+            useSelected ? FilterOperator.or : FilterOperator.and;
+        final String? filterValue =
+            value.value == '(Blanks)' ? null : value.value.toString();
+
+        return FilterCondition(
+            type: filterType,
+            isCaseSensitive: true,
+            value: filterValue,
+            filterBehavior: FilterBehavior.stringDataType,
+            filterOperator: filterOperator);
+      }).toList();
+
+      addFilterConditions(source, column.columnName, conditions);
+    }
+
+    if (source.filterConditions.isEmpty) {
+      isViewFilterAppiled = false;
+      setFilterFrom(column, FilteredFrom.none);
+    } else {
+      setFilterFrom(column, FilteredFrom.checkboxFilter);
+    }
+
+    if (checkboxFilterHelper._searchedItems.isNotEmpty) {
+      checkboxFilterHelper._searchedItems.clear();
+    }
+
+    _applyViewFilter(column);
+  }
+
+  /// Sets the given value to the column's `filterFrom` property.
+  void setFilterFrom(GridColumn column, FilteredFrom filteredfrom) {
+    filterFrom = column._filterFrom = filteredfrom;
+  }
+
+  /// Gets the column's `filterFrom` property.
+  FilteredFrom getFilterForm(GridColumn column) {
+    return column._filterFrom;
+  }
+
+  /// Format the given cell value to the string data type to display.
+  String getDisplayValue(Object? value) {
+    if (value != null) {
+      switch (advancedFilterHelper.advancedFilterType) {
+        case AdvancedFilterType.text:
+        case AdvancedFilterType.numeric:
+          return value is! String ? value.toString() : value;
+        case AdvancedFilterType.date:
+          final DateTime date = value as DateTime;
+          return date.toString().split(' ').first;
+      }
+    }
+    return '';
+  }
+
+  /// Format the given string value to the actual cell value with same data type.
+  Object? getActualValue(Object? value) {
+    if (value != null) {
+      switch (advancedFilterHelper.advancedFilterType) {
+        case AdvancedFilterType.text:
+          return value is! String ? value.toString() : value;
+        case AdvancedFilterType.numeric:
+          return value is! num ? num.tryParse(value.toString()) : value;
+        case AdvancedFilterType.date:
+          if (value is! DateTime) {
+            // To convert a given string to the DateTime format.
+            final List<String> values = value.toString().split('-');
+            if (values.length > 2 &&
+                values.every((String element) => element.isNotEmpty)) {
+              // To validate the day and month.
+              if (int.parse(values[1]) > 12 || int.parse(values[2]) > 31) {
+                return null;
+              }
+              return DateTime.tryParse(value.toString());
+            }
+            return null;
+          }
+          return value;
+      }
+    } else {
+      return value;
+    }
+  }
+
+  void _debugCheckDataType(DataGridConfiguration dataGridConfiguration) {
+    Object? getFirstCellValue(List<DataGridRow> rows, String columnName) {
+      Object? cellValue;
+      for (final DataGridRow row in rows) {
+        cellValue = _getCellValue(row, columnName);
+        if (cellValue != null) {
+          break;
+        }
+      }
+      return cellValue;
+    }
+
+    void throwAssertFailure(String message) {
+      throw FlutterError.fromParts(<DiagnosticsNode>[ErrorSummary(message)]);
+    }
+
+    final DataGridSource source = dataGridConfiguration.source;
+    if (source.filterConditions.isNotEmpty) {
+      for (final String columnName in source.filterConditions.keys) {
+        final GridColumn? column = dataGridConfiguration.columns
+            .firstWhereOrNull(
+                (GridColumn column) => column.columnName == columnName);
+        if (column == null) {
+          throwAssertFailure(
+              "The $columnName doesn't exist in the SfDataGrid.columns collection");
+          continue;
+        }
+
+        final Object? cellValue =
+            getFirstCellValue(source.effectiveRows, columnName);
+        for (final FilterCondition condition
+            in source.filterConditions[columnName]!) {
+          assert(() {
+            if (condition.filterBehavior == FilterBehavior.strongDataType) {
+              if (cellValue?.runtimeType != condition.value?.runtimeType) {
+                throwAssertFailure(
+                    '${condition.value?.runtimeType} and ${cellValue.runtimeType} are not the same data type');
+              } else if (condition.type == FilterType.contains ||
+                  condition.type == FilterType.doesNotContain ||
+                  condition.type == FilterType.beginsWith ||
+                  condition.type == FilterType.doesNotBeginWith ||
+                  condition.type == FilterType.endsWith ||
+                  condition.type == FilterType.doesNotEndsWith) {
+                throwAssertFailure(
+                    'FilterBehaviour and FilterType are not correct');
+              } else if (condition.type == FilterType.greaterThan ||
+                  condition.type == FilterType.greaterThanOrEqual ||
+                  condition.type == FilterType.lessThan ||
+                  condition.type == FilterType.lessThanOrEqual) {
+                if (cellValue is String) {
+                  final String filterType =
+                      condition.type.toString().split('.').last;
+                  throwAssertFailure(
+                      "The filter type $filterType can't check with the String type");
+                }
+              }
+            } else {
+              if (condition.type == FilterType.greaterThan ||
+                  condition.type == FilterType.greaterThanOrEqual ||
+                  condition.type == FilterType.lessThan ||
+                  condition.type == FilterType.lessThanOrEqual) {
+                throwAssertFailure(
+                    'FilterBehaviour and FilterType are not correct');
+              }
+            }
+            return true;
+          }());
+        }
+      }
+    }
+  }
+
+  void _refreshFilter() {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    // Checks whether the filter value and cell value have the same data type or not.
+    // If not, it throws an assert failure.
+    _debugCheckDataType(dataGridConfiguration);
+
+    if (dataGridConfiguration.source.filterConditions.isNotEmpty) {
+      final List<DataGridRow> rows = dataGridConfiguration.source.effectiveRows;
+      final List<DataGridRow> filteredRows =
+          _getFilterRows(rows, dataGridConfiguration.source.filterConditions);
+      refreshEffectiveRows(dataGridConfiguration.source, filteredRows);
+    }
+  }
+
+  void _applyViewFilter(GridColumn column) {
+    final DataGridSource source = _dataGridStateDetails().source;
+
+    if (source.filterConditions.containsKey(column.columnName)) {
+      if (!_invokeFilterChangingCallback(
+          column, source.filterConditions[column.columnName]!)) {
+        removeFilterConditions(source, column.columnName);
+        if (source.filterConditions.isEmpty) {
+          isViewFilterAppiled = false;
+        }
+        return;
+      }
+
+      final Map<String, List<FilterCondition>> currentFilterCondition =
+          <String, List<FilterCondition>>{
+        column.columnName: source.filterConditions[column.columnName]!
+      };
+
+      final List<DataGridRow> dataGridRows = canUsePreviousSource
+          ? _getPreviousFilteredRows(column.columnName)
+          : source.effectiveRows;
+
+      final List<DataGridRow> filteredRows =
+          _getFilterRows(dataGridRows, currentFilterCondition);
+
+      if (canUsePreviousSource) {
+        canUsePreviousSource = false;
+      }
+
+      isViewFilterAppiled = true;
+      refreshEffectiveRows(source, filteredRows);
+      notifyDataGridPropertyChangeListeners(source, propertyName: 'Filtering');
+      _invokeFilterChangedCallback(
+          column, source.filterConditions[column.columnName]!);
+    } else {
+      updateDataSource(source);
+      notifyDataGridPropertyChangeListeners(source, propertyName: 'Filtering');
+    }
+  }
+
+  // Gets rows based on current filtered conditions.
+  List<DataGridRow> _getPreviousFilteredRows(String columnName) {
+    List<DataGridRow>? items;
+    final DataGridSource source = _dataGridStateDetails().source;
+    final List<FilterCondition>? conditions =
+        source.filterConditions[columnName];
+
+    if (conditions != null && conditions.isNotEmpty) {
+      if (conditions == source.filterConditions.values.last) {
+        removeFilterConditions(source, columnName);
+        items = source.filterConditions.isEmpty
+            ? source.rows
+            : _getFilterRows(source.rows, source.filterConditions);
+        canUsePreviousSource = true;
+        addFilterConditions(source, columnName, conditions);
+      }
+    }
+
+    return items ?? source.effectiveRows;
+  }
+
+  List<FilterElement> _getCellValues(
+      GridColumn column, List<DataGridRow> items) {
+    bool hasBlankValues = false;
+    bool isSelected(Object? value) {
+      final List<FilterCondition>? currentConditions =
+          _dataGridStateDetails().source.filterConditions[column.columnName];
+      if (currentConditions != null && currentConditions.isNotEmpty) {
+        final bool isEquals = currentConditions.first.type == FilterType.equals;
+        final FilterCondition? condition = currentConditions.firstWhereOrNull(
+            (FilterCondition element) =>
+                element.value?.toString() == value?.toString());
+        return isEquals ? condition != null : condition == null;
+      }
+      return true;
+    }
+
+    final List<Object> cellValues = <Object>[];
+    final List<FilterElement> filterElements = <FilterElement>[];
+    for (final DataGridRow row in items) {
+      final DataGridCell? cell = row.getCells().firstWhereOrNull(
+          (DataGridCell element) => element.columnName == column.columnName);
+      if (cell != null) {
+        if (cell.value != null) {
+          cellValues.add(cell.value);
+        } else if (!hasBlankValues) {
+          hasBlankValues = true;
+        }
+      }
+    }
+
+    if (hasBlankValues) {
+      filterElements
+          .add(FilterElement(value: '(Blanks)', isSelected: isSelected(null)));
+    }
+
+    if (cellValues.isNotEmpty) {
+      final Object cellValue = cellValues.first;
+      final bool convertToString =
+          !(cellValue is num || cellValue is DateTime || cellValue is String);
+
+      // Sort the items to display in the ascending order.
+      cellValues.sort((Object a, Object b) {
+        final dynamic value1 = convertToString ? a.toString() : a;
+        final dynamic value2 = convertToString ? b.toString() : b;
+
+        return value1.compareTo(value2);
+      });
+
+      filterElements.addAll(cellValues
+          .toSet()
+          .map<FilterElement>(
+              (Object e) => FilterElement(value: e, isSelected: isSelected(e)))
+          .toList());
+    }
+
+    return filterElements;
+  }
+
+  /// Helps to end edit the current cell.
+  void endEdit() {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    if (dataGridConfiguration.currentCell.isEditing) {
+      dataGridConfiguration.currentCell
+          .onCellSubmit(dataGridConfiguration, canRefresh: false);
+    }
+  }
+
+  /// Sets all the cell values to the check box filter.
+  void setDataGridSource(GridColumn column) {
+    final List<DataGridRow> items = _getPreviousFilteredRows(column.columnName);
+    final List<FilterElement> distinctCollection =
+        _getCellValues(column, items);
+
+    checkboxFilterHelper._previousDataGridSource = <FilterElement>[];
+
+    if (distinctCollection.isNotEmpty) {
+      checkboxFilterHelper.filterCheckboxItems = distinctCollection;
+    }
+
+    if (filterFrom == FilteredFrom.checkboxFilter) {
+      _setPreviousDataGridSource();
+    }
+
+    checkboxFilterHelper.items = distinctCollection.toList();
+    advancedFilterHelper.items = distinctCollection.toList();
+
+    if (advancedFilterHelper.items.isNotEmpty) {
+      bool isNullOrEmpty(String value) => value == '(Blanks)' || value == '';
+      // Remove null and empty values from the items collection since it's not
+      // applicable for the AdvancedFilter.
+      advancedFilterHelper.items.removeWhere(
+          (FilterElement element) => isNullOrEmpty(element.value.toString()));
+    }
+
+    checkboxFilterHelper.ensureSelectAllCheckboxState();
+  }
+
+  List<DataGridRow> _getFilterRows(
+      List<DataGridRow> rows, Map<String, List<FilterCondition>> conditions) {
+    return rows
+        .where((DataGridRow row) => _filterRow(row, conditions))
+        .toList();
+  }
+
+  void _setPreviousDataGridSource() {
+    final bool useSelected = !(_checkedItemsCount > _unCheckedItemsCount &&
+        _unCheckedItemsCount > 0);
+    final List<FilterElement> items = checkboxFilterHelper.filterCheckboxItems
+        .where((FilterElement i) => useSelected)
+        .toList();
+    checkboxFilterHelper._previousDataGridSource.addAll(items);
+  }
+
+  /// Handles the filter form's sort buttons callback.
+  void onSortButtonClick(GridColumn column, DataGridSortDirection direction) {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    endEdit();
+    if (dataGridConfiguration.source.sortedColumns.isNotEmpty) {
+      dataGridConfiguration.source.sortedColumns.clear();
+    }
+
+    dataGridConfiguration.source.sortedColumns.add(
+        SortColumnDetails(name: column.columnName, sortDirection: direction));
+    dataGridConfiguration.source.sort();
+  }
+
+  /// Handles the filter form's clear filter button callback.
+  void onClearFilterButtonClick(GridColumn column) {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    endEdit();
+    setFilterFrom(column, FilteredFrom.none);
+    removeFilterConditions(dataGridConfiguration.source, column.columnName);
+
+    if (dataGridConfiguration.source.filterConditions.isEmpty) {
+      isViewFilterAppiled = false;
+    }
+
+    updateDataSource(dataGridConfiguration.source);
+    notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
+        propertyName: 'Filtering');
+  }
+
+  bool _invokeFilterChangingCallback(
+      GridColumn column, List<FilterCondition> filterConditions) {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    if (dataGridConfiguration.onFilterChanging != null) {
+      final DataGridFilterChangeDetails details = DataGridFilterChangeDetails(
+          column: column,
+          filterConditions:
+              List<FilterCondition>.unmodifiable(filterConditions));
+      return dataGridConfiguration.onFilterChanging!(details);
+    }
+    return true;
+  }
+
+  void _invokeFilterChangedCallback(
+      GridColumn column, List<FilterCondition> filterConditions) {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    if (dataGridConfiguration.onFilterChanged != null) {
+      final DataGridFilterChangeDetails details = DataGridFilterChangeDetails(
+          column: column,
+          filterConditions:
+              List<FilterCondition>.unmodifiable(filterConditions));
+      dataGridConfiguration.onFilterChanged!(details);
+    }
+  }
+
+  Object? _getCellValue(DataGridRow row, String columnName) {
+    final GridColumn? column = _dataGridStateDetails().columns.firstWhereOrNull(
+        (GridColumn column) => column.columnName == columnName);
+    if (column != null) {
+      final DataGridCell? cellValue = row.getCells().firstWhereOrNull(
+          (DataGridCell element) => element.columnName == column.columnName);
+      if (cellValue != null && cellValue.value != null) {
+        return cellValue.value;
+      }
+    }
+    return null;
+  }
+
+  bool _filterRow(
+      DataGridRow row, Map<String, List<FilterCondition>> filterConditions) {
+    bool? isEqual;
+    for (final String columnName in filterConditions.keys) {
+      for (final FilterCondition condition in filterConditions[columnName]!) {
+        final Object? cellValue = _getCellValue(row, columnName);
+
+        /// Holds the current filter type result.
+        bool comparerValue = false;
+        switch (condition.type) {
+          case FilterType.equals:
+            comparerValue = grid_helper.compareEquals(condition, cellValue);
+            break;
+          case FilterType.notEqual:
+            comparerValue = !grid_helper.compareEquals(condition, cellValue);
+            break;
+          case FilterType.contains:
+            comparerValue = grid_helper.compareContains(condition, cellValue);
+            break;
+          case FilterType.doesNotContain:
+            comparerValue = !grid_helper.compareContains(condition, cellValue);
+            break;
+          case FilterType.beginsWith:
+            comparerValue = grid_helper.compareBeginsWith(condition, cellValue);
+            break;
+          case FilterType.doesNotBeginWith:
+            comparerValue =
+                !grid_helper.compareBeginsWith(condition, cellValue);
+            break;
+          case FilterType.endsWith:
+            comparerValue = grid_helper.compareEndsWith(condition, cellValue);
+            break;
+          case FilterType.doesNotEndsWith:
+            comparerValue = !grid_helper.compareEndsWith(condition, cellValue);
+            break;
+          case FilterType.greaterThan:
+            comparerValue =
+                grid_helper.compareGreaterThan(condition, cellValue);
+            break;
+          case FilterType.greaterThanOrEqual:
+            comparerValue =
+                grid_helper.compareGreaterThan(condition, cellValue, true);
+            break;
+          case FilterType.lessThan:
+            comparerValue = grid_helper.compareLessThan(condition, cellValue);
+            break;
+          case FilterType.lessThanOrEqual:
+            comparerValue =
+                grid_helper.compareLessThan(condition, cellValue, true);
+            break;
+        }
+        isEqual = grid_helper.compare(
+            isEqual, comparerValue, condition.filterOperator);
+      }
+    }
+    return isEqual != null && isEqual;
+  }
+
+  void _createAdvancedFilterConditions(GridColumn column) {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    final SfLocalizations localizations = dataGridConfiguration.localizations;
+    final FilterOperator filterOperator = advancedFilterHelper.isOrPredicate
+        ? FilterOperator.or
+        : FilterOperator.and;
+
+    final List<FilterCondition> filterConditions =
+        dataGridConfiguration.source.filterConditions[column.columnName] ??
+            <FilterCondition>[];
+
+    final Object? filterValue1 = advancedFilterHelper.filterValue1;
+    final Object? filterValue2 = advancedFilterHelper.filterValue2;
+    final String? filterType1 = advancedFilterHelper.filterType1;
+    final String? filterType2 = advancedFilterHelper.filterType2;
+    final FilterType type1 =
+        grid_helper.getFilterType(dataGridConfiguration, filterType1 ?? '');
+    final FilterType type2 =
+        grid_helper.getFilterType(dataGridConfiguration, filterType2 ?? '');
+
+    if (filterConditions.isNotEmpty) {
+      filterConditions.clear();
+    }
+
+    bool canCreateFilterCondition(
+        Object? filterValue, String? filterType, bool isFirstCondition) {
+      void setFilterValue(String? value) {
+        if (isFirstCondition) {
+          advancedFilterHelper.filterValue1 = value;
+        } else {
+          advancedFilterHelper.filterValue2 = value;
+        }
+      }
+
+      if (filterValue != null && filterType != null) {
+        if (filterValue == '') {
+          setFilterValue(null);
+        }
+        return true;
+      } else if (filterValue == null && filterType != null) {
+        if (filterType == localizations.nullDataGridFilteringLabel ||
+            filterType == localizations.notNullDataGridFilteringLabel) {
+          setFilterValue(null);
+          return true;
+        } else if (filterType == localizations.emptyDataGridFilteringLabel ||
+            filterType == localizations.notEmptyDataGridFilteringLabel) {
+          setFilterValue('');
+          return true;
+        }
+      }
+      return false;
+    }
+
+    switch (advancedFilterHelper.advancedFilterType) {
+      case AdvancedFilterType.text:
+        {
+          // Condition 1
+          if (canCreateFilterCondition(filterValue1, filterType1, true)) {
+            final FilterCondition condition = FilterCondition(
+                type: type1,
+                filterOperator: filterOperator,
+                value: advancedFilterHelper.filterValue1,
+                filterBehavior: FilterBehavior.stringDataType,
+                isCaseSensitive: advancedFilterHelper.isCaseSensitive1);
+            filterConditions.add(condition);
+          }
+
+          // Condition 2
+          if (canCreateFilterCondition(filterValue2, filterType2, false)) {
+            final FilterCondition condition = FilterCondition(
+                type: type2,
+                filterOperator: filterOperator,
+                value: advancedFilterHelper.filterValue2,
+                filterBehavior: FilterBehavior.stringDataType,
+                isCaseSensitive: advancedFilterHelper.isCaseSensitive2);
+            filterConditions.add(condition);
+          }
+        }
+        break;
+      case AdvancedFilterType.numeric:
+        {
+          // Condition 1
+          if (canCreateFilterCondition(filterValue1, filterType1, true)) {
+            final FilterCondition condition = FilterCondition(
+                type: type1,
+                filterOperator: filterOperator,
+                value: advancedFilterHelper.filterValue1);
+            filterConditions.add(condition);
+          }
+
+          // Condition 2
+          if (canCreateFilterCondition(filterValue2, filterType2, false)) {
+            final FilterCondition condition = FilterCondition(
+                type: type2,
+                filterOperator: filterOperator,
+                value: advancedFilterHelper.filterValue2);
+            filterConditions.add(condition);
+          }
+        }
+        break;
+      case AdvancedFilterType.date:
+        {
+          // Condition 1
+          if (canCreateFilterCondition(filterValue1, filterType1, true)) {
+            final FilterCondition condition = FilterCondition(
+                type: type1,
+                filterOperator: filterOperator,
+                value: advancedFilterHelper.filterValue1);
+            filterConditions.add(condition);
+          }
+
+          // Condition 2
+          if (canCreateFilterCondition(filterValue2, filterType2, false)) {
+            final FilterCondition condition = FilterCondition(
+                type: type2,
+                filterOperator: filterOperator,
+                value: advancedFilterHelper.filterValue2);
+            filterConditions.add(condition);
+          }
+        }
+        break;
+    }
+
+    if (filterConditions.isNotEmpty) {
+      setFilterFrom(column, FilteredFrom.advancedFilter);
+      addFilterConditions(
+          dataGridConfiguration.source, column.columnName, filterConditions);
+      _applyViewFilter(column);
+    }
+  }
+}
+
+/// A class [DataGridCheckboxFilterHelper] that holds the helper properties
+/// for the checkbox filter.
+class DataGridCheckboxFilterHelper {
+  /// Holds all the cell values of corresponding filter column as a
+  /// `FilterElement` collection.
+  List<FilterElement> items = <FilterElement>[];
+
+  /// Holds the searched check box items.
+  List<FilterElement> _searchedItems = <FilterElement>[];
+
+  /// Holds the check box filter items.
+  List<FilterElement> filterCheckboxItems = <FilterElement>[];
+
+  /// Maintain the previous item source for using it when searched text field
+  /// is empty.
+  List<FilterElement> _previousDataGridSource = <FilterElement>[];
+
+  /// A `TextEditingController` of the search box.
+  final TextEditingController textController = TextEditingController();
+
+  /// A `FocusNode` of the search box.
+  final FocusNode searchboxFocusNode = FocusNode();
+
+  /// Checks whether the selectAll checkbox is checked or not.
+  late bool? isSelectAllChecked;
+
+  /// Checks whether the selectAll checkbox is in tri-state or not.
+  late bool isSelectAllInTriState;
+
+  /// Ensures the `selectAll` checkbox state.
+  void ensureSelectAllCheckboxState() {
+    final List<FilterElement> unCheckedItems =
+        items.where((FilterElement item) => !item.isSelected).toList();
+
+    if (unCheckedItems.isEmpty || unCheckedItems.length == items.length) {
+      isSelectAllInTriState = false;
+      isSelectAllChecked = unCheckedItems.isEmpty;
+    } else {
+      isSelectAllInTriState = true;
+      isSelectAllChecked = null;
+    }
+  }
+
+  /// Handles the search box's text changed callback.
+  void onSearchTextFieldTextChanged(String searchText) {
+    if (filterCheckboxItems.isEmpty) {
+      return;
+    }
+
+    if (searchText.isEmpty) {
+      _searchedItems = <FilterElement>[];
+      if (_previousDataGridSource.isNotEmpty) {
+        final int checkedCount = _previousDataGridSource
+            .where((FilterElement element) => element.isSelected)
+            .length;
+        final bool isSelected = checkedCount > 0;
+        for (final FilterElement item in filterCheckboxItems) {
+          final FilterElement? filterElement = _previousDataGridSource
+              .firstWhereOrNull((FilterElement i) => item.value == i.value);
+          item.isSelected =
+              filterElement != null ? filterElement.isSelected : !isSelected;
+        }
+      }
+      items = filterCheckboxItems;
+      ensureSelectAllCheckboxState();
+      return;
+    }
+
+    _searchedItems = filterCheckboxItems
+        .where((FilterElement element) => element.value
+            .toString()
+            .toLowerCase()
+            .contains(searchText.toLowerCase()))
+        .toList();
+
+    for (final FilterElement element in _searchedItems) {
+      element.isSelected = true;
+    }
+
+    items = _searchedItems;
+    ensureSelectAllCheckboxState();
+  }
+}
+
+/// A class [DataGridAdvancedFilterHelper] that holds the helper properties
+/// for the advance filter.
+class DataGridAdvancedFilterHelper {
+  /// Creates `DataGridAdvanceFilterHelper` for `SfDataGrid`.
+  DataGridAdvancedFilterHelper(this._dataGridStateDetails);
+
+  final DataGridStateDetails _dataGridStateDetails;
+
+  /// Holds the filter type dropdown items.
+  List<String> filterTypeItems = <String>[];
+
+  /// Holds all the cell values of a corresponding filter column as a
+  /// `FilterElement` collection.
+  List<FilterElement> items = <FilterElement>[];
+
+  /// Defines the advance filter type.
+  AdvancedFilterType advancedFilterType = AdvancedFilterType.text;
+
+  /// Defines the filter types.
+  String? filterType1, filterType2;
+
+  /// Defines the filter values
+  Object? filterValue1, filterValue2;
+
+  /// Defines the first drop down button's case sensitive option.
+  bool isCaseSensitive1 = false;
+
+  /// Defines the second  drop down button's case sensitive option.
+  bool isCaseSensitive2 = false;
+
+  /// Checkes whether the `OR` radio button is enabled or not.
+  bool isOrPredicate = true;
+
+  /// Holds the list of filter types that used to disable filter value's drop
+  /// down button. If a filterType contains any of these item, need to disable
+  /// the filter value dropdown button.
+  List<String> disableFilterTypes = <String>[];
+
+  /// Holds the list of filter types that used to display the text field instead
+  /// of dropdown button in the Advanced filter menu.
+  List<String> textFieldFilterTypes = <String>[];
+
+  /// A [TextEditingController] for the first text field in the Advanced filter.
+  TextEditingController firstValueTextController = TextEditingController();
+
+  /// A [TextEditingController] for the second text field in the Advanced filter.
+  TextEditingController secondValueTextController = TextEditingController();
+
+  /// Initializes the localized resource values to the localization required
+  /// internal properties.
+  void initProperties() {
+    final SfLocalizations localizations = _dataGridStateDetails().localizations;
+    filterType1 = localizations.equalsDataGridFilteringLabel;
+    filterType2 = localizations.equalsDataGridFilteringLabel;
+
+    disableFilterTypes = <String>[
+      localizations.nullDataGridFilteringLabel,
+      localizations.notNullDataGridFilteringLabel,
+      localizations.emptyDataGridFilteringLabel,
+      localizations.notEmptyDataGridFilteringLabel
+    ];
+
+    textFieldFilterTypes = <String>[
+      localizations.beginsWithDataGridFilteringLabel,
+      localizations.endsWithDataGridFilteringLabel,
+      localizations.doesNotBeginWithDataGridFilteringLabel,
+      localizations.doesNotEndWithDataGridFilteringLabel,
+      localizations.containsDataGridFilteringLabel,
+      localizations.doesNotContainDataGridFilteringLabel,
+      localizations.beforeDataGridFilteringLabel,
+      localizations.beforeOrEqualDataGridFilteringLabel,
+      localizations.afterDataGridFilteringLabel,
+      localizations.afterOrEqualDataGridFilteringLabel,
+      localizations.lessThanDataGridFilteringLabel,
+      localizations.lessThanOrEqualDataGridFilteringLabel,
+      localizations.greaterThanDataGridFilteringLabel,
+      localizations.greaterThanOrEqualDataGridFilteringLabel,
+    ];
+  }
+
+  /// Generates the filter type dropdown items.
+  void generateFilterTypeItems(GridColumn column) {
+    if (filterTypeItems.isNotEmpty) {
+      filterTypeItems.clear();
+    }
+
+    final List<String> items = <String>[];
+    final SfLocalizations localizations = _dataGridStateDetails().localizations;
+    switch (advancedFilterType) {
+      case AdvancedFilterType.text:
+        items.add(localizations.equalsDataGridFilteringLabel);
+        items.add(localizations.doesNotEqualDataGridFilteringLabel);
+        items.add(localizations.beginsWithDataGridFilteringLabel);
+        items.add(localizations.doesNotBeginWithDataGridFilteringLabel);
+        items.add(localizations.endsWithDataGridFilteringLabel);
+        items.add(localizations.doesNotEndWithDataGridFilteringLabel);
+        items.add(localizations.containsDataGridFilteringLabel);
+        items.add(localizations.doesNotContainDataGridFilteringLabel);
+        items.add(localizations.emptyDataGridFilteringLabel);
+        items.add(localizations.notEmptyDataGridFilteringLabel);
+        items.add(localizations.nullDataGridFilteringLabel);
+        items.add(localizations.notNullDataGridFilteringLabel);
+        break;
+      case AdvancedFilterType.numeric:
+        items.add(localizations.equalsDataGridFilteringLabel);
+        items.add(localizations.doesNotEqualDataGridFilteringLabel);
+        items.add(localizations.lessThanDataGridFilteringLabel);
+        items.add(localizations.lessThanOrEqualDataGridFilteringLabel);
+        items.add(localizations.greaterThanDataGridFilteringLabel);
+        items.add(localizations.greaterThanOrEqualDataGridFilteringLabel);
+        items.add(localizations.nullDataGridFilteringLabel);
+        items.add(localizations.notNullDataGridFilteringLabel);
+        break;
+      case AdvancedFilterType.date:
+        items.add(localizations.equalsDataGridFilteringLabel);
+        items.add(localizations.doesNotEqualDataGridFilteringLabel);
+        items.add(localizations.beforeDataGridFilteringLabel);
+        items.add(localizations.beforeOrEqualDataGridFilteringLabel);
+        items.add(localizations.afterDataGridFilteringLabel);
+        items.add(localizations.afterOrEqualDataGridFilteringLabel);
+        items.add(localizations.nullDataGridFilteringLabel);
+        items.add(localizations.notNullDataGridFilteringLabel);
+        break;
+    }
+
+    filterTypeItems = items;
+  }
+
+  /// Sets the advanced filter type based on the column type.
+  void setAdvancedFilterType(
+      DataGridConfiguration dataGridConfiguration, GridColumn column) {
+    Object? value;
+    for (final DataGridRow row in dataGridConfiguration.source.rows) {
+      final DataGridCell? cellValue = row.getCells().firstWhereOrNull(
+          (DataGridCell element) => element.columnName == column.columnName);
+      if (cellValue != null && cellValue.value != null) {
+        value = cellValue.value;
+        break;
+      }
+    }
+
+    if (value != null && value is num) {
+      advancedFilterType = AdvancedFilterType.numeric;
+    } else if (value != null && value is DateTime) {
+      advancedFilterType = AdvancedFilterType.date;
+    } else {
+      advancedFilterType = AdvancedFilterType.text;
+    }
+  }
+
+  /// Sets the advanced filter values.
+  void setAdvancedFilterValues(DataGridConfiguration dataGridConfiguration,
+      List<FilterCondition> filterConditions, DataGridFilterHelper helper) {
+    Object? getValue(Object? value, String? filterType) {
+      if (items.any((FilterElement element) => element.value == value) ||
+          (filterType != null && textFieldFilterTypes.contains(filterType))) {
+        return value;
+      }
+      return null;
+    }
+
+    if (filterConditions.isNotEmpty) {
+      final FilterCondition condition = filterConditions.first;
+      filterType1 = grid_helper.getFilterName(
+          dataGridConfiguration, condition.type, condition.value);
+      filterValue1 = getValue(condition.value, filterType1);
+      isCaseSensitive1 = condition.isCaseSensitive;
+      isOrPredicate = condition.filterOperator == FilterOperator.or;
+      if (filterConditions.length == 1) {
+        filterType2 =
+            dataGridConfiguration.localizations.equalsDataGridFilteringLabel;
+        filterValue2 = null;
+        isCaseSensitive2 = false;
+      }
+    }
+    if (filterConditions.length == 2) {
+      final FilterCondition condition = filterConditions.last;
+      filterType2 = grid_helper.getFilterName(
+          dataGridConfiguration, condition.type, condition.value);
+      filterValue2 = getValue(condition.value, filterType2);
+      isCaseSensitive2 = condition.isCaseSensitive;
+      isOrPredicate = condition.filterOperator == FilterOperator.or;
+    }
+
+    firstValueTextController.text = dataGridConfiguration.dataGridFilterHelper
+        .getDisplayValue(filterValue1);
+    secondValueTextController.text = dataGridConfiguration.dataGridFilterHelper
+        .getDisplayValue(filterValue2);
+  }
+
+  /// Resets the advanced filter values.
+  void resetAdvancedFiterValues(DataGridConfiguration dataGridConfiguration) {
+    filterType1 = filterType2 =
+        dataGridConfiguration.localizations.equalsDataGridFilteringLabel;
+    filterValue1 = filterValue2 = null;
+    isCaseSensitive1 = isCaseSensitive2 = false;
+    isOrPredicate = true;
+    firstValueTextController.clear();
+    secondValueTextController.clear();
+  }
+}
+
+/// A class [FilterElement] that helps to maintain the cell values with its
+/// checkbox state for the filtering support.
+class FilterElement {
+  /// Creates [FilterElement] for the `SfDataGrid`.
+  FilterElement({required this.value, required this.isSelected});
+
+  /// Defines the value of the cell.
+  Object value;
+
+  /// Defines the check box state of the cell.
+  bool isSelected;
 }

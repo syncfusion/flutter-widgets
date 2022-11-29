@@ -958,7 +958,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
       specialDatesTextStyle,
       weekNumberTextStyle
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override

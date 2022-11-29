@@ -270,6 +270,9 @@ class PdfAnnotationHelper {
   /// internal field
   bool setAppearance = false;
 
+  /// internal field
+  bool isOldAnnotation = false;
+
   ///Gets or sets the boolean flag to flatten the annotation,
   ///by default, its become false.
   bool flatten = false;

@@ -65,6 +65,9 @@ class CircularStateProperties extends StateProperties {
   /// Specifies whether the text direction of chart widget is RTL or LTR.
   late bool isRtl;
 
+  /// Specifies whether the legend is refreshed
+  bool legendRefresh = false;
+
   /// To redraw chart elements.
   void redraw() {
     renderingDetails.initialRender = false;

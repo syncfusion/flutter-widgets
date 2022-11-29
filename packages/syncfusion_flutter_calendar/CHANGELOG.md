@@ -1,3 +1,7 @@
+## [20.2.43]
+**Enhancements**
+* Now, we have improved the behavior of the `appointmentBuilder` details `date` value to hold the start date of the appointment view in the Flutter event calendar.
+
 ## [20.2.36]
 **Features**
 * Now, we have improved the behavior of the month header of ScheduleView with a minimum date in the Flutter event calendar.

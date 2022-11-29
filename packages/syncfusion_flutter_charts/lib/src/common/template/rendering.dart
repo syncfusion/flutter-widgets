@@ -7,7 +7,6 @@ import '../../chart/common/cartesian_state_properties.dart';
 import '../../chart/common/data_label.dart';
 import '../../chart/common/data_label_renderer.dart';
 import '../../chart/utils/helper.dart';
-import '../../circular_chart/base/circular_state_properties.dart';
 import '../state_properties.dart';
 
 import '../utils/enum.dart';
@@ -71,14 +70,11 @@ class _RenderTemplateState extends State<RenderTemplate>
           animationController: animationController,
           child: templateInfo.widget!);
     } else {
-      renderWidget = templateInfo.templateType == 'Annotation' &&
-              widget.stateProperties is! CircularStateProperties
-          ? templateInfo.widget!
-          : _ChartTemplateRenderObject(
-              templateInfo: templateInfo,
-              stateProperties: widget.stateProperties,
-              animationController: animationController,
-              child: templateInfo.widget!);
+      renderWidget = _ChartTemplateRenderObject(
+          templateInfo: templateInfo,
+          stateProperties: widget.stateProperties,
+          animationController: animationController,
+          child: templateInfo.widget!);
     }
     if (templateInfo.animationDuration > 0) {
       final dynamic stateProperties = widget.stateProperties;
@@ -116,27 +112,7 @@ class _RenderTemplateState extends State<RenderTemplate>
     } else {
       currentWidget = renderWidget;
     }
-    return templateInfo.templateType != 'Annotation' ||
-            widget.stateProperties is CircularStateProperties
-        ? currentWidget
-        : Positioned(
-            left: templateInfo.location.dx,
-            top: templateInfo.location.dy,
-            child: FractionalTranslation(
-                translation: Offset(
-                    templateInfo.horizontalAlignment == ChartAlignment.near
-                        ? 0
-                        : templateInfo.horizontalAlignment ==
-                                ChartAlignment.center
-                            ? -0.5
-                            : -1,
-                    templateInfo.verticalAlignment == ChartAlignment.near
-                        ? 0
-                        : templateInfo.verticalAlignment ==
-                                ChartAlignment.center
-                            ? -0.5
-                            : -1),
-                child: currentWidget));
+    return currentWidget;
   }
 
   @override
@@ -299,7 +275,10 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
               : stateProperties.annotationRegions.add(rect);
           childParentData.offset = Offset(locationX, locationY);
         } else {
-          childParentData.offset = Offset.infinite;
+          if (child != null && child!.size != Size.zero) {
+            child!.layout(constraints.copyWith(maxWidth: 0, maxHeight: 0),
+                parentUsesSize: true);
+          }
         }
       }
     } else {

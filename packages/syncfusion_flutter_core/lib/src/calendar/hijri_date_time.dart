@@ -1975,7 +1975,7 @@ class HijriDateTime {
 
   @override
   int get hashCode {
-    return hashValues(month, day, year);
+    return Object.hash(month, day, year);
   }
 }
 

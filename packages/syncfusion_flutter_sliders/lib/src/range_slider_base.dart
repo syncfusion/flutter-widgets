@@ -260,9 +260,13 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     endPositionController.value = getFactorFromValue(actualValues.end);
   }
 
-  double get minThumbGap => sliderType == SliderType.horizontal
-      ? (actualMax - actualMin) * (8 / actualTrackRect.width).clamp(0.0, 1.0)
-      : (actualMax - actualMin) * (8 / actualTrackRect.height).clamp(0.0, 1.0);
+  double get minThumbGap => isDiscrete
+      ? 0
+      : sliderType == SliderType.horizontal
+          ? (actualMax - actualMin) *
+              (8 / actualTrackRect.width).clamp(0.0, 1.0)
+          : (actualMax - actualMin) *
+              (8 / actualTrackRect.height).clamp(0.0, 1.0);
 
   SfRangeValues get actualValues =>
       isDateTime ? _valuesInMilliseconds : _values;

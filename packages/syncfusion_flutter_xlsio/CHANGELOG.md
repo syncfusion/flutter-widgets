@@ -1,3 +1,10 @@
+## Unreleased
+
+**Features**
+
+* Provided support to export the Excel data as a CSV document.
+* Provided support to show/hide worksheets, move worksheets, and set tab color for the worksheets.
+
 ## [19.2.44-beta] - 06/30/2021
 
 **Features**

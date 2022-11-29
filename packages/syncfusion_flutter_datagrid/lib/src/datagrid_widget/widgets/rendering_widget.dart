@@ -93,6 +93,12 @@ class RenderVisualContainer extends RenderBox
         _isDirty = isDirty,
         _dataGridStateDetails = dataGridStateDetails! {
     addAll(children);
+    _gestureArenaTeam = GestureArenaTeam();
+    _panGestureRecognizer = PanGestureRecognizer()
+      ..team = _gestureArenaTeam
+      ..onStart = ((DragStartDetails details) {})
+      ..dragStartBehavior = DragStartBehavior.down;
+    _gestureArenaTeam.captain = _panGestureRecognizer;
   }
 
   /// Decides whether the visual container needs to be refreshed or not.
@@ -124,6 +130,9 @@ class RenderVisualContainer extends RenderBox
 
   final DataGridStateDetails _dataGridStateDetails;
 
+  late PanGestureRecognizer _panGestureRecognizer;
+  late GestureArenaTeam _gestureArenaTeam;
+
   @override
   bool get isRepaintBoundary => true;
 
@@ -132,6 +141,25 @@ class RenderVisualContainer extends RenderBox
     super.setupParentData(child);
     if (child.parentData is! _VisualContainerParentData) {
       child.parentData = _VisualContainerParentData();
+    }
+  }
+
+  // Issue:
+  // FLUT-6822 - ScrollView is scrolled at sample level when swiping the row in DataGrid.
+  //
+  // Fix:
+  // An issue occurred because the Datagrid could not handle the drag gesture
+  // while swiping since we set `NeverScrollableScrollPhysics` to the Datagrid.
+  // So, that is handled by the parent widget which is added to the Datagrid and
+  // it scrolls the Datagrid while swiping. Now we controlled the drag gesture to the parent
+  // by using the `_panGestureRecognizer` and `_gestureArenaTeam`. By setting
+  // `_gestureArenaTeam.captain` as `_panGestureRecognizer` to handling the onDragStart.
+  @override
+  void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
+    super.handleEvent(event, entry);
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    if (dataGridConfiguration.allowSwiping && event is PointerDownEvent) {
+      _panGestureRecognizer.addPointer(event);
     }
   }
 
@@ -972,7 +1000,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
 
   void _handleSwipeEnd(
       PointerUpEvent event, DataGridConfiguration dataGridConfiguration) {
-    void _onSwipeEnd() {
+    void onSwipeEnd() {
       if (dataGridConfiguration.onSwipeEnd != null) {
         final int rowIndex = grid_helper.resolveToRecordIndex(
             dataGridConfiguration, dataRow.rowIndex);
@@ -997,10 +1025,10 @@ class RenderVirtualizingCellsWidget extends RenderBox
             dataGridConfiguration.swipingOffset >= 0 ? maxOffset : -maxOffset;
         dataGridConfiguration.swipingAnimationController!
             .forward()
-            .then((_) => _onSwipeEnd());
+            .then((_) => onSwipeEnd());
       } else {
         dataGridConfiguration.swipingAnimationController!.reverse().then((_) {
-          _onSwipeEnd();
+          onSwipeEnd();
           dataGridConfiguration.container.resetSwipeOffset(swipedRow: dataRow);
         });
       }
@@ -1064,7 +1092,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
 
   @override
   void performLayout() {
-    void _layout(
+    void layout(
         {required RenderBox child,
         required double width,
         required double height}) {
@@ -1086,7 +1114,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
           ..width = columnRect.width
           ..height = columnRect.height
           ..cellClipRect = child._cellClipRect;
-        _layout(
+        layout(
             child: child, width: parentData.width, height: parentData.height);
         parentData.offset = Offset(columnRect.left, columnRect.top);
       } else {
@@ -1104,7 +1132,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
             ..width = cellRect.width
             ..height = cellRect.height
             ..offset = Offset(cellRect.left, cellRect.top);
-          _layout(
+          layout(
               child: child, width: parentData.width, height: parentData.height);
         } else {
           size = constraints.constrain(Size.zero);

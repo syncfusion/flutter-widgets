@@ -290,6 +290,6 @@ class CartesianChartAnnotation {
       xAxisName,
       yAxisName
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

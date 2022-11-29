@@ -62,6 +62,9 @@ class PyramidStateProperties extends StateProperties {
   /// Specifies whether the text direction of chart widget is RTL or LTR.
   late bool isRtl;
 
+  /// Specifies whether the legend is refreshed
+  bool legendRefresh = false;
+
   /// Method called when animation is completed.
   bool get animationCompleted {
     return renderingDetails.animationController.status !=

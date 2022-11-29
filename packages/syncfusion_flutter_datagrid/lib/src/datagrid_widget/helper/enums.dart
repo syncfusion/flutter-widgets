@@ -253,3 +253,91 @@ enum GridSummaryType {
   /// Specifies the count of rows available in [SfDataGrid].
   count,
 }
+
+/// Determines the type of the filter condition which should be compared
+/// between rows.
+enum FilterType {
+  /// Checks whether the cell value contain the given filter value.
+  contains,
+
+  /// Checks whether the cell value ends with the given filter value.
+  endsWith,
+
+  /// Checks whether the cell value is equivalent to the given filter value.
+  equals,
+
+  /// Checks whether the cell value is greater than the given filter value.
+  greaterThan,
+
+  /// Checks whether the cell value is greater than or equal to the given filter
+  /// value.
+  greaterThanOrEqual,
+
+  /// Checks whether the cell value is lesser than the given filter value.
+  lessThan,
+
+  /// Checks whether the cell value is lesser than or equal to the given filter
+  /// value.
+  lessThanOrEqual,
+
+  /// Checks whether the cell value does not contain the given filter value.
+  doesNotContain,
+
+  /// Checks whether the cell value does not end with the given filter value.
+  doesNotEndsWith,
+
+  /// Checks whether the cell value is not equivalent to the given filter value.
+  notEqual,
+
+  /// Checks whether the cell value does not begin with the given filter value.
+  doesNotBeginWith,
+
+  /// Checks whether the cell value begins with the given filter value.
+  beginsWith,
+}
+
+/// Determines the type of the logical operator to be applied between multiple
+/// filter conditions.
+enum FilterOperator {
+  /// AND logical operator is applied between multiple filter conditions.
+  and,
+
+  /// OR logical operator is applied between multiple filter conditions.
+  or,
+}
+
+/// Determines how the filter comparison should behave.
+enum FilterBehavior {
+  /// Converts the cell value as string and compare the condition.
+  stringDataType,
+
+  /// Compares the cell value with its actual data type.
+  strongDataType,
+}
+
+/// Determines how the filter menu should be opened.
+enum FilteredFrom {
+  /// Specifies the checkbox filter.
+  checkboxFilter,
+
+  /// Specifies the advanced filter.
+  advancedFilter,
+
+  /// Specifies the none.
+  none,
+}
+
+/// Determines how the filter comparison should behave.
+enum AdvancedFilterType {
+  /// Specifies that the filtering options should be available based on string
+  /// comparison.
+  text,
+
+  /// Specifies that the filtering options should be available based on numeric
+  /// values.
+  numeric,
+
+  /// Specifies that the filtering options should be available based on date
+  /// values.
+  date,
+}

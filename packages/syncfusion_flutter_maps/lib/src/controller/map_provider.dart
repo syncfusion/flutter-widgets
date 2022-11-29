@@ -62,7 +62,7 @@ class AssetMapProvider extends MapProvider {
   }
 
   @override
-  int get hashCode => hashValues(shapePath, bytes);
+  int get hashCode => Object.hash(shapePath, bytes);
 }
 
 // Decodes the given map URL from the network.
@@ -114,7 +114,7 @@ class NetworkMapProvider extends MapProvider {
   }
 
   @override
-  int get hashCode => hashValues(shapePath, bytes);
+  int get hashCode => Object.hash(shapePath, bytes);
 }
 
 /// Decodes the given [Uint8List] buffer as an map.
@@ -161,5 +161,5 @@ class MemoryMapProvider extends MapProvider {
   }
 
   @override
-  int get hashCode => hashValues(shapePath, bytes);
+  int get hashCode => Object.hash(shapePath, bytes);
 }

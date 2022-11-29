@@ -47,9 +47,9 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
           children: <Widget>[
             TextButton(
               style: TextButton.styleFrom(
-                primary: Colors.white,
+                foregroundColor: Colors.white,
                 backgroundColor: Colors.lightBlue,
-                onSurface: Colors.grey,
+                disabledForegroundColor: Colors.grey,
               ),
               onPressed: generateOfficeChart,
               child: const Text('Generate Excel Chart'),

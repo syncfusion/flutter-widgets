@@ -594,7 +594,7 @@ class TooltipBehavior {
       builder,
       shadowColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   /// Holds the state properties value.

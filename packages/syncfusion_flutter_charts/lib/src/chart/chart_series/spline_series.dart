@@ -222,6 +222,6 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
       onPointDoubleTap,
       onPointLongPress
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

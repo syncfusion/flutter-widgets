@@ -317,6 +317,6 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
       xValueMapper,
       yValueMapper
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

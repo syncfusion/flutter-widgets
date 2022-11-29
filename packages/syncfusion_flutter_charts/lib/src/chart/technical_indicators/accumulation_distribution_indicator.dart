@@ -139,6 +139,6 @@ class AccumulationDistributionIndicator<T, D>
       signalLineColor,
       signalLineWidth
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

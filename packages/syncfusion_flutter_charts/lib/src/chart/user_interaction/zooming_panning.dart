@@ -325,7 +325,7 @@ class ZoomPanBehavior {
       selectionRectBorderColor,
       selectionRectColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   /// Holds the value of cartesian state properties.

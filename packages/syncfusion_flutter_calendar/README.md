@@ -91,7 +91,7 @@ The Flutter Calendar widget has built-in configurable views such as day, week, w
 
 * **Week numbers** - Display the week numbers of the year in the month, week, and work week views of the Calendar. 
 
-![week_numbers](https://cdn.syncfusion.com/content/images/FTControl/Calendar/calendar_weeknumber.png)
+![week_numbers](https://cdn.syncfusion.com/content/images/FTControl/Calendar/calendar-weeknumber.png)
 
 * **Quick view navigation** - Navigate among calendar views easily using the header date picker views button in the calendar header and clicking month cell and view headers.
 

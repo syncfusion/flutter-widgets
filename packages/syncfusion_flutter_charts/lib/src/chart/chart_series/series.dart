@@ -1338,6 +1338,7 @@ class ChartSeriesController {
             seriesRendererDetails.xAxisDetails as CategoryAxisDetails;
         final CategoryAxis categoryAxis = axisDetails.axis as CategoryAxis;
         if (categoryAxis.arrangeByIndex) {
+          // ignore: unnecessary_null_comparison
           index < axisDetails.labels.length && axisDetails.labels[index] != null
               ? axisDetails.labels[index] += ', ${currentPoint.x}'
               : axisDetails.labels.add(currentPoint.x.toString());
@@ -1653,6 +1654,7 @@ class ChartSeriesController {
         _needXRecalculation = true;
       }
       seriesRendererDetails.dataPoints.removeAt(index);
+      // ignore: unnecessary_null_comparison
       if (currentPoint != null) {
         if (!_needXRecalculation &&
             (seriesRendererDetails.minimumX == currentPoint.xValue ||
