@@ -199,18 +199,12 @@ class PdfPageViewState extends State<PdfPageView> {
 
   @override
   void dispose() {
-    PaintingBinding.instance.imageCache.clear();
-    PaintingBinding.instance.imageCache.clearLiveImages();
     _pdfViewerThemeData = null;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!kIsDesktop) {
-      PaintingBinding.instance.imageCache.clear();
-      PaintingBinding.instance.imageCache.clearLiveImages();
-    }
     final double pageSpacing =
         widget.pageIndex == widget.pdfViewerController.pageCount - 1
             ? 0.0

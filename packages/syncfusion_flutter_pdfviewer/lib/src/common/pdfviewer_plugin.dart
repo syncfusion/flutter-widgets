@@ -102,7 +102,6 @@ class PdfViewerPlugin {
       bool isZoomChanged,
       int currentPageNumber,
       bool canRenderImage) async {
-    imageCache.clear();
     if (!canRenderImage) {
       _nativeImage?.cancel();
       _renderingPages?.clear();
@@ -149,7 +148,6 @@ class PdfViewerPlugin {
 
   /// Dispose the rendered pages
   Future<void> closeDocument() async {
-    imageCache.clear();
     if (_documentID != null) {
       await PdfViewerPlatform.instance.closeDocument(_documentID!);
     }

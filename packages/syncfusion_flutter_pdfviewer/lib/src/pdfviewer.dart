@@ -1050,7 +1050,6 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _extractedTextCollection.clear();
     _pdfViewerThemeData = null;
     _localizations = null;
-    imageCache.clear();
     _killTextSearchIsolate();
     _plugin.closeDocument();
     _killTextExtractionIsolate();
@@ -1107,7 +1106,6 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _pageTextExtractor.clear();
     _document?.dispose();
     _document = null;
-    imageCache.clear();
     _startPage = 0;
     _endPage = 0;
     _bufferCount = 0;
