@@ -360,7 +360,7 @@ class DateTimeAxis extends ChartAxis {
       autoScrollingMode,
       axisLabelFormatter
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
@@ -510,7 +510,7 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
     interval = _axisDetails._alignRangeStart(
         this, interval, _axisDetails.visibleRange!.interval);
     while (interval <= _axisDetails.visibleRange!.maximum) {
-      if (withInRange(interval, _axisDetails.visibleRange!)) {
+      if (withInRange(interval, _axisDetails)) {
         prevInterval = (label.isNotEmpty)
             ? _axisDetails
                 .visibleLabels[_axisDetails.visibleLabels.length - 1].value

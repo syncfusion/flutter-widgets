@@ -594,7 +594,7 @@ class TooltipBehavior {
       builder,
       shadowColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   /// Holds the state properties value.
@@ -692,8 +692,11 @@ class TooltipBehavior {
           });
         }
       }
-      if (renderingDetails.tooltipBehaviorRenderer._tooltipRenderingDetails
-              .tooltipTemplate ==
+      if (chart.tooltipBehavior.builder != null && x != null) {
+        renderingDetails.tooltipBehaviorRenderer._tooltipRenderingDetails
+            .showTemplateTooltip(Offset(position.x, position.y));
+      } else if (renderingDetails.tooltipBehaviorRenderer
+              ._tooltipRenderingDetails.tooltipTemplate ==
           null) {
         final SfTooltipState? tooltipState =
             tooltipBehaviorRenderer._tooltipRenderingDetails.chartTooltipState;

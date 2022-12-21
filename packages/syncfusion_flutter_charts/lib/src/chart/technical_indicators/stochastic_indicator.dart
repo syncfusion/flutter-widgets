@@ -400,6 +400,6 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
       kPeriod,
       dPeriod
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

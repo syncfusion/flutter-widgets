@@ -4199,7 +4199,9 @@ class FontStructure {
           if (reverseMapTable!.containsKey(encodedText)) {
             decodedtext = encodedText;
             final int charPosition = reverseMapTable![decodedtext]!.toInt();
-            zapfPostScript = differenceTable[charPosition]!;
+            if (differenceTable.isNotEmpty &&
+                differenceTable.containsKey(charPosition))
+              zapfPostScript = differenceTable[charPosition]!;
           } else {
             decodedtext = '\u2708';
             zapfPostScript = 'a118';

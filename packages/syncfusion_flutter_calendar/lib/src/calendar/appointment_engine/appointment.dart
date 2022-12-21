@@ -980,14 +980,17 @@ class Appointment with Diagnosticable {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       startTimeZone,
       endTimeZone,
       recurrenceRule,
       isAllDay,
       notes,
       location,
-      hashList(resourceIds),
+
+      /// Below condition is referred from text style class
+      /// https://api.flutter.dev/flutter/painting/TextStyle/hashCode.html
+      resourceIds == null ? null : Object.hashAll(resourceIds!),
       recurrenceId,
       id,
       appointmentType,
@@ -995,7 +998,9 @@ class Appointment with Diagnosticable {
       endTime,
       subject,
       color,
-      hashList(recurrenceExceptionDates),
+      recurrenceExceptionDates == null
+          ? null
+          : Object.hashAll(recurrenceExceptionDates!),
     );
   }
 

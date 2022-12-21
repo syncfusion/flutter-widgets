@@ -232,7 +232,7 @@ class MarkerSettings {
       borderColor,
       image
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 

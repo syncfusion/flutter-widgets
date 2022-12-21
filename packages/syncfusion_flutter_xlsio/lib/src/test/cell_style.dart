@@ -1,6 +1,9 @@
 // ignore_for_file: avoid_print
-
-part of xlsio;
+import 'dart:ui';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_test/flutter_test.dart';
+import '../../xlsio.dart';
+import 'xlsio_workbook.dart';
 
 // ignore: public_member_api_docs
 void xlsioCellStyle() {
@@ -1953,6 +1956,45 @@ void xlsioCellStyle() {
 
       final List<int> bytes = workbook.saveAsStream();
       saveAsExcel(bytes, 'ExcelCellStyleBordercolorRgb.xlsx');
+      workbook.dispose();
+    });
+    test('line styles', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      //Line styles for all borders
+      sheet.getRangeByName('A1').cellStyle.borders.all.lineStyle =
+          LineStyle.dashed;
+      sheet.getRangeByName('B2').cellStyle.borders.all.lineStyle =
+          LineStyle.dotted;
+      sheet.getRangeByName('C3').cellStyle.borders.all.lineStyle =
+          LineStyle.hair;
+      sheet.getRangeByName('D4').cellStyle.borders.all.lineStyle =
+          LineStyle.dashDot;
+      sheet.getRangeByName('E5').cellStyle.borders.all.lineStyle =
+          LineStyle.mediumDashDot;
+      sheet.getRangeByName('F6').cellStyle.borders.all.lineStyle =
+          LineStyle.mediumDashDotDot;
+      sheet.getRangeByName('G7').cellStyle.borders.all.lineStyle =
+          LineStyle.mediumDashed;
+      sheet.getRangeByName('H8').cellStyle.borders.all.lineStyle =
+          LineStyle.slantDashDot;
+      sheet.getRangeByName('I9').cellStyle.borders.all.lineStyle =
+          LineStyle.dashDotDot;
+      sheet.getRangeByName('J10').cellStyle.borders.all.lineStyle =
+          LineStyle.thick;
+      sheet.getRangeByName('K11').cellStyle.borders.all.lineStyle =
+          LineStyle.thin;
+      sheet.getRangeByName('L12').cellStyle.borders.all.lineStyle =
+          LineStyle.medium;
+      sheet.getRangeByName('M13').cellStyle.borders.all.lineStyle =
+          LineStyle.double;
+      //set color for all border.
+      final Range range = sheet.getRangeByName('A1:M13');
+      range.cellStyle.borders.all.colorRgb =
+          const Color.fromARGB(255, 240, 7, 7);
+
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelLineStyle.xlsx');
       workbook.dispose();
     });
   });

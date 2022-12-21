@@ -363,5 +363,244 @@
   "@pdfHyperlinkDialogCancelLabel": {
       "description": "Label that is displayed in the hyperlink dialog of PdfViewer to represent the CANCEL confirmation button.",
       "type": "text"
+  },
+
+  "afterDataGridFilteringLabel": "After",
+  "@afterDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `After` option in drop down widget.",
+      "type" : "text"
+  },
+  "afterOrEqualDataGridFilteringLabel": "After Or Equal",
+  "@afterOrEqualDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `After Or Equal` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "beforeDataGridFilteringLabel": "Before Or Equal",
+  "@beforeDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Before` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "beforeOrEqualDataGridFilteringLabel": "Before",
+  "@beforeOrEqualDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Before Or Equal` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "beginsWithDataGridFilteringLabel": "Begins With",
+  "@beginsWithDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Begins With` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "containsDataGridFilteringLabel": "Contains",
+  "@containsDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Contains` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "doesNotBeginWithDataGridFilteringLabel": "Does Not Begin With",
+  "@doesNotBeginWithDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Does Not Begin With` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "doesNotContainDataGridFilteringLabel": "Does Not Contain",
+  "@doesNotContainDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Does Not Contain` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "doesNotEndWithDataGridFilteringLabel": "Does Not End With",
+  "@doesNotEndWithDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Does Not End With` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "doesNotEqualDataGridFilteringLabel": "Does Not Equal",
+  "@doesNotEqualDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Does Not Equal` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "emptyDataGridFilteringLabel": "Empty",
+  "@emptyDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Empty` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "endsWithDataGridFilteringLabel": "Ends With",
+  "@endsWithDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Ends With` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "equalsDataGridFilteringLabel": "Equals",
+  "@equalsDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Equals` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "greaterThanDataGridFilteringLabel": "Greater Than",
+  "@greaterThanDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Greater Than` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "greaterThanOrEqualDataGridFilteringLabel": "Greater Than Or Equal",
+  "@greaterThanOrEqualDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Greater Than Or Equal` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "lessThanDataGridFilteringLabel": "Less Than",
+  "@lessThanDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Less Than` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "lessThanOrEqualDataGridFilteringLabel": "Less Than Or Equal",
+  "@lessThanOrEqualDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Less Than Or Equal` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "notEmptyDataGridFilteringLabel": "Not Empty",
+  "@notEmptyDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Not Empty` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "notNullDataGridFilteringLabel": "Not Null",
+  "@notNullDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Not Null` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "nullDataGridFilteringLabel": "Null",
+  "@nullDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Null` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "sortSmallestToLargestDataGridFilteringLabel": "Sort Smallest To Largest",
+  "@sortSmallestToLargestDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Sort Smallest To Largest` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "sortLargestToSmallestDataGridFilteringLabel": "Sort Largest To Smallest",
+  "@sortLargestToSmallestDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Sort Largest To Smallest` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "sortAToZDataGridFilteringLabel": "Sort A To Z",
+  "@sortAToZDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Sort A To Z` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "sortZToADataGridFilteringLabel": "Sort Z To A",
+  "@sortZToADataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Sort Z To A` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "sortOldestToNewestDataGridFilteringLabel": "Sort Oldest To Newest",
+  "@sortOldestToNewestDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Sort Oldest To Newest` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "sortNewestToOldestDataGridFilteringLabel": "Sort Newest To Oldest",
+  "@sortNewestToOldestDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Sort Newest To Oldest` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "textFiltersDataGridFilteringLabel": "Text Filters",
+  "@textFiltersDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Text Filters` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "numberFiltersDataGridFilteringLabel": "Number Filters",
+  "@numberFiltersDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Number Filters` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "dateFiltersDataGridFilteringLabel": "Date Filters",
+  "@dateFiltersDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Date Filters` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "searchDataGridFilteringLabel": "Search",
+  "@searchDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Search` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "noMatchesDataGridFilteringLabel": "No matches",
+  "@noMatchesDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `No matches` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "okDataGridFilteringLabel": "OK",
+  "@okDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `OK` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "cancelDataGridFilteringLabel": "Cancel",
+  "@cancelDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Cancel` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "showRowsWhereDataGridFilteringLabel": "Show rows where",
+  "@showRowsWhereDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Show rows where` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "andDataGridFilteringLabel": "And",
+  "@andDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `And` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "orDataGridFilteringLabel": "Or",
+  "@orDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Or` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "selectAllDataGridFilteringLabel": "Select All",
+  "@selectAllDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Select All` option in drop down widget.",
+      "type" : "text"
+  },
+  
+  "sortAndFilterDataGridFilteringLabel": "Sort and Filter",
+  "@sortAndFilterDataGridFilteringLabel": {
+      "description" : "The label that is displayed in the filter view in SfDataGrid for `Sort And Filter` option in drop down widget.",
+      "type" : "text"
+  },
+
+  "clearFilterDataGridFilteringLabel": "Clear Filter",
+  "@clearFilterDataGridFilteringLabel": {
+     "description" : "The label that is displayed in the filter view in SfDataGrid for `Clear Filter` text in `Clear Filter From` option in the popup menu.",
+     "type" : "text"
+  },
+
+  "fromDataGridFilteringLabel": "From",
+  "@fromDataGridFilteringLabel": {
+     "description" : "The label that is displayed in the filter view in SfDataGrid for `From` text in `Clear Filter From` option in the popup menu.",
+     "type" : "text"
   }
 }

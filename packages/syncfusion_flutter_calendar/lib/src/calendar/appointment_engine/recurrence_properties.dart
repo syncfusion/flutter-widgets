@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart'
     show IterableDiagnostics;
 
@@ -718,14 +717,14 @@ class RecurrenceProperties with Diagnosticable {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         recurrenceType,
         recurrenceCount,
         startDate,
         endDate,
         interval,
         recurrenceRange,
-        hashList(weekDays),
+        Object.hashAll(weekDays),
         week,
         dayOfMonth,
         dayOfWeek,

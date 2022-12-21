@@ -52,7 +52,9 @@ class ScheduleViewSettings with Diagnosticable {
       this.hideEmptyScheduleWeek = false,
       this.monthHeaderSettings = const MonthHeaderSettings(),
       this.weekHeaderSettings = const WeekHeaderSettings(),
-      this.dayHeaderSettings = const DayHeaderSettings()})
+      this.dayHeaderSettings = const DayHeaderSettings(),
+      this.placeholderTextStyle = const TextStyle(
+          color: Colors.grey, fontSize: 15, fontFamily: 'Roboto')})
       : assert(appointmentItemHeight >= -1);
 
   /// Sets the style to customize month label in [SfCalendar] schedule view.
@@ -223,6 +225,32 @@ class ScheduleViewSettings with Diagnosticable {
   /// ```
   final TextStyle? appointmentTextStyle;
 
+  /// The text style for the text in the placeholder (no event
+  /// text) of the [SfCalendar] schedule view.
+  ///
+  /// See also:
+  /// * [MonthViewSettings], to customize the month view of the calendar.
+  /// * [ScheduleViewSettings], to customize the schedule view of the calendar.
+  /// * [AgendaStyle], to customize the month agenda view of the calendar.
+  ///
+  /// ``` dart
+  ///
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///      child: SfCalendar(
+  ///        view: CalendarView.schedule,
+  ///        scheduleViewSettings: const ScheduleViewSettings(
+  ///            placeholderTextStyle: TextStyle(
+  ///                color: Colors.white,
+  ///                fontSize: 20,
+  ///               backgroundColor: Colors.red)),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  ///
+  final TextStyle placeholderTextStyle;
+
   /// The height for each appointment view to layout within this in schedule
   /// view of [SfCalendar],.
   ///
@@ -304,7 +332,8 @@ class ScheduleViewSettings with Diagnosticable {
         otherStyle.hideEmptyScheduleWeek == hideEmptyScheduleWeek &&
         otherStyle.monthHeaderSettings == monthHeaderSettings &&
         otherStyle.weekHeaderSettings == weekHeaderSettings &&
-        otherStyle.dayHeaderSettings == dayHeaderSettings;
+        otherStyle.dayHeaderSettings == dayHeaderSettings &&
+        otherStyle.placeholderTextStyle == placeholderTextStyle;
   }
 
   @override
@@ -322,17 +351,20 @@ class ScheduleViewSettings with Diagnosticable {
         .add(DoubleProperty('appointmentItemHeight', appointmentItemHeight));
     properties.add(DiagnosticsProperty<bool>(
         'hideEmptyScheduleWeek', hideEmptyScheduleWeek));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'placeholderTextStyle', placeholderTextStyle));
   }
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         appointmentTextStyle,
         appointmentItemHeight,
         hideEmptyScheduleWeek,
         monthHeaderSettings,
         weekHeaderSettings,
-        dayHeaderSettings);
+        dayHeaderSettings,
+        placeholderTextStyle);
   }
 }
 
@@ -597,7 +629,7 @@ class MonthHeaderSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         monthFormat, height, textAlign, backgroundColor, monthTextStyle);
   }
 }
@@ -917,7 +949,7 @@ class WeekHeaderSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(startDateFormat, endDateFormat, height, textAlign,
+    return Object.hash(startDateFormat, endDateFormat, height, textAlign,
         backgroundColor, weekTextStyle);
   }
 }
@@ -1151,6 +1183,6 @@ class DayHeaderSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(dayFormat, width, dayTextStyle, dateTextStyle);
+    return Object.hash(dayFormat, width, dayTextStyle, dateTextStyle);
   }
 }

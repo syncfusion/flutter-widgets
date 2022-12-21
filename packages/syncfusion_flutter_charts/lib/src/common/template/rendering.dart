@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import '../../../charts.dart';
 import '../../chart/chart_series/series.dart';
 import '../../chart/chart_series/series_renderer_properties.dart';
-import '../../chart/chart_series/xy_data_series.dart';
 import '../../chart/common/cartesian_state_properties.dart';
 import '../../chart/common/data_label.dart';
 import '../../chart/common/data_label_renderer.dart';
 import '../../chart/utils/helper.dart';
 import '../../circular_chart/base/circular_state_properties.dart';
+import '../../circular_chart/renderer/data_label_renderer.dart';
+import '../../circular_chart/renderer/renderer_extension.dart';
+import '../../circular_chart/utils/helper.dart';
+import '../rendering_details.dart';
 import '../state_properties.dart';
 
-import '../utils/enum.dart';
 import '../utils/helper.dart';
 
 /// Represents the render template class.
@@ -71,14 +74,11 @@ class _RenderTemplateState extends State<RenderTemplate>
           animationController: animationController,
           child: templateInfo.widget!);
     } else {
-      renderWidget = templateInfo.templateType == 'Annotation' &&
-              widget.stateProperties is! CircularStateProperties
-          ? templateInfo.widget!
-          : _ChartTemplateRenderObject(
-              templateInfo: templateInfo,
-              stateProperties: widget.stateProperties,
-              animationController: animationController,
-              child: templateInfo.widget!);
+      renderWidget = _ChartTemplateRenderObject(
+          templateInfo: templateInfo,
+          stateProperties: widget.stateProperties,
+          animationController: animationController,
+          child: templateInfo.widget!);
     }
     if (templateInfo.animationDuration > 0) {
       final dynamic stateProperties = widget.stateProperties;
@@ -116,27 +116,7 @@ class _RenderTemplateState extends State<RenderTemplate>
     } else {
       currentWidget = renderWidget;
     }
-    return templateInfo.templateType != 'Annotation' ||
-            widget.stateProperties is CircularStateProperties
-        ? currentWidget
-        : Positioned(
-            left: templateInfo.location.dx,
-            top: templateInfo.location.dy,
-            child: FractionalTranslation(
-                translation: Offset(
-                    templateInfo.horizontalAlignment == ChartAlignment.near
-                        ? 0
-                        : templateInfo.horizontalAlignment ==
-                                ChartAlignment.center
-                            ? -0.5
-                            : -1,
-                    templateInfo.verticalAlignment == ChartAlignment.near
-                        ? 0
-                        : templateInfo.verticalAlignment ==
-                                ChartAlignment.center
-                            ? -0.5
-                            : -1),
-                child: currentWidget));
+    return currentWidget;
   }
 
   @override
@@ -210,7 +190,6 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
     if (child != null) {
       locationX = _templateInfo.location.dx;
       locationY = _templateInfo.location.dy;
-
       child!.layout(constraints, parentUsesSize: true);
       size = constraints.constrain(Size(child!.size.width, child!.size.height));
       if (child!.parentData is BoxParentData) {
@@ -291,28 +270,55 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
             stateProperties.renderingDetails.dataLabelTemplateRegions;
         final bool isCollide = (_templateInfo.templateType == 'DataLabel') &&
             findingCollision(rect, dataLabelTemplateRegions);
-        if (!isCollide &&
-            _isTemplateWithinBounds(_templateInfo.clipRect, rect) &&
+        if (stateProperties is CircularStateProperties &&
+            _templateInfo.templateType == 'DataLabel' &&
+            stateProperties.chartSeries.visibleSeriesRenderers[0].seriesType !=
+                'radialbar') {
+          final CircularSeriesRendererExtension seriesRenderer =
+              (stateProperties as CircularStateProperties)
+                  .chartSeries
+                  .visibleSeriesRenderers[0];
+          final DataLabelSettings dataLabelSettings =
+              seriesRenderer.dataLabelSettingsRenderer.dataLabelSettings;
+          if (dataLabelSettings.labelIntersectAction ==
+              LabelIntersectAction.shift) {
+            dataLabelTemplateRegions.add(rect);
+          } else {
+            final ChartPoint<dynamic> point =
+                seriesRenderer.renderPoints![_templateInfo.pointIndex!];
+            if ((isCollide &&
+                    dataLabelSettings.labelIntersectAction ==
+                        LabelIntersectAction.hide &&
+                    child != null &&
+                    child!.size != Size.zero) ||
+                (!isTemplateWithinBounds(_templateInfo.clipRect, rect) ||
+                    (point.y == 0 && !dataLabelSettings.showZeroValue))) {
+              child!.layout(constraints.copyWith(maxWidth: 0, maxHeight: 0),
+                  parentUsesSize: true);
+              dataLabelTemplateRegions.add(Rect.zero);
+            } else {
+              childParentData.offset = Offset(locationX, locationY);
+              dataLabelTemplateRegions.add(rect);
+            }
+          }
+        } else if (!isCollide &&
+            isTemplateWithinBounds(_templateInfo.clipRect, rect) &&
             isLabelWithInRange) {
           (_templateInfo.templateType == 'DataLabel')
               ? dataLabelTemplateRegions.add(rect)
               : stateProperties.annotationRegions.add(rect);
           childParentData.offset = Offset(locationX, locationY);
         } else {
-          childParentData.offset = Offset.infinite;
+          if (child != null && child!.size != Size.zero) {
+            child!.layout(constraints.copyWith(maxWidth: 0, maxHeight: 0),
+                parentUsesSize: true);
+          }
         }
       }
     } else {
       size = Size.zero;
     }
   }
-
-  /// To check template is within bounds.
-  bool _isTemplateWithinBounds(Rect bounds, Rect templateRect) =>
-      templateRect.left >= bounds.left &&
-      templateRect.left + templateRect.width <= bounds.left + bounds.width &&
-      templateRect.top >= bounds.top &&
-      templateRect.top + templateRect.height <= bounds.top + bounds.height;
 }
 
 /// Represents the chart template class.
@@ -342,6 +348,87 @@ class ChartTemplate extends StatefulWidget {
   State<StatefulWidget> createState() => _ChartTemplateState();
 }
 
+/// Represent the render object for circular data label template.
+class DataLabelTemplateStack extends Stack {
+  /// Creating an argument constructor of DataLabelTemplateStack class.
+  DataLabelTemplateStack(
+      {required this.renderingDetails,
+      required this.stateProperties,
+      required List<Widget> children})
+      : super(children: children);
+
+  /// Holds circular series rendering details.
+  final RenderingDetails renderingDetails;
+
+  /// Holds circular series state properties.
+  final CircularStateProperties stateProperties;
+
+  @override
+  RenderStack createRenderObject(BuildContext context) {
+    final RenderDataLabelTemplateStack dataLabelTemplateStack =
+        RenderDataLabelTemplateStack()
+          ..renderingDetails = renderingDetails
+          ..stateProperties = stateProperties
+          ..textDirection = Directionality.maybeOf(context);
+    return dataLabelTemplateStack;
+  }
+}
+
+/// Shifted the circular data label template based on the template size.
+class RenderDataLabelTemplateStack extends RenderStack {
+  /// Holds the Circular series rendering.
+  late RenderingDetails renderingDetails;
+
+  /// Holds the CircularStateProperties.
+  late CircularStateProperties stateProperties;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    final CircularSeriesRendererExtension seriesRenderer =
+        stateProperties.chartSeries.visibleSeriesRenderers[0];
+    final List<Rect> regions = renderingDetails.dataLabelTemplateRegions;
+    shiftCircularDataLabelTemplate(seriesRenderer, stateProperties, regions);
+    RenderBox child = firstChild!;
+    const int labelPadding = 2;
+    final EdgeInsets margin = seriesRenderer.series.dataLabelSettings.margin;
+    int pointIndex = 0;
+    final List<ChartTemplateInfo> templates =
+        renderingDetails.chartTemplate!.templates;
+    // Iterate the template for avoid the hidden data points and get the visible points.
+    while (pointIndex < templates.length) {
+      final ChartPoint<dynamic> point =
+          seriesRenderer.renderPoints![templates[pointIndex].pointIndex!];
+      if (point.isVisible &&
+          templates[pointIndex].templateType == 'DataLabel') {
+        final Rect rect = point.labelRect;
+        final Offset labelLocation = Offset(
+            rect.left +
+                (point.renderPosition == ChartDataLabelPosition.inside
+                    ? labelPadding
+                    : margin.left),
+            rect.top + (rect.height / 2 - regions[pointIndex].height / 2));
+        final StackParentData parentData = child.parentData as StackParentData;
+        if (isTemplateWithinBounds(
+                stateProperties.renderingDetails.chartAreaRect, rect) &&
+            !isOverlapWithPrevious(
+                point, seriesRenderer.renderPoints!, point.index) &&
+            (point.y != 0 ||
+                seriesRenderer.series.dataLabelSettings.showZeroValue)) {
+          parentData.offset = labelLocation;
+        } else {
+          // made a child size to zero when it is goes outside the chart area or overlap with previous template.
+          child.layout(constraints.copyWith(maxHeight: 0, maxWidth: 0));
+        }
+        if (pointIndex < renderingDetails.chartTemplate!.templates.length - 1) {
+          child = (child.parentData! as StackParentData).nextSibling!;
+        }
+      }
+      pointIndex++;
+    }
+  }
+}
+
 class _ChartTemplateState extends State<ChartTemplate> {
   @override
   void initState() {
@@ -353,6 +440,19 @@ class _ChartTemplateState extends State<ChartTemplate> {
   Widget build(BuildContext context) {
     widget.state = this;
     Widget renderTemplate = Container();
+    CircularSeriesRendererExtension? seriesRenderer;
+    DataLabelSettings? dataLabelSettings;
+    if (widget.stateProperties is CircularStateProperties) {
+      seriesRenderer = (widget.stateProperties as CircularStateProperties)
+          .chartSeries
+          .visibleSeriesRenderers[0];
+      if (seriesRenderer.series.dataLabelSettings.isVisible) {
+        seriesRenderer.dataLabelSettingsRenderer =
+            DataLabelSettingsRenderer(seriesRenderer.series.dataLabelSettings);
+        dataLabelSettings =
+            seriesRenderer.dataLabelSettingsRenderer.dataLabelSettings;
+      }
+    }
     final bool animationCompleted =
         widget.stateProperties.renderingDetails.animateCompleted;
     if (animationCompleted && widget.templates.isNotEmpty) {
@@ -365,7 +465,20 @@ class _ChartTemplateState extends State<ChartTemplate> {
           stateProperties: widget.stateProperties,
         ));
       }
-      renderTemplate = Stack(children: renderWidgets);
+      renderTemplate = ((widget.stateProperties is CircularStateProperties) &&
+              dataLabelSettings != null &&
+              seriesRenderer!.seriesType != 'radialbar' &&
+              dataLabelSettings.labelIntersectAction ==
+                  LabelIntersectAction.shift &&
+              dataLabelSettings.builder != null)
+          ? DataLabelTemplateStack(
+              renderingDetails: widget.stateProperties.renderingDetails,
+              stateProperties:
+                  widget.stateProperties as CircularStateProperties,
+              children: renderWidgets)
+          : Stack(
+              children: renderWidgets,
+            );
     }
     return renderTemplate;
   }

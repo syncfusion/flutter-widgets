@@ -30,6 +30,7 @@ class AgendaViewLayout extends StatefulWidget {
       this.appointmentBuilder,
       this.width,
       this.height,
+      this.placeholderTextStyle,
       this.calendar);
 
   /// Defines the month view customization details.
@@ -83,6 +84,9 @@ class AgendaViewLayout extends StatefulWidget {
 
   /// Defines the calendar widget.
   final SfCalendar calendar;
+
+  /// Defines the text style of the no events and no selected date.
+  final TextStyle placeholderTextStyle;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -159,6 +163,7 @@ class _AgendaViewLayoutState extends State<AgendaViewLayout> {
         _appointmentCollection,
         widget.width,
         widget.height,
+        widget.placeholderTextStyle,
         widgets: _children);
   }
 
@@ -254,6 +259,7 @@ class _AgendaViewRenderWidget extends MultiChildRenderObjectWidget {
       this.appointmentCollection,
       this.width,
       this.height,
+      this.placeholderTextStyle,
       {List<Widget> widgets = const <Widget>[]})
       : super(children: widgets);
 
@@ -273,26 +279,29 @@ class _AgendaViewRenderWidget extends MultiChildRenderObjectWidget {
   final List<AppointmentView> appointmentCollection;
   final double width;
   final double height;
+  final TextStyle placeholderTextStyle;
 
   @override
   _AgendaViewRenderObject createRenderObject(BuildContext context) {
     return _AgendaViewRenderObject(
-        monthViewSettings,
-        scheduleViewSettings,
-        selectedDate,
-        appointments,
-        isRTL,
-        locale,
-        localizations,
-        calendarTheme,
-        agendaViewNotifier,
-        appointmentTimeTextFormat,
-        timeLabelWidth,
-        textScaleFactor,
-        isMobilePlatform,
-        appointmentCollection,
-        width,
-        height);
+      monthViewSettings,
+      scheduleViewSettings,
+      selectedDate,
+      appointments,
+      isRTL,
+      locale,
+      localizations,
+      calendarTheme,
+      agendaViewNotifier,
+      appointmentTimeTextFormat,
+      timeLabelWidth,
+      textScaleFactor,
+      isMobilePlatform,
+      appointmentCollection,
+      width,
+      height,
+      placeholderTextStyle,
+    );
   }
 
   @override
@@ -313,7 +322,8 @@ class _AgendaViewRenderWidget extends MultiChildRenderObjectWidget {
       ..textScaleFactor = textScaleFactor
       ..appointmentCollection = appointmentCollection
       ..width = width
-      ..height = height;
+      ..height = height
+      ..placeholderTextStyle = placeholderTextStyle;
   }
 }
 
@@ -334,7 +344,8 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
       this.isMobilePlatform,
       this._appointmentCollection,
       this._width,
-      this._height);
+      this._height,
+      this._placeholderTextStyle);
 
   final bool isMobilePlatform;
 
@@ -349,6 +360,19 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
 
     _height = value;
     markNeedsLayout();
+  }
+
+  TextStyle _placeholderTextStyle;
+
+  TextStyle get placeholderTextStyle => _placeholderTextStyle;
+
+  set placeholderTextStyle(TextStyle value) {
+    if (_placeholderTextStyle == value) {
+      return;
+    }
+
+    _placeholderTextStyle = value;
+    markNeedsPaint();
   }
 
   double _width;
@@ -1172,8 +1196,7 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
       text: selectedDate == null
           ? localizations.noSelectedDateCalendarLabel
           : localizations.noEventsCalendarLabel,
-      style: const TextStyle(
-          color: Colors.grey, fontSize: 15, fontFamily: 'Roboto'),
+      style: placeholderTextStyle,
     );
 
     _updateTextPainterProperties(span);

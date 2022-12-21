@@ -314,7 +314,7 @@ class SfBarcodeThemeData with Diagnosticable {
   @override
   int get hashCode {
     final List<Object> values = <Object>[backgroundColor, barColor, textColor];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override

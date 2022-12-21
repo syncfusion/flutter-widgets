@@ -98,7 +98,7 @@ class PdfStream extends PdfDictionary {
           outputStream, false, PdfCompressionLevel.best, false)
         ..write(streamData, 0, streamData.length, false)
         ..close();
-      if (outputStream != null && outputStream.isNotEmpty) {
+      if (outputStream.isNotEmpty) {
         clearStream();
         compress = false;
         dataStream = outputStream;

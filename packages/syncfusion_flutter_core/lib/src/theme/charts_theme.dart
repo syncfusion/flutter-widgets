@@ -1160,7 +1160,7 @@ class SfChartThemeData with Diagnosticable {
       tooltipLabelColor,
       waterfallConnectorLineColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override

@@ -2026,7 +2026,7 @@ class MapLegend extends DiagnosticableTree {
   }
 
   @override
-  int get hashCode => hashValues(
+  int get hashCode => Object.hash(
         padding,
         offset,
         spacing,

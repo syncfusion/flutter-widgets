@@ -333,7 +333,7 @@ class CategoryAxis extends ChartAxis {
       autoScrollingMode,
       axisLabelFormatter
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
@@ -488,7 +488,7 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
     for (;
         tempInterval <= _axisDetails.visibleRange!.maximum;
         tempInterval += _axisDetails.visibleRange!.interval) {
-      if (withInRange(tempInterval, _axisDetails.visibleRange!)) {
+      if (withInRange(tempInterval, _axisDetails)) {
         position = tempInterval.round();
         if (position <= -1 ||
             (_axisDetails.labels.isNotEmpty &&

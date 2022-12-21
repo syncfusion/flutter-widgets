@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
@@ -668,7 +670,7 @@ class PlotBand {
       horizontalTextAlignment,
       gradient
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
@@ -887,28 +889,27 @@ class _PlotBandPainter extends CustomPainter {
             axisDetails.orientation == AxisOrientation.vertical
                 ? axis.plotOffset
                 : 0));
-
-    startValue = axis is LogarithmicAxis
-        ? calculateLogBaseValue(startValue, axis.logBase)
-        : startValue;
-    endValue = axis is LogarithmicAxis
-        ? calculateLogBaseValue(endValue, axis.logBase)
-        : endValue;
+    final num visibleMin = axis is LogarithmicAxis
+        ? pow(axis.logBase, axisDetails.visibleRange!.minimum)
+        : axisDetails.visibleRange!.minimum;
+    final num visibleMax = axis is LogarithmicAxis
+        ? pow(axis.logBase, axisDetails.visibleRange!.maximum)
+        : axisDetails.visibleRange!.maximum;
 
     endValue < 0
-        ? endValue <= axisDetails.visibleRange!.minimum
-            ? endValue = axisDetails.visibleRange!.minimum
+        ? endValue <= visibleMin
+            ? endValue = visibleMin
             : endValue = endValue
-        : endValue >= axisDetails.visibleRange!.maximum
-            ? endValue = axisDetails.visibleRange!.maximum
+        : endValue >= visibleMax
+            ? endValue = visibleMax
             : endValue = endValue;
 
     startValue < 0
-        ? startValue <= axisDetails.visibleRange!.minimum
-            ? startValue = axisDetails.visibleRange!.minimum
+        ? startValue <= visibleMin
+            ? startValue = visibleMin
             : startValue = startValue
-        : startValue >= axisDetails.visibleRange!.maximum
-            ? startValue = axisDetails.visibleRange!.maximum
+        : startValue >= visibleMax
+            ? startValue = visibleMax
             : startValue = startValue;
 
     startPoint = calculatePoint(startValue, startValue, axisDetails,

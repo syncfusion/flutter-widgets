@@ -954,8 +954,7 @@ class PdfFieldHelper {
   /// Gets or sets the font.
   PdfFont? get font {
     if (isLoadedField) {
-      if (_internalFont != null &&
-          !dictionary!.containsKey(PdfDictionaryProperties.kids)) {
+      if (_internalFont != null) {
         return _internalFont!;
       }
       bool? isCorrectFont = false;

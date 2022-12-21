@@ -1,18 +1,28 @@
 name: syncfusion_flutter_calendar
 description: The Flutter Calendar widget has nine built-in configurable views that provide basic functionalities for scheduling and representing appointments/events efficiently.
-version: 20.2.36
+version: 18.3.35
 homepage: https://github.com/syncfusion/flutter-examples
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.17.0 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  timezone: 0.8.0
-  syncfusion_flutter_core: ^20.2.36
+  timezone: 0.9.0
+  syncfusion_flutter_core:
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-core
+      path: syncfusion_flutter_core
+      branch: release/20.4.0.1
+      ref: release/20.4.0.1
 
-  syncfusion_flutter_datepicker: ^20.2.36
+  syncfusion_flutter_datepicker:
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-datepicker
+      path: flutter_datepicker/syncfusion_flutter_datepicker
+      branch: release/20.4.0.1
+      ref: release/20.4.0.1
 
   intl: ">=0.15.0 <0.20.0"
 
@@ -22,4 +32,4 @@ dev_dependencies:
 
 flutter:
   assets:
-    - packages/timezone/data/2020a.tzf
+    - packages/timezone/data/latest_all.tzf

@@ -318,7 +318,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
             ? _width
             : max(_width, _container.extentWidth);
 
-    List<Widget> _buildHeaderRows() {
+    List<Widget> buildHeaderRows() {
       final List<Widget> headerRows = <Widget>[];
 
       // Adds stacked header rows
@@ -384,7 +384,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     }
 
     if (rowGenerator.items.isNotEmpty) {
-      final List<Widget> headerRows = _buildHeaderRows();
+      final List<Widget> headerRows = buildHeaderRows();
       for (int i = 0; i < headerRows.length; i++) {
         final VisibleLineInfo? lineInfo =
             _container.scrollRows.getVisibleLineAtLineIndex(i);
@@ -488,11 +488,12 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         effectiveRows(dataGridConfiguration.source).isEmpty) {
       return;
     }
-    final Color frozenLineColorWithOpacity =
-        dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.38);
 
     final Color frozenLineColorWithoutOpacity =
-        dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.14);
+        dataGridThemeHelper.frozenPaneLineColor;
+
+    final Color frozenLineColorWithOpacity =
+        dataGridThemeHelper.frozenPaneLineColor.withOpacity(0.14);
 
     void drawElevation({
       EdgeInsets? margin,
@@ -583,7 +584,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         !_canDisableHorizontalScrolling(dataGridConfiguration)) {
       double spreadRadiusValue = 1.5;
       double blurRadiusValue = 0.0;
-      Color frozenLineColor = frozenLineColorWithOpacity;
+      Color frozenLineColor = frozenLineColorWithoutOpacity;
       final double top = getTopPosition(columnHeaderRow, frozenColumnIndex);
       final double left = columnHeaderRow.getColumnWidth(
           0, dataGridConfiguration.frozenColumnsCount - 1);
@@ -592,7 +593,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         spreadRadiusValue = 3.0;
         blurRadiusValue =
             dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation;
-        frozenLineColor = frozenLineColorWithoutOpacity;
+        frozenLineColor = frozenLineColorWithOpacity;
       }
       if (dataGridConfiguration.textDirection == TextDirection.rtl &&
           dataGridConfiguration.horizontalScrollController!.hasClients &&
@@ -602,7 +603,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         spreadRadiusValue = 3.0;
         blurRadiusValue =
             dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation;
-        frozenLineColor = frozenLineColorWithoutOpacity;
+        frozenLineColor = frozenLineColorWithOpacity;
       }
 
       drawElevation(
@@ -624,7 +625,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
       double spreadRadiusValue = 3.0;
       double blurRadiusValue =
           dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation;
-      Color frozenLineColor = frozenLineColorWithoutOpacity;
+      Color frozenLineColor = frozenLineColorWithOpacity;
       final double top =
           getTopPosition(columnHeaderRow, footerFrozenColumnIndex);
       final double right = columnHeaderRow.getColumnWidth(
@@ -636,13 +637,13 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
               dataGridConfiguration.container.horizontalOffset) {
         spreadRadiusValue = 1.5;
         blurRadiusValue = 0.0;
-        frozenLineColor = frozenLineColorWithOpacity;
+        frozenLineColor = frozenLineColorWithoutOpacity;
       }
       if (dataGridConfiguration.textDirection == TextDirection.rtl &&
           dataGridConfiguration.container.horizontalOffset == 0) {
         spreadRadiusValue = 1.5;
         blurRadiusValue = 0.0;
-        frozenLineColor = frozenLineColorWithOpacity;
+        frozenLineColor = frozenLineColorWithoutOpacity;
       }
 
       drawElevation(
@@ -663,14 +664,14 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         !_canDisableVerticalScrolling(dataGridConfiguration)) {
       double spreadRadiusValue = 1.5;
       double blurRadiusValue = 0.0;
-      Color frozenLineColor = frozenLineColorWithOpacity;
+      Color frozenLineColor = frozenLineColorWithoutOpacity;
       final double top = columnHeaderRow.getRowHeight(0, frozenRowIndex);
 
       if (dataGridConfiguration.container.verticalOffset > 0) {
         spreadRadiusValue = 3.0;
         blurRadiusValue =
             dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation;
-        frozenLineColor = frozenLineColorWithoutOpacity;
+        frozenLineColor = frozenLineColorWithOpacity;
       }
 
       drawElevation(
@@ -690,17 +691,18 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
       double spreadRadiusValue = 3.0;
       double blurRadiusValue =
           dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation;
-      Color frozenLineColor = frozenLineColorWithoutOpacity;
+      Color frozenLineColor = frozenLineColorWithOpacity;
       final double bottom = columnHeaderRow.getRowHeight(
           footerFrozenRowIndex, dataGridConfiguration.container.rowCount);
 
       if (dataGridConfiguration.verticalScrollController!.hasClients &&
           dataGridConfiguration
-                  .verticalScrollController!.position.maxScrollExtent ==
-              dataGridConfiguration.container.verticalOffset) {
+                  .verticalScrollController!.position.maxScrollExtent
+                  .ceilToDouble() ==
+              dataGridConfiguration.container.verticalOffset.ceilToDouble()) {
         spreadRadiusValue = 1.5;
         blurRadiusValue = 0.0;
-        frozenLineColor = frozenLineColorWithOpacity;
+        frozenLineColor = frozenLineColorWithoutOpacity;
       }
 
       drawElevation(
@@ -1045,7 +1047,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     _container.isDirty = false;
     _isScrolling = false;
 
-    Widget _addContainer() {
+    Widget addContainer() {
       return Container(
         height: _height,
         width: _width,
@@ -1082,8 +1084,8 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         ? Focus(
             focusNode: _dataGridFocusNode,
             onKey: _handleKeyOperation,
-            child: _addContainer())
-        : _addContainer();
+            child: addContainer())
+        : addContainer();
   }
 
   @override

@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -493,6 +491,12 @@ class PdfPageViewState extends State<PdfPageView> {
                   onPointerDown: (PointerDownEvent details) {
                     widget.onPdfPagePointerDown(details);
                   },
+                  onPointerMove: (PointerMoveEvent details) {
+                    widget.onPdfPagePointerMove(details);
+                  },
+                  onPointerUp: (PointerUpEvent details) {
+                    widget.onPdfPagePointerUp(details);
+                  },
                   child: canvasContainer));
       return Stack(children: <Widget>[
         pdfPage,
@@ -515,6 +519,16 @@ class PdfPageViewState extends State<PdfPageView> {
               : widget.scrollDirection == PdfScrollDirection.horizontal
                   ? Border(right: borderSide)
                   : Border(bottom: borderSide),
+        ),
+        child: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(
+                _pdfViewerThemeData!.progressBarColor ??
+                    (Theme.of(context).colorScheme.primary)),
+            backgroundColor: _pdfViewerThemeData!.progressBarColor == null
+                ? (Theme.of(context).colorScheme.primary.withOpacity(0.2))
+                : _pdfViewerThemeData!.progressBarColor!.withOpacity(0.2),
+          ),
         ),
       );
       return child;

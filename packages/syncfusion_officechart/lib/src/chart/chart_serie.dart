@@ -18,6 +18,9 @@ class ChartSerie {
   /// Represent the serie name.
   String? name;
 
+  ///Represents chart series format
+  ChartSerieDataFormat? _chartSeriesDataFormat;
+
   /// serie name.
   late int _index;
 
@@ -47,6 +50,11 @@ class ChartSerie {
   /// Chart type for the series.
   ExcelChartType get _serieType {
     return _chart.chartType;
+  }
+
+  ///Represents chart serie format.
+  ChartSerieDataFormat get serieFormat {
+    return _chartSeriesDataFormat ??= _ChartSerieDataFormatImpl(_chart);
   }
 
   /// Gets chart text area object.

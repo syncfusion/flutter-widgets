@@ -100,22 +100,14 @@ Path getRoundedCornerArcPath(
     ChartPoint<dynamic> point) {
   final Path path = Path();
 
-  Offset midPoint;
-  num midStartAngle, midEndAngle;
   if (cornerStyle == CornerStyle.startCurve ||
       cornerStyle == CornerStyle.bothCurve) {
-    midPoint =
-        degreeToPoint(startAngle, (innerRadius + outerRadius) / 2, center!);
+    final Offset startPoint = degreeToPoint(startAngle, innerRadius, center!);
+    final Offset endPoint = degreeToPoint(startAngle, outerRadius, center);
 
-    midStartAngle = degreesToRadians(180);
-
-    midEndAngle = midStartAngle + degreesToRadians(180);
-
-    path.addArc(
-        Rect.fromCircle(
-            center: midPoint, radius: (innerRadius - outerRadius).abs() / 2),
-        midStartAngle.toDouble(),
-        midEndAngle.toDouble());
+    path.moveTo(startPoint.dx, startPoint.dy);
+    path.arcToPoint(endPoint,
+        radius: Radius.circular((innerRadius - outerRadius).abs() / 2));
   }
 
   path.addArc(
@@ -125,18 +117,9 @@ Path getRoundedCornerArcPath(
 
   if (cornerStyle == CornerStyle.endCurve ||
       cornerStyle == CornerStyle.bothCurve) {
-    midPoint = degreeToPoint(endAngle, (innerRadius + outerRadius) / 2, center);
-
-    midStartAngle = degreesToRadians(endAngle / 2);
-
-    midEndAngle = midStartAngle + degreesToRadians(180);
-
-    path.arcTo(
-        Rect.fromCircle(
-            center: midPoint, radius: (innerRadius - outerRadius).abs() / 2),
-        midStartAngle.toDouble(),
-        midEndAngle.toDouble(),
-        false);
+    final Offset endPoint = degreeToPoint(endAngle, innerRadius, center);
+    path.arcToPoint(endPoint,
+        radius: Radius.circular((innerRadius - outerRadius).abs() / 2));
   }
 
   path.arcTo(
@@ -146,6 +129,10 @@ Path getRoundedCornerArcPath(
               degreesToRadians(endAngle.toDouble()))
           .toDouble(),
       false);
+  if (cornerStyle == CornerStyle.endCurve) {
+    path.close();
+  }
+
   return path;
 }
 

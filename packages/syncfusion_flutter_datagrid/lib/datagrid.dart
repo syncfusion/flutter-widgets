@@ -28,13 +28,19 @@ export './src/datagrid_widget/sfdatagrid.dart'
         setPageCount,
         setChildColumnIndexes,
         getChildColumnIndexes,
+        addFilterConditions,
+        removeFilterConditions,
+        refreshEffectiveRows,
+        performSorting,
+        updateDataPager,
         DataGridThemeHelper;
 export './src/datapager/sfdatapager.dart'
     hide SfDataPagerState, DataPagerThemeHelper;
 export './src/grid_common/row_column_index.dart';
 export 'src/datagrid_widget/helper/callbackargs.dart'
     hide setColumnSizerInRowHeightDetailsArgs;
-export 'src/datagrid_widget/helper/enums.dart';
+export 'src/datagrid_widget/helper/enums.dart'
+    hide FilteredFrom, AdvancedFilterType;
 export 'src/datagrid_widget/runtime/column.dart'
     hide
         ColumnResizeController,
@@ -43,9 +49,16 @@ export 'src/datagrid_widget/runtime/column.dart'
         resetAutoCalculation,
         updateColumnSizerLoadedInitiallyFlag,
         getSortIconWidth,
+        getFilterIconWidth,
         getAutoFitRowHeight,
         setStateDetailsInColumnSizer,
         isColumnSizerLoadedInitially,
-        GridCheckboxColumn;
+        FilterElement,
+        GridCheckboxColumn,
+        DataGridFilterHelper,
+        DataGridCheckboxFilterHelper,
+        DataGridAdvancedFilterHelper;
 export 'src/datagrid_widget/selection/selection_manager.dart'
     show RowSelectionManager, SelectionManagerBase;
+export 'src/datagrid_widget/widgets/cell_widget.dart'
+    show GridHeaderCellElement;

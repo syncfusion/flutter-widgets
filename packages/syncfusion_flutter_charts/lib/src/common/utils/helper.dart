@@ -40,7 +40,17 @@ void dataLabelTapEvent(dynamic chart, DataLabelSettings dataLabelSettings,
   datalabelArgs = DataLabelTapDetails(
       seriesIndex,
       pointIndex,
-      chart is SfCartesianChart ? point.label : point.text,
+      chart is SfCartesianChart
+          ? point.dataLabelRegion.contains(position)
+              ? point.label
+              : point.dataLabelRegion2.contains(position)
+                  ? point.label2
+                  : point.dataLabelRegion3.contains(position)
+                      ? point.label3
+                      : point.dataLabelRegion4.contains(position)
+                          ? point.label4
+                          : point.label5
+          : point.text,
       dataLabelSettings,
       chart is SfCartesianChart ? point.overallDataPointIndex : pointIndex);
   datalabelArgs.position = position;
@@ -1050,33 +1060,23 @@ void calculatePointSeriesIndex(
       final SeriesRendererDetails seriesRendererDetails =
           SeriesHelper.getSeriesRendererDetails(
               stateProperties.chartSeries.visibleSeriesRenderers[i]);
-      final String seriesType = seriesRendererDetails.seriesType;
       int? pointIndex;
-      final double padding = (seriesType == 'bubble') ||
-              (seriesType == 'scatter') ||
-              (seriesType == 'bar') ||
-              (seriesType == 'column' ||
-                  seriesType == 'rangecolumn' ||
-                  seriesType.contains('stackedcolumn') ||
-                  seriesType.contains('stackedbar') ||
-                  seriesType == 'waterfall')
-          ? 0
-          : 15;
-
-      /// Regional padding to detect smooth touch.
       seriesRendererDetails.regionalData!
           .forEach((dynamic regionRect, dynamic values) {
         final Rect region = regionRect[0];
-        final double left = region.left - padding;
-        final double right = region.right + padding;
-        final double top = region.top - padding;
-        final double bottom = region.bottom + padding;
+        final double widthPadding =
+            region.width < 8 ? (8 - region.width) / 2 : 0;
+        final double heightPadding =
+            region.height < 8 ? (8 - region.height) / 2 : 0;
+        final double left = region.left - widthPadding;
+        final double right = region.right + widthPadding;
+        final double top = region.top - heightPadding;
+        final double bottom = region.bottom + heightPadding;
         final Rect paddedRegion = Rect.fromLTRB(left, top, right, bottom);
         if (paddedRegion.contains(position!)) {
           pointIndex = regionRect[4].visiblePointIndex;
         }
       });
-
       if (pointIndex != null && seriesRendererDetails.visible! == true) {
         if ((seriesRendererDetails.series.onPointTap != null ||
                 seriesRendererDetails.series.onPointDoubleTap != null ||
@@ -1214,3 +1214,10 @@ String addEllipse(String text, int maxLength, String ellipse, {bool? isRtl}) {
     return trimText + ellipse;
   }
 }
+
+/// To check template is within bounds.
+bool isTemplateWithinBounds(Rect bounds, Rect templateRect) =>
+    templateRect.left >= bounds.left &&
+    templateRect.left + templateRect.width <= bounds.left + bounds.width &&
+    templateRect.top >= bounds.top &&
+    templateRect.top + templateRect.height <= bounds.top + bounds.height;

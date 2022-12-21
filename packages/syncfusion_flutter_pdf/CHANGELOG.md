@@ -1,4 +1,28 @@
-## Unreleased
+## [20.3.57] - 11/15/2022
+
+**Bugs**
+
+* Alpha channel is not initialized properly in transparent brush is now resolved.
+
+## [20.3.56] - 11/08/2022
+
+**Features**
+
+* Provided support to set signed date while signing the pdf document.
+
+## [20.2.48] - 09/06/2022
+
+**Bugs**
+
+* The type casting issue when trying to get annotation is now resolved.
+
+## [20.2.45] - 08/23/2022
+
+**Bugs**
+
+* The font is not updated properly for loaded form fields is now resolved.
+
+## [20.2.36] - 06/30/2022
 
 **Breaking changes**
 
@@ -11,6 +35,8 @@
 **Bugs**
 
 * The preservation issue when flattening the PDF text box field is now resolved.
+
+* Resolved the document corruption issue while modifying encrypted PDF document.
 
 ## [20.1.48-beta] - 04/12/2022
 

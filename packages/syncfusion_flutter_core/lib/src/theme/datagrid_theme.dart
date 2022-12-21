@@ -124,6 +124,11 @@ class SfDataGridThemeData with Diagnosticable {
     double? columnResizeIndicatorStrokeWidth,
     TextStyle? rowHoverTextStyle,
     Widget? sortIcon,
+    Widget? filterIcon,
+    Color? filterIconColor,
+    Color? filterIconHoverColor,
+    Color? sortOrderNumberColor,
+    Color? sortOrderNumberBackgroundColor,
   }) {
     return SfDataGridThemeData.raw(
         brightness: brightness,
@@ -141,7 +146,12 @@ class SfDataGridThemeData with Diagnosticable {
         columnResizeIndicatorColor: columnResizeIndicatorColor,
         columnResizeIndicatorStrokeWidth: columnResizeIndicatorStrokeWidth,
         rowHoverTextStyle: rowHoverTextStyle,
-        sortIcon: sortIcon);
+        sortIcon: sortIcon,
+        filterIcon: filterIcon,
+        filterIconColor: filterIconColor,
+        filterIconHoverColor: filterIconHoverColor,
+        sortOrderNumberColor: sortOrderNumberColor,
+        sortOrderNumberBackgroundColor: sortOrderNumberBackgroundColor);
   }
 
   /// Create a [SfDataGridThemeData] given a set of exact values.
@@ -167,7 +177,12 @@ class SfDataGridThemeData with Diagnosticable {
       required this.columnResizeIndicatorStrokeWidth,
       required this.rowHoverColor,
       required this.rowHoverTextStyle,
-      required this.sortIcon});
+      required this.sortIcon,
+      required this.filterIcon,
+      required this.filterIconColor,
+      required this.filterIconHoverColor,
+      required this.sortOrderNumberColor,
+      required this.sortOrderNumberBackgroundColor});
 
   /// The brightness of the overall theme of the
   /// application for the [SfDataGrid] widgets.
@@ -330,13 +345,142 @@ class SfDataGridThemeData with Diagnosticable {
 
   ///
 
-  /// If icon is given, the animation will be automatically applied and
-  /// rotated according to sorting order.
+  /// If the [Icon] type is assigned,
+  /// the animation will be automatically applied and rotated
+  /// according to sorting order.
+  ///
+  /// If you want to change the icon based on each state of the sorting,
+  /// you can use the [Builder] widget and return
+  /// the respective icon for the state.
+  /// You have to return the icons for all the three states even
+  /// if you want to change the icon for specific state.
+  ///
+  /// The below example shows how to load different icon for each state
+  /// i.e. ascending, descending and unsorted order.
+  ///
 
   ///
 
-  /// [SfDataGridThemeData.sortIconColor] – The color of the sort icon.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     appBar: AppBar(title: const Text('Flutter SfDataGrid')),
+  ///     body: SfDataGridTheme(
+  ///       data: SfDataGridThemeData(
+  ///         sortIcon: Builder(
+  ///           builder: (context) {
+  ///             Widget? icon;
+  ///             String columnName = '';
+  ///             context.visitAncestorElements((element) {
+  ///               if (element is GridHeaderCellElement) {
+  ///                 columnName = element.column.columnName;
+  ///               }
+  ///               return true;
+  ///             });
+
+  ///             var column = _employeeDataSource.sortedColumns
+  ///                 .where((element) => element.name == columnName)
+  ///                 .firstOrNull;
+  ///             if (column != null) {
+  ///               if (column.sortDirection ==
+  ///                      DataGridSortDirection.ascending) {
+  ///                 icon = const Icon(Icons.arrow_circle_up_rounded,
+  ///                         size: 16);
+  ///               } else if (column.sortDirection ==
+  ///                      DataGridSortDirection.descending) {
+  ///                 icon = const Icon(Icons.arrow_circle_down_rounded,
+  ///                         size: 16);
+  ///               }
+  ///             }
+
+  ///             return icon ?? const Icon(Icons.sort_rounded, size: 16);
+  ///           },
+  ///         ),
+  ///       ),
+  ///       child: SfDataGrid(),
+  ///     ),
+  ///   );
+  /// }
+  /// ```
   final Widget? sortIcon;
+
+  /// The icon to indicate the filtering applied in column.
+  ///
+  /// If you want to change the icon filter or filtered state, you can use the
+  /// [Builder](https://api.flutter.dev/flutter/widgets/Builder-class.html)
+  /// widget and return the respective icon for the state. You have to return
+  /// the icons for both the states even if you want to change the icon
+  /// for specific state.
+  ///
+  /// ```dart
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     appBar: AppBar(
+  ///       title: const Text('Syncfusion Flutter DataGrid',
+  ///           overflow: TextOverflow.ellipsis),
+  ///     ),
+  ///     body: SfDataGridTheme(
+  ///       data: SfDataGridThemeData(filterIcon: Builder(
+  ///         builder: (context) {
+  ///           Widget? icon;
+  ///           String columnName = '';
+  ///           context.visitAncestorElements((element) {
+  ///             if (element is GridHeaderCellElement) {
+  ///               columnName = element.column.columnName;
+  ///             }
+  ///             return true;
+  ///           });
+  ///           var column = _employeeDataSource.filterConditions.keys
+  ///               .where((element) => element == columnName)
+  ///               .firstOrNull;
+
+  ///           if (column != null) {
+  ///             icon = const Icon(
+  ///               Icons.filter_alt_outlined,
+  ///               size: 20,
+  ///               color: Colors.purple,
+  ///             );
+  ///           }
+  ///           return icon ??
+  ///               const Icon(
+  ///                 Icons.filter_alt_off_outlined,
+  ///                 size: 20,
+  ///                 color: Colors.deepOrange,
+  ///               );
+  ///         },
+  ///       )),
+  ///       child: SfDataGrid(
+  ///         source: _employeeDataSource,
+  ///         allowFiltering: true,
+  ///         allowSorting: true,
+  ///         columns: getColumns(),
+  ///       ),
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  final Widget? filterIcon;
+
+  /// The color of the filter icon which indicates whether
+  /// the column is filtered or not.
+  ///
+  /// This is not applicable when `filterIcon` property is set.
+  /// This applies the color to default filter icon only.
+  final Color? filterIconColor;
+
+  /// The color for the filter icon when a pointer is hovering over it.
+  ///
+  /// This is not applicable when `filterIcon` property is set.
+  /// This applies the color to default filter icon only.
+  final Color? filterIconHoverColor;
+
+  /// The color of the number displayed when the order of the sorting is shown.
+  final Color? sortOrderNumberColor;
+
+  /// The color of the rounded background displayed
+  /// when the order of the sorting is shown.
+  final Color? sortOrderNumberBackgroundColor;
 
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
@@ -357,6 +501,11 @@ class SfDataGridThemeData with Diagnosticable {
     Color? rowHoverColor,
     TextStyle? rowHoverTextStyle,
     Widget? sortIcon,
+    Widget? filterIcon,
+    Color? filterIconColor,
+    Color? filterIconHoverColor,
+    Color? sortOrderNumberColor,
+    Color? sortOrderNumberBackgroundColor,
   }) {
     return SfDataGridThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -377,6 +526,12 @@ class SfDataGridThemeData with Diagnosticable {
       rowHoverColor: rowHoverColor ?? this.rowHoverColor,
       rowHoverTextStyle: rowHoverTextStyle ?? this.rowHoverTextStyle,
       sortIcon: sortIcon ?? this.sortIcon,
+      filterIcon: filterIcon ?? this.filterIcon,
+      filterIconColor: filterIconColor ?? this.filterIconColor,
+      filterIconHoverColor: filterIconHoverColor ?? this.filterIconHoverColor,
+      sortOrderNumberColor: sortOrderNumberColor ?? this.sortOrderNumberColor,
+      sortOrderNumberBackgroundColor:
+          sortOrderNumberBackgroundColor ?? this.sortOrderNumberBackgroundColor,
     );
   }
 
@@ -411,6 +566,15 @@ class SfDataGridThemeData with Diagnosticable {
           t),
       rowHoverTextStyle:
           TextStyle.lerp(a.rowHoverTextStyle, b.rowHoverTextStyle, t),
+      filterIconColor: Color.lerp(a.filterIconColor, b.filterIconColor, t),
+      filterIconHoverColor:
+          Color.lerp(a.filterIconHoverColor, b.filterIconHoverColor, t),
+      sortOrderNumberColor:
+          Color.lerp(a.sortOrderNumberColor, b.sortOrderNumberColor, t),
+      sortOrderNumberBackgroundColor: Color.lerp(
+          a.sortOrderNumberBackgroundColor,
+          b.sortOrderNumberBackgroundColor,
+          t),
     );
   }
 
@@ -440,7 +604,12 @@ class SfDataGridThemeData with Diagnosticable {
         other.columnResizeIndicatorStrokeWidth ==
             columnResizeIndicatorStrokeWidth &&
         other.rowHoverTextStyle == rowHoverTextStyle &&
-        other.sortIcon == sortIcon;
+        other.sortIcon == sortIcon &&
+        other.filterIcon == filterIcon &&
+        other.filterIconColor == filterIconColor &&
+        other.filterIconHoverColor == filterIconHoverColor &&
+        other.sortOrderNumberColor == sortOrderNumberColor &&
+        other.sortOrderNumberBackgroundColor == sortOrderNumberBackgroundColor;
   }
 
   @override
@@ -460,9 +629,14 @@ class SfDataGridThemeData with Diagnosticable {
       columnResizeIndicatorColor,
       columnResizeIndicatorStrokeWidth,
       rowHoverTextStyle,
-      sortIcon
+      sortIcon,
+      filterIcon,
+      filterIconColor,
+      filterIconHoverColor,
+      sortOrderNumberColor,
+      sortOrderNumberBackgroundColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override
@@ -503,6 +677,19 @@ class SfDataGridThemeData with Diagnosticable {
     properties.add(DiagnosticsProperty<TextStyle>(
         'rowHoverTextStyle', rowHoverTextStyle,
         defaultValue: defaultData.rowHoverTextStyle));
+    properties.add(DiagnosticsProperty<Widget>('sortIcon', sortIcon,
+        defaultValue: defaultData.sortIcon));
+    properties.add(DiagnosticsProperty<Widget>('filterIcon', filterIcon,
+        defaultValue: defaultData.filterIcon));
+    properties.add(ColorProperty('filterIconColor', filterIconColor,
+        defaultValue: defaultData.filterIconColor));
+    properties.add(ColorProperty('filterIconHoverColor', filterIconHoverColor,
+        defaultValue: defaultData.filterIconHoverColor));
+    properties.add(ColorProperty('sortOrderNumberColor', sortOrderNumberColor,
+        defaultValue: defaultData.sortOrderNumberColor));
+    properties.add(ColorProperty(
+        'sortOrderNumberBackgroundColor', sortOrderNumberBackgroundColor,
+        defaultValue: defaultData.sortOrderNumberBackgroundColor));
   }
 }
 
@@ -540,7 +727,7 @@ class DataGridCurrentCellStyle {
       borderColor,
       borderWidth,
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   /// Linearly interpolate between two styles.

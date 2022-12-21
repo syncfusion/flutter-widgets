@@ -1,4 +1,8 @@
-part of xlsio;
+import 'dart:ui';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_test/flutter_test.dart';
+import '../../xlsio.dart';
+import 'xlsio_workbook.dart';
 
 // ignore: public_member_api_docs
 void xlsioConditionalFormatting() {

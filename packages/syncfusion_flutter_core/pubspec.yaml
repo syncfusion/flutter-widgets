@@ -4,7 +4,7 @@ version: 20.2.36
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_core
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
   vector_math: ">=2.1.0 <=3.0.0"

@@ -1,4 +1,8 @@
-part of xlsio;
+import 'dart:convert';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_test/flutter_test.dart';
+import '../../xlsio.dart';
+import 'xlsio_workbook.dart';
 
 // ignore: public_member_api_docs
 void xlsioImport() {
@@ -169,7 +173,7 @@ List<_Customers> _getCustomersHyperlink() {
   _Customers customer = _Customers('Andy Bernard', 45000, 58000, 29);
   final Hyperlink link = Hyperlink.add(
       'https://www.google.com', 'Hyperlink', 'Google', HyperlinkType.url);
-  Picture pic = Picture(base64.decode(_man1jpg));
+  Picture pic = Picture(base64.decode(man1jpg));
   pic.width = 200;
   pic.height = 200;
   customer.image = pic;
@@ -177,7 +181,7 @@ List<_Customers> _getCustomersHyperlink() {
   reports.add(customer);
 
   customer = _Customers('Jim Halpert', 34000, 65000, 91);
-  pic = Picture(base64.decode(_man2png));
+  pic = Picture(base64.decode(man2png));
   pic.width = 200;
   pic.height = 200;
   customer.image = pic;
@@ -185,7 +189,7 @@ List<_Customers> _getCustomersHyperlink() {
   reports.add(customer);
 
   customer = _Customers('Karen Fillippelli', 75000, 64000, -15);
-  pic = Picture(base64.decode(_man3jpg));
+  pic = Picture(base64.decode(man3jpg));
   pic.width = 200;
   pic.height = 200;
   customer.image = pic;
@@ -193,7 +197,7 @@ List<_Customers> _getCustomersHyperlink() {
   reports.add(customer);
 
   customer = _Customers('Phyllis Lapin', 56500, 33600, -40);
-  pic = Picture(base64.decode(_man4png));
+  pic = Picture(base64.decode(man4png));
   pic.width = 200;
   pic.height = 200;
   customer.image = pic;
@@ -201,7 +205,7 @@ List<_Customers> _getCustomersHyperlink() {
   reports.add(customer);
 
   customer = _Customers('Stanley Hudson', 46500, 52000, 12);
-  pic = Picture(base64.decode(_man5jpg));
+  pic = Picture(base64.decode(man5jpg));
   pic.width = 200;
   pic.height = 200;
   customer.image = pic;
@@ -237,7 +241,7 @@ List<_Customers> _getCustomersImageHyperlink() {
   final Hyperlink link = Hyperlink.add('https://www.syncfusion.com',
       'Hyperlink', 'Syncfusion', HyperlinkType.url);
 
-  Picture pic = Picture(base64.decode(_man6png));
+  Picture pic = Picture(base64.decode(man6png));
   pic.width = 200;
   pic.height = 200;
   pic.hyperlink = link;
@@ -246,7 +250,7 @@ List<_Customers> _getCustomersImageHyperlink() {
   customer.image = pic;
   reports.add(customer);
 
-  pic = Picture(base64.decode(_man7jpg));
+  pic = Picture(base64.decode(man7jpg));
   pic.width = 200;
   pic.height = 200;
   pic.hyperlink = link;
@@ -255,7 +259,7 @@ List<_Customers> _getCustomersImageHyperlink() {
   customer.image = pic;
   reports.add(customer);
 
-  pic = Picture(base64.decode(_man8png));
+  pic = Picture(base64.decode(man8png));
   pic.width = 200;
   pic.height = 200;
   pic.hyperlink = link;
@@ -264,7 +268,7 @@ List<_Customers> _getCustomersImageHyperlink() {
   customer.image = pic;
   reports.add(customer);
 
-  pic = Picture(base64.decode(_man9jpg));
+  pic = Picture(base64.decode(man9jpg));
   pic.width = 200;
   pic.height = 200;
   pic.hyperlink = link;
@@ -273,7 +277,7 @@ List<_Customers> _getCustomersImageHyperlink() {
   customer.image = pic;
   reports.add(customer);
 
-  pic = Picture(base64.decode(_man10png));
+  pic = Picture(base64.decode(man10png));
   pic.width = 200;
   pic.height = 200;
   pic.hyperlink = link;

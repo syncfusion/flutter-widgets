@@ -798,6 +798,33 @@ class Range {
     return strValue;
   }
 
+  /// Creates freeze panes that keep the selected rows and columns visible in the range while scrolling the worksheet.
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet worksheet = workbook.worksheets[0];
+  /// worksheet.getRangeByName('A1:H10').text = "Freeze panes";
+  /// worksheet.getRangeByName('B2').freezePanes();
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'FreezePanes.xlsx');
+  /// workbook.dispose();
+  /// ```
+  void freezePanes() {
+    worksheet._isfreezePane = true;
+    worksheet._horizontalSplit = row - 1;
+    worksheet._verticalSplit = column - 1;
+    worksheet._topLeftCell =
+        worksheet.getRangeByIndex(row, column).addressLocal;
+    if (row > 1 && column > 1) {
+      worksheet._activePane = _ActivePane.bottomRight;
+    } else if (row > 1 && column <= 1) {
+      worksheet._activePane = _ActivePane.bottomLeft;
+    } else if (row <= 1 && column > 1) {
+      worksheet._activePane = _ActivePane.topRight;
+    } else {
+      worksheet._activePane = _ActivePane.topLeft;
+    }
+  }
+
   /// Get count of the present Range
   int get count {
     int tempCount = 0;

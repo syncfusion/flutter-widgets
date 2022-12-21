@@ -143,6 +143,6 @@ class TmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       valueField,
       period
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

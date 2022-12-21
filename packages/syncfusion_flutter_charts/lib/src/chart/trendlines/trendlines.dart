@@ -502,7 +502,7 @@ class Trendline {
       polynomialOrder,
       period
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 

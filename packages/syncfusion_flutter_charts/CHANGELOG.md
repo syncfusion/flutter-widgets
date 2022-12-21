@@ -1,5 +1,74 @@
 ## Unreleased
 
+**Bugs**
+
+* #FB37705 - Now, the circular data label builder will render properly with connector lines.
+
+## [20.3.69] - 12/06/2022
+
+**Bugs**
+* #FB39502 - Now, the series is rendered with both the [primaryXAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/primaryXAxis.html) and [primaryYAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/primaryYAxis.html) as [LogarithmicAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/LogarithmicAxis-class.html).
+* #FB39157 - Now, the [onPointTap](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CartesianSeries/onPointTap.html) event returns the respective data point index while having the nearest x values.
+
+## [20.3.59] - 11/29/2022
+
+**Bugs**
+* #FB37704 - Now, the fast line series will render the line when the data points are outside of the range controller's.
+
+## [20.3.57] - 11/15/2022
+
+**Bugs**
+* #FB38884 - The null exception will no longer be thrown in the chart while dynamically enabling the [isVisibleInLegend](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CartesianSeries/isVisibleInLegend.html) property for the series.
+
+## [20.3.56] - 11/08/2022
+
+**Bugs**
+* #FB37724 - Now, the Null check operator exception will no longer be thrown when refreshing the chart in the [onLegendTapped](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/onLegendTapped.html) callback.
+* #FB38586 - Now, the plot band will render properly for the [LogarithmicAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/LogarithmicAxis-class.html).
+
+## [20.3.52] - 10/26/2022
+
+**Bugs**
+* #FB38235 - The Null exception will no longer be thrown in trackball when using the RangeAreaSeries and AreaSeries with different data sources.
+
+## [20.3.50] - 10/18/2022
+
+**Bugs**
+* #FB37724 - Now, the series visibility gets toggled properly when setting the series visibility using the [onLegendTapped](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/onLegendTapped.html) callback.
+* #FB37885 - Now, the candle series gets rendered properly when it starts updating data dynamically with a single data point.
+* #FB38196 - Now, there is no exception that occurs while calling the trackball public method [show](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/TrackballBehavior/show.html) when there is no visible series in the chart.
+* #FB38080 - Now, the trackball tooltip with builder will activate properly when using the [show](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/TrackballBehavior/show.html) public method if the trackball is already moved in the chart using user interaction.
+* #FB38046 - Now, the doughnut series with stroke border renders properly with CornerStyle as both sided curve.
+* #FB37274 - Now, Infinity or NaN toInt exception will no longer be thrown when rendering Bollinger band with mapping more number identical close point values.
+
+## [20.3.49] - 10/11/2022
+
+**Bugs**
+* #FB36732 - Now, while performing zooming and panning, the hidden series won't become visible.
+
+## [20.3.47] - 09/29/2022
+
+**Bugs**
+* #FB37559 - Now, the `NoSuchMethodError` exception will not be thrown when a tooltip is activated using the `showByIndex` method in circular charts.
+* #FB37311 - The FastLineSeries renders when all the y-values are the same.
+* #FB36534 – Now, the pie series will explode immediately.
+* #FB37039 - When panning the X-axis with `zoomMode` as `ZoomMode.X`, the Y-axis range does not change.
+* #I392604, G821 - Now, the candle series width will not decrease when having the MACD indicator.
+* #I373783 - Now, the hollow candle will not throw an exception when setting the visible range.
+
+## [20.2.44] - 08/16/2022
+
+**Bugs**
+* Now, the 'size should not be infinite' assertion failed exception will not be thrown when having the SVG image as an annotation at the start and end point in the chart.
+
+## [20.2.43] - 08/08/2022
+
+**Bugs**
+* Now, the startup animation will work for circular, funnel, and pyramid charts when having the [legendItemBuilder](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/Legend/legendItemBuilder.html) in legend.
+* Now, the tooltip will display the correct value when using the logarithmic axis.
+
+## [20.2.36] - 07/01/2022
+
 **Features**
 * Provided the support to customize the date-time axis labels based on the interval type.
 

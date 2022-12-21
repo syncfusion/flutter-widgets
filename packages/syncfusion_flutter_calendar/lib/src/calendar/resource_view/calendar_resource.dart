@@ -263,7 +263,7 @@ class CalendarResource with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(displayName, id, image, color);
+    return Object.hash(displayName, id, image, color);
   }
 
   @override

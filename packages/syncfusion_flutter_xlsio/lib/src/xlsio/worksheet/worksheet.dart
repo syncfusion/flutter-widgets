@@ -44,14 +44,41 @@ class Worksheet {
   ///Represents the datavalidation table
   _DataValidationTable? _mdataValidation;
 
+  // Represents the number of columns visible in the top pane
+  int _verticalSplit = 0;
+
+  // Represents the number of rows visible in the left pane
+  int _horizontalSplit = 0;
+
+  // Represents topLeftCell
+  String _topLeftCell = '';
+
+  // Represents is panes are frozen
+  bool _isfreezePane = false;
+
+  // Represents active pane
+  late _ActivePane _activePane;
+
   ///Represents autoFilter class
   AutoFilterCollection? _autoFilters;
+
+  ///Represents worksheet named range collection.
+  Names? _namesColl;
+
+  ///Represents worksheet named range collection.
+  Names get names {
+    _namesColl ??= _WorksheetNamesCollection(this);
+    return _namesColl!;
+  }
 
   /// Represents auto fit manager.
   _AutoFitManager get _autoFitManager {
     final _AutoFitManager autoFit = _AutoFitManager._withSheet(this);
     return autoFit;
   }
+
+  ///Get the page setup settings for the worksheet. Read-only.
+  PageSetup? _pageSetup;
 
   ///Get a collection of tables in the worksheet. Read-only.
   ExcelTableCollection? _tableCollection;
@@ -107,8 +134,17 @@ class Worksheet {
   ///Collection of all merged cells in the current worksheet.
   MergedCellCollection? _mergeCells;
 
+  /// Represents tab color of the sheet.
+  late String _tabColor;
+
+  ///Determine whether the tab color is applied on the worksheet or not.
+  bool _isTapColorApplied = false;
+
   /// Collection of all hyperlinks in the current worksheet.
   HyperlinkCollection? _hyperlinks;
+
+  /// Represents the visibility of worksheet.
+  WorksheetVisibility _visibility = WorksheetVisibility.visible;
 
   /// Represents parent workbook.
   Workbook get workbook {
@@ -237,6 +273,12 @@ class Worksheet {
     return _tableCollection!;
   }
 
+  /// Represents the page setup settings for the worksheet.
+  PageSetup get pageSetup {
+    _pageSetup ??= _PageSetupImpl(this);
+    return _pageSetup!;
+  }
+
   /// Gets/Sets a Conditional Format collections in the worksheet.
   // ignore: library_private_types_in_public_api
   List<_ConditionalFormatsImpl> conditionalFormats =
@@ -258,10 +300,37 @@ class Worksheet {
     return _rows!;
   }
 
+  ///Get the tab color for the worksheet.
+  String get tabColor {
+    return _tabColor;
+  }
+
+  ///Set the tab color for the worksheet.
+  set tabColor(String value) {
+    _tabColor = value;
+    _isTapColorApplied = true;
+  }
+
   // ignore: public_member_api_docs
   AutoFilterCollection get autoFilters {
     _autoFilters ??= AutoFilterCollection(this);
     return _autoFilters!;
+  }
+
+  ///Get the visibility of worksheet.
+  WorksheetVisibility get visibility {
+    return _visibility;
+  }
+
+  ///Set the visibility of worksheet.
+  set visibility(WorksheetVisibility visibilty) {
+    if (_book.worksheets.innerList.length <= 1 &&
+        visibilty == WorksheetVisibility.hidden) {
+      throw Exception(
+          'A workbook must contain at least one visible worksheet.');
+    } else {
+      _visibility = visibilty;
+    }
   }
 
   /// Checks if specified cell has correct row and column index.
@@ -584,9 +653,15 @@ class Worksheet {
     if (value.isNotEmpty && value[0] == '=') {
       range.setFormula(value.substring(1));
     } else {
+      double? doubleValue;
+      DateTime? dateValue;
+      if (value.runtimeType == double) {
+        doubleValue = double.tryParse(value);
+      } else {
+        dateValue = DateTime.tryParse(value);
+      }
+
       final CultureInfo cultureInfo = _book._getCultureInfo();
-      final double? doubleValue = double.tryParse(value);
-      final DateTime? dateValue = DateTime.tryParse(value);
       final bool bDateTime =
           !value.contains(cultureInfo.dateTimeFormat.dateSeparator) &&
               dateValue != null;
@@ -2158,6 +2233,24 @@ class Worksheet {
     }
 
     return i;
+  }
+
+  /// Removes the existing freeze panes from the worksheet.
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet worksheet = workbook.worksheets[0];
+  /// worksheet.getRangeByName('A1:H10').text = "Freeze panes";
+  /// worksheet.getRangeByName('B2').freezePanes();
+  /// worksheet.unfreezePanes();
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'UnfreezePanes.xlsx');
+  /// workbook.dispose();
+  /// ```
+  void unfreezePanes() {
+    _horizontalSplit = 0;
+    _verticalSplit = 0;
+    _topLeftCell = '';
+    _isfreezePane = false;
   }
 
   /// Imports collection of ExcelDataRows into a worksheet.

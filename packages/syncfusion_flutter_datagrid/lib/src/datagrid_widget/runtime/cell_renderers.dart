@@ -166,6 +166,7 @@ class GridHeaderCellRenderer
             visible: dataGridConfiguration
                 .checkboxColumnSettings.showCheckboxOnHeader,
             child: Checkbox(
+                shape: dataGridConfiguration.checkboxShape,
                 tristate: true,
                 value: dataGridConfiguration.headerCheckboxState,
                 onChanged: (bool? newValue) {
@@ -258,6 +259,7 @@ class GridCheckboxRenderer
             dataCell.dataRow!.isDirty,
         dataGridStateDetails: _dataGridStateDetails,
         child: Checkbox(
+            shape: dataGridConfiguration.checkboxShape,
             value: selectionState,
             onChanged: (bool? newValue) {
               selection_manager.handleSelectionFromCheckbox(

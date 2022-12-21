@@ -268,7 +268,7 @@ class CrosshairBehavior {
       shouldAlwaysShow,
       hideDelay
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   /// Represents the cartesian state properties.

@@ -174,7 +174,7 @@ class StackedLineSeries<T, D> extends StackedSeriesBase<T, D> {
       onPointDoubleTap,
       onPointLongPress
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   /// To create a stacked line series renderer.

@@ -289,6 +289,6 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
       histogramPositiveColor,
       histogramNegativeColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

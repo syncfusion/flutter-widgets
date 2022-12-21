@@ -31,10 +31,11 @@ class PdfSignature {
       List<PdfCertificationFlags>? documentPermissions,
       CryptographicStandard cryptographicStandard = CryptographicStandard.cms,
       DigestAlgorithm digestAlgorithm = DigestAlgorithm.sha256,
-      PdfCertificate? certificate}) {
+      PdfCertificate? certificate,
+      DateTime? signedDate}) {
     _helper = PdfSignatureHelper(this);
     _init(signedName, locationInfo, reason, contactInfo, documentPermissions,
-        cryptographicStandard, digestAlgorithm, certificate);
+        cryptographicStandard, digestAlgorithm, certificate, signedDate);
   }
 
   //Fields
@@ -56,8 +57,14 @@ class PdfSignature {
   /// Gets or sets the signed name
   String? signedName;
 
-  /// Gets the signed date.
+  /// Gets or sets the signed date.
+  ///
+  /// NOTE: The signed date can only be set when signing the PDF document and does not work on existing signatures.
   DateTime? get signedDate => _helper.dateOfSign;
+
+  set signedDate(DateTime? value) {
+    _helper.dateOfSign = value;
+  }
 
   /// Gets or sets cryptographic standard.
   late CryptographicStandard cryptographicStandard;
@@ -81,7 +88,8 @@ class PdfSignature {
       List<PdfCertificationFlags>? documentPermissions,
       CryptographicStandard cryptographicStandard,
       DigestAlgorithm digestAlgorithm,
-      PdfCertificate? pdfCertificate) {
+      PdfCertificate? pdfCertificate,
+      DateTime? signedDate) {
     this.cryptographicStandard = cryptographicStandard;
     this.digestAlgorithm = digestAlgorithm;
     if (signedName != null) {
@@ -101,6 +109,9 @@ class PdfSignature {
     }
     if (pdfCertificate != null) {
       certificate = pdfCertificate;
+    }
+    if (signedDate != null) {
+      this.signedDate = signedDate;
     }
   }
 

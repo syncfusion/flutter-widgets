@@ -1,4 +1,6 @@
-part of xlsio;
+import '../../xlsio.dart';
+// ignore: depend_on_referenced_packages, directives_ordering
+import 'package:flutter_test/flutter_test.dart';
 
 // ignore: public_member_api_docs
 void saveAsExcel(List<int>? bytes, String fileName) {

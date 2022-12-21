@@ -61,7 +61,7 @@ class _MapTileCoordinate {
   }
 
   @override
-  int get hashCode => hashValues(x.hashCode, y.hashCode, z.hashCode);
+  int get hashCode => Object.hash(x.hashCode, y.hashCode, z.hashCode);
 }
 
 /// Represents the information about the tile.

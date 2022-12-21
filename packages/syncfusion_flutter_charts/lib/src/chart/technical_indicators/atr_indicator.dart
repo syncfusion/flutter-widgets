@@ -110,6 +110,6 @@ class AtrIndicator<T, D> extends TechnicalIndicators<T, D> {
       signalLineWidth,
       period
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

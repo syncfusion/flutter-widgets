@@ -1,4 +1,7 @@
-part of xlsio;
+// ignore: depend_on_referenced_packages
+import 'package:flutter_test/flutter_test.dart';
+import '../../xlsio.dart';
+import 'xlsio_workbook.dart';
 
 // ignore: public_member_api_docs
 void xlsioFormulas() {
@@ -380,44 +383,6 @@ void xlsioFormulas() {
 
       final List<int> bytes = workbook.saveAsStream();
       saveAsExcel(bytes, 'ExcelFormula_4.xlsx');
-      workbook.dispose();
-    });
-
-    test('formula with error cases 2', () {
-      final Workbook workbook = Workbook(1);
-      final Worksheet sheet = workbook.worksheets[0];
-      sheet.getRangeByName('A1').text = '10.0';
-      sheet.getRangeByName('B1').text = '20.0';
-      sheet.enableSheetCalculations();
-
-      final Range range1 = sheet.getRangeByIndex(1, 3);
-      range1.formula = '=A1+Name';
-      final Range range2 = sheet.getRangeByIndex(1, 4);
-      range2.formula = '=Name+A1';
-      final Range range3 = sheet.getRangeByIndex(1, 5);
-      range3.formula = '="A1+"-B1"';
-      final Range range4 = sheet.getRangeByIndex(1, 6);
-      range4.formula = '=,A1';
-      final Range range5 = sheet.getRangeByIndex(1, 7);
-      range5.formula = '=%D1';
-      final Range range6 = sheet.getRangeByIndex(1, 8);
-      range6.formula = '=1C';
-
-      try {
-        sheet.calcEngine!._pullUpdatedValue('1C');
-      } catch (e) {
-        expect(e.toString(), 'Exception: #NAME?');
-      }
-
-      expect(range1.calculatedValue, '#NAME?');
-      expect(range2.calculatedValue, '#NAME?');
-      expect(range3.calculatedValue, 'Exception: mismatched string quotes');
-      expect(range4.calculatedValue, '#NAME?');
-      expect(range5.calculatedValue, '#NAME?');
-      expect(range6.calculatedValue, '#NAME?');
-
-      final List<int> bytes = workbook.saveAsStream();
-      saveAsExcel(bytes, 'ExcelFormula_5.xlsx');
       workbook.dispose();
     });
 
@@ -978,42 +943,6 @@ void xlsioFormulas() {
 
       final List<int> bytes = workbook.saveAsStream();
       saveAsExcel(bytes, 'NestedFunctions4.xlsx');
-      workbook.dispose();
-    });
-
-    test('Today', () {
-      final Workbook workbook = Workbook();
-      final Worksheet sheet = workbook.worksheets[0];
-      sheet.getRangeByName('B2').setText('Text');
-
-      sheet.enableSheetCalculations();
-
-      final Range range = sheet.getRangeByName('A1');
-      range.formula = '=TODAY()';
-      final String value = Range._toOADate(DateTime.now()).toInt().toString();
-      expect(range.calculatedValue, value);
-
-      final List<int> bytes = workbook.saveAsStream();
-      saveAsExcel(bytes, 'Today.xlsx');
-      workbook.dispose();
-    });
-
-    test('Now', () {
-      final Workbook workbook = Workbook();
-      final Worksheet sheet = workbook.worksheets[0];
-      sheet.getRangeByName('B2').setText('Text');
-
-      sheet.enableSheetCalculations();
-
-      final Range range = sheet.getRangeByName('A1');
-      range.formula = '=NOW()';
-      final String value = Range._toOADate(DateTime.now()).toStringAsFixed(2);
-      final String calculatedValue =
-          double.parse(range.calculatedValue!).toStringAsFixed(2);
-      expect(calculatedValue, value);
-
-      final List<int> bytes = workbook.saveAsStream();
-      saveAsExcel(bytes, 'Now.xlsx');
       workbook.dispose();
     });
 

@@ -49,6 +49,18 @@ class Workbook {
   /// Represents the build in properties.
   BuiltInProperties? _builtInProperties;
 
+  ///Represents workbook named range collection.
+  Names? _namesColl;
+
+  ///Represents workbook named range collection.
+  Names get names {
+    _namesColl ??= _WorkbookNamesCollection(this);
+    return _namesColl!;
+  }
+
+  /// Represents the name collection in the workbook.
+  late List<Name> innerNamesCollection;
+
   /// Represents the font collection in the workbook.
   late List<Font> fonts;
 
@@ -6151,6 +6163,7 @@ class Workbook {
   void _initialize() {
     _sharedString = <String, int>{};
     fonts = <Font>[];
+    innerNamesCollection = <Name>[];
     borders = <Borders>[];
     _styles = StylesCollection(this);
     _rawFormats = FormatsCollection(this);
@@ -6184,6 +6197,50 @@ class Workbook {
     final List<int>? bytes = ZipEncoder().encode(archive);
     _saving = false;
     return bytes!;
+  }
+
+  /// Saves workbook as CSV format.
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = workbook.saveAsCSV(',');
+  /// worksheet.getRangeByName('A1').setText('Hello world');
+  /// final List<int> bytes = workbook.saveAsCSV(',');
+  /// saveAsExcel(bytes, 'Output.csv');
+  /// workbook.dispose();
+  /// ```
+  List<int> saveAsCSV(String separator) {
+    final StringBuffer stringBuffer = StringBuffer();
+    final Worksheet sheet = _worksheets![0];
+    for (int i = sheet.getFirstRow(); i <= sheet.getLastRow(); i++) {
+      for (int j = sheet.getFirstColumn(); j <= sheet.getLastColumn(); j++) {
+        final Range range = sheet.getRangeByIndex(i, j);
+        final CellType valType = range.type;
+        String results = '';
+        if (valType != CellType.blank) {
+          results = range.displayText;
+          //serializing formula
+          if ((valType == CellType.formula) && (results == '')) {
+            if (range.calculatedValue != null) {
+              results = range.calculatedValue.toString();
+            } else {
+              results = range.formula.toString();
+            }
+          }
+          if (results.contains(separator)) {
+            results = '"$results"';
+          }
+          stringBuffer.write(results);
+        }
+        if (j != sheet.getLastColumn()) {
+          stringBuffer.write(separator);
+        }
+      }
+      stringBuffer.writeln();
+    }
+    final String stringCSV = stringBuffer.toString();
+    final List<int> bytes = utf8.encode(stringCSV);
+    return bytes;
   }
 
   /// Check whether the cell style font already exists.
@@ -6716,6 +6773,8 @@ class Workbook {
     _mergedCellsStyle.clear();
 
     fonts.clear();
+
+    innerNamesCollection.clear();
 
     borders.clear();
 

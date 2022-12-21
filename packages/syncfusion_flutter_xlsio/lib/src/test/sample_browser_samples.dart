@@ -1,4 +1,9 @@
-part of xlsio;
+import 'dart:ui';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
+import '../../xlsio.dart';
+import 'xlsio_workbook.dart';
 
 // ignore: public_member_api_docs
 void sampleBrowserSamples() {
@@ -280,7 +285,7 @@ void sampleBrowserSamples() {
       range9.cellStyle.hAlign = HAlignType.center;
       range9.cellStyle.vAlign = VAlignType.center;
 
-      final Picture picture = sheet.pictures.addBase64(3, 4, _invoicejpeg);
+      final Picture picture = sheet.pictures.addBase64(3, 4, invoicejpeg);
       picture.lastRow = 7;
       picture.lastColumn = 8;
 
@@ -538,19 +543,19 @@ void sampleBrowserSamples() {
       sheet.getRangeByIndex(14, 5).formula = '=E12-E13';
 
       // sheet1 Image Hyperlink
-      final Picture picture = sheet.pictures.addBase64(2, 2, _assetspng);
+      final Picture picture = sheet.pictures.addBase64(2, 2, assetspng);
       picture.height = 30;
       picture.width = 100;
       sheet.hyperlinks
           .addImage(picture, HyperlinkType.workbook, 'Assets!B1', 'Assets');
 
-      final Picture picture1 = sheet.pictures.addBase64(2, 3, _liabilitiespng);
+      final Picture picture1 = sheet.pictures.addBase64(2, 3, liabilitiespng);
       picture1.height = 30;
       picture1.width = 100;
       sheet.hyperlinks.addImage(
           picture1, HyperlinkType.workbook, 'Liabilities!B1', 'Liabilities');
 
-      final Picture picture2 = sheet.pictures.addBase64(2, 4, _categoriespng);
+      final Picture picture2 = sheet.pictures.addBase64(2, 4, categoriespng);
       picture2.height = 30;
       picture2.width = 100;
       sheet.hyperlinks.addImage(

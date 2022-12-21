@@ -63,15 +63,12 @@ Explore the full capabilities of our Flutter widgets on your device by installin
 
 <p align="center">
   <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play-store.png"/></a>
-  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/ios-store.png"/></a>
-  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web-sample-browser.png"/></a> 
+  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web-sample-browser.png"/></a>
+  <a href="https://www.microsoft.com/en-us/p/syncfusion-flutter-gallery/9nhnbwcsf85d?activetab=pivot:overviewtab"><img src="https://cdn.syncfusion.com/content/images/FTControl/windows-store.png"/></a> 
 </p>
 <p align="center">
-  <a href="https://www.microsoft.com/en-us/p/syncfusion-flutter-gallery/9nhnbwcsf85d?activetab=pivot:overviewtab"><img src="https://cdn.syncfusion.com/content/images/FTControl/windows-store.png"/></a> 
   <a href="https://install.appcenter.ms/orgs/syncfusion-demos/apps/syncfusion-flutter-gallery/distribution_groups/release"><img src="https://cdn.syncfusion.com/content/images/FTControl/macos-app-center.png"/></a>
   <a href="https://snapcraft.io/syncfusion-flutter-gallery"><img src="https://cdn.syncfusion.com/content/images/FTControl/snap-store.png"/></a>
-</p>
-<p align="center">
   <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/github-samples.png"/></a>
 </p>
 
@@ -84,7 +81,7 @@ Take a look at the following to learn more about Syncfusion Flutter PDF Viewer:
 
 ## Installation
 
-Install the latest version from [pub](https://pub.dartlang.org/packages/syncfusion_flutter_pdfviewer#-installing-tab-).
+Install the latest version from [pub](https://pub.dev/packages/syncfusion_flutter_pdfviewer/install).
 
 ## Getting started
 
@@ -406,76 +403,90 @@ Widget build(BuildContext context) {
 Text can be searched for in a PDF document and you can then navigate to all its occurrences. The navigation of searched text can be controlled using the **nextInstance**, **previousInstance**, and **clear** methods.
 
 ```dart
-PdfViewerController _pdfViewerController;
 
-@override
-void initState() {
-  _pdfViewerController = PdfViewerController();
-  super.initState();
-}
-PdfTextSearchResult _searchResult;
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-      appBar: AppBar(
-        title: Text('Syncfusion Flutter PdfViewer'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.search,
-              color: Colors.white,
-            ),
-            onPressed: () async {
-              _searchResult = await _pdfViewerController?.searchText('the',
-                  searchOption: TextSearchOption.caseSensitive);
-              setState(() {});
-            },
-          ),
-          Visibility(
-            visible: _searchResult?.hasResult ?? false,
-            child: IconButton(
-              icon: Icon(
-                Icons.clear,
+  late PdfViewerController _pdfViewerController;
+  late PdfTextSearchResult _searchResult;
+
+  @override
+  void initState() {
+    _pdfViewerController = PdfViewerController();
+    _searchResult = PdfTextSearchResult();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Syncfusion Flutter PdfViewer'),
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(
+                Icons.search,
                 color: Colors.white,
               ),
               onPressed: () {
-                setState(() {
-                  _searchResult.clear();
-                });
+                _searchResult = _pdfViewerController.searchText('the',
+                    searchOption: TextSearchOption.caseSensitive);
+                if (kIsWeb) {
+                  setState(() {});
+                } else {
+                  _searchResult.addListener(() {
+                    if (_searchResult.hasResult) {
+                      setState(() {});
+                    }
+                  });
+                }
               },
             ),
-          ),
-          Visibility(
-            visible: _searchResult?.hasResult ?? false,
-            child: IconButton(
-              icon: Icon(
-                Icons.keyboard_arrow_up,
-                color: Colors.white,
+            Visibility(
+              visible: _searchResult.hasResult,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.clear,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _searchResult.clear();
+                  });
+                },
               ),
-              onPressed: () {
-                  _searchResult?.previousInstance();
-              },
             ),
-          ),
-          Visibility(
-            visible: _searchResult?.hasResult ?? false,
-            child: IconButton(
-              icon: Icon(
-                Icons.keyboard_arrow_down,
-                color: Colors.white,
+            Visibility(
+              visible: _searchResult.hasResult,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.keyboard_arrow_up,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  _searchResult.previousInstance();
+                },
               ),
-              onPressed: () {
-                _searchResult?.nextInstance();
-              },
             ),
-          ),
-        ],
-      ),
-      body: SfPdfViewer.network(
+            Visibility(
+              visible: _searchResult.hasResult,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  _searchResult.nextInstance();
+                },
+              ),
+            ),
+          ],
+        ),
+        body: SfPdfViewer.network(
           'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
-          controller:_pdfViewerController,
-          searchTextHighlightColor: Colors.yellow));
-}
+          controller: _pdfViewerController,
+          currentSearchTextHighlightColor: Colors.yellow.withOpacity(0.6),
+          otherSearchTextHighlightColor: Colors.yellow.withOpacity(0.3),
+        ));
+  }
+
 ```
 
 ## Enable or disable the document link annotation
@@ -495,11 +506,11 @@ Widget build(BuildContext context) {
 
 ## Support and Feedback
 
-* For any other queries, reach our [Syncfusion support team](https://www.syncfusion.com/support/directtrac/incidents/newincident) or post the queries through the [Community forums](https://www.syncfusion.com/forums) and submit a feature request or a bug through our [Feedback portal](https://www.syncfusion.com/feedback/flutter).
+* For any other queries, reach our [Syncfusion support team](https://support.syncfusion.com/support/tickets/create) or post the queries through the [Community forums](https://www.syncfusion.com/forums) and submit a feature request or a bug through our [Feedback portal](https://www.syncfusion.com/feedback/flutter).
 * To renew the subscription, click [renew](https://www.syncfusion.com/sales/products) or contact our sales team at salessupport@syncfusion.com | Toll Free: 1-888-9 DOTNET.
 
 ## About Syncfusion
 
 Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies. 
 
-Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls) and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.
+Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components),  [Flutter](https://www.syncfusion.com/flutter-widgets), and [Blazor](https://www.syncfusion.com/blazor-components)), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([Flutter](https://www.syncfusion.com/flutter-widgets), [WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls), and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.       

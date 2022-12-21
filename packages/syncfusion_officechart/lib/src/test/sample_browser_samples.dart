@@ -1,4 +1,8 @@
-part of officechart;
+// ignore: depend_on_referenced_packages
+import 'package:flutter_test/flutter_test.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+import '../../officechart.dart';
+import 'chart.dart';
 
 // ignore: public_member_api_docs
 void sampleBrowserSamples() {

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
@@ -1899,6 +1900,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       textDirection: Directionality.of(context),
       mediaQueryData: MediaQuery.of(context),
       state: state,
+      gestureSettings: MediaQuery.of(context).gestureSettings,
     );
   }
 
@@ -2083,6 +2085,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     required TextDirection textDirection,
     required MediaQueryData mediaQueryData,
     required _SfRangeSelectorState state,
+    required DeviceGestureSettings gestureSettings,
   })  : _state = state,
         _isEnabled = enabled,
         _deferUpdateDelay = deferUpdateDelay,
@@ -2124,7 +2127,8 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
             sliderType: SliderType.horizontal,
             tooltipPosition: null,
             textDirection: textDirection,
-            mediaQueryData: mediaQueryData) {
+            mediaQueryData: mediaQueryData,
+            gestureSettings: gestureSettings) {
     _inactiveRegionColor = rangeSelectorThemeData.inactiveRegionColor!;
     _activeRegionColor = rangeSelectorThemeData.activeRegionColor!;
   }

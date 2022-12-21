@@ -117,6 +117,61 @@ void digitalSignatureTest() {
         });
       });
     });
+    test('Signed date test 1', () {
+      PdfDocument document = PdfDocument();
+      final PdfPage page = document.pages.add();
+      final PdfCertificate certificate =
+          PdfCertificate(base64.decode(pdfPfx), 'syncfusion');
+      final PdfSignatureField field = PdfSignatureField(page, 'signature',
+          bounds: const Rect.fromLTWH(40, 40, 200, 100),
+          signature: PdfSignature(
+              certificate: certificate,
+              contactInfo: 'johndoe@owned.us',
+              locationInfo: 'Honolulu, Hawaii',
+              reason: 'I am author of this document.',
+              signedDate: DateTime(2015, 07, 21, 5, 50, 50)));
+      document.form.fields.add(field);
+      final List<int> bytes = document.saveSync();
+      document.dispose();
+      document = PdfDocument(inputBytes: bytes);
+      expect(
+          (document.form.fields[0] as PdfSignatureField)
+              .signature!
+              .signedDate
+              .toString(),
+          '2015-07-21 05:50:50.000');
+      document.dispose();
+      bytes.clear();
+    });
+    test('Signed date test 2', () {
+      PdfDocument document = PdfDocument();
+      List<int> bytes = document.saveSync();
+      document.dispose();
+      document = PdfDocument(inputBytes: bytes);
+      final PdfPage page = document.pages[0];
+      final PdfCertificate certificate =
+          PdfCertificate(base64.decode(pdfPfx), 'syncfusion');
+      final PdfSignatureField field = PdfSignatureField(page, 'signature',
+          bounds: const Rect.fromLTWH(40, 40, 200, 100),
+          signature: PdfSignature(
+              certificate: certificate,
+              contactInfo: 'johndoe@owned.us',
+              locationInfo: 'Honolulu, Hawaii',
+              reason: 'I am author of this document.')
+            ..signedDate = DateTime(2015, 07, 21, 5, 50, 50));
+      document.form.fields.add(field);
+      bytes = document.saveSync();
+      document.dispose();
+      document = PdfDocument(inputBytes: bytes);
+      expect(
+          (document.form.fields[0] as PdfSignatureField)
+              .signature!
+              .signedDate
+              .toString(),
+          '2015-07-21 05:50:50.000');
+      document.dispose();
+      bytes.clear();
+    });
   });
 }
 

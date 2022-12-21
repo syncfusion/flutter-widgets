@@ -273,13 +273,13 @@ class ScatterChartPainter extends CustomPainter {
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         final CartesianChartPoint<dynamic> currentPoint =
             dataPoints[pointIndex];
-        final bool withInXRange = withInRange(currentPoint.xValue,
-            seriesRendererDetails.xAxisDetails!.visibleRange!);
+        final bool withInXRange = withInRange(
+            currentPoint.xValue, seriesRendererDetails.xAxisDetails!);
         // ignore: unnecessary_null_comparison
         final bool withInYRange = currentPoint != null &&
             currentPoint.yValue != null &&
-            withInRange(currentPoint.yValue,
-                seriesRendererDetails.yAxisDetails!.visibleRange!);
+            withInRange(
+                currentPoint.yValue, seriesRendererDetails.yAxisDetails!);
         if (withInXRange || withInYRange) {
           seriesRendererDetails.calculateRegionData(
               stateProperties,

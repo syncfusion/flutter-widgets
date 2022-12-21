@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide DataCell, DataRow;
+import 'package:syncfusion_flutter_core/localizations.dart';
 
 import '../../grid_common/row_column_index.dart';
 import '../../grid_common/scroll_axis.dart';
@@ -447,6 +448,260 @@ String calculateAverage(
   return sum != null ? (sum / count).toString() : '';
 }
 
+//--------------------- Filtering helper methods ------------------------//
+
+/// Compare the AND logical operator for the filtering support.
+bool compareAnd(bool? a, bool b) {
+  return (a == null || a) ? b : a;
+}
+
+/// Compare the OR logical operator for the filtering support.
+bool compareOr(bool? a, bool b) {
+  return (a != null && a) || b;
+}
+
+/// Compare the old and new comparer values based on `predicateType`.
+bool compare(bool? comparerValue, bool result, FilterOperator predicateType) {
+  return predicateType == FilterOperator.or
+      ? compareOr(comparerValue, result)
+      : compareAnd(comparerValue, result);
+}
+
+/// Checkes whether the cell value and the filter value is equal or not.
+bool compareEquals(FilterCondition condition, Object? cellValue) {
+  // To handle the null value.
+  if (condition.value == null && cellValue == null) {
+    return true;
+  }
+
+  // To handle the null and empty values.
+  if ((condition.value == null && cellValue != null) ||
+      (condition.value != null && cellValue == null)) {
+    return false;
+  }
+
+  if (cellValue is String ||
+      condition.filterBehavior == FilterBehavior.stringDataType) {
+    return _compareByType(condition, cellValue, 'equals');
+  }
+
+  final int? value = _getCompareValue(cellValue, condition.value);
+  return value != null && value == 0;
+}
+
+/// Checkes whether the filter value contains in any cell value or not.
+bool compareContains(FilterCondition condition, Object? cellValue) {
+  return _compareByType(condition, cellValue, 'contains');
+}
+
+/// Checkes whether the filter value begins with any cell value.
+bool compareBeginsWith(FilterCondition condition, Object? cellValue) {
+  return _compareByType(condition, cellValue, 'startsWidth');
+}
+
+/// Checkes whether the filter value ends with any cell value.
+bool compareEndsWith(FilterCondition condition, Object? cellValue) {
+  return _compareByType(condition, cellValue, 'endsWidth');
+}
+
+bool _compareByType(FilterCondition condition, Object? cellValue, String type) {
+  String displayText = cellValue?.toString() ?? '';
+  String filterText = condition.value?.toString() ?? '';
+  if (!condition.isCaseSensitive) {
+    filterText = filterText.toLowerCase();
+    displayText = displayText.toLowerCase();
+  }
+
+  switch (type) {
+    case 'contains':
+      return displayText.contains(filterText);
+    case 'startsWidth':
+      return displayText.startsWith(filterText);
+    case 'endsWidth':
+      return displayText.endsWith(filterText);
+    case 'equals':
+      return displayText == filterText;
+    default:
+      return false;
+  }
+}
+
+/// Checkes whether any cell has greater value than the filter value.
+bool compareGreaterThan(FilterCondition condition, Object? cellValue,
+    [bool checkEqual = false]) {
+  if (condition.value == null || cellValue == null) {
+    return false;
+  }
+
+  final int? value = _getCompareValue(cellValue, condition.value);
+  if (value != null) {
+    return checkEqual ? (value == 0 || value == 1) : value == 1;
+  }
+
+  return false;
+}
+
+/// Checkes whether any cell has less value than the filter value.
+bool compareLessThan(FilterCondition condition, Object? cellValue,
+    [bool checkEqual = false]) {
+  if (condition.value == null || cellValue == null) {
+    return false;
+  }
+
+  final int? value = _getCompareValue(cellValue, condition.value);
+  if (value != null) {
+    return checkEqual ? (value == 0 || value == -1) : value == -1;
+  }
+
+  return false;
+}
+
+int? _getCompareValue(Object? cellValue, Object? filterValue) {
+  if (cellValue == null || filterValue == null) {
+    return null;
+  }
+
+  if (cellValue is num) {
+    return cellValue.compareTo(filterValue as num);
+  } else if (cellValue is DateTime) {
+    return cellValue.compareTo(filterValue as DateTime);
+  }
+  return null;
+}
+
+/// Gets the advanced filter name.
+String getFilterTileText(
+    SfLocalizations localizations, AdvancedFilterType type) {
+  switch (type) {
+    case AdvancedFilterType.text:
+      return localizations.textFiltersDataGridFilteringLabel;
+    case AdvancedFilterType.numeric:
+      return localizations.numberFiltersDataGridFilteringLabel;
+    case AdvancedFilterType.date:
+      return localizations.dateFiltersDataGridFilteringLabel;
+  }
+}
+
+/// Returns the Sort button text based on the filter type.
+String getSortButtonText(
+    SfLocalizations localizations, bool isAscending, AdvancedFilterType type) {
+  switch (type) {
+    case AdvancedFilterType.text:
+      return isAscending
+          ? localizations.sortAToZDataGridFilteringLabel
+          : localizations.sortZToADataGridFilteringLabel;
+    case AdvancedFilterType.numeric:
+      return isAscending
+          ? localizations.sortSmallestToLargestDataGridFilteringLabel
+          : localizations.sortLargestToSmallestDataGridFilteringLabel;
+    case AdvancedFilterType.date:
+      return isAscending
+          ? localizations.sortOldestToNewestDataGridFilteringLabel
+          : localizations.sortNewestToOldestDataGridFilteringLabel;
+  }
+}
+
+/// Returns the `FilterType` based on the given value.
+FilterType getFilterType(
+    DataGridConfiguration dataGridConfiguration, String value) {
+  bool isEqual(String labelValue) {
+    return labelValue == value;
+  }
+
+  final SfLocalizations localizations = dataGridConfiguration.localizations;
+
+  if (isEqual(localizations.equalsDataGridFilteringLabel) ||
+      isEqual(localizations.emptyDataGridFilteringLabel) ||
+      isEqual(localizations.nullDataGridFilteringLabel)) {
+    return FilterType.equals;
+  } else if (isEqual(localizations.doesNotEqualDataGridFilteringLabel) ||
+      isEqual(localizations.notEmptyDataGridFilteringLabel) ||
+      isEqual(localizations.notNullDataGridFilteringLabel)) {
+    return FilterType.notEqual;
+  } else if (isEqual(localizations.beginsWithDataGridFilteringLabel)) {
+    return FilterType.beginsWith;
+  } else if (isEqual(localizations.doesNotBeginWithDataGridFilteringLabel)) {
+    return FilterType.doesNotBeginWith;
+  } else if (isEqual(localizations.endsWithDataGridFilteringLabel)) {
+    return FilterType.endsWith;
+  } else if (isEqual(localizations.doesNotEndWithDataGridFilteringLabel)) {
+    return FilterType.doesNotEndsWith;
+  } else if (isEqual(localizations.containsDataGridFilteringLabel)) {
+    return FilterType.contains;
+  } else if (isEqual(localizations.doesNotContainDataGridFilteringLabel)) {
+    return FilterType.doesNotContain;
+  } else if (isEqual(localizations.lessThanDataGridFilteringLabel) ||
+      isEqual(localizations.beforeDataGridFilteringLabel)) {
+    return FilterType.lessThan;
+  } else if (isEqual(localizations.beforeOrEqualDataGridFilteringLabel) ||
+      isEqual(localizations.lessThanOrEqualDataGridFilteringLabel)) {
+    return FilterType.lessThanOrEqual;
+  } else if (isEqual(localizations.greaterThanDataGridFilteringLabel) ||
+      isEqual(localizations.afterDataGridFilteringLabel)) {
+    return FilterType.greaterThan;
+  } else if (isEqual(localizations.greaterThanOrEqualDataGridFilteringLabel) ||
+      isEqual(localizations.afterOrEqualDataGridFilteringLabel)) {
+    return FilterType.greaterThanOrEqual;
+  }
+  return FilterType.equals;
+}
+
+/// Gets the name of the given `FilterType`.
+String getFilterName(DataGridConfiguration dataGridConfiguration,
+    FilterType type, Object? value) {
+  final SfLocalizations localizations = dataGridConfiguration.localizations;
+  switch (type) {
+    case FilterType.equals:
+      if (value == null) {
+        return localizations.nullDataGridFilteringLabel;
+      } else if (value is String && value.isEmpty) {
+        return localizations.emptyDataGridFilteringLabel;
+      } else {
+        return localizations.equalsDataGridFilteringLabel;
+      }
+    case FilterType.notEqual:
+      if (value == null) {
+        return localizations.notNullDataGridFilteringLabel;
+      } else if (value is String && value.isEmpty) {
+        return localizations.notEmptyDataGridFilteringLabel;
+      } else {
+        return localizations.doesNotEqualDataGridFilteringLabel;
+      }
+    case FilterType.beginsWith:
+      return localizations.beginsWithDataGridFilteringLabel;
+    case FilterType.doesNotBeginWith:
+      return localizations.doesNotBeginWithDataGridFilteringLabel;
+    case FilterType.endsWith:
+      return localizations.endsWithDataGridFilteringLabel;
+    case FilterType.doesNotEndsWith:
+      return localizations.doesNotEndWithDataGridFilteringLabel;
+    case FilterType.contains:
+      return localizations.containsDataGridFilteringLabel;
+    case FilterType.doesNotContain:
+      return localizations.doesNotContainDataGridFilteringLabel;
+    case FilterType.lessThan:
+      if (value is DateTime) {
+        return localizations.beforeDataGridFilteringLabel;
+      }
+      return localizations.lessThanDataGridFilteringLabel;
+    case FilterType.lessThanOrEqual:
+      if (value is DateTime) {
+        return localizations.beforeOrEqualDataGridFilteringLabel;
+      }
+      return localizations.lessThanOrEqualDataGridFilteringLabel;
+    case FilterType.greaterThan:
+      if (value is DateTime) {
+        return localizations.afterDataGridFilteringLabel;
+      }
+      return localizations.greaterThanDataGridFilteringLabel;
+    case FilterType.greaterThanOrEqual:
+      if (value is DateTime) {
+        return localizations.afterOrEqualDataGridFilteringLabel;
+      }
+      return localizations.greaterThanOrEqualDataGridFilteringLabel;
+  }
+}
+
 //--------------------DataGridIndex-Resolving-Helpers-End---------------------//
 
 //----------------------------------------------------------------------------//
@@ -578,9 +833,11 @@ Future<void> scrollVertical(
     return;
   }
 
-  verticalOffset = verticalOffset > verticalController.position.maxScrollExtent
-      ? verticalController.position.maxScrollExtent
-      : verticalOffset;
+  final double maxScrollExtent = max(
+      dataGridConfiguration.container.rowHeights.totalExtent -
+          dataGridConfiguration.viewHeight,
+      0.0);
+  verticalOffset = min(verticalOffset, maxScrollExtent);
   verticalOffset = verticalOffset.isNegative || verticalOffset == 0.0
       ? verticalController.position.minScrollExtent
       : verticalOffset;
@@ -608,10 +865,11 @@ Future<void> scrollHorizontal(
     return;
   }
 
-  horizontalOffset =
-      horizontalOffset > horizontalController.position.maxScrollExtent
-          ? horizontalController.position.maxScrollExtent
-          : horizontalOffset;
+  final double maxScrollExtent = max(
+      dataGridConfiguration.container.columnWidths.totalExtent -
+          dataGridConfiguration.viewWidth,
+      0.0);
+  horizontalOffset = min(horizontalOffset, maxScrollExtent);
   horizontalOffset = horizontalOffset.isNegative || horizontalOffset == 0.0
       ? horizontalController.position.minScrollExtent
       : horizontalOffset;

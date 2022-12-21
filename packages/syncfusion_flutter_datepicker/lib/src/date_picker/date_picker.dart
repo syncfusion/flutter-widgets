@@ -5660,15 +5660,12 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
           ?.removePropertyChangedListener(_pickerValueChangedListener);
       _controller.removePropertyChangedListener(_pickerValueChangedListener);
       if (widget.controller != null) {
-        _controller.selectedDate = widget.controller!.selectedDate;
+        _controller = widget.controller;
         _controller.selectedDates = _getSelectedDates(
             DateRangePickerHelper.cloneList(widget.controller!.selectedDates));
-        _controller.selectedRange = widget.controller!.selectedRange;
         _controller.selectedRanges = _getSelectedRanges(
             DateRangePickerHelper.cloneList(widget.controller!.selectedRanges));
-        _controller.view = widget.controller!.view;
-        _controller.displayDate =
-            widget.controller!.displayDate ?? _currentDate;
+        _controller.displayDate ??= _currentDate;
         _currentDate = getValidDate(
             widget.minDate, widget.maxDate, _controller.displayDate);
       } else {
@@ -8765,13 +8762,6 @@ class _PickerScrollViewState extends State<_PickerScrollView>
       _children.clear();
     }
 
-    if (oldWidget.picker.controller != widget.controller) {
-      _position = 0;
-      _children.clear();
-      _updateVisibleDates();
-      _triggerViewChangedCallback();
-    }
-
     if (widget.isRtl != oldWidget.isRtl ||
         widget.picker.enableMultiView != oldWidget.picker.enableMultiView) {
       _position = 0;
@@ -8862,24 +8852,22 @@ class _PickerScrollViewState extends State<_PickerScrollView>
       _triggerSelectableDayPredicates(_currentViewVisibleDates);
     }
 
-    if (oldWidget.picker.controller != widget.controller ||
-        widget.controller == null) {
-      widget.getPickerStateValues(_pickerStateDetails);
-      super.didUpdateWidget(oldWidget);
-      return;
-    }
-
-    if (oldWidget.picker.controller?.displayDate !=
-            widget.controller?.displayDate ||
-        !isSameDate(
-            _pickerStateDetails.currentDate, widget.controller.displayDate)) {
+    if (!isSameDate(
+        _pickerStateDetails.currentDate, widget.controller.displayDate)) {
       _pickerStateDetails.currentDate = widget.controller?.displayDate;
       _updateVisibleDates();
       _triggerSelectableDayPredicates(_currentViewVisibleDates);
       _triggerViewChangedCallback();
     }
 
-    _drawSelection(oldWidget.picker.controller, widget.controller);
+    if (_pickerStateDetails.view != pickerView) {
+      _position = 0;
+      _children.clear();
+      _updateVisibleDates();
+      _triggerViewChangedCallback();
+    }
+
+    _drawSelection(oldWidget.controller, widget.controller, pickerView);
     widget.getPickerStateValues(_pickerStateDetails);
     super.didUpdateWidget(oldWidget);
   }
@@ -9532,9 +9520,8 @@ class _PickerScrollViewState extends State<_PickerScrollView>
     }
   }
 
-  void _drawSelection(dynamic oldValue, dynamic newValue) {
-    final DateRangePickerView pickerView =
-        DateRangePickerHelper.getPickerView(widget.controller.view);
+  void _drawSelection(
+      dynamic oldValue, dynamic newValue, DateRangePickerView pickerView) {
     switch (widget.picker.selectionMode) {
       case DateRangePickerSelectionMode.single:
         {

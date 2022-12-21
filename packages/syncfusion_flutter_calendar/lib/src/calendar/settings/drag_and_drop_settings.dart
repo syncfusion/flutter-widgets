@@ -251,7 +251,7 @@ class DragAndDropSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(allowNavigation, allowScroll, showTimeIndicator,
+    return Object.hash(allowNavigation, allowScroll, showTimeIndicator,
         timeIndicatorStyle, indicatorTimeFormat, autoNavigateDelay);
   }
 }

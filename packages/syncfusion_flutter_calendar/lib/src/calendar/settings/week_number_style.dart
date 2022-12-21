@@ -106,7 +106,7 @@ class WeekNumberStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       backgroundColor,
       textStyle,
     );
