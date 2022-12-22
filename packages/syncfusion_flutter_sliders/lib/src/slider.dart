@@ -1585,7 +1585,8 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
         tooltipPosition: tooltipPosition,
         textDirection: Directionality.of(context),
         mediaQueryData: MediaQuery.of(context),
-        state: state);
+        state: state,
+        gestureSettings: MediaQuery.of(context).gestureSettings);
   }
 
   @override
@@ -1753,6 +1754,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     required TextDirection textDirection,
     required MediaQueryData mediaQueryData,
     required _SfSliderState state,
+    required DeviceGestureSettings gestureSettings,
   })  : _state = state,
         _value = value,
         _semanticFormatterCallback = semanticFormatterCallback,
@@ -1797,7 +1799,8 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
         ..onStart = _onDragStart
         ..onUpdate = _onDragUpdate
         ..onEnd = _onDragEnd
-        ..onCancel = _onDragCancel;
+        ..onCancel = _onDragCancel
+        ..gestureSettings = gestureSettings;
     }
 
     if (sliderType == SliderType.vertical) {
@@ -1806,7 +1809,8 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
         ..onStart = _onVerticalDragStart
         ..onUpdate = _onVerticalDragUpdate
         ..onEnd = _onVerticalDragEnd
-        ..onCancel = _onVerticalDragCancel;
+        ..onCancel = _onVerticalDragCancel
+        ..gestureSettings = gestureSettings;
     }
 
     tapGestureRecognizer = TapGestureRecognizer()
@@ -2158,6 +2162,14 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     for (final RenderBox child in children) {
       child.detach();
     }
+  }
+
+  @override
+  void dispose() {
+    horizontalDragGestureRecognizer?.dispose();
+    verticalDragGestureRecognizer?.dispose();
+    tapGestureRecognizer.dispose();
+    super.dispose();
   }
 
   @override

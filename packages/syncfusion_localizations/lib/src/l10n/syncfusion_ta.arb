@@ -23,7 +23,7 @@
 "allowedViewWorkWeekLabel" : "வேலை வாரம்", 
 "allowedViewMonthLabel" : "மாதம்", 
 "allowedViewScheduleLabel" : "அட்டவணை", 
-"allowedViewTimelineDayLabel" : "காலவரிசை நாள்",
+"allowedViewTimelineDayLabel" : "காலக்கெடு நாள்", 
 "allowedViewTimelineWeekLabel" : "காலவரிசை வாரம்", 
 "allowedViewTimelineWorkWeekLabel" : "காலக்கெடு வேலை வாரம்", 
 "allowedViewTimelineMonthLabel" : "காலவரிசை மாதம்", 
@@ -40,7 +40,7 @@
 "shaabanLabel" : "ஷஅபான்", 
 "ramadanLabel" : "ரமலான்", 
 "shawwalLabel" : "ஷவ்வால்", 
-"dhualqiLabel" : "து அல்-கிடா", 
+"dhualqiLabel" : "Dhu al-Qi'dah", 
 "dhualhiLabel" : "து அல்-ஹிஜ்ஜா", 
 "shortMuharramLabel" : "முஹ்.", 
 "shortSafarLabel" : "Saf.", 
@@ -51,7 +51,7 @@
 "shortRajabLabel" : "ராஜ்.", 
 "shortShaabanLabel" : "ஷா.", 
 "shortRamadanLabel" : "ரேம்.", 
-"shortShawwalLabel" : "ஷா.", 
+"shortShawwalLabel" : "ஷா", 
 "shortDhualqiLabel" : "துல்-கே", 
 "shortDhualhiLabel" : "துல்-எச்", 
 "daySpanCountLabel" : "நாள்", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Z முதல் A வரை வரிசைப்படுத்தவும்", 
 "sortOldestToNewestDataGridFilteringLabel" : "பழமையானது முதல் புதியது வரை வரிசைப்படுத்தவும்", 
 "sortNewestToOldestDataGridFilteringLabel" : "புதியது முதல் பழையது என வரிசைப்படுத்தவும்", 
-"clearFilterFromDataGridFilteringLabel" : "இதிலிருந்து வடிகட்டியை அழி", 
 "textFiltersDataGridFilteringLabel" : "உரை வடிப்பான்கள்", 
 "numberFiltersDataGridFilteringLabel" : "எண் வடிப்பான்கள்", 
 "dateFiltersDataGridFilteringLabel" : "தேதி வடிகட்டிகள்", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "மற்றும்", 
 "orDataGridFilteringLabel" : "அல்லது", 
 "selectAllDataGridFilteringLabel" : "அனைத்தையும் தெரிவுசெய்", 
-"sortAndFilterDataGridFilteringLabel" : "வரிசைப்படுத்தி வடிகட்டவும்"
+"sortAndFilterDataGridFilteringLabel" : "வரிசைப்படுத்தி வடிகட்டவும்", 
+"clearFilterDataGridFilteringLabel" : "வடிகட்டியை அழி", 
+"fromDataGridFilteringLabel" : "இருந்து"
 }

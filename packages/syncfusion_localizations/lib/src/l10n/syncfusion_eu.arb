@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Ordenatu Ztik A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Ordenatu zaharrenetik berrienera", 
 "sortNewestToOldestDataGridFilteringLabel" : "Ordenatu berrienetik zaharrenetik", 
-"clearFilterFromDataGridFilteringLabel" : "Garbitu iragazkia", 
 "textFiltersDataGridFilteringLabel" : "Testu-iragazkiak", 
 "numberFiltersDataGridFilteringLabel" : "Zenbaki-iragazkiak", 
 "dateFiltersDataGridFilteringLabel" : "Data-iragazkiak", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Eta", 
 "orDataGridFilteringLabel" : "Edo", 
 "selectAllDataGridFilteringLabel" : "Hautatu guztiak", 
-"sortAndFilterDataGridFilteringLabel" : "Ordenatu eta Iragazi"
+"sortAndFilterDataGridFilteringLabel" : "Ordenatu eta Iragazi", 
+"clearFilterDataGridFilteringLabel" : "Garbitu iragazkia", 
+"fromDataGridFilteringLabel" : "Bertatik"
 }

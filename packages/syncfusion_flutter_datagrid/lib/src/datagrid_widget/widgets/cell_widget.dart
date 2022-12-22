@@ -386,10 +386,12 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
         final int sortNumber =
             dataGridConfiguration.source.sortedColumns.indexOf(sortColumn) + 1;
         _sortDirection = sortColumn.sortDirection;
-        _sortNumberBackgroundColor =
+        _sortNumberBackgroundColor = dataGridConfiguration
+                .dataGridThemeHelper!.sortOrderNumberBackgroundColor ??
             dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.12);
         _sortNumberTextColor =
-            dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.87);
+            dataGridConfiguration.dataGridThemeHelper!.sortOrderNumberColor ??
+                dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.87);
         if (dataGridConfiguration.source.sortedColumns.length > 1 &&
             dataGridConfiguration.showSortNumbers) {
           _sortNumber = sortNumber;
@@ -466,7 +468,7 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
             child: Container(child: child),
           ),
           Container(
-            padding: const EdgeInsets.only(left: 4.0, right: 4.0),
+            padding: dataGridConfiguration.columnSizer.iconsOuterPadding,
             child: Center(child: Row(children: children)),
           )
         ]);
@@ -726,38 +728,107 @@ class _FilterIcon extends StatelessWidget {
     return GestureDetector(
       onTapUp: (TapUpDetails details) => onHandleTap(details, context),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        padding: column.filterIconPadding,
         child: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
           return MouseRegion(
-            onEnter: (PointerEnterEvent details) {
+            onEnter: (_) {
               setState(() {
                 isHovered = true;
               });
             },
-            onExit: (PointerExitEvent details) {
+            onExit: (_) {
               setState(() {
                 isHovered = false;
               });
             },
-            child: Icon(
-              isFiltered
-                  ? const IconData(0xe704,
-                      fontFamily: 'FilterIcon',
-                      fontPackage: 'syncfusion_flutter_datagrid')
-                  : const IconData(0xe702,
-                      fontFamily: 'FilterIcon',
-                      fontPackage: 'syncfusion_flutter_datagrid'),
-              size: 18.0,
-              color: isHovered
-                  ? dataGridConfiguration.colorScheme!.onSurface
-                      .withOpacity(0.87)
-                  : dataGridConfiguration.dataGridFilterHelper.iconColor,
-            ),
+            child: isFiltered
+                ? _FilteredIcon(
+                    iconColor: isHovered
+                        ? (dataGridConfiguration
+                                .dataGridThemeHelper!.filterIconHoverColor ??
+                            dataGridConfiguration.colorScheme!.onSurface
+                                .withOpacity(0.87))
+                        : (dataGridConfiguration
+                                .dataGridThemeHelper!.filterIconColor ??
+                            dataGridConfiguration
+                                .dataGridFilterHelper!.iconColor),
+                    filterIcon:
+                        dataGridConfiguration.dataGridThemeHelper!.filterIcon,
+                    gridColumnName: column.columnName,
+                  )
+                : _UnfilteredIcon(
+                    iconColor: isHovered
+                        ? (dataGridConfiguration
+                                .dataGridThemeHelper!.filterIconHoverColor ??
+                            dataGridConfiguration.colorScheme!.onSurface
+                                .withOpacity(0.87))
+                        : (dataGridConfiguration
+                                .dataGridThemeHelper!.filterIconColor ??
+                            dataGridConfiguration
+                                .dataGridFilterHelper!.iconColor),
+                    filterIcon:
+                        dataGridConfiguration.dataGridThemeHelper!.filterIcon,
+                    gridColumnName: column.columnName,
+                  ),
           );
         }),
       ),
     );
+  }
+}
+
+class _UnfilteredIcon extends StatelessWidget {
+  const _UnfilteredIcon(
+      {Key? key,
+      required this.iconColor,
+      required this.filterIcon,
+      required this.gridColumnName})
+      : super(key: key);
+
+  final Color iconColor;
+  final Widget? filterIcon;
+  final String? gridColumnName;
+
+  @override
+  Widget build(BuildContext context) {
+    return filterIcon ??
+        Icon(
+          const IconData(0xe702,
+              fontFamily: 'FilterIcon',
+              fontPackage: 'syncfusion_flutter_datagrid'),
+          size: 18.0,
+          color: iconColor,
+          key: ValueKey<String>(
+              'datagrid_filtering_${gridColumnName}_filterIcon'),
+        );
+  }
+}
+
+class _FilteredIcon extends StatelessWidget {
+  const _FilteredIcon(
+      {Key? key,
+      required this.iconColor,
+      required this.filterIcon,
+      required this.gridColumnName})
+      : super(key: key);
+
+  final Color iconColor;
+  final Widget? filterIcon;
+  final String? gridColumnName;
+
+  @override
+  Widget build(BuildContext context) {
+    return filterIcon ??
+        Icon(
+          const IconData(0xe704,
+              fontFamily: 'FilterIcon',
+              fontPackage: 'syncfusion_flutter_datagrid'),
+          size: 18.0,
+          color: iconColor,
+          key: ValueKey<String>(
+              'datagrid_filtering_${gridColumnName}_filterIcon'),
+        );
   }
 }
 
@@ -845,7 +916,7 @@ class _FilterPopupState extends State<_FilterPopup> {
 
   void _initializeFilterProperties() {
     isMobile = !widget.dataGridConfiguration.isDesktop;
-    filterHelper = widget.dataGridConfiguration.dataGridFilterHelper;
+    filterHelper = widget.dataGridConfiguration.dataGridFilterHelper!;
     filterHelper.filterFrom = filterHelper.getFilterForm(widget.column);
     isAdvancedFilter = filterHelper.filterFrom == FilteredFrom.advancedFilter;
     filterHelper.checkboxFilterHelper.textController.clear();
@@ -891,6 +962,7 @@ class _FilterPopupState extends State<_FilterPopup> {
             child: Container(height: 1.0, color: filterHelper.borderColor)),
         backgroundColor: filterHelper.backgroundColor,
         leading: IconButton(
+            key: const ValueKey<String>('datagrid_filtering_cancelFilter_icon'),
             onPressed: closePage,
             icon: Icon(Icons.close, size: 22.0, color: filterHelper.iconColor)),
         centerTitle: false,
@@ -901,6 +973,7 @@ class _FilterPopupState extends State<_FilterPopup> {
             style: filterHelper.textStyle),
         actions: <Widget>[
           IconButton(
+            key: const ValueKey<String>('datagrid_filtering_applyFilter_icon'),
             onPressed: canDisableOkButton() ? null : onHandleOkButtonTap,
             icon: Icon(Icons.check,
                 size: 22.0,
@@ -925,106 +998,152 @@ class _FilterPopupState extends State<_FilterPopup> {
     final bool isSortDescendingEnabled =
         canEnableSortButton(DataGridSortDirection.descending);
     final bool isClearFilterEnabled = hasFilterConditions();
+    const FilterPopupMenuOptions filterPopupMenuOptions =
+        FilterPopupMenuOptions();
+    bool isCheckboxFilterEnabled =
+        filterPopupMenuOptions.filterMode == FilterMode.checkboxFilter;
+    bool isAdvancedFilterEnabled =
+        filterPopupMenuOptions.filterMode == FilterMode.advancedFilter;
+    bool isBothFilterEnabled =
+        filterPopupMenuOptions.filterMode == FilterMode.both;
+    bool canShowSortingOptions = filterPopupMenuOptions.canShowSortingOptions;
+    bool canShowClearFilterOption =
+        filterPopupMenuOptions.canShowClearFilterOption;
+    bool showColumnName = filterPopupMenuOptions.showColumnName;
+    double advanceFilterTopPadding = 12;
+
+    if (widget.column.filterPopupMenuOptions != null) {
+      isCheckboxFilterEnabled =
+          widget.column.filterPopupMenuOptions!.filterMode ==
+              FilterMode.checkboxFilter;
+      isAdvancedFilterEnabled =
+          widget.column.filterPopupMenuOptions!.filterMode ==
+              FilterMode.advancedFilter;
+      isBothFilterEnabled =
+          widget.column.filterPopupMenuOptions!.filterMode == FilterMode.both;
+      canShowSortingOptions =
+          widget.column.filterPopupMenuOptions!.canShowSortingOptions;
+      canShowClearFilterOption =
+          widget.column.filterPopupMenuOptions!.canShowClearFilterOption;
+      showColumnName = widget.column.filterPopupMenuOptions!.showColumnName;
+    }
 
     Widget buildPopup({Size? viewSize}) {
       return SingleChildScrollView(
+        key: const ValueKey<String>('datagrid_filtering_scrollView'),
         child: Container(
           width: isMobile ? null : 274.0,
           color: filterHelper.backgroundColor,
           child: Column(
             children: <Widget>[
-              _FilterPopupMenuTile(
-                  style: isSortAscendingEnabled
+              if (canShowSortingOptions)
+                _FilterPopupMenuTile(
+                    style: isSortAscendingEnabled
+                        ? filterHelper.textStyle
+                        : filterHelper.disableTextStyle,
+                    height: filterHelper.tileHeight,
+                    prefix: Icon(
+                        const IconData(0xe700,
+                            fontFamily: 'FilterIcon',
+                            fontPackage: 'syncfusion_flutter_datagrid'),
+                        color: isSortAscendingEnabled
+                            ? iconColor
+                            : filterHelper.disableIconColor),
+                    prefixPadding:
+                        const EdgeInsets.only(left: 4.0, right: 14.0),
+                    onTap: isSortAscendingEnabled
+                        ? onHandleSortAscendingTap
+                        : null,
+                    child: Text(grid_helper.getSortButtonText(
+                        localizations, true, filterType))),
+              if (canShowSortingOptions)
+                _FilterPopupMenuTile(
+                  style: isSortDescendingEnabled
                       ? filterHelper.textStyle
                       : filterHelper.disableTextStyle,
                   height: filterHelper.tileHeight,
                   prefix: Icon(
-                      const IconData(0xe700,
+                      const IconData(0xe701,
                           fontFamily: 'FilterIcon',
                           fontPackage: 'syncfusion_flutter_datagrid'),
-                      color: isSortAscendingEnabled
+                      color: isSortDescendingEnabled
                           ? iconColor
                           : filterHelper.disableIconColor),
                   prefixPadding: const EdgeInsets.only(left: 4.0, right: 14.0),
-                  onTap:
-                      isSortAscendingEnabled ? onHandleSortAscendingTap : null,
+                  onTap: isSortDescendingEnabled
+                      ? onHandleSortDescendingTap
+                      : null,
                   child: Text(grid_helper.getSortButtonText(
-                      localizations, true, filterType))),
-              _FilterPopupMenuTile(
-                style: isSortDescendingEnabled
-                    ? filterHelper.textStyle
-                    : filterHelper.disableTextStyle,
-                height: filterHelper.tileHeight,
-                prefix: Icon(
-                    const IconData(0xe701,
-                        fontFamily: 'FilterIcon',
-                        fontPackage: 'syncfusion_flutter_datagrid'),
-                    color: isSortDescendingEnabled
-                        ? iconColor
-                        : filterHelper.disableIconColor),
-                prefixPadding: const EdgeInsets.only(left: 4.0, right: 14.0),
-                onTap:
-                    isSortDescendingEnabled ? onHandleSortDescendingTap : null,
-                child: Text(grid_helper.getSortButtonText(
-                    localizations, false, filterType)),
-              ),
-              const Divider(indent: 8.0, endIndent: 8.0),
-              _FilterPopupMenuTile(
-                style: isClearFilterEnabled
-                    ? filterHelper.textStyle
-                    : filterHelper.disableTextStyle,
-                height: filterHelper.tileHeight,
-                prefix: Icon(
-                    const IconData(0xe703,
-                        fontFamily: 'FilterIcon',
-                        fontPackage: 'syncfusion_flutter_datagrid'),
-                    size: 22.0,
-                    color: isClearFilterEnabled
-                        ? iconColor
-                        : filterHelper.disableIconColor),
-                prefixPadding: const EdgeInsets.only(left: 4.0, right: 14.0),
-                onTap: isClearFilterEnabled ? onHandleClearFilterTap : null,
-                child: Text(getClearFilterText(localizations),
-                    overflow: TextOverflow.ellipsis),
-              ),
-              _FilterPopupMenuTile(
-                style: filterHelper.textStyle,
-                height: filterHelper.tileHeight,
-                onTap: onHandleExpansionTileTap,
-                prefix: Icon(
-                    filterHelper.getFilterForm(widget.column) ==
-                            FilteredFrom.advancedFilter
-                        ? const IconData(0xe704,
-                            fontFamily: 'FilterIcon',
-                            fontPackage: 'syncfusion_flutter_datagrid')
-                        : const IconData(0xe702,
-                            fontFamily: 'FilterIcon',
-                            fontPackage: 'syncfusion_flutter_datagrid'),
-                    size: 20.0,
-                    color: iconColor),
-                suffix: Icon(
-                    isAdvancedFilter
-                        ? Icons.keyboard_arrow_down
-                        : Icons.keyboard_arrow_right,
-                    size: 20.0,
-                    color: iconColor),
-                prefixPadding: const EdgeInsets.only(left: 4.0, right: 14.0),
-                child: Text(
-                    grid_helper.getFilterTileText(localizations, filterType)),
-              ),
-              Visibility(
-                visible: isAdvancedFilter,
-                replacement: _CheckboxFilterMenu(
-                  column: widget.column,
-                  setState: setState,
-                  viewSize: viewSize,
-                  dataGridConfiguration: widget.dataGridConfiguration,
+                      localizations, false, filterType)),
                 ),
-                child: _AdvancedFilterPopupMenu(
+              if (canShowSortingOptions)
+                const Divider(indent: 8.0, endIndent: 8.0),
+              if (canShowClearFilterOption)
+                _FilterPopupMenuTile(
+                  style: isClearFilterEnabled
+                      ? filterHelper.textStyle
+                      : filterHelper.disableTextStyle,
+                  height: filterHelper.tileHeight,
+                  prefix: Icon(
+                      const IconData(0xe703,
+                          fontFamily: 'FilterIcon',
+                          fontPackage: 'syncfusion_flutter_datagrid'),
+                      size: 22.0,
+                      color: isClearFilterEnabled
+                          ? iconColor
+                          : filterHelper.disableIconColor),
+                  prefixPadding: const EdgeInsets.only(left: 4.0, right: 14.0),
+                  onTap: isClearFilterEnabled ? onHandleClearFilterTap : null,
+                  child: Text(getClearFilterText(localizations, showColumnName),
+                      overflow: TextOverflow.ellipsis),
+                ),
+              if (isAdvancedFilterEnabled)
+                _AdvancedFilterPopupMenu(
                   setState: setState,
                   dataGridConfiguration: widget.dataGridConfiguration,
+                  advanceFilterTopPadding: advanceFilterTopPadding,
                 ),
-              ),
+              if (isBothFilterEnabled)
+                _FilterPopupMenuTile(
+                  style: filterHelper.textStyle,
+                  height: filterHelper.tileHeight,
+                  onTap: onHandleExpansionTileTap,
+                  prefix: Icon(
+                      filterHelper.getFilterForm(widget.column) ==
+                              FilteredFrom.advancedFilter
+                          ? const IconData(0xe704,
+                              fontFamily: 'FilterIcon',
+                              fontPackage: 'syncfusion_flutter_datagrid')
+                          : const IconData(0xe702,
+                              fontFamily: 'FilterIcon',
+                              fontPackage: 'syncfusion_flutter_datagrid'),
+                      size: 20.0,
+                      color: iconColor),
+                  suffix: Icon(
+                      isAdvancedFilter
+                          ? Icons.keyboard_arrow_down
+                          : Icons.keyboard_arrow_right,
+                      size: 20.0,
+                      color: iconColor),
+                  prefixPadding: const EdgeInsets.only(left: 4.0, right: 14.0),
+                  child: Text(
+                      grid_helper.getFilterTileText(localizations, filterType)),
+                ),
+              if (isCheckboxFilterEnabled || isBothFilterEnabled)
+                Visibility(
+                  visible: isAdvancedFilter,
+                  replacement: _CheckboxFilterMenu(
+                    column: widget.column,
+                    setState: setState,
+                    viewSize: viewSize,
+                    dataGridConfiguration: widget.dataGridConfiguration,
+                  ),
+                  child: _AdvancedFilterPopupMenu(
+                    setState: setState,
+                    dataGridConfiguration: widget.dataGridConfiguration,
+                    advanceFilterTopPadding: advanceFilterTopPadding,
+                  ),
+                ),
               if (!isMobile) const Divider(height: 10),
               if (!isMobile)
                 Padding(
@@ -1061,6 +1180,15 @@ class _FilterPopupState extends State<_FilterPopup> {
           ),
         ),
       );
+    }
+
+    if (isAdvancedFilterEnabled) {
+      isAdvancedFilter = true;
+    }
+    if (isAdvancedFilterEnabled &&
+        !canShowClearFilterOption &&
+        !canShowSortingOptions) {
+      advanceFilterTopPadding = 6;
     }
 
     if (isMobile) {
@@ -1139,8 +1267,12 @@ class _FilterPopupState extends State<_FilterPopup> {
     return false;
   }
 
-  String getClearFilterText(SfLocalizations localization) {
-    return '${localization.clearFilterFromDataGridFilteringLabel} "${widget.column.columnName}"';
+  String getClearFilterText(SfLocalizations localization, bool showColumnName) {
+    if (showColumnName) {
+      return '${localization.clearFilterDataGridFilteringLabel} ${localization.fromDataGridFilteringLabel} "${widget.column.columnName}"';
+    } else {
+      return localization.clearFilterDataGridFilteringLabel;
+    }
   }
 }
 
@@ -1261,7 +1393,7 @@ class _CheckboxFilterMenu extends StatelessWidget {
   }
 
   DataGridCheckboxFilterHelper get filterHelper {
-    return dataGridConfiguration.dataGridFilterHelper.checkboxFilterHelper;
+    return dataGridConfiguration.dataGridFilterHelper!.checkboxFilterHelper;
   }
 
   @override
@@ -1278,12 +1410,31 @@ class _CheckboxFilterMenu extends StatelessWidget {
 
   Widget _buildCheckboxListView(BuildContext context) {
     final DataGridFilterHelper helper =
-        dataGridConfiguration.dataGridFilterHelper;
+        dataGridConfiguration.dataGridFilterHelper!;
+
+    // 340.0 it's a occupied height in the current view by the other widgets.
+    double occupiedHeight = 340.0;
+
+    // Need to set the Checkbox Filter height in the mobile platform
+    // based on the options enabled in the Filter popup menu
+    if (column.filterPopupMenuOptions != null && isMobile) {
+      if (!column.filterPopupMenuOptions!.canShowSortingOptions) {
+        // 16.0 is the height of the divider shown below the sorting options
+        occupiedHeight -= (helper.tileHeight * 2) + 16.0;
+      }
+      if (!column.filterPopupMenuOptions!.canShowClearFilterOption) {
+        occupiedHeight -= helper.tileHeight;
+      }
+      if (column.filterPopupMenuOptions!.filterMode ==
+          FilterMode.checkboxFilter) {
+        occupiedHeight -= helper.tileHeight;
+      }
+    }
+
     // Gets the remaining height of the current view to fill the checkbox
-    // listview in the mobile platform. 340.0 it's a occupied height in the
-    // current view by the other widgets.
+    // listview in the mobile platform.
     final double checkboxHeight =
-        isMobile ? max(viewSize!.height - 340.0, 120.0) : 200.0;
+        isMobile ? max(viewSize!.height - occupiedHeight, 120.0) : 200.0;
     final double selectAllButtonHeight = isMobile ? 48.0 : 40.0;
 
     return Padding(
@@ -1323,6 +1474,8 @@ class _CheckboxFilterMenu extends StatelessWidget {
               SizedBox(
                 height: checkboxHeight,
                 child: ListView.builder(
+                    key: const ValueKey<String>(
+                        'datagrid_filtering_checkbox_listView'),
                     prototypeItem: buildCheckboxTile(
                         filterHelper.items.length - 1, helper.textStyle),
                     itemCount: filterHelper.items.length,
@@ -1338,12 +1491,11 @@ class _CheckboxFilterMenu extends StatelessWidget {
 
   Widget _buildSearchBox(Color onSurface, BuildContext context) {
     final DataGridFilterHelper helper =
-        dataGridConfiguration.dataGridFilterHelper;
+        dataGridConfiguration.dataGridFilterHelper!;
 
     void onSearchboxSubmitted(String value) {
       if (filterHelper.items.isNotEmpty) {
-        dataGridConfiguration.dataGridFilterHelper
-            .createFilterConditions(true, column);
+        helper.createFilterConditions(true, column);
         Navigator.pop(context);
       } else {
         filterHelper.searchboxFocusNode.requestFocus();
@@ -1355,6 +1507,7 @@ class _CheckboxFilterMenu extends StatelessWidget {
       child: SizedBox(
         height: isMobile ? 52.0 : 36.0,
         child: TextField(
+          key: const ValueKey<String>('datagrid_filtering_search_textfield'),
           focusNode: filterHelper.searchboxFocusNode,
           controller: filterHelper.textController,
           onChanged: onHandleSearchTextFieldChanged,
@@ -1365,6 +1518,8 @@ class _CheckboxFilterMenu extends StatelessWidget {
               suffixIcon: Visibility(
                   visible: filterHelper.textController.text.isEmpty,
                   replacement: IconButton(
+                      key: const ValueKey<String>(
+                          'datagrid_filtering_clearSearch_icon'),
                       iconSize: 22.0,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints.tightFor(
@@ -1391,7 +1546,7 @@ class _CheckboxFilterMenu extends StatelessWidget {
   Widget? buildCheckboxTile(int index, TextStyle style) {
     if (filterHelper.items.isNotEmpty) {
       final FilterElement element = filterHelper.items[index];
-      final String displayText = dataGridConfiguration.dataGridFilterHelper
+      final String displayText = dataGridConfiguration.dataGridFilterHelper!
           .getDisplayValue(element.value);
       return _FilterPopupMenuTile(
           style: style,
@@ -1433,25 +1588,30 @@ class _CheckboxFilterMenu extends StatelessWidget {
 
 class _AdvancedFilterPopupMenu extends StatelessWidget {
   const _AdvancedFilterPopupMenu(
-      {Key? key, required this.setState, required this.dataGridConfiguration})
+      {Key? key,
+      required this.setState,
+      required this.dataGridConfiguration,
+      required this.advanceFilterTopPadding})
       : super(key: key);
 
   final StateSetter setState;
 
   final DataGridConfiguration dataGridConfiguration;
 
+  final double advanceFilterTopPadding;
+
   bool get isMobile {
     return !dataGridConfiguration.isDesktop;
   }
 
   DataGridAdvancedFilterHelper get filterHelper {
-    return dataGridConfiguration.dataGridFilterHelper.advancedFilterHelper;
+    return dataGridConfiguration.dataGridFilterHelper!.advancedFilterHelper;
   }
 
   @override
   Widget build(BuildContext context) {
     final DataGridFilterHelper helper =
-        dataGridConfiguration.dataGridFilterHelper;
+        dataGridConfiguration.dataGridFilterHelper!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -1459,7 +1619,7 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
         children: <Widget>[
           _FilterMenuDropdown(
             height: 16.0,
-            padding: const EdgeInsets.only(top: 12.0, bottom: 8.0),
+            padding: EdgeInsets.only(top: advanceFilterTopPadding, bottom: 8.0),
             child: Text(
                 '${dataGridConfiguration.localizations.showRowsWhereDataGridFilteringLabel}:',
                 style: TextStyle(
@@ -1495,7 +1655,7 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
 
   Widget _buildRadioButtons() {
     final DataGridFilterHelper helper =
-        dataGridConfiguration.dataGridFilterHelper;
+        dataGridConfiguration.dataGridFilterHelper!;
     final SfLocalizations localizations = dataGridConfiguration.localizations;
 
     void handleChanged(bool? value) {
@@ -1510,6 +1670,7 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
           SizedBox.fromSize(
             size: const Size(24.0, 24.0),
             child: Radio<bool>(
+                key: const ValueKey<String>('datagrid_filtering_and_button'),
                 value: false,
                 activeColor: helper.primaryColor,
                 onChanged: handleChanged,
@@ -1523,6 +1684,7 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
           SizedBox.fromSize(
             size: const Size(24.0, 24.0),
             child: Radio<bool>(
+                key: const ValueKey<String>('datagrid_filtering_or_button'),
                 value: true,
                 activeColor: helper.primaryColor,
                 onChanged: handleChanged,
@@ -1537,7 +1699,7 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
 
   Widget _buildFilterValueDropdown({required bool isTopButton}) {
     final DataGridFilterHelper helper =
-        dataGridConfiguration.dataGridFilterHelper;
+        dataGridConfiguration.dataGridFilterHelper!;
 
     void setValue(Object? value) {
       if (isTopButton) {
@@ -1572,6 +1734,11 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
     Widget buildDropdownFormField() {
       return DropdownButtonHideUnderline(
         child: DropdownButtonFormField<Object>(
+          key: isTopButton
+              ? const ValueKey<String>(
+                  'datagrid_filtering_filterValue_first_button')
+              : const ValueKey<String>(
+                  'datagrid_filtering_filterValue_second_button'),
           decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: helper.borderColor)),
@@ -1599,6 +1766,11 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
 
     Widget buildTextField() {
       return TextField(
+        key: isTopButton
+            ? const ValueKey<String>(
+                'datagrid_filtering_filterValue_first_button')
+            : const ValueKey<String>(
+                'datagrid_filtering_filterValue_second_button'),
         controller: isTopButton
             ? filterHelper.firstValueTextController
             : filterHelper.secondValueTextController,
@@ -1627,7 +1799,7 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
 
   Widget _buildFilterTypeDropdown({required bool isFirstButton}) {
     final DataGridFilterHelper helper =
-        dataGridConfiguration.dataGridFilterHelper;
+        dataGridConfiguration.dataGridFilterHelper!;
 
     void handleChanged(String? value) {
       if (isFirstButton) {
@@ -1676,6 +1848,11 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
 
     return DropdownButtonHideUnderline(
       child: DropdownButtonFormField<String>(
+        key: isFirstButton
+            ? const ValueKey<String>(
+                'datagrid_filtering_filterType_first_button')
+            : const ValueKey<String>(
+                'datagrid_filtering_filterType_second_button'),
         decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: helper.borderColor)),
@@ -1699,7 +1876,7 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
 
   Widget? _getTrailingWidget(BuildContext context, bool isFirstButton) {
     final DataGridFilterHelper helper =
-        dataGridConfiguration.dataGridFilterHelper;
+        dataGridConfiguration.dataGridFilterHelper!;
 
     if (filterHelper.advancedFilterType == AdvancedFilterType.numeric) {
       return null;
@@ -1766,6 +1943,11 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
       const IconData caseSensitiveIcon = IconData(0xe705,
           fontFamily: 'FilterIcon', fontPackage: 'syncfusion_flutter_datagrid');
       return IconButton(
+          key: isFirstButton
+              ? const ValueKey<String>(
+                  'datagrid_filtering_case_sensitive_first_button')
+              : const ValueKey<String>(
+                  'datagrid_filtering_case_sensitive_second_button'),
           iconSize: 22.0,
           splashRadius: 20.0,
           padding: EdgeInsets.zero,
@@ -1818,6 +2000,7 @@ BorderDirectional _getCellBorder(
   final bool isTableSummaryCell =
       dataCell.cellType == CellType.tableSummaryCell;
   final bool isRowCell = dataCell.cellType == CellType.gridCell;
+  final bool isCheckboxCell = dataCell.cellType == CellType.checkboxCell;
 
   // To skip bottom border for the top data row of the starting row of bottom table
   // summary rows and draw top border for the bottom summary start row instead.
@@ -1864,7 +2047,7 @@ BorderDirectional _getCellBorder(
           !isHeaderCell;
 
   final GridColumn firstVisibleColumn = dataGridConfiguration.columns
-      .firstWhere((GridColumn column) => column.visible);
+      .firstWhere((GridColumn column) => column.visible && column.width != 0.0);
 
   final GridColumn column = dataCell.gridColumn!;
 
@@ -1882,7 +2065,8 @@ BorderDirectional _getCellBorder(
 
   // To draw the left outer border for the DataGrid Rows.
   final bool canDrawGridRowsLeftOuterBorder = (isRowCell ||
-          isTableSummaryCell) &&
+          isTableSummaryCell ||
+          isCheckboxCell) &&
       dataGridConfiguration.gridLinesVisibility != GridLinesVisibility.none &&
       column.columnName == firstVisibleColumn.columnName;
 

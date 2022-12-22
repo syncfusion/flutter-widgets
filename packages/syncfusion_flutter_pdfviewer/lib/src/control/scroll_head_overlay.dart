@@ -309,12 +309,9 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
         transformationController: widget.transformationController,
         key: _childKey,
         enableDoubleTapZooming: enableDoubleTapZoom,
-        // ignore: avoid_bool_literals_in_conditional_expressions
-        scaleEnabled: ((kIsDesktop && widget.isMobileWebView) ||
-                !kIsDesktop ||
-                (kIsDesktop && widget.scaleEnabled))
-            ? true
-            : false,
+        scaleEnabled:
+            // ignore: avoid_bool_literals_in_conditional_expressions
+            (!kIsDesktop || (kIsDesktop && widget.scaleEnabled)) ? true : false,
         panEnabled: widget.isPanEnabled,
         onInteractionStart: _handleInteractionStart,
         onInteractionUpdate: _handleInteractionChanged,

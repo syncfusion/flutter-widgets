@@ -278,7 +278,7 @@ class StackedAreaChartPainter extends CustomPainter {
         seriesRendererDetails,
         stateProperties,
         seriesRendererDetails.seriesAnimation,
-        seriesRendererDetails.seriesElementAnimation!,
+        seriesRendererDetails.seriesElementAnimation,
         painterKey);
   }
 
@@ -330,7 +330,7 @@ class StackedArea100ChartPainter extends CustomPainter {
         seriesRendererDetails,
         stateProperties,
         seriesRendererDetails.seriesAnimation,
-        seriesRendererDetails.seriesElementAnimation!,
+        seriesRendererDetails.seriesElementAnimation,
         painterKey);
   }
 
@@ -345,7 +345,7 @@ void stackedAreaPainter(
     SeriesRendererDetails seriesRendererDetails,
     CartesianStateProperties stateProperties,
     Animation<double>? seriesAnimation,
-    Animation<double> chartElementAnimation,
+    Animation<double>? chartElementAnimation,
     PainterKey painterKey) {
   Rect clipRect, axisClipRect;
   final int seriesIndex = painterKey.index;

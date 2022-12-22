@@ -11,7 +11,6 @@ import 'dart:ui';
 import 'package:archive/archive.dart';
 import 'package:crypto/crypto.dart';
 // ignore: depend_on_referenced_packages
-import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/date_symbols.dart';
@@ -22,7 +21,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:syncfusion_officecore/officecore.dart';
 import 'package:xml/xml.dart';
 
-
+part 'src/test/images.dart';
 part 'src/xlsio/autoFilters/auto_filter.dart';
 part 'src/xlsio/autoFilters/autofilter_impl.dart';
 part 'src/xlsio/autoFilters/autofiltercollection.dart';
@@ -109,9 +108,16 @@ part 'src/xlsio/hyperlinks/hyperlink.dart';
 part 'src/xlsio/hyperlinks/hyperlink_collection.dart';
 part 'src/xlsio/images/picture.dart';
 part 'src/xlsio/images/pictures_collection.dart';
+part 'src/xlsio/named_range/names_coll.dart';
+part 'src/xlsio/named_range/worksheet_names_collections.dart';
+part 'src/xlsio/named_range/workbook_names_collections.dart';
+part 'src/xlsio/named_range/name.dart';
+part 'src/xlsio/named_range/name_impl.dart';
 part 'src/xlsio/merged_cells/extend_style.dart';
 part 'src/xlsio/merged_cells/merge_cells.dart';
 part 'src/xlsio/merged_cells/merged_cell_collection.dart';
+part 'src/xlsio/page_setup/page_setup.dart';
+part 'src/xlsio/page_setup/page_setup_impl.dart';
 part 'src/xlsio/range/column.dart';
 part 'src/xlsio/range/column_collection.dart';
 part 'src/xlsio/range/range.dart';

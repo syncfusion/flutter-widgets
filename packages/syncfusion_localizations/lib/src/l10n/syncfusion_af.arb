@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Sorteer Z tot A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Sorteer oudste na nuutste", 
 "sortNewestToOldestDataGridFilteringLabel" : "Sorteer nuutste na oudste", 
-"clearFilterFromDataGridFilteringLabel" : "Vee filter uit", 
 "textFiltersDataGridFilteringLabel" : "Teks filters", 
 "numberFiltersDataGridFilteringLabel" : "Getalfilters", 
 "dateFiltersDataGridFilteringLabel" : "Datum filters", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "En", 
 "orDataGridFilteringLabel" : "Of", 
 "selectAllDataGridFilteringLabel" : "Kies Alles", 
-"sortAndFilterDataGridFilteringLabel" : "Sorteer en Filter"
+"sortAndFilterDataGridFilteringLabel" : "Sorteer en Filter", 
+"clearFilterDataGridFilteringLabel" : "Vee filter uit", 
+"fromDataGridFilteringLabel" : "Van"
 }

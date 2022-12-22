@@ -491,6 +491,12 @@ class PdfPageViewState extends State<PdfPageView> {
                   onPointerDown: (PointerDownEvent details) {
                     widget.onPdfPagePointerDown(details);
                   },
+                  onPointerMove: (PointerMoveEvent details) {
+                    widget.onPdfPagePointerMove(details);
+                  },
+                  onPointerUp: (PointerUpEvent details) {
+                    widget.onPdfPagePointerUp(details);
+                  },
                   child: canvasContainer));
       return Stack(children: <Widget>[
         pdfPage,

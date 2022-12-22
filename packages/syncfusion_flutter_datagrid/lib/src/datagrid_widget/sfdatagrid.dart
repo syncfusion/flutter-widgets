@@ -460,6 +460,7 @@ class SfDataGrid extends StatefulWidget {
     this.allowFiltering = false,
     this.onFilterChanging,
     this.onFilterChanged,
+    this.checkboxShape,
   })  : assert(frozenColumnsCount >= 0),
         assert(footerFrozenColumnsCount >= 0),
         assert(frozenRowsCount >= 0),
@@ -1582,6 +1583,15 @@ class SfDataGrid extends StatefulWidget {
   /// programmatically.
   final DataGridFilterChangedCallback? onFilterChanged;
 
+  /// The shape of the checkbox.
+  ///
+  /// This is applicable for checkbox which is shown when enable the [showCheckboxColumn] property.
+  ///
+  /// See also,
+  ///
+  /// [Checkbox.shape]
+  final OutlinedBorder? checkboxShape;
+
   @override
   State<StatefulWidget> createState() => SfDataGridState();
 }
@@ -1630,6 +1640,9 @@ class SfDataGridState extends State<SfDataGrid>
         duration: const Duration(milliseconds: 200), vsync: this);
     _setUp();
     _updateDataGridStateDetails();
+
+    // To perform sort and filter operations based on the `DataGridSource`.
+    updateDataSource(_dataGridConfiguration.source);
     super.initState();
   }
 
@@ -1715,7 +1728,7 @@ class SfDataGridState extends State<SfDataGrid>
       _localizations = newLocalizations;
       _dataGridConfiguration
         ..localizations = newLocalizations
-        ..dataGridFilterHelper.advancedFilterHelper.initProperties();
+        ..dataGridFilterHelper!.advancedFilterHelper.initProperties();
     }
   }
 
@@ -1734,7 +1747,10 @@ class SfDataGridState extends State<SfDataGrid>
   }
 
   void _setUp() {
-    _initializeDataGridDataSource();
+    // Initializes the source
+    _source = widget.source.._dataGridStateDetails = _dataGridStateDetails;
+    _addDataGridSourceListeners();
+
     _initializeCellRendererCollection();
 
     //DataGrid Controller
@@ -1780,11 +1796,6 @@ class SfDataGridState extends State<SfDataGrid>
         ColumnResizeController(dataGridStateDetails: _dataGridStateDetails!);
 
     _initializeProperties();
-
-    // Apply filter on initial loading.
-    if (_dataGridConfiguration.source._filterConditions.isNotEmpty) {
-      _dataGridConfiguration.dataGridFilterHelper.applyFilter();
-    }
   }
 
   @protected
@@ -1977,10 +1988,6 @@ class SfDataGridState extends State<SfDataGrid>
         }
 
         _resetColumn();
-      }
-
-      if (_dataGridConfiguration.source._filterConditions.isNotEmpty) {
-        _dataGridConfiguration.dataGridFilterHelper.applyFilter();
       }
 
       if (widget.selectionMode != SelectionMode.none)
@@ -2321,7 +2328,8 @@ class SfDataGridState extends State<SfDataGrid>
       ..dataGridThemeHelper = _dataGridThemeHelper
       ..allowFiltering = widget.allowFiltering
       ..onFilterChanging = widget.onFilterChanging
-      ..onFilterChanged = widget.onFilterChanged;
+      ..onFilterChanged = widget.onFilterChanged
+      ..checkboxShape = widget.checkboxShape;
 
     if (widget.allowPullToRefresh) {
       _dataGridConfiguration.refreshIndicatorKey ??=
@@ -2390,6 +2398,8 @@ class SfDataGridState extends State<SfDataGrid>
     // To apply filtering to the runtime changes of columns.
     final bool canApplyFiltering =
         isColumnsChanged && _columns!.length != widget.columns.length;
+    final bool isFilteringChanged =
+        oldWidget.allowFiltering != widget.allowFiltering;
 
     if (oldWidget.verticalScrollController != widget.verticalScrollController) {
       if (widget.verticalScrollController != null) {
@@ -2506,11 +2516,13 @@ class SfDataGridState extends State<SfDataGrid>
         isSwipingChanged ||
         isFooterRowChanged ||
         isTableSummaryRowsChanged ||
+        isFilteringChanged ||
         oldWidget.rowHeight != widget.rowHeight ||
         oldWidget.headerRowHeight != widget.headerRowHeight ||
         oldWidget.defaultColumnWidth != widget.defaultColumnWidth ||
         oldWidget.navigationMode != widget.navigationMode ||
         oldWidget.showCheckboxColumn != widget.showCheckboxColumn ||
+        oldWidget.checkboxShape != widget.checkboxShape ||
         oldWidget.rowsCacheExtent != widget.rowsCacheExtent ||
         isRowsPerPageChanged) {
       // Need to endEdit before refreshing
@@ -2519,7 +2531,7 @@ class SfDataGridState extends State<SfDataGrid>
       // Need to initialize the data source when the `isColumnsCollectionChanged`
       // property is true to adapt the `DataGridRow.cells` changes that made by
       // the user based on the `columns` collection changes.
-      if (isSourceChanged || isColumnsCollectionChanged) {
+      if (isSourceChanged || isColumnsCollectionChanged || canApplyFiltering) {
         _initializeDataGridDataSource();
       }
       if (isSortingChanged || isMultiColumnSortingChanged) {
@@ -2556,10 +2568,6 @@ class SfDataGridState extends State<SfDataGrid>
 
       _initializeProperties();
 
-      if (canApplyFiltering) {
-        _dataGridConfiguration.dataGridFilterHelper.applyFilter();
-      }
-
       if (isStackedHeaderRowsChanged || isColumnsChanged) {
         _onStackedHeaderRowsPropertyChanged(oldWidget, widget);
       }
@@ -2586,16 +2594,37 @@ class SfDataGridState extends State<SfDataGrid>
           isColumnsChanged ||
           isColumnSizerChanged ||
           isFrozenColumnPaneChanged ||
-          isSortingChanged ||
           isStackedHeaderRowsChanged ||
           oldWidget.showCheckboxColumn != widget.showCheckboxColumn ||
+          oldWidget.checkboxShape != widget.checkboxShape) {
+        _resetColumn(clearEditing: false);
+        if (isColumnSizerChanged) {
+          resetAutoCalculation(_dataGridConfiguration.columnSizer);
+        }
+      }
+
+      // Need to reset the auto calculation when sorting, filtering or show
+      // sort number properties are changed at runtime. then only, the auto-width
+      // calculation will be calculated for all the columns again. Otherwise,
+      // all the columns will retain the previously calculated width.
+      if (isSortingChanged ||
+          isFilteringChanged ||
           widget.allowSorting && isMultiColumnSortingChanged ||
           widget.allowSorting &&
               widget.allowMultiColumnSorting &&
               isShowSortNumbersChanged) {
-        _resetColumn(clearEditing: false);
-        if (isColumnSizerChanged) {
-          resetAutoCalculation(_dataGridConfiguration.columnSizer);
+        // To reset the auto width calculation.
+        resetAutoCalculation(_dataGridConfiguration.columnSizer);
+
+        final DataRowBase? dataRow = _rowGenerator.items.firstWhereOrNull(
+            (DataRowBase element) => element.rowType == RowType.headerRow);
+        // To refresh the header row to update the sort and filter icon changes
+        // in the header cells.
+        if (dataRow != null) {
+          for (final DataCellBase dataCell in dataRow.visibleColumns) {
+            dataCell.columnIndex = -1;
+          }
+          _container.needToRefreshColumn = true;
         }
       }
 
@@ -2852,9 +2881,9 @@ class SfDataGridState extends State<SfDataGrid>
       _screenSize ??= currentScreenSize;
       if (_screenSize != currentScreenSize &&
           _dataGridConfiguration
-              .dataGridFilterHelper.isFilterPopupMenuShowing) {
+              .dataGridFilterHelper!.isFilterPopupMenuShowing) {
         Navigator.pop(context);
-        _dataGridConfiguration.dataGridFilterHelper.isFilterPopupMenuShowing =
+        _dataGridConfiguration.dataGridFilterHelper!.isFilterPopupMenuShowing =
             false;
       }
       _screenSize = currentScreenSize;
@@ -2909,7 +2938,20 @@ class SfDataGridState extends State<SfDataGrid>
   @override
   void dispose() {
     _removeDataGridSourceListeners();
-    _controller?.removeListener(_handleDataGridPropertyChangeListeners);
+
+    // Issue:
+    // FLUT-7056 - The dataGridPropertyChanged listener is not removed properly
+    // when DataGrid is disposed
+    //
+    // Fix:
+    // The issue occurred due to we didn't remove the listener properly.
+    // It's added to `_dataGridPropertyChangeListeners` but we didn't remove it from the _dataGridPropertyChangeListeners.
+    // We have fixed the issue by removing the respective listener from the_dataGridPropertyChangeListeners
+    // through the _removeDataGridPropertyChangeListener method.
+    _controller?._removeDataGridPropertyChangeListener(
+        _handleDataGridPropertyChangeListeners);
+    _controller?._removeDataGridPropertyChangeListener(
+        _handleSelectionPropertyChanged);
     _dataGridConfiguration
       ..gridPaint = null
       ..boxPainter = null
@@ -2919,10 +2961,10 @@ class SfDataGridState extends State<SfDataGrid>
       _swipingAnimationController!.dispose();
       _swipingAnimationController = null;
     }
-    _dataGridConfiguration.dataGridFilterHelper.checkboxFilterHelper
+    _dataGridConfiguration.dataGridFilterHelper!.checkboxFilterHelper
       ..textController.dispose()
       ..searchboxFocusNode.dispose();
-    _dataGridConfiguration.dataGridFilterHelper.advancedFilterHelper
+    _dataGridConfiguration.dataGridFilterHelper!.advancedFilterHelper
       ..firstValueTextController.dispose()
       ..secondValueTextController.dispose();
     super.dispose();
@@ -3152,10 +3194,10 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
     });
   }
 
-  /// To update the sorted collection in _paginatedRows, notifyListener should be
+  /// To update the sorted or filtered collection in _paginatedRows, notifyListener should be
   /// called instead notifyDataGridPropertyChangeListener. Because, notifyListener is common for
   /// in DataPagerDelegate and DataGridSource will get notified.
-  void _updateDataPagerOnSorting() {
+  void _updateDataPager() {
     if (_pageCount > 0 &&
         _paginatedRows.isNotEmpty &&
         !_suspendDataPagerUpdate) {
@@ -3291,17 +3333,20 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
     } else {
       _effectiveRows = rows;
     }
+
+    // Should refresh filtering when the filterConditions is not empty.
+    if (_dataGridStateDetails != null &&
+        _dataGridStateDetails!().dataGridFilterHelper != null &&
+        _filterConditions.isNotEmpty) {
+      _dataGridStateDetails!().dataGridFilterHelper!.applyFilter();
+    }
+
     // Should refresh sorting when the data grid source is updated.
     performSorting(_effectiveRows);
 
-    // Should refresh filtering when the filterConditions is not empty.
-    if (_filterConditions.isNotEmpty) {
-      _dataGridStateDetails!().dataGridFilterHelper.applyFilter();
-    }
-
-    /// Helps to update the sorted collection in _paginatedRows
-    /// by call the DataPagerDelegate.handlePageChange after sorting.
-    _updateDataPagerOnSorting();
+    /// Helps to update the sorted or filtered collection in _paginatedRows
+    /// by call the DataPagerDelegate.handlePageChange after sorting or filtering.
+    _updateDataPager();
   }
 
   /// Call this method when you are adding the [SortColumnDetails]
@@ -3406,7 +3451,9 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
 
     _filterConditions[columnName] = conditions;
 
-    _refreshFilter(_dataGridStateDetails!());
+    if (_dataGridStateDetails != null) {
+      _refreshFilter(_dataGridStateDetails!());
+    }
   }
 
   /// Remove the [FilterCondition] from the given column.
@@ -3449,7 +3496,9 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
       _filterConditions[columnName] = conditions;
     }
 
-    _refreshFilter(_dataGridStateDetails!());
+    if (_dataGridStateDetails != null) {
+      _refreshFilter(_dataGridStateDetails!());
+    }
   }
 
   /// Clear the [FilterCondition] from a given column or clear all the filter
@@ -3484,10 +3533,14 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
     if (_filterConditions.isNotEmpty) {
       if (columnName != null && _filterConditions.containsKey(columnName)) {
         _filterConditions.remove(columnName);
-        _refreshFilter(_dataGridStateDetails!());
+        if (_dataGridStateDetails != null) {
+          _refreshFilter(_dataGridStateDetails!());
+        }
       } else if (columnName == null) {
         _filterConditions.clear();
-        _refreshFilter(_dataGridStateDetails!());
+        if (_dataGridStateDetails != null) {
+          _refreshFilter(_dataGridStateDetails!());
+        }
       }
     }
   }
@@ -3732,6 +3785,17 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
 /// Refreshes the effective rows based on the given `filterRows`.
 void refreshEffectiveRows(DataGridSource source, List<DataGridRow> filterRows) {
   source._effectiveRows = filterRows;
+}
+
+/// Apply sorting to the given rows. It is used to invoke the
+/// `DataGridSource.performSorting` method internally.
+void performSorting(DataGridSource source, List<DataGridRow> rows) {
+  source.performSorting(rows);
+}
+
+/// Helps to refresh the data pager.
+void updateDataPager(DataGridSource source) {
+  source._updateDataPager();
 }
 
 /// Controls a [SfDataGrid] widget.
@@ -4282,6 +4346,12 @@ class DataGridThemeHelper {
             fontSize: 14,
             color: colorScheme!.onSurface.withOpacity(0.87));
     sortIcon = dataGridThemeData.sortIcon;
+    filterIcon = dataGridThemeData.filterIcon;
+    filterIconColor = dataGridThemeData.filterIconColor;
+    filterIconHoverColor = dataGridThemeData.filterIconHoverColor;
+    sortOrderNumberColor = dataGridThemeData.sortOrderNumberColor;
+    sortOrderNumberBackgroundColor =
+        dataGridThemeData.sortOrderNumberBackgroundColor;
   }
 
   ///ToDo
@@ -4344,4 +4414,79 @@ class DataGridThemeHelper {
   /// To do
 
   late Widget? sortIcon;
+
+  /// The icon to indicate the filtering applied in column.
+  ///
+  /// If you want to change the icon filter or filtered state, you can use the [Builder]
+  /// widget and return the respective icon for the state. You have to return
+  /// the icons for both the states even if you want to change the icon
+  /// for specific state.
+  ///
+  /// ```dart
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     appBar: AppBar(
+  ///       title: const Text('Syncfusion Flutter DataGrid',
+  ///           overflow: TextOverflow.ellipsis),
+  ///     ),
+  ///     body: SfDataGridTheme(
+  ///       data: SfDataGridThemeData(filterIcon: Builder(
+  ///         builder: (context) {
+  ///           Widget? icon;
+  ///           String columnName = '';
+  ///           context.visitAncestorElements((element) {
+  ///             if (element is GridHeaderCellElement) {
+  ///               columnName = element.column.columnName;
+  ///             }
+  ///             return true;
+  ///           });
+  ///           var column = _employeeDataSource.filterConditions.keys
+  ///               .where((element) => element == columnName)
+  ///               .firstOrNull;
+
+  ///           if (column != null) {
+  ///             icon = const Icon(
+  ///               Icons.filter_alt_outlined,
+  ///               size: 20,
+  ///               color: Colors.purple,
+  ///             );
+  ///           }
+  ///           return icon ??
+  ///               const Icon(
+  ///                 Icons.filter_alt_off_outlined,
+  ///                 size: 20,
+  ///                 color: Colors.deepOrange,
+  ///               );
+  ///         },
+  ///       )),
+  ///       child: SfDataGrid(
+  ///         source: _employeeDataSource,
+  ///         allowFiltering: true,
+  ///         allowSorting: true,
+  ///         columns: getColumns(),
+  ///       ),
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  late Widget? filterIcon;
+
+  /// The color of the filter icon which indicates whether the column is filtered or not.
+  ///
+  /// This is not applicable when `filterIcon` property is set.
+  /// This applies the color to default filter icon only.
+  late Color? filterIconColor;
+
+  /// The color for the filter icon when a pointer is hovering over it.
+  ///
+  /// This is not applicable when `filterIcon` property is set.
+  /// This applies the color to default filter icon only.
+  late Color? filterIconHoverColor;
+
+  /// The color of the number displayed when the order of the sorting is shown.
+  late Color? sortOrderNumberColor;
+
+  /// Creates a copy of this theme but with the given fields replaced with the new values.
+  late Color? sortOrderNumberBackgroundColor;
 }

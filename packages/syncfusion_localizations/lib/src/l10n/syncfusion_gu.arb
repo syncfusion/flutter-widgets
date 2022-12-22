@@ -19,7 +19,7 @@
 "pdfPasswordDialogOpenLabel" : "ખુલ્લા", 
 "pdfPasswordDialogCancelLabel" : "રદ કરો", 
 "allowedViewDayLabel" : "દિવસ", 
-"allowedViewWeekLabel" : "સપ્તાહ", 
+"allowedViewWeekLabel" : "અઠવાડિયું", 
 "allowedViewWorkWeekLabel" : "કાર્ય સપ્તાહ", 
 "allowedViewMonthLabel" : "માસ", 
 "allowedViewScheduleLabel" : "અનુસૂચિ", 
@@ -28,7 +28,7 @@
 "allowedViewTimelineWorkWeekLabel" : "સમયરેખા કાર્ય સપ્તાહ", 
 "allowedViewTimelineMonthLabel" : "સમયરેખા મહિનો", 
 "todayLabel" : "આજે", 
-"weeknumberLabel" : "સપ્તાહ", 
+"weeknumberLabel" : "અઠવાડિયું", 
 "allDayLabel" : "બધા દિવસ", 
 "muharramLabel" : "મોહરમ", 
 "safarLabel" : "સફર", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Z થી A સૉર્ટ કરો", 
 "sortOldestToNewestDataGridFilteringLabel" : "સૌથી જૂનાથી નવામાં સૉર્ટ કરો", 
 "sortNewestToOldestDataGridFilteringLabel" : "સૌથી નવાથી જૂનામાં સૉર્ટ કરો", 
-"clearFilterFromDataGridFilteringLabel" : "આમાંથી ફિલ્ટર સાફ કરો", 
 "textFiltersDataGridFilteringLabel" : "ટેક્સ્ટ ફિલ્ટર્સ", 
 "numberFiltersDataGridFilteringLabel" : "નંબર ફિલ્ટર્સ", 
 "dateFiltersDataGridFilteringLabel" : "તારીખ ફિલ્ટર્સ", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "અને", 
 "orDataGridFilteringLabel" : "અથવા", 
 "selectAllDataGridFilteringLabel" : "બધા પસંદ કરો", 
-"sortAndFilterDataGridFilteringLabel" : "સૉર્ટ કરો અને ફિલ્ટર કરો"
+"sortAndFilterDataGridFilteringLabel" : "સૉર્ટ કરો અને ફિલ્ટર કરો", 
+"clearFilterDataGridFilteringLabel" : "ફિલ્ટર સાફ કરો", 
+"fromDataGridFilteringLabel" : "થી"
 }

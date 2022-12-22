@@ -42,7 +42,7 @@
 "shawwalLabel" : "شوال", 
 "dhualqiLabel" : "ذی القعده", 
 "dhualhiLabel" : "ذی الحجه", 
-"shortMuharramLabel" : "ماه", 
+"shortMuharramLabel" : "مه", 
 "shortSafarLabel" : "ساف", 
 "shortRabi1Label" : "ربیع من", 
 "shortRabi2Label" : "ربیع II", 
@@ -80,13 +80,12 @@
 "notEmptyDataGridFilteringLabel" : "خالی نیست", 
 "notNullDataGridFilteringLabel" : "تهی نیست", 
 "nullDataGridFilteringLabel" : "خالی", 
-"sortSmallestToLargestDataGridFilteringLabel" : "مرتب سازی کوچکترین به بزرگ ترین", 
+"sortSmallestToLargestDataGridFilteringLabel" : "مرتب سازی کوچک ترین به بزرگ ترین", 
 "sortLargestToSmallestDataGridFilteringLabel" : "مرتب سازی بزرگترین به کوچکترین", 
 "sortAToZDataGridFilteringLabel" : "مرتب سازی A به Z", 
 "sortZToADataGridFilteringLabel" : "Z به A مرتب کنید", 
 "sortOldestToNewestDataGridFilteringLabel" : "مرتب سازی قدیمی ترین به جدیدترین", 
 "sortNewestToOldestDataGridFilteringLabel" : "مرتب سازی جدیدترین به قدیمی ترین", 
-"clearFilterFromDataGridFilteringLabel" : "پاک کردن فیلتر از", 
 "textFiltersDataGridFilteringLabel" : "فیلترهای متن", 
 "numberFiltersDataGridFilteringLabel" : "فیلترهای اعداد", 
 "dateFiltersDataGridFilteringLabel" : "فیلترهای تاریخ", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "و", 
 "orDataGridFilteringLabel" : "یا", 
 "selectAllDataGridFilteringLabel" : "انتخاب همه", 
-"sortAndFilterDataGridFilteringLabel" : "مرتب سازی و فیلتر کردن"
+"sortAndFilterDataGridFilteringLabel" : "مرتب سازی و فیلتر کردن", 
+"clearFilterDataGridFilteringLabel" : "فیلتر را پاک کنید", 
+"fromDataGridFilteringLabel" : "از جانب"
 }

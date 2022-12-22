@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Sorter Z til A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Sorter eldste til nyeste", 
 "sortNewestToOldestDataGridFilteringLabel" : "Sorter nyeste til eldste", 
-"clearFilterFromDataGridFilteringLabel" : "Tøm filter fra", 
 "textFiltersDataGridFilteringLabel" : "Tekstfiltre", 
 "numberFiltersDataGridFilteringLabel" : "Nummerfiltre", 
 "dateFiltersDataGridFilteringLabel" : "Datofiltre", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Og", 
 "orDataGridFilteringLabel" : "Eller", 
 "selectAllDataGridFilteringLabel" : "Velg alle", 
-"sortAndFilterDataGridFilteringLabel" : "Sorter og filtrer"
+"sortAndFilterDataGridFilteringLabel" : "Sorter og filtrer", 
+"clearFilterDataGridFilteringLabel" : "Tøm filter", 
+"fromDataGridFilteringLabel" : "Fra"
 }

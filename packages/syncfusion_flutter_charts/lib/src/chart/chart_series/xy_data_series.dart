@@ -584,8 +584,8 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
                         !seriesType.contains('stackedbar'))
                 ? prevPoint.y ?? 0
                 : 0;
-            currentPoint.open = 0;
-            currentPoint.close = 0;
+            currentPoint.open = currentPoint.open ?? 0;
+            currentPoint.close = currentPoint.close ?? 0;
             currentPoint.isVisible = false;
           } else if (seriesType.contains('line') ||
               seriesType == 'area' ||

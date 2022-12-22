@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Seřadit od Z do A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Seřadit od nejstarších po nejnovější", 
 "sortNewestToOldestDataGridFilteringLabel" : "Řadit od nejnovějšího k nejstaršímu", 
-"clearFilterFromDataGridFilteringLabel" : "Vymazat filtr od", 
 "textFiltersDataGridFilteringLabel" : "Textové filtry", 
 "numberFiltersDataGridFilteringLabel" : "Filtry čísel", 
 "dateFiltersDataGridFilteringLabel" : "Datumové filtry", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "A", 
 "orDataGridFilteringLabel" : "Nebo", 
 "selectAllDataGridFilteringLabel" : "Vybrat vše", 
-"sortAndFilterDataGridFilteringLabel" : "Řadit a filtrovat"
+"sortAndFilterDataGridFilteringLabel" : "Řadit a filtrovat", 
+"clearFilterDataGridFilteringLabel" : "Vymazat filtr", 
+"fromDataGridFilteringLabel" : "Z"
 }

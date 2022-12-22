@@ -13,7 +13,7 @@
 "pdfPaginationDialogOkLabel" : "OK", 
 "pdfPaginationDialogCancelLabel" : "PERUUTTAA", 
 "passwordDialogHeaderTextLabel" : "Salasana suojattu", 
-"passwordDialogContentLabel" : "Kirjoita salasana avataksesi tämän PDF-tiedoston", 
+"passwordDialogContentLabel" : "Syötä salasana avataksesi tämän PDF-tiedoston", 
 "passwordDialogHintTextLabel" : "Kirjoita salasana", 
 "passwordDialogInvalidPasswordLabel" : "väärä salasana", 
 "pdfPasswordDialogOpenLabel" : "AVATA", 
@@ -68,7 +68,7 @@
 "containsDataGridFilteringLabel" : "Sisältää", 
 "doesNotBeginWithDataGridFilteringLabel" : "Ei ala", 
 "doesNotContainDataGridFilteringLabel" : "Ei sisällä", 
-"doesNotEndWithDataGridFilteringLabel" : "Ei pääty", 
+"doesNotEndWithDataGridFilteringLabel" : "Ei lopu", 
 "doesNotEqualDataGridFilteringLabel" : "Ei ole sama", 
 "emptyDataGridFilteringLabel" : "Tyhjä", 
 "endsWithDataGridFilteringLabel" : "Loppuu", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Lajittele Z-A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Lajittele vanhimmasta uusimpaan", 
 "sortNewestToOldestDataGridFilteringLabel" : "Lajittele uusimmasta vanhimpaan", 
-"clearFilterFromDataGridFilteringLabel" : "Tyhjennä suodatin", 
 "textFiltersDataGridFilteringLabel" : "Tekstisuodattimet", 
 "numberFiltersDataGridFilteringLabel" : "Numerosuodattimet", 
 "dateFiltersDataGridFilteringLabel" : "Päivämääräsuodattimet", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Ja", 
 "orDataGridFilteringLabel" : "Tai", 
 "selectAllDataGridFilteringLabel" : "Valitse kaikki", 
-"sortAndFilterDataGridFilteringLabel" : "Lajittele ja Suodata"
+"sortAndFilterDataGridFilteringLabel" : "Lajittele ja Suodata", 
+"clearFilterDataGridFilteringLabel" : "Tyhjennä suodatin", 
+"fromDataGridFilteringLabel" : "From"
 }

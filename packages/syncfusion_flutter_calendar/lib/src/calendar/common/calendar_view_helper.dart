@@ -1031,7 +1031,7 @@ class CalendarAppointment {
         otherAppointment.isAllDay == isAllDay &&
         otherAppointment.notes == notes &&
         otherAppointment.location == location &&
-        !CalendarViewHelper.isCollectionEqual(
+        CalendarViewHelper.isCollectionEqual(
             otherAppointment.resourceIds, resourceIds) &&
         otherAppointment.recurrenceId == recurrenceId &&
         otherAppointment.id == id &&

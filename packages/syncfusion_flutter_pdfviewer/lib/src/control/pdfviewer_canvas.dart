@@ -351,6 +351,7 @@ class CanvasRenderBox extends RenderBox {
   late VerticalDragGestureRecognizer _verticalDragRecognizer;
   late PdfDocumentLinkAnnotation? _documentLinkAnnotation;
   late PdfUriAnnotation? _pdfUriAnnotation;
+  PdfTextWebLink? _pdfTextWebLink;
   late final PdfPageRotateAngle _rotatedAngle =
       pdfDocument!.pages[pageIndex].rotation;
 
@@ -412,7 +413,7 @@ class CanvasRenderBox extends RenderBox {
   ThemeData? _themeData;
   SfLocalizations? _localizations;
 
-  Future<void> _showHyperLinkDialog(Uri url) {
+  Future<void> _showMobileHyperLinkDialog(Uri url) {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
     _themeData = Theme.of(context);
     _localizations = SfLocalizations.of(context);
@@ -577,7 +578,7 @@ class CanvasRenderBox extends RenderBox {
         });
   }
 
-  Future<void> _showWebHyperLinkDialog(Uri url) {
+  Future<void> _showDesktopHyperLinkDialog(Uri url) {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
     _themeData = Theme.of(context);
     _localizations = SfLocalizations.of(context);
@@ -742,118 +743,163 @@ class CanvasRenderBox extends RenderBox {
       _textSelectionHelper.enableTapSelection = false;
     }
     _viewId = pageIndex;
-    final double heightPercentage =
-        pdfDocument!.pages[_viewId!].size.height / height;
-    final double widthPercentage =
-        pdfDocument!.pages[_viewId!].size.width / width;
-    final PdfPage page = pdfDocument!.pages[pageIndex];
-    final int length = page.annotations.count;
-    for (int index = 0; index < length; index++) {
-      if (page.annotations[index] is PdfUriAnnotation &&
-          enableHyperlinkNavigation) {
-        _pdfUriAnnotation = page.annotations[index] as PdfUriAnnotation;
-        assert(_pdfUriAnnotation != null);
-        if ((details.localPosition.dy >=
-                (_pdfUriAnnotation!.bounds.top / heightPercentage)) &&
-            (details.localPosition.dy <=
-                (_pdfUriAnnotation!.bounds.bottom / heightPercentage)) &&
-            (details.localPosition.dx >=
-                (_pdfUriAnnotation!.bounds.left / heightPercentage)) &&
-            (details.localPosition.dx <=
-                (_pdfUriAnnotation!.bounds.right / heightPercentage))) {
-          if (_pdfUriAnnotation!.uri.isNotEmpty) {
-            _isHyperLinkTapped = true;
-            final Uri uri = Uri.parse(_pdfUriAnnotation!.uri);
-            if (canShowHyperlinkDialog) {
-              if (_pdfUriAnnotation!.uri.contains('mailto')) {
-                launchUrl(uri);
-              } else {
-                kIsDesktop
-                    ? _showWebHyperLinkDialog(uri)
-                    : _showHyperLinkDialog(uri);
-              }
+    if (enableHyperlinkNavigation || enableDocumentLinkNavigation) {
+      final double heightPercentage =
+          pdfDocument!.pages[_viewId!].size.height / height;
+      final double widthPercentage =
+          pdfDocument!.pages[_viewId!].size.width / width;
+      final PdfPage page = pdfDocument!.pages[pageIndex];
+      final int length = page.annotations.count;
+      for (int index = 0; index < length; index++) {
+        if (page.annotations[index] is PdfUriAnnotation &&
+            enableHyperlinkNavigation) {
+          _pdfUriAnnotation = page.annotations[index] as PdfUriAnnotation;
+          assert(_pdfUriAnnotation != null);
+          if (_checkHyperLinkPosition(
+              details, heightPercentage, _pdfUriAnnotation!.bounds)) {
+            if (_pdfUriAnnotation!.uri.isNotEmpty) {
+              _isHyperLinkTapped = true;
+              final Uri uri = Uri.parse(_pdfUriAnnotation!.uri);
+              _showHyperLinkDialog(uri);
+              markNeedsPaint();
+              break;
             }
-            triggerHyperLinkCallback();
-            markNeedsPaint();
-            break;
           }
-        }
-      }
-      if (enableDocumentLinkNavigation) {
-        if (page.annotations[index] is PdfDocumentLinkAnnotation) {
-          _documentLinkAnnotation =
-              // ignore: avoid_as
-              page.annotations[index] as PdfDocumentLinkAnnotation;
-          assert(_documentLinkAnnotation != null);
-          if ((details.localPosition.dy >=
-                  (_documentLinkAnnotation!.bounds.top / heightPercentage)) &&
-              (details.localPosition.dy <=
-                  (_documentLinkAnnotation!.bounds.bottom /
-                      heightPercentage)) &&
-              (details.localPosition.dx >=
-                  (_documentLinkAnnotation!.bounds.left / heightPercentage)) &&
-              (details.localPosition.dx <=
-                  (_documentLinkAnnotation!.bounds.right / heightPercentage))) {
-            if (_documentLinkAnnotation!.destination?.page != null) {
-              _isTOCTapped = true;
-              final PdfPage destinationPage =
-                  _documentLinkAnnotation!.destination!.page;
-              final int destinationPageIndex =
-                  pdfDocument!.pages.indexOf(destinationPage) + 1;
-              Offset destinationPageOffset =
-                  _documentLinkAnnotation!.destination!.location;
-              destinationPageOffset = getRotatedOffset(destinationPageOffset,
-                  destinationPageIndex - 1, destinationPage.rotation);
-              final double positionX =
-                  destinationPageOffset.dx / widthPercentage;
-              final double positionY =
-                  destinationPageOffset.dy / heightPercentage;
-              final double pageOffset =
-                  pdfPages[destinationPageIndex]!.pageOffset;
-              if (isSinglePageView) {
-                _totalPageOffset = Offset(positionX, positionY);
-              } else {
-                if (scrollDirection == PdfScrollDirection.horizontal) {
-                  if (pdfViewerController.zoomLevel == 1) {
-                    _totalPageOffset = Offset(pageOffset, positionY);
-                  } else {
-                    _totalPageOffset =
-                        Offset(pageOffset + positionX, positionY);
-                  }
-                } else {
-                  _totalPageOffset = Offset(positionX, pageOffset + positionY);
-                }
-              }
-              _viewId = pageIndex;
-              _destinationPageIndex = destinationPageIndex;
-
-              /// Mark this render object as having changed its visual appearance.
-              ///
-              /// Rather than eagerly updating this render object's display list
-              /// in response to writes, we instead mark the render object as needing to
-              /// paint, which schedules a visual update. As part of the visual update, the
-              /// rendering pipeline will give this render object an opportunity to update
-              /// its display list.
-              ///
-              /// This mechanism batches the painting work so that multiple sequential
-              /// writes are coalesced, removing redundant computation.
-              ///
-              /// Once markNeedsPaint has been called on a render object,
-              /// debugNeedsPaint returns true for that render object until just after
-              /// the pipeline owner has called paint on the render object.
-              ///
-              /// See also:
-              ///
-              ///  * RepaintBoundary, to scope a subtree of render objects to their own
-              ///    layer, thus limiting the number of nodes that markNeedsPaint must mark
-              ///    dirty.
+        } else if (page.annotations[index] is PdfTextWebLink &&
+            enableHyperlinkNavigation) {
+          _pdfTextWebLink = page.annotations[index] as PdfTextWebLink;
+          assert(_pdfTextWebLink != null);
+          if (_checkHyperLinkPosition(
+              details, heightPercentage, _pdfTextWebLink!.bounds)) {
+            if (_pdfTextWebLink!.url.isNotEmpty) {
+              _isHyperLinkTapped = true;
+              final bool isMailID =
+                  RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$')
+                      .hasMatch(_pdfTextWebLink!.url);
+              final String scheme = isMailID
+                  ? !_pdfTextWebLink!.url.contains('mailto')
+                      ? 'mailto'
+                      : ''
+                  : (!_pdfTextWebLink!.url.contains('https') &&
+                          !_pdfTextWebLink!.url.contains('http'))
+                      ? 'https'
+                      : '';
+              final Uri url = !_pdfTextWebLink!.url.contains(scheme)
+                  ? scheme.contains('mailto')
+                      ? Uri(scheme: scheme, path: _pdfTextWebLink!.url)
+                      : Uri(scheme: scheme, host: _pdfTextWebLink!.url)
+                  : Uri.parse(_pdfTextWebLink!.url);
+              _showHyperLinkDialog(url);
               markNeedsPaint();
               break;
             }
           }
         }
+        if (enableDocumentLinkNavigation) {
+          if (page.annotations[index] is PdfDocumentLinkAnnotation) {
+            _documentLinkAnnotation =
+                // ignore: avoid_as
+                page.annotations[index] as PdfDocumentLinkAnnotation;
+            assert(_documentLinkAnnotation != null);
+            if ((details.localPosition.dy >=
+                    (_documentLinkAnnotation!.bounds.top / heightPercentage)) &&
+                (details.localPosition.dy <=
+                    (_documentLinkAnnotation!.bounds.bottom /
+                        heightPercentage)) &&
+                (details.localPosition.dx >=
+                    (_documentLinkAnnotation!.bounds.left /
+                        heightPercentage)) &&
+                (details.localPosition.dx <=
+                    (_documentLinkAnnotation!.bounds.right /
+                        heightPercentage))) {
+              if (_documentLinkAnnotation!.destination?.page != null) {
+                _isTOCTapped = true;
+                final PdfPage destinationPage =
+                    _documentLinkAnnotation!.destination!.page;
+                final int destinationPageIndex =
+                    pdfDocument!.pages.indexOf(destinationPage) + 1;
+                Offset destinationPageOffset =
+                    _documentLinkAnnotation!.destination!.location;
+                destinationPageOffset = getRotatedOffset(destinationPageOffset,
+                    destinationPageIndex - 1, destinationPage.rotation);
+                final double positionX =
+                    destinationPageOffset.dx / widthPercentage;
+                final double positionY =
+                    destinationPageOffset.dy / heightPercentage;
+                final double pageOffset =
+                    pdfPages[destinationPageIndex]!.pageOffset;
+                if (isSinglePageView) {
+                  _totalPageOffset = Offset(positionX, positionY);
+                } else {
+                  if (scrollDirection == PdfScrollDirection.horizontal) {
+                    if (pdfViewerController.zoomLevel == 1) {
+                      _totalPageOffset = Offset(pageOffset, positionY);
+                    } else {
+                      _totalPageOffset =
+                          Offset(pageOffset + positionX, positionY);
+                    }
+                  } else {
+                    _totalPageOffset =
+                        Offset(positionX, pageOffset + positionY);
+                  }
+                }
+                _viewId = pageIndex;
+                _destinationPageIndex = destinationPageIndex;
+
+                /// Mark this render object as having changed its visual appearance.
+                ///
+                /// Rather than eagerly updating this render object's display list
+                /// in response to writes, we instead mark the render object as needing to
+                /// paint, which schedules a visual update. As part of the visual update, the
+                /// rendering pipeline will give this render object an opportunity to update
+                /// its display list.
+                ///
+                /// This mechanism batches the painting work so that multiple sequential
+                /// writes are coalesced, removing redundant computation.
+                ///
+                /// Once markNeedsPaint has been called on a render object,
+                /// debugNeedsPaint returns true for that render object until just after
+                /// the pipeline owner has called paint on the render object.
+                ///
+                /// See also:
+                ///
+                ///  * RepaintBoundary, to scope a subtree of render objects to their own
+                ///    layer, thus limiting the number of nodes that markNeedsPaint must mark
+                ///    dirty.
+                markNeedsPaint();
+                break;
+              }
+            }
+          }
+        }
       }
     }
+  }
+
+  /// Check if the hyperlink exists in the tapped position or not.
+  bool _checkHyperLinkPosition(
+      dynamic details, double heightPercentage, Rect bounds) {
+    if ((details.localPosition.dy >= (bounds.top / heightPercentage)) &&
+        (details.localPosition.dy <= (bounds.bottom / heightPercentage)) &&
+        (details.localPosition.dx >= (bounds.left / heightPercentage)) &&
+        (details.localPosition.dx <= (bounds.right / heightPercentage))) {
+      return true;
+    }
+    return false;
+  }
+
+  /// Show the hyperlink navigation dialog.
+  void _showHyperLinkDialog(Uri uri) {
+    if (canShowHyperlinkDialog) {
+      if (uri.toString().contains('mailto')) {
+        launchUrl(uri);
+      } else {
+        kIsDesktop
+            ? _showDesktopHyperLinkDialog(uri)
+            : _showMobileHyperLinkDialog(uri);
+      }
+    }
+    triggerHyperLinkCallback(uri.toString());
   }
 
   /// Handles the long press started event.cursorMode
@@ -1086,10 +1132,10 @@ class CanvasRenderBox extends RenderBox {
   }
 
   /// Triggers callback for hyperlink navigation.
-  void triggerHyperLinkCallback() {
+  void triggerHyperLinkCallback(String url) {
     if (onHyperlinkClicked != null) {
       onHyperlinkClicked!(PdfHyperlinkClickedDetails(
-        _pdfUriAnnotation!.uri,
+        url,
       ));
     }
   }
@@ -1442,7 +1488,8 @@ class CanvasRenderBox extends RenderBox {
       final bool hasTOC =
           page.annotations[index] is PdfDocumentLinkAnnotation &&
               enableDocumentLinkNavigation;
-      final bool hasURI = page.annotations[index] is PdfUriAnnotation &&
+      final bool hasURI = (page.annotations[index] is PdfUriAnnotation ||
+              page.annotations[index] is PdfTextWebLink) &&
           enableHyperlinkNavigation;
       if (hasTOC) {
         _documentLinkAnnotation =
@@ -1455,13 +1502,22 @@ class CanvasRenderBox extends RenderBox {
           return true;
         }
       } else if (hasURI) {
-        _pdfUriAnnotation =
-            // ignore: avoid_as
-            page.annotations[index] as PdfUriAnnotation;
-        if ((hoverDetails.dy >= (_pdfUriAnnotation!.bounds.top)) &&
-            (hoverDetails.dy <= (_pdfUriAnnotation!.bounds.bottom)) &&
-            (hoverDetails.dx >= (_pdfUriAnnotation!.bounds.left)) &&
-            (hoverDetails.dx <= (_pdfUriAnnotation!.bounds.right))) {
+        late Rect bounds;
+        if (page.annotations[index] is PdfUriAnnotation) {
+          _pdfUriAnnotation =
+              // ignore: avoid_as
+              page.annotations[index] as PdfUriAnnotation;
+          bounds = _pdfUriAnnotation!.bounds;
+        } else {
+          _pdfTextWebLink =
+              // ignore: avoid_as
+              page.annotations[index] as PdfTextWebLink;
+          bounds = _pdfTextWebLink!.bounds;
+        }
+        if ((hoverDetails.dy >= (bounds.top)) &&
+            (hoverDetails.dy <= (bounds.bottom)) &&
+            (hoverDetails.dx >= (bounds.left)) &&
+            (hoverDetails.dx <= (bounds.right))) {
           return true;
         }
       }
@@ -1571,22 +1627,30 @@ class CanvasRenderBox extends RenderBox {
   void _performHyperLinkNavigation(Canvas canvas, Offset offset) {
     if (pageIndex == _viewId) {
       if (_isHyperLinkTapped && enableHyperlinkNavigation) {
-        final double heightPercentage =
-            pdfDocument!.pages[_viewId!].size.height / height;
-        final Paint wordPaint = Paint()
-          ..color = const Color.fromRGBO(228, 238, 244, 0.75);
-        canvas.drawRect(
-            offset.translate(_pdfUriAnnotation!.bounds.left / heightPercentage,
-                    _pdfUriAnnotation!.bounds.top / heightPercentage) &
-                Size(_pdfUriAnnotation!.bounds.width / heightPercentage,
-                    _pdfUriAnnotation!.bounds.height / heightPercentage),
-            wordPaint);
+        final Rect bounds = _pdfTextWebLink != null
+            ? _pdfTextWebLink!.bounds
+            : _pdfUriAnnotation!.bounds;
+        _drawHyperLinkTapColor(canvas, offset, bounds);
         _isHyperLinkTapped = false;
         Future<dynamic>.delayed(Duration.zero, () async {
           markNeedsPaint();
         });
       }
     }
+  }
+
+  /// Draw the selection background color while tapping the hyperlink.
+  void _drawHyperLinkTapColor(Canvas canvas, Offset offset, Rect bounds) {
+    final double heightPercentage =
+        pdfDocument!.pages[_viewId!].size.height / height;
+    final Paint wordPaint = Paint()
+      ..color = const Color.fromRGBO(228, 238, 244, 0.75);
+    canvas.drawRect(
+        offset.translate(
+                bounds.left / heightPercentage, bounds.top / heightPercentage) &
+            Size(bounds.width / heightPercentage,
+                bounds.height / heightPercentage),
+        wordPaint);
   }
 
   /// Perform document link navigation.
@@ -1725,6 +1789,19 @@ class CanvasRenderBox extends RenderBox {
               }
             }
           }
+          if (wordIndex < textWordCollection.length - 1 && !_isRTLText) {
+            final TextWord word = textWordCollection[wordIndex];
+            final TextGlyph currentWord = word.glyphs[word.text.length - 1];
+            final TextGlyph nextWord =
+                textWordCollection[wordIndex + 1].glyphs[0];
+
+            if ((((currentWord.bounds.width + currentWord.bounds.left) -
+                        nextWord.bounds.left)
+                    .abs()) >
+                1.0) {
+              glyphText = '$glyphText ';
+            }
+          }
         }
       }
 
@@ -1772,7 +1849,17 @@ class CanvasRenderBox extends RenderBox {
       }
       glyphText = rtlText + glyphText;
     } else {
-      glyphText = glyphText + glyph.text;
+      double glyphPosition = 0;
+      if (glyphIndex < textWord.text.length - 1) {
+        final TextGlyph textGlyph = textWord.glyphs[glyphIndex];
+        final double currentGlyph =
+            textGlyph.bounds.width + textGlyph.bounds.left;
+        final double nextGlyph = textWord.glyphs[glyphIndex + 1].bounds.left;
+        glyphPosition = (currentGlyph - nextGlyph).abs();
+      }
+      glyphText = (glyphPosition > 1.0)
+          ? '$glyphText${glyph.text} '
+          : glyphText + glyph.text;
     }
     return glyphText;
   }

@@ -41,7 +41,7 @@
 "ramadanLabel" : "Ramadāns", 
 "shawwalLabel" : "Šovals", 
 "dhualqiLabel" : "Dhu al-Qi'dah", 
-"dhualhiLabel" : "Dhu al-Hijjah", 
+"dhualhiLabel" : "Dhu al-Hidžja", 
 "shortMuharramLabel" : "Muh.", 
 "shortSafarLabel" : "Saf.", 
 "shortRabi1Label" : "Rabi. es", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Kārtot no Z līdz A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Kārtot no vecāko uz jaunāko", 
 "sortNewestToOldestDataGridFilteringLabel" : "Kārtot no jaunākajiem uz vecākajiem", 
-"clearFilterFromDataGridFilteringLabel" : "Notīrīt filtru no", 
 "textFiltersDataGridFilteringLabel" : "Teksta filtri", 
 "numberFiltersDataGridFilteringLabel" : "Skaitļu filtri", 
 "dateFiltersDataGridFilteringLabel" : "Datumu filtri", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Un", 
 "orDataGridFilteringLabel" : "Or", 
 "selectAllDataGridFilteringLabel" : "Izvēlēties visus", 
-"sortAndFilterDataGridFilteringLabel" : "Kārtot un filtrēt"
+"sortAndFilterDataGridFilteringLabel" : "Kārtot un filtrēt", 
+"clearFilterDataGridFilteringLabel" : "Notīrīt filtru", 
+"fromDataGridFilteringLabel" : "No"
 }

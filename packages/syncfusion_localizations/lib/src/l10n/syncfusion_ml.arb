@@ -73,7 +73,7 @@
 "emptyDataGridFilteringLabel" : "ശൂന്യം", 
 "endsWithDataGridFilteringLabel" : "കൂടെ അവസാനിക്കുന്നു", 
 "equalsDataGridFilteringLabel" : "തുല്യമാണ്", 
-"greaterThanDataGridFilteringLabel" : "ഇതിലും വലുത്", 
+"greaterThanDataGridFilteringLabel" : "അതിലും വലുത്", 
 "greaterThanOrEqualDataGridFilteringLabel" : "വലുത് അല്ലെങ്കിൽ തുല്യം", 
 "lessThanDataGridFilteringLabel" : "അതിൽ കുറവ്", 
 "lessThanOrEqualDataGridFilteringLabel" : "കുറവ് അല്ലെങ്കിൽ തുല്യം", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Z മുതൽ A വരെ അടുക്കുക", 
 "sortOldestToNewestDataGridFilteringLabel" : "ഏറ്റവും പഴയത് മുതൽ പുതിയത് വരെ അടുക്കുക", 
 "sortNewestToOldestDataGridFilteringLabel" : "ഏറ്റവും പുതിയത് മുതൽ പഴയത് വരെ അടുക്കുക", 
-"clearFilterFromDataGridFilteringLabel" : "ഇതിൽ നിന്ന് ഫിൽട്ടർ മായ്‌ക്കുക", 
 "textFiltersDataGridFilteringLabel" : "ടെക്സ്റ്റ് ഫിൽട്ടറുകൾ", 
 "numberFiltersDataGridFilteringLabel" : "നമ്പർ ഫിൽട്ടറുകൾ", 
 "dateFiltersDataGridFilteringLabel" : "തീയതി ഫിൽട്ടറുകൾ", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "ഒപ്പം", 
 "orDataGridFilteringLabel" : "അഥവാ", 
 "selectAllDataGridFilteringLabel" : "എല്ലാം തിരഞ്ഞെടുക്കുക", 
-"sortAndFilterDataGridFilteringLabel" : "അടുക്കി ഫിൽട്ടർ ചെയ്യുക"
+"sortAndFilterDataGridFilteringLabel" : "അടുക്കി ഫിൽട്ടർ ചെയ്യുക", 
+"clearFilterDataGridFilteringLabel" : "ഫിൽട്ടർ മായ്‌ക്കുക", 
+"fromDataGridFilteringLabel" : "നിന്ന്"
 }

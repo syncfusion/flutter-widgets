@@ -31,7 +31,9 @@ class GridColumn {
       this.maximumWidth = double.nan,
       this.width = double.nan,
       this.allowEditing = true,
-      this.allowFiltering = true}) {
+      this.allowFiltering = true,
+      this.filterPopupMenuOptions,
+      this.filterIconPadding = const EdgeInsets.symmetric(horizontal: 8.0)}) {
     _actualWidth = double.nan;
     _autoWidth = double.nan;
   }
@@ -157,6 +159,12 @@ class GridColumn {
   /// * [DataGridSource.filterConditions] – This property holds the collection
   /// of the filter conditions which are applied for various columns.
   final bool allowFiltering;
+
+  /// Decides how the checked listbox and advanced filter options should be shown in filter popup.
+  final FilterPopupMenuOptions? filterPopupMenuOptions;
+
+  /// The amount of space  which should be added with the filter icon
+  final EdgeInsetsGeometry filterIconPadding;
 }
 
 /// A column which displays the values of the string in its cells.
@@ -318,7 +326,12 @@ class ColumnSizer {
 
   static const double _sortIconWidth = 20.0;
   static const double _sortNumberWidth = 18.0;
-  static const double _filterIconWidth = 34.0;
+  static const double _filterIconWidth = 18.0;
+
+  /// Defines the outer padding of the sort and filter icon's container. We need
+  /// to consider this padding to measure the auto-width and height calculation.
+  EdgeInsetsGeometry iconsOuterPadding =
+      const EdgeInsets.symmetric(horizontal: 4.0);
 
   void _initialRefresh(double availableWidth) {
     final LineSizeCollection lineSizeCollection =
@@ -610,9 +623,13 @@ class ColumnSizer {
 
   double _calculateColumnHeaderWidth(GridColumn column,
       {bool setWidth = true}) {
-    final double width = _getHeaderCellWidth(column) +
-        _getSortIconWidth(column) +
-        _getFilterIconWidth(column);
+    double iconsWidth = _getSortIconWidth(column) + _getFilterIconWidth(column);
+
+    if (iconsWidth > 0) {
+      iconsWidth += iconsOuterPadding.horizontal;
+    }
+
+    final double width = _getHeaderCellWidth(column) + iconsWidth;
     _updateSetWidth(setWidth, column, width);
     return width;
   }
@@ -818,7 +835,7 @@ class ColumnSizer {
 
   double _getFilterIconWidth(GridColumn column) {
     if (_dataGridStateDetails!().allowFiltering && column.allowFiltering) {
-      return _filterIconWidth;
+      return _filterIconWidth + column.filterIconPadding.horizontal;
     }
     return 0.0;
   }
@@ -1065,17 +1082,22 @@ class ColumnSizer {
         : dataGridConfiguration.container.columnWidths[columnIndex];
 
     final double strokeWidth = _getGridLineStrokeWidth(
-            rowIndex: rowIndex, dataGridConfiguration: dataGridConfiguration)
+            rowIndex: rowIndex,
+            dataGridConfiguration: dataGridConfiguration,
+            column: column)
         .width;
 
     final double horizontalPadding = column.autoFitPadding.horizontal;
 
     // Removed the padding and gridline stroke width from the column width to
     // measure the accurate height for the cell content.
-    columnWidth -= _getSortIconWidth(column) +
-        _getFilterIconWidth(column) +
-        horizontalPadding +
-        strokeWidth;
+    double iconsWidth = _getSortIconWidth(column) + _getFilterIconWidth(column);
+
+    if (iconsWidth > 0) {
+      iconsWidth += iconsOuterPadding.horizontal;
+    }
+
+    columnWidth -= iconsWidth + horizontalPadding + strokeWidth;
 
     return _calculateTextSize(
       column: column,
@@ -1107,7 +1129,8 @@ class ColumnSizer {
 
   Size _getGridLineStrokeWidth(
       {required int rowIndex,
-      required DataGridConfiguration dataGridConfiguration}) {
+      required DataGridConfiguration dataGridConfiguration,
+      required GridColumn column}) {
     final double strokeWidth =
         dataGridConfiguration.dataGridThemeHelper!.gridLineStrokeWidth;
 
@@ -1116,15 +1139,24 @@ class ColumnSizer {
             ? dataGridConfiguration.headerGridLinesVisibility
             : dataGridConfiguration.gridLinesVisibility;
 
+    final GridColumn firstVisibleColumn = dataGridConfiguration.columns
+        .firstWhere(
+            (GridColumn column) => column.visible && column.width != 0.0);
+    final bool isFirstColumn =
+        firstVisibleColumn.columnName == column.columnName;
+
     switch (gridLinesVisibility) {
       case GridLinesVisibility.none:
         return Size.zero;
       case GridLinesVisibility.both:
-        return Size(strokeWidth, strokeWidth);
+        return Size(strokeWidth,
+            rowIndex == 0 ? (strokeWidth + strokeWidth) : strokeWidth);
       case GridLinesVisibility.vertical:
-        return Size(strokeWidth, 0);
+        return Size(isFirstColumn ? (strokeWidth + strokeWidth) : strokeWidth,
+            rowIndex == 0 ? strokeWidth : 0);
       case GridLinesVisibility.horizontal:
-        return Size(0, strokeWidth);
+        return Size(isFirstColumn ? strokeWidth : 0,
+            rowIndex == 0 ? (strokeWidth + strokeWidth) : strokeWidth);
     }
   }
 
@@ -1145,7 +1177,9 @@ class ColumnSizer {
         _dataGridStateDetails!();
 
     final Size strokeWidthSize = _getGridLineStrokeWidth(
-        rowIndex: rowIndex, dataGridConfiguration: dataGridConfiguration);
+        rowIndex: rowIndex,
+        dataGridConfiguration: dataGridConfiguration,
+        column: column);
 
     final TextPainter textPainter = TextPainter(
         text: TextSpan(text: value?.toString() ?? '', style: textStyle),
@@ -1841,12 +1875,10 @@ class DataGridFilterHelper {
     advancedFilterHelper = DataGridAdvancedFilterHelper(_dataGridStateDetails);
   }
 
-  /// Checks whether the column is already filtered and needs to use the
-  /// previous source without current filter conditions or not.
-  bool canUsePreviousSource = false;
-
-  /// Checks whether the UI view filtering is applied or not.
-  bool isViewFilterAppiled = false;
+  /// Holds the data rows that before apply filtering to the current column.
+  /// Sets the rows when generating the checkbox list view items and use it to
+  /// apply filtering to optimize the filtering instead of filter whole rows again.
+  List<DataGridRow> _previousDataRows = <DataGridRow>[];
 
   /// This flag is used to check whether the filtering popup menu is currently
   /// showing or not in the view.
@@ -1908,11 +1940,7 @@ class DataGridFilterHelper {
   /// Apply filter to the effective rows based on `filterConditions`.
   void applyFilter() {
     if (_dataGridStateDetails().source.filterConditions.isNotEmpty) {
-      if (isViewFilterAppiled) {
-        _refreshViewFilter();
-      } else {
-        _refreshFilter();
-      }
+      _refreshFilter();
     }
   }
 
@@ -1932,60 +1960,52 @@ class DataGridFilterHelper {
     }
   }
 
-  /// Applies filtering based on the filter conditions in orders.
-  void _refreshViewFilter() {
-    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
-    final Map<String, List<FilterCondition>> filterConditions =
-        dataGridConfiguration.source.filterConditions;
-
-    if (filterConditions.isNotEmpty) {
-      for (final String columnName in filterConditions.keys) {
-        final Map<String, List<FilterCondition>> currentFilterCondition =
-            <String, List<FilterCondition>>{
-          columnName: filterConditions[columnName]!
-        };
-
-        final List<DataGridRow> filteredRows = _getFilterRows(
-            dataGridConfiguration.source.effectiveRows, currentFilterCondition);
-
-        refreshEffectiveRows(dataGridConfiguration.source, filteredRows);
-      }
-    }
-  }
-
   void _createCheckboxFilterConditions(GridColumn column) {
     final DataGridSource source = _dataGridStateDetails().source;
     if (_unCheckedItemsCount == 0 &&
         checkboxFilterHelper._searchedItems.isEmpty) {
-      if (source.filterConditions.isNotEmpty) {
-        removeFilterConditions(source, column.columnName);
+      // Need to invoke `onFilterChanging` and `onFilterChanged` callback to notify
+      // the filtering changes when tapping `SelectAll` button to select all the
+      // rows in the Checkbox UI filtering.
+      if (source.filterConditions.containsKey(column.columnName)) {
+        if (_invokeFilterChangingCallback(column, <FilterCondition>[])) {
+          removeFilterConditions(source, column.columnName);
+        } else {
+          return;
+        }
       }
     } else {
       final bool useSelected = !(_checkedItemsCount > _unCheckedItemsCount &&
           _unCheckedItemsCount > 0);
-      final List<FilterCondition> conditions = checkboxFilterHelper.items
-          .where((FilterElement element) => element.isSelected == useSelected)
-          .map<FilterCondition>((FilterElement value) {
-        final FilterType filterType =
-            useSelected ? FilterType.equals : FilterType.notEqual;
-        final FilterOperator filterOperator =
-            useSelected ? FilterOperator.or : FilterOperator.and;
-        final String? filterValue =
-            value.value == '(Blanks)' ? null : value.value.toString();
+      final List<FilterCondition> conditions = <FilterCondition>[];
+      for (final FilterElement value in checkboxFilterHelper.items) {
+        if (value.isSelected == useSelected) {
+          final FilterType filterType =
+              useSelected ? FilterType.equals : FilterType.notEqual;
+          FilterOperator filterOperator =
+              useSelected ? FilterOperator.or : FilterOperator.and;
+          final String? filterValue =
+              value.value == '(Blanks)' ? null : value.value.toString();
 
-        return FilterCondition(
-            type: filterType,
-            isCaseSensitive: true,
-            value: filterValue,
-            filterBehavior: FilterBehavior.stringDataType,
-            filterOperator: filterOperator);
-      }).toList();
+          // Sets the first filter condition's filter operator as 'AND' to
+          // perform multi-column filtering.
+          if (conditions.isEmpty) {
+            filterOperator = FilterOperator.and;
+          }
+
+          conditions.add(FilterCondition(
+              type: filterType,
+              isCaseSensitive: true,
+              value: filterValue,
+              filterBehavior: FilterBehavior.stringDataType,
+              filterOperator: filterOperator));
+        }
+      }
 
       addFilterConditions(source, column.columnName, conditions);
     }
 
     if (source.filterConditions.isEmpty) {
-      isViewFilterAppiled = false;
       setFilterFrom(column, FilteredFrom.none);
     } else {
       setFilterFrom(column, FilteredFrom.checkboxFilter);
@@ -2011,6 +2031,11 @@ class DataGridFilterHelper {
   /// Format the given cell value to the string data type to display.
   String getDisplayValue(Object? value) {
     if (value != null) {
+      // Should return if the value defines the blank filter.
+      if (value == '(Blanks)') {
+        return '(Blanks)';
+      }
+
       switch (advancedFilterHelper.advancedFilterType) {
         case AdvancedFilterType.text:
         case AdvancedFilterType.numeric:
@@ -2069,7 +2094,8 @@ class DataGridFilterHelper {
     }
 
     final DataGridSource source = dataGridConfiguration.source;
-    if (source.filterConditions.isNotEmpty) {
+    // Should avoid the type checking if the `effectiveRows` contains an empty list.
+    if (source.effectiveRows.isNotEmpty && source.filterConditions.isNotEmpty) {
       for (final String columnName in source.filterConditions.keys) {
         final GridColumn? column = dataGridConfiguration.columns
             .firstWhereOrNull(
@@ -2131,10 +2157,10 @@ class DataGridFilterHelper {
     _debugCheckDataType(dataGridConfiguration);
 
     if (dataGridConfiguration.source.filterConditions.isNotEmpty) {
-      final List<DataGridRow> rows = dataGridConfiguration.source.effectiveRows;
+      final DataGridSource source = dataGridConfiguration.source;
       final List<DataGridRow> filteredRows =
-          _getFilterRows(rows, dataGridConfiguration.source.filterConditions);
-      refreshEffectiveRows(dataGridConfiguration.source, filteredRows);
+          _getFilterRows(source.rows, source.filterConditions);
+      refreshEffectiveRows(source, filteredRows);
     }
   }
 
@@ -2142,39 +2168,37 @@ class DataGridFilterHelper {
     final DataGridSource source = _dataGridStateDetails().source;
 
     if (source.filterConditions.containsKey(column.columnName)) {
-      if (!_invokeFilterChangingCallback(
-          column, source.filterConditions[column.columnName]!)) {
+      final List<FilterCondition>? filterConditions =
+          source.filterConditions[column.columnName];
+      if (!_invokeFilterChangingCallback(column, filterConditions!)) {
         removeFilterConditions(source, column.columnName);
-        if (source.filterConditions.isEmpty) {
-          isViewFilterAppiled = false;
-        }
         return;
       }
 
-      final Map<String, List<FilterCondition>> currentFilterCondition =
-          <String, List<FilterCondition>>{
-        column.columnName: source.filterConditions[column.columnName]!
-      };
-
-      final List<DataGridRow> dataGridRows = canUsePreviousSource
-          ? _getPreviousFilteredRows(column.columnName)
-          : source.effectiveRows;
-
-      final List<DataGridRow> filteredRows =
-          _getFilterRows(dataGridRows, currentFilterCondition);
-
-      if (canUsePreviousSource) {
-        canUsePreviousSource = false;
+      List<DataGridRow> filteredRows = <DataGridRow>[];
+      if (_previousDataRows.isNotEmpty) {
+        filteredRows = _getFilterRows(
+            _previousDataRows, <String, List<FilterCondition>>{
+          column.columnName: filterConditions
+        });
+      } else {
+        filteredRows = _getFilterRows(source.rows, source.filterConditions);
       }
 
-      isViewFilterAppiled = true;
+      if (_previousDataRows.isNotEmpty) {
+        _previousDataRows.clear();
+      }
+
+      // Need to apply sorting to the filtered rows.
+      performSorting(source, filteredRows);
       refreshEffectiveRows(source, filteredRows);
+      updateDataPager(source);
       notifyDataGridPropertyChangeListeners(source, propertyName: 'Filtering');
-      _invokeFilterChangedCallback(
-          column, source.filterConditions[column.columnName]!);
+      _invokeFilterChangedCallback(column, filterConditions);
     } else {
       updateDataSource(source);
       notifyDataGridPropertyChangeListeners(source, propertyName: 'Filtering');
+      _invokeFilterChangedCallback(column, <FilterCondition>[]);
     }
   }
 
@@ -2186,14 +2210,14 @@ class DataGridFilterHelper {
         source.filterConditions[columnName];
 
     if (conditions != null && conditions.isNotEmpty) {
-      if (conditions == source.filterConditions.values.last) {
-        removeFilterConditions(source, columnName);
-        items = source.filterConditions.isEmpty
-            ? source.rows
-            : _getFilterRows(source.rows, source.filterConditions);
-        canUsePreviousSource = true;
-        addFilterConditions(source, columnName, conditions);
-      }
+      removeFilterConditions(source, columnName);
+      items = source.filterConditions.isEmpty
+          ? source.rows
+          : _getFilterRows(source.rows, source.filterConditions);
+      _previousDataRows = items.toList();
+      addFilterConditions(source, columnName, conditions);
+    } else {
+      _previousDataRows.clear();
     }
 
     return items ?? source.effectiveRows;
@@ -2202,15 +2226,23 @@ class DataGridFilterHelper {
   List<FilterElement> _getCellValues(
       GridColumn column, List<DataGridRow> items) {
     bool hasBlankValues = false;
+    final DataGridSource source = _dataGridStateDetails().source;
+    final List<FilterCondition> conditions =
+        source.filterConditions[column.columnName] ?? <FilterCondition>[];
+
     bool isSelected(Object? value) {
-      final List<FilterCondition>? currentConditions =
-          _dataGridStateDetails().source.filterConditions[column.columnName];
-      if (currentConditions != null && currentConditions.isNotEmpty) {
-        final bool isEquals = currentConditions.first.type == FilterType.equals;
-        final FilterCondition? condition = currentConditions.firstWhereOrNull(
-            (FilterCondition element) =>
-                element.value?.toString() == value?.toString());
-        return isEquals ? condition != null : condition == null;
+      if (conditions.isNotEmpty) {
+        // Checkes the previous filtered data rows with current effecive rows to
+        // find selected and unselected items in the checkbox list view.
+        for (final DataGridRow row in source.effectiveRows) {
+          final DataGridCell? cell = row.getCells().firstWhereOrNull(
+              (DataGridCell element) =>
+                  element.columnName == column.columnName);
+          if (cell?.value?.toString() == value?.toString()) {
+            return true;
+          }
+        }
+        return false;
       }
       return true;
     }
@@ -2332,13 +2364,10 @@ class DataGridFilterHelper {
     setFilterFrom(column, FilteredFrom.none);
     removeFilterConditions(dataGridConfiguration.source, column.columnName);
 
-    if (dataGridConfiguration.source.filterConditions.isEmpty) {
-      isViewFilterAppiled = false;
-    }
-
     updateDataSource(dataGridConfiguration.source);
     notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
         propertyName: 'Filtering');
+    _invokeFilterChangedCallback(column, <FilterCondition>[]);
   }
 
   bool _invokeFilterChangingCallback(
@@ -2382,9 +2411,19 @@ class DataGridFilterHelper {
   bool _filterRow(
       DataGridRow row, Map<String, List<FilterCondition>> filterConditions) {
     bool? isEqual;
+    // Holds the previous column's comparer value of the current row to help to
+    // perform multi-column filtering.
+    bool previousComparer = true;
     for (final String columnName in filterConditions.keys) {
       for (final FilterCondition condition in filterConditions[columnName]!) {
         final Object? cellValue = _getCellValue(row, columnName);
+
+        // Resets the previous column's comparer value if a column is not
+        // applicable to the multi-column filtering.
+        if (condition == filterConditions[columnName]!.first &&
+            condition.filterOperator == FilterOperator.or) {
+          previousComparer = true;
+        }
 
         /// Holds the current filter type result.
         bool comparerValue = false;
@@ -2430,9 +2469,12 @@ class DataGridFilterHelper {
                 grid_helper.compareLessThan(condition, cellValue, true);
             break;
         }
-        isEqual = grid_helper.compare(
-            isEqual, comparerValue, condition.filterOperator);
+
+        isEqual = previousComparer &&
+            grid_helper.compare(
+                isEqual, comparerValue, condition.filterOperator);
       }
+      previousComparer = isEqual != null && isEqual;
     }
     return isEqual != null && isEqual;
   }
@@ -2490,6 +2532,11 @@ class DataGridFilterHelper {
       return false;
     }
 
+    // Sets the first filter condition's filter operator as 'AND' to perform
+    // multi-column filtering.
+    FilterOperator getFilterOperator() =>
+        filterConditions.isEmpty ? FilterOperator.and : filterOperator;
+
     switch (advancedFilterHelper.advancedFilterType) {
       case AdvancedFilterType.text:
         {
@@ -2497,7 +2544,7 @@ class DataGridFilterHelper {
           if (canCreateFilterCondition(filterValue1, filterType1, true)) {
             final FilterCondition condition = FilterCondition(
                 type: type1,
-                filterOperator: filterOperator,
+                filterOperator: getFilterOperator(),
                 value: advancedFilterHelper.filterValue1,
                 filterBehavior: FilterBehavior.stringDataType,
                 isCaseSensitive: advancedFilterHelper.isCaseSensitive1);
@@ -2508,7 +2555,7 @@ class DataGridFilterHelper {
           if (canCreateFilterCondition(filterValue2, filterType2, false)) {
             final FilterCondition condition = FilterCondition(
                 type: type2,
-                filterOperator: filterOperator,
+                filterOperator: getFilterOperator(),
                 value: advancedFilterHelper.filterValue2,
                 filterBehavior: FilterBehavior.stringDataType,
                 isCaseSensitive: advancedFilterHelper.isCaseSensitive2);
@@ -2522,7 +2569,7 @@ class DataGridFilterHelper {
           if (canCreateFilterCondition(filterValue1, filterType1, true)) {
             final FilterCondition condition = FilterCondition(
                 type: type1,
-                filterOperator: filterOperator,
+                filterOperator: getFilterOperator(),
                 value: advancedFilterHelper.filterValue1);
             filterConditions.add(condition);
           }
@@ -2531,7 +2578,7 @@ class DataGridFilterHelper {
           if (canCreateFilterCondition(filterValue2, filterType2, false)) {
             final FilterCondition condition = FilterCondition(
                 type: type2,
-                filterOperator: filterOperator,
+                filterOperator: getFilterOperator(),
                 value: advancedFilterHelper.filterValue2);
             filterConditions.add(condition);
           }
@@ -2543,7 +2590,7 @@ class DataGridFilterHelper {
           if (canCreateFilterCondition(filterValue1, filterType1, true)) {
             final FilterCondition condition = FilterCondition(
                 type: type1,
-                filterOperator: filterOperator,
+                filterOperator: getFilterOperator(),
                 value: advancedFilterHelper.filterValue1);
             filterConditions.add(condition);
           }
@@ -2552,7 +2599,7 @@ class DataGridFilterHelper {
           if (canCreateFilterCondition(filterValue2, filterType2, false)) {
             final FilterCondition condition = FilterCondition(
                 type: type2,
-                filterOperator: filterOperator,
+                filterOperator: getFilterOperator(),
                 value: advancedFilterHelper.filterValue2);
             filterConditions.add(condition);
           }
@@ -2837,9 +2884,9 @@ class DataGridAdvancedFilterHelper {
       isOrPredicate = condition.filterOperator == FilterOperator.or;
     }
 
-    firstValueTextController.text = dataGridConfiguration.dataGridFilterHelper
+    firstValueTextController.text = dataGridConfiguration.dataGridFilterHelper!
         .getDisplayValue(filterValue1);
-    secondValueTextController.text = dataGridConfiguration.dataGridFilterHelper
+    secondValueTextController.text = dataGridConfiguration.dataGridFilterHelper!
         .getDisplayValue(filterValue2);
   }
 
@@ -2866,4 +2913,27 @@ class FilterElement {
 
   /// Defines the check box state of the cell.
   bool isSelected;
+}
+
+/// Controls how the filtering menu options can be customized.
+@immutable
+class FilterPopupMenuOptions {
+  ///
+  const FilterPopupMenuOptions(
+      {this.filterMode = FilterMode.both,
+      this.canShowClearFilterOption = true,
+      this.canShowSortingOptions = true,
+      this.showColumnName = true});
+
+  /// Decides how the checked listbox and advanced filter options should be shown in filter popup.
+  final FilterMode filterMode;
+
+  /// Decides whether the `Clear Filter From {Column  Name}` option should be displayed in filtering popup.
+  final bool canShowClearFilterOption;
+
+  /// Decides whether the ascending and descending sorting options should be displayed in filtering popup.
+  final bool canShowSortingOptions;
+
+  /// Decides whether the column name should be displayed along with the content of `Clear Filter` option .
+  final bool showColumnName;
 }

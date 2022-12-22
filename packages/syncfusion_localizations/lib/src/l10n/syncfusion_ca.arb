@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Ordena de Z a A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Ordena del més antic al més recent", 
 "sortNewestToOldestDataGridFilteringLabel" : "Ordena el més nou al més antic", 
-"clearFilterFromDataGridFilteringLabel" : "Esborra el filtre de", 
 "textFiltersDataGridFilteringLabel" : "Filtres de text", 
 "numberFiltersDataGridFilteringLabel" : "Filtres de nombre", 
 "dateFiltersDataGridFilteringLabel" : "Filtres de data", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "I", 
 "orDataGridFilteringLabel" : "O", 
 "selectAllDataGridFilteringLabel" : "Seleccionar tot", 
-"sortAndFilterDataGridFilteringLabel" : "Ordena i filtra"
+"sortAndFilterDataGridFilteringLabel" : "Ordena i filtra", 
+"clearFilterDataGridFilteringLabel" : "Esborra el filtre", 
+"fromDataGridFilteringLabel" : "Des de"
 }

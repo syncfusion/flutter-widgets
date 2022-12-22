@@ -112,10 +112,42 @@ class SerializeWorkbook {
           });
         }
       });
+      final List<Name> list = _workbook.innerNamesCollection;
+      if (list.isNotEmpty) {
+        builder.element('definedNames', nest: () {
+          for (int i = 0; i < list.length; i++) {
+            builder.element('definedName', nest: () {
+              builder.attribute('name', list[i].name);
+              builder.attribute('comment', list[i].description);
+              if (list[i].isLocal) {
+                builder.attribute(
+                  'localSheetId',
+                  _getLocalSheetIndex(_workbook, list[i]).toString(),
+                );
+              }
+              if (!list[i].isVisible) {
+                builder.attribute('hidden', '1');
+              }
+              builder.text(list[i].value);
+            });
+          }
+        });
+      }
     });
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(bytes, 'xl/workbook.xml');
+  }
+
+  /// Get local sSheet id.
+  int _getLocalSheetIndex(Workbook workbook, Name list) {
+    int result = -1;
+    for (int i = 0; i < workbook.worksheets.count; i++) {
+      if (workbook.worksheets[i].name == list.scope) {
+        result = i;
+      }
+    }
+    return result;
   }
 
   /// Serializes workbook protection options.
@@ -205,19 +237,21 @@ class SerializeWorkbook {
       builder.attribute('xmlns:mc',
           'http://schemas.openxmlformats.org/markup-compatibility/2006');
 
-      if (!sheet._isSummaryRowBelow) {
-        builder.element('sheetPr', nest: () {
+      builder.element('sheetPr', nest: () {
+        if (!sheet._isSummaryRowBelow) {
           builder.element('OutlinePr', nest: () {
             builder.attribute('summaryBelow', '0');
           });
-        });
-      } else {
-        builder.element('sheetPr', nest: () {
-          if (sheet._isTapColorApplied) {
-            _serializeTabColor(sheet, builder);
-          }
-        });
-      }
+        }
+        if (sheet.pageSetup.isFitToPage) {
+          builder.element('pageSetUpPr', nest: () {
+            builder.attribute('fitToPage', '1');
+          });
+        }
+        if (sheet._isTapColorApplied) {
+          _serializeTabColor(sheet, builder);
+        }
+      });
       _saveSheetView(sheet, builder);
       builder.element('sheetFormatPr', nest: () {
         builder.attribute('defaultRowHeight', sheet._standardHeight.toString());
@@ -397,20 +431,36 @@ class SerializeWorkbook {
       _serializeConditionalFormatting(builder, sheet);
       _serializeDataValidations(builder, sheet);
       _serializeHyperlinks(builder, sheet);
-      builder.element('pageMargins', nest: () {
-        builder.attribute('left', '0.75');
-        builder.attribute('right', '0.75');
-        builder.attribute('top', '1');
-        builder.attribute('bottom', '1');
-        builder.attribute('header', '0.5');
-        builder.attribute('footer', '0.5');
-      });
+      if (sheet.pageSetup.showGridlines ||
+          sheet.pageSetup.showHeadings ||
+          sheet.pageSetup.isCenterHorizontally ||
+          sheet.pageSetup.isCenterVertically) {
+        _serializePrintOptions(builder, sheet);
+      }
+      _validatePageMargins(sheet);
+      _serializePageMargins(builder, sheet);
+
+      if (sheet.pageSetup.order == ExcelPageOrder.overThenDown ||
+          sheet.pageSetup.orientation == ExcelPageOrientation.landscape ||
+          sheet.pageSetup.printErrors != CellErrorPrintOptions.displayed ||
+          sheet.pageSetup.isBlackAndWhite ||
+          sheet.pageSetup.isDraft ||
+          (sheet.pageSetup.printQuality != 0 &&
+              sheet.pageSetup.printQuality != 600) ||
+          !sheet.pageSetup.autoFirstPageNumber ||
+          sheet.pageSetup.fitToPagesWide > 1 ||
+          sheet.pageSetup.fitToPagesTall > 1 ||
+          sheet.pageSetup.firstPageNumber != 1 ||
+          sheet.pageSetup.paperSize != ExcelPaperSize.paperA4) {
+        _serializePageSetup(builder, sheet);
+      }
       builder.element('headerFooter', nest: () {
         builder.attribute('scaleWithDoc', '1');
         builder.attribute('alignWithMargins', '0');
         builder.attribute('differentFirst', '0');
         builder.attribute('differentOddEven', '0');
       });
+
       if ((sheet.pictures.count > 0) ||
           (sheet.charts != null && sheet.chartCount > 0)) {
         _workbook._drawingCount++;
@@ -452,6 +502,342 @@ class SerializeWorkbook {
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(bytes, 'xl/worksheets/sheet${index + 1}.xml');
+  }
+
+  /// Serializes worksheet printOptions
+  void _serializePrintOptions(XmlBuilder builder, Worksheet sheet) {
+    builder.element('printOptions', nest: () {
+      if (sheet.pageSetup.isCenterHorizontally) {
+        builder.attribute('horizontalCentered', '1');
+      }
+      if (sheet.pageSetup.isCenterVertically) {
+        builder.attribute('verticalCentered', '1');
+      }
+      if (sheet.pageSetup.showHeadings) {
+        builder.attribute('headings', '1');
+      }
+      if (sheet.pageSetup.showGridlines) {
+        builder.attribute('gridLines', '1');
+      }
+    });
+  }
+
+  /// Validate whether Page margins are fit into the Page
+  void _validatePageMargins(Worksheet sheet) {
+    if ((sheet.pageSetup as _PageSetupImpl)
+            ._paperHight
+            .containsKey(sheet.pageSetup.paperSize) &&
+        (sheet.pageSetup as _PageSetupImpl)
+            ._paperWidth
+            .containsKey(sheet.pageSetup.paperSize)) {
+      final double maxHight =
+          sheet.pageSetup.topMargin + sheet.pageSetup.bottomMargin;
+      final double maxWidth =
+          sheet.pageSetup.leftMargin + sheet.pageSetup.rightMargin;
+      (sheet.pageSetup as _PageSetupImpl)
+          ._paperHight
+          .forEach((ExcelPaperSize key, double value) {
+        if (sheet.pageSetup.paperSize == key) {
+          if (maxHight > value) {
+            throw Exception(
+                'Top Margin and Bottom Margin size exceeds the allowed size');
+          }
+        }
+      });
+      (sheet.pageSetup as _PageSetupImpl)
+          ._paperWidth
+          .forEach((ExcelPaperSize key, double value) {
+        if (sheet.pageSetup.paperSize == key) {
+          if (maxWidth > value) {
+            throw Exception(
+                'Left Margin and Right Margin size exceeds the allowed size');
+          }
+        }
+      });
+    }
+  }
+
+  /// Serializes pageMargins
+  void _serializePageMargins(XmlBuilder builder, Worksheet sheet) {
+    builder.element('pageMargins', nest: () {
+      builder.attribute('left', sheet.pageSetup.leftMargin.toString());
+      builder.attribute('right', sheet.pageSetup.rightMargin.toString());
+      builder.attribute('top', sheet.pageSetup.topMargin.toString());
+      builder.attribute('bottom', sheet.pageSetup.bottomMargin.toString());
+      builder.attribute('header', sheet.pageSetup.headerMargin.toString());
+      builder.attribute('footer', sheet.pageSetup.footerMargin.toString());
+    });
+  }
+
+  /// Serialize pageSetup
+  void _serializePageSetup(XmlBuilder builder, Worksheet sheet) {
+    builder.element('pageSetup', nest: () {
+      _serializePaperSize(builder, sheet);
+
+      if (sheet.pageSetup.firstPageNumber != 1) {
+        builder.attribute(
+            'firstPageNumber', sheet.pageSetup.firstPageNumber.toString());
+      }
+      if (sheet.pageSetup.fitToPagesWide > 1) {
+        builder.attribute(
+            'fitToWidth', sheet.pageSetup.fitToPagesWide.toString());
+      }
+      if (sheet.pageSetup.fitToPagesTall > 1) {
+        builder.attribute(
+            'fitToHeight', sheet.pageSetup.fitToPagesTall.toString());
+      }
+      if (sheet.pageSetup.order == ExcelPageOrder.overThenDown) {
+        builder.attribute('pageOrder', 'overThenDown');
+      }
+      if (sheet.pageSetup.orientation == ExcelPageOrientation.landscape) {
+        builder.attribute('orientation', 'landscape');
+      } else {
+        builder.attribute('orientation', 'portrait');
+      }
+      if (sheet.pageSetup.isBlackAndWhite) {
+        builder.attribute('blackAndWhite', '1');
+      }
+      if (sheet.pageSetup.isDraft) {
+        builder.attribute('draft', '1');
+      }
+      if (!sheet.pageSetup.autoFirstPageNumber) {
+        builder.attribute('useFirstPageNumber', '1');
+      }
+      if (sheet.pageSetup.printErrors != CellErrorPrintOptions.displayed) {
+        switch (sheet.pageSetup.printErrors) {
+          case CellErrorPrintOptions.blank:
+            builder.attribute('errors', 'blank');
+            break;
+          case CellErrorPrintOptions.dash:
+            builder.attribute('errors', 'dash');
+            break;
+          case CellErrorPrintOptions.notAvailable:
+            builder.attribute('errors', 'NA');
+            break;
+          case CellErrorPrintOptions.displayed:
+            break;
+        }
+      }
+      if (sheet.pageSetup.printQuality != 0 &&
+          sheet.pageSetup.printQuality != 600) {
+        if (sheet.pageSetup.printQuality <= 38528) {
+          builder.attribute(
+              'horizontalDpi', sheet.pageSetup.printQuality.toString());
+          builder.attribute(
+              'verticalDpi', sheet.pageSetup.printQuality.toString());
+        } else {
+          builder.attribute('horizontalDpi', '38528');
+          builder.attribute('verticalDpi', '38528');
+        }
+      }
+    });
+  }
+
+  /// Serialize paperSize
+  void _serializePaperSize(XmlBuilder builder, Worksheet sheet) {
+    switch (sheet.pageSetup.paperSize) {
+      case ExcelPaperSize.a2Paper:
+        builder.attribute('paperSize', '66');
+        break;
+      case ExcelPaperSize.paperDsheet:
+        builder.attribute('paperSize', '25');
+        break;
+      case ExcelPaperSize.paperEnvelope10:
+        builder.attribute('paperSize', '20');
+        break;
+      case ExcelPaperSize.paperEnvelope11:
+        builder.attribute('paperSize', '21');
+        break;
+      case ExcelPaperSize.paperEnvelope12:
+        builder.attribute('paperSize', '22');
+        break;
+      case ExcelPaperSize.paperEnvelope14:
+        builder.attribute('paperSize', '23');
+        break;
+      case ExcelPaperSize.paperEnvelope9:
+        builder.attribute('paperSize', '19');
+        break;
+      case ExcelPaperSize.paperEnvelopeB4:
+        builder.attribute('paperSize', '33');
+        break;
+      case ExcelPaperSize.paperEnvelopeB5:
+        builder.attribute('paperSize', '34');
+        break;
+      case ExcelPaperSize.paperEnvelopeB6:
+        builder.attribute('paperSize', '35');
+        break;
+      case ExcelPaperSize.paperEnvelopeC3:
+        builder.attribute('paperSize', '29');
+        break;
+      case ExcelPaperSize.paperEnvelopeC4:
+        builder.attribute('paperSize', '30');
+        break;
+      case ExcelPaperSize.paperEnvelopeC5:
+        builder.attribute('paperSize', '28');
+        break;
+      case ExcelPaperSize.paperEnvelopeC6:
+        builder.attribute('paperSize', '31');
+        break;
+      case ExcelPaperSize.paperEnvelopeC65:
+        builder.attribute('paperSize', '32');
+        break;
+      case ExcelPaperSize.paperEnvelopeDL:
+        builder.attribute('paperSize', '27');
+        break;
+      case ExcelPaperSize.paperEnvelopeItaly:
+        builder.attribute('paperSize', '36');
+        break;
+      case ExcelPaperSize.paperEnvelopeMonarch:
+        builder.attribute('paperSize', '37');
+        break;
+      case ExcelPaperSize.paperEnvelopePersonal:
+        builder.attribute('paperSize', '38');
+        break;
+      case ExcelPaperSize.paperEsheet:
+        builder.attribute('paperSize', '26');
+        break;
+      case ExcelPaperSize.paperExecutive:
+        builder.attribute('paperSize', '7');
+        break;
+      case ExcelPaperSize.paperFanfoldLegalGerman:
+        builder.attribute('paperSize', '41');
+        break;
+      case ExcelPaperSize.paperFanfoldStdGerman:
+        builder.attribute('paperSize', '40');
+        break;
+      case ExcelPaperSize.paperFanfoldUS:
+        builder.attribute('paperSize', '39');
+        break;
+      case ExcelPaperSize.paperFolio:
+        builder.attribute('paperSize', '14');
+        break;
+      case ExcelPaperSize.paperLedger:
+        builder.attribute('paperSize', '4');
+        break;
+      case ExcelPaperSize.paperLegal:
+        builder.attribute('paperSize', '5');
+        break;
+      case ExcelPaperSize.paperLetter:
+        builder.attribute('paperSize', '1');
+        break;
+      case ExcelPaperSize.paperLetterSmall:
+        builder.attribute('paperSize', '2');
+        break;
+      case ExcelPaperSize.paperNote:
+        builder.attribute('paperSize', '18');
+        break;
+      case ExcelPaperSize.paperQuarto:
+        builder.attribute('paperSize', '15');
+        break;
+      case ExcelPaperSize.paperStatement:
+        builder.attribute('paperSize', '6');
+        break;
+      case ExcelPaperSize.paperTabloid:
+        builder.attribute('paperSize', '3');
+        break;
+      case ExcelPaperSize.paperUser:
+        builder.attribute('paperSize', '256');
+        break;
+      case ExcelPaperSize.standardPaper9By11:
+        builder.attribute('paperSize', '44');
+        break;
+      case ExcelPaperSize.standardPaper10By11:
+        builder.attribute('paperSize', '45');
+        break;
+      case ExcelPaperSize.standardPaper15By11:
+        builder.attribute('paperSize', '46');
+        break;
+      case ExcelPaperSize.tabloidExtraPaper:
+        builder.attribute('paperSize', '52');
+        break;
+      case ExcelPaperSize.superASuperAA4Paper:
+        builder.attribute('paperSize', '57');
+        break;
+      case ExcelPaperSize.superBSuperBA3Paper:
+        builder.attribute('paperSize', '58');
+        break;
+      case ExcelPaperSize.paper10x14:
+        builder.attribute('paperSize', '16');
+        break;
+      case ExcelPaperSize.paper11x17:
+        builder.attribute('paperSize', '17');
+        break;
+      case ExcelPaperSize.paperA3:
+        builder.attribute('paperSize', '8');
+        break;
+      case ExcelPaperSize.paperA4:
+        builder.attribute('paperSize', '9');
+        break;
+      case ExcelPaperSize.paperA4Small:
+        builder.attribute('paperSize', '10');
+        break;
+      case ExcelPaperSize.paperA5:
+        builder.attribute('paperSize', '11');
+        break;
+      case ExcelPaperSize.paperB4:
+        builder.attribute('paperSize', '12');
+        break;
+      case ExcelPaperSize.paperB5:
+        builder.attribute('paperSize', '13');
+        break;
+      case ExcelPaperSize.paperCsheet:
+        builder.attribute('paperSize', '24');
+        break;
+      case ExcelPaperSize.iSOB4:
+        builder.attribute('paperSize', '42');
+        break;
+      case ExcelPaperSize.japaneseDoublePostcard:
+        builder.attribute('paperSize', '43');
+        break;
+      case ExcelPaperSize.inviteEnvelope:
+        builder.attribute('paperSize', '47');
+        break;
+      case ExcelPaperSize.letterExtraPaper9275By12:
+        builder.attribute('paperSize', '50');
+        break;
+      case ExcelPaperSize.legalExtraPaper9275By15:
+        builder.attribute('paperSize', '51');
+        break;
+      case ExcelPaperSize.a4ExtraPaper:
+        builder.attribute('paperSize', '53');
+        break;
+      case ExcelPaperSize.letterTransversePaper:
+        builder.attribute('paperSize', '54');
+        break;
+      case ExcelPaperSize.a4TransversePaper:
+        builder.attribute('paperSize', '55');
+        break;
+      case ExcelPaperSize.letterExtraTransversePaper:
+        builder.attribute('paperSize', '56');
+        break;
+      case ExcelPaperSize.letterPlusPaper:
+        builder.attribute('paperSize', '59');
+        break;
+      case ExcelPaperSize.a4PlusPaper:
+        builder.attribute('paperSize', '60');
+        break;
+      case ExcelPaperSize.a5TransversePaper:
+        builder.attribute('paperSize', '61');
+        break;
+      case ExcelPaperSize.jISB5TransversePaper:
+        builder.attribute('paperSize', '62');
+        break;
+      case ExcelPaperSize.a3ExtraPaper:
+        builder.attribute('paperSize', '63');
+        break;
+      case ExcelPaperSize.a5ExtraPpaper:
+        builder.attribute('paperSize', '64');
+        break;
+      case ExcelPaperSize.iSOB5ExtraPaper:
+        builder.attribute('paperSize', '65');
+        break;
+      case ExcelPaperSize.a3TransversePaper:
+        builder.attribute('paperSize', '67');
+        break;
+      case ExcelPaperSize.a3ExtraTransversePaper:
+        builder.attribute('paperSize', '68');
+        break;
+    }
   }
 
   /// Serializes single protection option.
@@ -1007,7 +1393,42 @@ class SerializeWorkbook {
         if (!sheet.showGridlines) {
           builder.attribute('showGridLines', '0');
         }
+        if (sheet._isfreezePane ||
+            sheet._verticalSplit != 0 ||
+            sheet._horizontalSplit != 0) {
+          _savePane(sheet, builder);
+        }
       });
+    });
+  }
+
+  /// Serialize worksheet Pane.
+  static void _savePane(Worksheet sheet, XmlBuilder builder) {
+    builder.element('pane', nest: () {
+      if (sheet._verticalSplit != 0) {
+        builder.attribute('xSplit', sheet._verticalSplit.toString());
+      }
+      if (sheet._horizontalSplit != 0) {
+        builder.attribute('ySplit', sheet._horizontalSplit.toString());
+      }
+      if (sheet._topLeftCell != '') {
+        builder.attribute('topLeftCell', sheet._topLeftCell);
+      }
+      switch (sheet._activePane) {
+        case _ActivePane.bottomRight:
+          builder.attribute('activePane', 'bottomRight');
+          break;
+        case _ActivePane.bottomLeft:
+          builder.attribute('activePane', 'bottomLeft');
+          break;
+        case _ActivePane.topRight:
+          builder.attribute('activePane', 'topRight');
+          break;
+        case _ActivePane.topLeft:
+          builder.attribute('activePane', 'topLeft');
+          break;
+      }
+      builder.attribute('state', 'frozen');
     });
   }
 
@@ -1620,13 +2041,7 @@ class SerializeWorkbook {
   void _serializeBorder(Border border, XmlBuilder builder, String borderType) {
     builder.element(borderType, nest: () {
       builder.attribute(
-          'style',
-          border.lineStyle
-              .toString()
-              .split('.')
-              .toList()
-              .removeAt(1)
-              .toLowerCase());
+          'style', border.lineStyle.toString().split('.').toList().removeAt(1));
       builder.element('color', nest: () {
         if (border.color.length == 7) {
           builder.attribute('rgb', 'FF${border.color.replaceAll('#', '')}');
@@ -3106,14 +3521,6 @@ class SerializeWorkbook {
 
   /// Serialize the dynmaic filter.
   void _serializeDateFilter(XmlBuilder builder, _DynamicFilter filter) {
-    if (builder == null) {
-      throw Exception('writer');
-    }
-
-    if (filter == null) {
-      throw Exception('filter');
-    }
-
     if (filter._dateFilterType != DynamicFilterType.none) {
       builder.element('dynamicFilter', nest: () {
         final String? dateTime =

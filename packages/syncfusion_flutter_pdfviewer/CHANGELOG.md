@@ -1,4 +1,18 @@
-## Unreleased
+## [20.3.58] - 11/22/2022
+
+**Bugs**
+
+* Now, the PDF page will not be zoomed while performing a mouse scroll in the mobile view of the web platform.
+
+**Features**
+
+* Support for the text web link navigation has been provided.
+
+## [20.3.52] - 10/26/2022
+
+* When copying PDF content from the `SfPdfViewer` widget, spacing between the words is now added properly.
+
+## [20.3.47] - 09/29/2022
 
 **Features**
 

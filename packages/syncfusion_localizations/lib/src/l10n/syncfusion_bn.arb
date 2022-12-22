@@ -13,7 +13,7 @@
 "pdfPaginationDialogOkLabel" : "ঠিক আছে", 
 "pdfPaginationDialogCancelLabel" : "বাতিল করুন", 
 "passwordDialogHeaderTextLabel" : "পাসওয়ার্ড সুরক্ষিত", 
-"passwordDialogContentLabel" : "এই PDF ফাইল খুলতে পাসওয়ার্ড লিখুন", 
+"passwordDialogContentLabel" : "এই পিডিএফ ফাইল খুলতে পাসওয়ার্ড লিখুন", 
 "passwordDialogHintTextLabel" : "পাসওয়ার্ড লিখুন", 
 "passwordDialogInvalidPasswordLabel" : "অবৈধ পাসওয়ার্ড", 
 "pdfPasswordDialogOpenLabel" : "খোলা", 
@@ -30,7 +30,7 @@
 "todayLabel" : "আজ", 
 "weeknumberLabel" : "সপ্তাহ", 
 "allDayLabel" : "সারাদিন", 
-"muharramLabel" : "মহররম", 
+"muharramLabel" : "মহরম", 
 "safarLabel" : "সাফার", 
 "rabi1Label" : "রবিউল আউয়াল", 
 "rabi2Label" : "রাবি'আল-থানি", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Z থেকে A সাজান", 
 "sortOldestToNewestDataGridFilteringLabel" : "পুরাতন থেকে নতুন বাছাই করুন", 
 "sortNewestToOldestDataGridFilteringLabel" : "নতুন থেকে পুরাতন সাজান", 
-"clearFilterFromDataGridFilteringLabel" : "থেকে ফিল্টার সাফ করুন", 
 "textFiltersDataGridFilteringLabel" : "টেক্সট ফিল্টার", 
 "numberFiltersDataGridFilteringLabel" : "নম্বর ফিল্টার", 
 "dateFiltersDataGridFilteringLabel" : "তারিখ ফিল্টার", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "এবং", 
 "orDataGridFilteringLabel" : "বা", 
 "selectAllDataGridFilteringLabel" : "সব নির্বাচন করুন", 
-"sortAndFilterDataGridFilteringLabel" : "বাছাই এবং ফিল্টার"
+"sortAndFilterDataGridFilteringLabel" : "বাছাই এবং ফিল্টার", 
+"clearFilterDataGridFilteringLabel" : "স্বচ্ছ ছাকুনী", 
+"fromDataGridFilteringLabel" : "থেকে"
 }

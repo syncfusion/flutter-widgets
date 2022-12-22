@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart'
     show
+        DeviceGestureSettings,
         DragStartBehavior,
         GestureArenaTeam,
         HitTestTarget,
@@ -40,8 +41,9 @@ class LinearGaugeRenderWidget extends MultiChildRenderObjectWidget {
   final List<Animation<double>> pointerAnimations;
 
   @override
-  RenderObject createRenderObject(BuildContext context) =>
-      RenderLinearGauge(pointerAnimations: pointerAnimations);
+  RenderObject createRenderObject(BuildContext context) => RenderLinearGauge(
+      pointerAnimations: pointerAnimations,
+      gestureSettings: MediaQuery.of(context).gestureSettings);
 
   @override
   void updateRenderObject(
@@ -106,8 +108,10 @@ class RenderLinearGauge extends RenderBox
   ///
   /// By default, the non-positioned children of the stack are aligned by their
   /// top left corners.
-  RenderLinearGauge({required List<Animation<double>> pointerAnimations})
-      : _gestureArenaTeam = GestureArenaTeam(),
+  RenderLinearGauge({
+    required List<Animation<double>> pointerAnimations,
+    required DeviceGestureSettings gestureSettings,
+  })  : _gestureArenaTeam = GestureArenaTeam(),
         _pointerAnimations = pointerAnimations {
     _ranges = <RenderLinearRange>[];
     _barPointers = <RenderLinearBarPointer>[];
@@ -119,6 +123,7 @@ class RenderLinearGauge extends RenderBox
       ..onStart = _handleDragStart
       ..onUpdate = _handleDragUpdate
       ..onEnd = _handleDragEnd
+      ..gestureSettings = gestureSettings
       ..dragStartBehavior = DragStartBehavior.start;
 
     _horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
@@ -126,6 +131,7 @@ class RenderLinearGauge extends RenderBox
       ..onStart = _handleDragStart
       ..onUpdate = _handleDragUpdate
       ..onEnd = _handleDragEnd
+      ..gestureSettings = gestureSettings
       ..dragStartBehavior = DragStartBehavior.start;
   }
 

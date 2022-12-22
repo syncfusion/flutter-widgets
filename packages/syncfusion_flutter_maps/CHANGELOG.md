@@ -1,4 +1,4 @@
-## Unreleased
+## [20.3.47] - 09/29/2022
 
 **Bug**
 * #FB37232 – Now, the data labels get rendered when enabling it programmatically.

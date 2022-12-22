@@ -1616,7 +1616,7 @@ class ErrorCorrectionCodeWords {
   /// Converts decimal to binary value
   List<String> _convertDecimalToBinary(List<int> decimalRepresentation) {
     final List<String> toBinary = <String>[];
-    for (int i = 0; i < eccw; i++) {
+    for (int i = 0; i < decimalRepresentation.length; i++) {
       final String temp = decimalRepresentation[i].toRadixString(2);
       String text = '';
 
@@ -1679,7 +1679,8 @@ class ErrorCorrectionCodeWords {
       }
     }
 
-    eccw = leadTermSource.length;
+    // QR code is not scannable when the input string contains spaces.
+    // eccw = leadTermSource.length;
     final List<int> returnValue = <int>[];
     for (int i = 0; i < leadTermSource.length; i++) {
       returnValue.add(leadTermSource.entries.elementAt(i).value);

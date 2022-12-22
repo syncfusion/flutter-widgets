@@ -1,5 +1,5 @@
 {
-"noSelectedDateCalendarLabel" : "ບໍ່ມີວັນທີທີ່ເລືອກ", 
+"noSelectedDateCalendarLabel" : "ບໍ່ມີວັນທີເລືອກ", 
 "noEventsCalendarLabel" : "ບໍ່ມີເຫດການ", 
 "ofDataPagerLabel" : "ຂອງ", 
 "pagesDataPagerLabel" : "ໜ້າ", 
@@ -39,7 +39,7 @@
 "rajabLabel" : "Rajab", 
 "shaabanLabel" : "ຊາອາບານ", 
 "ramadanLabel" : "ຣາມາດານ", 
-"shawwalLabel" : "ຊວາວ", 
+"shawwalLabel" : "ຊະວາວ", 
 "dhualqiLabel" : "Dhu al-Qi'dah", 
 "dhualhiLabel" : "Dhu al-Hijjah", 
 "shortMuharramLabel" : "ມ.", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "ຈັດຮຽງ Z ຫາ A", 
 "sortOldestToNewestDataGridFilteringLabel" : "ຈັດຮຽງເກົ່າສຸດຫາໃໝ່ສຸດ", 
 "sortNewestToOldestDataGridFilteringLabel" : "ຈັດຮຽງໃໝ່ສຸດຫາເກົ່າທີ່ສຸດ", 
-"clearFilterFromDataGridFilteringLabel" : "ລຶບການກັ່ນຕອງຈາກ", 
 "textFiltersDataGridFilteringLabel" : "ຕົວກອງຂໍ້ຄວາມ", 
 "numberFiltersDataGridFilteringLabel" : "ຕົວກອງຕົວເລກ", 
 "dateFiltersDataGridFilteringLabel" : "ການກັ່ນຕອງວັນທີ", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "ແລະ", 
 "orDataGridFilteringLabel" : "ຫຼື", 
 "selectAllDataGridFilteringLabel" : "ເລືອກ​ທັງ​ຫມົດ", 
-"sortAndFilterDataGridFilteringLabel" : "ຄັດແລະການກັ່ນຕອງ"
+"sortAndFilterDataGridFilteringLabel" : "ຄັດແລະການກັ່ນຕອງ", 
+"clearFilterDataGridFilteringLabel" : "ລ້າງການກັ່ນຕອງ", 
+"fromDataGridFilteringLabel" : "ຈາກ"
 }

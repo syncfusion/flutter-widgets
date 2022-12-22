@@ -50,20 +50,47 @@ enum CellType {
 
 /// Specifies the line style for the cell border.
 enum LineStyle {
-  /// Thin line.
+  /// Specifies the thin line style for the cell border.
   thin,
 
-  /// Thick line.
+  /// Specifies the thick line style for the cell border.
   thick,
 
-  /// Medium line.
+  /// Specifies the medium line style for the cell border.
   medium,
 
-  /// No line.
+  /// Specifies the none line style for the cell border.
   none,
 
-  /// double line.
-  double
+  /// Specifies the double line style for the cell border.
+  double,
+
+  /// Specifies the dotted line style for the cell border.
+  dotted,
+
+  /// Specifies the dashed line style for the cell border.
+  dashed,
+
+  ///Specifies the hair line style for the cell border
+  hair,
+
+  ///Specifies the mediumDashed line style for the cell border.
+  mediumDashed,
+
+  ///Specifies the dashDot line style for the cell border.
+  dashDot,
+
+  ///Specifies the mediumDashDot line style for the cell border.
+  mediumDashDot,
+
+  ///Specifies the dashDotDot line style for the cell border.
+  dashDotDot,
+
+  ///Specifies the mediumDashDotDot line style for the cell border.
+  mediumDashDotDot,
+
+  ///Specifies the slantedDashDot line style for the cell border.
+  slantDashDot
 }
 
 /// Possible format types.
@@ -1153,4 +1180,267 @@ enum WorksheetVisibility {
 
   ///Worksheet is hidden to the user.
   hidden
+}
+
+///Enumeration of page order for sheet in Excel.
+enum ExcelPageOrder {
+  ///Represents Down, then over setting.
+  downThenOver,
+
+  ///Represents Over, then down setting.
+  overThenDown
+}
+
+///Enumeration of page orientation types in Excel.
+enum ExcelPageOrientation {
+  ///Represents landscape orientation.
+  landscape,
+
+  ///Represents portrait orientation.
+  portrait
+}
+
+///Enumeration of paper size types in Excel.
+enum ExcelPaperSize {
+  /// Represents paper size of 10 inches X 14 inches
+  paper10x14,
+
+  ///Represents paper size of 11 inches X 17 inches
+  paper11x17,
+
+  ///Represents A3 (297 mm x  420 mm) paper size.
+  paperA3,
+
+  ///Represents A4 (210 mm x  297 mm) paper size.
+  paperA4,
+
+  ///Represents A4 Small (210 mm x  297 mm) paper size.
+  paperA4Small,
+
+  ///Represents A5 (148 mm x  210 mm) paper size.
+  paperA5,
+
+  ///Represents B4 (250 mm x  353 mm) paper size.
+  paperB4,
+
+  ///Represents B5 (176 mm x  250 mm) paper size.
+  paperB5,
+
+  ///Represents C paper size.
+  paperCsheet,
+
+  ///Represents D paper size.
+  paperDsheet,
+
+  ///Represents Envelope# 10 paper size(4-1/8 X 9-1/2 inches).
+  paperEnvelope10,
+
+  ///Represents Envelope# 11 paper size( (4-1/2 X 10-3/8 inches).
+  paperEnvelope11,
+
+  ///Represents Envelope# 12 paper size(4-3/4 X 11 inches).
+  paperEnvelope12,
+
+  ///Represents Envelope# 14 paper size(5 X 11-1/2 inches).
+  paperEnvelope14,
+
+  ///Represents Envelope# 9 paper size(3-7/8  X 8-7/8 inches).
+  paperEnvelope9,
+
+  ///Represents B4 Envelope paper size (250 mm x 353 mm).
+  paperEnvelopeB4,
+
+  ///Represents B5 Envelope paper size (176 mm x 250 mm).
+  paperEnvelopeB5,
+
+  ///Represents B6 Envelope paper size (176 mm x 125 mm).
+  paperEnvelopeB6,
+
+  ///Represents C3 Envelope paper size (324 mm x 458 mm).
+  paperEnvelopeC3,
+
+  ///Represents C4 Envelope paper size (229 mm x 324 mm).
+  paperEnvelopeC4,
+
+  ///Represents C5 Envelope paper size (162 mm x 229 mm).
+  paperEnvelopeC5,
+
+  ///Represents C6 Envelope paper size (114 mm x 162 mm).
+  paperEnvelopeC6,
+
+  ///Represents C65 Envelope paper size (114 mm x 229 mm).
+  paperEnvelopeC65,
+
+  ///Represents DL Envelope paper size (110 mm x 220 mm).
+  paperEnvelopeDL,
+
+  ///Represents Italy Envelope paper size (110 mm x 230 mm).
+  paperEnvelopeItaly,
+
+  ///Represents Monarch Envelope paper size (3-7/8  X 7-1/2 inches).
+  paperEnvelopeMonarch,
+
+  ///Represents Personal Envelope paper size (3-5/8  X 6-1/2 inches).
+  paperEnvelopePersonal,
+
+  ///Represents E paper size.
+  paperEsheet,
+
+  ///Represents Executive paper size (7-1/2  X 10-1/2 inches).
+  paperExecutive,
+
+  ///Represents German Fanfold paper size (8-1/2  X 13 inches).
+  paperFanfoldLegalGerman,
+
+  ///Represents German Standard Fanfold paper size (8-1/2  X 12 inches).
+  paperFanfoldStdGerman,
+
+  ///Represents U.S. Standard Fanfold  paper size (14-7/8  X 11 inches).
+  paperFanfoldUS,
+
+  ///Represents Folio paper size (8-1/2  X 13 inches).
+  paperFolio,
+
+  ///Represents Ledger paper size (17  X 11 inches).
+  paperLedger,
+
+  ///Represents Legal paper size (8-1/2  X 14 inches).
+  paperLegal,
+
+  ///Represents Letter paper size (8-1/2  X 11 inches).
+  paperLetter,
+
+  ///Represents Letter Small paper size.
+  paperLetterSmall,
+
+  ///Represents Note paper size.
+  paperNote,
+
+  ///Represents Quarto paper size(215 mm x 275 mm).
+  paperQuarto,
+
+  ///Represents Statement paper size(5-1/2  X 8-1/2 inches).
+  paperStatement,
+
+  ///Represents Tabloid paper size(11 X 17 inches).
+  paperTabloid,
+
+  ///Represents User paper size.
+  paperUser,
+
+  /// Represents ISO B4 paper size(250 mm by 353 mm).
+  iSOB4,
+
+  /// Represents Japanese double postcard(200 mm by 148 mm).
+  japaneseDoublePostcard,
+
+  /// Represents Standard paper(9 in. by 11 in.).
+  standardPaper9By11,
+
+  /// Represents Standard paper(10 in. by 11 in.).
+  standardPaper10By11,
+
+  /// Represents Standard paper(15 in. by 11 in.).
+  standardPaper15By11,
+
+  /// Represents Invite envelope (220 mm by 220 mm).
+  inviteEnvelope,
+
+  /// Represents Letter extra paper (9.275 in. by 12 in.).
+  letterExtraPaper9275By12,
+
+  /// Represents Legal extra paper (9.275 in. by 15 in.).
+  legalExtraPaper9275By15,
+
+  /// Represents Tabloid extra paper (11.69 in. by 18 in.).
+  tabloidExtraPaper,
+
+  /// Represents A4 extra paper (236 mm by 322 mm).
+  a4ExtraPaper,
+
+  /// Represents Letter transverse paper (8.275 in. by 11 in.).
+  letterTransversePaper,
+
+  /// Represents A4 transverse paper (210 mm by 297 mm).
+  a4TransversePaper,
+
+  /// Represents Letter extra transverse paper (9.275 in. by 12 in.).
+  letterExtraTransversePaper,
+
+  /// Represents SuperA/SuperA/A4 paper (227 mm by 356 mm).
+  superASuperAA4Paper,
+
+  /// Represents SuperB/SuperB/A3 paper (305 mm by 487 mm).
+  superBSuperBA3Paper,
+
+  /// Represents Letter plus paper (8.5 in. by 12.69 in.).
+  letterPlusPaper,
+
+  /// Represents A4 plus paper (210 mm by 330 mm).
+  a4PlusPaper,
+
+  /// Represents A5 transverse paper (148 mm by 210 mm).
+  a5TransversePaper,
+
+  /// Represents JIS B5 transverse paper (182 mm by 257 mm).
+  jISB5TransversePaper,
+
+  /// Represents A3 extra paper (322 mm by 445 mm).
+  a3ExtraPaper,
+
+  /// Represents A5 extra paper (174 mm by 235 mm).
+  a5ExtraPpaper,
+
+  /// Represents ISO B5 extra paper (201 mm by 276 mm).
+  iSOB5ExtraPaper,
+
+  /// Represents A2 paper (420 mm by 594 mm).
+  a2Paper,
+
+  /// Represents A3 transverse paper (297 mm by 420 mm).
+  a3TransversePaper,
+
+  /// Represents A3 extra transverse paper (322 mm by 445 mm).
+  a3ExtraTransversePaper
+}
+
+///Enumeration of Replace Error Values when printing in Excel.
+enum CellErrorPrintOptions {
+  ///Prints cell errors as blank.
+  blank,
+
+  ///Prints cell errors as dash(--).
+  dash,
+
+  ///Prints the displayed cell text for errors.
+  displayed,
+
+  ///Prints cell errors as #N/A
+  notAvailable
+}
+
+/// Possible values for active pane.
+enum _ActivePane {
+  /// Bottom left pane, when both vertical and horizontal splits are applied.
+  /// This value is also used when only a horizontal split has been applied,
+  /// dividing the pane into upper and lower regions. In that case, this value
+  /// specifies the bottom pane.
+  bottomLeft,
+
+  /// Bottom right pane, when both vertical and horizontal splits are applied.
+  bottomRight,
+
+  /// Top left pane, when both vertical and horizontal splits are applied.
+  /// This value is also used when only a horizontal split has been applied,
+  /// dividing the pane into upper and lower regions. In that case, this value
+  /// specifies the top pane. This value is also used when only a vertical split
+  /// has been applied, dividing the pane into right and left regions.In that
+  /// case, this value specifies the left pane.
+  topLeft,
+
+  /// Top right pane, when both vertical and horizontal splits are applied.
+  /// This value is also used when only a vertical split has been applied,
+  /// dividing the pane into right and left regions. In that case, this
+  /// value specifies the right pane.
+  topRight
 }
