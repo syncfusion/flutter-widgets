@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Hlunga u-Z ukuya ku-A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Hlunga Okudala Kunazo Zonke", 
 "sortNewestToOldestDataGridFilteringLabel" : "Hlunga Okusha Kwakudala", 
-"clearFilterFromDataGridFilteringLabel" : "Sula Isihlungi Kusuka", 
 "textFiltersDataGridFilteringLabel" : "Izihlungi Zombhalo", 
 "numberFiltersDataGridFilteringLabel" : "Izihlungi Zezinombolo", 
 "dateFiltersDataGridFilteringLabel" : "Izihlungi Zedethi", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Futhi", 
 "orDataGridFilteringLabel" : "Noma", 
 "selectAllDataGridFilteringLabel" : "Khetha konke", 
-"sortAndFilterDataGridFilteringLabel" : "Hlunga futhi Hlunga"
+"sortAndFilterDataGridFilteringLabel" : "Hlunga futhi Hlunga", 
+"clearFilterDataGridFilteringLabel" : "Sula Isihlungi", 
+"fromDataGridFilteringLabel" : "Kusuka"
 }

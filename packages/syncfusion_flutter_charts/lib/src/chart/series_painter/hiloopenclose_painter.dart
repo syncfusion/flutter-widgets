@@ -213,18 +213,21 @@ class HiloOpenClosePainter extends CustomPainter {
       seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       // ignore: unnecessary_null_comparison
       final bool isTooltipEnabled = chart.tooltipBehavior != null;
-      final bool hasTooltip = isTooltipEnabled &&
-          (chart.tooltipBehavior.enable ||
-              seriesRendererDetails.series.onPointTap != null ||
+      final bool isPointTapEnabled =
+          seriesRendererDetails.series.onPointTap != null ||
               seriesRendererDetails.series.onPointDoubleTap != null ||
-              seriesRendererDetails.series.onPointLongPress != null);
+              seriesRendererDetails.series.onPointLongPress != null;
+      final bool isCalculateRegion =
+          (isTooltipEnabled && chart.tooltipBehavior.enable) ||
+              isPointTapEnabled;
       final bool hasSeriesElements = seriesRendererDetails.visible! &&
           (series.dataLabelSettings.isVisible ||
               (isTooltipEnabled &&
                   chart.tooltipBehavior.enable &&
                   (isTooltipEnabled &&
                       chart.tooltipBehavior.enable &&
-                      series.enableTooltip)));
+                      series.enableTooltip)) ||
+              isPointTapEnabled);
       seriesRendererDetails.sideBySideInfo = calculateSideBySideInfo(
           seriesRendererDetails.renderer, stateProperties);
       final num? sideBySideMinimumVal =
@@ -234,8 +237,8 @@ class HiloOpenClosePainter extends CustomPainter {
           seriesRendererDetails.sideBySideInfo?.maximum;
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        final bool withInXRange = withInRange(
-            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        final bool withInXRange =
+            withInRange(point.xValue, seriesRendererDetails.xAxisDetails!);
         bool withInHighLowRange = false, withInOpenCloseRange = false;
         // ignore: unnecessary_null_comparison
         if (point != null &&
@@ -243,14 +246,12 @@ class HiloOpenClosePainter extends CustomPainter {
             point.low != null &&
             point.open != null &&
             point.close != null) {
-          withInHighLowRange = withInRange(point.high,
-                  seriesRendererDetails.yAxisDetails!.visibleRange!) &&
-              withInRange(
-                  point.low, seriesRendererDetails.yAxisDetails!.visibleRange!);
-          withInOpenCloseRange = withInRange(point.open,
-                  seriesRendererDetails.yAxisDetails!.visibleRange!) &&
-              withInRange(point.close,
-                  seriesRendererDetails.yAxisDetails!.visibleRange!);
+          withInHighLowRange =
+              withInRange(point.high, seriesRendererDetails.yAxisDetails!) &&
+                  withInRange(point.low, seriesRendererDetails.yAxisDetails!);
+          withInOpenCloseRange =
+              withInRange(point.open, seriesRendererDetails.yAxisDetails!) &&
+                  withInRange(point.close, seriesRendererDetails.yAxisDetails!);
 
           if (withInXRange || (withInHighLowRange && withInOpenCloseRange)) {
             if (withInXRange) {
@@ -376,7 +377,7 @@ class HiloOpenClosePainter extends CustomPainter {
                         (point.markerPoint!.x - point.markerPoint2!.x).abs(),
                         seriesRendererDetails.series.borderWidth);
               }
-              if (hasTooltip) {
+              if (isCalculateRegion) {
                 calculateTooltipRegion(
                     point, seriesIndex, seriesRendererDetails, stateProperties);
               }

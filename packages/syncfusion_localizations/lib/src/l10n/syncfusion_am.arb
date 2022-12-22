@@ -9,7 +9,7 @@
 "pdfScrollStatusOfLabel" : "የ", 
 "pdfGoToPageLabel" : "ወደ ገጽ ይሂዱ", 
 "pdfEnterPageNumberLabel" : "የገጽ ቁጥር አስገባ", 
-"pdfInvalidPageNumberLabel" : "እባክህ የሚሰራ ቁጥር አስገባ", 
+"pdfInvalidPageNumberLabel" : "እባክዎ ትክክለኛ ቁጥር ያስገቡ", 
 "pdfPaginationDialogOkLabel" : "እሺ", 
 "pdfPaginationDialogCancelLabel" : "ሰርዝ", 
 "passwordDialogHeaderTextLabel" : "በይለፍ ቃል የተጠበቀ", 
@@ -39,10 +39,10 @@
 "rajabLabel" : "ራጀብ", 
 "shaabanLabel" : "ሻዕባን", 
 "ramadanLabel" : "ረመዳን", 
-"shawwalLabel" : "ሻውል", 
+"shawwalLabel" : "ሻዋል", 
 "dhualqiLabel" : "ዙ አል-ቂዳህ", 
 "dhualhiLabel" : "ዙልሂጃህ", 
-"shortMuharramLabel" : "ሙህ.", 
+"shortMuharramLabel" : "ሙህ", 
 "shortSafarLabel" : "ሴፍ.", 
 "shortRabi1Label" : "ራቢ. አይ", 
 "shortRabi2Label" : "ራቢ. II", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Z ወደ A ደርድር", 
 "sortOldestToNewestDataGridFilteringLabel" : "አሮጌውን ወደ አዲሱ ደርድር", 
 "sortNewestToOldestDataGridFilteringLabel" : "አዲሱን ወደ አሮጌው ደርድር", 
-"clearFilterFromDataGridFilteringLabel" : "ማጣሪያን ከ ያጽዱ", 
 "textFiltersDataGridFilteringLabel" : "የጽሑፍ ማጣሪያዎች", 
 "numberFiltersDataGridFilteringLabel" : "የቁጥር ማጣሪያዎች", 
 "dateFiltersDataGridFilteringLabel" : "የቀን ማጣሪያዎች", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "እና", 
 "orDataGridFilteringLabel" : "ወይም", 
 "selectAllDataGridFilteringLabel" : "ሁሉንም ምረጥ", 
-"sortAndFilterDataGridFilteringLabel" : "ደርድር እና አጣራ"
+"sortAndFilterDataGridFilteringLabel" : "ደርድር እና አጣራ", 
+"clearFilterDataGridFilteringLabel" : "ማጣሪያን አጽዳ", 
+"fromDataGridFilteringLabel" : "ከ"
 }

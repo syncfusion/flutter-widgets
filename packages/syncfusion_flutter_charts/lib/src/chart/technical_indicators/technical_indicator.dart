@@ -1028,16 +1028,24 @@ class TechnicalIndicatorsRenderer {
               bollingerPoints[j] = _BollingerData(
                   x: validData[j].xValue,
                   midBand: smaPoints[i],
-                  lowBand: lowerBand,
-                  upBand: upperBand,
+                  lowBand: lowerBand.isNaN || lowerBand.isInfinite
+                      ? smaPoints[i]
+                      : lowerBand,
+                  upBand: upperBand.isNaN || upperBand.isInfinite
+                      ? smaPoints[i]
+                      : upperBand,
                   visible: true);
             }
           }
           bollingerPoints[i] = _BollingerData(
               x: validData[i].xValue,
               midBand: smaPoints[i],
-              lowBand: lowerBand,
-              upBand: upperBand,
+              lowBand: lowerBand.isNaN || lowerBand.isInfinite
+                  ? smaPoints[i]
+                  : lowerBand,
+              upBand: upperBand.isNaN || upperBand.isInfinite
+                  ? smaPoints[i]
+                  : upperBand,
               visible: true);
         } else {
           if (i < indicator.period - 1) {

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart'
     show
+        DeviceGestureSettings,
         DragStartBehavior,
         GestureArenaTeam,
         HitTestTarget,
@@ -36,7 +37,8 @@ class RadialAxisParentWidget extends MultiChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      RenderRadialAxisParent();
+      RenderRadialAxisParent(
+          gestureSettings: MediaQuery.of(context).gestureSettings);
 
   @override
   void updateRenderObject(
@@ -109,12 +111,15 @@ class RenderRadialAxisParent extends RenderBox
   ///
   /// By default, the non-positioned children of the stack are aligned by their
   /// top left corners.
-  RenderRadialAxisParent() : _gestureArenaTeam = GestureArenaTeam() {
+  RenderRadialAxisParent({
+    required DeviceGestureSettings gestureSettings,
+  }) : _gestureArenaTeam = GestureArenaTeam() {
     _verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
       ..team = _gestureArenaTeam
       ..onStart = _handleDragStart
       ..onUpdate = _handleDragUpdate
       ..onEnd = _handleDragEnd
+      ..gestureSettings = gestureSettings
       ..dragStartBehavior = DragStartBehavior.start;
 
     _horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
@@ -122,6 +127,7 @@ class RenderRadialAxisParent extends RenderBox
       ..onStart = _handleDragStart
       ..onUpdate = _handleDragUpdate
       ..onEnd = _handleDragEnd
+      ..gestureSettings = gestureSettings
       ..dragStartBehavior = DragStartBehavior.start;
 
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUP;

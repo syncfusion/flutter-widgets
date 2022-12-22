@@ -43,6 +43,9 @@ class ChartSerialization {
           if (chart.hasTitle) {
             _serializeTitle(builder, chart.chartTitleArea);
           }
+          if (chart._is3DChart) {
+            _serializeView3D(builder, chart);
+          }
           _serializePlotArea(builder, chart);
           if (chart.series.count > 0 && chart.hasLegend) {
             _serializeLegend(builder, chart.legend!);
@@ -303,7 +306,10 @@ class ChartSerialization {
 
       case ExcelChartType.line:
       case ExcelChartType.lineStacked:
+      case ExcelChartType.lineMarkers:
       case ExcelChartType.lineStacked100:
+      case ExcelChartType.lineMarkersStacked:
+      case ExcelChartType.lineMarkersStacked100:
         _serializeLineChart(builder, chart);
         break;
 
@@ -316,11 +322,43 @@ class ChartSerialization {
       case ExcelChartType.pie:
         _serializePieChart(builder, chart);
         break;
+
+      case ExcelChartType.pieBar:
+      case ExcelChartType.pieOfPie:
+        _serializeOfPieChart(builder, chart);
+        break;
+      case ExcelChartType.pie3D:
+        _serializeOfPie3DChart(builder, chart);
+        break;
+      case ExcelChartType.line3D:
+        _serializeLine3DChart(builder, chart);
+        break;
+      case ExcelChartType.barStacked1003D:
+      case ExcelChartType.barStacked3D:
+      case ExcelChartType.barClustered3D:
+      case ExcelChartType.columnClustered3D:
+      case ExcelChartType.columnStacked3D:
+      case ExcelChartType.columnStacked1003D:
+      case ExcelChartType.column3D:
+        _serializeBar3DChart(builder, chart);
+        break;
+
+      case ExcelChartType.stockHighLowClose:
+      case ExcelChartType.stockOpenHighLowClose:
+      case ExcelChartType.stockVolumeHighLowClose:
+      case ExcelChartType.stockVolumeOpenHighLowClose:
+        _serializeStockChart(builder, chart);
+        break;
+      case ExcelChartType.doughnut:
+      case ExcelChartType.doughnutExploded:
+        _serializedoughnutchart(builder, chart);
+        break;
     }
   }
 
   /// serializes Line chart.
   void _serializeLineChart(XmlBuilder builder, Chart chart) {
+    final ExcelChartType type = chart.series[0]._serieType;
     builder.element('c:lineChart', nest: () {
       _serializeChartGrouping(builder, chart);
       builder.element('c:varyColors', nest: () {
@@ -329,6 +367,13 @@ class ChartSerialization {
       for (int i = 0; i < chart.series.count; i++) {
         final ChartSerie firstSerie = chart.series[i];
         _serializeSerie(builder, firstSerie);
+      }
+      if (type == ExcelChartType.lineMarkers ||
+          type == ExcelChartType.lineMarkersStacked ||
+          type == ExcelChartType.lineMarkersStacked100) {
+        builder.element('c:marker', nest: () {
+          builder.attribute('val', 1);
+        });
       }
       builder.element('c:axId', nest: () {
         builder.attribute('val', 59983360);
@@ -342,6 +387,7 @@ class ChartSerialization {
 
   /// serializes Bar/ColumnClustered chart.
   void _serializeBarChart(XmlBuilder builder, Chart chart) {
+    late int gapwidth;
     builder.element('c:barChart', nest: () {
       final String strDirection =
           chart.chartType.toString().contains('bar') ? 'bar' : 'col';
@@ -355,9 +401,10 @@ class ChartSerialization {
       for (int i = 0; i < chart.series.count; i++) {
         final ChartSerie firstSerie = chart.series[i];
         _serializeSerie(builder, firstSerie);
+        gapwidth = firstSerie.serieFormat.commonSerieOptions.gapWidth;
       }
       builder.element('c:gapWidth', nest: () {
-        builder.attribute('val', 150);
+        builder.attribute('val', gapwidth);
       });
       if (chart._getIsStacked(chart.chartType) ||
           chart._getIs100(chart.chartType)) {
@@ -431,6 +478,7 @@ class ChartSerialization {
 
   /// serializes series of chart.
   void _serializeSerie(XmlBuilder builder, ChartSerie firstSerie) {
+    final ExcelChartType type = firstSerie._serieType;
     builder.element('c:ser', nest: () {
       builder.element('c:idx', nest: () {
         builder.attribute('val', firstSerie._index);
@@ -447,17 +495,52 @@ class ChartSerialization {
           }
         });
       }
+
+      if (firstSerie.serieFormat.pieExplosionPercent != 0 ||
+          (type == ExcelChartType.doughnutExploded &&
+              firstSerie._chart.series.count == 1)) {
+        builder.element('c:explosion', nest: () {
+          builder.attribute('val', firstSerie.serieFormat.pieExplosionPercent);
+        });
+      }
+      if (type == ExcelChartType.stockOpenHighLowClose ||
+          type == ExcelChartType.stockVolumeHighLowClose ||
+          type == ExcelChartType.stockVolumeOpenHighLowClose) {
+        builder.element('c:spPr', nest: () {
+          builder.element('a:ln', nest: () {
+            builder.element('a:noFill', nest: () {});
+          });
+        });
+      } else if (type == ExcelChartType.stockHighLowClose) {
+        if (firstSerie._index == 2) {
+          builder.element('c:spPr', nest: () {
+            builder.element('a:ln', nest: () {
+              builder.attribute('w', '3175');
+              builder.element('a:solidFill', nest: () {
+                builder.element('a:srgbClr', nest: () {
+                  builder.attribute('val', '000000');
+                });
+              });
+              builder.element('a:prstDash', nest: () {
+                builder.attribute('val', 'solid');
+              });
+            });
+          });
+        } else {
+          builder.element('c:spPr', nest: () {
+            builder.element('a:ln', nest: () {
+              builder.element('a:noFill', nest: () {});
+            });
+          });
+        }
+      }
       if (firstSerie.linePattern != ExcelChartLinePattern.none) {
         _serializeFill(
             builder, firstSerie.linePattern, firstSerie.linePatternColor, true);
       }
-      if (firstSerie._serieType == ExcelChartType.line) {
-        builder.element('c:marker', nest: () {
-          builder.element('c:symbol', nest: () {
-            builder.attribute('val', 'none');
-          });
-        });
-      }
+
+      _serializeMarker(builder, firstSerie);
+
       if (firstSerie.dataLabels.isValue) {
         builder.element('c:dLbls', nest: () {
           if (firstSerie.dataLabels.numberFormat != null &&
@@ -579,7 +662,8 @@ class ChartSerialization {
           });
         });
       }
-      if (firstSerie._serieType == ExcelChartType.line) {
+      if (firstSerie._serieType.toString().contains('line') ||
+          firstSerie._serieType.toString().contains('stock')) {
         builder.element('c:smooth', nest: () {
           builder.attribute('val', 0);
         });
@@ -934,5 +1018,563 @@ class ChartSerialization {
   void _addToArchive(List<int> data, String fileName) {
     final ArchiveFile item = ArchiveFile(fileName, data.length, data);
     _workbook.archive.addFile(item);
+  }
+
+  /// Serialize line 3D Chart.
+  void _serializeLine3DChart(XmlBuilder builder, Chart chart) {
+    late int gapdepth;
+    builder.element('c:line3DChart', nest: () {
+      _serializeChartGrouping(builder, chart);
+      builder.element('c:varyColors', nest: () {
+        builder.attribute('val', 0);
+      });
+      for (int i = 0; i < chart.series.count; i++) {
+        final ChartSerie firstSerie = chart.series[i];
+        _serializeSerie(builder, firstSerie);
+        gapdepth = firstSerie.serieFormat.commonSerieOptions.gapDepth;
+      }
+      builder.element('c:gapDepth', nest: () {
+        builder.attribute('val', gapdepth);
+      });
+      builder.element('c:axId', nest: () {
+        builder.attribute('val', 59983360);
+      });
+      builder.element('c:axId', nest: () {
+        builder.attribute('val', 57253888);
+      });
+      builder.element('c:axId', nest: () {
+        builder.attribute('val', 63149376);
+      });
+    });
+    _serializeAxes(builder, chart);
+  }
+
+  ///Serialize view 3D
+  void _serializeView3D(XmlBuilder builder, Chart chart) {
+    final ChartSeriesCollection firstSerie = chart.series;
+
+    builder.element('c:view3D', nest: () {
+      if (firstSerie != null) {
+        if (!chart._isdefaultElevation) {
+          builder.element('c:rotX', nest: () {
+            builder.attribute('val', chart.elevation);
+          });
+        }
+        if (firstSerie._innerList[0]._serieType == ExcelChartType.pie3D) {
+          for (int i = 0; i < chart.series.count; i++) {
+            chart.rotation =
+                chart.series[i].serieFormat.commonSerieOptions.firstSliceAngle;
+          }
+        }
+        if (!chart._isDefaultRotation) {
+          builder.element('c:rotY', nest: () {
+            builder.attribute('val', chart.rotation);
+          });
+        }
+        builder.element('c:depthPercent', nest: () {
+          builder.attribute('val', chart.depthPercent);
+        });
+        builder.element('c:rAngAx', nest: () {
+          int defaultValue = 0;
+
+          if (chart.rightAngleAxes || chart._isColumnOrBar) {
+            defaultValue = 1;
+          }
+
+          builder.attribute('val', defaultValue);
+        });
+        builder.element('perspective', nest: () {
+          builder.attribute('val', chart.perspective * 2);
+        });
+      }
+    });
+  }
+
+  /// Serialize bar3D chart.
+  void _serializeBar3DChart(XmlBuilder builder, Chart chart) {
+    late int gapdepth;
+    late int gapwidth;
+    builder.element('c:bar3DChart', nest: () {
+      final String strDirection =
+          chart.chartType.toString().contains('bar') ? 'bar' : 'col';
+
+      builder.element('c:barDir', nest: () {
+        builder.attribute('val', strDirection);
+      });
+
+      _serializeChartGrouping(builder, chart);
+      builder.element('c:varyColors', nest: () {
+        builder.attribute('val', 0);
+      });
+      for (int i = 0; i < chart.series.count; i++) {
+        final ChartSerie firstSerie = chart.series[i];
+        _serializeSerie(builder, firstSerie);
+        gapdepth = firstSerie.serieFormat.commonSerieOptions.gapDepth;
+        gapwidth = firstSerie.serieFormat.commonSerieOptions.gapWidth;
+      }
+
+      builder.element('c:gapWidth', nest: () {
+        builder.attribute('val', gapwidth);
+      });
+      builder.element('c:gapDepth', nest: () {
+        builder.attribute('val', gapdepth);
+      });
+      builder.element('c:axId', nest: () {
+        builder.attribute('val', 59983360);
+      });
+      builder.element('c:axId', nest: () {
+        builder.attribute('val', 57253888);
+      });
+    });
+    _serializeAxes(builder, chart);
+  }
+
+  // Serializes pie of pie or pie of bar chart.
+  void _serializeOfPieChart(XmlBuilder builder, Chart chart) {
+    late int gapwidth;
+    late int pieSecondSize;
+    final ExcelChartType type = chart.series[0]._serieType;
+    late String isPieOrBar;
+    if (type == ExcelChartType.pieOfPie) {
+      isPieOrBar = 'pie';
+    } else if (type == ExcelChartType.pieBar) {
+      isPieOrBar = 'bar';
+    }
+    builder.element('c:ofPieChart', nest: () {
+      builder.element('c:ofPieType', nest: () {
+        builder.attribute('val', isPieOrBar);
+      });
+      builder.element('c:varyColors', nest: () {
+        builder.attribute('val', 1);
+      });
+
+      for (int i = 0; i < chart.series.count; i++) {
+        final ChartSerie firstSerie = chart.series[i];
+        _serializeSerie(builder, firstSerie);
+        pieSecondSize = firstSerie.serieFormat.commonSerieOptions.pieSecondSize;
+        gapwidth = firstSerie.serieFormat.commonSerieOptions.gapWidth;
+      }
+
+      builder.element('c:gapWidth', nest: () {
+        builder.attribute('val', gapwidth);
+      });
+      builder.element('c:secondPieSize', nest: () {
+        builder.attribute('val', pieSecondSize);
+      });
+      builder.element('c:serLines', nest: () {
+        builder.element('c:spPr', nest: () {
+          builder.element('a:ln', nest: () {});
+        });
+      });
+    });
+  }
+
+  ///Serialize pie 3D chart.
+  void _serializeOfPie3DChart(XmlBuilder builder, Chart chart) {
+    builder.element('c:pie3DChart', nest: () {
+      builder.element('c:varyColors', nest: () {
+        builder.attribute('val', 1);
+      });
+      for (int i = 0; i < chart.series.count; i++) {
+        final ChartSerie firstSerie = chart.series[i];
+        _serializeSerie(builder, firstSerie);
+      }
+    });
+  }
+
+  /// Serializes stock chart.
+  void _serializeStockChart(XmlBuilder builder, Chart chart) {
+    final ExcelChartType type = chart.series.innerList[0]._serieType;
+    if (type == ExcelChartType.stockVolumeOpenHighLowClose ||
+        type == ExcelChartType.stockVolumeHighLowClose) {
+      builder.element('c:barChart', nest: () {
+        builder.element('c:barDir', nest: () {
+          builder.attribute('val', 'col');
+        });
+        builder.element('c:grouping', nest: () {
+          builder.attribute('val', 'clustered');
+        });
+
+        builder.element('c:varyColors', nest: () {
+          builder.attribute('val', 0);
+        });
+
+        final ChartSerie firstSerie = chart.series[0];
+        _serializeSerie(builder, firstSerie);
+
+        builder.element('c:gapWidth', nest: () {
+          builder.attribute(
+              'val', firstSerie.serieFormat.commonSerieOptions.gapWidth);
+        });
+        builder.element('c:axId', nest: () {
+          builder.attribute('val', 59983360);
+        });
+        builder.element('c:axId', nest: () {
+          builder.attribute('val', 57253888);
+        });
+      });
+    }
+    builder.element('c:stockChart', nest: () {
+      if (type == ExcelChartType.stockHighLowClose ||
+          type == ExcelChartType.stockOpenHighLowClose) {
+        for (int i = 0; i < chart.series.count; i++) {
+          final ChartSerie firstSerie = chart.series[i];
+          _serializeSerie(builder, firstSerie);
+        }
+      } else if (type == ExcelChartType.stockVolumeHighLowClose ||
+          type == ExcelChartType.stockVolumeOpenHighLowClose) {
+        for (int i = 0; i < chart.series.count; i++) {
+          if ((type == ExcelChartType.stockVolumeOpenHighLowClose ||
+                  type == ExcelChartType.stockVolumeHighLowClose) &&
+              chart.series.innerList[0] != chart.series.innerList[i]) {
+            final ChartSerie firstSerie = chart.series[i];
+            _serializeSerie(builder, firstSerie);
+          }
+        }
+      }
+
+      builder.element('c:hiLowLines', nest: () {
+        builder.element('c:spPr', nest: () {
+          builder.element('a:ln', nest: () {
+            builder.element('a:solidFill', nest: () {
+              builder.element('a:srgbClr', nest: () {
+                builder.attribute('val', '000000');
+              });
+            });
+            builder.element('a:prstDash', nest: () {
+              builder.attribute('val', 'solid');
+            });
+          });
+        });
+      });
+      if (type == ExcelChartType.stockOpenHighLowClose ||
+          type == ExcelChartType.stockVolumeOpenHighLowClose) {
+        builder.element('c:upDownBars', nest: () {
+          builder.element('c:gapWidth', nest: () {
+            builder.attribute('val', '100');
+          });
+          builder.element('c:upBars', nest: () {
+            builder.element('c:spPr', nest: () {
+              builder.element('a:solidFill', nest: () {
+                builder.element('a:srgbClr', nest: () {
+                  builder.attribute('val', 'FFFFFF');
+                });
+              });
+            });
+          });
+          builder.element('c:downBars', nest: () {
+            builder.element('c:spPr', nest: () {
+              builder.element('a:solidFill', nest: () {
+                builder.element('a:srgbClr', nest: () {
+                  builder.attribute('val', '000000');
+                });
+              });
+            });
+          });
+        });
+      }
+      if (chart.series[0].serieFormat.markerStyle !=
+          ExcelChartMarkerType.none) {
+        builder.element('c:marker', nest: () {
+          builder.attribute('val', 1);
+        });
+      }
+
+      builder.element('c:axId', nest: () {
+        builder.attribute('val', 62908672);
+      });
+      builder.element('c:axId', nest: () {
+        builder.attribute('val', 61870848);
+      });
+    });
+    if (type == ExcelChartType.stockVolumeOpenHighLowClose ||
+        type == ExcelChartType.stockVolumeHighLowClose) {
+      _serializeAxesforStockChart(builder, chart, 59983360, 57253888, true);
+      _serializeAxesforStockChart(builder, chart, 62908672, 61870848, false);
+    } else {
+      _serializeAxesforStockChart(builder, chart, 62908672, 61870848, true);
+    }
+  }
+
+  ///serialize stock axes
+  void _serializeAxesforStockChart(
+      XmlBuilder builder, Chart chart, int axisId, int crossAx, bool isBar) {
+    if (chart._isCategoryAxisAvail) {
+      _serializeCategoryAxisForStock(
+          builder, chart.primaryCategoryAxis, axisId, crossAx, isBar);
+    }
+    if (chart._isValueAxisAvail) {
+      _serializeValueAxisForStockchart(
+          builder, chart.primaryCategoryAxis, axisId, crossAx, isBar);
+    }
+  }
+
+  ///Serialize catogory axis for stock chart
+  void _serializeCategoryAxisForStock(XmlBuilder builder,
+      ChartCategoryAxis axis, int axisId, int crossAx, bool isBar) {
+    builder.element('c:catAx', nest: () {
+      builder.element('c:axId', nest: () {
+        builder.attribute('val', axisId);
+      });
+      builder.element('c:scaling', nest: () {
+        builder.element('c:orientation', nest: () {
+          builder.attribute('val', 'minMax');
+        });
+      });
+      int delete = 0;
+      String axpos = 'b';
+      if (!isBar) {
+        delete = 1;
+        axpos = 't';
+      }
+      builder.element('c:delete', nest: () {
+        builder.attribute('val', delete);
+      });
+      builder.element('c:axPos', nest: () {
+        builder.attribute('val', axpos);
+      });
+      if (axis._hasAxisTitle) {
+        _serializeChartTextArea(builder, axis.titleArea);
+      }
+      if (axis.numberFormat != '' && axis.numberFormat != 'General') {
+        builder.element('c:numFmt', nest: () {
+          builder.attribute('formatCode', axis.numberFormat);
+          builder.attribute('sourceLinked', '0');
+        });
+      }
+      builder.element('c:majorTickMark', nest: () {
+        builder.attribute('val', 'out');
+      });
+      builder.element('c:minorTickMark', nest: () {
+        builder.attribute('val', 'none');
+      });
+      builder.element('c:tickLblPos', nest: () {
+        builder.attribute('val', 'nextTo');
+      });
+      builder.element('c:spPr', nest: () {
+        builder.element('a:ln', nest: () {
+          if (!isBar) {
+            builder.attribute('w', 12700);
+          }
+        });
+      });
+      builder.element('c:crossAx', nest: () {
+        builder.attribute('val', crossAx);
+      });
+      builder.element('c:crosses', nest: () {
+        builder.attribute('val', 'autoZero');
+      });
+      builder.element('c:auto', nest: () {
+        builder.attribute('val', 1);
+      });
+      builder.element('c:lblAlgn', nest: () {
+        builder.attribute('val', 'ctr');
+      });
+      builder.element('c:lblOffset', nest: () {
+        builder.attribute('val', 100);
+      });
+      builder.element('c:noMultiLvlLbl', nest: () {
+        builder.attribute('val', 0);
+      });
+      builder.element('c:tickMarkSkip', nest: () {
+        builder.attribute('val', 1);
+      });
+    });
+  }
+
+  ///Serialize value axis for stock chart
+  void _serializeValueAxisForStockchart(XmlBuilder builder,
+      ChartCategoryAxis axis, int axisId, int crossAx, bool isBar) {
+    builder.element('c:valAx', nest: () {
+      builder.element('c:axId', nest: () {
+        builder.attribute('val', crossAx);
+      });
+      builder.element('c:scaling', nest: () {
+        builder.element('c:orientation', nest: () {
+          builder.attribute('val', 'minMax');
+        });
+        if (!axis._isAutoMax) {
+          builder.element('c:max', nest: () {
+            builder.attribute('val', axis.maximumValue);
+          });
+        }
+        if (axis._isAutoMin) {
+          builder.element('c:min', nest: () {
+            builder.attribute('val', axis.minimumValue);
+          });
+        }
+      });
+      builder.element('c:delete', nest: () {
+        builder.attribute('val', '0');
+      });
+      String axpos = 'l';
+
+      if (!isBar) {
+        axpos = 'r';
+      }
+
+      builder.element('c:axPos', nest: () {
+        builder.attribute('val', axpos);
+      });
+
+      if (axpos == 'l') {
+        builder.element('c:majorGridlines', nest: () {});
+      }
+
+      if (axis._hasAxisTitle) {
+        _serializeChartTextArea(builder, axis.titleArea);
+      }
+      if (axis.numberFormat != '' && axis.numberFormat != 'General') {
+        builder.element('c:numFmt', nest: () {
+          builder.attribute('formatCode', axis.numberFormat);
+          builder.attribute('sourceLinked', '0');
+        });
+      }
+      if (axis.hasMajorGridLines) {
+        builder.element('c:majorGridlines', nest: () {});
+      }
+      builder.element('c:majorTickMark', nest: () {
+        builder.attribute('val', 'out');
+      });
+      builder.element('c:minorTickMark', nest: () {
+        builder.attribute('val', 'none');
+      });
+      builder.element('c:tickLblPos', nest: () {
+        builder.attribute('val', 'nextTo');
+      });
+      builder.element('c:spPr', nest: () {
+        builder.element('a:ln', nest: () {});
+      });
+      builder.element('c:crossAx', nest: () {
+        builder.attribute('val', axisId);
+      });
+      String crosses = 'autoZero';
+      if (!isBar) {
+        crosses = 'max';
+      }
+      builder.element('c:crosses', nest: () {
+        builder.attribute('val', crosses);
+      });
+      final Chart chart = axis._parentChart;
+      final String strCrossBetween =
+          chart.primaryCategoryAxis._isBetween ? 'between' : 'midCat';
+      builder.element('c:crossBetween', nest: () {
+        builder.attribute('val', strCrossBetween);
+      });
+    });
+  }
+
+  ///Serialize doughnut/doughnut_exploded charts
+  void _serializedoughnutchart(XmlBuilder builder, Chart chart) {
+    late int doughnutHoleSize;
+    late int firstSliceAngle;
+
+    builder.element('c:doughnutChart', nest: () {
+      builder.element('c:varyColors', nest: () {
+        builder.attribute('val', 1);
+      });
+
+      for (int i = 0; i < chart.series.count; i++) {
+        final ChartSerie firstSerie = chart.series[i];
+        _serializeSerie(builder, firstSerie);
+        firstSliceAngle =
+            firstSerie.serieFormat.commonSerieOptions.firstSliceAngle;
+        doughnutHoleSize =
+            firstSerie.serieFormat.commonSerieOptions.holeSizePercent;
+      }
+      builder.element('c:firstSliceAng', nest: () {
+        builder.attribute('val', firstSliceAngle);
+      });
+      builder.element('c:holeSize', nest: () {
+        builder.attribute('val', doughnutHoleSize);
+      });
+    });
+  }
+
+  ///Serialize marker for stock and line charts
+  void _serializeMarker(XmlBuilder builder, ChartSerie firstSerie) {
+    final ExcelChartType type = firstSerie._serieType;
+
+    if ((firstSerie.serieFormat.markerStyle == ExcelChartMarkerType.none) &&
+        (type == ExcelChartType.line ||
+            type == ExcelChartType.lineStacked ||
+            type == ExcelChartType.lineStacked100 ||
+            type == ExcelChartType.stockHighLowClose ||
+            type == ExcelChartType.stockVolumeOpenHighLowClose ||
+            type == ExcelChartType.stockVolumeHighLowClose ||
+            type == ExcelChartType.stockOpenHighLowClose)) {
+      builder.element('c:marker', nest: () {
+        builder.element('c:symbol', nest: () {
+          builder.attribute('val', 'none');
+        });
+      });
+    } else if ((firstSerie.serieFormat.markerStyle ==
+            ExcelChartMarkerType.none) &&
+        (type == ExcelChartType.lineMarkers ||
+            type == ExcelChartType.lineMarkersStacked ||
+            type == ExcelChartType.lineMarkersStacked100)) {
+      builder.element('c:marker', nest: () {
+        builder.element('c:symbol', nest: () {
+          builder.attribute('val', 'circle');
+        });
+        builder.element('c:size', nest: () {
+          builder.attribute('val', '5');
+        });
+      });
+    } else if (firstSerie.serieFormat.markerStyle !=
+        ExcelChartMarkerType.none) {
+      final String markerBackgroundColor =
+          firstSerie.serieFormat.markerBackgroundColor.replaceAll('#', '');
+      final String markerBorderColor =
+          firstSerie.serieFormat.markerBorderColor.replaceAll('#', '');
+      late String exclMarkertype;
+      if (firstSerie.serieFormat.markerStyle == ExcelChartMarkerType.diamond) {
+        exclMarkertype = 'diamond';
+      } else if (firstSerie.serieFormat.markerStyle ==
+          ExcelChartMarkerType.circle) {
+        exclMarkertype = 'circle';
+      } else if (firstSerie.serieFormat.markerStyle ==
+          ExcelChartMarkerType.xSquare) {
+        exclMarkertype = 'x';
+      } else if (firstSerie.serieFormat.markerStyle ==
+          ExcelChartMarkerType.dowJones) {
+        exclMarkertype = 'dot';
+      } else if (firstSerie.serieFormat.markerStyle ==
+          ExcelChartMarkerType.square) {
+        exclMarkertype = 'square';
+      } else if (firstSerie.serieFormat.markerStyle ==
+          ExcelChartMarkerType.plusSign) {
+        exclMarkertype = 'plus';
+      } else if (firstSerie.serieFormat.markerStyle ==
+          ExcelChartMarkerType.standardDeviation) {
+        exclMarkertype = 'triangle';
+      } else if (firstSerie.serieFormat.markerStyle ==
+          ExcelChartMarkerType.starSquare) {
+        exclMarkertype = 'star';
+      }
+
+      builder.element('c:marker', nest: () {
+        builder.element('c:symbol', nest: () {
+          builder.attribute('val', exclMarkertype);
+        });
+        builder.element('c:size', nest: () {
+          builder.attribute('val', '5');
+        });
+        builder.element('c:spPr', nest: () {
+          builder.element('a:solidFill', nest: () {
+            builder.element('a:srgbClr', nest: () {
+              builder.attribute('val', markerBackgroundColor);
+            });
+          });
+          builder.element('a:ln', nest: () {
+            builder.element('a:solidFill', nest: () {
+              builder.element('a:srgbClr', nest: () {
+                builder.attribute('val', markerBorderColor);
+              });
+            });
+          });
+        });
+      });
+    }
   }
 }

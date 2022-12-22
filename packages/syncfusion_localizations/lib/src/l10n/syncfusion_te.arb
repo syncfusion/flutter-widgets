@@ -40,7 +40,7 @@
 "shaabanLabel" : "షాబాన్", 
 "ramadanLabel" : "రంజాన్", 
 "shawwalLabel" : "షవ్వాల్", 
-"dhualqiLabel" : "ధు అల్-ఖైదా", 
+"dhualqiLabel" : "ధు అల్-కి'దా", 
 "dhualhiLabel" : "ధు అల్-హిజ్జా", 
 "shortMuharramLabel" : "ముహ్.", 
 "shortSafarLabel" : "సాఫ్.", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Z నుండి A వరకు క్రమబద్ధీకరించండి", 
 "sortOldestToNewestDataGridFilteringLabel" : "పాతది నుండి కొత్తది వరకు క్రమబద్ధీకరించండి", 
 "sortNewestToOldestDataGridFilteringLabel" : "సరికొత్తది నుండి పాతది వరకు క్రమబద్ధీకరించండి", 
-"clearFilterFromDataGridFilteringLabel" : "నుండి ఫిల్టర్‌ను క్లియర్ చేయండి", 
 "textFiltersDataGridFilteringLabel" : "టెక్స్ట్ ఫిల్టర్లు", 
 "numberFiltersDataGridFilteringLabel" : "సంఖ్య ఫిల్టర్లు", 
 "dateFiltersDataGridFilteringLabel" : "తేదీ ఫిల్టర్లు", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "మరియు", 
 "orDataGridFilteringLabel" : "లేదా", 
 "selectAllDataGridFilteringLabel" : "అన్ని ఎంచుకోండి", 
-"sortAndFilterDataGridFilteringLabel" : "క్రమబద్ధీకరించండి మరియు ఫిల్టర్ చేయండి"
+"sortAndFilterDataGridFilteringLabel" : "క్రమబద్ధీకరించండి మరియు ఫిల్టర్ చేయండి", 
+"clearFilterDataGridFilteringLabel" : "ఫిల్టర్‌ని క్లియర్ చేయండి", 
+"fromDataGridFilteringLabel" : "నుండి"
 }

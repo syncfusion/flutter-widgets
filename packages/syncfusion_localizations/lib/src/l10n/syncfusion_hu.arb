@@ -9,7 +9,7 @@
 "pdfScrollStatusOfLabel" : "nak,-nek", 
 "pdfGoToPageLabel" : "Menj az oldalra", 
 "pdfEnterPageNumberLabel" : "Írja be az oldalszámot", 
-"pdfInvalidPageNumberLabel" : "Adjon meg egy érvényes számot", 
+"pdfInvalidPageNumberLabel" : "Kérjük, adjon meg egy érvényes számot", 
 "pdfPaginationDialogOkLabel" : "rendben", 
 "pdfPaginationDialogCancelLabel" : "MEGSZÜNTETI", 
 "passwordDialogHeaderTextLabel" : "Jelszóval védett", 
@@ -38,7 +38,7 @@
 "jumada2Label" : "Jumada al-thani", 
 "rajabLabel" : "Rajab", 
 "shaabanLabel" : "Sha'aban", 
-"ramadanLabel" : "Ramadan", 
+"ramadanLabel" : "Ramadán", 
 "shawwalLabel" : "Shawwal", 
 "dhualqiLabel" : "Dhu al-Qi'dah", 
 "dhualhiLabel" : "Dhu al-Hijjah", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Rendezés Z-ből A-ba", 
 "sortOldestToNewestDataGridFilteringLabel" : "Rendezés a legrégebbitől a legújabbig", 
 "sortNewestToOldestDataGridFilteringLabel" : "Rendezés a legújabbtól a legrégebbig", 
-"clearFilterFromDataGridFilteringLabel" : "Szűrő törlése", 
 "textFiltersDataGridFilteringLabel" : "Szövegszűrők", 
 "numberFiltersDataGridFilteringLabel" : "Számszűrők", 
 "dateFiltersDataGridFilteringLabel" : "Dátumszűrők", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "És", 
 "orDataGridFilteringLabel" : "Vagy", 
 "selectAllDataGridFilteringLabel" : "Mindet kiválaszt", 
-"sortAndFilterDataGridFilteringLabel" : "Rendezés és szűrés"
+"sortAndFilterDataGridFilteringLabel" : "Rendezés és szűrés", 
+"clearFilterDataGridFilteringLabel" : "Szűrő törlése", 
+"fromDataGridFilteringLabel" : "Tól től"
 }

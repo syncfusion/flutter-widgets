@@ -57,7 +57,7 @@ class SeriesRendererDetails {
   bool hasSideBySideInfo = false;
 
   /// Specifies whether the series has tooltip behavior
-  bool hasTooltip = false;
+  bool isCalculateRegion = false;
 
   /// Specifies whether to calculate region for the waterfall/ stacked bar/ stacked column
   bool needsToCalculateRegion = false;
@@ -410,13 +410,12 @@ class SeriesRendererDetails {
             seriesType.contains('box'));
 
     // ignore: unnecessary_null_comparison
-    hasTooltip = chart.tooltipBehavior != null &&
-        seriesType != 'errorbar' &&
-        (chart.tooltipBehavior.enable ||
-            seriesRendererDetails.series.onPointTap != null ||
-            seriesRendererDetails.series.onPointDoubleTap != null ||
-            seriesRendererDetails.series.onPointLongPress != null) &&
-        seriesType != 'boxandwhisker';
+    isCalculateRegion = seriesType != 'errorbar' &&
+        seriesType != 'boxandwhisker' &&
+        ((chart.tooltipBehavior.enable) ||
+            (seriesRendererDetails.series.onPointTap != null ||
+                seriesRendererDetails.series.onPointDoubleTap != null ||
+                seriesRendererDetails.series.onPointLongPress != null));
   }
 
   /// To find the region data of a series
@@ -431,7 +430,7 @@ class SeriesRendererDetails {
       num? midX,
       num? midY]) {
     if (withInRange(seriesRendererDetails.dataPoints[pointIndex].xValue,
-        seriesRendererDetails.xAxisDetails!.visibleRange!)) {
+        seriesRendererDetails.xAxisDetails!)) {
       seriesRendererDetails.visibleDataPoints!
           .add(seriesRendererDetails.dataPoints[pointIndex]);
       seriesRendererDetails.dataPoints[pointIndex].visiblePointIndex =
@@ -483,7 +482,7 @@ class SeriesRendererDetails {
         }
       }
       // ignore: unnecessary_null_comparison
-      if (hasTooltip) {
+      if (isCalculateRegion) {
         calculateTooltipRegion(
             point, seriesIndex, seriesRendererDetails, stateProperties);
       }

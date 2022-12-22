@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Isih Z Hingga A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Isih Terlama Kepada Terbaharu", 
 "sortNewestToOldestDataGridFilteringLabel" : "Susun Terbaharu Hingga Terlama", 
-"clearFilterFromDataGridFilteringLabel" : "Kosongkan Penapis Daripada", 
 "textFiltersDataGridFilteringLabel" : "Penapis Teks", 
 "numberFiltersDataGridFilteringLabel" : "Penapis Nombor", 
 "dateFiltersDataGridFilteringLabel" : "Penapis Tarikh", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Dan", 
 "orDataGridFilteringLabel" : "Ataupun", 
 "selectAllDataGridFilteringLabel" : "Pilih semua", 
-"sortAndFilterDataGridFilteringLabel" : "Isih dan Tapis"
+"sortAndFilterDataGridFilteringLabel" : "Isih dan Tapis", 
+"clearFilterDataGridFilteringLabel" : "Kosongkan Penapis", 
+"fromDataGridFilteringLabel" : "daripada"
 }

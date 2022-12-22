@@ -23,7 +23,7 @@
 "allowedViewWorkWeekLabel" : "Radna sedmica", 
 "allowedViewMonthLabel" : "Mjesec", 
 "allowedViewScheduleLabel" : "Raspored", 
-"allowedViewTimelineDayLabel" : "Timeline Day", 
+"allowedViewTimelineDayLabel" : "Dan vremenske linije", 
 "allowedViewTimelineWeekLabel" : "Timeline Week", 
 "allowedViewTimelineWorkWeekLabel" : "Vremenski okvir Radna sedmica", 
 "allowedViewTimelineMonthLabel" : "Timeline Month", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Sortiraj od Z do A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Sortiraj od najstarijih do najnovijih", 
 "sortNewestToOldestDataGridFilteringLabel" : "Sortiraj od najnovijeg do najstarijeg", 
-"clearFilterFromDataGridFilteringLabel" : "Obriši filter iz", 
 "textFiltersDataGridFilteringLabel" : "Filteri teksta", 
 "numberFiltersDataGridFilteringLabel" : "Brojčani filteri", 
 "dateFiltersDataGridFilteringLabel" : "Filteri datuma", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "I", 
 "orDataGridFilteringLabel" : "Or", 
 "selectAllDataGridFilteringLabel" : "Označi sve", 
-"sortAndFilterDataGridFilteringLabel" : "Sortiraj i filtriraj"
+"sortAndFilterDataGridFilteringLabel" : "Sortiraj i filtriraj", 
+"clearFilterDataGridFilteringLabel" : "Obriši filter", 
+"fromDataGridFilteringLabel" : "Od"
 }

@@ -213,7 +213,8 @@ bool isNeedExplode(int pointIndex, dynamic series, dynamic stateProperties) {
 
 /// To return data label rect calculation method based on position.
 Rect? getDataLabelRect(Position position, ConnectorType connectorType,
-    EdgeInsets margin, Path connectorPath, Offset endPoint, Size textSize) {
+    EdgeInsets margin, Path connectorPath, Offset endPoint, Size textSize,
+    [DataLabelSettings? dataLabelSettings]) {
   Rect? rect;
   const int lineLength = 10;
   switch (position) {
@@ -222,26 +223,32 @@ Rect? getDataLabelRect(Position position, ConnectorType connectorType,
           ? connectorPath.lineTo(endPoint.dx + lineLength, endPoint.dy)
           : connectorPath.quadraticBezierTo(
               endPoint.dx, endPoint.dy, endPoint.dx + lineLength, endPoint.dy);
-      rect = Rect.fromLTWH(
-          endPoint.dx + lineLength,
-          endPoint.dy - (textSize.height / 2) - margin.top,
-          textSize.width + margin.left + margin.right,
-          textSize.height + margin.top + margin.bottom);
+      rect = dataLabelSettings != null && dataLabelSettings.builder != null
+          ? Rect.fromLTWH(
+              endPoint.dx, endPoint.dy, textSize.width, textSize.height)
+          : Rect.fromLTWH(
+              endPoint.dx + lineLength,
+              endPoint.dy - (textSize.height / 2) - margin.top,
+              textSize.width + margin.left + margin.right,
+              textSize.height + margin.top + margin.bottom);
       break;
     case Position.left:
       connectorType == ConnectorType.line
           ? connectorPath.lineTo(endPoint.dx - lineLength, endPoint.dy)
           : connectorPath.quadraticBezierTo(
               endPoint.dx, endPoint.dy, endPoint.dx - lineLength, endPoint.dy);
-      rect = Rect.fromLTWH(
-          endPoint.dx -
-              lineLength -
-              margin.right -
-              textSize.width -
-              margin.left,
-          endPoint.dy - (textSize.height / 2) - margin.top,
-          textSize.width + margin.left + margin.right,
-          textSize.height + margin.top + margin.bottom);
+      rect = dataLabelSettings != null && dataLabelSettings.builder != null
+          ? Rect.fromLTWH(
+              endPoint.dx, endPoint.dy, textSize.width, textSize.height)
+          : Rect.fromLTWH(
+              endPoint.dx -
+                  lineLength -
+                  margin.right -
+                  textSize.width -
+                  margin.left,
+              endPoint.dy - ((textSize.height / 2) + margin.top),
+              textSize.width + margin.left + margin.right,
+              textSize.height + margin.top + margin.bottom);
       break;
   }
   return rect;

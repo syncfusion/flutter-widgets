@@ -84,9 +84,8 @@
 "sortLargestToSmallestDataGridFilteringLabel" : "Pagbukud-bukurin ang Pinakamalaki Hanggang Pinakamaliit", 
 "sortAToZDataGridFilteringLabel" : "Pagbukud-bukurin A hanggang Z", 
 "sortZToADataGridFilteringLabel" : "Pagbukud-bukurin ang Z Hanggang A", 
-"sortOldestToNewestDataGridFilteringLabel" : "Pagbukud-bukurin ang Pinakaluma Hanggang Pinakabago", 
+"sortOldestToNewestDataGridFilteringLabel" : "Pagbukud-bukurin ang Pinakamatanda Hanggang Pinakabago", 
 "sortNewestToOldestDataGridFilteringLabel" : "Pagbukud-bukurin ang Pinakabago Hanggang sa Pinakaluma", 
-"clearFilterFromDataGridFilteringLabel" : "I-clear ang Filter Mula sa", 
 "textFiltersDataGridFilteringLabel" : "Mga Filter ng Teksto", 
 "numberFiltersDataGridFilteringLabel" : "Mga Filter ng Numero", 
 "dateFiltersDataGridFilteringLabel" : "Mga Filter ng Petsa", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "At", 
 "orDataGridFilteringLabel" : "O kaya", 
 "selectAllDataGridFilteringLabel" : "Piliin lahat", 
-"sortAndFilterDataGridFilteringLabel" : "Pagbukud-bukurin at Salain"
+"sortAndFilterDataGridFilteringLabel" : "Pagbukud-bukurin at Salain", 
+"clearFilterDataGridFilteringLabel" : "I-clear ang Filter", 
+"fromDataGridFilteringLabel" : "Mula sa"
 }

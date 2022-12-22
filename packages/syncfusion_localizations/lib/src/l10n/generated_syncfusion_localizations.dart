@@ -74,7 +74,7 @@ class SfLocalizationsAf extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Kanselleer';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Vee filter uit';
+  String get clearFilterDataGridFilteringLabel => r'Vee filter uit';
 
   @override
   String get containsDataGridFilteringLabel => r'Bevat';
@@ -111,6 +111,9 @@ class SfLocalizationsAf extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Gelyk';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Van';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Groter as';
@@ -390,7 +393,7 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'ሰርዝ';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'ማጣሪያን ከ ያጽዱ';
+  String get clearFilterDataGridFilteringLabel => r'ማጣሪያን አጽዳ';
 
   @override
   String get containsDataGridFilteringLabel => r'ይዟል';
@@ -427,6 +430,9 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'እኩል ነው።';
+
+  @override
+  String get fromDataGridFilteringLabel => r'ከ';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'ከዚያ ይበልጣል';
@@ -516,7 +522,7 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'ድህረ ገጽ ክፈት';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'እባክህ የሚሰራ ቁጥር አስገባ';
+  String get pdfInvalidPageNumberLabel => r'እባክዎ ትክክለኛ ቁጥር ያስገቡ';
 
   @override
   String get pdfNoBookmarksLabel => r'ምንም ዕልባቶች አልተገኙም።';
@@ -567,7 +573,7 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
   String get shaabanLabel => r'ሻዕባን';
 
   @override
-  String get shawwalLabel => r'ሻውል';
+  String get shawwalLabel => r'ሻዋል';
 
   @override
   String get shortDhualhiLabel => r'ዙል-ሀ';
@@ -582,7 +588,7 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
   String get shortJumada2Label => r'ጁም. II';
 
   @override
-  String get shortMuharramLabel => r'ሙህ.';
+  String get shortMuharramLabel => r'ሙህ';
 
   @override
   String get shortRabi1Label => r'ራቢ. አይ';
@@ -700,7 +706,7 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'يلغي';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'مسح عامل التصفية من';
+  String get clearFilterDataGridFilteringLabel => r'مرشح واضح';
 
   @override
   String get containsDataGridFilteringLabel => r'يتضمن';
@@ -737,6 +743,9 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'يساوي';
+
+  @override
+  String get fromDataGridFilteringLabel => r'من';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'أكثر من';
@@ -871,7 +880,7 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get selectAllDataGridFilteringLabel => r'اختر الكل';
 
   @override
-  String get series => r'مسلسل';
+  String get series => r'سلسلة';
 
   @override
   String get shaabanLabel => r'شعبان';
@@ -886,10 +895,10 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'ذو القعدة';
 
   @override
-  String get shortJumada1Label => r'جام. أنا';
+  String get shortJumada1Label => r'جم. أنا';
 
   @override
-  String get shortJumada2Label => r'جام. ثانيًا';
+  String get shortJumada2Label => r'جم. ثانيًا';
 
   @override
   String get shortMuharramLabel => r'موه.';
@@ -1015,7 +1024,7 @@ class SfLocalizationsAz extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Ləğv et';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Filtri Sil';
+  String get clearFilterDataGridFilteringLabel => r'Filtri təmizləyin';
 
   @override
   String get containsDataGridFilteringLabel => r'ehtiva edir';
@@ -1054,6 +1063,9 @@ class SfLocalizationsAz extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'Bərabərdir';
 
   @override
+  String get fromDataGridFilteringLabel => r'From';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'Böyük';
 
   @override
@@ -1063,7 +1075,7 @@ class SfLocalizationsAz extends SfGlobalLocalizations {
   String get jumada1Label => r'Cümə əl-əvvəl';
 
   @override
-  String get jumada2Label => r'Cümədə əl-sani';
+  String get jumada2Label => r'Cüməda əl-sani';
 
   @override
   String get lessThanDataGridFilteringLabel => r'Daha az';
@@ -1299,19 +1311,19 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'Расклад';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Дзень шкалы часу';
+  String get allowedViewTimelineDayLabel => r'Дзень часовай шкалы';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Месяц часавай шкалы';
+  String get allowedViewTimelineMonthLabel => r'Храналогія Месяц';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Тыдзень хронікі';
+  String get allowedViewTimelineWeekLabel => r'Храналогія тыдня';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Тэрмін працоўнага тыдня';
+  String get allowedViewTimelineWorkWeekLabel => r'Графік працоўнага тыдня';
 
   @override
-  String get allowedViewWeekLabel => r'Тыдзень';
+  String get allowedViewWeekLabel => r'тыдзень';
 
   @override
   String get allowedViewWorkWeekLabel => r'Працоўны тыдзень';
@@ -1332,7 +1344,7 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Адмяніць';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Ачысціць фільтр ад';
+  String get clearFilterDataGridFilteringLabel => r'Ачысціць фільтр';
 
   @override
   String get containsDataGridFilteringLabel => r'Змяшчае';
@@ -1371,16 +1383,19 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'Роўнае';
 
   @override
+  String get fromDataGridFilteringLabel => r'Ад';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'Больш чым';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel => r'Больш або роўна';
 
   @override
-  String get jumada1Label => r'Джумада аль-авваль';
+  String get jumada1Label => r'Джумада аль-аўваль';
 
   @override
-  String get jumada2Label => r'Джумада аль-Тані';
+  String get jumada2Label => r'Джумада аль-тані';
 
   @override
   String get lessThanDataGridFilteringLabel => r'Менш чым';
@@ -1398,7 +1413,7 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'Супадзенняў няма';
 
   @override
-  String get noSelectedDateCalendarLabel => r'Няма выбранай даты';
+  String get noSelectedDateCalendarLabel => r'Дата не выбрана';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Не пусты';
@@ -1422,14 +1437,14 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get orDataGridFilteringLabel => r'Або';
 
   @override
-  String get pagesDataPagerLabel => r'старонак';
+  String get pagesDataPagerLabel => r'старонкі';
 
   @override
   String get passwordDialogContentLabel =>
       r'Увядзіце пароль, каб адкрыць гэты файл PDF';
 
   @override
-  String get passwordDialogHeaderTextLabel => r'Абаронены паролем';
+  String get passwordDialogHeaderTextLabel => r'Абарона паролем';
 
   @override
   String get passwordDialogHintTextLabel => r'Увядзіце пароль';
@@ -1451,41 +1466,40 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
       r'Вы хочаце адкрыць старонку па адрасе';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'АДМЕНАЦЬ';
+  String get pdfHyperlinkDialogCancelLabel => r'СКАСАВАЦЬ';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'АДКРЫЦЬ';
+  String get pdfHyperlinkDialogOpenLabel => r'АДКРЫТАЯ';
 
   @override
-  String get pdfHyperlinkLabel => r'Адкрыйце вэб-старонку';
+  String get pdfHyperlinkLabel => r'Адкрыць вэб-старонку';
 
   @override
-  String get pdfInvalidPageNumberLabel =>
-      r'Калі ласка, увядзіце сапраўдны нумар';
+  String get pdfInvalidPageNumberLabel => r'Увядзіце правільны нумар';
 
   @override
-  String get pdfNoBookmarksLabel => r'Закладак не знойдзена';
+  String get pdfNoBookmarksLabel => r'Закладкі не знойдзены';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'АДМЕНАЦЬ';
+  String get pdfPaginationDialogCancelLabel => r'СКАСАВАЦЬ';
 
   @override
   String get pdfPaginationDialogOkLabel => r'добра';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'АДМЕНАЦЬ';
+  String get pdfPasswordDialogCancelLabel => r'СКАСАВАЦЬ';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'АДКРЫЦЬ';
+  String get pdfPasswordDialogOpenLabel => r'АДКРЫТАЯ';
 
   @override
   String get pdfScrollStatusOfLabel => r'з';
 
   @override
-  String get rabi1Label => r'Рабі аль-авваль';
+  String get rabi1Label => r'Рабі аль-аўваль';
 
   @override
-  String get rabi2Label => r'Рабі аль-Тані';
+  String get rabi2Label => r'Рабі аль-тані';
 
   @override
   String get rajabLabel => r'Раджаб';
@@ -1494,7 +1508,7 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get ramadanLabel => r'Рамадан';
 
   @override
-  String get rowsPerPageDataPagerLabel => r'Радкі на старонцы';
+  String get rowsPerPageDataPagerLabel => r'Радкоў на старонцы';
 
   @override
   String get safarLabel => r'Сафар';
@@ -1506,7 +1520,7 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get selectAllDataGridFilteringLabel => r'Абраць усё';
 
   @override
-  String get series => r'Серыял';
+  String get series => r'серыял';
 
   @override
   String get shaabanLabel => r'Шаабан';
@@ -1515,31 +1529,31 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get shawwalLabel => r'Шаўваль';
 
   @override
-  String get shortDhualhiLabel => r'Зуль-Х';
+  String get shortDhualhiLabel => r'Зу' "'" r'л-Х';
 
   @override
-  String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
+  String get shortDhualqiLabel => r'Зу' "'" r'л-К' "'" r'ю';
 
   @override
-  String get shortJumada1Label => r'Jum. я';
+  String get shortJumada1Label => r'Джам. я';
 
   @override
-  String get shortJumada2Label => r'Jum. II';
+  String get shortJumada2Label => r'Джам. II';
 
   @override
-  String get shortMuharramLabel => r'Мух.';
+  String get shortMuharramLabel => r'мух';
 
   @override
-  String get shortRabi1Label => r'Рабі. я';
+  String get shortRabi1Label => r'Рабіна. я';
 
   @override
-  String get shortRabi2Label => r'Рабі. II';
+  String get shortRabi2Label => r'Рабіна. II';
 
   @override
   String get shortRajabLabel => r'Радж.';
 
   @override
-  String get shortRamadanLabel => r'Баран.';
+  String get shortRamadanLabel => r'Таран.';
 
   @override
   String get shortSafarLabel => r'Саф.';
@@ -1548,7 +1562,7 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get shortShaabanLabel => r'Ша.';
 
   @override
-  String get shortShawwalLabel => r'Шо.';
+  String get shortShawwalLabel => r'Шоу.';
 
   @override
   String get showRowsWhereDataGridFilteringLabel => r'Паказаць радкі, дзе';
@@ -1582,10 +1596,10 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get textFiltersDataGridFilteringLabel => r'Тэкставыя фільтры';
 
   @override
-  String get todayLabel => r'Сёння';
+  String get todayLabel => r'сёння';
 
   @override
-  String get weeknumberLabel => r'Тыдзень';
+  String get weeknumberLabel => r'тыдзень';
 }
 
 /// The translations for Bulgarian (`bg`).
@@ -1619,13 +1633,14 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'Ден на хронологията';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Месец на хронологията';
+  String get allowedViewTimelineMonthLabel => r'Времева линия Месец';
 
   @override
   String get allowedViewTimelineWeekLabel => r'Седмица на хронологията';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'График на работната седмица';
+  String get allowedViewTimelineWorkWeekLabel =>
+      r'Времева линия Работна седмица';
 
   @override
   String get allowedViewWeekLabel => r'седмица';
@@ -1649,8 +1664,7 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Отказ';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel =>
-      r'Изчистване на филтъра от';
+  String get clearFilterDataGridFilteringLabel => r'Изчистване на филтъра';
 
   @override
   String get containsDataGridFilteringLabel => r'Съдържа';
@@ -1665,7 +1679,7 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get dhualhiLabel => r'Зу ал-Хиджа';
 
   @override
-  String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
+  String get dhualqiLabel => r'Зу ал-Кида';
 
   @override
   String get doesNotBeginWithDataGridFilteringLabel => r'Не започва с';
@@ -1689,6 +1703,9 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'Се равнява';
 
   @override
+  String get fromDataGridFilteringLabel => r'от';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'По-голяма от';
 
   @override
@@ -1699,7 +1716,7 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get jumada1Label => r'Джумада ал-аввал';
 
   @override
-  String get jumada2Label => r'Джумада ал-Тани';
+  String get jumada2Label => r'Джумада ал-тани';
 
   @override
   String get lessThanDataGridFilteringLabel => r'По-малко от';
@@ -1708,7 +1725,7 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get lessThanOrEqualDataGridFilteringLabel => r'По-малко или равно';
 
   @override
-  String get muharramLabel => r'Мухарам';
+  String get muharramLabel => r'Мухаррам';
 
   @override
   String get noEventsCalendarLabel => r'Няма събития';
@@ -1769,13 +1786,13 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get pdfHyperlinkContentLabel => r'Искате ли да отворите страницата на';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'ОТМЕНИ';
+  String get pdfHyperlinkDialogCancelLabel => r'ОТМЕНЯНЕ';
 
   @override
   String get pdfHyperlinkDialogOpenLabel => r'ОТВОРЕНО';
 
   @override
-  String get pdfHyperlinkLabel => r'Отворете уеб страница';
+  String get pdfHyperlinkLabel => r'Отворете уеб страницата';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Моля въведете валиден номер';
@@ -1784,13 +1801,13 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Няма намерени отметки';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'ОТМЕНИ';
+  String get pdfPaginationDialogCancelLabel => r'ОТМЕНЯНЕ';
 
   @override
   String get pdfPaginationDialogOkLabel => r'Добре';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'ОТМЕНИ';
+  String get pdfPasswordDialogCancelLabel => r'ОТМЕНЯНЕ';
 
   @override
   String get pdfPasswordDialogOpenLabel => r'ОТВОРЕНО';
@@ -1802,7 +1819,7 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get rabi1Label => r'Раби ал-аввал';
 
   @override
-  String get rabi2Label => r'Раби ал-Тани';
+  String get rabi2Label => r'Раби ал-тани';
 
   @override
   String get rajabLabel => r'Раджаб';
@@ -1829,22 +1846,22 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get shaabanLabel => r'Шаабан';
 
   @override
-  String get shawwalLabel => r'Shawwal';
+  String get shawwalLabel => r'Шавал';
 
   @override
-  String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
+  String get shortDhualhiLabel => r'Зул-Х';
 
   @override
-  String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
+  String get shortDhualqiLabel => r'Зул-Кю';
 
   @override
-  String get shortJumada1Label => r'Jum. аз';
+  String get shortJumada1Label => r'Джъм. аз';
 
   @override
-  String get shortJumada2Label => r'Jum. II';
+  String get shortJumada2Label => r'Джъм. II';
 
   @override
-  String get shortMuharramLabel => r'Мъх';
+  String get shortMuharramLabel => r'Мъх.';
 
   @override
   String get shortRabi1Label => r'Раби. аз';
@@ -1856,13 +1873,13 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get shortRajabLabel => r'Радж.';
 
   @override
-  String get shortRamadanLabel => r'Рам.';
+  String get shortRamadanLabel => r'Рам';
 
   @override
-  String get shortSafarLabel => r'Saf.';
+  String get shortSafarLabel => r'Саф.';
 
   @override
-  String get shortShaabanLabel => r'Ша';
+  String get shortShaabanLabel => r'Ша.';
 
   @override
   String get shortShawwalLabel => r'Шоу.';
@@ -1899,7 +1916,7 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get textFiltersDataGridFilteringLabel => r'Текстови филтри';
 
   @override
-  String get todayLabel => r'днес';
+  String get todayLabel => r'Днес';
 
   @override
   String get weeknumberLabel => r'седмица';
@@ -1966,7 +1983,7 @@ class SfLocalizationsBn extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'বাতিল করুন';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'থেকে ফিল্টার সাফ করুন';
+  String get clearFilterDataGridFilteringLabel => r'স্বচ্ছ ছাকুনী';
 
   @override
   String get containsDataGridFilteringLabel => r'ধারণ করে';
@@ -2005,6 +2022,9 @@ class SfLocalizationsBn extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'সমান';
 
   @override
+  String get fromDataGridFilteringLabel => r'থেকে';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'অপেক্ষা বৃহত্তর';
 
   @override
@@ -2023,7 +2043,7 @@ class SfLocalizationsBn extends SfGlobalLocalizations {
   String get lessThanOrEqualDataGridFilteringLabel => r'কম বা সমান';
 
   @override
-  String get muharramLabel => r'মহররম';
+  String get muharramLabel => r'মহরম';
 
   @override
   String get noEventsCalendarLabel => r'কোনো ঘটনা নেই';
@@ -2060,7 +2080,7 @@ class SfLocalizationsBn extends SfGlobalLocalizations {
 
   @override
   String get passwordDialogContentLabel =>
-      r'এই PDF ফাইল খুলতে পাসওয়ার্ড লিখুন';
+      r'এই পিডিএফ ফাইল খুলতে পাসওয়ার্ড লিখুন';
 
   @override
   String get passwordDialogHeaderTextLabel => r'পাসওয়ার্ড সুরক্ষিত';
@@ -2248,7 +2268,7 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'Raspored';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Timeline Day';
+  String get allowedViewTimelineDayLabel => r'Dan vremenske linije';
 
   @override
   String get allowedViewTimelineMonthLabel => r'Timeline Month';
@@ -2282,7 +2302,7 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Otkaži';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Obriši filter iz';
+  String get clearFilterDataGridFilteringLabel => r'Obriši filter';
 
   @override
   String get containsDataGridFilteringLabel => r'Sadrži';
@@ -2319,6 +2339,9 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Jednako';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Od';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Veci nego';
@@ -2599,7 +2622,7 @@ class SfLocalizationsCa extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Cancel · lar';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Esborra el filtre de';
+  String get clearFilterDataGridFilteringLabel => r'Esborra el filtre';
 
   @override
   String get containsDataGridFilteringLabel => r'Conté';
@@ -2636,6 +2659,9 @@ class SfLocalizationsCa extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'És igual';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Des de';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Més gran que';
@@ -2915,7 +2941,7 @@ class SfLocalizationsCs extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'zrušení';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Vymazat filtr od';
+  String get clearFilterDataGridFilteringLabel => r'Vymazat filtr';
 
   @override
   String get containsDataGridFilteringLabel => r'Obsahuje';
@@ -2952,6 +2978,9 @@ class SfLocalizationsCs extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Rovná se';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Z';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Větší než';
@@ -3207,7 +3236,7 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
   String get allowedViewTimelineWeekLabel => r'Tidslinje uge';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Tidslinje Arbejdsuge';
+  String get allowedViewTimelineWorkWeekLabel => r'Tidslinje arbejdsuge';
 
   @override
   String get allowedViewWeekLabel => r'Uge';
@@ -3231,7 +3260,7 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Afbestille';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Ryd filter fra';
+  String get clearFilterDataGridFilteringLabel => r'Ryd filter';
 
   @override
   String get containsDataGridFilteringLabel => r'Indeholder';
@@ -3268,6 +3297,9 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Lige med';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Fra';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Bedre end';
@@ -3511,19 +3543,19 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get allowedViewMonthLabel => r'Monat';
 
   @override
-  String get allowedViewScheduleLabel => r'Zeitplan';
+  String get allowedViewScheduleLabel => r'Zeitlicher Ablauf';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Zeitleiste Tag';
+  String get allowedViewTimelineDayLabel => r'Timeline-Tag';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Zeitachse Monat';
+  String get allowedViewTimelineMonthLabel => r'Timeline-Monat';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Zeitleiste Woche';
+  String get allowedViewTimelineWeekLabel => r'Timeline-Woche';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Zeitleiste Arbeitswoche';
+  String get allowedViewTimelineWorkWeekLabel => r'Zeitplan Arbeitswoche';
 
   @override
   String get allowedViewWeekLabel => r'Woche';
@@ -3547,7 +3579,7 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Absagen';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Filter löschen von';
+  String get clearFilterDataGridFilteringLabel => r'Filter löschen';
 
   @override
   String get containsDataGridFilteringLabel => r'Enthält';
@@ -3584,6 +3616,9 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Gleich';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Aus';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Größer als';
@@ -3725,7 +3760,7 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get series => r'Serie';
 
   @override
-  String get shaabanLabel => r'Schaaban';
+  String get shaabanLabel => r'Shaaban';
 
   @override
   String get shawwalLabel => r'Shawwal';
@@ -3838,7 +3873,7 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get allowedViewTimelineMonthLabel => r'Χρονολόγιο Μήνας';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Εβδομάδα Χρονολογίου';
+  String get allowedViewTimelineWeekLabel => r'Χρονολόγιο Εβδομάδα';
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
@@ -3866,7 +3901,7 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Ματαίωση';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Διαγραφή φίλτρου από';
+  String get clearFilterDataGridFilteringLabel => r'Διαγραφή φίλτρου';
 
   @override
   String get containsDataGridFilteringLabel => r'Περιέχει';
@@ -3905,6 +3940,9 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'Ίσο';
 
   @override
+  String get fromDataGridFilteringLabel => r'Από';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'Μεγαλύτερος από';
 
   @override
@@ -3933,7 +3971,8 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'Χωρίς αγώνες';
 
   @override
-  String get noSelectedDateCalendarLabel => r'Καμία επιλεγμένη ημερομηνία';
+  String get noSelectedDateCalendarLabel =>
+      r'Δεν υπάρχει επιλεγμένη ημερομηνία';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Οχι άδειο';
@@ -4185,7 +4224,7 @@ class SfLocalizationsEn extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Cancel';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Clear Filter From';
+  String get clearFilterDataGridFilteringLabel => r'Clear Filter';
 
   @override
   String get containsDataGridFilteringLabel => r'Contains';
@@ -4222,6 +4261,9 @@ class SfLocalizationsEn extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Equals';
+
+  @override
+  String get fromDataGridFilteringLabel => r'From';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Greater Than';
@@ -4502,7 +4544,7 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Cancelar';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Borrar filtro de';
+  String get clearFilterDataGridFilteringLabel => r'Filtro claro';
 
   @override
   String get containsDataGridFilteringLabel => r'Contiene';
@@ -4539,6 +4581,9 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'igual';
+
+  @override
+  String get fromDataGridFilteringLabel => r'De';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Mas grande que';
@@ -4689,7 +4734,7 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
 
   @override
-  String get shortJumada1Label => r'Jum. I';
+  String get shortJumada1Label => r'Jum. yo';
 
   @override
   String get shortJumada2Label => r'Jum. II';
@@ -4698,10 +4743,10 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get shortMuharramLabel => r'Muh.';
 
   @override
-  String get shortRabi1Label => r'Rabí. I';
+  String get shortRabi1Label => r'Rabí. yo';
 
   @override
-  String get shortRabi2Label => r'Rabi. II';
+  String get shortRabi2Label => r'Rabí. Yo';
 
   @override
   String get shortRajabLabel => r'Raj.';
@@ -4750,7 +4795,7 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get textFiltersDataGridFilteringLabel => r'Filtros de texto';
 
   @override
-  String get todayLabel => r'Hoy dia';
+  String get todayLabel => r'Este Dia';
 
   @override
   String get weeknumberLabel => r'Semana';
@@ -4817,7 +4862,7 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Tühista';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Kustuta filter';
+  String get clearFilterDataGridFilteringLabel => r'Tühjenda filter';
 
   @override
   String get containsDataGridFilteringLabel => r'Sisaldab';
@@ -4854,6 +4899,9 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Võrdub';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Alates';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Suurem kui';
@@ -5005,7 +5053,7 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
 
   @override
-  String get shortJumada1Label => r'Jum. ma';
+  String get shortJumada1Label => r'Jum. I';
 
   @override
   String get shortJumada2Label => r'Jum. II';
@@ -5014,7 +5062,7 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get shortMuharramLabel => r'Muh.';
 
   @override
-  String get shortRabi1Label => r'Rabi. ma';
+  String get shortRabi1Label => r'Rabi. I';
 
   @override
   String get shortRabi2Label => r'Rabi. II';
@@ -5133,7 +5181,7 @@ class SfLocalizationsEu extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Utzi';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Garbitu iragazkia';
+  String get clearFilterDataGridFilteringLabel => r'Garbitu iragazkia';
 
   @override
   String get containsDataGridFilteringLabel => r'Dauka';
@@ -5170,6 +5218,9 @@ class SfLocalizationsEu extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Berdin';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Bertatik';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Baino handiagoa';
@@ -5450,7 +5501,7 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'لغو کنید';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'پاک کردن فیلتر از';
+  String get clearFilterDataGridFilteringLabel => r'فیلتر را پاک کنید';
 
   @override
   String get containsDataGridFilteringLabel => r'حاوی';
@@ -5487,6 +5538,9 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'برابر است';
+
+  @override
+  String get fromDataGridFilteringLabel => r'از جانب';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'بزرگتر از';
@@ -5643,7 +5697,7 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
   String get shortJumada2Label => r'جام. II';
 
   @override
-  String get shortMuharramLabel => r'ماه';
+  String get shortMuharramLabel => r'مه';
 
   @override
   String get shortRabi1Label => r'ربیع من';
@@ -5689,7 +5743,7 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
 
   @override
   String get sortSmallestToLargestDataGridFilteringLabel =>
-      r'مرتب سازی کوچکترین به بزرگ ترین';
+      r'مرتب سازی کوچک ترین به بزرگ ترین';
 
   @override
   String get sortZToADataGridFilteringLabel => r'Z به A مرتب کنید';
@@ -5765,7 +5819,7 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Peruuttaa';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Tyhjennä suodatin';
+  String get clearFilterDataGridFilteringLabel => r'Tyhjennä suodatin';
 
   @override
   String get containsDataGridFilteringLabel => r'Sisältää';
@@ -5789,7 +5843,7 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   String get doesNotContainDataGridFilteringLabel => r'Ei sisällä';
 
   @override
-  String get doesNotEndWithDataGridFilteringLabel => r'Ei pääty';
+  String get doesNotEndWithDataGridFilteringLabel => r'Ei lopu';
 
   @override
   String get doesNotEqualDataGridFilteringLabel => r'Ei ole sama';
@@ -5802,6 +5856,9 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Yhtä';
+
+  @override
+  String get fromDataGridFilteringLabel => r'From';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Suurempi kuin';
@@ -5861,7 +5918,7 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
 
   @override
   String get passwordDialogContentLabel =>
-      r'Kirjoita salasana avataksesi tämän PDF-tiedoston';
+      r'Syötä salasana avataksesi tämän PDF-tiedoston';
 
   @override
   String get passwordDialogHeaderTextLabel => r'Salasana suojattu';
@@ -6083,8 +6140,7 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Kanselahin';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel =>
-      r'I-clear ang Filter Mula sa';
+  String get clearFilterDataGridFilteringLabel => r'I-clear ang Filter';
 
   @override
   String get containsDataGridFilteringLabel => r'Naglalaman';
@@ -6121,6 +6177,9 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'katumbas';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Mula sa';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Mahigit sa';
@@ -6384,7 +6443,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
       r'Chronologie de la semaine de travail';
 
   @override
-  String get allowedViewWeekLabel => r'Semaine';
+  String get allowedViewWeekLabel => r'La semaine';
 
   @override
   String get allowedViewWorkWeekLabel => r'Semaine de travail';
@@ -6405,7 +6464,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Annuler';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Effacer le filtre de';
+  String get clearFilterDataGridFilteringLabel => r'Effacer le filtre';
 
   @override
   String get containsDataGridFilteringLabel => r'Contient';
@@ -6417,7 +6476,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'Jour';
 
   @override
-  String get dhualhiLabel => r'Safar';
+  String get dhualhiLabel => r'Dhu al-Hijjah';
 
   @override
   String get dhualqiLabel => r'Dhou al-Qi' "'" r'dah';
@@ -6442,6 +6501,9 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Équivaut à';
+
+  @override
+  String get fromDataGridFilteringLabel => r'De';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Plus grand que';
@@ -6527,7 +6589,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'ANNULER';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'OUVRIR';
+  String get pdfHyperlinkDialogOpenLabel => r'OUVERT';
 
   @override
   String get pdfHyperlinkLabel => r'Ouvrir la page Web';
@@ -6543,13 +6605,13 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'ANNULER';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'd' "'" r'accord';
+  String get pdfPaginationDialogOkLabel => r'D' "'" r'ACCORD';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'ANNULER';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'OUVRIR';
+  String get pdfPasswordDialogOpenLabel => r'OUVERT';
 
   @override
   String get pdfScrollStatusOfLabel => r'de';
@@ -6579,7 +6641,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get selectAllDataGridFilteringLabel => r'Tout sélectionner';
 
   @override
-  String get series => r'Séries';
+  String get series => r'Série';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -6658,7 +6720,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get todayLabel => r'Aujourd' "'" r'hui';
 
   @override
-  String get weeknumberLabel => r'Semaine';
+  String get weeknumberLabel => r'La semaine';
 }
 
 /// The translations for Galician (`gl`).
@@ -6695,7 +6757,7 @@ class SfLocalizationsGl extends SfGlobalLocalizations {
   String get allowedViewTimelineMonthLabel => r'Mes do cronograma';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Semana do cronograma';
+  String get allowedViewTimelineWeekLabel => r'Timeline Week';
 
   @override
   String get allowedViewTimelineWorkWeekLabel => r'Timeline Work Week';
@@ -6722,7 +6784,7 @@ class SfLocalizationsGl extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Cancelar';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Borrar o filtro de';
+  String get clearFilterDataGridFilteringLabel => r'Borrar filtro';
 
   @override
   String get containsDataGridFilteringLabel => r'Contén';
@@ -6759,6 +6821,9 @@ class SfLocalizationsGl extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Iguais';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Desde';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Máis grande cá';
@@ -7016,7 +7081,7 @@ class SfLocalizationsGu extends SfGlobalLocalizations {
   String get allowedViewTimelineWorkWeekLabel => r'સમયરેખા કાર્ય સપ્તાહ';
 
   @override
-  String get allowedViewWeekLabel => r'સપ્તાહ';
+  String get allowedViewWeekLabel => r'અઠવાડિયું';
 
   @override
   String get allowedViewWorkWeekLabel => r'કાર્ય સપ્તાહ';
@@ -7037,7 +7102,7 @@ class SfLocalizationsGu extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'રદ કરો';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'આમાંથી ફિલ્ટર સાફ કરો';
+  String get clearFilterDataGridFilteringLabel => r'ફિલ્ટર સાફ કરો';
 
   @override
   String get containsDataGridFilteringLabel => r'સમાવે છે';
@@ -7074,6 +7139,9 @@ class SfLocalizationsGu extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'સમકક્ષ';
+
+  @override
+  String get fromDataGridFilteringLabel => r'થી';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'કરતા વધારે';
@@ -7289,7 +7357,7 @@ class SfLocalizationsGu extends SfGlobalLocalizations {
   String get todayLabel => r'આજે';
 
   @override
-  String get weeknumberLabel => r'સપ્તાહ';
+  String get weeknumberLabel => r'અઠવાડિયું';
 }
 
 /// The translations for Hebrew (`he`).
@@ -7329,7 +7397,7 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get allowedViewTimelineWeekLabel => r'שבוע ציר הזמן';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'שבוע העבודה של ציר הזמן';
+  String get allowedViewTimelineWorkWeekLabel => r'שבוע העבודה של ציר זמן';
 
   @override
   String get allowedViewWeekLabel => r'שָׁבוּעַ';
@@ -7353,7 +7421,7 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'לְבַטֵל';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'נקה מסנן מ';
+  String get clearFilterDataGridFilteringLabel => r'נקה מסנן';
 
   @override
   String get containsDataGridFilteringLabel => r'מכיל';
@@ -7392,13 +7460,16 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'שווים';
 
   @override
+  String get fromDataGridFilteringLabel => r'מ';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'גדול מ';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel => r'גדול או שווה';
 
   @override
-  String get jumada1Label => r'ג' "'" r'ומדה אל-אוואל';
+  String get jumada1Label => r'ג' "'" r'ומדה אל-אוול';
 
   @override
   String get jumada2Label => r'ג' "'" r'ומדה אל-ת' "'" r'אני';
@@ -7468,7 +7539,7 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'לך לעמוד';
 
   @override
-  String get pdfHyperlinkContentLabel => r'האם אתה רוצה לפתוח את הדף ב';
+  String get pdfHyperlinkContentLabel => r'האם אתה רוצה לפתוח את העמוד ב';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'לְבַטֵל';
@@ -7513,7 +7584,7 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get ramadanLabel => r'רמדאן';
 
   @override
-  String get rowsPerPageDataPagerLabel => r'שורות בעמוד';
+  String get rowsPerPageDataPagerLabel => r'שורות לכל עמוד';
 
   @override
   String get safarLabel => r'ספאר';
@@ -7531,7 +7602,7 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get shaabanLabel => r'שעבן';
 
   @override
-  String get shawwalLabel => r'שוואל';
+  String get shawwalLabel => r'שווואל';
 
   @override
   String get shortDhualhiLabel => r'דהו' "'" "'" r'ל-ה';
@@ -7620,7 +7691,7 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get afterDataGridFilteringLabel => r'बाद में';
 
   @override
-  String get afterOrEqualDataGridFilteringLabel => r'बाद या बराबर';
+  String get afterOrEqualDataGridFilteringLabel => r'के बाद या बराबर';
 
   @override
   String get allDayLabel => r'पूरे दिन';
@@ -7668,7 +7739,7 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'रद्द करना';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'से फ़िल्टर साफ़ करें';
+  String get clearFilterDataGridFilteringLabel => r'स्पष्ट निस्यंदक';
 
   @override
   String get containsDataGridFilteringLabel => r'रोकना';
@@ -7680,20 +7751,20 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'दिन';
 
   @override
-  String get dhualhiLabel => r'धू अल-हिज्जाही';
+  String get dhualhiLabel => r'धू अल-हिज्जाह';
 
   @override
-  String get dhualqiLabel => r'धू अल क़िदाही';
+  String get dhualqiLabel => r'धू अल-क़ीदाह';
 
   @override
-  String get doesNotBeginWithDataGridFilteringLabel => r'से शुरू नहीं होता है';
+  String get doesNotBeginWithDataGridFilteringLabel =>
+      r'से प्रारंभ नहीं होता है';
 
   @override
   String get doesNotContainDataGridFilteringLabel => r'शामिल नहीं है';
 
   @override
-  String get doesNotEndWithDataGridFilteringLabel =>
-      r'के साथ समाप्त नहीं होता है';
+  String get doesNotEndWithDataGridFilteringLabel => r'से समाप्त नहीं होता है';
 
   @override
   String get doesNotEqualDataGridFilteringLabel => r'बराबर नही हैं';
@@ -7706,6 +7777,9 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'बराबर';
+
+  @override
+  String get fromDataGridFilteringLabel => r'से';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'से अधिक';
@@ -7747,7 +7821,7 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get nullDataGridFilteringLabel => r'शून्य';
 
   @override
-  String get numberFiltersDataGridFilteringLabel => r'संख्या फ़िल्टर';
+  String get numberFiltersDataGridFilteringLabel => r'नंबर फिल्टर';
 
   @override
   String get ofDataPagerLabel => r'का';
@@ -7763,7 +7837,7 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
 
   @override
   String get passwordDialogContentLabel =>
-      r'इस पीडीएफ फाइल को खोलने के लिए पासवर्ड दर्ज करें';
+      r'इस पीडीएफ फाइल को खोलने के लिए पासवर्ड डालें';
 
   @override
   String get passwordDialogHeaderTextLabel => r'पासवर्ड से सुरक्षित';
@@ -7778,25 +7852,25 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get pdfBookmarksLabel => r'बुकमार्क';
 
   @override
-  String get pdfEnterPageNumberLabel => r'पेज नंबर दर्ज करें';
+  String get pdfEnterPageNumberLabel => r'पृष्ठ संख्या दर्ज करें';
 
   @override
   String get pdfGoToPageLabel => r'पृष्ठ पर जाओ';
 
   @override
-  String get pdfHyperlinkContentLabel => r'क्या आप यहां पेज खोलना चाहते हैं';
+  String get pdfHyperlinkContentLabel => r'क्या आप पर पृष्ठ खोलना चाहते हैं';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'रद्द करें';
+  String get pdfHyperlinkDialogCancelLabel => r'रद्द करना';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'खुला';
+  String get pdfHyperlinkDialogOpenLabel => r'खोलना';
 
   @override
   String get pdfHyperlinkLabel => r'वेब पेज खोलें';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'कृपया एक सही संख्या डालिये';
+  String get pdfInvalidPageNumberLabel => r'कृपया सही अंक दर्ज करें';
 
   @override
   String get pdfNoBookmarksLabel => r'कोई बुकमार्क नहीं मिला';
@@ -7805,13 +7879,13 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'रद्द करना';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'ठीक';
+  String get pdfPaginationDialogOkLabel => r'ठीक है';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'रद्द करना';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'खुला हुआ';
+  String get pdfPasswordDialogOpenLabel => r'खोलना';
 
   @override
   String get pdfScrollStatusOfLabel => r'का';
@@ -7820,10 +7894,10 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get rabi1Label => r'रबी अल-अव्वल';
 
   @override
-  String get rabi2Label => r'रबी अल-थानी';
+  String get rabi2Label => r'रबी ' "'" r'अल-थानी';
 
   @override
-  String get rajabLabel => r'राजाबी';
+  String get rajabLabel => r'रज्जब';
 
   @override
   String get ramadanLabel => r'रमजान';
@@ -7844,25 +7918,25 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get series => r'श्रृंखला';
 
   @override
-  String get shaabanLabel => r'शाबानो';
+  String get shaabanLabel => r'शाबान';
 
   @override
   String get shawwalLabel => r'शावाल';
 
   @override
-  String get shortDhualhiLabel => r'धुल-हो';
+  String get shortDhualhiLabel => r'धुल-एच';
 
   @override
   String get shortDhualqiLabel => r'धुल-क्यू';
 
   @override
-  String get shortJumada1Label => r'जम. मैं';
+  String get shortJumada1Label => r'जम। मैं';
 
   @override
-  String get shortJumada2Label => r'जम. द्वितीय';
+  String get shortJumada2Label => r'जम। द्वितीय';
 
   @override
-  String get shortMuharramLabel => r'मुह.';
+  String get shortMuharramLabel => r'मुह।';
 
   @override
   String get shortRabi1Label => r'रबी। मैं';
@@ -7871,13 +7945,13 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get shortRabi2Label => r'रबी। द्वितीय';
 
   @override
-  String get shortRajabLabel => r'राज.';
+  String get shortRajabLabel => r'राज।';
 
   @override
   String get shortRamadanLabel => r'टक्कर मारना।';
 
   @override
-  String get shortSafarLabel => r'साफ.';
+  String get shortSafarLabel => r'सफ।';
 
   @override
   String get shortShaabanLabel => r'शा.';
@@ -7886,10 +7960,10 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get shortShawwalLabel => r'शॉ।';
 
   @override
-  String get showRowsWhereDataGridFilteringLabel => r'पंक्तियाँ दिखाएँ जहाँ';
+  String get showRowsWhereDataGridFilteringLabel => r'पंक्तियाँ कहाँ दिखाएँ';
 
   @override
-  String get sortAToZDataGridFilteringLabel => r'A से Z तक क्रमित करें';
+  String get sortAToZDataGridFilteringLabel => r'A से Z तक क्रमबद्ध करें';
 
   @override
   String get sortAndFilterDataGridFilteringLabel =>
@@ -7897,25 +7971,25 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
 
   @override
   String get sortLargestToSmallestDataGridFilteringLabel =>
-      r'सबसे बड़े से सबसे छोटे को छाँटें';
+      r'सबसे बड़े को सबसे छोटे के क्रम में लगाएं';
 
   @override
   String get sortNewestToOldestDataGridFilteringLabel =>
-      r'नवीनतम से सबसे पुराने को क्रमित करें';
+      r'सबसे नए से सबसे पुराने के क्रम में लगाएं';
 
   @override
   String get sortOldestToNewestDataGridFilteringLabel =>
-      r'सबसे पुराने से नवीनतम के क्रम में लगाएं';
+      r'सबसे पुराने से नए के क्रम में लगाएं';
 
   @override
   String get sortSmallestToLargestDataGridFilteringLabel =>
-      r'सबसे छोटे से सबसे बड़े को छाँटें';
+      r'सबसे छोटे से बड़े के क्रम में लगाएं';
 
   @override
-  String get sortZToADataGridFilteringLabel => r'Z से A में क्रमित करें';
+  String get sortZToADataGridFilteringLabel => r'Z से A तक क्रमबद्ध करें';
 
   @override
-  String get textFiltersDataGridFilteringLabel => r'टेक्स्ट फिल्टर';
+  String get textFiltersDataGridFilteringLabel => r'पाठ फ़िल्टर';
 
   @override
   String get todayLabel => r'आज';
@@ -7986,7 +8060,7 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Otkazati';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Obriši filtar iz';
+  String get clearFilterDataGridFilteringLabel => r'Obriši filtar';
 
   @override
   String get containsDataGridFilteringLabel => r'Sadrži';
@@ -7998,13 +8072,13 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'Dan';
 
   @override
-  String get dhualhiLabel => r'Dhu al-Hijjah';
+  String get dhualhiLabel => r'zul-hidždže';
 
   @override
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get doesNotBeginWithDataGridFilteringLabel => r'Ne počinje sa';
+  String get doesNotBeginWithDataGridFilteringLabel => r'Ne počinje s';
 
   @override
   String get doesNotContainDataGridFilteringLabel => r'Ne sadrži';
@@ -8025,13 +8099,16 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'Jednako';
 
   @override
+  String get fromDataGridFilteringLabel => r'Iz';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'Veći od';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel => r'Veće ili jednako';
 
   @override
-  String get jumada1Label => r'Jumada al-awwal';
+  String get jumada1Label => r'džumade el-evval';
 
   @override
   String get jumada2Label => r'Jumada al-thani';
@@ -8043,7 +8120,7 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get lessThanOrEqualDataGridFilteringLabel => r'Manje ili jednako';
 
   @override
-  String get muharramLabel => r'Muharem';
+  String get muharramLabel => r'Muharrema';
 
   @override
   String get noEventsCalendarLabel => r'Nema događaja';
@@ -8076,7 +8153,7 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get orDataGridFilteringLabel => r'Ili';
 
   @override
-  String get pagesDataPagerLabel => r'stranicama';
+  String get pagesDataPagerLabel => r'stranice';
 
   @override
   String get passwordDialogContentLabel =>
@@ -8107,16 +8184,16 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'OTKAZATI';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'OTVOREN';
+  String get pdfHyperlinkDialogOpenLabel => r'OTVORENA';
 
   @override
-  String get pdfHyperlinkLabel => r'Otvorite web stranicu';
+  String get pdfHyperlinkLabel => r'Otvori web stranicu';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Unesite valjani broj';
+  String get pdfInvalidPageNumberLabel => r'Unesite važeći broj';
 
   @override
-  String get pdfNoBookmarksLabel => r'Nije pronađena nijedna oznaka';
+  String get pdfNoBookmarksLabel => r'Nema pronađenih oznaka';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'OTKAZATI';
@@ -8134,16 +8211,16 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'od';
 
   @override
-  String get rabi1Label => r'Rabi' "'" r' el-evval';
+  String get rabi1Label => r'Rabi' "'" r' al-awwal';
 
   @override
   String get rabi2Label => r'Rabi' "'" r' al-thani';
 
   @override
-  String get rajabLabel => r'Radžab';
+  String get rajabLabel => r'Radžeb';
 
   @override
-  String get ramadanLabel => r'ramazana';
+  String get ramadanLabel => r'Ramazan';
 
   @override
   String get rowsPerPageDataPagerLabel => r'Redovi po stranici';
@@ -8161,16 +8238,16 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get series => r'Niz';
 
   @override
-  String get shaabanLabel => r'Sha' "'" r'aban';
+  String get shaabanLabel => r'ša' "'" r'aban';
 
   @override
-  String get shawwalLabel => r'Shawwal';
+  String get shawwalLabel => r'ševval';
 
   @override
-  String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
+  String get shortDhualhiLabel => r'Zul-H';
 
   @override
-  String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
+  String get shortDhualqiLabel => r'Zul-Q';
 
   @override
   String get shortJumada1Label => r'Jum. ja';
@@ -8301,7 +8378,7 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Megszünteti';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Szűrő törlése';
+  String get clearFilterDataGridFilteringLabel => r'Szűrő törlése';
 
   @override
   String get containsDataGridFilteringLabel => r'Tartalmaz';
@@ -8338,6 +8415,9 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Egyenlő';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Tól től';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Nagyobb, mint';
@@ -8430,7 +8510,8 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'Weboldal megnyitása';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Adjon meg egy érvényes számot';
+  String get pdfInvalidPageNumberLabel =>
+      r'Kérjük, adjon meg egy érvényes számot';
 
   @override
   String get pdfNoBookmarksLabel => r'Nem találhatók könyvjelzők';
@@ -8460,7 +8541,7 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
   String get rajabLabel => r'Rajab';
 
   @override
-  String get ramadanLabel => r'Ramadan';
+  String get ramadanLabel => r'Ramadán';
 
   @override
   String get rowsPerPageDataPagerLabel => r'Sorok oldalanként';
@@ -8619,7 +8700,7 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Չեղարկել';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Մաքրել զտիչը';
+  String get clearFilterDataGridFilteringLabel => r'Մաքրել զտիչը';
 
   @override
   String get containsDataGridFilteringLabel => r'Պարունակում է';
@@ -8658,6 +8739,9 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'Հավասար է';
 
   @override
+  String get fromDataGridFilteringLabel => r'Սկսած';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'Ավելի մեծ քան';
 
   @override
@@ -8665,7 +8749,7 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
       r'Ավելի մեծ, քան հավասար';
 
   @override
-  String get jumada1Label => r'Ջումադա ալ-ավալ';
+  String get jumada1Label => r'Ջումադա ալ-ավվալ';
 
   @override
   String get jumada2Label => r'Ջումադա ալ-Թանի';
@@ -8677,7 +8761,7 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get lessThanOrEqualDataGridFilteringLabel => r'Ավելի քիչ, քան հավասար';
 
   @override
-  String get muharramLabel => r'Մուհարամ';
+  String get muharramLabel => r'Մուհարրամ';
 
   @override
   String get noEventsCalendarLabel => r'Միջոցառումներ չկան';
@@ -8735,7 +8819,7 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Գնալ դեպի էջ';
 
   @override
-  String get pdfHyperlinkContentLabel => r'Ցանկանու՞մ եք բացել էջը ժամը';
+  String get pdfHyperlinkContentLabel => r'Ցանկանու՞մ եք բացել էջը';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'ՉԵՂԱՐԿԵԼ';
@@ -8905,19 +8989,19 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'Hari Garis Waktu';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Garis Waktu Bulan';
+  String get allowedViewTimelineMonthLabel => r'Bulan Garis Waktu';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Garis Waktu Minggu';
+  String get allowedViewTimelineWeekLabel => r'Minggu Garis Waktu';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Garis Waktu Minggu Kerja';
+  String get allowedViewTimelineWorkWeekLabel => r'Minggu Kerja Timeline';
 
   @override
   String get allowedViewWeekLabel => r'Pekan';
 
   @override
-  String get allowedViewWorkWeekLabel => r'minggu kerja';
+  String get allowedViewWorkWeekLabel => r'Minggu Kerja';
 
   @override
   String get andDataGridFilteringLabel => r'Dan';
@@ -8935,7 +9019,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Membatalkan';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Hapus Filter Dari';
+  String get clearFilterDataGridFilteringLabel => r'Hapus Filter';
 
   @override
   String get containsDataGridFilteringLabel => r'Mengandung';
@@ -8950,7 +9034,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get dhualhiLabel => r'Dzulhijjah';
 
   @override
-  String get dhualqiLabel => r'Dzulqidah';
+  String get dhualqiLabel => r'Dhu al-Qidah';
 
   @override
   String get doesNotBeginWithDataGridFilteringLabel => r'Tidak Dimulai Dengan';
@@ -8971,14 +9055,17 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get endsWithDataGridFilteringLabel => r'Berakhir dengan';
 
   @override
-  String get equalsDataGridFilteringLabel => r'Setara';
+  String get equalsDataGridFilteringLabel => r'Sama dengan';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Dari';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Lebih besar dari';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel =>
-      r'Lebih Besar dari Atau Sama';
+      r'Lebih Besar Dari Atau Sama Dengan';
 
   @override
   String get jumada1Label => r'Jumada al-awwal';
@@ -9008,7 +9095,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get notEmptyDataGridFilteringLabel => r'Tidak kosong';
 
   @override
-  String get notNullDataGridFilteringLabel => r'Bukan Null';
+  String get notNullDataGridFilteringLabel => r'Bukan Nol';
 
   @override
   String get nullDataGridFilteringLabel => r'Batal';
@@ -9064,7 +9151,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'Buka Halaman Web';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Harap masukkan nomor yang valid';
+  String get pdfInvalidPageNumberLabel => r'Masukkan nomor yang valid';
 
   @override
   String get pdfNoBookmarksLabel => r'Tidak ada bookmark yang ditemukan';
@@ -9073,7 +9160,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'MEMBATALKAN';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'oke';
+  String get pdfPaginationDialogOkLabel => r'Oke';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'MEMBATALKAN';
@@ -9085,7 +9172,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'dari';
 
   @override
-  String get rabi1Label => r'Rabi' "'" r' al-awwal';
+  String get rabi1Label => r'Rabi' "'" r' al-awal';
 
   @override
   String get rabi2Label => r'Rabi' "'" r' al-thani';
@@ -9100,7 +9187,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get rowsPerPageDataPagerLabel => r'Baris per halaman';
 
   @override
-  String get safarLabel => r'Safari';
+  String get safarLabel => r'Safar';
 
   @override
   String get searchDataGridFilteringLabel => r'Mencari';
@@ -9118,13 +9205,13 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get shawwalLabel => r'Syawal';
 
   @override
-  String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
+  String get shortDhualhiLabel => r'Dzul-H';
 
   @override
-  String get shortDhualqiLabel => r'Dzul Q';
+  String get shortDhualqiLabel => r'Dzul-Q';
 
   @override
-  String get shortJumada1Label => r'Jum. saya';
+  String get shortJumada1Label => r'Jum. Saya';
 
   @override
   String get shortJumada2Label => r'Jum. II';
@@ -9133,7 +9220,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get shortMuharramLabel => r'Muh.';
 
   @override
-  String get shortRabi1Label => r'Rabi. saya';
+  String get shortRabi1Label => r'Rabi. Saya';
 
   @override
   String get shortRabi2Label => r'Rabi. II';
@@ -9142,16 +9229,16 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get shortRajabLabel => r'Raj.';
 
   @override
-  String get shortRamadanLabel => r'Rama.';
+  String get shortRamadanLabel => r'Ram.';
 
   @override
-  String get shortSafarLabel => r'saf.';
+  String get shortSafarLabel => r'Aman';
 
   @override
   String get shortShaabanLabel => r'Sha.';
 
   @override
-  String get shortShawwalLabel => r'Shaw';
+  String get shortShawwalLabel => r'Shaw.';
 
   @override
   String get showRowsWhereDataGridFilteringLabel => r'Tampilkan baris di mana';
@@ -9164,19 +9251,19 @@ class SfLocalizationsId extends SfGlobalLocalizations {
 
   @override
   String get sortLargestToSmallestDataGridFilteringLabel =>
-      r'Urutkan Terbesar ke Terkecil';
+      r'Urutkan Terbesar Hingga Terkecil';
 
   @override
   String get sortNewestToOldestDataGridFilteringLabel =>
-      r'Urutkan Terbaru ke Terlama';
+      r'Urutkan Terbaru Ke Terlama';
 
   @override
   String get sortOldestToNewestDataGridFilteringLabel =>
-      r'Urutkan Terlama ke Terbaru';
+      r'Urutkan Terlama Ke Terbaru';
 
   @override
   String get sortSmallestToLargestDataGridFilteringLabel =>
-      r'Urutkan dari yang terkecil ke yang terbesar';
+      r'Urutkan Terkecil Hingga Terbesar';
 
   @override
   String get sortZToADataGridFilteringLabel => r'Urutkan Z Ke A';
@@ -9252,7 +9339,7 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Hætta við';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Hreinsa síu frá';
+  String get clearFilterDataGridFilteringLabel => r'Hreinsaðu síu';
 
   @override
   String get containsDataGridFilteringLabel => r'Inniheldur';
@@ -9289,6 +9376,9 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Jafnt';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Frá';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Meiri en';
@@ -9379,7 +9469,7 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'Opnaðu vefsíðu';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Vinsamlega sláðu inn gilt númer';
+  String get pdfInvalidPageNumberLabel => r'Vinsamlegast sláðu inn gilt númer';
 
   @override
   String get pdfNoBookmarksLabel => r'Engin bókamerki fundust';
@@ -9534,19 +9624,17 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'Programma';
 
   @override
-  String get allowedViewTimelineDayLabel =>
-      r'Giornata della sequenza temporale';
+  String get allowedViewTimelineDayLabel => r'Giorno della cronologia';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Mese della sequenza temporale';
+  String get allowedViewTimelineMonthLabel => r'Mese cronologico';
 
   @override
-  String get allowedViewTimelineWeekLabel =>
-      r'Settimana della sequenza temporale';
+  String get allowedViewTimelineWeekLabel => r'Settimana della cronologia';
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
-      r'Settimana del lavoro cronologico';
+      r'Cronologia della settimana lavorativa';
 
   @override
   String get allowedViewWeekLabel => r'Settimana';
@@ -9570,7 +9658,7 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Annulla';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Cancella filtro da';
+  String get clearFilterDataGridFilteringLabel => r'Filtro pulito';
 
   @override
   String get containsDataGridFilteringLabel => r'Contiene';
@@ -9585,7 +9673,7 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get dhualhiLabel => r'Dhu al-Hijjah';
 
   @override
-  String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
+  String get dhualqiLabel => r'Dhu al-Qidah';
 
   @override
   String get doesNotBeginWithDataGridFilteringLabel => r'Non inizia con';
@@ -9607,6 +9695,9 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'È uguale a';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Da';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Più grande di';
@@ -9685,7 +9776,7 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Vai alla pagina';
 
   @override
-  String get pdfHyperlinkContentLabel => r'Vuoi aprire la pagina a';
+  String get pdfHyperlinkContentLabel => r'Vuoi aprire la pagina in';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'ANNULLA';
@@ -9707,7 +9798,7 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'ANNULLA';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'ok';
+  String get pdfPaginationDialogOkLabel => r'OK';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'ANNULLA';
@@ -9758,19 +9849,19 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
 
   @override
-  String get shortJumada1Label => r'Salto. io';
+  String get shortJumada1Label => r'Jum. io';
 
   @override
-  String get shortJumada2Label => r'Salto. II';
+  String get shortJumada2Label => r'Jum. II';
 
   @override
-  String get shortMuharramLabel => r'Mah.';
+  String get shortMuharramLabel => r'Muh.';
 
   @override
-  String get shortRabi1Label => r'Rabi. io';
+  String get shortRabi1Label => r'Rabbi. io';
 
   @override
-  String get shortRabi2Label => r'Rabi. II';
+  String get shortRabi2Label => r'Rabbi. II';
 
   @override
   String get shortRajabLabel => r'Raj.';
@@ -9859,16 +9950,16 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get allowedViewTimelineMonthLabel => r'タイムライン月';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'タイムラインウィーク';
+  String get allowedViewTimelineWeekLabel => r'タイムライン 週';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'タイムラインワークウィーク';
+  String get allowedViewTimelineWorkWeekLabel => r'タイムライン 作業週';
 
   @override
   String get allowedViewWeekLabel => r'週';
 
   @override
-  String get allowedViewWorkWeekLabel => r'労働週';
+  String get allowedViewWorkWeekLabel => r'勤務週';
 
   @override
   String get andDataGridFilteringLabel => r'と';
@@ -9886,7 +9977,7 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'キャンセル';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'フィルターをクリアする';
+  String get clearFilterDataGridFilteringLabel => r'フィルターをクリア';
 
   @override
   String get containsDataGridFilteringLabel => r'含む';
@@ -9898,10 +9989,10 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'日';
 
   @override
-  String get dhualhiLabel => r'ズーアルヒジャ';
+  String get dhualhiLabel => r'ドゥ アル ヒジャ';
 
   @override
-  String get dhualqiLabel => r'ズーアルチーダー';
+  String get dhualqiLabel => r'ドゥ アルキダ';
 
   @override
   String get doesNotBeginWithDataGridFilteringLabel => r'次で始まらない';
@@ -9925,16 +10016,19 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'等しい';
 
   @override
+  String get fromDataGridFilteringLabel => r'から';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'より大きい';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel => r'以上';
 
   @override
-  String get jumada1Label => r'ジュマーダ・アル・アウワル';
+  String get jumada1Label => r'ジュマーダ・アル・アワル';
 
   @override
-  String get jumada2Label => r'ジュマーダ・アルタニ';
+  String get jumada2Label => r'ジュマーダ アルタニ';
 
   @override
   String get lessThanDataGridFilteringLabel => r'未満';
@@ -9943,7 +10037,7 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get lessThanOrEqualDataGridFilteringLabel => r'以下';
 
   @override
-  String get muharramLabel => r'ムハッラム';
+  String get muharramLabel => r'ムハラム';
 
   @override
   String get noEventsCalendarLabel => r'イベントなし';
@@ -9979,7 +10073,7 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get pagesDataPagerLabel => r'ページ';
 
   @override
-  String get passwordDialogContentLabel => r'このPDFファイルを開くためのパスワードを入力してください';
+  String get passwordDialogContentLabel => r'このPDFファイルを開くにはパスワードを入力してください';
 
   @override
   String get passwordDialogHeaderTextLabel => r'守られたパスワード';
@@ -10000,7 +10094,7 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ページに移動';
 
   @override
-  String get pdfHyperlinkContentLabel => r'次のページを開きますか';
+  String get pdfHyperlinkContentLabel => r'でページを開きますか?';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'キャンセル';
@@ -10009,7 +10103,7 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogOpenLabel => r'開いた';
 
   @override
-  String get pdfHyperlinkLabel => r'Webページを開く';
+  String get pdfHyperlinkLabel => r'ウェブページを開く';
 
   @override
   String get pdfInvalidPageNumberLabel => r'有効な数値を入力してください';
@@ -10033,10 +10127,10 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'の';
 
   @override
-  String get rabi1Label => r'ラビー・ウル・アウワル';
+  String get rabi1Label => r'ラビアルアワル';
 
   @override
-  String get rabi2Label => r'ラビー・アル・タニ';
+  String get rabi2Label => r'ラビアルタニ';
 
   @override
   String get rajabLabel => r'ラジャブ';
@@ -10045,10 +10139,10 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get ramadanLabel => r'ラマダン';
 
   @override
-  String get rowsPerPageDataPagerLabel => r'1ページあたりの行数';
+  String get rowsPerPageDataPagerLabel => r'ページあたりの行数';
 
   @override
-  String get safarLabel => r'Safar';
+  String get safarLabel => r'サファル';
 
   @override
   String get searchDataGridFilteringLabel => r'探す';
@@ -10060,31 +10154,31 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get series => r'シリーズ';
 
   @override
-  String get shaabanLabel => r'シャアバーン';
+  String get shaabanLabel => r'シャアバン';
 
   @override
-  String get shawwalLabel => r'シャウワール';
+  String get shawwalLabel => r'シャワル';
 
   @override
-  String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
+  String get shortDhualhiLabel => r'デュル-H';
 
   @override
-  String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
+  String get shortDhualqiLabel => r'デュルQ';
 
   @override
   String get shortJumada1Label => r'ジャム。私';
 
   @override
-  String get shortJumada2Label => r'ジャム。 II';
+  String get shortJumada2Label => r'ジャム。 Ⅱ';
 
   @override
-  String get shortMuharramLabel => r'ムー。';
+  String get shortMuharramLabel => r'うーん。';
 
   @override
   String get shortRabi1Label => r'ラビ。私';
 
   @override
-  String get shortRabi2Label => r'ラビ。 II';
+  String get shortRabi2Label => r'ラビ。 Ⅱ';
 
   @override
   String get shortRajabLabel => r'ラージ。';
@@ -10093,10 +10187,10 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get shortRamadanLabel => r'RAM。';
 
   @override
-  String get shortSafarLabel => r'Saf。';
+  String get shortSafarLabel => r'サフ。';
 
   @override
-  String get shortShaabanLabel => r'シャ。';
+  String get shortShaabanLabel => r'しゃ。';
 
   @override
   String get shortShawwalLabel => r'ショー。';
@@ -10155,7 +10249,7 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get allDayLabel => r'Მთელი დღე';
 
   @override
-  String get allowedViewDayLabel => r'Დღეს';
+  String get allowedViewDayLabel => r'Დღის';
 
   @override
   String get allowedViewMonthLabel => r'თვე';
@@ -10197,7 +10291,7 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'გაუქმება';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'ფილტრის გასუფთავება';
+  String get clearFilterDataGridFilteringLabel => r'ფილტრის გასუფთავება';
 
   @override
   String get containsDataGridFilteringLabel => r'შეიცავს';
@@ -10206,7 +10300,7 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get dateFiltersDataGridFilteringLabel => r'თარიღის ფილტრები';
 
   @override
-  String get daySpanCountLabel => r'Დღეს';
+  String get daySpanCountLabel => r'Დღის';
 
   @override
   String get dhualhiLabel => r'დჰულ-ჰიჯა';
@@ -10234,6 +10328,9 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'უდრის';
+
+  @override
+  String get fromDataGridFilteringLabel => r'დან';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Მეტია, ვიდრე';
@@ -10269,7 +10366,7 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get notEmptyDataGridFilteringLabel => r'Არ არის ცარიელი';
 
   @override
-  String get notNullDataGridFilteringLabel => r'არა ნული';
+  String get notNullDataGridFilteringLabel => r'არა ნულოვანი';
 
   @override
   String get nullDataGridFilteringLabel => r'ნულოვანი';
@@ -10312,7 +10409,7 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Გადადით გვერდზე';
 
   @override
-  String get pdfHyperlinkContentLabel => r'გსურთ გახსნათ გვერდი:';
+  String get pdfHyperlinkContentLabel => r'გსურთ გახსნათ გვერდი';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'გაუქმება';
@@ -10424,11 +10521,11 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
 
   @override
   String get sortLargestToSmallestDataGridFilteringLabel =>
-      r'დახარისხება დიდიდან პატარამდე';
+      r'სორტირება დიდიდან პატარამდე';
 
   @override
   String get sortNewestToOldestDataGridFilteringLabel =>
-      r'სორტირება უახლესიდან ძველზე';
+      r'დალაგება უახლესიდან ძველზე';
 
   @override
   String get sortOldestToNewestDataGridFilteringLabel =>
@@ -10512,7 +10609,7 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Болдырмау';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Сүзгіден тазалау';
+  String get clearFilterDataGridFilteringLabel => r'Сүзгіні тазалау';
 
   @override
   String get containsDataGridFilteringLabel => r'Құрамында';
@@ -10527,7 +10624,7 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get dhualhiLabel => r'Зул-Хиджа';
 
   @override
-  String get dhualqiLabel => r'Зу әл-Қида';
+  String get dhualqiLabel => r'Зул-Қида';
 
   @override
   String get doesNotBeginWithDataGridFilteringLabel => r'Бастамайды';
@@ -10549,6 +10646,9 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Тең';
+
+  @override
+  String get fromDataGridFilteringLabel => r'бастап';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Үлкенірек';
@@ -10593,7 +10693,7 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get numberFiltersDataGridFilteringLabel => r'Сандық сүзгілер';
 
   @override
-  String get ofDataPagerLabel => r'бойынша';
+  String get ofDataPagerLabel => r'ның';
 
   @override
   String get okDataGridFilteringLabel => r'ЖАРАЙДЫ МА';
@@ -10615,7 +10715,7 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get passwordDialogHintTextLabel => r'Құпия сөзді енгізіңіз';
 
   @override
-  String get passwordDialogInvalidPasswordLabel => r'Құпия сөз жарамсыз';
+  String get passwordDialogInvalidPasswordLabel => r'Жарамсыз құпия сөз';
 
   @override
   String get pdfBookmarksLabel => r'Бетбелгілер';
@@ -10627,7 +10727,7 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Бетке өту';
 
   @override
-  String get pdfHyperlinkContentLabel => r'бетті ашқыңыз келе ме?';
+  String get pdfHyperlinkContentLabel => r'бетті ашқыңыз келе ме';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'БАС ТАРТУ';
@@ -10657,7 +10757,7 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get pdfPasswordDialogOpenLabel => r'АШЫҚ';
 
   @override
-  String get pdfScrollStatusOfLabel => r'бойынша';
+  String get pdfScrollStatusOfLabel => r'ның';
 
   @override
   String get rabi1Label => r'Раби' "'" r' әл-әууәл';
@@ -10696,7 +10796,7 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get shortDhualhiLabel => r'Зул-Х';
 
   @override
-  String get shortDhualqiLabel => r'Зул-Қ';
+  String get shortDhualqiLabel => r'Зуль-Қ';
 
   @override
   String get shortJumada1Label => r'Jum. I';
@@ -10798,7 +10898,7 @@ class SfLocalizationsKm extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'ថ្ងៃកំណត់ពេលវេលា';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'តារាងពេលវេលាខែ';
+  String get allowedViewTimelineMonthLabel => r'ខែពេលវេលា';
 
   @override
   String get allowedViewTimelineWeekLabel => r'Timeline សប្តាហ៍';
@@ -10828,7 +10928,7 @@ class SfLocalizationsKm extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'បោះបង់';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'ជម្រះតម្រងពី';
+  String get clearFilterDataGridFilteringLabel => r'ជម្រះតម្រង';
 
   @override
   String get containsDataGridFilteringLabel => r'មាន';
@@ -10865,6 +10965,9 @@ class SfLocalizationsKm extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'ស្មើ';
+
+  @override
+  String get fromDataGridFilteringLabel => r'ពី';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'ធំជាង';
@@ -11004,10 +11107,10 @@ class SfLocalizationsKm extends SfGlobalLocalizations {
   String get series => r'ស៊េរី';
 
   @override
-  String get shaabanLabel => r'សារ៉ាបាន';
+  String get shaabanLabel => r'សាបាន';
 
   @override
-  String get shawwalLabel => r'Shawwal';
+  String get shawwalLabel => r'សាវ៉ាវ';
 
   @override
   String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
@@ -11157,8 +11260,8 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
       '\u{cb0}\u{ca6}\u{ccd}\u{ca6}\u{cc1}\u{cae}\u{cbe}\u{ca1}\u{cbf}';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel =>
-      '\u{ca8}\u{cbf}\u{c82}\u{ca6}\u{20}\u{cab}\u{cbf}\u{cb2}\u{ccd}\u{c9f}\u{cb0}\u{ccd}\u{20}\u{c85}\u{ca8}\u{ccd}\u{ca8}\u{cc1}\u{20}\u{ca4}\u{cc6}\u{cb0}\u{cb5}\u{cc1}\u{c97}\u{cca}\u{cb3}\u{cbf}\u{cb8}\u{cbf}';
+  String get clearFilterDataGridFilteringLabel =>
+      '\u{cab}\u{cbf}\u{cb2}\u{ccd}\u{c9f}\u{cb0}\u{ccd}\u{20}\u{c85}\u{ca8}\u{ccd}\u{ca8}\u{cc1}\u{20}\u{ca4}\u{cc6}\u{cb0}\u{cb5}\u{cc1}\u{c97}\u{cca}\u{cb3}\u{cbf}\u{cb8}\u{cbf}';
 
   @override
   String get containsDataGridFilteringLabel =>
@@ -11205,6 +11308,9 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
   @override
   String get equalsDataGridFilteringLabel =>
       '\u{cb8}\u{cae}\u{ca8}\u{cbe}\u{c97}\u{cbf}\u{cb0}\u{cc1}\u{ca4}\u{ccd}\u{ca4}\u{ca6}\u{cc6}';
+
+  @override
+  String get fromDataGridFilteringLabel => '\u{c87}\u{c82}\u{ca6}';
 
   @override
   String get greaterThanDataGridFilteringLabel =>
@@ -11276,7 +11382,7 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
 
   @override
   String get passwordDialogContentLabel =>
-      '\u{c88}\u{20}\u{50}\u{44}\u{46}\u{20}\u{cab}\u{cc8}\u{cb2}\u{ccd}\u{20}\u{c85}\u{ca8}\u{ccd}\u{ca8}\u{cc1}\u{20}\u{ca4}\u{cc6}\u{cb0}\u{cc6}\u{caf}\u{cb2}\u{cc1}\u{20}\u{caa}\u{cbe}\u{cb8}\u{ccd}\u{cb5}\u{cb0}\u{ccd}\u{ca1}\u{ccd}\u{20}\u{c85}\u{ca8}\u{ccd}\u{ca8}\u{cc1}\u{20}\u{ca8}\u{cae}\u{cc2}\u{ca6}\u{cbf}\u{cb8}\u{cbf}';
+      '\u{c88}\u{20}\u{50}\u{44}\u{46}\u{20}\u{cab}\u{cc8}\u{cb2}\u{ccd}\u{20}\u{ca4}\u{cc6}\u{cb0}\u{cc6}\u{caf}\u{cb2}\u{cc1}\u{20}\u{caa}\u{cbe}\u{cb8}\u{ccd}\u{200c}\u{cb5}\u{cb0}\u{ccd}\u{ca1}\u{ccd}\u{20}\u{ca8}\u{cae}\u{cc2}\u{ca6}\u{cbf}\u{cb8}\u{cbf}';
 
   @override
   String get passwordDialogHeaderTextLabel =>
@@ -11401,10 +11507,10 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
   String get shortMuharramLabel => '\u{cae}\u{cc1}\u{cb9}\u{ccd}';
 
   @override
-  String get shortRabi1Label => '\u{cb0}\u{cac}\u{cbf}\u{2e}\u{20}\u{49}';
+  String get shortRabi1Label => '\u{cb0}\u{cac}\u{cbf}\u{20}\u{49}';
 
   @override
-  String get shortRabi2Label => '\u{cb0}\u{cac}\u{cbf}\u{2e}\u{20}\u{49}\u{49}';
+  String get shortRabi2Label => '\u{cb0}\u{cac}\u{cbf}\u{20}\u{49}\u{49}';
 
   @override
   String get shortRajabLabel => '\u{cb0}\u{cbe}\u{c9c}\u{ccd}\u{2e}';
@@ -11477,13 +11583,13 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get afterDataGridFilteringLabel => r'후에';
 
   @override
-  String get afterOrEqualDataGridFilteringLabel => r'이후 또는 같음';
+  String get afterOrEqualDataGridFilteringLabel => r'후 또는 같음';
 
   @override
   String get allDayLabel => r'하루 종일';
 
   @override
-  String get allowedViewDayLabel => r'일';
+  String get allowedViewDayLabel => r'낮';
 
   @override
   String get allowedViewMonthLabel => r'월';
@@ -11492,22 +11598,22 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'일정';
 
   @override
-  String get allowedViewTimelineDayLabel => r'타임라인의 날';
+  String get allowedViewTimelineDayLabel => r'타임라인 데이';
 
   @override
   String get allowedViewTimelineMonthLabel => r'타임라인 월';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'타임라인 주간';
+  String get allowedViewTimelineWeekLabel => r'타임라인 위크';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'타임라인 작업 주간';
+  String get allowedViewTimelineWorkWeekLabel => r'타임라인 작업 주';
 
   @override
   String get allowedViewWeekLabel => r'주';
 
   @override
-  String get allowedViewWorkWeekLabel => r'작업 주간';
+  String get allowedViewWorkWeekLabel => r'근무 주';
 
   @override
   String get andDataGridFilteringLabel => r'그리고';
@@ -11519,13 +11625,13 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get beforeOrEqualDataGridFilteringLabel => r'전에';
 
   @override
-  String get beginsWithDataGridFilteringLabel => r'시작';
+  String get beginsWithDataGridFilteringLabel => r'다음으로 시작';
 
   @override
   String get cancelDataGridFilteringLabel => r'취소';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'필터 지우기';
+  String get clearFilterDataGridFilteringLabel => r'필터 지우기';
 
   @override
   String get containsDataGridFilteringLabel => r'포함';
@@ -11534,22 +11640,22 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get dateFiltersDataGridFilteringLabel => r'날짜 필터';
 
   @override
-  String get daySpanCountLabel => r'일';
+  String get daySpanCountLabel => r'낮';
 
   @override
   String get dhualhiLabel => r'두 알 히자';
 
   @override
-  String get dhualqiLabel => r'두 알 키다';
+  String get dhualqiLabel => r'두 알 키이다';
 
   @override
-  String get doesNotBeginWithDataGridFilteringLabel => r'로 시작하지 않음';
+  String get doesNotBeginWithDataGridFilteringLabel => r'다음으로 시작하지 않음';
 
   @override
   String get doesNotContainDataGridFilteringLabel => r'포함되어 있지 않다';
 
   @override
-  String get doesNotEndWithDataGridFilteringLabel => r'로 끝나지 않음';
+  String get doesNotEndWithDataGridFilteringLabel => r'다음으로 끝나지 않음';
 
   @override
   String get doesNotEqualDataGridFilteringLabel => r'같지 않음';
@@ -11564,6 +11670,9 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'같음';
 
   @override
+  String get fromDataGridFilteringLabel => r'에서';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'보다 큰';
 
   @override
@@ -11573,7 +11682,7 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get jumada1Label => r'주마다 알-아왈';
 
   @override
-  String get jumada2Label => r'주마다 알타니';
+  String get jumada2Label => r'주마다 알 타니';
 
   @override
   String get lessThanDataGridFilteringLabel => r'미만';
@@ -11585,13 +11694,13 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get muharramLabel => r'무하람';
 
   @override
-  String get noEventsCalendarLabel => r'이벤트 없음';
+  String get noEventsCalendarLabel => r'일정 없음';
 
   @override
   String get noMatchesDataGridFilteringLabel => r'맞지 않는다';
 
   @override
-  String get noSelectedDateCalendarLabel => r'선택한 날짜가 없습니다';
+  String get noSelectedDateCalendarLabel => r'선택한 날짜 없음';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'비어 있지 않음';
@@ -11630,7 +11739,7 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get passwordDialogInvalidPasswordLabel => r'유효하지 않은 비밀번호';
 
   @override
-  String get pdfBookmarksLabel => r'책갈피';
+  String get pdfBookmarksLabel => r'북마크';
 
   @override
   String get pdfEnterPageNumberLabel => r'페이지 번호 입력';
@@ -11639,7 +11748,7 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'페이지로 이동';
 
   @override
-  String get pdfHyperlinkContentLabel => r'페이지를 열시겠습니까?';
+  String get pdfHyperlinkContentLabel => r'에서 페이지를 열시겠습니까?';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'취소';
@@ -11651,22 +11760,22 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'웹 페이지 열기';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'유효한 숫자를 입력하세요';
+  String get pdfInvalidPageNumberLabel => r'유효한 숫자를 입력하세요.';
 
   @override
-  String get pdfNoBookmarksLabel => r'북마크를 찾을 수 없습니다';
+  String get pdfNoBookmarksLabel => r'북마크가 없습니다.';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'취소';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'좋아요';
+  String get pdfPaginationDialogOkLabel => r'확인';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'취소';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'열려있는';
+  String get pdfPasswordDialogOpenLabel => r'열려 있는';
 
   @override
   String get pdfScrollStatusOfLabel => r'의';
@@ -11675,10 +11784,10 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get rabi1Label => r'라비 알-아왈';
 
   @override
-  String get rabi2Label => r'라비 알타니';
+  String get rabi2Label => r'라비 알 타니';
 
   @override
-  String get rajabLabel => r'라자브';
+  String get rajabLabel => r'라잡';
 
   @override
   String get ramadanLabel => r'라마단';
@@ -11717,7 +11826,7 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get shortJumada2Label => r'줌. II';
 
   @override
-  String get shortMuharramLabel => r'음.';
+  String get shortMuharramLabel => r'머.';
 
   @override
   String get shortRabi1Label => r'라비. 나';
@@ -11741,30 +11850,28 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get shortShawwalLabel => r'쇼.';
 
   @override
-  String get showRowsWhereDataGridFilteringLabel => r'행 표시';
+  String get showRowsWhereDataGridFilteringLabel => r'어디에 행 표시';
 
   @override
-  String get sortAToZDataGridFilteringLabel => r'A에서 Z로 정렬';
+  String get sortAToZDataGridFilteringLabel => r'A부터 Z까지 정렬';
 
   @override
   String get sortAndFilterDataGridFilteringLabel => r'정렬 및 필터링';
 
   @override
-  String get sortLargestToSmallestDataGridFilteringLabel =>
-      r'큰 것부터 작은 것 순으로 정렬';
+  String get sortLargestToSmallestDataGridFilteringLabel => r'내림차순 정렬';
 
   @override
   String get sortNewestToOldestDataGridFilteringLabel => r'최신순으로 정렬';
 
   @override
-  String get sortOldestToNewestDataGridFilteringLabel => r'가장 오래된 것을 최신으로 정렬';
+  String get sortOldestToNewestDataGridFilteringLabel => r'가장 오래된 것부터 최신순으로 정렬';
 
   @override
-  String get sortSmallestToLargestDataGridFilteringLabel =>
-      r'작은 것부터 큰 것 순으로 정렬';
+  String get sortSmallestToLargestDataGridFilteringLabel => r'작은 것부터 큰 것까지 정렬';
 
   @override
-  String get sortZToADataGridFilteringLabel => r'Z에서 A로 정렬';
+  String get sortZToADataGridFilteringLabel => r'Z를 A로 정렬';
 
   @override
   String get textFiltersDataGridFilteringLabel => r'텍스트 필터';
@@ -11795,7 +11902,7 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   String get allDayLabel => r'Күн бою';
 
   @override
-  String get allowedViewDayLabel => r'Күн';
+  String get allowedViewDayLabel => r'күн';
 
   @override
   String get allowedViewMonthLabel => r'Ай';
@@ -11813,7 +11920,7 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   String get allowedViewTimelineWeekLabel => r'Timeline Week';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Иш жумалыгы';
+  String get allowedViewTimelineWorkWeekLabel => r'Хронология иш жумасы';
 
   @override
   String get allowedViewWeekLabel => r'Апта';
@@ -11837,7 +11944,7 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Жокко чыгаруу';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Чыпканы тазалоо';
+  String get clearFilterDataGridFilteringLabel => r'Чыпканы тазалоо';
 
   @override
   String get containsDataGridFilteringLabel => r'камтыйт';
@@ -11846,7 +11953,7 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   String get dateFiltersDataGridFilteringLabel => r'Дата чыпкалары';
 
   @override
-  String get daySpanCountLabel => r'Күн';
+  String get daySpanCountLabel => r'күн';
 
   @override
   String get dhualhiLabel => r'Зул Хижжа';
@@ -11874,6 +11981,9 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'барабар';
+
+  @override
+  String get fromDataGridFilteringLabel => r'From';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Чоңураак';
@@ -11994,7 +12104,7 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   String get rajabLabel => r'Ражаб';
 
   @override
-  String get ramadanLabel => r'Рамазан';
+  String get ramadanLabel => r'Орозо айт';
 
   @override
   String get rowsPerPageDataPagerLabel => r'Ар бир беттеги саптар';
@@ -12154,7 +12264,7 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'ຍົກເລີກ';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'ລຶບການກັ່ນຕອງຈາກ';
+  String get clearFilterDataGridFilteringLabel => r'ລ້າງການກັ່ນຕອງ';
 
   @override
   String get containsDataGridFilteringLabel => r'ປະກອບດ້ວຍ';
@@ -12193,6 +12303,9 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'ເທົ່າກັບ';
 
   @override
+  String get fromDataGridFilteringLabel => r'ຈາກ';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'ໃຫຍ່​ກວ່າ';
 
   @override
@@ -12221,7 +12334,7 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'ບໍ່ມີຂໍ້ມູນທີ່ກົງກັນ';
 
   @override
-  String get noSelectedDateCalendarLabel => r'ບໍ່ມີວັນທີທີ່ເລືອກ';
+  String get noSelectedDateCalendarLabel => r'ບໍ່ມີວັນທີເລືອກ';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'ບໍ່ຫວ່າງ';
@@ -12332,7 +12445,7 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get shaabanLabel => r'ຊາອາບານ';
 
   @override
-  String get shawwalLabel => r'ຊວາວ';
+  String get shawwalLabel => r'ຊະວາວ';
 
   @override
   String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
@@ -12469,7 +12582,7 @@ class SfLocalizationsLt extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Atšaukti';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Išvalyti filtrą iš';
+  String get clearFilterDataGridFilteringLabel => r'Išvalyti filtrą';
 
   @override
   String get containsDataGridFilteringLabel => r'Sudėtyje yra';
@@ -12506,6 +12619,9 @@ class SfLocalizationsLt extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Lygu';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Iš';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Geresnis negu';
@@ -12662,7 +12778,7 @@ class SfLocalizationsLt extends SfGlobalLocalizations {
   String get shortJumada2Label => r'Jum. II';
 
   @override
-  String get shortMuharramLabel => r'aha.';
+  String get shortMuharramLabel => r'Muh.';
 
   @override
   String get shortRabi1Label => r'Rabi. aš';
@@ -12784,7 +12900,7 @@ class SfLocalizationsLv extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Atcelt';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Notīrīt filtru no';
+  String get clearFilterDataGridFilteringLabel => r'Notīrīt filtru';
 
   @override
   String get containsDataGridFilteringLabel => r'Satur';
@@ -12796,7 +12912,7 @@ class SfLocalizationsLv extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'diena';
 
   @override
-  String get dhualhiLabel => r'Dhu al-Hijjah';
+  String get dhualhiLabel => r'Dhu al-Hidžja';
 
   @override
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
@@ -12821,6 +12937,9 @@ class SfLocalizationsLv extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Vienāds';
+
+  @override
+  String get fromDataGridFilteringLabel => r'No';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Pārāks nekā';
@@ -13070,7 +13189,7 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'Ден на времеплов';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Времеплов месец';
+  String get allowedViewTimelineMonthLabel => r'Месец на времеплов';
 
   @override
   String get allowedViewTimelineWeekLabel => r'Недела на времеплов';
@@ -13101,7 +13220,7 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Откажи';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Избриши го филтерот од';
+  String get clearFilterDataGridFilteringLabel => r'Исчистете го филтерот';
 
   @override
   String get containsDataGridFilteringLabel => r'Содржи';
@@ -13113,7 +13232,7 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'Ден';
 
   @override
-  String get dhualhiLabel => r'Зу ал-Хиџа';
+  String get dhualhiLabel => r'Зу ал Хиџа';
 
   @override
   String get dhualqiLabel => r'Зу ал-Кида';
@@ -13138,6 +13257,9 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Еднакви';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Од';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Поголема од';
@@ -13227,10 +13349,10 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogOpenLabel => r'ОТВОРЕНО';
 
   @override
-  String get pdfHyperlinkLabel => r'Отворете веб-страница';
+  String get pdfHyperlinkLabel => r'Отворете ја веб-страницата';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Ве молиме внесете важечки број';
+  String get pdfInvalidPageNumberLabel => r'Внесете важечки број';
 
   @override
   String get pdfNoBookmarksLabel => r'Не се пронајдени обележувачи';
@@ -13287,7 +13409,7 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get shortDhualhiLabel => r'Дул-Х';
 
   @override
-  String get shortDhualqiLabel => r'Дул-К';
+  String get shortDhualqiLabel => r'Ду' "'" r'л-К';
 
   @override
   String get shortJumada1Label => r'Џум. Јас';
@@ -13308,7 +13430,7 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get shortRajabLabel => r'Раџ.';
 
   @override
-  String get shortRamadanLabel => r'Рам.';
+  String get shortRamadanLabel => r'Овен.';
 
   @override
   String get shortSafarLabel => r'Саф.';
@@ -13345,13 +13467,13 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
       r'Подреди од најмал до најголем';
 
   @override
-  String get sortZToADataGridFilteringLabel => r'Подреди од Ш во А';
+  String get sortZToADataGridFilteringLabel => r'Подреди од Ш до А';
 
   @override
   String get textFiltersDataGridFilteringLabel => r'Филтри за текст';
 
   @override
-  String get todayLabel => r'Денеска';
+  String get todayLabel => r'Денес';
 
   @override
   String get weeknumberLabel => r'Недела';
@@ -13418,8 +13540,7 @@ class SfLocalizationsMl extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'റദ്ദാക്കുക';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel =>
-      r'ഇതിൽ നിന്ന് ഫിൽട്ടർ മായ്‌ക്കുക';
+  String get clearFilterDataGridFilteringLabel => r'ഫിൽട്ടർ മായ്‌ക്കുക';
 
   @override
   String get containsDataGridFilteringLabel => r'അടങ്ങിയിരിക്കുന്നു';
@@ -13459,7 +13580,10 @@ class SfLocalizationsMl extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'തുല്യമാണ്';
 
   @override
-  String get greaterThanDataGridFilteringLabel => r'ഇതിലും വലുത്';
+  String get fromDataGridFilteringLabel => r'നിന്ന്';
+
+  @override
+  String get greaterThanDataGridFilteringLabel => r'അതിലും വലുത്';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel =>
@@ -13737,7 +13861,7 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Цуцлах';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Шүүлтүүрийг арилгах';
+  String get clearFilterDataGridFilteringLabel => r'Шүүлтүүрийг арилгах';
 
   @override
   String get containsDataGridFilteringLabel => r'агуулсан';
@@ -13749,7 +13873,7 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'Өдөр';
 
   @override
-  String get dhualhiLabel => r'Зу аль-Хижа';
+  String get dhualhiLabel => r'Зул Хижжа';
 
   @override
   String get dhualqiLabel => r'Зу аль-Кида';
@@ -13774,6 +13898,9 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Тэнцүү';
+
+  @override
+  String get fromDataGridFilteringLabel => r'-аас';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Илүү их';
@@ -14053,7 +14180,7 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'रद्द करा';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'पासून फिल्टर साफ करा';
+  String get clearFilterDataGridFilteringLabel => r'फिल्टर साफ करा';
 
   @override
   String get containsDataGridFilteringLabel => r'समाविष्ट आहे';
@@ -14092,6 +14219,9 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'बरोबरी';
 
   @override
+  String get fromDataGridFilteringLabel => r'पासून';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'या पेक्षा मोठे';
 
   @override
@@ -14099,7 +14229,7 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
       r'पेक्षा मोठे किंवा समान';
 
   @override
-  String get jumada1Label => r'जुमदा अल-अव्वल';
+  String get jumada1Label => r'जुमदा अल-अव्वाल';
 
   @override
   String get jumada2Label => r'जुमादा अल-थानी';
@@ -14205,7 +14335,7 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   String get rabi1Label => r'रबी अल अव्वल';
 
   @override
-  String get rabi2Label => r'रबी अल-थानी';
+  String get rabi2Label => r'रबी अल थानी';
 
   @override
   String get rajabLabel => r'रजब';
@@ -14241,10 +14371,10 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'धूल-प्र';
 
   @override
-  String get shortJumada1Label => r'जम. आय';
+  String get shortJumada1Label => r'जुम. आय';
 
   @override
-  String get shortJumada2Label => r'जम. II';
+  String get shortJumada2Label => r'जुम. II';
 
   @override
   String get shortMuharramLabel => r'मुह.';
@@ -14290,7 +14420,7 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
 
   @override
   String get sortOldestToNewestDataGridFilteringLabel =>
-      r'सर्वात जुने ते नवीनतम क्रमवारी लावा';
+      r'सर्वात जुनी ते नवीनतम क्रमवारी लावा';
 
   @override
   String get sortSmallestToLargestDataGridFilteringLabel =>
@@ -14370,8 +14500,7 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Batal';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel =>
-      r'Kosongkan Penapis Daripada';
+  String get clearFilterDataGridFilteringLabel => r'Kosongkan Penapis';
 
   @override
   String get containsDataGridFilteringLabel => r'Mengandungi';
@@ -14408,6 +14537,9 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'sama';
+
+  @override
+  String get fromDataGridFilteringLabel => r'daripada';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Lebih besar daripada';
@@ -14660,7 +14792,7 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'Timeline နေ့';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'အချိန်စာရင်းလ';
+  String get allowedViewTimelineMonthLabel => r'Timeline လ';
 
   @override
   String get allowedViewTimelineWeekLabel => r'Timeline Week';
@@ -14684,13 +14816,13 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get beforeOrEqualDataGridFilteringLabel => r'မီ';
 
   @override
-  String get beginsWithDataGridFilteringLabel => r'ဖြင့် စတင်သည်။';
+  String get beginsWithDataGridFilteringLabel => r'ဖြင့်စတင်သည်။';
 
   @override
   String get cancelDataGridFilteringLabel => r'မလုပ်တော့';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Filter မှရှင်းလင်းပါ။';
+  String get clearFilterDataGridFilteringLabel => r'Filter ကိုရှင်းလင်းပါ။';
 
   @override
   String get containsDataGridFilteringLabel => r'ပါရှိသည်။';
@@ -14727,6 +14859,9 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'ညီမျှသည်။';
+
+  @override
+  String get fromDataGridFilteringLabel => r'ထံမှ';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'ထက်မြတ်';
@@ -14792,7 +14927,7 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get passwordDialogHeaderTextLabel => r'စကားဝှက်ကို ကာကွယ်ထားသည်။';
 
   @override
-  String get passwordDialogHintTextLabel => r'စကားဝှက်ထည့်ပါ။';
+  String get passwordDialogHintTextLabel => r'Password ရိုက်ထည့်ပါ။';
 
   @override
   String get passwordDialogInvalidPasswordLabel => r'မမှန်ကန်သော စကားဝှက်';
@@ -14829,7 +14964,7 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'မလုပ်တော့ပါ။';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'အိုကေတယ်နော်';
+  String get pdfPaginationDialogOkLabel => r'အဆင်ပြေလား';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'မလုပ်တော့ပါ။';
@@ -14850,7 +14985,7 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get rajabLabel => r'ရာဂျပ်';
 
   @override
-  String get ramadanLabel => r'ရမ်ဇာန်';
+  String get ramadanLabel => r'ရမဿွာန်';
 
   @override
   String get rowsPerPageDataPagerLabel => r'စာမျက်နှာအလိုက် အတန်းများ';
@@ -15008,7 +15143,7 @@ class SfLocalizationsNb extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Avbryt';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Tøm filter fra';
+  String get clearFilterDataGridFilteringLabel => r'Tøm filter';
 
   @override
   String get containsDataGridFilteringLabel => r'Inneholder';
@@ -15045,6 +15180,9 @@ class SfLocalizationsNb extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Er lik';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Fra';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Større enn';
@@ -15324,8 +15462,7 @@ class SfLocalizationsNe extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'रद्द गर्नुहोस्';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel =>
-      r'बाट फिल्टर खाली गर्नुहोस्';
+  String get clearFilterDataGridFilteringLabel => r'फिल्टर खाली गर्नुहोस्';
 
   @override
   String get containsDataGridFilteringLabel => r'समावेश गर्दछ';
@@ -15362,6 +15499,9 @@ class SfLocalizationsNe extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'बराबर हुन्छ';
+
+  @override
+  String get fromDataGridFilteringLabel => r'बाट';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'भन्दा ठुलो';
@@ -15595,7 +15735,7 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get afterDataGridFilteringLabel => r'Na';
 
   @override
-  String get afterOrEqualDataGridFilteringLabel => r'Na of gelijk aan';
+  String get afterOrEqualDataGridFilteringLabel => r'Na of gelijk';
 
   @override
   String get allDayLabel => r'De hele dag';
@@ -15610,13 +15750,13 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'Schema';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Tijdlijn Dag';
+  String get allowedViewTimelineDayLabel => r'Tijdlijn dag';
 
   @override
   String get allowedViewTimelineMonthLabel => r'Tijdlijn maand';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Tijdlijnweek';
+  String get allowedViewTimelineWeekLabel => r'Tijdlijn week';
 
   @override
   String get allowedViewTimelineWorkWeekLabel => r'Tijdlijn Werkweek';
@@ -15631,7 +15771,7 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'En';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Voor of gelijk aan';
+  String get beforeDataGridFilteringLabel => r'Voor of gelijk';
 
   @override
   String get beforeOrEqualDataGridFilteringLabel => r'Voordat';
@@ -15643,10 +15783,10 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Annuleren';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Filter wissen van';
+  String get clearFilterDataGridFilteringLabel => r'Filter wissen';
 
   @override
-  String get containsDataGridFilteringLabel => r'bevat';
+  String get containsDataGridFilteringLabel => r'Bevat';
 
   @override
   String get dateFiltersDataGridFilteringLabel => r'Datumfilters';
@@ -15680,6 +15820,9 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'gelijk aan';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Van';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Groter dan';
@@ -15753,13 +15896,13 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get pdfBookmarksLabel => r'Bladwijzers';
 
   @override
-  String get pdfEnterPageNumberLabel => r'Voer paginanummer in';
+  String get pdfEnterPageNumberLabel => r'Voer het paginanummer in';
 
   @override
   String get pdfGoToPageLabel => r'Ga naar pagina';
 
   @override
-  String get pdfHyperlinkContentLabel => r'Wil je de pagina openen op';
+  String get pdfHyperlinkContentLabel => r'Wilt u de pagina openen op';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'ANNULEREN';
@@ -15780,7 +15923,7 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'ANNULEREN';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'Oke';
+  String get pdfPaginationDialogOkLabel => r'Oké';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'ANNULEREN';
@@ -15792,10 +15935,10 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'van';
 
   @override
-  String get rabi1Label => r'Rabi' "'" r' al-awwali';
+  String get rabi1Label => r'Rabi' "'" r' al-Awwal';
 
   @override
-  String get rabi2Label => r'Rabi' "'" r' al Thani';
+  String get rabi2Label => r'Rabi' "'" r' al-thani';
 
   @override
   String get rajabLabel => r'Rajab';
@@ -15807,7 +15950,7 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get rowsPerPageDataPagerLabel => r'Rijen per pagina';
 
   @override
-  String get safarLabel => r'Safari';
+  String get safarLabel => r'Safar';
 
   @override
   String get searchDataGridFilteringLabel => r'Zoeken';
@@ -15825,16 +15968,16 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get shawwalLabel => r'Shawwal';
 
   @override
-  String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
+  String get shortDhualhiLabel => r'Dhul-H';
 
   @override
   String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
 
   @override
-  String get shortJumada1Label => r'jum. l';
+  String get shortJumada1Label => r'Jum. l';
 
   @override
-  String get shortJumada2Label => r'jum. II';
+  String get shortJumada2Label => r'Jum. II';
 
   @override
   String get shortMuharramLabel => r'Muh.';
@@ -15852,19 +15995,19 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get shortRamadanLabel => r'RAM.';
 
   @override
-  String get shortSafarLabel => r'saf.';
+  String get shortSafarLabel => r'Veilig';
 
   @override
-  String get shortShaabanLabel => r'scha.';
+  String get shortShaabanLabel => r'Sha.';
 
   @override
-  String get shortShawwalLabel => r'Sjaa.';
+  String get shortShawwalLabel => r'Shaw.';
 
   @override
   String get showRowsWhereDataGridFilteringLabel => r'Toon rijen waar';
 
   @override
-  String get sortAToZDataGridFilteringLabel => r'Sorteer A tot Z';
+  String get sortAToZDataGridFilteringLabel => r'Sorteer van A tot Z';
 
   @override
   String get sortAndFilterDataGridFilteringLabel => r'Sorteren en filteren';
@@ -15875,15 +16018,15 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
 
   @override
   String get sortNewestToOldestDataGridFilteringLabel =>
-      r'Sorteer van nieuwste naar oudste';
+      r'Sorteer nieuwste naar oudste';
 
   @override
   String get sortOldestToNewestDataGridFilteringLabel =>
-      r'Sorteer van oud naar nieuw';
+      r'Sorteer oudste naar nieuwste';
 
   @override
   String get sortSmallestToLargestDataGridFilteringLabel =>
-      r'Sorteer van klein naar groot';
+      r'Sorteer klein naar groot';
 
   @override
   String get sortZToADataGridFilteringLabel => r'Sorteer Z naar A';
@@ -15959,7 +16102,7 @@ class SfLocalizationsNo extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Avbryt';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Tøm filter fra';
+  String get clearFilterDataGridFilteringLabel => r'Tøm filter';
 
   @override
   String get containsDataGridFilteringLabel => r'Inneholder';
@@ -15996,6 +16139,9 @@ class SfLocalizationsNo extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Er lik';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Fra';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Større enn';
@@ -16275,8 +16421,7 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'ବାତିଲ୍ କରନ୍ତୁ |';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel =>
-      r'ଠାରୁ ଫିଲ୍ଟର୍ ସଫା କରନ୍ତୁ |';
+  String get clearFilterDataGridFilteringLabel => r'ଫିଲ୍ଟର୍ ସଫା କରନ୍ତୁ |';
 
   @override
   String get containsDataGridFilteringLabel => r'ଧାରଣ କରେ |';
@@ -16316,6 +16461,9 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'ସମାନ |';
 
   @override
+  String get fromDataGridFilteringLabel => r'ଠାରୁ';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'ଠାରୁ ବଡ';
 
   @override
@@ -16335,7 +16483,7 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   String get lessThanOrEqualDataGridFilteringLabel => r'କମ୍ କିମ୍ବା ସମାନ |';
 
   @override
-  String get muharramLabel => r'ମୁହରାମ |';
+  String get muharramLabel => r'ମୁହରାମ';
 
   @override
   String get noEventsCalendarLabel => r'କ events ଣସି ଘଟଣା ନାହିଁ |';
@@ -16385,7 +16533,7 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   String get passwordDialogInvalidPasswordLabel => r'ଅବ val ଧ ପାସୱାର୍ଡ |';
 
   @override
-  String get pdfBookmarksLabel => r'ବୁକମାର୍କସ୍';
+  String get pdfBookmarksLabel => r'ବୁକମାର୍କଗୁଡିକ';
 
   @override
   String get pdfEnterPageNumberLabel => r'ପୃଷ୍ଠା ନମ୍ବର ପ୍ରବେଶ କରନ୍ତୁ |';
@@ -16394,7 +16542,7 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ପୃଷ୍ଠାକୁ ଯାଆନ୍ତୁ |';
 
   @override
-  String get pdfHyperlinkContentLabel => r'ଆପଣ ପେଜ୍ ଖୋଲିବାକୁ ଚାହୁଁଛନ୍ତି କି?';
+  String get pdfHyperlinkContentLabel => r'ଆପଣ ପୃଷ୍ଠା ଖୋଲିବାକୁ ଚାହୁଁଛନ୍ତି କି?';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'ବାତିଲ୍';
@@ -16428,7 +16576,7 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'ର';
 
   @override
-  String get rabi1Label => r'ରବି ' "'" r'ଅଲ-ଆୱାଲ୍ |';
+  String get rabi1Label => r'ରବି ' "'" r'ଅଲ-ଅୱାଲ୍ |';
 
   @override
   String get rabi2Label => r'ରବି ' "'" r'ଅଲ-ଥାନି |';
@@ -16572,7 +16720,7 @@ class SfLocalizationsPa extends SfGlobalLocalizations {
   String get allowedViewTimelineWeekLabel => r'ਸਮਾਂਰੇਖਾ ਹਫ਼ਤਾ';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'ਸਮਾਂਰੇਖਾ ਕਾਰਜ ਹਫ਼ਤਾ';
+  String get allowedViewTimelineWorkWeekLabel => r'ਟਾਈਮਲਾਈਨ ਕੰਮ ਹਫ਼ਤਾ';
 
   @override
   String get allowedViewWeekLabel => r'ਹਫ਼ਤਾ';
@@ -16596,7 +16744,7 @@ class SfLocalizationsPa extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'ਰੱਦ ਕਰੋ';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'ਤੋਂ ਫਿਲਟਰ ਸਾਫ਼ ਕਰੋ';
+  String get clearFilterDataGridFilteringLabel => r'ਫਿਲਟਰ ਸਾਫ਼ ਕਰੋ';
 
   @override
   String get containsDataGridFilteringLabel => r'ਸ਼ਾਮਿਲ ਹੈ';
@@ -16633,6 +16781,9 @@ class SfLocalizationsPa extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'ਬਰਾਬਰ';
+
+  @override
+  String get fromDataGridFilteringLabel => r'ਤੋਂ';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'ਵੱਧ';
@@ -16886,7 +17037,7 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get allowedViewTimelineMonthLabel => r'Miesiąc osi czasu';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Tydzień na osi czasu';
+  String get allowedViewTimelineWeekLabel => r'Tydzień osi czasu';
 
   @override
   String get allowedViewTimelineWorkWeekLabel => r'Tydzień pracy na osi czasu';
@@ -16901,7 +17052,7 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'I';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Przed lub Równe';
+  String get beforeDataGridFilteringLabel => r'Przed Lub Równy';
 
   @override
   String get beforeOrEqualDataGridFilteringLabel => r'Zanim';
@@ -16913,7 +17064,7 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Anulować';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Wyczyść filtr z';
+  String get clearFilterDataGridFilteringLabel => r'Czysty filtr';
 
   @override
   String get containsDataGridFilteringLabel => r'Zawiera';
@@ -16925,10 +17076,10 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'Dzień';
 
   @override
-  String get dhualhiLabel => r'Zu al-Hidżdżah';
+  String get dhualhiLabel => r'Du al-Hijjah';
 
   @override
-  String get dhualqiLabel => r'Zu al-Qi' "'" r'dah';
+  String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
   String get doesNotBeginWithDataGridFilteringLabel => r'Nie zaczyna się od';
@@ -16952,6 +17103,9 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'Równa się';
 
   @override
+  String get fromDataGridFilteringLabel => r'Z';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'Lepszy niż';
 
   @override
@@ -16961,16 +17115,16 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get jumada1Label => r'Jumada al-awwal';
 
   @override
-  String get jumada2Label => r'Jumada al-thani';
+  String get jumada2Label => r'Jumada al Thani';
 
   @override
   String get lessThanDataGridFilteringLabel => r'Mniej niż';
 
   @override
-  String get lessThanOrEqualDataGridFilteringLabel => r'Mniej niż lub równe';
+  String get lessThanOrEqualDataGridFilteringLabel => r'Mniej niż lub równo';
 
   @override
-  String get muharramLabel => r'Muharram';
+  String get muharramLabel => r'muharrama';
 
   @override
   String get noEventsCalendarLabel => r'Brak wydarzeń';
@@ -16979,7 +17133,7 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'Brak wyników';
 
   @override
-  String get noSelectedDateCalendarLabel => r'Nie wybrano daty';
+  String get noSelectedDateCalendarLabel => r'Brak wybranej daty';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Nie pusty';
@@ -16991,7 +17145,7 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get nullDataGridFilteringLabel => r'Zero';
 
   @override
-  String get numberFiltersDataGridFilteringLabel => r'Filtry liczb';
+  String get numberFiltersDataGridFilteringLabel => r'Filtry liczbowe';
 
   @override
   String get ofDataPagerLabel => r'z';
@@ -17022,17 +17176,16 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get pdfBookmarksLabel => r'Zakładki';
 
   @override
-  String get pdfEnterPageNumberLabel => r'Wpisz numer strony';
+  String get pdfEnterPageNumberLabel => r'Wprowadź numer strony';
 
   @override
   String get pdfGoToPageLabel => r'Idź do strony';
 
   @override
-  String get pdfHyperlinkContentLabel =>
-      r'Czy chcesz otworzyć stronę pod adresem?';
+  String get pdfHyperlinkContentLabel => r'Czy chcesz otworzyć stronę o godz';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'ANULUJ';
+  String get pdfHyperlinkDialogCancelLabel => r'ANULOWAĆ';
 
   @override
   String get pdfHyperlinkDialogOpenLabel => r'OTWARTY';
@@ -17047,13 +17200,13 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Nie znaleziono zakładek';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'ANULUJ';
+  String get pdfPaginationDialogCancelLabel => r'ANULOWAĆ';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'ok';
+  String get pdfPaginationDialogOkLabel => r'OK';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'ANULUJ';
+  String get pdfPasswordDialogCancelLabel => r'ANULOWAĆ';
 
   @override
   String get pdfPasswordDialogOpenLabel => r'OTWARTY';
@@ -17062,13 +17215,13 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'z';
 
   @override
-  String get rabi1Label => r'Rabi' "'" r' al-awwal';
+  String get rabi1Label => r'Rabi al-awwal';
 
   @override
-  String get rabi2Label => r'Rabi’ al-thani';
+  String get rabi2Label => r'Rabi' "'" r' al-thani';
 
   @override
-  String get rajabLabel => r'Rajab';
+  String get rajabLabel => r'Radżab';
 
   @override
   String get ramadanLabel => r'Ramadan';
@@ -17089,7 +17242,7 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get series => r'Seria';
 
   @override
-  String get shaabanLabel => r'Szaaban';
+  String get shaabanLabel => r'Sha' "'" r'aban';
 
   @override
   String get shawwalLabel => r'Shawwal';
@@ -17101,16 +17254,16 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
 
   @override
-  String get shortJumada1Label => r'Skok. i';
+  String get shortJumada1Label => r'sok. I';
 
   @override
-  String get shortJumada2Label => r'Skok. II';
+  String get shortJumada2Label => r'sok. II';
 
   @override
   String get shortMuharramLabel => r'Muh.';
 
   @override
-  String get shortRabi1Label => r'Rabi. i';
+  String get shortRabi1Label => r'Rabi. I';
 
   @override
   String get shortRabi2Label => r'Rabi. II';
@@ -17122,16 +17275,16 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get shortRamadanLabel => r'Baran.';
 
   @override
-  String get shortSafarLabel => r'Saf.';
+  String get shortSafarLabel => r'bezpieczny';
 
   @override
   String get shortShaabanLabel => r'Sha.';
 
   @override
-  String get shortShawwalLabel => r'Shaw.';
+  String get shortShawwalLabel => r'Shawa.';
 
   @override
-  String get showRowsWhereDataGridFilteringLabel => r'Pokaż wiersze, w których';
+  String get showRowsWhereDataGridFilteringLabel => r'Pokaż wiersze gdzie';
 
   @override
   String get sortAToZDataGridFilteringLabel => r'Sortuj od A do Z';
@@ -17149,14 +17302,14 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
 
   @override
   String get sortOldestToNewestDataGridFilteringLabel =>
-      r'Sortuj od najstarszego do najnowszego';
+      r'Sortuj od najstarszych do najnowszych';
 
   @override
   String get sortSmallestToLargestDataGridFilteringLabel =>
       r'Sortuj od najmniejszego do największego';
 
   @override
-  String get sortZToADataGridFilteringLabel => r'Sortuj Z do A';
+  String get sortZToADataGridFilteringLabel => r'Sortuj od Z do A';
 
   @override
   String get textFiltersDataGridFilteringLabel => r'Filtry tekstowe';
@@ -17229,7 +17382,7 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'لغوه کړئ';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'له دې څخه فلټر پاک کړئ';
+  String get clearFilterDataGridFilteringLabel => r'فلټر پاک کړئ';
 
   @override
   String get containsDataGridFilteringLabel => r'لري';
@@ -17268,6 +17421,9 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'مساوي';
 
   @override
+  String get fromDataGridFilteringLabel => r'څخه';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'په پرتله لوی';
 
   @override
@@ -17275,7 +17431,7 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
       r'په پرتله لوی یا مساوي';
 
   @override
-  String get jumada1Label => r'جمادی الاول';
+  String get jumada1Label => r'جمعه الاول';
 
   @override
   String get jumada2Label => r'جمعه الثاني';
@@ -17299,7 +17455,7 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get noSelectedDateCalendarLabel => r'نه ټاکل شوې نیټه';
 
   @override
-  String get notEmptyDataGridFilteringLabel => r'خالي نه';
+  String get notEmptyDataGridFilteringLabel => r'نه خالي';
 
   @override
   String get notNullDataGridFilteringLabel => r'نه نول';
@@ -17342,10 +17498,10 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get pdfEnterPageNumberLabel => r'د پاڼې شمیره دننه کړئ';
 
   @override
-  String get pdfGoToPageLabel => r'پاڼې ته لاړ شئ';
+  String get pdfGoToPageLabel => r'مخ ته لاړ شئ';
 
   @override
-  String get pdfHyperlinkContentLabel => r'ایا تاسو غواړئ چې پاڼه پرانیزئ';
+  String get pdfHyperlinkContentLabel => r'ایا تاسو غواړئ پاڼه پرانیزئ';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'فسخه کول';
@@ -17364,13 +17520,13 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'هیڅ بک مارک ونه موندل شو';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'لغوه کول';
+  String get pdfPaginationDialogCancelLabel => r'فسخه کول';
 
   @override
   String get pdfPaginationDialogOkLabel => r'سمه ده';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'لغوه کول';
+  String get pdfPasswordDialogCancelLabel => r'فسخه کول';
 
   @override
   String get pdfPasswordDialogOpenLabel => r'خلاص';
@@ -17427,10 +17583,10 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get shortMuharramLabel => r'Muh.';
 
   @override
-  String get shortRabi1Label => r'ربیع زه';
+  String get shortRabi1Label => r'ربیع. زه';
 
   @override
-  String get shortRabi2Label => r'ربیع II';
+  String get shortRabi2Label => r'ربیع. II';
 
   @override
   String get shortRajabLabel => r'راج.';
@@ -17498,7 +17654,7 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get afterDataGridFilteringLabel => r'Depois';
 
   @override
-  String get afterOrEqualDataGridFilteringLabel => r'Depois ou igual';
+  String get afterOrEqualDataGridFilteringLabel => r'Depois Ou Igual';
 
   @override
   String get allDayLabel => r'Dia todo';
@@ -17510,20 +17666,20 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get allowedViewMonthLabel => r'Mês';
 
   @override
-  String get allowedViewScheduleLabel => r'Agendar';
+  String get allowedViewScheduleLabel => r'Cronograma';
 
   @override
   String get allowedViewTimelineDayLabel => r'Dia da linha do tempo';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Mês da linha do tempo';
+  String get allowedViewTimelineMonthLabel => r'Cronograma Mês';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Semana da linha do tempo';
+  String get allowedViewTimelineWeekLabel => r'Semana Cronológica';
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
-      r'Semana de trabalho da linha do tempo';
+      r'Cronograma Semana de Trabalho';
 
   @override
   String get allowedViewWeekLabel => r'Semana';
@@ -17535,7 +17691,7 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'E';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Antes ou igual';
+  String get beforeDataGridFilteringLabel => r'Antes Ou Igual';
 
   @override
   String get beforeOrEqualDataGridFilteringLabel => r'Antes da';
@@ -17547,13 +17703,13 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Cancelar';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Limpar filtro de';
+  String get clearFilterDataGridFilteringLabel => r'Filtro limpo';
 
   @override
-  String get containsDataGridFilteringLabel => r'Contém';
+  String get containsDataGridFilteringLabel => r'contém';
 
   @override
-  String get dateFiltersDataGridFilteringLabel => r'Filtros de data';
+  String get dateFiltersDataGridFilteringLabel => r'Filtros de Data';
 
   @override
   String get daySpanCountLabel => r'Dia';
@@ -17584,6 +17740,9 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'É igual a';
+
+  @override
+  String get fromDataGridFilteringLabel => r'A partir de';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Maior que';
@@ -17656,7 +17815,7 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get pdfBookmarksLabel => r'Favoritos';
 
   @override
-  String get pdfEnterPageNumberLabel => r'Digite o número da página';
+  String get pdfEnterPageNumberLabel => r'Insira o número da página';
 
   @override
   String get pdfGoToPageLabel => r'Vá para página';
@@ -17734,7 +17893,7 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
 
   @override
-  String get shortJumada1Label => r'Jum. eu';
+  String get shortJumada1Label => r'Jum. EU';
 
   @override
   String get shortJumada2Label => r'Jum. II';
@@ -17743,10 +17902,10 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get shortMuharramLabel => r'Muh.';
 
   @override
-  String get shortRabi1Label => r'Rabino. eu';
+  String get shortRabi1Label => r'Rabi. EU';
 
   @override
-  String get shortRabi2Label => r'Rabino. II';
+  String get shortRabi2Label => r'Rabi. II';
 
   @override
   String get shortRajabLabel => r'Raj.';
@@ -17755,7 +17914,7 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get shortRamadanLabel => r'RAM.';
 
   @override
-  String get shortSafarLabel => r'Saf.';
+  String get shortSafarLabel => r'seguro';
 
   @override
   String get shortShaabanLabel => r'Sha.';
@@ -17767,18 +17926,18 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get showRowsWhereDataGridFilteringLabel => r'Mostrar linhas onde';
 
   @override
-  String get sortAToZDataGridFilteringLabel => r'Classificar de A a Z';
+  String get sortAToZDataGridFilteringLabel => r'Ordenar de A a Z';
 
   @override
-  String get sortAndFilterDataGridFilteringLabel => r'Classificar e filtrar';
+  String get sortAndFilterDataGridFilteringLabel => r'Classificar e Filtrar';
 
   @override
   String get sortLargestToSmallestDataGridFilteringLabel =>
-      r'Classificar do maior para o menor';
+      r'Ordenar do maior para o menor';
 
   @override
   String get sortNewestToOldestDataGridFilteringLabel =>
-      r'Classificar do mais novo para o mais antigo';
+      r'Ordenar do mais recente ao mais antigo';
 
   @override
   String get sortOldestToNewestDataGridFilteringLabel =>
@@ -17789,7 +17948,7 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
       r'Classificar do menor para o maior';
 
   @override
-  String get sortZToADataGridFilteringLabel => r'Ordenar Z para A';
+  String get sortZToADataGridFilteringLabel => r'Ordenar de Z a A';
 
   @override
   String get textFiltersDataGridFilteringLabel => r'Filtros de texto';
@@ -17811,40 +17970,7 @@ class SfLocalizationsPtPt extends SfLocalizationsPt {
         );
 
   @override
-  String get noEventsCalendarLabel => r'Nenhum evento';
-
-  @override
-  String get ofDataPagerLabel => r'de';
-
-  @override
-  String get pagesDataPagerLabel => r'páginas';
-
-  @override
-  String get pdfBookmarksLabel => r'Marcadores';
-
-  @override
-  String get pdfScrollStatusOfLabel => r'de';
-
-  @override
-  String get pdfGoToPageLabel => r'Ir para a página';
-
-  @override
-  String get pdfInvalidPageNumberLabel => r'Insira um número válido';
-
-  @override
-  String get passwordDialogInvalidPasswordLabel => r'Senha inválida';
-
-  @override
-  String get pdfPasswordDialogOpenLabel => r'ABERTO';
-
-  @override
-  String get allowedViewScheduleLabel => r'Cronograma';
-
-  @override
-  String get allDayLabel => r'Todo o dia';
-
-  @override
-  String get shortRamadanLabel => r'Carneiro.';
+  String get pdfEnterPageNumberLabel => r'Digite o número da página';
 }
 
 /// The translations for Romanian Moldavian Moldovan (`ro`).
@@ -17909,7 +18035,7 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Anulare';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Ștergeți Filtrul de la';
+  String get clearFilterDataGridFilteringLabel => r'Șterge filtrul';
 
   @override
   String get containsDataGridFilteringLabel => r'Conține';
@@ -17946,6 +18072,9 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Egal';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Din';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Mai mare ca';
@@ -18046,7 +18175,7 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'ANULARE';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'Bine';
+  String get pdfPaginationDialogOkLabel => r'O.K';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'ANULARE';
@@ -18158,7 +18287,7 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get textFiltersDataGridFilteringLabel => r'Filtre de text';
 
   @override
-  String get todayLabel => r'Azi';
+  String get todayLabel => r'Astăzi';
 
   @override
   String get weeknumberLabel => r'Săptămână';
@@ -18204,7 +18333,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get allowedViewTimelineWorkWeekLabel => r'Рабочая неделя';
 
   @override
-  String get allowedViewWeekLabel => r'Неделю';
+  String get allowedViewWeekLabel => r'Неделя';
 
   @override
   String get allowedViewWorkWeekLabel => r'Рабочая неделя';
@@ -18213,7 +18342,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'А также';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Раньше или равно';
+  String get beforeDataGridFilteringLabel => r'Перед или равным';
 
   @override
   String get beforeOrEqualDataGridFilteringLabel => r'До';
@@ -18225,7 +18354,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Отмена';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Очистить фильтр от';
+  String get clearFilterDataGridFilteringLabel => r'Очистить фильтр';
 
   @override
   String get containsDataGridFilteringLabel => r'Содержит';
@@ -18262,6 +18391,9 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Равно';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Из';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Лучше чем';
@@ -18328,7 +18460,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get passwordDialogHintTextLabel => r'Введите пароль';
 
   @override
-  String get passwordDialogInvalidPasswordLabel => r'неправильный пароль';
+  String get passwordDialogInvalidPasswordLabel => r'Неверный пароль';
 
   @override
   String get pdfBookmarksLabel => r'Закладки';
@@ -18343,7 +18475,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get pdfHyperlinkContentLabel => r'Вы хотите открыть страницу в';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'ОТМЕНА';
+  String get pdfHyperlinkDialogCancelLabel => r'ОТМЕНИТЬ';
 
   @override
   String get pdfHyperlinkDialogOpenLabel => r'ОТКРЫТЫМ';
@@ -18362,7 +18494,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'ОТМЕНИТЬ';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'Ok';
+  String get pdfPaginationDialogOkLabel => r'ХОРОШО';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'ОТМЕНИТЬ';
@@ -18398,7 +18530,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get selectAllDataGridFilteringLabel => r'Выбрать все';
 
   @override
-  String get series => r'Ряд';
+  String get series => r'Серии';
 
   @override
   String get shaabanLabel => r'Шаабан';
@@ -18431,7 +18563,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get shortRajabLabel => r'Радж.';
 
   @override
-  String get shortRamadanLabel => r'ОЗУ.';
+  String get shortRamadanLabel => r'Баран.';
 
   @override
   String get shortSafarLabel => r'Саф.';
@@ -18477,7 +18609,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get todayLabel => r'Сегодня';
 
   @override
-  String get weeknumberLabel => r'Неделю';
+  String get weeknumberLabel => r'Неделя';
 }
 
 /// The translations for Sinhala Sinhalese (`si`).
@@ -18499,7 +18631,7 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   String get allDayLabel => r'මුළු දවසම';
 
   @override
-  String get allowedViewDayLabel => r'දිනය';
+  String get allowedViewDayLabel => r'දින';
 
   @override
   String get allowedViewMonthLabel => r'මාසික';
@@ -18541,8 +18673,7 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'අවලංගු කරන්න';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel =>
-      r'වෙතින් පෙරහන ඉවත් කරන්න';
+  String get clearFilterDataGridFilteringLabel => r'පෙරහන හිස් කරන්න';
 
   @override
   String get containsDataGridFilteringLabel => r'අඩංගු වේ';
@@ -18551,10 +18682,10 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   String get dateFiltersDataGridFilteringLabel => r'දින පෙරහන්';
 
   @override
-  String get daySpanCountLabel => r'දිනය';
+  String get daySpanCountLabel => r'දින';
 
   @override
-  String get dhualhiLabel => r'Dhu al-Hijjah';
+  String get dhualhiLabel => r'ඩු අල්-හිජ්ජා';
 
   @override
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
@@ -18579,6 +18710,9 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'සමාන';
+
+  @override
+  String get fromDataGridFilteringLabel => r'සිට';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'වඩා විශාලයි';
@@ -18770,7 +18904,7 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
 
   @override
   String get sortLargestToSmallestDataGridFilteringLabel =>
-      r'ලොකුම සිට කුඩාම දක්වා වර්ග කරන්න';
+      r'විශාලතම සිට කුඩාම දක්වා වර්ග කරන්න';
 
   @override
   String get sortNewestToOldestDataGridFilteringLabel =>
@@ -18858,7 +18992,7 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Zrušiť';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Vymazať filter z';
+  String get clearFilterDataGridFilteringLabel => r'Vymazať filter';
 
   @override
   String get containsDataGridFilteringLabel => r'Obsahuje';
@@ -18897,11 +19031,13 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'Rovná sa';
 
   @override
+  String get fromDataGridFilteringLabel => r'Od';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'Väčší než';
 
   @override
-  String get greaterThanOrEqualDataGridFilteringLabel =>
-      r'Väčšie než alebo rovné';
+  String get greaterThanOrEqualDataGridFilteringLabel => r'Väčšie alebo rovné';
 
   @override
   String get jumada1Label => r'Jumada al-awwal';
@@ -18925,7 +19061,7 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'Žiadne zhody';
 
   @override
-  String get noSelectedDateCalendarLabel => r'Nie je vybraný dátum';
+  String get noSelectedDateCalendarLabel => r'Žiadny vybratý dátum';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Nie prázdny';
@@ -18986,7 +19122,7 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'Otvorte webovú stránku';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Prosím zadajte platné číslo';
+  String get pdfInvalidPageNumberLabel => r'Prosím vložte platné číslo';
 
   @override
   String get pdfNoBookmarksLabel => r'Nenašli sa žiadne záložky';
@@ -19107,7 +19243,7 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get textFiltersDataGridFilteringLabel => r'Textové filtre';
 
   @override
-  String get todayLabel => r'dnes';
+  String get todayLabel => r'Dnes';
 
   @override
   String get weeknumberLabel => r'týždeň';
@@ -19132,7 +19268,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get allDayLabel => r'Ves dan';
 
   @override
-  String get allowedViewDayLabel => r'dan';
+  String get allowedViewDayLabel => r'Dan';
 
   @override
   String get allowedViewMonthLabel => r'mesec';
@@ -19174,7 +19310,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Prekliči';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Počisti filter iz';
+  String get clearFilterDataGridFilteringLabel => r'Počisti filter';
 
   @override
   String get containsDataGridFilteringLabel => r'Vsebuje';
@@ -19183,7 +19319,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get dateFiltersDataGridFilteringLabel => r'Datumski filtri';
 
   @override
-  String get daySpanCountLabel => r'dan';
+  String get daySpanCountLabel => r'Dan';
 
   @override
   String get dhualhiLabel => r'Dhu al-Hijjah';
@@ -19213,6 +19349,9 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'Enako';
 
   @override
+  String get fromDataGridFilteringLabel => r'Od';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'Večji kot';
 
   @override
@@ -19234,7 +19373,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get muharramLabel => r'Muharram';
 
   @override
-  String get noEventsCalendarLabel => r'Brez dogodkov';
+  String get noEventsCalendarLabel => r'Ni dogodkov';
 
   @override
   String get noMatchesDataGridFilteringLabel => r'Ni ujemanja';
@@ -19268,7 +19407,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
 
   @override
   String get passwordDialogContentLabel =>
-      r'Vnesite geslo za odpiranje te datoteke PDF';
+      r'Vnesite geslo, da odprete to datoteko PDF';
 
   @override
   String get passwordDialogHeaderTextLabel => r'Zaščiteno z geslom';
@@ -19298,13 +19437,13 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogOpenLabel => r'ODPRTO';
 
   @override
-  String get pdfHyperlinkLabel => r'Odprite spletno stran';
+  String get pdfHyperlinkLabel => r'Odpri spletno stran';
 
   @override
   String get pdfInvalidPageNumberLabel => r'Vnesite veljavno številko';
 
   @override
-  String get pdfNoBookmarksLabel => r'Najden ni bil noben zaznamek';
+  String get pdfNoBookmarksLabel => r'Ni najdenih zaznamkov';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'PREKLIC';
@@ -19328,13 +19467,13 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get rabi2Label => r'Rabi' "'" r' al-thani';
 
   @override
-  String get rajabLabel => r'Radžab';
+  String get rajabLabel => r'Rajab';
 
   @override
   String get ramadanLabel => r'Ramadan';
 
   @override
-  String get rowsPerPageDataPagerLabel => r'Vrstice na stran';
+  String get rowsPerPageDataPagerLabel => r'Vrstic na stran';
 
   @override
   String get safarLabel => r'Safar';
@@ -19346,7 +19485,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get selectAllDataGridFilteringLabel => r'Izberi vse';
 
   @override
-  String get series => r'Serija';
+  String get series => r'serija';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -19385,7 +19524,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get shortSafarLabel => r'Saf.';
 
   @override
-  String get shortShaabanLabel => r'Sha';
+  String get shortShaabanLabel => r'Sha.';
 
   @override
   String get shortShawwalLabel => r'Shaw.';
@@ -19422,7 +19561,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get textFiltersDataGridFilteringLabel => r'Besedilni filtri';
 
   @override
-  String get todayLabel => r'danes';
+  String get todayLabel => r'Danes';
 
   @override
   String get weeknumberLabel => r'teden';
@@ -19447,7 +19586,7 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get allDayLabel => r'Gjithe diten';
 
   @override
-  String get allowedViewDayLabel => r'ditë';
+  String get allowedViewDayLabel => r'Dita';
 
   @override
   String get allowedViewMonthLabel => r'Muaj';
@@ -19489,7 +19628,7 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Anulo';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Pastro filtrin nga';
+  String get clearFilterDataGridFilteringLabel => r'Pastro filtrin';
 
   @override
   String get containsDataGridFilteringLabel => r'Përmban';
@@ -19498,13 +19637,13 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get dateFiltersDataGridFilteringLabel => r'Filtrat e datës';
 
   @override
-  String get daySpanCountLabel => r'ditë';
+  String get daySpanCountLabel => r'Dita';
 
   @override
   String get dhualhiLabel => r'Dhul Hixhe';
 
   @override
-  String get dhualqiLabel => r'Dhul Kida';
+  String get dhualqiLabel => r'Dhul-Kida';
 
   @override
   String get doesNotBeginWithDataGridFilteringLabel => r'Nuk Fillon Me';
@@ -19528,6 +19667,9 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'Të barabartë';
 
   @override
+  String get fromDataGridFilteringLabel => r'Nga';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'Më e madhe se';
 
   @override
@@ -19535,7 +19677,7 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
       r'Më i madh se Ose i barabartë';
 
   @override
-  String get jumada1Label => r'Xhumada el-evvel';
+  String get jumada1Label => r'Xhumade el-evvel';
 
   @override
   String get jumada2Label => r'Xhumada al-thani';
@@ -19667,7 +19809,7 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get series => r'Seria';
 
   @override
-  String get shaabanLabel => r'Sha' "'" r'ban';
+  String get shaabanLabel => r'Shaban';
 
   @override
   String get shawwalLabel => r'Shevali';
@@ -19727,7 +19869,7 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
 
   @override
   String get sortOldestToNewestDataGridFilteringLabel =>
-      r'Rendit më të vjetrën në më të renë';
+      r'Rendit nga më i vjetri tek më i riu';
 
   @override
   String get sortSmallestToLargestDataGridFilteringLabel =>
@@ -19808,7 +19950,7 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Поништити, отказати';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Обриши филтер из';
+  String get clearFilterDataGridFilteringLabel => r'Обриши филтер';
 
   @override
   String get containsDataGridFilteringLabel => r'Садржи';
@@ -19845,6 +19987,9 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Једнако';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Од';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Веће од';
@@ -19981,7 +20126,7 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
   String get selectAllDataGridFilteringLabel => r'Изабери све';
 
   @override
-  String get series => r'Серије';
+  String get series => r'Сериес';
 
   @override
   String get shaabanLabel => r'Сха' "'" r'абан';
@@ -20110,7 +20255,7 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
   String get allowedViewTimelineWeekLabel => r'Tidslinjevecka';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Tidslinje Arbetsvecka';
+  String get allowedViewTimelineWorkWeekLabel => r'Tidslinje arbetsvecka';
 
   @override
   String get allowedViewWeekLabel => r'Vecka';
@@ -20134,7 +20279,7 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Avbryt';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Rensa filter från';
+  String get clearFilterDataGridFilteringLabel => r'Rensa filtret';
 
   @override
   String get containsDataGridFilteringLabel => r'Innehåller';
@@ -20171,6 +20316,9 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Lika';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Från';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Större än';
@@ -20256,7 +20404,7 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'AVBRYT';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'ÖPPEN';
+  String get pdfHyperlinkDialogOpenLabel => r'ÖPPNA';
 
   @override
   String get pdfHyperlinkLabel => r'Öppna webbsidan';
@@ -20269,16 +20417,16 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Inga bokmärken hittades';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'ANNULLERA';
+  String get pdfPaginationDialogCancelLabel => r'AVBRYT';
 
   @override
   String get pdfPaginationDialogOkLabel => r'OK';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'ANNULLERA';
+  String get pdfPasswordDialogCancelLabel => r'AVBRYT';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'ÖPPET';
+  String get pdfPasswordDialogOpenLabel => r'ÖPPNA';
 
   @override
   String get pdfScrollStatusOfLabel => r'av';
@@ -20451,7 +20599,7 @@ class SfLocalizationsSw extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Ghairi';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Futa Kichujio Kutoka';
+  String get clearFilterDataGridFilteringLabel => r'Futa Kichujio';
 
   @override
   String get containsDataGridFilteringLabel => r'Ina';
@@ -20488,6 +20636,9 @@ class SfLocalizationsSw extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Sawa';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Kutoka';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Kubwa kuliko';
@@ -20564,7 +20715,7 @@ class SfLocalizationsSw extends SfGlobalLocalizations {
   String get pdfEnterPageNumberLabel => r'Ingiza nambari ya ukurasa';
 
   @override
-  String get pdfGoToPageLabel => r'Nenda kwa ukurasa';
+  String get pdfGoToPageLabel => r'Nenda kwenye ukurasa';
 
   @override
   String get pdfHyperlinkContentLabel => r'Je, unataka kufungua ukurasa katika';
@@ -20734,7 +20885,7 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'அட்டவணை';
 
   @override
-  String get allowedViewTimelineDayLabel => r'காலவரிசை நாள்';
+  String get allowedViewTimelineDayLabel => r'காலக்கெடு நாள்';
 
   @override
   String get allowedViewTimelineMonthLabel => r'காலவரிசை மாதம்';
@@ -20767,8 +20918,7 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'ரத்து செய்';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel =>
-      r'இதிலிருந்து வடிகட்டியை அழி';
+  String get clearFilterDataGridFilteringLabel => r'வடிகட்டியை அழி';
 
   @override
   String get containsDataGridFilteringLabel => r'கொண்டுள்ளது';
@@ -20783,7 +20933,7 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   String get dhualhiLabel => r'து அல்-ஹிஜ்ஜா';
 
   @override
-  String get dhualqiLabel => r'து அல்-கிடா';
+  String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
   String get doesNotBeginWithDataGridFilteringLabel => r'உடன் தொடங்கவில்லை';
@@ -20805,6 +20955,9 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'சமம்';
+
+  @override
+  String get fromDataGridFilteringLabel => r'இருந்து';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'விட பெரியது';
@@ -20985,7 +21138,7 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   String get shortShaabanLabel => r'ஷா.';
 
   @override
-  String get shortShawwalLabel => r'ஷா.';
+  String get shortShawwalLabel => r'ஷா';
 
   @override
   String get showRowsWhereDataGridFilteringLabel => r'எங்கே வரிசைகளைக் காட்டு';
@@ -21089,8 +21242,7 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'రద్దు చేయండి';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel =>
-      r'నుండి ఫిల్టర్‌ను క్లియర్ చేయండి';
+  String get clearFilterDataGridFilteringLabel => r'ఫిల్టర్‌ని క్లియర్ చేయండి';
 
   @override
   String get containsDataGridFilteringLabel => r'కలిగి ఉంది';
@@ -21105,7 +21257,7 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
   String get dhualhiLabel => r'ధు అల్-హిజ్జా';
 
   @override
-  String get dhualqiLabel => r'ధు అల్-ఖైదా';
+  String get dhualqiLabel => r'ధు అల్-కి' "'" r'దా';
 
   @override
   String get doesNotBeginWithDataGridFilteringLabel => r'తో ప్రారంభం కాదు';
@@ -21127,6 +21279,9 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'సమానం';
+
+  @override
+  String get fromDataGridFilteringLabel => r'నుండి';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'అంతకన్నా ఎక్కువ';
@@ -21364,7 +21519,7 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get afterDataGridFilteringLabel => r'หลังจาก';
 
   @override
-  String get afterOrEqualDataGridFilteringLabel => r'หลังหรือเท่ากับ';
+  String get afterOrEqualDataGridFilteringLabel => r'หลังจากหรือเท่ากับ';
 
   @override
   String get allDayLabel => r'ทั้งวัน';
@@ -21388,7 +21543,7 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get allowedViewTimelineWeekLabel => r'ไทม์ไลน์สัปดาห์';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'ไทม์ไลน์งานสัปดาห์';
+  String get allowedViewTimelineWorkWeekLabel => r'ไทม์ไลน์สัปดาห์การทำงาน';
 
   @override
   String get allowedViewWeekLabel => r'สัปดาห์';
@@ -21412,7 +21567,7 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'ยกเลิก';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'ล้างตัวกรองจาก';
+  String get clearFilterDataGridFilteringLabel => r'ล้างตัวกรอง';
 
   @override
   String get containsDataGridFilteringLabel => r'ประกอบด้วย';
@@ -21424,22 +21579,22 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get daySpanCountLabel => r'วัน';
 
   @override
-  String get dhualhiLabel => r'ดูอัลฮิจญะฮ์';
+  String get dhualhiLabel => r'ดุอัลฮิจญะห์';
 
   @override
-  String get dhualqiLabel => r'ญุมาดา อัล-ธานี';
+  String get dhualqiLabel => r'ดุอัลกิดาห์';
 
   @override
-  String get doesNotBeginWithDataGridFilteringLabel => r'ไม่ขึ้นต้นด้วย';
+  String get doesNotBeginWithDataGridFilteringLabel => r'ไม่ได้ขึ้นต้นด้วย';
 
   @override
   String get doesNotContainDataGridFilteringLabel => r'ไม่มี';
 
   @override
-  String get doesNotEndWithDataGridFilteringLabel => r'ไม่จบด้วย';
+  String get doesNotEndWithDataGridFilteringLabel => r'ไม่สิ้นสุดด้วย';
 
   @override
-  String get doesNotEqualDataGridFilteringLabel => r'ไม่เท่ากัน';
+  String get doesNotEqualDataGridFilteringLabel => r'ไม่เท่าเทียมกัน';
 
   @override
   String get emptyDataGridFilteringLabel => r'ว่างเปล่า';
@@ -21451,6 +21606,9 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'เท่ากับ';
 
   @override
+  String get fromDataGridFilteringLabel => r'จาก';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'มากกว่า';
 
   @override
@@ -21460,16 +21618,16 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get jumada1Label => r'ญุมาดา อัลเอาวัล';
 
   @override
-  String get jumada2Label => r'Jumada al-thani';
+  String get jumada2Label => r'ญุมาดา อัล-ธานี';
 
   @override
   String get lessThanDataGridFilteringLabel => r'น้อยกว่า';
 
   @override
-  String get lessThanOrEqualDataGridFilteringLabel => r'น้อยกว่าหรือเท่ากัน';
+  String get lessThanOrEqualDataGridFilteringLabel => r'น้อยกว่าหรือเท่ากับ';
 
   @override
-  String get muharramLabel => r'มูฮัรรอม';
+  String get muharramLabel => r'มุฮัรรอม';
 
   @override
   String get noEventsCalendarLabel => r'ไม่มีกิจกรรม';
@@ -21478,10 +21636,10 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'ไม่ตรงกัน';
 
   @override
-  String get noSelectedDateCalendarLabel => r'ไม่ได้เลือกวันที่';
+  String get noSelectedDateCalendarLabel => r'ไม่มีวันที่เลือก';
 
   @override
-  String get notEmptyDataGridFilteringLabel => r'ไม่ว่าง';
+  String get notEmptyDataGridFilteringLabel => r'ไม่ว่างเปล่า';
 
   @override
   String get notNullDataGridFilteringLabel => r'ไม่เป็นโมฆะ';
@@ -21526,7 +21684,7 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ไปที่หน้า';
 
   @override
-  String get pdfHyperlinkContentLabel => r'ต้องการเปิดเพจที่';
+  String get pdfHyperlinkContentLabel => r'คุณต้องการเปิดเพจที่';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'ยกเลิก';
@@ -21538,10 +21696,10 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'เปิดหน้าเว็บ';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'กรุณาใส่ตัวเลขที่ถูกต้อง';
+  String get pdfInvalidPageNumberLabel => r'โปรดป้อนหมายเลขที่ถูกต้อง';
 
   @override
-  String get pdfNoBookmarksLabel => r'ไม่พบบุ๊คมาร์ค';
+  String get pdfNoBookmarksLabel => r'ไม่พบบุ๊กมาร์ก';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'ยกเลิก';
@@ -21559,16 +21717,16 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'ของ';
 
   @override
-  String get rabi1Label => r'เราะบี อัลเอาวัล';
+  String get rabi1Label => r'รอบิอัลเอาวัล';
 
   @override
-  String get rabi2Label => r'รอบีอัล-ธานี';
+  String get rabi2Label => r'รอบิอัล-ธานี';
 
   @override
-  String get rajabLabel => r'ราชภัฏ';
+  String get rajabLabel => r'ราชาบ';
 
   @override
-  String get ramadanLabel => r'รอมฎอน';
+  String get ramadanLabel => r'เดือนรอมฎอน';
 
   @override
   String get rowsPerPageDataPagerLabel => r'แถวต่อหน้า';
@@ -21592,40 +21750,40 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get shawwalLabel => r'เชาวาล';
 
   @override
-  String get shortDhualhiLabel => r'ดุลฮัก';
+  String get shortDhualhiLabel => r'ดุอัล-เอช';
 
   @override
   String get shortDhualqiLabel => r'ดุล-คิว';
 
   @override
-  String get shortJumada1Label => r'จั้ม. ฉัน';
+  String get shortJumada1Label => r'จุ๋ม. ฉัน';
 
   @override
-  String get shortJumada2Label => r'จั้ม. II';
+  String get shortJumada2Label => r'จุ๋ม. ครั้งที่สอง';
 
   @override
-  String get shortMuharramLabel => r'มุ้ย.';
+  String get shortMuharramLabel => r'มึ.';
 
   @override
-  String get shortRabi1Label => r'รบี. ฉัน';
+  String get shortRabi1Label => r'ระบี. ฉัน';
 
   @override
-  String get shortRabi2Label => r'รบี. II';
+  String get shortRabi2Label => r'ระบี. ครั้งที่สอง';
 
   @override
-  String get shortRajabLabel => r'ราช.';
+  String get shortRajabLabel => r'ราชา';
 
   @override
   String get shortRamadanLabel => r'แกะ.';
 
   @override
-  String get shortSafarLabel => r'เซฟ.';
+  String get shortSafarLabel => r'ปลอดภัย';
 
   @override
-  String get shortShaabanLabel => r'ชา.';
+  String get shortShaabanLabel => r'ชา';
 
   @override
-  String get shortShawwalLabel => r'ชอว์.';
+  String get shortShawwalLabel => r'ชอว์';
 
   @override
   String get showRowsWhereDataGridFilteringLabel => r'แสดงแถวที่';
@@ -21638,19 +21796,19 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
 
   @override
   String get sortLargestToSmallestDataGridFilteringLabel =>
-      r'เรียงจากมากไปหาน้อย';
+      r'เรียงจากมากไปน้อย';
 
   @override
   String get sortNewestToOldestDataGridFilteringLabel =>
-      r'เรียงลำดับจากใหม่ไปเก่าสุด';
+      r'เรียงลำดับใหม่ที่สุดไปเก่าที่สุด';
 
   @override
   String get sortOldestToNewestDataGridFilteringLabel =>
-      r'เรียงลำดับจากเก่าไปใหม่สุด';
+      r'เรียงจากเก่าสุดไปใหม่สุด';
 
   @override
   String get sortSmallestToLargestDataGridFilteringLabel =>
-      r'เรียงจากน้อยไปหามาก';
+      r'เรียงลำดับจากน้อยไปมาก';
 
   @override
   String get sortZToADataGridFilteringLabel => r'เรียง Z ถึง A';
@@ -21727,8 +21885,7 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Kanselahin';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel =>
-      r'I-clear ang Filter Mula sa';
+  String get clearFilterDataGridFilteringLabel => r'I-clear ang Filter';
 
   @override
   String get containsDataGridFilteringLabel => r'Naglalaman';
@@ -21765,6 +21922,9 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'katumbas';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Mula sa';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Mahigit sa';
@@ -21967,7 +22127,7 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
 
   @override
   String get sortOldestToNewestDataGridFilteringLabel =>
-      r'Pagbukud-bukurin ang Pinakaluma Hanggang Pinakabago';
+      r'Pagbukud-bukurin ang Pinakamatanda Hanggang Pinakabago';
 
   @override
   String get sortSmallestToLargestDataGridFilteringLabel =>
@@ -22000,7 +22160,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get afterDataGridFilteringLabel => r'Sonrasında';
 
   @override
-  String get afterOrEqualDataGridFilteringLabel => r'Sonra veya Eşit';
+  String get afterOrEqualDataGridFilteringLabel => r'Sonra Veya Eşittir';
 
   @override
   String get allDayLabel => r'Tüm gün';
@@ -22049,7 +22209,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'İptal';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Filtreyi Temizle';
+  String get clearFilterDataGridFilteringLabel => r'Temiz filtre';
 
   @override
   String get containsDataGridFilteringLabel => r'içerir';
@@ -22064,16 +22224,16 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get dhualhiLabel => r'Zilhicce';
 
   @override
-  String get dhualqiLabel => r'Zil Qi' "'" r'dah';
+  String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get doesNotBeginWithDataGridFilteringLabel => r'ile Başlamıyor';
+  String get doesNotBeginWithDataGridFilteringLabel => r'İle Başlamıyor';
 
   @override
   String get doesNotContainDataGridFilteringLabel => r'İçermiyor';
 
   @override
-  String get doesNotEndWithDataGridFilteringLabel => r'ile bitmez';
+  String get doesNotEndWithDataGridFilteringLabel => r'ile bitmiyor';
 
   @override
   String get doesNotEqualDataGridFilteringLabel => r'Eşit değil';
@@ -22088,13 +22248,17 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'eşittir';
 
   @override
-  String get greaterThanDataGridFilteringLabel => r'Büyüktür';
+  String get fromDataGridFilteringLabel => r'İtibaren';
 
   @override
-  String get greaterThanOrEqualDataGridFilteringLabel => r'Büyük veya Eşit';
+  String get greaterThanDataGridFilteringLabel => r'Daha büyük';
 
   @override
-  String get jumada1Label => r'Cumada el-evvel';
+  String get greaterThanOrEqualDataGridFilteringLabel =>
+      r'Büyüktür veya Eşittir';
+
+  @override
+  String get jumada1Label => r'Jumada al-evvel';
 
   @override
   String get jumada2Label => r'Jumada al-thani';
@@ -22115,7 +22279,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'Eşleşme yok';
 
   @override
-  String get noSelectedDateCalendarLabel => r'Seçili tarih yok';
+  String get noSelectedDateCalendarLabel => r'tarih seçilmedi';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Boş değil';
@@ -22130,7 +22294,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get numberFiltersDataGridFilteringLabel => r'Sayı Filtreleri';
 
   @override
-  String get ofDataPagerLabel => r'ile ilgili';
+  String get ofDataPagerLabel => r'nın-nin';
 
   @override
   String get okDataGridFilteringLabel => r'TAMAM';
@@ -22149,7 +22313,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get passwordDialogHeaderTextLabel => r'Şifre korumalı';
 
   @override
-  String get passwordDialogHintTextLabel => r'Parolanı Gir';
+  String get passwordDialogHintTextLabel => r'Şifre girin';
 
   @override
   String get passwordDialogInvalidPasswordLabel => r'geçersiz şifre';
@@ -22158,16 +22322,17 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get pdfBookmarksLabel => r'Yer imleri';
 
   @override
-  String get pdfEnterPageNumberLabel => r'Sayfa numarasını girin';
+  String get pdfEnterPageNumberLabel => r'sayfa numarasını girin';
 
   @override
   String get pdfGoToPageLabel => r'Sayfaya git';
 
   @override
-  String get pdfHyperlinkContentLabel => r'Sayfayı açmak ister misin?';
+  String get pdfHyperlinkContentLabel =>
+      r'Sayfayı şu adreste açmak istiyor musunuz?';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'İPTAL ET';
+  String get pdfHyperlinkDialogCancelLabel => r'İPTAL ETMEK';
 
   @override
   String get pdfHyperlinkDialogOpenLabel => r'AÇIK';
@@ -22176,7 +22341,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'Web Sayfasını Aç';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Lütfen geçerli bir numara girin';
+  String get pdfInvalidPageNumberLabel => r'Lütfen geçerli bir sayı girin';
 
   @override
   String get pdfNoBookmarksLabel => r'Yer işareti bulunamadı';
@@ -22185,7 +22350,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'İPTAL ETMEK';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'Tamam';
+  String get pdfPaginationDialogOkLabel => r'TAMAM';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'İPTAL ETMEK';
@@ -22194,10 +22359,10 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get pdfPasswordDialogOpenLabel => r'AÇIK';
 
   @override
-  String get pdfScrollStatusOfLabel => r'ile ilgili';
+  String get pdfScrollStatusOfLabel => r'nın-nin';
 
   @override
-  String get rabi1Label => r'Rebiülevvel';
+  String get rabi1Label => r'Rabi' "'" r'ul-evvel';
 
   @override
   String get rabi2Label => r'Rabi' "'" r' al-thani';
@@ -22209,10 +22374,10 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramazan';
 
   @override
-  String get rowsPerPageDataPagerLabel => r'Sayfa başına satır sayısı';
+  String get rowsPerPageDataPagerLabel => r'Sayfa başına satır';
 
   @override
-  String get safarLabel => r'Safar';
+  String get safarLabel => r'safar';
 
   @override
   String get searchDataGridFilteringLabel => r'Arama';
@@ -22221,7 +22386,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get selectAllDataGridFilteringLabel => r'Hepsini seç';
 
   @override
-  String get series => r'Seri';
+  String get series => r'Diziler';
 
   @override
   String get shaabanLabel => r'Şaban';
@@ -22233,22 +22398,22 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get shortDhualhiLabel => r'Zül-H';
 
   @override
-  String get shortDhualqiLabel => r'Zil-Q';
+  String get shortDhualqiLabel => r'Zül-Q';
 
   @override
-  String get shortJumada1Label => r'Jum. i';
+  String get shortJumada1Label => r'Cuma. ben';
 
   @override
-  String get shortJumada2Label => r'Jum. II';
+  String get shortJumada2Label => r'Cuma. III';
 
   @override
-  String get shortMuharramLabel => r'Müh.';
+  String get shortMuharramLabel => r'Muh.';
 
   @override
-  String get shortRabi1Label => r'Rabi. i';
+  String get shortRabi1Label => r'Rabi. ben';
 
   @override
-  String get shortRabi2Label => r'Rabi. II';
+  String get shortRabi2Label => r'Rabi. III';
 
   @override
   String get shortRajabLabel => r'Raj.';
@@ -22260,13 +22425,13 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get shortSafarLabel => r'Saf.';
 
   @override
-  String get shortShaabanLabel => r'Sha.';
+  String get shortShaabanLabel => r'Şa.';
 
   @override
   String get shortShawwalLabel => r'Shaw.';
 
   @override
-  String get showRowsWhereDataGridFilteringLabel => r'Satırları göster nerede';
+  String get showRowsWhereDataGridFilteringLabel => r'satırları göster';
 
   @override
   String get sortAToZDataGridFilteringLabel =>
@@ -22277,19 +22442,19 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
 
   @override
   String get sortLargestToSmallestDataGridFilteringLabel =>
-      r'En Büyükten En Küçüğe Sırala';
+      r'Büyükten Küçüğe Sırala';
 
   @override
   String get sortNewestToOldestDataGridFilteringLabel =>
-      r'En Yeniden En Eskiye Sırala';
+      r'Yeniden En Eskiye Sırala';
 
   @override
   String get sortOldestToNewestDataGridFilteringLabel =>
-      r'Eskiden En Yeniye Sırala';
+      r'Eskiden Yeniye Sırala';
 
   @override
   String get sortSmallestToLargestDataGridFilteringLabel =>
-      r'En Küçükten En Büyüğe Sırala';
+      r'Küçükten Büyüğe Sırala';
 
   @override
   String get sortZToADataGridFilteringLabel =>
@@ -22327,28 +22492,28 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get allowedViewDayLabel => r'День';
 
   @override
-  String get allowedViewMonthLabel => r'Місяць';
+  String get allowedViewMonthLabel => r'місяць';
 
   @override
-  String get allowedViewScheduleLabel => r'Розклад';
+  String get allowedViewScheduleLabel => r'розклад';
 
   @override
   String get allowedViewTimelineDayLabel => r'День хронології';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Хронологічний місяць';
+  String get allowedViewTimelineMonthLabel => r'Місяць хронології';
 
   @override
   String get allowedViewTimelineWeekLabel => r'Тиждень хронології';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Розклад робочого тижня';
+  String get allowedViewTimelineWorkWeekLabel => r'Графік робочого тижня';
 
   @override
   String get allowedViewWeekLabel => r'тиждень';
 
   @override
-  String get allowedViewWorkWeekLabel => r'Робочий тиждень';
+  String get allowedViewWorkWeekLabel => r'робочий тиждень';
 
   @override
   String get andDataGridFilteringLabel => r'І';
@@ -22366,13 +22531,13 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Скасувати';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Очистити фільтр від';
+  String get clearFilterDataGridFilteringLabel => r'Очистити фільтр';
 
   @override
   String get containsDataGridFilteringLabel => r'Містить';
 
   @override
-  String get dateFiltersDataGridFilteringLabel => r'Фільтри дат';
+  String get dateFiltersDataGridFilteringLabel => r'Фільтри дати';
 
   @override
   String get daySpanCountLabel => r'День';
@@ -22405,6 +22570,9 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'Дорівнює';
 
   @override
+  String get fromDataGridFilteringLabel => r'Від';
+
+  @override
   String get greaterThanDataGridFilteringLabel =>
       r'Більше, ніж, величніше ніж, крутіший за';
 
@@ -22415,7 +22583,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get jumada1Label => r'Джумада аль-авваль';
 
   @override
-  String get jumada2Label => r'Джумада аль-Тані';
+  String get jumada2Label => r'Джумада аль-тані';
 
   @override
   String get lessThanDataGridFilteringLabel => r'Менше ніж';
@@ -22427,13 +22595,13 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get muharramLabel => r'Мухаррам';
 
   @override
-  String get noEventsCalendarLabel => r'Жодних подій';
+  String get noEventsCalendarLabel => r'Подій немає';
 
   @override
   String get noMatchesDataGridFilteringLabel => r'Немає збігів';
 
   @override
-  String get noSelectedDateCalendarLabel => r'Немає вибраної дати';
+  String get noSelectedDateCalendarLabel => r'Дата не вибрана';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Не порожній';
@@ -22461,7 +22629,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
 
   @override
   String get passwordDialogContentLabel =>
-      r'Введіть пароль, щоб відкрити цей PDF-файл';
+      r'Введіть пароль, щоб відкрити цей файл PDF';
 
   @override
   String get passwordDialogHeaderTextLabel => r'Захищено паролем';
@@ -22470,7 +22638,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get passwordDialogHintTextLabel => r'Введіть пароль';
 
   @override
-  String get passwordDialogInvalidPasswordLabel => r'Недійсний пароль';
+  String get passwordDialogInvalidPasswordLabel => r'Невірний пароль';
 
   @override
   String get pdfBookmarksLabel => r'Закладки';
@@ -22482,8 +22650,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Перейти на сторінку';
 
   @override
-  String get pdfHyperlinkContentLabel =>
-      r'Бажаєте відкрити сторінку за адресою';
+  String get pdfHyperlinkContentLabel => r'Хочете відкрити сторінку за адресою';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'СКАСУВАТИ';
@@ -22492,10 +22659,10 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogOpenLabel => r'ВІДЧИНЕНО';
 
   @override
-  String get pdfHyperlinkLabel => r'Відкрийте веб-сторінку';
+  String get pdfHyperlinkLabel => r'Відкрити веб-сторінку';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Введіть дійсне число';
+  String get pdfInvalidPageNumberLabel => r'Введіть дійсний номер';
 
   @override
   String get pdfNoBookmarksLabel => r'Закладок не знайдено';
@@ -22504,7 +22671,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'СКАСУВАТИ';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'гаразд';
+  String get pdfPaginationDialogOkLabel => r'в порядку';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'СКАСУВАТИ';
@@ -22519,7 +22686,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get rabi1Label => r'Рабі аль-авваль';
 
   @override
-  String get rabi2Label => r'Рабі аль-Тані';
+  String get rabi2Label => r'Рабі аль-тані';
 
   @override
   String get rajabLabel => r'Раджаб';
@@ -22546,22 +22713,22 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get shaabanLabel => r'Шаабан';
 
   @override
-  String get shawwalLabel => r'Shawwal';
+  String get shawwalLabel => r'Шавваль';
 
   @override
-  String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
+  String get shortDhualhiLabel => r'Зу' "'" r'л-Х';
 
   @override
-  String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
+  String get shortDhualqiLabel => r'Зу' "'" r'л-К' "'" r'ю';
 
   @override
-  String get shortJumada1Label => r'Jum. я';
+  String get shortJumada1Label => r'стрибати я';
 
   @override
-  String get shortJumada2Label => r'Jum. II';
+  String get shortJumada2Label => r'стрибати II';
 
   @override
-  String get shortMuharramLabel => r'Мух';
+  String get shortMuharramLabel => r'мух';
 
   @override
   String get shortRabi1Label => r'Рабі. я';
@@ -22576,7 +22743,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get shortRamadanLabel => r'ОЗП.';
 
   @override
-  String get shortSafarLabel => r'Saf.';
+  String get shortSafarLabel => r'Саф.';
 
   @override
   String get shortShaabanLabel => r'Ша.';
@@ -22683,7 +22850,7 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'منسوخ کریں۔';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'سے فلٹر صاف کریں۔';
+  String get clearFilterDataGridFilteringLabel => r'فلٹر صاف کریں۔';
 
   @override
   String get containsDataGridFilteringLabel => r'مشتمل';
@@ -22720,6 +22887,9 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'برابر ہے۔';
+
+  @override
+  String get fromDataGridFilteringLabel => r'سے';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'اس سے بڑا';
@@ -22764,7 +22934,7 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get numberFiltersDataGridFilteringLabel => r'نمبر فلٹرز';
 
   @override
-  String get ofDataPagerLabel => r'کا';
+  String get ofDataPagerLabel => r'کی';
 
   @override
   String get okDataGridFilteringLabel => r'ٹھیک ہے';
@@ -22804,7 +22974,7 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'منسوخ کریں۔';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'کھولیں';
+  String get pdfHyperlinkDialogOpenLabel => r'کھولیں۔';
 
   @override
   String get pdfHyperlinkLabel => r'ویب صفحہ کھولیں۔';
@@ -22826,10 +22996,10 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get pdfPasswordDialogCancelLabel => r'منسوخ کریں۔';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'کھولیں';
+  String get pdfPasswordDialogOpenLabel => r'کھولیں۔';
 
   @override
-  String get pdfScrollStatusOfLabel => r'کا';
+  String get pdfScrollStatusOfLabel => r'کی';
 
   @override
   String get rabi1Label => r'ربیع الاول';
@@ -22911,7 +23081,7 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
 
   @override
   String get sortLargestToSmallestDataGridFilteringLabel =>
-      r'چھانٹیں بڑی سے چھوٹی';
+      r'چھانٹیں بڑے سے چھوٹے';
 
   @override
   String get sortNewestToOldestDataGridFilteringLabel =>
@@ -22999,7 +23169,7 @@ class SfLocalizationsUz extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Bekor qilish';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Filtrni tozalash';
+  String get clearFilterDataGridFilteringLabel => r'Filtrni tozalash';
 
   @override
   String get containsDataGridFilteringLabel => r'Tarkibida';
@@ -23036,6 +23206,9 @@ class SfLocalizationsUz extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Teng';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Kimdan';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Kattaroq';
@@ -23267,7 +23440,7 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get afterDataGridFilteringLabel => r'Sau';
 
   @override
-  String get afterOrEqualDataGridFilteringLabel => r'Sau hoặc bằng';
+  String get afterOrEqualDataGridFilteringLabel => r'Sau Hoặc Bằng';
 
   @override
   String get allDayLabel => r'Cả ngày';
@@ -23282,17 +23455,17 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'Lịch trình';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Ngày dòng thời gian';
+  String get allowedViewTimelineDayLabel => r'Dòng thời gian ngày';
 
   @override
   String get allowedViewTimelineMonthLabel => r'Dòng thời gian Tháng';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Dòng thời gian trong tuần';
+  String get allowedViewTimelineWeekLabel => r'Dòng thời gian Tuần';
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
-      r'Dòng thời gian làm việc trong tuần';
+      r'Thời gian biểu Tuần làm việc';
 
   @override
   String get allowedViewWeekLabel => r'Tuần';
@@ -23304,7 +23477,7 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Và';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Trước hoặc bằng';
+  String get beforeDataGridFilteringLabel => r'Trước Hoặc Bằng';
 
   @override
   String get beforeOrEqualDataGridFilteringLabel => r'Trước';
@@ -23316,7 +23489,7 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Hủy bỏ';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Xóa bộ lọc khỏi';
+  String get clearFilterDataGridFilteringLabel => r'LÀm sạch bộ lọc';
 
   @override
   String get containsDataGridFilteringLabel => r'Chứa';
@@ -23334,25 +23507,28 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get doesNotBeginWithDataGridFilteringLabel => r'Không bắt đầu với';
+  String get doesNotBeginWithDataGridFilteringLabel => r'không bắt đầu bằng';
 
   @override
   String get doesNotContainDataGridFilteringLabel => r'Không chứa';
 
   @override
-  String get doesNotEndWithDataGridFilteringLabel => r'Không kết thúc bằng';
+  String get doesNotEndWithDataGridFilteringLabel => r'không kết thúc với';
 
   @override
-  String get doesNotEqualDataGridFilteringLabel => r'Không bằng nhau';
+  String get doesNotEqualDataGridFilteringLabel => r'không bằng';
 
   @override
   String get emptyDataGridFilteringLabel => r'Trống rỗng';
 
   @override
-  String get endsWithDataGridFilteringLabel => r'Kết thúc với';
+  String get endsWithDataGridFilteringLabel => r'kết thúc với';
 
   @override
-  String get equalsDataGridFilteringLabel => r'Bằng';
+  String get equalsDataGridFilteringLabel => r'bằng';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Từ';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Lớn hơn';
@@ -23385,7 +23561,7 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get noSelectedDateCalendarLabel => r'Không có ngày được chọn';
 
   @override
-  String get notEmptyDataGridFilteringLabel => r'Không rỗng';
+  String get notEmptyDataGridFilteringLabel => r'Không trống';
 
   @override
   String get notNullDataGridFilteringLabel => r'Có giá trị';
@@ -23430,7 +23606,7 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Đi tới trang';
 
   @override
-  String get pdfHyperlinkContentLabel => r'Bạn có muốn mở trang này tại';
+  String get pdfHyperlinkContentLabel => r'Bạn có muốn mở trang tại';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'SỰ HỦY BỎ';
@@ -23445,13 +23621,13 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get pdfInvalidPageNumberLabel => r'Vui lòng nhập một số hợp lệ';
 
   @override
-  String get pdfNoBookmarksLabel => r'Không tìm thấy dấu trang';
+  String get pdfNoBookmarksLabel => r'Không tìm thấy dấu trang nào';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'SỰ HỦY BỎ';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'VÂNG';
+  String get pdfPaginationDialogOkLabel => r'ĐƯỢC RỒI';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'SỰ HỦY BỎ';
@@ -23463,22 +23639,22 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'của';
 
   @override
-  String get rabi1Label => r'Rabi ' "'" r'al-awwal';
+  String get rabi1Label => r'Rabi' "'" r' al-awwal';
 
   @override
-  String get rabi2Label => r'Rabi ' "'" r'al-thani';
+  String get rabi2Label => r'Rabi' "'" r' al-thani';
 
   @override
   String get rajabLabel => r'Rajab';
 
   @override
-  String get ramadanLabel => r'Ramadan';
+  String get ramadanLabel => r'lễ ramadan';
 
   @override
   String get rowsPerPageDataPagerLabel => r'Hàng trên mỗi trang';
 
   @override
-  String get safarLabel => r'Safar';
+  String get safarLabel => r'safar';
 
   @override
   String get searchDataGridFilteringLabel => r'Tìm kiếm';
@@ -23487,7 +23663,7 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get selectAllDataGridFilteringLabel => r'Chọn tất cả';
 
   @override
-  String get series => r'Hàng loạt';
+  String get series => r'Loạt';
 
   @override
   String get shaabanLabel => r'Sha' "'" r'aban';
@@ -23502,16 +23678,16 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
 
   @override
-  String get shortJumada1Label => r'Jum. tôi';
+  String get shortJumada1Label => r'Jum. Tôi';
 
   @override
   String get shortJumada2Label => r'Jum. II';
 
   @override
-  String get shortMuharramLabel => r'Ờ.';
+  String get shortMuharramLabel => r'ừm.';
 
   @override
-  String get shortRabi1Label => r'Rabi. tôi';
+  String get shortRabi1Label => r'Rabi. Tôi';
 
   @override
   String get shortRabi2Label => r'Rabi. II';
@@ -23520,10 +23696,10 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get shortRajabLabel => r'Raj.';
 
   @override
-  String get shortRamadanLabel => r'Ram.';
+  String get shortRamadanLabel => r'Đập.';
 
   @override
-  String get shortSafarLabel => r'Két sắt.';
+  String get shortSafarLabel => r'an toàn.';
 
   @override
   String get shortShaabanLabel => r'Sha.';
@@ -23542,11 +23718,11 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
 
   @override
   String get sortLargestToSmallestDataGridFilteringLabel =>
-      r'Sắp xếp Lớn nhất đến Nhỏ nhất';
+      r'Sắp xếp lớn nhất đến nhỏ nhất';
 
   @override
   String get sortNewestToOldestDataGridFilteringLabel =>
-      r'Sắp xếp từ Mới nhất đến Cũ nhất';
+      r'Sắp xếp mới nhất đến cũ nhất';
 
   @override
   String get sortOldestToNewestDataGridFilteringLabel =>
@@ -23557,7 +23733,7 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
       r'Sắp xếp từ nhỏ nhất đến lớn nhất';
 
   @override
-  String get sortZToADataGridFilteringLabel => r'Sắp xếp Z đến A';
+  String get sortZToADataGridFilteringLabel => r'Sắp xếp từ Z đến A';
 
   @override
   String get textFiltersDataGridFilteringLabel => r'Bộ lọc văn bản';
@@ -23582,13 +23758,13 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get afterDataGridFilteringLabel => r'后';
 
   @override
-  String get afterOrEqualDataGridFilteringLabel => r'之后或等于';
+  String get afterOrEqualDataGridFilteringLabel => r'等于或之后';
 
   @override
   String get allDayLabel => r'一整天';
 
   @override
-  String get allowedViewDayLabel => r'日';
+  String get allowedViewDayLabel => r'天';
 
   @override
   String get allowedViewMonthLabel => r'月';
@@ -23597,10 +23773,10 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'日程';
 
   @override
-  String get allowedViewTimelineDayLabel => r'时间表日';
+  String get allowedViewTimelineDayLabel => r'时间轴日';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'时间线月份';
+  String get allowedViewTimelineMonthLabel => r'时间表月份';
 
   @override
   String get allowedViewTimelineWeekLabel => r'时间线周';
@@ -23618,7 +23794,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'和';
 
   @override
-  String get beforeDataGridFilteringLabel => r'之前或等于';
+  String get beforeDataGridFilteringLabel => r'早于或等于';
 
   @override
   String get beforeOrEqualDataGridFilteringLabel => r'前';
@@ -23630,7 +23806,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'取消';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'清除过滤器';
+  String get clearFilterDataGridFilteringLabel => r'清除过滤器';
 
   @override
   String get containsDataGridFilteringLabel => r'包含';
@@ -23639,22 +23815,22 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get dateFiltersDataGridFilteringLabel => r'日期过滤器';
 
   @override
-  String get daySpanCountLabel => r'日';
+  String get daySpanCountLabel => r'天';
 
   @override
-  String get dhualhiLabel => r'杜哈杰';
+  String get dhualhiLabel => r'Dhu al-Hijjah';
 
   @override
-  String get dhualqiLabel => r'杜阿尔-基达';
+  String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
-  String get doesNotBeginWithDataGridFilteringLabel => r'不以';
+  String get doesNotBeginWithDataGridFilteringLabel => r'不以开头';
 
   @override
   String get doesNotContainDataGridFilteringLabel => r'不含';
 
   @override
-  String get doesNotEndWithDataGridFilteringLabel => r'不以';
+  String get doesNotEndWithDataGridFilteringLabel => r'不结束于';
 
   @override
   String get doesNotEqualDataGridFilteringLabel => r'不等于';
@@ -23669,16 +23845,19 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get equalsDataGridFilteringLabel => r'等于';
 
   @override
+  String get fromDataGridFilteringLabel => r'从';
+
+  @override
   String get greaterThanDataGridFilteringLabel => r'比...更棒';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel => r'大于或等于';
 
   @override
-  String get jumada1Label => r'胡玛达·奥瓦尔';
+  String get jumada1Label => r'朱马达·阿瓦瓦尔';
 
   @override
-  String get jumada2Label => r'朱马达·萨尼';
+  String get jumada2Label => r'祖玛达·阿萨尼';
 
   @override
   String get lessThanDataGridFilteringLabel => r'少于';
@@ -23687,16 +23866,16 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get lessThanOrEqualDataGridFilteringLabel => r'小于或等于';
 
   @override
-  String get muharramLabel => r'穆哈拉姆';
+  String get muharramLabel => r'回历';
 
   @override
-  String get noEventsCalendarLabel => r'没有事件';
+  String get noEventsCalendarLabel => r'没有活动';
 
   @override
   String get noMatchesDataGridFilteringLabel => r'无匹配';
 
   @override
-  String get noSelectedDateCalendarLabel => r'未选择日期';
+  String get noSelectedDateCalendarLabel => r'没有选择日期';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'不是空的';
@@ -23720,10 +23899,10 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get orDataGridFilteringLabel => r'或者';
 
   @override
-  String get pagesDataPagerLabel => r'页面';
+  String get pagesDataPagerLabel => r'页数';
 
   @override
-  String get passwordDialogContentLabel => r'输入密码以打开此 PDF 文件';
+  String get passwordDialogContentLabel => r'输入密码打开此 PDF 文件';
 
   @override
   String get passwordDialogHeaderTextLabel => r'密码保护';
@@ -23744,7 +23923,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'转到页面';
 
   @override
-  String get pdfHyperlinkContentLabel => r'您要在以下位置打开页面吗';
+  String get pdfHyperlinkContentLabel => r'你想打开页面吗';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'取消';
@@ -23759,7 +23938,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get pdfInvalidPageNumberLabel => r'请输入有效号码';
 
   @override
-  String get pdfNoBookmarksLabel => r'未找到书签';
+  String get pdfNoBookmarksLabel => r'找不到书签';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'取消';
@@ -23777,13 +23956,13 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'的';
 
   @override
-  String get rabi1Label => r'拉比奥瓦尔';
+  String get rabi1Label => r'拉比·奥瓦尔';
 
   @override
   String get rabi2Label => r'拉比阿勒萨尼';
 
   @override
-  String get rajabLabel => r'拉贾布';
+  String get rajabLabel => r'拉杰卜';
 
   @override
   String get ramadanLabel => r'斋月';
@@ -23810,22 +23989,22 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get shawwalLabel => r'肖瓦尔';
 
   @override
-  String get shortDhualhiLabel => r'杜尔-H';
+  String get shortDhualhiLabel => r'Dhu' "'" r'l-H';
 
   @override
-  String get shortDhualqiLabel => r'杜尔-Q';
+  String get shortDhualqiLabel => r'Dhu' "'" r'l-Q';
 
   @override
-  String get shortJumada1Label => r'朱姆。一世';
+  String get shortJumada1Label => r'滚。我';
 
   @override
-  String get shortJumada2Label => r'朱姆。二';
+  String get shortJumada2Label => r'滚。二';
 
   @override
   String get shortMuharramLabel => r'嗯。';
 
   @override
-  String get shortRabi1Label => r'拉比。一世';
+  String get shortRabi1Label => r'拉比。我';
 
   @override
   String get shortRabi2Label => r'拉比。二';
@@ -23867,7 +24046,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get sortSmallestToLargestDataGridFilteringLabel => r'从小到大排序';
 
   @override
-  String get sortZToADataGridFilteringLabel => r'从 Z 到 A 排序';
+  String get sortZToADataGridFilteringLabel => r'将 Z 排序为 A';
 
   @override
   String get textFiltersDataGridFilteringLabel => r'文本过滤器';
@@ -23902,13 +24081,13 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get afterDataGridFilteringLabel => r'後';
 
   @override
-  String get afterOrEqualDataGridFilteringLabel => r'之後或等於';
+  String get afterOrEqualDataGridFilteringLabel => r'等於或之後';
 
   @override
-  String get allowedViewTimelineDayLabel => r'時間表日';
+  String get allowedViewTimelineDayLabel => r'時間軸日';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'時間線月份';
+  String get allowedViewTimelineMonthLabel => r'時間表月份';
 
   @override
   String get allowedViewTimelineWeekLabel => r'時間線週';
@@ -23920,22 +24099,22 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get allowedViewWorkWeekLabel => r'工作週';
 
   @override
-  String get beforeDataGridFilteringLabel => r'之前或等於';
+  String get beforeDataGridFilteringLabel => r'早於或等於';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'開始於';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'清除過濾器';
+  String get clearFilterDataGridFilteringLabel => r'清除過濾器';
 
   @override
   String get dateFiltersDataGridFilteringLabel => r'日期過濾器';
 
   @override
-  String get dhualhiLabel => r'杜哈傑';
+  String get doesNotBeginWithDataGridFilteringLabel => r'不以開頭';
 
   @override
-  String get dhualqiLabel => r'杜阿爾-基達';
+  String get doesNotEndWithDataGridFilteringLabel => r'不結束於';
 
   @override
   String get doesNotEqualDataGridFilteringLabel => r'不等於';
@@ -23947,13 +24126,16 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get equalsDataGridFilteringLabel => r'等於';
 
   @override
+  String get fromDataGridFilteringLabel => r'從';
+
+  @override
   String get greaterThanOrEqualDataGridFilteringLabel => r'大於或等於';
 
   @override
-  String get jumada1Label => r'胡瑪達·奧瓦爾';
+  String get jumada1Label => r'朱馬達·阿瓦瓦爾';
 
   @override
-  String get jumada2Label => r'朱馬達·薩尼';
+  String get jumada2Label => r'祖瑪達·阿薩尼';
 
   @override
   String get lessThanDataGridFilteringLabel => r'少於';
@@ -23962,13 +24144,16 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get lessThanOrEqualDataGridFilteringLabel => r'小於或等於';
 
   @override
-  String get noEventsCalendarLabel => r'沒有事件';
+  String get muharramLabel => r'回曆';
+
+  @override
+  String get noEventsCalendarLabel => r'沒有活動';
 
   @override
   String get noMatchesDataGridFilteringLabel => r'無匹配';
 
   @override
-  String get noSelectedDateCalendarLabel => r'未選擇日期';
+  String get noSelectedDateCalendarLabel => r'沒有選擇日期';
 
   @override
   String get notNullDataGridFilteringLabel => r'不為空';
@@ -23980,10 +24165,10 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get numberFiltersDataGridFilteringLabel => r'數字過濾器';
 
   @override
-  String get pagesDataPagerLabel => r'頁面';
+  String get pagesDataPagerLabel => r'頁數';
 
   @override
-  String get passwordDialogContentLabel => r'輸入密碼以打開此 PDF 文件';
+  String get passwordDialogContentLabel => r'輸入密碼打開此 PDF 文件';
 
   @override
   String get passwordDialogHeaderTextLabel => r'密碼保護';
@@ -24004,7 +24189,7 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get pdfGoToPageLabel => r'轉到頁面';
 
   @override
-  String get pdfHyperlinkContentLabel => r'您要在以下位置打開頁面嗎';
+  String get pdfHyperlinkContentLabel => r'你想打開頁面嗎';
 
   @override
   String get pdfHyperlinkDialogOpenLabel => r'打開';
@@ -24016,19 +24201,19 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get pdfInvalidPageNumberLabel => r'請輸入有效號碼';
 
   @override
-  String get pdfNoBookmarksLabel => r'未找到書籤';
+  String get pdfNoBookmarksLabel => r'找不到書籤';
 
   @override
   String get pdfPasswordDialogOpenLabel => r'打開';
 
   @override
-  String get rabi1Label => r'拉比奧瓦爾';
+  String get rabi1Label => r'拉比·奧瓦爾';
 
   @override
   String get rabi2Label => r'拉比阿勒薩尼';
 
   @override
-  String get rajabLabel => r'拉賈布';
+  String get rajabLabel => r'拉傑卜';
 
   @override
   String get ramadanLabel => r'齋月';
@@ -24046,10 +24231,10 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get shawwalLabel => r'肖瓦爾';
 
   @override
-  String get shortDhualhiLabel => r'杜爾-H';
+  String get shortJumada1Label => r'滾。我';
 
   @override
-  String get shortDhualqiLabel => r'杜爾-Q';
+  String get shortJumada2Label => r'滾。二';
 
   @override
   String get shortRamadanLabel => r'內存。';
@@ -24076,7 +24261,7 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get sortSmallestToLargestDataGridFilteringLabel => r'從小到大排序';
 
   @override
-  String get sortZToADataGridFilteringLabel => r'從 Z 到 A 排序';
+  String get sortZToADataGridFilteringLabel => r'將 Z 排序為 A';
 
   @override
   String get textFiltersDataGridFilteringLabel => r'文本過濾器';
@@ -24164,7 +24349,7 @@ class SfLocalizationsZu extends SfGlobalLocalizations {
   String get cancelDataGridFilteringLabel => r'Khansela';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => r'Sula Isihlungi Kusuka';
+  String get clearFilterDataGridFilteringLabel => r'Sula Isihlungi';
 
   @override
   String get containsDataGridFilteringLabel => r'Iqukethe';
@@ -24201,6 +24386,9 @@ class SfLocalizationsZu extends SfGlobalLocalizations {
 
   @override
   String get equalsDataGridFilteringLabel => r'Kuyalingana';
+
+  @override
+  String get fromDataGridFilteringLabel => r'Kusuka';
 
   @override
   String get greaterThanDataGridFilteringLabel => r'Okukhulu Kunokuthi';

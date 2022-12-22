@@ -13,7 +13,7 @@
 "pdfPaginationDialogOkLabel" : "ಸರಿ", 
 "pdfPaginationDialogCancelLabel" : "ರದ್ದುಮಾಡು", 
 "passwordDialogHeaderTextLabel" : "ಪಾಸ್ವರ್ಡ್ ರಕ್ಷಿಸಲಾಗಿದೆ", 
-"passwordDialogContentLabel" : "ಈ PDF ಫೈಲ್ ಅನ್ನು ತೆರೆಯಲು ಪಾಸ್ವರ್ಡ್ ಅನ್ನು ನಮೂದಿಸಿ", 
+"passwordDialogContentLabel" : "ಈ PDF ಫೈಲ್ ತೆರೆಯಲು ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸಿ", 
 "passwordDialogHintTextLabel" : "ಪಾಸ್ವರ್ಡ್ ನಮೂದಿಸಿ", 
 "passwordDialogInvalidPasswordLabel" : "ಅಮಾನ್ಯವಾದ ಪಾಸ್ವರ್ಡ್", 
 "pdfPasswordDialogOpenLabel" : "ತೆರೆಯಿರಿ", 
@@ -44,8 +44,8 @@
 "dhualhiLabel" : "ಧು ಅಲ್-ಹಿಜ್ಜಾ", 
 "shortMuharramLabel" : "ಮುಹ್", 
 "shortSafarLabel" : "ಸೇಫ್", 
-"shortRabi1Label" : "ರಬಿ. I", 
-"shortRabi2Label" : "ರಬಿ. II", 
+"shortRabi1Label" : "ರಬಿ I", 
+"shortRabi2Label" : "ರಬಿ II", 
 "shortJumada1Label" : "ಜಂ. I", 
 "shortJumada2Label" : "ಜಂ. II", 
 "shortRajabLabel" : "ರಾಜ್.", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Z ನಿಂದ A ಗೆ ವಿಂಗಡಿಸಿ", 
 "sortOldestToNewestDataGridFilteringLabel" : "ಹಳೆಯದರಿಂದ ಹೊಸದಕ್ಕೆ ವಿಂಗಡಿಸಿ", 
 "sortNewestToOldestDataGridFilteringLabel" : "ಹೊಸದನ್ನು ಹಳೆಯದಕ್ಕೆ ವಿಂಗಡಿಸಿ", 
-"clearFilterFromDataGridFilteringLabel" : "ನಿಂದ ಫಿಲ್ಟರ್ ಅನ್ನು ತೆರವುಗೊಳಿಸಿ", 
 "textFiltersDataGridFilteringLabel" : "ಪಠ್ಯ ಶೋಧಕಗಳು", 
 "numberFiltersDataGridFilteringLabel" : "ಸಂಖ್ಯೆ ಶೋಧಕಗಳು", 
 "dateFiltersDataGridFilteringLabel" : "ದಿನಾಂಕ ಶೋಧಕಗಳು", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "ಮತ್ತು", 
 "orDataGridFilteringLabel" : "ಅಥವಾ", 
 "selectAllDataGridFilteringLabel" : "ಎಲ್ಲವನ್ನು ಆರಿಸು", 
-"sortAndFilterDataGridFilteringLabel" : "ವಿಂಗಡಿಸಿ ಮತ್ತು ಫಿಲ್ಟರ್ ಮಾಡಿ"
+"sortAndFilterDataGridFilteringLabel" : "ವಿಂಗಡಿಸಿ ಮತ್ತು ಫಿಲ್ಟರ್ ಮಾಡಿ", 
+"clearFilterDataGridFilteringLabel" : "ಫಿಲ್ಟರ್ ಅನ್ನು ತೆರವುಗೊಳಿಸಿ", 
+"fromDataGridFilteringLabel" : "ಇಂದ"
 }

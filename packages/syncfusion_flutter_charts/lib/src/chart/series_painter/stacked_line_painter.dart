@@ -179,7 +179,7 @@ class StackedLineChartPainter extends CustomPainter {
         seriesRendererDetails,
         seriesRendererDetails.seriesAnimation,
         stateProperties,
-        seriesRendererDetails.seriesElementAnimation!,
+        seriesRendererDetails.seriesElementAnimation,
         painterKey);
   }
 
@@ -349,7 +349,7 @@ class StackedLine100ChartPainter extends CustomPainter {
         seriesRendererDetails,
         seriesRendererDetails.seriesAnimation,
         stateProperties,
-        seriesRendererDetails.seriesElementAnimation!,
+        seriesRendererDetails.seriesElementAnimation,
         painterKey);
   }
 
@@ -364,7 +364,7 @@ void _stackedLinePainter(
     SeriesRendererDetails seriesRendererDetails,
     Animation<double>? seriesAnimation,
     CartesianStateProperties stateProperties,
-    Animation<double> chartElementAnimation,
+    Animation<double>? chartElementAnimation,
     PainterKey painterKey) {
   Rect clipRect;
   double animationFactor;
@@ -419,37 +419,35 @@ void _stackedLinePainter(
         pointIndex < seriesRendererDetails.dataPoints.length;
         pointIndex++) {
       currentPoint = seriesRendererDetails.dataPoints[pointIndex];
-      bool withInXRange = withInRange(currentPoint.xValue,
-          seriesRendererDetails.xAxisDetails!.visibleRange!);
+      bool withInXRange =
+          withInRange(currentPoint.xValue, seriesRendererDetails.xAxisDetails!);
       // ignore: unnecessary_null_comparison
       bool withInYRange = currentPoint != null &&
           currentPoint.yValue != null &&
-          withInRange(currentPoint.yValue,
-              seriesRendererDetails.yAxisDetails!.visibleRange!);
+          withInRange(currentPoint.yValue, seriesRendererDetails.yAxisDetails!);
 
       bool inRange = withInXRange || withInYRange;
       if (!inRange &&
           pointIndex + 1 < seriesRendererDetails.dataPoints.length) {
         final CartesianChartPoint<dynamic>? nextPoint =
             seriesRendererDetails.dataPoints[pointIndex + 1];
-        withInXRange = withInRange(nextPoint!.xValue,
-            seriesRendererDetails.xAxisDetails!.visibleRange!);
+        withInXRange =
+            withInRange(nextPoint!.xValue, seriesRendererDetails.xAxisDetails!);
         // ignore: unnecessary_null_comparison
         withInYRange = nextPoint != null &&
             nextPoint.yValue != null &&
-            withInRange(nextPoint.yValue,
-                seriesRendererDetails.yAxisDetails!.visibleRange!);
+            withInRange(nextPoint.yValue, seriesRendererDetails.yAxisDetails!);
         inRange = withInXRange || withInYRange;
         if (!inRange && pointIndex - 1 >= 0) {
           final CartesianChartPoint<dynamic>? prevPoint =
               seriesRendererDetails.dataPoints[pointIndex - 1];
-          withInXRange = withInRange(prevPoint!.xValue,
-              seriesRendererDetails.xAxisDetails!.visibleRange!);
+          withInXRange = withInRange(
+              prevPoint!.xValue, seriesRendererDetails.xAxisDetails!);
           // ignore: unnecessary_null_comparison
           withInYRange = prevPoint != null &&
               prevPoint.yValue != null &&
-              withInRange(prevPoint.yValue,
-                  seriesRendererDetails.yAxisDetails!.visibleRange!);
+              withInRange(
+                  prevPoint.yValue, seriesRendererDetails.yAxisDetails!);
         }
       }
       if (withInXRange || withInYRange) {

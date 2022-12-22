@@ -7,7 +7,7 @@
 "pdfBookmarksLabel" : "Alamisho", 
 "pdfNoBookmarksLabel" : "Hakuna alamisho zilizopatikana", 
 "pdfScrollStatusOfLabel" : "ya", 
-"pdfGoToPageLabel" : "Nenda kwa ukurasa", 
+"pdfGoToPageLabel" : "Nenda kwenye ukurasa", 
 "pdfEnterPageNumberLabel" : "Ingiza nambari ya ukurasa", 
 "pdfInvalidPageNumberLabel" : "Tafadhali weka nambari halali", 
 "pdfPaginationDialogOkLabel" : "sawa", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Panga Z hadi A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Panga Kongwe Kwa Mpya Zaidi", 
 "sortNewestToOldestDataGridFilteringLabel" : "Panga Mpya Zaidi Kwa Kongwe Zaidi", 
-"clearFilterFromDataGridFilteringLabel" : "Futa Kichujio Kutoka", 
 "textFiltersDataGridFilteringLabel" : "Vichujio vya Maandishi", 
 "numberFiltersDataGridFilteringLabel" : "Vichujio vya Nambari", 
 "dateFiltersDataGridFilteringLabel" : "Vichujio vya Tarehe", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Na", 
 "orDataGridFilteringLabel" : "Au", 
 "selectAllDataGridFilteringLabel" : "Chagua Zote", 
-"sortAndFilterDataGridFilteringLabel" : "Panga na Chuja"
+"sortAndFilterDataGridFilteringLabel" : "Panga na Chuja", 
+"clearFilterDataGridFilteringLabel" : "Futa Kichujio", 
+"fromDataGridFilteringLabel" : "Kutoka"
 }

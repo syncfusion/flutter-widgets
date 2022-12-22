@@ -3879,7 +3879,7 @@ class _SfCalendarState extends State<SfCalendar>
   /// loads the time zone data base to handle the time zone for calendar
   Future<bool> _loadDataBase() async {
     final ByteData byteData =
-        await rootBundle.load('packages/timezone/data/2020a.tzf');
+        await rootBundle.load('packages/timezone/data/latest_all.tzf');
     initializeDatabase(byteData.buffer.asUint8List());
     _timeZoneLoaded = true;
     return true;
@@ -6059,6 +6059,7 @@ class _SfCalendarState extends State<SfCalendar>
                       widget.appointmentBuilder,
                       _minWidth - viewPadding,
                       panelHeight,
+                      widget.monthViewSettings.agendaStyle.placeholderTextStyle,
                       widget),
                 )),
             onTapUp: (TapUpDetails details) {
@@ -9039,6 +9040,8 @@ class _SfCalendarState extends State<SfCalendar>
                         widget.appointmentBuilder,
                         width,
                         height,
+                        widget
+                            .monthViewSettings.agendaStyle.placeholderTextStyle,
                         widget),
                     onTapUp: (TapUpDetails details) {
                       _handleTapForAgenda(details, null);
@@ -9149,6 +9152,8 @@ class _SfCalendarState extends State<SfCalendar>
                                   widget.appointmentBuilder,
                                   width - _agendaDateViewWidth,
                                   painterHeight,
+                                  widget.monthViewSettings.agendaStyle
+                                      .placeholderTextStyle,
                                   widget),
                             ],
                           ),
@@ -10493,8 +10498,7 @@ class _ScheduleLabelPainter extends CustomPainter {
     final TextSpan span = TextSpan(
       text: _localizations.noEventsCalendarLabel,
       style: scheduleViewSettings.weekHeaderSettings.weekTextStyle ??
-          const TextStyle(
-              color: Colors.grey, fontSize: 15, fontFamily: 'Roboto'),
+          scheduleViewSettings.placeholderTextStyle,
     );
 
     double xPosition = 10;

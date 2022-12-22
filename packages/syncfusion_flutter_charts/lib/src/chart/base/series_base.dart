@@ -174,16 +174,27 @@ class ChartSeriesPanel {
           series.sortFieldValueMapper != null;
       // ignore: unnecessary_null_comparison
       if (series.dataSource != null) {
-        dynamic xVal;
+        dynamic previousX, currentX, nextX;
         dynamic yVal;
         num? low, high;
         num maxYValue = 0;
         seriesRendererDetails.overAllDataPoints =
             <CartesianChartPoint<dynamic>?>[];
+        CartesianChartPoint<dynamic>? nextPoint;
+        CartesianChartPoint<dynamic>? prevPoint;
         for (int pointIndex = 0; pointIndex < series.dataSource.length;) {
           currentPoint = getChartPoint(
               seriesRenderer, series.dataSource[pointIndex], pointIndex);
-          xVal = currentPoint?.x;
+          if (pointIndex < series.dataSource.length - 1 &&
+              seriesRendererDetails.seriesType != 'histogram') {
+            nextPoint = getChartPoint(seriesRenderer,
+                series.dataSource[pointIndex + 1], pointIndex + 1);
+          } else {
+            nextPoint = currentPoint;
+          }
+          currentX = currentPoint?.x;
+          nextX = nextPoint?.x;
+          previousX = pointIndex == 0 ? currentPoint?.x : prevPoint?.x;
           yVal = currentPoint?.y;
           high = currentPoint?.high;
           low = currentPoint?.low;
@@ -196,7 +207,7 @@ class ChartSeriesPanel {
             currentPoint!.maxYValue = maxYValue;
           }
 
-          if (xVal != null) {
+          if (currentX != null) {
             num bubbleSize;
             final dynamic xAxis = seriesRendererDetails.xAxisDetails?.axis;
             final dynamic yAxis = seriesRendererDetails.yAxisDetails?.axis;
@@ -204,19 +215,25 @@ class ChartSeriesPanel {
             dynamic xMax = xAxis?.visibleMaximum;
             final dynamic yMin = yAxis?.visibleMinimum;
             final dynamic yMax = yAxis?.visibleMaximum;
-            dynamic xPointValue = xVal;
+            dynamic xPointValue = currentX;
             bool isXVisibleRange = true;
             bool isYVisibleRange = true;
             if (xAxis is DateTimeAxis) {
               xMin = xMin != null ? xMin.millisecondsSinceEpoch : xMin;
               xMax = xMax != null ? xMax.millisecondsSinceEpoch : xMax;
               xPointValue = xPointValue?.millisecondsSinceEpoch;
+              nextX = nextX?.millisecondsSinceEpoch;
+              previousX = previousX?.millisecondsSinceEpoch;
             } else if (xAxis is CategoryAxis) {
               xPointValue = pointIndex;
+              nextX = pointIndex + 1;
+              previousX = pointIndex - 1;
             } else if (xAxis is DateTimeCategoryAxis) {
               xMin = xMin != null ? xMin.millisecondsSinceEpoch : xMin;
               xMax = xMax != null ? xMax.millisecondsSinceEpoch : xMax;
               xPointValue = xPointValue?.millisecondsSinceEpoch;
+              nextX = nextX?.millisecondsSinceEpoch;
+              previousX = previousX?.millisecondsSinceEpoch;
             }
             if (xMin != null || xMax != null) {
               isXVisibleRange = false;
@@ -279,11 +296,24 @@ class ChartSeriesPanel {
                             : yMax != null
                                 ? (yVal ?? high) <= yMax
                                 : false) ==
-                    true) {
+                    true ||
+                // If the data points present between the range the following conditions are working.
+
+                // This condition will works when having a range between the data points and data points between the given range.
+                // Also works when having a visible minimum value alone and data point outside the range this is for left side point.
+                ((xMin != null && xPointValue <= xMin && nextX > xMin) ||
+                    // This condition will work when having data points outside the given range and nearest to the given range and don't have a points between th range.
+                    ((xMin != null && xMax != null) &&
+                        ((xPointValue <= xMin && nextX >= xMax) ||
+                            (previousX <= xMin && xPointValue >= xMax))) ||
+                    // This condition will works when having a range between the data points and data points between the given range.
+                    // Also works when having a visible maximum value and data point outside the range this is for right side point.
+                    (xMax != null &&
+                        (previousX < xMax && xPointValue >= xMax)))) {
               isXVisibleRange = true;
               isYVisibleRange = true;
               seriesRendererDetails.dataPoints.add(currentPoint!);
-              seriesRendererDetails.xValues!.add(xVal);
+              seriesRendererDetails.xValues!.add(currentX);
               if (seriesRenderer is BubbleSeriesRenderer) {
                 bubbleSize = series.sizeValueMapper == null
                     ? 4
@@ -401,6 +431,7 @@ class ChartSeriesPanel {
           pointIndex = seriesRendererDetails.seriesType != 'histogram'
               ? pointIndex + 1
               : pointIndex + yVal as int;
+          prevPoint = currentPoint;
         }
         if (seriesRendererDetails.xAxisDetails
             is DateTimeCategoryAxisRenderer) {

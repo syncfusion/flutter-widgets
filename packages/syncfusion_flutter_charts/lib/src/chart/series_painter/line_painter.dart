@@ -221,36 +221,36 @@ class LineChartPainter extends CustomPainter {
       seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         currentPoint = dataPoints[pointIndex];
-        bool withInXRange = withInRange(currentPoint.xValue,
-            seriesRendererDetails.xAxisDetails!.visibleRange!);
+        bool withInXRange = withInRange(
+            currentPoint.xValue, seriesRendererDetails.xAxisDetails!);
         // ignore: unnecessary_null_comparison
         bool withInYRange = currentPoint != null &&
             currentPoint.yValue != null &&
-            withInRange(currentPoint.yValue,
-                seriesRendererDetails.yAxisDetails!.visibleRange!);
+            withInRange(
+                currentPoint.yValue, seriesRendererDetails.yAxisDetails!);
 
         bool inRange = withInXRange || withInYRange;
         if (!inRange && pointIndex + 1 < dataPoints.length) {
           final CartesianChartPoint<dynamic>? nextPoint =
               dataPoints[pointIndex + 1];
-          withInXRange = withInRange(nextPoint!.xValue,
-              seriesRendererDetails.xAxisDetails!.visibleRange!);
+          withInXRange = withInRange(
+              nextPoint!.xValue, seriesRendererDetails.xAxisDetails!);
           // ignore: unnecessary_null_comparison
           withInYRange = nextPoint != null &&
               nextPoint.yValue != null &&
-              withInRange(nextPoint.yValue,
-                  seriesRendererDetails.yAxisDetails!.visibleRange!);
+              withInRange(
+                  nextPoint.yValue, seriesRendererDetails.yAxisDetails!);
           inRange = withInXRange || withInYRange;
           if (!inRange && pointIndex - 1 >= 0) {
             final CartesianChartPoint<dynamic>? prevPoint =
                 dataPoints[pointIndex - 1];
-            withInXRange = withInRange(prevPoint!.xValue,
-                seriesRendererDetails.xAxisDetails!.visibleRange!);
+            withInXRange = withInRange(
+                prevPoint!.xValue, seriesRendererDetails.xAxisDetails!);
             // ignore: unnecessary_null_comparison
             withInYRange = prevPoint != null &&
                 prevPoint.yValue != null &&
-                withInRange(prevPoint.yValue,
-                    seriesRendererDetails.yAxisDetails!.visibleRange!);
+                withInRange(
+                    prevPoint.yValue, seriesRendererDetails.yAxisDetails!);
           }
         }
         if (withInXRange || withInYRange) {

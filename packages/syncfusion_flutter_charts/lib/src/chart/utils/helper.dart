@@ -115,9 +115,16 @@ num calculateLogBaseValue(num value, num base) =>
     math.log(value) / math.log(base);
 
 /// To check if value is within range.
-bool withInRange(num value, VisibleRange range) =>
-// ignore: unnecessary_null_comparison
-    value != null && (value <= range.maximum) && (value >= range.minimum);
+bool withInRange(num value, ChartAxisRendererDetails axisDetails) {
+  final ChartAxis axis = axisDetails.axis;
+  final num visibleMinimum = axis is LogarithmicAxis
+      ? pow(axis.logBase, axisDetails.visibleRange!.minimum)
+      : axisDetails.visibleRange!.minimum;
+  final num visibleMaximum = axis is LogarithmicAxis
+      ? pow(axis.logBase, axisDetails.visibleRange!.maximum)
+      : axisDetails.visibleRange!.maximum;
+  return (value <= visibleMaximum) && (value >= visibleMinimum);
+}
 
 /// To find the proper series color of each point in waterfall chart,
 /// which includes intermediate sum, total sum and negative point.

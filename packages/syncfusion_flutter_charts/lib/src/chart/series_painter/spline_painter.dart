@@ -235,11 +235,11 @@ class SplineChartPainter extends CustomPainter {
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         if (withInRange(seriesRendererDetails.dataPoints[pointIndex].xValue,
-                seriesRendererDetails.xAxisDetails!.visibleRange!) ||
+                seriesRendererDetails.xAxisDetails!) ||
             (pointIndex < dataPoints.length - 1 &&
                 withInRange(
                     seriesRendererDetails.dataPoints[pointIndex + 1].xValue,
-                    seriesRendererDetails.xAxisDetails!.visibleRange!))) {
+                    seriesRendererDetails.xAxisDetails!))) {
           seriesRendererDetails.calculateRegionData(stateProperties,
               seriesRendererDetails, painterKey.index, point, pointIndex);
           if ((point.isVisible && !point.isGap) && startPoint == null) {

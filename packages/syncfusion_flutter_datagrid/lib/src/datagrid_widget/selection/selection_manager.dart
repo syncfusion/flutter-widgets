@@ -156,6 +156,9 @@ class RowSelectionManager extends SelectionManagerBase {
           _addSelection(record, dataGridConfiguration);
         } else {
           _clearSelectedRow(dataGridConfiguration);
+          if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
+            _clearCurrentCell(dataGridConfiguration);
+          }
         }
 
         notifyListeners();
@@ -618,10 +621,16 @@ class RowSelectionManager extends SelectionManagerBase {
         dataGridConfiguration.selectionMode != SelectionMode.multiple;
 
     //If newValue is negative we have clear the whole selection data.
-    //In multiple case we shouldn't to clear the collection as well
-    // source properties.
-    if (newValue == null && canClearSelections()) {
-      _clearSelectedRow(dataGridConfiguration);
+    if (newValue == null && _selectedRows.isNotEmpty) {
+      // If selection mode is multiple we need to clear all the selected rows.
+      if (dataGridConfiguration.selectionMode == SelectionMode.multiple) {
+        _clearSelectedRows(dataGridConfiguration);
+      } else {
+        _clearSelectedRow(dataGridConfiguration);
+      }
+      if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
+        _clearCurrentCell(dataGridConfiguration);
+      }
       notifyListeners();
       return;
     }
@@ -679,10 +688,21 @@ class RowSelectionManager extends SelectionManagerBase {
         dataGridConfiguration.selectionMode != SelectionMode.multiple;
 
     //If newValue is negative we have to clear the whole selection data.
-    //In multiple case we shouldn't to clear the collection as
-    // well source properties.
-    if (newValue == -1 && canClearSelections()) {
-      _clearSelectedRow(dataGridConfiguration);
+    if (newValue == -1 && _selectedRows.isNotEmpty) {
+      // If selection mode is multiple we need to clear all the selected rows.
+      if (dataGridConfiguration.selectionMode == SelectionMode.multiple) {
+        _clearSelectedRows(dataGridConfiguration);
+      } else {
+        _clearSelectedRow(dataGridConfiguration);
+      }
+
+      // Issue:
+      // FLUT-7123-The current cell is not removed when setting the selected index as -1 through the SelectionController
+      // We removed the selected rows only when setting the selected index as -1 from the controller
+      // We have resolved the issue by removing the current cell too.
+      if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
+        _clearCurrentCell(dataGridConfiguration);
+      }
       notifyListeners();
       return;
     }
@@ -1481,8 +1501,11 @@ class CurrentCellManager {
       return null;
     }
 
-    return dataRows
-        .firstWhereOrNull((DataRowBase row) => row.rowIndex == rowIndex);
+    // If attempt to obtain a current row after calling the `refreshView` method,
+    // all the row indexes will be -1 in the `items` collection. So, need to
+    // consider the `isCurrentRow` property additionally to get the current row.
+    return dataRows.firstWhereOrNull(
+        (DataRowBase row) => row.rowIndex == rowIndex || row.isCurrentRow);
   }
 
   DataCellBase? _getDataCell(DataRowBase dataRow, int columnIndex) {
@@ -1710,21 +1733,39 @@ class CurrentCellManager {
         return;
       }
 
-      // If the editing is initiate from f2 key, need not to process the
-      // handleTap.
-      if (needToResolveIndex) {
-        dataGridConfiguration.rowSelectionManager
-            .handleTap(editingRowColumnIndex);
-      } else {
-        // Need to skip the editing when current cell is not in view and we
-        // process initiate the editing from f2 key.
+      // In programmatic begin edit, need to update current cell when the
+      // dataCell doesn't contain the proper current cell index. So, we commonly
+      // update the current cell here for programmatic and F2 key to begin edit
+      // the cell.
+      void setCurrentCell() {
         final DataRowBase? dataRow =
-            _getDataRow(dataGridConfiguration, editingRowColumnIndex.rowIndex);
+            _getDataRow(dataGridConfiguration, editingRowColumnIndex!.rowIndex);
         if (dataRow != null) {
           dataCell = _getDataCell(dataRow, editingRowColumnIndex.columnIndex);
         } else {
           return;
         }
+      }
+
+      // If the editing is initiate from f2 key, need not to process the
+      // handleTap.
+      if (needToResolveIndex) {
+        dataGridConfiguration.rowSelectionManager
+            .handleTap(editingRowColumnIndex);
+
+        // In programmatic begin edit, if the `editingRowColumnIndex` has valid
+        // row and column index and the current cell has a previous current cell
+        // value, need to update the current cell based on the
+        // `editingRowColumnIndex` property.
+        if (dataCell != null &&
+            !editingRowColumnIndex.equals(
+                RowColumnIndex(dataCell!.rowIndex, dataCell!.columnIndex))) {
+          setCurrentCell();
+        }
+      } else {
+        // Need to skip the editing when current cell is not in view and we
+        // process initiate the editing from f2 key.
+        setCurrentCell();
       }
 
       editingDataCell = dataCell;
@@ -1772,9 +1813,14 @@ class CurrentCellManager {
               /// So, we need to request the focus here.
               /// Also, if we return false from the canSubmitCell method and tap other cells
               /// We need to retain the focus on the text field instead of losing focus.
+              ///
+              // Issue:
+              // FLUT-7120-The focus did not go to the other widgets when DataGrid's current cell is in edit mode.
+              // We have checked whether the current cell is editing or not based on the `isCurrentCellInEditing` property.
+              // In this case, it is true. So we fixed it by checking the value of the `canCellSumbit` method.
               if (!_focusScopeNode.hasFocus &&
                   !dataGridConfiguration.dataGridFocusNode!.hasFocus &&
-                  dataGridConfiguration.controller.isCurrentCellInEditing) {
+                  !canSubmitCell(dataGridConfiguration)) {
                 _focusScopeNode.requestFocus();
               }
             },

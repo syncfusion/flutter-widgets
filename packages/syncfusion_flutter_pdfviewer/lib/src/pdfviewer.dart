@@ -871,7 +871,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   PdfDocument? _document;
   bool _hasError = false;
   bool _panEnabled = true;
-  bool _isMobile = false;
+  bool _isMobileView = false;
   bool _isSearchStarted = false;
   bool _isKeyPadRaised = false;
   bool _isTextSelectionCleared = false;
@@ -928,6 +928,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   final Map<int, String> _extractedTextCollection = <int, String>{};
   Isolate? _textSearchIsolate;
   Isolate? _textExtractionIsolate;
+  bool _isTablet = false;
 
   /// PdfViewer theme data.
   SfPdfViewerThemeData? _pdfViewerThemeData;
@@ -1203,7 +1204,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           }
         }
         if (widget.canShowPasswordDialog && !_isPasswordUsed) {
-          if (_isMobile) {
+          if (_isMobileView) {
             _checkMount();
             _showPasswordDialog();
           } else {
@@ -1879,21 +1880,22 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     }
   }
 
-  /// Find whether device is mobile or Laptop.
+  /// Find whether device is mobile or tablet.
   void _findDevice(BuildContext context) {
     /// Standard diagonal offset of tablet.
     const double kPdfStandardDiagonalOffset = 1100.0;
     final Size size = MediaQuery.of(context).size;
     final double diagonal =
         sqrt((size.width * size.width) + (size.height * size.height));
-    _isMobile = diagonal < kPdfStandardDiagonalOffset;
+    _isMobileView = diagonal < kPdfStandardDiagonalOffset;
+    _isTablet = diagonal > kPdfStandardDiagonalOffset;
   }
 
   /// Get the global rect of viewport region.
   Rect? _getViewportGlobalRect() {
     Rect? viewportGlobalRect;
     if (kIsDesktop &&
-        !_isMobile &&
+        !_isMobileView &&
         ((widget.pageLayoutMode == PdfPageLayoutMode.single &&
                 _singlePageViewKey.currentContext != null) ||
             (_pdfScrollableStateKey.currentContext != null &&
@@ -2058,7 +2060,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                         _isOverflowed = _originalWidth![index] >
                             // ignore: avoid_as
                             _viewportConstraints.maxWidth as bool;
-                        if (kIsDesktop && !_isMobile) {
+                        if (kIsDesktop && !_isMobileView) {
                           if (_originalWidth![index] > _maxPdfPageWidth !=
                               null) {
                             _maxPdfPageWidth =
@@ -2084,14 +2086,14 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           viewportDimension,
                           widget.interactionMode,
                           (kIsDesktop &&
-                                  !_isMobile &&
+                                  !_isMobileView &&
                                   !_isOverflowed &&
                                   widget.pageLayoutMode ==
                                       PdfPageLayoutMode.continuous)
                               ? _originalWidth![index]
                               : calculatedSize.width,
                           (kIsDesktop &&
-                                  !_isMobile &&
+                                  !_isMobileView &&
                                   !_isOverflowed &&
                                   widget.pageLayoutMode ==
                                       PdfPageLayoutMode.continuous)
@@ -2111,7 +2113,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           widget.currentSearchTextHighlightColor,
                           widget.otherSearchTextHighlightColor,
                           _textCollection,
-                          _isMobile,
+                          _isMobileView,
                           _pdfViewerController._pdfTextSearchResult,
                           _pdfScrollableStateKey,
                           _singlePageViewKey,
@@ -2129,7 +2131,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                             index == _pdfViewerController.pageCount - 1
                                 ? 0.0
                                 : widget.pageSpacing;
-                        if (kIsDesktop && !_isMobile && !_isOverflowed) {
+                        if (kIsDesktop && !_isMobileView && !_isOverflowed) {
                           _pdfPages[pageIndex] = PdfPageInfo(
                               totalHeight,
                               Size(_originalWidth![index],
@@ -2224,7 +2226,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                               widget.canShowScrollHead,
                               widget.canShowScrollStatus,
                               _pdfPages,
-                              _isMobile,
+                              _isMobileView,
                               widget.enableDoubleTapZooming,
                               widget.interactionMode,
                               _isScaleEnabled,
@@ -2233,6 +2235,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                               _handlePdfOffsetChanged,
                               isBookmarkViewOpen,
                               _textDirection,
+                              _isTablet,
                               children),
                         );
                         if (_isSinglePageViewPageChanged &&
@@ -2295,7 +2298,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           widget.canShowScrollStatus,
                           widget.canShowScrollHead,
                           _pdfViewerController,
-                          _isMobile,
+                          _isMobileView,
                           _pdfDimension,
                           _totalImageSize,
                           viewportDimension,
@@ -2422,14 +2425,14 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           : totalImageHeight / heightFactor.clamp(1, 3);
       _totalImageSize =
           Size(totalImageWidth / zoomLevel, totalImageHeight / zoomLevel);
-      if (_isMobile &&
+      if (_isMobileView &&
           !_isKeyPadRaised &&
           childHeight > _viewportConstraints.maxHeight &&
           (totalImageHeight / zoomLevel).floor() <=
               _viewportConstraints.maxHeight.floor()) {
         childHeight = _viewportConstraints.maxHeight;
       }
-      if (_isMobile &&
+      if (_isMobileView &&
           childWidth > _viewportConstraints.maxWidth &&
           totalImageWidth / zoomLevel <= _viewportConstraints.maxWidth) {
         childWidth = _viewportConstraints.maxWidth;
@@ -2443,7 +2446,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   }
 
   void _handlePdfPagePointerMove(PointerMoveEvent details) {
-    if (details.kind == PointerDeviceKind.touch && kIsDesktop && !_isMobile) {
+    if (details.kind == PointerDeviceKind.touch && kIsDesktop) {
       setState(() {
         _isScaleEnabled = true;
       });
@@ -2451,7 +2454,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   }
 
   void _handlePdfPagePointerUp(PointerUpEvent details) {
-    if (details.kind == PointerDeviceKind.touch && kIsDesktop && !_isMobile) {
+    if (details.kind == PointerDeviceKind.touch && kIsDesktop) {
       setState(() {
         _isScaleEnabled = false;
       });
@@ -2483,7 +2486,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     }
     if (!_isScaleEnabled &&
         event.kind == PointerDeviceKind.touch &&
-        (!kIsDesktop || _isMobile)) {
+        (!kIsDesktop)) {
       setState(() {
         _isScaleEnabled = true;
       });
@@ -2507,7 +2510,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
 
   void _handleDoubleTap() {
     _checkMount();
-    if (!kIsDesktop || _isMobile) {
+    if (!kIsDesktop || _isMobileView) {
       _pdfPagesKey[_pdfViewerController.pageNumber]
           ?.currentState
           ?.canvasRenderBox
@@ -2516,7 +2519,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   }
 
   void _handleBookmarkViewChanged(bool hasBookmark) {
-    if (!kIsWeb || (kIsWeb && _isMobile)) {
+    if (!kIsWeb || (kIsWeb && _isMobileView)) {
       _checkMount();
     }
   }
@@ -2871,7 +2874,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       final double greyArea =
           (_singlePageViewKey.currentState?.greyAreaSize ?? 0) / 2;
       double heightPercentage = 1.0;
-      if (kIsDesktop && !_isMobile) {
+      if (kIsDesktop && !_isMobileView) {
         heightPercentage =
             _document!.pages[_pdfViewerController.pageNumber - 1].size.height /
                 _pdfPages[_pdfViewerController.pageNumber]!.pageSize.height;
@@ -2900,7 +2903,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         }
         _pdfViewerController.zoomLevel = zoomLevel;
         double heightPercentage = 1.0;
-        if (kIsDesktop && !_isMobile) {
+        if (kIsDesktop && !_isMobileView) {
           heightPercentage = _document!
                   .pages[_pdfViewerController.pageNumber - 1].size.height /
               _pdfPages[_pdfViewerController.pageNumber]!.pageSize.height;
@@ -3032,7 +3035,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       ).enforce(constraints);
     } else {
       if (widget.pageLayoutMode == PdfPageLayoutMode.single &&
-          (!_isMobile || _viewportConstraints.maxWidth > newHeight)) {
+          (!_isMobileView || _viewportConstraints.maxWidth > newHeight)) {
         constraints = BoxConstraints.tightFor(
           height: newHeight,
         ).enforce(constraints);
@@ -3151,7 +3154,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
             .getRotatedOffset(bookmarkOffset, index - 1, pdfPage.rotation);
       }
       if (kIsDesktop &&
-          !_isMobile &&
+          !_isMobileView &&
           widget.pageLayoutMode == PdfPageLayoutMode.continuous) {
         heightPercentage = 1.0;
       }
@@ -3494,7 +3497,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           .topLeft;
     }
     final double heightPercentage = (kIsDesktop &&
-            !_isMobile &&
+            !_isMobileView &&
             !_isOverflowed &&
             widget.pageLayoutMode == PdfPageLayoutMode.continuous)
         ? 1
@@ -3502,7 +3505,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
             _pdfPages[currentInstancePageIndex]!.pageSize.height;
 
     final double widthPercentage = (kIsDesktop &&
-            !_isMobile &&
+            !_isMobileView &&
             !_isOverflowed &&
             widget.pageLayoutMode == PdfPageLayoutMode.continuous)
         ? 1
@@ -4350,15 +4353,15 @@ class PdfViewerController extends ChangeNotifier with _ValueChangeNotifier {
 
   /// Searches the given text in the document.
   ///
+  /// This method returns the [PdfTextSearchResult] object using which the search navigation can be performed on the instances found.
+  ///
   /// On mobile and desktop platforms, the search will be performed asynchronously
   /// and so the results will be returned periodically on a page-by-page basis,
-  /// which can be retrieved using the [addListener] method in the application.
+  /// which can be retrieved using the [PdfTextSearchResult.addListener] method in the application.
   ///
   /// Whereas in the web platform, the search will be performed synchronously
   /// and so the result will be returned only after completing the search on all the pages.
   /// This is since [isolate] is not supported for the web platform yet.
-  ///
-  /// This method returns the [PdfTextSearchResult] object using which the search navigation can be performed on the instances found.
   ///
   ///  * searchText - required - The text to be searched in the document.
   ///  * searchOption - optional - Defines the constants that specify the option for text search.

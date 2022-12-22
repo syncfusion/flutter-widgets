@@ -49,6 +49,18 @@ class Workbook {
   /// Represents the build in properties.
   BuiltInProperties? _builtInProperties;
 
+  ///Represents workbook named range collection.
+  Names? _namesColl;
+
+  ///Represents workbook named range collection.
+  Names get names {
+    _namesColl ??= _WorkbookNamesCollection(this);
+    return _namesColl!;
+  }
+
+  /// Represents the name collection in the workbook.
+  late List<Name> innerNamesCollection;
+
   /// Represents the font collection in the workbook.
   late List<Font> fonts;
 
@@ -6151,6 +6163,7 @@ class Workbook {
   void _initialize() {
     _sharedString = <String, int>{};
     fonts = <Font>[];
+    innerNamesCollection = <Name>[];
     borders = <Borders>[];
     _styles = StylesCollection(this);
     _rawFormats = FormatsCollection(this);
@@ -6760,6 +6773,8 @@ class Workbook {
     _mergedCellsStyle.clear();
 
     fonts.clear();
+
+    innerNamesCollection.clear();
 
     borders.clear();
 

@@ -57,6 +57,7 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     required TextDirection textDirection,
     required MediaQueryData mediaQueryData,
     required bool isInversed,
+    required DeviceGestureSettings gestureSettings,
   })  : _values = values!,
         _dragMode = dragMode,
         _enableIntervalSelection = enableIntervalSelection,
@@ -99,7 +100,8 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
         ..onStart = _onDragStart
         ..onUpdate = _onDragUpdate
         ..onEnd = _onDragEnd
-        ..onCancel = _onDragCancel;
+        ..onCancel = _onDragCancel
+        ..gestureSettings = gestureSettings;
     }
     if (sliderType == SliderType.vertical) {
       verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
@@ -107,7 +109,8 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
         ..onStart = _onVerticalDragStart
         ..onUpdate = _onVerticalDragUpdate
         ..onEnd = _onVerticalDragEnd
-        ..onCancel = _onVerticalDragCancel;
+        ..onCancel = _onVerticalDragCancel
+        ..gestureSettings = gestureSettings;
     }
     tapGestureRecognizer = TapGestureRecognizer()
       ..team = team
@@ -1086,6 +1089,14 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     _tooltipEndAnimation
         .removeStatusListener(_handleTooltipAnimationStatusChange);
     super.detach();
+  }
+
+  @override
+  void dispose() {
+    horizontalDragGestureRecognizer?.dispose();
+    verticalDragGestureRecognizer?.dispose();
+    tapGestureRecognizer.dispose();
+    super.dispose();
   }
 
   @override

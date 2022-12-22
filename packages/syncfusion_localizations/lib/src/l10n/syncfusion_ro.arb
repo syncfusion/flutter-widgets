@@ -10,7 +10,7 @@
 "pdfGoToPageLabel" : "Mergi la pagina", 
 "pdfEnterPageNumberLabel" : "Introduceți numărul paginii", 
 "pdfInvalidPageNumberLabel" : "Vă rugăm să introduceți un număr valid", 
-"pdfPaginationDialogOkLabel" : "Bine", 
+"pdfPaginationDialogOkLabel" : "O.K", 
 "pdfPaginationDialogCancelLabel" : "ANULARE", 
 "passwordDialogHeaderTextLabel" : "Protectie cu parola", 
 "passwordDialogContentLabel" : "Introduceți parola pentru a deschide acest fișier PDF", 
@@ -27,7 +27,7 @@
 "allowedViewTimelineWeekLabel" : "Săptămâna cronologică", 
 "allowedViewTimelineWorkWeekLabel" : "Cronologie Săptămâna de lucru", 
 "allowedViewTimelineMonthLabel" : "Cronologie Luna", 
-"todayLabel" : "Azi", 
+"todayLabel" : "Astăzi", 
 "weeknumberLabel" : "Săptămână", 
 "allDayLabel" : "Toată ziua", 
 "muharramLabel" : "Muharram", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Sortați de la Z la A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Sortați de la cel mai vechi la cel mai nou", 
 "sortNewestToOldestDataGridFilteringLabel" : "Sortați de la cel mai nou la cel mai vechi", 
-"clearFilterFromDataGridFilteringLabel" : "Ștergeți Filtrul de la", 
 "textFiltersDataGridFilteringLabel" : "Filtre de text", 
 "numberFiltersDataGridFilteringLabel" : "Filtre de numere", 
 "dateFiltersDataGridFilteringLabel" : "Filtre de dată", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Și", 
 "orDataGridFilteringLabel" : "Sau", 
 "selectAllDataGridFilteringLabel" : "Selectează tot", 
-"sortAndFilterDataGridFilteringLabel" : "Sortați și filtrați"
+"sortAndFilterDataGridFilteringLabel" : "Sortați și filtrați", 
+"clearFilterDataGridFilteringLabel" : "Șterge filtrul", 
+"fromDataGridFilteringLabel" : "Din"
 }

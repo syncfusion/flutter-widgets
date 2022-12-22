@@ -1402,13 +1402,16 @@ class ChartSeriesController {
       if (needUpdate) {
         if (seriesRendererDetails.dataPoints.length > index == true) {
           seriesRendererDetails.dataPoints[index] = currentPoint;
+          seriesRendererDetails.overAllDataPoints[index] = currentPoint;
         }
       } else {
         if (seriesRendererDetails.dataPoints.length == index) {
           seriesRendererDetails.dataPoints.add(currentPoint);
+          seriesRendererDetails.overAllDataPoints.add(currentPoint);
         } else if (seriesRendererDetails.dataPoints.length > index == true &&
             index >= 0) {
           seriesRendererDetails.dataPoints.insert(index, currentPoint);
+          seriesRendererDetails.overAllDataPoints.insert(index, currentPoint);
         }
       }
 
@@ -1654,6 +1657,7 @@ class ChartSeriesController {
         _needXRecalculation = true;
       }
       seriesRendererDetails.dataPoints.removeAt(index);
+      seriesRendererDetails.overAllDataPoints.removeAt(index);
       // ignore: unnecessary_null_comparison
       if (currentPoint != null) {
         if (!_needXRecalculation &&

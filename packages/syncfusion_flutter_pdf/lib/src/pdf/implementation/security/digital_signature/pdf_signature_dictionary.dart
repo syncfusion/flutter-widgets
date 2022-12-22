@@ -170,7 +170,10 @@ class PdfSignatureDictionary implements IPdfWrapper {
   }
 
   void _addDate() {
-    final DateTime dateTime = DateTime.now();
+    DateTime dateTime = DateTime.now();
+    if (_sig != null && _sig!.signedDate != null) {
+      dateTime = _sig!.signedDate!;
+    }
     final DateFormat dateFormat = DateFormat('yyyyMMddHHmmss');
     final int regionMinutes = dateTime.timeZoneOffset.inMinutes ~/ 11;
     String offsetMinutes = regionMinutes.toString();
