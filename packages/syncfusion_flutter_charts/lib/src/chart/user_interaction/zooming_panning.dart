@@ -477,7 +477,7 @@ class ZoomPanBehavior {
       if (axisDetails.orientation == AxisOrientation.horizontal) {
         if (direction == 'left') {
           axisDetails.zoomPosition =
-              (axisDetails.zoomPosition > 0 && axisDetails.zoomPosition <= 0.9)
+              (axisDetails.zoomPosition > 0 && axisDetails.zoomPosition <= 1)
                   ? axisDetails.zoomPosition - 0.1
                   : axisDetails.zoomPosition;
           axisDetails.zoomPosition =
