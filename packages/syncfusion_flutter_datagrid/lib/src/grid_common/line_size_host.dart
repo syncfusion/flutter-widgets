@@ -653,10 +653,13 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
   ///
   void initializeDistances() {
     if (distances != null) {
-      distances!
-        ..clear()
-        ..count = getLineCount()
-        ..defaultDistance = defaultLineSize;
+      if (distances!.count != getLineCount() ||
+          distances!.defaultDistance != defaultLineSize) {
+        distances!
+          ..clear()
+          ..count = getLineCount()
+          ..defaultDistance = defaultLineSize;
+      }
       _lineNested.forEach((int key, LineSizeCollection value) {
         int repeatSizeCount = -1;
         final List<dynamic> hiddenValue = getHidden(key, repeatSizeCount);
