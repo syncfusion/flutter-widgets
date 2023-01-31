@@ -1064,19 +1064,22 @@ class TreeTable extends TreeTableBase {
   }
 
   ///
-  void deleteFixup(TreeTableBranchBase? x, bool isLeft) {
+  void deleteFixup(TreeTableBranchBase? x) {
     const bool inAddMode = false;
     while (x != null &&
+        x.parent != null &&
         !referenceEquals(x, _root) &&
         x._color == TreeTableNodeColor.black) {
-      if (isLeft) {
+      if (referenceEquals(x.parent!.left, x)) {
         TreeTableNodeBase? w = x.parent?.right;
         if (w != null && w.color == TreeTableNodeColor.red) {
           w.color = TreeTableNodeColor.black;
-          x.parent?.color = TreeTableNodeColor.black;
+          x.parent?.color = TreeTableNodeColor.red;
           leftRotate(x.parent, inAddMode);
           if (x.parent != null) {
             w = x.parent!.right! as TreeTableBranchBase;
+          } else {
+            return;
           }
         }
 
@@ -1085,44 +1088,39 @@ class TreeTable extends TreeTableBase {
         }
 
         if (w is TreeTableBranchBase &&
-            w.color == TreeTableNodeColor.black &&
             (w.left!.isEntry() ||
                 w.getLeftBranch()!.color == TreeTableNodeColor.black) &&
             (w.right!.isEntry() ||
                 w.getRightBranch()!.color == TreeTableNodeColor.black)) {
           w.color = TreeTableNodeColor.red;
-          if (x.color == TreeTableNodeColor.red) {
-            x.color = TreeTableNodeColor.black;
-            return;
-          } else {
-            isLeft = x.parent!.left == x;
-            x = x.parent;
-          }
-        } else if (w is TreeTableBranchBase &&
-            w.color == TreeTableNodeColor.black &&
-            !w.right!.isEntry() &&
-            w.getRightBranch()!.color == TreeTableNodeColor.red) {
-          leftRotate(x.parent, inAddMode);
-          w.color = x.parent!.color;
-          x.parent!.color = w.color;
-          return;
-        } else if (w is TreeTableBranchBase &&
-            w.color == TreeTableNodeColor.black &&
-            !w.left!.isEntry() &&
-            w.getLeftBranch()!.color == TreeTableNodeColor.red &&
-            (w.right!.isEntry() ||
-                w.getRightBranch()!.color == TreeTableNodeColor.black)) {
-          rightRotate(w, inAddMode);
-
-          w.parent!.color = TreeTableNodeColor.black;
-          w.color = TreeTableNodeColor.red;
-
-          leftRotate(x.parent, inAddMode);
-          w.color = x.parent!.color;
-          x.parent!.color = w.color;
-          return;
+          x = x.parent;
         } else {
-          return;
+          if (w is TreeTableBranchBase &&
+              (w.right!.isEntry() ||
+                  w.getRightBranch()!.color == TreeTableNodeColor.black)) {
+            w.left?.color = TreeTableNodeColor.black;
+            w.color = TreeTableNodeColor.red;
+            rightRotate(w, inAddMode);
+            if (x.parent != null) {
+              w = x.parent!.right;
+            } else {
+              break;
+            }
+          }
+          if (w == null) {
+            return;
+          }
+          if (w is TreeTableBranchBase) {
+            w.color = x.parent!.color;
+            w.right?.color = TreeTableNodeColor.black;
+          }
+          x.parent?.color = TreeTableNodeColor.black;
+          leftRotate(x.parent, inAddMode);
+          if (_root is TreeTableBranchBase && _root != null) {
+            x = _root! as TreeTableBranchBase;
+          } else {
+            return;
+          }
         }
       } else {
         TreeTableNodeBase? w = x.parent?.left;
@@ -1130,7 +1128,11 @@ class TreeTable extends TreeTableBase {
           w.color = TreeTableNodeColor.black;
           x.parent!.color = TreeTableNodeColor.red;
           rightRotate(x.parent, inAddMode);
-          w = x.parent!.left;
+          if (x.parent != null) {
+            w = x.parent!.left;
+          } else {
+            return;
+          }
         }
 
         if (w == null) {
@@ -1138,53 +1140,44 @@ class TreeTable extends TreeTableBase {
         }
 
         if (w is TreeTableBranchBase &&
-            w.color == TreeTableNodeColor.black &&
-            (w.left!.isEntry() ||
-                w.getLeftBranch()!.color == TreeTableNodeColor.black) &&
             (w.right!.isEntry() ||
-                w.getRightBranch()!.color == TreeTableNodeColor.black)) {
+                w.getRightBranch()!.color == TreeTableNodeColor.black) &&
+            (w.left!.isEntry() ||
+                w.getLeftBranch()!.color == TreeTableNodeColor.black)) {
           w.color = TreeTableNodeColor.red;
-          if (x.color == TreeTableNodeColor.red) {
-            x.color = TreeTableNodeColor.black;
-            return;
-          } else if (x.parent != null) {
-            isLeft = x.parent!.left == x;
-            x = x.parent;
-          }
+          x = x.parent;
         } else {
           if (w is TreeTableBranchBase &&
-              w.color == TreeTableNodeColor.black &&
-              !w.right!.isEntry() &&
-              w.getRightBranch()!.color == TreeTableNodeColor.red) {
-            final TreeTableBranchBase xParent = x.parent!;
-            leftRotate(xParent, inAddMode);
-            final TreeTableNodeColor t = w.color!;
-            w.color = xParent.color;
-            xParent.color = t;
-            return;
-          } else if (w is TreeTableBranchBase &&
-              w.color == TreeTableNodeColor.black &&
-              !w.left!.isEntry() &&
-              w.getLeftBranch()!.color == TreeTableNodeColor.red &&
-              (w.right!.isEntry() ||
-                  w.getRightBranch()!.color == TreeTableNodeColor.black)) {
-            final TreeTableBranchBase wParent = w.parent!;
-            final TreeTableBranchBase xParent = x.parent!;
-            rightRotate(w, inAddMode);
-
-            wParent.color = TreeTableNodeColor.black;
+              (w.left!.isEntry() ||
+                  w.getLeftBranch()!.color == TreeTableNodeColor.black)) {
+            w.right?.color = TreeTableNodeColor.black;
             w.color = TreeTableNodeColor.red;
-
-            leftRotate(x.parent, inAddMode);
-            w.color = xParent.color;
-            xParent.color = w.color;
+            leftRotate(w, inAddMode);
+            if (x.parent != null) {
+              w = x.parent!.left;
+            } else {
+              break;
+            }
+          }
+          if (w == null) {
+            return;
+          }
+          if (w is TreeTableBranchBase) {
+            w.color = x.parent!.color;
+            w.left?.color = TreeTableNodeColor.black;
+          }
+          x.parent?.color = TreeTableNodeColor.black;
+          rightRotate(x.parent, inAddMode);
+          if (_root is TreeTableBranchBase && _root != null) {
+            x = _root! as TreeTableBranchBase;
+          } else {
             return;
           }
         }
       }
     }
 
-    x!.color = TreeTableNodeColor.black;
+    x?.color = TreeTableNodeColor.black;
   }
 
   /// Finds the node in a sorted tree is just one entry ahead of the
@@ -1658,12 +1651,11 @@ class TreeTable extends TreeTableBase {
         _root = sisterNode..parent = null;
       } else {
         final TreeTableBranchBase leafsParentParent = leafsParent.parent!;
-        final bool isLeft = leafsParentParent.left == leafsParent;
         _replaceNode(leafsParentParent, leafsParent, sisterNode, false);
 
         if (leafsParent.color == TreeTableNodeColor.black) {
           leafsParent.parent = leafsParentParent;
-          deleteFixup(leafsParent, isLeft);
+          deleteFixup(leafsParent);
         }
       }
 
