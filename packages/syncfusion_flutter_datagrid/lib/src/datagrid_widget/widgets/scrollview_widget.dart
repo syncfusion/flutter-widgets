@@ -1666,9 +1666,12 @@ class VisualContainerHelper {
     double current = bodyStart;
     int currentEnd = endIndex;
 
-    final LineSizeCollection lineSizeCollection =
-        rowHeights as LineSizeCollection;
-    lineSizeCollection.suspendUpdates();
+    // note: for large lists, it is much faster NOT to suspend updates here,
+    // so that we don't have to rebuild the entire line size for all rows
+    // when resuming updates below
+    // final LineSizeCollection lineSizeCollection =
+    //     rowHeights as LineSizeCollection;
+    // lineSizeCollection.suspendUpdates();
     for (int index = bodyStartLineIndex;
         ((current <= bodyEnd ||
                     (current <= dataGridConfiguration.viewHeight)) ||
@@ -1709,7 +1712,8 @@ class VisualContainerHelper {
       rowHeightManager.dirtyRows.clear();
     }
 
-    lineSizeCollection.resumeUpdates();
+    // Do not resume here, as we did not suspend updates above
+    // lineSizeCollection.resumeUpdates();
     scrollRows.updateScrollBar(false);
   }
 
