@@ -1400,6 +1400,14 @@ class TreeTable extends TreeTableBase {
 
   ///
   void insertFixup(TreeTableBranchBase? x, bool inAddMode) {
+    // All newly inserted nodes should be colored red (root is always black)
+    if (x != null) {
+      if (x.parent == null) {
+        x.color = TreeTableNodeColor.black;
+      } else {
+        x.color = TreeTableNodeColor.red;
+      }
+    }
     // Check Red-Black properties
     while (x != null &&
         x.parent != null &&
@@ -1407,46 +1415,78 @@ class TreeTable extends TreeTableBase {
         x.parent!.color == TreeTableNodeColor.red &&
         x.parent!.parent != null) {
       // We have a violation
-      if (x.parent == x.parent!.parent!.left) {
-        final TreeTableNodeBase? y = x.parent!.parent?.right;
-        if (y != null && y.color == TreeTableNodeColor.red) {
-          // uncle is red
+      if (referenceEquals(x.parent, x.parent!.parent!.left)) {
+        // Uncle of x
+        final TreeTableNodeBase? uncle = x.parent!.parent!.right;
+        if (uncle != null && uncle.color == TreeTableNodeColor.red) {
+          // uncle is red: make the parent and uncle black, and grandparent red
           x.parent!.color = TreeTableNodeColor.black;
-          y.color = TreeTableNodeColor.black;
-          x.parent!.parent?.color = TreeTableNodeColor.red;
+          uncle.color = TreeTableNodeColor.black;
+          x.parent!.parent!.color = TreeTableNodeColor.red;
           x = x.parent!.parent;
         } else {
           // uncle is black
-          if (x == x.parent!.right) {
-            // Make x a left child
-            x = x.parent;
-            leftRotate(x, inAddMode);
+          if (referenceEquals(x, x.parent!.right)) {
+            // node is on the right of parent, transform this into the case
+            // where the node is on the left of the parent by rotation
+            final TreeTableBranchBase xParent = x.parent!;
+            final TreeTableBranchBase xGrandparent = xParent.parent!;
+            leftRotate(xParent, inAddMode);
+            // now our node x should be the LEFT child of the grandparent
+            assert(referenceEquals(xGrandparent.left, x));
+            assert(referenceEquals(x.parent, xGrandparent));
+            // our parent is now our left child and has taken our place
+            assert(referenceEquals(x.left, xParent));
+            assert(referenceEquals(xParent.parent, x));
+            x = xParent;
           }
-
-          // Recolor and rotate
-          x!.parent!.color = TreeTableNodeColor.black;
-          x.parent!.parent!.color = TreeTableNodeColor.red;
-          rightRotate(x.parent!.parent, inAddMode);
+          // color parent black and grandparent red, then do a right rotation
+          // on our grandparent
+          final TreeTableBranchBase xParent = x.parent!;
+          final TreeTableBranchBase xGrandparent = xParent.parent!;
+          xParent.color = TreeTableNodeColor.black;
+          xGrandparent.color = TreeTableNodeColor.red;
+          rightRotate(xGrandparent, inAddMode);
+          assert(referenceEquals(x.parent, xParent));
+          assert(referenceEquals(xParent.right, xGrandparent));
+          assert(referenceEquals(xGrandparent.parent, xParent));
         }
       } else {
         // Mirror image of above code
-        final TreeTableNodeBase? y = x.parent!.parent?.left;
-        if (y != null && y.color == TreeTableNodeColor.red) {
-          // uncle is red
+        // Uncle of x
+        final TreeTableNodeBase? uncle = x.parent!.parent!.left;
+        if (uncle != null && uncle.color == TreeTableNodeColor.red) {
+          // uncle is red: make the parent and uncle black, and grandparent red
           x.parent!.color = TreeTableNodeColor.black;
-          y.color = TreeTableNodeColor.black;
+          uncle.color = TreeTableNodeColor.black;
           x.parent!.parent!.color = TreeTableNodeColor.red;
           x = x.parent!.parent;
         } else {
           // uncle is black
-          if (x == x.parent!.left) {
-            x = x.parent;
-            rightRotate(x, inAddMode);
+          if (referenceEquals(x, x.parent!.left)) {
+            // node is on the left of parent, transform this into the case
+            // where the node is on the right of the parent by rotation
+            final TreeTableBranchBase xParent = x.parent!;
+            final TreeTableBranchBase xGrandparent = xParent.parent!;
+            rightRotate(xParent, inAddMode);
+            // now our node x should be the RIGHT child of the grandparent
+            assert(referenceEquals(xGrandparent.right, x));
+            assert(referenceEquals(x.parent, xGrandparent));
+            // our parent is now our right child and has taken our place
+            assert(referenceEquals(x.right, xParent));
+            assert(referenceEquals(xParent.parent, x));
+            x = xParent;
           }
-
-          x!.parent!.color = TreeTableNodeColor.black;
-          x.parent!.parent!.color = TreeTableNodeColor.red;
-          leftRotate(x.parent!.parent, inAddMode);
+          // color parent black and grandparent red, then do a left rotation
+          // on our grandparent
+          final TreeTableBranchBase xParent = x.parent!;
+          final TreeTableBranchBase xGrandparent = xParent.parent!;
+          xParent.color = TreeTableNodeColor.black;
+          xGrandparent.color = TreeTableNodeColor.red;
+          leftRotate(xGrandparent, inAddMode);
+          assert(referenceEquals(x.parent, xParent));
+          assert(referenceEquals(xParent.left, xGrandparent));
+          assert(referenceEquals(xGrandparent.parent, xParent));
         }
       }
     }
@@ -1542,21 +1582,34 @@ class TreeTable extends TreeTableBase {
       return;
     }
 
-    final TreeTableBranchBase y = x.right! as TreeTableBranchBase;
+    // Goal is that y (right child of x) becomes the new root of the subtree
+    // in the place of x, and that the left child of y becomes the right
+    // child of x. The left child of y will become x.
 
-    if (y.left is TreeTableNodeBase) {
+    final TreeTableNodeBase? y = x.right;
+    if (y != null && y is TreeTableBranchBase) {
+      final TreeTableNodeBase? yLeft = y.left;
+      final TreeTableBranchBase? xParent = x.parent;
+      // first place y at the new head of the subtree.
+      // the order is important to avoid infinite loops in computations
+      // in the setLeft/setRight operations
       y.setLeft(TreeTableEmpty.empty, inAddMode, sorted);
-      x.setRight(y.left, inAddMode);
-      if (x.parent != null) {
-        if (referenceEquals(x, x.parent!.left)) {
-          x.parent!.setLeft(y, inAddMode, sorted);
+      if (xParent != null) {
+        if (referenceEquals(x, xParent.left)) {
+          xParent.setLeft(y, inAddMode, sorted);
         } else {
-          x.parent!.setRight(y, inAddMode);
+          xParent.setRight(y, inAddMode);
         }
       } else {
         _root = y;
+        y._parent = null;
       }
+      // now setup x's right with y's old left subtree,
+      // and place x as the left subtree of y. careful with the order
+      // to avoid creating a temporary loop.
+      x.setRight(TreeTableEmpty.empty, inAddMode);
       y.setLeft(x, inAddMode, sorted);
+      x.setRight(yLeft, inAddMode);
     }
   }
 
@@ -1645,22 +1698,35 @@ class TreeTable extends TreeTableBase {
       return;
     }
 
-    final TreeTableBranchBase y = x.left! as TreeTableBranchBase;
+    // Goal is that y (left child of x) becomes the new root of the subtree
+    // in the place of x, and that the right child of y becomes the left
+    // child of x. The right child of y will become x.
 
-    final TreeTableNodeBase yRight = y.right!;
-    y.setRight(
-        TreeTableEmpty.empty, inAddMode); // make sure Parent is not reset later
-    x.setLeft(yRight, inAddMode, sorted);
-    if (x.parent != null) {
-      if (x == x.parent!.right) {
-        x.parent!.setRight(y, inAddMode);
+    final TreeTableNodeBase? y = x.left;
+    if (y != null && y is TreeTableBranchBase) {
+      final TreeTableNodeBase? yRight = y.right;
+      final TreeTableBranchBase? xParent = x.parent;
+      // first place y at the new head of the subtree.
+      // the order is important to avoid infinite loops in computations
+      // in the setLeft/setRight operations.
+      y.setRight(TreeTableEmpty.empty, inAddMode);
+      if (xParent != null) {
+        if (referenceEquals(x, xParent.right)) {
+          xParent.setRight(y, inAddMode);
+        } else {
+          xParent.setLeft(y, inAddMode, sorted);
+        }
       } else {
-        x.parent!.setLeft(y, inAddMode, sorted);
+        _root = y;
+        y._parent = null;
       }
-    } else {
-      _root = y;
+      // now setup x's left with y's old right subtree,
+      // and place x as the right subtree of y. careful with the order
+      // to avoid creating a temporary loop.
+      x.setLeft(TreeTableEmpty.empty, inAddMode, sorted);
+      y.setRight(x, inAddMode);
+      x.setLeft(yRight, inAddMode, sorted);
     }
-    y.setRight(x, inAddMode);
   }
 
   /// Sets the node at the specified index.
