@@ -1077,7 +1077,7 @@ class TreeTable extends TreeTableBase {
           x.parent?.color = TreeTableNodeColor.red;
           leftRotate(x.parent, inAddMode);
           if (x.parent != null) {
-            w = x.parent!.right! as TreeTableBranchBase;
+            w = x.parent!.right;
           } else {
             return;
           }
