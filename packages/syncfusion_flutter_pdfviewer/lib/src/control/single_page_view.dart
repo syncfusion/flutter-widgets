@@ -615,6 +615,7 @@ class SinglePageViewState extends State<SinglePageView> {
                 FocusScope.of(context).unfocus();
               }
               if (widget.canShowPaginationDialog) {
+                _clearSelection();
                 _showPaginationDialog();
               }
             }
@@ -887,7 +888,6 @@ class SinglePageViewState extends State<SinglePageView> {
 
   /// Show the pagination dialog box
   Future<void> _showPaginationDialog() async {
-    await _clearSelection();
     return showDialog<void>(
         context: context,
         builder: (BuildContext context) {

@@ -1623,10 +1623,18 @@ class ColumnResizeController {
 
   bool _raiseColumnResizeStart() {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
+
+    /// The indexOf method is utilized to iterate through the properties of the column collection and determine the index of the desired element.
+    ///  In this scenario, while resizing, the actualWidth property does not match the currentResizing column.
+    ///  As a result, the indexOf method returns -1. To obtain the correct currentResizing column index, the indexWhere method is employed instead.
     if (dataGridConfiguration.onColumnResizeStart != null) {
       return dataGridConfiguration.onColumnResizeStart!(
           ColumnResizeStartDetails(
-              column: _currentResizingColumn!, width: _resizingColumnWidth));
+              columnIndex: dataGridConfiguration.columns.indexWhere(
+                  (GridColumn element) =>
+                      element.columnName == _currentResizingColumn!.columnName),
+              column: _currentResizingColumn!,
+              width: _resizingColumnWidth));
     }
     return true;
   }
@@ -1636,7 +1644,11 @@ class ColumnResizeController {
     if (dataGridConfiguration.onColumnResizeUpdate != null) {
       return dataGridConfiguration.onColumnResizeUpdate!(
           ColumnResizeUpdateDetails(
-              column: _currentResizingColumn!, width: currentColumnWidth));
+              columnIndex: dataGridConfiguration.columns.indexWhere(
+                  (GridColumn element) =>
+                      element.columnName == _currentResizingColumn!.columnName),
+              column: _currentResizingColumn!,
+              width: currentColumnWidth));
     }
     return true;
   }
@@ -1645,7 +1657,11 @@ class ColumnResizeController {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
     if (dataGridConfiguration.onColumnResizeEnd != null) {
       dataGridConfiguration.onColumnResizeEnd!(ColumnResizeEndDetails(
-          column: _currentResizingColumn!, width: currentColumnWidth));
+          columnIndex: dataGridConfiguration.columns.indexWhere(
+              (GridColumn element) =>
+                  element.columnName == _currentResizingColumn!.columnName),
+          column: _currentResizingColumn!,
+          width: currentColumnWidth));
     }
   }
 
@@ -2028,6 +2044,14 @@ class DataGridFilterHelper {
     return column._filterFrom;
   }
 
+  /// Reset the column `filter From` property when the datagrid is disposed.
+  void resetColumnProperties(DataGridConfiguration dataGridConfiguration) {
+    for (final GridColumn column in dataGridConfiguration.columns) {
+      column._filterFrom = FilteredFrom.none;
+      column._actualWidth = double.nan;
+    }
+  }
+
   /// Format the given cell value to the string data type to display.
   String getDisplayValue(Object? value) {
     if (value != null) {
@@ -2112,26 +2136,41 @@ class DataGridFilterHelper {
             in source.filterConditions[columnName]!) {
           assert(() {
             if (condition.filterBehavior == FilterBehavior.strongDataType) {
-              if (cellValue?.runtimeType != condition.value?.runtimeType) {
-                throwAssertFailure(
-                    '${condition.value?.runtimeType} and ${cellValue.runtimeType} are not the same data type');
-              } else if (condition.type == FilterType.contains ||
-                  condition.type == FilterType.doesNotContain ||
-                  condition.type == FilterType.beginsWith ||
-                  condition.type == FilterType.doesNotBeginWith ||
-                  condition.type == FilterType.endsWith ||
-                  condition.type == FilterType.doesNotEndsWith) {
-                throwAssertFailure(
-                    'FilterBehaviour and FilterType are not correct');
-              } else if (condition.type == FilterType.greaterThan ||
-                  condition.type == FilterType.greaterThanOrEqual ||
-                  condition.type == FilterType.lessThan ||
-                  condition.type == FilterType.lessThanOrEqual) {
-                if (cellValue is String) {
-                  final String filterType =
-                      condition.type.toString().split('.').last;
+              // Issue:
+              // FLUT-7286 - Type mismatch error has been thrown when giving an integer value for double type column.
+              //
+              // Fix:
+              // The issue arose because we didn't check the cellValue and condition type is num or not.
+              // Now, we checked the condition of whether both types are num, and we allow when it's num.
+              if ((cellValue is num && condition.value is num) &&
+                  (condition.type == FilterType.greaterThan ||
+                      condition.type == FilterType.greaterThanOrEqual ||
+                      condition.type == FilterType.lessThan ||
+                      condition.type == FilterType.lessThanOrEqual)) {
+                return true;
+              } else {
+                if (cellValue?.runtimeType != condition.value?.runtimeType &&
+                    (cellValue is! num && condition.value is! num)) {
                   throwAssertFailure(
-                      "The filter type $filterType can't check with the String type");
+                      '${condition.value?.runtimeType} and ${cellValue.runtimeType} are not the same data type');
+                } else if (condition.type == FilterType.contains ||
+                    condition.type == FilterType.doesNotContain ||
+                    condition.type == FilterType.beginsWith ||
+                    condition.type == FilterType.doesNotBeginWith ||
+                    condition.type == FilterType.endsWith ||
+                    condition.type == FilterType.doesNotEndsWith) {
+                  throwAssertFailure(
+                      'FilterBehaviour and FilterType are not correct');
+                } else if (condition.type == FilterType.greaterThan ||
+                    condition.type == FilterType.greaterThanOrEqual ||
+                    condition.type == FilterType.lessThan ||
+                    condition.type == FilterType.lessThanOrEqual) {
+                  if (cellValue is String) {
+                    final String filterType =
+                        condition.type.toString().split('.').last;
+                    throwAssertFailure(
+                        "The filter type $filterType can't check with the String type");
+                  }
                 }
               }
             } else {

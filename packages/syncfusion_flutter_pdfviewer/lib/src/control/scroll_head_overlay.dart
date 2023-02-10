@@ -146,7 +146,6 @@ class ScrollHeadOverlay extends StatefulWidget {
 class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   final TextEditingController _textFieldController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final FocusNode _focusNode = FocusNode();
   SfPdfViewerThemeData? _pdfViewerThemeData;
   ThemeData? _themeData;
   SfLocalizations? _localizations;
@@ -158,6 +157,9 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
 
   /// Indicates whether the user scrolls continuously.
   bool isScrolled = false;
+
+  /// Focus node for page navigation dialogue.
+  FocusNode focusNode = FocusNode();
 
   double _scale = 1;
 
@@ -187,7 +189,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   void dispose() {
     _pdfViewerThemeData = null;
     _localizations = null;
-    _focusNode.dispose();
+    focusNode.dispose();
     _scrollTimer?.cancel();
     _scrollTimer = null;
     super.dispose();
@@ -364,6 +366,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                 FocusScope.of(context).unfocus();
               }
               if (widget.canShowPaginationDialog) {
+                _clearSelection();
                 _showPaginationDialog();
               }
             }
@@ -394,7 +397,6 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
 
   /// Show the pagination dialog box
   Future<void> _showPaginationDialog() async {
-    await _clearSelection();
     return showDialog<void>(
         context: context,
         builder: (BuildContext context) {
@@ -484,7 +486,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                   fontFamily: 'Roboto',
                   fontSize: 16,
                   color: _themeData!.colorScheme.onSurface.withOpacity(0.87)),
-          focusNode: _focusNode,
+          focusNode: focusNode,
           decoration: InputDecoration(
             isDense: true,
             focusedBorder: UnderlineInputBorder(

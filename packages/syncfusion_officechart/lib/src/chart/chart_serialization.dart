@@ -548,7 +548,9 @@ class ChartSerialization {
               firstSerie.dataLabels.numberFormat != 'General') {
             builder.element('c:numFmt', nest: () {
               builder.attribute(
-                  'formatCode', firstSerie.dataLabels.numberFormat!);
+                  'formatCode',
+                  // ignore: unnecessary_null_checks
+                  firstSerie.dataLabels.numberFormat!);
               builder.attribute('sourceLinked', '0');
             });
           }
@@ -1054,39 +1056,37 @@ class ChartSerialization {
     final ChartSeriesCollection firstSerie = chart.series;
 
     builder.element('c:view3D', nest: () {
-      if (firstSerie != null) {
-        if (!chart._isdefaultElevation) {
-          builder.element('c:rotX', nest: () {
-            builder.attribute('val', chart.elevation);
-          });
-        }
-        if (firstSerie._innerList[0]._serieType == ExcelChartType.pie3D) {
-          for (int i = 0; i < chart.series.count; i++) {
-            chart.rotation =
-                chart.series[i].serieFormat.commonSerieOptions.firstSliceAngle;
-          }
-        }
-        if (!chart._isDefaultRotation) {
-          builder.element('c:rotY', nest: () {
-            builder.attribute('val', chart.rotation);
-          });
-        }
-        builder.element('c:depthPercent', nest: () {
-          builder.attribute('val', chart.depthPercent);
-        });
-        builder.element('c:rAngAx', nest: () {
-          int defaultValue = 0;
-
-          if (chart.rightAngleAxes || chart._isColumnOrBar) {
-            defaultValue = 1;
-          }
-
-          builder.attribute('val', defaultValue);
-        });
-        builder.element('perspective', nest: () {
-          builder.attribute('val', chart.perspective * 2);
+      if (!chart._isdefaultElevation) {
+        builder.element('c:rotX', nest: () {
+          builder.attribute('val', chart.elevation);
         });
       }
+      if (firstSerie._innerList[0]._serieType == ExcelChartType.pie3D) {
+        for (int i = 0; i < chart.series.count; i++) {
+          chart.rotation =
+              chart.series[i].serieFormat.commonSerieOptions.firstSliceAngle;
+        }
+      }
+      if (!chart._isDefaultRotation) {
+        builder.element('c:rotY', nest: () {
+          builder.attribute('val', chart.rotation);
+        });
+      }
+      builder.element('c:depthPercent', nest: () {
+        builder.attribute('val', chart.depthPercent);
+      });
+      builder.element('c:rAngAx', nest: () {
+        int defaultValue = 0;
+
+        if (chart.rightAngleAxes || chart._isColumnOrBar) {
+          defaultValue = 1;
+        }
+
+        builder.attribute('val', defaultValue);
+      });
+      builder.element('perspective', nest: () {
+        builder.attribute('val', chart.perspective * 2);
+      });
     });
   }
 

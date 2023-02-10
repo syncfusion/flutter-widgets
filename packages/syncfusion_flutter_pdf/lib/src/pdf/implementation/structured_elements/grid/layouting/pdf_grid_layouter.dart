@@ -1048,16 +1048,12 @@ class PdfGridLayouter extends ElementLayouter {
       if (PdfGridHelper.getHelper(_grid!).isChildGrid! &&
           PdfGridHelper.getHelper(_grid!).parentCell != null) {
         if (height +
-                PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
-                            PdfGridHelper.getHelper(_grid!).parentCell!)
-                        .row!)
+                PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(PdfGridHelper.getHelper(_grid!).parentCell!).row!)
                     .grid
                     .style
                     .cellPadding
                     .bottom +
-                PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
-                            PdfGridHelper.getHelper(_grid!).parentCell!)
-                        .row!)
+                PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(PdfGridHelper.getHelper(_grid!).parentCell!).row!)
                     .grid
                     .style
                     .cellPadding
@@ -1101,9 +1097,7 @@ class PdfGridLayouter extends ElementLayouter {
             _drawRow(row, result, height);
           }
         } else if (_currentBounds.y +
-                    PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
-                                PdfGridHelper.getHelper(_grid!).parentCell!)
-                            .row!)
+                    PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(PdfGridHelper.getHelper(_grid!).parentCell!).row!)
                         .grid
                         .style
                         .cellPadding
@@ -1111,9 +1105,7 @@ class PdfGridLayouter extends ElementLayouter {
                     height >
                 _currentPageBounds.height ||
             _currentBounds.y +
-                    PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
-                                PdfGridHelper.getHelper(_grid!).parentCell!)
-                            .row!)
+                    PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(PdfGridHelper.getHelper(_grid!).parentCell!).row!)
                         .grid
                         .style
                         .cellPadding
@@ -1121,9 +1113,9 @@ class PdfGridLayouter extends ElementLayouter {
                     height >
                 _currentBounds.height ||
             _currentBounds.y +
-                    PdfGridRowHelper.getHelper(
-                            PdfGridCellHelper.getHelper(PdfGridHelper.getHelper(_grid!).parentCell!)
-                                .row!)
+                    PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
+                                PdfGridHelper.getHelper(_grid!).parentCell!)
+                            .row!)
                         .grid
                         .style
                         .cellPadding

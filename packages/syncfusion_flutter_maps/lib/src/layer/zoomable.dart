@@ -14,6 +14,9 @@ typedef ZoomableUpdateCallback = void Function(ZoomPanDetails);
 /// Signature for when the zooming and panning action has been completed.
 typedef ZoomableCompleteCallback = void Function(ZoomPanDetails);
 
+/// Signature for when the zooming and panning action has been flinging.
+typedef ZoomableFlingCallback = bool Function(ZoomPanDetails);
+
 /// Signature for when zoom level change callback.
 typedef ZoomCallback = void Function(double);
 
@@ -31,8 +34,11 @@ enum ActionType {
   /// Denotes the current action as double tap.
   tap,
 
-  /// Denotes the current action as flinging.
-  fling,
+  /// Denotes the current action as pinch flinging.
+  pinchFling,
+
+  /// Denotes the current action as pan flinging.
+  panFling,
 
   /// Denotes there is no action currently.
   none
@@ -96,6 +102,7 @@ class Zoomable extends StatefulWidget {
     this.frictionCoefficient = 0.005,
     required this.onUpdate,
     required this.onComplete,
+    required this.onFling,
     this.child,
   })  : assert(minZoomLevel >= 1 && minZoomLevel <= maxZoomLevel),
         assert(initialZoomLevel >= minZoomLevel &&
@@ -165,6 +172,9 @@ class Zoomable extends StatefulWidget {
 
   /// Called when the zoom level or actual rect updating has been completed.
   final ZoomableCompleteCallback onComplete;
+
+  /// Called when the zoom level or actual rect updating has been completed.
+  final ZoomableFlingCallback onFling;
 
   /// Specifies the child of the zoomable widget. It didn't get updated based on
   /// the zoomable widget interaction or changes.
@@ -324,7 +334,8 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
               _newMatrix, details.localFocalPoint, details.focalPoint);
           break;
         case ActionType.tap:
-        case ActionType.fling:
+        case ActionType.pinchFling:
+        case ActionType.panFling:
         case ActionType.none:
           break;
       }
@@ -355,6 +366,7 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
   void _startFlingAnimationForPinching(ScaleEndDetails details) {
     _isFlingAnimationActive = true;
     _newMatrix = widget.zoomController.controllerMatrix.clone();
+    _zoomLevelTween.begin = _newMatrix.getMaxScaleOnAxis();
     final double zoomLevel = _getZoomLevel(_newMatrix.getMaxScaleOnAxis());
     final int direction =
         _lastScaleValueOnInteraction >= _maximumReachedScaleOnInteraction
@@ -365,13 +377,23 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
             (details.velocity.pixelsPerSecond.distance / kMaxFlingVelocity) *
             widget.maxZoomLevel);
     newZoomLevel = newZoomLevel.clamp(widget.minZoomLevel, widget.maxZoomLevel);
-    _zoomLevelTween
-      ..begin = _newMatrix.getMaxScaleOnAxis()
-      ..end = _getScale(newZoomLevel);
-    widget.zoomController.actionType = ActionType.fling;
-    _zoomLevelAnimationController.duration =
-        _getFlingAnimationDuration(details.velocity.pixelsPerSecond.distance);
-    _zoomLevelAnimationController.forward(from: 0.0);
+    widget.zoomController.actionType = ActionType.pinchFling;
+    final double scale = _getScale(newZoomLevel) / _zoomLevelTween.begin!;
+    Matrix4 matrix = _matrixScale(_newMatrix, scale);
+    final Offset matrixFocalPointScaled =
+        _getActualPointInMatrix(matrix, _startLocalPoint);
+    matrix =
+        _translateMatrix(matrix, matrixFocalPointScaled - _matrixStartPoint!);
+    if (_invokeZoomableUpdate(matrix, null, null, scale, _startLocalPoint)) {
+      _zoomLevelTween.end = _getScale(newZoomLevel);
+      _zoomLevelAnimationController.duration =
+          _getFlingAnimationDuration(details.velocity.pixelsPerSecond.distance);
+      _zoomLevelAnimationController.forward(from: 0.0);
+    } else {
+      _scaleStart = null;
+      widget.zoomController.actionType = ActionType.none;
+      _invokeZoomableComplete(_newMatrix);
+    }
   }
 
   // This methods performs fling animation for panning.
@@ -380,6 +402,7 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
     _newMatrix = widget.zoomController.controllerMatrix.clone();
     final Vector3 translationVector = _newMatrix.getTranslation();
     final Offset translation = Offset(translationVector.x, translationVector.y);
+    _actualRectTween.begin = translation;
     final FrictionSimulation frictionSimulationX = FrictionSimulation(
       widget.frictionCoefficient,
       translation.dx,
@@ -390,13 +413,21 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
       translation.dy,
       details.velocity.pixelsPerSecond.dy,
     );
-    _actualRectTween.begin = translation;
     _actualRectTween.end =
         Offset(frictionSimulationX.finalX, frictionSimulationY.finalX);
-    widget.zoomController.actionType = ActionType.fling;
-    _actualRectAnimationController.duration =
-        _getFlingAnimationDuration(details.velocity.pixelsPerSecond.distance);
-    _actualRectAnimationController.forward(from: 0.0);
+    widget.zoomController.actionType = ActionType.panFling;
+    final Offset newTranslation =
+        _actualRectTween.end! - _actualRectTween.begin!;
+    final Matrix4 matrix = _translateMatrix(_newMatrix, newTranslation);
+    if (_invokeZoomableUpdate(matrix)) {
+      _actualRectAnimationController.duration =
+          _getFlingAnimationDuration(details.velocity.pixelsPerSecond.distance);
+      _actualRectAnimationController.forward(from: 0.0);
+    } else {
+      _scaleStart = null;
+      widget.zoomController.actionType = ActionType.none;
+      _invokeZoomableComplete(_newMatrix);
+    }
   }
 
   // Returns the animation duration for the given distance and
@@ -421,7 +452,7 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
         _newMatrix, matrixFocalPointScaled - _matrixStartPoint!);
 
     if (widget.zoomController.actionType == ActionType.none ||
-        widget.zoomController.actionType == ActionType.fling) {
+        widget.zoomController.actionType == ActionType.pinchFling) {
       final double zoomLevel = _getZoomLevel(_newMatrix.getMaxScaleOnAxis());
 
       final Offset translatedPoint = _getTranslationOffset(_newMatrix);
@@ -450,7 +481,7 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
     _newMatrix = _translateMatrix(_newMatrix, matrixTranslationChange);
 
     if (widget.zoomController.actionType == ActionType.none ||
-        widget.zoomController.actionType == ActionType.fling) {
+        widget.zoomController.actionType == ActionType.panFling) {
       final double zoomLevel = _getZoomLevel(_newMatrix.getMaxScaleOnAxis());
       final Offset translatedPoint = _getTranslationOffset(_newMatrix);
       final Rect actualRect = translatedPoint &
@@ -497,12 +528,12 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
     }
 
     if (_zoomLevelAnimationController.isAnimating &&
-        widget.zoomController.actionType == ActionType.fling) {
+        widget.zoomController.actionType == ActionType.pinchFling) {
       _zoomLevelAnimationController.stop();
       _handleZoomLevelAnimationEnd();
     }
     if (_actualRectAnimationController.isAnimating &&
-        widget.zoomController.actionType == ActionType.fling) {
+        widget.zoomController.actionType == ActionType.panFling) {
       _actualRectAnimationController.stop();
       _handleActualRectAnimationEnd();
     }
@@ -615,7 +646,7 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
     }
   }
 
-  void _invokeZoomableUpdate(Matrix4 matrix,
+  bool _invokeZoomableUpdate(Matrix4 matrix,
       [Offset? localFocalPoint,
       Offset? globalFocalPoint,
       double scale = 1.0,
@@ -640,7 +671,13 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
       scale: scale,
       pinchCenter: pinchCenter,
     );
-    widget.onUpdate(details);
+    if (widget.zoomController.actionType == ActionType.pinchFling ||
+        widget.zoomController.actionType == ActionType.panFling) {
+      return widget.onFling(details);
+    } else {
+      widget.onUpdate(details);
+    }
+    return true;
   }
 
   void _invokeZoomableComplete(Matrix4 matrix,

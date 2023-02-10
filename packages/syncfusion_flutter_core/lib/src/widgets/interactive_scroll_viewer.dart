@@ -12,7 +12,7 @@ class InteractiveScrollViewer extends StatefulWidget {
       {Key? key,
       this.clipBehavior = Clip.hardEdge,
       this.onDoubleTapZoomInvoked,
-      this.alignPanAxis = false,
+      this.panAxis = PanAxis.free,
       this.boundaryMargin = EdgeInsets.zero,
       // These default scale values were eyeballed as reasonable
       //limits for common use cases.
@@ -45,18 +45,18 @@ class InteractiveScrollViewer extends StatefulWidget {
   /// Defaults to [Clip.hardEdge].
   final Clip clipBehavior;
 
-  /// If true, panning is only allowed in the direction of the horizontal axis
-  /// or the vertical axis.
+  /// When set to [PanAxis.aligned], panning is only allowed in the horizontal
+  /// axis or the vertical axis, diagonal panning is not allowed.
   ///
-  /// In other words, when this is true, diagonal panning is not allowed. A
-  /// single gesture begun along one axis cannot also cause panning along the
-  /// other axis without stopping and beginning a new gesture. This is a common
-  /// pattern in tables where data is displayed in columns and rows.
+  /// When set to [PanAxis.vertical] or [PanAxis.horizontal] panning is only
+  /// allowed in the specified axis. For example, if set to [PanAxis.vertical],
+  /// panning will only be allowed in the vertical axis. And if set to
+  /// [PanAxis.horizontal],panning will only be allowed in the horizontal axis.
   ///
-  /// See also:
-  ///  * [constrained], which has an example of creating a table that uses
-  ///    alignPanAxis.
-  final bool alignPanAxis;
+  /// When set to [PanAxis.free] panning is allowed in all directions.
+  ///
+  /// Defaults to [PanAxis.free].
+  final PanAxis panAxis;
 
   /// A margin for the visible boundaries of the child.
   ///
@@ -296,7 +296,7 @@ class InteractiveScrollViewerState extends State<InteractiveScrollViewer> {
         onInteractionEnd: widget.onInteractionEnd,
         scaleEnabled: widget.scaleEnabled,
         panEnabled: widget.panEnabled,
-        alignPanAxis: widget.alignPanAxis,
+        panAxis: widget.panAxis,
         transformationController: widget.transformationController,
         boundaryMargin: widget.boundaryMargin,
         clipBehavior: widget.clipBehavior,

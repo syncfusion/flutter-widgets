@@ -857,6 +857,9 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         if (keyEvent.isControlPressed) {
           dataGridConfiguration.isControlKeyPressed = true;
         }
+        if (keyEvent.isMetaPressed) {
+          dataGridConfiguration.isCommandKeyPressed = true;
+        }
         if (keyEvent.isShiftPressed) {
           dataGridConfiguration.isShiftKeyPressed = true;
         }
@@ -865,6 +868,10 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         if (keyEvent.logicalKey == LogicalKeyboardKey.controlLeft ||
             keyEvent.logicalKey == LogicalKeyboardKey.controlRight) {
           dataGridConfiguration.isControlKeyPressed = false;
+        }
+        if (keyEvent.logicalKey == LogicalKeyboardKey.metaLeft ||
+            keyEvent.logicalKey == LogicalKeyboardKey.metaRight) {
+          dataGridConfiguration.isCommandKeyPressed = false;
         }
         if (keyEvent.logicalKey == LogicalKeyboardKey.shiftLeft ||
             keyEvent.logicalKey == LogicalKeyboardKey.shiftRight) {

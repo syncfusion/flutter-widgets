@@ -2382,7 +2382,13 @@ class ContainerArea extends StatelessWidget {
                   onPointerSignal: (PointerSignalEvent event) {
                     if (_stateProperties.chartState.mounted &&
                         event is PointerScrollEvent) {
-                      _performPointerSignal(event);
+                      _performPointerEvent(event);
+                    }
+                  },
+                  // To handle the trackpad zooming
+                  onPointerPanZoomUpdate: (PointerPanZoomUpdateEvent event) {
+                    if (_stateProperties.chartState.mounted) {
+                      _performPointerEvent(event);
                     }
                   },
                   child: GestureDetector(
@@ -3293,7 +3299,7 @@ class ContainerArea extends StatelessWidget {
   }
 
   /// To perform the pointer signal event
-  void _performPointerSignal(PointerScrollEvent event) {
+  void _performPointerEvent(PointerEvent event) {
     _mousePointerDetails = event.position;
     if (_mousePointerDetails != null) {
       final Offset position = renderBox.globalToLocal(event.position);

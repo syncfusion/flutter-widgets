@@ -28,6 +28,8 @@ class MapController {
   ObserverList<VoidCallback>? _resetListeners = ObserverList<VoidCallback>();
   ObserverList<VoidCallback>? _toggledListeners = ObserverList<VoidCallback>();
   ObserverList<VoidCallback>? _zoomPanListeners = ObserverList<VoidCallback>();
+  ObserverList<ZoomToCallback>? _toolbarZoomedListeners =
+      ObserverList<ZoomToCallback>();
 
   double shapeLayerSizeFactor = 1.0;
   double localScale = 1.0;
@@ -110,6 +112,14 @@ class MapController {
     _zoomingListeners?.remove(listener);
   }
 
+  void addToolbarZoomedListener(ZoomToCallback listener) {
+    _toolbarZoomedListeners?.add(listener);
+  }
+
+  void removeToolbarZoomedListener(ZoomToCallback listener) {
+    _toolbarZoomedListeners?.remove(listener);
+  }
+
   void addPanningListener(PanningCallback listener) {
     _panningListeners?.add(listener);
   }
@@ -145,6 +155,12 @@ class MapController {
   void notifyZoomingListeners(MapZoomDetails details) {
     for (final ZoomingCallback listener in _zoomingListeners!) {
       listener(details);
+    }
+  }
+
+  void notifyToolbarZoomedListeners(double newZoomLevel) {
+    for (final ZoomToCallback listener in _toolbarZoomedListeners!) {
+      listener(newZoomLevel);
     }
   }
 
@@ -274,5 +290,6 @@ class MapController {
     _panningListeners = null;
     _resetListeners = null;
     _refreshListeners = null;
+    _toolbarZoomedListeners = null;
   }
 }

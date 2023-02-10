@@ -1893,6 +1893,19 @@ class SfDataGridState extends State<SfDataGrid>
       final int columnIndex = grid_helper.resolveToScrollColumnIndex(
           _dataGridConfiguration, rowColumnIndex.columnIndex);
 
+      // Issue:
+      // FLUT-7231 - Editing of filtered data when paging is applied does not work properly
+      //
+      // Fix:
+      // After editing a filtered record, the collection of effective rows contained an empty record.
+      // This caused a range exception to be thrown when trying to retrieve a row by index from the collection.
+      // To fix this issue, we added a check to return immediately if the collection is empty
+      // or the datagrid row is not available in collection.
+      if (rowIndex == -1 || _source!.effectiveRows.isEmpty) {
+        setState(() {});
+        return;
+      }
+
       final DataRowBase? dataRow = _rowGenerator.items.firstWhereOrNull(
           (DataRowBase dataRow) => dataRow.rowIndex == rowIndex);
 
@@ -1900,7 +1913,17 @@ class SfDataGridState extends State<SfDataGrid>
         return;
       }
 
-      dataRow.dataGridRow = _source!._effectiveRows[rowColumnIndex.rowIndex];
+      // Issue:
+      // FLUT-7231-Editing of filtered data when paging is applied does not work properly.
+      //
+      // Fix:
+      // We encountered an issue when attempting to retrieve a row from the data grid using the paginated row index.
+      // To fix this issue, we implemented a check to determine whether pagination is being used,
+      // and we now retrieve the data grid row from the paginated effective rows
+      // instead of the entire set of effective rows in the data grid
+
+      dataRow.dataGridRow = effectiveRows(_source!)[rowColumnIndex.rowIndex];
+
       dataRow.dataGridRowAdapter = grid_helper.getDataGridRowAdapter(
           _dataGridConfiguration, dataRow.dataGridRow!);
 
@@ -2278,6 +2301,7 @@ class SfDataGridState extends State<SfDataGrid>
       ..sortingGestureType = widget.sortingGestureType
       ..showSortNumbers = widget.showSortNumbers
       ..isControlKeyPressed = false
+      ..isCommandKeyPressed = false
       ..stackedHeaderRows = widget.stackedHeaderRows
       ..isScrollbarAlwaysShown = widget.isScrollbarAlwaysShown
       ..horizontalScrollPhysics = widget.horizontalScrollPhysics
@@ -2853,6 +2877,10 @@ class SfDataGridState extends State<SfDataGrid>
         themeData.platform == TargetPlatform.macOS ||
         themeData.platform == TargetPlatform.windows ||
         themeData.platform == TargetPlatform.linux;
+
+    _dataGridConfiguration.isMacPlatform =
+        themeData.platform == TargetPlatform.macOS;
+
     // Sets column resizing hitTestPrecision based on the platform.
 
     if (_dataGridConfiguration.allowColumnsResizing) {
@@ -2967,6 +2995,18 @@ class SfDataGridState extends State<SfDataGrid>
     _dataGridConfiguration.dataGridFilterHelper!.advancedFilterHelper
       ..firstValueTextController.dispose()
       ..secondValueTextController.dispose();
+
+    // Issue:
+    // FLUT-6123 - LateInitializationError has been thrown
+    // when opening the filter UI after rebuilding the filtered DataGrid.
+    //
+    // Fix:
+    // The filterFrom property is maintained at the sample level within the columns instance.
+    // Therefore, it does not reset to "FilteredFrom.none" when the DataGrid is dispose.
+    // We have now implemented a reset of the "filterFrom" property
+    // when the DataGrid is dispose
+    _dataGridConfiguration.dataGridFilterHelper!
+        .resetColumnProperties(_dataGridConfiguration);
     super.dispose();
   }
 }
@@ -3210,7 +3250,7 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   int _compareValues(
       List<SortColumnDetails> sortedColumns, DataGridRow a, DataGridRow b) {
     if (sortedColumns.length > 1) {
-      for (int i = 0; i < sortedColumns.length; i++) {
+      for (final int i = 0; i < sortedColumns.length;) {
         final SortColumnDetails sortColumn = sortedColumns[i];
         final int compareResult = compare(a, b, sortColumn);
         if (compareResult != 0) {
@@ -4167,7 +4207,6 @@ class DataGridSourceChangeNotifier extends ChangeNotifier {
     _dataGridPropertyChangeListeners.remove(listener);
   }
 
-  @protected
   @override
   void notifyListeners() {
     super.notifyListeners();
@@ -4307,9 +4346,9 @@ void removeFilterConditions(DataGridSource source, String columnName) {
   source._filterConditions.remove(columnName);
 }
 
-/// ToDo
+/// To Do
 class DataGridThemeHelper {
-  /// ToDo
+  /// To Do
 
   DataGridThemeHelper(
       SfDataGridThemeData? dataGridThemeData, ColorScheme? colorScheme) {
@@ -4354,7 +4393,7 @@ class DataGridThemeHelper {
         dataGridThemeData.sortOrderNumberBackgroundColor;
   }
 
-  ///ToDo
+  ///To do
   late Brightness brightness;
 
 // ignore: public_member_api_docs

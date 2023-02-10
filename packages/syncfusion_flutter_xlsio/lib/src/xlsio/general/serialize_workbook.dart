@@ -393,6 +393,7 @@ class SerializeWorkbook {
       if (sheet._isPasswordProtected) {
         builder.element('sheetProtection', nest: () {
           if (sheet._algorithmName != null) {
+            // ignore: unnecessary_null_checks
             builder.attribute('algorithmName', sheet._algorithmName!);
             builder.attribute('hashValue', base64.encode(sheet._hashValue));
             builder.attribute('saltValue', base64.encode(sheet._saltValue));
@@ -876,9 +877,11 @@ class SerializeWorkbook {
                 id++;
               }
               if (link.screenTip != null) {
+                // ignore: unnecessary_null_checks
                 builder.attribute('tooltip', link.screenTip!);
               }
               if (link.textToDisplay != null) {
+                // ignore: unnecessary_null_checks
                 builder.attribute('display', link.textToDisplay!);
               } else {
                 builder.attribute('display', link.address);
@@ -965,7 +968,9 @@ class SerializeWorkbook {
                       if (picture.hyperlink != null &&
                           picture.hyperlink!.screenTip != null) {
                         builder.attribute(
-                            'tooltip', picture.hyperlink!.screenTip!);
+                            'tooltip',
+                            // ignore: unnecessary_null_checks
+                            picture.hyperlink!.screenTip!);
                       }
                     });
                   }
@@ -1640,7 +1645,9 @@ class SerializeWorkbook {
           builder.element('Default', nest: () {
             builder.attribute('Extension', key);
             builder.attribute(
-                'ContentType', _workbook._defaultContentTypes[key]!);
+                'ContentType',
+                // ignore: unnecessary_null_checks
+                _workbook._defaultContentTypes[key]!);
           });
         }
       }
@@ -2610,7 +2617,7 @@ class SerializeWorkbook {
       if (cfType == ExcelCFType.specificText) {
         builder.attribute(
             'operator', _getCFComparisonOperatorName(condition.operator));
-
+        // ignore: unnecessary_null_checks
         builder.attribute('text', condition.text!);
       }
       if (cfType == ExcelCFType.timePeriod) {
@@ -3298,6 +3305,7 @@ class SerializeWorkbook {
                 builder.element('x14:conditionalFormatting', nest: () {
                   builder.element('x14:cfRule', nest: () {
                     builder.attribute('type', 'dataBar');
+                    // ignore: unnecessary_null_checks
                     builder.attribute('id', dataBarImpl._stGUID!);
 
                     builder.element('x14:dataBar', nest: () {

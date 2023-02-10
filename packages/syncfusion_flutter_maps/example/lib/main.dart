@@ -91,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                         fontSize:
-                            Theme.of(context).textTheme.caption!.fontSize)),
+                            Theme.of(context).textTheme.bodySmall!.fontSize)),
               ),
             ],
           ),

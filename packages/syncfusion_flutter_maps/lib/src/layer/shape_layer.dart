@@ -1271,7 +1271,7 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
               source: widget.source,
               mapDataSource: shapeFileData.mapDataSource,
               settings: widget.dataLabelSettings,
-              effectiveTextStyle: Theme.of(context).textTheme.caption!.merge(
+              effectiveTextStyle: Theme.of(context).textTheme.bodySmall!.merge(
                   widget.dataLabelSettings.textStyle ??
                       themeData.dataLabelTextStyle),
               themeData: themeData,
@@ -1287,7 +1287,6 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
               isDesktop)
             MapToolbar(
                 controller: _controller,
-                onWillZoom: widget.onWillZoom,
                 zoomPanBehavior: widget.zoomPanBehavior!),
           if (_hasTooltipBuilder())
             MapTooltip(
@@ -1382,9 +1381,9 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
               : mapsThemeData.layerStrokeWidth),
       shapeHoverStrokeWidth:
           mapsThemeData.shapeHoverStrokeWidth ?? mapsThemeData.layerStrokeWidth,
-      legendTextStyle: themeData.textTheme.caption!
+      legendTextStyle: themeData.textTheme.bodySmall!
           .copyWith(
-              color: themeData.textTheme.caption!.color!.withOpacity(0.87))
+              color: themeData.textTheme.bodySmall!.color!.withOpacity(0.87))
           .merge(widget.legend?.textStyle ?? mapsThemeData.legendTextStyle),
       markerIconColor: mapsThemeData.markerIconColor ??
           (isLightTheme
@@ -2011,7 +2010,6 @@ class _RenderGeoJSONLayer extends RenderStack
   double _maximumReachedScaleOnInteraction = 1.0;
   int _pointerCount = 0;
   Offset _panDistanceBeforeFlinging = Offset.zero;
-  bool _isZoomedUsingToolbar = false;
   bool _avoidPanUpdate = false;
   bool _isFlingAnimationActive = false;
   bool _doubleTapEnabled = false;
@@ -2729,7 +2727,7 @@ class _RenderGeoJSONLayer extends RenderStack
         details.velocity.pixelsPerSecond.distance, _frictionCoefficient);
     _controller.isInInteractive = false;
     _panDistanceBeforeFlinging = _controller.panDistance;
-    _zoomPanBehavior!.focalLatLng = latLng;
+    _handlePanningCallback(latLng);
   }
 
   void _startFlingAnimationForPinching(ScaleEndDetails details) {
@@ -2745,7 +2743,7 @@ class _RenderGeoJSONLayer extends RenderStack
     _state.zoomLevelAnimationController.duration = _getFlingAnimationDuration(
         details.velocity.pixelsPerSecond.distance, _frictionCoefficient);
     _controller.isInInteractive = false;
-    _zoomPanBehavior!.zoomLevel = newZoomLevel;
+    _handleZoomingCallback(newZoomLevel, downPoint: _downLocalPoint);
   }
 
   // Returns the animation duration for the given distance and
@@ -2811,20 +2809,101 @@ class _RenderGeoJSONLayer extends RenderStack
       newShapeLayerOffset,
       newShapeLayerSizeFactor,
     );
-    _zoomDetails = MapZoomDetails(
+    if (_currentZoomLevel != newZoomLevel) {
+      _zoomDetails = MapZoomDetails(
+        localFocalPoint: localFocalPoint,
+        globalFocalPoint: globalFocalPoint,
+        previousZoomLevel: _currentZoomLevel,
+        newZoomLevel: newZoomLevel,
+        previousVisibleBounds: _zoomDetails != null
+            ? _zoomDetails!.newVisibleBounds
+            : _controller.visibleLatLngBounds,
+        newVisibleBounds: newVisibleLatLngBounds,
+        focalLatLng: focalLatLng ?? getFocalLatLng(newVisibleLatLngBounds),
+      );
+      if (_state.widget.onWillZoom == null ||
+          _state.widget.onWillZoom!(_zoomDetails!)) {
+        _zoomPanBehavior?.onZooming(_zoomDetails!);
+      }
+    }
+  }
+
+  void _handleZoomingCallback(double newZoomLevel, {Offset? downPoint}) {
+    downPoint ??= pixelFromLatLng(
+        _controller.visibleFocalLatLng!.latitude,
+        _controller.visibleFocalLatLng!.longitude,
+        _size,
+        _controller.shapeLayerOffset,
+        _controller.shapeLayerSizeFactor);
+    final double newShapeLayerSizeFactor =
+        _getScale(newZoomLevel) * _controller.shapeLayerSizeFactor;
+    final Offset newShapeLayerOffset =
+        _controller.getZoomingTranslation(origin: downPoint);
+    final Rect newVisibleBounds = _controller.getVisibleBounds(
+        newShapeLayerOffset, newShapeLayerSizeFactor);
+    final MapLatLngBounds newVisibleLatLngBounds =
+        _controller.getVisibleLatLngBounds(
+      newVisibleBounds.topRight,
+      newVisibleBounds.bottomLeft,
+      newShapeLayerOffset,
+      newShapeLayerSizeFactor,
+    );
+    if (_currentZoomLevel != newZoomLevel) {
+      _zoomDetails = MapZoomDetails(
+        localFocalPoint: downPoint,
+        globalFocalPoint: localToGlobal(downPoint),
+        previousZoomLevel: _currentZoomLevel,
+        newZoomLevel: newZoomLevel,
+        previousVisibleBounds: _zoomDetails != null
+            ? _zoomDetails!.newVisibleBounds
+            : _controller.visibleLatLngBounds,
+        newVisibleBounds: newVisibleLatLngBounds,
+        focalLatLng: getFocalLatLng(newVisibleLatLngBounds),
+      );
+      if (_state.widget.onWillZoom == null ||
+          _state.widget.onWillZoom!(_zoomDetails!)) {
+        _zoomPanBehavior?.zoomLevel = _zoomDetails!.newZoomLevel!;
+      }
+    }
+  }
+
+  void _handlePanningCallback(MapLatLng newLatLng) {
+    final Offset localFocalPoint = pixelFromLatLng(
+        newLatLng.latitude,
+        newLatLng.longitude,
+        _size,
+        _controller.shapeLayerOffset + _panDistanceBeforeFlinging,
+        _controller.shapeLayerSizeFactor);
+    final Offset previousFocalPoint = pixelFromLatLng(
+        _controller.visibleFocalLatLng!.latitude,
+        _controller.visibleFocalLatLng!.longitude,
+        _size,
+        _controller.shapeLayerOffset + _panDistanceBeforeFlinging,
+        _controller.shapeLayerSizeFactor);
+    final Offset delta =
+        _getValidPanDelta(localFocalPoint - previousFocalPoint);
+    final Rect visibleBounds =
+        _controller.getVisibleBounds(_controller.shapeLayerOffset + delta);
+    final MapLatLngBounds newVisibleLatLngBounds =
+        _controller.getVisibleLatLngBounds(
+      visibleBounds.topRight,
+      visibleBounds.bottomLeft,
+      _controller.shapeLayerOffset + delta,
+    );
+    _panDetails = MapPanDetails(
+      globalFocalPoint: localToGlobal(localFocalPoint),
       localFocalPoint: localFocalPoint,
-      globalFocalPoint: globalFocalPoint,
-      previousZoomLevel: _zoomPanBehavior!.zoomLevel,
-      newZoomLevel: newZoomLevel,
-      previousVisibleBounds: _zoomDetails != null
-          ? _zoomDetails!.newVisibleBounds
+      zoomLevel: _zoomPanBehavior!.zoomLevel,
+      delta: delta,
+      previousVisibleBounds: _panDetails != null
+          ? _panDetails!.newVisibleBounds
           : _controller.visibleLatLngBounds,
       newVisibleBounds: newVisibleLatLngBounds,
-      focalLatLng: focalLatLng ?? getFocalLatLng(newVisibleLatLngBounds),
+      focalLatLng: newLatLng,
     );
-    if (_state.widget.onWillZoom == null ||
-        _state.widget.onWillZoom!(_zoomDetails!)) {
-      _zoomPanBehavior?.onZooming(_zoomDetails!);
+    if (_state.widget.onWillPan == null ||
+        _state.widget.onWillPan!(_panDetails!)) {
+      _zoomPanBehavior?.focalLatLng = _panDetails!.focalLatLng;
     }
   }
 
@@ -2846,7 +2925,6 @@ class _RenderGeoJSONLayer extends RenderStack
       // Updating map via toolbar.
       _downLocalPoint = null;
       _downGlobalPoint = null;
-      _isZoomedUsingToolbar = true;
     }
     _zoomPanBehavior!
       ..zoomLevel = details.newZoomLevel!
@@ -2915,10 +2993,6 @@ class _RenderGeoJSONLayer extends RenderStack
   void _handleZoomingAnimationEnd([MapLatLng? latLng]) {
     _isFlingAnimationActive = false;
     _zoomEnd();
-    if (!_isZoomedUsingToolbar && !_doubleTapEnabled) {
-      _invokeOnZooming(_getScale(_currentZoomLevel), focalLatLng: latLng);
-    }
-    _isZoomedUsingToolbar = false;
     _doubleTapEnabled = false;
   }
 
@@ -3075,20 +3149,6 @@ class _RenderGeoJSONLayer extends RenderStack
         _controller.getVisibleBounds(_controller.shapeLayerOffset);
     _referenceShapeBounds = _getShapeBounds(
         _controller.shapeLayerSizeFactor, _controller.shapeLayerOffset);
-    final Offset localFocalPoint = pixelFromLatLng(
-        _controller.visibleFocalLatLng!.latitude,
-        _controller.visibleFocalLatLng!.longitude,
-        _size,
-        _controller.shapeLayerOffset,
-        _controller.shapeLayerSizeFactor);
-    final Offset previousFocalPoint = pixelFromLatLng(
-        _focalLatLngTween.begin!.latitude,
-        _focalLatLngTween.begin!.longitude,
-        _size,
-        _controller.shapeLayerOffset,
-        _controller.shapeLayerSizeFactor);
-    _invokeOnPanning(localFocalPoint, previousFocalPoint,
-        localToGlobal(localFocalPoint), true);
   }
 
   void _panEnd() {
@@ -3123,7 +3183,6 @@ class _RenderGeoJSONLayer extends RenderStack
 
   void _cancelZoomingAnimation() {
     _state.zoomLevelAnimationController.stop();
-    _isZoomedUsingToolbar = false;
     _handleZoomingAnimationEnd();
     if (_isAnimationOnQueue) {
       _isAnimationOnQueue = false;
@@ -3552,7 +3611,8 @@ class _RenderGeoJSONLayer extends RenderStack
     _controller
       ..addZoomingListener(_handleZooming)
       ..addPanningListener(_handlePanning)
-      ..addResetListener(_handleReset);
+      ..addResetListener(_handleReset)
+      ..addToolbarZoomedListener(_handleZoomingCallback);
     if (_state.isSublayer) {
       _controller
         ..addRefreshListener(_handleRefresh)
@@ -3582,7 +3642,8 @@ class _RenderGeoJSONLayer extends RenderStack
     _controller
       ..removeZoomingListener(_handleZooming)
       ..removePanningListener(_handlePanning)
-      ..removeResetListener(_handleReset);
+      ..removeResetListener(_handleReset)
+      ..removeToolbarZoomedListener(_handleZoomingCallback);
     if (_state.isSublayer) {
       _controller
         ..removeRefreshListener(_handleRefresh)

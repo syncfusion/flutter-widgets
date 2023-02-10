@@ -10773,7 +10773,7 @@ class _AppointmentViewHeaderRenderObject extends RenderStack {
   ScrollableState? _scrollableState;
 
   /// Current view port.
-  RenderAbstractViewport get _stackViewPort => RenderAbstractViewport.of(this)!;
+  RenderAbstractViewport get _stackViewPort => RenderAbstractViewport.of(this);
 
   ScrollableState? get scrollableState => _scrollableState;
 
