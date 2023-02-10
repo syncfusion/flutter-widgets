@@ -1996,6 +1996,7 @@ class PdfGridCellCollection {
   //Implementation
   PdfGridCell _returnValue(int index) {
     if (index < 0 || index >= _helper._cells.length) {
+      // ignore: deprecated_member_use
       throw IndexError(index, _helper._cells);
     }
     return _helper._cells[index];

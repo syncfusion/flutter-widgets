@@ -546,6 +546,7 @@ class _AutoFitManager {
 
   String _modifySepicalChar(String stringValue) {
     final StringBuffer buffer = StringBuffer();
+    // ignore: dead_code
     for (int i = 0; i < stringValue.length; i++) {
       switch (stringValue[i]) {
         case ' ':

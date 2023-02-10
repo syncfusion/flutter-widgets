@@ -1282,7 +1282,7 @@ class PdfFieldHelper {
                   .conformanceLevel !=
               PdfConformanceLevel.none) {
         throw ArgumentError(
-            'All the fonts must be embedded in ${PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!).conformanceLevel.toString()} document.');
+            'All the fonts must be embedded in ${PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!).conformanceLevel} document.');
       } else if (font is PdfTrueTypeFont &&
           PdfPageHelper.getHelper(page!).document != null &&
           PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!)

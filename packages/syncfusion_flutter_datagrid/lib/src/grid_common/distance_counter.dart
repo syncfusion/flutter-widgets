@@ -578,8 +578,7 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
   /// Check the range of line in between from and to.
   void checkRange(String paramName, int from, int to, int actualValue) {
     if (actualValue < from || actualValue > to) {
-      throw Exception(
-          '$paramName ,${actualValue.toString()} out of range ${from.toString()} to ${to.toString()}');
+      throw Exception('$paramName ,$actualValue out of range $from to $to');
     }
   }
 

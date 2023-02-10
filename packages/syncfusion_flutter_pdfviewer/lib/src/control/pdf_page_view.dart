@@ -488,16 +488,40 @@ class PdfPageViewState extends State<PdfPageView> {
           : RotatedBox(
               quarterTurns: quarterTurns,
               child: Listener(
-                  onPointerDown: (PointerDownEvent details) {
-                    widget.onPdfPagePointerDown(details);
-                  },
-                  onPointerMove: (PointerMoveEvent details) {
-                    widget.onPdfPagePointerMove(details);
-                  },
-                  onPointerUp: (PointerUpEvent details) {
-                    widget.onPdfPagePointerUp(details);
-                  },
-                  child: canvasContainer));
+                onPointerDown: (PointerDownEvent details) {
+                  widget.onPdfPagePointerDown(details);
+                },
+                onPointerMove: (PointerMoveEvent details) {
+                  widget.onPdfPagePointerMove(details);
+                },
+                onPointerUp: (PointerUpEvent details) {
+                  widget.onPdfPagePointerUp(details);
+                },
+                child: widget.isMobileWebView
+                    ? canvasContainer
+                    : RawKeyboardListener(
+                        focusNode: focusNode,
+                        onKey: (RawKeyEvent event) {
+                          if (event.runtimeType.toString() ==
+                              'RawKeyDownEvent') {
+                            if (event.logicalKey ==
+                                LogicalKeyboardKey.arrowRight) {
+                              widget.pdfViewerController.nextPage();
+                            } else if (event.logicalKey ==
+                                LogicalKeyboardKey.arrowLeft) {
+                              widget.pdfViewerController.previousPage();
+                            }
+                          }
+                          if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                            canvasRenderBox!.scroll(true, false);
+                          }
+                          if (event.logicalKey ==
+                              LogicalKeyboardKey.arrowDown) {
+                            canvasRenderBox!.scroll(false, false);
+                          }
+                        },
+                        child: canvasContainer),
+              ));
       return Stack(children: <Widget>[
         pdfPage,
         canvas,

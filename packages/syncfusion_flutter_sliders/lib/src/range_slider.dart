@@ -1427,17 +1427,17 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       inactiveTrackHeight: rangeSliderThemeData.inactiveTrackHeight,
       tickOffset: rangeSliderThemeData.tickOffset,
       inactiveLabelStyle: rangeSliderThemeData.inactiveLabelStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
+          themeData.textTheme.bodyLarge!.copyWith(
               color: isActive
-                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
+                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       activeLabelStyle: rangeSliderThemeData.activeLabelStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
+          themeData.textTheme.bodyLarge!.copyWith(
               color: isActive
-                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
+                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       tooltipTextStyle: rangeSliderThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyText1!
+          themeData.textTheme.bodyLarge!
               .copyWith(color: themeData.colorScheme.surface),
       inactiveTrackColor: widget.inactiveColor ??
           rangeSliderThemeData.inactiveTrackColor ??

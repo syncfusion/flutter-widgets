@@ -918,9 +918,6 @@ class Chart {
   /// saveAsExcel(bytes, 'FLUT_6975_3D_LineChart.xlsx');
   /// ```
   bool get rightAngleAxes {
-    if (_rightAngleAxes == null) {
-      return false;
-    }
     return _rightAngleAxes;
   }
 

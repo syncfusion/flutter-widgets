@@ -1273,17 +1273,17 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
       inactiveTrackHeight: sliderThemeData.inactiveTrackHeight,
       tickOffset: sliderThemeData.tickOffset,
       inactiveLabelStyle: sliderThemeData.inactiveLabelStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
+          themeData.textTheme.bodyLarge!.copyWith(
               color: isActive
-                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
+                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       activeLabelStyle: sliderThemeData.activeLabelStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
+          themeData.textTheme.bodyLarge!.copyWith(
               color: isActive
-                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
+                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       tooltipTextStyle: sliderThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyText1!
+          themeData.textTheme.bodyLarge!
               .copyWith(color: themeData.colorScheme.surface),
       inactiveTrackColor: widget.inactiveColor ??
           sliderThemeData.inactiveTrackColor ??

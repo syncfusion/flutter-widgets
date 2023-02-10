@@ -1322,8 +1322,7 @@ class TreeTable extends TreeTableBase {
 
     final int treeCount = getCount();
     if (index < 0 || index > treeCount) {
-      throw ArgumentError(
-          'index ${index.toString()} must be between 0 and ${treeCount.toString()}');
+      throw ArgumentError('index $index must be between 0 and $treeCount');
     }
 
     if (index == treeCount) {
@@ -1468,7 +1467,7 @@ class TreeTable extends TreeTableBase {
     final int treeCount = getCount();
     if (index < 0 || index >= treeCount) {
       throw ArgumentError(
-          'index ${index.toString()}  must be between 0 and ${(treeCount - 1).toString()}');
+          'index $index  must be between 0 and ${treeCount - 1}');
     }
 
     if (_root == null) {

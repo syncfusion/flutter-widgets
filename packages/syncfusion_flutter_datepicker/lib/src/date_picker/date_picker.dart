@@ -7593,7 +7593,7 @@ class _StickyHeader extends Stack {
   @override
   RenderStack createRenderObject(BuildContext context) =>
       _StickyHeaderRenderObject(
-        scrollableState: Scrollable.of(context)!,
+        scrollableState: Scrollable.of(context),
         alignment: alignment,
         textDirection: textDirection ?? Directionality.of(context),
         fit: fit,
@@ -7608,7 +7608,7 @@ class _StickyHeader extends Stack {
 
     if (renderObject is _StickyHeaderRenderObject) {
       renderObject
-        ..scrollableState = Scrollable.of(context)!
+        ..scrollableState = Scrollable.of(context)
         ..isRTL = isRTL
         ..isHorizontal = isHorizontal;
     }
@@ -7662,7 +7662,7 @@ class _StickyHeaderRenderObject extends RenderStack {
   }
 
   /// Current view port.
-  RenderAbstractViewport get _stackViewPort => RenderAbstractViewport.of(this)!;
+  RenderAbstractViewport get _stackViewPort => RenderAbstractViewport.of(this);
 
   ScrollableState get scrollableState => _scrollableState;
 

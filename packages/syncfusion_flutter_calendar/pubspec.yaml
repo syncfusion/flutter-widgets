@@ -14,7 +14,7 @@ dependencies:
 
   syncfusion_flutter_datepicker: ^20.4.38
 
-  intl: ">=0.15.0 <0.20.0"
+  intl: ">=0.17.0 <0.20.0"
 
 dev_dependencies:
   flutter_test:

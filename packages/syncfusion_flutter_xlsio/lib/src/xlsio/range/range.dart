@@ -1677,6 +1677,7 @@ class Range {
       _dvValue = _getColumnName(column) + row.toString();
     } else {
       _dvValue =
+          // ignore: noop_primitive_operations
           '${_getColumnName(column)}${row.toString()}:${_getColumnName(lastColumn)}${lastRow.toString()}';
     }
     return dvtable._findDataValidation(_dvValue);

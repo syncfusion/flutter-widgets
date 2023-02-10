@@ -1009,7 +1009,9 @@ class RowSelectionManager extends SelectionManagerBase {
           needToScrollMaxExtent: true);
     }
 
-    if (keyEvent.isControlPressed &&
+    if ((dataGridConfiguration.isMacPlatform
+            ? keyEvent.isMetaPressed
+            : keyEvent.isControlPressed) &&
         keyEvent.logicalKey != LogicalKeyboardKey.arrowRight) {
       final int lastRowIndex =
           selection_helper.getLastNavigatingRowIndex(dataGridConfiguration);
@@ -1037,7 +1039,9 @@ class RowSelectionManager extends SelectionManagerBase {
           needToScrollToMinExtent: true);
     }
 
-    if (keyEvent.isControlPressed &&
+    if ((dataGridConfiguration.isMacPlatform
+            ? keyEvent.isMetaPressed
+            : keyEvent.isControlPressed) &&
         keyEvent.logicalKey != LogicalKeyboardKey.arrowLeft) {
       final int firstRowIndex =
           selection_helper.getFirstNavigatingRowIndex(dataGridConfiguration);
@@ -1093,7 +1097,9 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
 
-    if (keyEvent.isControlPressed) {
+    if (dataGridConfiguration.isMacPlatform
+        ? keyEvent.isMetaPressed
+        : keyEvent.isControlPressed) {
       selection_helper.scrollInViewFromTop(dataGridConfiguration,
           needToScrollToMaxExtent: true);
       _processSelectionAndCurrentCell(
@@ -1117,7 +1123,9 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
 
-    if (keyEvent.isControlPressed) {
+    if (dataGridConfiguration.isMacPlatform
+        ? keyEvent.isMetaPressed
+        : keyEvent.isControlPressed) {
       final int firstRowIndex =
           selection_helper.getFirstRowIndex(dataGridConfiguration);
       selection_helper.scrollInViewFromDown(dataGridConfiguration,
@@ -1144,7 +1152,9 @@ class RowSelectionManager extends SelectionManagerBase {
     int nextCellIndex;
     // Need to get previous column index only if the control key is
     // pressed in RTL mode since it will perform the home key event.
-    if (keyEvent.isControlPressed &&
+    if ((dataGridConfiguration.isMacPlatform
+            ? keyEvent.isMetaPressed
+            : keyEvent.isControlPressed) &&
         dataGridConfiguration.textDirection == TextDirection.rtl) {
       nextCellIndex = selection_helper.getPreviousColumnIndex(
           dataGridConfiguration, currentCell.columnIndex);
@@ -1160,7 +1170,9 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
 
-    if (keyEvent.isControlPressed) {
+    if (dataGridConfiguration.isMacPlatform
+        ? keyEvent.isMetaPressed
+        : keyEvent.isControlPressed) {
       if (dataGridConfiguration.textDirection == TextDirection.rtl) {
         _processHomeKey(dataGridConfiguration, keyEvent);
       } else {
@@ -1186,7 +1198,9 @@ class RowSelectionManager extends SelectionManagerBase {
     int previousCellIndex;
     // Need to get next column index only if the control key is
     // pressed in RTL mode since it will perform the end key event.
-    if (keyEvent.isControlPressed &&
+    if ((dataGridConfiguration.isMacPlatform
+            ? keyEvent.isMetaPressed
+            : keyEvent.isControlPressed) &&
         dataGridConfiguration.textDirection == TextDirection.rtl) {
       previousCellIndex = selection_helper.getNextColumnIndex(
           dataGridConfiguration, currentCell.columnIndex);
@@ -1202,7 +1216,9 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
 
-    if (keyEvent.isControlPressed) {
+    if (dataGridConfiguration.isMacPlatform
+        ? keyEvent.isMetaPressed
+        : keyEvent.isControlPressed) {
       if (dataGridConfiguration.textDirection == TextDirection.rtl) {
         _processEndKey(dataGridConfiguration, keyEvent);
       } else {
@@ -1882,9 +1898,9 @@ class CurrentCellManager {
     }
 
     if (isEditing) {
-      final RowColumnIndex rowColumnIndex =
-          grid_helper.resolveToRecordRowColumnIndex(dataGridConfiguration,
-              RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex));
+      RowColumnIndex rowColumnIndex = grid_helper.resolveToRecordRowColumnIndex(
+          dataGridConfiguration,
+          RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex));
 
       if (rowColumnIndex.rowIndex.isNegative ||
           rowColumnIndex.columnIndex.isNegative) {
@@ -1927,7 +1943,12 @@ class CurrentCellManager {
         /// sorting or filtering is enabled.
         if (dataGridConfiguration.allowSorting ||
             dataGridConfiguration.allowFiltering) {
+          final DataGridRow row = effectiveRows(
+              dataGridConfiguration.source)[rowColumnIndex.rowIndex];
           updateDataSource(dataGridConfiguration.source);
+          final int rowIndex =
+              effectiveRows(dataGridConfiguration.source).indexOf(row);
+          rowColumnIndex = RowColumnIndex(rowIndex, rowColumnIndex.columnIndex);
           if (dataGridConfiguration.source.filterConditions.isNotEmpty) {
             dataGridConfiguration.container.updateRowAndColumnCount();
           }

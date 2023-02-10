@@ -513,10 +513,13 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
 
     if (column.allowSorting && dataGridConfiguration.allowSorting) {
       final String sortColumnName = column.columnName;
-      final bool allowMultiSort = dataGridConfiguration.isDesktop
-          ? (dataGridConfiguration.isControlKeyPressed &&
+      final bool allowMultiSort = dataGridConfiguration.isMacPlatform
+          ? (dataGridConfiguration.isCommandKeyPressed &&
               dataGridConfiguration.allowMultiColumnSorting)
-          : dataGridConfiguration.allowMultiColumnSorting;
+          : dataGridConfiguration.isDesktop
+              ? (dataGridConfiguration.isControlKeyPressed &&
+                  dataGridConfiguration.allowMultiColumnSorting)
+              : dataGridConfiguration.allowMultiColumnSorting;
       final DataGridSource source = dataGridConfiguration.source;
 
       final List<SortColumnDetails> sortedColumns = source.sortedColumns;
@@ -694,7 +697,7 @@ class _FilterIcon extends StatelessWidget {
       // the issue by converting the global to local position of the current
       // overlay and used that new offset to display the show menu.
       final RenderBox renderBox =
-          Overlay.of(context)!.context.findRenderObject()! as RenderBox;
+          Overlay.of(context).context.findRenderObject()! as RenderBox;
       final Offset newOffset = renderBox.globalToLocal(details.globalPosition);
       final Size viewSize = renderBox.size;
       showMenu(

@@ -1012,12 +1012,12 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
 
   /// sets the InitialScrollOffset
   void _setInitialScrollOffset() {
-    if (widget.key is PageStorageKey && PageStorage.of(context) != null) {
-      final dynamic offset = PageStorage.of(context)!.readState(context);
+    if (widget.key is PageStorageKey) {
+      final dynamic offset = PageStorage.of(context).readState(context);
       _pdfViewerController._verticalOffset = offset.dy as double;
       _pdfViewerController._horizontalOffset = offset.dx as double;
       final dynamic zoomLevel = PageStorage.of(context)
-          ?.readState(context, identifier: 'zoomLevel_${widget.key}');
+          .readState(context, identifier: 'zoomLevel_${widget.key}');
       // ignore: avoid_as
       _pdfViewerController.zoomLevel = zoomLevel as double;
     } else {
@@ -3241,7 +3241,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                   PdfZoomDetails(newZoomLevel, oldZoomLevel));
             }
           }
-          PageStorage.of(context)?.writeState(
+          PageStorage.of(context).writeState(
               context, _pdfViewerController.zoomLevel,
               identifier: 'zoomLevel_${widget.key}');
         }
@@ -3269,7 +3269,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
               }
             }
           }
-          PageStorage.of(context)?.writeState(
+          PageStorage.of(context).writeState(
               context, _pdfViewerController.zoomLevel,
               identifier: 'zoomLevel_${widget.key}');
         }
@@ -3624,6 +3624,11 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           ?.currentState
           ?.focusNode
           .requestFocus();
+      if (_isTablet) {
+        _pdfScrollableStateKey
+            .currentState?.scrollHeadStateKey.currentState?.focusNode
+            .requestFocus();
+      }
     }
     if (widget.pageLayoutMode == PdfPageLayoutMode.continuous) {
       if (_scrollDirection == PdfScrollDirection.horizontal) {

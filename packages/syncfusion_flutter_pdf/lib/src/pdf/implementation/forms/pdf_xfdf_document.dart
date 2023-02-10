@@ -35,7 +35,7 @@ class XFdfDocument {
       builder.element(PdfDictionaryProperties.fields.toLowerCase(),
           nest: _writeFormData());
       builder.element('f', nest: () {
-        builder.attribute('href', _pdfFilePath!);
+        builder.attribute('href', _pdfFilePath);
       });
     });
     xmlData = utf8.encode(builder.buildDocument().toXmlString(pretty: true));
