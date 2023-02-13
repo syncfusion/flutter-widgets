@@ -2825,42 +2825,108 @@ class DataGridAdvancedFilterHelper {
       filterTypeItems.clear();
     }
 
+    final List<FilterType> enabledFilterTypes =
+        column.filterPopupMenuOptions?.enabledFilterTypes ?? <FilterType>[];
+
     final List<String> items = <String>[];
     final SfLocalizations localizations = _dataGridStateDetails().localizations;
+    if (enabledFilterTypes.isEmpty ||
+        enabledFilterTypes.contains(FilterType.equals)) {
+      items.add(localizations.equalsDataGridFilteringLabel);
+    }
+    if (enabledFilterTypes.isEmpty ||
+        enabledFilterTypes.contains(FilterType.notEqual)) {
+      items.add(localizations.doesNotEqualDataGridFilteringLabel);
+    }
+    if (enabledFilterTypes.isEmpty) {
+      items.add(localizations.nullDataGridFilteringLabel);
+    }
+    if (enabledFilterTypes.isEmpty) {
+      items.add(localizations.notNullDataGridFilteringLabel);
+    }
+
     switch (advancedFilterType) {
       case AdvancedFilterType.text:
-        items.add(localizations.equalsDataGridFilteringLabel);
-        items.add(localizations.doesNotEqualDataGridFilteringLabel);
-        items.add(localizations.beginsWithDataGridFilteringLabel);
-        items.add(localizations.doesNotBeginWithDataGridFilteringLabel);
-        items.add(localizations.endsWithDataGridFilteringLabel);
-        items.add(localizations.doesNotEndWithDataGridFilteringLabel);
-        items.add(localizations.containsDataGridFilteringLabel);
-        items.add(localizations.doesNotContainDataGridFilteringLabel);
-        items.add(localizations.emptyDataGridFilteringLabel);
-        items.add(localizations.notEmptyDataGridFilteringLabel);
-        items.add(localizations.nullDataGridFilteringLabel);
-        items.add(localizations.notNullDataGridFilteringLabel);
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.beginsWith)) {
+          items.add(localizations.beginsWithDataGridFilteringLabel);
+        }
+
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.doesNotBeginWith)) {
+          items.add(localizations.doesNotBeginWithDataGridFilteringLabel);
+        }
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.endsWith)) {
+          items.add(localizations.endsWithDataGridFilteringLabel);
+        }
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.doesNotEndsWith)) {
+          items.add(localizations.doesNotEndWithDataGridFilteringLabel);
+        }
+
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.contains)) {
+          items.add(localizations.containsDataGridFilteringLabel);
+        }
+
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.doesNotContain)) {
+          items.add(localizations.doesNotContainDataGridFilteringLabel);
+        }
+
+        if (enabledFilterTypes.isEmpty) {
+          items.add(localizations.emptyDataGridFilteringLabel);
+        }
+
+        if (enabledFilterTypes.isEmpty) {
+          items.add(localizations.notEmptyDataGridFilteringLabel);
+        }
+
         break;
       case AdvancedFilterType.numeric:
-        items.add(localizations.equalsDataGridFilteringLabel);
-        items.add(localizations.doesNotEqualDataGridFilteringLabel);
-        items.add(localizations.lessThanDataGridFilteringLabel);
-        items.add(localizations.lessThanOrEqualDataGridFilteringLabel);
-        items.add(localizations.greaterThanDataGridFilteringLabel);
-        items.add(localizations.greaterThanOrEqualDataGridFilteringLabel);
-        items.add(localizations.nullDataGridFilteringLabel);
-        items.add(localizations.notNullDataGridFilteringLabel);
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.lessThan)) {
+          items.add(localizations.lessThanDataGridFilteringLabel);
+        }
+
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.lessThanOrEqual)) {
+          items.add(localizations.lessThanOrEqualDataGridFilteringLabel);
+        }
+
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.greaterThan)) {
+          items.add(localizations.greaterThanDataGridFilteringLabel);
+        }
+
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.greaterThanOrEqual)) {
+          items.add(localizations.greaterThanOrEqualDataGridFilteringLabel);
+        }
+
         break;
       case AdvancedFilterType.date:
-        items.add(localizations.equalsDataGridFilteringLabel);
-        items.add(localizations.doesNotEqualDataGridFilteringLabel);
-        items.add(localizations.beforeDataGridFilteringLabel);
-        items.add(localizations.beforeOrEqualDataGridFilteringLabel);
-        items.add(localizations.afterDataGridFilteringLabel);
-        items.add(localizations.afterOrEqualDataGridFilteringLabel);
-        items.add(localizations.nullDataGridFilteringLabel);
-        items.add(localizations.notNullDataGridFilteringLabel);
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.lessThan)) {
+          items.add(localizations.beforeDataGridFilteringLabel);
+        }
+
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.lessThanOrEqual)) {
+          items.add(localizations.beforeOrEqualDataGridFilteringLabel);
+        }
+
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.greaterThan)) {
+          items.add(localizations.afterDataGridFilteringLabel);
+        }
+
+        if (enabledFilterTypes.isEmpty ||
+            enabledFilterTypes.contains(FilterType.greaterThanOrEqual)) {
+          items.add(localizations.afterOrEqualDataGridFilteringLabel);
+        }
+
         break;
     }
 
@@ -2962,7 +3028,10 @@ class FilterPopupMenuOptions {
       {this.filterMode = FilterMode.both,
       this.canShowClearFilterOption = true,
       this.canShowSortingOptions = true,
-      this.showColumnName = true});
+      this.showColumnName = true,
+      this.enabledFilterTypes = const <FilterType>[],
+      this.isAndOrFilterEnabled = true,
+      this.isCaseSensitiveEnabled = true});
 
   /// Decides how the checked listbox and advanced filter options should be shown in filter popup.
   final FilterMode filterMode;
@@ -2975,4 +3044,14 @@ class FilterPopupMenuOptions {
 
   /// Decides whether the column name should be displayed along with the content of `Clear Filter` option .
   final bool showColumnName;
+
+  // Decides whether the And and Or filter options should be displayed in filtering popup.
+  final bool isAndOrFilterEnabled;
+
+  // Decides whether case sensitive option should be displayed in filtering popup.
+  final bool isCaseSensitiveEnabled;
+
+  /// Enabled filter type for the column
+  /// if the filter type is not specified, then all the filter types will be enabled.
+  final List<FilterType> enabledFilterTypes;
 }

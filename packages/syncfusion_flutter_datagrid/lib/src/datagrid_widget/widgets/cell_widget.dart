@@ -697,7 +697,8 @@ class _FilterIcon extends StatelessWidget {
       // the issue by converting the global to local position of the current
       // overlay and used that new offset to display the show menu.
       final RenderBox renderBox =
-          Overlay.of(context).context.findRenderObject()! as RenderBox;
+          Overlay.of(context)?.context.findRenderObject() as RenderBox;
+
       final Offset newOffset = renderBox.globalToLocal(details.globalPosition);
       final Size viewSize = renderBox.size;
       showMenu(
@@ -1105,6 +1106,12 @@ class _FilterPopupState extends State<_FilterPopup> {
                   setState: setState,
                   dataGridConfiguration: widget.dataGridConfiguration,
                   advanceFilterTopPadding: advanceFilterTopPadding,
+                  isAndOrFilterEnabled: widget.column.filterPopupMenuOptions
+                          ?.isAndOrFilterEnabled ??
+                      true,
+                  isCaseSensitiveEnabled: widget.column.filterPopupMenuOptions
+                          ?.isCaseSensitiveEnabled ??
+                      true,
                 ),
               if (isBothFilterEnabled)
                 _FilterPopupMenuTile(
@@ -1145,6 +1152,12 @@ class _FilterPopupState extends State<_FilterPopup> {
                     setState: setState,
                     dataGridConfiguration: widget.dataGridConfiguration,
                     advanceFilterTopPadding: advanceFilterTopPadding,
+                    isAndOrFilterEnabled: widget.column.filterPopupMenuOptions
+                            ?.isAndOrFilterEnabled ??
+                        true,
+                    isCaseSensitiveEnabled: widget.column.filterPopupMenuOptions
+                            ?.isCaseSensitiveEnabled ??
+                        true,
                   ),
                 ),
               if (!isMobile) const Divider(height: 10),
@@ -1590,18 +1603,24 @@ class _CheckboxFilterMenu extends StatelessWidget {
 }
 
 class _AdvancedFilterPopupMenu extends StatelessWidget {
-  const _AdvancedFilterPopupMenu(
-      {Key? key,
-      required this.setState,
-      required this.dataGridConfiguration,
-      required this.advanceFilterTopPadding})
-      : super(key: key);
+  const _AdvancedFilterPopupMenu({
+    Key? key,
+    required this.setState,
+    required this.dataGridConfiguration,
+    required this.advanceFilterTopPadding,
+    required this.isAndOrFilterEnabled,
+    required this.isCaseSensitiveEnabled,
+  }) : super(key: key);
 
   final StateSetter setState;
 
   final DataGridConfiguration dataGridConfiguration;
 
   final double advanceFilterTopPadding;
+
+  final bool isAndOrFilterEnabled;
+
+  final bool isCaseSensitiveEnabled;
 
   bool get isMobile {
     return !dataGridConfiguration.isDesktop;
@@ -1636,21 +1655,27 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
           _FilterMenuDropdown(
             height: isMobile ? 56.0 : 36.0,
             padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
-            suffix: _getTrailingWidget(context, true),
+            suffix: isCaseSensitiveEnabled
+                ? _getTrailingWidget(context, true)
+                : null,
             child: _buildFilterValueDropdown(isTopButton: true),
           ),
-          _buildRadioButtons(),
-          _FilterMenuDropdown(
-            height: isMobile ? 56.0 : 36.0,
-            padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
-            child: _buildFilterTypeDropdown(isFirstButton: false),
-          ),
-          _FilterMenuDropdown(
-            height: isMobile ? 56.0 : 36.0,
-            padding: const EdgeInsets.only(bottom: 8.0),
-            suffix: _getTrailingWidget(context, false),
-            child: _buildFilterValueDropdown(isTopButton: false),
-          ),
+          if (isAndOrFilterEnabled) ...[
+            _buildRadioButtons(),
+            _FilterMenuDropdown(
+              height: isMobile ? 56.0 : 36.0,
+              padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
+              child: _buildFilterTypeDropdown(isFirstButton: false),
+            ),
+            _FilterMenuDropdown(
+              height: isMobile ? 56.0 : 36.0,
+              padding: const EdgeInsets.only(bottom: 8.0),
+              suffix: isCaseSensitiveEnabled
+                  ? _getTrailingWidget(context, true)
+                  : null,
+              child: _buildFilterValueDropdown(isTopButton: false),
+            ),
+          ]
         ],
       ),
     );
