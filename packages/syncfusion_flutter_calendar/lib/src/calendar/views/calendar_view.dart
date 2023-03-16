@@ -8281,9 +8281,9 @@ class _CalendarViewState extends State<_CalendarView>
             width: widget.width,
             height: height,
             children: <Widget>[
-              RepaintBoundary(child: _getMonthWidget(isRTL, height)),
               RepaintBoundary(
                   child: _addAppointmentPainter(widget.width, height)),
+              RepaintBoundary(child: _getMonthWidget(isRTL, height)),
             ],
           )),
         ),
