@@ -127,6 +127,7 @@ class SfPdfViewer extends StatefulWidget {
     AssetBundle? bundle,
     this.canShowScrollHead = true,
     this.pageSpacing = 4,
+    this.customWidgets,
     this.controller,
     this.onZoomLevelChanged,
     this.canShowScrollStatus = true,
@@ -183,6 +184,7 @@ class SfPdfViewer extends StatefulWidget {
     Map<String, String>? headers,
     this.canShowScrollHead = true,
     this.pageSpacing = 4,
+    this.customWidgets,
     this.controller,
     this.onZoomLevelChanged,
     this.canShowScrollStatus = true,
@@ -237,6 +239,7 @@ class SfPdfViewer extends StatefulWidget {
     Key? key,
     this.canShowScrollHead = true,
     this.pageSpacing = 4,
+    this.customWidgets,
     this.controller,
     this.onZoomLevelChanged,
     this.canShowScrollStatus = true,
@@ -295,6 +298,7 @@ class SfPdfViewer extends StatefulWidget {
     Key? key,
     this.canShowScrollHead = true,
     this.pageSpacing = 4,
+    this.customWidgets,
     this.controller,
     this.onZoomLevelChanged,
     this.canShowScrollStatus = true,
@@ -450,6 +454,11 @@ class SfPdfViewer extends StatefulWidget {
   ///}
   /// ```
   final double pageSpacing;
+
+  ///Custom widget on pdf
+  ///
+  ///
+  final List<PdfWidget>? customWidgets;
 
   /// An object that is used to control the navigation and zooming operations
   /// in the [SfPdfViewer].
@@ -2197,8 +2206,28 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                         if (page.imageStream != null) {
                           _renderedImages.add(pageIndex);
                         }
-                        return page;
+
+                        final Iterable<Positioned>? pageCustomWidgets = widget
+                            .customWidgets
+                            ?.where((PdfWidget widget) =>
+                                widget.pageNumber == index + 1)
+                            .map(
+                              (PdfWidget widget) => widget.toPositioned(
+                                calculatedSize,
+                                Size(_originalWidth![index],
+                                    _originalHeight![index]),
+                              ),
+                            );
+
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: <Widget>[
+                            page,
+                            ...?pageCustomWidgets,
+                          ],
+                        );
                       });
+
                       Widget? pdfContainer;
                       if (widget.pageLayoutMode == PdfPageLayoutMode.single) {
                         _pageController = PageController(
@@ -4633,5 +4662,56 @@ class _ValueChangeNotifier {
     for (_listener in _listeners) {
       _listener(property: property);
     }
+  }
+}
+
+///
+class PdfWidget {
+  ///
+  const PdfWidget({
+    required this.pageNumber,
+    required this.bounds,
+    this.ignoreBoundsSize = false,
+    required this.child,
+  });
+
+  ///Starts with 1
+  final int pageNumber;
+
+  ///bounds
+  final Rect bounds;
+
+  ///Will use real widget size
+  final bool ignoreBoundsSize;
+
+  ///child
+  final Widget child;
+
+  ///convert toPositioned
+  Positioned toPositioned(Size screenSize, Size pdfSize) {
+    final double k = (790 * pdfSize.height) / (1024 * pdfSize.width);
+
+    final double hCoef = screenSize.height / (1024 * k);
+    final double wCoef = screenSize.width / 790;
+
+    if (ignoreBoundsSize) {
+      return Positioned(
+        left: bounds.left * wCoef,
+        top: bounds.top * hCoef,
+        child: child,
+      );
+    }
+
+    final Rect rect = Rect.fromLTWH(
+      bounds.left * wCoef,
+      bounds.top * hCoef,
+      bounds.width * wCoef,
+      bounds.height * hCoef,
+    );
+
+    return Positioned.fromRect(
+      rect: rect,
+      child: child,
+    );
   }
 }
