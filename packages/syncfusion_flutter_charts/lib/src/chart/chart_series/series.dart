@@ -1361,10 +1361,10 @@ class ChartSeriesController {
       if (!_needXRecalculation &&
           ((xRange.minimum >= x) == true || (xRange.maximum <= x) == true)) {
         _needXRecalculation = true;
-        if (seriesRendererDetails.minimumX! >= x) {
+        if (seriesRendererDetails.minimumX == null || seriesRendererDetails.minimumX! >= x) {
           seriesRendererDetails.minimumX = x;
         }
-        if (seriesRendererDetails.maximumX! <= x) {
+        if (seriesRendererDetails.maximumX == null || seriesRendererDetails.maximumX! <= x) {
           seriesRendererDetails.maximumX = x;
         }
       }
@@ -1391,10 +1391,10 @@ class ChartSeriesController {
           ((yRange.minimum >= minYVal) == true ||
               (yRange.maximum <= maxYVal) == true)) {
         _needYRecalculation = true;
-        if (seriesRendererDetails.minimumY! >= minYVal) {
+        if (seriesRendererDetails.minimumY == null || seriesRendererDetails.minimumY! >= minYVal) {
           seriesRendererDetails.minimumY = minYVal;
         }
-        if (seriesRendererDetails.maximumY! <= maxYVal) {
+        if (seriesRendererDetails.maximumY == null || seriesRendererDetails.maximumY! <= maxYVal) {
           seriesRendererDetails.maximumY = maxYVal;
         }
       }
