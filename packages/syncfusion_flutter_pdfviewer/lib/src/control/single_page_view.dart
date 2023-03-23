@@ -30,6 +30,7 @@ class SinglePageView extends StatefulWidget {
       this.onPageChanged,
       this.interactionUpdate,
       this.viewportDimension,
+      this.maxZoomLevel,
       this.canShowPaginationDialog,
       this.canShowScrollHead,
       this.canShowScrollStatus,
@@ -70,6 +71,9 @@ class SinglePageView extends StatefulWidget {
 
   /// Viewport dimension of PdfViewer.
   final Size viewportDimension;
+
+  /// Represents the maximum zoom level
+  final double maxZoomLevel;
 
   /// Indicates whether page navigation dialog must be shown or not.
   final bool canShowPaginationDialog;
@@ -194,16 +198,16 @@ class SinglePageViewState extends State<SinglePageView> {
             zoomLevel
         : 0;
     final double childWidth = viewportDimension.width > imageWidth
-        ? viewportDimension.width / widthFactor.clamp(1, 3)
-        : imageWidth / widthFactor.clamp(1, 3);
+        ? viewportDimension.width / widthFactor.clamp(1, widget.maxZoomLevel)
+        : imageWidth / widthFactor.clamp(1, widget.maxZoomLevel);
     final double imageHeight = widget.pdfPages.isNotEmpty
         ? widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize
                 .height *
             zoomLevel
         : 0;
     double childHeight = viewportDimension.height > imageHeight
-        ? viewportDimension.height / heightFactor.clamp(1, 3)
-        : imageHeight / heightFactor.clamp(1, 3);
+        ? viewportDimension.height / heightFactor.clamp(1, widget.maxZoomLevel)
+        : imageHeight / heightFactor.clamp(1, widget.maxZoomLevel);
     if (childHeight > viewportDimension.height) {
       childHeight = widget.viewportDimension.height;
     }
@@ -350,6 +354,7 @@ class SinglePageViewState extends State<SinglePageView> {
                   : widget.viewportDimension.width,
               child: Center(child: page)),
           clipBehavior: Clip.none,
+          maxScale: widget.maxZoomLevel,
           boundaryMargin: EdgeInsets.only(
             top: isHeightFitted || isLandscape
                 ? 0

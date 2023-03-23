@@ -6199,6 +6199,37 @@ class Workbook {
     return bytes!;
   }
 
+  /// Saves workbook.
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = workbook.saveSync();
+  /// File('ExcelSave.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  List<int> saveSync() {
+    return saveAsStream();
+  }
+
+  /// Saves workbook as Future.
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = await workbook.save();
+  /// File('ExcelSave.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  Future<List<int>> save() async {
+    _saving = true;
+    final SerializeWorkbook serializer = SerializeWorkbook(this);
+    List<int>? bytes;
+    await serializer._saveInternalAsync().then((_) async {
+      bytes = ZipEncoder().encode(archive);
+      _saving = false;
+    });
+    return bytes!;
+  }
+
   /// Saves workbook as CSV format.
   /// ```dart
   /// Workbook workbook = new Workbook();

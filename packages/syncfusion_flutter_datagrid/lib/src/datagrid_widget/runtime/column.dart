@@ -26,6 +26,8 @@ class GridColumn {
       this.columnWidthMode = ColumnWidthMode.none,
       this.visible = true,
       this.allowSorting = true,
+      this.sortIconPosition = ColumnHeaderIconPosition.end,
+      this.filterIconPosition = ColumnHeaderIconPosition.end,
       this.autoFitPadding = const EdgeInsets.all(16.0),
       this.minimumWidth = double.nan,
       this.maximumWidth = double.nan,
@@ -165,6 +167,13 @@ class GridColumn {
 
   /// The amount of space  which should be added with the filter icon
   final EdgeInsetsGeometry filterIconPadding;
+
+  /// The position of the sort icon in the column headers.
+  final ColumnHeaderIconPosition sortIconPosition;
+
+  /// The position of the filter icon in the column headers.
+  /// Typically, filter icon is placed next to sort icon.
+  final ColumnHeaderIconPosition filterIconPosition;
 }
 
 /// A column which displays the values of the string in its cells.
@@ -195,6 +204,8 @@ class GridTextColumn extends GridColumn {
     EdgeInsets autoFitPadding = const EdgeInsets.all(16.0),
     bool visible = true,
     bool allowSorting = true,
+    ColumnHeaderIconPosition sortIconPosition = ColumnHeaderIconPosition.end,
+    ColumnHeaderIconPosition filterIconPosition = ColumnHeaderIconPosition.end,
     double minimumWidth = double.nan,
     double maximumWidth = double.nan,
     double width = double.nan,
@@ -206,6 +217,8 @@ class GridTextColumn extends GridColumn {
             autoFitPadding: autoFitPadding,
             visible: visible,
             allowSorting: allowSorting,
+            sortIconPosition: sortIconPosition,
+            filterIconPosition: filterIconPosition,
             minimumWidth: minimumWidth,
             maximumWidth: maximumWidth,
             width: width,
@@ -697,7 +710,14 @@ class ColumnSizer {
     late DataGridRow dataGridRow;
     switch (dataGridConfiguration.columnWidthCalculationRange) {
       case ColumnWidthCalculationRange.allRows:
-        dataGridRow = effectiveRows(dataGridConfiguration.source)[rowIndex];
+        // Issue:
+        // FLUT-7340 - The RangeError exception is thrown when rebuilding the DataGrid after applying the filtering.
+        //
+        // Fix:
+        // The issue occurred because the rows were being fetched from the effective rows collection,
+        // which contains only the filtered rows instead of all the rows.
+        // Now, we fetched the rows from the entire collection to calculate the width for all the rows.
+        dataGridRow = dataGridConfiguration.source.rows[rowIndex];
         break;
       case ColumnWidthCalculationRange.visibleRows:
         dataGridRow =
@@ -813,6 +833,12 @@ class ColumnSizer {
         _dataGridStateDetails!();
     for (final GridColumn column in dataGridConfiguration.columns) {
       column._autoWidth = double.nan;
+    }
+
+    // Need to set `needToSetHorizontalOffset` property to true when the column
+    // widths change in the RTL mode to get proper visible columns.
+    if (dataGridConfiguration.textDirection == TextDirection.rtl) {
+      dataGridConfiguration.container.needToSetHorizontalOffset = true;
     }
   }
 
@@ -1668,13 +1694,15 @@ class ColumnResizeController {
   // *  Pointer Events
 
   /// Handles the pointer down event for the column resizing.
-  void onPointerDown(PointerDownEvent event, DataRowBase dataRow) {
+  Future<void> onPointerDown(
+      PointerDownEvent event, DataRowBase dataRow) async {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
     if (dataGridConfiguration.isDesktop || _canStartResizeInMobile) {
       if (_isHeaderRow(dataRow)) {
         // Clears the editing before start resizing a column.
         if (dataGridConfiguration.currentCell.isEditing) {
-          dataGridConfiguration.currentCell.onCellSubmit(dataGridConfiguration);
+          await dataGridConfiguration.currentCell
+              .onCellSubmit(dataGridConfiguration);
         }
 
         final VisibleLineInfo? resizingLine =
@@ -1914,7 +1942,17 @@ class DataGridFilterHelper {
   late DataGridAdvancedFilterHelper advancedFilterHelper;
 
   /// Provides the height of the popup menu tile.
-  double get tileHeight => _dataGridStateDetails().isDesktop ? 40.0 : 52.0;
+  double get tileHeight => _dataGridStateDetails().isDesktop
+      ? _dataGridStateDetails()
+              .dataGridThemeHelper!
+              .filterPopupTextStyle!
+              .fontSize! +
+          26
+      : _dataGridStateDetails()
+              .dataGridThemeHelper!
+              .filterPopupTextStyle!
+              .fontSize! +
+          38;
 
   /// Provides the icon color.
   Color get iconColor =>
@@ -1940,18 +1978,13 @@ class DataGridFilterHelper {
   Color get primaryColor => _dataGridStateDetails().colorScheme!.primary;
 
   /// Provides the text style to the tiles.
-  TextStyle get textStyle => TextStyle(
-      fontSize: 14.0,
-      color: textColor,
-      fontFamily: 'Roboto',
-      fontWeight: FontWeight.normal);
+  TextStyle get textStyle =>
+      _dataGridStateDetails().dataGridThemeHelper!.filterPopupTextStyle!;
 
   /// Provides the text style to the disabled tiles.
-  TextStyle get disableTextStyle => TextStyle(
-      fontSize: 14.0,
-      color: disableIconColor,
-      fontFamily: 'Roboto',
-      fontWeight: FontWeight.normal);
+  TextStyle get disableTextStyle => _dataGridStateDetails()
+      .dataGridThemeHelper!
+      .filterPopupDisabledTextStyle!;
 
   /// Apply filter to the effective rows based on `filterConditions`.
   void applyFilter() {

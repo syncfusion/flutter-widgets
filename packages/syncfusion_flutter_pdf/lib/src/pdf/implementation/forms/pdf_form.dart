@@ -1325,6 +1325,7 @@ class PdfFormHelper {
           break;
         }
       }
+      helper.dictionary!.isSkip = true;
       fields.changed = true;
       if (!formHasKids ||
           !helper.dictionary!.items!

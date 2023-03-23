@@ -11807,14 +11807,19 @@ class _PickerViewState extends State<_PickerView>
         case DateRangePickerNavigationDirection.horizontal:
           {
             width = width - widget.picker.viewSpacing - weekNumberPanelWidth;
+            final double singleViewWidth = width / 2;
             totalColumnCount *= 2;
-            if (xPosition > width / 2 &&
+
+            /// return -1 while the position in between the view spacing.
+            if (xPosition > weekNumberPanelWidth + singleViewWidth &&
                 xPosition <
-                    (width / 2) +
+                    singleViewWidth +
                         widget.picker.viewSpacing +
-                        weekNumberPanelWidth) {
+                        (2 * weekNumberPanelWidth)) {
               return index;
-            } else if (xPosition > width / 2) {
+            } else if (xPosition > singleViewWidth + weekNumberPanelWidth) {
+              /// Subtract the 2nd view week number panel width and in between
+              /// spacing while the position is after the 1st view.
               xPosition =
                   xPosition - widget.picker.viewSpacing - weekNumberPanelWidth;
             }
@@ -11824,6 +11829,8 @@ class _PickerViewState extends State<_PickerView>
           {
             height = (height - widget.picker.viewSpacing) / 2;
             totalRowCount *= 2;
+
+            /// return -1 while the position in between the view spacing.
             if (yPosition > height &&
                 yPosition < height + widget.picker.viewSpacing) {
               return index;

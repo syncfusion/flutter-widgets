@@ -1,4 +1,5 @@
 ## Unreleased
+## [20.3.60] - 12/06/2022
 
 ## Range Slider
 

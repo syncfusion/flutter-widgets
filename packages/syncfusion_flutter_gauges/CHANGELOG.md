@@ -1,3 +1,10 @@
+## Unreleased
+
+## Radial Gauge
+
+**Bugs**
+* #FB40920 - Now, the axis tapped callback returns the proper value while enabling the [`canScaleToFit`](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/RadialAxis/canScaleToFit.html) property in gauges.
+
 ## [20.2.36] - 07/01/2022
 
 ## Radial Gauge

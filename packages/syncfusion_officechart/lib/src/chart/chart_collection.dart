@@ -75,17 +75,34 @@ class ChartCollection extends ChartHelper {
 
   /// Serialize the charts.
   @override
-  void serializeCharts(Worksheet sheet) {
+  void serializeChartsSync(Worksheet sheet) {
     _chartSerialization ??= ChartSerialization(sheet.workbook);
 
     _chartSerialization!._saveCharts(sheet);
   }
 
+  /// Serialize the charts.
+  @override
+  Future<void> serializeCharts(Worksheet sheet) async {
+    _chartSerialization ??= ChartSerialization(sheet.workbook);
+
+    _chartSerialization!._saveChartsAsync(sheet);
+  }
+
   /// Serialize the chart drawings.
   @override
-  void serializeChartDrawing(XmlBuilder builder, Worksheet sheet) {
+  void serializeChartDrawingSync(XmlBuilder builder, Worksheet sheet) {
     _chartSerialization ??= ChartSerialization(sheet.workbook);
 
     _chartSerialization!._serializeChartDrawing(builder, sheet);
+  }
+
+  /// Serialize the chart drawings.
+  @override
+  Future<void> serializeChartDrawing(
+      XmlBuilder builder, Worksheet sheet) async {
+    _chartSerialization ??= ChartSerialization(sheet.workbook);
+
+    _chartSerialization!._serializeChartDrawingAsync(builder, sheet);
   }
 }

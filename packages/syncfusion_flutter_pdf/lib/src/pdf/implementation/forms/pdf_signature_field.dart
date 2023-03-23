@@ -132,6 +132,7 @@ class PdfSignatureField extends PdfField {
             PdfSignatureHelper.getHelper(_signature!).signatureDictionary!;
         if (!PdfDocumentHelper.getHelper(document).isLoadedDocument ||
             document.fileStructure.incrementalUpdate != false) {
+          signatureDictionary.dictionary!.archive = false;
           PdfDocumentHelper.getHelper(document)
               .objects
               .add(signatureDictionary.element);

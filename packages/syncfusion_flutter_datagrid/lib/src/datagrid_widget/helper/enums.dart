@@ -353,3 +353,12 @@ enum FilterMode {
   /// Specifies whether both the checked listbox and advanced filter dropdown options should be shown.
   both,
 }
+
+/// The position of the icon in the column headers.
+enum ColumnHeaderIconPosition {
+  /// Specifies that an icon is positioned at the starting position of the column header.
+  start,
+
+  /// Specifies that an icon is positioned at the ending position of the column header.
+  end,
+}
