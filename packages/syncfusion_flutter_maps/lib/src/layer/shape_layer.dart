@@ -2009,6 +2009,7 @@ class _RenderGeoJSONLayer extends RenderStack
   double _actualFactor = 1.0;
   double _maximumReachedScaleOnInteraction = 1.0;
   int _pointerCount = 0;
+  bool _initailPinchZooming = false;
   Offset _panDistanceBeforeFlinging = Offset.zero;
   bool _avoidPanUpdate = false;
   bool _isFlingAnimationActive = false;
@@ -2696,6 +2697,16 @@ class _RenderGeoJSONLayer extends RenderStack
 
       _controller.gesture = null;
     }
+    // HACK: If the initial pinch zooming is performed then reinitialize
+    // the ScaleGestureRecognizer for the web platform alone
+    if (!_initailPinchZooming && kIsWeb) {
+      _scaleGestureRecognizer.dispose();
+      _scaleGestureRecognizer = ScaleGestureRecognizer()
+        ..onStart = _handleScaleStart
+        ..onUpdate = _handleScaleUpdate
+        ..onEnd = _handleScaleEnd;
+      _initailPinchZooming = true;
+    }
   }
 
   void _startFlingAnimationForPanning(ScaleEndDetails details) {
@@ -3003,9 +3014,7 @@ class _RenderGeoJSONLayer extends RenderStack
     _zoomingDelayTimer = null;
     _zoomDetails = null;
     _panDetails = null;
-    if (_zoomPanBehavior != null &&
-        _zoomPanBehavior!.enablePinching &&
-        !_state.isSublayer) {
+    if (_zoomPanBehavior != null && !_state.isSublayer) {
       _controller.shapeLayerOffset =
           _controller.getZoomingTranslation() + _controller.normalize;
       _controller.shapeLayerOrigin = _controller.getZoomingTranslation(
@@ -3156,7 +3165,7 @@ class _RenderGeoJSONLayer extends RenderStack
     _zoomDetails = null;
     _panDetails = null;
     _panDistanceBeforeFlinging = Offset.zero;
-    if (_zoomPanBehavior!.enablePanning && !_state.isSublayer) {
+    if (!_state.isSublayer) {
       _controller.shapeLayerOffset += _controller.panDistance;
       _controller.shapeLayerOrigin += _controller.panDistance;
       _updateMapDataSourceForVisual();

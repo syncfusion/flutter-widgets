@@ -159,7 +159,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   bool isScrolled = false;
 
   /// Focus node for page navigation dialogue.
-  FocusNode focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode();
 
   double _scale = 1;
 
@@ -189,7 +189,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   void dispose() {
     _pdfViewerThemeData = null;
     _localizations = null;
-    focusNode.dispose();
+    _focusNode.dispose();
     _scrollTimer?.cancel();
     _scrollTimer = null;
     super.dispose();
@@ -486,7 +486,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                   fontFamily: 'Roboto',
                   fontSize: 16,
                   color: _themeData!.colorScheme.onSurface.withOpacity(0.87)),
-          focusNode: focusNode,
+          focusNode: _focusNode,
           decoration: InputDecoration(
             isDense: true,
             focusedBorder: UnderlineInputBorder(

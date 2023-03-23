@@ -1,3 +1,17 @@
+## [20.4.54] - 03/15/2023
+
+**Bugs**
+
+* The issue of PDF document size increasing after removing pages has been resolved.
+
+## [20.4.50] - 02/14/2023
+
+**Bugs**
+
+* Resolved the document corruption exception when signing existing signed PDF documents.
+
+* Text bounds are now retrieved properly when finding text from cropped PDF documents.
+
 ## [20.3.57] - 11/15/2022
 
 **Bugs**

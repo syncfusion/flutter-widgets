@@ -1,10 +1,35 @@
 ## Unreleased
 
 **Bugs**
+* #FB40960 - Fixed an issue where the data label template was not updating properly when changing the visible range dynamically.
+* #FB41822 - Fixed an issue of the candle series width decreasing when adding the non-rectangular series.
+
+## [20.4.54] - 03/15/2023
+
+**Bugs**
+* #FB41625 - Resolved null check exception that occurred when changing the data source of a circular series with a toggled legend.
+
+## [20.4.53] - 03/07/2023
+
+**Bugs**
+* #FB40694 - Resolved the range error exception in the FastLineSeries with the floatAllPoints trackball display mode.
+
+## [20.4.50] - 02/14/2023
+
+**Bugs**
+* #FB40202 - The builder data labels are not positioned when using multiple series in the SfCartesianChart has been resolved. 
+
+## [20.4.43] - 01/10/2023
+
+**Bug**
+* #FB39500 - The issue with zooming and panning on the chart not working properly on the macOS trackpad has been resolved.
+
+## [20.3.61] - 12/13/2022
+**Bugs**
 
 * #FB37705 - Now, the circular data label builder will render properly with connector lines.
 
-## [20.3.69] - 12/06/2022
+## [20.3.60] - 12/06/2022
 
 **Bugs**
 * #FB39502 - Now, the series is rendered with both the [primaryXAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/primaryXAxis.html) and [primaryYAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/primaryYAxis.html) as [LogarithmicAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/LogarithmicAxis-class.html).

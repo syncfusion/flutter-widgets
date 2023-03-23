@@ -189,9 +189,18 @@ num calculateMinPointsDelta(
         seriesRendererDetails.series;
     num value;
     xValues = <dynamic>[];
+    final String seriesType = seriesRendererDetails.seriesType;
+    final bool isRectSeries = seriesType.contains('column') ||
+        seriesType.contains('stackedbar') ||
+        seriesType == 'bar' ||
+        seriesType == 'histogram' ||
+        seriesType == 'waterfall' ||
+        seriesType.contains('candle') ||
+        seriesType.contains('hilo');
     final ChartAxisRendererDetails axisRendererDetails =
         AxisHelper.getAxisRendererDetails(axisRenderer);
     if (seriesRendererDetails.visible! == true &&
+        isRectSeries &&
         ((axisRendererDetails.name == series.xAxisName) ||
             (axisRendererDetails.name ==
                     (stateProperties.chart.primaryXAxis.name ??

@@ -1307,7 +1307,12 @@ class TrackballRenderingDetails {
           for (final ChartPointInfo pointInfo in chartPointInfo) {
             if (pointInfo.xPosition == leastX) {
               leastPointInfo.add(pointInfo);
-              visiblePoints.clear();
+              if (!(trackballBehavior.tooltipDisplayMode ==
+                      TrackballDisplayMode.floatAllPoints &&
+                  leastPointInfo.length > 1 &&
+                  pointInfo.seriesIndex !=
+                      leastPointInfo[leastPointInfo.length - 2].seriesIndex))
+                visiblePoints.clear();
               seriesType = pointInfo.seriesRendererDetails!.seriesType;
               isRangeTypeSeries = seriesType.contains('range') ||
                   seriesType.contains('hilo') ||

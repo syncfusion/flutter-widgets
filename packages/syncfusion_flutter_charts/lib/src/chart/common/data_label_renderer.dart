@@ -1818,24 +1818,22 @@ void calculateDataLabelPosition(
       point.isVisible &&
       point.isGap != true &&
       (point.y != 0 || dataLabel.showZeroValue)) {
-    final double markerPointX = dataLabel.builder == null
-        ? seriesRendererDetails.seriesType.contains('hilo') == true ||
+    final double markerPointX =
+        (seriesRendererDetails.seriesType.contains('hilo') == true ||
                 seriesRendererDetails.seriesType == 'candle' ||
-                isBoxSeries
+                isBoxSeries)
             ? seriesRendererDetails.stateProperties.requireInvertedAxis == true
                 ? point.region!.centerRight.dx
                 : point.region!.topCenter.dx
-            : point.markerPoint!.x
-        : templateLocation!.dx;
-    final double markerPointY = dataLabel.builder == null
-        ? seriesRendererDetails.seriesType.contains('hilo') == true ||
+            : point.markerPoint!.x;
+    final double markerPointY =
+        seriesRendererDetails.seriesType.contains('hilo') == true ||
                 seriesRendererDetails.seriesType == 'candle' ||
                 isBoxSeries
             ? seriesRendererDetails.stateProperties.requireInvertedAxis == true
                 ? point.region!.centerRight.dy
                 : point.region!.topCenter.dy
-            : point.markerPoint!.y
-        : templateLocation!.dy;
+            : point.markerPoint!.y;
     final ChartLocation markerPoint2 = calculatePoint(
         point.xValue,
         seriesRendererDetails.yAxisDetails!.axis.isInversed == true
@@ -1880,28 +1878,22 @@ void calculateDataLabelPosition(
             ? measureText(point.label2!, font)
             : templateSize!;
         chartLocation2 = ChartLocation(
-            dataLabel.builder == null
-                ? seriesRendererDetails.seriesType.contains('hilo') == true ||
-                        seriesRendererDetails.seriesType == 'candle' ||
-                        isBoxSeries
-                    ? seriesRendererDetails
-                                .stateProperties.requireInvertedAxis ==
-                            true
-                        ? point.region!.centerLeft.dx
-                        : point.region!.bottomCenter.dx
-                    : point.markerPoint2!.x
-                : templateLocation!.dx,
-            dataLabel.builder == null
-                ? seriesRendererDetails.seriesType.contains('hilo') == true ||
-                        seriesRendererDetails.seriesType == 'candle' ||
-                        isBoxSeries
-                    ? seriesRendererDetails
-                                .stateProperties.requireInvertedAxis ==
-                            true
-                        ? point.region!.centerLeft.dy
-                        : point.region!.bottomCenter.dy
-                    : point.markerPoint2!.y
-                : templateLocation!.dy);
+            seriesRendererDetails.seriesType.contains('hilo') == true ||
+                    seriesRendererDetails.seriesType == 'candle' ||
+                    isBoxSeries
+                ? seriesRendererDetails.stateProperties.requireInvertedAxis ==
+                        true
+                    ? point.region!.centerLeft.dx
+                    : point.region!.bottomCenter.dx
+                : point.markerPoint2!.x,
+            seriesRendererDetails.seriesType.contains('hilo') == true ||
+                    seriesRendererDetails.seriesType == 'candle' ||
+                    isBoxSeries
+                ? seriesRendererDetails.stateProperties.requireInvertedAxis ==
+                        true
+                    ? point.region!.centerLeft.dy
+                    : point.region!.bottomCenter.dy
+                : point.markerPoint2!.y);
         if (isBoxSeries) {
           if (seriesRendererDetails.stateProperties.requireInvertedAxis ==
               false) {

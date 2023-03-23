@@ -588,8 +588,10 @@ class SfDataPagerState extends State<SfDataPager> {
     }
     _suspendDataPagerUpdate = true;
 
+    // When the index is greater than the page count,
+    // it is necessary to set the index to the page count index.
     if (index > widget.pageCount - 1) {
-      index -= 1;
+      index = (widget.pageCount - 1).toInt();
     }
     final bool canChange = await _canChangePage(index);
 

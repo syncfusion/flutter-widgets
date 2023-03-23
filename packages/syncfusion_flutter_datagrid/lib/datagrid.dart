@@ -17,7 +17,6 @@ export './src/datagrid_widget/sfdatagrid.dart'
     hide
         updateSelectedIndex,
         updateSelectedRow,
-        updateCurrentCellIndex,
         updateVerticalOffset,
         updateHorizontalOffset,
         notifyDataGridPropertyChangeListeners,

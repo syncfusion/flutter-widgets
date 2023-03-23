@@ -1086,7 +1086,9 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   bool hitTestSelf(Offset position) {
-    if (_animation != null && !_animation!.isCompleted) {
+    if ((_animation != null && !_animation!.isCompleted) ||
+        linesInList == null ||
+        linesInList!.isEmpty) {
       return false;
     }
 
@@ -2118,7 +2120,9 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   bool hitTestSelf(Offset position) {
-    if (_animation != null && !_animation!.isCompleted) {
+    if ((_animation != null && !_animation!.isCompleted) ||
+        arcsInList == null ||
+        arcsInList!.isEmpty) {
       return false;
     }
 
@@ -3214,7 +3218,9 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   bool hitTestSelf(Offset position) {
-    if (_animation != null && !_animation!.isCompleted) {
+    if ((_animation != null && !_animation!.isCompleted) ||
+        polylinesInList == null ||
+        polylinesInList!.isEmpty) {
       return false;
     }
 
@@ -4269,6 +4275,9 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   bool hitTestSelf(Offset position) {
+    if (_polygonsInList == null || _polygonsInList!.isEmpty) {
+      return false;
+    }
     int index = _polygonsInList!.length - 1;
     final Size boxSize = _controller?.layerType == LayerType.tile
         ? _controller!.totalTileSize!
@@ -5478,7 +5487,9 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   bool hitTestSelf(Offset position) {
-    if (_animation != null && !_animation!.isCompleted) {
+    if ((_animation != null && !_animation!.isCompleted) ||
+        _circlesInList == null ||
+        _circlesInList!.isEmpty) {
       return false;
     }
 

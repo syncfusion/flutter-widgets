@@ -129,6 +129,8 @@ class SfDataGridThemeData with Diagnosticable {
     Color? filterIconHoverColor,
     Color? sortOrderNumberColor,
     Color? sortOrderNumberBackgroundColor,
+    TextStyle? filterPopupTextStyle,
+    TextStyle? filterPopupDisabledTextStyle,
   }) {
     return SfDataGridThemeData.raw(
         brightness: brightness,
@@ -151,7 +153,9 @@ class SfDataGridThemeData with Diagnosticable {
         filterIconColor: filterIconColor,
         filterIconHoverColor: filterIconHoverColor,
         sortOrderNumberColor: sortOrderNumberColor,
-        sortOrderNumberBackgroundColor: sortOrderNumberBackgroundColor);
+        sortOrderNumberBackgroundColor: sortOrderNumberBackgroundColor,
+        filterPopupTextStyle: filterPopupTextStyle,
+        filterPopupDisabledTextStyle: filterPopupDisabledTextStyle);
   }
 
   /// Create a [SfDataGridThemeData] given a set of exact values.
@@ -182,7 +186,9 @@ class SfDataGridThemeData with Diagnosticable {
       required this.filterIconColor,
       required this.filterIconHoverColor,
       required this.sortOrderNumberColor,
-      required this.sortOrderNumberBackgroundColor});
+      required this.sortOrderNumberBackgroundColor,
+      required this.filterPopupTextStyle,
+      required this.filterPopupDisabledTextStyle});
 
   /// The brightness of the overall theme of the
   /// application for the [SfDataGrid] widgets.
@@ -482,6 +488,13 @@ class SfDataGridThemeData with Diagnosticable {
   /// when the order of the sorting is shown.
   final Color? sortOrderNumberBackgroundColor;
 
+  /// The [TextStyle] of the options in filter popup menu except the items
+  /// which are already selected.
+  final TextStyle? filterPopupTextStyle;
+
+  /// The [TextStyle] of the disabled options in filter popup menu.
+  final TextStyle? filterPopupDisabledTextStyle;
+
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
   SfDataGridThemeData copyWith({
@@ -506,6 +519,8 @@ class SfDataGridThemeData with Diagnosticable {
     Color? filterIconHoverColor,
     Color? sortOrderNumberColor,
     Color? sortOrderNumberBackgroundColor,
+    TextStyle? filterPopupTextStyle,
+    TextStyle? filterPopupDisabledTextStyle,
   }) {
     return SfDataGridThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -532,6 +547,9 @@ class SfDataGridThemeData with Diagnosticable {
       sortOrderNumberColor: sortOrderNumberColor ?? this.sortOrderNumberColor,
       sortOrderNumberBackgroundColor:
           sortOrderNumberBackgroundColor ?? this.sortOrderNumberBackgroundColor,
+      filterPopupTextStyle: filterPopupTextStyle ?? this.filterPopupTextStyle,
+      filterPopupDisabledTextStyle:
+          filterPopupDisabledTextStyle ?? this.filterPopupDisabledTextStyle,
     );
   }
 
@@ -575,6 +593,10 @@ class SfDataGridThemeData with Diagnosticable {
           a.sortOrderNumberBackgroundColor,
           b.sortOrderNumberBackgroundColor,
           t),
+      filterPopupTextStyle:
+          TextStyle.lerp(a.filterPopupTextStyle, b.filterPopupTextStyle, t),
+      filterPopupDisabledTextStyle: TextStyle.lerp(
+          a.filterPopupDisabledTextStyle, b.filterPopupDisabledTextStyle, t),
     );
   }
 
@@ -609,7 +631,10 @@ class SfDataGridThemeData with Diagnosticable {
         other.filterIconColor == filterIconColor &&
         other.filterIconHoverColor == filterIconHoverColor &&
         other.sortOrderNumberColor == sortOrderNumberColor &&
-        other.sortOrderNumberBackgroundColor == sortOrderNumberBackgroundColor;
+        other.sortOrderNumberBackgroundColor ==
+            sortOrderNumberBackgroundColor &&
+        other.filterPopupTextStyle == filterPopupTextStyle &&
+        other.filterPopupDisabledTextStyle == filterPopupDisabledTextStyle;
   }
 
   @override
@@ -634,7 +659,9 @@ class SfDataGridThemeData with Diagnosticable {
       filterIconColor,
       filterIconHoverColor,
       sortOrderNumberColor,
-      sortOrderNumberBackgroundColor
+      sortOrderNumberBackgroundColor,
+      filterPopupTextStyle,
+      filterPopupDisabledTextStyle
     ];
     return Object.hashAll(values);
   }
@@ -690,6 +717,12 @@ class SfDataGridThemeData with Diagnosticable {
     properties.add(ColorProperty(
         'sortOrderNumberBackgroundColor', sortOrderNumberBackgroundColor,
         defaultValue: defaultData.sortOrderNumberBackgroundColor));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'filterPopupTextStyle', filterPopupTextStyle,
+        defaultValue: defaultData.filterPopupTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'filterPopupDisabledTextStyle', filterPopupDisabledTextStyle,
+        defaultValue: defaultData.filterPopupDisabledTextStyle));
   }
 }
 
