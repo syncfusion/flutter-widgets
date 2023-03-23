@@ -9,12 +9,7 @@ dependencies:
     sdk: flutter
   path_provider: ^2.0.1
   open_file: ^3.0.1
-  syncfusion_flutter_xlsio:
-     git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-xlsio
-      path: flutter_xlsio/syncfusion_flutter_xlsio
-      branch: release/21.1.1
-      ref: release/21.1.1
+  syncfusion_flutter_xlsio: ^21.1.35
 
 
 # The following section is specific to Flutter.
