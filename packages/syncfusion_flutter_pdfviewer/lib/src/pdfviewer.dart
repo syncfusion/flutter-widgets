@@ -1303,9 +1303,11 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     final documentDetails = await receivePort.first;
     final SendPort replyPort = documentDetails[0];
     final Map<int, String> extractedTextCollection = <int, String>{};
-    for (int i = 0; i < documentDetails[2]; i++) {
-      extractedTextCollection[i] =
-          documentDetails[1].extractText(startPageIndex: i).toLowerCase();
+    if (documentDetails[2] != null && documentDetails[2] is num) {
+        for (int i = 0; i < documentDetails[2]; i++) {
+          extractedTextCollection[i] =
+              documentDetails[1].extractText(startPageIndex: i).toLowerCase();
+        }
     }
     replyPort.send(extractedTextCollection);
   }
