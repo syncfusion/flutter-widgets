@@ -118,15 +118,18 @@ public class SyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
             scale = 2
         }
         let documentID = args!["documentID"] as! String
-        result(getImageForPlugin(index: index!,scale: scale,documentID: documentID))
+        guard let res = getImageForPlugin(index: index!,scale: scale,documentID: documentID) else {
+            return
+        }
+        result(res)
     }
     
     // Gets the image for plugin
-    private func getImageForPlugin(index: Int,scale: CGFloat,documentID: String) -> FlutterStandardTypedData
+    private func getImageForPlugin(index: Int,scale: CGFloat,documentID: String) -> FlutterStandardTypedData?
     {
         guard let document = self.documentRepo[documentID],
               let page = document?.page(at: Int(index)) else {
-            return FlutterStandardTypedData()
+            return nil
         }
         var pageRect = page.getBoxRect(.mediaBox)
         let imageRect = CGRect(x: 0,y: 0,width: pageRect.size.width*CGFloat(scale),height: pageRect.size.height*CGFloat(scale))
@@ -140,7 +143,7 @@ public class SyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
             cgContext.endPage()
         })
         let bytes = nsImage.tiffRepresentation?.bitmap?.png
-        return bytes == nil ? FlutterStandardTypedData() : FlutterStandardTypedData(bytes: bytes!)
+        return bytes == nil ? nil : FlutterStandardTypedData(bytes: bytes!)
     }
 }
 
