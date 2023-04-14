@@ -124,17 +124,19 @@ public class SyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
     // Gets the image for plugin
     private func getImageForPlugin(index: Int,scale: CGFloat,documentID: String) -> FlutterStandardTypedData
     {
-        let document = self.documentRepo[documentID]!!
-        let page = document.page(at: Int(index))
-        var pageRect = page!.getBoxRect(.mediaBox)
+        guard let document = self.documentRepo[documentID],
+              let page = document?.page(at: Int(index)) else {
+            return FlutterStandardTypedData()
+        }
+        var pageRect = page.getBoxRect(.mediaBox)
         let imageRect = CGRect(x: 0,y: 0,width: pageRect.size.width*CGFloat(scale),height: pageRect.size.height*CGFloat(scale))
         let nsImage = NSImage(size: imageRect.size, actions: { cgContext in
             cgContext.beginPage(mediaBox: &pageRect)
-            let transform = page!.getDrawingTransform(.mediaBox, rect: pageRect, rotate: 0, preserveAspectRatio: true)
+            let transform = page.getDrawingTransform(.mediaBox, rect: pageRect, rotate: 0, preserveAspectRatio: true)
             cgContext.translateBy(x: 0.0, y: imageRect.size.height)
             cgContext.scaleBy(x: CGFloat(scale), y: -CGFloat(scale))
             cgContext.concatenate(transform)
-            cgContext.drawPDFPage(page!)
+            cgContext.drawPDFPage(page)
             cgContext.endPage()
         })
         let bytes = nsImage.tiffRepresentation?.bitmap?.png
