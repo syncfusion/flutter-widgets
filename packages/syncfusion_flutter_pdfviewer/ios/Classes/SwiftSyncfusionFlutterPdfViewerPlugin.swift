@@ -120,14 +120,19 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
             scale = 2
         }
         let documentID = args!["documentID"] as! String
-        result(getImageForPlugin(index: index!,scale: scale,documentID: documentID))
+        guard let res = getImageForPlugin(index: index!,scale: scale,documentID: documentID) else {
+            return
+        }
+        result(res)
     }
 
-    private func getImageForPlugin(index: Int,scale: CGFloat,documentID: String) -> FlutterStandardTypedData
+    private func getImageForPlugin(index: Int,scale: CGFloat,documentID: String) -> FlutterStandardTypedData?
     {
-        let document = self.documentRepo[documentID]!!
-        let page = document.page(at: Int(index))
-        var pageRect = page!.getBoxRect(.mediaBox)
+        guard let document = self.documentRepo[documentID],
+                let page = document?.page(at: Int(index)) else {
+            return nil
+        }
+        var pageRect = page.getBoxRect(.mediaBox)
         let imageRect = CGRect(x: 0,y: 0,width: pageRect.size.width*CGFloat(scale),height: pageRect.size.height*CGFloat(scale))
         if #available(iOS 10.0, *) {
             let format = UIGraphicsImageRendererFormat()
@@ -139,17 +144,17 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
             }
             let renderer = UIGraphicsImageRenderer(size: imageRect.size,format: format)
             let img = renderer.image { ctx in
-                let mediaBox = page!.getBoxRect(.mediaBox)
+                let mediaBox = page.getBoxRect(.mediaBox)
                 ctx.cgContext.beginPage(mediaBox: &pageRect)
-                let transform = page!.getDrawingTransform(.mediaBox, rect: mediaBox, rotate: 0, preserveAspectRatio: true)
+                let transform = page.getDrawingTransform(.mediaBox, rect: mediaBox, rotate: 0, preserveAspectRatio: true)
                 ctx.cgContext.translateBy(x: 0.0, y: imageRect.size.height)
                 ctx.cgContext.scaleBy(x: CGFloat(scale), y: -CGFloat(scale))
                 ctx.cgContext.concatenate(transform)
-                ctx.cgContext.drawPDFPage(page!)
+                ctx.cgContext.drawPDFPage(page)
                 ctx.cgContext.endPage()
             }
             return FlutterStandardTypedData(bytes: img.pngData()!)
         }
-        return FlutterStandardTypedData()
+        return nil
     }
 }
