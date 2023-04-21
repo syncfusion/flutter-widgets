@@ -53,6 +53,8 @@ class PdfPageView extends StatefulWidget {
     this.canShowHyperlinkDialog,
     this.enableHyperlinkNavigation,
     this.isAndroidTV,
+    this.startPageIndex,
+    this.endPageIndex,
   ) : super(key: key);
 
   /// Image stream
@@ -159,6 +161,12 @@ class PdfPageView extends StatefulWidget {
 
   /// Returns true when the SfPdfViewer is deployed in Android TV.
   final bool isAndroidTV;
+
+  /// Initial page index rendered in the viewport.
+  final int startPageIndex;
+
+  /// Last page index rendered in the viewport.
+  final int endPageIndex;
 
   @override
   State<StatefulWidget> createState() {
@@ -521,6 +529,13 @@ class PdfPageViewState extends State<PdfPageView> {
         canvas,
       ]);
     } else {
+      bool isVisible;
+      if (widget.pageIndex >= widget.startPageIndex - 1 &&
+          widget.pageIndex <= widget.endPageIndex - 1) {
+        isVisible = true;
+      } else {
+        isVisible = false;
+      }
       final BorderSide borderSide = BorderSide(
           width: widget.isSinglePageView ? pageSpacing / 2 : pageSpacing,
           color: _pdfViewerThemeData!.backgroundColor ??
@@ -539,13 +554,16 @@ class PdfPageViewState extends State<PdfPageView> {
                   : Border(bottom: borderSide),
         ),
         child: Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-                _pdfViewerThemeData!.progressBarColor ??
-                    (Theme.of(context).colorScheme.primary)),
-            backgroundColor: _pdfViewerThemeData!.progressBarColor == null
-                ? (Theme.of(context).colorScheme.primary.withOpacity(0.2))
-                : _pdfViewerThemeData!.progressBarColor!.withOpacity(0.2),
+          child: Visibility(
+            visible: isVisible,
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                  _pdfViewerThemeData!.progressBarColor ??
+                      (Theme.of(context).colorScheme.primary)),
+              backgroundColor: _pdfViewerThemeData!.progressBarColor == null
+                  ? (Theme.of(context).colorScheme.primary.withOpacity(0.2))
+                  : _pdfViewerThemeData!.progressBarColor!.withOpacity(0.2),
+            ),
           ),
         ),
       );

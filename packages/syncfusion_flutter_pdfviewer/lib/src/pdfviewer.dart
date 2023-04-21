@@ -968,6 +968,8 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   Isolate? _textExtractionIsolate;
   bool _isTablet = false;
   bool _isAndroidTV = false;
+  int _startPageIndex = 1;
+  int _endPageIndex = 1;
 
   /// PdfViewer theme data.
   SfPdfViewerThemeData? _pdfViewerThemeData;
@@ -1303,11 +1305,9 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     final documentDetails = await receivePort.first;
     final SendPort replyPort = documentDetails[0];
     final Map<int, String> extractedTextCollection = <int, String>{};
-    if (documentDetails[2] != null && documentDetails[2] is num) {
-        for (int i = 0; i < documentDetails[2]; i++) {
-          extractedTextCollection[i] =
-              documentDetails[1].extractText(startPageIndex: i).toLowerCase();
-        }
+    for (int i = 0; i < documentDetails[2]; i++) {
+      extractedTextCollection[i] =
+          documentDetails[1].extractText(startPageIndex: i).toLowerCase();
     }
     replyPort.send(extractedTextCollection);
   }
@@ -2181,6 +2181,8 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           widget.canShowHyperlinkDialog,
                           widget.enableHyperlinkNavigation,
                           _isAndroidTV,
+                          _startPageIndex,
+                          _endPageIndex,
                         );
                         final double pageSpacing =
                             index == _pdfViewerController.pageCount - 1
@@ -2747,6 +2749,8 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           }
         }
       }
+      _startPageIndex = startPage;
+      _endPageIndex = endPage;
       if (_pdfViewerController.zoomLevel >= 2) {
         startPage = _endPage = _pdfViewerController.pageNumber;
       }
@@ -2802,7 +2806,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       } else {
         _bufferCount = 0;
       }
-      if (canRenderImage) {
+      if (canRenderImage && (_isOrientationChanged || _isZoomChanged)) {
         renderedPages.whenComplete(() {
           _checkMount();
         });
