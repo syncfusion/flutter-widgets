@@ -68,21 +68,23 @@ class DoughnutChartPainter extends CustomPainter {
                   stateProperties.prevSeriesRenderer?.seriesType == 'doughnut')
               ? stateProperties.oldPoints![i]
               : null);
-      pointStartAngle = seriesRenderer.circularRenderPoint(
-          stateProperties.chart,
-          seriesRenderer,
-          point,
-          pointStartAngle,
-          point.innerRadius,
-          point.outerRadius,
-          canvas,
-          index,
-          i,
-          seriesAnimation?.value ?? 1,
-          1,
-          checkIsAnyPointSelect(seriesRenderer, point, stateProperties.chart),
-          oldPoint,
-          stateProperties.oldPoints);
+      if (point.isVisible || (oldPoint != null && oldPoint.isVisible)) {
+        pointStartAngle = seriesRenderer.circularRenderPoint(
+            stateProperties.chart,
+            seriesRenderer,
+            point,
+            pointStartAngle,
+            point.innerRadius,
+            point.outerRadius,
+            canvas,
+            index,
+            i,
+            seriesAnimation?.value ?? 1,
+            1,
+            checkIsAnyPointSelect(seriesRenderer, point, stateProperties.chart),
+            oldPoint,
+            stateProperties.oldPoints);
+      }
     }
 
     if (seriesRenderer.renderList.isNotEmpty) {

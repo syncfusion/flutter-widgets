@@ -1,3 +1,29 @@
+## [20.4.54] - 03/15/2023
+
+**Bugs**
+
+* The issue of PDF document size increasing after removing pages has been resolved.
+
+## [20.4.50] - 02/14/2023
+
+**Bugs**
+
+* Resolved the document corruption exception when signing existing signed PDF documents.
+
+* Text bounds are now retrieved properly when finding text from cropped PDF documents.
+
+## [20.3.57] - 11/15/2022
+
+**Bugs**
+
+* Alpha channel is not initialized properly in transparent brush is now resolved.
+
+## [20.3.56] - 11/08/2022
+
+**Features**
+
+* Provided support to set signed date while signing the pdf document.
+
 ## [20.2.48] - 09/06/2022
 
 **Bugs**

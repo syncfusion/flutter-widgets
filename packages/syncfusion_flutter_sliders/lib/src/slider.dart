@@ -1273,17 +1273,17 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
       inactiveTrackHeight: sliderThemeData.inactiveTrackHeight,
       tickOffset: sliderThemeData.tickOffset,
       inactiveLabelStyle: sliderThemeData.inactiveLabelStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
+          themeData.textTheme.bodyLarge!.copyWith(
               color: isActive
-                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
+                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       activeLabelStyle: sliderThemeData.activeLabelStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
+          themeData.textTheme.bodyLarge!.copyWith(
               color: isActive
-                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
+                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       tooltipTextStyle: sliderThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyText1!
+          themeData.textTheme.bodyLarge!
               .copyWith(color: themeData.colorScheme.surface),
       inactiveTrackColor: widget.inactiveColor ??
           sliderThemeData.inactiveTrackColor ??
@@ -1585,7 +1585,8 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
         tooltipPosition: tooltipPosition,
         textDirection: Directionality.of(context),
         mediaQueryData: MediaQuery.of(context),
-        state: state);
+        state: state,
+        gestureSettings: MediaQuery.of(context).gestureSettings);
   }
 
   @override
@@ -1753,6 +1754,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     required TextDirection textDirection,
     required MediaQueryData mediaQueryData,
     required _SfSliderState state,
+    required DeviceGestureSettings gestureSettings,
   })  : _state = state,
         _value = value,
         _semanticFormatterCallback = semanticFormatterCallback,
@@ -1797,7 +1799,8 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
         ..onStart = _onDragStart
         ..onUpdate = _onDragUpdate
         ..onEnd = _onDragEnd
-        ..onCancel = _onDragCancel;
+        ..onCancel = _onDragCancel
+        ..gestureSettings = gestureSettings;
     }
 
     if (sliderType == SliderType.vertical) {
@@ -1806,7 +1809,8 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
         ..onStart = _onVerticalDragStart
         ..onUpdate = _onVerticalDragUpdate
         ..onEnd = _onVerticalDragEnd
-        ..onCancel = _onVerticalDragCancel;
+        ..onCancel = _onVerticalDragCancel
+        ..gestureSettings = gestureSettings;
     }
 
     tapGestureRecognizer = TapGestureRecognizer()
@@ -2158,6 +2162,14 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     for (final RenderBox child in children) {
       child.detach();
     }
+  }
+
+  @override
+  void dispose() {
+    horizontalDragGestureRecognizer?.dispose();
+    verticalDragGestureRecognizer?.dispose();
+    tapGestureRecognizer.dispose();
+    super.dispose();
   }
 
   @override

@@ -9,7 +9,7 @@
 "pdfScrollStatusOfLabel" : "af", 
 "pdfGoToPageLabel" : "Farðu á síðu", 
 "pdfEnterPageNumberLabel" : "Sláðu inn blaðsíðunúmer", 
-"pdfInvalidPageNumberLabel" : "Vinsamlega sláðu inn gilt númer", 
+"pdfInvalidPageNumberLabel" : "Vinsamlegast sláðu inn gilt númer", 
 "pdfPaginationDialogOkLabel" : "Allt í lagi", 
 "pdfPaginationDialogCancelLabel" : "HÆTTA við", 
 "passwordDialogHeaderTextLabel" : "Lykilorð varið", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Raða Z Til A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Raða elstu í nýjustu", 
 "sortNewestToOldestDataGridFilteringLabel" : "Raða nýjustu í elstu", 
-"clearFilterFromDataGridFilteringLabel" : "Hreinsa síu frá", 
 "textFiltersDataGridFilteringLabel" : "Textasíur", 
 "numberFiltersDataGridFilteringLabel" : "Númerasíur", 
 "dateFiltersDataGridFilteringLabel" : "Dagsetningarsíur", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Og", 
 "orDataGridFilteringLabel" : "Eða", 
 "selectAllDataGridFilteringLabel" : "Velja allt", 
-"sortAndFilterDataGridFilteringLabel" : "Raða og sía"
+"sortAndFilterDataGridFilteringLabel" : "Raða og sía", 
+"clearFilterDataGridFilteringLabel" : "Hreinsaðu síu", 
+"fromDataGridFilteringLabel" : "Frá"
 }

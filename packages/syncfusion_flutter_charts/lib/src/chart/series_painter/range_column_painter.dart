@@ -274,16 +274,14 @@ class RangeColumnChartPainter extends CustomPainter {
       seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        final bool withInXRange = withInRange(
-            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        final bool withInXRange =
+            withInRange(point.xValue, seriesRendererDetails.xAxisDetails!);
         // ignore: unnecessary_null_comparison
         final bool withInHighLowRange = point != null &&
             point.high != null &&
-            withInRange(point.high,
-                seriesRendererDetails.yAxisDetails!.visibleRange!) &&
+            withInRange(point.high, seriesRendererDetails.yAxisDetails!) &&
             point.low != null &&
-            withInRange(
-                point.low, seriesRendererDetails.yAxisDetails!.visibleRange!);
+            withInRange(point.low, seriesRendererDetails.yAxisDetails!);
         if (withInXRange || withInHighLowRange) {
           seriesRendererDetails.calculateRegionData(stateProperties,
               seriesRendererDetails, painterKey.index, point, pointIndex);

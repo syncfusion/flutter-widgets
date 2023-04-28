@@ -743,7 +743,9 @@ class AgendaStyle with Diagnosticable {
       {this.appointmentTextStyle,
       this.dayTextStyle,
       this.dateTextStyle,
-      this.backgroundColor});
+      this.backgroundColor,
+      this.placeholderTextStyle = const TextStyle(
+          color: Colors.grey, fontSize: 15, fontFamily: 'Roboto')});
 
   /// The text style for the text in the [Appointment] view in [SfCalendar]
   /// month agenda view.
@@ -797,6 +799,34 @@ class AgendaStyle with Diagnosticable {
   /// }
   /// ```
   final TextStyle? appointmentTextStyle;
+
+  /// The text style for the text in the placeholder (no event text and
+  /// no selected date text) of the [SfCalendar] month agenda view.
+  ///
+  /// See also:
+  /// * [MonthViewSettings], to customize the month view of the calendar.
+  /// * [ScheduleViewSettings], to customize the schedule view of the calendar.
+  /// * [AgendaStyle], to customize the month agenda view of the calendar.
+  ///
+  /// ``` dart
+  ///
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///      child: SfCalendar(
+  ///        view: CalendarView.month,
+  ///        monthViewSettings: const MonthViewSettings(showAgenda: true,
+  ///          agendaStyle: AgendaStyle(
+  ///             placeholderTextStyle:TextStyle(
+  ///                 color: Colors.white,
+  ///                 fontSize: 20,
+  ///                 backgroundColor:
+  ///                 Colors.red),)),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  ///
+  final TextStyle placeholderTextStyle;
 
   /// The text style for the text in the day text of [SfCalendar] month agenda
   /// view.
@@ -967,7 +997,8 @@ class AgendaStyle with Diagnosticable {
     return otherStyle.appointmentTextStyle == appointmentTextStyle &&
         otherStyle.dayTextStyle == dayTextStyle &&
         otherStyle.dateTextStyle == dateTextStyle &&
-        otherStyle.backgroundColor == backgroundColor;
+        otherStyle.backgroundColor == backgroundColor &&
+        otherStyle.placeholderTextStyle == placeholderTextStyle;
   }
 
   @override
@@ -980,6 +1011,8 @@ class AgendaStyle with Diagnosticable {
     properties
         .add(DiagnosticsProperty<TextStyle>('dayTextStyle', dayTextStyle));
     properties.add(ColorProperty('backgroundColor', backgroundColor));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'placeholderTextStyle', placeholderTextStyle));
   }
 
   @override
@@ -989,6 +1022,7 @@ class AgendaStyle with Diagnosticable {
       dayTextStyle,
       dateTextStyle,
       backgroundColor,
+      placeholderTextStyle,
     );
   }
 }

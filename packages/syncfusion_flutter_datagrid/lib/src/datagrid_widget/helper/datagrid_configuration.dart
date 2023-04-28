@@ -60,7 +60,7 @@ class DataGridConfiguration {
   late ColumnResizeController columnResizeController;
 
   /// Provides the base functionalities to process the filtering in [SfDataGrid].
-  late DataGridFilterHelper dataGridFilterHelper;
+  DataGridFilterHelper? dataGridFilterHelper;
 
   /// The width of the current datagrid view.
   late double viewWidth;
@@ -366,4 +366,14 @@ class DataGridConfiguration {
   /// Decides whether the Horizontal ScrollController can be disposed of in the source itself.
   /// Default to true.
   bool disposeHorizontalScrollController = true;
+
+  /// Defines the OutlinedBorder for the shape of the checkbox.
+  OutlinedBorder? checkboxShape;
+
+  /// Checks whether the platform is mac or not.
+  bool isMacPlatform = false;
+
+  /// Checks whether the command key is pressed or not for enable multi sorting
+  /// in mac platform.
+  bool isCommandKeyPressed = false;
 }

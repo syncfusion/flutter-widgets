@@ -833,9 +833,11 @@ Future<void> scrollVertical(
     return;
   }
 
-  verticalOffset = verticalOffset > verticalController.position.maxScrollExtent
-      ? verticalController.position.maxScrollExtent
-      : verticalOffset;
+  final double maxScrollExtent = max(
+      dataGridConfiguration.container.rowHeights.totalExtent -
+          dataGridConfiguration.viewHeight,
+      0.0);
+  verticalOffset = min(verticalOffset, maxScrollExtent);
   verticalOffset = verticalOffset.isNegative || verticalOffset == 0.0
       ? verticalController.position.minScrollExtent
       : verticalOffset;
@@ -863,10 +865,11 @@ Future<void> scrollHorizontal(
     return;
   }
 
-  horizontalOffset =
-      horizontalOffset > horizontalController.position.maxScrollExtent
-          ? horizontalController.position.maxScrollExtent
-          : horizontalOffset;
+  final double maxScrollExtent = max(
+      dataGridConfiguration.container.columnWidths.totalExtent -
+          dataGridConfiguration.viewWidth,
+      0.0);
+  horizontalOffset = min(horizontalOffset, maxScrollExtent);
   horizontalOffset = horizontalOffset.isNegative || horizontalOffset == 0.0
       ? horizontalController.position.minScrollExtent
       : horizontalOffset;

@@ -461,6 +461,7 @@ class PdfGridColumnCollection {
   //Implementation
   PdfGridColumn _returnValue(int index) {
     if (index < 0 || index >= _helper._columns.length) {
+      // ignore: deprecated_member_use
       throw IndexError(index, _helper._columns);
     }
     return _helper._columns[index];

@@ -42,7 +42,7 @@
 "shawwalLabel" : "Shawwal", 
 "dhualqiLabel" : "Dhu al-Qi'dah", 
 "dhualhiLabel" : "Dhu al-Hijjah", 
-"shortMuharramLabel" : "aha.", 
+"shortMuharramLabel" : "Muh.", 
 "shortSafarLabel" : "Saf.", 
 "shortRabi1Label" : "Rabi. aš", 
 "shortRabi2Label" : "Rabi. II", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Rūšiuoti nuo Z iki A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Rūšiuoti nuo seniausių iki naujausių", 
 "sortNewestToOldestDataGridFilteringLabel" : "Rūšiuoti nuo naujausių iki seniausių", 
-"clearFilterFromDataGridFilteringLabel" : "Išvalyti filtrą iš", 
 "textFiltersDataGridFilteringLabel" : "Teksto filtrai", 
 "numberFiltersDataGridFilteringLabel" : "Skaičių filtrai", 
 "dateFiltersDataGridFilteringLabel" : "Datos filtrai", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Ir", 
 "orDataGridFilteringLabel" : "Arba", 
 "selectAllDataGridFilteringLabel" : "Pasirinkti viską", 
-"sortAndFilterDataGridFilteringLabel" : "Rūšiuoti ir filtruoti"
+"sortAndFilterDataGridFilteringLabel" : "Rūšiuoti ir filtruoti", 
+"clearFilterDataGridFilteringLabel" : "Išvalyti filtrą", 
+"fromDataGridFilteringLabel" : "Iš"
 }

@@ -341,3 +341,24 @@ enum AdvancedFilterType {
   /// values.
   date,
 }
+
+/// Decides how the checked listbox and advanced filter options should be shown in filter popup
+enum FilterMode {
+  /// Specifies whether the checked listbox only should be shown along with other options.
+  checkboxFilter,
+
+  /// Specifies whether the advanced filter dropdown only should be shown along with other options.
+  advancedFilter,
+
+  /// Specifies whether both the checked listbox and advanced filter dropdown options should be shown.
+  both,
+}
+
+/// The position of the icon in the column headers.
+enum ColumnHeaderIconPosition {
+  /// Specifies that an icon is positioned at the starting position of the column header.
+  start,
+
+  /// Specifies that an icon is positioned at the ending position of the column header.
+  end,
+}

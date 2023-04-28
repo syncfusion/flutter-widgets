@@ -24,7 +24,7 @@
 "allowedViewMonthLabel" : "Mes", 
 "allowedViewScheduleLabel" : "Horario", 
 "allowedViewTimelineDayLabel" : "Día da cronoloxía", 
-"allowedViewTimelineWeekLabel" : "Semana do cronograma", 
+"allowedViewTimelineWeekLabel" : "Timeline Week", 
 "allowedViewTimelineWorkWeekLabel" : "Timeline Work Week", 
 "allowedViewTimelineMonthLabel" : "Mes do cronograma", 
 "todayLabel" : "Hoxe", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Ordenar de Z a A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Ordenar do máis antigo ao máis novo", 
 "sortNewestToOldestDataGridFilteringLabel" : "Ordenar o máis novo ao máis antigo", 
-"clearFilterFromDataGridFilteringLabel" : "Borrar o filtro de", 
 "textFiltersDataGridFilteringLabel" : "Filtros de texto", 
 "numberFiltersDataGridFilteringLabel" : "Filtros de número", 
 "dateFiltersDataGridFilteringLabel" : "Filtros de data", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "E", 
 "orDataGridFilteringLabel" : "Ou", 
 "selectAllDataGridFilteringLabel" : "Seleccionar todo", 
-"sortAndFilterDataGridFilteringLabel" : "Ordenar e filtrar"
+"sortAndFilterDataGridFilteringLabel" : "Ordenar e filtrar", 
+"clearFilterDataGridFilteringLabel" : "Borrar filtro", 
+"fromDataGridFilteringLabel" : "Desde"
 }

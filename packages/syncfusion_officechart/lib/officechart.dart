@@ -4,8 +4,7 @@ import 'dart:convert';
 import 'dart:core';
 
 import 'package:archive/archive.dart';
-// ignore: depend_on_referenced_packages
-import 'package:flutter_test/flutter_test.dart';
+
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import 'package:xml/xml.dart';
 
@@ -19,11 +18,11 @@ part 'src/chart/chart_impl.dart';
 part 'src/chart/chart_legend.dart';
 part 'src/chart/chart_plotarea.dart';
 part 'src/chart/chart_serialization.dart';
+part 'src/chart/chart_format.dart';
+part 'src/chart/chart_fomat_impl.dart';
 part 'src/chart/chart_serie.dart';
+part 'src/chart/chart_serie_dataformat.dart';
+part 'src/chart/chartserie_dataformat_impl.dart';
 part 'src/chart/chart_series_collection.dart';
 part 'src/chart/chart_text_area.dart';
 part 'src/chart/chart_value_axis.dart';
-part 'src/test/chart.dart';
-part 'src/test/images.dart';
-//testing
-part 'src/test/sample_browser_samples.dart';

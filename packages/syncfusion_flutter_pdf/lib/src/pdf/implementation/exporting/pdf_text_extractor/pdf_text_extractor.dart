@@ -1081,13 +1081,22 @@ class PdfTextExtractor {
 
   Rect _calculateBounds(Rect bounds) {
     if (_currentPage != null) {
-      if (PdfPageHelper.getHelper(_currentPage!).cropBox != Rect.zero &&
+      if (!PdfPageHelper.getHelper(_currentPage!).cropBox.isEmpty &&
           PdfPageHelper.getHelper(_currentPage!).cropBox !=
               PdfPageHelper.getHelper(_currentPage!).mediaBox) {
         final double x =
             bounds.left - PdfPageHelper.getHelper(_currentPage!).cropBox.left;
         final double y =
             bounds.top + PdfPageHelper.getHelper(_currentPage!).cropBox.top;
+        return Rect.fromLTWH(x, y, bounds.width, bounds.height);
+      } else if (!PdfPageHelper.getHelper(_currentPage!).mediaBox.isEmpty &&
+          (PdfPageHelper.getHelper(_currentPage!).mediaBox.left != 0 ||
+              PdfPageHelper.getHelper(_currentPage!).mediaBox.top != 0)) {
+        final double cLeft =
+            PdfPageHelper.getHelper(_currentPage!).mediaBox.left;
+        final double ctop = PdfPageHelper.getHelper(_currentPage!).mediaBox.top;
+        final double x = bounds.left - ((cLeft < 0 && ctop < 0) ? 0 : cLeft);
+        final double y = bounds.top + ctop;
         return Rect.fromLTWH(x, y, bounds.width, bounds.height);
       }
     }

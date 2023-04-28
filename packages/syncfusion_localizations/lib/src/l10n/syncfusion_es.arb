@@ -27,7 +27,7 @@
 "allowedViewTimelineWeekLabel" : "Semana de la línea de tiempo", 
 "allowedViewTimelineWorkWeekLabel" : "Línea de tiempo Semana laboral", 
 "allowedViewTimelineMonthLabel" : "Mes de la línea de tiempo", 
-"todayLabel" : "Hoy dia", 
+"todayLabel" : "Este Dia", 
 "weeknumberLabel" : "Semana", 
 "allDayLabel" : "Todo el dia", 
 "muharramLabel" : "muharram", 
@@ -44,9 +44,9 @@
 "dhualhiLabel" : "Dhu al-Hiyyah", 
 "shortMuharramLabel" : "Muh.", 
 "shortSafarLabel" : "seguro", 
-"shortRabi1Label" : "Rabí. I", 
-"shortRabi2Label" : "Rabi. II", 
-"shortJumada1Label" : "Jum. I", 
+"shortRabi1Label" : "Rabí. yo", 
+"shortRabi2Label" : "Rabí. Yo", 
+"shortJumada1Label" : "Jum. yo", 
 "shortJumada2Label" : "Jum. II", 
 "shortRajabLabel" : "Raj.", 
 "shortShaabanLabel" : "Sha.", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Ordenar de Z a A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Ordenar de más antiguo a más nuevo", 
 "sortNewestToOldestDataGridFilteringLabel" : "Ordenar de más reciente a más antiguo", 
-"clearFilterFromDataGridFilteringLabel" : "Borrar filtro de", 
 "textFiltersDataGridFilteringLabel" : "Filtros de texto", 
 "numberFiltersDataGridFilteringLabel" : "Filtros numéricos", 
 "dateFiltersDataGridFilteringLabel" : "Filtros de fecha", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Y", 
 "orDataGridFilteringLabel" : "O", 
 "selectAllDataGridFilteringLabel" : "Seleccionar todo", 
-"sortAndFilterDataGridFilteringLabel" : "Ordenar y filtrar"
+"sortAndFilterDataGridFilteringLabel" : "Ordenar y filtrar", 
+"clearFilterDataGridFilteringLabel" : "Filtro claro", 
+"fromDataGridFilteringLabel" : "De"
 }

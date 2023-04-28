@@ -1340,7 +1340,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
   }
 
   // To handle long press end event.
-  void _onLongPressEnd(LongPressEndDetails details) {
+  Future<void> _onLongPressEnd(LongPressEndDetails details) async {
     final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
     DataCellBase? dataCell;
     dataCell = _getDataCellBase(dataRow, details);
@@ -1351,9 +1351,9 @@ class RenderVirtualizingCellsWidget extends RenderBox
         dataGridConfiguration.currentCell.onCellSubmit(dataGridConfiguration);
       } else if (dataCell.cellType == CellType.gridCell) {
         // Clear editing when tap on the grid cell
-        if (dataGridConfiguration.currentCell
+        if (await dataGridConfiguration.currentCell
             .canSubmitCell(dataGridConfiguration)) {
-          dataGridConfiguration.currentCell
+          await dataGridConfiguration.currentCell
               .onCellSubmit(dataGridConfiguration, cancelCanSubmitCell: true);
         }
       }

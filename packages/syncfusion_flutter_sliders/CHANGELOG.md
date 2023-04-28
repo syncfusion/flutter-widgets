@@ -1,4 +1,39 @@
 ## Unreleased
+## [20.3.60] - 12/06/2022
+
+## Range Slider
+
+**Bugs**
+
+* #FB39325 - Now, the "AnimationController methods should not be used after calling dispose" exception will no longer be thrown when dragging the range slider.
+
+## Slider
+
+**Bugs**
+
+* #FB39325 - Now, the "AnimationController methods should not be used after calling dispose" exception will no longer be thrown when dragging the slider.
+
+## [20.3.59] - 11/29/2022
+
+## Range Selector
+
+**Bugs**
+
+* Now, the range selector thumb vertical and horizontal dragging works properly when you wrap it inside the scrollable widget.
+
+## Range Slider
+
+**Bugs**
+
+* Now, the range slider thumb vertical and horizontal dragging works properly when you wrap it inside the scrollable widget.
+
+## Slider
+
+**Bugs**
+
+* Now, the slider thumb vertical and horizontal dragging works properly when you wrap it inside the scrollable widget.
+
+## [20.3.47] - 09/29/2022
 
 ## Range Slider
 

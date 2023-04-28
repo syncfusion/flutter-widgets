@@ -146,7 +146,6 @@ class ScrollHeadOverlay extends StatefulWidget {
 class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   final TextEditingController _textFieldController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final FocusNode _focusNode = FocusNode();
   SfPdfViewerThemeData? _pdfViewerThemeData;
   ThemeData? _themeData;
   SfLocalizations? _localizations;
@@ -158,6 +157,9 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
 
   /// Indicates whether the user scrolls continuously.
   bool isScrolled = false;
+
+  /// Focus node for page navigation dialogue.
+  final FocusNode _focusNode = FocusNode();
 
   double _scale = 1;
 
@@ -309,12 +311,9 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
         transformationController: widget.transformationController,
         key: _childKey,
         enableDoubleTapZooming: enableDoubleTapZoom,
-        // ignore: avoid_bool_literals_in_conditional_expressions
-        scaleEnabled: ((kIsDesktop && widget.isMobileWebView) ||
-                !kIsDesktop ||
-                (kIsDesktop && widget.scaleEnabled))
-            ? true
-            : false,
+        scaleEnabled:
+            // ignore: avoid_bool_literals_in_conditional_expressions
+            (!kIsDesktop || (kIsDesktop && widget.scaleEnabled)) ? true : false,
         panEnabled: widget.isPanEnabled,
         onInteractionStart: _handleInteractionStart,
         onInteractionUpdate: _handleInteractionChanged,
@@ -367,6 +366,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                 FocusScope.of(context).unfocus();
               }
               if (widget.canShowPaginationDialog) {
+                _clearSelection();
                 _showPaginationDialog();
               }
             }
@@ -397,7 +397,6 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
 
   /// Show the pagination dialog box
   Future<void> _showPaginationDialog() async {
-    await _clearSelection();
     return showDialog<void>(
         context: context,
         builder: (BuildContext context) {

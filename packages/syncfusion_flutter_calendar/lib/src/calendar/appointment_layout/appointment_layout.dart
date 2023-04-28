@@ -730,6 +730,17 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         /// 8 PM to 9 PM and the calendar end time is 6 PM then skip the
         /// rendering).
         continue;
+      }
+
+      if (yPosition < 0 && yPosition + height > widget.height) {
+        /// Change the start position and height when appointment start time
+        /// before the calendar start time and appointment end time after the
+        /// calendar end time.(Eg., appointment start and end date as 6 AM to
+        /// 9 PM and the calendar start time is 8 AM and end time is 6 PM then
+        /// calculate the new size from 8 AM to 6 MM, if we does not calculate
+        /// the new size then the appointment text drawn on hidden place).
+        height = widget.height;
+        yPosition = 0;
       } else if (yPosition + height > widget.height) {
         /// Change the height when appointment end time greater than calendar
         /// time slot end time(Eg., calendar end time is 4 PM and appointment

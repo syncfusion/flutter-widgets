@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/gestures.dart'
     show
+        DeviceGestureSettings,
         DragStartBehavior,
         GestureArenaTeam,
         HorizontalDragGestureRecognizer,
@@ -489,14 +490,14 @@ class _SfSignaturePadRenderObjectWidget extends LeafRenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderSignaturePad(
-      minimumStrokeWidth: minimumStrokeWidth,
-      maximumStrokeWidth: maximumStrokeWidth,
-      backgroundColor: backgroundColor,
-      strokeColor: strokeColor,
-      onDrawEnd: onDrawEnd,
-      onDraw: onDraw,
-      onDrawStart: onDrawStart,
-    );
+        minimumStrokeWidth: minimumStrokeWidth,
+        maximumStrokeWidth: maximumStrokeWidth,
+        backgroundColor: backgroundColor,
+        strokeColor: strokeColor,
+        onDrawEnd: onDrawEnd,
+        onDraw: onDraw,
+        onDrawStart: onDrawStart,
+        gestureSettings: MediaQuery.of(context).gestureSettings);
   }
 
   @override
@@ -521,6 +522,7 @@ class RenderSignaturePad extends RenderBox {
       required double maximumStrokeWidth,
       required Color backgroundColor,
       required Color strokeColor,
+      required DeviceGestureSettings gestureSettings,
       SignatureOnDrawStartCallback? onDrawStart,
       SignatureDrawCallback? onDraw,
       VoidCallback? onDrawEnd})
@@ -537,14 +539,17 @@ class RenderSignaturePad extends RenderBox {
       ..onStart = _handleDragStart
       ..onUpdate = _handleDragUpdate
       ..onEnd = _handleDragEnd
+      ..gestureSettings = gestureSettings
       ..dragStartBehavior = DragStartBehavior.down;
 
     _verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
       ..team = _gestureArenaTeam
+      ..gestureSettings = gestureSettings
       ..onStart = _dragStart;
 
     _horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
       ..team = _gestureArenaTeam
+      ..gestureSettings = gestureSettings
       ..onStart = _dragStart;
 
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUp;

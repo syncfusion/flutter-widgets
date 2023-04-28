@@ -370,13 +370,12 @@ void _stackedBarPainter(
         pointIndex < seriesRendererDetails.dataPoints.length;
         pointIndex++) {
       point = seriesRendererDetails.dataPoints[pointIndex];
-      final bool withInXRange = withInRange(
-          point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+      final bool withInXRange =
+          withInRange(point.xValue, seriesRendererDetails.xAxisDetails!);
       // ignore: unnecessary_null_comparison
       final bool withInYRange = point != null &&
           point.yValue != null &&
-          withInRange(
-              point.yValue, seriesRendererDetails.yAxisDetails!.visibleRange!);
+          withInRange(point.yValue, seriesRendererDetails.yAxisDetails!);
       if (withInXRange || withInYRange) {
         seriesRendererDetails.calculateRegionData(stateProperties,
             seriesRendererDetails, painterKey.index, point, pointIndex);

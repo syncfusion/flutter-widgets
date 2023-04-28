@@ -1611,18 +1611,17 @@ class RenderRadialAxisWidget extends RenderBox {
 
   /// Calculates the axis rect.
   void _calculateAxisRect() {
-    _axisRect = Rect.fromLTRB(
-        -(_radius - (_actualAxisWidth / 2 + _axisOffset)),
-        -(_radius - (_actualAxisWidth / 2 + _axisOffset)),
-        _radius - (_actualAxisWidth / 2 + _axisOffset),
-        _radius - (_actualAxisWidth / 2 + _axisOffset));
+    final double axisOffset = _radius - (_actualAxisWidth / 2 + _axisOffset);
+    _axisRect = Rect.fromLTRB(-axisOffset, -axisOffset, axisOffset, axisOffset);
 
     axisPath.reset();
+    final double centerX = canScaleToFit ? _axisCenter.dx : size.width / 2;
+    final double centerY = canScaleToFit ? _axisCenter.dy : size.height / 2;
     final Rect rect = Rect.fromLTRB(
-      _axisRect.left + size.width / 2,
-      _axisRect.top + size.height / 2,
-      _axisRect.right + size.width / 2,
-      _axisRect.bottom + size.height / 2,
+      _axisRect.left + centerX,
+      _axisRect.top + centerY,
+      _axisRect.right + centerX,
+      _axisRect.bottom + centerY,
     );
 
     axisPath.arcTo(rect, _startRadian, _endRadian, false);
@@ -1630,8 +1629,10 @@ class RenderRadialAxisWidget extends RenderBox {
 
   /// Method to calculate the angle from the tapped point.
   void calculateAngleFromOffset(Offset offset) {
-    final double actualCenterX = size.width * centerX;
-    final double actualCenterY = size.height * centerY;
+    final double actualCenterX =
+        canScaleToFit ? _axisCenter.dx : size.width * centerX;
+    final double actualCenterY =
+        canScaleToFit ? _axisCenter.dy : size.height * centerY;
     double angle =
         math.atan2(offset.dy - actualCenterY, offset.dx - actualCenterX) *
                 (180 / math.pi) +

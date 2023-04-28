@@ -35,7 +35,7 @@
 "rabi1Label" : "Rəbiul-əvvəl", 
 "rabi2Label" : "Rəbi əl-sani", 
 "jumada1Label" : "Cümə əl-əvvəl", 
-"jumada2Label" : "Cümədə əl-sani", 
+"jumada2Label" : "Cüməda əl-sani", 
 "rajabLabel" : "Rəcəb", 
 "shaabanLabel" : "Şaban", 
 "ramadanLabel" : "Ramazan", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Z-dən A sıralayın", 
 "sortOldestToNewestDataGridFilteringLabel" : "Ən köhnədən ən yeniyə çeşidləyin", 
 "sortNewestToOldestDataGridFilteringLabel" : "Ən yenidən köhnəyə çeşidləyin", 
-"clearFilterFromDataGridFilteringLabel" : "Filtri Sil", 
 "textFiltersDataGridFilteringLabel" : "Mətn Filtrləri", 
 "numberFiltersDataGridFilteringLabel" : "Nömrə Filtrləri", 
 "dateFiltersDataGridFilteringLabel" : "Tarix Filtrləri", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Və", 
 "orDataGridFilteringLabel" : "Və ya", 
 "selectAllDataGridFilteringLabel" : "Hamısını seç", 
-"sortAndFilterDataGridFilteringLabel" : "Çeşidləyin və Filtr edin"
+"sortAndFilterDataGridFilteringLabel" : "Çeşidləyin və Filtr edin", 
+"clearFilterDataGridFilteringLabel" : "Filtri təmizləyin", 
+"fromDataGridFilteringLabel" : "From"
 }

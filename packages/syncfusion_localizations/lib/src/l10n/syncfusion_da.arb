@@ -25,7 +25,7 @@
 "allowedViewScheduleLabel" : "Tidsplan", 
 "allowedViewTimelineDayLabel" : "Tidslinje Dag", 
 "allowedViewTimelineWeekLabel" : "Tidslinje uge", 
-"allowedViewTimelineWorkWeekLabel" : "Tidslinje Arbejdsuge", 
+"allowedViewTimelineWorkWeekLabel" : "Tidslinje arbejdsuge", 
 "allowedViewTimelineMonthLabel" : "Tidslinje måned", 
 "todayLabel" : "I dag", 
 "weeknumberLabel" : "Uge", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Sorter Z til A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Sorter ældst til nyeste", 
 "sortNewestToOldestDataGridFilteringLabel" : "Sorter nyeste til ældste", 
-"clearFilterFromDataGridFilteringLabel" : "Ryd filter fra", 
 "textFiltersDataGridFilteringLabel" : "Tekstfiltre", 
 "numberFiltersDataGridFilteringLabel" : "Nummerfiltre", 
 "dateFiltersDataGridFilteringLabel" : "Dato filtre", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Og", 
 "orDataGridFilteringLabel" : "Eller", 
 "selectAllDataGridFilteringLabel" : "Vælg alle", 
-"sortAndFilterDataGridFilteringLabel" : "Sorter og filtrer"
+"sortAndFilterDataGridFilteringLabel" : "Sorter og filtrer", 
+"clearFilterDataGridFilteringLabel" : "Ryd filter", 
+"fromDataGridFilteringLabel" : "Fra"
 }

@@ -17,7 +17,6 @@ export './src/datagrid_widget/sfdatagrid.dart'
     hide
         updateSelectedIndex,
         updateSelectedRow,
-        updateCurrentCellIndex,
         updateVerticalOffset,
         updateHorizontalOffset,
         notifyDataGridPropertyChangeListeners,
@@ -31,6 +30,8 @@ export './src/datagrid_widget/sfdatagrid.dart'
         addFilterConditions,
         removeFilterConditions,
         refreshEffectiveRows,
+        performSorting,
+        updateDataPager,
         DataGridThemeHelper;
 export './src/datapager/sfdatapager.dart'
     hide SfDataPagerState, DataPagerThemeHelper;

@@ -156,6 +156,9 @@ class RowSelectionManager extends SelectionManagerBase {
           _addSelection(record, dataGridConfiguration);
         } else {
           _clearSelectedRow(dataGridConfiguration);
+          if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
+            _clearCurrentCell(dataGridConfiguration);
+          }
         }
 
         notifyListeners();
@@ -618,10 +621,16 @@ class RowSelectionManager extends SelectionManagerBase {
         dataGridConfiguration.selectionMode != SelectionMode.multiple;
 
     //If newValue is negative we have clear the whole selection data.
-    //In multiple case we shouldn't to clear the collection as well
-    // source properties.
-    if (newValue == null && canClearSelections()) {
-      _clearSelectedRow(dataGridConfiguration);
+    if (newValue == null && _selectedRows.isNotEmpty) {
+      // If selection mode is multiple we need to clear all the selected rows.
+      if (dataGridConfiguration.selectionMode == SelectionMode.multiple) {
+        _clearSelectedRows(dataGridConfiguration);
+      } else {
+        _clearSelectedRow(dataGridConfiguration);
+      }
+      if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
+        _clearCurrentCell(dataGridConfiguration);
+      }
       notifyListeners();
       return;
     }
@@ -679,10 +688,21 @@ class RowSelectionManager extends SelectionManagerBase {
         dataGridConfiguration.selectionMode != SelectionMode.multiple;
 
     //If newValue is negative we have to clear the whole selection data.
-    //In multiple case we shouldn't to clear the collection as
-    // well source properties.
-    if (newValue == -1 && canClearSelections()) {
-      _clearSelectedRow(dataGridConfiguration);
+    if (newValue == -1 && _selectedRows.isNotEmpty) {
+      // If selection mode is multiple we need to clear all the selected rows.
+      if (dataGridConfiguration.selectionMode == SelectionMode.multiple) {
+        _clearSelectedRows(dataGridConfiguration);
+      } else {
+        _clearSelectedRow(dataGridConfiguration);
+      }
+
+      // Issue:
+      // FLUT-7123-The current cell is not removed when setting the selected index as -1 through the SelectionController
+      // We removed the selected rows only when setting the selected index as -1 from the controller
+      // We have resolved the issue by removing the current cell too.
+      if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
+        _clearCurrentCell(dataGridConfiguration);
+      }
       notifyListeners();
       return;
     }
@@ -880,17 +900,17 @@ class RowSelectionManager extends SelectionManagerBase {
 
   //KeyNavigation
   @override
-  void handleKeyEvent(RawKeyEvent keyEvent) {
+  Future<void> handleKeyEvent(RawKeyEvent keyEvent) async {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
     if (dataGridConfiguration.currentCell.isEditing &&
         keyEvent.logicalKey != LogicalKeyboardKey.escape) {
-      if (!dataGridConfiguration.currentCell
+      if (!await dataGridConfiguration.currentCell
           .canSubmitCell(dataGridConfiguration)) {
         return;
       }
 
-      dataGridConfiguration.currentCell
+      await dataGridConfiguration.currentCell
           .onCellSubmit(dataGridConfiguration, cancelCanSubmitCell: true);
     }
 
@@ -969,7 +989,7 @@ class RowSelectionManager extends SelectionManagerBase {
       if (dataGridConfiguration.allowEditing &&
           dataGridConfiguration.navigationMode == GridNavigationMode.cell &&
           dataGridConfiguration.currentCell.isEditing) {
-        dataGridConfiguration.currentCell
+        await dataGridConfiguration.currentCell
             .onCellSubmit(dataGridConfiguration, isCellCancelEdit: true);
       }
     }
@@ -989,7 +1009,9 @@ class RowSelectionManager extends SelectionManagerBase {
           needToScrollMaxExtent: true);
     }
 
-    if (keyEvent.isControlPressed &&
+    if ((dataGridConfiguration.isMacPlatform
+            ? keyEvent.isMetaPressed
+            : keyEvent.isControlPressed) &&
         keyEvent.logicalKey != LogicalKeyboardKey.arrowRight) {
       final int lastRowIndex =
           selection_helper.getLastNavigatingRowIndex(dataGridConfiguration);
@@ -1017,7 +1039,9 @@ class RowSelectionManager extends SelectionManagerBase {
           needToScrollToMinExtent: true);
     }
 
-    if (keyEvent.isControlPressed &&
+    if ((dataGridConfiguration.isMacPlatform
+            ? keyEvent.isMetaPressed
+            : keyEvent.isControlPressed) &&
         keyEvent.logicalKey != LogicalKeyboardKey.arrowLeft) {
       final int firstRowIndex =
           selection_helper.getFirstNavigatingRowIndex(dataGridConfiguration);
@@ -1073,7 +1097,9 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
 
-    if (keyEvent.isControlPressed) {
+    if (dataGridConfiguration.isMacPlatform
+        ? keyEvent.isMetaPressed
+        : keyEvent.isControlPressed) {
       selection_helper.scrollInViewFromTop(dataGridConfiguration,
           needToScrollToMaxExtent: true);
       _processSelectionAndCurrentCell(
@@ -1097,7 +1123,9 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
 
-    if (keyEvent.isControlPressed) {
+    if (dataGridConfiguration.isMacPlatform
+        ? keyEvent.isMetaPressed
+        : keyEvent.isControlPressed) {
       final int firstRowIndex =
           selection_helper.getFirstRowIndex(dataGridConfiguration);
       selection_helper.scrollInViewFromDown(dataGridConfiguration,
@@ -1124,7 +1152,9 @@ class RowSelectionManager extends SelectionManagerBase {
     int nextCellIndex;
     // Need to get previous column index only if the control key is
     // pressed in RTL mode since it will perform the home key event.
-    if (keyEvent.isControlPressed &&
+    if ((dataGridConfiguration.isMacPlatform
+            ? keyEvent.isMetaPressed
+            : keyEvent.isControlPressed) &&
         dataGridConfiguration.textDirection == TextDirection.rtl) {
       nextCellIndex = selection_helper.getPreviousColumnIndex(
           dataGridConfiguration, currentCell.columnIndex);
@@ -1140,7 +1170,9 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
 
-    if (keyEvent.isControlPressed) {
+    if (dataGridConfiguration.isMacPlatform
+        ? keyEvent.isMetaPressed
+        : keyEvent.isControlPressed) {
       if (dataGridConfiguration.textDirection == TextDirection.rtl) {
         _processHomeKey(dataGridConfiguration, keyEvent);
       } else {
@@ -1166,7 +1198,9 @@ class RowSelectionManager extends SelectionManagerBase {
     int previousCellIndex;
     // Need to get next column index only if the control key is
     // pressed in RTL mode since it will perform the end key event.
-    if (keyEvent.isControlPressed &&
+    if ((dataGridConfiguration.isMacPlatform
+            ? keyEvent.isMetaPressed
+            : keyEvent.isControlPressed) &&
         dataGridConfiguration.textDirection == TextDirection.rtl) {
       previousCellIndex = selection_helper.getNextColumnIndex(
           dataGridConfiguration, currentCell.columnIndex);
@@ -1182,7 +1216,9 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
 
-    if (keyEvent.isControlPressed) {
+    if (dataGridConfiguration.isMacPlatform
+        ? keyEvent.isMetaPressed
+        : keyEvent.isControlPressed) {
       if (dataGridConfiguration.textDirection == TextDirection.rtl) {
         _processEndKey(dataGridConfiguration, keyEvent);
       } else {
@@ -1415,6 +1451,8 @@ class CurrentCellManager {
       _updateBorderForMultipleSelection(dataGridConfiguration,
           previousRowColumnIndex: previousRowColumnIndex,
           nextRowColumnIndex: rowColumnIndex);
+    } else if (dataGridConfiguration.navigationMode == GridNavigationMode.row) {
+      _updateCurrentRowColumnIndex(-1, -1);
     }
 
     return true;
@@ -1446,11 +1484,6 @@ class CurrentCellManager {
         dataCellBase.updateColumn();
       }
     }
-
-    updateCurrentCellIndex(
-        dataGridConfiguration.controller,
-        grid_helper.resolveToRecordRowColumnIndex(
-            dataGridConfiguration, RowColumnIndex(rowIndex, columnIndex)));
   }
 
   void _removeCurrentCell(DataGridConfiguration dataGridConfiguration,
@@ -1470,8 +1503,6 @@ class CurrentCellManager {
     }
 
     _updateCurrentRowColumnIndex(-1, -1);
-    updateCurrentCellIndex(
-        dataGridConfiguration.controller, RowColumnIndex(-1, -1));
   }
 
   DataRowBase? _getDataRow(
@@ -1481,8 +1512,11 @@ class CurrentCellManager {
       return null;
     }
 
-    return dataRows
-        .firstWhereOrNull((DataRowBase row) => row.rowIndex == rowIndex);
+    // If attempt to obtain a current row after calling the `refreshView` method,
+    // all the row indexes will be -1 in the `items` collection. So, need to
+    // consider the `isCurrentRow` property additionally to get the current row.
+    return dataRows.firstWhereOrNull(
+        (DataRowBase row) => row.rowIndex == rowIndex || row.isCurrentRow);
   }
 
   DataCellBase? _getDataCell(DataRowBase dataRow, int columnIndex) {
@@ -1710,21 +1744,39 @@ class CurrentCellManager {
         return;
       }
 
-      // If the editing is initiate from f2 key, need not to process the
-      // handleTap.
-      if (needToResolveIndex) {
-        dataGridConfiguration.rowSelectionManager
-            .handleTap(editingRowColumnIndex);
-      } else {
-        // Need to skip the editing when current cell is not in view and we
-        // process initiate the editing from f2 key.
+      // In programmatic begin edit, need to update current cell when the
+      // dataCell doesn't contain the proper current cell index. So, we commonly
+      // update the current cell here for programmatic and F2 key to begin edit
+      // the cell.
+      void setCurrentCell() {
         final DataRowBase? dataRow =
-            _getDataRow(dataGridConfiguration, editingRowColumnIndex.rowIndex);
+            _getDataRow(dataGridConfiguration, editingRowColumnIndex!.rowIndex);
         if (dataRow != null) {
           dataCell = _getDataCell(dataRow, editingRowColumnIndex.columnIndex);
         } else {
           return;
         }
+      }
+
+      // If the editing is initiate from f2 key, need not to process the
+      // handleTap.
+      if (needToResolveIndex) {
+        dataGridConfiguration.rowSelectionManager
+            .handleTap(editingRowColumnIndex);
+
+        // In programmatic begin edit, if the `editingRowColumnIndex` has valid
+        // row and column index and the current cell has a previous current cell
+        // value, need to update the current cell based on the
+        // `editingRowColumnIndex` property.
+        if (dataCell != null &&
+            !editingRowColumnIndex.equals(
+                RowColumnIndex(dataCell!.rowIndex, dataCell!.columnIndex))) {
+          setCurrentCell();
+        }
+      } else {
+        // Need to skip the editing when current cell is not in view and we
+        // process initiate the editing from f2 key.
+        setCurrentCell();
       }
 
       editingDataCell = dataCell;
@@ -1747,8 +1799,8 @@ class CurrentCellManager {
         dataGridConfiguration, editingRowColumnIndex, editingDataCell);
 
     if (beginEdit) {
-      void submitCell() {
-        onCellSubmit(dataGridConfiguration);
+      Future<void> submitCell() async {
+        await onCellSubmit(dataGridConfiguration);
       }
 
       final Widget? child = dataGridConfiguration.source.buildEditWidget(
@@ -1766,15 +1818,20 @@ class CurrentCellManager {
         editingDataCell.editingWidget = FocusScope(
             canRequestFocus: true,
             node: _focusScopeNode,
-            onFocusChange: (bool details) {
+            onFocusChange: (bool details) async {
               /// We should not allow the focus to the other widgets
               /// when the cell is in the edit mode and return false from the canSubmitCell
               /// So, we need to request the focus here.
               /// Also, if we return false from the canSubmitCell method and tap other cells
               /// We need to retain the focus on the text field instead of losing focus.
+              ///
+              // Issue:
+              // FLUT-7120-The focus did not go to the other widgets when DataGrid's current cell is in edit mode.
+              // We have checked whether the current cell is editing or not based on the `isCurrentCellInEditing` property.
+              // In this case, it is true. So we fixed it by checking the value of the `canCellSumbit` method.
               if (!_focusScopeNode.hasFocus &&
                   !dataGridConfiguration.dataGridFocusNode!.hasFocus &&
-                  dataGridConfiguration.controller.isCurrentCellInEditing) {
+                  !await canSubmitCell(dataGridConfiguration)) {
                 _focusScopeNode.requestFocus();
               }
             },
@@ -1815,10 +1872,10 @@ class CurrentCellManager {
   /// 1) _onCellSubmit is call from handleDataGridSource we no need to call the
   /// _notifyDataGridPropertyChangeListeners to refresh twice.By, set value false
   /// it will skip the refreshing.
-  void onCellSubmit(DataGridConfiguration dataGridConfiguration,
+  Future<void> onCellSubmit(DataGridConfiguration dataGridConfiguration,
       {bool isCellCancelEdit = false,
       bool cancelCanSubmitCell = false,
-      bool canRefresh = true}) {
+      bool canRefresh = true}) async {
     if (!isEditing) {
       return;
     }
@@ -1836,9 +1893,9 @@ class CurrentCellManager {
     }
 
     if (isEditing) {
-      final RowColumnIndex rowColumnIndex =
-          grid_helper.resolveToRecordRowColumnIndex(dataGridConfiguration,
-              RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex));
+      RowColumnIndex rowColumnIndex = grid_helper.resolveToRecordRowColumnIndex(
+          dataGridConfiguration,
+          RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex));
 
       if (rowColumnIndex.rowIndex.isNegative ||
           rowColumnIndex.columnIndex.isNegative) {
@@ -1860,15 +1917,18 @@ class CurrentCellManager {
         /// moving to other cell or another row. so we need to skip the
         /// canCellSubmit method calling once again
         if (!cancelCanSubmitCell) {
-          canSubmitCell = dataGridConfiguration.source
+          canSubmitCell = await dataGridConfiguration.source
               .canSubmitCell(dataGridRow, rowColumnIndex, dataCell.gridColumn!);
         } else {
           canSubmitCell = true;
         }
         if (canSubmitCell) {
           resetEditing();
-          dataGridConfiguration.source
+          await dataGridConfiguration.source
               .onCellSubmit(dataGridRow, rowColumnIndex, dataCell.gridColumn!);
+
+          notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
+              rowColumnIndex: rowColumnIndex, propertyName: 'editing');
         }
       } else {
         resetEditing();
@@ -1881,7 +1941,12 @@ class CurrentCellManager {
         /// sorting or filtering is enabled.
         if (dataGridConfiguration.allowSorting ||
             dataGridConfiguration.allowFiltering) {
+          final DataGridRow row = effectiveRows(
+              dataGridConfiguration.source)[rowColumnIndex.rowIndex];
           updateDataSource(dataGridConfiguration.source);
+          final int rowIndex =
+              effectiveRows(dataGridConfiguration.source).indexOf(row);
+          rowColumnIndex = RowColumnIndex(rowIndex, rowColumnIndex.columnIndex);
           if (dataGridConfiguration.source.filterConditions.isNotEmpty) {
             dataGridConfiguration.container.updateRowAndColumnCount();
           }
@@ -1915,7 +1980,8 @@ class CurrentCellManager {
   }
 
   /// Called when the editing is submitted in the data cell.
-  bool canSubmitCell(DataGridConfiguration dataGridConfiguration) {
+  Future<bool> canSubmitCell(
+      DataGridConfiguration dataGridConfiguration) async {
     final DataRowBase? dataRow = _getEditingRow(dataGridConfiguration);
 
     if (dataRow == null) {

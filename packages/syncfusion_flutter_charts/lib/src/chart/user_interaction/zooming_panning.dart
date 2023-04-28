@@ -1013,9 +1013,18 @@ class ZoomingBehaviorDetails {
 
   /// Below method is for mouse wheel Zooming.
   void performMouseWheelZooming(
-      PointerScrollEvent event, double mouseX, double mouseY) {
+      PointerEvent event, double mouseX, double mouseY) {
     stateProperties.canSetRangeController = true;
-    final double direction = (event.scrollDelta.dy / 120) > 0 ? -1 : 1;
+    double direction = 0.0;
+    if (event is PointerScrollEvent) {
+      direction = (event.scrollDelta.dy / 120) > 0 ? -1 : 1;
+    } else if (event is PointerPanZoomUpdateEvent) {
+      direction = event.panDelta.dy == 0
+          ? 0
+          : (event.panDelta.dy / 120) > 0
+              ? 1
+              : -1;
+    }
     double origin = 0.5;
     double cumulative, zoomFactor, zoomPosition, maxZoomFactor;
     stateProperties.zoomProgress = true;

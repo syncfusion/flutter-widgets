@@ -460,6 +460,7 @@ class SfDataGrid extends StatefulWidget {
     this.allowFiltering = false,
     this.onFilterChanging,
     this.onFilterChanged,
+    this.checkboxShape,
   })  : assert(frozenColumnsCount >= 0),
         assert(footerFrozenColumnsCount >= 0),
         assert(frozenRowsCount >= 0),
@@ -1582,6 +1583,15 @@ class SfDataGrid extends StatefulWidget {
   /// programmatically.
   final DataGridFilterChangedCallback? onFilterChanged;
 
+  /// The shape of the checkbox.
+  ///
+  /// This is applicable for checkbox which is shown when enable the [showCheckboxColumn] property.
+  ///
+  /// See also,
+  ///
+  /// [Checkbox.shape]
+  final OutlinedBorder? checkboxShape;
+
   @override
   State<StatefulWidget> createState() => SfDataGridState();
 }
@@ -1630,6 +1640,9 @@ class SfDataGridState extends State<SfDataGrid>
         duration: const Duration(milliseconds: 200), vsync: this);
     _setUp();
     _updateDataGridStateDetails();
+
+    // To perform sort and filter operations based on the `DataGridSource`.
+    updateDataSource(_dataGridConfiguration.source);
     super.initState();
   }
 
@@ -1715,7 +1728,7 @@ class SfDataGridState extends State<SfDataGrid>
       _localizations = newLocalizations;
       _dataGridConfiguration
         ..localizations = newLocalizations
-        ..dataGridFilterHelper.advancedFilterHelper.initProperties();
+        ..dataGridFilterHelper!.advancedFilterHelper.initProperties();
     }
   }
 
@@ -1734,7 +1747,10 @@ class SfDataGridState extends State<SfDataGrid>
   }
 
   void _setUp() {
-    _initializeDataGridDataSource();
+    // Initializes the source
+    _source = widget.source.._dataGridStateDetails = _dataGridStateDetails;
+    _addDataGridSourceListeners();
+
     _initializeCellRendererCollection();
 
     //DataGrid Controller
@@ -1780,11 +1796,6 @@ class SfDataGridState extends State<SfDataGrid>
         ColumnResizeController(dataGridStateDetails: _dataGridStateDetails!);
 
     _initializeProperties();
-
-    // Apply filter on initial loading.
-    if (_dataGridConfiguration.source._filterConditions.isNotEmpty) {
-      _dataGridConfiguration.dataGridFilterHelper.applyFilter();
-    }
   }
 
   @protected
@@ -1837,6 +1848,21 @@ class SfDataGridState extends State<SfDataGrid>
       _source = widget.source.._dataGridStateDetails = _dataGridStateDetails;
       _addDataGridSourceListeners();
     }
+
+    // Issue:
+    // FLUT-7337 - The filter is not functioning properly when changing the source at runtime
+    //
+    // Fix:
+    // The issue occurred because we did not update the source and columns before applying the filter.
+    // Instead, we updated those properties after applying the filter.
+    // To fix this issue, we need to reset the source and columns in the _dataGridConfiguration
+    // before applying the filter when the source is changed at runtime.
+    _dataGridConfiguration.source = _source!;
+
+    if (_columns != widget.columns) {
+      _dataGridConfiguration.columns = widget.columns;
+    }
+
     _source?._updateDataSource();
   }
 
@@ -1882,6 +1908,19 @@ class SfDataGridState extends State<SfDataGrid>
       final int columnIndex = grid_helper.resolveToScrollColumnIndex(
           _dataGridConfiguration, rowColumnIndex.columnIndex);
 
+      // Issue:
+      // FLUT-7231 - Editing of filtered data when paging is applied does not work properly
+      //
+      // Fix:
+      // After editing a filtered record, the collection of effective rows contained an empty record
+      // or the record is not contained in the collection.
+      // To fix this issue, we added a check to return immediately if the collection is empty
+      // or the datagrid row is not available in collection i.e., rowIndex ==-1.
+      if (rowIndex == -1) {
+        setState(() {});
+        return;
+      }
+
       final DataRowBase? dataRow = _rowGenerator.items.firstWhereOrNull(
           (DataRowBase dataRow) => dataRow.rowIndex == rowIndex);
 
@@ -1889,7 +1928,16 @@ class SfDataGridState extends State<SfDataGrid>
         return;
       }
 
-      dataRow.dataGridRow = _source!._effectiveRows[rowColumnIndex.rowIndex];
+      // Issue:
+      // FLUT-7231-Editing of filtered data when paging is applied does not work properly.
+      //
+      // Fix:
+      // We encountered an issue when attempting to retrieve a row from the data grid using the paginated row index.
+      // To fix this issue, we implemented a check to determine whether pagination is being used,
+      // and we now retrieve the data grid row from the paginated effective rows
+      // instead of the entire set of effective rows in the data grid
+      dataRow.dataGridRow = effectiveRows(_source!)[rowColumnIndex.rowIndex];
+
       dataRow.dataGridRowAdapter = grid_helper.getDataGridRowAdapter(
           _dataGridConfiguration, dataRow.dataGridRow!);
 
@@ -1951,71 +1999,66 @@ class SfDataGridState extends State<SfDataGrid>
     }
   }
 
-  void _processUpdateDataSource() {
+  Future<void> _processUpdateDataSource() async {
     if (_dataGridConfiguration.source._suspendDataPagerUpdate) {
       return;
     }
-    setState(() {
-      // Resets the editing before processing the `onCellSubmit`.
-      _processEditing();
+    // Resets the editing before processing the `onCellSubmit`.
+    _processEditing();
 
-      // Need to endEdit the editing [DataGridCell] before perform refreshing.
-      if (_dataGridConfiguration.currentCell.isEditing) {
-        _dataGridConfiguration.currentCell
-            .onCellSubmit(_dataGridConfiguration, canRefresh: false);
-      }
+    // Need to endEdit the editing [DataGridCell] before perform refreshing.
+    if (_dataGridConfiguration.currentCell.isEditing) {
+      await _dataGridConfiguration.currentCell
+          .onCellSubmit(_dataGridConfiguration, canRefresh: false);
+    }
 
-      _initializeDataGridDataSource();
-      _dataGridConfiguration.source = _source!;
+    _initializeDataGridDataSource();
+    _dataGridConfiguration.source = _source!;
 
-      if (!listEquals<GridColumn>(_columns, widget.columns)) {
-        if (widget.selectionMode != SelectionMode.none &&
-            widget.navigationMode == GridNavigationMode.cell &&
-            _rowSelectionManager != null) {
-          selection_manager.onRowColumnChanged(
-              _dataGridConfiguration, -1, widget.columns.length);
-        }
-
-        _resetColumn();
-      }
-
-      if (_dataGridConfiguration.source._filterConditions.isNotEmpty) {
-        _dataGridConfiguration.dataGridFilterHelper.applyFilter();
-      }
-
-      if (widget.selectionMode != SelectionMode.none)
-        selection_manager.removeUnWantedDataGridRows(_dataGridConfiguration);
+    if (!listEquals<GridColumn>(_columns, widget.columns)) {
       if (widget.selectionMode != SelectionMode.none &&
           widget.navigationMode == GridNavigationMode.cell &&
           _rowSelectionManager != null) {
         selection_manager.onRowColumnChanged(
-            _dataGridConfiguration, widget.source._effectiveRows.length, -1);
+            _dataGridConfiguration, -1, widget.columns.length);
       }
 
-      if (widget.allowSwiping) {
-        _dataGridConfiguration.container.resetSwipeOffset();
+      _resetColumn();
+    }
+
+    if (widget.selectionMode != SelectionMode.none)
+      selection_manager.removeUnWantedDataGridRows(_dataGridConfiguration);
+    if (widget.selectionMode != SelectionMode.none &&
+        widget.navigationMode == GridNavigationMode.cell &&
+        _rowSelectionManager != null) {
+      selection_manager.onRowColumnChanged(
+          _dataGridConfiguration, widget.source._effectiveRows.length, -1);
+    }
+
+    if (widget.allowSwiping) {
+      _dataGridConfiguration.container.resetSwipeOffset();
+    }
+
+    if (widget.footer != null) {
+      final DataRowBase? footerRow = _rowGenerator.items.firstWhereOrNull(
+          (DataRowBase row) =>
+              row.rowType == RowType.footerRow && row.rowIndex >= 0);
+      if (footerRow != null) {
+        // Need to reset the old footer row height in rowHeights collection.
+        _container.rowHeights[footerRow.rowIndex] =
+            _dataGridConfiguration.rowHeight;
       }
+    }
 
-      if (widget.footer != null) {
-        final DataRowBase? footerRow = _rowGenerator.items.firstWhereOrNull(
-            (DataRowBase row) =>
-                row.rowType == RowType.footerRow && row.rowIndex >= 0);
-        if (footerRow != null) {
-          // Need to reset the old footer row height in rowHeights collection.
-          _container.rowHeights[footerRow.rowIndex] =
-              _dataGridConfiguration.rowHeight;
-        }
-      }
+    _container
+      ..updateRowAndColumnCount()
+      ..refreshView()
+      ..isDirty = true;
 
-      _container
-        ..updateRowAndColumnCount()
-        ..refreshView()
-        ..isDirty = true;
-
-      // FLUT-3219 Need to refresh the scrolling offsets if the container's
-      // offsets and the ScrollController's offsets are not identical.
-      _refreshScrollOffsets();
-    });
+    // FLUT-3219 Need to refresh the scrolling offsets if the container's
+    // offsets and the ScrollController's offsets are not identical.
+    _refreshScrollOffsets();
+    setState(() {});
     if (_dataGridConfiguration.source.shouldRecalculateColumnWidths()) {
       resetAutoCalculation(_dataGridConfiguration.columnSizer);
     }
@@ -2159,14 +2202,14 @@ class SfDataGridState extends State<SfDataGrid>
     }
   }
 
-  void _handleDataGridPropertyChangeListeners(
+  Future<void> _handleDataGridPropertyChangeListeners(
       {RowColumnIndex? rowColumnIndex,
       String? propertyName,
-      bool recalculateRowHeight = false}) {
+      bool recalculateRowHeight = false}) async {
     if (propertyName == 'refreshRow') {
       if (rowColumnIndex != null) {
         // Need to endEdit before refreshing the row.
-        _dataGridConfiguration.currentCell
+        await _dataGridConfiguration.currentCell
             .onCellSubmit(_dataGridConfiguration, canRefresh: false);
         final int rowIndex = grid_helper.resolveToRowIndex(
             _dataGridConfiguration, rowColumnIndex.rowIndex);
@@ -2204,13 +2247,12 @@ class SfDataGridState extends State<SfDataGrid>
     }
 
     if (propertyName == 'Swiping') {
-      setState(() {
-        // Need to end-edit the editing [DataGridCell] before swiping a
-        // [DataGridRow] or refreshing
-        _dataGridConfiguration.currentCell
-            .onCellSubmit(_dataGridConfiguration, canRefresh: false);
-        _container.isDirty = true;
-      });
+      // Need to end-edit the editing [DataGridCell] before swiping a
+      // [DataGridRow] or refreshing
+      await _dataGridConfiguration.currentCell
+          .onCellSubmit(_dataGridConfiguration, canRefresh: false);
+      _container.isDirty = true;
+      setState(() {});
     }
 
     if (propertyName == 'columnResizing') {
@@ -2271,6 +2313,7 @@ class SfDataGridState extends State<SfDataGrid>
       ..sortingGestureType = widget.sortingGestureType
       ..showSortNumbers = widget.showSortNumbers
       ..isControlKeyPressed = false
+      ..isCommandKeyPressed = false
       ..stackedHeaderRows = widget.stackedHeaderRows
       ..isScrollbarAlwaysShown = widget.isScrollbarAlwaysShown
       ..horizontalScrollPhysics = widget.horizontalScrollPhysics
@@ -2321,7 +2364,8 @@ class SfDataGridState extends State<SfDataGrid>
       ..dataGridThemeHelper = _dataGridThemeHelper
       ..allowFiltering = widget.allowFiltering
       ..onFilterChanging = widget.onFilterChanging
-      ..onFilterChanged = widget.onFilterChanged;
+      ..onFilterChanged = widget.onFilterChanged
+      ..checkboxShape = widget.checkboxShape;
 
     if (widget.allowPullToRefresh) {
       _dataGridConfiguration.refreshIndicatorKey ??=
@@ -2332,7 +2376,7 @@ class SfDataGridState extends State<SfDataGrid>
   DataGridConfiguration _onDataGridStateDetailsChanged() =>
       _dataGridConfiguration;
 
-  void _updateProperties(SfDataGrid oldWidget) {
+  Future<void> _updateProperties(SfDataGrid oldWidget) async {
     final bool isSourceChanged = widget.source != oldWidget.source;
     final bool isDataSourceChanged =
         !listEquals<DataGridRow>(oldWidget.source.rows, widget.source.rows);
@@ -2390,6 +2434,8 @@ class SfDataGridState extends State<SfDataGrid>
     // To apply filtering to the runtime changes of columns.
     final bool canApplyFiltering =
         isColumnsChanged && _columns!.length != widget.columns.length;
+    final bool isFilteringChanged =
+        oldWidget.allowFiltering != widget.allowFiltering;
 
     if (oldWidget.verticalScrollController != widget.verticalScrollController) {
       if (widget.verticalScrollController != null) {
@@ -2416,7 +2462,7 @@ class SfDataGridState extends State<SfDataGrid>
         oldWidget.allowEditing != widget.allowEditing ||
             oldWidget.editingGestureType != widget.editingGestureType;
 
-    void refreshEditing() {
+    Future<void> refreshEditing() async {
       bool isEditingImpactAPIsChanged = isSourceChanged ||
           isDataSourceChanged ||
           oldWidget.stackedHeaderRows.length != widget.stackedHeaderRows.length;
@@ -2439,7 +2485,7 @@ class SfDataGridState extends State<SfDataGrid>
             isStackedHeaderRowsChanged;
 
         if (_dataGridConfiguration.currentCell.isEditing) {
-          _dataGridConfiguration.currentCell.onCellSubmit(
+          await _dataGridConfiguration.currentCell.onCellSubmit(
               _dataGridConfiguration,
               canRefresh: !isEditingImpactAPIsChanged);
         }
@@ -2506,11 +2552,13 @@ class SfDataGridState extends State<SfDataGrid>
         isSwipingChanged ||
         isFooterRowChanged ||
         isTableSummaryRowsChanged ||
+        isFilteringChanged ||
         oldWidget.rowHeight != widget.rowHeight ||
         oldWidget.headerRowHeight != widget.headerRowHeight ||
         oldWidget.defaultColumnWidth != widget.defaultColumnWidth ||
         oldWidget.navigationMode != widget.navigationMode ||
         oldWidget.showCheckboxColumn != widget.showCheckboxColumn ||
+        oldWidget.checkboxShape != widget.checkboxShape ||
         oldWidget.rowsCacheExtent != widget.rowsCacheExtent ||
         isRowsPerPageChanged) {
       // Need to endEdit before refreshing
@@ -2519,7 +2567,7 @@ class SfDataGridState extends State<SfDataGrid>
       // Need to initialize the data source when the `isColumnsCollectionChanged`
       // property is true to adapt the `DataGridRow.cells` changes that made by
       // the user based on the `columns` collection changes.
-      if (isSourceChanged || isColumnsCollectionChanged) {
+      if (isSourceChanged || isColumnsCollectionChanged || canApplyFiltering) {
         _initializeDataGridDataSource();
       }
       if (isSortingChanged || isMultiColumnSortingChanged) {
@@ -2556,10 +2604,6 @@ class SfDataGridState extends State<SfDataGrid>
 
       _initializeProperties();
 
-      if (canApplyFiltering) {
-        _dataGridConfiguration.dataGridFilterHelper.applyFilter();
-      }
-
       if (isStackedHeaderRowsChanged || isColumnsChanged) {
         _onStackedHeaderRowsPropertyChanged(oldWidget, widget);
       }
@@ -2586,16 +2630,37 @@ class SfDataGridState extends State<SfDataGrid>
           isColumnsChanged ||
           isColumnSizerChanged ||
           isFrozenColumnPaneChanged ||
-          isSortingChanged ||
           isStackedHeaderRowsChanged ||
           oldWidget.showCheckboxColumn != widget.showCheckboxColumn ||
+          oldWidget.checkboxShape != widget.checkboxShape) {
+        _resetColumn(clearEditing: false);
+        if (isColumnSizerChanged) {
+          resetAutoCalculation(_dataGridConfiguration.columnSizer);
+        }
+      }
+
+      // Need to reset the auto calculation when sorting, filtering or show
+      // sort number properties are changed at runtime. then only, the auto-width
+      // calculation will be calculated for all the columns again. Otherwise,
+      // all the columns will retain the previously calculated width.
+      if (isSortingChanged ||
+          isFilteringChanged ||
           widget.allowSorting && isMultiColumnSortingChanged ||
           widget.allowSorting &&
               widget.allowMultiColumnSorting &&
               isShowSortNumbersChanged) {
-        _resetColumn(clearEditing: false);
-        if (isColumnSizerChanged) {
-          resetAutoCalculation(_dataGridConfiguration.columnSizer);
+        // To reset the auto width calculation.
+        resetAutoCalculation(_dataGridConfiguration.columnSizer);
+
+        final DataRowBase? dataRow = _rowGenerator.items.firstWhereOrNull(
+            (DataRowBase element) => element.rowType == RowType.headerRow);
+        // To refresh the header row to update the sort and filter icon changes
+        // in the header cells.
+        if (dataRow != null) {
+          for (final DataCellBase dataCell in dataRow.visibleColumns) {
+            dataCell.columnIndex = -1;
+          }
+          _container.needToRefreshColumn = true;
         }
       }
 
@@ -2631,6 +2696,13 @@ class SfDataGridState extends State<SfDataGrid>
         _refreshScrollOffsets(true);
       }
 
+      // Need to set `needToSetHorizontalOffset` property to when the column
+      // widths change in the RTL mode to get proper visible columns.
+      if (oldWidget.defaultColumnWidth != widget.defaultColumnWidth &&
+          _dataGridConfiguration.textDirection == TextDirection.rtl) {
+        _container.needToSetHorizontalOffset = true;
+      }
+
       _container.isDirty = true;
     } else {
       if (oldWidget.gridLinesVisibility != widget.gridLinesVisibility ||
@@ -2641,7 +2713,7 @@ class SfDataGridState extends State<SfDataGrid>
           isEditingChanged) {
         // Need to endEdit before refreshing
         if (isEditingChanged && _dataGridConfiguration.currentCell.isEditing) {
-          _dataGridConfiguration.currentCell
+          await _dataGridConfiguration.currentCell
               .onCellSubmit(_dataGridConfiguration, canRefresh: false);
         }
         _initializeProperties();
@@ -2824,6 +2896,9 @@ class SfDataGridState extends State<SfDataGrid>
         themeData.platform == TargetPlatform.macOS ||
         themeData.platform == TargetPlatform.windows ||
         themeData.platform == TargetPlatform.linux;
+
+    _dataGridConfiguration.isMacPlatform =
+        themeData.platform == TargetPlatform.macOS;
     // Sets column resizing hitTestPrecision based on the platform.
 
     if (_dataGridConfiguration.allowColumnsResizing) {
@@ -2852,9 +2927,9 @@ class SfDataGridState extends State<SfDataGrid>
       _screenSize ??= currentScreenSize;
       if (_screenSize != currentScreenSize &&
           _dataGridConfiguration
-              .dataGridFilterHelper.isFilterPopupMenuShowing) {
+              .dataGridFilterHelper!.isFilterPopupMenuShowing) {
         Navigator.pop(context);
-        _dataGridConfiguration.dataGridFilterHelper.isFilterPopupMenuShowing =
+        _dataGridConfiguration.dataGridFilterHelper!.isFilterPopupMenuShowing =
             false;
       }
       _screenSize = currentScreenSize;
@@ -2909,7 +2984,20 @@ class SfDataGridState extends State<SfDataGrid>
   @override
   void dispose() {
     _removeDataGridSourceListeners();
-    _controller?.removeListener(_handleDataGridPropertyChangeListeners);
+
+    // Issue:
+    // FLUT-7056 - The dataGridPropertyChanged listener is not removed properly
+    // when DataGrid is disposed
+    //
+    // Fix:
+    // The issue occurred due to we didn't remove the listener properly.
+    // It's added to `_dataGridPropertyChangeListeners` but we didn't remove it from the _dataGridPropertyChangeListeners.
+    // We have fixed the issue by removing the respective listener from the_dataGridPropertyChangeListeners
+    // through the _removeDataGridPropertyChangeListener method.
+    _controller?._removeDataGridPropertyChangeListener(
+        _handleDataGridPropertyChangeListeners);
+    _controller?._removeDataGridPropertyChangeListener(
+        _handleSelectionPropertyChanged);
     _dataGridConfiguration
       ..gridPaint = null
       ..boxPainter = null
@@ -2919,12 +3007,24 @@ class SfDataGridState extends State<SfDataGrid>
       _swipingAnimationController!.dispose();
       _swipingAnimationController = null;
     }
-    _dataGridConfiguration.dataGridFilterHelper.checkboxFilterHelper
+    _dataGridConfiguration.dataGridFilterHelper!.checkboxFilterHelper
       ..textController.dispose()
       ..searchboxFocusNode.dispose();
-    _dataGridConfiguration.dataGridFilterHelper.advancedFilterHelper
+    _dataGridConfiguration.dataGridFilterHelper!.advancedFilterHelper
       ..firstValueTextController.dispose()
       ..secondValueTextController.dispose();
+
+    // Issue:
+    // FLUT-6123 - LateInitializationError has been thrown
+    // when opening the filter UI after rebuilding the filtered DataGrid.
+    //
+    // Fix:
+    // The filterFrom property is maintained at the sample level within the columns instance.
+    // Therefore, it does not reset to "FilteredFrom.none" when the DataGrid is dispose.
+    // We have now implemented a reset of the "filterFrom" property
+    // when the DataGrid is dispose
+    _dataGridConfiguration.dataGridFilterHelper!
+        .resetColumnProperties(_dataGridConfiguration);
     super.dispose();
   }
 }
@@ -3143,7 +3243,7 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   /// [DataGridSource.compare] – To write the custom sorting for most of the use
   /// cases.
   @protected
-  void performSorting(List<DataGridRow> rows) {
+  Future<void> performSorting(List<DataGridRow> rows) async {
     if (sortedColumns.isEmpty) {
       return;
     }
@@ -3152,10 +3252,10 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
     });
   }
 
-  /// To update the sorted collection in _paginatedRows, notifyListener should be
+  /// To update the sorted or filtered collection in _paginatedRows, notifyListener should be
   /// called instead notifyDataGridPropertyChangeListener. Because, notifyListener is common for
   /// in DataPagerDelegate and DataGridSource will get notified.
-  void _updateDataPagerOnSorting() {
+  void _updateDataPager() {
     if (_pageCount > 0 &&
         _paginatedRows.isNotEmpty &&
         !_suspendDataPagerUpdate) {
@@ -3168,7 +3268,7 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   int _compareValues(
       List<SortColumnDetails> sortedColumns, DataGridRow a, DataGridRow b) {
     if (sortedColumns.length > 1) {
-      for (int i = 0; i < sortedColumns.length; i++) {
+      for (final int i = 0; i < sortedColumns.length;) {
         final SortColumnDetails sortColumn = sortedColumns[i];
         final int compareResult = compare(a, b, sortColumn);
         if (compareResult != 0) {
@@ -3284,24 +3384,27 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
     }
   }
 
-  void _updateDataSource() {
+  Future<void> _updateDataSource() async {
     if (sortedColumns.isNotEmpty) {
       _unSortedRows = rows.toList();
       _effectiveRows = _unSortedRows;
     } else {
       _effectiveRows = rows;
     }
+
+    // Should refresh filtering when the filterConditions is not empty.
+    if (_dataGridStateDetails != null &&
+        _dataGridStateDetails!().dataGridFilterHelper != null &&
+        _filterConditions.isNotEmpty) {
+      _dataGridStateDetails!().dataGridFilterHelper!.applyFilter();
+    }
+
     // Should refresh sorting when the data grid source is updated.
     performSorting(_effectiveRows);
 
-    // Should refresh filtering when the filterConditions is not empty.
-    if (_filterConditions.isNotEmpty) {
-      _dataGridStateDetails!().dataGridFilterHelper.applyFilter();
-    }
-
-    /// Helps to update the sorted collection in _paginatedRows
-    /// by call the DataPagerDelegate.handlePageChange after sorting.
-    _updateDataPagerOnSorting();
+    /// Helps to update the sorted or filtered collection in _paginatedRows
+    /// by call the DataPagerDelegate.handlePageChange after sorting or filtering.
+    _updateDataPager();
   }
 
   /// Call this method when you are adding the [SortColumnDetails]
@@ -3339,8 +3442,8 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   ///   );
   /// }
   /// ```
-  void sort() {
-    _updateDataSource();
+  Future<void> sort() async {
+    await _updateDataSource();
     _notifyDataGridPropertyChangeListeners(propertyName: 'Sorting');
   }
 
@@ -3406,7 +3509,9 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
 
     _filterConditions[columnName] = conditions;
 
-    _refreshFilter(_dataGridStateDetails!());
+    if (_dataGridStateDetails != null) {
+      _refreshFilter(_dataGridStateDetails!());
+    }
   }
 
   /// Remove the [FilterCondition] from the given column.
@@ -3449,7 +3554,9 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
       _filterConditions[columnName] = conditions;
     }
 
-    _refreshFilter(_dataGridStateDetails!());
+    if (_dataGridStateDetails != null) {
+      _refreshFilter(_dataGridStateDetails!());
+    }
   }
 
   /// Clear the [FilterCondition] from a given column or clear all the filter
@@ -3484,10 +3591,14 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
     if (_filterConditions.isNotEmpty) {
       if (columnName != null && _filterConditions.containsKey(columnName)) {
         _filterConditions.remove(columnName);
-        _refreshFilter(_dataGridStateDetails!());
+        if (_dataGridStateDetails != null) {
+          _refreshFilter(_dataGridStateDetails!());
+        }
       } else if (columnName == null) {
         _filterConditions.clear();
-        _refreshFilter(_dataGridStateDetails!());
+        if (_dataGridStateDetails != null) {
+          _refreshFilter(_dataGridStateDetails!());
+        }
       }
     }
   }
@@ -3627,8 +3738,8 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   /// }
   ///```
   /// This method will never be called when you return false from [onCellBeginEdit].
-  void onCellSubmit(DataGridRow dataGridRow, RowColumnIndex rowColumnIndex,
-      GridColumn column) {}
+  Future<void> onCellSubmit(DataGridRow dataGridRow,
+      RowColumnIndex rowColumnIndex, GridColumn column) async {}
 
   /// Called whenever the cell’s editing is completed i.e. prior to
   /// [onCellSubmit] method.
@@ -3636,8 +3747,8 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   /// If you want to restrict the cell from being end its editing, you can
   /// return false. Otherwise, return true. [onCellSubmit] will be called only
   /// if the [canSubmitCell] returns true.
-  bool canSubmitCell(DataGridRow dataGridRow, RowColumnIndex rowColumnIndex,
-      GridColumn column) {
+  Future<bool> canSubmitCell(DataGridRow dataGridRow,
+      RowColumnIndex rowColumnIndex, GridColumn column) async {
     return true;
   }
 
@@ -3734,6 +3845,17 @@ void refreshEffectiveRows(DataGridSource source, List<DataGridRow> filterRows) {
   source._effectiveRows = filterRows;
 }
 
+/// Apply sorting to the given rows. It is used to invoke the
+/// `DataGridSource.performSorting` method internally.
+void performSorting(DataGridSource source, List<DataGridRow> rows) {
+  source.performSorting(rows);
+}
+
+/// Helps to refresh the data pager.
+void updateDataPager(DataGridSource source) {
+  source._updateDataPager();
+}
+
 /// Controls a [SfDataGrid] widget.
 ///
 /// This can be used to control the selection and current-cell operations such
@@ -3752,7 +3874,6 @@ class DataGridController extends DataGridSourceChangeNotifier {
       : _selectedRow = selectedRow,
         _selectedIndex = selectedIndex,
         _selectedRows = selectedRows.toList() {
-    _currentCell = RowColumnIndex(-1, -1);
     _horizontalOffset = 0.0;
     _verticalOffset = 0.0;
   }
@@ -3851,8 +3972,18 @@ class DataGridController extends DataGridSourceChangeNotifier {
   ///
   /// This is used to identify the currently active cell to process the
   /// key navigation.
-  RowColumnIndex get currentCell => _currentCell;
-  RowColumnIndex _currentCell = RowColumnIndex.empty;
+  RowColumnIndex get currentCell {
+    final DataGridConfiguration dataGridConfiguration =
+        _dataGridStateDetails!();
+    final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
+    if (dataGridConfiguration.navigationMode == GridNavigationMode.row) {
+      return grid_helper.resolveToRecordRowColumnIndex(
+          dataGridConfiguration, RowColumnIndex(currentCell.rowIndex, -1));
+    } else {
+      return grid_helper.resolveToRecordRowColumnIndex(dataGridConfiguration,
+          RowColumnIndex(currentCell.rowIndex, currentCell.columnIndex));
+    }
+  }
 
   /// Moves the current-cell to the specified cell coordinates.
   void moveCurrentCellTo(RowColumnIndex rowColumnIndex) {
@@ -4009,7 +4140,7 @@ class DataGridController extends DataGridSourceChangeNotifier {
   }
 
   /// Begins the edit to the given [RowColumnIndex] in [SfDataGrid].
-  void beginEdit(RowColumnIndex rowColumnIndex) {
+  Future<void> beginEdit(RowColumnIndex rowColumnIndex) async {
     if (_dataGridStateDetails != null) {
       final DataGridConfiguration dataGridConfiguration =
           _dataGridStateDetails!();
@@ -4018,14 +4149,22 @@ class DataGridController extends DataGridSourceChangeNotifier {
           dataGridConfiguration.navigationMode == GridNavigationMode.row) {
         return;
       }
+      if (isCurrentCellInEditing) {
+        if (!await dataGridConfiguration.currentCell
+            .canSubmitCell(dataGridConfiguration)) {
+          return;
+        }
 
+        await dataGridConfiguration.currentCell
+            .onCellSubmit(dataGridConfiguration, cancelCanSubmitCell: true);
+      }
       dataGridConfiguration.currentCell.onCellBeginEdit(
           editingRowColumnIndex: rowColumnIndex, isProgrammatic: true);
     }
   }
 
   /// Ends the current editing of a cell in [SfDataGrid].
-  void endEdit() {
+  Future<void> endEdit() async {
     if (_dataGridStateDetails != null) {
       final DataGridConfiguration dataGridConfiguration =
           _dataGridStateDetails!();
@@ -4035,7 +4174,8 @@ class DataGridController extends DataGridSourceChangeNotifier {
         return;
       }
 
-      dataGridConfiguration.currentCell.onCellSubmit(dataGridConfiguration);
+      await dataGridConfiguration.currentCell
+          .onCellSubmit(dataGridConfiguration);
     }
   }
 }
@@ -4103,7 +4243,6 @@ class DataGridSourceChangeNotifier extends ChangeNotifier {
     _dataGridPropertyChangeListeners.remove(listener);
   }
 
-  @protected
   @override
   void notifyListeners() {
     super.notifyListeners();
@@ -4205,12 +4344,6 @@ void updateSelectedRow(
   controller._selectedRow = newSelectedRow;
 }
 
-/// Updates the given index to the controller's `currentCell` property.
-void updateCurrentCellIndex(
-    DataGridController controller, RowColumnIndex newCurrentCellIndex) {
-  controller._currentCell = newCurrentCellIndex;
-}
-
 /// Updates the given offset to the controller's `verticalOffset` property.
 void updateVerticalOffset(DataGridController controller, double offset) {
   controller._verticalOffset = offset;
@@ -4243,9 +4376,9 @@ void removeFilterConditions(DataGridSource source, String columnName) {
   source._filterConditions.remove(columnName);
 }
 
-/// ToDo
+/// To Do
 class DataGridThemeHelper {
-  /// ToDo
+  /// To Do
 
   DataGridThemeHelper(
       SfDataGridThemeData? dataGridThemeData, ColorScheme? colorScheme) {
@@ -4282,9 +4415,28 @@ class DataGridThemeHelper {
             fontSize: 14,
             color: colorScheme!.onSurface.withOpacity(0.87));
     sortIcon = dataGridThemeData.sortIcon;
+    filterIcon = dataGridThemeData.filterIcon;
+    filterIconColor = dataGridThemeData.filterIconColor;
+    filterIconHoverColor = dataGridThemeData.filterIconHoverColor;
+    sortOrderNumberColor = dataGridThemeData.sortOrderNumberColor;
+    sortOrderNumberBackgroundColor =
+        dataGridThemeData.sortOrderNumberBackgroundColor;
+    filterPopupTextStyle = dataGridThemeData.filterPopupTextStyle ??
+        TextStyle(
+            fontSize: 14.0,
+            color: colorScheme!.onSurface.withOpacity(0.89),
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.normal);
+    filterPopupDisabledTextStyle =
+        dataGridThemeData.filterPopupDisabledTextStyle ??
+            TextStyle(
+                fontSize: 14.0,
+                color: colorScheme!.onSurface.withOpacity(0.38),
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.normal);
   }
 
-  ///ToDo
+  ///To Do
   late Brightness brightness;
 
 // ignore: public_member_api_docs
@@ -4344,4 +4496,85 @@ class DataGridThemeHelper {
   /// To do
 
   late Widget? sortIcon;
+
+  /// The icon to indicate the filtering applied in column.
+  ///
+  /// If you want to change the icon filter or filtered state, you can use the [Builder]
+  /// widget and return the respective icon for the state. You have to return
+  /// the icons for both the states even if you want to change the icon
+  /// for specific state.
+  ///
+  /// ```dart
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     appBar: AppBar(
+  ///       title: const Text('Syncfusion Flutter DataGrid',
+  ///           overflow: TextOverflow.ellipsis),
+  ///     ),
+  ///     body: SfDataGridTheme(
+  ///       data: SfDataGridThemeData(filterIcon: Builder(
+  ///         builder: (context) {
+  ///           Widget? icon;
+  ///           String columnName = '';
+  ///           context.visitAncestorElements((element) {
+  ///             if (element is GridHeaderCellElement) {
+  ///               columnName = element.column.columnName;
+  ///             }
+  ///             return true;
+  ///           });
+  ///           var column = _employeeDataSource.filterConditions.keys
+  ///               .where((element) => element == columnName)
+  ///               .firstOrNull;
+
+  ///           if (column != null) {
+  ///             icon = const Icon(
+  ///               Icons.filter_alt_outlined,
+  ///               size: 20,
+  ///               color: Colors.purple,
+  ///             );
+  ///           }
+  ///           return icon ??
+  ///               const Icon(
+  ///                 Icons.filter_alt_off_outlined,
+  ///                 size: 20,
+  ///                 color: Colors.deepOrange,
+  ///               );
+  ///         },
+  ///       )),
+  ///       child: SfDataGrid(
+  ///         source: _employeeDataSource,
+  ///         allowFiltering: true,
+  ///         allowSorting: true,
+  ///         columns: getColumns(),
+  ///       ),
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  late Widget? filterIcon;
+
+  /// The color of the filter icon which indicates whether the column is filtered or not.
+  ///
+  /// This is not applicable when `filterIcon` property is set.
+  /// This applies the color to default filter icon only.
+  late Color? filterIconColor;
+
+  /// The color for the filter icon when a pointer is hovering over it.
+  ///
+  /// This is not applicable when `filterIcon` property is set.
+  /// This applies the color to default filter icon only.
+  late Color? filterIconHoverColor;
+
+  /// The color of the number displayed when the order of the sorting is shown.
+  late Color? sortOrderNumberColor;
+
+  /// Creates a copy of this theme but with the given fields replaced with the new values.
+  late Color? sortOrderNumberBackgroundColor;
+
+  /// The [TextStyle] of the options in filter popup menu except the items which are already selected.
+  late TextStyle? filterPopupTextStyle;
+
+  /// The [TextStyle] of the disabled options in filter popup menu.
+  late TextStyle? filterPopupDisabledTextStyle;
 }

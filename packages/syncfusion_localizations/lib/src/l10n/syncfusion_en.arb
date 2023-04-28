@@ -520,12 +520,6 @@
       "type" : "text"
   },
   
-  "clearFilterFromDataGridFilteringLabel": "Clear Filter From",
-  "@clearFilterFromDataGridFilteringLabel": {
-      "description" : "The label that is displayed in the filter view in SfDataGrid for `Clear Filter From` option in drop down widget.",
-      "type" : "text"
-  },
-  
   "textFiltersDataGridFilteringLabel": "Text Filters",
   "@textFiltersDataGridFilteringLabel": {
       "description" : "The label that is displayed in the filter view in SfDataGrid for `Text Filters` option in drop down widget.",
@@ -596,5 +590,17 @@
   "@sortAndFilterDataGridFilteringLabel": {
       "description" : "The label that is displayed in the filter view in SfDataGrid for `Sort And Filter` option in drop down widget.",
       "type" : "text"
+  },
+
+  "clearFilterDataGridFilteringLabel": "Clear Filter",
+  "@clearFilterDataGridFilteringLabel": {
+     "description" : "The label that is displayed in the filter view in SfDataGrid for `Clear Filter` text in `Clear Filter From` option in the popup menu.",
+     "type" : "text"
+  },
+
+  "fromDataGridFilteringLabel": "From",
+  "@fromDataGridFilteringLabel": {
+     "description" : "The label that is displayed in the filter view in SfDataGrid for `From` text in `Clear Filter From` option in the popup menu.",
+     "type" : "text"
   }
 }

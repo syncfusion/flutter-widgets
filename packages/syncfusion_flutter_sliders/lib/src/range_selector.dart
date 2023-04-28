@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
@@ -1541,17 +1542,17 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       labelOffset: rangeSelectorThemeData.labelOffset ??
           (widget.showTicks ? const Offset(0.0, 5.0) : const Offset(0.0, 13.0)),
       inactiveLabelStyle: rangeSelectorThemeData.inactiveLabelStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
+          themeData.textTheme.bodyLarge!.copyWith(
               color: widget.enabled
-                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
+                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       activeLabelStyle: rangeSelectorThemeData.activeLabelStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
+          themeData.textTheme.bodyLarge!.copyWith(
               color: widget.enabled
-                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
+                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       tooltipTextStyle: rangeSelectorThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyText1!
+          themeData.textTheme.bodyLarge!
               .copyWith(color: themeData.colorScheme.surface),
       inactiveTrackColor: widget.inactiveColor ??
           rangeSelectorThemeData.inactiveTrackColor ??
@@ -1899,6 +1900,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       textDirection: Directionality.of(context),
       mediaQueryData: MediaQuery.of(context),
       state: state,
+      gestureSettings: MediaQuery.of(context).gestureSettings,
     );
   }
 
@@ -2083,6 +2085,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     required TextDirection textDirection,
     required MediaQueryData mediaQueryData,
     required _SfRangeSelectorState state,
+    required DeviceGestureSettings gestureSettings,
   })  : _state = state,
         _isEnabled = enabled,
         _deferUpdateDelay = deferUpdateDelay,
@@ -2124,7 +2127,8 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
             sliderType: SliderType.horizontal,
             tooltipPosition: null,
             textDirection: textDirection,
-            mediaQueryData: mediaQueryData) {
+            mediaQueryData: mediaQueryData,
+            gestureSettings: gestureSettings) {
     _inactiveRegionColor = rangeSelectorThemeData.inactiveRegionColor!;
     _activeRegionColor = rangeSelectorThemeData.activeRegionColor!;
   }

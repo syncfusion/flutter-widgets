@@ -597,7 +597,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
               widget.zoomPanBehavior!.enableMouseWheelZooming));
       if (_isDesktop && widget.zoomPanBehavior!.showToolbar) {
         children.add(MapToolbar(
-          onWillZoom: widget.onWillZoom,
           zoomPanBehavior: widget.zoomPanBehavior!,
           controller: _controller,
         ));
@@ -644,7 +643,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         _controller!
           ..visibleFocalLatLng = _currentFocalLatLng
           ..tileZoomLevel = _currentZoomLevel;
-        if (_zoomController!.actionType == ActionType.fling) {
+        if (_zoomController!.actionType == ActionType.pinchFling ||
+            _zoomController!.actionType == ActionType.panFling) {
           _invalidateSublayer();
         }
       }
@@ -754,7 +754,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         themeData.platform == TargetPlatform.linux;
     _mapsThemeData = SfMapsTheme.of(context)!;
     _mapsThemeData = _mapsThemeData.copyWith(
-      tooltipColor: widget.tooltipSettings.color ?? _mapsThemeData.tooltipColor,
+      tooltipColor: widget.tooltipSettings.color ??
+          _mapsThemeData.tooltipColor ??
+          (_mapsThemeData.brightness == Brightness.light
+              ? const Color.fromRGBO(117, 117, 117, 1)
+              : const Color.fromRGBO(245, 245, 245, 1)),
       tooltipStrokeColor: widget.tooltipSettings.strokeColor ??
           _mapsThemeData.tooltipStrokeColor,
       tooltipStrokeWidth: widget.tooltipSettings.strokeWidth ??

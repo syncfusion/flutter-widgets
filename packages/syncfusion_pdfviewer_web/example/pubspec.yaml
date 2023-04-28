@@ -6,12 +6,12 @@ description: Demonstrates how to use the syncfusion_pdfviewer_web with the help 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.17.0 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  syncfusion_flutter_pdfviewer: ^20.3.47
+  syncfusion_flutter_pdfviewer: ^21.1.35
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

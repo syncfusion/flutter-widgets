@@ -241,79 +241,83 @@ abstract class SfLocalizations {
   String get greaterThanOrEqualDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Sort Smallest to Largest` option in drop down widget.
+  /// `Sort Smallest to Largest` option in the popup menu.
   String get sortSmallestToLargestDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// ` Sort Largest to Smallest ` option in drop down widget.
+  /// ` Sort Largest to Smallest ` option in the popup menu.
   String get sortLargestToSmallestDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Sort A to Z` option in drop down widget.
+  /// `Sort A to Z` option in the popup menu.
   String get sortAToZDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Sort Z to A` option in drop down widget.
+  /// `Sort Z to A` option in the popup menu.
   String get sortZToADataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Sort Oldest to Newest` option in drop down widget.
+  /// `Sort Oldest to Newest` option in the popup menu..
   String get sortOldestToNewestDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Sort Newest to Oldest` option in drop down widget.
+  /// `Sort Newest to Oldest` option in the popup menu.
   String get sortNewestToOldestDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Clear Filter From` option in drop down widget.
-  String get clearFilterFromDataGridFilteringLabel;
+  /// `Clear Filter` text in `Clear Filter From` option in the popup menu.
+  String get clearFilterDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Text Filters` option in drop down widget.
+  /// `From` text in `Clear Filter From` option in the popup menu.
+  String get fromDataGridFilteringLabel;
+
+  /// The label that is displayed in the filter view in SfDataGrid for
+  /// `Text Filters` option in the popup menu.
   String get textFiltersDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Number Filters` option in drop down widget.
+  /// `Number Filters` option in the popup menu.
   String get numberFiltersDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Date Filters` option in drop down widget.
+  /// `Date Filters` option in the popup menu.
   String get dateFiltersDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Search` option in drop down widget.
+  /// `Search` option in the popup menu.
   String get searchDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `No matches` option in drop down widget.
+  /// `No matches` option in the popup menu.
   String get noMatchesDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `OK ` option in drop down widget.
+  /// `OK ` option in the popup menu.
   String get okDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Cancel` option in drop down widget.
+  /// `Cancel` option in the popup menu.
   String get cancelDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Show rows where` option in drop down widget.
+  /// `Show rows where` option in the popup menu.
   String get showRowsWhereDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `And` option in drop down widget.
+  /// `And` option in the popup menu.
   String get andDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Or` option in drop down widget.
+  /// `Or` option in the popup menu.
   String get orDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Select All` option in drop down widget.
+  /// `Select All` option in the popup menu.
   String get selectAllDataGridFilteringLabel;
 
   /// The label that is displayed in the filter view in SfDataGrid for
-  /// `Sort and Filter` option in drop down widget.
+  /// `Sort and Filter` option in the popup menu.
   String get sortAndFilterDataGridFilteringLabel;
 
   /// Label that is displayed in the bookmark view header of PdfViewer.
@@ -659,7 +663,10 @@ class _DefaultLocalizations implements SfLocalizations {
       'Sort Newest to Oldest';
 
   @override
-  String get clearFilterFromDataGridFilteringLabel => 'Clear Filter From';
+  String get clearFilterDataGridFilteringLabel => 'Clear Filter';
+
+  @override
+  String get fromDataGridFilteringLabel => 'From';
 
   @override
   String get textFiltersDataGridFilteringLabel => 'Text Filters';

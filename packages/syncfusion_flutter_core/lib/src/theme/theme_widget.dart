@@ -482,7 +482,23 @@ class SfThemeData with Diagnosticable {
   /// ```
   final SfMapsThemeData mapsThemeData;
 
-  ///ToDO
+  /// Defines the default configuration of dataPager widgets.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///    appBar: AppBar(),
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            dataPagerThemeData: SfDataPagerThemeData()
+  ///          ),
+  ///          child: SfDataPager(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
   final SfDataPagerThemeData dataPagerThemeData;
 
   /// Creates a copy of this theme but with the given

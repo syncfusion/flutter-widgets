@@ -588,8 +588,10 @@ class SfDataPagerState extends State<SfDataPager> {
     }
     _suspendDataPagerUpdate = true;
 
+    // When the index is greater than the page count,
+    // it is necessary to set the index to the page count index.
     if (index > widget.pageCount - 1) {
-      index -= 1;
+      index = (widget.pageCount - 1).toInt();
     }
     final bool canChange = await _canChangePage(index);
 
@@ -978,11 +980,21 @@ class SfDataPagerState extends State<SfDataPager> {
         _scrollController!.offset <= _scrollController!.position.minScrollExtent
             ? 0
             : _scrollController!.offset ~/ buttonSize;
-    final int endIndex =
-        _scrollController!.offset >= _scrollController!.position.maxScrollExtent
-            ? _lastPageIndex
-            : (_scrollController!.offset + _scrollViewPortSize) ~/ buttonSize;
 
+    // Issue:
+    //
+    // FLUT-6923-SfDataPager is not working properly when updating the pageCount dynamically
+    //
+    // Fix:
+    // We have gotten the page item `endIndex` based on the maxScrollExtent and offset.
+    // If the pager has below 5-page count then it's not scrollable at initial loading.
+    // Updating the page index dynamically, the offset and maxScrollExtent have zero as a value.
+    // So, it satisfied the first condition, takes the end index as the `_lastPageIndex` and generates all the pages.
+    // Now we removed that unwanted condition to get the last page index. Since we get the last page index
+    // from the current scroll offset + scrollViewPortSize ~/ buttonSize itself.
+    // It returns the last visible page index.
+    final int endIndex =
+        (_scrollController!.offset + _scrollViewPortSize) ~/ buttonSize;
     _itemGenerator.ensureItems(startIndex, endIndex);
   }
 

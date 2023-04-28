@@ -875,15 +875,40 @@ void triggerDataLabelEvent(SfCartesianChart chart,
         SeriesHelper.getSeriesRendererDetails(seriesRenderer);
     final List<CartesianChartPoint<dynamic>>? dataPoints =
         seriesRendererDetails.visibleDataPoints;
+    late CartesianChartPoint<dynamic> currentPoint;
+    ChartLocation? dataLabelLocation;
+    final String seriesType = seriesRendererDetails.seriesType;
     for (int pointIndex = 0; pointIndex < dataPoints!.length; pointIndex++) {
+      currentPoint = dataPoints[pointIndex];
+      dataLabelLocation = (currentPoint.dataLabelRegion != null &&
+              currentPoint.dataLabelRegion!.contains(position))
+          ? currentPoint.labelLocation
+          : (currentPoint.dataLabelRegion2 != null &&
+                  currentPoint.dataLabelRegion2!.contains(position))
+              ? currentPoint.labelLocation2
+              : (seriesType == 'hiloopenclose' ||
+                          seriesType == 'candle' ||
+                          seriesType == 'boxandwhisker') &&
+                      (currentPoint.dataLabelRegion3 != null &&
+                          currentPoint.dataLabelRegion3!.contains(position))
+                  ? currentPoint.labelLocation3
+                  : (seriesType == 'hiloopenclose' ||
+                              seriesType == 'candle' ||
+                              seriesType == 'boxandwhisker') &&
+                          (currentPoint.dataLabelRegion4 != null &&
+                              currentPoint.dataLabelRegion4!.contains(position))
+                      ? currentPoint.labelLocation4
+                      : (seriesRendererDetails.seriesType == 'boxandwhisker' &&
+                              currentPoint.dataLabelRegion5 != null &&
+                              currentPoint.dataLabelRegion5!.contains(position))
+                          ? currentPoint.labelLocation5
+                          : null;
       if (seriesRendererDetails.series.dataLabelSettings.isVisible == true &&
-          dataPoints[pointIndex].dataLabelRegion != null &&
-          dataPoints[pointIndex].dataLabelRegion!.contains(position)) {
-        final CartesianChartPoint<dynamic> point = dataPoints[pointIndex];
+          dataLabelLocation != null) {
         final Offset position =
-            Offset(point.labelLocation!.x, point.labelLocation!.y);
+            Offset(dataLabelLocation.x, dataLabelLocation.y);
         dataLabelTapEvent(chart, seriesRendererDetails.series.dataLabelSettings,
-            pointIndex, point, position, seriesIndex);
+            pointIndex, currentPoint, position, seriesIndex);
         break;
       }
     }
@@ -1076,7 +1101,7 @@ void _drawDataLabelRectAndText(
 
   if (isRangeSeries || isBoxSeries) {
     if (withInRange(isBoxSeries ? point.minimum : point.low,
-        seriesRendererDetails.yAxisDetails!.visibleRange!)) {
+        seriesRendererDetails.yAxisDetails!)) {
       seriesRendererDetails.renderer.drawDataLabel(
           index,
           canvas,
@@ -1565,35 +1590,33 @@ bool isLabelWithinRange(SeriesRendererDetails seriesRendererDetails,
       seriesRendererDetails.seriesType.contains('boxandwhisker');
   if (seriesRendererDetails.yAxisDetails is! LogarithmicAxisDetails) {
     isWithInRange = withInRange(
-            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!) &&
+            point.xValue, seriesRendererDetails.xAxisDetails!) &&
         (seriesRendererDetails.seriesType.contains('range') ||
                 seriesRendererDetails.seriesType == 'hilo'
             ? (isBoxSeries && point.minimum != null && point.maximum != null) ||
                 (!isBoxSeries && point.low != null && point.high != null) &&
-                    (withInRange(
-                            isBoxSeries ? point.minimum : point.low,
-                            seriesRendererDetails
-                                .yAxisDetails!.visibleRange!) ||
+                    (withInRange(isBoxSeries ? point.minimum : point.low,
+                            seriesRendererDetails.yAxisDetails!) ||
                         withInRange(isBoxSeries ? point.maximum : point.high,
-                            seriesRendererDetails.yAxisDetails!.visibleRange!))
+                            seriesRendererDetails.yAxisDetails!))
             : seriesRendererDetails.seriesType == 'hiloopenclose' ||
                     seriesRendererDetails.seriesType.contains('candle') ||
                     isBoxSeries
                 ? (withInRange(isBoxSeries ? point.minimum : point.low,
-                        seriesRendererDetails.yAxisDetails!.visibleRange!) &&
+                        seriesRendererDetails.yAxisDetails!) &&
                     withInRange(isBoxSeries ? point.maximum : point.high,
-                        seriesRendererDetails.yAxisDetails!.visibleRange!) &&
+                        seriesRendererDetails.yAxisDetails!) &&
                     withInRange(isBoxSeries ? point.lowerQuartile : point.open,
-                        seriesRendererDetails.yAxisDetails!.visibleRange!) &&
+                        seriesRendererDetails.yAxisDetails!) &&
                     withInRange(isBoxSeries ? point.upperQuartile : point.close,
-                        seriesRendererDetails.yAxisDetails!.visibleRange!))
+                        seriesRendererDetails.yAxisDetails!))
                 : withInRange(
                     seriesRendererDetails.seriesType.contains('100')
                         ? point.cumulativeValue
                         : seriesRendererDetails.seriesType == 'waterfall'
                             ? point.endValue ?? 0
                             : point.yValue,
-                    seriesRendererDetails.yAxisDetails!.visibleRange!));
+                    seriesRendererDetails.yAxisDetails!));
   }
   return isWithInRange;
 }
@@ -1795,24 +1818,22 @@ void calculateDataLabelPosition(
       point.isVisible &&
       point.isGap != true &&
       (point.y != 0 || dataLabel.showZeroValue)) {
-    final double markerPointX = dataLabel.builder == null
-        ? seriesRendererDetails.seriesType.contains('hilo') == true ||
+    final double markerPointX =
+        (seriesRendererDetails.seriesType.contains('hilo') == true ||
                 seriesRendererDetails.seriesType == 'candle' ||
-                isBoxSeries
+                isBoxSeries)
             ? seriesRendererDetails.stateProperties.requireInvertedAxis == true
                 ? point.region!.centerRight.dx
                 : point.region!.topCenter.dx
-            : point.markerPoint!.x
-        : templateLocation!.dx;
-    final double markerPointY = dataLabel.builder == null
-        ? seriesRendererDetails.seriesType.contains('hilo') == true ||
+            : point.markerPoint!.x;
+    final double markerPointY =
+        seriesRendererDetails.seriesType.contains('hilo') == true ||
                 seriesRendererDetails.seriesType == 'candle' ||
                 isBoxSeries
             ? seriesRendererDetails.stateProperties.requireInvertedAxis == true
                 ? point.region!.centerRight.dy
                 : point.region!.topCenter.dy
-            : point.markerPoint!.y
-        : templateLocation!.dy;
+            : point.markerPoint!.y;
     final ChartLocation markerPoint2 = calculatePoint(
         point.xValue,
         seriesRendererDetails.yAxisDetails!.axis.isInversed == true
@@ -1857,28 +1878,22 @@ void calculateDataLabelPosition(
             ? measureText(point.label2!, font)
             : templateSize!;
         chartLocation2 = ChartLocation(
-            dataLabel.builder == null
-                ? seriesRendererDetails.seriesType.contains('hilo') == true ||
-                        seriesRendererDetails.seriesType == 'candle' ||
-                        isBoxSeries
-                    ? seriesRendererDetails
-                                .stateProperties.requireInvertedAxis ==
-                            true
-                        ? point.region!.centerLeft.dx
-                        : point.region!.bottomCenter.dx
-                    : point.markerPoint2!.x
-                : templateLocation!.dx,
-            dataLabel.builder == null
-                ? seriesRendererDetails.seriesType.contains('hilo') == true ||
-                        seriesRendererDetails.seriesType == 'candle' ||
-                        isBoxSeries
-                    ? seriesRendererDetails
-                                .stateProperties.requireInvertedAxis ==
-                            true
-                        ? point.region!.centerLeft.dy
-                        : point.region!.bottomCenter.dy
-                    : point.markerPoint2!.y
-                : templateLocation!.dy);
+            seriesRendererDetails.seriesType.contains('hilo') == true ||
+                    seriesRendererDetails.seriesType == 'candle' ||
+                    isBoxSeries
+                ? seriesRendererDetails.stateProperties.requireInvertedAxis ==
+                        true
+                    ? point.region!.centerLeft.dx
+                    : point.region!.bottomCenter.dx
+                : point.markerPoint2!.x,
+            seriesRendererDetails.seriesType.contains('hilo') == true ||
+                    seriesRendererDetails.seriesType == 'candle' ||
+                    isBoxSeries
+                ? seriesRendererDetails.stateProperties.requireInvertedAxis ==
+                        true
+                    ? point.region!.centerLeft.dy
+                    : point.region!.bottomCenter.dy
+                : point.markerPoint2!.y);
         if (isBoxSeries) {
           if (seriesRendererDetails.stateProperties.requireInvertedAxis ==
               false) {

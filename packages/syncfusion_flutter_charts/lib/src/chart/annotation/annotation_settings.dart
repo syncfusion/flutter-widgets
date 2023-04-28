@@ -247,7 +247,7 @@ class CartesianChartAnnotation {
   ///                    child: const Text('Annotation')),
   ///                    x: 3,
   ///                    y: 60,
-  ///                    verticalAllignment: ChartAlignment.near
+  ///                    verticalAlignment: ChartAlignment.near
   ///                 )
   ///             ],
   ///         )

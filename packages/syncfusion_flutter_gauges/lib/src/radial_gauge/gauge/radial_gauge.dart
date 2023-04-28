@@ -217,11 +217,6 @@ class SfRadialGaugeState extends State<SfRadialGauge>
                 ]))));
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   /// Method to convert the [SfRadialGauge] as an image.
   ///
   /// Returns the `dart:ui.image`

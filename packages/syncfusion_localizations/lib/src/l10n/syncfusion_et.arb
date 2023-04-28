@@ -44,9 +44,9 @@
 "dhualhiLabel" : "Dhu al-Hijjah", 
 "shortMuharramLabel" : "Muh.", 
 "shortSafarLabel" : "Saf.", 
-"shortRabi1Label" : "Rabi. ma", 
+"shortRabi1Label" : "Rabi. I", 
 "shortRabi2Label" : "Rabi. II", 
-"shortJumada1Label" : "Jum. ma", 
+"shortJumada1Label" : "Jum. I", 
 "shortJumada2Label" : "Jum. II", 
 "shortRajabLabel" : "Raj.", 
 "shortShaabanLabel" : "Sha.", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Sorteeri Z kuni A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Sorteeri vanimast uusimaks", 
 "sortNewestToOldestDataGridFilteringLabel" : "Sorteeri uusimatest vanimateks", 
-"clearFilterFromDataGridFilteringLabel" : "Kustuta filter", 
 "textFiltersDataGridFilteringLabel" : "Tekstifiltrid", 
 "numberFiltersDataGridFilteringLabel" : "Numbrifiltrid", 
 "dateFiltersDataGridFilteringLabel" : "Kuupäeva filtrid", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Ja", 
 "orDataGridFilteringLabel" : "Või", 
 "selectAllDataGridFilteringLabel" : "Vali kõik", 
-"sortAndFilterDataGridFilteringLabel" : "Sorteeri ja filtreeri"
+"sortAndFilterDataGridFilteringLabel" : "Sorteeri ja filtreeri", 
+"clearFilterDataGridFilteringLabel" : "Tühjenda filter", 
+"fromDataGridFilteringLabel" : "Alates"
 }

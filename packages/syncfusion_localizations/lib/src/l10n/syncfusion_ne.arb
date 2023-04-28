@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Z मा A क्रमबद्ध गर्नुहोस्", 
 "sortOldestToNewestDataGridFilteringLabel" : "सबैभन्दा पुरानो देखि नयाँ क्रमबद्ध गर्नुहोस्", 
 "sortNewestToOldestDataGridFilteringLabel" : "सबैभन्दा नयाँ देखि पुरानो क्रमबद्ध गर्नुहोस्", 
-"clearFilterFromDataGridFilteringLabel" : "बाट फिल्टर खाली गर्नुहोस्", 
 "textFiltersDataGridFilteringLabel" : "पाठ फिल्टरहरू", 
 "numberFiltersDataGridFilteringLabel" : "नम्बर फिल्टरहरू", 
 "dateFiltersDataGridFilteringLabel" : "मिति फिल्टरहरू", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "र", 
 "orDataGridFilteringLabel" : "वा", 
 "selectAllDataGridFilteringLabel" : "सबै छान्नु", 
-"sortAndFilterDataGridFilteringLabel" : "क्रमबद्ध र फिल्टर"
+"sortAndFilterDataGridFilteringLabel" : "क्रमबद्ध र फिल्टर", 
+"clearFilterDataGridFilteringLabel" : "फिल्टर खाली गर्नुहोस्", 
+"fromDataGridFilteringLabel" : "बाट"
 }

@@ -1,4 +1,37 @@
-## Unreleased
+## [20.4.55] - 03/21/2023
+
+**Bugs**
+
+* Now, the `SfPdfViewer` does not cause text fields to lose focus when scrolling is active on an Android tablet or the iPad.
+* Now, the keyboard shortcut navigation on the web platform works properly.
+
+**Features**
+
+* Support to set and adjust the maximum zoom level has been provided.
+
+## [20.4.51] - 02/21/2022
+
+* The password dialog is now displayed properly in the `SfPdfViewer` when localized.
+
+## [20.4.43] - 01/10/2022
+
+* Support for scrolling via remote button clicks on Android TV has been provided.
+
+## [20.3.58] - 11/22/2022
+
+**Bugs**
+
+* Now, the PDF page will not be zoomed while performing a mouse scroll in the mobile view of the web platform.
+
+**Features**
+
+* Support for the text web link navigation has been provided.
+
+## [20.3.52] - 10/26/2022
+
+* When copying PDF content from the `SfPdfViewer` widget, spacing between the words is now added properly.
+
+## [20.3.47] - 09/29/2022
 
 **Features**
 

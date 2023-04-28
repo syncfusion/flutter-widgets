@@ -1,5 +1,5 @@
 {
-"noSelectedDateCalendarLabel" : "Καμία επιλεγμένη ημερομηνία", 
+"noSelectedDateCalendarLabel" : "Δεν υπάρχει επιλεγμένη ημερομηνία", 
 "noEventsCalendarLabel" : "Δεν υπάρχουν εκδηλώσεις", 
 "ofDataPagerLabel" : "του", 
 "pagesDataPagerLabel" : "σελίδες", 
@@ -24,7 +24,7 @@
 "allowedViewMonthLabel" : "Μήνας", 
 "allowedViewScheduleLabel" : "Πρόγραμμα", 
 "allowedViewTimelineDayLabel" : "Ημέρα χρονολογίου", 
-"allowedViewTimelineWeekLabel" : "Εβδομάδα Χρονολογίου", 
+"allowedViewTimelineWeekLabel" : "Χρονολόγιο Εβδομάδα", 
 "allowedViewTimelineWorkWeekLabel" : "Χρονολόγιο Εβδομάδα εργασίας", 
 "allowedViewTimelineMonthLabel" : "Χρονολόγιο Μήνας", 
 "todayLabel" : "Σήμερα", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Ταξινόμηση Z σε A", 
 "sortOldestToNewestDataGridFilteringLabel" : "Ταξινόμηση από το παλαιότερο στο νεότερο", 
 "sortNewestToOldestDataGridFilteringLabel" : "Ταξινόμηση νεότερο προς παλαιότερο", 
-"clearFilterFromDataGridFilteringLabel" : "Διαγραφή φίλτρου από", 
 "textFiltersDataGridFilteringLabel" : "Φίλτρα κειμένου", 
 "numberFiltersDataGridFilteringLabel" : "Φίλτρα αριθμών", 
 "dateFiltersDataGridFilteringLabel" : "Φίλτρα ημερομηνίας", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Και", 
 "orDataGridFilteringLabel" : "Ή", 
 "selectAllDataGridFilteringLabel" : "Επιλογή όλων", 
-"sortAndFilterDataGridFilteringLabel" : "Ταξινόμηση και φιλτράρισμα"
+"sortAndFilterDataGridFilteringLabel" : "Ταξινόμηση και φιλτράρισμα", 
+"clearFilterDataGridFilteringLabel" : "Διαγραφή φίλτρου", 
+"fromDataGridFilteringLabel" : "Από"
 }

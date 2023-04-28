@@ -29,6 +29,7 @@ class PdfPageView extends StatefulWidget {
     this.pdfPages,
     this.pageIndex,
     this.pdfViewerController,
+    this.maxZoomLevel,
     this.enableDocumentLinkAnnotation,
     this.enableTextSelection,
     this.onTextSelectionChanged,
@@ -51,6 +52,7 @@ class PdfPageView extends StatefulWidget {
     this.textDirection,
     this.canShowHyperlinkDialog,
     this.enableHyperlinkNavigation,
+    this.isAndroidTV,
   ) : super(key: key);
 
   /// Image stream
@@ -94,6 +96,9 @@ class PdfPageView extends StatefulWidget {
 
   /// Instance of [PdfViewerController]
   final PdfViewerController pdfViewerController;
+
+  /// Represents the maximum zoom level .
+  final double maxZoomLevel;
 
   /// If false,text selection is disabled.Default value is true.
   final bool enableTextSelection;
@@ -151,6 +156,9 @@ class PdfPageView extends StatefulWidget {
 
   ///A direction of text flow.
   final TextDirection textDirection;
+
+  /// Returns true when the SfPdfViewer is deployed in Android TV.
+  final bool isAndroidTV;
 
   @override
   State<StatefulWidget> createState() {
@@ -385,37 +393,23 @@ class PdfPageViewState extends State<PdfPageView> {
                     }
                     if (isPrimaryKeyPressed &&
                         event.logicalKey == LogicalKeyboardKey.minus) {
-                      if (event.runtimeType.toString() == 'RawKeyDownEvent') {
+                      if (event is RawKeyDownEvent) {
                         double zoomLevel = widget.pdfViewerController.zoomLevel;
-                        if (zoomLevel >= 1.0 && zoomLevel <= 1.25) {
-                          zoomLevel = 1.0;
-                        } else if (zoomLevel > 1.25 && zoomLevel <= 1.50) {
-                          zoomLevel = 1.25;
-                        } else if (zoomLevel > 1.50 && zoomLevel <= 2.0) {
-                          zoomLevel = 1.50;
-                        } else {
-                          zoomLevel = 2.0;
+                        if (zoomLevel > 1) {
+                          zoomLevel = zoomLevel - 0.5;
                         }
                         widget.pdfViewerController.zoomLevel = zoomLevel;
                       }
                     }
                     if (isPrimaryKeyPressed &&
                         event.logicalKey == LogicalKeyboardKey.equal) {
-                      if (event.runtimeType.toString() == 'RawKeyDownEvent') {
+                      if (event is RawKeyDownEvent) {
                         double zoomLevel = widget.pdfViewerController.zoomLevel;
-                        if (zoomLevel >= 1.0 && zoomLevel < 1.25) {
-                          zoomLevel = 1.25;
-                        } else if (zoomLevel >= 1.25 && zoomLevel < 1.50) {
-                          zoomLevel = 1.50;
-                        } else if (zoomLevel >= 1.50 && zoomLevel < 2.0) {
-                          zoomLevel = 2.0;
-                        } else {
-                          zoomLevel = 3.0;
-                        }
+                        zoomLevel = zoomLevel + 0.5;
                         widget.pdfViewerController.zoomLevel = zoomLevel;
                       }
                     }
-                    if (event.runtimeType.toString() == 'RawKeyDownEvent') {
+                    if (event is RawKeyDownEvent) {
                       if (event.logicalKey == LogicalKeyboardKey.home ||
                           (kIsMacOS &&
                               event.logicalKey == LogicalKeyboardKey.fn &&
@@ -488,10 +482,40 @@ class PdfPageViewState extends State<PdfPageView> {
           : RotatedBox(
               quarterTurns: quarterTurns,
               child: Listener(
-                  onPointerDown: (PointerDownEvent details) {
-                    widget.onPdfPagePointerDown(details);
-                  },
-                  child: canvasContainer));
+                onPointerDown: (PointerDownEvent details) {
+                  widget.onPdfPagePointerDown(details);
+                },
+                onPointerMove: (PointerMoveEvent details) {
+                  widget.onPdfPagePointerMove(details);
+                },
+                onPointerUp: (PointerUpEvent details) {
+                  widget.onPdfPagePointerUp(details);
+                },
+                child: widget.isAndroidTV
+                    ? RawKeyboardListener(
+                        focusNode: focusNode,
+                        onKey: (RawKeyEvent event) {
+                          if (event.runtimeType.toString() ==
+                              'RawKeyDownEvent') {
+                            if (event.logicalKey ==
+                                LogicalKeyboardKey.arrowRight) {
+                              widget.pdfViewerController.nextPage();
+                            } else if (event.logicalKey ==
+                                LogicalKeyboardKey.arrowLeft) {
+                              widget.pdfViewerController.previousPage();
+                            }
+                          }
+                          if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                            canvasRenderBox!.scroll(true, false);
+                          }
+                          if (event.logicalKey ==
+                              LogicalKeyboardKey.arrowDown) {
+                            canvasRenderBox!.scroll(false, false);
+                          }
+                        },
+                        child: canvasContainer)
+                    : canvasContainer,
+              ));
       return Stack(children: <Widget>[
         pdfPage,
         canvas,

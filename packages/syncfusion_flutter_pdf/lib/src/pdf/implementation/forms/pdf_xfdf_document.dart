@@ -35,6 +35,7 @@ class XFdfDocument {
       builder.element(PdfDictionaryProperties.fields.toLowerCase(),
           nest: _writeFormData());
       builder.element('f', nest: () {
+        // ignore: unnecessary_null_checks
         builder.attribute('href', _pdfFilePath!);
       });
     });

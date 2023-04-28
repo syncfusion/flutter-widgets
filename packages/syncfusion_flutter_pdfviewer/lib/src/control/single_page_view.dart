@@ -30,6 +30,7 @@ class SinglePageView extends StatefulWidget {
       this.onPageChanged,
       this.interactionUpdate,
       this.viewportDimension,
+      this.maxZoomLevel,
       this.canShowPaginationDialog,
       this.canShowScrollHead,
       this.canShowScrollStatus,
@@ -43,6 +44,7 @@ class SinglePageView extends StatefulWidget {
       this.onPdfOffsetChanged,
       this.isBookmarkViewOpen,
       this.textDirection,
+      this.isTablet,
       this.children)
       : super(key: key);
 
@@ -69,6 +71,9 @@ class SinglePageView extends StatefulWidget {
 
   /// Viewport dimension of PdfViewer.
   final Size viewportDimension;
+
+  /// Represents the maximum zoom level
+  final double maxZoomLevel;
 
   /// Indicates whether page navigation dialog must be shown or not.
   final bool canShowPaginationDialog;
@@ -103,6 +108,9 @@ class SinglePageView extends StatefulWidget {
 
   ///A direction of text flow.
   final TextDirection textDirection;
+
+  /// Indicates whether the current environment is running in Tablet
+  final bool isTablet;
 
   @override
   SinglePageViewState createState() => SinglePageViewState();
@@ -190,16 +198,16 @@ class SinglePageViewState extends State<SinglePageView> {
             zoomLevel
         : 0;
     final double childWidth = viewportDimension.width > imageWidth
-        ? viewportDimension.width / widthFactor.clamp(1, 3)
-        : imageWidth / widthFactor.clamp(1, 3);
+        ? viewportDimension.width / widthFactor.clamp(1, widget.maxZoomLevel)
+        : imageWidth / widthFactor.clamp(1, widget.maxZoomLevel);
     final double imageHeight = widget.pdfPages.isNotEmpty
         ? widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize
                 .height *
             zoomLevel
         : 0;
     double childHeight = viewportDimension.height > imageHeight
-        ? viewportDimension.height / heightFactor.clamp(1, 3)
-        : imageHeight / heightFactor.clamp(1, 3);
+        ? viewportDimension.height / heightFactor.clamp(1, widget.maxZoomLevel)
+        : imageHeight / heightFactor.clamp(1, widget.maxZoomLevel);
     if (childHeight > viewportDimension.height) {
       childHeight = widget.viewportDimension.height;
     }
@@ -313,214 +321,224 @@ class SinglePageViewState extends State<SinglePageView> {
         ? true
         : false;
     final List<Widget> pages = <Widget>[];
-    for (int pageIndex = 0; pageIndex < widget.children.length; pageIndex++) {
-      final Widget page = widget.children[pageIndex];
-      final bool isLandscape =
-          MediaQuery.of(context).orientation == Orientation.landscape;
-      double imageSize = widget.pdfPages[pageIndex + 1]!.pageSize.height *
-          widget.pdfViewerController.zoomLevel;
-      _topMargin = (widget.pdfPages[pageIndex + 1]!.pageSize.height -
-              widget.viewportDimension.height) /
-          2;
-      greyAreaSize = widget.viewportDimension.height -
-          (widget.pdfPages[pageIndex + 1]!.pageSize.height);
-      bool isHeightFitted = false;
-      if (_topMargin == 0) {
-        isHeightFitted = true;
-        _leftMargin = (widget.pdfPages[pageIndex + 1]!.pageSize.width -
-                widget.viewportDimension.width) /
+    if (widget.pdfPages.isNotEmpty) {
+      for (int pageIndex = 0; pageIndex < widget.children.length; pageIndex++) {
+        final Widget page = widget.children[pageIndex];
+        final bool isLandscape =
+            MediaQuery.of(context).orientation == Orientation.landscape;
+        double imageSize = widget.pdfPages[pageIndex + 1]!.pageSize.height *
+            widget.pdfViewerController.zoomLevel;
+        _topMargin = (widget.pdfPages[pageIndex + 1]!.pageSize.height -
+                widget.viewportDimension.height) /
             2;
-        imageSize = widget.pdfPages[pageIndex + 1]!.pageSize.width *
-            double.parse(
-                    widget.pdfViewerController.zoomLevel.toStringAsFixed(1))
-                .round();
-      }
-      pages.add(InteractiveScrollViewer(
-        SizedBox(
-            height: isLandscape && !kIsDesktop
-                ? childSize.height
-                : widget.viewportDimension.height,
-            width:
-                isLandscape ? childSize.width : widget.viewportDimension.width,
-            child: Center(child: page)),
-        clipBehavior: Clip.none,
-        boundaryMargin: EdgeInsets.only(
-          top: isHeightFitted || isLandscape
-              ? 0
-              : (imageSize.round() <= widget.viewportDimension.height.round()
-                  ? (childSize.height - widget.viewportDimension.height) / 2
-                  : _topMargin),
-          bottom: isHeightFitted || isLandscape
-              ? 0
-              : (imageSize.round() <= widget.viewportDimension.height.round()
-                  ? (childSize.height - widget.viewportDimension.height) / 2
-                  : _topMargin),
-          right: isHeightFitted
-              ? (imageSize <= widget.viewportDimension.width ? 0 : _leftMargin)
-              : 0,
-          left: isHeightFitted
-              ? (imageSize <= widget.viewportDimension.width ? 0 : _leftMargin)
-              : 0,
-        ),
-        constrained: false,
-        onDoubleTapZoomInvoked: _onDoubleTapZoomInvoked,
-        // ignore: avoid_bool_literals_in_conditional_expressions
-        scaleEnabled: ((kIsDesktop && widget.isMobileWebView) ||
-                !kIsDesktop ||
-                (kIsDesktop && widget.scaleEnabled))
-            ? true
-            : false,
-        enableDoubleTapZooming: enableDoubleTapZoom,
-        transformationController: _transformationController,
-        onInteractionStart: (ScaleStartDetails details) {
-          _panStartOffset = details.localFocalPoint.dx;
-          if (!kIsDesktop ||
-              (kIsDesktop && widget.isMobileWebView) ||
-              (kIsDesktop && widget.scaleEnabled)) {
-            if (previousZoomLevel != _oldPreviousZoomLevel) {
-              _oldPreviousZoomLevel = previousZoomLevel;
+        greyAreaSize = widget.viewportDimension.height -
+            (widget.pdfPages[pageIndex + 1]!.pageSize.height);
+        bool isHeightFitted = false;
+        if (_topMargin == 0) {
+          isHeightFitted = true;
+          _leftMargin = (widget.pdfPages[pageIndex + 1]!.pageSize.width -
+                  widget.viewportDimension.width) /
+              2;
+          imageSize = widget.pdfPages[pageIndex + 1]!.pageSize.width *
+              double.parse(
+                      widget.pdfViewerController.zoomLevel.toStringAsFixed(1))
+                  .round();
+        }
+        pages.add(InteractiveScrollViewer(
+          SizedBox(
+              height: isLandscape && !kIsDesktop
+                  ? childSize.height
+                  : widget.viewportDimension.height,
+              width: isLandscape
+                  ? childSize.width
+                  : widget.viewportDimension.width,
+              child: Center(child: page)),
+          clipBehavior: Clip.none,
+          maxScale: widget.maxZoomLevel,
+          boundaryMargin: EdgeInsets.only(
+            top: isHeightFitted || isLandscape
+                ? 0
+                : (imageSize.round() <= widget.viewportDimension.height.round()
+                    ? (childSize.height - widget.viewportDimension.height) / 2
+                    : _topMargin),
+            bottom: isHeightFitted || isLandscape
+                ? 0
+                : (imageSize.round() <= widget.viewportDimension.height.round()
+                    ? (childSize.height - widget.viewportDimension.height) / 2
+                    : _topMargin),
+            right: isHeightFitted
+                ? (imageSize <= widget.viewportDimension.width
+                    ? 0
+                    : _leftMargin)
+                : 0,
+            left: isHeightFitted
+                ? (imageSize <= widget.viewportDimension.width
+                    ? 0
+                    : _leftMargin)
+                : 0,
+          ),
+          constrained: false,
+          onDoubleTapZoomInvoked: _onDoubleTapZoomInvoked,
+          // ignore: avoid_bool_literals_in_conditional_expressions
+          scaleEnabled: (!kIsDesktop || (kIsDesktop && widget.scaleEnabled))
+              ? true
+              : false,
+          enableDoubleTapZooming: enableDoubleTapZoom,
+          transformationController: _transformationController,
+          onInteractionStart: (ScaleStartDetails details) {
+            _panStartOffset = details.localFocalPoint.dx;
+            if (!kIsDesktop ||
+                (kIsDesktop && widget.isMobileWebView) ||
+                (kIsDesktop && widget.scaleEnabled)) {
+              if (previousZoomLevel != _oldPreviousZoomLevel) {
+                _oldPreviousZoomLevel = previousZoomLevel;
+              }
+              previousZoomLevel = widget.pdfViewerController.zoomLevel;
             }
-            previousZoomLevel = widget.pdfViewerController.zoomLevel;
-          }
-          _paddingWidthScale = 0;
-          _paddingHeightScale = 0;
-        },
-        onInteractionUpdate: (ScaleUpdateDetails details) {
-          if (widget.interactionMode == PdfInteractionMode.pan) {
-            _panUpdateOffset = details.localFocalPoint.dx;
-            if (_panStartOffset != _panUpdateOffset) {
-              if (_panStartOffset < details.localFocalPoint.dx) {
-                _canJumpPrevious = true;
-              } else {
-                _canJumpNext = true;
+            _paddingWidthScale = 0;
+            _paddingHeightScale = 0;
+          },
+          onInteractionUpdate: (ScaleUpdateDetails details) {
+            if (widget.interactionMode == PdfInteractionMode.pan) {
+              _panUpdateOffset = details.localFocalPoint.dx;
+              if (_panStartOffset != _panUpdateOffset) {
+                if (_panStartOffset < details.localFocalPoint.dx) {
+                  _canJumpPrevious = true;
+                } else {
+                  _canJumpNext = true;
+                }
               }
             }
-          }
-          _currentOffsetOfInteractionUpdate =
-              _transformationController.toScene(Offset.zero);
-          if (!kIsDesktop ||
-              (kIsDesktop && widget.isMobileWebView) ||
-              (kIsDesktop && widget.scaleEnabled)) {
-            widget.interactionUpdate(
-                _transformationController.value.getMaxScaleOnAxis());
-          }
-          final double currentScale =
-              _transformationController.value.getMaxScaleOnAxis();
-          if (details.scale <= 1) {
-            if (((kIsDesktop && !widget.isMobileWebView) ||
-                    (widget.viewportDimension.width >
-                        widget.viewportDimension.height)) &&
-                widget.viewportDimension.width.round() >=
-                    (widget.pdfPages[widget.pdfViewerController.pageNumber]!
-                                .pageSize.width *
-                            currentScale)
-                        .round()) {
-              setState(() {
-                _paddingWidthScale = details.scale * currentScale;
-              });
+            _currentOffsetOfInteractionUpdate =
+                _transformationController.toScene(Offset.zero);
+            if (!kIsDesktop ||
+                (kIsDesktop && widget.isMobileWebView) ||
+                (kIsDesktop && widget.scaleEnabled)) {
+              widget.interactionUpdate(
+                  _transformationController.value.getMaxScaleOnAxis());
             }
-            if (widget.viewportDimension.height.round() >=
-                (widget.pdfPages[widget.pdfViewerController.pageNumber]!
-                            .pageSize.height *
-                        _transformationController.value.getMaxScaleOnAxis())
-                    .round()) {
-              setState(() {
-                _paddingHeightScale = (details.scale) * currentScale;
-              });
+            final double currentScale =
+                _transformationController.value.getMaxScaleOnAxis();
+            if (details.scale <= 1) {
+              if (((kIsDesktop && !widget.isMobileWebView) ||
+                      (widget.viewportDimension.width >
+                          widget.viewportDimension.height)) &&
+                  widget.viewportDimension.width.round() >=
+                      (widget.pdfPages[widget.pdfViewerController.pageNumber]!
+                                  .pageSize.width *
+                              currentScale)
+                          .round()) {
+                setState(() {
+                  _paddingWidthScale = details.scale * currentScale;
+                });
+              }
+              if (widget.viewportDimension.height.round() >=
+                  (widget.pdfPages[widget.pdfViewerController.pageNumber]!
+                              .pageSize.height *
+                          _transformationController.value.getMaxScaleOnAxis())
+                      .round()) {
+                setState(() {
+                  _paddingHeightScale = (details.scale) * currentScale;
+                });
+              }
             }
-          }
-          if (details.scale == 1) {
-            if (_transformationController
-                            .toScene(Offset(widget.viewportDimension.width, 0))
-                            .dx
-                            .round() +
-                        _leftMargin.abs().round() >=
-                    widget.viewportDimension.width ||
-                _transformationController.toScene(Offset.zero).dx.round() <=
-                    _leftMargin.abs().round()) {
-              _canPanOnZoom = true;
+            if (details.scale == 1) {
+              if (_transformationController
+                              .toScene(
+                                  Offset(widget.viewportDimension.width, 0))
+                              .dx
+                              .round() +
+                          _leftMargin.abs().round() >=
+                      widget.viewportDimension.width ||
+                  _transformationController.toScene(Offset.zero).dx.round() <=
+                      _leftMargin.abs().round()) {
+                _canPanOnZoom = true;
+              } else {
+                _canScroll = true;
+              }
             } else {
               _canScroll = true;
             }
-          } else {
-            _canScroll = true;
-          }
-          widget.onPdfOffsetChanged!
-              .call(_transformationController.toScene(Offset.zero));
-        },
-        onInteractionEnd: (ScaleEndDetails details) {
-          if (widget.interactionMode == PdfInteractionMode.pan) {
-            final double pannedDistance =
-                (_panStartOffset - _panUpdateOffset).abs();
-            if (pannedDistance > 300) {
-              if (_canJumpPrevious &&
-                  widget.pdfViewerController.pageNumber != 1) {
-                widget.pageController.animateToPage(
-                    widget.pdfViewerController.pageNumber - 2,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.ease);
-              } else if (_canJumpNext &&
-                  widget.pdfViewerController.pageNumber !=
-                      widget.pdfViewerController.pageCount) {
-                widget.pageController.animateToPage(
-                    widget.pdfViewerController.pageNumber,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.ease);
+            widget.onPdfOffsetChanged!
+                .call(_transformationController.toScene(Offset.zero));
+          },
+          onInteractionEnd: (ScaleEndDetails details) {
+            if (widget.interactionMode == PdfInteractionMode.pan) {
+              final double pannedDistance =
+                  (_panStartOffset - _panUpdateOffset).abs();
+              if (pannedDistance > 300) {
+                if (_canJumpPrevious &&
+                    widget.pdfViewerController.pageNumber != 1) {
+                  widget.pageController.animateToPage(
+                      widget.pdfViewerController.pageNumber - 2,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.ease);
+                } else if (_canJumpNext &&
+                    widget.pdfViewerController.pageNumber !=
+                        widget.pdfViewerController.pageCount) {
+                  widget.pageController.animateToPage(
+                      widget.pdfViewerController.pageNumber,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.ease);
+                }
+                _canJumpPrevious = false;
+                _canJumpNext = false;
+              } else {
+                if (_canJumpPrevious) {
+                  widget.pageController.animateTo(
+                      widget.pageController.offset - 10,
+                      duration: const Duration(milliseconds: 100),
+                      curve: Curves.ease);
+                } else if (_canJumpNext) {
+                  widget.pageController.animateTo(
+                      widget.pageController.offset + 10,
+                      duration: const Duration(milliseconds: 100),
+                      curve: Curves.ease);
+                }
               }
-              _canJumpPrevious = false;
-              _canJumpNext = false;
+            }
+            if (!kIsDesktop ||
+                (kIsDesktop && widget.isMobileWebView) ||
+                (kIsDesktop && widget.scaleEnabled)) {
+              widget.onZoomLevelChanged(
+                  _transformationController.value.getMaxScaleOnAxis());
+            }
+            currentOffset = _transformationController.toScene(Offset.zero);
+            if (_canScroll) {
+              _canPanOnZoom = false;
+              _canScroll = false;
+            }
+            _paddingWidthScale = 0;
+            _paddingHeightScale = 0;
+            if (widget.viewportDimension.width >
+                    widget.pdfPages[widget.pdfViewerController.pageNumber]!
+                            .pageSize.width *
+                        _transformationController.value.getMaxScaleOnAxis() &&
+                (kIsDesktop ||
+                    (widget.isMobileWebView && isLandscape) ||
+                    (widget.isTablet && isLandscape))) {
+              setState(() {
+                if (!_isMousePointer) {
+                  _transformationController.value
+                      .translate(_currentOffsetOfInteractionUpdate.dx);
+                  _isOverFlowed = false;
+                }
+              });
             } else {
-              if (_canJumpPrevious) {
-                widget.pageController.animateTo(
-                    widget.pageController.offset - 10,
-                    duration: const Duration(milliseconds: 100),
-                    curve: Curves.ease);
-              } else if (_canJumpNext) {
-                widget.pageController.animateTo(
-                    widget.pageController.offset + 10,
-                    duration: const Duration(milliseconds: 100),
-                    curve: Curves.ease);
+              if (kIsDesktop && !widget.isMobileWebView) {
+                /// Invoked when pdf pages width greater viewport width
+                if (_isOverFlowed == false) {
+                  _transformationController.value
+                      .translate(_currentOffsetOfInteractionUpdate.dx);
+                  _isOverFlowed = true;
+                }
               }
             }
-          }
-          if (!kIsDesktop ||
-              (kIsDesktop && widget.isMobileWebView) ||
-              (kIsDesktop && widget.scaleEnabled)) {
-            widget.onZoomLevelChanged(
-                _transformationController.value.getMaxScaleOnAxis());
-          }
-          currentOffset = _transformationController.toScene(Offset.zero);
-          if (_canScroll) {
-            _canPanOnZoom = false;
-            _canScroll = false;
-          }
-          _paddingWidthScale = 0;
-          _paddingHeightScale = 0;
-          if (widget.viewportDimension.width >
-              widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize
-                      .width *
-                  _transformationController.value.getMaxScaleOnAxis()) {
-            setState(() {
-              if (!_isMousePointer) {
-                _transformationController.value
-                    .translate(_currentOffsetOfInteractionUpdate.dx);
-                _isOverFlowed = false;
-              }
-            });
-          } else {
-            if (kIsDesktop && !widget.isMobileWebView) {
-              /// Invoked when pdf pages width greater viewport width
-              if (_isOverFlowed == false) {
-                _transformationController.value
-                    .translate(_currentOffsetOfInteractionUpdate.dx);
-                _isOverFlowed = true;
-              }
-            }
-          }
-          _isMousePointer = false;
-          setState(() {});
-        },
-      ));
+            _isMousePointer = false;
+            setState(() {});
+          },
+        ));
+      }
     }
     _scrollHeadPosition = widget.pdfViewerController.pageNumber == 1
         ? 0
@@ -602,6 +620,7 @@ class SinglePageViewState extends State<SinglePageView> {
                 FocusScope.of(context).unfocus();
               }
               if (widget.canShowPaginationDialog) {
+                _clearSelection();
                 _showPaginationDialog();
               }
             }
@@ -635,51 +654,77 @@ class SinglePageViewState extends State<SinglePageView> {
         _transformationController.value.getMaxScaleOnAxis();
     final double pdfPageHeight =
         widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize.height;
-    final double totalPageOffset =
+
+    final double pdfPageWidth =
         widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize.width;
+    final bool isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
     if (widget.pdfViewerController.zoomLevel <= 1) {
       if (kIsDesktop && !widget.isMobileWebView) {
         offset = Offset.zero;
       } else {
-        offset = Offset(0, offset.dy);
+        if ((widget.isMobileWebView || widget.isTablet) &&
+            isPortrait &&
+            widget.viewportDimension.width > pdfPageWidth) {
+          offset = Offset(offset.dx, 0);
+        } else {
+          offset = Offset(0, offset.dy);
+        }
       }
     }
-    if (widget.viewportDimension.height > pdfPageHeight) {
+
+    /// Calculates the offset when the viewport width is greater than the page width.
+    if ((widget.isMobileWebView || widget.isTablet) &&
+        isPortrait &&
+        widget.viewportDimension.width > pdfPageWidth) {
       offset = Offset(
-          offset.dx,
-          (tapPosition.dy > widget.viewportDimension.height / 2)
-              ? offset.dy +
-                  (widget.viewportDimension.height -
-                          widget
-                              .pdfPages[widget.pdfViewerController.pageNumber]!
-                              .pageSize
-                              .height) /
-                      2
-              : (offset.dy / 2));
+          (tapPosition.dx > widget.viewportDimension.width / 2)
+              ? offset.dx + (widget.viewportDimension.width - pdfPageWidth) / 2
+              : (offset.dx / 2),
+          offset.dy);
+
+      offset = Offset(
+          ((widget.pdfViewerController.zoomLevel) > 1
+                  ? offset.dx +
+                      (widget.viewportDimension.width - pdfPageWidth) / 2
+                  : 0.0)
+              .clamp(
+                  0,
+                  (((widget.viewportDimension.width - pdfPageWidth) +
+                              pdfPageWidth) /
+                          2) -
+                      (widget.viewportDimension.width - pdfPageWidth) / 2),
+          (offset.dy - (widget.viewportDimension.height - pdfPageHeight)).clamp(
+              0,
+              (offset.dy - (widget.viewportDimension.height - pdfPageHeight))
+                  .abs()));
     }
-    offset = Offset(
-        (offset.dx - (widget.viewportDimension.width - totalPageOffset)).clamp(
-            0,
-            (offset.dx - (widget.viewportDimension.width - totalPageOffset))
-                .abs()),
-        ((widget.pdfViewerController.zoomLevel) > 1
-                ? offset.dy + greyAreaSize / 2
-                : 0.0)
-            .clamp(
-                0,
-                (((widget.viewportDimension.height -
-                                widget
-                                    .pdfPages[
-                                        widget.pdfViewerController.pageNumber]!
-                                    .pageSize
-                                    .height) +
-                            widget
-                                .pdfPages[
-                                    widget.pdfViewerController.pageNumber]!
-                                .pageSize
-                                .height) /
-                        2) -
-                    greyAreaSize / 2));
+
+    /// Calculates the offset when the viewport height is greater than the page height.
+    else {
+      if (widget.viewportDimension.height > pdfPageHeight) {
+        offset = Offset(
+            offset.dx,
+            (tapPosition.dy > widget.viewportDimension.height / 2)
+                ? offset.dy + pdfPageHeight / 2
+                : (offset.dy / 2));
+      }
+
+      offset = Offset(
+          (offset.dx - (widget.viewportDimension.width - pdfPageWidth)).clamp(
+              0,
+              (offset.dx - (widget.viewportDimension.width - pdfPageWidth))
+                  .abs()),
+          ((widget.pdfViewerController.zoomLevel) > 1
+                  ? offset.dy + greyAreaSize / 2
+                  : 0.0)
+              .clamp(
+                  0,
+                  (((widget.viewportDimension.height - pdfPageHeight) +
+                              pdfPageHeight) /
+                          2) -
+                      greyAreaSize / 2));
+    }
 
     setState(() {
       _canPanOnZoom = false;
@@ -848,7 +893,6 @@ class SinglePageViewState extends State<SinglePageView> {
 
   /// Show the pagination dialog box
   Future<void> _showPaginationDialog() async {
-    await _clearSelection();
     return showDialog<void>(
         context: context,
         builder: (BuildContext context) {

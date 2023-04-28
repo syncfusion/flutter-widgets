@@ -214,6 +214,10 @@ class FastLineChartPainter extends CustomPainter {
       }
       // ignore: unnecessary_null_comparison
       final bool hasTooltipBehavior = chart.tooltipBehavior != null;
+      final bool isPointTapEnabled =
+          seriesRendererDetails.series.onPointTap != null ||
+              seriesRendererDetails.series.onPointDoubleTap != null ||
+              seriesRendererDetails.series.onPointLongPress != null;
       final bool hasSeriesElements = seriesRendererDetails.visible! &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible ||
@@ -221,12 +225,11 @@ class FastLineChartPainter extends CustomPainter {
                   chart.tooltipBehavior.enable &&
                   (hasTooltipBehavior &&
                       chart.tooltipBehavior.enable &&
-                      series.enableTooltip)));
-      final bool hasTooltip = hasTooltipBehavior &&
-          (chart.tooltipBehavior.enable ||
-              seriesRendererDetails.series.onPointTap != null ||
-              seriesRendererDetails.series.onPointDoubleTap != null ||
-              seriesRendererDetails.series.onPointLongPress != null);
+                      series.enableTooltip)) ||
+              isPointTapEnabled);
+      final bool isCalculateRegion =
+          (hasTooltipBehavior && chart.tooltipBehavior.enable) ||
+              isPointTapEnabled;
       for (int pointIndex = 0;
           pointIndex < seriesRendererDetails.dataPoints.length;
           pointIndex++) {
@@ -237,36 +240,36 @@ class FastLineChartPainter extends CustomPainter {
             (prevYValue - yVal).abs() >= yTolerance) {
           point = currentPoint;
           dataPoints.add(currentPoint);
-          bool withInXRange = withInRange(currentPoint.xValue,
-              seriesRendererDetails.xAxisDetails!.visibleRange!);
+          bool withInXRange = withInRange(
+              currentPoint.xValue, seriesRendererDetails.xAxisDetails!);
           // ignore: unnecessary_null_comparison
           bool withInYRange = currentPoint != null &&
               currentPoint.yValue != null &&
-              withInRange(currentPoint.yValue,
-                  seriesRendererDetails.yAxisDetails!.visibleRange!);
+              withInRange(
+                  currentPoint.yValue, seriesRendererDetails.yAxisDetails!);
           bool inRange = withInXRange || withInYRange;
           if (!inRange &&
               (pointIndex + 1 < seriesRendererDetails.dataPoints.length)) {
             final CartesianChartPoint<dynamic>? nextPoint =
                 seriesRendererDetails.dataPoints[pointIndex + 1];
-            withInXRange = withInRange(nextPoint!.xValue,
-                seriesRendererDetails.xAxisDetails!.visibleRange!);
+            withInXRange = withInRange(
+                nextPoint!.xValue, seriesRendererDetails.xAxisDetails!);
             // ignore: unnecessary_null_comparison
             withInYRange = nextPoint != null &&
                 nextPoint.yValue != null &&
-                withInRange(nextPoint.yValue,
-                    seriesRendererDetails.yAxisDetails!.visibleRange!);
+                withInRange(
+                    nextPoint.yValue, seriesRendererDetails.yAxisDetails!);
             inRange = withInXRange || withInYRange;
             if (!inRange && pointIndex - 1 >= 0) {
               final CartesianChartPoint<dynamic>? prevPoint =
                   seriesRendererDetails.dataPoints[pointIndex - 1];
-              withInXRange = withInRange(prevPoint!.xValue,
-                  seriesRendererDetails.xAxisDetails!.visibleRange!);
+              withInXRange = withInRange(
+                  prevPoint!.xValue, seriesRendererDetails.xAxisDetails!);
               // ignore: unnecessary_null_comparison
               withInYRange = prevPoint != null &&
                   prevPoint.yValue != null &&
-                  withInRange(prevPoint.yValue,
-                      seriesRendererDetails.yAxisDetails!.visibleRange!);
+                  withInRange(
+                      prevPoint.yValue, seriesRendererDetails.yAxisDetails!);
             }
           }
           if (withInXRange || withInYRange) {
@@ -303,7 +306,7 @@ class FastLineChartPainter extends CustomPainter {
                 }
               }
 
-              if (hasTooltip) {
+              if (isCalculateRegion) {
                 calculateTooltipRegion(
                     point, seriesIndex, seriesRendererDetails, stateProperties);
               }

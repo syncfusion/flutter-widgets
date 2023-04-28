@@ -220,39 +220,51 @@ class DataGridSwipeEndDetails {
 @immutable
 class ColumnResizeStartDetails {
   /// Creates the [ColumnResizeStartDetails] with the specified [column] and [width].
-  const ColumnResizeStartDetails({required this.column, required this.width});
+  const ColumnResizeStartDetails(
+      {required this.column, required this.width, required this.columnIndex});
 
   ///  A column that is going to be resized.
   final GridColumn column;
 
   /// Current width of a column.
   final double width;
+
+  ///  An index of a column that is going to be resized.
+  final int columnIndex;
 }
 
 /// Holds the arguments for the [SfDataGrid.onColumnResizeUpdate] callback.
 @immutable
 class ColumnResizeUpdateDetails {
   /// Creates the [ColumnResizeUpdateDetails] with the specified [column] and [width].
-  const ColumnResizeUpdateDetails({required this.column, required this.width});
+  const ColumnResizeUpdateDetails(
+      {required this.column, required this.width, required this.columnIndex});
 
   ///  A column that is being resized.
   final GridColumn column;
 
   /// Currently resized width of a column.
   final double width;
+
+  /// An index of a column that is being resized.
+  final int columnIndex;
 }
 
 /// Holds the arguments for the [SfDataGrid.onColumnResizeEnd] callback.
 @immutable
 class ColumnResizeEndDetails {
   /// Creates the [ColumnResizeEndDetails] with the specified [column] and [width].
-  const ColumnResizeEndDetails({required this.column, required this.width});
+  const ColumnResizeEndDetails(
+      {required this.column, required this.width, required this.columnIndex});
 
   ///  A column that is resized.
   final GridColumn column;
 
   /// Currently resized width of a column.
   final double width;
+
+  /// An index of a column that is resized.
+  final int columnIndex;
 }
 
 /// Details for callbacks that use [DataGridFilterChangeDetails].

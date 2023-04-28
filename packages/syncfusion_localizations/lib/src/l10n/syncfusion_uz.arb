@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Z dan A ga tartiblang", 
 "sortOldestToNewestDataGridFilteringLabel" : "Eng eskidan eng yangisiga saralash", 
 "sortNewestToOldestDataGridFilteringLabel" : "Eng yangidan eng eskiga saralash", 
-"clearFilterFromDataGridFilteringLabel" : "Filtrni tozalash", 
 "textFiltersDataGridFilteringLabel" : "Matn filtrlari", 
 "numberFiltersDataGridFilteringLabel" : "Raqamli filtrlar", 
 "dateFiltersDataGridFilteringLabel" : "Sana filtrlari", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "Va", 
 "orDataGridFilteringLabel" : "Yoki", 
 "selectAllDataGridFilteringLabel" : "Hammasini belgilash", 
-"sortAndFilterDataGridFilteringLabel" : "Saralash va filtrlash"
+"sortAndFilterDataGridFilteringLabel" : "Saralash va filtrlash", 
+"clearFilterDataGridFilteringLabel" : "Filtrni tozalash", 
+"fromDataGridFilteringLabel" : "Kimdan"
 }

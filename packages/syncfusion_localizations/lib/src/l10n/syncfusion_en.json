@@ -86,7 +86,6 @@
   "sortZToADataGridFilteringLabel": "Sort Z To A",
   "sortOldestToNewestDataGridFilteringLabel": "Sort Oldest To Newest",
   "sortNewestToOldestDataGridFilteringLabel": "Sort Newest To Oldest",
-  "clearFilterFromDataGridFilteringLabel": "Clear Filter From",
   "textFiltersDataGridFilteringLabel": "Text Filters",
   "numberFiltersDataGridFilteringLabel": "Number Filters",
   "dateFiltersDataGridFilteringLabel": "Date Filters",
@@ -98,5 +97,7 @@
   "andDataGridFilteringLabel": "And",
   "orDataGridFilteringLabel": "Or",
   "selectAllDataGridFilteringLabel": "Select All",
-  "sortAndFilterDataGridFilteringLabel": "Sort and Filter"
+  "sortAndFilterDataGridFilteringLabel": "Sort and Filter",
+  "clearFilterDataGridFilteringLabel": "Clear Filter",
+  "fromDataGridFilteringLabel": "From"
 }

@@ -25,7 +25,7 @@
 "allowedViewScheduleLabel" : "ਸਮਾਸੂਚੀ, ਕਾਰਜ - ਕ੍ਰਮ", 
 "allowedViewTimelineDayLabel" : "ਸਮਾਂਰੇਖਾ ਦਿਨ", 
 "allowedViewTimelineWeekLabel" : "ਸਮਾਂਰੇਖਾ ਹਫ਼ਤਾ", 
-"allowedViewTimelineWorkWeekLabel" : "ਸਮਾਂਰੇਖਾ ਕਾਰਜ ਹਫ਼ਤਾ", 
+"allowedViewTimelineWorkWeekLabel" : "ਟਾਈਮਲਾਈਨ ਕੰਮ ਹਫ਼ਤਾ", 
 "allowedViewTimelineMonthLabel" : "ਸਮਾਂਰੇਖਾ ਮਹੀਨਾ", 
 "todayLabel" : "ਅੱਜ", 
 "weeknumberLabel" : "ਹਫ਼ਤਾ", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Z ਤੋਂ A ਨੂੰ ਕ੍ਰਮਬੱਧ ਕਰੋ", 
 "sortOldestToNewestDataGridFilteringLabel" : "ਸਭ ਤੋਂ ਪੁਰਾਣੇ ਤੋਂ ਨਵੀਨਤਮ ਕ੍ਰਮਬੱਧ ਕਰੋ", 
 "sortNewestToOldestDataGridFilteringLabel" : "ਸਭ ਤੋਂ ਨਵੇਂ ਤੋਂ ਪੁਰਾਣੇ ਨੂੰ ਕ੍ਰਮਬੱਧ ਕਰੋ", 
-"clearFilterFromDataGridFilteringLabel" : "ਤੋਂ ਫਿਲਟਰ ਸਾਫ਼ ਕਰੋ", 
 "textFiltersDataGridFilteringLabel" : "ਟੈਕਸਟ ਫਿਲਟਰ", 
 "numberFiltersDataGridFilteringLabel" : "ਨੰਬਰ ਫਿਲਟਰ", 
 "dateFiltersDataGridFilteringLabel" : "ਮਿਤੀ ਫਿਲਟਰ", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "ਅਤੇ", 
 "orDataGridFilteringLabel" : "ਜਾਂ", 
 "selectAllDataGridFilteringLabel" : "ਸਾਰਿਆ ਨੂੰ ਚੁਣੋ", 
-"sortAndFilterDataGridFilteringLabel" : "ਕ੍ਰਮਬੱਧ ਅਤੇ ਫਿਲਟਰ"
+"sortAndFilterDataGridFilteringLabel" : "ਕ੍ਰਮਬੱਧ ਅਤੇ ਫਿਲਟਰ", 
+"clearFilterDataGridFilteringLabel" : "ਫਿਲਟਰ ਸਾਫ਼ ਕਰੋ", 
+"fromDataGridFilteringLabel" : "ਤੋਂ"
 }

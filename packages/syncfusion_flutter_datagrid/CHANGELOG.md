@@ -1,5 +1,94 @@
 ## Unreleased
 
+**Features**
+
+* Provided the support to change the position (left or right) of sort and filter icons in the column headers when sorting or filtering is applied.
+* The `onCellSubmit`, `canSubmitCell`, and `performSorting` methods are marked async so that cell submission and sorting can be asynchronous.
+* Provided the support to change the text style of all the elements in the filter pop menu. Users can set different text styles for enabled and disabled items.
+* Provided the support to get the `currentcell` details when `navigationMode` is `row`.
+
+## [20.4.53] - 03/07/2023
+
+**Bugs**
+
+* The scrolling performance is improved when autofitting the rows using `onQueryRowHeight` callback with large collection of rows.
+
+## [20.4.51] - 02/21/2023
+
+**Bugs**
+
+* The RangeError exception is no longer be thrown when rebuilding the DataGrid after applying the filtering.
+* The filter is now applied properly to the DataGrid when changing the DataGridSource dynamically.
+
+## [20.4.48] - 02/01/2023
+
+**Features**
+
+* Added support for restricting column resizing by checking the `columnIndex` in the `onColumnResizeStart` callback.
+
+**Bugs** 
+
+* Fixed a LateInitializationError that occurred when opening the filter popup menu after rebuilding the DataGrid with an applied filter.
+* Fixed a Type mismatch error that occurred when using an integer value in advanced filtering for a double type column.
+
+**Breaking changes**
+
+* `Command` key operations for selection and multi-column sorting have been replaced with `Control` key operations on the macOS platform.
+
+## [20.4.43] - 01/10/2023
+
+**Bugs**
+
+* Edited rows from the grid when filtering and paging are applied. If the currently applied filter condition is not satisfied, the edited row will no longer be displayed in the DataGrid.
+
+## [20.4.38] - 12/21/2022
+
+**Features**
+
+* Provided the support to change the shape of the built-in checkbox column.
+* Provided the support to change the filter icon and its color. The padding around the filter icon can also be customized.
+* Provided the support to customize the filter options in the filter popup. Users can hide the sorting and “Clear Filter” options and show only the checked listbox view or advanced filter popup view to apply filtering.
+* Provided the support to customize the color of the sort order number and its rounded background.
+* Provided the support to change the elevation effect when setting the `frozenPaneLineColor` property.
+
+**Bugs**
+
+* The filtering is now properly applied when programmatically adding the filter conditions and filter popup menu is now opened with proper items in checked listbox.
+
+## [20.3.60] - 12/06/2022
+
+**Bugs**
+
+* The `onFilterChanging` and `onFilterChanged` callbacks will be called now when tapping `Select All` option to select all the rows in the checked listbox filtering.
+* The current cell is now properly removed when setting the `selectedIndex` property as -1 programmatically.
+
+## [20.3.59] - 11/29/2022
+
+**Bugs**
+
+* The focus is now moved to widgets that are outside the DataGrid when the canSubmitCell method returns true.
+
+## [20.3.57] - 11/15/2022
+
+**Bugs**
+
+* The listeners in `SelectionController` class are properly disposed
+
+## [20.3.49] - 10/11/2022
+
+**Bugs**
+
+* The current cell is now updating properly while adding a row at runtime through the `RowSelectionManager`.
+* SfDataPager is now working properly when changing the `pageCount` property at run time.
+
+## [20.3.48] - 10/05/2022
+
+**Bugs**
+
+* Filtering is now working properly when page count is set for paging to apply whole data sorting.
+
+## [20.3.47] - 09/29/2022
+
 **Breaking changes**
 
 * The left and border is now drawn by default in DataGrid. Hence, there is no need to add `Container` widget as parent for DataGrid to set left and top borders.

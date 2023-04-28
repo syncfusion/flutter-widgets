@@ -6,9 +6,9 @@ class Picture {
   Picture(List<int> imageData) {
     img.Image? image;
     if (isPng(imageData)) {
-      image = img.decodePng(imageData);
+      image = img.decodePng(imageData as Uint8List);
     } else if (isJpeg(imageData)) {
-      image = img.decodeJpg(imageData);
+      image = img.decodeJpg(imageData as Uint8List);
     }
     _imageData = imageData;
     if (image != null) {

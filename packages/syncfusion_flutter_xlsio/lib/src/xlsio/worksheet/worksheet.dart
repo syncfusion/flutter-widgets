@@ -44,14 +44,41 @@ class Worksheet {
   ///Represents the datavalidation table
   _DataValidationTable? _mdataValidation;
 
+  // Represents the number of columns visible in the top pane
+  int _verticalSplit = 0;
+
+  // Represents the number of rows visible in the left pane
+  int _horizontalSplit = 0;
+
+  // Represents topLeftCell
+  String _topLeftCell = '';
+
+  // Represents is panes are frozen
+  bool _isfreezePane = false;
+
+  // Represents active pane
+  late _ActivePane _activePane;
+
   ///Represents autoFilter class
   AutoFilterCollection? _autoFilters;
+
+  ///Represents worksheet named range collection.
+  Names? _namesColl;
+
+  ///Represents worksheet named range collection.
+  Names get names {
+    _namesColl ??= _WorksheetNamesCollection(this);
+    return _namesColl!;
+  }
 
   /// Represents auto fit manager.
   _AutoFitManager get _autoFitManager {
     final _AutoFitManager autoFit = _AutoFitManager._withSheet(this);
     return autoFit;
   }
+
+  ///Get the page setup settings for the worksheet. Read-only.
+  PageSetup? _pageSetup;
 
   ///Get a collection of tables in the worksheet. Read-only.
   ExcelTableCollection? _tableCollection;
@@ -244,6 +271,12 @@ class Worksheet {
   ExcelTableCollection get tableCollection {
     _tableCollection ??= ExcelTableCollection(this);
     return _tableCollection!;
+  }
+
+  /// Represents the page setup settings for the worksheet.
+  PageSetup get pageSetup {
+    _pageSetup ??= _PageSetupImpl(this);
+    return _pageSetup!;
   }
 
   /// Gets/Sets a Conditional Format collections in the worksheet.
@@ -2200,6 +2233,24 @@ class Worksheet {
     }
 
     return i;
+  }
+
+  /// Removes the existing freeze panes from the worksheet.
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet worksheet = workbook.worksheets[0];
+  /// worksheet.getRangeByName('A1:H10').text = "Freeze panes";
+  /// worksheet.getRangeByName('B2').freezePanes();
+  /// worksheet.unfreezePanes();
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'UnfreezePanes.xlsx');
+  /// workbook.dispose();
+  /// ```
+  void unfreezePanes() {
+    _horizontalSplit = 0;
+    _verticalSplit = 0;
+    _topLeftCell = '';
+    _isfreezePane = false;
   }
 
   /// Imports collection of ExcelDataRows into a worksheet.

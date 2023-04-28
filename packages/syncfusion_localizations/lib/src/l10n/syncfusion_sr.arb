@@ -55,7 +55,7 @@
 "shortDhualqiLabel" : "Дху'л-К", 
 "shortDhualhiLabel" : "Дху'л-Х", 
 "daySpanCountLabel" : "Дан", 
-"series" : "Серије", 
+"series" : "Сериес", 
 "pdfHyperlinkLabel" : "Отворите веб страницу", 
 "pdfHyperlinkContentLabel" : "Да ли желите да отворите страницу на", 
 "pdfHyperlinkDialogOpenLabel" : "ОПЕН", 
@@ -86,7 +86,6 @@
 "sortZToADataGridFilteringLabel" : "Сортирај од З до А", 
 "sortOldestToNewestDataGridFilteringLabel" : "Сортирај од најстаријих до најновијих", 
 "sortNewestToOldestDataGridFilteringLabel" : "Сортирај од најновијег до најстаријег", 
-"clearFilterFromDataGridFilteringLabel" : "Обриши филтер из", 
 "textFiltersDataGridFilteringLabel" : "Филтери за текст", 
 "numberFiltersDataGridFilteringLabel" : "Бројчани филтери", 
 "dateFiltersDataGridFilteringLabel" : "Дате Филтерс", 
@@ -98,5 +97,7 @@
 "andDataGridFilteringLabel" : "И", 
 "orDataGridFilteringLabel" : "Ор", 
 "selectAllDataGridFilteringLabel" : "Изабери све", 
-"sortAndFilterDataGridFilteringLabel" : "Сортирај и филтрирај"
+"sortAndFilterDataGridFilteringLabel" : "Сортирај и филтрирај", 
+"clearFilterDataGridFilteringLabel" : "Обриши филтер", 
+"fromDataGridFilteringLabel" : "Од"
 }
