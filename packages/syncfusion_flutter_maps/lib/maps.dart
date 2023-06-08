@@ -3160,7 +3160,9 @@ class _BehaviorViewState extends State<BehaviorView> {
   }
 
   Rect _getInitialRect() {
-    widget.behavior._zoomController!.parentRect = Offset.zero & _size!;
+    if (widget.behavior._zoomController != null) {
+      widget.behavior._zoomController!.parentRect = Offset.zero & _size!;
+    }
     final double tileSize = getTotalTileWidth(_currentZoomLevel);
     final Offset center =
         _pixelFromLatLng(_currentFocalLatLng, _currentZoomLevel);
@@ -3202,6 +3204,9 @@ class _BehaviorViewState extends State<BehaviorView> {
             .._zoomLevel = _currentZoomLevel
             .._focalLatLng = _currentFocalLatLng;
           _initialRect = _getInitialRect();
+        }
+        if (widget.behavior._zoomController == null) {
+          return Container();
         }
 
         return Zoomable(
