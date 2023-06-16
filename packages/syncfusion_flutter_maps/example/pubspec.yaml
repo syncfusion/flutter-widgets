@@ -14,19 +14,19 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  intl: ">=0.15.0 <0.17.0"
+  intl: any
   syncfusion_flutter_maps:
     path: ../
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.2
+  cupertino_icons: any
 
 dev_dependencies:
   flutter_test:
@@ -44,8 +44,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - world_map.json
-    - australia.json
+    - assets/world_map.json
+    - assets/australia.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:

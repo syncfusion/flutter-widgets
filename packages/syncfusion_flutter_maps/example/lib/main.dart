@@ -30,9 +30,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   late List<Model> _data;
   late MapShapeSource _mapSource;
+  late MapZoomPanBehavior _zoomPanBehavior;
+  late MapTileLayerController _mapController;
 
   @override
   void initState() {
+    super.initState();
     _data = const <Model>[
       Model('New South Wales', Color.fromRGBO(255, 215, 0, 1.0),
           '       New\nSouth Wales'),
@@ -56,49 +59,94 @@ class _MyHomePageState extends State<MyHomePage> {
       dataLabelMapper: (int index) => _data[index].stateCode,
       shapeColorValueMapper: (int index) => _data[index].color,
     );
-    super.initState();
+
+    _mapController = MapTileLayerController();
+    _zoomPanBehavior = MapZoomPanBehavior(
+      minZoomLevel: 2,
+      maxZoomLevel: 10,
+      zoomLevel: 6,
+      enableDoubleTapZooming: true,
+    );
   }
+
+  Widget? map;
 
   @override
   Widget build(BuildContext context) {
+    map ??= _map(context);
     return Scaffold(
       body: SizedBox(
         height: 520,
-        child: Center(
-          child: SfMaps(
-            layers: <MapShapeLayer>[
-              MapShapeLayer(
-                source: _mapSource,
-                showDataLabels: true,
-                legend: const MapLegend(MapElement.shape),
-                tooltipSettings: MapTooltipSettings(
-                    color: Colors.grey[700],
-                    strokeColor: Colors.white,
-                    strokeWidth: 2),
-                strokeColor: Colors.white,
-                strokeWidth: 0.5,
-                shapeTooltipBuilder: (BuildContext context, int index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      _data[index].stateCode,
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  );
-                },
-                dataLabelSettings: MapDataLabelSettings(
-                  textStyle: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize:
-                          Theme.of(context).textTheme.bodySmall!.fontSize),
-                ),
-              ),
-            ],
-          ),
+        child: Flex(
+          direction: MediaQuery.of(context).size.width < 1000
+              ? Axis.vertical
+              : Axis.horizontal,
+          children: <Widget>[
+            if (MediaQuery.of(context).size.width < 1000) const Text('min'),
+            Expanded(
+              child: map!,
+            ),
+            if (MediaQuery.of(context).size.width > 1000) const Text('max'),
+          ],
         ),
       ),
     );
+  }
+
+  Widget _map(BuildContext context) {
+    return SfMaps(
+      // key: const ValueKey('map_cards'),
+      layers: <MapLayer>[
+        MapTileLayer(
+          /// URL to request the tiles from the providers.
+          ///
+          /// The [urlTemplate] accepts the URL in WMTS format i.e. {z} —
+          /// zoom level, {x} and {y} — tile coordinates.
+          ///
+          /// We will replace the {z}, {x}, {y} internally based on the
+          /// current center point and the zoom level.
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          zoomPanBehavior: _zoomPanBehavior,
+          controller: _mapController,
+          tooltipSettings: const MapTooltipSettings(
+            color: Colors.transparent,
+          ),
+        )
+      ],
+    );
+    // return SfMaps(
+    //   layers: <MapShapeLayer>[
+    //     MapShapeLayer(
+    //       source: _mapSource,
+    //       showDataLabels: true,
+    //       controller: _mapController,
+    //       zoomPanBehavior: _zoomPanBehavior,
+    //       legend: const MapLegend(MapElement.shape),
+    //       tooltipSettings: MapTooltipSettings(
+    //         color: Colors.grey[700],
+    //         strokeColor: Colors.white,
+    //         strokeWidth: 2,
+    //       ),
+    //       strokeColor: Colors.white,
+    //       strokeWidth: 0.5,
+    //       shapeTooltipBuilder: (BuildContext context, int index) {
+    //         return Padding(
+    //           padding: const EdgeInsets.all(8.0),
+    //           child: Text(
+    //             _data[index].stateCode,
+    //             style: const TextStyle(color: Colors.white),
+    //           ),
+    //         );
+    //       },
+    //       dataLabelSettings: MapDataLabelSettings(
+    //         textStyle: TextStyle(
+    //             color: Colors.black,
+    //             fontWeight: FontWeight.bold,
+    //             fontSize: Theme.of(context).textTheme.bodySmall!.fontSize),
+    //       ),
+    //     ),
+    //   ],
+    // );
   }
 }
 

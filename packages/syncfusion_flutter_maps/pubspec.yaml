@@ -4,7 +4,7 @@ version: 21.1.35
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_maps
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"
 
 dependencies:
   flutter:

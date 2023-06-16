@@ -3185,9 +3185,10 @@ class _BehaviorViewState extends State<BehaviorView> {
   @override
   void dispose() {
     widget.controller.removeToolbarZoomedListener(_handleToolbarZooming);
-    widget.behavior
-      .._zoomController?.dispose()
-      .._zoomController = null;
+    // Broken life cycle for responsive or reusing widget with same controllers
+    // widget.behavior
+    //   .._zoomController?.dispose()
+    //   .._zoomController = null;
     super.dispose();
   }
 
