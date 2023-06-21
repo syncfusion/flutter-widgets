@@ -580,7 +580,7 @@ class _YearViewState extends State<YearView> {
 }
 
 class _SingleSelectionRenderWidget extends MultiChildRenderObjectWidget {
-  _SingleSelectionRenderWidget(
+  const _SingleSelectionRenderWidget(
       this.visibleDates,
       this.cellStyle,
       this.minDate,
@@ -774,7 +774,7 @@ class _SingleSelectionRenderWidget extends MultiChildRenderObjectWidget {
 }
 
 class _MultiSelectionRenderWidget extends MultiChildRenderObjectWidget {
-  _MultiSelectionRenderWidget(
+  const _MultiSelectionRenderWidget(
       this.visibleDates,
       this.cellStyle,
       this.minDate,
@@ -968,7 +968,7 @@ class _MultiSelectionRenderWidget extends MultiChildRenderObjectWidget {
 }
 
 class _RangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
-  _RangeSelectionRenderWidget(
+  const _RangeSelectionRenderWidget(
       this.visibleDates,
       this.cellStyle,
       this.minDate,
@@ -1163,7 +1163,7 @@ class _RangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
 
 class _ExtendableRangeSelectionRenderWidget
     extends MultiChildRenderObjectWidget {
-  _ExtendableRangeSelectionRenderWidget(
+  const _ExtendableRangeSelectionRenderWidget(
       this.visibleDates,
       this.cellStyle,
       this.minDate,
@@ -1363,7 +1363,7 @@ class _ExtendableRangeSelectionRenderWidget
 }
 
 class _MultiRangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
-  _MultiRangeSelectionRenderWidget(
+  const _MultiRangeSelectionRenderWidget(
       this.visibleDates,
       this.cellStyle,
       this.minDate,
@@ -2597,25 +2597,22 @@ abstract class _IYearViewRenderObject extends RenderBox
   TextStyle _updateCellTextStyle(int j, bool isCurrentDate, bool isSelected,
       bool isEnableDate, bool isActiveDate, bool isDisabledDate) {
     if (!isEnableDate || isDisabledDate) {
-      return cellStyle.disabledDatesTextStyle as TextStyle? ??
-          datePickerTheme.disabledCellTextStyle!;
+      return datePickerTheme.disabledCellTextStyle!;
     }
 
     if (isSelected) {
-      return selectionTextStyle ?? datePickerTheme.selectionTextStyle!;
+      return datePickerTheme.selectionTextStyle!;
     }
 
     if (isCurrentDate) {
-      return cellStyle.todayTextStyle as TextStyle? ??
-          datePickerTheme.todayCellTextStyle!;
+      return datePickerTheme.todayCellTextStyle!;
     }
 
     if (!isActiveDate && !_isHijri) {
-      return cellStyle.leadingDatesTextStyle as TextStyle? ??
-          datePickerTheme.leadingCellTextStyle!;
+      return datePickerTheme.leadingCellTextStyle!;
     }
 
-    return cellStyle.textStyle as TextStyle? ?? datePickerTheme.cellTextStyle!;
+    return datePickerTheme.cellTextStyle!;
   }
 
   Decoration? _updateCellDecoration(int j, bool isCurrentDate,
@@ -3085,7 +3082,7 @@ class _RangeSelectionRenderObject extends _IYearViewRenderObject {
     } else if (isBetweenRange) {
       yearText = TextSpan(
         text: yearText.text,
-        style: rangeTextStyle ?? datePickerTheme.rangeSelectionTextStyle,
+        style: datePickerTheme.rangeSelectionTextStyle,
       );
 
       _todayHighlightPaint.color =
@@ -3355,7 +3352,7 @@ class _ExtendableRangeSelectionRenderObject extends _IYearViewRenderObject {
     } else if (isBetweenRange) {
       yearText = TextSpan(
         text: yearText.text,
-        style: rangeTextStyle ?? datePickerTheme.rangeSelectionTextStyle,
+        style: datePickerTheme.rangeSelectionTextStyle,
       );
 
       _todayHighlightPaint.color =
@@ -3606,7 +3603,7 @@ class _MultiRangeSelectionRenderObject extends _IYearViewRenderObject {
     } else if (isBetweenRange) {
       yearText = TextSpan(
         text: yearText.text,
-        style: rangeTextStyle ?? datePickerTheme.rangeSelectionTextStyle,
+        style: datePickerTheme.rangeSelectionTextStyle,
       );
 
       _todayHighlightPaint.color =

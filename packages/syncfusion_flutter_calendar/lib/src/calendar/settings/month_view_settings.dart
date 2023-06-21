@@ -744,8 +744,8 @@ class AgendaStyle with Diagnosticable {
       this.dayTextStyle,
       this.dateTextStyle,
       this.backgroundColor,
-      this.placeholderTextStyle = const TextStyle(
-          color: Colors.grey, fontSize: 15, fontFamily: 'Roboto')});
+      this.placeholderTextStyle =
+          const TextStyle(color: Colors.grey, fontSize: 15)});
 
   /// The text style for the text in the [Appointment] view in [SfCalendar]
   /// month agenda view.
@@ -1120,8 +1120,8 @@ class MonthCellStyle with Diagnosticable {
     this.textStyle,
     @Deprecated('Moved the same [todayTextStyle] to SfCalendar class, '
         'use [todayTextStyle] property from SfCalendar class')
-        // ignore: deprecated_member_use_from_same_package, deprecated_member_use
-        this.todayTextStyle,
+    // ignore: deprecated_member_use_from_same_package, deprecated_member_use
+    this.todayTextStyle,
     this.trailingDatesTextStyle,
     this.leadingDatesTextStyle,
   });

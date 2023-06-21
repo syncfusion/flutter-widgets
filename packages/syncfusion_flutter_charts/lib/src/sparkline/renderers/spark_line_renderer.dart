@@ -273,6 +273,7 @@ class _RenderSparkLineChart extends RenderSparkChart {
   /// Render line series.
   void _renderLineSeries(Canvas canvas, Offset offset) {
     if (width != null && width! > 0) {
+      _labelStyle = themeData!.dataLabelTextStyle;
       final Paint paint = Paint()
         ..strokeWidth = width!
         ..style = PaintingStyle.stroke

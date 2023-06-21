@@ -32,7 +32,7 @@ const double kDefaultRadialGaugeSize = 350.0;
 /// Represents the renderer of radial gauge axis.
 class RadialAxisParentWidget extends MultiChildRenderObjectWidget {
   /// Creates instance for [RadialGaugeRenderWidget].
-  RadialAxisParentWidget({Key? key, required List<Widget> children})
+  const RadialAxisParentWidget({Key? key, required List<Widget> children})
       : super(key: key, children: children);
 
   @override
@@ -92,7 +92,7 @@ class RadialAxisParentElement extends MultiChildRenderObjectElement {
     } else if (child is RenderRangePointer) {
       renderObject.removeRangePointer(child);
     } else if (child is RenderMarkerPointer) {
-      renderObject.addMarkerPointer(child);
+      renderObject.removeMarkerPointer(child);
     } else if (child is RenderGaugeRange) {
       renderObject.removeRange(child);
     } else if (child is RenderGaugeAnnotation) {

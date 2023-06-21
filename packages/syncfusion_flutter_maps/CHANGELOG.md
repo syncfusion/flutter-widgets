@@ -1,3 +1,15 @@
+## Unreleased
+
+**General**
+
+* Upgraded the http package to the latest version 1.0.0.
+
+## [21.2.3] - 05/03/2023
+
+**Bugs**
+
+* #FB42695 - Now, the map tile layer no longer jumps to distant locations when panning during fling zooming.
+
 ## [20.4.50] - 02/14/2023
 
 **Bugs**

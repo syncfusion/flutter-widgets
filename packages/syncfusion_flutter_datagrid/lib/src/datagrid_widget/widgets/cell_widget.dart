@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
@@ -241,6 +242,7 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
   Color _sortNumberTextColor = Colors.transparent;
   late PointerDeviceKind _kind;
   late Widget? _sortIcon;
+  bool isHovered = false;
 
   DataGridStateDetails get dataGridStateDetails => widget.dataGridStateDetails;
 
@@ -351,20 +353,74 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
       });
     }
 
-    _ensureSortIconVisiblity(column!, dataGridConfiguration);
+    _ensureSortIconVisibility(column!, dataGridConfiguration);
+
+    Widget child = _wrapInsideCellContainer(
+        dataGridConfiguration: dataGridConfiguration,
+        child: checkHeaderCellConstraints(widget.child),
+        dataCell: widget.dataCell,
+        key: widget.key!,
+        backgroundColor: widget.backgroundColor);
+
+    Widget getFeedbackWidget(DataGridConfiguration configuration) {
+      return dataGridConfiguration.columnDragFeedbackBuilder != null
+          ? dataGridConfiguration.columnDragFeedbackBuilder!(
+              context, widget.dataCell.gridColumn!)
+          : Container(
+              width: widget.dataCell.gridColumn!.actualWidth,
+              height: dataGridConfiguration.headerRowHeight,
+              decoration: BoxDecoration(
+                  color: dataGridConfiguration.colorScheme!.brightness ==
+                          Brightness.light
+                      ? const Color(0xFFFAFAFA)
+                      : const Color(0xFF303030),
+                  border: Border.all(
+                      color: dataGridConfiguration
+                          .dataGridThemeHelper!.gridLineColor,
+                      width: dataGridConfiguration
+                          .dataGridThemeHelper!.gridLineStrokeWidth)),
+              child: widget.child);
+    }
+
+    Widget buildDraggableHeaderCell(Widget child) {
+      final DataGridConfiguration configuration = dataGridStateDetails();
+      final bool isWindowsPlatform =
+          configuration.columnDragAndDropController.isWindowsPlatform!;
+      return Draggable<Widget>(
+        onDragStarted: () {
+          configuration.columnDragAndDropController
+              .onPointerDown(widget.dataCell);
+        },
+        ignoringFeedbackPointer: isWindowsPlatform,
+        feedback: MouseRegion(
+            cursor: isWindowsPlatform
+                ? MouseCursor.defer
+                : (dataGridConfiguration.isMacPlatform && !kIsWeb)
+                    ? SystemMouseCursors.grabbing
+                    : SystemMouseCursors.move,
+            child: getFeedbackWidget(configuration)),
+        child: child,
+      );
+    }
+
+    if (dataGridConfiguration.columnDragAndDropController
+            .canAllowColumnDragAndDrop() &&
+        dataGridConfiguration
+            .columnDragAndDropController.canWrapDraggableView &&
+        !dataGridConfiguration
+            .columnResizeController.canSwitchResizeColumnCursor) {
+      child = buildDraggableHeaderCell(child);
+    }
 
     return Container(
         key: widget.key,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-            border: _getCellBorder(dataGridConfiguration, widget.dataCell)),
-        child: _wrapInsideCellContainer(
-          dataGridConfiguration: dataGridConfiguration,
-          child: checkHeaderCellConstraints(widget.child),
-          dataCell: widget.dataCell,
-          key: widget.key!,
-          backgroundColor: widget.backgroundColor,
-        ));
+            border: _getCellBorder(
+          dataGridConfiguration,
+          widget.dataCell,
+        )),
+        child: child);
   }
 
   @override
@@ -378,7 +434,7 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
     );
   }
 
-  void _ensureSortIconVisiblity(
+  void _ensureSortIconVisibility(
       GridColumn column, DataGridConfiguration? dataGridConfiguration) {
     if (dataGridConfiguration != null) {
       final SortColumnDetails? sortColumn = dataGridConfiguration
@@ -467,6 +523,18 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
               column: gridColumn));
         }
 
+        bool canShowFilterIcon() {
+          if (dataGridConfiguration.showFilterIconOnHover &&
+              dataGridConfiguration.isDesktop) {
+            return isHovered ||
+                dataGridConfiguration
+                    .dataGridFilterHelper!.isFilterPopupMenuShowing;
+          } else {
+            return true;
+          }
+        }
+
+        late Widget headerCell;
         if (gridColumn.sortIconPosition == ColumnHeaderIconPosition.end &&
                 gridColumn.filterIconPosition == ColumnHeaderIconPosition.end ||
             (dataGridConfiguration.allowSorting &&
@@ -476,15 +544,35 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
                 dataGridConfiguration.allowFiltering &&
                 gridColumn.filterIconPosition ==
                     ColumnHeaderIconPosition.end)) {
-          return Row(children: <Widget>[
-            Flexible(
-              child: Container(child: child),
-            ),
-            Container(
-              padding: dataGridConfiguration.columnSizer.iconsOuterPadding,
-              child: Center(child: Row(children: children)),
-            )
-          ]);
+          headerCell = canShowFilterIcon()
+              ? Row(children: <Widget>[
+                  Flexible(
+                    child: Container(child: child),
+                  ),
+                  Container(
+                    padding:
+                        dataGridConfiguration.columnSizer.iconsOuterPadding,
+                    child: Center(child: Row(children: children)),
+                  )
+                ])
+              : Row(children: <Widget>[
+                  Flexible(child: Container(child: child)),
+                  Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: dataGridConfiguration.allowSorting
+                          ? Center(
+                              child: gridColumn.allowSorting
+                                  ? _sortNumber == -1
+                                      ? children[0]
+                                      : Row(children: <Widget>[
+                                          Center(child: children[0]),
+                                          Center(child: children[1]),
+                                        ])
+                                  : const SizedBox(),
+                            )
+                          : const SizedBox())
+                ]);
         } else if (gridColumn.sortIconPosition ==
                     ColumnHeaderIconPosition.start &&
                 gridColumn.filterIconPosition ==
@@ -497,58 +585,157 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
                 dataGridConfiguration.allowFiltering &&
                 gridColumn.filterIconPosition ==
                     ColumnHeaderIconPosition.start)) {
-          return Row(children: <Widget>[
-            Container(
-              padding: dataGridConfiguration.columnSizer.iconsOuterPadding,
-              child: Center(child: Row(children: children)),
-            ),
-            Flexible(
-              child: Container(child: child),
-            ),
-          ]);
+          headerCell = canShowFilterIcon()
+              ? Row(
+                  children: <Widget>[
+                    Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: Center(
+                        child: Row(children: children),
+                      ),
+                    ),
+                    Flexible(child: child),
+                  ],
+                )
+              : Row(
+                  children: <Widget>[
+                    Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: Center(
+                        child: dataGridConfiguration.allowSorting &&
+                                gridColumn.allowSorting
+                            ? _sortNumber == -1
+                                ? children[0]
+                                : Row(children: <Widget>[
+                                    Center(child: children[0]),
+                                    Center(child: children[1]),
+                                  ])
+                            : const SizedBox(),
+                      ),
+                    ),
+                    Flexible(child: child),
+                  ],
+                );
         } else if (dataGridConfiguration.allowSorting &&
             dataGridConfiguration.allowFiltering) {
           if (gridColumn.sortIconPosition == ColumnHeaderIconPosition.end &&
               gridColumn.filterIconPosition == ColumnHeaderIconPosition.start) {
-            return Row(children: <Widget>[
-              Container(
-                padding: dataGridConfiguration.columnSizer.iconsOuterPadding,
-                child: Center(child: children[_sortNumber == -1 ? 1 : 2]),
-              ),
-              Flexible(
-                child: Container(child: child),
-              ),
-              Container(
-                padding: dataGridConfiguration.columnSizer.iconsOuterPadding,
-                child: Center(child: children[0]),
-              ),
-              if (_sortNumber != -1)
-                Container(
-                  padding: dataGridConfiguration.columnSizer.iconsOuterPadding,
-                  child: children[1],
-                ),
-            ]);
+            headerCell = canShowFilterIcon()
+                ? Row(children: <Widget>[
+                    Container(
+                        padding:
+                            dataGridConfiguration.columnSizer.iconsOuterPadding,
+                        child: Center(
+                          child: gridColumn.allowFiltering
+                              ? (gridColumn.allowSorting
+                                  ? children[_sortNumber == -1 ? 1 : 2]
+                                  : children[0])
+                              : const SizedBox(),
+                        )),
+                    Flexible(
+                      child: Container(child: child),
+                    ),
+                    Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: Row(
+                        children: <Widget>[
+                          Center(
+                              child: gridColumn.allowSorting
+                                  ? children[0]
+                                  : const SizedBox()),
+                          if (_sortNumber != -1) Center(child: children[1]),
+                        ],
+                      ),
+                    ),
+                  ])
+                : Row(children: <Widget>[
+                    Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: const SizedBox(),
+                    ),
+                    Flexible(
+                      child: Container(child: child),
+                    ),
+                    Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: Row(
+                        children: <Widget>[
+                          Center(
+                              child: gridColumn.allowSorting
+                                  ? children[0]
+                                  : const SizedBox()),
+                          if (_sortNumber != -1) Center(child: children[1]),
+                        ],
+                      ),
+                    ),
+                  ]);
           } else {
-            return Row(children: <Widget>[
-              Container(
-                  padding: dataGridConfiguration.columnSizer.iconsOuterPadding,
-                  child: children[0]),
-              if (_sortNumber != -1)
-                Container(
-                  child: children[1],
-                ),
-              Flexible(
-                child: Container(
-                  child: child,
-                ),
-              ),
-              Container(
-                padding: dataGridConfiguration.columnSizer.iconsOuterPadding,
-                child: Center(child: children[_sortNumber == -1 ? 1 : 2]),
-              )
-            ]);
+            headerCell = canShowFilterIcon()
+                ? Row(children: <Widget>[
+                    Container(
+                        padding:
+                            dataGridConfiguration.columnSizer.iconsOuterPadding,
+                        child: Row(
+                          children: <Widget>[
+                            Center(
+                                child: gridColumn.allowSorting
+                                    ? children[0]
+                                    : const SizedBox()),
+                            if (_sortNumber != -1) Center(child: children[1])
+                          ],
+                        )),
+                    Flexible(
+                      child: Container(
+                        child: child,
+                      ),
+                    ),
+                    Container(
+                        padding:
+                            dataGridConfiguration.columnSizer.iconsOuterPadding,
+                        child: Center(
+                          child: gridColumn.allowFiltering
+                              ? (gridColumn.allowSorting
+                                  ? children[_sortNumber == -1 ? 1 : 2]
+                                  : children[0])
+                              : const SizedBox(),
+                        ))
+                  ])
+                : Row(children: <Widget>[
+                    Container(
+                        padding:
+                            dataGridConfiguration.columnSizer.iconsOuterPadding,
+                        child: Row(
+                          children: <Widget>[
+                            Center(
+                                child: gridColumn.allowSorting
+                                    ? children[0]
+                                    : const SizedBox()),
+                            if (_sortNumber != -1) Center(child: children[1])
+                          ],
+                        )),
+                    Flexible(
+                      child: Container(
+                        child: child,
+                      ),
+                    ),
+                    Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: const SizedBox(),
+                    )
+                  ]);
           }
         }
+        return MouseRegion(
+          onEnter: (_) => setState(() => isHovered = true),
+          onExit: (_) => setState(() => isHovered = false),
+          child: headerCell,
+        );
       }
     }
     return child;
@@ -788,7 +975,14 @@ class _FilterIcon extends StatelessWidget {
           items: <PopupMenuEntry<String>>[
             _FilterPopupMenuItem<String>(
                 column: column, dataGridConfiguration: dataGridConfiguration),
-          ]);
+          ]).then((_) {
+        if (dataGridConfiguration.isDesktop) {
+          notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
+              propertyName: 'Filtering');
+          dataGridConfiguration.dataGridFilterHelper!.isFilterPopupMenuShowing =
+              false;
+        }
+      });
     } else {
       Navigator.push<_FilterPopup>(
           context,
@@ -1000,7 +1194,7 @@ class _FilterPopupState extends State<_FilterPopup> {
     isAdvancedFilter = filterHelper.filterFrom == FilteredFrom.advancedFilter;
     filterHelper.checkboxFilterHelper.textController.clear();
 
-    // Need to end edit the curent cell to commit the cell value before showing
+    // Need to end edit the current cell to commit the cell value before showing
     // the filtering popup menu.
     filterHelper.endEdit();
 
@@ -1027,7 +1221,7 @@ class _FilterPopupState extends State<_FilterPopup> {
           widget.dataGridConfiguration, filterConditions, filterHelper);
     } else {
       advancedFilterHelper
-          .resetAdvancedFiterValues(widget.dataGridConfiguration);
+          .resetAdvancedFilterValues(widget.dataGridConfiguration);
     }
   }
 
@@ -1266,6 +1460,27 @@ class _FilterPopupState extends State<_FilterPopup> {
                         width: 120.0,
                         height: filterHelper.tileHeight - 8,
                         child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.resolveWith<Color?>(
+                                (Set<MaterialState> states) {
+                                  // Issue:
+                                  // FLUT-7487-The buttons UX in the filter popup menu is not very intuitive when using Material 3 design.
+                                  //
+                                  // Fix:
+                                  // There is an issue with the button user experience (UX) in the filter popup menu,
+                                  // which is caused by the default background color of the "ElevatedButton" widget
+                                  // being set to the surface color in the Material 3 design. To address this issue,
+                                  // we set the background color of the button to the primary color if it is not disabled.
+                                  // This means that the default value is ignored, and the given color is used instead.
+                                  if (states.contains(MaterialState.disabled)) {
+                                    return null;
+                                  } else {
+                                    return filterHelper.primaryColor;
+                                  }
+                                },
+                              ),
+                            ),
                             onPressed: canDisableOkButton()
                                 ? null
                                 : onHandleOkButtonTap,
@@ -1310,8 +1525,8 @@ class _FilterPopupState extends State<_FilterPopup> {
 
     if (isMobile) {
       return LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constrainsts) =>
-              buildPopup(viewSize: constrainsts.biggest));
+          builder: (BuildContext context, BoxConstraints constraints) =>
+              buildPopup(viewSize: constraints.biggest));
     } else {
       return buildPopup();
     }
@@ -2164,6 +2379,49 @@ BorderDirectional _getCellBorder(
                   GridLinesVisibility.both) &&
           (isHeaderCell || isStackedHeaderCell);
 
+  final ColumnDragAndDropController dragAndDropController =
+      dataGridConfiguration.columnDragAndDropController;
+
+  final bool canDrawLeftColumnDragAndDropIndicator = dataGridConfiguration
+          .allowColumnsDragging &&
+      dragAndDropController.canDrawRightIndicator != null &&
+      !dragAndDropController.canDrawRightIndicator! &&
+      dragAndDropController.columnIndex == dataCell.columnIndex &&
+      (!dataGridConfiguration.showCheckboxColumn
+          ? dragAndDropController.dragColumnStartIndex != dataCell.columnIndex
+          : dragAndDropController.dragColumnStartIndex! + 1 !=
+              dataCell.columnIndex) &&
+      isHeaderCell;
+
+  final bool canDrawRightColumnDragAndDropIndicator = dataGridConfiguration
+          .allowColumnsDragging &&
+      dragAndDropController.canDrawRightIndicator != null &&
+      dragAndDropController.canDrawRightIndicator! &&
+      dragAndDropController.columnIndex == dataCell.columnIndex &&
+      (!dataGridConfiguration.showCheckboxColumn
+          ? dragAndDropController.dragColumnStartIndex != dataCell.columnIndex
+          : dragAndDropController.dragColumnStartIndex! + 1 !=
+              dataCell.columnIndex) &&
+      isHeaderCell;
+
+  final bool canSkipLeftColumnDragAndDropIndicator =
+      canDrawLeftColumnDragAndDropIndicator &&
+          (!dataGridConfiguration.showCheckboxColumn
+              ? dragAndDropController.dragColumnStartIndex! + 1 ==
+                  dataCell.columnIndex
+              : (dragAndDropController.dragColumnStartIndex! + 2 ==
+                      dataCell.columnIndex ||
+                  dragAndDropController.columnIndex == 0));
+
+  final bool canSkipRightColumnDragAndDropIndicator =
+      canDrawRightColumnDragAndDropIndicator &&
+          (!dataGridConfiguration.showCheckboxColumn
+              ? dragAndDropController.dragColumnStartIndex! - 1 ==
+                  dataCell.columnIndex
+              : (dragAndDropController.dragColumnStartIndex! ==
+                      dataCell.columnIndex ||
+                  dragAndDropController.columnIndex == 0));
+
   final bool canDrawHorizontalBorder =
       (dataGridConfiguration.gridLinesVisibility ==
                   GridLinesVisibility.horizontal ||
@@ -2240,10 +2498,20 @@ BorderDirectional _getCellBorder(
 
   BorderSide getLeftBorder() {
     if ((columnIndex == 0 &&
-            (canDrawVerticalBorder || canDrawHeaderVerticalBorder)) ||
+            (canDrawVerticalBorder ||
+                canDrawHeaderVerticalBorder ||
+                canDrawLeftColumnDragAndDropIndicator)) ||
         canDrawLeftFrozenBorder ||
         canDrawGridHeaderLeftOuterBorder ||
         canDrawGridRowsLeftOuterBorder) {
+      if (canDrawLeftColumnDragAndDropIndicator &&
+          !canSkipLeftColumnDragAndDropIndicator) {
+        return BorderSide(
+            width: dataGridConfiguration
+                .dataGridThemeHelper!.columnDragIndicatorStrokeWidth,
+            color: dataGridConfiguration
+                .dataGridThemeHelper!.columnDragIndicatorColor);
+      }
       if (canDrawLeftFrozenBorder &&
           !isStackedHeaderCell &&
           !isFrozenPaneElevationApplied) {
@@ -2258,6 +2526,13 @@ BorderDirectional _getCellBorder(
       } else {
         return BorderSide.none;
       }
+    } else if (canDrawLeftColumnDragAndDropIndicator &&
+        !canSkipLeftColumnDragAndDropIndicator) {
+      return BorderSide(
+          width: dataGridConfiguration
+              .dataGridThemeHelper!.columnDragIndicatorStrokeWidth,
+          color: dataGridConfiguration
+              .dataGridThemeHelper!.columnDragIndicatorColor);
     } else {
       return BorderSide.none;
     }
@@ -2289,12 +2564,20 @@ BorderDirectional _getCellBorder(
   BorderSide getRightBorder() {
     if (canDrawVerticalBorder ||
         canDrawHeaderVerticalBorder ||
-        canDrawRightFrozenBorder) {
+        canDrawRightFrozenBorder ||
+        canDrawRightColumnDragAndDropIndicator) {
       if (canDrawRightFrozenBorder &&
           !isStackedHeaderCell &&
           !isFrozenPaneElevationApplied) {
         return BorderSide(
             width: frozenPaneLineWidth, color: frozenPaneLineColor);
+      } else if (canDrawRightColumnDragAndDropIndicator &&
+          !canSkipRightColumnDragAndDropIndicator) {
+        return BorderSide(
+            width: dataGridConfiguration
+                .dataGridThemeHelper!.columnDragIndicatorStrokeWidth,
+            color: dataGridConfiguration
+                .dataGridThemeHelper!.columnDragIndicatorColor);
       } else if ((canDrawVerticalBorder || canDrawHeaderVerticalBorder) &&
           !canDrawRightFrozenBorder) {
         return BorderSide(width: borderWidth, color: borderColor);

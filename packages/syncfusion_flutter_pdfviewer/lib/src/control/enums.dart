@@ -24,3 +24,12 @@ enum PdfPageLayoutMode {
   /// Page by page transition of pages.
   single
 }
+
+/// Represents different flattening option.
+enum PdfFlattenOption {
+  /// Do not flatten any form fields or annotations .
+  none,
+
+  /// Flatten all the form fields.
+  formFields
+}

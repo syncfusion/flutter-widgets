@@ -191,7 +191,7 @@ class MapLayerInheritedWidget extends InheritedWidget {
 /// Adds [MapSublayer] into a stack widget.
 class SublayerContainer extends Stack {
   /// Creates a [SublayerContainer].
-  SublayerContainer({
+  const SublayerContainer({
     required this.ancestor,
     required List<MapSublayer> children,
   }) : super(children: children);

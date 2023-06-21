@@ -97,6 +97,7 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     if (sliderType == SliderType.horizontal) {
       horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
         ..team = team
+        ..onDown = _onDragDown
         ..onStart = _onDragStart
         ..onUpdate = _onDragUpdate
         ..onEnd = _onDragEnd
@@ -322,10 +323,13 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     _endInteraction();
   }
 
-  void _onDragStart(DragStartDetails details) {
-    _isDragStart = true;
+  void _onDragDown(DragDownDetails details) {
     _interactionStartOffset = globalToLocal(details.globalPosition).dx;
     mainAxisOffset = _interactionStartOffset;
+  }
+
+  void _onDragStart(DragStartDetails details) {
+    _isDragStart = true;
     _beginInteraction();
   }
 

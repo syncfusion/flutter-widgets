@@ -111,11 +111,16 @@ class PdfResources extends PdfDictionary {
       }
     } else {
       PdfDictionary? xObjects;
-      xObjects =
-          this[PdfName(PdfDictionaryProperties.xObject)] as PdfDictionary?;
+      final PdfName xobjectName = PdfName(PdfDictionaryProperties.xObject);
+      if (this[xobjectName] is PdfReferenceHolder) {
+        xObjects = (this[xobjectName] as PdfReferenceHolder?)?.object
+            as PdfDictionary?;
+      } else if (this[xobjectName] is PdfDictionary) {
+        xObjects = this[xobjectName] as PdfDictionary?;
+      }
       if (xObjects == null) {
         xObjects = PdfDictionary();
-        this[PdfName(PdfDictionaryProperties.xObject)] = xObjects;
+        this[xobjectName] = xObjects;
       }
       xObjects[name] = PdfReferenceHolder(IPdfWrapper.getElement(resource!));
     }

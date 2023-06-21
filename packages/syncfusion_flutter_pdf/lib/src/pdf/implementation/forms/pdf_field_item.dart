@@ -84,6 +84,7 @@ class PdfFieldItem {
                     final IPdfPrimitive? holder = lAnnots[i];
                     if (holder != null &&
                         holder is PdfReferenceHolder &&
+                        holder.reference != null &&
                         holder.reference!.objNum == widgetReference.objNum &&
                         holder.reference!.genNum == widgetReference.genNum) {
                       _page = PdfPageCollectionHelper.getHelper(doc.pages)

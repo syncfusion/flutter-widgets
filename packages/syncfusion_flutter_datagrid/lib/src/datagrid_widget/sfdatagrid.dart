@@ -103,6 +103,14 @@ typedef _DataGridPropertyChangeListener = void Function(
     String? propertyName,
     bool recalculateRowHeight});
 
+/// Signature for [SfDataGrid.onColumnDragging] callback.
+typedef DataGridColumnDraggingCallback = bool Function(
+    DataGridColumnDragDetails details);
+
+/// Signature for [SfDataGrid. columnDragFeedbackBuilder] callback.
+typedef ColumnDragFeedbackBuilderCallback = Widget Function(
+    BuildContext context, GridColumn column);
+
 /// Row configuration and cell data for a [SfDataGrid].
 ///
 /// Return this list of [DataGridRow] objects to [DataGridSource.rows] property.
@@ -461,6 +469,12 @@ class SfDataGrid extends StatefulWidget {
     this.onFilterChanging,
     this.onFilterChanged,
     this.checkboxShape,
+    this.showHorizontalScrollbar = true,
+    this.showVerticalScrollbar = true,
+    this.showFilterIconOnHover = false,
+    this.allowColumnsDragging = false,
+    this.onColumnDragging,
+    this.columnDragFeedbackBuilder,
   })  : assert(frozenColumnsCount >= 0),
         assert(footerFrozenColumnsCount >= 0),
         assert(frozenRowsCount >= 0),
@@ -1255,7 +1269,6 @@ class SfDataGrid extends StatefulWidget {
   ///             keyboardType: TextInputType.number,
   ///             onChanged: (String value) {
   ///               if (value.isNotEmpty) {
-  ///                 print(value);
   ///                 newCellValue = int.parse(value);
   ///               } else {
   ///                 newCellValue = null;
@@ -1592,6 +1605,63 @@ class SfDataGrid extends StatefulWidget {
   /// [Checkbox.shape]
   final OutlinedBorder? checkboxShape;
 
+  /// Decides whether the horizontal scrollbar should be shown.
+  /// Defaults to true.
+  final bool showHorizontalScrollbar;
+
+  /// Decides whether the vertical scrollbar should be shown.
+  /// Defaults to true.
+  final bool showVerticalScrollbar;
+
+  /// Decides whether the filter icon should be only shown when hovering the header cells.
+  /// Defaults to false.
+  final bool showFilterIconOnHover;
+
+  /// Decides whether the column can be dragged and dropped to the required position.
+  ///
+  /// Columns will not be automatically reordered from one position to another position. You must use the [SfDataGrid.onColumnDragging] callback. For this, you must maintain the columns in variable and assign to [SfDataGrid.columns] property. Then, you can reorder a column in the collection inside the `setState` method through [SfDataGrid.onColumnDragging] callback.
+  ///
+  /// Defaults to false.
+  ///
+  /// The following example shows how to reorder the columns,
+  ///
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       title: const Text('Syncfusion Flutter DataGrid'),
+  //     ),
+  //     body: SfDataGrid(
+  //       columns: columns,
+  //       source: employeeDataSource,
+  //       allowColumnsDragging: true,
+  //       onColumnDragging: (DataGridColumnDragDetails details) {
+  //         if (details.action == DataGridColumnDragAction. dropping) {
+  //           setState(() {
+  //             final GridColumn dragColumn = columns[details.from];
+  //             columns[details.from] = columns[details.to];
+  //             columns[details.to] = dragColumn;
+  //           });
+  //         }
+  //         return true;
+  //       },
+  //     ),
+  //   );
+  // }
+  ///
+  /// See also,
+  ///
+  /// * [SfDataGrid.onColumnDragging] - Used to reorder a column from one position to another position.
+  /// * [SfDataGrid.columnDragFeedbackBuilder] - Used to show any widget under the pointer when a drag is under way.
+  final bool allowColumnsDragging;
+
+  /// Called when a column has been dragged and dropped to new location.
+  final DataGridColumnDraggingCallback? onColumnDragging;
+
+  /// Called to obtain the feedback widget for the column when it is about to drag.
+  /// If null, a [Text] widget will be loaded by default with the dragging header cell constraints.
+  final ColumnDragFeedbackBuilderCallback? columnDragFeedbackBuilder;
+
   @override
   State<StatefulWidget> createState() => SfDataGridState();
 }
@@ -1794,6 +1864,9 @@ class SfDataGridState extends State<SfDataGrid>
 
     _dataGridConfiguration.columnResizeController =
         ColumnResizeController(dataGridStateDetails: _dataGridStateDetails!);
+    _dataGridConfiguration.columnDragAndDropController =
+        ColumnDragAndDropController(
+            dataGridStateDetails: _dataGridStateDetails!);
 
     _initializeProperties();
   }
@@ -2276,6 +2349,34 @@ class SfDataGridState extends State<SfDataGrid>
         _refreshScrollOffsets();
       });
     }
+
+    if (propertyName == 'columnDragAndDrop') {
+      final DataRowBase? dataRow = _rowGenerator.items.firstWhereOrNull(
+          (DataRowBase dataRow) => dataRow.rowType == RowType.headerRow);
+
+      if (dataRow == null) {
+        return;
+      }
+
+      if (_dataGridConfiguration
+          .columnDragAndDropController.canResetColumnWidthCalculation) {
+        if (_dataGridConfiguration.columnWidthMode ==
+                ColumnWidthMode.lastColumnFill ||
+            _dataGridConfiguration.columns.firstWhereOrNull(
+                    (GridColumn element) =>
+                        element.columnWidthMode ==
+                        ColumnWidthMode.lastColumnFill) !=
+                null) {
+          resetAutoCalculation(_dataGridConfiguration.columnSizer);
+        }
+      }
+
+      setState(() {
+        dataRow
+          ..isDirty = true
+          ..rowIndexChanged();
+      });
+    }
   }
 
   void _updateDataGridStateDetails() {
@@ -2365,7 +2466,13 @@ class SfDataGridState extends State<SfDataGrid>
       ..allowFiltering = widget.allowFiltering
       ..onFilterChanging = widget.onFilterChanging
       ..onFilterChanged = widget.onFilterChanged
-      ..checkboxShape = widget.checkboxShape;
+      ..checkboxShape = widget.checkboxShape
+      ..showHorizontalScrollbar = widget.showHorizontalScrollbar
+      ..showVerticalScrollbar = widget.showVerticalScrollbar
+      ..showFilterIconOnHover = widget.showFilterIconOnHover
+      ..allowColumnsDragging = widget.allowColumnsDragging
+      ..onColumnDragging = widget.onColumnDragging
+      ..columnDragFeedbackBuilder = widget.columnDragFeedbackBuilder;
 
     if (widget.allowPullToRefresh) {
       _dataGridConfiguration.refreshIndicatorKey ??=
@@ -2710,6 +2817,10 @@ class SfDataGridState extends State<SfDataGrid>
           oldWidget.headerGridLinesVisibility !=
               widget.headerGridLinesVisibility ||
           oldWidget.sortingGestureType != widget.sortingGestureType ||
+          (oldWidget.allowColumnsDragging != widget.allowColumnsDragging) ||
+          (oldWidget.onColumnDragging != widget.onColumnDragging) ||
+          (oldWidget.columnDragFeedbackBuilder !=
+              widget.columnDragFeedbackBuilder) ||
           isEditingChanged) {
         // Need to endEdit before refreshing
         if (isEditingChanged && _dataGridConfiguration.currentCell.isEditing) {
@@ -2721,6 +2832,11 @@ class SfDataGridState extends State<SfDataGrid>
       } else if (isPullToRefreshPropertiesChanged || isMaxSwipeOffsetChanged) {
         _initializeProperties();
       }
+    }
+
+    if (oldWidget.allowColumnsDragging != widget.allowColumnsDragging ||
+        oldWidget.onColumnDragging != widget.onColumnDragging) {
+      _handleDataGridPropertyChangeListeners(propertyName: 'columnDragAndDrop');
     }
   }
 
@@ -2899,6 +3015,8 @@ class SfDataGridState extends State<SfDataGrid>
 
     _dataGridConfiguration.isMacPlatform =
         themeData.platform == TargetPlatform.macOS;
+    _dataGridConfiguration.columnDragAndDropController.isWindowsPlatform =
+        themeData.platform == TargetPlatform.windows && !kIsWeb;
     // Sets column resizing hitTestPrecision based on the platform.
 
     if (_dataGridConfiguration.allowColumnsResizing) {
@@ -3658,7 +3776,6 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   ///           keyboardType: TextInputType.number,
   ///           onChanged: (String value) {
   ///             if (value.isNotEmpty) {
-  ///               print(value);
   ///               newCellValue = int.parse(value);
   ///             } else {
   ///               newCellValue = null;
@@ -4421,19 +4538,30 @@ class DataGridThemeHelper {
     sortOrderNumberColor = dataGridThemeData.sortOrderNumberColor;
     sortOrderNumberBackgroundColor =
         dataGridThemeData.sortOrderNumberBackgroundColor;
-    filterPopupTextStyle = dataGridThemeData.filterPopupTextStyle ??
-        TextStyle(
-            fontSize: 14.0,
-            color: colorScheme!.onSurface.withOpacity(0.89),
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.normal);
+    _filterPopupTextStyle = TextStyle(
+        fontSize: 14.0,
+        color: colorScheme!.onSurface.withOpacity(0.89),
+        fontFamily: 'Roboto',
+        fontWeight: FontWeight.normal);
+
+    _filterPopupDisabledTextStyle = TextStyle(
+        fontSize: 14.0,
+        color: colorScheme.onSurface.withOpacity(0.38),
+        fontFamily: 'Roboto',
+        fontWeight: FontWeight.normal);
+
+    filterPopupTextStyle = dataGridThemeData.filterPopupTextStyle != null
+        ? _filterPopupTextStyle.merge(dataGridThemeData.filterPopupTextStyle)
+        : _filterPopupTextStyle;
     filterPopupDisabledTextStyle =
-        dataGridThemeData.filterPopupDisabledTextStyle ??
-            TextStyle(
-                fontSize: 14.0,
-                color: colorScheme!.onSurface.withOpacity(0.38),
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.normal);
+        dataGridThemeData.filterPopupDisabledTextStyle != null
+            ? _filterPopupDisabledTextStyle
+                .merge(dataGridThemeData.filterPopupDisabledTextStyle)
+            : _filterPopupDisabledTextStyle;
+    columnDragIndicatorColor =
+        dataGridThemeData.columnDragIndicatorColor ?? colorScheme.primary;
+    columnDragIndicatorStrokeWidth =
+        dataGridThemeData.columnDragIndicatorStrokeWidth ?? 2;
   }
 
   ///To Do
@@ -4577,4 +4705,16 @@ class DataGridThemeHelper {
 
   /// The [TextStyle] of the disabled options in filter popup menu.
   late TextStyle? filterPopupDisabledTextStyle;
+
+  /// Default filter popup menu textStyle
+  late TextStyle _filterPopupTextStyle;
+
+  /// Default filter popup menu disable textStyle
+  late TextStyle _filterPopupDisabledTextStyle;
+
+  ///To do
+  late Color columnDragIndicatorColor;
+
+  ///To do
+  late double columnDragIndicatorStrokeWidth;
 }

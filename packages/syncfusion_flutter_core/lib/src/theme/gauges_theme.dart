@@ -4,7 +4,7 @@ import '../../theme.dart';
 
 /// Applies a theme to descendant Syncfusion radial gauges widgets.
 ///
-/// To obtain the current theme, use [SfBarcodeTheme.of].
+/// To obtain the current theme, use [SfGaugeTheme.of].
 ///
 /// ```dart
 /// Widget build(BuildContext context) {
@@ -138,6 +138,9 @@ class SfGaugeThemeData with Diagnosticable {
     Color? rangeColor,
     Color titleBorderColor = Colors.transparent,
     Color titleBackgroundColor = Colors.transparent,
+    TextStyle? titleTextStyle,
+    TextStyle? axisLabelTextStyle,
+    TextStyle? markerTextStyle,
   }) {
     return SfGaugeThemeData.raw(
         brightness: brightness,
@@ -157,7 +160,10 @@ class SfGaugeThemeData with Diagnosticable {
         rangePointerColor: rangePointerColor,
         rangeColor: rangeColor,
         titleBorderColor: titleBorderColor,
-        titleBackgroundColor: titleBackgroundColor);
+        titleBackgroundColor: titleBackgroundColor,
+        titleTextStyle: titleTextStyle,
+        axisLabelTextStyle: axisLabelTextStyle,
+        markerTextStyle: markerTextStyle);
   }
 
   /// Create a [SfGaugeThemeData] given a set of exact values.
@@ -185,7 +191,10 @@ class SfGaugeThemeData with Diagnosticable {
       required this.rangePointerColor,
       required this.rangeColor,
       required this.titleBorderColor,
-      required this.titleBackgroundColor});
+      required this.titleBackgroundColor,
+      required this.titleTextStyle,
+      required this.axisLabelTextStyle,
+      required this.markerTextStyle});
 
   /// The brightness of the overall theme of the
   /// application for the gauge widgets.
@@ -704,48 +713,121 @@ class SfGaugeThemeData with Diagnosticable {
   ///```
   final Color titleBackgroundColor;
 
+  /// Specifies the text style for gauges title.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///    appBar: AppBar(),
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            gaugeThemeData: SfGaugeThemeData(
+  ///              titleTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfRadialGauge(
+  ///            title: GaugeTitle(text: 'Title'),
+  ///          ),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+  final TextStyle? titleTextStyle;
+
+  /// Specifies the text style for axis label.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///    appBar: AppBar(),
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            gaugeThemeData: SfGaugeThemeData(
+  ///              axisLabelTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfRadialGauge(
+  ///            title: GaugeTitle(text: 'Title'),
+  ///          ),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+  final TextStyle? axisLabelTextStyle;
+
+  /// Specifies the text style for marker text.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///    appBar: AppBar(),
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            gaugeThemeData: SfGaugeThemeData(
+  ///              markerTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfRadialGauge(
+  ///            title: GaugeTitle(text: 'Title'),
+  ///          ),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+  final TextStyle? markerTextStyle;
+
   /// Creates a copy of this gauge theme data object with the matching fields
   /// replaced with the non-null parameter values.
-  SfGaugeThemeData copyWith({
-    Brightness? brightness,
-    Color? backgroundColor,
-    Color? titleColor,
-    Color? axisLabelColor,
-    Color? axisLineColor,
-    Color? majorTickColor,
-    Color? minorTickColor,
-    Color? markerColor,
-    Color? markerBorderColor,
-    Color? needleColor,
-    Color? knobColor,
-    Color? knobBorderColor,
-    Color? tailColor,
-    Color? tailBorderColor,
-    Color? rangePointerColor,
-    Color? rangeColor,
-    Color? titleBorderColor,
-    Color? titleBackgroundColor,
-  }) {
+  SfGaugeThemeData copyWith(
+      {Brightness? brightness,
+      Color? backgroundColor,
+      Color? titleColor,
+      Color? axisLabelColor,
+      Color? axisLineColor,
+      Color? majorTickColor,
+      Color? minorTickColor,
+      Color? markerColor,
+      Color? markerBorderColor,
+      Color? needleColor,
+      Color? knobColor,
+      Color? knobBorderColor,
+      Color? tailColor,
+      Color? tailBorderColor,
+      Color? rangePointerColor,
+      Color? rangeColor,
+      Color? titleBorderColor,
+      Color? titleBackgroundColor,
+      TextStyle? titleTextStyle,
+      TextStyle? axisLabelTextStyle,
+      TextStyle? markerTextStyle}) {
     return SfGaugeThemeData.raw(
-      brightness: brightness ?? this.brightness,
-      backgroundColor: backgroundColor ?? this.backgroundColor,
-      titleColor: titleColor ?? this.titleColor,
-      axisLabelColor: axisLabelColor ?? this.axisLabelColor,
-      axisLineColor: axisLineColor ?? this.axisLineColor,
-      majorTickColor: majorTickColor ?? this.majorTickColor,
-      minorTickColor: minorTickColor ?? this.minorTickColor,
-      markerColor: markerColor ?? this.markerColor,
-      markerBorderColor: markerBorderColor ?? this.markerBorderColor,
-      needleColor: needleColor ?? this.needleColor,
-      knobColor: knobColor ?? this.knobColor,
-      knobBorderColor: knobBorderColor ?? this.knobBorderColor,
-      tailColor: tailColor ?? this.tailColor,
-      tailBorderColor: tailBorderColor ?? this.tailBorderColor,
-      rangePointerColor: rangePointerColor ?? this.rangePointerColor,
-      rangeColor: rangeColor ?? this.rangeColor,
-      titleBorderColor: titleBorderColor ?? this.titleBorderColor,
-      titleBackgroundColor: titleBackgroundColor ?? this.titleBackgroundColor,
-    );
+        brightness: brightness ?? this.brightness,
+        backgroundColor: backgroundColor ?? this.backgroundColor,
+        titleColor: titleColor ?? this.titleColor,
+        axisLabelColor: axisLabelColor ?? this.axisLabelColor,
+        axisLineColor: axisLineColor ?? this.axisLineColor,
+        majorTickColor: majorTickColor ?? this.majorTickColor,
+        minorTickColor: minorTickColor ?? this.minorTickColor,
+        markerColor: markerColor ?? this.markerColor,
+        markerBorderColor: markerBorderColor ?? this.markerBorderColor,
+        needleColor: needleColor ?? this.needleColor,
+        knobColor: knobColor ?? this.knobColor,
+        knobBorderColor: knobBorderColor ?? this.knobBorderColor,
+        tailColor: tailColor ?? this.tailColor,
+        tailBorderColor: tailBorderColor ?? this.tailBorderColor,
+        rangePointerColor: rangePointerColor ?? this.rangePointerColor,
+        rangeColor: rangeColor ?? this.rangeColor,
+        titleBorderColor: titleBorderColor ?? this.titleBorderColor,
+        titleBackgroundColor: titleBackgroundColor ?? this.titleBackgroundColor,
+        titleTextStyle: titleTextStyle ?? this.titleTextStyle,
+        axisLabelTextStyle: axisLabelTextStyle ?? this.axisLabelTextStyle,
+        markerTextStyle: markerTextStyle ?? this.markerTextStyle);
   }
 
   /// Returns the gauge theme data
@@ -775,6 +857,10 @@ class SfGaugeThemeData with Diagnosticable {
       titleBorderColor: Color.lerp(a.titleBorderColor, b.titleBorderColor, t)!,
       titleBackgroundColor:
           Color.lerp(a.titleBackgroundColor, b.titleBackgroundColor, t)!,
+      titleTextStyle: TextStyle.lerp(a.titleTextStyle, b.titleTextStyle, t),
+      axisLabelTextStyle:
+          TextStyle.lerp(a.axisLabelTextStyle, b.axisLabelTextStyle, t),
+      markerTextStyle: TextStyle.lerp(a.markerTextStyle, b.markerTextStyle, t),
     );
   }
 
@@ -804,7 +890,10 @@ class SfGaugeThemeData with Diagnosticable {
         other.rangePointerColor == rangePointerColor &&
         other.rangeColor == rangeColor &&
         other.titleBorderColor == titleBorderColor &&
-        other.titleBackgroundColor == titleBackgroundColor;
+        other.titleBackgroundColor == titleBackgroundColor &&
+        other.titleTextStyle == titleTextStyle &&
+        other.axisLabelTextStyle == axisLabelTextStyle &&
+        other.markerTextStyle == markerTextStyle;
   }
 
   @override
@@ -826,7 +915,10 @@ class SfGaugeThemeData with Diagnosticable {
       rangePointerColor,
       rangeColor,
       titleBorderColor,
-      titleBackgroundColor
+      titleBackgroundColor,
+      titleTextStyle,
+      axisLabelTextStyle,
+      markerTextStyle
     ];
     return Object.hashAll(values);
   }
@@ -871,5 +963,14 @@ class SfGaugeThemeData with Diagnosticable {
         defaultValue: defaultData.titleBorderColor));
     properties.add(ColorProperty('titleBackgroundColor', titleBackgroundColor,
         defaultValue: defaultData.titleBackgroundColor));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'titleTextStyle', titleTextStyle,
+        defaultValue: defaultData.titleTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'axisLabelTextStyle', axisLabelTextStyle,
+        defaultValue: defaultData.axisLabelTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'markerTextStyle', markerTextStyle,
+        defaultValue: defaultData.markerTextStyle));
   }
 }
