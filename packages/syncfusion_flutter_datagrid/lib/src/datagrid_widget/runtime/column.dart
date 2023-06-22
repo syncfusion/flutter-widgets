@@ -2041,8 +2041,8 @@ class DataGridFilterHelper {
               useSelected ? FilterType.equals : FilterType.notEqual;
           FilterOperator filterOperator =
               useSelected ? FilterOperator.or : FilterOperator.and;
-          final String? filterValue =
-              value.value == '(Blanks)' ? null : value.value.toString();
+          final Object? filterValue =
+              value.value == '(Blanks)' ? null : value.value;
 
           // Sets the first filter condition's filter operator as 'AND' to
           // perform multi-column filtering.
@@ -2054,7 +2054,7 @@ class DataGridFilterHelper {
               type: filterType,
               isCaseSensitive: true,
               value: filterValue,
-              filterBehavior: FilterBehavior.stringDataType,
+              filterBehavior: FilterBehavior.strongDataType,
               filterOperator: filterOperator));
         }
       }
@@ -2585,7 +2585,7 @@ class DataGridFilterHelper {
 
     bool canCreateFilterCondition(
         Object? filterValue, String? filterType, bool isFirstCondition) {
-      void setFilterValue(String? value) {
+      void setFilterValue(Object? value) {
         if (isFirstCondition) {
           advancedFilterHelper.filterValue1 = value;
         } else {
