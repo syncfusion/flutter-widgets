@@ -241,7 +241,7 @@ class DistanceCounterSubset extends DistanceCounterCollectionBase
   @override
   double get defaultDistance => _trackDCC.defaultDistance;
 
-  /// Sets the dafault distnace an entity spans.
+  /// Sets the default distance an entity spans.
   @override
   set defaultDistance(double value) {
     _trackDCC.defaultDistance = value;
@@ -299,7 +299,7 @@ class DistanceCounterSubset extends DistanceCounterCollectionBase
   double getAlignedScrollValue(double point) {
     final double offset = _trackDCC.getPreviousScrollValue(start.toDouble());
     final double d = _trackDCC.getAlignedScrollValue(point + offset);
-    if (d == double.nan || d < offset || d - offset > totalDistance) {
+    if (d.isNaN || d < offset || d - offset > totalDistance) {
       return double.nan;
     }
 
@@ -358,7 +358,7 @@ class DistanceCounterSubset extends DistanceCounterCollectionBase
   double getNextScrollValue(double point) {
     final double offset = _trackDCC.getCumulatedDistanceAt(start);
     final double d = _trackDCC.getNextScrollValue(point + offset);
-    if (d == double.nan || d < offset || d - offset > totalDistance) {
+    if (d.isNaN || d < offset || d - offset > totalDistance) {
       return double.nan;
     }
 
@@ -395,7 +395,7 @@ class DistanceCounterSubset extends DistanceCounterCollectionBase
   double getPreviousScrollValue(double point) {
     final double offset = _trackDCC.getCumulatedDistanceAt(start);
     final double d = _trackDCC.getPreviousScrollValue(point + offset);
-    if (d == double.nan || d < offset || d - offset > totalDistance) {
+    if (d.isNaN || d < offset || d - offset > totalDistance) {
       return double.nan;
     }
 
@@ -846,7 +846,7 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
           getNestedDistances(index);
       if (nestedDcc != null) {
         final double r = nestedDcc.getAlignedScrollValue(delta);
-        if (!(r == double.nan) && r >= 0 && r < nestedDcc.totalDistance) {
+        if (!r.isNaN && r >= 0 && r < nestedDcc.totalDistance) {
           return nestedStart + r;
         }
       }
@@ -902,7 +902,7 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
     final DistanceCounterCollectionBase? nestedDcc = getNestedDistances(index);
     if (nestedDcc != null) {
       final double r = nestedDcc.getNextScrollValue(delta);
-      if (!(r == double.nan) && r >= 0 && r < nestedDcc.totalDistance) {
+      if (!r.isNaN && r >= 0 && r < nestedDcc.totalDistance) {
         return nestedStart + r;
       }
     }
@@ -970,7 +970,7 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
           getNestedDistances(index);
       if (nestedDcc != null) {
         final double r = nestedDcc.getPreviousScrollValue(delta);
-        if (!(r == double.nan) && r >= 0 && r < nestedDcc.totalDistance) {
+        if (!r.isNaN && r >= 0 && r < nestedDcc.totalDistance) {
           return nestedStart + r;
         }
       }
@@ -988,7 +988,7 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
       if (nestedDcc != null) {
         delta = nestedDcc.totalDistance;
         final double r = nestedDcc.getPreviousScrollValue(delta);
-        if (!(r == double.nan) && r >= 0 && r < nestedDcc.totalDistance) {
+        if (!r.isNaN && r >= 0 && r < nestedDcc.totalDistance) {
           return nestedStart + r;
         }
       }

@@ -2,16 +2,21 @@ name: officecore_example
 description: Demo for creating a Excel file using syncfusion_flutter_officecore package.
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   path_provider: ^2.0.1
   open_file: ^3.0.1
-  syncfusion_flutter_xlsio: ^21.1.35
+  syncfusion_flutter_xlsio:
+     git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-xlsio
+      path: flutter_xlsio/syncfusion_flutter_xlsio
+      branch: release/22.1.1
+      ref: release/22.1.1
 
 
-# The following section is specific to Flutter.
+# The following section is specific to Flutter. 
 flutter:
   uses-material-design: true

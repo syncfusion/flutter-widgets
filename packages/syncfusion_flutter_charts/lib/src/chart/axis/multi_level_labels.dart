@@ -309,11 +309,7 @@ class LogarithmicMultiLevelLabel extends NumericMultiLevelLabel {
 class MultiLevelLabelStyle {
   /// Creating an argument constructor of MultiLevelLabelStyle class.
   const MultiLevelLabelStyle(
-      {this.textStyle = const TextStyle(
-          fontSize: 12.0,
-          fontStyle: FontStyle.normal,
-          fontWeight: FontWeight.normal,
-          fontFamily: 'Normal'),
+      {this.textStyle,
       this.borderWidth = 0,
       this.borderColor,
       this.borderType = MultiLevelBorderType.rectangle});
@@ -674,19 +670,15 @@ void generateMultiLevelLabels(ChartAxisRendererDetails axisRendererDetails) {
 /// To trigger the multi-level axis label event
 void _triggerMultiLabelRenderCallback(
     ChartAxisRendererDetails axisRendererDetails) {
-  final ChartAxis axis = axisRendererDetails.axis;
-  TextStyle actualTextStyle = axis.multiLevelLabelStyle.textStyle!;
-  actualTextStyle = getTextStyle(
-      textStyle: actualTextStyle,
-      fontColor:
-          axisRendererDetails.renderingDetails.chartTheme.axisLabelColor);
+  final TextStyle multiLevelLabelStyle =
+      axisRendererDetails.chartThemeData.axisMultiLevelLabelTextStyle!;
   final List<AxisMultiLevelLabel> visibleAxisMultiLevelLabels =
       axisRendererDetails.visibleAxisMultiLevelLabels;
   Rect axisBounds = axisRendererDetails.stateProperties.chartAxis.axisClipRect;
   for (int i = 0; i < visibleAxisMultiLevelLabels.length; i++) {
     String actualText = visibleAxisMultiLevelLabels[i].text ?? '';
     String? trimmedText;
-    TextStyle labelTextStyle = actualTextStyle;
+    TextStyle labelTextStyle = multiLevelLabelStyle.copyWith();
     if (axisRendererDetails.axis.multiLevelLabelFormatter != null) {
       final MultiLevelLabelRenderDetails multiLevelLabelRenderDetails =
           MultiLevelLabelRenderDetails(
@@ -697,7 +689,7 @@ void _triggerMultiLabelRenderCallback(
               axisRendererDetails.name);
       final ChartAxisLabel chartAxisLabel = axisRendererDetails
           .axis.multiLevelLabelFormatter!(multiLevelLabelRenderDetails);
-      labelTextStyle = chartAxisLabel.textStyle;
+      labelTextStyle = labelTextStyle.merge(chartAxisLabel.textStyle);
       actualText = chartAxisLabel.text;
     }
     final Size textSize = measureText(actualText, labelTextStyle, 0);

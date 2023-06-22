@@ -300,3 +300,27 @@ void setSwipeOffsetInDataGridSwipeStartDetailsArgs(
     DataGridSwipeStartDetails swipeStartDetails) {
   swipeStartDetails._dataGridConfiguration = dataGridConfiguration;
 }
+
+///Holds the arguments of the [SfDataGrid.onColumnDragging] callback.
+@immutable
+class DataGridColumnDragDetails {
+  /// Creates the [DataGridColumnDragDetails] for the
+  /// `DataGridColumnDraggingCallback`.
+  const DataGridColumnDragDetails(
+      {required this.from,
+      required this.to,
+      required this.action,
+      required this.offset});
+
+  //// An index of a column that is being dragged.
+  final int from;
+
+  /// An index of a column where the already dragged column is being dropped.
+  final int? to;
+
+  /// The current action of the drag and drop operation.
+  final DataGridColumnDragAction action;
+
+  /// The global position at which the pointer contacted the screen.
+  final Offset offset;
+}

@@ -326,18 +326,30 @@ class _AutoFilterImpl implements AutoFilter {
             }
             break;
           case DynamicFilterType.lastMonth:
-            final Jiffy jiffyLast = Jiffy(currentDate).add(months: -1);
-            startDate = DateTime(jiffyLast.year, jiffyLast.month, jiffyLast.day,
-                jiffyLast.hour, jiffyLast.minute, jiffyLast.second);
+            final Jiffy jiffyLast =
+                Jiffy.parseFromDateTime(currentDate).add(months: -1);
+            startDate = DateTime(
+                jiffyLast.year,
+                jiffyLast.month,
+                jiffyLast.date,
+                jiffyLast.hour,
+                jiffyLast.minute,
+                jiffyLast.second);
             if ((dateTime!.year == startDate.year) &&
                 (dateTime.month == startDate.month)) {
               isVisible = true;
             }
             break;
           case DynamicFilterType.nextMonth:
-            final Jiffy jiffyNext = Jiffy(currentDate).add(months: 1);
-            startDate = DateTime(jiffyNext.year, jiffyNext.month, jiffyNext.day,
-                jiffyNext.hour, jiffyNext.minute, jiffyNext.second);
+            final Jiffy jiffyNext =
+                Jiffy.parseFromDateTime(currentDate).add(months: 1);
+            startDate = DateTime(
+                jiffyNext.year,
+                jiffyNext.month,
+                jiffyNext.date,
+                jiffyNext.hour,
+                jiffyNext.minute,
+                jiffyNext.second);
             if ((dateTime!.year == startDate.year) &&
                 (dateTime.month == startDate.month)) {
               isVisible = true;

@@ -132,6 +132,7 @@ class SfBarcodeThemeData with Diagnosticable {
     Color? backgroundColor,
     Color? barColor,
     Color? textColor,
+    TextStyle? textStyle,
   }) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
@@ -140,10 +141,12 @@ class SfBarcodeThemeData with Diagnosticable {
     textColor ??= isLight ? const Color(0xFF212121) : const Color(0xFFE0E0E0);
 
     return SfBarcodeThemeData.raw(
-        brightness: brightness,
-        backgroundColor: backgroundColor,
-        barColor: barColor,
-        textColor: textColor);
+      brightness: brightness,
+      backgroundColor: backgroundColor,
+      barColor: barColor,
+      textColor: textColor,
+      textStyle: textStyle,
+    );
   }
 
   /// Create a [SfBarcodeThemeData] given a set of exact values.
@@ -157,6 +160,7 @@ class SfBarcodeThemeData with Diagnosticable {
     required this.backgroundColor,
     required this.barColor,
     required this.textColor,
+    required this.textStyle,
   });
 
   /// The brightness of the overall theme of the
@@ -267,6 +271,31 @@ class SfBarcodeThemeData with Diagnosticable {
   /// ```
   final Color textColor;
 
+  /// Specifies the text style for barcode text.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///    appBar: AppBar(),
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            barcodeThemeData: SfBarcodeThemeData(
+  ///              textStyle: TestStyle(color: Colors.blue)
+  ///              ),
+  ///            ),
+  ///          child: SfBarcodeGenerator(
+  ///            value: 'www.sycfusion.com',
+  ///            symbology: QRCode() ,
+  ///            showValue: true,
+  ///          ),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+  final TextStyle? textStyle;
+
   /// Creates a copy of this barcode theme data object with the matching fields
   /// replaced with the non-null parameter values.
   SfBarcodeThemeData copyWith({
@@ -274,13 +303,14 @@ class SfBarcodeThemeData with Diagnosticable {
     Color? backgroundColor,
     Color? barColor,
     Color? textColor,
+    TextStyle? textStyle,
   }) {
     return SfBarcodeThemeData.raw(
-      brightness: brightness ?? this.brightness,
-      backgroundColor: backgroundColor ?? this.backgroundColor,
-      barColor: barColor ?? this.barColor,
-      textColor: textColor ?? this.textColor,
-    );
+        brightness: brightness ?? this.brightness,
+        backgroundColor: backgroundColor ?? this.backgroundColor,
+        barColor: barColor ?? this.barColor,
+        textColor: textColor ?? this.textColor,
+        textStyle: textStyle ?? this.textStyle);
   }
 
   /// Returns the barcode theme data
@@ -290,10 +320,10 @@ class SfBarcodeThemeData with Diagnosticable {
       return null;
     }
     return SfBarcodeThemeData(
-      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
-      barColor: Color.lerp(a.barColor, b.barColor, t),
-      textColor: Color.lerp(a.textColor, b.textColor, t),
-    );
+        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
+        barColor: Color.lerp(a.barColor, b.barColor, t),
+        textColor: Color.lerp(a.textColor, b.textColor, t),
+        textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t));
   }
 
   @override
@@ -308,12 +338,18 @@ class SfBarcodeThemeData with Diagnosticable {
     return other is SfBarcodeThemeData &&
         other.backgroundColor == backgroundColor &&
         other.barColor == barColor &&
-        other.textColor == textColor;
+        other.textColor == textColor &&
+        other.textStyle == textStyle;
   }
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[backgroundColor, barColor, textColor];
+    final List<Object?> values = <Object?>[
+      backgroundColor,
+      barColor,
+      textColor,
+      textStyle
+    ];
     return Object.hashAll(values);
   }
 
@@ -329,5 +365,7 @@ class SfBarcodeThemeData with Diagnosticable {
         defaultValue: defaultData.barColor));
     properties.add(ColorProperty('textColor', textColor,
         defaultValue: defaultData.textColor));
+    properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle,
+        defaultValue: defaultData.textStyle));
   }
 }

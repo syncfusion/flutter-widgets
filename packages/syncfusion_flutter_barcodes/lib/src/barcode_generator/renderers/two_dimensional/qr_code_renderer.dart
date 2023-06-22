@@ -1819,7 +1819,7 @@ class QRCodeRenderer extends SymbologyRenderer {
 
     for (int i = 0; i < _blocks![0]; i++) {
       errorCorrectionCodeWord.dataCodeWords = ds1[count];
-      polynomial[count++] = errorCorrectionCodeWord.getERCW();
+      polynomial[count++] = errorCorrectionCodeWord.getERCW(_encodedText);
     }
     if (_blocks!.length == 6) {
       errorCorrectionCodeWord.dataBits =
@@ -1827,7 +1827,7 @@ class QRCodeRenderer extends SymbologyRenderer {
 
       for (int i = 0; i < _blocks![3]; i++) {
         errorCorrectionCodeWord.dataCodeWords = ds1[count];
-        polynomial[count++] = errorCorrectionCodeWord.getERCW();
+        polynomial[count++] = errorCorrectionCodeWord.getERCW(_encodedText);
       }
     }
 

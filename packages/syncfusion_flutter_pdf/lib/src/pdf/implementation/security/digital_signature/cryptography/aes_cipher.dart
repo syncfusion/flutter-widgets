@@ -281,28 +281,28 @@ class Aes {
       temp[3] = keySheduleArray[row - 1][3];
       if (row % nk == 0) {
         temp = _subWord(_rotWord(temp));
-        temp[0] = ((temp[0]).toSigned(32) ^ (rCon[row ~/ nk][0]).toSigned(32))
+        temp[0] = (temp[0].toSigned(32) ^ rCon[row ~/ nk][0].toSigned(32))
             .toUnsigned(8);
-        temp[1] = ((temp[1]).toSigned(32) ^ (rCon[row ~/ nk][1]).toSigned(32))
+        temp[1] = (temp[1].toSigned(32) ^ rCon[row ~/ nk][1].toSigned(32))
             .toUnsigned(8);
-        temp[2] = ((temp[2]).toSigned(32) ^ (rCon[row ~/ nk][2]).toSigned(32))
+        temp[2] = (temp[2].toSigned(32) ^ rCon[row ~/ nk][2].toSigned(32))
             .toUnsigned(8);
-        temp[3] = ((temp[3]).toSigned(32) ^ (rCon[row ~/ nk][3]).toSigned(32))
+        temp[3] = (temp[3].toSigned(32) ^ rCon[row ~/ nk][3].toSigned(32))
             .toUnsigned(8);
       } else if (nk > 6 && (row % nk == 4)) {
         temp = _subWord(temp);
       }
       keySheduleArray[row][0] =
-          ((keySheduleArray[row - nk][0]).toSigned(32) ^ temp[0].toSigned(32))
+          (keySheduleArray[row - nk][0].toSigned(32) ^ temp[0].toSigned(32))
               .toUnsigned(8);
       keySheduleArray[row][1] =
-          ((keySheduleArray[row - nk][1]).toSigned(32) ^ temp[1].toSigned(32))
+          (keySheduleArray[row - nk][1].toSigned(32) ^ temp[1].toSigned(32))
               .toUnsigned(8);
       keySheduleArray[row][2] =
-          ((keySheduleArray[row - nk][2]).toSigned(32) ^ temp[2].toSigned(32))
+          (keySheduleArray[row - nk][2].toSigned(32) ^ temp[2].toSigned(32))
               .toUnsigned(8);
       keySheduleArray[row][3] =
-          ((keySheduleArray[row - nk][3]).toSigned(32) ^ temp[3].toSigned(32))
+          (keySheduleArray[row - nk][3].toSigned(32) ^ temp[3].toSigned(32))
               .toUnsigned(8);
     }
   }
@@ -381,22 +381,22 @@ class Aes {
     for (int c = 0; c < 4; ++c) {
       state[0][c] = (_gfmultby02(temp[0][c]).toSigned(32) ^
               _gfmultby03(temp[1][c]).toSigned(32) ^
-              (temp[2][c]).toSigned(32) ^
-              (temp[3][c]).toSigned(32))
+              temp[2][c].toSigned(32) ^
+              temp[3][c].toSigned(32))
           .toUnsigned(8);
-      state[1][c] = ((temp[0][c]).toSigned(32) ^
+      state[1][c] = (temp[0][c].toSigned(32) ^
               _gfmultby02(temp[1][c]).toSigned(32) ^
               _gfmultby03(temp[2][c]).toSigned(32) ^
-              (temp[3][c]).toSigned(32))
+              temp[3][c].toSigned(32))
           .toUnsigned(8);
-      state[2][c] = ((temp[0][c]).toSigned(32) ^
-              (temp[1][c]).toSigned(32) ^
+      state[2][c] = (temp[0][c].toSigned(32) ^
+              temp[1][c].toSigned(32) ^
               _gfmultby02(temp[2][c]).toSigned(32) ^
               _gfmultby03(temp[3][c]).toSigned(32))
           .toUnsigned(8);
       state[3][c] = (_gfmultby03(temp[0][c]).toSigned(32) ^
-              (temp[1][c]).toSigned(32) ^
-              (temp[2][c]).toSigned(32) ^
+              temp[1][c].toSigned(32) ^
+              temp[2][c].toSigned(32) ^
               _gfmultby02(temp[3][c]).toSigned(32))
           .toUnsigned(8);
     }
@@ -521,8 +521,8 @@ class Aes {
   void _addRoundKey(int? round) {
     for (int r = 0; r < 4; ++r) {
       for (int c = 0; c < 4; ++c) {
-        state[r][c] = ((state[r][c]).toSigned(32) ^
-                (keySheduleArray[(round! * 4) + c][r]).toSigned(32))
+        state[r][c] = (state[r][c].toSigned(32) ^
+                keySheduleArray[(round! * 4) + c][r].toSigned(32))
             .toUnsigned(8);
       }
     }

@@ -1,3 +1,33 @@
+## Unreleased
+
+**Features**
+
+* Support for filling out the form fields, such as text boxes, dropdown menus, checkboxes, radio buttons, and signatures, has been provided. It also offers additional features, such as the ability to save, export, and import the form data.
+* Support for loading the pages with the width fitted on the Windows and Web platforms has been provided.
+
+**General**
+
+* Upgraded the `http` package to the latest version 1.0.0.
+* Upgraded the `device_info_plus` package to the latest version 9.0.2.
+
+## [21.2.4] - 05/09/2023
+
+**Bugs**
+
+* Now, the `SfPdfViewer` does not execute the `onDocumentLoaded` callback before the Pdf document loads.
+
+## [21.2.3] - 05/03/2023
+
+**Features**
+
+* Support for customising the visibility of the page loading busy indicator has been provided.
+
+## [21.1.38] - 04/04/2023
+
+**Bugs**
+
+* Now, the `SfPdfViewer` does not cause excessive widget rebuilding when no actions are performed on the PDF.
+
 ## [20.4.55] - 03/21/2023
 
 **Bugs**

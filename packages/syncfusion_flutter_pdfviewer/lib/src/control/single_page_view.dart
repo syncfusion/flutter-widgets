@@ -575,8 +575,10 @@ class SinglePageViewState extends State<SinglePageView> {
                 MediaQuery.of(context).orientation == Orientation.landscape
                     ? 0
                     : xPosition * constraints.biggest.width;
-            _transformationController.value.translate(
-                previousOffset.dx - xPosition, previousOffset.dy - yPosition);
+            if (kIsDesktop && !widget.isMobileWebView) {
+              _transformationController.value.translate(
+                  previousOffset.dx - xPosition, previousOffset.dy - yPosition);
+            }
             _oldLayoutSize = constraints.biggest;
             _canPanOnZoom = false;
           }
@@ -730,6 +732,12 @@ class SinglePageViewState extends State<SinglePageView> {
       _canPanOnZoom = false;
     });
     return offset;
+  }
+
+  /// Update the offset after zooming
+  void updateOffset() {
+    widget.onPdfOffsetChanged!
+        .call(_transformationController.toScene(Offset.zero));
   }
 
   void _handleDragStart(DragStartDetails details) {
@@ -910,20 +918,18 @@ class SinglePageViewState extends State<SinglePageView> {
                 (Theme.of(context).colorScheme.brightness == Brightness.light
                     ? Colors.white
                     : const Color(0xFF424242)),
-            title: Text(
-              _localizations!.pdfGoToPageLabel,
-              style:
-                  _pdfViewerThemeData!.paginationDialogStyle?.headerTextStyle ??
-                      TextStyle(
-                        fontFamily: 'Roboto',
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.87),
-                      ),
-            ),
+            title: Text(_localizations!.pdfGoToPageLabel,
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineMedium!
+                    .copyWith(
+                      fontSize: 20,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.black.withOpacity(0.87)
+                          : Colors.white.withOpacity(0.87),
+                    )
+                    .merge(_pdfViewerThemeData!
+                        .paginationDialogStyle?.headerTextStyle)),
             shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(4.0))),
             content: SingleChildScrollView(child: _paginationTextField()),
@@ -933,42 +939,30 @@ class SinglePageViewState extends State<SinglePageView> {
                   _textFieldController.clear();
                   Navigator.of(context).pop();
                 },
-                child: Text(
-                  _localizations!.pdfPaginationDialogCancelLabel,
-                  style: _pdfViewerThemeData!
-                              .paginationDialogStyle?.cancelTextStyle!.color ==
-                          null
-                      ? _pdfViewerThemeData!
-                          .paginationDialogStyle?.cancelTextStyle!
-                          .copyWith(
-                              color: Theme.of(context).colorScheme.primary)
-                      : _pdfViewerThemeData!
-                              .paginationDialogStyle?.cancelTextStyle ??
-                          const TextStyle(
-                              fontFamily: 'Roboto',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500),
-                ),
+                child: Text(_localizations!.pdfPaginationDialogCancelLabel,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.primary,
+                        )
+                        .merge(_pdfViewerThemeData!
+                            .paginationDialogStyle?.cancelTextStyle)),
               ),
               TextButton(
                 onPressed: () {
                   _handlePageNumberValidation();
                 },
-                child: Text(
-                  _localizations!.pdfPaginationDialogOkLabel,
-                  style: _pdfViewerThemeData!
-                              .paginationDialogStyle?.okTextStyle!.color ==
-                          null
-                      ? _pdfViewerThemeData!.paginationDialogStyle?.okTextStyle!
-                          .copyWith(
-                              color: Theme.of(context).colorScheme.primary)
-                      : _pdfViewerThemeData!
-                              .paginationDialogStyle?.okTextStyle ??
-                          const TextStyle(
-                              fontFamily: 'Roboto',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500),
-                ),
+                child: Text(_localizations!.pdfPaginationDialogOkLabel,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.primary)
+                        .merge(_pdfViewerThemeData!
+                            .paginationDialogStyle?.okTextStyle)),
               )
             ],
           );
@@ -982,51 +976,57 @@ class SinglePageViewState extends State<SinglePageView> {
       child: SizedBox(
         width: _kPdfPaginationTextFieldWidth,
         child: TextFormField(
-          style:
-              _pdfViewerThemeData!.paginationDialogStyle?.inputFieldTextStyle ??
-                  TextStyle(
-                      fontFamily: 'Roboto',
-                      fontSize: 16,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.87)),
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium!
+              .copyWith(
+                fontSize: 16,
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.black.withOpacity(0.87)
+                    : Colors.white.withOpacity(0.87),
+              )
+              .merge(_pdfViewerThemeData!
+                  .paginationDialogStyle?.inputFieldTextStyle),
           focusNode: _focusNode,
           decoration: InputDecoration(
-            isDense: true,
-            focusedBorder: UnderlineInputBorder(
-              borderSide:
-                  BorderSide(color: Theme.of(context).colorScheme.primary),
-            ),
-            contentPadding: const EdgeInsets.symmetric(vertical: 6),
-            hintText: _localizations!.pdfEnterPageNumberLabel,
-            hintStyle:
-                _pdfViewerThemeData!.paginationDialogStyle?.hintTextStyle ??
-                    (TextStyle(
-                        fontFamily: 'Roboto',
-                        fontSize: 16,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.38))),
-            counterText:
-                '${widget.pdfViewerController.pageNumber}/${widget.pdfViewerController.pageCount}',
-            counterStyle:
-                _pdfViewerThemeData!.paginationDialogStyle?.pageInfoTextStyle ??
-                    TextStyle(
-                        fontFamily: 'Roboto',
-                        fontSize: 12,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.38)),
-            errorStyle: _pdfViewerThemeData!
-                    .paginationDialogStyle?.validationTextStyle ??
-                TextStyle(
-                    fontFamily: 'Roboto',
+              isDense: true,
+              focusedBorder: UnderlineInputBorder(
+                borderSide:
+                    BorderSide(color: Theme.of(context).colorScheme.primary),
+              ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 6),
+              hintText: _localizations!.pdfEnterPageNumberLabel,
+              hintStyle: Theme.of(context)
+                  .textTheme
+                  .titleMedium!
+                  .copyWith(
+                    fontSize: 16,
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.black.withOpacity(0.6)
+                        : Colors.white.withOpacity(0.6),
+                  )
+                  .merge(_pdfViewerThemeData!
+                      .paginationDialogStyle?.hintTextStyle),
+              counterText:
+                  '${widget.pdfViewerController.pageNumber}/${widget.pdfViewerController.pageCount}',
+              counterStyle: Theme.of(context)
+                  .textTheme
+                  .bodySmall!
+                  .copyWith(
                     fontSize: 12,
-                    color: Theme.of(context).colorScheme.error),
-          ),
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.black.withOpacity(0.6)
+                        : Colors.white.withOpacity(0.6),
+                  )
+                  .merge(_pdfViewerThemeData!
+                      .paginationDialogStyle?.pageInfoTextStyle),
+              errorStyle: Theme.of(context)
+                  .textTheme
+                  .bodySmall!
+                  .copyWith(
+                      fontSize: 12, color: Theme.of(context).colorScheme.error)
+                  .merge(_pdfViewerThemeData!
+                      .paginationDialogStyle?.validationTextStyle)),
           keyboardType: TextInputType.number,
           enableInteractiveSelection: false,
           controller: _textFieldController,

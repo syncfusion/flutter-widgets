@@ -7,6 +7,7 @@ import '../primitives/pdf_number.dart';
 import '../primitives/pdf_reference.dart';
 import '../primitives/pdf_reference_holder.dart';
 import '../primitives/pdf_stream.dart';
+import '../primitives/pdf_string.dart';
 import '../security/pdf_encryptor.dart';
 import 'enums.dart';
 import 'pdf_cross_table.dart';
@@ -286,6 +287,16 @@ class CrossTable {
         obj = parser!.parseOffset(position!);
       } else {
         obj = _getObjectFromPosition(parser!, position!);
+        if (encryptor != null) {
+          if (obj is PdfDictionary) {
+            obj.decrypted = true;
+            for (final dynamic element in obj.items!.values) {
+              if (element is PdfString) {
+                element.isParentDecrypted = true;
+              }
+            }
+          }
+        }
       }
       oi._obj = obj;
       return obj;
