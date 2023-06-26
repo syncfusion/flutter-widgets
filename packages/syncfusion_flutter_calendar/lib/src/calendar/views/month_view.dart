@@ -238,7 +238,7 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
 }
 
 class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
-  _MonthViewRenderObjectWidget(
+  const _MonthViewRenderObjectWidget(
       this.visibleDates,
       this.visibleAppointments,
       this.rowCount,
@@ -823,8 +823,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     final String weekNumber =
         DateTimeHelper.getWeekNumberOfYear(date).toString();
     double xPosition = isRTL ? size.width - weekNumberPanelWidth : 0;
-    final TextStyle weekNumberTextStyle =
-        weekNumberStyle.textStyle ?? calendarTheme.weekNumberTextStyle!;
+    final TextStyle weekNumberTextStyle = calendarTheme.weekNumberTextStyle!;
     final TextSpan textSpan =
         TextSpan(text: weekNumber, style: weekNumberTextStyle);
 
@@ -894,25 +893,18 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     bool isCurrentDate;
 
     _linePainter.isAntiAlias = true;
-    final TextStyle todayStyle =
-        todayTextStyle ?? calendarTheme.todayTextStyle!;
-    final TextStyle currentMonthTextStyle =
-        monthCellStyle.textStyle ?? calendarTheme.activeDatesTextStyle!;
+    final TextStyle todayStyle = calendarTheme.todayTextStyle!;
+    final TextStyle currentMonthTextStyle = calendarTheme.activeDatesTextStyle!;
     final TextStyle previousMonthTextStyle =
-        monthCellStyle.trailingDatesTextStyle ??
-            calendarTheme.trailingDatesTextStyle!;
-    final TextStyle nextMonthTextStyle = monthCellStyle.leadingDatesTextStyle ??
-        calendarTheme.leadingDatesTextStyle!;
-    final TextStyle? blackoutDatesStyle =
-        blackoutDatesTextStyle ?? calendarTheme.blackoutDatesTextStyle;
-    final TextStyle disabledTextStyle = TextStyle(
+        calendarTheme.trailingDatesTextStyle!;
+    final TextStyle nextMonthTextStyle = calendarTheme.leadingDatesTextStyle!;
+    final TextStyle? blackoutDatesStyle = calendarTheme.blackoutDatesTextStyle;
+    final TextStyle disabledTextStyle = currentMonthTextStyle.copyWith(
         color: currentMonthTextStyle.color != null
             ? currentMonthTextStyle.color!.withOpacity(0.38)
             : calendarTheme.brightness == Brightness.light
                 ? Colors.black26
-                : Colors.white38,
-        fontSize: 13,
-        fontFamily: 'Roboto');
+                : Colors.white38);
 
     final bool showTrailingLeadingDates =
         CalendarViewHelper.isLeadingAndTrailingDatesVisible(
@@ -1025,8 +1017,12 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
       final bool isBlackoutDate = _blackoutDatesIndex.contains(i);
       if (isBlackoutDate) {
-        textStyle = blackoutDatesStyle ??
-            textStyle.copyWith(decoration: TextDecoration.lineThrough);
+        if (blackoutDatesStyle != null) {
+          textStyle = textStyle.merge(blackoutDatesStyle);
+        } else {
+          textStyle =
+              textStyle.copyWith(decoration: TextDecoration.lineThrough);
+        }
       }
 
       final TextSpan span = TextSpan(

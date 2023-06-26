@@ -35,11 +35,7 @@ class SparkChartTrackball {
       this.color,
       this.dashArray,
       this.activationMode = SparkChartActivationMode.tap,
-      this.labelStyle = const TextStyle(
-          fontFamily: 'Roboto',
-          fontStyle: FontStyle.normal,
-          fontWeight: FontWeight.normal,
-          fontSize: 12),
+      this.labelStyle,
       this.tooltipFormatter,
       this.backgroundColor,
       this.shouldAlwaysShow = false,
@@ -158,7 +154,7 @@ class SparkChartTrackball {
   ///   );
   /// }
   /// ```
-  final TextStyle labelStyle;
+  final TextStyle? labelStyle;
 
   /// Customizes the background color of the trackball tooltip.
   /// The color is set based on the current application theme, if its value is
@@ -339,19 +335,19 @@ class SparkChartTrackball {
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       width,
-      color!,
+      color,
       activationMode,
       labelStyle,
-      backgroundColor!,
-      borderColor!,
+      backgroundColor,
+      borderColor,
       borderWidth,
-      dashArray!,
+      dashArray,
       shouldAlwaysShow,
       hideDelay,
       borderRadius,
-      tooltipFormatter!
+      tooltipFormatter
     ];
     return Object.hashAll(values);
   }

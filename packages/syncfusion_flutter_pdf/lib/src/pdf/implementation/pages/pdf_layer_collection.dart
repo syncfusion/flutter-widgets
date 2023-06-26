@@ -647,7 +647,7 @@ class PdfLayerCollectionHelper extends PdfObjectCollectionHelper {
               if (defaultView.containsKey(PdfDictionaryProperties.ocgOn)) {
                 on = PdfCrossTable.dereference(
                     defaultView[PdfDictionaryProperties.ocgOn]) as PdfArray?;
-              } else if (on == null && defaultView.containsKey('ON')) {
+              } else if (defaultView.containsKey('ON')) {
                 on = PdfCrossTable.dereference(defaultView['ON']) as PdfArray?;
               }
               if (defaultView

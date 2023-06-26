@@ -11,3 +11,4 @@ export './src/theme/range_selector_theme.dart';
 export './src/theme/range_slider_theme.dart';
 export './src/theme/slider_theme.dart';
 export './src/theme/theme_widget.dart';
+export './src/theme/treemap_theme.dart';

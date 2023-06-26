@@ -126,7 +126,7 @@ class SerializeWorkbook {
           builder.element('sheet', nest: () {
             builder.attribute('name', _workbook.worksheets[i].name);
             builder.attribute(
-                'sheetId', (_workbook.worksheets[i].index).toString());
+                'sheetId', _workbook.worksheets[i].index.toString());
             if (_workbook.worksheets[i].visibility ==
                 WorksheetVisibility.hidden) {
               builder.attribute('state', 'hidden');
@@ -198,7 +198,7 @@ class SerializeWorkbook {
           builder.element('sheet', nest: () async {
             builder.attribute('name', _workbook.worksheets[i].name);
             builder.attribute(
-                'sheetId', (_workbook.worksheets[i].index).toString());
+                'sheetId', _workbook.worksheets[i].index.toString());
             if (_workbook.worksheets[i].visibility ==
                 WorksheetVisibility.hidden) {
               builder.attribute('state', 'hidden');
@@ -530,6 +530,29 @@ class SerializeWorkbook {
                           strFormula =
                               strFormula.substring(1).replaceAll("'", '"');
                           final int i = strFormula.indexOf('!');
+                          int indexOfOp = (strFormula.contains('+'))
+                              ? strFormula.indexOf('+')
+                              : strFormula.indexOf('-');
+                          indexOfOp = (indexOfOp == -1)
+                              ? strFormula.indexOf('*')
+                              : indexOfOp;
+                          indexOfOp = (indexOfOp == -1)
+                              ? strFormula.indexOf('/')
+                              : indexOfOp;
+
+                          if (i != -1 &&
+                              indexOfOp != -1 &&
+                              strFormula[i - 1] == '"' &&
+                              strFormula[indexOfOp + 1] == '"') {
+                            final String cellRef =
+                                strFormula.substring(0, indexOfOp);
+                            final String operatorString =
+                                strFormula.substring(indexOfOp, indexOfOp + 1);
+                            final String sheetName =
+                                strFormula.substring(indexOfOp + 2, i - 1);
+                            strFormula =
+                                "$cellRef$operatorString'$sheetName'${strFormula.substring(i)}";
+                          }
                           if (i != -1 &&
                               strFormula[0] == '"' &&
                               strFormula[i - 1] == '"') {

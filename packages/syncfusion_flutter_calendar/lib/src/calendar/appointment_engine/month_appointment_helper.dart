@@ -249,9 +249,9 @@ class MonthAppointmentHelper {
     /// swap list index value.
     /// Eg., app1 start with Nov3 10AM and ends with Nov5 11AM and app2 starts
     /// with Nov3 9AM and ends with Nov4 11AM then swap the app1 before of app2.
-    return (AppointmentHelper.getDifference(endTime2, startTime2)
-            .inMinutes
-            .abs())
+    return AppointmentHelper.getDifference(endTime2, startTime2)
+        .inMinutes
+        .abs()
         .compareTo(AppointmentHelper.getDifference(endTime1, startTime1)
             .inMinutes
             .abs());

@@ -38,7 +38,6 @@ class ContentLexer {
         return _getNumber();
 
       case '[':
-
       case '(':
         return _getLiteralString();
 

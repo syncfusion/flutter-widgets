@@ -1792,14 +1792,16 @@ class SelectionRenderer {
             cartesianSeriesIndex);
       }
     } else {
-      stateProperties.renderDatalabelRegions = <Rect>[];
-      (seriesRendererDetails.seriesType.contains('area') == true ||
-              seriesRendererDetails.seriesType == 'fastline')
-          ? getSelectedSeriesIndex(chart, position, seriesRendererDetails)
-          : getPointAndSeriesIndex(chart, position, seriesRendererDetails);
+      if (seriesRendererDetails.seriesType != 'errorbar') {
+        stateProperties.renderDatalabelRegions = <Rect>[];
+        (seriesRendererDetails.seriesType.contains('area') == true ||
+                seriesRendererDetails.seriesType == 'fastline')
+            ? getSelectedSeriesIndex(chart, position, seriesRendererDetails)
+            : getPointAndSeriesIndex(chart, position, seriesRendererDetails);
 
-      select = selectionDetails.selectionRenderer!.isCartesianSelection(
-          chart, seriesRendererDetails.renderer, pointIndex, seriesIndex);
+        select = selectionDetails.selectionRenderer!.isCartesianSelection(
+            chart, seriesRendererDetails.renderer, pointIndex, seriesIndex);
+      }
     }
 
     if (select) {

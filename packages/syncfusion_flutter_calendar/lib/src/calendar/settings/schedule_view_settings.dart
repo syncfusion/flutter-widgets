@@ -53,8 +53,8 @@ class ScheduleViewSettings with Diagnosticable {
       this.monthHeaderSettings = const MonthHeaderSettings(),
       this.weekHeaderSettings = const WeekHeaderSettings(),
       this.dayHeaderSettings = const DayHeaderSettings(),
-      this.placeholderTextStyle = const TextStyle(
-          color: Colors.grey, fontSize: 15, fontFamily: 'Roboto')})
+      this.placeholderTextStyle =
+          const TextStyle(color: Colors.grey, fontSize: 15)})
       : assert(appointmentItemHeight >= -1);
 
   /// Sets the style to customize month label in [SfCalendar] schedule view.

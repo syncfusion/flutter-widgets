@@ -186,11 +186,7 @@ class DataLabelRenderArgs {
   late String text;
 
   /// Get and set the style property of the data label text.
-  TextStyle textStyle = const TextStyle(
-      fontFamily: 'Roboto',
-      fontStyle: FontStyle.normal,
-      fontWeight: FontWeight.normal,
-      fontSize: 12);
+  TextStyle? textStyle;
 
   /// Get the current series.
   ///

@@ -22,6 +22,7 @@ class AgendaViewLayout extends StatefulWidget {
       this.locale,
       this.localizations,
       this.calendarTheme,
+      this.themeData,
       this.agendaViewNotifier,
       this.appointmentTimeTextFormat,
       this.timeLabelWidth,
@@ -53,6 +54,9 @@ class AgendaViewLayout extends StatefulWidget {
 
   /// Holds the theme data of the calendar widget.
   final SfCalendarThemeData calendarTheme;
+
+  /// Holds the framework theme data details.
+  final ThemeData themeData;
 
   /// Holds the hovering details of the agenda view widget.
   final ValueNotifier<ScheduleViewHoveringDetails?> agendaViewNotifier;
@@ -155,6 +159,7 @@ class _AgendaViewLayoutState extends State<AgendaViewLayout> {
         widget.locale,
         widget.localizations,
         widget.calendarTheme,
+        widget.themeData,
         widget.agendaViewNotifier,
         widget.appointmentTimeTextFormat,
         widget.timeLabelWidth,
@@ -242,7 +247,7 @@ class _AgendaViewLayoutState extends State<AgendaViewLayout> {
 }
 
 class _AgendaViewRenderWidget extends MultiChildRenderObjectWidget {
-  _AgendaViewRenderWidget(
+  const _AgendaViewRenderWidget(
       this.monthViewSettings,
       this.scheduleViewSettings,
       this.selectedDate,
@@ -251,6 +256,7 @@ class _AgendaViewRenderWidget extends MultiChildRenderObjectWidget {
       this.locale,
       this.localizations,
       this.calendarTheme,
+      this.themeData,
       this.agendaViewNotifier,
       this.appointmentTimeTextFormat,
       this.timeLabelWidth,
@@ -270,6 +276,7 @@ class _AgendaViewRenderWidget extends MultiChildRenderObjectWidget {
   final bool isRTL;
   final String locale;
   final SfCalendarThemeData calendarTheme;
+  final ThemeData themeData;
   final ValueNotifier<ScheduleViewHoveringDetails?> agendaViewNotifier;
   final SfLocalizations localizations;
   final double timeLabelWidth;
@@ -292,6 +299,7 @@ class _AgendaViewRenderWidget extends MultiChildRenderObjectWidget {
       locale,
       localizations,
       calendarTheme,
+      themeData,
       agendaViewNotifier,
       appointmentTimeTextFormat,
       timeLabelWidth,
@@ -316,6 +324,7 @@ class _AgendaViewRenderWidget extends MultiChildRenderObjectWidget {
       ..locale = locale
       ..localizations = localizations
       ..calendarTheme = calendarTheme
+      ..themeData = themeData
       ..agendaViewNotifier = agendaViewNotifier
       ..appointmentTimeTextFormat = appointmentTimeTextFormat
       ..timeLabelWidth = timeLabelWidth
@@ -337,6 +346,7 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
       this._locale,
       this._localizations,
       this._calendarTheme,
+      this._themeData,
       this._agendaViewNotifier,
       this._appointmentTimeTextFormat,
       this._timeLabelWidth,
@@ -584,6 +594,18 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
     markNeedsPaint();
   }
 
+  ThemeData _themeData;
+
+  ThemeData get themeData => _themeData;
+
+  set themeData(ThemeData value) {
+    if (_themeData == value) {
+      return;
+    }
+
+    _themeData = value;
+  }
+
   ValueNotifier<ScheduleViewHoveringDetails?> _agendaViewNotifier;
 
   ValueNotifier<ScheduleViewHoveringDetails?> get agendaViewNotifier =>
@@ -829,17 +851,17 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
     }
 
     final TextStyle appointmentTextStyle = monthViewSettings != null
-        ? monthViewSettings!.agendaStyle.appointmentTextStyle ??
-            const TextStyle(
-                color: Colors.white, fontSize: 13, fontFamily: 'Roboto')
-        : scheduleViewSettings!.appointmentTextStyle ??
-            TextStyle(
+        ? themeData.textTheme.bodyMedium!
+            .copyWith(color: Colors.white, fontSize: 13)
+            .merge(monthViewSettings!.agendaStyle.appointmentTextStyle)
+        : themeData.textTheme.bodyMedium!
+            .copyWith(
                 color: isLargerScheduleUI &&
                         calendarTheme.brightness == Brightness.light
                     ? Colors.black87
                     : Colors.white,
-                fontSize: 13,
-                fontFamily: 'Roboto');
+                fontSize: 13)
+            .merge(scheduleViewSettings!.appointmentTextStyle);
 
     //// Draw Appointments
     for (int i = 0; i < appointmentCollection.length; i++) {
@@ -1196,7 +1218,7 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
       text: selectedDate == null
           ? localizations.noSelectedDateCalendarLabel
           : localizations.noEventsCalendarLabel,
-      style: placeholderTextStyle,
+      style: themeData.textTheme.bodyMedium!.merge(placeholderTextStyle),
     );
 
     _updateTextPainterProperties(span);

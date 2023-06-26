@@ -227,24 +227,24 @@ class AesEngine implements ICipher {
         kw[3];
     kw = keys[++r];
     c0 = sBox[r4 & 255] ^
-        ((sBox[(r5 >> 8) & 255]).toUnsigned(32) << 8) ^
-        ((sBox[(r6 >> 16) & 255]).toUnsigned(32) << 16) ^
-        ((sBox[r7 >> 24]).toUnsigned(32) << 24) ^
+        (sBox[(r5 >> 8) & 255].toUnsigned(32) << 8) ^
+        (sBox[(r6 >> 16) & 255].toUnsigned(32) << 16) ^
+        (sBox[r7 >> 24].toUnsigned(32) << 24) ^
         kw[0];
     c1 = sBox[r5 & 255] ^
-        ((sBox[(r6 >> 8) & 255]).toUnsigned(32) << 8) ^
-        ((sBox[(r7 >> 16) & 255]).toUnsigned(32) << 16) ^
-        ((sBox[r4 >> 24]).toUnsigned(32) << 24) ^
+        (sBox[(r6 >> 8) & 255].toUnsigned(32) << 8) ^
+        (sBox[(r7 >> 16) & 255].toUnsigned(32) << 16) ^
+        (sBox[r4 >> 24].toUnsigned(32) << 24) ^
         kw[1];
     c2 = sBox[r6 & 255] ^
-        ((sBox[(r7 >> 8) & 255]).toUnsigned(32) << 8) ^
-        ((sBox[(r4 >> 16) & 255]).toUnsigned(32) << 16) ^
-        ((sBox[r5 >> 24]).toUnsigned(32) << 24) ^
+        (sBox[(r7 >> 8) & 255].toUnsigned(32) << 8) ^
+        (sBox[(r4 >> 16) & 255].toUnsigned(32) << 16) ^
+        (sBox[r5 >> 24].toUnsigned(32) << 24) ^
         kw[2];
     c3 = sBox[r7 & 255] ^
-        ((sBox[(r4 >> 8) & 255]).toUnsigned(32) << 8) ^
-        ((sBox[(r5 >> 16) & 255]).toUnsigned(32) << 16) ^
-        ((sBox[r6 >> 24]).toUnsigned(32) << 24) ^
+        (sBox[(r4 >> 8) & 255].toUnsigned(32) << 8) ^
+        (sBox[(r5 >> 16) & 255].toUnsigned(32) << 16) ^
+        (sBox[r6 >> 24].toUnsigned(32) << 24) ^
         kw[3];
   }
 
@@ -330,24 +330,24 @@ class AesEngine implements ICipher {
 
     kw = keys[--r];
     c0 = sinv[r4 & 255].toUnsigned(32) ^
-        ((sinv[(r7 >> 8) & 255]).toUnsigned(32) << 8) ^
-        ((sinv[(r6 >> 16) & 255]).toUnsigned(32) << 16) ^
-        ((sinv[r5 >> 24]).toUnsigned(32) << 24) ^
+        (sinv[(r7 >> 8) & 255].toUnsigned(32) << 8) ^
+        (sinv[(r6 >> 16) & 255].toUnsigned(32) << 16) ^
+        (sinv[r5 >> 24].toUnsigned(32) << 24) ^
         kw[0];
     c1 = sinv[r5 & 255].toUnsigned(32) ^
-        ((sinv[(r4 >> 8) & 255]).toUnsigned(32) << 8) ^
-        ((sinv[(r7 >> 16) & 255]).toUnsigned(32) << 16) ^
-        ((sinv[r6 >> 24]).toUnsigned(32) << 24) ^
+        (sinv[(r4 >> 8) & 255].toUnsigned(32) << 8) ^
+        (sinv[(r7 >> 16) & 255].toUnsigned(32) << 16) ^
+        (sinv[r6 >> 24].toUnsigned(32) << 24) ^
         kw[1];
     c2 = sinv[r6 & 255].toUnsigned(32) ^
-        ((sinv[(r5 >> 8) & 255]).toUnsigned(32) << 8) ^
-        ((sinv[(r4 >> 16) & 255]).toUnsigned(32) << 16) ^
-        ((sinv[r7 >> 24]).toUnsigned(32) << 24) ^
+        (sinv[(r5 >> 8) & 255].toUnsigned(32) << 8) ^
+        (sinv[(r4 >> 16) & 255].toUnsigned(32) << 16) ^
+        (sinv[r7 >> 24].toUnsigned(32) << 24) ^
         kw[2];
     c3 = sinv[r7 & 255].toUnsigned(32) ^
-        ((sinv[(r6 >> 8) & 255]).toUnsigned(32) << 8) ^
-        ((sinv[(r5 >> 16) & 255]).toUnsigned(32) << 16) ^
-        ((sinv[r4 >> 24]).toUnsigned(32) << 24) ^
+        (sinv[(r6 >> 8) & 255].toUnsigned(32) << 8) ^
+        (sinv[(r5 >> 16) & 255].toUnsigned(32) << 16) ^
+        (sinv[r4 >> 24].toUnsigned(32) << 24) ^
         kw[3];
   }
 

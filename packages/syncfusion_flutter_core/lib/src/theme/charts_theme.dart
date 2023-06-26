@@ -119,33 +119,46 @@ class SfChartTheme extends InheritedTheme {
 @immutable
 class SfChartThemeData with Diagnosticable {
   /// Creating an argument constructor of SfChartThemeData class.
-  factory SfChartThemeData(
-      {Brightness? brightness,
-      Color? backgroundColor,
-      Color? axisLabelColor,
-      Color? axisTitleColor,
-      Color? axisLineColor,
-      Color? majorGridLineColor,
-      Color? minorGridLineColor,
-      Color? majorTickLineColor,
-      Color? minorTickLineColor,
-      Color? titleTextColor,
-      Color? titleBackgroundColor,
-      Color? legendTextColor,
-      Color? legendTitleColor,
-      Color? legendBackgroundColor,
-      Color? plotAreaBackgroundColor,
-      Color? plotAreaBorderColor,
-      Color? crosshairLineColor,
-      Color? crosshairBackgroundColor,
-      Color? crosshairLabelColor,
-      Color? tooltipColor,
-      Color? tooltipLabelColor,
-      Color? tooltipSeparatorColor,
-      Color? selectionRectColor,
-      Color? selectionRectBorderColor,
-      Color? selectionTooltipConnectorLineColor,
-      Color? waterfallConnectorLineColor}) {
+  factory SfChartThemeData({
+    Brightness? brightness,
+    Color? backgroundColor,
+    Color? axisLabelColor,
+    Color? axisTitleColor,
+    Color? axisLineColor,
+    Color? majorGridLineColor,
+    Color? minorGridLineColor,
+    Color? majorTickLineColor,
+    Color? minorTickLineColor,
+    Color? titleTextColor,
+    Color? titleBackgroundColor,
+    Color? legendTextColor,
+    Color? legendTitleColor,
+    Color? legendBackgroundColor,
+    Color? plotAreaBackgroundColor,
+    Color? plotAreaBorderColor,
+    Color? crosshairLineColor,
+    Color? crosshairBackgroundColor,
+    Color? crosshairLabelColor,
+    Color? tooltipColor,
+    Color? tooltipLabelColor,
+    Color? tooltipSeparatorColor,
+    Color? selectionRectColor,
+    Color? selectionRectBorderColor,
+    Color? selectionTooltipConnectorLineColor,
+    Color? waterfallConnectorLineColor,
+    TextStyle? titleTextStyle,
+    TextStyle? axisTitleTextStyle,
+    TextStyle? axisLabelTextStyle,
+    TextStyle? axisMultiLevelLabelTextStyle,
+    TextStyle? plotBandLabelTextStyle,
+    TextStyle? legendTitleTextStyle,
+    TextStyle? legendTextStyle,
+    TextStyle? dataLabelTextStyle,
+    TextStyle? tooltipTextStyle,
+    TextStyle? trackballTextStyle,
+    TextStyle? crosshairTextStyle,
+    TextStyle? selectionZoomingTooltipTextStyle,
+  }) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
     backgroundColor ??= Colors.transparent;
@@ -194,7 +207,7 @@ class SfChartThemeData with Diagnosticable {
         ? const Color.fromRGBO(79, 79, 79, 1)
         : const Color.fromRGBO(255, 255, 255, 1);
     crosshairLabelColor ??= isLight
-        ? const Color.fromRGBO(229, 229, 229, 1)
+        ? const Color.fromRGBO(255, 255, 255, 1)
         : const Color.fromRGBO(0, 0, 0, 1);
     tooltipColor ??= isLight
         ? const Color.fromRGBO(0, 8, 22, 0.75)
@@ -219,32 +232,45 @@ class SfChartThemeData with Diagnosticable {
         : const Color.fromRGBO(255, 255, 255, 1);
 
     return SfChartThemeData.raw(
-        brightness: brightness,
-        axisLabelColor: axisLabelColor,
-        axisLineColor: axisLineColor,
-        axisTitleColor: axisTitleColor,
-        backgroundColor: backgroundColor,
-        titleTextColor: titleTextColor,
-        crosshairBackgroundColor: crosshairBackgroundColor,
-        crosshairLabelColor: crosshairLabelColor,
-        crosshairLineColor: crosshairLineColor,
-        legendBackgroundColor: legendBackgroundColor,
-        legendTextColor: legendTextColor,
-        legendTitleColor: legendTitleColor,
-        majorGridLineColor: majorGridLineColor,
-        majorTickLineColor: majorTickLineColor,
-        minorGridLineColor: minorGridLineColor,
-        minorTickLineColor: minorTickLineColor,
-        plotAreaBackgroundColor: plotAreaBackgroundColor,
-        plotAreaBorderColor: plotAreaBorderColor,
-        selectionRectColor: selectionRectColor,
-        selectionRectBorderColor: selectionRectBorderColor,
-        selectionTooltipConnectorLineColor: selectionTooltipConnectorLineColor,
-        titleBackgroundColor: titleBackgroundColor,
-        tooltipColor: tooltipColor,
-        tooltipSeparatorColor: tooltipSeparatorColor,
-        tooltipLabelColor: tooltipLabelColor,
-        waterfallConnectorLineColor: waterfallConnectorLineColor);
+      brightness: brightness,
+      axisLabelColor: axisLabelColor,
+      axisLineColor: axisLineColor,
+      axisTitleColor: axisTitleColor,
+      backgroundColor: backgroundColor,
+      titleTextColor: titleTextColor,
+      crosshairBackgroundColor: crosshairBackgroundColor,
+      crosshairLabelColor: crosshairLabelColor,
+      crosshairLineColor: crosshairLineColor,
+      legendBackgroundColor: legendBackgroundColor,
+      legendTextColor: legendTextColor,
+      legendTitleColor: legendTitleColor,
+      majorGridLineColor: majorGridLineColor,
+      majorTickLineColor: majorTickLineColor,
+      minorGridLineColor: minorGridLineColor,
+      minorTickLineColor: minorTickLineColor,
+      plotAreaBackgroundColor: plotAreaBackgroundColor,
+      plotAreaBorderColor: plotAreaBorderColor,
+      selectionRectColor: selectionRectColor,
+      selectionRectBorderColor: selectionRectBorderColor,
+      selectionTooltipConnectorLineColor: selectionTooltipConnectorLineColor,
+      titleBackgroundColor: titleBackgroundColor,
+      tooltipColor: tooltipColor,
+      tooltipSeparatorColor: tooltipSeparatorColor,
+      tooltipLabelColor: tooltipLabelColor,
+      waterfallConnectorLineColor: waterfallConnectorLineColor,
+      titleTextStyle: titleTextStyle,
+      axisTitleTextStyle: axisTitleTextStyle,
+      axisLabelTextStyle: axisLabelTextStyle,
+      axisMultiLevelLabelTextStyle: axisMultiLevelLabelTextStyle,
+      plotBandLabelTextStyle: plotBandLabelTextStyle,
+      legendTitleTextStyle: legendTitleTextStyle,
+      legendTextStyle: legendTextStyle,
+      dataLabelTextStyle: dataLabelTextStyle,
+      tooltipTextStyle: tooltipTextStyle,
+      trackballTextStyle: trackballTextStyle,
+      crosshairTextStyle: crosshairTextStyle,
+      selectionZoomingTooltipTextStyle: selectionZoomingTooltipTextStyle,
+    );
   }
 
   /// Create a [SfChartThemeData] given a set of exact values.
@@ -254,33 +280,46 @@ class SfChartThemeData with Diagnosticable {
   /// create intermediate themes based on two themes created with the
   /// [SfChartThemeData] constructor.
   ///
-  const SfChartThemeData.raw(
-      {required this.brightness,
-      required this.axisLabelColor,
-      required this.axisLineColor,
-      required this.axisTitleColor,
-      required this.backgroundColor,
-      required this.titleTextColor,
-      required this.crosshairBackgroundColor,
-      required this.crosshairLabelColor,
-      required this.crosshairLineColor,
-      required this.legendBackgroundColor,
-      required this.legendTextColor,
-      required this.legendTitleColor,
-      required this.majorGridLineColor,
-      required this.majorTickLineColor,
-      required this.minorGridLineColor,
-      required this.minorTickLineColor,
-      required this.plotAreaBackgroundColor,
-      required this.plotAreaBorderColor,
-      required this.selectionRectColor,
-      required this.selectionRectBorderColor,
-      required this.selectionTooltipConnectorLineColor,
-      required this.titleBackgroundColor,
-      required this.tooltipColor,
-      required this.tooltipSeparatorColor,
-      required this.tooltipLabelColor,
-      required this.waterfallConnectorLineColor});
+  const SfChartThemeData.raw({
+    required this.brightness,
+    required this.axisLabelColor,
+    required this.axisLineColor,
+    required this.axisTitleColor,
+    required this.backgroundColor,
+    required this.titleTextColor,
+    required this.crosshairBackgroundColor,
+    required this.crosshairLabelColor,
+    required this.crosshairLineColor,
+    required this.legendBackgroundColor,
+    required this.legendTextColor,
+    required this.legendTitleColor,
+    required this.majorGridLineColor,
+    required this.majorTickLineColor,
+    required this.minorGridLineColor,
+    required this.minorTickLineColor,
+    required this.plotAreaBackgroundColor,
+    required this.plotAreaBorderColor,
+    required this.selectionRectColor,
+    required this.selectionRectBorderColor,
+    required this.selectionTooltipConnectorLineColor,
+    required this.titleBackgroundColor,
+    required this.tooltipColor,
+    required this.tooltipSeparatorColor,
+    required this.tooltipLabelColor,
+    required this.waterfallConnectorLineColor,
+    required this.titleTextStyle,
+    required this.axisTitleTextStyle,
+    required this.axisLabelTextStyle,
+    required this.axisMultiLevelLabelTextStyle,
+    required this.plotBandLabelTextStyle,
+    required this.legendTitleTextStyle,
+    required this.legendTextStyle,
+    required this.dataLabelTextStyle,
+    required this.tooltipTextStyle,
+    required this.trackballTextStyle,
+    required this.crosshairTextStyle,
+    required this.selectionZoomingTooltipTextStyle,
+  });
 
   /// The brightness of the overall theme of the
   /// application for the chart widgets.
@@ -972,71 +1011,351 @@ class SfChartThemeData with Diagnosticable {
 
   final Color waterfallConnectorLineColor;
 
+  /// Specifies the text style for title.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chartThemeData: SfChartThemeData(
+  ///              titleTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+
+  final TextStyle? titleTextStyle;
+
+  /// Specifies the text style for axis title.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chartThemeData: SfChartThemeData(
+  ///              axisTitleTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+
+  final TextStyle? axisTitleTextStyle;
+
+  /// Specifies the text style for axis label.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chartThemeData: SfChartThemeData(
+  ///              axisLabelTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+
+  final TextStyle? axisLabelTextStyle;
+
+  /// Specifies the text style for axis multi-level label.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chartThemeData: SfChartThemeData(
+  ///              axisMultiLevelLabelTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+
+  final TextStyle? axisMultiLevelLabelTextStyle;
+
+  /// Specifies the text style for plot band label.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chartThemeData: SfChartThemeData(
+  ///              plotBandLabelTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+
+  final TextStyle? plotBandLabelTextStyle;
+
+  /// Specifies the text style for legend title.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chartThemeData: SfChartThemeData(
+  ///              legendTitleTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+
+  final TextStyle? legendTitleTextStyle;
+
+  /// Specifies the text style for legend text.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chartThemeData: SfChartThemeData(
+  ///              legendTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+
+  final TextStyle? legendTextStyle;
+
+  /// Specifies the text style for data label.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chartThemeData: SfChartThemeData(
+  ///              dataLabelTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+
+  final TextStyle? dataLabelTextStyle;
+
+  /// Specifies the text style for tooltip label.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chartThemeData: SfChartThemeData(
+  ///              tooltipTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+
+  final TextStyle? tooltipTextStyle;
+
+  /// Specifies the text style for trackball label.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chartThemeData: SfChartThemeData(
+  ///              trackballTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+
+  final TextStyle? trackballTextStyle;
+
+  /// Specifies the text style for crosshair label.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chartThemeData: SfChartThemeData(
+  ///              crosshairTextStyle: TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+
+  final TextStyle? crosshairTextStyle;
+
+  /// Specifies the text style for selection zooming interactive label.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chartThemeData: SfChartThemeData(
+  ///              selectionZoomingTooltipTextStyle:
+  ///                 TextStyle(color: Colors.red)
+  ///            )
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+
+  final TextStyle? selectionZoomingTooltipTextStyle;
+
   /// Creates a copy of this chart theme data object with the matching fields
   /// replaced with the non-null parameter values.
-  SfChartThemeData copyWith(
-      {Brightness? brightness,
-      Color? axisLabelColor,
-      Color? axisLineColor,
-      Color? axisTitleColor,
-      Color? backgroundColor,
-      Color? titleTextColor,
-      Color? crosshairBackgroundColor,
-      Color? crosshairLabelColor,
-      Color? crosshairLineColor,
-      Color? legendBackgroundColor,
-      Color? legendTextColor,
-      Color? legendTitleColor,
-      Color? majorGridLineColor,
-      Color? majorTickLineColor,
-      Color? minorGridLineColor,
-      Color? minorTickLineColor,
-      Color? plotAreaBackgroundColor,
-      Color? plotAreaBorderColor,
-      Color? selectionRectColor,
-      Color? selectionRectBorderColor,
-      Color? selectionTooltipConnectorLineColor,
-      Color? titleBackgroundColor,
-      Color? tooltipColor,
-      Color? tooltipSeparatorColor,
-      Color? tooltipLabelColor,
-      Color? waterfallConnectorLineColor}) {
+  SfChartThemeData copyWith({
+    Brightness? brightness,
+    Color? axisLabelColor,
+    Color? axisLineColor,
+    Color? axisTitleColor,
+    Color? backgroundColor,
+    Color? titleTextColor,
+    Color? crosshairBackgroundColor,
+    Color? crosshairLabelColor,
+    Color? crosshairLineColor,
+    Color? legendBackgroundColor,
+    Color? legendTextColor,
+    Color? legendTitleColor,
+    Color? majorGridLineColor,
+    Color? majorTickLineColor,
+    Color? minorGridLineColor,
+    Color? minorTickLineColor,
+    Color? plotAreaBackgroundColor,
+    Color? plotAreaBorderColor,
+    Color? selectionRectColor,
+    Color? selectionRectBorderColor,
+    Color? selectionTooltipConnectorLineColor,
+    Color? titleBackgroundColor,
+    Color? tooltipColor,
+    Color? tooltipSeparatorColor,
+    Color? tooltipLabelColor,
+    Color? waterfallConnectorLineColor,
+    TextStyle? titleTextStyle,
+    TextStyle? axisTitleTextStyle,
+    TextStyle? axisLabelTextStyle,
+    TextStyle? axisMultiLevelLabelTextStyle,
+    TextStyle? plotBandLabelTextStyle,
+    TextStyle? legendTitleTextStyle,
+    TextStyle? legendTextStyle,
+    TextStyle? dataLabelTextStyle,
+    TextStyle? tooltipTextStyle,
+    TextStyle? trackballTextStyle,
+    TextStyle? crosshairTextStyle,
+    TextStyle? selectionZoomingTooltipTextStyle,
+  }) {
     return SfChartThemeData.raw(
-        brightness: brightness ?? this.brightness,
-        axisLabelColor: axisLabelColor ?? this.axisLabelColor,
-        axisLineColor: axisLineColor ?? this.axisLineColor,
-        axisTitleColor: axisTitleColor ?? this.axisTitleColor,
-        backgroundColor: backgroundColor ?? this.backgroundColor,
-        titleTextColor: titleTextColor ?? this.titleTextColor,
-        crosshairBackgroundColor:
-            crosshairBackgroundColor ?? this.crosshairBackgroundColor,
-        crosshairLabelColor: crosshairLabelColor ?? this.crosshairLabelColor,
-        crosshairLineColor: crosshairLineColor ?? this.crosshairLineColor,
-        legendBackgroundColor:
-            legendBackgroundColor ?? this.legendBackgroundColor,
-        legendTextColor: legendTextColor ?? this.legendTextColor,
-        legendTitleColor: legendTitleColor ?? this.legendTitleColor,
-        majorGridLineColor: majorGridLineColor ?? this.majorGridLineColor,
-        majorTickLineColor: majorTickLineColor ?? this.majorTickLineColor,
-        minorGridLineColor: minorGridLineColor ?? this.minorGridLineColor,
-        minorTickLineColor: minorTickLineColor ?? this.minorTickLineColor,
-        plotAreaBackgroundColor:
-            plotAreaBackgroundColor ?? this.plotAreaBackgroundColor,
-        plotAreaBorderColor:
-            plotAreaBorderColor ?? this.plotAreaBackgroundColor,
-        selectionRectColor: selectionRectColor ?? this.selectionRectColor,
-        selectionRectBorderColor:
-            selectionRectBorderColor ?? this.selectionRectBorderColor,
-        selectionTooltipConnectorLineColor:
-            selectionTooltipConnectorLineColor ??
-                this.selectionTooltipConnectorLineColor,
-        titleBackgroundColor: titleBackgroundColor ?? this.titleBackgroundColor,
-        tooltipColor: tooltipColor ?? this.tooltipColor,
-        tooltipSeparatorColor:
-            tooltipSeparatorColor ?? this.tooltipSeparatorColor,
-        tooltipLabelColor: tooltipLabelColor ?? this.tooltipLabelColor,
-        waterfallConnectorLineColor:
-            waterfallConnectorLineColor ?? this.waterfallConnectorLineColor);
+      brightness: brightness ?? this.brightness,
+      axisLabelColor: axisLabelColor ?? this.axisLabelColor,
+      axisLineColor: axisLineColor ?? this.axisLineColor,
+      axisTitleColor: axisTitleColor ?? this.axisTitleColor,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      titleTextColor: titleTextColor ?? this.titleTextColor,
+      crosshairBackgroundColor:
+          crosshairBackgroundColor ?? this.crosshairBackgroundColor,
+      crosshairLabelColor: crosshairLabelColor ?? this.crosshairLabelColor,
+      crosshairLineColor: crosshairLineColor ?? this.crosshairLineColor,
+      legendBackgroundColor:
+          legendBackgroundColor ?? this.legendBackgroundColor,
+      legendTextColor: legendTextColor ?? this.legendTextColor,
+      legendTitleColor: legendTitleColor ?? this.legendTitleColor,
+      majorGridLineColor: majorGridLineColor ?? this.majorGridLineColor,
+      majorTickLineColor: majorTickLineColor ?? this.majorTickLineColor,
+      minorGridLineColor: minorGridLineColor ?? this.minorGridLineColor,
+      minorTickLineColor: minorTickLineColor ?? this.minorTickLineColor,
+      plotAreaBackgroundColor:
+          plotAreaBackgroundColor ?? this.plotAreaBackgroundColor,
+      plotAreaBorderColor: plotAreaBorderColor ?? this.plotAreaBackgroundColor,
+      selectionRectColor: selectionRectColor ?? this.selectionRectColor,
+      selectionRectBorderColor:
+          selectionRectBorderColor ?? this.selectionRectBorderColor,
+      selectionTooltipConnectorLineColor: selectionTooltipConnectorLineColor ??
+          this.selectionTooltipConnectorLineColor,
+      titleBackgroundColor: titleBackgroundColor ?? this.titleBackgroundColor,
+      tooltipColor: tooltipColor ?? this.tooltipColor,
+      tooltipSeparatorColor:
+          tooltipSeparatorColor ?? this.tooltipSeparatorColor,
+      tooltipLabelColor: tooltipLabelColor ?? this.tooltipLabelColor,
+      waterfallConnectorLineColor:
+          waterfallConnectorLineColor ?? this.waterfallConnectorLineColor,
+      titleTextStyle: titleTextStyle ?? this.titleTextStyle,
+      axisTitleTextStyle: axisTitleTextStyle ?? this.axisTitleTextStyle,
+      axisLabelTextStyle: axisLabelTextStyle ?? this.axisLabelTextStyle,
+      axisMultiLevelLabelTextStyle:
+          axisMultiLevelLabelTextStyle ?? this.axisMultiLevelLabelTextStyle,
+      plotBandLabelTextStyle:
+          plotBandLabelTextStyle ?? this.plotBandLabelTextStyle,
+      legendTitleTextStyle: legendTitleTextStyle ?? this.legendTitleTextStyle,
+      legendTextStyle: legendTextStyle ?? this.legendTextStyle,
+      dataLabelTextStyle: dataLabelTextStyle ?? this.dataLabelTextStyle,
+      tooltipTextStyle: tooltipTextStyle ?? this.tooltipTextStyle,
+      trackballTextStyle: trackballTextStyle ?? this.trackballTextStyle,
+      crosshairTextStyle: crosshairTextStyle ?? this.crosshairTextStyle,
+      selectionZoomingTooltipTextStyle: selectionZoomingTooltipTextStyle ??
+          this.selectionZoomingTooltipTextStyle,
+    );
   }
 
   /// Linearly interpolate between two themes.
@@ -1090,6 +1409,30 @@ class SfChartThemeData with Diagnosticable {
           Color.lerp(a.tooltipLabelColor, b.tooltipLabelColor, t),
       waterfallConnectorLineColor: Color.lerp(
           a.waterfallConnectorLineColor, b.waterfallConnectorLineColor, t),
+      titleTextStyle: TextStyle.lerp(a.titleTextStyle, b.titleTextStyle, t),
+      axisTitleTextStyle:
+          TextStyle.lerp(a.axisTitleTextStyle, b.axisTitleTextStyle, t),
+      axisLabelTextStyle:
+          TextStyle.lerp(a.axisLabelTextStyle, b.axisLabelTextStyle, t),
+      axisMultiLevelLabelTextStyle: TextStyle.lerp(
+          a.axisMultiLevelLabelTextStyle, b.axisMultiLevelLabelTextStyle, t),
+      plotBandLabelTextStyle:
+          TextStyle.lerp(a.plotBandLabelTextStyle, b.plotBandLabelTextStyle, t),
+      legendTitleTextStyle:
+          TextStyle.lerp(a.legendTitleTextStyle, b.legendTitleTextStyle, t),
+      legendTextStyle: TextStyle.lerp(a.legendTextStyle, b.legendTextStyle, t),
+      dataLabelTextStyle:
+          TextStyle.lerp(a.dataLabelTextStyle, b.dataLabelTextStyle, t),
+      tooltipTextStyle:
+          TextStyle.lerp(a.tooltipTextStyle, b.tooltipTextStyle, t),
+      trackballTextStyle:
+          TextStyle.lerp(a.trackballTextStyle, b.trackballTextStyle, t),
+      crosshairTextStyle:
+          TextStyle.lerp(a.crosshairTextStyle, b.crosshairTextStyle, t),
+      selectionZoomingTooltipTextStyle: TextStyle.lerp(
+          a.selectionZoomingTooltipTextStyle,
+          b.selectionZoomingTooltipTextStyle,
+          t),
     );
   }
 
@@ -1128,12 +1471,25 @@ class SfChartThemeData with Diagnosticable {
         other.tooltipColor == tooltipColor &&
         other.tooltipSeparatorColor == tooltipSeparatorColor &&
         other.tooltipLabelColor == tooltipLabelColor &&
-        other.waterfallConnectorLineColor == waterfallConnectorLineColor;
+        other.waterfallConnectorLineColor == waterfallConnectorLineColor &&
+        other.titleTextStyle == titleTextStyle &&
+        other.axisTitleTextStyle == axisTitleTextStyle &&
+        other.axisLabelTextStyle == axisLabelTextStyle &&
+        other.axisMultiLevelLabelTextStyle == axisMultiLevelLabelTextStyle &&
+        other.plotBandLabelTextStyle == plotBandLabelTextStyle &&
+        other.legendTitleTextStyle == legendTitleTextStyle &&
+        other.legendTextStyle == legendTextStyle &&
+        other.dataLabelTextStyle == dataLabelTextStyle &&
+        other.tooltipTextStyle == tooltipTextStyle &&
+        other.trackballTextStyle == trackballTextStyle &&
+        other.crosshairTextStyle == crosshairTextStyle &&
+        other.selectionZoomingTooltipTextStyle ==
+            selectionZoomingTooltipTextStyle;
   }
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       axisLabelColor,
       axisLineColor,
       axisTitleColor,
@@ -1158,7 +1514,19 @@ class SfChartThemeData with Diagnosticable {
       tooltipColor,
       tooltipSeparatorColor,
       tooltipLabelColor,
-      waterfallConnectorLineColor
+      waterfallConnectorLineColor,
+      titleTextStyle,
+      axisTitleTextStyle,
+      axisLabelTextStyle,
+      axisMultiLevelLabelTextStyle,
+      plotBandLabelTextStyle,
+      legendTitleTextStyle,
+      legendTextStyle,
+      dataLabelTextStyle,
+      tooltipTextStyle,
+      trackballTextStyle,
+      crosshairTextStyle,
+      selectionZoomingTooltipTextStyle
     ];
     return Object.hashAll(values);
   }
@@ -1224,5 +1592,41 @@ class SfChartThemeData with Diagnosticable {
     properties.add(ColorProperty(
         'waterfallConnectorLineColor', waterfallConnectorLineColor,
         defaultValue: defaultData.waterfallConnectorLineColor));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'titleTextStyle', titleTextStyle,
+        defaultValue: defaultData.titleTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'axisTitleTextStyle', axisTitleTextStyle,
+        defaultValue: defaultData.axisTitleTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'axisLabelTextStyle', axisLabelTextStyle,
+        defaultValue: defaultData.axisLabelTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'axisMultiLevelLabelTextStyle', axisMultiLevelLabelTextStyle,
+        defaultValue: defaultData.axisMultiLevelLabelTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'plotBandLabelTextStyle', plotBandLabelTextStyle,
+        defaultValue: defaultData.plotBandLabelTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'legendTitleTextStyle', legendTitleTextStyle,
+        defaultValue: defaultData.legendTitleTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'legendTextStyle', legendTextStyle,
+        defaultValue: defaultData.legendTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'dataLabelTextStyle', dataLabelTextStyle,
+        defaultValue: defaultData.dataLabelTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'tooltipTextStyle', tooltipTextStyle,
+        defaultValue: defaultData.tooltipTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'trackballTextStyle', trackballTextStyle,
+        defaultValue: defaultData.trackballTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'crosshairTextStyle', crosshairTextStyle,
+        defaultValue: defaultData.crosshairTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'selectionZoomingTooltipTextStyle', selectionZoomingTooltipTextStyle,
+        defaultValue: defaultData.selectionZoomingTooltipTextStyle));
   }
 }

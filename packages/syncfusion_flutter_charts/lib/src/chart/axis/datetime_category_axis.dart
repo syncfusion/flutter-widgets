@@ -726,7 +726,7 @@ class DateTimeCategoryAxisDetails extends ChartAxisRendererDetails {
           (int.parse(label)) > 2592000000) {
         values.add(label);
       } else {
-        values.add((dateFormat.parse(label).microsecondsSinceEpoch).toString());
+        values.add(dateFormat.parse(label).microsecondsSinceEpoch.toString());
       }
     }
     values = <String>[...values]..sort((String first, String second) {

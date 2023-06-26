@@ -1,6 +1,42 @@
 ## Unreleased
 
 **Bugs**
+* #FB44070 - Now, the doughnut series is rendering properly when having two data points with large differences.
+* #FB44112 - Resolved range error exception when displaying trackball for the zoomed candle series.
+
+## [21.2.8] - 05/30/2023
+
+**Bugs**
+* #FB43703 - Resolved the selection not working issue when the selection disabled series placed above the selection enabled series.
+
+## [21.2.5] - 05/16/2023
+
+**Bugs**
+* #FB42814 - Now, the auto-scaling will work for negative intervals when the range padding is normal and auto.
+
+## [21.2.4] - 05/09/2023 
+
+**Bugs**
+* #FB43916 - Now, the tooltip marker color will be displayed corresponding to the series color when using the tooltip shared mode.
+
+## [21.1.41] - 04/18/2023
+
+**Bugs**
+* #FB42529 - Now, the plotband will be updated along with the axis when updating the data using the updateDataSource method.
+
+## [21.1.38] - 04/04/2023
+
+* #FB42369 - Resolved the null check exception when updating data using the updateDataSource method with an empty data source initially in the CategoryAxis.
+
+## [21.1.37] - 03/29/2023
+
+**Bugs**
+* #FB42269 - Resolved the null exception when having two data points only in the spline series with cardinal spline type.
+* #FB41915 - Now, the null exception will no longer be thrown in the plotband, and the horizontalTextPadding property will work properly.
+
+## [21.1.35] - 03/23/2023
+
+**Bugs**
 * #FB40960 - Fixed an issue where the data label template was not updating properly when changing the visible range dynamically.
 * #FB41822 - Fixed an issue of the candle series width decreasing when adding the non-rectangular series.
 
