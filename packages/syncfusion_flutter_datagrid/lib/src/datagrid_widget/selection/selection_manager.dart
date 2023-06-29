@@ -1828,7 +1828,7 @@ class CurrentCellManager {
               // Issue:
               // FLUT-7120-The focus did not go to the other widgets when DataGrid's current cell is in edit mode.
               // We have checked whether the current cell is editing or not based on the `isCurrentCellInEditing` property.
-              // In this case, it is true. So we fixed it by checking the value of the `canCellSumbit` method.
+              // In this case, it is true. So we fixed it by checking the value of the `canCellSubmit` method.
               if (!_focusScopeNode.hasFocus &&
                   !dataGridConfiguration.dataGridFocusNode!.hasFocus &&
                   !await canSubmitCell(dataGridConfiguration)) {

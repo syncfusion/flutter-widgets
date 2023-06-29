@@ -1,4 +1,11 @@
-## Unreleased
+## [21.1.39] - 04/11/2023
+
+## Radial Gauge
+
+**Bugs**
+* #FB42660 - Now, the disposed exception is no longer thrown in the radial gauge when a pointer is updated dynamically.
+
+## [20.4.52] - 02/28/2023
 
 ## Radial Gauge
 

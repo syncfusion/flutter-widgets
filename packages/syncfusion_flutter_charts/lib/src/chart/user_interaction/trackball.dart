@@ -209,7 +209,7 @@ class TrackballBehavior {
   /// void initState() {
   ///   trackballBehavior = TrackballBehavior(
   ///     enable: true,
-  ///     lineType: TrackballLineType.horizontal
+  ///     lineType: TrackballLineType.vertical
   ///   );
   ///   super.initState();
   /// }
@@ -1231,7 +1231,8 @@ class TrackballRenderingDetails {
         yPos = touchYPos;
         xPos = touchXPos;
         if (_stateProperties.chart.trackballBehavior.tooltipDisplayMode !=
-            TrackballDisplayMode.floatAllPoints) {
+                TrackballDisplayMode.floatAllPoints &&
+            trackballInfo.isNotEmpty) {
           ChartPointInfo point = trackballInfo[0];
           for (i = 1; i < trackballInfo.length; i++) {
             final bool isXYPositioned = !isTransposed

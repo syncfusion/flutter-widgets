@@ -455,6 +455,8 @@ class CartesianChartPoint<D> {
   TextStyle? _dataLabelTextStyle;
 
   Color? _dataLabelColor;
+
+  bool _isCustomTextColor = false;
 }
 
 // ignore: avoid_classes_with_only_static_members
@@ -480,6 +482,17 @@ class CartesianPointHelper {
   static void setDataLabelColor(
       CartesianChartPoint<dynamic> point, Color? color) {
     point._dataLabelColor = color;
+  }
+
+  /// Returns the custom color is true or not for a given point.
+  static bool getCustomTextColor(CartesianChartPoint<dynamic> point) {
+    return point._isCustomTextColor;
+  }
+
+  /// Sets the custom color is true or not in a given point.
+  static void setCustomTextColor(
+      CartesianChartPoint<dynamic> point, bool isCustomTextColor) {
+    point._isCustomTextColor = isCustomTextColor;
   }
 
   /// Returns the marker event triggered flag for a given point.

@@ -71,6 +71,7 @@ class PdfTextExtractor {
   MatrixHelper? _currentTextMatrix;
   Rect? _tempBoundingRectangle;
   bool _hasLeading = false;
+  bool _hasET = false;
   late MatrixHelper _currentTransformationMatrix;
   bool _hasBDC = false;
   Bidi? _bidiInstance;
@@ -355,7 +356,8 @@ class PdfTextExtractor {
             textLine = TextLineHelper.initialize();
           }
           final TextElement textElement = renderer.extractTextElement[k];
-          final List<String> words = textElement.renderedText.split(' ');
+          final List<String> words = _splitRenderedText(
+              textElement.renderedText, renderer.imageRenderGlyphList, i);
           textElement.text = ' ';
           TextWord? textwords;
           List<TextGlyph> glyphs = <TextGlyph>[];
@@ -426,7 +428,9 @@ class PdfTextExtractor {
             }
             textElement.text = words[x];
             if (textElement.text != '') {
-              if (x < words.length - 1) {
+              if (x < words.length - 1 &&
+                  i <= renderer.imageRenderGlyphList.length - 1 &&
+                  renderer.imageRenderGlyphList[i].toUnicode == ' ') {
                 if (i != 0) {
                   final Map<String, dynamic> tempResult = _addSpace(textwords,
                       renderer, textElement, i, dx, dy, width, height);
@@ -498,6 +502,63 @@ class PdfTextExtractor {
     PdfPageHelper.getHelper(pdfPage).dictionary!.changed = isChanged;
     PdfPageHelper.getHelper(pdfPage).isTextExtraction = false;
     return result;
+  }
+
+  //Splits the words in a rendered text and returns the list of words.
+  List<String> _splitRenderedText(String text, List<Glyph> glyphs, int index) {
+    List<String> words = <String>[];
+    String tempString = '';
+    Rect? previousRect;
+    bool isSplit = false;
+    if (text.isNotEmpty &&
+        !text.codeUnits.any((int element) => element > 255) &&
+        text[0] == glyphs[index].toUnicode) {
+      for (int i = index, j = 0; j < text.length; i++, j++) {
+        final Glyph textGlyph = glyphs[i];
+        if (text[j] == ' ') {
+          if (tempString.isNotEmpty) {
+            words.add(tempString);
+          }
+          if (j == 0 || (j != text.length - 1 && text[j - 1] == ' ')) {
+            words.add('');
+          }
+          if (j + 1 >= text.length) {
+            words.add('');
+          }
+          previousRect = null;
+          tempString = '';
+          continue;
+        }
+        final Rect currentRect = textGlyph.boundingRect;
+        if (previousRect != null) {
+          if ((previousRect.left + previousRect.width - currentRect.left)
+                  .abs() >
+              1.5) {
+            isSplit = true;
+          } else {
+            tempString += text[j];
+          }
+        } else {
+          tempString += text[j];
+        }
+        if (isSplit) {
+          words.add(tempString);
+          isSplit = false;
+          previousRect = null;
+          tempString = '';
+          i--;
+          j--;
+        } else {
+          previousRect = currentRect;
+        }
+      }
+      if (tempString.isNotEmpty) {
+        words.add(tempString);
+      }
+    } else {
+      words = text.split(' ');
+    }
+    return words;
   }
 
   List<MatchedItem> _searchInBackground(
@@ -1265,6 +1326,11 @@ class PdfTextExtractor {
           }
         }
         switch (token.trim()) {
+          case 'q':
+            {
+              _hasET = false;
+              break;
+            }
           case 'Tw':
             {
               _wordSpacing = double.tryParse(elements![0])!;
@@ -1305,6 +1371,7 @@ class PdfTextExtractor {
             }
           case 'cm':
             {
+              _hasET = false;
               currentMatrixY = double.tryParse(elements![5]);
               final int current = currentMatrixY!.toInt();
               final int prev = prevMatrixY!.toInt();
@@ -1321,6 +1388,7 @@ class PdfTextExtractor {
           case 'BDC':
             {
               _hasBDC = true;
+              _hasET = true;
               break;
             }
           case 'TD':
@@ -1397,6 +1465,7 @@ class PdfTextExtractor {
             }
           case 'ET':
             {
+              _hasET = true;
               final double endTextPosition =
                   (_textLineMatrix!.offsetX - _tempBoundingRectangle!.right) /
                       10;
@@ -1426,6 +1495,9 @@ class PdfTextExtractor {
                 if (differenceX > _fontSize!) {
                   differenceX = 0;
                 }
+                if (currentToken == 'Tj' && _hasET) {
+                  resultantText += ' ';
+                }
                 spaceBetweenWord = false;
               }
               hasTj = true;
@@ -1439,6 +1511,14 @@ class PdfTextExtractor {
               _currentTextMatrix = _textLineMatrix!.clone();
               prevY = currentY;
               resultantText += currentText!;
+              if (currentToken == 'TJ' &&
+                  _textLineMatrix!.m11 != 1 &&
+                  _textLineMatrix!.m22 != 1 &&
+                  _hasET &&
+                  currentText.isNotEmpty) {
+                resultantText += ' ';
+              }
+              _hasET = false;
               _textMatrix = _textLineMatrix!.clone();
               if (currentToken == 'TJ') {
                 _hasBDC = false;

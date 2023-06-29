@@ -1,4 +1,11 @@
 ## Unreleased
+
+## Range Selector
+
+**Bugs**
+
+* #FB41819 - The SfRangeSelector dragging works properly even when the range is too small.
+
 ## [20.3.60] - 12/06/2022
 
 ## Range Slider

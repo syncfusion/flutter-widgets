@@ -3,7 +3,10 @@ import 'rendering_details.dart';
 /// Represents the state properties class.
 class StateProperties {
   /// Creates an instance of state properties class.
-  StateProperties(this.renderingDetails, this.chartState);
+  StateProperties(
+    this.renderingDetails,
+    this.chartState,
+  );
 
   /// Holds the value of rendering details.
   final RenderingDetails renderingDetails;

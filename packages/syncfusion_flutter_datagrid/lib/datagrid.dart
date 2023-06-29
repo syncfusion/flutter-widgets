@@ -56,7 +56,8 @@ export 'src/datagrid_widget/runtime/column.dart'
         GridCheckboxColumn,
         DataGridFilterHelper,
         DataGridCheckboxFilterHelper,
-        DataGridAdvancedFilterHelper;
+        DataGridAdvancedFilterHelper,
+        ColumnDragAndDropController;
 export 'src/datagrid_widget/selection/selection_manager.dart'
     show RowSelectionManager, SelectionManagerBase;
 export 'src/datagrid_widget/widgets/cell_widget.dart'

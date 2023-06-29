@@ -2573,22 +2573,28 @@ class RenderRadialAxisWidget extends RenderBox {
           (i == _axisLabels!.length - 1 && !showLastLabel))) {
         final CircularAxisLabel label = _axisLabels![i];
         final Color labelColor = label.labelStyle.color ??
+            _gaugeThemeData.axisLabelTextStyle?.color ??
             _gaugeThemeData.axisLabelColor ??
             (_isDarkTheme
                 ? _themeData.colorScheme.onSurface
                 : _themeData.colorScheme.onSurface.withOpacity(0.72));
-        final TextSpan span = TextSpan(
-            text: label.text,
-            style: TextStyle(
-                color: ranges != null &&
-                        ranges!.isNotEmpty &&
-                        useRangeColorForAxis
-                    ? _getRangeColor(label.value, _gaugeThemeData) ?? labelColor
-                    : labelColor,
-                fontSize: label.labelStyle.fontSize,
-                fontFamily: label.labelStyle.fontFamily,
-                fontStyle: label.labelStyle.fontStyle,
-                fontWeight: label.labelStyle.fontWeight));
+        final TextStyle axisLabelTextStyle =
+            _themeData.textTheme.bodySmall!.copyWith(
+          color: ranges != null && ranges!.isNotEmpty && useRangeColorForAxis
+              ? _getRangeColor(label.value, _gaugeThemeData) ?? labelColor
+              : labelColor,
+          fontSize: label.labelStyle.fontSize ??
+              _gaugeThemeData.axisLabelTextStyle?.fontSize,
+          fontFamily: label.labelStyle.fontFamily ??
+              _gaugeThemeData.axisLabelTextStyle?.fontFamily,
+          fontStyle: label.labelStyle.fontStyle ??
+              _gaugeThemeData.axisLabelTextStyle?.fontStyle,
+          fontWeight: label.labelStyle.fontWeight ??
+              _gaugeThemeData.axisLabelTextStyle?.fontWeight,
+        );
+
+        final TextSpan span =
+            TextSpan(text: label.text, style: axisLabelTextStyle);
 
         final TextPainter textPainter = TextPainter(
             text: span,

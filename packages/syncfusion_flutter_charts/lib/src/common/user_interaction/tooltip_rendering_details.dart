@@ -1509,18 +1509,6 @@ class TooltipRenderingDetails {
           if (tooltipBehavior.shared) {
             int indexValue = 0;
             int tooltipElementsLength = 0;
-            final Paint markerPaint = Paint();
-            markerPaint.color =
-                _seriesRendererDetails!.series.markerSettings.borderColor ??
-                    _seriesRendererDetails!.seriesColor ??
-                    _seriesRendererDetails!.series.color!
-                        .withOpacity(tooltipBehavior.opacity);
-            markerGradients.add(_seriesRendererDetails!.series.gradient);
-            markerImages
-                .add(_seriesRendererDetails!.markerSettingsRenderer?.image);
-            markerTypes
-                .add(_seriesRendererDetails!.series.markerSettings.shape);
-            markerPaints.add(markerPaint);
             if ((_seriesRendererDetails!.seriesType.contains('range') == true ||
                     _seriesRendererDetails!.seriesType == 'hilo') &&
                 !isTrendLine!) {
@@ -1600,6 +1588,19 @@ class TooltipRenderingDetails {
               final int index =
                   seriesRendererDetails.xValues!.indexOf(dataRect[4].x);
               if (index > -1) {
+                final Paint markerPaint = Paint();
+                markerPaint.color =
+                    _seriesRendererDetails!.series.markerSettings.borderColor ??
+                        _seriesRendererDetails!.seriesColor ??
+                        _seriesRendererDetails!.series.color!
+                            .withOpacity(tooltipBehavior.opacity);
+                markerGradients.add(_seriesRendererDetails!.series.gradient);
+                markerImages
+                    .add(_seriesRendererDetails!.markerSettingsRenderer?.image);
+                markerTypes
+                    .add(_seriesRendererDetails!.series.markerSettings.shape);
+                markerPaints.add(markerPaint);
+
                 final String text = (_stringVal != '' ? '\n' : '') +
                     _calculateCartesianTooltipText(
                         seriesRendererDetails,

@@ -492,7 +492,7 @@ class Inflater {
           if (_loopCounter == 0) {
             throw ArgumentError.value('Invalid data.');
           }
-          final int previousCode = (_codeList[_loopCounter - 1]).toUnsigned(8);
+          final int previousCode = _codeList[_loopCounter - 1].toUnsigned(8);
           repeatCount = _input.getBits(2) + 3;
           if (_loopCounter + repeatCount > _caSize) {
             throw ArgumentError.value('Invalid data.');

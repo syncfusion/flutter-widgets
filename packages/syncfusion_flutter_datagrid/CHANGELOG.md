@@ -2,6 +2,33 @@
 
 **Features**
 
+* Provided the support to customize the visibility of horizontal and vertical scrollbars in the DataGrid.
+* Provide the support to show the filter icon when the mouse hovers over the column header. Users have the option to enable or disable this hover feature by `showFilterIconOnHover`.
+* Provided the support to set a `key` to the `DataGridRow`, it helps automate the data grid rows during automated testing.
+* Provided the support to rearrange columns by dragging and dropping them.
+
+## [21.2.10] - 06/13/2023
+
+**Bugs**
+
+* The DataGrid now properly retains focus on the current cell even when the keyboard is opened on Android and iOS platforms
+
+## [21.2.4] - 05/09/2023
+
+**Bugs**
+
+* The `ColumnWidthMode` now calculates column width for header cells properly by taking into account the `maximumWidth` and `minimumWidth` properties, even when the source is empty.
+
+## [21.1.41] - 04/18/2023
+
+**Bugs**
+
+* The `OK` button is now properly displayed in the UI filter menu when using the `Material3` design.
+
+## [21.1.35] - 03/23/2023
+
+**Features**
+
 * Provided the support to change the position (left or right) of sort and filter icons in the column headers when sorting or filtering is applied.
 * The `onCellSubmit`, `canSubmitCell`, and `performSorting` methods are marked async so that cell submission and sorting can be asynchronous.
 * Provided the support to change the text style of all the elements in the filter pop menu. Users can set different text styles for enabled and disabled items.
@@ -72,7 +99,7 @@
 
 **Bugs**
 
-* The listeners in `SelectionController` class are properly disposed
+* The listeners in `SelectionController` class are properly disposed.
 
 ## [20.3.49] - 10/11/2022
 

@@ -362,3 +362,21 @@ enum ColumnHeaderIconPosition {
   /// Specifies that an icon is positioned at the ending position of the column header.
   end,
 }
+
+/// Determine the status of the current dragging column.
+enum DataGridColumnDragAction {
+  /// Specifies the dragging operation is about to initialize for a column.
+  starting,
+
+  /// Specifies the dragging operation is initialized for a column.
+  started,
+
+  /// Specifies the column is being dragged.
+  update,
+
+  /// Specifies the dragging operation is about to end for a column.
+  dropping,
+
+  /// Specifies the dragging operation is ended for a column.
+  dropped
+}

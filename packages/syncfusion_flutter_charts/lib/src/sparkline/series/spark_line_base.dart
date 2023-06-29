@@ -56,11 +56,7 @@ class SfSparkLineChart extends StatefulWidget {
       this.lastPointColor,
       this.marker,
       this.labelDisplayMode,
-      this.labelStyle = const TextStyle(
-          fontFamily: 'Roboto',
-          fontStyle: FontStyle.normal,
-          fontWeight: FontWeight.normal,
-          fontSize: 12),
+      this.labelStyle,
       this.trackball})
       : _sparkChartDataDetails = SparkChartDataDetails(data: data),
         super(key: key);
@@ -145,11 +141,7 @@ class SfSparkLineChart extends StatefulWidget {
       this.trackball,
       this.marker,
       this.labelDisplayMode,
-      this.labelStyle = const TextStyle(
-          fontFamily: 'Roboto',
-          fontStyle: FontStyle.normal,
-          fontWeight: FontWeight.normal,
-          fontSize: 12)})
+      this.labelStyle})
       : _sparkChartDataDetails = SparkChartDataDetails(
             dataCount: dataCount,
             xValueMapper: xValueMapper,
@@ -559,7 +551,7 @@ class SfSparkLineChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  final TextStyle labelStyle;
+  final TextStyle? labelStyle;
 
   /// Specifies the spark chart data details.
   final SparkChartDataDetails _sparkChartDataDetails;
@@ -606,8 +598,18 @@ class _SfSparkLineChartState extends State<SfSparkLineChart> {
 
   @override
   void didChangeDependencies() {
-    _chartThemeData = SfChartTheme.of(context);
+    _chartThemeData =
+        _updateThemeData(context, Theme.of(context), SfChartTheme.of(context));
     super.didChangeDependencies();
+  }
+
+  SfChartThemeData _updateThemeData(BuildContext context, ThemeData themeData,
+      SfChartThemeData chartThemeData) {
+    chartThemeData = chartThemeData.copyWith(
+        dataLabelTextStyle: themeData.textTheme.bodySmall!
+            .merge(chartThemeData.dataLabelTextStyle)
+            .merge(widget.labelStyle));
+    return chartThemeData;
   }
 
   /// Called whenever the widget configuration changes.
@@ -623,6 +625,8 @@ class _SfSparkLineChartState extends State<SfSparkLineChart> {
 
   @override
   void didUpdateWidget(SfSparkLineChart oldWidget) {
+    _chartThemeData =
+        _updateThemeData(context, Theme.of(context), SfChartTheme.of(context));
     super.didUpdateWidget(oldWidget);
   }
 
