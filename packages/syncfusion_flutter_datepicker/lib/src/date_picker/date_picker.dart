@@ -8354,7 +8354,7 @@ class _PickerHeaderPainter extends CustomPainter {
 
       double textWidth = ((currentViewIndex + 1) * width) - xPosition;
       textWidth = textWidth > 0 ? textWidth : 0;
-      _textPainter.layout(minWidth: textWidth, maxWidth: textWidth);
+      _textPainter.layout(maxWidth: textWidth);
 
       if (headerStyle.textAlign == TextAlign.center) {
         xPosition = (currentViewIndex * width) +
@@ -8590,7 +8590,7 @@ class _PickerViewHeaderPainter extends CustomPainter {
 
         _textPainter.textScaleFactor = textScaleFactor;
         _textPainter.text = dayTextSpan;
-        _textPainter.layout(minWidth: width, maxWidth: width);
+        _textPainter.layout(maxWidth: width);
         yPosition = (viewHeaderHeight - _textPainter.height) / 2;
         _textPainter.paint(
             canvas,
