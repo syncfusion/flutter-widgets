@@ -4495,7 +4495,7 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
       );
 
       monthView._textPainter.text = dateText;
-      monthView._textPainter.layout(maxWidth: cellWidth);
+      monthView._textPainter.layout(minWidth: cellWidth, maxWidth: cellWidth);
       monthView._textPainter.paint(
           canvas,
           Offset(xPosition + (cellWidth / 2 - monthView._textPainter.width / 2),
