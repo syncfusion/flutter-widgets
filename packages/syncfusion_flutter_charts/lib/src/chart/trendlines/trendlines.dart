@@ -829,7 +829,7 @@ class TrendlineRenderer {
       final CartesianChartPoint<dynamic> point = points[index];
       powerPoints.add(point.xValue ?? point.x);
       final dynamic xVal =
-          point.xValue != null && (math.log(point.xValue)).isFinite
+          point.xValue != null && math.log(point.xValue).isFinite
               ? math.log(point.xValue)
               : (seriesRendererDetails.xAxisDetails?.axisRenderer
                           is CategoryAxisRenderer ||
@@ -893,13 +893,13 @@ class TrendlineRenderer {
     }
     final num y1 = slopeInterceptLog.intercept! +
         (slopeInterceptLog.slope! *
-            ((math.log(x1)).isFinite ? math.log(x1) : x1));
+            (math.log(x1).isFinite ? math.log(x1) : x1));
     final num y2 = slopeInterceptLog.intercept! +
         (slopeInterceptLog.slope! *
-            ((math.log(x2)).isFinite ? math.log(x2) : x2));
+            (math.log(x2).isFinite ? math.log(x2) : x2));
     final num y3 = slopeInterceptLog.intercept! +
         (slopeInterceptLog.slope! *
-            ((math.log(x3)).isFinite ? math.log(x3) : x3));
+            (math.log(x3).isFinite ? math.log(x3) : x3));
     ptsLog.add(
         getDataPoint(x1, y1, points[0], seriesRendererDetails, ptsLog.length));
     ptsLog.add(getDataPoint(
@@ -922,7 +922,7 @@ class TrendlineRenderer {
       final CartesianChartPoint<dynamic> point = points[index];
       xPointsLgr.add(point.xValue ?? point.x);
       final dynamic xVal =
-          (point.xValue != null && (math.log(point.xValue)).isFinite)
+          (point.xValue != null && math.log(point.xValue).isFinite)
               ? math.log(point.xValue)
               : (seriesRendererDetails.xAxisDetails?.axisRenderer
                           is CategoryAxisRenderer ||
@@ -1191,7 +1191,7 @@ class TrendlineRenderer {
     int index = 0;
     double slope = 0.0, intercept = 0.0;
     while (index < points.length) {
-      if ((yValues[index]).isNaN == true) {
+      if (yValues[index].isNaN == true) {
         yValues[index] = (yValues[index - 1] + yValues[index + 1]) / 2;
       }
       xAvg += xValues[index];
@@ -1405,8 +1405,8 @@ class TrendlineRenderer {
           int index5 = 0;
           while (index5 < length) {
             if (numArray3[index5] == 0 &&
-                (matrix[index4][index5]).abs() >= num1 == true) {
-              num1 = (matrix[index4][index5]).abs();
+                matrix[index4][index5].abs() >= num1 == true) {
+              num1 = matrix[index4][index5].abs();
               index2 = index4;
               index3 = index5;
             }

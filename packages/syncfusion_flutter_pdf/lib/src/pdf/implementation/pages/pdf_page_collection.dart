@@ -691,8 +691,7 @@ class PdfPageCollection {
   }
 
   void _removeFormFields(PdfReferenceHolder pageHolder) {
-    if (PdfDocumentHelper.getHelper(_helper.document!).isLoadedDocument &&
-        _helper.document!.form != null) {
+    if (PdfDocumentHelper.getHelper(_helper.document!).isLoadedDocument) {
       PdfFormFieldCollectionHelper.getHelper(
               PdfPageCollectionHelper.getHelper(this).document!.form.fields)
           .removeContainingField(pageHolder);

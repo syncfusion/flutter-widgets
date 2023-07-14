@@ -14,6 +14,7 @@ import '../helper/datagrid_configuration.dart';
 import '../helper/datagrid_helper.dart';
 import '../helper/datagrid_helper.dart' as grid_helper;
 import '../helper/enums.dart';
+import '../runtime/column.dart';
 import '../runtime/generator.dart';
 import '../sfdatagrid.dart';
 import 'scrollview_widget.dart';
@@ -375,14 +376,11 @@ class VirtualizingCellsRenderObjectWidget extends MultiChildRenderObjectWidget {
   /// Creates the [VirtualizingCellsRenderObjectWidget] for the
   /// [RenderVirtualizingCellsWidget].
   VirtualizingCellsRenderObjectWidget(
-      {required Key key,
-      required this.dataRow,
+      {required this.dataRow,
       required this.isDirty,
       required this.children,
       required this.dataGridStateDetails})
-      : super(
-            key: key,
-            children: RepaintBoundary.wrapAll(List<Widget>.from(children)));
+      : super(children: RepaintBoundary.wrapAll(List<Widget>.from(children)));
 
   @override
   final List<Widget> children;
@@ -1062,9 +1060,35 @@ class RenderVirtualizingCellsWidget extends RenderBox
 
     _handleColumnResizing(event);
 
+    _handleColumnDragAndDrop(event);
+
     // Handles the all the datagrid long press events here commonly.
     if (event is PointerDownEvent) {
       _onLongPressGesture.addPointer(event);
+    }
+  }
+
+  void _handleColumnDragAndDrop(PointerEvent event) {
+    final DataGridConfiguration configuration = _dataGridStateDetails();
+
+    if (configuration.allowColumnsDragging &&
+        configuration.onColumnDragging != null &&
+        !configuration.columnResizeController.canSwitchResizeColumnCursor &&
+        !configuration.columnResizeController.isResizeIndicatorVisible) {
+      final ColumnDragAndDropController columnDragAndDropController =
+          configuration.columnDragAndDropController;
+
+      if (event is PointerDownEvent) {
+        columnDragAndDropController.offset = event.localPosition;
+        columnDragAndDropController.dragDelta = event.position.dx;
+      }
+
+      if (event is PointerMoveEvent) {
+        columnDragAndDropController.onPointerMove(event);
+      }
+      if (event is PointerUpEvent) {
+        columnDragAndDropController.onPointerUp(event);
+      }
     }
   }
 
@@ -2016,7 +2040,9 @@ class RenderGridCell extends RenderBox
   }
 
   void _paintHoverColor(PaintingContext context) {
-    if (dataCell.cellType == CellType.headerCell && _isHovered) {
+    if (dataCell.cellType == CellType.headerCell &&
+        _isHovered &&
+        !_dataGridStateDetails().columnDragAndDropController.isHoverDisabled) {
       final DataGridConfiguration dataGridConfiguration =
           _dataGridStateDetails();
       dataGridConfiguration.gridPaint!.color =
@@ -2202,8 +2228,6 @@ Rect? _getSpannedCellClipRect(
           }
 
           clipRect = Rect.fromLTWH(left, 0.0, clippedWidth, cellHeight);
-        } else if (clipRect != null) {
-          clipRect = null;
         }
       }
     }

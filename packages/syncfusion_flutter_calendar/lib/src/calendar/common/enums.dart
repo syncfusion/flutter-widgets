@@ -145,7 +145,7 @@ enum CalendarElement {
   /// all-day panel will be added if the view must contain at least one
   /// appointment.
   ///
-  /// _Note:_ The all day panel doesn't available in the [CalendarView.month],
+  /// _Note:_ The all day panel isn't available in the [CalendarView.month],
   /// [CalendarView.timelineDay], [CalendarView.timelineWeek] and
   /// [CalendarView.timelineWorkWeekView].
   allDayPanel,

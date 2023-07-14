@@ -13,9 +13,17 @@ Future<void> saveAndLaunchFile(List<int> bytes, String fileName) async {
       Platform.isIOS ||
       Platform.isLinux ||
       Platform.isWindows) {
-    final Directory directory =
-        await path_provider.getApplicationSupportDirectory();
-    path = directory.path;
+    if (Platform.isAndroid) {
+      final Directory? directory =
+          await path_provider.getExternalStorageDirectory();
+      if (directory != null) {
+        path = directory.path;
+      }
+    } else {
+      final Directory directory =
+          await path_provider.getApplicationSupportDirectory();
+      path = directory.path;
+    }
   } else {
     path = await path_provider_interface.PathProviderPlatform.instance
         .getApplicationSupportPath();

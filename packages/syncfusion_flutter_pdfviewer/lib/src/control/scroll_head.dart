@@ -175,14 +175,17 @@ class _ScrollHeadState extends State<ScrollHead> {
               child: Align(
                 child: Text(
                   '${widget.pdfViewerController.pageNumber}',
-                  style: _pdfViewerThemeData!
-                          .scrollHeadStyle?.pageNumberTextStyle ??
-                      TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withOpacity(0.87)),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall!
+                      .copyWith(
+                        fontSize: 12,
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.black.withOpacity(0.87)
+                            : Colors.white.withOpacity(0.87),
+                      )
+                      .merge(_pdfViewerThemeData!
+                          .scrollHeadStyle?.pageNumberTextStyle),
                   semanticsLabel: widget.isBookmarkViewOpen
                       ? ''
                       : widget.pdfViewerController.pageNumber.toString(),

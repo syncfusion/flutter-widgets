@@ -488,7 +488,7 @@ class Worksheet {
               // .toString(valueFormat);
               updatedValue = updatedValue +
                   semiColon +
-                  (timeValues[timeValues.length - 1]).replaceAll(
+                  timeValues[timeValues.length - 1].replaceAll(
                       timeValues[timeValues.length - 1], valueFormat);
               value = value.replaceAll(match.pattern.toString(), updatedValue);
             }

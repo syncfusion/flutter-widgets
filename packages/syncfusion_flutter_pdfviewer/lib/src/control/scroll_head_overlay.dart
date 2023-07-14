@@ -417,18 +417,18 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                   (Theme.of(context).colorScheme.brightness == Brightness.light
                       ? Colors.white
                       : const Color(0xFF424242)),
-              title: Text(
-                _localizations!.pdfGoToPageLabel,
-                style: _pdfViewerThemeData!
-                        .paginationDialogStyle?.headerTextStyle ??
-                    TextStyle(
-                      fontFamily: 'Roboto',
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color:
-                          _themeData!.colorScheme.onSurface.withOpacity(0.87),
-                    ),
-              ),
+              title: Text(_localizations!.pdfGoToPageLabel,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineMedium!
+                      .copyWith(
+                        fontSize: 20,
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.black.withOpacity(0.87)
+                            : Colors.white.withOpacity(0.87),
+                      )
+                      .merge(_pdfViewerThemeData!
+                          .paginationDialogStyle?.headerTextStyle)),
               shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(4.0))),
               content:
@@ -441,14 +441,15 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                   },
                   child: Text(
                     _localizations!.pdfPaginationDialogCancelLabel,
-                    style: _pdfViewerThemeData!
-                            .paginationDialogStyle?.cancelTextStyle ??
-                        TextStyle(
-                          fontFamily: 'Roboto',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(
                           fontSize: 14,
-                          fontWeight: FontWeight.w500,
                           color: _themeData!.colorScheme.primary,
-                        ),
+                        )
+                        .merge(_pdfViewerThemeData!
+                            .paginationDialogStyle?.cancelTextStyle),
                   ),
                 ),
                 TextButton(
@@ -457,14 +458,15 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                   },
                   child: Text(
                     _localizations!.pdfPaginationDialogOkLabel,
-                    style: _pdfViewerThemeData!
-                            .paginationDialogStyle?.okTextStyle ??
-                        TextStyle(
-                          fontFamily: 'Roboto',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(
                           fontSize: 14,
-                          fontWeight: FontWeight.w500,
                           color: _themeData!.colorScheme.primary,
-                        ),
+                        )
+                        .merge(_pdfViewerThemeData!
+                            .paginationDialogStyle?.okTextStyle),
                   ),
                 )
               ],
@@ -480,12 +482,17 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
       child: SizedBox(
         width: _kPdfPaginationTextFieldWidth,
         child: TextFormField(
-          style: _pdfViewerThemeData!
-                  .paginationDialogStyle?.inputFieldTextStyle ??
-              TextStyle(
-                  fontFamily: 'Roboto',
-                  fontSize: 16,
-                  color: _themeData!.colorScheme.onSurface.withOpacity(0.87)),
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium!
+              .copyWith(
+                fontSize: 16,
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.black.withOpacity(0.87)
+                    : Colors.white.withOpacity(0.87),
+              )
+              .merge(_pdfViewerThemeData!
+                  .paginationDialogStyle?.inputFieldTextStyle),
           focusNode: _focusNode,
           decoration: InputDecoration(
             isDense: true,
@@ -494,27 +501,36 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
             ),
             contentPadding: const EdgeInsets.symmetric(vertical: 6),
             hintText: _localizations!.pdfEnterPageNumberLabel,
-            hintStyle: _pdfViewerThemeData!
-                    .paginationDialogStyle?.hintTextStyle ??
-                (TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 16,
-                    color:
-                        _themeData!.colorScheme.onSurface.withOpacity(0.38))),
+            hintStyle: Theme.of(context)
+                .textTheme
+                .titleMedium!
+                .copyWith(
+                  fontSize: 16,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.black.withOpacity(0.6)
+                      : Colors.white.withOpacity(0.6),
+                )
+                .merge(
+                    _pdfViewerThemeData!.paginationDialogStyle?.hintTextStyle),
             counterText:
                 '${widget.pdfViewerController.pageNumber}/${widget.pdfViewerController.pageCount}',
-            counterStyle: _pdfViewerThemeData!
-                    .paginationDialogStyle?.pageInfoTextStyle ??
-                TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 12,
-                    color: _themeData!.colorScheme.onSurface.withOpacity(0.6)),
-            errorStyle: _pdfViewerThemeData!
-                    .paginationDialogStyle?.validationTextStyle ??
-                TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 12,
-                    color: _themeData!.colorScheme.error),
+            counterStyle: Theme.of(context)
+                .textTheme
+                .bodySmall!
+                .copyWith(
+                  fontSize: 12,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.black.withOpacity(0.6)
+                      : Colors.white.withOpacity(0.6),
+                )
+                .merge(_pdfViewerThemeData!
+                    .paginationDialogStyle?.pageInfoTextStyle),
+            errorStyle: Theme.of(context)
+                .textTheme
+                .bodySmall!
+                .copyWith(fontSize: 12, color: _themeData!.colorScheme.error)
+                .merge(_pdfViewerThemeData!
+                    .paginationDialogStyle?.validationTextStyle),
           ),
           keyboardType: TextInputType.number,
           enableInteractiveSelection: false,

@@ -280,6 +280,7 @@ class _CartesianAxisWidgetState extends State<CartesianAxisWidget>
                   SeriesHelper.getSeriesRendererDetails(seriesRenderer);
               seriesRendererDetails.calculateRegion = true;
               seriesRendererDetails.repaintNotifier.value++;
+              widget.stateProperties.plotBandRepaintNotifier.value++;
               if (seriesRendererDetails.series.dataLabelSettings.isVisible ==
                       true &&
                   widget.stateProperties.renderDataLabel?.state != null) {

@@ -210,7 +210,7 @@ int getFooterViewRowIndex(DataGridConfiguration dataGridConfiguration) {
 
 //-------------------- Table summary row helper methods ----------------------//
 
-/// Checks whether the givem row is a top summary row or not.
+/// Checks whether the given row is a top summary row or not.
 bool isTopTableSummaryRow(
     DataGridConfiguration dataGridConfiguration, int rowIndex) {
   if (dataGridConfiguration.tableSummaryRows.isNotEmpty &&

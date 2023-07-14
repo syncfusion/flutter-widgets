@@ -564,8 +564,8 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
       this.dayFormat = 'EE',
       this.viewHeaderHeight = 30,
       @Deprecated('Use selectionRadius property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.selectionRadius = -1,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.selectionRadius = -1,
       this.showTrailingAndLeadingDates = false,
       this.viewHeaderStyle = const DateRangePickerViewHeaderStyle(),
       this.enableSwipeSelection = true,
@@ -1769,24 +1769,24 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// [SfDateRangePicker].
   const DateRangePickerMonthCellStyle(
       {@Deprecated('Use selectionColor property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.selectionColor,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.selectionColor,
       @Deprecated('Use startRangeSelectionColor property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.startRangeSelectionColor,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.startRangeSelectionColor,
       @Deprecated('Use endRangeSelectionColor property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.endRangeSelectionColor,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.endRangeSelectionColor,
       @Deprecated('Use rangeSelectionColor property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.rangeSelectionColor,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.rangeSelectionColor,
       this.textStyle,
       this.todayTextStyle,
       this.trailingDatesTextStyle,
       this.leadingDatesTextStyle,
       @Deprecated('Use selectionTextStyle property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.selectionTextStyle,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.selectionTextStyle,
       this.disabledDatesTextStyle,
       this.blackoutDateTextStyle,
       this.weekendTextStyle,
@@ -1799,8 +1799,8 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
       this.trailingDatesDecoration,
       this.leadingDatesDecoration,
       @Deprecated('Use rangeTextStyle property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.rangeTextStyle,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.rangeTextStyle,
       this.weekendDatesDecoration});
 
   /// The text style for the text in the [SfDateRangePicker] month cells.
@@ -4148,7 +4148,7 @@ class DateRangePickerSelectionChangedArgs {
   /// when the widget [DateRangePickerSelectionMode] set as range.
   ///
   /// The argument value will return the changed ranges as
-  /// [List<PickerDateRange] when the widget [DateRangePickerSelectionMode] set
+  /// [List<PickerDateRange>] when the widget [DateRangePickerSelectionMode] set
   /// as multi range.
   final dynamic value;
 }

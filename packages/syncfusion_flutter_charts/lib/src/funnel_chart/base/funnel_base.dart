@@ -70,7 +70,7 @@ class SfFunnelChart extends StatefulWidget {
   })  : title = title ?? ChartTitle(),
         series = series ?? FunnelSeries<dynamic, dynamic>(),
         margin = margin ?? const EdgeInsets.fromLTRB(10, 10, 10, 10),
-        legend = legend ?? Legend(),
+        legend = legend ?? const Legend(),
         tooltipBehavior = tooltipBehavior ?? TooltipBehavior(),
         selectionGesture = selectionGesture ?? ActivationMode.singleTap,
         enableMultiSelection = enableMultiSelection ?? false,
@@ -465,10 +465,37 @@ class SfFunnelChartState extends State<SfFunnelChart>
 
   @override
   void didChangeDependencies() {
-    _stateProperties.renderingDetails.chartTheme = SfChartTheme.of(context);
+    _stateProperties.renderingDetails.chartTheme =
+        _updateThemeData(context, Theme.of(context), SfChartTheme.of(context));
+    _stateProperties.renderingDetails.themeData = Theme.of(context);
     _stateProperties.renderingDetails.isRtl =
         Directionality.of(context) == TextDirection.rtl;
     super.didChangeDependencies();
+  }
+
+  SfChartThemeData _updateThemeData(BuildContext context, ThemeData themeData,
+      SfChartThemeData chartThemeData) {
+    chartThemeData = chartThemeData.copyWith(
+      titleTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(color: chartThemeData.titleTextColor, fontSize: 15)
+          .merge(chartThemeData.titleTextStyle)
+          .merge(widget.title.textStyle),
+      legendTitleTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(color: chartThemeData.legendTitleColor)
+          .merge(chartThemeData.legendTitleTextStyle)
+          .merge(widget.legend.title.textStyle),
+      legendTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(color: chartThemeData.legendTextColor, fontSize: 13)
+          .merge(chartThemeData.legendTextStyle)
+          .merge(widget.legend.textStyle),
+      tooltipTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(
+              color: widget.tooltipBehavior.color ??
+                  chartThemeData.tooltipLabelColor)
+          .merge(chartThemeData.tooltipTextStyle)
+          .merge(widget.tooltipBehavior.textStyle),
+    );
+    return chartThemeData;
   }
 
   /// Called whenever the widget configuration changes.
