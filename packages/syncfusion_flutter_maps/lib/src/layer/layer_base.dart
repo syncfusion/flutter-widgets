@@ -20,6 +20,7 @@ abstract class MapLayer extends StatelessWidget {
     this.zoomPanBehavior,
     this.onWillZoom,
     this.onWillPan,
+    this.colorFilter,
   }) : super(key: key);
 
   /// Option to set the LatLng bounds initially for the tile or shape layer.
@@ -110,6 +111,9 @@ abstract class MapLayer extends StatelessWidget {
   /// }
   /// ```
   final List<MapSublayer>? sublayers;
+
+  /// Color filter on tile image
+  final ColorFilter? colorFilter;
 
   /// Option to set markers count initially. It cannot be be updated
   /// dynamically.

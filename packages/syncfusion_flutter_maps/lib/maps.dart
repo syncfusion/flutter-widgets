@@ -1882,6 +1882,7 @@ class MapTileLayer extends MapLayer {
     MapZoomPanBehavior? zoomPanBehavior,
     WillZoomCallback? onWillZoom,
     WillPanCallback? onWillPan,
+    super.colorFilter,
   })  : assert(initialZoomLevel >= 1 && initialZoomLevel <= 15),
         assert(initialMarkersCount == 0 ||
             initialMarkersCount != 0 && markerBuilder != null),
@@ -2117,6 +2118,7 @@ class MapTileLayer extends MapLayer {
       onWillZoom: onWillZoom,
       onWillPan: onWillPan,
       isTransparent: isTransparent,
+      colorFilter: colorFilter,
     );
   }
 
@@ -2170,6 +2172,7 @@ class _TileLayer extends StatefulWidget {
     required this.onWillZoom,
     required this.onWillPan,
     required this.isTransparent,
+    required this.colorFilter,
   });
 
   final String urlTemplate;
@@ -2186,6 +2189,7 @@ class _TileLayer extends StatefulWidget {
   final WillZoomCallback? onWillZoom;
   final WillPanCallback? onWillPan;
   final bool isTransparent;
+  final ColorFilter? colorFilter;
 
   @override
   _TileLayerState createState() => _TileLayerState();
@@ -2228,6 +2232,7 @@ class _TileLayerState extends State<_TileLayer> {
         onWillZoom: widget.onWillZoom,
         onWillPan: widget.onWillPan,
         isTransparent: widget.isTransparent,
+        colorFilter: widget.colorFilter,
       ),
     );
   }

@@ -105,6 +105,10 @@ class _MyHomePageState extends State<MyHomePage> {
           ///
           /// We will replace the {z}, {x}, {y} internally based on the
           /// current center point and the zoom level.
+          colorFilter: const ColorFilter.mode(
+            Colors.grey,
+            BlendMode.saturation,
+          ),
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           zoomPanBehavior: _zoomPanBehavior,
           controller: _mapController,
