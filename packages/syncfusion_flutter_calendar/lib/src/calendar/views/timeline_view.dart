@@ -1267,7 +1267,7 @@ class TimelineViewHeaderView extends CustomPainter {
 
       final String dayText = DateFormat(dayFormat, locale).format(currentDate);
       final String dateText =
-          DateFormat(timeSlotViewSettings.dateFormat).format(currentDate);
+          DateFormat(timeSlotViewSettings.dateFormat,locale).format(currentDate);
 
       final bool isBlackoutDate =
           CalendarViewHelper.isDateInDateCollection(blackoutDates, currentDate);
