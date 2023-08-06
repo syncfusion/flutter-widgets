@@ -595,7 +595,7 @@ class SfDataPagerState extends State<SfDataPager> {
     }
     final bool canChange = await _canChangePage(index);
 
-    if (canChange) {
+    if (canChange && mounted) {
       setState(() {
         _setCurrentPageIndex(index);
         _isDirty = true;
