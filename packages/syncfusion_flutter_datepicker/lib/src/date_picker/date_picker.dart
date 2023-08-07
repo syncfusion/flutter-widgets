@@ -7651,7 +7651,7 @@ class _AnimatedOpacityWidgetState extends State<_AnimatedOpacityWidget> {
 
 /// Holds content and header to show header like sticky based on content.
 class _StickyHeader extends Stack {
-  const _StickyHeader({
+  _StickyHeader({
     required List<Widget> children,
     AlignmentDirectional alignment = AlignmentDirectional.topStart,
     this.isHorizontal = false,

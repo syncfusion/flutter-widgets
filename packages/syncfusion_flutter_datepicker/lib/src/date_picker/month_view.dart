@@ -612,7 +612,7 @@ class _MonthViewState extends State<MonthView> {
 
 class _MonthViewSingleSelectionRenderWidget
     extends MultiChildRenderObjectWidget {
-  const _MonthViewSingleSelectionRenderWidget(
+  _MonthViewSingleSelectionRenderWidget(
       this.visibleDates,
       this.rowCount,
       this.cellStyle,
@@ -811,7 +811,7 @@ class _MonthViewSingleSelectionRenderWidget
 
 class _MonthViewMultiSelectionRenderWidget
     extends MultiChildRenderObjectWidget {
-  const _MonthViewMultiSelectionRenderWidget(
+  _MonthViewMultiSelectionRenderWidget(
       this.visibleDates,
       this.rowCount,
       this.cellStyle,
@@ -1009,7 +1009,7 @@ class _MonthViewMultiSelectionRenderWidget
 
 class _MonthViewRangeSelectionRenderWidget
     extends MultiChildRenderObjectWidget {
-  const _MonthViewRangeSelectionRenderWidget(
+  _MonthViewRangeSelectionRenderWidget(
       this.visibleDates,
       this.rowCount,
       this.cellStyle,
@@ -1208,7 +1208,7 @@ class _MonthViewRangeSelectionRenderWidget
 
 class _MonthViewExtendableRangeSelectionRenderWidget
     extends MultiChildRenderObjectWidget {
-  const _MonthViewExtendableRangeSelectionRenderWidget(
+  _MonthViewExtendableRangeSelectionRenderWidget(
       this.visibleDates,
       this.rowCount,
       this.cellStyle,
@@ -1412,7 +1412,7 @@ class _MonthViewExtendableRangeSelectionRenderWidget
 
 class _MonthViewMultiRangeSelectionRenderWidget
     extends MultiChildRenderObjectWidget {
-  const _MonthViewMultiRangeSelectionRenderWidget(
+  _MonthViewMultiRangeSelectionRenderWidget(
       this.visibleDates,
       this.rowCount,
       this.cellStyle,

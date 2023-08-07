@@ -580,7 +580,7 @@ class _YearViewState extends State<YearView> {
 }
 
 class _SingleSelectionRenderWidget extends MultiChildRenderObjectWidget {
-  const _SingleSelectionRenderWidget(
+  _SingleSelectionRenderWidget(
       this.visibleDates,
       this.cellStyle,
       this.minDate,
@@ -774,7 +774,7 @@ class _SingleSelectionRenderWidget extends MultiChildRenderObjectWidget {
 }
 
 class _MultiSelectionRenderWidget extends MultiChildRenderObjectWidget {
-  const _MultiSelectionRenderWidget(
+  _MultiSelectionRenderWidget(
       this.visibleDates,
       this.cellStyle,
       this.minDate,
@@ -968,7 +968,7 @@ class _MultiSelectionRenderWidget extends MultiChildRenderObjectWidget {
 }
 
 class _RangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
-  const _RangeSelectionRenderWidget(
+  _RangeSelectionRenderWidget(
       this.visibleDates,
       this.cellStyle,
       this.minDate,
@@ -1163,7 +1163,7 @@ class _RangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
 
 class _ExtendableRangeSelectionRenderWidget
     extends MultiChildRenderObjectWidget {
-  const _ExtendableRangeSelectionRenderWidget(
+  _ExtendableRangeSelectionRenderWidget(
       this.visibleDates,
       this.cellStyle,
       this.minDate,
@@ -1363,7 +1363,7 @@ class _ExtendableRangeSelectionRenderWidget
 }
 
 class _MultiRangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
-  const _MultiRangeSelectionRenderWidget(
+  _MultiRangeSelectionRenderWidget(
       this.visibleDates,
       this.cellStyle,
       this.minDate,
