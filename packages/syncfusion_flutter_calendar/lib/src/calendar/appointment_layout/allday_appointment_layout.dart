@@ -421,7 +421,7 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
 }
 
 class _AllDayAppointmentRenderWidget extends MultiChildRenderObjectWidget {
-  const _AllDayAppointmentRenderWidget(
+  _AllDayAppointmentRenderWidget(
       this.calendar,
       this.view,
       this.visibleDates,

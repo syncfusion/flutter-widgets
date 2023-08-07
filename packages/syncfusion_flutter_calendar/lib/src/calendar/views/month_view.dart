@@ -238,7 +238,7 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
 }
 
 class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
-  const _MonthViewRenderObjectWidget(
+  _MonthViewRenderObjectWidget(
       this.visibleDates,
       this.visibleAppointments,
       this.rowCount,

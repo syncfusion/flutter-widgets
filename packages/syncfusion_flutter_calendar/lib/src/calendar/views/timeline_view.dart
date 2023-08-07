@@ -346,7 +346,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
 }
 
 class _TimelineRenderWidget extends MultiChildRenderObjectWidget {
-  const _TimelineRenderWidget(
+  _TimelineRenderWidget(
       this.horizontalLinesCountPerView,
       this.visibleDates,
       this.timeSlotViewSettings,

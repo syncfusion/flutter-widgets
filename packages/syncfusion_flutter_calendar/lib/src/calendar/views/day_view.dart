@@ -287,7 +287,7 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
 }
 
 class _TimeSlotRenderWidget extends MultiChildRenderObjectWidget {
-  const _TimeSlotRenderWidget(
+  _TimeSlotRenderWidget(
       this.visibleDates,
       this.horizontalLinesCount,
       this.timeIntervalHeight,

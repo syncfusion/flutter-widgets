@@ -112,7 +112,7 @@ class _ResourceViewWidgetState extends State<ResourceViewWidget> {
 }
 
 class _ResourceViewRenderObjectWidget extends MultiChildRenderObjectWidget {
-  const _ResourceViewRenderObjectWidget(
+  _ResourceViewRenderObjectWidget(
       this.resources,
       this.resourceViewSettings,
       this.resourceItemHeight,
