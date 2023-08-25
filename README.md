@@ -1,3 +1,13 @@
+# Fork of Syncfusion Flutter Widgets
+This if a fork of the repository from Syncfusion. This fork was necessary in order to do some adaptations/resolve some issues that we had with the package.
+The changes are concerning two packages of this mono-repo:
+- syncfusion_flutter_charts
+- syncfusion_flutter_datepicker
+
+The respective production versions of the packages are on the branches `lynus/prod`.
+
+⬇️ Below you see the original readme of the project ⬇️
+
 <img src="https://cdn.syncfusion.com/content/images/flutter-widgets-banner-1.png"/>
 
 # Syncfusion Flutter Widgets
