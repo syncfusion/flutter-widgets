@@ -32,7 +32,7 @@ abstract class DataCellBase {
   /// Decides whether [DataCell] is dirty, to refresh it.
   bool isDirty = false;
 
-  /// Decides whether the [DataCell] has the currentcell.
+  /// Decides whether the [DataCell] has the current-cell.
   bool isCurrentCell = false;
 
   /// Decide whether the [DataCell] is in edit mode.
@@ -756,12 +756,13 @@ class RowGenerator {
         ..rowRegion = rowRegion
         ..rowType = RowType.dataRow
         ..dataGridStateDetails = dataGridStateDetails;
-      dr.key = ObjectKey(dr);
+
       dr
         ..dataGridRow =
             grid_helper.getDataGridRow(dataGridConfiguration, rowIndex)
         ..dataGridRowAdapter = grid_helper.getDataGridRowAdapter(
             dataGridConfiguration, dr.dataGridRow!);
+      dr.key = dr.dataGridRowAdapter?.key;
       assert(grid_helper.debugCheckTheLength(
           dataGridConfiguration,
           dataGridConfiguration.columns.length,

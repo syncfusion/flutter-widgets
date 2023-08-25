@@ -850,7 +850,7 @@ class CalcEngine {
               {
                 final double d = _pop(stack);
                 final double d1 = _pop(stack);
-                if (d == double.nan || d1 == double.nan) {
+                if (d.isNaN || d1.isNaN) {
                   stack._push('#VALUE!');
                 } else if (d == 0) {
                   stack._push(_errorStrings[3]);
@@ -3287,18 +3287,22 @@ class CalcEngine {
 
     final int i = cell1.lastIndexOf(_sheetToken);
     int row = 0, col = 0;
+    int row1 = 0, col1 = 0;
     final Worksheet? grd = _grid;
     final SheetFamilyItem? family = _getSheetFamilyItem(_grid);
     if (i > -1 && family!._tokenToParentObject != null) {
       _grid =
           family._tokenToParentObject![cell1.substring(0, i + 1)] as Worksheet?;
-      row = _getRowIndex(cell1);
+      row1 = row = _getRowIndex(cell1);
       if (row == -1 && _grid is Worksheet) {
         row = _grid!.getFirstRow();
       }
-      col = _getColIndex(cell1);
+      col1 = col = _getColIndex(cell1);
       if (col == -1 && _grid is Worksheet) {
         col = _grid!.getFirstColumn();
+      }
+      if (row1 > 1048576 || col1 > 16384 || row1 == -1 || col1 == -1) {
+        return '';
       }
     } else if (i == -1) {
       row = _getRowIndex(cell1);
@@ -4260,13 +4264,13 @@ class CalcEngine {
       while (d < 1) {
         m--;
         final DateTime date = DateTime(y, m + 1);
-        x = (DateTime(date.year, date.month, date.day)
-                .add(const Duration(hours: -1)))
+        x = DateTime(date.year, date.month, date.day)
+            .add(const Duration(hours: -1))
             .day;
         d = x + d;
       }
     }
-    days = 1 + (DateTime(y, m, d).difference(_dateTime1900)).inDays;
+    days = 1 + DateTime(y, m, d).difference(_dateTime1900).inDays;
     if (_treat1900AsLeapYear && days > 59) {
       days += 1;
     }

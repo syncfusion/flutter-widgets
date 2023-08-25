@@ -40,7 +40,17 @@ void dataLabelTapEvent(dynamic chart, DataLabelSettings dataLabelSettings,
   datalabelArgs = DataLabelTapDetails(
       seriesIndex,
       pointIndex,
-      chart is SfCartesianChart ? point.label : point.text,
+      chart is SfCartesianChart
+          ? point.dataLabelRegion.contains(position)
+              ? point.label
+              : point.dataLabelRegion2.contains(position)
+                  ? point.label2
+                  : point.dataLabelRegion3.contains(position)
+                      ? point.label3
+                      : point.dataLabelRegion4.contains(position)
+                          ? point.label4
+                          : point.label5
+          : point.text,
       dataLabelSettings,
       chart is SfCartesianChart ? point.overallDataPointIndex : pointIndex);
   datalabelArgs.position = position;
@@ -319,12 +329,8 @@ Widget? getElements(StateProperties stateProperties, Widget chartWidget,
               chartLegend.legend!.iconWidth, chartLegend.legend!.iconHeight),
           iconBorder: getLegendIconBorder(chartLegend.legend!.iconBorderColor,
               chartLegend.legend!.iconBorderWidth),
-          textStyle: chartLegend.legend!.textStyle.copyWith(
-              color: legend.textStyle.color ??
-                  stateProperties.renderingDetails.chartTheme.legendTextColor,
-              fontSize: legend.textStyle.fontSize! /
-                  MediaQuery.of(stateProperties.chartState.context)
-                      .textScaleFactor),
+          textStyle:
+              stateProperties.renderingDetails.chartTheme.legendTextStyle,
           spacing: legend.padding,
           itemSpacing: legend.itemPadding,
           itemRunSpacing: legend.itemPadding,
@@ -450,14 +456,10 @@ Widget? getLegendTitleWidget(Legend legend, RenderingDetails renderingDetails) {
   final LegendTitle legendTitle = legend.title;
   if (legendTitle.text != null && legendTitle.text!.isNotEmpty) {
     final ChartAlignment titleAlign = legendTitle.alignment;
-    final Color color = legendTitle.textStyle.color ??
-        renderingDetails.chartTheme.legendTitleColor;
-    final double? fontSize = legendTitle.textStyle.fontSize;
-    final String? fontFamily = legendTitle.textStyle.fontFamily;
-    final FontStyle? fontStyle = legendTitle.textStyle.fontStyle;
-    final FontWeight? fontWeight = legendTitle.textStyle.fontWeight;
-    final num titleHeight =
-        measureText(legend.title.text!, legend.title.textStyle).height + 10;
+    final num titleHeight = measureText(legend.title.text!,
+                renderingDetails.chartTheme.legendTitleTextStyle!)
+            .height +
+        10;
     renderingDetails.chartLegend.titleHeight = titleHeight.toDouble();
     return Container(
         height: titleHeight.toDouble(),
@@ -471,12 +473,7 @@ Widget? getLegendTitleWidget(Legend legend, RenderingDetails renderingDetails) {
         child: Container(
           child: Text(legend.title.text!,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                  color: color,
-                  fontSize: fontSize,
-                  fontFamily: fontFamily,
-                  fontStyle: fontStyle,
-                  fontWeight: fontWeight)),
+              style: renderingDetails.chartTheme.legendTitleTextStyle!),
         ));
   } else {
     return null;
@@ -896,9 +893,7 @@ String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
       ? AxisHelper.getAxisRendererDetails(axisRenderer)
       : null;
   num size = axisRenderer != null
-      ? measureText(text, axisRendererDetails!.axis.labelStyle,
-              axisRendererDetails.labelRotation)
-          .width
+      ? measureText(text, labelStyle, axisRendererDetails!.labelRotation).width
       : measureText(label, labelStyle).width;
   if (size > labelsExtent) {
     final int textLength = text.length;
@@ -932,8 +927,8 @@ String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
 /// To get equivalent value for the percentage.
 num getValueByPercentage(num value1, num value2) {
   return value1.isNegative
-      ? (num.tryParse(
-          '-${num.tryParse(value1.toString().replaceAll(RegExp('-'), ''))! % value2}'))!
+      ? num.tryParse(
+          '-${num.tryParse(value1.toString().replaceAll(RegExp('-'), ''))! % value2}')!
       : (value1 % value2);
 }
 
@@ -944,12 +939,6 @@ Widget renderChartTitle(StateProperties stateProperties) {
   if (widget.title.text != null && widget.title.text.isNotEmpty == true) {
     final SfChartThemeData chartTheme =
         stateProperties.renderingDetails.chartTheme;
-    final Color color =
-        widget.title.textStyle.color ?? chartTheme.titleTextColor;
-    final double fontSize = widget.title.textStyle.fontSize;
-    final String fontFamily = widget.title.textStyle.fontFamily;
-    final FontStyle fontStyle = widget.title.textStyle.fontStyle;
-    final FontWeight fontWeight = widget.title.textStyle.fontWeight;
     titleWidget = Container(
       margin: EdgeInsets.fromLTRB(widget.margin.left, widget.margin.top,
           widget.margin.right, widget.margin.bottom),
@@ -969,12 +958,7 @@ Widget renderChartTitle(StateProperties stateProperties) {
                   color: widget.title.borderColor ?? chartTheme.titleTextColor,
                   width: widget.title.borderWidth)),
           child: Text(widget.title.text,
-              style: TextStyle(
-                  color: color,
-                  fontSize: fontSize,
-                  fontFamily: fontFamily,
-                  fontStyle: fontStyle,
-                  fontWeight: fontWeight),
+              style: chartTheme.titleTextStyle,
               textScaleFactor: 1.2,
               overflow: TextOverflow.clip,
               textAlign: TextAlign.center)),
@@ -1050,33 +1034,23 @@ void calculatePointSeriesIndex(
       final SeriesRendererDetails seriesRendererDetails =
           SeriesHelper.getSeriesRendererDetails(
               stateProperties.chartSeries.visibleSeriesRenderers[i]);
-      final String seriesType = seriesRendererDetails.seriesType;
       int? pointIndex;
-      final double padding = (seriesType == 'bubble') ||
-              (seriesType == 'scatter') ||
-              (seriesType == 'bar') ||
-              (seriesType == 'column' ||
-                  seriesType == 'rangecolumn' ||
-                  seriesType.contains('stackedcolumn') ||
-                  seriesType.contains('stackedbar') ||
-                  seriesType == 'waterfall')
-          ? 0
-          : 15;
-
-      /// Regional padding to detect smooth touch.
       seriesRendererDetails.regionalData!
           .forEach((dynamic regionRect, dynamic values) {
         final Rect region = regionRect[0];
-        final double left = region.left - padding;
-        final double right = region.right + padding;
-        final double top = region.top - padding;
-        final double bottom = region.bottom + padding;
+        final double widthPadding =
+            region.width < 8 ? (8 - region.width) / 2 : 0;
+        final double heightPadding =
+            region.height < 8 ? (8 - region.height) / 2 : 0;
+        final double left = region.left - widthPadding;
+        final double right = region.right + widthPadding;
+        final double top = region.top - heightPadding;
+        final double bottom = region.bottom + heightPadding;
         final Rect paddedRegion = Rect.fromLTRB(left, top, right, bottom);
         if (paddedRegion.contains(position!)) {
           pointIndex = regionRect[4].visiblePointIndex;
         }
       });
-
       if (pointIndex != null && seriesRendererDetails.visible! == true) {
         if ((seriesRendererDetails.series.onPointTap != null ||
                 seriesRendererDetails.series.onPointDoubleTap != null ||
@@ -1214,3 +1188,10 @@ String addEllipse(String text, int maxLength, String ellipse, {bool? isRtl}) {
     return trimText + ellipse;
   }
 }
+
+/// To check template is within bounds.
+bool isTemplateWithinBounds(Rect bounds, Rect templateRect) =>
+    templateRect.left >= bounds.left &&
+    templateRect.left + templateRect.width <= bounds.left + bounds.width &&
+    templateRect.top >= bounds.top &&
+    templateRect.top + templateRect.height <= bounds.top + bounds.height;

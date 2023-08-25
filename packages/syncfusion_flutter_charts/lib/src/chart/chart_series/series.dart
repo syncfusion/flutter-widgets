@@ -1338,6 +1338,7 @@ class ChartSeriesController {
             seriesRendererDetails.xAxisDetails as CategoryAxisDetails;
         final CategoryAxis categoryAxis = axisDetails.axis as CategoryAxis;
         if (categoryAxis.arrangeByIndex) {
+          // ignore: unnecessary_null_comparison
           index < axisDetails.labels.length && axisDetails.labels[index] != null
               ? axisDetails.labels[index] += ', ${currentPoint.x}'
               : axisDetails.labels.add(currentPoint.x.toString());
@@ -1358,7 +1359,8 @@ class ChartSeriesController {
         seriesRendererDetails.maximumX = x;
       }
       if (!_needXRecalculation &&
-          ((xRange.minimum >= x) == true || (xRange.maximum <= x) == true)) {
+          ((xRange.minimum >= x) == true || (xRange.maximum <= x) == true) &&
+          seriesRendererDetails.visible!) {
         _needXRecalculation = true;
         if (seriesRendererDetails.minimumX! >= x) {
           seriesRendererDetails.minimumX = x;
@@ -1388,7 +1390,8 @@ class ChartSeriesController {
           minYVal != null &&
           maxYVal != null &&
           ((yRange.minimum >= minYVal) == true ||
-              (yRange.maximum <= maxYVal) == true)) {
+              (yRange.maximum <= maxYVal) == true) &&
+          seriesRendererDetails.visible!) {
         _needYRecalculation = true;
         if (seriesRendererDetails.minimumY! >= minYVal) {
           seriesRendererDetails.minimumY = minYVal;
@@ -1401,13 +1404,16 @@ class ChartSeriesController {
       if (needUpdate) {
         if (seriesRendererDetails.dataPoints.length > index == true) {
           seriesRendererDetails.dataPoints[index] = currentPoint;
+          seriesRendererDetails.overAllDataPoints[index] = currentPoint;
         }
       } else {
         if (seriesRendererDetails.dataPoints.length == index) {
           seriesRendererDetails.dataPoints.add(currentPoint);
+          seriesRendererDetails.overAllDataPoints.add(currentPoint);
         } else if (seriesRendererDetails.dataPoints.length > index == true &&
             index >= 0) {
           seriesRendererDetails.dataPoints.insert(index, currentPoint);
+          seriesRendererDetails.overAllDataPoints.insert(index, currentPoint);
         }
       }
 
@@ -1653,6 +1659,8 @@ class ChartSeriesController {
         _needXRecalculation = true;
       }
       seriesRendererDetails.dataPoints.removeAt(index);
+      seriesRendererDetails.overAllDataPoints.removeAt(index);
+      // ignore: unnecessary_null_comparison
       if (currentPoint != null) {
         if (!_needXRecalculation &&
             (seriesRendererDetails.minimumX == currentPoint.xValue ||
@@ -1732,6 +1740,7 @@ class ChartSeriesController {
       axisRenderer.calculateRangeAndInterval(stateProperties);
     }
     if (needXRecalculation || needYRecalculation) {
+      stateProperties.plotBandRepaintNotifier.value++;
       stateProperties.renderOutsideAxis.state.axisRepaintNotifier.value++;
       stateProperties.renderInsideAxis.state.axisRepaintNotifier.value++;
       for (final CartesianSeriesRenderer seriesRenderer

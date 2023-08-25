@@ -812,7 +812,7 @@ class PdfGraphics {
             PdfGraphicsHelper.getHelper(template.graphics!)._currentFont
                 is PdfCjkStandardFont)) {
       throw ArgumentError(
-          'All the fonts must be embedded in ${PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(_helper.page!).document!).conformanceLevel.toString()} document.');
+          'All the fonts must be embedded in ${PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(_helper.page!).document!).conformanceLevel} document.');
     } else if (_helper.layer != null &&
         PdfPageHelper.getHelper(_helper.page!).document != null &&
         PdfDocumentHelper.getHelper(
@@ -1781,7 +1781,7 @@ class PdfGraphicsHelper {
                   .conformanceLevel !=
               PdfConformanceLevel.none) {
         throw ArgumentError(
-            'All the fonts must be embedded in ${PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!).conformanceLevel.toString()} document.');
+            'All the fonts must be embedded in ${PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!).conformanceLevel} document.');
       } else if (font is PdfTrueTypeFont &&
           layer != null &&
           PdfPageHelper.getHelper(page!).document != null &&

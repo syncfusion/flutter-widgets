@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart'
     show
+        DeviceGestureSettings,
         DragStartBehavior,
         GestureArenaTeam,
         HitTestTarget,
@@ -31,12 +32,13 @@ const double kDefaultRadialGaugeSize = 350.0;
 /// Represents the renderer of radial gauge axis.
 class RadialAxisParentWidget extends MultiChildRenderObjectWidget {
   /// Creates instance for [RadialGaugeRenderWidget].
-  RadialAxisParentWidget({Key? key, required List<Widget> children})
+  const RadialAxisParentWidget({Key? key, required List<Widget> children})
       : super(key: key, children: children);
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      RenderRadialAxisParent();
+      RenderRadialAxisParent(
+          gestureSettings: MediaQuery.of(context).gestureSettings);
 
   @override
   void updateRenderObject(
@@ -90,7 +92,7 @@ class RadialAxisParentElement extends MultiChildRenderObjectElement {
     } else if (child is RenderRangePointer) {
       renderObject.removeRangePointer(child);
     } else if (child is RenderMarkerPointer) {
-      renderObject.addMarkerPointer(child);
+      renderObject.removeMarkerPointer(child);
     } else if (child is RenderGaugeRange) {
       renderObject.removeRange(child);
     } else if (child is RenderGaugeAnnotation) {
@@ -109,12 +111,15 @@ class RenderRadialAxisParent extends RenderBox
   ///
   /// By default, the non-positioned children of the stack are aligned by their
   /// top left corners.
-  RenderRadialAxisParent() : _gestureArenaTeam = GestureArenaTeam() {
+  RenderRadialAxisParent({
+    required DeviceGestureSettings gestureSettings,
+  }) : _gestureArenaTeam = GestureArenaTeam() {
     _verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
       ..team = _gestureArenaTeam
       ..onStart = _handleDragStart
       ..onUpdate = _handleDragUpdate
       ..onEnd = _handleDragEnd
+      ..gestureSettings = gestureSettings
       ..dragStartBehavior = DragStartBehavior.start;
 
     _horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
@@ -122,6 +127,7 @@ class RenderRadialAxisParent extends RenderBox
       ..onStart = _handleDragStart
       ..onUpdate = _handleDragUpdate
       ..onEnd = _handleDragEnd
+      ..gestureSettings = gestureSettings
       ..dragStartBehavior = DragStartBehavior.start;
 
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUP;

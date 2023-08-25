@@ -381,7 +381,7 @@ class SelectionBehavior {
       unselectedOpacity,
       selectionController
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   /// Specifies the value of selection behavior renderer.

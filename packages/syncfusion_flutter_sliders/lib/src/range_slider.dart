@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
@@ -1426,17 +1427,17 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       inactiveTrackHeight: rangeSliderThemeData.inactiveTrackHeight,
       tickOffset: rangeSliderThemeData.tickOffset,
       inactiveLabelStyle: rangeSliderThemeData.inactiveLabelStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
+          themeData.textTheme.bodyLarge!.copyWith(
               color: isActive
-                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
+                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       activeLabelStyle: rangeSliderThemeData.activeLabelStyle ??
-          themeData.textTheme.bodyText1!.copyWith(
+          themeData.textTheme.bodyLarge!.copyWith(
               color: isActive
-                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
+                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       tooltipTextStyle: rangeSliderThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyText1!
+          themeData.textTheme.bodyLarge!
               .copyWith(color: themeData.colorScheme.surface),
       inactiveTrackColor: widget.inactiveColor ??
           rangeSliderThemeData.inactiveTrackColor ??
@@ -1777,6 +1778,7 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
       textDirection: Directionality.of(context),
       mediaQueryData: MediaQuery.of(context),
       state: state,
+      gestureSettings: MediaQuery.of(context).gestureSettings,
     );
   }
 
@@ -1956,46 +1958,49 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
     required TextDirection textDirection,
     required MediaQueryData mediaQueryData,
     required _SfRangeSliderState state,
+    required DeviceGestureSettings gestureSettings,
   })  : _state = state,
         _onChanged = onChanged,
         _semanticFormatterCallback = semanticFormatterCallback,
         super(
-            min: min,
-            max: max,
-            values: values,
-            onChangeStart: onChangeStart,
-            onChangeEnd: onChangeEnd,
-            interval: interval,
-            stepSize: stepSize,
-            stepDuration: stepDuration,
-            minorTicksPerInterval: minorTicksPerInterval,
-            showTicks: showTicks,
-            showLabels: showLabels,
-            showDividers: showDividers,
-            enableTooltip: enableTooltip,
-            shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
-            enableIntervalSelection: enableIntervalSelection,
-            dragMode: dragMode,
-            isInversed: isInversed,
-            labelPlacement: labelPlacement,
-            edgeLabelPlacement: edgeLabelPlacement,
-            numberFormat: numberFormat,
-            dateFormat: dateFormat,
-            dateIntervalType: dateIntervalType,
-            labelFormatterCallback: labelFormatterCallback,
-            tooltipTextFormatterCallback: tooltipTextFormatterCallback,
-            trackShape: trackShape,
-            dividerShape: dividerShape,
-            overlayShape: overlayShape,
-            thumbShape: thumbShape,
-            tickShape: tickShape,
-            minorTickShape: minorTickShape,
-            tooltipShape: tooltipShape,
-            sliderThemeData: sliderThemeData,
-            sliderType: sliderType,
-            tooltipPosition: tooltipPosition,
-            textDirection: textDirection,
-            mediaQueryData: mediaQueryData);
+          min: min,
+          max: max,
+          values: values,
+          onChangeStart: onChangeStart,
+          onChangeEnd: onChangeEnd,
+          interval: interval,
+          stepSize: stepSize,
+          stepDuration: stepDuration,
+          minorTicksPerInterval: minorTicksPerInterval,
+          showTicks: showTicks,
+          showLabels: showLabels,
+          showDividers: showDividers,
+          enableTooltip: enableTooltip,
+          shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
+          enableIntervalSelection: enableIntervalSelection,
+          dragMode: dragMode,
+          isInversed: isInversed,
+          labelPlacement: labelPlacement,
+          edgeLabelPlacement: edgeLabelPlacement,
+          numberFormat: numberFormat,
+          dateFormat: dateFormat,
+          dateIntervalType: dateIntervalType,
+          labelFormatterCallback: labelFormatterCallback,
+          tooltipTextFormatterCallback: tooltipTextFormatterCallback,
+          trackShape: trackShape,
+          dividerShape: dividerShape,
+          overlayShape: overlayShape,
+          thumbShape: thumbShape,
+          tickShape: tickShape,
+          minorTickShape: minorTickShape,
+          tooltipShape: tooltipShape,
+          sliderThemeData: sliderThemeData,
+          sliderType: sliderType,
+          tooltipPosition: tooltipPosition,
+          textDirection: textDirection,
+          mediaQueryData: mediaQueryData,
+          gestureSettings: gestureSettings,
+        );
 
   final _SfRangeSliderState _state;
 

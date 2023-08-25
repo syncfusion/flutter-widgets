@@ -110,3 +110,113 @@ enum Navigation {
   /// Navigates to previous page
   previousPage
 }
+
+/// Retrieve the signature form field details
+class SignatureData {
+  /// Constructor for signature data
+  SignatureData({
+    required this.field,
+    required this.pageIndex,
+  });
+
+  /// Signature field
+  final PdfSignatureField field;
+
+  /// Page index of signature field
+  final int pageIndex;
+}
+
+/// Retrieve the text form field details
+class TextBoxData {
+  /// Constructor for text box field data
+  TextBoxData({
+    required this.field,
+    required this.pageIndex,
+  });
+
+  /// Text box field
+  final PdfTextBoxField field;
+
+  /// Page index of text box field
+  final int pageIndex;
+}
+
+/// Retrieve the radio button form field details
+class RadioButtonData {
+  /// Constructor for radio button data
+  RadioButtonData({
+    required this.field,
+    required this.pageIndex,
+  });
+
+  /// Radio button field
+  final PdfRadioButtonListField field;
+
+  /// Page index of radio button field
+  final int pageIndex;
+}
+
+/// Retrieve the checkbox form field details
+class CheckBoxData {
+  /// Constructor for check box data
+  CheckBoxData({
+    required this.field,
+    required this.pageIndex,
+  });
+
+  /// Checkbox field
+  final PdfCheckBoxField field;
+
+  /// Page index of checkbox field
+  final int pageIndex;
+}
+
+/// selected Item list for check box
+class SelectedCheckBoxItem {
+  /// Constructor for selected check box data
+  SelectedCheckBoxItem(this.value, this.index);
+
+  /// Selected value of field
+  final String? value;
+
+  /// Index of selected field
+  final bool? index;
+}
+
+/// Retrieve the combo box form field details
+class ComboBoxData {
+  /// Constructor for combo box data
+  ComboBoxData({
+    required this.field,
+    required this.pageIndex,
+  });
+
+  /// Combo box field
+  final PdfComboBoxField field;
+
+  /// Page index of combo box field
+  final int pageIndex;
+}
+
+/// Retrieve the combo box Item details
+class ComboBoxItemData {
+  /// Constructor for combo box items
+  ComboBoxItemData({
+    required this.items,
+    required this.pageIndex,
+    required this.field,
+    required this.selectedItem,
+  });
+
+  /// List of items in combo box
+  final List<String> items;
+
+  /// PageIndex of combo box field
+  final int pageIndex;
+
+  /// Combo box field
+  final PdfComboBoxField field;
+
+  /// Selected Item of the combo box
+  final String? selectedItem;
+}

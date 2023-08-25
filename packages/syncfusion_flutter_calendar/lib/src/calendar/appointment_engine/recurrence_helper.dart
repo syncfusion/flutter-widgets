@@ -743,7 +743,7 @@ class RecurrenceHelper {
       final int nthWeekDay = _getWeekDay(byDayValue) % DateTime.daysPerWeek;
       final int bySetPosValue = int.parse(bySetPosCount);
 
-      void _updateValidDate() {
+      void updateValidDate() {
         final DateTime monthStart = DateTime(addDate.year, addDate.month, 1,
             recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
         final int monthStartWeekday = monthStart.weekday % DateTime.daysPerWeek;
@@ -771,11 +771,11 @@ class RecurrenceHelper {
         }
       }
 
-      _updateValidDate();
+      updateValidDate();
       if (addDate.isBefore(recurrenceStartDate)) {
         addDate = DateTime(addDate.year, addDate.month + monthlyMonthGap, 1,
             recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
-        _updateValidDate();
+        updateValidDate();
       }
 
       while (tempCount < recCount ||
@@ -796,7 +796,7 @@ class RecurrenceHelper {
 
         addDate = DateTime(addDate.year, addDate.month + monthlyMonthGap, 1,
             recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
-        _updateValidDate();
+        updateValidDate();
         tempCount++;
       }
     }
@@ -968,7 +968,7 @@ class RecurrenceHelper {
       final int bySetPosValue = int.parse(bySetPosCount);
       final int nthWeekDay = _getWeekDay(byDayValue) % DateTime.daysPerWeek;
 
-      void _updateValidNextDate() {
+      void updateValidNextDate() {
         while (true) {
           DateTime monthStart = DateTime(
               addDate.year,
@@ -1019,7 +1019,7 @@ class RecurrenceHelper {
         }
       }
 
-      _updateValidNextDate();
+      updateValidNextDate();
       while (tempCount < recCount ||
           (endDate != null &&
               (addDate.isBefore(endDate) || addDate == endDate))) {
@@ -1045,7 +1045,7 @@ class RecurrenceHelper {
             recurrenceStartSecond);
 
         tempCount++;
-        _updateValidNextDate();
+        updateValidNextDate();
       }
     }
 

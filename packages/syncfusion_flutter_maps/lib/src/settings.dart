@@ -683,7 +683,7 @@ class MapColorMapper {
 
   @override
   int get hashCode =>
-      hashValues(from, to, value, color, minOpacity, maxOpacity, text);
+      Object.hash(from, to, value, color, minOpacity, maxOpacity, text);
 }
 
 /// Customizes the appearance of the data labels.
@@ -886,7 +886,7 @@ class MapDataLabelSettings extends DiagnosticableTree {
   }
 
   @override
-  int get hashCode => hashValues(textStyle, overflowMode);
+  int get hashCode => Object.hash(textStyle, overflowMode);
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -1264,7 +1264,7 @@ class MapBubbleSettings extends DiagnosticableTree {
 
   @override
   int get hashCode =>
-      hashValues(color, strokeWidth, strokeColor, maxRadius, minRadius);
+      Object.hash(color, strokeWidth, strokeColor, maxRadius, minRadius);
 
   /// Creates a copy of this class but with the given fields
   /// replaced with the new values.
@@ -1634,7 +1634,7 @@ class MapSelectionSettings extends DiagnosticableTree {
   }
 
   @override
-  int get hashCode => hashValues(color, strokeWidth, strokeColor);
+  int get hashCode => Object.hash(color, strokeWidth, strokeColor);
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -2037,7 +2037,7 @@ class MapTooltipSettings extends DiagnosticableTree {
   }
 
   @override
-  int get hashCode => hashValues(hideDelay, color, strokeWidth, strokeColor);
+  int get hashCode => Object.hash(hideDelay, color, strokeWidth, strokeColor);
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {

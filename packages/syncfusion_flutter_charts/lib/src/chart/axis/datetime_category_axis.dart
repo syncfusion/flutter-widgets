@@ -377,7 +377,7 @@ class DateTimeCategoryAxis extends ChartAxis {
       dateFormat,
       axisLabelFormatter
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
@@ -540,7 +540,7 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
     for (;
         tempInterval <= _axisDetails.visibleRange!.maximum;
         tempInterval += interval) {
-      if (withInRange(tempInterval, _axisDetails.visibleRange!)) {
+      if (withInRange(tempInterval, _axisDetails)) {
         position = tempInterval.round();
         if (position <= -1 ||
             (_axisDetails.labels.isNotEmpty &&
@@ -726,7 +726,7 @@ class DateTimeCategoryAxisDetails extends ChartAxisRendererDetails {
           (int.parse(label)) > 2592000000) {
         values.add(label);
       } else {
-        values.add((dateFormat.parse(label).microsecondsSinceEpoch).toString());
+        values.add(dateFormat.parse(label).microsecondsSinceEpoch.toString());
       }
     }
     values = <String>[...values]..sort((String first, String second) {

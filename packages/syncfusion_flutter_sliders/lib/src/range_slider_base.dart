@@ -57,6 +57,7 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     required TextDirection textDirection,
     required MediaQueryData mediaQueryData,
     required bool isInversed,
+    required DeviceGestureSettings gestureSettings,
   })  : _values = values!,
         _dragMode = dragMode,
         _enableIntervalSelection = enableIntervalSelection,
@@ -96,10 +97,12 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     if (sliderType == SliderType.horizontal) {
       horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
         ..team = team
+        ..onDown = _onDragDown
         ..onStart = _onDragStart
         ..onUpdate = _onDragUpdate
         ..onEnd = _onDragEnd
-        ..onCancel = _onDragCancel;
+        ..onCancel = _onDragCancel
+        ..gestureSettings = gestureSettings;
     }
     if (sliderType == SliderType.vertical) {
       verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
@@ -107,7 +110,8 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
         ..onStart = _onVerticalDragStart
         ..onUpdate = _onVerticalDragUpdate
         ..onEnd = _onVerticalDragEnd
-        ..onCancel = _onVerticalDragCancel;
+        ..onCancel = _onVerticalDragCancel
+        ..gestureSettings = gestureSettings;
     }
     tapGestureRecognizer = TapGestureRecognizer()
       ..team = team
@@ -260,9 +264,13 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     endPositionController.value = getFactorFromValue(actualValues.end);
   }
 
-  double get minThumbGap => sliderType == SliderType.horizontal
-      ? (actualMax - actualMin) * (8 / actualTrackRect.width).clamp(0.0, 1.0)
-      : (actualMax - actualMin) * (8 / actualTrackRect.height).clamp(0.0, 1.0);
+  double get minThumbGap => isDiscrete
+      ? 0
+      : sliderType == SliderType.horizontal
+          ? (actualMax - actualMin) *
+              (8 / actualTrackRect.width).clamp(0.0, 1.0)
+          : (actualMax - actualMin) *
+              (8 / actualTrackRect.height).clamp(0.0, 1.0);
 
   SfRangeValues get actualValues =>
       isDateTime ? _valuesInMilliseconds : _values;
@@ -315,10 +323,13 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     _endInteraction();
   }
 
-  void _onDragStart(DragStartDetails details) {
-    _isDragStart = true;
+  void _onDragDown(DragDownDetails details) {
     _interactionStartOffset = globalToLocal(details.globalPosition).dx;
     mainAxisOffset = _interactionStartOffset;
+  }
+
+  void _onDragStart(DragStartDetails details) {
+    _isDragStart = true;
     _beginInteraction();
   }
 
@@ -1082,6 +1093,14 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     _tooltipEndAnimation
         .removeStatusListener(_handleTooltipAnimationStatusChange);
     super.detach();
+  }
+
+  @override
+  void dispose() {
+    horizontalDragGestureRecognizer?.dispose();
+    verticalDragGestureRecognizer?.dispose();
+    tapGestureRecognizer.dispose();
+    super.dispose();
   }
 
   @override

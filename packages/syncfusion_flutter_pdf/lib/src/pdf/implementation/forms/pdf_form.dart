@@ -164,7 +164,7 @@ class PdfForm implements IPdfWrapper {
 
   /// Imports XFDF Data from the given data.
   void _importDataXFDF(List<int> bytes) {
-    final String data = String.fromCharCodes(bytes);
+    final String data = utf8.decode(bytes);
     final XmlDocument xmlDoc = XmlDocument.parse(data);
     PdfField formField;
     for (final XmlNode node in xmlDoc.rootElement.firstElementChild!.children) {
@@ -172,9 +172,11 @@ class PdfForm implements IPdfWrapper {
         final String fieldName = node.attributes.first.value;
         final int index = PdfFormFieldCollectionHelper.getHelper(fields)
             .getFieldIndex(fieldName);
-        formField = fields[index];
-        final String fieldInnerValue = node.firstElementChild!.innerText;
-        PdfFieldHelper.getHelper(formField).importFieldValue(fieldInnerValue);
+        if (index >= 0 && index < fields.count) {
+          formField = fields[index];
+          final String fieldInnerValue = node.firstElementChild!.innerText;
+          PdfFieldHelper.getHelper(formField).importFieldValue(fieldInnerValue);
+        }
       }
     }
   }
@@ -781,7 +783,7 @@ class PdfForm implements IPdfWrapper {
 
   /// Imports XML Data from the given data.
   void _importDataXml(List<int> bytes, bool continueImportOnError) {
-    final String data = String.fromCharCodes(bytes);
+    final String data = utf8.decode(bytes);
     final XmlDocument document = XmlDocument.parse(data);
     if (document.rootElement.name.local != 'Fields') {
       ArgumentError.value('The XML form data stream is not valid');
@@ -1170,11 +1172,6 @@ class PdfFormHelper {
                     }
                   }
                 }
-                if (annots != null && annots.contains(holder)) {
-                  annots.remove(holder);
-                  annots.changed = true;
-                  page.setProperty(PdfDictionaryProperties.annots, annots);
-                }
               }
             }
           } else if (isLoaded) {
@@ -1325,6 +1322,7 @@ class PdfFormHelper {
           break;
         }
       }
+      helper.dictionary!.isSkip = true;
       fields.changed = true;
       if (!formHasKids ||
           !helper.dictionary!.items!

@@ -191,7 +191,7 @@ class DateRangePickerHeaderStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       textStyle,
       textAlign,
       backgroundColor,
@@ -346,7 +346,7 @@ class DateRangePickerViewHeaderStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       backgroundColor,
       textStyle,
     );
@@ -473,7 +473,7 @@ class DateRangePickerWeekNumberStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       textStyle,
       backgroundColor,
     );
@@ -564,8 +564,8 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
       this.dayFormat = 'EE',
       this.viewHeaderHeight = 30,
       @Deprecated('Use selectionRadius property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.selectionRadius = -1,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.selectionRadius = -1,
       this.showTrailingAndLeadingDates = false,
       this.viewHeaderStyle = const DateRangePickerViewHeaderStyle(),
       this.enableSwipeSelection = true,
@@ -1119,7 +1119,7 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         dayFormat,
         firstDayOfWeek,
         viewHeaderStyle,
@@ -1129,9 +1129,12 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
         numberOfWeeksInView,
         showWeekNumber,
         weekNumberStyle,
-        hashList(specialDates),
-        hashList(blackoutDates),
-        hashList(weekendDays));
+
+        /// Below condition is referred from text style class
+        /// https://api.flutter.dev/flutter/painting/TextStyle/hashCode.html
+        specialDates == null ? null : Object.hashAll(specialDates!),
+        blackoutDates == null ? null : Object.hashAll(blackoutDates!),
+        Object.hashAll(weekendDays));
   }
 }
 
@@ -1672,7 +1675,7 @@ class DateRangePickerYearCellStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         textStyle,
         todayTextStyle,
         leadingDatesTextStyle,
@@ -1766,24 +1769,24 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// [SfDateRangePicker].
   const DateRangePickerMonthCellStyle(
       {@Deprecated('Use selectionColor property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.selectionColor,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.selectionColor,
       @Deprecated('Use startRangeSelectionColor property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.startRangeSelectionColor,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.startRangeSelectionColor,
       @Deprecated('Use endRangeSelectionColor property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.endRangeSelectionColor,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.endRangeSelectionColor,
       @Deprecated('Use rangeSelectionColor property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.rangeSelectionColor,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.rangeSelectionColor,
       this.textStyle,
       this.todayTextStyle,
       this.trailingDatesTextStyle,
       this.leadingDatesTextStyle,
       @Deprecated('Use selectionTextStyle property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.selectionTextStyle,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.selectionTextStyle,
       this.disabledDatesTextStyle,
       this.blackoutDateTextStyle,
       this.weekendTextStyle,
@@ -1796,8 +1799,8 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
       this.trailingDatesDecoration,
       this.leadingDatesDecoration,
       @Deprecated('Use rangeTextStyle property in SfDateRangePicker')
-          // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.rangeTextStyle,
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+      this.rangeTextStyle,
       this.weekendDatesDecoration});
 
   /// The text style for the text in the [SfDateRangePicker] month cells.
@@ -3120,7 +3123,7 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashList(<dynamic>[
+    return Object.hashAll(<dynamic>[
       textStyle,
       todayTextStyle,
       trailingDatesTextStyle,
@@ -4145,7 +4148,7 @@ class DateRangePickerSelectionChangedArgs {
   /// when the widget [DateRangePickerSelectionMode] set as range.
   ///
   /// The argument value will return the changed ranges as
-  /// [List<PickerDateRange] when the widget [DateRangePickerSelectionMode] set
+  /// [List<PickerDateRange>] when the widget [DateRangePickerSelectionMode] set
   /// as multi range.
   final dynamic value;
 }

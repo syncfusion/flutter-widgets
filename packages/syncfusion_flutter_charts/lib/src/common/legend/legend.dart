@@ -148,7 +148,10 @@ class ChartLegend {
         }
 
         if (legend!.title.text != null && legend!.title.text!.isNotEmpty) {
-          titleSize = measureText(legend!.title.text!, legend!.title.textStyle);
+          titleSize = measureText(
+              legend!.title.text!,
+              stateProperties
+                  .renderingDetails.chartTheme.legendTitleTextStyle!);
           titleHeight = titleSize.height + titleSpace;
         }
 
@@ -176,7 +179,8 @@ class ChartLegend {
           } else {
             legendRenderContext = legendCollections![i];
             legendText = legendRenderContext.text;
-            textSize = measureText(legendText, legend!.textStyle);
+            textSize = measureText(legendText,
+                stateProperties.renderingDetails.chartTheme.legendTextStyle!);
             legendRenderContext.textSize = textSize;
             textHeight = textSize.height;
             textWidth = textSize.width;
@@ -385,11 +389,27 @@ class ChartLegend {
               (!series.isVisible &&
                   seriesRendererDetails.oldSeries!.isVisible == true))) {
         legendRenderContext.isSelect = true;
-        if (stateProperties.renderingDetails.legendToggleStates
-                .contains(legendRenderContext) ==
-            false) {
+        final List<LegendRenderContext> legendToggleStates =
+            stateProperties.renderingDetails.legendToggleStates;
+        if (legendToggleStates.isEmpty) {
           stateProperties.renderingDetails.legendToggleStates
               .add(legendRenderContext);
+        } else {
+          LegendRenderContext? legendContext;
+          bool isSame = false;
+          for (int i = 0; i < legendToggleStates.length; i++) {
+            if (legendToggleStates[i] == legendRenderContext ||
+                legendToggleStates[i].seriesIndex ==
+                    legendRenderContext.seriesIndex) {
+              isSame = true;
+            } else if (!isSame) {
+              legendContext = legendRenderContext;
+            }
+          }
+          if (!isSame) {
+            stateProperties.renderingDetails.legendToggleStates
+                .add(legendContext!);
+          }
         }
       } else if (renderingDetails.widgetNeedUpdate &&
           (seriesRendererDetails.oldSeries != null &&

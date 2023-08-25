@@ -355,7 +355,7 @@ class NumericAxis extends ChartAxis {
       autoScrollingMode,
       axisLabelFormatter
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
@@ -737,7 +737,7 @@ class NumericAxisDetails extends ChartAxisRendererDetails {
     actualRange =
         VisibleRange(numericAxis.minimum ?? min, numericAxis.maximum ?? max);
     if (axis.anchorRangeToVisiblePoints &&
-        needCalculateYrange(numericAxis.minimum, numericAxis.maximum,
+        needCalculateYRange(numericAxis.minimum, numericAxis.maximum,
             stateProperties, orientation!)) {
       actualRange = calculateYRangeOnZoomX(actualRange!, this);
     }

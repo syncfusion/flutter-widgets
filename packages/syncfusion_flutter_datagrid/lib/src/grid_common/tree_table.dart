@@ -565,7 +565,6 @@ class TreeTableEntry extends TreeTableNode with TreeTableEntryBase {
   /// * tree - _required_ - Tree table instance
   ///
   /// Returns the instance of newly created branch
-
   @override
   TreeTableBranchBase? createBranch(TreeTable tree) => TreeTableBranch(tree);
 
@@ -642,7 +641,6 @@ class TreeTableBase extends ListBase {
   bool _sorted = false;
 
   /// Gets the root node.
-
   /// Gets a value indicating whether the tree was initialize or not.
   bool get isInitializing => _isInitializing;
   late bool _isInitializing;
@@ -1064,19 +1062,22 @@ class TreeTable extends TreeTableBase {
   }
 
   ///
-  void deleteFixup(TreeTableBranchBase? x, bool isLeft) {
+  void deleteFixup(TreeTableBranchBase? x) {
     const bool inAddMode = false;
     while (x != null &&
+        x.parent != null &&
         !referenceEquals(x, _root) &&
         x._color == TreeTableNodeColor.black) {
-      if (isLeft) {
+      if (referenceEquals(x.parent!.left, x)) {
         TreeTableNodeBase? w = x.parent?.right;
         if (w != null && w.color == TreeTableNodeColor.red) {
           w.color = TreeTableNodeColor.black;
-          x.parent?.color = TreeTableNodeColor.black;
+          x.parent?.color = TreeTableNodeColor.red;
           leftRotate(x.parent, inAddMode);
           if (x.parent != null) {
-            w = x.parent!.right! as TreeTableBranchBase;
+            w = x.parent!.right;
+          } else {
+            return;
           }
         }
 
@@ -1085,44 +1086,39 @@ class TreeTable extends TreeTableBase {
         }
 
         if (w is TreeTableBranchBase &&
-            w.color == TreeTableNodeColor.black &&
             (w.left!.isEntry() ||
                 w.getLeftBranch()!.color == TreeTableNodeColor.black) &&
             (w.right!.isEntry() ||
                 w.getRightBranch()!.color == TreeTableNodeColor.black)) {
           w.color = TreeTableNodeColor.red;
-          if (x.color == TreeTableNodeColor.red) {
-            x.color = TreeTableNodeColor.black;
-            return;
-          } else {
-            isLeft = x.parent!.left == x;
-            x = x.parent;
-          }
-        } else if (w is TreeTableBranchBase &&
-            w.color == TreeTableNodeColor.black &&
-            !w.right!.isEntry() &&
-            w.getRightBranch()!.color == TreeTableNodeColor.red) {
-          leftRotate(x.parent, inAddMode);
-          w.color = x.parent!.color;
-          x.parent!.color = w.color;
-          return;
-        } else if (w is TreeTableBranchBase &&
-            w.color == TreeTableNodeColor.black &&
-            !w.left!.isEntry() &&
-            w.getLeftBranch()!.color == TreeTableNodeColor.red &&
-            (w.right!.isEntry() ||
-                w.getRightBranch()!.color == TreeTableNodeColor.black)) {
-          rightRotate(w, inAddMode);
-
-          w.parent!.color = TreeTableNodeColor.black;
-          w.color = TreeTableNodeColor.red;
-
-          leftRotate(x.parent, inAddMode);
-          w.color = x.parent!.color;
-          x.parent!.color = w.color;
-          return;
+          x = x.parent;
         } else {
-          return;
+          if (w is TreeTableBranchBase &&
+              (w.right!.isEntry() ||
+                  w.getRightBranch()!.color == TreeTableNodeColor.black)) {
+            w.left?.color = TreeTableNodeColor.black;
+            w.color = TreeTableNodeColor.red;
+            rightRotate(w, inAddMode);
+            if (x.parent != null) {
+              w = x.parent!.right;
+            } else {
+              break;
+            }
+          }
+          if (w == null) {
+            return;
+          }
+          if (w is TreeTableBranchBase) {
+            w.color = x.parent!.color;
+            w.right?.color = TreeTableNodeColor.black;
+          }
+          x.parent?.color = TreeTableNodeColor.black;
+          leftRotate(x.parent, inAddMode);
+          if (_root is TreeTableBranchBase && _root != null) {
+            x = _root! as TreeTableBranchBase;
+          } else {
+            return;
+          }
         }
       } else {
         TreeTableNodeBase? w = x.parent?.left;
@@ -1130,7 +1126,11 @@ class TreeTable extends TreeTableBase {
           w.color = TreeTableNodeColor.black;
           x.parent!.color = TreeTableNodeColor.red;
           rightRotate(x.parent, inAddMode);
-          w = x.parent!.left;
+          if (x.parent != null) {
+            w = x.parent!.left;
+          } else {
+            return;
+          }
         }
 
         if (w == null) {
@@ -1138,53 +1138,44 @@ class TreeTable extends TreeTableBase {
         }
 
         if (w is TreeTableBranchBase &&
-            w.color == TreeTableNodeColor.black &&
-            (w.left!.isEntry() ||
-                w.getLeftBranch()!.color == TreeTableNodeColor.black) &&
             (w.right!.isEntry() ||
-                w.getRightBranch()!.color == TreeTableNodeColor.black)) {
+                w.getRightBranch()!.color == TreeTableNodeColor.black) &&
+            (w.left!.isEntry() ||
+                w.getLeftBranch()!.color == TreeTableNodeColor.black)) {
           w.color = TreeTableNodeColor.red;
-          if (x.color == TreeTableNodeColor.red) {
-            x.color = TreeTableNodeColor.black;
-            return;
-          } else if (x.parent != null) {
-            isLeft = x.parent!.left == x;
-            x = x.parent;
-          }
+          x = x.parent;
         } else {
           if (w is TreeTableBranchBase &&
-              w.color == TreeTableNodeColor.black &&
-              !w.right!.isEntry() &&
-              w.getRightBranch()!.color == TreeTableNodeColor.red) {
-            final TreeTableBranchBase xParent = x.parent!;
-            leftRotate(xParent, inAddMode);
-            final TreeTableNodeColor t = w.color!;
-            w.color = xParent.color;
-            xParent.color = t;
-            return;
-          } else if (w is TreeTableBranchBase &&
-              w.color == TreeTableNodeColor.black &&
-              !w.left!.isEntry() &&
-              w.getLeftBranch()!.color == TreeTableNodeColor.red &&
-              (w.right!.isEntry() ||
-                  w.getRightBranch()!.color == TreeTableNodeColor.black)) {
-            final TreeTableBranchBase wParent = w.parent!;
-            final TreeTableBranchBase xParent = x.parent!;
-            rightRotate(w, inAddMode);
-
-            wParent.color = TreeTableNodeColor.black;
+              (w.left!.isEntry() ||
+                  w.getLeftBranch()!.color == TreeTableNodeColor.black)) {
+            w.right?.color = TreeTableNodeColor.black;
             w.color = TreeTableNodeColor.red;
-
-            leftRotate(x.parent, inAddMode);
-            w.color = xParent.color;
-            xParent.color = w.color;
+            leftRotate(w, inAddMode);
+            if (x.parent != null) {
+              w = x.parent!.left;
+            } else {
+              break;
+            }
+          }
+          if (w == null) {
+            return;
+          }
+          if (w is TreeTableBranchBase) {
+            w.color = x.parent!.color;
+            w.left?.color = TreeTableNodeColor.black;
+          }
+          x.parent?.color = TreeTableNodeColor.black;
+          rightRotate(x.parent, inAddMode);
+          if (_root is TreeTableBranchBase && _root != null) {
+            x = _root! as TreeTableBranchBase;
+          } else {
             return;
           }
         }
       }
     }
 
-    x!.color = TreeTableNodeColor.black;
+    x?.color = TreeTableNodeColor.black;
   }
 
   /// Finds the node in a sorted tree is just one entry ahead of the
@@ -1322,8 +1313,7 @@ class TreeTable extends TreeTableBase {
 
     final int treeCount = getCount();
     if (index < 0 || index > treeCount) {
-      throw ArgumentError(
-          'index ${index.toString()} must be between 0 and ${treeCount.toString()}');
+      throw ArgumentError('index $index must be between 0 and $treeCount');
     }
 
     if (index == treeCount) {
@@ -1400,6 +1390,15 @@ class TreeTable extends TreeTableBase {
 
   ///
   void insertFixup(TreeTableBranchBase? x, bool inAddMode) {
+    // We set the color of all newly inserted nodes to red,
+    // except for the root node which is always black
+    if (x != null) {
+      if (x.parent == null) {
+        x.color = TreeTableNodeColor.black;
+      } else {
+        x.color = TreeTableNodeColor.red;
+      }
+    }
     // Check Red-Black properties
     while (x != null &&
         x.parent != null &&
@@ -1407,46 +1406,89 @@ class TreeTable extends TreeTableBase {
         x.parent!.color == TreeTableNodeColor.red &&
         x.parent!.parent != null) {
       // We have a violation
-      if (x.parent == x.parent!.parent!.left) {
-        final TreeTableNodeBase? y = x.parent!.parent?.right;
-        if (y != null && y.color == TreeTableNodeColor.red) {
-          // uncle is red
+      if (referenceEquals(x.parent, x.parent!.parent!.left)) {
+        // Uncle of x
+        final TreeTableNodeBase? uncle = x.parent!.parent!.right;
+        if (uncle != null && uncle.color == TreeTableNodeColor.red) {
+          // If uncle is red, we make the parent and uncle black, and the grandparent red,
+          // since all newly inserted nodes should be colored red except the root node which is always black.
           x.parent!.color = TreeTableNodeColor.black;
-          y.color = TreeTableNodeColor.black;
-          x.parent!.parent?.color = TreeTableNodeColor.red;
+          uncle.color = TreeTableNodeColor.black;
+          x.parent!.parent!.color = TreeTableNodeColor.red;
           x = x.parent!.parent;
         } else {
           // uncle is black
-          if (x == x.parent!.right) {
-            // Make x a left child
-            x = x.parent;
-            leftRotate(x, inAddMode);
+          if (referenceEquals(x, x.parent!.right)) {
+            // If the node is on the right side of the parent,
+            // we need to perform a rotation to convert it to the case
+            // where the node is on the left side of the parent.
+            final TreeTableBranchBase xParent = x.parent!;
+            final TreeTableBranchBase xGrandparent = xParent.parent!;
+            leftRotate(xParent, inAddMode);
+            // Now our node x should be the LEFT child of the grandparent.
+            assert(referenceEquals(xGrandparent.left, x));
+            assert(referenceEquals(x.parent, xGrandparent));
+            // Perform a right rotation, making the parent our left child and taking our place
+            assert(referenceEquals(x.left, xParent));
+            assert(referenceEquals(xParent.parent, x));
+            x = xParent;
           }
 
-          // Recolor and rotate
-          x!.parent!.color = TreeTableNodeColor.black;
-          x.parent!.parent!.color = TreeTableNodeColor.red;
-          rightRotate(x.parent!.parent, inAddMode);
+          // If the parent of the inserted node is red, we need to perform a left or right
+          // rotation followed by a color change to ensure that the tree maintains the red-black property.
+          // In this case, we color the parent black and the grandparent red,
+          // then perform a right rotation on the grandparent node.
+          final TreeTableBranchBase xParent = x.parent!;
+          final TreeTableBranchBase xGrandparent = xParent.parent!;
+          xParent.color = TreeTableNodeColor.black;
+          xGrandparent.color = TreeTableNodeColor.red;
+          rightRotate(xGrandparent, inAddMode);
+          assert(referenceEquals(x.parent, xParent));
+          assert(referenceEquals(xParent.right, xGrandparent));
+          assert(referenceEquals(xGrandparent.parent, xParent));
         }
       } else {
         // Mirror image of above code
-        final TreeTableNodeBase? y = x.parent!.parent?.left;
-        if (y != null && y.color == TreeTableNodeColor.red) {
-          // uncle is red
+        // Uncle of x
+        final TreeTableNodeBase? uncle = x.parent!.parent!.left;
+        if (uncle != null && uncle.color == TreeTableNodeColor.red) {
+          // Since the uncle node is red, we need to make the parent and uncle nodes black,
+          // and the grandparent node red.
           x.parent!.color = TreeTableNodeColor.black;
-          y.color = TreeTableNodeColor.black;
+          uncle.color = TreeTableNodeColor.black;
           x.parent!.parent!.color = TreeTableNodeColor.red;
           x = x.parent!.parent;
         } else {
           // uncle is black
-          if (x == x.parent!.left) {
-            x = x.parent;
-            rightRotate(x, inAddMode);
+          if (referenceEquals(x, x.parent!.left)) {
+            // If the node is on the left of the parent, transform the tree to the case
+            // where the node is on the right of the parent by performing a right rotation.
+            final TreeTableBranchBase xParent = x.parent!;
+            final TreeTableBranchBase xGrandparent = xParent.parent!;
+            rightRotate(xParent, inAddMode);
+            // After rotating the parent node to the left,
+            // the node x is now in the correct position to become the right child of the grandparent node.
+            assert(referenceEquals(xGrandparent.right, x));
+            assert(referenceEquals(x.parent, xGrandparent));
+            // Since our parent has become our right child,
+            // we now take the place of our parent as the left child of the grandparent.
+            assert(referenceEquals(x.right, xParent));
+            assert(referenceEquals(xParent.parent, x));
+            x = xParent;
           }
 
-          x!.parent!.color = TreeTableNodeColor.black;
-          x.parent!.parent!.color = TreeTableNodeColor.red;
-          leftRotate(x.parent!.parent, inAddMode);
+          // To maintain the balance of the tree, we need to perform a left rotation on our grandparent
+          // after coloring our parent black and grandparent red. This ensures that the node we inserted
+          // (which is now the parent's left child) is properly positioned and does not violate any of
+          // the red-black tree properties.
+          final TreeTableBranchBase xParent = x.parent!;
+          final TreeTableBranchBase xGrandparent = xParent.parent!;
+          xParent.color = TreeTableNodeColor.black;
+          xGrandparent.color = TreeTableNodeColor.red;
+          leftRotate(xGrandparent, inAddMode);
+          assert(referenceEquals(x.parent, xParent));
+          assert(referenceEquals(xParent.left, xGrandparent));
+          assert(referenceEquals(xGrandparent.parent, xParent));
         }
       }
     }
@@ -1468,7 +1510,7 @@ class TreeTable extends TreeTableBase {
     final int treeCount = getCount();
     if (index < 0 || index >= treeCount) {
       throw ArgumentError(
-          'index ${index.toString()}  must be between 0 and ${(treeCount - 1).toString()}');
+          'index $index  must be between 0 and ${treeCount - 1}');
     }
 
     if (_root == null) {
@@ -1542,21 +1584,35 @@ class TreeTable extends TreeTableBase {
       return;
     }
 
-    final TreeTableBranchBase y = x.right! as TreeTableBranchBase;
-
-    if (y.left is TreeTableNodeBase) {
+    // The goal is to replace the node x with its right child y as the new root of the subtree.
+    // Then, the left child of y becomes the right child of x, and the left child of y will become x.
+    final TreeTableNodeBase? y = x.right;
+    if (y != null && y is TreeTableBranchBase) {
+      final TreeTableNodeBase? yLeft = y.left;
+      final TreeTableBranchBase? xParent = x.parent;
+      // In order to perform a rotation on a node, we need to first place its right child y at the new head of the subtree.
+      // This is necessary to avoid infinite loops in computations that could occur during the setLeft/setRight operations.
+      // It's important to note that the order of operations is critical for this process to work correctly.
+      // Once y is in place, we can proceed with the rotation by making y the new root of the subtree,
+      // placing x as its left child, and making the left child of y the right child of x.
       y.setLeft(TreeTableEmpty.empty, inAddMode, sorted);
-      x.setRight(y.left, inAddMode);
-      if (x.parent != null) {
-        if (referenceEquals(x, x.parent!.left)) {
-          x.parent!.setLeft(y, inAddMode, sorted);
+      if (xParent != null) {
+        if (referenceEquals(x, xParent.left)) {
+          xParent.setLeft(y, inAddMode, sorted);
         } else {
-          x.parent!.setRight(y, inAddMode);
+          xParent.setRight(y, inAddMode);
         }
       } else {
         _root = y;
+        y._parent = null;
       }
+      // We want to replace x with y as the root of its subtree, and make x the left child of y.
+      // First, set y as the new root of the subtree. We must be careful with the order of operations
+      // to avoid creating a loop.
+      // Then, set x's right subtree to be y's old left subtree, and make x the left child of y.
+      x.setRight(TreeTableEmpty.empty, inAddMode);
       y.setLeft(x, inAddMode, sorted);
+      x.setRight(yLeft, inAddMode);
     }
   }
 
@@ -1605,12 +1661,11 @@ class TreeTable extends TreeTableBase {
         _root = sisterNode..parent = null;
       } else {
         final TreeTableBranchBase leafsParentParent = leafsParent.parent!;
-        final bool isLeft = leafsParentParent.left == leafsParent;
         _replaceNode(leafsParentParent, leafsParent, sisterNode, false);
 
         if (leafsParent.color == TreeTableNodeColor.black) {
           leafsParent.parent = leafsParentParent;
-          deleteFixup(leafsParent, isLeft);
+          deleteFixup(leafsParent);
         }
       }
 
@@ -1645,22 +1700,35 @@ class TreeTable extends TreeTableBase {
       return;
     }
 
-    final TreeTableBranchBase y = x.left! as TreeTableBranchBase;
+    // Goal is that y (left child of x) becomes the new root of the subtree
+    // in the place of x, and that the right child of y becomes the left
+    // child of x. The right child of y will become x.
 
-    final TreeTableNodeBase yRight = y.right!;
-    y.setRight(
-        TreeTableEmpty.empty, inAddMode); // make sure Parent is not reset later
-    x.setLeft(yRight, inAddMode, sorted);
-    if (x.parent != null) {
-      if (x == x.parent!.right) {
-        x.parent!.setRight(y, inAddMode);
+    final TreeTableNodeBase? y = x.left;
+    if (y != null && y is TreeTableBranchBase) {
+      final TreeTableNodeBase? yRight = y.right;
+      final TreeTableBranchBase? xParent = x.parent;
+      // first place y at the new head of the subtree.
+      // the order is important to avoid infinite loops in computations
+      // in the setLeft/setRight operations.
+      y.setRight(TreeTableEmpty.empty, inAddMode);
+      if (xParent != null) {
+        if (referenceEquals(x, xParent.right)) {
+          xParent.setRight(y, inAddMode);
+        } else {
+          xParent.setLeft(y, inAddMode, sorted);
+        }
       } else {
-        x.parent!.setLeft(y, inAddMode, sorted);
+        _root = y;
+        y._parent = null;
       }
-    } else {
-      _root = y;
+      // now setup x's left with y's old right subtree,
+      // and place x as the right subtree of y. careful with the order
+      // to avoid creating a temporary loop.
+      x.setLeft(TreeTableEmpty.empty, inAddMode, sorted);
+      y.setRight(x, inAddMode);
+      x.setLeft(yRight, inAddMode, sorted);
     }
-    y.setRight(x, inAddMode);
   }
 
   /// Sets the node at the specified index.
@@ -3598,7 +3666,6 @@ class TreeTableWithSummary extends TreeTable {
 }
 
 /// A strongly typed enumerator for the `TreeTableWithSummary` collection.
-
 class TreeTableWithSummaryEnumerator extends TreeTableEnumerator {
   /// Initializes a new instance of the `TreeTableWithSummaryEnumerator` class.
   ///

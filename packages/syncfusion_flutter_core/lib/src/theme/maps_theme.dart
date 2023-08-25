@@ -1051,7 +1051,7 @@ class SfMapsThemeData with Diagnosticable {
       toggledItemStrokeColor,
       toggledItemStrokeWidth,
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override

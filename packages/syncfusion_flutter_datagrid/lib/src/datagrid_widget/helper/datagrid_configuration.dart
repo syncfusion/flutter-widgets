@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide SelectionChangedCallback;
 import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../runtime/cell_renderers.dart';
@@ -57,6 +58,9 @@ class DataGridConfiguration {
 
   /// The [ColumnResizeController] used to control the column resizing operations.
   late ColumnResizeController columnResizeController;
+
+  /// Provides the base functionalities to process the filtering in [SfDataGrid].
+  DataGridFilterHelper? dataGridFilterHelper;
 
   /// The width of the current datagrid view.
   late double viewWidth;
@@ -186,6 +190,17 @@ class DataGridConfiguration {
   ///Defaults to false
   bool shrinkWrapColumns = false;
 
+  /// Decides whether the UI filtering should be enabled for all the columns.
+  ///
+  /// [GridColumn.allowFiltering] has the highest priority over this property.
+  bool allowFiltering = false;
+
+  /// Called when the filtering is being applied through UI filtering.
+  DataGridFilterChangingCallback? onFilterChanging;
+
+  /// Called after the UI filtering is applied to [SfDataGrid].
+  DataGridFilterChangedCallback? onFilterChanged;
+
   /// Contains all the properties of the checkbox column.
   DataGridCheckboxColumnSettings checkboxColumnSettings =
       const DataGridCheckboxColumnSettings();
@@ -247,7 +262,7 @@ class DataGridConfiguration {
   /// Animates the swiping to the swipeMaxOffset or beginning position.
   Animation<double>? swipingAnimation;
 
-  /// The `AnimationContoller` is used to animate the swiping offsets.
+  /// The `AnimationController` is used to animate the swiping offsets.
   AnimationController? swipingAnimationController;
 
   /// A collection of [StackedHeaderRow].
@@ -265,6 +280,10 @@ class DataGridConfiguration {
   /// Holds the color and typography values for a [SfDataGridTheme]. Use
   /// this class to configure a [SfDataGridTheme] widget.
   DataGridThemeHelper? dataGridThemeHelper;
+
+  /// Instance of a [SfLocalizations] class that provide the localized resource
+  /// values to the UI filtering labels.
+  late SfLocalizations localizations;
 
   /// Controls a vertical scrolling in DataGrid.
   ScrollController? verticalScrollController;
@@ -347,4 +366,42 @@ class DataGridConfiguration {
   /// Decides whether the Horizontal ScrollController can be disposed of in the source itself.
   /// Default to true.
   bool disposeHorizontalScrollController = true;
+
+  /// Defines the OutlinedBorder for the shape of the checkbox.
+  OutlinedBorder? checkboxShape;
+
+  /// Checks whether the platform is mac or not.
+  bool isMacPlatform = false;
+
+  /// Checks whether the command key is pressed or not for enable multi sorting
+  /// in mac platform.
+  bool isCommandKeyPressed = false;
+
+  /// Decides whether the horizontal scrollbar should be shown.
+  /// Defaults to true.
+  bool showHorizontalScrollbar = true;
+
+  /// Decides whether the vertical scrollbar should be shown.
+  /// Defaults to true.
+  bool showVerticalScrollbar = true;
+
+  /// Decides whether the filter icon should be only shown when hovering the header cells.
+  /// Defaults to false.
+  bool showFilterIconOnHover = false;
+
+  /// A boolean flag to indicate whether column dragging is allowed or not.
+  bool allowColumnsDragging = false;
+
+  /// Called when a column has been dragged and dropped to new location.
+  DataGridColumnDraggingCallback? onColumnDragging;
+
+  /// Called to obtain the feedback widget for the column when it is about to drag.
+  /// If null, a [Text] widget will be loaded by default with the dragging header cell constraints.
+  ColumnDragFeedbackBuilderCallback? columnDragFeedbackBuilder;
+
+  /// A global key used to uniquely identify the DataGrid widget.
+  GlobalKey dataGridKey = GlobalKey();
+
+  /// Controller for handling column drag and drop operation.
+  late ColumnDragAndDropController columnDragAndDropController;
 }

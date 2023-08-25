@@ -14,6 +14,7 @@ import '../helper/datagrid_configuration.dart';
 import '../helper/datagrid_helper.dart';
 import '../helper/datagrid_helper.dart' as grid_helper;
 import '../helper/enums.dart';
+import '../runtime/column.dart';
 import '../runtime/generator.dart';
 import '../sfdatagrid.dart';
 import 'scrollview_widget.dart';
@@ -93,6 +94,12 @@ class RenderVisualContainer extends RenderBox
         _isDirty = isDirty,
         _dataGridStateDetails = dataGridStateDetails! {
     addAll(children);
+    _gestureArenaTeam = GestureArenaTeam();
+    _panGestureRecognizer = PanGestureRecognizer()
+      ..team = _gestureArenaTeam
+      ..onStart = ((DragStartDetails details) {})
+      ..dragStartBehavior = DragStartBehavior.down;
+    _gestureArenaTeam.captain = _panGestureRecognizer;
   }
 
   /// Decides whether the visual container needs to be refreshed or not.
@@ -124,6 +131,9 @@ class RenderVisualContainer extends RenderBox
 
   final DataGridStateDetails _dataGridStateDetails;
 
+  late PanGestureRecognizer _panGestureRecognizer;
+  late GestureArenaTeam _gestureArenaTeam;
+
   @override
   bool get isRepaintBoundary => true;
 
@@ -132,6 +142,25 @@ class RenderVisualContainer extends RenderBox
     super.setupParentData(child);
     if (child.parentData is! _VisualContainerParentData) {
       child.parentData = _VisualContainerParentData();
+    }
+  }
+
+  // Issue:
+  // FLUT-6822 - ScrollView is scrolled at sample level when swiping the row in DataGrid.
+  //
+  // Fix:
+  // An issue occurred because the Datagrid could not handle the drag gesture
+  // while swiping since we set `NeverScrollableScrollPhysics` to the Datagrid.
+  // So, that is handled by the parent widget which is added to the Datagrid and
+  // it scrolls the Datagrid while swiping. Now we controlled the drag gesture to the parent
+  // by using the `_panGestureRecognizer` and `_gestureArenaTeam`. By setting
+  // `_gestureArenaTeam.captain` as `_panGestureRecognizer` to handling the onDragStart.
+  @override
+  void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
+    super.handleEvent(event, entry);
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    if (dataGridConfiguration.allowSwiping && event is PointerDownEvent) {
+      _panGestureRecognizer.addPointer(event);
     }
   }
 
@@ -347,14 +376,11 @@ class VirtualizingCellsRenderObjectWidget extends MultiChildRenderObjectWidget {
   /// Creates the [VirtualizingCellsRenderObjectWidget] for the
   /// [RenderVirtualizingCellsWidget].
   VirtualizingCellsRenderObjectWidget(
-      {required Key key,
-      required this.dataRow,
+      {required this.dataRow,
       required this.isDirty,
       required this.children,
       required this.dataGridStateDetails})
-      : super(
-            key: key,
-            children: RepaintBoundary.wrapAll(List<Widget>.from(children)));
+      : super(children: RepaintBoundary.wrapAll(List<Widget>.from(children)));
 
   @override
   final List<Widget> children;
@@ -972,7 +998,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
 
   void _handleSwipeEnd(
       PointerUpEvent event, DataGridConfiguration dataGridConfiguration) {
-    void _onSwipeEnd() {
+    void onSwipeEnd() {
       if (dataGridConfiguration.onSwipeEnd != null) {
         final int rowIndex = grid_helper.resolveToRecordIndex(
             dataGridConfiguration, dataRow.rowIndex);
@@ -997,10 +1023,10 @@ class RenderVirtualizingCellsWidget extends RenderBox
             dataGridConfiguration.swipingOffset >= 0 ? maxOffset : -maxOffset;
         dataGridConfiguration.swipingAnimationController!
             .forward()
-            .then((_) => _onSwipeEnd());
+            .then((_) => onSwipeEnd());
       } else {
         dataGridConfiguration.swipingAnimationController!.reverse().then((_) {
-          _onSwipeEnd();
+          onSwipeEnd();
           dataGridConfiguration.container.resetSwipeOffset(swipedRow: dataRow);
         });
       }
@@ -1034,9 +1060,35 @@ class RenderVirtualizingCellsWidget extends RenderBox
 
     _handleColumnResizing(event);
 
+    _handleColumnDragAndDrop(event);
+
     // Handles the all the datagrid long press events here commonly.
     if (event is PointerDownEvent) {
       _onLongPressGesture.addPointer(event);
+    }
+  }
+
+  void _handleColumnDragAndDrop(PointerEvent event) {
+    final DataGridConfiguration configuration = _dataGridStateDetails();
+
+    if (configuration.allowColumnsDragging &&
+        configuration.onColumnDragging != null &&
+        !configuration.columnResizeController.canSwitchResizeColumnCursor &&
+        !configuration.columnResizeController.isResizeIndicatorVisible) {
+      final ColumnDragAndDropController columnDragAndDropController =
+          configuration.columnDragAndDropController;
+
+      if (event is PointerDownEvent) {
+        columnDragAndDropController.offset = event.localPosition;
+        columnDragAndDropController.dragDelta = event.position.dx;
+      }
+
+      if (event is PointerMoveEvent) {
+        columnDragAndDropController.onPointerMove(event);
+      }
+      if (event is PointerUpEvent) {
+        columnDragAndDropController.onPointerUp(event);
+      }
     }
   }
 
@@ -1064,7 +1116,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
 
   @override
   void performLayout() {
-    void _layout(
+    void layout(
         {required RenderBox child,
         required double width,
         required double height}) {
@@ -1086,7 +1138,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
           ..width = columnRect.width
           ..height = columnRect.height
           ..cellClipRect = child._cellClipRect;
-        _layout(
+        layout(
             child: child, width: parentData.width, height: parentData.height);
         parentData.offset = Offset(columnRect.left, columnRect.top);
       } else {
@@ -1104,7 +1156,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
             ..width = cellRect.width
             ..height = cellRect.height
             ..offset = Offset(cellRect.left, cellRect.top);
-          _layout(
+          layout(
               child: child, width: parentData.width, height: parentData.height);
         } else {
           size = constraints.constrain(Size.zero);
@@ -1312,7 +1364,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
   }
 
   // To handle long press end event.
-  void _onLongPressEnd(LongPressEndDetails details) {
+  Future<void> _onLongPressEnd(LongPressEndDetails details) async {
     final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
     DataCellBase? dataCell;
     dataCell = _getDataCellBase(dataRow, details);
@@ -1323,9 +1375,9 @@ class RenderVirtualizingCellsWidget extends RenderBox
         dataGridConfiguration.currentCell.onCellSubmit(dataGridConfiguration);
       } else if (dataCell.cellType == CellType.gridCell) {
         // Clear editing when tap on the grid cell
-        if (dataGridConfiguration.currentCell
+        if (await dataGridConfiguration.currentCell
             .canSubmitCell(dataGridConfiguration)) {
-          dataGridConfiguration.currentCell
+          await dataGridConfiguration.currentCell
               .onCellSubmit(dataGridConfiguration, cancelCanSubmitCell: true);
         }
       }
@@ -1988,7 +2040,9 @@ class RenderGridCell extends RenderBox
   }
 
   void _paintHoverColor(PaintingContext context) {
-    if (dataCell.cellType == CellType.headerCell && _isHovered) {
+    if (dataCell.cellType == CellType.headerCell &&
+        _isHovered &&
+        !_dataGridStateDetails().columnDragAndDropController.isHoverDisabled) {
       final DataGridConfiguration dataGridConfiguration =
           _dataGridStateDetails();
       dataGridConfiguration.gridPaint!.color =
@@ -2174,8 +2228,6 @@ Rect? _getSpannedCellClipRect(
           }
 
           clipRect = Rect.fromLTWH(left, 0.0, clippedWidth, cellHeight);
-        } else if (clipRect != null) {
-          clipRect = null;
         }
       }
     }

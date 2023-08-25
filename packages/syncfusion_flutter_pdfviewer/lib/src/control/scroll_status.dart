@@ -66,16 +66,18 @@ class _ScrollStatusState extends State<ScrollStatus> {
                 ),
               ),
               child: Text(
-                '${widget.pdfViewerController.pageNumber} ${_localizations!.pdfScrollStatusOfLabel} ${widget.pdfViewerController.pageCount}',
-                textAlign: TextAlign.center,
-                textDirection: TextDirection.ltr,
-                style:
-                    _pdfViewerThemeData!.scrollStatusStyle?.pageInfoTextStyle ??
-                        const TextStyle(
-                            fontFamily: 'Roboto',
-                            fontSize: 16,
-                            color: Colors.white),
-              ),
+                  '${widget.pdfViewerController.pageNumber} ${_localizations!.pdfScrollStatusOfLabel} ${widget.pdfViewerController.pageCount}',
+                  textAlign: TextAlign.center,
+                  textDirection: TextDirection.ltr,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .copyWith(
+                        fontSize: 16,
+                        color: Colors.white,
+                      )
+                      .merge(_pdfViewerThemeData!
+                          .scrollStatusStyle?.pageInfoTextStyle)),
             ),
           ],
         ),

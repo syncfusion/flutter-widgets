@@ -1,4 +1,90 @@
-## Undefined
+## Unreleased
+
+**Features**
+
+* Support for filling out the form fields, such as text boxes, dropdown menus, checkboxes, radio buttons, and signatures, has been provided. It also offers additional features, such as the ability to save, export, and import the form data.
+* Support for loading the pages with the width fitted on the Windows and Web platforms has been provided.
+
+**General**
+
+* Upgraded the `http` package to the latest version 1.0.0.
+* Upgraded the `device_info_plus` package to the latest version 9.0.2.
+
+## [21.2.4] - 05/09/2023
+
+**Bugs**
+
+* Now, the `SfPdfViewer` does not execute the `onDocumentLoaded` callback before the Pdf document loads.
+
+## [21.2.3] - 05/03/2023
+
+**Features**
+
+* Support for customising the visibility of the page loading busy indicator has been provided.
+
+## [21.1.38] - 04/04/2023
+
+**Bugs**
+
+* Now, the `SfPdfViewer` does not cause excessive widget rebuilding when no actions are performed on the PDF.
+
+## [20.4.55] - 03/21/2023
+
+**Bugs**
+
+* Now, the `SfPdfViewer` does not cause text fields to lose focus when scrolling is active on an Android tablet or the iPad.
+* Now, the keyboard shortcut navigation on the web platform works properly.
+
+**Features**
+
+* Support to set and adjust the maximum zoom level has been provided.
+
+## [20.4.51] - 02/21/2022
+
+* The password dialog is now displayed properly in the `SfPdfViewer` when localized.
+
+## [20.4.43] - 01/10/2022
+
+* Support for scrolling via remote button clicks on Android TV has been provided.
+
+## [20.3.58] - 11/22/2022
+
+**Bugs**
+
+* Now, the PDF page will not be zoomed while performing a mouse scroll in the mobile view of the web platform.
+
+**Features**
+
+* Support for the text web link navigation has been provided.
+
+## [20.3.52] - 10/26/2022
+
+* When copying PDF content from the `SfPdfViewer` widget, spacing between the words is now added properly.
+
+## [20.3.47] - 09/29/2022
+
+**Features**
+
+* Now, text search will be performed asynchronously on mobile and desktop platforms.
+* Now, the busy indicator will be displayed before rendering the pages.
+
+**Breaking changes**
+
+* The `searchText` method will now return just the `PdfTextSearchResult` object instead of the `Future<PdfTextSearchResult>`.  Since the search will be performed asynchronously, the results will be returned periodically on a page-by-page basis, which can be retrieved using the `addListener` method in the application.
+* When we navigate to a particular page and perform a search, then the first instance to be highlighted will be the document's first one instead of the navigated page's first instance.
+
+## [20.2.44-beta] - 08/16/2022
+
+* Now, the scrolling works with the appropriate scrolling animation on a document with the default zoom level.
+
+## [20.2.43-beta] - 08/08/2022
+
+**Bugs**
+
+* Now, the PDF pages are positioned properly when setting the `initialZoomLevel`.
+* Now, the cache memory will be cleared properly after loading a PDF document in the `SfPdfViewer` widget.
+
+## [20.2.36-beta] - 06/30/2022
 
 **Features**
 
@@ -68,7 +154,7 @@ The following platform packages have been renamed. No changes in your pubspec.ya
 
 * Now, PDF pages won't be overlapped when multi PDFs are placed inside `IndexedStack`
 
-## [19.3.57-beta] - 12/07/2021 
+## [19.3.57-beta] - 12/07/2021
 
 * `DisplayMetrics` deprecation warnings for Android R SDK in Android Plugin has been cleared now.
 
@@ -83,7 +169,7 @@ The following platform packages have been renamed. No changes in your pubspec.ya
 ## [19.3.53-beta] - 11/12/2021
 
 * Now, PDF pages can be panned when text selection is disabled.
- 
+
 ## [19.3.46-beta] - 10/19/2021
 
 * Support for text selection in multi-column PDF has been provided.
@@ -96,7 +182,7 @@ The following platform packages have been renamed. No changes in your pubspec.ya
 
 **Features**
 
-* Support for screen reading has been provided.	
+* Support for screen reading has been provided.
 * Now, PDF document can be viewed page by page horizontally.
 * Horizontal scrolling support has been provided.
 * Support for text selection and text search in rotated document has been provided.
@@ -126,26 +212,26 @@ The following platform packages have been renamed. No changes in your pubspec.ya
 
 **Features**
 
-* The Web platform support has been provided.	
+* The Web platform support has been provided.
 * Support to view the rotated PDF documents in the iOS platform has been provided.
 
-## [18.4.48-beta] - 03/16/2021 
+## [18.4.48-beta] - 03/16/2021
 
 * Now, the `computeDryLayout` has been implemented and SfPdfViewer widget will be compatible in all channels of Flutter SDK.
 
-## [18.4.42-beta] - 02/09/2021 
+## [18.4.42-beta] - 02/09/2021
 
 **Breaking changes**
 
 * Now, the text selection color and handle color can be customized using `selectionColor` and `selectionHandleColor` properties of `TextSelectionTheme` respectively.
 
-## [18.4.31-beta] - 12/22/2020 
+## [18.4.31-beta] - 12/22/2020
 
 **Features**
 
 * Now, the highlighted search instance in the zoomed document will be navigate properly.
 
-## [18.4.30-beta] - 12/17/2020 
+## [18.4.30-beta] - 12/17/2020
 
 **Features**
 

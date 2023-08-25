@@ -299,7 +299,7 @@ class ErrorCorrectionCodeWords {
   /// refactored to a smaller methods, but it degrades the performance.Since it
   /// uses single switch condition for calculating the error correction code
   /// word based on the provided version
-  List<String> getERCW() {
+  List<String> getERCW(String encodedText) {
     List<int> decimalRepresentation;
     List<String> errorCorrectionWord;
     _decimalValue = <int>[dataBits];
@@ -1600,7 +1600,7 @@ class ErrorCorrectionCodeWords {
 
     _gx = _getElement(_gx, _alpha);
     _binaryToDecimal(dataCodeWords);
-    decimalRepresentation = _getPolynominalDivision();
+    decimalRepresentation = _getPolynominalDivision(encodedText);
     errorCorrectionWord = _convertDecimalToBinary(decimalRepresentation);
     return errorCorrectionWord;
   }
@@ -1616,7 +1616,7 @@ class ErrorCorrectionCodeWords {
   /// Converts decimal to binary value
   List<String> _convertDecimalToBinary(List<int> decimalRepresentation) {
     final List<String> toBinary = <String>[];
-    for (int i = 0; i < eccw; i++) {
+    for (int i = 0; i < decimalRepresentation.length; i++) {
       final String temp = decimalRepresentation[i].toRadixString(2);
       String text = '';
 
@@ -1633,7 +1633,7 @@ class ErrorCorrectionCodeWords {
   }
 
   /// Calculates the polynomial value
-  List<int> _getPolynominalDivision() {
+  List<int> _getPolynominalDivision(String encodedText) {
     Map<int, int> messagePolynom = <int, int>{};
     for (int i = 0; i < _decimalValue.length; i++) {
       messagePolynom[_decimalValue.length - 1 - i] = _decimalValue[i];
@@ -1665,8 +1665,11 @@ class ErrorCorrectionCodeWords {
 
     generatorPolynom = tempMessagePolynom;
     Map<int, int> leadTermSource = messagePolynom;
+    final bool isLargeText = encodedText.length > 75;
     for (int i = 0; i < messagePolynom.length; i++) {
-      final int largestExponent = _getLargestExponent(leadTermSource);
+      final int largestExponent = isLargeText
+          ? _getLargestExponentsKey(leadTermSource)
+          : _getLargestExponent(leadTermSource);
       if (leadTermSource[largestExponent] == 0) {
         leadTermSource.remove(largestExponent);
       } else {
@@ -1679,7 +1682,8 @@ class ErrorCorrectionCodeWords {
       }
     }
 
-    eccw = leadTermSource.length;
+    // QR code is not scannable when the input string contains spaces.
+    // eccw = leadTermSource.length;
     final List<int> returnValue = <int>[];
     for (int i = 0; i < leadTermSource.length; i++) {
       returnValue.add(leadTermSource.entries.elementAt(i).value);
@@ -1769,6 +1773,20 @@ class ErrorCorrectionCodeWords {
     }
 
     return largeExponent;
+  }
+
+  /// Finds the largest exponential numbers key.
+  int _getLargestExponentsKey(Map<int, int> polynom) {
+    int largeExponent = 0;
+    int key = 0;
+    for (int i = 0; i < polynom.length; i++) {
+      final MapEntry<int, int> currentEntry = polynom.entries.elementAt(i);
+      if (currentEntry.key > largeExponent) {
+        largeExponent = currentEntry.value;
+        key = polynom.keys.elementAt(i);
+      }
+    }
+    return key;
   }
 
   /// Returns the integer value

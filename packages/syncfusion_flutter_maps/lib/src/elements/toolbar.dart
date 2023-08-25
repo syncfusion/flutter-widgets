@@ -9,12 +9,10 @@ enum _ToolbarIcon { zoomIn, zoomOut, reset }
 
 class MapToolbar extends StatelessWidget {
   const MapToolbar({
-    required this.onWillZoom,
     required this.zoomPanBehavior,
     required this.controller,
   });
 
-  final WillZoomCallback? onWillZoom;
   final MapZoomPanBehavior zoomPanBehavior;
   final MapController? controller;
 
@@ -31,7 +29,6 @@ class MapToolbar extends StatelessWidget {
             _ToolbarItem(
               controller: controller,
               zoomPanBehavior: zoomPanBehavior,
-              onWillZoom: onWillZoom,
               iconData: Icons.add_circle_outline,
               icon: _ToolbarIcon.zoomIn,
               tooltipText: 'Zoom In',
@@ -39,7 +36,6 @@ class MapToolbar extends StatelessWidget {
             _ToolbarItem(
               controller: controller,
               zoomPanBehavior: zoomPanBehavior,
-              onWillZoom: onWillZoom,
               iconData: Icons.remove_circle_outline,
               icon: _ToolbarIcon.zoomOut,
               tooltipText: 'Zoom Out',
@@ -47,7 +43,6 @@ class MapToolbar extends StatelessWidget {
             _ToolbarItem(
               controller: controller,
               zoomPanBehavior: zoomPanBehavior,
-              onWillZoom: onWillZoom,
               iconData: Icons.autorenew,
               icon: _ToolbarIcon.reset,
               tooltipText: 'Reset',
@@ -77,7 +72,6 @@ class _ToolbarItem extends StatefulWidget {
   const _ToolbarItem({
     required this.controller,
     required this.zoomPanBehavior,
-    required this.onWillZoom,
     required this.iconData,
     required this.icon,
     required this.tooltipText,
@@ -86,8 +80,6 @@ class _ToolbarItem extends StatefulWidget {
   final MapController? controller;
 
   final MapZoomPanBehavior zoomPanBehavior;
-
-  final WillZoomCallback? onWillZoom;
 
   final IconData iconData;
 
@@ -272,6 +264,9 @@ class _ToolbarItemState extends State<_ToolbarItem> {
 
     newZoomLevel = newZoomLevel.clamp(widget.zoomPanBehavior.minZoomLevel,
         widget.zoomPanBehavior.maxZoomLevel);
-    widget.zoomPanBehavior.zoomLevel = newZoomLevel;
+    if (widget.controller != null &&
+        newZoomLevel != widget.zoomPanBehavior.zoomLevel) {
+      widget.controller!.notifyToolbarZoomedListeners(newZoomLevel);
+    }
   }
 }

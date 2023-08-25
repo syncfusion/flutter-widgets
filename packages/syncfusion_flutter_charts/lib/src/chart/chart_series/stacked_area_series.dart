@@ -206,7 +206,7 @@ class StackedAreaSeries<T, D> extends StackedSeriesBase<T, D> {
       onPointDoubleTap,
       onPointLongPress
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   /// Create the stacked area series renderer.

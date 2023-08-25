@@ -27,6 +27,7 @@ class AppointmentLayout extends StatefulWidget {
       this.visibleAppointments,
       this.timeIntervalHeight,
       this.calendarTheme,
+      this.themeData,
       this.isRTL,
       this.appointmentHoverPosition,
       this.resourceCollection,
@@ -61,6 +62,9 @@ class AppointmentLayout extends StatefulWidget {
 
   /// Holds the theme data of the calendar widget.
   final SfCalendarThemeData calendarTheme;
+
+  /// Holds the framework theme data values.
+  final ThemeData themeData;
 
   /// Used to hold the appointment layout hovering position.
   final ValueNotifier<Offset?> appointmentHoverPosition;
@@ -198,6 +202,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
   Widget build(BuildContext context) {
     /// Create the widgets when appointment builder is not null.
     if (_children.isEmpty && widget.calendar.appointmentBuilder != null) {
+      final DateTime initialVisibleDate = widget.visibleDates[0];
       for (int i = 0; i < _appointmentCollection.length; i++) {
         final AppointmentView appointmentView = _appointmentCollection[i];
 
@@ -208,10 +213,16 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
           continue;
         }
 
-        final DateTime date = DateTime(
+        final DateTime appStartTime = DateTime(
             appointmentView.appointment!.actualStartTime.year,
             appointmentView.appointment!.actualStartTime.month,
             appointmentView.appointment!.actualStartTime.day);
+        final DateTime date = appointmentView.startIndex != -1
+            ? widget.visibleDates[appointmentView.startIndex]
+            : appStartTime.isBefore(initialVisibleDate)
+                ? initialVisibleDate
+                : appStartTime;
+
         final Widget child = widget.calendar.appointmentBuilder!(
             context,
             CalendarAppointmentDetails(
@@ -274,6 +285,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         widget.visibleAppointments.value,
         widget.timeIntervalHeight,
         widget.calendarTheme,
+        widget.themeData,
         widget.isRTL,
         widget.appointmentHoverPosition,
         widget.resourceCollection,
@@ -504,8 +516,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         _indexAppointments,
         visibleStartIndex,
         visibleEndIndex);
-    final TextStyle style =
-        widget.calendar.todayTextStyle ?? widget.calendarTheme.todayTextStyle!;
+    final TextStyle style = widget.calendarTheme.todayTextStyle!;
     final TextSpan dateText =
         TextSpan(text: DateTime.now().day.toString(), style: style);
     _textPainter = _updateTextPainter(
@@ -723,6 +734,17 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         /// 8 PM to 9 PM and the calendar end time is 6 PM then skip the
         /// rendering).
         continue;
+      }
+
+      if (yPosition < 0 && yPosition + height > widget.height) {
+        /// Change the start position and height when appointment start time
+        /// before the calendar start time and appointment end time after the
+        /// calendar end time.(Eg., appointment start and end date as 6 AM to
+        /// 9 PM and the calendar start time is 8 AM and end time is 6 PM then
+        /// calculate the new size from 8 AM to 6 MM, if we does not calculate
+        /// the new size then the appointment text drawn on hidden place).
+        height = widget.height;
+        yPosition = 0;
       } else if (yPosition + height > widget.height) {
         /// Change the height when appointment end time greater than calendar
         /// time slot end time(Eg., calendar end time is 4 PM and appointment
@@ -1075,13 +1097,14 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
 }
 
 class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
-  _AppointmentRenderWidget(
+  const _AppointmentRenderWidget(
       this.calendar,
       this.view,
       this.visibleDates,
       this.visibleAppointments,
       this.timeIntervalHeight,
       this.calendarTheme,
+      this.themeData,
       this.isRTL,
       this.appointmentHoverPosition,
       this.resourceCollection,
@@ -1105,6 +1128,7 @@ class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
   final double timeIntervalHeight;
   final bool isRTL;
   final SfCalendarThemeData calendarTheme;
+  final ThemeData themeData;
   final ValueNotifier<Offset?> appointmentHoverPosition;
   final List<CalendarResource>? resourceCollection;
   final double? resourceItemHeight;
@@ -1127,6 +1151,7 @@ class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
         visibleAppointments,
         timeIntervalHeight,
         calendarTheme,
+        themeData,
         isRTL,
         appointmentHoverPosition,
         resourceCollection,
@@ -1152,6 +1177,7 @@ class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
       ..visibleAppointments = visibleAppointments
       ..timeIntervalHeight = timeIntervalHeight
       ..calendarTheme = calendarTheme
+      ..themeData = themeData
       ..isRTL = isRTL
       ..appointmentHoverPosition = appointmentHoverPosition
       ..resourceCollection = resourceCollection
@@ -1176,6 +1202,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       this._visibleAppointments,
       this._timeIntervalHeight,
       this._calendarTheme,
+      this._themeData,
       this._isRTL,
       this._appointmentHoverPosition,
       this._resourceCollection,
@@ -1323,6 +1350,18 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     }
 
     markNeedsPaint();
+  }
+
+  ThemeData _themeData;
+
+  ThemeData get themeData => _themeData;
+
+  set themeData(ThemeData value) {
+    if (_themeData == value) {
+      return;
+    }
+
+    _themeData = value;
   }
 
   List<DateTime> _visibleDates;
@@ -1744,7 +1783,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
 
         paint.color = appointment.color;
         TextStyle style = AppointmentHelper.getAppointmentTextStyle(
-            calendar.appointmentTextStyle, view);
+            calendar.appointmentTextStyle, view, themeData);
         TextSpan span = TextSpan(text: appointment.subject, style: style);
         _textPainter =
             _updateTextPainter(span, _textPainter, isRTL, _textScaleFactor);
@@ -2149,7 +2188,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       bool canAddForwardIcon = false;
       final TextStyle appointmentTextStyle =
           AppointmentHelper.getAppointmentTextStyle(
-              calendar.appointmentTextStyle, view);
+              calendar.appointmentTextStyle, view, themeData);
       if (canAddSpanIcon) {
         if (CalendarViewHelper.isSameTimeSlot(
                 appointment.exactStartTime, appointment.actualStartTime) &&
@@ -2387,7 +2426,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       const double iconPadding = 2;
       final TextStyle appointmentTextStyle =
           AppointmentHelper.getAppointmentTextStyle(
-              calendar.appointmentTextStyle, view);
+              calendar.appointmentTextStyle, view, themeData);
       final double iconSize = _getTextSize(appointmentRect,
               appointmentTextStyle.fontSize! * textScaleFactor) +
           (2 * iconPadding);

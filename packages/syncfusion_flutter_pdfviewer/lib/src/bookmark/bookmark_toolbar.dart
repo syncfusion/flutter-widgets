@@ -6,7 +6,7 @@ import 'package:syncfusion_flutter_core/theme.dart';
 const double _kPdfHeaderBarHeight = 53.0;
 
 /// Height of the header text.
-const double _kPdfHeaderTextHeight = 18.0;
+const double _kPdfHeaderTextHeight = 24.0;
 
 /// Height of the close icon.
 const double _kPdfCloseIconHeight = 24.0;
@@ -104,17 +104,17 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
               height: _kPdfHeaderTextHeight,
               child: Text(
                 _localizations!.pdfBookmarksLabel,
-                style:
-                    _pdfViewerThemeData!.bookmarkViewStyle?.headerTextStyle ??
-                        TextStyle(
-                          fontSize: 16,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.normal,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withOpacity(0.87),
-                        ),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium!
+                    .copyWith(
+                      fontSize: 16,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.black.withOpacity(0.87)
+                          : Colors.white.withOpacity(0.87),
+                    )
+                    .merge(_pdfViewerThemeData!
+                        .bookmarkViewStyle?.headerTextStyle),
                 semanticsLabel: '',
               ),
             ),

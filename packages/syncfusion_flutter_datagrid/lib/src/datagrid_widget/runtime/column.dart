@@ -5,8 +5,9 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import '../../grid_common/enums.dart';
+import 'package:syncfusion_flutter_core/localizations.dart';
 
+import '../../grid_common/enums.dart';
 import '../../grid_common/line_size_host.dart';
 import '../../grid_common/visible_line_info.dart';
 import '../helper/callbackargs.dart';
@@ -25,11 +26,16 @@ class GridColumn {
       this.columnWidthMode = ColumnWidthMode.none,
       this.visible = true,
       this.allowSorting = true,
+      this.sortIconPosition = ColumnHeaderIconPosition.end,
+      this.filterIconPosition = ColumnHeaderIconPosition.end,
       this.autoFitPadding = const EdgeInsets.all(16.0),
       this.minimumWidth = double.nan,
       this.maximumWidth = double.nan,
       this.width = double.nan,
-      this.allowEditing = true}) {
+      this.allowEditing = true,
+      this.allowFiltering = true,
+      this.filterPopupMenuOptions,
+      this.filterIconPadding = const EdgeInsets.symmetric(horizontal: 8.0)}) {
     _actualWidth = double.nan;
     _autoWidth = double.nan;
   }
@@ -68,6 +74,9 @@ class GridColumn {
   /// Defaults to [double.nan]
   double get actualWidth => _actualWidth;
   late double _actualWidth;
+
+  /// Determines how the filter menu is supposed to be shown.
+  FilteredFrom _filterFrom = FilteredFrom.none;
 
   /// The minimum width of the column.
   ///
@@ -138,6 +147,33 @@ class GridColumn {
   /// [ColumnWidthMode.fitByCellValue] or [ColumnWidthMode.fitByColumnName]
   /// option.
   final EdgeInsets autoFitPadding;
+
+  /// Decides whether the UI filtering should be enabled for this column.
+  ///
+  /// This property has the highest priority over [SfDataGrid.allowFiltering]
+  /// property.
+  ///
+  /// See also,
+  /// * [SfDataGrid.onFilterChanging] – This callback will be called if the
+  /// column is being filtered through UI filtering.
+  /// * [SfDataGrid.onFilterChanged] – This callback will be called if the
+  /// column is filtered through UI filtering.
+  /// * [DataGridSource.filterConditions] – This property holds the collection
+  /// of the filter conditions which are applied for various columns.
+  final bool allowFiltering;
+
+  /// Decides how the checked listbox and advanced filter options should be shown in filter popup.
+  final FilterPopupMenuOptions? filterPopupMenuOptions;
+
+  /// The amount of space  which should be added with the filter icon
+  final EdgeInsetsGeometry filterIconPadding;
+
+  /// The position of the sort icon in the column headers.
+  final ColumnHeaderIconPosition sortIconPosition;
+
+  /// The position of the filter icon in the column headers.
+  /// Typically, filter icon is placed next to sort icon.
+  final ColumnHeaderIconPosition filterIconPosition;
 }
 
 /// A column which displays the values of the string in its cells.
@@ -168,6 +204,8 @@ class GridTextColumn extends GridColumn {
     EdgeInsets autoFitPadding = const EdgeInsets.all(16.0),
     bool visible = true,
     bool allowSorting = true,
+    ColumnHeaderIconPosition sortIconPosition = ColumnHeaderIconPosition.end,
+    ColumnHeaderIconPosition filterIconPosition = ColumnHeaderIconPosition.end,
     double minimumWidth = double.nan,
     double maximumWidth = double.nan,
     double width = double.nan,
@@ -179,6 +217,8 @@ class GridTextColumn extends GridColumn {
             autoFitPadding: autoFitPadding,
             visible: visible,
             allowSorting: allowSorting,
+            sortIconPosition: sortIconPosition,
+            filterIconPosition: filterIconPosition,
             minimumWidth: minimumWidth,
             maximumWidth: maximumWidth,
             width: width,
@@ -299,6 +339,12 @@ class ColumnSizer {
 
   static const double _sortIconWidth = 20.0;
   static const double _sortNumberWidth = 18.0;
+  static const double _filterIconWidth = 18.0;
+
+  /// Defines the outer padding of the sort and filter icon's container. We need
+  /// to consider this padding to measure the auto-width and height calculation.
+  EdgeInsetsGeometry iconsOuterPadding =
+      const EdgeInsets.symmetric(horizontal: 4.0);
 
   void _initialRefresh(double availableWidth) {
     final LineSizeCollection lineSizeCollection =
@@ -315,7 +361,7 @@ class ColumnSizer {
     final bool hasAnySizerColumn = dataGridConfiguration.columns.any(
         (GridColumn column) =>
             (column.columnWidthMode != ColumnWidthMode.none) ||
-            (column.width != double.nan) ||
+            (!column.width.isNaN) ||
             !column.visible);
 
     final PaddedEditableLineSizeHostBase paddedEditableLineSizeHostBase =
@@ -590,8 +636,13 @@ class ColumnSizer {
 
   double _calculateColumnHeaderWidth(GridColumn column,
       {bool setWidth = true}) {
-    final double width =
-        _getHeaderCellWidth(column) + _getSortIconWidth(column);
+    double iconsWidth = _getSortIconWidth(column) + _getFilterIconWidth(column);
+
+    if (iconsWidth > 0) {
+      iconsWidth += iconsOuterPadding.horizontal;
+    }
+
+    final double width = _getHeaderCellWidth(column) + iconsWidth;
     _updateSetWidth(setWidth, column, width);
     return width;
   }
@@ -616,7 +667,7 @@ class ColumnSizer {
         _dataGridStateDetails!();
 
     if (dataGridConfiguration.source.rows.isEmpty) {
-      return double.nan;
+      return 0;
     }
 
     switch (dataGridConfiguration.columnWidthCalculationRange) {
@@ -659,7 +710,14 @@ class ColumnSizer {
     late DataGridRow dataGridRow;
     switch (dataGridConfiguration.columnWidthCalculationRange) {
       case ColumnWidthCalculationRange.allRows:
-        dataGridRow = effectiveRows(dataGridConfiguration.source)[rowIndex];
+        // Issue:
+        // FLUT-7340 - The RangeError exception is thrown when rebuilding the DataGrid after applying the filtering.
+        //
+        // Fix:
+        // The issue occurred because the rows were being fetched from the effective rows collection,
+        // which contains only the filtered rows instead of all the rows.
+        // Now, we fetched the rows from the entire collection to calculate the width for all the rows.
+        dataGridRow = dataGridConfiguration.source.rows[rowIndex];
         break;
       case ColumnWidthCalculationRange.visibleRows:
         dataGridRow =
@@ -776,13 +834,22 @@ class ColumnSizer {
     for (final GridColumn column in dataGridConfiguration.columns) {
       column._autoWidth = double.nan;
     }
+
+    // Need to set `needToSetHorizontalOffset` property to true when the column
+    // widths change in the RTL mode to get proper visible columns.
+    if (dataGridConfiguration.textDirection == TextDirection.rtl) {
+      dataGridConfiguration.container.needToSetHorizontalOffset = true;
+    }
   }
 
   double _getSortIconWidth(GridColumn column) {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
     double width = 0.0;
-    if (column.allowSorting && dataGridConfiguration.allowSorting) {
+    final bool isSortedColumn = dataGridConfiguration.source.sortedColumns
+        .any((SortColumnDetails element) => element.name == column.columnName);
+    if (isSortedColumn ||
+        (column.allowSorting && dataGridConfiguration.allowSorting)) {
       width += _sortIconWidth;
       if (dataGridConfiguration.allowMultiColumnSorting &&
           dataGridConfiguration.showSortNumbers) {
@@ -790,6 +857,13 @@ class ColumnSizer {
       }
     }
     return width;
+  }
+
+  double _getFilterIconWidth(GridColumn column) {
+    if (_dataGridStateDetails!().allowFiltering && column.allowFiltering) {
+      return _filterIconWidth + column.filterIconPadding.horizontal;
+    }
+    return 0.0;
   }
 
   double _setColumnWidth(DataGridConfiguration dataGridConfiguration,
@@ -1034,14 +1108,22 @@ class ColumnSizer {
         : dataGridConfiguration.container.columnWidths[columnIndex];
 
     final double strokeWidth = _getGridLineStrokeWidth(
-            rowIndex: rowIndex, dataGridConfiguration: dataGridConfiguration)
+            rowIndex: rowIndex,
+            dataGridConfiguration: dataGridConfiguration,
+            column: column)
         .width;
 
     final double horizontalPadding = column.autoFitPadding.horizontal;
 
     // Removed the padding and gridline stroke width from the column width to
     // measure the accurate height for the cell content.
-    columnWidth -= _getSortIconWidth(column) + horizontalPadding + strokeWidth;
+    double iconsWidth = _getSortIconWidth(column) + _getFilterIconWidth(column);
+
+    if (iconsWidth > 0) {
+      iconsWidth += iconsOuterPadding.horizontal;
+    }
+
+    columnWidth -= iconsWidth + horizontalPadding + strokeWidth;
 
     return _calculateTextSize(
       column: column,
@@ -1073,7 +1155,8 @@ class ColumnSizer {
 
   Size _getGridLineStrokeWidth(
       {required int rowIndex,
-      required DataGridConfiguration dataGridConfiguration}) {
+      required DataGridConfiguration dataGridConfiguration,
+      required GridColumn column}) {
     final double strokeWidth =
         dataGridConfiguration.dataGridThemeHelper!.gridLineStrokeWidth;
 
@@ -1082,15 +1165,24 @@ class ColumnSizer {
             ? dataGridConfiguration.headerGridLinesVisibility
             : dataGridConfiguration.gridLinesVisibility;
 
+    final GridColumn firstVisibleColumn = dataGridConfiguration.columns
+        .firstWhere(
+            (GridColumn column) => column.visible && column.width != 0.0);
+    final bool isFirstColumn =
+        firstVisibleColumn.columnName == column.columnName;
+
     switch (gridLinesVisibility) {
       case GridLinesVisibility.none:
         return Size.zero;
       case GridLinesVisibility.both:
-        return Size(strokeWidth, strokeWidth);
+        return Size(strokeWidth,
+            rowIndex == 0 ? (strokeWidth + strokeWidth) : strokeWidth);
       case GridLinesVisibility.vertical:
-        return Size(strokeWidth, 0);
+        return Size(isFirstColumn ? (strokeWidth + strokeWidth) : strokeWidth,
+            rowIndex == 0 ? strokeWidth : 0);
       case GridLinesVisibility.horizontal:
-        return Size(0, strokeWidth);
+        return Size(isFirstColumn ? strokeWidth : 0,
+            rowIndex == 0 ? (strokeWidth + strokeWidth) : strokeWidth);
     }
   }
 
@@ -1111,7 +1203,9 @@ class ColumnSizer {
         _dataGridStateDetails!();
 
     final Size strokeWidthSize = _getGridLineStrokeWidth(
-        rowIndex: rowIndex, dataGridConfiguration: dataGridConfiguration);
+        rowIndex: rowIndex,
+        dataGridConfiguration: dataGridConfiguration,
+        column: column);
 
     final TextPainter textPainter = TextPainter(
         text: TextSpan(text: value?.toString() ?? '', style: textStyle),
@@ -1155,6 +1249,11 @@ void updateColumnSizerLoadedInitiallyFlag(
 /// Returns the width of a sorting icon.
 double getSortIconWidth(ColumnSizer columnSizer, GridColumn column) {
   return columnSizer._getSortIconWidth(column);
+}
+
+/// Returns the width of a filter icon.
+double getFilterIconWidth(ColumnSizer columnSizer, GridColumn column) {
+  return columnSizer._getFilterIconWidth(column);
 }
 
 /// Returns the auto fit row height of the given row based on index.
@@ -1550,10 +1649,18 @@ class ColumnResizeController {
 
   bool _raiseColumnResizeStart() {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
+
+    /// The indexOf method is utilized to iterate through the properties of the column collection and determine the index of the desired element.
+    ///  In this scenario, while resizing, the actualWidth property does not match the currentResizing column.
+    ///  As a result, the indexOf method returns -1. To obtain the correct currentResizing column index, the indexWhere method is employed instead.
     if (dataGridConfiguration.onColumnResizeStart != null) {
       return dataGridConfiguration.onColumnResizeStart!(
           ColumnResizeStartDetails(
-              column: _currentResizingColumn!, width: _resizingColumnWidth));
+              columnIndex: dataGridConfiguration.columns.indexWhere(
+                  (GridColumn element) =>
+                      element.columnName == _currentResizingColumn!.columnName),
+              column: _currentResizingColumn!,
+              width: _resizingColumnWidth));
     }
     return true;
   }
@@ -1563,7 +1670,11 @@ class ColumnResizeController {
     if (dataGridConfiguration.onColumnResizeUpdate != null) {
       return dataGridConfiguration.onColumnResizeUpdate!(
           ColumnResizeUpdateDetails(
-              column: _currentResizingColumn!, width: currentColumnWidth));
+              columnIndex: dataGridConfiguration.columns.indexWhere(
+                  (GridColumn element) =>
+                      element.columnName == _currentResizingColumn!.columnName),
+              column: _currentResizingColumn!,
+              width: currentColumnWidth));
     }
     return true;
   }
@@ -1572,20 +1683,26 @@ class ColumnResizeController {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
     if (dataGridConfiguration.onColumnResizeEnd != null) {
       dataGridConfiguration.onColumnResizeEnd!(ColumnResizeEndDetails(
-          column: _currentResizingColumn!, width: currentColumnWidth));
+          columnIndex: dataGridConfiguration.columns.indexWhere(
+              (GridColumn element) =>
+                  element.columnName == _currentResizingColumn!.columnName),
+          column: _currentResizingColumn!,
+          width: currentColumnWidth));
     }
   }
 
   // *  Pointer Events
 
   /// Handles the pointer down event for the column resizing.
-  void onPointerDown(PointerDownEvent event, DataRowBase dataRow) {
+  Future<void> onPointerDown(
+      PointerDownEvent event, DataRowBase dataRow) async {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
     if (dataGridConfiguration.isDesktop || _canStartResizeInMobile) {
       if (_isHeaderRow(dataRow)) {
         // Clears the editing before start resizing a column.
         if (dataGridConfiguration.currentCell.isEditing) {
-          dataGridConfiguration.currentCell.onCellSubmit(dataGridConfiguration);
+          await dataGridConfiguration.currentCell
+              .onCellSubmit(dataGridConfiguration);
         }
 
         final VisibleLineInfo? resizingLine =
@@ -1726,6 +1843,14 @@ class ColumnResizeController {
     }
 
     canSwitchResizeColumnCursor = _getHitTestResult(localPosition.dx) != null;
+
+    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
+    if (canSwitchResizeColumnCursor &&
+        dataGridConfiguration.columnDragAndDropController
+            .canAllowColumnDragAndDrop()) {
+      notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
+          propertyName: 'columnDragAndDrop');
+    }
   }
 
   void _resetColumnResize({bool canResetDataCell = true}) {
@@ -1742,5 +1867,1597 @@ class ColumnResizeController {
     dataGridStateDetails().container.isDirty = true;
     notifyDataGridPropertyChangeListeners(dataGridStateDetails().source,
         propertyName: 'columnResizing');
+  }
+}
+
+/// Controls how the filtering should be applied in [SfDataGrid].
+@immutable
+class FilterCondition {
+  /// Creates the [FilterCondition] for [SfDataGrid].
+  const FilterCondition(
+      {required this.type,
+      required this.value,
+      this.isCaseSensitive = false,
+      this.filterOperator = FilterOperator.or,
+      this.filterBehavior = FilterBehavior.strongDataType});
+
+  /// The type of the filter should be applied for filter condition.
+  final FilterType type;
+
+  /// The value which should be compared for filtering.
+  final Object? value;
+
+  /// Decides whether the filtering should be considered based on case sensitive.
+  final bool isCaseSensitive;
+
+  /// The type of the logical operator.
+  final FilterOperator filterOperator;
+
+  /// The behavior of the filtering for the filter condition.
+  final FilterBehavior filterBehavior;
+
+  @override
+  bool operator ==(Object other) {
+    return other is FilterCondition &&
+        type == other.type &&
+        value == other.value &&
+        isCaseSensitive == other.isCaseSensitive &&
+        filterOperator == other.filterOperator &&
+        filterBehavior == other.filterBehavior;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      type,
+      value,
+      isCaseSensitive,
+      filterOperator,
+      filterBehavior
+    ];
+    return Object.hashAll(values);
+  }
+}
+
+/// Provides the base functionalities to process the filtering in [SfDataGrid].
+class DataGridFilterHelper {
+  /// Creates the [DataGridFilterHelper] for [SfDataGrid].
+  DataGridFilterHelper(this._dataGridStateDetails) {
+    checkboxFilterHelper = DataGridCheckboxFilterHelper();
+    advancedFilterHelper = DataGridAdvancedFilterHelper(_dataGridStateDetails);
+  }
+
+  /// Holds the data rows that before apply filtering to the current column.
+  /// Sets the rows when generating the checkbox list view items and use it to
+  /// apply filtering to optimize the filtering instead of filter whole rows again.
+  List<DataGridRow> _previousDataRows = <DataGridRow>[];
+
+  /// This flag is used to check whether the filtering popup menu is currently
+  /// showing or not in the view.
+  bool isFilterPopupMenuShowing = false;
+
+  /// Determines how the filter menu should be opened
+  FilteredFrom filterFrom = FilteredFrom.none;
+
+  final DataGridStateDetails _dataGridStateDetails;
+
+  late int _checkedItemsCount, _unCheckedItemsCount;
+
+  /// Holds the instance of a [DataGridCheckboxFilterHelper] class.
+  late DataGridCheckboxFilterHelper checkboxFilterHelper;
+
+  /// Holds the instance of a [DataGridAdvancedFilterHelper] class.
+  late DataGridAdvancedFilterHelper advancedFilterHelper;
+
+  /// Provides the height of the popup menu tile.
+  double get tileHeight => _dataGridStateDetails().isDesktop
+      ? _dataGridStateDetails()
+              .dataGridThemeHelper!
+              .filterPopupTextStyle!
+              .fontSize! +
+          26
+      : _dataGridStateDetails()
+              .dataGridThemeHelper!
+              .filterPopupTextStyle!
+              .fontSize! +
+          38;
+
+  /// Provides the icon color.
+  Color get iconColor =>
+      _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.6);
+
+  /// Provides the disable icon color.
+  Color get disableIconColor =>
+      _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.38);
+
+  /// Provides the border color.
+  Color get borderColor =>
+      _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.12);
+
+  /// Provides the background color.
+  Color get backgroundColor =>
+      _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.001);
+
+  /// Provides the text color.
+  Color get textColor =>
+      _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.89);
+
+  /// Provides the primary color.
+  Color get primaryColor => _dataGridStateDetails().colorScheme!.primary;
+
+  /// Provides the text style to the tiles.
+  TextStyle get textStyle =>
+      _dataGridStateDetails().dataGridThemeHelper!.filterPopupTextStyle!;
+
+  /// Provides the text style to the disabled tiles.
+  TextStyle get disableTextStyle => _dataGridStateDetails()
+      .dataGridThemeHelper!
+      .filterPopupDisabledTextStyle!;
+
+  /// Apply filter to the effective rows based on `filterConditions`.
+  void applyFilter() {
+    if (_dataGridStateDetails().source.filterConditions.isNotEmpty) {
+      _refreshFilter();
+    }
+  }
+
+  /// Creates filter conditions based on the UI filtering.
+  void createFilterConditions(bool isCheckboxFilter, GridColumn column) {
+    // Creates filter conditions if it's a checkbox filter.
+    if (isCheckboxFilter) {
+      _checkedItemsCount = checkboxFilterHelper.items
+          .where((FilterElement element) => element.isSelected)
+          .length;
+      _unCheckedItemsCount =
+          checkboxFilterHelper.items.length - _checkedItemsCount;
+
+      _createCheckboxFilterConditions(column);
+    } else {
+      _createAdvancedFilterConditions(column);
+    }
+  }
+
+  void _createCheckboxFilterConditions(GridColumn column) {
+    final DataGridSource source = _dataGridStateDetails().source;
+    if (_unCheckedItemsCount == 0 &&
+        checkboxFilterHelper._searchedItems.isEmpty) {
+      // Need to invoke `onFilterChanging` and `onFilterChanged` callback to notify
+      // the filtering changes when tapping `SelectAll` button to select all the
+      // rows in the Checkbox UI filtering.
+      if (source.filterConditions.containsKey(column.columnName)) {
+        if (_invokeFilterChangingCallback(column, <FilterCondition>[])) {
+          removeFilterConditions(source, column.columnName);
+        } else {
+          return;
+        }
+      }
+    } else {
+      final bool useSelected = !(_checkedItemsCount > _unCheckedItemsCount &&
+          _unCheckedItemsCount > 0);
+      final List<FilterCondition> conditions = <FilterCondition>[];
+      for (final FilterElement value in checkboxFilterHelper.items) {
+        if (value.isSelected == useSelected) {
+          final FilterType filterType =
+              useSelected ? FilterType.equals : FilterType.notEqual;
+          FilterOperator filterOperator =
+              useSelected ? FilterOperator.or : FilterOperator.and;
+          final String? filterValue =
+              value.value == '(Blanks)' ? null : value.value.toString();
+
+          // Sets the first filter condition's filter operator as 'AND' to
+          // perform multi-column filtering.
+          if (conditions.isEmpty) {
+            filterOperator = FilterOperator.and;
+          }
+
+          conditions.add(FilterCondition(
+              type: filterType,
+              isCaseSensitive: true,
+              value: filterValue,
+              filterBehavior: FilterBehavior.stringDataType,
+              filterOperator: filterOperator));
+        }
+      }
+
+      addFilterConditions(source, column.columnName, conditions);
+    }
+
+    if (source.filterConditions.isEmpty) {
+      setFilterFrom(column, FilteredFrom.none);
+    } else {
+      setFilterFrom(column, FilteredFrom.checkboxFilter);
+    }
+
+    if (checkboxFilterHelper._searchedItems.isNotEmpty) {
+      checkboxFilterHelper._searchedItems.clear();
+    }
+
+    _applyViewFilter(column);
+  }
+
+  /// Sets the given value to the column's `filterFrom` property.
+  void setFilterFrom(GridColumn column, FilteredFrom filteredfrom) {
+    filterFrom = column._filterFrom = filteredfrom;
+  }
+
+  /// Gets the column's `filterFrom` property.
+  FilteredFrom getFilterForm(GridColumn column) {
+    return column._filterFrom;
+  }
+
+  /// Reset the column `filter From` property when the datagrid is disposed.
+  void resetColumnProperties(DataGridConfiguration dataGridConfiguration) {
+    for (final GridColumn column in dataGridConfiguration.columns) {
+      column._filterFrom = FilteredFrom.none;
+      column._actualWidth = double.nan;
+    }
+  }
+
+  /// Format the given cell value to the string data type to display.
+  String getDisplayValue(Object? value) {
+    if (value != null) {
+      // Should return if the value defines the blank filter.
+      if (value == '(Blanks)') {
+        return '(Blanks)';
+      }
+
+      switch (advancedFilterHelper.advancedFilterType) {
+        case AdvancedFilterType.text:
+        case AdvancedFilterType.numeric:
+          return value is! String ? value.toString() : value;
+        case AdvancedFilterType.date:
+          final DateTime date = value as DateTime;
+          return date.toString().split(' ').first;
+      }
+    }
+    return '';
+  }
+
+  /// Format the given string value to the actual cell value with same data type.
+  Object? getActualValue(Object? value) {
+    if (value != null) {
+      switch (advancedFilterHelper.advancedFilterType) {
+        case AdvancedFilterType.text:
+          return value is! String ? value.toString() : value;
+        case AdvancedFilterType.numeric:
+          return value is! num ? num.tryParse(value.toString()) : value;
+        case AdvancedFilterType.date:
+          if (value is! DateTime) {
+            // To convert a given string to the DateTime format.
+            final List<String> values = value.toString().split('-');
+            if (values.length > 2 &&
+                values.every((String element) => element.isNotEmpty)) {
+              // To validate the day and month.
+              if (int.parse(values[1]) > 12 || int.parse(values[2]) > 31) {
+                return null;
+              }
+              return DateTime.tryParse(value.toString());
+            }
+            return null;
+          }
+          return value;
+      }
+    } else {
+      return value;
+    }
+  }
+
+  void _debugCheckDataType(DataGridConfiguration dataGridConfiguration) {
+    Object? getFirstCellValue(List<DataGridRow> rows, String columnName) {
+      Object? cellValue;
+      for (final DataGridRow row in rows) {
+        cellValue = _getCellValue(row, columnName);
+        if (cellValue != null) {
+          break;
+        }
+      }
+      return cellValue;
+    }
+
+    void throwAssertFailure(String message) {
+      throw FlutterError.fromParts(<DiagnosticsNode>[ErrorSummary(message)]);
+    }
+
+    final DataGridSource source = dataGridConfiguration.source;
+    // Should avoid the type checking if the `effectiveRows` contains an empty list.
+    if (source.effectiveRows.isNotEmpty && source.filterConditions.isNotEmpty) {
+      for (final String columnName in source.filterConditions.keys) {
+        final GridColumn? column = dataGridConfiguration.columns
+            .firstWhereOrNull(
+                (GridColumn column) => column.columnName == columnName);
+        if (column == null) {
+          throwAssertFailure(
+              "The $columnName doesn't exist in the SfDataGrid.columns collection");
+          continue;
+        }
+
+        final Object? cellValue =
+            getFirstCellValue(source.effectiveRows, columnName);
+        for (final FilterCondition condition
+            in source.filterConditions[columnName]!) {
+          assert(() {
+            if (condition.filterBehavior == FilterBehavior.strongDataType) {
+              // Issue:
+              // FLUT-7286 - Type mismatch error has been thrown when giving an integer value for double type column.
+              //
+              // Fix:
+              // The issue arose because we didn't check the cellValue and condition type is num or not.
+              // Now, we checked the condition of whether both types are num, and we allow when it's num.
+              if ((cellValue is num && condition.value is num) &&
+                  (condition.type == FilterType.greaterThan ||
+                      condition.type == FilterType.greaterThanOrEqual ||
+                      condition.type == FilterType.lessThan ||
+                      condition.type == FilterType.lessThanOrEqual)) {
+                return true;
+              } else {
+                if (cellValue?.runtimeType != condition.value?.runtimeType &&
+                    (cellValue is! num && condition.value is! num)) {
+                  throwAssertFailure(
+                      '${condition.value?.runtimeType} and ${cellValue.runtimeType} are not the same data type');
+                } else if (condition.type == FilterType.contains ||
+                    condition.type == FilterType.doesNotContain ||
+                    condition.type == FilterType.beginsWith ||
+                    condition.type == FilterType.doesNotBeginWith ||
+                    condition.type == FilterType.endsWith ||
+                    condition.type == FilterType.doesNotEndsWith) {
+                  throwAssertFailure(
+                      'FilterBehaviour and FilterType are not correct');
+                } else if (condition.type == FilterType.greaterThan ||
+                    condition.type == FilterType.greaterThanOrEqual ||
+                    condition.type == FilterType.lessThan ||
+                    condition.type == FilterType.lessThanOrEqual) {
+                  if (cellValue is String) {
+                    final String filterType =
+                        condition.type.toString().split('.').last;
+                    throwAssertFailure(
+                        "The filter type $filterType can't check with the String type");
+                  }
+                }
+              }
+            } else {
+              if (condition.type == FilterType.greaterThan ||
+                  condition.type == FilterType.greaterThanOrEqual ||
+                  condition.type == FilterType.lessThan ||
+                  condition.type == FilterType.lessThanOrEqual) {
+                throwAssertFailure(
+                    'FilterBehaviour and FilterType are not correct');
+              }
+            }
+            return true;
+          }());
+        }
+      }
+    }
+  }
+
+  void _refreshFilter() {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    // Checks whether the filter value and cell value have the same data type or not.
+    // If not, it throws an assert failure.
+    _debugCheckDataType(dataGridConfiguration);
+
+    if (dataGridConfiguration.source.filterConditions.isNotEmpty) {
+      final DataGridSource source = dataGridConfiguration.source;
+      final List<DataGridRow> filteredRows =
+          _getFilterRows(source.rows, source.filterConditions);
+      refreshEffectiveRows(source, filteredRows);
+    }
+  }
+
+  void _applyViewFilter(GridColumn column) {
+    final DataGridSource source = _dataGridStateDetails().source;
+
+    if (source.filterConditions.containsKey(column.columnName)) {
+      final List<FilterCondition>? filterConditions =
+          source.filterConditions[column.columnName];
+      if (!_invokeFilterChangingCallback(column, filterConditions!)) {
+        removeFilterConditions(source, column.columnName);
+        return;
+      }
+
+      List<DataGridRow> filteredRows = <DataGridRow>[];
+      if (_previousDataRows.isNotEmpty) {
+        filteredRows = _getFilterRows(
+            _previousDataRows, <String, List<FilterCondition>>{
+          column.columnName: filterConditions
+        });
+      } else {
+        filteredRows = _getFilterRows(source.rows, source.filterConditions);
+      }
+
+      if (_previousDataRows.isNotEmpty) {
+        _previousDataRows.clear();
+      }
+
+      // Need to apply sorting to the filtered rows.
+      performSorting(source, filteredRows);
+      refreshEffectiveRows(source, filteredRows);
+      updateDataPager(source);
+      notifyDataGridPropertyChangeListeners(source, propertyName: 'Filtering');
+      _invokeFilterChangedCallback(column, filterConditions);
+    } else {
+      updateDataSource(source);
+      notifyDataGridPropertyChangeListeners(source, propertyName: 'Filtering');
+      _invokeFilterChangedCallback(column, <FilterCondition>[]);
+    }
+  }
+
+  // Gets rows based on current filtered conditions.
+  List<DataGridRow> _getPreviousFilteredRows(String columnName) {
+    List<DataGridRow>? items;
+    final DataGridSource source = _dataGridStateDetails().source;
+    final List<FilterCondition>? conditions =
+        source.filterConditions[columnName];
+
+    if (conditions != null && conditions.isNotEmpty) {
+      removeFilterConditions(source, columnName);
+      items = source.filterConditions.isEmpty
+          ? source.rows
+          : _getFilterRows(source.rows, source.filterConditions);
+      _previousDataRows = items.toList();
+      addFilterConditions(source, columnName, conditions);
+    } else {
+      _previousDataRows.clear();
+    }
+
+    return items ?? source.effectiveRows;
+  }
+
+  List<FilterElement> _getCellValues(
+      GridColumn column, List<DataGridRow> items) {
+    bool hasBlankValues = false;
+    final DataGridSource source = _dataGridStateDetails().source;
+    final List<FilterCondition> conditions =
+        source.filterConditions[column.columnName] ?? <FilterCondition>[];
+
+    bool isSelected(Object? value) {
+      if (conditions.isNotEmpty) {
+        // Checkes the previous filtered data rows with current effective rows to
+        // find selected and unselected items in the checkbox list view.
+        for (final DataGridRow row in source.effectiveRows) {
+          final DataGridCell? cell = row.getCells().firstWhereOrNull(
+              (DataGridCell element) =>
+                  element.columnName == column.columnName);
+          if (cell?.value?.toString() == value?.toString()) {
+            return true;
+          }
+        }
+        return false;
+      }
+      return true;
+    }
+
+    final List<Object> cellValues = <Object>[];
+    final List<FilterElement> filterElements = <FilterElement>[];
+    for (final DataGridRow row in items) {
+      final DataGridCell? cell = row.getCells().firstWhereOrNull(
+          (DataGridCell element) => element.columnName == column.columnName);
+      if (cell != null) {
+        if (cell.value != null) {
+          cellValues.add(cell.value);
+        } else if (!hasBlankValues) {
+          hasBlankValues = true;
+        }
+      }
+    }
+
+    if (hasBlankValues) {
+      filterElements
+          .add(FilterElement(value: '(Blanks)', isSelected: isSelected(null)));
+    }
+
+    if (cellValues.isNotEmpty) {
+      final Object cellValue = cellValues.first;
+      final bool convertToString =
+          !(cellValue is num || cellValue is DateTime || cellValue is String);
+
+      // Sort the items to display in the ascending order.
+      cellValues.sort((Object a, Object b) {
+        final dynamic value1 = convertToString ? a.toString() : a;
+        final dynamic value2 = convertToString ? b.toString() : b;
+
+        return value1.compareTo(value2);
+      });
+
+      filterElements.addAll(cellValues
+          .toSet()
+          .map<FilterElement>(
+              (Object e) => FilterElement(value: e, isSelected: isSelected(e)))
+          .toList());
+    }
+
+    return filterElements;
+  }
+
+  /// Helps to end edit the current cell.
+  void endEdit() {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    if (dataGridConfiguration.currentCell.isEditing) {
+      dataGridConfiguration.currentCell
+          .onCellSubmit(dataGridConfiguration, canRefresh: false);
+    }
+  }
+
+  /// Sets all the cell values to the check box filter.
+  void setDataGridSource(GridColumn column) {
+    final List<DataGridRow> items = _getPreviousFilteredRows(column.columnName);
+    final List<FilterElement> distinctCollection =
+        _getCellValues(column, items);
+
+    checkboxFilterHelper._previousDataGridSource = <FilterElement>[];
+
+    if (distinctCollection.isNotEmpty) {
+      checkboxFilterHelper.filterCheckboxItems = distinctCollection;
+    }
+
+    if (filterFrom == FilteredFrom.checkboxFilter) {
+      _setPreviousDataGridSource();
+    }
+
+    checkboxFilterHelper.items = distinctCollection.toList();
+    advancedFilterHelper.items = distinctCollection.toList();
+
+    if (advancedFilterHelper.items.isNotEmpty) {
+      bool isNullOrEmpty(String value) => value == '(Blanks)' || value == '';
+      // Remove null and empty values from the items collection since it's not
+      // applicable for the AdvancedFilter.
+      advancedFilterHelper.items.removeWhere(
+          (FilterElement element) => isNullOrEmpty(element.value.toString()));
+    }
+
+    checkboxFilterHelper.ensureSelectAllCheckboxState();
+  }
+
+  List<DataGridRow> _getFilterRows(
+      List<DataGridRow> rows, Map<String, List<FilterCondition>> conditions) {
+    return rows
+        .where((DataGridRow row) => _filterRow(row, conditions))
+        .toList();
+  }
+
+  void _setPreviousDataGridSource() {
+    final bool useSelected = !(_checkedItemsCount > _unCheckedItemsCount &&
+        _unCheckedItemsCount > 0);
+    final List<FilterElement> items = checkboxFilterHelper.filterCheckboxItems
+        .where((FilterElement i) => useSelected)
+        .toList();
+    checkboxFilterHelper._previousDataGridSource.addAll(items);
+  }
+
+  /// Handles the filter form's sort buttons callback.
+  void onSortButtonClick(GridColumn column, DataGridSortDirection direction) {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    endEdit();
+    if (dataGridConfiguration.source.sortedColumns.isNotEmpty) {
+      dataGridConfiguration.source.sortedColumns.clear();
+    }
+
+    dataGridConfiguration.source.sortedColumns.add(
+        SortColumnDetails(name: column.columnName, sortDirection: direction));
+    dataGridConfiguration.source.sort();
+  }
+
+  /// Handles the filter form's clear filter button callback.
+  void onClearFilterButtonClick(GridColumn column) {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    endEdit();
+    setFilterFrom(column, FilteredFrom.none);
+    removeFilterConditions(dataGridConfiguration.source, column.columnName);
+
+    updateDataSource(dataGridConfiguration.source);
+    notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
+        propertyName: 'Filtering');
+    _invokeFilterChangedCallback(column, <FilterCondition>[]);
+  }
+
+  bool _invokeFilterChangingCallback(
+      GridColumn column, List<FilterCondition> filterConditions) {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    if (dataGridConfiguration.onFilterChanging != null) {
+      final DataGridFilterChangeDetails details = DataGridFilterChangeDetails(
+          column: column,
+          filterConditions:
+              List<FilterCondition>.unmodifiable(filterConditions));
+      return dataGridConfiguration.onFilterChanging!(details);
+    }
+    return true;
+  }
+
+  void _invokeFilterChangedCallback(
+      GridColumn column, List<FilterCondition> filterConditions) {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    if (dataGridConfiguration.onFilterChanged != null) {
+      final DataGridFilterChangeDetails details = DataGridFilterChangeDetails(
+          column: column,
+          filterConditions:
+              List<FilterCondition>.unmodifiable(filterConditions));
+      dataGridConfiguration.onFilterChanged!(details);
+    }
+  }
+
+  Object? _getCellValue(DataGridRow row, String columnName) {
+    final GridColumn? column = _dataGridStateDetails().columns.firstWhereOrNull(
+        (GridColumn column) => column.columnName == columnName);
+    if (column != null) {
+      final DataGridCell? cellValue = row.getCells().firstWhereOrNull(
+          (DataGridCell element) => element.columnName == column.columnName);
+      if (cellValue != null && cellValue.value != null) {
+        return cellValue.value;
+      }
+    }
+    return null;
+  }
+
+  bool _filterRow(
+      DataGridRow row, Map<String, List<FilterCondition>> filterConditions) {
+    bool? isEqual;
+    // Holds the previous column's comparer value of the current row to help to
+    // perform multi-column filtering.
+    bool previousComparer = true;
+    for (final String columnName in filterConditions.keys) {
+      for (final FilterCondition condition in filterConditions[columnName]!) {
+        final Object? cellValue = _getCellValue(row, columnName);
+
+        // Resets the previous column's comparer value if a column is not
+        // applicable to the multi-column filtering.
+        if (condition == filterConditions[columnName]!.first &&
+            condition.filterOperator == FilterOperator.or) {
+          previousComparer = true;
+        }
+
+        /// Holds the current filter type result.
+        bool comparerValue = false;
+        switch (condition.type) {
+          case FilterType.equals:
+            comparerValue = grid_helper.compareEquals(condition, cellValue);
+            break;
+          case FilterType.notEqual:
+            comparerValue = !grid_helper.compareEquals(condition, cellValue);
+            break;
+          case FilterType.contains:
+            comparerValue = grid_helper.compareContains(condition, cellValue);
+            break;
+          case FilterType.doesNotContain:
+            comparerValue = !grid_helper.compareContains(condition, cellValue);
+            break;
+          case FilterType.beginsWith:
+            comparerValue = grid_helper.compareBeginsWith(condition, cellValue);
+            break;
+          case FilterType.doesNotBeginWith:
+            comparerValue =
+                !grid_helper.compareBeginsWith(condition, cellValue);
+            break;
+          case FilterType.endsWith:
+            comparerValue = grid_helper.compareEndsWith(condition, cellValue);
+            break;
+          case FilterType.doesNotEndsWith:
+            comparerValue = !grid_helper.compareEndsWith(condition, cellValue);
+            break;
+          case FilterType.greaterThan:
+            comparerValue =
+                grid_helper.compareGreaterThan(condition, cellValue);
+            break;
+          case FilterType.greaterThanOrEqual:
+            comparerValue =
+                grid_helper.compareGreaterThan(condition, cellValue, true);
+            break;
+          case FilterType.lessThan:
+            comparerValue = grid_helper.compareLessThan(condition, cellValue);
+            break;
+          case FilterType.lessThanOrEqual:
+            comparerValue =
+                grid_helper.compareLessThan(condition, cellValue, true);
+            break;
+        }
+
+        isEqual = previousComparer &&
+            grid_helper.compare(
+                isEqual, comparerValue, condition.filterOperator);
+      }
+      previousComparer = isEqual != null && isEqual;
+    }
+    return isEqual != null && isEqual;
+  }
+
+  void _createAdvancedFilterConditions(GridColumn column) {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    final SfLocalizations localizations = dataGridConfiguration.localizations;
+    final FilterOperator filterOperator = advancedFilterHelper.isOrPredicate
+        ? FilterOperator.or
+        : FilterOperator.and;
+
+    final List<FilterCondition> filterConditions =
+        dataGridConfiguration.source.filterConditions[column.columnName] ??
+            <FilterCondition>[];
+
+    final Object? filterValue1 = advancedFilterHelper.filterValue1;
+    final Object? filterValue2 = advancedFilterHelper.filterValue2;
+    final String? filterType1 = advancedFilterHelper.filterType1;
+    final String? filterType2 = advancedFilterHelper.filterType2;
+    final FilterType type1 =
+        grid_helper.getFilterType(dataGridConfiguration, filterType1 ?? '');
+    final FilterType type2 =
+        grid_helper.getFilterType(dataGridConfiguration, filterType2 ?? '');
+
+    if (filterConditions.isNotEmpty) {
+      filterConditions.clear();
+    }
+
+    bool canCreateFilterCondition(
+        Object? filterValue, String? filterType, bool isFirstCondition) {
+      void setFilterValue(String? value) {
+        if (isFirstCondition) {
+          advancedFilterHelper.filterValue1 = value;
+        } else {
+          advancedFilterHelper.filterValue2 = value;
+        }
+      }
+
+      if (filterValue != null && filterType != null) {
+        if (filterValue == '') {
+          setFilterValue(null);
+        }
+        return true;
+      } else if (filterValue == null && filterType != null) {
+        if (filterType == localizations.nullDataGridFilteringLabel ||
+            filterType == localizations.notNullDataGridFilteringLabel) {
+          setFilterValue(null);
+          return true;
+        } else if (filterType == localizations.emptyDataGridFilteringLabel ||
+            filterType == localizations.notEmptyDataGridFilteringLabel) {
+          setFilterValue('');
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Sets the first filter condition's filter operator as 'AND' to perform
+    // multi-column filtering.
+    FilterOperator getFilterOperator() =>
+        filterConditions.isEmpty ? FilterOperator.and : filterOperator;
+
+    switch (advancedFilterHelper.advancedFilterType) {
+      case AdvancedFilterType.text:
+        {
+          // Condition 1
+          if (canCreateFilterCondition(filterValue1, filterType1, true)) {
+            final FilterCondition condition = FilterCondition(
+                type: type1,
+                filterOperator: getFilterOperator(),
+                value: advancedFilterHelper.filterValue1,
+                filterBehavior: FilterBehavior.stringDataType,
+                isCaseSensitive: advancedFilterHelper.isCaseSensitive1);
+            filterConditions.add(condition);
+          }
+
+          // Condition 2
+          if (canCreateFilterCondition(filterValue2, filterType2, false)) {
+            final FilterCondition condition = FilterCondition(
+                type: type2,
+                filterOperator: getFilterOperator(),
+                value: advancedFilterHelper.filterValue2,
+                filterBehavior: FilterBehavior.stringDataType,
+                isCaseSensitive: advancedFilterHelper.isCaseSensitive2);
+            filterConditions.add(condition);
+          }
+        }
+        break;
+      case AdvancedFilterType.numeric:
+        {
+          // Condition 1
+          if (canCreateFilterCondition(filterValue1, filterType1, true)) {
+            final FilterCondition condition = FilterCondition(
+                type: type1,
+                filterOperator: getFilterOperator(),
+                value: advancedFilterHelper.filterValue1);
+            filterConditions.add(condition);
+          }
+
+          // Condition 2
+          if (canCreateFilterCondition(filterValue2, filterType2, false)) {
+            final FilterCondition condition = FilterCondition(
+                type: type2,
+                filterOperator: getFilterOperator(),
+                value: advancedFilterHelper.filterValue2);
+            filterConditions.add(condition);
+          }
+        }
+        break;
+      case AdvancedFilterType.date:
+        {
+          // Condition 1
+          if (canCreateFilterCondition(filterValue1, filterType1, true)) {
+            final FilterCondition condition = FilterCondition(
+                type: type1,
+                filterOperator: getFilterOperator(),
+                value: advancedFilterHelper.filterValue1);
+            filterConditions.add(condition);
+          }
+
+          // Condition 2
+          if (canCreateFilterCondition(filterValue2, filterType2, false)) {
+            final FilterCondition condition = FilterCondition(
+                type: type2,
+                filterOperator: getFilterOperator(),
+                value: advancedFilterHelper.filterValue2);
+            filterConditions.add(condition);
+          }
+        }
+        break;
+    }
+
+    if (filterConditions.isNotEmpty) {
+      setFilterFrom(column, FilteredFrom.advancedFilter);
+      addFilterConditions(
+          dataGridConfiguration.source, column.columnName, filterConditions);
+      _applyViewFilter(column);
+    }
+  }
+}
+
+/// A class [DataGridCheckboxFilterHelper] that holds the helper properties
+/// for the checkbox filter.
+class DataGridCheckboxFilterHelper {
+  /// Holds all the cell values of corresponding filter column as a
+  /// `FilterElement` collection.
+  List<FilterElement> items = <FilterElement>[];
+
+  /// Holds the searched check box items.
+  List<FilterElement> _searchedItems = <FilterElement>[];
+
+  /// Holds the check box filter items.
+  List<FilterElement> filterCheckboxItems = <FilterElement>[];
+
+  /// Maintain the previous item source for using it when searched text field
+  /// is empty.
+  List<FilterElement> _previousDataGridSource = <FilterElement>[];
+
+  /// A `TextEditingController` of the search box.
+  final TextEditingController textController = TextEditingController();
+
+  /// A `FocusNode` of the search box.
+  final FocusNode searchboxFocusNode = FocusNode();
+
+  /// Checks whether the selectAll checkbox is checked or not.
+  late bool? isSelectAllChecked;
+
+  /// Checks whether the selectAll checkbox is in tri-state or not.
+  late bool isSelectAllInTriState;
+
+  /// Ensures the `selectAll` checkbox state.
+  void ensureSelectAllCheckboxState() {
+    final List<FilterElement> unCheckedItems =
+        items.where((FilterElement item) => !item.isSelected).toList();
+
+    if (unCheckedItems.isEmpty || unCheckedItems.length == items.length) {
+      isSelectAllInTriState = false;
+      isSelectAllChecked = unCheckedItems.isEmpty;
+    } else {
+      isSelectAllInTriState = true;
+      isSelectAllChecked = null;
+    }
+  }
+
+  /// Handles the search box's text changed callback.
+  void onSearchTextFieldTextChanged(String searchText) {
+    if (filterCheckboxItems.isEmpty) {
+      return;
+    }
+
+    if (searchText.isEmpty) {
+      _searchedItems = <FilterElement>[];
+      if (_previousDataGridSource.isNotEmpty) {
+        final int checkedCount = _previousDataGridSource
+            .where((FilterElement element) => element.isSelected)
+            .length;
+        final bool isSelected = checkedCount > 0;
+        for (final FilterElement item in filterCheckboxItems) {
+          final FilterElement? filterElement = _previousDataGridSource
+              .firstWhereOrNull((FilterElement i) => item.value == i.value);
+          item.isSelected =
+              filterElement != null ? filterElement.isSelected : !isSelected;
+        }
+      }
+      items = filterCheckboxItems;
+      ensureSelectAllCheckboxState();
+      return;
+    }
+
+    _searchedItems = filterCheckboxItems
+        .where((FilterElement element) => element.value
+            .toString()
+            .toLowerCase()
+            .contains(searchText.toLowerCase()))
+        .toList();
+
+    for (final FilterElement element in _searchedItems) {
+      element.isSelected = true;
+    }
+
+    items = _searchedItems;
+    ensureSelectAllCheckboxState();
+  }
+}
+
+/// A class [DataGridAdvancedFilterHelper] that holds the helper properties
+/// for the advance filter.
+class DataGridAdvancedFilterHelper {
+  /// Creates `DataGridAdvanceFilterHelper` for `SfDataGrid`.
+  DataGridAdvancedFilterHelper(this._dataGridStateDetails);
+
+  final DataGridStateDetails _dataGridStateDetails;
+
+  /// Holds the filter type dropdown items.
+  List<String> filterTypeItems = <String>[];
+
+  /// Holds all the cell values of a corresponding filter column as a
+  /// `FilterElement` collection.
+  List<FilterElement> items = <FilterElement>[];
+
+  /// Defines the advance filter type.
+  AdvancedFilterType advancedFilterType = AdvancedFilterType.text;
+
+  /// Defines the filter types.
+  String? filterType1, filterType2;
+
+  /// Defines the filter values
+  Object? filterValue1, filterValue2;
+
+  /// Defines the first drop down button's case sensitive option.
+  bool isCaseSensitive1 = false;
+
+  /// Defines the second  drop down button's case sensitive option.
+  bool isCaseSensitive2 = false;
+
+  /// Checkes whether the `OR` radio button is enabled or not.
+  bool isOrPredicate = true;
+
+  /// Holds the list of filter types that used to disable filter value's drop
+  /// down button. If a filterType contains any of these item, need to disable
+  /// the filter value dropdown button.
+  List<String> disableFilterTypes = <String>[];
+
+  /// Holds the list of filter types that used to display the text field instead
+  /// of dropdown button in the Advanced filter menu.
+  List<String> textFieldFilterTypes = <String>[];
+
+  /// A [TextEditingController] for the first text field in the Advanced filter.
+  TextEditingController firstValueTextController = TextEditingController();
+
+  /// A [TextEditingController] for the second text field in the Advanced filter.
+  TextEditingController secondValueTextController = TextEditingController();
+
+  /// Initializes the localized resource values to the localization required
+  /// internal properties.
+  void initProperties() {
+    final SfLocalizations localizations = _dataGridStateDetails().localizations;
+    filterType1 = localizations.equalsDataGridFilteringLabel;
+    filterType2 = localizations.equalsDataGridFilteringLabel;
+
+    disableFilterTypes = <String>[
+      localizations.nullDataGridFilteringLabel,
+      localizations.notNullDataGridFilteringLabel,
+      localizations.emptyDataGridFilteringLabel,
+      localizations.notEmptyDataGridFilteringLabel
+    ];
+
+    textFieldFilterTypes = <String>[
+      localizations.beginsWithDataGridFilteringLabel,
+      localizations.endsWithDataGridFilteringLabel,
+      localizations.doesNotBeginWithDataGridFilteringLabel,
+      localizations.doesNotEndWithDataGridFilteringLabel,
+      localizations.containsDataGridFilteringLabel,
+      localizations.doesNotContainDataGridFilteringLabel,
+      localizations.beforeDataGridFilteringLabel,
+      localizations.beforeOrEqualDataGridFilteringLabel,
+      localizations.afterDataGridFilteringLabel,
+      localizations.afterOrEqualDataGridFilteringLabel,
+      localizations.lessThanDataGridFilteringLabel,
+      localizations.lessThanOrEqualDataGridFilteringLabel,
+      localizations.greaterThanDataGridFilteringLabel,
+      localizations.greaterThanOrEqualDataGridFilteringLabel,
+    ];
+  }
+
+  /// Generates the filter type dropdown items.
+  void generateFilterTypeItems(GridColumn column) {
+    if (filterTypeItems.isNotEmpty) {
+      filterTypeItems.clear();
+    }
+
+    final List<String> items = <String>[];
+    final SfLocalizations localizations = _dataGridStateDetails().localizations;
+    switch (advancedFilterType) {
+      case AdvancedFilterType.text:
+        items.add(localizations.equalsDataGridFilteringLabel);
+        items.add(localizations.doesNotEqualDataGridFilteringLabel);
+        items.add(localizations.beginsWithDataGridFilteringLabel);
+        items.add(localizations.doesNotBeginWithDataGridFilteringLabel);
+        items.add(localizations.endsWithDataGridFilteringLabel);
+        items.add(localizations.doesNotEndWithDataGridFilteringLabel);
+        items.add(localizations.containsDataGridFilteringLabel);
+        items.add(localizations.doesNotContainDataGridFilteringLabel);
+        items.add(localizations.emptyDataGridFilteringLabel);
+        items.add(localizations.notEmptyDataGridFilteringLabel);
+        items.add(localizations.nullDataGridFilteringLabel);
+        items.add(localizations.notNullDataGridFilteringLabel);
+        break;
+      case AdvancedFilterType.numeric:
+        items.add(localizations.equalsDataGridFilteringLabel);
+        items.add(localizations.doesNotEqualDataGridFilteringLabel);
+        items.add(localizations.lessThanDataGridFilteringLabel);
+        items.add(localizations.lessThanOrEqualDataGridFilteringLabel);
+        items.add(localizations.greaterThanDataGridFilteringLabel);
+        items.add(localizations.greaterThanOrEqualDataGridFilteringLabel);
+        items.add(localizations.nullDataGridFilteringLabel);
+        items.add(localizations.notNullDataGridFilteringLabel);
+        break;
+      case AdvancedFilterType.date:
+        items.add(localizations.equalsDataGridFilteringLabel);
+        items.add(localizations.doesNotEqualDataGridFilteringLabel);
+        items.add(localizations.beforeDataGridFilteringLabel);
+        items.add(localizations.beforeOrEqualDataGridFilteringLabel);
+        items.add(localizations.afterDataGridFilteringLabel);
+        items.add(localizations.afterOrEqualDataGridFilteringLabel);
+        items.add(localizations.nullDataGridFilteringLabel);
+        items.add(localizations.notNullDataGridFilteringLabel);
+        break;
+    }
+
+    filterTypeItems = items;
+  }
+
+  /// Sets the advanced filter type based on the column type.
+  void setAdvancedFilterType(
+      DataGridConfiguration dataGridConfiguration, GridColumn column) {
+    Object? value;
+    for (final DataGridRow row in dataGridConfiguration.source.rows) {
+      final DataGridCell? cellValue = row.getCells().firstWhereOrNull(
+          (DataGridCell element) => element.columnName == column.columnName);
+      if (cellValue != null && cellValue.value != null) {
+        value = cellValue.value;
+        break;
+      }
+    }
+
+    if (value != null && value is num) {
+      advancedFilterType = AdvancedFilterType.numeric;
+    } else if (value != null && value is DateTime) {
+      advancedFilterType = AdvancedFilterType.date;
+    } else {
+      advancedFilterType = AdvancedFilterType.text;
+    }
+  }
+
+  /// Sets the advanced filter values.
+  void setAdvancedFilterValues(DataGridConfiguration dataGridConfiguration,
+      List<FilterCondition> filterConditions, DataGridFilterHelper helper) {
+    Object? getValue(Object? value, String? filterType) {
+      if (items.any((FilterElement element) => element.value == value) ||
+          (filterType != null && textFieldFilterTypes.contains(filterType))) {
+        return value;
+      }
+      return null;
+    }
+
+    if (filterConditions.isNotEmpty) {
+      final FilterCondition condition = filterConditions.first;
+      filterType1 = grid_helper.getFilterName(
+          dataGridConfiguration, condition.type, condition.value);
+      filterValue1 = getValue(condition.value, filterType1);
+      isCaseSensitive1 = condition.isCaseSensitive;
+      isOrPredicate = condition.filterOperator == FilterOperator.or;
+      if (filterConditions.length == 1) {
+        filterType2 =
+            dataGridConfiguration.localizations.equalsDataGridFilteringLabel;
+        filterValue2 = null;
+        isCaseSensitive2 = false;
+      }
+    }
+    if (filterConditions.length == 2) {
+      final FilterCondition condition = filterConditions.last;
+      filterType2 = grid_helper.getFilterName(
+          dataGridConfiguration, condition.type, condition.value);
+      filterValue2 = getValue(condition.value, filterType2);
+      isCaseSensitive2 = condition.isCaseSensitive;
+      isOrPredicate = condition.filterOperator == FilterOperator.or;
+    }
+
+    firstValueTextController.text = dataGridConfiguration.dataGridFilterHelper!
+        .getDisplayValue(filterValue1);
+    secondValueTextController.text = dataGridConfiguration.dataGridFilterHelper!
+        .getDisplayValue(filterValue2);
+  }
+
+  /// Resets the advanced filter values.
+  void resetAdvancedFilterValues(DataGridConfiguration dataGridConfiguration) {
+    filterType1 = filterType2 =
+        dataGridConfiguration.localizations.equalsDataGridFilteringLabel;
+    filterValue1 = filterValue2 = null;
+    isCaseSensitive1 = isCaseSensitive2 = false;
+    isOrPredicate = true;
+    firstValueTextController.clear();
+    secondValueTextController.clear();
+  }
+}
+
+/// A class [FilterElement] that helps to maintain the cell values with its
+/// checkbox state for the filtering support.
+class FilterElement {
+  /// Creates [FilterElement] for the `SfDataGrid`.
+  FilterElement({required this.value, required this.isSelected});
+
+  /// Defines the value of the cell.
+  Object value;
+
+  /// Defines the check box state of the cell.
+  bool isSelected;
+}
+
+/// Controls how the filtering menu options can be customized.
+@immutable
+class FilterPopupMenuOptions {
+  ///
+  const FilterPopupMenuOptions(
+      {this.filterMode = FilterMode.both,
+      this.canShowClearFilterOption = true,
+      this.canShowSortingOptions = true,
+      this.showColumnName = true});
+
+  /// Decides how the checked listbox and advanced filter options should be shown in filter popup.
+  final FilterMode filterMode;
+
+  /// Decides whether the `Clear Filter From {Column  Name}` option should be displayed in filtering popup.
+  final bool canShowClearFilterOption;
+
+  /// Decides whether the ascending and descending sorting options should be displayed in filtering popup.
+  final bool canShowSortingOptions;
+
+  /// Decides whether the column name should be displayed along with the content of `Clear Filter` option .
+  final bool showColumnName;
+}
+
+/// Process column resizing operation in [SfDataGrid].
+class ColumnDragAndDropController {
+  /// Creates the [ColumnDragAndDropController] for the [SfDataGrid].
+  ColumnDragAndDropController({required this.dataGridStateDetails});
+
+  /// Holds the [DataGridStateDetails].
+  DataGridStateDetails dataGridStateDetails;
+
+  /// The index of the column being dragged.
+  ///
+  /// This integer value represents the index of the column that is being dragged by the user
+  /// during a drag-and-drop operation. It is set to null by default, and is updated during drag events
+  /// to indicate the index of the column that is being dragged.
+  int? dragColumnStartIndex;
+
+  /// The index of the column being dropped.
+  ///
+  /// This integer value represents the index of the column that is being dropped by the user
+  /// during a drag-and-drop operation. It is set to null by default, and is updated during drag events
+  /// to indicate the index of the column that is being dropped.
+  int? dragColumnEndIndex;
+
+  /// The offset of the dragged column from its original position.
+  ///
+  /// This [Offset] value represents the distance between the original position of the dragged column
+  /// and its current position during a drag-and-drop operation.
+  /// It is set to null by default, and is updated during drag events to indicate the current offset.
+  Offset? offset;
+
+  /// A flag indicating which indicator should be drawn.
+  bool? canDrawRightIndicator = false;
+
+  /// The index of the column that is currently being dragged.
+  ///
+  /// This integer value represents the index of the column that is currently being dragged by the user.
+  /// It is set to null by default, and is updated during drag events to indicate the index
+  /// of the column that is currently being dragged.
+  int? columnIndex;
+
+  /// A boolean flag to indicate whether auto-scrolling is enabled or not.
+  ///
+  /// This boolean flag is used to determine whether the auto-scrolling functionality is enabled or disabled.
+  /// If the flag is set to true, then auto-scrolling is enabled, otherwise it is disabled.
+  bool autoScrolling = false;
+
+  /// The delta value for drag events.
+  ///
+  /// This double value represents the delta value for drag events in the widget.
+  /// It is set to null by default, and is updated during drag events to indicate the distance
+  /// the user has dragged since the last event.
+  double dragDelta = 0;
+
+  /// A boolean flag to indicate whether scrolling is disabled or not.
+  ///
+  /// This boolean flag is used to determine whether the scrolling functionality is enabled or disabled.
+  /// If the flag is set to true, then scrolling is disabled, otherwise scrolling is enabled.
+  bool disableScrolling = true;
+
+  /// The current scroll position of the widget.
+  ///
+  /// This property holds the current scroll position of the widget. It is of type ScrollPosition,
+  /// which allows querying and manipulating the position of the scrollable widget.
+  ScrollPosition? position;
+
+  /// A boolean flag to indicate whether column dragging is allowed or not.
+  ///
+  /// This boolean flag is used to determine whether the column dragging functionality is enabled or disabled.
+  /// If the flag is set to true, then column dragging is allowed, otherwise column dragging is not allowed.
+  bool allowColumnDrag = false;
+
+  /// A boolean flag to indicate whether hover is disabled or not.
+  ///
+  /// This boolean flag is used to determine whether the hover functionality is enabled or disabled.
+  /// If the flag is set to true, then hover is disabled, otherwise hover is enabled.
+  bool isHoverDisabled = false;
+
+  /// A boolean flag to indicate whether can reset column sizing or not.
+  ///
+  bool canResetColumnWidthCalculation = false;
+
+  /// DataGrid origin position
+  Offset? scrollOrigin;
+
+  /// A boolean flag to indicate whether can wrap draggable view or not.
+  /// If the flag is set to true, then draggable view is wrapped, otherwise draggable view is not wrapped.
+  bool canWrapDraggableView = true;
+
+  /// A boolean flag to indicate whether it is a windows platform or not.
+  bool? isWindowsPlatform;
+
+  /// The drag direction changed position.
+  double? _dragDirectionChangedPosition;
+
+  /// The boolean flag to indicate whether drag direction is changed or not.
+  bool? _isLeftToRightDrag;
+
+  /// The double value indicates the drag indicator position threshold when the direction is changed.
+  double indicatorPositionThreshold = 10;
+
+  void _rebuild(DataGridConfiguration dataGridConfiguration) {
+    notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
+        propertyName: 'columnDragAndDrop');
+  }
+
+  Future<void> _autoScrollIfNecessary(
+      DataGridConfiguration dataGridConfiguration,
+      PointerMoveEvent details) async {
+    if (!autoScrolling && !disableScrolling) {
+      final ScrollPosition position =
+          dataGridConfiguration.horizontalScrollController!.position;
+
+      double? newOffset;
+      const Duration duration = Duration(milliseconds: 14);
+      const double step = 3.0;
+      const double overDragMax = 20.0;
+      const double overDragCoef = 10;
+      final double dragThreshold = dataGridConfiguration.isDesktop ? 20 : 30;
+
+      final double scrollStart = scrollOrigin!.dx + dragThreshold;
+      final double scrollEnd =
+          scrollOrigin!.dx + dataGridConfiguration.viewWidth - dragThreshold;
+
+      if (position.axisDirection == AxisDirection.left) {
+        if (dragDelta > scrollEnd &&
+            position.pixels > position.minScrollExtent) {
+          final double overDrag = max(dragDelta - scrollEnd, overDragMax);
+          newOffset = max(position.minScrollExtent,
+              position.pixels - step * overDrag / overDragCoef);
+        } else if (dragDelta < scrollStart &&
+            position.pixels < position.maxScrollExtent) {
+          final double overDrag = max(scrollStart - dragDelta, overDragMax);
+          newOffset = min(position.maxScrollExtent,
+              position.pixels + step * overDrag / overDragCoef);
+        }
+      } else {
+        if (dragDelta < scrollStart &&
+            position.pixels > position.minScrollExtent) {
+          final double overDrag = max(scrollStart - dragDelta, overDragMax);
+          newOffset = max(position.minScrollExtent,
+              position.pixels - step * overDrag / overDragCoef);
+        } else if (dragDelta > scrollEnd &&
+            position.pixels < position.maxScrollExtent) {
+          final double overDrag = max(dragDelta - scrollEnd, overDragMax);
+          newOffset = min(position.maxScrollExtent,
+              position.pixels + step * overDrag / overDragCoef);
+        }
+      }
+
+      if (newOffset != null && (newOffset - position.pixels).abs() >= 1.0) {
+        autoScrolling = true;
+        await position.animateTo(newOffset,
+            duration: duration, curve: Curves.linear);
+        dataGridConfiguration.container.scrollColumns
+          ..markDirty()
+          ..updateScrollbar();
+        autoScrolling = false;
+        columnIndex = getColumnLineInfo(
+          dataGridConfiguration,
+          details.position.dx,
+        )?.lineIndex;
+
+        _autoScrollIfNecessary(dataGridConfiguration, details);
+
+        // Need to notify the listeners when auto scrolling is performed.
+        // This is required to update the column drag indicator.
+        _rebuild(dataGridConfiguration);
+      }
+    }
+  }
+
+  /// Returns the visible line information for a given horizontal position in the data grid.
+  ///
+  /// This function takes a [DataGridConfiguration] object and a double [position] as input, and returns a [VisibleLineInfo] object.
+  /// The [VisibleLineInfo] object represents the line information of a visible column in the data grid for the given [position].
+  /// The [getVisibleLineAtPoint] method of the [scrollColumns] object of the [configuration] is used to obtain the [VisibleLineInfo].
+  /// The [resolveTextDirection] method of the [configuration] is used to obtain the [TextDirection] of the data grid.
+  /// The [getVisibleLineAtPoint] method of the [scrollColumns] object is called with the resolved [TextDirection] and the [position] to get the [VisibleLineInfo].
+  ///
+  VisibleLineInfo? getColumnLineInfo(
+      DataGridConfiguration dataGridConfiguration, double position) {
+    final bool isRTL = dataGridConfiguration.textDirection == TextDirection.rtl;
+    if (isRTL) {
+      dataGridConfiguration.container.scrollColumns.resetVisibleLines();
+    }
+
+    // This code retrieves the visible line at the given position within the SfDataGrid container.
+    // The position is adjusted for the data grid's origin position, and the function checks for RTL layout.
+    return dataGridConfiguration.container.scrollColumns.getVisibleLineAtPoint(
+        position - getDataGridOriginPosition(dataGridConfiguration).dx,
+        false,
+        isRTL);
+  }
+
+  /// Returns the visible line information for a given vertical position in the data grid.
+  ///
+  /// This function takes a [DataGridConfiguration] object and a double [position] as input, and returns a [VisibleLineInfo] object.
+  /// The [VisibleLineInfo] object represents the line information of a visible row in the data grid for the given [position].
+  /// The [getVisibleLineAtPoint] method of the [scrollRows] object of the [configuration] is used to obtain the [VisibleLineInfo].
+  ///
+  VisibleLineInfo? getRowLineInfo(
+      DataGridConfiguration dataGridConfiguration, double position) {
+    return dataGridConfiguration.container.scrollRows
+        .getVisibleLineAtPoint(position);
+  }
+
+  /// Returns the start index adjusted for a checkbox column.
+  ///
+  /// If [showCheckboxColumn] is true, subtracts 1 from [startIndex] to account for the checkbox column.
+  /// Returns the adjusted start index as an int value.
+  int? getStartIndex(int startIndex, bool showCheckboxColumn) {
+    return showCheckboxColumn ? startIndex - 1 : startIndex;
+  }
+
+  /// Returns the end index if it's different from the start index, or null if they are the same.
+  ///
+  /// If the [showCheckboxColumn] is true, then decrement the [endIndex] by 1.
+  /// If [startIndex] is equal to [endIndex], then return null.
+  int? getEndIndex(int startIndex, int endIndex, bool showCheckboxColumn) {
+    if (showCheckboxColumn) {
+      endIndex--;
+    }
+    return startIndex == endIndex
+        ? null
+        : showCheckboxColumn && endIndex == -1
+            ? null
+            : endIndex;
+  }
+
+  /// Returns the origin position of the data grid within the screen coordinates.
+  ///
+  /// This function takes a [DataGridConfiguration] object as an argument and returns an [Offset] object.
+  /// The offset represents the screen coordinates of the top-left corner of the data grid.
+  /// The [RenderBox] of the datagrid is obtained from the [dataGridKey] of the [configuration].
+  /// The [RenderBox.localToGlobal] method is then called on the [scrollRenderBox] to get its global position.
+  ///
+  Offset getDataGridOriginPosition(
+      DataGridConfiguration dataGridConfiguration) {
+    final RenderBox scrollRenderBox =
+        dataGridConfiguration.dataGridKey.currentContext!.findRenderObject()!
+            as RenderBox;
+
+    return scrollRenderBox.localToGlobal(Offset.zero);
+  }
+
+  /// Returns the whether the column drag and drop is allowed or not.
+  /// The column drag and drop is allowed only when the [allowColumnsDragging] is true and [onColumnDragging] is not null.
+  bool canAllowColumnDragAndDrop() {
+    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
+    return dataGridConfiguration.allowColumnsDragging &&
+        dataGridConfiguration.onColumnDragging != null;
+  }
+
+  /// Handles the pointer Down event for the column dragging.
+  void onPointerDown(DataCellBase? dataCell) {
+    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
+    canResetColumnWidthCalculation = false;
+
+    if (dataCell != null && dataCell.cellType == CellType.headerCell) {
+      dragColumnStartIndex = getStartIndex(
+          dataCell.columnIndex, dataGridConfiguration.showCheckboxColumn);
+      dragColumnEndIndex = dataCell.columnIndex;
+      canWrapDraggableView = dataGridConfiguration.onColumnDragging!(
+          _invokeOnColumnDragging(action: DataGridColumnDragAction.starting));
+
+      if (!canWrapDraggableView) {
+        // need to remove draggableView when the onColumnDragging returns false.
+        _rebuild(dataGridConfiguration);
+      }
+
+      if (canWrapDraggableView && dragColumnStartIndex != null) {
+        canWrapDraggableView = dataGridConfiguration.onColumnDragging!(
+            _invokeOnColumnDragging(action: DataGridColumnDragAction.started));
+        if (!canWrapDraggableView) {
+          _rebuild(dataGridConfiguration);
+        }
+      }
+    }
+  }
+
+  /// Handles the pointer move event for the column dragging.
+  void onPointerMove(PointerMoveEvent event) {
+    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
+    if (canWrapDraggableView && dragColumnStartIndex != null) {
+      offset = event.localPosition;
+      dragDelta = dragDelta + event.delta.dx;
+      columnIndex = getColumnLineInfo(dataGridConfiguration, event.position.dx)
+          ?.lineIndex;
+      final int? rowIndex = getRowLineInfo(
+              dataGridConfiguration,
+              event.position.dy -
+                  getDataGridOriginPosition(dataGridConfiguration).dy)
+          ?.lineIndex;
+
+      if (columnIndex != null && rowIndex != null) {
+        final int headerIndex =
+            grid_helper.getHeaderIndex(dataGridConfiguration);
+
+        isHoverDisabled = true;
+        scrollOrigin = getDataGridOriginPosition(dataGridConfiguration);
+        if (rowIndex == headerIndex &&
+            event.position.dy >= scrollOrigin!.dy &&
+            columnIndex != null) {
+          disableScrolling = false;
+          position = dataGridConfiguration.horizontalScrollController!.position;
+          offset = event.localPosition;
+          columnIndex = columnIndex;
+
+          final bool isLeftToRightDrag = _isLeftToRightDrag != null &&
+              (dataGridConfiguration.textDirection == TextDirection.ltr
+                  ? _isLeftToRightDrag!
+                  : !_isLeftToRightDrag!);
+
+          if ((isLeftToRightDrag && event.delta.dx.sign < 0) ||
+              (!isLeftToRightDrag && event.delta.dx.sign > 0)) {
+            _dragDirectionChangedPosition = event.position.dx;
+          }
+
+          if (_dragDirectionChangedPosition != null) {
+            if (event.delta.dx.sign < 0 &&
+                event.position.dx <
+                    _dragDirectionChangedPosition! -
+                        indicatorPositionThreshold) {
+              canDrawRightIndicator = _isLeftToRightDrag;
+            } else if (event.delta.dx.sign > 0 &&
+                event.position.dx >
+                    _dragDirectionChangedPosition! +
+                        indicatorPositionThreshold) {
+              canDrawRightIndicator = _isLeftToRightDrag;
+            } else if (event.delta.dx.sign == 0) {
+              canDrawRightIndicator = _isLeftToRightDrag;
+            }
+          }
+
+          _isLeftToRightDrag =
+              dataGridConfiguration.textDirection == TextDirection.ltr
+                  ? event.delta.dx.sign >= 0
+                  : event.delta.dx.sign <= 0;
+
+          if (_dragDirectionChangedPosition == null) {
+            canDrawRightIndicator = _isLeftToRightDrag;
+          }
+
+          _autoScrollIfNecessary(dataGridConfiguration, event);
+          allowColumnDrag = dataGridConfiguration.onColumnDragging!(
+              _invokeOnColumnDragging(
+                  action: DataGridColumnDragAction.update,
+                  showCheckboxColumn:
+                      dataGridConfiguration.showCheckboxColumn));
+        } else {
+          disableScrolling = true;
+          canDrawRightIndicator = null;
+        }
+      }
+
+      if (!allowColumnDrag) {
+        disableScrolling = false;
+        isHoverDisabled = true;
+        offset = null;
+        canDrawRightIndicator = null;
+      }
+      _rebuild(dataGridConfiguration);
+    }
+  }
+
+  /// Handles the pointer up event for the column dragging.
+  void onPointerUp(PointerUpEvent event) {
+    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
+    disableScrolling = true;
+    if (allowColumnDrag &&
+        scrollOrigin != null &&
+        event.position.dy >= scrollOrigin!.dy) {
+      columnIndex = getColumnLineInfo(dataGridConfiguration, event.position.dx)
+          ?.lineIndex;
+      final int? rowIndex = getRowLineInfo(
+              dataGridConfiguration,
+              event.position.dy -
+                  getDataGridOriginPosition(dataGridConfiguration).dy)
+          ?.lineIndex;
+
+      final int headerIndex = grid_helper.getHeaderIndex(dataGridConfiguration);
+
+      if (columnIndex != null &&
+          rowIndex == headerIndex &&
+          dataGridConfiguration.onColumnDragging != null) {
+        dragColumnEndIndex = getEndIndex(dragColumnStartIndex!, columnIndex!,
+            dataGridConfiguration.showCheckboxColumn);
+        columnIndex = columnIndex;
+        offset = event.localPosition;
+
+        allowColumnDrag = dataGridConfiguration.onColumnDragging!(
+            _invokeOnColumnDragging(action: DataGridColumnDragAction.dropping));
+        if (allowColumnDrag) {
+          allowColumnDrag = dataGridConfiguration.onColumnDragging!(
+              _invokeOnColumnDragging(
+                  action: DataGridColumnDragAction.dropped));
+        }
+      }
+    }
+
+    allowColumnDrag = false;
+    isHoverDisabled = false;
+    canDrawRightIndicator = null;
+    disableScrolling = true;
+    dragDelta = 0;
+    isHoverDisabled = false;
+    offset = null;
+    dragColumnStartIndex = null;
+    canResetColumnWidthCalculation = true;
+    canWrapDraggableView = true;
+    _dragDirectionChangedPosition = null;
+    _isLeftToRightDrag = null;
+    _rebuild(dataGridConfiguration);
+  }
+
+  DataGridColumnDragDetails _invokeOnColumnDragging(
+      {required DataGridColumnDragAction action,
+      bool showCheckboxColumn = false}) {
+    int? to;
+    if (action == DataGridColumnDragAction.update && columnIndex != null) {
+      to = showCheckboxColumn ? (columnIndex! - 1) : columnIndex;
+    } else {
+      if (canDrawRightIndicator != null && !canDrawRightIndicator!) {
+        if (columnIndex != null &&
+            dragColumnStartIndex! < columnIndex! &&
+            dragColumnEndIndex != null) {
+          to = dragColumnEndIndex! - 1;
+        } else {
+          to = dragColumnEndIndex;
+        }
+      } else {
+        if (columnIndex != null &&
+            dragColumnStartIndex! > columnIndex! &&
+            dragColumnEndIndex != null) {
+          to = dragColumnEndIndex! + 1;
+        } else {
+          to = dragColumnEndIndex;
+        }
+      }
+    }
+    return DataGridColumnDragDetails(
+        from: dragColumnStartIndex!, to: to, offset: offset!, action: action);
   }
 }

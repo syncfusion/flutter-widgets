@@ -522,7 +522,7 @@ class _AutoFitManager {
     regular._underline = font.underline;
 
     final Font font2 = _createFont(font.name, size, regular);
-    return (_getFontHeight(font2)).ceil();
+    return _getFontHeight(font2).ceil();
   }
 
   double _measureFontSize(
@@ -546,6 +546,7 @@ class _AutoFitManager {
 
   String _modifySepicalChar(String stringValue) {
     final StringBuffer buffer = StringBuffer();
+    // ignore: dead_code
     for (int i = 0; i < stringValue.length; i++) {
       switch (stringValue[i]) {
         case ' ':

@@ -152,8 +152,8 @@ class _RsaCoreAlgorithm {
       final BigInt dP = privateKey.dP!;
       final BigInt dQ = privateKey.dQ!;
       final BigInt qInv = privateKey.inverse!;
-      final BigInt mP = (input.remainder(p)).modPow(dP, p);
-      final BigInt mQ = (input.remainder(q)).modPow(dQ, q);
+      final BigInt mP = input.remainder(p).modPow(dP, p);
+      final BigInt mQ = input.remainder(q).modPow(dQ, q);
       BigInt h = mP - mQ;
       h = h * qInv;
       h = getMod(h, p);

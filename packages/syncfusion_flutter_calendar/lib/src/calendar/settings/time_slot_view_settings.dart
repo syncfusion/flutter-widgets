@@ -744,10 +744,10 @@ class TimeSlotViewSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         startHour,
         endHour,
-        hashList(nonWorkingDays),
+        Object.hashAll(nonWorkingDays),
         timeInterval,
         timeIntervalHeight,
         timeIntervalWidth,

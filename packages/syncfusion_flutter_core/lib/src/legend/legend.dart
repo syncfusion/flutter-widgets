@@ -921,9 +921,9 @@ class _SfLegendState extends State<SfLegend> {
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
     if (widget.itemBuilder == null) {
-      _textStyle = themeData.textTheme.caption!
+      _textStyle = themeData.textTheme.bodySmall!
           .copyWith(
-              color: themeData.textTheme.caption!.color!.withOpacity(0.87))
+              color: themeData.textTheme.bodySmall!.color!.withOpacity(0.87))
           .merge(widget.textStyle);
     }
     if (!widget.isComplex) {
@@ -1084,11 +1084,6 @@ class _VectorLegendState extends State<_VectorLegend>
     }
 
     return toggledColor;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override

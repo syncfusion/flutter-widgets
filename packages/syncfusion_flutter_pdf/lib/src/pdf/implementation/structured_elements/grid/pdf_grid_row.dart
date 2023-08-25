@@ -783,6 +783,7 @@ class PdfGridRowCollection {
   //Implementation
   PdfGridRow _returnValue(int index) {
     if (index < 0 || index >= _rows.length) {
+      // ignore: deprecated_member_use
       throw IndexError(index, _rows);
     }
     return _rows[index];
@@ -1082,6 +1083,7 @@ class PdfGridHeaderCollection {
   //Implementation
   PdfGridRow _returnValue(int index) {
     if (index < 0 || index >= count) {
+      // ignore: deprecated_member_use
       throw IndexError(index, _rows);
     }
     return _rows[index];

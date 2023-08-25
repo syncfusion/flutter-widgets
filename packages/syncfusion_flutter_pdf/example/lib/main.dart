@@ -42,9 +42,9 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
           children: <Widget>[
             TextButton(
               style: TextButton.styleFrom(
-                primary: Colors.white,
+                foregroundColor: Colors.white,
                 backgroundColor: Colors.lightBlue,
-                onSurface: Colors.grey,
+                disabledForegroundColor: Colors.grey,
               ),
               onPressed: generateInvoice,
               child: const Text('Generate PDF'),

@@ -373,7 +373,7 @@ class PngDecoder extends ImageDecoder {
         if (_header.bitDepth == 16) {
           for (int i = 0; i < width!; ++i) {
             final int temp = i * _inputBands + size;
-            pixel[temp] = ((pixel[temp]).toUnsigned(32) >> 8).toSigned(32);
+            pixel[temp] = (pixel[temp].toUnsigned(32) >> 8).toSigned(32);
           }
         }
         final int? yStep = width;

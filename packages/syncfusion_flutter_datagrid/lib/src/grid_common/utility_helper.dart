@@ -337,7 +337,8 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
   /// * index - _required_ - The index for the range to be changed.
   /// * count - _required_ - The count.
   /// * value - _required_ - The value.
-  void setRange(int index, int count, Object value) {
+  void setRange(int index, int count, Object value,
+      [bool canMergeLines = true]) {
     if (index >= this.count && value == defaultValue) {
       return;
     }
@@ -348,8 +349,22 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
         RangeValuePair<T>.fromRangeValuePair(index, count, value);
     rangeValues.insert(n.toInt(), rv);
     merge(n.toInt());
-    if (n > 0) {
-      merge(n.toInt() - 1);
+
+    /// Issue:
+    /// FLUT-6703 - The widths are not properly set to columns when hiding some
+    /// columns and using columnWidthMode.
+    ///
+    /// Temporary Fix:
+    /// An issue occurred due to improper internalCount and totalDistance value
+    /// return from the GridCommon. The below codes affect those properties while
+    /// hiding the continuous lines in the visible lines collection. The purpose
+    /// of the below code is to merge the continuous lines to a single range value
+    /// instead of creating a new range value for each hidden line. As of now,
+    /// We have fixed the issue by creating a new range value for each hidden line.
+    if (canMergeLines) {
+      if (n > 0) {
+        merge(n.toInt() - 1);
+      }
     }
   }
 

@@ -245,6 +245,15 @@ class CartesianStateProperties extends StateProperties {
   /// Specifies the shader for series
   Shader? shader;
 
+  /// Specifies total number of rectangle series in chart
+  int? sideBySideSeriesCount;
+
+  /// Specifies total number of rectangle indicator series in chart
+  int? sideBySideIndicatorCount;
+
+  /// Repaint notifier for plotBand
+  late ValueNotifier<int> plotBandRepaintNotifier;
+
   /// Method to set the painter key
   void setPainterKey(int index, String name, bool renderComplete) {
     int value = 0;
@@ -371,7 +380,6 @@ class CartesianStateProperties extends StateProperties {
     renderingDetails.widgetNeedUpdate = false;
 
     if (chartState.mounted) {
-      isRedrawByZoomPan = true;
       // ignore: invalid_use_of_protected_member
       chartState.setState(() {
         /// check the "mounted" property of this object and  to ensure the object is still in the tree.

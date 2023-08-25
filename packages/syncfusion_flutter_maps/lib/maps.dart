@@ -101,7 +101,7 @@ Future<String?> getBingUrlTemplate(String url) async {
             if (key == 'resources') {
               final List<dynamic> resources =
                   // ignore: avoid_as
-                  (resourceSets[0])[key] as List<dynamic>;
+                  resourceSets[0][key] as List<dynamic>;
               final Map<String, dynamic> resourcesMap =
                   // ignore: avoid_as
                   resources[0] as Map<String, dynamic>;
@@ -2740,11 +2740,10 @@ class MapLatLng {
   }
 
   @override
-  int get hashCode => hashValues(latitude, longitude);
+  int get hashCode => Object.hash(latitude, longitude);
 
   @override
-  String toString() =>
-      'MapLatLng(${latitude.toString()}, ${longitude.toString()})';
+  String toString() => 'MapLatLng($latitude, $longitude)';
 }
 
 /// Bounds of the maps.
@@ -2774,11 +2773,10 @@ class MapLatLngBounds {
   }
 
   @override
-  int get hashCode => hashValues(northeast, southwest);
+  int get hashCode => Object.hash(northeast, southwest);
 
   @override
-  String toString() =>
-      'MapLatLngBounds(${northeast.toString()}, ${southwest.toString()})';
+  String toString() => 'MapLatLngBounds($northeast, $southwest)';
 }
 
 /// Contains details about the current zoom position.
@@ -2934,7 +2932,7 @@ class _BehaviorViewState extends State<BehaviorView> {
     return pixelToLatLng(point, Size.square(getTotalTileWidth(scale)));
   }
 
-  void _invokeOnZooming({
+  bool _invokeOnZooming({
     required Offset localFocalPoint,
     required Offset globalFocalPoint,
     required double newZoomLevel,
@@ -2978,12 +2976,61 @@ class _BehaviorViewState extends State<BehaviorView> {
       newVisibleBounds: newVisibleLatLngBounds,
       focalLatLng: newFocalLatLng,
     );
+
     if (widget.onWillZoom == null || widget.onWillZoom!(zoomDetails)) {
-      widget.behavior.onZooming(zoomDetails);
+      if (widget.behavior._zoomController!.actionType !=
+              ActionType.pinchFling ||
+          widget.behavior._zoomController!.actionType != ActionType.panFling) {
+        widget.behavior.onZooming(zoomDetails);
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  void _handleToolbarZooming(double newZoomLevel) {
+    newZoomLevel = newZoomLevel.clamp(
+        widget.behavior.minZoomLevel, widget.behavior.maxZoomLevel);
+    final Rect previousVisibleBounds = Rect.fromCenter(
+      center: _pixelFromLatLng(
+          widget.behavior.focalLatLng!, widget.behavior.zoomLevel),
+      width: _size!.width,
+      height: _size!.height,
+    );
+    final MapLatLngBounds previousVisibleLatLngBounds = MapLatLngBounds(
+      _pixelToLatLng(previousVisibleBounds.topRight, widget.behavior.zoomLevel),
+      _pixelToLatLng(
+          previousVisibleBounds.bottomLeft, widget.behavior.zoomLevel),
+    );
+
+    final Rect newVisibleBounds = Rect.fromCenter(
+      center: _pixelFromLatLng(widget.behavior.focalLatLng!, newZoomLevel),
+      width: _size!.width,
+      height: _size!.height,
+    );
+    final MapLatLngBounds newVisibleLatLngBounds = MapLatLngBounds(
+      _pixelToLatLng(newVisibleBounds.topRight, newZoomLevel),
+      _pixelToLatLng(newVisibleBounds.bottomLeft, newZoomLevel),
+    );
+    final Offset localFocalPoint = newVisibleBounds.center;
+    final RenderBox renderBox = context.findRenderObject()! as RenderBox;
+    final Offset globalFocalPoint = renderBox.localToGlobal(localFocalPoint);
+    final MapZoomDetails zoomDetails = MapZoomDetails(
+      localFocalPoint: localFocalPoint,
+      globalFocalPoint: globalFocalPoint,
+      previousZoomLevel: widget.behavior.zoomLevel,
+      newZoomLevel: newZoomLevel,
+      previousVisibleBounds: previousVisibleLatLngBounds,
+      newVisibleBounds: newVisibleLatLngBounds,
+      focalLatLng: widget.behavior.focalLatLng,
+    );
+    if (widget.onWillZoom == null || widget.onWillZoom!(zoomDetails)) {
+      widget.behavior.zoomLevel = zoomDetails.newZoomLevel!;
     }
   }
 
-  void _invokeOnPanning({
+  bool _invokeOnPanning({
     required Offset localFocalPoint,
     required Offset globalFocalPoint,
     required double newZoomLevel,
@@ -3023,8 +3070,15 @@ class _BehaviorViewState extends State<BehaviorView> {
     );
     widget.controller.visibleLatLngBounds = panDetails.newVisibleBounds;
     if (widget.onWillPan == null || widget.onWillPan!(panDetails)) {
-      widget.behavior.onPanning(panDetails);
+      if (widget.behavior._zoomController!.actionType !=
+              ActionType.pinchFling ||
+          widget.behavior._zoomController!.actionType != ActionType.panFling) {
+        widget.behavior.onPanning(panDetails);
+      }
+      return true;
     }
+
+    return false;
   }
 
   void _handleZoomableChange(ZoomPanDetails details) {
@@ -3067,6 +3121,42 @@ class _BehaviorViewState extends State<BehaviorView> {
       ..notifyRefreshListeners();
   }
 
+  bool _handleZoomableFling(ZoomPanDetails details) {
+    final Offset focalPoint = Offset(
+        (_size!.width / 2) - details.actualRect.left,
+        (_size!.height / 2) - details.actualRect.top);
+    final MapLatLng newFocalLatLng = pixelToLatLng(
+        focalPoint, Size.square(getTotalTileWidth(details.newZoomLevel)));
+    _currentZoomLevel = details.newZoomLevel;
+    _currentFocalLatLng = newFocalLatLng;
+    bool canFling = false;
+
+    if ((widget.behavior._zoomController!.actionType ==
+            ActionType.pinchFling) &&
+        _currentZoomLevel != details.previousZoomLevel) {
+      canFling = _invokeOnZooming(
+        localFocalPoint: details.localFocalPoint,
+        globalFocalPoint: details.globalFocalPoint,
+        newZoomLevel: _currentZoomLevel,
+        newFocalLatLng: newFocalLatLng,
+        scale: details.scale,
+        pinchCenter: details.pinchCenter,
+      );
+    } else if (widget.behavior._zoomController!.actionType ==
+            ActionType.panFling &&
+        details.previousRect != details.actualRect) {
+      canFling = _invokeOnPanning(
+        localFocalPoint: details.localFocalPoint,
+        globalFocalPoint: details.globalFocalPoint,
+        newZoomLevel: _currentZoomLevel,
+        newFocalLatLng: newFocalLatLng,
+        delta: details.actualRect.topLeft - details.previousRect.topLeft,
+      );
+    }
+
+    return canFling;
+  }
+
   Rect _getInitialRect() {
     widget.behavior._zoomController!.parentRect = Offset.zero & _size!;
     final double tileSize = getTotalTileWidth(_currentZoomLevel);
@@ -3084,11 +3174,13 @@ class _BehaviorViewState extends State<BehaviorView> {
     _currentZoomLevel = widget.zoomLevel;
     widget.behavior._zoomLevel = _currentZoomLevel;
     widget.behavior._focalLatLng = _currentFocalLatLng;
+    widget.controller.addToolbarZoomedListener(_handleToolbarZooming);
     super.initState();
   }
 
   @override
   void dispose() {
+    widget.controller.removeToolbarZoomedListener(_handleToolbarZooming);
     widget.behavior
       .._zoomController?.dispose()
       .._zoomController = null;
@@ -3122,6 +3214,7 @@ class _BehaviorViewState extends State<BehaviorView> {
           enableMouseWheelZooming: widget.behavior.enableMouseWheelZooming,
           onUpdate: _handleZoomableChange,
           onComplete: _handleZoomableEnd,
+          onFling: _handleZoomableFling,
           frictionCoefficient: 0.009,
           child: BehaviorViewRenderObjectWidget(
             controller: widget.controller,

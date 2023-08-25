@@ -225,11 +225,13 @@ class HiloPainter extends CustomPainter {
       }
       // ignore: unnecessary_null_comparison
       final bool isTooltipEnabled = chart.tooltipBehavior != null;
-      final bool hasTooltip = isTooltipEnabled &&
-          (chart.tooltipBehavior.enable ||
-              seriesRendererDetails.series.onPointTap != null ||
+      final bool isPointTapEnabled =
+          seriesRendererDetails.series.onPointTap != null ||
               seriesRendererDetails.series.onPointDoubleTap != null ||
-              seriesRendererDetails.series.onPointLongPress != null);
+              seriesRendererDetails.series.onPointLongPress != null;
+      final bool isCalculateRegion =
+          (isTooltipEnabled && chart.tooltipBehavior.enable) ||
+              isPointTapEnabled;
       final bool hasSeriesElements = seriesRendererDetails.visible! &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible ||
@@ -237,7 +239,8 @@ class HiloPainter extends CustomPainter {
                   chart.tooltipBehavior.enable &&
                   (isTooltipEnabled &&
                       chart.tooltipBehavior.enable &&
-                      series.enableTooltip)));
+                      series.enableTooltip)) ||
+              isPointTapEnabled);
       seriesRendererDetails.sideBySideInfo = calculateSideBySideInfo(
           seriesRendererDetails.renderer, stateProperties);
 
@@ -268,16 +271,14 @@ class HiloPainter extends CustomPainter {
       }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        final bool withInXRange = withInRange(
-            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        final bool withInXRange =
+            withInRange(point.xValue, seriesRendererDetails.xAxisDetails!);
         // ignore: unnecessary_null_comparison
         final bool withInHighLowRange = point != null &&
             point.high != null &&
             point.low != null &&
-            (withInRange(point.high,
-                    seriesRendererDetails.yAxisDetails!.visibleRange!) ||
-                withInRange(point.low,
-                    seriesRendererDetails.yAxisDetails!.visibleRange!));
+            (withInRange(point.high, seriesRendererDetails.yAxisDetails!) ||
+                withInRange(point.low, seriesRendererDetails.yAxisDetails!));
         if (withInXRange || withInHighLowRange) {
           if (withInXRange) {
             seriesRendererDetails.visibleDataPoints!
@@ -332,7 +333,7 @@ class HiloPainter extends CustomPainter {
                         (point.markerPoint!.x - point.markerPoint2!.x).abs(),
                         seriesRendererDetails.series.borderWidth);
               }
-              if (hasTooltip) {
+              if (isCalculateRegion) {
                 calculateTooltipRegion(
                     point, seriesIndex, seriesRendererDetails, stateProperties);
               }

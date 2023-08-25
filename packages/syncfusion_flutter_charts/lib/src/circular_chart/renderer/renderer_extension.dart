@@ -157,8 +157,8 @@ class CircularSeriesRendererExtension implements CircularSeriesRenderer {
       ChartPoint<dynamic>? oldPoint,
       List<ChartPoint<dynamic>?>? oldPointList) {
     final bool isDynamicUpdate = oldPoint != null;
-    final num? oldStartAngle = oldPoint?.startAngle;
-    final num? oldEndAngle = oldPoint?.endAngle;
+    final num oldStartAngle = oldPoint?.startAngle ?? 0;
+    final num oldEndAngle = oldPoint?.endAngle ?? 0;
     num? degree, pointEndAngle;
 
     /// Below lines for dynamic dataSource changes.
@@ -220,12 +220,12 @@ class CircularSeriesRendererExtension implements CircularSeriesRenderer {
         }
         degree = pointEndAngle - pointStartAngle;
       } else if (point.isVisible && oldPoint.isVisible) {
-        pointStartAngle = (point.startAngle! > oldStartAngle!)
+        pointStartAngle = (point.startAngle! > oldStartAngle)
             ? oldStartAngle +
                 ((point.startAngle! - oldStartAngle) * animationDegreeValue)
             : oldStartAngle -
                 ((oldStartAngle - point.startAngle!) * animationDegreeValue);
-        pointEndAngle = (point.endAngle! > oldEndAngle!)
+        pointEndAngle = (point.endAngle! > oldEndAngle)
             ? oldEndAngle +
                 ((point.endAngle! - oldEndAngle) * animationDegreeValue)
             : oldEndAngle -

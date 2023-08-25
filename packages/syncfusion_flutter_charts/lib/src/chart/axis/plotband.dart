@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
@@ -39,7 +41,7 @@ class PlotBand {
       this.borderColor = Colors.transparent,
       this.borderWidth = 0,
       this.text,
-      TextStyle? textStyle,
+      this.textStyle,
       this.isRepeatable = false,
       this.repeatEvery = 1,
       this.verticalTextPadding,
@@ -54,13 +56,7 @@ class PlotBand {
       this.associatedAxisEnd,
       this.verticalTextAlignment = TextAnchor.middle,
       this.horizontalTextAlignment = TextAnchor.middle,
-      this.gradient})
-      : textStyle = textStyle ??
-            const TextStyle(
-                fontFamily: 'Roboto',
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.normal,
-                fontSize: 12);
+      this.gradient});
 
   /// Toggles the visibility of the plot band.
   ///
@@ -168,7 +164,7 @@ class PlotBand {
   ///    );
   ///}
   ///```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// Color of the plot band.
   ///
@@ -668,23 +664,29 @@ class PlotBand {
       horizontalTextAlignment,
       gradient
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
 /// Method to get the plot band painter
-CustomPainter getPlotBandPainter(
-    {required CartesianStateProperties stateProperties,
-    required bool shouldRenderAboveSeries}) {
+CustomPainter getPlotBandPainter({
+  required CartesianStateProperties stateProperties,
+  required bool shouldRenderAboveSeries,
+  required ValueNotifier<num> notifier,
+}) {
   return _PlotBandPainter(
       stateProperties: stateProperties,
-      shouldRenderAboveSeries: shouldRenderAboveSeries);
+      shouldRenderAboveSeries: shouldRenderAboveSeries,
+      notifier: notifier);
 }
 
 class _PlotBandPainter extends CustomPainter {
   _PlotBandPainter(
-      {required this.stateProperties, required this.shouldRenderAboveSeries})
-      : chart = stateProperties.chart;
+      {required this.stateProperties,
+      required this.shouldRenderAboveSeries,
+      required ValueNotifier<num> notifier})
+      : chart = stateProperties.chart,
+        super(repaint: notifier);
 
   final CartesianStateProperties stateProperties;
 
@@ -887,28 +889,27 @@ class _PlotBandPainter extends CustomPainter {
             axisDetails.orientation == AxisOrientation.vertical
                 ? axis.plotOffset
                 : 0));
-
-    startValue = axis is LogarithmicAxis
-        ? calculateLogBaseValue(startValue, axis.logBase)
-        : startValue;
-    endValue = axis is LogarithmicAxis
-        ? calculateLogBaseValue(endValue, axis.logBase)
-        : endValue;
+    final num visibleMin = axis is LogarithmicAxis
+        ? pow(axis.logBase, axisDetails.visibleRange!.minimum)
+        : axisDetails.visibleRange!.minimum;
+    final num visibleMax = axis is LogarithmicAxis
+        ? pow(axis.logBase, axisDetails.visibleRange!.maximum)
+        : axisDetails.visibleRange!.maximum;
 
     endValue < 0
-        ? endValue <= axisDetails.visibleRange!.minimum
-            ? endValue = axisDetails.visibleRange!.minimum
+        ? endValue <= visibleMin
+            ? endValue = visibleMin
             : endValue = endValue
-        : endValue >= axisDetails.visibleRange!.maximum
-            ? endValue = axisDetails.visibleRange!.maximum
+        : endValue >= visibleMax
+            ? endValue = visibleMax
             : endValue = endValue;
 
     startValue < 0
-        ? startValue <= axisDetails.visibleRange!.minimum
-            ? startValue = axisDetails.visibleRange!.minimum
+        ? startValue <= visibleMin
+            ? startValue = visibleMin
             : startValue = startValue
-        : startValue >= axisDetails.visibleRange!.maximum
-            ? startValue = axisDetails.visibleRange!.maximum
+        : startValue >= visibleMax
+            ? startValue = visibleMax
             : startValue = startValue;
 
     startPoint = calculatePoint(startValue, startValue, axisDetails,
@@ -1013,6 +1014,10 @@ class _PlotBandPainter extends CustomPainter {
       Canvas canvas, ChartAxis axis) {
     final List<double> dashArray = plotBand.dashArray;
     bool needDashLine = true;
+
+    final TextStyle plotBandLabelStyle = stateProperties
+        .renderingDetails.chartTheme.plotBandLabelTextStyle!
+        .merge(plotBand.textStyle);
     // ignore: unnecessary_null_comparison
     if (plotBandRect != null && plotBand.color != null) {
       Path? path;
@@ -1068,7 +1073,7 @@ class _PlotBandPainter extends CustomPainter {
     }
     if (plotBand.text != null && plotBand.text!.isNotEmpty) {
       final Size textSize =
-          measureText(plotBand.text!, plotBand.textStyle, textAngle);
+          measureText(plotBand.text!, plotBandLabelStyle, textAngle);
       num? x = 0;
       num? y = 0;
       if (plotBand.horizontalTextPadding != null &&
@@ -1079,7 +1084,7 @@ class _PlotBandPainter extends CustomPainter {
               chart.isTransposed
                   ? stateProperties.chartAxis.axisClipRect.bottom
                   : stateProperties.chartAxis.axisClipRect.right);
-        } else if (plotBand.verticalTextPadding!.contains('px')) {
+        } else if (plotBand.horizontalTextPadding!.contains('px')) {
           x = double.parse(plotBand.horizontalTextPadding!
               .substring(0, plotBand.horizontalTextPadding!.length - 2));
         } else {
@@ -1137,7 +1142,7 @@ class _PlotBandPainter extends CustomPainter {
                   : plotBand.verticalTextAlignment == TextAnchor.start
                       ? (plotBandRect.top - y!)
                       : plotBandRect.bottom - textSize.height - y!),
-          plotBand.textStyle,
+          plotBandLabelStyle,
           textAngle);
     }
   }

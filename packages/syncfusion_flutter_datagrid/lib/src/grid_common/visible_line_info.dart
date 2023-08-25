@@ -173,7 +173,7 @@ class VisibleLineInfo extends Comparable<VisibleLineInfo> {
   /// * other - _required_ - An object to compare with this object.
   @override
   int compareTo(VisibleLineInfo other) =>
-      ((clippedOrigin - other.clippedOrigin).sign).toInt();
+      (clippedOrigin - other.clippedOrigin).sign.toInt();
 
   /// A string describing the state of the object.
   ///
@@ -182,13 +182,13 @@ class VisibleLineInfo extends Comparable<VisibleLineInfo> {
   String toString() {
     final String sb = '''
             VisibleLineInfo {
-            visibleIndex = ${_visibleIndex.toString()}
-            lineIndex =  ${lineIndex.toString()}
-            size =  ${_size.toString()}
-            origin = ${origin.toString()}
-            clippedOrigin = ${_clippedOrigin.toString()}
-            scrollOffset =  ${_scrollOffset.toString()}
-            region = ${region.toString()}
+            visibleIndex = $_visibleIndex
+            lineIndex =  $lineIndex
+            size =  $_size
+            origin = $origin
+            clippedOrigin = $_clippedOrigin
+            scrollOffset =  $_scrollOffset
+            region = $region
             }''';
 
     return sb;

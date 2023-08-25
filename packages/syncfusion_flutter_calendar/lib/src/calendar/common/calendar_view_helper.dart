@@ -269,9 +269,7 @@ class CalendarViewHelper {
       TextStyle? todayTextStyle, SfCalendarThemeData calendarTheme) {
     Color? todayTextColor = todayHighlightColor;
     if (todayTextColor != null && todayTextColor == Colors.transparent) {
-      todayTextColor = todayTextStyle != null
-          ? todayTextStyle.color
-          : calendarTheme.todayTextStyle!.color;
+      todayTextColor = calendarTheme.todayTextStyle!.color;
     }
 
     return todayTextColor;
@@ -1031,7 +1029,7 @@ class CalendarAppointment {
         otherAppointment.isAllDay == isAllDay &&
         otherAppointment.notes == notes &&
         otherAppointment.location == location &&
-        !CalendarViewHelper.isCollectionEqual(
+        CalendarViewHelper.isCollectionEqual(
             otherAppointment.resourceIds, resourceIds) &&
         otherAppointment.recurrenceId == recurrenceId &&
         otherAppointment.id == id &&
@@ -1047,14 +1045,17 @@ class CalendarAppointment {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       startTimeZone,
       endTimeZone,
       recurrenceRule,
       isAllDay = false,
       notes,
       location,
-      hashList(resourceIds),
+
+      /// Below condition is referred from text style class
+      /// https://api.flutter.dev/flutter/painting/TextStyle/hashCode.html
+      resourceIds == null ? null : Object.hashAll(resourceIds!),
       recurrenceId,
       id,
       data,
@@ -1062,7 +1063,9 @@ class CalendarAppointment {
       endTime,
       subject,
       color,
-      hashList(recurrenceExceptionDates),
+      recurrenceExceptionDates == null
+          ? null
+          : Object.hashAll(recurrenceExceptionDates!),
     );
   }
 }
@@ -1203,15 +1206,20 @@ class CalendarTimeRegion {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
-    return hashValues(
+    return Object.hash(
         startTime,
         endTime,
         color,
         recurrenceRule,
         textStyle,
         enablePointerInteraction,
-        hashList(recurrenceExceptionDates),
-        hashList(resourceIds),
+
+        /// Below condition is referred from text style class
+        /// https://api.flutter.dev/flutter/painting/TextStyle/hashCode.html
+        recurrenceExceptionDates == null
+            ? null
+            : Object.hashAll(recurrenceExceptionDates!),
+        resourceIds == null ? null : Object.hashAll(resourceIds!),
         text,
         iconData,
         timeZone);

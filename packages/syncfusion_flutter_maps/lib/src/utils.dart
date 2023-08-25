@@ -180,6 +180,52 @@ MapProvider getSourceProvider(
   }
 }
 
+// Calculates the shape's path center and width for data label rendering.
+void findPathCenterAndWidth(
+    double signedArea, double centerX, double centerY, MapModel mapModel) {
+  // Used mathematical formula to find the center of polygon points.
+  signedArea /= 2;
+  centerX = centerX / (6 * signedArea);
+  centerY = centerY / (6 * signedArea);
+  mapModel.shapePathCenter = Offset(centerX, centerY);
+  double minX = double.infinity;
+  double maxX = double.negativeInfinity;
+  double distance,
+      minDistance = double.infinity,
+      maxDistance = double.negativeInfinity;
+
+  final List<double> minDistances = <double>[double.infinity];
+  final List<double> maxDistances = <double>[double.negativeInfinity];
+  for (final List<Offset> points in mapModel.pixelPoints!) {
+    for (final Offset point in points) {
+      distance = (centerY - point.dy).abs();
+      if (point.dx < centerX) {
+        // Collected all points which is less 10 pixels distance from
+        // 'center y' to position the labels more smartly.
+        if (distance < 10) {
+          minDistances.add(point.dx);
+        }
+        if (distance < minDistance) {
+          minX = point.dx;
+          minDistance = distance;
+        }
+      } else if (point.dx > centerX) {
+        if (distance < 10) {
+          maxDistances.add(point.dx);
+        }
+
+        if (distance > maxDistance) {
+          maxX = point.dx;
+          maxDistance = distance;
+        }
+      }
+    }
+  }
+
+  mapModel.shapeWidth =
+      max(maxX, maxDistances.reduce(max)) - min(minX, minDistances.reduce(min));
+}
+
 /// An interpolation between two latlng.
 ///
 /// This class specializes the interpolation of [Tween<MapLatLng>] to use

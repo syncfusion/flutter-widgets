@@ -49,7 +49,9 @@ class Chart {
   /// Represent the clustered chart collection.
   final List<ExcelChartType> _chartsCluster = <ExcelChartType>[
     ExcelChartType.bar,
-    ExcelChartType.column
+    ExcelChartType.column,
+    ExcelChartType.columnClustered3D,
+    ExcelChartType.barClustered3D
   ];
 
   /// Represent the stacked chart collection.
@@ -57,7 +59,10 @@ class Chart {
     ExcelChartType.barStacked,
     ExcelChartType.columnStacked,
     ExcelChartType.lineStacked,
+    ExcelChartType.lineMarkersStacked,
     ExcelChartType.areaStacked,
+    ExcelChartType.columnStacked3D,
+    ExcelChartType.barStacked3D
   ];
 
   /// Represent 100% charts.Here each value in a series is shown as a portion of 100%.
@@ -65,11 +70,42 @@ class Chart {
     ExcelChartType.columnStacked100,
     ExcelChartType.barStacked100,
     ExcelChartType.lineStacked100,
-    ExcelChartType.areaStacked100
+    ExcelChartType.areaStacked100,
+    ExcelChartType.columnStacked1003D,
+    ExcelChartType.barStacked1003D,
+    ExcelChartType.areaStacked100,
+    ExcelChartType.lineMarkersStacked100,
   ];
 
   /// Chart type.
   ExcelChartType _chartType = ExcelChartType.column;
+
+  ///Indicated wheather chart type is 3D
+  bool _is3DChart = false;
+
+  ///Indicates wheather chart type is bar/column
+  bool _isColumnOrBar = false;
+
+  /// Indicates whether rotation has default value.
+  bool _isDefaultRotation = true;
+
+  /// Indicates whether elevation has default value.
+  bool _isdefaultElevation = true;
+
+  ///Represents rotation of 3D chart
+  int _rotation = 20;
+
+  ///Represents perspective of 3D chart
+  int _perspective = 15;
+
+  ///Represents elvation angle of  3D chart
+  int _elevationAngle = 15;
+
+  /// Depth of points relative to width.
+  int _depthPercent = 100;
+
+  ///Indicates whether the chart axes are at right angles, independent of chart rotation or elevation.
+  bool _rightAngleAxes = false;
 
   /// Represent chart index.
   late int index;
@@ -201,6 +237,13 @@ class Chart {
     _chartType = value;
     if (!_chartType.toString().contains('area')) {
       _primaryCategoryAxis._isBetween = true;
+    }
+    if (value.toString().endsWith('3D')) {
+      _is3DChart = true;
+    }
+    if (value.toString().contains('column') ||
+        value.toString().contains('bar')) {
+      _isColumnOrBar = true;
     }
   }
 
@@ -645,6 +688,247 @@ class Chart {
     }
   }
 
+  /// sets the rotation of the 3D chart view
+  /// (the rotation of the plot area around the z-axis, in degrees)-(0 to 360 degrees).
+  /// The value of this property must be from 0 to 360, except for 3-D bar charts,
+  /// where the value must be from 0 to 44. The default value is 20. Applies only to 3-D charts.
+  /// The following code illustrates how to set <see cref="Rotation"/> for 3-D charts.
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// sheet.getRangeByName('A11').text = 'Venue';
+  /// sheet.getRangeByName('A12').text = 'Seating & Decor';
+  /// sheet.getRangeByName('A13').text = 'Technical Team';
+  /// sheet.getRangeByName('A14').text = 'performers';
+  /// sheet.getRangeByName('A15').text = "performer's Transport";
+  /// sheet.getRangeByName('A16').text = "performer's stay";
+  /// sheet.getRangeByName('A17').text = 'Marketing';
+  /// sheet.getRangeByName('B11:B17').numberFormat = r'$#,##0_)';
+  /// sheet.getRangeByName('B11').number = 17500;
+  /// sheet.getRangeByName('B12').number = 1828;
+  /// sheet.getRangeByName('B13').number = 800;
+  /// sheet.getRangeByName('B14').number = 14000;
+  /// sheet.getRangeByName('B15').number = 2600;
+  /// sheet.getRangeByName('B16').number = 4464;
+  /// sheet.getRangeByName('B17').number = 2700;
+  /// final ChartCollection charts = ChartCollection(sheet);
+  /// final Chart chart = charts.add();
+  /// chart.chartType = ExcelChartType.line3D;
+  /// chart.dataRange = sheet.getRangeByName('A11:B17');
+  /// chart.isSeriesInRows = false;
+  /// chart.chartTitle = 'Line Chart 3D';
+  /// chart.rotation = 20;
+  /// chart.topRow = 8;
+  /// chart.leftColumn = 1;
+  /// chart.bottomRow = 23;
+  /// chart.rightColumn = 8;
+  /// sheet.charts = charts;
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'FLUT_6975_3D_LineChart.xlsx');
+  /// ```
+  int get rotation {
+    return _rotation;
+  }
+
+  ///Set the rotation of 3D view of chart.
+  set rotation(int value) {
+    if (value < 0 || value > 360) {
+      throw Exception('rotation');
+    }
+    _rotation = value;
+    _isDefaultRotation = false;
+  }
+
+  /// Get the perspective for the 3D chart view (0 to 100).
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// sheet.getRangeByName('A11').text = 'Venue';
+  /// sheet.getRangeByName('A12').text = 'Seating & Decor';
+  /// sheet.getRangeByName('A13').text = 'Technical Team';
+  /// sheet.getRangeByName('A14').text = 'performers';
+  /// sheet.getRangeByName('A15').text = "performer's Transport";
+  /// sheet.getRangeByName('A16').text = "performer's stay";
+  /// sheet.getRangeByName('A17').text = 'Marketing';
+  /// sheet.getRangeByName('B11:B17').numberFormat = r'$#,##0_)';
+  /// sheet.getRangeByName('B11').number = 17500;
+  /// sheet.getRangeByName('B12').number = 1828;
+  /// sheet.getRangeByName('B13').number = 800;
+  /// sheet.getRangeByName('B14').number = 14000;
+  /// sheet.getRangeByName('B15').number = 2600;
+  /// sheet.getRangeByName('B16').number = 4464;
+  /// sheet.getRangeByName('B17').number = 2700;
+  /// final ChartCollection charts = ChartCollection(sheet);
+  /// final Chart chart = charts.add();
+  /// chart.chartType = ExcelChartType.line3D;
+  /// chart.dataRange = sheet.getRangeByName('A11:B17');
+  /// chart.isSeriesInRows = false;
+  /// chart.chartTitle = 'Line Chart 3D';
+  /// chart.perspective = 45;
+  /// chart.topRow = 8;
+  /// chart.leftColumn = 1;
+  /// chart.bottomRow = 23;
+  /// chart.rightColumn = 8;
+  /// sheet.charts = charts;
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'FLUT_6975_3D_LineChart.xlsx');
+  /// ```
+  int get perspective {
+    return _perspective;
+  }
+
+  ///set the persepective of 3D chart
+  set perspective(int value) {
+    if (value < 0 || value > 100) {
+      throw Exception('elevation');
+    }
+
+    _perspective = value;
+  }
+
+  /// Get the elevation of the 3-D chart view, in degrees (-90 to +90 degrees).
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// sheet.getRangeByName('A11').text = 'Venue';
+  /// sheet.getRangeByName('A12').text = 'Seating & Decor';
+  /// sheet.getRangeByName('A13').text = 'Technical Team';
+  /// sheet.getRangeByName('A14').text = 'performers';
+  /// sheet.getRangeByName('A15').text = "performer's Transport";
+  /// sheet.getRangeByName('A16').text = "performer's stay";
+  /// sheet.getRangeByName('A17').text = 'Marketing';
+  /// sheet.getRangeByName('B11:B17').numberFormat = r'$#,##0_)';
+  /// sheet.getRangeByName('B11').number = 17500;
+  /// sheet.getRangeByName('B12').number = 1828;
+  /// sheet.getRangeByName('B13').number = 800;
+  /// sheet.getRangeByName('B14').number = 14000;
+  /// sheet.getRangeByName('B15').number = 2600;
+  /// sheet.getRangeByName('B16').number = 4464;
+  /// sheet.getRangeByName('B17').number = 2700;
+  /// final ChartCollection charts = ChartCollection(sheet);
+  /// final Chart chart = charts.add();
+  /// chart.chartType = ExcelChartType.line3D;
+  /// chart.dataRange = sheet.getRangeByName('A11:B17');
+  /// chart.isSeriesInRows = false;
+  /// chart.chartTitle = 'Line Chart 3D';
+  /// chart.elevation = 15;
+  /// chart.topRow = 8;
+  /// chart.leftColumn = 1;
+  /// chart.bottomRow = 23;
+  /// chart.rightColumn = 8;
+  /// sheet.charts = charts;
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'FLUT_6975_3D_LineChart.xlsx');
+  /// ```
+  int get elevation {
+    return _elevationAngle;
+  }
+
+  ///set the elevation of 3D chart
+  set elevation(int value) {
+    if (value < -90 || value > 90) {
+      throw Exception('elevation');
+    }
+    _elevationAngle = value;
+    _isdefaultElevation = false;
+  }
+
+  /// Returns  the depth of a 3-D chart as a percentage of the chart width
+  /// (between 20 and 2000 percent).
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// sheet.getRangeByName('A11').text = 'Venue';
+  /// sheet.getRangeByName('A12').text = 'Seating & Decor';
+  /// sheet.getRangeByName('A13').text = 'Technical Team';
+  /// sheet.getRangeByName('A14').text = 'performers';
+  /// sheet.getRangeByName('A15').text = "performer's Transport";
+  /// sheet.getRangeByName('A16').text = "performer's stay";
+  /// sheet.getRangeByName('A17').text = 'Marketing';
+  /// sheet.getRangeByName('B11:B17').numberFormat = r'$#,##0_)';
+  /// sheet.getRangeByName('B11').number = 17500;
+  /// sheet.getRangeByName('B12').number = 1828;
+  /// sheet.getRangeByName('B13').number = 800;
+  /// sheet.getRangeByName('B14').number = 14000;
+  /// sheet.getRangeByName('B15').number = 2600;
+  /// sheet.getRangeByName('B16').number = 4464;
+  /// sheet.getRangeByName('B17').number = 2700;
+  /// final ChartCollection charts = ChartCollection(sheet);
+  /// final Chart chart = charts.add();
+  /// chart.chartType = ExcelChartType.line3D;
+  /// chart.dataRange = sheet.getRangeByName('A11:B17');
+  /// chart.isSeriesInRows = false;
+  /// chart.chartTitle = 'Line Chart 3D';
+  /// chart.depthPercent = 45;
+  /// chart.topRow = 8;
+  /// chart.leftColumn = 1;
+  /// chart.bottomRow = 23;
+  /// chart.rightColumn = 8;
+  /// sheet.charts = charts;
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'FLUT_6975_3D_LineChart.xlsx');
+  /// ```
+  int get depthPercent {
+    return _depthPercent;
+  }
+
+  ///set the elevation of 3D chart
+  set depthPercent(int value) {
+    if (value < -90 || value > 90) {
+      throw Exception('elevation');
+    }
+    _depthPercent = value;
+  }
+
+  /// True if the chart axes are at right angles, independent of chart rotation or elevation. otherwise False.
+  /// Returns  the RightAngleAxes of a 3-D chart as a percentage of the chart width
+  /// (between 20 and 2000 percent).
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// sheet.getRangeByName('A11').text = 'Venue';
+  /// sheet.getRangeByName('A12').text = 'Seating & Decor';
+  /// sheet.getRangeByName('A13').text = 'Technical Team';
+  /// sheet.getRangeByName('A14').text = 'performers';
+  /// sheet.getRangeByName('A15').text = "performer's Transport";
+  /// sheet.getRangeByName('A16').text = "performer's stay";
+  /// sheet.getRangeByName('A17').text = 'Marketing';
+  /// sheet.getRangeByName('B11:B17').numberFormat = r'$#,##0_)';
+  /// sheet.getRangeByName('B11').number = 17500;
+  /// sheet.getRangeByName('B12').number = 1828;
+  /// sheet.getRangeByName('B13').number = 800;
+  /// sheet.getRangeByName('B14').number = 14000;
+  /// sheet.getRangeByName('B15').number = 2600;
+  /// sheet.getRangeByName('B16').number = 4464;
+  /// sheet.getRangeByName('B17').number = 2700;
+  /// final ChartCollection charts = ChartCollection(sheet);
+  /// final Chart chart = charts.add();
+  /// chart.chartType = ExcelChartType.line3D;
+  /// chart.dataRange = sheet.getRangeByName('A11:B17');
+  /// chart.isSeriesInRows = false;
+  /// chart.chartTitle = 'Line Chart 3D';
+  /// chart.depthPercent = 45;
+  /// chart.topRow = 8;
+  /// chart.leftColumn = 1;
+  /// chart.bottomRow = 23;
+  /// chart.rightColumn = 8;
+  ///chart.rightAngleAxes=false;
+  /// sheet.charts = charts;
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'FLUT_6975_3D_LineChart.xlsx');
+  /// ```
+  bool get rightAngleAxes {
+    return _rightAngleAxes;
+  }
+
+  ///set the right angle axes of 3D chart
+  set rightAngleAxes(bool value) {
+    _rightAngleAxes = value;
+    if (!value) {
+      _isColumnOrBar = false;
+    }
+  }
+
   /// Finds the category range in the specified chart range.
   // ignore: unused_element
   Range _getCategoryRange(
@@ -737,8 +1021,12 @@ class Chart {
           ? range.worksheet.getRangeByIndex(iRowColumn, i)
           : range.worksheet.getRangeByIndex(i, iRowColumn);
 
-      bIsName = (curRange.number != null ||
-              (curRange.dateTime == null && curRange.text == null)) ||
+      bIsName = (curRange.number != null &&
+              curRange.dateTime == null &&
+              curRange.text == null) ||
+          (curRange.dateTime == null &&
+              curRange.text == null &&
+              curRange.number == null) ||
           curRange.formula != null;
 
       if (!bIsName) {

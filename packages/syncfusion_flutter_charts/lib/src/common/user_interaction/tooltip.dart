@@ -23,7 +23,7 @@ export 'package:syncfusion_flutter_core/core.dart'
 class TooltipBehavior {
   /// Creating an argument constructor of TooltipBehavior class.
   TooltipBehavior(
-      {TextStyle? textStyle,
+      {this.textStyle,
       ActivationMode? activationMode,
       int? animationDuration,
       bool? enable,
@@ -45,7 +45,6 @@ class TooltipBehavior {
       this.shadowColor})
       : animationDuration = animationDuration ?? 350,
         textAlignment = textAlignment ?? ChartAlignment.center,
-        textStyle = textStyle ?? const TextStyle(fontSize: 12),
         activationMode = activationMode ?? ActivationMode.singleTap,
         borderColor = borderColor ?? Colors.transparent,
         borderWidth = borderWidth ?? 0,
@@ -171,7 +170,7 @@ class TooltipBehavior {
   ///   );
   /// }
   /// ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// Specifies the number decimals to be displayed in tooltip text.
   ///
@@ -594,7 +593,7 @@ class TooltipBehavior {
       builder,
       shadowColor
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   /// Holds the state properties value.
@@ -692,8 +691,11 @@ class TooltipBehavior {
           });
         }
       }
-      if (renderingDetails.tooltipBehaviorRenderer._tooltipRenderingDetails
-              .tooltipTemplate ==
+      if (chart.tooltipBehavior.builder != null && x != null) {
+        renderingDetails.tooltipBehaviorRenderer._tooltipRenderingDetails
+            .showTemplateTooltip(Offset(position.x, position.y));
+      } else if (renderingDetails.tooltipBehaviorRenderer
+              ._tooltipRenderingDetails.tooltipTemplate ==
           null) {
         final SfTooltipState? tooltipState =
             tooltipBehaviorRenderer._tooltipRenderingDetails.chartTooltipState;

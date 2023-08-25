@@ -746,7 +746,6 @@ class TechnicalIndicatorsRenderer {
             ? ColumnSeries<dynamic, dynamic>(
                 name: name,
                 color: color,
-                width: width,
                 xAxisName: indicator.xAxisName,
                 animationDuration: indicator.animationDuration,
                 animationDelay: indicator.animationDelay,
@@ -785,6 +784,7 @@ class TechnicalIndicatorsRenderer {
         isRangeArea ? 'rangearea' : (isHistogram ? 'column' : 'line');
     seriesRendererDetails.isIndicator = true;
     seriesRendererDetails.seriesName = name;
+    // ignore: unnecessary_null_comparison
     if (series.dashArray != null) {
       seriesRendererDetails.dashArray = series.dashArray;
       if (seriesRendererDetails.dashArray!.length == 1) {
@@ -1028,16 +1028,24 @@ class TechnicalIndicatorsRenderer {
               bollingerPoints[j] = _BollingerData(
                   x: validData[j].xValue,
                   midBand: smaPoints[i],
-                  lowBand: lowerBand,
-                  upBand: upperBand,
+                  lowBand: lowerBand.isNaN || lowerBand.isInfinite
+                      ? smaPoints[i]
+                      : lowerBand,
+                  upBand: upperBand.isNaN || upperBand.isInfinite
+                      ? smaPoints[i]
+                      : upperBand,
                   visible: true);
             }
           }
           bollingerPoints[i] = _BollingerData(
               x: validData[i].xValue,
               midBand: smaPoints[i],
-              lowBand: lowerBand,
-              upBand: upperBand,
+              lowBand: lowerBand.isNaN || lowerBand.isInfinite
+                  ? smaPoints[i]
+                  : lowerBand,
+              upBand: upperBand.isNaN || upperBand.isInfinite
+                  ? smaPoints[i]
+                  : upperBand,
               visible: true);
         } else {
           if (i < indicator.period - 1) {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import './../axis/axis.dart';
 import '../../../charts.dart';
-import '../axis/axis.dart';
 import '../chart_segment/chart_segment.dart';
 import '../chart_series/series.dart';
 import '../chart_series/series_renderer_properties.dart';
@@ -168,13 +167,12 @@ class ErrorBarChartPainter extends CustomPainter {
       seriesRendererDetails.setSeriesProperties(seriesRendererDetails);
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        final bool withInXRange = withInRange(
-            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!);
+        final bool withInXRange =
+            withInRange(point.xValue, seriesRendererDetails.xAxisDetails!);
         // ignore: unnecessary_null_comparison
         final bool withInYRange = point != null &&
             point.yValue != null &&
-            withInRange(point.yValue,
-                seriesRendererDetails.yAxisDetails!.visibleRange!);
+            withInRange(point.yValue, seriesRendererDetails.yAxisDetails!);
         if (withInXRange || withInYRange) {
           seriesRendererDetails.calculateRegionData(stateProperties,
               seriesRendererDetails, painterKey.index, point, pointIndex);

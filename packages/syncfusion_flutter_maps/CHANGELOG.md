@@ -1,5 +1,35 @@
 ## Unreleased
 
+**General**
+
+* Upgraded the http package to the latest version 1.0.0.
+
+## [21.2.3] - 05/03/2023
+
+**Bugs**
+
+* #FB42695 - Now, the map tile layer no longer jumps to distant locations when panning during fling zooming.
+
+## [20.4.50] - 02/14/2023
+
+**Bugs**
+
+* #FB40437 - The issue with panning after the pinch zooming on the iPhone browser has been resolved.
+
+* The issue with the custom button zooming on the MapZoomPanBehavior not working when the enablePinching is set to false has been resolved.
+
+## [20.4.43] - 01/10/2023
+
+**Feature**
+* #FB39509 - The issue with the previous and new zoom levels of onWillZoom not updating properly while zooming through the toolbar has been resolved.
+
+## [20.3.47] - 09/29/2022
+
+**Bug**
+* #FB37232 – Now, the data labels get rendered when enabling it programmatically.
+
+## [20.2.36] - 07/01/2022
+
 **Bug**
 * The null exception will not be thrown when simultaneously calling the setstate and zooming the map.
 

@@ -213,7 +213,7 @@ class CircularChartAnnotation {
       widget,
       width
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
@@ -328,6 +328,6 @@ class ConnectorLineSettings {
   @override
   int get hashCode {
     final List<Object?> values = <Object?>[length, width, color, type];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

@@ -134,13 +134,6 @@ class _AutoFilterImpl implements AutoFilter {
   bool get _isFiltered {
     if (_typeOfFilter == _ExcelFilterType.notUsed) {
       return _isFilterUsed;
-    } else if (_typeOfFilter == _ExcelFilterType.combinationFilter) {
-      final _CombinationFilter filteredItem =
-          _filteredItems as _CombinationFilter;
-      if (filteredItem == null) {
-        _isFilterUsed = false;
-        return _isFilterUsed;
-      }
     }
     _isFilterUsed = true;
     return _isFilterUsed;
@@ -197,10 +190,7 @@ class _AutoFilterImpl implements AutoFilter {
     _filtertype = _ExcelFilterType.combinationFilter;
 
     for (final String filter in filterCollection) {
-      if (filter.trim() == null) {
-        combinationFilter._isBlank = true;
-        throw Exception('Filter text');
-      } else if (!combinationFilter._textFilterCollection.contains(filter)) {
+      if (!combinationFilter._textFilterCollection.contains(filter)) {
         final _TextFilter textFilter = _TextFilter();
         textFilter._text = filter.trim();
         _combinationFilter._filterCollection.add(textFilter);
@@ -260,137 +250,166 @@ class _AutoFilterImpl implements AutoFilter {
 
   /// Apply the dynamic filter.
   void _applyDynamicFilter() {
-    if (_dateFilter != null) {
-      if (_dateFilter._dateFilterType == DynamicFilterType.none) {
-        _removeDynamicFilter();
-        return;
-      }
-      final Range filterRange = _autoFilterCollection.filterRange;
-      for (int row = filterRange.row + 1; row <= filterRange.lastRow; row++) {
-        final Range range = _worksheet.getRangeByIndex(row, _colIndex);
-        DateTime? dateTime;
-        if (range._dateTime != null) {
-          bool isVisible = false;
-          final DateTime currentDate = DateTime.now();
-          dateTime = range._dateTime;
-          DateTime startDate;
-          DateTime endDate;
-          int temp;
-          switch (_dateFilter._dateFilterType) {
-            case DynamicFilterType.yesterday:
-              if ((dateTime!.year == currentDate.year) &&
-                  (dateTime.month == currentDate.month) &&
-                  (dateTime.day == currentDate.day - 1)) {
+    if (_dateFilter._dateFilterType == DynamicFilterType.none) {
+      _removeDynamicFilter();
+      return;
+    }
+    final Range filterRange = _autoFilterCollection.filterRange;
+    for (int row = filterRange.row + 1; row <= filterRange.lastRow; row++) {
+      final Range range = _worksheet.getRangeByIndex(row, _colIndex);
+      DateTime? dateTime;
+      if (range._dateTime != null) {
+        bool isVisible = false;
+        final DateTime currentDate = DateTime.now();
+        dateTime = range._dateTime;
+        DateTime startDate;
+        DateTime endDate;
+        int temp;
+        switch (_dateFilter._dateFilterType) {
+          case DynamicFilterType.yesterday:
+            if ((dateTime!.year == currentDate.year) &&
+                (dateTime.month == currentDate.month) &&
+                (dateTime.day == currentDate.day - 1)) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.today:
+            if ((dateTime!.year == currentDate.year) &&
+                (dateTime.month == currentDate.month) &&
+                (dateTime.day == currentDate.day)) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.tomorrow:
+            if ((dateTime!.year == currentDate.year) &&
+                (dateTime.month == currentDate.month) &&
+                (dateTime.day == currentDate.day + 1)) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.thisWeek:
+            startDate = currentDate.add(Duration(days: -currentDate.weekday));
+            endDate = startDate.add(const Duration(days: 6));
+            if ((dateTime!.year >= startDate.year &&
+                    dateTime.year <= endDate.year) &&
+                (dateTime.month >= startDate.month &&
+                    dateTime.month <= endDate.month) &&
+                (dateTime.day >= startDate.day &&
+                    dateTime.day <= endDate.day)) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.nextWeek:
+            startDate =
+                currentDate.add(Duration(days: 7 - currentDate.weekday));
+            endDate = startDate.add(const Duration(days: 6));
+            if ((dateTime!.year >= startDate.year &&
+                    dateTime.year <= endDate.year) &&
+                (dateTime.month >= startDate.month &&
+                    dateTime.month <= endDate.month) &&
+                (dateTime.day >= startDate.day &&
+                    dateTime.day <= endDate.day)) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.lastWeek:
+            endDate =
+                currentDate.add(Duration(days: -(currentDate.weekday + 1)));
+            startDate = endDate.add(const Duration(days: -6));
+            if ((dateTime!.year >= startDate.year &&
+                    dateTime.year <= endDate.year) &&
+                (dateTime.month >= startDate.month &&
+                    dateTime.month <= endDate.month) &&
+                (dateTime.day >= startDate.day &&
+                    dateTime.day <= endDate.day)) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.lastMonth:
+            final Jiffy jiffyLast =
+                Jiffy.parseFromDateTime(currentDate).add(months: -1);
+            startDate = DateTime(
+                jiffyLast.year,
+                jiffyLast.month,
+                jiffyLast.date,
+                jiffyLast.hour,
+                jiffyLast.minute,
+                jiffyLast.second);
+            if ((dateTime!.year == startDate.year) &&
+                (dateTime.month == startDate.month)) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.nextMonth:
+            final Jiffy jiffyNext =
+                Jiffy.parseFromDateTime(currentDate).add(months: 1);
+            startDate = DateTime(
+                jiffyNext.year,
+                jiffyNext.month,
+                jiffyNext.date,
+                jiffyNext.hour,
+                jiffyNext.minute,
+                jiffyNext.second);
+            if ((dateTime!.year == startDate.year) &&
+                (dateTime.month == startDate.month)) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.thisMonth:
+            if ((dateTime!.year == currentDate.year) &&
+                (dateTime.month == currentDate.month)) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.thisYear:
+            if (dateTime!.year == currentDate.year) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.lastYear:
+            if (dateTime!.year == currentDate.year - 1) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.nextYear:
+            if (dateTime!.year == currentDate.year + 1) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.thisQuarter:
+            temp = currentDate.month / 3 as int;
+            if (currentDate.month % 3 != 0) {
+              temp++;
+            }
+            for (int monthIndex = temp * 3 - 2;
+                monthIndex <= temp * 3;
+                monthIndex++) {
+              if (dateTime!.year == currentDate.year &&
+                  dateTime.month == monthIndex) {
                 isVisible = true;
+                break;
               }
-              break;
-            case DynamicFilterType.today:
-              if ((dateTime!.year == currentDate.year) &&
-                  (dateTime.month == currentDate.month) &&
-                  (dateTime.day == currentDate.day)) {
-                isVisible = true;
+            }
+            break;
+          case DynamicFilterType.nextQuarter:
+            temp = currentDate.month / 3 as int;
+            if (currentDate.month % 3 != 0) {
+              temp++;
+            }
+            if (temp == 4) {
+              temp = 1;
+              for (int monthIndex = (temp * 3) - 2;
+                  monthIndex <= temp * 3;
+                  monthIndex++) {
+                if (dateTime!.year == currentDate.year + 1 &&
+                    dateTime.month == monthIndex) {
+                  isVisible = true;
+                  break;
+                }
               }
-              break;
-            case DynamicFilterType.tomorrow:
-              if ((dateTime!.year == currentDate.year) &&
-                  (dateTime.month == currentDate.month) &&
-                  (dateTime.day == currentDate.day + 1)) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.thisWeek:
-              startDate = currentDate.add(Duration(days: -currentDate.weekday));
-              endDate = startDate.add(const Duration(days: 6));
-              if ((dateTime!.year >= startDate.year &&
-                      dateTime.year <= endDate.year) &&
-                  (dateTime.month >= startDate.month &&
-                      dateTime.month <= endDate.month) &&
-                  (dateTime.day >= startDate.day &&
-                      dateTime.day <= endDate.day)) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.nextWeek:
-              startDate =
-                  currentDate.add(Duration(days: 7 - currentDate.weekday));
-              endDate = startDate.add(const Duration(days: 6));
-              if ((dateTime!.year >= startDate.year &&
-                      dateTime.year <= endDate.year) &&
-                  (dateTime.month >= startDate.month &&
-                      dateTime.month <= endDate.month) &&
-                  (dateTime.day >= startDate.day &&
-                      dateTime.day <= endDate.day)) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.lastWeek:
-              endDate =
-                  currentDate.add(Duration(days: -(currentDate.weekday + 1)));
-              startDate = endDate.add(const Duration(days: -6));
-              if ((dateTime!.year >= startDate.year &&
-                      dateTime.year <= endDate.year) &&
-                  (dateTime.month >= startDate.month &&
-                      dateTime.month <= endDate.month) &&
-                  (dateTime.day >= startDate.day &&
-                      dateTime.day <= endDate.day)) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.lastMonth:
-              final Jiffy jiffyLast = Jiffy(currentDate).add(months: -1);
-              startDate = DateTime(
-                  jiffyLast.year,
-                  jiffyLast.month,
-                  jiffyLast.day,
-                  jiffyLast.hour,
-                  jiffyLast.minute,
-                  jiffyLast.second);
-              if ((dateTime!.year == startDate.year) &&
-                  (dateTime.month == startDate.month)) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.nextMonth:
-              final Jiffy jiffyNext = Jiffy(currentDate).add(months: 1);
-              startDate = DateTime(
-                  jiffyNext.year,
-                  jiffyNext.month,
-                  jiffyNext.day,
-                  jiffyNext.hour,
-                  jiffyNext.minute,
-                  jiffyNext.second);
-              if ((dateTime!.year == startDate.year) &&
-                  (dateTime.month == startDate.month)) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.thisMonth:
-              if ((dateTime!.year == currentDate.year) &&
-                  (dateTime.month == currentDate.month)) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.thisYear:
-              if (dateTime!.year == currentDate.year) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.lastYear:
-              if (dateTime!.year == currentDate.year - 1) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.nextYear:
-              if (dateTime!.year == currentDate.year + 1) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.thisQuarter:
-              temp = currentDate.month / 3 as int;
-              if (currentDate.month % 3 != 0) {
-                temp++;
-              }
-              for (int monthIndex = temp * 3 - 2;
+            } else {
+              temp++;
+              for (int monthIndex = (temp * 3) - 2;
                   monthIndex <= temp * 3;
                   monthIndex++) {
                 if (dateTime!.year == currentDate.year &&
@@ -399,180 +418,147 @@ class _AutoFilterImpl implements AutoFilter {
                   break;
                 }
               }
-              break;
-            case DynamicFilterType.nextQuarter:
-              temp = currentDate.month / 3 as int;
-              if (currentDate.month % 3 != 0) {
-                temp++;
-              }
-              if (temp == 4) {
-                temp = 1;
-                for (int monthIndex = (temp * 3) - 2;
-                    monthIndex <= temp * 3;
-                    monthIndex++) {
-                  if (dateTime!.year == currentDate.year + 1 &&
-                      dateTime.month == monthIndex) {
-                    isVisible = true;
-                    break;
-                  }
-                }
-              } else {
-                temp++;
-                for (int monthIndex = (temp * 3) - 2;
-                    monthIndex <= temp * 3;
-                    monthIndex++) {
-                  if (dateTime!.year == currentDate.year &&
-                      dateTime.month == monthIndex) {
-                    isVisible = true;
-                    break;
-                  }
-                }
-              }
-              break;
-            case DynamicFilterType.lastQuarter:
-              temp = currentDate.month / 3 as int;
-              if (currentDate.month % 3 != 0) {
-                temp++;
-              }
-              if (temp == 1) {
-                temp = 4;
-                for (int monthIndex = (temp * 3) - 2;
-                    monthIndex <= temp * 3;
-                    monthIndex++) {
-                  if (dateTime!.year == currentDate.year - 1 &&
-                      dateTime.month == monthIndex) {
-                    isVisible = true;
-                    break;
-                  }
-                }
-              } else {
-                temp--;
-                for (int monthIndex = (temp * 3) - 2;
-                    monthIndex <= temp * 3;
-                    monthIndex++) {
-                  if (dateTime!.year == currentDate.year &&
-                      dateTime.month == monthIndex) {
-                    isVisible = true;
-                    break;
-                  }
-                }
-              }
-              break;
-            case DynamicFilterType.quarter1:
-              for (int monthIndex = 1; monthIndex <= 3; monthIndex++) {
-                if (dateTime!.month == monthIndex) {
+            }
+            break;
+          case DynamicFilterType.lastQuarter:
+            temp = currentDate.month / 3 as int;
+            if (currentDate.month % 3 != 0) {
+              temp++;
+            }
+            if (temp == 1) {
+              temp = 4;
+              for (int monthIndex = (temp * 3) - 2;
+                  monthIndex <= temp * 3;
+                  monthIndex++) {
+                if (dateTime!.year == currentDate.year - 1 &&
+                    dateTime.month == monthIndex) {
                   isVisible = true;
                   break;
                 }
               }
-              break;
-            case DynamicFilterType.quarter2:
-              for (int monthIndex = 4; monthIndex <= 6; monthIndex++) {
-                if (dateTime!.month == monthIndex) {
+            } else {
+              temp--;
+              for (int monthIndex = (temp * 3) - 2;
+                  monthIndex <= temp * 3;
+                  monthIndex++) {
+                if (dateTime!.year == currentDate.year &&
+                    dateTime.month == monthIndex) {
                   isVisible = true;
                   break;
                 }
               }
-              break;
-            case DynamicFilterType.quarter3:
-              for (int monthIndex = 7; monthIndex <= 9; monthIndex++) {
-                if (dateTime!.month == monthIndex) {
-                  isVisible = true;
-                  break;
-                }
-              }
-              break;
-            case DynamicFilterType.quarter4:
-              for (int monthIndex = 10; monthIndex <= 12; monthIndex++) {
-                if (dateTime!.month == monthIndex) {
-                  isVisible = true;
-                  break;
-                }
-              }
-              break;
-            case DynamicFilterType.january:
-              if (dateTime!.month == 1) {
+            }
+            break;
+          case DynamicFilterType.quarter1:
+            for (int monthIndex = 1; monthIndex <= 3; monthIndex++) {
+              if (dateTime!.month == monthIndex) {
                 isVisible = true;
+                break;
               }
-              break;
-            case DynamicFilterType.february:
-              if (dateTime!.month == 2) {
+            }
+            break;
+          case DynamicFilterType.quarter2:
+            for (int monthIndex = 4; monthIndex <= 6; monthIndex++) {
+              if (dateTime!.month == monthIndex) {
                 isVisible = true;
+                break;
               }
-              break;
-            case DynamicFilterType.march:
-              if (dateTime!.month == 3) {
+            }
+            break;
+          case DynamicFilterType.quarter3:
+            for (int monthIndex = 7; monthIndex <= 9; monthIndex++) {
+              if (dateTime!.month == monthIndex) {
                 isVisible = true;
+                break;
               }
-              break;
-            case DynamicFilterType.april:
-              if (dateTime!.month == 4) {
+            }
+            break;
+          case DynamicFilterType.quarter4:
+            for (int monthIndex = 10; monthIndex <= 12; monthIndex++) {
+              if (dateTime!.month == monthIndex) {
                 isVisible = true;
+                break;
               }
-              break;
-            case DynamicFilterType.may:
-              if (dateTime!.month == 5) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.june:
-              if (dateTime!.month == 6) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.july:
-              if (dateTime!.month == 7) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.august:
-              if (dateTime!.month == 8) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.september:
-              if (dateTime!.month == 9) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.october:
-              if (dateTime!.month == 10) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.november:
-              if (dateTime!.month == 11) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.december:
-              if (dateTime!.month == 12) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.yearToDate:
-              if (currentDate.year == dateTime!.year &&
-                  currentDate.day >= dateTime.day &&
-                  currentDate.month >= dateTime.month) {
-                isVisible = true;
-              }
-              break;
-            case DynamicFilterType.none:
-              break;
-          }
-          range.showRows(isVisible);
-        } else
-          range.showRows(false);
-      }
+            }
+            break;
+          case DynamicFilterType.january:
+            if (dateTime!.month == 1) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.february:
+            if (dateTime!.month == 2) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.march:
+            if (dateTime!.month == 3) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.april:
+            if (dateTime!.month == 4) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.may:
+            if (dateTime!.month == 5) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.june:
+            if (dateTime!.month == 6) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.july:
+            if (dateTime!.month == 7) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.august:
+            if (dateTime!.month == 8) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.september:
+            if (dateTime!.month == 9) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.october:
+            if (dateTime!.month == 10) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.november:
+            if (dateTime!.month == 11) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.december:
+            if (dateTime!.month == 12) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.yearToDate:
+            if (currentDate.year == dateTime!.year &&
+                currentDate.day >= dateTime.day &&
+                currentDate.month >= dateTime.month) {
+              isVisible = true;
+            }
+            break;
+          case DynamicFilterType.none:
+            break;
+        }
+        range.showRows(isVisible);
+      } else
+        range.showRows(false);
     }
   }
 
   /// Remove the existing dynamic filter from filter collection.
   bool _removeDynamicFilter() {
-    if (_dateFilter == null) {
-      return false;
-    }
-
     _filtertype = _ExcelFilterType.customFilter;
     _dateFilter._dateFilterType = DynamicFilterType.none;
 
@@ -599,51 +585,49 @@ class _AutoFilterImpl implements AutoFilter {
 
   /// Apply the date time filter.
   void _applyDateTimeFilter() {
-    if (_combinationFilter != null) {
-      final Range filterRange = _autoFilterCollection.filterRange;
-      for (int row = filterRange.row + 1; row <= filterRange.lastRow; row++) {
-        final Range range = _worksheet.getRangeByIndex(row, _colIndex);
-        if (range.dateTime != null) {
-          for (int index = 0;
-              index < _combinationFilter._filterCollection.length;
-              index++) {
-            final _MultipleFilter filter =
-                _combinationFilter._filterCollection[index];
-            if (filter._combinationFilterType ==
-                _ExcelCombinationFilterType.dateTimeFilter) {
-              final _DateTimeFilter dateTimeFilter = filter as _DateTimeFilter;
-              final DateTimeFilterType dateGroup = dateTimeFilter._groupingType;
-              final DateTime filterDate = dateTimeFilter._dateTime;
-              final DateTime? dateTime = range.dateTime;
-              if (filterDate.year == dateTime!.year) {
-                if (dateGroup == DateTimeFilterType.year) {
+    final Range filterRange = _autoFilterCollection.filterRange;
+    for (int row = filterRange.row + 1; row <= filterRange.lastRow; row++) {
+      final Range range = _worksheet.getRangeByIndex(row, _colIndex);
+      if (range.dateTime != null) {
+        for (int index = 0;
+            index < _combinationFilter._filterCollection.length;
+            index++) {
+          final _MultipleFilter filter =
+              _combinationFilter._filterCollection[index];
+          if (filter._combinationFilterType ==
+              _ExcelCombinationFilterType.dateTimeFilter) {
+            final _DateTimeFilter dateTimeFilter = filter as _DateTimeFilter;
+            final DateTimeFilterType dateGroup = dateTimeFilter._groupingType;
+            final DateTime filterDate = dateTimeFilter._dateTime;
+            final DateTime? dateTime = range.dateTime;
+            if (filterDate.year == dateTime!.year) {
+              if (dateGroup == DateTimeFilterType.year) {
+                range.showRows(true);
+                break;
+              }
+              if (filterDate.month == dateTime.month) {
+                if (dateGroup == DateTimeFilterType.month) {
                   range.showRows(true);
                   break;
                 }
-                if (filterDate.month == dateTime.month) {
-                  if (dateGroup == DateTimeFilterType.month) {
+                if (filterDate.day == dateTime.day) {
+                  if (dateGroup == DateTimeFilterType.day) {
                     range.showRows(true);
                     break;
                   }
-                  if (filterDate.day == dateTime.day) {
-                    if (dateGroup == DateTimeFilterType.day) {
+                  if (filterDate.hour == dateTime.hour) {
+                    if (dateGroup == DateTimeFilterType.hour) {
                       range.showRows(true);
                       break;
                     }
-                    if (filterDate.hour == dateTime.hour) {
-                      if (dateGroup == DateTimeFilterType.hour) {
+                    if (filterDate.minute == dateTime.minute) {
+                      if (dateGroup == DateTimeFilterType.minute) {
                         range.showRows(true);
                         break;
                       }
-                      if (filterDate.minute == dateTime.minute) {
-                        if (dateGroup == DateTimeFilterType.minute) {
-                          range.showRows(true);
-                          break;
-                        }
-                        if (filterDate.second == dateTime.second) {
-                          range.showRows(true);
-                          break;
-                        }
+                      if (filterDate.second == dateTime.second) {
+                        range.showRows(true);
+                        break;
                       }
                     }
                   }
@@ -835,109 +819,108 @@ class _AutoFilterImpl implements AutoFilter {
       stringA = a.toString();
       stringB = b.toString();
     }
-    if (conditionOperator != null) {
-      switch (conditionOperator) {
-        case ExcelFilterCondition.less:
-          if (doubleA < doubleB) {
-            temp = true;
-          } else {
-            temp = false;
-          }
-          break;
-        case ExcelFilterCondition.equal:
-          if (a.runtimeType == String && b.runtimeType == String) {
-            if (stringA == stringB) {
-              temp = true;
-            } else {
-              temp = false;
-            }
-          } else {
-            if (doubleA == doubleB) {
-              temp = true;
-            } else {
-              temp = false;
-            }
-          }
-          break;
-        case ExcelFilterCondition.lessOrEqual:
-          if (doubleA <= doubleB) {
-            temp = true;
-          } else {
-            temp = false;
-          }
-          break;
-        case ExcelFilterCondition.greater:
-          if (doubleA > doubleB) {
-            temp = true;
-          } else {
-            temp = false;
-          }
-          break;
-        case ExcelFilterCondition.notEqual:
-          if (doubleA != doubleB) {
-            temp = true;
-          } else {
-            temp = false;
-          }
-          break;
-        case ExcelFilterCondition.greaterOrEqual:
-          if (doubleA >= doubleB) {
-            temp = true;
-          } else {
-            temp = false;
-          }
-          break;
-        case ExcelFilterCondition.contains:
-          if (stringA.contains(stringB)) {
-            temp = true;
-          } else {
-            temp = false;
-          }
-          break;
-        case ExcelFilterCondition.doesNotContain:
-          if (!stringA.contains(stringB)) {
-            temp = true;
-          } else {
-            temp = false;
-          }
-          break;
-        case ExcelFilterCondition.beginsWith:
-          if (stringA.startsWith(stringB)) {
-            temp = true;
-          } else {
-            temp = false;
-          }
-          break;
-        case ExcelFilterCondition.doesNotBeginWith:
-          if (!stringA.startsWith(stringB)) {
-            temp = true;
-          } else {
-            temp = false;
-          }
-          break;
-        case ExcelFilterCondition.endsWith:
-          if (stringA.endsWith(stringB)) {
-            temp = true;
-          } else {
-            temp = false;
-          }
-          break;
-        case ExcelFilterCondition.doesNotEndWith:
-          if (!stringA.endsWith(stringB)) {
-            temp = true;
-          } else {
-            temp = false;
-          }
-          break;
-      }
-      if (isFirstCondition) {
-        _firstConditionboolList.add(temp);
-        _rangeListtemp.add(key);
-      } else {
-        _secondConditionboolList.add(temp);
-        if (_rangeListtemp.isEmpty) {
-          _rangeListtemp.add(key);
+
+    switch (conditionOperator) {
+      case ExcelFilterCondition.less:
+        if (doubleA < doubleB) {
+          temp = true;
+        } else {
+          temp = false;
         }
+        break;
+      case ExcelFilterCondition.equal:
+        if (a.runtimeType == String && b.runtimeType == String) {
+          if (stringA == stringB) {
+            temp = true;
+          } else {
+            temp = false;
+          }
+        } else {
+          if (doubleA == doubleB) {
+            temp = true;
+          } else {
+            temp = false;
+          }
+        }
+        break;
+      case ExcelFilterCondition.lessOrEqual:
+        if (doubleA <= doubleB) {
+          temp = true;
+        } else {
+          temp = false;
+        }
+        break;
+      case ExcelFilterCondition.greater:
+        if (doubleA > doubleB) {
+          temp = true;
+        } else {
+          temp = false;
+        }
+        break;
+      case ExcelFilterCondition.notEqual:
+        if (doubleA != doubleB) {
+          temp = true;
+        } else {
+          temp = false;
+        }
+        break;
+      case ExcelFilterCondition.greaterOrEqual:
+        if (doubleA >= doubleB) {
+          temp = true;
+        } else {
+          temp = false;
+        }
+        break;
+      case ExcelFilterCondition.contains:
+        if (stringA.contains(stringB)) {
+          temp = true;
+        } else {
+          temp = false;
+        }
+        break;
+      case ExcelFilterCondition.doesNotContain:
+        if (!stringA.contains(stringB)) {
+          temp = true;
+        } else {
+          temp = false;
+        }
+        break;
+      case ExcelFilterCondition.beginsWith:
+        if (stringA.startsWith(stringB)) {
+          temp = true;
+        } else {
+          temp = false;
+        }
+        break;
+      case ExcelFilterCondition.doesNotBeginWith:
+        if (!stringA.startsWith(stringB)) {
+          temp = true;
+        } else {
+          temp = false;
+        }
+        break;
+      case ExcelFilterCondition.endsWith:
+        if (stringA.endsWith(stringB)) {
+          temp = true;
+        } else {
+          temp = false;
+        }
+        break;
+      case ExcelFilterCondition.doesNotEndWith:
+        if (!stringA.endsWith(stringB)) {
+          temp = true;
+        } else {
+          temp = false;
+        }
+        break;
+    }
+    if (isFirstCondition) {
+      _firstConditionboolList.add(temp);
+      _rangeListtemp.add(key);
+    } else {
+      _secondConditionboolList.add(temp);
+      if (_rangeListtemp.isEmpty) {
+        _rangeListtemp.add(key);
       }
     }
   }

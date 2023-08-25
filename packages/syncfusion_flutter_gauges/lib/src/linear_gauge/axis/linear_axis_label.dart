@@ -59,6 +59,6 @@ class LinearAxisLabel {
 
   @override
   int get hashCode {
-    return hashValues(text, value);
+    return Object.hash(text, value);
   }
 }

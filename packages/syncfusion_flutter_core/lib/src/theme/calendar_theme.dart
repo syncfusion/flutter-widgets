@@ -988,7 +988,7 @@ class SfCalendarThemeData with Diagnosticable {
       allDayPanelColor,
       timeIndicatorTextStyle,
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 
   @override

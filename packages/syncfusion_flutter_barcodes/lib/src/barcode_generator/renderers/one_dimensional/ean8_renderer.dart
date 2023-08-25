@@ -153,6 +153,7 @@ class EAN8Renderer extends SymbologyRenderer {
 
   /// Method to calculate the input data
   int _getCheckSumData(String value) {
+    // ignore: dead_code
     for (int i = 0; i < value.length; i++) {
       final int sum1 =
           int.parse(value[1]) + int.parse(value[3]) + int.parse(value[5]);

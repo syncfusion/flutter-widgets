@@ -135,6 +135,7 @@ class PyramidPlotArea extends StatelessWidget {
     _bindTooltipWidgets(constraints);
     renderBox = context.findRenderObject() as RenderBox;
     stateProperties.chartPlotArea = this;
+    stateProperties.legendRefresh = false;
     // ignore: avoid_unnecessary_containers
     return Container(
         child: Stack(
@@ -193,9 +194,10 @@ class PyramidPlotArea extends StatelessWidget {
           !stateProperties.renderingDetails.didSizeChange &&
           (stateProperties.renderingDetails.deviceOrientation ==
               stateProperties.renderingDetails.oldDeviceOrientation) &&
-          ((!stateProperties.renderingDetails.widgetNeedUpdate &&
-                  stateProperties.renderingDetails.initialRender!) ||
-              stateProperties.renderingDetails.isLegendToggled)) {
+          (((!stateProperties.renderingDetails.widgetNeedUpdate &&
+                      stateProperties.renderingDetails.initialRender!) ||
+                  stateProperties.renderingDetails.isLegendToggled) ||
+              stateProperties.legendRefresh)) {
         final int totalAnimationDuration =
             series.animationDuration.toInt() + series.animationDelay.toInt();
         stateProperties.renderingDetails.animationController.duration =
@@ -279,7 +281,7 @@ class PyramidPlotArea extends StatelessWidget {
       tooltipRenderingDetails.chartTooltip = SfTooltip(
           color: tooltip.color ?? chartTheme.tooltipColor,
           key: GlobalKey(),
-          textStyle: tooltip.textStyle,
+          textStyle: chartTheme.tooltipTextStyle!,
           animationDuration: tooltip.animationDuration,
           animationCurve: const Interval(0.1, 0.8, curve: Curves.easeOutBack),
           enable: tooltip.enable,
@@ -292,7 +294,7 @@ class PyramidPlotArea extends StatelessWidget {
           canShowMarker: tooltip.canShowMarker,
           textAlignment: tooltip.textAlignment,
           decimalPlaces: tooltip.decimalPlaces,
-          labelColor: tooltip.textStyle.color ?? chartTheme.tooltipLabelColor,
+          labelColor: tooltip.textStyle?.color ?? chartTheme.tooltipLabelColor,
           header: tooltip.header,
           format: tooltip.format,
           shadowColor: tooltip.shadowColor,

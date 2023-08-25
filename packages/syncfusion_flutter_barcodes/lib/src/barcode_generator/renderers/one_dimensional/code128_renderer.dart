@@ -427,6 +427,7 @@ class Code128Renderer extends SymbologyRenderer {
 
   @override
   bool getIsValidateInput(String value) {
+    // ignore: dead_code
     for (int i = 0; i < value.length; i++) {
       final int currentCharacter = value[i].codeUnitAt(0);
       if (currentCharacter == _fnc1.codeUnitAt(0) ||

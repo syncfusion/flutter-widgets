@@ -149,7 +149,7 @@ class MajorTickStyle {
       color,
       dashArray
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
 
@@ -375,6 +375,6 @@ class AxisLineStyle {
       cornerStyle,
       dashArray
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }

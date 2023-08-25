@@ -17,8 +17,8 @@ num? percentToValue(String? value, num size) {
   return value != null
       ? value.contains('%')
           ? (size / 100) *
-              (num.tryParse(value.replaceAll(RegExp('%'), '')))!.abs()
-          : (num.tryParse(value))?.abs()
+              num.tryParse(value.replaceAll(RegExp('%'), ''))!.abs()
+          : num.tryParse(value)?.abs()
       : null;
 }
 
@@ -49,8 +49,9 @@ Path getArcPath(num innerRadius, num radius, Offset center, num? startAngle,
   }
 
   final bool isFullCircle =
-      // ignore: unnecessary_null_comparison
-      startAngle != null && endAngle != null && endAngle - startAngle == 2 * pi;
+      // Check if the angle between startAngle and endAngle is equal to a full circle (2 * pi radians)
+      // by rounding both values to 5 decimal places and comparing them to avoid precision errors.
+      (endAngle - startAngle).toStringAsFixed(5) == (2 * pi).toStringAsFixed(5);
 
   final num midpointAngle = (endAngle + startAngle) / 2;
 
@@ -100,22 +101,14 @@ Path getRoundedCornerArcPath(
     ChartPoint<dynamic> point) {
   final Path path = Path();
 
-  Offset midPoint;
-  num midStartAngle, midEndAngle;
   if (cornerStyle == CornerStyle.startCurve ||
       cornerStyle == CornerStyle.bothCurve) {
-    midPoint =
-        degreeToPoint(startAngle, (innerRadius + outerRadius) / 2, center!);
+    final Offset startPoint = degreeToPoint(startAngle, innerRadius, center!);
+    final Offset endPoint = degreeToPoint(startAngle, outerRadius, center);
 
-    midStartAngle = degreesToRadians(180);
-
-    midEndAngle = midStartAngle + degreesToRadians(180);
-
-    path.addArc(
-        Rect.fromCircle(
-            center: midPoint, radius: (innerRadius - outerRadius).abs() / 2),
-        midStartAngle.toDouble(),
-        midEndAngle.toDouble());
+    path.moveTo(startPoint.dx, startPoint.dy);
+    path.arcToPoint(endPoint,
+        radius: Radius.circular((innerRadius - outerRadius).abs() / 2));
   }
 
   path.addArc(
@@ -125,18 +118,9 @@ Path getRoundedCornerArcPath(
 
   if (cornerStyle == CornerStyle.endCurve ||
       cornerStyle == CornerStyle.bothCurve) {
-    midPoint = degreeToPoint(endAngle, (innerRadius + outerRadius) / 2, center);
-
-    midStartAngle = degreesToRadians(endAngle / 2);
-
-    midEndAngle = midStartAngle + degreesToRadians(180);
-
-    path.arcTo(
-        Rect.fromCircle(
-            center: midPoint, radius: (innerRadius - outerRadius).abs() / 2),
-        midStartAngle.toDouble(),
-        midEndAngle.toDouble(),
-        false);
+    final Offset endPoint = degreeToPoint(endAngle, innerRadius, center);
+    path.arcToPoint(endPoint,
+        radius: Radius.circular((innerRadius - outerRadius).abs() / 2));
   }
 
   path.arcTo(
@@ -146,6 +130,10 @@ Path getRoundedCornerArcPath(
               degreesToRadians(endAngle.toDouble()))
           .toDouble(),
       false);
+  if (cornerStyle == CornerStyle.endCurve) {
+    path.close();
+  }
+
   return path;
 }
 
@@ -290,16 +278,17 @@ void canRepaintSeries(
           oldWidgetSeries.dataLabelSettings.borderWidth ||
       series.dataLabelSettings.borderColor.value !=
           oldWidgetSeries.dataLabelSettings.borderColor.value ||
-      series.dataLabelSettings.textStyle.color?.value !=
-          oldWidgetSeries.dataLabelSettings.textStyle.color?.value ||
-      series.dataLabelSettings.textStyle.fontWeight !=
-          oldWidgetSeries.dataLabelSettings.textStyle.fontWeight ||
-      series.dataLabelSettings.textStyle.fontSize !=
-          oldWidgetSeries.dataLabelSettings.textStyle.fontSize ||
-      series.dataLabelSettings.textStyle.fontFamily !=
-          oldWidgetSeries.dataLabelSettings.textStyle.fontFamily ||
-      series.dataLabelSettings.textStyle.fontStyle !=
-          oldWidgetSeries.dataLabelSettings.textStyle.fontStyle ||
+      series.dataLabelSettings.textStyle != null &&
+          (series.dataLabelSettings.textStyle?.color?.value !=
+                  oldWidgetSeries.dataLabelSettings.textStyle?.color?.value ||
+              series.dataLabelSettings.textStyle?.fontStyle !=
+                  oldWidgetSeries.dataLabelSettings.textStyle?.fontStyle ||
+              series.dataLabelSettings.textStyle?.fontFamily !=
+                  oldWidgetSeries.dataLabelSettings.textStyle?.fontFamily ||
+              series.dataLabelSettings.textStyle?.fontSize !=
+                  oldWidgetSeries.dataLabelSettings.textStyle?.fontSize ||
+              series.dataLabelSettings.textStyle?.fontWeight !=
+                  oldWidgetSeries.dataLabelSettings.textStyle?.fontWeight) ||
       series.dataLabelSettings.labelIntersectAction !=
           oldWidgetSeries.dataLabelSettings.labelIntersectAction ||
       series.dataLabelSettings.labelPosition !=

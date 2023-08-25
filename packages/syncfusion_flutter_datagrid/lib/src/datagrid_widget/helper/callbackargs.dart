@@ -220,39 +220,72 @@ class DataGridSwipeEndDetails {
 @immutable
 class ColumnResizeStartDetails {
   /// Creates the [ColumnResizeStartDetails] with the specified [column] and [width].
-  const ColumnResizeStartDetails({required this.column, required this.width});
+  const ColumnResizeStartDetails(
+      {required this.column, required this.width, required this.columnIndex});
 
   ///  A column that is going to be resized.
   final GridColumn column;
 
   /// Current width of a column.
   final double width;
+
+  ///  An index of a column that is going to be resized.
+  final int columnIndex;
 }
 
 /// Holds the arguments for the [SfDataGrid.onColumnResizeUpdate] callback.
 @immutable
 class ColumnResizeUpdateDetails {
   /// Creates the [ColumnResizeUpdateDetails] with the specified [column] and [width].
-  const ColumnResizeUpdateDetails({required this.column, required this.width});
+  const ColumnResizeUpdateDetails(
+      {required this.column, required this.width, required this.columnIndex});
 
   ///  A column that is being resized.
   final GridColumn column;
 
   /// Currently resized width of a column.
   final double width;
+
+  /// An index of a column that is being resized.
+  final int columnIndex;
 }
 
 /// Holds the arguments for the [SfDataGrid.onColumnResizeEnd] callback.
 @immutable
 class ColumnResizeEndDetails {
   /// Creates the [ColumnResizeEndDetails] with the specified [column] and [width].
-  const ColumnResizeEndDetails({required this.column, required this.width});
+  const ColumnResizeEndDetails(
+      {required this.column, required this.width, required this.columnIndex});
 
   ///  A column that is resized.
   final GridColumn column;
 
   /// Currently resized width of a column.
   final double width;
+
+  /// An index of a column that is resized.
+  final int columnIndex;
+}
+
+/// Details for callbacks that use [DataGridFilterChangeDetails].
+///
+/// See also:
+///
+/// * [DataGridFilterChangingCallback]
+/// * [DataGridFilterChangedCallback]
+@immutable
+class DataGridFilterChangeDetails {
+  /// Creates the [DataGridFilterChangeDetails] for the
+  /// `DataGridFilterChangingCallback` and `DataGridFilterChangedCallback`.
+  const DataGridFilterChangeDetails(
+      {required this.column, required this.filterConditions});
+
+  /// The column where the current filtering is applied.
+  final GridColumn column;
+
+  /// Holds the collection of [FilterCondition] which are applied currently to
+  /// the column.
+  final List<FilterCondition> filterConditions;
 }
 
 /// Sets the `columnSizer` instance to the [RowHeightDetails] class.
@@ -266,4 +299,28 @@ void setSwipeOffsetInDataGridSwipeStartDetailsArgs(
     DataGridConfiguration dataGridConfiguration,
     DataGridSwipeStartDetails swipeStartDetails) {
   swipeStartDetails._dataGridConfiguration = dataGridConfiguration;
+}
+
+///Holds the arguments of the [SfDataGrid.onColumnDragging] callback.
+@immutable
+class DataGridColumnDragDetails {
+  /// Creates the [DataGridColumnDragDetails] for the
+  /// `DataGridColumnDraggingCallback`.
+  const DataGridColumnDragDetails(
+      {required this.from,
+      required this.to,
+      required this.action,
+      required this.offset});
+
+  //// An index of a column that is being dragged.
+  final int from;
+
+  /// An index of a column where the already dragged column is being dropped.
+  final int? to;
+
+  /// The current action of the drag and drop operation.
+  final DataGridColumnDragAction action;
+
+  /// The global position at which the pointer contacted the screen.
+  final Offset offset;
 }

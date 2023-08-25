@@ -294,6 +294,6 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
       lowerLineColor,
       lowerLineWidth
     ];
-    return hashList(values);
+    return Object.hashAll(values);
   }
 }
