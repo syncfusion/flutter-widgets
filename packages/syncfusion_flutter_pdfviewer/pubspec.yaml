@@ -32,21 +32,22 @@ dependencies:
     sdk: flutter
   vector_math: ^2.1.0
   async: ^2.5.0
-  http: ^0.13.0
+  http: ^1.0.0
   uuid: ^3.0.5
-  intl: ">=0.17.0 <0.20.0"
+  device_info_plus: ^9.0.2
+  intl: ^0.18.0
 
-  syncfusion_pdfviewer_platform_interface: ^20.4.38
+  syncfusion_pdfviewer_platform_interface: ^22.2.11
 
-  syncfusion_pdfviewer_web: ^20.4.38
+  syncfusion_pdfviewer_web: ^22.2.11
 
-  syncfusion_pdfviewer_macos: ^20.4.38
+  syncfusion_pdfviewer_macos: ^22.2.11
   
-  syncfusion_pdfviewer_windows: ^20.4.38
+  syncfusion_pdfviewer_windows: ^22.2.11
 
-  syncfusion_flutter_core: ^20.4.38
+  syncfusion_flutter_core: ^22.2.11
 
-  syncfusion_flutter_pdf: ^20.4.38
+  syncfusion_flutter_pdf: ^22.2.11
 
   url_launcher: ^6.1.0
 
