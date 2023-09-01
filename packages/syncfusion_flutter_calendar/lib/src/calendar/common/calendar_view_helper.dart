@@ -269,7 +269,9 @@ class CalendarViewHelper {
       TextStyle? todayTextStyle, SfCalendarThemeData calendarTheme) {
     Color? todayTextColor = todayHighlightColor;
     if (todayTextColor != null && todayTextColor == Colors.transparent) {
-      todayTextColor = calendarTheme.todayTextStyle!.color;
+      todayTextColor = todayTextStyle != null
+          ? todayTextStyle.color
+          : calendarTheme.todayTextStyle!.color;
     }
 
     return todayTextColor;

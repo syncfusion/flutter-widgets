@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
 import '../../common/event_args.dart';
 import '../../common/rendering_details.dart';
 import '../../common/utils/enum.dart';
@@ -51,7 +50,7 @@ abstract class ChartAxis {
       TickPosition? tickPosition,
       MajorTickLines? majorTickLines,
       MinorTickLines? minorTickLines,
-      this.labelStyle,
+      TextStyle? labelStyle,
       AxisLabelIntersectAction? labelIntersectAction,
       this.desiredIntervals,
       MajorGridLines? majorGridLines,
@@ -98,6 +97,12 @@ abstract class ChartAxis {
             labelIntersectAction ?? AxisLabelIntersectAction.hide,
         minorTicksPerInterval = minorTicksPerInterval ?? 0,
         maximumLabels = maximumLabels ?? 3,
+        labelStyle = getTextStyle(
+            textStyle: labelStyle,
+            fontSize: 12.0,
+            fontStyle: FontStyle.normal,
+            fontWeight: FontWeight.normal,
+            fontFamily: 'Normal'),
         title = title ?? AxisTitle(),
         axisLine = axisLine ?? const AxisLine(),
         majorTickLines = majorTickLines ?? const MajorTickLines(),
@@ -253,7 +258,7 @@ abstract class ChartAxis {
   ///}
   ///```
   /// This property is used to show or hide the axis labels.
-  final TextStyle? labelStyle;
+  final TextStyle labelStyle;
 
   /// Customizes the appearance of the axis title.
   ///
@@ -1514,7 +1519,13 @@ class MinorGridLines {
 class AxisTitle {
   /// Creating an argument constructor of AxisTitle class.
   AxisTitle(
-      {this.text, this.textStyle, this.alignment = ChartAlignment.center});
+      {this.text, TextStyle? textStyle, this.alignment = ChartAlignment.center})
+      : textStyle = getTextStyle(
+            textStyle: textStyle,
+            fontFamily: 'Segoe UI',
+            fontSize: 15.0,
+            fontStyle: FontStyle.normal,
+            fontWeight: FontWeight.normal);
 
   /// Text to be displayed as axis title.
   ///
@@ -1555,7 +1566,7 @@ class AxisTitle {
   ///   );
   ///}
   ///```
-  final TextStyle? textStyle;
+  final TextStyle textStyle;
 
   /// Aligns the axis title.
   ///
@@ -1772,7 +1783,7 @@ abstract class ChartAxisRenderer with CustomizeAxisElements {
 
   @override
   TextStyle getAxisLabelStyle(ChartAxis axis, String text, int labelIndex) =>
-      axis.labelStyle!;
+      axis.labelStyle;
 
   /// It returns the axis label angle
   @override
@@ -1976,7 +1987,6 @@ class ChartAxisRendererDetails {
     labelRotation = axis.labelRotation;
     zoomFactor = axis.zoomFactor;
     zoomPosition = axis.zoomPosition;
-    chartThemeData = stateProperties.renderingDetails.chartTheme;
   }
 
   /// Represents the chart axis renderer
@@ -1987,9 +1997,6 @@ class ChartAxisRendererDetails {
 
   /// Specifies the old axis value
   ChartAxis? oldAxis;
-
-  /// Specifies the chart theme.
-  late SfChartThemeData chartThemeData;
 
   /// Specifies the value of state properties
   final CartesianStateProperties stateProperties;
@@ -2430,13 +2437,12 @@ class ChartAxisRendererDetails {
     }
     final List<String> labelCollection = <String>[];
     String text;
-    final TextStyle labelStyle =
-        axisRenderer._axisRendererDetails.chartThemeData.axisLabelTextStyle!;
     for (int i = 0; i < textCollection.length; i++) {
       text = textCollection[i];
-      (measureText(text, labelStyle, labelRotation).width < labelsExtent)
+      (measureText(text, axis.labelStyle, labelRotation).width < labelsExtent)
           ? labelCollection.add(text)
-          : labelCollection.add(getTrimmedText(text, labelsExtent, labelStyle,
+          : labelCollection.add(getTrimmedText(
+              text, labelsExtent, axis.labelStyle,
               axisRenderer: axisRenderer,
               isRtl: axisRenderer._axisRendererDetails.stateProperties
                   .renderingDetails.isRtl));
@@ -3092,6 +3098,7 @@ class ChartAxisRendererDetails {
         final AxisLabel label = visibleLabels[i];
         final String labelText =
             axisRenderer.getAxisLabel(axis, label.renderText!, i);
+
         textStyle = label.labelStyle;
         textStyle = getTextStyle(
             textStyle: textStyle,
@@ -3172,8 +3179,8 @@ class ChartAxisRendererDetails {
           double? finalTextStartPoint;
           for (int j = 1; j < label._labelCollection!.length; j++) {
             final String wrapTxt = label._labelCollection![j];
-            finalTextStartPoint =
-                pointY + (j * measureText(wrapTxt, textStyle, angle).height);
+            finalTextStartPoint = pointY +
+                (j * measureText(wrapTxt, axis.labelStyle, angle).height);
             drawText(canvas, wrapTxt, Offset(pointX, finalTextStartPoint),
                 textStyle, angle, isRtl);
             if (j == label._labelCollection!.length - 1) {
@@ -3317,8 +3324,11 @@ class ChartAxisRendererDetails {
     Offset point;
     final String title = axis.title.text ?? '';
     const int labelRotation = 0, innerPadding = 8;
-    final TextStyle titleStyle = chartThemeData.axisTitleTextStyle!;
-    final Size textSize = measureText(title, titleStyle);
+    TextStyle style = axis.title.textStyle;
+    style = getTextStyle(
+        textStyle: style,
+        fontColor: style.color ?? renderingDetails.chartTheme.axisTitleColor);
+    final Size textSize = measureText(title, style);
     double top = 0.0;
     final ChartAxisRendererDetails axisRendererDetails =
         axisRenderer._axisRendererDetails;
@@ -3369,7 +3379,7 @@ class ChartAxisRendererDetails {
                     ((axisBounds.width / 2) - (textSize.width / 2)),
                 top);
     if (seriesRenderers.isNotEmpty || name == 'primaryXAxis') {
-      drawText(canvas, title, point, titleStyle, labelRotation);
+      drawText(canvas, title, point, style, labelRotation);
     }
   }
 
@@ -3381,7 +3391,10 @@ class ChartAxisRendererDetails {
     final String title = axis.title.text ?? '';
     final int labelRotation = axis.opposedPosition ? 90 : 270;
     const int innerPadding = 10;
-    final TextStyle style = chartThemeData.axisTitleTextStyle!;
+    TextStyle style = axis.title.textStyle;
+    style = getTextStyle(
+        textStyle: style,
+        fontColor: style.color ?? renderingDetails.chartTheme.axisTitleColor);
     final Size textSize = measureText(title, style);
     double left = 0.0;
     final ChartAxisRendererDetails axisRendererDetails =
@@ -3482,12 +3495,8 @@ class ChartAxisRendererDetails {
       maximum = end + 0.5;
     } else {
       if (start < 0) {
-        if (start.isNegative && end.isNegative) {
-          minimum = start > ((5.0 / 6.0) * end) ? 0 : start - (end - start) / 2;
-        } else {
-          startValue = 0;
-          minimum = start + (start / 20);
-        }
+        startValue = 0;
+        minimum = start + (start / 20);
         remaining = interval + getValueByPercentage(minimum, interval);
         if ((0.365 * interval) >= remaining) {
           minimum -= interval;
@@ -3510,9 +3519,7 @@ class ChartAxisRendererDetails {
         maximum += interval;
       }
       if (maximum % interval > 0) {
-        maximum = end > 0
-            ? (maximum + interval) - (maximum % interval)
-            : (maximum + interval) + (maximum % interval);
+        maximum = (maximum + interval) - (maximum % interval);
       }
     }
     if (minimum == 0) {
@@ -3532,7 +3539,7 @@ class ChartAxisRendererDetails {
   void triggerLabelRenderEvent(String labelText, num labelValue,
       [DateTimeIntervalType? currentDateTimeIntervalType,
       String? currentDateFormat]) {
-    TextStyle fontStyle = chartThemeData.axisLabelTextStyle!.copyWith();
+    TextStyle fontStyle = axis.labelStyle;
     final String actualText = labelText;
     String renderText = actualText;
     String? eventActualText;
@@ -3546,11 +3553,11 @@ class ChartAxisRendererDetails {
     if (axis.axisLabelFormatter != null) {
       final ChartAxisLabel axisLabel =
           axis.axisLabelFormatter!(axisLabelDetails);
-      fontStyle = fontStyle.merge(axisLabel.textStyle);
+      fontStyle = axisLabel.textStyle;
       renderText = axisLabel.text;
       eventActualText = axisLabel.text;
     }
-    Size textSize = measureText(renderText, fontStyle, 0);
+    Size textSize = measureText(renderText, axis.labelStyle, 0);
     if (axis.maximumLabelWidth != null || axis.labelsExtent != null) {
       if (axis.maximumLabelWidth != null) {
         assert(axis.maximumLabelWidth! >= 0,
@@ -3563,12 +3570,12 @@ class ChartAxisRendererDetails {
               textSize.width > axis.maximumLabelWidth!) ||
           (axis.labelsExtent != null && textSize.width > axis.labelsExtent!)) {
         labelText = getTrimmedText(renderText,
-            (axis.labelsExtent ?? axis.maximumLabelWidth)!, fontStyle,
+            (axis.labelsExtent ?? axis.maximumLabelWidth)!, axis.labelStyle,
             axisRenderer: axisRenderer,
             isRtl: axisRenderer
                 ._axisRendererDetails.stateProperties.renderingDetails.isRtl);
       }
-      textSize = measureText(labelText, fontStyle, 0);
+      textSize = measureText(labelText, axis.labelStyle, 0);
     }
     final String? trimmedText =
         labelText.contains('...') || labelText.isEmpty ? labelText : null;
@@ -3702,8 +3709,8 @@ class ChartAxisRendererDetails {
       case AxisLabelIntersectAction.rotate90:
         angle = action == AxisLabelIntersectAction.rotate45 ? -45 : -90;
         labelRotation = angle;
-        currentLabelSize = measureText(
-            label.renderText!, chartThemeData.axisLabelTextStyle!, angle);
+        currentLabelSize =
+            measureText(label.renderText!, axis.labelStyle, angle);
         if (currentLabelSize.height > maximumLabelHeight) {
           maximumLabelHeight = currentLabelSize.height;
         }

@@ -241,8 +241,11 @@ enum CrosshairLineType {
 
 /// Trackball line type.
 enum TrackballLineType {
-  /// - TrackballLineType.vertical, displays vertical trackball line.
+  /// - TrackballLineType.horizontal, displays horizontal trackball line.
   vertical,
+
+  /// - TrackballLineType.vertical, displays vertical trackball line.
+  horizontal,
 
   /// - TrackballLineType.none, will not display trackball line.
   none

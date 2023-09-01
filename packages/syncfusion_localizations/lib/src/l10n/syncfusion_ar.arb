@@ -92,12 +92,12 @@
 "searchDataGridFilteringLabel" : "يبحث", 
 "noMatchesDataGridFilteringLabel" : "لا يوجد تطابق", 
 "okDataGridFilteringLabel" : "نعم", 
-"cancelDataGridFilteringLabel" : "إلغاء", 
+"cancelDataGridFilteringLabel" : "يلغي", 
 "showRowsWhereDataGridFilteringLabel" : "إظهار الصفوف حيث", 
 "andDataGridFilteringLabel" : "و", 
 "orDataGridFilteringLabel" : "أو", 
 "selectAllDataGridFilteringLabel" : "اختر الكل", 
 "sortAndFilterDataGridFilteringLabel" : "الفرز والتصفية", 
-"clearFilterDataGridFilteringLabel" : "مسح المرشح",
+"clearFilterDataGridFilteringLabel" : "مرشح واضح", 
 "fromDataGridFilteringLabel" : "من"
 }

@@ -259,13 +259,52 @@ class TrackballPainter extends CustomPainter {
       pointerWidth = chart.trackballBehavior.tooltipSettings.arrowWidth;
       isGroupMode = chart.trackballBehavior.tooltipDisplayMode ==
           TrackballDisplayMode.groupAllPoints;
+
       isLeft = false;
       isRight = false;
       double height = 0, width = 0;
       boundaryRect = stateProperties.chartAxis.axisClipRect;
       totalWidth = boundaryRect.left + boundaryRect.width;
-      labelStyle =
-          stateProperties.renderingDetails.chartTheme.trackballTextStyle!;
+      labelStyle = TextStyle(
+          color: chart.trackballBehavior.tooltipSettings.textStyle.color ??
+              renderingDetails.chartTheme.crosshairLabelColor,
+          fontSize: chart.trackballBehavior.tooltipSettings.textStyle.fontSize,
+          fontFamily:
+              chart.trackballBehavior.tooltipSettings.textStyle.fontFamily,
+          fontStyle:
+              chart.trackballBehavior.tooltipSettings.textStyle.fontStyle,
+          fontWeight:
+              chart.trackballBehavior.tooltipSettings.textStyle.fontWeight,
+          inherit: chart.trackballBehavior.tooltipSettings.textStyle.inherit,
+          backgroundColor:
+              chart.trackballBehavior.tooltipSettings.textStyle.backgroundColor,
+          letterSpacing:
+              chart.trackballBehavior.tooltipSettings.textStyle.letterSpacing,
+          wordSpacing:
+              chart.trackballBehavior.tooltipSettings.textStyle.wordSpacing,
+          textBaseline:
+              chart.trackballBehavior.tooltipSettings.textStyle.textBaseline,
+          height: chart.trackballBehavior.tooltipSettings.textStyle.height,
+          locale: chart.trackballBehavior.tooltipSettings.textStyle.locale,
+          foreground:
+              chart.trackballBehavior.tooltipSettings.textStyle.foreground,
+          background:
+              chart.trackballBehavior.tooltipSettings.textStyle.background,
+          shadows: chart.trackballBehavior.tooltipSettings.textStyle.shadows,
+          fontFeatures:
+              chart.trackballBehavior.tooltipSettings.textStyle.fontFeatures,
+          decoration:
+              chart.trackballBehavior.tooltipSettings.textStyle.decoration,
+          decorationColor:
+              chart.trackballBehavior.tooltipSettings.textStyle.decorationColor,
+          decorationStyle:
+              chart.trackballBehavior.tooltipSettings.textStyle.decorationStyle,
+          decorationThickness: chart
+              .trackballBehavior.tooltipSettings.textStyle.decorationThickness,
+          debugLabel:
+              chart.trackballBehavior.tooltipSettings.textStyle.debugLabel,
+          fontFamilyFallback: chart
+              .trackballBehavior.tooltipSettings.textStyle.fontFamilyFallback);
       ChartPointInfo? trackLinePoint =
           chartPointInfo.isNotEmpty ? chartPointInfo[0] : null;
       for (int index = 0; index < chartPointInfo.length; index++) {
@@ -1673,15 +1712,13 @@ class TrackballPainter extends CustomPainter {
 
     Color? seriesColor;
     if (seriesRendererDetails.seriesType.contains('candle') == true) {
-      seriesColor = SegmentHelper.getSegmentProperties(
-              seriesRendererDetails.segments[
-                  chartPointInfo[index].chartDataPoint!.visiblePointIndex!])
+      seriesColor = SegmentHelper.getSegmentProperties(seriesRendererDetails
+              .segments[chartPointInfo[index].dataPointIndex!])
           .color;
     } else if (seriesRendererDetails.seriesType.contains('hiloopenclose') ==
         true) {
       seriesColor = SegmentHelper.getSegmentProperties(seriesRendererDetails
-                          .segments[
-                      chartPointInfo[index].chartDataPoint!.visiblePointIndex!])
+                      .segments[chartPointInfo[index].dataPointIndex!])
                   .isBull ==
               true
           ? seriesRendererDetails.hiloOpenCloseSeries.bullColor
@@ -1690,8 +1727,7 @@ class TrackballPainter extends CustomPainter {
       final List<CartesianChartPoint<dynamic>> dataPoints =
           getSampledData(seriesRendererDetails);
       seriesColor = (chartPointInfo[index].dataPointIndex! < dataPoints.length
-              ? dataPoints[
-                      chartPointInfo[index].chartDataPoint!.visiblePointIndex!]
+              ? dataPoints[chartPointInfo[index].dataPointIndex!]
                   .pointColorMapper
               : null) ??
           seriesRendererDetails.seriesColor;

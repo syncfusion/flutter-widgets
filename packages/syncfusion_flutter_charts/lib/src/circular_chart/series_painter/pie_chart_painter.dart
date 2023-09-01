@@ -76,23 +76,21 @@ class PieChartPainter extends CustomPainter {
               ? stateProperties.oldPoints![i]
               : null);
       point.innerRadius = 0.0;
-      if (point.isVisible || (oldPoint != null && oldPoint.isVisible)) {
-        pointStartAngle = seriesRenderer.circularRenderPoint(
-            chart,
-            seriesRenderer,
-            point,
-            pointStartAngle,
-            point.innerRadius,
-            point.outerRadius,
-            canvas,
-            index,
-            i,
-            seriesAnimation?.value ?? 1,
-            seriesAnimation?.value ?? 1,
-            isAnyPointNeedSelect,
-            oldPoint,
-            stateProperties.oldPoints);
-      }
+      pointStartAngle = seriesRenderer.circularRenderPoint(
+          chart,
+          seriesRenderer,
+          point,
+          pointStartAngle,
+          point.innerRadius,
+          point.outerRadius,
+          canvas,
+          index,
+          i,
+          seriesAnimation?.value ?? 1,
+          seriesAnimation?.value ?? 1,
+          isAnyPointNeedSelect,
+          oldPoint,
+          stateProperties.oldPoints);
     }
     if (seriesRenderer.renderList.isNotEmpty) {
       Shader? chartShader;

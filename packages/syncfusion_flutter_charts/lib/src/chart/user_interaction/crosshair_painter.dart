@@ -219,9 +219,6 @@ class CrosshairPainter extends CustomPainter {
       axisDetails = AxisHelper.getAxisRendererDetails(
           stateProperties.chartAxis.bottomAxesCount[index].axisRenderer);
       final ChartAxis axis = axisDetails.axis;
-      final TextStyle crosshairTextStyle =
-          axisDetails.chartThemeData.crosshairTextStyle!;
-
       if (_needToAddTooltip(axisDetails)) {
         fillPaint.color = axis.interactiveTooltip.color ??
             _renderingDetails.chartTheme.crosshairBackgroundColor;
@@ -239,7 +236,7 @@ class CrosshairPainter extends CustomPainter {
           value = crosshairEventArgs.text;
           color = crosshairEventArgs.lineColor;
         }
-        labelSize = measureText(value, crosshairTextStyle);
+        labelSize = measureText(value, axis.interactiveTooltip.textStyle);
         labelRect = Rect.fromLTWH(
             position.dx - (labelSize.width / 2 + padding / 2),
             axisDetails.bounds.top + axis.interactiveTooltip.arrowLength,
@@ -267,8 +264,8 @@ class CrosshairPainter extends CustomPainter {
             tooltipRect.top,
             position.dx,
             tooltipRect.top - axis.interactiveTooltip.arrowLength);
-        _drawTooltipText(
-            canvas, value, crosshairTextStyle, tooltipRect, labelSize);
+        _drawTooltipText(canvas, value, axis.interactiveTooltip.textStyle,
+            tooltipRect, labelSize);
       }
     }
   }
@@ -292,8 +289,6 @@ class CrosshairPainter extends CustomPainter {
       axisDetails = AxisHelper.getAxisRendererDetails(
           stateProperties.chartAxis.topAxesCount[index].axisRenderer);
       axis = axisDetails.axis;
-      final TextStyle crosshairTextStyle =
-          axisDetails.chartThemeData.crosshairTextStyle!;
       if (_needToAddTooltip(axisDetails)) {
         fillPaint.color = axis.interactiveTooltip.color ??
             _renderingDetails.chartTheme.crosshairBackgroundColor;
@@ -311,7 +306,7 @@ class CrosshairPainter extends CustomPainter {
           value = crosshairEventArgs.text;
           color = crosshairEventArgs.lineColor;
         }
-        labelSize = measureText(value, crosshairTextStyle);
+        labelSize = measureText(value, axis.interactiveTooltip.textStyle);
         labelRect = Rect.fromLTWH(
             position.dx - (labelSize.width / 2 + padding / 2),
             axisDetails.bounds.top -
@@ -341,8 +336,8 @@ class CrosshairPainter extends CustomPainter {
             tooltipRect.bottom,
             position.dx,
             tooltipRect.bottom + axis.interactiveTooltip.arrowLength);
-        _drawTooltipText(
-            canvas, value, crosshairTextStyle, tooltipRect, labelSize);
+        _drawTooltipText(canvas, value, axis.interactiveTooltip.textStyle,
+            tooltipRect, labelSize);
       }
     }
   }
@@ -366,8 +361,6 @@ class CrosshairPainter extends CustomPainter {
       axisDetails = AxisHelper.getAxisRendererDetails(
           stateProperties.chartAxis.leftAxesCount[index].axisRenderer);
       axis = axisDetails.axis;
-      final TextStyle crosshairTextStyle =
-          axisDetails.chartThemeData.crosshairTextStyle!;
       if (_needToAddTooltip(axisDetails)) {
         fillPaint.color = axis.interactiveTooltip.color ??
             _renderingDetails.chartTheme.crosshairBackgroundColor;
@@ -385,7 +378,7 @@ class CrosshairPainter extends CustomPainter {
           value = crosshairEventArgs.text;
           color = crosshairEventArgs.lineColor;
         }
-        labelSize = measureText(value, crosshairTextStyle);
+        labelSize = measureText(value, axis.interactiveTooltip.textStyle);
         labelRect = Rect.fromLTWH(
             axisDetails.bounds.left -
                 (labelSize.width + padding) -
@@ -419,8 +412,8 @@ class CrosshairPainter extends CustomPainter {
             tooltipRect.right + axis.interactiveTooltip.arrowLength,
             position.dy);
 
-        _drawTooltipText(
-            canvas, value, crosshairTextStyle, tooltipRect, labelSize);
+        _drawTooltipText(canvas, value, axis.interactiveTooltip.textStyle,
+            tooltipRect, labelSize);
       }
     }
   }
@@ -444,8 +437,6 @@ class CrosshairPainter extends CustomPainter {
       axisDetails = AxisHelper.getAxisRendererDetails(
           stateProperties.chartAxis.rightAxesCount[index].axisRenderer);
       axis = axisDetails.axis;
-      final TextStyle crosshairTextStyle =
-          axisDetails.chartThemeData.crosshairTextStyle!;
       if (_needToAddTooltip(axisDetails)) {
         fillPaint.color = axis.interactiveTooltip.color ??
             _renderingDetails.chartTheme.crosshairBackgroundColor;
@@ -463,7 +454,7 @@ class CrosshairPainter extends CustomPainter {
           value = crosshairEventArgs.text;
           color = crosshairEventArgs.lineColor;
         }
-        labelSize = measureText(value, crosshairTextStyle);
+        labelSize = measureText(value, axis.interactiveTooltip.textStyle);
         labelRect = Rect.fromLTWH(
             axisDetails.bounds.left + axis.interactiveTooltip.arrowLength,
             position.dy - (labelSize.height / 2 + padding / 2),
@@ -493,8 +484,8 @@ class CrosshairPainter extends CustomPainter {
             position.dy,
             tooltipRect.left - axis.interactiveTooltip.arrowLength,
             position.dy);
-        _drawTooltipText(
-            canvas, value, crosshairTextStyle, tooltipRect, labelSize);
+        _drawTooltipText(canvas, value, axis.interactiveTooltip.textStyle,
+            tooltipRect, labelSize);
       }
     }
   }
@@ -506,7 +497,30 @@ class CrosshairPainter extends CustomPainter {
         text,
         Offset((tooltipRect.left + tooltipRect.width / 2) - labelSize.width / 2,
             (tooltipRect.top + tooltipRect.height / 2) - labelSize.height / 2),
-        textStyle,
+        TextStyle(
+            color: textStyle.color ??
+                _renderingDetails.chartTheme.tooltipLabelColor,
+            fontSize: textStyle.fontSize,
+            fontWeight: textStyle.fontWeight,
+            fontFamily: textStyle.fontFamily,
+            fontStyle: textStyle.fontStyle,
+            inherit: textStyle.inherit,
+            backgroundColor: textStyle.backgroundColor,
+            letterSpacing: textStyle.letterSpacing,
+            wordSpacing: textStyle.wordSpacing,
+            textBaseline: textStyle.textBaseline,
+            height: textStyle.height,
+            locale: textStyle.locale,
+            foreground: textStyle.foreground,
+            background: textStyle.background,
+            shadows: textStyle.shadows,
+            fontFeatures: textStyle.fontFeatures,
+            decoration: textStyle.decoration,
+            decorationColor: textStyle.decorationColor,
+            decorationStyle: textStyle.decorationStyle,
+            decorationThickness: textStyle.decorationThickness,
+            debugLabel: textStyle.debugLabel,
+            fontFamilyFallback: textStyle.fontFamilyFallback),
         0);
   }
 

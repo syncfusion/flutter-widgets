@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../chart/utils/enum.dart';
 import 'utils/enum.dart';
+import 'utils/helper.dart';
 import 'utils/typedef.dart';
 
 /// Represents the chart container.
@@ -56,11 +57,17 @@ class ChartTitle {
   /// Creating an argument constructor of ChartTitle class.
   ChartTitle(
       {this.text = '',
-      this.textStyle,
+      TextStyle? textStyle,
       this.alignment = ChartAlignment.center,
       this.borderColor = Colors.transparent,
       this.borderWidth = 0,
-      this.backgroundColor});
+      this.backgroundColor})
+      : textStyle = getTextStyle(
+            textStyle: textStyle,
+            fontSize: 15.0,
+            fontFamily: 'Segoe UI',
+            fontStyle: FontStyle.normal,
+            fontWeight: FontWeight.normal);
 
   /// Text to be displayed as chart title. Any desired text can be set as chart title.
   /// If the width of the chart title exceeds the width of the chart, then the title will
@@ -97,7 +104,7 @@ class ChartTitle {
   ///   );
   /// }
   ///```
-  final TextStyle? textStyle;
+  final TextStyle textStyle;
 
   /// Aligns the chart title.
   ///
@@ -223,7 +230,7 @@ class ChartTitle {
 @immutable
 class Legend {
   /// Creating an argument constructor of Legend class.
-  const Legend(
+  Legend(
       {bool? isVisible,
       LegendPosition? position,
       ChartAlignment? alignment,
@@ -238,7 +245,7 @@ class Legend {
       double? iconWidth,
       bool? shouldAlwaysShowScrollbar,
       bool? toggleSeriesVisibility,
-      this.textStyle,
+      TextStyle? textStyle,
       bool? isResponsive,
       LegendItemOrientation? orientation,
       LegendTitle? title,
@@ -259,6 +266,11 @@ class Legend {
         iconBorderWidth = iconBorderWidth ?? 0.0,
         opacity = opacity ?? 1.0,
         padding = padding ?? 10.0,
+        textStyle = getTextStyle(
+            textStyle: textStyle,
+            fontSize: 13.0,
+            fontStyle: FontStyle.normal,
+            fontFamily: 'Segoe UI'),
         iconHeight = iconHeight ?? 12.0,
         iconWidth = iconWidth ?? 12.0,
         toggleSeriesVisibility = toggleSeriesVisibility ?? true,
@@ -266,7 +278,7 @@ class Legend {
         orientation = orientation ?? LegendItemOrientation.auto,
         overflowMode = overflowMode ?? LegendItemOverflowMode.scroll,
         itemPadding = itemPadding ?? 15.0,
-        title = title ?? const LegendTitle();
+        title = title ?? LegendTitle();
 
   /// Toggles the visibility of the legend.
   ///
@@ -580,7 +592,7 @@ class Legend {
   ///   );
   /// }
   ///```
-  final TextStyle? textStyle;
+  final TextStyle textStyle;
 
   /// Toggles the visibility of the legend.
   ///
@@ -864,8 +876,13 @@ class MeasureWidgetContext {
 @immutable
 class LegendTitle {
   /// Creating an argument constructor of LegendTitle class.
-  const LegendTitle({this.text, this.textStyle, ChartAlignment? alignment})
-      : alignment = alignment ?? ChartAlignment.center;
+  LegendTitle({this.text, TextStyle? textStyle, ChartAlignment? alignment})
+      : textStyle = getTextStyle(
+            textStyle: textStyle,
+            fontSize: 12.0,
+            fontStyle: FontStyle.normal,
+            fontFamily: 'Segoe UI'),
+        alignment = alignment ?? ChartAlignment.center;
 
   /// Legend title text.
   ///
@@ -905,7 +922,7 @@ class LegendTitle {
   ///   );
   /// }
   ///```
-  final TextStyle? textStyle;
+  final TextStyle textStyle;
 
   /// Alignment of the legend title.
   ///

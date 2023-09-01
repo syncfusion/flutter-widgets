@@ -33,34 +33,6 @@ class StylesCollection {
     return _dictStyles.length;
   }
 
-  /// Dictionary. Key - Culture, value - Number Format.
-  final Map<String, String> _numberFormat = <String, String>{
-    'en-US': r'_($* #,##0.00_)',
-    'id-ID': r'_(Rp * #,##0.00_)',
-    'en-GB': r'_(£* #,##0.00_)',
-    'en-DE': r'_(#,##0.00_*€',
-    'de-DE': r'_(#,##0.00_*€',
-    'fr-FR': r'_(#,##0.00_*€',
-    'nl-BE': r'_(€* #,##0.00_)',
-    'pl-PL': r'_(#,##0.00_*zł',
-    'pt-PT': r'_(#,##0.00_*€',
-    'ru-RU': r'_(#,##0.00_*₽'
-  };
-
-  /// Dictionary. Key - Culture, value - Symbols.
-  final Map<String, String> _symbols = <String, String>{
-    'en-US': r'$',
-    'id-ID': 'Rp',
-    'en-GB': '£',
-    'en-DE': '€',
-    'de-DE': '€',
-    'fr-FR': '€',
-    'nl-BE': '€',
-    'pl-PL': 'zł',
-    'pt-PT': '€',
-    'ru-RU': '₽'
-  };
-
   /// Default styles names.
   final List<String> _defaultStyleNames = <String>[
     'normal',
@@ -477,19 +449,7 @@ class StylesCollection {
         break;
 
       case 'currency':
-        final CultureInfo culture = _book.cultureInfo;
-        String currency = '';
-
-        if (_book._currency != 'USD' &&
-            _book._currency != _symbols[culture._culture]) {
-          currency = '[\$${_book._currency}]';
-          final String? prevFormat = _numberFormat[culture._culture];
-          String? symbol = _symbols[culture._culture];
-          symbol = symbol!;
-          style.numberFormat = prevFormat?.replaceFirst(symbol, currency);
-        } else {
-          style.numberFormat = _numberFormat[culture._culture];
-        }
+        style.numberFormat = r'_($* #,##0.00_)';
         break;
 
       case 'currency0':

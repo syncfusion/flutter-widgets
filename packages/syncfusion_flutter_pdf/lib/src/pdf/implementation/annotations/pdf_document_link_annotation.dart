@@ -173,7 +173,8 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
           }
         }
       }
-    } else if (dictionary.containsKey(PdfDictionaryProperties.a)) {
+    } else if (dictionary.containsKey(PdfDictionaryProperties.a) &&
+        (dest == null)) {
       IPdfPrimitive obj =
           crossTable.getObject(dictionary[PdfDictionaryProperties.a])!;
       final PdfDictionary destDic = obj as PdfDictionary;

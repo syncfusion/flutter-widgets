@@ -1193,11 +1193,8 @@ abstract class ScrollAxisBase {
     const bool lastVisible = false;
     VisibleLineInfo? firstLine, lastLine;
 
-    final List<dynamic> values = getLinesAndVisibility(firstIndex, lastIndex,
-        true, firstVisible, lastVisible, firstLine, lastLine);
-    firstLine = values[2];
-    lastLine = values[3];
-
+    getLinesAndVisibility(firstIndex, lastIndex, true, firstVisible,
+        lastVisible, firstLine, lastLine);
     if (firstLine == null || lastLine == null) {
       return DoubleSpan.empty();
     }
@@ -1786,7 +1783,7 @@ class PixelScrollAxis extends ScrollAxisBase {
   void alignScrollLine() {
     final double d =
         distances?.getAlignedScrollValue(scrollBar?.value ?? 0.0) ?? 0.0;
-    if (!d.isNaN) {
+    if (!(d == double.nan)) {
       scrollBar!.value = d;
     }
   }
@@ -2077,7 +2074,7 @@ class PixelScrollAxis extends ScrollAxisBase {
   @override
   void scrollToNextLine() {
     final double d = distances!.getNextScrollValue(scrollBar!.value);
-    if (!d.isNaN) {
+    if (!(d == double.nan)) {
       scrollBar!.value = d <= scrollBar!.value
           ? distances!.getNextScrollValue(scrollBar!.value + 1)
           : d;
@@ -2090,7 +2087,7 @@ class PixelScrollAxis extends ScrollAxisBase {
   @override
   void scrollToPreviousLine() {
     final double d = distances!.getPreviousScrollValue(scrollBar!.value);
-    if (!d.isNaN) {
+    if (!(d == double.nan)) {
       scrollBar!.value = d;
     }
   }

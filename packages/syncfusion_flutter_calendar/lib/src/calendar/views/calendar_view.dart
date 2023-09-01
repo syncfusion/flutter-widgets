@@ -42,7 +42,6 @@ class CustomCalendarScrollView extends StatefulWidget {
       this.isRTL,
       this.locale,
       this.calendarTheme,
-      this.themeData,
       this.specialRegions,
       this.blackoutDates,
       this.controller,
@@ -81,9 +80,6 @@ class CustomCalendarScrollView extends StatefulWidget {
 
   /// Holds the theme data value for calendar.
   final SfCalendarThemeData calendarTheme;
-
-  /// Holds the framework theme data value.
-  final ThemeData themeData;
 
   /// Holds the calendar controller for the calendar widget.
   final CalendarController controller;
@@ -752,8 +748,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                           widget.isMobilePlatform,
                           AppointmentHelper.getAppointmentTextStyle(
                               widget.calendar.appointmentTextStyle,
-                              widget.view,
-                              widget.themeData),
+                              widget.view),
                           widget.calendar.dragAndDropSettings,
                           widget.view,
                           _updateCalendarStateDetails.allDayPanelHeight,
@@ -899,7 +894,6 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     if (CalendarViewHelper.isTimelineView(widget.view)) {
       return currentState._handleTouchOnTimeline(null, details);
     } else if (widget.view == CalendarView.month) {
-      //// return null while the drag operation on mobile platform.
       return currentState._handleTouchOnMonthView(null, details);
     }
 
@@ -2936,7 +2930,6 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         widget.agendaSelectedDate,
         widget.locale,
         widget.calendarTheme,
-        widget.themeData,
         _getRegions(_previousViewVisibleDates),
         _getDatesWithInVisibleDateRange(
             widget.blackoutDates, _previousViewVisibleDates),
@@ -2970,7 +2963,6 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         widget.agendaSelectedDate,
         widget.locale,
         widget.calendarTheme,
-        widget.themeData,
         _getRegions(_visibleDates),
         _getDatesWithInVisibleDateRange(widget.blackoutDates, _visibleDates),
         _focusNode,
@@ -3003,7 +2995,6 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         widget.agendaSelectedDate,
         widget.locale,
         widget.calendarTheme,
-        widget.themeData,
         _getRegions(_nextViewVisibleDates),
         _getDatesWithInVisibleDateRange(
             widget.blackoutDates, _nextViewVisibleDates),
@@ -3076,7 +3067,6 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         widget.agendaSelectedDate,
         widget.locale,
         widget.calendarTheme,
-        widget.themeData,
         _getRegions(visibleDates),
         _getDatesWithInVisibleDateRange(widget.blackoutDates, visibleDates),
         _focusNode,
@@ -3118,7 +3108,6 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
           widget.agendaSelectedDate,
           widget.locale,
           widget.calendarTheme,
-          widget.themeData,
           view.regions,
           view.blackoutDates,
           _focusNode,
@@ -3155,7 +3144,6 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
           widget.agendaSelectedDate,
           widget.locale,
           widget.calendarTheme,
-          widget.themeData,
           view.regions,
           view.blackoutDates,
           _focusNode,
@@ -3220,7 +3208,6 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         widget.agendaSelectedDate,
         widget.locale,
         widget.calendarTheme,
-        widget.themeData,
         view.regions,
         view.blackoutDates,
         _focusNode,
@@ -4915,7 +4902,6 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       bool isNeedDragAndDrop) {
     final _CalendarViewState currentState = _getCurrentViewByVisibleDates()!;
     if (currentState._hoveringAppointmentView != null &&
-        currentState._hoveringAppointmentView!.appointment != null &&
         !widget.isMobilePlatform &&
         isNeedDragAndDrop) {
       _handleAppointmentDragStart(
@@ -5179,7 +5165,6 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       bool isNeedDragAndDrop) {
     final _CalendarViewState currentState = _getCurrentViewByVisibleDates()!;
     if (currentState._hoveringAppointmentView != null &&
-        currentState._hoveringAppointmentView!.appointment != null &&
         !widget.isMobilePlatform &&
         isNeedDragAndDrop) {
       _handleAppointmentDragStart(
@@ -5516,7 +5501,6 @@ class _CalendarView extends StatefulWidget {
       this.agendaSelectedDate,
       this.locale,
       this.calendarTheme,
-      this.themeData,
       this.regions,
       this.blackoutDates,
       this.focusNode,
@@ -5544,7 +5528,6 @@ class _CalendarView extends StatefulWidget {
   final CalendarView view;
   final double width;
   final SfCalendarThemeData calendarTheme;
-  final ThemeData themeData;
   final double height;
   final String locale;
   final ValueNotifier<DateTime?> agendaSelectedDate,
@@ -5945,17 +5928,8 @@ class _CalendarViewState extends State<_CalendarView>
   }
 
   Widget _getMonthView() {
-    final SystemMouseCursor currentCursor =
-        _mouseCursor == SystemMouseCursors.resizeUp ||
-                _mouseCursor == SystemMouseCursors.resizeDown
-            ? SystemMouseCursors.resizeUpDown
-            : _mouseCursor == SystemMouseCursors.resizeRight ||
-                    _mouseCursor == SystemMouseCursors.resizeLeft
-                ? SystemMouseCursors.resizeLeftRight
-                : _mouseCursor;
-
     return MouseRegion(
-      cursor: currentCursor,
+      cursor: _mouseCursor,
       onEnter: _pointerEnterEvent,
       onExit: _pointerExitEvent,
       onHover: _pointerHoverEvent,
@@ -6003,17 +5977,8 @@ class _CalendarViewState extends State<_CalendarView>
 
     _updateAllDayHeight(isCurrentView);
 
-    final SystemMouseCursor currentCursor =
-        _mouseCursor == SystemMouseCursors.resizeUp ||
-                _mouseCursor == SystemMouseCursors.resizeDown
-            ? SystemMouseCursors.resizeUpDown
-            : _mouseCursor == SystemMouseCursors.resizeRight ||
-                    _mouseCursor == SystemMouseCursors.resizeLeft
-                ? SystemMouseCursors.resizeLeftRight
-                : _mouseCursor;
-
     return MouseRegion(
-      cursor: currentCursor,
+      cursor: _mouseCursor,
       onEnter: _pointerEnterEvent,
       onHover: _pointerHoverEvent,
       onExit: _pointerExitEvent,
@@ -6079,16 +6044,8 @@ class _CalendarViewState extends State<_CalendarView>
   }
 
   Widget _getTimelineView() {
-    final SystemMouseCursor currentCursor =
-        _mouseCursor == SystemMouseCursors.resizeUp ||
-                _mouseCursor == SystemMouseCursors.resizeDown
-            ? SystemMouseCursors.resizeUpDown
-            : _mouseCursor == SystemMouseCursors.resizeRight ||
-                    _mouseCursor == SystemMouseCursors.resizeLeft
-                ? SystemMouseCursors.resizeLeftRight
-                : _mouseCursor;
     return MouseRegion(
-        cursor: currentCursor,
+        cursor: _mouseCursor,
         onEnter: _pointerEnterEvent,
         onHover: _pointerHoverEvent,
         onExit: _pointerExitEvent,
@@ -6532,7 +6489,6 @@ class _CalendarViewState extends State<_CalendarView>
             _allDayExpanderAnimation!.value != 1,
         _isRTL,
         widget.calendarTheme,
-        widget.themeData,
         _allDaySelectionNotifier,
         _allDayNotifier,
         widget.textScaleFactor,
@@ -6575,7 +6531,6 @@ class _CalendarViewState extends State<_CalendarView>
       ValueNotifier<List<CalendarAppointment>?>(visibleAppointments),
       _timeIntervalHeight,
       widget.calendarTheme,
-      widget.themeData,
       _isRTL,
       _appointmentHoverNotifier,
       widget.resourceCollection,
@@ -8446,9 +8401,7 @@ class _CalendarViewState extends State<_CalendarView>
                     widget.textScaleFactor,
                     widget.isMobilePlatform,
                     AppointmentHelper.getAppointmentTextStyle(
-                        widget.calendar.appointmentTextStyle,
-                        widget.view,
-                        widget.themeData),
+                        widget.calendar.appointmentTextStyle, widget.view),
                     allDayPanelHeight,
                     viewHeaderHeight,
                     timeLabelWidth,
@@ -8564,7 +8517,6 @@ class _CalendarViewState extends State<_CalendarView>
                                   timeLabelWidth,
                                   widget.calendar.cellBorderColor,
                                   widget.calendarTheme,
-                                  widget.themeData,
                                   widget.calendar.timeSlotViewSettings,
                                   isRTL,
                                   widget.regions,
@@ -8761,7 +8713,6 @@ class _CalendarViewState extends State<_CalendarView>
                                                 widget.calendar.cellBorderColor,
                                                 _isRTL,
                                                 widget.calendarTheme,
-                                                widget.themeData,
                                                 _calendarCellNotifier,
                                                 _scrollController!,
                                                 widget.regions,
@@ -11332,7 +11283,6 @@ class _CalendarViewState extends State<_CalendarView>
         widget.calendar.todayTextStyle,
         widget.locale,
         widget.calendarTheme,
-        widget.themeData,
         widget.calendar.minDate,
         widget.calendar.maxDate,
         _viewHeaderNotifier,
@@ -11417,9 +11367,10 @@ class _ViewHeaderViewPainter extends CustomPainter {
 
     /// Initializes the default text style for the texts in view header of
     /// calendar.
-    final TextStyle viewHeaderDayStyle = calendarTheme.viewHeaderDayTextStyle!;
+    final TextStyle viewHeaderDayStyle =
+        viewHeaderStyle.dayTextStyle ?? calendarTheme.viewHeaderDayTextStyle!;
     final TextStyle viewHeaderDateStyle =
-        calendarTheme.viewHeaderDateTextStyle!;
+        viewHeaderStyle.dateTextStyle ?? calendarTheme.viewHeaderDateTextStyle!;
 
     final DateTime today = DateTime.now();
     if (view != CalendarView.month) {
@@ -11466,7 +11417,7 @@ class _ViewHeaderViewPainter extends CustomPainter {
                 todayHighlightColor, todayTextStyle, calendarTheme);
 
         dayTextStyle = todayTextStyle != null
-            ? calendarTheme.todayTextStyle!.copyWith(
+            ? todayTextStyle!.copyWith(
                 fontSize: viewHeaderDayStyle.fontSize, color: todayTextColor)
             : viewHeaderDayStyle.copyWith(color: todayTextColor);
       } else {
@@ -11496,7 +11447,8 @@ class _ViewHeaderViewPainter extends CustomPainter {
     }
     if (weekNumberPanelWidth != 0 && showWeekNumber) {
       const double defaultFontSize = 14;
-      final TextStyle weekNumberTextStyle = calendarTheme.weekNumberTextStyle!;
+      final TextStyle weekNumberTextStyle =
+          weekNumberStyle.textStyle ?? calendarTheme.weekNumberTextStyle!;
       final double xPosition = isRTL ? (size.width - weekNumberPanelWidth) : 0;
 
       _updateDayTextPainter(weekNumberTextStyle, weekNumberPanelWidth,
@@ -11566,17 +11518,18 @@ class _ViewHeaderViewPainter extends CustomPainter {
           DateFormat(timeSlotViewSettings.dateFormat).format(currentDate);
       final bool isToday = isSameDate(currentDate, today);
       if (isToday) {
-        final Color? todayTextStyleColor = calendarTheme.todayTextStyle!.color;
+        final Color? todayTextStyleColor = todayTextStyle != null
+            ? todayTextStyle!.color
+            : calendarTheme.todayTextStyle!.color;
         final Color? todayTextColor =
             CalendarViewHelper.getTodayHighlightTextColor(
                 todayHighlightColor, todayTextStyle, calendarTheme);
         dayTextStyle = todayTextStyle != null
-            ? calendarTheme.todayTextStyle!.copyWith(
+            ? todayTextStyle!.copyWith(
                 fontSize: viewHeaderDayStyle.fontSize, color: todayTextColor)
             : viewHeaderDayStyle.copyWith(color: todayTextColor);
         dateTextStyle = todayTextStyle != null
-            ? calendarTheme.todayTextStyle!
-                .copyWith(fontSize: viewHeaderDateStyle.fontSize)
+            ? todayTextStyle!.copyWith(fontSize: viewHeaderDateStyle.fontSize)
             : viewHeaderDateStyle.copyWith(color: todayTextStyleColor);
       } else {
         dayTextStyle = viewHeaderDayStyle;
@@ -11661,7 +11614,7 @@ class _ViewHeaderViewPainter extends CustomPainter {
         final String weekNumber =
             DateTimeHelper.getWeekNumberOfYear(currentDate).toString();
         final TextStyle weekNumberTextStyle =
-            calendarTheme.weekNumberTextStyle!;
+            weekNumberStyle.textStyle ?? calendarTheme.weekNumberTextStyle!;
         final TextSpan dayTextSpan = TextSpan(
           text: weekNumber,
           style: weekNumberTextStyle,
@@ -12424,7 +12377,8 @@ class _TimeRulerView extends CustomPainter {
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
     _textPainter.textScaleFactor = textScaleFactor;
 
-    final TextStyle timeTextStyle = calendarTheme.timeTextStyle!;
+    final TextStyle timeTextStyle =
+        timeSlotViewSettings.timeTextStyle ?? calendarTheme.timeTextStyle!;
 
     final double hour = (timeSlotViewSettings.startHour -
             timeSlotViewSettings.startHour.toInt()) *
@@ -12544,7 +12498,7 @@ class _TimeRulerView extends CustomPainter {
 }
 
 class _CalendarMultiChildContainer extends Stack {
-  const _CalendarMultiChildContainer(
+  _CalendarMultiChildContainer(
       // ignore: unused_element
       {this.painter,
       List<Widget> children = const <Widget>[],
@@ -13272,7 +13226,8 @@ class _ResizingAppointmentPainter extends CustomPainter {
     final TextSpan span = TextSpan(
       text: DateFormat(dragAndDropSettings.indicatorTimeFormat)
           .format(resizingDetails.value.resizingTime!),
-      style: calendarTheme.timeIndicatorTextStyle,
+      style: dragAndDropSettings.timeIndicatorStyle ??
+          calendarTheme.timeIndicatorTextStyle,
     );
     _updateTextPainter(span);
     _textPainter.layout(
@@ -14094,7 +14049,8 @@ class _DraggingAppointmentRenderObject extends RenderBox
     final TextSpan span = TextSpan(
       text: DateFormat(dragAndDropSettings.indicatorTimeFormat)
           .format(dragDetails.draggingTime!),
-      style: calendarTheme.timeIndicatorTextStyle,
+      style: dragAndDropSettings.timeIndicatorStyle ??
+          calendarTheme.timeIndicatorTextStyle,
     );
     _textPainter.text = span;
     _textPainter.maxLines = 1;

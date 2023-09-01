@@ -21,14 +21,12 @@ import '../utils/helper.dart';
 class RenderTemplate extends StatefulWidget {
   /// Creates an instance of render template.
   // ignore: prefer_const_constructors_in_immutables
-  RenderTemplate({
-    required this.template,
-    this.needMeasure,
-    required this.templateLength,
-    required this.templateIndex,
-    required this.stateProperties,
-    this.notifier,
-  });
+  RenderTemplate(
+      {required this.template,
+      this.needMeasure,
+      required this.templateLength,
+      required this.templateIndex,
+      required this.stateProperties});
 
   /// Hold the value of chart template info.
   final ChartTemplateInfo template;
@@ -47,9 +45,6 @@ class RenderTemplate extends StatefulWidget {
 
   /// Specifies whether it is annotation.
   bool? isAnnotation;
-
-  /// Specifies the template notifier value.
-  final ValueNotifier<int>? notifier;
 
   @override
   State<StatefulWidget> createState() => _RenderTemplateState();
@@ -77,7 +72,6 @@ class _RenderTemplateState extends State<RenderTemplate>
           templateInfo: templateInfo,
           stateProperties: widget.stateProperties,
           animationController: animationController,
-          notifier: widget.notifier,
           child: templateInfo.widget!);
     } else {
       renderWidget = _ChartTemplateRenderObject(
@@ -144,8 +138,7 @@ class _ChartTemplateRenderObject extends SingleChildRenderObjectWidget {
       required Widget child,
       required this.templateInfo,
       required this.stateProperties,
-      required this.animationController,
-      this.notifier})
+      required this.animationController})
       : super(key: key, child: child);
 
   final ChartTemplateInfo templateInfo;
@@ -154,12 +147,10 @@ class _ChartTemplateRenderObject extends SingleChildRenderObjectWidget {
 
   final AnimationController? animationController;
 
-  final ValueNotifier<int>? notifier;
-
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _ChartTemplateRenderBox(
-        templateInfo, stateProperties, animationController, notifier);
+        templateInfo, stateProperties, animationController);
   }
 
   @override
@@ -171,8 +162,8 @@ class _ChartTemplateRenderObject extends SingleChildRenderObjectWidget {
 
 /// Render the annotation widget in the respective position.
 class _ChartTemplateRenderBox extends RenderShiftedBox {
-  _ChartTemplateRenderBox(this._templateInfo, this.stateProperties,
-      this._animationController, this.notifier,
+  _ChartTemplateRenderBox(
+      this._templateInfo, this.stateProperties, this._animationController,
       [RenderBox? child])
       : super(child);
 
@@ -182,8 +173,6 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
 
   final AnimationController? _animationController;
 
-  final ValueNotifier<int>? notifier;
-
   ChartTemplateInfo get templateInfo => _templateInfo;
 
   set templateInfo(ChartTemplateInfo value) {
@@ -191,22 +180,6 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
       _templateInfo = value;
       markNeedsLayout();
     }
-  }
-
-  @override
-  void attach(PipelineOwner owner) {
-    if (notifier != null) {
-      notifier?.addListener(markNeedsLayout);
-    }
-    super.attach(owner);
-  }
-
-  @override
-  void detach() {
-    if (notifier != null) {
-      notifier?.removeListener(markNeedsLayout);
-    }
-    super.detach();
   }
 
   @override
@@ -285,24 +258,8 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
                 _animationController!,
                 size,
                 _templateInfo.location);
-            locationX = _templateInfo.labelLocation == 'labelLocation'
-                ? point.labelLocation!.x
-                : _templateInfo.labelLocation == 'labelLocation2'
-                    ? point.labelLocation2!.x
-                    : _templateInfo.labelLocation == 'labelLocation3'
-                        ? point.labelLocation3!.x
-                        : _templateInfo.labelLocation == 'labelLocation4'
-                            ? point.labelLocation4!.x
-                            : point.labelLocation5!.x;
-            locationY = _templateInfo.labelLocation == 'labelLocation'
-                ? point.labelLocation!.y
-                : _templateInfo.labelLocation == 'labelLocation2'
-                    ? point.labelLocation2!.y
-                    : _templateInfo.labelLocation == 'labelLocation3'
-                        ? point.labelLocation3!.y
-                        : _templateInfo.labelLocation == 'labelLocation4'
-                            ? point.labelLocation4!.y
-                            : point.labelLocation5!.y;
+            locationX = point.labelLocation!.x;
+            locationY = point.labelLocation!.y;
             isLabelWithInRange =
                 isLabelWithinRange(seriesRendererDetails, point);
           }
@@ -394,7 +351,7 @@ class ChartTemplate extends StatefulWidget {
 /// Represent the render object for circular data label template.
 class DataLabelTemplateStack extends Stack {
   /// Creating an argument constructor of DataLabelTemplateStack class.
-  const DataLabelTemplateStack(
+  DataLabelTemplateStack(
       {required this.renderingDetails,
       required this.stateProperties,
       required List<Widget> children})
@@ -549,8 +506,7 @@ class ChartTemplateInfo {
       required this.clipRect,
       this.needMeasure = true,
       ChartAlignment? horizontalAlignment,
-      ChartAlignment? verticalAlignment,
-      this.labelLocation})
+      ChartAlignment? verticalAlignment})
       : horizontalAlignment = horizontalAlignment ?? ChartAlignment.center,
         verticalAlignment = verticalAlignment ?? ChartAlignment.center;
 
@@ -598,7 +554,4 @@ class ChartTemplateInfo {
 
   /// Specifies whether to measure the template.
   bool needMeasure;
-
-  /// Specifies the label location
-  String? labelLocation;
 }

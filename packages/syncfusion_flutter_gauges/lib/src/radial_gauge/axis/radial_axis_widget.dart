@@ -1611,17 +1611,18 @@ class RenderRadialAxisWidget extends RenderBox {
 
   /// Calculates the axis rect.
   void _calculateAxisRect() {
-    final double axisOffset = _radius - (_actualAxisWidth / 2 + _axisOffset);
-    _axisRect = Rect.fromLTRB(-axisOffset, -axisOffset, axisOffset, axisOffset);
+    _axisRect = Rect.fromLTRB(
+        -(_radius - (_actualAxisWidth / 2 + _axisOffset)),
+        -(_radius - (_actualAxisWidth / 2 + _axisOffset)),
+        _radius - (_actualAxisWidth / 2 + _axisOffset),
+        _radius - (_actualAxisWidth / 2 + _axisOffset));
 
     axisPath.reset();
-    final double centerX = canScaleToFit ? _axisCenter.dx : size.width / 2;
-    final double centerY = canScaleToFit ? _axisCenter.dy : size.height / 2;
     final Rect rect = Rect.fromLTRB(
-      _axisRect.left + centerX,
-      _axisRect.top + centerY,
-      _axisRect.right + centerX,
-      _axisRect.bottom + centerY,
+      _axisRect.left + size.width / 2,
+      _axisRect.top + size.height / 2,
+      _axisRect.right + size.width / 2,
+      _axisRect.bottom + size.height / 2,
     );
 
     axisPath.arcTo(rect, _startRadian, _endRadian, false);
@@ -1629,10 +1630,8 @@ class RenderRadialAxisWidget extends RenderBox {
 
   /// Method to calculate the angle from the tapped point.
   void calculateAngleFromOffset(Offset offset) {
-    final double actualCenterX =
-        canScaleToFit ? _axisCenter.dx : size.width * centerX;
-    final double actualCenterY =
-        canScaleToFit ? _axisCenter.dy : size.height * centerY;
+    final double actualCenterX = size.width * centerX;
+    final double actualCenterY = size.height * centerY;
     double angle =
         math.atan2(offset.dy - actualCenterY, offset.dx - actualCenterX) *
                 (180 / math.pi) +
@@ -2573,28 +2572,22 @@ class RenderRadialAxisWidget extends RenderBox {
           (i == _axisLabels!.length - 1 && !showLastLabel))) {
         final CircularAxisLabel label = _axisLabels![i];
         final Color labelColor = label.labelStyle.color ??
-            _gaugeThemeData.axisLabelTextStyle?.color ??
             _gaugeThemeData.axisLabelColor ??
             (_isDarkTheme
                 ? _themeData.colorScheme.onSurface
                 : _themeData.colorScheme.onSurface.withOpacity(0.72));
-        final TextStyle axisLabelTextStyle =
-            _themeData.textTheme.bodySmall!.copyWith(
-          color: ranges != null && ranges!.isNotEmpty && useRangeColorForAxis
-              ? _getRangeColor(label.value, _gaugeThemeData) ?? labelColor
-              : labelColor,
-          fontSize: label.labelStyle.fontSize ??
-              _gaugeThemeData.axisLabelTextStyle?.fontSize,
-          fontFamily: label.labelStyle.fontFamily ??
-              _gaugeThemeData.axisLabelTextStyle?.fontFamily,
-          fontStyle: label.labelStyle.fontStyle ??
-              _gaugeThemeData.axisLabelTextStyle?.fontStyle,
-          fontWeight: label.labelStyle.fontWeight ??
-              _gaugeThemeData.axisLabelTextStyle?.fontWeight,
-        );
-
-        final TextSpan span =
-            TextSpan(text: label.text, style: axisLabelTextStyle);
+        final TextSpan span = TextSpan(
+            text: label.text,
+            style: TextStyle(
+                color: ranges != null &&
+                        ranges!.isNotEmpty &&
+                        useRangeColorForAxis
+                    ? _getRangeColor(label.value, _gaugeThemeData) ?? labelColor
+                    : labelColor,
+                fontSize: label.labelStyle.fontSize,
+                fontFamily: label.labelStyle.fontFamily,
+                fontStyle: label.labelStyle.fontStyle,
+                fontWeight: label.labelStyle.fontWeight));
 
         final TextPainter textPainter = TextPainter(
             text: span,

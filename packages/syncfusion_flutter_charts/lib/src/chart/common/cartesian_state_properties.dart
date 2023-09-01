@@ -251,9 +251,6 @@ class CartesianStateProperties extends StateProperties {
   /// Specifies total number of rectangle indicator series in chart
   int? sideBySideIndicatorCount;
 
-  /// Repaint notifier for plotBand
-  late ValueNotifier<int> plotBandRepaintNotifier;
-
   /// Method to set the painter key
   void setPainterKey(int index, String name, bool renderComplete) {
     int value = 0;

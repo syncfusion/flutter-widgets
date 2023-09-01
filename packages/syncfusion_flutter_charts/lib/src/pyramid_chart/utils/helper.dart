@@ -165,26 +165,32 @@ TextStyle getDataLabelTextStyle(
     [double? animateOpacity]) {
   final dynamic series = seriesRenderer.series;
   final DataLabelSettings dataLabel = series.dataLabelSettings;
-  final SfChartThemeData chartThemeData =
-      stateProperties.renderingDetails.chartTheme;
-
-  TextStyle dataLabelStyle = stateProperties
-      .renderingDetails.themeData.textTheme.bodySmall!
-      .merge(chartThemeData.dataLabelTextStyle)
-      .merge(dataLabel.textStyle);
-
-  final Color fontColor =
-      _isCustomTextColor(dataLabel.textStyle, chartThemeData.dataLabelTextStyle)
-          ? dataLabelStyle.color!
-          : getPyramidFunnelColor(point, seriesRenderer, stateProperties);
-
-  dataLabelStyle = dataLabelStyle.copyWith(
-      color: fontColor.withOpacity(animateOpacity ?? 1));
-  return dataLabelStyle;
-}
-
-bool _isCustomTextColor(TextStyle? textStyle, TextStyle? themeStyle) {
-  return textStyle?.color != null || themeStyle?.color != null;
+  final Color fontColor = dataLabel.textStyle.color ??
+      getPyramidFunnelColor(point, seriesRenderer, stateProperties);
+  final TextStyle textStyle = TextStyle(
+      color: fontColor.withOpacity(animateOpacity ?? 1),
+      fontSize: dataLabel.textStyle.fontSize,
+      fontFamily: dataLabel.textStyle.fontFamily,
+      fontStyle: dataLabel.textStyle.fontStyle,
+      fontWeight: dataLabel.textStyle.fontWeight,
+      inherit: dataLabel.textStyle.inherit,
+      backgroundColor: dataLabel.textStyle.backgroundColor,
+      letterSpacing: dataLabel.textStyle.letterSpacing,
+      wordSpacing: dataLabel.textStyle.wordSpacing,
+      textBaseline: dataLabel.textStyle.textBaseline,
+      height: dataLabel.textStyle.height,
+      locale: dataLabel.textStyle.locale,
+      foreground: dataLabel.textStyle.foreground,
+      background: dataLabel.textStyle.background,
+      shadows: dataLabel.textStyle.shadows,
+      fontFeatures: dataLabel.textStyle.fontFeatures,
+      decoration: dataLabel.textStyle.decoration,
+      decorationColor: dataLabel.textStyle.decorationColor,
+      decorationStyle: dataLabel.textStyle.decorationStyle,
+      decorationThickness: dataLabel.textStyle.decorationThickness,
+      debugLabel: dataLabel.textStyle.debugLabel,
+      fontFamilyFallback: dataLabel.textStyle.fontFamilyFallback);
+  return textStyle;
 }
 
 /// To check the point explosion.
@@ -264,10 +270,7 @@ void renderPyramidDataLabel(
   // ignore: unnecessary_null_comparison
   final double animateOpacity = animation != null ? animation.value : 1;
   DataLabelRenderArgs dataLabelArgs;
-  final TextStyle dataLabelStyle = stateProperties
-      .renderingDetails.themeData.textTheme.bodySmall!
-      .merge(stateProperties.renderingDetails.chartTheme.dataLabelTextStyle)
-      .merge(dataLabel.textStyle);
+  TextStyle dataLabelStyle;
   final List<Rect> renderDataLabelRegions = <Rect>[];
   Size textSize;
   stateProperties.outsideRects.clear();
@@ -275,9 +278,9 @@ void renderPyramidDataLabel(
       pointIndex < seriesRenderer.renderPoints!.length;
       pointIndex++) {
     point = seriesRenderer.renderPoints![pointIndex];
-    TextStyle textStyle = dataLabelStyle.copyWith();
     if (point.isVisible && (point.y != 0 || dataLabel.showZeroValue)) {
       label = point.text;
+      dataLabelStyle = dataLabel.textStyle;
       dataLabelSettingsRenderer.color =
           seriesRenderer.series.dataLabelSettings.color;
       if (chart.onDataLabelRender != null &&
@@ -285,20 +288,20 @@ void renderPyramidDataLabel(
         dataLabelArgs = DataLabelRenderArgs(seriesRenderer,
             seriesRenderer.renderPoints, pointIndex, pointIndex);
         dataLabelArgs.text = label!;
-        dataLabelArgs.textStyle = textStyle.copyWith();
+        dataLabelArgs.textStyle = dataLabelStyle;
         dataLabelArgs.color = dataLabelSettingsRenderer.color;
         chart.onDataLabelRender!(dataLabelArgs);
         label = point.text = dataLabelArgs.text;
-        textStyle = textStyle.merge(dataLabelArgs.textStyle); //check here.
+        dataLabelStyle = dataLabelArgs.textStyle;
         pointIndex = dataLabelArgs.pointIndex!;
         dataLabelSettingsRenderer.color = dataLabelArgs.color;
         seriesRenderer.dataPoints[pointIndex].labelRenderEvent = true;
       }
-      textStyle = chart.onDataLabelRender == null
+      dataLabelStyle = chart.onDataLabelRender == null
           ? getDataLabelTextStyle(
               seriesRenderer, point, stateProperties, animateOpacity)
-          : textStyle;
-      textSize = measureText(label!, textStyle);
+          : dataLabelStyle;
+      textSize = measureText(label!, dataLabelStyle);
 
       // Label check after event
       if (label != '') {
@@ -312,7 +315,7 @@ void renderPyramidDataLabel(
             Offset labelLocation;
             const int labelPadding = 2;
             final Size nextDataLabelSize =
-                measureText(nextPoint.text!, textStyle);
+                measureText(nextPoint.text!, dataLabelStyle);
             if (nextPoint.isVisible) {
               labelLocation = nextPoint.symbolLocation;
               labelLocation = Offset(
@@ -344,10 +347,10 @@ void renderPyramidDataLabel(
               label,
               seriesRenderer,
               animateOpacity,
-              textStyle);
+              dataLabelStyle);
         } else {
           point.renderPosition = ChartDataLabelPosition.outside;
-          textStyle = getDataLabelTextStyle(
+          dataLabelStyle = getDataLabelTextStyle(
               seriesRenderer, point, stateProperties, animateOpacity);
           _renderOutsidePyramidDataLabel(
               canvas,
@@ -357,7 +360,7 @@ void renderPyramidDataLabel(
               pointIndex,
               seriesRenderer,
               stateProperties,
-              textStyle,
+              dataLabelStyle,
               renderDataLabelRegions,
               animateOpacity);
         }
@@ -400,14 +403,8 @@ void _setPyramidInsideLabelPosition(
   if (isDataLabelCollide) {
     switch (dataLabel.overflowMode) {
       case OverflowMode.trim:
-        label = getSegmentOverflowTrimmedText(
-            dataLabel,
-            point,
-            textSize,
-            stateProperties,
-            labelLocation,
-            renderDataLabelRegions,
-            dataLabelStyle);
+        label = getSegmentOverflowTrimmedText(dataLabel, point, textSize,
+            stateProperties, labelLocation, renderDataLabelRegions);
         break;
       case OverflowMode.hide:
         label = '';
@@ -464,7 +461,7 @@ void _setPyramidInsideLabelPosition(
           (dataLabel.overflowMode == OverflowMode.trim)) &&
       (label != '')) {
     point.renderPosition = ChartDataLabelPosition.inside;
-    final Size trimmedTextSize = measureText(label, dataLabelStyle);
+    final Size trimmedTextSize = measureText(label, dataLabel.textStyle);
     labelLocation = point.symbolLocation;
     labelLocation = Offset(
         labelLocation.dx -
@@ -787,13 +784,13 @@ void triggerPyramidDataLabelEvent(
 
 /// Method to get a text when the text overlap with another segment/slice.
 String getSegmentOverflowTrimmedText(
-    DataLabelSettings dataLabel,
-    PointInfo<dynamic> point,
-    Size textSize,
-    StateProperties stateProperties,
-    Offset labelLocation,
-    List<Rect> renderDataLabelRegions,
-    TextStyle dataLabelStyle) {
+  DataLabelSettings dataLabel,
+  PointInfo<dynamic> point,
+  Size textSize,
+  StateProperties stateProperties,
+  Offset labelLocation,
+  List<Rect> renderDataLabelRegions,
+) {
   bool isCollide;
   String label = point.text!;
   const int labelPadding = 2;
@@ -813,7 +810,7 @@ String getSegmentOverflowTrimmedText(
       label = '';
       break;
     }
-    final Size trimTextSize = measureText(label, dataLabelStyle);
+    final Size trimTextSize = measureText(label, dataLabel.textStyle);
     final Rect trimRect = Rect.fromLTWH(
         labelLocation.dx - labelPadding,
         labelLocation.dy - labelPadding,
