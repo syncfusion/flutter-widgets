@@ -1126,11 +1126,15 @@ class FontStructure {
     String? fontName = '';
     isSystemFontExist = false;
     if (fontDictionary.containsKey(PdfDictionaryProperties.baseFont)) {
-      PdfName? baseFont =
-          fontDictionary[PdfDictionaryProperties.baseFont] as PdfName?;
-      baseFont ??= (fontDictionary[PdfDictionaryProperties.baseFont]!
-              as PdfReferenceHolder)
-          .object as PdfName?;
+      PdfName? baseFont;
+      if (fontDictionary[PdfDictionaryProperties.baseFont] is PdfName) {
+        baseFont = fontDictionary[PdfDictionaryProperties.baseFont] as PdfName?;
+      } else if (fontDictionary[PdfDictionaryProperties.baseFont]
+          is PdfReferenceHolder) {
+        baseFont = (fontDictionary[PdfDictionaryProperties.baseFont]!
+                as PdfReferenceHolder)
+            .object as PdfName?;
+      }
       String font = baseFont!.name!;
       if (font.contains('#20') && !font.contains('+')) {
         final int startIndex = font.lastIndexOf('#20');

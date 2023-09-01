@@ -2,7 +2,7 @@ name: officechart_example
 description: Demo for creating a Excel file with chart using syncfusion_officechart package.
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"
 
 dependencies:
   flutter:

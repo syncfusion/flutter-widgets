@@ -353,7 +353,13 @@ class PdfCrossTable {
           final PdfReference ref = getReference(obj);
           objInfo.reference = ref;
         }
-        _saveIndirectObject(obj, writer);
+        bool skip = false;
+        if (obj is PdfDictionary && obj.isSkip) {
+          skip = true;
+        }
+        if (!skip) {
+          _saveIndirectObject(obj, writer);
+        }
       }
     }
   }
@@ -374,7 +380,13 @@ class PdfCrossTable {
           final PdfReference ref = await getReferenceAsync(obj);
           objInfo.reference = ref;
         }
-        await _saveIndirectObjectAsync(obj, writer);
+        bool skip = false;
+        if (obj is PdfDictionary && obj.isSkip) {
+          skip = true;
+        }
+        if (!skip) {
+          await _saveIndirectObjectAsync(obj, writer);
+        }
       }
     }
   }

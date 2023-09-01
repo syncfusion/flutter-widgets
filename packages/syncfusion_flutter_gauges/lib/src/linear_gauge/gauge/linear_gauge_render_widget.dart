@@ -31,7 +31,7 @@ const double kDefaultLinearGaugeWidth = 300.0;
 /// Linear gauge render widget class.
 class LinearGaugeRenderWidget extends MultiChildRenderObjectWidget {
   /// Creates instance for [LinearGaugeRenderWidget] class.
-  LinearGaugeRenderWidget(
+  const LinearGaugeRenderWidget(
       {Key? key,
       required this.pointerAnimations,
       required List<Widget> children})
@@ -523,7 +523,7 @@ class RenderLinearGauge extends RenderBox
 
     final double startPosition =
         axis!.valueToPixel(pointer.oldValue ?? axis!.minimum);
-    final double endPosition = (axis!.valueToPixel(pointer.value)).abs();
+    final double endPosition = axis!.valueToPixel(pointer.value).abs();
 
     _pointX = startPosition + ((endPosition - startPosition) * animationValue);
     _pointY = _calculateMarkerOffset(

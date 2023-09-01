@@ -534,6 +534,31 @@ class PdfFormFieldCollectionHelper extends PdfObjectCollectionHelper {
     return i;
   }
 
+  /// internal method
+  void removeContainingField(PdfReferenceHolder pageReferenceHolder) {
+    for (int i = array.count - 1; i >= 0; --i) {
+      final IPdfPrimitive? fieldDictionary =
+          PdfCrossTable.dereference(array[i]);
+      if (fieldDictionary != null && fieldDictionary is PdfDictionary) {
+        if (fieldDictionary.containsKey(PdfDictionaryProperties.p)) {
+          final IPdfPrimitive? holder =
+              fieldDictionary[PdfDictionaryProperties.p];
+          if (holder != null &&
+              holder is PdfReferenceHolder &&
+              holder.object == pageReferenceHolder.object) {
+            _doRemoveAt(i);
+          }
+        } else if (fieldDictionary.containsKey(PdfDictionaryProperties.kids)) {
+          final bool removed =
+              _removeContainingFieldItems(fieldDictionary, pageReferenceHolder);
+          if (removed) {
+            _doRemoveAt(i);
+          }
+        }
+      }
+    }
+  }
+
   void _removeFromDictionary(PdfField field) {
     if (PdfFieldHelper.getHelper(field).isLoadedField) {
       PdfFormHelper.getHelper(form!).removeFromDictionaries(field);
@@ -585,5 +610,35 @@ class PdfFormFieldCollectionHelper extends PdfObjectCollectionHelper {
     PdfFormHelper.getHelper(form!).terminalFields.clear();
     array.clear();
     list.clear();
+  }
+
+  bool _removeContainingFieldItems(
+      PdfDictionary fieldDictionary, PdfReferenceHolder pageReferenceHolder) {
+    bool isAllKidsRemoved = false;
+    if (fieldDictionary.containsKey(PdfDictionaryProperties.kids)) {
+      final IPdfPrimitive? array = PdfCrossTable.dereference(
+          fieldDictionary[PdfDictionaryProperties.kids]);
+      if (array != null && array is PdfArray) {
+        for (int i = array.count - 1; i >= 0; --i) {
+          IPdfPrimitive? holder;
+          final IPdfPrimitive? kidObject = PdfCrossTable.dereference(array[i]);
+          if (kidObject != null &&
+              kidObject is PdfDictionary &&
+              kidObject.containsKey(PdfDictionaryProperties.p))
+            holder = kidObject[PdfDictionaryProperties.p];
+          if (holder != null &&
+              holder is PdfReferenceHolder &&
+              holder.object == pageReferenceHolder.object) {
+            (kidObject as PdfDictionary?)!.isSkip = true;
+            array.removeAt(i);
+            array.changed = true;
+          }
+        }
+        if (array.count == 0) {
+          isAllKidsRemoved = true;
+        }
+      }
+    }
+    return isAllKidsRemoved;
   }
 }

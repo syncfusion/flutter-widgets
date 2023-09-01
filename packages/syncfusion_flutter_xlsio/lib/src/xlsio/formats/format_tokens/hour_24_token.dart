@@ -30,7 +30,7 @@ class _Hour24Token extends _FormatTokenBase {
     if (dHour < 24) {
       dHour = date.hour.toDouble();
     }
-    return (dHour.toInt()).toString();
+    return dHour.toInt().toString();
   }
 
   /// Applies format to the value.

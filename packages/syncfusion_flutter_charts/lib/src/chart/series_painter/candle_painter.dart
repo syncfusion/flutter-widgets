@@ -300,28 +300,19 @@ class CandlePainter extends CustomPainter {
 
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        bool withInHighLowRange = false, withInOpenCloseRange = false;
         // ignore: unnecessary_null_comparison
         if (point != null &&
             point.high != null &&
             point.low != null &&
             point.open != null &&
             point.close != null) {
-          withInHighLowRange =
-              withInRange(point.high, seriesRendererDetails.yAxisDetails!) &&
-                  withInRange(point.low, seriesRendererDetails.yAxisDetails!);
-          withInOpenCloseRange =
-              withInRange(point.open, seriesRendererDetails.yAxisDetails!) &&
-                  withInRange(point.close, seriesRendererDetails.yAxisDetails!);
           final bool withInXRange =
               withInRange(point.xValue, seriesRendererDetails.xAxisDetails!);
-          if (withInXRange || (withInHighLowRange && withInOpenCloseRange)) {
-            if (withInXRange) {
-              seriesRendererDetails.visibleDataPoints!
-                  .add(seriesRendererDetails.dataPoints[pointIndex]);
-              seriesRendererDetails.dataPoints[pointIndex].visiblePointIndex =
-                  seriesRendererDetails.visibleDataPoints!.length - 1;
-            }
+          if (withInXRange) {
+            seriesRendererDetails.visibleDataPoints!
+                .add(seriesRendererDetails.dataPoints[pointIndex]);
+            seriesRendererDetails.dataPoints[pointIndex].visiblePointIndex =
+                seriesRendererDetails.visibleDataPoints!.length - 1;
             point.openPoint = calculatePoint(
                 point.xValue + sideBySideMinimumVal,
                 point.open,

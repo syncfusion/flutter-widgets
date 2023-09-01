@@ -600,12 +600,15 @@ class CategoryAxisDetails extends ChartAxisRendererDetails {
 
   /// Calculate the required values of the actual range for the category axis
   void _calculateActualRange() {
-    if (min == null &&
-        max == null &&
-        ((stateProperties.zoomedState ?? false) ||
-            stateProperties.zoomProgress)) {
-      min ??= 0;
-      max ??= 5;
+    if (min == null && max == null) {
+      if ((stateProperties.zoomedState ?? false) ||
+          stateProperties.zoomProgress) {
+        min ??= 0;
+        max ??= 5;
+      } else {
+        min ??= 0;
+        max ??= 0;
+      }
     }
     if (min != null && max != null) {
       actualRange = VisibleRange(
@@ -615,9 +618,12 @@ class CategoryAxisDetails extends ChartAxisRendererDetails {
         seriesRenderer = seriesRenderers[i];
         final SeriesRendererDetails seriesRendererDetails =
             SeriesHelper.getSeriesRendererDetails(seriesRenderer);
-        if ((actualRange!.maximum >
-                seriesRendererDetails.dataPoints.length - 1) ==
-            true) {
+        if (((_categoryAxis.minimum != null || _categoryAxis.maximum != null) ||
+                (stateProperties.zoomedState ?? false) ||
+                stateProperties.zoomProgress) &&
+            (actualRange!.maximum >
+                    seriesRendererDetails.dataPoints.length - 1) ==
+                true) {
           for (int i = labels.length; i < actualRange!.maximum + 1; i++) {
             labels.add(i.toString());
           }

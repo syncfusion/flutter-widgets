@@ -502,19 +502,23 @@ abstract class PdfField implements IPdfWrapper {
               PdfPageHelper.getHelper(loadedPage).obtainAnnotations();
           if (lAnnots != null) {
             for (int i = 0; i < lAnnots.count; i++) {
-              final PdfReferenceHolder holder =
-                  lAnnots[i]! as PdfReferenceHolder;
-              if (holder.reference!.objNum == widgetReference.objNum &&
-                  holder.reference!.genNum == widgetReference.genNum) {
-                page = loadedPage;
-                return page;
-              } else if (_fieldHelper.requiredReference != null &&
-                  _fieldHelper.requiredReference!.reference!.objNum ==
-                      holder.reference!.objNum &&
-                  _fieldHelper.requiredReference!.reference!.genNum ==
-                      holder.reference!.genNum) {
-                page = loadedPage;
-                return page;
+              final IPdfPrimitive? holder = lAnnots[i];
+              if (holder != null &&
+                  holder is PdfReferenceHolder &&
+                  holder.reference != null) {
+                if (holder.reference!.objNum == widgetReference.objNum &&
+                    holder.reference!.genNum == widgetReference.genNum) {
+                  page = loadedPage;
+                  return page;
+                } else if (_fieldHelper.requiredReference != null &&
+                    _fieldHelper.requiredReference!.reference != null &&
+                    _fieldHelper.requiredReference!.reference!.objNum ==
+                        holder.reference!.objNum &&
+                    _fieldHelper.requiredReference!.reference!.genNum ==
+                        holder.reference!.genNum) {
+                  page = loadedPage;
+                  return page;
+                }
               }
             }
           }
@@ -2111,6 +2115,9 @@ class PdfFieldHelper {
             final PdfCheckBoxField field1 = field as PdfCheckBoxField;
             if (value.toUpperCase() == 'OFF' || value.toUpperCase() == 'NO') {
               field1.isChecked = false;
+            } else if (value.toUpperCase() == 'ON' ||
+                value.toUpperCase() == 'YES') {
+              field1.isChecked = true;
             } else if (_containsExportValue(
                 value, field1._fieldHelper.dictionary!)) {
               field1.isChecked = true;

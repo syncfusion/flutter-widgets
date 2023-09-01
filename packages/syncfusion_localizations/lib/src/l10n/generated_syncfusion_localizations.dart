@@ -703,10 +703,10 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get beginsWithDataGridFilteringLabel => r'يبدأ ب';
 
   @override
-  String get cancelDataGridFilteringLabel => r'يلغي';
+  String get cancelDataGridFilteringLabel => r'إلغاء';
 
   @override
-  String get clearFilterDataGridFilteringLabel => r'مرشح واضح';
+  String get clearFilterDataGridFilteringLabel => r'مسح المرشح';
 
   @override
   String get containsDataGridFilteringLabel => r'يتضمن';

@@ -128,7 +128,7 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
     }
     num value = 0;
     final num rank = percentile * (count + 1);
-    final int integerRank = (rank.abs()).floor();
+    final int integerRank = rank.abs().floor();
     final num fractionRank = rank - integerRank;
     if (integerRank == 0) {
       value = yValues[0]!;
@@ -152,7 +152,7 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
     }
     num value = 0;
     final num rank = percentile * (count - 1);
-    final int integerRank = (rank.abs()).floor();
+    final int integerRank = rank.abs().floor();
     final num fractionRank = rank - integerRank;
     value = fractionRank * (yValues[integerRank + 1]! - yValues[integerRank]!) +
         yValues[integerRank]!;

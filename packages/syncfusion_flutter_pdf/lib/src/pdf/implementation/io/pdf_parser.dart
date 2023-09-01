@@ -192,6 +192,27 @@ class PdfParser {
       obj = _parse();
       objects = cTable.parseNewTable(obj as PdfStream?, objects);
     }
+    if (obj is PdfDictionary &&
+        _crossTable != null &&
+        obj.containsKey('XRefStm')) {
+      try {
+        int xrefStreamPosition = 0;
+        final PdfDictionary trailerDictionary = obj;
+        final IPdfPrimitive? pdfNumber =
+            PdfCrossTable.dereference(trailerDictionary['XRefStm']);
+        if (pdfNumber != null && pdfNumber is PdfNumber) {
+          xrefStreamPosition = pdfNumber.value!.toInt();
+        }
+        cTable.parser.setOffset(xrefStreamPosition);
+        final IPdfPrimitive? xrefStream =
+            cTable.parser.parseOffset(xrefStreamPosition);
+        if (xrefStream != null && xrefStream is PdfStream) {
+          objects = cTable.parseNewTable(xrefStream, objects);
+        }
+      } catch (e) {
+        //exception may occurs if offest is not correct/crosstable is corrupted.
+      }
+    }
     return <String, dynamic>{'object': obj, 'objects': objects};
   }
 

@@ -1,3 +1,45 @@
+## [21.2.4] - 05/09/2023
+
+**Bugs**
+
+* Null reference exceptions will no longer occur while getting form fields from the PDF document.
+
+* Now, spaces are preserved properly when extracting text with the layout.
+
+* The preservation issue no longer occurs after modifying the values in the fields of the PDF document.
+
+## [21.1.41] - 04/18/2023
+
+**Bugs**
+
+* The unhandled exception that occurred during the extraction of text and flattening of form fields in the PDF document has been resolved.
+
+## [21.1.39] - 04/11/2023
+
+**Bugs**
+
+* RTL bookmark title is now properly retrieved from Encrypted PDF documents.
+
+## [21.1.37] - 03/29/2023
+
+**Bugs**
+
+* Text words are now properly split while extracting text from PDF documents.
+
+## [20.4.54] - 03/15/2023
+
+**Bugs**
+
+* The issue of PDF document size increasing after removing pages has been resolved.
+
+## [20.4.50] - 02/14/2023
+
+**Bugs**
+
+* Resolved the document corruption exception when signing existing signed PDF documents.
+
+* Text bounds are now retrieved properly when finding text from cropped PDF documents.
+
 ## [20.3.57] - 11/15/2022
 
 **Bugs**
