@@ -105,7 +105,7 @@ The Flutter Calendar widget has built-in configurable views such as day, week, w
 
 ![appearance_customization](https://cdn.syncfusion.com/content/images/FTControl/Flutter/Appearance+customization.png)
 
-* **Localization and Gloablization** - Display the current date and time by following the globalized date and time formats, and localize all available static texts in calendar.
+* **Localization and Globalization** - Display the current date and time by following the globalized date and time formats, and localize all available static texts in calendar.
 
 ![localization](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calendar/localization.png)
 

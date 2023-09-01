@@ -27,6 +27,7 @@ class AppointmentLayout extends StatefulWidget {
       this.visibleAppointments,
       this.timeIntervalHeight,
       this.calendarTheme,
+      this.themeData,
       this.isRTL,
       this.appointmentHoverPosition,
       this.resourceCollection,
@@ -61,6 +62,9 @@ class AppointmentLayout extends StatefulWidget {
 
   /// Holds the theme data of the calendar widget.
   final SfCalendarThemeData calendarTheme;
+
+  /// Holds the framework theme data values.
+  final ThemeData themeData;
 
   /// Used to hold the appointment layout hovering position.
   final ValueNotifier<Offset?> appointmentHoverPosition;
@@ -281,6 +285,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         widget.visibleAppointments.value,
         widget.timeIntervalHeight,
         widget.calendarTheme,
+        widget.themeData,
         widget.isRTL,
         widget.appointmentHoverPosition,
         widget.resourceCollection,
@@ -511,8 +516,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         _indexAppointments,
         visibleStartIndex,
         visibleEndIndex);
-    final TextStyle style =
-        widget.calendar.todayTextStyle ?? widget.calendarTheme.todayTextStyle!;
+    final TextStyle style = widget.calendarTheme.todayTextStyle!;
     final TextSpan dateText =
         TextSpan(text: DateTime.now().day.toString(), style: style);
     _textPainter = _updateTextPainter(
@@ -1093,13 +1097,14 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
 }
 
 class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
-  _AppointmentRenderWidget(
+  const _AppointmentRenderWidget(
       this.calendar,
       this.view,
       this.visibleDates,
       this.visibleAppointments,
       this.timeIntervalHeight,
       this.calendarTheme,
+      this.themeData,
       this.isRTL,
       this.appointmentHoverPosition,
       this.resourceCollection,
@@ -1123,6 +1128,7 @@ class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
   final double timeIntervalHeight;
   final bool isRTL;
   final SfCalendarThemeData calendarTheme;
+  final ThemeData themeData;
   final ValueNotifier<Offset?> appointmentHoverPosition;
   final List<CalendarResource>? resourceCollection;
   final double? resourceItemHeight;
@@ -1145,6 +1151,7 @@ class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
         visibleAppointments,
         timeIntervalHeight,
         calendarTheme,
+        themeData,
         isRTL,
         appointmentHoverPosition,
         resourceCollection,
@@ -1170,6 +1177,7 @@ class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
       ..visibleAppointments = visibleAppointments
       ..timeIntervalHeight = timeIntervalHeight
       ..calendarTheme = calendarTheme
+      ..themeData = themeData
       ..isRTL = isRTL
       ..appointmentHoverPosition = appointmentHoverPosition
       ..resourceCollection = resourceCollection
@@ -1194,6 +1202,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       this._visibleAppointments,
       this._timeIntervalHeight,
       this._calendarTheme,
+      this._themeData,
       this._isRTL,
       this._appointmentHoverPosition,
       this._resourceCollection,
@@ -1343,6 +1352,18 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     markNeedsPaint();
   }
 
+  ThemeData _themeData;
+
+  ThemeData get themeData => _themeData;
+
+  set themeData(ThemeData value) {
+    if (_themeData == value) {
+      return;
+    }
+
+    _themeData = value;
+  }
+
   List<DateTime> _visibleDates;
 
   List<DateTime> get visibleDates => _visibleDates;
@@ -1458,6 +1479,12 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
   List<CustomPainterSemantics> _getSemanticsBuilder(Size size) {
     final List<CustomPainterSemantics> semanticsBuilder =
         <CustomPainterSemantics>[];
+
+    final RenderBox? child = firstChild;
+    if (child != null) {
+      return semanticsBuilder;
+    }
+
     if (appointmentCollection.isEmpty) {
       return semanticsBuilder;
     }
@@ -1508,6 +1535,18 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     }
 
     return semanticsBuilder;
+  }
+
+  @override
+  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+    RenderBox? child = firstChild;
+    if (child == null) {
+      return;
+    }
+    while (child != null) {
+      visitor(child);
+      child = childAfter(child);
+    }
   }
 
   @override
@@ -1762,7 +1801,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
 
         paint.color = appointment.color;
         TextStyle style = AppointmentHelper.getAppointmentTextStyle(
-            calendar.appointmentTextStyle, view);
+            calendar.appointmentTextStyle, view, themeData);
         TextSpan span = TextSpan(text: appointment.subject, style: style);
         _textPainter =
             _updateTextPainter(span, _textPainter, isRTL, _textScaleFactor);
@@ -2052,7 +2091,8 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       }
 
       final List<CalendarAppointment> appointmentLists =
-          _getSpecificDateVisibleAppointment(currentVisibleDate);
+          AppointmentHelper.getSpecificDateVisibleAppointment(
+              currentVisibleDate, visibleAppointments);
       appointmentLists.sort(
           (CalendarAppointment app1, CalendarAppointment app2) =>
               app1.actualStartTime.compareTo(app2.actualStartTime));
@@ -2100,29 +2140,6 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     }
   }
 
-  /// Returns the specific date appointment collection by filtering the
-  /// appointments from passed visible appointment collection.
-  List<CalendarAppointment> _getSpecificDateVisibleAppointment(DateTime? date) {
-    final List<CalendarAppointment> appointmentCollection =
-        <CalendarAppointment>[];
-    if (date == null || visibleAppointments == null) {
-      return appointmentCollection;
-    }
-
-    final DateTime startDate = AppointmentHelper.convertToStartTime(date);
-    final DateTime endDate = AppointmentHelper.convertToEndTime(date);
-
-    for (int j = 0; j < visibleAppointments!.length; j++) {
-      final CalendarAppointment appointment = visibleAppointments![j];
-      if (AppointmentHelper.isAppointmentWithinVisibleDateRange(
-          appointment, startDate, endDate)) {
-        appointmentCollection.add(appointment);
-      }
-    }
-
-    return appointmentCollection;
-  }
-
   void _updateAppointmentHovering(RRect rect, Canvas canvas) {
     final Offset? hoverPosition = appointmentHoverPosition.value;
     if (hoverPosition == null) {
@@ -2167,7 +2184,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       bool canAddForwardIcon = false;
       final TextStyle appointmentTextStyle =
           AppointmentHelper.getAppointmentTextStyle(
-              calendar.appointmentTextStyle, view);
+              calendar.appointmentTextStyle, view, themeData);
       if (canAddSpanIcon) {
         if (CalendarViewHelper.isSameTimeSlot(
                 appointment.exactStartTime, appointment.actualStartTime) &&
@@ -2405,7 +2422,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       const double iconPadding = 2;
       final TextStyle appointmentTextStyle =
           AppointmentHelper.getAppointmentTextStyle(
-              calendar.appointmentTextStyle, view);
+              calendar.appointmentTextStyle, view, themeData);
       final double iconSize = _getTextSize(appointmentRect,
               appointmentTextStyle.fontSize! * textScaleFactor) +
           (2 * iconPadding);
