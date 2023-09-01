@@ -214,6 +214,30 @@ class AppointmentHelper {
         isSameOrBeforeDate(viewEndDate, appEndTime);
   }
 
+  /// Returns the specific date appointment collection by filtering the
+  /// appointments from passed visible appointment collection.
+  static List<CalendarAppointment> getSpecificDateVisibleAppointment(
+      DateTime? date, List<CalendarAppointment>? visibleAppointments) {
+    final List<CalendarAppointment> appointmentCollection =
+        <CalendarAppointment>[];
+    if (date == null || visibleAppointments == null) {
+      return appointmentCollection;
+    }
+
+    final DateTime startDate = convertToStartTime(date);
+    final DateTime endDate = convertToEndTime(date);
+
+    for (int j = 0; j < visibleAppointments.length; j++) {
+      final CalendarAppointment appointment = visibleAppointments[j];
+      if (isAppointmentWithinVisibleDateRange(
+          appointment, startDate, endDate)) {
+        appointmentCollection.add(appointment);
+      }
+    }
+
+    return appointmentCollection;
+  }
+
   /// Return appointment collection based on the date.
   static List<CalendarAppointment> getSelectedDateAppointments(
       List<CalendarAppointment>? appointments,
@@ -257,15 +281,13 @@ class AppointmentHelper {
 
   /// Return calendar appointment text style.
   static TextStyle getAppointmentTextStyle(
-      TextStyle appointmentTextStyle, CalendarView view) {
+      TextStyle appointmentTextStyle, CalendarView view, ThemeData themeData) {
     if (appointmentTextStyle.fontSize != -1) {
-      return appointmentTextStyle;
+      return themeData.textTheme.bodyMedium!.merge(appointmentTextStyle);
     }
-    return TextStyle(
-        color: appointmentTextStyle.color,
-        fontSize: 12,
-        fontWeight: appointmentTextStyle.fontWeight,
-        fontFamily: appointmentTextStyle.fontFamily);
+
+    return themeData.textTheme.bodyMedium!
+        .merge(appointmentTextStyle.copyWith(fontSize: 12));
   }
 
   static CalendarAppointment _copy(CalendarAppointment appointment) {
