@@ -57,7 +57,11 @@ class SfSparkAreaChart extends StatefulWidget {
       this.lastPointColor,
       this.marker,
       this.labelDisplayMode,
-      this.labelStyle,
+      this.labelStyle = const TextStyle(
+          fontFamily: 'Roboto',
+          fontStyle: FontStyle.normal,
+          fontWeight: FontWeight.normal,
+          fontSize: 12),
       this.trackball})
       : _sparkChartDataDetails = SparkChartDataDetails(data: data!),
         super(key: key);
@@ -141,7 +145,11 @@ class SfSparkAreaChart extends StatefulWidget {
       this.lastPointColor,
       this.marker,
       this.labelDisplayMode,
-      this.labelStyle,
+      this.labelStyle = const TextStyle(
+          fontFamily: 'Roboto',
+          fontStyle: FontStyle.normal,
+          fontWeight: FontWeight.normal,
+          fontSize: 12),
       this.trackball})
       : _sparkChartDataDetails = SparkChartDataDetails(
             dataCount: dataCount!,
@@ -531,7 +539,7 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  final TextStyle? labelStyle;
+  final TextStyle labelStyle;
 
   /// Enables and customizes the trackball.
   ///
@@ -608,8 +616,6 @@ class _SfSparkAreaChartState extends State<SfSparkAreaChart> {
 
   @override
   void didUpdateWidget(SfSparkAreaChart oldWidget) {
-    _chartThemeData =
-        _updateThemeData(context, Theme.of(context), SfChartTheme.of(context));
     super.didUpdateWidget(oldWidget);
   }
 
@@ -622,18 +628,8 @@ class _SfSparkAreaChartState extends State<SfSparkAreaChart> {
 
   @override
   void didChangeDependencies() {
-    _chartThemeData =
-        _updateThemeData(context, Theme.of(context), SfChartTheme.of(context));
+    _chartThemeData = SfChartTheme.of(context);
     super.didChangeDependencies();
-  }
-
-  SfChartThemeData _updateThemeData(BuildContext context, ThemeData themeData,
-      SfChartThemeData chartThemeData) {
-    chartThemeData = chartThemeData.copyWith(
-        dataLabelTextStyle: themeData.textTheme.bodySmall!
-            .merge(chartThemeData.dataLabelTextStyle)
-            .merge(widget.labelStyle));
-    return chartThemeData;
   }
 
   /// Describes the part of the user interface represented by this widget.

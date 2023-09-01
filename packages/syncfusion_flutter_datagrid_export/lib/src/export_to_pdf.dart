@@ -21,7 +21,6 @@ extension DataGridPdfExportExtensions on SfDataGridState {
       required List<String> excludeColumns,
       required bool autoColumnWidth,
       required bool exportTableSummaries,
-      int rowIndex = 0,
       DataGridCellPdfExportCallback? cellExport,
       DataGridPdfHeaderFooterExportCallback? headerFooterExport}) {
     converter
@@ -32,8 +31,7 @@ extension DataGridPdfExportExtensions on SfDataGridState {
       ..cellExport = cellExport
       ..excludeColumns = excludeColumns
       ..headerFooterExport = headerFooterExport
-      ..exportTableSummaries = exportTableSummaries
-      ..rowIndex = rowIndex;
+      ..exportTableSummaries = exportTableSummaries;
   }
 
   /// Exports the `SfDataGrid` to `PdfDocument`.
@@ -358,14 +356,12 @@ class DataGridToPdfConverter {
       rowSpan = getRowSpan(
           dataGrid: dataGrid,
           isStackedHeader: false,
-          columnName: column.columnName,
+          columnName: columnName,
           rowIndex: rowIndex - 1,
           columnIndex: dataGrid.columns.indexOf(column));
     }
     if (rowSpan > 0) {
-      // Retrieve the header cell at the given index by subtracting the number of rows
-      // spanned by the previous cells in the same row.
-      columnHeader = pdfGrid.headers[rowIndex - rowSpan];
+      columnHeader = pdfGrid.headers[rowIndex - 1];
       pdfCell = columnHeader.cells[_columnIndex];
       pdfCell.rowSpan = rowSpan + 1;
       pdfCell.value = columnName;
@@ -564,7 +560,7 @@ class DataGridToPdfConverter {
     PdfGridCell pdfCell = stakedHeaderRow.cells[firstColumnIndex];
     if (firstColumnIndex <= lastColumnIndex) {
       if (rowSpan > 0) {
-        stakedHeaderRow = pdfGrid.headers[rowIndex - rowSpan];
+        stakedHeaderRow = pdfGrid.headers[rowIndex - 1];
         pdfCell = stakedHeaderRow.cells[firstColumnIndex];
         pdfCell.columnSpan = columnSpan;
         pdfCell.rowSpan = rowSpan + 1;

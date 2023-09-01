@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/legend_internal.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../treemap.dart';
 
@@ -1691,11 +1690,6 @@ class Legend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle legendTextStyle = Theme.of(context)
-        .textTheme
-        .bodySmall!
-        .merge(SfTreemapTheme.of(context).legendTextStyle)
-        .merge(legend.textStyle);
     switch (legend._type) {
       case _LegendType.vector:
         return SfLegend(
@@ -1707,7 +1701,7 @@ class Legend extends StatelessWidget {
           position: _getEffectivePosition(legend.position),
           overflowMode: _getEffectiveOverflowMode(legend.overflowMode),
           itemSpacing: legend.spacing,
-          textStyle: legendTextStyle,
+          textStyle: legend.textStyle,
           title: legend.title,
           iconType: _getEffectiveLegendIconType(legend.iconType),
           iconSize: legend.iconSize,
@@ -1724,7 +1718,7 @@ class Legend extends StatelessWidget {
           direction: legend.direction,
           offset: legend.offset,
           padding: legend.padding,
-          textStyle: legendTextStyle,
+          textStyle: legend.textStyle,
           labelsPlacement:
               _getEffectiveLabelPlacement(_getActualLabelsPlacement()),
           edgeLabelsPlacement:

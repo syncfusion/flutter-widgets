@@ -41,7 +41,7 @@ class PlotBand {
       this.borderColor = Colors.transparent,
       this.borderWidth = 0,
       this.text,
-      this.textStyle,
+      TextStyle? textStyle,
       this.isRepeatable = false,
       this.repeatEvery = 1,
       this.verticalTextPadding,
@@ -56,7 +56,13 @@ class PlotBand {
       this.associatedAxisEnd,
       this.verticalTextAlignment = TextAnchor.middle,
       this.horizontalTextAlignment = TextAnchor.middle,
-      this.gradient});
+      this.gradient})
+      : textStyle = textStyle ??
+            const TextStyle(
+                fontFamily: 'Roboto',
+                fontStyle: FontStyle.normal,
+                fontWeight: FontWeight.normal,
+                fontSize: 12);
 
   /// Toggles the visibility of the plot band.
   ///
@@ -164,7 +170,7 @@ class PlotBand {
   ///    );
   ///}
   ///```
-  final TextStyle? textStyle;
+  final TextStyle textStyle;
 
   /// Color of the plot band.
   ///
@@ -669,24 +675,18 @@ class PlotBand {
 }
 
 /// Method to get the plot band painter
-CustomPainter getPlotBandPainter({
-  required CartesianStateProperties stateProperties,
-  required bool shouldRenderAboveSeries,
-  required ValueNotifier<num> notifier,
-}) {
+CustomPainter getPlotBandPainter(
+    {required CartesianStateProperties stateProperties,
+    required bool shouldRenderAboveSeries}) {
   return _PlotBandPainter(
       stateProperties: stateProperties,
-      shouldRenderAboveSeries: shouldRenderAboveSeries,
-      notifier: notifier);
+      shouldRenderAboveSeries: shouldRenderAboveSeries);
 }
 
 class _PlotBandPainter extends CustomPainter {
   _PlotBandPainter(
-      {required this.stateProperties,
-      required this.shouldRenderAboveSeries,
-      required ValueNotifier<num> notifier})
-      : chart = stateProperties.chart,
-        super(repaint: notifier);
+      {required this.stateProperties, required this.shouldRenderAboveSeries})
+      : chart = stateProperties.chart;
 
   final CartesianStateProperties stateProperties;
 
@@ -1014,10 +1014,6 @@ class _PlotBandPainter extends CustomPainter {
       Canvas canvas, ChartAxis axis) {
     final List<double> dashArray = plotBand.dashArray;
     bool needDashLine = true;
-
-    final TextStyle plotBandLabelStyle = stateProperties
-        .renderingDetails.chartTheme.plotBandLabelTextStyle!
-        .merge(plotBand.textStyle);
     // ignore: unnecessary_null_comparison
     if (plotBandRect != null && plotBand.color != null) {
       Path? path;
@@ -1073,7 +1069,7 @@ class _PlotBandPainter extends CustomPainter {
     }
     if (plotBand.text != null && plotBand.text!.isNotEmpty) {
       final Size textSize =
-          measureText(plotBand.text!, plotBandLabelStyle, textAngle);
+          measureText(plotBand.text!, plotBand.textStyle, textAngle);
       num? x = 0;
       num? y = 0;
       if (plotBand.horizontalTextPadding != null &&
@@ -1084,7 +1080,7 @@ class _PlotBandPainter extends CustomPainter {
               chart.isTransposed
                   ? stateProperties.chartAxis.axisClipRect.bottom
                   : stateProperties.chartAxis.axisClipRect.right);
-        } else if (plotBand.horizontalTextPadding!.contains('px')) {
+        } else if (plotBand.verticalTextPadding!.contains('px')) {
           x = double.parse(plotBand.horizontalTextPadding!
               .substring(0, plotBand.horizontalTextPadding!.length - 2));
         } else {
@@ -1142,7 +1138,7 @@ class _PlotBandPainter extends CustomPainter {
                   : plotBand.verticalTextAlignment == TextAnchor.start
                       ? (plotBandRect.top - y!)
                       : plotBandRect.bottom - textSize.height - y!),
-          plotBandLabelStyle,
+          plotBand.textStyle,
           textAngle);
     }
   }

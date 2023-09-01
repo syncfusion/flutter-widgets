@@ -188,8 +188,7 @@ void findPathCenterAndWidth(
   centerX = centerX / (6 * signedArea);
   centerY = centerY / (6 * signedArea);
   mapModel.shapePathCenter = Offset(centerX, centerY);
-  double minX = double.infinity;
-  double maxX = double.negativeInfinity;
+  double? minX, maxX;
   double distance,
       minDistance = double.infinity,
       maxDistance = double.negativeInfinity;
@@ -202,7 +201,7 @@ void findPathCenterAndWidth(
       if (point.dx < centerX) {
         // Collected all points which is less 10 pixels distance from
         // 'center y' to position the labels more smartly.
-        if (distance < 10) {
+        if (minX != null && distance < 10) {
           minDistances.add(point.dx);
         }
         if (distance < minDistance) {
@@ -210,7 +209,7 @@ void findPathCenterAndWidth(
           minDistance = distance;
         }
       } else if (point.dx > centerX) {
-        if (distance < 10) {
+        if (maxX != null && distance < 10) {
           maxDistances.add(point.dx);
         }
 
@@ -222,8 +221,8 @@ void findPathCenterAndWidth(
     }
   }
 
-  mapModel.shapeWidth =
-      max(maxX, maxDistances.reduce(max)) - min(minX, minDistances.reduce(min));
+  mapModel.shapeWidth = max(maxX!, maxDistances.reduce(max)) -
+      min(minX!, minDistances.reduce(min));
 }
 
 /// An interpolation between two latlng.

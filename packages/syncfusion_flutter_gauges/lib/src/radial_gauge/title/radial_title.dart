@@ -28,7 +28,11 @@ class GaugeTitle {
   /// Creates the gauge title with default or required properties.
   const GaugeTitle(
       {required this.text,
-      this.textStyle,
+      this.textStyle = const TextStyle(
+          fontSize: 15.0,
+          fontFamily: 'Segoe UI',
+          fontStyle: FontStyle.normal,
+          fontWeight: FontWeight.normal),
       this.alignment = GaugeAlignment.center,
       this.borderColor,
       this.borderWidth = 0,
@@ -76,7 +80,7 @@ class GaugeTitle {
   ///        ));
   ///}
   ///```
-  final TextStyle? textStyle;
+  final TextStyle textStyle;
 
   /// The color that fills the title of the gauge.
   ///

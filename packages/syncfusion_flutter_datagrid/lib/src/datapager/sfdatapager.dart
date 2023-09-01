@@ -588,10 +588,8 @@ class SfDataPagerState extends State<SfDataPager> {
     }
     _suspendDataPagerUpdate = true;
 
-    // When the index is greater than the page count,
-    // it is necessary to set the index to the page count index.
     if (index > widget.pageCount - 1) {
-      index = (widget.pageCount - 1).toInt();
+      index -= 1;
     }
     final bool canChange = await _canChangePage(index);
 
@@ -900,9 +898,9 @@ class SfDataPagerState extends State<SfDataPager> {
   }
 
   double _getDataPagerWidth(
-      {bool canEnableDataPagerLabel = false, bool isDropDown = false}) {
+      {bool canEnableDataPagerLable = false, bool isDropDown = false}) {
     if (widget.direction == Axis.horizontal) {
-      if (canEnableDataPagerLabel && isDropDown) {
+      if (canEnableDataPagerLable && isDropDown) {
         return _headerExtent +
             _scrollViewPortSize +
             _footerExtent +
@@ -1566,7 +1564,7 @@ class SfDataPagerState extends State<SfDataPager> {
                     : Alignment.center,
             child: SizedBox(
                 width: _getDataPagerWidth(
-                    canEnableDataPagerLabel: canEnablePagerLabel,
+                    canEnableDataPagerLable: canEnablePagerLabel,
                     isDropDown: isDropDown),
                 height: _getDataPagerHeight(),
                 child: dataPagerLabel != null && isDropDown

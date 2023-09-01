@@ -368,7 +368,6 @@ class _RenderSparkBarChart extends RenderSparkChart {
         borderWidth != null &&
         borderWidth! > 0;
     Rect rect;
-    _labelStyle = themeData!.dataLabelTextStyle;
     _highPoint = coordinatePoints![0].dy;
     _lowPoint = coordinatePoints![0].dy;
     for (int i = 0; i < _segments!.length; i++) {

@@ -9,7 +9,6 @@ import '../../chart/common/data_label.dart';
 import '../../chart/utils/enum.dart';
 import '../../chart/utils/helper.dart';
 import '../../common/event_args.dart';
-import '../../common/rendering_details.dart';
 import '../../common/template/rendering.dart';
 import '../../common/utils/helper.dart';
 import '../../pyramid_chart/utils/helper.dart';
@@ -254,11 +253,7 @@ void _increaseAngle(
         isIncreaseAngle = false;
         break;
       }
-      _changeLabelAngle(
-        nextPoint,
-        newAngle,
-        seriesRenderer,
-      );
+      _changeLabelAngle(nextPoint, newAngle, seriesRenderer);
       count++;
     }
   }
@@ -270,17 +265,10 @@ void _changeLabelAngle(ChartPoint<dynamic> currentPoint, num newAngle,
   const String defaultConnectorLineLength = '10%';
   final DataLabelSettings dataLabel =
       seriesRenderer.dataLabelSettingsRenderer.dataLabelSettings;
-  final RenderingDetails renderingDetails =
-      seriesRenderer.stateProperties.renderingDetails;
-  final TextStyle dataLabelStyle = renderingDetails
-      .themeData.textTheme.bodySmall!
-      .merge(renderingDetails.chartTheme.dataLabelTextStyle)
-      .merge(dataLabel.textStyle);
-
   // Builder check for change the angle based on the template size.
   final Size textSize = dataLabel.builder != null
       ? currentPoint.dataLabelSize
-      : measureText(currentPoint.text!, dataLabelStyle);
+      : measureText(currentPoint.text!, dataLabel.textStyle);
   final Path angleChangedConnectorPath = Path();
   final num connectorLength = percentToValue(
       dataLabel.connectorLineSettings.length ?? defaultConnectorLineLength,
@@ -428,11 +416,7 @@ void renderCircularDataLabel(
   String? label;
   final double animateOpacity = animation != null ? animation.value : 1;
   DataLabelRenderArgs dataLabelArgs;
-  final TextStyle dataLabelStyle = stateProperties
-      .renderingDetails.themeData.textTheme.bodySmall!
-      .merge(stateProperties.renderingDetails.chartTheme.dataLabelTextStyle)
-      .merge(dataLabel.textStyle);
-
+  TextStyle dataLabelStyle;
   final List<Rect> renderDataLabelRegions = <Rect>[];
   Size? textSize;
   for (int pointIndex = 0;
@@ -441,11 +425,11 @@ void renderCircularDataLabel(
     point = seriesRenderer.renderPoints![pointIndex];
     if (dataLabel.builder == null ||
         dataLabel.labelIntersectAction != LabelIntersectAction.shift) {
-      TextStyle textStyle = dataLabelStyle.copyWith();
       if (point.isVisible && (point.y != 0 || dataLabel.showZeroValue)) {
         label = point.text;
         label = seriesRenderer.renderer.getLabelContent(
             seriesRenderer, point, pointIndex, seriesIndex, label!);
+        dataLabelStyle = dataLabel.textStyle;
         dataLabelSettingsRenderer.color =
             seriesRenderer.series.dataLabelSettings.color;
         if (chart.onDataLabelRender != null &&
@@ -453,11 +437,11 @@ void renderCircularDataLabel(
           dataLabelArgs = DataLabelRenderArgs(seriesRenderer,
               seriesRenderer.renderPoints, pointIndex, pointIndex);
           dataLabelArgs.text = label;
-          dataLabelArgs.textStyle = textStyle.copyWith();
+          dataLabelArgs.textStyle = dataLabelStyle;
           dataLabelArgs.color = dataLabelSettingsRenderer.color;
           chart.onDataLabelRender!(dataLabelArgs);
           label = point.text = dataLabelArgs.text;
-          textStyle = textStyle.merge(dataLabelArgs.textStyle); //Check here
+          dataLabelStyle = dataLabelArgs.textStyle;
           pointIndex = dataLabelArgs.pointIndex!;
           dataLabelSettingsRenderer.color = dataLabelArgs.color;
           seriesRenderer.dataPoints[pointIndex].labelRenderEvent = true;
@@ -473,21 +457,21 @@ void renderCircularDataLabel(
                 .dataLabelTemplateRegions[pointIndex].size;
           }
         } else {
-          textSize = measureText(label, textStyle);
+          textSize = measureText(label, dataLabelStyle);
         }
 
         /// condition check for labels after event.
         if (label != '') {
           if (seriesRenderer.seriesType == 'radialbar') {
-            textStyle = chart.onDataLabelRender == null
+            dataLabelStyle = chart.onDataLabelRender == null
                 ? seriesRenderer.renderer.getDataLabelStyle(
                     seriesRenderer,
                     point,
                     pointIndex,
                     seriesIndex,
-                    textStyle,
+                    dataLabelStyle,
                     stateProperties.chartState)
-                : textStyle;
+                : dataLabelStyle;
             labelLocation = degreeToPoint(point.startAngle!,
                 (point.innerRadius! + point.outerRadius!) / 2, point.center!);
             labelLocation = Offset(
@@ -511,7 +495,7 @@ void renderCircularDataLabel(
                 pointIndex,
                 seriesIndex,
                 chart,
-                textStyle,
+                dataLabelStyle,
                 renderDataLabelRegions,
                 animateOpacity);
           } else {
@@ -526,14 +510,19 @@ void renderCircularDataLabel(
                 label,
                 seriesRenderer,
                 animateOpacity,
-                textStyle,
+                dataLabelStyle,
                 seriesIndex);
           }
         }
-        textStyle = chart.onDataLabelRender == null
-            ? seriesRenderer.renderer.getDataLabelStyle(seriesRenderer, point,
-                pointIndex, seriesIndex, textStyle, stateProperties.chartState)
-            : textStyle;
+        dataLabelStyle = chart.onDataLabelRender == null
+            ? seriesRenderer.renderer.getDataLabelStyle(
+                seriesRenderer,
+                point,
+                pointIndex,
+                seriesIndex,
+                dataLabelStyle,
+                stateProperties.chartState)
+            : dataLabelStyle;
       } else {
         point.labelRect = Rect.zero;
       }
@@ -583,23 +572,50 @@ void renderCircularDataLabel(
         final EdgeInsets margin =
             seriesRenderer.series.dataLabelSettings.margin;
         final Rect rect = point.labelRect;
-        final TextStyle dataLabelStyle = stateProperties
-            .renderingDetails.themeData.textTheme.bodySmall!
-            .copyWith(
-              color: (dataLabel.builder == null && dataLabel.textStyle == null)
-                  ? ((chart.onDataLabelRender != null &&
-                          dataLabelSettingsRenderer.color != null)
-                      ? getSaturationColor(
-                          dataLabelSettingsRenderer.color ?? point.fill)
-                      : getSaturationColor(point.renderPosition ==
+        TextStyle dataLabelStyle = dataLabel.textStyle;
+        if (dataLabel.builder == null) {
+          dataLabelStyle = TextStyle(
+              color: (chart.onDataLabelRender != null &&
+                      dataLabelSettingsRenderer.color != null)
+                  ? getSaturationColor(
+                      dataLabelSettingsRenderer.color ?? point.fill)
+                  : ((dataLabelStyle.color ?? dataLabel.textStyle.color) ??
+                      getSaturationColor(point.renderPosition ==
                               ChartDataLabelPosition.outside
                           ? findthemecolor(stateProperties, point, dataLabel)
-                          : dataLabelSettingsRenderer.color ?? point.fill))
-                  : dataLabel.textStyle?.color,
-            )
-            .merge(
-                stateProperties.renderingDetails.chartTheme.dataLabelTextStyle)
-            .merge(dataLabel.textStyle);
+                          : dataLabelSettingsRenderer.color ?? point.fill)),
+              fontSize: dataLabelStyle.fontSize ?? dataLabel.textStyle.fontSize,
+              fontFamily:
+                  dataLabelStyle.fontFamily ?? dataLabel.textStyle.fontFamily,
+              fontStyle:
+                  dataLabelStyle.fontStyle ?? dataLabel.textStyle.fontStyle,
+              fontWeight:
+                  dataLabelStyle.fontWeight ?? dataLabel.textStyle.fontWeight,
+              inherit: dataLabelStyle.inherit,
+              backgroundColor: dataLabelStyle.backgroundColor ??
+                  dataLabel.textStyle.backgroundColor,
+              letterSpacing: dataLabelStyle.letterSpacing ??
+                  dataLabel.textStyle.letterSpacing,
+              wordSpacing:
+                  dataLabelStyle.wordSpacing ?? dataLabel.textStyle.wordSpacing,
+              textBaseline: dataLabelStyle.textBaseline ??
+                  dataLabel.textStyle.textBaseline,
+              height: dataLabelStyle.height ?? dataLabel.textStyle.height,
+              locale: dataLabelStyle.locale ?? dataLabel.textStyle.locale,
+              foreground:
+                  dataLabelStyle.foreground ?? dataLabel.textStyle.foreground,
+              background:
+                  dataLabelStyle.background ?? dataLabel.textStyle.background,
+              shadows: dataLabelStyle.shadows ?? dataLabel.textStyle.shadows,
+              fontFeatures:
+                  dataLabelStyle.fontFeatures ?? dataLabel.textStyle.fontFeatures,
+              decoration: dataLabelStyle.decoration ?? dataLabel.textStyle.decoration,
+              decorationColor: dataLabelStyle.decorationColor ?? dataLabel.textStyle.decorationColor,
+              decorationStyle: dataLabelStyle.decorationStyle ?? dataLabel.textStyle.decorationStyle,
+              decorationThickness: dataLabelStyle.decorationThickness ?? dataLabel.textStyle.decorationThickness,
+              debugLabel: dataLabelStyle.debugLabel ?? dataLabel.textStyle.debugLabel,
+              fontFamilyFallback: dataLabelStyle.fontFamilyFallback ?? dataLabel.textStyle.fontFamilyFallback);
+        }
         textSize = seriesRenderer.series.dataLabelSettings.builder != null
             ? point.dataLabelSize
             : measureText(label!, dataLabelStyle);
@@ -745,7 +761,6 @@ void setLabelPosition(
           point.labelRect,
           stateProperties,
           labelLocation,
-          dataLabelStyle,
           dataLabel.overflowMode);
       if (labelText.contains('...') || labelText.isEmpty) {
         isDataLabelCollide = true;
@@ -761,7 +776,6 @@ void setLabelPosition(
           point.labelRect,
           stateProperties,
           labelLocation,
-          dataLabelStyle,
           dataLabel.overflowMode);
       label = point.text!;
       final Size trimmedTextSize = measureText(label, dataLabelStyle);
@@ -780,13 +794,40 @@ void setLabelPosition(
           trimmedTextSize.width + (2 * labelPadding),
           trimmedTextSize.height + (2 * labelPadding));
     }
-    final TextStyle textStyle = dataLabelStyle.copyWith(
-      color: _isCustomTextColor(dataLabel.textStyle,
-              stateProperties.renderingDetails.chartTheme.dataLabelTextStyle)
-          ? dataLabelStyle.color
-          : getSaturationColor(
-              findthemecolor(stateProperties, point, dataLabel)),
-    );
+    final TextStyle textStyle = TextStyle(
+        color: (dataLabelStyle.color ?? dataLabel.textStyle.color) ??
+            getSaturationColor(
+                findthemecolor(stateProperties, point, dataLabel)),
+        fontSize: dataLabelStyle.fontSize ?? dataLabel.textStyle.fontSize,
+        fontFamily: dataLabelStyle.fontFamily ?? dataLabel.textStyle.fontFamily,
+        fontStyle: dataLabelStyle.fontStyle ?? dataLabel.textStyle.fontStyle,
+        fontWeight: dataLabelStyle.fontWeight ?? dataLabel.textStyle.fontWeight,
+        inherit: dataLabelStyle.inherit,
+        backgroundColor: dataLabelStyle.backgroundColor ??
+            dataLabel.textStyle.backgroundColor,
+        letterSpacing:
+            dataLabelStyle.letterSpacing ?? dataLabel.textStyle.letterSpacing,
+        wordSpacing:
+            dataLabelStyle.wordSpacing ?? dataLabel.textStyle.wordSpacing,
+        textBaseline:
+            dataLabelStyle.textBaseline ?? dataLabel.textStyle.textBaseline,
+        height: dataLabelStyle.height ?? dataLabel.textStyle.height,
+        locale: dataLabelStyle.locale ?? dataLabel.textStyle.locale,
+        foreground: dataLabelStyle.foreground ?? dataLabel.textStyle.foreground,
+        background: dataLabelStyle.background ?? dataLabel.textStyle.background,
+        shadows: dataLabelStyle.shadows ?? dataLabel.textStyle.shadows,
+        fontFeatures:
+            dataLabelStyle.fontFeatures ?? dataLabel.textStyle.fontFeatures,
+        decoration: dataLabelStyle.decoration ?? dataLabel.textStyle.decoration,
+        decorationColor: dataLabelStyle.decorationColor ??
+            dataLabel.textStyle.decorationColor,
+        decorationStyle: dataLabelStyle.decorationStyle ??
+            dataLabel.textStyle.decorationStyle,
+        decorationThickness: dataLabelStyle.decorationThickness ??
+            dataLabel.textStyle.decorationThickness,
+        debugLabel: dataLabelStyle.debugLabel ?? dataLabel.textStyle.debugLabel,
+        fontFamilyFallback: dataLabelStyle.fontFamilyFallback ??
+            dataLabel.textStyle.fontFamilyFallback);
     if (seriesRenderer.series.dataLabelSettings.labelIntersectAction ==
             LabelIntersectAction.shift &&
         isDataLabelCollide &&
@@ -831,18 +872,51 @@ void setLabelPosition(
             dataLabel.overflowMode == OverflowMode.none)) {
       point.renderPosition = ChartDataLabelPosition.inside;
       if (dataLabel.builder == null) {
-        dataLabelStyle = dataLabelStyle.copyWith(
+        dataLabelStyle = TextStyle(
             color: (chart.onDataLabelRender != null &&
                     dataLabelSettingsRenderer.color != null)
                 ? getSaturationColor(
                     dataLabelSettingsRenderer.color ?? point.fill)
-                : _isCustomTextColor(
-                        dataLabel.textStyle,
-                        stateProperties
-                            .renderingDetails.chartTheme.dataLabelTextStyle)
-                    ? dataLabelStyle.color
-                    : getSaturationColor(
-                        dataLabelSettingsRenderer.color ?? point.fill));
+                : ((dataLabelStyle.color ?? dataLabel.textStyle.color) ??
+                    getSaturationColor(
+                        dataLabelSettingsRenderer.color ?? point.fill)),
+            fontSize: dataLabelStyle.fontSize ?? dataLabel.textStyle.fontSize,
+            fontFamily:
+                dataLabelStyle.fontFamily ?? dataLabel.textStyle.fontFamily,
+            fontStyle:
+                dataLabelStyle.fontStyle ?? dataLabel.textStyle.fontStyle,
+            fontWeight:
+                dataLabelStyle.fontWeight ?? dataLabel.textStyle.fontWeight,
+            inherit: dataLabelStyle.inherit,
+            backgroundColor: dataLabelStyle.backgroundColor ??
+                dataLabel.textStyle.backgroundColor,
+            letterSpacing: dataLabelStyle.letterSpacing ??
+                dataLabel.textStyle.letterSpacing,
+            wordSpacing:
+                dataLabelStyle.wordSpacing ?? dataLabel.textStyle.wordSpacing,
+            textBaseline:
+                dataLabelStyle.textBaseline ?? dataLabel.textStyle.textBaseline,
+            height: dataLabelStyle.height ?? dataLabel.textStyle.height,
+            locale: dataLabelStyle.locale ?? dataLabel.textStyle.locale,
+            foreground:
+                dataLabelStyle.foreground ?? dataLabel.textStyle.foreground,
+            background:
+                dataLabelStyle.background ?? dataLabel.textStyle.background,
+            shadows: dataLabelStyle.shadows ?? dataLabel.textStyle.shadows,
+            fontFeatures:
+                dataLabelStyle.fontFeatures ?? dataLabel.textStyle.fontFeatures,
+            decoration:
+                dataLabelStyle.decoration ?? dataLabel.textStyle.decoration,
+            decorationColor: dataLabelStyle.decorationColor ??
+                dataLabel.textStyle.decorationColor,
+            decorationStyle: dataLabelStyle.decorationStyle ??
+                dataLabel.textStyle.decorationStyle,
+            decorationThickness: dataLabelStyle.decorationThickness ??
+                dataLabel.textStyle.decorationThickness,
+            debugLabel:
+                dataLabelStyle.debugLabel ?? dataLabel.textStyle.debugLabel,
+            fontFamilyFallback: dataLabelStyle.fontFamilyFallback ??
+                dataLabel.textStyle.fontFamilyFallback);
       }
       if (!isDataLabelCollide &&
           (dataLabel.labelIntersectAction == LabelIntersectAction.shift &&
@@ -860,7 +934,6 @@ void setLabelPosition(
               point.labelRect,
               stateProperties,
               labelLocation,
-              dataLabelStyle,
               dataLabel.overflowMode);
           label = point.text!;
         }
@@ -898,13 +971,46 @@ void setLabelPosition(
   } else {
     point.renderPosition = ChartDataLabelPosition.outside;
     if (dataLabel.builder == null) {
-      dataLabelStyle = dataLabelStyle.copyWith(
-        color: _isCustomTextColor(dataLabel.textStyle,
-                stateProperties.renderingDetails.chartTheme.dataLabelTextStyle)
-            ? dataLabelStyle.color
-            : getSaturationColor(
-                findthemecolor(stateProperties, point, dataLabel)),
-      );
+      dataLabelStyle = TextStyle(
+          color: (dataLabelStyle.color ?? dataLabel.textStyle.color) ??
+              getSaturationColor(
+                  findthemecolor(stateProperties, point, dataLabel)),
+          fontSize: dataLabelStyle.fontSize ?? dataLabel.textStyle.fontSize,
+          fontFamily:
+              dataLabelStyle.fontFamily ?? dataLabel.textStyle.fontFamily,
+          fontStyle: dataLabelStyle.fontStyle ?? dataLabel.textStyle.fontStyle,
+          fontWeight:
+              dataLabelStyle.fontWeight ?? dataLabel.textStyle.fontWeight,
+          inherit: dataLabelStyle.inherit,
+          backgroundColor: dataLabelStyle.backgroundColor ??
+              dataLabel.textStyle.backgroundColor,
+          letterSpacing:
+              dataLabelStyle.letterSpacing ?? dataLabel.textStyle.letterSpacing,
+          wordSpacing:
+              dataLabelStyle.wordSpacing ?? dataLabel.textStyle.wordSpacing,
+          textBaseline:
+              dataLabelStyle.textBaseline ?? dataLabel.textStyle.textBaseline,
+          height: dataLabelStyle.height ?? dataLabel.textStyle.height,
+          locale: dataLabelStyle.locale ?? dataLabel.textStyle.locale,
+          foreground:
+              dataLabelStyle.foreground ?? dataLabel.textStyle.foreground,
+          background:
+              dataLabelStyle.background ?? dataLabel.textStyle.background,
+          shadows: dataLabelStyle.shadows ?? dataLabel.textStyle.shadows,
+          fontFeatures:
+              dataLabelStyle.fontFeatures ?? dataLabel.textStyle.fontFeatures,
+          decoration:
+              dataLabelStyle.decoration ?? dataLabel.textStyle.decoration,
+          decorationColor: dataLabelStyle.decorationColor ??
+              dataLabel.textStyle.decorationColor,
+          decorationStyle: dataLabelStyle.decorationStyle ??
+              dataLabel.textStyle.decorationStyle,
+          decorationThickness: dataLabelStyle.decorationThickness ??
+              dataLabel.textStyle.decorationThickness,
+          debugLabel:
+              dataLabelStyle.debugLabel ?? dataLabel.textStyle.debugLabel,
+          fontFamilyFallback: dataLabelStyle.fontFamilyFallback ??
+              dataLabel.textStyle.fontFamilyFallback);
     }
     renderOutsideDataLabel(
         canvas,
@@ -919,10 +1025,6 @@ void setLabelPosition(
         renderDataLabelRegions,
         animateOpacity);
   }
-}
-
-bool _isCustomTextColor(TextStyle? textStyle, TextStyle? themeStyle) {
-  return textStyle?.color != null || themeStyle?.color != null;
 }
 
 /// To render outside positioned data labels.
@@ -1194,7 +1296,6 @@ String _getSegmentOverflowTrimmedText(
     Rect labelRect,
     CircularStateProperties chartState,
     Offset labelLocation,
-    TextStyle dataLabelStyle,
     OverflowMode action) {
   const int index = 0;
   bool isTextWithinRegion;
@@ -1240,7 +1341,10 @@ String _getSegmentOverflowTrimmedText(
           break;
         }
         const num labelPadding = 0;
-        final Size trimSize = measureText(datalabelText, dataLabelStyle);
+        final Size trimSize = measureText(
+            datalabelText,
+            chartState.chartSeries.visibleSeriesRenderers[index].series
+                .dataLabelSettings.textStyle);
         Offset trimmedlabelLocation = degreeToPoint(point.midAngle!,
             (point.innerRadius! + point.outerRadius!) / 2, point.center!);
         trimmedlabelLocation = Offset(

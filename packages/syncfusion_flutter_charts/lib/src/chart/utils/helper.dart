@@ -189,19 +189,9 @@ num calculateMinPointsDelta(
         seriesRendererDetails.series;
     num value;
     xValues = <dynamic>[];
-    final String seriesType = seriesRendererDetails.seriesType;
-    final bool isRectSeries = seriesType.contains('column') ||
-        seriesType.contains('stackedbar') ||
-        seriesType == 'bar' ||
-        seriesType == 'histogram' ||
-        seriesType == 'waterfall' ||
-        seriesType.contains('candle') ||
-        seriesType.contains('hilo') ||
-        seriesType.contains('box');
     final ChartAxisRendererDetails axisRendererDetails =
         AxisHelper.getAxisRendererDetails(axisRenderer);
     if (seriesRendererDetails.visible! == true &&
-        isRectSeries &&
         ((axisRendererDetails.name == series.xAxisName) ||
             (axisRendererDetails.name ==
                     (stateProperties.chart.primaryXAxis.name ??
@@ -1487,17 +1477,16 @@ void _canRepaintChartSeries(CartesianStateProperties stateProperties,
           oldWidgetSeries.dataLabelSettings.alignment ||
       series.dataLabelSettings.angle !=
           oldWidgetSeries.dataLabelSettings.angle ||
-      (series.dataLabelSettings.textStyle != null &&
-          (series.dataLabelSettings.textStyle?.color?.value !=
-                  oldWidgetSeries.dataLabelSettings.textStyle?.color?.value ||
-              series.dataLabelSettings.textStyle?.fontStyle !=
-                  oldWidgetSeries.dataLabelSettings.textStyle?.fontStyle ||
-              series.dataLabelSettings.textStyle?.fontFamily !=
-                  oldWidgetSeries.dataLabelSettings.textStyle?.fontFamily ||
-              series.dataLabelSettings.textStyle?.fontSize !=
-                  oldWidgetSeries.dataLabelSettings.textStyle?.fontSize ||
-              series.dataLabelSettings.textStyle?.fontWeight !=
-                  oldWidgetSeries.dataLabelSettings.textStyle?.fontWeight)) ||
+      series.dataLabelSettings.textStyle.color?.value !=
+          oldWidgetSeries.dataLabelSettings.textStyle.color?.value ||
+      series.dataLabelSettings.textStyle.fontStyle !=
+          oldWidgetSeries.dataLabelSettings.textStyle.fontStyle ||
+      series.dataLabelSettings.textStyle.fontFamily !=
+          oldWidgetSeries.dataLabelSettings.textStyle.fontFamily ||
+      series.dataLabelSettings.textStyle.fontSize !=
+          oldWidgetSeries.dataLabelSettings.textStyle.fontSize ||
+      series.dataLabelSettings.textStyle.fontWeight !=
+          oldWidgetSeries.dataLabelSettings.textStyle.fontWeight ||
       series.dataLabelSettings.borderColor.value !=
           oldWidgetSeries.dataLabelSettings.borderColor.value ||
       series.dataLabelSettings.borderWidth !=
@@ -2571,7 +2560,7 @@ List<num?>? _getMonotonicSpline(List<num> xValues, List<num> yValues,
     return null;
   }
 
-  slope[0] != null && slope[0]!.isNaN
+  slope[0] == double.nan
       ? coefficient[++index] = 0
       : coefficient[++index] = slope[0];
 
@@ -2595,7 +2584,7 @@ List<num?>? _getMonotonicSpline(List<num> xValues, List<num> yValues,
       }
     }
   }
-  slope[slope.length - 1] != null && slope[slope.length - 1]!.isNaN
+  slope[slope.length - 1] == double.nan
       ? coefficient[++index] = 0
       : coefficient[++index] = slope[slope.length - 1];
 
@@ -2617,22 +2606,17 @@ List<num?> _getCardinalSpline(List<num> xValues, List<num> yValues,
 
   final List<num?> tangentsX = List<num?>.filled(count, null);
 
-  if (count <= 2) {
-    for (int i = 0; i < count; i++) {
-      tangentsX[i] = 0;
+  for (int i = 0; i < count; i++) {
+    if (i == 0 && xValues.length > 2) {
+      tangentsX[i] = tension * (xValues[i + 2] - xValues[i]);
+    } else if (i == count - 1 && count - 3 >= 0) {
+      tangentsX[i] = tension * (xValues[count - 1] - xValues[count - 3]);
+    } else if (i - 1 >= 0 && xValues.length > i + 1) {
+      tangentsX[i] = tension * (xValues[i + 1] - xValues[i - 1]);
     }
-  } else {
-    for (int i = 0; i < count; i++) {
-      if (i == 0 && xValues.length > 2) {
-        tangentsX[i] = tension * (xValues[i + 2] - xValues[i]);
-      } else if (i == count - 1 && count - 3 >= 0) {
-        tangentsX[i] = tension * (xValues[count - 1] - xValues[count - 3]);
-      } else if (i - 1 >= 0 && xValues.length > i + 1) {
-        tangentsX[i] = tension * (xValues[i + 1] - xValues[i - 1]);
-      }
-      if (tangentsX[i] != null && tangentsX[i]!.isNaN) {
-        tangentsX[i] = 0;
-      }
+
+    if (tangentsX[i] == double.nan) {
+      tangentsX[i] = 0;
     }
   }
 
@@ -2662,11 +2646,11 @@ List<num?> naturalSpline(List<num> xValues, List<num> yValues,
         ((3 * (yValues[count - 1] - yValues[count - 2])) /
             (xValues[count - 1] - xValues[count - 2]));
 
-    if (yCoef[0] == double.infinity || yCoef[0]!.isNaN) {
+    if (yCoef[0] == double.infinity || yCoef[0] == double.nan) {
       yCoef[0] = 0;
     }
 
-    if (yCoef[count - 1] == double.infinity || yCoef[count - 1]!.isNaN) {
+    if (yCoef[count - 1] == double.infinity || yCoef[count - 1] == double.nan) {
       yCoef[count - 1] = 0;
     }
   } else {
@@ -2676,9 +2660,9 @@ List<num?> naturalSpline(List<num> xValues, List<num> yValues,
 
   for (i = 1; i < count - 1; i++) {
     yCoef[i] = 0;
-    if ((!yValues[i + 1].isNaN) &&
-        (!yValues[i - 1].isNaN) &&
-        (!yValues[i].isNaN) &&
+    if ((yValues[i + 1] != double.nan) &&
+        (yValues[i - 1] != double.nan) &&
+        (yValues[i] != double.nan) &&
         // ignore: unnecessary_null_comparison
         yValues[i + 1] != null &&
         // ignore: unnecessary_null_comparison

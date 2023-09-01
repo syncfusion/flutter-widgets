@@ -21,7 +21,6 @@ class TimeSlotWidget extends StatefulWidget {
       this.timeLabelWidth,
       this.cellBorderColor,
       this.calendarTheme,
-      this.themeData,
       this.timeSlotViewSettings,
       this.isRTL,
       this.specialRegion,
@@ -50,9 +49,6 @@ class TimeSlotWidget extends StatefulWidget {
 
   /// Holds the theme data value for calendar.
   final SfCalendarThemeData calendarTheme;
-
-  /// Holds the framework theme data value.
-  final ThemeData themeData;
 
   /// Defines the time slot setting used to customize the time slots.
   final TimeSlotViewSettings timeSlotViewSettings;
@@ -143,7 +139,6 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
       widget.timeLabelWidth,
       widget.cellBorderColor,
       widget.calendarTheme,
-      widget.themeData,
       widget.timeSlotViewSettings,
       widget.isRTL,
       widget.specialRegion,
@@ -287,14 +282,13 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
 }
 
 class _TimeSlotRenderWidget extends MultiChildRenderObjectWidget {
-  const _TimeSlotRenderWidget(
+  _TimeSlotRenderWidget(
       this.visibleDates,
       this.horizontalLinesCount,
       this.timeIntervalHeight,
       this.timeLabelWidth,
       this.cellBorderColor,
       this.calendarTheme,
-      this.themeData,
       this.timeSlotViewSettings,
       this.isRTL,
       this.specialRegion,
@@ -314,7 +308,6 @@ class _TimeSlotRenderWidget extends MultiChildRenderObjectWidget {
   final double timeLabelWidth;
   final Color? cellBorderColor;
   final SfCalendarThemeData calendarTheme;
-  final ThemeData themeData;
   final TimeSlotViewSettings timeSlotViewSettings;
   final bool isRTL;
   final ValueNotifier<Offset?> calendarCellNotifier;
@@ -335,7 +328,6 @@ class _TimeSlotRenderWidget extends MultiChildRenderObjectWidget {
         timeLabelWidth,
         cellBorderColor,
         calendarTheme,
-        themeData,
         timeSlotViewSettings,
         isRTL,
         specialRegion,
@@ -358,7 +350,6 @@ class _TimeSlotRenderWidget extends MultiChildRenderObjectWidget {
       ..timeLabelWidth = timeLabelWidth
       ..cellBorderColor = cellBorderColor
       ..calendarTheme = calendarTheme
-      ..themeData = themeData
       ..timeSlotViewSettings = timeSlotViewSettings
       ..isRTL = isRTL
       ..specialRegion = specialRegion
@@ -380,7 +371,6 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
       this._timeLabelWidth,
       this._cellBorderColor,
       this._calendarTheme,
-      this._themeData,
       this._timeSlotViewSettings,
       this._isRTL,
       this._specialRegion,
@@ -484,18 +474,6 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
     }
 
     markNeedsPaint();
-  }
-
-  ThemeData _themeData;
-
-  ThemeData get themeData => _themeData;
-
-  set themeData(ThemeData value) {
-    if (_themeData == value) {
-      return;
-    }
-
-    _themeData = value;
   }
 
   TimeSlotViewSettings _timeSlotViewSettings;
@@ -837,9 +815,7 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
       final CalendarTimeRegion region = view.region;
       _linePainter.color = region.color ?? Colors.grey.withOpacity(0.2);
 
-      final TextStyle textStyle = themeData.textTheme.bodyMedium!
-          .copyWith(fontSize: 14)
-          .merge(region.textStyle ?? defaultTextStyle);
+      final TextStyle textStyle = region.textStyle ?? defaultTextStyle;
       final Rect rect = view.bound;
       canvas.drawRect(rect, _linePainter);
       if ((region.text == null || region.text!.isEmpty) &&

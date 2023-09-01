@@ -26,8 +26,6 @@ class GridColumn {
       this.columnWidthMode = ColumnWidthMode.none,
       this.visible = true,
       this.allowSorting = true,
-      this.sortIconPosition = ColumnHeaderIconPosition.end,
-      this.filterIconPosition = ColumnHeaderIconPosition.end,
       this.autoFitPadding = const EdgeInsets.all(16.0),
       this.minimumWidth = double.nan,
       this.maximumWidth = double.nan,
@@ -167,13 +165,6 @@ class GridColumn {
 
   /// The amount of space  which should be added with the filter icon
   final EdgeInsetsGeometry filterIconPadding;
-
-  /// The position of the sort icon in the column headers.
-  final ColumnHeaderIconPosition sortIconPosition;
-
-  /// The position of the filter icon in the column headers.
-  /// Typically, filter icon is placed next to sort icon.
-  final ColumnHeaderIconPosition filterIconPosition;
 }
 
 /// A column which displays the values of the string in its cells.
@@ -204,8 +195,6 @@ class GridTextColumn extends GridColumn {
     EdgeInsets autoFitPadding = const EdgeInsets.all(16.0),
     bool visible = true,
     bool allowSorting = true,
-    ColumnHeaderIconPosition sortIconPosition = ColumnHeaderIconPosition.end,
-    ColumnHeaderIconPosition filterIconPosition = ColumnHeaderIconPosition.end,
     double minimumWidth = double.nan,
     double maximumWidth = double.nan,
     double width = double.nan,
@@ -217,8 +206,6 @@ class GridTextColumn extends GridColumn {
             autoFitPadding: autoFitPadding,
             visible: visible,
             allowSorting: allowSorting,
-            sortIconPosition: sortIconPosition,
-            filterIconPosition: filterIconPosition,
             minimumWidth: minimumWidth,
             maximumWidth: maximumWidth,
             width: width,
@@ -361,7 +348,7 @@ class ColumnSizer {
     final bool hasAnySizerColumn = dataGridConfiguration.columns.any(
         (GridColumn column) =>
             (column.columnWidthMode != ColumnWidthMode.none) ||
-            (!column.width.isNaN) ||
+            (column.width != double.nan) ||
             !column.visible);
 
     final PaddedEditableLineSizeHostBase paddedEditableLineSizeHostBase =
@@ -667,7 +654,7 @@ class ColumnSizer {
         _dataGridStateDetails!();
 
     if (dataGridConfiguration.source.rows.isEmpty) {
-      return 0;
+      return double.nan;
     }
 
     switch (dataGridConfiguration.columnWidthCalculationRange) {
@@ -710,14 +697,7 @@ class ColumnSizer {
     late DataGridRow dataGridRow;
     switch (dataGridConfiguration.columnWidthCalculationRange) {
       case ColumnWidthCalculationRange.allRows:
-        // Issue:
-        // FLUT-7340 - The RangeError exception is thrown when rebuilding the DataGrid after applying the filtering.
-        //
-        // Fix:
-        // The issue occurred because the rows were being fetched from the effective rows collection,
-        // which contains only the filtered rows instead of all the rows.
-        // Now, we fetched the rows from the entire collection to calculate the width for all the rows.
-        dataGridRow = dataGridConfiguration.source.rows[rowIndex];
+        dataGridRow = effectiveRows(dataGridConfiguration.source)[rowIndex];
         break;
       case ColumnWidthCalculationRange.visibleRows:
         dataGridRow =
@@ -833,12 +813,6 @@ class ColumnSizer {
         _dataGridStateDetails!();
     for (final GridColumn column in dataGridConfiguration.columns) {
       column._autoWidth = double.nan;
-    }
-
-    // Need to set `needToSetHorizontalOffset` property to true when the column
-    // widths change in the RTL mode to get proper visible columns.
-    if (dataGridConfiguration.textDirection == TextDirection.rtl) {
-      dataGridConfiguration.container.needToSetHorizontalOffset = true;
     }
   }
 
@@ -1694,15 +1668,13 @@ class ColumnResizeController {
   // *  Pointer Events
 
   /// Handles the pointer down event for the column resizing.
-  Future<void> onPointerDown(
-      PointerDownEvent event, DataRowBase dataRow) async {
+  void onPointerDown(PointerDownEvent event, DataRowBase dataRow) {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
     if (dataGridConfiguration.isDesktop || _canStartResizeInMobile) {
       if (_isHeaderRow(dataRow)) {
         // Clears the editing before start resizing a column.
         if (dataGridConfiguration.currentCell.isEditing) {
-          await dataGridConfiguration.currentCell
-              .onCellSubmit(dataGridConfiguration);
+          dataGridConfiguration.currentCell.onCellSubmit(dataGridConfiguration);
         }
 
         final VisibleLineInfo? resizingLine =
@@ -1843,14 +1815,6 @@ class ColumnResizeController {
     }
 
     canSwitchResizeColumnCursor = _getHitTestResult(localPosition.dx) != null;
-
-    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
-    if (canSwitchResizeColumnCursor &&
-        dataGridConfiguration.columnDragAndDropController
-            .canAllowColumnDragAndDrop()) {
-      notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
-          propertyName: 'columnDragAndDrop');
-    }
   }
 
   void _resetColumnResize({bool canResetDataCell = true}) {
@@ -1950,17 +1914,7 @@ class DataGridFilterHelper {
   late DataGridAdvancedFilterHelper advancedFilterHelper;
 
   /// Provides the height of the popup menu tile.
-  double get tileHeight => _dataGridStateDetails().isDesktop
-      ? _dataGridStateDetails()
-              .dataGridThemeHelper!
-              .filterPopupTextStyle!
-              .fontSize! +
-          26
-      : _dataGridStateDetails()
-              .dataGridThemeHelper!
-              .filterPopupTextStyle!
-              .fontSize! +
-          38;
+  double get tileHeight => _dataGridStateDetails().isDesktop ? 40.0 : 52.0;
 
   /// Provides the icon color.
   Color get iconColor =>
@@ -1970,7 +1924,7 @@ class DataGridFilterHelper {
   Color get disableIconColor =>
       _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.38);
 
-  /// Provides the border color.
+  /// Provides the broder color.
   Color get borderColor =>
       _dataGridStateDetails().colorScheme!.onSurface.withOpacity(0.12);
 
@@ -1986,13 +1940,18 @@ class DataGridFilterHelper {
   Color get primaryColor => _dataGridStateDetails().colorScheme!.primary;
 
   /// Provides the text style to the tiles.
-  TextStyle get textStyle =>
-      _dataGridStateDetails().dataGridThemeHelper!.filterPopupTextStyle!;
+  TextStyle get textStyle => TextStyle(
+      fontSize: 14.0,
+      color: textColor,
+      fontFamily: 'Roboto',
+      fontWeight: FontWeight.normal);
 
   /// Provides the text style to the disabled tiles.
-  TextStyle get disableTextStyle => _dataGridStateDetails()
-      .dataGridThemeHelper!
-      .filterPopupDisabledTextStyle!;
+  TextStyle get disableTextStyle => TextStyle(
+      fontSize: 14.0,
+      color: disableIconColor,
+      fontFamily: 'Roboto',
+      fontWeight: FontWeight.normal);
 
   /// Apply filter to the effective rows based on `filterConditions`.
   void applyFilter() {
@@ -2312,7 +2271,7 @@ class DataGridFilterHelper {
 
     bool isSelected(Object? value) {
       if (conditions.isNotEmpty) {
-        // Checkes the previous filtered data rows with current effective rows to
+        // Checkes the previous filtered data rows with current effecive rows to
         // find selected and unselected items in the checkbox list view.
         for (final DataGridRow row in source.effectiveRows) {
           final DataGridCell? cell = row.getCells().firstWhereOrNull(
@@ -2971,7 +2930,7 @@ class DataGridAdvancedFilterHelper {
   }
 
   /// Resets the advanced filter values.
-  void resetAdvancedFilterValues(DataGridConfiguration dataGridConfiguration) {
+  void resetAdvancedFiterValues(DataGridConfiguration dataGridConfiguration) {
     filterType1 = filterType2 =
         dataGridConfiguration.localizations.equalsDataGridFilteringLabel;
     filterValue1 = filterValue2 = null;
@@ -3016,448 +2975,4 @@ class FilterPopupMenuOptions {
 
   /// Decides whether the column name should be displayed along with the content of `Clear Filter` option .
   final bool showColumnName;
-}
-
-/// Process column resizing operation in [SfDataGrid].
-class ColumnDragAndDropController {
-  /// Creates the [ColumnDragAndDropController] for the [SfDataGrid].
-  ColumnDragAndDropController({required this.dataGridStateDetails});
-
-  /// Holds the [DataGridStateDetails].
-  DataGridStateDetails dataGridStateDetails;
-
-  /// The index of the column being dragged.
-  ///
-  /// This integer value represents the index of the column that is being dragged by the user
-  /// during a drag-and-drop operation. It is set to null by default, and is updated during drag events
-  /// to indicate the index of the column that is being dragged.
-  int? dragColumnStartIndex;
-
-  /// The index of the column being dropped.
-  ///
-  /// This integer value represents the index of the column that is being dropped by the user
-  /// during a drag-and-drop operation. It is set to null by default, and is updated during drag events
-  /// to indicate the index of the column that is being dropped.
-  int? dragColumnEndIndex;
-
-  /// The offset of the dragged column from its original position.
-  ///
-  /// This [Offset] value represents the distance between the original position of the dragged column
-  /// and its current position during a drag-and-drop operation.
-  /// It is set to null by default, and is updated during drag events to indicate the current offset.
-  Offset? offset;
-
-  /// A flag indicating which indicator should be drawn.
-  bool? canDrawRightIndicator = false;
-
-  /// The index of the column that is currently being dragged.
-  ///
-  /// This integer value represents the index of the column that is currently being dragged by the user.
-  /// It is set to null by default, and is updated during drag events to indicate the index
-  /// of the column that is currently being dragged.
-  int? columnIndex;
-
-  /// A boolean flag to indicate whether auto-scrolling is enabled or not.
-  ///
-  /// This boolean flag is used to determine whether the auto-scrolling functionality is enabled or disabled.
-  /// If the flag is set to true, then auto-scrolling is enabled, otherwise it is disabled.
-  bool autoScrolling = false;
-
-  /// The delta value for drag events.
-  ///
-  /// This double value represents the delta value for drag events in the widget.
-  /// It is set to null by default, and is updated during drag events to indicate the distance
-  /// the user has dragged since the last event.
-  double dragDelta = 0;
-
-  /// A boolean flag to indicate whether scrolling is disabled or not.
-  ///
-  /// This boolean flag is used to determine whether the scrolling functionality is enabled or disabled.
-  /// If the flag is set to true, then scrolling is disabled, otherwise scrolling is enabled.
-  bool disableScrolling = true;
-
-  /// The current scroll position of the widget.
-  ///
-  /// This property holds the current scroll position of the widget. It is of type ScrollPosition,
-  /// which allows querying and manipulating the position of the scrollable widget.
-  ScrollPosition? position;
-
-  /// A boolean flag to indicate whether column dragging is allowed or not.
-  ///
-  /// This boolean flag is used to determine whether the column dragging functionality is enabled or disabled.
-  /// If the flag is set to true, then column dragging is allowed, otherwise column dragging is not allowed.
-  bool allowColumnDrag = false;
-
-  /// A boolean flag to indicate whether hover is disabled or not.
-  ///
-  /// This boolean flag is used to determine whether the hover functionality is enabled or disabled.
-  /// If the flag is set to true, then hover is disabled, otherwise hover is enabled.
-  bool isHoverDisabled = false;
-
-  /// A boolean flag to indicate whether can reset column sizing or not.
-  ///
-  bool canResetColumnWidthCalculation = false;
-
-  /// DataGrid origin position
-  Offset? scrollOrigin;
-
-  /// A boolean flag to indicate whether can wrap draggable view or not.
-  /// If the flag is set to true, then draggable view is wrapped, otherwise draggable view is not wrapped.
-  bool canWrapDraggableView = true;
-
-  /// A boolean flag to indicate whether it is a windows platform or not.
-  bool? isWindowsPlatform;
-
-  /// The drag direction changed position.
-  double? _dragDirectionChangedPosition;
-
-  /// The boolean flag to indicate whether drag direction is changed or not.
-  bool? _isLeftToRightDrag;
-
-  /// The double value indicates the drag indicator position threshold when the direction is changed.
-  double indicatorPositionThreshold = 10;
-
-  void _rebuild(DataGridConfiguration dataGridConfiguration) {
-    notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
-        propertyName: 'columnDragAndDrop');
-  }
-
-  Future<void> _autoScrollIfNecessary(
-      DataGridConfiguration dataGridConfiguration,
-      PointerMoveEvent details) async {
-    if (!autoScrolling && !disableScrolling) {
-      final ScrollPosition position =
-          dataGridConfiguration.horizontalScrollController!.position;
-
-      double? newOffset;
-      const Duration duration = Duration(milliseconds: 14);
-      const double step = 3.0;
-      const double overDragMax = 20.0;
-      const double overDragCoef = 10;
-      final double dragThreshold = dataGridConfiguration.isDesktop ? 20 : 30;
-
-      final double scrollStart = scrollOrigin!.dx + dragThreshold;
-      final double scrollEnd =
-          scrollOrigin!.dx + dataGridConfiguration.viewWidth - dragThreshold;
-
-      if (position.axisDirection == AxisDirection.left) {
-        if (dragDelta > scrollEnd &&
-            position.pixels > position.minScrollExtent) {
-          final double overDrag = max(dragDelta - scrollEnd, overDragMax);
-          newOffset = max(position.minScrollExtent,
-              position.pixels - step * overDrag / overDragCoef);
-        } else if (dragDelta < scrollStart &&
-            position.pixels < position.maxScrollExtent) {
-          final double overDrag = max(scrollStart - dragDelta, overDragMax);
-          newOffset = min(position.maxScrollExtent,
-              position.pixels + step * overDrag / overDragCoef);
-        }
-      } else {
-        if (dragDelta < scrollStart &&
-            position.pixels > position.minScrollExtent) {
-          final double overDrag = max(scrollStart - dragDelta, overDragMax);
-          newOffset = max(position.minScrollExtent,
-              position.pixels - step * overDrag / overDragCoef);
-        } else if (dragDelta > scrollEnd &&
-            position.pixels < position.maxScrollExtent) {
-          final double overDrag = max(dragDelta - scrollEnd, overDragMax);
-          newOffset = min(position.maxScrollExtent,
-              position.pixels + step * overDrag / overDragCoef);
-        }
-      }
-
-      if (newOffset != null && (newOffset - position.pixels).abs() >= 1.0) {
-        autoScrolling = true;
-        await position.animateTo(newOffset,
-            duration: duration, curve: Curves.linear);
-        dataGridConfiguration.container.scrollColumns
-          ..markDirty()
-          ..updateScrollbar();
-        autoScrolling = false;
-        columnIndex = getColumnLineInfo(
-          dataGridConfiguration,
-          details.position.dx,
-        )?.lineIndex;
-
-        _autoScrollIfNecessary(dataGridConfiguration, details);
-
-        // Need to notify the listeners when auto scrolling is performed.
-        // This is required to update the column drag indicator.
-        _rebuild(dataGridConfiguration);
-      }
-    }
-  }
-
-  /// Returns the visible line information for a given horizontal position in the data grid.
-  ///
-  /// This function takes a [DataGridConfiguration] object and a double [position] as input, and returns a [VisibleLineInfo] object.
-  /// The [VisibleLineInfo] object represents the line information of a visible column in the data grid for the given [position].
-  /// The [getVisibleLineAtPoint] method of the [scrollColumns] object of the [configuration] is used to obtain the [VisibleLineInfo].
-  /// The [resolveTextDirection] method of the [configuration] is used to obtain the [TextDirection] of the data grid.
-  /// The [getVisibleLineAtPoint] method of the [scrollColumns] object is called with the resolved [TextDirection] and the [position] to get the [VisibleLineInfo].
-  ///
-  VisibleLineInfo? getColumnLineInfo(
-      DataGridConfiguration dataGridConfiguration, double position) {
-    final bool isRTL = dataGridConfiguration.textDirection == TextDirection.rtl;
-    if (isRTL) {
-      dataGridConfiguration.container.scrollColumns.resetVisibleLines();
-    }
-
-    // This code retrieves the visible line at the given position within the SfDataGrid container.
-    // The position is adjusted for the data grid's origin position, and the function checks for RTL layout.
-    return dataGridConfiguration.container.scrollColumns.getVisibleLineAtPoint(
-        position - getDataGridOriginPosition(dataGridConfiguration).dx,
-        false,
-        isRTL);
-  }
-
-  /// Returns the visible line information for a given vertical position in the data grid.
-  ///
-  /// This function takes a [DataGridConfiguration] object and a double [position] as input, and returns a [VisibleLineInfo] object.
-  /// The [VisibleLineInfo] object represents the line information of a visible row in the data grid for the given [position].
-  /// The [getVisibleLineAtPoint] method of the [scrollRows] object of the [configuration] is used to obtain the [VisibleLineInfo].
-  ///
-  VisibleLineInfo? getRowLineInfo(
-      DataGridConfiguration dataGridConfiguration, double position) {
-    return dataGridConfiguration.container.scrollRows
-        .getVisibleLineAtPoint(position);
-  }
-
-  /// Returns the start index adjusted for a checkbox column.
-  ///
-  /// If [showCheckboxColumn] is true, subtracts 1 from [startIndex] to account for the checkbox column.
-  /// Returns the adjusted start index as an int value.
-  int? getStartIndex(int startIndex, bool showCheckboxColumn) {
-    return showCheckboxColumn ? startIndex - 1 : startIndex;
-  }
-
-  /// Returns the end index if it's different from the start index, or null if they are the same.
-  ///
-  /// If the [showCheckboxColumn] is true, then decrement the [endIndex] by 1.
-  /// If [startIndex] is equal to [endIndex], then return null.
-  int? getEndIndex(int startIndex, int endIndex, bool showCheckboxColumn) {
-    if (showCheckboxColumn) {
-      endIndex--;
-    }
-    return startIndex == endIndex
-        ? null
-        : showCheckboxColumn && endIndex == -1
-            ? null
-            : endIndex;
-  }
-
-  /// Returns the origin position of the data grid within the screen coordinates.
-  ///
-  /// This function takes a [DataGridConfiguration] object as an argument and returns an [Offset] object.
-  /// The offset represents the screen coordinates of the top-left corner of the data grid.
-  /// The [RenderBox] of the datagrid is obtained from the [dataGridKey] of the [configuration].
-  /// The [RenderBox.localToGlobal] method is then called on the [scrollRenderBox] to get its global position.
-  ///
-  Offset getDataGridOriginPosition(
-      DataGridConfiguration dataGridConfiguration) {
-    final RenderBox scrollRenderBox =
-        dataGridConfiguration.dataGridKey.currentContext!.findRenderObject()!
-            as RenderBox;
-
-    return scrollRenderBox.localToGlobal(Offset.zero);
-  }
-
-  /// Returns the whether the column drag and drop is allowed or not.
-  /// The column drag and drop is allowed only when the [allowColumnsDragging] is true and [onColumnDragging] is not null.
-  bool canAllowColumnDragAndDrop() {
-    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
-    return dataGridConfiguration.allowColumnsDragging &&
-        dataGridConfiguration.onColumnDragging != null;
-  }
-
-  /// Handles the pointer Down event for the column dragging.
-  void onPointerDown(DataCellBase? dataCell) {
-    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
-    canResetColumnWidthCalculation = false;
-
-    if (dataCell != null && dataCell.cellType == CellType.headerCell) {
-      dragColumnStartIndex = getStartIndex(
-          dataCell.columnIndex, dataGridConfiguration.showCheckboxColumn);
-      dragColumnEndIndex = dataCell.columnIndex;
-      canWrapDraggableView = dataGridConfiguration.onColumnDragging!(
-          _invokeOnColumnDragging(action: DataGridColumnDragAction.starting));
-
-      if (!canWrapDraggableView) {
-        // need to remove draggableView when the onColumnDragging returns false.
-        _rebuild(dataGridConfiguration);
-      }
-
-      if (canWrapDraggableView && dragColumnStartIndex != null) {
-        canWrapDraggableView = dataGridConfiguration.onColumnDragging!(
-            _invokeOnColumnDragging(action: DataGridColumnDragAction.started));
-        if (!canWrapDraggableView) {
-          _rebuild(dataGridConfiguration);
-        }
-      }
-    }
-  }
-
-  /// Handles the pointer move event for the column dragging.
-  void onPointerMove(PointerMoveEvent event) {
-    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
-    if (canWrapDraggableView && dragColumnStartIndex != null) {
-      offset = event.localPosition;
-      dragDelta = dragDelta + event.delta.dx;
-      columnIndex = getColumnLineInfo(dataGridConfiguration, event.position.dx)
-          ?.lineIndex;
-      final int? rowIndex = getRowLineInfo(
-              dataGridConfiguration,
-              event.position.dy -
-                  getDataGridOriginPosition(dataGridConfiguration).dy)
-          ?.lineIndex;
-
-      if (columnIndex != null && rowIndex != null) {
-        final int headerIndex =
-            grid_helper.getHeaderIndex(dataGridConfiguration);
-
-        isHoverDisabled = true;
-        scrollOrigin = getDataGridOriginPosition(dataGridConfiguration);
-        if (rowIndex == headerIndex &&
-            event.position.dy >= scrollOrigin!.dy &&
-            columnIndex != null) {
-          disableScrolling = false;
-          position = dataGridConfiguration.horizontalScrollController!.position;
-          offset = event.localPosition;
-          columnIndex = columnIndex;
-
-          final bool isLeftToRightDrag = _isLeftToRightDrag != null &&
-              (dataGridConfiguration.textDirection == TextDirection.ltr
-                  ? _isLeftToRightDrag!
-                  : !_isLeftToRightDrag!);
-
-          if ((isLeftToRightDrag && event.delta.dx.sign < 0) ||
-              (!isLeftToRightDrag && event.delta.dx.sign > 0)) {
-            _dragDirectionChangedPosition = event.position.dx;
-          }
-
-          if (_dragDirectionChangedPosition != null) {
-            if (event.delta.dx.sign < 0 &&
-                event.position.dx <
-                    _dragDirectionChangedPosition! -
-                        indicatorPositionThreshold) {
-              canDrawRightIndicator = _isLeftToRightDrag;
-            } else if (event.delta.dx.sign > 0 &&
-                event.position.dx >
-                    _dragDirectionChangedPosition! +
-                        indicatorPositionThreshold) {
-              canDrawRightIndicator = _isLeftToRightDrag;
-            } else if (event.delta.dx.sign == 0) {
-              canDrawRightIndicator = _isLeftToRightDrag;
-            }
-          }
-
-          _isLeftToRightDrag =
-              dataGridConfiguration.textDirection == TextDirection.ltr
-                  ? event.delta.dx.sign >= 0
-                  : event.delta.dx.sign <= 0;
-
-          if (_dragDirectionChangedPosition == null) {
-            canDrawRightIndicator = _isLeftToRightDrag;
-          }
-
-          _autoScrollIfNecessary(dataGridConfiguration, event);
-          allowColumnDrag = dataGridConfiguration.onColumnDragging!(
-              _invokeOnColumnDragging(
-                  action: DataGridColumnDragAction.update,
-                  showCheckboxColumn:
-                      dataGridConfiguration.showCheckboxColumn));
-        } else {
-          disableScrolling = true;
-          canDrawRightIndicator = null;
-        }
-      }
-
-      if (!allowColumnDrag) {
-        disableScrolling = false;
-        isHoverDisabled = true;
-        offset = null;
-        canDrawRightIndicator = null;
-      }
-      _rebuild(dataGridConfiguration);
-    }
-  }
-
-  /// Handles the pointer up event for the column dragging.
-  void onPointerUp(PointerUpEvent event) {
-    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
-    disableScrolling = true;
-    if (allowColumnDrag &&
-        scrollOrigin != null &&
-        event.position.dy >= scrollOrigin!.dy) {
-      columnIndex = getColumnLineInfo(dataGridConfiguration, event.position.dx)
-          ?.lineIndex;
-      final int? rowIndex = getRowLineInfo(
-              dataGridConfiguration,
-              event.position.dy -
-                  getDataGridOriginPosition(dataGridConfiguration).dy)
-          ?.lineIndex;
-
-      final int headerIndex = grid_helper.getHeaderIndex(dataGridConfiguration);
-
-      if (columnIndex != null &&
-          rowIndex == headerIndex &&
-          dataGridConfiguration.onColumnDragging != null) {
-        dragColumnEndIndex = getEndIndex(dragColumnStartIndex!, columnIndex!,
-            dataGridConfiguration.showCheckboxColumn);
-        columnIndex = columnIndex;
-        offset = event.localPosition;
-
-        allowColumnDrag = dataGridConfiguration.onColumnDragging!(
-            _invokeOnColumnDragging(action: DataGridColumnDragAction.dropping));
-        if (allowColumnDrag) {
-          allowColumnDrag = dataGridConfiguration.onColumnDragging!(
-              _invokeOnColumnDragging(
-                  action: DataGridColumnDragAction.dropped));
-        }
-      }
-    }
-
-    allowColumnDrag = false;
-    isHoverDisabled = false;
-    canDrawRightIndicator = null;
-    disableScrolling = true;
-    dragDelta = 0;
-    isHoverDisabled = false;
-    offset = null;
-    dragColumnStartIndex = null;
-    canResetColumnWidthCalculation = true;
-    canWrapDraggableView = true;
-    _dragDirectionChangedPosition = null;
-    _isLeftToRightDrag = null;
-    _rebuild(dataGridConfiguration);
-  }
-
-  DataGridColumnDragDetails _invokeOnColumnDragging(
-      {required DataGridColumnDragAction action,
-      bool showCheckboxColumn = false}) {
-    int? to;
-    if (action == DataGridColumnDragAction.update && columnIndex != null) {
-      to = showCheckboxColumn ? (columnIndex! - 1) : columnIndex;
-    } else {
-      if (canDrawRightIndicator != null && !canDrawRightIndicator!) {
-        if (columnIndex != null &&
-            dragColumnStartIndex! < columnIndex! &&
-            dragColumnEndIndex != null) {
-          to = dragColumnEndIndex! - 1;
-        } else {
-          to = dragColumnEndIndex;
-        }
-      } else {
-        if (columnIndex != null &&
-            dragColumnStartIndex! > columnIndex! &&
-            dragColumnEndIndex != null) {
-          to = dragColumnEndIndex! + 1;
-        } else {
-          to = dragColumnEndIndex;
-        }
-      }
-    }
-    return DataGridColumnDragDetails(
-        from: dragColumnStartIndex!, to: to, offset: offset!, action: action);
-  }
 }

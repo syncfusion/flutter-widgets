@@ -193,12 +193,12 @@ Color getDataLabelSaturationColor(
         break;
 
       case 'area':
-
-        /// This color was changed because of text theme support. This method was called before
-        /// assigning the label position value, Due to calling the saturation method before the label position
-        /// So, We have used line case code for area case.
-        color = _getOuterDataLabelColor(dataLabelSettingsRenderer,
-            chart.plotAreaBackgroundColor, renderingDetails.chartTheme);
+        color = (!currentPoint.dataLabelSaturationRegionInside &&
+                currentPoint.labelLocation!.y < currentPoint.markerPoint!.y)
+            ? _getOuterDataLabelColor(dataLabelSettingsRenderer,
+                chart.plotAreaBackgroundColor, renderingDetails.chartTheme)
+            : _getInnerDataLabelColor(currentPoint, seriesRendererDetails,
+                renderingDetails.chartTheme);
         break;
 
       default:
@@ -1640,9 +1640,7 @@ List<CartesianChartPoint<dynamic>>? getNearestChartPoints(
 
   firstNearestDataPoints != null
       ? dataList = firstNearestDataPoints
-      : dataList = seriesRendererDetails.visibleDataPoints != null
-          ? seriesRendererDetails.visibleDataPoints!
-          : <CartesianChartPoint<dynamic>>[];
+      : dataList = seriesRendererDetails.visibleDataPoints!;
 
   for (int i = 0; i < dataList.length; i++) {
     xValues.add(dataList[i].xValue);

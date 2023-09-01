@@ -210,7 +210,9 @@ class _BookmarkItemState extends State<BookmarkItem> {
                 child: RawMaterialButton(
                   onPressed: _handleBackToParent,
                   child: Icon(
-                    Icons.arrow_back,
+                    widget.textDirection == TextDirection.rtl
+                        ? Icons.arrow_forward
+                        : Icons.arrow_back,
                     size: _kPdfBackIconSize,
                     color:
                         _pdfViewerThemeData!.bookmarkViewStyle?.backIconColor ??
@@ -230,17 +232,16 @@ class _BookmarkItemState extends State<BookmarkItem> {
               child: Text(
                 widget.title,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(
+                style: _pdfViewerThemeData!.bookmarkViewStyle?.titleTextStyle ??
+                    TextStyle(
                       fontSize: 14,
-                      color: Theme.of(context).brightness == Brightness.light
-                          ? Colors.black.withOpacity(0.87)
-                          : Colors.white.withOpacity(0.87),
-                    )
-                    .merge(
-                        _pdfViewerThemeData!.bookmarkViewStyle?.titleTextStyle),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.87),
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.normal,
+                    ),
               ),
             ),
             Visibility(
@@ -253,7 +254,9 @@ class _BookmarkItemState extends State<BookmarkItem> {
                 child: RawMaterialButton(
                   onPressed: _handleExpandBookmarkList,
                   child: Icon(
-                    Icons.arrow_forward_ios,
+                    widget.textDirection == TextDirection.rtl
+                        ? Icons.arrow_back_ios
+                        : Icons.arrow_forward_ios,
                     size: _kPdfExpandIconSize,
                     color: _pdfViewerThemeData!
                             .bookmarkViewStyle?.navigationIconColor ??

@@ -43,7 +43,6 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
   int? _objectCollectionIndex;
   int? _position;
   PdfObjectStatus? _status;
-  bool? _isSkip;
 
   /// internal field
   PdfCrossTable? crossTable;
@@ -61,16 +60,6 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
 
   ///  Set the PdfDictionary items.
   operator []=(dynamic key, dynamic value) => addItems(key, value);
-
-  /// internal property
-  bool get isSkip {
-    _isSkip ??= false;
-    return _isSkip!;
-  }
-
-  set isSkip(bool value) {
-    _isSkip = value;
-  }
 
   /// internal method
   dynamic addItems(dynamic key, dynamic value) {

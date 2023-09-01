@@ -208,7 +208,7 @@ class TrackballBehavior {
   /// void initState() {
   ///   trackballBehavior = TrackballBehavior(
   ///     enable: true,
-  ///     lineType: TrackballLineType.vertical
+  ///     lineType: TrackballLineType.horizontal
   ///   );
   ///   super.initState();
   /// }
@@ -1205,8 +1205,7 @@ class TrackballRenderingDetails {
         yPos = touchYPos;
         xPos = touchXPos;
         if (_stateProperties.chart.trackballBehavior.tooltipDisplayMode !=
-                TrackballDisplayMode.floatAllPoints &&
-            trackballInfo.isNotEmpty) {
+            TrackballDisplayMode.floatAllPoints) {
           ChartPointInfo point = trackballInfo[0];
           for (i = 1; i < trackballInfo.length; i++) {
             final bool isXYPositioned = !isTransposed
@@ -1308,12 +1307,7 @@ class TrackballRenderingDetails {
           for (final ChartPointInfo pointInfo in chartPointInfo) {
             if (pointInfo.xPosition == leastX) {
               leastPointInfo.add(pointInfo);
-              if (!(trackballBehavior.tooltipDisplayMode ==
-                      TrackballDisplayMode.floatAllPoints &&
-                  leastPointInfo.length > 1 &&
-                  pointInfo.seriesIndex !=
-                      leastPointInfo[leastPointInfo.length - 2].seriesIndex))
-                visiblePoints.clear();
+              visiblePoints.clear();
               seriesType = pointInfo.seriesRendererDetails!.seriesType;
               isRangeTypeSeries = seriesType.contains('range') ||
                   seriesType.contains('hilo') ||

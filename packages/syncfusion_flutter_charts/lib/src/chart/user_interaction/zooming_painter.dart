@@ -198,8 +198,6 @@ class ZoomRectPainter extends CustomPainter {
     Size startLabelSize, endLabelSize;
     Rect startLabelRect, endLabelRect;
     final ChartAxis axis = axisRendererDetails.axis;
-    final TextStyle zoomingLabelStyle =
-        axisRendererDetails.chartThemeData.selectionZoomingTooltipTextStyle!;
     final Paint labelFillPaint = Paint()
       ..color = renderingDetails.chartTheme.crosshairBackgroundColor
       ..strokeCap = StrokeCap.butt
@@ -227,8 +225,8 @@ class ZoomRectPainter extends CustomPainter {
     final bool isHorizontal = axisPosition == 'bottom' || axisPosition == 'top';
     startValue = _getValue(startPosition, axisRendererDetails, axisPosition);
     endValue = _getValue(endPosition, axisRendererDetails, axisPosition);
-    startLabelSize = measureText(startValue, zoomingLabelStyle);
-    endLabelSize = measureText(endValue, zoomingLabelStyle);
+    startLabelSize = measureText(startValue, axis.interactiveTooltip.textStyle);
+    endLabelSize = measureText(endValue, axis.interactiveTooltip.textStyle);
     startLabelRect = _calculateRect(
         axisRendererDetails, startPosition, startLabelSize, axisPosition);
     endLabelRect = _calculateRect(
@@ -251,8 +249,7 @@ class ZoomRectPainter extends CustomPainter {
         startValue,
         startLabelSize,
         axis.interactiveTooltip,
-        axisPosition,
-        zoomingLabelStyle);
+        axisPosition);
     endTooltipRect = _drawTooltip(
         canvas,
         labelFillPaint,
@@ -264,8 +261,7 @@ class ZoomRectPainter extends CustomPainter {
         endValue,
         endLabelSize,
         axis.interactiveTooltip,
-        axisPosition,
-        zoomingLabelStyle);
+        axisPosition);
     _drawConnector(canvas, connectorLinePaint, startTooltipRect, endTooltipRect,
         startPosition, endPosition, axis.interactiveTooltip, axisPosition);
   }
@@ -323,8 +319,7 @@ class ZoomRectPainter extends CustomPainter {
       String value,
       Size labelSize,
       InteractiveTooltip tooltip,
-      String axisPosition,
-      TextStyle zoomingLabelStyle) {
+      String axisPosition) {
     fillPaint.color =
         tooltip.color ?? renderingDetails.chartTheme.crosshairBackgroundColor;
     strokePaint.color = tooltip.borderColor ??
@@ -347,7 +342,13 @@ class ZoomRectPainter extends CustomPainter {
         value,
         Offset((rect.left + rect.width / 2) - labelSize.width / 2,
             (rect.top + rect.height / 2) - labelSize.height / 2),
-        zoomingLabelStyle,
+        TextStyle(
+            color: tooltip.textStyle.color ??
+                renderingDetails.chartTheme.tooltipLabelColor,
+            fontSize: tooltip.textStyle.fontSize,
+            fontWeight: tooltip.textStyle.fontWeight,
+            fontFamily: tooltip.textStyle.fontFamily,
+            fontStyle: tooltip.textStyle.fontStyle),
         0);
     return rect;
   }

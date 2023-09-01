@@ -134,9 +134,7 @@ class CartesianAxisWidget extends StatefulWidget {
   /// Creates an instance for cartesian axis widget
   // ignore: prefer_const_constructors_in_immutables
   CartesianAxisWidget(
-      {required this.stateProperties,
-      required this.renderType,
-      required this.dataLabelTemplateNotifier});
+      {required this.stateProperties, required this.renderType});
 
   /// Specifies the cartesian state properties
   final CartesianStateProperties stateProperties;
@@ -147,9 +145,6 @@ class CartesianAxisWidget extends StatefulWidget {
   /// Specifies the cartesian axis widget state
   // ignore: library_private_types_in_public_api
   late _CartesianAxisWidgetState state;
-
-  /// Specifies the data label template notifier
-  ValueNotifier<int> dataLabelTemplateNotifier;
 
   @override
   State<StatefulWidget> createState() => _CartesianAxisWidgetState();
@@ -280,7 +275,6 @@ class _CartesianAxisWidgetState extends State<CartesianAxisWidget>
                   SeriesHelper.getSeriesRendererDetails(seriesRenderer);
               seriesRendererDetails.calculateRegion = true;
               seriesRendererDetails.repaintNotifier.value++;
-              widget.stateProperties.plotBandRepaintNotifier.value++;
               if (seriesRendererDetails.series.dataLabelSettings.isVisible ==
                       true &&
                   widget.stateProperties.renderDataLabel?.state != null) {
@@ -314,10 +308,6 @@ class _CartesianAxisWidgetState extends State<CartesianAxisWidget>
   void _repaintAxisElements() {
     _animateAxis();
     axisRepaintNotifier.value++;
-    if (animationController.status == AnimationStatus.completed) {
-      widget.stateProperties.renderingDetails.dataLabelTemplateRegions.clear();
-      widget.dataLabelTemplateNotifier.value++;
-    }
   }
 }
 

@@ -23,7 +23,7 @@ export 'package:syncfusion_flutter_core/core.dart'
 class TooltipBehavior {
   /// Creating an argument constructor of TooltipBehavior class.
   TooltipBehavior(
-      {this.textStyle,
+      {TextStyle? textStyle,
       ActivationMode? activationMode,
       int? animationDuration,
       bool? enable,
@@ -45,6 +45,7 @@ class TooltipBehavior {
       this.shadowColor})
       : animationDuration = animationDuration ?? 350,
         textAlignment = textAlignment ?? ChartAlignment.center,
+        textStyle = textStyle ?? const TextStyle(fontSize: 12),
         activationMode = activationMode ?? ActivationMode.singleTap,
         borderColor = borderColor ?? Colors.transparent,
         borderWidth = borderWidth ?? 0,
@@ -170,7 +171,7 @@ class TooltipBehavior {
   ///   );
   /// }
   /// ```
-  final TextStyle? textStyle;
+  final TextStyle textStyle;
 
   /// Specifies the number decimals to be displayed in tooltip text.
   ///

@@ -148,10 +148,7 @@ class ChartLegend {
         }
 
         if (legend!.title.text != null && legend!.title.text!.isNotEmpty) {
-          titleSize = measureText(
-              legend!.title.text!,
-              stateProperties
-                  .renderingDetails.chartTheme.legendTitleTextStyle!);
+          titleSize = measureText(legend!.title.text!, legend!.title.textStyle);
           titleHeight = titleSize.height + titleSpace;
         }
 
@@ -179,8 +176,7 @@ class ChartLegend {
           } else {
             legendRenderContext = legendCollections![i];
             legendText = legendRenderContext.text;
-            textSize = measureText(legendText,
-                stateProperties.renderingDetails.chartTheme.legendTextStyle!);
+            textSize = measureText(legendText, legend!.textStyle);
             legendRenderContext.textSize = textSize;
             textHeight = textSize.height;
             textWidth = textSize.width;

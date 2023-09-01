@@ -154,12 +154,7 @@ void _renderFunnelDataLabel(
   String? label;
   final double animateOpacity = animation != null ? animation.value : 1;
   DataLabelRenderArgs dataLabelArgs;
-
-  final TextStyle dataLabelStyle = stateProperties
-      .renderingDetails.themeData.textTheme.bodySmall!
-      .merge(stateProperties.renderingDetails.chartTheme.dataLabelTextStyle)
-      .merge(dataLabel.textStyle);
-
+  TextStyle dataLabelStyle;
   final List<Rect> renderDataLabelRegions = <Rect>[];
   DataLabelSettingsRenderer dataLabelSettingsRenderer;
   Size textSize;
@@ -170,9 +165,9 @@ void _renderFunnelDataLabel(
       pointIndex++) {
     dataLabelSettingsRenderer = seriesRenderer.dataLabelSettingsRenderer;
     point = seriesRenderer.renderPoints[pointIndex];
-    TextStyle textStyle = dataLabelStyle.copyWith();
     if (point.isVisible && (point.y != 0 || dataLabel.showZeroValue)) {
       label = point.text;
+      dataLabelStyle = dataLabel.textStyle;
       dataLabelSettingsRenderer.color =
           seriesRenderer.series.dataLabelSettings.color;
       if (chart.onDataLabelRender != null &&
@@ -180,20 +175,20 @@ void _renderFunnelDataLabel(
         dataLabelArgs = DataLabelRenderArgs(seriesRenderer,
             seriesRenderer.renderPoints, pointIndex, pointIndex);
         dataLabelArgs.text = label!;
-        dataLabelArgs.textStyle = textStyle.copyWith();
+        dataLabelArgs.textStyle = dataLabelStyle;
         dataLabelArgs.color = dataLabelSettingsRenderer.color;
         chart.onDataLabelRender!(dataLabelArgs);
         label = point.text = dataLabelArgs.text;
-        textStyle = textStyle.merge(dataLabelArgs.textStyle); //Check here
+        dataLabelStyle = dataLabelArgs.textStyle;
         pointIndex = dataLabelArgs.pointIndex!;
         dataLabelSettingsRenderer.color = dataLabelArgs.color;
         seriesRenderer.dataPoints[pointIndex].labelRenderEvent = true;
       }
-      textStyle = chart.onDataLabelRender == null
+      dataLabelStyle = chart.onDataLabelRender == null
           ? getDataLabelTextStyle(
               seriesRenderer, point, stateProperties, animateOpacity)
-          : textStyle;
-      textSize = measureText(label!, textStyle);
+          : dataLabelStyle;
+      textSize = measureText(label!, dataLabelStyle);
 
       /// Label check after event.
       if (label != '') {
@@ -206,7 +201,7 @@ void _renderFunnelDataLabel(
           Offset labelLocation;
           const int labelPadding = 2;
           final Size nextDataLabelSize =
-              measureText(nextPoint.text!, textStyle);
+              measureText(nextPoint.text!, dataLabelStyle);
           if (nextPoint.isVisible) {
             labelLocation = nextPoint.symbolLocation;
             labelLocation = Offset(
@@ -239,10 +234,10 @@ void _renderFunnelDataLabel(
               label,
               seriesRenderer,
               animateOpacity,
-              textStyle);
+              dataLabelStyle);
         } else {
           point.renderPosition = ChartDataLabelPosition.outside;
-          textStyle = getDataLabelTextStyle(
+          dataLabelStyle = getDataLabelTextStyle(
               seriesRenderer, point, stateProperties, animateOpacity);
           _renderOutsideFunnelDataLabel(
               canvas,
@@ -252,7 +247,7 @@ void _renderFunnelDataLabel(
               pointIndex,
               seriesRenderer,
               stateProperties,
-              textStyle,
+              dataLabelStyle,
               renderDataLabelRegions,
               animateOpacity);
         }
@@ -295,14 +290,8 @@ void _setFunnelInsideLabelPosition(
   if (isDataLabelCollide) {
     switch (dataLabel.overflowMode) {
       case OverflowMode.trim:
-        label = getSegmentOverflowTrimmedText(
-            dataLabel,
-            point,
-            textSize,
-            stateProperties,
-            labelLocation,
-            renderDataLabelRegions,
-            dataLabelStyle);
+        label = getSegmentOverflowTrimmedText(dataLabel, point, textSize,
+            stateProperties, labelLocation, renderDataLabelRegions);
         break;
       case OverflowMode.hide:
         label = '';
@@ -358,7 +347,7 @@ void _setFunnelInsideLabelPosition(
           dataLabel.labelIntersectAction != LabelIntersectAction.hide) &&
       label != '') {
     point.renderPosition = ChartDataLabelPosition.inside;
-    final Size trimmedTextSize = measureText(label!, dataLabelStyle);
+    final Size trimmedTextSize = measureText(label!, dataLabel.textStyle);
     labelLocation = point.symbolLocation;
     labelLocation = Offset(
         labelLocation.dx -

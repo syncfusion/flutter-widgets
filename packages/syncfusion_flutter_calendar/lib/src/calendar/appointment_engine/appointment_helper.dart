@@ -257,13 +257,15 @@ class AppointmentHelper {
 
   /// Return calendar appointment text style.
   static TextStyle getAppointmentTextStyle(
-      TextStyle appointmentTextStyle, CalendarView view, ThemeData themeData) {
+      TextStyle appointmentTextStyle, CalendarView view) {
     if (appointmentTextStyle.fontSize != -1) {
-      return themeData.textTheme.bodyMedium!.merge(appointmentTextStyle);
+      return appointmentTextStyle;
     }
-
-    return themeData.textTheme.bodyMedium!
-        .merge(appointmentTextStyle.copyWith(fontSize: 12));
+    return TextStyle(
+        color: appointmentTextStyle.color,
+        fontSize: 12,
+        fontWeight: appointmentTextStyle.fontWeight,
+        fontFamily: appointmentTextStyle.fontFamily);
   }
 
   static CalendarAppointment _copy(CalendarAppointment appointment) {

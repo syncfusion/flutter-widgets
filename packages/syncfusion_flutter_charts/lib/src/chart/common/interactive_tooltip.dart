@@ -31,7 +31,11 @@ class InteractiveTooltip {
       this.connectorLineDashArray,
       this.decimalPlaces = 3,
       this.canShowMarker = true,
-      this.textStyle});
+      this.textStyle = const TextStyle(
+          fontFamily: 'Roboto',
+          fontStyle: FontStyle.normal,
+          fontWeight: FontWeight.normal,
+          fontSize: 12)});
 
   /// Toggles the visibility of the interactive tooltip in an axis.
   ///
@@ -167,7 +171,7 @@ class InteractiveTooltip {
   ///   );
   /// }
   ///```
-  final TextStyle? textStyle;
+  final TextStyle textStyle;
 
   /// Customizes the corners of the interactive tooltip.
   ///

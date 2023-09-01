@@ -101,7 +101,7 @@ Future<String?> getBingUrlTemplate(String url) async {
             if (key == 'resources') {
               final List<dynamic> resources =
                   // ignore: avoid_as
-                  resourceSets[0][key] as List<dynamic>;
+                  (resourceSets[0])[key] as List<dynamic>;
               final Map<String, dynamic> resourcesMap =
                   // ignore: avoid_as
                   resources[0] as Map<String, dynamic>;
@@ -3090,8 +3090,9 @@ class _BehaviorViewState extends State<BehaviorView> {
     _currentZoomLevel = details.newZoomLevel;
     _currentFocalLatLng = newFocalLatLng;
 
-    if (widget.behavior._zoomController!.actionType == ActionType.pinch ||
-        widget.behavior._zoomController!.actionType == ActionType.tap) {
+    if ((widget.behavior._zoomController!.actionType == ActionType.pinch ||
+            widget.behavior._zoomController!.actionType == ActionType.tap) &&
+        _currentZoomLevel != details.previousZoomLevel) {
       _invokeOnZooming(
         localFocalPoint: details.localFocalPoint,
         globalFocalPoint: details.globalFocalPoint,
@@ -3100,7 +3101,8 @@ class _BehaviorViewState extends State<BehaviorView> {
         scale: details.scale,
         pinchCenter: details.pinchCenter,
       );
-    } else if (widget.behavior._zoomController!.actionType == ActionType.pan) {
+    } else if (widget.behavior._zoomController!.actionType == ActionType.pan &&
+        details.previousRect != details.actualRect) {
       _invokeOnPanning(
         localFocalPoint: details.localFocalPoint,
         globalFocalPoint: details.globalFocalPoint,

@@ -27,10 +27,10 @@ class ScrollViewWidget extends StatefulWidget {
       required this.height,
       required this.dataGridStateDetails});
 
-  /// The parent width of the datagrid.
+  /// The parent width of the datagid.
   final double width;
 
-  /// The parent height of the datagrid.
+  /// The parent height of the datagid.
   final double height;
 
   /// Holds the [DataGridStateDetails].
@@ -222,13 +222,11 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     // both scroll views.
     // For more info: https://github.com/flutter/flutter/issues/70380#issuecomment-841502797
     Widget scrollView = Scrollbar(
-      thickness: dataGridConfiguration.showVerticalScrollbar ? null : 0,
       controller: _verticalController,
       thumbVisibility: dataGridConfiguration.isScrollbarAlwaysShown,
       notificationPredicate: (ScrollNotification notification) =>
           handleNotificationPredicate(notification, Axis.vertical),
       child: Scrollbar(
-        thickness: dataGridConfiguration.showHorizontalScrollbar ? null : 0,
         controller: _horizontalController,
         thumbVisibility: dataGridConfiguration.isScrollbarAlwaysShown,
         notificationPredicate: (ScrollNotification notification) =>
@@ -364,21 +362,24 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
             _horizontalController!.offset <= 0.0 ||
             _horizontalController!.position.maxScrollExtent <= 0.0 ||
             _container.extentWidth <= _width) {
-          // When the shrinkWrapColumns property is set to true, the extent width
-          // and view width of the container are the same. So, the scroll controller's
-          // offset has considered to arrange the header row in RTL mode.
-          if (_container.extentWidth <= _width &&
-              _horizontalController!.hasClients &&
-              dataGridConfiguration.shrinkWrapColumns) {
-            return -_horizontalController!.offset;
-          }
           return 0.0;
-        } else {
-          // When the scroll view's content dimension change at runtime, the scroll view's
-          // maxScrollExtent will not be changed. So calculates the maximum scroll extent manually.
-          final double maxScrollExtent = _container.extentWidth - _width;
-          return -(maxScrollExtent - _container.horizontalOffset);
+        } else if (_horizontalController!.position.maxScrollExtent ==
+            _horizontalController!.offset) {
+          return -_horizontalController!.position.maxScrollExtent;
         }
+
+        late double maxScrollExtent;
+        if (dataGridConfiguration
+            .columnResizeController.isResizeIndicatorVisible) {
+          // In RTL, Resolves the glitching issue of header rows while resizing
+          // the column by calculating the maxScrollExtent manually.
+          maxScrollExtent = _container.extentWidth -
+              _horizontalController!.position.viewportDimension;
+        } else {
+          maxScrollExtent = _horizontalController!.position.maxScrollExtent;
+        }
+
+        return -(maxScrollExtent - _container.horizontalOffset);
       }
     }
 
@@ -393,7 +394,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
             top: lineInfo?.origin,
             height: lineInfo?.size,
             // FLUT-1971 Changed the header row widget as extendwidth instead of
-            // device width to resolved the issue of apply sorting to the
+            // device width to resloved the issue of apply sorting to the
             // invisible columns.
             width: containerWidth,
             child: headerRows[i]);
@@ -956,17 +957,14 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
       /// Need not to change the height when onScreenKeyboard appears.
       /// Cause: If we change the height on editing, editable widget will not move
       /// above the onScreenKeyboard on mobile platforms.
-      final bool needToAvoidResizeHeight = !dataGridConfiguration.isDesktop &&
+      final bool needToResizeHeight = !dataGridConfiguration.isDesktop &&
           dataGridConfiguration.currentCell.isEditing;
 
-      if (!needToAvoidResizeHeight) {
-        _width = widget.width;
-        _height = widget.height;
-
-        _container
-          ..needToSetHorizontalOffset = true
-          ..isDirty = true;
-      }
+      _width = widget.width;
+      _height = !needToResizeHeight ? widget.height : _height;
+      _container
+        ..needToSetHorizontalOffset = true
+        ..isDirty = true;
       if (oldWidget.width != widget.width ||
           oldWidget.height != widget.height) {
         _container.resetSwipeOffset();
@@ -1021,10 +1019,10 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         _updateColumnSizer();
       }
       _container
-        ..setRowHeights(initialLoading: true)
+        ..setRowHeights()
         ..needToRefreshColumn = true;
 
-      // FLUT-6545 if shrinkWrapRows is true, we need to the set the DataGrid maximum height
+      // FLUT-6545 if shrinkWrapRows is ture, we need to the set the DataGrid maximum height
       // based on the row value set in the onQueryRowHeight callback
       if (_dataGridConfiguration.shrinkWrapRows) {
         _height = _dataGridConfiguration.viewHeight =
@@ -1089,11 +1087,12 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     // So, we have used the focus widget. Need to remove [Focus] widget when
     // below mentioned issue is resolved on framework end.
     // [https://github.com/flutter/flutter/issues/83023]
-    return Focus(
-        key: _dataGridConfiguration.dataGridKey,
-        focusNode: _dataGridFocusNode,
-        onKey: _handleKeyOperation,
-        child: addContainer());
+    return _dataGridConfiguration.isDesktop
+        ? Focus(
+            focusNode: _dataGridFocusNode,
+            onKey: _handleKeyOperation,
+            child: addContainer())
+        : addContainer();
   }
 
   @override
@@ -1334,7 +1333,7 @@ class _VisualContainerState extends State<_VisualContainer> {
 
   Widget addWidget(DataRowBase dataRow) {
     return _VirtualizingCellsWidget(
-      key: dataRow.key,
+      key: dataRow.key!,
       dataRow: dataRow,
       isDirty: widget.isDirty || dataRow.isDirty,
       dataGridStateDetails: widget.dataGridStateDetails,
@@ -1365,7 +1364,7 @@ class _VisualContainerState extends State<_VisualContainer> {
 
 class _VirtualizingCellsWidget extends StatefulWidget {
   const _VirtualizingCellsWidget(
-      {required Key? key,
+      {required Key key,
       required this.dataRow,
       required this.isDirty,
       required this.dataGridStateDetails})
@@ -1398,6 +1397,7 @@ class _VirtualizingCellsWidgetState extends State<_VirtualizingCellsWidget> {
     }
 
     return VirtualizingCellsRenderObjectWidget(
+      key: widget.key!,
       dataRow: widget.dataRow,
       isDirty: widget.isDirty,
       dataGridStateDetails: widget.dataGridStateDetails,
@@ -1627,7 +1627,7 @@ class VisualContainerHelper {
   }
 
   /// Sets the row height of all the data grid rows.
-  void setRowHeights({bool initialLoading = false}) {
+  void setRowHeights() {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
     if (dataGridConfiguration.onQueryRowHeight == null) {
       return;
@@ -1675,15 +1675,7 @@ class VisualContainerHelper {
 
     final LineSizeCollection lineSizeCollection =
         rowHeights as LineSizeCollection;
-
-    // We only need to suspend updates when shrinkWrap is set to true
-    // to recompute the size of all rows at initial loading,
-    // instead of suspending updates every time while scrolling.
-    if (dataGridConfiguration.shrinkWrapRows &&
-        dataGridConfiguration.onQueryRowHeight != null &&
-        initialLoading) {
-      lineSizeCollection.suspendUpdates();
-    }
+    lineSizeCollection.suspendUpdates();
     for (int index = bodyStartLineIndex;
         ((current <= bodyEnd ||
                     (current <= dataGridConfiguration.viewHeight)) ||
@@ -1724,15 +1716,7 @@ class VisualContainerHelper {
       rowHeightManager.dirtyRows.clear();
     }
 
-    // We need to resume updates here, as we previously suspended them
-    // when the shrinkWrapRows property was enabled during the initial loading
-    // to determine the row height for all rows
-    if (dataGridConfiguration.shrinkWrapRows &&
-        dataGridConfiguration.onQueryRowHeight != null &&
-        initialLoading) {
-      initialLoading = false;
-      lineSizeCollection.resumeUpdates();
-    }
+    lineSizeCollection.resumeUpdates();
     scrollRows.updateScrollBar(false);
   }
 

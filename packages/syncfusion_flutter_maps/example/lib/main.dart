@@ -87,12 +87,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
                 dataLabelSettings: MapDataLabelSettings(
-                  textStyle: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize:
-                          Theme.of(context).textTheme.bodySmall!.fontSize),
-                ),
+                    textStyle: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize:
+                            Theme.of(context).textTheme.bodySmall!.fontSize)),
               ),
             ],
           ),

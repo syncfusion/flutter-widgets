@@ -983,7 +983,8 @@ class PdfRadioButtonListItemHelper extends PdfCheckFieldBaseHelper {
   @override
   Rect getBounds() {
     IPdfPrimitive? array;
-    if (dictionary!.containsKey(PdfDictionaryProperties.rect)) {
+    if (array == null &&
+        dictionary!.containsKey(PdfDictionaryProperties.rect)) {
       array = crossTable!.getObject(dictionary![PdfDictionaryProperties.rect]);
     }
     Rect bounds;
