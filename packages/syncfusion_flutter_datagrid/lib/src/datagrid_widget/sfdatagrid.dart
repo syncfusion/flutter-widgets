@@ -5,8 +5,10 @@ import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../datagrid.dart';
+import '../grid_common/enums.dart';
 import '../grid_common/line_size_host.dart';
 import '../grid_common/scroll_axis.dart';
+import '../grid_common/utility_helper.dart';
 import 'helper/datagrid_configuration.dart';
 import 'helper/datagrid_helper.dart' as grid_helper;
 import 'runtime/cell_renderers.dart';
@@ -3996,6 +3998,32 @@ class DataGridController extends DataGridSourceChangeNotifier {
   }
 
   DataGridStateDetails? _dataGridStateDetails;
+
+  Int32Span? _getVisibleRowsRange(ScrollAxisRegion region) {
+    if (_dataGridStateDetails != null) {
+      final DataGridConfiguration dataGridConfiguration =
+          _dataGridStateDetails!();
+      return dataGridConfiguration.container.scrollRows
+          .getVisibleLinesRange(region);
+    } else {
+      return null;
+    }
+  }
+
+  /// Returns the range of indexes for visible header rows.
+  /// May return a null value if the information is unknown.
+  Int32Span? get visibleHeaderRowsRange =>
+      _getVisibleRowsRange(ScrollAxisRegion.header);
+
+  /// Returns the range of indexes for visible body rows.
+  /// May return a null value if the information is unknown.
+  Int32Span? get visibleBodyRowsRange =>
+      _getVisibleRowsRange(ScrollAxisRegion.body);
+
+  /// Returns the range of indexes for visible footer rows.
+  /// May return a null value if the information is unknown.
+  Int32Span? get visibleFooterRowsRange =>
+      _getVisibleRowsRange(ScrollAxisRegion.footer);
 
   /// The collection of objects that contains object of corresponding
   /// to the selected rows in [SfDataGrid].
