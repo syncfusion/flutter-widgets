@@ -1026,8 +1026,12 @@ void disposeAnimationController(
 /// Method to calculate the series point index.
 void calculatePointSeriesIndex(
     dynamic chart, dynamic stateProperties, Offset? position,
-    [Region? pointRegion, ActivationMode? activationMode]) {
+    [Region? pointRegion,
+    ActivationMode? activationMode,
+    bool findNearPoint = false]) {
   if (chart is SfCartesianChart) {
+    final List<SelectPointDetails> listIndex = <SelectPointDetails>[];
+
     for (int i = 0;
         i < stateProperties.chartSeries.visibleSeriesRenderers.length;
         i++) {
@@ -1035,6 +1039,7 @@ void calculatePointSeriesIndex(
           SeriesHelper.getSeriesRendererDetails(
               stateProperties.chartSeries.visibleSeriesRenderers[i]);
       int? pointIndex;
+      Rect? regionIndex;
       seriesRendererDetails.regionalData!
           .forEach((dynamic regionRect, dynamic values) {
         final Rect region = regionRect[0];
@@ -1048,6 +1053,7 @@ void calculatePointSeriesIndex(
         final double bottom = region.bottom + heightPadding;
         final Rect paddedRegion = Rect.fromLTRB(left, top, right, bottom);
         if (paddedRegion.contains(position!)) {
+          regionIndex = region;
           pointIndex = regionRect[4].visiblePointIndex;
         }
       });
@@ -1063,15 +1069,52 @@ void calculatePointSeriesIndex(
               seriesRendererDetails.dataPoints,
               seriesRendererDetails
                   .visibleDataPoints![pointIndex!].overallDataPointIndex);
-          activationMode == ActivationMode.singleTap
-              ? seriesRendererDetails
-                  .series.onPointTap!(pointInteractionDetails)
-              : activationMode == ActivationMode.doubleTap
-                  ? seriesRendererDetails
-                      .series.onPointDoubleTap!(pointInteractionDetails)
-                  : seriesRendererDetails
-                      .series.onPointLongPress!(pointInteractionDetails);
+          listIndex.add(SelectPointDetails(
+            seriesRendererDetails,
+            pointInteractionDetails,
+            regionIndex!,
+          ));
         }
+      }
+    }
+    if (listIndex.isNotEmpty && activationMode != null) {
+      int valueIndex = 0;
+      if (listIndex.length > 1) {
+        double valueIndexDistance = -1;
+        for (int i = 0; i < listIndex.length; i++) {
+          final Rect region = listIndex[i].region;
+          double distance = region.center.distance - position!.distance;
+          distance = distance > 0 ? distance : 0 - distance;
+          if (valueIndexDistance < 0 || valueIndexDistance > distance) {
+            valueIndexDistance = distance;
+            valueIndex = i;
+          }
+        }
+      }
+      final SelectPointDetails entry = listIndex[valueIndex];
+      switch (activationMode) {
+        case ActivationMode.singleTap:
+          entry.seriesRendererDetails.series
+              .onPointTap!(entry.chartPointDetails);
+          break;
+        case ActivationMode.doubleTap:
+          entry.seriesRendererDetails.series
+              .onPointDoubleTap!(entry.chartPointDetails);
+          break;
+        case ActivationMode.press:
+          entry.seriesRendererDetails.series
+              .onPointPress!(entry.chartPointDetails);
+          break;
+        case ActivationMode.longPress:
+          entry.seriesRendererDetails.series
+              .onPointLongPress!(entry.chartPointDetails);
+          break;
+        case ActivationMode.move:
+          entry.seriesRendererDetails.series
+              .onPointUpdate!(entry.chartPointDetails);
+          break;
+        case ActivationMode.none:
+          break;
       }
     }
   } else if (chart is SfCircularChart) {
@@ -1195,3 +1238,22 @@ bool isTemplateWithinBounds(Rect bounds, Rect templateRect) =>
     templateRect.left + templateRect.width <= bounds.left + bounds.width &&
     templateRect.top >= bounds.top &&
     templateRect.top + templateRect.height <= bounds.top + bounds.height;
+
+///
+class SelectPointDetails {
+  ///
+  const SelectPointDetails(
+    this.seriesRendererDetails,
+    this.chartPointDetails,
+    this.region,
+  );
+
+  ///
+  final Rect region;
+
+  ///
+  final SeriesRendererDetails seriesRendererDetails;
+
+  ///
+  final ChartPointDetails chartPointDetails;
+}

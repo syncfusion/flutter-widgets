@@ -45,6 +45,8 @@ class LineSeries<T, D> extends XyDataSeries<T, D> {
       List<int>? initialSelectedDataIndexes,
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointPress,
+      ChartPointInteractionCallback? onPointUpdate,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
       CartesianShaderCallback? onCreateShader})
@@ -53,6 +55,8 @@ class LineSeries<T, D> extends XyDataSeries<T, D> {
             onRendererCreated: onRendererCreated,
             onCreateRenderer: onCreateRenderer,
             onPointTap: onPointTap,
+            onPointUpdate: onPointUpdate,
+            onPointPress: onPointPress,
             onPointDoubleTap: onPointDoubleTap,
             onPointLongPress: onPointLongPress,
             name: name,
