@@ -1060,11 +1060,30 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   bool _isAndroidTV = false;
   int _startPageIndex = 1;
   int _endPageIndex = 1;
+<<<<<<< HEAD
   final List<FocusNode> _textBoxFocusNodes = <FocusNode>[];
   bool _isLoaded = false;
   int _tappedPageNumber = -1;
   Offset _tappedPagePosition = const Offset(-1, -1);
   bool _canInvokeOnTap = true;
+=======
+  final List<SignatureData> _signatureData = <SignatureData>[];
+  final List<TextBoxData> _textBoxData = <TextBoxData>[];
+  final List<CheckBoxData> _checkBoxData = <CheckBoxData>[];
+  final List<RadioButtonData> _radioButtonData = <RadioButtonData>[];
+  final List<ComboBoxData> _comboBoxData = <ComboBoxData>[];
+  final List<TextEditingController> _textEditingControllers =
+      <TextEditingController>[];
+  final List<FocusNode> _textBoxFocusNodes = <FocusNode>[];
+  List<bool> _isSigned = <bool>[];
+  List<Uint8List?> _signatureImageBytes = <Uint8List?>[];
+  final List<ComboBoxItemData> _comboBoxItems = <ComboBoxItemData>[];
+  List<String?> _selectedComboBoxValues = <String?>[];
+  final List<SelectedCheckBoxItem> _selectedCheckBoxItems =
+      <SelectedCheckBoxItem>[];
+  List<String?> _selectedRadioButtons = <String?>[];
+  bool _isLoaded = false;
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
 
   /// PdfViewer theme data.
   SfPdfViewerThemeData? _pdfViewerThemeData;
@@ -1199,7 +1218,11 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _pdfPages.clear();
     _pdfPagesKey.clear();
     _disposeFormFields();
+<<<<<<< HEAD
     _textBoxFocusNodes.clear();
+=======
+    _disposeFocusNodes();
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
     _focusNode.dispose();
     _document?.dispose();
     _document = null;
@@ -1216,6 +1239,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     super.dispose();
   }
 
+<<<<<<< HEAD
   void _disposeFormFields() {
     for (final PdfFormField formField in _pdfViewerController._formFields) {
       final PdfFormFieldHelper formFieldHelper =
@@ -1224,6 +1248,29 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     }
 
     _pdfViewerController._formFields.clear();
+=======
+  /// Dispose the text box field focus nodes.
+  void _disposeFocusNodes() {
+    for (final FocusNode focusNode in _textBoxFocusNodes) {
+      focusNode.dispose();
+    }
+  }
+
+  /// Dispose the form fields
+  void _disposeFormFields() {
+    _checkBoxData.clear();
+    _signatureData.clear();
+    _textBoxData.clear();
+    _radioButtonData.clear();
+    _comboBoxData.clear();
+    _textEditingControllers.clear();
+    _textBoxFocusNodes.clear();
+    _comboBoxItems.clear();
+    _selectedCheckBoxItems.clear();
+    _selectedComboBoxValues = <String?>[];
+    _selectedRadioButtons = <String?>[];
+    _signatureImageBytes = <Uint8List?>[];
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
   }
 
   void _disposeCollection(List<dynamic>? list) {
@@ -1258,6 +1305,8 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _pdfPages.clear();
     _plugin.closeDocument();
     _pageTextExtractor.clear();
+    _disposeFormFields();
+    _disposeFocusNodes();
     _document?.dispose();
     _document = null;
     imageCache.clear();
@@ -1286,6 +1335,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
 
       // Retrieve the text box field details
       if (field is PdfTextBoxField) {
+<<<<<<< HEAD
         if (field.items != null && field.items!.count > 0) {
           final List<PdfTextFormField> groupedTextFormFields =
               <PdfTextFormField>[];
@@ -1387,10 +1437,14 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
             onValueChanged: _formFieldValueChanged);
 
         _pdfViewerController._formFields.add(helper.getFormField());
+=======
+        _textBoxData.add(TextBoxData(field: field, pageIndex: pageIndex));
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
       }
 
       // Retrieve the signature field details
       if (field is PdfSignatureField) {
+<<<<<<< HEAD
         final PdfSignatureFormFieldHelper helper = PdfSignatureFormFieldHelper(
             field, pageIndex,
             onValueChanged: _formFieldValueChanged,
@@ -1408,10 +1462,32 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
             onValueChanged: widget.onFormFieldValueChanged);
 
         _pdfViewerController._formFields.add(helper.getFormField());
+=======
+        _signatureData.add(SignatureData(field: field, pageIndex: pageIndex));
+      }
+
+      // Retrieve the checkbox details
+      if (field is PdfCheckBoxField) {
+        _checkBoxData.add(CheckBoxData(field: field, pageIndex: pageIndex));
+      }
+
+      // Retrieve the combo box details
+      if (field is PdfComboBoxField) {
+        _comboBoxData.add(ComboBoxData(field: field, pageIndex: pageIndex));
+      }
+
+      // Retrieve the radio button details
+      if (field is PdfRadioButtonListField) {
+        _radioButtonData.add(RadioButtonData(
+          field: field,
+          pageIndex: pageIndex,
+        ));
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
       }
     }
   }
 
+<<<<<<< HEAD
   /// Called when the value of a form field is changed.
   void _formFieldValueChanged(PdfFormFieldValueChangedDetails details) {
     if (widget.onFormFieldValueChanged != null) {
@@ -1513,14 +1589,70 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
             field.selectedValues = formField.selectedItems!;
           }
         }
+=======
+  /// Render existing form data
+  void _renderExistingFormData() {
+    /// Render checkbox data
+    for (int i = 0; i < _checkBoxData.length; i++) {
+      if (_checkBoxData[i].field.isChecked) {
+        _selectedCheckBoxItems.add(SelectedCheckBoxItem(
+            _checkBoxData[i].field.name, _checkBoxData[i].field.isChecked));
+      }
+    }
+
+    /// Render combo box data
+    for (int i = 0; i < _comboBoxData.length; i++) {
+      final List<String> comboList = <String>[];
+      for (int j = 0; j < _comboBoxData[i].field.items.count; j++) {
+        comboList.add(_comboBoxData[i].field.items[j].text);
+      }
+      _comboBoxItems.add(ComboBoxItemData(
+          items: comboList,
+          pageIndex: _comboBoxData[i].pageIndex,
+          field: _comboBoxData[i].field,
+          selectedItem: _comboBoxData[i].field.selectedIndex == -1
+              ? null
+              : _comboBoxData[i].field.selectedValue));
+    }
+    _selectedComboBoxValues = List<String?>.filled(_comboBoxItems.length, null);
+    for (int i = 0; i < _selectedComboBoxValues.length; i++) {
+      if (_comboBoxItems[i].selectedItem != null) {
+        _selectedComboBoxValues[i] = _comboBoxItems[i].selectedItem;
+      }
+    }
+
+    /// Render radio button data
+    _selectedRadioButtons = List<String?>.filled(_radioButtonData.length, null);
+    for (int i = 0; i < _radioButtonData.length; i++) {
+      _selectedRadioButtons[i] = _radioButtonData[i].field.selectedIndex == -1
+          ? null
+          : _radioButtonData[i].field.selectedValue;
+    }
+
+    /// Render signature data
+    _signatureImageBytes = List<Uint8List?>.filled(_signatureData.length, null);
+    _isSigned = List<bool>.filled(_signatureData.length, false);
+
+    /// Render text box data
+    for (int i = 0; i < _textBoxData.length; i++) {
+      _textEditingControllers
+          .add(TextEditingController(text: _textBoxData[i].field.text));
+      if (!kIsDesktop) {
+        _textBoxFocusNodes.add(FocusNode());
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
       }
     }
   }
 
   /// Save the PDF document with the modified data and returns the data bytes.
   Future<List<int>> _saveDocument() async {
+<<<<<<< HEAD
     // Update the signature form fields data
     _updateSignatureFormFields();
+=======
+    // Update the form fields data
+    _updateFormFields(true);
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
 
     // Set the default appearance for the form.
     _document!.form.setDefaultAppearance(false);
@@ -1538,6 +1670,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     return _pdfBytes.toList();
   }
 
+<<<<<<< HEAD
   /// Update the signature form fields data
   void _updateSignatureFormFields() {
     for (final PdfFormField signatureField
@@ -1555,6 +1688,79 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                 Rect.fromLTWH(helper.bounds.left, helper.bounds.top,
                     helper.bounds.width, helper.bounds.height));
             helper.pdfSignatureField.flatten();
+=======
+  /// Update the form fields data
+  void _updateFormFields(bool isSave) {
+    // Update the text form field details
+    if (_textBoxData != null) {
+      for (int i = 0; i < _textBoxData.length; i++) {
+        if (_textEditingControllers != null) {
+          _textBoxData[i].field.text = _textEditingControllers[i].text;
+        }
+      }
+    }
+
+    // Update the signature form field details
+    if (_signatureData != null && isSave) {
+      for (int i = 0; i < _signatureData.length; i++) {
+        final PdfPage page = _signatureData[i].field.page!;
+        if (_signatureImageBytes != null) {
+          final List<int>? bitmapBytes = _signatureImageBytes[i];
+          if (bitmapBytes != null) {
+            page.graphics.drawImage(
+                PdfBitmap(bitmapBytes),
+                Rect.fromLTWH(
+                    _signatureData[i].field.bounds.left,
+                    _signatureData[i].field.bounds.top,
+                    _signatureData[i].field.bounds.width,
+                    _signatureData[i].field.bounds.height));
+            _signatureData[i].field.flatten();
+          }
+        }
+      }
+    }
+
+    // Update the combo box form field details
+    if (_comboBoxData != null) {
+      for (int i = 0; i < _comboBoxData.length; i++) {
+        if (_selectedComboBoxValues != null) {
+          if (_selectedComboBoxValues[i] != null) {
+            _comboBoxData[i].field.selectedValue = _selectedComboBoxValues[i]!;
+          }
+        }
+      }
+    }
+
+    // Update the radio button form field details
+    if (_radioButtonData != null) {
+      for (int i = 0; i < _radioButtonData.length; i++) {
+        if (_selectedRadioButtons != null) {
+          if (_selectedRadioButtons[i] != null) {
+            for (int items = 0;
+                items < _radioButtonData[i].field.items.count;
+                items++) {
+              if ((_selectedRadioButtons[i]!) ==
+                  _radioButtonData[i].field.items[items].value) {
+                _radioButtonData[i].field.selectedIndex = items;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Update the checkbox form field details
+    if (_checkBoxData != null) {
+      for (int i = 0; i < _checkBoxData.length; i++) {
+        if (_selectedCheckBoxItems != null) {
+          final int length = _selectedCheckBoxItems.length;
+          for (int j = 0; j < length; j++) {
+            if (_checkBoxData[i].field.name ==
+                _selectedCheckBoxItems[j].value) {
+              _checkBoxData[i].field.isChecked =
+                  _selectedCheckBoxItems[j].index ?? false;
+            }
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
           }
         }
       }
@@ -1585,6 +1791,10 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       _document = await _pdfDocumentLoadCancellableOperation?.value;
       if (_document != null) {
         _retrieveFormFieldsDetails();
+<<<<<<< HEAD
+=======
+        _renderExistingFormData();
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
         _pdfTextExtractor = PdfTextExtractor(_document!);
         if (!kIsWeb) {
           _performTextExtraction();
@@ -2586,9 +2796,25 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                             _startPageIndex,
                             _endPageIndex,
                             widget.canShowPageLoadingIndicator,
+<<<<<<< HEAD
                             widget.canShowSignaturePadDialog,
                             _handlePageTap,
                             _pdfViewerController._formFields);
+=======
+                            _textBoxData,
+                            _signatureData,
+                            _radioButtonData,
+                            _checkBoxData,
+                            _comboBoxData,
+                            _textEditingControllers,
+                            _textBoxFocusNodes,
+                            _isSigned,
+                            _signatureImageBytes,
+                            _comboBoxItems,
+                            _selectedComboBoxValues,
+                            _selectedCheckBoxItems,
+                            _selectedRadioButtons);
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
                         final double pageSpacing =
                             index == _pdfViewerController.pageCount - 1
                                 ? 0.0
@@ -2932,6 +3158,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           ?.canvasRenderBox
           ?.clearSelection();
     }
+<<<<<<< HEAD
     bool isTextFormFieldFocused = false;
 
     /// Requesting focus to the text form fields in mobile platforms
@@ -2952,6 +3179,116 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           ?.focusNode
           .requestFocus();
     }
+=======
+
+    /// Requesting focus to the text form fields in mobile platforms
+    if (!kIsDesktop && _textBoxData != null) {
+      if (_textBoxFocusNodes != null) {
+        for (final FocusNode focusNode in _textBoxFocusNodes) {
+          focusNode.unfocus();
+        }
+      }
+
+      for (int i = 0; i < _textBoxData.length; i++) {
+        final int pageIndex = _textBoxData[i].pageIndex;
+        bool isPageNavigated = false;
+
+        final double heightPercentage =
+            _document!.pages[pageIndex].size.height /
+                _pdfPages[pageIndex + 1]!.pageSize.height;
+
+        final double grayArea = (_pdfViewerController.pageCount == 1 ||
+                widget.pageLayoutMode == PdfPageLayoutMode.single ||
+                widget.scrollDirection == PdfScrollDirection.horizontal)
+            ? (_viewportHeight - _pdfPages[1]!.pageSize.height) / 2
+            : 0;
+
+        final double textBoxBoundsDY =
+            (_textBoxData[i].field.bounds.top / heightPercentage) + grayArea;
+        final double textBoxBoundsDX =
+            _textBoxData[i].field.bounds.left / heightPercentage;
+
+        final double textBoxHeight =
+            _textBoxData[i].field.bounds.height / heightPercentage;
+        final double textBoxWidth =
+            _textBoxData[i].field.bounds.width / heightPercentage;
+
+        double localPositionDY = event.localPosition.dy;
+        double localPositionDX = event.localPosition.dx;
+
+        if (_pdfViewerController.pageCount == 1 &&
+            _pdfViewerController.zoomLevel > 1 &&
+            _pageLayoutMode != PdfPageLayoutMode.single) {
+          localPositionDY = ((localPositionDY +
+                      (_pdfViewerController.scrollOffset.dy *
+                          _pdfViewerController.zoomLevel)) /
+                  _pdfViewerController.zoomLevel) +
+              grayArea;
+          localPositionDX = (localPositionDX +
+                  (_pdfViewerController.scrollOffset.dx *
+                      _pdfViewerController.zoomLevel)) /
+              _pdfViewerController.zoomLevel;
+        } else if (_pdfViewerController.pageCount > 1 &&
+            _scrollDirection == PdfScrollDirection.horizontal &&
+            _pageLayoutMode == PdfPageLayoutMode.continuous) {
+          localPositionDY = _pdfViewerController.zoomLevel > 1
+              ? ((localPositionDY / _pdfViewerController.zoomLevel) +
+                  _pdfViewerController.scrollOffset.dy +
+                  grayArea)
+              : (localPositionDY + _pdfViewerController.scrollOffset.dy);
+          final double pagesSkippedWidth = _viewportWidth * pageIndex;
+          localPositionDX = ((localPositionDX +
+                      ((_pdfViewerController.scrollOffset.dx -
+                              pagesSkippedWidth) *
+                          _pdfViewerController.zoomLevel)) /
+                  _pdfViewerController.zoomLevel) -
+              (widget.pageSpacing * pageIndex);
+        } else if (_pdfViewerController.pageCount > 1 &&
+            _scrollDirection == PdfScrollDirection.vertical &&
+            _pageLayoutMode == PdfPageLayoutMode.continuous) {
+          final double pagesSkippedHeight =
+              _pdfPages[1]!.pageSize.height * pageIndex;
+          localPositionDY = ((localPositionDY +
+                      ((_pdfViewerController.scrollOffset.dy -
+                              pagesSkippedHeight) *
+                          _pdfViewerController.zoomLevel)) /
+                  _pdfViewerController.zoomLevel) -
+              (widget.pageSpacing * pageIndex);
+          localPositionDX = (localPositionDX +
+                  ((_pdfViewerController.scrollOffset.dx) *
+                      _pdfViewerController.zoomLevel)) /
+              _pdfViewerController.zoomLevel;
+        } else if (_pageLayoutMode == PdfPageLayoutMode.single) {
+          _singlePageViewKey.currentState!.updateOffset();
+          isPageNavigated = _pdfViewerController.pageNumber != pageIndex + 1;
+          if (_pdfViewerController.zoomLevel > 1) {
+            localPositionDY = ((localPositionDY +
+                        ((_pdfViewerController.scrollOffset.dy - grayArea) *
+                            _pdfViewerController.zoomLevel)) /
+                    _pdfViewerController.zoomLevel) +
+                grayArea;
+            localPositionDX = (localPositionDX +
+                    ((_pdfViewerController.scrollOffset.dx) *
+                        _pdfViewerController.zoomLevel)) /
+                _pdfViewerController.zoomLevel;
+          }
+        }
+
+        if ((localPositionDY >= textBoxBoundsDY &&
+                localPositionDY <= (textBoxBoundsDY + textBoxHeight)) &&
+            (localPositionDX >= textBoxBoundsDX &&
+                localPositionDX <= (textBoxBoundsDX + textBoxWidth)) &&
+            !isPageNavigated) {
+          _textBoxFocusNodes[i].requestFocus();
+        }
+      }
+    }
+
+    _pdfPagesKey[_pdfViewerController.pageNumber]
+        ?.currentState
+        ?.focusNode
+        .requestFocus();
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
   }
 
   void _handlePointerMove(PointerMoveEvent event) {
@@ -3701,17 +4038,32 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         _jumpToBookmark(_pdfViewerController._pdfBookmark);
       }
     } else if (property == 'exportFormData') {
+<<<<<<< HEAD
       if (_document != null) {
+=======
+      _updateFormFields(false);
+      if (_pdfViewerController._exportDataFormat != null && _document != null) {
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
         _pdfViewerController._exportedFormDataBytes =
             _document!.form.exportData(_pdfViewerController._exportDataFormat);
         setState(() {});
       }
     } else if (property == 'importFormData') {
+<<<<<<< HEAD
       if (_document != null) {
         _document!.form.importData(_pdfViewerController._importedFormDataBytes,
             _pdfViewerController._importDataFormat);
         setState(() {
           _importFormFieldData();
+=======
+      if (_pdfViewerController._importDataFormat != null && _document != null) {
+        _document!.form.importData(_pdfViewerController._importedFormDataBytes,
+            _pdfViewerController._importDataFormat);
+        _disposeFormFields();
+        setState(() {
+          _retrieveFormFieldsDetails();
+          _renderExistingFormData();
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
         });
       }
     } else if (property == 'saveDocument') {
@@ -4245,6 +4597,7 @@ class PdfViewerController extends ChangeNotifier with _ValueChangeNotifier {
     _notifyPropertyChangedListeners(property: 'pageCount');
   }
 
+<<<<<<< HEAD
   /// Page number in which the form fields are to be cleared.
   /// If the value is 0, all the form fields in the document will be cleared.
   int _clearFormDataPageNumber = 0;
@@ -4252,6 +4605,8 @@ class PdfViewerController extends ChangeNotifier with _ValueChangeNotifier {
   /// List of form fields in the docuemnt.
   final List<PdfFormField> _formFields = <PdfFormField>[];
 
+=======
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
   /// Imported form data bytes
   List<int> _importedFormDataBytes = <int>[];
 

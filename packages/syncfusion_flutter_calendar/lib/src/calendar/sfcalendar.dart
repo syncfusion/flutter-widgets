@@ -10733,7 +10733,11 @@ class _ScheduleLabelPainter extends CustomPainter {
     final String dateString = CalendarViewHelper.getLocalizedString(
         startDate, monthStringFormats, locale);
     final TextSpan span = TextSpan(
+<<<<<<< HEAD
       text: dateString,
+=======
+      text: DateFormat(monthFormat, locale).format(startDate),
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
       style: themeData.textTheme.bodyLarge!
           .copyWith(
               color: Colors.white, fontSize: 20, fontWeight: FontWeight.w400)

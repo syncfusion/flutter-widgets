@@ -530,6 +530,7 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
           );
         }
 
+<<<<<<< HEAD
         bool canShowColumnHeaderIcon() {
           final bool isFilteredColumn = dataGridConfiguration
               .source.filterConditions
@@ -543,6 +544,10 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
                 isSortedColumn;
           } else if (!dataGridConfiguration.showColumnHeaderIconOnHover &&
               dataGridConfiguration.showFilterIconOnHover &&
+=======
+        bool canShowFilterIcon() {
+          if (dataGridConfiguration.showFilterIconOnHover &&
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
               dataGridConfiguration.isDesktop) {
             return isHovered ||
                 dataGridConfiguration
@@ -552,6 +557,7 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
           }
         }
 
+<<<<<<< HEAD
         Widget buildHeaderCellIcons(bool isColumnHeaderIconVisible) {
           return Container(
             padding: dataGridConfiguration.columnSizer.iconsOuterPadding,
@@ -659,6 +665,205 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
           );
         }
 
+=======
+        late Widget headerCell;
+        if (gridColumn.sortIconPosition == ColumnHeaderIconPosition.end &&
+                gridColumn.filterIconPosition == ColumnHeaderIconPosition.end ||
+            (dataGridConfiguration.allowSorting &&
+                !dataGridConfiguration.allowFiltering &&
+                gridColumn.sortIconPosition == ColumnHeaderIconPosition.end) ||
+            (!dataGridConfiguration.allowSorting &&
+                dataGridConfiguration.allowFiltering &&
+                gridColumn.filterIconPosition ==
+                    ColumnHeaderIconPosition.end)) {
+          headerCell = canShowFilterIcon()
+              ? Row(children: <Widget>[
+                  Flexible(
+                    child: Container(child: child),
+                  ),
+                  Container(
+                    padding:
+                        dataGridConfiguration.columnSizer.iconsOuterPadding,
+                    child: Center(child: Row(children: children)),
+                  )
+                ])
+              : Row(children: <Widget>[
+                  Flexible(child: Container(child: child)),
+                  Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: dataGridConfiguration.allowSorting
+                          ? Center(
+                              child: gridColumn.allowSorting
+                                  ? _sortNumber == -1
+                                      ? children[0]
+                                      : Row(children: <Widget>[
+                                          Center(child: children[0]),
+                                          Center(child: children[1]),
+                                        ])
+                                  : const SizedBox(),
+                            )
+                          : const SizedBox())
+                ]);
+        } else if (gridColumn.sortIconPosition ==
+                    ColumnHeaderIconPosition.start &&
+                gridColumn.filterIconPosition ==
+                    ColumnHeaderIconPosition.start ||
+            (dataGridConfiguration.allowSorting &&
+                !dataGridConfiguration.allowFiltering &&
+                gridColumn.sortIconPosition ==
+                    ColumnHeaderIconPosition.start) ||
+            (!dataGridConfiguration.allowSorting &&
+                dataGridConfiguration.allowFiltering &&
+                gridColumn.filterIconPosition ==
+                    ColumnHeaderIconPosition.start)) {
+          headerCell = canShowFilterIcon()
+              ? Row(
+                  children: <Widget>[
+                    Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: Center(
+                        child: Row(children: children),
+                      ),
+                    ),
+                    Flexible(child: child),
+                  ],
+                )
+              : Row(
+                  children: <Widget>[
+                    Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: Center(
+                        child: dataGridConfiguration.allowSorting &&
+                                gridColumn.allowSorting
+                            ? _sortNumber == -1
+                                ? children[0]
+                                : Row(children: <Widget>[
+                                    Center(child: children[0]),
+                                    Center(child: children[1]),
+                                  ])
+                            : const SizedBox(),
+                      ),
+                    ),
+                    Flexible(child: child),
+                  ],
+                );
+        } else if (dataGridConfiguration.allowSorting &&
+            dataGridConfiguration.allowFiltering) {
+          if (gridColumn.sortIconPosition == ColumnHeaderIconPosition.end &&
+              gridColumn.filterIconPosition == ColumnHeaderIconPosition.start) {
+            headerCell = canShowFilterIcon()
+                ? Row(children: <Widget>[
+                    Container(
+                        padding:
+                            dataGridConfiguration.columnSizer.iconsOuterPadding,
+                        child: Center(
+                          child: gridColumn.allowFiltering
+                              ? (gridColumn.allowSorting
+                                  ? children[_sortNumber == -1 ? 1 : 2]
+                                  : children[0])
+                              : const SizedBox(),
+                        )),
+                    Flexible(
+                      child: Container(child: child),
+                    ),
+                    Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: Row(
+                        children: <Widget>[
+                          Center(
+                              child: gridColumn.allowSorting
+                                  ? children[0]
+                                  : const SizedBox()),
+                          if (_sortNumber != -1) Center(child: children[1]),
+                        ],
+                      ),
+                    ),
+                  ])
+                : Row(children: <Widget>[
+                    Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: const SizedBox(),
+                    ),
+                    Flexible(
+                      child: Container(child: child),
+                    ),
+                    Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: Row(
+                        children: <Widget>[
+                          Center(
+                              child: gridColumn.allowSorting
+                                  ? children[0]
+                                  : const SizedBox()),
+                          if (_sortNumber != -1) Center(child: children[1]),
+                        ],
+                      ),
+                    ),
+                  ]);
+          } else {
+            headerCell = canShowFilterIcon()
+                ? Row(children: <Widget>[
+                    Container(
+                        padding:
+                            dataGridConfiguration.columnSizer.iconsOuterPadding,
+                        child: Row(
+                          children: <Widget>[
+                            Center(
+                                child: gridColumn.allowSorting
+                                    ? children[0]
+                                    : const SizedBox()),
+                            if (_sortNumber != -1) Center(child: children[1])
+                          ],
+                        )),
+                    Flexible(
+                      child: Container(
+                        child: child,
+                      ),
+                    ),
+                    Container(
+                        padding:
+                            dataGridConfiguration.columnSizer.iconsOuterPadding,
+                        child: Center(
+                          child: gridColumn.allowFiltering
+                              ? (gridColumn.allowSorting
+                                  ? children[_sortNumber == -1 ? 1 : 2]
+                                  : children[0])
+                              : const SizedBox(),
+                        ))
+                  ])
+                : Row(children: <Widget>[
+                    Container(
+                        padding:
+                            dataGridConfiguration.columnSizer.iconsOuterPadding,
+                        child: Row(
+                          children: <Widget>[
+                            Center(
+                                child: gridColumn.allowSorting
+                                    ? children[0]
+                                    : const SizedBox()),
+                            if (_sortNumber != -1) Center(child: children[1])
+                          ],
+                        )),
+                    Flexible(
+                      child: Container(
+                        child: child,
+                      ),
+                    ),
+                    Container(
+                      padding:
+                          dataGridConfiguration.columnSizer.iconsOuterPadding,
+                      child: const SizedBox(),
+                    )
+                  ]);
+          }
+        }
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
         return MouseRegion(
           onEnter: (_) => setState(() => isHovered = true),
           onExit: (_) => setState(() => isHovered = false),
@@ -1710,6 +1915,7 @@ class _CheckboxFilterMenu extends StatelessWidget {
         ),
         child: CheckboxTheme(
           data: CheckboxThemeData(
+<<<<<<< HEAD
             side: BorderSide(
                 width: 2.0,
                 color: dataGridConfiguration.colorScheme!.onSurface
@@ -1729,6 +1935,14 @@ class _CheckboxFilterMenu extends StatelessWidget {
               return helper.primaryColor;
             }),
           ),
+=======
+              side: BorderSide(
+                  width: 2.0,
+                  color: dataGridConfiguration.colorScheme!.onSurface
+                      .withOpacity(0.6)),
+              fillColor: MaterialStateProperty.resolveWith(
+                  (_) => helper.primaryColor)),
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
           child: Column(children: <Widget>[
             _FilterPopupMenuTile(
               style: helper.textStyle,

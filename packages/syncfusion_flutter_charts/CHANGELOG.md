@@ -112,6 +112,67 @@
 
 ## [20.3.61] - 12/13/2022
 **Bugs**
+* #FB44070 - Now, the doughnut series is rendering properly when having two data points with large differences.
+* #FB44112 - Resolved range error exception when displaying trackball for the zoomed candle series.
+
+## [21.2.8] - 05/30/2023
+
+**Bugs**
+* #FB43703 - Resolved the selection not working issue when the selection disabled series placed above the selection enabled series.
+
+## [21.2.5] - 05/16/2023
+
+**Bugs**
+* #FB42814 - Now, the auto-scaling will work for negative intervals when the range padding is normal and auto.
+
+## [21.2.4] - 05/09/2023 
+
+**Bugs**
+* #FB43916 - Now, the tooltip marker color will be displayed corresponding to the series color when using the tooltip shared mode.
+
+## [21.1.41] - 04/18/2023
+
+**Bugs**
+* #FB42529 - Now, the plotband will be updated along with the axis when updating the data using the updateDataSource method.
+
+## [21.1.38] - 04/04/2023
+
+* #FB42369 - Resolved the null check exception when updating data using the updateDataSource method with an empty data source initially in the CategoryAxis.
+
+## [21.1.37] - 03/29/2023
+
+**Bugs**
+* #FB42269 - Resolved the null exception when having two data points only in the spline series with cardinal spline type.
+* #FB41915 - Now, the null exception will no longer be thrown in the plotband, and the horizontalTextPadding property will work properly.
+
+## [21.1.35] - 03/23/2023
+
+**Bugs**
+* #FB40960 - Fixed an issue where the data label template was not updating properly when changing the visible range dynamically.
+* #FB41822 - Fixed an issue of the candle series width decreasing when adding the non-rectangular series.
+
+## [20.4.54] - 03/15/2023
+
+**Bugs**
+* #FB41625 - Resolved null check exception that occurred when changing the data source of a circular series with a toggled legend.
+
+## [20.4.53] - 03/07/2023
+
+**Bugs**
+* #FB40694 - Resolved the range error exception in the FastLineSeries with the floatAllPoints trackball display mode.
+
+## [20.4.50] - 02/14/2023
+
+**Bugs**
+* #FB40202 - The builder data labels are not positioned when using multiple series in the SfCartesianChart has been resolved. 
+
+## [20.4.43] - 01/10/2023
+
+**Bug**
+* #FB39500 - The issue with zooming and panning on the chart not working properly on the macOS trackpad has been resolved.
+
+## [20.3.61] - 12/13/2022
+**Bugs**
 
 * #FB37705 - Now, the circular data label builder will render properly with connector lines.
 

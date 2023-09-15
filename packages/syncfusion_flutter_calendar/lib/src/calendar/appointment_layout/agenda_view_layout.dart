@@ -880,6 +880,7 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
                     : Colors.white,
                 fontSize: 13)
             .merge(scheduleViewSettings!.appointmentTextStyle);
+<<<<<<< HEAD
 
     final List<String> appointmentStringFormats =
         appointmentTimeTextFormat == null
@@ -889,6 +890,8 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
         CalendarViewHelper.getListFromString('hh:mm a');
     final List<String> diffDateAppointmentStringFormats =
         CalendarViewHelper.getListFromString('MMM dd, hh:mm a');
+=======
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
 
     //// Draw Appointments
     for (int i = 0; i < appointmentCollection.length; i++) {

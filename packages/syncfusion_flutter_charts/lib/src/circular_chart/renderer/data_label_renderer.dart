@@ -600,7 +600,10 @@ void renderCircularDataLabel(
             .merge(
                 stateProperties.renderingDetails.chartTheme.dataLabelTextStyle)
             .merge(dataLabel.textStyle);
+<<<<<<< HEAD
         dataLabelSettingsRenderer.textStyle = dataLabelStyle;
+=======
+>>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
         textSize = seriesRenderer.series.dataLabelSettings.builder != null
             ? point.dataLabelSize
             : measureText(label!, dataLabelStyle);
