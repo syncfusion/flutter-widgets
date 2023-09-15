@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
+import '../form_fields/pdf_form_field.dart';
+
 /// Holds the details for the [SfPdfViewer.onPageChanged] callback,
 /// such as [newPageNumber], [oldPageNumber], [isFirstPage] and [isLastPage].
 class PdfPageChangedDetails {
@@ -146,4 +148,64 @@ class PdfHyperlinkClickedDetails {
   String get uri {
     return _uri;
   }
+}
+
+/// Holds the details for the [SfPdfViewer.onTap] callback,
+/// such as [pageNumber], [position] and [pagePosition].
+class PdfGestureDetails {
+  /// Creates details for [SfPdfViewer.onTap] callback.
+  PdfGestureDetails(this._pageNumber, this._position, this._pagePosition);
+  final int _pageNumber;
+  final Offset _position;
+  final Offset _pagePosition;
+
+  /// Returns the number of the page on which the tap occurred.
+  ///
+  /// The value of this property ranges from 1 to the total page count of the PDF document.
+  ///
+  /// Note: The value of this property will be -1 if the tap occurred outside any PDF page bounds.
+  int get pageNumber => _pageNumber;
+
+  /// Returns the tapped position on the [SfPdfViewer]. The coordinate space starts at the top-left of the [SfPdfViewer] widget.
+  Offset get position => _position;
+
+  /// Returns the tapped position in the PDF page coordinates which have their origin at the top left corner of the page.
+  ///
+  /// Note: The tapped page is indicated by the [pageNumber] property. The value of this property will be (-1,-1) if the tap occurred outside page bounds.
+  Offset get pagePosition => _pagePosition;
+}
+
+/// Holds the details for the [SfPdfViewer.onFormFieldValueChanged] callback,
+/// such as [formField], [oldValue] and [newValue].
+class PdfFormFieldValueChangedDetails {
+  /// Creates details for [SfPdfViewer.onFormFieldValueChanged] callback.
+  PdfFormFieldValueChangedDetails(
+      this._formField, this._oldValue, this._newValue);
+  final PdfFormField _formField;
+  final Object? _oldValue;
+  final Object? _newValue;
+
+  /// Returns the form field object that has value changed.
+  PdfFormField get formField => _formField;
+
+  /// The old value of the form field.
+  Object? get oldValue => _oldValue;
+
+  /// The new value of the form field.
+  Object? get newValue => _newValue;
+}
+
+/// Holds the details for the [SfPdfViewer.onFormFieldFocusChange] callback,
+/// such as [formField] and [hasFocus].
+class PdfFormFieldFocusChangeDetails {
+  /// Creates details for [SfPdfViewer.onFormFieldFocusChange] callback.
+  PdfFormFieldFocusChangeDetails(this._formField, this._hasFocus);
+  final PdfFormField _formField;
+  final bool _hasFocus;
+
+  /// Returns the form field object that has focus changes.
+  PdfFormField get formField => _formField;
+
+  /// Indicates whether the form field has focus or not.
+  bool get hasFocus => _hasFocus;
 }

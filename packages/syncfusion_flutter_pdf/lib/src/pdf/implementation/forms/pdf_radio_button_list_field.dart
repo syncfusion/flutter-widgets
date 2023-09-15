@@ -222,6 +222,7 @@ class PdfRadioButtonListField extends PdfField {
 
   void _assignSelectedValue(String value) {
     PdfName? name;
+    value = PdfName.decodeName(value)!;
     if (_helper.dictionary!.containsKey(PdfDictionaryProperties.v)) {
       name = _helper.dictionary![PdfDictionaryProperties.v] as PdfName?;
       _helper.dictionary!.remove(PdfDictionaryProperties.v);
@@ -230,8 +231,8 @@ class PdfRadioButtonListField extends PdfField {
     if (name != null) {
       for (int i = 0; i < items.count; i++) {
         final PdfRadioButtonListItem item = items[i];
-        if (item.value == name.name) {
-          _helper.dictionary!.setName(
+        if (item.value == PdfName.decodeName(name.name)) {
+          PdfFieldHelper.getHelper(item).dictionary!.setName(
               PdfName(PdfDictionaryProperties.usageApplication),
               PdfDictionaryProperties.off);
         }

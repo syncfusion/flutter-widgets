@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'dart:ui' as dart_ui;
 
 import 'package:flutter/gestures.dart';

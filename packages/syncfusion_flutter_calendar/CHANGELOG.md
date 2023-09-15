@@ -1,3 +1,7 @@
+## [22.2.5]
+**Features**
+* Provided support to accessibility for builders in the Flutter event calendar.
+
 ## [20.3.56]
 **Features**
 * Provided text style customization support for the text in the placeholder (`No events` and `No selected date`) in the month agenda view and (`No events`) in the schedule view of the flutter event calendar.

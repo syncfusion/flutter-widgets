@@ -385,7 +385,8 @@ class DataGridConfiguration {
   /// Defaults to true.
   bool showVerticalScrollbar = true;
 
-  /// Decides whether the filter icon should be only shown when hovering the header cells.
+  /// Decides whether the filter icon should be shown when hovering the header cells.
+  ///
   /// Defaults to false.
   bool showFilterIconOnHover = false;
 
@@ -404,4 +405,9 @@ class DataGridConfiguration {
 
   /// Controller for handling column drag and drop operation.
   late ColumnDragAndDropController columnDragAndDropController;
+
+  /// Decides whether the column header icons should be shown when hovering the header cells.
+  ///
+  /// Defaults to false.
+  late bool showColumnHeaderIconOnHover = false;
 }

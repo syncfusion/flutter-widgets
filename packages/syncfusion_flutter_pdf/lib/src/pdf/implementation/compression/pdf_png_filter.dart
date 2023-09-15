@@ -125,17 +125,17 @@ class PdfPngFilter {
     }
     for (int i = bytesPerPixel; i < resBPR; i++) {
       if (prevIndex < 0) {
-        result[resIndex] = result[resIndex] +
-            (((result[resIndex - bytesPerPixel] & 0xff) +
+        result[resIndex] = (result[resIndex] +
+                (((result[resIndex - bytesPerPixel] & 0xff) +
                         (previous[resIndex] & 0xff)) ~/
-                    2)
-                .toUnsigned(8);
+                    2))
+            .toUnsigned(8);
       } else {
-        result[resIndex] = result[resIndex] +
-            (((result[resIndex - bytesPerPixel] & 0xff) +
+        result[resIndex] = (result[resIndex] +
+                (((result[resIndex - bytesPerPixel] & 0xff) +
                         (result[prevIndex] & 0xff)) ~/
-                    2)
-                .toUnsigned(8);
+                    2))
+            .toUnsigned(8);
       }
       ++resIndex;
       ++inIndex;
@@ -151,7 +151,7 @@ class PdfPngFilter {
       result[resIndex + i] = data[inIndex + i];
     }
     for (int i = 0; i < bytesPerPixel; i++) {
-      result[resIndex] = result[resIndex] + result[prevIndex];
+      result[resIndex] = (result[resIndex] + result[prevIndex]).toUnsigned(8);
       resIndex++;
       prevIndex++;
     }
@@ -159,7 +159,8 @@ class PdfPngFilter {
       final int a = result[resIndex - bytesPerPixel] & 0xff;
       final int b = result[prevIndex] & 0xff;
       final int c = result[prevIndex - bytesPerPixel] & 0xff;
-      result[resIndex] = result[resIndex] + _paethPredictor(a, b, c);
+      result[resIndex] =
+          (result[resIndex] + _paethPredictor(a, b, c)).toUnsigned(8);
       ++resIndex;
       ++inIndex;
       ++prevIndex;

@@ -182,7 +182,8 @@ class PyramidPlotArea extends StatelessWidget {
       selectionDetails.selectionRenderer!.chart = chart;
       selectionDetails.selectionRenderer!.seriesRendererDetails =
           seriesRenderer;
-      if (series.initialSelectedDataIndexes.isNotEmpty) {
+      if (series.initialSelectedDataIndexes.isNotEmpty &&
+          stateProperties.renderingDetails.initialRender!) {
         for (int index = 0;
             index < series.initialSelectedDataIndexes.length;
             index++) {
