@@ -1605,7 +1605,6 @@ class TooltipRenderingDetails {
               if (index > -1) {
                 final Paint markerPaint = Paint();
                 markerPaint.color =
-<<<<<<< HEAD
                     seriesRendererDetails.series.markerSettings.borderColor ??
                         seriesRendererDetails.seriesColor ??
                         seriesRendererDetails.series.color!
@@ -1615,17 +1614,6 @@ class TooltipRenderingDetails {
                     .add(seriesRendererDetails.markerSettingsRenderer?.image);
                 markerTypes
                     .add(seriesRendererDetails.series.markerSettings.shape);
-=======
-                    _seriesRendererDetails!.series.markerSettings.borderColor ??
-                        _seriesRendererDetails!.seriesColor ??
-                        _seriesRendererDetails!.series.color!
-                            .withOpacity(tooltipBehavior.opacity);
-                markerGradients.add(_seriesRendererDetails!.series.gradient);
-                markerImages
-                    .add(_seriesRendererDetails!.markerSettingsRenderer?.image);
-                markerTypes
-                    .add(_seriesRendererDetails!.series.markerSettings.shape);
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
                 markerPaints.add(markerPaint);
 
                 final String text = (_stringVal != '' ? '\n' : '') +

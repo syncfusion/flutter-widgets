@@ -3315,14 +3315,7 @@ class _ContainerAreaState extends State<ContainerArea> {
     // ignore: unnecessary_null_comparison
     if (chart.crosshairBehavior != null &&
         chart.crosshairBehavior.enable &&
-<<<<<<< HEAD
         chart.crosshairBehavior.activationMode == ActivationMode.singleTap) {
-=======
-        chart.crosshairBehavior.activationMode == ActivationMode.singleTap &&
-        cartesianSeriesRenderer != null &&
-        SeriesHelper.getSeriesRendererDetails(cartesianSeriesRenderer).series
-            is! ErrorBarSeries) {
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
       widget._stateProperties.crosshairBehaviorRenderer
           .onTouchDown(position.dx, position.dy);
     }

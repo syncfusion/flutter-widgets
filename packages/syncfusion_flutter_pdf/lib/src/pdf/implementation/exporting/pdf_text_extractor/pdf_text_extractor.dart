@@ -1531,14 +1531,10 @@ class PdfTextExtractor {
                 if (differenceX > _fontSize!) {
                   differenceX = 0;
                 }
-<<<<<<< HEAD
                 if (currentToken == 'Tj' &&
                     (_hasET || !hasTJ) &&
                     resultantText.isNotEmpty &&
                     !resultantText.endsWith(' ')) {
-=======
-                if (currentToken == 'Tj' && _hasET) {
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
                   resultantText += ' ';
                 }
                 spaceBetweenWord = false;

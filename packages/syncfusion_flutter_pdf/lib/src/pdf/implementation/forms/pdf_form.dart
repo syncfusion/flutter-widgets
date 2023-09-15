@@ -174,7 +174,6 @@ class PdfForm implements IPdfWrapper {
             .getFieldIndex(fieldName);
         if (index >= 0 && index < fields.count) {
           formField = fields[index];
-<<<<<<< HEAD
           String? fieldInnerValue;
           final List<String> fieldInnerValues = <String>[];
           if (node.childElements.length > 1) {
@@ -191,10 +190,6 @@ class PdfForm implements IPdfWrapper {
             PdfFieldHelper.getHelper(formField)
                 .importFieldValue(fieldInnerValue);
           }
-=======
-          final String fieldInnerValue = node.firstElementChild!.innerText;
-          PdfFieldHelper.getHelper(formField).importFieldValue(fieldInnerValue);
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
         }
       }
     }

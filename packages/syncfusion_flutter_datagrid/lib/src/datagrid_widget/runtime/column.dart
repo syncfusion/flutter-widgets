@@ -167,7 +167,6 @@ class GridColumn {
 
   /// The amount of space  which should be added with the filter icon
   final EdgeInsetsGeometry filterIconPadding;
-<<<<<<< HEAD
 
   /// The position of the sort icon in the column headers.
   final ColumnHeaderIconPosition sortIconPosition;
@@ -175,64 +174,6 @@ class GridColumn {
   /// The position of the filter icon in the column headers.
   /// Typically, filter icon is placed next to sort icon.
   final ColumnHeaderIconPosition filterIconPosition;
-=======
-
-  /// The position of the sort icon in the column headers.
-  final ColumnHeaderIconPosition sortIconPosition;
-
-  /// The position of the filter icon in the column headers.
-  /// Typically, filter icon is placed next to sort icon.
-  final ColumnHeaderIconPosition filterIconPosition;
-}
-
-/// A column which displays the values of the string in its cells.
-///
-/// This column has all the required APIs to customize the widget [Text] as it
-/// displays [Text] for all the cells.
-///
-/// ``` dart
-///  @override
-///  Widget build(BuildContext context) {
-///    return SfDataGrid(
-///      source: employeeDataSource,
-///      columns: [
-///        GridTextColumn(columnName: 'name', label: Text('Name')),
-///        GridTextColumn(columnName: 'designation', label: Text('Designation')),
-///      ],
-///    );
-///  }
-/// ```
-@Deprecated('Use GridColumn instead.')
-class GridTextColumn extends GridColumn {
-  /// Creates a String column using [columnName] and [label].
-  @Deprecated('Use GridColumn instead.')
-  GridTextColumn({
-    required String columnName,
-    required Widget label,
-    ColumnWidthMode columnWidthMode = ColumnWidthMode.none,
-    EdgeInsets autoFitPadding = const EdgeInsets.all(16.0),
-    bool visible = true,
-    bool allowSorting = true,
-    ColumnHeaderIconPosition sortIconPosition = ColumnHeaderIconPosition.end,
-    ColumnHeaderIconPosition filterIconPosition = ColumnHeaderIconPosition.end,
-    double minimumWidth = double.nan,
-    double maximumWidth = double.nan,
-    double width = double.nan,
-    bool allowEditing = true,
-  }) : super(
-            columnName: columnName,
-            label: label,
-            columnWidthMode: columnWidthMode,
-            autoFitPadding: autoFitPadding,
-            visible: visible,
-            allowSorting: allowSorting,
-            sortIconPosition: sortIconPosition,
-            filterIconPosition: filterIconPosition,
-            minimumWidth: minimumWidth,
-            maximumWidth: maximumWidth,
-            width: width,
-            allowEditing: allowEditing);
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
 }
 
 /// A column which displays the checkbox column in its cells.

@@ -1358,12 +1358,7 @@ class ChartSeriesController {
         seriesRendererDetails.minimumX = x;
         seriesRendererDetails.maximumX = x;
       }
-<<<<<<< HEAD
       if (((xRange.minimum >= x) == true || (xRange.maximum <= x) == true) &&
-=======
-      if (!_needXRecalculation &&
-          ((xRange.minimum >= x) == true || (xRange.maximum <= x) == true) &&
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
           seriesRendererDetails.visible!) {
         _needXRecalculation = true;
         if (seriesRendererDetails.minimumX! >= x) {

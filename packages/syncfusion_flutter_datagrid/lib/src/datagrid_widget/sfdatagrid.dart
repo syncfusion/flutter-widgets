@@ -471,18 +471,12 @@ class SfDataGrid extends StatefulWidget {
     this.checkboxShape,
     this.showHorizontalScrollbar = true,
     this.showVerticalScrollbar = true,
-<<<<<<< HEAD
     @Deprecated('use SfDataGrid.showColumnHeaderIconOnHover instead')
-=======
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
     this.showFilterIconOnHover = false,
     this.allowColumnsDragging = false,
     this.onColumnDragging,
     this.columnDragFeedbackBuilder,
-<<<<<<< HEAD
     this.showColumnHeaderIconOnHover = false,
-=======
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
   })  : assert(frozenColumnsCount >= 0),
         assert(footerFrozenColumnsCount >= 0),
         assert(frozenRowsCount >= 0),
@@ -1621,15 +1615,10 @@ class SfDataGrid extends StatefulWidget {
   /// Defaults to true.
   final bool showVerticalScrollbar;
 
-<<<<<<< HEAD
   /// Decides whether the filter icon should be shown when hovering the header cells.
   ///
   /// Defaults to false.
   @Deprecated('use SfDataGrid.showColumnHeaderIconOnHover instead')
-=======
-  /// Decides whether the filter icon should be only shown when hovering the header cells.
-  /// Defaults to false.
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
   final bool showFilterIconOnHover;
 
   /// Decides whether the column can be dragged and dropped to the required position.
@@ -1677,14 +1666,11 @@ class SfDataGrid extends StatefulWidget {
   /// If null, a [Text] widget will be loaded by default with the dragging header cell constraints.
   final ColumnDragFeedbackBuilderCallback? columnDragFeedbackBuilder;
 
-<<<<<<< HEAD
   /// Decides whether the column header icons should be shown when hovering the header cells.
   ///
   /// Defaults to false.
   final bool showColumnHeaderIconOnHover;
 
-=======
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
   @override
   State<StatefulWidget> createState() => SfDataGridState();
 }
@@ -2111,7 +2097,6 @@ class SfDataGridState extends State<SfDataGrid>
     _initializeDataGridDataSource();
     _dataGridConfiguration.source = _source!;
 
-<<<<<<< HEAD
     if (widget.selectionMode != SelectionMode.none)
       selection_manager.removeUnWantedDataGridRows(_dataGridConfiguration);
     if (widget.selectionMode != SelectionMode.none &&
@@ -2121,8 +2106,6 @@ class SfDataGridState extends State<SfDataGrid>
           _dataGridConfiguration, widget.source._effectiveRows.length, -1);
     }
 
-=======
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
     if (!listEquals<GridColumn>(_columns, widget.columns)) {
       if (widget.selectionMode != SelectionMode.none &&
           widget.navigationMode == GridNavigationMode.cell &&
@@ -2130,7 +2113,6 @@ class SfDataGridState extends State<SfDataGrid>
         selection_manager.onRowColumnChanged(
             _dataGridConfiguration, -1, widget.columns.length);
       }
-<<<<<<< HEAD
       if (_dataGridConfiguration.showCheckboxColumn &&
           _dataGridConfiguration.checkboxColumnSettings.showCheckboxOnHeader &&
           _dataGridConfiguration.selectionMode != SelectionMode.none) {
@@ -2167,41 +2149,6 @@ class SfDataGridState extends State<SfDataGrid>
       ..refreshView()
       ..isDirty = true;
 
-=======
-
-      _resetColumn();
-    }
-
-    if (widget.selectionMode != SelectionMode.none)
-      selection_manager.removeUnWantedDataGridRows(_dataGridConfiguration);
-    if (widget.selectionMode != SelectionMode.none &&
-        widget.navigationMode == GridNavigationMode.cell &&
-        _rowSelectionManager != null) {
-      selection_manager.onRowColumnChanged(
-          _dataGridConfiguration, widget.source._effectiveRows.length, -1);
-    }
-
-    if (widget.allowSwiping) {
-      _dataGridConfiguration.container.resetSwipeOffset();
-    }
-
-    if (widget.footer != null) {
-      final DataRowBase? footerRow = _rowGenerator.items.firstWhereOrNull(
-          (DataRowBase row) =>
-              row.rowType == RowType.footerRow && row.rowIndex >= 0);
-      if (footerRow != null) {
-        // Need to reset the old footer row height in rowHeights collection.
-        _container.rowHeights[footerRow.rowIndex] =
-            _dataGridConfiguration.rowHeight;
-      }
-    }
-
-    _container
-      ..updateRowAndColumnCount()
-      ..refreshView()
-      ..isDirty = true;
-
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
     // FLUT-3219 Need to refresh the scrolling offsets if the container's
     // offsets and the ScrollController's offsets are not identical.
     _refreshScrollOffsets();
@@ -2546,12 +2493,8 @@ class SfDataGridState extends State<SfDataGrid>
       ..showFilterIconOnHover = widget.showFilterIconOnHover
       ..allowColumnsDragging = widget.allowColumnsDragging
       ..onColumnDragging = widget.onColumnDragging
-<<<<<<< HEAD
       ..columnDragFeedbackBuilder = widget.columnDragFeedbackBuilder
       ..showColumnHeaderIconOnHover = widget.showColumnHeaderIconOnHover;
-=======
-      ..columnDragFeedbackBuilder = widget.columnDragFeedbackBuilder;
->>>>>>> 686d0694069849b65d8d7326e6f5719bee17ab24
 
     if (widget.allowPullToRefresh) {
       _dataGridConfiguration.refreshIndicatorKey ??=
