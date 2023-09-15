@@ -1,8 +1,0 @@
-include: package:syncfusion_flutter_core/analysis_options.yaml
-
-analyzer:
-  errors:
-    include_file_not_found: ignore
-    lines_longer_than_80_chars: ignore
-    unnecessary_null_comparison: ignore
-    missing_whitespace_between_adjacent_strings: ignore
