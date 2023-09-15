@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import '../../interfaces/pdf_interface.dart';
+import '../forms/pdf_form_field_collection.dart';
 import '../graphics/pdf_graphics.dart';
 import '../graphics/pdf_margins.dart';
 import '../io/pdf_constants.dart';
@@ -644,6 +645,7 @@ class PdfPageCollection {
         }
       }
       if (remove != null) {
+        _removeFormFields(remove);
         kids.remove(remove);
         if (kids.count == 0 &&
             parent.containsKey(PdfDictionaryProperties.parent)) {
@@ -685,6 +687,14 @@ class PdfPageCollection {
         }
       }
       _updateCountDecrement(parent);
+    }
+  }
+
+  void _removeFormFields(PdfReferenceHolder pageHolder) {
+    if (PdfDocumentHelper.getHelper(_helper.document!).isLoadedDocument) {
+      PdfFormFieldCollectionHelper.getHelper(
+              PdfPageCollectionHelper.getHelper(this).document!.form.fields)
+          .removeContainingField(pageHolder);
     }
   }
 

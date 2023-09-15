@@ -603,7 +603,7 @@ class CircularArea extends StatelessWidget {
       tooltipRenderingDetails.chartTooltip = SfTooltip(
           color: tooltip.color ?? chartTheme.tooltipColor,
           key: GlobalKey(),
-          textStyle: tooltip.textStyle,
+          textStyle: chartTheme.tooltipTextStyle!,
           animationDuration: tooltip.animationDuration,
           animationCurve: const Interval(0.1, 0.8, curve: Curves.easeOutBack),
           enable: tooltip.enable,
@@ -616,7 +616,7 @@ class CircularArea extends StatelessWidget {
           canShowMarker: tooltip.canShowMarker,
           textAlignment: tooltip.textAlignment,
           decimalPlaces: tooltip.decimalPlaces,
-          labelColor: tooltip.textStyle.color ?? chartTheme.tooltipLabelColor,
+          labelColor: tooltip.textStyle?.color ?? chartTheme.tooltipLabelColor,
           header: tooltip.header,
           format: tooltip.format,
           shadowColor: tooltip.shadowColor,
@@ -658,7 +658,8 @@ class CircularArea extends StatelessWidget {
       selectionDetails.selectionRenderer!.stateProperties = stateProperties;
       selectionDetails.selectionRenderer!.seriesRendererDetails =
           seriesRenderer;
-      if (series.initialSelectedDataIndexes.isNotEmpty) {
+      if (series.initialSelectedDataIndexes.isNotEmpty &&
+          stateProperties.renderingDetails.initialRender!) {
         for (int index = 0;
             index < series.initialSelectedDataIndexes.length;
             index++) {

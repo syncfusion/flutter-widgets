@@ -522,7 +522,7 @@ class _AutoFitManager {
     regular._underline = font.underline;
 
     final Font font2 = _createFont(font.name, size, regular);
-    return (_getFontHeight(font2)).ceil();
+    return _getFontHeight(font2).ceil();
   }
 
   double _measureFontSize(

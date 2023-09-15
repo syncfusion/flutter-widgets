@@ -1294,6 +1294,7 @@ class PdfGraphicsHelper {
     PdfColorSpace.indexed: 'Indexed'
   };
   PdfPen? _currentPen;
+  bool _isItalic = false;
 
   /// internal property
   PdfTransformationMatrix get matrix {
@@ -1384,6 +1385,18 @@ class PdfGraphicsHelper {
       PdfStringFormat? format) {
     if (!result.isEmpty) {
       _beginMarkContent();
+      PdfGraphicsState? gState;
+      if (font is PdfTrueTypeFont &&
+          PdfTrueTypeFontHelper.getHelper(font).fontInternal.ttfMetrics !=
+              null &&
+          !PdfTrueTypeFontHelper.getHelper(font)
+              .fontInternal
+              .ttfMetrics!
+              .isItalic &&
+          PdfFontHelper.getHelper(font).isItalic) {
+        gState = base.save();
+        _isItalic = true;
+      }
       _applyStringSettings(font, pen, brush, format, layoutRectangle);
       final double textScaling = format != null
           ? PdfStringFormatHelper.getHelper(format).scalingFactor
@@ -1394,19 +1407,46 @@ class PdfGraphicsHelper {
       }
       double verticalAlignShift = getTextVerticalAlignShift(
           result.size.height, layoutRectangle.height, format);
-      final PdfTransformationMatrix matrix = PdfTransformationMatrix();
-      matrix.translate(
-          layoutRectangle.x,
-          (-(layoutRectangle.y + font.height) -
-                  (PdfFontHelper.getHelper(font).metrics!.getDescent(format) > 0
-                      ? -PdfFontHelper.getHelper(font)
-                          .metrics!
-                          .getDescent(format)
-                      : PdfFontHelper.getHelper(font)
-                          .metrics!
-                          .getDescent(format))) -
-              verticalAlignShift);
-      streamWriter!.modifyTransformationMatrix(matrix);
+      double? height;
+      if (_isItalic) {
+        height = (format == null || format.lineSpacing == 0)
+            ? font.height
+            : format.lineSpacing + font.height;
+        final bool subScript = format != null &&
+            format.subSuperscript == PdfSubSuperscript.subscript;
+        final double shift = subScript
+            ? height -
+                (font.height +
+                    PdfFontHelper.getHelper(font).metrics!.getDescent(format))
+            : (height -
+                PdfFontHelper.getHelper(font).metrics!.getAscent(format));
+        base.translateTransform(layoutRectangle.left + font.size / 5,
+            layoutRectangle.top - shift + verticalAlignShift);
+        base.skewTransform(0, -11);
+      }
+      if (!_isItalic) {
+        final PdfTransformationMatrix matrix = PdfTransformationMatrix();
+        matrix.translate(
+            layoutRectangle.x,
+            (-(layoutRectangle.y + font.height) -
+                    (PdfFontHelper.getHelper(font).metrics!.getDescent(format) >
+                            0
+                        ? -PdfFontHelper.getHelper(font)
+                            .metrics!
+                            .getDescent(format)
+                        : PdfFontHelper.getHelper(font)
+                            .metrics!
+                            .getDescent(format))) -
+                verticalAlignShift);
+        streamWriter!.modifyTransformationMatrix(matrix);
+      } else {
+        streamWriter!.startNextLine(0, 0);
+      }
+      if (_isItalic && height != null && height >= font.size) {
+        streamWriter!.stream!.write(height.toString());
+        streamWriter!.stream!.write(PdfOperators.whiteSpace);
+        streamWriter!.writeOperator(PdfOperators.setTextLeading);
+      }
       if (layoutRectangle.height < font.size) {
         if ((result.size.height - layoutRectangle.height) <
             (font.size / 2) - 1) {
@@ -1419,6 +1459,10 @@ class PdfGraphicsHelper {
             .startNextLine(0, -(verticalAlignShift - result.lineHeight));
       }
       streamWriter!.endText();
+      if (gState != null) {
+        base.restore(gState);
+        _isItalic = false;
+      }
       _underlineStrikeoutText(
           pen, brush, result, font, layoutRectangle, format);
       endMarkContent();
@@ -1439,7 +1483,7 @@ class PdfGraphicsHelper {
       final LineInfo lineInfo = lines[i];
       final String? line = lineInfo.text;
       final double? lineWidth = lineInfo.width;
-      if (line == null || line.isEmpty) {
+      if ((line == null || line.isEmpty) && !_isItalic) {
         final double verticalAlignShift = getTextVerticalAlignShift(
             result.size.height, layoutRectangle.height, format);
         final PdfTransformationMatrix matrix = PdfTransformationMatrix();
@@ -1468,15 +1512,21 @@ class PdfGraphicsHelper {
         }
 
         if (i + 1 != lines.length) {
-          final double verticalAlignShift = getTextVerticalAlignShift(
-              result.size.height, layoutRectangle.height, format);
-          final PdfTransformationMatrix matrix = PdfTransformationMatrix();
-          double baseline = (-(layoutRectangle.y + font.height) -
-                  PdfFontHelper.getHelper(font).metrics!.getDescent(format)) -
-              verticalAlignShift;
-          baseline -= height * (i + 1);
-          matrix.translate(layoutRectangle.x, baseline);
-          streamWriter!.modifyTransformationMatrix(matrix);
+          if (!_isItalic) {
+            final double verticalAlignShift = getTextVerticalAlignShift(
+                result.size.height, layoutRectangle.height, format);
+            final PdfTransformationMatrix matrix = PdfTransformationMatrix();
+            double baseline = (-(layoutRectangle.y + font.height) -
+                    PdfFontHelper.getHelper(font).metrics!.getDescent(format)) -
+                verticalAlignShift;
+            baseline -= height * (i + 1);
+            matrix.translate(layoutRectangle.x, baseline);
+            streamWriter!.modifyTransformationMatrix(matrix);
+          } else {
+            //tan(11) = 0.19486, theta value for italic skewAngle (11 degree).
+            streamWriter!
+                .startNextLine(font.height * 0.19486 - horizontalAlignShift, 0);
+          }
         }
       }
     }
@@ -1687,9 +1737,26 @@ class PdfGraphicsHelper {
 
   void _applyStringSettings(PdfFont font, PdfPen? pen, PdfBrush? brush,
       PdfStringFormat? format, PdfRectangle bounds) {
-    final int renderingMode = _getTextRenderingMode(pen, brush, format);
+    int renderingMode = _getTextRenderingMode(pen, brush, format);
+    bool setLineWidth = false;
+    if (font is PdfTrueTypeFont &&
+        PdfTrueTypeFontHelper.getHelper(font).fontInternal.ttfMetrics != null &&
+        !PdfTrueTypeFontHelper.getHelper(font)
+            .fontInternal
+            .ttfMetrics!
+            .isBold &&
+        PdfFontHelper.getHelper(font).isBold) {
+      if (pen == null && brush != null && brush is PdfSolidBrush) {
+        pen = PdfPen(brush.color);
+      }
+      renderingMode = 2;
+      setLineWidth = true;
+    }
     streamWriter!.writeOperator(PdfOperators.beginText);
     _stateControl(pen, brush, font, format);
+    if (setLineWidth) {
+      streamWriter!.setLineWidth(font.size / 30);
+    }
     if (renderingMode != base._previousTextRenderingMode) {
       streamWriter!.setTextRenderingMode(renderingMode);
       base._previousTextRenderingMode = renderingMode;

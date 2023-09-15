@@ -2,6 +2,100 @@
 
 **Features**
 
+* Provided support for displaying column header icons, such as sort and filter icons, when hovering over the column header cells.
+
+## [22.2.9] - 08/15/2023
+
+**Bugs**
+
+* The RangeError exception will no longer be thrown when changing the showCheckboxColumn property along with selection mode.
+
+## [22.2.5] - 07/27/2023
+
+**Features**
+
+* Now, the current date is automatically selected as the initial date in the date picker within the Advanced UI filter menu when it falls between the first and last dates of the column or matches either of them.
+
+## [22.1.39] - 07/18/2023
+
+**Bugs**
+
+* The state of the header checkbox cell is reset when updating the data grid rows.
+
+## [22.1.34] - 06/21/2023
+
+**Features**
+
+* Provided the support to customize the visibility of horizontal and vertical scrollbars in the DataGrid.
+* Provide the support to show the filter icon when the mouse hovers over the column header. Users have the option to enable or disable this hover feature by `showFilterIconOnHover`.
+* Provided the support to set a `key` to the `DataGridRow`, it helps automate the data grid rows during automated testing.
+* Provided the support to rearrange columns by dragging and dropping them.
+
+## [21.2.10] - 06/13/2023
+
+**Bugs**
+
+* The DataGrid now properly retains focus on the current cell even when the keyboard is opened on Android and iOS platforms
+
+## [21.2.4] - 05/09/2023
+
+**Bugs**
+
+* The `ColumnWidthMode` now calculates column width for header cells properly by taking into account the `maximumWidth` and `minimumWidth` properties, even when the source is empty.
+
+## [21.1.41] - 04/18/2023
+
+**Bugs**
+
+* The `OK` button is now properly displayed in the UI filter menu when using the `Material3` design.
+
+## [21.1.35] - 03/23/2023
+
+**Features**
+
+* Provided the support to change the position (left or right) of sort and filter icons in the column headers when sorting or filtering is applied.
+* The `onCellSubmit`, `canSubmitCell`, and `performSorting` methods are marked async so that cell submission and sorting can be asynchronous.
+* Provided the support to change the text style of all the elements in the filter pop menu. Users can set different text styles for enabled and disabled items.
+* Provided the support to get the `currentcell` details when `navigationMode` is `row`.
+
+## [20.4.53] - 03/07/2023
+
+**Bugs**
+
+* The scrolling performance is improved when autofitting the rows using `onQueryRowHeight` callback with large collection of rows.
+
+## [20.4.51] - 02/21/2023
+
+**Bugs**
+
+* The RangeError exception is no longer be thrown when rebuilding the DataGrid after applying the filtering.
+* The filter is now applied properly to the DataGrid when changing the DataGridSource dynamically.
+
+## [20.4.48] - 02/01/2023
+
+**Features**
+
+* Added support for restricting column resizing by checking the `columnIndex` in the `onColumnResizeStart` callback.
+
+**Bugs** 
+
+* Fixed a LateInitializationError that occurred when opening the filter popup menu after rebuilding the DataGrid with an applied filter.
+* Fixed a Type mismatch error that occurred when using an integer value in advanced filtering for a double type column.
+
+**Breaking changes**
+
+* `Command` key operations for selection and multi-column sorting have been replaced with `Control` key operations on the macOS platform.
+
+## [20.4.43] - 01/10/2023
+
+**Bugs**
+
+* Edited rows from the grid when filtering and paging are applied. If the currently applied filter condition is not satisfied, the edited row will no longer be displayed in the DataGrid.
+
+## [20.4.38] - 12/21/2022
+
+**Features**
+
 * Provided the support to change the shape of the built-in checkbox column.
 * Provided the support to change the filter icon and its color. The padding around the filter icon can also be customized.
 * Provided the support to customize the filter options in the filter popup. Users can hide the sorting and “Clear Filter” options and show only the checked listbox view or advanced filter popup view to apply filtering.
@@ -29,7 +123,7 @@
 
 **Bugs**
 
-* The listeners in `SelectionController` class are properly disposed
+* The listeners in `SelectionController` class are properly disposed.
 
 ## [20.3.49] - 10/11/2022
 

@@ -26,6 +26,7 @@ class TimelineWidget extends StatefulWidget {
       this.cellBorderColor,
       this.isRTL,
       this.calendarTheme,
+      this.themeData,
       this.calendarCellNotifier,
       this.scrollController,
       this.specialRegion,
@@ -57,6 +58,9 @@ class TimelineWidget extends StatefulWidget {
 
   /// Holds the theme data value for calendar.
   final SfCalendarThemeData calendarTheme;
+
+  /// Holds the framework theme data values.
+  final ThemeData themeData;
 
   /// Defines the direction of the calendar widget is RTL or not.
   final bool isRTL;
@@ -161,6 +165,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
       widget.cellBorderColor,
       widget.isRTL,
       widget.calendarTheme,
+      widget.themeData,
       widget.calendarCellNotifier,
       widget.scrollController,
       widget.specialRegion,
@@ -341,7 +346,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
 }
 
 class _TimelineRenderWidget extends MultiChildRenderObjectWidget {
-  _TimelineRenderWidget(
+  const _TimelineRenderWidget(
       this.horizontalLinesCountPerView,
       this.visibleDates,
       this.timeSlotViewSettings,
@@ -349,6 +354,7 @@ class _TimelineRenderWidget extends MultiChildRenderObjectWidget {
       this.cellBorderColor,
       this.isRTL,
       this.calendarTheme,
+      this.themeData,
       this.calendarCellNotifier,
       this.scrollController,
       this.specialRegion,
@@ -371,6 +377,7 @@ class _TimelineRenderWidget extends MultiChildRenderObjectWidget {
   final double timeIntervalWidth;
   final Color? cellBorderColor;
   final SfCalendarThemeData calendarTheme;
+  final ThemeData themeData;
   final bool isRTL;
   final ValueNotifier<Offset?> calendarCellNotifier;
   final ScrollController scrollController;
@@ -396,6 +403,7 @@ class _TimelineRenderWidget extends MultiChildRenderObjectWidget {
         cellBorderColor,
         isRTL,
         calendarTheme,
+        themeData,
         calendarCellNotifier,
         scrollController,
         specialRegion,
@@ -422,6 +430,7 @@ class _TimelineRenderWidget extends MultiChildRenderObjectWidget {
       ..cellBorderColor = cellBorderColor
       ..isRTL = isRTL
       ..calendarTheme = calendarTheme
+      ..themeData = themeData
       ..calendarCellNotifier = calendarCellNotifier
       ..scrollController = scrollController
       ..specialRegion = specialRegion
@@ -447,6 +456,7 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
       this._cellBorderColor,
       this._isRTL,
       this._calendarTheme,
+      this._themeData,
       this._calendarCellNotifier,
       this.scrollController,
       this._specialRegion,
@@ -553,6 +563,18 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
     }
 
     markNeedsPaint();
+  }
+
+  ThemeData _themeData;
+
+  ThemeData get themeData => _themeData;
+
+  set themeData(ThemeData value) {
+    if (_themeData == value) {
+      return;
+    }
+
+    _themeData = value;
   }
 
   double _resourceItemHeight;
@@ -987,7 +1009,9 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
       final TimeRegionView view = specialRegionBounds[i];
       final CalendarTimeRegion region = view.region;
       _linePainter.color = region.color ?? Colors.grey.withOpacity(0.2);
-      final TextStyle textStyle = region.textStyle ?? defaultTextStyle;
+      final TextStyle textStyle = themeData.textTheme.bodyMedium!
+          .copyWith(fontSize: 14)
+          .merge(region.textStyle ?? defaultTextStyle);
       final Rect rect = view.bound;
       canvas.drawRect(rect, _linePainter);
       if ((region.text == null || region.text!.isEmpty) &&
@@ -1097,6 +1121,7 @@ class TimelineViewHeaderView extends CustomPainter {
       this.todayTextStyle,
       this.locale,
       this.calendarTheme,
+      this.themeData,
       this.minDate,
       this.maxDate,
       this.viewHeaderNotifier,
@@ -1134,6 +1159,9 @@ class TimelineViewHeaderView extends CustomPainter {
 
   /// Holds the theme data value for calendar.
   final SfCalendarThemeData calendarTheme;
+
+  /// Holds the framework theme data value.
+  final ThemeData themeData;
 
   /// Defines the direction of the calendar widget is RTL or not.
   final bool isRTL;
@@ -1185,35 +1213,32 @@ class TimelineViewHeaderView extends CustomPainter {
             ? size.width - childWidth
             : 0;
 
-    TextStyle viewHeaderDayTextStyle = TextStyle(
-        color: calendarTheme.viewHeaderDayTextStyle!.color,
-        fontSize: 11,
-        fontWeight: FontWeight.w400,
-        fontFamily: 'Roboto');
-    TextStyle viewHeaderDateTextStyle = TextStyle(
-        color: calendarTheme.viewHeaderDateTextStyle!.color,
-        fontSize: 15,
-        fontWeight: FontWeight.w400,
-        fontFamily: 'Roboto');
+    final TextStyle defaultThemeViewHeaderDayTextStyle =
+        themeData.textTheme.bodySmall!.copyWith(
+      color: themeData.colorScheme.onSurface.withOpacity(0.87),
+      fontSize: 11,
+    );
+    final TextStyle defaultThemeViewHeaderDateTextStyle =
+        themeData.textTheme.bodyMedium!.copyWith(
+      color: themeData.colorScheme.onSurface.withOpacity(0.87),
+      fontSize: 15,
+    );
 
-    if (viewHeaderDateTextStyle == calendarTheme.viewHeaderDateTextStyle &&
+    TextStyle viewHeaderDateStyle = calendarTheme.viewHeaderDateTextStyle!;
+    TextStyle viewHeaderDayStyle = calendarTheme.viewHeaderDayTextStyle!;
+    if (viewHeaderDateStyle == defaultThemeViewHeaderDateTextStyle &&
         isTimelineMonth) {
-      viewHeaderDateTextStyle = viewHeaderDateTextStyle.copyWith(
-          fontSize: viewHeaderDayTextStyle.fontSize);
+      viewHeaderDateStyle =
+          viewHeaderDateStyle.copyWith(fontSize: viewHeaderDayStyle.fontSize);
     }
-    final TextStyle viewHeaderDateStyle =
-        viewHeaderStyle.dateTextStyle ?? viewHeaderDateTextStyle;
-    if (viewHeaderDayTextStyle == calendarTheme.viewHeaderDayTextStyle &&
+
+    if (viewHeaderDayStyle == defaultThemeViewHeaderDayTextStyle &&
         !isTimelineMonth) {
-      viewHeaderDayTextStyle = viewHeaderDayTextStyle.copyWith(
-          fontSize: viewHeaderDateStyle.fontSize);
+      viewHeaderDayStyle =
+          viewHeaderDayStyle.copyWith(fontSize: viewHeaderDateStyle.fontSize);
     }
 
-    final TextStyle viewHeaderDayStyle =
-        viewHeaderStyle.dayTextStyle ?? viewHeaderDayTextStyle;
-
-    final TextStyle? blackoutDatesStyle =
-        blackoutDatesTextStyle ?? calendarTheme.blackoutDatesTextStyle;
+    final TextStyle? blackoutDatesStyle = calendarTheme.blackoutDatesTextStyle;
 
     TextStyle dayTextStyle = viewHeaderDayStyle;
     TextStyle dateTextStyle = viewHeaderDateStyle;
@@ -1249,11 +1274,11 @@ class TimelineViewHeaderView extends CustomPainter {
 
       if (isSameDate(currentDate, today)) {
         dayTextStyle = todayTextStyle != null
-            ? todayTextStyle!.copyWith(
+            ? calendarTheme.todayTextStyle!.copyWith(
                 fontSize: viewHeaderDayStyle.fontSize, color: todayTextColor)
             : viewHeaderDayStyle.copyWith(color: todayTextColor);
         dateTextStyle = todayTextStyle != null
-            ? todayTextStyle!.copyWith(
+            ? calendarTheme.todayTextStyle!.copyWith(
                 fontSize: viewHeaderDateStyle.fontSize, color: todayTextColor)
             : viewHeaderDateStyle.copyWith(color: todayTextColor);
       } else {
@@ -1262,10 +1287,15 @@ class TimelineViewHeaderView extends CustomPainter {
       }
 
       if (isTimelineMonth && isBlackoutDate) {
-        dateTextStyle = blackoutDatesStyle ??
-            dateTextStyle.copyWith(decoration: TextDecoration.lineThrough);
-        dayTextStyle = blackoutDatesStyle ??
-            dayTextStyle.copyWith(decoration: TextDecoration.lineThrough);
+        if (blackoutDatesStyle != null) {
+          dateTextStyle = dateTextStyle.merge(blackoutDatesStyle);
+          dayTextStyle = dayTextStyle.merge(blackoutDatesStyle);
+        } else {
+          dateTextStyle =
+              dateTextStyle.copyWith(decoration: TextDecoration.lineThrough);
+          dayTextStyle =
+              dayTextStyle.copyWith(decoration: TextDecoration.lineThrough);
+        }
       }
 
       if (!isDateWithInDateRange(minDate, maxDate, currentDate)) {
@@ -1329,16 +1359,16 @@ class TimelineViewHeaderView extends CustomPainter {
     if (isRTL) {
       _dateTextPainter.paint(
           canvas,
+          Offset(size.width - _xPosition - _padding - _dateTextPainter.width,
+              viewHeaderHeight / 2 - _dateTextPainter.height / 2));
+      _dayTextPainter.paint(
+          canvas,
           Offset(
               size.width -
                   _xPosition -
                   (_padding * 2) -
                   _dayTextPainter.width -
                   _dateTextPainter.width,
-              viewHeaderHeight / 2 - _dateTextPainter.height / 2));
-      _dayTextPainter.paint(
-          canvas,
-          Offset(size.width - _xPosition - _padding - _dayTextPainter.width,
               viewHeaderHeight / 2 - _dayTextPainter.height / 2));
     } else {
       _dateTextPainter.paint(
@@ -1376,11 +1406,20 @@ class TimelineViewHeaderView extends CustomPainter {
     if (viewHeaderNotifier.value != null && !isBlackoutDate) {
       _addMouseHovering(canvas, size, childWidth);
     }
-    _dateTextPainter.paint(canvas, Offset(startXPosition, startYPosition));
-    _dayTextPainter.paint(
-        canvas,
-        Offset(startXPosition + _dateTextPainter.width + leftPadding,
-            startYPosition));
+    if (!isRTL) {
+      _dateTextPainter.paint(canvas, Offset(startXPosition, startYPosition));
+      _dayTextPainter.paint(
+          canvas,
+          Offset(startXPosition + _dateTextPainter.width + leftPadding,
+              startYPosition));
+    } else {
+      _dayTextPainter.paint(canvas, Offset(startXPosition, startYPosition));
+      _dateTextPainter.paint(
+          canvas,
+          Offset(startXPosition + _dayTextPainter.width + leftPadding,
+              startYPosition));
+    }
+
     if (isRTL) {
       _xPosition -= childWidth;
     } else {

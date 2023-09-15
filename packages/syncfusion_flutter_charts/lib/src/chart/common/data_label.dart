@@ -23,11 +23,7 @@ class DataLabelSettings {
   const DataLabelSettings(
       {this.alignment = ChartAlignment.center,
       this.color,
-      this.textStyle = const TextStyle(
-          fontFamily: 'Roboto',
-          fontStyle: FontStyle.normal,
-          fontWeight: FontWeight.normal,
-          fontSize: 12),
+      this.textStyle,
       this.margin = const EdgeInsets.fromLTRB(5, 5, 5, 5),
       this.opacity = 1,
       this.labelAlignment = ChartDataLabelAlignment.auto,
@@ -106,7 +102,7 @@ class DataLabelSettings {
   ///   );
   /// }
   /// ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// Margin between the data label text and its shape.
   ///
@@ -593,6 +589,9 @@ class DataLabelSettingsRenderer {
 
   /// Specifies the value of offset.
   Offset? offset;
+
+  /// Check whether the theme and data label text style colors are equal or not.
+  bool isCustomTextColor = false;
 
   /// To render charts with data labels.
   void renderDataLabel(

@@ -612,7 +612,7 @@ class _MonthViewState extends State<MonthView> {
 
 class _MonthViewSingleSelectionRenderWidget
     extends MultiChildRenderObjectWidget {
-  _MonthViewSingleSelectionRenderWidget(
+  const _MonthViewSingleSelectionRenderWidget(
       this.visibleDates,
       this.rowCount,
       this.cellStyle,
@@ -811,7 +811,7 @@ class _MonthViewSingleSelectionRenderWidget
 
 class _MonthViewMultiSelectionRenderWidget
     extends MultiChildRenderObjectWidget {
-  _MonthViewMultiSelectionRenderWidget(
+  const _MonthViewMultiSelectionRenderWidget(
       this.visibleDates,
       this.rowCount,
       this.cellStyle,
@@ -1009,7 +1009,7 @@ class _MonthViewMultiSelectionRenderWidget
 
 class _MonthViewRangeSelectionRenderWidget
     extends MultiChildRenderObjectWidget {
-  _MonthViewRangeSelectionRenderWidget(
+  const _MonthViewRangeSelectionRenderWidget(
       this.visibleDates,
       this.rowCount,
       this.cellStyle,
@@ -1208,7 +1208,7 @@ class _MonthViewRangeSelectionRenderWidget
 
 class _MonthViewExtendableRangeSelectionRenderWidget
     extends MultiChildRenderObjectWidget {
-  _MonthViewExtendableRangeSelectionRenderWidget(
+  const _MonthViewExtendableRangeSelectionRenderWidget(
       this.visibleDates,
       this.rowCount,
       this.cellStyle,
@@ -1412,7 +1412,7 @@ class _MonthViewExtendableRangeSelectionRenderWidget
 
 class _MonthViewMultiRangeSelectionRenderWidget
     extends MultiChildRenderObjectWidget {
-  _MonthViewMultiRangeSelectionRenderWidget(
+  const _MonthViewMultiRangeSelectionRenderWidget(
       this.visibleDates,
       this.rowCount,
       this.cellStyle,
@@ -4034,8 +4034,7 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
   }
 
   monthView._textPainter.textScaleFactor = monthView.textScaleFactor;
-  TextStyle textStyle = monthView.cellStyle.textStyle as TextStyle? ??
-      monthView.datePickerTheme.activeDatesTextStyle!;
+  TextStyle textStyle = monthView.datePickerTheme.activeDatesTextStyle!;
   final int datesCount = monthView.visibleDates.length ~/ viewCount;
   final bool isNeedWidgetPaint = monthView.childCount != 0;
   final bool hideLeadingAndTrailingDates =
@@ -4266,9 +4265,9 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
     final int previousMonth =
         getPreviousMonthDate(currentMonthDate).month as int;
     bool isCurrentDate;
-    final TextStyle selectionTextStyle = monthView.selectionTextStyle ??
+    final TextStyle selectionTextStyle =
         monthView.datePickerTheme.selectionTextStyle!;
-    final TextStyle selectedRangeTextStyle = monthView.rangeTextStyle ??
+    final TextStyle selectedRangeTextStyle =
         monthView.datePickerTheme.rangeSelectionTextStyle!;
 
     Decoration? dateDecoration;
@@ -4496,7 +4495,7 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
       );
 
       monthView._textPainter.text = dateText;
-      monthView._textPainter.layout(minWidth: cellWidth, maxWidth: cellWidth);
+      monthView._textPainter.layout(maxWidth: cellWidth);
       monthView._textPainter.paint(
           canvas,
           Offset(xPosition + (cellWidth / 2 - monthView._textPainter.width / 2),
@@ -4544,7 +4543,7 @@ void _drawWeekNumber(
   final String weekNumber =
       DateRangePickerHelper.getWeekNumberOfYear(date, monthView.isHijri)
           .toString();
-  final TextStyle weekNumberTextStyle = monthView.weekNumberStyle.textStyle ??
+  final TextStyle weekNumberTextStyle =
       monthView.datePickerTheme.weekNumberTextStyle!;
   final TextSpan textSpan =
       TextSpan(text: weekNumber, style: weekNumberTextStyle);
@@ -4806,47 +4805,36 @@ TextStyle _updateTextStyle(
     bool isSpecialDate,
     bool isDisabledDate) {
   final TextStyle currentDatesTextStyle =
-      monthView.cellStyle.textStyle as TextStyle? ??
-          monthView.datePickerTheme.activeDatesTextStyle!;
+      monthView.datePickerTheme.activeDatesTextStyle!;
   if (isBlackedDate) {
-    return monthView.cellStyle.blackoutDateTextStyle as TextStyle? ??
-        (monthView.datePickerTheme.blackoutDatesTextStyle ??
-            currentDatesTextStyle.copyWith(
-                decoration: TextDecoration.lineThrough));
+    return monthView.datePickerTheme.blackoutDatesTextStyle ??
+        currentDatesTextStyle.copyWith(decoration: TextDecoration.lineThrough);
   }
 
   if (isSpecialDate) {
     final TextStyle? specialDateTextStyle =
-        monthView.cellStyle.specialDatesTextStyle as TextStyle? ??
-            monthView.datePickerTheme.specialDatesTextStyle;
+        monthView.datePickerTheme.specialDatesTextStyle;
     if (specialDateTextStyle != null) {
       return specialDateTextStyle;
     }
   }
 
   if (!isEnableDate || isDisabledDate) {
-    return monthView.cellStyle.disabledDatesTextStyle as TextStyle? ??
-        monthView.datePickerTheme.disabledDatesTextStyle!;
+    return monthView.datePickerTheme.disabledDatesTextStyle!;
   }
 
   if (isCurrentDate) {
-    return monthView.cellStyle.todayTextStyle as TextStyle? ??
-        monthView.datePickerTheme.todayTextStyle!;
+    return monthView.datePickerTheme.todayTextStyle!;
   }
 
-  if (isWeekEnd && monthView.cellStyle.weekendTextStyle != null) {
-    return monthView.cellStyle.weekendTextStyle as TextStyle;
-  } else if (isWeekEnd &&
-      monthView.datePickerTheme.weekendDatesTextStyle != null) {
+  if (isWeekEnd && monthView.datePickerTheme.weekendDatesTextStyle != null) {
     return monthView.datePickerTheme.weekendDatesTextStyle!;
   }
 
   if (isNextMonth && !monthView.isHijri) {
-    return monthView.cellStyle.leadingDatesTextStyle as TextStyle? ??
-        monthView.datePickerTheme.leadingDatesTextStyle!;
+    return monthView.datePickerTheme.leadingDatesTextStyle!;
   } else if (isPreviousMonth && !monthView.isHijri) {
-    return monthView.cellStyle.trailingDatesTextStyle as TextStyle? ??
-        monthView.datePickerTheme.trailingDatesTextStyle!;
+    return monthView.datePickerTheme.trailingDatesTextStyle!;
   }
 
   return currentDatesTextStyle;

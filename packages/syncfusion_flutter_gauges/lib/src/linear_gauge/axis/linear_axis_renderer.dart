@@ -4,6 +4,7 @@ import 'dart:ui' as dart_ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show NumberFormat;
+import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../linear_gauge/axis/linear_axis_label.dart';
 import '../../linear_gauge/axis/linear_axis_track_style.dart';
@@ -34,6 +35,7 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
     final Color? majorTickColor = linearGauge.majorTickStyle.color;
     final Color? minorTickColor = linearGauge.minorTickStyle.color;
     final ThemeData theme = Theme.of(context);
+    final SfGaugeThemeData gaugeThemeData = SfGaugeTheme.of(context)!;
     final bool isDarkTheme = theme.brightness == Brightness.dark;
     return RenderLinearAxis(
       orientation: linearGauge.orientation,
@@ -60,14 +62,14 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
       tickPosition: linearGauge.tickPosition,
       tickOffset: linearGauge.tickOffset,
       isMirrored: linearGauge.isMirrored,
-      textStyle: linearGauge.axisLabelStyle ??
-          TextStyle(
-              fontSize: 12.0,
-              fontStyle: FontStyle.normal,
-              color: isDarkTheme
-                  ? theme.colorScheme.onSurface
-                  : theme.colorScheme.onSurface.withOpacity(0.87),
-              fontWeight: FontWeight.normal),
+      textStyle: theme.textTheme.bodySmall!
+          .copyWith(
+              color: gaugeThemeData.axisLabelColor ??
+                  (isDarkTheme
+                      ? theme.colorScheme.onSurface
+                      : theme.colorScheme.onSurface.withOpacity(0.87)))
+          .merge(gaugeThemeData.axisLabelTextStyle)
+          .merge(linearGauge.axisLabelStyle),
       showLabels: linearGauge.showLabels,
       showTicks: linearGauge.showTicks,
       isAxisInversed: linearGauge.isAxisInversed,
@@ -102,6 +104,7 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
     final Color? majorTickColor = linearGauge.majorTickStyle.color;
     final Color? minorTickColor = linearGauge.minorTickStyle.color;
     final ThemeData theme = Theme.of(context);
+    final SfGaugeThemeData gaugeThemeData = SfGaugeTheme.of(context)!;
     final bool isDarkTheme = theme.brightness == Brightness.dark;
     renderObject
       ..orientation = linearGauge.orientation
@@ -140,14 +143,14 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
               : theme.colorScheme.onSurface.withOpacity(0.26))
       ..tickOffset = linearGauge.tickOffset
       ..isMirrored = linearGauge.isMirrored
-      ..textStyle = linearGauge.axisLabelStyle ??
-          TextStyle(
-              fontSize: 12.0,
-              fontStyle: FontStyle.normal,
-              color: isDarkTheme
-                  ? theme.colorScheme.onSurface
-                  : theme.colorScheme.onSurface.withOpacity(0.87),
-              fontWeight: FontWeight.normal)
+      ..textStyle = theme.textTheme.bodySmall!
+          .copyWith(
+              color: gaugeThemeData.axisLabelColor ??
+                  (isDarkTheme
+                      ? theme.colorScheme.onSurface
+                      : theme.colorScheme.onSurface.withOpacity(0.87)))
+          .merge(gaugeThemeData.axisLabelTextStyle)
+          .merge(linearGauge.axisLabelStyle)
       ..showLabels = linearGauge.showLabels
       ..showTicks = linearGauge.showTicks
       ..useRangeColorForAxis = linearGauge.useRangeColorForAxis

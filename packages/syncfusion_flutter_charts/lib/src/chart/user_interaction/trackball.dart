@@ -208,7 +208,7 @@ class TrackballBehavior {
   /// void initState() {
   ///   trackballBehavior = TrackballBehavior(
   ///     enable: true,
-  ///     lineType: TrackballLineType.horizontal
+  ///     lineType: TrackballLineType.vertical
   ///   );
   ///   super.initState();
   /// }
@@ -1205,7 +1205,8 @@ class TrackballRenderingDetails {
         yPos = touchYPos;
         xPos = touchXPos;
         if (_stateProperties.chart.trackballBehavior.tooltipDisplayMode !=
-            TrackballDisplayMode.floatAllPoints) {
+                TrackballDisplayMode.floatAllPoints &&
+            trackballInfo.isNotEmpty) {
           ChartPointInfo point = trackballInfo[0];
           for (i = 1; i < trackballInfo.length; i++) {
             final bool isXYPositioned = !isTransposed
@@ -1276,10 +1277,11 @@ class TrackballRenderingDetails {
         }
       }
       if (chartPointInfo.isNotEmpty) {
-        if (chartPointInfo[0].dataPointIndex! <
-            seriesRendererDetails.dataPoints.length) {
-          leastX = _getLeastX(
-              chartPointInfo[0], seriesRendererDetails, axisClipRect);
+        final List<CartesianChartPoint<dynamic>> dataPoints =
+            getSampledData(seriesRendererDetails);
+        if (chartPointInfo[0].dataPointIndex! < dataPoints.length) {
+          leastX = _getLeastX(dataPoints, chartPointInfo[0],
+              seriesRendererDetails, axisClipRect);
         }
       }
 
@@ -1307,7 +1309,12 @@ class TrackballRenderingDetails {
           for (final ChartPointInfo pointInfo in chartPointInfo) {
             if (pointInfo.xPosition == leastX) {
               leastPointInfo.add(pointInfo);
-              visiblePoints.clear();
+              if (!(trackballBehavior.tooltipDisplayMode ==
+                      TrackballDisplayMode.floatAllPoints &&
+                  leastPointInfo.length > 1 &&
+                  pointInfo.seriesIndex !=
+                      leastPointInfo[leastPointInfo.length - 2].seriesIndex))
+                visiblePoints.clear();
               seriesType = pointInfo.seriesRendererDetails!.seriesType;
               isRangeTypeSeries = seriesType.contains('range') ||
                   seriesType.contains('hilo') ||
@@ -1333,10 +1340,11 @@ class TrackballRenderingDetails {
   }
 
   /// To get the lowest x value to render trackball
-  double _getLeastX(ChartPointInfo pointInfo,
-      SeriesRendererDetails seriesRendererDetails, Rect axisClipRect) {
-    final List<CartesianChartPoint<dynamic>> dataPoints =
-        getSampledData(seriesRendererDetails);
+  double _getLeastX(
+      List<CartesianChartPoint<dynamic>> dataPoints,
+      ChartPointInfo pointInfo,
+      SeriesRendererDetails seriesRendererDetails,
+      Rect axisClipRect) {
     return calculatePoint(
             dataPoints[pointInfo.dataPointIndex!].xValue,
             0,

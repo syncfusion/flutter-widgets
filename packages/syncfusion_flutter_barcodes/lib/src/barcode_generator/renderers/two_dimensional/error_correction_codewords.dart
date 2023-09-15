@@ -1669,13 +1669,13 @@ class ErrorCorrectionCodeWords {
       final int largestExponent = _getLargestExponent(leadTermSource);
       if (leadTermSource[largestExponent] == 0) {
         leadTermSource.remove(largestExponent);
+        if (i == 0) {
+          leadTermSource =
+              _updateLeadTermSource(i, leadTermSource, generatorPolynom);
+        }
       } else {
-        final Map<int, int> alphaNotation = _getAlphaNotation(leadTermSource);
-        Map<int, int> resPoly = _getGeneratorPolynomByLeadTerm(generatorPolynom,
-            alphaNotation[_getLargestExponent(alphaNotation)]!, i);
-        resPoly = _getDecimalNotation(resPoly);
-        resPoly = _getXORPolynoms(leadTermSource, resPoly);
-        leadTermSource = resPoly;
+        leadTermSource =
+            _updateLeadTermSource(i, leadTermSource, generatorPolynom);
       }
     }
 
@@ -1687,6 +1687,17 @@ class ErrorCorrectionCodeWords {
     }
 
     return returnValue;
+  }
+
+  /// Updates the lead term source value
+  Map<int, int> _updateLeadTermSource(
+      int index, Map<int, int> leadTermSource, Map<int, int> generatorPolynom) {
+    final Map<int, int> alphaNotation = _getAlphaNotation(leadTermSource);
+    Map<int, int> resPoly = _getGeneratorPolynomByLeadTerm(generatorPolynom,
+        alphaNotation[_getLargestExponent(alphaNotation)]!, index);
+    resPoly = _getDecimalNotation(resPoly);
+    resPoly = _getXORPolynoms(leadTermSource, resPoly);
+    return resPoly;
   }
 
   /// Calculates the polynomial value
@@ -1768,7 +1779,6 @@ class ErrorCorrectionCodeWords {
         largeExponent = currentEntry.key;
       }
     }
-
     return largeExponent;
   }
 

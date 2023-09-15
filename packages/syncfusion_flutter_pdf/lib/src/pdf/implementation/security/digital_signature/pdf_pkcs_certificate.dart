@@ -54,7 +54,7 @@ class PdfPKCSCertificate {
     if (information._contentType!.id == PkcsObjectId.data.id) {
       final List<int>? octs = (information._content! as Asn1Octet).getOctets();
       final Asn1Sequence asn1Sequence =
-          (Asn1Stream(PdfStreamReader(octs)).readAsn1())! as Asn1Sequence;
+          Asn1Stream(PdfStreamReader(octs)).readAsn1()! as Asn1Sequence;
       final List<_ContentInformation?> contentInformation =
           <_ContentInformation?>[];
       for (int i = 0; i < asn1Sequence.count; i++) {
@@ -67,7 +67,7 @@ class PdfPKCSCertificate {
         if (type.id == PkcsObjectId.data.id) {
           final List<int>? octets = (entry._content! as Asn1Octet).getOctets();
           final Asn1Sequence asn1SubSequence =
-              (Asn1Stream(PdfStreamReader(octets)).readAsn1())! as Asn1Sequence;
+              Asn1Stream(PdfStreamReader(octets)).readAsn1()! as Asn1Sequence;
           for (int index = 0; index < asn1SubSequence.count; index++) {
             final dynamic subSequence = asn1SubSequence[index];
             if (subSequence != null && subSequence is Asn1Sequence) {
@@ -735,10 +735,11 @@ class _PasswordUtility {
         }
       });
 
-      if (mechanism != null && mechanism!.startsWith('PBEwithMD2') ||
-          mechanism!.startsWith('PBEwithMD5') ||
-          mechanism!.startsWith('PBEwithSHA-1') ||
-          mechanism!.startsWith('PBEwithSHA-256')) {
+      if (mechanism != null &&
+          (mechanism!.startsWith('PBEwithMD2') ||
+              mechanism!.startsWith('PBEwithMD5') ||
+              mechanism!.startsWith('PBEwithSHA-1') ||
+              mechanism!.startsWith('PBEwithSHA-256'))) {
         if (mechanism!.endsWith('AES-CBC-BC') ||
             mechanism!.endsWith('AES-CBC-OPENSSL')) {
           result = _cipherUtils.getCipher('AES/CBC');
@@ -2556,24 +2557,24 @@ class _DataEncryption implements ICipher {
     left = ((left << 1) | (left >> 31)).toUnsigned(32);
     for (int round = 0; round < 8; round++) {
       data = ((right << 28) | (right >> 4)).toUnsigned(32);
-      data ^= (keys![round * 4 + 0]).toUnsigned(32);
+      data ^= keys![round * 4 + 0].toUnsigned(32);
       int value = sp7[data & 0x3f];
       value |= sp5[(data >> 8) & 0x3f];
       value |= sp3[(data >> 16) & 0x3f];
       value |= sp1[(data >> 24) & 0x3f];
-      data = right ^ (keys[round * 4 + 1]).toUnsigned(32);
+      data = right ^ keys[round * 4 + 1].toUnsigned(32);
       value |= sp8[data & 0x3f];
       value |= sp6[(data >> 8) & 0x3f];
       value |= sp4[(data >> 16) & 0x3f];
       value |= sp2[(data >> 24) & 0x3f];
       left ^= value;
       data = ((left << 28) | (left >> 4)).toUnsigned(32);
-      data ^= (keys[round * 4 + 2]).toUnsigned(32);
+      data ^= keys[round * 4 + 2].toUnsigned(32);
       value = sp7[data & 0x3f];
       value |= sp5[(data >> 8) & 0x3f];
       value |= sp3[(data >> 16) & 0x3f];
       value |= sp1[(data >> 24) & 0x3f];
-      data = left ^ (keys[round * 4 + 3]).toUnsigned(32);
+      data = left ^ keys[round * 4 + 3].toUnsigned(32);
       value |= sp8[data & 0x3f];
       value |= sp6[(data >> 8) & 0x3f];
       value |= sp4[(data >> 16) & 0x3f];

@@ -17,8 +17,8 @@ num? percentToValue(String? value, num size) {
   return value != null
       ? value.contains('%')
           ? (size / 100) *
-              (num.tryParse(value.replaceAll(RegExp('%'), '')))!.abs()
-          : (num.tryParse(value))?.abs()
+              num.tryParse(value.replaceAll(RegExp('%'), ''))!.abs()
+          : num.tryParse(value)?.abs()
       : null;
 }
 
@@ -49,8 +49,9 @@ Path getArcPath(num innerRadius, num radius, Offset center, num? startAngle,
   }
 
   final bool isFullCircle =
-      // ignore: unnecessary_null_comparison
-      startAngle != null && endAngle != null && endAngle - startAngle == 2 * pi;
+      // Check if the angle between startAngle and endAngle is equal to a full circle (2 * pi radians)
+      // by rounding both values to 5 decimal places and comparing them to avoid precision errors.
+      (endAngle - startAngle).toStringAsFixed(5) == (2 * pi).toStringAsFixed(5);
 
   final num midpointAngle = (endAngle + startAngle) / 2;
 
@@ -277,16 +278,17 @@ void canRepaintSeries(
           oldWidgetSeries.dataLabelSettings.borderWidth ||
       series.dataLabelSettings.borderColor.value !=
           oldWidgetSeries.dataLabelSettings.borderColor.value ||
-      series.dataLabelSettings.textStyle.color?.value !=
-          oldWidgetSeries.dataLabelSettings.textStyle.color?.value ||
-      series.dataLabelSettings.textStyle.fontWeight !=
-          oldWidgetSeries.dataLabelSettings.textStyle.fontWeight ||
-      series.dataLabelSettings.textStyle.fontSize !=
-          oldWidgetSeries.dataLabelSettings.textStyle.fontSize ||
-      series.dataLabelSettings.textStyle.fontFamily !=
-          oldWidgetSeries.dataLabelSettings.textStyle.fontFamily ||
-      series.dataLabelSettings.textStyle.fontStyle !=
-          oldWidgetSeries.dataLabelSettings.textStyle.fontStyle ||
+      series.dataLabelSettings.textStyle != null &&
+          (series.dataLabelSettings.textStyle?.color?.value !=
+                  oldWidgetSeries.dataLabelSettings.textStyle?.color?.value ||
+              series.dataLabelSettings.textStyle?.fontStyle !=
+                  oldWidgetSeries.dataLabelSettings.textStyle?.fontStyle ||
+              series.dataLabelSettings.textStyle?.fontFamily !=
+                  oldWidgetSeries.dataLabelSettings.textStyle?.fontFamily ||
+              series.dataLabelSettings.textStyle?.fontSize !=
+                  oldWidgetSeries.dataLabelSettings.textStyle?.fontSize ||
+              series.dataLabelSettings.textStyle?.fontWeight !=
+                  oldWidgetSeries.dataLabelSettings.textStyle?.fontWeight) ||
       series.dataLabelSettings.labelIntersectAction !=
           oldWidgetSeries.dataLabelSettings.labelIntersectAction ||
       series.dataLabelSettings.labelPosition !=

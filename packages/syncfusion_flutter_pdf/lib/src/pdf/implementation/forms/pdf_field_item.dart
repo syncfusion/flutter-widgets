@@ -84,6 +84,7 @@ class PdfFieldItem {
                     final IPdfPrimitive? holder = lAnnots[i];
                     if (holder != null &&
                         holder is PdfReferenceHolder &&
+                        holder.reference != null &&
                         holder.reference!.objNum == widgetReference.objNum &&
                         holder.reference!.genNum == widgetReference.genNum) {
                       _page = PdfPageCollectionHelper.getHelper(doc.pages)
@@ -91,6 +92,19 @@ class PdfFieldItem {
                       helper.defaultIndex = backUpIndex;
                       return _page;
                     }
+                  }
+                }
+                if (_helper.dictionary!
+                    .containsKey(PdfDictionaryProperties.p)) {
+                  final IPdfPrimitive? itemPageDict = PdfCrossTable.dereference(
+                      _helper.dictionary![PdfDictionaryProperties.p]);
+                  final PdfDictionary pageDict =
+                      PdfPageHelper.getHelper(loadedPage).dictionary!;
+                  if (itemPageDict is PdfDictionary &&
+                      itemPageDict == pageDict) {
+                    _page = loadedPage;
+                    helper.defaultIndex = backUpIndex;
+                    return _page;
                   }
                 }
               }

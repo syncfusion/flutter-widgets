@@ -70,6 +70,91 @@ class CalendarViewHelper {
     return false;
   }
 
+  /// Return the text direction for the text widget based on locale.
+  static TextDirection getTextDirectionBasedOnLocale(String locale) {
+    if (locale == 'ar') {
+      return TextDirection.rtl;
+    }
+
+    return TextDirection.ltr;
+  }
+
+  /// Return format string list from format string.s
+  static List<String> getListFromString(String format) {
+    final List<String> timeFormatStrings = <String>[];
+    if (format.isNotEmpty) {
+      String currentString = format[0];
+      for (int i = 1; i < format.length; i++) {
+        final String value = format[i];
+        if (value == format[i - 1]) {
+          currentString += value;
+        } else {
+          timeFormatStrings.add(currentString);
+          currentString = value;
+        }
+      }
+
+      timeFormatStrings.add(currentString);
+    }
+
+    return timeFormatStrings;
+  }
+
+  /// Return the localized date value based on locale and string format list.
+  static String getLocalizedString(
+      DateTime date, List<String> stringFormatList, String locale) {
+    String localizedString = '';
+    for (int i = 0; i < stringFormatList.length; i++) {
+      final String value = stringFormatList[i];
+      final String valueString = getFormattedString(date, value, locale);
+      localizedString = '$localizedString$valueString';
+    }
+
+    return localizedString;
+  }
+
+  /// Return the localized date value based on locale and string format.
+  static String getFormattedString(
+      DateTime date, String currentStringFormat, String locale) {
+    String formattedString = currentStringFormat;
+    if (formattedString.isEmpty) {
+      return formattedString;
+    }
+
+    final String currentFormatText = currentStringFormat[0];
+    bool isAlphabetCharacter(String character) {
+      final int codeUnit = character.codeUnitAt(0);
+      return (codeUnit >= 65 && codeUnit <= 90) ||
+          (codeUnit >= 97 && codeUnit <= 122);
+    }
+
+    if (!isAlphabetCharacter(currentFormatText)) {
+      return currentStringFormat;
+    }
+
+    /// Format specified on Date Format class
+    /// https://api.flutter.dev/flutter/intl/DateFormat-class.html.
+    if (currentFormatText == 'h' ||
+        currentFormatText == 'H' ||
+        currentFormatText == 'd' ||
+        currentFormatText == 'D' ||
+        currentFormatText == 'y' ||
+        currentFormatText == 'c' ||
+        currentFormatText == 'm' ||
+        currentFormatText == 's' ||
+        currentFormatText == 'S' ||
+        currentFormatText == 'k' ||
+        currentFormatText == 'K' ||
+        currentStringFormat == 'MM' ||
+        currentStringFormat == 'M') {
+      formattedString = DateFormat(currentStringFormat).format(date);
+    } else {
+      formattedString = DateFormat(currentStringFormat, locale).format(date);
+    }
+
+    return formattedString;
+  }
+
   /// Check the date as current month date when the month leading and trailing
   /// dates not shown and its row count as 6.
   static bool isCurrentMonthDate(int weekRowCount,
@@ -269,9 +354,7 @@ class CalendarViewHelper {
       TextStyle? todayTextStyle, SfCalendarThemeData calendarTheme) {
     Color? todayTextColor = todayHighlightColor;
     if (todayTextColor != null && todayTextColor == Colors.transparent) {
-      todayTextColor = todayTextStyle != null
-          ? todayTextStyle.color
-          : calendarTheme.todayTextStyle!.color;
+      todayTextColor = calendarTheme.todayTextStyle!.color;
     }
 
     return todayTextColor;

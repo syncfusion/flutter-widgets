@@ -900,17 +900,17 @@ class RowSelectionManager extends SelectionManagerBase {
 
   //KeyNavigation
   @override
-  void handleKeyEvent(RawKeyEvent keyEvent) {
+  Future<void> handleKeyEvent(RawKeyEvent keyEvent) async {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
     if (dataGridConfiguration.currentCell.isEditing &&
         keyEvent.logicalKey != LogicalKeyboardKey.escape) {
-      if (!dataGridConfiguration.currentCell
+      if (!await dataGridConfiguration.currentCell
           .canSubmitCell(dataGridConfiguration)) {
         return;
       }
 
-      dataGridConfiguration.currentCell
+      await dataGridConfiguration.currentCell
           .onCellSubmit(dataGridConfiguration, cancelCanSubmitCell: true);
     }
 
@@ -989,7 +989,7 @@ class RowSelectionManager extends SelectionManagerBase {
       if (dataGridConfiguration.allowEditing &&
           dataGridConfiguration.navigationMode == GridNavigationMode.cell &&
           dataGridConfiguration.currentCell.isEditing) {
-        dataGridConfiguration.currentCell
+        await dataGridConfiguration.currentCell
             .onCellSubmit(dataGridConfiguration, isCellCancelEdit: true);
       }
     }
@@ -1451,6 +1451,8 @@ class CurrentCellManager {
       _updateBorderForMultipleSelection(dataGridConfiguration,
           previousRowColumnIndex: previousRowColumnIndex,
           nextRowColumnIndex: rowColumnIndex);
+    } else if (dataGridConfiguration.navigationMode == GridNavigationMode.row) {
+      _updateCurrentRowColumnIndex(-1, -1);
     }
 
     return true;
@@ -1482,11 +1484,6 @@ class CurrentCellManager {
         dataCellBase.updateColumn();
       }
     }
-
-    updateCurrentCellIndex(
-        dataGridConfiguration.controller,
-        grid_helper.resolveToRecordRowColumnIndex(
-            dataGridConfiguration, RowColumnIndex(rowIndex, columnIndex)));
   }
 
   void _removeCurrentCell(DataGridConfiguration dataGridConfiguration,
@@ -1506,8 +1503,6 @@ class CurrentCellManager {
     }
 
     _updateCurrentRowColumnIndex(-1, -1);
-    updateCurrentCellIndex(
-        dataGridConfiguration.controller, RowColumnIndex(-1, -1));
   }
 
   DataRowBase? _getDataRow(
@@ -1804,8 +1799,8 @@ class CurrentCellManager {
         dataGridConfiguration, editingRowColumnIndex, editingDataCell);
 
     if (beginEdit) {
-      void submitCell() {
-        onCellSubmit(dataGridConfiguration);
+      Future<void> submitCell() async {
+        await onCellSubmit(dataGridConfiguration);
       }
 
       final Widget? child = dataGridConfiguration.source.buildEditWidget(
@@ -1823,7 +1818,7 @@ class CurrentCellManager {
         editingDataCell.editingWidget = FocusScope(
             canRequestFocus: true,
             node: _focusScopeNode,
-            onFocusChange: (bool details) {
+            onFocusChange: (bool details) async {
               /// We should not allow the focus to the other widgets
               /// when the cell is in the edit mode and return false from the canSubmitCell
               /// So, we need to request the focus here.
@@ -1833,10 +1828,10 @@ class CurrentCellManager {
               // Issue:
               // FLUT-7120-The focus did not go to the other widgets when DataGrid's current cell is in edit mode.
               // We have checked whether the current cell is editing or not based on the `isCurrentCellInEditing` property.
-              // In this case, it is true. So we fixed it by checking the value of the `canCellSumbit` method.
+              // In this case, it is true. So we fixed it by checking the value of the `canCellSubmit` method.
               if (!_focusScopeNode.hasFocus &&
                   !dataGridConfiguration.dataGridFocusNode!.hasFocus &&
-                  !canSubmitCell(dataGridConfiguration)) {
+                  !await canSubmitCell(dataGridConfiguration)) {
                 _focusScopeNode.requestFocus();
               }
             },
@@ -1877,10 +1872,10 @@ class CurrentCellManager {
   /// 1) _onCellSubmit is call from handleDataGridSource we no need to call the
   /// _notifyDataGridPropertyChangeListeners to refresh twice.By, set value false
   /// it will skip the refreshing.
-  void onCellSubmit(DataGridConfiguration dataGridConfiguration,
+  Future<void> onCellSubmit(DataGridConfiguration dataGridConfiguration,
       {bool isCellCancelEdit = false,
       bool cancelCanSubmitCell = false,
-      bool canRefresh = true}) {
+      bool canRefresh = true}) async {
     if (!isEditing) {
       return;
     }
@@ -1922,15 +1917,18 @@ class CurrentCellManager {
         /// moving to other cell or another row. so we need to skip the
         /// canCellSubmit method calling once again
         if (!cancelCanSubmitCell) {
-          canSubmitCell = dataGridConfiguration.source
+          canSubmitCell = await dataGridConfiguration.source
               .canSubmitCell(dataGridRow, rowColumnIndex, dataCell.gridColumn!);
         } else {
           canSubmitCell = true;
         }
         if (canSubmitCell) {
           resetEditing();
-          dataGridConfiguration.source
+          await dataGridConfiguration.source
               .onCellSubmit(dataGridRow, rowColumnIndex, dataCell.gridColumn!);
+
+          notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
+              rowColumnIndex: rowColumnIndex, propertyName: 'editing');
         }
       } else {
         resetEditing();
@@ -1982,7 +1980,8 @@ class CurrentCellManager {
   }
 
   /// Called when the editing is submitted in the data cell.
-  bool canSubmitCell(DataGridConfiguration dataGridConfiguration) {
+  Future<bool> canSubmitCell(
+      DataGridConfiguration dataGridConfiguration) async {
     final DataRowBase? dataRow = _getEditingRow(dataGridConfiguration);
 
     if (dataRow == null) {

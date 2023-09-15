@@ -440,19 +440,19 @@ class CanvasRenderBox extends RenderBox {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text(
-                    _localizations!.pdfHyperlinkLabel,
-                    style: _pdfViewerThemeData!
-                            .hyperlinkDialogStyle?.headerTextStyle ??
-                        TextStyle(
-                          fontFamily: 'Roboto',
-                          fontSize: 20,
-                          letterSpacing: 0.15,
-                          fontWeight: FontWeight.w500,
-                          color: _themeData!.colorScheme.onSurface
-                              .withOpacity(0.87),
-                        ),
-                  ),
+                  Text(_localizations!.pdfHyperlinkLabel,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium!
+                          .copyWith(
+                            fontSize: 20,
+                            color:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? Colors.black.withOpacity(0.87)
+                                    : Colors.white.withOpacity(0.87),
+                          )
+                          .merge(_pdfViewerThemeData!
+                              .hyperlinkDialogStyle?.headerTextStyle)),
                   SizedBox(
                     height: 36,
                     width: 36,
@@ -487,19 +487,19 @@ class CanvasRenderBox extends RenderBox {
                           padding: orientation == Orientation.portrait
                               ? const EdgeInsets.fromLTRB(2, 0, 0, 8)
                               : const EdgeInsets.fromLTRB(10, 0, 0, 8),
-                          child: Text(
-                            _localizations!.pdfHyperlinkContentLabel,
-                            style: _pdfViewerThemeData!
-                                    .hyperlinkDialogStyle?.contentTextStyle ??
-                                TextStyle(
-                                  fontFamily: 'Roboto',
-                                  fontSize: 14,
-                                  letterSpacing: 0.25,
-                                  fontWeight: FontWeight.w400,
-                                  color: _themeData!.colorScheme.onSurface
-                                      .withOpacity(0.87),
-                                ),
-                          ),
+                          child: Text(_localizations!.pdfHyperlinkContentLabel,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                    fontSize: 14,
+                                    color: Theme.of(context).brightness ==
+                                            Brightness.light
+                                        ? Colors.black.withOpacity(0.87)
+                                        : Colors.white.withOpacity(0.87),
+                                  )
+                                  .merge(_pdfViewerThemeData!
+                                      .hyperlinkDialogStyle?.contentTextStyle)),
                         ),
                       ),
                       Align(
@@ -510,20 +510,20 @@ class CanvasRenderBox extends RenderBox {
                           padding: orientation == Orientation.portrait
                               ? const EdgeInsets.fromLTRB(2, 0, 0, 0)
                               : const EdgeInsets.fromLTRB(10, 0, 0, 4),
-                          child: Text(
-                            '$url?',
-                            textDirection: TextDirection.ltr,
-                            style: _pdfViewerThemeData!
-                                    .hyperlinkDialogStyle?.contentTextStyle ??
-                                TextStyle(
-                                  fontFamily: 'Roboto',
-                                  fontSize: 14,
-                                  letterSpacing: 0.25,
-                                  fontWeight: FontWeight.w400,
-                                  color: _themeData!.colorScheme.onSurface
-                                      .withOpacity(0.87),
-                                ),
-                          ),
+                          child: Text('$url?',
+                              textDirection: TextDirection.ltr,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                    fontSize: 14,
+                                    color: Theme.of(context).brightness ==
+                                            Brightness.light
+                                        ? Colors.black.withOpacity(0.87)
+                                        : Colors.white.withOpacity(0.87),
+                                  )
+                                  .merge(_pdfViewerThemeData!
+                                      .hyperlinkDialogStyle?.contentTextStyle)),
                         ),
                       ),
                     ],
@@ -536,18 +536,19 @@ class CanvasRenderBox extends RenderBox {
                     Navigator.of(context).pop();
                     _isHyperLinkTapped = false;
                   },
-                  child: Text(
-                    _localizations!.pdfHyperlinkDialogCancelLabel,
-                    style: _pdfViewerThemeData!
-                            .hyperlinkDialogStyle?.cancelTextStyle ??
-                        TextStyle(
-                            fontFamily: 'Roboto',
+                  child: Text(_localizations!.pdfHyperlinkDialogCancelLabel,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(
                             fontSize: 14,
-                            letterSpacing: 1.25,
-                            fontWeight: FontWeight.w500,
-                            color: _themeData!.colorScheme.onSurface
-                                .withOpacity(0.6)),
-                  ),
+                            color:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? Colors.black.withOpacity(0.6)
+                                    : Colors.white.withOpacity(0.6),
+                          )
+                          .merge(_pdfViewerThemeData!
+                              .hyperlinkDialogStyle?.cancelTextStyle)),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
@@ -559,17 +560,15 @@ class CanvasRenderBox extends RenderBox {
                         mode: LaunchMode.externalApplication,
                       );
                     },
-                    child: Text(
-                      _localizations!.pdfHyperlinkDialogOpenLabel,
-                      style: _pdfViewerThemeData!
-                              .hyperlinkDialogStyle?.openTextStyle ??
-                          TextStyle(
-                              fontFamily: 'Roboto',
-                              fontSize: 14,
-                              letterSpacing: 1.25,
-                              fontWeight: FontWeight.w500,
-                              color: _themeData!.colorScheme.primary),
-                    ),
+                    child: Text(_localizations!.pdfHyperlinkDialogOpenLabel,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium!
+                            .copyWith(
+                                fontSize: 14,
+                                color: _themeData!.colorScheme.primary)
+                            .merge(_pdfViewerThemeData!
+                                .hyperlinkDialogStyle?.openTextStyle)),
                   ),
                 ),
               ],
@@ -601,19 +600,19 @@ class CanvasRenderBox extends RenderBox {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text(
-                    _localizations!.pdfHyperlinkLabel,
-                    style: _pdfViewerThemeData!
-                            .hyperlinkDialogStyle?.headerTextStyle ??
-                        TextStyle(
-                          fontFamily: 'Roboto',
-                          fontSize: 20,
-                          letterSpacing: 0.15,
-                          fontWeight: FontWeight.w500,
-                          color: _themeData!.colorScheme.onSurface
-                              .withOpacity(0.87),
-                        ),
-                  ),
+                  Text(_localizations!.pdfHyperlinkLabel,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium!
+                          .copyWith(
+                            fontSize: 20,
+                            color:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? Colors.black.withOpacity(0.87)
+                                    : Colors.white.withOpacity(0.87),
+                          )
+                          .merge(_pdfViewerThemeData!
+                              .hyperlinkDialogStyle?.headerTextStyle)),
                   SizedBox(
                     height: 36,
                     width: 36,
@@ -646,43 +645,43 @@ class CanvasRenderBox extends RenderBox {
                             : Alignment.centerLeft,
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(2, 0, 0, 8),
-                          child: Text(
-                            _localizations!.pdfHyperlinkContentLabel,
-                            style: _pdfViewerThemeData!
-                                    .hyperlinkDialogStyle?.contentTextStyle ??
-                                TextStyle(
-                                  fontFamily: 'Roboto',
-                                  fontSize: 14,
-                                  letterSpacing: 0.25,
-                                  fontWeight: FontWeight.w400,
-                                  color: _themeData!.colorScheme.onSurface
-                                      .withOpacity(0.87),
-                                ),
-                          ),
+                          child: Text(_localizations!.pdfHyperlinkContentLabel,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                    fontSize: 14,
+                                    color: Theme.of(context).brightness ==
+                                            Brightness.light
+                                        ? Colors.black.withOpacity(0.87)
+                                        : Colors.white.withOpacity(0.87),
+                                  )
+                                  .merge(_pdfViewerThemeData!
+                                      .hyperlinkDialogStyle?.contentTextStyle)),
                         ),
                       ),
                       Align(
-                        alignment: textDirection == TextDirection.rtl
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(2, 0, 0, 0),
-                          child: Text(
-                            '$url?',
-                            textDirection: TextDirection.ltr,
-                            style: _pdfViewerThemeData!
-                                    .hyperlinkDialogStyle?.contentTextStyle ??
-                                TextStyle(
-                                  fontFamily: 'Roboto',
-                                  fontSize: 14,
-                                  letterSpacing: 0.25,
-                                  fontWeight: FontWeight.w400,
-                                  color: _themeData!.colorScheme.onSurface
-                                      .withOpacity(0.87),
-                                ),
-                          ),
-                        ),
-                      ),
+                          alignment: textDirection == TextDirection.rtl
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(2, 0, 0, 0),
+                            child: Text('$url?',
+                                textDirection: TextDirection.ltr,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                      fontSize: 14,
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.light
+                                          ? Colors.black.withOpacity(0.87)
+                                          : Colors.white.withOpacity(0.87),
+                                    )
+                                    .merge(_pdfViewerThemeData!
+                                        .hyperlinkDialogStyle
+                                        ?.contentTextStyle)),
+                          )),
                     ],
                   ),
                 ),
@@ -693,18 +692,19 @@ class CanvasRenderBox extends RenderBox {
                     Navigator.of(context).pop();
                     _isHyperLinkTapped = false;
                   },
-                  child: Text(
-                    _localizations!.pdfHyperlinkDialogCancelLabel,
-                    style: _pdfViewerThemeData!
-                            .hyperlinkDialogStyle?.cancelTextStyle ??
-                        TextStyle(
-                            fontFamily: 'Roboto',
+                  child: Text(_localizations!.pdfHyperlinkDialogCancelLabel,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(
                             fontSize: 14,
-                            letterSpacing: 1.25,
-                            fontWeight: FontWeight.w500,
-                            color: _themeData!.colorScheme.onSurface
-                                .withOpacity(0.6)),
-                  ),
+                            color:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? Colors.black.withOpacity(0.6)
+                                    : Colors.white.withOpacity(0.6),
+                          )
+                          .merge(_pdfViewerThemeData!
+                              .hyperlinkDialogStyle?.cancelTextStyle)),
                 ),
                 TextButton(
                   onPressed: () async {
@@ -714,17 +714,15 @@ class CanvasRenderBox extends RenderBox {
                       mode: LaunchMode.externalApplication,
                     );
                   },
-                  child: Text(
-                    _localizations!.pdfHyperlinkDialogOpenLabel,
-                    style: _pdfViewerThemeData!
-                            .hyperlinkDialogStyle?.openTextStyle ??
-                        TextStyle(
-                            fontFamily: 'Roboto',
-                            fontSize: 14,
-                            letterSpacing: 1.25,
-                            fontWeight: FontWeight.w500,
-                            color: _themeData!.colorScheme.primary),
-                  ),
+                  child: Text(_localizations!.pdfHyperlinkDialogOpenLabel,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(
+                              fontSize: 14,
+                              color: _themeData!.colorScheme.primary)
+                          .merge(_pdfViewerThemeData!
+                              .hyperlinkDialogStyle?.openTextStyle)),
                 ),
               ],
             ),

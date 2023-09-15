@@ -262,7 +262,7 @@ class DataGridConfiguration {
   /// Animates the swiping to the swipeMaxOffset or beginning position.
   Animation<double>? swipingAnimation;
 
-  /// The `AnimationContoller` is used to animate the swiping offsets.
+  /// The `AnimationController` is used to animate the swiping offsets.
   AnimationController? swipingAnimationController;
 
   /// A collection of [StackedHeaderRow].
@@ -282,7 +282,7 @@ class DataGridConfiguration {
   DataGridThemeHelper? dataGridThemeHelper;
 
   /// Instance of a [SfLocalizations] class that provide the localized resource
-  /// values to the UI filtering lables.
+  /// values to the UI filtering labels.
   late SfLocalizations localizations;
 
   /// Controls a vertical scrolling in DataGrid.
@@ -376,4 +376,38 @@ class DataGridConfiguration {
   /// Checks whether the command key is pressed or not for enable multi sorting
   /// in mac platform.
   bool isCommandKeyPressed = false;
+
+  /// Decides whether the horizontal scrollbar should be shown.
+  /// Defaults to true.
+  bool showHorizontalScrollbar = true;
+
+  /// Decides whether the vertical scrollbar should be shown.
+  /// Defaults to true.
+  bool showVerticalScrollbar = true;
+
+  /// Decides whether the filter icon should be shown when hovering the header cells.
+  ///
+  /// Defaults to false.
+  bool showFilterIconOnHover = false;
+
+  /// A boolean flag to indicate whether column dragging is allowed or not.
+  bool allowColumnsDragging = false;
+
+  /// Called when a column has been dragged and dropped to new location.
+  DataGridColumnDraggingCallback? onColumnDragging;
+
+  /// Called to obtain the feedback widget for the column when it is about to drag.
+  /// If null, a [Text] widget will be loaded by default with the dragging header cell constraints.
+  ColumnDragFeedbackBuilderCallback? columnDragFeedbackBuilder;
+
+  /// A global key used to uniquely identify the DataGrid widget.
+  GlobalKey dataGridKey = GlobalKey();
+
+  /// Controller for handling column drag and drop operation.
+  late ColumnDragAndDropController columnDragAndDropController;
+
+  /// Decides whether the column header icons should be shown when hovering the header cells.
+  ///
+  /// Defaults to false.
+  late bool showColumnHeaderIconOnHover = false;
 }

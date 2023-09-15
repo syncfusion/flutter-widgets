@@ -1,3 +1,82 @@
+## Unreleased
+
+**Bugs**
+
+* Now, the `pagePosition` property in `PdfGestureDetails` will return the tapped position in the PDF page coordinates.
+
+## [22.2.10] - 08/22/2023
+
+**Bugs**
+
+* Now, the `AlertDialog` or `DatePicker` dialog is properly closed when invoked in the `onFormFieldFocusChange` callback.
+
+**Features**
+
+* Enhanced the user experience of the combo box form field by switching the `PopupMenuButton` with a `DropdownButton` widget in `SfPdfViewer`.
+* Support for localization for the texts in the built-in signature pad dialog has been provided.
+
+## [22.2.5] - 07/27/2023
+
+**Bugs**
+
+* The multi-line text form fields will now have the proper font size.
+
+**Features**
+
+* Support for filling out the list box form field has been provided.
+* Support for filling or editing form fields programmatically has been provided.
+* Provided focus change and value change callback support for form fields.
+* Provided the support for the `onTap` callback to retrieve the page number, position, and page position when tapping on the `SfPdfViewer`.
+
+## [22.1.34] - 06/21/2023
+
+**Features**
+
+* Support for filling out the form fields, such as text boxes, dropdown menus, checkboxes, radio buttons, and signatures, has been provided. It also offers additional features, such as the ability to save, export, and import the form data.
+* Support for loading the pages with the width fitted on the Windows and Web platforms has been provided.
+
+**General**
+
+* Upgraded the `http` package to the latest version 1.0.0.
+* Upgraded the `device_info_plus` package to the latest version 9.0.2.
+
+## [21.2.4] - 05/09/2023
+
+**Bugs**
+
+* Now, the `SfPdfViewer` does not execute the `onDocumentLoaded` callback before the Pdf document loads.
+
+## [21.2.3] - 05/03/2023
+
+**Features**
+
+* Support for customising the visibility of the page loading busy indicator has been provided.
+
+## [21.1.38] - 04/04/2023
+
+**Bugs**
+
+* Now, the `SfPdfViewer` does not cause excessive widget rebuilding when no actions are performed on the PDF.
+
+## [20.4.55] - 03/21/2023
+
+**Bugs**
+
+* Now, the `SfPdfViewer` does not cause text fields to lose focus when scrolling is active on an Android tablet or the iPad.
+* Now, the keyboard shortcut navigation on the web platform works properly.
+
+**Features**
+
+* Support to set and adjust the maximum zoom level has been provided.
+
+## [20.4.51] - 02/21/2022
+
+* The password dialog is now displayed properly in the `SfPdfViewer` when localized.
+
+## [20.4.43] - 01/10/2022
+
+* Support for scrolling via remote button clicks on Android TV has been provided.
+
 ## [20.3.58] - 11/22/2022
 
 **Bugs**

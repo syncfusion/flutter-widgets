@@ -303,6 +303,7 @@ class _RenderSparkAreaChart extends RenderSparkChart {
       ..style = PaintingStyle.fill;
     final Path path = Path();
     Size size;
+    _labelStyle = themeData!.dataLabelTextStyle;
     _highPoint = coordinatePoints![0].dy;
     _lowPoint = coordinatePoints![0].dy;
 

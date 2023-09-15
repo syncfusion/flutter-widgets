@@ -9,10 +9,10 @@ class GaugeTextStyle {
   /// Creates a gauge text style with default or required properties.
   const GaugeTextStyle(
       {this.color,
-      this.fontFamily = 'Segoe UI',
-      this.fontStyle = FontStyle.normal,
-      this.fontWeight = FontWeight.normal,
-      this.fontSize = 12});
+      this.fontFamily,
+      this.fontStyle,
+      this.fontWeight,
+      this.fontSize});
 
   /// To set the color of guage text.
   final Color? color;
@@ -20,20 +20,20 @@ class GaugeTextStyle {
   /// To set the font family to guage text.
   ///
   ///Defaults to `Roboto`.
-  final String fontFamily;
+  final String? fontFamily;
 
   /// To set the font style to guage text.
-  final FontStyle fontStyle;
+  final FontStyle? fontStyle;
 
   /// To set the font weight to gauge text.
   ///
   /// Defaults to FontWeight.normal
-  final FontWeight fontWeight;
+  final FontWeight? fontWeight;
 
   /// To set the font size to gauge text
   ///
   /// Defaults to `12`.
-  final double fontSize;
+  final double? fontSize;
 
   @override
   bool operator ==(Object other) {

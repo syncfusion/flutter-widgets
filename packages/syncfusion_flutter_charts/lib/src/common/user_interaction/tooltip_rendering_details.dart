@@ -714,17 +714,19 @@ class TooltipRenderingDetails {
             seriesRendererDetails.series.enableTooltip == true &&
             seriesRendererDetails.regionalData != null) {
           final String seriesType = seriesRendererDetails.seriesType;
-          final double padding = (seriesType == 'bubble' ||
-                  seriesType == 'scatter' ||
-                  seriesType.contains('column') ||
-                  seriesType.contains('bar'))
-              ? 0
-              : tooltipRenderingDetails.isHovering == true
-                  ? 0
-                  : 15; // regional padding to detect smooth touch
           seriesRendererDetails.regionalData!
               .forEach((dynamic regionRect, dynamic values) {
             final Rect region = regionRect[0];
+            final bool isTrendLine = values[values.length - 1].contains('true');
+            final double padding = ((seriesType == 'bubble' ||
+                        seriesType == 'scatter' ||
+                        seriesType.contains('column') ||
+                        seriesType.contains('bar')) &&
+                    !isTrendLine)
+                ? 0
+                : tooltipRenderingDetails.isHovering == true
+                    ? 0
+                    : 15; // regional padding to detect smooth touch
             final Rect paddedRegion = Rect.fromLTRB(
                 region.left - padding,
                 region.top - padding,
@@ -746,8 +748,12 @@ class TooltipRenderingDetails {
             }
             if (paddedRegion.contains(Offset(x, y)) || outlierTooltip) {
               isInsidePointRegion = true;
+              return;
             }
           });
+        }
+        if (isInsidePointRegion != null && isInsidePointRegion!) {
+          break;
         }
       }
     }
@@ -800,7 +806,7 @@ class TooltipRenderingDetails {
                   renderPoints[i].overflowTrimmedText ??
                       renderPoints[i].trimmedText!,
                   _stateProperties.chartSeries.visibleSeriesRenderers[0]
-                      .dataLabelSettingsRenderer.dataLabelSettings.textStyle)
+                      .dataLabelSettingsRenderer.textStyle)
               .width;
           if (renderPoints[i].dataLabelPosition == Position.left) {
             position = Offset(renderPoints[i].labelRect.right - textWidth / 2,
@@ -1369,6 +1375,7 @@ class TooltipRenderingDetails {
       dynamic dataValues;
       bool outlierTooltip = false;
       int outlierTooltipIndex = -1;
+      bool isInsidePointRegion = false;
       final List<LinearGradient?> markerGradients = <LinearGradient?>[];
       final List<Paint?> markerPaints = <Paint?>[];
       final List<DataMarkerType?> markerTypes = <DataMarkerType?>[];
@@ -1419,7 +1426,8 @@ class TooltipRenderingDetails {
             }
 
             if (paddedRegion.contains(position) &&
-                (isTrendLine! ? regionRect[4].isVisible : true) == true) {
+                (isTrendLine! ? regionRect[4].isVisible : true) == true &&
+                !isInsidePointRegion) {
               tooltipBounds = stateProperties.chartAxis.axisClipRect;
               if (_seriesRendererDetails!.seriesType != 'boxandwhisker'
                   ? !region.contains(position)
@@ -1503,24 +1511,16 @@ class TooltipRenderingDetails {
               dataRect = regionRect;
               isContains = _mouseTooltip = true;
               prevTooltipData = prevTooltipData ?? _presentTooltipValue;
+              if (isTrendLine!) {
+                isInsidePointRegion = true;
+                return;
+              }
             }
             count++;
           });
           if (tooltipBehavior.shared) {
             int indexValue = 0;
             int tooltipElementsLength = 0;
-            final Paint markerPaint = Paint();
-            markerPaint.color =
-                _seriesRendererDetails!.series.markerSettings.borderColor ??
-                    _seriesRendererDetails!.seriesColor ??
-                    _seriesRendererDetails!.series.color!
-                        .withOpacity(tooltipBehavior.opacity);
-            markerGradients.add(_seriesRendererDetails!.series.gradient);
-            markerImages
-                .add(_seriesRendererDetails!.markerSettingsRenderer?.image);
-            markerTypes
-                .add(_seriesRendererDetails!.series.markerSettings.shape);
-            markerPaints.add(markerPaint);
             if ((_seriesRendererDetails!.seriesType.contains('range') == true ||
                     _seriesRendererDetails!.seriesType == 'hilo') &&
                 !isTrendLine!) {
@@ -1554,6 +1554,9 @@ class TooltipRenderingDetails {
               markerPaints.add(null);
             }
           }
+        }
+        if (isInsidePointRegion) {
+          break;
         }
       }
       if (isContains) {
@@ -1600,6 +1603,19 @@ class TooltipRenderingDetails {
               final int index =
                   seriesRendererDetails.xValues!.indexOf(dataRect[4].x);
               if (index > -1) {
+                final Paint markerPaint = Paint();
+                markerPaint.color =
+                    seriesRendererDetails.series.markerSettings.borderColor ??
+                        seriesRendererDetails.seriesColor ??
+                        seriesRendererDetails.series.color!
+                            .withOpacity(tooltipBehavior.opacity);
+                markerGradients.add(seriesRendererDetails.series.gradient);
+                markerImages
+                    .add(seriesRendererDetails.markerSettingsRenderer?.image);
+                markerTypes
+                    .add(seriesRendererDetails.series.markerSettings.shape);
+                markerPaints.add(markerPaint);
+
                 final String text = (_stringVal != '' ? '\n' : '') +
                     _calculateCartesianTooltipText(
                         seriesRendererDetails,

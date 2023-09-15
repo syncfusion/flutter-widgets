@@ -1,3 +1,19 @@
+## Unreleased
+
+**Bugs**
+
+* #FB45676 - Now, the QR code generated for all kinds of the input values with 07 [codeVersion](https://pub.dev/documentation/syncfusion_flutter_barcodes/latest/barcodes/QRCode/codeVersion.html), medium [errorCorrectionLevel](https://pub.dev/documentation/syncfusion_flutter_barcodes/latest/barcodes/QRCode/errorCorrectionLevel.html), and alphaNumeric [inputMode](https://pub.dev/documentation/syncfusion_flutter_barcodes/latest/barcodes/QRCode/inputMode.html) will be scannable.
+
+## [22.1.36] 06/28/2023
+
+**Bugs**
+* #FB44237 - Now, the QR code generated for all kinds of input values with 07 [codeVersion](https://pub.dev/documentation/syncfusion_flutter_barcodes/latest/barcodes/QRCode/codeVersion.html) will be scannable.
+
+## [21.1.37] - 03/29/2023
+
+**Bugs**
+* #FB41210 - Now, the QR code generated for the input string contains 17 continuous spaces with medium [errorCorrectionLevel](https://pub.dev/documentation/syncfusion_flutter_barcodes/latest/barcodes/QRCode/errorCorrectionLevel.html), and 07 [codeVersion](https://pub.dev/documentation/syncfusion_flutter_barcodes/latest/barcodes/QRCode/codeVersion.html) will be scannable.
+
 ## [20.3.50] - 10/18/2022
 
 **Bugs**

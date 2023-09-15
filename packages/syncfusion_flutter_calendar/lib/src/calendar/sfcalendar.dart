@@ -195,12 +195,10 @@ class SfCalendar extends StatefulWidget {
     DateTime? minDate,
     DateTime? maxDate,
     this.appointmentTextStyle = const TextStyle(
-        color: Colors.white,
-        fontSize: -1,
-        fontWeight: FontWeight.w500,
-        fontFamily: 'Roboto'),
+        color: Colors.white, fontSize: -1, fontWeight: FontWeight.w500),
     this.showNavigationArrow = false,
     this.showDatePickerButton = false,
+    this.showTodayButton = false,
     this.allowViewNavigation = false,
     this.showCurrentTimeIndicator = true,
     this.cellEndPadding = -1,
@@ -351,7 +349,6 @@ class SfCalendar extends StatefulWidget {
   /// Displays the date picker when the [SfCalendar] header date is tapped.
   ///
   /// The date picker will be used for quick date navigation in [SfCalendar].
-  /// It also shows Today navigation button on header view.
   ///
   /// Defaults to `false`.
   ///
@@ -374,6 +371,26 @@ class SfCalendar extends StatefulWidget {
   ///
   /// ```
   final bool showDatePickerButton;
+
+  /// Displays the today button on the header view of [SfCalendar].
+  ///
+  /// If the property set as true then the header view will show the today
+  /// button which is used to navigate the today view.
+  ///
+  /// Defaults to `false`.
+  ///
+  /// ``` dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///      child: SfCalendar(
+  ///      view: CalendarView.day,
+  ///      showTodayButton: true,
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// ```
+  final bool showTodayButton;
 
   /// Displays an indicator that shows the current time in the time slot views
   /// of [SfCalendar]. By default, the indicator color matches the
@@ -1937,6 +1954,8 @@ class SfCalendar extends StatefulWidget {
   ///      ),
   ///    );
   ///  }
+  ///
+  ///  ```
   final bool showWeekNumber;
 
   /// Defines the text style for the text in the week number panel of the
@@ -1966,6 +1985,8 @@ class SfCalendar extends StatefulWidget {
   ///   ),
   ///  );
   /// }
+  ///
+  /// ```
   final WeekNumberStyle weekNumberStyle;
 
   /// Defines the builder that builds a widget and replaces the header
@@ -2013,6 +2034,7 @@ class SfCalendar extends StatefulWidget {
   ///     ),
   ///   );
   /// }
+  /// ```
   final ResourceViewHeaderBuilder? resourceViewHeaderBuilder;
 
   /// Allows to drag and drop the appointment, to reschedule this into
@@ -2050,6 +2072,7 @@ class SfCalendar extends StatefulWidget {
   ///     ),
   ///   );
   /// }
+  /// ```
   final bool allowDragAndDrop;
 
   /// Allows to customize the drag and drop environment.
@@ -2077,6 +2100,7 @@ class SfCalendar extends StatefulWidget {
   ///     ),
   ///   );
   /// }
+  /// ```
   final DragAndDropSettings dragAndDropSettings;
 
   /// Called whenever the appointment starts to drag in the  [SfCalendar].
@@ -2104,6 +2128,7 @@ class SfCalendar extends StatefulWidget {
   ///         }),
   ///   );
   /// }
+  /// ```
   final AppointmentDragStartCallback? onDragStart;
 
   /// Called whenever the appointment is dragging in the [SfCalendar].
@@ -2134,6 +2159,7 @@ class SfCalendar extends StatefulWidget {
   ///         }),
   ///   );
   /// }
+  /// ```
   final AppointmentDragUpdateCallback? onDragUpdate;
 
   /// Called when the dragging appointment is dropped in the [SfCalendar].
@@ -2163,6 +2189,7 @@ class SfCalendar extends StatefulWidget {
   ///         }),
   ///   );
   /// }
+  /// ```
   final AppointmentDragEndCallback? onDragEnd;
 
   /// An object that used for programmatic date navigation and date selection
@@ -2264,7 +2291,7 @@ class SfCalendar extends StatefulWidget {
   ///    );
   ///  }
   ///
-  /// ````
+  /// ```
   final bool allowAppointmentResize;
 
   /// Called whenever the appointment starts to resizing in [SfCalendar].
@@ -2524,6 +2551,8 @@ class SfCalendar extends StatefulWidget {
         'viewNavigationMode', viewNavigationMode));
     properties.add(DiagnosticsProperty<bool>(
         'showDatePickerButton', showDatePickerButton));
+    properties
+        .add(DiagnosticsProperty<bool>('showTodayButton', showTodayButton));
     properties.add(DiagnosticsProperty<bool>(
         'showCurrentTimeIndicator', showCurrentTimeIndicator));
     properties.add(IntProperty('firstDayOfWeek', firstDayOfWeek));
@@ -2603,6 +2632,10 @@ class _SfCalendarState extends State<SfCalendar>
   late SfLocalizations _localizations;
   late double _minWidth, _minHeight, _textScaleFactor;
   late SfCalendarThemeData _calendarTheme;
+
+  /// Holds the framework theme data values and the value assigned on build
+  /// method.
+  late ThemeData _themeData;
   late ValueNotifier<Offset?> _headerHoverNotifier, _resourceHoverNotifier;
   late ValueNotifier<ScheduleViewHoveringDetails?> _agendaDateNotifier,
       _agendaViewNotifier;
@@ -2788,9 +2821,6 @@ class _SfCalendarState extends State<SfCalendar>
     // default height for the widget when the widget placed inside a infinity
     // height widget
     _minHeight = 300;
-    final SfCalendarThemeData calendarThemeData = SfCalendarTheme.of(context);
-    _calendarTheme =
-        _getThemeDataValue(calendarThemeData, Theme.of(context).colorScheme);
     //// localeOf(context) returns the locale from material app when SfCalendar locale value as null
     _locale = Localizations.localeOf(context).toString();
     _localizations = SfLocalizations.of(context);
@@ -3000,6 +3030,9 @@ class _SfCalendarState extends State<SfCalendar>
   Widget build(BuildContext context) {
     double height;
     _isRTL = CalendarViewHelper.isRTLLayout(context);
+    _themeData = Theme.of(context);
+    _calendarTheme =
+        _getThemeDataValue(SfCalendarTheme.of(context), _themeData);
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       _minWidth = constraints.maxWidth == double.infinity
@@ -3800,7 +3833,8 @@ class _SfCalendarState extends State<SfCalendar>
   }
 
   SfCalendarThemeData _getThemeDataValue(
-      SfCalendarThemeData calendarThemeData, ColorScheme colorScheme) {
+      SfCalendarThemeData calendarThemeData, ThemeData themeData) {
+    final ColorScheme colorScheme = themeData.colorScheme;
     return calendarThemeData.copyWith(
         brightness: calendarThemeData.brightness ?? colorScheme.brightness,
         backgroundColor:
@@ -3818,11 +3852,11 @@ class _SfCalendarState extends State<SfCalendar>
                 Colors.transparent,
         leadingDatesBackgroundColor:
             calendarThemeData.leadingDatesBackgroundColor ?? Colors.transparent,
-        // ignore: lines_longer_than_80_chars
         viewHeaderBackgroundColor:
             calendarThemeData.viewHeaderBackgroundColor ?? Colors.transparent,
         allDayPanelColor:
             calendarThemeData.allDayPanelColor ?? Colors.transparent,
+        // ignore: lines_longer_than_80_chars
         weekNumberBackgroundColor:
             calendarThemeData.weekNumberBackgroundColor ??
                 colorScheme.onSurface.withOpacity(0.04),
@@ -3832,40 +3866,101 @@ class _SfCalendarState extends State<SfCalendar>
             calendarThemeData.todayHighlightColor ?? colorScheme.primary,
         selectionBorderColor:
             calendarThemeData.selectionBorderColor ?? colorScheme.primary,
-        blackoutDatesTextStyle: calendarThemeData.blackoutDatesTextStyle,
-        trailingDatesTextStyle: calendarThemeData.trailingDatesTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.54),
-                fontSize: 13,
-                fontFamily: 'Roboto'),
-        leadingDatesTextStyle: calendarThemeData.leadingDatesTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.54),
-                fontSize: 13,
-                fontFamily: 'Roboto'),
-        agendaDayTextStyle: calendarThemeData.agendaDayTextStyle ??
+        blackoutDatesTextStyle: calendarThemeData.blackoutDatesTextStyle == null
+            ? widget.blackoutDatesTextStyle
+            : calendarThemeData.blackoutDatesTextStyle
+                ?.merge(widget.blackoutDatesTextStyle),
+        trailingDatesTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.54),
+              fontSize: 13,
+            )
+            .merge(calendarThemeData.trailingDatesTextStyle)
+            .merge(
+                widget.monthViewSettings.monthCellStyle.trailingDatesTextStyle),
+        leadingDatesTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.54),
+              fontSize: 13,
+            )
+            .merge(calendarThemeData.leadingDatesTextStyle)
+            .merge(
+                widget.monthViewSettings.monthCellStyle.leadingDatesTextStyle),
+        todayTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onPrimary,
+              fontSize: 13,
+            )
+            .merge(calendarThemeData.todayTextStyle)
+            .merge(widget.todayTextStyle),
+        headerTextStyle: themeData.textTheme.bodyLarge!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.87),
+              fontSize: 18,
+              fontWeight: FontWeight.w400,
+            )
             // ignore: lines_longer_than_80_chars
-            TextStyle(color: colorScheme.onSurface.withOpacity(0.54), fontWeight: FontWeight.w500, fontSize: 10, fontFamily: 'Roboto'),
-        // ignore: lines_longer_than_80_chars
-        agendaDateTextStyle: calendarThemeData.agendaDateTextStyle ?? TextStyle(color: colorScheme.onSurface, fontSize: 18, fontFamily: 'Roboto'),
-        // ignore: lines_longer_than_80_chars
-        todayTextStyle: calendarThemeData.todayTextStyle ?? TextStyle(color: colorScheme.onPrimary, fontSize: 13, fontFamily: 'Roboto'),
-        // ignore: lines_longer_than_80_chars
-        headerTextStyle: calendarThemeData.headerTextStyle ?? TextStyle(color: colorScheme.onSurface.withOpacity(0.87), fontSize: 18, fontFamily: 'Roboto'),
-        // ignore: lines_longer_than_80_chars
-        activeDatesTextStyle: calendarThemeData.activeDatesTextStyle ?? TextStyle(color: colorScheme.onSurface.withOpacity(0.87), fontSize: 13, fontFamily: 'Roboto'),
-        // ignore: lines_longer_than_80_chars
-        timeTextStyle: calendarThemeData.timeTextStyle ?? TextStyle(color: colorScheme.onSurface.withOpacity(0.54), fontWeight: FontWeight.w500, fontSize: 10),
-        // ignore: lines_longer_than_80_chars
-        viewHeaderDateTextStyle: calendarThemeData.viewHeaderDateTextStyle ?? TextStyle(color: colorScheme.onSurface.withOpacity(0.87), fontSize: 15, fontWeight: FontWeight.w400, fontFamily: 'Roboto'),
-        // ignore: lines_longer_than_80_chars
-        viewHeaderDayTextStyle: calendarThemeData.viewHeaderDayTextStyle ?? TextStyle(color: colorScheme.onSurface.withOpacity(0.87), fontSize: 11, fontWeight: FontWeight.w400, fontFamily: 'Roboto'),
-        // ignore: lines_longer_than_80_chars
-        displayNameTextStyle: calendarThemeData.displayNameTextStyle ?? TextStyle(color: colorScheme.onSurface, fontSize: 10, fontWeight: FontWeight.w500, fontFamily: 'Roboto'),
-        // ignore: lines_longer_than_80_chars
-        weekNumberTextStyle: calendarThemeData.weekNumberTextStyle ?? TextStyle(color: colorScheme.onSurface.withOpacity(0.87), fontSize: 13, fontFamily: 'Roboto'),
-        // ignore: lines_longer_than_80_chars
-        timeIndicatorTextStyle: calendarThemeData.timeIndicatorTextStyle ?? TextStyle(color: colorScheme.primary, fontWeight: FontWeight.w500, fontSize: 10));
+            .merge(calendarThemeData.headerTextStyle)
+            .merge(widget.headerStyle.textStyle),
+        activeDatesTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.87),
+              fontSize: 13,
+            )
+            // ignore: lines_longer_than_80_chars
+            .merge(calendarThemeData.activeDatesTextStyle)
+            .merge(widget.monthViewSettings.monthCellStyle.textStyle),
+        timeTextStyle: themeData.textTheme.bodySmall!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.54),
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            )
+            // ignore: lines_longer_than_80_chars
+            .merge(calendarThemeData.timeTextStyle)
+            .merge(widget.timeSlotViewSettings.timeTextStyle),
+        viewHeaderDateTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.87),
+              fontSize: 15,
+            )
+            // ignore: lines_longer_than_80_chars
+            .merge(calendarThemeData.viewHeaderDateTextStyle)
+            .merge(widget.viewHeaderStyle.dateTextStyle),
+        viewHeaderDayTextStyle: themeData.textTheme.bodySmall!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.87),
+              fontSize: 11,
+            )
+            // ignore: lines_longer_than_80_chars
+            .merge(calendarThemeData.viewHeaderDayTextStyle)
+            .merge(widget.viewHeaderStyle.dayTextStyle),
+        displayNameTextStyle: themeData.textTheme.bodySmall!
+            .copyWith(
+              color: colorScheme.onSurface,
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            )
+            // ignore: lines_longer_than_80_chars
+            .merge(calendarThemeData.displayNameTextStyle)
+            .merge(widget.resourceViewSettings.displayNameTextStyle),
+        weekNumberTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.87),
+              fontSize: 13,
+            )
+            // ignore: lines_longer_than_80_chars
+            .merge(calendarThemeData.weekNumberTextStyle)
+            .merge(widget.weekNumberStyle.textStyle),
+        timeIndicatorTextStyle: themeData.textTheme.bodySmall!
+            .copyWith(
+              color: colorScheme.primary,
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            )
+            // ignore: lines_longer_than_80_chars
+            .merge(calendarThemeData.timeIndicatorTextStyle)
+            .merge(widget.dragAndDropSettings.timeIndicatorStyle));
   }
 
   void _updateFadeAnimation() {
@@ -5230,7 +5325,7 @@ class _SfCalendarState extends State<SfCalendar>
       DateTime displayDate,
       ScheduleViewSettings scheduleViewSettings,
       bool useMobilePlatformUI) {
-    /// return default min date when [hideEmptyAgendaDays] as false
+    /// return default min date when hideEmptyAgendaDays as false
     if (!scheduleViewSettings.hideEmptyScheduleWeek && useMobilePlatformUI) {
       return minDate;
     }
@@ -6030,6 +6125,7 @@ class _SfCalendarState extends State<SfCalendar>
                         widget.todayTextStyle,
                         _locale,
                         _calendarTheme,
+                        _themeData,
                         _agendaDateNotifier,
                         _minWidth,
                         isRTL,
@@ -6051,6 +6147,7 @@ class _SfCalendarState extends State<SfCalendar>
                       _locale,
                       _localizations,
                       _calendarTheme,
+                      _themeData,
                       _agendaViewNotifier,
                       widget.appointmentTimeTextFormat,
                       viewPadding,
@@ -6302,6 +6399,7 @@ class _SfCalendarState extends State<SfCalendar>
                             _useMobilePlatformUI,
                             _agendaViewNotifier,
                             _calendarTheme,
+                            _themeData,
                             _localizations,
                             _textScaleFactor),
                         size: isMonthLabel
@@ -6377,6 +6475,7 @@ class _SfCalendarState extends State<SfCalendar>
                       widget.todayTextStyle,
                       _locale,
                       _calendarTheme,
+                      _themeData,
                       _agendaDateNotifier,
                       _minWidth,
                       isRTL,
@@ -6397,6 +6496,7 @@ class _SfCalendarState extends State<SfCalendar>
                         _useMobilePlatformUI,
                         _agendaViewNotifier,
                         _calendarTheme,
+                        _themeData,
                         _localizations,
                         _textScaleFactor,
                         isDisplayDate: true),
@@ -6993,6 +7093,7 @@ class _SfCalendarState extends State<SfCalendar>
                     widget.timeSlotViewSettings.nonWorkingDays,
                     widget.monthViewSettings.navigationDirection,
                     widget.showDatePickerButton,
+                    widget.showTodayButton,
                     _showHeader,
                     widget.allowedViews,
                     widget.allowViewNavigation,
@@ -7835,6 +7936,7 @@ class _SfCalendarState extends State<SfCalendar>
                   widget.timeSlotViewSettings.nonWorkingDays,
                   widget.monthViewSettings.navigationDirection,
                   widget.showDatePickerButton,
+                  widget.showTodayButton,
                   _showHeader,
                   widget.allowedViews,
                   widget.allowViewNavigation,
@@ -8027,10 +8129,8 @@ class _SfCalendarState extends State<SfCalendar>
     const double calendarViewTextHeight = 40;
     final List<Widget> children = <Widget>[];
     double width = 0;
-    Color? headerTextColor = widget.headerStyle.textStyle != null
-        ? widget.headerStyle.textStyle!.color
-        : (_calendarTheme.headerTextStyle!.color);
-    headerTextColor ??= Colors.black87;
+    final Color headerTextColor =
+        _calendarTheme.headerTextStyle!.color ?? Colors.black87;
     final TextStyle style = TextStyle(color: headerTextColor, fontSize: 12);
     int selectedIndex = -1;
     final Color? todayColor = CalendarViewHelper.getTodayHighlightTextColor(
@@ -8097,10 +8197,8 @@ class _SfCalendarState extends State<SfCalendar>
       arrowWidth = iconWidth;
     }
 
-    double? headerIconTextWidth = widget.headerStyle.textStyle != null
-        ? widget.headerStyle.textStyle!.fontSize
-        : _calendarTheme.headerTextStyle!.fontSize;
-    headerIconTextWidth ??= 14;
+    final double headerIconTextWidth =
+        _calendarTheme.headerTextStyle!.fontSize ?? 14;
     final double totalArrowWidth = 2 * arrowWidth;
     final bool isCenterAlignment = !_isMobilePlatform &&
         (widget.headerStyle.textAlign == TextAlign.center ||
@@ -8119,7 +8217,7 @@ class _SfCalendarState extends State<SfCalendar>
     double todayWidth = 0;
 
     /// Today button shown only the date picker enabled.
-    if (widget.showDatePickerButton) {
+    if (widget.showTodayButton) {
       todayWidth = _useMobilePlatformUI
           ? iconWidth
           : _getTextWidgetWidth(_localizations.todayLabel, widget.headerHeight,
@@ -8326,6 +8424,7 @@ class _SfCalendarState extends State<SfCalendar>
                                 resourceItemHeight,
                                 widget.cellBorderColor,
                                 _calendarTheme,
+                                _themeData,
                                 _resourceImageNotifier,
                                 isRTL,
                                 _textScaleFactor,
@@ -8435,6 +8534,7 @@ class _SfCalendarState extends State<SfCalendar>
             isRTL,
             _locale,
             _calendarTheme,
+            _themeData,
             _timeZoneLoaded ? widget.specialRegions : null,
             _blackoutDates,
             _controller,
@@ -8491,6 +8591,7 @@ class _SfCalendarState extends State<SfCalendar>
                 widget.timeSlotViewSettings.nonWorkingDays,
                 widget.monthViewSettings.navigationDirection,
                 widget.showDatePickerButton,
+                widget.showTodayButton,
                 _showHeader,
                 widget.allowedViews,
                 widget.allowViewNavigation,
@@ -8563,9 +8664,7 @@ class _SfCalendarState extends State<SfCalendar>
     double pickerWidth = 0;
     double pickerHeight = 0;
 
-    final TextStyle datePickerStyle =
-        widget.monthViewSettings.monthCellStyle.textStyle ??
-            _calendarTheme.activeDatesTextStyle!;
+    final TextStyle datePickerStyle = _calendarTheme.activeDatesTextStyle!;
     final Color? todayColor =
         widget.todayHighlightColor ?? _calendarTheme.todayHighlightColor;
     final Color? todayTextColor = CalendarViewHelper.getTodayHighlightTextColor(
@@ -8709,9 +8808,7 @@ class _SfCalendarState extends State<SfCalendar>
                     textStyle: datePickerStyle,
                     todayTextStyle:
                         datePickerStyle.copyWith(color: todayTextColor),
-                    leadingDatesTextStyle: widget.monthViewSettings
-                            .monthCellStyle.leadingDatesTextStyle ??
-                        _calendarTheme.leadingDatesTextStyle,
+                    leadingDatesTextStyle: _calendarTheme.leadingDatesTextStyle,
                   ),
                   view: _view == CalendarView.month ||
                           _view == CalendarView.timelineMonth
@@ -9032,6 +9129,7 @@ class _SfCalendarState extends State<SfCalendar>
                         _locale,
                         _localizations,
                         _calendarTheme,
+                        _themeData,
                         _agendaViewNotifier,
                         widget.appointmentTimeTextFormat,
                         0,
@@ -9119,6 +9217,7 @@ class _SfCalendarState extends State<SfCalendar>
                               widget.todayTextStyle,
                               _locale,
                               _calendarTheme,
+                              _themeData,
                               _agendaDateNotifier,
                               _minWidth,
                               isRTL,
@@ -9144,6 +9243,7 @@ class _SfCalendarState extends State<SfCalendar>
                                   _locale,
                                   _localizations,
                                   _calendarTheme,
+                                  _themeData,
                                   _agendaViewNotifier,
                                   widget.appointmentTimeTextFormat,
                                   _agendaDateViewWidth,
@@ -9286,6 +9386,7 @@ class _CalendarHeaderView extends StatefulWidget {
       this.nonWorkingDays,
       this.navigationDirection,
       this.showDatePickerButton,
+      this.showTodayButton,
       this.isPickerShown,
       this.allowedViews,
       this.allowViewNavigation,
@@ -9331,6 +9432,7 @@ class _CalendarHeaderView extends StatefulWidget {
   final _CalendarHeaderCallback headerTapCallback;
   final _CalendarHeaderCallback headerLongPressCallback;
   final bool showDatePickerButton;
+  final bool showTodayButton;
   final SfLocalizations localizations;
   final ValueNotifier<DateTime?> valueChangeNotifier;
   final ValueNotifier<bool> viewChangeNotifier;
@@ -9413,12 +9515,10 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
     double weekNumberPanelWidth = 0, weekNumberPanelHeight = 0;
     double weekNumberTextWidth = 0;
     final List<Widget> children = <Widget>[];
-    Color? headerTextColor = widget.headerStyle.textStyle != null
-        ? widget.headerStyle.textStyle!.color
-        : (widget.calendarTheme.headerTextStyle!.color);
+    final Color headerTextColor =
+        widget.calendarTheme.headerTextStyle!.color ?? Colors.black87;
     final Color headerBackgroundColor = widget.headerStyle.backgroundColor ??
         widget.calendarTheme.headerBackgroundColor!;
-    headerTextColor ??= Colors.black87;
     final Color arrowColor =
         headerTextColor.withOpacity(headerTextColor.opacity * 0.6);
     Color prevArrowColor = arrowColor;
@@ -9427,17 +9527,15 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
     const double defaultCalendarViewTextSize = 12;
     Widget calendarViewIcon = const SizedBox(width: 0, height: 0);
     const double padding = 5;
-    double? headerIconTextWidth = widget.headerStyle.textStyle != null
-        ? widget.headerStyle.textStyle!.fontSize
-        : widget.calendarTheme.headerTextStyle!.fontSize;
-    headerIconTextWidth ??= 14;
+    final double headerIconTextWidth =
+        widget.calendarTheme.headerTextStyle!.fontSize ?? 14;
     final String todayText = widget.localizations.todayLabel;
 
     double maxHeaderHeight = 0;
     const double allowedViewsPadding = 10;
 
     /// Today icon shown when the date picker enabled on calendar.
-    if (widget.showDatePickerButton) {
+    if (widget.showTodayButton) {
       todayIconWidth = iconWidth;
       if (!useMobilePlatformUI) {
         /// 5 as padding for around today text view.
@@ -9451,7 +9549,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
 
     double headerTextWidth = 0;
     final bool isTimelineView = CalendarViewHelper.isTimelineView(widget.view);
-    final TextStyle weekNumberTextStyle = widget.weekNumberStyle.textStyle ??
+    final TextStyle weekNumberTextStyle =
         widget.calendarTheme.weekNumberTextStyle!;
 
     final Color? weekNumberBackgroundColor =
@@ -9467,8 +9565,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           widget.height,
           widget.width - totalArrowWidth - todayIconWidth - padding,
           context,
-          style: widget.headerStyle.textStyle ??
-              widget.calendarTheme.headerTextStyle);
+          style: widget.calendarTheme.headerTextStyle);
 
       headerTextWidth = headerTextSize.width +
           padding +
@@ -9521,7 +9618,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
             semanticLabel: 'CalendarView');
       } else {
         /// Assign divider width when today icon text shown.
-        dividerWidth = widget.showDatePickerButton ? 10 : 0;
+        dividerWidth = widget.showTodayButton ? 10 : 0;
 
         final double totalWidth = widget.width -
             totalArrowWidth -
@@ -9711,8 +9808,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
         !widget.showDatePickerButton || !widget.enableInteraction
             ? Colors.transparent
             : null;
-    final TextStyle headerTextStyle =
-        widget.headerStyle.textStyle ?? widget.calendarTheme.headerTextStyle!;
+    final TextStyle headerTextStyle = widget.calendarTheme.headerTextStyle!;
     final Widget headerText = widget.isMobilePlatform
         ? Container(
             alignment: Alignment.center,
@@ -9767,7 +9863,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                                               '$headerString ${widget.isPickerShown ? 'hide date picker' : 'show date picker'}',
                                           overflow: TextOverflow.clip,
                                           softWrap: false,
-                                          textDirection: TextDirection.ltr)),
+                                          textDirection: CalendarViewHelper
+                                              .getTextDirectionBasedOnLocale(
+                                                  widget.locale))),
                                   Icon(
                                     widget.isPickerShown
                                         ? Icons.arrow_drop_up
@@ -9783,7 +9881,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                                           maxLines: 1,
                                           overflow: TextOverflow.clip,
                                           softWrap: false,
-                                          textDirection: TextDirection.ltr))
+                                          textDirection: CalendarViewHelper
+                                              .getTextDirectionBasedOnLocale(
+                                                  widget.locale)))
                                 ])),
                 )),
           )
@@ -9846,7 +9946,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                                             '$headerString ${widget.isPickerShown ? 'hide date picker' : 'show date picker'}',
                                         overflow: TextOverflow.clip,
                                         softWrap: false,
-                                        textDirection: TextDirection.ltr)),
+                                        textDirection: CalendarViewHelper
+                                            .getTextDirectionBasedOnLocale(
+                                                widget.locale))),
                                 Icon(
                                   widget.isPickerShown
                                       ? Icons.arrow_drop_up
@@ -9862,7 +9964,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,
                                         softWrap: false,
-                                        textDirection: TextDirection.ltr)),
+                                        textDirection: CalendarViewHelper
+                                            .getTextDirectionBasedOnLocale(
+                                                widget.locale))),
                               ],
                       )),
                 )),
@@ -9993,7 +10097,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
 
     final Color? todaySplashColor =
         !widget.enableInteraction ? Colors.transparent : null;
-    final Widget todayIcon = widget.showDatePickerButton
+    final Widget todayIcon = widget.showTodayButton
         ? Container(
             alignment: Alignment.center,
             color: headerBackgroundColor,
@@ -10053,23 +10157,22 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           )
         : Container();
 
-    final Widget dividerWidget = widget.showDatePickerButton &&
-            isNeedViewSwitchOption &&
-            !useMobilePlatformUI
-        ? Container(
-            alignment: Alignment.center,
-            color: headerBackgroundColor,
-            width: dividerWidth,
-            height: headerHeight,
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            child: const VerticalDivider(
-              color: Colors.grey,
-              thickness: 0.5,
-            ))
-        : const SizedBox(
-            width: 0,
-            height: 0,
-          );
+    final Widget dividerWidget =
+        widget.showTodayButton && isNeedViewSwitchOption && !useMobilePlatformUI
+            ? Container(
+                alignment: Alignment.center,
+                color: headerBackgroundColor,
+                width: dividerWidth,
+                height: headerHeight,
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: const VerticalDivider(
+                  color: Colors.grey,
+                  thickness: 0.5,
+                ))
+            : const SizedBox(
+                width: 0,
+                height: 0,
+              );
 
     List<Widget> rowChildren = <Widget>[];
 
@@ -10280,9 +10383,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                                       ? Icons.arrow_drop_up
                                       : Icons.arrow_drop_down,
                                   color: arrowColor,
-                                  size: (widget.headerStyle.textStyle ??
-                                              widget.calendarTheme
-                                                  .headerTextStyle)!
+                                  size: widget.calendarTheme.headerTextStyle!
                                           .fontSize ??
                                       14,
                                 )
@@ -10360,6 +10461,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
         widget.headerDateFormat != null && widget.headerDateFormat!.isNotEmpty
             ? widget.headerDateFormat
             : null;
+    final List<String> headerFormatString = headerDateFormat == null
+        ? <String>[]
+        : CalendarViewHelper.getListFromString(headerDateFormat);
     final int visibleDatesCount = DateTimeHelper.getViewDatesCount(
         widget.view,
         widget.numberOfDaysInView,
@@ -10369,8 +10473,10 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
       case CalendarView.schedule:
         {
           if (headerDateFormat != null) {
-            return DateFormat(headerDateFormat, widget.locale)
-                .format(widget.valueChangeNotifier.value!);
+            return CalendarViewHelper.getLocalizedString(
+                widget.valueChangeNotifier.value!,
+                headerFormatString,
+                widget.locale);
           }
           // ignore: lines_longer_than_80_chars
           return '${DateFormat(monthFormat, widget.locale).format(widget.valueChangeNotifier.value!)} ${widget.valueChangeNotifier.value!.year}';
@@ -10385,7 +10491,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
               startDate.month != endDate.month) {
             if (headerDateFormat != null) {
               // ignore: lines_longer_than_80_chars
-              return '${DateFormat(headerDateFormat, widget.locale).format(startDate)} - ${DateFormat(headerDateFormat, widget.locale).format(endDate)}';
+              return '${CalendarViewHelper.getLocalizedString(startDate, headerFormatString, widget.locale)} - ${CalendarViewHelper.getLocalizedString(endDate, headerFormatString, widget.locale)}';
             }
             monthFormat = 'MMM';
             // ignore: lines_longer_than_80_chars
@@ -10393,8 +10499,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           }
 
           if (headerDateFormat != null) {
-            return DateFormat(headerDateFormat, widget.locale)
-                .format(widget.currentDate!);
+            // ignore: lines_longer_than_80_chars
+            return CalendarViewHelper.getLocalizedString(
+                widget.currentDate!, headerFormatString, widget.locale);
           }
           // ignore: lines_longer_than_80_chars
           return '${DateFormat(monthFormat, widget.locale).format(widget.currentDate!)} ${widget.currentDate!.year}';
@@ -10405,8 +10512,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
         {
           final DateTime headerDate = widget.visibleDates[0];
           if (headerDateFormat != null) {
-            return DateFormat(headerDateFormat, widget.locale)
-                .format(headerDate);
+            // ignore: lines_longer_than_80_chars
+            return CalendarViewHelper.getLocalizedString(
+                headerDate, headerFormatString, widget.locale);
           }
           // ignore: lines_longer_than_80_chars
           return '${DateFormat(monthFormat, widget.locale).format(headerDate)} ${headerDate.year}';
@@ -10420,16 +10528,18 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
               widget.visibleDates[widget.visibleDates.length - 1];
           if (visibleDatesCount == 1) {
             if (headerDateFormat != null) {
-              return DateFormat(headerDateFormat, widget.locale)
-                  .format(startDate);
+              // ignore: lines_longer_than_80_chars
+              CalendarViewHelper.getLocalizedString(
+                  startDate, headerFormatString, widget.locale);
             }
             // ignore: lines_longer_than_80_chars
             return '${DateFormat(monthFormat, widget.locale).format(startDate)} ${startDate.year}';
           } else {
             if (headerDateFormat != null) {
               // ignore: lines_longer_than_80_chars
-              return '${DateFormat(headerDateFormat, widget.locale).format(startDate)} - ${DateFormat(headerDateFormat, widget.locale).format(endDate)}';
+              return '${CalendarViewHelper.getLocalizedString(startDate, headerFormatString, widget.locale)} - ${CalendarViewHelper.getLocalizedString(endDate, headerFormatString, widget.locale)}';
             }
+
             monthFormat = 'MMM';
             String startText =
                 DateFormat(monthFormat, widget.locale).format(startDate);
@@ -10456,6 +10566,7 @@ class _ScheduleLabelPainter extends CustomPainter {
       this.useMobilePlatformUI,
       this.agendaViewNotifier,
       this.calendarTheme,
+      this.themeData,
       this._localizations,
       this.textScaleFactor,
       {this.isDisplayDate = false})
@@ -10471,6 +10582,7 @@ class _ScheduleLabelPainter extends CustomPainter {
   final bool useMobilePlatformUI;
   final ValueNotifier<ScheduleViewHoveringDetails?> agendaViewNotifier;
   final SfCalendarThemeData calendarTheme;
+  final ThemeData themeData;
   final bool isDisplayDate;
   final double textScaleFactor;
   final TextPainter _textPainter = TextPainter();
@@ -10497,8 +10609,9 @@ class _ScheduleLabelPainter extends CustomPainter {
     /// Add the localized add new appointment text for display date view.
     final TextSpan span = TextSpan(
       text: _localizations.noEventsCalendarLabel,
-      style: scheduleViewSettings.weekHeaderSettings.weekTextStyle ??
-          scheduleViewSettings.placeholderTextStyle,
+      style: themeData.textTheme.bodyMedium!.merge(
+          scheduleViewSettings.weekHeaderSettings.weekTextStyle ??
+              scheduleViewSettings.placeholderTextStyle),
     );
 
     double xPosition = 10;
@@ -10555,14 +10668,19 @@ class _ScheduleLabelPainter extends CustomPainter {
     }
 
     endDateFormat ??= 'MMM dd';
-    final String firstDate =
-        DateFormat(startDateFormat, locale).format(startDate);
-    final String lastDate = DateFormat(endDateFormat, locale).format(endDate!);
+    final List<String> startDateStringFormats =
+        CalendarViewHelper.getListFromString(startDateFormat);
+    final List<String> endDateStringFormats =
+        CalendarViewHelper.getListFromString(endDateFormat);
+    final String firstDate = CalendarViewHelper.getLocalizedString(
+        startDate, startDateStringFormats, locale);
+    final String lastDate = CalendarViewHelper.getLocalizedString(
+        endDate!, endDateStringFormats, locale);
     final TextSpan span = TextSpan(
       text: '$firstDate - $lastDate',
-      style: scheduleViewSettings.weekHeaderSettings.weekTextStyle ??
-          const TextStyle(
-              color: Colors.grey, fontSize: 15, fontFamily: 'Roboto'),
+      style: themeData.textTheme.bodyMedium!
+          .copyWith(color: Colors.grey, fontSize: 15)
+          .merge(scheduleViewSettings.weekHeaderSettings.weekTextStyle),
     );
     _backgroundPainter.color =
         scheduleViewSettings.weekHeaderSettings.backgroundColor;
@@ -10610,11 +10728,16 @@ class _ScheduleLabelPainter extends CustomPainter {
     const double yPosition = 0;
     final String monthFormat =
         scheduleViewSettings.monthHeaderSettings.monthFormat;
+    final List<String> monthStringFormats =
+        CalendarViewHelper.getListFromString(monthFormat);
+    final String dateString = CalendarViewHelper.getLocalizedString(
+        startDate, monthStringFormats, locale);
     final TextSpan span = TextSpan(
-      text: DateFormat(monthFormat, locale).format(startDate),
-      style: scheduleViewSettings.monthHeaderSettings.monthTextStyle ??
-          const TextStyle(
-              color: Colors.white, fontSize: 20, fontFamily: 'Roboto'),
+      text: dateString,
+      style: themeData.textTheme.bodyLarge!
+          .copyWith(
+              color: Colors.white, fontSize: 20, fontWeight: FontWeight.w400)
+          .merge(scheduleViewSettings.monthHeaderSettings.monthTextStyle),
     );
     _backgroundPainter.shader = null;
     _backgroundPainter.color =
@@ -11090,6 +11213,7 @@ class _AgendaDateTimePainter extends CustomPainter {
       this.todayTextStyle,
       this.locale,
       this.calendarTheme,
+      this.themeData,
       this.agendaDateNotifier,
       this.viewWidth,
       this.isRTL,
@@ -11105,6 +11229,7 @@ class _AgendaDateTimePainter extends CustomPainter {
   final String locale;
   final ValueNotifier<ScheduleViewHoveringDetails?> agendaDateNotifier;
   final SfCalendarThemeData calendarTheme;
+  final ThemeData themeData;
   final double viewWidth;
   final bool isRTL;
   final double textScaleFactor;
@@ -11125,54 +11250,78 @@ class _AgendaDateTimePainter extends CustomPainter {
         CalendarViewHelper.isMobileLayoutUI(viewWidth, isMobilePlatform);
     final bool isToday = isSameDate(selectedDate, DateTime.now());
     TextStyle? dateTextStyle, dayTextStyle;
+
+    /// Holds the default agenda day text style from framework text theme.
+    final TextStyle agendaDayThemeTextStyle =
+        themeData.textTheme.bodySmall!.copyWith(
+      color: themeData.colorScheme.onSurface.withOpacity(0.54),
+      fontSize: 10,
+      fontWeight: FontWeight.w500,
+    );
+
+    /// Holds the default agenda date text style from framework text theme.
+    final TextStyle agendaDateThemeTextStyle =
+        themeData.textTheme.bodyMedium!.copyWith(
+      color: themeData.colorScheme.onSurface,
+      fontSize: 18,
+    );
     if (monthViewSettings != null) {
-      dayTextStyle = monthViewSettings!.agendaStyle.dayTextStyle ??
-          calendarTheme.agendaDayTextStyle;
-      dateTextStyle = monthViewSettings!.agendaStyle.dateTextStyle ??
-          calendarTheme.agendaDateTextStyle;
+      dayTextStyle = agendaDayThemeTextStyle
+          .merge(calendarTheme.agendaDayTextStyle)
+          .merge(monthViewSettings!.agendaStyle.dayTextStyle);
+      dateTextStyle = agendaDateThemeTextStyle
+          .merge(calendarTheme.agendaDateTextStyle)
+          .merge(monthViewSettings!.agendaStyle.dateTextStyle);
     } else {
-      dayTextStyle = scheduleViewSettings!.dayHeaderSettings.dayTextStyle ??
-          (useMobilePlatformUI
-              ? calendarTheme.agendaDayTextStyle
-              : TextStyle(
-                  color: calendarTheme.agendaDayTextStyle!.color,
-                  fontSize: 9,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w500));
-      dateTextStyle = scheduleViewSettings!.dayHeaderSettings.dateTextStyle ??
-          (useMobilePlatformUI
-              ? calendarTheme.agendaDateTextStyle
-              : TextStyle(
-                  color: calendarTheme.agendaDateTextStyle!.color,
-                  fontSize: 18,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.normal));
+      if (useMobilePlatformUI) {
+        dayTextStyle = agendaDayThemeTextStyle
+            .merge(calendarTheme.agendaDayTextStyle)
+            .merge(scheduleViewSettings!.dayHeaderSettings.dayTextStyle);
+        dateTextStyle = agendaDateThemeTextStyle
+            .merge(calendarTheme.agendaDateTextStyle)
+            .merge(scheduleViewSettings!.dayHeaderSettings.dateTextStyle);
+      } else {
+        dayTextStyle = agendaDayThemeTextStyle.merge(
+            scheduleViewSettings!.dayHeaderSettings.dayTextStyle ??
+                TextStyle(
+                    color: calendarTheme.agendaDayTextStyle != null
+                        ? calendarTheme.agendaDayTextStyle!.color
+                        : null,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w500));
+        dateTextStyle = agendaDateThemeTextStyle.merge(
+            scheduleViewSettings!.dayHeaderSettings.dateTextStyle ??
+                TextStyle(
+                    color: calendarTheme.agendaDateTextStyle != null
+                        ? calendarTheme.agendaDateTextStyle!.color
+                        : null,
+                    fontSize: 18,
+                    fontWeight: FontWeight.normal));
+      }
     }
 
     if (isToday) {
-      final Color? todayTextStyleColor = todayTextStyle != null
-          ? todayTextStyle!.color
-          : calendarTheme.todayTextStyle!.color;
+      final Color? todayTextStyleColor = calendarTheme.todayTextStyle!.color;
       final Color? todayTextColor =
           CalendarViewHelper.getTodayHighlightTextColor(
               todayHighlightColor, todayTextStyle, calendarTheme);
       dayTextStyle = todayTextStyle != null
-          ? todayTextStyle!
-              .copyWith(fontSize: dayTextStyle!.fontSize, color: todayTextColor)
-          : dayTextStyle!.copyWith(color: todayTextColor);
+          ? calendarTheme.todayTextStyle!
+              .copyWith(fontSize: dayTextStyle.fontSize, color: todayTextColor)
+          : dayTextStyle.copyWith(color: todayTextColor);
       dateTextStyle = todayTextStyle != null
-          ? todayTextStyle!.copyWith(
-              fontSize: dateTextStyle!.fontSize, color: todayTextStyleColor)
-          : dateTextStyle!.copyWith(color: todayTextStyleColor);
+          ? calendarTheme.todayTextStyle!.copyWith(
+              fontSize: dateTextStyle.fontSize, color: todayTextStyleColor)
+          : dateTextStyle.copyWith(color: todayTextStyleColor);
     }
 
     /// Draw day label other than web schedule view.
     if (scheduleViewSettings == null || useMobilePlatformUI) {
-      _addDayLabelForMobile(canvas, size, padding, dayTextStyle!,
-          dateTextStyle!, isToday, isMobilePlatform);
+      _addDayLabelForMobile(canvas, size, padding, dayTextStyle, dateTextStyle,
+          isToday, isMobilePlatform);
     } else {
       _addDayLabelForWeb(
-          canvas, size, padding, dayTextStyle!, dateTextStyle!, isToday);
+          canvas, size, padding, dayTextStyle, dateTextStyle, isToday);
     }
   }
 

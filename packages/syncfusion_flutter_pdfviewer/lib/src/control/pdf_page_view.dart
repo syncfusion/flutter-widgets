@@ -7,8 +7,14 @@ import '../../pdfviewer.dart';
 import '../common/mobile_helper.dart'
     if (dart.library.html) 'package:syncfusion_flutter_pdfviewer/src/common/web_helper.dart'
     as helper;
-
 import '../common/pdfviewer_helper.dart';
+import '../form_fields/pdf_checkbox.dart';
+import '../form_fields/pdf_combo_box.dart';
+import '../form_fields/pdf_form_field.dart';
+import '../form_fields/pdf_list_box.dart';
+import '../form_fields/pdf_radio_button.dart';
+import '../form_fields/pdf_signature.dart';
+import '../form_fields/pdf_text_box.dart';
 import 'pdf_scrollable.dart';
 import 'pdfviewer_canvas.dart';
 import 'single_page_view.dart';
@@ -29,6 +35,7 @@ class PdfPageView extends StatefulWidget {
     this.pdfPages,
     this.pageIndex,
     this.pdfViewerController,
+    this.maxZoomLevel,
     this.enableDocumentLinkAnnotation,
     this.enableTextSelection,
     this.onTextSelectionChanged,
@@ -51,6 +58,13 @@ class PdfPageView extends StatefulWidget {
     this.textDirection,
     this.canShowHyperlinkDialog,
     this.enableHyperlinkNavigation,
+    this.isAndroidTV,
+    this.startPageIndex,
+    this.endPageIndex,
+    this.canShowPageLoadingIndicator,
+    this.canShowSignaturePadDialog,
+    this.onTap,
+    this.formFields,
   ) : super(key: key);
 
   /// Image stream
@@ -94,6 +108,9 @@ class PdfPageView extends StatefulWidget {
 
   /// Instance of [PdfViewerController]
   final PdfViewerController pdfViewerController;
+
+  /// Represents the maximum zoom level .
+  final double maxZoomLevel;
 
   /// If false,text selection is disabled.Default value is true.
   final bool enableTextSelection;
@@ -152,6 +169,28 @@ class PdfPageView extends StatefulWidget {
   ///A direction of text flow.
   final TextDirection textDirection;
 
+  /// Returns true when the SfPdfViewer is deployed in Android TV.
+  final bool isAndroidTV;
+
+  /// Initial page index rendered in the viewport.
+  final int startPageIndex;
+
+  /// Last page index rendered in the viewport.
+  final int endPageIndex;
+
+  /// If true, the page loading indicator is enabled.
+  final bool canShowPageLoadingIndicator;
+
+  /// Indicates whether the built-in signature pad dialog should be displayed or not.
+  /// Default value is true.
+  final bool canShowSignaturePadDialog;
+
+  /// List of form fields.
+  final List<PdfFormField> formFields;
+
+  /// Called when the user taps on the page.
+  final Function(Offset, int) onTap;
+
   @override
   State<StatefulWidget> createState() {
     return PdfPageViewState();
@@ -180,6 +219,12 @@ class PdfPageViewState extends State<PdfPageView> {
           (_canvasKey.currentContext?.findRenderObject())! as CanvasRenderBox
           : null;
 
+  /// Height percentage of a page
+  double _heightPercentage = 1;
+
+  /// Form field widgets
+  final List<Widget> _formFields = <Widget>[];
+
   @override
   void initState() {
     if (kIsDesktop && !widget.isMobileWebView) {
@@ -201,12 +246,15 @@ class PdfPageViewState extends State<PdfPageView> {
   void dispose() {
     PaintingBinding.instance.imageCache.clear();
     PaintingBinding.instance.imageCache.clearLiveImages();
+    focusNode.dispose();
     _pdfViewerThemeData = null;
+    _formFields.clear();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    _formFields.clear();
     if (!kIsDesktop) {
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.clearLiveImages();
@@ -225,6 +273,7 @@ class PdfPageViewState extends State<PdfPageView> {
             ? pageSpacing
             : 0.0;
     if (widget.imageStream != null) {
+      _buildFormFields();
       final PdfPageRotateAngle rotatedAngle =
           widget.pdfDocument!.pages[widget.pageIndex].rotation;
       final Widget image = Image.memory(
@@ -275,6 +324,14 @@ class PdfPageViewState extends State<PdfPageView> {
       final bool isRotatedTo90or270 =
           rotatedAngle == PdfPageRotateAngle.rotateAngle90 ||
               rotatedAngle == PdfPageRotateAngle.rotateAngle270;
+      final Size originalPageSize = widget
+          .pdfDocument!.pages[widget.pdfViewerController.pageNumber - 1].size;
+      _heightPercentage = (isRotatedTo90or270
+              ? originalPageSize.width
+              : originalPageSize.height) /
+          widget
+              .pdfPages[widget.pdfViewerController.pageNumber]!.pageSize.height;
+
       final Widget canvasContainer = Container(
           height: isRotatedTo90or270 ? widget.width : widget.height,
           width: isRotatedTo90or270 ? widget.height : widget.width,
@@ -356,6 +413,7 @@ class PdfPageViewState extends State<PdfPageView> {
                 },
                 onPointerUp: (PointerUpEvent details) {
                   widget.onPdfPagePointerUp(details);
+                  _onPageTapped(details.localPosition);
                   if (widget.interactionMode == PdfInteractionMode.pan) {
                     _cursor = SystemMouseCursors.grab;
                   }
@@ -385,37 +443,23 @@ class PdfPageViewState extends State<PdfPageView> {
                     }
                     if (isPrimaryKeyPressed &&
                         event.logicalKey == LogicalKeyboardKey.minus) {
-                      if (event.runtimeType.toString() == 'RawKeyDownEvent') {
+                      if (event is RawKeyDownEvent) {
                         double zoomLevel = widget.pdfViewerController.zoomLevel;
-                        if (zoomLevel >= 1.0 && zoomLevel <= 1.25) {
-                          zoomLevel = 1.0;
-                        } else if (zoomLevel > 1.25 && zoomLevel <= 1.50) {
-                          zoomLevel = 1.25;
-                        } else if (zoomLevel > 1.50 && zoomLevel <= 2.0) {
-                          zoomLevel = 1.50;
-                        } else {
-                          zoomLevel = 2.0;
+                        if (zoomLevel > 1) {
+                          zoomLevel = zoomLevel - 0.5;
                         }
                         widget.pdfViewerController.zoomLevel = zoomLevel;
                       }
                     }
                     if (isPrimaryKeyPressed &&
                         event.logicalKey == LogicalKeyboardKey.equal) {
-                      if (event.runtimeType.toString() == 'RawKeyDownEvent') {
+                      if (event is RawKeyDownEvent) {
                         double zoomLevel = widget.pdfViewerController.zoomLevel;
-                        if (zoomLevel >= 1.0 && zoomLevel < 1.25) {
-                          zoomLevel = 1.25;
-                        } else if (zoomLevel >= 1.25 && zoomLevel < 1.50) {
-                          zoomLevel = 1.50;
-                        } else if (zoomLevel >= 1.50 && zoomLevel < 2.0) {
-                          zoomLevel = 2.0;
-                        } else {
-                          zoomLevel = 3.0;
-                        }
+                        zoomLevel = zoomLevel + 0.5;
                         widget.pdfViewerController.zoomLevel = zoomLevel;
                       }
                     }
-                    if (event.runtimeType.toString() == 'RawKeyDownEvent') {
+                    if (event is RawKeyDownEvent) {
                       if (event.logicalKey == LogicalKeyboardKey.home ||
                           (kIsMacOS &&
                               event.logicalKey == LogicalKeyboardKey.fn &&
@@ -496,10 +540,10 @@ class PdfPageViewState extends State<PdfPageView> {
                 },
                 onPointerUp: (PointerUpEvent details) {
                   widget.onPdfPagePointerUp(details);
+                  _onPageTapped(details.localPosition);
                 },
-                child: widget.isMobileWebView
-                    ? canvasContainer
-                    : RawKeyboardListener(
+                child: widget.isAndroidTV
+                    ? RawKeyboardListener(
                         focusNode: focusNode,
                         onKey: (RawKeyEvent event) {
                           if (event.runtimeType.toString() ==
@@ -520,13 +564,26 @@ class PdfPageViewState extends State<PdfPageView> {
                             canvasRenderBox!.scroll(false, false);
                           }
                         },
-                        child: canvasContainer),
+                        child: canvasContainer)
+                    : canvasContainer,
               ));
       return Stack(children: <Widget>[
         pdfPage,
         canvas,
+        if (_formFields.isNotEmpty)
+          for (final Widget formField in _formFields) formField,
       ]);
     } else {
+      bool isVisible;
+      if (widget.pageIndex >= widget.startPageIndex - 1 &&
+          widget.pageIndex <= widget.endPageIndex - 1) {
+        isVisible = true;
+      } else {
+        isVisible = false;
+      }
+      if (!widget.canShowPageLoadingIndicator) {
+        isVisible = widget.canShowPageLoadingIndicator;
+      }
       final BorderSide borderSide = BorderSide(
           width: widget.isSinglePageView ? pageSpacing / 2 : pageSpacing,
           color: _pdfViewerThemeData!.backgroundColor ??
@@ -545,18 +602,103 @@ class PdfPageViewState extends State<PdfPageView> {
                   : Border(bottom: borderSide),
         ),
         child: Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-                _pdfViewerThemeData!.progressBarColor ??
-                    (Theme.of(context).colorScheme.primary)),
-            backgroundColor: _pdfViewerThemeData!.progressBarColor == null
-                ? (Theme.of(context).colorScheme.primary.withOpacity(0.2))
-                : _pdfViewerThemeData!.progressBarColor!.withOpacity(0.2),
+          child: Visibility(
+            visible: isVisible,
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                  _pdfViewerThemeData!.progressBarColor ??
+                      (Theme.of(context).colorScheme.primary)),
+              backgroundColor: _pdfViewerThemeData!.progressBarColor == null
+                  ? (Theme.of(context).colorScheme.primary.withOpacity(0.2))
+                  : _pdfViewerThemeData!.progressBarColor!.withOpacity(0.2),
+            ),
           ),
         ),
       );
       return child;
     }
+  }
+
+  void _buildFormFields() {
+    if (widget.formFields.isNotEmpty) {
+      for (final PdfFormField formField in widget.formFields) {
+        final PdfFormFieldHelper helper =
+            PdfFormFieldHelper.getHelper(formField);
+        if (helper.pageIndex == widget.pageIndex) {
+          helper.onChanged = () {
+            setState(() {});
+          };
+          switch (formField.runtimeType) {
+            case PdfTextFormField:
+              _formFields.add(
+                (helper as PdfTextFormFieldHelper).build(
+                  context,
+                  _heightPercentage,
+                  onTap: _onPageTapped,
+                ),
+              );
+              break;
+            case PdfCheckboxFormField:
+              _formFields.add(
+                (helper as PdfCheckboxFormFieldHelper).build(
+                  context,
+                  _heightPercentage,
+                  onTap: _onPageTapped,
+                ),
+              );
+              break;
+            case PdfComboBoxFormField:
+              _formFields.add(
+                (helper as PdfComboBoxFormFieldHelper).build(
+                  context,
+                  _heightPercentage,
+                  onTap: _onPageTapped,
+                ),
+              );
+              break;
+            case PdfRadioFormField:
+              _formFields.addAll(
+                (helper as PdfRadioFormFieldHelper).build(
+                  context,
+                  _heightPercentage,
+                  onTap: _onPageTapped,
+                ),
+              );
+              break;
+            case PdfListBoxFormField:
+              _formFields.add(
+                (helper as PdfListBoxFormFieldHelper).build(
+                  context,
+                  _heightPercentage,
+                  onTap: _onPageTapped,
+                ),
+              );
+              break;
+            case PdfSignatureFormField:
+              if (helper is PdfSignatureFormFieldHelper) {
+                helper.pdfViewerController = widget.pdfViewerController;
+                helper.canShowSignaturePadDialog =
+                    widget.canShowSignaturePadDialog;
+                _formFields.add(
+                  helper.build(
+                    context,
+                    _heightPercentage,
+                    onTap: _onPageTapped,
+                  ),
+                );
+              }
+              break;
+          }
+        }
+      }
+    }
+  }
+
+  void _onPageTapped(Offset position) {
+    // Tranform the page coordinates from calculated page size to original page size.
+    final double x = position.dx * _heightPercentage;
+    final double y = position.dy * _heightPercentage;
+    widget.onTap(Offset(x, y), widget.pageIndex);
   }
 }
 
