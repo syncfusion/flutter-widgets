@@ -1,11 +1,14 @@
 import '../../../interfaces/pdf_interface.dart';
 import '../../graphics/pdf_resources.dart';
+import '../../io/cross_table.dart';
 import '../../io/pdf_constants.dart';
+import '../../io/pdf_cross_table.dart';
 import '../../pages/enum.dart';
 import '../../pages/pdf_page.dart';
 import '../../primitives/pdf_dictionary.dart';
 import '../../primitives/pdf_name.dart';
 import '../../primitives/pdf_reference_holder.dart';
+import '../../primitives/pdf_stream.dart';
 import 'font_structure.dart';
 import 'xobject_element.dart';
 
@@ -22,8 +25,8 @@ class PageResourceLoader {
     PdfDictionary? resources = PdfPageHelper.getHelper(page).getResources();
     pageResources =
         updatePageResources(pageResources, getFontResources(resources, page));
-    pageResources =
-        updatePageResources(pageResources, getFormResources(resources));
+    pageResources = updatePageResources(pageResources,
+        getFormResources(resources, PdfPageHelper.getHelper(page).crossTable));
     while (resources != null &&
         resources.containsKey(PdfDictionaryProperties.xObject)) {
       PdfDictionary? tempResources = resources;
@@ -37,11 +40,16 @@ class PageResourceLoader {
       }
       resources =
           xobjects![PdfDictionaryProperties.resources] as PdfDictionary?;
-      for (final dynamic objValue in xobjects.items!.values) {
+      final PdfCrossTable? crosstable =
+          PdfPageHelper.getHelper(page).crossTable;
+      for (final PdfName? objKey in xobjects.items!.keys) {
+        final IPdfPrimitive? objValue = xobjects[objKey];
         PdfDictionary? xobjectDictionary;
+        PdfReferenceHolder? referenceHolder;
         if (objValue is PdfReferenceHolder &&
             objValue.object is PdfDictionary) {
-          xobjectDictionary = objValue.object as PdfDictionary?;
+          referenceHolder = objValue;
+          xobjectDictionary = referenceHolder.object as PdfDictionary?;
         } else if (objValue is PdfDictionary) {
           xobjectDictionary = objValue;
         }
@@ -62,12 +70,29 @@ class PageResourceLoader {
             resources = xobjectDictionary[PdfDictionaryProperties.resources]
                 as PdfDictionary?;
           }
+          xobjectDictionary = null;
           if (resources == tempResources) {
             resources = null;
             tempResources = null;
           }
           pageResources = updatePageResources(
               pageResources, getFontResources(resources, page));
+        } else {
+          if (objKey != null &&
+              !pageResources.resources.containsKey(objKey.name) &&
+              crosstable != null &&
+              referenceHolder != null &&
+              referenceHolder.reference != null &&
+              referenceHolder.reference!.objNum != null &&
+              referenceHolder.reference!.objNum! > 0) {
+            crosstable.items!.remove(referenceHolder.reference!.objNum!);
+            crosstable.objNumbers.remove(referenceHolder.reference);
+            if (crosstable.crossTable != null) {
+              final ObjectInformation? oi =
+                  crosstable.crossTable![referenceHolder.reference!.objNum!];
+              oi!.obj = null;
+            }
+          }
         }
       }
     }
@@ -83,7 +108,8 @@ class PageResourceLoader {
   }
 
   /// internal method
-  Map<String?, dynamic> getFormResources(PdfDictionary? resourceDictionary) {
+  Map<String?, dynamic> getFormResources(PdfDictionary? resourceDictionary,
+      [PdfCrossTable? crosstable]) {
     final Map<String?, dynamic> pageResources = <String?, dynamic>{};
     if (resourceDictionary != null &&
         resourceDictionary.containsKey(PdfDictionaryProperties.xObject)) {
@@ -101,8 +127,10 @@ class PageResourceLoader {
       if (xObjects != null) {
         xObjects.items!.forEach((PdfName? key, IPdfPrimitive? value) {
           PdfDictionary? xObjectDictionary;
+          PdfReferenceHolder? referenceHolder;
           if (value is PdfReferenceHolder && value.object is PdfDictionary) {
-            xObjectDictionary = value.object as PdfDictionary?;
+            referenceHolder = value;
+            xObjectDictionary = referenceHolder.object as PdfDictionary?;
           } else if (value is PdfDictionary) {
             xObjectDictionary = value;
           }
@@ -116,10 +144,26 @@ class PageResourceLoader {
                         !pageResources.containsKey(key!.name)))) {
               pageResources[key!.name] =
                   XObjectElement(xObjectDictionary, key.name);
+            } else if (xObjectDictionary is PdfStream) {
+              if (crosstable != null &&
+                  referenceHolder != null &&
+                  referenceHolder.reference != null &&
+                  referenceHolder.reference!.objNum != null &&
+                  referenceHolder.reference!.objNum! > 0) {
+                crosstable.items!.remove(referenceHolder.reference!.objNum!);
+                crosstable.objNumbers.remove(referenceHolder.reference);
+                if (crosstable.crossTable != null) {
+                  final ObjectInformation? oi = crosstable
+                      .crossTable![referenceHolder.reference!.objNum!];
+                  oi!.obj = null;
+                }
+              }
             }
           }
+          xObjectDictionary = null;
         });
       }
+      xObjects = null;
     }
     return pageResources;
   }

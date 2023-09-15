@@ -216,7 +216,7 @@ class CrossTable {
         token = tokenReader.getNextToken();
         //check the coditon for valid object number
         final int? number = int.tryParse(token!);
-        if (number != null && number >= 0 && number <= 9) {
+        if (number != null && number >= 0) {
           token = tokenReader.getNextToken();
           if (token == PdfDictionaryProperties.obj) {
             parser.setOffset(position);
@@ -281,8 +281,8 @@ class CrossTable {
       }
       final PdfParser? parser = oi.parser;
       final int? position = oi.offset;
-      if (oi._obj != null) {
-        obj = oi._obj;
+      if (oi.obj != null) {
+        obj = oi.obj;
       } else if (oi._archive == null) {
         obj = parser!.parseOffset(position!);
       } else {
@@ -298,7 +298,7 @@ class CrossTable {
           }
         }
       }
-      oi._obj = obj;
+      oi.obj = obj;
       return obj;
     } else {
       return pointer;
@@ -564,7 +564,9 @@ class ObjectInformation {
   PdfParser? _parser;
   int? _offset;
   CrossTable? _crossTable;
-  IPdfPrimitive? _obj;
+
+  /// internal Fields
+  IPdfPrimitive? obj;
 
   //Properties
   /// internal property

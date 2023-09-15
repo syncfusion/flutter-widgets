@@ -800,6 +800,12 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
   List<CustomPainterSemantics> _getSemanticsBuilder(Size size) {
     final List<CustomPainterSemantics> semanticsBuilder =
         <CustomPainterSemantics>[];
+
+    final RenderBox? child = firstChild;
+    if (child != null) {
+      return semanticsBuilder;
+    }
+
     if (selectedDate == null) {
       semanticsBuilder.add(CustomPainterSemantics(
         rect: Offset.zero & size,
@@ -839,6 +845,18 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
     return semanticsBuilder;
   }
 
+  @override
+  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+    RenderBox? child = firstChild;
+    if (child == null) {
+      return;
+    }
+    while (child != null) {
+      visitor(child);
+      child = childAfter(child);
+    }
+  }
+
   void _drawDefaultUI(Canvas canvas, bool isLargerScheduleUI, Offset offset) {
     _rectPainter.isAntiAlias = true;
     double yPosition = offset.dy + 5;
@@ -862,6 +880,15 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
                     : Colors.white,
                 fontSize: 13)
             .merge(scheduleViewSettings!.appointmentTextStyle);
+
+    final List<String> appointmentStringFormats =
+        appointmentTimeTextFormat == null
+            ? <String>[]
+            : CalendarViewHelper.getListFromString(appointmentTimeTextFormat!);
+    final List<String> sameDateAppointmentStringFormats =
+        CalendarViewHelper.getListFromString('hh:mm a');
+    final List<String> diffDateAppointmentStringFormats =
+        CalendarViewHelper.getListFromString('MMM dd, hh:mm a');
 
     //// Draw Appointments
     for (int i = 0; i < appointmentCollection.length; i++) {
@@ -917,6 +944,8 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
             textSize,
             appointment,
             appointmentTextStyle,
+            appointmentStringFormats,
+            sameDateAppointmentStringFormats,
             offset);
         if (isSpanned) {
           final TextSpan icon = AppointmentHelper.getSpanIcon(
@@ -971,7 +1000,10 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
               textSize,
               appointment,
               appointmentHeight,
-              appointmentTextStyle);
+              appointmentTextStyle,
+              appointmentStringFormats,
+              sameDateAppointmentStringFormats,
+              diffDateAppointmentStringFormats);
         } else {
           //// Draw All day appointment
           _updatePainterLinesCount(appointmentHeight, isAllDay: true);
@@ -1120,7 +1152,10 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
       double recurrenceTextSize,
       CalendarAppointment appointment,
       double appointmentHeight,
-      TextStyle appointmentTextStyle) {
+      TextStyle appointmentTextStyle,
+      List<String> appointmentFormatString,
+      List<String> sameDateAppointmentFormatString,
+      List<String> diffDateAppointmentFormatString) {
     _textPainter.textScaleFactor = textScaleFactor;
     final double lineHeight = _updatePainterLinesCount(appointmentHeight);
     final double iconSize = isRecurrence ? recurrenceTextSize + 10 : 0;
@@ -1136,15 +1171,17 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
     _textPainter.paint(
         canvas, Offset(xPosition + padding, yPosition + topPadding));
 
-    final String format = appointmentTimeTextFormat ??
-        (isSameDate(appointment.actualStartTime, appointment.actualEndTime)
-            ? 'hh:mm a'
-            : 'MMM dd, hh:mm a');
+    final List<String> format = appointmentFormatString.isEmpty
+        ? (isSameDate(appointment.actualStartTime, appointment.actualEndTime)
+            ? sameDateAppointmentFormatString
+            : diffDateAppointmentFormatString)
+        : appointmentFormatString;
+    final String startDateText = CalendarViewHelper.getLocalizedString(
+        appointment.actualStartTime, format, locale);
+    final String endDateText = CalendarViewHelper.getLocalizedString(
+        appointment.actualEndTime, format, locale);
     final TextSpan span = TextSpan(
-        text:
-            // ignore: lines_longer_than_80_chars
-            '${DateFormat(format, locale).format(appointment.actualStartTime)} - ${DateFormat(format, locale).format(appointment.actualEndTime)}',
-        style: appointmentTextStyle);
+        text: '$startDateText - $endDateText', style: appointmentTextStyle);
     _textPainter.text = span;
 
     _textPainter.maxLines = 1;
@@ -1232,7 +1269,8 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
   void _updateTextPainterProperties(TextSpan span) {
     _textPainter.text = span;
     _textPainter.maxLines = 1;
-    _textPainter.textDirection = TextDirection.ltr;
+    _textPainter.textDirection =
+        CalendarViewHelper.getTextDirectionBasedOnLocale(locale);
     _textPainter.textAlign = TextAlign.left;
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
     _textPainter.textScaleFactor = textScaleFactor;
@@ -1251,6 +1289,8 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
       double textSize,
       CalendarAppointment appointment,
       TextStyle appointmentTextStyle,
+      List<String> appointmentFormatString,
+      List<String> sameDateAppointmentFormatString,
       Offset offset) {
     _textPainter.textScaleFactor = textScaleFactor;
     final double centerYPosition = appointmentHeight / 2;
@@ -1287,13 +1327,17 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
     final double topPadding = (appointmentHeight - _textPainter.height) / 2;
     _textPainter.paint(
         canvas, Offset(xPosition + padding, yPosition + topPadding));
-    final DateFormat format =
-        DateFormat(appointmentTimeTextFormat ?? 'hh:mm a', locale);
+    final List<String> format = appointmentFormatString.isEmpty
+        ? sameDateAppointmentFormatString
+        : appointmentFormatString;
+    final String startDateText = CalendarViewHelper.getLocalizedString(
+        appointment.actualStartTime, format, locale);
+    final String endDateText = CalendarViewHelper.getLocalizedString(
+        appointment.actualEndTime, format, locale);
     final TextSpan span = TextSpan(
         text: appointment.isAllDay || appointment.isSpanned
             ? _localizations.allDayLabel
-            // ignore: lines_longer_than_80_chars
-            : '${format.format(appointment.actualStartTime)} - ${format.format(appointment.actualEndTime)}',
+            : '$startDateText - $endDateText',
         style: appointmentTextStyle);
     _textPainter.text = span;
 

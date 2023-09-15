@@ -432,7 +432,12 @@ void stackedAreaPainter(
               rect);
           points.add(Offset(point1.x, point1.y));
           path.lineTo(point1.x, point1.y);
-          strokePath.lineTo(point1.x, point1.y);
+          if ((pointIndex == 0 || dataPoints[pointIndex - 1].isGap) &&
+              stackedAreaSeries.borderDrawMode == BorderDrawMode.top) {
+            strokePath.moveTo(point1.x, point1.y);
+          } else {
+            strokePath.lineTo(point1.x, point1.y);
+          }
         } else {
           if (stackedAreaSeries.emptyPointSettings.mode !=
               EmptyPointMode.drop) {

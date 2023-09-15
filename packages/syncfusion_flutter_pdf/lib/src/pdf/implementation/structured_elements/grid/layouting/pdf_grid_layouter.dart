@@ -1738,15 +1738,16 @@ class PdfGridLayouter extends ElementLayouter {
       _currentGraphics = _currentPage!.graphics;
     }
     if (PdfGraphicsHelper.getHelper(_currentGraphics!).layer != null) {
-      final int index =
-          PdfGraphicsHelper.getHelper(_currentGraphics!).page is PdfPage
-              ? PdfSectionHelper.getHelper(PdfPageHelper.getHelper(
-                          PdfGraphicsHelper.getHelper(_currentGraphics!).page!)
-                      .section!)
-                  .indexOf(PdfGraphicsHelper.getHelper(_currentGraphics!).page!)
-              : PdfGraphicsHelper.getHelper(_currentGraphics!)
-                  .page!
-                  .defaultLayerIndex;
+      final int index = !PdfPageHelper.getHelper(
+                  PdfGraphicsHelper.getHelper(_currentGraphics!).page!)
+              .isLoadedPage
+          ? PdfSectionHelper.getHelper(PdfPageHelper.getHelper(
+                      PdfGraphicsHelper.getHelper(_currentGraphics!).page!)
+                  .section!)
+              .indexOf(PdfGraphicsHelper.getHelper(_currentGraphics!).page!)
+          : PdfGraphicsHelper.getHelper(_currentGraphics!)
+              .page!
+              .defaultLayerIndex;
       if (!PdfGridHelper.getHelper(_grid!)
           .listOfNavigatePages
           .contains(index)) {

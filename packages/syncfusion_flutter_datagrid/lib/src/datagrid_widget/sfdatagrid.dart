@@ -471,10 +471,12 @@ class SfDataGrid extends StatefulWidget {
     this.checkboxShape,
     this.showHorizontalScrollbar = true,
     this.showVerticalScrollbar = true,
+    @Deprecated('use SfDataGrid.showColumnHeaderIconOnHover instead')
     this.showFilterIconOnHover = false,
     this.allowColumnsDragging = false,
     this.onColumnDragging,
     this.columnDragFeedbackBuilder,
+    this.showColumnHeaderIconOnHover = false,
   })  : assert(frozenColumnsCount >= 0),
         assert(footerFrozenColumnsCount >= 0),
         assert(frozenRowsCount >= 0),
@@ -1613,8 +1615,10 @@ class SfDataGrid extends StatefulWidget {
   /// Defaults to true.
   final bool showVerticalScrollbar;
 
-  /// Decides whether the filter icon should be only shown when hovering the header cells.
+  /// Decides whether the filter icon should be shown when hovering the header cells.
+  ///
   /// Defaults to false.
+  @Deprecated('use SfDataGrid.showColumnHeaderIconOnHover instead')
   final bool showFilterIconOnHover;
 
   /// Decides whether the column can be dragged and dropped to the required position.
@@ -1661,6 +1665,11 @@ class SfDataGrid extends StatefulWidget {
   /// Called to obtain the feedback widget for the column when it is about to drag.
   /// If null, a [Text] widget will be loaded by default with the dragging header cell constraints.
   final ColumnDragFeedbackBuilderCallback? columnDragFeedbackBuilder;
+
+  /// Decides whether the column header icons should be shown when hovering the header cells.
+  ///
+  /// Defaults to false.
+  final bool showColumnHeaderIconOnHover;
 
   @override
   State<StatefulWidget> createState() => SfDataGridState();
@@ -2088,17 +2097,6 @@ class SfDataGridState extends State<SfDataGrid>
     _initializeDataGridDataSource();
     _dataGridConfiguration.source = _source!;
 
-    if (!listEquals<GridColumn>(_columns, widget.columns)) {
-      if (widget.selectionMode != SelectionMode.none &&
-          widget.navigationMode == GridNavigationMode.cell &&
-          _rowSelectionManager != null) {
-        selection_manager.onRowColumnChanged(
-            _dataGridConfiguration, -1, widget.columns.length);
-      }
-
-      _resetColumn();
-    }
-
     if (widget.selectionMode != SelectionMode.none)
       selection_manager.removeUnWantedDataGridRows(_dataGridConfiguration);
     if (widget.selectionMode != SelectionMode.none &&
@@ -2106,6 +2104,29 @@ class SfDataGridState extends State<SfDataGrid>
         _rowSelectionManager != null) {
       selection_manager.onRowColumnChanged(
           _dataGridConfiguration, widget.source._effectiveRows.length, -1);
+    }
+
+    if (!listEquals<GridColumn>(_columns, widget.columns)) {
+      if (widget.selectionMode != SelectionMode.none &&
+          widget.navigationMode == GridNavigationMode.cell &&
+          _rowSelectionManager != null) {
+        selection_manager.onRowColumnChanged(
+            _dataGridConfiguration, -1, widget.columns.length);
+      }
+      if (_dataGridConfiguration.showCheckboxColumn &&
+          _dataGridConfiguration.checkboxColumnSettings.showCheckboxOnHeader &&
+          _dataGridConfiguration.selectionMode != SelectionMode.none) {
+        if (_dataGridConfiguration.controller.selectedRows.isEmpty) {
+          _dataGridConfiguration.headerCheckboxState = false;
+        } else if (_dataGridConfiguration.controller.selectedRows.length !=
+            effectiveRows(_dataGridConfiguration.source).length) {
+          _dataGridConfiguration.headerCheckboxState = null;
+        } else if (_dataGridConfiguration.controller.selectedRows.length ==
+            _dataGridConfiguration.source.rows.length) {
+          _dataGridConfiguration.headerCheckboxState = true;
+        }
+      }
+      _resetColumn();
     }
 
     if (widget.allowSwiping) {
@@ -2472,7 +2493,8 @@ class SfDataGridState extends State<SfDataGrid>
       ..showFilterIconOnHover = widget.showFilterIconOnHover
       ..allowColumnsDragging = widget.allowColumnsDragging
       ..onColumnDragging = widget.onColumnDragging
-      ..columnDragFeedbackBuilder = widget.columnDragFeedbackBuilder;
+      ..columnDragFeedbackBuilder = widget.columnDragFeedbackBuilder
+      ..showColumnHeaderIconOnHover = widget.showColumnHeaderIconOnHover;
 
     if (widget.allowPullToRefresh) {
       _dataGridConfiguration.refreshIndicatorKey ??=
@@ -2725,13 +2747,13 @@ class SfDataGridState extends State<SfDataGrid>
 
       _container.refreshDefaultLineSize();
 
+      _container.updateRowAndColumnCount();
+
       _updateSelectionController(oldWidget,
           isDataGridControlChanged: isDataGridControllerChanged,
           isSelectionManagerChanged: isSelectionManagerChanged,
           isSourceChanged: isSourceChanged,
           isDataSourceChanged: isDataSourceChanged);
-
-      _container.updateRowAndColumnCount();
 
       if (isSourceChanged ||
           isColumnsChanged ||
@@ -3374,6 +3396,14 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   /// called instead notifyDataGridPropertyChangeListener. Because, notifyListener is common for
   /// in DataPagerDelegate and DataGridSource will get notified.
   void _updateDataPager() {
+    // Need to check whether the _dataGridStateDetails is null or not because
+    // when the sort method is called in initState from the sample level,
+    // the _dataGridStateDetails will be null. So, we have to check the _dataGridStateDetails is null
+    // or not before accessing the rowsPerPage property.
+    // The _rowsPerPage value will be set when it will calling updateDataSource from the source initState method.
+    if (_dataGridStateDetails != null) {
+      _rowsPerPage = _dataGridStateDetails!().rowsPerPage;
+    }
     if (_pageCount > 0 &&
         _paginatedRows.isNotEmpty &&
         !_suspendDataPagerUpdate) {
@@ -4324,6 +4354,9 @@ class DataPagerDelegate {
   /// Number of pages to be displayed in the [SfDataPager].
   double _pageCount = 0;
 
+  /// The total number of rows in a page.
+  int? _rowsPerPage;
+
   /// Called when the page is navigated.
   ///
   /// Return true, if the navigation should be performed. Otherwise, return
@@ -4491,6 +4524,11 @@ void addFilterConditions(DataGridSource source, String columnName,
 /// Call this method to remove the [FilterCondition] in the UI filtering.
 void removeFilterConditions(DataGridSource source, String columnName) {
   source._filterConditions.remove(columnName);
+}
+
+/// Call this method to get the rowsperpage from the [DataPagerDelegate].
+int? getRowsPerPage(DataPagerDelegate delegate) {
+  return delegate._rowsPerPage;
 }
 
 /// To Do

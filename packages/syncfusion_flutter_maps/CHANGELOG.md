@@ -1,5 +1,11 @@
 ## Unreleased
 
+**Bugs**
+
+* #FB45437 - Resolved the late error exception when assigning any value other than -1 to the selectedIndex property.
+
+## [22.2.7] - 08/02/2023
+
 **General**
 
 * Upgraded the http package to the latest version 1.0.0.

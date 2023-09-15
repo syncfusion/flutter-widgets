@@ -1359,16 +1359,16 @@ class TimelineViewHeaderView extends CustomPainter {
     if (isRTL) {
       _dateTextPainter.paint(
           canvas,
+          Offset(size.width - _xPosition - _padding - _dateTextPainter.width,
+              viewHeaderHeight / 2 - _dateTextPainter.height / 2));
+      _dayTextPainter.paint(
+          canvas,
           Offset(
               size.width -
                   _xPosition -
                   (_padding * 2) -
                   _dayTextPainter.width -
                   _dateTextPainter.width,
-              viewHeaderHeight / 2 - _dateTextPainter.height / 2));
-      _dayTextPainter.paint(
-          canvas,
-          Offset(size.width - _xPosition - _padding - _dayTextPainter.width,
               viewHeaderHeight / 2 - _dayTextPainter.height / 2));
     } else {
       _dateTextPainter.paint(
@@ -1406,11 +1406,20 @@ class TimelineViewHeaderView extends CustomPainter {
     if (viewHeaderNotifier.value != null && !isBlackoutDate) {
       _addMouseHovering(canvas, size, childWidth);
     }
-    _dateTextPainter.paint(canvas, Offset(startXPosition, startYPosition));
-    _dayTextPainter.paint(
-        canvas,
-        Offset(startXPosition + _dateTextPainter.width + leftPadding,
-            startYPosition));
+    if (!isRTL) {
+      _dateTextPainter.paint(canvas, Offset(startXPosition, startYPosition));
+      _dayTextPainter.paint(
+          canvas,
+          Offset(startXPosition + _dateTextPainter.width + leftPadding,
+              startYPosition));
+    } else {
+      _dayTextPainter.paint(canvas, Offset(startXPosition, startYPosition));
+      _dateTextPainter.paint(
+          canvas,
+          Offset(startXPosition + _dayTextPainter.width + leftPadding,
+              startYPosition));
+    }
+
     if (isRTL) {
       _xPosition -= childWidth;
     } else {

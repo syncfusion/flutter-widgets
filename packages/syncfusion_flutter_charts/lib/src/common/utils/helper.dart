@@ -813,7 +813,10 @@ void cartesianLegendToggleState(
                 !item.isTrendline! &&
                 item.seriesRenderer is! TechnicalIndicators
             ? currentItem.series == item.series
-            : currentItem.text == item.text) {
+            : item.isTrendline!
+                ? currentItem.trendlineIndex == item.trendlineIndex
+                : currentItem.text == item.text &&
+                    currentItem.seriesIndex == item.seriesIndex) {
           needSelect = true;
           legendToggles.removeAt(i);
           break;
