@@ -29,7 +29,7 @@ const double _kAllDayLayoutHeight = 60;
 /// Holds the looping widget for calendar view(time slot, month, timeline and
 /// appointment views) widgets of calendar widget.
 @immutable
-class CustomCalendarScrollView extends StatefulWidget {
+class CustomCalendarScrollView<T> extends StatefulWidget {
   /// Constructor to create the calendar scroll view for holding calendar
   /// view(time slot, month, timeline and appointment views) widgets of
   /// calendar widget.
@@ -62,7 +62,7 @@ class CustomCalendarScrollView extends StatefulWidget {
       : super(key: key);
 
   /// Holds the calendar instance used to get the calendar properties.
-  final SfCalendar calendar;
+  final SfCalendar<T> calendar;
 
   /// Holds the current calendar view of the calendar widget.
   final CalendarView view;
@@ -86,13 +86,13 @@ class CustomCalendarScrollView extends StatefulWidget {
   final ThemeData themeData;
 
   /// Holds the calendar controller for the calendar widget.
-  final CalendarController controller;
+  final CalendarController<T> controller;
 
   /// Used to update the calendar state details.
-  final UpdateCalendarState updateCalendarState;
+  final UpdateCalendarState<T> updateCalendarState;
 
   /// Used to get the calendar state details.
-  final UpdateCalendarState getCalendarState;
+  final UpdateCalendarState<T> getCalendarState;
 
   /// Used to remove the calendar header picker.
   final VoidCallback removePicker;
@@ -149,16 +149,16 @@ class CustomCalendarScrollView extends StatefulWidget {
       return;
     }
 
-    final _CustomCalendarScrollViewState state =
+    final _CustomCalendarScrollViewState<T> state =
         // ignore: avoid_as
-        currentState as _CustomCalendarScrollViewState;
+        currentState as _CustomCalendarScrollViewState<T>;
     if (!state._focusNode.hasFocus) {
       state._focusNode.requestFocus();
     }
   }
 
   /// Updates the calendar details in the calendar view
-  CalendarDetails? getCalendarDetails(Offset position) {
+  CalendarDetails<T>? getCalendarDetails(Offset position) {
     if (key == null) {
       return null;
     }
@@ -170,9 +170,9 @@ class CustomCalendarScrollView extends StatefulWidget {
       return null;
     }
 
-    final _CustomCalendarScrollViewState state =
+    final _CustomCalendarScrollViewState<T> state =
         // ignore: avoid_as
-        currentState as _CustomCalendarScrollViewState;
+        currentState as _CustomCalendarScrollViewState<T>;
     return state._getCalendarDetails(position);
   }
 
@@ -189,25 +189,25 @@ class CustomCalendarScrollView extends StatefulWidget {
       return;
     }
 
-    final _CustomCalendarScrollViewState state =
+    final _CustomCalendarScrollViewState<T> state =
         // ignore: avoid_as
-        currentState as _CustomCalendarScrollViewState;
+        currentState as _CustomCalendarScrollViewState<T>;
     state._updateMoveToDate();
   }
 
   @override
   // ignore: library_private_types_in_public_api
-  _CustomCalendarScrollViewState createState() =>
-      _CustomCalendarScrollViewState();
+  _CustomCalendarScrollViewState<T> createState() =>
+      _CustomCalendarScrollViewState<T>();
 }
 
-class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
-    with TickerProviderStateMixin {
+class _CustomCalendarScrollViewState<T>
+    extends State<CustomCalendarScrollView<T>> with TickerProviderStateMixin {
   // three views to arrange the view in vertical/horizontal direction and handle the swiping
-  late _CalendarView _currentView, _nextView, _previousView;
+  late _CalendarView<T> _currentView, _nextView, _previousView;
 
   // the three children which to be added into the layout
-  final List<_CalendarView> _children = <_CalendarView>[];
+  final List<_CalendarView<T>> _children = <_CalendarView<T>>[];
 
   // holds the index of the current displaying view
   int _currentChildIndex = 1;
@@ -237,13 +237,13 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
   /// keys maintained to access the data and methods from the calendar view
   /// class.
-  final GlobalKey<_CalendarViewState> _previousViewKey =
-          GlobalKey<_CalendarViewState>(),
-      _currentViewKey = GlobalKey<_CalendarViewState>(),
-      _nextViewKey = GlobalKey<_CalendarViewState>();
+  final GlobalKey<_CalendarViewState<T>> _previousViewKey =
+          GlobalKey<_CalendarViewState<T>>(),
+      _currentViewKey = GlobalKey<_CalendarViewState<T>>(),
+      _nextViewKey = GlobalKey<_CalendarViewState<T>>();
 
-  final UpdateCalendarStateDetails _updateCalendarStateDetails =
-      UpdateCalendarStateDetails();
+  final UpdateCalendarStateDetails<T> _updateCalendarStateDetails =
+      UpdateCalendarStateDetails<T>();
 
   /// Collection used to store the special regions and
   /// check the special regions manipulations.
@@ -266,14 +266,14 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
   final FocusScopeNode _focusNode = FocusScopeNode();
 
-  late ValueNotifier<_DragPaintDetails> _dragDetails;
+  late ValueNotifier<_DragPaintDetails<T>> _dragDetails;
   Offset? _dragDifferenceOffset;
   Timer? _timer;
 
   @override
   void initState() {
-    _dragDetails = ValueNotifier<_DragPaintDetails>(
-        _DragPaintDetails(position: ValueNotifier<Offset?>(null)));
+    _dragDetails = ValueNotifier<_DragPaintDetails<T>>(
+        _DragPaintDetails<T>(position: ValueNotifier<Offset?>(null)));
     widget.controller.forward = widget.isRTL
         ? _moveToPreviousViewWithAnimation
         : _moveToNextViewWithAnimation;
@@ -297,7 +297,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   @override
-  void didUpdateWidget(CustomCalendarScrollView oldWidget) {
+  void didUpdateWidget(CustomCalendarScrollView<T> oldWidget) {
     if (oldWidget.controller != widget.controller) {
       widget.controller.forward = widget.isRTL
           ? _moveToPreviousViewWithAnimation
@@ -306,11 +306,14 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
           ? _moveToNextViewWithAnimation
           : _moveToPreviousViewWithAnimation;
 
-      if (!CalendarViewHelper.isSameTimeSlot(oldWidget.controller.selectedDate,
-              widget.controller.selectedDate) ||
+      if (oldWidget.controller.selectedDate == null ||
+          widget.controller.selectedDate == null ||
+          _updateCalendarStateDetails.selectedDate == null ||
+          !CalendarViewHelper.isSameTimeSlot(oldWidget.controller.selectedDate!,
+              widget.controller.selectedDate!) ||
           !CalendarViewHelper.isSameTimeSlot(
-              _updateCalendarStateDetails.selectedDate,
-              widget.controller.selectedDate)) {
+              _updateCalendarStateDetails.selectedDate!,
+              widget.controller.selectedDate!)) {
         _selectResourceProgrammatically();
       }
     }
@@ -459,8 +462,10 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
     if (widget.controller == oldWidget.controller) {
       if (oldWidget.controller.displayDate != widget.controller.displayDate ||
-          !isSameDate(_updateCalendarStateDetails.currentDate,
-              widget.controller.displayDate)) {
+          _updateCalendarStateDetails.currentDate == null ||
+          widget.controller.displayDate == null ||
+          !isSameDate(_updateCalendarStateDetails.currentDate!,
+              widget.controller.displayDate!)) {
         widget.getCalendarState(_updateCalendarStateDetails);
         _updateCalendarStateDetails.currentDate = widget.controller.displayDate;
         widget.updateCalendarState(_updateCalendarStateDetails);
@@ -475,11 +480,14 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         _position = 0;
       }
 
-      if (!CalendarViewHelper.isSameTimeSlot(oldWidget.controller.selectedDate,
-              widget.controller.selectedDate) ||
+      if (oldWidget.controller.selectedDate == null ||
+          widget.controller.selectedDate == null ||
+          widget.controller.selectedDate == null ||
+          !CalendarViewHelper.isSameTimeSlot(oldWidget.controller.selectedDate!,
+              widget.controller.selectedDate!) ||
           !CalendarViewHelper.isSameTimeSlot(
-              _updateCalendarStateDetails.selectedDate,
-              widget.controller.selectedDate)) {
+              _updateCalendarStateDetails.selectedDate!,
+              widget.controller.selectedDate!)) {
         widget.getCalendarState(_updateCalendarStateDetails);
         _updateCalendarStateDetails.selectedDate =
             widget.controller.selectedDate;
@@ -745,7 +753,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
               top: 0,
               child: IgnorePointer(
                   child: RepaintBoundary(
-                      child: _DraggingAppointmentWidget(
+                      child: _DraggingAppointmentWidget<T>(
                           _dragDetails,
                           widget.isRTL,
                           widget.textScaleFactor,
@@ -778,13 +786,13 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   void _handleAppointmentDragStart(
-      AppointmentView appointmentView,
+      AppointmentView<T> appointmentView,
       bool isTimelineView,
       Offset details,
       bool isResourceEnabled,
       double viewHeaderHeight,
       double timeLabelWidth) {
-    final _CalendarViewState currentState = _getCurrentViewByVisibleDates()!;
+    final _CalendarViewState<T> currentState = _getCurrentViewByVisibleDates()!;
     currentState._updateDraggingMouseCursor(true);
     _dragDetails.value.timeIntervalHeight = currentState._getTimeIntervalHeight(
         widget.calendar,
@@ -861,11 +869,11 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         yPosition <= 0 && widget.view != CalendarView.month && !isTimelineView
             ? null
             : _dragDetails.value.appointmentView!.appointment!.actualStartTime;
-    final dynamic dragStartAppointment = _getCalendarAppointmentToObject(
-        appointmentView.appointment, widget.calendar);
+    final T dragStartAppointment = _getCalendarAppointmentToObject(
+        appointmentView.appointment!, widget.calendar);
     if (widget.calendar.onDragStart != null) {
-      widget.calendar.onDragStart!(
-          AppointmentDragStartDetails(dragStartAppointment, selectedResource));
+      widget.calendar.onDragStart!(AppointmentDragStartDetails<T>(
+          dragStartAppointment, selectedResource));
     }
   }
 
@@ -876,8 +884,8 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       bool isResourceEnabled,
       double viewHeaderHeight,
       double timeLabelWidth) {
-    final _CalendarViewState currentState = _getCurrentViewByVisibleDates()!;
-    AppointmentView? appointmentView =
+    final _CalendarViewState<T> currentState = _getCurrentViewByVisibleDates()!;
+    AppointmentView<T>? appointmentView =
         _getDragAppointment(details, currentState);
     if (!isNeedDragAndDrop || appointmentView == null) {
       _dragDetails.value.position.value = null;
@@ -894,8 +902,8 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         timeLabelWidth);
   }
 
-  AppointmentView? _getDragAppointment(
-      LongPressStartDetails details, _CalendarViewState currentState) {
+  AppointmentView<T>? _getDragAppointment(
+      LongPressStartDetails details, _CalendarViewState<T> currentState) {
     if (CalendarViewHelper.isTimelineView(widget.view)) {
       return currentState._handleTouchOnTimeline(null, details);
     } else if (widget.view == CalendarView.month) {
@@ -920,7 +928,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     }
 
     final Offset appointmentPosition = details + _dragDifferenceOffset!;
-    final _CalendarViewState currentState = _getCurrentViewByVisibleDates()!;
+    final _CalendarViewState<T> currentState = _getCurrentViewByVisibleDates()!;
     final double allDayHeight = currentState._isExpanded
         ? _updateCalendarStateDetails.allDayPanelHeight
         : currentState._allDayHeight;
@@ -977,7 +985,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   Future<void> _updateNavigationDayView(
-      _CalendarViewState currentState,
+      _CalendarViewState<T> currentState,
       Offset appointmentPosition,
       double viewHeaderHeight,
       double allDayHeight,
@@ -1237,7 +1245,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   Future<void> _updateAutoScrollDragTimelineView(
-      _CalendarViewState currentState,
+      _CalendarViewState<T> currentState,
       Offset appointmentPosition,
       double viewHeaderHeight,
       double timeIntervalHeight,
@@ -1618,13 +1626,13 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   void _updateAutoViewNavigationTimelineView(
-      _CalendarViewState currentState,
+      _CalendarViewState<T> currentState,
       Offset appointmentPosition,
       double viewHeaderHeight,
       double timeIntervalHeight,
       double resourceItemHeight,
       bool isResourceEnabled,
-      dynamic details,
+      Offset details,
       bool isMonthView,
       double allDayHeight,
       bool isTimelineView,
@@ -1737,7 +1745,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       Offset appointmentPosition,
       bool isMonthView,
       double timeIntervalHeight,
-      _CalendarViewState currentState,
+      _CalendarViewState<T> currentState,
       Offset details,
       bool isResourceEnabled,
       double weekNumberPanelWidth) {
@@ -1857,8 +1865,8 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         _dragDetails.value.position.value!.dx,
         _dragDetails.value.position.value!.dy + 0.1);
 
-    final dynamic draggingAppointment = _getCalendarAppointmentToObject(
-        _dragDetails.value.appointmentView!.appointment, widget.calendar);
+    final T draggingAppointment = _getCalendarAppointmentToObject(
+        _dragDetails.value.appointmentView!.appointment!, widget.calendar);
 
     CalendarResource? selectedResource, previousResource;
     int targetResourceIndex = -1;
@@ -1955,7 +1963,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     }
 
     final Offset appointmentPosition = details + _dragDifferenceOffset!;
-    final _CalendarViewState currentState = _getCurrentViewByVisibleDates()!;
+    final _CalendarViewState<T> currentState = _getCurrentViewByVisibleDates()!;
     final double allDayHeight = currentState._isExpanded
         ? _updateCalendarStateDetails.allDayPanelHeight
         : currentState._allDayHeight;
@@ -2030,7 +2038,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
           _dragDetails.value.appointmentView!.appointmentRect!.height;
     }
 
-    final CalendarAppointment? appointment =
+    final CalendarAppointment<T>? appointment =
         _dragDetails.value.appointmentView!.appointment;
     DateTime? dropTime =
         currentState._getDateFromPosition(xPosition, yPosition, timeLabelWidth);
@@ -2133,7 +2141,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                 currentMonth,
                 dropTime))) {
       if (widget.calendar.onDragEnd != null) {
-        widget.calendar.onDragEnd!(AppointmentDragEndDetails(
+        widget.calendar.onDragEnd!(AppointmentDragEndDetails<T>(
             _getCalendarAppointmentToObject(appointment, widget.calendar),
             previousResource,
             previousResource,
@@ -2143,14 +2151,14 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       return;
     }
 
-    CalendarAppointment? parentAppointment;
+    CalendarAppointment<T>? parentAppointment;
     if ((appointment.recurrenceRule != null &&
             appointment.recurrenceRule!.isNotEmpty) ||
         appointment.recurrenceId != null) {
       for (int i = 0;
           i < _updateCalendarStateDetails.appointments.length;
           i++) {
-        final CalendarAppointment app =
+        final CalendarAppointment<T> app =
             _updateCalendarStateDetails.appointments[i];
         if (app.id == appointment.id || app.id == appointment.recurrenceId) {
           parentAppointment = app;
@@ -2172,7 +2180,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       for (int i = 0;
           i < _updateCalendarStateDetails.appointments.length;
           i++) {
-        final CalendarAppointment calendarApp =
+        final CalendarAppointment<T> calendarApp =
             _updateCalendarStateDetails.appointments[i];
         if (calendarApp.recurrenceId != null &&
             calendarApp.recurrenceId == parentAppointment.id) {
@@ -2223,7 +2231,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
       if (!canAddRecurrence) {
         if (widget.calendar.onDragEnd != null) {
-          widget.calendar.onDragEnd!(AppointmentDragEndDetails(
+          widget.calendar.onDragEnd!(AppointmentDragEndDetails<T>(
               _getCalendarAppointmentToObject(appointment, widget.calendar),
               previousResource,
               previousResource,
@@ -2238,12 +2246,12 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
               appointment.recurrenceRule!.isEmpty)) {
         widget.calendar.dataSource!.appointments!.remove(appointment.data);
         widget.calendar.dataSource!.notifyListeners(
-            CalendarDataSourceAction.remove, <dynamic>[appointment.data]);
+            CalendarDataSourceAction.remove, <T>[appointment.data]);
       } else {
         widget.calendar.dataSource!.appointments!
             .remove(parentAppointment.data);
         widget.calendar.dataSource!.notifyListeners(
-            CalendarDataSourceAction.remove, <dynamic>[parentAppointment.data]);
+            CalendarDataSourceAction.remove, <T>[parentAppointment.data]);
         final DateTime exceptionDate =
             AppointmentHelper.convertTimeToAppointmentTimeZone(
                 appointment.exactStartTime, widget.calendar.timeZone, '');
@@ -2258,16 +2266,16 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         appointment.recurrenceId =
             appointment.recurrenceId ?? parentAppointment.id;
         appointment.recurrenceRule = null;
-        final dynamic newParentAppointment =
+        final T newParentAppointment =
             _getCalendarAppointmentToObject(parentAppointment, widget.calendar);
         widget.calendar.dataSource!.appointments!.add(newParentAppointment);
         widget.calendar.dataSource!.notifyListeners(
-            CalendarDataSourceAction.add, <dynamic>[newParentAppointment]);
+            CalendarDataSourceAction.add, <T>[newParentAppointment]);
       }
     } else {
       widget.calendar.dataSource!.appointments!.remove(appointment.data);
       widget.calendar.dataSource!.notifyListeners(
-          CalendarDataSourceAction.remove, <dynamic>[appointment.data]);
+          CalendarDataSourceAction.remove, <T>[appointment.data]);
     }
 
     appointment.startTime = updateStartTime;
@@ -2286,21 +2294,21 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       }
     }
 
-    final dynamic newAppointment =
+    final T newAppointment =
         _getCalendarAppointmentToObject(appointment, widget.calendar);
 
     widget.calendar.dataSource!.appointments!.add(newAppointment);
-    widget.calendar.dataSource!.notifyListeners(
-        CalendarDataSourceAction.add, <dynamic>[newAppointment]);
+    widget.calendar.dataSource!
+        .notifyListeners(CalendarDataSourceAction.add, <T>[newAppointment]);
 
     _resetDraggingDetails(currentState);
     if (widget.calendar.onDragEnd != null) {
-      widget.calendar.onDragEnd!(AppointmentDragEndDetails(newAppointment,
+      widget.calendar.onDragEnd!(AppointmentDragEndDetails<T>(newAppointment,
           previousResource, selectedResource, callbackStartDate));
     }
   }
 
-  void _resetDraggingDetails(_CalendarViewState currentState) {
+  void _resetDraggingDetails(_CalendarViewState<T> currentState) {
     _dragDetails.value.appointmentView = null;
     _dragDetails.value.position.value = null;
     _dragDifferenceOffset = null;
@@ -2346,10 +2354,10 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   /// Get the scroll layout current child view state based on its visible dates.
-  _CalendarViewState? _getCurrentViewByVisibleDates() {
-    _CalendarView? view;
+  _CalendarViewState<T>? _getCurrentViewByVisibleDates() {
+    _CalendarView<T>? view;
     for (int i = 0; i < _children.length; i++) {
-      final _CalendarView currentView = _children[i];
+      final _CalendarView<T> currentView = _children[i];
       if (currentView.visibleDates == _currentViewVisibleDates) {
         view = currentView;
         break;
@@ -2360,7 +2368,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       return null;
     }
 
-    return (view.key! as GlobalKey<_CalendarViewState>).currentState;
+    return (view.key! as GlobalKey<_CalendarViewState<T>>).currentState;
   }
 
   /// Handle start of the scroll, set the scroll start position and check
@@ -2379,7 +2387,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     if (!CalendarViewHelper.isTimelineView(widget.view)) {
       return;
     }
-    final _CalendarViewState viewKey = _getCurrentViewByVisibleDates()!;
+    final _CalendarViewState<T> viewKey = _getCurrentViewByVisibleDates()!;
     if (viewKey._hoveringAppointmentView != null &&
         !widget.isMobilePlatform &&
         isNeedDragAndDrop) {
@@ -2433,7 +2441,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     if (!CalendarViewHelper.isTimelineView(widget.view)) {
       return;
     }
-    final _CalendarViewState viewKey = _getCurrentViewByVisibleDates()!;
+    final _CalendarViewState<T> viewKey = _getCurrentViewByVisibleDates()!;
 
     if (_dragDetails.value.appointmentView != null &&
         !widget.isMobilePlatform &&
@@ -2547,7 +2555,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   /// Handle the pointer scroll when a pointer signal occurs over this object.
   /// eg., track pad scroll.
   void _handlePointerSignal(PointerSignalEvent event) {
-    final _CalendarViewState? viewKey = _getCurrentViewByVisibleDates();
+    final _CalendarViewState<T>? viewKey = _getCurrentViewByVisibleDates();
     if (event is PointerScrollEvent && viewKey != null) {
       double scrolledPosition =
           widget.isRTL ? -event.scrollDelta.dx : event.scrollDelta.dx;
@@ -2743,7 +2751,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     }
   }
 
-  void _getCalendarViewStateDetails(UpdateCalendarStateDetails details) {
+  void _getCalendarViewStateDetails(UpdateCalendarStateDetails<T> details) {
     widget.getCalendarState(_updateCalendarStateDetails);
     details.currentDate = _updateCalendarStateDetails.currentDate;
     details.currentViewVisibleDates =
@@ -2757,7 +2765,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         _updateCalendarStateDetails.visibleAppointments;
   }
 
-  void _updateCalendarViewStateDetails(UpdateCalendarStateDetails details) {
+  void _updateCalendarViewStateDetails(UpdateCalendarStateDetails<T> details) {
     _updateCalendarStateDetails.selectedDate = details.selectedDate;
     widget.updateCalendarState(_updateCalendarStateDetails);
   }
@@ -2874,8 +2882,8 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     final int minutes = AppointmentHelper.getDifference(
             region.actualStartTime, region.actualEndTime)
         .inMinutes;
-    final DateTime actualEndTime = DateTimeHelper.getDateTimeValue(
-        addDuration(recursiveDate, Duration(minutes: minutes)));
+    final DateTime actualEndTime =
+        addDuration(recursiveDate, Duration(minutes: minutes));
     final DateTime startDate =
         AppointmentHelper.convertTimeToAppointmentTimeZone(
             recursiveDate, calendarTimeZone, region.timeZone);
@@ -2927,7 +2935,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
   List<Widget> _addViews() {
     if (_children.isEmpty) {
-      _previousView = _CalendarView(
+      _previousView = _CalendarView<T>(
         widget.calendar,
         widget.view,
         _previousViewVisibleDates,
@@ -2953,15 +2961,15 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         widget.localizations,
         widget.timelineMonthWeekNumberNotifier,
         _dragDetails,
-        (UpdateCalendarStateDetails details) {
+        (UpdateCalendarStateDetails<T> details) {
           _updateCalendarViewStateDetails(details);
         },
-        (UpdateCalendarStateDetails details) {
+        (UpdateCalendarStateDetails<T> details) {
           _getCalendarViewStateDetails(details);
         },
         key: _previousViewKey,
       );
-      _currentView = _CalendarView(
+      _currentView = _CalendarView<T>(
         widget.calendar,
         widget.view,
         _visibleDates,
@@ -2986,15 +2994,15 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         widget.localizations,
         widget.timelineMonthWeekNumberNotifier,
         _dragDetails,
-        (UpdateCalendarStateDetails details) {
+        (UpdateCalendarStateDetails<T> details) {
           _updateCalendarViewStateDetails(details);
         },
-        (UpdateCalendarStateDetails details) {
+        (UpdateCalendarStateDetails<T> details) {
           _getCalendarViewStateDetails(details);
         },
         key: _currentViewKey,
       );
-      _nextView = _CalendarView(
+      _nextView = _CalendarView<T>(
         widget.calendar,
         widget.view,
         _nextViewVisibleDates,
@@ -3020,10 +3028,10 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         widget.localizations,
         widget.timelineMonthWeekNumberNotifier,
         _dragDetails,
-        (UpdateCalendarStateDetails details) {
+        (UpdateCalendarStateDetails<T> details) {
           _updateCalendarViewStateDetails(details);
         },
-        (UpdateCalendarStateDetails details) {
+        (UpdateCalendarStateDetails<T> details) {
           _getCalendarViewStateDetails(details);
         },
         key: _nextViewKey,
@@ -3036,11 +3044,11 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     }
 
     widget.getCalendarState(_updateCalendarStateDetails);
-    final _CalendarView previousView = _updateViews(
+    final _CalendarView<T> previousView = _updateViews(
         _previousView, _previousViewKey, _previousViewVisibleDates);
-    final _CalendarView currentView =
+    final _CalendarView<T> currentView =
         _updateViews(_currentView, _currentViewKey, _visibleDates);
-    final _CalendarView nextView =
+    final _CalendarView<T> nextView =
         _updateViews(_nextView, _nextViewKey, _nextViewVisibleDates);
 
     //// Update views while the all day view height differ from original height,
@@ -3059,15 +3067,15 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   // method to check and update the views and appointments on the swiping end
-  _CalendarView _updateViews(_CalendarView view,
-      GlobalKey<_CalendarViewState> viewKey, List<DateTime> visibleDates) {
+  _CalendarView<T> _updateViews(_CalendarView<T> view,
+      GlobalKey<_CalendarViewState<T>> viewKey, List<DateTime> visibleDates) {
     final int index = _children.indexOf(view);
 
-    final AppointmentLayout appointmentLayout =
+    final AppointmentLayout<T> appointmentLayout =
         viewKey.currentState!._appointmentLayout;
     // update the view with the visible dates on swiping end.
     if (view.visibleDates != visibleDates) {
-      view = _CalendarView(
+      view = _CalendarView<T>(
         widget.calendar,
         widget.view,
         visibleDates,
@@ -3092,10 +3100,10 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         widget.localizations,
         widget.timelineMonthWeekNumberNotifier,
         _dragDetails,
-        (UpdateCalendarStateDetails details) {
+        (UpdateCalendarStateDetails<T> details) {
           _updateCalendarViewStateDetails(details);
         },
-        (UpdateCalendarStateDetails details) {
+        (UpdateCalendarStateDetails<T> details) {
           _getCalendarViewStateDetails(details);
         },
         key: viewKey,
@@ -3109,7 +3117,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         _updateCalendarStateDetails.visibleAppointments)) {
       if (widget.view != CalendarView.month &&
           !CalendarViewHelper.isTimelineView(widget.view)) {
-        view = _CalendarView(
+        view = _CalendarView<T>(
           widget.calendar,
           widget.view,
           visibleDates,
@@ -3134,10 +3142,10 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
           widget.localizations,
           widget.timelineMonthWeekNumberNotifier,
           _dragDetails,
-          (UpdateCalendarStateDetails details) {
+          (UpdateCalendarStateDetails<T> details) {
             _updateCalendarViewStateDetails(details);
           },
-          (UpdateCalendarStateDetails details) {
+          (UpdateCalendarStateDetails<T> details) {
             _getCalendarViewStateDetails(details);
           },
           key: viewKey,
@@ -3146,7 +3154,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       } else if (view.calendar != widget.calendar) {
         /// Update the calendar view when calendar properties like appointment
         /// text style dynamically changed.
-        view = _CalendarView(
+        view = _CalendarView<T>(
           widget.calendar,
           widget.view,
           visibleDates,
@@ -3171,10 +3179,10 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
           widget.localizations,
           widget.timelineMonthWeekNumberNotifier,
           _dragDetails,
-          (UpdateCalendarStateDetails details) {
+          (UpdateCalendarStateDetails<T> details) {
             _updateCalendarViewStateDetails(details);
           },
-          (UpdateCalendarStateDetails details) {
+          (UpdateCalendarStateDetails<T> details) {
             _getCalendarViewStateDetails(details);
           },
           key: viewKey,
@@ -3211,7 +3219,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     else if (view.calendar != widget.calendar) {
       /// Update the calendar view when calendar properties like blackout dates
       /// dynamically changed.
-      view = _CalendarView(
+      view = _CalendarView<T>(
         widget.calendar,
         widget.view,
         visibleDates,
@@ -3236,10 +3244,10 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         widget.localizations,
         widget.timelineMonthWeekNumberNotifier,
         _dragDetails,
-        (UpdateCalendarStateDetails details) {
+        (UpdateCalendarStateDetails<T> details) {
           _updateCalendarViewStateDetails(details);
         },
-        (UpdateCalendarStateDetails details) {
+        (UpdateCalendarStateDetails<T> details) {
           _getCalendarViewStateDetails(details);
         },
         key: viewKey,
@@ -3291,9 +3299,9 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     }
 
     for (int i = 0; i < _children.length; i++) {
-      final GlobalKey<_CalendarViewState> viewKey =
+      final GlobalKey<_CalendarViewState<T>> viewKey =
           // ignore: avoid_as
-          _children[i].key! as GlobalKey<_CalendarViewState>;
+          _children[i].key! as GlobalKey<_CalendarViewState<T>>;
       if (CalendarViewHelper.isResourceEnabled(
           widget.calendar.dataSource, widget.view)) {
         viewKey.currentState!._selectedResourceIndex = 0;
@@ -3310,9 +3318,9 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   /// performed.
   void _updateSelectedResourceIndex() {
     for (int i = 0; i < _children.length; i++) {
-      final GlobalKey<_CalendarViewState> viewKey =
+      final GlobalKey<_CalendarViewState<T>> viewKey =
           // ignore: avoid_as
-          _children[i].key! as GlobalKey<_CalendarViewState>;
+          _children[i].key! as GlobalKey<_CalendarViewState<T>>;
       final int selectedResourceIndex =
           viewKey.currentState!._selectedResourceIndex;
       if (selectedResourceIndex != -1) {
@@ -3327,9 +3335,11 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
   void _updateSelection() {
     widget.getCalendarState(_updateCalendarStateDetails);
-    final _CalendarViewState previousViewState = _previousViewKey.currentState!;
-    final _CalendarViewState currentViewState = _currentViewKey.currentState!;
-    final _CalendarViewState nextViewState = _nextViewKey.currentState!;
+    final _CalendarViewState<T> previousViewState =
+        _previousViewKey.currentState!;
+    final _CalendarViewState<T> currentViewState =
+        _currentViewKey.currentState!;
+    final _CalendarViewState<T> nextViewState = _nextViewKey.currentState!;
     previousViewState._allDaySelectionNotifier.value = null;
     currentViewState._allDaySelectionNotifier.value = null;
     nextViewState._allDaySelectionNotifier.value = null;
@@ -3366,7 +3376,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     });
   }
 
-  CalendarDetails? _getCalendarDetails(Offset position) {
+  CalendarDetails<T>? _getCalendarDetails(Offset position) {
     if (_currentChildIndex == 0) {
       return _previousViewKey.currentState?._getCalendarViewDetails(position);
     } else if (_currentChildIndex == 1) {
@@ -3531,9 +3541,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     }
 
     _animationController.duration = const Duration(milliseconds: 250);
-    _animationController
-        .forward()
-        .then<dynamic>((dynamic value) => _updateNextView());
+    _animationController.forward().then<void>((void _) => _updateNextView());
 
     /// updates the current view visible dates when the view swiped
     _updateCurrentViewVisibleDates(isNextView: true);
@@ -3585,7 +3593,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     _animationController.duration = const Duration(milliseconds: 250);
     _animationController
         .forward()
-        .then<dynamic>((dynamic value) => _updatePreviousView());
+        .then<void>((void _) => _updatePreviousView());
 
     /// updates the current view visible dates when the view swiped.
     _updateCurrentViewVisibleDates();
@@ -3778,15 +3786,16 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     return -1;
   }
 
-  DateTime _updateSelectedDateForRightArrow(_CalendarView currentView,
-      _CalendarViewState currentViewState, DateTime? selectedDate) {
+  DateTime _updateSelectedDateForRightArrow(_CalendarView<T> currentView,
+      _CalendarViewState<T> currentViewState, DateTime? selectedDate) {
     /// Condition added to move the view to next view when the selection reaches
     /// the last horizontal cell of the view in day, week, workweek, month and
     /// timeline month.
     if (!CalendarViewHelper.isTimelineView(widget.view)) {
       final int visibleDatesCount = currentView.visibleDates.length;
-      if (isSameDate(
-          currentView.visibleDates[visibleDatesCount - 1], selectedDate)) {
+      if (selectedDate == null ||
+          isSameDate(
+              currentView.visibleDates[visibleDatesCount - 1], selectedDate)) {
         _moveToNextViewWithAnimation();
       }
 
@@ -3884,10 +3893,11 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     return selectedDate!;
   }
 
-  DateTime _updateSelectedDateForLeftArrow(_CalendarView currentView,
-      _CalendarViewState currentViewState, DateTime? selectedDate) {
+  DateTime _updateSelectedDateForLeftArrow(_CalendarView<T> currentView,
+      _CalendarViewState<T> currentViewState, DateTime? selectedDate) {
     if (!CalendarViewHelper.isTimelineView(widget.view)) {
-      if (isSameDate(currentViewState.widget.visibleDates[0], selectedDate)) {
+      if (selectedDate == null ||
+          isSameDate(currentViewState.widget.visibleDates[0], selectedDate)) {
         _moveToPreviousViewWithAnimation();
       }
 
@@ -3975,8 +3985,8 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   DateTime? _updateSelectedDateForUpArrow(
-      _CalendarView currentView,
-      _CalendarViewState currentViewState,
+      _CalendarView<T> currentView,
+      _CalendarViewState<T> currentViewState,
       DateTime? selectedDate,
       DateTime? appointmentSelectedDate) {
     if (widget.view == CalendarView.month) {
@@ -4059,8 +4069,8 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   DateTime? _updateSelectedDateForDownArrow(
-      _CalendarView currentView,
-      _CalendarViewState currentViewState,
+      _CalendarView<T> currentView,
+      _CalendarViewState<T> currentViewState,
       DateTime? selectedDate,
       DateTime? selectedAppointmentDate) {
     if (widget.view == CalendarView.month) {
@@ -4172,7 +4182,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
   /// Moves the view to the selected time slot.
   void _moveToSelectedTimeSlot() {
-    _CalendarViewState currentViewState;
+    _CalendarViewState<T> currentViewState;
     if (_currentChildIndex == 0) {
       currentViewState = _previousViewKey.currentState!;
     } else if (_currentChildIndex == 1) {
@@ -4198,8 +4208,8 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
   DateTime? _updateSelectedDate(
       RawKeyEvent event,
-      _CalendarViewState currentViewState,
-      _CalendarView currentView,
+      _CalendarViewState<T> currentViewState,
+      _CalendarView<T> currentView,
       int resourceIndex,
       DateTime? selectedAppointmentDate,
       bool isAllDayAppointment) {
@@ -4340,7 +4350,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
   /// Method to handle the page up/down key for timeslot views in calendar.
   KeyEventResult _updatePageUpAndDown(RawKeyEvent event,
-      _CalendarViewState currentViewState, bool isResourceEnabled) {
+      _CalendarViewState<T> currentViewState, bool isResourceEnabled) {
     if (widget.controller.view != CalendarView.day &&
         widget.controller.view != CalendarView.week &&
         widget.controller.view != CalendarView.workWeek &&
@@ -4419,22 +4429,22 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   /// Updates the appointment selection based on keyboard navigation in calendar
   KeyEventResult _updateAppointmentSelection(
       RawKeyEvent event,
-      _CalendarViewState currentVisibleViewState,
+      _CalendarViewState<T> currentVisibleViewState,
       bool isResourceEnabled,
-      AppointmentView? currentSelectedAppointment,
-      AppointmentView? currentAllDayAppointment) {
+      AppointmentView<T>? currentSelectedAppointment,
+      AppointmentView<T>? currentAllDayAppointment) {
     if (widget.controller.view == CalendarView.schedule) {
       return KeyEventResult.ignored;
     }
 
-    AppointmentView? selectedAppointment;
+    AppointmentView<T>? selectedAppointment;
     bool isAllDay = currentAllDayAppointment != null;
-    final List<AppointmentView> appointmentCollection = currentVisibleViewState
-        ._appointmentLayout
-        .getAppointmentViewCollection();
-    final List<AppointmentView> allDayAppointmentCollection =
+    final List<AppointmentView<T>> appointmentCollection =
+        currentVisibleViewState._appointmentLayout
+            .getAppointmentViewCollection();
+    final List<AppointmentView<T>> allDayAppointmentCollection =
         _updateCalendarStateDetails.allDayAppointmentViewCollection;
-    final List<AppointmentView> tempAppColl =
+    final List<AppointmentView<T>> tempAppColl =
         isAllDay ? allDayAppointmentCollection : appointmentCollection;
     if (event.isShiftPressed) {
       if (event.logicalKey == LogicalKeyboardKey.tab) {
@@ -4544,8 +4554,8 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   /// Updates the selection for appointment view based on keyboard navigation
   /// in Calendar.
   KeyEventResult _updateAppointmentSelectionOnView(
-      AppointmentView? selectedAppointment,
-      _CalendarViewState currentVisibleViewState,
+      AppointmentView<T>? selectedAppointment,
+      _CalendarViewState<T> currentVisibleViewState,
       bool isAllDay,
       bool isResourceEnabled,
       bool isForward) {
@@ -4718,8 +4728,8 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     CalendarViewHelper.handleViewSwitchKeyBoardEvent(
         event, widget.controller, widget.calendar.allowedViews);
 
-    _CalendarViewState currentVisibleViewState;
-    _CalendarView currentVisibleView;
+    _CalendarViewState<T> currentVisibleViewState;
+    _CalendarView<T> currentVisibleView;
     final bool isResourcesEnabled = CalendarViewHelper.isResourceEnabled(
         widget.calendar.dataSource, widget.view);
     if (_currentChildIndex == 0) {
@@ -4736,9 +4746,9 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     result = _updatePageUpAndDown(
         event, currentVisibleViewState, isResourcesEnabled);
 
-    AppointmentView? currentSelectedAppointment =
+    AppointmentView<T>? currentSelectedAppointment =
         currentVisibleViewState._selectionPainter!.appointmentView;
-    AppointmentView? currentAllDayAppointment =
+    AppointmentView<T>? currentAllDayAppointment =
         currentVisibleViewState._allDaySelectionNotifier.value?.appointmentView;
 
     result = _updateAppointmentSelection(
@@ -4756,18 +4766,18 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     if (event.logicalKey == LogicalKeyboardKey.enter &&
         CalendarViewHelper.shouldRaiseCalendarTapCallback(
             widget.calendar.onTap)) {
-      final AppointmentView? selectedAppointment = currentVisibleViewState
+      final AppointmentView<T>? selectedAppointment = currentVisibleViewState
               ._allDaySelectionNotifier.value?.appointmentView ??
           currentVisibleViewState._selectionPainter!.appointmentView;
-      final List<CalendarAppointment>? selectedAppointments =
+      final List<CalendarAppointment<T>>? selectedAppointments =
           widget.controller.view == CalendarView.month &&
                   selectedAppointment == null
-              ? AppointmentHelper.getSelectedDateAppointments(
+              ? AppointmentHelper.getSelectedDateAppointments<T>(
                   _updateCalendarStateDetails.appointments,
                   widget.calendar.timeZone,
                   _updateCalendarStateDetails.selectedDate)
               : selectedAppointment != null
-                  ? <CalendarAppointment>[selectedAppointment.appointment!]
+                  ? <CalendarAppointment<T>>[selectedAppointment.appointment!]
                   : null;
       final CalendarElement tappedElement =
           _updateCalendarStateDetails.selectedDate != null
@@ -4780,7 +4790,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
               ? selectedAppointments![0].startTime
               : _updateCalendarStateDetails.selectedDate,
           CalendarViewHelper.getCustomAppointments(
-              selectedAppointments, widget.calendar.dataSource),
+              selectedAppointments, widget.calendar.dataSource!),
           tappedElement,
           isResourcesEnabled
               ? widget.calendar.dataSource!
@@ -4797,7 +4807,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
                 currentVisibleViewState.widget.visibleDates[0],
                 currentVisibleViewState.widget.visibleDates[
                     currentVisibleViewState.widget.visibleDates.length - 1],
-                currentVisibleViewState._selectionPainter!.selectedDate)) ||
+                currentVisibleViewState._selectionPainter!.selectedDate!)) ||
         (currentSelectedAppointment != null ||
             currentAllDayAppointment != null)) {
       final int resourceIndex = isResourcesEnabled
@@ -4836,7 +4846,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       _updateCalendarStateDetails.selectedDate = selectedDate;
       if (widget.calendar.onSelectionChanged != null &&
           (!CalendarViewHelper.isSameTimeSlot(
-                  currentVisibleViewState._selectionPainter!.selectedDate,
+                  currentVisibleViewState._selectionPainter!.selectedDate!,
                   selectedDate) ||
               (isResourcesEnabled &&
                   currentVisibleViewState
@@ -4866,9 +4876,11 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   void _positionTimelineView({bool isScrolledToEnd = true}) {
-    final _CalendarViewState previousViewState = _previousViewKey.currentState!;
-    final _CalendarViewState currentViewState = _currentViewKey.currentState!;
-    final _CalendarViewState nextViewState = _nextViewKey.currentState!;
+    final _CalendarViewState<T> previousViewState =
+        _previousViewKey.currentState!;
+    final _CalendarViewState<T> currentViewState =
+        _currentViewKey.currentState!;
+    final _CalendarViewState<T> nextViewState = _nextViewKey.currentState!;
     if (widget.isRTL) {
       if (_currentChildIndex == 0) {
         currentViewState._scrollController!.jumpTo(isScrolledToEnd
@@ -4913,7 +4925,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       double viewHeaderHeight,
       double timeLabelWidth,
       bool isNeedDragAndDrop) {
-    final _CalendarViewState currentState = _getCurrentViewByVisibleDates()!;
+    final _CalendarViewState<T> currentState = _getCurrentViewByVisibleDates()!;
     if (currentState._hoveringAppointmentView != null &&
         currentState._hoveringAppointmentView!.appointment != null &&
         !widget.isMobilePlatform &&
@@ -5056,7 +5068,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
             _animationController
                 .forward()
-                .then<dynamic>((dynamic value) => _updateNextView());
+                .then<void>((void _) => _updateNextView());
 
             /// updates the current view visible dates when the view swiped in
             /// right to left direction
@@ -5092,7 +5104,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
             _animationController
                 .fling(
                     velocity: 5.0, animationBehavior: AnimationBehavior.normal)
-                .then<dynamic>((dynamic value) => _updateNextView());
+                .then<void>((void _) => _updateNextView());
 
             /// updates the current view visible dates when fling the view in
             /// right to left direction
@@ -5111,7 +5123,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
             _animationController
                 .forward()
-                .then<dynamic>((dynamic value) => _updatePreviousView());
+                .then<void>((void _) => _updatePreviousView());
 
             /// updates the current view visible dates when the view swiped in
             /// left to right direction
@@ -5147,7 +5159,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
             _animationController
                 .fling(
                     velocity: 5.0, animationBehavior: AnimationBehavior.normal)
-                .then<dynamic>((dynamic value) => _updatePreviousView());
+                .then<void>((void _) => _updatePreviousView());
 
             /// updates the current view visible dates when fling the view in
             /// left to right direction
@@ -5177,7 +5189,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       double viewHeaderHeight,
       double timeLabelWidth,
       bool isNeedDragAndDrop) {
-    final _CalendarViewState currentState = _getCurrentViewByVisibleDates()!;
+    final _CalendarViewState<T> currentState = _getCurrentViewByVisibleDates()!;
     if (currentState._hoveringAppointmentView != null &&
         currentState._hoveringAppointmentView!.appointment != null &&
         !widget.isMobilePlatform &&
@@ -5311,7 +5323,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
             _animationController
                 .forward()
-                .then<dynamic>((dynamic value) => _updateNextView());
+                .then<void>((void _) => _updateNextView());
 
             /// updates the current view visible dates when the view swiped in
             /// bottom to top direction
@@ -5347,7 +5359,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
             _animationController
                 .fling(
                     velocity: 5.0, animationBehavior: AnimationBehavior.normal)
-                .then<dynamic>((dynamic value) => _updateNextView());
+                .then<void>((void _) => _updateNextView());
 
             /// updates the current view visible dates when fling the view in
             /// bottom to top direction
@@ -5366,7 +5378,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
             _animationController
                 .forward()
-                .then<dynamic>((dynamic value) => _updatePreviousView());
+                .then<void>((void _) => _updatePreviousView());
 
             /// updates the current view visible dates when the view swiped in
             /// top to bottom direction
@@ -5401,7 +5413,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
             _animationController
                 .fling(
                     velocity: 5.0, animationBehavior: AnimationBehavior.normal)
-                .then<dynamic>((dynamic value) => _updatePreviousView());
+                .then<void>((void _) => _updatePreviousView());
 
             /// updates the current view visible dates when fling the view in
             /// top to bottom direction
@@ -5427,9 +5439,9 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   void _clearSelection() {
     widget.getCalendarState(_updateCalendarStateDetails);
     for (int i = 0; i < _children.length; i++) {
-      final GlobalKey<_CalendarViewState> viewKey =
+      final GlobalKey<_CalendarViewState<T>> viewKey =
           // ignore: avoid_as
-          _children[i].key! as GlobalKey<_CalendarViewState>;
+          _children[i].key! as GlobalKey<_CalendarViewState<T>>;
       if (viewKey.currentState!._selectionPainter!.selectedDate !=
           _updateCalendarStateDetails.selectedDate) {
         viewKey.currentState!._selectionPainter!.selectedDate =
@@ -5444,7 +5456,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   /// the view swiped to next or previous view with the expanded all day panel,
   /// it will be collapsed.
   void _updateAllDayPanel() {
-    GlobalKey<_CalendarViewState> viewKey;
+    GlobalKey<_CalendarViewState<T>> viewKey;
     if (_currentChildIndex == 0) {
       viewKey = _previousViewKey;
     } else if (_currentChildIndex == 1) {
@@ -5462,10 +5474,10 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   /// Method to clear the appointments in the previous/next view
   void _updateAppointmentPainter() {
     for (int i = 0; i < _children.length; i++) {
-      final _CalendarView view = _children[i];
-      final GlobalKey<_CalendarViewState> viewKey =
+      final _CalendarView<T> view = _children[i];
+      final GlobalKey<_CalendarViewState<T>> viewKey =
           // ignore: avoid_as
-          view.key! as GlobalKey<_CalendarViewState>;
+          view.key! as GlobalKey<_CalendarViewState<T>>;
       if (widget.view == CalendarView.month &&
           widget.calendar.monthCellBuilder != null) {
         if (view.visibleDates == _currentViewVisibleDates) {
@@ -5484,7 +5496,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
           }
         }
       } else {
-        final AppointmentLayout appointmentLayout =
+        final AppointmentLayout<T> appointmentLayout =
             viewKey.currentState!._appointmentLayout;
         if (view.visibleDates == _currentViewVisibleDates) {
           widget.getCalendarState(_updateCalendarStateDetails);
@@ -5506,7 +5518,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 }
 
 @immutable
-class _CalendarView extends StatefulWidget {
+class _CalendarView<T> extends StatefulWidget {
   const _CalendarView(
       this.calendar,
       this.view,
@@ -5540,7 +5552,7 @@ class _CalendarView extends StatefulWidget {
   final List<DateTime> visibleDates;
   final List<CalendarTimeRegion>? regions;
   final List<DateTime>? blackoutDates;
-  final SfCalendar calendar;
+  final SfCalendar<T> calendar;
   final CalendarView view;
   final double width;
   final SfCalendarThemeData calendarTheme;
@@ -5549,10 +5561,10 @@ class _CalendarView extends StatefulWidget {
   final String locale;
   final ValueNotifier<DateTime?> agendaSelectedDate,
       timelineMonthWeekNumberNotifier;
-  final CalendarController controller;
+  final CalendarController<T> controller;
   final VoidCallback removePicker;
-  final UpdateCalendarState updateCalendarState;
-  final UpdateCalendarState getCalendarState;
+  final UpdateCalendarState<T> updateCalendarState;
+  final UpdateCalendarState<T> getCalendarState;
   final bool allowViewNavigation;
   final FocusNode focusNode;
   final ScrollController? resourcePanelScrollController;
@@ -5562,13 +5574,13 @@ class _CalendarView extends StatefulWidget {
   final DateTime minDate;
   final DateTime maxDate;
   final SfLocalizations localizations;
-  final ValueNotifier<_DragPaintDetails> dragDetails;
+  final ValueNotifier<_DragPaintDetails<T>> dragDetails;
 
   @override
-  _CalendarViewState createState() => _CalendarViewState();
+  _CalendarViewState<T> createState() => _CalendarViewState<T>();
 }
 
-class _CalendarViewState extends State<_CalendarView>
+class _CalendarViewState<T> extends State<_CalendarView<T>>
     with TickerProviderStateMixin {
   // line count is the total time slot lines to be drawn in the view
   // line count per view is for time line view which contains the time slot
@@ -5582,20 +5594,20 @@ class _CalendarViewState extends State<_CalendarView>
       _timelineViewVerticalScrollController,
       _timelineRulerController;
 
-  late AppointmentLayout _appointmentLayout;
+  late AppointmentLayout<T> _appointmentLayout;
   AnimationController? _timelineViewAnimationController;
   Animation<double>? _timelineViewAnimation;
   final Tween<double> _timelineViewTween = Tween<double>(begin: 0.0, end: 0.1);
 
   //// timeline header is used to implement the sticky view header in horizontal calendar view mode.
   late TimelineViewHeaderView _timelineViewHeader;
-  _SelectionPainter? _selectionPainter;
+  _SelectionPainter<T>? _selectionPainter;
   double _allDayHeight = 0;
   late double _timeIntervalHeight;
-  final UpdateCalendarStateDetails _updateCalendarStateDetails =
-      UpdateCalendarStateDetails();
-  ValueNotifier<SelectionDetails?> _allDaySelectionNotifier =
-      ValueNotifier<SelectionDetails?>(null);
+  final UpdateCalendarStateDetails<T> _updateCalendarStateDetails =
+      UpdateCalendarStateDetails<T>();
+  ValueNotifier<SelectionDetails<T>?> _allDaySelectionNotifier =
+      ValueNotifier<SelectionDetails<T>?>(null);
   late ValueNotifier<Offset?> _viewHeaderNotifier;
   final ValueNotifier<Offset?> _calendarCellNotifier =
           ValueNotifier<Offset?>(null),
@@ -5608,7 +5620,7 @@ class _CalendarViewState extends State<_CalendarView>
   bool _isExpanded = false;
   DateTime? _hoveringDate;
   SystemMouseCursor _mouseCursor = SystemMouseCursors.basic;
-  AppointmentView? _hoveringAppointmentView;
+  AppointmentView<T>? _hoveringAppointmentView;
 
   /// The property to hold the resource value associated with the selected
   /// calendar cell.
@@ -5620,7 +5632,7 @@ class _CalendarViewState extends State<_CalendarView>
 
   /// Store the month widget instance used to update the month view
   /// when the visible appointment updated.
-  late MonthViewWidget _monthView;
+  late MonthViewWidget<T> _monthView;
 
   /// Used to hold the global key for restrict the new appointment layout
   /// creation.
@@ -5632,13 +5644,13 @@ class _CalendarViewState extends State<_CalendarView>
   Timer? _timer, _autoScrollTimer;
   late ValueNotifier<int> _currentTimeNotifier;
 
-  late ValueNotifier<_ResizingPaintDetails> _resizingDetails;
+  late ValueNotifier<_ResizingPaintDetails<T>> _resizingDetails;
   double? _maximumResizingPosition;
 
   @override
   void initState() {
-    _resizingDetails = ValueNotifier<_ResizingPaintDetails>(
-        _ResizingPaintDetails(position: ValueNotifier<Offset?>(null)));
+    _resizingDetails = ValueNotifier<_ResizingPaintDetails<T>>(
+        _ResizingPaintDetails<T>(position: ValueNotifier<Offset?>(null)));
     _viewHeaderNotifier = ValueNotifier<Offset?>(null)
       ..addListener(_timelineViewHoveringUpdate);
     if (!CalendarViewHelper.isTimelineView(widget.view) &&
@@ -5703,7 +5715,7 @@ class _CalendarViewState extends State<_CalendarView>
   }
 
   @override
-  void didUpdateWidget(_CalendarView oldWidget) {
+  void didUpdateWidget(_CalendarView<T> oldWidget) {
     final bool isTimelineView = CalendarViewHelper.isTimelineView(widget.view);
     if (widget.view != CalendarView.month) {
       if (!isTimelineView) {
@@ -5763,7 +5775,7 @@ class _CalendarViewState extends State<_CalendarView>
     /// select the same month cell and move to day view then the view show
     /// calendar cell selection and all day panel selection.
     if (oldWidget.view != widget.view) {
-      _allDaySelectionNotifier = ValueNotifier<SelectionDetails?>(null);
+      _allDaySelectionNotifier = ValueNotifier<SelectionDetails<T>?>(null);
       final DateTime today = DateTime.now();
       _currentTimeNotifier = ValueNotifier<int>(
           (today.day * 24 * 60) + (today.hour * 60) + today.minute);
@@ -6335,7 +6347,7 @@ class _CalendarViewState extends State<_CalendarView>
     }
   }
 
-  void _updateTimeSlotView(_CalendarView oldWidget) {
+  void _updateTimeSlotView(_CalendarView<T> oldWidget) {
     _animationController ??= AnimationController(
         duration: const Duration(milliseconds: 200), vsync: this);
     _heightAnimation ??=
@@ -6372,7 +6384,7 @@ class _CalendarViewState extends State<_CalendarView>
     }
   }
 
-  void _updateHorizontalLineCount(_CalendarView oldWidget) {
+  void _updateHorizontalLineCount(_CalendarView<T> oldWidget) {
     if (widget.calendar.timeSlotViewSettings.startHour !=
             oldWidget.calendar.timeSlotViewSettings.startHour ||
         widget.calendar.timeSlotViewSettings.endHour !=
@@ -6394,7 +6406,7 @@ class _CalendarViewState extends State<_CalendarView>
     }
   }
 
-  void _updateTimelineViews(_CalendarView oldWidget) {
+  void _updateTimelineViews(_CalendarView<T> oldWidget) {
     _timelineRulerController ??= ScrollController()
       ..addListener(_timeRulerListener);
 
@@ -6412,7 +6424,7 @@ class _CalendarViewState extends State<_CalendarView>
         ?.addListener(_updateResourcePanelScroll);
   }
 
-  void _getPainterProperties(UpdateCalendarStateDetails details) {
+  void _getPainterProperties(UpdateCalendarStateDetails<T> details) {
     widget.getCalendarState(_updateCalendarStateDetails);
     details.allDayAppointmentViewCollection =
         _updateCalendarStateDetails.allDayAppointmentViewCollection;
@@ -6517,7 +6529,7 @@ class _CalendarViewState extends State<_CalendarView>
         widget.calendar.timeSlotViewSettings.numberOfDaysInView,
         widget.calendar.timeSlotViewSettings.nonWorkingDays,
         widget.calendar.monthViewSettings.numberOfWeeksInView);
-    final Widget allDayLayout = AllDayAppointmentLayout(
+    final Widget allDayLayout = AllDayAppointmentLayout<T>(
         widget.calendar,
         widget.view,
         widget.visibleDates,
@@ -6563,16 +6575,16 @@ class _CalendarViewState extends State<_CalendarView>
 
   Widget _addAppointmentPainter(double width, double height,
       [double? resourceItemHeight]) {
-    final List<CalendarAppointment>? visibleAppointments =
+    final List<CalendarAppointment<T>>? visibleAppointments =
         widget.visibleDates ==
                 _updateCalendarStateDetails.currentViewVisibleDates
             ? _updateCalendarStateDetails.visibleAppointments
             : null;
-    _appointmentLayout = AppointmentLayout(
+    _appointmentLayout = AppointmentLayout<T>(
       widget.calendar,
       widget.view,
       widget.visibleDates,
-      ValueNotifier<List<CalendarAppointment>?>(visibleAppointments),
+      ValueNotifier<List<CalendarAppointment<T>>?>(visibleAppointments),
       _timeIntervalHeight,
       widget.calendarTheme,
       widget.themeData,
@@ -6597,7 +6609,7 @@ class _CalendarViewState extends State<_CalendarView>
     double yPosition = details.localPosition.dy;
     final double timeLabelWidth = CalendarViewHelper.getTimeLabelWidth(
         widget.calendar.timeSlotViewSettings.timeRulerSize, widget.view);
-    AppointmentView? appointmentView;
+    AppointmentView<T>? appointmentView;
     const double padding = 10;
     final bool isForwardResize = _mouseCursor == SystemMouseCursors.resizeDown;
     final bool isBackwardResize = _mouseCursor == SystemMouseCursors.resizeUp;
@@ -6666,10 +6678,10 @@ class _CalendarViewState extends State<_CalendarView>
     }
     if (CalendarViewHelper.shouldRaiseAppointmentResizeStartCallback(
         widget.calendar.onAppointmentResizeStart)) {
-      CalendarViewHelper.raiseAppointmentResizeStartCallback(
+      CalendarViewHelper.raiseAppointmentResizeStartCallback<T>(
           widget.calendar,
-          _getCalendarAppointmentToObject(
-              appointmentView!.appointment, widget.calendar),
+          _getCalendarAppointmentToObject<T>(
+              appointmentView!.appointment!, widget.calendar),
           null);
     }
   }
@@ -6753,7 +6765,7 @@ class _CalendarViewState extends State<_CalendarView>
         allDayPanelHeight +
         _scrollController!.offset;
 
-    final CalendarAppointment appointment =
+    final CalendarAppointment<T> appointment =
         _resizingDetails.value.appointmentView!.appointment!;
     final double timeIntervalHeight = _getTimeIntervalHeight(
         widget.calendar,
@@ -6768,7 +6780,7 @@ class _CalendarViewState extends State<_CalendarView>
       yPosition = overAllHeight;
     }
 
-    final DateTime resizingTime = _timeFromPosition(
+    final DateTime resizingTime = _timeFromPosition<T>(
         appointment.actualStartTime,
         widget.calendar.timeSlotViewSettings,
         yPosition,
@@ -6827,13 +6839,13 @@ class _CalendarViewState extends State<_CalendarView>
       return;
     }
 
-    CalendarAppointment? parentAppointment;
+    CalendarAppointment<T>? parentAppointment;
     if (appointment.recurrenceRule != null &&
         appointment.recurrenceRule!.isNotEmpty) {
       for (int i = 0;
           i < _updateCalendarStateDetails.appointments.length;
           i++) {
-        final CalendarAppointment app =
+        final CalendarAppointment<T> app =
             _updateCalendarStateDetails.appointments[i];
         if (app.id == appointment.id) {
           parentAppointment = app;
@@ -6843,7 +6855,7 @@ class _CalendarViewState extends State<_CalendarView>
 
       widget.calendar.dataSource!.appointments!.remove(parentAppointment!.data);
       widget.calendar.dataSource!.notifyListeners(
-          CalendarDataSourceAction.remove, <dynamic>[parentAppointment.data]);
+          CalendarDataSourceAction.remove, <T>[parentAppointment.data]);
 
       final DateTime exceptionDate =
           AppointmentHelper.convertTimeToAppointmentTimeZone(
@@ -6854,15 +6866,15 @@ class _CalendarViewState extends State<_CalendarView>
               exceptionDate
             ];
 
-      final dynamic newParentAppointment =
+      final T newParentAppointment =
           _getCalendarAppointmentToObject(parentAppointment, widget.calendar);
       widget.calendar.dataSource!.appointments!.add(newParentAppointment);
       widget.calendar.dataSource!.notifyListeners(
-          CalendarDataSourceAction.add, <dynamic>[newParentAppointment]);
+          CalendarDataSourceAction.add, <T>[newParentAppointment]);
     } else {
       widget.calendar.dataSource!.appointments!.remove(appointment.data);
       widget.calendar.dataSource!.notifyListeners(
-          CalendarDataSourceAction.remove, <dynamic>[appointment.data]);
+          CalendarDataSourceAction.remove, <T>[appointment.data]);
     }
 
     appointment.startTime = updatedStartTime;
@@ -6873,11 +6885,11 @@ class _CalendarViewState extends State<_CalendarView>
     appointment.recurrenceRule =
         appointment.recurrenceId != null ? null : appointment.recurrenceRule;
     appointment.id = parentAppointment != null ? null : appointment.id;
-    final dynamic newAppointment =
+    final T newAppointment =
         _getCalendarAppointmentToObject(appointment, widget.calendar);
     widget.calendar.dataSource!.appointments!.add(newAppointment);
-    widget.calendar.dataSource!.notifyListeners(
-        CalendarDataSourceAction.add, <dynamic>[newAppointment]);
+    widget.calendar.dataSource!
+        .notifyListeners(CalendarDataSourceAction.add, <T>[newAppointment]);
 
     if (CalendarViewHelper.shouldRaiseAppointmentResizeEndCallback(
         widget.calendar.onAppointmentResizeEnd)) {
@@ -6904,7 +6916,7 @@ class _CalendarViewState extends State<_CalendarView>
     final double timeLabelWidth = CalendarViewHelper.getTimeLabelWidth(
         widget.calendar.timeSlotViewSettings.timeRulerSize, widget.view);
     final bool isTimelineView = CalendarViewHelper.isTimelineView(widget.view);
-    AppointmentView? appointmentView;
+    AppointmentView<T>? appointmentView;
     const double padding = 10;
     final bool isForwardResize = _mouseCursor == SystemMouseCursors.resizeRight;
     final bool isBackwardResize = _mouseCursor == SystemMouseCursors.resizeLeft;
@@ -7031,7 +7043,7 @@ class _CalendarViewState extends State<_CalendarView>
       CalendarViewHelper.raiseAppointmentResizeStartCallback(
           widget.calendar,
           _getCalendarAppointmentToObject(
-              appointmentView.appointment, widget.calendar),
+              appointmentView.appointment!, widget.calendar),
           resource);
     }
   }
@@ -7317,7 +7329,7 @@ class _CalendarViewState extends State<_CalendarView>
       CalendarViewHelper.raiseAppointmentResizeUpdateCallback(
           widget.calendar,
           _getCalendarAppointmentToObject(
-              _resizingDetails.value.appointmentView!.appointment,
+              _resizingDetails.value.appointmentView!.appointment!,
               widget.calendar),
           null,
           resizingTime,
@@ -7354,7 +7366,7 @@ class _CalendarViewState extends State<_CalendarView>
     final bool isResourceEnabled = CalendarViewHelper.isResourceEnabled(
         widget.calendar.dataSource, widget.view);
 
-    final CalendarAppointment appointment =
+    final CalendarAppointment<T> appointment =
         _resizingDetails.value.appointmentView!.appointment!;
     final double timeIntervalHeight = _getTimeIntervalHeight(
         widget.calendar,
@@ -7502,7 +7514,7 @@ class _CalendarViewState extends State<_CalendarView>
       return;
     }
 
-    CalendarAppointment? parentAppointment;
+    CalendarAppointment<T>? parentAppointment;
     widget.getCalendarState(_updateCalendarStateDetails);
     if ((appointment.recurrenceRule != null &&
             appointment.recurrenceRule!.isNotEmpty) ||
@@ -7510,7 +7522,7 @@ class _CalendarViewState extends State<_CalendarView>
       for (int i = 0;
           i < _updateCalendarStateDetails.appointments.length;
           i++) {
-        final CalendarAppointment app =
+        final CalendarAppointment<T> app =
             _updateCalendarStateDetails.appointments[i];
         if (app.id == appointment.id || app.id == appointment.recurrenceId) {
           parentAppointment = app;
@@ -7532,7 +7544,7 @@ class _CalendarViewState extends State<_CalendarView>
       for (int i = 0;
           i < _updateCalendarStateDetails.appointments.length;
           i++) {
-        final CalendarAppointment calendarApp =
+        final CalendarAppointment<T> calendarApp =
             _updateCalendarStateDetails.appointments[i];
         if (calendarApp.recurrenceId != null &&
             calendarApp.recurrenceId == parentAppointment.id) {
@@ -7572,13 +7584,11 @@ class _CalendarViewState extends State<_CalendarView>
         /// date. If previous recurrence is null(means resized appointment
         /// is first occurrence) then it does not have a limit for previous
         /// occurrence.
-        if (!((nextRecurrence == null ||
-                    isSameOrBeforeDate(nextRecurrence, resizingTime)) &&
-                (previousRecurrence == null ||
-                    isSameOrAfterDate(previousRecurrence, resizingTime)) &&
-                !isSameDate(previousRecurrence, resizingTime) &&
-                !isSameDate(nextRecurrence, resizingTime)) &&
-            !isSameDate(appointment.exactStartTime, resizingTime)) {
+        if (nextRecurrence == null ||
+            previousRecurrence == null ||
+            isSameOrBeforeDate(nextRecurrence, resizingTime) ||
+            isSameOrAfterDate(previousRecurrence, resizingTime) ||
+            isSameDate(appointment.exactStartTime, resizingTime)) {
           if (CalendarViewHelper.shouldRaiseAppointmentResizeEndCallback(
               widget.calendar.onAppointmentResizeEnd)) {
             CalendarViewHelper.raiseAppointmentResizeEndCallback(
@@ -7599,12 +7609,12 @@ class _CalendarViewState extends State<_CalendarView>
               appointment.recurrenceRule!.isEmpty)) {
         widget.calendar.dataSource!.appointments!.remove(appointment.data);
         widget.calendar.dataSource!.notifyListeners(
-            CalendarDataSourceAction.remove, <dynamic>[appointment.data]);
+            CalendarDataSourceAction.remove, <T>[appointment.data]);
       } else {
         widget.calendar.dataSource!.appointments!
             .remove(parentAppointment.data);
         widget.calendar.dataSource!.notifyListeners(
-            CalendarDataSourceAction.remove, <dynamic>[parentAppointment.data]);
+            CalendarDataSourceAction.remove, <T>[parentAppointment.data]);
 
         final DateTime exceptionDate =
             AppointmentHelper.convertTimeToAppointmentTimeZone(
@@ -7615,16 +7625,16 @@ class _CalendarViewState extends State<_CalendarView>
                 exceptionDate
               ];
 
-        final dynamic newParentAppointment =
+        final T newParentAppointment =
             _getCalendarAppointmentToObject(parentAppointment, widget.calendar);
         widget.calendar.dataSource!.appointments!.add(newParentAppointment);
         widget.calendar.dataSource!.notifyListeners(
-            CalendarDataSourceAction.add, <dynamic>[newParentAppointment]);
+            CalendarDataSourceAction.add, <T>[newParentAppointment]);
       }
     } else {
       widget.calendar.dataSource!.appointments!.remove(appointment.data);
       widget.calendar.dataSource!.notifyListeners(
-          CalendarDataSourceAction.remove, <dynamic>[appointment.data]);
+          CalendarDataSourceAction.remove, <T>[appointment.data]);
     }
 
     appointment.startTime = updatedStartTime;
@@ -7635,12 +7645,12 @@ class _CalendarViewState extends State<_CalendarView>
     appointment.recurrenceRule =
         appointment.recurrenceId != null ? null : appointment.recurrenceRule;
     appointment.id = parentAppointment != null ? null : appointment.id;
-    final dynamic newAppointment =
+    final T newAppointment =
         _getCalendarAppointmentToObject(appointment, widget.calendar);
 
     widget.calendar.dataSource!.appointments!.add(newAppointment);
-    widget.calendar.dataSource!.notifyListeners(
-        CalendarDataSourceAction.add, <dynamic>[newAppointment]);
+    widget.calendar.dataSource!
+        .notifyListeners(CalendarDataSourceAction.add, <T>[newAppointment]);
 
     if (CalendarViewHelper.shouldRaiseAppointmentResizeEndCallback(
         widget.calendar.onAppointmentResizeEnd)) {
@@ -8020,7 +8030,7 @@ class _CalendarViewState extends State<_CalendarView>
   void _updateMaximumResizingPosition(
       bool isForwardResize,
       bool isBackwardResize,
-      AppointmentView appointmentView,
+      AppointmentView<T> appointmentView,
       double? allDayPanelHeight,
       double? viewHeaderHeight) {
     switch (widget.view) {
@@ -8246,10 +8256,10 @@ class _CalendarViewState extends State<_CalendarView>
     _resizingDetails.value.resizingTime = resizingTime;
     if (CalendarViewHelper.shouldRaiseAppointmentResizeUpdateCallback(
         widget.calendar.onAppointmentResizeUpdate)) {
-      CalendarViewHelper.raiseAppointmentResizeUpdateCallback(
+      CalendarViewHelper.raiseAppointmentResizeUpdateCallback<T>(
           widget.calendar,
-          _getCalendarAppointmentToObject(
-              _resizingDetails.value.appointmentView!.appointment,
+          _getCalendarAppointmentToObject<T>(
+              _resizingDetails.value.appointmentView!.appointment!,
               widget.calendar),
           resource,
           resizingTime,
@@ -8349,12 +8359,12 @@ class _CalendarViewState extends State<_CalendarView>
   }
 
   Widget _getMonthWidget(bool isRTL, double height) {
-    final List<CalendarAppointment>? visibleAppointments =
+    final List<CalendarAppointment<T>>? visibleAppointments =
         widget.visibleDates ==
                 _updateCalendarStateDetails.currentViewVisibleDates
             ? _updateCalendarStateDetails.visibleAppointments
             : null;
-    _monthView = MonthViewWidget(
+    _monthView = MonthViewWidget<T>(
         widget.visibleDates,
         widget.calendar.monthViewSettings.numberOfWeeksInView,
         widget.calendar.monthViewSettings.monthCellStyle,
@@ -8377,7 +8387,7 @@ class _CalendarViewState extends State<_CalendarView>
         height,
         widget.calendar.weekNumberStyle,
         widget.isMobilePlatform,
-        ValueNotifier<List<CalendarAppointment>?>(visibleAppointments));
+        ValueNotifier<List<CalendarAppointment<T>>?>(visibleAppointments));
     return _monthView;
   }
 
@@ -8440,7 +8450,7 @@ class _CalendarViewState extends State<_CalendarView>
                   isAllDayPanel,
               child: RepaintBoundary(
                   child: CustomPaint(
-                painter: _ResizingAppointmentPainter(
+                painter: _ResizingAppointmentPainter<T>(
                     _resizingDetails,
                     _isRTL,
                     widget.textScaleFactor,
@@ -8645,13 +8655,14 @@ class _CalendarViewState extends State<_CalendarView>
     if (_updateCalendarStateDetails.selectedDate != null &&
         _selectedResourceIndex == -1) {
       final bool isTimelineMonth = widget.view == CalendarView.timelineMonth;
-      if ((isTimelineMonth &&
-              (isSameDate(_updateCalendarStateDetails.selectedDate,
-                  widget.calendar.initialSelectedDate))) ||
+      if (widget.calendar.initialSelectedDate == null ||
+          (isTimelineMonth &&
+              isSameDate(_updateCalendarStateDetails.selectedDate!,
+                  widget.calendar.initialSelectedDate!)) ||
           (!isTimelineMonth &&
-              (CalendarViewHelper.isSameTimeSlot(
-                  _updateCalendarStateDetails.selectedDate,
-                  widget.calendar.initialSelectedDate)))) {
+              CalendarViewHelper.isSameTimeSlot(
+                  _updateCalendarStateDetails.selectedDate!,
+                  widget.calendar.initialSelectedDate!))) {
         _selectedResourceIndex = 0;
       }
     }
@@ -8799,7 +8810,7 @@ class _CalendarViewState extends State<_CalendarView>
   }
 
   //// Get the calendar details for all calendar views.
-  CalendarDetails? _getCalendarViewDetails(Offset position) {
+  CalendarDetails<T>? _getCalendarViewDetails(Offset position) {
     switch (widget.view) {
       case CalendarView.day:
       case CalendarView.week:
@@ -8818,7 +8829,7 @@ class _CalendarViewState extends State<_CalendarView>
   }
 
   //// Get the calendar details for month cells and view header of month.
-  CalendarDetails? _getDetailsForMonth(Offset position) {
+  CalendarDetails<T>? _getDetailsForMonth(Offset position) {
     final double xPosition = position.dx;
     double yPosition = position.dy;
     final double weekNumberPanelWidth =
@@ -8839,7 +8850,7 @@ class _CalendarViewState extends State<_CalendarView>
     if (yPosition < viewHeaderHeight) {
       /// Return calendar details while the [getCalendarDetailsAtOffset]
       /// position placed on view header in month view.
-      return CalendarDetails(
+      return CalendarDetails<T>(
           null,
           _getTappedViewHeaderDate(position, widget.width),
           CalendarElement.viewHeader,
@@ -8847,7 +8858,7 @@ class _CalendarViewState extends State<_CalendarView>
     }
 
     yPosition = yPosition - viewHeaderHeight;
-    AppointmentView? appointmentView;
+    AppointmentView<T>? appointmentView;
     bool isMoreTapped = false;
     if (widget.calendar.monthViewSettings.appointmentDisplayMode ==
         MonthAppointmentDisplayMode.appointment) {
@@ -8879,13 +8890,12 @@ class _CalendarViewState extends State<_CalendarView>
       }
     }
 
-    final List<dynamic> selectedAppointments =
-        appointmentView == null || isMoreTapped
-            ? _getSelectedAppointments(getDate)
-            : <dynamic>[
-                CalendarViewHelper.getAppointmentDetail(
-                    appointmentView.appointment!, widget.calendar.dataSource)
-              ];
+    final List<T> selectedAppointments = appointmentView == null || isMoreTapped
+        ? _getSelectedAppointments(getDate)
+        : <T>[
+            CalendarViewHelper.getAppointmentDetail(
+                appointmentView.appointment!, widget.calendar.dataSource!)
+          ];
     final CalendarElement selectedElement = appointmentView == null
         ? CalendarElement.calendarCell
         : isMoreTapped
@@ -8894,7 +8904,7 @@ class _CalendarViewState extends State<_CalendarView>
 
     /// Return calendar details while the [getCalendarDetailsAtOffset]
     /// position placed on month cells in month view.
-    return CalendarDetails(
+    return CalendarDetails<T>(
         selectedAppointments, getDate, selectedElement, null);
   }
 
@@ -8904,7 +8914,7 @@ class _CalendarViewState extends State<_CalendarView>
   }
 
   /// Handles the tap and long press related functions for month view.
-  AppointmentView? _handleTouchOnMonthView(
+  AppointmentView<T>? _handleTouchOnMonthView(
       TapUpDetails? tapDetails, LongPressStartDetails? longPressDetails) {
     widget.removePicker();
     final DateTime? previousSelectedDate = _selectionPainter!.selectedDate;
@@ -8941,7 +8951,7 @@ class _CalendarViewState extends State<_CalendarView>
         widget.focusNode.requestFocus();
       }
 
-      AppointmentView? appointmentView;
+      AppointmentView<T>? appointmentView;
       bool isMoreTapped = false;
       if (!widget.isMobilePlatform &&
           widget.calendar.monthViewSettings.appointmentDisplayMode ==
@@ -9005,12 +9015,12 @@ class _CalendarViewState extends State<_CalendarView>
               widget.calendar.onSelectionChanged);
 
       if (canRaiseLongPress || canRaiseTap || canRaiseSelectionChanged) {
-        final List<dynamic> selectedAppointments = appointmentView == null ||
+        final List<T> selectedAppointments = appointmentView == null ||
                 isMoreTapped
             ? _getSelectedAppointments(selectedDate)
-            : <dynamic>[
+            : <T>[
                 CalendarViewHelper.getAppointmentDetail(
-                    appointmentView.appointment!, widget.calendar.dataSource)
+                    appointmentView.appointment!, widget.calendar.dataSource!)
               ];
         final CalendarElement selectedElement = appointmentView == null
             ? CalendarElement.calendarCell
@@ -9041,12 +9051,14 @@ class _CalendarViewState extends State<_CalendarView>
     final bool isMonthView = widget.view == CalendarView.month ||
         widget.view == CalendarView.timelineMonth;
     if (canRaiseSelectionChanged &&
-        ((isMonthView &&
+        (_selectionPainter!.selectedDate == null ||
+            previousSelectedDate == null ||
+            (isMonthView &&
                 !isSameDate(
-                    previousSelectedDate, _selectionPainter!.selectedDate)) ||
+                    previousSelectedDate, _selectionPainter!.selectedDate!)) ||
             (!isMonthView &&
                 !CalendarViewHelper.isSameTimeSlot(
-                    previousSelectedDate, _selectionPainter!.selectedDate)) ||
+                    previousSelectedDate, _selectionPainter!.selectedDate!)) ||
             (CalendarViewHelper.isResourceEnabled(
                     widget.calendar.dataSource, widget.view) &&
                 _selectionPainter!.selectedResourceIndex !=
@@ -9089,7 +9101,7 @@ class _CalendarViewState extends State<_CalendarView>
   }
 
   /// Get the calendar details for timeline view.
-  CalendarDetails? _getDetailsForTimeline(Offset position) {
+  CalendarDetails<T>? _getDetailsForTimeline(Offset position) {
     final double xDetails = position.dx;
     final double yDetails = position.dy;
 
@@ -9099,7 +9111,7 @@ class _CalendarViewState extends State<_CalendarView>
     if (yDetails < viewHeaderHeight) {
       /// Return calendar details while the [getCalendarDetailsAtOffset]
       /// position placed on view header in timeline views.
-      return CalendarDetails(
+      return CalendarDetails<T>(
           null,
           _getTappedViewHeaderDate(position, widget.width),
           CalendarElement.viewHeader,
@@ -9139,7 +9151,7 @@ class _CalendarViewState extends State<_CalendarView>
           xPosition;
     }
 
-    final AppointmentView? appointmentView =
+    final AppointmentView<T>? appointmentView =
         _appointmentLayout.getAppointmentViewOnPoint(xPosition, yPosition);
 
     final DateTime getDate =
@@ -9148,20 +9160,20 @@ class _CalendarViewState extends State<_CalendarView>
     if (appointmentView == null) {
       /// Return calendar details while the [getCalendarDetailsAtOffset]
       /// position placed on calendar cell in timeline views.
-      return CalendarDetails(
+      return CalendarDetails<T>(
           null, getDate, CalendarElement.calendarCell, calendarResource);
     } else {
       /// Return calendar details while the [getCalendarDetailsAtOffset]
       /// position placed on appointment in timeline views.
-      return CalendarDetails(<dynamic>[
+      return CalendarDetails<T>(<T>[
         CalendarViewHelper.getAppointmentDetail(
-            appointmentView.appointment!, widget.calendar.dataSource)
+            appointmentView.appointment!, widget.calendar.dataSource!)
       ], getDate, CalendarElement.appointment, calendarResource);
     }
   }
 
   /// Handles the tap and long press related functions for timeline view.
-  AppointmentView? _handleTouchOnTimeline(
+  AppointmentView<T>? _handleTouchOnTimeline(
       TapUpDetails? tapDetails, LongPressStartDetails? longPressDetails) {
     widget.removePicker();
     final DateTime? previousSelectedDate = _selectionPainter!.selectedDate;
@@ -9227,7 +9239,7 @@ class _CalendarViewState extends State<_CalendarView>
             xPosition;
       }
 
-      final AppointmentView? appointmentView =
+      final AppointmentView<T>? appointmentView =
           _appointmentLayout.getAppointmentViewOnPoint(xPosition, yPosition);
       if (appointmentView == null) {
         _drawSelection(xDetails, yPosition, timeLabelWidth);
@@ -9312,9 +9324,9 @@ class _CalendarViewState extends State<_CalendarView>
             CalendarViewHelper.raiseCalendarTapCallback(
                 widget.calendar,
                 selectedDate,
-                <dynamic>[
+                <T>[
                   CalendarViewHelper.getAppointmentDetail(
-                      appointmentView.appointment!, widget.calendar.dataSource)
+                      appointmentView.appointment!, widget.calendar.dataSource!)
                 ],
                 CalendarElement.appointment,
                 selectedResource);
@@ -9322,9 +9334,9 @@ class _CalendarViewState extends State<_CalendarView>
             CalendarViewHelper.raiseCalendarLongPressCallback(
                 widget.calendar,
                 selectedDate,
-                <dynamic>[
+                <T>[
                   CalendarViewHelper.getAppointmentDetail(
-                      appointmentView.appointment!, widget.calendar.dataSource)
+                      appointmentView.appointment!, widget.calendar.dataSource!)
                 ],
                 CalendarElement.appointment,
                 selectedResource);
@@ -9342,14 +9354,16 @@ class _CalendarViewState extends State<_CalendarView>
     return null;
   }
 
-  void _updateAllDaySelection(AppointmentView? view, DateTime? date) {
+  void _updateAllDaySelection(AppointmentView<T>? view, DateTime? date) {
     if (_allDaySelectionNotifier.value != null &&
         view == _allDaySelectionNotifier.value!.appointmentView &&
-        isSameDate(date, _allDaySelectionNotifier.value!.selectedDate)) {
+        date != null &&
+        _allDaySelectionNotifier.value!.selectedDate != null &&
+        isSameDate(date, _allDaySelectionNotifier.value!.selectedDate!)) {
       return;
     }
 
-    _allDaySelectionNotifier.value = SelectionDetails(view, date);
+    _allDaySelectionNotifier.value = SelectionDetails<T>(view, date);
   }
 
   //// Handles the onTap callback for day view cells, all day panel, and view
@@ -9359,7 +9373,7 @@ class _CalendarViewState extends State<_CalendarView>
   }
 
   /// Get the calendar details for day, week work week views.
-  CalendarDetails? _getDetailsForDay(Offset position) {
+  CalendarDetails<T>? _getDetailsForDay(Offset position) {
     final double xDetails = position.dx;
     final double yDetails = position.dy;
 
@@ -9408,7 +9422,7 @@ class _CalendarViewState extends State<_CalendarView>
 
       /// Return calendar details while the [getCalendarDetailsAtOffset]
       /// position placed on view header in week and work week view.
-      return CalendarDetails(
+      return CalendarDetails<T>(
           null,
           _getTappedViewHeaderDate(position, widget.width),
           CalendarElement.viewHeader,
@@ -9425,7 +9439,7 @@ class _CalendarViewState extends State<_CalendarView>
                   widget.calendar.viewHeaderHeight, widget.view)) {
         /// Return calendar details while the [getCalendarDetailsAtOffset]
         /// position placed on view header in day view.
-        return CalendarDetails(
+        return CalendarDetails<T>(
             null,
             _getTappedViewHeaderDate(position, widget.width),
             CalendarElement.viewHeader,
@@ -9438,7 +9452,7 @@ class _CalendarViewState extends State<_CalendarView>
       }
 
       final double yPosition = yDetails - viewHeaderHeight;
-      final AppointmentView? appointmentView = _getAllDayAppointmentOnPoint(
+      final AppointmentView<T>? appointmentView = _getAllDayAppointmentOnPoint(
           _updateCalendarStateDetails.allDayAppointmentViewCollection,
           xDetails,
           yPosition);
@@ -9452,7 +9466,7 @@ class _CalendarViewState extends State<_CalendarView>
         selectedDate = _getTappedViewHeaderDate(position, widget.width);
       }
 
-      List<CalendarAppointment>? moreRegionAppointments;
+      List<CalendarAppointment<T>>? moreRegionAppointments;
       // Expand and collapsed the all day panel creates all the appointment
       // views including the hidden appointment. In that case, is tapped count
       // boolean property sets true.
@@ -9460,13 +9474,13 @@ class _CalendarViewState extends State<_CalendarView>
         final int currentSelectedIndex = DateTimeHelper.getVisibleDateIndex(
             widget.visibleDates, selectedDate);
         if (currentSelectedIndex != -1) {
-          moreRegionAppointments = <CalendarAppointment>[];
+          moreRegionAppointments = <CalendarAppointment<T>>[];
           for (int i = 0;
               i <
                   _updateCalendarStateDetails
                       .allDayAppointmentViewCollection.length;
               i++) {
-            final AppointmentView currentView =
+            final AppointmentView<T> currentView =
                 _updateCalendarStateDetails.allDayAppointmentViewCollection[i];
             if (currentView.appointment == null) {
               continue;
@@ -9497,15 +9511,15 @@ class _CalendarViewState extends State<_CalendarView>
         final int currentSelectedIndex = DateTimeHelper.getVisibleDateIndex(
             widget.visibleDates, selectedDate);
         if (currentSelectedIndex != -1) {
-          moreRegionAppointments = <CalendarAppointment>[];
-          final List<AppointmentView> selectedIndexAppointment =
-              <AppointmentView>[];
+          moreRegionAppointments = <CalendarAppointment<T>>[];
+          final List<AppointmentView<T>> selectedIndexAppointment =
+              <AppointmentView<T>>[];
           for (int i = 0;
               i <
                   _updateCalendarStateDetails
                       .allDayAppointmentViewCollection.length;
               i++) {
-            final AppointmentView currentView =
+            final AppointmentView<T> currentView =
                 _updateCalendarStateDetails.allDayAppointmentViewCollection[i];
             if (currentView.appointment == null) {
               continue;
@@ -9521,8 +9535,8 @@ class _CalendarViewState extends State<_CalendarView>
           int maxPosition = 0;
           if (selectedIndexAppointment.isNotEmpty) {
             maxPosition = selectedIndexAppointment
-                .reduce((AppointmentView currentAppView,
-                        AppointmentView nextAppView) =>
+                .reduce((AppointmentView<T> currentAppView,
+                        AppointmentView<T> nextAppView) =>
                     currentAppView.maxPositions > nextAppView.maxPositions
                         ? currentAppView
                         : nextAppView)
@@ -9540,33 +9554,32 @@ class _CalendarViewState extends State<_CalendarView>
           (yPosition < allDayHeight - kAllDayAppointmentHeight ||
               _updateCalendarStateDetails.allDayPanelHeight <= allDayHeight ||
               appointmentView.position + 1 >= appointmentView.maxPositions)) {
-        final List<dynamic> appointmentDetails = <dynamic>[
+        final List<T> appointmentDetails = <T>[
           CalendarViewHelper.getAppointmentDetail(
-              appointmentView.appointment!, widget.calendar.dataSource)
+              appointmentView.appointment!, widget.calendar.dataSource!)
         ];
 
         /// Return calendar details while the [getCalendarDetailsAtOffset]
         /// position placed on appointments in day, week and workweek view.
-        return CalendarDetails(
+        return CalendarDetails<T>(
             appointmentDetails, null, CalendarElement.appointment, null);
       } else if (isTappedOnCount) {
         /// Return calendar details while the [getCalendarDetailsAtOffset]
         /// position placed on more appointment region in day, week and workweek
         /// view.
-        return CalendarDetails(
-            widget.calendar.dataSource != null &&
-                    !AppointmentHelper.isCalendarAppointment(
-                        widget.calendar.dataSource!)
-                ? CalendarViewHelper.getCustomAppointments(
-                    moreRegionAppointments, widget.calendar.dataSource)
-                : moreRegionAppointments,
+        return CalendarDetails<T>(
+            widget.calendar.dataSource == null ||
+                    AppointmentHelper.isCalendarAppointment<T>()
+                ? moreRegionAppointments as List<T>
+                : CalendarViewHelper.getCustomAppointments<T>(
+                    moreRegionAppointments, widget.calendar.dataSource!),
             selectedDate,
             CalendarElement.moreAppointmentRegion,
             null);
       } else if (appointmentView == null) {
         /// Return calendar details while the [getCalendarDetailsAtOffset]
         /// position placed on all day panel in day, week and work week view.
-        return CalendarDetails(
+        return CalendarDetails<T>(
             null, selectedDate, CalendarElement.allDayPanel, null);
       }
 
@@ -9575,7 +9588,7 @@ class _CalendarViewState extends State<_CalendarView>
 
     double yPosition =
         yDetails - viewHeaderHeight - allDayHeight + _scrollController!.offset;
-    final AppointmentView? appointmentView =
+    final AppointmentView<T>? appointmentView =
         _appointmentLayout.getAppointmentViewOnPoint(xDetails, yPosition);
 
     if (appointmentView == null) {
@@ -9589,24 +9602,24 @@ class _CalendarViewState extends State<_CalendarView>
 
       /// Return calendar details while the [getCalendarDetailsAtOffset]
       /// position placed on calendar cell in day, week and work week view.
-      return CalendarDetails(
+      return CalendarDetails<T>(
           null, selectedDate, CalendarElement.calendarCell, null);
     } else {
-      final List<dynamic> appointmentDetails = <dynamic>[
+      final List<T> appointmentDetails = <T>[
         CalendarViewHelper.getAppointmentDetail(
-            appointmentView.appointment!, widget.calendar.dataSource)
+            appointmentView.appointment!, widget.calendar.dataSource!)
       ];
 
       /// Return calendar details while the [getCalendarDetailsAtOffset]
       /// position placed on appointments in day, week and work week view.
-      return CalendarDetails(
+      return CalendarDetails<T>(
           appointmentDetails, null, CalendarElement.appointment, null);
     }
   }
 
   /// Handles the tap and long press related functions for day, week
   /// work week views.
-  AppointmentView? _handleTouchOnDayView(
+  AppointmentView<T>? _handleTouchOnDayView(
       TapUpDetails? tapDetails, LongPressStartDetails? longPressDetails) {
     widget.removePicker();
     final DateTime? previousSelectedDate = _selectionPainter!.selectedDate;
@@ -9632,9 +9645,9 @@ class _CalendarViewState extends State<_CalendarView>
     }
 
     widget.getCalendarState(_updateCalendarStateDetails);
-    AppointmentView? selectedAppointmentView;
-    dynamic selectedAppointment;
-    List<dynamic>? selectedAppointments;
+    AppointmentView<T>? selectedAppointmentView;
+    CalendarAppointment<T>? selectedAppointment;
+    List<T>? selectedAppointments;
     CalendarElement targetElement = CalendarElement.viewHeader;
     DateTime? selectedDate = _updateCalendarStateDetails.selectedDate;
     final double timeLabelWidth = CalendarViewHelper.getTimeLabelWidth(
@@ -9701,7 +9714,7 @@ class _CalendarViewState extends State<_CalendarView>
       }
 
       final double yPosition = yDetails - viewHeaderHeight;
-      final AppointmentView? appointmentView = _getAllDayAppointmentOnPoint(
+      final AppointmentView<T>? appointmentView = _getAllDayAppointmentOnPoint(
           _updateCalendarStateDetails.allDayAppointmentViewCollection,
           xDetails,
           yPosition);
@@ -9739,14 +9752,14 @@ class _CalendarViewState extends State<_CalendarView>
         final int currentSelectedIndex = DateTimeHelper.getVisibleDateIndex(
             widget.visibleDates, selectedDate);
         if (currentSelectedIndex != -1) {
-          final List<AppointmentView> selectedIndexAppointment =
-              <AppointmentView>[];
+          final List<AppointmentView<T>> selectedIndexAppointment =
+              <AppointmentView<T>>[];
           for (int i = 0;
               i <
                   _updateCalendarStateDetails
                       .allDayAppointmentViewCollection.length;
               i++) {
-            final AppointmentView currentView =
+            final AppointmentView<T> currentView =
                 _updateCalendarStateDetails.allDayAppointmentViewCollection[i];
             if (currentView.appointment == null) {
               continue;
@@ -9760,8 +9773,8 @@ class _CalendarViewState extends State<_CalendarView>
           int maxPosition = 0;
           if (selectedIndexAppointment.isNotEmpty) {
             maxPosition = selectedIndexAppointment
-                .reduce((AppointmentView currentAppView,
-                        AppointmentView nextAppView) =>
+                .reduce((AppointmentView<T> currentAppView,
+                        AppointmentView<T> nextAppView) =>
                     currentAppView.maxPositions > nextAppView.maxPositions
                         ? currentAppView
                         : nextAppView)
@@ -9820,7 +9833,7 @@ class _CalendarViewState extends State<_CalendarView>
           viewHeaderHeight -
           allDayHeight +
           _scrollController!.offset;
-      final AppointmentView? appointmentView =
+      final AppointmentView<T>? appointmentView =
           _appointmentLayout.getAppointmentViewOnPoint(xDetails, yPosition);
       _allDaySelectionNotifier.value = null;
       if (appointmentView == null) {
@@ -9911,9 +9924,9 @@ class _CalendarViewState extends State<_CalendarView>
         _updatedSelectionChangedCallback(
             canRaiseSelectionChanged, previousSelectedDate);
       } else if (selectedAppointment != null) {
-        selectedAppointments = <dynamic>[
+        selectedAppointments = <T>[
           CalendarViewHelper.getAppointmentDetail(
-              selectedAppointment, widget.calendar.dataSource)
+              selectedAppointment, widget.calendar.dataSource!)
         ];
 
         /// In LTR, remove the time ruler width value from the
@@ -10028,7 +10041,7 @@ class _CalendarViewState extends State<_CalendarView>
     return isValidRegion;
   }
 
-  bool _isAutoTimeIntervalHeight(SfCalendar calendar, bool isTimelineView) {
+  bool _isAutoTimeIntervalHeight(SfCalendar<T> calendar, bool isTimelineView) {
     if (isTimelineView) {
       return calendar.timeSlotViewSettings.timeIntervalWidth == -1;
     }
@@ -10054,7 +10067,7 @@ class _CalendarViewState extends State<_CalendarView>
   /// Returns the time interval width based on property value, also arrange the
   /// time slots into the view port size.
   double _getTimeIntervalHeight(
-      SfCalendar calendar,
+      SfCalendar<T> calendar,
       CalendarView view,
       double width,
       double height,
@@ -10144,7 +10157,7 @@ class _CalendarViewState extends State<_CalendarView>
 
   /// checks whether the width can afford the line count or else creates a
   /// scrollable width
-  bool _isValidWidth(double screenWidth, SfCalendar calendar,
+  bool _isValidWidth(double screenWidth, SfCalendar<T> calendar,
       int visibleDatesCount, double horizontalLinesCount) {
     const int offSetValue = 10;
     final double tempWidth =
@@ -10501,7 +10514,7 @@ class _CalendarViewState extends State<_CalendarView>
     }
   }
 
-  void _updateMouseCursorForAppointment(AppointmentView? appointmentView,
+  void _updateMouseCursorForAppointment(AppointmentView<T>? appointmentView,
       double xPosition, double yPosition, bool isTimelineViews,
       {bool isAllDayPanel = false}) {
     _hoveringAppointmentView = appointmentView;
@@ -10680,10 +10693,11 @@ class _CalendarViewState extends State<_CalendarView>
               (!_isRTL && localPosition.dx > timeLabelWidth)) {
             _updateHoveringForAllDayPanel(localPosition.dx, localPosition.dy);
 
-            final AppointmentView? appointment = _getAllDayAppointmentOnPoint(
-                _updateCalendarStateDetails.allDayAppointmentViewCollection,
-                localPosition.dx,
-                localPosition.dy);
+            final AppointmentView<T>? appointment =
+                _getAllDayAppointmentOnPoint(
+                    _updateCalendarStateDetails.allDayAppointmentViewCollection,
+                    localPosition.dx,
+                    localPosition.dy);
             _updateMouseCursorForAppointment(appointment, localPosition.dx,
                 localPosition.dy, isTimelineViews,
                 isAllDayPanel: true);
@@ -10720,7 +10734,7 @@ class _CalendarViewState extends State<_CalendarView>
             (!_isRTL && localPosition.dx > timeLabelWidth)) {
           _updateHoveringForAllDayPanel(
               localPosition.dx, localPosition.dy - viewHeaderHeight);
-          final AppointmentView? appointment = _getAllDayAppointmentOnPoint(
+          final AppointmentView<T>? appointment = _getAllDayAppointmentOnPoint(
               _updateCalendarStateDetails.allDayAppointmentViewCollection,
               localPosition.dx,
               localPosition.dy - viewHeaderHeight);
@@ -10736,7 +10750,7 @@ class _CalendarViewState extends State<_CalendarView>
 
       yPosition = localPosition.dy - (viewHeaderHeight + allDayHeight);
 
-      final AppointmentView? appointment =
+      final AppointmentView<T>? appointment =
           _appointmentLayout.getAppointmentViewOnPoint(
               localPosition.dx, yPosition + _scrollController!.offset);
       _hoveringAppointmentView = appointment;
@@ -10803,7 +10817,7 @@ class _CalendarViewState extends State<_CalendarView>
         yPosition += _timelineViewVerticalScrollController!.offset;
       }
 
-      final AppointmentView? appointment =
+      final AppointmentView<T>? appointment =
           _appointmentLayout.getAppointmentViewOnPoint(xPosition, yPosition);
       _hoveringAppointmentView = appointment;
       if (appointment != null) {
@@ -10949,12 +10963,14 @@ class _CalendarViewState extends State<_CalendarView>
     /// resource value differs hence to handle this scenario we are excluding
     /// the following conditions, if resource enabled.
     if (!isResourceEnabled) {
-      if ((widget.view == CalendarView.month &&
-              isSameDate(_hoveringDate, hoverDate) &&
-              _viewHeaderNotifier.value == null) ||
-          (widget.view != CalendarView.month &&
-              CalendarViewHelper.isSameTimeSlot(_hoveringDate, hoverDate) &&
-              _viewHeaderNotifier.value == null)) {
+      if (_hoveringDate != null &&
+          ((widget.view == CalendarView.month &&
+                  isSameDate(_hoveringDate!, hoverDate) &&
+                  _viewHeaderNotifier.value == null) ||
+              (widget.view != CalendarView.month &&
+                  CalendarViewHelper.isSameTimeSlot(
+                      _hoveringDate!, hoverDate) &&
+                  _viewHeaderNotifier.value == null))) {
         return;
       }
     }
@@ -10962,12 +10978,14 @@ class _CalendarViewState extends State<_CalendarView>
     _hoveringDate = hoverDate;
 
     if (widget.view == CalendarView.month &&
-        isSameDate(_selectionPainter!.selectedDate, _hoveringDate)) {
+        _selectionPainter!.selectedDate != null &&
+        isSameDate(_selectionPainter!.selectedDate!, _hoveringDate!)) {
       _calendarCellNotifier.value = null;
       return;
     } else if (widget.view != CalendarView.month &&
+        _selectionPainter!.selectedDate != null &&
         CalendarViewHelper.isSameTimeSlot(
-            _selectionPainter!.selectedDate, _hoveringDate) &&
+            _selectionPainter!.selectedDate!, _hoveringDate!) &&
         hoveringResourceIndex == _selectedResourceIndex) {
       _calendarCellNotifier.value = null;
       return;
@@ -11027,15 +11045,15 @@ class _CalendarViewState extends State<_CalendarView>
     _hoveringAppointmentView = null;
   }
 
-  AppointmentView? _getAllDayAppointmentOnPoint(
-      List<AppointmentView>? appointmentCollection, double x, double y) {
+  AppointmentView<T>? _getAllDayAppointmentOnPoint(
+      List<AppointmentView<T>>? appointmentCollection, double x, double y) {
     if (appointmentCollection == null) {
       return null;
     }
 
-    AppointmentView? selectedAppointmentView;
+    AppointmentView<T>? selectedAppointmentView;
     for (int i = 0; i < appointmentCollection.length; i++) {
-      final AppointmentView appointmentView = appointmentCollection[i];
+      final AppointmentView<T> appointmentView = appointmentCollection[i];
       if (appointmentView.appointment != null &&
           appointmentView.appointmentRect != null &&
           appointmentView.appointmentRect!.left <= x &&
@@ -11050,20 +11068,21 @@ class _CalendarViewState extends State<_CalendarView>
     return selectedAppointmentView;
   }
 
-  List<dynamic> _getSelectedAppointments(DateTime selectedDate) {
-    return (widget.calendar.dataSource != null &&
-            !AppointmentHelper.isCalendarAppointment(
-                widget.calendar.dataSource!))
-        ? CalendarViewHelper.getCustomAppointments(
-            AppointmentHelper.getSelectedDateAppointments(
+  List<T> _getSelectedAppointments(DateTime selectedDate) {
+    return (widget.calendar.dataSource == null ||
+            AppointmentHelper.isCalendarAppointment<T>())
+        ? AppointmentHelper.getSelectedDateAppointments<T>(
+            _updateCalendarStateDetails.appointments,
+            widget.calendar.timeZone,
+            selectedDate,
+          ) as List<T>
+        : CalendarViewHelper.getCustomAppointments<T>(
+            AppointmentHelper.getSelectedDateAppointments<T>(
                 _updateCalendarStateDetails.appointments,
                 widget.calendar.timeZone,
                 selectedDate),
-            widget.calendar.dataSource)
-        : (AppointmentHelper.getSelectedDateAppointments(
-            _updateCalendarStateDetails.appointments,
-            widget.calendar.timeZone,
-            selectedDate));
+            widget.calendar.dataSource!,
+          );
   }
 
   DateTime? _getDateFromPositionForMonth(
@@ -11283,13 +11302,13 @@ class _CalendarViewState extends State<_CalendarView>
     _selectionNotifier.value = !_selectionNotifier.value;
   }
 
-  _SelectionPainter _addSelectionView([double? resourceItemHeight]) {
-    AppointmentView? appointmentView;
+  _SelectionPainter<T> _addSelectionView([double? resourceItemHeight]) {
+    AppointmentView<T>? appointmentView;
     if (_selectionPainter?.appointmentView != null) {
       appointmentView = _selectionPainter!.appointmentView;
     }
 
-    _selectionPainter = _SelectionPainter(
+    _selectionPainter = _SelectionPainter<T>(
       widget.calendar,
       widget.view,
       widget.visibleDates,
@@ -11303,7 +11322,7 @@ class _CalendarViewState extends State<_CalendarView>
       resourceItemHeight,
       widget.calendar.showWeekNumber,
       widget.isMobilePlatform,
-      (UpdateCalendarStateDetails details) {
+      (UpdateCalendarStateDetails<T> details) {
         _getPainterProperties(details);
       },
     );
@@ -11999,7 +12018,7 @@ class _ViewHeaderViewPainter extends CustomPainter {
   }
 }
 
-class _SelectionPainter extends CustomPainter {
+class _SelectionPainter<T> extends CustomPainter {
   _SelectionPainter(
       this.calendar,
       this.view,
@@ -12017,7 +12036,7 @@ class _SelectionPainter extends CustomPainter {
       this.getCalendarState)
       : super(repaint: repaintNotifier);
 
-  final SfCalendar calendar;
+  final SfCalendar<T> calendar;
   final CalendarView view;
   final SfCalendarThemeData calendarTheme;
   final List<DateTime> visibleDates;
@@ -12025,16 +12044,16 @@ class _SelectionPainter extends CustomPainter {
   DateTime? selectedDate;
   final double timeIntervalHeight;
   final bool isRTL;
-  final UpdateCalendarState getCalendarState;
+  final UpdateCalendarState<T> getCalendarState;
   int selectedResourceIndex;
   final double? resourceItemHeight;
 
   late BoxPainter _boxPainter;
-  AppointmentView? appointmentView;
+  AppointmentView<T>? appointmentView;
   double _cellWidth = 0, _cellHeight = 0, _xPosition = 0, _yPosition = 0;
   final ValueNotifier<bool> repaintNotifier;
-  final UpdateCalendarStateDetails _updateCalendarStateDetails =
-      UpdateCalendarStateDetails();
+  final UpdateCalendarStateDetails<T> _updateCalendarStateDetails =
+      UpdateCalendarStateDetails<T>();
   final bool showWeekNumber;
   final bool isMobilePlatform;
 
@@ -12060,7 +12079,7 @@ class _SelectionPainter extends CustomPainter {
     if (selectedDate != null &&
         ((isMonthView &&
                 !isDateWithInDateRange(
-                    calendar.minDate, calendar.maxDate, selectedDate)) ||
+                    calendar.minDate, calendar.maxDate, selectedDate!)) ||
             (!isMonthView &&
                 !CalendarViewHelper.isDateTimeWithInDateTimeRange(
                     calendar.minDate,
@@ -12158,8 +12177,9 @@ class _SelectionPainter extends CustomPainter {
 
   void _drawMonthSelection(Canvas canvas, Size size, double width) {
     final int visibleDatesLength = visibleDates.length;
-    if (!isDateWithInDateRange(
-        visibleDates[0], visibleDates[visibleDatesLength - 1], selectedDate)) {
+    if (selectedDate == null ||
+        !isDateWithInDateRange(visibleDates[0],
+            visibleDates[visibleDatesLength - 1], selectedDate!)) {
       return;
     }
 
@@ -12181,7 +12201,7 @@ class _SelectionPainter extends CustomPainter {
     }
 
     for (int i = 0; i < visibleDatesLength; i++) {
-      if (isSameDate(visibleDates[i], selectedDate)) {
+      if (isSameDate(visibleDates[i], selectedDate!)) {
         final double weekNumberPanelWidth =
             CalendarViewHelper.getWeekNumberPanelWidth(
                 showWeekNumber, width, isMobilePlatform);
@@ -12202,7 +12222,7 @@ class _SelectionPainter extends CustomPainter {
 
   void _drawDaySelection(
       Canvas canvas, Size size, double width, double timeLabelWidth) {
-    if (isSameDate(visibleDates[0], selectedDate)) {
+    if (selectedDate != null && isSameDate(visibleDates[0], selectedDate!)) {
       if (isRTL) {
         _xPosition = 0;
       } else {
@@ -12249,10 +12269,11 @@ class _SelectionPainter extends CustomPainter {
   void _drawWeekSelection(
       Canvas canvas, Size size, double timeLabelWidth, double width) {
     final int visibleDatesLength = visibleDates.length;
-    if (isDateWithInDateRange(
-        visibleDates[0], visibleDates[visibleDatesLength - 1], selectedDate)) {
+    if (selectedDate != null &&
+        isDateWithInDateRange(visibleDates[0],
+            visibleDates[visibleDatesLength - 1], selectedDate!)) {
       for (int i = 0; i < visibleDatesLength; i++) {
-        if (isSameDate(selectedDate, visibleDates[i])) {
+        if (isSameDate(selectedDate!, visibleDates[i])) {
           final int rowIndex = i;
           if (isRTL) {
             _xPosition = _cellWidth * (visibleDatesLength - 1 - rowIndex);
@@ -12281,8 +12302,9 @@ class _SelectionPainter extends CustomPainter {
   }
 
   void _drawTimelineMonthSelection(Canvas canvas, Size size, double width) {
-    if (!isDateWithInDateRange(
-        visibleDates[0], visibleDates[visibleDates.length - 1], selectedDate)) {
+    if (selectedDate == null ||
+        !isDateWithInDateRange(visibleDates[0],
+            visibleDates[visibleDates.length - 1], selectedDate!)) {
       return;
     }
 
@@ -12292,7 +12314,7 @@ class _SelectionPainter extends CustomPainter {
     }
 
     for (int i = 0; i < visibleDates.length; i++) {
-      if (isSameDate(visibleDates[i], selectedDate)) {
+      if (isSameDate(visibleDates[i], selectedDate!)) {
         _yPosition = _getTimelineYPosition();
         _xPosition =
             isRTL ? size.width - ((i + 1) * _cellWidth) : i * _cellWidth;
@@ -12306,11 +12328,12 @@ class _SelectionPainter extends CustomPainter {
   }
 
   void _drawTimelineWeekSelection(Canvas canvas, Size size, double width) {
-    if (isDateWithInDateRange(
-        visibleDates[0], visibleDates[visibleDates.length - 1], selectedDate)) {
+    if (selectedDate != null &&
+        isDateWithInDateRange(visibleDates[0],
+            visibleDates[visibleDates.length - 1], selectedDate!)) {
       selectedDate = _updateSelectedDate();
       for (int i = 0; i < visibleDates.length; i++) {
-        if (isSameDate(selectedDate, visibleDates[i])) {
+        if (isSameDate(selectedDate!, visibleDates[i])) {
           final double singleViewWidth = width / visibleDates.length;
           _xPosition = (i * singleViewWidth) +
               AppointmentHelper.timeToPosition(
@@ -12364,8 +12387,8 @@ class _SelectionPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_SelectionPainter oldDelegate) {
-    final _SelectionPainter oldWidget = oldDelegate;
+  bool shouldRepaint(_SelectionPainter<T> oldDelegate) {
+    final _SelectionPainter<T> oldWidget = oldDelegate;
     return oldWidget.selectionDecoration != selectionDecoration ||
         oldWidget.selectedDate != selectedDate ||
         oldWidget.view != view ||
@@ -12676,7 +12699,9 @@ class _MultiChildContainerRenderObject extends RenderStack {
     final Size widgetSize = constraints.biggest;
     size = Size(widgetSize.width.isInfinite ? width : widgetSize.width,
         widgetSize.height.isInfinite ? height : widgetSize.height);
-    for (dynamic child = firstChild; child != null; child = childAfter(child)) {
+    for (RenderBox? child = firstChild;
+        child != null;
+        child = childAfter(child)) {
       child.layout(constraints);
     }
   }
@@ -12883,11 +12908,11 @@ class _CurrentTimeIndicator extends CustomPainter {
 }
 
 /// Returns the date time value from the position.
-DateTime? _timeFromPosition(
+DateTime? _timeFromPosition<T>(
     DateTime date,
     TimeSlotViewSettings timeSlotViewSettings,
     double positionY,
-    _CalendarViewState? currentState,
+    _CalendarViewState<T>? currentState,
     double timeIntervalHeight,
     bool isTimelineView) {
   final double topPosition =
@@ -12928,13 +12953,13 @@ DateTime? _timeFromPosition(
 }
 
 /// Returns the single view width from the time line view for time line
-double _getSingleViewWidthForTimeLineView(_CalendarViewState viewState) {
+double _getSingleViewWidthForTimeLineView<T>(_CalendarViewState<T> viewState) {
   return (viewState._scrollController!.position.maxScrollExtent +
           viewState._scrollController!.position.viewportDimension) /
       viewState.widget.visibleDates.length;
 }
 
-class _ResizingPaintDetails {
+class _ResizingPaintDetails<T> {
   _ResizingPaintDetails(
       // ignore: unused_element
       {this.appointmentView,
@@ -12952,7 +12977,7 @@ class _ResizingPaintDetails {
       // ignore: unused_element
       this.resizingTime});
 
-  AppointmentView? appointmentView;
+  AppointmentView<T>? appointmentView;
   final ValueNotifier<Offset?> position;
   bool isAllDayPanel;
   double? scrollPosition;
@@ -12962,7 +12987,7 @@ class _ResizingPaintDetails {
   DateTime? resizingTime;
 }
 
-class _ResizingAppointmentPainter extends CustomPainter {
+class _ResizingAppointmentPainter<T> extends CustomPainter {
   _ResizingAppointmentPainter(
       this.resizingDetails,
       this.isRTL,
@@ -12981,7 +13006,7 @@ class _ResizingAppointmentPainter extends CustomPainter {
       this.calendarTheme)
       : super(repaint: resizingDetails.value.position);
 
-  final ValueNotifier<_ResizingPaintDetails> resizingDetails;
+  final ValueNotifier<_ResizingPaintDetails<T>> resizingDetails;
 
   final bool isRTL;
 
@@ -13469,26 +13494,22 @@ class _ResizingAppointmentPainter extends CustomPainter {
   }
 }
 
-dynamic _getCalendarAppointmentToObject(
-    CalendarAppointment? calendarAppointment, SfCalendar calendar) {
-  if (calendarAppointment == null) {
-    return null;
-  }
-
+T _getCalendarAppointmentToObject<T>(
+    CalendarAppointment<T> calendarAppointment, SfCalendar<T> calendar) {
   final Appointment appointment =
       calendarAppointment.convertToCalendarAppointment();
 
-  if (calendarAppointment.data is Appointment) {
-    return appointment;
+  if (T == Appointment) {
+    return appointment as T;
   }
-  final dynamic customObject = calendar.dataSource!
+  final T? customObject = calendar.dataSource!
       .convertAppointmentToObject(calendarAppointment.data, appointment);
   assert(customObject != null,
       'Implement convertToCalendarAppointment method from CalendarDataSource');
-  return customObject;
+  return customObject as T;
 }
 
-class _DragPaintDetails {
+class _DragPaintDetails<T> {
   _DragPaintDetails(
       // ignore: unused_element
       {this.appointmentView,
@@ -13498,14 +13519,14 @@ class _DragPaintDetails {
       // ignore: unused_element
       this.timeIntervalHeight});
 
-  AppointmentView? appointmentView;
+  AppointmentView<T>? appointmentView;
   final ValueNotifier<Offset?> position;
   DateTime? draggingTime;
   double? timeIntervalHeight;
 }
 
 @immutable
-class _DraggingAppointmentWidget extends StatefulWidget {
+class _DraggingAppointmentWidget<T> extends StatefulWidget {
   const _DraggingAppointmentWidget(
       this.dragDetails,
       this.isRTL,
@@ -13523,7 +13544,7 @@ class _DraggingAppointmentWidget extends StatefulWidget {
       this.width,
       this.height);
 
-  final ValueNotifier<_DragPaintDetails> dragDetails;
+  final ValueNotifier<_DragPaintDetails<T>> dragDetails;
 
   final bool isRTL;
 
@@ -13547,18 +13568,19 @@ class _DraggingAppointmentWidget extends StatefulWidget {
 
   final SfCalendarThemeData calendarTheme;
 
-  final SfCalendar calendar;
+  final SfCalendar<T> calendar;
 
   final double width;
 
   final double height;
 
   @override
-  _DraggingAppointmentState createState() => _DraggingAppointmentState();
+  _DraggingAppointmentState<T> createState() => _DraggingAppointmentState<T>();
 }
 
-class _DraggingAppointmentState extends State<_DraggingAppointmentWidget> {
-  AppointmentView? _draggingAppointmentView;
+class _DraggingAppointmentState<T>
+    extends State<_DraggingAppointmentWidget<T>> {
+  AppointmentView<T>? _draggingAppointmentView;
 
   @override
   void initState() {
@@ -13593,12 +13615,13 @@ class _DraggingAppointmentState extends State<_DraggingAppointmentWidget> {
 
       child = widget.calendar.appointmentBuilder!(
           context,
-          CalendarAppointmentDetails(
+          CalendarAppointmentDetails<T>(
               date,
-              List<dynamic>.unmodifiable(<dynamic>[
+              <CalendarAppointment<T>>[_draggingAppointmentView!.appointment!],
+              List<T>.unmodifiable(<T>[
                 CalendarViewHelper.getAppointmentDetail(
                     _draggingAppointmentView!.appointment!,
-                    widget.calendar.dataSource)
+                    widget.calendar.dataSource!)
               ]),
               Rect.fromLTWH(
                   widget.dragDetails.value.position.value!.dx,
@@ -13609,7 +13632,7 @@ class _DraggingAppointmentState extends State<_DraggingAppointmentWidget> {
                   _draggingAppointmentView!.appointmentRect!.height)));
     }
 
-    return _DraggingAppointmentRenderObjectWidget(
+    return _DraggingAppointmentRenderObjectWidget<T>(
       widget.dragDetails.value,
       widget.isRTL,
       widget.textScaleFactor,
@@ -13630,7 +13653,7 @@ class _DraggingAppointmentState extends State<_DraggingAppointmentWidget> {
 }
 
 @immutable
-class _DraggingAppointmentRenderObjectWidget
+class _DraggingAppointmentRenderObjectWidget<T>
     extends SingleChildRenderObjectWidget {
   const _DraggingAppointmentRenderObjectWidget(
       this.dragDetails,
@@ -13649,7 +13672,7 @@ class _DraggingAppointmentRenderObjectWidget
       this.height,
       {Widget? child})
       : super(child: child);
-  final _DragPaintDetails dragDetails;
+  final _DragPaintDetails<T> dragDetails;
 
   final bool isRTL;
 
@@ -13679,7 +13702,7 @@ class _DraggingAppointmentRenderObjectWidget
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _DraggingAppointmentRenderObject(
+    return _DraggingAppointmentRenderObject<T>(
         dragDetails,
         isRTL,
         textScaleFactor,
@@ -13698,7 +13721,7 @@ class _DraggingAppointmentRenderObjectWidget
 
   @override
   void updateRenderObject(
-      BuildContext context, _DraggingAppointmentRenderObject renderObject) {
+      BuildContext context, _DraggingAppointmentRenderObject<T> renderObject) {
     renderObject
       ..dragDetails = dragDetails
       ..isRTL = isRTL
@@ -13717,7 +13740,7 @@ class _DraggingAppointmentRenderObjectWidget
   }
 }
 
-class _DraggingAppointmentRenderObject extends RenderBox
+class _DraggingAppointmentRenderObject<T> extends RenderBox
     with RenderObjectWithChildMixin<RenderBox> {
   _DraggingAppointmentRenderObject(
       this._dragDetails,
@@ -13769,11 +13792,11 @@ class _DraggingAppointmentRenderObject extends RenderBox
     }
   }
 
-  _DragPaintDetails _dragDetails;
+  _DragPaintDetails<T> _dragDetails;
 
-  _DragPaintDetails get dragDetails => _dragDetails;
+  _DragPaintDetails<T> get dragDetails => _dragDetails;
 
-  set dragDetails(_DragPaintDetails value) {
+  set dragDetails(_DragPaintDetails<T> value) {
     if (_dragDetails == value) {
       return;
     }

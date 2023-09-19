@@ -12,8 +12,8 @@ part of core;
 /// previous date time zone offset(+2). if both are not equal then calculate
 /// the difference (date.timeZoneOffset - currentDate.timeZoneOffset)
 /// and add the offset difference(2-1) to current date.
-dynamic addDuration(dynamic date, Duration duration) {
-  dynamic currentDate = date.add(duration);
+DateTime addDuration(DateTime date, Duration duration) {
+  DateTime currentDate = date.add(duration);
   if (date.timeZoneOffset != currentDate.timeZoneOffset) {
     currentDate =
         currentDate.add(date.timeZoneOffset - currentDate.timeZoneOffset);
@@ -35,8 +35,8 @@ dynamic addDuration(dynamic date, Duration duration) {
 /// previous date time zone offset(+1). if both are not equal then calculate
 /// the difference date.timeZoneOffset - currentDate.timeZoneOffset) and add
 /// the offset difference(1-2) to current date.
-dynamic subtractDuration(dynamic date, Duration duration) {
-  dynamic currentDate = date.subtract(duration);
+DateTime subtractDuration(DateTime date, Duration duration) {
+  DateTime currentDate = date.subtract(duration);
   if (date.timeZoneOffset != currentDate.timeZoneOffset) {
     currentDate =
         currentDate.add(date.timeZoneOffset - currentDate.timeZoneOffset);
@@ -46,24 +46,14 @@ dynamic subtractDuration(dynamic date, Duration duration) {
 }
 
 /// Returns the previous month start date for the given date.
-dynamic getPreviousMonthDate(dynamic date) {
-  if (date is HijriDateTime) {
-    return date.month == 1
-        ? HijriDateTime(date.year - 1, 12, 01)
-        : HijriDateTime(date.year, date.month - 1, 1);
-  }
+DateTime getPreviousMonthDate(DateTime date) {
   return date.month == 1
       ? DateTime(date.year - 1, 12)
       : DateTime(date.year, date.month - 1);
 }
 
 /// Returns the next month start date for the given date..
-dynamic getNextMonthDate(dynamic date) {
-  if (date is HijriDateTime) {
-    return date.month == 12
-        ? HijriDateTime(date.year + 1, 01, 01)
-        : HijriDateTime(date.year, date.month + 1, 1);
-  }
+DateTime getNextMonthDate(DateTime date) {
   return date.month == 12
       ? DateTime(date.year + 1)
       : DateTime(date.year, date.month + 1);
@@ -72,7 +62,7 @@ dynamic getNextMonthDate(dynamic date) {
 /// Return the given date if the date in between first and last date
 /// else return first date/last date when the date before of first date or after
 /// last date
-dynamic getValidDate(dynamic minDate, dynamic maxDate, dynamic date) {
+DateTime getValidDate(DateTime minDate, DateTime maxDate, DateTime date) {
   if (date.isAfter(minDate) == true) {
     if (date.isBefore(maxDate) == true) {
       return date;
@@ -85,20 +75,9 @@ dynamic getValidDate(dynamic minDate, dynamic maxDate, dynamic date) {
 }
 
 /// Check the dates are equal or not.
-bool isSameDate(dynamic date1, dynamic date2) {
+bool isSameDate(DateTime date1, DateTime date2) {
   if (date2 == date1) {
     return true;
-  }
-
-  if (date1 == null || date2 == null) {
-    return false;
-  }
-
-  if (date1 is HijriDateTime && date2 is HijriDateTime) {
-    return date1.month == date2.month &&
-        date1.year == date2.year &&
-        date1.day == date2.day &&
-        date1._date == date2._date;
   }
 
   return date1.month == date2.month &&
@@ -107,13 +86,10 @@ bool isSameDate(dynamic date1, dynamic date2) {
 }
 
 /// Check the date in between first and last date
-bool isDateWithInDateRange(dynamic startDate, dynamic endDate, dynamic date) {
-  if (startDate == null || endDate == null || date == null) {
-    return false;
-  }
-
+bool isDateWithInDateRange(
+    DateTime startDate, DateTime endDate, DateTime date) {
   if (startDate.isAfter(endDate) == true) {
-    final dynamic temp = startDate;
+    final DateTime temp = startDate;
     startDate = endDate;
     endDate = temp;
   }
@@ -126,34 +102,29 @@ bool isDateWithInDateRange(dynamic startDate, dynamic endDate, dynamic date) {
 }
 
 /// Check the date before/same of last date
-bool isSameOrBeforeDate(dynamic lastDate, dynamic date) {
+bool isSameOrBeforeDate(DateTime lastDate, DateTime date) {
   return isSameDate(lastDate, date) || lastDate.isAfter(date) == true;
 }
 
 /// Check the date after/same of first date
-bool isSameOrAfterDate(dynamic firstDate, dynamic date) {
+bool isSameOrAfterDate(DateTime firstDate, DateTime date) {
   return isSameDate(firstDate, date) || firstDate.isBefore(date) == true;
 }
 
 /// Get the visible dates based on the date value and visible dates count.
 // ignore: always_specify_types, strict_raw_type
-List getVisibleDates(dynamic date, List<int>? nonWorkingDays,
+List getVisibleDates(DateTime date, List<int>? nonWorkingDays,
     int firstDayOfWeek, int visibleDatesCount) {
   // ignore: always_specify_types, strict_raw_type
-  List datesCollection;
-  if (date is HijriDateTime) {
-    datesCollection = <HijriDateTime>[];
-  } else {
-    datesCollection = <DateTime>[];
-  }
+  final List<DateTime> datesCollection = <DateTime>[];
 
   final int nonWorkingDaysCount =
       nonWorkingDays == null ? 0 : nonWorkingDays.length;
-  final dynamic currentDate = getFirstDayOfWeekDate(
+  final DateTime currentDate = getFirstDayOfWeekDate(
       visibleDatesCount + nonWorkingDaysCount, date, firstDayOfWeek);
 
   for (int i = 0; i < visibleDatesCount; i++) {
-    final dynamic visibleDate = addDays(currentDate, i);
+    final DateTime visibleDate = addDays(currentDate, i);
     if (nonWorkingDays != null &&
         nonWorkingDays.contains(visibleDate.weekday)) {
       visibleDatesCount++;
@@ -167,34 +138,26 @@ List getVisibleDates(dynamic date, List<int>? nonWorkingDays,
 }
 
 /// Return date value without hour and minutes consideration.
-dynamic addDays(dynamic date, int days) {
-  if (date is HijriDateTime) {
-    return date.add(Duration(days: days));
-  }
-
+DateTime addDays(DateTime date, int days) {
   return DateTime(date.year, date.month, date.day + days);
 }
 
 /// Calculate first day of week date value based original date with first day of
 /// week value.
-dynamic getFirstDayOfWeekDate(
-    int visibleDatesCount, dynamic date, int firstDayOfWeek) {
+DateTime getFirstDayOfWeekDate(
+    int visibleDatesCount, DateTime date, int firstDayOfWeek) {
   if (visibleDatesCount % 7 != 0) {
     return date;
   }
 
   const int numberOfWeekDays = 7;
-  dynamic currentDate = date;
+  DateTime currentDate = date;
   if (visibleDatesCount == 42) {
-    if (currentDate is HijriDateTime) {
-      currentDate = HijriDateTime(currentDate.year, currentDate.month, 1);
-    } else {
-      currentDate = DateTime(currentDate.year, currentDate.month);
-    }
+    currentDate = DateTime(currentDate.year, currentDate.month);
   }
 
   // ignore: avoid_as
-  int value = -(currentDate.weekday as int) + firstDayOfWeek - numberOfWeekDays;
+  int value = -currentDate.weekday + firstDayOfWeek - numberOfWeekDays;
   if (value.abs() >= numberOfWeekDays) {
     value += numberOfWeekDays;
   }

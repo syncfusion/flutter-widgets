@@ -10,9 +10,11 @@
 library calendar;
 
 export 'src/calendar/appointment_engine/appointment.dart';
+export 'src/calendar/appointment_engine/appointment_helper.dart';
 export 'src/calendar/appointment_engine/calendar_datasource.dart';
 export 'src/calendar/appointment_engine/recurrence_properties.dart';
 export 'src/calendar/common/calendar_controller.dart';
+export 'src/calendar/common/calendar_view_helper.dart';
 export 'src/calendar/common/enums.dart';
 export 'src/calendar/common/event_args.dart';
 export 'src/calendar/resource_view/calendar_resource.dart';

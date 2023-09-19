@@ -11,7 +11,8 @@ typedef CalendarValueChangedCallback = void Function(String);
 
 /// Signature for callback that gets the calendar details by using the
 /// [getCalendarDetailsAtOffset] function.
-typedef CalendarDetailsCallback = CalendarDetails? Function(Offset position);
+typedef CalendarDetailsCallback<T> = CalendarDetails<T>? Function(
+    Offset position);
 
 /// Notifier used to notify the when the objects properties changed.
 class CalendarValueChangedNotifier with Diagnosticable {
@@ -130,7 +131,7 @@ class CalendarValueChangedNotifier with Diagnosticable {
 ///  }
 ///}
 /// ```
-class CalendarController extends CalendarValueChangedNotifier {
+class CalendarController<T> extends CalendarValueChangedNotifier {
   DateTime? _selectedDate;
   DateTime? _displayDate;
   CalendarView? _view;
@@ -169,7 +170,9 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///}
   /// ```
   set selectedDate(DateTime? date) {
-    if (CalendarViewHelper.isSameTimeSlot(_selectedDate, date)) {
+    if (_selectedDate != null &&
+        date != null &&
+        CalendarViewHelper.isSameTimeSlot(_selectedDate!, date)) {
       return;
     }
 
@@ -350,7 +353,7 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///   }
   /// }
   /// ```
-  CalendarDetailsCallback? getCalendarDetailsAtOffset;
+  CalendarDetailsCallback<T>? getCalendarDetailsAtOffset;
 
   /// Moves to the previous view programmatically with animation by checking
   /// that the previous view dates falls between the minimum and maximum date

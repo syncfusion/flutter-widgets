@@ -27,7 +27,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SfCalendar(
+        body: SfCalendar<Meeting>(
       view: CalendarView.month,
       dataSource: MeetingDataSource(_getDataSource()),
       // by default the month appointment display mode set as Indicator, we can
@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
 /// An object to set the appointment collection data source to calendar, which
 /// used to map the custom appointment data to the calendar appointment, and
 /// allows to add, remove or reset the appointment collection.
-class MeetingDataSource extends CalendarDataSource {
+class MeetingDataSource extends CalendarDataSource<Meeting> {
   /// Creates a meeting data source, which used to set the appointment
   /// collection to the calendar
   MeetingDataSource(List<Meeting> source) {

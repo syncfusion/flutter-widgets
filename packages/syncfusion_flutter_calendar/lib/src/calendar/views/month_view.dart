@@ -13,7 +13,7 @@ import '../settings/week_number_style.dart';
 import '../sfcalendar.dart';
 
 /// Used to hold the month cell views on calendar month view.
-class MonthViewWidget extends StatefulWidget {
+class MonthViewWidget<T> extends StatefulWidget {
   /// Constructor to create the month view widget to holds month cells for
   /// calendar month view.
   const MonthViewWidget(
@@ -74,7 +74,7 @@ class MonthViewWidget extends StatefulWidget {
   final DateTime maxDate;
 
   /// Holds the calendar instance used to get the calendar properties.
-  final SfCalendar calendar;
+  final SfCalendar<T> calendar;
 
   /// Decides the trailing and leading of month view will visible or not.
   final bool showTrailingAndLeadingDates;
@@ -101,18 +101,18 @@ class MonthViewWidget extends StatefulWidget {
   final bool isMobilePlatform;
 
   /// Used to build the widget that replaces the month cell.
-  final MonthCellBuilder? builder;
+  final MonthCellBuilder<T>? builder;
 
   /// Holds the visible appointment collection used to trigger the builder
   /// when its value changed.
-  final ValueNotifier<List<CalendarAppointment>?> visibleAppointmentNotifier;
+  final ValueNotifier<List<CalendarAppointment<T>>?> visibleAppointmentNotifier;
 
   @override
   // ignore: library_private_types_in_public_api
-  _MonthViewWidgetState createState() => _MonthViewWidgetState();
+  _MonthViewWidgetState<T> createState() => _MonthViewWidgetState<T>();
 }
 
-class _MonthViewWidgetState extends State<MonthViewWidget> {
+class _MonthViewWidgetState<T> extends State<MonthViewWidget<T>> {
   @override
   void initState() {
     widget.visibleAppointmentNotifier.addListener(_updateAppointment);
@@ -120,7 +120,7 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
   }
 
   @override
-  void didUpdateWidget(MonthViewWidget oldWidget) {
+  void didUpdateWidget(MonthViewWidget<T> oldWidget) {
     if (widget.visibleAppointmentNotifier !=
         oldWidget.visibleAppointmentNotifier) {
       oldWidget.visibleAppointmentNotifier.removeListener(_updateAppointment);
@@ -171,19 +171,20 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
         final List<CalendarAppointment> appointments =
             AppointmentHelper.getSpecificDateVisibleAppointment(
                 currentVisibleDate, widget.visibleAppointmentNotifier.value);
-        List<dynamic> monthCellAppointment = appointments;
-        if (widget.calendar.dataSource != null &&
-            !AppointmentHelper.isCalendarAppointment(
-                widget.calendar.dataSource!)) {
+        late List<T> monthCellAppointment;
+        if (widget.calendar.dataSource == null ||
+            AppointmentHelper.isCalendarAppointment<T>()) {
+          monthCellAppointment = appointments as List<T>;
+        } else {
           monthCellAppointment = CalendarViewHelper.getCustomAppointments(
-              appointments, widget.calendar.dataSource);
+              appointments, widget.calendar.dataSource!);
         }
 
         final Widget child = widget.builder!(
             context,
-            MonthCellDetails(
+            MonthCellDetails<T>(
                 currentVisibleDate,
-                List<Object>.unmodifiable(monthCellAppointment),
+                List<T>.unmodifiable(monthCellAppointment),
                 List<DateTime>.unmodifiable(widget.visibleDates),
                 Rect.fromLTWH(
                     widget.isRTL
@@ -202,7 +203,7 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
       }
     }
 
-    return _MonthViewRenderObjectWidget(
+    return _MonthViewRenderObjectWidget<T>(
       widget.visibleDates,
       widget.visibleAppointmentNotifier.value,
       widget.rowCount,
@@ -235,7 +236,7 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
   }
 }
 
-class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
+class _MonthViewRenderObjectWidget<T> extends MultiChildRenderObjectWidget {
   const _MonthViewRenderObjectWidget(
       this.visibleDates,
       this.visibleAppointments,
@@ -264,7 +265,7 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
   final int rowCount;
   final MonthCellStyle monthCellStyle;
   final List<DateTime> visibleDates;
-  final List<CalendarAppointment>? visibleAppointments;
+  final List<CalendarAppointment<T>>? visibleAppointments;
   final bool isRTL;
   final Color? todayHighlightColor;
   final TextStyle? todayTextStyle;
@@ -284,8 +285,8 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
   final bool isMobilePlatform;
 
   @override
-  _MonthViewRenderObject createRenderObject(BuildContext context) {
-    return _MonthViewRenderObject(
+  _MonthViewRenderObject<T> createRenderObject(BuildContext context) {
+    return _MonthViewRenderObject<T>(
         visibleDates,
         visibleAppointments,
         rowCount,
@@ -311,7 +312,7 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, _MonthViewRenderObject renderObject) {
+      BuildContext context, _MonthViewRenderObject<T> renderObject) {
     renderObject
       ..visibleDates = visibleDates
       ..visibleAppointments = visibleAppointments
@@ -337,7 +338,7 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
   }
 }
 
-class _MonthViewRenderObject extends CustomCalendarRenderObject {
+class _MonthViewRenderObject<T> extends CustomCalendarRenderObject {
   _MonthViewRenderObject(
       this._visibleDates,
       this._visibleAppointments,
@@ -583,11 +584,11 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     markNeedsPaint();
   }
 
-  List<CalendarAppointment>? _visibleAppointments;
+  List<CalendarAppointment<T>>? _visibleAppointments;
 
-  List<CalendarAppointment>? get visibleAppointments => _visibleAppointments;
+  List<CalendarAppointment<T>>? get visibleAppointments => _visibleAppointments;
 
-  set visibleAppointments(List<CalendarAppointment>? value) {
+  set visibleAppointments(List<CalendarAppointment<T>>? value) {
     if (_visibleAppointments == value) {
       return;
     }
@@ -707,7 +708,9 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     final double cellWidth =
         (size.width - weekNumberPanelWidth) / DateTime.daysPerWeek;
     final double cellHeight = size.height / rowCount;
-    for (dynamic child = firstChild; child != null; child = childAfter(child)) {
+    for (RenderBox? child = firstChild;
+        child != null;
+        child = childAfter(child)) {
       child.layout(constraints.copyWith(
           minWidth: cellWidth,
           minHeight: cellHeight,
@@ -750,8 +753,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
           /// Calculate the row end date based on visible dates index.
           final DateTime endDate = addDuration(
-                  startDate, const Duration(days: DateTime.daysPerWeek - 1))
-              as DateTime;
+              startDate, const Duration(days: DateTime.daysPerWeek - 1));
 
           /// Used to check the start and end date is current month date or not.
           final bool isCurrentMonthWeek =
@@ -887,12 +889,8 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     _textPainter.textScaleFactor = textScaleFactor;
     final int visibleDatesCount = visibleDates.length;
     final DateTime currentMonthDate = visibleDates[visibleDatesCount ~/ 2];
-    final int nextMonth =
-        DateTimeHelper.getDateTimeValue(getNextMonthDate(currentMonthDate))
-            .month;
-    final int previousMonth =
-        DateTimeHelper.getDateTimeValue(getPreviousMonthDate(currentMonthDate))
-            .month;
+    final int nextMonth = getNextMonthDate(currentMonthDate).month;
+    final int previousMonth = getPreviousMonthDate(currentMonthDate).month;
     final DateTime today = DateTime.now();
     bool isCurrentDate;
 
@@ -941,8 +939,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
         /// Calculate the row end date based on visible dates index.
         final DateTime endDate = addDuration(
-                startDate, const Duration(days: DateTime.daysPerWeek - 1))
-            as DateTime;
+            startDate, const Duration(days: DateTime.daysPerWeek - 1));
 
         /// Used to check the start and end date is current month date or not.
         final bool isCurrentMonthWeek =
@@ -1206,8 +1203,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
         /// Calculate the row end date based on visible dates index.
         final DateTime endDate = addDuration(
-                startDate, const Duration(days: DateTime.daysPerWeek - 1))
-            as DateTime;
+            startDate, const Duration(days: DateTime.daysPerWeek - 1));
 
         /// Used to check the start and end date is current month date or not.
         final bool isCurrentMonthWeek =

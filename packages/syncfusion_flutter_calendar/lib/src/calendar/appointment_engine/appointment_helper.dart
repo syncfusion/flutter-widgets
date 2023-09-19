@@ -5,7 +5,6 @@ import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:timezone/timezone.dart';
 
 import '../common/calendar_view_helper.dart';
-import '../common/date_time_engine.dart';
 import '../common/enums.dart';
 import '../sfcalendar.dart';
 import 'appointment.dart';
@@ -32,7 +31,7 @@ class AppointmentHelper {
 
   /// Return the end date of the month specified in date.
   static DateTime getMonthEndDate(DateTime date) {
-    return DateTimeHelper.getDateTimeValue(addDays(getNextMonthDate(date), -1));
+    return addDays(getNextMonthDate(date), -1);
   }
 
   /// Return the difference duration between two date time values without
@@ -49,24 +48,17 @@ class AppointmentHelper {
   /// Return the date time value by adding the days in date.
   static DateTime addDaysWithTime(
       DateTime date, int days, int hour, int minute, int second) {
-    final DateTime newDate =
-        DateTimeHelper.getDateTimeValue(addDays(date, days));
+    final DateTime newDate = addDays(date, days);
     return DateTime(
         newDate.year, newDate.month, newDate.day, hour, minute, second);
   }
 
   /// Check whether the data source has calendar appointment type or not.
-  static bool isCalendarAppointment(CalendarDataSource dataSource) {
-    if (dataSource.appointments == null ||
-        dataSource.appointments!.isEmpty ||
-        dataSource.appointments![0] is CalendarAppointment) {
-      return true;
-    }
-
-    return false;
+  static bool isCalendarAppointment<T>() {
+    return T == CalendarAppointment;
   }
 
-  static bool _isSpanned(CalendarAppointment appointment) {
+  static bool _isSpanned<T>(CalendarAppointment<T> appointment) {
     return !(appointment.actualEndTime.day == appointment.actualStartTime.day &&
             appointment.actualEndTime.month ==
                 appointment.actualStartTime.month &&
@@ -79,8 +71,8 @@ class AppointmentHelper {
 
   /// Check and returns whether the span icon can be added for the spanning
   /// appointment.
-  static bool canAddSpanIcon(List<DateTime> visibleDates,
-      CalendarAppointment appointment, CalendarView view,
+  static bool canAddSpanIcon<T>(List<DateTime> visibleDates,
+      CalendarAppointment<T> appointment, CalendarView view,
       {DateTime? visibleStartDate,
       DateTime? visibleEndDate,
       bool? showTrailingLeadingDates}) {
@@ -169,7 +161,7 @@ class AppointmentHelper {
   /// appointments on day, timeline day, schedule and month agenda view.
   /// The text will display the current date, and total dates of the spanning
   /// appointment
-  static String getSpanAppointmentText(CalendarAppointment appointment,
+  static String getSpanAppointmentText<T>(CalendarAppointment<T> appointment,
       DateTime date, SfLocalizations localization) {
     final DateTime exactStartTime =
         convertToStartTime(appointment.exactStartTime);
@@ -239,12 +231,12 @@ class AppointmentHelper {
   }
 
   /// Return appointment collection based on the date.
-  static List<CalendarAppointment> getSelectedDateAppointments(
-      List<CalendarAppointment>? appointments,
+  static List<CalendarAppointment<T>> getSelectedDateAppointments<T>(
+      List<CalendarAppointment<T>>? appointments,
       String? timeZone,
       DateTime? date) {
-    final List<CalendarAppointment> appointmentCollection =
-        <CalendarAppointment>[];
+    final List<CalendarAppointment<T>> appointmentCollection =
+        <CalendarAppointment<T>>[];
     if (appointments == null || appointments.isEmpty || date == null) {
       return appointmentCollection;
     }
@@ -254,7 +246,7 @@ class AppointmentHelper {
     final int count = appointments.length;
 
     for (int j = 0; j < count; j++) {
-      final CalendarAppointment appointment = appointments[j];
+      final CalendarAppointment<T> appointment = appointments[j];
       appointment.actualStartTime = convertTimeToAppointmentTimeZone(
           appointment.startTime, appointment.startTimeZone, timeZone);
       appointment.actualEndTime = convertTimeToAppointmentTimeZone(
@@ -290,8 +282,9 @@ class AppointmentHelper {
         .merge(appointmentTextStyle.copyWith(fontSize: 12));
   }
 
-  static CalendarAppointment _copy(CalendarAppointment appointment) {
-    final CalendarAppointment copyAppointment = CalendarAppointment(
+  static CalendarAppointment<T> _copy<T>(CalendarAppointment<T> appointment) {
+    final CalendarAppointment<T> copyAppointment = CalendarAppointment<T>(
+        data: appointment.data,
         startTime: appointment.startTime,
         endTime: appointment.endTime,
         isAllDay: appointment.isAllDay,
@@ -309,15 +302,14 @@ class AppointmentHelper {
         id: appointment.id);
     copyAppointment.actualStartTime = appointment.actualStartTime;
     copyAppointment.actualEndTime = appointment.actualEndTime;
-    copyAppointment.data = appointment.data;
     copyAppointment.exactStartTime = appointment.exactStartTime;
     copyAppointment.exactEndTime = appointment.exactEndTime;
     return copyAppointment;
   }
 
   /// Check the appointment in between the visible date range.
-  static bool isAppointmentWithinVisibleDateRange(
-      CalendarAppointment appointment,
+  static bool isAppointmentWithinVisibleDateRange<T>(
+      CalendarAppointment<T> appointment,
       DateTime visibleStart,
       DateTime visibleEnd) {
     return isDateRangeWithinVisibleDateRange(appointment.actualStartTime,
@@ -342,8 +334,10 @@ class AppointmentHelper {
     return false;
   }
 
-  static bool _isAppointmentInVisibleDateRange(CalendarAppointment appointment,
-      DateTime visibleStart, DateTime visibleEnd) {
+  static bool _isAppointmentInVisibleDateRange<T>(
+      CalendarAppointment<T> appointment,
+      DateTime visibleStart,
+      DateTime visibleEnd) {
     final DateTime appStartTime = appointment.actualStartTime;
     final DateTime appEndTime = appointment.actualEndTime;
     if ((appStartTime.isAfter(visibleStart) ||
@@ -503,10 +497,10 @@ class AppointmentHelper {
   }
 
   /// Resets the appointment views used on appointment layout rendering.
-  static void resetAppointmentView(
-      List<AppointmentView> appointmentCollection) {
+  static void resetAppointmentView<T>(
+      List<AppointmentView<T>> appointmentCollection) {
     for (int i = 0; i < appointmentCollection.length; i++) {
-      final AppointmentView obj = appointmentCollection[i];
+      final AppointmentView<T> obj = appointmentCollection[i];
       obj.canReuse = true;
       obj.appointment = null;
       obj.position = -1;
@@ -518,8 +512,8 @@ class AppointmentHelper {
   }
 
   /// Returns the position from time passed, based on the time interval height.
-  static double timeToPosition(
-      SfCalendar calendar, DateTime date, double timeIntervalHeight) {
+  static double timeToPosition<T>(
+      SfCalendar<T> calendar, DateTime date, double timeIntervalHeight) {
     final double singleIntervalHeightForAnHour = (60 /
             CalendarViewHelper.getTimeInterval(calendar.timeSlotViewSettings)) *
         timeIntervalHeight;
@@ -531,8 +525,8 @@ class AppointmentHelper {
   }
 
   /// Returns the appointment height from the duration passed.
-  static double getAppointmentHeightFromDuration(Duration? minimumDuration,
-      SfCalendar calendar, double timeIntervalHeight) {
+  static double getAppointmentHeightFromDuration<T>(Duration? minimumDuration,
+      SfCalendar<T> calendar, double timeIntervalHeight) {
     if (minimumDuration == null || minimumDuration.inMinutes <= 0) {
       return 0;
     }
@@ -543,12 +537,12 @@ class AppointmentHelper {
     return minimumDuration.inMinutes * (hourHeight / 60);
   }
 
-  static bool _isIntersectingAppointmentInDayView(
-      SfCalendar calendar,
+  static bool _isIntersectingAppointmentInDayView<T>(
+      SfCalendar<T> calendar,
       CalendarView view,
-      CalendarAppointment currentApp,
-      AppointmentView appView,
-      CalendarAppointment appointment,
+      CalendarAppointment<T> currentApp,
+      AppointmentView<T> appView,
+      CalendarAppointment<T> appointment,
       int timeIntervalMinutes) {
     if (currentApp == appointment) {
       return false;
@@ -622,8 +616,8 @@ class AppointmentHelper {
     return false;
   }
 
-  static bool _iterateAppointment(
-      CalendarAppointment app, bool isTimeline, bool isAllDay) {
+  static bool _iterateAppointment<T>(
+      CalendarAppointment<T> app, bool isTimeline, bool isAllDay) {
     if (isAllDay) {
       if (!isTimeline && app.isAllDay) {
         app.actualEndTime = convertToEndTime(app.actualEndTime);
@@ -677,11 +671,13 @@ class AppointmentHelper {
     return boolValue1.compareTo(boolValue2);
   }
 
-  static AppointmentView _getAppointmentView(CalendarAppointment appointment,
-      List<AppointmentView> appointmentCollection, int? resourceIndex) {
-    AppointmentView? appointmentRenderer;
+  static AppointmentView<T> _getAppointmentView<T>(
+      CalendarAppointment<T> appointment,
+      List<AppointmentView<T>> appointmentCollection,
+      int? resourceIndex) {
+    AppointmentView<T>? appointmentRenderer;
     for (int i = 0; i < appointmentCollection.length; i++) {
-      final AppointmentView view = appointmentCollection[i];
+      final AppointmentView<T> view = appointmentCollection[i];
       if (view.appointment == null) {
         appointmentRenderer = view;
         break;
@@ -689,7 +685,7 @@ class AppointmentHelper {
     }
 
     if (appointmentRenderer == null) {
-      appointmentRenderer = AppointmentView();
+      appointmentRenderer = AppointmentView<T>();
       appointmentRenderer.appointment = appointment;
       appointmentRenderer.canReuse = false;
       appointmentRenderer.resourceIndex = resourceIndex ?? -1;
@@ -704,45 +700,47 @@ class AppointmentHelper {
 
   /// Update the appointment view collection position and its max position
   /// details.
-  static void setAppointmentPositionAndMaxPosition(
-      List<AppointmentView> appointmentCollection,
-      SfCalendar calendar,
+  static void setAppointmentPositionAndMaxPosition<T>(
+      List<AppointmentView<T>> appointmentCollection,
+      SfCalendar<T> calendar,
       CalendarView view,
-      List<CalendarAppointment> visibleAppointments,
+      List<CalendarAppointment<T>> visibleAppointments,
       bool isAllDay,
       [int? resourceIndex]) {
     final bool isTimeline = CalendarViewHelper.isTimelineView(view);
-    final List<CalendarAppointment> normalAppointments = visibleAppointments
-        .where((CalendarAppointment app) =>
+    final List<CalendarAppointment<T>> normalAppointments = visibleAppointments
+        .where((CalendarAppointment<T> app) =>
             _iterateAppointment(app, isTimeline, isAllDay))
         .toList();
     normalAppointments.sort(
-        (CalendarAppointment app1, CalendarAppointment app2) =>
+        (CalendarAppointment<T> app1, CalendarAppointment<T> app2) =>
             app1.actualStartTime.compareTo(app2.actualStartTime));
     if (!isTimeline) {
       normalAppointments.sort(
-          (CalendarAppointment app1, CalendarAppointment app2) =>
+          (CalendarAppointment<T> app1, CalendarAppointment<T> app2) =>
               _orderAppointmentsDescending(app1.isSpanned, app2.isSpanned));
       normalAppointments.sort(
-          (CalendarAppointment app1, CalendarAppointment app2) =>
+          (CalendarAppointment<T> app1, CalendarAppointment<T> app2) =>
               _orderAppointmentsDescending(app1.isAllDay, app2.isAllDay));
     } else {
       normalAppointments.sort(
-          (CalendarAppointment app1, CalendarAppointment app2) =>
+          (CalendarAppointment<T> app1, CalendarAppointment<T> app2) =>
               orderAppointmentsAscending(app1.isAllDay, app2.isAllDay));
       normalAppointments.sort(
-          (CalendarAppointment app1, CalendarAppointment app2) =>
+          (CalendarAppointment<T> app1, CalendarAppointment<T> app2) =>
               orderAppointmentsAscending(app1.isSpanned, app2.isSpanned));
     }
 
-    final Map<int, List<AppointmentView>> dict = <int, List<AppointmentView>>{};
-    final List<AppointmentView> processedViews = <AppointmentView>[];
+    final Map<int, List<AppointmentView<T>>> dict =
+        <int, List<AppointmentView<T>>>{};
+    final List<AppointmentView<T>> processedViews = <AppointmentView<T>>[];
     int maxColsCount = 1;
 
     final int timeIntervalMinutes =
         CalendarViewHelper.getTimeInterval(calendar.timeSlotViewSettings);
     for (int count = 0; count < normalAppointments.length; count++) {
-      final CalendarAppointment currentAppointment = normalAppointments[count];
+      final CalendarAppointment<T> currentAppointment =
+          normalAppointments[count];
       if ((view == CalendarView.workWeek ||
               view == CalendarView.timelineWorkWeek) &&
           calendar.timeSlotViewSettings.nonWorkingDays
@@ -752,14 +750,14 @@ class AppointmentHelper {
         continue;
       }
 
-      List<AppointmentView>? intersectingApps;
-      final AppointmentView currentAppView = _getAppointmentView(
+      List<AppointmentView<T>>? intersectingApps;
+      final AppointmentView<T> currentAppView = _getAppointmentView<T>(
           currentAppointment, appointmentCollection, resourceIndex);
 
       for (int position = 0; position < maxColsCount; position++) {
         bool isIntersecting = false;
         for (int j = 0; j < processedViews.length; j++) {
-          final AppointmentView previousApp = processedViews[j];
+          final AppointmentView<T> previousApp = processedViews[j];
           if (previousApp.position != position) {
             continue;
           }
@@ -784,7 +782,7 @@ class AppointmentHelper {
               }
 
               if (intersectingApps == null) {
-                intersectingApps = <AppointmentView>[];
+                intersectingApps = <AppointmentView<T>>[];
                 dict[dict.keys.length] = intersectingApps;
               }
 
@@ -802,12 +800,12 @@ class AppointmentHelper {
       if (currentAppView.position == -1) {
         int position = 0;
         if (intersectingApps == null) {
-          intersectingApps = <AppointmentView>[];
+          intersectingApps = <AppointmentView<T>>[];
           dict[dict.keys.length] = intersectingApps;
         } else if (intersectingApps.isNotEmpty) {
           position = intersectingApps
-              .reduce((AppointmentView currentAppview,
-                      AppointmentView nextAppview) =>
+              .reduce((AppointmentView<T> currentAppview,
+                      AppointmentView<T> nextAppview) =>
                   currentAppview.maxPositions > nextAppview.maxPositions
                       ? currentAppview
                       : nextAppview)
@@ -826,12 +824,12 @@ class AppointmentHelper {
       } else {
         int maxPosition = 1;
         if (intersectingApps == null) {
-          intersectingApps = <AppointmentView>[];
+          intersectingApps = <AppointmentView<T>>[];
           dict[dict.keys.length] = intersectingApps;
         } else if (intersectingApps.isNotEmpty) {
           maxPosition = intersectingApps
-              .reduce((AppointmentView currentAppview,
-                      AppointmentView nextAppview) =>
+              .reduce((AppointmentView<T> currentAppview,
+                      AppointmentView<T> nextAppview) =>
                   currentAppview.maxPositions > nextAppview.maxPositions
                       ? currentAppview
                       : nextAppview)
@@ -960,20 +958,21 @@ class AppointmentHelper {
 
   /// Return the visible appointment collection based on visible start and
   /// end date.
-  static List<CalendarAppointment> getVisibleAppointments(
+  static List<CalendarAppointment<T>> getVisibleAppointments<T>(
       DateTime visibleStartDate,
       DateTime visibleEndDate,
-      List<CalendarAppointment> appointments,
+      List<CalendarAppointment<T>> appointments,
       String? calendarTimeZone,
       bool isTimelineView,
       {bool canCreateNewAppointment = true}) {
-    final List<CalendarAppointment> appointmentColl = <CalendarAppointment>[];
+    final List<CalendarAppointment<T>> appointmentColl =
+        <CalendarAppointment<T>>[];
     final DateTime startDate = convertToStartTime(visibleStartDate);
     final DateTime endDate = convertToEndTime(visibleEndDate);
     final int count = appointments.length;
 
     for (int j = 0; j < count; j++) {
-      final CalendarAppointment calendarAppointment = appointments[j];
+      final CalendarAppointment<T> calendarAppointment = appointments[j];
       calendarAppointment.actualStartTime = convertTimeToAppointmentTimeZone(
           calendarAppointment.startTime,
           calendarAppointment.startTimeZone,
@@ -983,8 +982,8 @@ class AppointmentHelper {
           calendarAppointment.endTimeZone,
           calendarTimeZone);
 
-      final List<CalendarAppointment> tempAppointments =
-          <CalendarAppointment>[];
+      final List<CalendarAppointment<T>> tempAppointments =
+          <CalendarAppointment<T>>[];
 
       /// Stored the actual start time to exact start time to use the value,
       /// since, we split the span appointment into multiple instances and
@@ -1003,7 +1002,7 @@ class AppointmentHelper {
 
       final int appointmentLength = tempAppointments.length;
       for (int i = 0; i < appointmentLength; i++) {
-        final CalendarAppointment appointment = tempAppointments[i];
+        final CalendarAppointment<T> appointment = tempAppointments[i];
         if (isAppointmentWithinVisibleDateRange(
             appointment, startDate, endDate)) {
           /// can create new appointment boolean is used to skip the new
@@ -1028,7 +1027,8 @@ class AppointmentHelper {
               !appointment.isAllDay &&
               !isTimelineView) {
             for (int i = 0; i < 2; i++) {
-              final CalendarAppointment spannedAppointment = _copy(appointment);
+              final CalendarAppointment<T> spannedAppointment =
+                  _copy<T>(appointment);
               if (i == 0) {
                 spannedAppointment.actualEndTime = DateTime(
                     appointment.exactStartTime.year,
@@ -1081,7 +1081,7 @@ class AppointmentHelper {
               //// Check the spanned appointment start date with in current visible dates.
               //// example visible date 21 to 27 and the appointment start and end date as 23 and 28.
               for (int i = 0; i < 2; i++) {
-                final CalendarAppointment spannedAppointment =
+                final CalendarAppointment<T> spannedAppointment =
                     _copy(appointment);
                 if (i == 0) {
                   spannedAppointment.actualEndTime = DateTime(
@@ -1117,13 +1117,12 @@ class AppointmentHelper {
               //// Check the spanned appointment end date with in current visible dates. example visible date 21 to 27 and
               //// the appointment start and end date as 18 and 24.
               for (int i = 0; i < 2; i++) {
-                final CalendarAppointment spannedAppointment =
+                final CalendarAppointment<T> spannedAppointment =
                     _copy(appointment);
                 if (i == 0) {
                   spannedAppointment.actualStartTime =
                       appointment.actualStartTime;
-                  final DateTime date =
-                      DateTimeHelper.getDateTimeValue(addDays(startDate, -1));
+                  final DateTime date = addDays(startDate, -1);
                   spannedAppointment.actualEndTime =
                       DateTime(date.year, date.month, date.day, 23, 59, 59);
                 } else {
@@ -1159,11 +1158,10 @@ class AppointmentHelper {
               //// Check the spanned appointment start and end date not in current visible dates. example visible date 21 to 27 and
               //// the appointment start and end date as 18 and 28.
               for (int i = 0; i < 3; i++) {
-                final CalendarAppointment spannedAppointment =
+                final CalendarAppointment<T> spannedAppointment =
                     _copy(appointment);
                 if (i == 0) {
-                  final DateTime date =
-                      DateTimeHelper.getDateTimeValue(addDays(startDate, -1));
+                  final DateTime date = addDays(startDate, -1);
                   spannedAppointment.actualEndTime =
                       DateTime(date.year, date.month, date.day, 23, 59, 59);
                 } else if (i == 1) {
@@ -1172,8 +1170,7 @@ class AppointmentHelper {
                   spannedAppointment.actualEndTime = DateTime(
                       endDate.year, endDate.month, endDate.day, 23, 59, 59);
                 } else {
-                  final DateTime date =
-                      DateTimeHelper.getDateTimeValue(addDays(endDate, 1));
+                  final DateTime date = addDays(endDate, 1);
                   spannedAppointment.actualStartTime =
                       DateTime(date.year, date.month, date.day);
                 }
@@ -1213,11 +1210,11 @@ class AppointmentHelper {
     return appointmentColl;
   }
 
-  static CalendarAppointment _cloneRecurrenceAppointment(
-      CalendarAppointment appointment,
+  static CalendarAppointment<T> _cloneRecurrenceAppointment<T>(
+      CalendarAppointment<T> appointment,
       DateTime recursiveDate,
       String? calendarTimeZone) {
-    final CalendarAppointment occurrenceAppointment = _copy(appointment);
+    final CalendarAppointment<T> occurrenceAppointment = _copy(appointment);
     occurrenceAppointment.actualStartTime = recursiveDate;
     occurrenceAppointment.startTime = occurrenceAppointment.isAllDay
         ? occurrenceAppointment.actualStartTime
@@ -1229,9 +1226,8 @@ class AppointmentHelper {
     final int minutes =
         getDifference(appointment.actualStartTime, appointment.actualEndTime)
             .inMinutes;
-    occurrenceAppointment.actualEndTime = DateTimeHelper.getDateTimeValue(
-        addDuration(
-            occurrenceAppointment.actualStartTime, Duration(minutes: minutes)));
+    occurrenceAppointment.actualEndTime = addDuration(
+        occurrenceAppointment.actualStartTime, Duration(minutes: minutes));
     occurrenceAppointment.endTime = occurrenceAppointment.isAllDay
         ? occurrenceAppointment.actualEndTime
         : convertTimeToAppointmentTimeZone(occurrenceAppointment.actualEndTime,
@@ -1250,30 +1246,29 @@ class AppointmentHelper {
 
   /// Generate the calendar appointment collection from custom appointment
   /// collection.
-  static List<CalendarAppointment> generateCalendarAppointments(
-      CalendarDataSource? calendarData, String? calendarTimeZone,
-      [List<dynamic>? appointments]) {
-    final List<CalendarAppointment> calendarAppointmentCollection =
-        <CalendarAppointment>[];
+  static List<CalendarAppointment<T>> generateCalendarAppointments<T>(
+      CalendarDataSource<T>? calendarData, String? calendarTimeZone,
+      [List<T>? appointments]) {
+    final List<CalendarAppointment<T>> calendarAppointmentCollection =
+        <CalendarAppointment<T>>[];
     if (calendarData == null) {
       return calendarAppointmentCollection;
     }
 
-    final List<dynamic>? dataSource = appointments ?? calendarData.appointments;
+    final List<T>? dataSource = appointments ?? calendarData.appointments;
     if (dataSource == null) {
       return calendarAppointmentCollection;
     }
 
-    if (dataSource.isNotEmpty && dataSource[0] is CalendarAppointment) {
+    if (T == CalendarAppointment) {
       for (int i = 0; i < dataSource.length; i++) {
-        final dynamic dataSourceItem = dataSource[i];
-        late final CalendarAppointment item;
-        if (dataSourceItem is CalendarAppointment) {
-          item = dataSourceItem;
-        }
+        final CalendarAppointment<CalendarAppointment<dynamic>> dataSourceItem =
+            dataSource[i] as CalendarAppointment<CalendarAppointment<dynamic>>;
+        final CalendarAppointment<T> item =
+            dataSourceItem as CalendarAppointment<T>;
         final DateTime appStartTime = item.startTime;
         final DateTime appEndTime = item.endTime;
-        item.data = item;
+        item.data = dataSourceItem as T;
         item.actualStartTime = !item.isAllDay
             ? convertTimeToAppointmentTimeZone(
                 item.startTime, item.startTimeZone, calendarTimeZone)
@@ -1282,7 +1277,7 @@ class AppointmentHelper {
             ? convertTimeToAppointmentTimeZone(
                 item.endTime, item.endTimeZone, calendarTimeZone)
             : item.endTime;
-        _updateTimeForInvalidEndTime(item, calendarTimeZone);
+        _updateTimeForInvalidEndTime<T>(item, calendarTimeZone);
         calendarAppointmentCollection.add(item);
 
         item.isSpanned = _isSpanned(item) &&
@@ -1290,8 +1285,8 @@ class AppointmentHelper {
       }
     } else {
       for (int i = 0; i < dataSource.length; i++) {
-        final dynamic item = dataSource[i];
-        final CalendarAppointment app =
+        final T item = dataSource[i];
+        final CalendarAppointment<T> app =
             _createAppointment(item, calendarData, calendarTimeZone);
 
         final DateTime appStartTime = app.startTime;
@@ -1305,46 +1300,49 @@ class AppointmentHelper {
     return calendarAppointmentCollection;
   }
 
-  static CalendarAppointment _createAppointment(Object appointmentObject,
-      CalendarDataSource calendarData, String? calendarTimeZone) {
-    CalendarAppointment app;
+  static CalendarAppointment<T> _createAppointment<T>(T appointmentObject,
+      CalendarDataSource<T> calendarData, String? calendarTimeZone) {
+    CalendarAppointment<T> app;
     if (appointmentObject is Appointment) {
-      app = CalendarAppointment(
-          startTime: appointmentObject.startTime,
-          endTime: appointmentObject.endTime,
-          subject: appointmentObject.subject,
-          isAllDay: appointmentObject.isAllDay,
-          color: appointmentObject.color,
-          notes: appointmentObject.notes,
-          location: appointmentObject.location,
-          startTimeZone: appointmentObject.startTimeZone,
-          endTimeZone: appointmentObject.endTimeZone,
-          recurrenceRule: appointmentObject.recurrenceRule,
-          recurrenceExceptionDates: appointmentObject.recurrenceExceptionDates,
-          resourceIds: appointmentObject.resourceIds,
-          recurrenceId: appointmentObject.recurrenceId,
-          id: appointmentObject.id);
+      app = CalendarAppointment<T>(
+        startTime: appointmentObject.startTime,
+        endTime: appointmentObject.endTime,
+        subject: appointmentObject.subject,
+        isAllDay: appointmentObject.isAllDay,
+        color: appointmentObject.color,
+        notes: appointmentObject.notes,
+        location: appointmentObject.location,
+        startTimeZone: appointmentObject.startTimeZone,
+        endTimeZone: appointmentObject.endTimeZone,
+        recurrenceRule: appointmentObject.recurrenceRule,
+        recurrenceExceptionDates: appointmentObject.recurrenceExceptionDates,
+        resourceIds: appointmentObject.resourceIds,
+        recurrenceId: appointmentObject.recurrenceId,
+        id: appointmentObject.id,
+        data: appointmentObject,
+      );
     } else {
       final int index = calendarData.appointments!.indexOf(appointmentObject);
-      app = CalendarAppointment(
-          startTime: calendarData.getStartTime(index),
-          endTime: calendarData.getEndTime(index),
-          subject: calendarData.getSubject(index),
-          isAllDay: calendarData.isAllDay(index),
-          color: calendarData.getColor(index),
-          notes: calendarData.getNotes(index),
-          location: calendarData.getLocation(index),
-          startTimeZone: calendarData.getStartTimeZone(index),
-          endTimeZone: calendarData.getEndTimeZone(index),
-          recurrenceRule: calendarData.getRecurrenceRule(index),
-          recurrenceExceptionDates:
-              calendarData.getRecurrenceExceptionDates(index),
-          resourceIds: calendarData.getResourceIds(index),
-          recurrenceId: calendarData.getRecurrenceId(index),
-          id: calendarData.getId(index));
+      app = CalendarAppointment<T>(
+        startTime: calendarData.getStartTime(index),
+        endTime: calendarData.getEndTime(index),
+        subject: calendarData.getSubject(index),
+        isAllDay: calendarData.isAllDay(index),
+        color: calendarData.getColor(index),
+        notes: calendarData.getNotes(index),
+        location: calendarData.getLocation(index),
+        startTimeZone: calendarData.getStartTimeZone(index),
+        endTimeZone: calendarData.getEndTimeZone(index),
+        recurrenceRule: calendarData.getRecurrenceRule(index),
+        recurrenceExceptionDates:
+            calendarData.getRecurrenceExceptionDates(index),
+        resourceIds: calendarData.getResourceIds(index),
+        recurrenceId: calendarData.getRecurrenceId(index),
+        id: calendarData.getId(index),
+        data: appointmentObject,
+      );
     }
 
-    app.data = appointmentObject;
     app.actualStartTime = !app.isAllDay
         ? convertTimeToAppointmentTimeZone(
             app.startTime, app.startTimeZone, calendarTimeZone)
@@ -1353,12 +1351,12 @@ class AppointmentHelper {
         ? convertTimeToAppointmentTimeZone(
             app.endTime, app.endTimeZone, calendarTimeZone)
         : app.endTime;
-    _updateTimeForInvalidEndTime(app, calendarTimeZone);
+    _updateTimeForInvalidEndTime<T>(app, calendarTimeZone);
     return app;
   }
 
-  static void _updateTimeForInvalidEndTime(
-      CalendarAppointment appointment, String? scheduleTimeZone) {
+  static void _updateTimeForInvalidEndTime<T>(
+      CalendarAppointment<T> appointment, String? scheduleTimeZone) {
     if (appointment.actualEndTime.isBefore(appointment.actualStartTime) &&
         !appointment.isAllDay) {
       appointment.endTime = convertTimeToAppointmentTimeZone(
@@ -1372,9 +1370,9 @@ class AppointmentHelper {
     }
   }
 
-  static void _getRecurrenceAppointments(
-      CalendarAppointment appointment,
-      List<CalendarAppointment> appointments,
+  static void _getRecurrenceAppointments<T>(
+      CalendarAppointment<T> appointment,
+      List<CalendarAppointment<T>> appointments,
       DateTime visibleStartDate,
       DateTime visibleEndDate,
       String? scheduleTimeZone) {
@@ -1436,8 +1434,8 @@ class AppointmentHelper {
         }
       }
 
-      final CalendarAppointment occurrenceAppointment =
-          _cloneRecurrenceAppointment(
+      final CalendarAppointment<T> occurrenceAppointment =
+          _cloneRecurrenceAppointment<T>(
               appointment, recursiveDate, scheduleTimeZone);
 
       /// Here we used isOccurrenceAppointment keyword to identify the

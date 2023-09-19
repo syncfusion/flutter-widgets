@@ -7,7 +7,6 @@ import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../../calendar.dart';
-import '../appointment_engine/appointment_helper.dart';
 import 'date_time_engine.dart';
 
 /// All day appointment height
@@ -15,8 +14,8 @@ const double kAllDayAppointmentHeight = 20;
 
 /// Signature for callback that used to get and update the calendar
 /// state details.
-typedef UpdateCalendarState = void Function(
-    UpdateCalendarStateDetails updateCalendarStateDetails);
+typedef UpdateCalendarState<T> = void Function(
+    UpdateCalendarStateDetails<T> updateCalendarStateDetails);
 
 //// Extra small devices (phones, 600px and down)
 //// @media only screen and (max-width: 600px) {...}
@@ -332,7 +331,8 @@ class CalendarViewHelper {
 
   /// Return the appointment semantics text for the all the appointment
   /// views(all day panel, time slot panel, agenda view).
-  static String getAppointmentSemanticsText(CalendarAppointment appointment) {
+  static String getAppointmentSemanticsText<T>(
+      CalendarAppointment<T> appointment) {
     if (appointment.isAllDay) {
       return '${appointment.subject}All day';
     } else if (appointment.isSpanned ||
@@ -436,13 +436,9 @@ class CalendarViewHelper {
   }
 
   /// Check both the time slot date values are same or not.
-  static bool isSameTimeSlot(DateTime? date1, DateTime? date2) {
+  static bool isSameTimeSlot(DateTime date1, DateTime date2) {
     if (date1 == date2) {
       return true;
-    }
-
-    if (date1 == null || date2 == null) {
-      return false;
     }
 
     return isSameDate(date1, date2) &&
@@ -535,13 +531,13 @@ class CalendarViewHelper {
   }
 
   /// method to check whether the on tap callback can triggered or not.
-  static bool shouldRaiseCalendarTapCallback(CalendarTapCallback? onTap) {
+  static bool shouldRaiseCalendarTapCallback<T>(CalendarTapCallback<T>? onTap) {
     return onTap != null;
   }
 
   /// method to check whether the long press callback can triggered or not.
-  static bool shouldRaiseCalendarLongPressCallback(
-      CalendarLongPressCallback? onLongPress) {
+  static bool shouldRaiseCalendarLongPressCallback<T>(
+      CalendarLongPressCallback<T>? onLongPress) {
     return onLongPress != null;
   }
 
@@ -553,73 +549,74 @@ class CalendarViewHelper {
 
   /// Method to check whether the appointment resize start callback can trigger
   /// or not.
-  static bool shouldRaiseAppointmentResizeStartCallback(
-      AppointmentResizeStartCallback? onAppointmentResizeStart) {
+  static bool shouldRaiseAppointmentResizeStartCallback<T>(
+      AppointmentResizeStartCallback<T>? onAppointmentResizeStart) {
     return onAppointmentResizeStart != null;
   }
 
   /// Method to check whether the appointment resize update callback can trigger
   /// or not.
-  static bool shouldRaiseAppointmentResizeUpdateCallback(
-      AppointmentResizeUpdateCallback? onAppointmentResizeUpdate) {
+  static bool shouldRaiseAppointmentResizeUpdateCallback<T>(
+      AppointmentResizeUpdateCallback<T>? onAppointmentResizeUpdate) {
     return onAppointmentResizeUpdate != null;
   }
 
   /// Method to check whether the appointment resize end callback can trigger
   /// or not.
-  static bool shouldRaiseAppointmentResizeEndCallback(
-      AppointmentResizeEndCallback? onAppointmentResizeEnd) {
+  static bool shouldRaiseAppointmentResizeEndCallback<T>(
+      AppointmentResizeEndCallback<T>? onAppointmentResizeEnd) {
     return onAppointmentResizeEnd != null;
   }
 
   /// method that raise the calendar tapped callback with the given parameters
-  static void raiseCalendarTapCallback(
-      SfCalendar calendar,
+  static void raiseCalendarTapCallback<T>(
+      SfCalendar<T> calendar,
       DateTime? date,
-      List<dynamic>? appointments,
+      List<T>? appointments,
       CalendarElement element,
       CalendarResource? resource) {
-    calendar.onTap!(CalendarTapDetails(appointments, date, element, resource));
+    calendar
+        .onTap!(CalendarTapDetails<T>(appointments, date, element, resource));
   }
 
   /// Method that raise the calendar long press callback with given parameters.
-  static void raiseCalendarLongPressCallback(
-      SfCalendar calendar,
+  static void raiseCalendarLongPressCallback<T>(
+      SfCalendar<T> calendar,
       DateTime? date,
-      List<dynamic>? appointments,
+      List<T>? appointments,
       CalendarElement element,
       CalendarResource? resource) {
     calendar.onLongPress!(
-        CalendarLongPressDetails(appointments, date, element, resource));
+        CalendarLongPressDetails<T>(appointments, date, element, resource));
   }
 
   /// method that raise the calendar selection changed callback
   /// with the given parameters
-  static void raiseCalendarSelectionChangedCallback(
-      SfCalendar calendar, DateTime? date, CalendarResource? resource) {
+  static void raiseCalendarSelectionChangedCallback<T>(
+      SfCalendar<T> calendar, DateTime? date, CalendarResource? resource) {
     calendar.onSelectionChanged!(CalendarSelectionDetails(date, resource));
   }
 
   /// method that raises the visible dates changed callback with the given
   /// parameters
-  static void raiseViewChangedCallback(
-      SfCalendar calendar, List<DateTime> visibleDates) {
+  static void raiseViewChangedCallback<T>(
+      SfCalendar<T> calendar, List<DateTime> visibleDates) {
     calendar.onViewChanged!(ViewChangedDetails(visibleDates));
   }
 
   /// Method  that raises the appointment resize start callback with the given
   /// parameters.
-  static void raiseAppointmentResizeStartCallback(
-      SfCalendar calendar, dynamic appointment, CalendarResource? resource) {
+  static void raiseAppointmentResizeStartCallback<T>(
+      SfCalendar<T> calendar, T appointment, CalendarResource? resource) {
     calendar.onAppointmentResizeStart!(
         AppointmentResizeStartDetails(appointment, resource));
   }
 
   /// Method  that raises the appointment resize update callback with the given
   /// parameters.
-  static void raiseAppointmentResizeUpdateCallback(
-      SfCalendar calendar,
-      dynamic appointment,
+  static void raiseAppointmentResizeUpdateCallback<T>(
+      SfCalendar<T> calendar,
+      T appointment,
       CalendarResource? resource,
       DateTime? resizingTime,
       Offset resizingOffset) {
@@ -629,9 +626,9 @@ class CalendarViewHelper {
 
   /// Method  that raises the appointment resize end callback with the given
   /// parameters.
-  static void raiseAppointmentResizeEndCallback(
-      SfCalendar calendar,
-      dynamic appointment,
+  static void raiseAppointmentResizeEndCallback<T>(
+      SfCalendar<T> calendar,
+      T appointment,
       CalendarResource? resource,
       DateTime? startTime,
       DateTime? endTime) {
@@ -658,33 +655,34 @@ class CalendarViewHelper {
 
   /// converts the given schedule appointment collection to their custom
   /// appointment collection
-  static List<dynamic> getCustomAppointments(
-      List<CalendarAppointment>? appointments, CalendarDataSource? dataSource) {
-    final List<dynamic> customAppointments = <dynamic>[];
+  static List<T> getCustomAppointments<T>(
+      List<CalendarAppointment<T>>? appointments,
+      CalendarDataSource<T> dataSource) {
+    final List<T> customAppointments = <T>[];
     if (appointments == null) {
       return customAppointments;
     }
 
     for (int i = 0; i < appointments.length; i++) {
-      customAppointments.add(getAppointmentDetail(appointments[i], dataSource));
+      customAppointments
+          .add(getAppointmentDetail<T>(appointments[i], dataSource));
     }
 
     return customAppointments;
   }
 
   /// Returns the appointment details with given appointment type.
-  static dynamic getAppointmentDetail(
-      CalendarAppointment appointment, CalendarDataSource? dataSource) {
+  static T getAppointmentDetail<T>(
+      CalendarAppointment<T> appointment, CalendarDataSource<T> dataSource) {
     if (appointment.recurrenceRule != null &&
         appointment.recurrenceRule!.isNotEmpty) {
       final Appointment appointmentObject =
           appointment.convertToCalendarAppointment();
-      if (appointment.data is Appointment) {
-        return appointmentObject;
+      if (T == Appointment) {
+        return appointmentObject as T;
       } else {
-        return dataSource!.convertAppointmentToObject(
-                appointment.data, appointmentObject) ??
-            appointmentObject;
+        return dataSource.convertAppointmentToObject(
+            appointment.data, appointmentObject);
       }
     } else {
       return appointment.data;
@@ -707,9 +705,9 @@ class CalendarViewHelper {
   static bool isDateTimeWithInDateTimeRange(
       DateTime startDate, DateTime endDate, DateTime date, int timeInterval) {
     if (startDate.isAfter(endDate)) {
-      final dynamic temp = startDate;
+      final DateTime temp = startDate;
       startDate = endDate;
-      endDate = DateTimeHelper.getDateTimeValue(temp);
+      endDate = temp;
     }
 
     if (isSameOrBeforeDateTime(endDate, date) &&
@@ -741,8 +739,8 @@ class CalendarViewHelper {
   }
 
   /// Method to switch the views based on the keyboard interaction.
-  static KeyEventResult handleViewSwitchKeyBoardEvent(RawKeyEvent event,
-      CalendarController controller, List<CalendarView>? allowedViews) {
+  static KeyEventResult handleViewSwitchKeyBoardEvent<T>(RawKeyEvent event,
+      CalendarController<T> controller, List<CalendarView>? allowedViews) {
     /// Ctrl + and Ctrl - used by browser to zoom the page, hence as referred
     /// EJ2 scheduler, we have used alt + numeric to switch between views in
     /// calendar web and windows
@@ -856,7 +854,7 @@ class CalendarViewHelper {
 
 /// Args to get and update the required properties from calendar state to it's
 /// children's
-class UpdateCalendarStateDetails {
+class UpdateCalendarStateDetails<T> {
   /// Holds the current display date of calendar.
   DateTime? currentDate;
 
@@ -864,7 +862,7 @@ class UpdateCalendarStateDetails {
   List<DateTime> currentViewVisibleDates = <DateTime>[];
 
   /// Holds the current visible appointment collections of calendar.
-  List<CalendarAppointment> visibleAppointments = <CalendarAppointment>[];
+  List<CalendarAppointment<T>> visibleAppointments = <CalendarAppointment<T>>[];
 
   /// Holds the current selected date of calendar.
   DateTime? selectedDate;
@@ -873,10 +871,11 @@ class UpdateCalendarStateDetails {
   double allDayPanelHeight = 0;
 
   /// Holds the all day panel appointment view collection.
-  List<AppointmentView> allDayAppointmentViewCollection = <AppointmentView>[];
+  List<AppointmentView<T>> allDayAppointmentViewCollection =
+      <AppointmentView<T>>[];
 
   /// Holds the calendar appointments details.
-  List<CalendarAppointment> appointments = <CalendarAppointment>[];
+  List<CalendarAppointment<T>> appointments = <CalendarAppointment<T>>[];
 }
 
 /// Holds the time region view rendering details.
@@ -895,7 +894,7 @@ class TimeRegionView {
 }
 
 /// Holds the appointment view rendering details.
-class AppointmentView {
+class AppointmentView<T> {
   /// Decides the appointment view occupied or not.
   bool canReuse = true;
 
@@ -906,7 +905,7 @@ class AppointmentView {
   int endIndex = -1;
 
   /// Holds the appointment details
-  CalendarAppointment? appointment;
+  CalendarAppointment<T>? appointment;
 
   /// Defines the rendering position of the appointment view.
   int position = -1;
@@ -924,8 +923,8 @@ class AppointmentView {
   int resourceIndex = -1;
 
   /// Clones and return new instance of the appointment view.
-  AppointmentView clone() {
-    return AppointmentView()
+  AppointmentView<T> clone() {
+    return AppointmentView<T>()
       ..appointmentRect = appointmentRect
       ..appointment = appointment
       ..canReuse = canReuse
@@ -942,7 +941,7 @@ class AppointmentView {
 ///
 /// An object that contains properties to hold the detailed information about
 /// the data, which will be rendered in [SfCalendar].
-class CalendarAppointment {
+class CalendarAppointment<T> {
   /// Constructor to creates an appointment data for [SfCalendar].
   CalendarAppointment({
     this.startTimeZone,
@@ -954,6 +953,7 @@ class CalendarAppointment {
     this.resourceIds,
     this.recurrenceId,
     this.id,
+    required this.data,
     required this.startTime,
     required this.endTime,
     this.subject = '',
@@ -1039,7 +1039,7 @@ class CalendarAppointment {
   Object? id;
 
   /// Holds the parent appointment details
-  Object? data;
+  T data;
 
   /// Store the appointment start date value based on start timezone value.
   DateTime actualStartTime;
@@ -1072,6 +1072,8 @@ class CalendarAppointment {
     return Appointment(
         startTime: startTime,
         endTime: endTime,
+        exactStartTime: exactStartTime,
+        exactEndTime: exactEndTime,
         subject: subject,
         color: color,
         recurrenceRule: recurrenceRule,
@@ -1096,8 +1098,8 @@ class CalendarAppointment {
       return false;
     }
 
-    late final CalendarAppointment otherAppointment;
-    if (other is CalendarAppointment) {
+    late final CalendarAppointment<T> otherAppointment;
+    if (other is CalendarAppointment<T>) {
       otherAppointment = other;
     }
 
@@ -1328,12 +1330,12 @@ class ScheduleViewHoveringDetails {
 /// if all day panel appointment selected then [appointmentView] holds
 /// appointment details, else [selectedDate] holds selected region date value.
 @immutable
-class SelectionDetails {
+class SelectionDetails<T> {
   /// Constructor to create the selection details.
   const SelectionDetails(this.appointmentView, this.selectedDate);
 
   /// Holds the selected appointment view details.
-  final AppointmentView? appointmentView;
+  final AppointmentView<T>? appointmentView;
 
   /// Holds the selected date details.
   final DateTime? selectedDate;
