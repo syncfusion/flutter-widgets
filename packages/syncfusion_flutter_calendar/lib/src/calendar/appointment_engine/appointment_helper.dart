@@ -31,7 +31,7 @@ class AppointmentHelper {
 
   /// Return the end date of the month specified in date.
   static DateTime getMonthEndDate(DateTime date) {
-    return addDays(getNextMonthDate(date), -1);
+    return addDays<DateTime>(getNextMonthDate<DateTime>(date), -1);
   }
 
   /// Return the difference duration between two date time values without
@@ -48,7 +48,7 @@ class AppointmentHelper {
   /// Return the date time value by adding the days in date.
   static DateTime addDaysWithTime(
       DateTime date, int days, int hour, int minute, int second) {
-    final DateTime newDate = addDays(date, days);
+    final DateTime newDate = addDays<DateTime>(date, days);
     return DateTime(
         newDate.year, newDate.month, newDate.day, hour, minute, second);
   }
@@ -1122,7 +1122,7 @@ class AppointmentHelper {
                 if (i == 0) {
                   spannedAppointment.actualStartTime =
                       appointment.actualStartTime;
-                  final DateTime date = addDays(startDate, -1);
+                  final DateTime date = addDays<DateTime>(startDate, -1);
                   spannedAppointment.actualEndTime =
                       DateTime(date.year, date.month, date.day, 23, 59, 59);
                 } else {
@@ -1161,7 +1161,7 @@ class AppointmentHelper {
                 final CalendarAppointment<T> spannedAppointment =
                     _copy(appointment);
                 if (i == 0) {
-                  final DateTime date = addDays(startDate, -1);
+                  final DateTime date = addDays<DateTime>(startDate, -1);
                   spannedAppointment.actualEndTime =
                       DateTime(date.year, date.month, date.day, 23, 59, 59);
                 } else if (i == 1) {
@@ -1170,7 +1170,7 @@ class AppointmentHelper {
                   spannedAppointment.actualEndTime = DateTime(
                       endDate.year, endDate.month, endDate.day, 23, 59, 59);
                 } else {
-                  final DateTime date = addDays(endDate, 1);
+                  final DateTime date = addDays<DateTime>(endDate, 1);
                   spannedAppointment.actualStartTime =
                       DateTime(date.year, date.month, date.day);
                 }

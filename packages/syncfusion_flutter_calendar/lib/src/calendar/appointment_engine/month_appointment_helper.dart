@@ -312,7 +312,7 @@ class MonthAppointmentHelper {
       }
     }
 
-    final DateTime endDateTime = addDays(dateTime, 6);
+    final DateTime endDateTime = addDays<DateTime>(dateTime, 6);
     int currentViewIndex = 0;
     while (
         dateTime.isBefore(endDateTime) || isSameDate(dateTime, endDateTime)) {
@@ -321,7 +321,7 @@ class MonthAppointmentHelper {
       }
 
       currentViewIndex++;
-      dateTime = addDays(dateTime, 1);
+      dateTime = addDays<DateTime>(dateTime, 1);
     }
 
     return -1;

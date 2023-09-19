@@ -889,8 +889,9 @@ class _MonthViewRenderObject<T> extends CustomCalendarRenderObject {
     _textPainter.textScaleFactor = textScaleFactor;
     final int visibleDatesCount = visibleDates.length;
     final DateTime currentMonthDate = visibleDates[visibleDatesCount ~/ 2];
-    final int nextMonth = getNextMonthDate(currentMonthDate).month;
-    final int previousMonth = getPreviousMonthDate(currentMonthDate).month;
+    final int nextMonth = getNextMonthDate<DateTime>(currentMonthDate).month;
+    final int previousMonth =
+        getPreviousMonthDate<DateTime>(currentMonthDate).month;
     final DateTime today = DateTime.now();
     bool isCurrentDate;
 
