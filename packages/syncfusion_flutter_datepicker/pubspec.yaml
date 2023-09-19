@@ -39,7 +39,7 @@ dependency_overrides:
   syncfusion_flutter_core:
     git:
       url: https://github.com/DrBu7cher/syncfusion-flutter-widgets.git
-      ref: 67a04e5e8e061f60702666a0d22c58f75088283e
+      ref: 612f2a4d441bf2872a9e76646077e1ea2f8d370f
       path: packages/syncfusion_flutter_core
 
 dev_dependencies:
