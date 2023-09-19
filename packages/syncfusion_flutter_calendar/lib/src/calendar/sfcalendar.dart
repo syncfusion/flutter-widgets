@@ -2796,7 +2796,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
     _selectedDate = _controller.selectedDate;
     _agendaSelectedDate = ValueNotifier<DateTime?>(_selectedDate);
     _agendaSelectedDate.addListener(_agendaSelectedDateListener);
-    _currentDate = getValidDate(widget.minDate, widget.maxDate,
+    _currentDate = getValidDate<DateTime>(widget.minDate, widget.maxDate,
         _controller.displayDate ?? widget.initialDisplayDate);
     _controller.displayDate = _currentDate;
     _scheduleDisplayDate = _controller.displayDate!;
@@ -2873,7 +2873,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
         _controller.view = widget.controller!.view ?? _view;
       } else {
         _controller.selectedDate = widget.initialSelectedDate;
-        _currentDate = getValidDate(
+        _currentDate = getValidDate<DateTime>(
             widget.minDate, widget.maxDate, widget.initialDisplayDate);
         _controller.displayDate = _currentDate;
         _controller.view = widget.view;
@@ -2894,7 +2894,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           _view != widget.controller!.view) {
         final CalendarView oldView = _view;
         _view = _controller.view ?? widget.view;
-        _currentDate = getValidDate(
+        _currentDate = getValidDate<DateTime>(
             widget.minDate, widget.maxDate, _updateCurrentDate(oldView));
         _canScrollTimeSlotView = false;
         _controller.displayDate = _currentDate;
@@ -2927,7 +2927,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
         widget.controller != null &&
         oldWidget.controller!.displayDate != widget.controller!.displayDate) {
       if (_controller.displayDate != null) {
-        _currentDate = getValidDate(
+        _currentDate = getValidDate<DateTime>(
             widget.minDate, widget.maxDate, _controller.displayDate!);
       }
 
@@ -2972,7 +2972,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
 
     if (widget.monthViewSettings.numberOfWeeksInView !=
         oldWidget.monthViewSettings.numberOfWeeksInView) {
-      _currentDate = getValidDate(
+      _currentDate = getValidDate<DateTime>(
           widget.minDate, widget.maxDate, _updateCurrentDate(_view));
       _controller.displayDate = _currentDate;
       if (_view == CalendarView.schedule) {
@@ -3019,17 +3019,18 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
 
     if (oldWidget.minDate != widget.minDate ||
         oldWidget.maxDate != widget.maxDate) {
-      _currentDate = getValidDate(widget.minDate, widget.maxDate, _currentDate);
+      _currentDate =
+          getValidDate<DateTime>(widget.minDate, widget.maxDate, _currentDate);
       if (_view == CalendarView.schedule) {
         _minDate = null;
         _maxDate = null;
         if (widget.loadMoreWidgetBuilder != null &&
             _scheduleMinDate != null &&
             _scheduleMaxDate != null) {
-          _scheduleMinDate =
-              getValidDate(widget.minDate, widget.maxDate, _scheduleMinDate!);
-          _scheduleMaxDate =
-              getValidDate(widget.minDate, widget.maxDate, _scheduleMaxDate!);
+          _scheduleMinDate = getValidDate<DateTime>(
+              widget.minDate, widget.maxDate, _scheduleMinDate!);
+          _scheduleMaxDate = getValidDate<DateTime>(
+              widget.minDate, widget.maxDate, _scheduleMaxDate!);
         }
       }
     }
@@ -3310,15 +3311,15 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
     /// by subtract the 7 days to get previous date.
     final DateTime prevDate = yPosition >= 0 && index == 0
         ? _previousDates.isEmpty
-            ? addDays(startDate, -DateTime.daysPerWeek)
+            ? addDays<DateTime>(startDate, -DateTime.daysPerWeek)
             : _previousDates[0]
         : (yPosition >= 0 && index > 0
             ? _nextDates[index - 1]
             : index >= _previousDates.length - 1
-                ? addDays(startDate, -DateTime.daysPerWeek)
+                ? addDays<DateTime>(startDate, -DateTime.daysPerWeek)
                 : _previousDates[index + 1]);
-    final DateTime prevEndDate = addDays(prevDate, 6);
-    final DateTime endDate = addDays(startDate, 6);
+    final DateTime prevEndDate = addDays<DateTime>(prevDate, 6);
+    final DateTime endDate = addDays<DateTime>(startDate, 6);
 
     /// Get the visible week appointment and split the appointments based on
     /// date.
@@ -4125,11 +4126,11 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           /// update the header view date with latest date.
           if (interSectionPoint != -1 &&
               scrolledPosition >= interSectionPoint) {
-            date = addDays(date, 6);
+            date = addDays<DateTime>(date, 6);
           }
 
           final DateTime currentViewDate =
-              getValidDate(widget.minDate, widget.maxDate, date);
+              getValidDate<DateTime>(widget.minDate, widget.maxDate, date);
           _currentDate = currentViewDate;
           if (currentViewDate.month != _headerUpdateNotifier.value!.month ||
               currentViewDate.year != _headerUpdateNotifier.value!.year) {
@@ -4164,11 +4165,11 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           /// update the header view date with latest date.
           if (interSectionPoint != -1 &&
               -scrolledPosition <= interSectionPoint) {
-            date = addDays(date, 6);
+            date = addDays<DateTime>(date, 6);
           }
 
           final DateTime currentViewDate =
-              getValidDate(widget.minDate, widget.maxDate, date);
+              getValidDate<DateTime>(widget.minDate, widget.maxDate, date);
           _currentDate = currentViewDate;
           if (currentViewDate.month != _headerUpdateNotifier.value!.month ||
               currentViewDate.year != _headerUpdateNotifier.value!.year) {
@@ -4261,7 +4262,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
       setState(() {
         final CalendarView oldView = _view;
         _view = _controller.view!;
-        _currentDate = getValidDate(
+        _currentDate = getValidDate<DateTime>(
             widget.minDate, widget.maxDate, _updateCurrentDate(oldView));
         if (_controller.displayDate == null ||
             !isSameDate(_currentDate, _controller.displayDate!)) {
@@ -4685,7 +4686,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
     for (int i = 0; i < _previousDates.length; i++) {
       final DateTime weekStartDate = _previousDates[i];
 
-      final DateTime weekEndDate = addDays(weekStartDate, 6);
+      final DateTime weekEndDate = addDays<DateTime>(weekStartDate, 6);
 
       /// Remove the week date when it does not have appointments
       /// when [hideEmptyAgendaDays] as enabled.
@@ -4702,7 +4703,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
     for (int i = 0; i < _nextDates.length; i++) {
       final DateTime weekStartDate = _nextDates[i];
 
-      final DateTime weekEndDate = addDays(weekStartDate, 6);
+      final DateTime weekEndDate = addDays<DateTime>(weekStartDate, 6);
 
       /// Remove the week date when it does not have appointments
       /// when [hideEmptyAgendaDays] as enabled.
@@ -5513,7 +5514,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
         dateAppointments[startDate] = appointmentList;
       }
 
-      startDate = addDays(startDate, 1);
+      startDate = addDays<DateTime>(startDate, 1);
     }
 
     return dateAppointments;
@@ -5559,8 +5560,8 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           : _minDate;
       _minDate = _minDate!.isBefore(widget.minDate) ? widget.minDate : _minDate;
 
-      final DateTime viewMinDate =
-          addDays(_minDate!, -(_minDate!.weekday % DateTime.daysPerWeek));
+      final DateTime viewMinDate = addDays<DateTime>(
+          _minDate!, -(_minDate!.weekday % DateTime.daysPerWeek));
 
       /// Get the maximum date of schedule view when it value as null
       /// It return max date user assigned when the [hideEmptyScheduleWeek]
@@ -5597,7 +5598,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           while (count < 20) {
             for (int i = 1; i <= 100; i++) {
               final DateTime updateDate =
-                  addDays(date, i * DateTime.daysPerWeek);
+                  addDays<DateTime>(date, i * DateTime.daysPerWeek);
 
               /// Skip the weeks after the max date.
               if (!isSameOrBeforeDate(_maxDate!, updateDate)) {
@@ -5605,7 +5606,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
                 break;
               }
 
-              final DateTime weekEndDate = addDays(updateDate, 6);
+              final DateTime weekEndDate = addDays<DateTime>(updateDate, 6);
 
               /// Skip the week date when it does not have appointments
               /// when [hideEmptyAgendaDays] as enabled and display date and
@@ -5622,7 +5623,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
               }
             }
 
-            date = addDays(date, 700);
+            date = addDays<DateTime>(date, 700);
           }
         }
       }
@@ -5639,7 +5640,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           while (count < 20) {
             for (int i = 1; i <= 100; i++) {
               final DateTime updatedDate =
-                  addDays(date, -i * DateTime.daysPerWeek);
+                  addDays<DateTime>(date, -i * DateTime.daysPerWeek);
 
               /// Skip the weeks before the min date.
               if (!isSameOrAfterDate(viewMinDate, updatedDate)) {
@@ -5647,7 +5648,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
                 break;
               }
 
-              final DateTime weekEndDate = addDays(updatedDate, 6);
+              final DateTime weekEndDate = addDays<DateTime>(updatedDate, 6);
 
               /// Skip the week date when it does not have appointments
               /// when [hideEmptyAgendaDays] as enabled and display date and
@@ -5664,7 +5665,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
               }
             }
 
-            date = addDays(date, -700);
+            date = addDays<DateTime>(date, -700);
           }
         }
       }
@@ -5688,15 +5689,15 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
     /// by subtract the 7 days to get previous date.
     final DateTime prevDate = index == 0
         ? _previousDates.isEmpty
-            ? addDays(startDate, -DateTime.daysPerWeek)
+            ? addDays<DateTime>(startDate, -DateTime.daysPerWeek)
             : _previousDates[0]
         : (index > 0
             ? _nextDates[index - 1]
             : -index > _previousDates.length - 1
-                ? addDays(startDate, -DateTime.daysPerWeek)
+                ? addDays<DateTime>(startDate, -DateTime.daysPerWeek)
                 : _previousDates[-index]);
-    final DateTime prevEndDate = addDays(prevDate, 6);
-    final DateTime endDate = addDays(startDate, 6);
+    final DateTime prevEndDate = addDays<DateTime>(prevDate, 6);
+    final DateTime endDate = addDays<DateTime>(startDate, 6);
 
     bool initialMonthHeader = false;
     if (((index == 0 && _previousDates.isEmpty) ||
@@ -6700,8 +6701,8 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
       return Container();
     }
 
-    final DateTime scheduleDisplayDate =
-        getValidDate(widget.minDate, widget.maxDate, _scheduleDisplayDate);
+    final DateTime scheduleDisplayDate = getValidDate<DateTime>(
+        widget.minDate, widget.maxDate, _scheduleDisplayDate);
     final DateTime scheduleCurrentDate = DateTime.now();
     final DateTime currentMaxDate =
         scheduleDisplayDate.isAfter(scheduleCurrentDate)
@@ -6729,8 +6730,8 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
     _minDate = _minDate!.isAfter(currentMinDate) ? currentMinDate : _minDate;
     _minDate = _minDate!.isBefore(widget.minDate) ? widget.minDate : _minDate;
 
-    final DateTime viewMinDate =
-        addDays(_minDate!, -(_minDate!.weekday % DateTime.daysPerWeek));
+    final DateTime viewMinDate = addDays<DateTime>(
+        _minDate!, -(_minDate!.weekday % DateTime.daysPerWeek));
 
     /// Get the maximum date of schedule view when it value as null
     /// It return max date user assigned when the [hideEmptyAgendaDays]
@@ -6770,14 +6771,15 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
       /// collection as empty.
       DateTime date = _nextDates.isNotEmpty
           ? _nextDates[0]
-          : addDays(scheduleDisplayDate, value);
+          : addDays<DateTime>(scheduleDisplayDate, value);
       int count = 0;
 
       /// Using while for calculate dates because if [hideEmptyAgendaDays] as
       /// enabled, then it hides the weeks when it does not have appointments.
       while (count < 50) {
         for (int i = 1; i <= 100; i++) {
-          final DateTime updatedDate = addDays(date, -i * DateTime.daysPerWeek);
+          final DateTime updatedDate =
+              addDays<DateTime>(date, -i * DateTime.daysPerWeek);
 
           /// Skip week dates before min date
           if (!isSameOrAfterDate(viewMinDate, updatedDate)) {
@@ -6785,7 +6787,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
             break;
           }
 
-          final DateTime weekEndDate = addDays(updatedDate, 6);
+          final DateTime weekEndDate = addDays<DateTime>(updatedDate, 6);
 
           /// Skip the week date when it does not have appointments
           /// when [hideEmptyAgendaDays] as enabled.
@@ -6824,20 +6826,21 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           count++;
         }
 
-        date = addDays(date, -700);
+        date = addDays<DateTime>(date, -700);
       }
     }
 
     if (_nextDates.isEmpty) {
       /// Calculate the start date from display date
-      DateTime date = addDays(scheduleDisplayDate, value);
+      DateTime date = addDays<DateTime>(scheduleDisplayDate, value);
       int count = 0;
 
       /// Using while for calculate dates because if [hideEmptyAgendaDays] as
       /// enabled, then it hides the weeks when it does not have appointments.
       while (count < 50) {
         for (int i = 0; i < 100; i++) {
-          final DateTime updatedDate = addDays(date, i * DateTime.daysPerWeek);
+          final DateTime updatedDate =
+              addDays<DateTime>(date, i * DateTime.daysPerWeek);
 
           /// Skip week date after max date
           if (!isSameOrBeforeDate(_maxDate!, updatedDate)) {
@@ -6845,7 +6848,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
             break;
           }
 
-          final DateTime weekEndDate = addDays(updatedDate, 6);
+          final DateTime weekEndDate = addDays<DateTime>(updatedDate, 6);
 
           /// Skip the week date when it does not have appointments
           /// when [hideEmptyAgendaDays] as enabled.
@@ -6863,7 +6866,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           count++;
         }
 
-        date = addDays(date, 700);
+        date = addDays<DateTime>(date, 700);
       }
     }
 
@@ -6892,7 +6895,8 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
       /// previous view dates and calculate the same until the next view dates
       /// appointment fills the view port.
       DateTime viewStartDate = _nextDates[0];
-      DateTime viewEndDate = addDays(_nextDates[_nextDates.length - 1], 6);
+      DateTime viewEndDate =
+          addDays<DateTime>(_nextDates[_nextDates.length - 1], 6);
       List<CalendarAppointment<T>> appointmentCollection =
           AppointmentHelper.getVisibleAppointments(
               viewStartDate,
@@ -6911,7 +6915,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
 
       double labelHeight = 0;
       if (_useMobilePlatformUI) {
-        DateTime previousDate = addDays(viewStartDate, -1);
+        DateTime previousDate = addDays<DateTime>(viewStartDate, -1);
         for (int i = 0; i < _nextDates.length; i++) {
           final DateTime nextDate = _nextDates[i];
           if (previousDate.month != nextDate.month) {
@@ -6952,7 +6956,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           isNewDatesAdded = true;
 
           viewStartDate = currentDate;
-          viewEndDate = addDays(currentDate, 6);
+          viewEndDate = addDays<DateTime>(currentDate, 6);
 
           /// Calculate the newly added date appointment height and add
           /// the height to existing appointments height.
@@ -7000,8 +7004,8 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
       /// Update the header date because the next dates insert the previous view
       /// dates at initial position.
       if (_nextDates.isNotEmpty && isNewDatesAdded) {
-        _headerUpdateNotifier.value =
-            getValidDate(widget.minDate, widget.maxDate, _nextDates[0]);
+        _headerUpdateNotifier.value = getValidDate<DateTime>(
+            widget.minDate, widget.maxDate, _nextDates[0]);
       }
     }
 
@@ -7014,11 +7018,11 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
         _agendaScrollController!.initialScrollOffset == 0 &&
         !_agendaScrollController!.hasClients) {
       final DateTime viewStartDate = _nextDates[0];
-      final DateTime viewEndDate = addDays(viewStartDate, 6);
+      final DateTime viewEndDate = addDays<DateTime>(viewStartDate, 6);
       if (viewStartDate.isBefore(scheduleDisplayDate) &&
           !isSameDate(viewStartDate, scheduleDisplayDate) &&
           isSameOrBeforeDate(viewEndDate, scheduleDisplayDate)) {
-        final DateTime viewEndDate = addDays(scheduleDisplayDate, -1);
+        final DateTime viewEndDate = addDays<DateTime>(scheduleDisplayDate, -1);
 
         final double initialScrollPosition = _getInitialScrollPosition(
             viewStartDate,
@@ -7037,7 +7041,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
         double initialScrollPosition = 0;
         while (visibleStartDate.isBefore(scheduleDisplayDate) &&
             !isSameDate(visibleStartDate, scheduleDisplayDate)) {
-          final DateTime viewEndDate = addDays(visibleStartDate, 6);
+          final DateTime viewEndDate = addDays<DateTime>(visibleStartDate, 6);
           final DateTime appStartDate =
               isSameOrAfterDate(_minDate!, visibleStartDate)
                   ? visibleStartDate
@@ -7047,7 +7051,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
               : _maxDate!;
           if (appEndDate.isAfter(scheduleDisplayDate) ||
               isSameDate(appEndDate, scheduleDisplayDate)) {
-            appEndDate = addDays(scheduleDisplayDate, -1);
+            appEndDate = addDays<DateTime>(scheduleDisplayDate, -1);
           }
 
           initialScrollPosition += _getInitialScrollPosition(
@@ -7056,7 +7060,8 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
               scheduleCurrentDate,
               appointmentViewHeight,
               allDayAppointmentHeight);
-          visibleStartDate = addDays(visibleStartDate, DateTime.daysPerWeek);
+          visibleStartDate =
+              addDays<DateTime>(visibleStartDate, DateTime.daysPerWeek);
         }
 
         if (initialScrollPosition != 0) {
@@ -7268,8 +7273,8 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
       return Container();
     }
 
-    final DateTime scheduleDisplayDate =
-        getValidDate(widget.minDate, widget.maxDate, _scheduleDisplayDate);
+    final DateTime scheduleDisplayDate = getValidDate<DateTime>(
+        widget.minDate, widget.maxDate, _scheduleDisplayDate);
     final DateTime scheduleCurrentDate = DateTime.now();
 
     _scheduleMinDate ??= scheduleDisplayDate;
@@ -7281,8 +7286,8 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
       _maxDate = _scheduleMaxDate;
     }
 
-    final DateTime viewMinDate =
-        addDays(_minDate!, -(_minDate!.weekday % DateTime.daysPerWeek));
+    final DateTime viewMinDate = addDays<DateTime>(
+        _minDate!, -(_minDate!.weekday % DateTime.daysPerWeek));
 
     final double appointmentViewHeight =
         CalendarViewHelper.getScheduleAppointmentHeight(
@@ -7308,14 +7313,15 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           ? _previousDates[_previousDates.length - 1]
           : (_nextDates.isNotEmpty
               ? _nextDates[0]
-              : addDays(scheduleDisplayDate, value));
+              : addDays<DateTime>(scheduleDisplayDate, value));
       int count = 0;
 
       /// Using while for calculate dates because if [hideEmptyAgendaDays] as
       /// enabled, then it hides the weeks when it does not have appointments.
       while (count < 50) {
         for (int i = 1; i <= 100; i++) {
-          final DateTime updatedDate = addDays(date, -i * DateTime.daysPerWeek);
+          final DateTime updatedDate =
+              addDays<DateTime>(date, -i * DateTime.daysPerWeek);
 
           /// Skip week dates before min date
           if (!isSameOrAfterDate(viewMinDate, updatedDate)) {
@@ -7323,7 +7329,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
             break;
           }
 
-          final DateTime weekEndDate = addDays(updatedDate, 6);
+          final DateTime weekEndDate = addDays<DateTime>(updatedDate, 6);
 
           /// Skip the week date when it does not have appointments
           /// when [hideEmptyAgendaDays] as enabled.
@@ -7362,25 +7368,27 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           count++;
         }
 
-        date = addDays(date, -700);
+        date = addDays<DateTime>(date, -700);
       }
     }
 
-    final DateTime viewMaxDate = addDays(_maxDate!,
+    final DateTime viewMaxDate = addDays<DateTime>(_maxDate!,
         (DateTime.daysPerWeek - _maxDate!.weekday) % DateTime.daysPerWeek);
     if (_nextDates.isEmpty ||
         !isSameDate(_nextDates[_nextDates.length - 1], viewMaxDate)) {
       /// Calculate the start date from display date
       DateTime date = _nextDates.isEmpty
-          ? addDays(scheduleDisplayDate, value)
-          : addDays(_nextDates[_nextDates.length - 1], DateTime.daysPerWeek);
+          ? addDays<DateTime>(scheduleDisplayDate, value)
+          : addDays<DateTime>(
+              _nextDates[_nextDates.length - 1], DateTime.daysPerWeek);
       int count = 0;
 
       /// Using while for calculate dates because if [hideEmptyAgendaDays] as
       /// enabled, then it hides the weeks when it does not have appointments.
       while (count < 50) {
         for (int i = 0; i < 100; i++) {
-          final DateTime updatedDate = addDays(date, i * DateTime.daysPerWeek);
+          final DateTime updatedDate =
+              addDays<DateTime>(date, i * DateTime.daysPerWeek);
 
           /// Skip week date after max date
           if (!isSameOrBeforeDate(_maxDate!, updatedDate)) {
@@ -7388,7 +7396,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
             break;
           }
 
-          final DateTime weekEndDate = addDays(updatedDate, 6);
+          final DateTime weekEndDate = addDays<DateTime>(updatedDate, 6);
 
           /// Skip the week date when it does not have appointments
           /// when [hideEmptyAgendaDays] as enabled.
@@ -7406,7 +7414,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           count++;
         }
 
-        date = addDays(date, 700);
+        date = addDays<DateTime>(date, 700);
       }
     }
 
@@ -7435,7 +7443,8 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
       /// previous view dates and calculate the same until the next view dates
       /// appointment fills the view port.
       DateTime viewStartDate = _nextDates[0];
-      DateTime viewEndDate = addDays(_nextDates[_nextDates.length - 1], 6);
+      DateTime viewEndDate =
+          addDays<DateTime>(_nextDates[_nextDates.length - 1], 6);
       List<CalendarAppointment<T>> appointmentCollection =
           AppointmentHelper.getVisibleAppointments(
               viewStartDate,
@@ -7454,7 +7463,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
 
       double labelHeight = 0;
       if (_useMobilePlatformUI) {
-        DateTime previousDate = addDays(viewStartDate, -1);
+        DateTime previousDate = addDays<DateTime>(viewStartDate, -1);
         for (int i = 0; i < _nextDates.length; i++) {
           final DateTime nextDate = _nextDates[i];
           if (previousDate.month != nextDate.month) {
@@ -7495,7 +7504,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
           isNewDatesAdded = true;
 
           viewStartDate = currentDate;
-          viewEndDate = addDays(currentDate, 6);
+          viewEndDate = addDays<DateTime>(currentDate, 6);
 
           /// Calculate the newly added date appointment height and add
           /// the height to existing appointments height.
@@ -7544,7 +7553,8 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
       /// dates at initial position.
       if (_nextDates.isNotEmpty && isNewDatesAdded) {
         final DateTime date = _nextDates[0];
-        _headerUpdateNotifier.value = getValidDate(_minDate!, _maxDate!, date);
+        _headerUpdateNotifier.value =
+            getValidDate<DateTime>(_minDate!, _maxDate!, date);
       }
     }
 
@@ -7623,7 +7633,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
       /// loading.
       while (isSameOrBeforeDate(_maxDate!, viewStartDate)) {
         final DateTime viewEndDate =
-            addDays(viewStartDate, DateTime.daysPerWeek - 1);
+            addDays<DateTime>(viewStartDate, DateTime.daysPerWeek - 1);
         final DateTime appStartDate =
             isSameOrAfterDate(_minDate!, viewStartDate)
                 ? viewStartDate
@@ -7736,7 +7746,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
         currentWeekHeight += displayNewEventHeight;
         totalHeight += currentWeekHeight;
         heights.add(currentWeekHeight);
-        viewStartDate = addDays(viewStartDate, DateTime.daysPerWeek);
+        viewStartDate = addDays<DateTime>(viewStartDate, DateTime.daysPerWeek);
       }
 
       /// Get the current display date week index from next dates collection.
@@ -7744,7 +7754,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
       for (int i = 0; i < _nextDates.length; i++) {
         final DateTime visibleStartDate = _nextDates[i];
         final DateTime visibleEndDate =
-            addDays(visibleStartDate, DateTime.daysPerWeek);
+            addDays<DateTime>(visibleStartDate, DateTime.daysPerWeek);
         if (!isDateWithInDateRange(
             visibleStartDate, visibleEndDate, scheduleDisplayDate)) {
           continue;
@@ -7765,7 +7775,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
       /// Calculate the scroll position with current display date week.
       while (viewStartDate.isBefore(scheduleDisplayDate) &&
           !isSameDate(viewStartDate, scheduleDisplayDate)) {
-        final DateTime viewEndDate = addDays(viewStartDate, 6);
+        final DateTime viewEndDate = addDays<DateTime>(viewStartDate, 6);
         final DateTime appStartDate =
             isSameOrAfterDate(_minDate!, viewStartDate)
                 ? viewStartDate
@@ -7775,7 +7785,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
             : _maxDate!;
         if (appEndDate.isAfter(scheduleDisplayDate) ||
             isSameDate(appEndDate, scheduleDisplayDate)) {
-          appEndDate = addDays(scheduleDisplayDate, -1);
+          appEndDate = addDays<DateTime>(scheduleDisplayDate, -1);
         }
 
         /// Today date view height.
@@ -7867,7 +7877,7 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
               todayNewEventHeight;
         }
 
-        viewStartDate = addDays(viewStartDate, DateTime.daysPerWeek);
+        viewStartDate = addDays<DateTime>(viewStartDate, DateTime.daysPerWeek);
       }
 
       if (initialScrolledPosition != 0) {
@@ -8873,8 +8883,8 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
   void _updateCalendarState(UpdateCalendarStateDetails<T> details) {
     if (details.currentDate != null &&
         !isSameDate(details.currentDate!, _currentDate)) {
-      _currentDate =
-          getValidDate(widget.minDate, widget.maxDate, details.currentDate!);
+      _currentDate = getValidDate<DateTime>(
+          widget.minDate, widget.maxDate, details.currentDate!);
       _canScrollTimeSlotView = false;
       _controller.displayDate = _currentDate;
       _canScrollTimeSlotView = true;
