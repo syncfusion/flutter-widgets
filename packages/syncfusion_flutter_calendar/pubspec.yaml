@@ -38,6 +38,13 @@ dependencies:
 
   intl: ^0.18.0
 
+dependency_overrides:
+  syncfusion_flutter_core:
+    git:
+      url: https://github.com/DrBu7cher/syncfusion-flutter-widgets.git
+      ref: 653ac68623650519dc809632c28e494244b4d20c
+      path: packages/syncfusion_flutter_core
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
