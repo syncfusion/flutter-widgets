@@ -81,7 +81,9 @@ T getNextMonthDate<T>(T date) {
 /// else return first date/last date when the date before of first date or after
 /// last date
 T getValidDate<T>(T minDate, T maxDate, T date) {
-  if (date is HijriDateTime) {
+  if (date is HijriDateTime &&
+      minDate is HijriDateTime &&
+      maxDate is HijriDateTime) {
     if (date.isAfter(minDate) == true) {
       if (date.isBefore(maxDate) == true) {
         return date;
@@ -93,7 +95,7 @@ T getValidDate<T>(T minDate, T maxDate, T date) {
     }
   }
 
-  if (date is DateTime) {
+  if (date is DateTime && minDate is DateTime && maxDate is DateTime) {
     if (date.isAfter(minDate) == true) {
       if (date.isBefore(maxDate) == true) {
         return date;
