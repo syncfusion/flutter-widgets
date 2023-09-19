@@ -57,6 +57,8 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
       this.onRendererCreated,
       this.onCreateRenderer,
       this.onPointTap,
+      this.onPointPress,
+      this.onPointUpdate,
       this.onPointDoubleTap,
       this.onPointLongPress,
       this.onCreateShader,
@@ -236,6 +238,11 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   /// }
   /// ```
   final ChartPointInteractionCallback? onPointTap;
+
+  //
+  final ChartPointInteractionCallback? onPointPress;
+  //
+  final ChartPointInteractionCallback? onPointUpdate;
 
   /// Called when double tapped on the chart data point.
   ///

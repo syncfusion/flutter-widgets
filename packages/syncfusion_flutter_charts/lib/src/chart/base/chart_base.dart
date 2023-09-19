@@ -2500,6 +2500,21 @@ class _ContainerAreaState extends State<ContainerArea> {
                           final Offset position =
                               renderBox.globalToLocal(details.globalPosition);
                           _touchPosition = position;
+                          final CartesianSeriesRenderer?
+                              cartesianSeriesRenderer = _findSeries(position);
+                          if (cartesianSeriesRenderer != null &&
+                              SeriesHelper.getSeriesRendererDetails(
+                                          cartesianSeriesRenderer)
+                                      .series
+                                      .onPointTap !=
+                                  null) {
+                            calculatePointSeriesIndex(
+                                chart,
+                                widget._stateProperties,
+                                position,
+                                null,
+                                ActivationMode.press);
+                          }
                         }
                       },
                       onTap: () {
@@ -2598,7 +2613,7 @@ class _ContainerAreaState extends State<ContainerArea> {
                           ? (DragUpdateDetails details) {
                               _performPanUpdate(details);
                             }
-                          : null,
+                          : _performPanUpdateCallBack,
                       onVerticalDragEnd: isXYPanMode || isYPan
                           ? (DragEndDetails details) {
                               _performPanEnd(details);
@@ -2608,7 +2623,7 @@ class _ContainerAreaState extends State<ContainerArea> {
                           ? (DragUpdateDetails details) {
                               _performPanUpdate(details);
                             }
-                          : null,
+                          : _performPanUpdateCallBack,
                       onHorizontalDragEnd: isXYPanMode || isXPan
                           ? (DragEndDetails details) {
                               _performPanEnd(details);
@@ -3771,6 +3786,20 @@ class _ContainerAreaState extends State<ContainerArea> {
                     widget._stateProperties.zoomPanBehaviorRenderer)
                 .zoomFactor);
       }
+    }
+  }
+
+  /// Update the details for pan
+  void _performPanUpdateCallBack(DragUpdateDetails details) {
+    final CartesianSeriesRenderer? cartesianSeriesRenderer =
+        _findSeries(details.localPosition);
+    if (cartesianSeriesRenderer != null &&
+        SeriesHelper.getSeriesRendererDetails(cartesianSeriesRenderer)
+                .series
+                .onPointTap !=
+            null) {
+      calculatePointSeriesIndex(chart, widget._stateProperties,
+          details.localPosition, null, ActivationMode.move, true);
     }
   }
 

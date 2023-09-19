@@ -203,6 +203,12 @@ enum ActivationMode {
   /// - ActivationMode.longPress, activates on longPress.
   longPress,
 
+  ///
+  press,
+
+  ///
+  move,
+
   /// - ActivationMode.none, does not activate any feature.
   none
 }
