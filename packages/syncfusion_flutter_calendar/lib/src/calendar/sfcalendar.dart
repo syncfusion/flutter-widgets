@@ -182,6 +182,7 @@ class SfCalendar extends StatefulWidget {
     this.scheduleViewMonthHeaderBuilder,
     this.monthCellBuilder,
     this.appointmentBuilder,
+    this.cellBuilder,
     this.timeRegionBuilder,
     this.headerDateFormat,
     this.headerStyle = const CalendarHeaderStyle(),
@@ -622,7 +623,11 @@ class SfCalendar extends StatefulWidget {
   ///    );
   ///  }
   ///  ```
+
   final CalendarAppointmentBuilder? appointmentBuilder;
+
+  /// A builder that builds a cell inside picker
+  final DateRangePickerCellBuilder? cellBuilder;
 
   /// A builder that builds a widget that replaces the time region view in day,
   /// week, workweek, and timeline day, week, workweek views.
@@ -8775,6 +8780,7 @@ class _SfCalendarState extends State<SfCalendar>
                   minDate: widget.minDate,
                   maxDate: widget.maxDate,
                   selectionColor: todayTextColor,
+                  cellBuilder: widget.cellBuilder,
                   //// For disabling the picker dates based on the calendar non working days.
                   selectableDayPredicate: _view != CalendarView.workWeek &&
                           _view != CalendarView.timelineWorkWeek
