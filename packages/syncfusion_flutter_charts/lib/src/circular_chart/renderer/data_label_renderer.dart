@@ -103,9 +103,11 @@ class CircularDataLabelRendererState extends State<CircularDataLabelRenderer>
 
   /// Method to render the data label.
   void render() {
-    setState(() {
-      widget.show = true;
-    });
+    if(mounted){
+      setState(() {
+        widget.show = true;
+      });
+    }
   }
 }
 
