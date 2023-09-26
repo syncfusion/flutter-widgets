@@ -150,8 +150,8 @@ class ScheduleViewSettings with Diagnosticable {
   ///
   /// Allows to customize the [DayHeaderSettings.dayFormat],
   /// [DayHeaderSettings.width], [DayHeaderSettings.backgroundColor],
-  /// [DayHeaderSettings.dayTextStyle] and [DayHeaderSettings.dateTextStyle]
-  /// in day label style of schedule view in calendar.
+  /// [DayHeaderSettings.dayTextStyle] and [DayHeaderSettings.dateTextStyle] in
+  /// day label style of schedule view in calendar.
   ///
   /// See also:
   /// * [weekHeaderSettings], which used to customize the week header view
