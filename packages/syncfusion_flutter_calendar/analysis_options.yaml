@@ -1,12 +1,6 @@
-include: package:flutter_lints/flutter.yaml #package:syncfusion_flutter_core/analysis_options.yaml
+include: package:syncfusion_flutter_core/analysis_options.yaml
 
 analyzer:
-  language:
-    strict-casts: true
-    strict-inference: true
-    strict-raw-types: true
-  plugins:
-    - dart_code_metrics
   errors:
     include_file_not_found: ignore
     invalid_dependency: ignore

@@ -80,8 +80,6 @@ class Appointment with Diagnosticable {
     this.resourceIds,
     this.recurrenceId,
     this.id,
-    required this.exactStartTime,
-    required this.exactEndTime,
     required this.startTime,
     required this.endTime,
     this.subject = '',
@@ -142,104 +140,6 @@ class Appointment with Diagnosticable {
   /// }
   ///  ```
   DateTime startTime;
-
-  /// The start time of the first time of an [Appointment] in [SfCalendar].
-  ///
-  /// See also:
-  /// * [CalendarDataSource.getStartTime], which maps the custom business
-  /// objects corresponding property to this property.
-  /// * [isAllDay], which defines whether the event is all-day long or not
-  /// * [endTime], the date time value in which the appointment will end
-  /// * [startTimeZone], the timezone for the start time, the appointment will
-  /// render by converting the start time based on the [startTimeZone], and
-  /// [SfCalendar.timeZone].
-  /// * [SfCalendar.timeZone], to set the timezone for the calendar.
-  /// * [The documentation for time zone](https://help.syncfusion.com/flutter/calendar/timezone)
-  ///
-  /// ```dart
-  ///Widget build(BuildContext context) {
-  ///   return Container(
-  ///      child: SfCalendar(
-  ///        view: CalendarView.day,
-  ///        dataSource: _getCalendarDataSource(),
-  ///      ),
-  ///    );
-  ///  }
-  ///
-  /// class DataSource extends CalendarDataSource {
-  ///  DataSource(List<Appointment> source) {
-  ///    appointments = source;
-  ///  }
-  /// }
-  ///
-  /// DataSource _getCalendarDataSource() {
-  ///    List<Appointment> appointments = <Appointment>[];
-  ///    appointments.add(
-  ///        Appointment(
-  ///          startTime: DateTime.now(),
-  ///          endTime: DateTime.now().add(
-  ///              Duration(hours: 2)),
-  ///          isAllDay: true,
-  ///          subject: 'Meeting',
-  ///          color: Colors.blue,
-  ///          startTimeZone: '',
-  ///          endTimeZone: ''
-  ///        ));
-  ///
-  ///   return DataSource(appointments);
-  /// }
-  ///  ```
-  DateTime exactStartTime;
-
-  /// The start time for an [Appointment] in [SfCalendar].
-  ///
-  /// Defaults to `DateTime.now()`.
-  ///
-  /// See also:
-  /// * [CalendarDataSource.getStartTime], which maps the custom business
-  /// objects corresponding property to this property.
-  /// * [isAllDay], which defines whether the event is all-day long or not
-  /// * [endTime], the date time value in which the appointment will end
-  /// * [startTimeZone], the timezone for the start time, the appointment will
-  /// render by converting the start time based on the [startTimeZone], and
-  /// [SfCalendar.timeZone].
-  /// * [SfCalendar.timeZone], to set the timezone for the calendar.
-  /// * [The documentation for time zone](https://help.syncfusion.com/flutter/calendar/timezone)
-  ///
-  /// ```dart
-  ///Widget build(BuildContext context) {
-  ///   return Container(
-  ///      child: SfCalendar(
-  ///        view: CalendarView.day,
-  ///        dataSource: _getCalendarDataSource(),
-  ///      ),
-  ///    );
-  ///  }
-  ///
-  /// class DataSource extends CalendarDataSource {
-  ///  DataSource(List<Appointment> source) {
-  ///    appointments = source;
-  ///  }
-  /// }
-  ///
-  /// DataSource _getCalendarDataSource() {
-  ///    List<Appointment> appointments = <Appointment>[];
-  ///    appointments.add(
-  ///        Appointment(
-  ///          startTime: DateTime.now(),
-  ///          endTime: DateTime.now().add(
-  ///              Duration(hours: 2)),
-  ///          isAllDay: true,
-  ///          subject: 'Meeting',
-  ///          color: Colors.blue,
-  ///          startTimeZone: '',
-  ///          endTimeZone: ''
-  ///        ));
-  ///
-  ///   return DataSource(appointments);
-  /// }
-  ///  ```
-  DateTime exactEndTime;
 
   /// The end time for an [Appointment] in [SfCalendar].
   ///

@@ -152,13 +152,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
-  syncfusion_flutter_calendar:
-    dependency: "direct main"
-    description:
-      path: ".."
-      relative: true
-    source: path
-    version: "23.1.36"
   syncfusion_flutter_core:
     dependency: transitive
     description:
@@ -168,13 +161,12 @@ packages:
     source: hosted
     version: "23.1.38"
   syncfusion_flutter_datepicker:
-    dependency: transitive
+    dependency: "direct main"
     description:
-      name: syncfusion_flutter_datepicker
-      sha256: "69cd9b06fa9bcdbc6e363a98bf54ed38b86f2d62d4fd4d53277d7811d8d3f285"
-      url: "https://pub.dev"
-    source: hosted
-    version: "23.1.38"
+      path: ".."
+      relative: true
+    source: path
+    version: "23.1.36"
   term_glyph:
     dependency: transitive
     description:
@@ -191,14 +183,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.1"
-  timezone:
-    dependency: transitive
-    description:
-      name: timezone
-      sha256: "1cfd8ddc2d1cfd836bc93e67b9be88c3adaeca6f40a00ca999104c30693cdca0"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.2"
   vector_math:
     dependency: transitive
     description:

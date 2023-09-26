@@ -1072,8 +1072,6 @@ class CalendarAppointment<T> {
     return Appointment(
         startTime: startTime,
         endTime: endTime,
-        exactStartTime: exactStartTime,
-        exactEndTime: exactEndTime,
         subject: subject,
         color: color,
         recurrenceRule: recurrenceRule,

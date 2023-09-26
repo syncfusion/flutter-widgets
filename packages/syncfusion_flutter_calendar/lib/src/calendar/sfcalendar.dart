@@ -205,7 +205,6 @@ class SfCalendar<T> extends StatefulWidget {
     this.viewNavigationMode = ViewNavigationMode.snap,
     this.allowedViews,
     this.specialRegions,
-    this.skipSpannedAppointmentBuilding = false,
     this.loadMoreWidgetBuilder,
     this.blackoutDatesTextStyle,
     this.showWeekNumber = false,
@@ -414,27 +413,6 @@ class SfCalendar<T> extends StatefulWidget {
   ///
   /// ```
   final bool showCurrentTimeIndicator;
-
-  /// Specifies if [appointmentBuilder] should be called for spanned dates
-  /// of spanned appointments that are not the exactStartDate.
-  ///
-  /// If the property set as true then the [appointmentBuilder] function
-  /// will only be called on exactStartDate of a [CalendarAppointment].
-  ///
-  /// Defaults to `false`.
-  ///
-  /// ``` dart
-  /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///      child: SfCalendar(
-  ///      view: CalendarView.day,
-  ///      skipSpannedAppointmentBuilding: true,
-  ///      ),
-  ///    );
-  ///  }
-  ///
-  /// ```
-  final bool skipSpannedAppointmentBuilding;
 
   /// Defines the view for the [SfCalendar].
   ///
@@ -5499,11 +5477,6 @@ class _SfCalendarState<T> extends State<SfCalendar<T>>
         final CalendarAppointment<T> appointment = appointmentCollection[i];
         if (!isDateWithInDateRange(appointment.actualStartTime,
             appointment.actualEndTime, startDate)) {
-          continue;
-        }
-
-        if (widget.skipSpannedAppointmentBuilding &&
-            !isSameDate(appointment.exactStartTime, startDate)) {
           continue;
         }
 
