@@ -11343,20 +11343,13 @@ class _AgendaDateTimePainter extends CustomPainter {
 
     final double weekDayHeight = padding + _textPainter.height;
     //// Draw Date
-    final String circleDateFormat = scheduleViewSettings != null
-        ? scheduleViewSettings!.dayHeaderSettings.circleDateFormat
-        : 'EEE';
-    span = TextSpan(
-        text: DateFormat(circleDateFormat, locale)
-            .format(selectedDate!)
-            .toUpperCase(),
-        style: dateTextStyle);
+    span = TextSpan(text: selectedDate!.day.toString(), style: dateTextStyle);
     _updateTextPainter(span);
 
     _textPainter.layout(maxWidth: size.width);
 
     /// The padding value provides the space between the date and day text.
-    const int inBetweenPadding = 4;
+    const int inBetweenPadding = 2;
     final double xPosition =
         padding + ((size.width - (2 * padding) - _textPainter.width) / 2);
     double yPosition = weekDayHeight;

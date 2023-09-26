@@ -149,10 +149,9 @@ class ScheduleViewSettings with Diagnosticable {
   /// Sets the style to customize day label in [SfCalendar] schedule view.
   ///
   /// Allows to customize the [DayHeaderSettings.dayFormat],
-  /// [DayHeaderSettings.circleDateFormat], [DayHeaderSettings.width],
-  /// [DayHeaderSettings.backgroundColor], [DayHeaderSettings.dayTextStyle]
-  /// and [DayHeaderSettings.dateTextStyle] in day label style of schedule
-  /// view in calendar.
+  /// [DayHeaderSettings.width], [DayHeaderSettings.backgroundColor],
+  /// [DayHeaderSettings.dayTextStyle] and [DayHeaderSettings.dateTextStyle]
+  /// in day label style of schedule view in calendar.
   ///
   /// See also:
   /// * [weekHeaderSettings], which used to customize the week header view
@@ -173,7 +172,6 @@ class ScheduleViewSettings with Diagnosticable {
   ///        scheduleViewSettings: ScheduleViewSettings(
   ///            dayHeaderSettings: DayHeaderSettings(
   ///                dayFormat: 'EEEE',
-  ///                circleDateFormat: 'd',
   ///                width: 70,
   ///                dayTextStyle: TextStyle(
   ///                  fontSize: 10,
@@ -958,9 +956,8 @@ class WeekHeaderSettings with Diagnosticable {
 
 /// Sets the style to customize day label in [SfCalendar] schedule view.
 ///
-/// Allows to customize the [dayFormat], [circleDateFormat], [width],
-/// [dayTextStyle] and [dateTextStyle] in day label style of schedule
-/// view in calendar.
+/// Allows to customize the [dayFormat], [width], [dayTextStyle]
+/// and [dateTextStyle] in day label style of schedule view in calendar.
 ///
 /// See also:
 /// * [WeekHeaderSettings], which used to customize the week header view
@@ -981,7 +978,6 @@ class WeekHeaderSettings with Diagnosticable {
 ///        scheduleViewSettings: ScheduleViewSettings(
 ///            dayHeaderSettings: DayHeaderSettings(
 ///                dayFormat: 'EEEE',
-///                circleDateFormat: 'd',
 ///                width: 70,
 ///                dayTextStyle: TextStyle(
 ///                  fontSize: 10,
@@ -1006,7 +1002,6 @@ class DayHeaderSettings with Diagnosticable {
   /// [SfCalendar].
   const DayHeaderSettings(
       {this.dayFormat = 'EEE',
-      this.circleDateFormat = 'd',
       this.width = -1,
       this.dayTextStyle,
       this.dateTextStyle})
@@ -1021,8 +1016,6 @@ class DayHeaderSettings with Diagnosticable {
   /// text in the day header of schedule view in calendar.
   /// * [dateTextStyle], which is used to customize the text style for the date
   /// text in the day header of schedule view in calendar.
-  /// * [circleDateFormat], which is used to customize the text style for the
-  /// date text in the circle of schedule view in calendar.
   /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
   /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
   /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
@@ -1043,37 +1036,6 @@ class DayHeaderSettings with Diagnosticable {
   /// ```
   final String dayFormat;
 
-  /// Formats the day text in the day label of [SfCalendar] schedule view.
-  ///
-  /// Defaults to `d`.
-  ///
-  /// See also:
-  /// * [dayTextStyle], which is used to customize the text style for the day
-  /// text in the day header of schedule view in calendar.
-  /// * [dateTextStyle], which is used to customize the text style for the date
-  /// text in the day header of schedule view in calendar.
-  /// * [dayFormat], which used to format the day text in the day header view
-  /// of schedule view in calendar.
-  /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
-  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
-  /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
-  ///
-  /// ``` dart
-  ///
-  /// @override
-  ///  Widget build(BuildContext context) {
-  ///    return Container(
-  ///      child: SfCalendar(
-  ///        view: CalendarView.schedule,
-  ///        scheduleViewSettings: ScheduleViewSettings(
-  ///            dayHeaderSettings: DayHeaderSettings(circleDateFormat: 'MM\nd')),
-  ///      ),
-  ///    );
-  ///  }
-  ///
-  /// ```
-  final String circleDateFormat;
-
   /// The width for day label to layout within this in [SfCalendar] schedule
   /// view.
   ///
@@ -1086,8 +1048,6 @@ class DayHeaderSettings with Diagnosticable {
   /// text in the day header of schedule view in calendar.
   /// * [dayFormat], which used to format the day text in the day header view
   /// of schedule view in calendar.
-  /// * [circleDateFormat], which is used to customize the text style for the
-  /// date text in the circle of schedule view in calendar.
   /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
   /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
   /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
@@ -1122,8 +1082,6 @@ class DayHeaderSettings with Diagnosticable {
   /// text in the day header of schedule view in calendar.
   /// * [dayFormat], which used to format the day text in the day header view
   /// of schedule view in calendar.
-  /// * [circleDateFormat], which is used to customize the text style for the
-  /// date text in the circle of schedule view in calendar.
   /// * [width], which is the size for the week header view of schedule view of
   /// calendar.
   /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
@@ -1165,8 +1123,6 @@ class DayHeaderSettings with Diagnosticable {
   /// in the day header of schedule view in calendar.
   /// * [dayFormat], which used to format the day text in the day header view
   /// of schedule view in calendar.
-  /// * [circleDateFormat], which is used to customize the text style for the
-  /// date text in the circle of schedule view in calendar.
   /// * [width], which is the size for the week header view of schedule view of
   /// calendar.
   /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
@@ -1209,7 +1165,6 @@ class DayHeaderSettings with Diagnosticable {
       otherStyle = other;
     }
     return otherStyle.dayFormat == dayFormat &&
-        otherStyle.circleDateFormat == circleDateFormat &&
         otherStyle.width == width &&
         otherStyle.dayTextStyle == dayTextStyle &&
         otherStyle.dateTextStyle == dateTextStyle;
@@ -1224,14 +1179,12 @@ class DayHeaderSettings with Diagnosticable {
         .add(DiagnosticsProperty<TextStyle>('dateTextStyle', dateTextStyle));
     properties.add(DoubleProperty('width', width));
     properties.add(StringProperty('dayFormat', dayFormat));
-    properties.add(StringProperty('circleDateFormat', circleDateFormat));
   }
 
   @override
   int get hashCode {
     return Object.hash(
       dayFormat,
-      circleDateFormat,
       width,
       dayTextStyle,
       dateTextStyle,
