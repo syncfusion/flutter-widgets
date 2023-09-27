@@ -8,7 +8,6 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 
 ## Table of contents
 - [DataGrid features](#datagrid-features)
-- [Coming soon](#coming-soon)
 - [Get the demo application](#get-the-demo-application)
 - [Useful links](#other-useful-links)
 - [Installation](#installation)
@@ -87,12 +86,6 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 **Accessibility** - The DataGrid can easily be accessed by screen readers.
 
 **Right to Left (RTL)** - Right-to-left direction support for users working in RTL languages like Hebrew and Arabic.
-
-## Coming soon
-
-* Column drag and drop
-* Grouping
-* Row drag and drop
 
 ## Get the demo application
 

@@ -1126,11 +1126,15 @@ class FontStructure {
     String? fontName = '';
     isSystemFontExist = false;
     if (fontDictionary.containsKey(PdfDictionaryProperties.baseFont)) {
-      PdfName? baseFont =
-          fontDictionary[PdfDictionaryProperties.baseFont] as PdfName?;
-      baseFont ??= (fontDictionary[PdfDictionaryProperties.baseFont]!
-              as PdfReferenceHolder)
-          .object as PdfName?;
+      PdfName? baseFont;
+      if (fontDictionary[PdfDictionaryProperties.baseFont] is PdfName) {
+        baseFont = fontDictionary[PdfDictionaryProperties.baseFont] as PdfName?;
+      } else if (fontDictionary[PdfDictionaryProperties.baseFont]
+          is PdfReferenceHolder) {
+        baseFont = (fontDictionary[PdfDictionaryProperties.baseFont]!
+                as PdfReferenceHolder)
+            .object as PdfName?;
+      }
       String font = baseFont!.name!;
       if (font.contains('#20') && !font.contains('+')) {
         final int startIndex = font.lastIndexOf('#20');
@@ -4899,5 +4903,81 @@ class FontStructure {
       }
     }
     return isNonPrintable;
+  }
+
+  /// Disposes the instance.
+  void dispose() {
+    _differencesDictionary = null;
+    if (_characterMapTable != null && _characterMapTable!.isNotEmpty) {
+      _characterMapTable!.clear();
+    }
+    _characterMapTable = null;
+    if (_reverseMapTable != null && _reverseMapTable!.isNotEmpty) {
+      _reverseMapTable!.clear();
+    }
+    _reverseMapTable = null;
+    if (reverseDictMapping.isNotEmpty) {
+      reverseDictMapping.clear();
+    }
+    if (cidToGidTable != null && cidToGidTable!.isNotEmpty) {
+      cidToGidTable!.clear();
+    }
+    cidToGidTable = null;
+    if (_differencesDictionary != null && _differencesDictionary!.isNotEmpty) {
+      _differencesDictionary!.clear();
+    }
+    _differencesDictionary = null;
+    if (_fontGlyphWidth != null && _fontGlyphWidth!.isNotEmpty) {
+      _fontGlyphWidth!.clear();
+    }
+    _fontGlyphWidth = null;
+    if (tempMapTable.isNotEmpty) {
+      tempMapTable.clear();
+    }
+    if (_octDecMapTable != null && _octDecMapTable!.isNotEmpty) {
+      _octDecMapTable!.clear();
+    }
+    _octDecMapTable = null;
+    if (_cidToGidReverseMapTable != null &&
+        _cidToGidReverseMapTable!.isNotEmpty) {
+      _cidToGidReverseMapTable!.clear();
+    }
+    _cidToGidReverseMapTable = null;
+    if (differenceTable.isNotEmpty) {
+      differenceTable.clear();
+    }
+    if (differenceEncoding != null && differenceEncoding!.isNotEmpty) {
+      differenceEncoding!.clear();
+    }
+    differenceEncoding = null;
+    if (type3FontCharProcsDict.isNotEmpty) {
+      type3FontCharProcsDict.clear();
+    }
+    if (tempStringList.isNotEmpty) {
+      tempStringList.clear();
+    }
+    if (_unicodeCharMapTable != null && _unicodeCharMapTable!.isNotEmpty) {
+      _unicodeCharMapTable!.clear();
+    }
+    _unicodeCharMapTable = null;
+    if (_macEncodeTable != null && _macEncodeTable!.isNotEmpty) {
+      _macEncodeTable!.clear();
+    }
+    _macEncodeTable = null;
+    if (_winansiMapTable.isNotEmpty) {
+      _winansiMapTable.clear();
+    }
+    if (_windows1252MapTable.isNotEmpty) {
+      _windows1252MapTable.clear();
+    }
+    if (_macRomanMapTable.isNotEmpty) {
+      _macRomanMapTable.clear();
+    }
+    if (standardCJKFontNames.isNotEmpty) {
+      standardCJKFontNames.clear();
+    }
+    if (standardFontNames.isNotEmpty) {
+      standardFontNames.clear();
+    }
   }
 }

@@ -5,7 +5,6 @@ import '../annotations/enum.dart';
 import '../annotations/pdf_annotation.dart';
 import '../annotations/pdf_appearance.dart';
 import '../annotations/pdf_paintparams.dart';
-import '../graphics/brushes/pdf_solid_brush.dart';
 import '../graphics/figures/pdf_template.dart';
 import '../io/pdf_constants.dart';
 import '../io/pdf_cross_table.dart';
@@ -340,7 +339,7 @@ class PdfSignatureField extends PdfField {
                 if (permissionNumber != null && permissionNumber is PdfNumber) {
                   _signature!.documentPermissions =
                       PdfSignatureHelper.getHelper(_signature!)
-                          .getCertificateFlags(permissionNumber.value! as int);
+                          .getCertificateFlags(permissionNumber.value!.toInt());
                 }
               }
             }
@@ -405,21 +404,6 @@ class PdfSignatureFieldHelper extends PdfFieldHelper {
             }
           }
         }
-      } else {
-        //signature field without appearance dictionary
-        final PdfBrush brush = PdfSolidBrush(getBackColor(true));
-        final GraphicsProperties graphicsProperties =
-            GraphicsProperties(signatureField);
-        final PaintParams paintingParameters = PaintParams(
-            bounds: graphicsProperties.bounds,
-            backBrush: brush,
-            foreBrush: graphicsProperties.foreBrush,
-            borderPen: graphicsProperties.borderPen,
-            style: graphicsProperties.style,
-            borderWidth: graphicsProperties.borderWidth,
-            shadowBrush: graphicsProperties.shadowBrush);
-        FieldPainter()
-            .drawSignature(signatureField.page!.graphics, paintingParameters);
       }
     }
   }

@@ -16,7 +16,6 @@
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:async/async.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -39,6 +38,13 @@ import 'control/pdf_scrollable.dart';
 import 'control/pdftextline.dart';
 import 'control/pdfviewer_callback_details.dart';
 import 'control/single_page_view.dart';
+import 'form_fields/pdf_checkbox.dart';
+import 'form_fields/pdf_combo_box.dart';
+import 'form_fields/pdf_form_field.dart';
+import 'form_fields/pdf_list_box.dart';
+import 'form_fields/pdf_radio_button.dart';
+import 'form_fields/pdf_signature.dart';
+import 'form_fields/pdf_text_box.dart';
 
 /// Signature for [SfPdfViewer.onTextSelectionChanged] callback.
 typedef PdfTextSelectionChangedCallback = void Function(
@@ -64,6 +70,17 @@ typedef PdfPageChangedCallback = void Function(PdfPageChangedDetails details);
 
 /// This callback invoked whenever listener called
 typedef _PdfControllerListener = void Function({String? property});
+
+/// Signature for [SfPdfViewer.onTap] callback.
+typedef PdfGestureTapCallback = void Function(PdfGestureDetails details);
+
+/// Signature for [SfPdfViewer.onFormFieldValueChanged] callback.
+typedef PdfFormFieldValueChangedCallback = void Function(
+    PdfFormFieldValueChangedDetails details);
+
+/// Signature for [SfPdfViewer.onFormFieldFocusChange] callback.
+typedef PdfFormFieldFocusChangeCallback = void Function(
+    PdfFormFieldFocusChangeDetails details);
 
 /// A widget to view PDF documents.
 ///
@@ -130,6 +147,7 @@ class SfPdfViewer extends StatefulWidget {
     this.pageSpacing = 4,
     this.controller,
     this.onZoomLevelChanged,
+    this.canShowPageLoadingIndicator = true,
     this.canShowScrollStatus = true,
     this.onPageChanged,
     this.onDocumentLoaded,
@@ -138,8 +156,12 @@ class SfPdfViewer extends StatefulWidget {
     this.onTextSelectionChanged,
     this.onHyperlinkClicked,
     this.onDocumentLoadFailed,
+    this.onTap,
+    this.onFormFieldValueChanged,
+    this.onFormFieldFocusChange,
     this.enableDocumentLinkAnnotation = true,
     this.canShowPaginationDialog = true,
+    this.canShowSignaturePadDialog = true,
     this.initialScrollOffset = Offset.zero,
     this.initialZoomLevel = 1,
     this.maxZoomLevel = 3,
@@ -187,6 +209,7 @@ class SfPdfViewer extends StatefulWidget {
     this.pageSpacing = 4,
     this.controller,
     this.onZoomLevelChanged,
+    this.canShowPageLoadingIndicator = true,
     this.canShowScrollStatus = true,
     this.onPageChanged,
     this.enableDoubleTapZooming = true,
@@ -195,8 +218,12 @@ class SfPdfViewer extends StatefulWidget {
     this.onHyperlinkClicked,
     this.onDocumentLoaded,
     this.onDocumentLoadFailed,
+    this.onTap,
+    this.onFormFieldValueChanged,
+    this.onFormFieldFocusChange,
     this.enableDocumentLinkAnnotation = true,
     this.canShowPaginationDialog = true,
+    this.canShowSignaturePadDialog = true,
     this.initialScrollOffset = Offset.zero,
     this.initialZoomLevel = 1,
     this.maxZoomLevel = 3,
@@ -242,6 +269,7 @@ class SfPdfViewer extends StatefulWidget {
     this.pageSpacing = 4,
     this.controller,
     this.onZoomLevelChanged,
+    this.canShowPageLoadingIndicator = true,
     this.canShowScrollStatus = true,
     this.onPageChanged,
     this.enableDoubleTapZooming = true,
@@ -250,8 +278,12 @@ class SfPdfViewer extends StatefulWidget {
     this.onHyperlinkClicked,
     this.onDocumentLoaded,
     this.onDocumentLoadFailed,
+    this.onTap,
+    this.onFormFieldValueChanged,
+    this.onFormFieldFocusChange,
     this.enableDocumentLinkAnnotation = true,
     this.canShowPaginationDialog = true,
+    this.canShowSignaturePadDialog = true,
     this.initialScrollOffset = Offset.zero,
     this.initialZoomLevel = 1,
     this.maxZoomLevel = 3,
@@ -301,6 +333,7 @@ class SfPdfViewer extends StatefulWidget {
     this.pageSpacing = 4,
     this.controller,
     this.onZoomLevelChanged,
+    this.canShowPageLoadingIndicator = true,
     this.canShowScrollStatus = true,
     this.onPageChanged,
     this.enableDoubleTapZooming = true,
@@ -309,8 +342,12 @@ class SfPdfViewer extends StatefulWidget {
     this.onHyperlinkClicked,
     this.onDocumentLoaded,
     this.onDocumentLoadFailed,
+    this.onTap,
+    this.onFormFieldValueChanged,
+    this.onFormFieldFocusChange,
     this.enableDocumentLinkAnnotation = true,
     this.canShowPaginationDialog = true,
+    this.canShowSignaturePadDialog = true,
     this.initialScrollOffset = Offset.zero,
     this.initialZoomLevel = 1,
     this.maxZoomLevel = 3,
@@ -655,6 +692,21 @@ class SfPdfViewer extends StatefulWidget {
   /// See also: [PdfZoomDetails].
   final PdfZoomLevelChangedCallback? onZoomLevelChanged;
 
+  /// Called when the form field value changed in [SfPdfViewer].
+  ///
+  /// See also: [PdfFormFieldValueChangedDetails].
+  final PdfFormFieldValueChangedCallback? onFormFieldValueChanged;
+
+  /// Called when the form field focus changes in [SfPdfViewer].
+  ///
+  /// See also: [PdfFormFieldFocusChangeDetails].
+  final PdfFormFieldFocusChangeCallback? onFormFieldFocusChange;
+
+  /// Indicates whether the built-in signature pad dialog should be displayed or not. The default value is true.
+  ///
+  /// Note: This property will also hide the built-in signature editing context menu when the value is set to “false”.
+  final bool canShowSignaturePadDialog;
+
   /// Called when the text is selected or deselected in [SfPdfViewer].
   ///
   /// The [globalSelectedRegion] and [selectedText] values in the
@@ -740,6 +792,11 @@ class SfPdfViewer extends StatefulWidget {
   ///
   /// See also: [PdfPageChangedDetails].
   final PdfPageChangedCallback? onPageChanged;
+
+  /// Called when tapped on the [SfPdfViewer].
+  ///
+  /// See also: [PdfGestureDetails].
+  final PdfGestureTapCallback? onTap;
 
   /// The direction in which the PDF page scrolls.
   ///
@@ -878,6 +935,40 @@ class SfPdfViewer extends StatefulWidget {
   /// Defaults to `true`.
   final bool enableHyperlinkNavigation;
 
+  /// Indicates whether the page loading busy indicator can be displayed or not.
+  ///
+  /// If this property is set as `false`, the page loading indicator in [SfPdfViewer] will not be displayed.
+  ///
+  /// Defaults to `true`.
+  ///
+  /// This example demonstrates how to set the visibility of the page loading indicator in the [SfPdfViewer].
+  ///
+  /// ```dart
+  /// class MyAppState extends State<MyApp> {
+  /// final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
+  ///
+  ///  @override
+  ///   void initState() {
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(
+  ///         title: const Text('Syncfusion Flutter PDF Viewer'),
+  ///       ),
+  ///       body: SfPdfViewer.network(
+  ///         'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
+  ///         key: _pdfViewerKey,
+  ///         canShowPageLoadingIndicator: false,
+  ///       ),
+  ///     );
+  ///   }
+  /// }
+  /// ```
+  final bool canShowPageLoadingIndicator;
+
   @override
   SfPdfViewerState createState() => SfPdfViewerState();
 }
@@ -927,7 +1018,6 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   Size _pdfDimension = Size.zero;
   bool _isPageChanged = false;
   bool _isSinglePageViewPageChanged = false;
-  bool _isOverflowed = false;
   bool _isZoomChanged = false;
   int _startPage = 0, _endPage = 0, _bufferCount = 0;
   final List<int> _renderedImages = <int>[];
@@ -970,6 +1060,11 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   bool _isAndroidTV = false;
   int _startPageIndex = 1;
   int _endPageIndex = 1;
+  final List<FocusNode> _textBoxFocusNodes = <FocusNode>[];
+  bool _isLoaded = false;
+  int _tappedPageNumber = -1;
+  Offset _tappedPagePosition = const Offset(-1, -1);
+  bool _canInvokeOnTap = true;
 
   /// PdfViewer theme data.
   SfPdfViewerThemeData? _pdfViewerThemeData;
@@ -998,9 +1093,10 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _setInitialScrollOffset();
     _offsetBeforeOrientationChange = Offset.zero;
     _hasError = false;
+    _isLoaded = false;
     _panEnabled = true;
     _isTextSelectionCleared = false;
-    _loadPdfDocument(false);
+    _loadPdfDocument(false, false);
     _previousPageNumber = 1;
     _maxPdfPageWidth = 0;
     WidgetsBinding.instance.addObserver(this);
@@ -1078,7 +1174,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       _pdfViewerController.clearSelection();
       // PDF document gets loaded only when the user changes
       // the input source of PDF document.
-      await _loadPdfDocument(true);
+      await _loadPdfDocument(true, false);
     }
   }
 
@@ -1102,6 +1198,8 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _pageTextExtractor.clear();
     _pdfPages.clear();
     _pdfPagesKey.clear();
+    _disposeFormFields();
+    _textBoxFocusNodes.clear();
     _focusNode.dispose();
     _document?.dispose();
     _document = null;
@@ -1118,6 +1216,16 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  void _disposeFormFields() {
+    for (final PdfFormField formField in _pdfViewerController._formFields) {
+      final PdfFormFieldHelper formFieldHelper =
+          PdfFormFieldHelper.getHelper(formField);
+      formFieldHelper.dispose();
+    }
+
+    _pdfViewerController._formFields.clear();
+  }
+
   void _disposeCollection(List<dynamic>? list) {
     if (list != null) {
       list = null;
@@ -1131,6 +1239,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         ?.canvasRenderBox
         ?.disposeMouseSelection();
     _isTextSelectionCleared = false;
+    _isLoaded = false;
     _killTextExtractionIsolate();
     _killTextSearchIsolate();
     _isEncrypted = false;
@@ -1143,6 +1252,8 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _pdfScrollableStateKey.currentState?.reset();
     _offsetBeforeOrientationChange = Offset.zero;
     _previousPageNumber = 1;
+    _disposeFormFields();
+    _textBoxFocusNodes.clear();
     _pdfViewerController._reset();
     _pdfPages.clear();
     _plugin.closeDocument();
@@ -1165,10 +1276,295 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _isPasswordUsed = false;
   }
 
+  /// Retrieves the form field details in the document
+  void _retrieveFormFieldsDetails() {
+    for (int i = 0; i < _document!.form.fields.count; i++) {
+      final PdfField field = _document!.form.fields[i];
+
+      final PdfPage? page = _document!.form.fields[i].page;
+      final int pageIndex = _document!.pages.indexOf(page!);
+
+      // Retrieve the text box field details
+      if (field is PdfTextBoxField) {
+        if (field.items != null && field.items!.count > 0) {
+          final List<PdfTextFormField> groupedTextFormFields =
+              <PdfTextFormField>[];
+          for (int j = 0; j < field.items!.count; j++) {
+            final PdfFieldItem item = field.items![j];
+            final int itemPageIndex = _document!.pages.indexOf(item.page!);
+
+            final PdfTextFormFieldHelper helper = PdfTextFormFieldHelper(
+                field, itemPageIndex,
+                onFocusChanged: widget.onFormFieldFocusChange,
+                onValueChanged: _formFieldValueChanged);
+            helper.bounds = item.bounds;
+
+            final PdfTextFormField textFormField = helper.getFormField();
+            groupedTextFormFields.add(textFormField);
+            _pdfViewerController._formFields.add(textFormField);
+            _textBoxFocusNodes.add(helper.focusNode);
+          }
+
+          for (final PdfTextFormField textFormField in groupedTextFormFields) {
+            final PdfTextFormFieldHelper helper =
+                PdfFormFieldHelper.getHelper(textFormField)
+                    as PdfTextFormFieldHelper;
+
+            final List<PdfTextFormField> groupedItems = groupedTextFormFields
+                .where((PdfTextFormField groupedTextFormField) =>
+                    groupedTextFormField != textFormField)
+                .toList();
+
+            helper.updateChildItems(groupedItems);
+          }
+        } else {
+          final PdfTextFormFieldHelper helper = PdfTextFormFieldHelper(
+              field, pageIndex,
+              onFocusChanged: widget.onFormFieldFocusChange,
+              onValueChanged: _formFieldValueChanged);
+
+          _pdfViewerController._formFields.add(helper.getFormField());
+          _textBoxFocusNodes.add(helper.focusNode);
+        }
+      }
+
+      // Retrieve the checkbox details
+      if (field is PdfCheckBoxField) {
+        if (field.items != null && field.items!.count > 0) {
+          final List<PdfCheckboxFormField> groupedCheckBoxFormFields =
+              <PdfCheckboxFormField>[];
+          for (int j = 0; j < field.items!.count; j++) {
+            final PdfFieldItem item = field.items![j];
+            final int itemPageIndex = _document!.pages.indexOf(item.page!);
+
+            final PdfCheckboxFormFieldHelper groupedItemHelper =
+                PdfCheckboxFormFieldHelper(field, itemPageIndex,
+                    onValueChanged: _formFieldValueChanged);
+            groupedItemHelper.bounds = item.bounds;
+
+            final PdfCheckboxFormField groupedFormField =
+                groupedItemHelper.getFormField();
+            groupedCheckBoxFormFields.add(groupedFormField);
+            _pdfViewerController._formFields.add(groupedFormField);
+          }
+
+          for (final PdfCheckboxFormField checkboxFormField
+              in groupedCheckBoxFormFields) {
+            final PdfCheckboxFormFieldHelper helper =
+                PdfFormFieldHelper.getHelper(checkboxFormField)
+                    as PdfCheckboxFormFieldHelper;
+
+            final List<PdfCheckboxFormField> groupedItems =
+                groupedCheckBoxFormFields
+                    .where((PdfCheckboxFormField groupedCheckboxFormField) =>
+                        groupedCheckboxFormField != checkboxFormField)
+                    .toList();
+
+            helper.updateChildItems(groupedItems);
+          }
+        } else {
+          final PdfCheckboxFormFieldHelper helper = PdfCheckboxFormFieldHelper(
+              field, pageIndex,
+              onValueChanged: _formFieldValueChanged);
+
+          _pdfViewerController._formFields.add(helper.getFormField());
+        }
+      }
+
+      // Retrieve the combo box details
+      if (field is PdfComboBoxField) {
+        final PdfComboBoxFormFieldHelper helper = PdfComboBoxFormFieldHelper(
+            field, pageIndex,
+            onValueChanged: _formFieldValueChanged);
+
+        _pdfViewerController._formFields.add(helper.getFormField());
+      }
+
+      // Retrieve the radio button details
+      if (field is PdfRadioButtonListField) {
+        final PdfRadioFormFieldHelper helper = PdfRadioFormFieldHelper(
+            field, pageIndex,
+            onValueChanged: _formFieldValueChanged);
+
+        _pdfViewerController._formFields.add(helper.getFormField());
+      }
+
+      // Retrieve the signature field details
+      if (field is PdfSignatureField) {
+        final PdfSignatureFormFieldHelper helper = PdfSignatureFormFieldHelper(
+            field, pageIndex,
+            onValueChanged: _formFieldValueChanged,
+            onFocusChange: widget.onFormFieldFocusChange,
+            localizations: _localizations,
+            themeData: _themeData);
+
+        _pdfViewerController._formFields.add(helper.getFormField());
+      }
+
+      // Retrieve the list box field details
+      if (field is PdfListBoxField) {
+        final PdfListBoxFormFieldHelper helper = PdfListBoxFormFieldHelper(
+            field, pageIndex,
+            onValueChanged: widget.onFormFieldValueChanged);
+
+        _pdfViewerController._formFields.add(helper.getFormField());
+      }
+    }
+  }
+
+  /// Called when the value of a form field is changed.
+  void _formFieldValueChanged(PdfFormFieldValueChangedDetails details) {
+    if (widget.onFormFieldValueChanged != null) {
+      widget.onFormFieldValueChanged!(details);
+    }
+    _changeGroupedFieldValue(details.formField);
+  }
+
+  /// Change the value of grouped form fields.
+  void _changeGroupedFieldValue(PdfFormField editedField) {
+    for (final PdfFormField field in _pdfViewerController._formFields) {
+      if (editedField != field && editedField.name == field.name) {
+        if (editedField is PdfTextFormField && field is PdfTextFormField) {
+          field.text = editedField.text;
+        } else if (editedField is PdfCheckboxFormField &&
+            field is PdfCheckboxFormField) {
+          field.isChecked = editedField.isChecked;
+        } else if (editedField is PdfRadioFormField &&
+            field is PdfRadioFormField) {
+          field.selectedItem = editedField.selectedItem;
+        } else if (editedField is PdfComboBoxFormField &&
+            field is PdfComboBoxFormField) {
+          field.selectedItem = editedField.selectedItem;
+        } else if (editedField is PdfListBoxFormField &&
+            field is PdfListBoxFormField) {
+          field.selectedItems = editedField.selectedItems;
+        } else if (editedField is PdfSignatureFormField &&
+            field is PdfSignatureFormField) {
+          field.signature = editedField.signature;
+        }
+      }
+    }
+  }
+
+  /// Imports the form fields details from the document.
+  void _importFormFieldData() {
+    for (int fieldIndex = 0;
+        fieldIndex < _document!.form.fields.count;
+        fieldIndex++) {
+      final PdfField field = _document!.form.fields[fieldIndex];
+      final List<PdfFormField> filteredFormFields = _pdfViewerController
+          ._formFields
+          .where((PdfFormField formField) => formField.name == field.name)
+          .toList();
+
+      for (final PdfFormField formField in filteredFormFields) {
+        if (field is PdfTextBoxField && formField is PdfTextFormField) {
+          if (!formField.readOnly) {
+            (PdfFormFieldHelper.getHelper(formField) as PdfTextFormFieldHelper)
+                .setTextBoxValue(field.text);
+          } else {
+            field.text = formField.text;
+          }
+        }
+        if (field is PdfCheckBoxField && formField is PdfCheckboxFormField) {
+          if (!formField.readOnly) {
+            (PdfFormFieldHelper.getHelper(formField)
+                    as PdfCheckboxFormFieldHelper)
+                .setCheckboxValue(field.isChecked);
+          } else {
+            field.isChecked = formField.isChecked;
+          }
+        }
+        if (field is PdfComboBoxField && formField is PdfComboBoxFormField) {
+          if (!formField.readOnly) {
+            final String selectedItem = field.selectedIndex != -1
+                ? field.items[field.selectedIndex].text
+                : field.items[0].text;
+
+            (PdfFormFieldHelper.getHelper(formField)
+                    as PdfComboBoxFormFieldHelper)
+                .setComboBoxValue(selectedItem);
+          } else {
+            field.selectedValue = formField.selectedItem;
+          }
+        }
+        if (field is PdfRadioButtonListField &&
+            formField is PdfRadioFormField) {
+          if (!formField.readOnly) {
+            final String selectedItem = field.selectedIndex != -1
+                ? field.items[field.selectedIndex].value
+                : field.items[0].value;
+
+            (PdfFormFieldHelper.getHelper(formField) as PdfRadioFormFieldHelper)
+                .setRadioButtonValue(selectedItem);
+          } else {
+            field.selectedValue = formField.selectedItem;
+          }
+        }
+        if (field is PdfListBoxField && formField is PdfListBoxFormField) {
+          if (!formField.readOnly) {
+            final List<String> selectedItems =
+                List<String>.from(field.selectedValues, growable: false);
+
+            (PdfFormFieldHelper.getHelper(formField)
+                    as PdfListBoxFormFieldHelper)
+                .setListBoxValue(selectedItems);
+          } else {
+            field.selectedValues = formField.selectedItems!;
+          }
+        }
+      }
+    }
+  }
+
+  /// Save the PDF document with the modified data and returns the data bytes.
+  Future<List<int>> _saveDocument() async {
+    // Update the signature form fields data
+    _updateSignatureFormFields();
+
+    // Set the default appearance for the form.
+    _document!.form.setDefaultAppearance(false);
+
+    // Flatten the form fields if the PdfFlattenOption is enabled.
+    if (_pdfViewerController._flattenOption == PdfFlattenOption.formFields) {
+      _document!.form.flattenAllFields();
+    }
+
+    // Save and reload the document
+    _pdfBytes = Uint8List(0);
+    _pdfBytes = Uint8List.fromList(await _document!.save());
+    _loadPdfDocument(true, true);
+
+    return _pdfBytes.toList();
+  }
+
+  /// Update the signature form fields data
+  void _updateSignatureFormFields() {
+    for (final PdfFormField signatureField
+        in _pdfViewerController._formFields) {
+      if (signatureField is PdfSignatureFormField) {
+        final PdfSignatureFormFieldHelper helper =
+            PdfFormFieldHelper.getHelper(signatureField)
+                as PdfSignatureFormFieldHelper;
+        final PdfPage page = helper.pdfSignatureField.page!;
+        if (signatureField.signature != null) {
+          final List<int>? bitmapBytes = signatureField.signature;
+          if (bitmapBytes != null) {
+            page.graphics.drawImage(
+                PdfBitmap(bitmapBytes),
+                Rect.fromLTWH(helper.bounds.left, helper.bounds.top,
+                    helper.bounds.width, helper.bounds.height));
+            helper.pdfSignatureField.flatten();
+          }
+        }
+      }
+    }
+  }
+
   /// Loads a PDF document and gets the page count from Plugin
-  Future<void> _loadPdfDocument(bool isPdfChanged) async {
+  Future<void> _loadPdfDocument(bool isPdfChanged, bool isDocumentSaved) async {
     try {
-      if (!_isEncrypted) {
+      if (!_isEncrypted && !isDocumentSaved) {
         _getPdfFileCancellableOperation =
             CancelableOperation<Uint8List>.fromFuture(
           widget._provider.getPdfBytes(context),
@@ -1176,7 +1572,9 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       }
       _pdfBytes = _isEncrypted
           ? _decryptedBytes
-          : (await _getPdfFileCancellableOperation?.value)!;
+          : isDocumentSaved
+              ? _pdfBytes
+              : (await _getPdfFileCancellableOperation?.value)!;
       if (isPdfChanged) {
         _reset();
         _plugin = PdfViewerPlugin();
@@ -1186,6 +1584,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           CancelableOperation<PdfDocument?>.fromFuture(_getPdfFile(_pdfBytes));
       _document = await _pdfDocumentLoadCancellableOperation?.value;
       if (_document != null) {
+        _retrieveFormFieldsDetails();
         _pdfTextExtractor = PdfTextExtractor(_document!);
         if (!kIsWeb) {
           _performTextExtraction();
@@ -1198,10 +1597,6 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       }
       _pdfViewerController.zoomLevel = widget.initialZoomLevel;
       _setInitialScrollOffset();
-      if (_document != null && widget.onDocumentLoaded != null) {
-        _isDocumentLoadInitiated = false;
-        widget.onDocumentLoaded!(PdfDocumentLoadedDetails(_document!));
-      }
       _getHeightCancellableOperation =
           CancelableOperation<List<dynamic>?>.fromFuture(
               _plugin.getPagesHeight());
@@ -1346,17 +1741,19 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                       child: Padding(
                         padding: const EdgeInsets.only(left: 16, top: 10),
                         child: Text(
-                          _localizations!.passwordDialogHeaderTextLabel,
-                          style: _pdfViewerThemeData!
-                                  .passwordDialogStyle?.headerTextStyle ??
-                              TextStyle(
-                                fontFamily: 'Roboto',
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: _themeData!.colorScheme.onSurface
-                                    .withOpacity(0.87),
-                              ),
-                        ),
+                            _localizations!.passwordDialogHeaderTextLabel,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium!
+                                .copyWith(
+                                  fontSize: 20,
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Colors.black.withOpacity(0.87)
+                                      : Colors.white.withOpacity(0.87),
+                                )
+                                .merge(_pdfViewerThemeData!
+                                    .passwordDialogStyle?.headerTextStyle)),
                       ),
                     ),
                     Padding(
@@ -1389,18 +1786,18 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: Text(
-                    _localizations!.passwordDialogContentLabel,
-                    style: _pdfViewerThemeData!
-                            .passwordDialogStyle?.contentTextStyle ??
-                        TextStyle(
-                          fontFamily: 'Roboto',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: _themeData!.colorScheme.onSurface
-                              .withOpacity(0.6),
-                        ),
-                  ),
+                  child: Text(_localizations!.passwordDialogContentLabel,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
+                          .copyWith(
+                              fontSize: 16,
+                              color: Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? Colors.black.withOpacity(0.6)
+                                  : Colors.white.withOpacity(0.6))
+                          .merge(_pdfViewerThemeData!
+                              .passwordDialogStyle?.contentTextStyle)),
                 ),
                 Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -1420,32 +1817,31 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           });
                         },
                         child: Text(
-                          _localizations!.pdfPasswordDialogCancelLabel,
-                          style: _pdfViewerThemeData!
-                                  .passwordDialogStyle?.cancelTextStyle ??
-                              TextStyle(
-                                fontFamily: 'Roboto',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: _themeData!.colorScheme.primary,
-                              ),
-                        ),
+                            _localizations!.pdfPasswordDialogCancelLabel,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  fontSize: 14,
+                                  color: _themeData!.colorScheme.primary,
+                                )
+                                .merge(_pdfViewerThemeData!
+                                    .passwordDialogStyle?.cancelTextStyle)),
                       ),
                       TextButton(
                         onPressed: () {
                           _passwordValidation(_textFieldController.text);
                         },
-                        child: Text(
-                          _localizations!.pdfPasswordDialogOpenLabel,
-                          style: _pdfViewerThemeData!
-                                  .passwordDialogStyle?.openTextStyle ??
-                              TextStyle(
-                                fontFamily: 'Roboto',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: _themeData!.colorScheme.primary,
-                              ),
-                        ),
+                        child: Text(_localizations!.pdfPasswordDialogOpenLabel,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  fontSize: 14,
+                                  color: _themeData!.colorScheme.primary,
+                                )
+                                .merge(_pdfViewerThemeData!
+                                    .passwordDialogStyle?.openTextStyle)),
                       ),
                     ],
                   ),
@@ -1463,13 +1859,17 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     return SizedBox(
       width: 296,
       child: TextFormField(
-        style: _pdfViewerThemeData!.passwordDialogStyle?.inputFieldTextStyle ??
-            TextStyle(
-              fontFamily: 'Roboto',
+        style: Theme.of(context)
+            .textTheme
+            .titleMedium!
+            .copyWith(
               fontSize: 17,
-              fontWeight: FontWeight.w400,
-              color: _themeData!.colorScheme.onSurface.withOpacity(0.87),
-            ),
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.black.withOpacity(0.87)
+                  : Colors.white.withOpacity(0.87),
+            )
+            .merge(
+                _pdfViewerThemeData!.passwordDialogStyle?.inputFieldTextStyle),
         obscureText: _passwordVisible,
         obscuringCharacter: '*',
         decoration: InputDecoration(
@@ -1497,33 +1897,37 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           )),
           hintText: _localizations!.passwordDialogHintTextLabel,
           errorText: _errorTextPresent ? 'Invalid Password' : null,
-          hintStyle: _pdfViewerThemeData!
-                  .passwordDialogStyle?.inputFieldHintTextStyle ??
-              TextStyle(
-                fontFamily: 'Roboto',
+          hintStyle: Theme.of(context)
+              .textTheme
+              .titleMedium!
+              .copyWith(
                 fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: _themeData!.colorScheme.onSurface.withOpacity(0.6),
-              ),
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.black.withOpacity(0.6)
+                    : Colors.white.withOpacity(0.6),
+              )
+              .merge(_pdfViewerThemeData!
+                  .passwordDialogStyle?.inputFieldHintTextStyle),
           labelText: _localizations!.passwordDialogHintTextLabel,
-          labelStyle: _pdfViewerThemeData!
-                  .passwordDialogStyle?.inputFieldLabelTextStyle ??
-              TextStyle(
-                fontFamily: 'Roboto',
+          labelStyle: Theme.of(context)
+              .textTheme
+              .headlineMedium!
+              .copyWith(
                 fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: _errorTextPresent
-                    ? _themeData!.colorScheme.error
-                    : _themeData!.colorScheme.onSurface.withOpacity(0.87),
-              ),
-          errorStyle:
-              _pdfViewerThemeData!.passwordDialogStyle?.errorTextStyle ??
-                  TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: _themeData!.colorScheme.error,
-                  ),
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.black.withOpacity(0.87)
+                    : Colors.white.withOpacity(0.87),
+              )
+              .merge(_pdfViewerThemeData!
+                  .passwordDialogStyle?.inputFieldLabelTextStyle),
+          errorStyle: Theme.of(context)
+              .textTheme
+              .bodyMedium!
+              .copyWith(
+                fontSize: 14,
+                color: _themeData!.colorScheme.error,
+              )
+              .merge(_pdfViewerThemeData!.passwordDialogStyle?.errorTextStyle),
           suffixIcon: IconButton(
               icon: Icon(
                   _passwordVisible ? Icons.visibility : Icons.visibility_off,
@@ -1605,15 +2009,18 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                 Expanded(
                   child: Text(
                     _localizations!.passwordDialogHeaderTextLabel,
-                    style: _pdfViewerThemeData!
-                            .passwordDialogStyle?.headerTextStyle ??
-                        TextStyle(
-                          fontFamily: 'Roboto',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium!
+                        .copyWith(
                           fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: _themeData!.colorScheme.onSurface
-                              .withOpacity(0.87),
-                        ),
+                          color:
+                              Theme.of(context).brightness == Brightness.light
+                                  ? Colors.black.withOpacity(0.87)
+                                  : Colors.white.withOpacity(0.87),
+                        )
+                        .merge(_pdfViewerThemeData!
+                            .passwordDialogStyle?.headerTextStyle),
                   ),
                 ),
                 SizedBox(
@@ -1653,30 +2060,36 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           padding: const EdgeInsets.fromLTRB(0, 0, 0, 24),
                           child: Text(
                             _localizations!.passwordDialogContentLabel,
-                            style: _pdfViewerThemeData!
-                                    .passwordDialogStyle?.contentTextStyle ??
-                                TextStyle(
-                                  fontFamily: 'Roboto',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                  color: _themeData!.colorScheme.onSurface
-                                      .withOpacity(0.6),
-                                ),
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Colors.black.withOpacity(0.6)
+                                      : Colors.white.withOpacity(0.6),
+                                )
+                                .merge(_pdfViewerThemeData!
+                                    .passwordDialogStyle?.contentTextStyle),
                           ),
                         ),
                       ),
                       Form(
                         key: _formKey,
                         child: TextFormField(
-                          style: _pdfViewerThemeData!
-                                  .passwordDialogStyle?.inputFieldTextStyle ??
-                              TextStyle(
-                                fontFamily: 'Roboto',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(
                                 fontSize: 17,
-                                fontWeight: FontWeight.w400,
-                                color: _themeData!.colorScheme.onSurface
-                                    .withOpacity(0.87),
-                              ),
+                                color: Theme.of(context).brightness ==
+                                        Brightness.light
+                                    ? Colors.black.withOpacity(0.87)
+                                    : Colors.white.withOpacity(0.87),
+                              )
+                              .merge(_pdfViewerThemeData!
+                                  .passwordDialogStyle?.inputFieldTextStyle),
                           obscureText: _passwordVisible,
                           obscuringCharacter: '*',
                           decoration: InputDecoration(
@@ -1708,36 +2121,41 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                             )),
                             hintText:
                                 _localizations!.passwordDialogHintTextLabel,
-                            hintStyle: _pdfViewerThemeData!.passwordDialogStyle
-                                    ?.inputFieldHintTextStyle ??
-                                TextStyle(
-                                  fontFamily: 'Roboto',
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                  color: _themeData!.colorScheme.onSurface
-                                      .withOpacity(0.6),
-                                ),
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Colors.black.withOpacity(0.6)
+                                      : Colors.white.withOpacity(0.6),
+                                )
+                                .merge(_pdfViewerThemeData!.passwordDialogStyle
+                                    ?.inputFieldHintTextStyle),
                             labelText:
                                 _localizations!.passwordDialogHintTextLabel,
-                            labelStyle: _pdfViewerThemeData!.passwordDialogStyle
-                                    ?.inputFieldLabelTextStyle ??
-                                TextStyle(
-                                  fontFamily: 'Roboto',
+                            labelStyle: Theme.of(context)
+                                .textTheme
+                                .headlineMedium!
+                                .copyWith(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                  color: _errorTextPresent
-                                      ? _themeData!.colorScheme.error
-                                      : _themeData!.colorScheme.onSurface
-                                          .withOpacity(0.87),
-                                ),
-                            errorStyle: _pdfViewerThemeData!
-                                    .passwordDialogStyle?.errorTextStyle ??
-                                TextStyle(
-                                  fontFamily: 'Roboto',
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Colors.black.withOpacity(0.87)
+                                      : Colors.white.withOpacity(0.87),
+                                )
+                                .merge(_pdfViewerThemeData!.passwordDialogStyle
+                                    ?.inputFieldLabelTextStyle),
+                            errorStyle: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w500,
                                   color: _themeData!.colorScheme.error,
-                                ),
+                                )
+                                .merge(_pdfViewerThemeData!
+                                    .passwordDialogStyle?.errorTextStyle),
                             suffixIcon: IconButton(
                                 icon: Icon(
                                     _passwordVisible
@@ -1804,14 +2222,15 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                 },
                 child: Text(
                   _localizations!.pdfPasswordDialogCancelLabel,
-                  style: _pdfViewerThemeData!
-                          .passwordDialogStyle?.cancelTextStyle ??
-                      TextStyle(
-                        fontFamily: 'Roboto',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
                         color: _themeData!.colorScheme.primary,
-                      ),
+                      )
+                      .merge(_pdfViewerThemeData!
+                          .passwordDialogStyle?.cancelTextStyle),
                 ),
               ),
               Padding(
@@ -1822,14 +2241,15 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                   },
                   child: Text(
                     _localizations!.pdfPasswordDialogOpenLabel,
-                    style: _pdfViewerThemeData!
-                            .passwordDialogStyle?.openTextStyle ??
-                        TextStyle(
-                          fontFamily: 'Roboto',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(
                           fontSize: 14,
-                          fontWeight: FontWeight.w500,
                           color: _themeData!.colorScheme.primary,
-                        ),
+                        )
+                        .merge(_pdfViewerThemeData!
+                            .passwordDialogStyle?.openTextStyle),
                   ),
                 ),
               ),
@@ -1857,7 +2277,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     final List<int> bytes = document.saveSync();
     _decryptedBytes = Uint8List.fromList(bytes);
     _isEncrypted = true;
-    _loadPdfDocument(true);
+    _loadPdfDocument(true, false);
   }
 
   /// Get the file of the Pdf.
@@ -1957,12 +2377,11 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       if (widget.pageLayoutMode == PdfPageLayoutMode.single) {
         viewportRenderBox =
             // ignore: avoid_as
-            (_singlePageViewKey.currentContext!.findRenderObject())!
-                as RenderBox;
+            _singlePageViewKey.currentContext!.findRenderObject()! as RenderBox;
       } else {
         viewportRenderBox =
             // ignore: avoid_as
-            (_pdfScrollableStateKey.currentContext!.findRenderObject())!
+            _pdfScrollableStateKey.currentContext!.findRenderObject()!
                 as RenderBox;
       }
       final Offset position = viewportRenderBox.localToGlobal(Offset.zero);
@@ -2000,12 +2419,11 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
 
     /// Find whether device is mobile or Laptop.
     _findDevice(context);
-
     final bool isPdfLoaded = _pdfViewerController.pageCount > 0 &&
         _originalWidth != null &&
         _originalHeight != null;
     _pdfDimension =
-        (_childKey.currentContext?.findRenderObject()?.paintBounds.size) ??
+        _childKey.currentContext?.findRenderObject()?.paintBounds.size ??
             Size.zero;
     return isPdfLoaded
         ? Listener(
@@ -2033,14 +2451,13 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           .constraints as BoxConstraints;
                       double totalHeight = 0.0;
                       _isKeyPadRaised =
-                          WidgetsBinding.instance.window.viewInsets.bottom !=
-                              0.0;
+                          View.of(context).viewInsets.bottom != 0.0;
                       Size viewportDimension = _viewportConstraints.biggest;
                       if (_isKeyPadRaised) {
                         _iskeypadClosed = true;
-                        double keyPadHeight = EdgeInsets.fromWindowPadding(
-                                WidgetsBinding.instance.window.viewInsets,
-                                WidgetsBinding.instance.window.devicePixelRatio)
+                        double keyPadHeight = EdgeInsets.fromViewPadding(
+                                View.of(context).viewInsets,
+                                View.of(context).devicePixelRatio)
                             .bottom;
                         if ((widget.scrollDirection ==
                                     PdfScrollDirection.horizontal ||
@@ -2110,9 +2527,6 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                         if (!_pdfPagesKey.containsKey(pageIndex)) {
                           _pdfPagesKey[pageIndex] = GlobalKey();
                         }
-                        _isOverflowed = _originalWidth![index] >
-                            // ignore: avoid_as
-                            _viewportConstraints.maxWidth as bool;
                         if (kIsDesktop && !_isMobileView) {
                           if (_originalWidth![index] > _maxPdfPageWidth !=
                               null) {
@@ -2133,93 +2547,59 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           viewportGlobalRect = _getViewportGlobalRect();
                         }
                         final PdfPageView page = PdfPageView(
-                          _pdfPagesKey[pageIndex]!,
-                          pdfImages[pageIndex],
-                          viewportGlobalRect,
-                          viewportDimension,
-                          widget.interactionMode,
-                          (kIsDesktop &&
-                                  !_isMobileView &&
-                                  !_isOverflowed &&
-                                  widget.pageLayoutMode ==
-                                      PdfPageLayoutMode.continuous)
-                              ? _originalWidth![index]
-                              : calculatedSize.width,
-                          (kIsDesktop &&
-                                  !_isMobileView &&
-                                  !_isOverflowed &&
-                                  widget.pageLayoutMode ==
-                                      PdfPageLayoutMode.continuous)
-                              ? _originalHeight![index]
-                              : calculatedSize.height,
-                          widget.pageSpacing,
-                          _document,
-                          _pdfPages,
-                          index,
-                          _pdfViewerController,
-                          widget.maxZoomLevel,
-                          widget.enableDocumentLinkAnnotation,
-                          widget.enableTextSelection,
-                          widget.onTextSelectionChanged,
-                          widget.onHyperlinkClicked,
-                          _handleTextSelectionDragStarted,
-                          _handleTextSelectionDragEnded,
-                          widget.currentSearchTextHighlightColor,
-                          widget.otherSearchTextHighlightColor,
-                          _textCollection,
-                          _isMobileView,
-                          _pdfViewerController._pdfTextSearchResult,
-                          _pdfScrollableStateKey,
-                          _singlePageViewKey,
-                          _scrollDirection,
-                          _handlePdfPagePointerDown,
-                          _handlePdfPagePointerMove,
-                          _handlePdfPagePointerUp,
-                          isBookmarkViewOpen ? '' : _pageTextExtractor[index],
-                          widget.pageLayoutMode == PdfPageLayoutMode.single,
-                          _textDirection,
-                          widget.canShowHyperlinkDialog,
-                          widget.enableHyperlinkNavigation,
-                          _isAndroidTV,
-                          _startPageIndex,
-                          _endPageIndex,
-                        );
+                            _pdfPagesKey[pageIndex]!,
+                            pdfImages[pageIndex],
+                            viewportGlobalRect,
+                            viewportDimension,
+                            widget.interactionMode,
+                            calculatedSize.width,
+                            calculatedSize.height,
+                            widget.pageSpacing,
+                            _document,
+                            _pdfPages,
+                            index,
+                            _pdfViewerController,
+                            widget.maxZoomLevel,
+                            widget.enableDocumentLinkAnnotation,
+                            widget.enableTextSelection,
+                            widget.onTextSelectionChanged,
+                            widget.onHyperlinkClicked,
+                            _handleTextSelectionDragStarted,
+                            _handleTextSelectionDragEnded,
+                            widget.currentSearchTextHighlightColor,
+                            widget.otherSearchTextHighlightColor,
+                            _textCollection,
+                            _isMobileView,
+                            _pdfViewerController._pdfTextSearchResult,
+                            _pdfScrollableStateKey,
+                            _singlePageViewKey,
+                            _scrollDirection,
+                            _handlePdfPagePointerDown,
+                            _handlePdfPagePointerMove,
+                            _handlePdfPagePointerUp,
+                            isBookmarkViewOpen ? '' : _pageTextExtractor[index],
+                            widget.pageLayoutMode == PdfPageLayoutMode.single,
+                            _textDirection,
+                            widget.canShowHyperlinkDialog,
+                            widget.enableHyperlinkNavigation,
+                            _isAndroidTV,
+                            _startPageIndex,
+                            _endPageIndex,
+                            widget.canShowPageLoadingIndicator,
+                            widget.canShowSignaturePadDialog,
+                            _handlePageTap,
+                            _pdfViewerController._formFields);
                         final double pageSpacing =
                             index == _pdfViewerController.pageCount - 1
                                 ? 0.0
                                 : widget.pageSpacing;
-                        if (kIsDesktop && !_isMobileView && !_isOverflowed) {
-                          _pdfPages[pageIndex] = PdfPageInfo(
-                              totalHeight,
-                              Size(_originalWidth![index],
-                                  _originalHeight![index]));
-                          if (_scrollDirection == PdfScrollDirection.vertical &&
-                              widget.pageLayoutMode !=
-                                  PdfPageLayoutMode.single) {
-                            totalHeight +=
-                                _originalHeight![index] + pageSpacing;
-                          } else {
-                            if (widget.pageLayoutMode ==
-                                PdfPageLayoutMode.continuous) {
-                              totalHeight +=
-                                  _originalWidth![index] + pageSpacing;
-                            } else {
-                              _pdfPages[pageIndex] =
-                                  PdfPageInfo(totalHeight, calculatedSize);
-                              totalHeight +=
-                                  calculatedSize.height + pageSpacing;
-                            }
-                          }
+                        _pdfPages[pageIndex] =
+                            PdfPageInfo(totalHeight, calculatedSize);
+                        if (_scrollDirection == PdfScrollDirection.vertical &&
+                            widget.pageLayoutMode != PdfPageLayoutMode.single) {
+                          totalHeight += calculatedSize.height + pageSpacing;
                         } else {
-                          _pdfPages[pageIndex] =
-                              PdfPageInfo(totalHeight, calculatedSize);
-                          if (_scrollDirection == PdfScrollDirection.vertical &&
-                              widget.pageLayoutMode !=
-                                  PdfPageLayoutMode.single) {
-                            totalHeight += calculatedSize.height + pageSpacing;
-                          } else {
-                            totalHeight += calculatedSize.width + pageSpacing;
-                          }
+                          totalHeight += calculatedSize.width + pageSpacing;
                         }
                         _updateScrollDirectionChange(
                             _offsetBeforeOrientationChange,
@@ -2257,6 +2637,17 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                         return page;
                       });
                       Widget? pdfContainer;
+                      if (!_isLoaded) {
+                        Future<dynamic>.delayed(Duration.zero, () async {
+                          if (_document != null &&
+                              widget.onDocumentLoaded != null) {
+                            _isDocumentLoadInitiated = false;
+                            widget.onDocumentLoaded!(
+                                PdfDocumentLoadedDetails(_document!));
+                          }
+                          _isLoaded = true;
+                        });
+                      }
                       if (widget.pageLayoutMode == PdfPageLayoutMode.single) {
                         _pageController = PageController(
                             initialPage: _pdfViewerController.pageNumber - 1);
@@ -2502,9 +2893,11 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
 
   void _handlePdfPagePointerDown(PointerDownEvent details) {
     _isPdfPageTapped = true;
+    _canInvokeOnTap = true;
   }
 
   void _handlePdfPagePointerMove(PointerMoveEvent details) {
+    _canInvokeOnTap &= details.delta == Offset.zero;
     if (details.kind == PointerDeviceKind.touch && kIsDesktop) {
       setState(() {
         _isScaleEnabled = true;
@@ -2520,6 +2913,11 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     }
   }
 
+  void _handlePageTap(Offset pagePosition, int pageIndex) {
+    _tappedPageNumber = pageIndex + 1;
+    _tappedPagePosition = pagePosition;
+  }
+
   void _handlePointerSignal(PointerSignalEvent event) {
     if (!isBookmarkViewOpen) {
       _pdfScrollableStateKey.currentState?.receivedPointerSignal(event);
@@ -2527,19 +2925,37 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   }
 
   void _handlePointerDown(PointerDownEvent event) {
+    _canInvokeOnTap = true;
     if (!_isPdfPageTapped) {
       _pdfPagesKey[_pdfViewerController.pageNumber]
           ?.currentState
           ?.canvasRenderBox
           ?.clearSelection();
     }
-    _pdfPagesKey[_pdfViewerController.pageNumber]
-        ?.currentState
-        ?.focusNode
-        .requestFocus();
+    bool isTextFormFieldFocused = false;
+
+    /// Requesting focus to the text form fields in mobile platforms
+    if (_textBoxFocusNodes.isNotEmpty) {
+      for (final FocusNode focusNode in _textBoxFocusNodes) {
+        if (focusNode.parent != null &&
+            focusNode.rect.contains(event.position)) {
+          focusNode.requestFocus();
+          isTextFormFieldFocused = true;
+        } else {
+          focusNode.unfocus();
+        }
+      }
+    }
+    if (!isTextFormFieldFocused) {
+      _pdfPagesKey[_pdfViewerController.pageNumber]
+          ?.currentState
+          ?.focusNode
+          .requestFocus();
+    }
   }
 
   void _handlePointerMove(PointerMoveEvent event) {
+    _canInvokeOnTap &= event.delta == Offset.zero;
     if (widget.interactionMode == PdfInteractionMode.pan) {
       _cursor = SystemMouseCursors.grabbing;
     }
@@ -2557,6 +2973,15 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   }
 
   void _handlePointerUp(PointerUpEvent details) {
+    if (_canInvokeOnTap && !isBookmarkViewOpen) {
+      if (widget.onTap != null) {
+        widget.onTap!(PdfGestureDetails(
+            _tappedPageNumber, details.localPosition, _tappedPagePosition));
+      }
+    }
+    _canInvokeOnTap = true;
+    _tappedPageNumber = -1;
+    _tappedPagePosition = const Offset(-1, -1);
     _isPdfPageTapped = false;
     if (widget.interactionMode == PdfInteractionMode.pan) {
       _cursor = SystemMouseCursors.grab;
@@ -2707,6 +3132,8 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           _pdfViewerController.pageNumber + 1 < _pdfViewerController.pageCount
               ? _pdfViewerController.pageNumber + 1
               : _pdfViewerController.pageCount;
+      _startPageIndex = startPage;
+      _endPageIndex = endPage;
       final bool canRenderImage =
           !(_singlePageViewKey.currentState?.isScrollHeadDragged ?? true);
       renderedPages = _plugin
@@ -2762,8 +3189,9 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                       .currentState?.isScrolled ??
                   false
               : (_pdfScrollableStateKey.currentState?.isScrolled ?? false));
-      if (_pdfScrollableStateKey.currentState?.isZoomChanged ?? false)
+      if (_pdfScrollableStateKey.currentState?.isZoomChanged ?? false) {
         canRenderImage = true;
+      }
       renderedPages = _plugin
           .getSpecificPages(
               startPage,
@@ -2934,12 +3362,10 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       _previousSinglePage = _pdfViewerController.pageNumber;
       final double greyArea =
           (_singlePageViewKey.currentState?.greyAreaSize ?? 0) / 2;
-      double heightPercentage = 1.0;
-      if (kIsDesktop && !_isMobileView) {
-        heightPercentage =
-            _document!.pages[_pdfViewerController.pageNumber - 1].size.height /
-                _pdfPages[_pdfViewerController.pageNumber]!.pageSize.height;
-      }
+      final double heightPercentage =
+          _document!.pages[_pdfViewerController.pageNumber - 1].size.height /
+              _pdfPages[_pdfViewerController.pageNumber]!.pageSize.height;
+
       Offset singleOffset =
           _singlePageViewKey.currentState?.currentOffset ?? Offset.zero;
       singleOffset = Offset(singleOffset.dx * heightPercentage,
@@ -2963,12 +3389,10 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           _pdfViewerController.zoomLevel = 1.0;
         }
         _pdfViewerController.zoomLevel = zoomLevel;
-        double heightPercentage = 1.0;
-        if (kIsDesktop && !_isMobileView) {
-          heightPercentage = _document!
-                  .pages[_pdfViewerController.pageNumber - 1].size.height /
-              _pdfPages[_pdfViewerController.pageNumber]!.pageSize.height;
-        }
+        final double heightPercentage =
+            _document!.pages[_pdfViewerController.pageNumber - 1].size.height /
+                _pdfPages[_pdfViewerController.pageNumber]!.pageSize.height;
+
         if (widget.pageLayoutMode == PdfPageLayoutMode.single &&
             _singlePageViewKey.currentState != null) {
           final double greyAreaHeight =
@@ -3217,7 +3641,9 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       if (kIsDesktop &&
           !_isMobileView &&
           widget.pageLayoutMode == PdfPageLayoutMode.continuous) {
-        heightPercentage = 1.0;
+        heightPercentage =
+            _document!.pages[_pdfViewerController.pageNumber - 1].size.height /
+                _pdfPages[_pdfViewerController.pageNumber]!.pageSize.height;
       }
       yOffset = yOffset + (bookmarkOffset.dy / heightPercentage);
       double xOffset = bookmarkOffset.dx / widthPercentage;
@@ -3274,6 +3700,22 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       if (_pdfPages.isNotEmpty) {
         _jumpToBookmark(_pdfViewerController._pdfBookmark);
       }
+    } else if (property == 'exportFormData') {
+      if (_document != null) {
+        _pdfViewerController._exportedFormDataBytes =
+            _document!.form.exportData(_pdfViewerController._exportDataFormat);
+        setState(() {});
+      }
+    } else if (property == 'importFormData') {
+      if (_document != null) {
+        _document!.form.importData(_pdfViewerController._importedFormDataBytes,
+            _pdfViewerController._importDataFormat);
+        setState(() {
+          _importFormFieldData();
+        });
+      }
+    } else if (property == 'saveDocument') {
+      _pdfViewerController._savedDocumentBytes = _saveDocument();
     } else if (property == 'zoomLevel') {
       if (_pdfViewerController.zoomLevel > widget.maxZoomLevel) {
         _pdfViewerController.zoomLevel = widget.maxZoomLevel;
@@ -3426,6 +3868,29 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           _performTextSearch();
         }
       }
+    } else if (property == 'clearFormData') {
+      for (final PdfFormField field in _pdfViewerController._formFields) {
+        final PdfFormFieldHelper formFieldHelper =
+            PdfFormFieldHelper.getHelper(field);
+        final int formFieldPageNumber = formFieldHelper.pageIndex + 1;
+        if (_pdfViewerController._clearFormDataPageNumber == 0 ||
+            formFieldPageNumber ==
+                _pdfViewerController._clearFormDataPageNumber) {
+          if (field is PdfTextFormField) {
+            field.text = '';
+          } else if (field is PdfCheckboxFormField) {
+            field.isChecked = false;
+          } else if (field is PdfRadioFormField) {
+            field.selectedItem = field.items[0];
+          } else if (field is PdfComboBoxFormField) {
+            field.selectedItem = field.items[0];
+          } else if (field is PdfListBoxFormField) {
+            field.selectedItems = null;
+          } else if (field is PdfSignatureFormField) {
+            field.signature = null;
+          }
+        }
+      }
     }
   }
 
@@ -3557,20 +4022,11 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
               _document!.pages[currentInstancePageIndex - 1].rotation)
           .topLeft;
     }
-    final double heightPercentage = (kIsDesktop &&
-            !_isMobileView &&
-            !_isOverflowed &&
-            widget.pageLayoutMode == PdfPageLayoutMode.continuous)
-        ? 1
-        : _document!.pages[currentInstancePageIndex - 1].size.height /
+    final double heightPercentage =
+        _document!.pages[currentInstancePageIndex - 1].size.height /
             _pdfPages[currentInstancePageIndex]!.pageSize.height;
-
-    final double widthPercentage = (kIsDesktop &&
-            !_isMobileView &&
-            !_isOverflowed &&
-            widget.pageLayoutMode == PdfPageLayoutMode.continuous)
-        ? 1
-        : _document!.pages[currentInstancePageIndex - 1].size.width /
+    final double widthPercentage =
+        _document!.pages[currentInstancePageIndex - 1].size.width /
             _pdfPages[currentInstancePageIndex]!.pageSize.width;
 
     double searchOffsetX = topOffset.dx / widthPercentage;
@@ -3694,7 +4150,8 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       }
     }
     if (widget.pageLayoutMode == PdfPageLayoutMode.single &&
-        _pageController.hasClients) {
+        _pageController.hasClients &&
+        _pdfViewerController.zoomLevel == 1) {
       _pdfViewerController._scrollPositionX = _pageController.offset;
     } else {
       _pdfViewerController._scrollPositionX = offset.dx.abs();
@@ -3787,6 +4244,31 @@ class PdfViewerController extends ChangeNotifier with _ValueChangeNotifier {
     _totalPages = pageCount;
     _notifyPropertyChangedListeners(property: 'pageCount');
   }
+
+  /// Page number in which the form fields are to be cleared.
+  /// If the value is 0, all the form fields in the document will be cleared.
+  int _clearFormDataPageNumber = 0;
+
+  /// List of form fields in the docuemnt.
+  final List<PdfFormField> _formFields = <PdfFormField>[];
+
+  /// Imported form data bytes
+  List<int> _importedFormDataBytes = <int>[];
+
+  /// Exported form data bytes
+  List<int> _exportedFormDataBytes = <int>[];
+
+  /// Import data format
+  DataFormat _importDataFormat = DataFormat.xfdf;
+
+  /// Export data format
+  DataFormat _exportDataFormat = DataFormat.xfdf;
+
+  /// Saved document bytes
+  Future<List<int>> _savedDocumentBytes = Future<List<int>>.value(<int>[]);
+
+  /// Flatten option
+  PdfFlattenOption _flattenOption = PdfFlattenOption.none;
 
   /// PdfBookmark instance
   PdfBookmark? _pdfBookmark;
@@ -4086,6 +4568,39 @@ class PdfViewerController extends ChangeNotifier with _ValueChangeNotifier {
   void jumpToBookmark(PdfBookmark bookmark) {
     _pdfBookmark = bookmark;
     _notifyPropertyChangedListeners(property: 'jumpToBookmark');
+  }
+
+  /// Imports the form data with the specified [DataFormat].
+  ///
+  /// * inputBytes – _required_ – Specifies the bytes of the form data.
+  /// * dataFormat – _required_ – Defines the constants that specify the format
+  /// of importing form data.
+  void importFormData(List<int> inputBytes, DataFormat dataFormat) {
+    _importedFormDataBytes = inputBytes;
+    _importDataFormat = dataFormat;
+    _notifyPropertyChangedListeners(property: 'importFormData');
+  }
+
+  /// Export the form data with the specified [DataFormat] and return the bytes
+  /// as list of int.
+  ///
+  /// dataFormat – required – Defines the constants that specify the format
+  /// of exporting form data.
+  List<int> exportFormData({required DataFormat dataFormat}) {
+    _exportDataFormat = dataFormat;
+    _notifyPropertyChangedListeners(property: 'exportFormData');
+    return _exportedFormDataBytes;
+  }
+
+  /// Saves the document and return the saved bytes as future list of int.
+  ///
+  /// * flattenOptions – _optional_ – Defines the constants that specify the
+  /// option for flattening form fields.
+  Future<List<int>> saveDocument(
+      {PdfFlattenOption flattenOption = PdfFlattenOption.none}) {
+    _flattenOption = flattenOption;
+    _notifyPropertyChangedListeners(property: 'saveDocument');
+    return _savedDocumentBytes;
   }
 
   /// Jumps the scroll position of [SfPdfViewer] to the specified offset value.
@@ -4568,6 +5083,21 @@ class PdfViewerController extends ChangeNotifier with _ValueChangeNotifier {
   bool clearSelection() {
     _notifyPropertyChangedListeners(property: 'clearTextSelection');
     return _clearTextSelection;
+  }
+
+  /// Gets the form fields data in the document.
+  List<PdfFormField> getFormFields() {
+    return List<PdfFormField>.unmodifiable(_formFields);
+  }
+
+  /// Clears the form fields data in the PDF document.
+  ///
+  /// [pageNumber] - optional - The page number in which all form fields should be cleared.
+  void clearFormData({int pageNumber = 0}) {
+    _clearFormDataPageNumber = pageNumber;
+    _notifyPropertyChangedListeners(property: 'clearFormData');
+    // Reset the page number to 0 after clearing the form fields.
+    _clearFormDataPageNumber = 0;
   }
 
   /// Resets the controller value when widget is updated.

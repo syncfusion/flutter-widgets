@@ -173,7 +173,7 @@ class VisibleLineInfo extends Comparable<VisibleLineInfo> {
   /// * other - _required_ - An object to compare with this object.
   @override
   int compareTo(VisibleLineInfo other) =>
-      ((clippedOrigin - other.clippedOrigin).sign).toInt();
+      (clippedOrigin - other.clippedOrigin).sign.toInt();
 
   /// A string describing the state of the object.
   ///

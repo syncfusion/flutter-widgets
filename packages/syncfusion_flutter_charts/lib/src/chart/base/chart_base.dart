@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'dart:ui' as dart_ui;
 
 import 'package:flutter/foundation.dart';
@@ -226,7 +225,7 @@ class SfCartesianChart extends StatefulWidget {
         tooltipBehavior = tooltipBehavior ?? TooltipBehavior(),
         crosshairBehavior = crosshairBehavior ?? CrosshairBehavior(),
         trackballBehavior = trackballBehavior ?? TrackballBehavior(),
-        legend = legend ?? Legend(),
+        legend = legend ?? const Legend(),
         selectionType = selectionType ?? SelectionType.point,
         selectionGesture = selectionGesture ?? ActivationMode.singleTap,
         enableMultiSelection = enableMultiSelection ?? false,
@@ -1300,6 +1299,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
   @override
   void initState() {
     _initializeDefaultValues();
+    _stateProperties.plotBandRepaintNotifier = ValueNotifier<int>(0);
     // Create the series renderer while initial rendering //
     _createAndUpdateSeriesRenderer();
     super.initState();
@@ -1316,10 +1316,82 @@ class SfCartesianChartState extends State<SfCartesianChart>
 
   @override
   void didChangeDependencies() {
-    _stateProperties.renderingDetails.chartTheme = SfChartTheme.of(context);
+    _stateProperties.renderingDetails.chartTheme =
+        _updateThemeData(context, Theme.of(context), SfChartTheme.of(context));
+    _stateProperties.renderingDetails.themeData = Theme.of(context);
     _stateProperties.renderingDetails.isRtl =
         Directionality.of(context) == TextDirection.rtl;
     super.didChangeDependencies();
+  }
+
+  SfChartThemeData _updateThemeData(BuildContext context, ThemeData themeData,
+      SfChartThemeData chartThemeData) {
+    chartThemeData = chartThemeData.copyWith(
+      titleTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(
+            color: chartThemeData.titleTextColor,
+            fontSize: 15,
+          )
+          .merge(chartThemeData.titleTextStyle)
+          .merge(widget.title.textStyle),
+      axisTitleTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(
+            color: chartThemeData.axisTitleColor,
+            fontSize: 15,
+          )
+          .merge(chartThemeData.axisTitleTextStyle),
+      axisLabelTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(
+            color: chartThemeData.axisLabelColor,
+          )
+          .merge(chartThemeData.axisLabelTextStyle),
+      axisMultiLevelLabelTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(
+            color: chartThemeData.axisLabelColor,
+          )
+          .merge(chartThemeData.axisMultiLevelLabelTextStyle),
+      plotBandLabelTextStyle: themeData.textTheme.bodySmall!
+          .merge(chartThemeData.plotBandLabelTextStyle),
+      legendTitleTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(color: chartThemeData.legendTitleColor)
+          .merge(chartThemeData.legendTitleTextStyle)
+          .merge(widget.legend.title.textStyle),
+      legendTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(
+            color: chartThemeData.legendTextColor,
+            fontSize: 13,
+          )
+          .merge(chartThemeData.legendTextStyle)
+          .merge(widget.legend.textStyle),
+      tooltipTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(
+            color: widget.tooltipBehavior.color ??
+                chartThemeData.tooltipLabelColor,
+          )
+          .merge(chartThemeData.tooltipTextStyle)
+          .merge(widget.tooltipBehavior.textStyle),
+      trackballTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(
+            color: chartThemeData.crosshairLabelColor,
+          )
+          .merge(chartThemeData.trackballTextStyle)
+          .merge(widget.trackballBehavior.tooltipSettings.textStyle),
+      crosshairTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(
+            color: chartThemeData.crosshairLabelColor,
+          )
+          .merge(chartThemeData.crosshairTextStyle),
+      selectionZoomingTooltipTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(
+            color: chartThemeData.tooltipLabelColor,
+          )
+          .merge(chartThemeData.selectionZoomingTooltipTextStyle),
+      plotAreaBorderColor: chartThemeData.plotAreaBorderColor,
+      plotAreaBackgroundColor: chartThemeData.plotAreaBackgroundColor,
+      titleBackgroundColor: chartThemeData.titleBackgroundColor,
+      backgroundColor: chartThemeData.backgroundColor,
+    );
+    return chartThemeData;
   }
 
   /// Called whenever the widget configuration changes.
@@ -1349,7 +1421,9 @@ class SfCartesianChartState extends State<SfCartesianChart>
           ..addAll(_stateProperties.oldSeriesRenderers);
 
     //Update and maintain the series state, when we update the series in the series collection //
-
+    _stateProperties.renderingDetails.chartTheme =
+        _updateThemeData(context, Theme.of(context), SfChartTheme.of(context));
+    _stateProperties.renderingDetails.themeData = Theme.of(context);
     _createAndUpdateSeriesRenderer(
         oldWidget, oldWidgetSeriesRenderers, oldWidgetOldSeriesRenderers);
     needsRepaintChart(
@@ -1446,6 +1520,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
   @override
   void dispose() {
     _stateProperties.controllerList.forEach(disposeAnimationController);
+    _stateProperties.plotBandRepaintNotifier.dispose();
     super.dispose();
   }
 
@@ -1727,10 +1802,9 @@ class SfCartesianChartState extends State<SfCartesianChart>
         ..style = PaintingStyle.stroke
         ..strokeWidth = _stateProperties.chart.title.borderWidth;
       final TextStyle titleStyle = getTextStyle(
-          textStyle: _stateProperties.chart.title.textStyle,
-          background: titleBackground,
-          fontColor: _stateProperties.chart.title.textStyle.color ??
-              _stateProperties.renderingDetails.chartTheme.titleTextColor);
+        textStyle: _stateProperties.renderingDetails.chartTheme.titleTextStyle,
+        background: titleBackground,
+      );
       final TextStyle textStyle = TextStyle(
           color: titleStyle.color,
           fontSize: titleStyle.fontSize,
@@ -2637,6 +2711,7 @@ class _ContainerAreaState extends State<ContainerArea> {
     widget._stateProperties.renderingDetails.chartWidgets!.add(RepaintBoundary(
         child: CustomPaint(
             painter: getPlotBandPainter(
+                notifier: widget._stateProperties.plotBandRepaintNotifier,
                 stateProperties: widget._stateProperties,
                 shouldRenderAboveSeries: shouldRenderAboveSeries))));
   }
@@ -3120,7 +3195,8 @@ class _ContainerAreaState extends State<ContainerArea> {
           seriesType == 'errorbar') {
         for (int j = 0; j < dataPoints.length; j++) {
           if (dataPoints[j].region != null &&
-              dataPoints[j].region!.contains(position) == true) {
+              dataPoints[j].region!.contains(position) == true &&
+              seriesRendererDetails.selectionBehavior.enable) {
             seriesRendererDetails.isOuterRegion = false;
             break outerLoop;
           } else {
@@ -3167,7 +3243,8 @@ class _ContainerAreaState extends State<ContainerArea> {
                               .chartSeries
                               .visibleSeriesRenderers[i]),
                           position) ==
-                  true) {
+                  true &&
+              seriesRendererDetails.selectionBehavior.enable) {
             return widget
                 ._stateProperties.chartSeries.visibleSeriesRenderers[i];
           }
@@ -3238,10 +3315,7 @@ class _ContainerAreaState extends State<ContainerArea> {
     // ignore: unnecessary_null_comparison
     if (chart.crosshairBehavior != null &&
         chart.crosshairBehavior.enable &&
-        chart.crosshairBehavior.activationMode == ActivationMode.singleTap &&
-        cartesianSeriesRenderer != null &&
-        SeriesHelper.getSeriesRendererDetails(cartesianSeriesRenderer).series
-            is! ErrorBarSeries) {
+        chart.crosshairBehavior.activationMode == ActivationMode.singleTap) {
       widget._stateProperties.crosshairBehaviorRenderer
           .onTouchDown(position.dx, position.dy);
     }
@@ -3346,9 +3420,6 @@ class _ContainerAreaState extends State<ContainerArea> {
             !chart.crosshairBehavior.shouldAlwaysShow &&
             chart.crosshairBehavior.activationMode !=
                 ActivationMode.doubleTap &&
-            cartesianSeriesRenderer != null &&
-            SeriesHelper.getSeriesRendererDetails(cartesianSeriesRenderer)
-                .series is! ErrorBarSeries &&
             zoomingBehaviorDetails.isPinching != true) ||
         // ignore: unnecessary_null_comparison
         (chart.zoomPanBehavior != null &&
@@ -3480,9 +3551,7 @@ class _ContainerAreaState extends State<ContainerArea> {
     if (chart.crosshairBehavior != null &&
         chart.crosshairBehavior.enable &&
         chart.crosshairBehavior.activationMode != ActivationMode.doubleTap &&
-        position != null &&
-        SeriesHelper.getSeriesRendererDetails(_findSeries(position)!).series
-            is! ErrorBarSeries) {
+        position != null) {
       if (chart.crosshairBehavior.activationMode == ActivationMode.singleTap) {
         widget._stateProperties.crosshairBehaviorRenderer
             .onTouchMove(position.dx, position.dy);
@@ -3604,8 +3673,6 @@ class _ContainerAreaState extends State<ContainerArea> {
             chart.crosshairBehavior.enable == true &&
             chart.crosshairBehavior.activationMode ==
                 ActivationMode.longPress) &&
-        SeriesHelper.getSeriesRendererDetails(_findSeries(position!)!).series
-            is! ErrorBarSeries &&
         !chart.zoomPanBehavior.enableSelectionZooming &&
         zoomingBehaviorDetails.isPinching != true &&
         // ignore: unnecessary_null_comparison
@@ -3653,9 +3720,6 @@ class _ContainerAreaState extends State<ContainerArea> {
       // ignore: unnecessary_null_comparison
       if (chart.crosshairBehavior != null &&
           chart.crosshairBehavior.enable &&
-          cartesianSeriesRenderer != null &&
-          SeriesHelper.getSeriesRendererDetails(cartesianSeriesRenderer).series
-              is! ErrorBarSeries &&
           chart.crosshairBehavior.activationMode == ActivationMode.doubleTap) {
         widget._stateProperties.crosshairBehaviorRenderer
             .onDoubleTap(position.dx, position.dy);
@@ -3771,9 +3835,6 @@ class _ContainerAreaState extends State<ContainerArea> {
           chart.crosshairBehavior.enable &&
           chart.crosshairBehavior.activationMode != ActivationMode.doubleTap &&
           position != null &&
-          _findSeries(position) != null &&
-          SeriesHelper.getSeriesRendererDetails(_findSeries(position)!).series
-              is! ErrorBarSeries &&
           !panInProgress) {
         if (chart.crosshairBehavior.activationMode ==
             ActivationMode.singleTap) {
@@ -3819,8 +3880,6 @@ class _ContainerAreaState extends State<ContainerArea> {
       if (chart.crosshairBehavior.enable &&
           !chart.crosshairBehavior.shouldAlwaysShow &&
           _touchPosition != null &&
-          SeriesHelper.getSeriesRendererDetails(_findSeries(_touchPosition!)!)
-              .series is! ErrorBarSeries &&
           chart.crosshairBehavior.activationMode != ActivationMode.doubleTap) {
         widget._stateProperties.isTouchUp = true;
         widget._stateProperties.crosshairBehaviorRenderer
@@ -4002,9 +4061,6 @@ class _ContainerAreaState extends State<ContainerArea> {
                 .onEnter(position.dx, position.dy);
       }
       if (chart.crosshairBehavior.enable &&
-          cartesianSeriesRenderer != null &&
-          SeriesHelper.getSeriesRendererDetails(cartesianSeriesRenderer).series
-              is! ErrorBarSeries &&
           chart.crosshairBehavior.activationMode == ActivationMode.singleTap) {
         widget._stateProperties.crosshairBehaviorRenderer
             .onEnter(position.dx, position.dy);
@@ -4104,7 +4160,7 @@ class _ContainerAreaState extends State<ContainerArea> {
       tooltipRenderingDetails.chartTooltip = SfTooltip(
           color: tooltip.color ?? _renderingDetails.chartTheme.tooltipColor,
           key: GlobalKey(),
-          textStyle: tooltip.textStyle,
+          textStyle: _renderingDetails.chartTheme.tooltipTextStyle!,
           animationDuration: tooltip.animationDuration,
           animationCurve: const Interval(0.1, 0.8, curve: Curves.easeOutBack),
           enable: tooltip.enable,
@@ -4117,7 +4173,7 @@ class _ContainerAreaState extends State<ContainerArea> {
           canShowMarker: tooltip.canShowMarker,
           textAlignment: tooltip.textAlignment,
           decimalPlaces: tooltip.decimalPlaces,
-          labelColor: tooltip.textStyle.color ??
+          labelColor: tooltip.textStyle?.color ??
               _renderingDetails.chartTheme.tooltipLabelColor,
           header: tooltip.header,
           format: tooltip.format,

@@ -51,10 +51,10 @@ bool _suspendDataPagerUpdate = false;
 ///     SfDataGrid(
 ///      source: _ dataGridSource,
 ///      columns: <GridColumn>[
-///       GridNumericColumn(mappingName: 'id', headerText: 'ID'),
-///       GridTextColumn(mappingName: 'name', headerText: 'Name'),
-///       GridTextColumn(mappingName: 'designation', headerText: 'Designation'),
-///       GridNumericColumn(mappingName: 'salary', headerText: 'Salary'),
+///       GridColumn(columnName: 'id', label: Container(child: Text('ID'))),
+///       GridColumn(columnName: 'name', label: Container(child: Text('Name'))),
+///       GridColumn(columnName: 'designation', label: Container(child: Text('Designation'))),
+///       GridColumn(columnName: 'salary', label: Container(child: Text('Salary'))),
 ///      ],
 ///     ),
 ///     SfDataPager(
@@ -174,26 +174,44 @@ class DataPagerController extends _DataPagerChangeNotifier {
 /// ```dart
 /// @override
 /// Widget build(BuildContext context) {
-///   return Scaffold(
-///     appBar: AppBar(
-///       title: const Text('Syncfusion Flutter DataGrid'),
-///     ),
-///     body: Column(
-///       children: [
-///         SfDataGrid(source: dataGridSource, columns: [
-///           GridTextColumn(columnName: 'id', label: Text('ID')),
-///           GridTextColumn(columnName: 'name', label: Text('Name')),
-///           GridTextColumn(columnName: 'designation', label: Text('Designation')),
-///           GridTextColumn(columnName: 'salary', label: Text('Salary')),
-///         ]),
-///         SfDataPager(
-///           pageCount: paginatedDataTable.length / rowsPerPage,
-///           visibleItemsCount: 5,
-///           delegate: dataGridSource,
-///         ),
-///       ],
-///     ),
-///   );
+///  return Scaffold(
+///    appBar: AppBar(
+///      title: const Text('Syncfusion Flutter DataGrid'),
+///    ),
+///    body: Column(
+///      children: [
+///        SfDataGrid(source: dataGridSource, columns: [
+///          GridColumn(
+///              columnName: 'id',
+///              label: Container(
+///                  alignment: Alignment.center,
+///                  child: Text('ID'))),
+///          GridColumn(
+///              columnName: 'name',
+///              label: Container(
+///                  alignment: Alignment.center,
+///                  child: Text('Name'))),
+///          GridColumn(
+///              columnName: 'designation',
+///              label: Container(
+///                  alignment: Alignment.center,
+///                  child: Text(
+///                    'Designation',
+///                  ))),
+///          GridColumn(
+///              columnName: 'salary',
+///              label: Container(
+///                  alignment: Alignment.center,
+///                  child: Text('Salary'))),
+///        ]),
+///        SfDataPager(
+///          pageCount: paginatedDataTable.length / rowsPerPage,
+///          visibleItemsCount: 5,
+///          delegate: dataGridSource,
+///        ),
+///      ],
+///    ),
+///  );
 /// }
 /// ```
 ///
@@ -492,7 +510,17 @@ class SfDataPagerState extends State<SfDataPager> {
   @override
   void initState() {
     super.initState();
-    _rowsPerPage = widget.availableRowsPerPage[0];
+    // Issue:
+    // FLUT-835616 - SfDataPager's Rows per page dropdown value is not set
+    // based on the SfDataGrid's rowsPerPage property on initial loading.
+    //
+    // Fix:
+    // We have to check the `availableRowsPerPage` list contains the rows per page value
+    // from the SfDataGrid's rowsPerPage property. If it contains,
+    // then we have to set the rows per page value from the SfDataGrid's rowsPerPage property.
+    // Otherwise, we have to set the first value from the `availableRowsPerPage` list.
+    _rowsPerPage = _getAvailableRowsPerPage(getRowsPerPage(widget.delegate));
+
     _setRowsPerPageLabelSize();
 
     /// Set page count in DataGridSource.
@@ -504,6 +532,14 @@ class SfDataPagerState extends State<SfDataPager> {
     _controller = widget.controller ?? DataPagerController()
       ..addListener(_handleDataPagerControlPropertyChanged);
     _addDelegateListener();
+  }
+
+  int? _getAvailableRowsPerPage(int? count) {
+    if (count != null && widget.availableRowsPerPage.contains(count)) {
+      return count;
+    } else {
+      return widget.availableRowsPerPage[0];
+    }
   }
 
   void _addDelegateListener() {
@@ -900,9 +936,9 @@ class SfDataPagerState extends State<SfDataPager> {
   }
 
   double _getDataPagerWidth(
-      {bool canEnableDataPagerLable = false, bool isDropDown = false}) {
+      {bool canEnableDataPagerLabel = false, bool isDropDown = false}) {
     if (widget.direction == Axis.horizontal) {
-      if (canEnableDataPagerLable && isDropDown) {
+      if (canEnableDataPagerLabel && isDropDown) {
         return _headerExtent +
             _scrollViewPortSize +
             _footerExtent +
@@ -1566,7 +1602,7 @@ class SfDataPagerState extends State<SfDataPager> {
                     : Alignment.center,
             child: SizedBox(
                 width: _getDataPagerWidth(
-                    canEnableDataPagerLable: canEnablePagerLabel,
+                    canEnableDataPagerLabel: canEnablePagerLabel,
                     isDropDown: isDropDown),
                 height: _getDataPagerHeight(),
                 child: dataPagerLabel != null && isDropDown

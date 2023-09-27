@@ -13,6 +13,7 @@ import 'pdfviewer_theme.dart';
 import 'range_selector_theme.dart';
 import 'range_slider_theme.dart';
 import 'slider_theme.dart';
+import 'treemap_theme.dart';
 
 /// Applies a theme to descendant Syncfusion widgets.
 ///
@@ -173,7 +174,8 @@ class SfThemeData with Diagnosticable {
       SfSliderThemeData? sliderThemeData,
       SfRangeSliderThemeData? rangeSliderThemeData,
       SfRangeSelectorThemeData? rangeSelectorThemeData,
-      SfMapsThemeData? mapsThemeData}) {
+      SfMapsThemeData? mapsThemeData,
+      SfTreemapThemeData? treemapThemeData}) {
     brightness ??= Brightness.light;
     pdfViewerThemeData =
         pdfViewerThemeData ?? SfPdfViewerThemeData(brightness: brightness);
@@ -194,6 +196,8 @@ class SfThemeData with Diagnosticable {
     rangeSliderThemeData =
         rangeSliderThemeData ?? SfRangeSliderThemeData(brightness: brightness);
     mapsThemeData = mapsThemeData ?? SfMapsThemeData(brightness: brightness);
+    treemapThemeData =
+        treemapThemeData ?? SfTreemapThemeData(brightness: brightness);
     dataPagerThemeData =
         dataPagerThemeData ?? SfDataPagerThemeData(brightness: brightness);
     return SfThemeData.raw(
@@ -209,7 +213,8 @@ class SfThemeData with Diagnosticable {
         sliderThemeData: sliderThemeData,
         rangeSelectorThemeData: rangeSelectorThemeData,
         rangeSliderThemeData: rangeSliderThemeData,
-        mapsThemeData: mapsThemeData);
+        mapsThemeData: mapsThemeData,
+        treemapThemeData: treemapThemeData);
   }
 
   /// Create a [SfThemeData] given a set of exact values. All the values must be
@@ -232,7 +237,8 @@ class SfThemeData with Diagnosticable {
       required this.rangeSelectorThemeData,
       required this.rangeSliderThemeData,
       required this.mapsThemeData,
-      required this.dataPagerThemeData});
+      required this.dataPagerThemeData,
+      required this.treemapThemeData});
 
   /// This method returns the light theme when no theme has been specified.
   factory SfThemeData.light() => SfThemeData(brightness: Brightness.light);
@@ -501,22 +507,43 @@ class SfThemeData with Diagnosticable {
   /// ```
   final SfDataPagerThemeData dataPagerThemeData;
 
+  /// Defines the default configuration of treemap widgets.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///    appBar: AppBar(),
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            treemapThemeData: SfTreemapThemeData()
+  ///          ),
+  ///          child: SfTreemap(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+  final SfTreemapThemeData treemapThemeData;
+
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
-  SfThemeData copyWith(
-      {Brightness? brightness,
-      SfPdfViewerThemeData? pdfViewerThemeData,
-      SfChartThemeData? chartThemeData,
-      SfCalendarThemeData? calendarThemeData,
-      SfDataGridThemeData? dataGridThemeData,
-      SfDateRangePickerThemeData? dateRangePickerThemeData,
-      SfBarcodeThemeData? barcodeThemeData,
-      SfGaugeThemeData? gaugeThemeData,
-      SfSliderThemeData? sliderThemeData,
-      SfRangeSelectorThemeData? rangeSelectorThemeData,
-      SfRangeSliderThemeData? rangeSliderThemeData,
-      SfMapsThemeData? mapsThemeData,
-      SfDataPagerThemeData? dataPagerThemeData}) {
+  SfThemeData copyWith({
+    Brightness? brightness,
+    SfPdfViewerThemeData? pdfViewerThemeData,
+    SfChartThemeData? chartThemeData,
+    SfCalendarThemeData? calendarThemeData,
+    SfDataGridThemeData? dataGridThemeData,
+    SfDateRangePickerThemeData? dateRangePickerThemeData,
+    SfBarcodeThemeData? barcodeThemeData,
+    SfGaugeThemeData? gaugeThemeData,
+    SfSliderThemeData? sliderThemeData,
+    SfRangeSelectorThemeData? rangeSelectorThemeData,
+    SfRangeSliderThemeData? rangeSliderThemeData,
+    SfMapsThemeData? mapsThemeData,
+    SfDataPagerThemeData? dataPagerThemeData,
+    SfTreemapThemeData? treemapThemeData,
+  }) {
     return SfThemeData.raw(
         brightness: brightness ?? this.brightness,
         pdfViewerThemeData: pdfViewerThemeData ?? this.pdfViewerThemeData,
@@ -532,7 +559,8 @@ class SfThemeData with Diagnosticable {
         rangeSelectorThemeData:
             rangeSelectorThemeData ?? this.rangeSelectorThemeData,
         rangeSliderThemeData: rangeSliderThemeData ?? this.rangeSliderThemeData,
-        mapsThemeData: mapsThemeData ?? this.mapsThemeData);
+        mapsThemeData: mapsThemeData ?? this.mapsThemeData,
+        treemapThemeData: treemapThemeData ?? this.treemapThemeData);
   }
 
   /// Linearly interpolate between two themes.
@@ -565,7 +593,9 @@ class SfThemeData with Diagnosticable {
         rangeSliderThemeData: SfRangeSliderThemeData.lerp(
             a.rangeSliderThemeData, b.rangeSliderThemeData, t)!,
         mapsThemeData:
-            SfMapsThemeData.lerp(a.mapsThemeData, b.mapsThemeData, t)!);
+            SfMapsThemeData.lerp(a.mapsThemeData, b.mapsThemeData, t)!,
+        treemapThemeData: SfTreemapThemeData.lerp(
+            a.treemapThemeData, b.treemapThemeData, t)!);
   }
 
   @override
@@ -587,7 +617,8 @@ class SfThemeData with Diagnosticable {
         other.sliderThemeData == sliderThemeData &&
         other.rangeSelectorThemeData == rangeSelectorThemeData &&
         other.rangeSliderThemeData == rangeSliderThemeData &&
-        other.mapsThemeData == mapsThemeData;
+        other.mapsThemeData == mapsThemeData &&
+        other.treemapThemeData == treemapThemeData;
   }
 
   @override
@@ -605,7 +636,8 @@ class SfThemeData with Diagnosticable {
       sliderThemeData,
       rangeSelectorThemeData,
       rangeSliderThemeData,
-      mapsThemeData
+      mapsThemeData,
+      treemapThemeData
     ];
     return Object.hashAll(values);
   }
@@ -652,5 +684,8 @@ class SfThemeData with Diagnosticable {
     properties.add(DiagnosticsProperty<SfMapsThemeData>(
         'mapsThemeData', mapsThemeData,
         defaultValue: defaultData.mapsThemeData));
+    properties.add(DiagnosticsProperty<SfTreemapThemeData>(
+        'treemapThemeData', treemapThemeData,
+        defaultValue: defaultData.treemapThemeData));
   }
 }

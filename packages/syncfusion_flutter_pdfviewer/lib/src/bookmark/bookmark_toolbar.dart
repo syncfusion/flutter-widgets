@@ -104,17 +104,17 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
               height: _kPdfHeaderTextHeight,
               child: Text(
                 _localizations!.pdfBookmarksLabel,
-                style:
-                    _pdfViewerThemeData!.bookmarkViewStyle?.headerTextStyle ??
-                        TextStyle(
-                          fontSize: 16,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.normal,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withOpacity(0.87),
-                        ),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium!
+                    .copyWith(
+                      fontSize: 16,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.black.withOpacity(0.87)
+                          : Colors.white.withOpacity(0.87),
+                    )
+                    .merge(_pdfViewerThemeData!
+                        .bookmarkViewStyle?.headerTextStyle),
                 semanticsLabel: '',
               ),
             ),

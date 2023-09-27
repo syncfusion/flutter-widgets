@@ -1,4 +1,8 @@
-## Unreleased
+## [21.1.35] - 03/23/2023
+
+**Bugs**
+
+* #FB42032: The vertical signing works properly when the signature pad is wrapped inside a scrollable widget.
 
 ### Features
 

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'dart:ui' as dart_ui;
 
 import 'package:flutter/gestures.dart';
@@ -250,6 +249,9 @@ class CartesianStateProperties extends StateProperties {
 
   /// Specifies total number of rectangle indicator series in chart
   int? sideBySideIndicatorCount;
+
+  /// Repaint notifier for plotBand
+  late ValueNotifier<int> plotBandRepaintNotifier;
 
   /// Method to set the painter key
   void setPainterKey(int index, String name, bool renderComplete) {

@@ -69,6 +69,9 @@ class RenderingDetails {
   /// Specifies the chart theme.
   late SfChartThemeData chartTheme;
 
+  /// Specifies the theme data.
+  late ThemeData themeData;
+
   /// Specifies the exploded points.
   late List<int> explodedPoints;
 

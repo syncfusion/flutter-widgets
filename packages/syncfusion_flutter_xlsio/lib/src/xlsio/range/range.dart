@@ -272,7 +272,8 @@ class Range {
   String? get calculatedValue {
     if (formula != null) {
       if (worksheet.calcEngine != null) {
-        final String cellRef = addressLocal;
+        final String cellRef = _getAddressLocalFromCalculatedValue(
+            row, column, lastRow, lastColumn);
         return worksheet.calcEngine!._pullUpdatedValue(cellRef);
       }
       return null;
@@ -765,6 +766,9 @@ class Range {
         _saveType = 's';
         _textIndex = sharedStringIndex;
         _setRange();
+        if (text.contains('\n')) {
+          worksheet.getRangeByIndex(row, column).cellStyle.wrapText = true;
+        }
       } else {
         // ignore: prefer_final_locals
         for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
@@ -773,6 +777,9 @@ class Range {
               iCol <= iLastCol;
               iCol++) {
             worksheet.getRangeByIndex(iRow, iCol).text = text;
+            if (text.contains('\n')) {
+              worksheet.getRangeByIndex(iRow, iCol).cellStyle.wrapText = true;
+            }
           }
         }
       }
@@ -883,7 +890,7 @@ class Range {
     final double? dValue = range.number;
 
     if (dValue == null ||
-        dValue == double.nan ||
+        dValue.isNaN ||
         dValue < 0 ||
         range.type != CellType.dateTime) {
       return minimumDateValue;
@@ -1033,6 +1040,17 @@ class Range {
 
   String _getAddressLocal(int row, int column, int lastRow, int lastColumn) {
     final String cell0 = _getCellName(row, column);
+    if (row == lastRow && column == lastColumn) {
+      return cell0;
+    } else {
+      final String cell1 = _getCellName(lastRow, lastColumn);
+      return '$cell0:$cell1';
+    }
+  }
+
+  String _getAddressLocalFromCalculatedValue(
+      int row, int column, int lastRow, int lastColumn) {
+    final String cell0 = _getCellName(row, column);
     if (row == lastRow || column == lastColumn) {
       return cell0;
     } else {
@@ -1158,9 +1176,9 @@ class Range {
       case ExcelFormatType.general:
       case ExcelFormatType.text:
       case ExcelFormatType.unknown:
-        if (dValue != null && dValue != double.nan) {
+        if (dValue != null && !dValue.isNaN) {
           if (displayText == '') {
-            if (dValue == double.nan) {
+            if (dValue.isNaN) {
               displayText = dValue.toString();
             } else if (dValue.isInfinite) {
               return '#DIV/0!';

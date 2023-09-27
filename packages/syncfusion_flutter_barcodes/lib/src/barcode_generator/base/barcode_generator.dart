@@ -92,7 +92,7 @@ class SfBarcodeGenerator extends StatefulWidget {
       this.showValue = false,
       this.textSpacing = 2,
       this.textAlign = TextAlign.center,
-      this.textStyle = const TextStyle()})
+      this.textStyle})
       : symbology = symbology ?? Code128(),
         super(key: key);
 
@@ -247,7 +247,7 @@ class SfBarcodeGenerator extends StatefulWidget {
   ///        textStyle: TextStyle(fontSize: 16));
   ///}
   /// ```dart
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   @override
   State<StatefulWidget> createState() {
@@ -258,7 +258,7 @@ class SfBarcodeGenerator extends StatefulWidget {
 /// Represents the barcode generator state
 class _SfBarcodeGeneratorState extends State<SfBarcodeGenerator> {
   /// Specifies the theme data
-  late SfBarcodeThemeData _barcodeTheme;
+  late SfBarcodeThemeData _barcodeThemeData;
 
   /// Specifies the text size
   Size? _textSize;
@@ -267,16 +267,31 @@ class _SfBarcodeGeneratorState extends State<SfBarcodeGenerator> {
 
   @override
   void didChangeDependencies() {
-    _barcodeTheme = SfBarcodeTheme.of(context);
+    _barcodeThemeData =
+        _updateThemeData(Theme.of(context), SfBarcodeTheme.of(context));
     super.didChangeDependencies();
+  }
+
+  SfBarcodeThemeData _updateThemeData(
+      ThemeData themeData, SfBarcodeThemeData barcodeThemeData) {
+    barcodeThemeData = barcodeThemeData.copyWith(
+        textStyle: themeData.textTheme.bodyMedium!
+            .copyWith(color: barcodeThemeData.textColor)
+            .merge(barcodeThemeData.textStyle)
+            .merge(widget.textStyle));
+    return barcodeThemeData;
   }
 
   @override
   void didUpdateWidget(SfBarcodeGenerator oldWidget) {
+    _barcodeThemeData =
+        _updateThemeData(Theme.of(context), SfBarcodeTheme.of(context));
+
     if (widget.showValue &&
         (oldWidget.value != widget.value ||
             oldWidget.textStyle != widget.textStyle)) {
-      _textSize = measureText(widget.value.toString(), widget.textStyle);
+      _textSize =
+          measureText(widget.value.toString(), _barcodeThemeData.textStyle!);
     }
 
     if (widget.symbology != oldWidget.symbology) {
@@ -327,26 +342,20 @@ class _SfBarcodeGeneratorState extends State<SfBarcodeGenerator> {
   @override
   Widget build(BuildContext context) {
     if (widget.showValue && _textSize == null) {
-      _textSize = measureText(widget.value.toString(), widget.textStyle);
+      _textSize =
+          measureText(widget.value.toString(), _barcodeThemeData.textStyle!);
     }
     _symbologyRenderer.getIsValidateInput(widget.value!);
     _symbologyRenderer.textSize = _textSize;
     return Container(
-      color: widget.backgroundColor ?? _barcodeTheme.backgroundColor,
+      color: widget.backgroundColor ?? _barcodeThemeData.backgroundColor,
       child: SfBarcodeGeneratorRenderObjectWidget(
           value: widget.value!,
           symbology: widget.symbology,
-          foregroundColor: widget.barColor ?? _barcodeTheme.barColor,
+          foregroundColor: widget.barColor ?? _barcodeThemeData.barColor,
           showText: widget.showValue,
           textSpacing: widget.textSpacing,
-          textStyle: TextStyle(
-              backgroundColor: widget.textStyle.backgroundColor,
-              color: widget.textStyle.color ?? _barcodeTheme.textColor,
-              fontSize: widget.textStyle.fontSize,
-              fontFamily: widget.textStyle.fontFamily,
-              fontStyle: widget.textStyle.fontStyle,
-              fontWeight: widget.textStyle.fontWeight,
-              textBaseline: widget.textStyle.textBaseline),
+          textStyle: _barcodeThemeData.textStyle!,
           symbologyRenderer: _symbologyRenderer,
           textSize: _textSize,
           textAlign: widget.textAlign),

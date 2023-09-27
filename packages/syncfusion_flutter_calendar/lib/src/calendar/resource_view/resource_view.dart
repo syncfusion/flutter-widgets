@@ -15,6 +15,7 @@ class ResourceViewWidget extends StatefulWidget {
       this.resourceItemHeight,
       this.cellBorderColor,
       this.calendarTheme,
+      this.themeData,
       this.notifier,
       this.isRTL,
       this.textScaleFactor,
@@ -38,6 +39,9 @@ class ResourceViewWidget extends StatefulWidget {
 
   /// Hols the theme data of the calendar.
   final SfCalendarThemeData calendarTheme;
+
+  /// Holds the framework theme data values.
+  final ThemeData themeData;
 
   /// Used to trigger repaint while resource decoration image loaded.
   final ValueNotifier<bool> notifier;
@@ -94,6 +98,7 @@ class _ResourceViewWidgetState extends State<ResourceViewWidget> {
       widget.resourceItemHeight,
       widget.cellBorderColor,
       widget.calendarTheme,
+      widget.themeData,
       widget.notifier,
       widget.isRTL,
       widget.textScaleFactor,
@@ -107,12 +112,13 @@ class _ResourceViewWidgetState extends State<ResourceViewWidget> {
 }
 
 class _ResourceViewRenderObjectWidget extends MultiChildRenderObjectWidget {
-  _ResourceViewRenderObjectWidget(
+  const _ResourceViewRenderObjectWidget(
       this.resources,
       this.resourceViewSettings,
       this.resourceItemHeight,
       this.cellBorderColor,
       this.calendarTheme,
+      this.themeData,
       this.notifier,
       this.isRTL,
       this.textScaleFactor,
@@ -128,6 +134,7 @@ class _ResourceViewRenderObjectWidget extends MultiChildRenderObjectWidget {
   final double resourceItemHeight;
   final Color? cellBorderColor;
   final SfCalendarThemeData calendarTheme;
+  final ThemeData themeData;
   final ValueNotifier<bool> notifier;
   final bool isRTL;
   final double textScaleFactor;
@@ -144,6 +151,7 @@ class _ResourceViewRenderObjectWidget extends MultiChildRenderObjectWidget {
         resourceItemHeight,
         cellBorderColor,
         calendarTheme,
+        themeData,
         notifier,
         isRTL,
         textScaleFactor,
@@ -162,6 +170,7 @@ class _ResourceViewRenderObjectWidget extends MultiChildRenderObjectWidget {
       ..resourceItemHeight = resourceItemHeight
       ..cellBorderColor = cellBorderColor
       ..calendarTheme = calendarTheme
+      ..themeData = themeData
       ..notifier = notifier
       ..isRTL = isRTL
       ..textScaleFactor = textScaleFactor
@@ -179,6 +188,7 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
       this._resourceItemHeight,
       this._cellBorderColor,
       this._calendarTheme,
+      this._themeData,
       this._notifier,
       this._isRTL,
       this._textScaleFactor,
@@ -266,6 +276,18 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
     }
 
     markNeedsPaint();
+  }
+
+  ThemeData _themeData;
+
+  ThemeData get themeData => _themeData;
+
+  set themeData(ThemeData value) {
+    if (_themeData == value) {
+      return;
+    }
+
+    _themeData = value;
   }
 
   ValueNotifier<bool> _notifier;
@@ -459,9 +481,7 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
                 ? Colors.white
                 : Colors.black87)
             .withOpacity(0.04);
-    final TextStyle displayNameTextStyle =
-        resourceViewSettings.displayNameTextStyle ??
-            calendarTheme.displayNameTextStyle!;
+    final TextStyle displayNameTextStyle = calendarTheme.displayNameTextStyle!;
     _circlePainter.color = resourceCellBorderColor;
     _circlePainter.strokeWidth = 0.5;
     _circlePainter.style = PaintingStyle.stroke;
@@ -664,11 +684,8 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
         : splitName[0].substring(0, 1);
     final TextSpan span = TextSpan(
         text: shortName,
-        style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-            fontFamily: 'Roboto'));
+        style: themeData.textTheme.bodyLarge!.copyWith(
+            color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500));
     _updateNamePainter(span);
     _namePainter.layout(maxWidth: innerCircleWidth);
     startXPosition =

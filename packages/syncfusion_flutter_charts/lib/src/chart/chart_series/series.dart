@@ -1358,8 +1358,8 @@ class ChartSeriesController {
         seriesRendererDetails.minimumX = x;
         seriesRendererDetails.maximumX = x;
       }
-      if (!_needXRecalculation &&
-          ((xRange.minimum >= x) == true || (xRange.maximum <= x) == true)) {
+      if (((xRange.minimum >= x) == true || (xRange.maximum <= x) == true) &&
+          seriesRendererDetails.visible!) {
         _needXRecalculation = true;
         if (seriesRendererDetails.minimumX! >= x) {
           seriesRendererDetails.minimumX = x;
@@ -1385,11 +1385,11 @@ class ChartSeriesController {
         seriesRendererDetails.minimumY = minYVal;
         seriesRendererDetails.maximumY = maxYVal;
       }
-      if (!_needYRecalculation &&
-          minYVal != null &&
+      if (minYVal != null &&
           maxYVal != null &&
           ((yRange.minimum >= minYVal) == true ||
-              (yRange.maximum <= maxYVal) == true)) {
+              (yRange.maximum <= maxYVal) == true) &&
+          seriesRendererDetails.visible!) {
         _needYRecalculation = true;
         if (seriesRendererDetails.minimumY! >= minYVal) {
           seriesRendererDetails.minimumY = minYVal;
@@ -1738,6 +1738,7 @@ class ChartSeriesController {
       axisRenderer.calculateRangeAndInterval(stateProperties);
     }
     if (needXRecalculation || needYRecalculation) {
+      stateProperties.plotBandRepaintNotifier.value++;
       stateProperties.renderOutsideAxis.state.axisRepaintNotifier.value++;
       stateProperties.renderInsideAxis.state.axisRepaintNotifier.value++;
       for (final CartesianSeriesRenderer seriesRenderer

@@ -125,24 +125,11 @@ class SfPdfViewerThemeData with Diagnosticable {
     backgroundColor ??=
         isLight ? const Color(0xFFD6D6D6) : const Color(0xFF303030);
     scrollHeadStyle ??= PdfScrollHeadStyle(
-        backgroundColor:
-            isLight ? const Color(0xFFFAFAFA) : const Color(0xFF424242),
-        pageNumberTextStyle: TextStyle(
-          fontSize: 12,
-          color: isLight
-              ? Colors.black.withOpacity(0.87)
-              : Colors.white.withOpacity(0.87),
-        ));
+      backgroundColor:
+          isLight ? const Color(0xFFFAFAFA) : const Color(0xFF424242),
+    );
     bookmarkViewStyle ??= PdfBookmarkViewStyle(
       backgroundColor: isLight ? Colors.white : const Color(0xFF212121),
-      headerTextStyle: TextStyle(
-        fontSize: 16,
-        fontFamily: 'Roboto',
-        fontWeight: FontWeight.normal,
-        color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
-      ),
       closeIconColor: isLight
           ? Colors.black.withOpacity(0.54)
           : Colors.white.withOpacity(0.54),
@@ -160,158 +147,24 @@ class SfPdfViewerThemeData with Diagnosticable {
       titleSeparatorColor: isLight
           ? const Color.fromRGBO(0, 0, 0, 0.16)
           : const Color.fromRGBO(255, 255, 255, 0.16),
-      titleTextStyle: TextStyle(
-        fontSize: 14,
-        color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
-        fontFamily: 'Roboto',
-        fontWeight: FontWeight.normal,
-      ),
     );
     paginationDialogStyle ??= PdfPaginationDialogStyle(
       backgroundColor: isLight ? Colors.white : const Color(0xFF424242),
-      headerTextStyle: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 20,
-        fontWeight: FontWeight.w500,
-        color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
-      ),
-      hintTextStyle: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: isLight
-            ? Colors.black.withOpacity(0.6)
-            : Colors.white.withOpacity(0.6),
-      ),
-      pageInfoTextStyle: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 12,
-        color: isLight
-            ? Colors.black.withOpacity(0.6)
-            : Colors.white.withOpacity(0.6),
-      ),
-      inputFieldTextStyle: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 16,
-        color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
-      ),
-      validationTextStyle: const TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 12,
-      ),
-      okTextStyle: const TextStyle(
-          fontFamily: 'Roboto', fontSize: 14, fontWeight: FontWeight.w500),
-      cancelTextStyle: const TextStyle(
-          fontFamily: 'Roboto', fontSize: 14, fontWeight: FontWeight.w500),
     );
     hyperlinkDialogStyle ??= PdfHyperlinkDialogStyle(
       backgroundColor: isLight ? Colors.white : const Color(0xFF424242),
-      headerTextStyle: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 20,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 0.15,
-        color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
-      ),
-      contentTextStyle: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        letterSpacing: 0.25,
-        color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
-      ),
-      openTextStyle: const TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 1.25,
-      ),
-      cancelTextStyle: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 1.25,
-        color: isLight
-            ? Colors.black.withOpacity(0.6)
-            : Colors.white.withOpacity(0.6),
-      ),
       closeIconColor: isLight
           ? Colors.black.withOpacity(0.6)
           : Colors.white.withOpacity(0.6),
     );
     passwordDialogStyle ??= PdfPasswordDialogStyle(
       backgroundColor: isLight ? Colors.white : const Color(0xFF424242),
-      headerTextStyle: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 20,
-        fontWeight: FontWeight.w500,
-        color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
-      ),
-      inputFieldTextStyle: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 17,
-        fontWeight: FontWeight.w400,
-        color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
-      ),
       closeIconColor: isLight
           ? Colors.black.withOpacity(0.6)
           : Colors.white.withOpacity(0.6),
       visibleIconColor: isLight
           ? Colors.black.withOpacity(0.6)
           : Colors.white.withOpacity(0.6),
-      contentTextStyle: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: isLight
-            ? Colors.black.withOpacity(0.6)
-            : Colors.white.withOpacity(0.6),
-      ),
-      errorTextStyle: const TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-      ),
-      inputFieldHintTextStyle: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: isLight
-            ? Colors.black.withOpacity(0.6)
-            : Colors.white.withOpacity(0.6),
-      ),
-      inputFieldLabelTextStyle: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
-        color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
-      ),
-      openTextStyle: const TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-      ),
-      cancelTextStyle: const TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-      ),
     );
     return SfPdfViewerThemeData.raw(
         brightness: brightness,

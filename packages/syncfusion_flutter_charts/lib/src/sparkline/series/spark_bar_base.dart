@@ -54,11 +54,7 @@ class SfSparkBarChart extends StatefulWidget {
       this.firstPointColor,
       this.lastPointColor,
       this.labelDisplayMode,
-      this.labelStyle = const TextStyle(
-          fontFamily: 'Roboto',
-          fontStyle: FontStyle.normal,
-          fontWeight: FontWeight.normal,
-          fontSize: 12),
+      this.labelStyle,
       this.trackball})
       : _sparkChartDataDetails = SparkChartDataDetails(data: data),
         super(key: key);
@@ -140,11 +136,7 @@ class SfSparkBarChart extends StatefulWidget {
       this.firstPointColor,
       this.lastPointColor,
       this.labelDisplayMode,
-      this.labelStyle = const TextStyle(
-          fontFamily: 'Roboto',
-          fontStyle: FontStyle.normal,
-          fontWeight: FontWeight.normal,
-          fontSize: 12),
+      this.labelStyle,
       this.trackball})
       : _sparkChartDataDetails = SparkChartDataDetails(
             dataCount: dataCount,
@@ -498,7 +490,7 @@ class SfSparkBarChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  final TextStyle labelStyle;
+  final TextStyle? labelStyle;
 
   /// Enables and customizes the trackball.
   ///
@@ -570,8 +562,18 @@ class _SfSparkBarChartState extends State<SfSparkBarChart> {
 
   @override
   void didChangeDependencies() {
-    _chartThemeData = SfChartTheme.of(context);
+    _chartThemeData =
+        _updateThemeData(context, Theme.of(context), SfChartTheme.of(context));
     super.didChangeDependencies();
+  }
+
+  SfChartThemeData _updateThemeData(BuildContext context, ThemeData themeData,
+      SfChartThemeData chartThemeData) {
+    chartThemeData = chartThemeData.copyWith(
+        dataLabelTextStyle: themeData.textTheme.bodySmall!
+            .merge(chartThemeData.dataLabelTextStyle)
+            .merge(widget.labelStyle));
+    return chartThemeData;
   }
 
   /// Called whenever the widget configuration changes.
@@ -587,6 +589,8 @@ class _SfSparkBarChartState extends State<SfSparkBarChart> {
 
   @override
   void didUpdateWidget(SfSparkBarChart oldWidget) {
+    _chartThemeData =
+        _updateThemeData(context, Theme.of(context), SfChartTheme.of(context));
     super.didUpdateWidget(oldWidget);
   }
 

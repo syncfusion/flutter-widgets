@@ -1,16 +1,17 @@
 name: syncfusion_flutter_datagrid
 description: The Syncfusion Flutter DataGrid is used to display and manipulate data in a tabular view. Its rich feature set includes different types of columns, selections, column sizing, etc.
-version: 21.1.35-beta
+version: 23.1.36
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_datagrid
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  syncfusion_flutter_core: ^21.1.35
+  syncfusion_flutter_core: ^23.1.36
+
       
   collection: ">=1.9.0 <=2.0.0"
 
@@ -27,4 +28,18 @@ flutter:
         fonts:
           - asset: assets/font/FilterIcon.ttf
       
-
+screenshots:
+  - description: 'This screenshot shows the DataGrid widget which displays the employee data.'
+    path: screenshots/flutter-datagrid-getting-started.png
+  - description: 'This screenshot shows the DataGrid widget which displays the NBA sports league data.'
+    path: screenshots/flutter-datagrid-mobile-view.png
+  - description: 'This screenshot shows the Excel-like filtering is performed in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-filtering.png
+  - description: 'This screenshot shows the different column types in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-column-types.png
+  - description: 'This screenshot shows the stacked headers in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-stacked-headers.png
+  - description: 'This screenshot shows the summary calculation for specific columns in DataGrid widget.'
+    path: screenshots/flutter-datagrid-summaries.png
+  - description: 'This screenshot shows the paging is applied in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-paging.png

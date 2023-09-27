@@ -245,20 +245,19 @@ class BookmarkViewControllerState extends State<BookmarkView> {
                         },
                       )
                     : Center(
-                        child: Text(
-                          _localizations!.pdfNoBookmarksLabel,
-                          style: _pdfViewerThemeData!
-                                  .bookmarkViewStyle?.titleTextStyle ??
-                              TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withOpacity(0.87),
-                                fontFamily: 'Roboto',
-                                fontWeight: FontWeight.normal,
-                              ),
-                        ),
+                        child: Text(_localizations!.pdfNoBookmarksLabel,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  fontSize: 14,
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Colors.black.withOpacity(0.87)
+                                      : Colors.white.withOpacity(0.87),
+                                )
+                                .merge(_pdfViewerThemeData!
+                                    .bookmarkViewStyle?.titleTextStyle)),
                       ),
               ),
             ]),

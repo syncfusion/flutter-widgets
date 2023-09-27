@@ -56,7 +56,7 @@ class GridStackedHeaderCellRenderer
 
 /// A cell renderer which displays the String value in the cell.
 ///
-/// This renderer is typically used for `GridTextColumn`.
+/// This renderer is typically used for `GridColumn`.
 class GridCellTextFieldRenderer
     extends GridVirtualizingCellRendererBase<Text, TextField> {
   @override
@@ -206,6 +206,15 @@ abstract class GridVirtualizingCellRendererBase<T1 extends Widget,
 
     final int index = grid_helper.resolveToDataGridRowAdapterCellIndex(
         dataGridConfiguration, dataCell.columnIndex);
+
+    // Need to restrict if the index is -1. Because, the index will be -1
+    // when the datacell column index is greater than the column count.
+    // Enabling the check will avoid the exception when the column index is
+    // greater than the column count.
+    if (index == -1) {
+      return;
+    }
+
     final Widget child = dataCell.dataRow!.dataGridRowAdapter!.cells[index];
 
     Widget getChild() {

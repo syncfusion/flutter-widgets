@@ -247,8 +247,10 @@ class SfDateRangePicker extends StatelessWidget {
       this.extendableRangeSelectionDirection =
           ExtendableRangeSelectionDirection.both})
       : assert(headerHeight >= -1),
-        assert(minDate == null || maxDate == null || minDate.isBefore(maxDate)),
-        assert(minDate == null || maxDate == null || maxDate.isAfter(minDate)),
+        assert(minDate == null ||
+            maxDate == null ||
+            minDate.isBefore(maxDate) ||
+            minDate == maxDate),
         assert(viewSpacing >= 0),
         initialSelectedDate =
             controller != null && controller.selectedDate != null
@@ -5634,8 +5636,6 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
     _minPickerHeight = 300;
     _locale = Localizations.localeOf(context);
     _localizations = SfLocalizations.of(context);
-    _datePickerTheme = _getPickerThemeData(
-        SfDateRangePickerTheme.of(context), Theme.of(context).colorScheme);
     _isRtl = direction == TextDirection.rtl;
     _isMobilePlatform =
         DateRangePickerHelper.isMobileLayout(Theme.of(context).platform);
@@ -5824,6 +5824,8 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
 
   @override
   Widget build(BuildContext context) {
+    _datePickerTheme = _getPickerThemeData(
+        SfDateRangePickerTheme.of(context), Theme.of(context));
     double top = 0, height;
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
@@ -5882,7 +5884,8 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
   }
 
   SfDateRangePickerThemeData _getPickerThemeData(
-      SfDateRangePickerThemeData pickerTheme, ColorScheme colorScheme) {
+      SfDateRangePickerThemeData pickerTheme, ThemeData themeData) {
+    final ColorScheme colorScheme = themeData.colorScheme;
     return pickerTheme.copyWith(
         brightness: pickerTheme.brightness ?? colorScheme.brightness,
         backgroundColor: pickerTheme.backgroundColor ?? Colors.transparent,
@@ -5892,73 +5895,152 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
             pickerTheme.viewHeaderBackgroundColor ?? Colors.transparent,
         weekNumberBackgroundColor: pickerTheme.weekNumberBackgroundColor ??
             colorScheme.onSurface.withOpacity(0.08),
-        viewHeaderTextStyle: pickerTheme.viewHeaderTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.87),
-                fontSize: 14,
-                fontFamily: 'Roboto'),
-        headerTextStyle: pickerTheme.headerTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.87),
-                fontSize: 16,
-                fontFamily: 'Roboto'),
-        trailingDatesTextStyle: pickerTheme.trailingDatesTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.54),
-                fontSize: 13,
-                fontFamily: 'Roboto'),
-        leadingCellTextStyle: pickerTheme.leadingCellTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.54),
-                fontSize: 13,
-                fontFamily: 'Roboto'),
-        activeDatesTextStyle: pickerTheme.activeDatesTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.87),
-                fontSize: 13,
-                fontFamily: 'Roboto'),
-        cellTextStyle: pickerTheme.cellTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.87),
-                fontSize: 13,
-                fontFamily: 'Roboto'),
-        leadingDatesTextStyle: pickerTheme.leadingDatesTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.54),
-                fontSize: 13,
-                fontFamily: 'Roboto'),
-        rangeSelectionTextStyle: pickerTheme.rangeSelectionTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.87),
-                fontSize: 13,
-                fontFamily: 'Roboto'),
-        disabledDatesTextStyle: pickerTheme.disabledDatesTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.38),
-                fontSize: 13,
-                fontFamily: 'Roboto'),
-        disabledCellTextStyle: pickerTheme.disabledCellTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.38),
-                fontSize: 13,
-                fontFamily: 'Roboto'),
-        selectionTextStyle: pickerTheme.selectionTextStyle ??
-            TextStyle(
-                color: colorScheme.onPrimary,
-                fontSize: 13,
-                fontFamily: 'Roboto'),
-        weekNumberTextStyle: pickerTheme.weekNumberTextStyle ??
-            TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.87),
-                fontSize: 13,
-                fontFamily: 'Roboto'),
-        todayTextStyle: pickerTheme.todayTextStyle ??
-            TextStyle(
-                color: colorScheme.primary, fontSize: 13, fontFamily: 'Roboto'),
-        todayCellTextStyle: pickerTheme.todayCellTextStyle ??
-            // ignore: lines_longer_than_80_chars
-            TextStyle(
-                color: colorScheme.primary, fontSize: 13, fontFamily: 'Roboto'),
+        viewHeaderTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.87),
+              fontSize: 14,
+            )
+            .merge(pickerTheme.viewHeaderTextStyle)
+            .merge(widget.monthViewSettings.viewHeaderStyle.textStyle),
+        headerTextStyle: themeData.textTheme.bodyLarge!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.87),
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            )
+            .merge(pickerTheme.headerTextStyle)
+            .merge(widget.headerStyle.textStyle),
+        trailingDatesTextStyle:
+            (widget.monthCellStyle is DateRangePickerMonthCellStyle)
+                ? themeData.textTheme.bodyMedium!
+                    .copyWith(
+                      color: colorScheme.onSurface.withOpacity(0.54),
+                      fontSize: 13,
+                    )
+                    .merge(pickerTheme.trailingDatesTextStyle)
+                    .merge(widget.monthCellStyle.trailingDatesTextStyle)
+                : null,
+        leadingCellTextStyle:
+            (widget.yearCellStyle is DateRangePickerYearCellStyle)
+                ? themeData.textTheme.bodyMedium!
+                    .copyWith(
+                      color: colorScheme.onSurface.withOpacity(0.54),
+                      fontSize: 13,
+                    )
+                    .merge(pickerTheme.leadingCellTextStyle)
+                    .merge(widget.yearCellStyle.leadingDatesTextStyle)
+                : null,
+        activeDatesTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.87),
+              fontSize: 13,
+            )
+            .merge(pickerTheme.activeDatesTextStyle)
+            .merge(widget.monthCellStyle.textStyle),
+        cellTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.87),
+              fontSize: 13,
+            )
+            .merge(pickerTheme.cellTextStyle)
+            .merge(widget.yearCellStyle.textStyle),
+        leadingDatesTextStyle:
+            (widget.monthCellStyle is DateRangePickerMonthCellStyle)
+                ? themeData.textTheme.bodyMedium!
+                    .copyWith(
+                      color: colorScheme.onSurface.withOpacity(0.54),
+                      fontSize: 13,
+                    )
+                    .merge(pickerTheme.leadingDatesTextStyle)
+                    .merge(widget.monthCellStyle.leadingDatesTextStyle)
+                : null,
+        rangeSelectionTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.87),
+              fontSize: 13,
+            )
+            .merge(pickerTheme.rangeSelectionTextStyle)
+            .merge(widget.rangeTextStyle),
+        disabledDatesTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.38),
+              fontSize: 13,
+            )
+            .merge(pickerTheme.disabledDatesTextStyle)
+            .merge(widget.monthCellStyle.disabledDatesTextStyle),
+        disabledCellTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.38),
+              fontSize: 13,
+            )
+            .merge(pickerTheme.disabledCellTextStyle)
+            .merge(widget.yearCellStyle.disabledDatesTextStyle),
+        selectionTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onPrimary,
+              fontSize: 13,
+            )
+            .merge(pickerTheme.selectionTextStyle)
+            .merge(widget.selectionTextStyle),
+        weekNumberTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.onSurface.withOpacity(0.87),
+              fontSize: 13,
+            )
+            .merge(pickerTheme.weekNumberTextStyle)
+            .merge(widget.monthViewSettings.weekNumberStyle.textStyle),
+        todayTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.primary,
+              fontSize: 13,
+            )
+            .merge(pickerTheme.todayTextStyle)
+            .merge(widget.monthCellStyle.todayTextStyle),
+        todayCellTextStyle: themeData.textTheme.bodyMedium!
+            .copyWith(
+              color: colorScheme.primary,
+              fontSize: 13,
+            )
+            .merge(pickerTheme.todayCellTextStyle)
+            .merge(widget.yearCellStyle.todayTextStyle),
+
+        /// Check the widget property and theme property styles are null.
+        /// If null assign the picker theme style or
+        /// If not null then assign the theme data text theme with
+        /// merge the styles from widget property or theme properties are given.
+        blackoutDatesTextStyle:
+            (widget.monthCellStyle.blackoutDateTextStyle == null &&
+                    pickerTheme.blackoutDatesTextStyle == null)
+                ? pickerTheme.blackoutDatesTextStyle
+                : themeData.textTheme.bodyMedium!
+                    .copyWith(
+                      color: colorScheme.onSurface.withOpacity(0.87),
+                      fontSize: 13,
+                    )
+                    .merge(pickerTheme.blackoutDatesTextStyle)
+                    .merge(widget.monthCellStyle.blackoutDateTextStyle),
+        specialDatesTextStyle:
+            (widget.monthCellStyle.specialDatesTextStyle == null &&
+                    pickerTheme.specialDatesTextStyle == null)
+                ? pickerTheme.specialDatesTextStyle
+                : themeData.textTheme.bodyMedium!
+                    .copyWith(
+                      color: colorScheme.onSurface.withOpacity(0.87),
+                      fontSize: 13,
+                    )
+                    .merge(pickerTheme.specialDatesTextStyle)
+                    .merge(widget.monthCellStyle.specialDatesTextStyle),
+        weekendDatesTextStyle:
+            (widget.monthCellStyle.weekendTextStyle == null &&
+                    pickerTheme.weekendDatesTextStyle == null)
+                ? pickerTheme.weekendDatesTextStyle
+                : themeData.textTheme.bodyMedium!
+                    .copyWith(
+                      color: colorScheme.onSurface.withOpacity(0.87),
+                      fontSize: 13,
+                    )
+                    .merge(pickerTheme.weekendDatesTextStyle)
+                    .merge(widget.monthCellStyle.weekendTextStyle),
         selectionColor: pickerTheme.selectionColor ?? colorScheme.primary,
         startRangeSelectionColor:
             pickerTheme.startRangeSelectionColor ?? colorScheme.primary,
@@ -6743,9 +6825,7 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
           _localizations);
       headerWidth = _getTextWidgetWidth(
               headerText, widget.headerHeight, pickerWidth, context,
-              style: widget.headerStyle.textStyle ??
-                  _datePickerTheme.headerTextStyle!,
-              widthPadding: 20)
+              style: _datePickerTheme.headerTextStyle!, widthPadding: 20)
           .width;
     }
 
@@ -6975,9 +7055,7 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
     Color textColor =
         widget.todayHighlightColor ?? _datePickerTheme.todayHighlightColor!;
     if (textColor == Colors.transparent) {
-      final TextStyle style =
-          widget.monthCellStyle.todayTextStyle as TextStyle? ??
-              _datePickerTheme.todayTextStyle!;
+      final TextStyle style = _datePickerTheme.todayTextStyle!;
       textColor = style.color != null ? style.color! : Colors.blue;
     }
     final Widget actionButtons = widget.showActionButtons
@@ -7575,7 +7653,7 @@ class _AnimatedOpacityWidgetState extends State<_AnimatedOpacityWidget> {
 
 /// Holds content and header to show header like sticky based on content.
 class _StickyHeader extends Stack {
-  _StickyHeader({
+  const _StickyHeader({
     required List<Widget> children,
     AlignmentDirectional alignment = AlignmentDirectional.topStart,
     this.isHorizontal = false,
@@ -7948,10 +8026,7 @@ class _PickerHeaderViewState extends State<_PickerHeaderView> {
       headerWidth = widget.width - (arrowWidth * 2);
     }
 
-    Color arrowColor = widget.headerStyle.textStyle != null &&
-            widget.headerStyle.textStyle!.color != null
-        ? widget.headerStyle.textStyle!.color!
-        : (widget.datePickerTheme.headerTextStyle!.color!);
+    Color arrowColor = widget.datePickerTheme.headerTextStyle!.color!;
     arrowColor = arrowColor.withOpacity(arrowColor.opacity * 0.6);
     Color prevArrowColor = arrowColor;
     Color nextArrowColor = arrowColor;
@@ -8267,8 +8342,7 @@ class _PickerHeaderPainter extends CustomPainter {
           locale,
           localizations);
       _headerText += j == 1 ? ' $text' : text;
-      TextStyle? style =
-          headerStyle.textStyle ?? datePickerTheme.headerTextStyle;
+      TextStyle? style = datePickerTheme.headerTextStyle;
       if (hovering) {
         style = style!.copyWith(color: hoverColor);
       }
@@ -8282,7 +8356,7 @@ class _PickerHeaderPainter extends CustomPainter {
 
       double textWidth = ((currentViewIndex + 1) * width) - xPosition;
       textWidth = textWidth > 0 ? textWidth : 0;
-      _textPainter.layout(minWidth: textWidth, maxWidth: textWidth);
+      _textPainter.layout(maxWidth: textWidth);
 
       if (headerStyle.textAlign == TextAlign.center) {
         xPosition = (currentViewIndex * width) +
@@ -8442,8 +8516,7 @@ class _PickerViewHeaderPainter extends CustomPainter {
 
     /// Initializes the default text style for the texts in view header of
     /// picker.
-    final TextStyle? viewHeaderDayStyle =
-        viewHeaderStyle.textStyle ?? datePickerTheme.viewHeaderTextStyle;
+    final TextStyle? viewHeaderDayStyle = datePickerTheme.viewHeaderTextStyle;
     final dynamic today = DateRangePickerHelper.getToday(isHijri);
     TextStyle? dayTextStyle = viewHeaderDayStyle;
     double xPosition = isRtl ? 0 : weekNumberPanelWidth;
@@ -8519,7 +8592,7 @@ class _PickerViewHeaderPainter extends CustomPainter {
 
         _textPainter.textScaleFactor = textScaleFactor;
         _textPainter.text = dayTextSpan;
-        _textPainter.layout(minWidth: width, maxWidth: width);
+        _textPainter.layout(maxWidth: width);
         yPosition = (viewHeaderHeight - _textPainter.height) / 2;
         _textPainter.paint(
             canvas,

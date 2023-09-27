@@ -131,6 +131,8 @@ class SfDataGridThemeData with Diagnosticable {
     Color? sortOrderNumberBackgroundColor,
     TextStyle? filterPopupTextStyle,
     TextStyle? filterPopupDisabledTextStyle,
+    Color? columnDragIndicatorColor,
+    double? columnDragIndicatorStrokeWidth,
   }) {
     return SfDataGridThemeData.raw(
         brightness: brightness,
@@ -155,7 +157,9 @@ class SfDataGridThemeData with Diagnosticable {
         sortOrderNumberColor: sortOrderNumberColor,
         sortOrderNumberBackgroundColor: sortOrderNumberBackgroundColor,
         filterPopupTextStyle: filterPopupTextStyle,
-        filterPopupDisabledTextStyle: filterPopupDisabledTextStyle);
+        filterPopupDisabledTextStyle: filterPopupDisabledTextStyle,
+        columnDragIndicatorColor: columnDragIndicatorColor,
+        columnDragIndicatorStrokeWidth: columnDragIndicatorStrokeWidth);
   }
 
   /// Create a [SfDataGridThemeData] given a set of exact values.
@@ -188,7 +192,9 @@ class SfDataGridThemeData with Diagnosticable {
       required this.sortOrderNumberColor,
       required this.sortOrderNumberBackgroundColor,
       required this.filterPopupTextStyle,
-      required this.filterPopupDisabledTextStyle});
+      required this.filterPopupDisabledTextStyle,
+      required this.columnDragIndicatorColor,
+      required this.columnDragIndicatorStrokeWidth});
 
   /// The brightness of the overall theme of the
   /// application for the [SfDataGrid] widgets.
@@ -495,6 +501,12 @@ class SfDataGridThemeData with Diagnosticable {
   /// The [TextStyle] of the disabled options in filter popup menu.
   final TextStyle? filterPopupDisabledTextStyle;
 
+  /// The stroke width of the column drag indicator.
+  final double? columnDragIndicatorStrokeWidth;
+
+  /// The color of the column drag indicator.
+  final Color? columnDragIndicatorColor;
+
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
   SfDataGridThemeData copyWith({
@@ -521,6 +533,8 @@ class SfDataGridThemeData with Diagnosticable {
     Color? sortOrderNumberBackgroundColor,
     TextStyle? filterPopupTextStyle,
     TextStyle? filterPopupDisabledTextStyle,
+    double? columnDragIndicatorStrokeWidth,
+    Color? columnDragIndicatorColor,
   }) {
     return SfDataGridThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -550,6 +564,10 @@ class SfDataGridThemeData with Diagnosticable {
       filterPopupTextStyle: filterPopupTextStyle ?? this.filterPopupTextStyle,
       filterPopupDisabledTextStyle:
           filterPopupDisabledTextStyle ?? this.filterPopupDisabledTextStyle,
+      columnDragIndicatorColor:
+          columnDragIndicatorColor ?? this.columnDragIndicatorColor,
+      columnDragIndicatorStrokeWidth:
+          columnDragIndicatorStrokeWidth ?? this.columnDragIndicatorStrokeWidth,
     );
   }
 
@@ -597,6 +615,12 @@ class SfDataGridThemeData with Diagnosticable {
           TextStyle.lerp(a.filterPopupTextStyle, b.filterPopupTextStyle, t),
       filterPopupDisabledTextStyle: TextStyle.lerp(
           a.filterPopupDisabledTextStyle, b.filterPopupDisabledTextStyle, t),
+      columnDragIndicatorColor:
+          Color.lerp(a.columnDragIndicatorColor, b.columnDragIndicatorColor, t),
+      columnDragIndicatorStrokeWidth: lerpDouble(
+          a.columnDragIndicatorStrokeWidth,
+          b.columnDragIndicatorStrokeWidth,
+          t),
     );
   }
 
@@ -634,7 +658,9 @@ class SfDataGridThemeData with Diagnosticable {
         other.sortOrderNumberBackgroundColor ==
             sortOrderNumberBackgroundColor &&
         other.filterPopupTextStyle == filterPopupTextStyle &&
-        other.filterPopupDisabledTextStyle == filterPopupDisabledTextStyle;
+        other.filterPopupDisabledTextStyle == filterPopupDisabledTextStyle &&
+        other.columnDragIndicatorColor == columnDragIndicatorColor &&
+        other.columnDragIndicatorStrokeWidth == columnDragIndicatorStrokeWidth;
   }
 
   @override
@@ -661,7 +687,9 @@ class SfDataGridThemeData with Diagnosticable {
       sortOrderNumberColor,
       sortOrderNumberBackgroundColor,
       filterPopupTextStyle,
-      filterPopupDisabledTextStyle
+      filterPopupDisabledTextStyle,
+      columnDragIndicatorColor,
+      columnDragIndicatorStrokeWidth
     ];
     return Object.hashAll(values);
   }
@@ -723,6 +751,12 @@ class SfDataGridThemeData with Diagnosticable {
     properties.add(DiagnosticsProperty<TextStyle>(
         'filterPopupDisabledTextStyle', filterPopupDisabledTextStyle,
         defaultValue: defaultData.filterPopupDisabledTextStyle));
+    properties.add(ColorProperty(
+        'columnDragIndicatorColor', columnDragIndicatorColor,
+        defaultValue: defaultData.columnDragIndicatorColor));
+    properties.add(DiagnosticsProperty<double>(
+        'columnDragIndicatorStrokeWidth', columnDragIndicatorStrokeWidth,
+        defaultValue: defaultData.columnDragIndicatorStrokeWidth));
   }
 }
 

@@ -20,8 +20,8 @@ class PdfString implements IPdfPrimitive {
             this.value = decodeBigEndian(data, 2, data!.length - 2);
             isHex = false;
             data = <int>[];
-            for (int i = 0; i < value.length; i++) {
-              data!.add(value.codeUnitAt(i).toUnsigned(8));
+            for (int i = 0; i < this.value!.length; i++) {
+              data!.add(this.value!.codeUnitAt(i).toUnsigned(8));
             }
           } else {
             this.value = byteToString(data!);
@@ -114,6 +114,7 @@ class PdfString implements IPdfPrimitive {
         for (int i = 0; i < value!.length; i++) {
           tempData.add(value!.codeUnitAt(i).toUnsigned(8));
         }
+        tempData = escapeSymbols(tempData);
       }
       bool hex = false;
       tempData = _encryptIfNeeded(tempData, document);

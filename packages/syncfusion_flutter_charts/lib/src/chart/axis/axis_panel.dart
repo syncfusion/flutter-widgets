@@ -1,8 +1,8 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
@@ -243,6 +243,9 @@ class ChartAxisPanel {
         AxisHelper.getAxisRendererDetails(axisRenderer);
     ChartAxisRendererDetails crossAxisRendererDetails;
     final ChartAxis axis = axisDetails.axis;
+    final SfChartThemeData chartThemeData = axisDetails.chartThemeData;
+    final TextStyle labelStyle = chartThemeData.axisLabelTextStyle!;
+    final TextStyle titleStyle = chartThemeData.axisTitleTextStyle!;
     final bool isTitleEnabled =
         axis.title.text != null && axis.title.text!.isNotEmpty;
     double titleSize = 0;
@@ -282,8 +285,8 @@ class ChartAxisPanel {
     }
     if (axis.isVisible) {
       if (isTitleEnabled) {
-        titleSize = measureText(axis.title.text!, axis.title.textStyle).height +
-            axisPadding;
+        titleSize =
+            measureText(axis.title.text!, titleStyle).height + axisPadding;
         axisDetails.titleHeight = titleSize;
       }
       final Rect rect = stateProperties.renderingDetails.chartContainerRect;
@@ -300,7 +303,7 @@ class ChartAxisPanel {
       final double labelSize = (axisIndex == 0 &&
               axis.labelPosition == ChartDataLabelPosition.inside)
           ? 0
-          : (axis.labelStyle.fontSize == 0
+          : (labelStyle.fontSize == 0
                   ? 0
                   : (axisDetails.orientation == AxisOrientation.horizontal)
                       ? axisDetails.maximumLabelSize.height
@@ -327,7 +330,7 @@ class ChartAxisPanel {
       if (axisDetails.orientation == AxisOrientation.horizontal) {
         if (!axis.opposedPosition) {
           axisDetails.totalSize += bottomAxisRenderers.isNotEmpty &&
-                  axis.labelStyle.fontSize! > 0 &&
+                  labelStyle.fontSize! > 0 &&
                   (axis.labelPosition == ChartDataLabelPosition.outside ||
                       ((axis.majorTickLines.width > 0 ||
                               axis.minorTickLines.width > 0) &&
@@ -361,7 +364,7 @@ class ChartAxisPanel {
           bottomAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         } else {
           axisDetails.totalSize += topAxisRenderers.isNotEmpty &&
-                  axis.labelStyle.fontSize! > 0 &&
+                  labelStyle.fontSize! > 0 &&
                   (axis.labelPosition == ChartDataLabelPosition.outside ||
                       ((axis.majorTickLines.width > 0 ||
                               axis.minorTickLines.width > 0) &&
@@ -398,7 +401,7 @@ class ChartAxisPanel {
       } else if (axisDetails.orientation == AxisOrientation.vertical) {
         if (!axis.opposedPosition) {
           axisDetails.totalSize += leftAxisRenderers.isNotEmpty &&
-                  axis.labelStyle.fontSize! > 0 &&
+                  labelStyle.fontSize! > 0 &&
                   (axis.labelPosition == ChartDataLabelPosition.outside ||
                       ((axis.majorTickLines.width > 0 ||
                               axis.minorTickLines.width > 0) &&
@@ -432,7 +435,7 @@ class ChartAxisPanel {
           leftAxesCount.add(AxisSize(axisRenderer, axisDetails.totalSize));
         } else {
           axisDetails.totalSize += rightAxisRenderers.isNotEmpty &&
-                  axis.labelStyle.fontSize! > 0 &&
+                  labelStyle.fontSize! > 0 &&
                   (axis.labelPosition == ChartDataLabelPosition.outside ||
                       ((axis.majorTickLines.width > 0 ||
                               axis.minorTickLines.width > 0) &&
@@ -953,6 +956,25 @@ class ChartAxisPanel {
                 : _getAxisRenderer(axesCollection[axisIndex]));
         final ChartAxisRendererDetails axisDetails =
             AxisHelper.getAxisRendererDetails(axisRenderer);
+
+        final ChartAxis axis = axesCollection[axisIndex];
+        final SfChartThemeData chartThemeData =
+            stateProperties.renderingDetails.chartTheme;
+        axisDetails.chartThemeData = chartThemeData.copyWith(
+          axisLabelTextStyle:
+              chartThemeData.axisLabelTextStyle?.merge(axis.labelStyle),
+          axisTitleTextStyle:
+              chartThemeData.axisTitleTextStyle?.merge(axis.title.textStyle),
+          axisMultiLevelLabelTextStyle: chartThemeData
+              .axisMultiLevelLabelTextStyle
+              ?.merge(axis.multiLevelLabelStyle.textStyle),
+          crosshairTextStyle: chartThemeData.crosshairTextStyle
+              ?.merge(axis.interactiveTooltip.textStyle),
+          selectionZoomingTooltipTextStyle: chartThemeData
+              .selectionZoomingTooltipTextStyle
+              ?.merge(axis.interactiveTooltip.textStyle),
+        );
+
         if (axisDetails is CategoryAxisDetails) {
           axisDetails.labels = <String>[];
         } else if (axisDetails is DateTimeCategoryAxisDetails) {

@@ -27,10 +27,10 @@ class ScrollViewWidget extends StatefulWidget {
       required this.height,
       required this.dataGridStateDetails});
 
-  /// The parent width of the datagid.
+  /// The parent width of the datagrid.
   final double width;
 
-  /// The parent height of the datagid.
+  /// The parent height of the datagrid.
   final double height;
 
   /// Holds the [DataGridStateDetails].
@@ -222,11 +222,13 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     // both scroll views.
     // For more info: https://github.com/flutter/flutter/issues/70380#issuecomment-841502797
     Widget scrollView = Scrollbar(
+      thickness: dataGridConfiguration.showVerticalScrollbar ? null : 0,
       controller: _verticalController,
       thumbVisibility: dataGridConfiguration.isScrollbarAlwaysShown,
       notificationPredicate: (ScrollNotification notification) =>
           handleNotificationPredicate(notification, Axis.vertical),
       child: Scrollbar(
+        thickness: dataGridConfiguration.showHorizontalScrollbar ? null : 0,
         controller: _horizontalController,
         thumbVisibility: dataGridConfiguration.isScrollbarAlwaysShown,
         notificationPredicate: (ScrollNotification notification) =>
@@ -391,7 +393,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
             top: lineInfo?.origin,
             height: lineInfo?.size,
             // FLUT-1971 Changed the header row widget as extendwidth instead of
-            // device width to resloved the issue of apply sorting to the
+            // device width to resolved the issue of apply sorting to the
             // invisible columns.
             width: containerWidth,
             child: headerRows[i]);
@@ -954,14 +956,17 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
       /// Need not to change the height when onScreenKeyboard appears.
       /// Cause: If we change the height on editing, editable widget will not move
       /// above the onScreenKeyboard on mobile platforms.
-      final bool needToResizeHeight = !dataGridConfiguration.isDesktop &&
+      final bool needToAvoidResizeHeight = !dataGridConfiguration.isDesktop &&
           dataGridConfiguration.currentCell.isEditing;
 
-      _width = widget.width;
-      _height = !needToResizeHeight ? widget.height : _height;
-      _container
-        ..needToSetHorizontalOffset = true
-        ..isDirty = true;
+      if (!needToAvoidResizeHeight) {
+        _width = widget.width;
+        _height = widget.height;
+
+        _container
+          ..needToSetHorizontalOffset = true
+          ..isDirty = true;
+      }
       if (oldWidget.width != widget.width ||
           oldWidget.height != widget.height) {
         _container.resetSwipeOffset();
@@ -1019,7 +1024,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         ..setRowHeights(initialLoading: true)
         ..needToRefreshColumn = true;
 
-      // FLUT-6545 if shrinkWrapRows is ture, we need to the set the DataGrid maximum height
+      // FLUT-6545 if shrinkWrapRows is true, we need to the set the DataGrid maximum height
       // based on the row value set in the onQueryRowHeight callback
       if (_dataGridConfiguration.shrinkWrapRows) {
         _height = _dataGridConfiguration.viewHeight =
@@ -1084,30 +1089,28 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     // So, we have used the focus widget. Need to remove [Focus] widget when
     // below mentioned issue is resolved on framework end.
     // [https://github.com/flutter/flutter/issues/83023]
-    return _dataGridConfiguration.isDesktop
-        ? Focus(
-            focusNode: _dataGridFocusNode,
-            onKey: _handleKeyOperation,
-            child: addContainer())
-        : addContainer();
+    return Focus(
+        key: _dataGridConfiguration.dataGridKey,
+        focusNode: _dataGridFocusNode,
+        onKey: _handleKeyOperation,
+        child: addContainer());
   }
 
   @override
   void dispose() {
-    if (_verticalController != null &&
-        _dataGridConfiguration.disposeVerticalScrollController) {
-      _verticalController!
-        ..removeListener(_verticalListener)
-        ..dispose();
+    // Need to dispose the vertical and horizontal scroll listeners when the widget disposed.
+    _verticalController?.removeListener(_verticalListener);
+    _horizontalController?.removeListener(_horizontalListener);
+
+    // Need to dispose the horizontal scroll controller when it's not set from the sample level.
+    if (_dataGridConfiguration.disposeVerticalScrollController) {
+      _verticalController?.dispose();
     }
 
-    if (_horizontalController != null &&
-        _dataGridConfiguration.disposeHorizontalScrollController) {
-      _horizontalController!
-        ..removeListener(_horizontalListener)
-        ..dispose();
+    // Need to dispose the horizontal scroll controller when it's not set from the sample level.
+    if (_dataGridConfiguration.disposeHorizontalScrollController) {
+      _horizontalController?.dispose();
     }
-
     super.dispose();
   }
 }
@@ -1330,7 +1333,7 @@ class _VisualContainerState extends State<_VisualContainer> {
 
   Widget addWidget(DataRowBase dataRow) {
     return _VirtualizingCellsWidget(
-      key: dataRow.key!,
+      key: dataRow.key,
       dataRow: dataRow,
       isDirty: widget.isDirty || dataRow.isDirty,
       dataGridStateDetails: widget.dataGridStateDetails,
@@ -1361,7 +1364,7 @@ class _VisualContainerState extends State<_VisualContainer> {
 
 class _VirtualizingCellsWidget extends StatefulWidget {
   const _VirtualizingCellsWidget(
-      {required Key key,
+      {required Key? key,
       required this.dataRow,
       required this.isDirty,
       required this.dataGridStateDetails})
@@ -1394,7 +1397,6 @@ class _VirtualizingCellsWidgetState extends State<_VirtualizingCellsWidget> {
     }
 
     return VirtualizingCellsRenderObjectWidget(
-      key: widget.key!,
       dataRow: widget.dataRow,
       isDirty: widget.isDirty,
       dataGridStateDetails: widget.dataGridStateDetails,

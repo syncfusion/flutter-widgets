@@ -718,20 +718,22 @@ class RenderMarkerPointer extends RenderBox {
   /// To render the MarkerShape.Text
   void _drawText(Canvas canvas, Paint paint, Offset startPosition,
       double pointerAngle, SfGaugeThemeData gaugeThemeData) {
-    final Color labelColor = textStyle.color ??
-        gaugeThemeData.axisLabelColor ??
-        (_isDarkTheme
-            ? _themeData.colorScheme.onSurface
-            : _themeData.colorScheme.onSurface.withOpacity(0.72));
-
-    final TextSpan span = TextSpan(
-        text: text,
-        style: TextStyle(
-            color: labelColor,
-            fontSize: textStyle.fontSize,
-            fontFamily: textStyle.fontFamily,
-            fontStyle: textStyle.fontStyle,
-            fontWeight: textStyle.fontWeight));
+    final TextStyle markerTextStyle = _themeData.textTheme.bodySmall!.copyWith(
+      color: textStyle.color ??
+          _gaugeThemeData.markerTextStyle?.color ??
+          _gaugeThemeData.axisLabelColor ??
+          (_isDarkTheme
+              ? _themeData.colorScheme.onSurface
+              : _themeData.colorScheme.onSurface.withOpacity(0.72)),
+      fontSize: textStyle.fontSize ?? _gaugeThemeData.markerTextStyle?.fontSize,
+      fontFamily:
+          textStyle.fontFamily ?? _gaugeThemeData.markerTextStyle?.fontFamily,
+      fontStyle:
+          textStyle.fontStyle ?? _gaugeThemeData.markerTextStyle?.fontStyle,
+      fontWeight:
+          textStyle.fontWeight ?? _gaugeThemeData.markerTextStyle?.fontWeight,
+    );
+    final TextSpan span = TextSpan(text: text, style: markerTextStyle);
     final TextPainter textPainter = TextPainter(
         text: span,
         textDirection: TextDirection.ltr,

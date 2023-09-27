@@ -1,10 +1,10 @@
 name: syncfusion_pdfviewer_windows
 description: Windows platform implementation of the Flutter PDF Viewer library that lets you view the PDF documents seamlessly and efficiently.
-version: 21.1.35
+version: 23.1.36
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_pdfviewer_windows
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
+  sdk: '>=2.17.0 <4.0.0'
   flutter: ">=2.5.0"
 
 dependencies:

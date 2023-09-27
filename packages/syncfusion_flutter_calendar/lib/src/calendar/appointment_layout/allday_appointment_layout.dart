@@ -23,6 +23,7 @@ class AllDayAppointmentLayout extends StatefulWidget {
       this.isExpanding,
       this.isRTL,
       this.calendarTheme,
+      this.themeData,
       this.repaintNotifier,
       this.allDayHoverPosition,
       this.textScaleFactor,
@@ -64,6 +65,9 @@ class AllDayAppointmentLayout extends StatefulWidget {
 
   /// Holds the theme data of the calendar widget.
   final SfCalendarThemeData calendarTheme;
+
+  /// Holds the framework theme data values.
+  final ThemeData themeData;
 
   /// Used to hold the all day appointment hovering position.
   final ValueNotifier<Offset?> allDayHoverPosition;
@@ -242,6 +246,7 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
       widget.isExpanding,
       widget.isRTL,
       widget.calendarTheme,
+      widget.themeData,
       widget.repaintNotifier,
       widget.allDayHoverPosition,
       widget.textScaleFactor,
@@ -416,7 +421,7 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
 }
 
 class _AllDayAppointmentRenderWidget extends MultiChildRenderObjectWidget {
-  _AllDayAppointmentRenderWidget(
+  const _AllDayAppointmentRenderWidget(
       this.calendar,
       this.view,
       this.visibleDates,
@@ -427,6 +432,7 @@ class _AllDayAppointmentRenderWidget extends MultiChildRenderObjectWidget {
       this.isExpanding,
       this.isRTL,
       this.calendarTheme,
+      this.themeData,
       this.repaintNotifier,
       this.allDayHoverPosition,
       this.textScaleFactor,
@@ -447,6 +453,7 @@ class _AllDayAppointmentRenderWidget extends MultiChildRenderObjectWidget {
   final double allDayPainterHeight;
   final bool isRTL;
   final SfCalendarThemeData calendarTheme;
+  final ThemeData themeData;
   final ValueNotifier<Offset?> allDayHoverPosition;
   final double textScaleFactor;
   final bool isMobilePlatform;
@@ -471,6 +478,7 @@ class _AllDayAppointmentRenderWidget extends MultiChildRenderObjectWidget {
         isExpanding,
         isRTL,
         calendarTheme,
+        themeData,
         repaintNotifier,
         allDayHoverPosition,
         textScaleFactor,
@@ -489,6 +497,7 @@ class _AllDayAppointmentRenderWidget extends MultiChildRenderObjectWidget {
       ..appointmentCollection = appointmentCollection
       ..moreAppointmentIndex = moreAppointmentIndex
       ..calendar = calendar
+      ..themeData = themeData
       ..view = view
       ..visibleDates = visibleDates
       ..visibleAppointments = visibleAppointments
@@ -520,6 +529,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
       this.isExpanding,
       this._isRTL,
       this._calendarTheme,
+      this._themeData,
       this._selectionNotifier,
       this._allDayHoverPosition,
       this._textScaleFactor,
@@ -697,6 +707,18 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
     }
 
     markNeedsPaint();
+  }
+
+  ThemeData _themeData;
+
+  ThemeData get themeData => _themeData;
+
+  set themeData(ThemeData value) {
+    if (_themeData == value) {
+      return;
+    }
+
+    _themeData = value;
   }
 
   List<DateTime> _visibleDates;
@@ -1172,7 +1194,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
 
     final TextStyle appointmentTextStyle =
         AppointmentHelper.getAppointmentTextStyle(
-            calendar.appointmentTextStyle, view);
+            calendar.appointmentTextStyle, view, themeData);
     final double iconTextSize = _getTextSize(
         rect, appointmentTextStyle.fontSize! * _textPainter.textScaleFactor);
     const double iconPadding = 2;
@@ -1286,8 +1308,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
   }
 
   void _addExpanderText(Canvas canvas, int position, double textPadding) {
-    final TextStyle textStyle = calendar.viewHeaderStyle.dayTextStyle ??
-        calendarTheme.viewHeaderDayTextStyle!;
+    final TextStyle textStyle = calendarTheme.viewHeaderDayTextStyle!;
     final double endYPosition = allDayPainterHeight - kAllDayAppointmentHeight;
     final List<int> keys = moreAppointmentIndex.keys.toList();
     for (final int index in keys) {
@@ -1320,10 +1341,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
     final TextSpan icon = TextSpan(
         text: String.fromCharCode(iconCodePoint),
         style: TextStyle(
-          color: calendar.viewHeaderStyle.dayTextStyle != null &&
-                  calendar.viewHeaderStyle.dayTextStyle!.color != null
-              ? calendar.viewHeaderStyle.dayTextStyle!.color
-              : calendarTheme.viewHeaderDayTextStyle!.color,
+          color: calendarTheme.viewHeaderDayTextStyle!.color,
           fontSize: calendar.viewHeaderStyle.dayTextStyle != null &&
                   calendar.viewHeaderStyle.dayTextStyle!.fontSize != null
               ? calendar.viewHeaderStyle.dayTextStyle!.fontSize! * 2
@@ -1558,6 +1576,12 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
   List<CustomPainterSemantics> _getSemanticsBuilder(Size size) {
     final List<CustomPainterSemantics> semanticsBuilder =
         <CustomPainterSemantics>[];
+
+    final RenderBox? child = firstChild;
+    if (child != null) {
+      return semanticsBuilder;
+    }
+
     if (appointmentCollection.isEmpty) {
       return semanticsBuilder;
     }
@@ -1621,5 +1645,17 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
     }
 
     return semanticsBuilder;
+  }
+
+  @override
+  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+    RenderBox? child = firstChild;
+    if (child == null) {
+      return;
+    }
+    while (child != null) {
+      visitor(child);
+      child = childAfter(child);
+    }
   }
 }

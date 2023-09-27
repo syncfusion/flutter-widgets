@@ -1,18 +1,19 @@
 name: syncfusion_flutter_maps
 description: A Flutter Maps library for creating beautiful, interactive, and customizable maps from shape files or WMTS services to visualize the geographical area.
-version: 21.1.35 
+version: 23.1.36
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_maps
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  syncfusion_flutter_core: ^21.1.35
+  syncfusion_flutter_core: ^23.1.36
+
       
-  http: ">=0.12.0 <=0.13.5"
+  http: ^1.0.0
   vector_math: ">=2.1.0 <=3.0.0"
 
 dev_dependencies:

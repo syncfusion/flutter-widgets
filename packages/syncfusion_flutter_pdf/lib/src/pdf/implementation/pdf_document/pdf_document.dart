@@ -540,6 +540,19 @@ class PdfDocument {
     final PdfWriter writer = PdfWriter(buffer);
     writer.document = this;
     _checkPages();
+    if (_helper.isLoadedDocument &&
+        _bookmark != null &&
+        _bookmark!.count > 0 &&
+        _helper.crossTable.documentCatalog != null &&
+        !_helper.crossTable.documentCatalog!
+            .containsKey(PdfDictionaryProperties.outlines)) {
+      _helper.catalog.setProperty(
+          PdfDictionaryProperties.outlines, PdfReferenceHolder(_bookmark));
+    } else if (_bookmark != null &&
+        _bookmark!.count < 1 &&
+        _helper.catalog.containsKey(PdfDictionaryProperties.outlines)) {
+      _helper.catalog.remove(PdfDictionaryProperties.outlines);
+    }
     if (PdfSecurityHelper.getHelper(security).encryptAttachments &&
         security.userPassword == '') {
       throw ArgumentError.value(
@@ -633,6 +646,19 @@ class PdfDocument {
     final PdfWriter writer = PdfWriter(buffer);
     writer.document = this;
     await _checkPagesAsync();
+    if (_helper.isLoadedDocument &&
+        _bookmark != null &&
+        _bookmark!.count > 0 &&
+        _helper.crossTable.documentCatalog != null &&
+        !_helper.crossTable.documentCatalog!
+            .containsKey(PdfDictionaryProperties.outlines)) {
+      _helper.catalog.setProperty(
+          PdfDictionaryProperties.outlines, PdfReferenceHolder(_bookmark));
+    } else if (_outlines != null &&
+        _outlines!.count < 1 &&
+        _helper.catalog.containsKey(PdfDictionaryProperties.outlines)) {
+      _helper.catalog.remove(PdfDictionaryProperties.outlines);
+    }
     if (PdfSecurityHelper.getHelper(security).encryptAttachments &&
         security.userPassword == '') {
       throw ArgumentError.value(
@@ -926,8 +952,6 @@ class PdfDocument {
   /// Creates a bookmarks collection to the document.
   PdfBookmarkBase? _createBookmarkRoot() {
     _bookmark = PdfBookmarkBaseHelper.loadInternal();
-    _helper.catalog.setProperty(
-        PdfDictionaryProperties.outlines, PdfReferenceHolder(_bookmark));
     return _bookmark;
   }
 

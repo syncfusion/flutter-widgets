@@ -155,8 +155,20 @@ class SfRadialGaugeState extends State<SfRadialGauge>
 
   @override
   void didChangeDependencies() {
-    _gaugeTheme = SfGaugeTheme.of(context)!;
+    _gaugeTheme = _updateThemeData(context);
     super.didChangeDependencies();
+  }
+
+  SfGaugeThemeData _updateThemeData(BuildContext context) {
+    SfGaugeThemeData gaugeThemeData = SfGaugeTheme.of(context)!;
+    gaugeThemeData = gaugeThemeData.copyWith(
+        titleTextStyle: Theme.of(context)
+            .textTheme
+            .bodySmall!
+            .copyWith(color: gaugeThemeData.titleColor, fontSize: 15)
+            .merge(gaugeThemeData.titleTextStyle)
+            .merge(widget.title?.textStyle));
+    return gaugeThemeData;
   }
 
   /// Methods to add the title of circular gauge
@@ -180,7 +192,7 @@ class SfRadialGaugeState extends State<SfRadialGauge>
                       : Alignment.topCenter,
           child: Text(
             widget.title!.text,
-            style: widget.title!.textStyle,
+            style: _gaugeTheme.titleTextStyle,
             textAlign: TextAlign.center,
             overflow: TextOverflow.clip,
           ));

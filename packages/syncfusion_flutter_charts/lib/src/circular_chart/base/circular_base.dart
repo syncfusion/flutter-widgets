@@ -104,7 +104,7 @@ class SfCircularChart extends StatefulWidget {
       bool? enableMultiSelection})
       : series = series = series ?? <CircularSeries<dynamic, dynamic>>[],
         title = title ?? ChartTitle(),
-        legend = legend ?? Legend(),
+        legend = legend ?? const Legend(),
         margin = margin ?? const EdgeInsets.fromLTRB(10, 10, 10, 10),
         centerX = centerX ?? '50%',
         centerY = centerY ?? '50%',
@@ -635,9 +635,36 @@ class SfCircularChartState extends State<SfCircularChart>
 
   @override
   void didChangeDependencies() {
-    _stateProperties.renderingDetails.chartTheme = SfChartTheme.of(context);
+    _stateProperties.renderingDetails.chartTheme =
+        _updateThemeData(context, Theme.of(context), SfChartTheme.of(context));
+    _stateProperties.renderingDetails.themeData = Theme.of(context);
     _stateProperties.isRtl = Directionality.of(context) == TextDirection.rtl;
     super.didChangeDependencies();
+  }
+
+  SfChartThemeData _updateThemeData(BuildContext context, ThemeData themeData,
+      SfChartThemeData chartThemeData) {
+    chartThemeData = chartThemeData.copyWith(
+      titleTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(color: chartThemeData.titleTextColor, fontSize: 15)
+          .merge(chartThemeData.titleTextStyle)
+          .merge(widget.title.textStyle),
+      tooltipTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(
+              color: widget.tooltipBehavior.color ??
+                  chartThemeData.tooltipLabelColor)
+          .merge(chartThemeData.tooltipTextStyle)
+          .merge(widget.tooltipBehavior.textStyle),
+      legendTitleTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(color: chartThemeData.legendTitleColor)
+          .merge(chartThemeData.legendTitleTextStyle)
+          .merge(widget.legend.title.textStyle),
+      legendTextStyle: themeData.textTheme.bodySmall!
+          .copyWith(color: chartThemeData.legendTextColor, fontSize: 13)
+          .merge(chartThemeData.legendTextStyle)
+          .merge(widget.legend.textStyle),
+    );
+    return chartThemeData;
   }
 
   /// Called whenever the widget configuration changes.

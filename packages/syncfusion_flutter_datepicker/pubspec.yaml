@@ -1,16 +1,39 @@
 name: syncfusion_flutter_datepicker
 description: The Flutter Date Range Picker widget allows users to easily select dates or a range of dates. It has four built-in views that allow quick navigation to the desired date.
-version: 21.1.35
-homepage: https://github.com/syncfusion/flutter-examples
+version: 23.1.36
+homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_datepicker
+
+screenshots:
+  - description: 'This screenshot shows the month view with range selection.'
+    path: screenshots/flutter-daterangepicker-rangeselection.png
+  - description: 'This screenshot shows the year view in the date range picker.'
+    path: screenshots/flutter-daterangepicker-yearview.png
+  - description: 'This screenshot shows the decade view in the date range picker.'
+    path: screenshots/flutter-daterangepicker-decadeview.png
+  - description: 'This screenshot shows the century view in the date range picker.'
+    path: screenshots/flutter-daterangepicker-centuryview.png
+  - description: 'This screenshot shows the month view with a single selection.'
+    path: screenshots/flutter-daterangepicker-monthview.png
+  - description: 'This screenshot shows the month view with multiple selections.'
+    path: screenshots/flutter-daterangepicker-multipleselection.png
+  - description: 'This screenshot shows the month view with multi-range selection.'
+    path: screenshots/flutter-daterangepicker-multirangeselection.png
+  - description: 'This screenshot shows the month extendable range selection.'
+    path: screenshots/flutter-daterangepicker-extendablerangeselection.png
+  - description: 'This screenshot shows the hijri date range picker.'
+    path: screenshots/flutter-daterangepicker-hijri-calendar.png
+  - description: 'This screenshot shows the vertical scroll picker.'
+    path: screenshots/flutter-daterangepicker-free-scroll.gif
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  intl: ">=0.17.0 <0.20.0"
-  syncfusion_flutter_core: ^21.1.35
+  intl: ^0.18.0
+  syncfusion_flutter_core: ^23.1.36
+ 
 
 dev_dependencies:
   flutter_test:

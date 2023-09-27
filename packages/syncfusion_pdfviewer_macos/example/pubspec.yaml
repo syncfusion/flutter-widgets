@@ -6,17 +6,18 @@ description: Demonstrates how to use the syncfusion_pdfviewer plugin in macOS pl
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
+  sdk: '>=2.17.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
 
-  syncfusion_flutter_pdfviewer: ^21.1.35
+  syncfusion_flutter_pdfviewer: ^23.1.36
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.3
+  cupertino_icons: ^1.0.5
 
 dev_dependencies:
   flutter_test:

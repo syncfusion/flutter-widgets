@@ -1,3 +1,61 @@
+## [22.2.11] - 08/29/2023
+
+**Bugs**
+
+* High memory consumption will no longer occurs while extracting text from large PDF documents.
+
+* Null check exceptions will no longer occur while drawing PDF grid in a loaded page.
+
+## [22.2.9] - 08/15/2023
+
+**Bugs**
+
+* Null reference exceptions will no longer occur when retrieving form fields from the PDF document.
+
+## [22.2.5] - 07/27/2023
+
+**Bugs**
+
+* Resolved white background preservation while flattening loaded empty signature field.
+
+* Type casting issue no longer occurs while flattening specific PDF document.
+
+## [22.1.36] - 06/28/2023
+
+**Bugs**
+
+* Resolved the space between text missing issue in the extract text layout and lines.
+
+* PDF signature added with signed name is now valid in Adobe viewer.
+
+## [21.2.4] - 05/09/2023
+
+**Bugs**
+
+* Null reference exceptions will no longer occur while getting form fields from the PDF document.
+
+* Now, spaces are preserved properly when extracting text with the layout.
+
+* The preservation issue no longer occurs after modifying the values in the fields of the PDF document.
+
+## [21.1.41] - 04/18/2023
+
+**Bugs**
+
+* The unhandled exception that occurred during the extraction of text and flattening of form fields in the PDF document has been resolved.
+
+## [21.1.39] - 04/11/2023
+
+**Bugs**
+
+* RTL bookmark title is now properly retrieved from Encrypted PDF documents.
+
+## [21.1.37] - 03/29/2023
+
+**Bugs**
+
+* Text words are now properly split while extracting text from PDF documents.
+
 ## [20.4.54] - 03/15/2023
 
 **Bugs**

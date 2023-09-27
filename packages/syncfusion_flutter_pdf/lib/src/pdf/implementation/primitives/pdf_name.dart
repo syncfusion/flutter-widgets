@@ -5,7 +5,9 @@ import '../io/pdf_cross_table.dart';
 /// internal class
 class PdfName implements IPdfPrimitive {
   /// Constructor for creation [PdfName] object.
-  PdfName([this.name]);
+  PdfName([String? name]) {
+    this.name = name;
+  }
 
   //Constants
   /// internal field
@@ -14,11 +16,21 @@ class PdfName implements IPdfPrimitive {
 
   //Fields
   /// internal field
-  final String? name;
+  String? _name;
   bool? _isSaving;
   int? _objectCollectionIndex;
   int? _position;
   PdfObjectStatus? _status;
+
+  //Properties
+  /// Gets or sets the name.
+  String? get name {
+    return _name;
+  }
+
+  set name(String? value) {
+    _name = normalizeValue(value);
+  }
 
   //Implementation
   String _escapeString(String value) {
@@ -34,6 +46,36 @@ class PdfName implements IPdfPrimitive {
       }
     }
     return result;
+  }
+
+  /// Replace the characters to hexa decimal format.
+  static String? normalizeValue(String? value) {
+    if (value != null && value.isNotEmpty) {
+      value = value
+          .replaceAll('\t', '#09')
+          .replaceAll('\n', '#0A')
+          .replaceAll('\r', '#0D')
+          .replaceAll(' ', '#20');
+    }
+    return value;
+  }
+
+  /// Replace the hexa decimal format to replace characters.
+  static String? decodeName(String? value) {
+    if (value != null)
+      return value
+          .replaceAll('#9', '\t')
+          .replaceAll('#09', '\t')
+          .replaceAll('#A', '\n')
+          .replaceAll('#a', '\n')
+          .replaceAll('#0A', '\n')
+          .replaceAll('#0a', '\n')
+          .replaceAll('#D', '\r')
+          .replaceAll('#d', '\r')
+          .replaceAll('#0D', '\r')
+          .replaceAll('#0d', '\r')
+          .replaceAll('#20', ' ');
+    return null;
   }
 
   @override

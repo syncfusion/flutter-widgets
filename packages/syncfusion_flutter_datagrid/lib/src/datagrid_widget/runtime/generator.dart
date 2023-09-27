@@ -756,12 +756,13 @@ class RowGenerator {
         ..rowRegion = rowRegion
         ..rowType = RowType.dataRow
         ..dataGridStateDetails = dataGridStateDetails;
-      dr.key = ObjectKey(dr);
+
       dr
         ..dataGridRow =
             grid_helper.getDataGridRow(dataGridConfiguration, rowIndex)
         ..dataGridRowAdapter = grid_helper.getDataGridRowAdapter(
             dataGridConfiguration, dr.dataGridRow!);
+      dr.key = dr.dataGridRowAdapter?.key;
       assert(grid_helper.debugCheckTheLength(
           dataGridConfiguration,
           dataGridConfiguration.columns.length,

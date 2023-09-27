@@ -1,5 +1,91 @@
 ## Unreleased
 
+**Bugs** 
+
+* #FB45898 - Resolved the axis range rendering issue while updating the multiple segments using the addedDataIndexes property dynamically.
+  
+## [22.2.8] - 08/08/2023
+
+**Bugs**
+
+* #FB45592 - Resolved the typecast exception when rendering the tooltip with trimmed text in the data label.
+  
+## [22.2.7] - 08/02/2023
+
+**Bugs**
+
+* #FB45592 - Resolved the typecast exception when rendering the tooltip with trimmed text in the data label.
+
+## [22.2.7] - 08/02/2023
+
+**Bugs**
+
+* #FB45330 - Now, the trendline tooltip will work properly with the column series.
+* #FB45141 - Now, the legend toggling will work properly when having the same name for multiple series.
+
+## [22.1.39] - 07/18/2023
+
+**Bugs**
+
+* #FB44995 - Now, the selected index state gets maintained when switching applications in the chart.
+* #FB45020 - Resolved the range error exception when zooming the chart with the [onMarkerRender](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/onMarkerRender.html) callback without enabling [markerSettings](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CartesianSeries/markerSettings.html) in the scatter series.
+
+## [22.1.38] - 07/11/2023
+
+**Bugs** 
+* #FB44755 - Resolved the Null check exception when having a crosshair empty data source.
+
+## [22.1.37] - 07/04/2023
+
+**Bugs** 
+
+* #FB44618 - Now, the BorderDrawMode property will work properly in the StackedAreaSeries.
+* #FB44657 - Resolved getting NaN exception when setting a maximum property as zero in the x and y-axis.
+
+## [22.1.36] - 06/28/2023
+
+**Bugs**
+* #FB44233 - Now, the leftmost points will come into view when performing panning to the left most of the chart.
+* #FB44517 - Resolved the range error exception in the FastLineSeries with enabled trackball in the chart.
+
+## [21.2.10] - 06/13/2023
+
+**Bugs**
+* #FB44070 - Now, the doughnut series is rendering properly when having two data points with large differences.
+* #FB44112 - Resolved range error exception when displaying trackball for the zoomed candle series.
+
+## [21.2.8] - 05/30/2023
+
+**Bugs**
+* #FB43703 - Resolved the selection not working issue when the selection disabled series placed above the selection enabled series.
+
+## [21.2.5] - 05/16/2023
+
+**Bugs**
+* #FB42814 - Now, the auto-scaling will work for negative intervals when the range padding is normal and auto.
+
+## [21.2.4] - 05/09/2023 
+
+**Bugs**
+* #FB43916 - Now, the tooltip marker color will be displayed corresponding to the series color when using the tooltip shared mode.
+
+## [21.1.41] - 04/18/2023
+
+**Bugs**
+* #FB42529 - Now, the plotband will be updated along with the axis when updating the data using the updateDataSource method.
+
+## [21.1.38] - 04/04/2023
+
+* #FB42369 - Resolved the null check exception when updating data using the updateDataSource method with an empty data source initially in the CategoryAxis.
+
+## [21.1.37] - 03/29/2023
+
+**Bugs**
+* #FB42269 - Resolved the null exception when having two data points only in the spline series with cardinal spline type.
+* #FB41915 - Now, the null exception will no longer be thrown in the plotband, and the horizontalTextPadding property will work properly.
+
+## [21.1.35] - 03/23/2023
+
 **Bugs**
 * #FB40960 - Fixed an issue where the data label template was not updating properly when changing the visible range dynamically.
 * #FB41822 - Fixed an issue of the candle series width decreasing when adding the non-rectangular series.

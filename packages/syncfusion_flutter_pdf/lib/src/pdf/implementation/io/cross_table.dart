@@ -7,6 +7,7 @@ import '../primitives/pdf_number.dart';
 import '../primitives/pdf_reference.dart';
 import '../primitives/pdf_reference_holder.dart';
 import '../primitives/pdf_stream.dart';
+import '../primitives/pdf_string.dart';
 import '../security/pdf_encryptor.dart';
 import 'enums.dart';
 import 'pdf_cross_table.dart';
@@ -215,7 +216,7 @@ class CrossTable {
         token = tokenReader.getNextToken();
         //check the coditon for valid object number
         final int? number = int.tryParse(token!);
-        if (number != null && number >= 0 && number <= 9) {
+        if (number != null && number >= 0) {
           token = tokenReader.getNextToken();
           if (token == PdfDictionaryProperties.obj) {
             parser.setOffset(position);
@@ -280,14 +281,24 @@ class CrossTable {
       }
       final PdfParser? parser = oi.parser;
       final int? position = oi.offset;
-      if (oi._obj != null) {
-        obj = oi._obj;
+      if (oi.obj != null) {
+        obj = oi.obj;
       } else if (oi._archive == null) {
         obj = parser!.parseOffset(position!);
       } else {
         obj = _getObjectFromPosition(parser!, position!);
+        if (encryptor != null) {
+          if (obj is PdfDictionary) {
+            obj.decrypted = true;
+            for (final dynamic element in obj.items!.values) {
+              if (element is PdfString) {
+                element.isParentDecrypted = true;
+              }
+            }
+          }
+        }
       }
-      oi._obj = obj;
+      oi.obj = obj;
       return obj;
     } else {
       return pointer;
@@ -553,7 +564,9 @@ class ObjectInformation {
   PdfParser? _parser;
   int? _offset;
   CrossTable? _crossTable;
-  IPdfPrimitive? _obj;
+
+  /// internal Fields
+  IPdfPrimitive? obj;
 
   //Properties
   /// internal property

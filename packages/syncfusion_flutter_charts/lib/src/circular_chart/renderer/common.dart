@@ -310,16 +310,19 @@ class ChartSeriesRender with CircularChartSegment, LabelSegment {
       TextStyle style,
       SfCircularChartState chartState) {
     final DataLabelSettings dataLabel = seriesRenderer.series.dataLabelSettings;
-    final Color fontColor = dataLabel.textStyle.color ??
-        getCircularDataLabelColor(
-            point, seriesRenderer, seriesRenderer.stateProperties);
-    final TextStyle textStyle = TextStyle(
-        color: fontColor,
-        fontSize: dataLabel.textStyle.fontSize,
-        fontFamily: dataLabel.textStyle.fontFamily,
-        fontStyle: dataLabel.textStyle.fontStyle,
-        fontWeight: dataLabel.textStyle.fontWeight);
+    final TextStyle textStyle = style.copyWith(
+        color: _isCustomTextColor(
+                dataLabel.textStyle,
+                seriesRenderer.stateProperties.renderingDetails.chartTheme
+                    .dataLabelTextStyle)
+            ? dataLabel.textStyle?.color
+            : getCircularDataLabelColor(
+                point, seriesRenderer, seriesRenderer.stateProperties));
     return textStyle;
+  }
+
+  bool _isCustomTextColor(TextStyle? textStyle, TextStyle? themeStyle) {
+    return textStyle?.color != null || themeStyle?.color != null;
   }
 
   /// To return label color.
