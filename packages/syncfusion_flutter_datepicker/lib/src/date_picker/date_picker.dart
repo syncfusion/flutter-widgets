@@ -247,8 +247,10 @@ class SfDateRangePicker extends StatelessWidget {
       this.extendableRangeSelectionDirection =
           ExtendableRangeSelectionDirection.both})
       : assert(headerHeight >= -1),
-        assert(minDate == null || maxDate == null || minDate.isBefore(maxDate)),
-        assert(minDate == null || maxDate == null || maxDate.isAfter(minDate)),
+        assert(minDate == null ||
+            maxDate == null ||
+            minDate.isBefore(maxDate) ||
+            minDate == maxDate),
         assert(viewSpacing >= 0),
         initialSelectedDate =
             controller != null && controller.selectedDate != null
@@ -8354,7 +8356,7 @@ class _PickerHeaderPainter extends CustomPainter {
 
       double textWidth = ((currentViewIndex + 1) * width) - xPosition;
       textWidth = textWidth > 0 ? textWidth : 0;
-      _textPainter.layout(minWidth: textWidth, maxWidth: textWidth);
+      _textPainter.layout(maxWidth: textWidth);
 
       if (headerStyle.textAlign == TextAlign.center) {
         xPosition = (currentViewIndex * width) +
@@ -8590,7 +8592,7 @@ class _PickerViewHeaderPainter extends CustomPainter {
 
         _textPainter.textScaleFactor = textScaleFactor;
         _textPainter.text = dayTextSpan;
-        _textPainter.layout(minWidth: width, maxWidth: width);
+        _textPainter.layout(maxWidth: width);
         yPosition = (viewHeaderHeight - _textPainter.height) / 2;
         _textPainter.paint(
             canvas,

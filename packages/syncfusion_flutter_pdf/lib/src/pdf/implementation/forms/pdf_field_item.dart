@@ -94,6 +94,19 @@ class PdfFieldItem {
                     }
                   }
                 }
+                if (_helper.dictionary!
+                    .containsKey(PdfDictionaryProperties.p)) {
+                  final IPdfPrimitive? itemPageDict = PdfCrossTable.dereference(
+                      _helper.dictionary![PdfDictionaryProperties.p]);
+                  final PdfDictionary pageDict =
+                      PdfPageHelper.getHelper(loadedPage).dictionary!;
+                  if (itemPageDict is PdfDictionary &&
+                      itemPageDict == pageDict) {
+                    _page = loadedPage;
+                    helper.defaultIndex = backUpIndex;
+                    return _page;
+                  }
+                }
               }
               helper.defaultIndex = backUpIndex;
               _page = null;

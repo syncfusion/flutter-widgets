@@ -114,6 +114,7 @@ class PdfString implements IPdfPrimitive {
         for (int i = 0; i < value!.length; i++) {
           tempData.add(value!.codeUnitAt(i).toUnsigned(8));
         }
+        tempData = escapeSymbols(tempData);
       }
       bool hex = false;
       tempData = _encryptIfNeeded(tempData, document);

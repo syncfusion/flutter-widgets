@@ -735,10 +735,11 @@ class _PasswordUtility {
         }
       });
 
-      if (mechanism != null && mechanism!.startsWith('PBEwithMD2') ||
-          mechanism!.startsWith('PBEwithMD5') ||
-          mechanism!.startsWith('PBEwithSHA-1') ||
-          mechanism!.startsWith('PBEwithSHA-256')) {
+      if (mechanism != null &&
+          (mechanism!.startsWith('PBEwithMD2') ||
+              mechanism!.startsWith('PBEwithMD5') ||
+              mechanism!.startsWith('PBEwithSHA-1') ||
+              mechanism!.startsWith('PBEwithSHA-256'))) {
         if (mechanism!.endsWith('AES-CBC-BC') ||
             mechanism!.endsWith('AES-CBC-OPENSSL')) {
           result = _cipherUtils.getCipher('AES/CBC');

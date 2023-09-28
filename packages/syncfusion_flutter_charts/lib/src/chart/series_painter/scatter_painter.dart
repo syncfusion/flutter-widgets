@@ -280,7 +280,7 @@ class ScatterChartPainter extends CustomPainter {
             currentPoint.yValue != null &&
             withInRange(
                 currentPoint.yValue, seriesRendererDetails.yAxisDetails!);
-        if (withInXRange || withInYRange) {
+        if (withInXRange && withInYRange) {
           seriesRendererDetails.calculateRegionData(
               stateProperties,
               seriesRendererDetails,
