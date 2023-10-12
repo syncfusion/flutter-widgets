@@ -125,8 +125,11 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
 
     private func getImageForPlugin(index: Int,scale: CGFloat,documentID: String) -> FlutterStandardTypedData
     {
-        let document = self.documentRepo[documentID]!!
-        let page = document.page(at: Int(index))
+        let document = self.documentRepo[documentID]
+        if(document == nil || document! == nil){
+          return nil
+        }
+        let page = document!!.page(at: Int(index))
         var pageRect = page!.getBoxRect(.mediaBox)
         let imageRect = CGRect(x: 0,y: 0,width: pageRect.size.width*CGFloat(scale),height: pageRect.size.height*CGFloat(scale))
         if #available(iOS 10.0, *) {
