@@ -20,6 +20,21 @@ class Picture {
   static const List<int> _jpegSignature = <int>[255, 216];
   static const List<int> _pngSignature = <int>[137, 80, 78, 71, 13, 10, 26, 10];
 
+  /// The image mode depends on changes to cells when modified."
+  /// 
+  /// Example:
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = File('image.png').readAsBytesSync();
+  /// Picture picture = sheet.picutes.addStream(1, 1, bytes);
+  /// picture.editAs = EditAs.moveAndSizeWithCell;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  EditAs editAs = EditAs.moveAndSizeWithCell;
+
   /// Gets/Sets the image data.
   List<int>? _imageData;
 

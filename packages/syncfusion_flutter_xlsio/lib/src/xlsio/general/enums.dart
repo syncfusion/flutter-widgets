@@ -1444,3 +1444,20 @@ enum _ActivePane {
   /// value specifies the right pane.
   topRight
 }
+
+/// Enum defining different editing modes for an object within a cell-based system.
+enum EditAs {
+  /// In this mode, when you resize the cell, the Image remains the same size,
+  /// and only the cell's dimensions are adjusted.
+  moveButDontSizeWithCell('oneCell'),
+
+  /// In this mode, when you resize the cell, the Image's size is adjusted to
+  /// match the new cell dimensions.
+  moveAndSizeWithCell('twoCell');
+
+  /// The underlying string value for each enum value.
+  final String value;
+
+  /// Constructor to initialize the enum with a string value.
+  const EditAs(this.value);
+}

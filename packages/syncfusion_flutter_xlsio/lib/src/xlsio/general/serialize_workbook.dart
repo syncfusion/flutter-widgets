@@ -1786,7 +1786,7 @@ class SerializeWorkbook {
           }
           imgId++;
           builder.element('xdr:twoCellAnchor', nest: () {
-            builder.attribute('editAs', 'twoCell');
+            builder.attribute('editAs', picture.editAs.value);
             builder.element('xdr:from', nest: () {
               builder.element('xdr:col', nest: picture.column - 1);
               builder.element('xdr:colOff', nest: 0);
@@ -1967,7 +1967,7 @@ class SerializeWorkbook {
           }
           imgId++;
           builder.element('xdr:twoCellAnchor', nest: () async {
-            builder.attribute('editAs', 'twoCell');
+            builder.attribute('editAs', picture.editAs.value);
             builder.element('xdr:from', nest: () async {
               builder.element('xdr:col', nest: picture.column - 1);
               builder.element('xdr:colOff', nest: 0);
