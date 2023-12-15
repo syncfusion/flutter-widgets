@@ -35,7 +35,7 @@ import 'tma_indicator.dart';
 /// Indicators generally overlay the  chart data to show the data flow over a period of time.
 ///
 /// _Note:_ This property is applicable only for financial chart series types.
-class TechnicalIndicators<T, D> {
+abstract class TechnicalIndicators<T, D> {
   /// Creating an argument constructor of TechnicalIndicators class.
   TechnicalIndicators(
       {bool? isVisible,

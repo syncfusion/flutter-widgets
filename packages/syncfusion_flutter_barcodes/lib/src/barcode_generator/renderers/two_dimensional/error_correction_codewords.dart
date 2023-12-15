@@ -299,7 +299,7 @@ class ErrorCorrectionCodeWords {
   /// refactored to a smaller methods, but it degrades the performance.Since it
   /// uses single switch condition for calculating the error correction code
   /// word based on the provided version
-  List<String> getERCW(String encodedText) {
+  List<String> getERCW() {
     List<int> decimalRepresentation;
     List<String> errorCorrectionWord;
     _decimalValue = <int>[dataBits];
@@ -1600,7 +1600,7 @@ class ErrorCorrectionCodeWords {
 
     _gx = _getElement(_gx, _alpha);
     _binaryToDecimal(dataCodeWords);
-    decimalRepresentation = _getPolynominalDivision(encodedText);
+    decimalRepresentation = _getPolynominalDivision();
     errorCorrectionWord = _convertDecimalToBinary(decimalRepresentation);
     return errorCorrectionWord;
   }
@@ -1633,7 +1633,7 @@ class ErrorCorrectionCodeWords {
   }
 
   /// Calculates the polynomial value
-  List<int> _getPolynominalDivision(String encodedText) {
+  List<int> _getPolynominalDivision() {
     Map<int, int> messagePolynom = <int, int>{};
     for (int i = 0; i < _decimalValue.length; i++) {
       messagePolynom[_decimalValue.length - 1 - i] = _decimalValue[i];
@@ -1665,20 +1665,17 @@ class ErrorCorrectionCodeWords {
 
     generatorPolynom = tempMessagePolynom;
     Map<int, int> leadTermSource = messagePolynom;
-    final bool isLargeText = encodedText.length > 75;
     for (int i = 0; i < messagePolynom.length; i++) {
-      final int largestExponent = isLargeText
-          ? _getLargestExponentsKey(leadTermSource)
-          : _getLargestExponent(leadTermSource);
+      final int largestExponent = _getLargestExponent(leadTermSource);
       if (leadTermSource[largestExponent] == 0) {
         leadTermSource.remove(largestExponent);
+        if (i == 0) {
+          leadTermSource =
+              _updateLeadTermSource(i, leadTermSource, generatorPolynom);
+        }
       } else {
-        final Map<int, int> alphaNotation = _getAlphaNotation(leadTermSource);
-        Map<int, int> resPoly = _getGeneratorPolynomByLeadTerm(generatorPolynom,
-            alphaNotation[_getLargestExponent(alphaNotation)]!, i);
-        resPoly = _getDecimalNotation(resPoly);
-        resPoly = _getXORPolynoms(leadTermSource, resPoly);
-        leadTermSource = resPoly;
+        leadTermSource =
+            _updateLeadTermSource(i, leadTermSource, generatorPolynom);
       }
     }
 
@@ -1690,6 +1687,17 @@ class ErrorCorrectionCodeWords {
     }
 
     return returnValue;
+  }
+
+  /// Updates the lead term source value
+  Map<int, int> _updateLeadTermSource(
+      int index, Map<int, int> leadTermSource, Map<int, int> generatorPolynom) {
+    final Map<int, int> alphaNotation = _getAlphaNotation(leadTermSource);
+    Map<int, int> resPoly = _getGeneratorPolynomByLeadTerm(generatorPolynom,
+        alphaNotation[_getLargestExponent(alphaNotation)]!, index);
+    resPoly = _getDecimalNotation(resPoly);
+    resPoly = _getXORPolynoms(leadTermSource, resPoly);
+    return resPoly;
   }
 
   /// Calculates the polynomial value
@@ -1771,22 +1779,7 @@ class ErrorCorrectionCodeWords {
         largeExponent = currentEntry.key;
       }
     }
-
     return largeExponent;
-  }
-
-  /// Finds the largest exponential numbers key.
-  int _getLargestExponentsKey(Map<int, int> polynom) {
-    int largeExponent = 0;
-    int key = 0;
-    for (int i = 0; i < polynom.length; i++) {
-      final MapEntry<int, int> currentEntry = polynom.entries.elementAt(i);
-      if (currentEntry.key > largeExponent) {
-        largeExponent = currentEntry.value;
-        key = polynom.keys.elementAt(i);
-      }
-    }
-    return key;
   }
 
   /// Returns the integer value

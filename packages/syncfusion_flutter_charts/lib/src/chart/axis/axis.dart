@@ -3466,6 +3466,10 @@ class ChartAxisRendererDetails {
             ? (axisDetails.getEffectiveRange(chartAxis.maximum, true)! +
                 (chartAxis.labelPlacement != LabelPlacement.onTicks ? 0 : 0.5))
             : chartAxis.maximum);
+    if (actualRange!.maximum == 0 &&
+        actualRange!.minimum == actualRange!.maximum) {
+      actualRange!.maximum += 1;
+    }
     actualRange!.delta = actualRange!.maximum - actualRange!.minimum;
     actualRange!.interval = axis.interval ?? interval;
   }

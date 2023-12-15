@@ -733,7 +733,10 @@ class ZoomingBehaviorDetails {
                   1 - axisDetails.zoomFactor)
               .toDouble();
           axisDetails.zoomPosition = currentZoomPosition;
-          if (currentZoomPosition > 0.0 && !isNeedPan) {
+          if (((axisDetails.previousZoomPosition != null &&
+                      axisDetails.previousZoomPosition! > 0.0) ||
+                  currentZoomPosition > 0.0) &&
+              !isNeedPan) {
             isNeedPan = true;
           }
         } else {

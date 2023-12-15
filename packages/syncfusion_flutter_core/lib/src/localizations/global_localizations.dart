@@ -388,6 +388,21 @@ abstract class SfLocalizations {
   /// the CANCEL confirmation button.
   String get pdfPasswordDialogCancelLabel;
 
+  /// Label that is displayed in the header of signature pad dialog in PdfViewer
+  String get pdfSignaturePadDialogHeaderTextLabel;
+
+  /// Label that is displayed in the signature pad dialog in PdfViewer to
+  /// represent the Pen Color text
+  String get pdfSignaturePadDialogPenColorLabel;
+
+  /// Label that is displayed in the signature pad dialog of PdfViewer to
+  /// represent the CLEAR confirmation button.
+  String get pdfSignaturePadDialogClearLabel;
+
+  /// Label that is displayed in the signature pad dialog of PdfViewer to
+  /// represent the SAVE confirmation button.
+  String get pdfSignaturePadDialogSaveLabel;
+
   /// The label is displayed as the text for the legend in the cartesian chart.
   /// When the name of the series is not specified, then this label with the
   /// series count is displayed as a legend.
@@ -758,6 +773,18 @@ class _DefaultLocalizations implements SfLocalizations {
 
   @override
   String get pdfPasswordDialogCancelLabel => 'CANCEL';
+
+  @override
+  String get pdfSignaturePadDialogHeaderTextLabel => 'Draw your signature';
+
+  @override
+  String get pdfSignaturePadDialogPenColorLabel => 'Pen Color';
+
+  @override
+  String get pdfSignaturePadDialogClearLabel => 'CLEAR';
+
+  @override
+  String get pdfSignaturePadDialogSaveLabel => 'SAVE';
 
   @override
   String get series => 'Series';

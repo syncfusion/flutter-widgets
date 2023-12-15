@@ -1576,6 +1576,12 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
   List<CustomPainterSemantics> _getSemanticsBuilder(Size size) {
     final List<CustomPainterSemantics> semanticsBuilder =
         <CustomPainterSemantics>[];
+
+    final RenderBox? child = firstChild;
+    if (child != null) {
+      return semanticsBuilder;
+    }
+
     if (appointmentCollection.isEmpty) {
       return semanticsBuilder;
     }
@@ -1639,5 +1645,17 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
     }
 
     return semanticsBuilder;
+  }
+
+  @override
+  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+    RenderBox? child = firstChild;
+    if (child == null) {
+      return;
+    }
+    while (child != null) {
+      visitor(child);
+      child = childAfter(child);
+    }
   }
 }

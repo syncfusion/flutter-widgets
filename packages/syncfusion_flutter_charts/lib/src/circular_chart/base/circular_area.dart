@@ -658,7 +658,8 @@ class CircularArea extends StatelessWidget {
       selectionDetails.selectionRenderer!.stateProperties = stateProperties;
       selectionDetails.selectionRenderer!.seriesRendererDetails =
           seriesRenderer;
-      if (series.initialSelectedDataIndexes.isNotEmpty) {
+      if (series.initialSelectedDataIndexes.isNotEmpty &&
+          stateProperties.renderingDetails.initialRender!) {
         for (int index = 0;
             index < series.initialSelectedDataIndexes.length;
             index++) {

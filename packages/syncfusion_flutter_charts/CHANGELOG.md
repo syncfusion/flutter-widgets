@@ -1,5 +1,55 @@
 ## Unreleased
 
+**Bugs** 
+
+* #FB45898 - Resolved the axis range rendering issue while updating the multiple segments using the addedDataIndexes property dynamically.
+  
+## [22.2.8] - 08/08/2023
+
+**Bugs**
+
+* #FB45592 - Resolved the typecast exception when rendering the tooltip with trimmed text in the data label.
+  
+## [22.2.7] - 08/02/2023
+
+**Bugs**
+
+* #FB45592 - Resolved the typecast exception when rendering the tooltip with trimmed text in the data label.
+
+## [22.2.7] - 08/02/2023
+
+**Bugs**
+
+* #FB45330 - Now, the trendline tooltip will work properly with the column series.
+* #FB45141 - Now, the legend toggling will work properly when having the same name for multiple series.
+
+## [22.1.39] - 07/18/2023
+
+**Bugs**
+
+* #FB44995 - Now, the selected index state gets maintained when switching applications in the chart.
+* #FB45020 - Resolved the range error exception when zooming the chart with the [onMarkerRender](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/onMarkerRender.html) callback without enabling [markerSettings](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CartesianSeries/markerSettings.html) in the scatter series.
+
+## [22.1.38] - 07/11/2023
+
+**Bugs** 
+* #FB44755 - Resolved the Null check exception when having a crosshair empty data source.
+
+## [22.1.37] - 07/04/2023
+
+**Bugs** 
+
+* #FB44618 - Now, the BorderDrawMode property will work properly in the StackedAreaSeries.
+* #FB44657 - Resolved getting NaN exception when setting a maximum property as zero in the x and y-axis.
+
+## [22.1.36] - 06/28/2023
+
+**Bugs**
+* #FB44233 - Now, the leftmost points will come into view when performing panning to the left most of the chart.
+* #FB44517 - Resolved the range error exception in the FastLineSeries with enabled trackball in the chart.
+
+## [21.2.10] - 06/13/2023
+
 **Bugs**
 * #FB44070 - Now, the doughnut series is rendering properly when having two data points with large differences.
 * #FB44112 - Resolved range error exception when displaying trackball for the zoomed candle series.

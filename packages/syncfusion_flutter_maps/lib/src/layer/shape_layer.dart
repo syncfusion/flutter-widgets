@@ -871,7 +871,7 @@ class _ShapeFileData {
   Map<String, dynamic>? decodedJsonData;
   late Map<String, MapModel> mapDataSource;
   late _ShapeBounds bounds;
-  late MapModel initialSelectedModel;
+  MapModel? initialSelectedModel;
 
   void reset() {
     decodedJsonData?.clear();
@@ -2179,7 +2179,9 @@ class _RenderGeoJSONLayer extends RenderStack
       _initializeSelectionTween();
     }
 
-    _handleShapeLayerSelection();
+    if (_mapSource!.primaryValueMapper != null) {
+      _handleShapeLayerSelection();
+    }
   }
 
   SfMapsThemeData get themeData => _themeData;

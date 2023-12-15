@@ -203,6 +203,12 @@ class PdfFontHelper {
   PdfFontStyle style = PdfFontStyle.regular;
 
   /// internal field
+  bool isBold = false;
+
+  /// internal field
+  bool isItalic = false;
+
+  /// internal field
   //ignore:unused_element
   bool get isUnderline =>
       fontStyle & getPdfFontStyle(PdfFontStyle.underline) > 0;
@@ -233,10 +239,20 @@ class PdfFontHelper {
     if (style != null) {
       this.style = style;
       fontStyle = getPdfFontStyle(style);
+      if (style == PdfFontStyle.bold) {
+        isBold = true;
+      } else if (style == PdfFontStyle.italic) {
+        isItalic = true;
+      }
     }
     if (multiStyle != null && multiStyle.isNotEmpty) {
       for (int i = 0; i < multiStyle.length; i++) {
         fontStyle = fontStyle | getPdfFontStyle(multiStyle[i]);
+        if (multiStyle[i] == PdfFontStyle.bold) {
+          isBold = true;
+        } else if (multiStyle[i] == PdfFontStyle.italic) {
+          isItalic = true;
+        }
       }
     } else if (style == null) {
       this.style = PdfFontStyle.regular;

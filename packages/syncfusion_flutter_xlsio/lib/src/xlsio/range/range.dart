@@ -766,6 +766,9 @@ class Range {
         _saveType = 's';
         _textIndex = sharedStringIndex;
         _setRange();
+        if (text.contains('\n')) {
+          worksheet.getRangeByIndex(row, column).cellStyle.wrapText = true;
+        }
       } else {
         // ignore: prefer_final_locals
         for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
@@ -774,6 +777,9 @@ class Range {
               iCol <= iLastCol;
               iCol++) {
             worksheet.getRangeByIndex(iRow, iCol).text = text;
+            if (text.contains('\n')) {
+              worksheet.getRangeByIndex(iRow, iCol).cellStyle.wrapText = true;
+            }
           }
         }
       }

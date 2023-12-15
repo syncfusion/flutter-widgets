@@ -9863,7 +9863,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                                               '$headerString ${widget.isPickerShown ? 'hide date picker' : 'show date picker'}',
                                           overflow: TextOverflow.clip,
                                           softWrap: false,
-                                          textDirection: TextDirection.ltr)),
+                                          textDirection: CalendarViewHelper
+                                              .getTextDirectionBasedOnLocale(
+                                                  widget.locale))),
                                   Icon(
                                     widget.isPickerShown
                                         ? Icons.arrow_drop_up
@@ -9879,7 +9881,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                                           maxLines: 1,
                                           overflow: TextOverflow.clip,
                                           softWrap: false,
-                                          textDirection: TextDirection.ltr))
+                                          textDirection: CalendarViewHelper
+                                              .getTextDirectionBasedOnLocale(
+                                                  widget.locale)))
                                 ])),
                 )),
           )
@@ -9942,7 +9946,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                                             '$headerString ${widget.isPickerShown ? 'hide date picker' : 'show date picker'}',
                                         overflow: TextOverflow.clip,
                                         softWrap: false,
-                                        textDirection: TextDirection.ltr)),
+                                        textDirection: CalendarViewHelper
+                                            .getTextDirectionBasedOnLocale(
+                                                widget.locale))),
                                 Icon(
                                   widget.isPickerShown
                                       ? Icons.arrow_drop_up
@@ -9958,7 +9964,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,
                                         softWrap: false,
-                                        textDirection: TextDirection.ltr)),
+                                        textDirection: CalendarViewHelper
+                                            .getTextDirectionBasedOnLocale(
+                                                widget.locale))),
                               ],
                       )),
                 )),
@@ -10453,6 +10461,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
         widget.headerDateFormat != null && widget.headerDateFormat!.isNotEmpty
             ? widget.headerDateFormat
             : null;
+    final List<String> headerFormatString = headerDateFormat == null
+        ? <String>[]
+        : CalendarViewHelper.getListFromString(headerDateFormat);
     final int visibleDatesCount = DateTimeHelper.getViewDatesCount(
         widget.view,
         widget.numberOfDaysInView,
@@ -10462,8 +10473,10 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
       case CalendarView.schedule:
         {
           if (headerDateFormat != null) {
-            return DateFormat(headerDateFormat, widget.locale)
-                .format(widget.valueChangeNotifier.value!);
+            return CalendarViewHelper.getLocalizedString(
+                widget.valueChangeNotifier.value!,
+                headerFormatString,
+                widget.locale);
           }
           // ignore: lines_longer_than_80_chars
           return '${DateFormat(monthFormat, widget.locale).format(widget.valueChangeNotifier.value!)} ${widget.valueChangeNotifier.value!.year}';
@@ -10478,7 +10491,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
               startDate.month != endDate.month) {
             if (headerDateFormat != null) {
               // ignore: lines_longer_than_80_chars
-              return '${DateFormat(headerDateFormat, widget.locale).format(startDate)} - ${DateFormat(headerDateFormat, widget.locale).format(endDate)}';
+              return '${CalendarViewHelper.getLocalizedString(startDate, headerFormatString, widget.locale)} - ${CalendarViewHelper.getLocalizedString(endDate, headerFormatString, widget.locale)}';
             }
             monthFormat = 'MMM';
             // ignore: lines_longer_than_80_chars
@@ -10486,8 +10499,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           }
 
           if (headerDateFormat != null) {
-            return DateFormat(headerDateFormat, widget.locale)
-                .format(widget.currentDate!);
+            // ignore: lines_longer_than_80_chars
+            return CalendarViewHelper.getLocalizedString(
+                widget.currentDate!, headerFormatString, widget.locale);
           }
           // ignore: lines_longer_than_80_chars
           return '${DateFormat(monthFormat, widget.locale).format(widget.currentDate!)} ${widget.currentDate!.year}';
@@ -10498,8 +10512,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
         {
           final DateTime headerDate = widget.visibleDates[0];
           if (headerDateFormat != null) {
-            return DateFormat(headerDateFormat, widget.locale)
-                .format(headerDate);
+            // ignore: lines_longer_than_80_chars
+            return CalendarViewHelper.getLocalizedString(
+                headerDate, headerFormatString, widget.locale);
           }
           // ignore: lines_longer_than_80_chars
           return '${DateFormat(monthFormat, widget.locale).format(headerDate)} ${headerDate.year}';
@@ -10513,16 +10528,18 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
               widget.visibleDates[widget.visibleDates.length - 1];
           if (visibleDatesCount == 1) {
             if (headerDateFormat != null) {
-              return DateFormat(headerDateFormat, widget.locale)
-                  .format(startDate);
+              // ignore: lines_longer_than_80_chars
+              CalendarViewHelper.getLocalizedString(
+                  startDate, headerFormatString, widget.locale);
             }
             // ignore: lines_longer_than_80_chars
             return '${DateFormat(monthFormat, widget.locale).format(startDate)} ${startDate.year}';
           } else {
             if (headerDateFormat != null) {
               // ignore: lines_longer_than_80_chars
-              return '${DateFormat(headerDateFormat, widget.locale).format(startDate)} - ${DateFormat(headerDateFormat, widget.locale).format(endDate)}';
+              return '${CalendarViewHelper.getLocalizedString(startDate, headerFormatString, widget.locale)} - ${CalendarViewHelper.getLocalizedString(endDate, headerFormatString, widget.locale)}';
             }
+
             monthFormat = 'MMM';
             String startText =
                 DateFormat(monthFormat, widget.locale).format(startDate);
@@ -10651,9 +10668,14 @@ class _ScheduleLabelPainter extends CustomPainter {
     }
 
     endDateFormat ??= 'MMM dd';
-    final String firstDate =
-        DateFormat(startDateFormat, locale).format(startDate);
-    final String lastDate = DateFormat(endDateFormat, locale).format(endDate!);
+    final List<String> startDateStringFormats =
+        CalendarViewHelper.getListFromString(startDateFormat);
+    final List<String> endDateStringFormats =
+        CalendarViewHelper.getListFromString(endDateFormat);
+    final String firstDate = CalendarViewHelper.getLocalizedString(
+        startDate, startDateStringFormats, locale);
+    final String lastDate = CalendarViewHelper.getLocalizedString(
+        endDate!, endDateStringFormats, locale);
     final TextSpan span = TextSpan(
       text: '$firstDate - $lastDate',
       style: themeData.textTheme.bodyMedium!
@@ -10706,8 +10728,12 @@ class _ScheduleLabelPainter extends CustomPainter {
     const double yPosition = 0;
     final String monthFormat =
         scheduleViewSettings.monthHeaderSettings.monthFormat;
+    final List<String> monthStringFormats =
+        CalendarViewHelper.getListFromString(monthFormat);
+    final String dateString = CalendarViewHelper.getLocalizedString(
+        startDate, monthStringFormats, locale);
     final TextSpan span = TextSpan(
-      text: DateFormat(monthFormat, locale).format(startDate),
+      text: dateString,
       style: themeData.textTheme.bodyLarge!
           .copyWith(
               color: Colors.white, fontSize: 20, fontWeight: FontWeight.w400)

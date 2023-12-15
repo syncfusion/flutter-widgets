@@ -528,9 +528,12 @@ abstract class PdfField implements IPdfWrapper {
     if (PdfPageHelper.getHelper(page!)
         .dictionary!
         .containsKey(PdfDictionaryProperties.tabs)) {
-      final PdfName tabName = PdfPageHelper.getHelper(page)
-          .dictionary![PdfDictionaryProperties.tabs]! as PdfName;
-      if (tabName.name == '') {
+      final IPdfPrimitive? tabName = PdfCrossTable.dereference(
+          PdfPageHelper.getHelper(page)
+              .dictionary![PdfDictionaryProperties.tabs]);
+      if (tabName != null &&
+          ((tabName is PdfName && tabName.name == '') ||
+              (tabName is PdfString && tabName.value == ''))) {
         PdfPageHelper.getHelper(page)
             .dictionary![PdfDictionaryProperties.tabs] = PdfName(' ');
       }
@@ -1328,8 +1331,10 @@ class PdfFieldHelper {
           final PdfName baseFont = crossTable!
                   .getObject(fontDictionary[PdfDictionaryProperties.baseFont])!
               as PdfName;
-          final List<PdfFontStyle> fontStyle = _getFontStyle(baseFont.name!);
-          final dynamic fontFamilyDic = _getFontFamily(baseFont.name!);
+          final List<PdfFontStyle> fontStyle =
+              _getFontStyle(PdfName.decodeName(baseFont.name)!);
+          final dynamic fontFamilyDic =
+              _getFontFamily(PdfName.decodeName(baseFont.name)!);
           final PdfFontFamily? fontFamily =
               fontFamilyDic['fontFamily'] as PdfFontFamily?;
           final String? standardName = fontFamilyDic['standardName'] as String?;
@@ -1409,8 +1414,11 @@ class PdfFieldHelper {
               fontDictionary[PdfDictionaryProperties.name];
           if (tempName != null && tempName is PdfName) {
             if (font.name != tempName.name) {
-              PdfFontHelper.getHelper(font).metrics =
+              final PdfFontHelper fontHelper = PdfFontHelper.getHelper(font);
+              final WidthTable? widthTable = fontHelper.metrics!.widthTable;
+              fontHelper.metrics =
                   _createFont(fontDictionary, height, baseFont);
+              fontHelper.metrics!.widthTable = widthTable;
             }
           }
         } else if (fontSubtype.name == PdfDictionaryProperties.type0) {
@@ -2565,7 +2573,7 @@ class PdfFieldHelper {
               .getObject(dictionary[PdfDictionaryProperties.usageApplication])
           as PdfName?;
       if (name != null && name.name != PdfDictionaryProperties.off) {
-        value = name.name;
+        value = PdfName.decodeName(name.name);
       }
     }
     if (value!.isEmpty) {
@@ -2585,7 +2593,7 @@ class PdfFieldHelper {
           for (int i = 0; i < list.length; ++i) {
             name = list[i] as PdfName?;
             if (name!.name != PdfDictionaryProperties.off) {
-              value = name.name;
+              value = PdfName.decodeName(name.name);
               break;
             }
           }

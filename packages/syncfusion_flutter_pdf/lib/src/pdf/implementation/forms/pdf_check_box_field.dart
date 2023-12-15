@@ -166,6 +166,12 @@ class PdfCheckBoxFieldHelper extends PdfCheckFieldBaseHelper {
   /// internal field
   PdfCheckBoxField checkBoxField;
 
+  /// internal field
+  // ignore: avoid_setters_without_getters
+  set items(PdfFieldItemCollection? value) {
+    checkBoxField._items = value;
+  }
+
   /// internal method
   static PdfCheckBoxField loadCheckBoxField(
       PdfDictionary dictionary, PdfCrossTable crossTable) {
@@ -885,7 +891,7 @@ class PdfRadioButtonListItemHelper extends PdfCheckFieldBaseHelper {
     } else {
       returnValue = _value;
     }
-    return returnValue!.replaceAll(RegExp(r'\s+'), '#20');
+    return PdfName.normalizeValue(returnValue)!;
   }
 
   /// internal method

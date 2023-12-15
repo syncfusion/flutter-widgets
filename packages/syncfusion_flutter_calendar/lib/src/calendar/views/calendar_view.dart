@@ -12420,7 +12420,8 @@ class _TimeRulerView extends CustomPainter {
           Offset(lineXPosition, size.height), _linePainter);
     }
 
-    _textPainter.textDirection = TextDirection.ltr;
+    _textPainter.textDirection =
+        CalendarViewHelper.getTextDirectionBasedOnLocale(locale);
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
     _textPainter.textScaleFactor = textScaleFactor;
 
@@ -12457,6 +12458,9 @@ class _TimeRulerView extends CustomPainter {
     final int timeInterval =
         CalendarViewHelper.getTimeInterval(timeSlotViewSettings);
 
+    final List<String> timeFormatStrings =
+        CalendarViewHelper.getListFromString(timeSlotViewSettings.timeFormat);
+
     /// For timeline view we will draw 24 lines where as in day, week and work
     /// week view we will draw 23 lines excluding the 12 AM, hence to rectify
     /// this the i value handled accordingly.
@@ -12475,8 +12479,9 @@ class _TimeRulerView extends CustomPainter {
       final double minute = (i * timeInterval) + hour;
       date = DateTime(date.year, date.month, date.day,
           timeSlotViewSettings.startHour.toInt(), minute.toInt());
-      final String time =
-          DateFormat(timeSlotViewSettings.timeFormat, locale).format(date);
+      final String time = CalendarViewHelper.getLocalizedString(
+          date, timeFormatStrings, locale);
+
       final TextSpan span = TextSpan(
         text: time,
         style: timeTextStyle,

@@ -1,5 +1,35 @@
 ## Unreleased
 
+**Bugs**
+
+* Now, the `pagePosition` property in `PdfGestureDetails` will return the tapped position in the PDF page coordinates.
+
+## [22.2.10] - 08/22/2023
+
+**Bugs**
+
+* Now, the `AlertDialog` or `DatePicker` dialog is properly closed when invoked in the `onFormFieldFocusChange` callback.
+
+**Features**
+
+* Enhanced the user experience of the combo box form field by switching the `PopupMenuButton` with a `DropdownButton` widget in `SfPdfViewer`.
+* Support for localization for the texts in the built-in signature pad dialog has been provided.
+
+## [22.2.5] - 07/27/2023
+
+**Bugs**
+
+* The multi-line text form fields will now have the proper font size.
+
+**Features**
+
+* Support for filling out the list box form field has been provided.
+* Support for filling or editing form fields programmatically has been provided.
+* Provided focus change and value change callback support for form fields.
+* Provided the support for the `onTap` callback to retrieve the page number, position, and page position when tapping on the `SfPdfViewer`.
+
+## [22.1.34] - 06/21/2023
+
 **Features**
 
 * Support for filling out the form fields, such as text boxes, dropdown menus, checkboxes, radio buttons, and signatures, has been provided. It also offers additional features, such as the ability to save, export, and import the form data.

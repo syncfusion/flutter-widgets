@@ -313,6 +313,25 @@ class PdfMainObjectCollection {
     newObj.position = oldObjIndex;
   }
 
+  /// internal method
+  void remove(int index) {
+    if (mainObjectCollection != null &&
+        mainObjectCollection!.containsKey(index)) {
+      if (objectCollection != null &&
+          objectCollection!.contains(mainObjectCollection![index])) {
+        final IPdfPrimitive? primitive = mainObjectCollection![index]!.object;
+        if (primitive != null &&
+            _primitiveObjectCollection != null &&
+            _primitiveObjectCollection!.containsKey(primitive)) {
+          _primitiveObjectCollection!.remove(primitive);
+          primitive.dispose();
+        }
+        objectCollection!.remove(mainObjectCollection![index]);
+      }
+      mainObjectCollection!.remove(index);
+    }
+  }
+
   /// internal property
   void dispose() {
     if (mainObjectCollection != null) {

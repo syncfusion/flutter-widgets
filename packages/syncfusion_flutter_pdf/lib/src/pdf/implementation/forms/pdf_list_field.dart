@@ -181,7 +181,7 @@ class PdfListFieldHelper extends PdfFieldHelper {
   PdfListField listField;
 
   /// internal field
-  List<int> selectedIndex = <int>[-1];
+  List<int> selectedIndex = <int>[];
   PdfListFieldItemCollection? _items;
 
   /// internal method
@@ -232,7 +232,7 @@ class PdfListFieldHelper extends PdfFieldHelper {
     if (isLoadedField) {
       _assignSelectedIndex(value);
     } else {
-      if (selectedIndex != value && selectedIndex.isNotEmpty) {
+      if (selectedIndex != value) {
         selectedIndex = value;
         dictionary!
             .setProperty(PdfDictionaryProperties.i, PdfArray(selectedIndex));
@@ -245,9 +245,6 @@ class PdfListFieldHelper extends PdfFieldHelper {
     if (isLoadedField) {
       return _obtainSelectedValue();
     } else {
-      if (selectedIndex == <int>[-1]) {
-        throw ArgumentError('No value is selected.');
-      }
       final List<String> values = <String>[];
       for (final int index in selectedIndex) {
         values.add(_items![index].value);
@@ -257,9 +254,6 @@ class PdfListFieldHelper extends PdfFieldHelper {
   }
 
   set selectedValues(List<String> value) {
-    if (value.isEmpty) {
-      throw ArgumentError("selected value can't be null/Empty");
-    }
     if (isLoadedField) {
       bool isText = false;
       if (listField.items[0].value.isEmpty) {
@@ -322,9 +316,6 @@ class PdfListFieldHelper extends PdfFieldHelper {
         }
       }
     }
-    if (selectedIndex.isEmpty) {
-      selectedIndex.add(-1);
-    }
     return selectedIndex;
   }
 
@@ -354,9 +345,6 @@ class PdfListFieldHelper extends PdfFieldHelper {
   }
 
   void _assignSelectedIndex(List<int> value) {
-    if ((value.isEmpty) || (value.length > listField.items.count)) {
-      throw RangeError('selectedIndex');
-    }
     // ignore: avoid_function_literals_in_foreach_calls
     value.forEach((int element) {
       if (element >= listField.items.count) {
@@ -382,9 +370,7 @@ class PdfListFieldHelper extends PdfFieldHelper {
           selectedValues.add(listField.items[element].text);
         });
       }
-      if (selectedValues.isNotEmpty) {
-        _assignSelectedValue(selectedValues, isText);
-      }
+      _assignSelectedValue(selectedValues, isText);
       changed = true;
     }
   }

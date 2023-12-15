@@ -75,6 +75,9 @@ class PdfTextExtractor {
   late MatrixHelper _currentTransformationMatrix;
   bool _hasBDC = false;
   Bidi? _bidiInstance;
+  MatrixHelper? _initialTransform;
+
+  //Properties
   Bidi get _bidi {
     _bidiInstance ??= Bidi();
     return _bidiInstance!;
@@ -279,18 +282,37 @@ class PdfTextExtractor {
     final bool isChanged = _checkPageDictionary(page);
     final bool isContentChanged = _checkContentArray(page);
     final PdfRecordCollection? recordCollection = _getRecordCollection(page);
-    final PdfPageResources pageResources =
-        _resourceLoader.getPageResources(page);
-    String resultantText = _isLayout
-        ? _renderTextAsLayout(recordCollection, pageResources)
-        : _renderText(recordCollection, pageResources);
+    PdfPageResources? pageResources = _resourceLoader.getPageResources(page);
+    String resultantText;
+    if (_isLayout) {
+      try {
+        _initialTransform = MatrixHelper(1.3333333333333333, 0, 0,
+            -1.3333333333333333, 0, page.size.height * 1.3333333333333333);
+      } catch (e) {
+        _initialTransform = MatrixHelper.identity;
+      }
+      resultantText = _renderTextAsLayout(recordCollection, pageResources);
+    } else {
+      resultantText = _renderText(recordCollection, pageResources);
+    }
     if (recordCollection != null) {
       recordCollection.recordCollection.clear();
     }
-    pageResources.resources.clear();
+    if (pageResources.resources.isNotEmpty) {
+      pageResources.resources.forEach((String? key, Object? value) {
+        if (value != null && value is FontStructure) {
+          value.dispose();
+        }
+      });
+      pageResources.resources.clear();
+    }
     if (pageResources.fontCollection.isNotEmpty) {
+      pageResources.fontCollection.forEach((String? key, FontStructure value) {
+        value.dispose();
+      });
       pageResources.fontCollection.clear();
     }
+    pageResources = null;
     if (resultantText != '') {
       resultantText = _skipEscapeSequence(resultantText);
     }
@@ -342,6 +364,9 @@ class PdfTextExtractor {
             hasRotation = true;
           } else {
             yPos = tempGlyph.boundingRect.top;
+          }
+          if (k == 0) {
+            offsetY = yPos.toInt();
           }
           if ((i != 0 &&
                   yPos.toInt() != offsetY &&
@@ -1190,28 +1215,36 @@ class PdfTextExtractor {
           renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.height);
     }
     textLine.bounds = _calculateBounds(textLine.bounds);
-    for (int i = lineStartIndex; i < glyphIndex; i++) {
-      final Glyph glyph = renderer.imageRenderGlyphList[i];
+    Rect? prevBounds;
+    for (int i = 0; i < textLine.wordCollection.length; i++) {
+      final TextWord word = textLine.wordCollection[i];
       if (i == 0) {
-        fontName = glyph.fontFamily;
-        fontSize = glyph.fontSize;
-        fontStyle = glyph.fontStyle;
+        fontName = word.fontName;
+        fontSize = word.fontSize;
+        fontStyle = word.fontStyle;
       }
-      textLine.text = textLine.text + glyph.toUnicode;
-      if (fontName == glyph.fontFamily && isSameFontName) {
+      if (prevBounds != null &&
+          (prevBounds.left + prevBounds.width - word.bounds.left).abs() > 1 &&
+          !textLine.text.endsWith(' ') &&
+          !bidi.Bidi.hasAnyRtl(textLine.text)) {
+        textLine.text += ' ';
+      }
+      textLine.text += word.text;
+      prevBounds = word.bounds;
+      if (fontName == word.fontName && isSameFontName) {
         textLine.fontName = fontName!;
       } else {
         isSameFontName = false;
         textLine.fontName = '';
       }
-      if (fontSize == glyph.fontSize && isSameFontSize) {
+      if (fontSize == word.fontSize && isSameFontSize) {
         textLine.fontSize = fontSize!;
       } else {
         isSameFontSize = false;
         textLine.fontSize = 0;
       }
 
-      if (fontStyle == glyph.fontStyle && isSameFontStyle) {
+      if (fontStyle == word.fontStyle && isSameFontStyle) {
         textLine.fontStyle = fontStyle!;
       } else {
         isSameFontStyle = false;
@@ -1270,7 +1303,7 @@ class PdfTextExtractor {
           case "'":
             {
               final String? resultText =
-                  _renderTextElement(elements!, token, pageResources);
+                  _renderTextElement(elements!, token, pageResources, null);
               if (resultText != null) {
                 resultantText += resultText;
               }
@@ -1306,12 +1339,14 @@ class PdfTextExtractor {
     String? currentText = '';
     bool hasTj = false;
     bool hasTm = false;
+    bool hasTJ = false;
     _hasBDC = false;
     String resultantText = '';
     double? textLeading = 0;
     double? horizontalScaling = 100;
     bool hasNoSpacing = false;
     bool spaceBetweenWord = false;
+    bool isSpaceAdded = false;
     _tempBoundingRectangle = Rect.zero;
     if (recordCollection != null &&
         recordCollection.recordCollection.isNotEmpty) {
@@ -1473,6 +1508,7 @@ class PdfTextExtractor {
                 resultantText += ' ';
                 _tempBoundingRectangle = Rect.zero;
                 _hasLeading = false;
+                isSpaceAdded = true;
               }
               break;
             }
@@ -1495,7 +1531,10 @@ class PdfTextExtractor {
                 if (differenceX > _fontSize!) {
                   differenceX = 0;
                 }
-                if (currentToken == 'Tj' && _hasET) {
+                if (currentToken == 'Tj' &&
+                    (_hasET || !hasTJ) &&
+                    resultantText.isNotEmpty &&
+                    !resultantText.endsWith(' ')) {
                   resultantText += ' ';
                 }
                 spaceBetweenWord = false;
@@ -1507,7 +1546,8 @@ class PdfTextExtractor {
               currentText = currentToken == 'TJ'
                   ? _renderTextElementTJ(
                       elements!, token, pageResources, horizontalScaling)
-                  : _renderTextElement(elements!, token, pageResources);
+                  : _renderTextElement(
+                      elements!, token, pageResources, horizontalScaling);
               _currentTextMatrix = _textLineMatrix!.clone();
               prevY = currentY;
               resultantText += currentText!;
@@ -1522,6 +1562,9 @@ class PdfTextExtractor {
               _textMatrix = _textLineMatrix!.clone();
               if (currentToken == 'TJ') {
                 _hasBDC = false;
+                hasTJ = true;
+              } else {
+                hasTJ = false;
               }
               break;
             }
@@ -1540,9 +1583,18 @@ class PdfTextExtractor {
                 difference = -difference;
               }
               _hasLeading = true;
-              if (prevY != 0 && difference >= 1) {
+              if (prevY != 0 &&
+                  (difference >= 1 ||
+                      (i > 0 && records[i - 1].operatorName! == "'"))) {
+                if (isSpaceAdded &&
+                    resultantText.isNotEmpty &&
+                    resultantText.endsWith(' ')) {
+                  resultantText =
+                      resultantText.substring(0, resultantText.length - 1);
+                }
                 resultantText += '\r\n';
               }
+              isSpaceAdded = false;
               prevY = currentY;
               final int currentXPosition =
                   _textLineMatrix!.offsetX.toInt().toSigned(64);
@@ -1554,7 +1606,8 @@ class PdfTextExtractor {
               _textMatrix =
                   MatrixHelper(1, 0, 0, 1, 0, textLeading!) * _textLineMatrix!;
               _textLineMatrix = _textMatrix!.clone();
-              currentText = _renderTextElement(elements!, token, pageResources);
+              currentText = _renderTextElement(
+                  elements!, token, pageResources, horizontalScaling);
               _currentTextMatrix = _textLineMatrix!.clone();
               resultantText += currentText!;
               break;
@@ -1572,6 +1625,11 @@ class PdfTextExtractor {
             break;
         }
       }
+    }
+    if (isSpaceAdded &&
+        resultantText.isNotEmpty &&
+        resultantText.endsWith(' ')) {
+      resultantText = resultantText.substring(0, resultantText.length - 1);
     }
     return resultantText;
   }
@@ -1733,8 +1791,8 @@ class PdfTextExtractor {
     return extractedText;
   }
 
-  String? _renderTextElement(
-      List<String> elements, String tokenType, PdfPageResources pageResources) {
+  String? _renderTextElement(List<String> elements, String tokenType,
+      PdfPageResources pageResources, double? horizontalScaling) {
     try {
       String text = elements.join();
       if (!pageResources.containsKey(_currentFont)) {
@@ -1751,6 +1809,10 @@ class PdfTextExtractor {
         fontStructure!.isTextExtraction = true;
         fontStructure.fontSize = _fontSize;
         text = fontStructure.decodeTextExtraction(text, true);
+        if (_isLayout) {
+          text = _renderTextFromLeading(
+              text, _textLineMatrix, fontStructure, horizontalScaling);
+        }
         fontStructure.isTextExtraction = false;
       }
       if (bidi.Bidi.hasAnyRtl(text)) {
@@ -1760,6 +1822,71 @@ class PdfTextExtractor {
     } catch (e) {
       return null;
     }
+  }
+
+  String _renderTextFromLeading(
+      String decodedText, MatrixHelper? textLineMatrix, FontStructure structure,
+      [double? horizontalScaling = 100]) {
+    String extractedText = '';
+    for (int i = 0; i < decodedText.length; i++) {
+      final String ch = decodedText[i];
+      double characterWidth;
+      if (structure.isStandardFont) {
+        final PdfStandardFont font = structure.font! as PdfStandardFont;
+        characterWidth =
+            PdfStandardFontHelper.getHelper(font).getCharWidthInternal(ch) *
+                PdfFontHelper.characterSizeMultiplier;
+      } else if (structure.isStandardCJKFont) {
+        final PdfCjkStandardFont font = structure.font! as PdfCjkStandardFont;
+        characterWidth =
+            PdfCjkStandardFontHelper.getHelper(font).getCharWidthInternal(ch) *
+                PdfFontHelper.characterSizeMultiplier;
+      } else {
+        characterWidth = _getCharacterWidth(ch, structure);
+      }
+      _textMatrix = _getTextRenderingMatrix(horizontalScaling!);
+      final MatrixHelper identity = MatrixHelper.identity;
+      identity.scale(0.01, 0.01, 0.0, 0.0);
+      identity.translate(0.0, 1.0);
+      MatrixHelper tranformation = identity * _textMatrix!;
+      if (_initialTransform != null) {
+        tranformation = tranformation * _initialTransform!;
+      }
+      MatrixHelper matrix = MatrixHelper(1, 0, 0, 1, 0, 0);
+      matrix = matrix * tranformation;
+      double? tempFontSize;
+      if (_textMatrix!.m11 > 0) {
+        tempFontSize = _textMatrix!.m11;
+      } else if (_textMatrix!.m12 != 0 && _textMatrix!.m21 != 0) {
+        if (_textMatrix!.m12 < 0) {
+          tempFontSize = -_textMatrix!.m12;
+        } else {
+          tempFontSize = _textMatrix!.m12;
+        }
+      } else {
+        tempFontSize = structure.fontSize;
+      }
+      final Rect boundingRect = Rect.fromLTWH(
+          matrix.offsetX / 1.3333333333333333,
+          (matrix.offsetY - tempFontSize!) / 1.3333333333333333,
+          characterWidth * tempFontSize,
+          tempFontSize);
+      if (_tempBoundingRectangle != null) {
+        final double boundingDifference =
+            ((boundingRect.left - _tempBoundingRectangle!.right) / 10)
+                .round()
+                .toDouble();
+        if ((_tempBoundingRectangle!.right != 0 && boundingRect.left != 0) &&
+            boundingDifference >= 1 &&
+            _hasLeading) {
+          extractedText += ' ';
+        }
+      }
+      extractedText += ch;
+      _textLineMatrix = _updateTextMatrix(characterWidth, 100);
+      _tempBoundingRectangle = boundingRect;
+    }
+    return extractedText;
   }
 
   String? _getXObject(String resultantText, List<String> xobjectElement,

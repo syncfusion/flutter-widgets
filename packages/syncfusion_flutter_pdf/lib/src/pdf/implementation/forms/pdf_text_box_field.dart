@@ -599,6 +599,12 @@ class PdfTextBoxFieldHelper extends PdfFieldHelper {
   /// internal field
   PdfTextBoxField textBoxField;
 
+  /// internal field
+  // ignore: avoid_setters_without_getters
+  set items(PdfFieldItemCollection? value) {
+    textBoxField._items = value;
+  }
+
   /// internal method
   static PdfTextBoxFieldHelper getHelper(PdfTextBoxField textBoxField) {
     return textBoxField._helper;

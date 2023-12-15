@@ -104,9 +104,8 @@ class PdfListBoxField extends PdfListField {
   /// Otherwise only the first index in the collection will be selected.
   List<int> get selectedIndexes => _helper.selectedIndexes;
   set selectedIndexes(List<int> value) {
-    if (value.isNotEmpty) {
-      _helper.selectedIndexes = multiSelect ? value : <int>[value[0]];
-    }
+    _helper.selectedIndexes =
+        multiSelect || value.isEmpty ? value : <int>[value[0]];
   }
 
   /// Gets or sets the selected values in the list.
@@ -115,9 +114,8 @@ class PdfListBoxField extends PdfListField {
   /// Otherwise only the first value in the collection will be selected.
   List<String> get selectedValues => _helper.selectedValues;
   set selectedValues(List<String> value) {
-    if (value.isNotEmpty) {
-      _helper.selectedValues = multiSelect ? value : <String>[value[0]];
-    }
+    _helper.selectedValues =
+        multiSelect || value.isEmpty ? value : <String>[value[0]];
   }
 
   /// Gets the selected items in the list.

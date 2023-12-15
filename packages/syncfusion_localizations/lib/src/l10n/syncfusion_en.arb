@@ -113,6 +113,30 @@
       "type": "text"
   }, 
 
+  "pdfSignaturePadDialogHeaderTextLabel": "Draw your signature",
+  "@pdfSignaturePadDialogHeaderTextLabel": {
+      "description": "Label that is displayed in the header of signature pad dialog in PdfViewer.",
+      "type": "text"
+  },
+
+  "pdfSignaturePadDialogPenColorLabel": "Pen Color",
+  "@pdfSignaturePadDialogPenColorLabel": {
+      "description": "Label that is displayed in the signature pad dialog in PdfViewer to represent the Pen Color text.",
+      "type": "text"
+  },
+
+  "pdfSignaturePadDialogClearLabel": "CLEAR",
+  "@pdfSignaturePadDialogClearLabel": {
+      "description": "Label that is displayed in the signature pad dialog of PdfViewer to represent the CLEAR confirmation button.",
+      "type": "text"
+  },
+
+  "pdfSignaturePadDialogSaveLabel": "SAVE",
+  "@pdfSignaturePadDialogSaveLabel": {
+      "description": " Label that is displayed in the signature pad dialog of PdfViewer to represent the SAVE confirmation button.",
+      "type": "text"
+  },
+
   "allowedViewDayLabel": "Day",
   "@allowedViewDayLabel": {
       "description": "Label that is displayed in the calendar header view when allowed views have calendar day view.",

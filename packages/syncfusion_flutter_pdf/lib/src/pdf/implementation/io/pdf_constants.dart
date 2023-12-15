@@ -904,6 +904,9 @@ class PdfOperators {
   static const String setTextScaling = 'Tz';
 
   /// internal field
+  static const String setTextLeading = 'TL';
+
+  /// internal field
   static const String beginPath = 'm';
 
   /// internal field

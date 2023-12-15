@@ -1,3 +1,33 @@
+## [22.2.11] - 08/29/2023
+
+**Bugs**
+
+* High memory consumption will no longer occurs while extracting text from large PDF documents.
+
+* Null check exceptions will no longer occur while drawing PDF grid in a loaded page.
+
+## [22.2.9] - 08/15/2023
+
+**Bugs**
+
+* Null reference exceptions will no longer occur when retrieving form fields from the PDF document.
+
+## [22.2.5] - 07/27/2023
+
+**Bugs**
+
+* Resolved white background preservation while flattening loaded empty signature field.
+
+* Type casting issue no longer occurs while flattening specific PDF document.
+
+## [22.1.36] - 06/28/2023
+
+**Bugs**
+
+* Resolved the space between text missing issue in the extract text layout and lines.
+
+* PDF signature added with signed name is now valid in Adobe viewer.
+
 ## [21.2.4] - 05/09/2023
 
 **Bugs**

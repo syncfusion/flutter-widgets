@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'dart:ui' as dart_ui;
 
 import 'package:flutter/foundation.dart';
@@ -3316,10 +3315,7 @@ class _ContainerAreaState extends State<ContainerArea> {
     // ignore: unnecessary_null_comparison
     if (chart.crosshairBehavior != null &&
         chart.crosshairBehavior.enable &&
-        chart.crosshairBehavior.activationMode == ActivationMode.singleTap &&
-        cartesianSeriesRenderer != null &&
-        SeriesHelper.getSeriesRendererDetails(cartesianSeriesRenderer).series
-            is! ErrorBarSeries) {
+        chart.crosshairBehavior.activationMode == ActivationMode.singleTap) {
       widget._stateProperties.crosshairBehaviorRenderer
           .onTouchDown(position.dx, position.dy);
     }
@@ -3424,9 +3420,6 @@ class _ContainerAreaState extends State<ContainerArea> {
             !chart.crosshairBehavior.shouldAlwaysShow &&
             chart.crosshairBehavior.activationMode !=
                 ActivationMode.doubleTap &&
-            cartesianSeriesRenderer != null &&
-            SeriesHelper.getSeriesRendererDetails(cartesianSeriesRenderer)
-                .series is! ErrorBarSeries &&
             zoomingBehaviorDetails.isPinching != true) ||
         // ignore: unnecessary_null_comparison
         (chart.zoomPanBehavior != null &&
@@ -3558,9 +3551,7 @@ class _ContainerAreaState extends State<ContainerArea> {
     if (chart.crosshairBehavior != null &&
         chart.crosshairBehavior.enable &&
         chart.crosshairBehavior.activationMode != ActivationMode.doubleTap &&
-        position != null &&
-        SeriesHelper.getSeriesRendererDetails(_findSeries(position)!).series
-            is! ErrorBarSeries) {
+        position != null) {
       if (chart.crosshairBehavior.activationMode == ActivationMode.singleTap) {
         widget._stateProperties.crosshairBehaviorRenderer
             .onTouchMove(position.dx, position.dy);
@@ -3682,8 +3673,6 @@ class _ContainerAreaState extends State<ContainerArea> {
             chart.crosshairBehavior.enable == true &&
             chart.crosshairBehavior.activationMode ==
                 ActivationMode.longPress) &&
-        SeriesHelper.getSeriesRendererDetails(_findSeries(position!)!).series
-            is! ErrorBarSeries &&
         !chart.zoomPanBehavior.enableSelectionZooming &&
         zoomingBehaviorDetails.isPinching != true &&
         // ignore: unnecessary_null_comparison
@@ -3731,9 +3720,6 @@ class _ContainerAreaState extends State<ContainerArea> {
       // ignore: unnecessary_null_comparison
       if (chart.crosshairBehavior != null &&
           chart.crosshairBehavior.enable &&
-          cartesianSeriesRenderer != null &&
-          SeriesHelper.getSeriesRendererDetails(cartesianSeriesRenderer).series
-              is! ErrorBarSeries &&
           chart.crosshairBehavior.activationMode == ActivationMode.doubleTap) {
         widget._stateProperties.crosshairBehaviorRenderer
             .onDoubleTap(position.dx, position.dy);
@@ -3849,9 +3835,6 @@ class _ContainerAreaState extends State<ContainerArea> {
           chart.crosshairBehavior.enable &&
           chart.crosshairBehavior.activationMode != ActivationMode.doubleTap &&
           position != null &&
-          _findSeries(position) != null &&
-          SeriesHelper.getSeriesRendererDetails(_findSeries(position)!).series
-              is! ErrorBarSeries &&
           !panInProgress) {
         if (chart.crosshairBehavior.activationMode ==
             ActivationMode.singleTap) {
@@ -3897,8 +3880,6 @@ class _ContainerAreaState extends State<ContainerArea> {
       if (chart.crosshairBehavior.enable &&
           !chart.crosshairBehavior.shouldAlwaysShow &&
           _touchPosition != null &&
-          SeriesHelper.getSeriesRendererDetails(_findSeries(_touchPosition!)!)
-              .series is! ErrorBarSeries &&
           chart.crosshairBehavior.activationMode != ActivationMode.doubleTap) {
         widget._stateProperties.isTouchUp = true;
         widget._stateProperties.crosshairBehaviorRenderer
@@ -4080,9 +4061,6 @@ class _ContainerAreaState extends State<ContainerArea> {
                 .onEnter(position.dx, position.dy);
       }
       if (chart.crosshairBehavior.enable &&
-          cartesianSeriesRenderer != null &&
-          SeriesHelper.getSeriesRendererDetails(cartesianSeriesRenderer).series
-              is! ErrorBarSeries &&
           chart.crosshairBehavior.activationMode == ActivationMode.singleTap) {
         widget._stateProperties.crosshairBehaviorRenderer
             .onEnter(position.dx, position.dy);

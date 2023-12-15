@@ -169,10 +169,8 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
         }
 
         final List<CalendarAppointment> appointments =
-            AppointmentHelper.getSelectedDateAppointments(
-                widget.visibleAppointmentNotifier.value,
-                widget.calendar.timeZone,
-                currentVisibleDate);
+            AppointmentHelper.getSpecificDateVisibleAppointment(
+                currentVisibleDate, widget.visibleAppointmentNotifier.value);
         List<dynamic> monthCellAppointment = appointments;
         if (widget.calendar.dataSource != null &&
             !AppointmentHelper.isCalendarAppointment(
@@ -781,6 +779,12 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
             child!,
             Offset(isRTL ? size.width - xPosition - cellWidth : xPosition,
                 yPosition));
+
+        if (child.parentData != null) {
+          (child.parentData! as CalendarParentData).offset = Offset(
+              isRTL ? size.width - xPosition - cellWidth : xPosition,
+              yPosition);
+        }
         child = childAfter(child);
 
         if (calendarCellNotifier.value != null &&
@@ -1172,6 +1176,12 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
   List<CustomPainterSemantics> _getSemanticsBuilder(Size size) {
     final List<CustomPainterSemantics> semanticsBuilder =
         <CustomPainterSemantics>[];
+
+    final RenderBox? child = firstChild;
+    if (child != null) {
+      return semanticsBuilder;
+    }
+
     final double cellWidth =
         (size.width - weekNumberPanelWidth) / DateTime.daysPerWeek;
     double left = isRTL
@@ -1242,4 +1252,16 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
   @override
   List<CustomPainterSemantics> Function(Size size) get semanticsBuilder =>
       _getSemanticsBuilder;
+
+  @override
+  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+    RenderBox? child = firstChild;
+    if (child == null) {
+      return;
+    }
+    while (child != null) {
+      visitor(child);
+      child = childAfter(child);
+    }
+  }
 }
