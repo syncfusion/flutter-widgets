@@ -511,9 +511,7 @@ class BarSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
       final TooltipPosition? tooltipPosition =
           series.parent?.tooltipBehavior?.tooltipPosition;
-      final Offset posFromRect = y.isNegative && bottom == 0
-          ? segmentRect!.outerRect.bottomCenter
-          : segmentRect!.outerRect.topCenter;
+      final Offset posFromRect = segmentRect!.outerRect.topCenter;
       final Offset preferredPos = tooltipPosition == TooltipPosition.pointer
           ? position ?? posFromRect
           : posFromRect;

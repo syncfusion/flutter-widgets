@@ -1024,7 +1024,7 @@ abstract class IndicatorRenderer<T, D> extends RenderBox
       );
       _animation ??= CurvedAnimation(
         parent: _animationController!,
-        curve: dependentAnimation?.curve ?? const Interval(0.1, 0.8),
+        curve: dependentAnimation?.curve ?? const Interval(0.1, 1.0),
       );
       _animation!.addListener(_handleAnimationChange);
       animate();

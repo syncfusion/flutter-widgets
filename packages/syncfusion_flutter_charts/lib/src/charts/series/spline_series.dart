@@ -1702,11 +1702,9 @@ class SplineAreaSegment<T, D> extends ChartSegment {
   @override
   bool contains(Offset position) {
     for (int i = 0; i < points.length; i++) {
-      final Offset a = points[i];
-      final Offset b = _lowPoints[i];
-      final Rect rect = Rect.fromPoints(a, b);
-      final Rect paddedRect = rect.inflate(tooltipPadding);
-      if (paddedRect.contains(position)) {
+      if (Rect.fromCenter(
+              center: points[i], width: tooltipPadding, height: tooltipPadding)
+          .contains(position)) {
         return true;
       }
     }
@@ -1816,11 +1814,7 @@ class SplineAreaSegment<T, D> extends ChartSegment {
 
   int _findNearestChartPointIndex(List<Offset> points, Offset position) {
     for (int i = 0; i < points.length; i++) {
-      final Offset a = points[i];
-      final Offset b = _lowPoints[i];
-      final Rect rect = Rect.fromPoints(a, b);
-      final Rect paddedRect = rect.inflate(tooltipPadding);
-      if (paddedRect.contains(position)) {
+      if ((points[i] - position).distance <= pointDistance) {
         return i;
       }
     }
@@ -2467,8 +2461,9 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
     final PointToPixelCallback transformY = series.pointToPixelY;
 
     final bool canDrop = series.emptyPointSettings.mode == EmptyPointMode.drop;
+    final int length = series.dataCount;
     final int controlPointsLength = _startControlHighXValues.length;
-    for (int i = 0; i < series.dataCount; i++) {
+    for (int i = 0; i < length; i++) {
       final num x = _xValues[i];
       num highY = _highValues[i];
       num lowY = _lowValues[i];

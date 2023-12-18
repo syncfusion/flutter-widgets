@@ -500,6 +500,14 @@ class _CoreTooltipRenderBox extends RenderProxyBox {
 
   @override
   void performLayout() {
+    if (!hasSize || size != constraints.biggest) {
+      _nosePosition = null;
+      _primaryPosition = null;
+      _secondaryPosition = null;
+      size = constraints.biggest;
+      return;
+    }
+
     size = constraints.biggest;
     if (child == null) {
       return;

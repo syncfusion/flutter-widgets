@@ -421,6 +421,7 @@ class PieSeriesRenderer<T, D> extends CircularSeriesRenderer<T, D> {
     current.point!
       ..degree = segment._degree
       ..isExplode = segment._isExploded
+      ..isVisible = segment.isVisible
       ..explodeOffset = explodeOffset
       ..startAngle = segment._startAngle
       ..endAngle = segment._endAngle

@@ -1400,6 +1400,8 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
     xRawValues.clear();
     xValues.clear();
     emptyPointIndexes.clear();
+    pointColors.clear();
+    _xNullPointIndexes.clear();
   }
 
   bool _canPopulateDataPoints(
@@ -2394,10 +2396,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
     _dataLabelAnimation?.dispose();
     _dataLabelAnimation = null;
 
-    _xNullPointIndexes.clear();
-    _chaoticXValues.clear();
-    xValues.clear();
-    _sortValues.clear();
+    _resetDataSourceHolders();
 
     for (final ChartSegment segment in segments) {
       segment.dispose();
@@ -5813,7 +5812,8 @@ abstract class StackedSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   List<num> topValues = <num>[];
   List<num> bottomValues = <num>[];
 
-  // It specifies for stacked area and stacked area 100 series.
+  // It specifies the rendering of bottom values for the stacked area and
+  // stacked area 100 series while considering the 'drop empty point' mode.
   List<num> prevSeriesYValues = <num>[];
 
   // It both specifies for stacking 100 series.
@@ -5822,9 +5822,6 @@ abstract class StackedSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
 
   // Stores StackYValues considering empty point modes with yValues.
   List<num> _stackYValues = <num>[];
-
-  num _yMin = double.infinity;
-  num _yMax = double.negativeInfinity;
 
   @override
   RenderCartesianChartPlotArea? get parent =>
@@ -5939,10 +5936,17 @@ abstract class StackedSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     final String seriesType = current.runtimeType.toString().toLowerCase();
     final bool isStackedArea = seriesType.contains('stackedarea');
     final bool isStackedLine = seriesType.contains('stackedline');
+    final bool isDropOrGapMode =
+        current.emptyPointSettings.mode == EmptyPointMode.drop ||
+            current.emptyPointSettings.mode == EmptyPointMode.gap;
+
     final List<num> actualYValues = <num>[...current._stackYValues];
     _StackingInfo? currentNegativeStackInfo;
     num stackValue;
     num yValue;
+
+    num yMinimum = double.infinity;
+    num yMaximum = double.negativeInfinity;
 
     current.topValues.clear();
     current.bottomValues.clear();
@@ -6010,22 +6014,30 @@ abstract class StackedSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         current.topValues[i] = 100;
       }
 
-      // Calculate current series minimum and maximum range.
-      final num bottom = current.bottomValues[i];
-      current._yMin = min(current._yMin, bottom.isNaN ? current._yMin : bottom);
-      final num top = current.topValues[i];
-      current._yMax = max(current._yMax, top.isNaN ? current._yMax : top);
-
-      // Calculate [topValues] for StackedLine and StackedLine100 series
-      // along with empty point modes(drop and gap).
-      if (isStackedLine && current.yValues[i].isNaN) {
+      if (isStackedLine && current.yValues[i].isNaN && isDropOrGapMode) {
         current.topValues[i] = double.nan;
       }
+
+      // Calculate current series minimum and maximum range.
+      final num bottom = current.bottomValues[i];
+      yMinimum = min(yMinimum, bottom.isNaN ? yMinimum : bottom);
+      final num top = current.topValues[i];
+      yMaximum = max(yMaximum, top.isNaN ? yMaximum : top);
     }
 
-    // Update Y axis range.
-    yMin = min(yMin, current._yMin);
-    yMax = max(yMax, current._yMax);
+    num minY = yMinimum;
+    num maxY = yMaximum;
+
+    if (yMinimum > yMaximum) {
+      minY = isStacked100 ? -100 : yMaximum;
+    }
+
+    if (yMaximum < yMinimum) {
+      maxY = 0;
+    }
+
+    yMin = min(yMin, minY);
+    yMax = max(yMax, maxY);
   }
 
   void _calculatePercentageValues(List<AxisDependent> yDependents) {
@@ -6238,13 +6250,6 @@ abstract class StackedSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   @override
   void _populateTrendlineDataSource() {
     trendlineContainer?.populateDataSource(xValues, seriesYValues: topValues);
-  }
-
-  @override
-  DoubleRange range(RenderChartAxis axis) {
-    yMin = min(yMin, _yMin.isNaN ? yMin : _yMin);
-    yMax = max(yMax, _yMax.isNaN ? yMax : _yMax);
-    return super.range(axis);
   }
 
   @override
@@ -8164,7 +8169,8 @@ abstract class CircularSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     circularXValues.clear();
     circularYValues.clear();
     pointRadii.clear();
-    pointColors.clear();
+    dataLabelValues.clear();
+    groupingDataLabelValues.clear();
     super._resetDataSourceHolders();
   }
 
@@ -8501,7 +8507,6 @@ abstract class CircularSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
       point.center = calculateExplodingCenter(point.midAngle!,
           point.outerRadius!.toDouble(), point.center!, point.explodeOffset);
     }
-    point.isVisible = true;
     if (point.isVisible && (point.y != 0 || dataLabelSettings.showZeroValue)) {
       dataLabelStyle = dataLabelStyle.copyWith(
           color: dataLabelStyle.color ??

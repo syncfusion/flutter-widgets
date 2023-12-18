@@ -437,6 +437,7 @@ class RadialBarSeriesRenderer<T, D> extends CircularSeriesRenderer<T, D> {
         segments[current.dataPointIndex] as RadialBarSegment<T, D>;
     current.point!
       ..degree = segment._degree
+      ..isVisible = segment.isVisible
       ..startAngle = segment._startAngle
       ..endAngle = segment._endAngle
       ..midAngle = (segment._startAngle + segment._endAngle) / 2
@@ -643,17 +644,17 @@ class RadialBarSegment<T, D> extends ChartSegment {
             outerRadius, _center, startAngle, endAngle);
       }
 
-      if (degree > 360 && _endAngle >= _startAngle + 180) {
-        _calculateShadowPath();
+      if (degree > 360 && endAngle >= startAngle + 180) {
+        _calculateShadowPath(endAngle);
       }
     }
   }
 
-  void _calculateShadowPath() {
+  void _calculateShadowPath(double endAngle) {
     if (_degree > 360) {
       final double actualRadius = (_innerRadius - _outerRadius).abs() / 2;
-      final Offset midPoint = calculateOffset(
-          _endAngle, (_innerRadius + _outerRadius) / 2, _center);
+      final Offset midPoint =
+          calculateOffset(endAngle, (_innerRadius + _outerRadius) / 2, _center);
       if (actualRadius > 0) {
         double shadowWidth = actualRadius * 0.2;
         const double sigmaRadius = 3 * 0.57735 + 0.5;
@@ -664,7 +665,7 @@ class RadialBarSegment<T, D> extends ChartSegment {
           ..strokeWidth = shadowWidth
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, sigmaRadius);
         _overFilledPaint = Paint()..isAntiAlias = true;
-        double newEndAngle = _endAngle;
+        double newEndAngle = endAngle;
         if (series.cornerStyle == CornerStyle.endCurve ||
             series.cornerStyle == CornerStyle.bothCurve) {
           newEndAngle =
@@ -767,7 +768,7 @@ class RadialBarSegment<T, D> extends ChartSegment {
     }
 
     paint = getFillPaint();
-    if (paint.color != Colors.transparent) {
+    if (paint.color != Colors.transparent && innerRadius != outerRadius) {
       canvas.drawPath(yValuePath, paint);
     }
 

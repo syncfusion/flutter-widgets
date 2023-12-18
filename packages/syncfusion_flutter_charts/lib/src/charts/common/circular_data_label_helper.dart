@@ -393,7 +393,7 @@ void shiftCircularDataLabels(CircularSeriesRenderer seriesRenderer,
       final CircularChartPoint point = dataLabelPositioned.point!;
       if (point.isVisible) {
         final EdgeInsets margin = seriesRenderer.dataLabelSettings.margin;
-        final Rect rect = point.labelRect;
+        Rect rect = point.labelRect;
         Offset labelLocation;
         final Size textSize = dataLabelPositioned.size;
 
@@ -476,6 +476,16 @@ void shiftCircularDataLabels(CircularSeriesRenderer seriesRenderer,
 
         if (point.text != point.trimmedText) {
           details.text = point.trimmedText!;
+          point.dataLabelSize = measureText(details.text, details.textStyle);
+          rect = getDataLabelRect(
+              point.dataLabelPosition,
+              seriesRenderer.dataLabelSettings.connectorLineSettings.type,
+              margin,
+              shiftedConnectorPath,
+              endPoint,
+              point.dataLabelSize,
+              // To avoid the extra padding added to the exact template size.
+              null)!;
         }
         point.labelLocation = labelLocation;
         dataLabelPositioned.offset = labelLocation;

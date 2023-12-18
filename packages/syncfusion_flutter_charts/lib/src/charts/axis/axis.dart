@@ -2128,7 +2128,9 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       maximum += interval;
     }
     if (maximum % interval > 0) {
-      maximum = (maximum + interval) - (maximum % interval);
+      maximum = range.maximum > 0
+          ? (maximum + interval) - (maximum % interval)
+          : (maximum + interval) + (maximum % interval);
     }
     range.minimum = minimum;
     range.maximum = maximum;
@@ -3042,6 +3044,8 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 
   void handleTapUp(TapUpDetails details) {
     if (parent != null &&
+        parent!.parentData != null &&
+        parent!.behaviorArea != null &&
         (parent!.onAxisLabelTapped != null || hasTrimmedAxisLabel)) {
       final Offset localPosition = globalToLocal(details.globalPosition);
       for (final AxisLabel label in visibleLabels) {
@@ -3053,10 +3057,17 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
             parent!.onAxisLabelTapped!(args);
           }
           if (hasTrimmedAxisLabel && label.trimmedText != null) {
+            final BoxParentData parentData =
+                parent!.parentData! as BoxParentData;
+            final Rect parentBounds = parentData.offset & parent!.size;
             parent!.behaviorArea!.showTooltip(TooltipInfo(
-              primaryPosition: label.region!.topCenter,
-              secondaryPosition: label.region!.bottomCenter,
-              text: label.renderText,
+              primaryPosition: localToGlobal(label.region!.topCenter),
+              secondaryPosition: localToGlobal(label.region!.bottomCenter),
+              text: label.text,
+              surfaceBounds: Rect.fromPoints(
+                parent!.localToGlobal(parentBounds.topLeft),
+                parent!.localToGlobal(parentBounds.bottomRight),
+              ),
             ));
           }
           break;

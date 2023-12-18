@@ -2233,18 +2233,20 @@ dynamic _interactiveTooltipLabel(dynamic value, RenderChartAxis axis) {
   final int labelsLength = axis.visibleLabels.length;
   if (axis is RenderCategoryAxis) {
     value = value < 0 ? 0 : value;
-    value = axis
-        .visibleLabels[value.round() >= labelsLength
-            ? (value.round() > labelsLength ? labelsLength - 1 : value - 1)
-            : value.round()]
-        .text;
+    value = axis.labels[(value.round() >= axis.labels.length
+            ? (value.round() > axis.labels.length
+                ? axis.labels.length - 1
+                : value - 1)
+            : value.round())
+        .round()];
   } else if (axis is RenderDateTimeCategoryAxis) {
     value = value < 0 ? 0 : value;
-    value = axis
-        .visibleLabels[value.round() >= labelsLength
-            ? (value.round() > labelsLength ? labelsLength - 1 : value - 1)
-            : value.round()]
-        .text;
+    value = axis.labels[(value.round() >= axis.labels.length
+            ? (value.round() > axis.labels.length
+                ? axis.labels.length - 1
+                : value - 1)
+            : value.round())
+        .round()];
   } else if (axis is RenderDateTimeAxis) {
     final num interval = axis.visibleRange!.minimum.ceil();
     final num previousInterval = (axis.visibleLabels.isNotEmpty)
@@ -3079,7 +3081,8 @@ class TrackballBehavior extends ChartBehavior {
         _padding = (markerSettings != null &&
                     markerSettings!.markerVisibility ==
                         TrackballVisibilityMode.auto
-                ? (series != null && series.markerSettings.isVisible == true)
+                ? chartPointInfo[index].series is IndicatorRenderer ||
+                    (series != null && series.markerSettings.isVisible == true)
                 : markerSettings != null &&
                     markerSettings!.markerVisibility ==
                         TrackballVisibilityMode.visible)
@@ -3148,8 +3151,9 @@ class TrackballBehavior extends ChartBehavior {
         _padding = (markerSettings != null &&
                     markerSettings!.markerVisibility ==
                         TrackballVisibilityMode.auto
-                ? (chartPointInfo[index].series!.markerSettings.isVisible ==
-                    true)
+                ? chartPointInfo[index].series is IndicatorRenderer ||
+                    (chartPointInfo[index].series!.markerSettings.isVisible ==
+                        true)
                 : markerSettings != null &&
                     markerSettings!.markerVisibility ==
                         TrackballVisibilityMode.visible)
@@ -3390,7 +3394,9 @@ class TrackballBehavior extends ChartBehavior {
         if (child is IndicatorRenderer && child.effectiveIsVisible) {
           final List<TrackballInfo>? trackballInfo =
               child.trackballInfo(position);
-          if (trackballInfo != null && trackballInfo.isNotEmpty) {
+          if (trackballInfo != null &&
+              trackballInfo.isNotEmpty &&
+              child.animationFactor == 1) {
             for (final TrackballInfo? info in trackballInfo) {
               visiblePoints.add(ClosestPoints(
                   closestPointX: info!.position!.dx,
@@ -3944,8 +3950,10 @@ class TrackballBehavior extends ChartBehavior {
   void _trackballMarker(int index) {
     if (markerSettings != null &&
         (markerSettings!.markerVisibility == TrackballVisibilityMode.auto
-            ? (chartPointInfo[index].series != null &&
-                chartPointInfo[index].series!.markerSettings.isVisible == true)
+            ? chartPointInfo[index].series is IndicatorRenderer ||
+                (chartPointInfo[index].series != null &&
+                    chartPointInfo[index].series!.markerSettings.isVisible ==
+                        true)
             : markerSettings!.markerVisibility ==
                 TrackballVisibilityMode.visible)) {
       final DataMarkerType markerType = markerSettings!.shape;
@@ -5325,8 +5333,7 @@ class TrackballBehavior extends ChartBehavior {
     }
 
     Paint markerPaint = Paint();
-    markerPaint.color =
-        chartPointInfo[index].color ?? settings.color ?? seriesColor;
+    markerPaint.color = settings.color ?? seriesColor;
     markerPaint.isAntiAlias = true;
     if (seriesRenderer is CartesianSeriesRenderer &&
         seriesRenderer.gradient != null) {
@@ -5343,9 +5350,8 @@ class TrackballBehavior extends ChartBehavior {
     }
     canvas.drawPath(markerPath, markerPaint);
     Paint markerBorderPaint = Paint();
-    markerBorderPaint.color =
-        chartPointInfo[index].color ?? settings.borderColor ?? seriesColor;
-    markerBorderPaint.strokeWidth = 1;
+    markerBorderPaint.color = settings.borderColor ?? seriesColor;
+    markerBorderPaint.strokeWidth = settings.borderWidth;
     markerBorderPaint.style = PaintingStyle.stroke;
     markerBorderPaint.isAntiAlias = true;
 

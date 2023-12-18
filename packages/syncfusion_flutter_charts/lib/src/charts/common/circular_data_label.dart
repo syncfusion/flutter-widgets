@@ -12,6 +12,7 @@ import '../utils/typedef.dart';
 import 'callbacks.dart';
 import 'chart_point.dart';
 import 'circular_data_label_helper.dart';
+import 'core_tooltip.dart';
 import 'data_label.dart';
 import 'element_widget.dart';
 
@@ -377,14 +378,10 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
 
   @override
   bool hitTestSelf(Offset position) {
-    return series?.parent?.onDataLabelTapped != null;
+    return true;
   }
 
   int _findSelectedDataLabelIndex(Offset localPosition) {
-    if (series?.parent?.onDataLabelTapped == null) {
-      return -1;
-    }
-
     if (childCount > 0) {
       RenderBox? child = lastChild;
       while (child != null) {
@@ -430,7 +427,44 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
         settings,
         selectedIndex,
       ));
+    } else {
+      final int selectedIndex = _findSelectedDataLabelIndex(localPosition);
+      if (selectedIndex == -1) {
+        return;
+      }
+      final CircularChartPoint point = labels!.elementAt(selectedIndex).point!;
+      if (point.trimmedText != null && point.text != point.trimmedText) {
+        _showTooltipForTrimmedDataLabel(point, selectedIndex);
+      }
     }
+  }
+
+  @override
+  void handlePointerHover(Offset localPosition) {
+    final int selectedIndex = _findSelectedDataLabelIndex(localPosition);
+    if (selectedIndex == -1) {
+      return;
+    }
+    final CircularChartPoint point = labels!.elementAt(selectedIndex).point!;
+    if (point.trimmedText != null && point.text != point.trimmedText) {
+      _showTooltipForTrimmedDataLabel(point, selectedIndex);
+    }
+  }
+
+  void _showTooltipForTrimmedDataLabel(
+      CircularChartPoint point, int pointIndex) {
+    final RenderCircularChartPlotArea plotArea =
+        series!.parent! as RenderCircularChartPlotArea;
+
+    plotArea.behaviorArea!.showTooltip(TooltipInfo(
+      primaryPosition: localToGlobal(point.labelRect.topCenter),
+      secondaryPosition: localToGlobal(point.labelRect.topCenter),
+      text: point.text,
+      surfaceBounds: Rect.fromPoints(
+        plotArea.localToGlobal(paintBounds.topLeft),
+        plotArea.localToGlobal(paintBounds.bottomRight),
+      ),
+    ));
   }
 
   @override

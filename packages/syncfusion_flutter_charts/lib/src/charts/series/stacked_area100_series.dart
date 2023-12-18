@@ -653,11 +653,9 @@ class StackedArea100Segment<T, D> extends ChartSegment {
   @override
   bool contains(Offset position) {
     for (int i = 0; i < points.length; i++) {
-      final Offset a = points[i];
-      final Offset b = _lowPoints[i];
-      final Rect rect = Rect.fromPoints(a, b);
-      final Rect paddedRect = rect.inflate(tooltipPadding);
-      if (paddedRect.contains(position)) {
+      if (Rect.fromCenter(
+              center: points[i], width: tooltipPadding, height: tooltipPadding)
+          .contains(position)) {
         return true;
       }
     }
@@ -770,11 +768,7 @@ class StackedArea100Segment<T, D> extends ChartSegment {
 
   int _findNearestChartPointIndex(List<Offset> points, Offset position) {
     for (int i = 0; i < points.length; i++) {
-      final Offset a = points[i];
-      final Offset b = _lowPoints[i];
-      final Rect rect = Rect.fromPoints(a, b);
-      final Rect paddedRect = rect.inflate(tooltipPadding);
-      if (paddedRect.contains(position)) {
+      if ((points[i] - position).distance <= pointDistance) {
         return i;
       }
     }
