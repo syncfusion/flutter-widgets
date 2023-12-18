@@ -238,6 +238,21 @@ Path getShapesPath(
       endAngle: endAngle);
 }
 
+Paint _lineTypePaint(Paint fillPaint, {Paint? strokePaint}) {
+  final Paint paint = Paint()..style = PaintingStyle.stroke;
+  if (strokePaint != null) {
+    paint
+      ..color = strokePaint.color
+      ..strokeWidth = strokePaint.strokeWidth
+      ..shader = strokePaint.shader ?? fillPaint.shader;
+  }
+
+  if (paint.color == Colors.transparent) {
+    paint.color = fillPaint.color;
+  }
+  return paint;
+}
+
 Path _processShapes(
     {required Canvas canvas,
     required Rect rect,
@@ -342,7 +357,7 @@ Path _processShapes(
           rect: rect,
           path: path,
           isNeedToReturnPath: isNeedToReturnPath,
-          paint: borderPaint,
+          paint: _lineTypePaint(paint, strokePaint: borderPaint),
           shaderPaint: paint.shader != null ? paint : null);
     case ShapeMarkerType.horizontalLine:
       return _processHorizontalLineShape(
@@ -350,7 +365,7 @@ Path _processShapes(
           rect: rect,
           path: path,
           isNeedToReturnPath: isNeedToReturnPath,
-          paint: borderPaint,
+          paint: _lineTypePaint(paint, strokePaint: borderPaint),
           shaderPaint: paint.shader != null ? paint : null);
     case ShapeMarkerType.lineSeries:
     case ShapeMarkerType.fastLineSeries:
@@ -360,7 +375,7 @@ Path _processShapes(
           canvas: canvas,
           path: path,
           rect: rect,
-          paint: borderPaint,
+          paint: _lineTypePaint(paint, strokePaint: borderPaint),
           shaderPaint: paint.shader != null ? paint : null,
           isNeedToReturnPath: isNeedToReturnPath,
           isNeedMarker: true,
@@ -374,7 +389,7 @@ Path _processShapes(
           canvas: canvas,
           path: path,
           rect: rect,
-          paint: borderPaint,
+          paint: _lineTypePaint(paint, strokePaint: borderPaint),
           shaderPaint: paint.shader != null ? paint : null,
           isNeedToReturnPath: isNeedToReturnPath,
           isNeedMarker: true,
@@ -385,7 +400,7 @@ Path _processShapes(
           canvas: canvas,
           rect: rect,
           path: path,
-          paint: borderPaint,
+          paint: _lineTypePaint(paint, strokePaint: borderPaint),
           shaderPaint: paint.shader != null ? paint : null,
           isNeedToReturnPath: isNeedToReturnPath,
           isDashArray: false);
@@ -394,7 +409,7 @@ Path _processShapes(
           canvas: canvas,
           rect: rect,
           path: path,
-          paint: borderPaint,
+          paint: _lineTypePaint(paint, strokePaint: borderPaint),
           shaderPaint: paint.shader != null ? paint : null,
           isNeedToReturnPath: isNeedToReturnPath,
           isDashArray: true);
@@ -431,7 +446,7 @@ Path _processShapes(
           canvas: canvas,
           rect: rect,
           path: path,
-          paint: borderPaint,
+          paint: _lineTypePaint(paint, strokePaint: borderPaint),
           shaderPaint: paint.shader != null ? paint : null,
           isNeedToReturnPath: isNeedToReturnPath,
           isDashArray: false);
@@ -440,7 +455,7 @@ Path _processShapes(
           canvas: canvas,
           rect: rect,
           path: path,
-          paint: borderPaint,
+          paint: _lineTypePaint(paint, strokePaint: borderPaint),
           shaderPaint: paint.shader != null ? paint : null,
           isNeedToReturnPath: isNeedToReturnPath,
           isDashArray: true);
@@ -479,7 +494,7 @@ Path _processShapes(
           canvas: canvas,
           rect: rect,
           path: path,
-          paint: borderPaint,
+          paint: _lineTypePaint(paint, strokePaint: borderPaint),
           shaderPaint: paint.shader != null ? paint : null,
           isNeedToReturnPath: isNeedToReturnPath);
     case ShapeMarkerType.hiloOpenCloseSeries:
@@ -488,7 +503,7 @@ Path _processShapes(
           canvas: canvas,
           rect: rect,
           path: path,
-          paint: borderPaint,
+          paint: _lineTypePaint(paint, strokePaint: borderPaint),
           shaderPaint: paint.shader != null ? paint : null,
           isNeedToReturnPath: isNeedToReturnPath);
     case ShapeMarkerType.waterfallSeries:
@@ -572,7 +587,9 @@ Path _processCircleShape(
 
   canvas.drawPath(path, paint);
 
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
   return path;
@@ -600,7 +617,9 @@ Path _processRectangleShape(
 
   canvas.drawPath(path, paint);
 
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
   return path;
@@ -631,7 +650,9 @@ Path _processInvertedTriangleShape(
 
   canvas.drawPath(path, paint);
 
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
 
@@ -663,7 +684,9 @@ Path _processTriangleShape(
 
   canvas.drawPath(path, paint);
 
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
   return path;
@@ -694,7 +717,9 @@ Path _processVerticalTriangleShape(
 
   canvas.drawPath(path, paint);
 
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
   return path;
@@ -725,7 +750,9 @@ Path _processVerticalInvertedTriangleShape(
 
   canvas.drawPath(path, paint);
 
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
   return path;
@@ -757,7 +784,9 @@ Path _processDiamondShape(
 
   canvas.drawPath(path, paint);
 
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
 
@@ -795,7 +824,9 @@ Path _processPentagonShape(
     canvas.drawShadow(path, elevationColor, elevation, true);
   }
   canvas.drawPath(path, paint);
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
   return path;
@@ -903,6 +934,8 @@ Path _processPieShape(
     required Path path,
     Paint? paint,
     Paint? borderPaint}) {
+  rect =
+      Rect.fromLTWH(rect.left, rect.top + 1, rect.width - 1, rect.height - 1);
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
@@ -916,8 +949,8 @@ Path _processPieShape(
   path.close();
   path.moveTo(x + width / 10, y - height / 10);
   path.lineTo(x + r, y - height / 10);
-  path.arcTo(Rect.fromCircle(center: Offset(x + 2, y - 2), radius: r),
-      _degreesToRadians(-5), _degreesToRadians(-80), false);
+  path.arcTo(Rect.fromCircle(center: Offset(x + 1, y - 1), radius: r),
+      _degreesToRadians(0), _degreesToRadians(-90), false);
   path.close();
 
   if (isNeedToReturnPath) {
@@ -925,7 +958,9 @@ Path _processPieShape(
   }
 
   canvas.drawPath(path, paint!);
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
 
@@ -941,18 +976,22 @@ Path _processDoughnutShape(
     double? radius,
     Paint? paint,
     Paint? borderPaint}) {
+  rect =
+      Rect.fromLTWH(rect.left, rect.top + 1, rect.width - 1, rect.height - 1);
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   late Path path1, path2;
   radius ??= (rect.width + rect.height) / 2;
-
+  final bool hasBorder = borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0;
   if (isNeedToReturnPath) {
-    if (borderPaint != null) {
+    if (hasBorder) {
       path1 = _getArcPath(
           path, radius / 4, radius / 2, Offset(x, y), 0, 270, 270, true);
     } else {
-      path2 = _getArcPath(path, radius / 4, radius / 2, Offset(x + 1, y - 1),
-          -5, -85, -85, true);
+      path2 = _getArcPath(path, radius / 4, radius / 2, Offset(x + 1, y - 1), 0,
+          -90, -90, true);
     }
 
     return path;
@@ -962,15 +1001,15 @@ Path _processDoughnutShape(
       path, radius / 4, radius / 2, Offset(x, y), 0, 270, 270, true);
 
   path2 = _getArcPath(
-      Path(), radius / 4, radius / 2, Offset(x + 1, y - 1), -5, -85, -85, true);
+      Path(), radius / 4, radius / 2, Offset(x + 1, y - 1), 0, -90, -90, true);
 
   canvas.drawPath(path1, paint!);
-  if (borderPaint != null) {
+  if (hasBorder) {
     canvas.drawPath(
         path1, borderPaint..color = Colors.grey.shade300.withOpacity(0.5));
   }
   canvas.drawPath(path2, paint);
-  if (borderPaint != null) {
+  if (hasBorder) {
     canvas.drawPath(
         path2, borderPaint..color = Colors.grey.shade300.withOpacity(0.5));
   }
@@ -994,11 +1033,14 @@ Path _processRadialBarShape(
   final double y = rect.top + rect.height / 2;
 
   late Path path1, path2;
+  final bool hasBorder = borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0;
 
   radius ??= (rect.width + rect.height) / 2;
 
   if (isNeedToReturnPath) {
-    if (borderPaint != null) {
+    if (hasBorder) {
       path1 = _getArcPath(path, (radius / 2) - 2, radius / 2, Offset(x, y), 0,
           360 - 0.01, 360 - 0.01, true);
     } else {
@@ -1014,7 +1056,7 @@ Path _processRadialBarShape(
   path2 = _getArcPath(Path(), (radius / 2) - 2, radius / 2, Offset(x, y),
       startAngle!, endAngle!, degree!, true);
 
-  if (borderPaint != null) {
+  if (hasBorder) {
     canvas.drawPath(
         path1,
         Paint()
@@ -1027,7 +1069,7 @@ Path _processRadialBarShape(
 
   canvas.drawPath(path2, paint!);
 
-  if (borderPaint != null) {
+  if (hasBorder) {
     canvas.drawPath(path2, borderPaint..color = Colors.transparent);
   }
 
@@ -1056,13 +1098,7 @@ Path _getArcPath(Path path, double innerRadius, double radius, Offset center,
     path.moveTo(innerRadiusStartPoint.x, innerRadiusStartPoint.y);
   }
 
-  final bool isFullCircle =
-      // ignore: unnecessary_null_comparison
-      startAngle != null &&
-          // ignore: unnecessary_null_comparison
-          endAngle != null &&
-          endAngle - startAngle == 2 * pi;
-
+  final bool isFullCircle = endAngle - startAngle == 2 * pi;
   final num midpointAngle = (endAngle + startAngle) / 2;
 
   if (isFullCircle) {
@@ -1167,7 +1203,9 @@ Path _processWaterfallShape(
   }
 
   canvas.drawPath(path, paint!);
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
 
@@ -1197,7 +1235,9 @@ Path _processPyramidShape(
   }
 
   canvas.drawPath(path, paint!);
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
 
@@ -1228,7 +1268,9 @@ Path _processFunnelShape(
   }
 
   canvas.drawPath(path, paint!);
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
 
@@ -1256,7 +1298,9 @@ Path _processBubbleShape(
   }
 
   canvas.drawPath(path, paint!);
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
 
@@ -1324,7 +1368,9 @@ Path _processSplineAreaShape(
   }
 
   canvas.drawPath(path, paint!);
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
 
@@ -1417,7 +1463,9 @@ Path _processColumnShape(
 
   canvas.drawPath(path, paint!);
 
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
   return path;
@@ -1450,7 +1498,9 @@ Path _processAreaShape(
 
   canvas.drawPath(path, paint!);
 
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
 
@@ -1500,7 +1550,9 @@ Path _processBarShape(
 
   canvas.drawPath(path, paint!);
 
-  if (borderPaint != null) {
+  if (borderPaint != null &&
+      borderPaint.color != Colors.transparent &&
+      borderPaint.strokeWidth > 0) {
     canvas.drawPath(path, borderPaint);
   }
 
@@ -1549,10 +1601,10 @@ Path _processDashPath(
   Path source, {
   required _CircularIntervalList<double> dashArray,
 }) {
-  const double intialValue = 0.0;
+  const double initialValue = 0.0;
   final Path path = Path();
   for (final PathMetric measurePath in source.computeMetrics()) {
-    double distance = intialValue;
+    double distance = initialValue;
     bool draw = true;
     while (distance < measurePath.length) {
       final double length = dashArray.next;

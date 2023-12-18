@@ -1643,8 +1643,7 @@ class _KeyIdentifier extends Asn1Encode {
   Asn1Octet? _keyIdentifier;
   DerInteger? _serialNumber;
   //Properties
-  List<int>? get keyID =>
-      _keyIdentifier == null ? null : _keyIdentifier!.getOctets();
+  List<int>? get keyID => _keyIdentifier?.getOctets();
   //Implementation
   static _KeyIdentifier getKeyIdentifier(dynamic obj) {
     _KeyIdentifier result;

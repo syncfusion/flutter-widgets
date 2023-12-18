@@ -995,7 +995,7 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
     final TextPainter painter = TextPainter(
         textDirection: TextDirection.ltr,
         maxLines: 1,
-        textScaleFactor: textScaleFactor,
+        textScaler: TextScaler.linear(textScaleFactor),
         textAlign: isRTL ? TextAlign.right : TextAlign.left,
         textWidthBasis: TextWidthBasis.longestLine);
 
@@ -1319,7 +1319,7 @@ class TimelineViewHeaderView extends CustomPainter {
       _dayTextPainter.textDirection = TextDirection.ltr;
       _dayTextPainter.textAlign = TextAlign.left;
       _dayTextPainter.textWidthBasis = TextWidthBasis.longestLine;
-      _dayTextPainter.textScaleFactor = textScaleFactor;
+      _dayTextPainter.textScaler = TextScaler.linear(textScaleFactor);
 
       final TextSpan dateTextSpan =
           TextSpan(text: dateText, style: dateTextStyle);
@@ -1328,7 +1328,7 @@ class TimelineViewHeaderView extends CustomPainter {
       _dateTextPainter.textDirection = TextDirection.ltr;
       _dateTextPainter.textAlign = TextAlign.left;
       _dateTextPainter.textWidthBasis = TextWidthBasis.longestLine;
-      _dateTextPainter.textScaleFactor = textScaleFactor;
+      _dateTextPainter.textScaler = TextScaler.linear(textScaleFactor);
 
       _dayTextPainter.layout(maxWidth: childWidth);
       _dateTextPainter.layout(maxWidth: childWidth);

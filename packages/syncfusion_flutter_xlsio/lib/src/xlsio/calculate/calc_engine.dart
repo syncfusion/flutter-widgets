@@ -792,7 +792,7 @@ class CalcEngine {
                   i += s.length;
                 } else if (i <= formula.length - 3 &&
                     formula.substring(i, i + 3).toUpperCase() ==
-                        (double.nan).toString().toUpperCase()) {
+                        double.nan.toString().toUpperCase()) {
                   i += 3;
                   s = _errorStrings[1];
                 } else {

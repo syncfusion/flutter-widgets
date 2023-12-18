@@ -33,3 +33,21 @@ enum PdfFlattenOption {
   /// Flatten all the form fields.
   formFields
 }
+
+/// Enumerates the values that represent the type of annotation that should be drawn using UI interaction on the PDF pages.
+enum PdfAnnotationMode {
+  /// None
+  none,
+
+  /// Highlight
+  highlight,
+
+  /// Underline
+  underline,
+
+  /// Strikethrough
+  strikethrough,
+
+  /// Squiggly
+  squiggly,
+}

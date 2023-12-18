@@ -18,6 +18,7 @@ import '../primitives/pdf_name.dart';
 import '../primitives/pdf_number.dart';
 import '../primitives/pdf_reference_holder.dart';
 import '../primitives/pdf_stream.dart';
+import 'enum.dart';
 import 'pdf_annotation.dart';
 import 'pdf_annotation_collection.dart';
 
@@ -57,6 +58,7 @@ class PdfPolygonAnnotation extends PdfAnnotation {
       String? subject,
       DateTime? modifiedDate,
       double? opacity,
+      List<PdfAnnotationFlags>? flags,
       bool? setAppearance}) {
     _helper = PdfPolygonAnnotationHelper(this, points, text,
         color: color,
@@ -66,6 +68,7 @@ class PdfPolygonAnnotation extends PdfAnnotation {
         subject: subject,
         modifiedDate: modifiedDate,
         opacity: opacity,
+        flags: flags,
         setAppearance: setAppearance);
   }
 
@@ -102,6 +105,32 @@ class PdfPolygonAnnotation extends PdfAnnotation {
     }
   }
 
+  /// Gets annotation's border properties like width, horizontal radius etc.
+  PdfAnnotationBorder get border {
+    return _helper.border;
+  }
+
+  /// Sets annotation's border properties like width, horizontal radius etc.
+  set border(PdfAnnotationBorder value) {
+    _helper.border = value;
+  }
+
+  /// Gets the annotation color.
+  PdfColor get color => _helper.color;
+
+  /// Sets the annotation color.
+  set color(PdfColor value) {
+    _helper.color = value;
+  }
+
+  /// Gets the inner color of the annotation.
+  PdfColor get innerColor => _helper.innerColor;
+
+  /// Sets the inner color of the annotation.
+  set innerColor(PdfColor value) {
+    _helper.innerColor = value;
+  }
+
   IPdfPrimitive? get _element => PdfAnnotationHelper.getHelper(this).dictionary;
 
   set _element(IPdfPrimitive? value) {
@@ -122,6 +151,7 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
       String? subject,
       DateTime? modifiedDate,
       double? opacity,
+      List<PdfAnnotationFlags>? flags,
       bool? setAppearance})
       : super(annotation) {
     initializeAnnotation(
@@ -133,6 +163,7 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
         subject: subject,
         modifiedDate: modifiedDate,
         opacity: opacity,
+        flags: flags,
         setAppearance: setAppearance);
     dictionary!.setProperty(PdfDictionaryProperties.subtype,
         PdfName(PdfDictionaryProperties.polygon));

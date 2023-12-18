@@ -231,6 +231,8 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
       documentRepo.remove(documentID);
     } catch (IOException e) {
       e.printStackTrace();
+    } catch (IllegalStateException e) {
+      e.printStackTrace();
     }
     return true;
   }

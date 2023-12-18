@@ -1,5 +1,6 @@
-/// Syncfusion Flutter Spark/Micro charts are light weight chart, typically drawn without axes or coordinates.
-/// It presents the general shape of data’s in a simple and highly condensed way.
+/// Syncfusion Flutter Spark/Micro charts are light weight chart, typically
+/// drawn without axes or coordinates. It presents the general shape of data’s
+/// in a simple and highly condensed way.
 ///
 /// To use, import `package:syncfusion_flutter_charts/sparkcharts.dart`.
 ///

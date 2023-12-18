@@ -178,8 +178,14 @@ class PdfBitmap extends PdfImage {
     final ImageDecoder? decoder = ImageDecoder.getDecoder(imageData);
     if (decoder != null) {
       _decoder = decoder;
-      _height = _decoder!.height;
-      _width = _decoder!.width;
+      if (_decoder!.jpegDecoderOrientationAngle == 90 ||
+          _decoder!.jpegDecoderOrientationAngle == 270) {
+        _height = _decoder!.width;
+        _width = _decoder!.height;
+      } else {
+        _height = _decoder!.height;
+        _width = _decoder!.width;
+      }
       PdfImageHelper.setJpegOrientationAngle(
           this, _decoder!.jpegDecoderOrientationAngle);
       _imageStatus = false;

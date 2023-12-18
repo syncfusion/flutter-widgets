@@ -866,15 +866,23 @@ abstract class ScrollAxisBase {
   /// 1 - Body, 2 - Footer
   /// Returns the first and last VisibleLine.LineIndex for area identified
   /// by section.
-  Int32Span getVisibleLinesRange(ScrollAxisRegion section) {
+  Int32Span? getVisibleLinesRange(ScrollAxisRegion section) {
     final VisibleLinesCollection visibleLines = getVisibleLines();
     int start = 0;
     int end = 0;
     final List<int> visibleSection = getVisibleSection(section, start, end);
     start = visibleSection[0];
     end = visibleSection[1];
-    return Int32Span(
-        visibleLines[start].lineIndex, visibleLines[end].lineIndex);
+    if (start >= 0 && end >= 0) {
+      if (section == ScrollAxisRegion.footer &&
+          visibleLines.firstFooterVisibleIndex == visibleLines.length) {
+        return null;
+      }
+
+      return Int32Span(
+          visibleLines[start].lineIndex, visibleLines[end].lineIndex);
+    }
+    return null;
   }
 
   /// Return indexes for VisibleLinesCollection for area identified by section.
@@ -2293,7 +2301,7 @@ class PixelScrollAxis extends ScrollAxisBase {
     // SH 6/22 - Commented out change to sb.Value and also modified
     // ScrollInfo.Value to return Math.Max(minimum,
     // Math.Min(maximum - largeChange, value)); instead.
-    if (proposeLargeChange >= 0 && delta != 0) {
+    if (proposeLargeChange >= 0 && delta != 0.0) {
       sb.value = oldValue + delta;
     }
   }

@@ -93,10 +93,8 @@ class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
         ranges: axis.ranges,
         renderer: renderer,
         backgroundImage: axis.backgroundImage,
-        imageStream: axis.backgroundImage != null
-            ? axis.backgroundImage!
-                .resolve(createLocalImageConfiguration(context))
-            : null);
+        imageStream: axis.backgroundImage
+            ?.resolve(createLocalImageConfiguration(context)));
   }
 
   @override
@@ -165,10 +163,8 @@ class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
       ..axisElementsAnimation = radialGaugeScope.animation1
       ..gaugeThemeData = gaugeTheme
       ..renderer = renderer
-      ..imageStream = axis.backgroundImage != null
-          ? axis.backgroundImage!
-              .resolve(createLocalImageConfiguration(context))
-          : null
+      ..imageStream =
+          axis.backgroundImage?.resolve(createLocalImageConfiguration(context))
       ..backgroundImage = axis.backgroundImage;
     super.updateRenderObject(context, renderObject);
   }

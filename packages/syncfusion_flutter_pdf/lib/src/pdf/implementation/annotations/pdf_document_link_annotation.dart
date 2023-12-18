@@ -4,6 +4,7 @@ import '../../interfaces/pdf_interface.dart';
 import '../drawing/drawing.dart';
 import '../general/enum.dart';
 import '../general/pdf_destination.dart';
+import '../graphics/pdf_color.dart';
 import '../io/pdf_constants.dart';
 import '../io/pdf_cross_table.dart';
 import '../pages/pdf_page.dart';
@@ -17,6 +18,7 @@ import '../primitives/pdf_reference_holder.dart';
 import '../primitives/pdf_string.dart';
 import 'pdf_action_annotation.dart';
 import 'pdf_annotation.dart';
+import 'pdf_annotation_border.dart';
 
 /// Represents an annotation object with holds link on
 /// another location within a document.
@@ -97,6 +99,24 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
             .setProperty(PdfDictionaryProperties.dest, value);
       }
     }
+  }
+
+  /// Gets annotation's border properties like width, horizontal radius etc.
+  PdfAnnotationBorder get border {
+    return _helper.border;
+  }
+
+  /// Sets annotation's border properties like width, horizontal radius etc.
+  set border(PdfAnnotationBorder value) {
+    _helper.border = value;
+  }
+
+  /// Gets the annotation color.
+  PdfColor get color => _helper.color;
+
+  /// Sets the annotation color.
+  set color(PdfColor value) {
+    _helper.color = value;
   }
 
   // Gets the destination of the document link annotation

@@ -57,9 +57,13 @@ class SfSparkAreaChart extends StatefulWidget {
       this.lastPointColor,
       this.marker,
       this.labelDisplayMode,
-      this.labelStyle,
+      this.labelStyle = const TextStyle(
+          fontFamily: 'Roboto',
+          fontStyle: FontStyle.normal,
+          fontWeight: FontWeight.normal,
+          fontSize: 12),
       this.trackball})
-      : _sparkChartDataDetails = SparkChartDataDetails(data: data!),
+      : _sparkChartDataDetails = SparkChartDataDetails(data: data),
         super(key: key);
 
   /// Creates the spark area chart for the provided set of data with its default view.
@@ -123,7 +127,7 @@ class SfSparkAreaChart extends StatefulWidget {
       /// Specifies the x-value mapping field.
       SparkChartIndexedValueMapper<dynamic>? xValueMapper,
 
-      /// Specifies the y-value maping field.
+      /// Specifies the y-value mapping field.
       SparkChartIndexedValueMapper<num>? yValueMapper,
       this.plotBand,
       this.borderWidth = 2,
@@ -141,12 +145,16 @@ class SfSparkAreaChart extends StatefulWidget {
       this.lastPointColor,
       this.marker,
       this.labelDisplayMode,
-      this.labelStyle,
+      this.labelStyle = const TextStyle(
+          fontFamily: 'Roboto',
+          fontStyle: FontStyle.normal,
+          fontWeight: FontWeight.normal,
+          fontSize: 12),
       this.trackball})
       : _sparkChartDataDetails = SparkChartDataDetails(
-            dataCount: dataCount!,
-            xValueMapper: xValueMapper!,
-            yValueMapper: yValueMapper!),
+            dataCount: dataCount,
+            xValueMapper: xValueMapper,
+            yValueMapper: yValueMapper),
         super(key: key);
 
   /// Inverts the axis from right to left.
@@ -382,7 +390,7 @@ class SfSparkAreaChart extends StatefulWidget {
 
   /// Render plot band.
   ///
-  /// Plot band is also known as stripline, which is used to shade the different
+  /// Plot band is also known as strip-line, which is used to shade the different
   /// ranges in plot area with different colors to improve the readability
   /// of the chart.
   ///
@@ -494,7 +502,7 @@ class SfSparkAreaChart extends StatefulWidget {
   ///
   /// Also refer [SparkChartLabelDisplayMode].
   ///
-  /// Defaults to `SparkChartDislayMode.none`.
+  /// Defaults to `SparkChartDisplayMode.none`.
   ///
   /// ```dart
   /// @override
@@ -531,7 +539,7 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  final TextStyle? labelStyle;
+  final TextStyle labelStyle;
 
   /// Enables and customizes the trackball.
   ///
@@ -608,8 +616,6 @@ class _SfSparkAreaChartState extends State<SfSparkAreaChart> {
 
   @override
   void didUpdateWidget(SfSparkAreaChart oldWidget) {
-    _chartThemeData =
-        _updateThemeData(context, Theme.of(context), SfChartTheme.of(context));
     super.didUpdateWidget(oldWidget);
   }
 
@@ -622,18 +628,8 @@ class _SfSparkAreaChartState extends State<SfSparkAreaChart> {
 
   @override
   void didChangeDependencies() {
-    _chartThemeData =
-        _updateThemeData(context, Theme.of(context), SfChartTheme.of(context));
+    _chartThemeData = SfChartTheme.of(context);
     super.didChangeDependencies();
-  }
-
-  SfChartThemeData _updateThemeData(BuildContext context, ThemeData themeData,
-      SfChartThemeData chartThemeData) {
-    chartThemeData = chartThemeData.copyWith(
-        dataLabelTextStyle: themeData.textTheme.bodySmall!
-            .merge(chartThemeData.dataLabelTextStyle)
-            .merge(widget.labelStyle));
-    return chartThemeData;
   }
 
   /// Describes the part of the user interface represented by this widget.

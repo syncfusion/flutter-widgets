@@ -89,6 +89,9 @@ class PdfString implements IPdfPrimitive {
   /// internal field
   late bool isParentDecrypted;
 
+  /// internal field
+  bool isColorSpace = false;
+
   //Implementations
   /// internal method
   List<int> pdfEncode(PdfDocument? document) {
@@ -378,6 +381,12 @@ class PdfString implements IPdfPrimitive {
       final List<int> bytes =
           encryptor.encryptData(currentObjectNumber, data!, false);
       value = byteToString(bytes);
+      const String bigEndianPreambleString = 'þÿ';
+      if (value!.length > 1 &&
+          !isColorSpace &&
+          value!.startsWith(bigEndianPreambleString)) {
+        value = decodeBigEndian(bytes, 2, bytes.length - 2);
+      }
       data = bytes;
     }
   }

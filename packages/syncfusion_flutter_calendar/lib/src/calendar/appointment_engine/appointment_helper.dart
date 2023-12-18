@@ -158,7 +158,7 @@ class AppointmentHelper {
     /// hence to rectify this tha value 1.5 used, and tested with multiple
     /// device.
     final int iconStartPosition = (textPainter.height -
-            (icon.style!.fontSize! * textPainter.textScaleFactor)) ~/
+            (textPainter.textScaler.scale(icon.style!.fontSize!))) ~/
         1.5;
     return rect.top -
         ((textPainter.height - rect.height) / 2) -
@@ -609,7 +609,8 @@ class AppointmentHelper {
     if (isTimelineMonth) {
       return isSameDate(
               currentApp.actualStartTime, appointment.actualStartTime) ||
-          isSameDate(currentApp.actualEndTime, appointment.actualEndTime);
+          isSameDate(currentApp.actualStartTime, appointment.actualEndTime) ||
+          isSameDate(currentApp.actualEndTime, appointment.actualStartTime);
     }
 
     if (CalendarViewHelper.isSameTimeSlot(

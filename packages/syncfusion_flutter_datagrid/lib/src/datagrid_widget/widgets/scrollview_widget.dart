@@ -9,8 +9,10 @@ import '../../grid_common/line_size_host.dart';
 import '../../grid_common/scroll_axis.dart';
 import '../../grid_common/scrollbar.dart';
 import '../../grid_common/visible_line_info.dart';
+import '../grouping/grouping.dart';
 import '../helper/datagrid_configuration.dart';
 import '../helper/datagrid_helper.dart' as grid_helper;
+import '../helper/datagrid_helper.dart';
 import '../helper/enums.dart';
 import '../helper/selection_helper.dart' as selection_helper;
 import '../runtime/column.dart';
@@ -92,35 +94,39 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
       _dataGridConfiguration.rowSelectionManager;
 
   void _verticalListener() {
-    setState(() {
-      final double newValue = _verticalController!.offset;
-      _container.verticalOffset = newValue;
-      _container.setRowHeights();
-      _container.resetSwipeOffset();
-      _isScrolling = true;
-      _container.isDirty = true;
-      _dataGridConfiguration.scrollingState = ScrollDirection.forward;
-      _isLoadMoreViewLoaded = false;
-    });
+    if (mounted) {
+      setState(() {
+        final double newValue = _verticalController!.offset;
+        _container.verticalOffset = newValue;
+        _container.setRowHeights();
+        _container.resetSwipeOffset();
+        _isScrolling = true;
+        _container.isDirty = true;
+        _dataGridConfiguration.scrollingState = ScrollDirection.forward;
+        _isLoadMoreViewLoaded = false;
+      });
+    }
   }
 
   void _horizontalListener() {
-    setState(() {
-      final double newValue = _horizontalController!.offset;
-      _container.horizontalOffset = newValue;
-      // Updating the width of all columns initially and inside the
-      // `ScrollViewWidget` build method when setting the container_isDirty to
-      // `true`. Thus, Don't necessary to update column widths while horizontal
-      // scrolling.
-      // DataGridSettings.columnSizer._refresh(widget.width);
-      _container.resetSwipeOffset();
-      _dataGridConfiguration.scrollingState = ScrollDirection.forward;
-      if (!_dataGridConfiguration
-          .columnResizeController.isResizeIndicatorVisible) {
-        _isScrolling = true;
-      }
-      _container.isDirty = true;
-    });
+    if (mounted) {
+      setState(() {
+        final double newValue = _horizontalController!.offset;
+        _container.horizontalOffset = newValue;
+        // Updating the width of all columns initially and inside the
+        // `ScrollViewWidget` build method when setting the container_isDirty to
+        // `true`. Thus, Don't necessary to update column widths while horizontal
+        // scrolling.
+        // DataGridSettings.columnSizer._refresh(widget.width);
+        _container.resetSwipeOffset();
+        _dataGridConfiguration.scrollingState = ScrollDirection.forward;
+        if (!_dataGridConfiguration
+            .columnResizeController.isResizeIndicatorVisible) {
+          _isScrolling = true;
+        }
+        _container.isDirty = true;
+      });
+    }
   }
 
   void _updateAxis() {
@@ -577,7 +583,8 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         grid_helper.getLastFrozenRowIndex(dataGridConfiguration);
     final int footerFrozenRowIndex =
         grid_helper.getStartFooterFrozenRowIndex(dataGridConfiguration);
-
+    final int indentColumnCount =
+        dataGridConfiguration.source.groupedColumns.length;
     if (columnHeaderRow != null &&
         frozenColumnIndex >= 0 &&
         !_canDisableHorizontalScrolling(dataGridConfiguration)) {
@@ -585,8 +592,12 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
       double blurRadiusValue = 0.0;
       Color frozenLineColor = frozenLineColorWithoutOpacity;
       final double top = getTopPosition(columnHeaderRow, frozenColumnIndex);
-      final double left = columnHeaderRow.getColumnWidth(
-          0, dataGridConfiguration.frozenColumnsCount - 1);
+      final double left = (columnHeaderRow.getColumnWidth(
+              indentColumnCount,
+              dataGridConfiguration.frozenColumnsCount +
+                  indentColumnCount -
+                  1)) +
+          (dataGridThemeHelper.indentColumnWidth * indentColumnCount);
       if (dataGridConfiguration.textDirection == TextDirection.ltr &&
           dataGridConfiguration.container.horizontalOffset > 0) {
         spreadRadiusValue = 3.0;
@@ -717,9 +728,11 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
   }
 
   void _handleSelectionController() {
-    setState(() {
-      /* Rebuild the DataGrid when the selection or currentcell is processed. */
-    });
+    if (mounted) {
+      setState(() {
+        /* Rebuild the DataGrid when the selection or currentcell is processed. */
+      });
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -849,6 +862,39 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
       FocusNode focusNode, RawKeyEvent keyEvent) {
     final DataGridConfiguration dataGridConfiguration = _dataGridConfiguration;
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
+    // To handle group expansion and collapse the group.
+    void expandCollapseGroup() {
+      final DataRowBase? row = dataGridConfiguration
+          .container.rowGenerator.items
+          .firstWhereOrNull((DataRowBase element) =>
+              element.rowIndex == currentCell.rowIndex);
+      if (row != null &&
+          row.rowType == RowType.captionSummaryCoveredRow &&
+          dataGridConfiguration.allowExpandCollapseGroup) {
+        final int rowIndex = resolveStartRecordIndex(
+            dataGridConfiguration, currentCell.rowIndex);
+        final dynamic group = getGroupElement(dataGridConfiguration, rowIndex);
+        if (keyEvent.logicalKey == LogicalKeyboardKey.arrowRight) {
+          if (group is Group && !group.isExpanded) {
+            dataGridConfiguration.group!
+                .expandGroups(group, dataGridConfiguration.group, rowIndex);
+            dataGridConfiguration.groupExpandCollapseRowIndex =
+                currentCell.rowIndex;
+            notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
+                propertyName: 'grouping');
+          }
+        } else if (keyEvent.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          if (group is Group && group.isExpanded) {
+            dataGridConfiguration.group!
+                .collapseGroups(group, dataGridConfiguration.group, rowIndex);
+            dataGridConfiguration.groupExpandCollapseRowIndex =
+                currentCell.rowIndex;
+            notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
+                propertyName: 'grouping');
+          }
+        }
+      }
+    }
 
     void processKeys() {
       if (keyEvent.runtimeType == RawKeyDownEvent) {
@@ -922,6 +968,15 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
       }
 
       processKeys();
+      if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+          (keyEvent.logicalKey == LogicalKeyboardKey.arrowRight ||
+              keyEvent.logicalKey == LogicalKeyboardKey.arrowLeft)) {
+        if (dataGridConfiguration.isMacPlatform
+            ? !keyEvent.isMetaPressed
+            : !keyEvent.isControlPressed) {
+          expandCollapseGroup();
+        }
+      }
       return KeyEventResult.handled;
     } else {
       // On Editing, we have to handle below [LogicalKeyboardKey]'s. For, that
@@ -1101,6 +1156,8 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     // Need to dispose the vertical and horizontal scroll listeners when the widget disposed.
     _verticalController?.removeListener(_verticalListener);
     _horizontalController?.removeListener(_horizontalListener);
+    _dataGridConfiguration.rowSelectionManager
+        .removeListener(_handleSelectionController);
 
     // Need to dispose the horizontal scroll controller when it's not set from the sample level.
     if (_dataGridConfiguration.disposeVerticalScrollController) {
@@ -1270,8 +1327,14 @@ class _VisualContainerState extends State<_VisualContainer> {
         final DataGridRowSwipeDirection swipeDirection =
             grid_helper.getSwipeDirection(
                 dataGridConfiguration, dataGridConfiguration.swipingOffset);
-        final int rowIndex = grid_helper.resolveToRecordIndex(
-            dataGridConfiguration, swipeRow.rowIndex);
+        int rowIndex = 0;
+        if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+          rowIndex = dataGridConfiguration.source.effectiveRows
+              .indexOf(swipeRow.dataGridRow!);
+        } else {
+          rowIndex = grid_helper.resolveToRecordIndex(
+              dataGridConfiguration, swipeRow.rowIndex);
+        }
 
         switch (swipeDirection) {
           case DataGridRowSwipeDirection.startToEnd:
@@ -1303,7 +1366,8 @@ class _VisualContainerState extends State<_VisualContainer> {
               row.rowRegion == rowRegion &&
               (row.rowType == RowType.tableSummaryRow ||
                   row.rowType == RowType.tableSummaryCoveredRow ||
-                  row.rowType == RowType.dataRow))
+                  row.rowType == RowType.dataRow ||
+                  row.rowType == RowType.captionSummaryCoveredRow))
           .map<Widget>((DataRowBase dataRow) => addWidget(dataRow))
           .toList());
     } else if (rowRegion == RowRegion.body) {
@@ -1314,7 +1378,8 @@ class _VisualContainerState extends State<_VisualContainer> {
               row.rowIndex >= 0 &&
               row.rowRegion == rowRegion &&
               (row.rowType == RowType.dataRow ||
-                  row.rowType == RowType.footerRow))
+                  row.rowType == RowType.footerRow ||
+                  row.rowType == RowType.captionSummaryCoveredRow))
           .map<Widget>((DataRowBase dataRow) => addWidget(dataRow))
           .toList());
     } else if (rowRegion == RowRegion.footer) {
@@ -1325,7 +1390,8 @@ class _VisualContainerState extends State<_VisualContainer> {
               (row.rowType == RowType.tableSummaryRow ||
                   row.rowType == RowType.tableSummaryCoveredRow ||
                   row.rowType == RowType.footerRow ||
-                  row.rowType == RowType.dataRow))
+                  row.rowType == RowType.dataRow ||
+                  row.rowType == RowType.captionSummaryCoveredRow))
           .map<Widget>((DataRowBase dataRow) => addWidget(dataRow))
           .toList());
     }
@@ -1916,17 +1982,39 @@ class VisualContainerHelper {
       }
     }
 
+    _refreshVerticalScrollbar();
     //need to update the indent column width here
     lineSizeCollection.resumeUpdates();
     updateScrollBars();
     _updateFreezePaneColumns(dataGridConfiguration);
-
+    updateIndentColumnWidths(dataGridConfiguration);
     rowHeights.lineCount = rowCount;
     columnWidths.lineCount = columnCount;
   }
 
+  void _refreshVerticalScrollbar() {
+    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
+    if (dataGridConfiguration.verticalScrollController != null &&
+        dataGridConfiguration.verticalScrollController!.hasClients) {
+      final double verticalControllerOffset =
+          dataGridConfiguration.verticalScrollController!.offset +
+              dataGridConfiguration.container.scrollRows.headerExtent;
+      final double verticalContainerOffset =
+          dataGridConfiguration.container.verticalScrollBar.value;
+      if (verticalControllerOffset != verticalContainerOffset) {
+        dataGridConfiguration.container.verticalScrollBar.value =
+            verticalControllerOffset;
+      }
+    }
+  }
+
   void _updateColumnCount(DataGridConfiguration dataGridConfiguration) {
-    final int columnCount = dataGridConfiguration.columns.length;
+    int columnCount = dataGridConfiguration.columns.length;
+
+    if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+      columnCount += dataGridConfiguration.source.groupedColumns.length;
+    }
+
     this.columnCount = columnCount;
   }
 
@@ -1935,9 +2023,14 @@ class VisualContainerHelper {
         rowHeights as LineSizeCollection;
     lineSizeCollection.suspendUpdates();
     int rowsCount = 0;
-    rowsCount = effectiveRows(dataGridConfiguration.source).isNotEmpty
-        ? effectiveRows(dataGridConfiguration.source).length
-        : 0;
+    if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+      rowsCount =
+          dataGridConfiguration.group?.displayElements?.grouped.length ?? 0;
+    } else {
+      rowsCount = effectiveRows(dataGridConfiguration.source).isNotEmpty
+          ? effectiveRows(dataGridConfiguration.source).length
+          : 0;
+    }
     rowsCount += dataGridConfiguration.headerLineCount;
 
     rowsCount += _getFooterLineCount(dataGridConfiguration);
@@ -1963,21 +2056,24 @@ class VisualContainerHelper {
   }
 
   void _updateFreezePaneColumns(DataGridConfiguration dataGridConfiguration) {
-    final int frozenColumnCount = grid_helper.resolveToScrollColumnIndex(
-        dataGridConfiguration, dataGridConfiguration.frozenColumnsCount);
-    if (frozenColumnCount > 0 && columnCount >= frozenColumnCount) {
-      frozenColumns = frozenColumnCount;
-    } else {
-      frozenColumns = 0;
-    }
+    if (dataGridConfiguration.frozenColumnsCount > 0 ||
+        dataGridConfiguration.footerFrozenColumnsCount > 0) {
+      final int frozenColumnCount = grid_helper.resolveToScrollColumnIndex(
+          dataGridConfiguration, dataGridConfiguration.frozenColumnsCount);
+      if (frozenColumnCount > 0 && columnCount >= frozenColumnCount) {
+        frozenColumns = frozenColumnCount;
+      } else {
+        frozenColumns = 0;
+      }
 
-    final int footerFrozenColumnsCount =
-        dataGridConfiguration.footerFrozenColumnsCount;
-    if (footerFrozenColumnsCount > 0 &&
-        columnCount > frozenColumnCount + footerFrozenColumnsCount) {
-      footerFrozenColumns = footerFrozenColumnsCount;
-    } else {
-      footerFrozenColumns = 0;
+      final int footerFrozenColumnsCount =
+          dataGridConfiguration.footerFrozenColumnsCount;
+      if (footerFrozenColumnsCount > 0 &&
+          columnCount > frozenColumnCount + footerFrozenColumnsCount) {
+        footerFrozenColumns = footerFrozenColumnsCount;
+      } else {
+        footerFrozenColumns = 0;
+      }
     }
   }
 
@@ -2095,6 +2191,17 @@ class VisualContainerHelper {
     if (canUpdate) {
       notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
           propertyName: 'Swiping');
+    }
+  }
+
+  /// update the indent column width.
+  void updateIndentColumnWidths(DataGridConfiguration dataGridConfiguration) {
+    if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+      final int length = dataGridConfiguration.source.groupedColumns.length;
+      for (int i = 0; i < length; i++) {
+        dataGridConfiguration.container.columnWidths[i] =
+            dataGridConfiguration.dataGridThemeHelper!.indentColumnWidth;
+      }
     }
   }
 }

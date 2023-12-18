@@ -3,8 +3,8 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import '../../pdfviewer.dart';
 import '../common/pdfviewer_helper.dart';
 
-/// Height of the ScrollHead.
-const double kPdfScrollHeadHeight = 32.0;
+/// Size of the ScrollHead.
+const double kPdfScrollHeadSize = 36.0;
 
 /// A material design scroll head.
 ///
@@ -107,7 +107,8 @@ class _ScrollHeadState extends State<ScrollHead> {
           widget.pageLayoutMode != PdfPageLayoutMode.single) {
         return Stack(
             children: <Widget>[verticalScrollBar, horizontalScrollBar]);
-      } else if (widget.pageLayoutMode == PdfPageLayoutMode.single) {
+      } else if (widget.scrollDirection == PdfScrollDirection.horizontal &&
+          widget.pageLayoutMode == PdfPageLayoutMode.single) {
         return horizontalScrollBar;
       } else {
         return verticalScrollBar;
@@ -136,12 +137,12 @@ class _ScrollHeadState extends State<ScrollHead> {
     final BorderRadius borderRadius =
         widget.scrollDirection == PdfScrollDirection.horizontal
             ? const BorderRadius.only(
-                topRight: Radius.circular(kPdfScrollHeadHeight),
-                topLeft: Radius.circular(kPdfScrollHeadHeight),
+                topRight: Radius.circular(kPdfScrollHeadSize),
+                topLeft: Radius.circular(kPdfScrollHeadSize),
               )
             : const BorderRadius.only(
-                topLeft: Radius.circular(kPdfScrollHeadHeight),
-                bottomLeft: Radius.circular(kPdfScrollHeadHeight),
+                topLeft: Radius.circular(kPdfScrollHeadSize),
+                bottomLeft: Radius.circular(kPdfScrollHeadSize),
               );
     final Alignment alignment =
         widget.scrollDirection == PdfScrollDirection.horizontal
@@ -171,7 +172,7 @@ class _ScrollHeadState extends State<ScrollHead> {
                 boxShadow: boxShadows,
               ),
               constraints: const BoxConstraints.tightFor(
-                  width: kPdfScrollHeadHeight, height: kPdfScrollHeadHeight),
+                  width: kPdfScrollHeadSize, height: kPdfScrollHeadSize),
               child: Align(
                 child: Text(
                   '${widget.pdfViewerController.pageNumber}',

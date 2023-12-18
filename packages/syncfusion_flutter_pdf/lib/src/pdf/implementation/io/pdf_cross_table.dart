@@ -81,6 +81,7 @@ class PdfCrossTable {
   Map<PdfReference, PdfReference>? _mappedReferences;
   List<PdfReference?>? _prevRef;
   late bool _isColorSpace;
+  bool _isOutlineOrDestination = false;
 
   //Properties
   /// internal property
@@ -93,7 +94,7 @@ class PdfCrossTable {
 
   /// internal property
   PdfEncryptor? get encryptor {
-    return crossTable == null ? null : crossTable!.encryptor;
+    return crossTable?.encryptor;
   }
 
   set encryptor(PdfEncryptor? value) {
@@ -1624,6 +1625,7 @@ class PdfCrossTable {
     if (obj != null) {
       if (obj is PdfDictionary || obj is PdfStream) {
         final PdfDictionary dic = obj as PdfDictionary;
+        _isOutlineOrDestination = _checkForOutlinesAndDestination(dic);
         if (!dic.decrypted!) {
           dic.items!.forEach((PdfName? key, IPdfPrimitive? element) {
             _decrypt(element);
@@ -1639,6 +1641,7 @@ class PdfCrossTable {
             }
           }
         }
+        _isOutlineOrDestination = false;
       } else if (obj is PdfArray) {
         final PdfArray array = obj;
         for (final IPdfPrimitive? element in array.elements) {
@@ -1653,7 +1656,8 @@ class PdfCrossTable {
         _isColorSpace = false;
       } else if (obj is PdfString) {
         final PdfString str = obj;
-        if (!str.decrypted && (!str.isHex! || _isColorSpace)) {
+        if (!str.decrypted &&
+            (!str.isHex! || _isColorSpace || _isOutlineOrDestination)) {
           if (PdfDocumentHelper.getHelper(document!).isEncrypted &&
               objNumbers.isNotEmpty) {
             obj.decrypt(encryptor!, objNumbers.last.objNum);
@@ -1661,6 +1665,27 @@ class PdfCrossTable {
         }
       }
     }
+  }
+
+  /// Checks the dictionary if it is an outline type.
+  bool _checkForOutlinesAndDestination(PdfDictionary dictionary) {
+    if (dictionary.containsKey(PdfDictionaryProperties.parent)) {
+      final IPdfPrimitive? outline =
+          PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.parent]);
+      if (outline != null && outline is PdfDictionary) {
+        if (documentCatalog != null &&
+            documentCatalog!.containsKey(PdfDictionaryProperties.outlines)) {
+          final IPdfPrimitive? dict = PdfCrossTable.dereference(
+              documentCatalog![PdfDictionaryProperties.outlines]);
+          return dict != null && dict is PdfDictionary && dict == outline
+              ? (true)
+              : _checkForOutlinesAndDestination(outline);
+        }
+      }
+    } else if (dictionary.containsKey(PdfDictionaryProperties.limits)) {
+      return true;
+    }
+    return false;
   }
 }
 

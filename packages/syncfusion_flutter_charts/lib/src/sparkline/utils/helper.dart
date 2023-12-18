@@ -91,12 +91,12 @@ Path? _dashPath(
   if (source == null) {
     return null;
   }
-  const double intialValue = 0.0;
+  const double initialValue = 0.0;
   final Path path = Path();
   double distance, length;
   bool draw;
   for (final PathMetric measurePath in source.computeMetrics()) {
-    distance = intialValue;
+    distance = initialValue;
     draw = true;
     while (distance < measurePath.length) {
       length = dashArray!.next;
@@ -178,7 +178,7 @@ List<SparkChartPoint> sortSparkChartPoints(List<SparkChartPoint> dataPoints) {
 }
 
 /// Method to find the sorted visible points.
-List<Offset> sortScreenCoordiantePoints(List<Offset> coordinatePoints) {
+List<Offset> sortScreenCoordinatePoints(List<Offset> coordinatePoints) {
   coordinatePoints.sort((Offset firstPoint, Offset secondPoint) {
     firstPoint.dx.compareTo(secondPoint.dx);
     if (firstPoint.dx < secondPoint.dx) {
@@ -271,7 +271,7 @@ class SparkChartPoint {
   /// Specifies the y point.
   num y;
 
-  /// Specifes the pixel location of  data label.
+  /// Specifies the pixel location of  data label.
   Offset? dataLabelOffset;
 
   /// Specifies the x label.
@@ -293,7 +293,7 @@ class SparkChartDataDetails {
   SparkChartDataDetails(
       {this.data, this.dataCount, this.xValueMapper, this.yValueMapper});
 
-  /// Speficies the list of spark chart data.
+  /// Specifies the list of spark chart data.
   final List<num>? data;
 
   /// Specifies the spark chart data count.
@@ -309,7 +309,7 @@ class SparkChartDataDetails {
 /// Represents the spark chart container.
 class SparkChartContainer extends SingleChildRenderObjectWidget {
   /// Creates the spark chart container.
-  const SparkChartContainer({Widget? child}) : super(child: child);
+  const SparkChartContainer({super.key, super.child});
 
   @override
   RenderObject createRenderObject(BuildContext context) {

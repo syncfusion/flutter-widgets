@@ -2,6 +2,15 @@
 
 **Bugs** 
 
+* #FB46807 - The tooltip showByIndex public method has been enhanced to work based on a given seriesIndex, even when multiple series are overlapped.
+* #FB46888 - The trackball hide method will work properly for the trackball tooltip builder.
+* #FB46698 - Fixed the issue where the trackball tooltip markers overlapped the text when the tooltip text had different sizes.
+
+
+## [22.2.9]- 08/15/2023
+
+**Bugs**
+
 * #FB45898 - Resolved the axis range rendering issue while updating the multiple segments using the addedDataIndexes property dynamically.
   
 ## [22.2.8] - 08/08/2023

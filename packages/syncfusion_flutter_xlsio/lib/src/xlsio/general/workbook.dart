@@ -6659,7 +6659,7 @@ class Workbook {
         ? 1
         : _getLengthOfLines(size._width, bounds.width.toDouble(), text, font);
     final Rectangle<num> result =
-        Rectangle<num>(0, 0, (size._width).ceil(), height * length);
+        Rectangle<num>(0, 0, size._width.ceil(), height * length);
     return result;
   }
 

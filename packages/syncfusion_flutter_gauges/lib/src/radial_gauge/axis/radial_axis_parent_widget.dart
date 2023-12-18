@@ -560,9 +560,11 @@ class RenderRadialAxisParent extends RenderBox
   void _enableOverlayForMarkerPointer(PointerHoverEvent event) {
     final Offset hoverPosition = globalToLocal(event.position);
     final dynamic pointer = _pointerRenderObject;
-    if (pointer != null && pointer is RenderMarkerPointer) {
+    if (pointer != null &&
+        pointer is RenderMarkerPointer &&
+        pointer.pointerRect != null) {
       pointer.isHovered = false;
-      if (pointer.pointerRect.contains(hoverPosition) &&
+      if (pointer.pointerRect!.contains(hoverPosition) &&
           _markerPointers.isNotEmpty &&
           !_markerPointers.any((RenderMarkerPointer element) =>
               element.isHovered != null && element.isHovered!)) {

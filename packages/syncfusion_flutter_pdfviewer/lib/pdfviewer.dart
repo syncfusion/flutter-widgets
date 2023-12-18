@@ -1,5 +1,19 @@
 library pdfviewer;
 
+export 'src/annotation/annotation.dart' show Annotation;
+export 'src/annotation/annotation_settings.dart'
+    show
+        PdfBaseAnnotationSettings,
+        PdfAnnotationAppearanceSetting,
+        PdfAnnotationSelectorSettings,
+        PdfAnnotationSettings,
+        PdfTextMarkupAnnotationSettings;
+export 'src/annotation/text_markup.dart'
+    show
+        HighlightAnnotation,
+        StrikethroughAnnotation,
+        UnderlineAnnotation,
+        SquigglyAnnotation;
 export 'src/control/enums.dart';
 export 'src/control/pdftextline.dart';
 export 'src/control/pdfviewer_callback_details.dart';

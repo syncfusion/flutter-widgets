@@ -3,13 +3,14 @@ import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
+import '../../../datagrid.dart';
+import '../grouping/grouping.dart';
 import '../runtime/cell_renderers.dart';
 import '../runtime/column.dart';
 import '../runtime/generator.dart';
 import '../selection/selection_manager.dart';
 import '../sfdatagrid.dart';
 import '../widgets/scrollview_widget.dart';
-import 'enums.dart';
 
 /// Signature for the `_DataGridConfiguration` callback.
 typedef DataGridStateDetails = DataGridConfiguration Function();
@@ -410,4 +411,41 @@ class DataGridConfiguration {
   ///
   /// Defaults to false.
   late bool showColumnHeaderIconOnHover = false;
+
+  /// Hold instance of grouping
+  late Group? group;
+
+  /// Decides whether the caption summary row should be expanded initially when applying column grouping.
+  ///
+  /// The default value is true.
+  late bool autoExpandGroups;
+
+  /// Checks whether to expand and collapse a specific group interactively by tapping the caption summary row. The [groupExpanderIcon] will be displayed leading in a caption summary row if it is set to true to indicate the group's expand-collapse state.
+  ///
+  /// The default value is false.
+  late bool allowExpandCollapseGroup;
+
+  /// Invoked when a group is being expanded.
+  ///
+  /// Return false to restrict a specific group from being expanded.
+  late GroupChangingCallback? groupExpanding;
+
+  /// Invoked when a group is expanded.
+  late GroupChangedCallback? groupExpanded;
+
+  /// Invoked when a group is being collapsed.
+  ///
+  /// Return false to restrict a specific group from being collapsed.
+  late GroupChangingCallback? groupCollapsing;
+
+  /// Invoked when a group is collapsed.
+  late GroupChangedCallback? groupCollapsed;
+
+  /// Displays the title in the group caption summary row using the provided format.
+  ///
+  /// The default format is {ColumnName} : {Key} – {ItemsCount} Items. The name of a [ColumnGroup] will be replaced by the {ColumnName}, the key in a caption summary row will be replaced by the {Key}, and the number of items grouped in a given group will be replaced by the {ItemsCount}.
+  late String groupCaptionTitleFormat;
+
+  /// Holds the expand and collapse row index.
+  late int groupExpandCollapseRowIndex = -1;
 }

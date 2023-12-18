@@ -211,7 +211,7 @@ class _RenderSparkAreaChart extends RenderSparkChart {
   /// Defines the dash array.
   Color? _borderColor;
 
-  /// Returns the dash arry value.
+  /// Returns the dash array value.
   Color? get borderColor => _borderColor;
 
   /// Set the line width value.
@@ -279,14 +279,13 @@ class _RenderSparkAreaChart extends RenderSparkChart {
       final List<String> tempDataLabels = List<String>.from(dataLabels!);
       dataLabels!.clear();
       dataPoints!.clear();
-      final SparkChartPoint point1 =
-          SparkChartPoint(x: temp[0].x, y: minY!.toDouble());
+      final SparkChartPoint point1 = SparkChartPoint(x: temp[0].x, y: minY!);
       point1.labelX = temp[0].labelX;
       point1.labelY = temp[0].labelY;
       dataPoints!.add(point1);
       dataPoints!.addAll(temp);
       final SparkChartPoint point2 =
-          SparkChartPoint(x: temp[temp.length - 1].x, y: minY!.toDouble());
+          SparkChartPoint(x: temp[temp.length - 1].x, y: minY!);
       point2.labelX = temp[temp.length - 1].labelX;
       point2.labelY = temp[temp.length - 1].labelY;
       dataPoints!.add(point2);
@@ -303,7 +302,6 @@ class _RenderSparkAreaChart extends RenderSparkChart {
       ..style = PaintingStyle.fill;
     final Path path = Path();
     Size size;
-    _labelStyle = themeData!.dataLabelTextStyle;
     _highPoint = coordinatePoints![0].dy;
     _lowPoint = coordinatePoints![0].dy;
 

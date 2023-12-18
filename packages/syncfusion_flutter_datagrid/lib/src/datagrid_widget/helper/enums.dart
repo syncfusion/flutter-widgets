@@ -33,6 +33,9 @@ enum RowType {
 
   /// Specifies the SpannedDataRow that displays the table summary value in row.
   tableSummaryCoveredRow,
+
+  /// Specifies the SpannedDataRow that displays the caption summary value in row.
+  captionSummaryCoveredRow
 }
 
 /// Describes the possible values for cell types.
@@ -57,6 +60,9 @@ enum CellType {
 
   /// Specifies the table summary cell
   tableSummaryCell,
+
+  /// Specifies the caption summary cell
+  captionSummaryCell,
 }
 
 /// Determines how border lines should be shown in [SfDataGrid].

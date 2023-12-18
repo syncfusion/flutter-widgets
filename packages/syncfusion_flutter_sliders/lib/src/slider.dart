@@ -2280,7 +2280,11 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
         thumb: null,
         paint: null);
 
-    _drawTooltip(context, thumbCenter, offset, actualTrackOffset, trackRect);
+    // To avoid positioning the tooltip text on the edge, used a 5px margin.
+    final Rect tooltipTargetRect = Rect.fromLTWH(
+        5.0, trackRect.top, mediaQueryData.size.width - 5.0, trackRect.height);
+    _drawTooltip(
+        context, thumbCenter, offset, actualTrackOffset, tooltipTargetRect);
   }
 
   @override

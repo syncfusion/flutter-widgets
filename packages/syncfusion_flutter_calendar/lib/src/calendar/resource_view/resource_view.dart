@@ -555,7 +555,7 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
     _namePainter.textDirection = TextDirection.ltr;
     _namePainter.maxLines = 1;
     _namePainter.textWidthBasis = TextWidthBasis.longestLine;
-    _namePainter.textScaleFactor = textScaleFactor;
+    _namePainter.textScaler = TextScaler.linear(textScaleFactor);
   }
 
   /// Draws the outer circle border for the resource view.

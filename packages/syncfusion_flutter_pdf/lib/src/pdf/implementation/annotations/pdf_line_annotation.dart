@@ -70,7 +70,8 @@ class PdfLineAnnotation extends PdfAnnotation {
       PdfLineIntent lineIntent = PdfLineIntent.lineArrow,
       int? leaderLine,
       int? leaderLineExt,
-      bool lineCaption = false}) {
+      bool lineCaption = false,
+      List<PdfAnnotationFlags>? flags}) {
     _helper = PdfLineAnnotationHelper(this, linePoints, text,
         color: color,
         innerColor: innerColor,
@@ -79,6 +80,7 @@ class PdfLineAnnotation extends PdfAnnotation {
         subject: subject,
         modifiedDate: modifiedDate,
         opacity: opacity,
+        flags: flags,
         setAppearance: setAppearance);
     this.beginLineStyle = beginLineStyle;
     this.endLineStyle = endLineStyle;
@@ -276,6 +278,32 @@ class PdfLineAnnotation extends PdfAnnotation {
     }
   }
 
+  /// Gets annotation's border properties like width, horizontal radius etc.
+  PdfAnnotationBorder get border {
+    return _helper.border;
+  }
+
+  /// Sets annotation's border properties like width, horizontal radius etc.
+  set border(PdfAnnotationBorder value) {
+    _helper.border = value;
+  }
+
+  /// Gets the annotation color.
+  PdfColor get color => _helper.color;
+
+  /// Sets the annotation color.
+  set color(PdfColor value) {
+    _helper.color = value;
+  }
+
+  /// Gets the inner color of the annotation.
+  PdfColor get innerColor => _helper.innerColor;
+
+  /// Sets the inner color of the annotation.
+  set innerColor(PdfColor value) {
+    _helper.innerColor = value;
+  }
+
   IPdfPrimitive? get _element => PdfAnnotationHelper.getHelper(this).dictionary;
 
   set _element(IPdfPrimitive? value) {
@@ -297,6 +325,7 @@ class PdfLineAnnotationHelper extends PdfAnnotationHelper {
       String? subject,
       DateTime? modifiedDate,
       double? opacity,
+      List<PdfAnnotationFlags>? flags,
       bool? setAppearance})
       : super(lineAnnotation) {
     initializeAnnotation(
@@ -308,6 +337,7 @@ class PdfLineAnnotationHelper extends PdfAnnotationHelper {
         subject: subject,
         modifiedDate: modifiedDate,
         opacity: opacity,
+        flags: flags,
         setAppearance: setAppearance);
     this.linePoints = PdfArray(linePoints);
     points = linePoints;
