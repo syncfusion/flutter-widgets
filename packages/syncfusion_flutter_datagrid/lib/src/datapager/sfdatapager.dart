@@ -559,9 +559,11 @@ class SfDataPagerState extends State<SfDataPager> {
   // OnChanged
 
   void _handleScrollPositionChanged() {
-    setState(() {
-      _isDirty = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isDirty = true;
+      });
+    }
   }
 
   void _handleDataPagerDelegatePropertyChanged() {
@@ -632,10 +634,12 @@ class SfDataPagerState extends State<SfDataPager> {
     final bool canChange = await _canChangePage(index);
 
     if (canChange) {
-      setState(() {
-        _setCurrentPageIndex(index);
-        _isDirty = true;
-      });
+      if (mounted) {
+        setState(() {
+          _setCurrentPageIndex(index);
+          _isDirty = true;
+        });
+      }
     }
     _raisePageNavigationEnd(canChange ? index : _currentPageIndex);
 
@@ -743,7 +747,7 @@ class SfDataPagerState extends State<SfDataPager> {
   }
 
   Future<bool> _canChangePage(int index) async {
-    _raisePageNavigationStart(index);
+    _raisePageNavigationStart(_currentPageIndex);
 
     final bool canHandle =
         await widget.delegate.handlePageChange(_currentPageIndex, index);
@@ -814,9 +818,11 @@ class SfDataPagerState extends State<SfDataPager> {
 
   Future<void> _scrollTo(double offset, {bool canUpdate = false}) async {
     if (offset == _scrollController!.offset && !canUpdate) {
-      setState(() {
-        _isDirty = true;
-      });
+      if (mounted) {
+        setState(() {
+          _isDirty = true;
+        });
+      }
       return;
     }
 

@@ -39,7 +39,9 @@ import 'pdf_document_link_annotation.dart';
 import 'pdf_ellipse_annotation.dart';
 import 'pdf_line_annotation.dart';
 import 'pdf_polygon_annotation.dart';
+import 'pdf_popup_annotation.dart';
 import 'pdf_rectangle_annotation.dart';
+import 'pdf_text_markup_annotation.dart';
 import 'widget_annotation.dart';
 
 /// Represents the base class for annotation objects.
@@ -47,7 +49,7 @@ abstract class PdfAnnotation implements IPdfWrapper {
   // fields
   late PdfAnnotationHelper _helper;
 
-  /// Gets or sets whether the annotation needs appearance.
+  /// Set whether the annotation requires an appearance.
   bool get setAppearance => _helper.setAppearance;
   set setAppearance(bool value) {
     _helper.setAppearance = value;
@@ -67,16 +69,6 @@ abstract class PdfAnnotation implements IPdfWrapper {
     _helper.bounds = value;
   }
 
-  /// Gets annotation's border properties like width, horizontal radius etc.
-  PdfAnnotationBorder get border {
-    return _helper.border;
-  }
-
-  /// Sets annotation's border properties like width, horizontal radius etc.
-  set border(PdfAnnotationBorder value) {
-    _helper.border = value;
-  }
-
   /// Gets content of the annotation.
   /// The string value specifies the text of the annotation.
   String get text {
@@ -87,22 +79,6 @@ abstract class PdfAnnotation implements IPdfWrapper {
   /// The string value specifies the text of the annotation.
   set text(String value) {
     _helper.text = value;
-  }
-
-  /// Gets the annotation color.
-  PdfColor get color => _helper.color;
-
-  /// Sets the annotation color.
-  set color(PdfColor value) {
-    _helper.color = value;
-  }
-
-  /// Gets the inner color of the annotation.
-  PdfColor get innerColor => _helper.innerColor;
-
-  /// Sets the inner color of the annotation.
-  set innerColor(PdfColor value) {
-    _helper.innerColor = value;
   }
 
   /// Gets the author of the annotation.
@@ -150,6 +126,12 @@ abstract class PdfAnnotation implements IPdfWrapper {
     _helper.appearance = value;
   }
 
+  /// Gets or sets the annotation flags.
+  List<PdfAnnotationFlags> get annotationFlags => _helper.annotationFlags;
+  set annotationFlags(List<PdfAnnotationFlags> value) {
+    _helper.annotationFlags = value;
+  }
+
   //Public methods
   /// Flatten the annotation.
   ///
@@ -185,10 +167,22 @@ class PdfAnnotationHelper {
       double? opacity,
       String? subject,
       DateTime? modifiedDate,
+      List<PdfAnnotationFlags>? flags,
       bool? setAppearance}) {
     base._helper = this;
-    initializeAnnotationProperties(page, text, bounds, border, color,
-        innerColor, author, opacity, subject, modifiedDate, setAppearance);
+    initializeAnnotationProperties(
+        page,
+        text,
+        bounds,
+        border,
+        color,
+        innerColor,
+        author,
+        opacity,
+        subject,
+        modifiedDate,
+        flags,
+        setAppearance);
   }
 
   /// internal method
@@ -208,7 +202,12 @@ class PdfAnnotationHelper {
       if (name.name == PdfDictionaryProperties.circle ||
           name.name == PdfDictionaryProperties.square ||
           name.name == PdfDictionaryProperties.line ||
-          name.name == PdfDictionaryProperties.polygon) {
+          name.name == PdfDictionaryProperties.polygon ||
+          name.name == PdfDictionaryProperties.highlight ||
+          name.name == PdfDictionaryProperties.underline ||
+          name.name == PdfDictionaryProperties.squiggly ||
+          name.name == PdfDictionaryProperties.strikeOut ||
+          name.name == PdfDictionaryProperties.text) {
         PdfDocumentHelper.getHelper(crossTable.document!).catalog.beginSave =
             dictionaryBeginSave;
         PdfDocumentHelper.getHelper(crossTable.document!).catalog.modify();
@@ -273,6 +272,9 @@ class PdfAnnotationHelper {
   /// internal field
   bool isOldAnnotation = false;
 
+  /// internal field
+  List<PdfAnnotationFlags>? flag;
+
   ///Gets or sets the boolean flag to flatten the annotation,
   ///by default, its become false.
   bool flatten = false;
@@ -321,7 +323,7 @@ class PdfAnnotationHelper {
       }
     } else {
       isBounds = true;
-      if (value.isEmpty) {
+      if (value == Rect.zero) {
         throw ArgumentError('rectangle');
       }
       final double height = page!.size.height;
@@ -518,6 +520,19 @@ class PdfAnnotationHelper {
     }
   }
 
+  /// Sets the annotation flags.
+  set annotationFlags(List<PdfAnnotationFlags> value) {
+    flag = value;
+  }
+
+  /// Gets the annotation flags.
+  List<PdfAnnotationFlags> get annotationFlags {
+    if (isLoadedAnnotation && flag == null) {
+      flag ??= obtainAnnotationFlags();
+    }
+    return flag ??= <PdfAnnotationFlags>[];
+  }
+
   /// internal method
   bool isLineBorder() {
     if (base is PdfRectangleAnnotation ||
@@ -542,6 +557,7 @@ class PdfAnnotationHelper {
       double? opacity,
       String? subject,
       DateTime? modifiedDate,
+      List<PdfAnnotationFlags>? flags,
       bool? setAppearance) {
     dictionary!.beginSave = dictionaryBeginSave;
     dictionary!.setProperty(PdfName(PdfDictionaryProperties.type),
@@ -580,6 +596,9 @@ class PdfAnnotationHelper {
     }
     if (setAppearance != null) {
       this.setAppearance = setAppearance;
+    }
+    if (flags != null) {
+      annotationFlags = flags;
     }
   }
 
@@ -715,6 +734,10 @@ class PdfAnnotationHelper {
           if (name != null) {
             if (name.name == PdfDictionaryProperties.text ||
                 name.name == PdfDictionaryProperties.square ||
+                name.name == PdfDictionaryProperties.highlight ||
+                name.name == PdfDictionaryProperties.squiggly ||
+                name.name == PdfDictionaryProperties.underline ||
+                name.name == PdfDictionaryProperties.strikeOut ||
                 flatten) {
               catalog.beginSaveList!.add(dictionaryBeginSave);
               catalog.modify();
@@ -737,7 +760,12 @@ class PdfAnnotationHelper {
             if (name.name == PdfDictionaryProperties.circle ||
                 name.name == PdfDictionaryProperties.square ||
                 name.name == PdfDictionaryProperties.line ||
-                name.name == PdfDictionaryProperties.polygon) {
+                name.name == PdfDictionaryProperties.polygon ||
+                name.name == PdfDictionaryProperties.highlight ||
+                name.name == PdfDictionaryProperties.squiggly ||
+                name.name == PdfDictionaryProperties.underline ||
+                name.name == PdfDictionaryProperties.strikeOut ||
+                name.name == PdfDictionaryProperties.text) {
               catalog.beginSaveList!.add(dictionaryBeginSave);
               catalog.modify();
             }
@@ -1656,6 +1684,61 @@ class PdfAnnotationHelper {
     return isRotatedMatrix;
   }
 
+  /// Returns the boolean if the template matrix is valid or not
+  bool isValidTemplateMatrix(
+      PdfDictionary dictionary, Offset bounds, PdfTemplate template) {
+    bool isValidMatrix = true;
+    Offset point = bounds;
+    if (dictionary.containsKey(PdfDictionaryProperties.matrix)) {
+      final IPdfPrimitive? bbox =
+          PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.bBox]);
+      final IPdfPrimitive? matrix =
+          PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.matrix]);
+      if (matrix != null &&
+          bbox != null &&
+          matrix is PdfArray &&
+          bbox is PdfArray &&
+          matrix.count > 3 &&
+          bbox.count > 2) {
+        if ((matrix[0]! as PdfNumber).value == 1 &&
+            (matrix[1]! as PdfNumber).value == 0 &&
+            (matrix[2]! as PdfNumber).value == 0 &&
+            (matrix[3]! as PdfNumber).value == 1) {
+          if ((((bbox[0]! as PdfNumber).value!.toDouble() !=
+                      -(matrix[4]! as PdfNumber).value!.toDouble()) &&
+                  ((bbox[1]! as PdfNumber).value!.toDouble() !=
+                      -(matrix[5]! as PdfNumber).value!.toDouble())) ||
+              ((bbox[0]! as PdfNumber).value!.toDouble() == 0 &&
+                  -(matrix[4]! as PdfNumber).value!.toDouble() == 0)) {
+            final PdfGraphics pageGraphics = page!.graphics;
+            final PdfGraphicsState state = pageGraphics.save();
+            if (opacity < 1) {
+              pageGraphics.setTransparency(opacity);
+            }
+            point = Offset(point.dx - (bbox[0]! as PdfNumber).value!.toDouble(),
+                point.dy + (bbox[1]! as PdfNumber).value!.toDouble());
+            pageGraphics.drawPdfTemplate(template, point);
+            pageGraphics.restore(state);
+            page!.annotations.remove(base);
+            isValidMatrix = false;
+          }
+        } else if ((matrix[0]! as PdfNumber).value == 0 &&
+            (matrix[1]! as PdfNumber).value == -1 &&
+            (matrix[2]! as PdfNumber).value == 1 &&
+            (matrix[3]! as PdfNumber).value == 0) {
+          if ((bbox[0]! as PdfNumber).value! > 0) {
+            isValidMatrix = false;
+          }
+        } else {
+          if ((bbox[0]! as PdfNumber).value! > 0) {
+            isValidMatrix = false;
+          }
+        }
+      }
+    }
+    return isValidMatrix;
+  }
+
   /// Flatten annotation template
   void flattenAnnotationTemplate(PdfTemplate appearance, bool isNormalMatrix) {
     final PdfGraphicsState state = page!.graphics.save();
@@ -1884,9 +1967,83 @@ class PdfAnnotationHelper {
     } else if (annotation is WidgetAnnotation) {
       WidgetAnnotationHelper.getHelper(annotation).save();
       isSaveComplete = true;
+    } else if (annotation is PdfTextMarkupAnnotation) {
+      PdfTextMarkupAnnotationHelper.getHelper(annotation).save();
+      isSaveComplete = true;
+    } else if (annotation is PdfPopupAnnotation) {
+      PdfPopupAnnotationHelper.getHelper(annotation).save();
+      isSaveComplete = true;
+    }
+    if (!PdfAnnotationHelper.getHelper(annotation).flatten) {
+      final PdfAnnotationHelper helper =
+          PdfAnnotationHelper.getHelper(annotation);
+      if (helper.flag != null) {
+        int flagValue = 0;
+        for (int i = 0; i < helper.flag!.length; i++) {
+          flagValue |= helper.getAnnotationFlagsValue(helper.flag![i]);
+        }
+        helper.dictionary!.setNumber(PdfDictionaryProperties.f, flagValue);
+      }
     }
     if (!isSaveComplete) {
       PdfAnnotationHelper.getHelper(annotation).saveAnnotation();
+    }
+  }
+
+  /// Internal method.
+  int? getFlagValue() {
+    if (dictionary!.containsKey(PdfDictionaryProperties.f)) {
+      final IPdfPrimitive? annotFlags =
+          getValue(dictionary!, crossTable, PdfDictionaryProperties.f, false);
+      if (annotFlags != null &&
+          annotFlags is PdfNumber &&
+          annotFlags.value != null) {
+        return annotFlags.value!.toInt();
+      }
+    }
+    return null;
+  }
+
+  /// Internal method.
+  List<PdfAnnotationFlags> obtainAnnotationFlags() {
+    final int? flagValue = getFlagValue();
+    flag ??= <PdfAnnotationFlags>[];
+    if (flagValue != null) {
+      for (final PdfAnnotationFlags flag in PdfAnnotationFlags.values) {
+        if (flagValue == 0) {
+          return this.flag!..add(flag);
+        }
+        if (getAnnotationFlagsValue(flag) & flagValue != 0) {
+          this.flag!.add(flag);
+        }
+      }
+    }
+    return flag!;
+  }
+
+  /// internal method
+  int getAnnotationFlagsValue(PdfAnnotationFlags value) {
+    switch (value) {
+      case PdfAnnotationFlags.defaultFlag:
+        return 0;
+      case PdfAnnotationFlags.invisible:
+        return 1;
+      case PdfAnnotationFlags.hidden:
+        return 2;
+      case PdfAnnotationFlags.print:
+        return 4;
+      case PdfAnnotationFlags.noZoom:
+        return 8;
+      case PdfAnnotationFlags.noRotate:
+        return 16;
+      case PdfAnnotationFlags.noView:
+        return 32;
+      case PdfAnnotationFlags.readOnly:
+        return 64;
+      case PdfAnnotationFlags.locked:
+        return 128;
+      case PdfAnnotationFlags.toggleNoView:
+        return 256;
     }
   }
 }

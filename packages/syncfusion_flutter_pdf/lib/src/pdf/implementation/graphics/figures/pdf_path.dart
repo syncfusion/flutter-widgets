@@ -264,4 +264,18 @@ class PdfPathHelper {
   void drawInternal(PdfGraphics graphics, PdfRectangle bounds) {
     graphics.drawPath(path, pen: path.pen, brush: path.brush);
   }
+
+  /// internal method
+  void addLines(List<Offset> linePoints) {
+    Offset start = linePoints[0];
+    if (linePoints.length == 1) {
+      path._addPoint(linePoints[0], PathPointType.line);
+    } else {
+      for (int i = 1; i < linePoints.length; i++) {
+        final Offset last = linePoints[i];
+        path.addLine(start, last);
+        start = last;
+      }
+    }
+  }
 }

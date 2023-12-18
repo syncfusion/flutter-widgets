@@ -70,7 +70,7 @@ class AutoFilterCollection {
     if (filterRange.isSingleRange) {
       //checkRange(_topRow, _leftColumn);
       bool isEmptyCell = false;
-      if ((filterRange.worksheet)
+      if (filterRange.worksheet
           .getRangeByIndex(_topRow, _leftColumn)
           .cells
           .isEmpty) {
@@ -121,10 +121,7 @@ class AutoFilterCollection {
   ///Indicates wheather row is empty or not
   bool _isRowNotEmpty(int row, int left, int right, Range filterRange) {
     for (int column = left; column <= right; column++) {
-      if ((filterRange.worksheet)
-          .getRangeByIndex(row, column)
-          .cells
-          .isNotEmpty) {
+      if (filterRange.worksheet.getRangeByIndex(row, column).cells.isNotEmpty) {
         return true;
       }
     }
@@ -136,10 +133,7 @@ class AutoFilterCollection {
   ///False indicates row is empty
   bool _isColumnNotEmpty(int column, int top, int bottom, Range filterRange) {
     for (int row = top; row <= bottom; row++) {
-      if ((filterRange.worksheet)
-          .getRangeByIndex(row, column)
-          .cells
-          .isNotEmpty) {
+      if (filterRange.worksheet.getRangeByIndex(row, column).cells.isNotEmpty) {
         return true;
       }
     }
@@ -157,7 +151,7 @@ class AutoFilterCollection {
     _getBottomAdjacents(
         topRow, leftColumn, bottomRow, rightColumn, filterRange);
     _getRightAdjacents(topRow, leftColumn, bottomRow, rightColumn, filterRange);
-    filterRange = (filterRange.worksheet)
+    filterRange = filterRange.worksheet
         .getRangeByIndex(_topRow, _leftColumn, _bottomRow, _rightColumn);
     if (_hasAdjacents) {
       filterRange = _includeAdjacents(
@@ -166,12 +160,12 @@ class AutoFilterCollection {
 
     if (isEnd) {
       for (int i = filterRange.column; i <= filterRange.lastColumn; i++) {
-        if ((filterRange.worksheet)
+        if (filterRange.worksheet
             .getRangeByIndex(filterRange.row, i)
             .cells
             .isNotEmpty) {
           for (int j = filterRange.column; j <= filterRange.lastColumn; j++) {
-            if ((filterRange.worksheet)
+            if (filterRange.worksheet
                 .getRangeByIndex(filterRange.row + 1, j)
                 .cells
                 .isEmpty) {
@@ -198,7 +192,7 @@ class AutoFilterCollection {
         column <=
             (rightColumn != maxColumnCount ? rightColumn + 1 : rightColumn);
         column++) {
-      if ((filterRange.worksheet).getRangeByIndex(row, column).cells.isEmpty) {
+      if (filterRange.worksheet.getRangeByIndex(row, column).cells.isEmpty) {
         _hasAdjacents = true;
         _topRow = row;
         break;
@@ -220,7 +214,7 @@ class AutoFilterCollection {
     for (int row = topRow != 1 ? topRow - 1 : topRow;
         row <= (bottomRow != maxRowCount ? bottomRow + 1 : bottomRow);
         row++) {
-      if ((filterRange.worksheet).getRangeByIndex(row, column).cells.isEmpty) {
+      if (filterRange.worksheet.getRangeByIndex(row, column).cells.isEmpty) {
         _hasAdjacents = true;
         _leftColumn = column;
         break;
@@ -243,7 +237,7 @@ class AutoFilterCollection {
         column <=
             (rightColumn != maxColumnCount ? rightColumn + 1 : rightColumn);
         column++) {
-      if ((filterRange.worksheet).getRangeByIndex(row, column).cells.isEmpty) {
+      if (filterRange.worksheet.getRangeByIndex(row, column).cells.isEmpty) {
         _hasAdjacents = true;
         _bottomRow = row;
         break;
@@ -264,7 +258,7 @@ class AutoFilterCollection {
     for (int row = topRow != 1 ? topRow - 1 : topRow;
         row <= (bottomRow != maxRowCount ? bottomRow + 1 : bottomRow);
         row++) {
-      if ((filterRange.worksheet).getRangeByIndex(row, column).cells.isEmpty) {
+      if (filterRange.worksheet.getRangeByIndex(row, column).cells.isEmpty) {
         _hasAdjacents = true;
         _rightColumn = column;
         break;

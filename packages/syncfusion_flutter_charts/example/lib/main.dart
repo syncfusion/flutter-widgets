@@ -10,7 +10,7 @@ class _ChartApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: false),
       home: _MyHomePage(),
     );
   }
@@ -48,7 +48,7 @@ class _MyHomePageState extends State<_MyHomePage> {
               legend: Legend(isVisible: true),
               // Enable tooltip
               tooltipBehavior: TooltipBehavior(enable: true),
-              series: <ChartSeries<_SalesData, String>>[
+              series: <CartesianSeries<_SalesData, String>>[
                 LineSeries<_SalesData, String>(
                     dataSource: data,
                     xValueMapper: (_SalesData sales, _) => sales.year,

@@ -793,6 +793,27 @@ class PdfDictionaryProperties {
 
   /// internal field
   static const String value = 'value';
+
+  /// internal field
+  static const String quadPoints = 'QuadPoints';
+
+  /// internal field
+  static const String highlight = 'Highlight';
+
+  /// internal field
+  static const String underline = 'Underline';
+
+  /// internal field
+  static const String strikeOut = 'StrikeOut';
+
+  /// internal field
+  static const String squiggly = 'Squiggly';
+
+  /// internal field
+  static const String open = 'Open';
+
+  /// internal field
+  static const String irt = 'IRT';
 }
 
 /// Class of string PDF common operators.

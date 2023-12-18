@@ -2754,6 +2754,7 @@ class _SfCalendarState extends State<SfCalendar>
 
   @override
   void initState() {
+    _textScaleFactor = 1;
     _timeZoneLoaded = false;
     _showHeader = false;
     _calendarViewWidth = 0;
@@ -2814,7 +2815,7 @@ class _SfCalendarState extends State<SfCalendar>
 
   @override
   void didChangeDependencies() {
-    _textScaleFactor = MediaQuery.of(context).textScaleFactor;
+    _textScaleFactor = MediaQuery.textScalerOf(context).scale(_textScaleFactor);
     // default width value will be device width when the widget placed inside a
     // infinity width widget
     _minWidth = MediaQuery.of(context).size.width;
@@ -9992,7 +9993,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                         child: Text(
                       widget.localizations.weeknumberLabel,
                       textAlign: TextAlign.center,
-                      textScaleFactor: widget.textScaleFactor,
+                      textScaler: TextScaler.linear(widget.textScaleFactor),
                       style: weekNumberTextStyle,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -10002,7 +10003,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                       ' $weekNumberString',
                       textAlign: TextAlign.center,
                       style: weekNumberTextStyle,
-                      textScaleFactor: widget.textScaleFactor,
+                      textScaler: TextScaler.linear(widget.textScaleFactor),
                       maxLines: 1,
                     ))
                   ],
@@ -10782,7 +10783,7 @@ class _ScheduleLabelPainter extends CustomPainter {
     _textPainter.maxLines = 1;
     _textPainter.textDirection = TextDirection.ltr;
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
-    _textPainter.textScaleFactor = textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
   }
 
   @override
@@ -11284,17 +11285,13 @@ class _AgendaDateTimePainter extends CustomPainter {
         dayTextStyle = agendaDayThemeTextStyle.merge(
             scheduleViewSettings!.dayHeaderSettings.dayTextStyle ??
                 TextStyle(
-                    color: calendarTheme.agendaDayTextStyle != null
-                        ? calendarTheme.agendaDayTextStyle!.color
-                        : null,
+                    color: calendarTheme.agendaDayTextStyle?.color,
                     fontSize: 9,
                     fontWeight: FontWeight.w500));
         dateTextStyle = agendaDateThemeTextStyle.merge(
             scheduleViewSettings!.dayHeaderSettings.dateTextStyle ??
                 TextStyle(
-                    color: calendarTheme.agendaDateTextStyle != null
-                        ? calendarTheme.agendaDateTextStyle!.color
-                        : null,
+                    color: calendarTheme.agendaDateTextStyle?.color,
                     fontSize: 18,
                     fontWeight: FontWeight.normal));
       }
@@ -11331,7 +11328,7 @@ class _AgendaDateTimePainter extends CustomPainter {
     _textPainter.textDirection = TextDirection.ltr;
     _textPainter.textAlign = TextAlign.left;
     _textPainter.textWidthBasis = TextWidthBasis.parent;
-    _textPainter.textScaleFactor = textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
   }
 
   void _addDayLabelForMobile(

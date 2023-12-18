@@ -30,17 +30,17 @@ class SparkChartTrackballRenderer extends StatefulWidget {
   /// Specifies the spark chart data points.
   final List<SparkChartPoint>? dataPoints;
 
-  /// Specifie the spark chart widget.
+  /// Specifies the spark chart widget.
   final Widget? sparkChart;
 
   @override
   State<StatefulWidget> createState() {
-    return _SparckChartTrackballRendererState();
+    return _SparkChartTrackballRendererState();
   }
 }
 
 /// Represents the state class of spark chart trackball renderer.
-class _SparckChartTrackballRendererState
+class _SparkChartTrackballRendererState
     extends State<SparkChartTrackballRenderer> {
   /// Holds the trackball repaint notifier.
   ValueNotifier<int>? _trackballRepaintNotifier;
@@ -64,10 +64,7 @@ class _SparckChartTrackballRendererState
   Offset? _globalPosition;
 
   /// Specifies the theme of the chart.
-  SfChartThemeData? _chartThemeData;
-
-  /// Specifies the theme data of the chart.
-  ThemeData? _themeData;
+  SfChartThemeData? _themeData;
 
   /// Specifies the current data point.
   SparkChartPoint? _currentDataPoint;
@@ -96,8 +93,7 @@ class _SparckChartTrackballRendererState
 
   @override
   void didChangeDependencies() {
-    _chartThemeData = SfChartTheme.of(context);
-    _themeData = Theme.of(context);
+    _themeData = SfChartTheme.of(context);
     super.didChangeDependencies();
   }
 
@@ -278,7 +274,7 @@ class TrackballPainter extends CustomPainter {
   final SparkChartTrackball? _trackball;
 
   /// Specifies the trackball renderer state.
-  final _SparckChartTrackballRendererState _rendererState;
+  final _SparkChartTrackballRendererState _rendererState;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -400,14 +396,11 @@ class TrackballPainter extends CustomPainter {
 
   /// Method to return the trackball label style.
   TextStyle _getTrackballLabelStyle() {
-    return _rendererState._themeData!.textTheme.bodySmall!
-        .copyWith(
-            color:
-                _rendererState._chartThemeData!.brightness == Brightness.light
-                    ? const Color.fromRGBO(229, 229, 229, 1)
-                    : const Color.fromRGBO(0, 0, 0, 1))
-        .merge(_rendererState._chartThemeData!.trackballTextStyle)
-        .merge(_trackball!.labelStyle);
+    return _trackball!.labelStyle.copyWith(
+        color: _trackball!.labelStyle.color ??
+            (_rendererState._themeData!.brightness == Brightness.light
+                ? const Color.fromRGBO(229, 229, 229, 1)
+                : const Color.fromRGBO(0, 0, 0, 1)));
   }
 
   /// Method to get the border radius.
@@ -440,7 +433,7 @@ class TrackballPainter extends CustomPainter {
       bool isTop,
       bool isBottom) {
     final Color backgroundColor =
-        _rendererState._chartThemeData!.brightness == Brightness.light
+        _rendererState._themeData!.brightness == Brightness.light
             ? const Color.fromRGBO(79, 79, 79, 1)
             : const Color.fromRGBO(255, 255, 255, 1);
     final Paint paint = Paint()
@@ -495,7 +488,7 @@ class TrackballPainter extends CustomPainter {
       Canvas canvas, Rect areaBounds, Offset screenPoint, Size size) {
     final Paint paint = Paint()
       ..color = _trackball!.color ??
-          (_rendererState._chartThemeData!.brightness == Brightness.light
+          (_rendererState._themeData!.brightness == Brightness.light
               ? const Color.fromRGBO(79, 79, 79, 1)
               : const Color.fromRGBO(255, 255, 255, 1))
       ..strokeWidth = _trackball!.width

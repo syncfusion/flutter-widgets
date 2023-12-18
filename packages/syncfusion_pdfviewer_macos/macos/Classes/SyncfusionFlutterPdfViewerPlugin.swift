@@ -74,7 +74,7 @@ public class SyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         var pagesWidth = Array<Double>()
         for index in stride(from: 1,to: pageCount.intValue + 1, by: 1){
             let page = document.page(at: Int(index))
-            var pageRect = page!.getBoxRect(.mediaBox)
+            var pageRect = page!.getBoxRect(.cropBox)
             if(page!.rotationAngle > 0)
             {
                 let angle = CGFloat(page!.rotationAngle) * CGFloat.pi/180
@@ -95,7 +95,7 @@ public class SyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         var pagesHeight = Array<Double>()
         for index in stride(from: 1,to: pageCount.intValue + 1, by: 1){
             let page = document.page(at: Int(index))
-            var pageRect = page!.getBoxRect(.mediaBox)
+            var pageRect = page!.getBoxRect(.cropBox)
             if(page!.rotationAngle > 0)
             {
                 let angle = CGFloat(page!.rotationAngle) * CGFloat.pi/180
@@ -126,11 +126,10 @@ public class SyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
     {
         let document = self.documentRepo[documentID]!!
         let page = document.page(at: Int(index))
-        var pageRect = page!.getBoxRect(.mediaBox)
+        var pageRect = page!.getBoxRect(.cropBox)
         let imageRect = CGRect(x: 0,y: 0,width: pageRect.size.width*CGFloat(scale),height: pageRect.size.height*CGFloat(scale))
         let nsImage = NSImage(size: imageRect.size, actions: { cgContext in
-            cgContext.beginPage(mediaBox: &pageRect)
-            let transform = page!.getDrawingTransform(.mediaBox, rect: pageRect, rotate: 0, preserveAspectRatio: true)
+            let transform = page!.getDrawingTransform(.cropBox, rect: pageRect, rotate: 0, preserveAspectRatio: true)
             cgContext.translateBy(x: 0.0, y: imageRect.size.height)
             cgContext.scaleBy(x: CGFloat(scale), y: -CGFloat(scale))
             cgContext.concatenate(transform)

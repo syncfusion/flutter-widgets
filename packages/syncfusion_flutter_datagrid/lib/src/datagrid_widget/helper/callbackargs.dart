@@ -324,3 +324,53 @@ class DataGridColumnDragDetails {
   /// The global position at which the pointer contacted the screen.
   final Offset offset;
 }
+
+/// The collection of [GroupColumnDetails] to group the columns in the [SfDataGrid].
+class ColumnGroup {
+  ///
+  ColumnGroup({required this.name, required this.sortGroupRows});
+
+  /// The name of a column to be grouped.
+  late String name;
+
+  /// Decides whether to group the column with sort ascending.
+  late bool sortGroupRows;
+}
+
+/// Signature for [SfDataGrid.groupExpanding], [SfDataGrid.groupCollapsing], callbacks.
+@immutable
+class DataGridGroupChangingDetails {
+  ///
+  const DataGridGroupChangingDetails(
+      {required this.key, required this.groupLevel, required this.isExpanded});
+
+  /// Specifies the key in a caption summary row.
+  final String key;
+
+  /// Specifies the group level in a caption summary row.
+  ///
+  /// It will be zero if it is a top-level group, and it will be equal to the length of [DataGridSource.groupedColumns] if it is a bottom-level group.
+  final int groupLevel;
+
+  /// Decides whether the group is expanded.
+  final bool isExpanded;
+}
+
+/// Signature for [SfDataGrid.groupExpanded], [SfDataGrid.groupCollapsed] callbacks.
+@immutable
+class DataGridGroupChangedDetails {
+  ///
+  const DataGridGroupChangedDetails(
+      {required this.key, required this.groupLevel, required this.isExpanded});
+
+  /// Specifies the key in a caption summary row.
+  final String key;
+
+  ///  Specifies the group level in a caption summary row.
+  ///
+  /// It will be zero if it is a top-level group, and it will be equal to the length of [DataGridSource.groupedColumns] if it is a bottom-level group.
+  final int groupLevel;
+
+  /// Decides whether the group is expanded.
+  final bool isExpanded;
+}

@@ -48,6 +48,21 @@ enum PdfAnnotationTypes {
   /// WidgetAnnotation type
   widgetAnnotation,
 
+  /// Highlight type annotation.
+  highlight,
+
+  /// Underline type annotation.
+  underline,
+
+  /// StrikeOut type annotation.
+  strikeOut,
+
+  /// Squiggly type annotation.
+  squiggly,
+
+  /// PopupAnnotation type.
+  popupAnnotation,
+
   /// No annotation.
   noAnnotation
 }
@@ -233,4 +248,76 @@ enum HttpMethod {
 
   /// Data submitted using Http Post method.
   post
+}
+
+/// Specifies the Style of the Text Markup Annotation
+enum PdfTextMarkupAnnotationType {
+  /// Represents highlight text markup annotation type.
+  highlight,
+
+  /// Represents underline text markup annotation type.
+  underline,
+
+  /// Represents squiggly text markup annotation type.
+  squiggly,
+
+  /// Represents strikethrough text markup annotation type.
+  strikethrough,
+}
+
+/// Specifies the enumeration of popup annotation icons.
+enum PdfPopupIcon {
+  /// Indicates note popup annotation.
+  note,
+
+  /// Indicates comment popup annotation.
+  comment,
+
+  /// Indicates help popup annotation.
+  help,
+
+  /// Indicates insert popup annotation.
+  insert,
+
+  /// Indicates key popup annotation.
+  key,
+
+  /// Indicates new paragraph popup annotation.
+  newParagraph,
+
+  /// Indicates paragraph popup annotation.
+  paragraph
+}
+
+/// Specifies the enumeration of the annotation flags.
+enum PdfAnnotationFlags {
+  /// Default value.
+  defaultFlag,
+
+  /// Represents invisible annotation flag's key.
+  invisible,
+
+  /// Represents hidden annotation flag's key.
+  hidden,
+
+  /// Represents print annotation flag's key.
+  print,
+
+  /// Represents annotation flag's key with no zooming.
+  noZoom,
+
+  /// Represents annotation flag's key with no rotation.
+  noRotate,
+
+  /// Represents annotation flag's key with no view.
+  noView,
+
+  /// Represents read only annotation flag's key.
+  readOnly,
+
+  /// Represents locked annotation flag's key.
+  locked,
+
+  /// Annotation flag's key with no toggle view.
+  toggleNoView
 }

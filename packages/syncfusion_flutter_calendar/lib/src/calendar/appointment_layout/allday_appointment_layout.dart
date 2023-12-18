@@ -976,7 +976,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    _textPainter.textScaleFactor = _textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
     double leftPosition = 0, rightPosition = size.width;
     if (CalendarViewHelper.isDayView(
         view,
@@ -1196,7 +1196,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
         AppointmentHelper.getAppointmentTextStyle(
             calendar.appointmentTextStyle, view, themeData);
     final double iconTextSize = _getTextSize(
-        rect, appointmentTextStyle.fontSize! * _textPainter.textScaleFactor);
+        rect, _textPainter.textScaler.scale(appointmentTextStyle.fontSize!));
     const double iconPadding = 2;
     //// Padding 4 is left and right 2 padding.
     final double iconSize = iconTextSize + (2 * iconPadding);
@@ -1348,7 +1348,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
               : kAllDayAppointmentHeight + 5,
           fontFamily: 'MaterialIcons',
         ));
-    _expanderTextPainter.textScaleFactor = textScaleFactor;
+    _expanderTextPainter.textScaler = TextScaler.linear(textScaleFactor);
     _expanderTextPainter.text = icon;
     _expanderTextPainter.layout(maxWidth: timeLabelWidth);
     _expanderTextPainter.paint(

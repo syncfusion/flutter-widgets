@@ -7,6 +7,7 @@ import 'package:syncfusion_flutter_core/localizations.dart';
 import '../../grid_common/row_column_index.dart';
 import '../../grid_common/scroll_axis.dart';
 import '../../grid_common/visible_line_info.dart';
+import '../grouping/grouping.dart';
 import '../runtime/column.dart';
 import '../sfdatagrid.dart';
 import 'datagrid_configuration.dart';
@@ -36,6 +37,11 @@ int getHeaderIndex(DataGridConfiguration dataGridConfiguration) {
 /// header etc
 int resolveToGridVisibleColumnIndex(
     DataGridConfiguration dataGridConfiguration, int columnIndex) {
+  if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+    final int length = dataGridConfiguration.source.groupedColumns.length;
+    columnIndex -= length;
+  }
+
   if (columnIndex >= dataGridConfiguration.container.columnCount) {
     return -1;
   }
@@ -47,13 +53,17 @@ int resolveToGridVisibleColumnIndex(
 /// count when indent cell, row header, [SfDataGrid.showCheckboxColumn] are enabled.
 int resolveToDataGridRowAdapterCellIndex(
     DataGridConfiguration dataGridConfiguration, int columnIndex) {
-  if (columnIndex >= dataGridConfiguration.container.columnCount) {
+  final int totalColumnCount = dataGridConfiguration.container.columnCount +
+      dataGridConfiguration.source.groupedColumns.length;
+
+  if (columnIndex >= totalColumnCount) {
     return -1;
   }
 
   if (columnIndex == 0) {
     return columnIndex;
   } else {
+    columnIndex -= dataGridConfiguration.source.groupedColumns.length;
     columnIndex -= dataGridConfiguration.showCheckboxColumn ? 1 : 0;
     return columnIndex;
   }
@@ -71,6 +81,52 @@ int resolveToRowIndex(
     return rowIndex;
   } else {
     return -1;
+  }
+}
+
+/// Help to resolve the record index to display element position row index.
+int resolveStartRecordIndex(
+    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  if (rowIndex < 0) {
+    return -1;
+  }
+  final int headerLineCount =
+      resolveStartIndexBasedOnPosition(dataGridConfiguration);
+  rowIndex -= headerLineCount;
+  final int totalCount = dataGridConfiguration.source.groupedColumns.isNotEmpty
+      ? dataGridConfiguration.group!.displayElements!.grouped.length
+      : dataGridConfiguration.container.rowCount;
+  if (rowIndex >= 0 && rowIndex < totalCount) {
+    return rowIndex;
+  } else {
+    return -1;
+  }
+}
+
+/// Help to resolve the group from the display elements.
+dynamic getGroupElement(
+    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  if (rowIndex < 0) {
+    return -1;
+  }
+  if (rowIndex >= 0) {
+    return dataGridConfiguration.group!.displayElements!.grouped[rowIndex];
+  } else {
+    return -1;
+  }
+}
+
+/// Help to resolve the next grouped row from the display elements.
+dynamic getNextGroupInfo(
+    dynamic rowData, DataGridConfiguration dataGridConfiguration) {
+  final List<dynamic> grouped =
+      dataGridConfiguration.group!.displayElements!.grouped;
+  final int index = grouped.indexOf(rowData) + 1;
+
+  if (index >= 0 && index < grouped.length) {
+    return grouped[index];
+  } else {
+    return null;
   }
 }
 
@@ -92,8 +148,10 @@ int resolveToRecordIndex(
   }
 
   rowIndex = rowIndex - resolveStartIndexBasedOnPosition(dataGridConfiguration);
-  if (rowIndex >= 0 &&
-      rowIndex <= effectiveRows(dataGridConfiguration.source).length - 1) {
+  final int endIndex = dataGridConfiguration.source.groupedColumns.isNotEmpty
+      ? dataGridConfiguration.group!.displayElements!.grouped.length
+      : effectiveRows(dataGridConfiguration.source).length;
+  if (rowIndex >= 0 && (rowIndex < endIndex)) {
     return rowIndex;
   } else {
     return -1;
@@ -137,8 +195,12 @@ int resolveToStartColumnIndex(DataGridConfiguration dataGridConfiguration) => 0;
 /// order. Its ignore the indent column, row header and provide the exact
 /// column index
 int resolveToScrollColumnIndex(
-        DataGridConfiguration dataGridConfiguration, int gridColumnIndex) =>
-    gridColumnIndex;
+    DataGridConfiguration dataGridConfiguration, int gridColumnIndex) {
+  final int indentColumnCount =
+      dataGridConfiguration.source.groupedColumns.length;
+
+  return gridColumnIndex + indentColumnCount;
+}
 
 /// Get the last index of frozen column in left side view, it will
 /// consider the row header,indent column and frozen column
@@ -199,6 +261,25 @@ bool isFooterWidgetRow(
   final int footerIndex =
       dataGridConfiguration.container.rowCount - bottomSummariesCount - 1;
   return dataGridConfiguration.footer != null && rowIndex == footerIndex;
+}
+
+/// Checks whether the row is a caption summary row or not.
+bool isCaptionSummaryRow(DataGridConfiguration dataGridConfiguration,
+    int rowIndex, bool canResolveIndex) {
+  if (canResolveIndex) {
+    if (rowIndex == getHeaderIndex(dataGridConfiguration)) {
+      return false;
+    }
+    rowIndex = resolveToRecordIndex(dataGridConfiguration, rowIndex);
+  }
+
+  if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+    final dynamic group =
+        dataGridConfiguration.group?.displayElements?.grouped[rowIndex];
+    return group != null && group is Group;
+  }
+
+  return false;
 }
 
 /// Returns the row index of a footer widget row.
@@ -278,9 +359,18 @@ int getSummaryTitleColumnSpan(DataGridConfiguration dataGridConfiguration,
 
 /// Returns the span count for the table summary column.
 int getSummaryColumnSpan(DataGridConfiguration dataGridConfiguration, int index,
-    RowType rowType, GridTableSummaryRow? tableSummaryRow) {
+    RowType rowType, GridTableSummaryRow? tableSummaryRow,
+    [int rowLevel = 0]) {
   int span = 0;
-  final int columnCount = dataGridConfiguration.container.columnCount;
+  int columnCount = dataGridConfiguration.container.columnCount;
+  if (rowType == RowType.captionSummaryCoveredRow) {
+    columnCount -= rowLevel;
+  } else if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+      (rowType == RowType.tableSummaryCoveredRow ||
+          rowType == RowType.tableSummaryRow)) {
+    final int length = dataGridConfiguration.source.groupedColumns.length;
+    columnCount -= length;
+  }
   index = resolveToScrollColumnIndex(dataGridConfiguration, index);
   if (rowType == RowType.tableSummaryRow) {
     if (tableSummaryRow != null) {

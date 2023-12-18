@@ -1,3 +1,10 @@
+## [23.1.43] - 10/31/2023
+
+## Radial Gauge
+
+**Bugs**
+* #FB47938 - Now, the disposed exception is no longer thrown when the radial gauge is displayed in a button click along with the marker pointer or needle pointer.
+
 ## [21.1.39] - 04/11/2023
 
 ## Radial Gauge

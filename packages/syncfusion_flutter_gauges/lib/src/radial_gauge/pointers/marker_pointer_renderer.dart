@@ -95,7 +95,7 @@ class RenderMarkerPointer extends RenderBox {
   double? oldValue;
 
   /// Pointer rect.
-  late Rect pointerRect;
+  Rect? pointerRect;
 
   /// Specifies the value whether the pointer is dragged
   bool? isDragStarted;
@@ -553,8 +553,8 @@ class RenderMarkerPointer extends RenderBox {
 
   @override
   bool hitTestSelf(Offset position) {
-    if (enableDragging) {
-      return pointerRect.contains(position);
+    if (enableDragging && pointerRect != null) {
+      return pointerRect!.contains(position);
     } else {
       return false;
     }

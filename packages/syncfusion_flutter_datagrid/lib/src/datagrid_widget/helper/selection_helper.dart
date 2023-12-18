@@ -4,11 +4,13 @@ import 'package:flutter/material.dart' hide DataCell, DataRow;
 import '../../grid_common/row_column_index.dart';
 import '../../grid_common/scroll_axis.dart';
 import '../../grid_common/visible_line_info.dart';
+import '../grouping/grouping.dart';
 import '../runtime/column.dart';
 import '../selection/selection_manager.dart';
 import '../sfdatagrid.dart';
 import 'datagrid_configuration.dart';
 import 'datagrid_helper.dart' as grid_helper;
+import 'datagrid_helper.dart';
 import 'enums.dart';
 
 /// Get the row index in data grid based provided DataGridRow
@@ -20,7 +22,9 @@ int resolveToRowIndex(
     return -1;
   }
 
-  int recordIndex = effectiveRows(dataGridConfiguration.source).indexOf(rec);
+  int recordIndex = dataGridConfiguration.source.groupedColumns.isNotEmpty
+      ? dataGridConfiguration.group!.displayElements!.grouped.indexOf(rec)
+      : effectiveRows(dataGridConfiguration.source).indexOf(rec);
 
   recordIndex +=
       grid_helper.resolveStartIndexBasedOnPosition(dataGridConfiguration);
@@ -31,6 +35,11 @@ int resolveToRowIndex(
 /// Helps to get the DataGridRow based on provided row index
 DataGridRow? getRecord(DataGridConfiguration dataGridConfiguration, int index) {
   // Restricts the index if it doesn't exist in the `DataGridSource.rows` range.
+  if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+    final dynamic record = getGroupElement(dataGridConfiguration, index);
+    return record is Group ? null : record;
+  }
+
   if (effectiveRows(dataGridConfiguration.source).isEmpty ||
       index < 0 ||
       index >= effectiveRows(dataGridConfiguration.source).length) {
@@ -160,7 +169,26 @@ int getFirstCellIndex(DataGridConfiguration dataGridConfiguration) {
   if (gridColumn == null) {
     return -1;
   }
-
+  if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+    if (dataGridConfiguration.selectionMode == SelectionMode.multiple) {
+      final int rowIndex = resolveStartRecordIndex(
+          dataGridConfiguration, dataGridConfiguration.currentCell.rowIndex);
+      final dynamic group = getGroupElement(dataGridConfiguration, rowIndex);
+      final dynamic nextGroup = getNextGroupInfo(group, dataGridConfiguration);
+      if ((group is Group && nextGroup is Group) || rowIndex < 0) {
+        return 0;
+      } else if (group is Group &&
+              group.level ==
+                  dataGridConfiguration.source.groupedColumns.length ||
+          (group is DataGridRow && nextGroup is DataGridRow)) {
+        return dataGridConfiguration.source.groupedColumns.length;
+      } else {
+        return dataGridConfiguration.source.groupedColumns.length;
+      }
+    } else {
+      return dataGridConfiguration.source.groupedColumns.length;
+    }
+  }
   final int firstIndex = dataGridConfiguration.columns.indexOf(gridColumn);
   if (firstIndex < 0) {
     return firstIndex;
@@ -174,7 +202,11 @@ int getLastCellIndex(DataGridConfiguration dataGridConfiguration) {
   final GridColumn? lastColumn = dataGridConfiguration.columns.lastWhereOrNull(
       (GridColumn col) => col.visible && col.actualWidth > 0.0);
   if (lastColumn != null) {
-    return dataGridConfiguration.columns.indexOf(lastColumn);
+    int lastCellIndex = dataGridConfiguration.columns.indexOf(lastColumn);
+    if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+      lastCellIndex += dataGridConfiguration.source.groupedColumns.length;
+    }
+    return lastCellIndex;
   }
   return -1;
 }
@@ -278,6 +310,28 @@ int getNextColumnIndex(
 int getPreviousRowIndex(
     DataGridConfiguration dataGridConfiguration, int currentRowIndex) {
   final int lastRowIndex = getLastNavigatingRowIndex(dataGridConfiguration);
+  if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+    if (dataGridConfiguration.selectionMode != SelectionMode.multiple) {
+      final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
+      final List<int> dataGridRowIndexes = dataGridConfiguration
+          .group!.displayElements!.grouped
+          .whereType<DataGridRow>()
+          .map((DataGridRow row) => dataGridConfiguration
+              .group!.displayElements!.grouped
+              .indexOf(row))
+          .toList();
+      if (currentCell.rowIndex ==
+          dataGridConfiguration.source.groupedColumns.length + 1) {
+        return currentCell.rowIndex;
+      } else {
+        final int indexInDataGridRowIndexes =
+            dataGridRowIndexes.indexOf(currentCell.rowIndex - 1);
+        return dataGridRowIndexes[indexInDataGridRowIndexes - 1] +
+            grid_helper.resolveStartIndexBasedOnPosition(dataGridConfiguration);
+      }
+    }
+  }
+
   if (currentRowIndex > lastRowIndex) {
     return lastRowIndex;
   }
@@ -297,10 +351,49 @@ int getPreviousRowIndex(
   return previousIndex;
 }
 
+/// Help to get the column index for down key.
+int getDownKeyColumnIndex(DataGridConfiguration dataGridConfiguration,
+    CurrentCellManager currentCell) {
+  return currentCell.columnIndex;
+}
+
+/// Help to get the column index for down key.
+int getUpKeyColumnIndex(DataGridConfiguration dataGridConfiguration,
+    CurrentCellManager currentCell) {
+  return currentCell.columnIndex;
+}
+
 /// Help to get the next row index from current cell index.
 int getNextRowIndex(
     DataGridConfiguration dataGridConfiguration, int currentRowIndex) {
   final int lastRowIndex = getLastNavigatingRowIndex(dataGridConfiguration);
+  if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+    final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
+    if (dataGridConfiguration.selectionMode != SelectionMode.multiple) {
+      final List<int> dataGridRowIndexes = dataGridConfiguration
+          .group!.displayElements!.grouped
+          .whereType<DataGridRow>()
+          .map((DataGridRow row) => dataGridConfiguration
+              .group!.displayElements!.grouped
+              .indexOf(row))
+          .toList();
+
+      if (currentCell.rowIndex >= lastRowIndex) {
+        return lastRowIndex;
+      } else if (currentCell.rowIndex == -1) {
+        return dataGridRowIndexes.first +
+            grid_helper.resolveStartIndexBasedOnPosition(dataGridConfiguration);
+      } else {
+        final int indexInDataGridRowIndexes = dataGridRowIndexes.indexOf(
+            currentCell.rowIndex -
+                grid_helper
+                    .resolveStartIndexBasedOnPosition(dataGridConfiguration));
+        return dataGridRowIndexes[indexInDataGridRowIndexes + 1] +
+            grid_helper.resolveStartIndexBasedOnPosition(dataGridConfiguration);
+      }
+    }
+  }
+
   if (currentRowIndex >= lastRowIndex) {
     return lastRowIndex;
   }

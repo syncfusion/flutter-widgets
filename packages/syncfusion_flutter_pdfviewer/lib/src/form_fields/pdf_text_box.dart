@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 import '../../pdfviewer.dart';
@@ -99,6 +100,10 @@ class PdfTextFormFieldHelper extends PdfFormFieldHelper {
   /// Updates the text form field.
   void invokeValueChanged(String newValue) {
     if (textFormField._text != newValue) {
+      newValue =
+          pdfTextField.maxLength > 0 && newValue.length > pdfTextField.maxLength
+              ? newValue.substring(0, pdfTextField.maxLength)
+              : newValue;
       final String oldValue = textFormField._text;
       setTextBoxValue(newValue);
       if (onValueChanged != null) {
@@ -159,7 +164,16 @@ class PdfTextFormFieldHelper extends PdfFormFieldHelper {
           fontSize: pdfTextField.font.size / heightPercentage,
           verticalPadding: verticalPadding / heightPercentage,
           isPassword: pdfTextField.isPassword,
+          fillColor: pdfTextField.backColor.isEmpty
+              ? const Color.fromARGB(255, 221, 228, 255)
+              : Color.fromRGBO(
+                  pdfTextField.backColor.r,
+                  pdfTextField.backColor.g,
+                  pdfTextField.backColor.b,
+                  1,
+                ),
           multiline: pdfTextField.multiline,
+          maxLength: pdfTextField.maxLength,
           onValueChanged: invokeValueChanged,
           onFocusChange: invokeFocusChange,
         ),
@@ -185,8 +199,10 @@ class PdfTextBox extends StatefulWidget {
       required this.font,
       required this.fontSize,
       this.isPassword = false,
+      required this.fillColor,
       this.multiline = false,
       required this.verticalPadding,
+      this.maxLength = 0,
       this.onValueChanged,
       this.onFocusChange,
       super.key});
@@ -202,6 +218,9 @@ class PdfTextBox extends StatefulWidget {
 
   /// Text form field is password.
   final bool isPassword;
+
+  /// Text form field fill color.
+  final Color fillColor;
 
   /// Text form field is multiline.
   final bool multiline;
@@ -220,6 +239,9 @@ class PdfTextBox extends StatefulWidget {
 
   /// Vertical padding.
   final double verticalPadding;
+
+  /// Text form field maximum length.
+  final int maxLength;
 
   @override
   State<PdfTextBox> createState() => _PdfTextBoxState();
@@ -241,6 +263,11 @@ class _PdfTextBoxState extends State<PdfTextBox> {
       cursorColor: Colors.black,
       obscureText: widget.isPassword,
       onChanged: widget.onValueChanged,
+      inputFormatters: widget.maxLength > 0
+          ? <TextInputFormatter>[
+              LengthLimitingTextInputFormatter(widget.maxLength),
+            ]
+          : null,
       keyboardType:
           widget.multiline ? TextInputType.multiline : TextInputType.text,
       scrollPhysics: widget.multiline ? const ClampingScrollPhysics() : null,
@@ -254,7 +281,7 @@ class _PdfTextBoxState extends State<PdfTextBox> {
       ),
       decoration: InputDecoration(
         filled: true,
-        fillColor: const Color.fromARGB(255, 221, 228, 255),
+        fillColor: widget.fillColor,
         contentPadding: widget.multiline
             ? const EdgeInsets.all(3)
             : EdgeInsets.symmetric(

@@ -9,9 +9,11 @@ import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 
 import '../../grid_common/row_column_index.dart';
+import '../grouping/grouping.dart';
 import '../helper/callbackargs.dart';
 import '../helper/datagrid_configuration.dart';
 import '../helper/datagrid_helper.dart' as grid_helper;
+import '../helper/datagrid_helper.dart';
 import '../helper/enums.dart';
 import '../runtime/column.dart';
 import '../runtime/generator.dart';
@@ -388,8 +390,10 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
           configuration.columnDragAndDropController.isWindowsPlatform!;
       return Draggable<Widget>(
         onDragStarted: () {
-          configuration.columnDragAndDropController
-              .onPointerDown(widget.dataCell);
+          if (widget.dataCell.cellType != CellType.indentCell) {
+            configuration.columnDragAndDropController
+                .onPointerDown(widget.dataCell);
+          }
         },
         ignoringFeedbackPointer: isWindowsPlatform,
         feedback: MouseRegion(
@@ -907,6 +911,10 @@ class _FilterIcon extends StatelessWidget {
         if (dataGridConfiguration.isDesktop) {
           notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
               propertyName: 'Filtering');
+          if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+            notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
+                propertyName: 'grouping');
+          }
           dataGridConfiguration.dataGridFilterHelper!.isFilterPopupMenuShowing =
               false;
         }
@@ -2308,6 +2316,17 @@ BorderDirectional _getCellBorder(
       dataCell.cellType == CellType.tableSummaryCell;
   final bool isRowCell = dataCell.cellType == CellType.gridCell;
   final bool isCheckboxCell = dataCell.cellType == CellType.checkboxCell;
+  final bool isIndentCell = dataCell.cellType == CellType.indentCell;
+  final bool isCaptionSummaryCell =
+      dataCell.cellType == CellType.captionSummaryCell;
+  final bool isStackedHeaderRow =
+      dataCell.dataRow!.rowType == RowType.stackedHeaderRow;
+  final bool isHeaderRow = dataCell.dataRow!.rowType == RowType.headerRow;
+  final bool isDataRow = dataCell.dataRow!.rowType == RowType.dataRow;
+  final bool isCaptionSummaryCoverdRow =
+      dataCell.dataRow!.rowType == RowType.captionSummaryCoveredRow;
+  final bool isTableSummaryRow =
+      dataCell.dataRow!.rowType == RowType.tableSummaryRow;
 
   // To skip bottom border for the top data row of the starting row of bottom table
   // summary rows and draw top border for the bottom summary start row instead.
@@ -2322,19 +2341,29 @@ BorderDirectional _getCellBorder(
       dataCell.rowIndex ==
           grid_helper.getStartBottomSummaryRowIndex(dataGridConfiguration);
 
+  final int groupedColumnsLength =
+      dataGridConfiguration.source.groupedColumns.length;
+
+  final bool isGrouping =
+      dataGridConfiguration.source.groupedColumns.isNotEmpty;
+
   final bool canDrawHeaderHorizontalBorder =
       (dataGridConfiguration.headerGridLinesVisibility ==
                   GridLinesVisibility.horizontal ||
               dataGridConfiguration.headerGridLinesVisibility ==
                   GridLinesVisibility.both) &&
-          (isHeaderCell || isStackedHeaderCell);
+          (isHeaderCell ||
+              isStackedHeaderCell ||
+              (isIndentCell && (isHeaderRow || isStackedHeaderRow)));
 
   final bool canDrawHeaderVerticalBorder =
       (dataGridConfiguration.headerGridLinesVisibility ==
                   GridLinesVisibility.vertical ||
               dataGridConfiguration.headerGridLinesVisibility ==
                   GridLinesVisibility.both) &&
-          (isHeaderCell || isStackedHeaderCell);
+          (isHeaderCell ||
+              isStackedHeaderCell ||
+              (isIndentCell && (isHeaderRow || isStackedHeaderRow)));
 
   final ColumnDragAndDropController dragAndDropController =
       dataGridConfiguration.columnDragAndDropController;
@@ -2399,26 +2428,60 @@ BorderDirectional _getCellBorder(
   final GridColumn firstVisibleColumn = dataGridConfiguration.columns
       .firstWhere((GridColumn column) => column.visible && column.width != 0.0);
 
-  final GridColumn column = dataCell.gridColumn!;
+  final GridColumn? column = dataCell.gridColumn;
 
   // To draw the top outer border for the DataGrid.
   final bool canDrawGridTopOuterBorder = rowIndex == 0 &&
       dataGridConfiguration.headerGridLinesVisibility !=
           GridLinesVisibility.none;
 
+  // To draw the left outer border for the indent cell of Headers.
+  final bool canDrawHeaderIndentLeftOuterBorder = isGrouping &&
+      (isHeaderRow || isStackedHeaderRow) &&
+      columnIndex == 0 &&
+      dataGridConfiguration.headerGridLinesVisibility !=
+          GridLinesVisibility.none;
+
+  // To draw the left outer border for the indent cell of DataGrid rows.
+  final bool canDrawIndentLeftOuterBorder = isGrouping &&
+      (isDataRow || isCaptionSummaryCoverdRow) &&
+      columnIndex == 0 &&
+      dataGridConfiguration.gridLinesVisibility != GridLinesVisibility.none;
+
+  // To draw the left outer border for the DataGrid rows with indentColumnWidth as zero.
+  final bool canDrawGroupingRowsLeftOuterBoder = isGrouping &&
+      dataGridConfiguration.dataGridThemeHelper!.indentColumnWidth == 0 &&
+      ((isDataRow && column!.columnName == firstVisibleColumn.columnName) ||
+          isCaptionSummaryCoverdRow) &&
+      dataGridConfiguration.headerGridLinesVisibility !=
+          GridLinesVisibility.none;
+
+  // To draw the left outer border for the Header with indentColumnWidth as zero.
+  final bool canDrawGroupingHeaderLeftOuterBoder = isGrouping &&
+      dataGridConfiguration.dataGridThemeHelper!.indentColumnWidth == 0 &&
+      (isHeaderRow || isStackedHeaderRow) &&
+      column!.columnName == firstVisibleColumn.columnName &&
+      dataGridConfiguration.gridLinesVisibility != GridLinesVisibility.none;
+
   // To draw the left outer border for the DataGrid Headers.
   final bool canDrawGridHeaderLeftOuterBorder =
-      (isHeaderCell || isStackedHeaderCell) &&
-          dataGridConfiguration.headerGridLinesVisibility !=
-              GridLinesVisibility.none &&
-          column.columnName == firstVisibleColumn.columnName;
+      ((isHeaderCell || isStackedHeaderCell) &&
+              dataGridConfiguration.headerGridLinesVisibility !=
+                  GridLinesVisibility.none &&
+              (column!.columnName == firstVisibleColumn.columnName &&
+                  !isGrouping)) ||
+          canDrawGroupingHeaderLeftOuterBoder ||
+          canDrawHeaderIndentLeftOuterBorder;
 
   // To draw the left outer border for the DataGrid Rows.
-  final bool canDrawGridRowsLeftOuterBorder = (isRowCell ||
-          isTableSummaryCell ||
-          isCheckboxCell) &&
-      dataGridConfiguration.gridLinesVisibility != GridLinesVisibility.none &&
-      column.columnName == firstVisibleColumn.columnName;
+  final bool canDrawGridLeftOuterBorder =
+      ((isRowCell || isTableSummaryCell || isCheckboxCell) &&
+              dataGridConfiguration.gridLinesVisibility !=
+                  GridLinesVisibility.none &&
+              (column!.columnName == firstVisibleColumn.columnName &&
+                  !isGrouping)) ||
+          canDrawGroupingRowsLeftOuterBoder ||
+          canDrawIndentLeftOuterBorder;
 
   // Frozen column and row checking
   final bool canDrawBottomFrozenBorder =
@@ -2453,6 +2516,22 @@ BorderDirectional _getCellBorder(
   final double frozenPaneLineWidth =
       dataGridConfiguration.dataGridThemeHelper!.frozenPaneLineWidth;
 
+  final bool canDrawIndentRightBorder = canDrawVerticalBorder &&
+      (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+              (columnIndex >= 0 &&
+                  columnIndex < groupedColumnsLength &&
+                  isIndentCell &&
+                  columnIndex < dataCell.dataRow!.rowLevel - 1) ||
+          (isDataRow && isIndentCell && columnIndex < groupedColumnsLength));
+  final Object? rowData = dataCell.dataRow!.rowData;
+
+  final bool canDrawTableSummaryRowIndentBorder =
+      (dataGridConfiguration.gridLinesVisibility ==
+                  GridLinesVisibility.horizontal ||
+              dataGridConfiguration.gridLinesVisibility ==
+                  GridLinesVisibility.both) &&
+          (isIndentCell && isTableSummaryRow);
+
   BorderSide getLeftBorder() {
     if ((columnIndex == 0 &&
             (canDrawVerticalBorder ||
@@ -2460,7 +2539,7 @@ BorderDirectional _getCellBorder(
                 canDrawLeftColumnDragAndDropIndicator)) ||
         canDrawLeftFrozenBorder ||
         canDrawGridHeaderLeftOuterBorder ||
-        canDrawGridRowsLeftOuterBorder) {
+        canDrawGridLeftOuterBorder) {
       if (canDrawLeftColumnDragAndDropIndicator &&
           !canSkipLeftColumnDragAndDropIndicator) {
         return BorderSide(
@@ -2477,8 +2556,7 @@ BorderDirectional _getCellBorder(
       } else if ((columnIndex > 0 &&
               ((canDrawVerticalBorder || canDrawHeaderVerticalBorder) &&
                   !canDrawLeftFrozenBorder)) ||
-          (canDrawGridRowsLeftOuterBorder ||
-              canDrawGridHeaderLeftOuterBorder)) {
+          (canDrawGridLeftOuterBorder || canDrawGridHeaderLeftOuterBorder)) {
         return BorderSide(width: borderWidth, color: borderColor);
       } else {
         return BorderSide.none;
@@ -2522,7 +2600,8 @@ BorderDirectional _getCellBorder(
     if (canDrawVerticalBorder ||
         canDrawHeaderVerticalBorder ||
         canDrawRightFrozenBorder ||
-        canDrawRightColumnDragAndDropIndicator) {
+        canDrawRightColumnDragAndDropIndicator ||
+        canDrawIndentRightBorder) {
       if (canDrawRightFrozenBorder &&
           !isStackedHeaderCell &&
           !isFrozenPaneElevationApplied) {
@@ -2536,6 +2615,13 @@ BorderDirectional _getCellBorder(
             color: dataGridConfiguration
                 .dataGridThemeHelper!.columnDragIndicatorColor);
       } else if ((canDrawVerticalBorder || canDrawHeaderVerticalBorder) &&
+          !canDrawRightFrozenBorder &&
+          !isCaptionSummaryCell &&
+          !isIndentCell) {
+        return BorderSide(width: borderWidth, color: borderColor);
+      } else if ((canDrawIndentRightBorder ||
+              canDrawHeaderVerticalBorder ||
+              isCaptionSummaryCell) &&
           !canDrawRightFrozenBorder) {
         return BorderSide(width: borderWidth, color: borderColor);
       } else {
@@ -2555,8 +2641,24 @@ BorderDirectional _getCellBorder(
           !isFrozenPaneElevationApplied) {
         return BorderSide(
             width: frozenPaneLineWidth, color: frozenPaneLineColor);
-      } else if (!canDrawBottomFrozenBorder && !canSkipBottomBorder) {
+      } else if (!canDrawBottomFrozenBorder &&
+          !canSkipBottomBorder &&
+          !isIndentCell) {
         return BorderSide(width: borderWidth, color: borderColor);
+      } else if (isGrouping) {
+        if (canDrawHeaderHorizontalBorder ||
+            canDrawTableSummaryRowIndentBorder) {
+          return BorderSide(width: borderWidth, color: borderColor);
+        }
+        final dynamic group = getNextGroupInfo(rowData, dataGridConfiguration);
+        if (group is Group &&
+            isIndentCell &&
+            columnIndex >= group.level - 1 &&
+            rowIndex >= dataGridConfiguration.headerLineCount) {
+          return BorderSide(width: borderWidth, color: borderColor);
+        } else {
+          return BorderSide.none;
+        }
       } else {
         return BorderSide.none;
       }
@@ -2628,6 +2730,11 @@ Widget _wrapInsideCellContainer(
     if (dataCell.columnSpan > 0) {
       width = dataCell.dataRow!.getColumnWidth(
           dataCell.columnIndex, dataCell.columnIndex + dataCell.columnSpan);
+      if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+          dataCell.dataRow!.rowType == RowType.tableSummaryCoveredRow) {
+        width += dataGridConfiguration.dataGridThemeHelper!.indentColumnWidth *
+            dataGridConfiguration.source.groupedColumns.length;
+      }
     } else {
       width = defaultWidth;
     }
@@ -2638,7 +2745,9 @@ Widget _wrapInsideCellContainer(
     final double width = getCellWidth(dataCell, constraint.maxWidth);
     final double height = getCellHeight(dataCell, constraint.maxHeight);
 
-    if (dataCell.isCurrentCell) {
+    if (dataCell.isCurrentCell &&
+        dataCell.cellType != CellType.indentCell &&
+        dataCell.dataRow!.dataGridRow != null) {
       return Stack(
         children: <Widget>[
           Container(
@@ -2669,6 +2778,34 @@ Widget _wrapInsideCellContainer(
       builder: (BuildContext context, BoxConstraints constraint) {
     return getChild(constraint);
   });
+}
+
+bool _invokeGroupChangingCallback(
+    DataGridConfiguration dataGridConfiguration, Group group) {
+  final DataGridGroupChangingDetails details = DataGridGroupChangingDetails(
+      key: group.key, groupLevel: group.level, isExpanded: group.isExpanded);
+  if (group.isExpanded) {
+    if (dataGridConfiguration.groupCollapsing != null) {
+      return dataGridConfiguration.groupCollapsing!(details);
+    }
+    return true;
+  } else {
+    if (dataGridConfiguration.groupExpanding != null) {
+      return dataGridConfiguration.groupExpanding!(details);
+    }
+    return true;
+  }
+}
+
+void _invokeGroupChangedCallback(
+    DataGridConfiguration dataGridConfiguration, Group group, bool isExpanded) {
+  final DataGridGroupChangedDetails details = DataGridGroupChangedDetails(
+      key: group.key, groupLevel: group.level, isExpanded: isExpanded);
+  if (dataGridConfiguration.groupCollapsed != null && !isExpanded) {
+    dataGridConfiguration.groupCollapsed!(details);
+  } else if (dataGridConfiguration.groupExpanded != null && isExpanded) {
+    dataGridConfiguration.groupExpanded!(details);
+  }
 }
 
 // Gesture Events
@@ -2707,6 +2844,38 @@ Future<void> _handleOnTapUp(
 
   dataGridConfiguration.dataGridFocusNode?.requestFocus();
   dataCell.onTouchUp();
+
+  // Expand or collpase the individual group by tap.
+  if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+      dataGridConfiguration.allowExpandCollapseGroup &&
+      dataCell.dataRow!.rowType == RowType.captionSummaryCoveredRow) {
+    final int rowIndex = resolveStartRecordIndex(
+        dataGridConfiguration, dataCell.dataRow!.rowIndex);
+    if (rowIndex >= 0) {
+      final Group group = getGroupElement(dataGridConfiguration, rowIndex);
+      if (group.isExpanded) {
+        if (_invokeGroupChangingCallback(dataGridConfiguration, group)) {
+          dataGridConfiguration.group!
+              .collapseGroups(group, dataGridConfiguration.group, rowIndex);
+          dataGridConfiguration.groupExpandCollapseRowIndex =
+              dataCell.dataRow!.rowIndex;
+          notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
+              propertyName: 'grouping');
+          _invokeGroupChangedCallback(dataGridConfiguration, group, false);
+        }
+      } else {
+        if (_invokeGroupChangingCallback(dataGridConfiguration, group)) {
+          dataGridConfiguration.group!
+              .expandGroups(group, dataGridConfiguration.group, rowIndex);
+          dataGridConfiguration.groupExpandCollapseRowIndex =
+              dataCell.dataRow!.rowIndex;
+          notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
+              propertyName: 'grouping');
+          _invokeGroupChangedCallback(dataGridConfiguration, group, true);
+        }
+      }
+    }
+  }
 
   // Init the editing based on the editing mode
   if (dataGridConfiguration.editingGestureType == EditingGestureType.tap) {

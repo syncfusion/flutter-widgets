@@ -823,7 +823,7 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
         textDirection: TextDirection.ltr,
         maxLines: 1,
         textAlign: isRTL ? TextAlign.right : TextAlign.left,
-        textScaleFactor: textScaleFactor,
+        textScaler: TextScaler.linear(textScaleFactor),
         textWidthBasis: TextWidthBasis.longestLine);
 
     _linePainter.style = PaintingStyle.fill;

@@ -52,7 +52,7 @@ class PdfComboBoxFormFieldHelper extends PdfFormFieldHelper {
 
     final String selectedValue = pdfComboBoxField.selectedIndex != -1
         ? pdfComboBoxField.items[pdfComboBoxField.selectedIndex].text
-        : pdfComboBoxField.items[0].text;
+        : '';
 
     comboBoxFormField = PdfComboBoxFormField._()
       .._items = items
@@ -105,6 +105,13 @@ class PdfComboBoxFormFieldHelper extends PdfFormFieldHelper {
           selectedItem: comboBoxFormField._selectedItem,
           readOnly: comboBoxFormField.readOnly,
           font: pdfComboBoxField.font?.name,
+          fillColor: pdfComboBoxField.backColor.isEmpty
+              ? const Color.fromARGB(255, 221, 228, 255)
+              : Color.fromRGBO(
+                  pdfComboBoxField.backColor.r,
+                  pdfComboBoxField.backColor.g,
+                  pdfComboBoxField.backColor.b,
+                  1),
           fontSize: (pdfComboBoxField.font?.size ?? 14.0) / heightPercentage,
           onValueChanged: invokeValueChanged,
         ),
@@ -122,6 +129,7 @@ class PdfComboBox extends StatefulWidget {
       required this.items,
       required this.selectedItem,
       this.readOnly = false,
+      required this.fillColor,
       this.font,
       this.fontSize,
       this.onValueChanged,
@@ -142,6 +150,9 @@ class PdfComboBox extends StatefulWidget {
   /// Combo box read only.
   final bool readOnly;
 
+  /// Combo box fill color.
+  final Color fillColor;
+
   /// Combo box font name.
   final String? font;
 
@@ -159,11 +170,9 @@ class _PdfComboBoxState extends State<PdfComboBox> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Color.fromARGB(255, 221, 228, 255),
-      ),
+      decoration: BoxDecoration(color: widget.fillColor),
       child: DropdownButton<String>(
-        value: widget.selectedItem,
+        value: widget.selectedItem.isNotEmpty ? widget.selectedItem : null,
         items: widget.items.map((String value) {
           return DropdownMenuItem<String>(
             value: value,

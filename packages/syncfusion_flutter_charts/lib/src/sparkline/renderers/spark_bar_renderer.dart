@@ -105,7 +105,7 @@ class SfSparkBarChartRenderObjectWidget extends SfSparkChartRenderObjectWidget {
       _RenderSparkBarChart renderObject) {
     renderObject
       ..isInversed = isInversed
-      ..axisCrossesAt = axisCrossesAt!
+      ..axisCrossesAt = axisCrossesAt
       ..axisLineColor = axisLineColor
       ..axisLineWidth = axisLineWidth
       ..axisLineDashArray = axisLineDashArray
@@ -368,7 +368,6 @@ class _RenderSparkBarChart extends RenderSparkChart {
         borderWidth != null &&
         borderWidth! > 0;
     Rect rect;
-    _labelStyle = themeData!.dataLabelTextStyle;
     _highPoint = coordinatePoints![0].dy;
     _lowPoint = coordinatePoints![0].dy;
     for (int i = 0; i < _segments!.length; i++) {
@@ -452,7 +451,7 @@ class _RenderSparkBarChart extends RenderSparkChart {
             color!,
             _highPoint,
             _lowPoint,
-            _segments!);
+            _segments);
       }
     }
   }

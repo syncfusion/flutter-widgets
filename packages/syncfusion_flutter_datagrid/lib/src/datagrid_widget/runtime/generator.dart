@@ -7,9 +7,11 @@ import '../../grid_common/enums.dart';
 import '../../grid_common/row_column_index.dart';
 import '../../grid_common/utility_helper.dart';
 import '../../grid_common/visible_line_info.dart';
+import '../grouping/grouping.dart';
 import '../helper/callbackargs.dart';
 import '../helper/datagrid_configuration.dart';
 import '../helper/datagrid_helper.dart' as grid_helper;
+import '../helper/datagrid_helper.dart';
 import '../helper/enums.dart';
 import '../selection/selection_manager.dart' as selection_manager;
 import '../selection/selection_manager.dart';
@@ -110,13 +112,9 @@ abstract class DataCellBase {
 class DataCell extends DataCellBase {
   @override
   Widget? _onInitializeColumnElement(bool isInEdit) {
-    if (cellType != CellType.indentCell) {
-      if (renderer != null) {
-        renderer!.setCellStyle(this);
-        return renderer!.onPrepareWidgets(this);
-      } else {
-        return null;
-      }
+    if (renderer != null) {
+      renderer!.setCellStyle(this);
+      return renderer!.onPrepareWidgets(this);
     } else {
       return null;
     }
@@ -177,6 +175,13 @@ abstract class DataRowBase {
 
   /// Holds the details of row configuration.
   DataGridRow? dataGridRow;
+
+  /// Holds the details of Group row configuration.
+  Object? rowData;
+
+  /// By default row will be in row level 1.
+  /// With Group the level will be based on group level.
+  int rowLevel = 0;
 
   /// Holds the configuration of collection [DataGridCell].
   DataGridRowAdapter? dataGridRowAdapter;
@@ -283,6 +288,7 @@ class DataRow extends DataRowBase {
   @override
   void _onGenerateVisibleColumns(VisibleLinesCollection visibleColumnLines) {
     visibleColumns.clear();
+    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails!();
 
     int startColumnIndex = 0;
     int endColumnIndex = -1;
@@ -329,9 +335,13 @@ class DataRow extends DataRowBase {
       }
 
       for (int index = startColumnIndex; index <= endColumnIndex; index++) {
-        DataCellBase? dc = _createColumn(index);
-        visibleColumns.add(dc);
-        dc = null;
+        final int length = dataGridConfiguration.source.groupedColumns.length;
+        if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+            index < length) {
+          visibleColumns.add(_createIndentColumns(index));
+        } else {
+          visibleColumns.add(_createColumn(index));
+        }
       }
     }
   }
@@ -340,6 +350,8 @@ class DataRow extends DataRowBase {
   void _ensureColumns(VisibleLinesCollection visibleColumnLines) {
     // Need to ignore footer view Row. because footer view row doesn't have
     // visible columns.
+
+    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails!();
     if (rowType == RowType.footerRow) {
       return;
     }
@@ -394,9 +406,41 @@ class DataRow extends DataRowBase {
 
       for (int index = startColumnIndex; index <= endColumnIndex; index++) {
         DataCellBase? dc = _indexer(index);
-        if (dc == null) {
-          DataCellBase? dataCell = _reUseCell(startColumnIndex, endColumnIndex);
+        if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+            index < dataGridConfiguration.source.groupedColumns.length) {
+          if (dc == null || dc.cellType != CellType.indentCell) {
+            dc = _indexer(index);
+          }
+          if (dc != null) {
+            if (dc.isVisible != true) {
+              dc.isVisible = true;
+            }
 
+            dc.isEnsured = true;
+            dc.columnIndex = index;
+          } else {
+            _updateColumn(dc, index);
+            dc ??= visibleColumns.firstWhereOrNull(
+                (DataCellBase col) => col.columnIndex == index);
+
+            if (dc != null) {
+              if (!dc.isVisible) {
+                dc.isVisible = true;
+              }
+            } else {
+              dc = _createColumn(index);
+              visibleColumns.add(dc);
+            }
+
+            dc.isEnsured = true;
+            dc = null;
+          }
+
+          continue;
+        }
+        if (dc == null) {
+          DataCellBase? dataCell;
+          dataCell = _reUseCell(startColumnIndex, endColumnIndex);
           dataCell ??= visibleColumns.firstWhereOrNull((DataCellBase col) =>
               col.columnIndex == -1 && col.cellType != CellType.indentCell);
 
@@ -428,6 +472,24 @@ class DataRow extends DataRowBase {
     }
   }
 
+  DataCellBase _createIndentColumns(int index) {
+    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails!();
+    final DataCellBase dr = DataCell();
+
+    if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+      dr
+        ..dataRow = this
+        ..columnIndex = index
+        ..rowIndex = rowIndex
+        ..key = ObjectKey(dr)
+        ..renderer = dataGridConfiguration.cellRenderers['IndentCell']
+        ..cellType = CellType.indentCell
+        ..columnElement = dr._onInitializeColumnElement(false);
+    }
+
+    return dr;
+  }
+
   DataCellBase _createColumn(int index) {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails!();
     final bool canIncrementHeight = rowType == RowType.headerRow &&
@@ -449,7 +511,8 @@ class DataRow extends DataRowBase {
     } else {
       if (dataGridConfiguration.showCheckboxColumn &&
           dc.gridColumn != null &&
-          dc.columnIndex == 0) {
+          dc.columnIndex ==
+              dataGridConfiguration.source.groupedColumns.length) {
         dc.renderer = dataGridConfiguration.cellRenderers['Checkbox'];
         dc.cellType = CellType.checkboxCell;
       } else {
@@ -472,7 +535,8 @@ class DataRow extends DataRowBase {
   DataCellBase? _indexer(int index) {
     for (final DataCellBase column in visibleColumns) {
       if (rowType == RowType.tableSummaryRow ||
-          rowType == RowType.tableSummaryCoveredRow) {
+          rowType == RowType.tableSummaryCoveredRow ||
+          rowType == RowType.captionSummaryCoveredRow) {
         if (index >= column.columnIndex &&
             index <= column.columnIndex + column.columnSpan) {
           return column;
@@ -530,8 +594,14 @@ class DataRow extends DataRowBase {
         dc.isVisible = true;
       }
     } else {
-      dc = _createColumn(index);
-      visibleColumns.add(dc);
+      final int length = dataGridConfiguration.source.groupedColumns.length;
+      if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+          index < length) {
+        visibleColumns.add(_createIndentColumns(index));
+      } else {
+        dc = _createColumn(index);
+        visibleColumns.add(dc);
+      }
     }
   }
 
@@ -544,7 +614,8 @@ class DataRow extends DataRowBase {
     } else {
       if (dataGridConfiguration.showCheckboxColumn &&
           column != null &&
-          dataCell.columnIndex == 0) {
+          dataCell.columnIndex ==
+              dataGridConfiguration.source.groupedColumns.length) {
         newRenderer = dataGridConfiguration.cellRenderers['Checkbox'];
         dataCell.cellType = CellType.checkboxCell;
       } else {
@@ -751,27 +822,55 @@ class RowGenerator {
       dr.footerView = _buildFooterWidget(dataGridConfiguration, rowIndex);
       return dr;
     } else {
-      dr = DataRow()
-        ..rowIndex = rowIndex
-        ..rowRegion = rowRegion
-        ..rowType = RowType.dataRow
-        ..dataGridStateDetails = dataGridStateDetails;
+      dynamic displayElement;
+      if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+          rowIndex >= 0) {
+        final int index =
+            resolveStartRecordIndex(dataGridConfiguration, rowIndex);
+        displayElement =
+            (index >= 0) ? getGroupElement(dataGridConfiguration, index) : null;
+      } else {
+        displayElement = null;
+      }
+      if (displayElement == null || displayElement is DataGridRow) {
+        dr = DataRow()
+          ..rowIndex = rowIndex
+          ..rowRegion = rowRegion
+          ..rowType = RowType.dataRow
+          ..rowData = displayElement
+          ..dataGridStateDetails = dataGridStateDetails;
 
-      dr
-        ..dataGridRow =
-            grid_helper.getDataGridRow(dataGridConfiguration, rowIndex)
-        ..dataGridRowAdapter = grid_helper.getDataGridRowAdapter(
-            dataGridConfiguration, dr.dataGridRow!);
-      dr.key = dr.dataGridRowAdapter?.key;
-      assert(grid_helper.debugCheckTheLength(
-          dataGridConfiguration,
-          dataGridConfiguration.columns.length,
-          dr.dataGridRowAdapter!.cells.length,
-          'SfDataGrid.columns.length == DataGridRowAdapter.cells.length'));
-      _checkForCurrentRow(dr);
-      _checkForSelection(dr);
-      dr._initializeDataRow(visibleColumns);
-      return dr;
+        dr
+          ..dataGridRow = displayElement ??
+              grid_helper.getDataGridRow(dataGridConfiguration, rowIndex)
+          ..dataGridRowAdapter = grid_helper.getDataGridRowAdapter(
+              dataGridConfiguration, dr.dataGridRow!);
+
+        dr.key = dr.dataGridRowAdapter?.key;
+        assert(grid_helper.debugCheckTheLength(
+            dataGridConfiguration,
+            dataGridConfiguration.columns.length,
+            dr.dataGridRowAdapter!.cells.length,
+            'SfDataGrid.columns.length == DataGridRowAdapter.cells.length'));
+
+        _checkForCurrentRow(dr);
+        _checkForSelection(dr);
+        dr._initializeDataRow(visibleColumns);
+        return dr;
+      } else {
+        final _SpannedDataRow spanDataRow = _SpannedDataRow();
+        spanDataRow
+          ..key = ObjectKey(spanDataRow)
+          ..rowData = displayElement
+          ..rowLevel = displayElement.level
+          ..rowIndex = rowIndex
+          ..rowRegion = RowRegion.body
+          ..rowType = RowType.captionSummaryCoveredRow
+          ..dataGridStateDetails = dataGridStateDetails;
+
+        spanDataRow._initializeDataRow(visibleColumns);
+        return spanDataRow;
+      }
     }
   }
 
@@ -1036,26 +1135,92 @@ class RowGenerator {
       if (index < 0 || index >= _container.scrollRows.lineCount) {
         row!.isVisible = false;
       } else {
-        row!
-          ..key = row!.key
-          ..rowIndex = index
-          ..rowRegion = region
-          ..dataGridRow =
-              grid_helper.getDataGridRow(dataGridConfiguration, index)
-          ..dataGridRowAdapter = grid_helper.getDataGridRowAdapter(
-              dataGridConfiguration, row!.dataGridRow!);
-        assert(grid_helper.debugCheckTheLength(
-            dataGridConfiguration,
-            dataGridConfiguration.columns.length,
-            row!.dataGridRowAdapter!.cells.length,
-            'SfDataGrid.columns.length == DataGridRowAdapter.cells.length'));
-        _checkForCurrentRow(row!);
-        _checkForSelection(row!);
-        row!.rowIndexChanged();
+        dynamic displayElement;
+        if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+            index >= 0) {
+          final int rowIndex =
+              resolveStartRecordIndex(dataGridConfiguration, index);
+          displayElement = (index >= 0)
+              ? getGroupElement(dataGridConfiguration, rowIndex)
+              : null;
+        } else {
+          displayElement = null;
+        }
+        if (displayElement == null || displayElement is DataGridRow) {
+          if (rows.any((DataRowBase row) =>
+              row is DataRow && row.rowType == RowType.dataRow)) {
+            final DataRowBase? row = rows.firstWhereOrNull((DataRowBase row) =>
+                row is DataRow && row.rowType == RowType.dataRow);
+
+            row!
+              ..key = row.key
+              ..rowIndex = index
+              ..rowRegion = region
+              ..rowData = displayElement
+              ..dataGridRow = displayElement ??
+                  grid_helper.getDataGridRow(dataGridConfiguration, index)
+              ..dataGridRowAdapter = grid_helper.getDataGridRowAdapter(
+                  dataGridConfiguration, row.dataGridRow!);
+            assert(grid_helper.debugCheckTheLength(
+                dataGridConfiguration,
+                dataGridConfiguration.columns.length,
+                row.dataGridRowAdapter!.cells.length,
+                'SfDataGrid.columns.length == DataGridRowAdapter.cells.length'));
+            _checkForCurrentRow(row);
+            _checkForSelection(row);
+            row.rowIndexChanged();
+          } else {
+            createDataRow();
+          }
+        } else {
+          if (rows.any((DataRowBase row) =>
+              row is _SpannedDataRow &&
+              row.rowType == RowType.captionSummaryCoveredRow)) {
+            final _SpannedDataRow spanDataRow = rows.firstWhereOrNull(
+                    (DataRowBase row) =>
+                        row.rowType == RowType.captionSummaryCoveredRow)!
+                as _SpannedDataRow;
+            final dynamic rowData = spanDataRow.rowData;
+            spanDataRow
+              ..key = ObjectKey(spanDataRow)
+              ..rowData = displayElement
+              ..rowLevel = displayElement.level
+              ..rowIndex = index
+              ..rowRegion = RowRegion.body
+              ..rowType = RowType.captionSummaryCoveredRow
+              ..dataGridStateDetails = dataGridStateDetails
+              ..rowIndexChanged();
+            final int columnSpan = grid_helper.getSummaryColumnSpan(
+                dataGridConfiguration,
+                0,
+                spanDataRow.rowType,
+                null,
+                spanDataRow.rowLevel);
+            _updataSpannedRow(spanDataRow, displayElement, columnSpan);
+            if (rowData.level > displayElement.level) {
+              for (int i = displayElement.level; i < rowData.level; i++)
+                spanDataRow.visibleColumns[i].columnIndex = -1;
+            }
+            spanDataRow.ensureIndentCell(visibleColumns);
+          } else {
+            createDataRow();
+          }
+        }
       }
       row = null;
     } else {
       createDataRow();
+    }
+  }
+
+  void _updataSpannedRow(_SpannedDataRow row, Group groupItem, int columnSpan) {
+    if (row.rowType == RowType.captionSummaryCoveredRow) {
+      for (final DataCellBase spannedCell in row.visibleColumns) {
+        if (spannedCell is _SpannedDataColumn) {
+          spannedCell.columnIndex = groupItem.level;
+          spannedCell.columnSpan = columnSpan;
+        }
+      }
     }
   }
 
@@ -1105,10 +1270,16 @@ class RowGenerator {
   void _checkForSelection(DataRowBase row) {
     final DataGridConfiguration dataGridConfiguration = _dataGridConfiguration;
     if (dataGridConfiguration.selectionMode != SelectionMode.none) {
-      final int recordIndex =
-          grid_helper.resolveToRecordIndex(dataGridConfiguration, row.rowIndex);
-      final DataGridRow record =
-          effectiveRows(dataGridConfiguration.source)[recordIndex];
+      final DataGridRow record;
+      if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+        final int rowIndex =
+            resolveStartRecordIndex(dataGridConfiguration, row.rowIndex);
+        record = getGroupElement(dataGridConfiguration, rowIndex);
+      } else {
+        final int recordIndex = grid_helper.resolveToRecordIndex(
+            dataGridConfiguration, row.rowIndex);
+        record = effectiveRows(dataGridConfiguration.source)[recordIndex];
+      }
       row._isSelectedRow =
           selection_manager.isSelectedRow(dataGridConfiguration, record);
     }
@@ -1162,6 +1333,12 @@ class _SpannedDataRow extends DataRow {
         rowType == RowType.tableSummaryCoveredRow) {
       if (rowType == RowType.tableSummaryRow) {
         for (int i = 0; i < dataGridConfiguration.container.columnCount; i++) {
+          if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+              i < dataGridConfiguration.source.groupedColumns.length) {
+            final DataCellBase dr = _createIndentColumns(i);
+            visibleColumns.add(dr);
+            continue;
+          }
           if (!_isEnsuredSpannedCell(i)) {
             final int columnSpan = grid_helper.getSummaryColumnSpan(
                 dataGridConfiguration, i, rowType, tableSummaryRow);
@@ -1170,9 +1347,20 @@ class _SpannedDataRow extends DataRow {
           }
         }
       } else {
+        if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+          for (int i = 0;
+              i < dataGridConfiguration.source.groupedColumns.length;
+              i++) {
+            final DataCellBase dr = _createIndentColumns(i);
+            visibleColumns.add(dr);
+          }
+        }
         final int columnSpan = grid_helper.getSummaryColumnSpan(
             dataGridConfiguration, 0, rowType, tableSummaryRow);
-        dc = _createSpannedColumn(0, columnSpan, null);
+        dc = _createSpannedColumn(
+            dataGridConfiguration.source.groupedColumns.length,
+            columnSpan,
+            null);
         visibleColumns.add(dc);
       }
     } else if (rowType == RowType.stackedHeaderRow) {
@@ -1180,10 +1368,17 @@ class _SpannedDataRow extends DataRow {
         if (dataGridConfiguration.stackedHeaderRows.isNotEmpty) {
           final List<StackedHeaderCell> stackedColumns =
               dataGridConfiguration.stackedHeaderRows[rowIndex].cells;
+          if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+            for (int i = 0;
+                i < dataGridConfiguration.source.groupedColumns.length;
+                i++) {
+              final DataCellBase dr = _createIndentColumns(i);
+              visibleColumns.add(dr);
+            }
+          }
           for (final StackedHeaderCell column in stackedColumns) {
             final List<List<int>> columnsSequence =
                 grid_helper.getConsecutiveRanges(getChildColumnIndexes(column));
-
             for (final List<int> columns in columnsSequence) {
               dc = _createSpannedColumn(
                   columns.reduce(min), columns.length - 1, column);
@@ -1192,6 +1387,15 @@ class _SpannedDataRow extends DataRow {
           }
         }
       }
+    } else if (rowType == RowType.captionSummaryCoveredRow) {
+      final int columnSpan = grid_helper.getSummaryColumnSpan(
+          dataGridConfiguration, 0, rowType, null, rowLevel);
+      for (int i = 0; i < rowLevel; i++) {
+        final DataCellBase dr = _createIndentColumns(i);
+        visibleColumns.add(dr);
+      }
+      dc = _createSpannedColumn(rowLevel, columnSpan, null);
+      visibleColumns.add(dc);
     }
   }
 
@@ -1232,21 +1436,37 @@ class _SpannedDataRow extends DataRow {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails!();
 
     if (index >= grid_helper.resolveToStartColumnIndex(dataGridConfiguration)) {
-      final int startColumnIndex =
+      int startColumnIndex =
           grid_helper.resolveToScrollColumnIndex(dataGridConfiguration, index);
-      final GridColumn gridColumn =
-          dataGridConfiguration.columns[startColumnIndex];
-      final int rowSpan =
-          _getRowSpan(index, stackedHeaderCell, gridColumn.columnName);
+      if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+          (rowType == RowType.tableSummaryRow ||
+              rowType == RowType.tableSummaryCoveredRow)) {
+        startColumnIndex =
+            resolveToGridVisibleColumnIndex(dataGridConfiguration, index);
+      }
 
+      final int indentColumnCount =
+          dataGridConfiguration.source.groupedColumns.length;
       if (rowType == RowType.stackedHeaderRow) {
-        dc = _createSpannedCell(dc, index, columnSpan, rowSpan, gridColumn);
+        if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+          startColumnIndex = index;
+        }
+        final GridColumn gridColumn =
+            dataGridConfiguration.columns[startColumnIndex];
+        final int rowSpan =
+            _getRowSpan(index, stackedHeaderCell, gridColumn.columnName);
+        dc = _createSpannedCell(
+            dc, index + indentColumnCount, columnSpan, rowSpan, gridColumn);
         dc
           ..renderer = dataGridConfiguration.cellRenderers['StackedHeader']
           ..stackedHeaderCell = stackedHeaderCell
           ..cellType = CellType.stackedHeaderCell;
       } else if (rowType == RowType.tableSummaryRow ||
           rowType == RowType.tableSummaryCoveredRow) {
+        final GridColumn gridColumn =
+            dataGridConfiguration.columns[startColumnIndex];
+        final int rowSpan =
+            _getRowSpan(index, stackedHeaderCell, gridColumn.columnName);
         dc = _createSpannedCell(dc, index, columnSpan, rowSpan, gridColumn);
         dc
           ..renderer = dataGridConfiguration.cellRenderers['TableSummary']
@@ -1264,6 +1484,11 @@ class _SpannedDataRow extends DataRow {
             }
           }
         }
+      } else if (rowType == RowType.captionSummaryCoveredRow) {
+        dc = _createSpannedCell(dc, index, columnSpan, 0, null);
+        dc
+          ..renderer = dataGridConfiguration.cellRenderers['CaptionSummary']
+          ..cellType = CellType.captionSummaryCell;
       }
     } else {
       // To create an indent cell if it exist in the spanned row.
@@ -1321,10 +1546,12 @@ class _SpannedDataRow extends DataRow {
       final List<StackedHeaderCell> stackedColumns = stackedHeaderRow.cells;
       dataGridConfiguration.rowGenerator
           ._createStackedHeaderCell(stackedHeaderRow, rowIndex);
+      if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+        ensureIndentCell(visibleColumnLines);
+      }
       for (final StackedHeaderCell column in stackedColumns) {
         final List<List<int>> columnsSequence =
             grid_helper.getConsecutiveRanges(getChildColumnIndexes(column));
-
         for (final List<int> columns in columnsSequence) {
           final int columnIndex = columns.reduce(min);
           final int columnSpan = columns.length - 1;
@@ -1347,9 +1574,19 @@ class _SpannedDataRow extends DataRow {
             index <= startAndEndIndex[1];
             index++) {
           if (!_isEnsuredSpannedCell(index)) {
-            final int columnSpan = grid_helper.getSummaryColumnSpan(
-                dataGridConfiguration, index, rowType, tableSummaryRow);
-            _ensureSpannedColumn(columnIndex: index, columnSpan: columnSpan);
+            if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+                (rowType == RowType.tableSummaryRow ||
+                    rowType == RowType.tableSummaryCoveredRow) &&
+                index >= dataGridConfiguration.source.groupedColumns.length) {
+              ensureIndentCell(visibleColumnLines);
+              final int columnSpan = grid_helper.getSummaryColumnSpan(
+                  dataGridConfiguration, index, rowType, tableSummaryRow);
+              _ensureSpannedColumn(columnIndex: index, columnSpan: columnSpan);
+            } else {
+              final int columnSpan = grid_helper.getSummaryColumnSpan(
+                  dataGridConfiguration, index, rowType, tableSummaryRow);
+              _ensureSpannedColumn(columnIndex: index, columnSpan: columnSpan);
+            }
           }
         }
       }
@@ -1362,6 +1599,38 @@ class _SpannedDataRow extends DataRow {
     }
   }
 
+  void ensureIndentCell(VisibleLinesCollection visibleColumnLines) {
+    final DataGridConfiguration dataGridConfiguration = dataGridStateDetails!();
+    if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+      final int length = (rowType == RowType.stackedHeaderRow ||
+              rowType == RowType.tableSummaryRow ||
+              rowType == RowType.tableSummaryCoveredRow)
+          ? dataGridConfiguration.source.groupedColumns.length
+          : rowLevel;
+      for (int i = 0; i < length; i++) {
+        if (i < length) {
+          final DataCellBase? ic = visibleColumns.firstWhereOrNull(
+              (DataCellBase column) => column.columnIndex == i);
+          if (ic != null) {
+            if (!ic.isVisible) {
+              ic.isVisible = true;
+            }
+            ic.isEnsured = true;
+            ic.columnIndex = i;
+          } else {
+            final DataCellBase indentCell = _createIndentColumns(i);
+            visibleColumns.add(indentCell);
+          }
+        }
+        continue;
+      }
+      visibleColumns
+          .removeWhere((DataCellBase column) => column.columnIndex < 0);
+      visibleColumns.sort((DataCellBase a, DataCellBase b) =>
+          a.columnIndex.compareTo(b.columnIndex));
+    }
+  }
+
   void _updateSpannedColumn(DataCellBase? dc, int index, int columnSpan,
       StackedHeaderCell? stackedHeaderCell) {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails!();
@@ -1369,8 +1638,13 @@ class _SpannedDataRow extends DataRow {
       if (index < 0 || index >= dataGridConfiguration.container.columnCount) {
         dc.isVisible = false;
       } else {
-        final int columnIndex = grid_helper.resolveToGridVisibleColumnIndex(
+        int columnIndex = grid_helper.resolveToGridVisibleColumnIndex(
             dataGridConfiguration, index);
+        if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+            (rowType == RowType.tableSummaryRow)) {
+          columnIndex =
+              resolveToGridVisibleColumnIndex(dataGridConfiguration, index);
+        }
         final GridColumn gridColumn =
             dataGridConfiguration.columns[columnIndex];
         final int rowSpan =

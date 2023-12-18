@@ -3896,7 +3896,8 @@ void _drawYearCells(
   }
 
   final dynamic today = DateRangePickerHelper.getToday(yearView.isHijri);
-  yearView._textPainter.textScaleFactor = yearView.textScaleFactor;
+  yearView._textPainter.textScaler =
+      TextScaler.linear(yearView.textScaleFactor);
 
   const double decorationPadding = 1;
   const double selectionPadding = 3;

@@ -17,7 +17,9 @@ import 'pdf_document_link_annotation.dart';
 import 'pdf_ellipse_annotation.dart';
 import 'pdf_line_annotation.dart';
 import 'pdf_polygon_annotation.dart';
+import 'pdf_popup_annotation.dart';
 import 'pdf_rectangle_annotation.dart';
+import 'pdf_text_markup_annotation.dart';
 import 'pdf_text_web_link.dart';
 import 'pdf_uri_annotation.dart';
 import 'widget_annotation.dart';
@@ -196,6 +198,10 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
       PdfAnnotationHelper.getHelper(annot).flatten = true;
     }
     PdfAnnotationHelper.getHelper(annot).setPage(page);
+    if (!PdfAnnotationHelper.getHelper(annot).isLoadedAnnotation &&
+        annot is PdfTextMarkupAnnotation) {
+      PdfTextMarkupAnnotationHelper.getHelper(annot).setQuadPoints(page.size);
+    }
     if (PdfPageHelper.getHelper(page).isLoadedPage) {
       PdfArray? array;
       final PdfDictionary dictionary =
@@ -362,9 +368,9 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
       if (rectValue != null) {
         String text = '';
         if (dictionary.containsKey(PdfDictionaryProperties.contents)) {
-          final PdfString? str = PdfCrossTable.dereference(
-              dictionary[PdfDictionaryProperties.contents]) as PdfString?;
-          if (str != null) {
+          final IPdfPrimitive? str = PdfCrossTable.dereference(
+              dictionary[PdfDictionaryProperties.contents]);
+          if (str != null && str is PdfString) {
             text = str.value.toString();
           }
         }
@@ -406,6 +412,15 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
             break;
           case PdfAnnotationTypes.widgetAnnotation:
             annot = _createWidgetAnnotation(dictionary, crossTable!);
+            break;
+          case PdfAnnotationTypes.highlight:
+          case PdfAnnotationTypes.squiggly:
+          case PdfAnnotationTypes.strikeOut:
+          case PdfAnnotationTypes.underline:
+            annot = _createMarkupAnnotation(dictionary, crossTable!);
+            break;
+          case PdfAnnotationTypes.popupAnnotation:
+            annot = _createPopupAnnotation(dictionary, crossTable!, text);
             break;
           // ignore: no_default_cases
           default:
@@ -479,6 +494,23 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
         break;
       case 'widget':
         type = PdfAnnotationTypes.widgetAnnotation;
+        break;
+      case 'highlight':
+        type = PdfAnnotationTypes.highlight;
+        break;
+      case 'underline':
+        type = PdfAnnotationTypes.underline;
+        break;
+      case 'strikeout':
+        type = PdfAnnotationTypes.strikeOut;
+        break;
+      case 'squiggly':
+        type = PdfAnnotationTypes.squiggly;
+        break;
+      case 'text':
+        if (!dictionary.containsKey(PdfDictionaryProperties.irt)) {
+          type = PdfAnnotationTypes.popupAnnotation;
+        }
         break;
       default:
         break;
@@ -557,6 +589,23 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
       PdfDictionary dictionary, PdfCrossTable crossTable) {
     final PdfAnnotation annot =
         WidgetAnnotationHelper.load(dictionary, crossTable);
+    PdfAnnotationHelper.getHelper(annot).setPage(page);
+    return annot;
+  }
+
+  /// Creates the Markup Annotation.
+  PdfAnnotation _createMarkupAnnotation(
+      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    final PdfAnnotation annot =
+        PdfTextMarkupAnnotationHelper.load(dictionary, crossTable);
+    PdfAnnotationHelper.getHelper(annot).setPage(page);
+    return annot;
+  }
+
+  PdfAnnotation _createPopupAnnotation(
+      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
+    final PdfAnnotation annot =
+        PdfPopupAnnotationHelper.load(dictionary, crossTable, text);
     PdfAnnotationHelper.getHelper(annot).setPage(page);
     return annot;
   }

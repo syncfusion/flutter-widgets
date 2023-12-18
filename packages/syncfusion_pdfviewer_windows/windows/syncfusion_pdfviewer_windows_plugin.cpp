@@ -173,8 +173,7 @@ namespace pdfviewer
     // Create empty bitmap and render page onto it
     auto bitmap = FPDFBitmap_Create(pageWidth, pageHeight, 0);
     FPDFBitmap_FillRect(bitmap, 0, 0, pageWidth, pageHeight, 0xFFFFFFFF);
-    FPDF_RenderPageBitmap(bitmap, page, 0, 0, pageWidth, pageHeight, 0,
-                          FPDF_ANNOT | FPDF_LCD_TEXT);
+    FPDF_RenderPageBitmap(bitmap, page, 0, 0, pageWidth, pageHeight, 0, FPDF_LCD_TEXT);
 
     // Convert bitmap into RGBA format
     uint8_t *scanArg = static_cast<uint8_t *>(FPDFBitmap_GetBuffer(bitmap));

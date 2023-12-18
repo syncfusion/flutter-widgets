@@ -834,7 +834,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     _textPainter.text = textSpan;
     _textPainter.textDirection = TextDirection.ltr;
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
-    _textPainter.textScaleFactor = textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
 
     const double topPadding = 4;
     _textPainter.layout(maxWidth: weekNumberPanelWidth);
@@ -884,7 +884,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     double yPosition = viewPadding;
     _textPainter.textDirection = TextDirection.ltr;
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
-    _textPainter.textScaleFactor = textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
     final int visibleDatesCount = visibleDates.length;
     final DateTime currentMonthDate = visibleDates[visibleDatesCount ~/ 2];
     final int nextMonth =

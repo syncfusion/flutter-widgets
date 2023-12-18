@@ -10,14 +10,12 @@ class WidgetAppearance implements IPdfWrapper {
   WidgetAppearance() : super() {
     dictionary!.setProperty(
         PdfDictionaryProperties.bc, PdfColorHelper.toArray(_borderColor));
-    dictionary!.setProperty(
-        PdfDictionaryProperties.bg, PdfColorHelper.toArray(_backColor));
   }
 
   /// internal field
   PdfDictionary? dictionary = PdfDictionary();
   PdfColor _borderColor = PdfColor(0, 0, 0);
-  PdfColor _backColor = PdfColor(255, 255, 255);
+  PdfColor _backColor = PdfColor.empty;
   String? _normalCaption = '';
 
   //Overrides

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart' hide DataCell, DataRow;
 
 import '../../../datagrid.dart';
+import '../grouping/grouping.dart';
 import '../helper/datagrid_configuration.dart';
 import '../helper/datagrid_helper.dart' as grid_helper;
+import '../helper/datagrid_helper.dart';
 import '../selection/selection_manager.dart' as selection_manager;
 import '../widgets/cell_widget.dart';
 import 'generator.dart';
@@ -109,7 +111,9 @@ class GridHeaderCellRenderer
         key: dataCell.key,
         style: dataCell.textStyle!,
         child: dataCell.gridColumn!.label);
-    if (dataGridConfiguration.showCheckboxColumn && dataCell.columnIndex == 0) {
+    if (dataGridConfiguration.showCheckboxColumn &&
+        dataCell.columnIndex ==
+            dataGridConfiguration.source.groupedColumns.length) {
       dataCell.columnElement = GridCell(
           key: dataCell.key!,
           dataCell: dataCell,
@@ -211,7 +215,8 @@ abstract class GridVirtualizingCellRendererBase<T1 extends Widget,
     // when the datacell column index is greater than the column count.
     // Enabling the check will avoid the exception when the column index is
     // greater than the column count.
-    if (index == -1) {
+    if (index < 0 ||
+        index >= dataCell.dataRow!.dataGridRowAdapter!.cells.length) {
       return;
     }
 
@@ -330,6 +335,203 @@ class GridTableSummaryCellRenderer
     );
 
     label = null;
+  }
+}
+
+/// A cell renderer which displays the widgets to the caption summary rows.
+class GridCaptionSummaryCellRenderer
+    extends GridVirtualizingCellRendererBase<Widget, Widget> {
+  @override
+  void onInitializeDisplayWidget(DataCellBase dataCell) {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+
+    Widget getCaptionSummaryCell() {
+      Widget? result;
+
+      if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+        final int rowIndex =
+            resolveStartRecordIndex(dataGridConfiguration, dataCell.rowIndex);
+
+        if (rowIndex >= 0) {
+          final dynamic groupItems =
+              getGroupElement(dataGridConfiguration, rowIndex);
+
+          if (groupItems is Group) {
+            final int level = groupItems.level;
+            final int length =
+                dataGridConfiguration.source.groupedColumns.length;
+
+            if (level > 0 && level <= length) {
+              final String groupedColumn =
+                  dataGridConfiguration.source.groupedColumns[level - 1].name;
+
+              String groupCaptionTitleFormat =
+                  dataGridConfiguration.groupCaptionTitleFormat;
+              groupCaptionTitleFormat = groupCaptionTitleFormat
+                  .replaceAll('{ColumnName}', groupedColumn)
+                  .replaceAll('{Key}', '${groupItems.key}')
+                  .replaceAll('{ItemsCount}', '${groupItems.rows.length}');
+              final RowColumnIndex rowColumnIndex =
+                  RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex);
+              final Widget? cell = dataGridConfiguration.source
+                  .buildGroupCaptionCellWidget(
+                      rowColumnIndex, groupCaptionTitleFormat);
+
+              result = cell;
+            }
+          }
+        }
+      }
+
+      return result ?? const SizedBox();
+    }
+
+    final DefaultTextStyle label = DefaultTextStyle(
+      style: TextStyle(
+        fontFamily: 'Roboto',
+        fontWeight: FontWeight.w500,
+        fontSize: 14,
+        color: dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.87),
+      ),
+      child: getCaptionSummaryCell(),
+    );
+    dataCell.columnElement = GridCell(
+      key: dataCell.key!,
+      dataCell: dataCell,
+      backgroundColor:
+          dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.04),
+      dataGridStateDetails: _dataGridStateDetails,
+      isDirty: dataGridConfiguration.container.isDirty || dataCell.isDirty,
+      child: label,
+    );
+  }
+}
+
+/// A cell renderer which displays the widgets to the Indent cell.
+class GridIndentCellRenderer
+    extends GridVirtualizingCellRendererBase<Widget, Widget> {
+  @override
+  void onInitializeDisplayWidget(DataCellBase dataCell) {
+    final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
+    Widget newIcon = const SizedBox();
+    if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+        dataCell.dataRow!.rowType == RowType.captionSummaryCoveredRow &&
+        dataGridConfiguration.allowExpandCollapseGroup) {
+      final int rowIndex =
+          resolveStartRecordIndex(dataGridConfiguration, dataCell.rowIndex);
+      if (rowIndex >= 0) {
+        final dynamic groupItem =
+            getGroupElement(dataGridConfiguration, rowIndex);
+
+        if (groupItem is Group) {
+          final int iconIndex = groupItem.level - 1;
+          newIcon = (iconIndex == dataCell.columnIndex)
+              ? Center(
+                  child: GroupExpanderIcon(
+                    key: ObjectKey(rowIndex),
+                    isExpanded: groupItem.isExpanded,
+                    dataGridConfiguration: dataGridConfiguration,
+                    rowIndex: dataCell.rowIndex,
+                  ),
+                )
+              : const SizedBox();
+        }
+      }
+    }
+
+    dataCell.columnElement = GridCell(
+      key: dataCell.key!,
+      dataCell: dataCell,
+      backgroundColor: dataCell.rowIndex >=
+              grid_helper
+                  .resolveStartIndexBasedOnPosition(dataGridConfiguration)
+          ? dataGridConfiguration.dataGridThemeHelper!.indentColumnColor
+          : Colors.transparent,
+      dataGridStateDetails: _dataGridStateDetails,
+      isDirty: dataGridConfiguration.container.isDirty || dataCell.isDirty,
+      child: newIcon,
+    );
+  }
+}
+
+/// Represents a collapsed and expanded icon.
+class GroupExpanderIcon extends StatefulWidget {
+  /// Provide an icon with the required details.
+  const GroupExpanderIcon({
+    Key? key,
+    required this.isExpanded,
+    required this.dataGridConfiguration,
+    required this.rowIndex,
+  }) : super(key: key);
+
+  /// Check the expand and collapse states of the group.
+  final bool isExpanded;
+
+  /// Holds the [DataGridStateDetails].
+  final DataGridConfiguration dataGridConfiguration;
+
+  /// Hold the current dataCell index.
+  final int rowIndex;
+
+  @override
+  GroupExpanderIconState createState() => GroupExpanderIconState();
+}
+
+/// Represents a collapsed and expanded icon.
+class GroupExpanderIconState extends State<GroupExpanderIcon>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _rotationAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 0.5)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+
+    if (widget.dataGridConfiguration.groupExpandCollapseRowIndex ==
+        widget.rowIndex) {
+      _controller.value = widget.isExpanded ? 0.0 : 1.0;
+      if (widget.isExpanded) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+      widget.dataGridConfiguration.groupExpandCollapseRowIndex = -1;
+    } else {
+      _controller.value = widget.isExpanded ? 1.0 : 0.0;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (BuildContext context, Widget? child) {
+        return Transform.rotate(
+          angle: _rotationAnimation.value * 2 * 3.14159265359,
+          child: widget.dataGridConfiguration.dataGridThemeHelper
+                  ?.groupExpanderIcon ??
+              Icon(
+                Icons.expand_less,
+                color: widget.dataGridConfiguration.colorScheme!.onSurface
+                    .withOpacity(0.60),
+              ),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
 

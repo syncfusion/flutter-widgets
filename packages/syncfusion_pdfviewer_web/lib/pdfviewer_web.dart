@@ -96,7 +96,8 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
       ..width = viewport.width.toInt();
     final renderSettings = Settings()
       ..canvasContext = (context as html.CanvasRenderingContext2D)
-      ..viewport = viewport;
+      ..viewport = viewport
+      ..annotationMode = 0;
     await promiseToFuture<void>(page.render(renderSettings).promise);
 
     // Renders the page as a PNG image and retrieve its byte information.

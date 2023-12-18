@@ -3,6 +3,7 @@ import 'dart:ui';
 import '../../interfaces/pdf_interface.dart';
 import '../actions/pdf_action.dart';
 import '../actions/pdf_uri_action.dart';
+import '../graphics/pdf_color.dart';
 import '../io/pdf_constants.dart';
 import '../io/pdf_cross_table.dart';
 import '../primitives/pdf_dictionary.dart';
@@ -10,6 +11,7 @@ import '../primitives/pdf_name.dart';
 import '../primitives/pdf_string.dart';
 import 'pdf_action_annotation.dart';
 import 'pdf_annotation.dart';
+import 'pdf_annotation_border.dart';
 
 /// Represents the Uri annotation.
 class PdfUriAnnotation extends PdfActionLinkAnnotation {
@@ -74,6 +76,24 @@ class PdfUriAnnotation extends PdfActionLinkAnnotation {
         }
       }
     }
+  }
+
+  /// Gets annotation's border properties like width, horizontal radius etc.
+  PdfAnnotationBorder get border {
+    return _helper.border;
+  }
+
+  /// Sets annotation's border properties like width, horizontal radius etc.
+  set border(PdfAnnotationBorder value) {
+    _helper.border = value;
+  }
+
+  /// Gets the annotation color.
+  PdfColor get color => _helper.color;
+
+  /// Sets the annotation color.
+  set color(PdfColor value) {
+    _helper.color = value;
   }
 
   /// Gets the action.
