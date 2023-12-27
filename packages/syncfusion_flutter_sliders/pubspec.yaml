@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  intl: ^0.18.0
+  intl: ^0.19.0
 
   syncfusion_flutter_core:
       path: ../syncfusion_flutter_core
