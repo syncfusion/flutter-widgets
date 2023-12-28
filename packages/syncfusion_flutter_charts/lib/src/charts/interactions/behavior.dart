@@ -6512,9 +6512,10 @@ class CrosshairBehavior extends ChartBehavior {
     final Rect axisRect = axisOffset & cartesianAxis.size;
     const int padding = 10;
     final Path backgroundPath = Path();
-    final String label = _getYValue(cartesianAxis, position);
+    String label = _getYValue(cartesianAxis, position);
 
-    _triggerCrosshairCallback(label, cartesianAxis);
+    label = _triggerCrosshairCallback(label, cartesianAxis);
+
     final Size labelSize = measureText(label, textStyle);
     Rect labelRect = Rect.fromLTWH(
         axisRect.right -
@@ -6569,9 +6570,10 @@ class CrosshairBehavior extends ChartBehavior {
         cartesianAxis.interactiveTooltip;
     final Path backgroundPath = Path();
     const int padding = 10;
-    final String label = _getXValue(cartesianAxis, position, plotAreaBounds);
+    String label = _getXValue(cartesianAxis, position, plotAreaBounds);
 
-    _triggerCrosshairCallback(label, cartesianAxis);
+    label = _triggerCrosshairCallback(label, cartesianAxis);
+
     final Size labelSize = measureText(label, textStyle);
     Rect labelRect = Rect.fromLTWH(
         position.dx - (labelSize.width / 2 + padding / 2),
@@ -6625,9 +6627,9 @@ class CrosshairBehavior extends ChartBehavior {
         cartesianAxis.interactiveTooltip;
     const int padding = 10;
     final Path backgroundPath = Path();
-    final String label = _getYValue(cartesianAxis, position);
+    String label = _getYValue(cartesianAxis, position);
 
-    _triggerCrosshairCallback(label, cartesianAxis);
+    label = _triggerCrosshairCallback(label, cartesianAxis);
     final Size labelSize = measureText(label, textStyle);
     Rect labelRect = Rect.fromLTWH(
         axisRect.left + interactiveTooltip.arrowLength,
@@ -6678,13 +6680,14 @@ class CrosshairBehavior extends ChartBehavior {
 
     const int padding = 10;
     final Path backgroundPath = Path();
-    final String label = _getXValue(axis, position, plotAreaBounds);
+    String label = _getXValue(axis, position, plotAreaBounds);
 
-    _triggerCrosshairCallback(label, axis);
+    label = _triggerCrosshairCallback(label, axis);
     final Size labelSize = measureText(
       label,
       textStyle,
     );
+
     Rect labelRect = Rect.fromLTWH(
         position.dx - (labelSize.width / 2 + padding / 2),
         axisBounds.top + interactiveTooltip.arrowLength,
@@ -6836,10 +6839,10 @@ class CrosshairBehavior extends ChartBehavior {
     canvas.drawPath(backgroundPath, fillPaint);
   }
 
-  void _triggerCrosshairCallback(String label, RenderChartAxis axis) {
+  String _triggerCrosshairCallback(String label, RenderChartAxis axis) {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     if (parent == null) {
-      return;
+      return label;
     }
     if (parent.onCrosshairPositionChanging != null &&
         parent.chartThemeData != null) {
@@ -6849,8 +6852,9 @@ class CrosshairBehavior extends ChartBehavior {
       crosshairEventArgs.lineColor =
           lineColor ?? parent.chartThemeData!.crosshairLineColor;
       parent.onCrosshairPositionChanging!(crosshairEventArgs);
-      label = crosshairEventArgs.text;
+      return crosshairEventArgs.text;
     }
+    return label;
   }
 
   /// To find the x value of crosshair.
