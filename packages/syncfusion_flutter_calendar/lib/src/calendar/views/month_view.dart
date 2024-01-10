@@ -874,7 +874,6 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
   void _drawMonthCells(Canvas canvas, Size size) {
     const double viewPadding = 5;
-    const double circlePadding = 4;
     final double cellWidth =
         (size.width - weekNumberPanelWidth) / DateTime.daysPerWeek;
     final double cellHeight = size.height / rowCount;
@@ -894,10 +893,8 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
         DateTimeHelper.getDateTimeValue(getPreviousMonthDate(currentMonthDate))
             .month;
     final DateTime today = DateTime.now();
-    bool isCurrentDate;
 
     _linePainter.isAntiAlias = true;
-    final TextStyle todayStyle = calendarTheme.todayTextStyle!;
     final TextStyle currentMonthTextStyle = calendarTheme.activeDatesTextStyle!;
     final TextStyle previousMonthTextStyle =
         calendarTheme.trailingDatesTextStyle!;
@@ -928,7 +925,6 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     TextStyle textStyle = currentMonthTextStyle;
     _drawWeekNumberPanel(canvas, cellHeight);
     for (int i = 0; i < visibleDatesCount; i++) {
-      isCurrentDate = false;
       final DateTime currentVisibleDate = visibleDates[i];
 
       /// Based on ISO, Monday is the first day of the week. So we can
@@ -1011,8 +1007,6 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
       if (isSameDate(currentVisibleDate, today)) {
         _linePainter.color = todayBackgroundColor;
-        textStyle = todayStyle;
-        isCurrentDate = true;
       }
 
       if (!isDateWithInDateRange(minDate, maxDate, currentVisibleDate)) {
@@ -1054,23 +1048,9 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
             yPosition - viewPadding);
       }
 
-      if (isCurrentDate) {
-        _linePainter.style = PaintingStyle.fill;
-        _linePainter.color = todayHighlightColor!;
-        _linePainter.isAntiAlias = true;
-
-        final double textHeight = _textPainter.height / 2;
-        canvas.drawCircle(
-            Offset(xPosition + cellWidth / 2,
-                yPosition + circlePadding + textHeight),
-            textHeight + viewPadding,
-            _linePainter);
-      }
-
-      _textPainter.paint(
-          canvas,
-          Offset(xPosition + (cellWidth / 2 - _textPainter.width / 2),
-              yPosition + circlePadding));
+      _textPainter.paint(canvas,
+        Offset(xPosition + 4,
+        yPosition - viewPadding + 2));
 
       if (isRTL) {
         if (xPosition - 1 < 0) {
