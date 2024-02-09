@@ -154,15 +154,15 @@ String addEllipse(String text, int maxLength, String ellipse, {bool? isRtl}) {
   if (isRtl ?? false) {
     if (text.contains(ellipse)) {
       text = text.replaceAll(ellipse, '');
-      text = text.substring(1, text.length);
+      text = text.takeRange(1, text.length);
     } else {
-      text = text.substring(ellipse.length, text.length);
+      text = text.takeRange(ellipse.length, text.length);
     }
     return ellipse + text;
   } else {
     maxLength--;
     final int length = maxLength - ellipse.length;
-    final String trimText = text.substring(0, length);
+    final String trimText = text.takeRange(0, length);
     return trimText + ellipse;
   }
 }
@@ -818,6 +818,16 @@ Offset getPerpendicularDistance(Offset startPoint, CircularChartPoint point) {
   return increasedLocation;
 }
 
+extension on String {
+  /// Returns a [String] representing the substring of this [String] from the
+  /// [start] index to the [end] index using the String's [characters] rather
+  /// than its code units. This ensures that the returned [String] is a valid
+  /// string and emoji characters are not split into separate characters.
+  String takeRange(int start, int end) {
+    return characters.skip(start).take(end - start).join();
+  }
+}
+
 /// To trim the text by given width.
 String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
     {bool? isRtl}) {
@@ -828,7 +838,7 @@ String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
     final int textLength = text.length;
     if (isRtl ?? false) {
       for (int i = 0; i < textLength - 1; i++) {
-        label = '...${text.substring(i + 1, textLength)}';
+        label = '...${text.takeRange(i + 1, textLength)}';
         size = measureText(label, labelStyle).width;
         if (size <= labelsExtent) {
           return label == '...' ? '' : label;
@@ -836,7 +846,7 @@ String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
       }
     } else {
       for (int i = textLength - 1; i >= 0; --i) {
-        label = '${text.substring(0, i)}...';
+        label = '${text.takeRange(0, i)}...';
         size = measureText(label, labelStyle).width;
         if (size <= labelsExtent) {
           return label == '...' ? '' : label;
