@@ -947,7 +947,7 @@ class SinglePageViewState extends State<SinglePageView> {
               ),
               TextButton(
                 onPressed: () {
-                  _handlePageNumberValidation();
+                  _handlePageNumberValidation(context);
                 },
                 child: Text(
                   _localizations!.pdfPaginationDialogOkLabel,
@@ -1026,9 +1026,9 @@ class SinglePageViewState extends State<SinglePageView> {
           enableInteractiveSelection: false,
           controller: _textFieldController,
           autofocus: true,
-          onEditingComplete: _handlePageNumberValidation,
+          onEditingComplete: () => _handlePageNumberValidation(context),
           onFieldSubmitted: (String value) {
-            _handlePageNumberValidation();
+            _handlePageNumberValidation(context);
           },
           validator: (String? value) {
             try {
@@ -1052,11 +1052,11 @@ class SinglePageViewState extends State<SinglePageView> {
   }
 
   /// Validates the page number entered in text field.
-  void _handlePageNumberValidation() {
+  void _handlePageNumberValidation(BuildContext ctx) {
     if (_formKey.currentState != null && _formKey.currentState!.validate()) {
       final int index = int.parse(_textFieldController.text);
       _textFieldController.clear();
-      Navigator.of(context).pop();
+      Navigator.of(ctx).pop();
       widget.pdfViewerController.jumpToPage(index);
     }
   }
