@@ -893,6 +893,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
         DateTimeHelper.getDateTimeValue(getPreviousMonthDate(currentMonthDate))
             .month;
     final DateTime today = DateTime.now();
+    bool isCurrentDate;
 
     _linePainter.isAntiAlias = true;
     final TextStyle currentMonthTextStyle = calendarTheme.activeDatesTextStyle!;
@@ -925,6 +926,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     TextStyle textStyle = currentMonthTextStyle;
     _drawWeekNumberPanel(canvas, cellHeight);
     for (int i = 0; i < visibleDatesCount; i++) {
+      isCurrentDate = false;
       final DateTime currentVisibleDate = visibleDates[i];
 
       /// Based on ISO, Monday is the first day of the week. So we can
@@ -1007,6 +1009,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
       if (isSameDate(currentVisibleDate, today)) {
         _linePainter.color = todayBackgroundColor;
+        isCurrentDate = true;
       }
 
       if (!isDateWithInDateRange(minDate, maxDate, currentVisibleDate)) {
@@ -1046,6 +1049,12 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
       if (calendarCellNotifier.value != null && !isBlackoutDate) {
         _addMouseHovering(canvas, size, cellWidth, cellHeight, xPosition,
             yPosition - viewPadding);
+      }
+
+      if (isCurrentDate) {
+          Paint backgroundPaint = Paint()..color = Colors.grey.withOpacity(0.2);
+          canvas.drawRect(Rect.fromLTWH(
+              xPosition, yPosition - viewPadding, cellWidth, cellHeight), backgroundPaint);
       }
 
       _textPainter.paint(canvas,
