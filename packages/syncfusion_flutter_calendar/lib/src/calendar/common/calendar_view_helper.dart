@@ -960,8 +960,11 @@ class CalendarAppointment {
     this.color = Colors.lightBlue,
     this.isSpanned = false,
     this.recurrenceExceptionDates,
+    required this.isHoliday,
   })  : actualStartTime = startTime,
         actualEndTime = endTime;
+  
+  final bool isHoliday;
 
   /// The start time for an [CalendarAppointment] in [SfCalendar].
   ///
@@ -1083,7 +1086,8 @@ class CalendarAppointment {
         endTimeZone: endTimeZone,
         notes: notes,
         location: location,
-        recurrenceExceptionDates: recurrenceExceptionDates);
+        recurrenceExceptionDates: recurrenceExceptionDates,
+        isHoliday: isHoliday);
   }
 
   @override

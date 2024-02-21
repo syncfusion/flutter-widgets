@@ -85,6 +85,7 @@ class Appointment with Diagnosticable {
     this.subject = '',
     this.color = Colors.lightBlue,
     this.recurrenceExceptionDates,
+    required this.isHoliday,
   }) {
     recurrenceRule = recurrenceId != null ? null : recurrenceRule;
     _appointmentType = _getAppointmentType();
@@ -259,6 +260,8 @@ class Appointment with Diagnosticable {
   /// }
   ///  ```
   bool isAllDay;
+
+  bool isHoliday;
 
   /// The subject for the [Appointment] in [SfCalendar].
   ///

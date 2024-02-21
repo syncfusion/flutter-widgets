@@ -593,10 +593,6 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     }
 
     _visibleAppointments = value;
-    if (childCount == 0) {
-      return;
-    }
-
     markNeedsPaint();
   }
 
@@ -1024,6 +1020,18 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
           textStyle =
               textStyle.copyWith(decoration: TextDecoration.lineThrough);
         }
+      }
+
+      // for saturday and sunday
+      final List<CalendarAppointment> appointments =
+            AppointmentHelper.getSpecificDateVisibleAppointment(
+                currentVisibleDate, visibleAppointments);
+      if (currentVisibleDate.weekday == DateTime.saturday) {
+        textStyle = textStyle.copyWith(color: Colors.blue[800]);
+      } else if (currentVisibleDate.weekday == DateTime.sunday) {
+        textStyle = textStyle.copyWith(color: Colors.red);
+      } else if (appointments.any((e) => e.isHoliday)) {
+        textStyle = textStyle.copyWith(color: Colors.red);
       }
 
       final TextSpan span = TextSpan(

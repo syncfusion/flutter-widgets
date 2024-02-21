@@ -306,7 +306,8 @@ class AppointmentHelper {
         isSpanned: appointment.isSpanned,
         resourceIds: CalendarViewHelper.cloneList(appointment.resourceIds),
         recurrenceId: appointment.recurrenceId,
-        id: appointment.id);
+        id: appointment.id,
+        isHoliday: appointment.isHoliday);
     copyAppointment.actualStartTime = appointment.actualStartTime;
     copyAppointment.actualEndTime = appointment.actualEndTime;
     copyAppointment.data = appointment.data;
@@ -1324,7 +1325,8 @@ class AppointmentHelper {
           recurrenceExceptionDates: appointmentObject.recurrenceExceptionDates,
           resourceIds: appointmentObject.resourceIds,
           recurrenceId: appointmentObject.recurrenceId,
-          id: appointmentObject.id);
+          id: appointmentObject.id,
+          isHoliday: appointmentObject.isHoliday,);
     } else {
       final int index = calendarData.appointments!.indexOf(appointmentObject);
       app = CalendarAppointment(
@@ -1342,7 +1344,9 @@ class AppointmentHelper {
               calendarData.getRecurrenceExceptionDates(index),
           resourceIds: calendarData.getResourceIds(index),
           recurrenceId: calendarData.getRecurrenceId(index),
-          id: calendarData.getId(index));
+          id: calendarData.getId(index),
+          isHoliday: calendarData.isHoliday(index)
+          );
     }
 
     app.data = appointmentObject;

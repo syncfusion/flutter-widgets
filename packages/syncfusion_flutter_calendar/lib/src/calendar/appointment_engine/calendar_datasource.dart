@@ -701,6 +701,8 @@ abstract class CalendarDataSource<T extends Object?>
   /// ```
   bool isAllDay(int index) => false;
 
+  bool isHoliday(int index) => false;
+
   /// Maps the custom appointments color to the [Appointment].
   ///
   /// Allows to set the custom appointments corresponding property to the
