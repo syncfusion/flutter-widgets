@@ -3198,8 +3198,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
         appointmentLayout.visibleAppointments.value =
             _updateCalendarStateDetails.visibleAppointments;
-        if (widget.view == CalendarView.month &&
-            widget.calendar.monthCellBuilder != null) {
+        if (widget.view == CalendarView.month) {
           viewKey.currentState!._monthView.visibleAppointmentNotifier.value =
               _updateCalendarStateDetails.visibleAppointments;
         }

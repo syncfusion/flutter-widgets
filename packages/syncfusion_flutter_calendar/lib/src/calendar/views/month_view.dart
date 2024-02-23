@@ -1024,8 +1024,8 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
       // for saturday and sunday
       final List<CalendarAppointment> appointments =
-            AppointmentHelper.getSpecificDateVisibleAppointment(
-                currentVisibleDate, visibleAppointments);
+          AppointmentHelper.getSpecificDateVisibleAppointment(
+              currentVisibleDate, visibleAppointments);
       if (currentVisibleDate.weekday == DateTime.saturday) {
         textStyle = textStyle.copyWith(color: Colors.blue[800]);
       } else if (currentVisibleDate.weekday == DateTime.sunday) {
@@ -1060,14 +1060,15 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
       }
 
       if (isCurrentDate) {
-          Paint backgroundPaint = Paint()..color = Colors.grey.withOpacity(0.2);
-          canvas.drawRect(Rect.fromLTWH(
-              xPosition, yPosition - viewPadding, cellWidth, cellHeight), backgroundPaint);
+        Paint backgroundPaint = Paint()..color = Colors.grey.withOpacity(0.2);
+        canvas.drawRect(
+            Rect.fromLTWH(
+                xPosition, yPosition - viewPadding, cellWidth, cellHeight),
+            backgroundPaint);
       }
 
-      _textPainter.paint(canvas,
-        Offset(xPosition + 4,
-        yPosition - viewPadding + 2));
+      _textPainter.paint(
+          canvas, Offset(xPosition + 4, yPosition - viewPadding + 2));
 
       if (isRTL) {
         if (xPosition - 1 < 0) {
