@@ -33,7 +33,6 @@ class MonthViewWidget extends StatefulWidget {
       this.blackoutDates,
       this.blackoutDatesTextStyle,
       this.textScaleFactor,
-      this.builder,
       this.width,
       this.height,
       this.weekNumberStyle,
@@ -100,9 +99,6 @@ class MonthViewWidget extends StatefulWidget {
   /// Defines the current platform is mobile platform or not.
   final bool isMobilePlatform;
 
-  /// Used to build the widget that replaces the month cell.
-  final MonthCellBuilder? builder;
-
   /// Holds the visible appointment collection used to trigger the builder
   /// when its value changed.
   final ValueNotifier<List<CalendarAppointment>?> visibleAppointmentNotifier;
@@ -144,63 +140,6 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
             widget.calendar.showWeekNumber,
             widget.width,
             widget.isMobilePlatform);
-    if (widget.builder != null) {
-      final int visibleDatesCount = widget.visibleDates.length;
-      final double cellWidth =
-          (widget.width - weekNumberPanelWidth) / DateTime.daysPerWeek;
-      final double cellHeight = widget.height / widget.rowCount;
-      double xPosition = weekNumberPanelWidth, yPosition = 0;
-      final int currentMonth =
-          widget.visibleDates[visibleDatesCount ~/ 2].month;
-      final bool showTrailingLeadingDates =
-          CalendarViewHelper.isLeadingAndTrailingDatesVisible(
-              widget.rowCount, widget.showTrailingAndLeadingDates);
-      for (int i = 0; i < visibleDatesCount; i++) {
-        final DateTime currentVisibleDate = widget.visibleDates[i];
-        if (!showTrailingLeadingDates &&
-            currentMonth != currentVisibleDate.month) {
-          xPosition += cellWidth;
-          if (xPosition + 1 >= widget.width) {
-            xPosition = weekNumberPanelWidth;
-            yPosition += cellHeight;
-          }
-
-          continue;
-        }
-
-        final List<CalendarAppointment> appointments =
-            AppointmentHelper.getSpecificDateVisibleAppointment(
-                currentVisibleDate, widget.visibleAppointmentNotifier.value);
-        List<dynamic> monthCellAppointment = appointments;
-        if (widget.calendar.dataSource != null &&
-            !AppointmentHelper.isCalendarAppointment(
-                widget.calendar.dataSource!)) {
-          monthCellAppointment = CalendarViewHelper.getCustomAppointments(
-              appointments, widget.calendar.dataSource);
-        }
-
-        final Widget child = widget.builder!(
-            context,
-            MonthCellDetails(
-                currentVisibleDate,
-                List<Object>.unmodifiable(monthCellAppointment),
-                List<DateTime>.unmodifiable(widget.visibleDates),
-                Rect.fromLTWH(
-                    widget.isRTL
-                        ? widget.width - xPosition - cellWidth
-                        : xPosition,
-                    yPosition,
-                    cellWidth,
-                    cellHeight)));
-        children.add(RepaintBoundary(child: child));
-
-        xPosition += cellWidth;
-        if (xPosition + 1 >= widget.width) {
-          xPosition = weekNumberPanelWidth;
-          yPosition += cellHeight;
-        }
-      }
-    }
 
     return _MonthViewRenderObjectWidget(
       widget.visibleDates,

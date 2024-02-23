@@ -13,8 +13,6 @@ import '../../../calendar.dart';
 /// See also:
 /// * [TimeSlotViewSettings], which is used to customize the timeslot view of
 /// calendar.
-/// * [SfCalendar.monthCellBuilder], which used to set the custom widget for
-/// month cell in calendar.
 /// * [SfCalendar.monthViewSettings], to know more about the customization of
 /// month view in calendar.
 /// * [SfCalendar.blackoutDates], which allows to restrict the interaction for a
@@ -253,8 +251,6 @@ class MonthViewSettings with Diagnosticable {
   /// of calendar.
   /// * [appointmentDisplayMode], which is used to customize the appointment
   /// display mode in month cells of calendar.
-  /// * [SfCalendar.monthCellBuilder], which used to set the custom widget for
-  /// month cell in calendar.
   /// * [SfCalendar.blackoutDates], which allows to restrict the interaction for
   /// a particular date in month views of calendar.
   /// * [SfCalendar.blackoutDatesTextStyle], which used to customize the
@@ -1039,8 +1035,6 @@ class AgendaStyle with Diagnosticable {
 /// of calendar.
 /// * [MonthViewSettings.appointmentDisplayMode], which is used to customize the
 /// appointment display mode in month cells of calendar.
-/// * [SfCalendar.monthCellBuilder], which used to set the custom widget for
-/// month cell in calendar.
 /// * [SfCalendar.blackoutDates], which allows to restrict the interaction for
 /// a particular date in month views of calendar.
 /// * [SfCalendar.blackoutDatesTextStyle], which used to customize the

@@ -180,7 +180,6 @@ class SfCalendar extends StatefulWidget {
     this.appointmentTimeTextFormat,
     this.blackoutDates,
     this.scheduleViewMonthHeaderBuilder,
-    this.monthCellBuilder,
     this.appointmentBuilder,
     this.timeRegionBuilder,
     this.headerDateFormat,
@@ -504,38 +503,6 @@ class SfCalendar extends StatefulWidget {
   ///
   ///  ```
   final DateTime maxDate;
-
-  /// A builder that builds a widget, replaces the month cell in the
-  /// calendar month view.
-  ///
-  /// See also:
-  /// * [MonthViewSettings.appointmentDisplayMode], to customize the appointment
-  /// display mode in the month cell.
-  /// * [appointmentBuilder], to build custom widget for appointments in
-  /// calendar.
-  /// * Knowledge base: [How to customize month cells](https://www.syncfusion.com/kb/12016/how-to-customize-the-month-cells-of-the-flutter-calendar)
-  /// * Knowledge base: [How to customize month cell with appointment count](https://www.syncfusion.com/kb/12306/how-to-customize-the-month-cell-with-appointment-count-in-the-flutter-calendar)
-  ///
-  /// ```dart
-  ///@override
-  ///  Widget build(BuildContext context) {
-  ///    return Scaffold(
-  ///        body: Container(
-  ///            child: SfCalendar(
-  ///      view: CalendarView.month,
-  ///      monthCellBuilder:
-  ///           (BuildContext buildContext, MonthCellDetails details) {
-  ///        return Container(
-  ///          color: Colors.red,
-  ///          child: Text(
-  ///            details.date.day.toString(),
-  ///          ),
-  ///        );
-  ///      },
-  ///    )));
-  ///  }
-  ///  ```
-  final MonthCellBuilder? monthCellBuilder;
 
   /// A builder that builds a widget, replaces the appointment view in a day,
   /// week, workweek, month, schedule and timeline day, week, workweek,
@@ -1393,8 +1360,6 @@ class SfCalendar extends StatefulWidget {
   /// [MonthViewSettings.navigationDirection] in month view of calendar.
   ///
   /// See also:
-  /// * [monthCellBuilder], to customize the month cell with custom widget in
-  /// calendar.
   /// * [MonthViewSettings], to know more about the customization of month view
   /// in calendar.
   /// * [blackoutDates], which allows to restrict the interaction for a
@@ -2579,8 +2544,6 @@ class SfCalendar extends StatefulWidget {
         'onSelectionChanged', onSelectionChanged));
     properties.add(DiagnosticsProperty<ScheduleViewMonthHeaderBuilder>(
         'scheduleViewMonthHeaderBuilder', scheduleViewMonthHeaderBuilder));
-    properties.add(DiagnosticsProperty<MonthCellBuilder>(
-        'monthCellBuilder', monthCellBuilder));
     properties.add(DiagnosticsProperty<CalendarAppointmentBuilder>(
         'appointmentBuilder', appointmentBuilder));
     properties.add(DiagnosticsProperty<TimeRegionBuilder>(

@@ -286,14 +286,6 @@ class CalendarDetails extends CalendarTouchDetails {
 typedef ScheduleViewMonthHeaderBuilder = Widget Function(
     BuildContext context, ScheduleViewMonthHeaderDetails details);
 
-/// Signature for a function that creates a widget based on month cell details.
-///
-/// See also:
-/// * [SfCalendar.monthCellBuilder], which matches this signature.
-/// * [SfCalendar], which uses this signature in one of it's callback.
-typedef MonthCellBuilder = Widget Function(
-    BuildContext context, MonthCellDetails details);
-
 /// Signature for a function that creates a widget based on appointment details.
 ///
 /// See also:
@@ -338,11 +330,7 @@ typedef ResourceViewHeaderBuilder = Widget Function(
 
 /// Contains the details that needed on month cell builder.
 ///
-/// Details for the [MonthCellBuilder], such as [date], [appointments],
-/// [visibleDates] and [bounds].
-///
 /// See also:
-/// * [SfCalendar.monthCellBuilder], which receives the information.
 /// * [SfCalendar], which passes the information to one of its receiver.
 class MonthCellDetails {
   /// Default constructor to store the details needed in month cell builder
