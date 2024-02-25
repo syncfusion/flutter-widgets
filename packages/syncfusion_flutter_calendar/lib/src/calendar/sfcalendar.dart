@@ -1467,6 +1467,8 @@ class SfCalendar extends StatefulWidget {
   /// ```
   final List<DateTime>? blackoutDates;
 
+
+
   /// Specifies the text style for the blackout dates text in [SfCalendar],
   /// that can’t be selected.
   /// The specified text style overrides existing date text styles(
@@ -2191,6 +2193,7 @@ class SfCalendar extends StatefulWidget {
   /// }
   /// ```
   final AppointmentDragEndCallback? onDragEnd;
+
 
   /// An object that used for programmatic date navigation and date selection
   /// in [SfCalendar].
