@@ -287,7 +287,7 @@ class AppointmentHelper {
     }
 
     return themeData.textTheme.bodyMedium!
-        .merge(appointmentTextStyle.copyWith(fontSize: 12));
+        .merge(appointmentTextStyle.copyWith(fontSize: 12,fontWeight: FontWeight.bold));
   }
 
   static CalendarAppointment _copy(CalendarAppointment appointment) {
