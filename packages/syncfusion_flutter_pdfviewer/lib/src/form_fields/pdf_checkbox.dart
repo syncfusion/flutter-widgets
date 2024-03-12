@@ -121,8 +121,13 @@ class PdfCheckboxFormFieldHelper extends PdfFormFieldHelper {
           onChanged: invokeValueChanged,
           heightPercentage: heightPercentage,
           selectionPadding: selectionPadding,
-          fillColor: const Color.fromARGB(
-              255, 221, 228, 255), // Custom color for the unchecked fill
+          fillColor: pdfCheckboxField.backColor.isEmpty
+              ? const Color.fromARGB(255, 221, 228, 255)
+              : Color.fromRGBO(
+                  pdfCheckboxField.backColor.r,
+                  pdfCheckboxField.backColor.g,
+                  pdfCheckboxField.backColor.b,
+                  1),
           size: bounds.height / heightPercentage,
         ),
       ),
@@ -140,7 +145,7 @@ class PdfCheckbox extends StatefulWidget {
       this.readOnly = false,
       required this.heightPercentage,
       required this.selectionPadding,
-      this.fillColor,
+      required this.fillColor,
       this.size = 24.0})
       : super(key: key);
 
@@ -160,7 +165,7 @@ class PdfCheckbox extends StatefulWidget {
   final ValueChanged<bool?>? onChanged;
 
   /// Checkbox fill color
-  final Color? fillColor;
+  final Color fillColor;
 
   /// Checkbox size
   final double size;
@@ -192,8 +197,7 @@ class _PdfCheckboxState extends State<PdfCheckbox> {
         child: Container(
           width: widget.size,
           height: widget.size,
-          decoration:
-              BoxDecoration(color: widget.fillColor ?? Colors.transparent),
+          decoration: BoxDecoration(color: widget.fillColor),
           child: widget.isChecked
               ? Icon(
                   Icons.check_outlined,

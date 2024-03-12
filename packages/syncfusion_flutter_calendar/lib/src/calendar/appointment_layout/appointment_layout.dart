@@ -1841,7 +1841,7 @@ class _AppointmentRenderObject<T> extends CustomCalendarRenderObject {
             appointment.recurrenceRule != null &&
                 appointment.recurrenceRule!.isNotEmpty;
         final double iconTextSize = _getTextSize(
-            appointmentRect, textSize * _textPainter.textScaleFactor);
+            appointmentRect, _textPainter.textScaler.scale(textSize));
         const double iconPadding = 2;
         //// Padding 4 is left and right 2 padding.
         final double iconSize = iconTextSize + (2 * iconPadding);
@@ -2693,6 +2693,6 @@ TextPainter _updateTextPainter(TextSpan span, TextPainter textPainter,
   textPainter.textDirection = TextDirection.ltr;
   textPainter.textAlign = isRTL ? TextAlign.right : TextAlign.left;
   textPainter.textWidthBasis = TextWidthBasis.longestLine;
-  textPainter.textScaleFactor = textScaleFactor;
+  textPainter.textScaler = TextScaler.linear(textScaleFactor);
   return textPainter;
 }

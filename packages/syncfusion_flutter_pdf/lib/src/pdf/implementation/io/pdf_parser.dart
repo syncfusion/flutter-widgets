@@ -415,6 +415,9 @@ class PdfParser {
       text = 'ColorFound$text';
     }
     final PdfString str = PdfString(text);
+    if (_isColorSpace) {
+      str.isColorSpace = true;
+    }
     if (!unicode) {
       str.encode = ForceEncoding.ascii;
     } else {
@@ -571,6 +574,9 @@ class PdfParser {
     _match(_next, PdfTokenType.hexStringEnd);
     _advance();
     final PdfString result = PdfString(sb, !isHex);
+    if (_isColorSpace) {
+      result.isColorSpace = true;
+    }
     return result;
   }
 

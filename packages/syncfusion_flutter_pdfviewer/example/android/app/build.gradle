@@ -26,6 +26,9 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
+    if (project.android.hasProperty("namespace")) {
+        namespace "com.syncfusion.flutter.pdfviewer.example"
+    }
     compileSdkVersion flutter.compileSdkVersion
 
     compileOptions {

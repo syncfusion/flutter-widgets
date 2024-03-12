@@ -1,4 +1,3 @@
-import '../../interfaces/pdf_interface.dart';
 import '../actions/pdf_annotation_action.dart';
 import '../forms/pdf_field.dart';
 import '../general/pdf_default_appearance.dart';
@@ -199,7 +198,6 @@ class WidgetAnnotationHelper extends PdfAnnotationHelper {
       dictionary.setProperty(PdfDictionaryProperties.mk, widgetAppearance);
     } else {
       dictionary.setProperty(PdfDictionaryProperties.ap, null);
-      bool isSignatureField = false;
       final PdfAppearance? tempAppearance = helper.appearance;
       dictionary.setProperty(
           PdfDictionaryProperties.ap,
@@ -209,15 +207,7 @@ class WidgetAnnotationHelper extends PdfAnnotationHelper {
                       null
               ? tempAppearance
               : null);
-      if (dictionary.containsKey(PdfDictionaryProperties.ft)) {
-        final IPdfPrimitive? signatureName = PdfCrossTable.dereference(
-            helper.dictionary![PdfDictionaryProperties.ft]);
-        if (signatureName is PdfName &&
-            signatureName.name == PdfDictionaryProperties.sig) {
-          isSignatureField = true;
-        }
-      }
-      if (!isSignatureField) {
+      if (widgetAppearance != null && widgetAppearance!.dictionary!.count > 0) {
         dictionary.setProperty(PdfDictionaryProperties.mk, widgetAppearance);
       }
       dictionary.setProperty(PdfDictionaryProperties.usageApplication, null);

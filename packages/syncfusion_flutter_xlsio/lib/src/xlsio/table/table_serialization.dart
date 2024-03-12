@@ -34,6 +34,11 @@ class _TableSerialization {
           id++;
         }
       }
+      if (sheet.chartCount > 0) {
+        for (int chartIndex = 0; chartIndex < sheet.chartCount; chartIndex++) {
+          id++;
+        }
+      }
       builder.element('tableParts', nest: () {
         builder.attribute('count', tableCollection._count);
         for (int tableCount = 0;
@@ -41,7 +46,7 @@ class _TableSerialization {
             tableCount++) {
           rid = id++;
           final ExcelTable table = tableCollection[tableCount];
-          _serializeTable(table, tableCount + 1);
+          _serializeTable(table, tableCount + 1, sheet);
           builder.element('tablePart', nest: () {
             builder.attribute('r:id', 'rId$rid');
           });
@@ -80,7 +85,7 @@ class _TableSerialization {
   }
 
   /// Serialize Table
-  void _serializeTable(ExcelTable table, int index) {
+  void _serializeTable(ExcelTable table, int index, Worksheet sheet) {
     final XmlBuilder builder = XmlBuilder();
     _workbook._tableCount++;
     builder.element('table', nest: () {
@@ -101,7 +106,22 @@ class _TableSerialization {
       if (!typedTable.showHeaderRow) {
         builder.attribute('headerRowCount', '0');
       }
+      if (_isTableAutoFlter(sheet)) {
+        builder.element('autoFilter', nest: () {
+          builder.attribute('ref', sheet.autoFilters.filterRange.addressLocal);
+          // ignore: always_specify_types
+          for (int i = 0; i < sheet.autoFilters.count; i++) {
+            final _AutoFilterImpl autoFilter =
+                sheet.autoFilters[i] as _AutoFilterImpl;
 
+            if (autoFilter._isFiltered) {
+              final SerializeWorkbook serializeWorkbook =
+                  SerializeWorkbook(sheet.workbook);
+              serializeWorkbook._serializeFilterColumn(builder, autoFilter);
+            }
+          }
+        });
+      }
       _serializeTableColumns(builder, table.columns);
 
       _serializeTableStyle(builder, table);
@@ -111,6 +131,18 @@ class _TableSerialization {
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(bytes, 'xl/tables/table${_workbook._tableCount}.xml');
+  }
+
+  ///Check is Table AutoFlter
+  bool _isTableAutoFlter(Worksheet sheet) {
+    for (int i = 0; i < sheet.tableCollection._count; i++) {
+      if ((sheet.autoFilters.count != 0) &&
+          (sheet.tableCollection[i].dataRange.addressLocal ==
+              sheet.autoFilters.filterRange.addressLocal)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /// Add the workbook data with filename to ZipArchive.

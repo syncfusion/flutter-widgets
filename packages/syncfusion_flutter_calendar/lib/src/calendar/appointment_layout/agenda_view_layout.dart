@@ -1084,7 +1084,7 @@ class _AgendaViewRenderObject<T> extends CustomCalendarRenderObject {
       bool isAllDay,
       double spanIconWidth) {
     _textPainter.text = icon;
-    _textPainter.textScaleFactor = textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
     _textPainter.layout(maxWidth: size.width - (2 * padding) - padding);
     final double iconSize = textSize + 8;
     if (!isLargerScheduleUI) {
@@ -1162,7 +1162,7 @@ class _AgendaViewRenderObject<T> extends CustomCalendarRenderObject {
       List<String> appointmentFormatString,
       List<String> sameDateAppointmentFormatString,
       List<String> diffDateAppointmentFormatString) {
-    _textPainter.textScaleFactor = textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
     final double lineHeight = _updatePainterLinesCount(appointmentHeight);
     final double iconSize = isRecurrence ? recurrenceTextSize + 10 : 0;
     _textPainter.layout(
@@ -1279,7 +1279,7 @@ class _AgendaViewRenderObject<T> extends CustomCalendarRenderObject {
         CalendarViewHelper.getTextDirectionBasedOnLocale(locale);
     _textPainter.textAlign = TextAlign.left;
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
-    _textPainter.textScaleFactor = textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
   }
 
   double _addScheduleViewForWeb(
@@ -1298,7 +1298,7 @@ class _AgendaViewRenderObject<T> extends CustomCalendarRenderObject {
       List<String> appointmentFormatString,
       List<String> sameDateAppointmentFormatString,
       Offset offset) {
-    _textPainter.textScaleFactor = textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
     final double centerYPosition = appointmentHeight / 2;
     final double circleRadius =
         centerYPosition > padding ? padding : centerYPosition - 2;

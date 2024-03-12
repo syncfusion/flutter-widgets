@@ -5928,8 +5928,10 @@ class _CalendarViewState<T> extends State<_CalendarView<T>>
       return;
     }
 
-    if (widget.resourcePanelScrollController!.offset !=
-        _timelineViewVerticalScrollController!.offset) {
+    if (_timelineViewVerticalScrollController != null &&
+        _timelineViewVerticalScrollController!.hasClients &&
+        widget.resourcePanelScrollController!.offset !=
+            _timelineViewVerticalScrollController!.offset) {
       _timelineViewVerticalScrollController!
           .jumpTo(widget.resourcePanelScrollController!.offset);
     }
@@ -11628,7 +11630,7 @@ class _ViewHeaderViewPainter extends CustomPainter {
       _dateTextPainter.textDirection = TextDirection.ltr;
       _dateTextPainter.textAlign = TextAlign.left;
       _dateTextPainter.textWidthBasis = TextWidthBasis.longestLine;
-      _dateTextPainter.textScaleFactor = textScaleFactor;
+      _dateTextPainter.textScaler = TextScaler.linear(textScaleFactor);
 
       _dateTextPainter.layout(maxWidth: width);
 
@@ -11689,7 +11691,7 @@ class _ViewHeaderViewPainter extends CustomPainter {
         _dateTextPainter.textDirection = TextDirection.ltr;
         _dateTextPainter.textAlign = TextAlign.left;
         _dateTextPainter.textWidthBasis = TextWidthBasis.longestLine;
-        _dateTextPainter.textScaleFactor = textScaleFactor;
+        _dateTextPainter.textScaler = TextScaler.linear(textScaleFactor);
         _dateTextPainter.layout(maxWidth: timeLabelWidth);
         final double weekNumberPosition = isRTL
             ? (size.width - timeLabelWidth) +
@@ -11829,7 +11831,7 @@ class _ViewHeaderViewPainter extends CustomPainter {
     _dayTextPainter.textDirection = TextDirection.ltr;
     _dayTextPainter.textAlign = TextAlign.left;
     _dayTextPainter.textWidthBasis = TextWidthBasis.longestLine;
-    _dayTextPainter.textScaleFactor = textScaleFactor;
+    _dayTextPainter.textScaler = TextScaler.linear(textScaleFactor);
     _dayTextPainter.ellipsis = '...';
     _dayTextPainter.maxLines = 1;
 
@@ -12446,7 +12448,7 @@ class _TimeRulerView extends CustomPainter {
     _textPainter.textDirection =
         CalendarViewHelper.getTextDirectionBasedOnLocale(locale);
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
-    _textPainter.textScaleFactor = textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
 
     final TextStyle timeTextStyle = calendarTheme.timeTextStyle!;
 
@@ -13428,7 +13430,7 @@ class _ResizingAppointmentPainter<T> extends CustomPainter {
     _textPainter.textDirection = TextDirection.ltr;
     _textPainter.textAlign = isRTL ? TextAlign.right : TextAlign.left;
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
-    _textPainter.textScaleFactor = textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
   }
 
   void _addRecurrenceIcon(Rect rect, Canvas canvas, int? textPadding,
@@ -14081,7 +14083,7 @@ class _DraggingAppointmentRenderObject<T> extends RenderBox
     _textPainter.textDirection = TextDirection.ltr;
     _textPainter.textAlign = isRTL ? TextAlign.right : TextAlign.left;
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
-    _textPainter.textScaleFactor = textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
     double maxTextWidth =
         dragDetails.appointmentView!.appointmentRect!.width - textStartPadding;
     maxTextWidth = maxTextWidth > 0 ? maxTextWidth : 0;
@@ -14129,7 +14131,7 @@ class _DraggingAppointmentRenderObject<T> extends RenderBox
     _textPainter.textDirection = TextDirection.ltr;
     _textPainter.textAlign = isRTL ? TextAlign.right : TextAlign.left;
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
-    _textPainter.textScaleFactor = textScaleFactor;
+    _textPainter.textScaler = TextScaler.linear(textScaleFactor);
     final double timeLabelSize =
         isTimelineView ? dragDetails.timeIntervalHeight! : timeLabelWidth;
     _textPainter.layout(maxWidth: timeLabelSize);

@@ -18,7 +18,7 @@ class TooltipRenderArgs {
   Offset? location;
 }
 
-/// Used to align the tootip content.
+/// Used to align the tooltip content.
 ///
 /// Tooltip alignment supports the below alignments.
 enum TooltipAlignment {
@@ -38,7 +38,7 @@ enum TooltipAlignment {
 /// If the shape is DataMarkerType.image, specify the image path in the
 /// imageUrl property of markerSettings.
 enum DataMarkerType {
-  ///- DataMarkerType.cicle, will render marker shape  circle.
+  ///- DataMarkerType.circle, will render marker shape  circle.
   circle,
 
   ///- DataMarkerType.rectangle, will render marker shape  rectangle.
@@ -144,7 +144,7 @@ void drawTriangle(Path path, double x, double y, double width, double height) {
   path.close();
 }
 
-/// This method measures the size for given text and textstyle
+/// This method measures the size for given text and text style.
 Size measureText(String textValue, TextStyle textStyle, [int? angle]) {
   Size size;
   final TextPainter textPainter = TextPainter(

@@ -1208,8 +1208,11 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
 
     drawRegions(context, trackRect, offset, startThumbCenter, endThumbCenter);
     _drawOverlayAndThumb(context, offset, endThumbCenter, startThumbCenter);
+    // To avoid positioning the tooltip text on the edge, used a 5px margin.
+    final Rect tooltipTargetRect = Rect.fromLTWH(
+        5.0, trackRect.top, mediaQueryData.size.width - 5.0, trackRect.height);
     _drawTooltip(context, endThumbCenter, startThumbCenter, offset,
-        actualTrackOffset, trackRect);
+        actualTrackOffset, tooltipTargetRect);
   }
 
   /// Describe the semantics of the start thumb.

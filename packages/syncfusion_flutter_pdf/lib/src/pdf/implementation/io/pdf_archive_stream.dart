@@ -6,6 +6,8 @@ import '../primitives/pdf_name.dart';
 import '../primitives/pdf_number.dart';
 import '../primitives/pdf_reference.dart';
 import '../primitives/pdf_stream.dart';
+import '../security/pdf_encryptor.dart';
+import '../security/pdf_security.dart';
 import 'pdf_constants.dart';
 import 'pdf_writer.dart';
 
@@ -78,7 +80,12 @@ class PdfArchiveStream extends PdfStream {
   void saveObject(IPdfPrimitive obj, PdfReference reference) {
     final int? position = _objectWriter!.position;
     _indices![position] = reference.objNum;
+    final PdfEncryptor encryptor =
+        PdfSecurityHelper.getHelper(_document!.security).encryptor;
+    final bool state = encryptor.encrypt;
+    encryptor.encrypt = false;
     obj.save(_objectWriter);
+    encryptor.encrypt = state;
     _objectWriter!.write(PdfOperators.newLine);
   }
 
@@ -87,7 +94,12 @@ class PdfArchiveStream extends PdfStream {
       IPdfPrimitive obj, PdfReference reference) async {
     final int? position = _objectWriter!.position;
     _indices![position] = reference.objNum;
+    final PdfEncryptor encryptor =
+        PdfSecurityHelper.getHelper(_document!.security).encryptor;
+    final bool state = encryptor.encrypt;
+    encryptor.encrypt = false;
     obj.save(_objectWriter);
+    encryptor.encrypt = state;
     _objectWriter!.write(PdfOperators.newLine);
   }
 }

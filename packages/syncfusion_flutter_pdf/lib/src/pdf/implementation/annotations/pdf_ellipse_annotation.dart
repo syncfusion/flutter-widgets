@@ -19,6 +19,7 @@ import '../primitives/pdf_name.dart';
 import '../primitives/pdf_number.dart';
 import '../primitives/pdf_reference_holder.dart';
 import '../primitives/pdf_stream.dart';
+import 'enum.dart';
 import 'pdf_annotation.dart';
 import 'pdf_annotation_collection.dart';
 import 'pdf_appearance.dart';
@@ -51,6 +52,7 @@ class PdfEllipseAnnotation extends PdfAnnotation {
       String? subject,
       DateTime? modifiedDate,
       double? opacity,
+      List<PdfAnnotationFlags>? flags,
       bool? setAppearance}) {
     _helper = PdfEllipseAnnotationHelper(this, bounds, text,
         color: color,
@@ -60,6 +62,7 @@ class PdfEllipseAnnotation extends PdfAnnotation {
         subject: subject,
         modifiedDate: modifiedDate,
         opacity: opacity,
+        flags: flags,
         setAppearance: setAppearance);
   }
 
@@ -73,6 +76,32 @@ class PdfEllipseAnnotation extends PdfAnnotation {
   late PdfEllipseAnnotationHelper _helper;
 
   // properties
+  /// Gets annotation's border properties like width, horizontal radius etc.
+  PdfAnnotationBorder get border {
+    return _helper.border;
+  }
+
+  /// Sets annotation's border properties like width, horizontal radius etc.
+  set border(PdfAnnotationBorder value) {
+    _helper.border = value;
+  }
+
+  /// Gets the annotation color.
+  PdfColor get color => _helper.color;
+
+  /// Sets the annotation color.
+  set color(PdfColor value) {
+    _helper.color = value;
+  }
+
+  /// Gets the inner color of the annotation.
+  PdfColor get innerColor => _helper.innerColor;
+
+  /// Sets the inner color of the annotation.
+  set innerColor(PdfColor value) {
+    _helper.innerColor = value;
+  }
+
   IPdfPrimitive? get _element => PdfAnnotationHelper.getHelper(this).dictionary;
   set _element(IPdfPrimitive? value) {
     if (value != null && value is PdfDictionary) {
@@ -92,6 +121,7 @@ class PdfEllipseAnnotationHelper extends PdfAnnotationHelper {
       String? subject,
       DateTime? modifiedDate,
       double? opacity,
+      List<PdfAnnotationFlags>? flags,
       bool? setAppearance})
       : super(annotation) {
     initializeAnnotation(
@@ -104,6 +134,7 @@ class PdfEllipseAnnotationHelper extends PdfAnnotationHelper {
         subject: subject,
         modifiedDate: modifiedDate,
         opacity: opacity,
+        flags: flags,
         setAppearance: setAppearance);
     dictionary!.setProperty(PdfDictionaryProperties.subtype,
         PdfName(PdfDictionaryProperties.circle));

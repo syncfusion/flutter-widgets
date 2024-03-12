@@ -9,9 +9,12 @@ void main() {
 class MapsApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Maps Demo',
-      home: MyHomePage(),
+      theme: ThemeData(
+        useMaterial3: false,
+      ),
+      home: const MyHomePage(),
     );
   }
 }

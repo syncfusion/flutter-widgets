@@ -190,9 +190,7 @@ class SfChartThemeData with Diagnosticable {
     legendTextColor ??= isLight
         ? const Color.fromRGBO(53, 53, 53, 1)
         : const Color.fromRGBO(255, 255, 255, 1);
-    legendBackgroundColor ??= isLight
-        ? const Color.fromRGBO(255, 255, 255, 1)
-        : const Color.fromRGBO(0, 0, 0, 1);
+    legendBackgroundColor ??= Colors.transparent;
     legendTitleColor ??= isLight
         ? const Color.fromRGBO(66, 66, 66, 1)
         : const Color.fromRGBO(255, 255, 255, 1);
@@ -210,7 +208,7 @@ class SfChartThemeData with Diagnosticable {
         ? const Color.fromRGBO(255, 255, 255, 1)
         : const Color.fromRGBO(0, 0, 0, 1);
     tooltipColor ??= isLight
-        ? const Color.fromRGBO(0, 8, 22, 0.75)
+        ? const Color.fromRGBO(0, 8, 22, 1)
         : const Color.fromRGBO(255, 255, 255, 1);
     tooltipLabelColor ??= isLight
         ? const Color.fromRGBO(255, 255, 255, 1)

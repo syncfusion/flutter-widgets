@@ -2584,6 +2584,13 @@ class SerializeWorkbook {
             id++;
           }
         }
+        if (sheet.chartCount > 0) {
+          for (int chartCount = 0;
+              chartCount < sheet.chartCount;
+              chartCount++) {
+            id++;
+          }
+        }
         for (int tableCount = _workbook._previousTableCount;
             tableCount < _workbook._tableCount;
             tableCount++) {
@@ -5004,7 +5011,7 @@ class SerializeWorkbook {
         builder.attribute('val', value);
       }
 
-      builder.attribute('gte', (conditionValue.operator).index.toString());
+      builder.attribute('gte', conditionValue.operator.index.toString());
 
       if (cfHasExtensionList || isCustom) {
         builder.element('xm:f', nest: value);
@@ -5028,7 +5035,7 @@ class SerializeWorkbook {
       builder.attribute('type', strType);
       builder.attribute('val', conditionValue.value);
       if (isIconSet) {
-        builder.attribute('gte', (conditionValue.operator).index.toString());
+        builder.attribute('gte', conditionValue.operator.index.toString());
       }
     });
   }
@@ -5669,7 +5676,7 @@ class SerializeWorkbook {
                         builder.element('xm:f', nest: strFormula2);
                       } else if (format._range != null) {
                         builder.element('xm:f',
-                            nest: (format._range)!.addressGlobal);
+                            nest: format._range!.addressGlobal);
                       }
 
                       builder.element('dxf', nest: () {
@@ -5866,7 +5873,7 @@ class SerializeWorkbook {
                         builder.element('xm:f', nest: strFormula2);
                       } else if (format._range != null) {
                         builder.element('xm:f',
-                            nest: (format._range)!.addressGlobal);
+                            nest: format._range!.addressGlobal);
                       }
 
                       builder.element('dxf', nest: () async {
@@ -6026,7 +6033,7 @@ class SerializeWorkbook {
       builder.attribute('type', strType);
       builder.attribute('val', conditionValue.value);
       if (isIconSet) {
-        builder.attribute('gte', (conditionValue.operator).index.toString());
+        builder.attribute('gte', conditionValue.operator.index.toString());
       }
     });
   }
@@ -6046,7 +6053,7 @@ class SerializeWorkbook {
       builder.attribute('type', strType);
       builder.attribute('val', conditionValue.value);
       if (isIconSet) {
-        builder.attribute('gte', (conditionValue.operator).index.toString());
+        builder.attribute('gte', conditionValue.operator.index.toString());
       }
     });
   }
@@ -6104,18 +6111,31 @@ class SerializeWorkbook {
     if (autoFilters == null || autoFilters._innerList.isEmpty) {
       return;
     }
-    builder.element('autoFilter', nest: () {
-      builder.attribute('ref', autoFilters.filterRange.addressLocal);
+    if (!_isTableAutoFlter(autoFilters._worksheet)) {
+      builder.element('autoFilter', nest: () {
+        builder.attribute('ref', autoFilters.filterRange.addressLocal);
 
-      // ignore: always_specify_types
-      for (int i = 0; i < autoFilters.count; i++) {
-        final _AutoFilterImpl autoFilter = autoFilters[i] as _AutoFilterImpl;
+        // ignore: always_specify_types
+        for (int i = 0; i < autoFilters.count; i++) {
+          final _AutoFilterImpl autoFilter = autoFilters[i] as _AutoFilterImpl;
 
-        if (autoFilter._isFiltered) {
-          _serializeFilterColumn(builder, autoFilter);
+          if (autoFilter._isFiltered) {
+            _serializeFilterColumn(builder, autoFilter);
+          }
         }
+      });
+    }
+  }
+
+  ///Check is Table AutoFlter
+  bool _isTableAutoFlter(Worksheet sheet) {
+    for (int i = 0; i < sheet.tableCollection._count; i++) {
+      if (sheet.tableCollection[i].dataRange.addressLocal ==
+          sheet.autoFilters.filterRange.addressLocal) {
+        return true;
       }
-    });
+    }
+    return false;
   }
 
   Future<void> _serializeAutoFiltersAsync(

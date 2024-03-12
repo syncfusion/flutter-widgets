@@ -1,3 +1,33 @@
+## Unreleased
+
+**Features**
+
+* Provided support for text markup and popup annotations.
+
+* Provided support for adding annotation flags to PDF annotations.
+
+**Bugs**
+
+* The issue of retrieving incorrect values from the text box field after saving an encrypted PDF document has been resolved.
+
+## [23.1.44] - 11/07/2023
+
+**Bugs**
+
+* The null reference exception that occurred while retrieving the page from the form fields in the PDF has been resolved.
+
+## [23.1.40] - 10/10/2023
+
+**Bugs**
+
+* Resolved the incorrect image dimension recording in PdfBitmap.
+
+## [23.1.39] - 10/04/2023
+
+**Features**
+
+* Support has been provided for back color, border color, and border style in the PDF signature field.
+
 ## [22.2.11] - 08/29/2023
 
 **Bugs**

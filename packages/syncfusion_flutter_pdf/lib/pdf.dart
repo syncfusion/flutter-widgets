@@ -21,7 +21,10 @@ export 'src/pdf/implementation/annotations/enum.dart'
         PdfLineEndingStyle,
         PdfSubmitFormFlags,
         SubmitDataFormat,
-        HttpMethod;
+        HttpMethod,
+        PdfTextMarkupAnnotationType,
+        PdfPopupIcon,
+        PdfAnnotationFlags;
 export 'src/pdf/implementation/annotations/pdf_action_annotation.dart'
     show PdfLinkAnnotation, PdfActionLinkAnnotation, PdfActionAnnotation;
 export 'src/pdf/implementation/annotations/pdf_annotation.dart'
@@ -40,8 +43,12 @@ export 'src/pdf/implementation/annotations/pdf_line_annotation.dart'
     show PdfLineAnnotation;
 export 'src/pdf/implementation/annotations/pdf_polygon_annotation.dart'
     show PdfPolygonAnnotation;
+export 'src/pdf/implementation/annotations/pdf_popup_annotation.dart'
+    show PdfPopupAnnotation;
 export 'src/pdf/implementation/annotations/pdf_rectangle_annotation.dart'
     show PdfRectangleAnnotation;
+export 'src/pdf/implementation/annotations/pdf_text_markup_annotation.dart'
+    show PdfTextMarkupAnnotation;
 export 'src/pdf/implementation/annotations/pdf_text_web_link.dart'
     show PdfTextWebLink;
 export 'src/pdf/implementation/annotations/pdf_uri_annotation.dart'

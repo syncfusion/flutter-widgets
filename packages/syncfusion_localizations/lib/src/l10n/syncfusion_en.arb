@@ -389,6 +389,36 @@
       "type": "text"
   },
 
+  "pdfTextSelectionMenuCopyLabel": "Copy",
+   "@pdfTextSelectionMenuCopyLabel": {
+        "description": "Label that is displayed in the text selection context menu of PdfViewer for copying the selected text.",
+        "type": "text"
+   },
+
+   "pdfTextSelectionMenuHighlightLabel": "Highlight",
+    "@pdfTextSelectionMenuHighlightLabel": {
+         "description": "Label that is displayed in the text selection context menu of PdfViewer for highlighting the selected text.",
+         "type": "text"
+    },
+
+    "pdfTextSelectionMenuStrikethroughLabel": "Strikethrough",
+     "@pdfTextSelectionMenuStrikethroughLabel": {
+          "description": "Label that is displayed in the text selection context menu of PdfViewer for striking through the selected text.",
+          "type": "text"
+     },
+
+    "pdfTextSelectionMenuUnderlineLabel": "Underline",
+     "@pdfTextSelectionMenuUnderlineLabel": {
+          "description": "Label that is displayed in the text selection context menu of PdfViewer for underlining the selected text.",
+          "type": "text"
+     },
+
+     "pdfTextSelectionMenuSquigglyLabel": "Squiggly",
+      "@pdfTextSelectionMenuSquigglyLabel": {
+           "description": "Label that is displayed in the text selection context menu of PdfViewer for underlining the selected text with squiggly style.",
+           "type": "text"
+      },
+
   "afterDataGridFilteringLabel": "After",
   "@afterDataGridFilteringLabel": {
       "description" : "The label that is displayed in the filter view in SfDataGrid for `After` option in drop down widget.",

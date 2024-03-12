@@ -1607,7 +1607,7 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
     _textDirection = textDirection == TextDirection.ltr
         ? textDirection
         : (_direction == Axis.vertical ? TextDirection.ltr : textDirection);
-    _textPainter.textScaleFactor = MediaQuery.of(context).textScaleFactor;
+    _textPainter.textScaler = MediaQuery.of(context).textScaler;
 
     final Widget child = Directionality(
       textDirection: _textDirection,
@@ -2394,7 +2394,7 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
 
       return splitText;
     } else {
-      return <String>[(item.text)];
+      return <String>[item.text];
     }
   }
 
@@ -2615,7 +2615,7 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
     _isRTL = textDirection == TextDirection.rtl;
     _textPainter = TextPainter(
         textDirection: TextDirection.ltr,
-        textScaleFactor: MediaQuery.of(context).textScaleFactor);
+        textScaler: MediaQuery.of(context).textScaler);
     _direction = widget.direction ??
         (widget.position == LegendPosition.top ||
                 widget.position == LegendPosition.bottom
@@ -2669,7 +2669,7 @@ class PointerController extends ChangeNotifier {
   dynamic colorValue;
 
   /// Specifies the hovered segment index to render the marker pointer
-  /// on that particulat segment in case of Solid bar legend type.
+  /// on that particular segment in case of Solid bar legend type.
   int? get segmentIndex => _segmentIndex;
   int? _segmentIndex;
   set segmentIndex(int? value) {
@@ -2680,7 +2680,7 @@ class PointerController extends ChangeNotifier {
     _segmentIndex = value;
   }
 
-  /// Sepcifies the previous hovered segment index to
+  /// Specifies the previous hovered segment index to
   /// rebuild the older solid bar segment without marker pointer.
   int? previousSegmentIndex;
 }

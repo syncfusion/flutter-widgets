@@ -72,10 +72,10 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
         _effectiveTextStyle = effectiveTextStyle,
         _themeData = themeData,
         _mediaQueryData = mediaQueryData {
-    _effectiveTextScaleFactor = _mediaQueryData.textScaleFactor;
+    _effectiveTextScaleFactor = _mediaQueryData.textScaler;
 
     _textPainter = TextPainter(textDirection: TextDirection.ltr)
-      ..textScaleFactor = _effectiveTextScaleFactor;
+      ..textScaler = _effectiveTextScaleFactor;
 
     _opacityTween = Tween<double>(begin: 0.0, end: 1.0);
     _dataLabelAnimation = CurvedAnimation(
@@ -85,7 +85,7 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
     _checkDataLabelColor();
   }
 
-  late double _effectiveTextScaleFactor;
+  late TextScaler _effectiveTextScaleFactor;
   late Animation<double> _dataLabelAnimation;
   late Tween<double> _opacityTween;
   late bool _isCustomTextColor;
@@ -135,8 +135,8 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
       return;
     }
     _mediaQueryData = value;
-    _effectiveTextScaleFactor = _mediaQueryData.textScaleFactor;
-    _textPainter.textScaleFactor = _effectiveTextScaleFactor;
+    _effectiveTextScaleFactor = _mediaQueryData.textScaler;
+    _textPainter.textScaler = _effectiveTextScaleFactor;
     markNeedsPaint();
   }
 

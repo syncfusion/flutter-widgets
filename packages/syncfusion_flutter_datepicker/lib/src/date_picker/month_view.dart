@@ -4033,7 +4033,8 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
     height = (height - webUIPadding) / viewCount;
   }
 
-  monthView._textPainter.textScaleFactor = monthView.textScaleFactor;
+  monthView._textPainter.textScaler =
+      TextScaler.linear(monthView.textScaleFactor);
   TextStyle textStyle = monthView.datePickerTheme.activeDatesTextStyle!;
   final int datesCount = monthView.visibleDates.length ~/ viewCount;
   final bool isNeedWidgetPaint = monthView.childCount != 0;

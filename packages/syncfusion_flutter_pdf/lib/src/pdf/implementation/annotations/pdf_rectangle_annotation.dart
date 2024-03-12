@@ -19,6 +19,7 @@ import '../primitives/pdf_name.dart';
 import '../primitives/pdf_number.dart';
 import '../primitives/pdf_reference_holder.dart';
 import '../primitives/pdf_stream.dart';
+import 'enum.dart';
 import 'pdf_annotation.dart';
 import 'pdf_annotation_collection.dart';
 import 'pdf_paintparams.dart';
@@ -26,7 +27,7 @@ import 'pdf_paintparams.dart';
 /// Represents a PDF rectangle annotation
 class PdfRectangleAnnotation extends PdfAnnotation {
   // Constructor
-  /// Initializes new instance of the [PdfRectangleAnnotation] with bounds, text, border, color, innerColor, author, rotate, subject and modifiedDate.
+  /// Initializes new instance of the [PdfRectangleAnnotation] with bounds, text, border, color, innerColor, author, rotate, subject, modifiedDate, and flags.
   /// ``` dart
   /// PdfDocument document = PdfDocument();
   /// PdfPage page = document.pages.add();
@@ -45,6 +46,7 @@ class PdfRectangleAnnotation extends PdfAnnotation {
       String? subject,
       double? opacity,
       DateTime? modifiedDate,
+      List<PdfAnnotationFlags>? flags,
       bool? setAppearance}) {
     _helper = PdfRectangleAnnotationHelper(this, bounds, text,
         color: color,
@@ -54,6 +56,7 @@ class PdfRectangleAnnotation extends PdfAnnotation {
         subject: subject,
         modifiedDate: modifiedDate,
         opacity: opacity,
+        flags: flags,
         setAppearance: setAppearance);
   }
 
@@ -67,6 +70,32 @@ class PdfRectangleAnnotation extends PdfAnnotation {
   late PdfRectangleAnnotationHelper _helper;
 
   // Properites
+  /// Gets annotation's border properties like width, horizontal radius etc.
+  PdfAnnotationBorder get border {
+    return _helper.border;
+  }
+
+  /// Sets annotation's border properties like width, horizontal radius etc.
+  set border(PdfAnnotationBorder value) {
+    _helper.border = value;
+  }
+
+  /// Gets the annotation color.
+  PdfColor get color => _helper.color;
+
+  /// Sets the annotation color.
+  set color(PdfColor value) {
+    _helper.color = value;
+  }
+
+  /// Gets the inner color of the annotation.
+  PdfColor get innerColor => _helper.innerColor;
+
+  /// Sets the inner color of the annotation.
+  set innerColor(PdfColor value) {
+    _helper.innerColor = value;
+  }
+
   IPdfPrimitive? get _element => PdfAnnotationHelper.getHelper(this).dictionary;
 
   set _element(IPdfPrimitive? value) {
@@ -88,6 +117,7 @@ class PdfRectangleAnnotationHelper extends PdfAnnotationHelper {
       String? subject,
       double? opacity,
       DateTime? modifiedDate,
+      List<PdfAnnotationFlags>? flags,
       bool? setAppearance})
       : super(rectangleAnnotation) {
     initializeAnnotation(
@@ -100,6 +130,7 @@ class PdfRectangleAnnotationHelper extends PdfAnnotationHelper {
         subject: subject,
         modifiedDate: modifiedDate,
         opacity: opacity,
+        flags: flags,
         setAppearance: setAppearance);
     dictionary!.setProperty(PdfDictionaryProperties.subtype,
         PdfName(PdfDictionaryProperties.square));

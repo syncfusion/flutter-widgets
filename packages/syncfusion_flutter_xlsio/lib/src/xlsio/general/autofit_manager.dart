@@ -450,7 +450,7 @@ class _AutoFitManager {
     final Rectangle<num> bounds = _measureString(stringValue, font2, ef, true);
     double num5;
 
-    num5 = (bounds.height).ceilToDouble();
+    num5 = bounds.height.ceilToDouble();
 
     if ((font.size >= 20) || (num5 > 100)) {
       num5 = num5 + 1;

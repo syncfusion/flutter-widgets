@@ -537,7 +537,7 @@ class RenderBaseSlider extends RenderProxyBox
       _minorTicksPerInterval > 0 ? actualMinorTickSize.width : 0;
 
   double get actualLabelHeight => _showLabels
-      ? actualLabelSize.height * textPainter.textScaleFactor +
+      ? textPainter.textScaler.scale(actualLabelSize.height) +
           (_sliderThemeData.labelOffset != null
               ? _sliderThemeData.labelOffset!.dy
               : 0)
@@ -566,7 +566,7 @@ class RenderBaseSlider extends RenderProxyBox
   void updateTextPainter() {
     textPainter
       ..textDirection = _textDirection
-      ..textScaleFactor = _mediaQueryData.textScaleFactor;
+      ..textScaler = _mediaQueryData.textScaler;
   }
 
   Offset _getTrackOffset() {

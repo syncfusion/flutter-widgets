@@ -126,6 +126,10 @@ class PdfListBoxFormFieldHelper extends PdfFormFieldHelper {
           selectedItems: listBoxFormField._selectedItems!,
           items: listBoxFormField._items,
           font: pdfListBoxField.font?.name,
+          fillColor: pdfListBoxField.backColor.isEmpty
+              ? const Color.fromARGB(255, 221, 228, 255)
+              : Color.fromRGBO(pdfListBoxField.backColor.r,
+                  pdfListBoxField.backColor.g, pdfListBoxField.backColor.b, 1),
           fontSize: (pdfListBoxField.font?.size ?? 14.0) / heightPercentage,
           onValueChanged: invokeValueChanged,
           onTap: () {
@@ -148,6 +152,7 @@ class PdfListBox extends StatefulWidget {
       required this.selectedItems,
       required this.items,
       this.readOnly = false,
+      required this.fillColor,
       this.font,
       this.fontSize,
       this.onValueChanged,
@@ -165,6 +170,9 @@ class PdfListBox extends StatefulWidget {
 
   /// The list box form field read only.
   final bool readOnly;
+
+  /// The list box form field fill color.
+  final Color fillColor;
 
   /// The list box form field font.
   final String? font;
@@ -188,8 +196,8 @@ class _PdfListBoxState extends State<PdfListBox> {
     return InkWell(
       onTap: widget.onTap,
       child: Container(
-        decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 221, 228, 255),
+        decoration: BoxDecoration(
+          color: widget.fillColor,
         ),
         child: ListView.builder(
             itemCount: widget.items.length,

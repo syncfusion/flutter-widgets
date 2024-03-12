@@ -2,6 +2,19 @@
 
 **Features**
 
+* Provided support for grouping a collection of records based on particular categories, offering various customization options. This includes single and multiple column grouping, along with options to customize appearances and interactively expand and collapse a group.
+* Provided support for retrieving the start and end index of visible rows and columns based on the row region in the DataGrid.
+
+## [24.1.41] - 12/06/2023
+
+**Bugs**
+
+* The scroll offset is now appropriately reset when changing the data source during runtime.
+
+## [23.1.36] - 09/15/2023
+
+**Features**
+
 * Provided support for displaying column header icons, such as sort and filter icons, when hovering over the column header cells.
 
 ## [22.2.9] - 08/15/2023
