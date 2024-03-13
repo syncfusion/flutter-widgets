@@ -420,7 +420,9 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
     size = Size(widgetSize.width.isInfinite ? width : widgetSize.width,
         widgetSize.height.isInfinite ? panelHeight : widgetSize.height);
 
-    for (dynamic child = firstChild; child != null; child = childAfter(child)) {
+    for (RenderBox? child = firstChild;
+        child != null;
+        child = childAfter(child)) {
       child.layout(constraints.copyWith(
           minWidth: width,
           minHeight: resourceItemHeight,

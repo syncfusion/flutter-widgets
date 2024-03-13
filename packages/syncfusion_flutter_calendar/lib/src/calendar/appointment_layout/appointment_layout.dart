@@ -17,7 +17,7 @@ import '../settings/time_slot_view_settings.dart';
 import '../sfcalendar.dart';
 
 /// Used to holds the appointment views in calendar widgets.
-class AppointmentLayout extends StatefulWidget {
+class AppointmentLayout<T> extends StatefulWidget {
   /// Constructor to create the appointment layout that holds the appointment
   /// views in calendar widget.
   const AppointmentLayout(
@@ -42,7 +42,7 @@ class AppointmentLayout extends StatefulWidget {
       : super(key: key);
 
   /// Holds the calendar instance used the get the properties of calendar.
-  final SfCalendar calendar;
+  final SfCalendar<T> calendar;
 
   /// Defines the current calendar view of the calendar widget.
   final CalendarView view;
@@ -55,7 +55,7 @@ class AppointmentLayout extends StatefulWidget {
   final double timeIntervalHeight;
 
   /// Used to get the calendar state details.
-  final UpdateCalendarState updateCalendarState;
+  final UpdateCalendarState<T> updateCalendarState;
 
   /// Defines the direction of the calendar widget is RTL or not.
   final bool isRTL;
@@ -91,40 +91,41 @@ class AppointmentLayout extends StatefulWidget {
   final SfLocalizations localizations;
 
   /// Holds the visible appointment collection of the calendar widget.
-  final ValueNotifier<List<CalendarAppointment>?> visibleAppointments;
+  final ValueNotifier<List<CalendarAppointment<T>>?> visibleAppointments;
 
   /// Return the appointment view based on x and y position.
-  AppointmentView? getAppointmentViewOnPoint(double x, double y) {
+  AppointmentView<T>? getAppointmentViewOnPoint(double x, double y) {
     // ignore: avoid_as
     final GlobalKey appointmentLayoutKey = key! as GlobalKey;
-    final _AppointmentLayoutState state =
+    final _AppointmentLayoutState<T> state =
         // ignore: avoid_as
-        appointmentLayoutKey.currentState! as _AppointmentLayoutState;
+        appointmentLayoutKey.currentState! as _AppointmentLayoutState<T>;
     return state._getAppointmentViewOnPoint(x, y);
   }
 
   /// Returns the visible appointment view collection.
-  List<AppointmentView> getAppointmentViewCollection() {
+  List<AppointmentView<T>> getAppointmentViewCollection() {
     // ignore: avoid_as
     final GlobalKey appointmentLayoutKey = key! as GlobalKey;
-    final _AppointmentLayoutState state =
+    final _AppointmentLayoutState<T> state =
         // ignore: avoid_as
-        appointmentLayoutKey.currentState! as _AppointmentLayoutState;
+        appointmentLayoutKey.currentState! as _AppointmentLayoutState<T>;
     return state._appointmentCollection;
   }
 
   @override
   // ignore: library_private_types_in_public_api
-  _AppointmentLayoutState createState() => _AppointmentLayoutState();
+  _AppointmentLayoutState<T> createState() => _AppointmentLayoutState<T>();
 }
 
-class _AppointmentLayoutState extends State<AppointmentLayout> {
+class _AppointmentLayoutState<T> extends State<AppointmentLayout<T>> {
   /// It holds the appointment views for the visible appointments.
-  final List<AppointmentView> _appointmentCollection = <AppointmentView>[];
+  final List<AppointmentView<T>> _appointmentCollection =
+      <AppointmentView<T>>[];
 
   /// It holds the appointment list based on its visible index value.
-  Map<int, List<AppointmentView>> _indexAppointments =
-      <int, List<AppointmentView>>{};
+  Map<int, List<AppointmentView<T>>> _indexAppointments =
+      <int, List<AppointmentView<T>>>{};
 
   /// It holds the more appointment index appointment counts based on its index.
   Map<int, RRect> _monthAppointmentCountViews = <int, RRect>{};
@@ -133,8 +134,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
   /// appointment builder is null.
   final List<Widget> _children = <Widget>[];
 
-  final UpdateCalendarStateDetails _updateCalendarStateDetails =
-      UpdateCalendarStateDetails();
+  final UpdateCalendarStateDetails<T> _updateCalendarStateDetails =
+      UpdateCalendarStateDetails<T>();
   TextPainter _textPainter = TextPainter();
   late double _weekNumberPanelWidth;
 
@@ -150,7 +151,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
   }
 
   @override
-  void didUpdateWidget(AppointmentLayout oldWidget) {
+  void didUpdateWidget(AppointmentLayout<T> oldWidget) {
     bool isAppointmentDetailsUpdated = false;
     if (widget.visibleDates != oldWidget.visibleDates ||
         widget.timeIntervalHeight != oldWidget.timeIntervalHeight ||
@@ -204,7 +205,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
     if (_children.isEmpty && widget.calendar.appointmentBuilder != null) {
       final DateTime initialVisibleDate = widget.visibleDates[0];
       for (int i = 0; i < _appointmentCollection.length; i++) {
-        final AppointmentView appointmentView = _appointmentCollection[i];
+        final AppointmentView<T> appointmentView = _appointmentCollection[i];
 
         /// Check the appointment view have appointment, if not then the
         /// appointment view is not valid or it will be used for reusing view.
@@ -225,11 +226,12 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
 
         final Widget child = widget.calendar.appointmentBuilder!(
             context,
-            CalendarAppointmentDetails(
+            CalendarAppointmentDetails<T>(
                 date,
-                List<dynamic>.unmodifiable(<dynamic>[
+                <CalendarAppointment<T>>[appointmentView.appointment!],
+                List<T>.unmodifiable(<T>[
                   CalendarViewHelper.getAppointmentDetail(
-                      appointmentView.appointment!, widget.calendar.dataSource)
+                      appointmentView.appointment!, widget.calendar.dataSource!)
                 ]),
                 Rect.fromLTWH(
                     appointmentView.appointmentRect!.left,
@@ -247,15 +249,16 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         /// appointment needed cell index and it bound)
         for (int i = 0; i < keys.length; i++) {
           final int index = keys[i];
-          final List<CalendarAppointment> moreAppointments =
-              <CalendarAppointment>[];
-          final List<AppointmentView> moreAppointmentViews =
+          final List<CalendarAppointment<T>> moreAppointments =
+              <CalendarAppointment<T>>[];
+          final List<AppointmentView<T>> moreAppointmentViews =
               _indexAppointments[index]!;
 
           /// Get the appointments of the more appointment cell index from more
           /// appointment views.
           for (int j = 0; j < moreAppointmentViews.length; j++) {
-            final AppointmentView currentAppointment = moreAppointmentViews[j];
+            final AppointmentView<T> currentAppointment =
+                moreAppointmentViews[j];
             moreAppointments.add(currentAppointment.appointment!);
           }
 
@@ -263,11 +266,11 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
           final RRect moreRegionRect = _monthAppointmentCountViews[index]!;
           final Widget child = widget.calendar.appointmentBuilder!(
               context,
-              CalendarAppointmentDetails(
+              CalendarAppointmentDetails<T>(
                   date,
-                  List<dynamic>.unmodifiable(
-                      CalendarViewHelper.getCustomAppointments(
-                          moreAppointments, widget.calendar.dataSource)),
+                  moreAppointments,
+                  List<T>.unmodifiable(CalendarViewHelper.getCustomAppointments(
+                      moreAppointments, widget.calendar.dataSource!)),
                   Rect.fromLTWH(moreRegionRect.left, moreRegionRect.top,
                       moreRegionRect.width, moreRegionRect.height),
                   isMoreAppointmentRegion: true));
@@ -278,7 +281,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
       }
     }
 
-    return _AppointmentRenderWidget(
+    return _AppointmentRenderWidget<T>(
         widget.calendar,
         widget.view,
         widget.visibleDates,
@@ -302,14 +305,14 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         widgets: _children);
   }
 
-  AppointmentView? _getAppointmentViewOnPoint(double x, double y) {
+  AppointmentView<T>? _getAppointmentViewOnPoint(double x, double y) {
     if (_appointmentCollection.isEmpty) {
       return null;
     }
 
-    AppointmentView? selectedAppointmentView;
+    AppointmentView<T>? selectedAppointmentView;
     for (int i = 0; i < _appointmentCollection.length; i++) {
-      final AppointmentView appointmentView = _appointmentCollection[i];
+      final AppointmentView<T> appointmentView = _appointmentCollection[i];
       if (appointmentView.appointment != null &&
           appointmentView.appointmentRect != null &&
           appointmentView.appointmentRect!.left <= x &&
@@ -335,7 +338,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
             rect.right >= x &&
             rect.top <= y &&
             rect.bottom >= y) {
-          selectedAppointmentView = AppointmentView()..appointmentRect = rect;
+          selectedAppointmentView = AppointmentView<T>()
+            ..appointmentRect = rect;
           break;
         }
       }
@@ -357,15 +361,16 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
 
   /// Remove the appointments before the calendar time slot start date and
   /// after the calendar time slot  end date.
-  List<CalendarAppointment> _getValidAppointments(
-      List<CalendarAppointment> visibleAppointments) {
+  List<CalendarAppointment<T>> _getValidAppointments(
+      List<CalendarAppointment<T>> visibleAppointments) {
     if (visibleAppointments.isEmpty ||
         widget.view == CalendarView.month ||
         widget.view == CalendarView.timelineMonth) {
       return visibleAppointments;
     }
 
-    final List<CalendarAppointment> appointments = <CalendarAppointment>[];
+    final List<CalendarAppointment<T>> appointments =
+        <CalendarAppointment<T>>[];
     final int viewStartHour =
         widget.calendar.timeSlotViewSettings.startHour.toInt();
     final int viewStartMinutes = (viewStartHour * 60) +
@@ -378,7 +383,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
             .toInt();
 
     for (int i = 0; i < visibleAppointments.length; i++) {
-      final CalendarAppointment appointment = visibleAppointments[i];
+      final CalendarAppointment<T> appointment = visibleAppointments[i];
 
       /// Skip the span appointment because span appointment will placed
       /// in between the valid hours(between time slot start and end hour).
@@ -430,7 +435,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
 
   void _updateAppointmentDetails() {
     _monthAppointmentCountViews = <int, RRect>{};
-    _indexAppointments = <int, List<AppointmentView>>{};
+    _indexAppointments = <int, List<AppointmentView<T>>>{};
     widget.updateCalendarState(_updateCalendarStateDetails);
     AppointmentHelper.resetAppointmentView(_appointmentCollection);
     _children.clear();
@@ -439,7 +444,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
       return;
     }
 
-    final List<CalendarAppointment> visibleAppointments =
+    final List<CalendarAppointment<T>> visibleAppointments =
         _getValidAppointments(widget.visibleAppointments.value!);
     switch (widget.view) {
       case CalendarView.month:
@@ -472,7 +477,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
   }
 
   void _updateMonthAppointmentDetails(
-      List<CalendarAppointment> visibleAppointments) {
+      List<CalendarAppointment<T>> visibleAppointments) {
     final double cellWidth =
         (widget.width - _weekNumberPanelWidth) / DateTime.daysPerWeek;
     final double cellHeight =
@@ -541,7 +546,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
     final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
         widget.calendar.cellEndPadding, widget.isMobilePlatform);
     for (int i = 0; i < _appointmentCollection.length; i++) {
-      final AppointmentView appointmentView = _appointmentCollection[i];
+      final AppointmentView<T> appointmentView = _appointmentCollection[i];
       if (appointmentView.canReuse || appointmentView.appointment == null) {
         continue;
       }
@@ -596,11 +601,11 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
     for (int i = 0; i < keys.length; i++) {
       final int index = keys[i];
       final int maxPosition = _indexAppointments[index]!
-          .reduce(
-              (AppointmentView currentAppView, AppointmentView nextAppView) =>
-                  currentAppView.maxPositions > nextAppView.maxPositions
-                      ? currentAppView
-                      : nextAppView)
+          .reduce((AppointmentView<T> currentAppView,
+                  AppointmentView<T> nextAppView) =>
+              currentAppView.maxPositions > nextAppView.maxPositions
+                  ? currentAppView
+                  : nextAppView)
           .maxPositions;
       if (maxPosition <= maximumDisplayCount) {
         continue;
@@ -629,7 +634,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
   }
 
   void _updateDayAppointmentDetails(
-      List<CalendarAppointment> visibleAppointments) {
+      List<CalendarAppointment<T>> visibleAppointments) {
     final double timeLabelWidth = CalendarViewHelper.getTimeLabelWidth(
         widget.calendar.timeSlotViewSettings.timeRulerSize, widget.view);
     final double width = widget.width - timeLabelWidth;
@@ -654,12 +659,12 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         (widget.calendar.timeSlotViewSettings.startHour - viewStartHour) * 60;
 
     for (int i = 0; i < _appointmentCollection.length; i++) {
-      final AppointmentView appointmentView = _appointmentCollection[i];
+      final AppointmentView<T> appointmentView = _appointmentCollection[i];
       if (appointmentView.canReuse || appointmentView.appointment == null) {
         continue;
       }
 
-      final CalendarAppointment appointment = appointmentView.appointment!;
+      final CalendarAppointment<T> appointment = appointmentView.appointment!;
       int column = -1;
 
       for (int j = 0; j < count; j++) {
@@ -776,7 +781,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
   }
 
   void _updateTimelineMonthAppointmentDetails(
-      List<CalendarAppointment> visibleAppointments) {
+      List<CalendarAppointment<T>> visibleAppointments) {
     final bool isResourceEnabled = CalendarViewHelper.isResourceEnabled(
         widget.calendar.dataSource, widget.view);
 
@@ -789,9 +794,9 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
 
         /// Filters the appointment for each resource from the visible
         /// appointment collection.
-        final List<CalendarAppointment> appointmentForEachResource =
+        final List<CalendarAppointment<T>> appointmentForEachResource =
             visibleAppointments
-                .where((CalendarAppointment app) =>
+                .where((CalendarAppointment<T> app) =>
                     app.resourceIds != null &&
                     app.resourceIds!.isNotEmpty &&
                     app.resourceIds!.contains(resource.id))
@@ -825,12 +830,12 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
     final double timelineAppointmentHeight = _getTimelineAppointmentHeight(
         widget.calendar.timeSlotViewSettings, widget.view);
     for (int i = 0; i < _appointmentCollection.length; i++) {
-      final AppointmentView appointmentView = _appointmentCollection[i];
+      final AppointmentView<T> appointmentView = _appointmentCollection[i];
       if (appointmentView.canReuse || appointmentView.appointment == null) {
         continue;
       }
 
-      final CalendarAppointment appointment = appointmentView.appointment!;
+      final CalendarAppointment<T> appointment = appointmentView.appointment!;
       int column = -1;
 
       final DateTime startTime = appointment.actualStartTime;
@@ -897,7 +902,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
   }
 
   void _updateTimelineAppointmentDetails(
-      List<CalendarAppointment> visibleAppointments) {
+      List<CalendarAppointment<T>> visibleAppointments) {
     final bool isResourceEnabled = CalendarViewHelper.isResourceEnabled(
         widget.calendar.dataSource, widget.view);
 
@@ -910,9 +915,9 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
 
         /// Filters the appointment for each resource from the visible
         /// appointment collection.
-        final List<CalendarAppointment> appointmentForEachResource =
+        final List<CalendarAppointment<T>> appointmentForEachResource =
             visibleAppointments
-                .where((CalendarAppointment app) =>
+                .where((CalendarAppointment<T> app) =>
                     app.resourceIds != null &&
                     app.resourceIds!.isNotEmpty &&
                     app.resourceIds!.contains(resource.id))
@@ -953,12 +958,12 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         ? widget.resourceItemHeight! - cellEndPadding
         : widget.height - cellEndPadding;
     for (int i = 0; i < _appointmentCollection.length; i++) {
-      final AppointmentView appointmentView = _appointmentCollection[i];
+      final AppointmentView<T> appointmentView = _appointmentCollection[i];
       if (appointmentView.canReuse || appointmentView.appointment == null) {
         continue;
       }
 
-      final CalendarAppointment appointment = appointmentView.appointment!;
+      final CalendarAppointment<T> appointment = appointmentView.appointment!;
       int column = -1;
 
       DateTime startTime = appointment.actualStartTime;
@@ -1096,7 +1101,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
   }
 }
 
-class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
+class _AppointmentRenderWidget<T> extends MultiChildRenderObjectWidget {
   const _AppointmentRenderWidget(
       this.calendar,
       this.view,
@@ -1121,7 +1126,7 @@ class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
       {List<Widget> widgets = const <Widget>[]})
       : super(children: widgets);
 
-  final SfCalendar calendar;
+  final SfCalendar<T> calendar;
   final double weekNumberPanelWidth;
   final CalendarView view;
   final List<DateTime> visibleDates;
@@ -1137,14 +1142,14 @@ class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
   final double width;
   final double height;
   final SfLocalizations localizations;
-  final List<CalendarAppointment>? visibleAppointments;
-  final List<AppointmentView> appointmentCollection;
-  final Map<int, List<AppointmentView>> indexAppointments;
+  final List<CalendarAppointment<T>>? visibleAppointments;
+  final List<AppointmentView<T>> appointmentCollection;
+  final Map<int, List<AppointmentView<T>>> indexAppointments;
   final Map<int, RRect> monthAppointmentCountViews;
 
   @override
-  _AppointmentRenderObject createRenderObject(BuildContext context) {
-    return _AppointmentRenderObject(
+  _AppointmentRenderObject<T> createRenderObject(BuildContext context) {
+    return _AppointmentRenderObject<T>(
         calendar,
         view,
         visibleDates,
@@ -1169,7 +1174,7 @@ class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, _AppointmentRenderObject renderObject) {
+      BuildContext context, _AppointmentRenderObject<T> renderObject) {
     renderObject
       ..calendar = calendar
       ..view = view
@@ -1194,7 +1199,7 @@ class _AppointmentRenderWidget extends MultiChildRenderObjectWidget {
   }
 }
 
-class _AppointmentRenderObject extends CustomCalendarRenderObject {
+class _AppointmentRenderObject<T> extends CustomCalendarRenderObject {
   _AppointmentRenderObject(
       this._calendar,
       this._view,
@@ -1217,11 +1222,11 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       this.monthAppointmentCountViews,
       this._weekNumberPanelWidth);
 
-  List<CalendarAppointment>? _visibleAppointments;
+  List<CalendarAppointment<T>>? _visibleAppointments;
 
-  List<CalendarAppointment>? get visibleAppointments => _visibleAppointments;
+  List<CalendarAppointment<T>>? get visibleAppointments => _visibleAppointments;
 
-  set visibleAppointments(List<CalendarAppointment>? value) {
+  set visibleAppointments(List<CalendarAppointment<T>>? value) {
     if (CalendarViewHelper.isCollectionEqual(_visibleAppointments, value)) {
       return;
     }
@@ -1433,11 +1438,11 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     markNeedsLayout();
   }
 
-  SfCalendar _calendar;
+  SfCalendar<T> _calendar;
 
-  SfCalendar get calendar => _calendar;
+  SfCalendar<T> get calendar => _calendar;
 
-  set calendar(SfCalendar value) {
+  set calendar(SfCalendar<T> value) {
     if (_calendar == value) {
       return;
     }
@@ -1461,9 +1466,9 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
   }
 
   bool isMobilePlatform;
-  List<AppointmentView> appointmentCollection = <AppointmentView>[];
-  Map<int, List<AppointmentView>> indexAppointments =
-      <int, List<AppointmentView>>{};
+  List<AppointmentView<T>> appointmentCollection = <AppointmentView<T>>[];
+  Map<int, List<AppointmentView<T>>> indexAppointments =
+      <int, List<AppointmentView<T>>>{};
   Map<int, RRect> monthAppointmentCountViews = <int, RRect>{};
 
   final Paint _appointmentPainter = Paint();
@@ -1490,7 +1495,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     }
 
     for (int i = 0; i < appointmentCollection.length; i++) {
-      final AppointmentView appointmentView = appointmentCollection[i];
+      final AppointmentView<T> appointmentView = appointmentCollection[i];
       if (appointmentView.appointment == null ||
           appointmentView.appointmentRect == null) {
         continue;
@@ -1557,7 +1562,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     }
 
     for (int i = 0; i < appointmentCollection.length; i++) {
-      final AppointmentView appointmentView = appointmentCollection[i];
+      final AppointmentView<T> appointmentView = appointmentCollection[i];
       if (appointmentView.appointment == null ||
           child == null ||
           appointmentView.appointmentRect == null) {
@@ -1618,7 +1623,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
         widgetSize.height.isInfinite ? height : widgetSize.height);
     RenderBox? child = firstChild;
     for (int i = 0; i < appointmentCollection.length; i++) {
-      final AppointmentView appointmentView = appointmentCollection[i];
+      final AppointmentView<T> appointmentView = appointmentCollection[i];
       if (appointmentView.appointment == null ||
           child == null ||
           appointmentView.appointmentRect == null) {
@@ -1671,7 +1676,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       _drawCustomAppointmentView(context.canvas);
     } else {
       for (int i = 0; i < appointmentCollection.length; i++) {
-        final AppointmentView appointmentView = appointmentCollection[i];
+        final AppointmentView<T> appointmentView = appointmentCollection[i];
         if (appointmentView.appointment == null ||
             child == null ||
             appointmentView.appointmentRect == null) {
@@ -1781,7 +1786,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     // right side padding used to add padding on appointment view right side
     // in month view
     for (int i = 0; i < appointmentCollection.length; i++) {
-      final AppointmentView appointmentView = appointmentCollection[i];
+      final AppointmentView<T> appointmentView = appointmentCollection[i];
       if (appointmentView.canReuse ||
           appointmentView.appointment == null ||
           appointmentView.appointmentRect == null) {
@@ -1792,7 +1797,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       if (appointmentView.position < maximumDisplayCount ||
           (appointmentView.position == maximumDisplayCount &&
               appointmentView.maxPositions == maximumDisplayCount)) {
-        final CalendarAppointment appointment = appointmentView.appointment!;
+        final CalendarAppointment<T> appointment = appointmentView.appointment!;
         final bool canAddSpanIcon = AppointmentHelper.canAddSpanIcon(
             visibleDates, appointment, view,
             visibleStartDate: visibleStartDate,
@@ -2094,14 +2099,14 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
           AppointmentHelper.getSpecificDateVisibleAppointment(
               currentVisibleDate, visibleAppointments);
       appointmentLists.sort(
-          (CalendarAppointment app1, CalendarAppointment app2) =>
+          (CalendarAppointment<T> app1, CalendarAppointment<T> app2) =>
               app1.actualStartTime.compareTo(app2.actualStartTime));
       appointmentLists.sort(
-          (CalendarAppointment app1, CalendarAppointment app2) =>
+          (CalendarAppointment<T> app1, CalendarAppointment<T> app2) =>
               AppointmentHelper.orderAppointmentsAscending(
                   app1.isAllDay, app2.isAllDay));
       appointmentLists.sort(
-          (CalendarAppointment app1, CalendarAppointment app2) =>
+          (CalendarAppointment<T> app1, CalendarAppointment<T> app2) =>
               AppointmentHelper.orderAppointmentsAscending(
                   app1.isSpanned, app2.isSpanned));
       final int count = appointmentLists.length <=
@@ -2165,14 +2170,14 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     final bool useMobilePlatformUI =
         CalendarViewHelper.isMobileLayoutUI(size.width, isMobilePlatform);
     for (int i = 0; i < appointmentCollection.length; i++) {
-      final AppointmentView appointmentView = appointmentCollection[i];
+      final AppointmentView<T> appointmentView = appointmentCollection[i];
       if (appointmentView.canReuse ||
           appointmentView.appointmentRect == null ||
           appointmentView.appointment == null) {
         continue;
       }
 
-      final CalendarAppointment appointment = appointmentView.appointment!;
+      final CalendarAppointment<T> appointment = appointmentView.appointment!;
       paint.color = appointment.color;
       final RRect appointmentRect = appointmentView.appointmentRect!;
       canvas.drawRRect(appointmentRect, paint);
@@ -2404,14 +2409,14 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     final bool useMobilePlatformUI =
         CalendarViewHelper.isMobileLayoutUI(size.width, isMobilePlatform);
     for (int i = 0; i < appointmentCollection.length; i++) {
-      final AppointmentView appointmentView = appointmentCollection[i];
+      final AppointmentView<T> appointmentView = appointmentCollection[i];
       if (appointmentView.canReuse ||
           appointmentView.appointmentRect == null ||
           appointmentView.appointment == null) {
         continue;
       }
 
-      final CalendarAppointment appointment = appointmentView.appointment!;
+      final CalendarAppointment<T> appointment = appointmentView.appointment!;
       paint.color = appointment.color;
       final RRect appointmentRect = appointmentView.appointmentRect!;
       canvas.drawRRect(appointmentRect, paint);
@@ -2555,7 +2560,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
   /// for timeline day view  we display the current date, and total dates of the
   ///  spanning appointment.
   String _getTimelineAppointmentText(
-      CalendarAppointment appointment, bool canAddSpanIcon) {
+      CalendarAppointment<T> appointment, bool canAddSpanIcon) {
     if (view != CalendarView.timelineDay || !canAddSpanIcon) {
       return appointment.subject;
     }

@@ -155,7 +155,7 @@ import 'appointment_helper.dart';
 ///  ```
 @optionalTypeArgs
 abstract class CalendarDataSource<T extends Object?>
-    extends CalendarDataSourceChangeNotifier {
+    extends CalendarDataSourceChangeNotifier<T> {
   /// Tha collection of appointments to be rendered on [SfCalendar].
   ///
   /// Defaults to `null`.
@@ -197,7 +197,7 @@ abstract class CalendarDataSource<T extends Object?>
   ///  }
   /// }
   ///```
-  List<dynamic>? appointments;
+  List<T>? appointments;
 
   /// Returns the appointments in the specified date range.
   ///
@@ -289,7 +289,7 @@ abstract class CalendarDataSource<T extends Object?>
     /// the internal operations like timezone converting.
     /// Calendar appointment is an internal class to handle the appointment
     /// rendering on view.
-    List<CalendarAppointment> calendarAppointments =
+    List<CalendarAppointment<T>> calendarAppointments =
         AppointmentHelper.generateCalendarAppointments(this, calendarTimeZone);
 
     calendarAppointments = AppointmentHelper.getVisibleAppointments(
@@ -394,16 +394,16 @@ abstract class CalendarDataSource<T extends Object?>
   ///
   /// ```
   Appointment? getOccurrenceAppointment(
-      Object? patternAppointment, DateTime date, String calendarTimeZone) {
+      T? patternAppointment, DateTime date, String calendarTimeZone) {
     if (patternAppointment == null) {
       return null;
     }
 
-    final List<dynamic> patternAppointmentColl = <dynamic>[patternAppointment];
-    final List<CalendarAppointment> patternAppointments =
-        AppointmentHelper.generateCalendarAppointments(
+    final List<T> patternAppointmentColl = <T>[patternAppointment];
+    final List<CalendarAppointment<T>> patternAppointments =
+        AppointmentHelper.generateCalendarAppointments<T>(
             this, calendarTimeZone, patternAppointmentColl);
-    final CalendarAppointment patternCalendarAppointment =
+    final CalendarAppointment<T> patternCalendarAppointment =
         patternAppointments[0];
 
     if (patternCalendarAppointment.recurrenceRule == null ||
@@ -411,11 +411,11 @@ abstract class CalendarDataSource<T extends Object?>
       return null;
     } else if (CalendarViewHelper.isDateInDateCollection(
         patternCalendarAppointment.recurrenceExceptionDates, date)) {
-      final List<CalendarAppointment> dataSourceAppointments =
-          AppointmentHelper.generateCalendarAppointments(
+      final List<CalendarAppointment<T>> dataSourceAppointments =
+          AppointmentHelper.generateCalendarAppointments<T>(
               this, calendarTimeZone);
       for (int i = 0; i < dataSourceAppointments.length; i++) {
-        final CalendarAppointment dataSourceAppointment =
+        final CalendarAppointment<T> dataSourceAppointment =
             dataSourceAppointments[i];
         if (patternCalendarAppointment.id ==
                 dataSourceAppointment.recurrenceId &&
@@ -424,7 +424,7 @@ abstract class CalendarDataSource<T extends Object?>
         }
       }
     } else {
-      final List<CalendarAppointment> occurrenceAppointments =
+      final List<CalendarAppointment<T>> occurrenceAppointments =
           AppointmentHelper.getVisibleAppointments(
               date, date, patternAppointments, calendarTimeZone, false,
               canCreateNewAppointment: false);
@@ -518,30 +518,27 @@ abstract class CalendarDataSource<T extends Object?>
   /// }
   ///
   /// ```
-  Object? getPatternAppointment(
-      Object? occurrenceAppointment, String calendarTimeZone) {
+  T? getPatternAppointment(T? occurrenceAppointment, String calendarTimeZone) {
     if (occurrenceAppointment == null) {
       return null;
     }
-    final List<dynamic> occurrenceAppointmentColl = <dynamic>[
-      occurrenceAppointment
-    ];
-    final List<CalendarAppointment> occurrenceAppointments =
+    final List<T> occurrenceAppointmentColl = <T>[occurrenceAppointment];
+    final List<CalendarAppointment<T>> occurrenceAppointments =
         AppointmentHelper.generateCalendarAppointments(
             this, calendarTimeZone, occurrenceAppointmentColl);
-    final CalendarAppointment occurrenceCalendarAppointment =
+    final CalendarAppointment<T> occurrenceCalendarAppointment =
         occurrenceAppointments[0];
     if ((occurrenceCalendarAppointment.recurrenceRule == null ||
             occurrenceCalendarAppointment.recurrenceRule!.isEmpty) &&
         occurrenceCalendarAppointment.recurrenceId == null) {
       return null;
     }
-    final List<CalendarAppointment> dataSourceAppointments =
+    final List<CalendarAppointment<T>> dataSourceAppointments =
         AppointmentHelper.generateCalendarAppointments(
             this, calendarTimeZone, appointments);
 
     for (int i = 0; i < dataSourceAppointments.length; i++) {
-      final CalendarAppointment dataSourceAppointment =
+      final CalendarAppointment<T> dataSourceAppointment =
           dataSourceAppointments[i];
       if ((dataSourceAppointment.id ==
               occurrenceCalendarAppointment.recurrenceId) ||
@@ -994,7 +991,8 @@ abstract class CalendarDataSource<T extends Object?>
   /// }
   ///
   /// ```
-  T? convertAppointmentToObject(T customData, Appointment appointment) => null;
+  T convertAppointmentToObject(T customData, Appointment appointment) =>
+      customData;
 
   /// Called when loadMoreAppointments function is called from the
   /// loadMoreWidgetBuilder.
@@ -1033,7 +1031,7 @@ abstract class CalendarDataSource<T extends Object?>
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(IterableDiagnostics<dynamic>(appointments)
+    properties.add(IterableDiagnostics<T>(appointments)
         .toDiagnosticsNode(name: 'appointments'));
     properties.add(IterableDiagnostics<CalendarResource>(resources)
         .toDiagnosticsNode(name: 'resources'));
@@ -1046,19 +1044,19 @@ abstract class CalendarDataSource<T extends Object?>
 /// See also:
 /// [CalendarDataSourceAction], the actions which can be performed using the
 /// calendar.
-typedef CalendarDataSourceCallback = void Function(
-    CalendarDataSourceAction, List<dynamic>);
+typedef CalendarDataSourceCallback<T> = void Function(
+    CalendarDataSourceAction, List<T>);
 
 /// Notifier used to notify the action performed in the [CalendarDataSource]
-class CalendarDataSourceChangeNotifier with Diagnosticable {
-  List<CalendarDataSourceCallback>? _listeners;
+class CalendarDataSourceChangeNotifier<T> with Diagnosticable {
+  List<CalendarDataSourceCallback<T>>? _listeners;
 
   /// Calls the listener every time the collection in the [CalendarDataSource]
   /// changed
   ///
   /// Listeners can be removed with [removeListener]
-  void addListener(CalendarDataSourceCallback listener) {
-    _listeners ??= <CalendarDataSourceCallback>[];
+  void addListener(CalendarDataSourceCallback<T> listener) {
+    _listeners ??= <CalendarDataSourceCallback<T>>[];
     _listeners!.add(listener);
   }
 
@@ -1071,7 +1069,7 @@ class CalendarDataSourceChangeNotifier with Diagnosticable {
   /// nothing.
   ///
   /// Listeners can be added with [addListener].
-  void removeListener(CalendarDataSourceCallback listener) {
+  void removeListener(CalendarDataSourceCallback<T> listener) {
     if (_listeners == null) {
       return;
     }
@@ -1094,12 +1092,12 @@ class CalendarDataSourceChangeNotifier with Diagnosticable {
   /// Surprising behavior can result when reentrantly removing a listener (i.e.
   /// in response to a notification) that has been registered multiple times.
   /// See the discussion at [removeListener].
-  void notifyListeners(CalendarDataSourceAction type, List<dynamic> data) {
+  void notifyListeners(CalendarDataSourceAction type, List<T> data) {
     if (_listeners == null) {
       return;
     }
 
-    for (final CalendarDataSourceCallback listener in _listeners!) {
+    for (final CalendarDataSourceCallback<T> listener in _listeners!) {
       listener(type, data);
     }
   }

@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:syncfusion_flutter_core/core.dart';
 
-import '../common/date_time_engine.dart';
 import '../common/enums.dart' show RecurrenceType, RecurrenceRange, WeekDays;
 import 'appointment_helper.dart';
 import 'recurrence_properties.dart';
@@ -13,7 +12,7 @@ class RecurrenceHelper {
   static bool _isRecurrenceInBetweenSpecificRange(DateTime appointmentDate,
       Duration duration, DateTime visibleStartDate, DateTime visibleEndTime) {
     final DateTime appointmentEndDate =
-        DateTimeHelper.getDateTimeValue(addDuration(appointmentDate, duration));
+        addDuration(appointmentDate, duration);
 
     /// ignore: lines_longer_than_80_chars
     return isDateWithInDateRange(visibleStartDate, visibleEndTime, appointmentDate) ||
@@ -909,9 +908,8 @@ class RecurrenceHelper {
         return recDateCollection;
       }
 
-      final int daysInMonth = DateTimeHelper.getDateTimeValue(
-              addDays(DateTime(addDate.year, addDate.month + 1), -1))
-          .day;
+      final int daysInMonth =
+          addDays<DateTime>(DateTime(addDate.year, addDate.month + 1), -1).day;
       if (daysInMonth < dayIndex) {
         return recDateCollection;
       }
@@ -1486,12 +1484,12 @@ class RecurrenceHelper {
       if (recurrenceProperties.week == 0) {
         rRule = '$rRule;BYMONTHDAY=${recurrenceProperties.dayOfMonth}';
       } else {
-        final DateTime firstDate = DateTimeHelper.getDateTimeValue(
-            addDays(DateTime.now(), -(DateTime.now().weekday - 1)));
+        final DateTime firstDate =
+            addDays<DateTime>(DateTime.now(), -(DateTime.now().weekday - 1));
         final List<String> dayNames =
             List<int>.generate(DateTime.daysPerWeek, (int index) => index)
                 .map((int value) => DateFormat(DateFormat.ABBR_WEEKDAY)
-                    .format(addDays(firstDate, value)))
+                    .format(addDays<DateTime>(firstDate, value)))
                 .toList();
         final String byDayString = dayNames[recurrenceProperties.dayOfWeek - 1];
 
@@ -1555,12 +1553,12 @@ class RecurrenceHelper {
             // ignore: lines_longer_than_80_chars
             '$rRule;BYMONTHDAY=${recurrenceProperties.dayOfMonth};BYMONTH=${recurrenceProperties.month}';
       } else {
-        final DateTime firstDate = DateTimeHelper.getDateTimeValue(
-            addDays(DateTime.now(), -(DateTime.now().weekday - 1)));
+        final DateTime firstDate =
+            addDays<DateTime>(DateTime.now(), -(DateTime.now().weekday - 1));
         final List<String> dayNames =
             List<int>.generate(DateTime.daysPerWeek, (int index) => index)
                 .map((int value) => DateFormat(DateFormat.ABBR_WEEKDAY)
-                    .format(addDays(firstDate, value)))
+                    .format(addDays<DateTime>(firstDate, value)))
                 .toList();
         final String byDayString = dayNames[recurrenceProperties.dayOfWeek - 1];
 
@@ -1766,12 +1764,12 @@ class RecurrenceHelper {
 
   static int _getWeekDay(String weekDay) {
     int index = 1;
-    final DateTime firstDate = DateTimeHelper.getDateTimeValue(
-        addDays(DateTime.now(), -(DateTime.now().weekday - 1)));
+    final DateTime firstDate =
+        addDays<DateTime>(DateTime.now(), -(DateTime.now().weekday - 1));
     final List<String> dayNames =
         List<int>.generate(DateTime.daysPerWeek, (int index) => index)
             .map((int value) => DateFormat(DateFormat.ABBR_WEEKDAY)
-                .format(addDays(firstDate, value)))
+                .format(addDays<DateTime>(firstDate, value)))
             .toList();
     for (int i = 0; i < DateTime.daysPerWeek; i++) {
       final String dayName = dayNames[i];

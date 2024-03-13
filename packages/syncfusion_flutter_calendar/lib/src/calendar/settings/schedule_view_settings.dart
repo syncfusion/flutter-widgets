@@ -1012,10 +1012,10 @@ class DayHeaderSettings with Diagnosticable {
   /// Defaults to `EEE`.
   ///
   /// See also:
-  /// * [dayTextStyle], which used to customize the text style for the day text
-  /// in the day header of schedule view in calendar.
-  /// * [dateTextStyle], which used to customize the text style for the date
-  /// text in the day header of schedule view in calendar
+  /// * [dayTextStyle], which is used to customize the text style for the day
+  /// text in the day header of schedule view in calendar.
+  /// * [dateTextStyle], which is used to customize the text style for the date
+  /// text in the day header of schedule view in calendar.
   /// * Knowledge base: [How to customize day, week, month header of schedule view](https://www.syncfusion.com/kb/12178/how-to-customize-the-day-week-month-header-of-schedule-view-in-the-flutter-calendar)
   /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
   /// * Knowledge base: [How to customize the schedule view](https://www.syncfusion.com/kb/11795/how-to-customize-the-schedule-view-in-the-flutter-calendar)
@@ -1183,6 +1183,11 @@ class DayHeaderSettings with Diagnosticable {
 
   @override
   int get hashCode {
-    return Object.hash(dayFormat, width, dayTextStyle, dateTextStyle);
+    return Object.hash(
+      dayFormat,
+      width,
+      dayTextStyle,
+      dateTextStyle,
+    );
   }
 }

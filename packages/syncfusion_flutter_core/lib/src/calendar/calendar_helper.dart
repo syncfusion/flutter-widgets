@@ -12,8 +12,8 @@ part of core;
 /// previous date time zone offset(+2). if both are not equal then calculate
 /// the difference (date.timeZoneOffset - currentDate.timeZoneOffset)
 /// and add the offset difference(2-1) to current date.
-dynamic addDuration(dynamic date, Duration duration) {
-  dynamic currentDate = date.add(duration);
+DateTime addDuration(DateTime date, Duration duration) {
+  DateTime currentDate = date.add(duration);
   if (date.timeZoneOffset != currentDate.timeZoneOffset) {
     currentDate =
         currentDate.add(date.timeZoneOffset - currentDate.timeZoneOffset);
@@ -35,8 +35,8 @@ dynamic addDuration(dynamic date, Duration duration) {
 /// previous date time zone offset(+1). if both are not equal then calculate
 /// the difference date.timeZoneOffset - currentDate.timeZoneOffset) and add
 /// the offset difference(1-2) to current date.
-dynamic subtractDuration(dynamic date, Duration duration) {
-  dynamic currentDate = date.subtract(duration);
+DateTime subtractDuration(DateTime date, Duration duration) {
+  DateTime currentDate = date.subtract(duration);
   if (date.timeZoneOffset != currentDate.timeZoneOffset) {
     currentDate =
         currentDate.add(date.timeZoneOffset - currentDate.timeZoneOffset);
@@ -46,46 +46,72 @@ dynamic subtractDuration(dynamic date, Duration duration) {
 }
 
 /// Returns the previous month start date for the given date.
-dynamic getPreviousMonthDate(dynamic date) {
+T getPreviousMonthDate<T>(T date) {
   if (date is HijriDateTime) {
     return date.month == 1
-        ? HijriDateTime(date.year - 1, 12, 01)
-        : HijriDateTime(date.year, date.month - 1, 1);
+        ? HijriDateTime(date.year - 1, 12, 01) as T
+        : HijriDateTime(date.year, date.month - 1, 1) as T;
   }
-  return date.month == 1
-      ? DateTime(date.year - 1, 12)
-      : DateTime(date.year, date.month - 1);
+  if (date is DateTime) {
+    return date.month == 1
+        ? DateTime(date.year - 1, 12) as T
+        : DateTime(date.year, date.month - 1) as T;
+  }
+
+  throw Exception('$T is not a valid type for getPreviousMonthDate!');
 }
 
 /// Returns the next month start date for the given date..
-dynamic getNextMonthDate(dynamic date) {
+T getNextMonthDate<T>(T date) {
   if (date is HijriDateTime) {
     return date.month == 12
-        ? HijriDateTime(date.year + 1, 01, 01)
-        : HijriDateTime(date.year, date.month + 1, 1);
+        ? HijriDateTime(date.year + 1, 01, 01) as T
+        : HijriDateTime(date.year, date.month + 1, 1) as T;
   }
-  return date.month == 12
-      ? DateTime(date.year + 1)
-      : DateTime(date.year, date.month + 1);
+  if (date is DateTime) {
+    return date.month == 12
+        ? DateTime(date.year + 1) as T
+        : DateTime(date.year, date.month + 1) as T;
+  }
+
+  throw Exception('$T is not a valid type for getNextMonthDate!');
 }
 
 /// Return the given date if the date in between first and last date
 /// else return first date/last date when the date before of first date or after
 /// last date
-dynamic getValidDate(dynamic minDate, dynamic maxDate, dynamic date) {
-  if (date.isAfter(minDate) == true) {
-    if (date.isBefore(maxDate) == true) {
-      return date;
+T getValidDate<T>(T minDate, T maxDate, T date) {
+  if (date is HijriDateTime &&
+      minDate is HijriDateTime &&
+      maxDate is HijriDateTime) {
+    if (date.isAfter(minDate) == true) {
+      if (date.isBefore(maxDate) == true) {
+        return date;
+      } else {
+        return maxDate;
+      }
     } else {
-      return maxDate;
+      return minDate;
     }
-  } else {
-    return minDate;
   }
+
+  if (date is DateTime && minDate is DateTime && maxDate is DateTime) {
+    if (date.isAfter(minDate) == true) {
+      if (date.isBefore(maxDate) == true) {
+        return date;
+      } else {
+        return maxDate;
+      }
+    } else {
+      return minDate;
+    }
+  }
+
+  throw Exception('$T is not a valid type for getValidDate!');
 }
 
 /// Check the dates are equal or not.
-bool isSameDate(dynamic date1, dynamic date2) {
+bool isSameDate<T>(T date1, T date2) {
   if (date2 == date1) {
     return true;
   }
@@ -101,9 +127,13 @@ bool isSameDate(dynamic date1, dynamic date2) {
         date1._date == date2._date;
   }
 
-  return date1.month == date2.month &&
-      date1.year == date2.year &&
-      date1.day == date2.day;
+  if (date1 is DateTime && date2 is DateTime) {
+    return date1.month == date2.month &&
+        date1.year == date2.year &&
+        date1.day == date2.day;
+  }
+
+  throw Exception('$T is not a valid type for isSameDate!');
 }
 
 /// Check the date in between first and last date
@@ -167,12 +197,16 @@ List getVisibleDates(dynamic date, List<int>? nonWorkingDays,
 }
 
 /// Return date value without hour and minutes consideration.
-dynamic addDays(dynamic date, int days) {
+T addDays<T>(T date, int days) {
   if (date is HijriDateTime) {
-    return date.add(Duration(days: days));
+    return date.add(Duration(days: days)) as T;
   }
 
-  return DateTime(date.year, date.month, date.day + days);
+  if (date is DateTime) {
+    return DateTime(date.year, date.month, date.day + days) as T;
+  }
+
+  throw Exception('$T is not a valid type for addDays!');
 }
 
 /// Calculate first day of week date value based original date with first day of

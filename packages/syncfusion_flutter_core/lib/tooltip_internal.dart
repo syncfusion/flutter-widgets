@@ -7,4 +7,3 @@ import 'package:flutter/rendering.dart';
 // ignore: depend_on_referenced_packages
 import 'core.dart';
 part 'src/tooltip/tooltip.dart';
-part 'src/test/tooltip_tests.dart';
