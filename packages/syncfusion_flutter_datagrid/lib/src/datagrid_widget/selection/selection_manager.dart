@@ -1414,7 +1414,8 @@ class RowSelectionManager extends SelectionManagerBase {
       return true;
     }
 
-    return dataGridConfiguration.onSelectionChanging!(newItems, oldItems);
+    return dataGridConfiguration.onSelectionChanging!(
+        newItems, oldItems, _pressedRowColumnIndex);
   }
 
   void _raiseSelectionChanged(
