@@ -35,21 +35,36 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
     final Color? majorTickColor = linearGauge.majorTickStyle.color;
     final Color? minorTickColor = linearGauge.minorTickStyle.color;
     final ThemeData theme = Theme.of(context);
+    final bool isMaterial3 = theme.useMaterial3;
     final SfGaugeThemeData gaugeThemeData = SfGaugeTheme.of(context)!;
     final bool isDarkTheme = theme.brightness == Brightness.dark;
+    final Color axisLineColor = isMaterial3
+        ? theme.colorScheme.surfaceVariant
+        : isDarkTheme
+            ? theme.colorScheme.onSurface.withOpacity(0.24)
+            : theme.colorScheme.onSurface.withOpacity(0.12);
+    final Color axisBorderColor = isMaterial3
+        ? theme.colorScheme.surfaceVariant
+        : isDarkTheme
+            ? theme.colorScheme.onSurface.withOpacity(0.30)
+            : theme.colorScheme.onSurface.withOpacity(0.26);
+    final Color majorTick = isMaterial3
+        ? theme.colorScheme.outlineVariant
+        : isDarkTheme
+            ? theme.colorScheme.onSurface.withOpacity(0.30)
+            : theme.colorScheme.onSurface.withOpacity(0.26);
+    final Color minorTick = isMaterial3
+        ? theme.colorScheme.outlineVariant
+        : isDarkTheme
+            ? theme.colorScheme.onSurface.withOpacity(0.30)
+            : theme.colorScheme.onSurface.withOpacity(0.26);
     return RenderLinearAxis(
       orientation: linearGauge.orientation,
       showAxisTrack: linearGauge.showAxisTrack,
       thickness: style.thickness,
-      color: style.color ??
-          (isDarkTheme
-              ? theme.colorScheme.onSurface.withOpacity(0.24)
-              : theme.colorScheme.onSurface.withOpacity(0.12)),
+      color: style.color ?? axisLineColor,
       borderWidth: style.borderWidth,
-      borderColor: style.borderColor ??
-          (isDarkTheme
-              ? theme.colorScheme.onSurface.withOpacity(0.30)
-              : theme.colorScheme.onSurface.withOpacity(0.26)),
+      borderColor: style.borderColor ?? axisBorderColor,
       gradient: style.gradient,
       edgeStyle: style.edgeStyle,
       minimum: linearGauge.minimum,
@@ -65,9 +80,11 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
       textStyle: theme.textTheme.bodySmall!
           .copyWith(
               color: gaugeThemeData.axisLabelColor ??
-                  (isDarkTheme
-                      ? theme.colorScheme.onSurface
-                      : theme.colorScheme.onSurface.withOpacity(0.87)))
+                  (isMaterial3
+                      ? theme.colorScheme.onSurfaceVariant
+                      : isDarkTheme
+                          ? theme.colorScheme.onSurface
+                          : theme.colorScheme.onSurface.withOpacity(0.87)))
           .merge(gaugeThemeData.axisLabelTextStyle)
           .merge(linearGauge.axisLabelStyle),
       showLabels: linearGauge.showLabels,
@@ -76,16 +93,10 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
       useRangeColorForAxis: linearGauge.useRangeColorForAxis,
       majorTickLength: linearGauge.majorTickStyle.length,
       majorTickThickness: linearGauge.majorTickStyle.thickness,
-      majorTickColor: majorTickColor ??
-          (isDarkTheme
-              ? theme.colorScheme.onSurface.withOpacity(0.30)
-              : theme.colorScheme.onSurface.withOpacity(0.26)),
+      majorTickColor: majorTickColor ?? majorTick,
       minorTickLength: linearGauge.minorTickStyle.length,
       minorTickThickness: linearGauge.minorTickStyle.thickness,
-      minorTickColor: minorTickColor ??
-          (isDarkTheme
-              ? theme.colorScheme.onSurface.withOpacity(0.30)
-              : theme.colorScheme.onSurface.withOpacity(0.26)),
+      minorTickColor: minorTickColor ?? minorTick,
       maximumLabels: linearGauge.maximumLabels,
       axisTrackExtent: linearGauge.axisTrackExtent,
       fadeAnimation: fadeAnimation,
@@ -104,20 +115,40 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
     final Color? majorTickColor = linearGauge.majorTickStyle.color;
     final Color? minorTickColor = linearGauge.minorTickStyle.color;
     final ThemeData theme = Theme.of(context);
+    final bool isMaterial3 = theme.useMaterial3;
     final SfGaugeThemeData gaugeThemeData = SfGaugeTheme.of(context)!;
     final bool isDarkTheme = theme.brightness == Brightness.dark;
+    final Color axisLabelColor = isMaterial3
+        ? theme.colorScheme.onSurfaceVariant
+        : (isDarkTheme
+            ? theme.colorScheme.onSurface
+            : theme.colorScheme.onSurface.withOpacity(0.87));
+    final Color axisLineColor = isMaterial3
+        ? theme.colorScheme.surfaceVariant
+        : isDarkTheme
+            ? theme.colorScheme.onSurface.withOpacity(0.24)
+            : theme.colorScheme.onSurface.withOpacity(0.12);
+    final Color axisBorderColor = isMaterial3
+        ? theme.colorScheme.surfaceVariant
+        : isDarkTheme
+            ? theme.colorScheme.onSurface.withOpacity(0.30)
+            : theme.colorScheme.onSurface.withOpacity(0.26);
+    final Color majorTick = isMaterial3
+        ? theme.colorScheme.outlineVariant
+        : isDarkTheme
+            ? theme.colorScheme.onSurface.withOpacity(0.30)
+            : theme.colorScheme.onSurface.withOpacity(0.26);
+    final Color minorTick = isMaterial3
+        ? theme.colorScheme.outlineVariant
+        : isDarkTheme
+            ? theme.colorScheme.onSurface.withOpacity(0.30)
+            : theme.colorScheme.onSurface.withOpacity(0.26);
     renderObject
       ..orientation = linearGauge.orientation
       ..showAxisTrack = linearGauge.showAxisTrack
       ..thickness = style.thickness
-      ..color = style.color ??
-          (isDarkTheme
-              ? theme.colorScheme.onSurface.withOpacity(0.24)
-              : theme.colorScheme.onSurface.withOpacity(0.12))
-      ..borderColor = style.borderColor ??
-          (isDarkTheme
-              ? theme.colorScheme.onSurface.withOpacity(0.30)
-              : theme.colorScheme.onSurface.withOpacity(0.26))
+      ..color = style.color ?? axisLineColor
+      ..borderColor = style.borderColor ?? axisBorderColor
       ..borderWidth = style.borderWidth
       ..gradient = style.gradient
       ..edgeStyle = style.edgeStyle
@@ -131,24 +162,14 @@ class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
       ..tickPosition = linearGauge.tickPosition
       ..majorTickLength = linearGauge.majorTickStyle.length
       ..majorTickThickness = linearGauge.majorTickStyle.thickness
-      ..majorTickColor = majorTickColor ??
-          (isDarkTheme
-              ? theme.colorScheme.onSurface.withOpacity(0.30)
-              : theme.colorScheme.onSurface.withOpacity(0.26))
+      ..majorTickColor = majorTickColor ?? majorTick
       ..minorTickLength = linearGauge.minorTickStyle.length
       ..minorTickThickness = linearGauge.minorTickStyle.thickness
-      ..minorTickColor = minorTickColor ??
-          (isDarkTheme
-              ? theme.colorScheme.onSurface.withOpacity(0.30)
-              : theme.colorScheme.onSurface.withOpacity(0.26))
+      ..minorTickColor = minorTickColor ?? minorTick
       ..tickOffset = linearGauge.tickOffset
       ..isMirrored = linearGauge.isMirrored
       ..textStyle = theme.textTheme.bodySmall!
-          .copyWith(
-              color: gaugeThemeData.axisLabelColor ??
-                  (isDarkTheme
-                      ? theme.colorScheme.onSurface
-                      : theme.colorScheme.onSurface.withOpacity(0.87)))
+          .copyWith(color: gaugeThemeData.axisLabelColor ?? axisLabelColor)
           .merge(gaugeThemeData.axisLabelTextStyle)
           .merge(linearGauge.axisLabelStyle)
       ..showLabels = linearGauge.showLabels

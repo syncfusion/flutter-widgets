@@ -476,20 +476,17 @@ class DoughnutSegment<T, D> extends ChartSegment {
   void transformValues() {
     fillPath.reset();
 
-    double startAngle;
-    double endAngle;
-    double degree;
-
-    if (_priorEndAngle.isNaN) {
-      final int seriesStartAngle = series.startAngle - 90;
-      degree = _degree * animationFactor;
-      startAngle = lerpDouble(seriesStartAngle, _startAngle, animationFactor)!;
-      endAngle = startAngle + degree;
-    } else {
-      startAngle = lerpDouble(_priorStartAngle, _startAngle, animationFactor)!;
-      endAngle = lerpDouble(_priorEndAngle, _endAngle, animationFactor)!;
-      degree = endAngle - startAngle;
-    }
+    double degree = _degree * animationFactor;
+    final double angle = calculateAngle(
+        series.animationFactor == 1, series.startAngle, series.endAngle);
+    final double startAngle = lerpDouble(
+        _priorEndAngle.isNaN ? angle : _priorStartAngle,
+        _startAngle,
+        animationFactor)!;
+    final double endAngle = _priorEndAngle.isNaN
+        ? startAngle + degree
+        : lerpDouble(_priorEndAngle, _endAngle, animationFactor)!;
+    degree = _priorEndAngle.isNaN ? degree : endAngle - startAngle;
 
     // If the startAngle and endAngle value is same, then degree will be 0.
     // Hence no need to render segments.

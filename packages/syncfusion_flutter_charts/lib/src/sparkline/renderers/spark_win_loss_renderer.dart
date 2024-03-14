@@ -31,7 +31,7 @@ class SfSparkWinLossChartRenderObjectWidget
       Color? lastPointColor,
       Color? negativePointColor,
       SparkChartDataDetails? sparkChartDataDetails,
-      SfChartThemeData? themeData,
+      SfSparkChartThemeData? themeData,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
       : super(
@@ -148,7 +148,7 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
       Color? tiePointColor,
       double? borderWidth,
       Color? borderColor,
-      SfChartThemeData? themeData,
+      SfSparkChartThemeData? themeData,
       SparkChartDataDetails? sparkChartDataDetails,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})

@@ -189,7 +189,7 @@ class LegendItem {
     this.degree,
     this.endAngle,
     this.startAngle,
-  }) : assert(iconColor != null || shader != null || imageProvider != null);
+  });
 
   /// Specifies the text of the legend.
   final String text;
@@ -1657,9 +1657,7 @@ class _IconTextState extends State<_IconText>
     Widget current = CustomPaint(
       size: widget.iconSize,
       painter: _LegendIconShape(
-        color: widget.iconOpacity != null
-            ? details.color!.withOpacity(widget.iconOpacity)
-            : details.color,
+        color: details.color!.withOpacity(widget.iconOpacity),
         iconType: details.iconType,
         iconBorderColor: details.iconBorderColor,
         iconBorderWidth: details.iconBorderWidth,
@@ -1759,11 +1757,12 @@ class _IconTextState extends State<_IconText>
 
   @override
   void didUpdateWidget(_IconText oldWidget) {
-    if (widget.details.iconColor != oldWidget.details.iconColor) {
+    if (widget.details.iconColor != oldWidget.details.iconColor ||
+        widget.details.shader != oldWidget.details.shader) {
       _iconColorTween.begin =
           widget.details.shader == null && widget.details.imageProvider == null
               ? widget.details.iconColor
-              : null;
+              : Colors.transparent;
     }
 
     if (widget.toggledColor != null &&
@@ -1806,12 +1805,9 @@ class _IconTextState extends State<_IconText>
         Widget current;
         if (widget.itemBuilder != null) {
           current = widget.itemBuilder!.call(context, widget.index);
-          if (widget.toggleEnabled != null) {
-            final Color? color =
-                _shaderMaskColorTween.evaluate(_toggleAnimation);
-            if (color != null) {
-              current = _buildShaderMask(color, current);
-            }
+          final Color? color = _shaderMaskColorTween.evaluate(_toggleAnimation);
+          if (color != null) {
+            current = _buildShaderMask(color, current);
           }
         } else {
           final Color? effectiveIconColor =

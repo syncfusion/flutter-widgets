@@ -30,7 +30,7 @@ import 'pdf_unordered_list.dart';
 /// Layouts list.
 class PdfListLayouter extends ElementLayouter {
   /// Initializes a new instance of the [PdfListLayouter] class.
-  PdfListLayouter(PdfList element) : super(element);
+  PdfListLayouter(PdfList super.element);
 
   /// Current graphics for lay outing.
   PdfGraphics? graphics;
@@ -919,8 +919,7 @@ class _ListInfo {
 /// Represents begin page layout event arguments.
 class ListBeginPageLayoutArgs extends BeginPageLayoutArgs {
   /// Initializes a new instance of the [ListBeginPageLayoutArgs] class.
-  ListBeginPageLayoutArgs._(Rect bounds, PdfPage page, this.list)
-      : super(bounds, page);
+  ListBeginPageLayoutArgs._(super.bounds, super.page, this.list);
 
   /// Gets the ended layout
   late PdfList list;
@@ -939,8 +938,7 @@ class ListBeginPageLayoutArgsHelper {
 /// Represents begin page layout event arguments.
 class ListEndPageLayoutArgs extends EndPageLayoutArgs {
   /// Initializes a new instance of the [ListEndPageLayoutArgs] class.
-  ListEndPageLayoutArgs._internal(PdfLayoutResult result, this.list)
-      : super(result);
+  ListEndPageLayoutArgs._internal(super.result, this.list);
 
   /// Gets the ended layout
   PdfList list;

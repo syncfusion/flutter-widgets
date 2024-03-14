@@ -3,6 +3,7 @@ package com.syncfusion.flutter.pdfviewer;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.pdf.PdfRenderer;
 import android.os.Build;
@@ -84,6 +85,15 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
         getImage(Integer.parseInt(Objects.requireNonNull(call.argument("index")).toString()),
                 Double.parseDouble(Objects.requireNonNull(call.argument("scale")).toString()),
                 (String) call.argument("documentID"));
+        break;
+      case "getTileImage":
+        getTileImage(Integer.parseInt(Objects.requireNonNull(call.argument("pageNumber")).toString()),
+            Double.parseDouble(Objects.requireNonNull(call.argument("scale")).toString()),
+            Double.parseDouble(Objects.requireNonNull(call.argument("x")).toString()),
+            Double.parseDouble(Objects.requireNonNull(call.argument("y")).toString()),
+            Double.parseDouble(Objects.requireNonNull(call.argument("width")).toString()),
+            Double.parseDouble(Objects.requireNonNull(call.argument("height")).toString()),
+            (String) call.argument("documentID"));
         break;
       case "initializePdfRenderer":
         result.success(initializePdfRenderer((byte[]) call.argument("documentBytes"),
@@ -222,6 +232,17 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
       resultPdf.error(e.getMessage(), e.getLocalizedMessage(), e.getMessage());
     }
   }
+  
+  void getTileImage(int pageNumber, double currentScale, double x, double y, double width, double height, String documentID) {
+    try {
+      ExecutorService executor = Executors.newCachedThreadPool();
+      Runnable bitmapRunnable = new TileImageRunnable(Objects.requireNonNull(documentRepo.get(documentID)).renderer,
+              resultPdf, pageNumber, currentScale, x, y, width, height);
+      executor.submit(bitmapRunnable);
+    } catch (Exception e) {
+      resultPdf.error(e.getMessage(), e.getLocalizedMessage(), e.getMessage());
+    }
+  }
 
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   boolean closeDocument(String documentID) {
@@ -291,6 +312,72 @@ class PdfRunnable implements Runnable {
     bitmap.eraseColor(Color.WHITE);
     final Rect rect = new Rect(0, 0, width, height);
     page.render(bitmap, rect, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+    page.close();
+    page = null;
+    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+    imageBytes = outStream.toByteArray();
+    synchronized (this) {
+      notifyAll();
+    }
+    new Handler(Looper.getMainLooper()).post(new Runnable() {
+      @Override
+      public void run() {
+        resultPdf.success(imageBytes);
+      }
+    });
+  }
+}
+
+class TileImageRunnable implements Runnable {
+  private byte[] imageBytes = null;
+  final private PdfRenderer renderer;
+  final private Result resultPdf;
+  final private int pageIndex;
+  private double scale;
+
+  private double tileWidth;
+  private double tileHeight;
+
+  private double  tileX;
+  private double tileY;
+
+  private PdfRenderer.Page page;
+  
+  TileImageRunnable(PdfRenderer renderer, Result resultPdf, int pageIndex, double currentScale, double x,
+      double y, double width, double height) {
+
+    this.resultPdf = resultPdf;
+    this.renderer = renderer;
+    this.pageIndex = pageIndex;
+    this.scale = currentScale;
+
+    this.tileWidth = width;
+    this.tileHeight = height;
+    this.tileX = x;
+    this.tileY = y;
+  }
+  
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  public void dispose() {
+    imageBytes = null;
+    if (page != null) {
+      page.close();
+      page = null;
+    }
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  public void run() {
+    page = renderer.openPage(pageIndex - 1);
+
+    final Bitmap bitmap = Bitmap.createBitmap((int)tileWidth, (int)tileHeight, Bitmap.Config.ARGB_8888);
+    bitmap.eraseColor(Color.WHITE);
+    Matrix matrix = new Matrix();
+    matrix.postTranslate((float)-tileX, (float)-tileY);
+    matrix.postScale((float)(scale), (float)(scale));
+    final Rect rect = new Rect(0, 0, (int)tileWidth, (int)tileHeight);
+    page.render(bitmap, rect, matrix, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
     page.close();
     page = null;
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();

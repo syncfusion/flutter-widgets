@@ -448,41 +448,45 @@ class PdfTextBoxField extends PdfField {
         final List<String> ch = text.split('');
         if (maxLength > 0) {
           width = params.bounds!.width / maxLength;
-        }
-        graphics.drawRectangle(bounds: params.bounds!, pen: _helper.borderPen);
-        for (int i = 0; i < maxLength; i++) {
-          if (_helper.format!.alignment != PdfTextAlignment.right) {
-            if (_helper.format!.alignment == PdfTextAlignment.center &&
-                ch.length < maxLength) {
-              final int startLocation =
-                  (maxLength / 2 - (ch.length / 2).ceil()).toInt();
-              newText = i >= startLocation && i < startLocation + ch.length
-                  ? ch[i - startLocation]
-                  : '';
+          graphics.drawRectangle(
+              bounds: params.bounds!, pen: _helper.borderPen);
+          for (int i = 0; i < maxLength; i++) {
+            if (_helper.format!.alignment != PdfTextAlignment.right) {
+              if (_helper.format!.alignment == PdfTextAlignment.center &&
+                  ch.length < maxLength) {
+                final int startLocation =
+                    (maxLength / 2 - (ch.length / 2).ceil()).toInt();
+                newText = i >= startLocation && i < startLocation + ch.length
+                    ? ch[i - startLocation]
+                    : '';
+              } else {
+                newText = ch.length > i ? ch[i] : '';
+              }
             } else {
-              newText = ch.length > i ? ch[i] : '';
+              newText = maxLength - ch.length <= i
+                  ? ch[i - (maxLength - ch.length)]
+                  : '';
             }
-          } else {
-            newText = maxLength - ch.length <= i
-                ? ch[i - (maxLength - ch.length)]
-                : '';
+            params.bounds = Rect.fromLTWH(params.bounds!.left,
+                params.bounds!.top, width, params.bounds!.height);
+            final PdfStringFormat format = PdfStringFormat(
+                alignment: PdfTextAlignment.center,
+                lineAlignment: _helper.format!.lineAlignment);
+            FieldPainter().drawTextBox(graphics, params, newText, font, format,
+                insertSpaces, multiline);
+            params.bounds = Rect.fromLTWH(params.bounds!.left + width,
+                params.bounds!.top, width, params.bounds!.height);
+            if (params.borderWidth != 0) {
+              graphics.drawLine(
+                  params.borderPen!,
+                  Offset(params.bounds!.left, params.bounds!.top),
+                  Offset(params.bounds!.left,
+                      params.bounds!.top + params.bounds!.height));
+            }
           }
-          params.bounds = Rect.fromLTWH(params.bounds!.left, params.bounds!.top,
-              width, params.bounds!.height);
-          final PdfStringFormat format = PdfStringFormat(
-              alignment: PdfTextAlignment.center,
-              lineAlignment: _helper.format!.lineAlignment);
-          FieldPainter().drawTextBox(
-              graphics, params, newText, font, format, insertSpaces, multiline);
-          params.bounds = Rect.fromLTWH(params.bounds!.left + width,
-              params.bounds!.top, width, params.bounds!.height);
-          if (params.borderWidth != 0) {
-            graphics.drawLine(
-                params.borderPen!,
-                Offset(params.bounds!.left, params.bounds!.top),
-                Offset(params.bounds!.left,
-                    params.bounds!.top + params.bounds!.height));
-          }
+        } else {
+          FieldPainter().drawTextBox(graphics, params, newText, font,
+              _helper.format!, insertSpaces, multiline);
         }
       } else {
         FieldPainter().drawTextBox(graphics, params, newText, font,

@@ -15,7 +15,7 @@ class CompressorHuffmanTree {
   }
 
   /// internal field
-  static const List<int> def_reverse_bits = <int>[
+  static const List<int> defReverseBits = <int>[
     0,
     8,
     4,
@@ -364,10 +364,10 @@ class CompressorHuffmanTree {
   }
 
   int _bitReverse(int value) {
-    return (def_reverse_bits[value & 15] << 12 |
-            def_reverse_bits[(value >> 4) & 15] << 8 |
-            def_reverse_bits[(value >> 8) & 15] << 4 |
-            def_reverse_bits[value >> 12])
+    return (defReverseBits[value & 15] << 12 |
+            defReverseBits[(value >> 4) & 15] << 8 |
+            defReverseBits[(value >> 8) & 15] << 4 |
+            defReverseBits[value >> 12])
         .toSigned(16);
   }
 

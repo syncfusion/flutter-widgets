@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../base.dart';
+import '../behaviors/trackball.dart';
 import '../common/chart_point.dart';
 import '../common/core_tooltip.dart';
 import '../common/marker.dart';
 import '../interactions/tooltip.dart';
-import '../interactions/trackball.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
@@ -537,6 +537,7 @@ class HistogramSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     List<List<num>>? chaoticYLists,
     List<List<num>>? yLists,
     List<ChartValueMapper<T, Object>>? fPaths,
+    List<List<Object?>>? chaoticFLists,
     List<List<Object?>>? fLists,
   ]) {
     _resetDataHolders();
@@ -565,7 +566,8 @@ class HistogramSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     // Invoke custom [_histogramXValueMapper] method.
     xValueMapper = _histogramXValueMapper;
 
-    super.populateDataSource(yPaths, chaoticYLists, yLists, fPaths, fLists);
+    super.populateDataSource(
+        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
     populateChartPoints();
   }
 
@@ -610,6 +612,9 @@ class HistogramSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   }
 
   @override
+  num trackballYValue(int index) => _histogramYValues[index];
+
+  @override
   void setData(int index, ChartSegment segment) {
     super.setData(index, segment);
     segment as HistogramSegment<T, D>
@@ -644,48 +649,6 @@ class HistogramSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   void onLoadingAnimationUpdate() {
     super.onLoadingAnimationUpdate();
     transformValues();
-  }
-
-  @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
-    }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-
-    for (final ChartSegment segment in segments) {
-      if (segment is HistogramSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-        final Rect rect = segment.series.paintBounds;
-
-        final num touchXValue =
-            segment.series.xAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double curX = segment.series.xValues[index].toDouble();
-        final double curY = segment.series.yValues[index].toDouble();
-        if (delta == touchXValue - curX) {
-          if ((touchYValue - curY).abs() > (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
-    }
-    return segmentCollection;
   }
 
   @override
@@ -884,21 +847,20 @@ class HistogramSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
-    if (segmentRect != null) {
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
+    if (pointIndex != -1 && segmentRect != null) {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
       return ChartTrackballInfo<T, D>(
-        position: series.isTransposed
-            ? series.yAxis!.isInversed
-                ? segmentRect!.outerRect.centerLeft
-                : segmentRect!.outerRect.centerRight
-            : series.yAxis!.isInversed
-                ? segmentRect!.outerRect.bottomCenter
-                : segmentRect!.outerRect.topCenter,
+        position:
+            Offset(series.pointToPixelX(x, y), series.pointToPixelY(x, y)),
         point: chartPoint,
         series: series,
-        pointIndex: currentSegmentIndex,
         seriesIndex: series.index,
+        segmentIndex: currentSegmentIndex,
+        pointIndex: pointIndex,
+        text: series.trackballText(chartPoint, series.name),
+        header: series.tooltipHeaderText(chartPoint),
+        color: fillPaint.color,
       );
     }
     return null;

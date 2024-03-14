@@ -4,9 +4,6 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 void main() {
   runApp(MaterialApp(
     title: 'Syncfusion PDF Viewer Demo',
-    theme: ThemeData(
-      useMaterial3: false,
-    ),
     home: HomePage(),
   ));
 }

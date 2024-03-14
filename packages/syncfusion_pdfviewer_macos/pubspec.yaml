@@ -12,7 +12,11 @@ dependencies:
     sdk: flutter
 
   syncfusion_pdfviewer_platform_interface:
-      path: ../syncfusion_pdfviewer_platform_interface
+    git:
+      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdfviewer-platform-interface
+      path: flutter_pdfviewer_platform_interface/syncfusion_flutter_pdfviewer_platform_interface
+      branch: release/25.1.1
+      ref: release/25.1.1
 
 dev_dependencies:
   flutter_test:

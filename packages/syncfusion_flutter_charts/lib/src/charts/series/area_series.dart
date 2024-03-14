@@ -3,11 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
+import '../behaviors/trackball.dart';
 import '../common/chart_point.dart';
 import '../common/core_tooltip.dart';
 import '../common/marker.dart';
 import '../interactions/tooltip.dart';
-import '../interactions/trackball.dart';
 import '../utils/constants.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -192,60 +192,6 @@ class AreaSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   }
 
   @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
-    }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-    for (final ChartSegment segment in segments) {
-      if (segment is AreaSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-
-        final Rect rect = segment.series.paintBounds;
-
-        final num touchXValue =
-            segment.series.xAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double curX = segment.series.xValues[index].toDouble();
-        final double curY = segment.series.yValues[index].toDouble();
-        if (delta == touchXValue - curX) {
-          if ((touchYValue - curY).abs() > (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
-    }
-    return segmentCollection;
-  }
-
-  @override
-  void onRealTimeAnimationUpdate() {
-    super.onRealTimeAnimationUpdate();
-    if (segments.isNotEmpty) {
-      final ChartSegment segment = segments[0];
-      segment.animationFactor = segmentAnimationFactor;
-      segment.transformValues();
-      customizeSegment(segment);
-    }
-    markNeedsPaint();
-  }
-
-  @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
     final Rect clip = clipRect(paintBounds, animationFactor,
@@ -275,6 +221,7 @@ class AreaSegment<T, D> extends ChartSegment {
   final Path _fillPath = Path();
   Path _strokePath = Path();
 
+  final List<int> _drawIndexes = <int>[];
   final List<Offset> _highPoints = <Offset>[];
   final List<Offset> _lowPoints = <Offset>[];
   final List<Offset> _oldHighPoints = <Offset>[];
@@ -285,6 +232,7 @@ class AreaSegment<T, D> extends ChartSegment {
       double seriesAnimationFactor, double segmentAnimationFactor) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
+      _drawIndexes.clear();
       _oldHighPoints.clear();
       _oldLowPoints.clear();
       return;
@@ -338,6 +286,7 @@ class AreaSegment<T, D> extends ChartSegment {
     }
 
     points.clear();
+    _drawIndexes.clear();
     _highPoints.clear();
     _lowPoints.clear();
 
@@ -345,23 +294,8 @@ class AreaSegment<T, D> extends ChartSegment {
     _strokePath.reset();
 
     _calculatePoints(xValues, yValues);
-    final List<Offset> lerpHighPoints =
-        _lerpPoints(_oldHighPoints, _highPoints);
-    final List<Offset> lerpLowPoints = _lerpPoints(_oldLowPoints, _lowPoints);
-    _createFillPath(_fillPath, lerpHighPoints, lerpLowPoints);
-
-    switch (series.borderDrawMode) {
-      case BorderDrawMode.all:
-        _strokePath = _fillPath;
-        break;
-      case BorderDrawMode.top:
-        _createTopStrokePath(_strokePath, lerpHighPoints);
-        break;
-      case BorderDrawMode.excludeBottom:
-        _createExcludeBottomStrokePath(
-            _strokePath, lerpHighPoints, lerpLowPoints);
-        break;
-    }
+    // Calculated path here for getting gradient bounds.
+    _createFillPath(_fillPath, _highPoints, _lowPoints);
   }
 
   void _calculatePoints(List<num> xValues, List<num> yValues) {
@@ -377,6 +311,7 @@ class AreaSegment<T, D> extends ChartSegment {
         continue;
       }
 
+      _drawIndexes.add(i);
       final Offset highPoint = Offset(transformX(x, high), transformY(x, high));
       _highPoints.add(highPoint);
 
@@ -552,7 +487,13 @@ class AreaSegment<T, D> extends ChartSegment {
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
     pointIndex ??= _findNearestChartPointIndex(points, position!);
     if (pointIndex != -1) {
-      final CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
+      final Offset position = points[pointIndex];
+      if (position.isNaN) {
+        return null;
+      }
+
+      final int actualPointIndex = _drawIndexes[pointIndex];
+      final CartesianChartPoint<D> chartPoint = _chartPoint(actualPointIndex);
       final ChartMarker marker = series.markerAt(pointIndex);
       final num x = chartPoint.xValue!;
       final num y = chartPoint.y!;
@@ -576,7 +517,7 @@ class AreaSegment<T, D> extends ChartSegment {
         renderer: series,
         seriesIndex: series.index,
         segmentIndex: currentSegmentIndex,
-        pointIndex: pointIndex,
+        pointIndex: actualPointIndex,
         markerColors: <Color?>[fillPaint.color],
         markerType: marker.type,
       );
@@ -586,62 +527,28 @@ class AreaSegment<T, D> extends ChartSegment {
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
-    final int nearestPointIndex = _findNearestPoint(points, position);
-    if (nearestPointIndex != -1) {
-      final CartesianChartPoint<D> chartPoint = _chartPoint(nearestPointIndex);
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
+    if (pointIndex != -1 && points.isNotEmpty) {
+      final Offset preferredPos = points[pointIndex];
+      if (preferredPos.isNaN) {
+        return null;
+      }
+
+      final int actualPointIndex = _drawIndexes[pointIndex];
+      final CartesianChartPoint<D> chartPoint = _chartPoint(actualPointIndex);
       return ChartTrackballInfo<T, D>(
-        position: points[nearestPointIndex],
+        position: preferredPos,
         point: chartPoint,
         series: series,
-        pointIndex: nearestPointIndex,
         seriesIndex: series.index,
+        segmentIndex: currentSegmentIndex,
+        pointIndex: actualPointIndex,
+        text: series.trackballText(chartPoint, series.name),
+        header: series.tooltipHeaderText(chartPoint),
+        color: fillPaint.color,
       );
     }
     return null;
-  }
-
-  int _findNearestPoint(List<Offset> points, Offset position) {
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-    int? pointIndex;
-    for (int i = 0; i < points.length; i++) {
-      nearPointX ??= series.isTransposed
-          ? series.xAxis!.visibleRange!.minimum
-          : points[0].dx;
-      nearPointY ??= series.isTransposed
-          ? points[0].dy
-          : series.yAxis!.visibleRange!.minimum;
-
-      final num touchXValue = position.dx;
-      final num touchYValue = position.dy;
-      final double curX = points[i].dx;
-      final double curY = points[i].dy;
-
-      if (series.isTransposed) {
-        if (delta == touchYValue - curY) {
-          pointIndex = i;
-        } else if ((touchYValue - curY).abs() <=
-            (touchYValue - nearPointY).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchYValue - curY;
-          pointIndex = i;
-        }
-      } else {
-        if (delta == touchXValue - curX) {
-          pointIndex = i;
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          pointIndex = i;
-        }
-      }
-    }
-    return pointIndex ?? -1;
   }
 
   int _findNearestChartPointIndex(List<Offset> points, Offset position) {
@@ -665,9 +572,38 @@ class AreaSegment<T, D> extends ChartSegment {
   @override
   void calculateSegmentPoints() {}
 
+  void _computeAreaPath() {
+    _fillPath.reset();
+    _strokePath.reset();
+
+    if (_highPoints.isEmpty) {
+      return;
+    }
+
+    final List<Offset> lerpHighPoints =
+        _lerpPoints(_oldHighPoints, _highPoints);
+    final List<Offset> lerpLowPoints = _lerpPoints(_oldLowPoints, _lowPoints);
+    _createFillPath(_fillPath, lerpHighPoints, lerpLowPoints);
+
+    switch (series.borderDrawMode) {
+      case BorderDrawMode.all:
+        _strokePath = _fillPath;
+        break;
+      case BorderDrawMode.top:
+        _createTopStrokePath(_strokePath, lerpHighPoints);
+        break;
+      case BorderDrawMode.excludeBottom:
+        _createExcludeBottomStrokePath(
+            _strokePath, lerpHighPoints, lerpLowPoints);
+        break;
+    }
+  }
+
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
+    _computeAreaPath();
+
     Paint paint = getFillPaint();
     if (paint.color != Colors.transparent) {
       canvas.drawPath(_fillPath, paint);
@@ -685,6 +621,7 @@ class AreaSegment<T, D> extends ChartSegment {
     _strokePath.reset();
 
     points.clear();
+    _drawIndexes.clear();
     _highPoints.clear();
     _lowPoints.clear();
     _oldHighPoints.clear();

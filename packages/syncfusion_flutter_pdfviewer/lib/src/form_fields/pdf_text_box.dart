@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 import '../../pdfviewer.dart';
+import '../change_tracker/change_tracker.dart';
 import 'pdf_form_field.dart';
 
 /// Represents the text form field.
@@ -71,12 +72,12 @@ class PdfTextFormFieldHelper extends PdfFormFieldHelper {
   late FocusNode focusNode;
 
   /// Creates the text form field object.
-  PdfTextFormField getFormField() {
+  PdfTextFormField getFormField(ChangeTracker changeTracker) {
     textFormField = PdfTextFormField._().._text = pdfTextField.text;
     super.load(textFormField);
 
     textEditingController = TextEditingController(text: textFormField._text);
-    focusNode = createFocusNode();
+    focusNode = createFocusNode(changeTracker);
 
     return textFormField;
   }
@@ -88,9 +89,34 @@ class PdfTextFormFieldHelper extends PdfFormFieldHelper {
   }
 
   /// Gets the focus node of the [PdfTextFormField].
-  FocusNode createFocusNode() {
-    return FocusNode()
-      ..addListener(() {
+  FocusNode createFocusNode(ChangeTracker changeTracker) {
+    return FocusNode(
+      onKeyEvent: (FocusNode focusNode, KeyEvent event) {
+        final bool isControlOrMeta =
+            HardwareKeyboard.instance.isControlPressed ||
+                HardwareKeyboard.instance.isMetaPressed;
+        final bool isLogicalOrPhysicalZ =
+            event.logicalKey == LogicalKeyboardKey.keyZ ||
+                event.physicalKey == PhysicalKeyboardKey.keyZ;
+        final bool isLogicalOrPhysicalY =
+            event.logicalKey == LogicalKeyboardKey.keyY ||
+                event.physicalKey == PhysicalKeyboardKey.keyY;
+
+        if (isControlOrMeta && isLogicalOrPhysicalZ) {
+          if (event is KeyDownEvent) {
+            changeTracker.undoController.undo();
+          }
+          return KeyEventResult.handled;
+        } else if (isControlOrMeta && isLogicalOrPhysicalY) {
+          if (event is KeyDownEvent) {
+            changeTracker.undoController.redo();
+          }
+          return KeyEventResult.handled;
+        } else {
+          return KeyEventResult.ignored;
+        }
+      },
+    )..addListener(() {
         if (!focusNode.hasFocus) {
           invokeFocusChange(focusNode.hasFocus);
         }
@@ -109,13 +135,6 @@ class PdfTextFormFieldHelper extends PdfFormFieldHelper {
       if (onValueChanged != null) {
         onValueChanged!(
             PdfFormFieldValueChangedDetails(textFormField, oldValue, newValue));
-      }
-
-      if (textFormField._children != null &&
-          textFormField._children!.isNotEmpty) {
-        for (final PdfTextFormField item in textFormField._children!) {
-          item.text = newValue;
-        }
       }
       rebuild();
     }
@@ -137,7 +156,23 @@ class PdfTextFormFieldHelper extends PdfFormFieldHelper {
     if (textEditingController.text != text) {
       textEditingController.text = text;
     }
+    _updateChildItems(text);
     pdfTextField.text = text;
+  }
+
+  /// Updates the grouped field items.
+  void _updateChildItems(String text) {
+    if (textFormField._children != null &&
+        textFormField._children!.isNotEmpty) {
+      for (final PdfTextFormField item in textFormField._children!) {
+        final PdfFormFieldHelper childHelper =
+            PdfFormFieldHelper.getHelper(item);
+        if (childHelper is PdfTextFormFieldHelper &&
+            childHelper.textEditingController.text != text) {
+          childHelper.textEditingController.text = text;
+        }
+      }
+    }
   }
 
   /// Builds the text form field widget.

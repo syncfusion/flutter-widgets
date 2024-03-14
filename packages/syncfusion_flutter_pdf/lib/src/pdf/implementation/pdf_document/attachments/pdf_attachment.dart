@@ -12,9 +12,8 @@ class PdfAttachment extends PdfEmbeddedFileSpecification {
   //Constructor.
   /// Initializes a new instance of the [PdfAttachment] class with specified
   /// file name and byte data to be attached.
-  PdfAttachment(String fileName, List<int> data,
-      {String? description, String? mimeType})
-      : super(fileName, data) {
+  PdfAttachment(super.fileName, super.data,
+      {String? description, String? mimeType}) {
     _embeddedFile =
         PdfEmbeddedFileSpecificationHelper.getHelper(this).embeddedFile;
     _updateValues(description, mimeType);

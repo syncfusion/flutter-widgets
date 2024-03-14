@@ -150,7 +150,7 @@ class PdfLayoutElementHelper {
 class EndTextPageLayoutArgs extends EndPageLayoutArgs {
   /// Initializes a new instance of the [EndTextPageLayoutArgs] class
   /// with the specified [PdfTextLayoutResult].
-  EndTextPageLayoutArgs(PdfTextLayoutResult result) : super(result);
+  EndTextPageLayoutArgs(PdfTextLayoutResult super.result);
 }
 
 /// Provides data for event once lay outing completed on the new page.

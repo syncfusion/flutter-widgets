@@ -67,6 +67,48 @@ enum PdfAnnotationTypes {
   noAnnotation
 }
 
+/// Specifies the annotation export types.
+enum PdfAnnotationExportType {
+  /// Line annotation type.
+  lineAnnotation,
+
+  /// Circle annotation type.
+  circleAnnotation,
+
+  /// Rectangle annotation type.
+  rectangleAnnotation,
+
+  /// Polygon annotation type.
+  polygonAnnotation,
+
+  /// Highlight annotation type.
+  highlightAnnotation,
+
+  /// Underline annotation type.
+  underlineAnnotation,
+
+  /// StrikeOut annotation type.
+  strikeOutAnnotation,
+
+  /// Squiggly annotation type.
+  squigglyAnnotation,
+
+  /// Popup annotation type.
+  popupAnnotation
+}
+
+/// Specifies the format of Export or Import data.
+enum PdfAnnotationDataFormat {
+  /// Specifies FDF file format.
+  fdf,
+
+  /// Specifies  XFDF file format.
+  xfdf,
+
+  /// Specifies JSON file format.
+  json,
+}
+
 /// Specifies the available styles for a field border.
 enum PdfBorderStyle {
   /// A solid rectangle surrounding the annotation.

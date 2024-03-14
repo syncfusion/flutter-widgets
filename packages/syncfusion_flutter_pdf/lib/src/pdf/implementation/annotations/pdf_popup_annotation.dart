@@ -203,7 +203,7 @@ class PdfPopupAnnotationHelper extends PdfAnnotationHelper {
         return PdfPopupIcon.insert;
       case 'key':
         return PdfPopupIcon.key;
-      case 'newParagraph':
+      case 'newparagraph':
         return PdfPopupIcon.newParagraph;
       case 'paragraph':
         return PdfPopupIcon.paragraph;

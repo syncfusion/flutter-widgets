@@ -270,12 +270,17 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
     final ThemeData themeData = Theme.of(context);
+    final bool isMaterial3 = themeData.useMaterial3;
+    final bool isDarkTheme = themeData.brightness == Brightness.dark;
+    final Color barPointerColor = isMaterial3
+        ? (isDarkTheme ? const Color(0XFFFFF500) : const Color(0XFF06AEE0))
+        : themeData.colorScheme.primary;
     return RenderLinearBarPointer(
         value: value,
         edgeStyle: edgeStyle,
         shaderCallback: shaderCallback,
-        color: color ?? themeData.colorScheme.primary,
-        borderColor: borderColor ?? themeData.colorScheme.primary,
+        color: color ?? barPointerColor,
+        borderColor: borderColor ?? barPointerColor,
         borderWidth: borderWidth,
         thickness: thickness,
         offset: offset,
@@ -292,12 +297,17 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
       BuildContext context, RenderLinearBarPointer renderObject) {
     final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
     final ThemeData themeData = Theme.of(context);
+    final bool isMaterial3 = themeData.useMaterial3;
+    final bool isDarkTheme = themeData.brightness == Brightness.dark;
+    final Color barPointerColor = isMaterial3
+        ? (isDarkTheme ? const Color(0XFFFFF500) : const Color(0XFF06AEE0))
+        : themeData.colorScheme.primary;
     renderObject
       ..value = value
       ..edgeStyle = edgeStyle
       ..shaderCallback = shaderCallback
-      ..color = color ?? themeData.colorScheme.primary
-      ..borderColor = borderColor ?? themeData.colorScheme.primary
+      ..color = color ?? barPointerColor
+      ..borderColor = borderColor ?? barPointerColor
       ..borderWidth = borderWidth
       ..thickness = thickness
       ..offset = offset

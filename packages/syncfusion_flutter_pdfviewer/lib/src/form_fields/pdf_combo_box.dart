@@ -195,6 +195,7 @@ class _PdfComboBoxState extends State<PdfComboBox> {
                   widget.onValueChanged!(newValue);
                 }
               },
+        style: Theme.of(context).textTheme.bodyMedium,
         selectedItemBuilder: (BuildContext context) {
           return widget.items.map((String value) {
             return Padding(

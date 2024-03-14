@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
+import '../behaviors/trackball.dart';
 import '../common/chart_point.dart';
 import '../common/core_tooltip.dart';
 import '../common/data_label.dart';
 import '../interactions/tooltip.dart';
-import '../interactions/trackball.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
 import 'chart_series.dart';
@@ -156,12 +156,18 @@ class CandleSeriesRenderer<T, D> extends FinancialSeriesRendererBase<T, D>
     late Color color;
     if (enableSolidCandles) {
       color = isHollow ? bullColor : bearColor;
-      final Color? segmentColor = pointColorMapper != null ? null : color;
+      final Color? segmentColor = pointColorMapper != null &&
+              pointColors[segment.currentSegmentIndex] != null
+          ? null
+          : color;
       updateSegmentColor(segment, segmentColor, borderWidth,
           fillColor: segmentColor, isLineType: true);
     } else {
       color = isBull ? bullColor : bearColor;
-      final Color? segmentColor = pointColorMapper != null ? null : color;
+      final Color? segmentColor = pointColorMapper != null &&
+              pointColors[segment.currentSegmentIndex] != null
+          ? null
+          : color;
       updateSegmentColor(segment, segmentColor, borderWidth,
           fillColor: isHollow ? Colors.transparent : segmentColor,
           isLineType: true);
@@ -174,53 +180,11 @@ class CandleSeriesRenderer<T, D> extends FinancialSeriesRendererBase<T, D>
     final SfChartThemeData chartThemeData = parent!.chartThemeData!;
     final ThemeData themeData = parent!.themeData!;
     if (chartThemeData.plotAreaBackgroundColor != Colors.transparent) {
-      return chartThemeData.plotAreaBackgroundColor;
+      return chartThemeData.plotAreaBackgroundColor!;
     } else if (chartThemeData.backgroundColor != Colors.transparent) {
-      return chartThemeData.backgroundColor;
+      return chartThemeData.backgroundColor!;
     }
     return themeData.colorScheme.surface;
-  }
-
-  @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
-    }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-
-    for (final ChartSegment segment in segments) {
-      if (segment is CandleSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-        final Rect rect = segment.series.paintBounds;
-
-        final num touchXValue =
-            segment.series.xAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double curX = segment.series.xValues[index].toDouble();
-        final double curY = segment.series.highValues[index].toDouble();
-        if (delta == touchXValue - curX) {
-          if ((touchYValue - curY).abs() > (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
-    }
-    return segmentCollection;
   }
 }
 
@@ -406,22 +370,35 @@ class CandleSegment<T, D> extends ChartSegment {
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
-    if (segmentRect == null) {
-      return null;
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
+    if (pointIndex != -1 && segmentRect != null) {
+      final CartesianChartPoint<D> chartPoint = _chartPoint();
+      Offset preferredPos;
+      if (points.isNotEmpty) {
+        preferredPos = Offset(
+            series.pointToPixelX(x, high), series.pointToPixelY(x, high));
+      } else {
+        preferredPos =
+            Offset(series.pointToPixelX(x, top), series.pointToPixelX(x, top));
+      }
+      return ChartTrackballInfo<T, D>(
+        position: preferredPos,
+        highXPos: preferredPos.dx,
+        highYPos: series.pointToPixelY(x, high),
+        lowYPos: series.pointToPixelY(x, bottom),
+        point: chartPoint,
+        series: series,
+        seriesIndex: series.index,
+        segmentIndex: currentSegmentIndex,
+        pointIndex: pointIndex,
+        text: series.trackballText(chartPoint, series.name),
+        header: series.tooltipHeaderText(chartPoint),
+        color: fillPaint.color == Colors.transparent
+            ? strokePaint.color
+            : fillPaint.color,
+      );
     }
-
-    final num left = x + series.sbsInfo.minimum;
-    return ChartTrackballInfo<T, D>(
-      position: segmentRect!.topCenter,
-      point: _chartPoint(),
-      series: series,
-      pointIndex: currentSegmentIndex,
-      seriesIndex: series.index,
-      lowYPos: series.pointToPixelY(left, bottom),
-      highYPos: series.pointToPixelY(left, top),
-      highXPos: series.pointToPixelX(left, top),
-    );
+    return null;
   }
 
   /// Gets the color of the series.

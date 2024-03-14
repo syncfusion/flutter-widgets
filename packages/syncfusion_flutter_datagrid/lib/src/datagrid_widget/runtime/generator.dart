@@ -972,20 +972,20 @@ class RowGenerator {
 
       return BoxDecoration(
         border: BorderDirectional(
-          top: canDrawTopFrozenBorder && themeData.frozenPaneElevation <= 0.0
+          top: canDrawTopFrozenBorder && themeData.frozenPaneElevation! <= 0.0
               ? BorderSide(
-                  color: themeData.frozenPaneLineColor,
-                  width: themeData.frozenPaneLineWidth)
+                  color: themeData.frozenPaneLineColor!,
+                  width: themeData.frozenPaneLineWidth!)
               : BorderSide.none,
           bottom: canDrawHorizontalBorder
               ? BorderSide(
-                  color: themeData.gridLineColor,
-                  width: themeData.gridLineStrokeWidth)
+                  color: themeData.gridLineColor!,
+                  width: themeData.gridLineStrokeWidth!)
               : BorderSide.none,
           end: canDrawVerticalBorder
               ? BorderSide(
-                  color: themeData.gridLineColor,
-                  width: themeData.gridLineStrokeWidth)
+                  color: themeData.gridLineColor!,
+                  width: themeData.gridLineStrokeWidth!)
               : BorderSide.none,
         ),
       );
@@ -1198,8 +1198,9 @@ class RowGenerator {
                 spanDataRow.rowLevel);
             _updataSpannedRow(spanDataRow, displayElement, columnSpan);
             if (rowData.level > displayElement.level) {
-              for (int i = displayElement.level; i < rowData.level; i++)
+              for (int i = displayElement.level; i < rowData.level; i++) {
                 spanDataRow.visibleColumns[i].columnIndex = -1;
+              }
             }
             spanDataRow.ensureIndentCell(visibleColumns);
           } else {

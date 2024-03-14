@@ -2,10 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../behaviors/trackball.dart';
 import '../common/callbacks.dart';
 import '../common/chart_point.dart';
-import '../interactions/trackball.dart';
 import '../series/chart_series.dart';
+import '../utils/constants.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
@@ -282,8 +283,7 @@ class MomentumIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set period(int value) {
     if (_period != value) {
       _period = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -329,6 +329,8 @@ class MomentumIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       _signalLineActualValues.clear();
       _centerLineActualValues.clear();
 
+      num xMinimum = double.infinity;
+      num xMaximum = double.negativeInfinity;
       num yMinimum = double.infinity;
       num yMaximum = double.negativeInfinity;
 
@@ -336,6 +338,8 @@ class MomentumIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       final int length = period;
       for (int i = 0; i < dataCount; i++) {
         final double x = xValues[i].toDouble();
+        xMinimum = min(xMinimum, x);
+        xMaximum = max(xMaximum, x);
         yMinimum = min(yMinimum, 100);
         yMaximum = max(yMaximum, 100);
         _centerLineActualValues.add(Offset(x, 100));
@@ -346,12 +350,16 @@ class MomentumIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
             continue;
           }
           final double y = value.toDouble();
+          xMinimum = min(xMinimum, x);
+          xMaximum = max(xMaximum, x);
           yMinimum = min(yMinimum, y);
           yMaximum = max(yMaximum, y);
           _signalLineActualValues.add(Offset(x, y));
         }
       }
 
+      xMin = xMinimum.isInfinite ? xMin : xMinimum;
+      xMax = xMaximum.isInfinite ? xMax : xMaximum;
       yMin = min(yMin, yMinimum);
       yMax = max(yMax, yMaximum);
     }
@@ -413,14 +421,18 @@ class MomentumIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (momentumPointIndex != -1) {
       final CartesianChartPoint<D> momentumPoint =
           _chartPoint(momentumPointIndex, 'momentum');
+      final String text = defaultLegendItemText();
       trackballInfo.add(
         ChartTrackballInfo<T, D>(
           position: signalLinePoints[momentumPointIndex],
           point: momentumPoint,
           series: this,
           pointIndex: momentumPointIndex,
+          segmentIndex: momentumPointIndex,
           seriesIndex: index,
-          name: defaultLegendItemText(),
+          name: text,
+          header: tooltipHeaderText(momentumPoint),
+          text: trackballText(momentumPoint, text),
           color: signalLineColor,
         ),
       );
@@ -434,8 +446,11 @@ class MomentumIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         point: centerPoint,
         series: this,
         pointIndex: centerPointIndex,
+        segmentIndex: centerPointIndex,
         seriesIndex: index,
-        name: 'CenterLine',
+        name: trackballCenterText,
+        header: tooltipHeaderText(centerPoint),
+        text: trackballText(centerPoint, trackballCenterText),
         color: _centerLineColor,
       ));
     }

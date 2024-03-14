@@ -127,7 +127,20 @@ class SfBarcodeTheme extends InheritedTheme {
 @immutable
 class SfBarcodeThemeData with Diagnosticable {
   /// Initialize the SfBarcode theme data
-  factory SfBarcodeThemeData({
+  const SfBarcodeThemeData({
+    this.backgroundColor,
+    this.barColor,
+    this.textColor,
+    this.textStyle,
+  });
+
+  /// Create a [SfBarcodeThemeData] given a set of exact values.
+  /// All the values must be specified.
+  ///
+  /// This will rarely be used directly. It is used by [lerp] to
+  /// create intermediate themes based on two themes created with the
+  /// [SfBarcodeThemeData] constructor.
+  factory SfBarcodeThemeData.raw({
     Brightness? brightness,
     Color? backgroundColor,
     Color? barColor,
@@ -140,61 +153,13 @@ class SfBarcodeThemeData with Diagnosticable {
     barColor ??= isLight ? const Color(0xFF212121) : const Color(0xFFE0E0E0);
     textColor ??= isLight ? const Color(0xFF212121) : const Color(0xFFE0E0E0);
 
-    return SfBarcodeThemeData.raw(
-      brightness: brightness,
+    return SfBarcodeThemeData(
       backgroundColor: backgroundColor,
       barColor: barColor,
       textColor: textColor,
       textStyle: textStyle,
     );
   }
-
-  /// Create a [SfBarcodeThemeData] given a set of exact values.
-  /// All the values must be specified.
-  ///
-  /// This will rarely be used directly. It is used by [lerp] to
-  /// create intermediate themes based on two themes created with the
-  /// [SfBarcodeThemeData] constructor.
-  const SfBarcodeThemeData.raw({
-    required this.brightness,
-    required this.backgroundColor,
-    required this.barColor,
-    required this.textColor,
-    required this.textStyle,
-  });
-
-  /// The brightness of the overall theme of the
-  /// application for the barcode widgets.
-  ///
-  /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).brightness], brightness for
-  /// barcode widgets will be applied.
-  ///
-  /// Also refer [Brightness].
-  ///
-  ///
-  /// ```dart
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    appBar: AppBar(),
-  ///      body: Center(
-  ///        child: SfTheme(
-  ///          data: SfThemeData(
-  ///            barcodeThemeData: SfBarcodeThemeData(
-  ///              brightness: Brightness.dark
-  ///              ),
-  ///            ),
-  ///          child: SfBarcodeGenerator(
-  ///            value: 'www.sycfusion.com',
-  ///            symbology: QRCode() ,
-  ///            showValue: true,
-  ///          ),
-  ///        ),
-  ///      )
-  ///   );
-  ///}
-  /// ```
-  final Brightness brightness;
 
   /// Specifies the background color of barcode widgets.
   ///
@@ -219,7 +184,7 @@ class SfBarcodeThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// Specifies the color for barcodes.
   ///
@@ -244,7 +209,7 @@ class SfBarcodeThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color barColor;
+  final Color? barColor;
 
   /// Specifies the color for barcode text.
   ///
@@ -269,7 +234,7 @@ class SfBarcodeThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color textColor;
+  final Color? textColor;
 
   /// Specifies the text style for barcode text.
   ///
@@ -306,7 +271,7 @@ class SfBarcodeThemeData with Diagnosticable {
     TextStyle? textStyle,
   }) {
     return SfBarcodeThemeData.raw(
-        brightness: brightness ?? this.brightness,
+        brightness: brightness,
         backgroundColor: backgroundColor ?? this.backgroundColor,
         barColor: barColor ?? this.barColor,
         textColor: textColor ?? this.textColor,
@@ -356,9 +321,7 @@ class SfBarcodeThemeData with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    final SfBarcodeThemeData defaultData = SfBarcodeThemeData();
-    properties.add(EnumProperty<Brightness>('brightness', brightness,
-        defaultValue: defaultData.brightness));
+    const SfBarcodeThemeData defaultData = SfBarcodeThemeData();
     properties.add(ColorProperty('backgroundColor', backgroundColor,
         defaultValue: defaultData.backgroundColor));
     properties.add(ColorProperty('barColor', barColor,

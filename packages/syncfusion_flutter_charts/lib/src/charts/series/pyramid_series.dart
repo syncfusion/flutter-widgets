@@ -955,6 +955,7 @@ class PyramidSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     List<List<num>>? chaoticYLists,
     List<List<num>>? yLists,
     List<ChartValueMapper<T, Object>>? fPaths,
+    List<List<Object?>>? chaoticFLists,
     List<List<Object?>>? fLists,
   ]) {
     if (yPaths == null) {
@@ -962,10 +963,7 @@ class PyramidSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
       chaoticYLists = <List<num>>[];
       yLists = <List<num>>[];
     }
-    if (fPaths == null) {
-      fPaths = <ChartValueMapper<T, Object>>[];
-      fLists = <List<Object?>>[];
-    }
+
     if (yValueMapper != null) {
       yPaths.add(yValueMapper!);
       if (sortingOrder == SortingOrder.none) {
@@ -975,7 +973,8 @@ class PyramidSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
         yLists?.add(yValues);
       }
     }
-    super.populateDataSource(yPaths, chaoticYLists, yLists, fPaths, fLists);
+    super.populateDataSource(
+        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
     markNeedsLegendUpdate();
     populateChartPoints();
   }
@@ -1005,6 +1004,7 @@ class PyramidSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     List<List<num>>? chaoticYLists,
     List<List<num>>? yLists,
     List<ChartValueMapper<T, Object>>? fPaths,
+    List<List<Object?>>? chaoticFLists,
     List<List<Object?>>? fLists,
   ]) {
     if (yPaths == null) {
@@ -1023,7 +1023,7 @@ class PyramidSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
       }
     }
     super.updateDataPoints(removedIndexes, addedIndexes, replacedIndexes,
-        yPaths, chaoticYLists, yLists, fPaths, fLists);
+        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
   }
 
   @override

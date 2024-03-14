@@ -14,6 +14,7 @@ import '../axis/datetime_axis.dart';
 import '../axis/datetime_category_axis.dart';
 import '../axis/logarithmic_axis.dart';
 import '../axis/numeric_axis.dart';
+import '../base.dart';
 import '../common/callbacks.dart';
 import '../common/chart_point.dart';
 import '../common/core_legend.dart' as core;
@@ -22,8 +23,11 @@ import '../common/layout_handler.dart';
 import '../common/legend.dart';
 import '../common/marker.dart';
 import '../common/title.dart';
+import '../indicators/technical_indicator.dart';
 import '../interactions/tooltip.dart';
+import '../series/bar_series.dart';
 import '../series/chart_series.dart';
+import '../series/column_series.dart';
 import '../utils/enum.dart';
 import 'constants.dart';
 
@@ -297,9 +301,9 @@ Color dataLabelSurfaceColor(
     case ChartDataLabelPosition.outside:
       if (labelColor == Colors.transparent) {
         if (chartThemeData.plotAreaBackgroundColor != Colors.transparent) {
-          return chartThemeData.plotAreaBackgroundColor;
+          return chartThemeData.plotAreaBackgroundColor!;
         } else if (chartThemeData.backgroundColor != Colors.transparent) {
-          return chartThemeData.backgroundColor;
+          return chartThemeData.backgroundColor!;
         }
         return themeData.colorScheme.surface;
       }
@@ -939,6 +943,15 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
         replacingText, formatNumericValue(value, yAxis, digits));
   }
 
+  String _formatTrackballLabel(num value, int digits, String text, bool isLtr) {
+    if (text.isEmpty) {
+      return formatNumericValue(value, yAxis, digits);
+    }
+    return isLtr
+        ? '$text: ${formatNumericValue(value, yAxis, digits)}'
+        : '${formatNumericValue(value, yAxis, digits)} :$text';
+  }
+
   String tooltipText(CartesianChartPoint<D> point, [int outlierIndex = -1]) {
     if (xAxis == null || point.x == null) {
       return '';
@@ -1128,6 +1141,200 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
     return text;
   }
 
+  String trackballText(CartesianChartPoint<D> point, String seriesName,
+      {int outlierIndex = -1}) {
+    if (parent == null ||
+        parent!.trackballBehavior == null ||
+        xAxis == null ||
+        point.x == null) {
+      return '';
+    }
+
+    String text = '';
+    final int digits = parent!.trackballBehavior!.tooltipSettings.decimalPlaces;
+    if (parent!.trackballBehavior!.tooltipDisplayMode ==
+        TrackballDisplayMode.groupAllPoints) {
+      text = seriesName;
+    }
+
+    final bool isLtr = textDirection == TextDirection.ltr;
+    final String? tooltipFormat =
+        parent!.trackballBehavior!.tooltipSettings.format;
+    if (tooltipFormat != null) {
+      text = tooltipHeaderText(point, digits);
+      String tooltipText = tooltipFormat.replaceAll('point.x', text);
+
+      if (point.y != null) {
+        tooltipText = _replace(tooltipText, 'point.y', point.y!, digits);
+      }
+
+      if (point.high != null) {
+        tooltipText = _replace(tooltipText, 'point.high', point.high!, digits);
+      }
+
+      if (point.low != null) {
+        tooltipText = _replace(tooltipText, 'point.low', point.low!, digits);
+      }
+
+      if (point.open != null) {
+        tooltipText = _replace(tooltipText, 'point.open', point.open!, digits);
+      }
+
+      if (point.close != null) {
+        tooltipText =
+            _replace(tooltipText, 'point.close', point.close!, digits);
+      }
+
+      if (outlierIndex != -1) {
+        if (point.outliers != null && point.outliers!.isNotEmpty) {
+          tooltipText = _replace(tooltipText, 'point.outliers',
+              point.outliers![outlierIndex], digits);
+        }
+      } else {
+        if (point.minimum != null) {
+          tooltipText =
+              _replace(tooltipText, 'point.minimum', point.minimum!, digits);
+        }
+
+        if (point.maximum != null) {
+          tooltipText =
+              _replace(tooltipText, 'point.maximum', point.maximum!, digits);
+        }
+
+        if (point.lowerQuartile != null) {
+          tooltipText = _replace(
+              tooltipText, 'point.lowerQuartile', point.lowerQuartile!, digits);
+        }
+
+        if (point.upperQuartile != null) {
+          tooltipText = _replace(
+              tooltipText, 'point.upperQuartile', point.upperQuartile!, digits);
+        }
+
+        if (point.mean != null) {
+          tooltipText =
+              _replace(tooltipText, 'point.mean', point.mean!, digits);
+        }
+
+        if (point.median != null) {
+          tooltipText =
+              _replace(tooltipText, 'point.median', point.median!, digits);
+        }
+      }
+
+      if (point.cumulative != null) {
+        tooltipText = _replace(
+            tooltipText, 'point.cumulative', point.cumulative!, digits);
+      }
+
+      if (point.bubbleSize != null) {
+        tooltipText =
+            _replace(tooltipText, 'point.size', point.bubbleSize!, digits);
+      }
+
+      tooltipText = tooltipText.replaceAll('series.name', seriesName);
+      text = isLtr ? tooltipText : formatRTLText(tooltipText);
+    } else {
+      if (point.y != null) {
+        text = _formatTrackballLabel(point.y!, digits, text, isLtr);
+      }
+
+      if (point.high != null) {
+        if (text.isNotEmpty) {
+          text += '\n';
+        }
+        text += _formatTrackballLabel(point.high!, digits, 'High', isLtr);
+      }
+
+      if (point.low != null) {
+        if (text.isNotEmpty) {
+          text += '\n';
+        }
+
+        text += _formatTrackballLabel(point.low!, digits, 'Low', isLtr);
+      }
+
+      if (point.open != null) {
+        if (text.isNotEmpty) {
+          text += '\n';
+        }
+        text += _formatTrackballLabel(point.open!, digits, 'Open', isLtr);
+      }
+
+      if (point.close != null) {
+        if (text.isNotEmpty) {
+          text += '\n';
+        }
+        text += _formatTrackballLabel(point.close!, digits, 'Close', isLtr);
+      }
+
+      if (outlierIndex != -1) {
+        if (point.outliers != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text += _formatTrackballLabel(
+              point.outliers![outlierIndex], digits, 'Outliers', isLtr);
+        }
+      } else {
+        if (point.minimum != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text +=
+              _formatTrackballLabel(point.minimum!, digits, 'Minimum', isLtr);
+        }
+
+        if (point.maximum != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text +=
+              _formatTrackballLabel(point.maximum!, digits, 'Maximum', isLtr);
+        }
+
+        if (point.median != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text += _formatTrackballLabel(point.median!, digits, 'Median', isLtr);
+        }
+
+        if (point.mean != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text += _formatTrackballLabel(point.mean!, digits, 'Mean', isLtr);
+        }
+
+        if (point.lowerQuartile != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text += _formatTrackballLabel(
+              point.lowerQuartile!, digits, 'LowerQuartile', isLtr);
+        }
+
+        if (point.upperQuartile != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text += _formatTrackballLabel(
+              point.upperQuartile!, digits, 'UpperQuartile', isLtr);
+        }
+      }
+    }
+
+    return text;
+  }
+
   String tooltipHeaderText(CartesianChartPoint<D> point, [int digits = 3]) {
     String text = '';
     if (xAxis is RenderNumericAxis || xAxis is RenderLogarithmicAxis) {
@@ -1194,6 +1401,7 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
         format = dateFormat;
         break;
       case DateTimeIntervalType.auto:
+        format ??= DateFormat();
         break;
     }
     return format!;
@@ -1254,6 +1462,337 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
       return gradient!.createShader(bounds);
     }
     return null;
+  }
+}
+
+extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
+  String _replace(
+      String tooltipText, String replacingText, num value, int digits) {
+    return tooltipText.replaceAll(
+        replacingText, formatNumericValue(value, yAxis, digits));
+  }
+
+  String _formatTrackballLabel(num value, int digits, String text, bool isLtr) {
+    if (text.isEmpty) {
+      return formatNumericValue(value, yAxis, digits);
+    }
+    return isLtr
+        ? '$text: ${formatNumericValue(value, yAxis, digits)}'
+        : '${formatNumericValue(value, yAxis, digits)} :$text';
+  }
+
+  String trackballText(CartesianChartPoint<D> point, String seriesName,
+      {int outlierIndex = -1}) {
+    if (parent == null ||
+        parent!.trackballBehavior == null ||
+        xAxis == null ||
+        point.x == null) {
+      return '';
+    }
+
+    String text = '';
+    final int digits = parent!.trackballBehavior!.tooltipSettings.decimalPlaces;
+    if (parent!.trackballBehavior!.tooltipDisplayMode ==
+        TrackballDisplayMode.groupAllPoints) {
+      text = '$seriesName ';
+    }
+
+    return _behaviorText(
+        parent!.trackballBehavior!.tooltipSettings.format,
+        text,
+        point,
+        digits,
+        outlierIndex,
+        seriesName,
+        parent!.textDirection == TextDirection.ltr);
+  }
+
+  String _behaviorText(
+    String? tooltipFormat,
+    String text,
+    CartesianChartPoint<D> point,
+    int digits,
+    int outlierIndex,
+    String seriesName,
+    bool isLtr,
+  ) {
+    if (tooltipFormat != null) {
+      text = tooltipHeaderText(point, digits);
+      String tooltipText = tooltipFormat.replaceAll('point.x', text);
+
+      if (point.y != null) {
+        tooltipText = _replace(tooltipText, 'point.y', point.y!, digits);
+      }
+
+      if (point.high != null) {
+        tooltipText = _replace(tooltipText, 'point.high', point.high!, digits);
+      }
+
+      if (point.low != null) {
+        tooltipText = _replace(tooltipText, 'point.low', point.low!, digits);
+      }
+
+      if (point.open != null) {
+        tooltipText = _replace(tooltipText, 'point.open', point.open!, digits);
+      }
+
+      if (point.close != null) {
+        tooltipText =
+            _replace(tooltipText, 'point.close', point.close!, digits);
+      }
+
+      if (outlierIndex != -1) {
+        if (point.outliers != null && point.outliers!.isNotEmpty) {
+          tooltipText = _replace(tooltipText, 'point.outliers',
+              point.outliers![outlierIndex], digits);
+        }
+      } else {
+        if (point.minimum != null) {
+          tooltipText =
+              _replace(tooltipText, 'point.minimum', point.minimum!, digits);
+        }
+
+        if (point.maximum != null) {
+          tooltipText =
+              _replace(tooltipText, 'point.maximum', point.maximum!, digits);
+        }
+
+        if (point.lowerQuartile != null) {
+          tooltipText = _replace(
+              tooltipText, 'point.lowerQuartile', point.lowerQuartile!, digits);
+        }
+
+        if (point.upperQuartile != null) {
+          tooltipText = _replace(
+              tooltipText, 'point.upperQuartile', point.upperQuartile!, digits);
+        }
+
+        if (point.mean != null) {
+          tooltipText =
+              _replace(tooltipText, 'point.mean', point.mean!, digits);
+        }
+
+        if (point.median != null) {
+          tooltipText =
+              _replace(tooltipText, 'point.median', point.median!, digits);
+        }
+      }
+
+      if (point.cumulative != null) {
+        tooltipText = _replace(
+            tooltipText, 'point.cumulative', point.cumulative!, digits);
+      }
+
+      if (point.bubbleSize != null) {
+        tooltipText =
+            _replace(tooltipText, 'point.size', point.bubbleSize!, digits);
+      }
+
+      tooltipText = tooltipText.replaceAll('series.name', seriesName);
+      text = isLtr ? tooltipText : formatRTLText(tooltipText);
+    } else {
+      if (point.y != null) {
+        text = _formatTrackballLabel(point.y!, digits, text, isLtr);
+      }
+
+      if (point.high != null) {
+        if (text.isNotEmpty) {
+          text += '\n';
+        }
+        text += _formatTrackballLabel(point.high!, digits, 'High', isLtr);
+      }
+
+      if (point.low != null) {
+        if (text.isNotEmpty) {
+          text += '\n';
+        }
+
+        text += _formatTrackballLabel(point.low!, digits, 'Low', isLtr);
+      }
+
+      if (point.open != null) {
+        if (text.isNotEmpty) {
+          text += '\n';
+        }
+        text += _formatTrackballLabel(point.open!, digits, 'Open', isLtr);
+      }
+
+      if (point.close != null) {
+        if (text.isNotEmpty) {
+          text += '\n';
+        }
+        text += _formatTrackballLabel(point.close!, digits, 'Close', isLtr);
+      }
+
+      if (outlierIndex != -1) {
+        if (point.outliers != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text += _formatTrackballLabel(
+              point.outliers![outlierIndex], digits, 'Outliers', isLtr);
+        }
+      } else {
+        if (point.minimum != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text +=
+              _formatTrackballLabel(point.minimum!, digits, 'Minimum', isLtr);
+        }
+
+        if (point.maximum != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text +=
+              _formatTrackballLabel(point.maximum!, digits, 'Maximum', isLtr);
+        }
+
+        if (point.median != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text += _formatTrackballLabel(point.median!, digits, 'Median', isLtr);
+        }
+
+        if (point.mean != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text += _formatTrackballLabel(point.mean!, digits, 'Mean', isLtr);
+        }
+
+        if (point.lowerQuartile != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text += _formatTrackballLabel(
+              point.lowerQuartile!, digits, 'LowerQuartile', isLtr);
+        }
+
+        if (point.upperQuartile != null) {
+          if (text.isNotEmpty) {
+            text += '\n';
+          }
+
+          text += _formatTrackballLabel(
+              point.upperQuartile!, digits, 'UpperQuartile', isLtr);
+        }
+      }
+    }
+    return text;
+  }
+
+  String tooltipHeaderText(CartesianChartPoint<D> point, [int digits = 3]) {
+    String text = '';
+    if (xAxis is RenderNumericAxis || xAxis is RenderLogarithmicAxis) {
+      text = formatNumericValue(point.x! as num, xAxis, digits);
+    } else if (xAxis is RenderDateTimeAxis) {
+      final RenderDateTimeAxis axis = xAxis! as RenderDateTimeAxis;
+      final DateFormat dateFormat =
+          axis.dateFormat ?? _dateTimeLabelFormat(xAxis!);
+      text = dateFormat.format(point.x! as DateTime);
+    } else if (xAxis is RenderDateTimeCategoryAxis) {
+      final RenderDateTimeCategoryAxis axis =
+          xAxis! as RenderDateTimeCategoryAxis;
+      final DateFormat dateFormat =
+          axis.dateFormat ?? _dateTimeLabelFormat(xAxis!);
+      text = dateFormat.format(point.x! as DateTime);
+    } else if (xAxis is RenderCategoryAxis) {
+      text = point.x!.toString();
+    }
+
+    return text;
+  }
+
+  DateFormat _dateTimeLabelFormat(RenderChartAxis axis,
+      [int? interval, int? prevInterval]) {
+    DateFormat? format;
+    final bool notDoubleInterval =
+        (axis.interval != null && axis.interval! % 1 == 0) ||
+            axis.interval == null;
+    DateTimeIntervalType? actualIntervalType;
+    num? minimum;
+    minimum = axis.visibleRange!.minimum;
+    if (axis is RenderDateTimeAxis) {
+      actualIntervalType = axis.visibleIntervalType;
+    } else if (axis is RenderDateTimeCategoryAxis) {
+      actualIntervalType = axis.visibleIntervalType;
+    }
+
+    switch (actualIntervalType!) {
+      case DateTimeIntervalType.years:
+        format = notDoubleInterval ? DateFormat.y() : DateFormat.MMMd();
+        break;
+      case DateTimeIntervalType.months:
+        format = (minimum == interval || interval == prevInterval)
+            ? _firstLabelFormat(actualIntervalType)
+            : _dateTimeFormat(actualIntervalType, interval, prevInterval);
+
+        break;
+      case DateTimeIntervalType.days:
+        format = (minimum == interval || interval == prevInterval)
+            ? _firstLabelFormat(actualIntervalType)
+            : _dateTimeFormat(actualIntervalType, interval, prevInterval);
+        break;
+      case DateTimeIntervalType.hours:
+        format = DateFormat.j();
+        break;
+      case DateTimeIntervalType.minutes:
+        format = DateFormat.Hm();
+        break;
+      case DateTimeIntervalType.seconds:
+        format = DateFormat.ms();
+        break;
+      case DateTimeIntervalType.milliseconds:
+        final DateFormat dateFormat = DateFormat('ss.SSS');
+        format = dateFormat;
+        break;
+      case DateTimeIntervalType.auto:
+        format ??= DateFormat();
+        break;
+    }
+    return format!;
+  }
+
+  DateFormat? _dateTimeFormat(DateTimeIntervalType? actualIntervalType,
+      int? interval, int? prevInterval) {
+    final DateTime minimum = DateTime.fromMillisecondsSinceEpoch(interval!);
+    final DateTime maximum = DateTime.fromMillisecondsSinceEpoch(prevInterval!);
+    DateFormat? format;
+    final bool isIntervalDecimal = interval % 1 == 0;
+    if (actualIntervalType == DateTimeIntervalType.months) {
+      format = minimum.year == maximum.year
+          ? (isIntervalDecimal ? DateFormat.MMM() : DateFormat.MMMd())
+          : DateFormat('yyy MMM');
+    } else if (actualIntervalType == DateTimeIntervalType.days) {
+      format = minimum.month != maximum.month
+          ? (isIntervalDecimal ? DateFormat.MMMd() : DateFormat.MEd())
+          : DateFormat.d();
+    }
+
+    return format;
+  }
+
+  DateFormat? _firstLabelFormat(DateTimeIntervalType? actualIntervalType) {
+    DateFormat? format;
+
+    if (actualIntervalType == DateTimeIntervalType.months) {
+      format = DateFormat('yyy MMM');
+    } else if (actualIntervalType == DateTimeIntervalType.days) {
+      format = DateFormat.MMMd();
+    } else if (actualIntervalType == DateTimeIntervalType.minutes) {
+      format = DateFormat.Hm();
+    }
+
+    return format;
   }
 }
 
@@ -1445,10 +1984,319 @@ Widget buildLegendItem(
   } else {
     point = ChartPoint(x: item.text);
   }
+
+  if (item.series is! CartesianSeriesRenderer &&
+      item.series!.segments.isNotEmpty) {
+    point.isVisible = item.series!.segmentAt(item.pointIndex).isVisible;
+  }
+
   return legend.legendItemBuilder!(
     item.text,
     item.series?.widget,
     point,
     item.series is CartesianSeriesRenderer ? item.seriesIndex : item.pointIndex,
   );
+}
+
+mixin Stacking100SeriesMixin<T, D> {}
+
+bool isValueLinear(int index, num value, List<num> values) {
+  final int length = values.length;
+  if (length == 0) {
+    return true;
+  }
+
+  if (index == 0) {
+    return length == 1 || value <= values[index + 1];
+  }
+
+  if (index == length - 1) {
+    return value >= values[index - 1];
+  }
+
+  return value >= values[index - 1] && value <= values[index + 1];
+}
+
+DateFormat dateTimeAxisLabelFormat(
+    RenderDateTimeAxis axis, num current, int previous) {
+  return _niceDateFormat(current, previous, axis.visibleRange!.minimum,
+      axis.interval, axis.visibleInterval, axis.visibleIntervalType);
+}
+
+DateFormat dateTimeCategoryAxisLabelFormat(
+    RenderDateTimeCategoryAxis axis, num current, int previous) {
+  return _niceDateFormat(current, previous, axis.visibleRange!.minimum,
+      axis.interval, axis.visibleInterval, axis.visibleIntervalType);
+}
+
+DateFormat _niceDateFormat(num current, int previous, num minimum,
+    double? interval, num visibleInterval, DateTimeIntervalType intervalType) {
+  final bool notDoubleInterval =
+      (interval != null && interval % 1 == 0) || interval == null;
+  switch (intervalType) {
+    case DateTimeIntervalType.years:
+      return notDoubleInterval ? DateFormat.y() : DateFormat.MMMd();
+
+    case DateTimeIntervalType.months:
+      return (minimum == current || current == previous)
+          ? _firstLabelFormat(intervalType)
+          : _normalDateFormat(intervalType, visibleInterval, current, previous);
+
+    case DateTimeIntervalType.days:
+      return (minimum == current || current == previous)
+          ? _firstLabelFormat(intervalType)
+          : _normalDateFormat(intervalType, visibleInterval, current, previous);
+
+    case DateTimeIntervalType.hours:
+      return DateFormat.j();
+
+    case DateTimeIntervalType.minutes:
+      return DateFormat.Hm();
+
+    case DateTimeIntervalType.seconds:
+      return DateFormat.ms();
+
+    case DateTimeIntervalType.milliseconds:
+      return DateFormat('ss.SSS');
+
+    case DateTimeIntervalType.auto:
+      return DateFormat();
+  }
+}
+
+DateFormat _firstLabelFormat(DateTimeIntervalType visibleIntervalType) {
+  if (visibleIntervalType == DateTimeIntervalType.months) {
+    return DateFormat('yyy MMM');
+  } else if (visibleIntervalType == DateTimeIntervalType.days) {
+    return DateFormat.MMMd();
+  } else if (visibleIntervalType == DateTimeIntervalType.minutes) {
+    return DateFormat.Hm();
+  } else {
+    return DateFormat();
+  }
+}
+
+DateFormat _normalDateFormat(DateTimeIntervalType visibleIntervalType,
+    num visibleInterval, num current, int previousLabel) {
+  final DateTime minimum = DateTime.fromMillisecondsSinceEpoch(current.toInt());
+  final DateTime maximum = DateTime.fromMillisecondsSinceEpoch(previousLabel);
+  final bool isIntervalDecimal = visibleInterval % 1 == 0;
+  if (visibleIntervalType == DateTimeIntervalType.months) {
+    return minimum.year == maximum.year
+        ? (isIntervalDecimal ? DateFormat.MMM() : DateFormat.MMMd())
+        : DateFormat('yyy MMM');
+  } else if (visibleIntervalType == DateTimeIntervalType.days) {
+    return minimum.month != maximum.month
+        ? (isIntervalDecimal ? DateFormat.MMMd() : DateFormat.MEd())
+        : DateFormat.d();
+  } else {
+    return DateFormat();
+  }
+}
+
+String numericAxisLabel(RenderNumericAxis axis, num value, int showDigits) {
+  return _labelValue(value, showDigits, axis.numberFormat, axis.labelFormat);
+}
+
+String logAxisLabel(RenderLogarithmicAxis axis, num value, int showDigits) {
+  return _labelValue(value, showDigits, axis.numberFormat, axis.labelFormat);
+}
+
+String _labelValue(num value, int showDigits, NumberFormat? numberFormat,
+    String? labelFormat) {
+  final List pieces = value.toString().split('.');
+  if (pieces.length > 1) {
+    value = double.parse(value.toStringAsFixed(showDigits));
+    final String decimals = pieces[1];
+    final bool isDecimalContainsZero = decimals == '0' ||
+        decimals == '00' ||
+        decimals == '000' ||
+        decimals == '0000' ||
+        decimals == '00000' ||
+        value % 1 == 0;
+    value = isDecimalContainsZero ? value.round() : value;
+  }
+
+  String text = value.toString();
+  if (numberFormat != null) {
+    text = numberFormat.format(value);
+  }
+  if (labelFormat != null && labelFormat != '') {
+    text = labelFormat.replaceAll(RegExp('{value}'), text);
+  }
+  return text;
+}
+
+RRect performLegendToggleAnimation(
+  SbsSeriesMixin series,
+  RRect segmentRect,
+  RRect oldSegmentRect,
+  BorderRadius borderRadius,
+) {
+  final double animationFactor = series.segmentAnimationFactor;
+  final bool oldSeriesVisible = series.visibilityBeforeTogglingLegend;
+
+  if (series.parent!.isTransposed) {
+    return performTransposedLegendToggleAnimation(series, segmentRect,
+        oldSegmentRect, oldSeriesVisible, animationFactor, borderRadius);
+  }
+
+  final RenderCartesianChartPlotArea plotArea = series.parent!;
+  final CartesianSeriesRenderer firstSeries =
+      plotArea.firstChild as CartesianSeriesRenderer;
+  final CartesianSeriesRenderer lastSeries =
+      plotArea.lastChild as CartesianSeriesRenderer;
+
+  final bool isSingleBarSeries = _isSingleBarSeries(plotArea);
+  num right = 0;
+  final double height = segmentRect.height;
+  double width = segmentRect.width;
+  double left = segmentRect.left;
+  final double top = segmentRect.top;
+
+  /// Left and right animation handled when toggling the legend.
+  if (oldSeriesVisible) {
+    final double oldRight = oldSegmentRect.right;
+    final double oldLeft = oldSegmentRect.left;
+    final double newRight = segmentRect.right;
+    final double newLeft = segmentRect.left;
+
+    right = oldRight > newRight
+        ? oldRight + (animationFactor * (newRight - oldRight))
+        : oldRight - (animationFactor * (oldRight - newRight));
+    left = oldLeft > newLeft
+        ? oldLeft - (animationFactor * (oldLeft - newLeft))
+        : oldLeft + (animationFactor * (newLeft - oldLeft));
+    width = right - left;
+  } else {
+    final bool isInversed = series.xAxis!.isInversed;
+    if (series == firstSeries && !isSingleBarSeries) {
+      /// Handled the left to right side animation when re-toggling the first series legend.
+      if (isInversed) {
+        right = segmentRect.right;
+        left = right - (segmentRect.width * animationFactor);
+        width = right - left;
+      } else {
+        left = segmentRect.left;
+        width = segmentRect.width * animationFactor;
+      }
+    } else if (series == lastSeries && !isSingleBarSeries) {
+      /// Handled the right to left side animation when re-toggling the last series legend.
+      if (isInversed) {
+        left = segmentRect.left;
+        width = segmentRect.width * animationFactor;
+      } else {
+        right = segmentRect.right;
+        left = right - (segmentRect.width * animationFactor);
+        width = right - left;
+      }
+    } else {
+      /// Handled width animation when re-toggling middle series legend.
+      width = segmentRect.width * animationFactor;
+      left = segmentRect.center.dx - width / 2;
+    }
+  }
+
+  return RRect.fromRectAndCorners(
+    Rect.fromLTWH(left, top, width, height),
+    topLeft: borderRadius.topLeft,
+    topRight: borderRadius.topRight,
+    bottomLeft: borderRadius.bottomLeft,
+    bottomRight: borderRadius.bottomRight,
+  );
+}
+
+RRect performTransposedLegendToggleAnimation(
+  SbsSeriesMixin series,
+  RRect segmentRect,
+  RRect oldSegmentRect,
+  bool oldSeriesVisible,
+  double animationFactor,
+  BorderRadius borderRadius,
+) {
+  final RenderCartesianChartPlotArea plotArea = series.parent!;
+  final CartesianSeriesRenderer firstSeries =
+      plotArea.firstChild as CartesianSeriesRenderer;
+  final CartesianSeriesRenderer lastSeries =
+      plotArea.lastChild as CartesianSeriesRenderer;
+
+  final bool isSingleBarSeries = _isSingleBarSeries(plotArea);
+  num bottom;
+  double height = segmentRect.height;
+  double top = segmentRect.top;
+  final double width = segmentRect.width;
+  final double left = segmentRect.left;
+
+  /// Handled top and bottom animation when toggling the legend.
+  if (oldSeriesVisible) {
+    final double oldBottom = oldSegmentRect.bottom;
+    final double oldTop = oldSegmentRect.top;
+    final double newBottom = segmentRect.bottom;
+    final double newTop = segmentRect.top;
+
+    bottom = oldBottom > newBottom
+        ? oldBottom + (animationFactor * (newBottom - oldBottom))
+        : oldBottom - (animationFactor * (oldBottom - newBottom));
+    top = oldTop > newTop
+        ? oldTop - (animationFactor * (oldTop - newTop))
+        : oldTop + (animationFactor * (newTop - oldTop));
+    height = bottom - top;
+  } else {
+    final bool isInversed = series.xAxis!.isInversed;
+    if (series == firstSeries && !isSingleBarSeries) {
+      /// Handled the bottom to top side animation when re-toggling the first series legend.
+      if (isInversed) {
+        top = segmentRect.top;
+        height = segmentRect.height * animationFactor;
+      } else {
+        bottom = segmentRect.bottom;
+        top = bottom - (segmentRect.height * animationFactor);
+        height = bottom - top;
+      }
+    } else if (series == lastSeries && !isSingleBarSeries) {
+      /// Handled the top to bottom side animation when re-toggling the last series legend.
+      if (isInversed) {
+        bottom = segmentRect.bottom;
+        top = bottom - (segmentRect.height * animationFactor);
+        height = bottom - top;
+      } else {
+        top = segmentRect.top;
+        height = segmentRect.height * animationFactor;
+      }
+    } else {
+      /// Handled height animation when re-toggling middle series legend.
+      height = segmentRect.height * animationFactor;
+      top = segmentRect.center.dy - height / 2;
+    }
+  }
+
+  return RRect.fromRectAndCorners(
+    Rect.fromLTWH(left, top, width, height),
+    topLeft: borderRadius.topLeft,
+    topRight: borderRadius.topRight,
+    bottomLeft: borderRadius.bottomLeft,
+    bottomRight: borderRadius.bottomRight,
+  );
+}
+
+bool _isSingleBarSeries(RenderCartesianChartPlotArea plotArea) {
+  int count = 0;
+  plotArea.visitChildren((child) {
+    if (child is SbsSeriesMixin && child.controller.isVisible) {
+      count++;
+    }
+  });
+  return count == 1;
+}
+
+void animateAllBarSeries(RenderCartesianChartPlotArea plotArea) {
+  plotArea.isLegendToggled = true;
+  plotArea.visitChildren((child) {
+    if (child is CartesianSeriesRenderer) {
+      if ((child is ColumnSeriesRenderer || child is BarSeriesRenderer) &&
+          child.animationType == AnimationType.none) {
+        child.animationType = AnimationType.realtime;
+      }
+    }
+  });
 }

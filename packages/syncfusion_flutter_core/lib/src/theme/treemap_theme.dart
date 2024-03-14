@@ -115,56 +115,25 @@ class SfTreemapTheme extends InheritedTheme {
 
 @immutable
 class SfTreemapThemeData with Diagnosticable {
-  ///Initialize the sfTreemap theme data
-  factory SfTreemapThemeData({
-    Brightness? brightness,
-    TextStyle? legendTextStyle,
-  }) {
-    brightness = brightness ?? Brightness.light;
-
-    return SfTreemapThemeData.raw(
-        brightness: brightness, legendTextStyle: legendTextStyle);
-  }
-
   /// Create a [SfTreemapThemeData] given a set of exact values.
   /// All the values must be specified.
   ///
   /// This will rarely be used directly. It is used by [lerp] to
   /// create intermediate themes based on two themes created with the
   /// [SfTreemapThemeData] constructor.
-  const SfTreemapThemeData.raw({
-    required this.brightness,
-    required this.legendTextStyle,
+  const SfTreemapThemeData({
+    this.legendTextStyle,
   });
 
-  /// The brightness of the overall theme of the
-  /// application for the treemap widgets.
-  ///
-  /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).brightness], brightness for
-  /// treemap widgets will be applied.
-  ///
-  /// Also refer [Brightness].
-  ///
-  ///
-  /// ```dart
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    appBar: AppBar(),
-  ///      body: Center(
-  ///        child: SfTheme(
-  ///          data: SfThemeData(
-  ///            treemapThemeData: SfTreemapThemeData(
-  ///              brightness: Brightness.dark
-  ///              ),
-  ///            ),
-  ///          child: SfTreemap(),
-  ///        ),
-  ///      )
-  ///   );
-  ///}
-  /// ```
-  final Brightness brightness;
+  ///Initialize the sfTreemap theme data
+  factory SfTreemapThemeData.raw({
+    Brightness? brightness,
+    TextStyle? legendTextStyle,
+  }) {
+    brightness = brightness ?? Brightness.light;
+
+    return SfTreemapThemeData(legendTextStyle: legendTextStyle);
+  }
 
   /// Specifies the legend text style of treemap widgets.
   ///
@@ -194,7 +163,7 @@ class SfTreemapThemeData with Diagnosticable {
     TextStyle? legendTextStyle,
   }) {
     return SfTreemapThemeData.raw(
-        brightness: brightness ?? this.brightness,
+        brightness: brightness,
         legendTextStyle: legendTextStyle ?? this.legendTextStyle);
   }
 
@@ -231,7 +200,7 @@ class SfTreemapThemeData with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    final SfTreemapThemeData defaultData = SfTreemapThemeData();
+    const SfTreemapThemeData defaultData = SfTreemapThemeData();
     properties.add(DiagnosticsProperty<TextStyle>(
         'legendTextStyle', legendTextStyle,
         defaultValue: defaultData.legendTextStyle));

@@ -36,6 +36,7 @@ import 'settings/time_region.dart';
 import 'settings/time_slot_view_settings.dart';
 import 'settings/view_header_style.dart';
 import 'settings/week_number_style.dart';
+import 'theme.dart';
 import 'views/calendar_view.dart';
 
 /// Specifies the unconfirmed ripple animation duration used on custom splash.
@@ -2815,7 +2816,7 @@ class _SfCalendarState extends State<SfCalendar>
 
   @override
   void didChangeDependencies() {
-    _textScaleFactor = MediaQuery.textScalerOf(context).scale(_textScaleFactor);
+    _textScaleFactor = MediaQuery.textScalerOf(context).scale(1);
     // default width value will be device width when the widget placed inside a
     // infinity width widget
     _minWidth = MediaQuery.of(context).size.width;
@@ -3836,37 +3837,42 @@ class _SfCalendarState extends State<SfCalendar>
   SfCalendarThemeData _getThemeDataValue(
       SfCalendarThemeData calendarThemeData, ThemeData themeData) {
     final ColorScheme colorScheme = themeData.colorScheme;
+    final SfCalendarThemeData effectiveThemeData = themeData.useMaterial3
+        ? SfCalendarThemeDataM3(context)
+        : SfCalendarThemeDataM2(context);
+    final bool isMaterial3 = themeData.useMaterial3;
     return calendarThemeData.copyWith(
-        brightness: calendarThemeData.brightness ?? colorScheme.brightness,
-        backgroundColor:
-            calendarThemeData.backgroundColor ?? Colors.transparent,
-        headerBackgroundColor:
-            calendarThemeData.headerBackgroundColor ?? Colors.transparent,
-        agendaBackgroundColor:
-            calendarThemeData.agendaBackgroundColor ?? Colors.transparent,
+        backgroundColor: calendarThemeData.backgroundColor ??
+            effectiveThemeData.backgroundColor,
+        headerBackgroundColor: calendarThemeData.headerBackgroundColor ??
+            effectiveThemeData.headerBackgroundColor,
+        agendaBackgroundColor: calendarThemeData.agendaBackgroundColor ??
+            effectiveThemeData.agendaBackgroundColor,
         activeDatesBackgroundColor:
-            calendarThemeData.activeDatesBackgroundColor ?? Colors.transparent,
-        todayBackgroundColor:
-            calendarThemeData.todayBackgroundColor ?? Colors.transparent,
+            calendarThemeData.activeDatesBackgroundColor ??
+                effectiveThemeData.activeDatesBackgroundColor,
+        todayBackgroundColor: calendarThemeData.todayBackgroundColor ??
+            effectiveThemeData.todayBackgroundColor,
         trailingDatesBackgroundColor:
             calendarThemeData.trailingDatesBackgroundColor ??
-                Colors.transparent,
+                effectiveThemeData.trailingDatesBackgroundColor,
         leadingDatesBackgroundColor:
-            calendarThemeData.leadingDatesBackgroundColor ?? Colors.transparent,
+            calendarThemeData.leadingDatesBackgroundColor ??
+                effectiveThemeData.leadingDatesBackgroundColor,
         viewHeaderBackgroundColor:
-            calendarThemeData.viewHeaderBackgroundColor ?? Colors.transparent,
-        allDayPanelColor:
-            calendarThemeData.allDayPanelColor ?? Colors.transparent,
-        // ignore: lines_longer_than_80_chars
+            calendarThemeData.viewHeaderBackgroundColor ??
+                effectiveThemeData.viewHeaderBackgroundColor,
+        allDayPanelColor: calendarThemeData.allDayPanelColor ??
+            effectiveThemeData.allDayPanelColor,
         weekNumberBackgroundColor:
             calendarThemeData.weekNumberBackgroundColor ??
-                colorScheme.onSurface.withOpacity(0.04),
+                effectiveThemeData.weekNumberBackgroundColor,
         cellBorderColor: calendarThemeData.cellBorderColor ??
-            colorScheme.onSurface.withOpacity(0.16),
-        todayHighlightColor:
-            calendarThemeData.todayHighlightColor ?? colorScheme.primary,
-        selectionBorderColor:
-            calendarThemeData.selectionBorderColor ?? colorScheme.primary,
+            effectiveThemeData.cellBorderColor,
+        todayHighlightColor: calendarThemeData.todayHighlightColor ??
+            effectiveThemeData.todayHighlightColor,
+        selectionBorderColor: calendarThemeData.selectionBorderColor ??
+            effectiveThemeData.selectionBorderColor,
         blackoutDatesTextStyle: calendarThemeData.blackoutDatesTextStyle == null
             ? widget.blackoutDatesTextStyle
             : calendarThemeData.blackoutDatesTextStyle
@@ -3874,7 +3880,7 @@ class _SfCalendarState extends State<SfCalendar>
         trailingDatesTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
               color: colorScheme.onSurface.withOpacity(0.54),
-              fontSize: 13,
+              fontSize: isMaterial3 ? 14 : 13,
             )
             .merge(calendarThemeData.trailingDatesTextStyle)
             .merge(
@@ -3882,25 +3888,24 @@ class _SfCalendarState extends State<SfCalendar>
         leadingDatesTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
               color: colorScheme.onSurface.withOpacity(0.54),
-              fontSize: 13,
+              fontSize: isMaterial3 ? 14 : 13,
             )
             .merge(calendarThemeData.leadingDatesTextStyle)
-            .merge(
-                widget.monthViewSettings.monthCellStyle.leadingDatesTextStyle),
+            // ignore: lines_longer_than_80_chars
+            .merge(widget.monthViewSettings.monthCellStyle.leadingDatesTextStyle),
         todayTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
               color: colorScheme.onPrimary,
-              fontSize: 13,
+              fontSize: isMaterial3 ? 14 : 13,
             )
             .merge(calendarThemeData.todayTextStyle)
             .merge(widget.todayTextStyle),
         headerTextStyle: themeData.textTheme.bodyLarge!
             .copyWith(
               color: colorScheme.onSurface.withOpacity(0.87),
-              fontSize: 18,
+              fontSize: isMaterial3 ? 16 : 18,
               fontWeight: FontWeight.w400,
             )
-            // ignore: lines_longer_than_80_chars
             .merge(calendarThemeData.headerTextStyle)
             .merge(widget.headerStyle.textStyle),
         activeDatesTextStyle: themeData.textTheme.bodyMedium!
@@ -3908,32 +3913,28 @@ class _SfCalendarState extends State<SfCalendar>
               color: colorScheme.onSurface.withOpacity(0.87),
               fontSize: 13,
             )
-            // ignore: lines_longer_than_80_chars
             .merge(calendarThemeData.activeDatesTextStyle)
             .merge(widget.monthViewSettings.monthCellStyle.textStyle),
         timeTextStyle: themeData.textTheme.bodySmall!
             .copyWith(
               color: colorScheme.onSurface.withOpacity(0.54),
-              fontSize: 10,
+              fontSize: isMaterial3 ? 12 : 10,
               fontWeight: FontWeight.w500,
             )
-            // ignore: lines_longer_than_80_chars
             .merge(calendarThemeData.timeTextStyle)
             .merge(widget.timeSlotViewSettings.timeTextStyle),
         viewHeaderDateTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
               color: colorScheme.onSurface.withOpacity(0.87),
-              fontSize: 15,
+              fontSize: isMaterial3 ? 14 : 15,
             )
-            // ignore: lines_longer_than_80_chars
             .merge(calendarThemeData.viewHeaderDateTextStyle)
             .merge(widget.viewHeaderStyle.dateTextStyle),
         viewHeaderDayTextStyle: themeData.textTheme.bodySmall!
             .copyWith(
               color: colorScheme.onSurface.withOpacity(0.87),
-              fontSize: 11,
+              fontSize: isMaterial3 ? 12 : 11,
             )
-            // ignore: lines_longer_than_80_chars
             .merge(calendarThemeData.viewHeaderDayTextStyle)
             .merge(widget.viewHeaderStyle.dayTextStyle),
         displayNameTextStyle: themeData.textTheme.bodySmall!
@@ -3942,15 +3943,13 @@ class _SfCalendarState extends State<SfCalendar>
               fontSize: 10,
               fontWeight: FontWeight.w500,
             )
-            // ignore: lines_longer_than_80_chars
             .merge(calendarThemeData.displayNameTextStyle)
             .merge(widget.resourceViewSettings.displayNameTextStyle),
         weekNumberTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
               color: colorScheme.onSurface.withOpacity(0.87),
-              fontSize: 13,
+              fontSize: isMaterial3 ? 14 : 13,
             )
-            // ignore: lines_longer_than_80_chars
             .merge(calendarThemeData.weekNumberTextStyle)
             .merge(widget.weekNumberStyle.textStyle),
         timeIndicatorTextStyle: themeData.textTheme.bodySmall!
@@ -3959,7 +3958,6 @@ class _SfCalendarState extends State<SfCalendar>
               fontSize: 10,
               fontWeight: FontWeight.w500,
             )
-            // ignore: lines_longer_than_80_chars
             .merge(calendarThemeData.timeIndicatorTextStyle)
             .merge(widget.dragAndDropSettings.timeIndicatorStyle));
   }
@@ -7063,9 +7061,9 @@ class _SfCalendarState extends State<SfCalendar>
       }
     }
 
-    return RawKeyboardListener(
+    return KeyboardListener(
       focusNode: _focusNode,
-      onKey: _onKeyDown,
+      onKeyEvent: _onKeyDown,
       child: Stack(children: <Widget>[
         Positioned(
           top: 0,
@@ -8079,16 +8077,16 @@ class _SfCalendarState extends State<SfCalendar>
               }))));
     }
 
-    return RawKeyboardListener(
+    return KeyboardListener(
       focusNode: _focusNode,
-      onKey: _onKeyDown,
+      onKeyEvent: _onKeyDown,
       child: Stack(children: children),
     );
   }
 
   /// Method to handle keyboard navigation for schedule view in calendar.
-  void _onKeyDown(RawKeyEvent event) {
-    if (event.runtimeType != RawKeyDownEvent) {
+  void _onKeyDown(KeyEvent event) {
+    if (event.runtimeType != KeyDownEvent) {
       return;
     }
 
@@ -8328,7 +8326,7 @@ class _SfCalendarState extends State<SfCalendar>
             child: Container(
                 padding: EdgeInsets.zero,
                 decoration: BoxDecoration(
-                  color: _calendarTheme.brightness == Brightness.dark
+                  color: _themeData.brightness == Brightness.dark
                       ? Colors.grey[850]
                       : Colors.white,
                   boxShadow: kElevationToShadow[6],
@@ -8751,7 +8749,7 @@ class _SfCalendarState extends State<SfCalendar>
                 padding: const EdgeInsets.all(5),
                 decoration: _isMobilePlatform
                     ? BoxDecoration(
-                        color: _calendarTheme.brightness == Brightness.dark
+                        color: _themeData.brightness == Brightness.dark
                             ? Colors.grey[850]
                             : Colors.white,
                         boxShadow: const <BoxShadow>[
@@ -8762,7 +8760,7 @@ class _SfCalendarState extends State<SfCalendar>
                         ],
                       )
                     : BoxDecoration(
-                        color: _calendarTheme.brightness == Brightness.dark
+                        color: _themeData.brightness == Brightness.dark
                             ? Colors.grey[850]
                             : Colors.white,
                         boxShadow: kElevationToShadow[6],
@@ -10277,7 +10275,10 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
       return;
     }
 
-    setState(() {});
+    // To avoid the unnecessary build while the timeline month view building
+    SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+      setState(() {});
+    });
   }
 
   void _backward() {
@@ -11390,7 +11391,7 @@ class _AgendaDateTimePainter extends CustomPainter {
               agendaDateNotifier.value!.hoveringOffset.dy) {
         _linePainter.color = isToday
             ? Colors.black.withOpacity(0.1)
-            : (calendarTheme.brightness == Brightness.dark
+            : (themeData.brightness == Brightness.dark
                     ? Colors.white
                     : Colors.black87)
                 .withOpacity(0.04);
@@ -11456,7 +11457,7 @@ class _AgendaDateTimePainter extends CustomPainter {
               agendaDateNotifier.value!.hoveringOffset.dy) {
         _linePainter.color = isToday
             ? Colors.black.withOpacity(0.1)
-            : (calendarTheme.brightness == Brightness.dark
+            : (themeData.brightness == Brightness.dark
                     ? Colors.white
                     : Colors.black87)
                 .withOpacity(0.04);

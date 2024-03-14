@@ -32,7 +32,7 @@ class RenderRangePointer extends RenderBox {
       required this.enableAnimation,
       required this.isRadialGaugeAnimationEnabled,
       required ValueNotifier<int> repaintNotifier,
-      required BuildContext context,
+      required ThemeData themeData,
       required SfGaugeThemeData gaugeThemeData})
       : _value = value,
         _cornerStyle = cornerStyle,
@@ -44,7 +44,7 @@ class RenderRangePointer extends RenderBox {
         _color = color,
         _pointerAnimationController = pointerAnimationController,
         _repaintNotifier = repaintNotifier,
-        _themeData = Theme.of(context),
+        _themeData = themeData,
         _gaugeThemeData = gaugeThemeData;
 
   late double _rangeArcTop;
@@ -67,7 +67,6 @@ class RenderRangePointer extends RenderBox {
   late Offset _axisCenter;
   bool _isAnimating = true;
   bool _isInitialLoading = true;
-  final ThemeData _themeData;
 
   /// Range pointer animation start value.
   double? animationStartValue;
@@ -164,6 +163,19 @@ class RenderRangePointer extends RenderBox {
       return;
     }
     _gaugeThemeData = value;
+    markNeedsPaint();
+  }
+
+  /// Gets the gaugeThemeData assigned to [RenderRangePointer].
+  ThemeData get themeData => _themeData;
+  ThemeData _themeData;
+
+  /// Sets the gaugeThemeData for [RenderMarkerPointer].
+  set themeData(ThemeData value) {
+    if (value == _themeData) {
+      return;
+    }
+    _themeData = value;
     markNeedsPaint();
   }
 
@@ -565,7 +577,10 @@ class RenderRangePointer extends RenderBox {
     final Paint paint = Paint()
       ..color = color ??
           gaugeThemeData.rangePointerColor ??
-          _themeData.colorScheme.secondaryContainer.withOpacity(0.8)
+          (_themeData.useMaterial3
+                  ? _themeData.colorScheme.primary
+                  : _themeData.colorScheme.secondaryContainer)
+              .withOpacity(0.8)
       ..strokeWidth = _actualRangeThickness
       ..style = isFill ? PaintingStyle.fill : PaintingStyle.stroke;
 

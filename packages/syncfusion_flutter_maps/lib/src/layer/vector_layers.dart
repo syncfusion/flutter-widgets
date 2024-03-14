@@ -762,7 +762,7 @@ class _MapLineLayerState extends State<_MapLineLayer>
       lines: widget.lines,
       animation: widget.animation,
       color: widget.color ??
-          (_mapsThemeData.brightness == Brightness.light
+          (themeData.brightness == Brightness.light
               ? themeData.colorScheme.onSurface.withOpacity(0.44)
               : themeData.colorScheme.onSurface.withOpacity(0.78)),
       width: widget.width,
@@ -1825,7 +1825,7 @@ class _MapArcLayerState extends State<_MapArcLayer>
       arcs: widget.arcs,
       animation: widget.animation,
       color: widget.color ??
-          (_mapsThemeData.brightness == Brightness.light
+          (themeData.brightness == Brightness.light
               ? themeData.colorScheme.onSurface.withOpacity(0.44)
               : themeData.colorScheme.onSurface.withOpacity(0.78)),
       width: widget.width,
@@ -2906,7 +2906,7 @@ class _MapPolylineLayerState extends State<_MapPolylineLayer>
       polylines: widget.polylines,
       animation: widget.animation,
       color: widget.color ??
-          (_mapsThemeData.brightness == Brightness.light
+          (themeData.brightness == Brightness.light
               ? themeData.colorScheme.onSurface.withOpacity(0.44)
               : themeData.colorScheme.onSurface.withOpacity(0.78)),
       width: widget.width,
@@ -3946,14 +3946,14 @@ class _MapPolygonLayerState extends State<_MapPolygonLayer>
       color: widget.color ??
           (widget.fillType == _VectorFillType.inner
               ? const Color.fromRGBO(51, 153, 144, 1)
-              : (_mapsThemeData.brightness == Brightness.light
+              : (themeData.brightness == Brightness.light
                   ? const Color.fromRGBO(3, 3, 3, 0.15)
                   : const Color.fromRGBO(0, 0, 0, 0.2))),
       strokeWidth: widget.strokeWidth,
       strokeColor: widget.strokeColor ??
           (widget.fillType == _VectorFillType.inner
               ? const Color.fromRGBO(51, 153, 144, 1)
-              : (_mapsThemeData.brightness == Brightness.light
+              : (themeData.brightness == Brightness.light
                   ? const Color.fromRGBO(98, 0, 238, 1)
                   : const Color.fromRGBO(187, 134, 252, 0.5))),
       tooltipBuilder: widget.tooltipBuilder,
@@ -5120,14 +5120,14 @@ class _MapCircleLayerState extends State<_MapCircleLayer>
       color: widget.color ??
           (widget.fillType == _VectorFillType.inner
               ? const Color.fromRGBO(51, 153, 144, 1)
-              : (_mapsThemeData.brightness == Brightness.light
+              : (themeData.brightness == Brightness.light
                   ? const Color.fromRGBO(3, 3, 3, 0.15)
                   : const Color.fromRGBO(0, 0, 0, 0.2))),
       strokeWidth: widget.strokeWidth,
       strokeColor: widget.strokeColor ??
           (widget.fillType == _VectorFillType.inner
               ? const Color.fromRGBO(51, 153, 144, 1)
-              : (_mapsThemeData.brightness == Brightness.light
+              : (themeData.brightness == Brightness.light
                   ? const Color.fromRGBO(98, 0, 238, 1)
                   : const Color.fromRGBO(187, 134, 252, 0.5))),
       tooltipBuilder: widget.tooltipBuilder,

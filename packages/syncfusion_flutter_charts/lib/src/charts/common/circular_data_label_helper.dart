@@ -193,15 +193,14 @@ bool _isInsideSegment(
 Color findThemeColor(CircularSeriesRenderer seriesRenderer,
     CircularChartPoint point, DataLabelSettings dataLabelSettings) {
   // TODO(Lavanya): Recheck here.
+  final Color dataLabelBackgroundColor =
+      seriesRenderer.parent!.themeData!.colorScheme.surface;
   if (dataLabelSettings.color != null) {
     return dataLabelSettings.color!;
   } else {
     return (dataLabelSettings.useSeriesColor
         ? point.fill
-        : (seriesRenderer.parent!.backgroundColor ??
-            (seriesRenderer.chartThemeData?.brightness == Brightness.light
-                ? Colors.white
-                : Colors.black)));
+        : (seriesRenderer.parent!.backgroundColor ?? dataLabelBackgroundColor));
   }
 }
 

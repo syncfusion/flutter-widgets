@@ -875,7 +875,7 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
         : themeData.textTheme.bodyMedium!
             .copyWith(
                 color: isLargerScheduleUI &&
-                        calendarTheme.brightness == Brightness.light
+                        themeData.brightness == Brightness.light
                     ? Colors.black87
                     : Colors.white,
                 fontSize: 13)

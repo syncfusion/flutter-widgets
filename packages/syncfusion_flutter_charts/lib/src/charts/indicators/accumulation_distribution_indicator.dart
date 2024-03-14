@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../behaviors/trackball.dart';
 import '../common/callbacks.dart';
 import '../common/chart_point.dart';
-import '../interactions/trackball.dart';
 import '../series/chart_series.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -237,6 +237,8 @@ class ADIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   }
 
   void _calculateSignalLineValues() {
+    num xMinimum = double.infinity;
+    num xMaximum = double.negativeInfinity;
     num yMinimum = double.infinity;
     num yMaximum = double.negativeInfinity;
     num sum = 0;
@@ -254,12 +256,17 @@ class ADIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       }
       sum += value;
 
+      final double x = xValues[i].toDouble();
       final double y = sum.toDouble();
+      xMinimum = min(xMinimum, x);
+      xMaximum = max(xMaximum, x);
       yMinimum = min(yMinimum, y);
       yMaximum = max(yMaximum, y);
-      _signalLineActualValues.add(Offset(xValues[i].toDouble(), y));
+      _signalLineActualValues.add(Offset(x, y));
     }
 
+    xMin = xMinimum.isInfinite ? xMin : xMinimum;
+    xMax = xMaximum.isInfinite ? xMax : xMaximum;
     yMin = min(yMin, yMinimum);
     yMax = max(yMax, yMaximum);
   }
@@ -303,16 +310,20 @@ class ADIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     final int nearestPointIndex = _findNearestPoint(signalLinePoints, position);
     if (nearestPointIndex != -1) {
       final CartesianChartPoint<D> chartPoint = _chartPoint(nearestPointIndex);
+      final String text = defaultLegendItemText();
       return <ChartTrackballInfo<T, D>>[
         ChartTrackballInfo<T, D>(
           position: signalLinePoints[nearestPointIndex],
           point: chartPoint,
           series: this,
-          pointIndex: nearestPointIndex,
           seriesIndex: index,
-          name: defaultLegendItemText(),
+          segmentIndex: nearestPointIndex,
+          pointIndex: nearestPointIndex,
+          name: text,
+          header: tooltipHeaderText(chartPoint),
+          text: trackballText(chartPoint, text),
           color: signalLineColor,
-        )
+        ),
       ];
     }
     return null;

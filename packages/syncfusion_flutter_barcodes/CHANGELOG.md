@@ -1,7 +1,11 @@
 ## Unreleased
 
-**Bugs**
+**General**
+* Provided th​e Material 3 themes support.
 
+## [20.2.38] - 07/12/2022
+
+**Bugs**
 * #FB45676 - Now, the QR code generated for all kinds of the input values with 07 [codeVersion](https://pub.dev/documentation/syncfusion_flutter_barcodes/latest/barcodes/QRCode/codeVersion.html), medium [errorCorrectionLevel](https://pub.dev/documentation/syncfusion_flutter_barcodes/latest/barcodes/QRCode/errorCorrectionLevel.html), and alphaNumeric [inputMode](https://pub.dev/documentation/syncfusion_flutter_barcodes/latest/barcodes/QRCode/inputMode.html) will be scannable.
 
 ## [22.1.36] 06/28/2023

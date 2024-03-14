@@ -741,13 +741,13 @@ class CalendarViewHelper {
   }
 
   /// Method to switch the views based on the keyboard interaction.
-  static KeyEventResult handleViewSwitchKeyBoardEvent(RawKeyEvent event,
+  static KeyEventResult handleViewSwitchKeyBoardEvent(KeyEvent event,
       CalendarController controller, List<CalendarView>? allowedViews) {
     /// Ctrl + and Ctrl - used by browser to zoom the page, hence as referred
     /// EJ2 scheduler, we have used alt + numeric to switch between views in
     /// calendar web and windows
     CalendarView view = controller.view!;
-    if (event.isAltPressed) {
+    if (HardwareKeyboard.instance.isAltPressed) {
       if (event.logicalKey == LogicalKeyboardKey.digit1) {
         view = CalendarView.day;
       } else if (event.logicalKey == LogicalKeyboardKey.digit2) {
@@ -1088,7 +1088,7 @@ class CalendarAppointment {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -1258,7 +1258,7 @@ class CalendarTimeRegion {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }

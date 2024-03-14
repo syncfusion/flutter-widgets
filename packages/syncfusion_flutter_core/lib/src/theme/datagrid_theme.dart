@@ -107,7 +107,38 @@ class SfDataGridTheme extends InheritedTheme {
 class SfDataGridThemeData with Diagnosticable {
   /// Create a [SfDataGridThemeData] that's used to configure a
   /// [SfDataGridTheme].
-  factory SfDataGridThemeData({
+  const SfDataGridThemeData(
+      {this.gridLineColor,
+      this.gridLineStrokeWidth,
+      this.selectionColor,
+      this.currentCellStyle,
+      this.frozenPaneLineColor,
+      this.frozenPaneLineWidth,
+      this.sortIconColor,
+      this.headerColor,
+      this.headerHoverColor,
+      this.frozenPaneElevation,
+      this.columnResizeIndicatorColor,
+      this.columnResizeIndicatorStrokeWidth,
+      this.rowHoverColor,
+      this.rowHoverTextStyle,
+      this.sortIcon,
+      this.filterIcon,
+      this.filterIconColor,
+      this.filterIconHoverColor,
+      this.sortOrderNumberColor,
+      this.sortOrderNumberBackgroundColor,
+      this.filterPopupTextStyle,
+      this.filterPopupDisabledTextStyle,
+      this.columnDragIndicatorColor,
+      this.columnDragIndicatorStrokeWidth,
+      this.groupExpanderIcon,
+      this.indentColumnWidth,
+      this.indentColumnColor});
+
+  /// Create a [SfDataGridThemeData] that's used to configure a
+  /// [SfDataGridTheme].
+  factory SfDataGridThemeData.raw({
     Brightness? brightness,
     Color? gridLineColor,
     double? gridLineStrokeWidth,
@@ -134,11 +165,11 @@ class SfDataGridThemeData with Diagnosticable {
     Color? columnDragIndicatorColor,
     double? columnDragIndicatorStrokeWidth,
     Widget? groupExpanderIcon,
-    double indentColumnWidth = 40.0,
+    double? indentColumnWidth,
     Color? indentColumnColor,
   }) {
-    return SfDataGridThemeData.raw(
-        brightness: brightness,
+    brightness = brightness ?? Brightness.light;
+    return SfDataGridThemeData(
         gridLineColor: gridLineColor,
         gridLineStrokeWidth: gridLineStrokeWidth,
         selectionColor: selectionColor,
@@ -167,70 +198,6 @@ class SfDataGridThemeData with Diagnosticable {
         indentColumnWidth: indentColumnWidth,
         indentColumnColor: indentColumnColor);
   }
-
-  /// Create a [SfDataGridThemeData] given a set of exact values.
-  /// All the values must be specified.
-  ///
-  /// This will rarely be used directly. It is used by [lerp] to
-  /// create intermediate themes based on two themes created with the
-  /// [SfDataGridThemeData] constructor.
-  ///
-  const SfDataGridThemeData.raw(
-      {required this.brightness,
-      required this.gridLineColor,
-      required this.gridLineStrokeWidth,
-      required this.selectionColor,
-      required this.currentCellStyle,
-      required this.frozenPaneLineColor,
-      required this.frozenPaneLineWidth,
-      required this.sortIconColor,
-      required this.headerColor,
-      required this.headerHoverColor,
-      required this.frozenPaneElevation,
-      required this.columnResizeIndicatorColor,
-      required this.columnResizeIndicatorStrokeWidth,
-      required this.rowHoverColor,
-      required this.rowHoverTextStyle,
-      required this.sortIcon,
-      required this.filterIcon,
-      required this.filterIconColor,
-      required this.filterIconHoverColor,
-      required this.sortOrderNumberColor,
-      required this.sortOrderNumberBackgroundColor,
-      required this.filterPopupTextStyle,
-      required this.filterPopupDisabledTextStyle,
-      required this.columnDragIndicatorColor,
-      required this.columnDragIndicatorStrokeWidth,
-      required this.groupExpanderIcon,
-      required this.indentColumnWidth,
-      required this.indentColumnColor});
-
-  /// The brightness of the overall theme of the
-  /// application for the [SfDataGrid] widgets.
-  ///
-  /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).colorScheme.brightness], brightness for
-  /// datagrid widgets will be applied.
-  ///
-  /// Also refer [Brightness].
-  ///
-  /// ```dart
-  /// Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///     body: Center(
-  ///       child: SfTheme(
-  ///         data: SfThemeData(
-  ///           dataGridThemeData: SfDataGridThemeData(
-  ///             brightness: Brightness.dark
-  ///           )
-  ///         ),
-  ///         child: SfDataGrid(),
-  ///       ),
-  ///     )
-  ///   );
-  /// }
-  /// ```
-  final Brightness? brightness;
 
   /// The color for grid line.
   ///
@@ -526,7 +493,7 @@ class SfDataGridThemeData with Diagnosticable {
   /// The width of an indent column.
   ///
   /// Defaults to 40.0.
-  final double indentColumnWidth;
+  final double? indentColumnWidth;
 
   /// The color of an indent column.
   final Color? indentColumnColor;
@@ -564,7 +531,7 @@ class SfDataGridThemeData with Diagnosticable {
     Color? indentColumnColor,
   }) {
     return SfDataGridThemeData.raw(
-        brightness: brightness ?? this.brightness,
+        brightness: brightness,
         gridLineColor: gridLineColor ?? this.gridLineColor,
         gridLineStrokeWidth: gridLineStrokeWidth ?? this.gridLineStrokeWidth,
         selectionColor: selectionColor ?? this.selectionColor,
@@ -665,7 +632,6 @@ class SfDataGridThemeData with Diagnosticable {
     }
 
     return other is SfDataGridThemeData &&
-        other.brightness == brightness &&
         other.gridLineColor == gridLineColor &&
         other.gridLineStrokeWidth == gridLineStrokeWidth &&
         other.selectionColor == selectionColor &&
@@ -735,9 +701,7 @@ class SfDataGridThemeData with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    final SfDataGridThemeData defaultData = SfDataGridThemeData();
-    properties.add(EnumProperty<Brightness>('brightness', brightness,
-        defaultValue: defaultData.brightness));
+    const SfDataGridThemeData defaultData = SfDataGridThemeData();
     properties.add(ColorProperty('gridLineColor', gridLineColor,
         defaultValue: defaultData.gridLineColor));
     properties.add(DoubleProperty('gridLineStrokeWidth', gridLineStrokeWidth,

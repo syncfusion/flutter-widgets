@@ -24,7 +24,9 @@ export 'src/pdf/implementation/annotations/enum.dart'
         HttpMethod,
         PdfTextMarkupAnnotationType,
         PdfPopupIcon,
-        PdfAnnotationFlags;
+        PdfAnnotationFlags,
+        PdfAnnotationDataFormat,
+        PdfAnnotationExportType;
 export 'src/pdf/implementation/annotations/pdf_action_annotation.dart'
     show PdfLinkAnnotation, PdfActionLinkAnnotation, PdfActionAnnotation;
 export 'src/pdf/implementation/annotations/pdf_annotation.dart'

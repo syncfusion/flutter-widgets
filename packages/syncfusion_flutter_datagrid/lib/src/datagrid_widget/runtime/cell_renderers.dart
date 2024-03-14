@@ -76,7 +76,7 @@ class GridCellTextFieldRenderer
     final DataRowBase? dataRow = dataCell.dataRow;
     if (dataRow != null && dataRow.isSelectedRow) {
       return dataRow.isHoveredRow
-          ? dataGridConfiguration.dataGridThemeHelper!.rowHoverTextStyle
+          ? dataGridConfiguration.dataGridThemeHelper!.rowHoverTextStyle!
           : TextStyle(
               fontFamily: 'Roboto',
               fontWeight: FontWeight.w400,
@@ -85,7 +85,7 @@ class GridCellTextFieldRenderer
                   .withOpacity(0.87));
     } else {
       return dataRow!.isHoveredRow
-          ? dataGridConfiguration.dataGridThemeHelper!.rowHoverTextStyle
+          ? dataGridConfiguration.dataGridThemeHelper!.rowHoverTextStyle!
           : TextStyle(
               fontFamily: 'Roboto',
               fontWeight: FontWeight.w400,
@@ -399,7 +399,7 @@ class GridCaptionSummaryCellRenderer
       key: dataCell.key!,
       dataCell: dataCell,
       backgroundColor:
-          dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.04),
+          dataGridConfiguration.dataGridThemeHelper!.captionSummaryRowColor,
       dataGridStateDetails: _dataGridStateDetails,
       isDirty: dataGridConfiguration.container.isDirty || dataCell.isDirty,
       child: label,
@@ -445,7 +445,7 @@ class GridIndentCellRenderer
       backgroundColor: dataCell.rowIndex >=
               grid_helper
                   .resolveStartIndexBasedOnPosition(dataGridConfiguration)
-          ? dataGridConfiguration.dataGridThemeHelper!.indentColumnColor
+          ? dataGridConfiguration.dataGridThemeHelper!.indentColumnColor!
           : Colors.transparent,
       dataGridStateDetails: _dataGridStateDetails,
       isDirty: dataGridConfiguration.container.isDirty || dataCell.isDirty,

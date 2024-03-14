@@ -1,5 +1,3 @@
-part of officecore;
-
 ///Represent the document properties in a MS Excel Document.
 class BuiltInProperties {
   /// Gets or Sets author of the document.

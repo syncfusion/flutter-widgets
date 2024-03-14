@@ -317,6 +317,19 @@ abstract class Asn1Encode implements IAsn1 {
   }
 
   /// internal method
+  Future<List<int>?> getEncodedAsync([String? encoding]) async {
+    if (encoding == null) {
+      return (Asn1DerStream(<int>[])..writeObject(this)).stream;
+    } else {
+      if (encoding == Asn1.der) {
+        final DerStream stream = DerStream(<int>[])..writeObject(this);
+        return stream.stream;
+      }
+      return getEncoded();
+    }
+  }
+
+  /// internal method
   List<int>? getDerEncoded() {
     return getEncoded(Asn1.der);
   }

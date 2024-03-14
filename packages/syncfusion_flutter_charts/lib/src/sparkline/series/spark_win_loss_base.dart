@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import '../plot_band.dart';
 import '../renderers/spark_win_loss_renderer.dart';
+import '../theme.dart';
 import '../trackball/spark_chart_trackball.dart';
 import '../trackball/trackball_renderer.dart';
 import '../utils/enum.dart';
@@ -45,10 +46,10 @@ class SfSparkWinLossChart extends StatefulWidget {
       this.borderWidth = 0,
       this.borderColor,
       this.tiePointColor,
-      this.color = Colors.blue,
+      this.color,
       this.isInversed = false,
       this.axisCrossesAt = 0,
-      this.axisLineColor = Colors.black,
+      this.axisLineColor,
       this.axisLineWidth = 2,
       this.axisLineDashArray,
       this.highPointColor,
@@ -127,10 +128,10 @@ class SfSparkWinLossChart extends StatefulWidget {
       this.borderWidth = 2,
       this.borderColor,
       this.tiePointColor,
-      this.color = Colors.blue,
+      this.color,
       this.isInversed = false,
       this.axisCrossesAt = 0,
-      this.axisLineColor = Colors.black,
+      this.axisLineColor,
       this.axisLineWidth = 2,
       this.axisLineDashArray,
       this.highPointColor,
@@ -226,7 +227,7 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///   );
   /// }
   /// ```
-  final Color axisLineColor;
+  final Color? axisLineColor;
 
   /// Dashes of the axis line. Any number of values can be provided on the list.
   /// Odd value is considered as rendering size and even value is considered a gap.
@@ -370,7 +371,7 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///   );
   /// }
   /// ```
-  final Color color;
+  final Color? color;
 
   /// Render plot band.
   ///
@@ -499,13 +500,47 @@ class SfSparkWinLossChart extends StatefulWidget {
 /// Represents the state class for spark win loss chart widget.
 class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
   /// specifies the theme of the chart.
-  late SfChartThemeData _chartThemeData;
+  late SfSparkChartThemeData _chartThemeData;
 
   /// Specifies the series screen coordinate points.
   late List<Offset> _coordinatePoints;
 
   /// Specifies the series data points.
   late List<SparkChartPoint> _dataPoints;
+
+  SfSparkChartThemeData _updateThemeData(BuildContext context) {
+    SfSparkChartThemeData chartThemeData = SfSparkChartTheme.of(context);
+    final ThemeData theme = Theme.of(context);
+    final SfSparkChartThemeData effectiveChartThemeData = theme.useMaterial3
+        ? SfSparkChartThemeDataM3(context)
+        : SfSparkChartThemeDataM2(context);
+    chartThemeData = chartThemeData.copyWith(
+        color: widget.color ??
+            chartThemeData.color ??
+            effectiveChartThemeData.color,
+        axisLineColor: widget.axisLineColor ??
+            chartThemeData.axisLineColor ??
+            effectiveChartThemeData.axisLineColor,
+        markerFillColor: chartThemeData.markerFillColor ??
+            effectiveChartThemeData.markerFillColor,
+        dataLabelBackgroundColor: chartThemeData.dataLabelBackgroundColor ??
+            effectiveChartThemeData.dataLabelBackgroundColor,
+        tooltipColor:
+            chartThemeData.tooltipColor ?? effectiveChartThemeData.tooltipColor,
+        trackballLineColor: chartThemeData.trackballLineColor ??
+            effectiveChartThemeData.trackballLineColor,
+        tooltipLabelColor: chartThemeData.tooltipLabelColor ??
+            effectiveChartThemeData.tooltipLabelColor,
+        trackballTextStyle: theme.textTheme.bodySmall
+            ?.copyWith(
+              color: widget.trackball?.color ??
+                  chartThemeData.tooltipLabelColor ??
+                  effectiveChartThemeData.tooltipLabelColor,
+            )
+            .merge(chartThemeData.trackballTextStyle)
+            .merge(widget.trackball?.labelStyle));
+    return chartThemeData;
+  }
 
   /// Called when this object is inserted into the tree.
   ///
@@ -532,7 +567,6 @@ class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
 
   @override
   void didChangeDependencies() {
-    _chartThemeData = SfChartTheme.of(context);
     super.didChangeDependencies();
   }
 
@@ -563,6 +597,7 @@ class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
 
   @override
   Widget build(BuildContext context) {
+    _chartThemeData = _updateThemeData(context);
     return RepaintBoundary(
         child: SparkChartContainer(
             child: Stack(children: <Widget>[
@@ -573,7 +608,7 @@ class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
           yValueMapper: widget._sparkChartDataDetails.yValueMapper,
           isInversed: widget.isInversed,
           axisCrossesAt: widget.axisCrossesAt,
-          axisLineColor: widget.axisLineColor,
+          axisLineColor: _chartThemeData.axisLineColor,
           axisLineWidth: widget.axisLineWidth,
           axisLineDashArray: widget.axisLineDashArray,
           highPointColor: widget.highPointColor,
@@ -581,7 +616,7 @@ class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
           firstPointColor: widget.firstPointColor,
           lastPointColor: widget.lastPointColor,
           negativePointColor: widget.negativePointColor,
-          color: widget.color,
+          color: _chartThemeData.color,
           tiePointColor: widget.tiePointColor,
           borderColor: widget.borderColor,
           borderWidth: widget.borderWidth,
@@ -594,6 +629,7 @@ class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
         trackball: widget.trackball,
         coordinatePoints: _coordinatePoints,
         dataPoints: _dataPoints,
+        themeData: _chartThemeData,
       )
     ])));
   }

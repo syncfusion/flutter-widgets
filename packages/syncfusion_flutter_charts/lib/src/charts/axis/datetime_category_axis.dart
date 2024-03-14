@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -472,22 +474,6 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
 
   @override
   DoubleRange calculateActualRange() {
-    labels.clear();
-    for (final AxisDependent dependent in dependents) {
-      if (dependent is CartesianSeriesRenderer) {
-        if (dependent.controller.isVisible) {
-          final List actualXValues = dependent.xRawValues;
-          final int actualXValuesLength = actualXValues.length;
-          for (int i = 0; i < actualXValuesLength; i++) {
-            final DateTime date = actualXValues[i] as DateTime;
-            if (!labels.contains(date.millisecondsSinceEpoch)) {
-              labels.add(date.millisecondsSinceEpoch);
-            }
-          }
-        }
-      }
-    }
-
     if (minimum != null && maximum != null) {
       return DoubleRange(
           effectiveValue(minimum)!, effectiveValue(maximum, needMin: false)!);
@@ -525,11 +511,13 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
         _visibleIntervalType = DateTimeIntervalType.days;
       }
 
-      return interval ?? super.calculateNiceInterval(delta, availableSize);
+      return interval ??
+          max(1, super.calculateNiceInterval(delta, availableSize));
     }
 
     _visibleIntervalType = intervalType;
-    return interval ?? super.calculateNiceInterval(delta, availableSize);
+    return interval ??
+        max(1, super.calculateNiceInterval(delta, availableSize));
   }
 
   num _calculateIntervalAndType(num minimum, num maximum, Size availableSize) {
@@ -663,7 +651,7 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
   @override
   void generateVisibleLabels() {
     hasTrimmedAxisLabel = false;
-    if (visibleRange == null) {
+    if (visibleRange == null || visibleInterval == 0) {
       return;
     }
 
@@ -681,8 +669,8 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
     final num visibleMaximum = visibleRange!.maximum;
     num current = visibleMinimum.ceil();
     num previous = current;
-    final DateFormat niceDateTimeFormat =
-        dateFormat ?? _niceDateFormat(current, previous.toInt());
+    final DateFormat niceDateTimeFormat = dateFormat ??
+        dateTimeCategoryAxisLabelFormat(this, current, previous.toInt());
     while (current <= visibleMaximum) {
       if (current < visibleMinimum ||
           !effectiveVisibleRange!.contains(current)) {
@@ -748,73 +736,6 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
     }
 
     super.generateVisibleLabels();
-  }
-
-  DateFormat _niceDateFormat([num? current, int? previous]) {
-    final bool notDoubleInterval =
-        (interval != null && interval! % 1 == 0) || interval == null;
-    switch (visibleIntervalType) {
-      case DateTimeIntervalType.years:
-        return notDoubleInterval ? DateFormat.y() : DateFormat.MMMd();
-
-      case DateTimeIntervalType.months:
-        return (visibleRange!.minimum == current || current == previous!)
-            ? _firstLabelFormat()
-            : _normalDateFormat(current, previous);
-
-      case DateTimeIntervalType.days:
-        return (visibleRange!.minimum == current || current == previous!)
-            ? _firstLabelFormat()
-            : _normalDateFormat(current, previous);
-
-      case DateTimeIntervalType.hours:
-        return DateFormat.j();
-
-      case DateTimeIntervalType.minutes:
-        return DateFormat.Hm();
-
-      case DateTimeIntervalType.seconds:
-        return DateFormat.ms();
-
-      case DateTimeIntervalType.milliseconds:
-        return DateFormat('ss.SSS');
-
-      case DateTimeIntervalType.auto:
-        return DateFormat();
-    }
-  }
-
-  DateFormat _firstLabelFormat() {
-    late DateFormat format;
-    if (visibleIntervalType == DateTimeIntervalType.months) {
-      format = DateFormat('yyy MMM');
-    } else if (visibleIntervalType == DateTimeIntervalType.days) {
-      format = DateFormat.MMMd();
-    } else if (visibleIntervalType == DateTimeIntervalType.minutes) {
-      format = DateFormat.Hm();
-    }
-    return format;
-  }
-
-  // TODO(VijayakumarM): Optimize it.
-  DateFormat _normalDateFormat(num? current, int? previousLabel) {
-    final DateTime minimum =
-        DateTime.fromMillisecondsSinceEpoch(current!.toInt());
-    final DateTime maximum =
-        DateTime.fromMillisecondsSinceEpoch(previousLabel!);
-    late DateFormat format;
-    final bool isIntervalDecimal = visibleInterval % 1 == 0;
-    if (visibleIntervalType == DateTimeIntervalType.months) {
-      format = minimum.year == maximum.year
-          ? (isIntervalDecimal ? DateFormat.MMM() : DateFormat.MMMd())
-          : DateFormat('yyy MMM');
-    } else if (visibleIntervalType == DateTimeIntervalType.days) {
-      format = minimum.month != maximum.month
-          ? (isIntervalDecimal ? DateFormat.MMMd() : DateFormat.MEd())
-          : DateFormat.d();
-    }
-
-    return format;
   }
 
   @override
@@ -1062,6 +983,35 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
       }
     }
     return index;
+  }
+
+  // During sorting, always keep xValues as linear data.
+  void updateXValues() {
+    labels.clear();
+    for (final AxisDependent dependent in dependents) {
+      if (dependent is CartesianSeriesRenderer &&
+          dependent.controller.isVisible) {
+        final List actualXRawValues = dependent.xRawValues;
+        final int length = actualXRawValues.length;
+        const int minValue = 0;
+        int maxValue = 0;
+        if (length > 0) {
+          for (int i = 0; i < length; i++) {
+            final int x =
+                (actualXRawValues[i] as DateTime).millisecondsSinceEpoch;
+            if (!labels.contains(x)) {
+              labels.add(x);
+            }
+            final List<num> xValues = dependent.xValues;
+            final int index = labels.indexOf(x);
+            xValues[i] = index;
+            maxValue = max(maxValue, index);
+          }
+          dependent.xMin = minValue;
+          dependent.xMax = maxValue;
+        }
+      }
+    }
   }
 
   @override

@@ -1,11 +1,14 @@
 import 'dart:ui';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/interactive_scroll_viewer_internal.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+
 import '../../pdfviewer.dart';
 import '../common/pdfviewer_helper.dart';
+import '../theme/theme.dart';
 import 'pdf_page_view.dart';
 import 'pdf_scrollable.dart';
 import 'scroll_head.dart';
@@ -30,6 +33,7 @@ class SinglePageView extends StatefulWidget {
   const SinglePageView(
       Key key,
       this.pdfViewerController,
+      this.transformationController,
       this.pageController,
       this.onPageChanged,
       this.interactionUpdate,
@@ -50,11 +54,15 @@ class SinglePageView extends StatefulWidget {
       this.textDirection,
       this.isTablet,
       this.scrollDirection,
+      this.onInteractionEnd,
       this.children)
       : super(key: key);
 
   /// PdfViewer controller of PdfViewer.
   final PdfViewerController pdfViewerController;
+
+  /// Transformation controller of PdfViewer.
+  final TransformationController transformationController;
 
   /// Page controller of the PdfViewer.
   final PageController pageController;
@@ -120,6 +128,9 @@ class SinglePageView extends StatefulWidget {
   /// Represents the scroll direction
   final PdfScrollDirection scrollDirection;
 
+  /// Triggered when interaction end.
+  final VoidCallback? onInteractionEnd;
+
   @override
   SinglePageViewState createState() => SinglePageViewState();
 }
@@ -127,6 +138,7 @@ class SinglePageView extends StatefulWidget {
 /// SinglePageView state class.
 class SinglePageViewState extends State<SinglePageView> {
   SfPdfViewerThemeData? _pdfViewerThemeData;
+  SfPdfViewerThemeData? _effectiveThemeData;
   SfLocalizations? _localizations;
   double _scrollHeadPosition = 0;
   bool _canScroll = false;
@@ -135,8 +147,7 @@ class SinglePageViewState extends State<SinglePageView> {
   double _paddingWidthScale = 0;
   double _paddingHeightScale = 0;
   Offset _currentOffsetOfInteractionUpdate = Offset.zero;
-  TransformationController _transformationController =
-      TransformationController();
+  late TransformationController _transformationController;
   final TextEditingController _textFieldController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FocusNode _focusNode = FocusNode();
@@ -181,12 +192,16 @@ class SinglePageViewState extends State<SinglePageView> {
 
   @override
   void initState() {
+    _transformationController = widget.transformationController;
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
+    _effectiveThemeData = Theme.of(context).useMaterial3
+        ? SfPdfViewerThemeDataM3(context)
+        : SfPdfViewerThemeDataM2(context);
     _localizations = SfLocalizations.of(context);
     super.didChangeDependencies();
   }
@@ -194,6 +209,7 @@ class SinglePageViewState extends State<SinglePageView> {
   @override
   void dispose() {
     _pdfViewerThemeData = null;
+    _effectiveThemeData = null;
     _localizations = null;
     _focusNode.dispose();
     super.dispose();
@@ -384,6 +400,16 @@ class SinglePageViewState extends State<SinglePageView> {
                 : (imageSize.round() <= widget.viewportDimension.height.round()
                     ? (childSize.height - widget.viewportDimension.height) / 2
                     : _topMargin),
+            left: (widget.pdfViewerController.zoomLevel > 1 &&
+                    isHeightFitted &&
+                    _fingersInteracting > 1)
+                ? (widget.viewportDimension.width - childSize.width) / 2
+                : 0,
+            right: (widget.pdfViewerController.zoomLevel > 1 &&
+                    isHeightFitted &&
+                    _fingersInteracting > 1)
+                ? (widget.viewportDimension.width - childSize.width) / 2
+                : 0,
           ),
           constrained: false,
           onDoubleTapZoomInvoked: _onDoubleTapZoomInvoked,
@@ -428,31 +454,6 @@ class SinglePageViewState extends State<SinglePageView> {
                 (kIsDesktop && widget.scaleEnabled)) {
               widget.interactionUpdate(
                   _transformationController.value.getMaxScaleOnAxis());
-            }
-            final double currentScale =
-                _transformationController.value.getMaxScaleOnAxis();
-            if (details.scale <= 1) {
-              if (((kIsDesktop && !widget.isMobileWebView) ||
-                      (widget.viewportDimension.width >
-                          widget.viewportDimension.height)) &&
-                  widget.viewportDimension.width.round() >=
-                      (widget.pdfPages[widget.pdfViewerController.pageNumber]!
-                                  .pageSize.width *
-                              currentScale)
-                          .round()) {
-                setState(() {
-                  _paddingWidthScale = details.scale * currentScale;
-                });
-              }
-              if (widget.viewportDimension.height.round() >=
-                  (widget.pdfPages[widget.pdfViewerController.pageNumber]!
-                              .pageSize.height *
-                          _transformationController.value.getMaxScaleOnAxis())
-                      .round()) {
-                setState(() {
-                  _paddingHeightScale = (details.scale) * currentScale;
-                });
-              }
             }
             if (details.scale == 1) {
               if (_transformationController
@@ -541,6 +542,7 @@ class SinglePageViewState extends State<SinglePageView> {
             _canJumpPrevious = false;
             _canJumpNext = false;
             _isZoomChanged = false;
+            widget.onInteractionEnd?.call();
             setState(() {});
           },
         ));
@@ -649,7 +651,7 @@ class SinglePageViewState extends State<SinglePageView> {
                   // ignore: avoid_bool_literals_in_conditional_expressions
                   widget.textDirection == TextDirection.ltr ? false : true,
               onPageChanged: (int value) {
-                _transformationController = TransformationController();
+                _transformationController.value = Matrix4.identity();
                 widget.onPageChanged(value);
               },
               physics:
@@ -904,6 +906,7 @@ class SinglePageViewState extends State<SinglePageView> {
     }
 
     setState(() {});
+    widget.onInteractionEnd?.call();
     return offset;
   }
 
@@ -1082,6 +1085,7 @@ class SinglePageViewState extends State<SinglePageView> {
 
   /// Show the pagination dialog box
   Future<void> _showPaginationDialog() async {
+    final bool isMaterial3 = Theme.of(context).useMaterial3;
     return showDialog<void>(
         context: context,
         builder: (BuildContext context) {
@@ -1089,13 +1093,17 @@ class SinglePageViewState extends State<SinglePageView> {
           return AlertDialog(
             scrollable: true,
             insetPadding: EdgeInsets.zero,
-            contentPadding: orientation == Orientation.portrait
-                ? const EdgeInsets.all(24)
-                : const EdgeInsets.only(right: 24, left: 24),
+            contentPadding: isMaterial3
+                ? null
+                : orientation == Orientation.portrait
+                    ? const EdgeInsets.all(24)
+                    : const EdgeInsets.only(right: 24, left: 24),
             buttonPadding: orientation == Orientation.portrait
                 ? const EdgeInsets.all(8)
                 : const EdgeInsets.all(4),
-            backgroundColor: _pdfViewerThemeData!.backgroundColor ??
+            backgroundColor: _pdfViewerThemeData!
+                    .paginationDialogStyle?.backgroundColor ??
+                _effectiveThemeData!.paginationDialogStyle?.backgroundColor ??
                 (Theme.of(context).colorScheme.brightness == Brightness.light
                     ? Colors.white
                     : const Color(0xFF424242)),
@@ -1104,43 +1112,86 @@ class SinglePageViewState extends State<SinglePageView> {
                     .textTheme
                     .headlineMedium!
                     .copyWith(
-                      fontSize: 20,
+                      fontSize: isMaterial3 ? 24 : 20,
                       color: Theme.of(context).brightness == Brightness.light
                           ? Colors.black.withOpacity(0.87)
                           : Colors.white.withOpacity(0.87),
                     )
                     .merge(_pdfViewerThemeData!
                         .paginationDialogStyle?.headerTextStyle)),
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(4.0))),
-            content: SingleChildScrollView(child: _paginationTextField()),
+            shape: isMaterial3
+                ? null
+                : const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(4.0))),
+            content: SingleChildScrollView(
+                child: Column(
+              children: <Widget>[
+                if (isMaterial3)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '1 - ${widget.pdfViewerController.pageCount}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(
+                                  fontSize: 16,
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Colors.black
+                                      : Colors.white),
+                        )),
+                  ),
+                _paginationTextField(),
+              ],
+            )),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
                   _textFieldController.clear();
                   Navigator.of(context).pop();
                 },
-                child: Text(_localizations!.pdfPaginationDialogCancelLabel,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .copyWith(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.primary,
-                        )
-                        .merge(_pdfViewerThemeData!
-                            .paginationDialogStyle?.cancelTextStyle)),
+                style: isMaterial3
+                    ? TextButton.styleFrom(
+                        fixedSize: const Size(double.infinity, 40),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 20),
+                      )
+                    : null,
+                child: Text(
+                  _localizations!.pdfPaginationDialogCancelLabel,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(
+                        fontSize: 14,
+                        fontWeight: isMaterial3 ? FontWeight.w500 : null,
+                        color: Theme.of(context).colorScheme.primary,
+                      )
+                      .merge(_pdfViewerThemeData!
+                          .paginationDialogStyle?.cancelTextStyle),
+                ),
               ),
               TextButton(
                 onPressed: () {
                   _handlePageNumberValidation();
                 },
+                style: isMaterial3
+                    ? TextButton.styleFrom(
+                        fixedSize: const Size(double.infinity, 40),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 20),
+                      )
+                    : null,
                 child: Text(_localizations!.pdfPaginationDialogOkLabel,
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium!
                         .copyWith(
                             fontSize: 14,
+                            fontWeight: isMaterial3 ? FontWeight.w500 : null,
                             color: Theme.of(context).colorScheme.primary)
                         .merge(_pdfViewerThemeData!
                             .paginationDialogStyle?.okTextStyle)),
@@ -1152,6 +1203,7 @@ class SinglePageViewState extends State<SinglePageView> {
 
   /// A material design Text field for pagination dialog box.
   Widget _paginationTextField() {
+    final bool isMaterial3 = Theme.of(context).useMaterial3;
     return Form(
       key: _formKey,
       child: SizedBox(
@@ -1171,11 +1223,44 @@ class SinglePageViewState extends State<SinglePageView> {
           focusNode: _focusNode,
           decoration: InputDecoration(
               isDense: true,
-              focusedBorder: UnderlineInputBorder(
-                borderSide:
-                    BorderSide(color: Theme.of(context).colorScheme.primary),
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 6),
+              border: isMaterial3
+                  ? OutlineInputBorder(
+                      borderSide: BorderSide(
+                      color: _pdfViewerThemeData!
+                              .passwordDialogStyle?.inputFieldBorderColor ??
+                          _effectiveThemeData!
+                              .passwordDialogStyle?.inputFieldBorderColor ??
+                          Theme.of(context).colorScheme.primary,
+                    ))
+                  : null,
+              errorBorder: isMaterial3
+                  ? OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(3.5),
+                      borderSide: BorderSide(
+                        color: _pdfViewerThemeData!
+                                .passwordDialogStyle?.errorBorderColor ??
+                            _effectiveThemeData!
+                                .passwordDialogStyle?.errorBorderColor ??
+                            Theme.of(context).colorScheme.error,
+                      ))
+                  : null,
+              focusedBorder: isMaterial3
+                  ? OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: _pdfViewerThemeData!
+                                  .passwordDialogStyle?.inputFieldBorderColor ??
+                              _effectiveThemeData!
+                                  .passwordDialogStyle?.inputFieldBorderColor ??
+                              Theme.of(context).colorScheme.primary,
+                          width: 2),
+                    )
+                  : UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+              contentPadding: isMaterial3
+                  ? const EdgeInsets.all(16)
+                  : const EdgeInsets.symmetric(vertical: 6),
               hintText: _localizations!.pdfEnterPageNumberLabel,
               hintStyle: Theme.of(context)
                   .textTheme
@@ -1188,8 +1273,9 @@ class SinglePageViewState extends State<SinglePageView> {
                   )
                   .merge(_pdfViewerThemeData!
                       .paginationDialogStyle?.hintTextStyle),
-              counterText:
-                  '${widget.pdfViewerController.pageNumber}/${widget.pdfViewerController.pageCount}',
+              counterText: isMaterial3
+                  ? null
+                  : '${widget.pdfViewerController.pageNumber}/${widget.pdfViewerController.pageCount}',
               counterStyle: Theme.of(context)
                   .textTheme
                   .bodySmall!

@@ -405,8 +405,9 @@ class PdfListFieldHelper extends PdfFieldHelper {
         selectedIndexes.sort();
         dictionary!
             .setProperty(PdfDictionaryProperties.i, PdfArray(selectedIndexes));
-      } else
+      } else {
         dictionary!.remove(PdfDictionaryProperties.i);
+      }
     }
     if (dictionary!.containsKey(PdfDictionaryProperties.v)) {
       final IPdfPrimitive? primitive =

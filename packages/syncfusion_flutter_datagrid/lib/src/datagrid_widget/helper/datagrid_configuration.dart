@@ -386,11 +386,6 @@ class DataGridConfiguration {
   /// Defaults to true.
   bool showVerticalScrollbar = true;
 
-  /// Decides whether the filter icon should be shown when hovering the header cells.
-  ///
-  /// Defaults to false.
-  bool showFilterIconOnHover = false;
-
   /// A boolean flag to indicate whether column dragging is allowed or not.
   bool allowColumnsDragging = false;
 

@@ -656,8 +656,8 @@ class PdfForm implements IPdfWrapper {
         }
       }
       if (fieldKey != null && fieldValue != null) {
-        table[_decodeXMLConversion(fieldKey)] =
-            _decodeXMLConversion(fieldValue);
+        table[PdfFormHelper.decodeXMLConversion(fieldKey)] =
+            PdfFormHelper.decodeXMLConversion(fieldValue);
         fieldKey = fieldValue = null;
       }
       token = reader.getNextJsonToken();
@@ -691,7 +691,7 @@ class PdfForm implements IPdfWrapper {
       if (helper.isLoadedField && field.canExport) {
         final IPdfPrimitive? name = PdfFieldHelper.getValue(helper.dictionary!,
             helper.crossTable, PdfDictionaryProperties.ft, true);
-        if (name != null && name is PdfName)
+        if (name != null && name is PdfName) {
           switch (name.name) {
             case 'Tx':
               final IPdfPrimitive? textField = PdfFieldHelper.getValue(
@@ -746,6 +746,7 @@ class PdfForm implements IPdfWrapper {
               }
               break;
           }
+        }
       }
     }
     bytes.addAll(utf8.encode('{'));
@@ -772,27 +773,6 @@ class PdfForm implements IPdfWrapper {
             .replaceAll('[', '_x005B_')
             .replaceAll(']', '_x005D_')
         : value;
-  }
-
-  String _decodeXMLConversion(String value) {
-    String newString = value;
-    while (newString.contains('_x')) {
-      final int index = newString.indexOf('_x');
-      final String tempString = newString.substring(index);
-      if (tempString.length >= 7 && tempString[6] == '_') {
-        newString = newString.replaceRange(index, index + 2, '--');
-        final int? charCode =
-            int.tryParse(value.substring(index + 2, index + 6), radix: 16);
-        if (charCode != null && charCode >= 0) {
-          value = value.replaceRange(
-              index, index + 7, String.fromCharCode(charCode));
-          newString = newString.replaceRange(index, index + 7, '-');
-        }
-      } else {
-        break;
-      }
-    }
-    return value;
   }
 
   /// Imports XML Data from the given data.
@@ -970,9 +950,10 @@ class PdfFormHelper {
         if (!_isDefaultAppearance) {
           needAppearances = false;
         }
-        if (dictionary!.containsKey(PdfDictionaryProperties.needAppearances))
+        if (dictionary!.containsKey(PdfDictionaryProperties.needAppearances)) {
           dictionary!.setBoolean(
               PdfDictionaryProperties.needAppearances, needAppearances);
+        }
       }
       while (i < form.fields.count) {
         final PdfField field = form.fields[i];
@@ -1403,6 +1384,28 @@ class PdfFormHelper {
       deleteFromPages(field);
       deleteAnnotation(field);
     }
+  }
+
+  /// internal method
+  static String decodeXMLConversion(String value) {
+    String newString = value;
+    while (newString.contains('_x')) {
+      final int index = newString.indexOf('_x');
+      final String tempString = newString.substring(index);
+      if (tempString.length >= 7 && tempString[6] == '_') {
+        newString = newString.replaceRange(index, index + 2, '--');
+        final int? charCode =
+            int.tryParse(value.substring(index + 2, index + 6), radix: 16);
+        if (charCode != null && charCode >= 0) {
+          value = value.replaceRange(
+              index, index + 7, String.fromCharCode(charCode));
+          newString = newString.replaceRange(index, index + 7, '-');
+        }
+      } else {
+        break;
+      }
+    }
+    return value;
   }
 }
 
