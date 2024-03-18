@@ -12,7 +12,6 @@ dependencies:
   syncfusion_flutter_xlsio:
       path: ../../syncfusion_flutter_xlsio
 
-
 # The following section is specific to Flutter. 
 flutter:
   uses-material-design: true
