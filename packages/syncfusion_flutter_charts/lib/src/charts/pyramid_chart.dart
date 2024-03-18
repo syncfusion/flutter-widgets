@@ -13,6 +13,7 @@ import 'common/title.dart';
 import 'interactions/behavior.dart';
 import 'interactions/tooltip.dart';
 import 'series/pyramid_series.dart';
+import 'theme.dart';
 import 'utils/enum.dart';
 import 'utils/helper.dart';
 import 'utils/typedef.dart';
@@ -43,18 +44,7 @@ class SfPyramidChart extends StatefulWidget {
     this.onChartTouchInteractionUp,
     this.onChartTouchInteractionDown,
     this.onChartTouchInteractionMove,
-    this.palette = const <Color>[
-      Color.fromRGBO(75, 135, 185, 1),
-      Color.fromRGBO(192, 108, 132, 1),
-      Color.fromRGBO(246, 114, 128, 1),
-      Color.fromRGBO(248, 177, 149, 1),
-      Color.fromRGBO(116, 180, 155, 1),
-      Color.fromRGBO(0, 168, 181, 1),
-      Color.fromRGBO(73, 76, 162, 1),
-      Color.fromRGBO(255, 205, 96, 1),
-      Color.fromRGBO(255, 240, 219, 1),
-      Color.fromRGBO(238, 238, 238, 1)
-    ],
+    this.palette,
     this.margin = const EdgeInsets.fromLTRB(10, 10, 10, 10),
     this.series = const PyramidSeries(),
     this.title = const ChartTitle(),
@@ -178,7 +168,7 @@ class SfPyramidChart extends StatefulWidget {
   ///    );
   /// }
   /// ```
-  final List<Color> palette;
+  final List<Color>? palette;
 
   /// Customizes the tooltip in chart.
   ///
@@ -436,34 +426,50 @@ class SfPyramidChartState extends State<SfPyramidChart>
   late ThemeData _themeData;
   SfLocalizations? _localizations;
 
-  SfChartThemeData _updateThemeData(BuildContext context) {
-    _chartThemeData = SfChartTheme.of(context);
-    _themeData = Theme.of(context);
-    _chartThemeData = _chartThemeData.copyWith(
-      backgroundColor:
-          widget.backgroundColor ?? _chartThemeData.backgroundColor,
-      titleBackgroundColor:
-          widget.title.backgroundColor ?? _chartThemeData.titleBackgroundColor,
+  SfChartThemeData _updateThemeData(
+      BuildContext context, SfChartThemeData effectiveChartThemeData) {
+    SfChartThemeData chartThemeData = SfChartTheme.of(context);
+    chartThemeData = chartThemeData.copyWith(
+      backgroundColor: widget.backgroundColor ??
+          chartThemeData.backgroundColor ??
+          effectiveChartThemeData.backgroundColor,
+      titleBackgroundColor: widget.title.backgroundColor ??
+          chartThemeData.titleBackgroundColor ??
+          effectiveChartThemeData.titleBackgroundColor,
       legendBackgroundColor: widget.legend.backgroundColor ??
-          _chartThemeData.legendBackgroundColor,
-      titleTextStyle: _themeData.textTheme.bodyMedium!
-          .copyWith(color: _chartThemeData.titleTextColor, fontSize: 15)
-          .merge(_chartThemeData.titleTextStyle)
+          chartThemeData.legendBackgroundColor ??
+          effectiveChartThemeData.legendBackgroundColor,
+      tooltipColor: widget.tooltipBehavior?.color ??
+          chartThemeData.tooltipColor ??
+          effectiveChartThemeData.tooltipColor,
+      plotAreaBackgroundColor: chartThemeData.plotAreaBackgroundColor ??
+          effectiveChartThemeData.plotAreaBackgroundColor,
+      titleTextStyle: effectiveChartThemeData.titleTextStyle!
+          .copyWith(
+              color: chartThemeData.titleTextColor ??
+                  effectiveChartThemeData.titleTextColor)
+          .merge(chartThemeData.titleTextStyle)
           .merge(widget.title.textStyle),
-      legendTitleTextStyle: _themeData.textTheme.bodySmall!
-          .copyWith(color: _chartThemeData.legendTitleColor)
-          .merge(_chartThemeData.legendTitleTextStyle)
+      legendTitleTextStyle: effectiveChartThemeData.legendTitleTextStyle!
+          .copyWith(
+              color: chartThemeData.legendTitleColor ??
+                  effectiveChartThemeData.legendTitleColor)
+          .merge(chartThemeData.legendTitleTextStyle)
           .merge(widget.legend.title?.textStyle),
-      legendTextStyle: _themeData.textTheme.bodySmall!
-          .copyWith(color: _chartThemeData.legendTextColor, fontSize: 13)
-          .merge(_chartThemeData.legendTextStyle)
+      legendTextStyle: effectiveChartThemeData.legendTextStyle!
+          .copyWith(
+              color: chartThemeData.legendTextColor ??
+                  effectiveChartThemeData.legendTextColor)
+          .merge(chartThemeData.legendTextStyle)
           .merge(widget.legend.textStyle),
-      tooltipTextStyle: _themeData.textTheme.bodySmall!
-          .copyWith(color: _chartThemeData.tooltipLabelColor)
-          .merge(_chartThemeData.tooltipTextStyle)
+      tooltipTextStyle: effectiveChartThemeData.tooltipTextStyle!
+          .copyWith(
+              color: chartThemeData.tooltipLabelColor ??
+                  effectiveChartThemeData.tooltipLabelColor)
+          .merge(chartThemeData.tooltipTextStyle)
           .merge(widget.tooltipBehavior?.textStyle),
     );
-    return _chartThemeData;
+    return chartThemeData;
   }
 
   Widget _buildLegendItem(BuildContext context, int index) {
@@ -517,8 +523,11 @@ class SfPyramidChartState extends State<SfPyramidChart>
   /// in [SfPyramidChart].
   @override
   Widget build(BuildContext context) {
-    _chartThemeData = _updateThemeData(context);
-    final ThemeData themeData = Theme.of(context);
+    _themeData = Theme.of(context);
+    final SfChartThemeData effectiveChartThemeData = _themeData.useMaterial3
+        ? SfChartThemeDataM3(context)
+        : SfChartThemeDataM2(context);
+    _chartThemeData = _updateThemeData(context, effectiveChartThemeData);
     final core.LegendPosition legendPosition =
         effectiveLegendPosition(widget.legend);
     final Axis orientation =
@@ -578,20 +587,24 @@ class SfPyramidChartState extends State<SfPyramidChart>
             onLegendTapped: widget.onLegendTapped,
             onTooltipRender: widget.onTooltipRender,
             onDataLabelTapped: widget.onDataLabelTapped,
-            palette: widget.palette,
+            palette: widget.palette ??
+                (_themeData.useMaterial3
+                    ? (effectiveChartThemeData as SfChartThemeDataM3).palette
+                    : (effectiveChartThemeData as SfChartThemeDataM2).palette),
             selectionMode: SelectionType.point,
             selectionGesture: widget.selectionGesture,
             enableMultiSelection: widget.enableMultiSelection,
             tooltipBehavior: widget.tooltipBehavior,
             onSelectionChanged: widget.onSelectionChanged,
             chartThemeData: _chartThemeData,
-            themeData: themeData,
+            themeData: _themeData,
             children: <Widget>[widget.series],
           ),
           if (widget.tooltipBehavior != null)
             BehaviorArea(
               tooltipKey: _tooltipKey,
               chartThemeData: _chartThemeData,
+              themeData: _themeData,
               tooltipBehavior: widget.tooltipBehavior,
               onTooltipRender: widget.onTooltipRender,
               children: <Widget>[
@@ -603,8 +616,8 @@ class SfPyramidChartState extends State<SfPyramidChart>
                     opacity: widget.tooltipBehavior!.opacity,
                     borderColor: widget.tooltipBehavior!.borderColor,
                     borderWidth: widget.tooltipBehavior!.borderWidth,
-                    color: widget.tooltipBehavior!.color ??
-                        _chartThemeData.tooltipColor,
+                    color: (widget.tooltipBehavior!.color ??
+                        _chartThemeData.tooltipColor)!,
                     showDuration: widget.tooltipBehavior!.duration.toInt(),
                     shadowColor: widget.tooltipBehavior!.shadowColor,
                     elevation: widget.tooltipBehavior!.elevation,

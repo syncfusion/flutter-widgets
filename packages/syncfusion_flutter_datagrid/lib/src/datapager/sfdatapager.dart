@@ -895,18 +895,19 @@ class SfDataPagerState extends State<SfDataPager> {
     }
   }
 
-  Widget _getIcon(String type, IconData iconData, bool visible) {
+  Widget _getIcon(
+      String type, IconData iconData, bool visible, ThemeData flutterTheme) {
     Icon buildIcon() {
       return Icon(iconData,
           key: ValueKey<String>(type),
           size: 20,
           color: visible
-              ? _dataPagerThemeHelper!.brightness == Brightness.light
-                  ? _dataPagerThemeHelper!.disabledItemTextStyle.color
+              ? flutterTheme.brightness == Brightness.light
+                  ? _dataPagerThemeHelper!.disabledItemTextStyle!.color
                       ?.withOpacity(0.54)
-                  : _dataPagerThemeHelper!.disabledItemTextStyle.color
+                  : _dataPagerThemeHelper!.disabledItemTextStyle!.color
                       ?.withOpacity(0.65)
-              : _dataPagerThemeHelper!.disabledItemTextStyle.color);
+              : _dataPagerThemeHelper!.disabledItemTextStyle!.color);
     }
 
     if (widget.direction == Axis.vertical) {
@@ -1104,7 +1105,7 @@ class SfDataPagerState extends State<SfDataPager> {
     final ThemeData flutterTheme = Theme.of(context);
     Widget? pagerItem;
     Key? pagerItemKey;
-    Color itemColor = _dataPagerThemeHelper!.itemColor;
+    Color itemColor = _dataPagerThemeHelper!.itemColor!;
     bool visible = true;
     late Border border;
 
@@ -1118,7 +1119,7 @@ class SfDataPagerState extends State<SfDataPager> {
               _dataPagerThemeHelper!.itemBorderWidth! > 0.0
           ? Border.all(
               width: _dataPagerThemeHelper!.itemBorderWidth!,
-              color: _dataPagerThemeHelper!.itemBorderColor)
+              color: _dataPagerThemeHelper!.itemBorderColor!)
           : Border.all(width: 0.0, color: Colors.transparent);
     }
 
@@ -1126,20 +1127,20 @@ class SfDataPagerState extends State<SfDataPager> {
       if (element == null) {
         visible = !_isNavigatorItemVisible(type!);
         itemColor = visible
-            ? _dataPagerThemeHelper!.itemColor
-            : _dataPagerThemeHelper!.disabledItemColor;
+            ? _dataPagerThemeHelper!.itemColor!
+            : _dataPagerThemeHelper!.disabledItemColor!;
 
         pagerItem = Semantics(
           label: '$type Page',
-          child: _getIcon(type, iconData!, visible),
+          child: _getIcon(type, iconData!, visible, flutterTheme),
         );
         pagerItemKey = ObjectKey(type);
       } else {
         final bool isSelected = _checkIsSelectedIndex(element.index);
 
         itemColor = isSelected
-            ? _dataPagerThemeHelper!.selectedItemColor
-            : _dataPagerThemeHelper!.itemColor;
+            ? _dataPagerThemeHelper!.selectedItemColor!
+            : _dataPagerThemeHelper!.itemColor!;
 
         final int index = _resolveToItemIndexInView(element.index);
         pagerItem = Text(
@@ -1168,13 +1169,13 @@ class SfDataPagerState extends State<SfDataPager> {
       if (element == null) {
         visible = !_isNavigatorItemVisible(type!);
         itemColor = visible
-            ? _dataPagerThemeHelper!.itemColor
-            : _dataPagerThemeHelper!.disabledItemColor;
+            ? _dataPagerThemeHelper!.itemColor!
+            : _dataPagerThemeHelper!.disabledItemColor!;
       } else {
         final bool isSelected = _checkIsSelectedIndex(element.index);
         itemColor = isSelected
-            ? _dataPagerThemeHelper!.selectedItemColor
-            : _dataPagerThemeHelper!.itemColor;
+            ? _dataPagerThemeHelper!.selectedItemColor!
+            : _dataPagerThemeHelper!.itemColor!;
       }
     }
 
@@ -1309,7 +1310,7 @@ class SfDataPagerState extends State<SfDataPager> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(3.0),
               border: Border.all(
-                  color: _dataPagerThemeHelper!.dropdownButtonBorderColor)),
+                  color: _dataPagerThemeHelper!.dropdownButtonBorderColor!)),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<int>(
               focusColor: Colors.transparent,
@@ -1546,10 +1547,10 @@ class SfDataPagerState extends State<SfDataPager> {
       labelInfo,
       textDirection: _textDirection,
       style: TextStyle(
-          fontSize: _dataPagerThemeHelper!.itemTextStyle.fontSize,
-          fontWeight: _dataPagerThemeHelper!.itemTextStyle.fontWeight,
-          fontFamily: _dataPagerThemeHelper!.itemTextStyle.fontFamily,
-          color: _dataPagerThemeHelper!.itemTextStyle.color),
+          fontSize: _dataPagerThemeHelper!.itemTextStyle!.fontSize,
+          fontWeight: _dataPagerThemeHelper!.itemTextStyle!.fontWeight,
+          fontFamily: _dataPagerThemeHelper!.itemTextStyle!.fontFamily,
+          color: _dataPagerThemeHelper!.itemTextStyle!.color),
     );
 
     final Widget dataPagerLabel = SizedBox(
@@ -1638,8 +1639,7 @@ class SfDataPagerState extends State<SfDataPager> {
     textDirection = Directionality.of(context);
     _localization = SfLocalizations.of(context);
     final ThemeData themeData = Theme.of(context);
-    _dataPagerThemeHelper = DataPagerThemeHelper(
-        _dataPagerThemeData, Theme.of(context).colorScheme, themeData);
+    _dataPagerThemeHelper = DataPagerThemeHelper(context);
     _isDesktop = kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
         themeData.platform == TargetPlatform.windows ||
@@ -1704,7 +1704,14 @@ class SfDataPagerState extends State<SfDataPager> {
       child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraint) {
         _updateConstraintChanged(constraint);
-        if (_currentPageIndex > _pageCount) {
+        // Issue:
+        //
+        // FLUT-868631-The DataPager did not function correctly when updating the rows per page at runtime
+        //
+        // Fix: We have page count value starts from 0. But the current page index starts from 1.
+        // So, we have to check the current page index is greater than or equal to the page count.
+        // If it is true, then we have to set the current page index as page count - 1.
+        if (_currentPageIndex >= _pageCount && _pageCount > 0) {
           _currentPageIndex = _pageCount - 1;
         }
         if (_isDesktop && widget.direction == Axis.horizontal) {
@@ -2087,78 +2094,61 @@ class _DataPagerChangeNotifier {
 /// To Do
 class DataPagerThemeHelper {
   /// To Do
-  DataPagerThemeHelper(SfDataPagerThemeData? sfDataPagerThemeData,
-      ColorScheme? colorScheme, ThemeData themeData) {
-    brightness = sfDataPagerThemeData!.brightness ?? themeData.brightness;
-    backgroundColor = sfDataPagerThemeData.backgroundColor ??
-        colorScheme!.surface.withOpacity(0.12);
-    itemColor = sfDataPagerThemeData.itemColor ?? Colors.transparent;
-    itemTextStyle = sfDataPagerThemeData.itemTextStyle ??
-        TextStyle(
-            color: themeData.colorScheme.onSurface.withOpacity(0.6),
-            fontSize: 14,
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.w400);
-    selectedItemColor =
-        sfDataPagerThemeData.selectedItemColor ?? colorScheme!.primary;
-    selectedItemTextStyle = sfDataPagerThemeData.selectedItemTextStyle ??
-        TextStyle(
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.w400,
-            fontSize: 14,
-            color: colorScheme!.onPrimary);
-    disabledItemColor =
-        sfDataPagerThemeData.disabledItemColor ?? Colors.transparent;
-    disabledItemTextStyle = sfDataPagerThemeData.disabledItemTextStyle ??
-        TextStyle(
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.w400,
-            fontSize: 14,
-            color: colorScheme!.onSurface.withOpacity(0.36));
+  DataPagerThemeHelper(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final SfDataPagerThemeData defaults = SfDataPagerTheme.of(context)!;
+    final SfDataPagerThemeData effectiveDataPagerThemeData = theme.useMaterial3
+        ? _SfDataPagerThemeDataM3(context)
+        : _SfDataPagerThemeDataM2(context);
+    backgroundColor =
+        defaults.backgroundColor ?? effectiveDataPagerThemeData.backgroundColor;
+    itemColor = defaults.itemColor ?? effectiveDataPagerThemeData.itemColor;
+    itemTextStyle =
+        defaults.itemTextStyle ?? effectiveDataPagerThemeData.itemTextStyle;
+    selectedItemColor = defaults.selectedItemColor ??
+        effectiveDataPagerThemeData.selectedItemColor;
+    selectedItemTextStyle = defaults.selectedItemTextStyle ??
+        effectiveDataPagerThemeData.selectedItemTextStyle;
+    disabledItemColor = defaults.disabledItemColor ??
+        effectiveDataPagerThemeData.disabledItemColor;
+    disabledItemTextStyle = defaults.disabledItemTextStyle ??
+        effectiveDataPagerThemeData.disabledItemTextStyle;
     itemBorderColor =
-        sfDataPagerThemeData.itemBorderColor ?? Colors.transparent;
-    itemBorderWidth = sfDataPagerThemeData.itemBorderWidth;
-    itemBorderRadius =
-        sfDataPagerThemeData.itemBorderRadius ?? BorderRadius.circular(50);
-    dropdownButtonBorderColor =
-        sfDataPagerThemeData.dropdownButtonBorderColor ??
-            colorScheme!.onSurface.withOpacity(0.12);
+        defaults.itemBorderColor ?? effectiveDataPagerThemeData.itemBorderColor;
+    itemBorderWidth =
+        defaults.itemBorderWidth ?? effectiveDataPagerThemeData.itemBorderWidth;
+    itemBorderRadius = defaults.itemBorderRadius ??
+        effectiveDataPagerThemeData.itemBorderRadius;
+    dropdownButtonBorderColor = defaults.dropdownButtonBorderColor ??
+        effectiveDataPagerThemeData.dropdownButtonBorderColor;
   }
 
-  /// The brightness of the overall theme of the
-  /// application for the [SfDataPager] widgets.
-  ///
-  /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).brightness], brightness for
-  /// datapager widgets will be applied.
-  late Brightness brightness;
-
   /// The color of the page Items
-  late Color itemColor;
+  late final Color? itemColor;
 
   /// The color of the data pager background
-  late Color backgroundColor;
+  late final Color? backgroundColor;
 
   /// The style of the text of page Items
-  late TextStyle itemTextStyle;
+  late final TextStyle? itemTextStyle;
 
   /// The color of the page Items which are disabled.
-  late Color disabledItemColor;
+  late final Color? disabledItemColor;
 
   /// The style of the text of page items which are disabled.
-  late TextStyle disabledItemTextStyle;
+  late final TextStyle? disabledItemTextStyle;
 
   /// The color of the currently selected page item.
-  late Color selectedItemColor;
+  late final Color? selectedItemColor;
 
   /// The style of the text of currently selected page Item.
-  late TextStyle selectedItemTextStyle;
+  late final TextStyle? selectedItemTextStyle;
 
   /// The color of the border in page Item.
-  late Color itemBorderColor;
+  late final Color? itemBorderColor;
 
   /// The width of the border in page item.
-  double? itemBorderWidth;
+  late final double? itemBorderWidth;
 
   /// If non null, the corners of the page item are rounded by
   /// this [itemBorderRadius].
@@ -2167,8 +2157,127 @@ class DataPagerThemeHelper {
   /// see also:
   ///
   /// [BoxDecoration.borderRadius]
-  late BorderRadiusGeometry itemBorderRadius;
+  late final BorderRadiusGeometry? itemBorderRadius;
 
   ///The border color of the rowsPerPage dropdown button.
-  late Color dropdownButtonBorderColor;
+  late final Color? dropdownButtonBorderColor;
+}
+
+///
+///Defines the theme data for the [SfDataPager] widget for Material 2 design.
+///
+class _SfDataPagerThemeDataM2 extends SfDataPagerThemeData {
+  /// Constructs the [_SfDataPagerThemeDataM2]
+  _SfDataPagerThemeDataM2(this.context);
+
+  /// The build context.
+  final BuildContext context;
+
+  /// The color scheme derived from the current theme context.
+  late final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+  @override
+  Color get itemColor => Colors.transparent;
+
+  @override
+  Color get backgroundColor => colorScheme.surface.withOpacity(0.12);
+
+  @override
+  TextStyle get itemTextStyle => TextStyle(
+      color: colorScheme.onSurface.withOpacity(0.6),
+      fontSize: 14,
+      fontFamily: 'Roboto',
+      fontWeight: FontWeight.w400);
+
+  @override
+  Color get disabledItemColor => Colors.transparent;
+
+  @override
+  TextStyle get disabledItemTextStyle => TextStyle(
+      fontFamily: 'Roboto',
+      fontWeight: FontWeight.w400,
+      fontSize: 14,
+      color: colorScheme.onSurface.withOpacity(0.36));
+
+  @override
+  Color get selectedItemColor => colorScheme.primary;
+
+  @override
+  TextStyle get selectedItemTextStyle => TextStyle(
+      fontFamily: 'Roboto',
+      fontWeight: FontWeight.w400,
+      fontSize: 14,
+      color: colorScheme.onPrimary);
+
+  @override
+  Color get itemBorderColor => Colors.transparent;
+
+  @override
+  double? get itemBorderWidth => null;
+
+  @override
+  BorderRadiusGeometry get itemBorderRadius => BorderRadius.circular(50);
+
+  @override
+  Color get dropdownButtonBorderColor =>
+      colorScheme.onSurface.withOpacity(0.12);
+}
+
+///
+///Defines the theme data for the [SfDataPager] widget for Material 3 design.
+///
+class _SfDataPagerThemeDataM3 extends SfDataPagerThemeData {
+  /// Constructs the [_SfDataPagerThemeDataM3]
+  _SfDataPagerThemeDataM3(this.context);
+
+  /// The build context.
+  final BuildContext context;
+
+  /// The color scheme derived from the current theme context.
+  late final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+  @override
+  Color get itemColor => Colors.transparent;
+
+  @override
+  Color get backgroundColor => colorScheme.surface.withOpacity(0.12);
+
+  @override
+  TextStyle get itemTextStyle => TextStyle(
+      color: colorScheme.onSurface.withOpacity(0.6),
+      fontSize: 14,
+      fontFamily: 'Roboto',
+      fontWeight: FontWeight.w400);
+
+  @override
+  Color get disabledItemColor => Colors.transparent;
+
+  @override
+  TextStyle get disabledItemTextStyle => TextStyle(
+      fontFamily: 'Roboto',
+      fontWeight: FontWeight.w400,
+      fontSize: 14,
+      color: colorScheme.onSurface.withOpacity(0.36));
+
+  @override
+  Color get selectedItemColor => colorScheme.primaryContainer;
+
+  @override
+  TextStyle get selectedItemTextStyle => TextStyle(
+      fontFamily: 'Roboto',
+      fontWeight: FontWeight.w400,
+      fontSize: 14,
+      color: colorScheme.onPrimary);
+
+  @override
+  Color get itemBorderColor => Colors.transparent;
+
+  @override
+  double? get itemBorderWidth => null;
+
+  @override
+  BorderRadiusGeometry get itemBorderRadius => BorderRadius.circular(50);
+
+  @override
+  Color get dropdownButtonBorderColor => colorScheme.outline;
 }

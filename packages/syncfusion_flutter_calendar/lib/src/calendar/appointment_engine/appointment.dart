@@ -75,7 +75,7 @@ class Appointment with Diagnosticable {
     this.endTimeZone,
     this.recurrenceRule,
     this.isAllDay = false,
-    this.notes,
+    String? notes,
     this.location,
     this.resourceIds,
     this.recurrenceId,
@@ -85,11 +85,16 @@ class Appointment with Diagnosticable {
     this.subject = '',
     this.color = Colors.lightBlue,
     this.recurrenceExceptionDates,
-  }) {
+  })  : notes = notes != null && notes.contains('isOccurrenceAppointment')
+            ? notes.replaceAll('isOccurrenceAppointment', '')
+            : notes,
+        _notes = notes {
     recurrenceRule = recurrenceId != null ? null : recurrenceRule;
     _appointmentType = _getAppointmentType();
     id = id ?? hashCode;
   }
+
+  String? _notes;
 
   /// The start time for an [Appointment] in [SfCalendar].
   ///
@@ -937,8 +942,8 @@ class Appointment with Diagnosticable {
     if (recurrenceId != null) {
       return AppointmentType.changedOccurrence;
     } else if (recurrenceRule != null && recurrenceRule!.isNotEmpty) {
-      if (notes != null && notes!.contains('isOccurrenceAppointment')) {
-        notes = notes!.replaceAll('isOccurrenceAppointment', '');
+      if (_notes != null && _notes!.contains('isOccurrenceAppointment')) {
+        _notes = _notes!.replaceAll('isOccurrenceAppointment', '');
         return AppointmentType.occurrence;
       }
 
@@ -949,7 +954,7 @@ class Appointment with Diagnosticable {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }

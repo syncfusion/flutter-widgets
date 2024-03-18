@@ -389,7 +389,7 @@ class RenderLogarithmicAxis extends RenderChartAxis {
   @override
   void addDependent(AxisDependent dependent, {bool isXAxis = true}) {
     super.addDependent(dependent, isXAxis: isXAxis);
-    if (isVertical && dependent.runtimeType.toString().contains('100')) {
+    if (isVertical && dependent is Stacking100SeriesMixin) {
       _dependentIsStacked = true;
     }
   }
@@ -512,7 +512,7 @@ class RenderLogarithmicAxis extends RenderChartAxis {
   @override
   void generateVisibleLabels() {
     hasTrimmedAxisLabel = false;
-    if (visibleRange == null) {
+    if (visibleRange == null || visibleInterval == 0) {
       return;
     }
 

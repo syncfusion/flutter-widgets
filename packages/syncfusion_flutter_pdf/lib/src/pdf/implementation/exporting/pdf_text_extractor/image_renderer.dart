@@ -53,6 +53,7 @@ class ImageRenderer {
   GraphicsObject? _graphicsObject;
   PdfRecordCollection? _contentElements;
   PdfPageResources? _resources;
+  String? _actualText;
 
   /// internal field
   double? currentPageHeight;
@@ -234,6 +235,17 @@ class ImageRenderer {
                 if (_skipRendering) {
                   _inlayersCount++;
                 }
+                if (elements[1].contains('ActualText') &&
+                    elements[1].contains('(')) {
+                  _actualText = elements[1].substring(
+                      elements[1].indexOf('(') + 1,
+                      elements[1].lastIndexOf(')'));
+                  const String bigEndianPreambleString = 'þÿ';
+                  if (_actualText != null &&
+                      _actualText!.startsWith(bigEndianPreambleString)) {
+                    _actualText = null;
+                  }
+                }
               }
             }
             break;
@@ -245,6 +257,7 @@ class ImageRenderer {
               if (_inlayersCount <= 0) {
                 _skipRendering = false;
               }
+              _actualText = null;
             }
             break;
           case 'q':
@@ -617,7 +630,6 @@ class ImageRenderer {
           _resources![currentFont!] as FontStructure;
       structure.isSameFont = _resources!.isSameFont();
       structure.fontSize = fontSize;
-
       if (!structure.isEmbedded &&
           structure.font != null &&
           structure.isStandardCJKFont) {
@@ -629,6 +641,10 @@ class ImageRenderer {
       } else {
         text = structure.decodeTextExtraction(
             text, _resources!.isSameFont(), retrievedCharCodes);
+      }
+      if (_actualText != null && _actualText!.isNotEmpty) {
+        text = _actualText!;
+        _actualText = null;
       }
       final TextElement element = TextElement(text, documentMatrix);
       element.fontStyle = structure.fontStyle!;
@@ -661,6 +677,7 @@ class ImageRenderer {
       element.substitutedFontsList = _substitutedFontsList;
       element.wordSpacing = objects.wordSpacing;
       element.characterSpacing = objects.characterSpacing;
+      element.isExtractTextData = isExtractLineCollection;
       final MatrixHelper tempTextMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
       tempTextMatrix.type = MatrixTypes.identity;
       if (_isCurrentPositionChanged) {
@@ -790,6 +807,7 @@ class ImageRenderer {
       element.pageRotation = pageRotation;
       element.zoomFactor = zoomFactor;
       element.substitutedFontsList = _substitutedFontsList;
+      element.isExtractTextData = isExtractLineCollection;
       if (structure.flags != null) {
         element.fontFlag = structure.flags!.value!.toInt();
       }

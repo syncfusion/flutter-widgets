@@ -14,7 +14,7 @@ import 'text_layouter.dart';
 class ShapeLayouter extends ElementLayouter {
   // constructor
   /// internal constructor
-  ShapeLayouter(PdfShapeElement element) : super(element);
+  ShapeLayouter(PdfShapeElement super.element);
 
   // properties
   /// Gets shape element.

@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../axis/axis.dart';
+import '../behaviors/trackball.dart';
 import '../common/chart_point.dart';
 import '../common/core_tooltip.dart';
 import '../common/marker.dart';
 import '../interactions/tooltip.dart';
-import '../interactions/trackball.dart';
 import '../utils/constants.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -120,47 +120,6 @@ class FastLineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
       : ShapeMarkerType.fastLineSeries;
 
   @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
-    }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-    for (final ChartSegment segment in segments) {
-      if (segment is FastLineSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-        final Rect rect = segment.series.paintBounds;
-
-        final num touchXValue =
-            segment.series.xAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double curX = segment.series.xValues[index].toDouble();
-        final double curY = segment.series.yValues[index].toDouble();
-        if (delta == touchXValue - curX) {
-          if ((touchYValue - curY).abs() > (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
-    }
-    return segmentCollection;
-  }
-
-  @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
     final Rect clip = clipRect(paintBounds, animationFactor,
@@ -233,7 +192,7 @@ class FastLineSegment<T, D> extends ChartSegment {
   void transformValues() {
     points.clear();
     _drawIndexes.clear();
-    if (series.hasLinearData) {
+    if (series.canFindLinearVisibleIndexes) {
       _linearPoints();
     } else {
       _nonLinearPoints();
@@ -409,22 +368,26 @@ class FastLineSegment<T, D> extends ChartSegment {
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
     final int nearestPointIndex = _findNearestPoint(points, position);
     if (nearestPointIndex != -1) {
-      final Offset position = points[nearestPointIndex];
-      if (position.isNaN) {
+      final Offset preferredPos = points[nearestPointIndex];
+      if (preferredPos.isNaN) {
         return null;
       }
 
       final int actualPointIndex = _drawIndexes[nearestPointIndex];
       final CartesianChartPoint<D> chartPoint = _chartPoint(actualPointIndex);
       return ChartTrackballInfo<T, D>(
-        position: points[nearestPointIndex],
+        position: preferredPos,
         point: chartPoint,
         series: series,
-        pointIndex: actualPointIndex,
         seriesIndex: series.index,
+        segmentIndex: currentSegmentIndex,
+        pointIndex: actualPointIndex,
+        text: series.trackballText(chartPoint, series.name),
+        header: series.tooltipHeaderText(chartPoint),
+        color: fillPaint.color,
       );
     }
     return null;
@@ -435,7 +398,8 @@ class FastLineSegment<T, D> extends ChartSegment {
     num? nearPointX;
     num? nearPointY;
     int? pointIndex;
-    for (int i = 0; i < points.length; i++) {
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
       nearPointX ??= series.isTransposed
           ? series.xAxis!.visibleRange!.minimum
           : points[0].dx;
@@ -497,7 +461,7 @@ class FastLineSegment<T, D> extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    if (points == null || points.isEmpty) {
+    if (points.isEmpty) {
       return;
     }
 

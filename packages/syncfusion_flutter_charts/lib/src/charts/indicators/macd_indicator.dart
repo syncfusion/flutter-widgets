@@ -2,10 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../behaviors/trackball.dart';
 import '../common/callbacks.dart';
 import '../common/chart_point.dart';
-import '../interactions/trackball.dart';
 import '../series/chart_series.dart';
+import '../utils/constants.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
@@ -386,13 +387,17 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   final List<CartesianChartPoint<D>> _histogramChartPoints =
       <CartesianChartPoint<D>>[];
 
+  num _xMinimum = double.infinity;
+  num _xMaximum = double.negativeInfinity;
+  num _yMinimum = double.infinity;
+  num _yMaximum = double.negativeInfinity;
+
   int get period => _period;
   int _period = 14;
   set period(int value) {
     if (_period != value) {
       _period = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -401,8 +406,7 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set shortPeriod(int value) {
     if (_shortPeriod != value) {
       _shortPeriod = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -411,8 +415,7 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set longPeriod(int value) {
     if (_longPeriod != value) {
       _longPeriod = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -439,8 +442,7 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set macdType(MacdType value) {
     if (_macdType != value) {
       _macdType = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -520,6 +522,11 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       }
     }
 
+    xMin = _xMinimum.isInfinite ? xMin : _xMinimum;
+    xMax = _xMaximum.isInfinite ? xMax : _xMaximum;
+    yMin = min(yMin, _yMinimum);
+    yMax = max(yMax, _yMaximum);
+
     populateChartPoints();
   }
 
@@ -563,74 +570,59 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   }
 
   void _calculateMACDValues(List<num> macdPoints) {
-    num xMinimum = double.infinity;
-    num xMaximum = double.negativeInfinity;
-    num yMinimum = double.infinity;
-    num yMaximum = double.negativeInfinity;
-
     int dataMACDIndex = longPeriod - 1;
     int macdIndex = 0;
     while (dataMACDIndex < dataCount) {
       final double x = xValues[dataMACDIndex].toDouble();
       final double y = macdPoints[macdIndex].toDouble();
 
-      xMinimum = min(xMinimum, x);
-      xMaximum = max(xMaximum, x);
-      yMinimum = min(yMinimum, y);
-      yMaximum = max(yMaximum, y);
+      _xMinimum = min(_xMinimum, x);
+      _xMaximum = max(_xMaximum, x);
+      _yMinimum = min(_yMinimum, y);
+      _yMaximum = max(_yMaximum, y);
 
       _yValues.add(y);
       _macdActualValues.add(Offset(x, y));
+
       dataMACDIndex++;
       macdIndex++;
     }
-
-    xMin = min(xMin, xMinimum);
-    xMax = max(xMax, xMaximum);
-    yMin = min(yMin, yMinimum);
-    yMax = max(yMax, yMaximum);
   }
 
   void _calculateSignalValues(List<num> signalEma) {
-    num yMinimum = double.infinity;
-    num yMaximum = double.negativeInfinity;
-
     int index = longPeriod + period - 2;
     int signalIndex = 0;
     while (index < dataCount) {
+      final double x = xValues[index].toDouble();
       final double y = signalEma[signalIndex].toDouble();
-      yMinimum = min(yMinimum, y);
-      yMaximum = max(yMaximum, y);
-      _signalActualValues.add(Offset(xValues[index].toDouble(), y));
+      _xMinimum = min(_xMinimum, x);
+      _xMaximum = max(_xMaximum, x);
+      _yMinimum = min(_yMinimum, y);
+      _yMaximum = max(_yMaximum, y);
+      _signalActualValues.add(Offset(x, y));
 
       index++;
       signalIndex++;
     }
-
-    yMin = min(yMin, yMinimum);
-    yMax = max(yMax, yMaximum);
   }
 
   void _calculateHistogramValues(List<num> macdPoints, List<num> signalEma) {
-    num yMinimum = double.infinity;
-    num yMaximum = double.negativeInfinity;
-
     int index = longPeriod + period - 2;
     int histogramIndex = 0;
     while (index < dataCount) {
+      final double x = xValues[index].toDouble();
       final double y = macdPoints[histogramIndex + (period - 1)] -
           signalEma[histogramIndex].toDouble();
 
-      yMinimum = min(yMinimum, y);
-      yMaximum = max(yMaximum, y);
-      _histogramActualValues.add(Offset(xValues[index].toDouble(), y));
+      _xMinimum = min(_xMinimum, x);
+      _xMaximum = max(_xMaximum, x);
+      _yMinimum = min(_yMinimum, y);
+      _yMaximum = max(_yMaximum, y);
+      _histogramActualValues.add(Offset(x, y));
 
       index++;
       histogramIndex++;
     }
-
-    yMin = min(yMin, yMinimum);
-    yMax = max(yMax, yMaximum);
   }
 
   @override
@@ -645,7 +637,7 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     _macdChartPoints.clear();
     _histogramChartPoints.clear();
 
-    if (parent == null || yLists == null || yLists.isEmpty) {
+    if (parent == null || yLists.isEmpty) {
       return;
     }
 
@@ -654,7 +646,7 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     }
 
     final int yLength = yLists.length;
-    if (positions == null || positions.length != yLength) {
+    if (positions.length != yLength) {
       return;
     }
 
@@ -701,18 +693,23 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       if (macdPointIndex != -1) {
         final CartesianChartPoint<D> macdPoint =
             _chartPoint(macdPointIndex, 'macd');
+        final String text = defaultLegendItemText();
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
             position: signalLinePoints[macdPointIndex],
             point: macdPoint,
             series: this,
             pointIndex: macdPointIndex,
+            segmentIndex: macdPointIndex,
             seriesIndex: index,
-            name: defaultLegendItemText(),
+            name: text,
+            header: tooltipHeaderText(macdPoint),
+            text: trackballText(macdPoint, text),
             color: signalLineColor,
           ),
         );
       }
+
       final int macdLinePointIndex = _findNearestPoint(_macdPoints, position);
       if (macdLinePointIndex != -1) {
         final CartesianChartPoint<D> macdLinePoint =
@@ -723,13 +720,17 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
             point: macdLinePoint,
             series: this,
             pointIndex: macdLinePointIndex,
+            segmentIndex: macdLinePointIndex,
             seriesIndex: index,
-            name: 'MacdLine',
+            name: trackballMACDLineText,
+            header: tooltipHeaderText(macdLinePoint),
+            text: trackballText(macdLinePoint, trackballMACDLineText),
             color: _macdLineColor,
           ),
         );
       }
     }
+
     if (macdType == MacdType.both || macdType == MacdType.histogram) {
       final int histogramPointIndex = _findNearestPoint(
           List<Offset>.generate(
@@ -748,8 +749,11 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
             point: histogramPoint,
             series: this,
             pointIndex: histogramPointIndex,
+            segmentIndex: histogramPointIndex,
             seriesIndex: index,
-            name: 'Histogram',
+            name: trackballHistogramText,
+            header: tooltipHeaderText(histogramPoint),
+            text: trackballText(histogramPoint, trackballHistogramText),
             color: histogramPoint.y!.isNegative
                 ? histogramNegativeColor
                 : histogramPositiveColor,

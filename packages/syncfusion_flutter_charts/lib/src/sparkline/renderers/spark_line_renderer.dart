@@ -33,7 +33,7 @@ class SfSparkLineChartRenderObjectWidget
       this.marker,
       this.labelDisplayMode,
       this.labelStyle,
-      SfChartThemeData? themeData,
+      SfSparkChartThemeData? themeData,
       SparkChartDataDetails? sparkChartDataDetails,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
@@ -164,7 +164,7 @@ class _RenderSparkLineChart extends RenderSparkChart {
       SparkChartLabelDisplayMode? labelDisplayMode,
       TextStyle? labelStyle,
       SparkChartDataDetails? sparkChartDataDetails,
-      SfChartThemeData? themeData,
+      SfSparkChartThemeData? themeData,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
       : _width = width,

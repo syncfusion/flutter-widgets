@@ -12,8 +12,7 @@ class PdfDestinationPageNumberField extends PdfPageNumberField {
   /// Initializes a new instance of the [PdfDestinationPageNumberField] class
   /// may include with [PdfFont], [PdfBrush] and [Rect].
   PdfDestinationPageNumberField(
-      {PdfPage? page, PdfFont? font, PdfBrush? brush, Rect? bounds})
-      : super(font: font, brush: brush, bounds: bounds) {
+      {PdfPage? page, super.font, super.brush, super.bounds}) {
     if (page != null) {
       this.page = page;
     }

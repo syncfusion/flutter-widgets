@@ -19,12 +19,28 @@ namespace pdfviewer
 
   std::shared_ptr<PdfDocument> getPdfDocument(std::string docID)
   {
-    return documentRepo.find(docID)->second;
+    std::shared_ptr<PdfDocument> documentPtr = nullptr;
+
+    std::map<std::string, std::shared_ptr<PdfDocument>>::iterator documentRepoIterator = documentRepo.find(docID);
+    // Checks whether the docID is present or not in the documentRepo map
+    if (documentRepoIterator != documentRepo.end())
+    {
+      documentPtr = documentRepoIterator->second;
+    }
+    else 
+    {
+      documentPtr = nullptr;
+    }
+
+    return documentPtr;
   }
 
   void closePdfDocument(std::string docID)
   {
-    FPDF_DOCUMENT document = getPdfDocument(docID)->pdfDocument;
+    std::shared_ptr<PdfDocument> documentPtr = getPdfDocument(docID);
+    if (documentPtr == nullptr)
+        return;
+    FPDF_DOCUMENT document = documentPtr->pdfDocument;
     FPDF_CloseDocument(document);
     documentRepo.erase(docID);
   }

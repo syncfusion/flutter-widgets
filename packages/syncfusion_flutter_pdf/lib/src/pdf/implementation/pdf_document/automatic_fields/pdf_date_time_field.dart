@@ -1,9 +1,6 @@
-import 'dart:ui';
-
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
-import '../../graphics/brushes/pdf_solid_brush.dart';
 import '../../graphics/fonts/pdf_font.dart';
 import '../../graphics/pdf_graphics.dart';
 import 'pdf_static_field.dart';
@@ -86,8 +83,7 @@ class PdfDateTimeField extends PdfStaticField {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfDateTimeField({PdfFont? font, PdfBrush? brush, Rect? bounds})
-      : super(font: font, brush: brush, bounds: bounds);
+  PdfDateTimeField({super.font, super.brush, super.bounds});
 
   /// Get the current date and set the required date.
   /// ```dart

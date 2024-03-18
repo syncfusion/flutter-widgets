@@ -155,12 +155,18 @@ class PdfString implements IPdfPrimitive {
 
   /// internal method
   static String bytesToHex(List<int> data) {
-    String result = '';
-    for (int i = 0; i < data.length; i++) {
-      final String radix = data[i].toRadixString(16);
-      result += (radix.length == 1 ? '0$radix' : radix).toUpperCase();
-    }
-    return result;
+    return data
+        .map((int byte) => byte.toRadixString(16).padLeft(2, '0'))
+        .join()
+        .toUpperCase();
+  }
+
+  /// internal method
+  static Future<String> bytesToHexAsync(List<int> data) async {
+    return data
+        .map((int byte) => byte.toRadixString(16).padLeft(2, '0'))
+        .join()
+        .toUpperCase();
   }
 
   /// internal method

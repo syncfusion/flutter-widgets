@@ -183,6 +183,9 @@ class ChartPoint<D> with Diagnosticable {
   /// Color of the point.
   Color? color;
 
+  /// To get the visibility of chart point.
+  bool isVisible = true;
+
   dynamic operator [](ChartDataPointType pointType) {
     return y!;
   }
@@ -228,9 +231,6 @@ class CircularChartPoint<D> extends ChartPoint<D> {
 
   /// Outer radius of chart point.
   num? outerRadius;
-
-  /// To set the visibility of chart point.
-  bool isVisible = true;
 
   /// To set the explode value of chart point.
   bool isExplode = false;
@@ -370,81 +370,110 @@ class PointInfo<D> {
 
 /// Represents the class of chart point info
 class ChartPointInfo {
-  /// Marker x position
+  ChartPointInfo({
+    this.chartPoint,
+    this.dataPointIndex,
+    this.label,
+    this.series,
+    this.seriesName,
+    this.seriesIndex,
+    this.color,
+    this.header,
+    this.xPosition,
+    this.yPosition,
+    this.highXPosition,
+    this.highYPosition,
+    this.openXPosition,
+    this.openYPosition,
+    this.lowYPosition,
+    this.closeXPosition,
+    this.closeYPosition,
+    this.minYPosition,
+    this.maxXPosition,
+    this.maxYPosition,
+    this.lowerXPosition,
+    this.lowerYPosition,
+    this.upperXPosition,
+    this.upperYPosition,
+    this.markerXPos,
+    this.markerYPos,
+  });
+
+  /// Marker x position.
   double? markerXPos;
 
-  /// Marker y position
+  /// Marker y position.
   double? markerYPos;
 
-  /// label for trackball and cross hair
+  /// label for trackball and cross hair.
   String? label;
 
-  /// Data point index
+  /// Data point index.
   int? dataPointIndex;
 
-  /// Instance of chart series
+  /// Instance of chart series.
   dynamic series;
 
-  /// Chart data point
-  CartesianChartPoint? chartDataPoint;
+  /// Cartesian chart point.
+  CartesianChartPoint? chartPoint;
 
-  /// X position of the label
+  /// X position of the label.
   double? xPosition;
 
-  /// Y position of the label
+  /// Y position of the label.
   double? yPosition;
 
-  /// Color of the segment
+  /// Color of the segment.
   Color? color;
 
-  /// header text
+  /// header text.
   String? header;
 
-  /// Low Y position of financial series
+  /// Low Y position of financial series.
   double? lowYPosition;
 
-  /// High X position of financial series
+  /// High X position of financial series.
   double? highXPosition;
 
-  /// High Y position of financial series
+  /// High Y position of financial series.
   double? highYPosition;
 
-  /// Open y position of financial series
+  /// Open y position of financial series.
   double? openYPosition;
 
-  /// close y position of financial series
+  /// close y position of financial series.
   double? closeYPosition;
 
-  /// open x position of financial series
+  /// open x position of financial series.
   double? openXPosition;
 
-  /// close x position of financial series
+  /// close x position of financial series.
   double? closeXPosition;
 
-  /// Minimum Y position of box plot series
+  /// Minimum Y position of box plot series.
   double? minYPosition;
 
-  /// Maximum Y position of box plot series
+  /// Maximum Y position of box plot series.
   double? maxYPosition;
 
-  /// Lower y position of box plot series
+  /// Lower y position of box plot series.
   double? lowerXPosition;
 
-  /// Upper y position of box plot series
+  /// Upper y position of box plot series.
   double? upperXPosition;
 
-  /// Lower x position of box plot series
+  /// Lower x position of box plot series.
   double? lowerYPosition;
 
-  /// Upper x position of box plot series
+  /// Upper x position of box plot series.
   double? upperYPosition;
 
-  /// Maximum x position for box plot series
+  /// Maximum x position for box plot series.
   double? maxXPosition;
 
-  /// series index value
-  late int seriesIndex;
+  /// series index value.
+  int? seriesIndex;
 
-  /// series name value
+  /// series name value.
   String? seriesName;
 }

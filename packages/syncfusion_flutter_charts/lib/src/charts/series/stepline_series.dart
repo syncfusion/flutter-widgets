@@ -3,11 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
+import '../behaviors/trackball.dart';
 import '../common/chart_point.dart';
 import '../common/core_tooltip.dart';
 import '../common/marker.dart';
 import '../interactions/tooltip.dart';
-import '../interactions/trackball.dart';
 import '../utils/constants.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
@@ -124,47 +124,6 @@ class StepLineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   void customizeSegment(ChartSegment segment) {
     updateSegmentColor(segment, color, borderWidth, isLineType: true);
     updateSegmentGradient(segment);
-  }
-
-  @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
-    }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-    for (final ChartSegment segment in segments) {
-      if (segment is StepLineSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-        final Rect rect = segment.series.paintBounds;
-
-        final num touchXValue =
-            segment.series.xAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double curX = segment.series.xValues[index].toDouble();
-        final double curY = segment.series.yValues[index].toDouble();
-        if (delta == touchXValue - curX) {
-          if ((touchYValue - curY).abs() > (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
-    }
-    return segmentCollection;
   }
 
   @override
@@ -327,49 +286,25 @@ class StepLineSegment<T, D> extends ChartSegment {
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
-    final List<Offset> linePoints = <Offset>[points.first, points.last];
-    final int nearestPointIndex = _findNearestPoints(linePoints, position);
-    if (nearestPointIndex != -1) {
-      final int segmentIndex = nearestPointIndex == 0
-          ? currentSegmentIndex
-          : currentSegmentIndex + 1;
-      final int pointIndex = clampInt(segmentIndex, 0, series.dataCount - 1);
-      final CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
-      return ChartTrackballInfo<T, D>(
-        position: linePoints[nearestPointIndex],
-        point: chartPoint,
-        series: series,
-        pointIndex: currentSegmentIndex,
-        seriesIndex: series.index,
-      );
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
+    final CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
+    if (pointIndex == -1 ||
+        points.isEmpty ||
+        (chartPoint.y != null && chartPoint.y!.isNaN)) {
+      return null;
     }
-    return null;
-  }
 
-  int _findNearestPoints(List<Offset> points, Offset position) {
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-    int? pointIndex;
-    for (int i = 0; i < points.length; i++) {
-      nearPointX ??= points[0].dx;
-      nearPointY ??= series.yAxis!.visibleRange!.minimum;
-
-      final num touchXValue = position.dx;
-      final double curX = points[i].dx;
-      final double curY = points[i].dy;
-      if (delta == touchXValue - curX) {
-        pointIndex = i;
-      } else if ((touchXValue - curX).abs() <=
-          (touchXValue - nearPointX).abs()) {
-        nearPointX = curX;
-        nearPointY = curY;
-        delta = touchXValue - curX;
-        pointIndex = i;
-      }
-    }
-    return pointIndex ?? -1;
+    return ChartTrackballInfo<T, D>(
+      position: points[0],
+      point: chartPoint,
+      series: series,
+      seriesIndex: series.index,
+      segmentIndex: currentSegmentIndex,
+      pointIndex: pointIndex,
+      text: series.trackballText(chartPoint, series.name),
+      header: series.tooltipHeaderText(chartPoint),
+      color: fillPaint.color,
+    );
   }
 
   @override

@@ -92,17 +92,16 @@ abstract class PdfLinkAnnotation extends PdfAnnotation implements IPdfWrapper {
 /// [PdfLinkAnnotation] helper
 class PdfLinkAnnotationHelper extends PdfAnnotationHelper {
   /// internal constructor
-  PdfLinkAnnotationHelper(PdfLinkAnnotation linkAnnotation, Rect? bounds)
-      : super(linkAnnotation) {
+  PdfLinkAnnotationHelper(
+      PdfLinkAnnotation super.linkAnnotation, Rect? bounds) {
     initializeAnnotation(bounds: bounds);
     dictionary!.setProperty(PdfName(PdfDictionaryProperties.subtype),
         PdfName(PdfDictionaryProperties.link));
   }
 
   /// internal constructor
-  PdfLinkAnnotationHelper.load(PdfLinkAnnotation linkAnnotation,
-      PdfDictionary dictionary, PdfCrossTable crossTable)
-      : super(linkAnnotation) {
+  PdfLinkAnnotationHelper.load(PdfLinkAnnotation super.linkAnnotation,
+      PdfDictionary dictionary, PdfCrossTable crossTable) {
     initializeExistingAnnotation(dictionary, crossTable);
   }
 }
@@ -133,10 +132,10 @@ class PdfActionLinkAnnotationHelper extends PdfLinkAnnotationHelper {
 
   /// internal constructor
   PdfActionLinkAnnotationHelper.load(
-      PdfActionLinkAnnotation actionLinkAnnotation,
-      PdfDictionary dictionary,
-      PdfCrossTable crossTable)
-      : super.load(actionLinkAnnotation, dictionary, crossTable);
+      PdfActionLinkAnnotation super.actionLinkAnnotation,
+      super.dictionary,
+      super.crossTable)
+      : super.load();
 }
 
 /// Represents the annotation with associated action.

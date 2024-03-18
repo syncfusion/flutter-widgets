@@ -73,8 +73,8 @@ class PdfBookmark extends PdfBookmarkBase {
     }
   }
 
-  PdfBookmark._load(PdfDictionary? dictionary, PdfCrossTable crossTable)
-      : super._load(dictionary, crossTable);
+  PdfBookmark._load(super.dictionary, PdfCrossTable super.crossTable)
+      : super._load();
 
   //Fields
   /// Internal variable to store destination.
@@ -841,87 +841,90 @@ class PdfBookmark extends PdfBookmarkBase {
       }
 
       if (array != null) {
-        final PdfReferenceHolder? holder = array[0] as PdfReferenceHolder?;
+        final IPdfPrimitive? holder = array[0];
         PdfPage? page;
-        if (holder != null) {
-          final PdfDictionary? dic =
-              _helper._crossTable.getObject(holder) as PdfDictionary?;
-          if (ldDoc != null && dic != null) {
+        if (holder != null && holder is PdfReferenceHolder) {
+          final IPdfPrimitive? dic = _helper._crossTable.getObject(holder);
+          if (ldDoc != null && dic != null && dic is PdfDictionary) {
             page = PdfPageCollectionHelper.getHelper(ldDoc.pages).getPage(dic);
           }
-          PdfName? mode;
+          IPdfPrimitive? mode;
           if (array.count > 1) {
-            mode = array[1]! as PdfName;
+            mode = array[1];
           }
-          if (mode != null) {
+          if (mode != null && mode is PdfName) {
             if (mode.name == PdfDictionaryProperties.xyz) {
-              PdfNumber? left;
-              PdfNumber? top;
+              IPdfPrimitive? left;
+              IPdfPrimitive? top;
               if (array.count > 2) {
-                left = array[2]! as PdfNumber;
+                left = array[2];
               }
               if (array.count > 3) {
-                top = array[3]! as PdfNumber;
+                top = array[3];
               }
-              PdfNumber? zoom;
+              IPdfPrimitive? zoom;
               if (array.count > 4) {
-                zoom = array[4]! as PdfNumber;
+                zoom = array[4];
               }
-
               if (page != null) {
-                final double topValue =
-                    (top == null) ? 0 : page.size.height - top.value!;
-                final double leftValue =
-                    (left == null) ? 0 : left.value! as double;
+                final double topValue = (top != null && top is PdfNumber)
+                    ? page.size.height - top.value!
+                    : 0;
+                final double leftValue = (left != null && left is PdfNumber)
+                    ? left.value! as double
+                    : 0;
                 _destination =
                     PdfDestination(page, Offset(leftValue, topValue));
-                if (zoom != null) {
-                  _destination!.zoom = zoom.value!.toDouble();
-                }
+                _destination!.zoom = (zoom != null && zoom is PdfNumber)
+                    ? zoom.value!.toDouble()
+                    : 0;
               }
             } else {
               if (mode.name == PdfDictionaryProperties.fitR) {
-                PdfNumber? left;
-                PdfNumber? bottom;
-                PdfNumber? right;
-                PdfNumber? top;
+                IPdfPrimitive? left;
+                IPdfPrimitive? bottom;
+                IPdfPrimitive? right;
+                IPdfPrimitive? top;
                 if (array.count > 2) {
-                  left = array[2]! as PdfNumber;
+                  left = array[2];
                 }
                 if (array.count > 3) {
-                  bottom = array[3]! as PdfNumber;
+                  bottom = array[3];
                 }
                 if (array.count > 4) {
-                  right = array[4]! as PdfNumber;
+                  right = array[4];
                 }
                 if (array.count > 5) {
-                  top = array[5]! as PdfNumber;
+                  top = array[5];
                 }
-
                 if (page != null) {
-                  left = (left == null) ? PdfNumber(0) : left;
-                  bottom = (bottom == null) ? PdfNumber(0) : bottom;
-                  right = (right == null) ? PdfNumber(0) : right;
-                  top = (top == null) ? PdfNumber(0) : top;
-
                   _destination = PdfDestinationHelper.getDestination(
                       page,
                       PdfRectangle(
-                          left.value!.toDouble(),
-                          bottom.value!.toDouble(),
-                          right.value!.toDouble(),
-                          top.value!.toDouble()));
+                          (left != null && left is PdfNumber)
+                              ? left.value!.toDouble()
+                              : 0,
+                          (bottom != null && bottom is PdfNumber)
+                              ? bottom.value!.toDouble()
+                              : 0,
+                          (right != null && right is PdfNumber)
+                              ? right.value!.toDouble()
+                              : 0,
+                          (top != null && top is PdfNumber)
+                              ? top.value!.toDouble()
+                              : 0));
                   _destination!.mode = PdfDestinationMode.fitR;
                 }
               } else if (mode.name == PdfDictionaryProperties.fitBH ||
                   mode.name == PdfDictionaryProperties.fitH) {
-                PdfNumber? top;
+                IPdfPrimitive? top;
                 if (array.count >= 3) {
-                  top = array[2]! as PdfNumber;
+                  top = array[2];
                 }
                 if (page != null) {
-                  final double topValue =
-                      (top == null) ? 0 : page.size.height - top.value!;
+                  final double topValue = (top != null && top is PdfNumber)
+                      ? page.size.height - top.value!
+                      : 0;
                   _destination = PdfDestination(page, Offset(0, topValue));
                   _destination!.mode = PdfDestinationMode.fitH;
                 }
@@ -963,56 +966,56 @@ class PdfBookmark extends PdfBookmarkBase {
         }
       }
       if (array != null) {
-        final PdfReferenceHolder? holder = array[0] as PdfReferenceHolder?;
+        final IPdfPrimitive? holder = array[0];
         PdfPage? page;
-        if (holder != null) {
-          final PdfDictionary? dic =
-              _helper._crossTable.getObject(holder) as PdfDictionary?;
-          if (dic != null && ldDoc != null) {
+        if (holder != null && holder is PdfReferenceHolder) {
+          final IPdfPrimitive? dic = _helper._crossTable.getObject(holder);
+          if (dic != null && ldDoc != null && dic is PdfDictionary) {
             page = PdfPageCollectionHelper.getHelper(ldDoc.pages).getPage(dic);
           }
         }
-
-        PdfName? mode;
+        IPdfPrimitive? mode;
         if (array.count > 1) {
-          mode = array[1]! as PdfName;
+          mode = array[1];
         }
-        if (mode != null) {
+        if (mode != null && mode is PdfName) {
           if (mode.name == PdfDictionaryProperties.fitBH ||
               mode.name == PdfDictionaryProperties.fitH) {
-            PdfNumber? top;
+            IPdfPrimitive? top;
             if (array.count >= 3) {
-              top = array[2]! as PdfNumber;
+              top = array[2];
             }
             if (page != null) {
-              final double topValue =
-                  (top == null) ? 0 : page.size.height - top.value!;
+              final double topValue = (top != null && top is PdfNumber)
+                  ? page.size.height - top.value!
+                  : 0;
               _destination = PdfDestination(page, Offset(0, topValue));
               _destination!.mode = PdfDestinationMode.fitH;
             }
           } else if (mode.name == PdfDictionaryProperties.xyz) {
-            PdfNumber? left;
-            PdfNumber? top;
+            IPdfPrimitive? left;
+            IPdfPrimitive? top;
             if (array.count > 2) {
-              left = array[2]! as PdfNumber;
+              left = array[2];
             }
             if (array.count > 3) {
-              top = array[3]! as PdfNumber;
+              top = array[3];
             }
-            PdfNumber? zoom;
-            if (array.count > 4 && (array[4] is PdfNumber)) {
-              zoom = array[4]! as PdfNumber;
+            IPdfPrimitive? zoom;
+            if (array.count > 4) {
+              zoom = array[4];
             }
-
             if (page != null) {
-              final double topValue =
-                  (top == null) ? 0 : page.size.height - top.value!;
-              final double leftValue =
-                  (left == null) ? 0 : left.value! as double;
+              final double topValue = (top != null && top is PdfNumber)
+                  ? page.size.height - top.value!
+                  : 0;
+              final double leftValue = (left != null && left is PdfNumber)
+                  ? left.value! as double
+                  : 0;
               _destination = PdfDestination(page, Offset(leftValue, topValue));
-              if (zoom != null) {
-                _destination!.zoom = zoom.value!.toDouble();
-              }
+              _destination!.zoom = (zoom != null && zoom is PdfNumber)
+                  ? zoom.value!.toDouble()
+                  : 0;
             }
           } else {
             if (page != null && mode.name == PdfDictionaryProperties.fit) {

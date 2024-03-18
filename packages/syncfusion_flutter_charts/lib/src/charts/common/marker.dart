@@ -421,7 +421,8 @@ class _MarkerContainerState<T, D> extends State<MarkerContainer<T, D>>
       return renderer!.emptyPointSettings.color;
     } else if (renderer!.markerSettings.borderColor != null) {
       return renderer!.markerSettings.borderColor!;
-    } else if (renderer!.pointColors.isNotEmpty) {
+    } else if (renderer!.pointColors.isNotEmpty &&
+        renderer!.pointColors[dataPointIndex] != null) {
       return renderer!.pointColors[dataPointIndex];
     } else {
       return renderer!.color ?? renderer!.paletteColor;
@@ -444,7 +445,7 @@ class _MarkerContainerState<T, D> extends State<MarkerContainer<T, D>>
             xValues != null &&
             xValues!.isNotEmpty &&
             renderer!.controller.isVisible) {
-          if (renderer!.hasLinearData) {
+          if (renderer!.canFindLinearVisibleIndexes) {
             _buildLinearMarkers(context);
           } else {
             _buildNonLinearMarkers(context);
@@ -576,7 +577,7 @@ class _RenderMarkerStack<T, D> extends RenderChartElementStack {
       }
 
       fillPaint.color = marker.color ?? Colors.transparent;
-      strokePaint.color = marker.borderColor!;
+      strokePaint.color = marker.borderColor ?? Colors.transparent;
       strokePaint.strokeWidth = marker.borderWidth;
       if (settings.borderColor != null) {
         strokePaint.shader = null;

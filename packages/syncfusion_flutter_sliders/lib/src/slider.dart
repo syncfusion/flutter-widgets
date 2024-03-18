@@ -15,6 +15,7 @@ import 'common.dart';
 import 'constants.dart';
 import 'slider_base.dart';
 import 'slider_shapes.dart';
+import 'theme.dart';
 
 /// A Material Design slider.
 ///
@@ -1264,6 +1265,17 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
 
   SfSliderThemeData _getSliderThemeData(ThemeData themeData, bool isActive) {
     SfSliderThemeData sliderThemeData = SfSliderTheme.of(context);
+
+    ///An instance for material 2 and material 3 classes
+    final SfSliderThemeData effectiveThemeData = themeData.useMaterial3
+        ? SfSliderThemeDataM3(context)
+        : SfSliderThemeDataM2(context);
+    final bool isMaterial3 = themeData.useMaterial3;
+    final Color labelColor = isMaterial3
+        ? themeData.colorScheme.onSurfaceVariant
+        : isActive
+            ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
+            : themeData.colorScheme.onSurface.withOpacity(0.32);
     final double minTrackHeight = math.min(
         sliderThemeData.activeTrackHeight, sliderThemeData.inactiveTrackHeight);
     final double maxTrackHeight = math.max(
@@ -1272,72 +1284,68 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
       activeTrackHeight: sliderThemeData.activeTrackHeight,
       inactiveTrackHeight: sliderThemeData.inactiveTrackHeight,
       tickOffset: sliderThemeData.tickOffset,
-      inactiveLabelStyle: sliderThemeData.inactiveLabelStyle ??
-          themeData.textTheme.bodyLarge!.copyWith(
-              color: isActive
-                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
-                  : themeData.colorScheme.onSurface.withOpacity(0.32)),
-      activeLabelStyle: sliderThemeData.activeLabelStyle ??
-          themeData.textTheme.bodyLarge!.copyWith(
-              color: isActive
-                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
-                  : themeData.colorScheme.onSurface.withOpacity(0.32)),
-      tooltipTextStyle: sliderThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyLarge!
-              .copyWith(color: themeData.colorScheme.surface),
+      inactiveLabelStyle: themeData.textTheme.bodyLarge!
+          .copyWith(color: labelColor, fontSize: isMaterial3 ? 12 : 14)
+          .merge(sliderThemeData.inactiveLabelStyle),
+      activeLabelStyle: themeData.textTheme.bodyLarge!
+          .copyWith(color: labelColor, fontSize: isMaterial3 ? 12 : 14)
+          .merge(sliderThemeData.activeLabelStyle),
+      tooltipTextStyle: themeData.textTheme.bodyLarge!
+          .copyWith(
+              fontSize: isMaterial3 ? 12 : 14,
+              color: isMaterial3
+                  ? themeData.colorScheme.onPrimary
+                  : themeData.colorScheme.surface)
+          .merge(sliderThemeData.tooltipTextStyle),
       inactiveTrackColor: widget.inactiveColor ??
           sliderThemeData.inactiveTrackColor ??
-          themeData.colorScheme.primary.withOpacity(0.24),
+          effectiveThemeData.inactiveTrackColor,
       activeTrackColor: widget.activeColor ??
           sliderThemeData.activeTrackColor ??
-          themeData.colorScheme.primary,
+          effectiveThemeData.activeTrackColor,
       thumbColor: widget.activeColor ??
           sliderThemeData.thumbColor ??
-          themeData.colorScheme.primary,
-      activeTickColor: sliderThemeData.activeTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.37),
+          effectiveThemeData.thumbColor,
+      activeTickColor:
+          sliderThemeData.activeTickColor ?? effectiveThemeData.activeTickColor,
       inactiveTickColor: sliderThemeData.inactiveTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.37),
+          effectiveThemeData.inactiveTickColor,
       disabledActiveTickColor: sliderThemeData.disabledActiveTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.24),
+          effectiveThemeData.disabledActiveTickColor,
       disabledInactiveTickColor: sliderThemeData.disabledInactiveTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.24),
+          effectiveThemeData.disabledInactiveTickColor,
       activeMinorTickColor: sliderThemeData.activeMinorTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.37),
+          effectiveThemeData.activeMinorTickColor,
       inactiveMinorTickColor: sliderThemeData.inactiveMinorTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.37),
+          effectiveThemeData.inactiveMinorTickColor,
       disabledActiveMinorTickColor:
           sliderThemeData.disabledActiveMinorTickColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.24),
+              effectiveThemeData.disabledActiveMinorTickColor,
       disabledInactiveMinorTickColor:
           sliderThemeData.disabledInactiveMinorTickColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.24),
-      // ignore: lines_longer_than_80_chars
+              effectiveThemeData.disabledInactiveMinorTickColor,
       overlayColor: widget.activeColor?.withOpacity(0.12) ??
           sliderThemeData.overlayColor ??
-          themeData.colorScheme.primary.withOpacity(0.12),
+          effectiveThemeData.overlayColor,
       inactiveDividerColor: widget.activeColor ??
           sliderThemeData.inactiveDividerColor ??
-          themeData.colorScheme.primary.withOpacity(0.54),
+          effectiveThemeData.inactiveDividerColor,
       activeDividerColor: widget.inactiveColor ??
           sliderThemeData.activeDividerColor ??
-          themeData.colorScheme.onPrimary.withOpacity(0.54),
+          effectiveThemeData.activeDividerColor,
       disabledInactiveDividerColor:
           sliderThemeData.disabledInactiveDividerColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.12),
+              effectiveThemeData.disabledInactiveDividerColor,
       disabledActiveDividerColor: sliderThemeData.disabledActiveDividerColor ??
-          themeData.colorScheme.onPrimary.withOpacity(0.12),
+          effectiveThemeData.disabledActiveDividerColor,
       disabledActiveTrackColor: sliderThemeData.disabledActiveTrackColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.32),
+          effectiveThemeData.disabledActiveTrackColor,
       disabledInactiveTrackColor: sliderThemeData.disabledInactiveTrackColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.12),
+          effectiveThemeData.disabledInactiveTrackColor,
       disabledThumbColor: sliderThemeData.disabledThumbColor ??
-          Color.alphaBlend(themeData.colorScheme.onSurface.withOpacity(0.38),
-              themeData.colorScheme.surface),
+          effectiveThemeData.disabledThumbColor,
       tooltipBackgroundColor: sliderThemeData.tooltipBackgroundColor ??
-          (themeData.brightness == Brightness.light
-              ? const Color.fromRGBO(97, 97, 97, 1)
-              : const Color.fromRGBO(224, 224, 224, 1)),
+          effectiveThemeData.tooltipBackgroundColor,
       thumbStrokeColor: sliderThemeData.thumbStrokeColor,
       activeDividerStrokeColor: sliderThemeData.activeDividerStrokeColor,
       inactiveDividerStrokeColor: sliderThemeData.inactiveDividerStrokeColor,

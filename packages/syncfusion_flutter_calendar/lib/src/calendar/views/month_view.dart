@@ -25,6 +25,7 @@ class MonthViewWidget extends StatefulWidget {
       this.todayTextStyle,
       this.cellBorderColor,
       this.calendarTheme,
+      this.themeData,
       this.calendarCellNotifier,
       this.showTrailingAndLeadingDates,
       this.minDate,
@@ -63,6 +64,9 @@ class MonthViewWidget extends StatefulWidget {
 
   /// Holds the theme data details for calendar.
   final SfCalendarThemeData calendarTheme;
+
+  /// Holds the theme data for calendar.
+  final ThemeData themeData;
 
   /// Holds the current hovering point used to paint the hovering.
   final ValueNotifier<Offset?> calendarCellNotifier;
@@ -212,6 +216,7 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
       widget.todayTextStyle,
       widget.cellBorderColor,
       widget.calendarTheme,
+      widget.themeData,
       widget.calendarCellNotifier,
       widget.minDate,
       widget.maxDate,
@@ -246,6 +251,7 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
       this.todayTextStyle,
       this.cellBorderColor,
       this.calendarTheme,
+      this.themeData,
       this.calendarCellNotifier,
       this.minDate,
       this.maxDate,
@@ -270,6 +276,7 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
   final TextStyle? todayTextStyle;
   final Color? cellBorderColor;
   final SfCalendarThemeData calendarTheme;
+  final ThemeData themeData;
   final ValueNotifier<Offset?> calendarCellNotifier;
   final DateTime minDate;
   final DateTime maxDate;
@@ -295,6 +302,7 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
         todayTextStyle,
         cellBorderColor,
         calendarTheme,
+        themeData,
         calendarCellNotifier,
         minDate,
         maxDate,
@@ -322,6 +330,7 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
       ..todayTextStyle = todayTextStyle
       ..cellBorderColor = cellBorderColor
       ..calendarTheme = calendarTheme
+      ..themeData = themeData
       ..calendarCellNotifier = calendarCellNotifier
       ..minDate = minDate
       ..maxDate = maxDate
@@ -348,6 +357,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
       this._todayTextStyle,
       this._cellBorderColor,
       this._calendarTheme,
+      this._themeData,
       this._calendarCellNotifier,
       this._minDate,
       this._maxDate,
@@ -566,7 +576,22 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     if (childCount != 0) {
       return;
     }
+    markNeedsPaint();
+  }
 
+  ThemeData _themeData;
+
+  ThemeData get themeData => _themeData;
+
+  set themeData(ThemeData value) {
+    if (_themeData == value) {
+      return;
+    }
+
+    _themeData = value;
+    if (childCount != 0) {
+      return;
+    }
     markNeedsPaint();
   }
 
@@ -906,7 +931,7 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     final TextStyle disabledTextStyle = currentMonthTextStyle.copyWith(
         color: currentMonthTextStyle.color != null
             ? currentMonthTextStyle.color!.withOpacity(0.38)
-            : calendarTheme.brightness == Brightness.light
+            : themeData.brightness == Brightness.light
                 ? Colors.black26
                 : Colors.white38);
 

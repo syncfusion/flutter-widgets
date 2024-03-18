@@ -47,9 +47,13 @@ class _TextSelectionMenuState extends State<TextSelectionMenu> {
     return Container(
       height: kTextSelectionMenuHeight,
       decoration: ShapeDecoration(
-        color: (widget.themeData!.colorScheme.brightness == Brightness.light)
-            ? Colors.white
-            : const Color(0xFF303030),
+        color: widget.themeData!.useMaterial3
+            ? (widget.themeData!.colorScheme.brightness == Brightness.light)
+                ? const Color.fromRGBO(238, 232, 244, 1)
+                : const Color.fromRGBO(48, 45, 56, 1)
+            : (widget.themeData!.colorScheme.brightness == Brightness.light)
+                ? Colors.white
+                : const Color(0xFF303030),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         shadows: const <BoxShadow>[
           BoxShadow(
@@ -181,10 +185,13 @@ class _TextSelectionMenuItemState extends State<TextSelectionMenuItem> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: _isHovering
-                  ? (widget.themeData!.colorScheme.brightness ==
-                          Brightness.light)
-                      ? Colors.grey.withOpacity(0.2)
-                      : Colors.grey.withOpacity(0.5)
+                  ? widget.themeData!.useMaterial3
+                      ? widget.themeData!.colorScheme.onSurface
+                          .withOpacity(0.08)
+                      : (widget.themeData!.colorScheme.brightness ==
+                              Brightness.light)
+                          ? Colors.grey.withOpacity(0.2)
+                          : Colors.grey.withOpacity(0.5)
                   : Colors.transparent,
             ),
             child: Row(
@@ -198,9 +205,11 @@ class _TextSelectionMenuItemState extends State<TextSelectionMenuItem> {
                   overflow: TextOverflow.ellipsis,
                   style: widget.themeData!.textTheme.bodyMedium!.copyWith(
                     fontSize: 14,
-                    color: widget.themeData!.brightness == Brightness.light
-                        ? Colors.black.withOpacity(0.87)
-                        : Colors.white.withOpacity(0.87),
+                    color: widget.themeData!.useMaterial3
+                        ? widget.themeData!.colorScheme.onSurface
+                        : widget.themeData!.brightness == Brightness.light
+                            ? Colors.black.withOpacity(0.87)
+                            : Colors.white.withOpacity(0.87),
                   ),
                 ),
               ],
@@ -225,9 +234,11 @@ class _TextSelectionMenuItemState extends State<TextSelectionMenuItem> {
     return ImageIcon(
       AssetImage('assets/$mode.png', package: 'syncfusion_flutter_pdfviewer'),
       size: 16,
-      color: (widget.themeData!.colorScheme.brightness == Brightness.light)
-          ? Colors.black.withOpacity(0.87)
-          : Colors.white.withOpacity(0.87),
+      color: widget.themeData!.useMaterial3
+          ? widget.themeData!.colorScheme.onSurface
+          : (widget.themeData!.colorScheme.brightness == Brightness.light)
+              ? Colors.black.withOpacity(0.87)
+              : Colors.white.withOpacity(0.87),
     );
   }
 }

@@ -12,12 +12,12 @@ The Flutter PDF Viewer plugin lets you view PDF documents seamlessly and efficie
 - [Useful links](#other-useful-links)
 - [Installation](#installation)
 - [Getting started](#getting-started)
-    - [Add PDF Viewer to the widget tree](#add-pdf-viewer-to-the-widget-tree)
-    - [Load PDF document from the Asset](#load-pdf-document-from-the-asset)
-    - [Load PDF document from the Network](#load-pdf-document-from-the-network)
-    - [Load PDF document from the File](#load-pdf-document-from-the-file)
-    - [Load PDF document from the Memory](#load-pdf-document-from-the-memory)
-    - [Load encrypted PDF document](#load-encrypted-pdf-document)
+	- [Add PDF Viewer to the widget tree](#add-pdf-viewer-to-the-widget-tree)
+	- [Load PDF document from the Asset](#load-pdf-document-from-the-asset)
+	- [Load PDF document from the Network](#load-pdf-document-from-the-network)
+	- [Load PDF document from the File](#load-pdf-document-from-the-file)
+	- [Load PDF document from the Memory](#load-pdf-document-from-the-memory)
+	- [Load encrypted PDF document](#load-encrypted-pdf-document)
 - [Support and feedback](#support-and-feedback)
 - [About Syncfusion](#about-syncfusion)
 
@@ -31,19 +31,19 @@ The Flutter PDF Viewer plugin lets you view PDF documents seamlessly and efficie
 
 * **Page navigation** - Navigate to the desired pages instantly.
 
-    ![syncfusion_flutter_pdfviewer_page_navigation](https://cdn.syncfusion.com/content/images/PDFViewer/pagination-dialog.png)
+  ![syncfusion_flutter_pdfviewer_page_navigation](https://cdn.syncfusion.com/content/images/PDFViewer/pagination-dialog.png)
 
 * **Text selection** - Select text presented in a PDF document.
 
-    ![syncfusion_flutter_pdfviewer_text_selection](https://cdn.syncfusion.com/content/images/PDFViewer/text-selection.png)
+  ![syncfusion_flutter_pdfviewer_text_selection](https://cdn.syncfusion.com/content/images/PDFViewer/text-selection.png)
 
 * **Text search** - Search for text and navigate to all its occurrences in a PDF document instantly.
 
-    ![syncfusion_flutter_pdfviewer_text_search](https://cdn.syncfusion.com/content/images/PDFViewer/text-search.png)
+  ![syncfusion_flutter_pdfviewer_text_search](https://cdn.syncfusion.com/content/images/PDFViewer/text-search.png)
 
 * **Bookmark navigation** - Bookmarks saved in the document are loaded and made ready for easy navigation. This feature helps in navigation within the PDF document of the topics bookmarked already.
 
-    ![syncfusion_flutter_pdfviewer_bookmark_navigation](https://cdn.syncfusion.com/content/images/PDFViewer/bookmark-navigation.png)
+  ![syncfusion_flutter_pdfviewer_bookmark_navigation](https://cdn.syncfusion.com/content/images/PDFViewer/bookmark-navigation.png)
 
 * **Document link annotation navigation** - Navigate to the desired topic or position by tapping the document link annotation of the topics in the table of contents in a PDF document.
 
@@ -51,27 +51,27 @@ The Flutter PDF Viewer plugin lets you view PDF documents seamlessly and efficie
 
 * **Text markup annotations** - Add, remove, and modify text markup annotations in PDF files. The available text markups are highlight, underline, strikethrough and squiggly. This feature will help mark important passages, emphasize specific words or phrases, indicate that certain content should be removed or indicate that text contains possible errors.
 
-    ![syncfusion_flutter_pdfviewer_text_markup_highlight](https://cdn.syncfusion.com/content/images/PDFViewer/highlight.png)
+  ![syncfusion_flutter_pdfviewer_text_markup_highlight](https://cdn.syncfusion.com/content/images/PDFViewer/highlight.png)
 
-    ![syncfusion_flutter_pdfviewer_text_markup_underline](https://cdn.syncfusion.com/content/images/PDFViewer/underline.png)
+  ![syncfusion_flutter_pdfviewer_text_markup_underline](https://cdn.syncfusion.com/content/images/PDFViewer/underline.png)
 
-    ![syncfusion_flutter_pdfviewer_text_markup_strikethrough](https://cdn.syncfusion.com/content/images/PDFViewer/strikethrough.png)
+  ![syncfusion_flutter_pdfviewer_text_markup_strikethrough](https://cdn.syncfusion.com/content/images/PDFViewer/strikethrough.png)
 
-    ![syncfusion_flutter_pdfviewer_text_markup_squiggly](https://cdn.syncfusion.com/content/images/PDFViewer/squiggly.png)
+  ![syncfusion_flutter_pdfviewer_text_markup_squiggly](https://cdn.syncfusion.com/content/images/PDFViewer/squiggly.png)
 
 * **Form filling** - Fill, edit, flatten, save, export, and import AcroForm field data in a PDF document.
 
-    ![syncfusion_flutter_pdfviewer_form_filling](https://cdn.syncfusion.com/content/images/PDFViewer/form-filling.gif)
+  ![syncfusion_flutter_pdfviewer_form_filling](https://cdn.syncfusion.com/content/images/PDFViewer/form-filling.gif)
 
 * **Right to Left (RTL)** - Change the user interface and functionalities such as text search and text copying to accommodate RTL languages such as Hebrew and Arabic.
 
 * **Themes** - Easily switch between the light and dark theme.
 
-    ![syncfusion_flutter_pdfviewer_theme](https://cdn.syncfusion.com/content/images/PDFViewer/bookmark-navigation-dark.png)
+  ![syncfusion_flutter_pdfviewer_theme](https://cdn.syncfusion.com/content/images/PDFViewer/bookmark-navigation-dark.png)
 
 * **Localization** - All static text within the PDF Viewer can be localized to any supported language.
 
-    ![syncfusion_flutter_pdfviewer_localization](https://cdn.syncfusion.com/content/images/PDFViewer/localization.png)
+  ![syncfusion_flutter_pdfviewer_localization](https://cdn.syncfusion.com/content/images/PDFViewer/localization.png)
 
 ## Get the demo application
 
@@ -208,6 +208,6 @@ Widget build(BuildContext context) {
 
 ## About Syncfusion
 
-Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies. 
+Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
 
 Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components),  [Flutter](https://www.syncfusion.com/flutter-widgets), and [Blazor](https://www.syncfusion.com/blazor-components)), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([Flutter](https://www.syncfusion.com/flutter-widgets), [WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls), and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.       

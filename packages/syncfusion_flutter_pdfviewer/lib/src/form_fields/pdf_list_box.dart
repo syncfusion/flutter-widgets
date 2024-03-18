@@ -227,6 +227,7 @@ class _PdfListBoxState extends State<PdfListBox> {
 /// Shows the list box dialog when the list box form field is tapped.
 void _showListBoxDialog(
     BuildContext context, PdfListBoxFormFieldHelper listBoxHelper) {
+  final bool isMaterial3 = Theme.of(context).useMaterial3;
   List<String> newItems =
       List<String>.from(listBoxHelper.listBoxFormField._selectedItems!);
   showDialog(
@@ -234,7 +235,12 @@ void _showListBoxDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          contentPadding: EdgeInsets.zero,
+          contentPadding: isMaterial3
+              ? const EdgeInsets.only(left: 24.0, right: 16.0, top: 16.0)
+              : EdgeInsets.zero,
+          actionsPadding: isMaterial3
+              ? const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0)
+              : null,
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               return SizedBox(
@@ -250,6 +256,13 @@ void _showListBoxDialog(
                                 listBoxHelper.listBoxFormField._items[index]),
                             value: newItems.contains(
                                 listBoxHelper.listBoxFormField._items[index]),
+                            shape: isMaterial3
+                                ? RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  )
+                                : null,
+                            contentPadding:
+                                isMaterial3 ? EdgeInsets.zero : null,
                             onChanged: (bool? value) {
                               setState(() {
                                 if (value != null) {
@@ -290,6 +303,16 @@ void _showListBoxDialog(
               onPressed: () {
                 Navigator.pop(context);
               },
+              style: isMaterial3
+                  ? TextButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0, vertical: 10),
+                      fixedSize: const Size(double.infinity, 40),
+                    )
+                  : null,
               child: const Text(
                 'CANCEL',
                 style: TextStyle(
@@ -301,6 +324,16 @@ void _showListBoxDialog(
                 Navigator.pop(context);
                 listBoxHelper.invokeValueChanged(newItems);
               },
+              style: isMaterial3
+                  ? TextButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0, vertical: 10),
+                      fixedSize: const Size(74, 40),
+                    )
+                  : null,
               child: const Text(
                 'OK',
                 style: TextStyle(

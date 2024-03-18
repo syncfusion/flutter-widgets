@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart' show Color;
 
+import '../../pdfviewer.dart';
 import '../annotation/annotation.dart';
+import '../form_fields/pdf_form_field.dart';
 
 /// The base class for all annotation change commands.
 abstract class ChangeCommand {
@@ -117,4 +119,51 @@ class ClearAnnotationsTracker extends ChangeCommand {
       redoCallback(annotation);
     }
   }
+}
+
+/// Represents a change in the value of the form field.
+class FormFieldValueChangeTracker extends ChangeCommand {
+  /// Creates a new instance of [FormFieldValueChangeTracker].
+  FormFieldValueChangeTracker(
+      {required this.records, required this.onUndoOrRedo});
+
+  /// The records of the changes made in the form fields
+  final List<FormFieldValueChangeRecord> records;
+
+  /// Occurs when undoing or redoing the change in the form fields.
+  final void Function(PdfFormField, Object?, bool) onUndoOrRedo;
+
+  /// Undoes the change.
+  @override
+  void undo() {
+    for (final FormFieldValueChangeRecord record in records) {
+      onUndoOrRedo(record.formField, record.oldValue, true);
+    }
+  }
+
+  /// Redoes the change.
+  @override
+  void redo() {
+    for (final FormFieldValueChangeRecord record in records) {
+      onUndoOrRedo(record.formField, record.newValue, true);
+    }
+  }
+}
+
+/// Represents a change in the value of the form field.
+class FormFieldValueChangeRecord {
+  /// Creates a new instance of [FormFieldValueChangeRecord].
+  FormFieldValueChangeRecord(
+      {required this.formField,
+      required this.oldValue,
+      required this.newValue});
+
+  /// The form field whose value is changed.
+  final PdfFormField formField;
+
+  /// The old value of the form field.
+  final Object? oldValue;
+
+  /// The new value of the form field.
+  final Object? newValue;
 }

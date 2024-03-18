@@ -972,7 +972,10 @@ class FontStructure {
 
   /// internal method
   PdfFont? createStandardFont(double size) {
-    if (_standardFontName != '') {
+    if (_standardFontName != null && _standardFontName != '') {
+      if (_standardFontName!.contains('#')) {
+        _standardFontName = decodeHexFontName(_standardFontName!);
+      }
       final PdfFontFamily fontFamily = _getFontFamily(_standardFontName!);
       final List<PdfFontStyle> styles = _getFontStyle(_standardFontName!);
       if (styles.contains(PdfFontStyle.bold) &&
@@ -2493,6 +2496,7 @@ class FontStructure {
     String encodedText = textToDecode;
     this.isSameFont = isSameFont;
     bool hasEscapeChar = false;
+    bool isHex = false;
     switch (encodedText[0]) {
       case '(':
         {
@@ -2546,7 +2550,7 @@ class FontStructure {
           }
           encodedText = encodedText.substring(1, encodedText.length - 1);
           while (encodedText.isNotEmpty) {
-            bool isHex = false;
+            isHex = false;
             int textStart = encodedText.indexOf('(');
             int textEnd = encodedText.indexOf(')');
             final int textHexStart = encodedText.indexOf('<');
@@ -2593,6 +2597,7 @@ class FontStructure {
           final String hexEncodedText =
               encodedText.substring(1, encodedText.length - 1);
           decodedText = getHexaDecimalString(hexEncodedText, charcodes);
+          isHex = true;
         }
         break;
       default:
@@ -2604,7 +2609,7 @@ class FontStructure {
         (fontEncoding == 'Identity-H' && containsCmap)) {
       isMappingDone = true;
       if (characterMapTable.isNotEmpty) {
-        decodedText = mapCharactersFromTable(decodedText);
+        decodedText = mapCharactersFromTable(decodedText, isHex);
       } else if (differencesDictionary.isNotEmpty) {
         decodedText = mapDifferences(decodedText);
       } else if (fontEncoding != '') {
@@ -2898,7 +2903,7 @@ class FontStructure {
                 (fontEncoding == 'Identity-H' && containsCmap)) {
               isMappingDone = true;
               if (characterMapTable.isNotEmpty) {
-                listElement = mapCharactersFromTable(listElement);
+                listElement = mapCharactersFromTable(listElement, isHex);
               } else if (differencesDictionary.isNotEmpty) {
                 listElement = mapDifferences(listElement);
               } else if (fontEncoding != '') {
@@ -4204,8 +4209,9 @@ class FontStructure {
             decodedtext = encodedText;
             final int charPosition = reverseMapTable![decodedtext]!.toInt();
             if (differenceTable.isNotEmpty &&
-                differenceTable.containsKey(charPosition))
+                differenceTable.containsKey(charPosition)) {
               zapfPostScript = differenceTable[charPosition]!;
+            }
           } else {
             decodedtext = '\u2708';
             zapfPostScript = 'a118';
@@ -4773,7 +4779,7 @@ class FontStructure {
 
   /// Takes in the decoded text and maps it with its
   /// corresponding entry in the CharacterMapTable
-  String mapCharactersFromTable(String decodedText) {
+  String mapCharactersFromTable(String decodedText, [bool isHex = false]) {
     String finalText = '';
     bool skip = false;
     for (int i = 0; i < decodedText.length; i++) {
@@ -4799,7 +4805,8 @@ class FontStructure {
         finalText += mappingString;
         skip = false;
       } else if (!characterMapTable.containsKey(character.codeUnitAt(0)) &&
-          !skip) {
+          !skip &&
+          !isHex) {
         final List<int> bytes = encodeBigEndian(character);
         if (bytes[0] != 92) {
           if (characterMapTable.containsKey(bytes[0])) {

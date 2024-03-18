@@ -1,10 +1,23 @@
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:xml/xml.dart';
+
 import '../../interfaces/pdf_interface.dart';
+import '../annotations/enum.dart';
+import '../annotations/fdf_document.dart';
+import '../annotations/fdf_parser.dart';
+import '../annotations/json_document.dart';
+import '../annotations/json_parser.dart';
+import '../annotations/pdf_action_annotation.dart';
+import '../annotations/pdf_annotation.dart';
+import '../annotations/pdf_annotation_collection.dart';
+import '../annotations/pdf_text_web_link.dart';
+import '../annotations/xfdf_parser.dart';
 import '../color_space/pdf_icc_color_profile.dart';
 import '../forms/pdf_form.dart';
 import '../forms/pdf_form_field_collection.dart';
+import '../forms/pdf_xfdf_document.dart';
 import '../general/file_specification_base.dart';
 import '../general/pdf_destination.dart';
 import '../general/pdf_named_destination.dart';
@@ -773,6 +786,67 @@ class PdfDocument {
     _helper.currentSavingObject = null;
   }
 
+  /// Export the annotation data to UTF8 bytes with the specific [PdfAnnotationDataFormat].
+  ///
+  /// To export specific annotations, annotation types, appearances, and
+  /// add a file name to the export format, we can use the named parameters
+  /// exportList, exportTypes, exportAppearance, and fileName respectively.
+  ///
+  /// ```dart
+  /// //Load an existing PDF document.
+  /// PdfDocument document =
+  ///     PdfDocument(inputBytes: File('input.pdf').readAsBytesSync());
+  /// //Export annotations in specific PdfAnnotationDataFormat format.
+  /// List<int> bytes = document.exportAnnotation(PdfAnnotationDataFormat.fdf,
+  ///     fileName: 'PDFExportDocument');
+  /// //Save the exported data.
+  /// File('export.fdf').writeAsBytesSync(bytes);
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  List<int> exportAnnotation(PdfAnnotationDataFormat format,
+      {String? fileName,
+      List<PdfAnnotation>? exportList,
+      List<PdfAnnotationExportType>? exportTypes,
+      bool exportAppearance = false}) {
+    List<int> bytes = <int>[];
+    if (format == PdfAnnotationDataFormat.xfdf) {
+      bytes = _helper.exportXfdf(
+          fileName, exportList, exportTypes, exportAppearance);
+    } else if (format == PdfAnnotationDataFormat.fdf) {
+      bytes = _helper.exportFdf(
+          fileName, exportList, exportTypes, exportAppearance);
+    } else if (format == PdfAnnotationDataFormat.json) {
+      bytes = _helper.exportJson(
+          fileName, exportList, exportTypes, exportAppearance);
+    }
+    return bytes;
+  }
+
+  /// Import the annotation data from UTF8 bytes with the specific [PdfAnnotationDataFormat].
+  ///
+  /// ```dart
+  /// //Load an existing PDF document.
+  /// PdfDocument document =
+  ///     PdfDocument(inputBytes: File('input.pdf').readAsBytesSync());
+  /// //Import annotations in specific PdfAnnotationDataFormat format.
+  /// document.importAnnotation(
+  ///     File('input.fdf').readAsBytesSync(), PdfAnnotationDataFormat.fdf);
+  /// //Save the document.
+  /// File('output.pdf').writeAsBytesSync(await document.save());
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  void importAnnotation(List<int> data, PdfAnnotationDataFormat format) {
+    if (format == PdfAnnotationDataFormat.xfdf) {
+      _helper.importXfdf(data);
+    } else if (format == PdfAnnotationDataFormat.fdf) {
+      _helper.importFdf(data);
+    } else if (format == PdfAnnotationDataFormat.json) {
+      _helper.importJson(data);
+    }
+  }
+
   //Implementation
   void _initialize(List<int>? pdfData) {
     _helper._isAttachOnlyEncryption = false;
@@ -1080,10 +1154,10 @@ class PdfDocument {
   }
 
   Future<void> _onDocumentSavedAsync(DocumentSavedArgs args) async {
-    if (_helper.documentSavedList != null &&
-        _helper.documentSavedList!.isNotEmpty) {
-      for (int i = 0; i < _helper.documentSavedList!.length; i++) {
-        _helper.documentSavedList![i](this, args);
+    if (_helper.documentSavedListAsync != null &&
+        _helper.documentSavedListAsync!.isNotEmpty) {
+      for (int i = 0; i < _helper.documentSavedListAsync!.length; i++) {
+        await _helper.documentSavedListAsync![i](this, args);
       }
     }
   }
@@ -1199,6 +1273,9 @@ class PdfDocumentHelper {
 
   /// internal field
   List<DocumentSavedHandler>? documentSavedList;
+
+  /// internal field
+  List<DocumentSavedHandlerAsync>? documentSavedListAsync;
 
   /// internal field
   late PdfMainObjectCollection objects;
@@ -1391,15 +1468,17 @@ class PdfDocumentHelper {
             }
           } else {
             final PdfDestination? dest = (current as PdfBookmark).destination;
-            final PdfPage page = dest!.page;
-            List<dynamic>? list = _bookmarkHashTable!.containsKey(page)
-                ? _bookmarkHashTable![page] as List<dynamic>?
-                : null;
-            if (list == null) {
-              list = <dynamic>[];
-              _bookmarkHashTable![page] = list;
+            if (dest != null) {
+              final PdfPage page = dest.page;
+              List<dynamic>? list = _bookmarkHashTable!.containsKey(page)
+                  ? _bookmarkHashTable![page] as List<dynamic>?
+                  : null;
+              if (list == null) {
+                list = <dynamic>[];
+                _bookmarkHashTable![page] = list;
+              }
+              list.add(current);
             }
-            list.add(current);
           }
           ni.index = ni.index + 1;
           if (current.count > 0) {
@@ -1422,5 +1501,282 @@ class PdfDocumentHelper {
   /// internal method
   void setUserPassword(PdfPasswordArgs args) {
     base.onPdfPassword!(base, args);
+  }
+
+  /// Imports the FDF file bytes.
+  void importFdf(List<int> inputBytes) {
+    final FdfParser parser = FdfParser(inputBytes);
+    parser.parseAnnotationData();
+    parser.importAnnotations(base);
+    parser.dispose();
+  }
+
+  /// Imports the FDF file bytes.
+  void importJson(List<int> inputBytes) {
+    final JsonParser parser = JsonParser(base);
+    parser.importAnnotationData(inputBytes);
+  }
+
+  /// Imports the XFDF file bytes.
+  void importXfdf(List<int> data) {
+    final XfdfParser parser = XfdfParser(data, base);
+    parser.parseAndImportAnnotationData();
+  }
+
+  /// Exports annotation to FDF file bytes.
+  List<int> exportFdf(String? fileName, List<PdfAnnotation>? exportAnnotation,
+      List<PdfAnnotationExportType>? exportTypes, bool exportAppearance) {
+    const String genNumber =
+        '${PdfOperators.whiteSpace}0${PdfOperators.whiteSpace}';
+    const String startDictionary = '<<${PdfOperators.slash}';
+    final List<int> fdfBytes = <int>[];
+    fdfBytes.addAll(utf8.encode('%FDF-1.2${PdfOperators.newLine}'));
+    int currentID = 2;
+    final List<String> annotID = <String>[];
+    final List<String> annotType = <String>[];
+    _getExportTypes(exportTypes, annotType);
+    if (exportAnnotation != null && exportAnnotation.isNotEmpty) {
+      for (int i = 0; i < exportAnnotation.length; i++) {
+        final PdfAnnotation annotation = exportAnnotation[i];
+        final PdfAnnotationHelper helper =
+            PdfAnnotationHelper.getHelper(annotation);
+        if (helper.isLoadedAnnotation &&
+            (annotType.isEmpty ||
+                annotType.contains(_getAnnotationType(helper.dictionary!))) &&
+            !(annotation is PdfLinkAnnotation ||
+                annotation is PdfTextWebLink) &&
+            annotation.page != null) {
+          final FdfDocument fdfDocument =
+              FdfDocument(helper.dictionary!, annotation.page!);
+          final Map<String, dynamic> result = fdfDocument.exportAnnotations(
+              currentID,
+              annotID,
+              base.pages.indexOf(annotation.page!),
+              _checkForStamp(helper.dictionary!) == 'Stamp' ||
+                  exportAppearance);
+          fdfBytes.addAll(result['exportData'] as List<int>);
+          currentID = result['currentID'] as int;
+        }
+      }
+    } else {
+      for (int i = 0; i < base.pages.count; i++) {
+        final PdfPage page = base.pages[i];
+        final PdfPageHelper pageHelper = PdfPageHelper.getHelper(page);
+        pageHelper.createAnnotations(pageHelper.getWidgetReferences());
+        for (int j = 0; j < pageHelper.terminalAnnotation.length; j++) {
+          final PdfDictionary annotationDictionary =
+              pageHelper.terminalAnnotation[j];
+          if ((annotType.isEmpty ||
+                  annotType
+                      .contains(_getAnnotationType(annotationDictionary))) &&
+              !isLinkAnnotation(annotationDictionary)) {
+            final FdfDocument fdfDocument =
+                FdfDocument(annotationDictionary, page);
+            final Map<String, dynamic> result = fdfDocument.exportAnnotations(
+                currentID,
+                annotID,
+                i,
+                _checkForStamp(annotationDictionary) == 'Stamp' ||
+                    exportAppearance);
+            fdfBytes.addAll(result['exportData'] as List<int>);
+            currentID = result['currentID'] as int;
+          }
+        }
+      }
+    }
+    fileName ??= '';
+    if (currentID != 2) {
+      const String root = '1$genNumber';
+      fdfBytes.addAll(utf8.encode(
+          '${'$root${PdfOperators.obj}${PdfOperators.newLine}${startDictionary}FDF$startDictionary${PdfDictionaryProperties.annots}'}['));
+      for (int i = 0; i < annotID.length - 1; i++) {
+        fdfBytes.addAll(utf8.encode(
+            '${annotID[i]}$genNumber${PdfDictionaryProperties.r}${PdfOperators.whiteSpace}'));
+      }
+      fdfBytes.addAll(utf8.encode(
+          '${annotID[annotID.length - 1]}$genNumber${PdfDictionaryProperties.r}]${PdfOperators.slash}${PdfDictionaryProperties.f}($fileName)${PdfOperators.slash}${PdfDictionaryProperties.uf}($fileName)>>${PdfOperators.slash}${PdfDictionaryProperties.type}${PdfOperators.slash}${PdfDictionaryProperties.catalog}>>${PdfOperators.newLine}${PdfOperators.endobj}${PdfOperators.newLine}'));
+      fdfBytes.addAll(utf8.encode(
+          '${PdfOperators.trailer}${PdfOperators.newLine}$startDictionary${PdfDictionaryProperties.root}${PdfOperators.whiteSpace}$root${PdfDictionaryProperties.r}>>${PdfOperators.newLine}${PdfOperators.endOfFileMarker}${PdfOperators.newLine}'));
+    }
+    return fdfBytes;
+  }
+
+  /// Exports annotation to JSON file bytes.
+  List<int> exportJson(String? fileName, List<PdfAnnotation>? exportAnnotation,
+      List<PdfAnnotationExportType>? exportTypes, bool exportAppearance) {
+    String json = '{"pdfAnnotation":{';
+    bool isAnnotationAdded = false;
+    JsonDocument? jsonDocument = JsonDocument(base);
+    final Map<String, String> table = <String, String>{};
+    final List<String> annotType = <String>[];
+    _getExportTypes(exportTypes, annotType);
+    if (exportAnnotation != null && exportAnnotation.isNotEmpty) {
+      final Map<int, String> table1 = <int, String>{};
+      String? tempJson = '';
+      for (int j = 0; j < exportAnnotation.length; j++) {
+        final PdfDictionary annotationDictionary =
+            PdfAnnotationHelper.getHelper(exportAnnotation[j]).dictionary!;
+        if ((annotType.isEmpty ||
+                annotType.contains(_getAnnotationType(annotationDictionary))) &&
+            exportAnnotation[j].page != null) {
+          final int pageIndex = base.pages.indexOf(exportAnnotation[j].page!);
+          if (pageIndex >= 0) {
+            if (table1.containsKey(pageIndex)) {
+              tempJson = '${table1[pageIndex]!},';
+            } else {
+              tempJson = '"$pageIndex":{ "shapeAnnotation":[';
+            }
+            jsonDocument.exportAnnotationData(
+                table,
+                exportAppearance,
+                base.pages.indexOf(exportAnnotation[j].page!),
+                annotationDictionary);
+            tempJson += jsonDocument.convertToJson(table);
+            table1[pageIndex] = tempJson;
+            table.clear();
+          }
+        }
+      }
+      final List<String> values = table1.values.toList();
+      for (int i = 0; i < values.length; i++) {
+        json += table1[i]! + ((i < values.length - 1) ? ']},' : ']}');
+      }
+      table1.clear();
+      values.clear();
+    } else {
+      for (int i = 0; i < base.pages.count; i++) {
+        final PdfPageHelper pageHelper = PdfPageHelper.getHelper(base.pages[i]);
+        pageHelper.createAnnotations(pageHelper.getWidgetReferences());
+        if (pageHelper.terminalAnnotation.isNotEmpty) {
+          json += (i != 0 && isAnnotationAdded) ? ',' : ' ';
+          json += '"$i":{ "shapeAnnotation":[';
+          isAnnotationAdded = true;
+        }
+        for (int j = 0; j < pageHelper.terminalAnnotation.length; j++) {
+          final PdfDictionary annotationDictionary =
+              pageHelper.terminalAnnotation[j];
+          if (annotType.isEmpty ||
+              annotType.contains(_getAnnotationType(annotationDictionary))) {
+            jsonDocument.exportAnnotationData(
+                table, exportAppearance, i, annotationDictionary);
+            json += jsonDocument.convertToJson(table);
+            if (j < pageHelper.terminalAnnotation.length - 1) {
+              json += ',';
+            }
+            table.clear();
+          }
+        }
+        if (pageHelper.terminalAnnotation.isNotEmpty) {
+          json += ']}';
+        }
+      }
+    }
+    jsonDocument = null;
+    json += '}}';
+    return utf8.encode(json);
+  }
+
+  /// Exports annotation to XFDF file bytes.
+  List<int> exportXfdf(String? fileName, List<PdfAnnotation>? exportAnnotation,
+      List<PdfAnnotationExportType>? exportTypes, bool exportAppearance) {
+    final XFdfDocument xfdf = XFdfDocument(fileName ?? '');
+    final List<XmlElement> elements = <XmlElement>[];
+    final List<String> annotType = <String>[];
+    _getExportTypes(exportTypes, annotType);
+    if (exportAnnotation != null && exportAnnotation.isNotEmpty) {
+      for (int j = 0; j < exportAnnotation.length; j++) {
+        if (annotType.isEmpty ||
+            annotType.contains(_getAnnotationType(
+                PdfAnnotationHelper.getHelper(exportAnnotation[j])
+                    .dictionary!))) {
+          final XmlElement? element = xfdf.exportAnnotationData(
+              PdfAnnotationHelper.getHelper(exportAnnotation[j]).dictionary!,
+              base.pages.indexOf(exportAnnotation[j].page!),
+              exportAppearance,
+              base);
+          if (element != null) {
+            elements.add(element);
+          }
+        }
+      }
+    } else {
+      for (int i = 0; i < base.pages.count; i++) {
+        final PdfPageHelper pageHelper = PdfPageHelper.getHelper(base.pages[i]);
+        pageHelper.createAnnotations(pageHelper.getWidgetReferences());
+        for (int j = 0; j < pageHelper.terminalAnnotation.length; j++) {
+          final PdfDictionary annotationDictionary =
+              pageHelper.terminalAnnotation[j];
+          if (annotType.isEmpty ||
+              annotType.contains(_getAnnotationType(annotationDictionary))) {
+            final XmlElement? element = xfdf.exportAnnotationData(
+                annotationDictionary, i, exportAppearance, base);
+            if (element != null) {
+              elements.add(element);
+            }
+          }
+        }
+      }
+    }
+    return xfdf.save(elements);
+  }
+
+  void _getExportTypes(
+      List<PdfAnnotationExportType>? types, List<String> annotType) {
+    if (types != null && types.isNotEmpty) {
+      for (int i = 0; i < types.length; i++) {
+        String annotationType = getEnumName(types[i]);
+        switch (annotationType) {
+          case 'HighlightAnnotation':
+            annotationType = 'Highlight';
+            break;
+          case 'UnderlineAnnotation':
+            annotationType = 'Underline';
+            break;
+          case 'StrikeOutAnnotation':
+            annotationType = 'StrikeOut';
+            break;
+          case 'SquigglyAnnotation':
+            annotationType = 'Squiggly';
+            break;
+        }
+        annotType.add(annotationType);
+      }
+    }
+  }
+
+  String _getAnnotationType(PdfDictionary dictionary) {
+    if (dictionary.containsKey(PdfDictionaryProperties.subtype)) {
+      final PdfName name = PdfAnnotationHelper.getValue(
+              dictionary, crossTable, PdfDictionaryProperties.subtype, true)!
+          as PdfName;
+      final PdfAnnotationTypes type =
+          PdfAnnotationCollectionHelper.getAnnotationType(
+              name, dictionary, crossTable);
+      return getEnumName(type);
+    }
+    return '';
+  }
+
+  String _checkForStamp(PdfDictionary dictionary) {
+    if (dictionary.containsKey(PdfDictionaryProperties.subtype)) {
+      final IPdfPrimitive? name = PdfCrossTable.dereference(
+          dictionary[PdfDictionaryProperties.subtype]);
+      if (name != null && name is PdfName) {
+        return name.name ?? '';
+      }
+    }
+    return '';
+  }
+
+  /// Internal method.
+  static bool isLinkAnnotation(PdfDictionary annotationDictionary) {
+    if (annotationDictionary.containsKey(PdfDictionaryProperties.subtype)) {
+      final IPdfPrimitive? name = PdfCrossTable.dereference(
+          annotationDictionary[PdfDictionaryProperties.subtype]);
+      if (name != null && name is PdfName) {
+        return name.name == 'Link';
+      }
+    }
+    return false;
   }
 }

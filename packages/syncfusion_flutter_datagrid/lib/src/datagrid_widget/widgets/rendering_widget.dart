@@ -601,13 +601,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
   }
 
   Rect _getRowRect(DataGridConfiguration dataGridConfiguration, Offset offset,
-      {bool isHoveredLayer = false, double indentColumn = -1}) {
-    final double indentColumnWidth =
-        dataGridConfiguration.dataGridThemeHelper!.indentColumnWidth;
-    final int indentColumnCount =
-        dataGridConfiguration.source.groupedColumns.length;
-    final bool directionRTL =
-        dataGridConfiguration.textDirection == TextDirection.rtl;
+      {bool isHoveredLayer = false, bool isCurrentRowBorderLayer = false}) {
     bool needToSetMaxConstraint() =>
         dataGridConfiguration.container.extentWidth <
             dataGridConfiguration.viewWidth &&
@@ -620,74 +614,101 @@ class RenderVirtualizingCellsWidget extends RenderBox
           dataGridConfiguration.viewWidth,
           dataGridConfiguration.footerHeight);
     } else {
-      return Rect.fromLTWH(
-          needToSetMaxConstraint()
-              ? constraints.maxWidth -
-                  min(dataGridConfiguration.container.extentWidth,
+      late int indentCount;
+      final bool isRTLDirection =
+          dataGridConfiguration.textDirection == TextDirection.rtl;
+
+      // Current row border is applicable for both data row and caption summary covered row
+      // So, considered the row type with this `isCurrentRowBorderLayer` flag itself.
+      isCurrentRowBorderLayer = isCurrentRowBorderLayer &&
+          (dataRow.rowType == RowType.dataRow ||
+              dataRow.rowType == RowType.captionSummaryCoveredRow);
+
+      if (isCurrentRowBorderLayer &&
+          dataRow.rowType == RowType.captionSummaryCoveredRow) {
+        final dynamic rowData = dataRow.rowData;
+        if (rowData != null && rowData is Group) {
+          indentCount = rowData.level - 1;
+        }
+      } else {
+        indentCount = dataGridConfiguration.source.groupedColumns.length;
+      }
+
+      final double indentColumnsWidth =
+          dataGridConfiguration.dataGridThemeHelper!.indentColumnWidth *
+              indentCount;
+
+      double dx = needToSetMaxConstraint()
+          ? constraints.maxWidth -
+              min(dataGridConfiguration.container.extentWidth,
+                  dataGridConfiguration.viewWidth) -
+              dataGridConfiguration.container.horizontalOffset
+          : dataGridConfiguration.container.horizontalOffset;
+
+      if (isCurrentRowBorderLayer ||
+          (isHoveredLayer && dataRow.rowType == RowType.dataRow)) {
+        if (indentColumnsWidth > 0) {
+          if (!isRTLDirection) {
+            dx = max(dx, indentColumnsWidth);
+          }
+        }
+      }
+
+      double width = needToSetMaxConstraint()
+          ? constraints.maxWidth
+          : min(dataGridConfiguration.container.extentWidth,
+              dataGridConfiguration.viewWidth);
+
+      if (isCurrentRowBorderLayer ||
+          (isHoveredLayer && dataRow.rowType == RowType.dataRow)) {
+        if (indentColumnsWidth > 0) {
+          // Need to remove the left side view space from the width in RTL mode when
+          // the datagrid is unscrollable.
+          if (needToSetMaxConstraint() &&
+              (isHoveredLayer && dataRow.rowType == RowType.dataRow)) {
+            width -= dataGridConfiguration.viewWidth -
+                dataGridConfiguration.container.extentWidth;
+          }
+
+          double scrollOffset = 0.0;
+          if (isRTLDirection) {
+            if (dataGridConfiguration.container.extentWidth >
+                dataGridConfiguration.viewWidth) {
+              scrollOffset = (dataGridConfiguration.container.extentWidth -
                       dataGridConfiguration.viewWidth) -
-                  (offset.dx + dataGridConfiguration.container.horizontalOffset)
-              : dataGridConfiguration.source.groupedColumns.isNotEmpty &&
-                      !directionRTL
-                  ? (isHoveredLayer &&
-                          dataRow.rowType == RowType.captionSummaryCoveredRow)
-                      ? offset.dx +
-                          dataGridConfiguration.container.horizontalOffset
-                      : indentColumn >= 0
-                          ? max(offset.dx + indentColumn,
-                              dataGridConfiguration.container.horizontalOffset)
-                          : (dataRow.rowType ==
-                                      RowType.captionSummaryCoveredRow ||
-                                  dataRow.rowType == RowType.dataRow)
-                              ? max(
-                                  offset.dx +
-                                      (indentColumnWidth * indentColumnCount),
-                                  dataGridConfiguration
-                                      .container.horizontalOffset)
-                              : offset.dx +
-                                  dataGridConfiguration
-                                      .container.horizontalOffset
-                  : offset.dx +
-                      dataGridConfiguration.container.horizontalOffset,
-          offset.dy,
-          needToSetMaxConstraint()
-              ? constraints.maxWidth - indentColumn
-              : dataGridConfiguration.source.groupedColumns.isNotEmpty &&
-                      directionRTL
-                  ? (isHoveredLayer &&
-                          dataRow.rowType == RowType.captionSummaryCoveredRow)
-                      ? min(dataGridConfiguration.container.extentWidth,
-                          dataGridConfiguration.viewWidth)
-                      : indentColumn >= 0
-                          ? min(dataGridConfiguration.container.extentWidth,
-                                  dataGridConfiguration.viewWidth) -
-                              (offset.dx + indentColumn)
-                          : min(dataGridConfiguration.container.extentWidth,
-                                  dataGridConfiguration.viewWidth) -
-                              min(
-                                  indentColumnWidth * indentColumnCount,
-                                  dataGridConfiguration
-                                      .container.horizontalOffset)
-                  : dataRow.rowType == RowType.dataRow
-                      ? min(dataGridConfiguration.container.extentWidth,
-                              dataGridConfiguration.viewWidth) -
-                          (indentColumnWidth * indentColumnCount)
-                      : min(dataGridConfiguration.container.extentWidth,
-                          dataGridConfiguration.viewWidth),
-          (isHoveredLayer &&
-                  dataRow.isHoveredRow &&
-                  (dataGridConfiguration.gridLinesVisibility ==
-                          GridLinesVisibility.horizontal ||
-                      dataGridConfiguration.gridLinesVisibility ==
-                          GridLinesVisibility.both))
-              ? constraints.maxHeight -
-                  dataGridConfiguration.dataGridThemeHelper!.gridLineStrokeWidth
-              : constraints.maxHeight);
+                  dataGridConfiguration.container.horizontalOffset;
+            }
+          } else {
+            scrollOffset = dataGridConfiguration.container.horizontalOffset;
+          }
+
+          if (scrollOffset < indentColumnsWidth) {
+            width -= indentColumnsWidth - scrollOffset;
+          }
+        }
+      }
+
+      final double height = (isHoveredLayer &&
+              dataRow.isHoveredRow &&
+              (dataGridConfiguration.gridLinesVisibility ==
+                      GridLinesVisibility.horizontal ||
+                  dataGridConfiguration.gridLinesVisibility ==
+                      GridLinesVisibility.both))
+          ? constraints.maxHeight -
+              dataGridConfiguration.dataGridThemeHelper!.gridLineStrokeWidth!
+          : constraints.maxHeight;
+
+      return Rect.fromLTWH(offset.dx + dx, offset.dy, width, height);
     }
   }
 
   void _drawRowBackground(DataGridConfiguration dataGridConfiguration,
       PaintingContext context, Offset offset) {
-    final Rect rect = _getRowRect(dataGridConfiguration, offset);
+    // Need to consider the selected row as hovered layer to avoid apply
+    // selection for the indent columns.
+    final Rect rect = _getRowRect(dataGridConfiguration, offset,
+        isHoveredLayer: dataRow.isSelectedRow);
+
     Color? backgroundColor;
 
     Color getDefaultRowBackgroundColor() {
@@ -745,12 +766,13 @@ class RenderVirtualizingCellsWidget extends RenderBox
           dataRow.rowType == RowType.stackedHeaderRow) {
         backgroundColor =
             dataGridConfiguration.dataGridThemeHelper!.headerColor;
-        drawSpannedRowBackgroundColor(backgroundColor);
+        drawSpannedRowBackgroundColor(backgroundColor!);
       } else if (dataRow.rowType == RowType.footerRow) {
         backgroundColor = getDefaultRowBackgroundColor();
       } else if (dataRow.rowType == RowType.tableSummaryRow ||
           dataRow.rowType == RowType.tableSummaryCoveredRow) {
-        backgroundColor = dataRow.tableSummaryRow?.color;
+        backgroundColor = dataRow.tableSummaryRow?.color ??
+            dataGridConfiguration.dataGridThemeHelper!.tableSummaryRowColor;
       } else if (dataRow.rowType == RowType.captionSummaryCoveredRow) {
         backgroundColor = getDefaultRowBackgroundColor();
       } else {
@@ -780,23 +802,6 @@ class RenderVirtualizingCellsWidget extends RenderBox
         ((dataGridConfiguration.navigationMode == GridNavigationMode.cell &&
                 dataRow.rowType == RowType.captionSummaryCoveredRow) ||
             dataGridConfiguration.navigationMode == GridNavigationMode.row)) {
-      double indentColumnWidths = 0;
-      final List<ColumnGroup> groupedColumns =
-          dataGridConfiguration.source.groupedColumns;
-      final DataGridThemeHelper? themeHelper =
-          dataGridConfiguration.dataGridThemeHelper;
-
-      if (groupedColumns.isNotEmpty) {
-        final int currentRowIndex = dataGridConfiguration.currentCell.rowIndex;
-        final dynamic groupItem = getGroupElement(dataGridConfiguration,
-            resolveStartRecordIndex(dataGridConfiguration, currentRowIndex));
-
-        final double indentColumnWidth = themeHelper!.indentColumnWidth;
-        final int level =
-            groupItem is Group ? groupItem.level - 1 : groupedColumns.length;
-
-        indentColumnWidths = indentColumnWidth * level;
-      }
       bool needToSetMaxConstraint() =>
           dataGridConfiguration.container.extentWidth <
               dataGridConfiguration.viewWidth &&
@@ -804,11 +809,12 @@ class RenderVirtualizingCellsWidget extends RenderBox
 
       const double stokeWidth = 1;
       final int origin = (stokeWidth / 2 +
-              dataGridConfiguration.dataGridThemeHelper!.gridLineStrokeWidth)
+              dataGridConfiguration.dataGridThemeHelper!.gridLineStrokeWidth!)
           .ceil();
 
       final Rect rowRect = _getRowRect(dataGridConfiguration, offset,
-          indentColumn: indentColumnWidths);
+          isCurrentRowBorderLayer: true);
+
       final double maxWidth = needToSetMaxConstraint()
           ? rowRect.width - rowRect.left
           : rowRect.right - rowRect.left;
@@ -1244,10 +1250,10 @@ class RenderVirtualizingCellsWidget extends RenderBox
         dataGridConfiguration.highlightRowOnHover &&
         dataRow.isHoveredRow) {
       dataGridConfiguration.gridPaint?.color =
-          dataGridConfiguration.dataGridThemeHelper!.rowHoverColor;
+          dataGridConfiguration.dataGridThemeHelper!.rowHoverColor!;
       if (dataRow.rowType == RowType.captionSummaryCoveredRow) {
-        dataGridConfiguration.gridPaint?.color =
-            dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.08);
+        dataGridConfiguration.gridPaint?.color = dataGridConfiguration
+            .dataGridThemeHelper!.captionSummaryRowHoverColor;
       }
       context.canvas.drawRect(
           _getRowRect(dataGridConfiguration, offset, isHoveredLayer: true),
@@ -1284,8 +1290,9 @@ class RenderVirtualizingCellsWidget extends RenderBox
     if (dataRow.rowType == RowType.tableSummaryRow ||
         dataRow.rowType == RowType.tableSummaryCoveredRow) {
       final BorderSide border = BorderSide(
-          width: dataGridConfiguration.dataGridThemeHelper!.gridLineStrokeWidth,
-          color: dataGridConfiguration.dataGridThemeHelper!.gridLineColor);
+          width:
+              dataGridConfiguration.dataGridThemeHelper!.gridLineStrokeWidth!,
+          color: dataGridConfiguration.dataGridThemeHelper!.gridLineColor!);
 
       if (dataGridConfiguration.textDirection == TextDirection.ltr) {
         paintBorder(context.canvas, getRowRect(), right: border);
@@ -1389,6 +1396,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
 
       if (dataRow.rowType == RowType.stackedHeaderRow ||
           dataRow.rowType == RowType.tableSummaryRow ||
+          dataRow.rowType == RowType.captionSummaryCoveredRow ||
           dataRow.rowType == RowType.tableSummaryCoveredRow) {
         dataCell =
             dataRow.visibleColumns.firstWhereOrNull((DataCellBase dataCell) {
@@ -1414,11 +1422,21 @@ class RenderVirtualizingCellsWidget extends RenderBox
     if (_dataCellBase != null &&
         _longPressStartDetails != null &&
         dataGridConfiguration.onCellLongPress != null) {
+      // Issue: FLUT-865739-A null exception occurred when expanding the group alongside the onCellTap callback.
+      // Reason: The grid column is null when the row type is caption summary covered row.
+      // Fix: Check the grid column is null or not before invoking the onCellLongPress callback.
+      final GridColumn? column =
+          grid_helper.getGridColumn(dataGridConfiguration, _dataCellBase!);
+
+      if (column == null) {
+        return;
+      }
+
       final DataGridCellLongPressDetails longPressDetails =
           DataGridCellLongPressDetails(
               rowColumnIndex: RowColumnIndex(
                   _dataCellBase!.rowIndex, _dataCellBase!.columnIndex),
-              column: _dataCellBase!.gridColumn!,
+              column: column,
               globalPosition: _longPressStartDetails!.globalPosition,
               localPosition: _longPressStartDetails!.localPosition);
       dataGridConfiguration.onCellLongPress!(longPressDetails);
@@ -2126,7 +2144,7 @@ class RenderGridCell extends RenderBox
       final DataGridConfiguration dataGridConfiguration =
           _dataGridStateDetails();
       dataGridConfiguration.gridPaint!.color =
-          dataGridConfiguration.dataGridThemeHelper!.headerHoverColor;
+          dataGridConfiguration.dataGridThemeHelper!.headerHoverColor!;
       final Rect cellRect =
           Rect.fromLTRB(0, 0, constraints.maxWidth, constraints.maxHeight);
 

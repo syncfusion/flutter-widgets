@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../behaviors/trackball.dart';
 import '../common/callbacks.dart';
 import '../common/chart_point.dart';
-import '../interactions/trackball.dart';
 import '../series/chart_series.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -236,8 +236,7 @@ class TmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set valueField(String value) {
     if (_valueField != value) {
       _valueField = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -246,8 +245,7 @@ class TmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set period(int value) {
     if (_period != value) {
       _period = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -351,8 +349,8 @@ class TmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       l++;
     }
 
-    xMin = min(xMin, xMinimum);
-    xMax = max(xMax, xMaximum);
+    xMin = xMinimum.isInfinite ? xMin : xMinimum;
+    xMax = xMaximum.isInfinite ? xMax : xMaximum;
     yMin = min(yMin, yMinimum);
     yMax = max(yMax, yMaximum);
   }
@@ -385,14 +383,18 @@ class TmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     final int nearestPointIndex = _findNearestPoint(signalLinePoints, position);
     if (nearestPointIndex != -1) {
       final CartesianChartPoint<D> chartPoint = _chartPoint(nearestPointIndex);
+      final String text = defaultLegendItemText();
       return <ChartTrackballInfo<T, D>>[
         ChartTrackballInfo<T, D>(
           position: signalLinePoints[nearestPointIndex],
           point: chartPoint,
           series: this,
           pointIndex: nearestPointIndex,
+          segmentIndex: nearestPointIndex,
           seriesIndex: index,
-          name: defaultLegendItemText(),
+          name: text,
+          header: tooltipHeaderText(chartPoint),
+          text: trackballText(chartPoint, text),
           color: signalLineColor,
         )
       ];

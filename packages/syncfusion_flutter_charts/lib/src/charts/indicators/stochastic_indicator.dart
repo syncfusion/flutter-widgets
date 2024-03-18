@@ -3,10 +3,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../behaviors/trackball.dart';
 import '../common/callbacks.dart';
 import '../common/chart_point.dart';
-import '../interactions/trackball.dart';
 import '../series/chart_series.dart';
+import '../utils/constants.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
@@ -521,6 +522,11 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   final List<CartesianChartPoint<D>> _periodChartPoints =
       <CartesianChartPoint<D>>[];
 
+  num _xMinimum = double.infinity;
+  num _xMaximum = double.negativeInfinity;
+  num _yMinimum = double.infinity;
+  num _yMaximum = double.negativeInfinity;
+
   bool get showZones => _showZones;
   bool _showZones = true;
   set showZones(bool value) {
@@ -535,8 +541,7 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set overbought(double value) {
     if (_overbought != value) {
       _overbought = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -545,8 +550,7 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set oversold(double value) {
     if (_oversold != value) {
       _oversold = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -609,8 +613,7 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set period(int value) {
     if (_period != value) {
       _period = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -619,8 +622,7 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set kPeriod(num value) {
     if (_kPeriod != value) {
       _kPeriod = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -629,8 +631,7 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set dPeriod(num value) {
     if (_dPeriod != value) {
       _dPeriod = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -682,27 +683,28 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       _calculateStochasticIndicatorValues();
     }
 
+    xMin = _xMinimum.isInfinite ? xMin : _xMinimum;
+    xMax = _xMaximum.isInfinite ? xMax : _xMaximum;
+    yMin = min(yMin, _yMinimum);
+    yMax = max(yMax, _yMaximum);
+
     populateChartPoints();
   }
 
   void _calculateZones() {
     if (showZones) {
-      num yMinimum = double.infinity;
-      num yMaximum = double.negativeInfinity;
-
       for (int i = 0; i < dataCount; i++) {
         final double x = xValues[i].toDouble();
         final double minY = min(overbought, oversold);
         final double maxY = max(overbought, oversold);
-        yMinimum = min(yMinimum, minY);
-        yMaximum = max(yMaximum, maxY);
+        _xMinimum = min(_xMinimum, x);
+        _xMaximum = max(_xMaximum, x);
+        _yMinimum = min(_yMinimum, minY);
+        _yMaximum = max(_yMaximum, maxY);
 
         _upperLineActualValues.add(Offset(x, overbought));
         _lowerLineActualValues.add(Offset(x, oversold));
       }
-
-      yMin = min(yMin, yMinimum);
-      yMax = max(yMax, yMaximum);
     }
   }
 
@@ -738,31 +740,21 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         tempCount = temp.length;
       }
 
-      num xMinimum = double.infinity;
-      num xMaximum = double.negativeInfinity;
-      num yMinimum = double.infinity;
-      num yMaximum = double.negativeInfinity;
-
       final int total = count - 1;
       for (int i = 0; i < dataLength; i++) {
         if (!(i < total)) {
           final double x = data[i].dx;
           final double y = values[i - total].toDouble();
-          xMinimum = min(xMinimum, x);
-          xMaximum = max(xMaximum, x);
-          yMinimum = min(yMinimum, y);
-          yMaximum = max(yMaximum, y);
+          _xMinimum = min(_xMinimum, x);
+          _xMaximum = max(_xMaximum, x);
+          _yMinimum = min(_yMinimum, y);
+          _yMaximum = max(_yMaximum, y);
 
           final Offset offset = Offset(x, y);
           points.add(offset);
           data[i] = offset;
         }
       }
-
-      xMin = min(xMin, xMinimum);
-      xMax = max(xMax, xMaximum);
-      yMin = min(yMin, yMinimum);
-      yMax = max(yMax, yMaximum);
     }
 
     return points;
@@ -772,9 +764,6 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (_lowValues.isEmpty || _highValues.isEmpty || _closeValues.isEmpty) {
       return <Offset>[];
     }
-
-    num yMinimum = double.infinity;
-    num yMaximum = double.negativeInfinity;
 
     final List<num> lowValues = List<num>.filled(dataCount, -1);
     final List<num> highValues = List<num>.filled(dataCount, -1);
@@ -794,13 +783,16 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         maxValues.add(0);
         minValues.add(0);
 
+        final double x = xValues[i].toDouble();
         double y = _closeValues[i].toDouble();
         if (y.isNaN) {
           y = 0.0;
         }
 
-        yMinimum = min(yMinimum, y);
-        yMaximum = max(yMaximum, y);
+        _xMinimum = min(_xMinimum, x);
+        _xMaximum = max(_xMaximum, x);
+        _yMinimum = min(_yMinimum, y);
+        _yMaximum = max(_yMaximum, y);
         modifiedSourceValues.add(Offset(xValues[i].toDouble(), y));
       }
 
@@ -823,15 +815,15 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         top += closeValues[i] - minValues[i];
         bottom += maxValues[i] - minValues[i];
 
+        final double x = xValues[i].toDouble();
         final double y = (top / bottom) * 100;
-        yMinimum = min(yMinimum, y);
-        yMaximum = max(yMaximum, y);
-        modifiedSourceValues.add(Offset(xValues[i].toDouble(), y));
+        _xMinimum = min(_xMinimum, x);
+        _xMaximum = max(_xMaximum, x);
+        _yMinimum = min(_yMinimum, y);
+        _yMaximum = max(_yMaximum, y);
+        modifiedSourceValues.add(Offset(x, y));
       }
     }
-
-    yMin = min(yMin, yMinimum);
-    yMax = max(yMax, yMaximum);
 
     return modifiedSourceValues;
   }
@@ -844,14 +836,18 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (stocasticPointIndex != -1) {
       final CartesianChartPoint<D> stocasticPoint =
           _chartPoint(stocasticPointIndex, 'stocastic');
+      final String stocasticText = defaultLegendItemText();
       trackballInfo.add(
         ChartTrackballInfo<T, D>(
           position: signalLinePoints[stocasticPointIndex],
           point: stocasticPoint,
           series: this,
           pointIndex: stocasticPointIndex,
+          segmentIndex: stocasticPointIndex,
           seriesIndex: index,
-          name: defaultLegendItemText(),
+          name: stocasticText,
+          header: tooltipHeaderText(stocasticPoint),
+          text: trackballText(stocasticPoint, stocasticText),
           color: signalLineColor,
         ),
       );
@@ -866,8 +862,11 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           point: periodPoint,
           series: this,
           pointIndex: periodPointIndex,
+          segmentIndex: periodPointIndex,
           seriesIndex: index,
-          name: 'PeriodLine',
+          name: trackballPeriodLineText,
+          header: tooltipHeaderText(periodPoint),
+          text: trackballText(periodPoint, trackballPeriodLineText),
           color: periodLineColor,
         ),
       );
@@ -883,8 +882,11 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
             point: upperPoint,
             series: this,
             pointIndex: upperPointIndex,
+            segmentIndex: upperPointIndex,
             seriesIndex: index,
-            name: 'UpperLine',
+            name: trackballUpperLineText,
+            header: tooltipHeaderText(upperPoint),
+            text: trackballText(upperPoint, trackballUpperLineText),
             color: upperLineColor,
           ),
         );
@@ -899,8 +901,11 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
             point: lowerPoint,
             series: this,
             pointIndex: lowerPointIndex,
+            segmentIndex: lowerPointIndex,
             seriesIndex: index,
-            name: 'LowerLine',
+            name: trackballLowerLineText,
+            header: tooltipHeaderText(lowerPoint),
+            text: trackballText(lowerPoint, trackballLowerLineText),
             color: lowerLineColor,
           ),
         );
@@ -999,7 +1004,7 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     chartPoints.clear();
     _periodChartPoints.clear();
 
-    if (parent == null || yLists == null || yLists.isEmpty) {
+    if (parent == null || yLists.isEmpty) {
       return;
     }
 
@@ -1008,7 +1013,7 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     }
 
     final int yLength = yLists.length;
-    if (positions == null || positions.length != yLength) {
+    if (positions.length != yLength) {
       return;
     }
 

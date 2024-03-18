@@ -76,6 +76,7 @@ class PdfTextExtractor {
   bool _hasBDC = false;
   Bidi? _bidiInstance;
   MatrixHelper? _initialTransform;
+  String? _actualText;
 
   //Properties
   Bidi get _bidi {
@@ -243,7 +244,12 @@ class PdfTextExtractor {
     String resultText = '';
     for (int i = startPageIndex; i <= endPageIndex; i++) {
       final String text = _getText(_document.pages[i]);
-      resultText = resultText + (i > startPageIndex ? '\r\n' : '') + text;
+      resultText = resultText +
+          (i > startPageIndex &&
+                  (!_isLayout || (_isLayout && !resultText.endsWith('\n')))
+              ? '\r\n'
+              : '') +
+          text;
     }
     return resultText;
   }
@@ -389,7 +395,6 @@ class PdfTextExtractor {
           for (int x = 0; x < words.length; x++) {
             if (pagestring.contains(words[x]) && words[x].isNotEmpty) {
               glyphs = <TextGlyph>[];
-              String tempText = '';
               int lastIndex = i;
               for (int m = i; m < i + words[x].length; m++) {
                 final Glyph tempGlyph = renderer.imageRenderGlyphList[m];
@@ -403,12 +408,8 @@ class PdfTextExtractor {
                     _calculateBounds(glyphBounds),
                     textElement.fontSize,
                     tempGlyph.isRotated);
-                tempText += textGlyph.text;
                 glyphs.add(textGlyph);
                 lastIndex = m;
-                if (words[x] == tempText) {
-                  break;
-                }
               }
               Rect? wordBound;
               dx = renderer.imageRenderGlyphList[i].boundingRect.left;
@@ -469,7 +470,12 @@ class PdfTextExtractor {
               }
               if (x < words.length - 1 &&
                   i <= renderer.imageRenderGlyphList.length - 1 &&
-                  renderer.imageRenderGlyphList[i].toUnicode == ' ') {
+                  renderer.imageRenderGlyphList[i].toUnicode == ' ' &&
+                  ((renderer.imageRenderGlyphList[i].isRotated &&
+                          (rotation == 270 || rotation == 90)) ||
+                      renderer.imageRenderGlyphList[i].boundingRect.top
+                              .toInt() ==
+                          offsetY)) {
                 i = i + 1;
               }
             } else {
@@ -1298,12 +1304,27 @@ class PdfTextExtractor {
               resultantText += '\r\n';
               break;
             }
+          case 'BDC':
+            {
+              if (elements != null &&
+                  elements.length > 1 &&
+                  elements[1].contains('ActualText') &&
+                  elements[1].contains('(')) {
+                _initializeActualText(elements[1]);
+              }
+              break;
+            }
+          case 'EMC':
+            _actualText = null;
+            break;
           case 'Tj':
           case 'TJ':
           case "'":
             {
-              final String? resultText =
-                  _renderTextElement(elements!, token, pageResources, null);
+              final String? resultText = (_actualText != null &&
+                      _actualText!.isNotEmpty)
+                  ? _actualText
+                  : _renderTextElement(elements!, token, pageResources, null);
               if (resultText != null) {
                 resultantText += resultText;
               }
@@ -1339,7 +1360,6 @@ class PdfTextExtractor {
     String? currentText = '';
     bool hasTj = false;
     bool hasTm = false;
-    bool hasTJ = false;
     _hasBDC = false;
     String resultantText = '';
     double? textLeading = 0;
@@ -1378,6 +1398,7 @@ class PdfTextExtractor {
             }
           case 'Tm':
             {
+              hasTm = true;
               final double a = double.tryParse(elements![0])!;
               final double b = double.tryParse(elements[1])!;
               final double c = double.tryParse(elements[2])!;
@@ -1413,7 +1434,9 @@ class PdfTextExtractor {
               final int locationY = (current - prev) ~/ 10;
               if ((current != prev) &&
                   hasTm &&
-                  (locationY < 0 || locationY >= 1)) {
+                  (locationY < 0 || locationY >= 1) &&
+                  resultantText.isNotEmpty &&
+                  !resultantText.endsWith('\n')) {
                 resultantText += '\r\n';
                 hasTm = false;
               }
@@ -1423,9 +1446,19 @@ class PdfTextExtractor {
           case 'BDC':
             {
               _hasBDC = true;
-              _hasET = true;
+              if (elements != null &&
+                  elements.length > 1 &&
+                  elements[1].contains('ActualText') &&
+                  elements[1].contains('(')) {
+                _initializeActualText(elements[1]);
+              } else {
+                _hasET = true;
+              }
               break;
             }
+          case 'EMC':
+            _actualText = null;
+            break;
           case 'TD':
             {
               textLeading = double.tryParse(elements![1]);
@@ -1465,7 +1498,8 @@ class PdfTextExtractor {
                 _tempBoundingRectangle = Rect.zero;
                 _hasBDC = false;
               }
-              if ((_textLineMatrix!.offsetX - _currentTextMatrix!.offsetX) >
+              if ((_textLineMatrix!.offsetX - _currentTextMatrix!.offsetX)
+                          .abs() >
                       0 &&
                   !spaceBetweenWord &&
                   hasTj) {
@@ -1527,27 +1561,38 @@ class PdfTextExtractor {
               if (difference < 0) {
                 difference = -difference;
               }
-              if (spaceBetweenWord) {
+              if (prevY != 0 && difference >= 1) {
+                if (resultantText.isNotEmpty && !resultantText.endsWith('\n')) {
+                  resultantText += '\r\n';
+                }
+              } else if (spaceBetweenWord) {
                 if (differenceX > _fontSize!) {
                   differenceX = 0;
                 }
+                bool isEncoded = true;
+                if (elements != null) {
+                  final String text = elements.join();
+                  isEncoded = text[0] != '(' ||
+                      (text[0] == '(' && _hasOctalEscape(text));
+                }
                 if (currentToken == 'Tj' &&
-                    (_hasET || !hasTJ) &&
+                    (_hasET || !isEncoded) &&
                     resultantText.isNotEmpty &&
                     !resultantText.endsWith(' ')) {
                   resultantText += ' ';
                 }
-                spaceBetweenWord = false;
               }
+              spaceBetweenWord = false;
               hasTj = true;
-              if (prevY != 0 && difference >= 1) {
-                resultantText += '\r\n';
-              }
               currentText = currentToken == 'TJ'
                   ? _renderTextElementTJ(
                       elements!, token, pageResources, horizontalScaling)
                   : _renderTextElement(
                       elements!, token, pageResources, horizontalScaling);
+              if (_actualText != null && _actualText!.isNotEmpty) {
+                currentText = _actualText;
+                _actualText = null;
+              }
               _currentTextMatrix = _textLineMatrix!.clone();
               prevY = currentY;
               resultantText += currentText!;
@@ -1562,9 +1607,6 @@ class PdfTextExtractor {
               _textMatrix = _textLineMatrix!.clone();
               if (currentToken == 'TJ') {
                 _hasBDC = false;
-                hasTJ = true;
-              } else {
-                hasTJ = false;
               }
               break;
             }
@@ -1585,7 +1627,9 @@ class PdfTextExtractor {
               _hasLeading = true;
               if (prevY != 0 &&
                   (difference >= 1 ||
-                      (i > 0 && records[i - 1].operatorName! == "'"))) {
+                      (i > 0 && records[i - 1].operatorName! == "'")) &&
+                  resultantText.isNotEmpty &&
+                  !resultantText.endsWith('\n')) {
                 if (isSpaceAdded &&
                     resultantText.isNotEmpty &&
                     resultantText.endsWith(' ')) {
@@ -1632,6 +1676,20 @@ class PdfTextExtractor {
       resultantText = resultantText.substring(0, resultantText.length - 1);
     }
     return resultantText;
+  }
+
+  bool _hasOctalEscape(String input) {
+    final RegExp octalPattern = RegExp(r'\\[0-7]{1,3}');
+    return octalPattern.hasMatch(input);
+  }
+
+  void _initializeActualText(String text) {
+    _actualText = text.substring(text.indexOf('(') + 1, text.lastIndexOf(')'));
+    const String bigEndianPreambleString = 'þÿ';
+    if (_actualText != null &&
+        _actualText!.startsWith(bigEndianPreambleString)) {
+      _actualText = null;
+    }
   }
 
   String _skipEscapeSequence(String text) {

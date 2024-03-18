@@ -32,7 +32,7 @@ class TextElement {
   late List<Glyph> textElementGlyphList;
 
   /// internal field
-  bool? isExtractTextData;
+  late bool isExtractTextData;
 
   /// internal field
   late String fontName;
@@ -976,6 +976,14 @@ class TextElement {
         gly.width * tempFontSize,
         tempFontSize);
     textElementGlyphList.add(gly);
+    if (isExtractTextData && gly.toUnicode.length != 1) {
+      for (int i = 0; i < gly.toUnicode.length - 1; i++) {
+        final Glyph emptyGlyph = Glyph();
+        emptyGlyph.boundingRect =
+            Rect.fromLTWH(gly.boundingRect.right, gly.boundingRect.top, 0, 0);
+        textElementGlyphList.add(emptyGlyph);
+      }
+    }
     _updateTextMatrix(gly);
     transformations._popTransform();
     g.transformMatrix = defaultTransformations;

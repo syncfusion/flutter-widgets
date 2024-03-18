@@ -9,6 +9,7 @@ import '../../grid_common/scroll_axis.dart';
 import '../../grid_common/visible_line_info.dart';
 import '../grouping/grouping.dart';
 import '../runtime/column.dart';
+import '../runtime/generator.dart';
 import '../sfdatagrid.dart';
 import 'datagrid_configuration.dart';
 import 'enums.dart';
@@ -655,6 +656,8 @@ int? _getCompareValue(Object? cellValue, Object? filterValue) {
     return cellValue.compareTo(filterValue as num);
   } else if (cellValue is DateTime) {
     return cellValue.compareTo(filterValue as DateTime);
+  } else if (cellValue is Comparable) {
+    return cellValue.compareTo(filterValue);
   }
   return null;
 }
@@ -1224,4 +1227,22 @@ double resolveScrollOffsetToPosition(
   }
 
   return measuredScrollOffset;
+}
+
+/// This method helps to resolve getting the column for the tap interaction callbacks.
+GridColumn? getGridColumn(
+    DataGridConfiguration dataGridConfiguration, DataCellBase dataCell) {
+  GridColumn? column = dataCell.gridColumn;
+  if (dataCell.dataRow != null &&
+      (dataCell.dataRow!.rowType == RowType.captionSummaryCoveredRow ||
+          dataCell.dataRow!.rowType == RowType.tableSummaryCoveredRow)) {
+    final int startIndex = dataGridConfiguration.showCheckboxColumn ? 1 : 0;
+
+    column = dataGridConfiguration.columns.firstWhereOrNull(
+        (GridColumn element) =>
+            element.actualWidth > 0 &&
+            element.visible &&
+            dataGridConfiguration.columns.indexOf(element) >= startIndex);
+  }
+  return column;
 }

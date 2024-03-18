@@ -6,6 +6,7 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import '../../pdfviewer.dart';
 import '../common/pdfviewer_helper.dart';
+import '../theme/theme.dart';
 
 import 'bookmark_item.dart';
 import 'bookmark_toolbar.dart';
@@ -57,6 +58,7 @@ class BookmarkViewControllerState extends State<BookmarkView> {
   int? _listCount;
   LocalHistoryEntry? _historyEntry;
   SfPdfViewerThemeData? _pdfViewerThemeData;
+  SfPdfViewerThemeData? _effectiveThemeData;
   SfLocalizations? _localizations;
 
   /// If true, bookmark view is opened.
@@ -65,6 +67,9 @@ class BookmarkViewControllerState extends State<BookmarkView> {
   @override
   void didChangeDependencies() {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
+    _effectiveThemeData = Theme.of(context).useMaterial3
+        ? SfPdfViewerThemeDataM3(context)
+        : SfPdfViewerThemeDataM2(context);
     _localizations = SfLocalizations.of(context);
     super.didChangeDependencies();
   }
@@ -74,6 +79,7 @@ class BookmarkViewControllerState extends State<BookmarkView> {
     _bookmarkList!.clear();
     _bookmarkList = null;
     _pdfViewerThemeData = null;
+    _effectiveThemeData = null;
     _localizations = null;
     super.dispose();
   }
@@ -230,6 +236,7 @@ class BookmarkViewControllerState extends State<BookmarkView> {
           alignment: _isTablet ? Alignment.topRight : Alignment.center,
           child: Container(
             color: _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+                _effectiveThemeData!.bookmarkViewStyle?.backgroundColor ??
                 (Theme.of(context).colorScheme.brightness == Brightness.light
                     ? Colors.white
                     : const Color(0xFF212121)),

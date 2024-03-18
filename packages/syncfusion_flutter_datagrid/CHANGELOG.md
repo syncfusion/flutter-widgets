@@ -2,10 +2,52 @@
 
 **Features**
 
+* Implemented support for scrolling to a specific position upon initial loading.
+* Implemented support to filter the custom data types using the `strongDataType` behavior.
+
+**Bugs**
+
+* The auto row height is now working properly for the data rows when the sort and filter icons show in the column header.
+
+**Breaking changes**
+
+* Removed the deprecated `showFilterIconOnHover` property. The `showColumnHeaderIconOnHover` property is commonly used for showing both sort and filter icons.
+
+## [24.2.8] - 02/27/2024
+
+**Bugs**
+
+* The app now responds to the back key in Android when the datagrid is in focus.
+* The datagrid rows are now properly refreshed when adjusting the rows per page using the checkbox column.
+
+## [24.2.7] - 02/20/2024
+
+**Bugs**
+
+* The current page index now updates correctly when changing the number of rows per page at runtime.
+* The datagrid now correctly resets the frozen column count during runtime.
+* The filtering popup menu now displays correctly with Material 2.
+
+## [24.1.47] - 01/23/2024
+
+**Bugs**
+
+* The null exception will no longer be thrown when interactions are performed in the caption summary row with the interaction callbacks.
+
+## [24.1.43] - 12/27/2023
+
+**Bugs**
+
+* Now, the DataGrid properly refreshes the cell value when updated, triggered by calling `notifyDataSourceListeners` alongside the DataPager.
+
+## [24.1.41] - 12/18/2023
+
+**Features**
+
 * Provided support for grouping a collection of records based on particular categories, offering various customization options. This includes single and multiple column grouping, along with options to customize appearances and interactively expand and collapse a group.
 * Provided support for retrieving the start and end index of visible rows and columns based on the row region in the DataGrid.
 
-## [24.1.41] - 12/06/2023
+## [23.2.7] - 12/06/2023
 
 **Bugs**
 

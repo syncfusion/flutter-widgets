@@ -8,7 +8,7 @@ import 'der.dart';
 /// internal class
 class BerOctet extends DerOctet {
   /// internal constructor
-  BerOctet(List<int> bytes) : super(bytes);
+  BerOctet(super.bytes);
 
   /// internal constructor
   BerOctet.fromCollection(List<Asn1Encode> octets)
@@ -160,11 +160,10 @@ class BerTagHelper implements IAsn1Tag {
 /// internal class
 class BerSequence extends DerSequence {
   /// internal constructor
-  BerSequence({List<Asn1Encode>? array, Asn1EncodeCollection? collection})
-      : super(array: array, collection: collection);
+  BerSequence({List<Asn1Encode>? super.array, super.collection});
 
   /// internal constructor
-  BerSequence.fromObject(Asn1Encode? object) : super.fromObject(object);
+  BerSequence.fromObject(super.object) : super.fromObject();
 
   /// internal constructor
   static BerSequence empty = BerSequence();

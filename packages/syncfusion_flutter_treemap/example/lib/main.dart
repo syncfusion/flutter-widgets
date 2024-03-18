@@ -9,12 +9,9 @@ void main() {
 class TreemapApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Treemap Demo',
-      theme: ThemeData(
-        useMaterial3: false,
-      ),
-      home: const MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }

@@ -9,11 +9,7 @@ void main() {
 class CalendarApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Calendar Demo',
-      theme: ThemeData(useMaterial3: false),
-      home: const MyHomePage(),
-    );
+    return const MaterialApp(title: 'Calendar Demo', home: MyHomePage());
   }
 }
 

@@ -132,11 +132,14 @@ class PdfCheckBoxField extends PdfCheckFieldBase {
       String? val;
       if (_helper.isLoadedField) {
         val = _helper._enableCheckBox(value);
-        _helper._enableItems(value, val);
+        val = _helper._enableItems(value, val);
       }
       if (_checked) {
         _helper.dictionary!.setName(PdfName(PdfDictionaryProperties.v),
             val ?? PdfDictionaryProperties.yes);
+        _helper.dictionary!.setProperty(
+            PdfDictionaryProperties.usageApplication,
+            PdfName(val ?? PdfDictionaryProperties.yes));
       } else {
         _helper.dictionary!.remove(PdfDictionaryProperties.v);
         if (_helper.dictionary!
@@ -207,9 +210,9 @@ class PdfCheckBoxFieldHelper extends PdfCheckFieldBaseHelper {
     bool isChecked = false;
     String? val;
     if (dictionary!.containsKey(PdfDictionaryProperties.usageApplication)) {
-      final PdfName? state = PdfCrossTable.dereference(
-          dictionary![PdfDictionaryProperties.usageApplication]) as PdfName?;
-      if (state != null) {
+      final IPdfPrimitive? state = PdfCrossTable.dereference(
+          dictionary![PdfDictionaryProperties.usageApplication]);
+      if (state != null && state is PdfName) {
         isChecked = state.name != PdfDictionaryProperties.off;
       }
     }
@@ -219,36 +222,23 @@ class PdfCheckBoxFieldHelper extends PdfCheckFieldBaseHelper {
         if (val == null || val == '') {
           val = PdfDictionaryProperties.yes;
         }
-        dictionary!.setProperty(
-            PdfDictionaryProperties.usageApplication, PdfName(val));
         changed = true;
       }
     }
     return val;
   }
 
-  void _enableItems(bool check, String? value) {
+  String? _enableItems(bool check, String? value) {
     if (checkBoxField.items != null && checkBoxField.items!.count > 0) {
+      (checkBoxField.items![defaultIndex] as PdfCheckBoxItem).checked = check;
       final PdfDictionary? dic =
           PdfFieldItemHelper.getHelper(checkBoxField.items![defaultIndex])
               .dictionary;
       if (dic != null) {
-        if (value == null || value.isEmpty) {
-          value = getItemValue(dic, crossTable);
-        }
-        if (value == null || value.isEmpty) {
-          value = PdfDictionaryProperties.yes;
-        }
-        if (check) {
-          dic.setProperty(
-              PdfDictionaryProperties.usageApplication, PdfName(value));
-          dic.setProperty(PdfDictionaryProperties.v, PdfName(value));
-        } else {
-          dic.setName(PdfName(PdfDictionaryProperties.usageApplication),
-              PdfDictionaryProperties.off);
-        }
+        value = getItemValue(dic, crossTable);
       }
     }
+    return value;
   }
 
   /// internal method
@@ -303,7 +293,7 @@ class PdfCheckBoxFieldHelper extends PdfCheckFieldBaseHelper {
   @override
   void draw() {
     super.draw();
-    final PdfCheckFieldState state = checkBoxField.isChecked
+    PdfCheckFieldState state = checkBoxField.isChecked
         ? PdfCheckFieldState.checked
         : PdfCheckFieldState.unchecked;
     if (!isLoadedField) {
@@ -337,6 +327,9 @@ class PdfCheckBoxFieldHelper extends PdfCheckFieldBaseHelper {
         for (int i = 0; i < kids!.count; ++i) {
           final PdfCheckBoxItem item =
               checkBoxField._items![i] as PdfCheckBoxItem;
+          state = item.checked
+              ? PdfCheckFieldState.checked
+              : PdfCheckFieldState.unchecked;
           if (item.page != null) {
             drawStateItem(item.page!.graphics, state, null, item);
           }

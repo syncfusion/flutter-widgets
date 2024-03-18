@@ -951,8 +951,9 @@ class PdfEncryptor {
       List.copyRange(hashProvided, 0, _ownerPasswordOut!, 0, 32);
       List.copyRange(ownerValidationSalt, 0, _ownerPasswordOut!, 32, 40);
       int userKeyLength = 48;
-      if (_userPasswordOut!.length < 48)
+      if (_userPasswordOut!.length < 48) {
         userKeyLength = _userPasswordOut!.length;
+      }
       final List<int> mixedOwnerPassword = List<int>.filled(
           ownerPassword.length + ownerValidationSalt.length + userKeyLength, 0,
           growable: true);
@@ -1355,9 +1356,13 @@ class PdfEncryptor {
             PdfName(PdfDictionaryProperties.cryptFilter);
       } else {
         standardCryptFilter[PdfDictionaryProperties.cfm] = PdfName(
-            encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit
+            (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
+                    encryptionAlgorithm ==
+                        PdfEncryptionAlgorithm.aesx256BitRevision6)
                 ? PdfDictionaryProperties.aesv3
-                : PdfDictionaryProperties.aesv2);
+                : (encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit)
+                    ? 'V2'
+                    : PdfDictionaryProperties.aesv2);
       }
     }
     if (!standardCryptFilter.containsKey(PdfDictionaryProperties.authEvent)) {
@@ -1367,7 +1372,9 @@ class PdfEncryptor {
               : PdfDictionaryProperties.docOpen);
     }
     standardCryptFilter[PdfDictionaryProperties.length] = PdfNumber(
-        encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit
+        (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
+                encryptionAlgorithm ==
+                    PdfEncryptionAlgorithm.aesx256BitRevision6)
             ? _key256!
             : ((encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit ||
                     encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit)
@@ -1388,9 +1395,13 @@ class PdfEncryptor {
             PdfName(PdfDictionaryProperties.cryptFilter);
       } else {
         standardCryptFilter[PdfDictionaryProperties.cfm] = PdfName(
-            encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit
+            (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
+                    encryptionAlgorithm ==
+                        PdfEncryptionAlgorithm.aesx256BitRevision6)
                 ? PdfDictionaryProperties.aesv3
-                : PdfDictionaryProperties.aesv2);
+                : (encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit)
+                    ? 'V2'
+                    : PdfDictionaryProperties.aesv2);
       }
     }
     if (!standardCryptFilter.containsKey(PdfDictionaryProperties.authEvent)) {
@@ -1400,7 +1411,9 @@ class PdfEncryptor {
               : PdfDictionaryProperties.docOpen);
     }
     standardCryptFilter[PdfDictionaryProperties.length] = PdfNumber(
-        encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit
+        (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
+                encryptionAlgorithm ==
+                    PdfEncryptionAlgorithm.aesx256BitRevision6)
             ? _key256!
             : ((encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit ||
                     encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit)

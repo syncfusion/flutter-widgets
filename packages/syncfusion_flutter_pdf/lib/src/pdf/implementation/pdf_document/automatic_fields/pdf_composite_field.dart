@@ -1,4 +1,3 @@
-import '../../graphics/brushes/pdf_solid_brush.dart';
 import '../../graphics/fonts/pdf_font.dart';
 import '../../graphics/pdf_graphics.dart';
 import 'pdf_automatic_field.dart';
@@ -79,11 +78,10 @@ class PdfCompositeField extends PdfMultipleValueField {
   /// document.dispose();
   /// ```
   PdfCompositeField(
-      {PdfFont? font,
-      PdfBrush? brush,
+      {super.font,
+      super.brush,
       String? text,
-      List<PdfAutomaticField>? fields})
-      : super(font: font, brush: brush) {
+      List<PdfAutomaticField>? fields}) {
     this.text = (text == null) ? '' : text;
     if (fields != null) {
       this.fields = fields;

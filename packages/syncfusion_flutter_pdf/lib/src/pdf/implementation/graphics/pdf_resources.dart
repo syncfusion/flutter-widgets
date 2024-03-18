@@ -16,7 +16,7 @@ import 'pdf_transparency.dart';
 class PdfResources extends PdfDictionary {
   //Constructor
   /// Initializes a new instance of the [PdfResources] class.
-  PdfResources([PdfDictionary? baseDictionary]) : super(baseDictionary);
+  PdfResources([super.baseDictionary]);
 
   //Fields
   Map<IPdfPrimitive?, PdfName?>? _resourceNames;

@@ -75,6 +75,10 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 
 ![First row and column are frozen in flutter datagrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-freeze-panes.gif)
 
+**Grouping** - Allows users to organize and categorize data based on specific criteria, facilitating efficient interaction with summarized information.
+
+**Column drag and drop** - Interactively customize the arrangement of columns by dragging and dropping them, enhancing user flexibility and personalization in organizing and viewing data.
+
 **Swiping** - Swipe a row right to left or left to right for custom actions such as deleting, editing, and so on. When the user swipes a row, the row will be moved and the swipe view will show the custom actions.
 
 **Pull to refresh** - Allows users to refresh data when the DataGrid is pulled down.

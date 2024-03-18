@@ -617,7 +617,7 @@ class MonthViewSettings with Diagnosticable {
   final MonthNavigationDirection navigationDirection;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -982,7 +982,7 @@ class AgendaStyle with Diagnosticable {
   final Color? backgroundColor;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -1552,7 +1552,7 @@ class MonthCellStyle with Diagnosticable {
   final Color? leadingDatesBackgroundColor;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }

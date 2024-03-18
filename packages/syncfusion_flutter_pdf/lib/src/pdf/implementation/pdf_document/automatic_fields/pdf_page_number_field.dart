@@ -93,8 +93,7 @@ class PdfPageNumberField extends PdfMultipleValueField {
   /// document.dispose();
   /// ```
   PdfPageNumberField(
-      {PdfFont? font, PdfBrush? brush, Rect? bounds, bool? isSectionPageNumber})
-      : super(font: font, brush: brush, bounds: bounds) {
+      {super.font, super.brush, super.bounds, bool? isSectionPageNumber}) {
     _helper = PdfPageNumberFieldHelper(this);
     _helper._isSectionPageNumber =
         isSectionPageNumber != null && isSectionPageNumber;

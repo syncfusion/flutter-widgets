@@ -81,150 +81,143 @@ class SfSliderTheme extends InheritedTheme {
 /// for customizing the visual appearance of the slider.
 @immutable
 class SfSliderThemeData with Diagnosticable {
-  /// Returns a new instance of [SfSliderThemeData.raw] for the given values.
-  ///
-  /// If any of the values are null, the default values will be set.
-  factory SfSliderThemeData(
-      {Brightness? brightness,
-      double? activeTrackHeight,
-      double? inactiveTrackHeight,
-      Size? tickSize,
-      Size? minorTickSize,
-      Offset? tickOffset,
-      Offset? labelOffset,
-      TextStyle? inactiveLabelStyle,
-      TextStyle? activeLabelStyle,
-      TextStyle? tooltipTextStyle,
-      Color? inactiveTrackColor,
-      Color? activeTrackColor,
-      Color? thumbColor,
-      Color? activeTickColor,
-      Color? inactiveTickColor,
-      Color? disabledActiveTickColor,
-      Color? disabledInactiveTickColor,
-      Color? activeMinorTickColor,
-      Color? inactiveMinorTickColor,
-      Color? disabledActiveMinorTickColor,
-      Color? disabledInactiveMinorTickColor,
-      Color? overlayColor,
-      Color? inactiveDividerColor,
-      Color? activeDividerColor,
-      Color? disabledActiveTrackColor,
-      Color? disabledInactiveTrackColor,
-      Color? disabledActiveDividerColor,
-      Color? disabledInactiveDividerColor,
-      Color? disabledThumbColor,
-      Color? tooltipBackgroundColor,
-      Color? thumbStrokeColor,
-      Color? activeDividerStrokeColor,
-      Color? inactiveDividerStrokeColor,
-      double? trackCornerRadius,
-      double? overlayRadius,
-      double? thumbRadius,
-      double? activeDividerRadius,
-      double? inactiveDividerRadius,
-      double? thumbStrokeWidth,
-      double? activeDividerStrokeWidth,
-      double? inactiveDividerStrokeWidth}) {
+  /// Creating an argument constructor of SfSliderThemeData class.
+  const SfSliderThemeData({
+    this.activeTrackHeight = 6.0,
+    this.inactiveTrackHeight = 4.0,
+    this.tickSize,
+    this.minorTickSize,
+    this.tickOffset,
+    this.labelOffset,
+    this.inactiveLabelStyle,
+    this.activeLabelStyle,
+    this.tooltipTextStyle,
+    this.inactiveTrackColor,
+    this.activeTrackColor,
+    this.thumbColor,
+    this.thumbStrokeColor,
+    this.activeDividerStrokeColor,
+    this.inactiveDividerStrokeColor,
+    this.activeTickColor,
+    this.inactiveTickColor,
+    this.disabledActiveTickColor,
+    this.disabledInactiveTickColor,
+    this.activeMinorTickColor,
+    this.inactiveMinorTickColor,
+    this.disabledActiveMinorTickColor,
+    this.disabledInactiveMinorTickColor,
+    this.overlayColor,
+    this.inactiveDividerColor,
+    this.activeDividerColor,
+    this.disabledActiveTrackColor,
+    this.disabledInactiveTrackColor,
+    this.disabledActiveDividerColor,
+    this.disabledInactiveDividerColor,
+    this.disabledThumbColor,
+    this.tooltipBackgroundColor,
+    this.trackCornerRadius,
+    this.overlayRadius = 24.0,
+    this.thumbRadius = 10.0,
+    this.activeDividerRadius,
+    this.inactiveDividerRadius,
+    this.thumbStrokeWidth,
+    this.activeDividerStrokeWidth,
+    this.inactiveDividerStrokeWidth,
+  });
+
+  /// Returns a new instance of [SfSliderThemeData] for the given values.
+  factory SfSliderThemeData.raw({
+    Brightness? brightness,
+    double? activeTrackHeight,
+    double? inactiveTrackHeight,
+    Size? tickSize,
+    Size? minorTickSize,
+    Offset? tickOffset,
+    Offset? labelOffset,
+    TextStyle? inactiveLabelStyle,
+    TextStyle? activeLabelStyle,
+    TextStyle? tooltipTextStyle,
+    Color? inactiveTrackColor,
+    Color? activeTrackColor,
+    Color? thumbColor,
+    Color? activeTickColor,
+    Color? inactiveTickColor,
+    Color? disabledActiveTickColor,
+    Color? disabledInactiveTickColor,
+    Color? activeMinorTickColor,
+    Color? inactiveMinorTickColor,
+    Color? disabledActiveMinorTickColor,
+    Color? disabledInactiveMinorTickColor,
+    Color? overlayColor,
+    Color? inactiveDividerColor,
+    Color? activeDividerColor,
+    Color? disabledActiveTrackColor,
+    Color? disabledInactiveTrackColor,
+    Color? disabledActiveDividerColor,
+    Color? disabledInactiveDividerColor,
+    Color? disabledThumbColor,
+    Color? tooltipBackgroundColor,
+    Color? thumbStrokeColor,
+    Color? activeDividerStrokeColor,
+    Color? inactiveDividerStrokeColor,
+    double? trackCornerRadius,
+    double? overlayRadius,
+    double? thumbRadius,
+    double? activeDividerRadius,
+    double? inactiveDividerRadius,
+    double? thumbStrokeWidth,
+    double? activeDividerStrokeWidth,
+    double? inactiveDividerStrokeWidth,
+  }) {
     brightness = brightness ?? Brightness.light;
     activeTrackHeight ??= 6.0;
     inactiveTrackHeight ??= 4.0;
     overlayRadius ??= 24.0;
     thumbRadius ??= 10.0;
 
-    return SfSliderThemeData.raw(
-        brightness: brightness,
-        activeTrackHeight: activeTrackHeight,
-        inactiveTrackHeight: inactiveTrackHeight,
-        tickSize: tickSize,
-        minorTickSize: minorTickSize,
-        tickOffset: tickOffset,
-        labelOffset: labelOffset,
-        inactiveLabelStyle: inactiveLabelStyle,
-        activeLabelStyle: activeLabelStyle,
-        tooltipTextStyle: tooltipTextStyle,
-        inactiveTrackColor: inactiveTrackColor,
-        activeTrackColor: activeTrackColor,
-        inactiveDividerColor: inactiveDividerColor,
-        activeDividerColor: activeDividerColor,
-        thumbColor: thumbColor,
-        thumbStrokeColor: thumbStrokeColor,
-        activeDividerStrokeColor: activeDividerStrokeColor,
-        inactiveDividerStrokeColor: inactiveDividerStrokeColor,
-        overlayColor: overlayColor,
-        activeTickColor: activeTickColor,
-        inactiveTickColor: inactiveTickColor,
-        disabledActiveTickColor: disabledActiveTickColor,
-        disabledInactiveTickColor: disabledInactiveTickColor,
-        activeMinorTickColor: activeMinorTickColor,
-        inactiveMinorTickColor: inactiveMinorTickColor,
-        disabledActiveMinorTickColor: disabledActiveMinorTickColor,
-        disabledInactiveMinorTickColor: disabledInactiveMinorTickColor,
-        disabledActiveTrackColor: disabledActiveTrackColor,
-        disabledInactiveTrackColor: disabledInactiveTrackColor,
-        disabledActiveDividerColor: disabledActiveDividerColor,
-        disabledInactiveDividerColor: disabledInactiveDividerColor,
-        disabledThumbColor: disabledThumbColor,
-        tooltipBackgroundColor: tooltipBackgroundColor,
-        overlayRadius: overlayRadius,
-        thumbRadius: thumbRadius,
-        activeDividerRadius: activeDividerRadius,
-        inactiveDividerRadius: inactiveDividerRadius,
-        thumbStrokeWidth: thumbStrokeWidth,
-        activeDividerStrokeWidth: activeDividerStrokeWidth,
-        inactiveDividerStrokeWidth: inactiveDividerStrokeWidth,
-        trackCornerRadius: trackCornerRadius);
+    return SfSliderThemeData(
+      activeTrackHeight: activeTrackHeight,
+      inactiveTrackHeight: inactiveTrackHeight,
+      tickSize: tickSize,
+      minorTickSize: minorTickSize,
+      tickOffset: tickOffset,
+      labelOffset: labelOffset,
+      inactiveLabelStyle: inactiveLabelStyle,
+      activeLabelStyle: activeLabelStyle,
+      tooltipTextStyle: tooltipTextStyle,
+      inactiveTrackColor: inactiveTrackColor,
+      activeTrackColor: activeTrackColor,
+      inactiveDividerColor: inactiveDividerColor,
+      activeDividerColor: activeDividerColor,
+      thumbColor: thumbColor,
+      thumbStrokeColor: thumbStrokeColor,
+      activeDividerStrokeColor: activeDividerStrokeColor,
+      inactiveDividerStrokeColor: inactiveDividerStrokeColor,
+      overlayColor: overlayColor,
+      activeTickColor: activeTickColor,
+      inactiveTickColor: inactiveTickColor,
+      disabledActiveTickColor: disabledActiveTickColor,
+      disabledInactiveTickColor: disabledInactiveTickColor,
+      activeMinorTickColor: activeMinorTickColor,
+      inactiveMinorTickColor: inactiveMinorTickColor,
+      disabledActiveMinorTickColor: disabledActiveMinorTickColor,
+      disabledInactiveMinorTickColor: disabledInactiveMinorTickColor,
+      disabledActiveTrackColor: disabledActiveTrackColor,
+      disabledInactiveTrackColor: disabledInactiveTrackColor,
+      disabledActiveDividerColor: disabledActiveDividerColor,
+      disabledInactiveDividerColor: disabledInactiveDividerColor,
+      disabledThumbColor: disabledThumbColor,
+      tooltipBackgroundColor: tooltipBackgroundColor,
+      overlayRadius: overlayRadius,
+      thumbRadius: thumbRadius,
+      activeDividerRadius: activeDividerRadius,
+      inactiveDividerRadius: inactiveDividerRadius,
+      thumbStrokeWidth: thumbStrokeWidth,
+      activeDividerStrokeWidth: activeDividerStrokeWidth,
+      inactiveDividerStrokeWidth: inactiveDividerStrokeWidth,
+      trackCornerRadius: trackCornerRadius,
+    );
   }
-
-  /// Create a [SfSliderThemeData] given a set of exact values.
-  /// All the values must be specified.
-  ///
-  /// This will rarely be used directly. It is used by [lerp] to
-  /// create intermediate themes based on two themes created with the
-  /// [SfSliderThemeData] constructor.
-  const SfSliderThemeData.raw({
-    required this.brightness,
-    required this.activeTrackHeight,
-    required this.inactiveTrackHeight,
-    required this.tickSize,
-    required this.minorTickSize,
-    required this.tickOffset,
-    required this.labelOffset,
-    required this.inactiveLabelStyle,
-    required this.activeLabelStyle,
-    required this.tooltipTextStyle,
-    required this.inactiveTrackColor,
-    required this.activeTrackColor,
-    required this.thumbColor,
-    required this.thumbStrokeColor,
-    required this.activeDividerStrokeColor,
-    required this.inactiveDividerStrokeColor,
-    required this.activeTickColor,
-    required this.inactiveTickColor,
-    required this.disabledActiveTickColor,
-    required this.disabledInactiveTickColor,
-    required this.activeMinorTickColor,
-    required this.inactiveMinorTickColor,
-    required this.disabledActiveMinorTickColor,
-    required this.disabledInactiveMinorTickColor,
-    required this.overlayColor,
-    required this.inactiveDividerColor,
-    required this.activeDividerColor,
-    required this.disabledActiveTrackColor,
-    required this.disabledInactiveTrackColor,
-    required this.disabledActiveDividerColor,
-    required this.disabledInactiveDividerColor,
-    required this.disabledThumbColor,
-    required this.tooltipBackgroundColor,
-    required this.trackCornerRadius,
-    required this.overlayRadius,
-    required this.thumbRadius,
-    required this.activeDividerRadius,
-    required this.inactiveDividerRadius,
-    required this.thumbStrokeWidth,
-    required this.activeDividerStrokeWidth,
-    required this.inactiveDividerStrokeWidth,
-  });
 
   /// Creates a copy of this theme but with the given fields
   /// replaced with the new values.
@@ -274,7 +267,7 @@ class SfSliderThemeData with Diagnosticable {
     double? inactiveDividerStrokeWidth,
   }) {
     return SfSliderThemeData.raw(
-      brightness: brightness ?? this.brightness,
+      brightness: brightness,
       activeTrackHeight: activeTrackHeight ?? this.activeTrackHeight,
       inactiveTrackHeight: inactiveTrackHeight ?? this.inactiveTrackHeight,
       tickSize: tickSize ?? this.tickSize,
@@ -343,9 +336,9 @@ class SfSliderThemeData with Diagnosticable {
     }
     return SfSliderThemeData(
         activeTrackHeight:
-            lerpDouble(a!.activeTrackHeight, b!.activeTrackHeight, t),
+            lerpDouble(a!.activeTrackHeight, b!.activeTrackHeight, t)!,
         inactiveTrackHeight:
-            lerpDouble(a.inactiveTrackHeight, b.inactiveTrackHeight, t),
+            lerpDouble(a.inactiveTrackHeight, b.inactiveTrackHeight, t)!,
         tickSize: Size.lerp(a.tickSize, b.tickSize, t),
         minorTickSize: Size.lerp(a.minorTickSize, b.minorTickSize, t),
         tickOffset: Offset.lerp(a.tickOffset, b.tickOffset, t),
@@ -401,8 +394,8 @@ class SfSliderThemeData with Diagnosticable {
             Color.lerp(a.tooltipBackgroundColor, b.tooltipBackgroundColor, t),
         trackCornerRadius:
             lerpDouble(a.trackCornerRadius, b.trackCornerRadius, t),
-        overlayRadius: lerpDouble(a.overlayRadius, b.overlayRadius, t),
-        thumbRadius: lerpDouble(a.thumbRadius, b.thumbRadius, t),
+        overlayRadius: lerpDouble(a.overlayRadius, b.overlayRadius, t)!,
+        thumbRadius: lerpDouble(a.thumbRadius, b.thumbRadius, t)!,
         activeDividerRadius:
             lerpDouble(a.activeDividerRadius, b.activeDividerRadius, t),
         inactiveDividerRadius:
@@ -425,7 +418,6 @@ class SfSliderThemeData with Diagnosticable {
     }
 
     return other is SfSliderThemeData &&
-        other.brightness == brightness &&
         other.activeTrackHeight == activeTrackHeight &&
         other.inactiveTrackHeight == inactiveTrackHeight &&
         other.tickSize == tickSize &&
@@ -472,7 +464,6 @@ class SfSliderThemeData with Diagnosticable {
   @override
   int get hashCode {
     return Object.hashAll(<Object?>[
-      brightness,
       activeTrackHeight,
       inactiveTrackHeight,
       tickSize,
@@ -519,9 +510,7 @@ class SfSliderThemeData with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    final SfSliderThemeData defaultData = SfSliderThemeData();
-    properties.add(EnumProperty<Brightness>('brightness', brightness,
-        defaultValue: defaultData.brightness));
+    const SfSliderThemeData defaultData = SfSliderThemeData();
     properties.add(DoubleProperty('activeTrackHeight', activeTrackHeight,
         defaultValue: defaultData.activeTrackHeight));
     properties.add(DoubleProperty('inactiveTrackHeight', inactiveTrackHeight,
@@ -621,48 +610,6 @@ class SfSliderThemeData with Diagnosticable {
         'inactiveDividerStrokeWidth', inactiveDividerStrokeWidth,
         defaultValue: defaultData.inactiveDividerStrokeWidth));
   }
-
-  /// Specifies the light and dark theme for the [SfSlider],
-  /// [SfRangeSlider], and [SfRangeSelector].
-  ///
-  /// This theme applies to all the [SfSlider] which are
-  /// added as children of [SfSliderTheme].
-  ///
-  /// This theme applies to all the [SfRangeSlider] which are
-  /// added as children of [SfRangeSliderTheme].
-  ///
-  /// This theme applies to all the [SfRangeSelector] which are
-  /// added as children of [SfRangeSelectorTheme].
-  ///
-  /// This snippet shows how to set brightness in [SfRangeSliderThemeData].
-  ///
-  /// ```dart
-  /// SfRangeValues _values = SfRangeValues(4.0, 7.0);
-  ///
-  /// Scaffold(
-  ///   body: Center(
-  ///       child: SfRangeSliderTheme(
-  ///           data: SfRangeSliderThemeData(
-  ///               brightness: Brightness.dark,
-  ///           ),
-  ///           child:  SfRangeSlider(
-  ///               min: 2.0,
-  ///               max: 10.0,
-  ///               values: _values,
-  ///               interval: 2,
-  ///               showTicks: true,
-  ///               showLabels: true,
-  ///               onChanged: (SfRangeValues newValues){
-  ///                   setState(() {
-  ///                       _values = newValues;
-  ///                   });
-  ///               },
-  ///           )
-  ///       ),
-  ///    )
-  /// )
-  /// ```
-  final Brightness brightness;
 
   /// Specifies the height for the active track in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].

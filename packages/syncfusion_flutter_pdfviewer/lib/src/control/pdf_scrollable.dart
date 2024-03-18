@@ -19,6 +19,7 @@ typedef OffsetChangedCallback = void Function(Offset offset);
 class PdfScrollable extends StatefulWidget {
   /// Constructor for PdfScrollable.
   const PdfScrollable(
+      this.transformationController,
       this.canShowPaginationDialog,
       this.canShowScrollStatus,
       this.canShowScrollHead,
@@ -41,9 +42,13 @@ class PdfScrollable extends StatefulWidget {
       this.isBookmarkViewOpen,
       this.textDirection,
       this.child,
+      this.initiateTileRendering,
       {Key? key,
       this.onDoubleTap})
       : super(key: key);
+
+  /// Transformation controller of PdfViewer.
+  final TransformationController transformationController;
 
   /// Indicates whether page navigation dialog must be shown or not.
   final bool canShowPaginationDialog;
@@ -115,6 +120,9 @@ class PdfScrollable extends StatefulWidget {
   ///A direction of text flow.
   final TextDirection textDirection;
 
+  /// Callback to initiate tile rendering.
+  final VoidCallback? initiateTileRendering;
+
   @override
   PdfScrollableState createState() => PdfScrollableState();
 }
@@ -154,7 +162,7 @@ class PdfScrollableState extends State<PdfScrollable> {
   @override
   void initState() {
     super.initState();
-    _transformationController = TransformationController();
+    _transformationController = widget.transformationController;
     currentOffset = Offset.zero;
     currentZoomLevel = 1;
     if (widget.pdfViewerController.zoomLevel > 1) {
@@ -166,7 +174,6 @@ class PdfScrollableState extends State<PdfScrollable> {
 
   @override
   void dispose() {
-    _transformationController.dispose();
     _scrollTimer?.cancel();
     _scrollTimer = null;
     super.dispose();
@@ -209,6 +216,7 @@ class PdfScrollableState extends State<PdfScrollable> {
       onInteractionEnd: _handleInteractionEnd,
       transformationController: _transformationController,
       onPdfOffsetChanged: _handlePdfOffsetChanged,
+      initiateTileRendering: widget.initiateTileRendering,
       key: scrollHeadStateKey,
     );
   }
@@ -301,6 +309,8 @@ class PdfScrollableState extends State<PdfScrollable> {
         isZoomChanged = true;
       });
     }
+
+    widget.initiateTileRendering?.call();
   }
 
   ///Triggers when scrolling performed by touch pad.
@@ -383,6 +393,9 @@ class PdfScrollableState extends State<PdfScrollable> {
 
   /// Set the pixel in the matrix.
   void _setPixel(Offset offset) {
+    if (!mounted) {
+      return;
+    }
     final double widthFactor = widget.pdfDimension.width -
         (widget.viewportDimension.width / widget.pdfViewerController.zoomLevel);
     offset = Offset(

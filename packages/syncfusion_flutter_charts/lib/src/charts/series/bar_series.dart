@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../base.dart';
+import '../behaviors/trackball.dart';
+import '../common/callbacks.dart';
 import '../common/chart_point.dart';
+import '../common/core_legend.dart';
 import '../common/core_tooltip.dart';
+import '../common/legend.dart';
 import '../common/marker.dart';
 import '../interactions/tooltip.dart';
-import '../interactions/trackball.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
@@ -372,46 +375,33 @@ class BarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   }
 
   @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
+  void handleLegendItemTapped(LegendItem item, bool isToggled) {
+    if (parent != null && parent!.onLegendTapped != null) {
+      final ChartLegendItem legendItem = item as ChartLegendItem;
+      final LegendTapArgs args = LegendTapArgs(
+          legendItem.series, legendItem.seriesIndex, legendItem.pointIndex);
+      parent!.onLegendTapped!(args);
     }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
+    parent!.behaviorArea?.hideInteractiveTooltip();
 
-    for (final ChartSegment segment in segments) {
-      if (segment is BarSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-
-        final Rect rect = segment.series.paintBounds;
-
-        final num touchXValue =
-            segment.series.xAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double curX = segment.series.xValues[index].toDouble();
-        final double curY = segment.series.yValues[index].toDouble();
-        if (delta == touchXValue - curX) {
-          if ((touchYValue - curY).abs() > (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
+    controller.isVisible = !isToggled;
+    if (controller.isVisible == !isToggled) {
+      item.onToggled?.call();
+      visibilityBeforeTogglingLegend = isToggled;
+      animateAllBarSeries(parent!);
     }
-    return segmentCollection;
+
+    if (trendlineContainer != null) {
+      trendlineContainer!.updateLegendState(item, isToggled);
+      markNeedsLegendUpdate();
+    }
+    markNeedsUpdate();
+  }
+
+  @override
+  void onRealTimeAnimationUpdate() {
+    super.onRealTimeAnimationUpdate();
+    transformValues();
   }
 }
 
@@ -441,12 +431,7 @@ class BarSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
       return;
     }
 
-    if (series.animationDuration > 0) {
-      _oldSegmentRect =
-          RRect.lerp(_oldSegmentRect, segmentRect, segmentAnimationFactor);
-    } else {
-      _oldSegmentRect = segmentRect;
-    }
+    _oldSegmentRect = segmentRect;
   }
 
   @override
@@ -542,21 +527,20 @@ class BarSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
-    if (segmentRect != null) {
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
+    if (pointIndex != -1 && segmentRect != null) {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
       return ChartTrackballInfo<T, D>(
-        position: series.isTransposed
-            ? series.yAxis!.isInversed
-                ? segmentRect!.outerRect.centerLeft
-                : segmentRect!.outerRect.centerRight
-            : series.yAxis!.isInversed
-                ? segmentRect!.outerRect.bottomCenter
-                : segmentRect!.outerRect.topCenter,
+        position:
+            Offset(series.pointToPixelX(x, y), series.pointToPixelY(x, y)),
         point: chartPoint,
         series: series,
-        pointIndex: currentSegmentIndex,
         seriesIndex: series.index,
+        segmentIndex: currentSegmentIndex,
+        pointIndex: pointIndex,
+        text: series.trackballText(chartPoint, series.name),
+        header: series.tooltipHeaderText(chartPoint),
+        color: fillPaint.color,
       );
     }
     return null;
@@ -577,15 +561,20 @@ class BarSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    // Draws the tracker bounds.
-    super.onPaint(canvas);
+    if (series.isTrackVisible) {
+      // Draws the tracker bounds.
+      super.onPaint(canvas);
+    }
 
     if (segmentRect == null) {
       return;
     }
-
     final RRect? paintRRect =
-        RRect.lerp(_oldSegmentRect, segmentRect, animationFactor);
+        series.parent!.isLegendToggled && _oldSegmentRect != null
+            ? performLegendToggleAnimation(
+                series, segmentRect!, _oldSegmentRect!, series.borderRadius)
+            : RRect.lerp(_oldSegmentRect, segmentRect, animationFactor);
+
     if (paintRRect == null || paintRRect.isEmpty) {
       return;
     }

@@ -37,13 +37,13 @@ class CompressedStreamReader {
   DecompressorHuffmanTree? _currentDistanceTree;
 
   /// internal field
-  static const List<int> def_huffman_dyntree_repeat_bits = <int>[2, 3, 7];
+  static const List<int> defHuffmanDyntreeRepeatBits = <int>[2, 3, 7];
 
   /// internal field
-  static const List<int> def_huffman_dyntree_repeat_minimums = <int>[3, 3, 11];
+  static const List<int> defHuffmanDyntreeRepeatMinimums = <int>[3, 3, 11];
 
   /// internal field
-  static const List<int> def_huffman_repeat_length_base = <int>[
+  static const List<int> defHuffmanRepeatLengthBase = <int>[
     3,
     4,
     5,
@@ -76,7 +76,7 @@ class CompressedStreamReader {
   ];
 
   /// internal field
-  static const List<int> def_huffman_repeat_length_extension = <int>[
+  static const List<int> defHuffmanRepeatLengthExtension = <int>[
     0,
     0,
     0,
@@ -109,7 +109,7 @@ class CompressedStreamReader {
   ];
 
   /// internal field
-  static const List<int> def_huffman_repeat_distanse_base = <int>[
+  static const List<int> defHuffmanRepeatDistanseBase = <int>[
     1,
     2,
     3,
@@ -143,7 +143,7 @@ class CompressedStreamReader {
   ];
 
   /// internal field
-  static const List<int> def_huffman_repeat_distanse_extension = <int>[
+  static const List<int> defHuffmanRepeatDistanseExtension = <int>[
     0,
     0,
     0,
@@ -177,16 +177,16 @@ class CompressedStreamReader {
   ];
 
   /// internal field
-  static const int def_huffman_repeat_max = 258;
+  static const int defHuffmanRepeatMax = 258;
 
   /// internal field
-  static const int def_huffman_end_block = 256;
+  static const int defHuffmanEndBlock = 256;
 
   /// internal field
-  static const int def_huffman_length_minimum_code = 257;
+  static const int defHuffmanLengthMinimumCode = 257;
 
   /// internal field
-  static const int def_huffman_length_maximum_code = 285;
+  static const int defHuffmanLengthMaximumCode = 285;
 
   /// internal field
   late int bufferedBits;
@@ -323,7 +323,7 @@ class CompressedStreamReader {
       }
 
       arrDecoderCodeLengths[CompressedStreamWriter
-              .def_huffman_dyntree_codelengths_order[iCurrentCode++]] =
+              .defHuffmanDyntreeCodeLengthsOrder[iCurrentCode++]] =
           len.toUnsigned(8);
     }
     final DecompressorHuffmanTree treeInternalDecoder =
@@ -360,7 +360,7 @@ class CompressedStreamReader {
       }
 
       final int iRepSymbol = symbol - 16;
-      final int bits = def_huffman_dyntree_repeat_bits[iRepSymbol];
+      final int bits = defHuffmanDyntreeRepeatBits[iRepSymbol];
 
       int count = _readBits(bits);
 
@@ -368,7 +368,7 @@ class CompressedStreamReader {
         throw ArgumentError.value(count, 'Wrong dynamic huffman codes.');
       }
 
-      count += def_huffman_dyntree_repeat_minimums[iRepSymbol];
+      count += defHuffmanDyntreeRepeatMinimums[iRepSymbol];
 
       if (iCurrentCode + count > iResultingCodeLengthsCount) {
         throw ArgumentError.value(iCurrentCode, 'Wrong dynamic huffman codes.');
@@ -660,32 +660,32 @@ class CompressedStreamReader {
     int free = _maxValue - (_dataLength - _currentPosition);
     bool dataRead = false;
     int symbol = 0;
-    while (free >= def_huffman_repeat_max) {
+    while (free >= defHuffmanRepeatMax) {
       while (((symbol = _currentLengthTree!.unpackSymbol(this)) & ~0xff) == 0) {
         _blockBuffer![_dataLength++ % _maxValue] = symbol.toUnsigned(8);
         dataRead = true;
-        if (--free < def_huffman_repeat_max) {
+        if (--free < defHuffmanRepeatMax) {
           return true;
         }
       }
 
-      if (symbol < def_huffman_length_minimum_code) {
-        if (symbol < def_huffman_end_block) {
+      if (symbol < defHuffmanLengthMinimumCode) {
+        if (symbol < defHuffmanEndBlock) {
           throw ArgumentError.value(symbol, 'Illegal code.');
         }
         _canReadMoreData = _decodeBlockHeader();
         return dataRead | _canReadMoreData;
       }
 
-      if (symbol > def_huffman_length_maximum_code) {
+      if (symbol > defHuffmanLengthMaximumCode) {
         throw ArgumentError.value(symbol, 'Illegal repeat code length.');
       }
 
-      int iRepeatLength = def_huffman_repeat_length_base[
-          symbol - def_huffman_length_minimum_code];
+      int iRepeatLength =
+          defHuffmanRepeatLengthBase[symbol - defHuffmanLengthMinimumCode];
 
-      int iRepeatExtraBits = def_huffman_repeat_length_extension[
-          symbol - def_huffman_length_minimum_code];
+      int iRepeatExtraBits =
+          defHuffmanRepeatLengthExtension[symbol - defHuffmanLengthMinimumCode];
 
       if (iRepeatExtraBits > 0) {
         final int extra = _readBits(iRepeatExtraBits);
@@ -698,11 +698,11 @@ class CompressedStreamReader {
       // Unpack repeat distance.
       symbol = _currentDistanceTree!.unpackSymbol(this);
 
-      if (symbol < 0 || symbol > def_huffman_repeat_distanse_base.length) {
+      if (symbol < 0 || symbol > defHuffmanRepeatDistanseBase.length) {
         throw ArgumentError.value(symbol, 'Wrong distance code.');
       }
-      int iRepeatDistance = def_huffman_repeat_distanse_base[symbol];
-      iRepeatExtraBits = def_huffman_repeat_distanse_extension[symbol];
+      int iRepeatDistance = defHuffmanRepeatDistanseBase[symbol];
+      iRepeatExtraBits = defHuffmanRepeatDistanseExtension[symbol];
       if (iRepeatExtraBits > 0) {
         final int extra = _readBits(iRepeatExtraBits);
         if (extra < 0) {

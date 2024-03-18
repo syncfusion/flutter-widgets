@@ -15,6 +15,7 @@ class MarkerContainer extends Stack {
   MarkerContainer({
     required this.markerTooltipBuilder,
     required this.controller,
+    required this.themeData,
     this.sublayer,
     this.ancestor,
     List<Widget>? children,
@@ -22,6 +23,7 @@ class MarkerContainer extends Stack {
 
   final IndexedWidgetBuilder? markerTooltipBuilder;
   final MapController controller;
+  final SfMapsThemeData themeData;
   final MapShapeSublayer? sublayer;
   final MapLayerInheritedWidget? ancestor;
 
@@ -30,6 +32,7 @@ class MarkerContainer extends Stack {
     return _RenderMarkerContainer()
       ..markerTooltipBuilder = markerTooltipBuilder
       ..controller = controller
+      ..themeData = themeData
       ..sublayer = sublayer
       ..container = this;
   }
@@ -41,6 +44,7 @@ class MarkerContainer extends Stack {
       _RenderMarkerContainer renderObject) {
     renderObject
       ..markerTooltipBuilder = markerTooltipBuilder
+      ..themeData = themeData
       ..sublayer = sublayer
       ..container = this;
   }
@@ -49,6 +53,7 @@ class MarkerContainer extends Stack {
 class _RenderMarkerContainer extends RenderStack {
   late MarkerContainer container;
   late MapController controller;
+  late SfMapsThemeData themeData;
   GlobalKey? tooltipKey;
   IndexedWidgetBuilder? markerTooltipBuilder;
   MapShapeSublayer? sublayer;
@@ -880,9 +885,7 @@ class MapMarker extends SingleChildRenderObjectWidget {
       iconStrokeColor: iconStrokeColor,
       iconStrokeWidth: iconStrokeWidth,
       iconType: iconType,
-      themeData: SfMapsTheme.of(context)!,
       marker: this,
-      context: context,
     );
   }
 
@@ -899,7 +902,6 @@ class MapMarker extends SingleChildRenderObjectWidget {
       ..iconStrokeColor = iconStrokeColor
       ..iconStrokeWidth = iconStrokeWidth
       ..iconType = iconType
-      ..themeData = SfMapsTheme.of(context)!
       ..marker = this;
   }
 }
@@ -916,8 +918,6 @@ class _RenderMapMarker extends RenderProxyBox
     required Color? iconStrokeColor,
     required double? iconStrokeWidth,
     required MapIconType iconType,
-    required SfMapsThemeData themeData,
-    required BuildContext context,
     required this.marker,
   })  : _longitude = longitude,
         _latitude = latitude,
@@ -927,13 +927,10 @@ class _RenderMapMarker extends RenderProxyBox
         _iconColor = iconColor,
         _iconStrokeColor = iconStrokeColor,
         _iconStrokeWidth = iconStrokeWidth,
-        _iconType = iconType,
-        _themeData = themeData,
-        _theme = Theme.of(context) {
+        _iconType = iconType {
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUp;
   }
 
-  final ThemeData _theme;
   final Size _defaultMarkerSize = const Size(14.0, 14.0);
   late TapGestureRecognizer _tapGestureRecognizer;
 
@@ -1032,18 +1029,6 @@ class _RenderMapMarker extends RenderProxyBox
       return;
     }
     _iconType = value;
-    if (child == null) {
-      markNeedsPaint();
-    }
-  }
-
-  SfMapsThemeData get themeData => _themeData;
-  SfMapsThemeData _themeData;
-  set themeData(SfMapsThemeData value) {
-    if (_themeData == value) {
-      return;
-    }
-    _themeData = value;
     if (child == null) {
       markNeedsPaint();
     }
@@ -1165,11 +1150,14 @@ class _RenderMapMarker extends RenderProxyBox
   }
 
   Paint? _getBorderPaint() {
+    final _RenderMarkerContainer markerContainer =
+        parent! as _RenderMarkerContainer;
+    final SfMapsThemeData themeData = markerContainer.themeData;
     if (_iconStrokeWidth != null && _iconStrokeWidth! > 0) {
       return Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = _iconStrokeWidth ?? _themeData.markerIconStrokeWidth
-        ..color = _iconStrokeColor ?? _themeData.markerIconStrokeColor!;
+        ..strokeWidth = _iconStrokeWidth ?? themeData.markerIconStrokeWidth
+        ..color = _iconStrokeColor ?? themeData.markerIconStrokeColor!;
     }
 
     return null;
@@ -1177,17 +1165,15 @@ class _RenderMapMarker extends RenderProxyBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    final _RenderMarkerContainer markerContainer =
+        parent! as _RenderMarkerContainer;
     if (child == null) {
       core.paint(
           canvas: context.canvas,
           rect: paintBounds,
           shapeType: _getEffectiveShapeType(),
           paint: Paint()
-            ..color = _iconColor ??
-                _themeData.markerIconColor ??
-                (_theme.brightness == Brightness.light
-                    ? const Color.fromRGBO(98, 0, 238, 1)
-                    : const Color.fromRGBO(187, 134, 252, 1)),
+            ..color = _iconColor ?? markerContainer.themeData.markerIconColor!,
           borderPaint: _getBorderPaint());
     } else {
       context.paintChild(child!, offset);

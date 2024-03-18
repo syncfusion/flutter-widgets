@@ -16,7 +16,7 @@ import 'layout_element.dart';
 class TextLayouter extends ElementLayouter {
   //Constructor
   /// internal constructor
-  TextLayouter(PdfTextElement element) : super(element);
+  TextLayouter(PdfTextElement super.element);
 
   //Fields
   PdfStringFormat? _format;

@@ -1,3 +1,16 @@
+## Unreleased
+
+**General**
+* Provided th​e Material 3 themes support.
+
+**Bug fixes**
+* \#FB50948 - Now, the 'setState() or markNeedsBuild() called during the build' exception will not be thrown when tapping today's button after swiping the `timelineMonth` view.
+* \#FB50846 - Now, text size remains consistent when the app state or themes gets changed.
+
+## [24.1.46] - 17/01/2024
+**General**
+* Upgraded the `intl` package to the latest version 0.19.0.
+
 ## [22.2.5]
 **Features**
 * Provided support to accessibility for builders in the Flutter event calendar.

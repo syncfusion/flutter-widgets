@@ -21,6 +21,8 @@ class Settings {
   external set canvasContext(CanvasRenderingContext2D value);
   external set viewport(PdfJsViewport value);
   external set annotationMode(num value);
+  external set offsetX(double value);
+  external set offsetY(double value);
 }
 
 @anonymous
