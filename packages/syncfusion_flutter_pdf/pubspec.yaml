@@ -12,11 +12,7 @@ dependencies:
   intl: '>=0.18.1 <0.20.0'
   xml: ">=6.5.0 <7.0.0"
   syncfusion_flutter_core:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-core
-      path: syncfusion_flutter_core
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_flutter_core
   crypto: ">=3.0.0 <4.0.0"
   convert: ">=3.0.0 <4.0.0"
 

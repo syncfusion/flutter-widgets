@@ -12,11 +12,7 @@ dependencies:
   xml: ">=5.1.0 <7.0.0"
   archive: ">=3.1.2 <4.0.0"
   syncfusion_flutter_xlsio: 
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-xlsio
-      path: flutter_xlsio/syncfusion_flutter_xlsio
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_flutter_xlsio
 
 dev_dependencies:
   flutter_test:

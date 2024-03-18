@@ -12,11 +12,7 @@ dependencies:
   intl: '>=0.18.1 <0.20.0'
   vector_math: ">=2.1.0 <=3.0.0"
   syncfusion_flutter_core:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-core
-      path: syncfusion_flutter_core
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_flutter_core
 
 dev_dependencies:
   flutter_test:

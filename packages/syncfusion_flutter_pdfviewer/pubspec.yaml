@@ -41,53 +41,25 @@ dependencies:
   intl: '>=0.18.1 <0.20.0'
 
   syncfusion_pdfviewer_platform_interface:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdfviewer-platform-interface
-      path: flutter_pdfviewer_platform_interface/syncfusion_flutter_pdfviewer_platform_interface
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_pdfviewer_platform_interface
 
   syncfusion_pdfviewer_web:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdfviewer
-      path: flutter_pdfviewer/syncfusion_pdfviewer_web
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_pdfviewer_web
 
   syncfusion_pdfviewer_macos:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdfviewer
-      path: flutter_pdfviewer/syncfusion_pdfviewer_macos
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_pdfviewer_macos
 
   syncfusion_pdfviewer_windows:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdfviewer
-      path: flutter_pdfviewer/syncfusion_pdfviewer_windows
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_pdfviewer_windows
 
   syncfusion_flutter_core:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-core
-      path: syncfusion_flutter_core
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_flutter_core
 
   syncfusion_flutter_pdf:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdf
-      path: flutter_pdf/syncfusion_flutter_pdf
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_flutter_pdf
 
   syncfusion_flutter_signaturepad:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-signaturepad
-      path: flutter_signaturepad/syncfusion_flutter_signaturepad
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_flutter_signaturepad
 
   url_launcher: ^6.1.0
 

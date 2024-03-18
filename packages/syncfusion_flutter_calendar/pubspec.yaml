@@ -33,18 +33,10 @@ dependencies:
     sdk: flutter
   timezone: 0.9.2
   syncfusion_flutter_core:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-core
-      path: syncfusion_flutter_core
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_flutter_core
 
   syncfusion_flutter_datepicker:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-datepicker
-      path: flutter_datepicker/syncfusion_flutter_datepicker
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_flutter_datepicker
 
   intl: '>=0.18.1 <0.20.0'
 

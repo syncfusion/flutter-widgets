@@ -16,11 +16,7 @@ dependencies:
   crypto: ">=3.0.0 <4.0.0"
   jiffy: ">=6.1.0 <7.0.0"
   syncfusion_officecore: 
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-officecore
-      path: flutter_officecore/syncfusion_flutter_officecore
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_officecore
       
 dev_dependencies:
   flutter_test:

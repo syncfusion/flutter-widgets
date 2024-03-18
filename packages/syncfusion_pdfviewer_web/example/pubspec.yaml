@@ -12,11 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   syncfusion_flutter_pdfviewer:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdfviewer
-      path: flutter_pdfviewer/syncfusion_flutter_pdfviewer
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../../syncfusion_flutter_pdfviewer
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

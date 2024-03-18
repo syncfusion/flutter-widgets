@@ -12,25 +12,13 @@ dependencies:
     sdk: flutter
   
   syncfusion_flutter_datagrid:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-datagrid
-      path: flutter_datagrid/syncfusion_flutter_datagrid
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_flutter_datagrid
   
   syncfusion_flutter_xlsio:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-xlsio
-      path: flutter_xlsio/syncfusion_flutter_xlsio
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_flutter_xlsio
   
   syncfusion_flutter_pdf:
-    git:
-      url: https://SyncfusionBuild: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@github.com/essential-studio/flutter-pdf
-      path: flutter_pdf/syncfusion_flutter_pdf
-      branch: release/25.1.1
-      ref: release/25.1.1
+      path: ../syncfusion_flutter_pdf
 
   collection: ">=1.9.0 <=2.0.0"
 
