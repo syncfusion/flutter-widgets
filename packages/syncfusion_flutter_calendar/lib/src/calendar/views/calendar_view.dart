@@ -336,6 +336,8 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
             oldWidget.calendar.monthViewSettings.navigationDirection) ||
         widget.calendar.scheduleViewMonthHeaderBuilder !=
             oldWidget.calendar.scheduleViewMonthHeaderBuilder ||
+        widget.calendar.monthCellBuilder !=
+            oldWidget.calendar.monthCellBuilder ||
         widget.width != oldWidget.width ||
         widget.height != oldWidget.height ||
         widget.textScaleFactor != oldWidget.textScaleFactor) {
@@ -5463,7 +5465,8 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       final GlobalKey<_CalendarViewState> viewKey =
           // ignore: avoid_as
           view.key! as GlobalKey<_CalendarViewState>;
-      if (widget.view == CalendarView.month) {
+      if (widget.view == CalendarView.month &&
+          widget.calendar.monthCellBuilder != null) {
         if (view.visibleDates == _currentViewVisibleDates) {
           widget.getCalendarState(_updateCalendarStateDetails);
           if (!CalendarViewHelper.isCollectionEqual(
@@ -8370,6 +8373,7 @@ class _CalendarViewState extends State<_CalendarView>
         widget.blackoutDates,
         widget.calendar.blackoutDatesTextStyle,
         widget.textScaleFactor,
+        widget.calendar.monthCellBuilder,
         widget.width,
         height,
         widget.calendar.weekNumberStyle,
