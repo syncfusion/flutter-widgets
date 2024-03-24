@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../base.dart';
+import '../behaviors/trackball.dart';
 import '../common/chart_point.dart';
 import '../common/core_tooltip.dart';
 import '../common/element_widget.dart';
 import '../common/marker.dart';
 import '../interactions/tooltip.dart';
-import '../interactions/trackball.dart';
 import '../utils/constants.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -268,48 +268,6 @@ class StackedColumnSeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
         gradient: gradient,
         borderGradient: borderGradient);
   }
-
-  @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
-    }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-
-    for (final ChartSegment segment in segments) {
-      if (segment is StackedColumnSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-        final Rect rect = segment.series.paintBounds;
-
-        final num touchXValue =
-            segment.series.xAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double curX = segment.series.xValues[index].toDouble();
-        final double curY = segment.series.yValues[index].toDouble();
-        if (delta == touchXValue - curX) {
-          if ((touchYValue - curY).abs() > (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
-    }
-    return segmentCollection;
-  }
 }
 
 /// Segment class for stacked column series.
@@ -430,21 +388,20 @@ class StackedColumnSegment<T, D> extends ChartSegment
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
-    if (segmentRect != null) {
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
+    if (pointIndex != -1 && segmentRect != null) {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
       return ChartTrackballInfo<T, D>(
-        position: series.isTransposed
-            ? series.yAxis!.isInversed
-                ? segmentRect!.outerRect.centerLeft
-                : segmentRect!.outerRect.centerRight
-            : series.yAxis!.isInversed
-                ? segmentRect!.outerRect.bottomCenter
-                : segmentRect!.outerRect.topCenter,
+        position:
+            Offset(series.pointToPixelX(x, top), series.pointToPixelY(x, top)),
         point: chartPoint,
         series: series,
-        pointIndex: currentSegmentIndex,
         seriesIndex: series.index,
+        segmentIndex: currentSegmentIndex,
+        pointIndex: pointIndex,
+        text: series.trackballText(chartPoint, series.name),
+        header: series.tooltipHeaderText(chartPoint),
+        color: fillPaint.color,
       );
     }
     return null;
@@ -465,8 +422,10 @@ class StackedColumnSegment<T, D> extends ChartSegment
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    // Draws the tracker bounds.
-    super.onPaint(canvas);
+    if (series.isTrackVisible) {
+      // Draws the tracker bounds.
+      super.onPaint(canvas);
+    }
 
     if (segmentRect == null) {
       return;

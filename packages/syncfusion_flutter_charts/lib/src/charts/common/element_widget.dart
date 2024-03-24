@@ -19,6 +19,8 @@ mixin ChartElementParentDataMixin<T, D> {
 
   List<num>? stackedYValues;
 
+  List<int>? sortedIndexes;
+
   CurvedAnimation? animation;
 }
 
@@ -62,6 +64,10 @@ class RenderChartFadeTransition extends RenderAnimatedOpacity {
 
   void handleTapUp(Offset localPosition) {
     (child as RenderChartElementStack?)?.handleTapUp(localPosition);
+  }
+
+  void handleMultiSeriesDataLabelCollisions() {
+    (child as RenderChartElementStack?)?.handleMultiSeriesDataLabelCollisions();
   }
 }
 
@@ -116,6 +122,7 @@ class RenderChartElementLayoutBuilder<T, D> extends RenderBox
       ..xValues = xValues
       ..yLists = yLists
       ..stackedYValues = stackedYValues
+      ..sortedIndexes = sortedIndexes
       ..sbsInfo = sbsInfo
       ..animation = animation;
     rebuildIfNecessary();
@@ -135,6 +142,11 @@ class RenderChartElementLayoutBuilder<T, D> extends RenderBox
     (child as RenderChartFadeTransition?)?.handleTapUp(localPosition);
   }
 
+  void handleMultiSeriesDataLabelCollisions() {
+    (child as RenderChartFadeTransition?)
+        ?.handleMultiSeriesDataLabelCollisions();
+  }
+
   @override
   void paint(PaintingContext context, Offset offset) {
     if (child != null) {
@@ -149,6 +161,9 @@ class ChartElementParentData extends ContainerBoxParentData<RenderBox> {
   int dataPointIndex = -1;
   ChartDataPointType position = ChartDataPointType.y;
   ChartDataLabelAlignment labelAlignment = ChartDataLabelAlignment.auto;
+  Rect bounds = Rect.zero;
+  Rect rotatedBounds = Rect.zero;
+  bool isVisible = true;
 }
 
 class ChartElementStack extends MultiChildRenderObjectWidget {
@@ -182,4 +197,8 @@ class RenderChartElementStack extends RenderBox
   void handlePointerHover(Offset localPosition) {}
 
   void handleTapUp(Offset localPosition) {}
+
+  // Once all cartesian series layouts are completed, use this method to
+  // handle the collisions of data labels across multiple series.
+  void handleMultiSeriesDataLabelCollisions() {}
 }

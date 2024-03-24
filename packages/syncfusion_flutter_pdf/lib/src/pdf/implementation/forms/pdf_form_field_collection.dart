@@ -712,8 +712,9 @@ class PdfFormFieldCollectionHelper extends PdfObjectCollectionHelper {
           final IPdfPrimitive? kidObject = PdfCrossTable.dereference(array[i]);
           if (kidObject != null &&
               kidObject is PdfDictionary &&
-              kidObject.containsKey(PdfDictionaryProperties.p))
+              kidObject.containsKey(PdfDictionaryProperties.p)) {
             holder = kidObject[PdfDictionaryProperties.p];
+          }
           if (holder != null &&
               holder is PdfReferenceHolder &&
               holder.object == pageReferenceHolder.object) {

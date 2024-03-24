@@ -86,7 +86,7 @@ abstract class SfSparkChartRenderObjectWidget extends LeafRenderObjectWidget {
   final SparkChartDataDetails? sparkChartDataDetails;
 
   /// Specfies the theme of the spark chart.
-  final SfChartThemeData? themeData;
+  final SfSparkChartThemeData? themeData;
 
   /// Specifies the series screen coordinate points.
   final List<Offset>? coordinatePoints;
@@ -119,7 +119,7 @@ abstract class RenderSparkChart extends RenderBox {
       Color? negativePointColor,
       SparkChartPlotBand? plotBand,
       SparkChartDataDetails? sparkChartDataDetails,
-      SfChartThemeData? themeData,
+      SfSparkChartThemeData? themeData,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
       : _data = data,
@@ -268,13 +268,13 @@ abstract class RenderSparkChart extends RenderBox {
   }
 
   /// Defines the spark chart theme.
-  SfChartThemeData? _themeData;
+  SfSparkChartThemeData? _themeData;
 
   /// Returns the spark chart theme.
-  SfChartThemeData? get themeData => _themeData;
+  SfSparkChartThemeData? get themeData => _themeData;
 
   /// Sets the spark chart theme.
-  set themeData(SfChartThemeData? value) {
+  set themeData(SfSparkChartThemeData? value) {
     if (_themeData != value) {
       _themeData = value;
       markNeedsPaint();

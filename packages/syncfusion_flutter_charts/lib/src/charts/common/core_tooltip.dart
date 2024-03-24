@@ -56,6 +56,31 @@ class TooltipInfo {
   }
 }
 
+class TooltipOpacity extends Opacity {
+  const TooltipOpacity({
+    super.key,
+    required super.opacity,
+    super.alwaysIncludeSemantics = false,
+    super.child,
+  });
+
+  @override
+  RenderOpacity createRenderObject(BuildContext context) {
+    return TooltipOpacityRenderBox(
+      opacity: opacity,
+      alwaysIncludeSemantics: alwaysIncludeSemantics,
+    );
+  }
+}
+
+class TooltipOpacityRenderBox extends RenderOpacity {
+  TooltipOpacityRenderBox({
+    super.opacity = 1.0,
+    super.alwaysIncludeSemantics = false,
+    super.child,
+  });
+}
+
 class CoreTooltip extends StatefulWidget {
   const CoreTooltip({
     super.key,
@@ -202,7 +227,7 @@ class CoreTooltipState extends State<CoreTooltip>
         chartThemeData.platform == TargetPlatform.macOS ||
         chartThemeData.platform == TargetPlatform.windows ||
         chartThemeData.platform == TargetPlatform.linux;
-    return Opacity(
+    return TooltipOpacity(
       opacity: widget.opacity,
       child: LayoutBuilder(
         key: _tooltipKey,
@@ -499,7 +524,25 @@ class _CoreTooltipRenderBox extends RenderProxyBox {
   }
 
   @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    if (_state._animation.value == 1.0 &&
+        child != null &&
+        child!.parentData != null) {
+      final BoxParentData childParentData = child!.parentData! as BoxParentData;
+      return result.addWithPaintOffset(
+        offset: childParentData.offset,
+        position: position,
+        hitTest: (BoxHitTestResult result, Offset transformed) {
+          return child!.hitTest(result, position: transformed);
+        },
+      );
+    }
+    return false;
+  }
+
+  @override
   void performLayout() {
+    // Hide the tooltip while resizing.
     if (!hasSize || size != constraints.biggest) {
       _nosePosition = null;
       _primaryPosition = null;
@@ -534,10 +577,18 @@ class _CoreTooltipRenderBox extends RenderProxyBox {
       innerPadding: _innerPadding,
     );
 
+    final int multiplier = (_effectivePreferTooltipOnTop! ? 1 : -1);
+    final double halfTooltipHeight = child!.size.height / 2;
+    final Offset pathShift = Offset(
+      _nosePosition!.dx,
+      _nosePosition!.dy -
+          (_triangleHeight * multiplier + halfTooltipHeight * multiplier),
+    );
+    _path = _path.shift(pathShift);
+
     final Rect pathBounds = _path.getBounds();
     final Offset pathCenter = pathBounds.center;
-    final double triangleHeight =
-        _triangleHeight * (_effectivePreferTooltipOnTop! ? 1 : -1);
+    final double triangleHeight = _triangleHeight * multiplier;
     final Offset childPosition = Offset(
       pathCenter.dx - child!.size.width / 2,
       pathCenter.dy - (child!.size.height + triangleHeight) / 2,
@@ -621,14 +672,10 @@ class _CoreTooltipRenderBox extends RenderProxyBox {
       return;
     }
 
-    final double halfTooltipHeight = child!.size.height / 2;
-
     context.canvas.save();
     context.canvas.translate(_nosePosition!.dx, _nosePosition!.dy);
     context.canvas.scale(_state._animation.value);
-    final double centerY = _triangleHeight + halfTooltipHeight;
-    context.canvas
-        .translate(0.0, centerY * (_effectivePreferTooltipOnTop! ? -1 : 1));
+    context.canvas.translate(-_nosePosition!.dx, -_nosePosition!.dy);
     // In web HTML rendering, fill color clipped half of its tooltip's size.
     // To avoid this issue we are drawing stroke before fill.
     // Due to this, half of the stroke width only

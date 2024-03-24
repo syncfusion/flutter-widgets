@@ -824,8 +824,9 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
           // To place the pointer at the center of the segment in case of
           // solid bar legend type.
           normalized = 0.5;
-        } else
+        } else {
           normalized = value / (length - 1);
+        }
       }
     }
     return Offset(normalized, normalized);

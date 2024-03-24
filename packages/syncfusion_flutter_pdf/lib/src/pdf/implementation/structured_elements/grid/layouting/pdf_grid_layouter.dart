@@ -25,7 +25,7 @@ import '../styles/style.dart';
 /// internal class
 class PdfGridLayouter extends ElementLayouter {
   /// internal constructor
-  PdfGridLayouter(PdfGrid grid) : super(grid) {
+  PdfGridLayouter(PdfGrid super.grid) {
     _initialize();
   }
 

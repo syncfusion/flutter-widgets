@@ -75,6 +75,18 @@ Path calculateArcPath(double innerRadius, double radius, Offset center,
   return path;
 }
 
+/// Calculate series start or end angle based on animation type.
+double calculateAngle(bool isRealTimeAnimation, int startAngle, int endAngle) {
+  // Segment animation
+  if (isRealTimeAnimation) {
+    final int finalEndAngle =
+        startAngle == endAngle ? 360 + endAngle : endAngle;
+    return finalEndAngle - 90;
+  }
+  // Series animation
+  return startAngle - 90;
+}
+
 /// Calculate rounded corners arc path.
 Path calculateRoundedCornerArcPath(CornerStyle cornerStyle, double innerRadius,
     double outerRadius, Offset center, double startAngle, double endAngle) {

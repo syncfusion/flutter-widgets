@@ -138,6 +138,9 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
       _valuesInMilliseconds = SfRangeValues(
           values.start.millisecondsSinceEpoch.toDouble(),
           values.end.millisecondsSinceEpoch.toDouble());
+    } else {
+      _values = SfRangeValues(
+          (values.start as num).toDouble(), (values.end as num).toDouble());
     }
     unformattedLabels = <double>[];
     updateTextPainter();
@@ -192,7 +195,10 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     if (_values == values) {
       return;
     }
-    _values = values;
+    _values = isDateTime
+        ? values
+        : SfRangeValues(
+            (values.start as num).toDouble(), (values.end as num).toDouble());
     if (isDateTime) {
       _valuesInMilliseconds = SfRangeValues(
           _values.start.millisecondsSinceEpoch.toDouble(),

@@ -243,7 +243,7 @@ class CalendarResource with Diagnosticable {
   final ImageProvider? image;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }

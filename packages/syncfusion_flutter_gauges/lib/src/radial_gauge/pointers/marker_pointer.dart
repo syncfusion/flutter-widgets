@@ -654,6 +654,7 @@ class MarkerPointer extends LeafRenderObjectWidget implements GaugePointer {
   @override
   RenderObject createRenderObject(BuildContext context) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
+    final ThemeData themeData = Theme.of(context);
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
     final RadialAxisInheritedWidget ancestor = context
         .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
@@ -694,13 +695,14 @@ class MarkerPointer extends LeafRenderObjectWidget implements GaugePointer {
         pointerAnimationController: radialAxisScope.animationController,
         repaintNotifier: radialAxisScope.repaintNotifier,
         gaugeThemeData: gaugeTheme,
-        context: context);
+        themeData: themeData);
   }
 
   @override
   void updateRenderObject(
       BuildContext context, RenderMarkerPointer renderObject) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
+    final ThemeData themeData = Theme.of(context);
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
     final RadialAxisInheritedWidget ancestor = context
         .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
@@ -738,6 +740,7 @@ class MarkerPointer extends LeafRenderObjectWidget implements GaugePointer {
       ..isRadialGaugeAnimationEnabled =
           radialAxisScope.isRadialGaugeAnimationEnabled
       ..gaugeThemeData = gaugeTheme
+      ..themeData = themeData
       ..value = value.clamp(ancestor.minimum, ancestor.maximum);
     super.updateRenderObject(context, renderObject);
   }

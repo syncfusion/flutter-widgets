@@ -383,7 +383,7 @@ class RenderNumericAxis extends RenderChartAxis {
   @override
   void addDependent(AxisDependent dependent, {bool isXAxis = true}) {
     super.addDependent(dependent, isXAxis: isXAxis);
-    if (isVertical && dependent.runtimeType.toString().contains('100')) {
+    if (isVertical && dependent is Stacking100SeriesMixin) {
       _dependentIsStacked = true;
     }
   }
@@ -475,6 +475,9 @@ class RenderNumericAxis extends RenderChartAxis {
   @override
   void generateVisibleLabels() {
     hasTrimmedAxisLabel = false;
+    if (visibleRange == null || visibleInterval == 0) {
+      return;
+    }
     final double extent =
         labelsExtent ?? (maximumLabelWidth ?? double.maxFinite);
     final bool isRtl = textDirection == TextDirection.rtl;
@@ -497,27 +500,8 @@ class RenderNumericAxis extends RenderChartAxis {
       currentValue = currentText.contains('e')
           ? currentValue
           : num.tryParse(currentValue.toStringAsFixed(digits))!;
-      if (piecesLength > 1) {
-        currentValue = num.parse(currentValue.toStringAsFixed(decimalPlaces));
-        final String decimals = pieces[1];
-        if (decimals == '0' ||
-            decimals == '00' ||
-            decimals == '000' ||
-            decimals == '0000' ||
-            decimals == '00000' ||
-            currentValue % 1 == 0) {
-          currentValue = currentValue.round();
-        }
-      }
-      String text = currentValue.toString();
-      if (numberFormat != null) {
-        text = numberFormat!.format(currentValue);
-      }
 
-      if (labelFormat != null && labelFormat != '') {
-        text = labelFormat!.replaceAll(RegExp('{value}'), text);
-      }
-
+      String text = numericAxisLabel(this, currentValue, decimalPlaces);
       if (_dependentIsStacked) {
         text = '$text%';
       }

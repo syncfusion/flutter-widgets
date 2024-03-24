@@ -4805,8 +4805,7 @@ abstract class GridCellLayoutArgs {
 /// Arguments of BeginPageLayoutEvent.
 class PdfGridBeginPageLayoutArgs extends BeginPageLayoutArgs {
   //Constructor
-  PdfGridBeginPageLayoutArgs._(Rect bounds, PdfPage page, int? startRow)
-      : super(bounds, page) {
+  PdfGridBeginPageLayoutArgs._(super.bounds, super.page, int? startRow) {
     startRowIndex = startRow ?? 0;
   }
 
@@ -4828,7 +4827,7 @@ class PdfGridBeginPageLayoutArgsHelper {
 /// Arguments of EndPageLayoutEvent.
 class PdfGridEndPageLayoutArgs extends EndPageLayoutArgs {
   //Constructor
-  PdfGridEndPageLayoutArgs._(PdfLayoutResult result) : super(result);
+  PdfGridEndPageLayoutArgs._(super.result);
 }
 
 // ignore: avoid_classes_with_only_static_members

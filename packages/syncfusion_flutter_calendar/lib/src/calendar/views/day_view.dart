@@ -829,7 +829,7 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
     _linePainter.style = PaintingStyle.fill;
     final int count = specialRegionBounds.length;
     final TextStyle defaultTextStyle = TextStyle(
-        color: calendarTheme.brightness == Brightness.dark
+        color: themeData.brightness == Brightness.dark
             ? Colors.white54
             : Colors.black45);
     for (int i = 0; i < count; i++) {

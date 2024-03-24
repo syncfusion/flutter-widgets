@@ -12,6 +12,7 @@ import 'common.dart';
 import 'constants.dart';
 import 'range_slider_base.dart';
 import 'slider_shapes.dart';
+import 'theme.dart';
 
 /// A Material Design range selector.
 ///
@@ -1527,6 +1528,15 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
   SfRangeSelectorThemeData _getRangeSelectorThemeData(ThemeData themeData) {
     SfRangeSelectorThemeData rangeSelectorThemeData =
         SfRangeSelectorTheme.of(context)!;
+    final bool isMaterial3 = themeData.useMaterial3;
+    final SfRangeSelectorThemeData effectiveThemeData = isMaterial3
+        ? SfRangeSelectorThemeDataM3(context)
+        : SfRangeSelectorThemeDataM2(context);
+    final Color labelColor = isMaterial3
+        ? themeData.colorScheme.onSurfaceVariant
+        : widget.enabled
+            ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
+            : themeData.colorScheme.onSurface.withOpacity(0.32);
     final double minTrackHeight = math.min(
         rangeSelectorThemeData.activeTrackHeight,
         rangeSelectorThemeData.inactiveTrackHeight);
@@ -1541,72 +1551,71 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       tickOffset: rangeSelectorThemeData.tickOffset,
       labelOffset: rangeSelectorThemeData.labelOffset ??
           (widget.showTicks ? const Offset(0.0, 5.0) : const Offset(0.0, 13.0)),
-      inactiveLabelStyle: rangeSelectorThemeData.inactiveLabelStyle ??
-          themeData.textTheme.bodyLarge!.copyWith(
-              color: widget.enabled
-                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
-                  : themeData.colorScheme.onSurface.withOpacity(0.32)),
-      activeLabelStyle: rangeSelectorThemeData.activeLabelStyle ??
-          themeData.textTheme.bodyLarge!.copyWith(
-              color: widget.enabled
-                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
-                  : themeData.colorScheme.onSurface.withOpacity(0.32)),
-      tooltipTextStyle: rangeSelectorThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyLarge!
-              .copyWith(color: themeData.colorScheme.surface),
+      inactiveLabelStyle: themeData.textTheme.bodyLarge!
+          .copyWith(color: labelColor, fontSize: isMaterial3 ? 12 : 14)
+          .merge(rangeSelectorThemeData.inactiveLabelStyle),
+      activeLabelStyle: themeData.textTheme.bodyLarge!
+          .copyWith(color: labelColor, fontSize: isMaterial3 ? 12 : 14)
+          .merge(rangeSelectorThemeData.activeLabelStyle),
+      tooltipTextStyle: themeData.textTheme.bodyLarge!
+          .copyWith(
+              fontSize: isMaterial3 ? 12 : 14,
+              color: isMaterial3
+                  ? themeData.colorScheme.onPrimary
+                  : themeData.colorScheme.surface)
+          .merge(rangeSelectorThemeData.tooltipTextStyle),
       inactiveTrackColor: widget.inactiveColor ??
           rangeSelectorThemeData.inactiveTrackColor ??
-          themeData.colorScheme.primary.withOpacity(0.24),
+          effectiveThemeData.inactiveTrackColor,
       activeTrackColor: widget.activeColor ??
           rangeSelectorThemeData.activeTrackColor ??
-          themeData.colorScheme.primary,
+          effectiveThemeData.activeTrackColor,
       thumbColor: widget.activeColor ??
           rangeSelectorThemeData.thumbColor ??
-          themeData.colorScheme.primary,
+          effectiveThemeData.thumbColor,
       activeTickColor: rangeSelectorThemeData.activeTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.37),
+          effectiveThemeData.activeTickColor,
       inactiveTickColor: rangeSelectorThemeData.inactiveTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.37),
+          effectiveThemeData.inactiveTickColor,
       disabledActiveTickColor: rangeSelectorThemeData.disabledActiveTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.24),
+          effectiveThemeData.disabledActiveTickColor,
       disabledInactiveTickColor:
           rangeSelectorThemeData.disabledInactiveTickColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.24),
+              effectiveThemeData.disabledInactiveTickColor,
       activeMinorTickColor: rangeSelectorThemeData.activeMinorTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.37),
+          effectiveThemeData.activeMinorTickColor,
       inactiveMinorTickColor: rangeSelectorThemeData.inactiveMinorTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.37),
+          effectiveThemeData.inactiveMinorTickColor,
       disabledActiveMinorTickColor:
           rangeSelectorThemeData.disabledActiveMinorTickColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.24),
+              effectiveThemeData.disabledActiveMinorTickColor,
       // ignore: lines_longer_than_80_chars
       disabledInactiveMinorTickColor:
           rangeSelectorThemeData.disabledInactiveMinorTickColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.24),
+              effectiveThemeData.disabledInactiveMinorTickColor,
       overlayColor: widget.activeColor?.withOpacity(0.12) ??
           rangeSelectorThemeData.overlayColor ??
-          themeData.colorScheme.primary.withOpacity(0.12),
+          effectiveThemeData.overlayColor,
       inactiveDividerColor: widget.activeColor ??
           rangeSelectorThemeData.inactiveDividerColor ??
-          themeData.colorScheme.primary.withOpacity(0.54),
+          effectiveThemeData.inactiveDividerColor,
       activeDividerColor: widget.inactiveColor ??
           rangeSelectorThemeData.activeDividerColor ??
-          themeData.colorScheme.onPrimary.withOpacity(0.54),
+          effectiveThemeData.activeDividerColor,
       disabledInactiveDividerColor:
           rangeSelectorThemeData.disabledInactiveDividerColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.12),
+              effectiveThemeData.disabledInactiveDividerColor,
       disabledActiveDividerColor:
           rangeSelectorThemeData.disabledActiveDividerColor ??
-              themeData.colorScheme.onPrimary.withOpacity(0.12),
+              effectiveThemeData.disabledActiveDividerColor,
       disabledActiveTrackColor:
           rangeSelectorThemeData.disabledActiveTrackColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.32),
+              effectiveThemeData.disabledActiveTrackColor,
       disabledInactiveTrackColor:
           rangeSelectorThemeData.disabledInactiveTrackColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.12),
+              effectiveThemeData.disabledInactiveTrackColor,
       disabledThumbColor: rangeSelectorThemeData.disabledThumbColor ??
-          Color.alphaBlend(themeData.colorScheme.onSurface.withOpacity(0.38),
-              themeData.colorScheme.surface),
+          effectiveThemeData.disabledThumbColor,
       thumbStrokeColor: rangeSelectorThemeData.thumbStrokeColor,
       overlappingThumbStrokeColor:
           rangeSelectorThemeData.overlappingThumbStrokeColor ??
@@ -1617,17 +1626,13 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       overlappingTooltipStrokeColor:
           rangeSelectorThemeData.overlappingTooltipStrokeColor ??
               themeData.colorScheme.surface,
-      activeRegionColor:
-          rangeSelectorThemeData.activeRegionColor ?? Colors.transparent,
+      activeRegionColor: rangeSelectorThemeData.activeRegionColor ??
+          effectiveThemeData.activeRegionColor,
       inactiveRegionColor: widget.inactiveColor ??
           rangeSelectorThemeData.inactiveRegionColor ??
-          (themeData.brightness == Brightness.light
-              ? const Color.fromRGBO(255, 255, 255, 1).withOpacity(0.75)
-              : const Color.fromRGBO(48, 48, 48, 1).withOpacity(0.75)),
+          effectiveThemeData.inactiveRegionColor,
       tooltipBackgroundColor: rangeSelectorThemeData.tooltipBackgroundColor ??
-          (themeData.brightness == Brightness.light
-              ? const Color.fromRGBO(97, 97, 97, 1)
-              : const Color.fromRGBO(224, 224, 224, 1)),
+          effectiveThemeData.tooltipBackgroundColor,
       trackCornerRadius:
           rangeSelectorThemeData.trackCornerRadius ?? maxTrackHeight / 2,
       thumbRadius: rangeSelectorThemeData.thumbRadius,
@@ -2590,6 +2595,8 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
         Rect.fromPoints(node.rect.topLeft, node.rect.bottomCenter);
     final Rect rightRect =
         Rect.fromPoints(node.rect.topCenter, node.rect.bottomRight);
+    startSemanticsNode ??= SemanticsNode();
+    endSemanticsNode ??= SemanticsNode();
     switch (textDirection) {
       case TextDirection.ltr:
         startSemanticsNode!.rect = leftRect;

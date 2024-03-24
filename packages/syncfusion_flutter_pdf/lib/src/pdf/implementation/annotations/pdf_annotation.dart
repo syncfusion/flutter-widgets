@@ -528,7 +528,7 @@ class PdfAnnotationHelper {
   /// Gets the annotation flags.
   List<PdfAnnotationFlags> get annotationFlags {
     if (isLoadedAnnotation && flag == null) {
-      flag ??= obtainAnnotationFlags();
+      flag ??= obtainAnnotationFlags(getFlagValue());
     }
     return flag ??= <PdfAnnotationFlags>[];
   }
@@ -662,15 +662,18 @@ class PdfAnnotationHelper {
             .setProperty(PdfName(PdfDictionaryProperties.border), border);
       }
     }
-    final PdfRectangle nativeRectangle = _obtainNativeRectangle();
-    if (annotationInnerColor != null &&
-        !annotationInnerColor!.isEmpty &&
-        PdfColorHelper.getHelper(annotationInnerColor!).alpha != 0.0) {
-      dictionary!.setProperty(PdfName(PdfDictionaryProperties.ic),
-          PdfColorHelper.toArray(annotationInnerColor!));
+    if (base is! PdfLinkAnnotation ||
+        (base is PdfLinkAnnotation && !isLoadedAnnotation)) {
+      final PdfRectangle nativeRectangle = _obtainNativeRectangle();
+      if (annotationInnerColor != null &&
+          !annotationInnerColor!.isEmpty &&
+          PdfColorHelper.getHelper(annotationInnerColor!).alpha != 0.0) {
+        dictionary!.setProperty(PdfName(PdfDictionaryProperties.ic),
+            PdfColorHelper.toArray(annotationInnerColor!));
+      }
+      dictionary!.setProperty(PdfName(PdfDictionaryProperties.rect),
+          PdfArray.fromRectangle(nativeRectangle));
     }
-    dictionary!.setProperty(PdfName(PdfDictionaryProperties.rect),
-        PdfArray.fromRectangle(nativeRectangle));
   }
 
   PdfRectangle _obtainNativeRectangle() {
@@ -765,7 +768,8 @@ class PdfAnnotationHelper {
                 name.name == PdfDictionaryProperties.squiggly ||
                 name.name == PdfDictionaryProperties.underline ||
                 name.name == PdfDictionaryProperties.strikeOut ||
-                name.name == PdfDictionaryProperties.text) {
+                name.name == PdfDictionaryProperties.text ||
+                name.name == PdfDictionaryProperties.link) {
               catalog.beginSaveList!.add(dictionaryBeginSave);
               catalog.modify();
             }
@@ -922,41 +926,46 @@ class PdfAnnotationHelper {
   }
 
   // Gets the Author.
-  String? _obtainAuthor() {
-    String? author;
+  String _obtainAuthor() {
+    String author = '';
     if (dictionary!.containsKey(PdfDictionaryProperties.author)) {
-      final PdfString? tempAuthor =
-          PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.author])
-              as PdfString?;
-      if (tempAuthor != null) {
-        author = tempAuthor.value;
+      final IPdfPrimitive? tempAuthor = PdfCrossTable.dereference(
+          dictionary![PdfDictionaryProperties.author]);
+      if (tempAuthor != null &&
+          tempAuthor is PdfString &&
+          tempAuthor.value != null) {
+        author = tempAuthor.value!;
       }
     } else if (dictionary!.containsKey(PdfDictionaryProperties.t)) {
-      final PdfString? tempAuthor =
-          PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.t])
-              as PdfString?;
-      if (tempAuthor != null) {
-        author = tempAuthor.value;
+      final IPdfPrimitive? tempAuthor =
+          PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.t]);
+      if (tempAuthor != null &&
+          tempAuthor is PdfString &&
+          tempAuthor.value != null) {
+        author = tempAuthor.value!;
       }
     }
     return author;
   }
 
   // Gets the Subject.
-  String? _obtainSubject() {
-    String? subject;
+  String _obtainSubject() {
+    String subject = '';
     if (dictionary!.containsKey(PdfDictionaryProperties.subject)) {
-      final PdfString? tempSubject = PdfCrossTable.dereference(
-          dictionary![PdfDictionaryProperties.subject]) as PdfString?;
-      if (tempSubject != null) {
-        subject = tempSubject.value;
+      final IPdfPrimitive? tempSubject = PdfCrossTable.dereference(
+          dictionary![PdfDictionaryProperties.subject]);
+      if (tempSubject != null &&
+          tempSubject is PdfString &&
+          tempSubject.value != null) {
+        subject = tempSubject.value!;
       }
     } else if (dictionary!.containsKey(PdfDictionaryProperties.subj)) {
-      final PdfString? tempSubject =
-          PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.subj])
-              as PdfString?;
-      if (tempSubject != null) {
-        subject = tempSubject.value;
+      final IPdfPrimitive? tempSubject =
+          PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.subj]);
+      if (tempSubject != null &&
+          tempSubject is PdfString &&
+          tempSubject.value != null) {
+        subject = tempSubject.value!;
       }
     }
     return subject;
@@ -1980,7 +1989,7 @@ class PdfAnnotationHelper {
       if (helper.flag != null) {
         int flagValue = 0;
         for (int i = 0; i < helper.flag!.length; i++) {
-          flagValue |= helper.getAnnotationFlagsValue(helper.flag![i]);
+          flagValue |= getAnnotationFlagsValue(helper.flag![i]);
         }
         helper.dictionary!.setNumber(PdfDictionaryProperties.f, flagValue);
       }
@@ -2005,24 +2014,23 @@ class PdfAnnotationHelper {
   }
 
   /// Internal method.
-  List<PdfAnnotationFlags> obtainAnnotationFlags() {
-    final int? flagValue = getFlagValue();
-    flag ??= <PdfAnnotationFlags>[];
+  static List<PdfAnnotationFlags> obtainAnnotationFlags(int? flagValue) {
+    final List<PdfAnnotationFlags> flags = <PdfAnnotationFlags>[];
     if (flagValue != null) {
       for (final PdfAnnotationFlags flag in PdfAnnotationFlags.values) {
         if (flagValue == 0) {
-          return this.flag!..add(flag);
+          return flags..add(flag);
         }
         if (getAnnotationFlagsValue(flag) & flagValue != 0) {
-          this.flag!.add(flag);
+          flags.add(flag);
         }
       }
     }
-    return flag!;
+    return flags;
   }
 
   /// internal method
-  int getAnnotationFlagsValue(PdfAnnotationFlags value) {
+  static int getAnnotationFlagsValue(PdfAnnotationFlags value) {
     switch (value) {
       case PdfAnnotationFlags.defaultFlag:
         return 0;

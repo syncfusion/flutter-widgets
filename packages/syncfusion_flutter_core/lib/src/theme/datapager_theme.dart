@@ -51,7 +51,22 @@ class SfDataPagerTheme extends InheritedTheme {
 class SfDataPagerThemeData with Diagnosticable {
   /// Create a [SfDataPagerThemeData] that's used to configure a
   /// [SfDataPagerTheme].
-  factory SfDataPagerThemeData(
+  const SfDataPagerThemeData(
+      {this.backgroundColor,
+      this.itemColor,
+      this.itemTextStyle,
+      this.selectedItemColor,
+      this.selectedItemTextStyle,
+      this.disabledItemColor,
+      this.disabledItemTextStyle,
+      this.itemBorderColor,
+      this.itemBorderWidth,
+      this.itemBorderRadius,
+      this.dropdownButtonBorderColor});
+
+  /// Create a [SfDataPagerThemeData] that's used to configure a
+  /// [SfDataPagerTheme].
+  factory SfDataPagerThemeData.raw(
       {Brightness? brightness,
       Color? backgroundColor,
       Color? itemColor,
@@ -64,8 +79,8 @@ class SfDataPagerThemeData with Diagnosticable {
       double? itemBorderWidth,
       BorderRadiusGeometry? itemBorderRadius,
       Color? dropdownButtonBorderColor}) {
-    return SfDataPagerThemeData.raw(
-        brightness: brightness,
+    brightness = brightness ?? Brightness.light;
+    return SfDataPagerThemeData(
         backgroundColor: backgroundColor,
         itemColor: itemColor,
         itemTextStyle: itemTextStyle,
@@ -78,30 +93,6 @@ class SfDataPagerThemeData with Diagnosticable {
         itemBorderRadius: itemBorderRadius,
         dropdownButtonBorderColor: dropdownButtonBorderColor);
   }
-
-  /// Create a [SfDataPagerThemeData] given a set of exact values.
-  /// All the values must be specified.
-  ///
-  /// This will rarely be used directly. It is used by [lerp] to
-  /// create intermediate themes based on two themes created with the
-  /// [SfDataPagerThemeData] constructor.
-  const SfDataPagerThemeData.raw(
-      {required this.brightness,
-      required this.backgroundColor,
-      required this.itemColor,
-      required this.itemTextStyle,
-      required this.selectedItemColor,
-      required this.selectedItemTextStyle,
-      required this.disabledItemColor,
-      required this.disabledItemTextStyle,
-      required this.itemBorderColor,
-      required this.itemBorderWidth,
-      required this.itemBorderRadius,
-      required this.dropdownButtonBorderColor});
-
-  /// The brightness of the overall theme of the
-  /// application for the [SfDataPager] widgets.
-  final Brightness? brightness;
 
   /// The color of the page Items
   final Color? itemColor;
@@ -158,7 +149,7 @@ class SfDataPagerThemeData with Diagnosticable {
       BorderRadiusGeometry? itemBorderRadius,
       Color? dropdownButtonBorderColor}) {
     return SfDataPagerThemeData.raw(
-        brightness: brightness ?? this.brightness,
+        brightness: brightness,
         backgroundColor: backgroundColor ?? this.backgroundColor,
         itemColor: itemColor ?? this.itemColor,
         itemTextStyle: itemTextStyle ?? this.itemTextStyle,
@@ -211,7 +202,6 @@ class SfDataPagerThemeData with Diagnosticable {
     }
 
     return other is SfDataPagerThemeData &&
-        other.brightness == brightness &&
         other.itemColor == itemColor &&
         other.backgroundColor == backgroundColor &&
         other.itemTextStyle == itemTextStyle &&
@@ -246,9 +236,7 @@ class SfDataPagerThemeData with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    final SfDataPagerThemeData defaultData = SfDataPagerThemeData();
-    properties.add(EnumProperty<Brightness>('brightness', brightness,
-        defaultValue: defaultData.brightness));
+    const SfDataPagerThemeData defaultData = SfDataPagerThemeData();
     properties.add(ColorProperty('backgroundColor', backgroundColor,
         defaultValue: defaultData.backgroundColor));
     properties.add(ColorProperty('itemColor', itemColor,

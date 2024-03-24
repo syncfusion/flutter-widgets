@@ -953,7 +953,7 @@ class RenderDateTimeAxis extends RenderChartAxis {
   @override
   void generateVisibleLabels() {
     hasTrimmedAxisLabel = false;
-    if (visibleRange == null) {
+    if (visibleRange == null || visibleInterval == 0) {
       return;
     }
 
@@ -973,8 +973,8 @@ class RenderDateTimeAxis extends RenderChartAxis {
         continue;
       }
 
-      final DateFormat niceDateFormat =
-          dateFormat ?? _niceDateFormat(current, previous.toInt());
+      final DateFormat niceDateFormat = dateFormat ??
+          dateTimeAxisLabelFormat(this, current, previous.toInt());
       String text = niceDateFormat
           .format(DateTime.fromMillisecondsSinceEpoch(current.toInt()));
       if (labelFormat != null && labelFormat != '') {
@@ -1022,6 +1022,9 @@ class RenderDateTimeAxis extends RenderChartAxis {
       }
       current = _nextDate(current, visibleInterval, visibleIntervalType)
           .millisecondsSinceEpoch;
+      if (previous == current) {
+        return;
+      }
     }
 
     super.generateVisibleLabels();
@@ -1149,73 +1152,6 @@ class RenderDateTimeAxis extends RenderChartAxis {
       }
     }
     return date;
-  }
-
-  DateFormat _niceDateFormat([num? current, int? previous]) {
-    final bool notDoubleInterval =
-        (interval != null && interval! % 1 == 0) || interval == null;
-    switch (visibleIntervalType) {
-      case DateTimeIntervalType.years:
-        return notDoubleInterval ? DateFormat.y() : DateFormat.MMMd();
-
-      case DateTimeIntervalType.months:
-        return (visibleRange!.minimum == current || current == previous!)
-            ? _firstLabelFormat()
-            : _normalDateFormat(current, previous);
-
-      case DateTimeIntervalType.days:
-        return (visibleRange!.minimum == current || current == previous!)
-            ? _firstLabelFormat()
-            : _normalDateFormat(current, previous);
-
-      case DateTimeIntervalType.hours:
-        return DateFormat.j();
-
-      case DateTimeIntervalType.minutes:
-        return DateFormat.Hm();
-
-      case DateTimeIntervalType.seconds:
-        return DateFormat.ms();
-
-      case DateTimeIntervalType.milliseconds:
-        return DateFormat('ss.SSS');
-
-      case DateTimeIntervalType.auto:
-        return DateFormat();
-    }
-  }
-
-  DateFormat _firstLabelFormat() {
-    late DateFormat format;
-    if (visibleIntervalType == DateTimeIntervalType.months) {
-      format = DateFormat('yyy MMM');
-    } else if (visibleIntervalType == DateTimeIntervalType.days) {
-      format = DateFormat.MMMd();
-    } else if (visibleIntervalType == DateTimeIntervalType.minutes) {
-      format = DateFormat.Hm();
-    }
-    return format;
-  }
-
-  // TODO(VijayakumarM): Optimize it.
-  DateFormat _normalDateFormat(num? current, int? previousLabel) {
-    final DateTime minimum =
-        DateTime.fromMillisecondsSinceEpoch(current!.toInt());
-    final DateTime maximum =
-        DateTime.fromMillisecondsSinceEpoch(previousLabel!);
-    late DateFormat format;
-    final bool isIntervalDecimal = visibleInterval % 1 == 0;
-    if (visibleIntervalType == DateTimeIntervalType.months) {
-      format = minimum.year == maximum.year
-          ? (isIntervalDecimal ? DateFormat.MMM() : DateFormat.MMMd())
-          : DateFormat('yyy MMM');
-    } else if (visibleIntervalType == DateTimeIntervalType.days) {
-      format = minimum.month != maximum.month
-          ? (isIntervalDecimal ? DateFormat.MMMd() : DateFormat.MEd())
-          : DateFormat.d();
-    }
-
-    return format;
   }
 
   @override

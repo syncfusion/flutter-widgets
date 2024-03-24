@@ -1,9 +1,7 @@
 import 'dart:ui';
 
 import '../../drawing/drawing.dart';
-import '../../graphics/brushes/pdf_solid_brush.dart';
 import '../../graphics/figures/pdf_template.dart';
-import '../../graphics/fonts/pdf_font.dart';
 import '../../graphics/pdf_graphics.dart';
 import 'pdf_automatic_field.dart';
 import 'pdf_dynamic_field.dart';
@@ -13,8 +11,7 @@ import 'pdf_template_value_pair.dart';
 abstract class PdfMultipleValueField extends PdfDynamicField {
   // constructor
   /// internal constructor
-  PdfMultipleValueField({PdfFont? font, PdfBrush? brush, Rect? bounds})
-      : super(font: font, bounds: bounds, brush: brush);
+  PdfMultipleValueField({super.font, super.brush, super.bounds});
 
   // fields
   final Map<PdfGraphics, PdfTemplateValuePair> _list =

@@ -465,10 +465,6 @@ class DerNull extends Asn1Null {
   }
   //Fields
   /// internal field
-  @override
-  List<int>? bytes;
-
-  /// internal field
   static DerNull value = DerNull();
   //Implementation
   @override
@@ -509,9 +505,6 @@ class DerObjectID extends Asn1 {
   /// internal field
   String? id;
 
-  /// internal field
-  @override
-  List<int>? bytes;
   // ignore: prefer_final_fields
   static List<DerObjectID?> _objects =
       List<DerObjectID?>.generate(1024, (int i) => null);
@@ -714,10 +707,10 @@ class DerObjectID extends Asn1 {
 /// internal class
 class DerOctet extends Asn1Octet {
   /// internal constructor
-  DerOctet(List<int> bytes) : super(bytes);
+  DerOctet(List<int> super.bytes);
 
   /// internal constructor
-  DerOctet.fromObject(Asn1Encode asn1) : super.fromObject(asn1);
+  DerOctet.fromObject(super.asn1) : super.fromObject();
   @override
   void encode(DerStream stream) {
     stream.writeEncoded(Asn1Tags.octetString, value);
@@ -919,8 +912,7 @@ class DerStream {
 /// internal class
 class DerTag extends Asn1Tag {
   /// internal constructor
-  DerTag(int? tagNumber, Asn1Encode? asn1, [bool? isExplicit])
-      : super(tagNumber, asn1) {
+  DerTag(super.tagNumber, super.asn1, [bool? isExplicit]) {
     if (isExplicit != null) {
       explicit = isExplicit;
     }
@@ -994,12 +986,10 @@ class DerUtcTime extends Asn1 {
 /// internal class
 class DerCatalogue extends Asn1 {
   /// internal constructor
-  DerCatalogue(this.bytes);
-  //Fields
+  DerCatalogue(List<int>? bytes) {
+    this.bytes = bytes;
+  }
 
-  /// internal field
-  @override
-  List<int>? bytes;
   //Implemnetation
   @override
   // ignore: avoid_renaming_method_parameters

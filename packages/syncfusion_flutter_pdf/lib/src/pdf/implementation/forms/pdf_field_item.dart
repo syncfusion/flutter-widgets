@@ -18,7 +18,10 @@ import '../primitives/pdf_reference.dart';
 import '../primitives/pdf_reference_holder.dart';
 import '../primitives/pdf_string.dart';
 import 'enum.dart';
+import 'pdf_check_box_field.dart';
 import 'pdf_field.dart';
+import 'pdf_field_item_collection.dart';
+import 'pdf_form.dart';
 
 /// Represents base class for field's group items.
 class PdfFieldItem {
@@ -241,12 +244,107 @@ class PdfFieldItemHelper {
   static PdfFieldItemHelper getHelper(PdfFieldItem item) {
     return item._helper;
   }
+
+  /// internal method
+  bool obtainCheckedStatus() {
+    bool check = false;
+    IPdfPrimitive? state;
+    if (dictionary!.containsKey(PdfDictionaryProperties.usageApplication)) {
+      state = PdfCrossTable.dereference(
+          dictionary![PdfDictionaryProperties.usageApplication]);
+    }
+    if (state == null) {
+      final PdfFieldHelper fieldHelper = PdfFieldHelper.getHelper(field);
+      final IPdfPrimitive? name = PdfFieldHelper.getValue(
+          fieldHelper.dictionary!,
+          fieldHelper.crossTable,
+          PdfDictionaryProperties.v,
+          false);
+      if (name != null && name is PdfName) {
+        check = (name.name ==
+            fieldHelper.getItemValue(dictionary!, fieldHelper.crossTable));
+      }
+    } else if (state is PdfName) {
+      check = (state.name != PdfDictionaryProperties.off);
+    }
+    return check;
+  }
+
+  /// internal method
+  void setCheckedStatus(bool check) {
+    final PdfFieldHelper fieldHelper = PdfFieldHelper.getHelper(field);
+    String? val = fieldHelper.getItemValue(dictionary!, fieldHelper.crossTable);
+    if (val != null) {
+      _uncheckOthers(val, check, fieldHelper);
+    }
+    if (check) {
+      if (val == null || val.isEmpty) {
+        val = PdfDictionaryProperties.yes;
+      }
+      fieldHelper.dictionary!.setName(PdfName(PdfDictionaryProperties.v), val);
+      dictionary!
+          .setProperty(PdfDictionaryProperties.usageApplication, PdfName(val));
+      dictionary!.setProperty(PdfDictionaryProperties.v, PdfName(val));
+    } else {
+      IPdfPrimitive? v;
+      if (fieldHelper.dictionary!.containsKey(PdfDictionaryProperties.v)) {
+        v = PdfCrossTable.dereference(
+            fieldHelper.dictionary![PdfDictionaryProperties.v]);
+      }
+      if (v != null && v is PdfName && val == v.name) {
+        fieldHelper.dictionary!.remove(PdfDictionaryProperties.v);
+      }
+      dictionary!.setProperty(PdfDictionaryProperties.usageApplication,
+          PdfName(PdfDictionaryProperties.off));
+    }
+    fieldHelper.changed = true;
+  }
+
+  /// internal method
+  void _uncheckOthers(String value, bool check, PdfFieldHelper fieldHelper) {
+    final PdfFieldItemCollection? items = (field as PdfCheckBoxField).items;
+    if (items != null && items.count > 0) {
+      final PdfFieldItemCollectionHelper fieldItemCollectionHelper =
+          PdfFieldItemCollectionHelper.getHelper(items);
+      if (fieldItemCollectionHelper.allowUncheck) {
+        fieldItemCollectionHelper.allowUncheck = false;
+        for (int i = 0; i < items.count; i++) {
+          final PdfFieldItem item = items[i];
+          if (item != fieldItem && item is PdfCheckBoxItem) {
+            final String? val = fieldHelper.getItemValue(
+                PdfFieldItemHelper.getHelper(item).dictionary!,
+                fieldHelper.crossTable);
+            final bool v = val != null && val == value;
+            if (v && check) {
+              item.checked = true;
+            } else {
+              item.checked = false;
+            }
+          }
+        }
+      }
+      fieldItemCollectionHelper.allowUncheck = true;
+    }
+  }
 }
 
 /// Represents loaded check box item.
 class PdfCheckBoxItem extends PdfFieldItem {
-  PdfCheckBoxItem._(PdfField field, int index, PdfDictionary? dictionary)
-      : super._(field, index, dictionary);
+  PdfCheckBoxItem._(super.field, super.index, super.dictionary) : super._();
+
+  //Properties
+  /// Gets or sets a value indicating whether the [PdfCheckBoxItem] is checked.
+  bool get checked => _helper.obtainCheckedStatus();
+
+  set checked(bool value) {
+    if (!_helper.field.readOnly) {
+      if (value != checked) {
+        _helper.setCheckedStatus(value);
+        PdfFormHelper.getHelper(_helper.field.form!).setAppearanceDictionary =
+            true;
+      }
+    }
+  }
 
   //Implementation
   void _setStyle(PdfCheckBoxStyle value) {
@@ -307,8 +405,7 @@ class PdfCheckBoxItemHelper {
 
 /// Represents an item in a text box field collection.
 class PdfTextBoxItem extends PdfFieldItem {
-  PdfTextBoxItem._(PdfField field, int index, PdfDictionary? dictionary)
-      : super._(field, index, dictionary);
+  PdfTextBoxItem._(super.field, super.index, super.dictionary) : super._();
 }
 
 // ignore: avoid_classes_with_only_static_members

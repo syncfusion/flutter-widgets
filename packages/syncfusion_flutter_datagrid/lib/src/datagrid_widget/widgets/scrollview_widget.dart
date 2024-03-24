@@ -137,12 +137,13 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
 
   void _setHorizontalOffset() {
     if (_container.needToSetHorizontalOffset) {
-      _container.horizontalOffset = _horizontalController!.hasClients
-          ? _horizontalController!.offset
-          : 0.0;
+      if (_horizontalController!.hasClients) {
+        _container.horizontalOffset = _horizontalController!.offset;
+      } else if (_horizontalController!.initialScrollOffset <= 0) {
+        _container.horizontalOffset = 0.0;
+      }
       _container.scrollColumns.markDirty();
     }
-
     _container.needToSetHorizontalOffset = false;
   }
 
@@ -377,6 +378,10 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
               _horizontalController!.hasClients &&
               dataGridConfiguration.shrinkWrapColumns) {
             return -_horizontalController!.offset;
+          } else if (!_horizontalController!.hasClients &&
+              _horizontalController!.initialScrollOffset > 0) {
+            final double maxScrollExtent = _container.extentWidth - _width;
+            return -(maxScrollExtent - _container.horizontalOffset);
           }
           return 0.0;
         } else {
@@ -488,17 +493,17 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     final DataGridConfiguration dataGridConfiguration = _dataGridConfiguration;
     final DataGridThemeHelper? dataGridThemeHelper =
         dataGridConfiguration.dataGridThemeHelper;
-    if (dataGridThemeHelper!.frozenPaneElevation <= 0.0 ||
+    if (dataGridThemeHelper!.frozenPaneElevation! <= 0.0 ||
         dataGridConfiguration.columns.isEmpty ||
         effectiveRows(dataGridConfiguration.source).isEmpty) {
       return;
     }
 
     final Color frozenLineColorWithoutOpacity =
-        dataGridThemeHelper.frozenPaneLineColor;
+        dataGridThemeHelper.frozenPaneLineColor!;
 
     final Color frozenLineColorWithOpacity =
-        dataGridThemeHelper.frozenPaneLineColor.withOpacity(0.14);
+        dataGridThemeHelper.frozenPaneLineColor!.withOpacity(0.14);
 
     void drawElevation({
       EdgeInsets? margin,
@@ -574,7 +579,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     // In 4.0 pixels, 1.0 pixel defines the size of the container and
     // 3.0 pixels defines the amount of spreadRadius.
     final double margin =
-        dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation + 4.0;
+        dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation! + 4.0;
     final int frozenColumnIndex =
         grid_helper.getLastFrozenColumnIndex(dataGridConfiguration);
     final int footerFrozenColumnIndex =
@@ -602,7 +607,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
           dataGridConfiguration.container.horizontalOffset > 0) {
         spreadRadiusValue = 3.0;
         blurRadiusValue =
-            dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation;
+            dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation!;
         frozenLineColor = frozenLineColorWithOpacity;
       }
       if (dataGridConfiguration.textDirection == TextDirection.rtl &&
@@ -612,7 +617,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
               dataGridConfiguration.container.horizontalOffset) {
         spreadRadiusValue = 3.0;
         blurRadiusValue =
-            dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation;
+            dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation!;
         frozenLineColor = frozenLineColorWithOpacity;
       }
 
@@ -634,7 +639,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         !_canDisableHorizontalScrolling(dataGridConfiguration)) {
       double spreadRadiusValue = 3.0;
       double blurRadiusValue =
-          dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation;
+          dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation!;
       Color frozenLineColor = frozenLineColorWithOpacity;
       final double top =
           getTopPosition(columnHeaderRow, footerFrozenColumnIndex);
@@ -680,7 +685,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
       if (dataGridConfiguration.container.verticalOffset > 0) {
         spreadRadiusValue = 3.0;
         blurRadiusValue =
-            dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation;
+            dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation!;
         frozenLineColor = frozenLineColorWithOpacity;
       }
 
@@ -700,7 +705,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
         !_canDisableVerticalScrolling(dataGridConfiguration)) {
       double spreadRadiusValue = 3.0;
       double blurRadiusValue =
-          dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation;
+          dataGridConfiguration.dataGridThemeHelper!.frozenPaneElevation!;
       Color frozenLineColor = frozenLineColorWithOpacity;
       final double bottom = columnHeaderRow.getRowHeight(
           footerFrozenRowIndex, dataGridConfiguration.container.rowCount);
@@ -858,8 +863,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
 
   // --------------------------------------------------------------------------
 
-  KeyEventResult _handleKeyOperation(
-      FocusNode focusNode, RawKeyEvent keyEvent) {
+  KeyEventResult _handleKeyOperation(FocusNode focusNode, KeyEvent keyEvent) {
     final DataGridConfiguration dataGridConfiguration = _dataGridConfiguration;
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
     // To handle group expansion and collapse the group.
@@ -897,19 +901,19 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     }
 
     void processKeys() {
-      if (keyEvent.runtimeType == RawKeyDownEvent) {
+      if (keyEvent.runtimeType == KeyDownEvent) {
         _rowSelectionManager.handleKeyEvent(keyEvent);
-        if (keyEvent.isControlPressed) {
+        if (HardwareKeyboard.instance.isControlPressed) {
           dataGridConfiguration.isControlKeyPressed = true;
         }
-        if (keyEvent.isMetaPressed) {
+        if (HardwareKeyboard.instance.isMetaPressed) {
           dataGridConfiguration.isCommandKeyPressed = true;
         }
-        if (keyEvent.isShiftPressed) {
+        if (HardwareKeyboard.instance.isShiftPressed) {
           dataGridConfiguration.isShiftKeyPressed = true;
         }
       }
-      if (keyEvent.runtimeType == RawKeyUpEvent) {
+      if (keyEvent.runtimeType == KeyUpEvent) {
         if (keyEvent.logicalKey == LogicalKeyboardKey.controlLeft ||
             keyEvent.logicalKey == LogicalKeyboardKey.controlRight) {
           dataGridConfiguration.isControlKeyPressed = false;
@@ -936,7 +940,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
               currentCell.rowIndex == rowIndex) ||
           (!_dataGridFocusNode!.hasPrimaryFocus && currentCell.isEditing);
 
-      if (keyEvent.isShiftPressed) {
+      if (HardwareKeyboard.instance.isShiftPressed) {
         final int firstRowIndex =
             selection_helper.getFirstRowIndex(dataGridConfiguration);
         final int firstCellIndex =
@@ -965,6 +969,8 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
       if (keyEvent.logicalKey == LogicalKeyboardKey.tab &&
           needToMoveFocus() != KeyEventResult.handled) {
         return KeyEventResult.ignored;
+      } else if (keyEvent.logicalKey == LogicalKeyboardKey.goBack) {
+        return KeyEventResult.ignored;
       }
 
       processKeys();
@@ -972,8 +978,8 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
           (keyEvent.logicalKey == LogicalKeyboardKey.arrowRight ||
               keyEvent.logicalKey == LogicalKeyboardKey.arrowLeft)) {
         if (dataGridConfiguration.isMacPlatform
-            ? !keyEvent.isMetaPressed
-            : !keyEvent.isControlPressed) {
+            ? !HardwareKeyboard.instance.isMetaPressed
+            : !HardwareKeyboard.instance.isControlPressed) {
           expandCollapseGroup();
         }
       }
@@ -1071,9 +1077,20 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
 
       _updateAxis();
 
+      if (_verticalController!.initialScrollOffset > 0 &&
+          !_container.isPreGenerator) {
+        _container.verticalOffset = _verticalController!.initialScrollOffset;
+      }
+
       //if shrink wrap width is not set we update the column size after updated the axis because we get the constraint max width
       if (!_dataGridConfiguration.shrinkWrapColumns) {
         _updateColumnSizer();
+      }
+
+      if (_horizontalController!.initialScrollOffset > 0 &&
+          !_container.isPreGenerator) {
+        _container.horizontalOffset =
+            _horizontalController!.initialScrollOffset;
       }
       _container
         ..setRowHeights(initialLoading: true)
@@ -1147,7 +1164,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     return Focus(
         key: _dataGridConfiguration.dataGridKey,
         focusNode: _dataGridFocusNode,
-        onKey: _handleKeyOperation,
+        onKeyEvent: _handleKeyOperation,
         child: addContainer());
   }
 
@@ -1183,8 +1200,8 @@ Widget _getResizingCursor(DataGridConfiguration dataGridConfiguration,
 
   final int rowSpan = columnResizeController.rowSpan;
   final int rowIndex = columnResizeController.rowIndex;
-  final Color indicatorColor = themeData.columnResizeIndicatorColor;
-  final double strokeWidth = themeData.columnResizeIndicatorStrokeWidth;
+  final Color indicatorColor = themeData.columnResizeIndicatorColor!;
+  final double strokeWidth = themeData.columnResizeIndicatorStrokeWidth!;
   double rowHeight = dataGridConfiguration.container.rowHeights[rowIndex];
 
   // Consider the spanned row height to show the indicator at center
@@ -2056,24 +2073,26 @@ class VisualContainerHelper {
   }
 
   void _updateFreezePaneColumns(DataGridConfiguration dataGridConfiguration) {
-    if (dataGridConfiguration.frozenColumnsCount > 0 ||
-        dataGridConfiguration.footerFrozenColumnsCount > 0) {
-      final int frozenColumnCount = grid_helper.resolveToScrollColumnIndex(
-          dataGridConfiguration, dataGridConfiguration.frozenColumnsCount);
-      if (frozenColumnCount > 0 && columnCount >= frozenColumnCount) {
-        frozenColumns = frozenColumnCount;
-      } else {
-        frozenColumns = 0;
-      }
+    // We need to consider the indent column along with the frozen columns count.
+    // So, we have added the 1 to the frozen columns count.
+    // We should consider the frozen columns count when the [SfDataGrid.frozenColumnsCount] is greater than 0.
+    final int frozenColumnCount = dataGridConfiguration.frozenColumnsCount > 0
+        ? grid_helper.resolveToScrollColumnIndex(
+            dataGridConfiguration, dataGridConfiguration.frozenColumnsCount)
+        : 0;
+    if (frozenColumnCount > 0 && columnCount >= frozenColumnCount) {
+      frozenColumns = frozenColumnCount;
+    } else {
+      frozenColumns = 0;
+    }
 
-      final int footerFrozenColumnsCount =
-          dataGridConfiguration.footerFrozenColumnsCount;
-      if (footerFrozenColumnsCount > 0 &&
-          columnCount > frozenColumnCount + footerFrozenColumnsCount) {
-        footerFrozenColumns = footerFrozenColumnsCount;
-      } else {
-        footerFrozenColumns = 0;
-      }
+    final int footerFrozenColumnsCount =
+        dataGridConfiguration.footerFrozenColumnsCount;
+    if (footerFrozenColumnsCount > 0 &&
+        columnCount > frozenColumnCount + footerFrozenColumnsCount) {
+      footerFrozenColumns = footerFrozenColumnsCount;
+    } else {
+      footerFrozenColumns = 0;
     }
   }
 

@@ -454,9 +454,11 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     List<List<num>>? chaoticYLists,
     List<List<num>>? yLists,
     List<ChartValueMapper<T, Object>>? fPaths,
+    List<List<Object?>>? chaoticFLists,
     List<List<Object?>>? fLists,
   ]) {
-    super.populateDataSource(yPaths, chaoticYLists, yLists, fPaths, fLists);
+    super.populateDataSource(
+        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
     _xMin = xMin;
     _xMax = xMax;
     _yMin = yMin;
@@ -472,9 +474,10 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
       List<List<num>>? chaoticYLists,
       List<List<num>>? yLists,
       List<ChartValueMapper<T, Object>>? fPaths,
+      List<List<Object?>>? chaoticFLists,
       List<List<Object?>>? fLists]) {
     super.updateDataPoints(removedIndexes, addedIndexes, replacedIndexes,
-        yPaths, chaoticYLists, yLists, fPaths, fLists);
+        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
     _xMin = xMin;
     _xMax = xMax;
     _yMin = yMin;
@@ -867,6 +870,10 @@ class ErrorBarSegment<T, D> extends ChartSegment {
 
   @override
   void transformValues() {
+    if (_xValues.isEmpty || _yValues.isEmpty || _errorBarValues.isEmpty) {
+      return;
+    }
+
     _verticalPath.reset();
     _verticalCapPath.reset();
     _horizontalPath.reset();

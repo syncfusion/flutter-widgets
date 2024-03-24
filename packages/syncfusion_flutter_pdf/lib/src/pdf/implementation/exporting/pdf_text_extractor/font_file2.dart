@@ -1,6 +1,5 @@
-/// internal constructor
 // ignore_for_file: text_direction_code_point_in_literal
-
+/// internal constructor
 class AdobeGlyphList {
   // Constructor
   /// internal class

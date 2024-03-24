@@ -315,7 +315,7 @@ class ScheduleViewSettings with Diagnosticable {
   final bool hideEmptyScheduleWeek;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -597,7 +597,7 @@ class MonthHeaderSettings with Diagnosticable {
   final TextStyle? monthTextStyle;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -915,7 +915,7 @@ class WeekHeaderSettings with Diagnosticable {
   final TextStyle? weekTextStyle;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -1152,7 +1152,7 @@ class DayHeaderSettings with Diagnosticable {
   final TextStyle? dateTextStyle;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }

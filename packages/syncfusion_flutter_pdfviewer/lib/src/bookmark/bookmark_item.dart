@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import '../common/pdfviewer_helper.dart';
+import '../theme/theme.dart';
 
 /// Width of the back icon in the bookmark.
 const double _kPdfBackIconWidth = 24.0;
@@ -106,11 +107,16 @@ class BookmarkItem extends StatefulWidget {
 class _BookmarkItemState extends State<BookmarkItem> {
   late Color _color;
   SfPdfViewerThemeData? _pdfViewerThemeData;
+  SfPdfViewerThemeData? _effectiveThemeData;
 
   @override
   void didChangeDependencies() {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
+    _effectiveThemeData = Theme.of(context).useMaterial3
+        ? SfPdfViewerThemeDataM3(context)
+        : SfPdfViewerThemeDataM2(context);
     _color = _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+        _effectiveThemeData!.bookmarkViewStyle?.backgroundColor ??
         (Theme.of(context).colorScheme.brightness == Brightness.light
             ? Colors.white
             : const Color(0xFF212121));
@@ -120,11 +126,13 @@ class _BookmarkItemState extends State<BookmarkItem> {
   @override
   void dispose() {
     _pdfViewerThemeData = null;
+    _effectiveThemeData = null;
     super.dispose();
   }
 
   void _handleBackToParent() {
     _color = _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+        _effectiveThemeData!.bookmarkViewStyle?.backgroundColor ??
         (Theme.of(context).colorScheme.brightness == Brightness.light
             ? Colors.white
             : const Color(0xFF212121));
@@ -133,6 +141,7 @@ class _BookmarkItemState extends State<BookmarkItem> {
 
   void _handleExpandBookmarkList() {
     _color = _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+        _effectiveThemeData!.bookmarkViewStyle?.backgroundColor ??
         (Theme.of(context).colorScheme.brightness == Brightness.light
             ? Colors.white
             : const Color(0xFF212121));
@@ -153,6 +162,7 @@ class _BookmarkItemState extends State<BookmarkItem> {
         _color = const Color(0xFF000000).withOpacity(0.08);
       } else {
         _color = _pdfViewerThemeData!.bookmarkViewStyle?.selectionColor! ??
+            _effectiveThemeData!.bookmarkViewStyle?.selectionColor! ??
             ((Theme.of(context).colorScheme.brightness == Brightness.light)
                 ? const Color.fromRGBO(0, 0, 0, 0.08)
                 : const Color.fromRGBO(255, 255, 255, 0.12));
@@ -167,6 +177,7 @@ class _BookmarkItemState extends State<BookmarkItem> {
   void _handleCancelSelectionColor() {
     setState(() {
       _color = _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+          _effectiveThemeData!.bookmarkViewStyle?.backgroundColor ??
           (Theme.of(context).colorScheme.brightness == Brightness.light
               ? Colors.white
               : const Color(0xFF212121));
@@ -190,6 +201,8 @@ class _BookmarkItemState extends State<BookmarkItem> {
                   bottom: BorderSide(
                     color: _pdfViewerThemeData!
                             .bookmarkViewStyle?.titleSeparatorColor ??
+                        _effectiveThemeData!
+                            .bookmarkViewStyle?.titleSeparatorColor ??
                         ((Theme.of(context).colorScheme.brightness ==
                                 Brightness.light)
                             ? const Color.fromRGBO(0, 0, 0, 0.16)
@@ -212,12 +225,13 @@ class _BookmarkItemState extends State<BookmarkItem> {
                   child: Icon(
                     Icons.arrow_back,
                     size: _kPdfBackIconSize,
-                    color:
-                        _pdfViewerThemeData!.bookmarkViewStyle?.backIconColor ??
-                            Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.54),
+                    color: _pdfViewerThemeData!
+                            .bookmarkViewStyle?.backIconColor ??
+                        _effectiveThemeData!.bookmarkViewStyle?.backIconColor ??
+                        Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.54),
                     semanticLabel: 'Previous level bookmark',
                   ),
                 ),
@@ -257,6 +271,8 @@ class _BookmarkItemState extends State<BookmarkItem> {
                     size: _kPdfExpandIconSize,
                     color: _pdfViewerThemeData!
                             .bookmarkViewStyle?.navigationIconColor ??
+                        _effectiveThemeData!
+                            .bookmarkViewStyle?.navigationIconColor ??
                         Theme.of(context)
                             .colorScheme
                             .onSurface
@@ -275,12 +291,15 @@ class _BookmarkItemState extends State<BookmarkItem> {
         cursor: SystemMouseCursors.click,
         onEnter: (PointerEnterEvent details) {
           setState(() {
-            _color = const Color(0xFF000000).withOpacity(0.04);
+            _color = Theme.of(context).useMaterial3
+                ? Theme.of(context).colorScheme.onSurface.withOpacity(0.08)
+                : const Color(0xFF000000).withOpacity(0.04);
           });
         },
         onExit: (PointerExitEvent details) {
           setState(() {
             _color = _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+                _effectiveThemeData!.bookmarkViewStyle?.backgroundColor ??
                 (Theme.of(context).colorScheme.brightness == Brightness.light
                     ? Colors.white
                     : const Color(0xFF212121));

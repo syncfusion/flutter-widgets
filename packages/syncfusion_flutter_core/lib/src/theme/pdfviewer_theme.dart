@@ -109,10 +109,26 @@ class SfPdfViewerTheme extends InheritedTheme {
 /// ```
 @immutable
 class SfPdfViewerThemeData with Diagnosticable {
+  /// Create a [SfPdfViewerThemeData] given a set of exact values.
+  /// All the values must be specified.
+  ///
+  /// This will rarely be used directly. It is used by [lerp] to
+  /// create intermediate themes based on two themes created with the
+  /// [SfPdfViewerThemeData] constructor.
+  const SfPdfViewerThemeData({
+    this.backgroundColor,
+    this.progressBarColor,
+    this.scrollStatusStyle,
+    this.scrollHeadStyle,
+    this.bookmarkViewStyle,
+    this.paginationDialogStyle,
+    this.hyperlinkDialogStyle,
+    this.passwordDialogStyle,
+  });
+
   /// Creating an argument constructor of SfPdfViewerThemeData class.
-  factory SfPdfViewerThemeData(
-      {Brightness? brightness,
-      Color? backgroundColor,
+  factory SfPdfViewerThemeData.raw(
+      {Color? backgroundColor,
       Color? progressBarColor,
       PdfScrollStatusStyle? scrollStatusStyle,
       PdfScrollHeadStyle? scrollHeadStyle,
@@ -120,54 +136,7 @@ class SfPdfViewerThemeData with Diagnosticable {
       PdfPaginationDialogStyle? paginationDialogStyle,
       PdfHyperlinkDialogStyle? hyperlinkDialogStyle,
       PdfPasswordDialogStyle? passwordDialogStyle}) {
-    brightness = brightness ?? Brightness.light;
-    final bool isLight = brightness == Brightness.light;
-    backgroundColor ??=
-        isLight ? const Color(0xFFD6D6D6) : const Color(0xFF303030);
-    scrollHeadStyle ??= PdfScrollHeadStyle(
-      backgroundColor:
-          isLight ? const Color(0xFFFAFAFA) : const Color(0xFF424242),
-    );
-    bookmarkViewStyle ??= PdfBookmarkViewStyle(
-      backgroundColor: isLight ? Colors.white : const Color(0xFF212121),
-      closeIconColor: isLight
-          ? Colors.black.withOpacity(0.54)
-          : Colors.white.withOpacity(0.54),
-      backIconColor: isLight
-          ? Colors.black.withOpacity(0.54)
-          : Colors.white.withOpacity(0.54),
-      headerBarColor:
-          isLight ? const Color(0xFFFAFAFA) : const Color(0xFF424242),
-      navigationIconColor: isLight
-          ? Colors.black.withOpacity(0.54)
-          : Colors.white.withOpacity(0.54),
-      selectionColor: isLight
-          ? const Color.fromRGBO(0, 0, 0, 0.08)
-          : const Color.fromRGBO(255, 255, 255, 0.12),
-      titleSeparatorColor: isLight
-          ? const Color.fromRGBO(0, 0, 0, 0.16)
-          : const Color.fromRGBO(255, 255, 255, 0.16),
-    );
-    paginationDialogStyle ??= PdfPaginationDialogStyle(
-      backgroundColor: isLight ? Colors.white : const Color(0xFF424242),
-    );
-    hyperlinkDialogStyle ??= PdfHyperlinkDialogStyle(
-      backgroundColor: isLight ? Colors.white : const Color(0xFF424242),
-      closeIconColor: isLight
-          ? Colors.black.withOpacity(0.6)
-          : Colors.white.withOpacity(0.6),
-    );
-    passwordDialogStyle ??= PdfPasswordDialogStyle(
-      backgroundColor: isLight ? Colors.white : const Color(0xFF424242),
-      closeIconColor: isLight
-          ? Colors.black.withOpacity(0.6)
-          : Colors.white.withOpacity(0.6),
-      visibleIconColor: isLight
-          ? Colors.black.withOpacity(0.6)
-          : Colors.white.withOpacity(0.6),
-    );
-    return SfPdfViewerThemeData.raw(
-        brightness: brightness,
+    return SfPdfViewerThemeData(
         backgroundColor: backgroundColor,
         progressBarColor: progressBarColor,
         scrollStatusStyle: scrollStatusStyle,
@@ -177,54 +146,6 @@ class SfPdfViewerThemeData with Diagnosticable {
         hyperlinkDialogStyle: hyperlinkDialogStyle,
         passwordDialogStyle: passwordDialogStyle);
   }
-
-  /// Create a [SfPdfViewerThemeData] given a set of exact values.
-  /// All the values must be specified.
-  ///
-  /// This will rarely be used directly. It is used by [lerp] to
-  /// create intermediate themes based on two themes created with the
-  /// [SfPdfViewerThemeData] constructor.
-  ///
-  const SfPdfViewerThemeData.raw({
-    required this.brightness,
-    required this.backgroundColor,
-    required this.progressBarColor,
-    required this.scrollStatusStyle,
-    required this.scrollHeadStyle,
-    required this.bookmarkViewStyle,
-    required this.paginationDialogStyle,
-    required this.hyperlinkDialogStyle,
-    required this.passwordDialogStyle,
-  });
-
-  /// The brightness of the overall theme of the
-  /// application for [SfPdfViewer] widget.
-  ///
-  /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).colorScheme.brightness], brightness for
-  /// [SfPdfViewer] widgets will be applied.
-  ///
-  /// Also refer [Brightness].
-  ///
-  /// ```dart
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///      body: Center(
-  ///        child: SfTheme(
-  ///          data: SfThemeData(
-  ///            pdfViewerThemeData: SfPdfViewerThemeData(
-  ///              brightness: Brightness.dark
-  ///            )
-  ///          ),
-  ///      child: SfPdfViewer.asset(
-  ///           'assets/flutter-succinctly.pdf',
-  ///          ),
-  ///        ),
-  ///      )
-  ///   );
-  /// }
-  ///```
-  final Brightness? brightness;
 
   /// Specifies the background color of [SfPdfViewer] widget.
   ///
@@ -449,8 +370,7 @@ class SfPdfViewerThemeData with Diagnosticable {
   /// Creates a copy of this [SfPdfViewer] theme data object with the
   /// matching fields replaced with the non-null parameter values.
   SfPdfViewerThemeData copyWith(
-      {Brightness? brightness,
-      Color? backgroundColor,
+      {Color? backgroundColor,
       Color? progressBarColor,
       PdfScrollStatusStyle? scrollStatusStyle,
       PdfScrollHeadStyle? scrollHeadStyle,
@@ -459,7 +379,6 @@ class SfPdfViewerThemeData with Diagnosticable {
       PdfHyperlinkDialogStyle? hyperlinkDialogStyle,
       PdfPasswordDialogStyle? passwordDialogStyle}) {
     return SfPdfViewerThemeData.raw(
-      brightness: brightness ?? this.brightness,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       progressBarColor: progressBarColor ?? this.progressBarColor,
       scrollStatusStyle: scrollStatusStyle ?? this.scrollStatusStyle,
@@ -505,7 +424,6 @@ class SfPdfViewerThemeData with Diagnosticable {
     }
 
     return other is SfPdfViewerThemeData &&
-        other.brightness == brightness &&
         other.backgroundColor == backgroundColor &&
         other.progressBarColor == progressBarColor &&
         other.scrollStatusStyle == scrollStatusStyle &&
@@ -534,9 +452,7 @@ class SfPdfViewerThemeData with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    final SfPdfViewerThemeData defaultData = SfPdfViewerThemeData();
-    properties.add(EnumProperty<Brightness>('brightness', brightness,
-        defaultValue: defaultData.brightness));
+    const SfPdfViewerThemeData defaultData = SfPdfViewerThemeData();
     properties.add(ColorProperty('backgroundColor', backgroundColor,
         defaultValue: defaultData.backgroundColor));
     properties.add(ColorProperty('progressBarColor', progressBarColor,

@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import 'barcodes_theme.dart';
 import 'calendar_theme.dart';
 import 'charts_theme.dart';
@@ -13,6 +12,7 @@ import 'pdfviewer_theme.dart';
 import 'range_selector_theme.dart';
 import 'range_slider_theme.dart';
 import 'slider_theme.dart';
+import 'spark_charts_theme.dart';
 import 'treemap_theme.dart';
 
 /// Applies a theme to descendant Syncfusion widgets.
@@ -90,7 +90,6 @@ class SfTheme extends StatelessWidget {
   /// }
   /// ```
   final SfThemeData? data;
-
   //ignore: unused_field
   static final SfThemeData _kFallbackTheme = SfThemeData.fallback();
 
@@ -118,13 +117,10 @@ class SfTheme extends StatelessWidget {
 class _SfInheritedTheme extends InheritedTheme {
   const _SfInheritedTheme({Key? key, this.data, required Widget child})
       : super(key: key, child: child);
-
   final SfThemeData? data;
-
   @override
   bool updateShouldNotify(_SfInheritedTheme oldWidget) =>
       data != oldWidget.data;
-
   @override
   Widget wrap(BuildContext context, Widget child) {
     final _SfInheritedTheme? ancestorTheme =
@@ -165,6 +161,7 @@ class SfThemeData with Diagnosticable {
       {Brightness? brightness,
       SfPdfViewerThemeData? pdfViewerThemeData,
       SfChartThemeData? chartThemeData,
+      SfSparkChartThemeData? sparkChartThemeData,
       SfCalendarThemeData? calendarThemeData,
       SfDataGridThemeData? dataGridThemeData,
       SfDataPagerThemeData? dataPagerThemeData,
@@ -177,33 +174,38 @@ class SfThemeData with Diagnosticable {
       SfMapsThemeData? mapsThemeData,
       SfTreemapThemeData? treemapThemeData}) {
     brightness ??= Brightness.light;
-    pdfViewerThemeData =
-        pdfViewerThemeData ?? SfPdfViewerThemeData(brightness: brightness);
-    chartThemeData = chartThemeData ?? SfChartThemeData(brightness: brightness);
+    pdfViewerThemeData = pdfViewerThemeData ?? SfPdfViewerThemeData.raw();
+    sparkChartThemeData = sparkChartThemeData ??
+        SfSparkChartThemeData.raw(brightness: brightness);
+    chartThemeData =
+        chartThemeData ?? SfChartThemeData.raw(brightness: brightness);
     calendarThemeData =
-        calendarThemeData ?? SfCalendarThemeData(brightness: brightness);
+        calendarThemeData ?? SfCalendarThemeData.raw(brightness: brightness);
     dataGridThemeData =
-        dataGridThemeData ?? SfDataGridThemeData(brightness: brightness);
+        dataGridThemeData ?? SfDataGridThemeData.raw(brightness: brightness);
     dateRangePickerThemeData = dateRangePickerThemeData ??
-        SfDateRangePickerThemeData(brightness: brightness);
+        SfDateRangePickerThemeData.raw(brightness: brightness);
     barcodeThemeData =
-        barcodeThemeData ?? SfBarcodeThemeData(brightness: brightness);
-    gaugeThemeData = gaugeThemeData ?? SfGaugeThemeData(brightness: brightness);
+        barcodeThemeData ?? SfBarcodeThemeData.raw(brightness: brightness);
+    gaugeThemeData =
+        gaugeThemeData ?? SfGaugeThemeData.raw(brightness: brightness);
     sliderThemeData =
-        sliderThemeData ?? SfSliderThemeData(brightness: brightness);
+        sliderThemeData ?? SfSliderThemeData.raw(brightness: brightness);
     rangeSelectorThemeData = rangeSelectorThemeData ??
-        SfRangeSelectorThemeData(brightness: brightness);
-    rangeSliderThemeData =
-        rangeSliderThemeData ?? SfRangeSliderThemeData(brightness: brightness);
-    mapsThemeData = mapsThemeData ?? SfMapsThemeData(brightness: brightness);
+        SfRangeSelectorThemeData.raw(brightness: brightness);
+    rangeSliderThemeData = rangeSliderThemeData ??
+        SfRangeSliderThemeData.raw(brightness: brightness);
+    mapsThemeData =
+        mapsThemeData ?? SfMapsThemeData.raw(brightness: brightness);
     treemapThemeData =
-        treemapThemeData ?? SfTreemapThemeData(brightness: brightness);
+        treemapThemeData ?? SfTreemapThemeData.raw(brightness: brightness);
     dataPagerThemeData =
-        dataPagerThemeData ?? SfDataPagerThemeData(brightness: brightness);
+        dataPagerThemeData ?? SfDataPagerThemeData.raw(brightness: brightness);
     return SfThemeData.raw(
         brightness: brightness,
         pdfViewerThemeData: pdfViewerThemeData,
         chartThemeData: chartThemeData,
+        sparkChartThemeData: sparkChartThemeData,
         calendarThemeData: calendarThemeData,
         dataGridThemeData: dataGridThemeData,
         dataPagerThemeData: dataPagerThemeData,
@@ -228,6 +230,7 @@ class SfThemeData with Diagnosticable {
       {required this.brightness,
       required this.pdfViewerThemeData,
       required this.chartThemeData,
+      required this.sparkChartThemeData,
       required this.calendarThemeData,
       required this.dataGridThemeData,
       required this.dateRangePickerThemeData,
@@ -316,6 +319,25 @@ class SfThemeData with Diagnosticable {
   /// }
   /// ```
   final SfChartThemeData chartThemeData;
+
+  /// Defines the default configuration of spark chart widgets.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///    appBar: AppBar(),
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            sparkchartThemeData: SfSparkChartThemeData()
+  ///          ),
+  ///          child: SfCartesianChart(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+  final SfSparkChartThemeData sparkChartThemeData;
 
   /// Defines the default configuration of datagrid widgets.
   ///
@@ -532,6 +554,7 @@ class SfThemeData with Diagnosticable {
     Brightness? brightness,
     SfPdfViewerThemeData? pdfViewerThemeData,
     SfChartThemeData? chartThemeData,
+    SfSparkChartThemeData? sparkChartThemeData,
     SfCalendarThemeData? calendarThemeData,
     SfDataGridThemeData? dataGridThemeData,
     SfDateRangePickerThemeData? dateRangePickerThemeData,
@@ -548,6 +571,7 @@ class SfThemeData with Diagnosticable {
         brightness: brightness ?? this.brightness,
         pdfViewerThemeData: pdfViewerThemeData ?? this.pdfViewerThemeData,
         chartThemeData: chartThemeData ?? this.chartThemeData,
+        sparkChartThemeData: sparkChartThemeData ?? this.sparkChartThemeData,
         calendarThemeData: calendarThemeData ?? this.calendarThemeData,
         dataGridThemeData: dataGridThemeData ?? this.dataGridThemeData,
         dataPagerThemeData: dataPagerThemeData ?? this.dataPagerThemeData,
@@ -567,13 +591,14 @@ class SfThemeData with Diagnosticable {
   static SfThemeData lerp(SfThemeData? a, SfThemeData? b, double t) {
     assert(a != null);
     assert(b != null);
-
     return SfThemeData.raw(
         brightness: t < 0.5 ? a!.brightness : b!.brightness,
         pdfViewerThemeData: SfPdfViewerThemeData.lerp(
             a!.pdfViewerThemeData, b!.pdfViewerThemeData, t)!,
         chartThemeData:
             SfChartThemeData.lerp(a.chartThemeData, b.chartThemeData, t)!,
+        sparkChartThemeData: SfSparkChartThemeData.lerp(
+            a.sparkChartThemeData, b.sparkChartThemeData, t)!,
         calendarThemeData: SfCalendarThemeData.lerp(
             a.calendarThemeData, b.calendarThemeData, t)!,
         dataGridThemeData: SfDataGridThemeData.lerp(
@@ -603,11 +628,11 @@ class SfThemeData with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-
     return other is SfThemeData &&
         other.brightness == brightness &&
         other.pdfViewerThemeData == pdfViewerThemeData &&
         other.chartThemeData == chartThemeData &&
+        other.sparkChartThemeData == sparkChartThemeData &&
         other.calendarThemeData == calendarThemeData &&
         other.dataGridThemeData == dataGridThemeData &&
         other.dataPagerThemeData == dataPagerThemeData &&
@@ -627,6 +652,7 @@ class SfThemeData with Diagnosticable {
       brightness,
       pdfViewerThemeData,
       chartThemeData,
+      sparkChartThemeData,
       calendarThemeData,
       dataGridThemeData,
       dataPagerThemeData,
@@ -654,6 +680,9 @@ class SfThemeData with Diagnosticable {
     properties.add(DiagnosticsProperty<SfChartThemeData>(
         'chartThemeData', chartThemeData,
         defaultValue: defaultData.chartThemeData));
+    properties.add(DiagnosticsProperty<SfSparkChartThemeData>(
+        'sparkChartThemeData', sparkChartThemeData,
+        defaultValue: defaultData.sparkChartThemeData));
     properties.add(DiagnosticsProperty<SfCalendarThemeData>(
         'calendarThemeData', calendarThemeData,
         defaultValue: defaultData.calendarThemeData));

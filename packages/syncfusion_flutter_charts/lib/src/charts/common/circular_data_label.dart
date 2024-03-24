@@ -222,8 +222,13 @@ class _CircularDataLabelContainerState<T, D>
       return;
     }
 
+    final bool hasSortedIndexes = renderer!.sortingOrder != SortingOrder.none &&
+        sortedIndexes != null &&
+        sortedIndexes!.isNotEmpty;
+
     for (int i = 0; i < renderer!.dataCount; i++) {
-      _obtainLabel(i, actualXValues, yLength, positions, posAdj, callback, add);
+      _obtainLabel(i, actualXValues, yLength, positions, posAdj, callback, add,
+          hasSortedIndexes);
     }
   }
 
@@ -240,7 +245,9 @@ class _CircularDataLabelContainerState<T, D>
     int posAdj,
     _ChartDataLabelWidgetBuilder<T, D> callback,
     Function(CircularChartDataLabelPositioned) add,
+    bool hasSortedIndexes,
   ) {
+    final int pointIndex = hasSortedIndexes ? sortedIndexes![index] : index;
     final num x = xValues![index];
     final CircularChartPoint<D> point =
         CircularChartPoint<D>(x: rawXValues[index] as D?);
@@ -264,10 +271,10 @@ class _CircularDataLabelContainerState<T, D>
         position: position,
         point: point,
         child: callback(
-          widget.dataSource[index],
+          widget.dataSource[pointIndex],
           point,
           widget.series,
-          index,
+          pointIndex,
           renderer!.index,
           position,
         ),
@@ -364,6 +371,7 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
   late CircularSeriesRenderer<T, D>? series;
   late LinkedList<CircularChartDataLabelPositioned>? labels;
   late DataLabelSettings settings;
+  bool hasTrimmedDataLabel = false;
 
   List<CircularDataLabelBoxParentData> widgets =
       <CircularDataLabelBoxParentData>[];
@@ -378,10 +386,14 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
 
   @override
   bool hitTestSelf(Offset position) {
-    return true;
+    return hasTrimmedDataLabel || series?.parent?.onDataLabelTapped != null;
   }
 
   int _findSelectedDataLabelIndex(Offset localPosition) {
+    if (series?.parent?.onDataLabelTapped == null && !hasTrimmedDataLabel) {
+      return -1;
+    }
+
     if (childCount > 0) {
       RenderBox? child = lastChild;
       while (child != null) {
@@ -427,13 +439,15 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
         settings,
         selectedIndex,
       ));
-    } else {
+    } else if (hasTrimmedDataLabel) {
       final int selectedIndex = _findSelectedDataLabelIndex(localPosition);
       if (selectedIndex == -1) {
         return;
       }
       final CircularChartPoint point = labels!.elementAt(selectedIndex).point!;
-      if (point.trimmedText != null && point.text != point.trimmedText) {
+      if (point.isVisible &&
+          point.trimmedText != null &&
+          point.text != point.trimmedText) {
         _showTooltipForTrimmedDataLabel(point, selectedIndex);
       }
     }
@@ -441,13 +455,17 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
 
   @override
   void handlePointerHover(Offset localPosition) {
-    final int selectedIndex = _findSelectedDataLabelIndex(localPosition);
-    if (selectedIndex == -1) {
-      return;
-    }
-    final CircularChartPoint point = labels!.elementAt(selectedIndex).point!;
-    if (point.trimmedText != null && point.text != point.trimmedText) {
-      _showTooltipForTrimmedDataLabel(point, selectedIndex);
+    if (hasTrimmedDataLabel) {
+      final int selectedIndex = _findSelectedDataLabelIndex(localPosition);
+      if (selectedIndex == -1) {
+        return;
+      }
+      final CircularChartPoint point = labels!.elementAt(selectedIndex).point!;
+      if (point.isVisible &&
+          point.trimmedText != null &&
+          point.text != point.trimmedText) {
+        _showTooltipForTrimmedDataLabel(point, selectedIndex);
+      }
     }
   }
 
@@ -527,18 +545,18 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
         currentLabel.size = measureText(details.text, details.textStyle);
         currentLabel.offset +=
             series!.dataLabelPosition(currentLabelData, currentLabel.size);
+        hasTrimmedDataLabel = currentLabel.point!.trimmedText != null;
 
         if (currentLabel.point!.text != details.text) {
           details.text = currentLabel.point!.text!;
           currentLabel.size = measureText(details.text, details.textStyle);
         }
-
-        // TODO(Lavanya): Need to handle the offset value for the
-        // shift data label.
       }
       if (series!.dataLabelSettings.labelIntersectAction ==
           LabelIntersectAction.shift) {
         shiftCircularDataLabels(series!, labels!);
+        hasTrimmedDataLabel =
+            labels!.every((element) => element.point!.trimmedText != null);
       }
     }
   }

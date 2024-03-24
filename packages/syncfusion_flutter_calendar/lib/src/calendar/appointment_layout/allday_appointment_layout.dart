@@ -1393,7 +1393,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
           appointmentView.startIndex <= index &&
           appointmentView.endIndex > index) {
         selectionDecoration ??= BoxDecoration(
-          color: calendarTheme.brightness == Brightness.light
+          color: themeData.brightness == Brightness.light
               ? Colors.white.withOpacity(0.3)
               : Colors.black.withOpacity(0.4),
           border:

@@ -654,10 +654,14 @@ class RenderTrendlineStack extends RenderBox
   List<LegendItem>? buildLegendItems(
       int seriesIndex, LegendItemProvider provider) {
     final List<LegendItem> legendItems = <LegendItem>[];
-    int trendlineIndex = 0;
+    const int trendlineIndex = 0;
     TrendlineRenderer? child = firstChild;
     while (child != null) {
-      legendItems.addAll(child.buildLegendItems(trendlineIndex++, provider)!);
+      final List<LegendItem>? items =
+          child.buildLegendItems(trendlineIndex, provider);
+      if (items != null) {
+        legendItems.addAll(items);
+      }
       child = childAfter(child);
     }
     return legendItems;
@@ -914,7 +918,9 @@ class TrendlineRenderer extends RenderBox {
   set isVisibleInLegend(bool value) {
     if (_isVisibleInLegend != value) {
       _isVisibleInLegend = value;
-      series!.markNeedsLegendUpdate();
+      if (series != null) {
+        series!.markNeedsLegendUpdate();
+      }
     }
   }
 
@@ -2065,7 +2071,7 @@ class TrendlineRenderer extends RenderBox {
     late Function(num, [bool]) polynomialForeCastValue;
 
     late List<num> sortedXValues;
-    if (series!.hasLinearData) {
+    if (series!.canFindLinearVisibleIndexes) {
       sortedXValues = seriesXValues;
     } else {
       final List<num> xValuesCopy = <num>[...seriesXValues];
@@ -2222,7 +2228,9 @@ class TrendlineRenderer extends RenderBox {
 
   void _updateLegendBasedOnSeries(bool seriesToggled) {
     if (!isToggled) {
-      _legendItem!.onToggled?.call();
+      if (_legendItem != null) {
+        _legendItem!.onToggled?.call();
+      }
     }
   }
 
@@ -2349,10 +2357,7 @@ class TrendlineRenderer extends RenderBox {
   }
 
   void _calculateMarkerPositions() {
-    final Color themeFillColor =
-        series!.parent!.chartThemeData!.brightness == Brightness.light
-            ? Colors.white
-            : Colors.black;
+    final Color themeFillColor = series!.parent!.themeData!.colorScheme.surface;
     final MarkerSettings settings = markerSettings;
     final int length = trendlineXValues.length;
     for (int i = 0; i < length; i++) {

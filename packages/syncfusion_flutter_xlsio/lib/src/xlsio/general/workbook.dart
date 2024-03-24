@@ -6786,7 +6786,6 @@ class Workbook {
   /// Dispose  objects.
   void dispose() {
     if (_archives != null) {
-      _archives!.files.clear();
       _archives = null;
     }
 

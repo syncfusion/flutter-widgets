@@ -71,6 +71,60 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
     return Uint8List.fromList(<int>[0]);
   }
 
+  /// Gets the image's bytes information of the specified portion of the page.
+  Future<Uint8List?> getTileImage(int pageNumber, double scale, double x,
+      double y, double width, double height, String documentID) async {
+    if (_documentRepo[documentID] != null) {
+      PdfJsPage page = await promiseToFuture<PdfJsPage>(
+          _documentRepo[documentID]!.getPage(pageNumber));
+      PdfJsViewport viewport = page.getViewport(_settings);
+      return _renderPageTile(page, viewport, scale, x, y, width, height);
+    }
+    return Uint8List.fromList(<int>[0]);
+  }
+
+  Future<Uint8List> _renderPageTile(
+    PdfJsPage page,
+    PdfJsViewport viewport,
+    double scale,
+    double x,
+    double y,
+    double width,
+    double height,
+  ) async {
+    final html.CanvasElement htmlCanvas =
+        js.context['document'].createElement('canvas');
+    final Object? context = htmlCanvas.getContext('2d');
+
+    viewport = page.getViewport(Settings()
+      ..offsetX = -(x * scale)
+      ..offsetY = -(y * scale)
+      ..scale = scale);
+
+    htmlCanvas
+      ..height = height.toInt()
+      ..width = width.toInt();
+    final renderSettings = Settings()
+      ..canvasContext = (context as html.CanvasRenderingContext2D)
+      ..viewport = viewport
+      ..annotationMode = 0;
+    await promiseToFuture<void>(page.render(renderSettings).promise);
+
+    // Renders the page as a PNG image and retrieve its byte information.
+    final completer = Completer<void>();
+    final blob = await htmlCanvas.toBlob();
+    final bytesBuilder = BytesBuilder();
+    final fileReader = html.FileReader()..readAsArrayBuffer(blob);
+    fileReader.onLoadEnd.listen(
+      (html.ProgressEvent e) {
+        bytesBuilder.add(fileReader.result as List<int>);
+        completer.complete();
+      },
+    );
+    await completer.future;
+    return bytesBuilder.toBytes();
+  }
+
   /// Closes the PDF document.
   @override
   Future<void> closeDocument(String documentID) async {

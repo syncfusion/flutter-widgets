@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import '../../pdfviewer.dart';
 import '../common/pdfviewer_helper.dart';
+import '../theme/theme.dart';
 
 /// Size of the ScrollHead.
 const double kPdfScrollHeadSize = 36.0;
@@ -56,16 +57,23 @@ class ScrollHead extends StatefulWidget {
 /// State for [ScrollHead]
 class _ScrollHeadState extends State<ScrollHead> {
   SfPdfViewerThemeData? _pdfViewerThemeData;
+  SfPdfViewerThemeData? _effectiveThemeData;
+  bool _isMaterial3 = false;
 
   @override
   void didChangeDependencies() {
+    _isMaterial3 = Theme.of(context).useMaterial3;
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
+    _effectiveThemeData = _isMaterial3
+        ? SfPdfViewerThemeDataM3(context)
+        : SfPdfViewerThemeDataM2(context);
     super.didChangeDependencies();
   }
 
   @override
   void dispose() {
     _pdfViewerThemeData = null;
+    _effectiveThemeData = null;
     super.dispose();
   }
 
@@ -164,6 +172,7 @@ class _ScrollHeadState extends State<ScrollHead> {
             child: Container(
               decoration: BoxDecoration(
                 color: _pdfViewerThemeData!.scrollHeadStyle?.backgroundColor ??
+                    _effectiveThemeData!.scrollHeadStyle?.backgroundColor ??
                     (Theme.of(context).colorScheme.brightness ==
                             Brightness.light
                         ? const Color(0xFFFAFAFA)
@@ -180,7 +189,7 @@ class _ScrollHeadState extends State<ScrollHead> {
                       .textTheme
                       .bodySmall!
                       .copyWith(
-                        fontSize: 12,
+                        fontSize: _isMaterial3 ? 14 : 12,
                         color: Theme.of(context).brightness == Brightness.light
                             ? Colors.black.withOpacity(0.87)
                             : Colors.white.withOpacity(0.87),

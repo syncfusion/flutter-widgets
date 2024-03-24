@@ -11,12 +11,9 @@ void main() {
 class RangeSelectorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Range Selector Demo',
-      theme: ThemeData(
-        useMaterial3: false,
-      ),
-      home: const MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }

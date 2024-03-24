@@ -11,8 +11,13 @@ class IPdfExternalSigner {
   DigestAlgorithm get hashAlgorithm => _hashAlgorithm;
 
   //Public methods
-  /// Returns Signed Message Digest.
-  SignerResult? sign(List<int> message) {
+  /// Asynchronously returns signed message digest.
+  Future<SignerResult?> sign(List<int> message) async {
+    return null;
+  }
+
+  /// Synchronously returns signed message digest.
+  SignerResult? signSync(List<int> message) {
     return null;
   }
 }

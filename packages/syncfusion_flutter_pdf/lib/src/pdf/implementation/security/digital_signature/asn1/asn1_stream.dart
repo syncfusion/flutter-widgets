@@ -139,8 +139,9 @@ class Asn1Stream {
   Asn1? buildObject(int tag, int tagNumber, int length) {
     final bool isConstructed = (tag & Asn1Tags.constructed) != 0;
     final Asn1StreamHelper stream = Asn1StreamHelper(_stream, length);
-    if ((tag & Asn1Tags.tagged) != 0)
+    if ((tag & Asn1Tags.tagged) != 0) {
       return Asn1Parser(stream).readTaggedObject(isConstructed, tagNumber);
+    }
     if (isConstructed) {
       switch (tagNumber) {
         case Asn1Tags.octetString:
@@ -379,7 +380,7 @@ class Asn1StreamHelper extends Asn1BaseStream {
 /// internal class
 class Asn1LengthStream extends Asn1BaseStream {
   /// internal constructor
-  Asn1LengthStream(PdfStreamReader? stream, int? limit) : super(stream, limit) {
+  Asn1LengthStream(super.stream, super.limit) {
     byte = requireByte();
     checkEndOfFile();
   }

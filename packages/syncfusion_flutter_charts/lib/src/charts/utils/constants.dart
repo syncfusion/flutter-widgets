@@ -48,3 +48,24 @@ const EdgeInsetsDirectional tooltipItemSpacing =
 const EdgeInsets tooltipInnerPadding = EdgeInsets.all(6.0);
 
 const defaultLegendSizeFactor = 0.3;
+
+// Crosshair tooltip padding.
+const double crosshairPadding = 10;
+
+// Indicator upper line text.
+const String trackballUpperLineText = 'UpperLine';
+
+// Indicator ceter line text.
+const String trackballCenterText = 'CenterLine';
+
+// Indicator lower line text.
+const String trackballLowerLineText = 'LowerLine';
+
+// Indicator period line text.
+const String trackballPeriodLineText = 'PeriodLine';
+
+// Indicator MACD line text.
+const String trackballMACDLineText = 'MacdLine';
+
+// Indicator histogram text.
+const String trackballHistogramText = 'Histogram';

@@ -9,13 +9,6 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
     var documentRepo = [String: CGPDFDocument?]()
 
     let dispatcher = DispatchQueue(label: "syncfusion_flutter_pdfviewer")
-    
-    // Point to pixel ratio calculation
-    // 1 inch = 96 pixels
-    // 1 inch = 72 points
-    // 72 points = 96 pixels
-    // 1 point = 96/72 pixels
-    let pointToPixelRatio = 96.0 / 72.0
 
     // Registers the SyncfusionFlutterPdfViewerPlugin
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -33,6 +26,12 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         {
             dispatcher.async {
                 self.getImage(call:call,result:result)
+            }
+        }
+        else if(call.method == "getTileImage")
+        {
+            dispatcher.async {
+                self.getTileImage(call:call,result:result)
             }
         }
         else if(call.method == "getPagesWidth")
@@ -78,11 +77,11 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
     {
         guard let argument = call.arguments else {return}
         let documentID = argument as! String
-        let document = self.documentRepo[documentID]!!
-        let pageCount = NSNumber(value: document.numberOfPages)
+        guard let document = self.documentRepo[documentID] else {return}
+        let pageCount = NSNumber(value: document!.numberOfPages)
         var pagesWidth = Array<Double>()
         for index in stride(from: 1,to: pageCount.intValue + 1, by: 1){
-            let page = document.page(at: Int(index))
+            let page = document!.page(at: Int(index))
             var pageRect = page!.getBoxRect(.cropBox)
             if(page!.rotationAngle > 0)
             {
@@ -99,11 +98,11 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
     {
         guard let argument = call.arguments else {return}
         let documentID = argument as! String
-        let document = self.documentRepo[documentID]!!
-        let pageCount = NSNumber(value: document.numberOfPages)
+        guard let document = self.documentRepo[documentID] else { return }
+        let pageCount = NSNumber(value: document!.numberOfPages)
         var pagesHeight = Array<Double>()
         for index in stride(from: 1,to: pageCount.intValue + 1, by: 1){
-            let page = document.page(at: Int(index))
+            let page = document!.page(at: Int(index))
             var pageRect = page!.getBoxRect(.cropBox)
             if(page!.rotationAngle > 0)
             {
@@ -126,16 +125,19 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         {
             scale = 2
         }
-        scale = scale * CGFloat(pointToPixelRatio)
         let documentID = args!["documentID"] as! String
-        result(getImageForPlugin(index: index!,scale: scale,documentID: documentID))
+        guard let image = getImageForPlugin(index: index!,scale: scale,documentID: documentID) else {
+            result(FlutterStandardTypedData())
+            return
+        }
+        result(image)
     }
 
-    private func getImageForPlugin(index: Int,scale: CGFloat,documentID: String) -> FlutterStandardTypedData
+    private func getImageForPlugin(index: Int,scale: CGFloat,documentID: String) -> FlutterStandardTypedData?
     {
-        let document = self.documentRepo[documentID]!!
-        let page = document.page(at: Int(index))
-        var pageRect = page!.getBoxRect(.cropBox)
+        guard let document = self.documentRepo[documentID] else {return nil}
+        let page = document!.page(at: Int(index))
+        let pageRect = page!.getBoxRect(.cropBox)
         let imageRect = CGRect(x: 0,y: 0,width: pageRect.size.width*CGFloat(scale),height: pageRect.size.height*CGFloat(scale))
         if #available(iOS 10.0, *) {
             let format = UIGraphicsImageRendererFormat()
@@ -147,10 +149,73 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
             }
             let renderer = UIGraphicsImageRenderer(size: imageRect.size,format: format)
             let img = renderer.image { ctx in
-                let cropBox = page!.getBoxRect(.cropBox)
-                let transform = page!.getDrawingTransform(.cropBox, rect: cropBox, rotate: 0, preserveAspectRatio: true)
+                let transform = page!.getDrawingTransform(.cropBox, rect: CGRect(origin: CGPoint.zero, size: pageRect.size), rotate: 0, preserveAspectRatio: true)
                 ctx.cgContext.translateBy(x: 0.0, y: imageRect.size.height)
                 ctx.cgContext.scaleBy(x: CGFloat(scale), y: -CGFloat(scale))
+                ctx.cgContext.concatenate(transform)
+                ctx.cgContext.drawPDFPage(page!)
+                ctx.cgContext.endPage()
+            }
+            return FlutterStandardTypedData(bytes: img.pngData()!)
+        }
+        return FlutterStandardTypedData()
+    }
+
+    // Gets the pdf page image from the specified page
+    private func getTileImage( call: FlutterMethodCall, result: @escaping FlutterResult)
+    {
+        guard let argument = call.arguments else {return}
+        let args = argument as? [String: Any]
+        let pageNumber = args!["pageNumber"] as? Int
+        let scale = CGFloat(args!["scale"] as! Double)
+        let width = args!["width"] as! Double
+        let height = args!["height"] as! Double
+        let x = args!["x"] as! Double
+        let y = args!["y"] as! Double
+ 
+        let documentID = args!["documentID"] as! String
+        guard let tileImage = getTileImageForPlugin(pageNumber: pageNumber!, scale: scale,
+                                     width: width, height: height, x: x, y: y, documentID: documentID) else {
+            result(FlutterStandardTypedData())
+            return
+        }
+        result(tileImage)
+    }
+        
+    // Gets the image for plugin
+    private func getTileImageForPlugin(pageNumber: Int, scale: CGFloat, width: Double, height: Double, x: Double, y: Double, documentID: String) -> FlutterStandardTypedData?
+    {
+        guard let document = self.documentRepo[documentID] else{return nil}
+        let page = document!.page(at: Int(pageNumber))
+        let pageRect = page!.getBoxRect(.cropBox)
+        
+        var pageWidth = pageRect.width
+        var pageHeight = pageRect.height
+        
+        if(page!.rotationAngle == 90 || page!.rotationAngle == 270) {
+            pageWidth = pageRect.height
+            pageHeight = pageRect.width
+        }
+        let imageRect = CGRect(x: 0,y: 0, width: width, height: height)
+        let bounds = CGRect(x: -(pageWidth * scale / 2) + (pageWidth / 2) - CGFloat(x),
+                            y: -(pageHeight * scale / 2) + (pageHeight / 2) + CGFloat(y),
+                            width: pageWidth * scale, height: pageHeight * scale)
+        if #available(iOS 10.0, *) {
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = 1
+            if #available(iOS 12.0, *) {
+                format.preferredRange = .standard
+            } else {
+                format.prefersExtendedRange = false
+            }
+            let renderer = UIGraphicsImageRenderer(size: imageRect.size,format: format)
+            
+            let img = renderer.image { ctx in
+                let transform = page!.getDrawingTransform(.cropBox, rect: bounds, rotate: 0, preserveAspectRatio: true)
+                ctx.cgContext.translateBy(x: 0.0, y: pageHeight * scale)
+                ctx.cgContext.scaleBy(x: scale, y: -scale)
+                ctx.cgContext.setFillColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+                ctx.cgContext.fill(bounds)
                 ctx.cgContext.concatenate(transform)
                 ctx.cgContext.drawPDFPage(page!)
                 ctx.cgContext.endPage()

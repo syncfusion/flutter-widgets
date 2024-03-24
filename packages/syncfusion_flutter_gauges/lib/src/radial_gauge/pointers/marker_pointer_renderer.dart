@@ -18,37 +18,37 @@ import '../../radial_gauge/utils/radial_callback_args.dart';
 /// Represents the renderer of radial gauge marker pointer.
 class RenderMarkerPointer extends RenderBox {
   /// Creates a object for [RenderMarkerPointer].
-  RenderMarkerPointer(
-      {required double value,
-      required this.enableDragging,
-      this.onValueChanged,
-      this.onValueChangeStart,
-      this.onValueChangeEnd,
-      this.onValueChanging,
-      required MarkerType markerType,
-      Color? color,
-      required double markerWidth,
-      required double markerHeight,
-      required double borderWidth,
-      required double markerOffset,
-      String? text,
-      Color? borderColor,
-      required GaugeSizeUnit offsetUnit,
-      String? imageUrl,
-      MarkerPointerRenderer? markerPointerRenderer,
-      required GaugeTextStyle textStyle,
-      required BuildContext context,
-      Color? overlayColor,
-      double? overlayRadius,
-      double elevation = 0,
-      AnimationController? pointerAnimationController,
-      this.pointerInterval,
-      required this.animationType,
-      required this.enableAnimation,
-      required this.isRadialGaugeAnimationEnabled,
-      required ValueNotifier<int> repaintNotifier,
-      required SfGaugeThemeData gaugeThemeData})
-      : _value = value,
+  RenderMarkerPointer({
+    required double value,
+    required this.enableDragging,
+    this.onValueChanged,
+    this.onValueChangeStart,
+    this.onValueChangeEnd,
+    this.onValueChanging,
+    required MarkerType markerType,
+    Color? color,
+    required double markerWidth,
+    required double markerHeight,
+    required double borderWidth,
+    required double markerOffset,
+    String? text,
+    Color? borderColor,
+    required GaugeSizeUnit offsetUnit,
+    String? imageUrl,
+    MarkerPointerRenderer? markerPointerRenderer,
+    required GaugeTextStyle textStyle,
+    Color? overlayColor,
+    double? overlayRadius,
+    double elevation = 0,
+    AnimationController? pointerAnimationController,
+    this.pointerInterval,
+    required this.animationType,
+    required this.enableAnimation,
+    required this.isRadialGaugeAnimationEnabled,
+    required ValueNotifier<int> repaintNotifier,
+    required SfGaugeThemeData gaugeThemeData,
+    required ThemeData themeData,
+  })  : _value = value,
         _markerType = markerType,
         _color = color,
         _markerWidth = markerWidth,
@@ -67,8 +67,7 @@ class RenderMarkerPointer extends RenderBox {
         _pointerAnimationController = pointerAnimationController,
         _repaintNotifier = repaintNotifier,
         _gaugeThemeData = gaugeThemeData,
-        _themeData = Theme.of(context),
-        _isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+        _themeData = themeData;
 
   final double _margin = 15;
   dart_ui.Image? _image;
@@ -88,8 +87,6 @@ class RenderMarkerPointer extends RenderBox {
   late double _centerXPoint;
   late double _centerYPoint;
   late Offset _axisCenter;
-  final bool _isDarkTheme;
-  final ThemeData _themeData;
 
   /// Marker pointer old value.
   double? oldValue;
@@ -206,6 +203,19 @@ class RenderMarkerPointer extends RenderBox {
       return;
     }
     _gaugeThemeData = value;
+    markNeedsPaint();
+  }
+
+  /// Gets the themeData assigned to [RenderRadialAxisWidget].
+  ThemeData get themeData => _themeData;
+  ThemeData _themeData;
+
+  /// Sets the themeData for [RenderRadialAxisWidget].
+  set themeData(ThemeData value) {
+    if (value == _themeData) {
+      return;
+    }
+    _themeData = value;
     markNeedsPaint();
   }
 
@@ -628,7 +638,9 @@ class RenderMarkerPointer extends RenderBox {
     final Paint paint = Paint()
       ..color = color ??
           gaugeThemeData.markerColor ??
-          _themeData.colorScheme.secondaryContainer.withOpacity(0.8)
+          (_themeData.useMaterial3
+              ? _themeData.colorScheme.onSurfaceVariant
+              : _themeData.colorScheme.secondaryContainer.withOpacity(0.8))
       ..style = PaintingStyle.fill;
     const Color shadowColor = Colors.black;
 
@@ -718,13 +730,16 @@ class RenderMarkerPointer extends RenderBox {
   /// To render the MarkerShape.Text
   void _drawText(Canvas canvas, Paint paint, Offset startPosition,
       double pointerAngle, SfGaugeThemeData gaugeThemeData) {
+    final bool isDarkTheme = _themeData.brightness == Brightness.dark;
     final TextStyle markerTextStyle = _themeData.textTheme.bodySmall!.copyWith(
       color: textStyle.color ??
           _gaugeThemeData.markerTextStyle?.color ??
           _gaugeThemeData.axisLabelColor ??
-          (_isDarkTheme
+          (_themeData.useMaterial3
               ? _themeData.colorScheme.onSurface
-              : _themeData.colorScheme.onSurface.withOpacity(0.72)),
+              : (isDarkTheme
+                  ? _themeData.colorScheme.onSurface
+                  : _themeData.colorScheme.onSurface.withOpacity(0.72))),
       fontSize: textStyle.fontSize ?? _gaugeThemeData.markerTextStyle?.fontSize,
       fontFamily:
           textStyle.fontFamily ?? _gaugeThemeData.markerTextStyle?.fontFamily,

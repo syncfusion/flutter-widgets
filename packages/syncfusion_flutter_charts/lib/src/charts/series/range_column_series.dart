@@ -3,12 +3,12 @@ import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../base.dart';
+import '../behaviors/trackball.dart';
 import '../common/chart_point.dart';
 import '../common/core_tooltip.dart';
 import '../common/data_label.dart';
 import '../common/marker.dart';
 import '../interactions/tooltip.dart';
-import '../interactions/trackball.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
@@ -334,9 +334,9 @@ class RangeColumnSeriesRenderer<T, D> extends RangeSeriesRendererBase<T, D>
     final SfChartThemeData chartThemeData = parent!.chartThemeData!;
     final ThemeData themeData = parent!.themeData!;
     if (chartThemeData.plotAreaBackgroundColor != Colors.transparent) {
-      return chartThemeData.plotAreaBackgroundColor;
+      return chartThemeData.plotAreaBackgroundColor!;
     } else if (chartThemeData.backgroundColor != Colors.transparent) {
-      return chartThemeData.backgroundColor;
+      return chartThemeData.backgroundColor!;
     }
     return themeData.colorScheme.surface;
   }
@@ -388,48 +388,6 @@ class RangeColumnSeriesRenderer<T, D> extends RangeSeriesRendererBase<T, D>
         gradientBounds: rangeColumnSegment.segmentRect?.outerRect,
         gradient: gradient,
         borderGradient: borderGradient);
-  }
-
-  @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
-    }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-
-    for (final ChartSegment segment in segments) {
-      if (segment is RangeColumnSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-        final Rect rect = segment.series.paintBounds;
-
-        final num touchXValue =
-            segment.series.xAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double curX = segment.series.xValues[index].toDouble();
-        final double curY = segment.series.highValues[index].toDouble();
-        if (delta == touchXValue - curX) {
-          if ((touchYValue - curY).abs() > (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
-    }
-    return segmentCollection;
   }
 }
 
@@ -556,26 +514,24 @@ class RangeColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
-    if (segmentRect != null) {
-      final num left = x + series.sbsInfo.minimum;
-      final num right = x + series.sbsInfo.maximum;
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
+    if (pointIndex != -1 && segmentRect != null) {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
+      final Offset preferredPos =
+          Offset(series.pointToPixelX(x, top), series.pointToPixelY(x, top));
       return ChartTrackballInfo<T, D>(
-        position: series.isTransposed
-            ? series.yAxis!.isInversed
-                ? segmentRect!.outerRect.centerLeft
-                : segmentRect!.outerRect.centerRight
-            : series.yAxis!.isInversed
-                ? segmentRect!.outerRect.bottomCenter
-                : segmentRect!.outerRect.topCenter,
+        position: preferredPos,
+        highXPos: preferredPos.dx,
+        highYPos: preferredPos.dy,
+        lowYPos: series.pointToPixelY(chartPoint.xValue!, bottom),
         point: chartPoint,
         series: series,
-        pointIndex: currentSegmentIndex,
         seriesIndex: series.index,
-        lowYPos: series.pointToPixelY((left + right) / 2, bottom),
-        highYPos: series.pointToPixelY((left + right) / 2, top),
-        highXPos: series.pointToPixelX((left + right) / 2, top),
+        segmentIndex: currentSegmentIndex,
+        pointIndex: pointIndex,
+        text: series.trackballText(chartPoint, series.name),
+        header: series.tooltipHeaderText(chartPoint),
+        color: fillPaint.color,
       );
     }
     return null;

@@ -164,7 +164,7 @@ class DateRangePickerHeaderStyle with Diagnosticable {
   final Color? backgroundColor;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -321,7 +321,7 @@ class DateRangePickerViewHeaderStyle with Diagnosticable {
   final TextStyle? textStyle;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -448,7 +448,7 @@ class DateRangePickerWeekNumberStyle with Diagnosticable {
   final TextStyle? textStyle;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -1070,7 +1070,7 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   final DateRangePickerWeekNumberStyle weekNumberStyle;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -1631,7 +1631,7 @@ class DateRangePickerYearCellStyle with Diagnosticable {
   final Decoration? leadingDatesDecoration;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -3055,7 +3055,7 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   final Color? endRangeSelectionColor;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }

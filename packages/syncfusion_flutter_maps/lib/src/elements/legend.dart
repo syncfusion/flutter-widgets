@@ -2426,7 +2426,7 @@ class _LegendState extends State<Legend> {
           position: _getEffectivePosition(widget.legend.position),
           overflowMode: _getEffectiveOverflowMode(widget.legend.overflowMode),
           itemSpacing: widget.legend.spacing,
-          textStyle: widget.legend.textStyle,
+          textStyle: widget.themeData.legendTextStyle,
           iconType: _getEffectiveLegendIconType(widget.legend.iconType),
           iconSize: widget.legend.iconSize,
           toggledIndices: _toggledIndices,
@@ -2455,7 +2455,7 @@ class _LegendState extends State<Legend> {
           direction: widget.legend.direction,
           offset: widget.legend.offset,
           padding: widget.legend.padding,
-          textStyle: widget.legend.textStyle,
+          textStyle: widget.themeData.legendTextStyle,
           labelsPlacement:
               _getEffectiveLabelPlacement(_getActualLabelsPlacement()),
           edgeLabelsPlacement: _getEffectiveEdgeLabelsPlacement(
