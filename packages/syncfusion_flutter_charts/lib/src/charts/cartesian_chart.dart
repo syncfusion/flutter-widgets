@@ -1330,7 +1330,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
 
   void _buildTrackballWidget(List<TrackballDetails> details) {
     final TrackballBehavior trackballBehavior = widget.trackballBehavior!;
-    if (details.isEmpty || trackballBehavior.builder == null) {
+    if (details.isEmpty || trackballBehavior.builder == null || trackballBehavior.chartPointInfo.isEmpty) {
       _trackballBuilder = const SizedBox(width: 0, height: 0);
     } else if (details.isNotEmpty && trackballBehavior.builder != null) {
       _trackballBuilder = Stack(
