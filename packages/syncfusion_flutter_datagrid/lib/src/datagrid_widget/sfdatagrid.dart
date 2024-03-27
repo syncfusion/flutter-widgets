@@ -23,7 +23,7 @@ typedef QueryRowHeightCallback = double Function(RowHeightDetails details);
 
 /// Signature for [SfDataGrid.onSelectionChanging] callback.
 typedef SelectionChangingCallback = bool Function(
-    List<DataGridRow> addedRows, List<DataGridRow> removedRows);
+    List<DataGridRow> addedRows, List<DataGridRow> removedRows, RowColumnIndex rowColumnIndex);
 
 /// Signature for [SfDataGrid.onSelectionChanged] callback.
 typedef SelectionChangedCallback = void Function(
