@@ -128,7 +128,11 @@ typedef GroupChangedCallback = void Function(DataGridGroupChangedDetails group);
 /// constructor of each [DataGridRow] object.
 class DataGridRow {
   /// Creates [DataGridRow] for the [SfDataGrid].
-  const DataGridRow({required List<DataGridCell> cells}) : _cells = cells;
+  DataGridRow({
+    required List<DataGridCell> cells,
+    List<Widget>? widgets,
+  })  : _cells = cells,
+        _widgets = widgets ?? <Widget>[];
 
   /// The data for this row.
   ///
@@ -136,10 +140,22 @@ class DataGridRow {
   /// [SfDataGrid].
   final List<DataGridCell> _cells;
 
+  /// The data for this row.
+  ///
+  /// There must be exactly as many widgets as there are columns in the
+  /// [SfDataGrid].
+  final List<Widget> _widgets;
+
   /// Returns the collection of [DataGridCell] which is created for
   /// [DataGridRow].
   List<DataGridCell> getCells() {
     return _cells;
+  }
+
+  /// Returns the list of [Widget]s which is created for
+  /// [DataGridRow].
+  List<Widget> getWidgets() {
+    return _widgets;
   }
 }
 
