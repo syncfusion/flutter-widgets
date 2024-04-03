@@ -618,10 +618,6 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     }
 
     _visibleAppointments = value;
-    if (childCount == 0) {
-      return;
-    }
-
     markNeedsPaint();
   }
 
@@ -899,7 +895,6 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
   void _drawMonthCells(Canvas canvas, Size size) {
     const double viewPadding = 5;
-    const double circlePadding = 4;
     final double cellWidth =
         (size.width - weekNumberPanelWidth) / DateTime.daysPerWeek;
     final double cellHeight = size.height / rowCount;
@@ -922,7 +917,6 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     bool isCurrentDate;
 
     _linePainter.isAntiAlias = true;
-    final TextStyle todayStyle = calendarTheme.todayTextStyle!;
     final TextStyle currentMonthTextStyle = calendarTheme.activeDatesTextStyle!;
     final TextStyle previousMonthTextStyle =
         calendarTheme.trailingDatesTextStyle!;
@@ -1036,7 +1030,6 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
       if (isSameDate(currentVisibleDate, today)) {
         _linePainter.color = todayBackgroundColor;
-        textStyle = todayStyle;
         isCurrentDate = true;
       }
 
@@ -1052,6 +1045,18 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
           textStyle =
               textStyle.copyWith(decoration: TextDecoration.lineThrough);
         }
+      }
+
+      // for saturday and sunday
+      final List<CalendarAppointment> appointments =
+          AppointmentHelper.getSpecificDateVisibleAppointment(
+              currentVisibleDate, visibleAppointments);
+      if (currentVisibleDate.weekday == DateTime.saturday) {
+        textStyle = textStyle.copyWith(color: Colors.blue[800]);
+      } else if (currentVisibleDate.weekday == DateTime.sunday) {
+        textStyle = textStyle.copyWith(color: Colors.red);
+      } else if (appointments.any((e) => e.isHoliday)) {
+        textStyle = textStyle.copyWith(color: Colors.red);
       }
 
       final TextSpan span = TextSpan(
@@ -1080,22 +1085,15 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
       }
 
       if (isCurrentDate) {
-        _linePainter.style = PaintingStyle.fill;
-        _linePainter.color = todayHighlightColor!;
-        _linePainter.isAntiAlias = true;
-
-        final double textHeight = _textPainter.height / 2;
-        canvas.drawCircle(
-            Offset(xPosition + cellWidth / 2,
-                yPosition + circlePadding + textHeight),
-            textHeight + viewPadding,
-            _linePainter);
+        Paint backgroundPaint = Paint()..color = Colors.grey.withOpacity(0.2);
+        canvas.drawRect(
+            Rect.fromLTWH(
+                xPosition, yPosition - viewPadding, cellWidth, cellHeight),
+            backgroundPaint);
       }
 
       _textPainter.paint(
-          canvas,
-          Offset(xPosition + (cellWidth / 2 - _textPainter.width / 2),
-              yPosition + circlePadding));
+          canvas, Offset(xPosition + 4, yPosition - viewPadding + 2));
 
       if (isRTL) {
         if (xPosition - 1 < 0) {

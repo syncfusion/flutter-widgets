@@ -522,16 +522,10 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
     _textPainter = _updateTextPainter(
         dateText, _textPainter, widget.isRTL, widget.textScaleFactor);
 
-    /// cell padding and start position calculated by month date cell
-    /// rendering padding and size.
-    /// Cell padding value includes month cell text top padding(5) and circle
-    /// top(4) and bottom(4) padding
-    const double cellPadding = 13;
-
     /// Today circle radius as circle radius added after the text height.
     const double todayCircleRadius = 5;
     final double startPosition =
-        cellPadding + _textPainter.preferredLineHeight + todayCircleRadius;
+      _textPainter.preferredLineHeight + todayCircleRadius;
     final int maximumDisplayCount =
         widget.calendar.monthViewSettings.appointmentDisplayCount;
     final double appointmentHeight =
@@ -1758,22 +1752,6 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
 
   void _drawMonthAppointmentView(Canvas canvas, Size size, double cellWidth,
       double cellHeight, Paint paint) {
-    final int count = visibleDates.length;
-    DateTime visibleStartDate =
-        AppointmentHelper.convertToStartTime(visibleDates[0]);
-    DateTime visibleEndDate =
-        AppointmentHelper.convertToEndTime(visibleDates[count - 1]);
-    final bool showTrailingLeadingDates =
-        CalendarViewHelper.isLeadingAndTrailingDatesVisible(
-            calendar.monthViewSettings.numberOfWeeksInView,
-            calendar.monthViewSettings.showTrailingAndLeadingDates);
-    if (!showTrailingLeadingDates) {
-      final DateTime currentMonthDate = visibleDates[count ~/ 2];
-      visibleStartDate = AppointmentHelper.convertToStartTime(
-          AppointmentHelper.getMonthStartDate(currentMonthDate));
-      visibleEndDate = AppointmentHelper.convertToEndTime(
-          AppointmentHelper.getMonthEndDate(currentMonthDate));
-    }
 
     final int maximumDisplayCount =
         calendar.monthViewSettings.appointmentDisplayCount;
@@ -1793,11 +1771,6 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
           (appointmentView.position == maximumDisplayCount &&
               appointmentView.maxPositions == maximumDisplayCount)) {
         final CalendarAppointment appointment = appointmentView.appointment!;
-        final bool canAddSpanIcon = AppointmentHelper.canAddSpanIcon(
-            visibleDates, appointment, view,
-            visibleStartDate: visibleStartDate,
-            visibleEndDate: visibleEndDate,
-            showTrailingLeadingDates: showTrailingLeadingDates);
 
         paint.color = appointment.color;
         TextStyle style = AppointmentHelper.getAppointmentTextStyle(
@@ -1844,29 +1817,6 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
             isRecurrenceAppointment || appointment.recurrenceId != null
                 ? iconSize
                 : 0;
-        double forwardSpanIconSize = 0;
-        double backwardSpanIconSize = 0;
-
-        if (canAddSpanIcon) {
-          final int appStartIndex = MonthAppointmentHelper.getDateIndex(
-              appointment.exactStartTime, visibleDates);
-          final int appEndIndex = MonthAppointmentHelper.getDateIndex(
-              appointment.exactEndTime, visibleDates);
-          if (appStartIndex == appointmentView.startIndex &&
-              appEndIndex == appointmentView.endIndex) {
-            continue;
-          }
-
-          if (appStartIndex != appointmentView.startIndex &&
-              appEndIndex != appointmentView.endIndex) {
-            forwardSpanIconSize = iconSize;
-            backwardSpanIconSize = iconSize;
-          } else if (appEndIndex != appointmentView.endIndex) {
-            forwardSpanIconSize = iconSize;
-          } else {
-            backwardSpanIconSize = iconSize;
-          }
-        }
 
         const double textPadding = 1;
         _drawSingleLineAppointmentView(
@@ -1877,8 +1827,6 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
             textSize,
             isRecurrenceAppointment,
             recurrenceIconSize,
-            forwardSpanIconSize,
-            backwardSpanIconSize,
             paint);
         _updateAppointmentHovering(appointmentRect, canvas);
       }
@@ -1927,11 +1875,9 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       double textSize,
       bool isRecurrenceAppointment,
       double recurrenceIconSize,
-      double forwardSpanIconSize,
-      double backwardSpanIconSize,
       Paint paint) {
     final double totalIconsWidth =
-        recurrenceIconSize + forwardSpanIconSize + backwardSpanIconSize;
+        recurrenceIconSize;
     final double textWidth = appointmentRect.width - totalIconsWidth;
     _textPainter.layout(
         maxWidth: textWidth - (2 * textPadding) > 0
@@ -1942,16 +1888,11 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     final double xPosition = isRTL
         ? appointmentRect.right -
             _textPainter.width -
-            backwardSpanIconSize -
+            
             textPadding
-        : appointmentRect.left + backwardSpanIconSize + textPadding;
+        : appointmentRect.left  + textPadding;
 
     _textPainter.paint(canvas, Offset(xPosition, yPosition));
-
-    if (backwardSpanIconSize != 0) {
-      _drawBackwardSpanIconForMonth(canvas, style, textSize, appointmentRect,
-          backwardSpanIconSize, appointmentRect.tlRadius, paint);
-    }
 
     if (recurrenceIconSize != 0) {
       _drawRecurrenceIconForMonth(
@@ -1962,74 +1903,8 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
           appointmentRect.tlRadius,
           paint,
           isRecurrenceAppointment,
-          recurrenceIconSize,
-          forwardSpanIconSize);
+          recurrenceIconSize);
     }
-
-    if (forwardSpanIconSize != 0) {
-      _drawForwardSpanIconForMonth(canvas, style, textSize, appointmentRect,
-          forwardSpanIconSize, appointmentRect.tlRadius, paint);
-    }
-  }
-
-  void _drawForwardSpanIconForMonth(
-      Canvas canvas,
-      TextStyle style,
-      double textSize,
-      RRect rect,
-      double iconSize,
-      Radius cornerRadius,
-      Paint paint) {
-    final TextSpan icon =
-        AppointmentHelper.getSpanIcon(style.color!, textSize, !isRTL);
-    _textPainter.text = icon;
-    _textPainter.layout(maxWidth: rect.width > 0 ? rect.width : 0);
-
-    final double yPosition =
-        AppointmentHelper.getYPositionForSpanIcon(icon, _textPainter, rect);
-    final double xPosition = isRTL ? rect.left : rect.right - iconSize;
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTRB(
-                xPosition, rect.top, xPosition + iconSize, rect.bottom),
-            cornerRadius),
-        paint);
-    double iconPadding = (iconSize - _textPainter.width) / 2;
-    if (iconPadding < 0) {
-      iconPadding = 0;
-    }
-
-    _textPainter.paint(canvas, Offset(xPosition + iconPadding, yPosition));
-  }
-
-  void _drawBackwardSpanIconForMonth(
-      Canvas canvas,
-      TextStyle style,
-      double textSize,
-      RRect rect,
-      double iconSize,
-      Radius cornerRadius,
-      Paint paint) {
-    final TextSpan icon =
-        AppointmentHelper.getSpanIcon(style.color!, textSize, isRTL);
-    _textPainter.text = icon;
-    _textPainter.layout(maxWidth: rect.width > 0 ? rect.width : 0);
-
-    final double yPosition =
-        AppointmentHelper.getYPositionForSpanIcon(icon, _textPainter, rect);
-    final double xPosition = isRTL ? rect.right - iconSize : rect.left;
-    double iconPadding = (iconSize - _textPainter.width) / 2;
-    if (iconPadding < 0) {
-      iconPadding = 0;
-    }
-
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTRB(
-                xPosition, rect.top, xPosition + iconSize, rect.bottom),
-            cornerRadius),
-        paint);
-    _textPainter.paint(canvas, Offset(xPosition + iconPadding, yPosition));
   }
 
   void _drawRecurrenceIconForMonth(
@@ -2040,8 +1915,7 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
       Radius cornerRadius,
       Paint paint,
       bool isRecurrenceAppointment,
-      double iconSize,
-      double forwardSpanIconSize) {
+      double iconSize) {
     final TextSpan icon = AppointmentHelper.getRecurrenceIcon(
         style.color!, textSize, isRecurrenceAppointment);
     _textPainter.text = icon;
@@ -2049,8 +1923,8 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
     final double yPosition =
         rect.top + ((rect.height - _textPainter.height) / 2);
     final double recurrenceStartPosition = isRTL
-        ? rect.left + forwardSpanIconSize
-        : rect.right - iconSize - forwardSpanIconSize;
+        ? rect.left
+        : rect.right - iconSize;
     canvas.drawRRect(
         RRect.fromRectAndRadius(
             Rect.fromLTRB(recurrenceStartPosition, yPosition,
@@ -2501,8 +2375,6 @@ class _AppointmentRenderObject extends CustomCalendarRenderObject {
             isRecurrenceAppointment || appointment.recurrenceId != null
                 ? iconSize
                 : 0,
-            forwardSpanIconSize,
-            backwardSpanIconSize,
             paint);
       } else {
         _textPainter.paint(
