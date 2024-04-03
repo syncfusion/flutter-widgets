@@ -468,7 +468,7 @@ class RenderCategoryAxis extends RenderChartAxis {
   @override
   void generateVisibleLabels() {
     hasTrimmedAxisLabel = false;
-    if (visibleRange == null) {
+    if (visibleRange == null || visibleInterval == 0) {
       return;
     }
 
@@ -787,54 +787,46 @@ class RenderCategoryAxis extends RenderChartAxis {
   }
 
   void updateXValuesWithArrangeByIndex() {
-    final int seriesCount = dependents.length;
     if (!arrangeByIndex) {
       final List<String> groupedRawValues = <String>[];
-      if (seriesCount > 0) {
-        for (int i = 0; i < seriesCount; i++) {
-          final AxisDependent dependent = dependents[i];
-          if (dependent is CartesianSeriesRenderer) {
-            final CartesianSeriesRenderer? series =
-                dependents[i] as CartesianSeriesRenderer?;
-            if (series != null && series.controller.isVisible) {
-              final List actualXValues = series.xRawValues;
-              final int length = actualXValues.length;
-              num? minimum;
-              num minValue = 0, maxValue = 0;
-              if (length > 0) {
-                for (int j = 0; j < length; j++) {
-                  final String x = actualXValues[j].toString();
-                  if (!groupedRawValues.contains(x)) {
-                    groupedRawValues.add(x);
-                  }
-
-                  final List<num> xValues = series.xValues;
-                  xValues[j] = groupedRawValues.indexOf(x);
-                  final num index = xValues[j];
-                  minimum ??= index;
-                  minValue = min(minimum, index);
-                  maxValue = max(minimum, index);
-                }
-                series.xMin = minValue;
-                series.xMax = maxValue;
+      for (final AxisDependent dependent in dependents) {
+        if (dependent is CartesianSeriesRenderer &&
+            dependent.controller.isVisible) {
+          final List actualXValues = dependent.xRawValues;
+          final int length = actualXValues.length;
+          num? minimum;
+          num minValue = 0, maxValue = 0;
+          if (length > 0) {
+            for (int i = 0; i < length; i++) {
+              final String x = actualXValues[i].toString();
+              if (!groupedRawValues.contains(x)) {
+                groupedRawValues.add(x);
               }
+
+              final List<num> xValues = dependent.xValues;
+              xValues[i] = groupedRawValues.indexOf(x);
+              final num index = xValues[i];
+              minimum ??= index;
+              minValue = min(minimum, index);
+              maxValue = max(minimum, index);
             }
+            dependent.xMin = minValue;
+            dependent.xMax = maxValue;
           }
         }
       }
     } else {
-      if (seriesCount > 0) {
-        for (int i = 0; i < seriesCount; i++) {
-          final CartesianSeriesRenderer? series =
-              dependents[i] as CartesianSeriesRenderer?;
-          if (series != null && series.controller.isVisible) {
-            final int length = series.xRawValues.length;
-            if (length > 0) {
-              series.xValues.clear();
-              series.xValues = List<num>.generate(length, (int index) => index);
-              series.xMin = 0;
-              series.xMax = length - 1;
+      for (final AxisDependent dependent in dependents) {
+        if (dependent is CartesianSeriesRenderer &&
+            dependent.controller.isVisible) {
+          final int length = dependent.dataCount;
+          if (length > 0) {
+            dependent.xValues.clear();
+            for (int i = 0; i < length; i++) {
+              dependent.xValues.add(i);
             }
+            dependent.xMin = 0;
+            dependent.xMax = length - 1;
           }
         }
       }

@@ -2,10 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../behaviors/trackball.dart';
 import '../common/callbacks.dart';
 import '../common/chart_point.dart';
-import '../interactions/trackball.dart';
 import '../series/chart_series.dart';
+import '../utils/constants.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
@@ -398,6 +399,11 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   List<num> _lowValues = <num>[];
   List<num> _closeValues = <num>[];
 
+  num _xMinimum = double.infinity;
+  num _xMaximum = double.negativeInfinity;
+  num _yMinimum = double.infinity;
+  num _yMaximum = double.negativeInfinity;
+
   bool get showZones => _showZones;
   bool _showZones = true;
   set showZones(bool value) {
@@ -412,8 +418,7 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set overbought(double value) {
     if (_overbought != value) {
       _overbought = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -422,8 +427,7 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set oversold(double value) {
     if (_oversold != value) {
       _oversold = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -468,8 +472,7 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set period(int value) {
     if (_period != value) {
       _period = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -518,35 +521,32 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       _calculateSignalLineValues();
     }
 
+    xMin = _xMinimum.isInfinite ? xMin : _xMinimum;
+    xMax = _xMaximum.isInfinite ? xMax : _xMaximum;
+    yMin = min(yMin, _yMinimum);
+    yMax = max(yMax, _yMaximum);
+
     populateChartPoints();
   }
 
   void _calculateZones() {
     if (showZones) {
-      num yMinimum = double.infinity;
-      num yMaximum = double.negativeInfinity;
       for (int i = 0; i < dataCount; i++) {
         final double x = xValues[i].toDouble();
         final double minY = min(overbought, oversold);
         final double maxY = max(overbought, oversold);
-        yMinimum = min(yMinimum, minY);
-        yMaximum = max(yMaximum, maxY);
+        _xMinimum = min(_xMinimum, x);
+        _xMaximum = max(_xMaximum, x);
+        _yMinimum = min(_yMinimum, minY);
+        _yMaximum = max(_yMaximum, maxY);
 
         _upperLineValues.add(Offset(x, overbought));
         _lowerLineValues.add(Offset(x, oversold));
       }
-
-      yMin = min(yMin, yMinimum);
-      yMax = max(yMax, yMaximum);
     }
   }
 
   void _calculateSignalLineValues() {
-    num xMinimum = double.infinity;
-    num xMaximum = double.negativeInfinity;
-    num yMinimum = double.infinity;
-    num yMaximum = double.negativeInfinity;
-
     num previousClose = _closeValues[0];
     if (previousClose.isNaN) {
       previousClose = 0;
@@ -573,10 +573,10 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
     final double x = xValues[period].toDouble();
     final double y = value.toDouble();
-    xMinimum = min(xMinimum, x);
-    xMaximum = max(xMaximum, x);
-    yMinimum = min(yMinimum, y);
-    yMaximum = max(yMaximum, y);
+    _xMinimum = min(_xMinimum, x);
+    _xMaximum = max(_xMaximum, x);
+    _yMinimum = min(_yMinimum, y);
+    _yMaximum = max(_yMaximum, y);
 
     _signalLineActualValues.add(Offset(x, y));
 
@@ -595,17 +595,15 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       previousClose = currentClose;
       final num value = 100 - (100 / (1 + (gain / loss)));
 
+      final double x = xValues[j].toDouble();
       final double y = value.toDouble();
-      yMinimum = min(yMinimum, y);
-      yMaximum = max(yMaximum, y);
+      _xMinimum = min(_xMinimum, x);
+      _xMaximum = max(_xMaximum, x);
+      _yMinimum = min(_yMinimum, y);
+      _yMaximum = max(_yMaximum, y);
 
-      _signalLineActualValues.add(Offset(xValues[j].toDouble(), y));
+      _signalLineActualValues.add(Offset(x, y));
     }
-
-    xMin = min(xMin, xMinimum);
-    xMax = max(xMax, xMaximum);
-    yMin = min(yMin, yMinimum);
-    yMax = max(yMax, yMaximum);
   }
 
   @override
@@ -672,16 +670,19 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         <ChartTrackballInfo<T, D>>[];
     final int rsiPointIndex = _findNearestPoint(signalLinePoints, position);
     if (rsiPointIndex != -1) {
-      final CartesianChartPoint<D> rsiPointInfo =
-          _chartPoint(rsiPointIndex, 'rsi');
+      final CartesianChartPoint<D> rsiPoint = _chartPoint(rsiPointIndex, 'rsi');
+      final String rsiText = defaultLegendItemText();
       trackballInfo.add(
         ChartTrackballInfo<T, D>(
           position: signalLinePoints[rsiPointIndex],
-          point: rsiPointInfo,
+          point: rsiPoint,
           series: this,
           pointIndex: rsiPointIndex,
+          segmentIndex: rsiPointIndex,
           seriesIndex: index,
-          name: defaultLegendItemText(),
+          name: rsiText,
+          header: tooltipHeaderText(rsiPoint),
+          text: trackballText(rsiPoint, rsiText),
           color: signalLineColor,
         ),
       );
@@ -689,32 +690,38 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (showZones) {
       final int upperPointIndex = _findNearestPoint(_upperLinePoints, position);
       if (upperPointIndex != -1) {
-        final CartesianChartPoint<D> upperPointInfo =
+        final CartesianChartPoint<D> upperPoint =
             _chartPoint(upperPointIndex, 'upper');
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
             position: _upperLinePoints[upperPointIndex],
-            point: upperPointInfo,
+            point: upperPoint,
             series: this,
             pointIndex: upperPointIndex,
+            segmentIndex: upperPointIndex,
             seriesIndex: index,
-            name: 'UpperLine',
+            name: trackballUpperLineText,
+            header: tooltipHeaderText(upperPoint),
+            text: trackballText(upperPoint, trackballUpperLineText),
             color: _upperLineColor,
           ),
         );
       }
       final int lowerPointIndex = _findNearestPoint(_lowerLinePoints, position);
       if (lowerPointIndex != -1) {
-        final CartesianChartPoint<D> lowerPointInfo =
+        final CartesianChartPoint<D> lowerPoint =
             _chartPoint(lowerPointIndex, 'lower');
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
             position: _lowerLinePoints[lowerPointIndex],
-            point: lowerPointInfo,
+            point: lowerPoint,
             series: this,
             pointIndex: lowerPointIndex,
+            segmentIndex: lowerPointIndex,
             seriesIndex: index,
-            name: 'LowerLine',
+            name: trackballLowerLineText,
+            header: tooltipHeaderText(lowerPoint),
+            text: trackballText(lowerPoint, trackballLowerLineText),
             color: _lowerLineColor,
           ),
         );

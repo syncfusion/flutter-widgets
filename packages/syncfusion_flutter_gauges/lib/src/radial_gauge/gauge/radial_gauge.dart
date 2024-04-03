@@ -161,11 +161,17 @@ class SfRadialGaugeState extends State<SfRadialGauge>
 
   SfGaugeThemeData _updateThemeData(BuildContext context) {
     SfGaugeThemeData gaugeThemeData = SfGaugeTheme.of(context)!;
+    final ThemeData themeData = Theme.of(context);
+    final bool isMaterial3 = themeData.useMaterial3;
     gaugeThemeData = gaugeThemeData.copyWith(
         titleTextStyle: Theme.of(context)
             .textTheme
             .bodySmall!
-            .copyWith(color: gaugeThemeData.titleColor, fontSize: 15)
+            .copyWith(
+              color:
+                  gaugeThemeData.titleColor ?? themeData.colorScheme.onSurface,
+              fontSize: isMaterial3 ? 16 : 15,
+            )
             .merge(gaugeThemeData.titleTextStyle)
             .merge(widget.title?.textStyle));
     return gaugeThemeData;

@@ -27,6 +27,13 @@ class CrossTable {
     _initialize();
   }
 
+  /// internal constructor
+  CrossTable.fromFdf(List<int> docStream, PdfCrossTable crossTable) {
+    _data = docStream;
+    _crossTable = crossTable;
+    objects = <int, ObjectInformation>{};
+  }
+
   //Fields
   late List<int> _data;
   late PdfCrossTable _crossTable;

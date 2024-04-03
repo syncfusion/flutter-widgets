@@ -51,15 +51,10 @@ class PdfGridCellStyle extends PdfGridRowStyle {
       PdfStringFormat? format,
       PdfImage? backgroundImage,
       PdfPaddings? cellPadding,
-      PdfBrush? backgroundBrush,
-      PdfBrush? textBrush,
-      PdfPen? textPen,
-      PdfFont? font})
-      : super(
-            backgroundBrush: backgroundBrush,
-            textBrush: textBrush,
-            textPen: textPen,
-            font: font) {
+      super.backgroundBrush,
+      super.textBrush,
+      super.textPen,
+      super.font}) {
     _initializeCellStyle(borders, format, backgroundImage, cellPadding);
   }
 

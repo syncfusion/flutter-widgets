@@ -102,9 +102,44 @@ class SfCalendarTheme extends InheritedTheme {
 /// ```
 @immutable
 class SfCalendarThemeData with Diagnosticable {
+  /// Create a [SfCalendarThemeData] given a set of exact values.
+  /// All the values must be specified.
+  ///
+  /// This will rarely be used directly. It is used by [lerp] to
+  /// create intermediate themes based on two themes created with the
+  /// [SfCalendarThemeData] constructor.
+  const SfCalendarThemeData(
+      {this.backgroundColor,
+      this.headerTextStyle,
+      this.headerBackgroundColor,
+      this.agendaBackgroundColor,
+      this.cellBorderColor,
+      this.viewHeaderDateTextStyle,
+      this.viewHeaderDayTextStyle,
+      this.viewHeaderBackgroundColor,
+      this.agendaDayTextStyle,
+      this.agendaDateTextStyle,
+      this.timeTextStyle,
+      this.activeDatesTextStyle,
+      this.activeDatesBackgroundColor,
+      this.todayBackgroundColor,
+      this.trailingDatesBackgroundColor,
+      this.leadingDatesBackgroundColor,
+      this.trailingDatesTextStyle,
+      this.blackoutDatesTextStyle,
+      this.displayNameTextStyle,
+      this.leadingDatesTextStyle,
+      this.todayTextStyle,
+      this.todayHighlightColor,
+      this.weekNumberBackgroundColor,
+      this.selectionBorderColor,
+      this.weekNumberTextStyle,
+      this.timeIndicatorTextStyle,
+      this.allDayPanelColor});
+
   /// Create a [SfCalendarThemeData] that's used to configure a
   /// [SfCalendarTheme].
-  factory SfCalendarThemeData({
+  factory SfCalendarThemeData.raw({
     Brightness? brightness,
     Color? backgroundColor,
     Color? headerBackgroundColor,
@@ -134,8 +169,8 @@ class SfCalendarThemeData with Diagnosticable {
     TextStyle? weekNumberTextStyle,
     TextStyle? timeIndicatorTextStyle,
   }) {
-    return SfCalendarThemeData.raw(
-        brightness: brightness,
+    brightness = brightness ?? Brightness.light;
+    return SfCalendarThemeData(
         backgroundColor: backgroundColor,
         headerTextStyle: headerTextStyle,
         headerBackgroundColor: headerBackgroundColor,
@@ -164,70 +199,6 @@ class SfCalendarThemeData with Diagnosticable {
         weekNumberTextStyle: weekNumberTextStyle,
         timeIndicatorTextStyle: timeIndicatorTextStyle);
   }
-
-  /// Create a [SfCalendarThemeData] given a set of exact values.
-  /// All the values must be specified.
-  ///
-  /// This will rarely be used directly. It is used by [lerp] to
-  /// create intermediate themes based on two themes created with the
-  /// [SfCalendarThemeData] constructor.
-  const SfCalendarThemeData.raw(
-      {required this.brightness,
-      required this.backgroundColor,
-      required this.headerTextStyle,
-      required this.headerBackgroundColor,
-      required this.agendaBackgroundColor,
-      required this.cellBorderColor,
-      required this.viewHeaderDateTextStyle,
-      required this.viewHeaderDayTextStyle,
-      required this.viewHeaderBackgroundColor,
-      required this.agendaDayTextStyle,
-      required this.agendaDateTextStyle,
-      required this.timeTextStyle,
-      required this.activeDatesTextStyle,
-      required this.activeDatesBackgroundColor,
-      required this.todayBackgroundColor,
-      required this.trailingDatesBackgroundColor,
-      required this.leadingDatesBackgroundColor,
-      required this.trailingDatesTextStyle,
-      required this.blackoutDatesTextStyle,
-      required this.displayNameTextStyle,
-      required this.leadingDatesTextStyle,
-      required this.todayTextStyle,
-      required this.todayHighlightColor,
-      required this.weekNumberBackgroundColor,
-      required this.selectionBorderColor,
-      required this.weekNumberTextStyle,
-      required this.timeIndicatorTextStyle,
-      required this.allDayPanelColor});
-
-  /// The brightness of the overall theme of the
-  /// application for the calendar widgets.
-  ///
-  /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).brightness], brightness for
-  /// calendar widgets will be applied.
-  ///
-  /// Also refer [Brightness].
-  ///
-  /// ```dart
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    appBar: AppBar(),
-  ///      body: Center(
-  ///        child: SfTheme(
-  ///          data: SfThemeData(
-  ///            calendarThemeData: SfCalendarThemeData(
-  ///              brightness: Brightness.light
-  ///              )
-  ///            ),
-  ///          child: SfCalendar(),
-  ///          ),
-  ///      )
-  ///   );
-  ///}
-  /// ```
-  final Brightness? brightness;
 
   /// Specifies the background color of calendar widgets.
   ///
@@ -844,7 +815,7 @@ class SfCalendarThemeData with Diagnosticable {
       Color? selectionBorderColor,
       Color? allDayPanelColor}) {
     return SfCalendarThemeData.raw(
-        brightness: brightness ?? this.brightness,
+        brightness: brightness,
         backgroundColor: backgroundColor ?? this.backgroundColor,
         headerTextStyle: headerTextStyle ?? this.headerTextStyle,
         headerBackgroundColor:
@@ -994,9 +965,7 @@ class SfCalendarThemeData with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    final SfCalendarThemeData defaultData = SfCalendarThemeData();
-    properties.add(EnumProperty<Brightness>('brightness', brightness,
-        defaultValue: defaultData.brightness));
+    const SfCalendarThemeData defaultData = SfCalendarThemeData();
     properties.add(ColorProperty('backgroundColor', backgroundColor,
         defaultValue: defaultData.backgroundColor));
     properties.add(ColorProperty('headerBackgroundColor', headerBackgroundColor,

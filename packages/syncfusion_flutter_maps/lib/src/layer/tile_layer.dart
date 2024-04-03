@@ -13,6 +13,7 @@ import '../elements/toolbar.dart';
 import '../elements/tooltip.dart';
 import '../layer/vector_layers.dart';
 import '../layer/zoomable.dart';
+import '../theme.dart';
 import '../utils.dart';
 
 Offset _pixelFromLatLng(MapLatLng latLng, double scale) {
@@ -53,7 +54,7 @@ class _MapTileCoordinate {
   String toString() => '_MapTileCoordinate($x, $y, $z)';
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (other is _MapTileCoordinate) {
       return x == other.x && y == other.y && z == other.z;
     }
@@ -580,6 +581,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         MarkerContainer(
           markerTooltipBuilder: widget.markerTooltipBuilder,
           controller: _controller!,
+          themeData: _mapsThemeData,
           children: _markers,
         ),
     ]);
@@ -748,6 +750,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
+    final SfMapsThemeData effectiveMapsThemeData = themeData.useMaterial3
+        ? SfMapsThemeDataM3(context)
+        : SfMapsThemeDataM2(context);
     _isDesktop = kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
         themeData.platform == TargetPlatform.windows ||
@@ -756,9 +761,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _mapsThemeData = _mapsThemeData.copyWith(
       tooltipColor: widget.tooltipSettings.color ??
           _mapsThemeData.tooltipColor ??
-          (_mapsThemeData.brightness == Brightness.light
-              ? const Color.fromRGBO(117, 117, 117, 1)
-              : const Color.fromRGBO(245, 245, 245, 1)),
+          effectiveMapsThemeData.tooltipColor,
       tooltipStrokeColor: widget.tooltipSettings.strokeColor ??
           _mapsThemeData.tooltipStrokeColor,
       tooltipStrokeWidth: widget.tooltipSettings.strokeWidth ??

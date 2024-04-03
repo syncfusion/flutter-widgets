@@ -62,7 +62,7 @@ class PdfName implements IPdfPrimitive {
 
   /// Replace the hexa decimal format to replace characters.
   static String? decodeName(String? value) {
-    if (value != null)
+    if (value != null) {
       return value
           .replaceAll('#9', '\t')
           .replaceAll('#09', '\t')
@@ -75,6 +75,7 @@ class PdfName implements IPdfPrimitive {
           .replaceAll('#0D', '\r')
           .replaceAll('#0d', '\r')
           .replaceAll('#20', ' ');
+    }
     return null;
   }
 

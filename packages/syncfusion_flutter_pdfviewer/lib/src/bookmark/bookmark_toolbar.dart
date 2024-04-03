@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+import '../theme/theme.dart';
 
 /// Height of the bookmark header bar.
 const double _kPdfHeaderBarHeight = 53.0;
@@ -49,11 +50,15 @@ class BookmarkToolbar extends StatefulWidget {
 /// State for [BookmarkToolbar]
 class _BookmarkToolbarState extends State<BookmarkToolbar> {
   SfPdfViewerThemeData? _pdfViewerThemeData;
+  SfPdfViewerThemeData? _effectiveThemeData;
   SfLocalizations? _localizations;
 
   @override
   void didChangeDependencies() {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
+    _effectiveThemeData = Theme.of(context).useMaterial3
+        ? SfPdfViewerThemeDataM3(context)
+        : SfPdfViewerThemeDataM2(context);
     _localizations = SfLocalizations.of(context);
     super.didChangeDependencies();
   }
@@ -61,6 +66,7 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
   @override
   void dispose() {
     _pdfViewerThemeData = null;
+    _effectiveThemeData = null;
     _localizations = null;
     super.dispose();
   }
@@ -90,6 +96,7 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
         margin: const EdgeInsets.only(bottom: 3),
         decoration: BoxDecoration(
           color: _pdfViewerThemeData!.bookmarkViewStyle?.headerBarColor ??
+              _effectiveThemeData!.bookmarkViewStyle?.headerBarColor ??
               ((Theme.of(context).colorScheme.brightness == Brightness.light)
                   ? const Color(0xFFFAFAFA)
                   : const Color(0xFF424242)),
@@ -114,7 +121,9 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
                           : Colors.white.withOpacity(0.87),
                     )
                     .merge(_pdfViewerThemeData!
-                        .bookmarkViewStyle?.headerTextStyle),
+                            .bookmarkViewStyle?.headerTextStyle ??
+                        _effectiveThemeData!
+                            .bookmarkViewStyle?.headerTextStyle),
                 semanticsLabel: '',
               ),
             ),
@@ -133,6 +142,7 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
                   size: _kPdfCloseIconSize,
                   color: _pdfViewerThemeData!
                           .bookmarkViewStyle?.closeIconColor ??
+                      _effectiveThemeData!.bookmarkViewStyle?.closeIconColor ??
                       Theme.of(context).colorScheme.onSurface.withOpacity(0.54),
                   semanticLabel: 'Close Bookmark',
                 ),

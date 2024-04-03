@@ -115,8 +115,9 @@ class Asn1Parser {
       }
       final Asn1LengthStream stream = Asn1LengthStream(_stream, _limit);
       final Asn1Parser helper = Asn1Parser(stream, _limit);
-      if ((tag & Asn1Tags.tagged) != 0)
+      if ((tag & Asn1Tags.tagged) != 0) {
         return BerTagHelper(true, tagNumber, helper);
+      }
       return helper.readIndefinite(tagNumber);
     } else {
       final Asn1StreamHelper stream = Asn1StreamHelper(_stream, length);

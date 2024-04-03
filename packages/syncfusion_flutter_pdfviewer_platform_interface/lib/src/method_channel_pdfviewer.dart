@@ -39,6 +39,21 @@ class MethodChannelPdfViewer extends PdfViewerPlatform {
     });
   }
 
+  /// Gets the image's bytes information of the specified portion of the page
+  @override
+  Future<Uint8List?> getTileImage(int pageNumber, double currentScale, double x,
+      double y, double width, double height, String documentID) async {
+    return _channel.invokeMethod<Uint8List>('getTileImage', <String, dynamic>{
+      'pageNumber': pageNumber,
+      'scale': currentScale,
+      'x': x,
+      'y': y,
+      'width': width,
+      'height': height,
+      'documentID': documentID
+    });
+  }
+
   /// Closes the PDF document.
   @override
   Future<void> closeDocument(String documentID) async {

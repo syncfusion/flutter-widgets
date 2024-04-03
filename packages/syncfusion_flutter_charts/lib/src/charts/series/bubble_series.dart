@@ -3,12 +3,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
+import '../behaviors/trackball.dart';
 import '../common/chart_point.dart';
 import '../common/core_tooltip.dart';
 import '../common/data_label.dart';
 import '../common/element_widget.dart';
 import '../interactions/tooltip.dart';
-import '../interactions/trackball.dart';
 import '../utils/constants.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -216,10 +216,16 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     }
   }
 
-  final List<num> sizes = <num>[];
+  final List<num> _chaoticSizes = <num>[];
+  final List<num> _sizes = <num>[];
 
   num _minBubbleSize = double.infinity;
   num _maxBubbleSize = double.negativeInfinity;
+
+  void _resetDataSourceHolders() {
+    _chaoticSizes.clear();
+    _sizes.clear();
+  }
 
   @override
   void populateDataSource([
@@ -227,20 +233,32 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     List<List<num>>? chaoticYLists,
     List<List<num>>? yLists,
     List<ChartValueMapper<T, Object>>? fPaths,
+    List<List<Object?>>? chaoticFLists,
     List<List<Object?>>? fLists,
   ]) {
-    sizes.clear();
-    super.populateDataSource(
-      <ChartValueMapper<T, num>>[],
-      <List<num>>[],
-      <List<num>>[],
-      <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
-      <List<Object?>>[sizes],
-    );
+    _resetDataSourceHolders();
+    if (sortingOrder == SortingOrder.none) {
+      super.populateDataSource(
+        <ChartValueMapper<T, num>>[],
+        <List<num>>[],
+        <List<num>>[],
+        <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
+        <List<Object?>>[_sizes],
+      );
+    } else {
+      super.populateDataSource(
+        <ChartValueMapper<T, num>>[],
+        <List<num>>[],
+        <List<num>>[],
+        <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
+        <List<Object?>>[_chaoticSizes],
+        <List<Object?>>[_sizes],
+      );
+    }
 
     _minBubbleSize = double.infinity;
     _maxBubbleSize = double.negativeInfinity;
-    for (final num size in sizes) {
+    for (final num size in _sizes) {
       _minBubbleSize = min(_minBubbleSize, size);
       _maxBubbleSize = max(_maxBubbleSize, size);
     }
@@ -256,18 +274,34 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     List<List<num>>? chaoticYLists,
     List<List<num>>? yLists,
     List<ChartValueMapper<T, Object>>? fPaths,
+    List<List<Object?>>? chaoticFLists,
     List<List<Object?>>? fLists,
   ]) {
-    super.updateDataPoints(
-      removedIndexes,
-      addedIndexes,
-      replacedIndexes,
-      <ChartValueMapper<T, num>>[],
-      <List<num>>[],
-      <List<num>>[],
-      <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
-      <List<Object>>[sizes],
-    );
+    if (sortingOrder == SortingOrder.none) {
+      super.updateDataPoints(
+        removedIndexes,
+        addedIndexes,
+        replacedIndexes,
+        <ChartValueMapper<T, num>>[],
+        <List<num>>[],
+        <List<num>>[],
+        <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
+        <List<Object?>>[_sizes],
+      );
+    } else {
+      _sizes.clear();
+      super.updateDataPoints(
+        removedIndexes,
+        addedIndexes,
+        replacedIndexes,
+        <ChartValueMapper<T, num>>[],
+        <List<num>>[],
+        <List<num>>[],
+        <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
+        <List<Object?>>[_chaoticSizes],
+        <List<Object?>>[_sizes],
+      );
+    }
   }
 
   @override
@@ -276,12 +310,12 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     List<List<num>>? yLists,
   }) {
     if (yLists == null) {
-      yLists = <List<num>>[sizes];
+      yLists = <List<num>>[_sizes];
       positions = <ChartDataPointType>[
         ChartDataPointType.bubbleSize,
       ];
     } else {
-      yLists.add(sizes);
+      yLists.add(_sizes);
       positions!.add(ChartDataPointType.bubbleSize);
     }
 
@@ -294,7 +328,7 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   void setData(int index, ChartSegment segment) {
     super.setData(index, segment);
 
-    num radius = sizes[index];
+    num radius = _sizes[index];
     if (radius.isNaN || sizeValueMapper == null) {
       radius = minimumRadius;
     } else {
@@ -407,51 +441,8 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   }
 
   @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
-    }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-
-    for (final ChartSegment segment in segments) {
-      if (segment is BubbleSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-        final Rect rect = segment.series.paintBounds;
-
-        final num touchXValue = segment.series.xAxis!.pixelToPoint(
-            rect, position.dx + rect.left, position.dy + rect.top);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double currentX = segment.series.xValues[index].toDouble();
-        final double currentY = segment.series.yValues[index].toDouble();
-        if (delta == touchXValue - currentX) {
-          if ((touchYValue - currentY).abs() >
-              (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - currentX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = currentX;
-          nearPointY = currentY;
-          delta = touchXValue - currentX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
-    }
-    return segmentCollection;
-  }
-
-  @override
   void dispose() {
-    sizes.clear();
+    _resetDataSourceHolders();
     super.dispose();
   }
 }
@@ -519,7 +510,7 @@ class BubbleSegment<T, D> extends ChartSegment {
       x: series.xRawValues[currentSegmentIndex],
       xValue: x,
       y: y,
-      bubbleSize: series.sizes[currentSegmentIndex],
+      bubbleSize: series._sizes[currentSegmentIndex],
     );
   }
 
@@ -549,15 +540,19 @@ class BubbleSegment<T, D> extends ChartSegment {
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
-    if (segmentRect != null) {
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
+    if (pointIndex != -1 && segmentRect != null) {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
       return ChartTrackballInfo<T, D>(
         position: segmentRect!.center,
         point: chartPoint,
         series: series,
-        pointIndex: currentSegmentIndex,
         seriesIndex: series.index,
+        segmentIndex: currentSegmentIndex,
+        pointIndex: pointIndex,
+        text: series.trackballText(chartPoint, series.name),
+        header: series.tooltipHeaderText(chartPoint),
+        color: fillPaint.color,
       );
     }
     return null;

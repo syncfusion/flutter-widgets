@@ -53,6 +53,13 @@ class PdfCrossTable {
     _bForceNew = true;
     _isColorSpace = false;
   }
+
+  /// internal constructor
+  PdfCrossTable.fromFdf(List<int> docStream) {
+    _data = docStream;
+    crossTable = CrossTable.fromFdf(docStream, this);
+  }
+
   //Fields
   PdfDocument? _pdfDocument;
   int _count = 0;

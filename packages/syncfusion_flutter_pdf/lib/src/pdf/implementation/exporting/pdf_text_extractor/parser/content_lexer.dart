@@ -146,7 +146,8 @@ class ContentLexer {
     _resetToken();
     while (true) {
       final String ch = _consumeValue();
-      if (_isWhiteSpace(ch) || _isDelimiter(ch)) {
+      final String data = String.fromCharCode(int.parse(ch));
+      if (_isWhiteSpace(ch) || _isDelimiter(data)) {
         break;
       }
     }
@@ -260,10 +261,13 @@ class ContentLexer {
 
   PdfToken _getHexadecimalString() {
     int parentLevel = 0;
+    bool skipParentLevel = false;
     String ch = String.fromCharCode(int.parse(_consumeValue()));
     while (true) {
       if (ch == '<') {
-        parentLevel++;
+        if (!skipParentLevel) {
+          parentLevel++;
+        }
         ch = String.fromCharCode(int.parse(_consumeValue()));
       } else if (ch == '>' && !_isArtifactContentEnds) {
         if (parentLevel == 0) {
@@ -284,6 +288,16 @@ class ContentLexer {
           }
           ch = String.fromCharCode(int.parse(_consumeValue()));
         }
+      } else if (operatorParams != null &&
+          operatorParams.toString().contains('ActualText') &&
+          ch == '(') {
+        skipParentLevel = true;
+        ch = String.fromCharCode(int.parse(_consumeValue()));
+      } else if (operatorParams != null &&
+          operatorParams.toString().contains('ActualText') &&
+          ch == ')') {
+        skipParentLevel = false;
+        ch = String.fromCharCode(int.parse(_consumeValue()));
       } else {
         ch = String.fromCharCode(int.parse(_consumeValue()));
       }

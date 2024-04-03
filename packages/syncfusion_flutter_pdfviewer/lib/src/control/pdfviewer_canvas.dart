@@ -12,6 +12,7 @@ import '../../pdfviewer.dart';
 import '../annotation/annotation.dart';
 import '../annotation/text_markup.dart';
 import '../common/pdfviewer_helper.dart';
+import '../theme/theme.dart';
 import 'pdf_page_view.dart';
 import 'pdf_scrollable.dart';
 import 'single_page_view.dart';
@@ -444,12 +445,17 @@ class CanvasRenderBox extends RenderBox {
   }
 
   SfPdfViewerThemeData? _pdfViewerThemeData;
+  SfPdfViewerThemeData? _effectiveThemeData;
   ThemeData? _themeData;
   SfLocalizations? _localizations;
 
   Future<void> _showMobileHyperLinkDialog(Uri url) {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
+    _effectiveThemeData = Theme.of(context).useMaterial3
+        ? SfPdfViewerThemeDataM3(context)
+        : SfPdfViewerThemeDataM2(context);
     _themeData = Theme.of(context);
+    final bool isMaterial3 = _themeData!.useMaterial3;
     _localizations = SfLocalizations.of(context);
     return showDialog<void>(
         context: context,
@@ -468,6 +474,7 @@ class CanvasRenderBox extends RenderBox {
                   : const EdgeInsets.all(6),
               backgroundColor: _pdfViewerThemeData!
                       .hyperlinkDialogStyle?.backgroundColor ??
+                  _effectiveThemeData!.hyperlinkDialogStyle?.backgroundColor ??
                   (Theme.of(context).colorScheme.brightness == Brightness.light
                       ? Colors.white
                       : const Color(0xFF424242)),
@@ -475,39 +482,61 @@ class CanvasRenderBox extends RenderBox {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(_localizations!.pdfHyperlinkLabel,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium!
-                          .copyWith(
-                            fontSize: 20,
-                            color:
-                                Theme.of(context).brightness == Brightness.light
+                      style: isMaterial3
+                          ? Theme.of(context)
+                              .textTheme
+                              .headlineMedium!
+                              .copyWith(
+                                fontSize: 24,
+                                color: Theme.of(context).brightness ==
+                                        Brightness.light
                                     ? Colors.black.withOpacity(0.87)
                                     : Colors.white.withOpacity(0.87),
-                          )
-                          .merge(_pdfViewerThemeData!
-                              .hyperlinkDialogStyle?.headerTextStyle)),
+                              )
+                              .merge(_pdfViewerThemeData!
+                                  .hyperlinkDialogStyle?.headerTextStyle)
+                          : Theme.of(context)
+                              .textTheme
+                              .headlineMedium!
+                              .copyWith(
+                                fontSize: 20,
+                                color: Theme.of(context).brightness ==
+                                        Brightness.light
+                                    ? Colors.black.withOpacity(0.87)
+                                    : Colors.white.withOpacity(0.87),
+                              )
+                              .merge(_pdfViewerThemeData!
+                                  .hyperlinkDialogStyle?.headerTextStyle)),
                   SizedBox(
-                    height: 36,
-                    width: 36,
+                    height: isMaterial3 ? 40 : 36,
+                    width: isMaterial3 ? 40 : 36,
                     child: RawMaterialButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                         _isHyperLinkTapped = false;
                       },
+                      shape: isMaterial3
+                          ? RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(40),
+                            )
+                          : const RoundedRectangleBorder(),
                       child: Icon(
                         Icons.clear,
                         color: _pdfViewerThemeData!
                                 .hyperlinkDialogStyle?.closeIconColor ??
+                            _effectiveThemeData!
+                                .hyperlinkDialogStyle?.closeIconColor ??
                             _themeData!.colorScheme.onSurface.withOpacity(0.6),
-                        size: 24,
+                        size: isMaterial3 ? 32 : 24,
                       ),
                     ),
                   )
                 ],
               ),
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
+              shape: isMaterial3
+                  ? null
+                  : const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4.0))),
               content: SingleChildScrollView(
                 child: SizedBox(
                   width: 296,
@@ -570,12 +599,21 @@ class CanvasRenderBox extends RenderBox {
                     Navigator.of(context).pop();
                     _isHyperLinkTapped = false;
                   },
+                  style: isMaterial3
+                      ? ButtonStyle(
+                          padding: MaterialStateProperty.all(
+                            const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 20),
+                          ),
+                        )
+                      : null,
                   child: Text(_localizations!.pdfHyperlinkDialogCancelLabel,
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium!
                           .copyWith(
                             fontSize: 14,
+                            fontWeight: isMaterial3 ? FontWeight.w500 : null,
                             color:
                                 Theme.of(context).brightness == Brightness.light
                                     ? Colors.black.withOpacity(0.6)
@@ -594,12 +632,22 @@ class CanvasRenderBox extends RenderBox {
                         mode: LaunchMode.externalApplication,
                       );
                     },
+                    style: isMaterial3
+                        ? ButtonStyle(
+                            padding: MaterialStateProperty.all(
+                              const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                            ),
+                          )
+                        : null,
                     child: Text(_localizations!.pdfHyperlinkDialogOpenLabel,
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium!
                             .copyWith(
                                 fontSize: 14,
+                                fontWeight:
+                                    isMaterial3 ? FontWeight.w500 : null,
                                 color: _themeData!.colorScheme.primary)
                             .merge(_pdfViewerThemeData!
                                 .hyperlinkDialogStyle?.openTextStyle)),
@@ -613,6 +661,10 @@ class CanvasRenderBox extends RenderBox {
 
   Future<void> _showDesktopHyperLinkDialog(Uri url) {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
+    final bool isMaterial3 = Theme.of(context).useMaterial3;
+    _effectiveThemeData = isMaterial3
+        ? SfPdfViewerThemeDataM3(context)
+        : SfPdfViewerThemeDataM2(context);
     _themeData = Theme.of(context);
     _localizations = SfLocalizations.of(context);
     return showDialog<void>(
@@ -623,11 +675,14 @@ class CanvasRenderBox extends RenderBox {
             child: AlertDialog(
               scrollable: true,
               insetPadding: EdgeInsets.zero,
-              titlePadding: const EdgeInsets.all(16),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              titlePadding: isMaterial3 ? null : const EdgeInsets.all(16),
+              contentPadding: isMaterial3
+                  ? null
+                  : const EdgeInsets.symmetric(horizontal: 16),
               buttonPadding: const EdgeInsets.all(24),
               backgroundColor: _pdfViewerThemeData!
                       .hyperlinkDialogStyle?.backgroundColor ??
+                  _effectiveThemeData!.hyperlinkDialogStyle?.backgroundColor ??
                   (Theme.of(context).colorScheme.brightness == Brightness.light
                       ? Colors.white
                       : const Color(0xFF424242)),
@@ -639,35 +694,42 @@ class CanvasRenderBox extends RenderBox {
                           .textTheme
                           .headlineMedium!
                           .copyWith(
-                            fontSize: 20,
-                            color:
-                                Theme.of(context).brightness == Brightness.light
+                            fontSize: isMaterial3 ? 24 : 20,
+                            color: isMaterial3
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context).brightness ==
+                                        Brightness.light
                                     ? Colors.black.withOpacity(0.87)
                                     : Colors.white.withOpacity(0.87),
                           )
                           .merge(_pdfViewerThemeData!
                               .hyperlinkDialogStyle?.headerTextStyle)),
                   SizedBox(
-                    height: 36,
-                    width: 36,
+                    height: isMaterial3 ? 40 : 36,
+                    width: isMaterial3 ? 40 : 36,
                     child: RawMaterialButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                         _isHyperLinkTapped = false;
                       },
+                      shape: isMaterial3
+                          ? RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(40),
+                            )
+                          : const RoundedRectangleBorder(),
                       child: Icon(
                         Icons.clear,
                         color: _pdfViewerThemeData!
                                 .hyperlinkDialogStyle?.closeIconColor ??
+                            _effectiveThemeData!
+                                .hyperlinkDialogStyle?.closeIconColor ??
                             _themeData!.colorScheme.onSurface.withOpacity(0.6),
-                        size: 24,
+                        size: isMaterial3 ? 30 : 24,
                       ),
                     ),
                   )
                 ],
               ),
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
               content: SingleChildScrollView(
                 child: SizedBox(
                   width: 361,
@@ -678,7 +740,9 @@ class CanvasRenderBox extends RenderBox {
                             ? Alignment.centerRight
                             : Alignment.centerLeft,
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(2, 0, 0, 8),
+                          padding: isMaterial3
+                              ? const EdgeInsets.fromLTRB(2, 0, 0, 2)
+                              : const EdgeInsets.fromLTRB(2, 0, 0, 8),
                           child: Text(_localizations!.pdfHyperlinkContentLabel,
                               style: Theme.of(context)
                                   .textTheme
@@ -726,12 +790,20 @@ class CanvasRenderBox extends RenderBox {
                     Navigator.of(context).pop();
                     _isHyperLinkTapped = false;
                   },
+                  style: isMaterial3
+                      ? TextButton.styleFrom(
+                          fixedSize: const Size(double.infinity, 40),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                        )
+                      : null,
                   child: Text(_localizations!.pdfHyperlinkDialogCancelLabel,
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium!
                           .copyWith(
                             fontSize: 14,
+                            fontWeight: isMaterial3 ? FontWeight.w500 : null,
                             color:
                                 Theme.of(context).brightness == Brightness.light
                                     ? Colors.black.withOpacity(0.6)
@@ -748,12 +820,20 @@ class CanvasRenderBox extends RenderBox {
                       mode: LaunchMode.externalApplication,
                     );
                   },
+                  style: isMaterial3
+                      ? TextButton.styleFrom(
+                          fixedSize: const Size(double.infinity, 40),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                        )
+                      : null,
                   child: Text(_localizations!.pdfHyperlinkDialogOpenLabel,
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium!
                           .copyWith(
                               fontSize: 14,
+                              fontWeight: isMaterial3 ? FontWeight.w500 : null,
                               color: _themeData!.colorScheme.primary)
                           .merge(_pdfViewerThemeData!
                               .hyperlinkDialogStyle?.openTextStyle)),

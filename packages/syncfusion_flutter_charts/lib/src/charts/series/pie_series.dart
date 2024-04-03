@@ -446,6 +446,17 @@ class PieSeriesRenderer<T, D> extends CircularSeriesRenderer<T, D> {
             ? Position.right
             : Position.left;
   }
+
+  @override
+  void onPaint(PaintingContext context, Offset offset) {
+    context.canvas.save();
+    context.canvas.translate(center.dx, center.dy);
+    context.canvas.scale(animationFactor);
+    context.canvas.translate(-center.dx, -center.dy);
+    paintSegments(context, offset);
+    context.canvas.restore();
+    paintDataLabels(context, offset);
+  }
 }
 
 class PieSegment<T, D> extends ChartSegment {
@@ -477,23 +488,17 @@ class PieSegment<T, D> extends ChartSegment {
   void transformValues() {
     fillPath.reset();
 
-    double startAngle;
-    double endAngle;
-    double degree;
-    double outerRadius;
-
-    if (_priorEndAngle.isNaN) {
-      final int seriesStartAngle = series.startAngle - 90;
-      degree = _degree * animationFactor;
-      outerRadius = _outerRadius * animationFactor;
-      startAngle = lerpDouble(seriesStartAngle, _startAngle, animationFactor)!;
-      endAngle = startAngle + degree;
-    } else {
-      startAngle = lerpDouble(_priorStartAngle, _startAngle, animationFactor)!;
-      endAngle = lerpDouble(_priorEndAngle, _endAngle, animationFactor)!;
-      degree = endAngle - startAngle;
-      outerRadius = _outerRadius;
-    }
+    double degree = _degree * animationFactor;
+    final double angle = calculateAngle(
+        series.animationFactor == 1, series.startAngle, series.endAngle);
+    final double startAngle = lerpDouble(
+        _priorEndAngle.isNaN ? angle : _priorStartAngle,
+        _startAngle,
+        animationFactor)!;
+    final double endAngle = _priorEndAngle.isNaN
+        ? startAngle + degree
+        : lerpDouble(_priorEndAngle, _endAngle, animationFactor)!;
+    degree = _priorEndAngle.isNaN ? degree : endAngle - startAngle;
 
     // If the startAngle and endAngle value is same, then degree will be 0.
     // Hence no need to render segments.
@@ -510,7 +515,7 @@ class PieSegment<T, D> extends ChartSegment {
     }
 
     fillPath = calculateArcPath(
-        _innerRadius, outerRadius, _center, startAngle, endAngle, degree,
+        _innerRadius, _outerRadius, _center, startAngle, endAngle, degree,
         isAnimate: true);
   }
 

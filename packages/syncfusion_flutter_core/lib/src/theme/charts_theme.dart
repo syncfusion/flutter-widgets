@@ -119,7 +119,54 @@ class SfChartTheme extends InheritedTheme {
 @immutable
 class SfChartThemeData with Diagnosticable {
   /// Creating an argument constructor of SfChartThemeData class.
-  factory SfChartThemeData({
+  const SfChartThemeData({
+    this.axisLabelColor,
+    this.axisLineColor,
+    this.axisTitleColor,
+    this.backgroundColor,
+    this.titleTextColor,
+    this.crosshairBackgroundColor,
+    this.crosshairLabelColor,
+    this.crosshairLineColor,
+    this.legendBackgroundColor,
+    this.legendTextColor,
+    this.legendTitleColor,
+    this.majorGridLineColor,
+    this.majorTickLineColor,
+    this.minorGridLineColor,
+    this.minorTickLineColor,
+    this.plotAreaBackgroundColor,
+    this.plotAreaBorderColor,
+    this.selectionRectColor,
+    this.selectionRectBorderColor,
+    this.selectionTooltipConnectorLineColor,
+    this.titleBackgroundColor,
+    this.tooltipColor,
+    this.tooltipSeparatorColor,
+    this.tooltipLabelColor,
+    this.waterfallConnectorLineColor,
+    this.titleTextStyle,
+    this.axisTitleTextStyle,
+    this.axisLabelTextStyle,
+    this.axisMultiLevelLabelTextStyle,
+    this.plotBandLabelTextStyle,
+    this.legendTitleTextStyle,
+    this.legendTextStyle,
+    this.dataLabelTextStyle,
+    this.tooltipTextStyle,
+    this.trackballTextStyle,
+    this.crosshairTextStyle,
+    this.selectionZoomingTooltipTextStyle,
+  });
+
+  /// Create a [SfChartThemeData] given a set of exact values.
+  /// All the values must be specified.
+  ///
+  /// This will rarely be used directly. It is used by [lerp] to
+  /// create intermediate themes based on two themes created with the
+  /// [SfChartThemeData] constructor.
+  ///
+  factory SfChartThemeData.raw({
     Brightness? brightness,
     Color? backgroundColor,
     Color? axisLabelColor,
@@ -160,77 +207,8 @@ class SfChartThemeData with Diagnosticable {
     TextStyle? selectionZoomingTooltipTextStyle,
   }) {
     brightness = brightness ?? Brightness.light;
-    final bool isLight = brightness == Brightness.light;
-    backgroundColor ??= Colors.transparent;
-    axisLabelColor ??= isLight
-        ? const Color.fromRGBO(104, 104, 104, 1)
-        : const Color.fromRGBO(242, 242, 242, 1);
-    axisTitleColor ??= isLight
-        ? const Color.fromRGBO(66, 66, 66, 1)
-        : const Color.fromRGBO(255, 255, 255, 1);
-    axisLineColor ??= isLight
-        ? const Color.fromRGBO(181, 181, 181, 1)
-        : const Color.fromRGBO(101, 101, 101, 1);
-    majorGridLineColor ??= isLight
-        ? const Color.fromRGBO(219, 219, 219, 1)
-        : const Color.fromRGBO(70, 74, 86, 1);
-    minorGridLineColor ??= isLight
-        ? const Color.fromRGBO(234, 234, 234, 1)
-        : const Color.fromRGBO(70, 74, 86, 1);
-    majorTickLineColor ??= isLight
-        ? const Color.fromRGBO(181, 181, 181, 1)
-        : const Color.fromRGBO(191, 191, 191, 1);
-    minorTickLineColor ??= isLight
-        ? const Color.fromRGBO(214, 214, 214, 1)
-        : const Color.fromRGBO(150, 150, 150, 1);
-    titleTextColor ??= isLight
-        ? const Color.fromRGBO(66, 66, 66, 1)
-        : const Color.fromRGBO(255, 255, 255, 1);
-    titleBackgroundColor ??= Colors.transparent;
-    legendTextColor ??= isLight
-        ? const Color.fromRGBO(53, 53, 53, 1)
-        : const Color.fromRGBO(255, 255, 255, 1);
-    legendBackgroundColor ??= Colors.transparent;
-    legendTitleColor ??= isLight
-        ? const Color.fromRGBO(66, 66, 66, 1)
-        : const Color.fromRGBO(255, 255, 255, 1);
-    plotAreaBackgroundColor ??= Colors.transparent;
-    plotAreaBorderColor ??= isLight
-        ? const Color.fromRGBO(219, 219, 219, 1)
-        : const Color.fromRGBO(101, 101, 101, 1);
-    crosshairLineColor ??= isLight
-        ? const Color.fromRGBO(79, 79, 79, 1)
-        : const Color.fromRGBO(255, 255, 255, 1);
-    crosshairBackgroundColor ??= isLight
-        ? const Color.fromRGBO(79, 79, 79, 1)
-        : const Color.fromRGBO(255, 255, 255, 1);
-    crosshairLabelColor ??= isLight
-        ? const Color.fromRGBO(255, 255, 255, 1)
-        : const Color.fromRGBO(0, 0, 0, 1);
-    tooltipColor ??= isLight
-        ? const Color.fromRGBO(0, 8, 22, 1)
-        : const Color.fromRGBO(255, 255, 255, 1);
-    tooltipLabelColor ??= isLight
-        ? const Color.fromRGBO(255, 255, 255, 1)
-        : const Color.fromRGBO(0, 0, 0, 1);
-    tooltipSeparatorColor ??= isLight
-        ? const Color.fromRGBO(255, 255, 255, 1)
-        : const Color.fromRGBO(150, 150, 150, 1);
-    selectionRectColor ??= isLight
-        ? const Color.fromRGBO(41, 171, 226, 0.1)
-        : const Color.fromRGBO(255, 217, 57, 0.3);
-    selectionRectBorderColor ??= isLight
-        ? const Color.fromRGBO(41, 171, 226, 1)
-        : const Color.fromRGBO(255, 255, 255, 1);
-    selectionTooltipConnectorLineColor ??= isLight
-        ? const Color.fromRGBO(79, 79, 79, 1)
-        : const Color.fromRGBO(150, 150, 150, 1);
-    waterfallConnectorLineColor ??= isLight
-        ? const Color.fromRGBO(0, 0, 0, 1)
-        : const Color.fromRGBO(255, 255, 255, 1);
 
-    return SfChartThemeData.raw(
-      brightness: brightness,
+    return SfChartThemeData(
       axisLabelColor: axisLabelColor,
       axisLineColor: axisLineColor,
       axisTitleColor: axisTitleColor,
@@ -271,81 +249,6 @@ class SfChartThemeData with Diagnosticable {
     );
   }
 
-  /// Create a [SfChartThemeData] given a set of exact values.
-  /// All the values must be specified.
-  ///
-  /// This will rarely be used directly. It is used by [lerp] to
-  /// create intermediate themes based on two themes created with the
-  /// [SfChartThemeData] constructor.
-  ///
-  const SfChartThemeData.raw({
-    required this.brightness,
-    required this.axisLabelColor,
-    required this.axisLineColor,
-    required this.axisTitleColor,
-    required this.backgroundColor,
-    required this.titleTextColor,
-    required this.crosshairBackgroundColor,
-    required this.crosshairLabelColor,
-    required this.crosshairLineColor,
-    required this.legendBackgroundColor,
-    required this.legendTextColor,
-    required this.legendTitleColor,
-    required this.majorGridLineColor,
-    required this.majorTickLineColor,
-    required this.minorGridLineColor,
-    required this.minorTickLineColor,
-    required this.plotAreaBackgroundColor,
-    required this.plotAreaBorderColor,
-    required this.selectionRectColor,
-    required this.selectionRectBorderColor,
-    required this.selectionTooltipConnectorLineColor,
-    required this.titleBackgroundColor,
-    required this.tooltipColor,
-    required this.tooltipSeparatorColor,
-    required this.tooltipLabelColor,
-    required this.waterfallConnectorLineColor,
-    required this.titleTextStyle,
-    required this.axisTitleTextStyle,
-    required this.axisLabelTextStyle,
-    required this.axisMultiLevelLabelTextStyle,
-    required this.plotBandLabelTextStyle,
-    required this.legendTitleTextStyle,
-    required this.legendTextStyle,
-    required this.dataLabelTextStyle,
-    required this.tooltipTextStyle,
-    required this.trackballTextStyle,
-    required this.crosshairTextStyle,
-    required this.selectionZoomingTooltipTextStyle,
-  });
-
-  /// The brightness of the overall theme of the
-  /// application for the chart widgets.
-  ///
-  /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).brightness], brightness for
-  /// chart widgets will be applied.
-  ///
-  /// Also refer [Brightness].
-  ///
-  /// ```dart
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///      body: Center(
-  ///        child: SfTheme(
-  ///          data: SfThemeData(
-  ///            chartThemeData: SfChartThemeData(
-  ///              brightness: Brightness.dark
-  ///            )
-  ///          ),
-  ///          child: SfCartesianChart()
-  ///        ),
-  ///      )
-  ///   );
-  /// }
-  ///```
-  final Brightness brightness;
-
   /// Specifies the background color of chart widgets.
   ///
   /// ```dart
@@ -364,7 +267,7 @@ class SfChartThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// Specifies the color for axis labels.
   ///
@@ -385,7 +288,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color axisLabelColor;
+  final Color? axisLabelColor;
 
   /// Specifies the color for axis title.
   ///
@@ -410,7 +313,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color axisTitleColor;
+  final Color? axisTitleColor;
 
   /// Specifies the color for axis line.
   ///
@@ -431,7 +334,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color axisLineColor;
+  final Color? axisLineColor;
 
   /// Specifies the color for major grid line of an axis.
   ///
@@ -452,7 +355,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color majorGridLineColor;
+  final Color? majorGridLineColor;
 
   /// Specifies the color for minor grid line of an axis.
   ///
@@ -475,7 +378,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color minorGridLineColor;
+  final Color? minorGridLineColor;
 
   /// Specifies the color for major tick line of an axis.
   ///
@@ -496,7 +399,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color majorTickLineColor;
+  final Color? majorTickLineColor;
 
   /// Specifies the color for minor tick line of an axis.
   ///
@@ -519,7 +422,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color minorTickLineColor;
+  final Color? minorTickLineColor;
 
   /// Specifies the color of the chart title.
   ///
@@ -541,7 +444,7 @@ class SfChartThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color titleTextColor;
+  final Color? titleTextColor;
 
   /// Specifies the background color for title of the chart.
   ///
@@ -564,7 +467,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color titleBackgroundColor;
+  final Color? titleBackgroundColor;
 
   /// Specifies the text color of the legend.
   ///
@@ -594,7 +497,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color legendTextColor;
+  final Color? legendTextColor;
 
   /// Specifies the title color of the legend.
   ///
@@ -625,7 +528,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color legendTitleColor;
+  final Color? legendTitleColor;
 
   /// Specifies the background color of the legend.
   ///
@@ -655,7 +558,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color legendBackgroundColor;
+  final Color? legendBackgroundColor;
 
   /// Specifies the background color of the plot area of the chart.
   ///
@@ -676,7 +579,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color plotAreaBackgroundColor;
+  final Color? plotAreaBackgroundColor;
 
   /// Specifies the border color of the plot area of the chart.
   ///
@@ -697,7 +600,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color plotAreaBorderColor;
+  final Color? plotAreaBorderColor;
 
   /// Specifies the crosshair line color.
   ///
@@ -728,7 +631,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color crosshairLineColor;
+  final Color? crosshairLineColor;
 
   /// Specifies the background color of the crosshair.
   ///
@@ -759,7 +662,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color crosshairBackgroundColor;
+  final Color? crosshairBackgroundColor;
 
   /// Specifies the color of the crosshair text.
   ///
@@ -790,7 +693,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color crosshairLabelColor;
+  final Color? crosshairLabelColor;
 
   /// Specifies the color of the tooltip.
   ///
@@ -820,7 +723,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color tooltipColor;
+  final Color? tooltipColor;
 
   /// Specifies the text color of the tooltip.
   ///
@@ -850,7 +753,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color tooltipLabelColor;
+  final Color? tooltipLabelColor;
 
   /// Specifies the line color of the tooltip
   /// which separates the header and values.
@@ -881,7 +784,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color tooltipSeparatorColor;
+  final Color? tooltipSeparatorColor;
 
   /// Specifies the color of an rectangle which is used for selection zooming.
   ///
@@ -913,7 +816,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color selectionRectColor;
+  final Color? selectionRectColor;
 
   /// Specifies the stroke color of an rectangle
   /// which is used for selection zooming.
@@ -946,7 +849,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color selectionRectBorderColor;
+  final Color? selectionRectBorderColor;
 
   /// Specifies the connector line color which is used in selection zooming.
   ///
@@ -978,7 +881,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color selectionTooltipConnectorLineColor;
+  final Color? selectionTooltipConnectorLineColor;
 
   /// Specifies the connector line color for the waterfall chart.
   ///
@@ -1007,7 +910,7 @@ class SfChartThemeData with Diagnosticable {
   /// }
   ///```
 
-  final Color waterfallConnectorLineColor;
+  final Color? waterfallConnectorLineColor;
 
   /// Specifies the text style for title.
   ///
@@ -1305,7 +1208,7 @@ class SfChartThemeData with Diagnosticable {
     TextStyle? selectionZoomingTooltipTextStyle,
   }) {
     return SfChartThemeData.raw(
-      brightness: brightness ?? this.brightness,
+      brightness: brightness,
       axisLabelColor: axisLabelColor ?? this.axisLabelColor,
       axisLineColor: axisLineColor ?? this.axisLineColor,
       axisTitleColor: axisTitleColor ?? this.axisTitleColor,
@@ -1532,9 +1435,7 @@ class SfChartThemeData with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    final SfChartThemeData defaultData = SfChartThemeData();
-    properties.add(EnumProperty<Brightness>('brightness', brightness,
-        defaultValue: defaultData.brightness));
+    const SfChartThemeData defaultData = SfChartThemeData();
     properties.add(ColorProperty('axisLabelColor', axisLabelColor,
         defaultValue: defaultData.axisLabelColor));
     properties.add(ColorProperty('axisLineColor', axisLineColor,

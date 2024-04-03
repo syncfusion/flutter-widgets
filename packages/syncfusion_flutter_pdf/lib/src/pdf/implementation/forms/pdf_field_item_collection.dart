@@ -41,6 +41,9 @@ class PdfFieldItemCollectionHelper extends PdfObjectCollectionHelper {
   /// internal field
   late PdfField field;
 
+  /// internal field
+  bool allowUncheck = true;
+
   /// internal method
   static PdfFieldItemCollection load(PdfField field) {
     return PdfFieldItemCollection._(field);

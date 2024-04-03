@@ -44,6 +44,9 @@ class PdfRadioFormFieldHelper extends PdfFormFieldHelper {
   /// The radio button form field object.
   late PdfRadioFormField radioFormField;
 
+  /// Flag to determine whether the form field can be reset to null value.
+  late final bool canReset;
+
   /// Creates the radio button form field object.
   PdfRadioFormField getFormField() {
     final List<String> items = <String>[];
@@ -53,7 +56,7 @@ class PdfRadioFormFieldHelper extends PdfFormFieldHelper {
     final String selectedValue = pdfRadioField.selectedIndex != -1
         ? items[pdfRadioField.selectedIndex]
         : '';
-
+    canReset = selectedValue == '';
     radioFormField = PdfRadioFormField._()
       .._items = items
       .._selectedItem = selectedValue;

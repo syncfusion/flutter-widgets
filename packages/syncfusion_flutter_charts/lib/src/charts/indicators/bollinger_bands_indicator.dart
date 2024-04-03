@@ -2,10 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../behaviors/trackball.dart';
 import '../common/callbacks.dart';
 import '../common/chart_point.dart';
-import '../interactions/trackball.dart';
 import '../series/chart_series.dart';
+import '../utils/constants.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
@@ -338,8 +339,7 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set standardDeviation(int value) {
     if (_standardDeviation != value) {
       _standardDeviation = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -393,8 +393,7 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   set period(int value) {
     if (_period != value) {
       _period = value;
-      populateDataSource();
-      markNeedsLayout();
+      markNeedsPopulateAndLayout();
     }
   }
 
@@ -441,6 +440,8 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   }
 
   void _calculateBollingerBandsValues() {
+    num xMinimum = double.infinity;
+    num xMaximum = double.negativeInfinity;
     num yMinimum = double.infinity;
     num yMaximum = double.negativeInfinity;
 
@@ -520,6 +521,8 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           final double minY = min(middle, min(upper, lower));
           final double maxY = max(middle, max(upper, lower));
 
+          xMinimum = min(xMinimum, x);
+          xMaximum = max(xMaximum, x);
           yMinimum = min(yMinimum, minY);
           yMaximum = max(yMaximum, maxY);
 
@@ -534,6 +537,8 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       }
     }
 
+    xMin = xMinimum.isInfinite ? xMin : xMinimum;
+    xMax = xMaximum.isInfinite ? xMax : xMaximum;
     yMin = min(yMin, yMinimum);
     yMax = max(yMax, yMaximum);
   }
@@ -550,7 +555,7 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     _upperLineChartPoints.clear();
     _lowerLineChartPoints.clear();
 
-    if (parent == null || yLists == null || yLists.isEmpty) {
+    if (parent == null || yLists.isEmpty) {
       return;
     }
 
@@ -559,7 +564,7 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     }
 
     final int yLength = yLists.length;
-    if (positions == null || positions.length != yLength) {
+    if (positions.length != yLength) {
       return;
     }
 
@@ -681,14 +686,18 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           _chartPoint(nearestPointIndex, 'upper');
       final CartesianChartPoint<D> lowerPoint =
           _chartPoint(nearestPointIndex, 'lower');
+      final String bollingerText = defaultLegendItemText();
       return <ChartTrackballInfo<T, D>>[
         ChartTrackballInfo<T, D>(
           position: signalLinePoints[nearestPointIndex],
           point: bollingerPoint,
           series: this,
           pointIndex: nearestPointIndex,
+          segmentIndex: nearestPointIndex,
           seriesIndex: index,
-          name: defaultLegendItemText(),
+          name: bollingerText,
+          header: tooltipHeaderText(bollingerPoint),
+          text: trackballText(bollingerPoint, bollingerText),
           color: signalLineColor,
         ),
         ChartTrackballInfo<T, D>(
@@ -696,8 +705,11 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           point: upperPoint,
           series: this,
           pointIndex: nearestPointIndex,
+          segmentIndex: nearestPointIndex,
           seriesIndex: index,
-          name: 'UpperLine',
+          name: trackballUpperLineText,
+          header: tooltipHeaderText(upperPoint),
+          text: trackballText(upperPoint, trackballUpperLineText),
           color: _upperLineColor,
         ),
         ChartTrackballInfo<T, D>(
@@ -705,8 +717,11 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           point: lowerPoint,
           series: this,
           pointIndex: nearestPointIndex,
+          segmentIndex: nearestPointIndex,
           seriesIndex: index,
-          name: 'LowerLine',
+          name: trackballLowerLineText,
+          header: tooltipHeaderText(lowerPoint),
+          text: trackballText(lowerPoint, trackballLowerLineText),
           color: _lowerLineColor,
         )
       ];

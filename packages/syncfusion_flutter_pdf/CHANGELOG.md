@@ -1,5 +1,69 @@
 ## Unreleased
 
+**Breaking changes**
+
+* The `sign` method in the `IPdfExternalSigner` class has been changed to an asynchronous type, and the `signSync` method has been added for synchronous signing.
+
+**Features**
+
+* Provided support for importing and exporting annotations in the PDF document.
+
+* Provided support for asynchronous external signing in the PDF document.
+
+## [24.2.8] - 02/27/2024
+
+**Bugs**
+
+* Resolved the issue where extracting text returns incorrect results for a specific PDF document.
+
+* Invalid font name error will no longer occur when extracting text from specific PDF document.
+
+## [24.2.5] - 02/13/2024
+
+**Bugs**
+
+* Extracting text lines will no longer return incorrect results for specific PDF documents.
+
+## [24.2.4] - 02/06/2024
+
+**Bugs**
+
+* Find text related issues are now resolved in PDF documents.
+
+* Extract text is now working properly in specific PDF document.
+
+## [24.2.3] - 01/31/2024
+
+**Features**
+
+* Provided support to check and uncheck the check box field items.
+
+## [24.1.46] - 01/17/2024
+
+**General**
+
+* Upgraded the `intl` package to the latest version 0.19.0.
+
+## [24.1.45] - 01/09/2024
+
+**Bugs**
+
+* Preservation failure no longer occurs in Mac PDF viewer while saving specific encrypted PDF document.
+
+## [24.1.44] - 01/03/2023
+
+**Bugs**
+
+* Null check error will no longer occur while removing pages from the PDF document.
+
+## [24.1.43] - 12/27/2023
+
+**Bugs**
+
+* Preservation issue will no longer occur while flattening text box field in specific PDF document.
+
+## [24.1.41] - 12/18/2023
+
 **Features**
 
 * Provided support for text markup and popup annotations.

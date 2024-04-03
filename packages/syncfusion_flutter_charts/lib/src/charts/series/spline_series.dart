@@ -7,11 +7,11 @@ import 'package:syncfusion_flutter_core/core.dart';
 
 import '../axis/axis.dart';
 import '../axis/datetime_axis.dart';
+import '../behaviors/trackball.dart';
 import '../common/chart_point.dart';
 import '../common/core_tooltip.dart';
 import '../common/marker.dart';
 import '../interactions/tooltip.dart';
-import '../interactions/trackball.dart';
 import '../utils/constants.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -602,46 +602,6 @@ class SplineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   }
 
   @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
-    }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-    for (final ChartSegment segment in segments) {
-      if (segment is SplineSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-        final Rect rect = segment.series.paintBounds;
-        final num touchXValue =
-            segment.series.xAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double curX = segment.series.xValues[index].toDouble();
-        final double curY = segment.series.yValues[index].toDouble();
-        if (delta == touchXValue - curX) {
-          if ((touchYValue - curY).abs() > (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
-    }
-    return segmentCollection;
-  }
-
-  @override
   void onPaint(PaintingContext context, Offset offset) {
     final Rect clip = clipRect(paintBounds, animationFactor,
         isInversed: xAxis!.isInversed, isTransposed: isTransposed);
@@ -830,66 +790,25 @@ class SplineSegment<T, D> extends ChartSegment {
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
-    final int nearestPointIndex = _findNearestPoint(points, position);
-    if (nearestPointIndex != -1) {
-      final int segmentIndex = nearestPointIndex == 0
-          ? currentSegmentIndex
-          : currentSegmentIndex + 1;
-      final int pointIndex = clampInt(segmentIndex, 0, series.dataCount - 1);
-      final CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
-      return ChartTrackballInfo<T, D>(
-        position: points[nearestPointIndex],
-        point: chartPoint,
-        series: series,
-        pointIndex: pointIndex,
-        seriesIndex: series.index,
-      );
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
+    final CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
+    if (pointIndex == -1 ||
+        points.isEmpty ||
+        (chartPoint.y != null && chartPoint.y!.isNaN)) {
+      return null;
     }
-    return null;
-  }
 
-  int _findNearestPoint(List<Offset> points, Offset position) {
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-    int? pointIndex;
-    for (int i = 0; i < points.length; i++) {
-      nearPointX ??= series.isTransposed
-          ? series.xAxis!.visibleRange!.minimum
-          : points[0].dx;
-      nearPointY ??= series.isTransposed
-          ? points[0].dy
-          : series.yAxis!.visibleRange!.minimum;
-
-      final num touchXValue = position.dx;
-      final num touchYValue = position.dy;
-      final double curX = points[i].dx;
-      final double curY = points[i].dy;
-
-      if (series.isTransposed) {
-        if (delta == touchYValue - curY) {
-          pointIndex = i;
-        } else if ((touchYValue - curY).abs() <=
-            (touchYValue - nearPointY).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchYValue - curY;
-          pointIndex = i;
-        }
-      } else {
-        if (delta == touchXValue - curX) {
-          pointIndex = i;
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          pointIndex = i;
-        }
-      }
-    }
-    return pointIndex ?? -1;
+    return ChartTrackballInfo<T, D>(
+      position: points[0],
+      point: chartPoint,
+      series: series,
+      seriesIndex: series.index,
+      segmentIndex: currentSegmentIndex,
+      pointIndex: pointIndex,
+      text: series.trackballText(chartPoint, series.name),
+      header: series.tooltipHeaderText(chartPoint),
+      color: fillPaint.color,
+    );
   }
 
   /// Gets the color of the series.
@@ -1119,6 +1038,7 @@ class SplineAreaSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
 
   @override
   void computeNonEmptyYValues() {
+    nonEmptyYValues.clear();
     if (emptyPointSettings.mode == EmptyPointMode.drop) {
       final List<num> yValuesCopy = <num>[...yValues];
       nonEmptyYValues = yValuesCopy;
@@ -1130,7 +1050,8 @@ class SplineAreaSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     } else if (emptyPointSettings.mode == EmptyPointMode.gap) {
       super.computeNonEmptyYValues();
     } else {
-      nonEmptyYValues = yValues;
+      final List<num> yValuesCopy = <num>[...yValues];
+      nonEmptyYValues = yValuesCopy;
     }
   }
 
@@ -1204,59 +1125,6 @@ class SplineAreaSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   }
 
   @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
-    }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-    for (final ChartSegment segment in segments) {
-      if (segment is SplineAreaSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-        final Rect rect = segment.series.paintBounds;
-
-        final num touchXValue =
-            segment.series.xAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double curX = segment.series.xValues[index].toDouble();
-        final double curY = segment.series.yValues[index].toDouble();
-        if (delta == touchXValue - curX) {
-          if ((touchYValue - curY).abs() > (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
-    }
-    return segmentCollection;
-  }
-
-  @override
-  void onRealTimeAnimationUpdate() {
-    super.onRealTimeAnimationUpdate();
-    if (segments.isNotEmpty) {
-      final ChartSegment segment = segments[0];
-      segment.animationFactor = segmentAnimationFactor;
-      segment.transformValues();
-      customizeSegment(segment);
-    }
-    markNeedsPaint();
-  }
-
-  @override
   void onPaint(PaintingContext context, Offset offset) {
     final Rect clip = clipRect(paintBounds, animationFactor,
         isInversed: xAxis!.isInversed, isTransposed: isTransposed);
@@ -1293,6 +1161,7 @@ class SplineAreaSegment<T, D> extends ChartSegment {
   final Path _fillPath = Path();
   Path _strokePath = Path();
 
+  final List<int> _drawIndexes = <int>[];
   final List<Offset> _highPoints = <Offset>[];
   final List<Offset> _lowPoints = <Offset>[];
   final List<Offset> _startControlHighPoints = <Offset>[];
@@ -1308,6 +1177,7 @@ class SplineAreaSegment<T, D> extends ChartSegment {
       double seriesAnimationFactor, double segmentAnimationFactor) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
+      _drawIndexes.clear();
       _oldHighPoints.clear();
       _oldLowPoints.clear();
       _oldStartControlHighPoints.clear();
@@ -1396,6 +1266,7 @@ class SplineAreaSegment<T, D> extends ChartSegment {
   @override
   void transformValues() {
     points.clear();
+    _drawIndexes.clear();
     _highPoints.clear();
     _lowPoints.clear();
     _startControlHighPoints.clear();
@@ -1408,38 +1279,8 @@ class SplineAreaSegment<T, D> extends ChartSegment {
     }
 
     _calculatePoints(_xValues, _yValues);
-    final List<Offset> lerpHighPoints =
-        _lerpPoints(_oldHighPoints, _highPoints);
-    final List<Offset> lerpLowPoints = _lerpPoints(_oldLowPoints, _lowPoints);
-    final List<Offset> lerpStartControlHighPoints =
-        _lerpPoints(_oldStartControlHighPoints, _startControlHighPoints);
-    final List<Offset> lerpEndControlHighPoints =
-        _lerpPoints(_oldEndControlHighPoints, _endControlHighPoints);
-    _createFillPath(_fillPath, lerpHighPoints, lerpLowPoints,
-        lerpStartControlHighPoints, lerpEndControlHighPoints);
-
-    switch (series.borderDrawMode) {
-      case BorderDrawMode.all:
-        _strokePath = _fillPath;
-        break;
-      case BorderDrawMode.top:
-        _createTopStrokePath(
-          _strokePath,
-          lerpHighPoints,
-          lerpStartControlHighPoints,
-          lerpEndControlHighPoints,
-        );
-        break;
-      case BorderDrawMode.excludeBottom:
-        _createExcludeBottomStrokePath(
-          _strokePath,
-          lerpHighPoints,
-          lerpLowPoints,
-          lerpStartControlHighPoints,
-          lerpEndControlHighPoints,
-        );
-        break;
-    }
+    _createFillPath(_fillPath, _highPoints, _lowPoints, _startControlHighPoints,
+        _endControlHighPoints);
   }
 
   void _calculatePoints(List<num> xValues, List<num> yValues) {
@@ -1456,6 +1297,7 @@ class SplineAreaSegment<T, D> extends ChartSegment {
         continue;
       }
 
+      _drawIndexes.add(i);
       final Offset highPoint = Offset(transformX(x, high), transformY(x, high));
       _highPoints.add(highPoint);
       points.add(highPoint);
@@ -1491,6 +1333,48 @@ class SplineAreaSegment<T, D> extends ChartSegment {
       _oldStartControlHighPoints
           .addAll(_startControlHighPoints.sublist(length));
       _oldEndControlHighPoints.addAll(_endControlHighPoints.sublist(length));
+    }
+  }
+
+  void _computeAreaPath() {
+    _fillPath.reset();
+    _strokePath.reset();
+
+    if (_highPoints.isEmpty) {
+      return;
+    }
+
+    final List<Offset> lerpHighPoints =
+        _lerpPoints(_oldHighPoints, _highPoints);
+    final List<Offset> lerpLowPoints = _lerpPoints(_oldLowPoints, _lowPoints);
+    final List<Offset> lerpStartControlHighPoints =
+        _lerpPoints(_oldStartControlHighPoints, _startControlHighPoints);
+    final List<Offset> lerpEndControlHighPoints =
+        _lerpPoints(_oldEndControlHighPoints, _endControlHighPoints);
+    _createFillPath(_fillPath, lerpHighPoints, lerpLowPoints,
+        lerpStartControlHighPoints, lerpEndControlHighPoints);
+
+    switch (series.borderDrawMode) {
+      case BorderDrawMode.all:
+        _strokePath = _fillPath;
+        break;
+      case BorderDrawMode.top:
+        _createTopStrokePath(
+          _strokePath,
+          lerpHighPoints,
+          lerpStartControlHighPoints,
+          lerpEndControlHighPoints,
+        );
+        break;
+      case BorderDrawMode.excludeBottom:
+        _createExcludeBottomStrokePath(
+          _strokePath,
+          lerpHighPoints,
+          lerpLowPoints,
+          lerpStartControlHighPoints,
+          lerpEndControlHighPoints,
+        );
+        break;
     }
   }
 
@@ -1723,7 +1607,13 @@ class SplineAreaSegment<T, D> extends ChartSegment {
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
     pointIndex ??= _findNearestChartPointIndex(points, position!);
     if (pointIndex != -1) {
-      final CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
+      final Offset position = points[pointIndex];
+      if (position.isNaN) {
+        return null;
+      }
+
+      final int actualPointIndex = _drawIndexes[pointIndex];
+      final CartesianChartPoint<D> chartPoint = _chartPoint(actualPointIndex);
       final num x = chartPoint.xValue!;
       final num y = chartPoint.y!;
       final double dx = series.pointToPixelX(x, y);
@@ -1739,13 +1629,13 @@ class SplineAreaSegment<T, D> extends ChartSegment {
             series.localToGlobal(preferredPos.translate(0, markerHeight)),
         text: series.tooltipText(chartPoint),
         header: series.name,
-        data: series.dataSource![currentSegmentIndex],
+        data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
         renderer: series,
         seriesIndex: series.index,
         segmentIndex: currentSegmentIndex,
-        pointIndex: currentSegmentIndex,
+        pointIndex: actualPointIndex,
         markerColors: <Color?>[fillPaint.color],
         markerType: marker.type,
       );
@@ -1754,62 +1644,28 @@ class SplineAreaSegment<T, D> extends ChartSegment {
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
-    final int nearestPointIndex = _findNearestPoint(points, position);
-    if (nearestPointIndex != -1) {
-      final CartesianChartPoint<D> chartPoint = _chartPoint(nearestPointIndex);
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
+    if (pointIndex != -1 && points.isNotEmpty) {
+      final Offset preferredPos = points[pointIndex];
+      if (preferredPos.isNaN) {
+        return null;
+      }
+
+      final int actualPointIndex = _drawIndexes[pointIndex];
+      final CartesianChartPoint<D> chartPoint = _chartPoint(actualPointIndex);
       return ChartTrackballInfo<T, D>(
-        position: points[nearestPointIndex],
+        position: preferredPos,
         point: chartPoint,
         series: series,
-        pointIndex: nearestPointIndex,
         seriesIndex: series.index,
+        segmentIndex: currentSegmentIndex,
+        pointIndex: actualPointIndex,
+        text: series.trackballText(chartPoint, series.name),
+        header: series.tooltipHeaderText(chartPoint),
+        color: fillPaint.color,
       );
     }
     return null;
-  }
-
-  int _findNearestPoint(List<Offset> points, Offset position) {
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-    int? pointIndex;
-    for (int i = 0; i < points.length; i++) {
-      nearPointX ??= series.isTransposed
-          ? series.xAxis!.visibleRange!.minimum
-          : points[0].dx;
-      nearPointY ??= series.isTransposed
-          ? points[0].dy
-          : series.yAxis!.visibleRange!.minimum;
-
-      final num touchXValue = position.dx;
-      final num touchYValue = position.dy;
-      final double curX = points[i].dx;
-      final double curY = points[i].dy;
-
-      if (series.isTransposed) {
-        if (delta == touchYValue - curY) {
-          pointIndex = i;
-        } else if ((touchYValue - curY).abs() <=
-            (touchYValue - nearPointY).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchYValue - curY;
-          pointIndex = i;
-        }
-      } else {
-        if (delta == touchXValue - curX) {
-          pointIndex = i;
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          pointIndex = i;
-        }
-      }
-    }
-    return pointIndex ?? -1;
   }
 
   int _findNearestChartPointIndex(List<Offset> points, Offset position) {
@@ -1836,6 +1692,8 @@ class SplineAreaSegment<T, D> extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
+    _computeAreaPath();
+
     Paint paint = getFillPaint();
     if (paint.color != Colors.transparent) {
       canvas.drawPath(_fillPath, paint);
@@ -1858,6 +1716,7 @@ class SplineAreaSegment<T, D> extends ChartSegment {
     _strokePath.reset();
 
     points.clear();
+    _drawIndexes.clear();
     _highPoints.clear();
     _lowPoints.clear();
     _startControlHighPoints.clear();
@@ -2147,59 +2006,6 @@ class SplineRangeAreaSeriesRenderer<T, D> extends RangeSeriesRendererBase<T, D>
   }
 
   @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
-    }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-    for (final ChartSegment segment in segments) {
-      if (segment is SplineRangeAreaSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-        final Rect rect = segment.series.paintBounds;
-
-        final num touchXValue =
-            segment.series.xAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double curX = segment.series.xValues[index].toDouble();
-        final double curY = segment.series.highValues[index].toDouble();
-        if (delta == touchXValue - curX) {
-          if ((touchYValue - curY).abs() > (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
-    }
-    return segmentCollection;
-  }
-
-  @override
-  void onRealTimeAnimationUpdate() {
-    super.onRealTimeAnimationUpdate();
-    if (segments.isNotEmpty) {
-      final ChartSegment segment = segments[0];
-      segment.animationFactor = segmentAnimationFactor;
-      segment.transformValues();
-      customizeSegment(segment);
-    }
-    markNeedsPaint();
-  }
-
-  @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
     final Rect clip = clipRect(paintBounds, animationFactor,
@@ -2244,6 +2050,7 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
   final Path _fillPath = Path();
   Path _strokePath = Path();
 
+  final List<int> _drawIndexes = <int>[];
   final List<Offset> _highPoints = <Offset>[];
   final List<Offset> _lowPoints = <Offset>[];
   final List<Offset> _startControlHighPoints = <Offset>[];
@@ -2263,6 +2070,7 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
       double seriesAnimationFactor, double segmentAnimationFactor) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
+      _drawIndexes.clear();
       _oldHighPoints.clear();
       _oldLowPoints.clear();
       _oldStartControlHighPoints.clear();
@@ -2403,6 +2211,7 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
   @override
   void transformValues() {
     points.clear();
+    _drawIndexes.clear();
     _highPoints.clear();
     _lowPoints.clear();
     _startControlHighPoints.clear();
@@ -2417,43 +2226,15 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
     }
 
     _calculatePoints();
-    final List<Offset> lerpHighPoints =
-        _lerpPoints(_oldHighPoints, _highPoints);
-    final List<Offset> lerpLowPoints = _lerpPoints(_oldLowPoints, _lowPoints);
-    final List<Offset> lerpStartControlHighPoints =
-        _lerpPoints(_oldStartControlHighPoints, _startControlHighPoints);
-    final List<Offset> lerpEndControlHighPoints =
-        _lerpPoints(_oldEndControlHighPoints, _endControlHighPoints);
-    final List<Offset> lerpStartControlLowPoints =
-        _lerpPoints(_oldStartControlLowPoints, _startControlLowPoints);
-    final List<Offset> lerpEndControlLowPoints =
-        _lerpPoints(_oldEndControlLowPoints, _endControlLowPoints);
     _createFillPath(
       _fillPath,
-      lerpHighPoints,
-      lerpLowPoints,
-      lerpStartControlHighPoints,
-      lerpEndControlHighPoints,
-      lerpStartControlLowPoints,
-      lerpEndControlLowPoints,
+      _highPoints,
+      _lowPoints,
+      _startControlHighPoints,
+      _endControlHighPoints,
+      _startControlLowPoints,
+      _endControlLowPoints,
     );
-
-    switch (series.borderDrawMode) {
-      case RangeAreaBorderMode.all:
-        _strokePath = _fillPath;
-        break;
-      case RangeAreaBorderMode.excludeSides:
-        _createStrokePathForExcludeSides(
-          _strokePath,
-          lerpHighPoints,
-          lerpLowPoints,
-          lerpStartControlHighPoints,
-          lerpEndControlHighPoints,
-          lerpStartControlLowPoints,
-          lerpEndControlLowPoints,
-        );
-        break;
-    }
   }
 
   void _calculatePoints() {
@@ -2474,6 +2255,7 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
         highY = lowY = double.nan;
       }
 
+      _drawIndexes.add(i);
       final Offset highPoint =
           Offset(transformX(x, highY), transformY(x, highY));
       _highPoints.add(highPoint);
@@ -2520,6 +2302,53 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
       _oldStartControlLowPoints
           .addAll(_startControlLowPoints.sublist(oldLength));
       _oldEndControlLowPoints.addAll(_endControlLowPoints.sublist(oldLength));
+    }
+  }
+
+  void _computeAreaPath() {
+    _fillPath.reset();
+    _strokePath.reset();
+
+    if (_highPoints.isEmpty || _lowPoints.isEmpty) {
+      return;
+    }
+
+    final List<Offset> lerpHighPoints =
+        _lerpPoints(_oldHighPoints, _highPoints);
+    final List<Offset> lerpLowPoints = _lerpPoints(_oldLowPoints, _lowPoints);
+    final List<Offset> lerpStartControlHighPoints =
+        _lerpPoints(_oldStartControlHighPoints, _startControlHighPoints);
+    final List<Offset> lerpEndControlHighPoints =
+        _lerpPoints(_oldEndControlHighPoints, _endControlHighPoints);
+    final List<Offset> lerpStartControlLowPoints =
+        _lerpPoints(_oldStartControlLowPoints, _startControlLowPoints);
+    final List<Offset> lerpEndControlLowPoints =
+        _lerpPoints(_oldEndControlLowPoints, _endControlLowPoints);
+    _createFillPath(
+      _fillPath,
+      lerpHighPoints,
+      lerpLowPoints,
+      lerpStartControlHighPoints,
+      lerpEndControlHighPoints,
+      lerpStartControlLowPoints,
+      lerpEndControlLowPoints,
+    );
+
+    switch (series.borderDrawMode) {
+      case RangeAreaBorderMode.all:
+        _strokePath = _fillPath;
+        break;
+      case RangeAreaBorderMode.excludeSides:
+        _createStrokePathForExcludeSides(
+          _strokePath,
+          lerpHighPoints,
+          lerpLowPoints,
+          lerpStartControlHighPoints,
+          lerpEndControlHighPoints,
+          lerpStartControlLowPoints,
+          lerpEndControlLowPoints,
+        );
+        break;
     }
   }
 
@@ -2730,7 +2559,13 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
     pointIndex ??= _findNearestChartPointIndex(points, position!);
     if (pointIndex != -1) {
-      final CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
+      final Offset position = points[pointIndex];
+      if (position.isNaN) {
+        return null;
+      }
+
+      final int actualPointIndex = _drawIndexes[pointIndex];
+      final CartesianChartPoint<D> chartPoint = _chartPoint(actualPointIndex);
       final num x = chartPoint.xValue!;
       final num high = chartPoint.high!;
       final double dx = series.pointToPixelX(x, high);
@@ -2754,7 +2589,7 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
         renderer: series,
         seriesIndex: series.index,
         segmentIndex: currentSegmentIndex,
-        pointIndex: pointIndex,
+        pointIndex: actualPointIndex,
         hasMultipleYValues: true,
         markerColors: <Color?>[fillPaint.color],
         markerType: marker.type,
@@ -2764,68 +2599,31 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
-    final int nearestPointIndex = _findNearestPoint(points, position);
-    if (nearestPointIndex != -1) {
-      final CartesianChartPoint<D> chartPoint = _chartPoint(nearestPointIndex);
-      final num x = _xValues[nearestPointIndex];
-      final num high = _highValues[nearestPointIndex];
-      final num low = _lowValues[nearestPointIndex];
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
+    if (pointIndex != -1 && _highPoints.isNotEmpty) {
+      final Offset preferredPos = _highPoints[pointIndex];
+      if (preferredPos.isNaN) {
+        return null;
+      }
+
+      final int actualPointIndex = _drawIndexes[pointIndex];
+      final CartesianChartPoint<D> chartPoint = _chartPoint(actualPointIndex);
       return ChartTrackballInfo<T, D>(
-        position: points[nearestPointIndex],
+        position: preferredPos,
+        highXPos: preferredPos.dx,
+        highYPos: preferredPos.dy,
+        lowYPos: series.pointToPixelY(chartPoint.xValue!, chartPoint.low!),
         point: chartPoint,
         series: series,
-        pointIndex: nearestPointIndex,
         seriesIndex: series.index,
-        lowYPos: series.pointToPixelY(x, low),
-        highYPos: series.pointToPixelY(x, high),
-        highXPos: series.pointToPixelX(x, high),
+        segmentIndex: currentSegmentIndex,
+        pointIndex: actualPointIndex,
+        text: series.trackballText(chartPoint, series.name),
+        header: series.tooltipHeaderText(chartPoint),
+        color: fillPaint.color,
       );
     }
     return null;
-  }
-
-  int _findNearestPoint(List<Offset> points, Offset position) {
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-    int? pointIndex;
-    for (int i = 0; i < points.length; i++) {
-      nearPointX ??= series.isTransposed
-          ? series.xAxis!.visibleRange!.minimum
-          : points[0].dx;
-      nearPointY ??= series.isTransposed
-          ? points[0].dy
-          : series.yAxis!.visibleRange!.minimum;
-
-      final num touchXValue = position.dx;
-      final num touchYValue = position.dy;
-      final double curX = points[i].dx;
-      final double curY = points[i].dy;
-
-      if (series.isTransposed) {
-        if (delta == touchYValue - curY) {
-          pointIndex = i;
-        } else if ((touchYValue - curY).abs() <=
-            (touchYValue - nearPointY).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchYValue - curY;
-          pointIndex = i;
-        }
-      } else {
-        if (delta == touchXValue - curX) {
-          pointIndex = i;
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          pointIndex = i;
-        }
-      }
-    }
-    return pointIndex ?? -1;
   }
 
   int _findNearestChartPointIndex(List<Offset> points, Offset position) {
@@ -2857,6 +2655,8 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
+    _computeAreaPath();
+
     Paint paint = getFillPaint();
     if (paint.color != Colors.transparent) {
       canvas.drawPath(_fillPath, paint);
@@ -2882,6 +2682,7 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
     _strokePath.reset();
 
     points.clear();
+    _drawIndexes.clear();
     _highPoints.clear();
     _lowPoints.clear();
     _startControlHighPoints.clear();

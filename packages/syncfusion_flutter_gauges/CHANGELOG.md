@@ -1,4 +1,14 @@
-## [23.1.43] - 10/31/2023
+## Unreleased
+
+**General**
+* Provided th​e Material 3 themes support.
+
+## [24.1.46] - 17/01/2024
+
+**General**
+* Upgraded the `intl` package to the latest version 0.19.0.
+
+# [23.1.43] - 10/31/2023
 
 ## Radial Gauge
 

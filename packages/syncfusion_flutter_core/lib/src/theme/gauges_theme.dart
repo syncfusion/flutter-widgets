@@ -80,7 +80,6 @@ class SfGaugeTheme extends InheritedTheme {
 
   @override
   bool updateShouldNotify(SfGaugeTheme oldWidget) => data != oldWidget.data;
-
   @override
   Widget wrap(BuildContext context, Widget child) {
     final SfGaugeTheme? ancestorTheme =
@@ -119,7 +118,35 @@ class SfGaugeTheme extends InheritedTheme {
 @immutable
 class SfGaugeThemeData with Diagnosticable {
   /// Initialize the gauge theme data
-  factory SfGaugeThemeData({
+  const SfGaugeThemeData(
+      {this.backgroundColor = Colors.transparent,
+      this.titleColor,
+      this.axisLabelColor,
+      this.axisLineColor,
+      this.majorTickColor,
+      this.minorTickColor,
+      this.markerColor,
+      this.markerBorderColor = Colors.transparent,
+      this.needleColor,
+      this.knobColor,
+      this.knobBorderColor = Colors.transparent,
+      this.tailColor,
+      this.tailBorderColor = Colors.transparent,
+      this.rangePointerColor,
+      this.rangeColor,
+      this.titleBorderColor = Colors.transparent,
+      this.titleBackgroundColor = Colors.transparent,
+      this.titleTextStyle,
+      this.axisLabelTextStyle,
+      this.markerTextStyle});
+
+  /// Create a [SfGaugeThemeData] given a set of exact values.
+  ///
+  /// This will rarely be used directly. It is used by [lerp] to
+  /// create intermediate themes based on two themes created with the
+  /// [SfGaugeThemeData]
+  ///
+  factory SfGaugeThemeData.raw({
     Brightness? brightness,
     Color backgroundColor = Colors.transparent,
     Color? titleColor,
@@ -142,8 +169,8 @@ class SfGaugeThemeData with Diagnosticable {
     TextStyle? axisLabelTextStyle,
     TextStyle? markerTextStyle,
   }) {
-    return SfGaugeThemeData.raw(
-        brightness: brightness,
+    brightness = brightness ?? Brightness.light;
+    return SfGaugeThemeData(
         backgroundColor: backgroundColor,
         titleColor: titleColor,
         axisLabelColor: axisLabelColor,
@@ -173,56 +200,6 @@ class SfGaugeThemeData with Diagnosticable {
   /// create intermediate themes based on two themes created with the
   /// [SfGaugeThemeData] constructor.
   ///
-  const SfGaugeThemeData.raw(
-      {required this.brightness,
-      required this.backgroundColor,
-      required this.titleColor,
-      required this.axisLabelColor,
-      required this.axisLineColor,
-      required this.majorTickColor,
-      required this.minorTickColor,
-      required this.markerColor,
-      required this.markerBorderColor,
-      required this.needleColor,
-      required this.knobColor,
-      required this.knobBorderColor,
-      required this.tailColor,
-      required this.tailBorderColor,
-      required this.rangePointerColor,
-      required this.rangeColor,
-      required this.titleBorderColor,
-      required this.titleBackgroundColor,
-      required this.titleTextStyle,
-      required this.axisLabelTextStyle,
-      required this.markerTextStyle});
-
-  /// The brightness of the overall theme of the
-  /// application for the gauge widgets.
-  ///
-  /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).brightness], brightness for
-  /// radial gauge widgets will be applied.
-  ///
-  /// Also refer [Brightness].
-  ///
-  /// ```dart
-  /// Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///     appBar: AppBar(),
-  ///       body: Center(
-  ///         child: SfTheme(
-  ///           data: SfThemeData(
-  ///             gaugeThemeData: SfGaugeThemeData(
-  ///               brightness: Brightness.dark
-  ///             )
-  ///           ),
-  ///           child: SfRadialGauge(),
-  ///         ),
-  ///       )
-  ///   );
-  /// }
-  ///```
-  final Brightness? brightness;
 
   /// Specifies the background color of gauge widgets.
   ///
@@ -807,7 +784,7 @@ class SfGaugeThemeData with Diagnosticable {
       TextStyle? axisLabelTextStyle,
       TextStyle? markerTextStyle}) {
     return SfGaugeThemeData.raw(
-        brightness: brightness ?? this.brightness,
+        brightness: brightness,
         backgroundColor: backgroundColor ?? this.backgroundColor,
         titleColor: titleColor ?? this.titleColor,
         axisLabelColor: axisLabelColor ?? this.axisLabelColor,
@@ -872,7 +849,6 @@ class SfGaugeThemeData with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-
     return other is SfGaugeThemeData &&
         other.backgroundColor == backgroundColor &&
         other.titleColor == titleColor &&
@@ -926,9 +902,7 @@ class SfGaugeThemeData with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    final SfGaugeThemeData defaultData = SfGaugeThemeData();
-    properties.add(EnumProperty<Brightness>('brightness', brightness,
-        defaultValue: defaultData.brightness));
+    const SfGaugeThemeData defaultData = SfGaugeThemeData();
     properties.add(ColorProperty('backgroundColor', backgroundColor,
         defaultValue: defaultData.backgroundColor));
     properties.add(ColorProperty('titleColor', titleColor,

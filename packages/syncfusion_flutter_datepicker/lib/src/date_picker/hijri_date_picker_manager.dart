@@ -463,7 +463,7 @@ class HijriDatePickerMonthViewSettings with Diagnosticable {
   final List<int> weekendDays;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -895,7 +895,7 @@ class HijriDatePickerYearCellStyle with Diagnosticable {
   final Decoration? todayCellDecoration;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
@@ -1732,7 +1732,7 @@ class HijriDatePickerMonthCellStyle with Diagnosticable {
   final Decoration? todayCellDecoration;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }

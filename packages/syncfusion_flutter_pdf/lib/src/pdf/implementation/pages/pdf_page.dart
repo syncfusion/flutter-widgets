@@ -162,7 +162,7 @@ class PdfPage implements IPdfWrapper {
             _helper.dictionary![PdfDictionaryProperties.annots] as PdfArray?;
       }
     } else {
-      if (_helper._annotations == null) {
+      if (_helper._annotations == null || _helper.importAnnotation) {
         // Create the annotations.
         _helper.createAnnotations(_helper.getWidgetReferences());
       }
@@ -471,6 +471,9 @@ class PdfPageHelper {
 
   /// internal field
   late PdfPage base;
+
+  /// internal field
+  bool importAnnotation = false;
 
   /// internal method
   static PdfPageHelper getHelper(PdfPage base) {
@@ -782,13 +785,15 @@ class PdfPageHelper {
       if (annots != null) {
         for (int count = 0; count < annots.count; ++count) {
           PdfDictionary? annotDictionary;
-          if (crossTable!.getObject(annots[count]) is PdfDictionary)
+          if (crossTable!.getObject(annots[count]) is PdfDictionary) {
             annotDictionary =
                 crossTable!.getObject(annots[count]) as PdfDictionary?;
+          }
           PdfReferenceHolder? annotReference;
-          if (crossTable!.getObject(annots[count]) is PdfReferenceHolder)
+          if (crossTable!.getObject(annots[count]) is PdfReferenceHolder) {
             annotReference =
                 crossTable!.getObject(annots[count]) as PdfReferenceHolder?;
+          }
           if (document != null &&
               PdfDocumentHelper.getHelper(document!).crossTable.encryptor !=
                   null &&
@@ -973,6 +978,9 @@ class PdfPageHelper {
           }
         }
       }
+    }
+    if (importAnnotation) {
+      importAnnotation = false;
     }
     _annotations = PdfAnnotationCollectionHelper.load(base);
   }

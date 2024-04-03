@@ -26,6 +26,7 @@ import '../elements/marker.dart';
 import '../elements/toolbar.dart';
 import '../elements/tooltip.dart';
 import '../layer/vector_layers.dart';
+import '../theme.dart';
 import '../utils.dart';
 
 /// The source that maps the data source with the shape file and provides
@@ -1215,6 +1216,7 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
   MapController? _controller;
 
   Widget _buildGeoJSONLayer(SfMapsThemeData themeData, bool isDesktop) {
+    final ThemeData theme = Theme.of(context);
     Widget current = ClipRect(
       child: Stack(
         children: <Widget>[
@@ -1242,6 +1244,7 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
                 MarkerContainer(
                     controller: _controller!,
                     markerTooltipBuilder: widget.markerTooltipBuilder,
+                    themeData: themeData,
                     sublayer: widget.sublayerAncestor,
                     ancestor: ancestor,
                     children: _markers)
@@ -1271,9 +1274,9 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
               source: widget.source,
               mapDataSource: shapeFileData.mapDataSource,
               settings: widget.dataLabelSettings,
-              effectiveTextStyle: Theme.of(context).textTheme.bodySmall!.merge(
-                  widget.dataLabelSettings.textStyle ??
-                      themeData.dataLabelTextStyle),
+              effectiveTextStyle: theme.textTheme.bodySmall!
+                  .merge(themeData.dataLabelTextStyle)
+                  .merge(widget.dataLabelSettings.textStyle),
               themeData: themeData,
               dataLabelAnimationController: dataLabelAnimationController,
             ),
@@ -1355,69 +1358,63 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
 
   SfMapsThemeData _updateThemeData(BuildContext context, ThemeData themeData,
       SfMapsThemeData mapsThemeData) {
-    final bool isLightTheme = mapsThemeData.brightness == Brightness.light;
+    final SfMapsThemeData effectiveThemeData = themeData.useMaterial3
+        ? SfMapsThemeDataM3(context)
+        : SfMapsThemeDataM2(context);
     return mapsThemeData.copyWith(
       layerColor: widget.color ??
           (isSublayer
-              ? (isLightTheme
-                  ? const Color.fromRGBO(198, 198, 198, 1)
-                  : const Color.fromRGBO(71, 71, 71, 1))
-              : mapsThemeData.layerColor ??
-                  (isLightTheme
-                      ? themeData.colorScheme.onSurface.withOpacity(0.11)
-                      : themeData.colorScheme.onSurface.withOpacity(0.24))),
+              ? (themeData.useMaterial3
+                  ? (effectiveThemeData as SfMapsThemeDataM3).subLayerColor
+                  : (effectiveThemeData as SfMapsThemeDataM2).subLayerColor)
+              : mapsThemeData.layerColor ?? effectiveThemeData.layerColor),
       layerStrokeColor: widget.strokeColor ??
           (isSublayer
-              ? (isLightTheme
-                  ? const Color.fromRGBO(145, 145, 145, 1)
-                  : const Color.fromRGBO(133, 133, 133, 1))
+              ? (themeData.useMaterial3
+                  ? (effectiveThemeData as SfMapsThemeDataM3)
+                      .subLayerStrokeColor
+                  : (effectiveThemeData as SfMapsThemeDataM2)
+                      .subLayerStrokeColor)
               : mapsThemeData.layerStrokeColor ??
-                  (isLightTheme
-                      ? themeData.colorScheme.onSurface.withOpacity(0.18)
-                      : themeData.colorScheme.onSurface.withOpacity(0.43))),
+                  effectiveThemeData.layerStrokeColor),
       layerStrokeWidth: widget.strokeWidth ??
           (isSublayer
-              ? (isLightTheme ? 0.5 : 0.25)
+              ? themeData.useMaterial3
+                  ? (effectiveThemeData as SfMapsThemeDataM3)
+                      .subLayerStrokeWidth
+                  : (effectiveThemeData as SfMapsThemeDataM2)
+                      .subLayerStrokeWidth
               : mapsThemeData.layerStrokeWidth),
       shapeHoverStrokeWidth:
           mapsThemeData.shapeHoverStrokeWidth ?? mapsThemeData.layerStrokeWidth,
       legendTextStyle: themeData.textTheme.bodySmall!
           .copyWith(
               color: themeData.textTheme.bodySmall!.color!.withOpacity(0.87))
-          .merge(widget.legend?.textStyle ?? mapsThemeData.legendTextStyle),
-      markerIconColor: mapsThemeData.markerIconColor ??
-          (isLightTheme
-              ? const Color.fromRGBO(98, 0, 238, 1)
-              : const Color.fromRGBO(187, 134, 252, 1)),
+          .merge(mapsThemeData.legendTextStyle)
+          .merge(widget.legend?.textStyle),
+      markerIconColor:
+          mapsThemeData.markerIconColor ?? effectiveThemeData.markerIconColor,
       bubbleColor: widget.bubbleSettings.color ??
           mapsThemeData.bubbleColor ??
-          (isLightTheme
-              ? const Color.fromRGBO(98, 0, 238, 0.5)
-              : const Color.fromRGBO(187, 134, 252, 0.8)),
+          effectiveThemeData.bubbleColor,
       bubbleStrokeColor: widget.bubbleSettings.strokeColor ??
           mapsThemeData.bubbleStrokeColor ??
-          Colors.transparent,
+          effectiveThemeData.bubbleStrokeColor,
       bubbleStrokeWidth:
           widget.bubbleSettings.strokeWidth ?? mapsThemeData.bubbleStrokeWidth,
       bubbleHoverStrokeWidth: mapsThemeData.bubbleHoverStrokeWidth ??
           mapsThemeData.bubbleStrokeWidth,
       selectionColor: widget.selectionSettings.color ??
           mapsThemeData.selectionColor ??
-          (isLightTheme
-              ? themeData.colorScheme.onSurface.withOpacity(0.53)
-              : themeData.colorScheme.onSurface.withOpacity(0.85)),
+          effectiveThemeData.selectionColor,
       selectionStrokeColor: widget.selectionSettings.strokeColor ??
           mapsThemeData.selectionStrokeColor ??
-          (isLightTheme
-              ? themeData.colorScheme.onPrimary.withOpacity(0.29)
-              : themeData.colorScheme.surface.withOpacity(0.56)),
+          effectiveThemeData.selectionStrokeColor,
       selectionStrokeWidth: widget.selectionSettings.strokeWidth ??
           mapsThemeData.selectionStrokeWidth,
       tooltipColor: widget.tooltipSettings.color ??
           mapsThemeData.tooltipColor ??
-          (isLightTheme
-              ? const Color.fromRGBO(117, 117, 117, 1)
-              : const Color.fromRGBO(245, 245, 245, 1)),
+          effectiveThemeData.tooltipColor,
       tooltipStrokeColor: widget.tooltipSettings.strokeColor ??
           mapsThemeData.tooltipStrokeColor,
       tooltipStrokeWidth: widget.tooltipSettings.strokeWidth ??
@@ -1426,14 +1423,10 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
           mapsThemeData.tooltipBorderRadius.resolve(Directionality.of(context)),
       toggledItemColor: widget.legend?.toggledItemColor ??
           mapsThemeData.toggledItemColor ??
-          (isLightTheme
-              ? themeData.colorScheme.onPrimary
-              : themeData.colorScheme.onSurface.withOpacity(0.09)),
+          effectiveThemeData.toggledItemColor,
       toggledItemStrokeColor: widget.legend?.toggledItemStrokeColor ??
           mapsThemeData.toggledItemStrokeColor ??
-          (isLightTheme
-              ? themeData.colorScheme.onSurface.withOpacity(0.37)
-              : themeData.colorScheme.onSurface.withOpacity(0.17)),
+          effectiveThemeData.toggledItemStrokeColor,
       toggledItemStrokeWidth: widget.legend?.toggledItemStrokeWidth ??
           mapsThemeData.toggledItemStrokeWidth,
     );

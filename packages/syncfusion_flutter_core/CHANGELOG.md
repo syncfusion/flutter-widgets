@@ -1,5 +1,10 @@
 ## Unreleased
 
+**General**
+* Provided th​e Material 3 themes support.
+
+## [20.2.38] - 07/12/2022
+
 **Features**
 * The [Flutter PDF Library](https://www.syncfusion.com/document-processing/pdf-framework/flutter/pdf-library) has been developed to meet industry standards and is now marked as a production-ready.
 

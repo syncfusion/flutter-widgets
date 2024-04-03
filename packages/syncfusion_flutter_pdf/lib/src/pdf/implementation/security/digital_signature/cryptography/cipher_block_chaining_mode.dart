@@ -197,8 +197,7 @@ class CipherParameter implements ICipherParameter {
 /// internal class
 class RsaKeyParam extends CipherParameter {
   /// internal constructor
-  RsaKeyParam(bool isPrivate, BigInt? modulus, BigInt? exponent)
-      : super(isPrivate) {
+  RsaKeyParam(super.isPrivate, BigInt? modulus, BigInt? exponent) {
     _modulus = modulus;
     _exponent = exponent;
   }

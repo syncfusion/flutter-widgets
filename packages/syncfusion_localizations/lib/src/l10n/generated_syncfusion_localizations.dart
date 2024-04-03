@@ -4003,7 +4003,7 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'ABBRECHEN';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'OFFEN';
+  String get pdfHyperlinkDialogOpenLabel => r'ÖFFNEN';
 
   @override
   String get pdfHyperlinkLabel => r'Webseite öffnen';
@@ -4025,7 +4025,7 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get pdfPasswordDialogCancelLabel => r'ABBRECHEN';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'OFFEN';
+  String get pdfPasswordDialogOpenLabel => r'ÖFFNEN';
 
   @override
   String get pdfScrollStatusOfLabel => r'von';

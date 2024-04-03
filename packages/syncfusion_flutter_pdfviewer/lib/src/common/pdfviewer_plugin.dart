@@ -19,6 +19,7 @@ class PdfViewerPlugin {
   Map<int, List<dynamic>>? _renderedPages = <int, List<dynamic>>{};
   Map<int, double>? _pageScale = <int, double>{};
   CancelableOperation<Uint8List?>? _nativeImage;
+  CancelableOperation<Uint8List?>? _tileImage;
 
   /// Initialize the PDF renderer.
   Future<int> initializePdfRenderer(Uint8List documentBytes) async {
@@ -102,6 +103,7 @@ class PdfViewerPlugin {
       bool isZoomChanged,
       int currentPageNumber,
       bool canRenderImage) async {
+    currentScale = currentScale > 1.75 ? 1.75 : currentScale;
     imageCache.clear();
     if (!canRenderImage) {
       _nativeImage?.cancel();
@@ -145,6 +147,20 @@ class PdfViewerPlugin {
       _renderedPages?.remove(index);
     });
     return Future<Map<int, List<dynamic>>?>.value(_renderedPages);
+  }
+
+  /// Returns the tile image of the specified page.
+  Future<Uint8List?>? getTileImage(int pageNumber, double scale, double x,
+      double y, double width, double height) async {
+    _tileImage = CancelableOperation<Uint8List?>.fromFuture(PdfViewerPlatform
+        .instance
+        .getTileImage(pageNumber, scale, x, y, width, height, _documentID!));
+    final Future<Uint8List?> imageFuture = _tileImage!.value;
+    final Uint8List? image = await imageFuture;
+    if (image != null) {
+      return image;
+    }
+    return null;
   }
 
   /// Dispose the rendered pages

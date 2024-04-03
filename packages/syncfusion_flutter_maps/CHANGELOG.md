@@ -1,5 +1,11 @@
 ## Unreleased
 
+**General**
+
+* Provided th​e Material 3 themes support.
+
+## [22.2.8] - 08/08/2023
+
 **Bugs**
 
 * #FB45437 - Resolved the late error exception when assigning any value other than -1 to the selectedIndex property.

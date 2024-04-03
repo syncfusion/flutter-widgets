@@ -127,10 +127,46 @@ class SfMapsTheme extends InheritedTheme {
 /// ```
 @immutable
 class SfMapsThemeData with Diagnosticable {
+  /// Create a [SfMapsThemeData] given a set of exact values.
+  /// All the values must be specified.
+  ///
+  /// This will rarely be used directly. It is used by [lerp] to
+  /// create intermediate themes based on two themes created with the
+  /// [SfMapsThemeData] constructor.
+  const SfMapsThemeData({
+    this.layerColor,
+    this.layerStrokeColor,
+    this.layerStrokeWidth = 1.0,
+    this.shapeHoverColor,
+    this.shapeHoverStrokeColor,
+    this.shapeHoverStrokeWidth,
+    this.legendTextStyle,
+    this.markerIconColor,
+    this.markerIconStrokeColor,
+    this.markerIconStrokeWidth = 1.0,
+    this.dataLabelTextStyle,
+    this.bubbleColor,
+    this.bubbleStrokeColor,
+    this.bubbleStrokeWidth = 1.0,
+    this.bubbleHoverColor,
+    this.bubbleHoverStrokeColor,
+    this.bubbleHoverStrokeWidth,
+    this.selectionColor,
+    this.selectionStrokeColor,
+    this.selectionStrokeWidth = 0.5,
+    this.tooltipColor,
+    this.tooltipStrokeColor,
+    this.tooltipStrokeWidth = 1.0,
+    this.tooltipBorderRadius = const BorderRadius.all(Radius.circular(4.0)),
+    this.toggledItemColor,
+    this.toggledItemStrokeColor,
+    this.toggledItemStrokeWidth,
+  });
+
   /// Returns a new instance of [SfMapsThemeData.raw] for the given values.
   ///
   /// If any of the values are null, the default values will be set.
-  factory SfMapsThemeData({
+  factory SfMapsThemeData.raw({
     Brightness? brightness,
     Color? layerColor,
     Color? layerStrokeColor,
@@ -168,8 +204,7 @@ class SfMapsThemeData with Diagnosticable {
     tooltipStrokeWidth ??= 1.0;
     tooltipBorderRadius ??= const BorderRadius.all(Radius.circular(4.0));
 
-    return SfMapsThemeData.raw(
-      brightness: brightness,
+    return SfMapsThemeData(
       layerColor: layerColor,
       layerStrokeColor: layerStrokeColor,
       shapeHoverColor: shapeHoverColor,
@@ -199,70 +234,6 @@ class SfMapsThemeData with Diagnosticable {
       toggledItemStrokeWidth: toggledItemStrokeWidth,
     );
   }
-
-  /// Create a [SfMapsThemeData] given a set of exact values.
-  /// All the values must be specified.
-  ///
-  /// This will rarely be used directly. It is used by [lerp] to
-  /// create intermediate themes based on two themes created with the
-  /// [SfMapsThemeData] constructor.
-  const SfMapsThemeData.raw({
-    required this.brightness,
-    required this.layerColor,
-    required this.layerStrokeColor,
-    required this.layerStrokeWidth,
-    required this.shapeHoverColor,
-    required this.shapeHoverStrokeColor,
-    required this.shapeHoverStrokeWidth,
-    required this.legendTextStyle,
-    required this.markerIconColor,
-    required this.markerIconStrokeColor,
-    required this.markerIconStrokeWidth,
-    required this.dataLabelTextStyle,
-    required this.bubbleColor,
-    required this.bubbleStrokeColor,
-    required this.bubbleStrokeWidth,
-    required this.bubbleHoverColor,
-    required this.bubbleHoverStrokeColor,
-    required this.bubbleHoverStrokeWidth,
-    required this.selectionColor,
-    required this.selectionStrokeColor,
-    required this.selectionStrokeWidth,
-    required this.tooltipColor,
-    required this.tooltipStrokeColor,
-    required this.tooltipStrokeWidth,
-    required this.tooltipBorderRadius,
-    required this.toggledItemColor,
-    required this.toggledItemStrokeColor,
-    required this.toggledItemStrokeWidth,
-  });
-
-  /// The brightness of the overall theme of the
-  /// application for the maps widgets.
-  ///
-  /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).brightness], brightness for
-  /// maps widgets will be applied.
-  ///
-  /// Also refer [Brightness].
-  ///
-  /// ```dart
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///      body: Center(
-  ///        child: SfTheme(
-  ///          data: SfThemeData(
-  ///            mapsThemeData: SfMapsThemeData(
-  ///              brightness: Brightness.dark
-  ///            )
-  ///          ),
-  ///          child: SfMaps(),
-  ///        ),
-  ///      )
-  ///   );
-  /// }
-  /// ```
-  final Brightness brightness;
 
   /// Specifies the fill color for maps layer.
   ///
@@ -888,7 +859,7 @@ class SfMapsThemeData with Diagnosticable {
     double? toggledItemStrokeWidth,
   }) {
     return SfMapsThemeData.raw(
-      brightness: brightness ?? this.brightness,
+      brightness: brightness,
       layerColor: layerColor ?? this.layerColor,
       layerStrokeColor: layerStrokeColor ?? this.layerStrokeColor,
       layerStrokeWidth: layerStrokeWidth ?? this.layerStrokeWidth,
@@ -938,7 +909,7 @@ class SfMapsThemeData with Diagnosticable {
     return SfMapsThemeData(
       layerColor: Color.lerp(a!.layerColor, b!.layerColor, t),
       layerStrokeColor: Color.lerp(a.layerStrokeColor, b.layerStrokeColor, t),
-      layerStrokeWidth: lerpDouble(a.layerStrokeWidth, b.layerStrokeWidth, t),
+      layerStrokeWidth: lerpDouble(a.layerStrokeWidth, b.layerStrokeWidth, t)!,
       shapeHoverColor: Color.lerp(a.shapeHoverColor, b.shapeHoverColor, t),
       shapeHoverStrokeColor:
           Color.lerp(a.shapeHoverStrokeColor, b.shapeHoverStrokeColor, t),
@@ -949,14 +920,14 @@ class SfMapsThemeData with Diagnosticable {
       markerIconStrokeColor:
           Color.lerp(a.markerIconStrokeColor, b.markerIconStrokeColor, t),
       markerIconStrokeWidth:
-          lerpDouble(a.markerIconStrokeWidth, b.markerIconStrokeWidth, t),
+          lerpDouble(a.markerIconStrokeWidth, b.markerIconStrokeWidth, t)!,
       dataLabelTextStyle:
           TextStyle.lerp(a.dataLabelTextStyle, b.dataLabelTextStyle, t),
       bubbleColor: Color.lerp(a.bubbleColor, b.bubbleColor, t),
       bubbleStrokeColor:
           Color.lerp(a.bubbleStrokeColor, b.bubbleStrokeColor, t),
       bubbleStrokeWidth:
-          lerpDouble(a.bubbleStrokeWidth, b.bubbleStrokeWidth, t),
+          lerpDouble(a.bubbleStrokeWidth, b.bubbleStrokeWidth, t)!,
       bubbleHoverColor: Color.lerp(a.bubbleHoverColor, b.bubbleHoverColor, t),
       bubbleHoverStrokeColor:
           Color.lerp(a.bubbleHoverStrokeColor, b.bubbleHoverStrokeColor, t),
@@ -966,14 +937,14 @@ class SfMapsThemeData with Diagnosticable {
       selectionStrokeColor:
           Color.lerp(a.selectionStrokeColor, b.selectionStrokeColor, t),
       selectionStrokeWidth:
-          lerpDouble(a.selectionStrokeWidth, b.selectionStrokeWidth, t),
+          lerpDouble(a.selectionStrokeWidth, b.selectionStrokeWidth, t)!,
       tooltipColor: Color.lerp(a.tooltipColor, b.tooltipColor, t),
       tooltipStrokeColor:
           Color.lerp(a.tooltipStrokeColor, b.tooltipStrokeColor, t),
       tooltipStrokeWidth:
-          lerpDouble(a.tooltipStrokeWidth, b.tooltipStrokeWidth, t),
+          lerpDouble(a.tooltipStrokeWidth, b.tooltipStrokeWidth, t)!,
       tooltipBorderRadius: BorderRadiusGeometry.lerp(
-          a.tooltipBorderRadius, b.tooltipBorderRadius, t),
+          a.tooltipBorderRadius, b.tooltipBorderRadius, t)!,
       toggledItemColor: Color.lerp(a.toggledItemColor, b.toggledItemColor, t),
       toggledItemStrokeColor:
           Color.lerp(a.toggledItemStrokeColor, b.toggledItemStrokeColor, t),
@@ -1057,9 +1028,7 @@ class SfMapsThemeData with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    final SfMapsThemeData defaultData = SfMapsThemeData();
-    properties.add(EnumProperty<Brightness>('brightness', brightness,
-        defaultValue: defaultData.brightness));
+    const SfMapsThemeData defaultData = SfMapsThemeData();
     properties.add(ColorProperty('layerColor', layerColor,
         defaultValue: defaultData.layerColor));
     properties.add(ColorProperty('layerStrokeColor', layerStrokeColor,

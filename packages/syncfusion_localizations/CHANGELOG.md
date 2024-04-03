@@ -1,3 +1,9 @@
+## [24.1.46] - 17/01/2024
+
+**General**
+
+* Upgraded the `intl` package to the latest version 0.19.0.
+
 ## [19.4.38+1] - 12/20/2021
 
 * Added localization for `rowsPerPageDataPagerLabel` property.

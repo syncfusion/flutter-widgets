@@ -52,10 +52,6 @@ class PdfStream extends PdfDictionary {
   PdfStream? _clonedObject;
 
   /// internal field
-  @override
-  bool? isChanged;
-
-  /// internal field
   late bool blockEncryption;
 
   //Properties
@@ -82,7 +78,7 @@ class PdfStream extends PdfDictionary {
           outputStream, false, document.compressionLevel, false);
       compressedWriter.write(data!, 0, data.length, false);
       compressedWriter.close();
-      _addFilter(PdfDictionaryProperties.flateDecode);
+      addFilter(PdfDictionaryProperties.flateDecode);
       compress = false;
       return outputStream;
     } else {
@@ -102,7 +98,7 @@ class PdfStream extends PdfDictionary {
         clearStream();
         compress = false;
         dataStream = outputStream;
-        _addFilter(PdfDictionaryProperties.flateDecode);
+        addFilter(PdfDictionaryProperties.flateDecode);
       }
     }
     return dataStream;
@@ -267,7 +263,8 @@ class PdfStream extends PdfDictionary {
     return data;
   }
 
-  void _addFilter(String filterName) {
+  /// Internal method.
+  void addFilter(String filterName) {
     IPdfPrimitive? filter = this[PdfDictionaryProperties.filter];
     if (filter is PdfReferenceHolder) {
       filter = filter.referenceObject;
@@ -368,7 +365,7 @@ class PdfStream extends PdfDictionary {
             }
             attachmentEncrypted = true;
             data = _encryptContent(data, writer);
-            _addFilter(PdfDictionaryProperties.crypt);
+            addFilter(PdfDictionaryProperties.crypt);
           }
           if (!containsKey(PdfDictionaryProperties.decodeParms)) {
             final PdfArray decode = PdfArray();
@@ -410,7 +407,7 @@ class PdfStream extends PdfDictionary {
                       data = _compressStream();
                     }
                     data = _encryptContent(data, writer);
-                    _addFilter(PdfDictionaryProperties.crypt);
+                    addFilter(PdfDictionaryProperties.crypt);
                   }
                 }
               }
@@ -421,7 +418,7 @@ class PdfStream extends PdfDictionary {
             data = _compressStream();
           }
           data = _encryptContent(data, writer);
-          _addFilter(PdfDictionaryProperties.crypt);
+          addFilter(PdfDictionaryProperties.crypt);
           if (!containsKey(PdfDictionaryProperties.decodeParms)) {
             final PdfArray decode = PdfArray();
             final PdfDictionary decodeparms = PdfDictionary();
@@ -486,9 +483,6 @@ class PdfStream extends PdfDictionary {
     _clonedObject = newStream;
     return newStream;
   }
-
-  @override
-  bool? decrypted;
 
   /// internal method
   void decrypt(PdfEncryptor encryptor, int? currentObjectNumber) {

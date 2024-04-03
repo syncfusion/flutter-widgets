@@ -3,13 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
+import '../behaviors/trackball.dart';
 import '../common/chart_point.dart';
 import '../common/core_tooltip.dart';
 import '../common/data_label.dart';
 import '../common/element_widget.dart';
 import '../common/marker.dart';
 import '../interactions/tooltip.dart';
-import '../interactions/trackball.dart';
 import '../trendline/trendline.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -296,26 +296,59 @@ class BoxAndWhiskerSeriesRenderer<T, D>
     return 2;
   }
 
+  void _resetDataSourceHolders() {
+    minimumValues.clear();
+    maximumValues.clear();
+    upperValues.clear();
+    lowerValues.clear();
+    medianValues.clear();
+    meanValues.clear();
+    outliersValues.clear();
+  }
+
   @override
   void populateDataSource([
     List<ChartValueMapper<T, num>>? yPaths,
     List<List<num>>? chaoticYLists,
     List<List<num>>? yLists,
     List<ChartValueMapper<T, Object>>? fPaths,
+    List<List<Object?>>? chaoticFLists,
     List<List<Object?>>? fLists,
   ]) {
-    minimumValues.clear();
-    maximumValues.clear();
-    upperValues.clear();
-    lowerValues.clear();
-
-    medianValues.clear();
-    meanValues.clear();
-    outliersValues.clear();
-
-    super.populateDataSource(yPaths, chaoticYLists, yLists, fPaths, fLists);
+    _resetDataSourceHolders();
+    super.populateDataSource(
+        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
     populateChartPoints();
   }
+
+  @override
+  void updateDataPoints(
+    List<int>? removedIndexes,
+    List<int>? addedIndexes,
+    List<int>? replacedIndexes, [
+    List<ChartValueMapper<T, num>>? yPaths,
+    List<List<num>>? chaoticYLists,
+    List<List<num>>? yLists,
+    List<ChartValueMapper<T, Object>>? fPaths,
+    List<List<Object?>>? chaoticFLists,
+    List<List<Object?>>? fLists,
+  ]) {
+    outliersValues.clear();
+    super.updateDataPoints(
+      removedIndexes,
+      addedIndexes,
+      replacedIndexes,
+      yPaths,
+      chaoticYLists,
+      yLists,
+      fPaths,
+      chaoticFLists,
+      fLists,
+    );
+  }
+
+  @override
+  num trackballYValue(int index) => maximumValues[index];
 
   @override
   void populateChartPoints({
@@ -371,8 +404,7 @@ class BoxAndWhiskerSeriesRenderer<T, D>
     super.setData(index, segment);
 
     final BoxPlotQuartileValues boxPlotValues = BoxPlotQuartileValues();
-    final List<num> boxYValues = chaoticYValues[index];
-    _findBoxPlotValues(boxYValues, boxPlotMode, boxPlotValues);
+    _findBoxPlotValues(yValues[index], boxPlotMode, boxPlotValues);
 
     final num minimum = boxPlotValues.minimum ?? double.nan;
     final num maximum = boxPlotValues.maximum ?? double.nan;
@@ -466,6 +498,7 @@ class BoxAndWhiskerSeriesRenderer<T, D>
           dataLabelMedianValues,
           dataLabelOutliersValues,
         ]
+        ..sortedIndexes = sortedIndexes
         ..animation = dataLabelAnimation
         ..layout(constraints);
     }
@@ -641,56 +674,8 @@ class BoxAndWhiskerSeriesRenderer<T, D>
       ShapeMarkerType.boxAndWhiskerSeries;
 
   @override
-  List<ChartSegment> contains(Offset position) {
-    if (animationController != null && animationController!.isAnimating) {
-      return <ChartSegment>[];
-    }
-    final List<ChartSegment> segmentCollection = <ChartSegment>[];
-    int index = 0;
-    double delta = 0;
-    num? nearPointX;
-    num? nearPointY;
-    for (final ChartSegment segment in segments) {
-      if (segment is BoxAndWhiskerSegment<T, D>) {
-        nearPointX ??= segment.series.xValues[0];
-        nearPointY ??= segment.series.yAxis!.visibleRange!.minimum;
-        final Rect rect = segment.series.paintBounds;
-
-        final num touchXValue =
-            segment.series.xAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final num touchYValue =
-            segment.series.yAxis!.pixelToPoint(rect, position.dx, position.dy);
-        final double curX = segment.series.xValues[index].toDouble();
-        final double curY = segment.series.maximumValues[index].toDouble();
-        if (delta == touchXValue - curX) {
-          if ((touchYValue - curY).abs() > (touchYValue - nearPointY).abs()) {
-            segmentCollection.clear();
-          }
-          segmentCollection.add(segment);
-        } else if ((touchXValue - curX).abs() <=
-            (touchXValue - nearPointX).abs()) {
-          nearPointX = curX;
-          nearPointY = curY;
-          delta = touchXValue - curX;
-          segmentCollection.clear();
-          segmentCollection.add(segment);
-        }
-      }
-      index++;
-    }
-    return segmentCollection;
-  }
-
-  @override
   void dispose() {
-    maximumValues.clear();
-    minimumValues.clear();
-    lowerValues.clear();
-    upperValues.clear();
-    meanValues.clear();
-    medianValues.clear();
-    outliersValues.clear();
-    chaoticYValues.clear();
+    _resetDataSourceHolders();
     super.dispose();
   }
 }
@@ -892,9 +877,10 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
       points.add(maxStart);
       points.add(maxEnd);
 
-      final Offset maxConnectorStart = segmentRect!.topCenter;
+      final Offset maxConnectorStart =
+          Offset(transformX(x, upperQuartile), transformY(x, upperQuartile));
       final Offset maxConnectorEnd =
-          Offset(maxStart.dx + (maxEnd.dx - maxStart.dx) / 2, maxStart.dy);
+          Offset(transformX(x, maximum), transformY(x, maximum));
       points.add(maxConnectorStart);
       points.add(maxConnectorEnd);
 
@@ -905,9 +891,10 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
       points.add(minStart);
       points.add(minEnd);
 
-      final Offset minConnectorStart = segmentRect!.bottomCenter;
+      final Offset minConnectorStart =
+          Offset(transformX(x, lowerQuartile), transformY(x, lowerQuartile));
       final Offset minConnectorEnd =
-          Offset(minStart.dx + (minEnd.dx - minStart.dx) / 2, minStart.dy);
+          Offset(transformX(x, minimum), transformY(x, minimum));
       points.add(minConnectorStart);
       points.add(minConnectorEnd);
 
@@ -1031,19 +1018,28 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
   }
 
   @override
-  TrackballInfo? trackballInfo(Offset position) {
-    if (segmentRect != null) {
-      final num left = x + series.sbsInfo.minimum;
-      final num right = x + series.sbsInfo.maximum;
+  TrackballInfo? trackballInfo(Offset position, int pointIndex) {
+    if (pointIndex != -1 && segmentRect != null) {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
+      Offset primaryPos;
+      if (points.isNotEmpty && points.length == 8) {
+        primaryPos = points[3];
+      } else {
+        primaryPos = Offset(series.pointToPixelX(x, chartPoint.upperQuartile!),
+            series.pointToPixelY(x, chartPoint.upperQuartile!));
+      }
+
       return ChartTrackballInfo<T, D>(
-        position: Offset(segmentRect!.center.dx,
-            series.pointToPixelY((left + right) / 2, maximum)),
+        position: primaryPos,
+        maxYPos: series.pointToPixelY(x, chartPoint.maximum!),
         point: chartPoint,
         series: series,
-        pointIndex: currentSegmentIndex,
         seriesIndex: series.index,
-        maxYPos: series.pointToPixelY((left + right) / 2, chartPoint.maximum!),
+        segmentIndex: currentSegmentIndex,
+        pointIndex: pointIndex,
+        text: series.trackballText(chartPoint, series.name),
+        header: series.tooltipHeaderText(chartPoint),
+        color: fillPaint.color,
       );
     }
     return null;

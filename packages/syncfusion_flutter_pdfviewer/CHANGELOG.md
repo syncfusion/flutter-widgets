@@ -1,5 +1,64 @@
 ## Unreleased
 
+**Features**
+
+* Provided support for loading the PDF document on a specified page.
+* Provided support for active viewport rendering. That is, at a higher zoom level, this feature renders only the part of the PDF document that is visible on the screen, ignoring the parts that are outside the viewport.
+* Provided support to undo and redo the data filled in PDF forms.
+
+**General**
+
+* Provided the Material 3 theme support.
+
+## [24.2.9] - 03/05/2024
+
+**General**
+
+* Upgraded the `js` package to the latest version 0.7.1 in the `syncfusion_pdfviewer_web` package.
+
+## [24.2.8] - 02/27/2024
+
+**Bugs**
+
+* Now the page will be centered while zooming out in landscape orientation with pinch gestures in Single Page layout mode.
+
+## [24.2.7] - 02/20/2024
+
+**Features**
+
+* Provided support to check and uncheck the grouped checkbox form fields that behave like a radio button in the PDF document.
+
+## [24.2.5] - 02/13/2024
+
+**Bugs**
+
+* Now, the `SfPdfViewer` will not crash unexpectedly when closing the application before the PDF document is loaded on iOS and macOS platforms.
+
+## [24.1.47] - 01/23/2024
+
+**Bugs**
+
+* Now, when viewing a single-page document in a continuous page layout, the user can fully zoom out of the document with a pinch gesture in the `SfPdfViewer` widget.
+
+## [24.1.46] - 01/17/2024
+
+**Bugs**
+
+* Now, the application will not crash when switching the PDF document in the `SfPdfViewer` widget on the Windows platform.
+
+**General**
+
+* Upgraded the `intl` package to the latest version 0.19.0.
+
+## [24.1.45] - 01/09/2024
+
+**Bugs**
+
+* Now, the `SfPdfViewer` will render the PDF pages considering the crop box value in iOS.
+* Now, when using German locale, the 'Open' label in the hyperlink and password dialogs will be translated properly.
+
+## [24.1.41] - 18/12/2023
+
 **Bugs**
 
 * Now, the `SfPdfViewer` will be properly deployed without namespace errors when built with a Gradle version greater than 8.x.

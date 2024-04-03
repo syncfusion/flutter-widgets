@@ -442,19 +442,19 @@ class LinearShapePointer extends LeafRenderObjectWidget
     final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
+    final bool isMaterial3 = theme.useMaterial3;
+    final Color shapePointerColor = isMaterial3
+        ? theme.colorScheme.onSurfaceVariant
+        : isDarkTheme
+            ? theme.colorScheme.onSurface.withOpacity(0.70)
+            : theme.colorScheme.onSurface.withOpacity(0.54);
     return RenderLinearShapePointer(
         value: value,
         onChanged: onChanged,
         onChangeStart: onChangeStart,
         onChangeEnd: onChangeEnd,
-        color: color ??
-            (isDarkTheme
-                ? theme.colorScheme.onSurface.withOpacity(0.70)
-                : theme.colorScheme.onSurface.withOpacity(0.54)),
-        borderColor: borderColor ??
-            (isDarkTheme
-                ? theme.colorScheme.onSurface.withOpacity(0.70)
-                : theme.colorScheme.onSurface.withOpacity(0.54)),
+        color: color ?? shapePointerColor,
+        borderColor: borderColor ?? shapePointerColor,
         borderWidth: borderWidth,
         width: width ?? (shapeType == LinearShapePointerType.diamond ? 12 : 16),
         height:
@@ -480,20 +480,20 @@ class LinearShapePointer extends LeafRenderObjectWidget
     final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
+    final bool isMaterial3 = theme.useMaterial3;
+    final Color shapePointerColor = isMaterial3
+        ? theme.colorScheme.onSurfaceVariant
+        : isDarkTheme
+            ? theme.colorScheme.onSurface.withOpacity(0.70)
+            : theme.colorScheme.onSurface.withOpacity(0.54);
 
     renderObject
       ..value = value
       ..onChanged = onChanged
       ..onChangeStart = onChangeStart
       ..onChangeEnd = onChangeEnd
-      ..color = color ??
-          (isDarkTheme
-              ? theme.colorScheme.onSurface.withOpacity(0.70)
-              : theme.colorScheme.onSurface.withOpacity(0.54))
-      ..borderColor = borderColor ??
-          (isDarkTheme
-              ? theme.colorScheme.onSurface.withOpacity(0.70)
-              : theme.colorScheme.onSurface.withOpacity(0.54))
+      ..color = color ?? shapePointerColor
+      ..borderColor = borderColor ?? shapePointerColor
       ..borderWidth = borderWidth
       ..width = width ?? (shapeType == LinearShapePointerType.diamond ? 12 : 16)
       ..height =

@@ -105,9 +105,43 @@ class SfDateRangePickerTheme extends InheritedTheme {
 /// ```
 @immutable
 class SfDateRangePickerThemeData with Diagnosticable {
+  /// Create a [SfDateRangePickerThemeData] given a set of exact values.
+  /// All the values must be specified.
+  ///
+  /// This will rarely be used directly. It is used by [lerp] to
+  /// create intermediate themes based on two themes created with the
+  /// [SfDateRangePickerThemeData] constructor.
+  const SfDateRangePickerThemeData(
+      {this.backgroundColor,
+      this.viewHeaderTextStyle,
+      this.headerTextStyle,
+      this.trailingDatesTextStyle,
+      this.leadingCellTextStyle,
+      this.activeDatesTextStyle,
+      this.cellTextStyle,
+      this.rangeSelectionTextStyle,
+      this.rangeSelectionColor,
+      this.leadingDatesTextStyle,
+      this.disabledDatesTextStyle,
+      this.disabledCellTextStyle,
+      this.selectionColor,
+      this.selectionTextStyle,
+      this.startRangeSelectionColor,
+      this.endRangeSelectionColor,
+      this.headerBackgroundColor,
+      this.viewHeaderBackgroundColor,
+      this.weekNumberBackgroundColor,
+      this.blackoutDatesTextStyle,
+      this.todayHighlightColor,
+      this.todayTextStyle,
+      this.todayCellTextStyle,
+      this.weekendDatesTextStyle,
+      this.specialDatesTextStyle,
+      this.weekNumberTextStyle});
+
   /// Create a [SfDateRangePickerThemeData] that's used to configure a
   /// [SfDateRangePickerTheme].
-  factory SfDateRangePickerThemeData({
+  factory SfDateRangePickerThemeData.raw({
     Brightness? brightness,
     Color? backgroundColor,
     Color? startRangeSelectionColor,
@@ -136,8 +170,8 @@ class SfDateRangePickerThemeData with Diagnosticable {
     TextStyle? specialDatesTextStyle,
     TextStyle? weekNumberTextStyle,
   }) {
-    return SfDateRangePickerThemeData.raw(
-        brightness: brightness,
+    brightness = brightness ?? Brightness.light;
+    return SfDateRangePickerThemeData(
         backgroundColor: backgroundColor,
         viewHeaderTextStyle: viewHeaderTextStyle,
         headerTextStyle: headerTextStyle,
@@ -165,69 +199,6 @@ class SfDateRangePickerThemeData with Diagnosticable {
         specialDatesTextStyle: specialDatesTextStyle,
         weekNumberTextStyle: weekNumberTextStyle);
   }
-
-  /// Create a [SfDateRangePickerThemeData] given a set of exact values.
-  /// All the values must be specified.
-  ///
-  /// This will rarely be used directly. It is used by [lerp] to
-  /// create intermediate themes based on two themes created with the
-  /// [SfDateRangePickerThemeData] constructor.
-  const SfDateRangePickerThemeData.raw(
-      {required this.brightness,
-      required this.backgroundColor,
-      required this.viewHeaderTextStyle,
-      required this.headerTextStyle,
-      required this.trailingDatesTextStyle,
-      required this.leadingCellTextStyle,
-      required this.activeDatesTextStyle,
-      required this.cellTextStyle,
-      required this.rangeSelectionTextStyle,
-      required this.rangeSelectionColor,
-      required this.leadingDatesTextStyle,
-      required this.disabledDatesTextStyle,
-      required this.disabledCellTextStyle,
-      required this.selectionColor,
-      required this.selectionTextStyle,
-      required this.startRangeSelectionColor,
-      required this.endRangeSelectionColor,
-      required this.headerBackgroundColor,
-      required this.viewHeaderBackgroundColor,
-      required this.weekNumberBackgroundColor,
-      required this.blackoutDatesTextStyle,
-      required this.todayHighlightColor,
-      required this.todayTextStyle,
-      required this.todayCellTextStyle,
-      required this.weekendDatesTextStyle,
-      required this.specialDatesTextStyle,
-      required this.weekNumberTextStyle});
-
-  /// The brightness of the overall theme of the
-  /// application for the date picker widget.
-  ///
-  /// If [brightness] is not specified, then based on the
-  /// [Theme.of(context).brightness], brightness for
-  /// date range picker widgets will be applied.
-  ///
-  /// Also refer [Brightness].
-  ///
-  /// ```dart
-  /// Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///     appBar: AppBar(),
-  ///     body: Center(
-  ///       child: SfTheme(
-  ///         data: SfThemeData(
-  ///           dateRangePickerThemeData: SfDateRangePickerThemeData(
-  ///             brightness: Brightness.light
-  ///           )
-  ///         ),
-  ///         child: SfDateRangePicker(),
-  ///       ),
-  ///     )
-  ///   );
-  /// }
-  /// ```
-  final Brightness? brightness;
 
   /// Specifies the background color of date picker widget.
   ///
@@ -821,7 +792,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
     TextStyle? weekNumberTextStyle,
   }) {
     return SfDateRangePickerThemeData.raw(
-      brightness: brightness ?? this.brightness,
+      brightness: brightness,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       viewHeaderTextStyle: viewHeaderTextStyle ?? this.viewHeaderTextStyle,
       headerTextStyle: headerTextStyle ?? this.headerTextStyle,
@@ -964,9 +935,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    final SfDateRangePickerThemeData defaultData = SfDateRangePickerThemeData();
-    properties.add(EnumProperty<Brightness>('brightness', brightness,
-        defaultValue: defaultData.brightness));
+    const SfDateRangePickerThemeData defaultData = SfDateRangePickerThemeData();
     properties.add(ColorProperty('backgroundColor', backgroundColor,
         defaultValue: defaultData.backgroundColor));
     properties.add(ColorProperty('rangeSelectionColor', rangeSelectionColor,

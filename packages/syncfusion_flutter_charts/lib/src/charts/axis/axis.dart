@@ -1690,7 +1690,7 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       _needsRangeUpdate = true;
     }
 
-    if (dependent.runtimeType.toString().contains('100')) {
+    if (dependent is Stacking100SeriesMixin) {
       _dependentIsStacked100 = true;
     }
 
@@ -1816,6 +1816,7 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       );
     }
     _needsRangeUpdate = false;
+    zoomingInProgress = false;
   }
 
   @override
@@ -1864,8 +1865,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
           !zoomingInProgress) {
         final DoubleRange autoScrollRange = updateAutoScrollingDelta(
             autoScrollingDelta!, newActualRange, newVisibleRange);
-        if (autoScrollingMode == AutoScrollingMode.end &&
-            newActualRange.minimum < autoScrollRange.minimum) {
+        if ((autoScrollingMode == AutoScrollingMode.end &&
+                newActualRange.minimum < autoScrollRange.minimum) ||
+            (autoScrollingMode == AutoScrollingMode.start &&
+                newActualRange.maximum > autoScrollRange.maximum)) {
           newVisibleRange = autoScrollRange;
         }
       }
@@ -1912,8 +1915,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
             !zoomingInProgress) {
           final DoubleRange autoScrollRange = updateAutoScrollingDelta(
               autoScrollingDelta!, newActualRange, newVisibleRange);
-          if (autoScrollingMode == AutoScrollingMode.end &&
-              newActualRange.minimum < autoScrollRange.minimum) {
+          if ((autoScrollingMode == AutoScrollingMode.end &&
+                  newActualRange.minimum < autoScrollRange.minimum) ||
+              (autoScrollingMode == AutoScrollingMode.start &&
+                  newActualRange.maximum > autoScrollRange.maximum)) {
             newVisibleRange = autoScrollRange;
           }
         }
@@ -2238,7 +2243,8 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   void _calculateBorderPositions() {
     borderPositions.clear();
 
-    final Color labelBorderColor = borderColor ?? chartThemeData!.axisLineColor;
+    final Color labelBorderColor =
+        (borderColor ?? chartThemeData!.axisLineColor)!;
     if (borderWidth > 0 && labelBorderColor != Colors.transparent) {
       switch (labelPlacement) {
         case LabelPlacement.onTicks:
@@ -2708,6 +2714,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     length += isBetweenTicks ? 1 : 0;
     final int lastIndex = length - 1;
     for (int i = 0; i < length; i++) {
+      final double? position = visibleLabels[i].position;
+      if (position == null || position.isNaN) {
+        continue;
+      }
       num current;
       if (isBetweenTicks) {
         if (i < lastIndex) {
@@ -2799,11 +2809,11 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     if (visibleRange!.lies(current, end)) {
       final Rect frame = bounds(plotBand, current, end);
       addPlotBand(frame, plotBand);
-      current = plotBand.size != null
-          ? plotBandExtent(plotBand, current,
-              plotBand.isRepeatable ? plotBand.repeatEvery : end)
-          : end;
     }
+    current = plotBand.size != null
+        ? plotBandExtent(plotBand, current,
+            plotBand.isRepeatable ? plotBand.repeatEvery : end)
+        : end;
     return current;
   }
 
@@ -3398,7 +3408,7 @@ class _HorizontalGridLineRenderer extends _GridLineRenderer {
   void _drawMajorGridLines(PaintingContext context, Offset offset) {
     final MajorGridLines majorGridLines = axis.majorGridLines;
     final Color color =
-        majorGridLines.color ?? axis.chartThemeData!.majorGridLineColor;
+        (majorGridLines.color ?? axis.chartThemeData!.majorGridLineColor)!;
     _drawGridLines(context, offset, axis.majorTickPositions, color,
         majorGridLines.width, majorGridLines.dashArray);
   }
@@ -3407,7 +3417,7 @@ class _HorizontalGridLineRenderer extends _GridLineRenderer {
   void _drawMinorGridLines(PaintingContext context, Offset offset) {
     final MinorGridLines minorGridLines = axis.minorGridLines;
     final Color color =
-        minorGridLines.color ?? axis.chartThemeData!.minorGridLineColor;
+        (minorGridLines.color ?? axis.chartThemeData!.minorGridLineColor)!;
     _drawGridLines(context, offset, axis.minorTickPositions, color,
         minorGridLines.width, minorGridLines.dashArray);
   }
@@ -3457,7 +3467,7 @@ class _VerticalGridLineRenderer extends _GridLineRenderer {
   void _drawMajorGridLines(PaintingContext context, Offset offset) {
     final MajorGridLines majorGridLines = axis.majorGridLines;
     final Color color =
-        majorGridLines.color ?? axis.chartThemeData!.majorGridLineColor;
+        (majorGridLines.color ?? axis.chartThemeData!.majorGridLineColor)!;
     _drawGridLines(context, offset, axis.majorTickPositions, color,
         majorGridLines.width, majorGridLines.dashArray);
   }
@@ -3466,7 +3476,7 @@ class _VerticalGridLineRenderer extends _GridLineRenderer {
   void _drawMinorGridLines(PaintingContext context, Offset offset) {
     final MinorGridLines minorGridLines = axis.minorGridLines;
     final Color color =
-        minorGridLines.color ?? axis.chartThemeData!.minorGridLineColor;
+        (minorGridLines.color ?? axis.chartThemeData!.minorGridLineColor)!;
     _drawGridLines(context, offset, axis.minorTickPositions, color,
         minorGridLines.width, minorGridLines.dashArray);
   }
@@ -4109,7 +4119,7 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
   void _drawAxisLine(PaintingContext context, Offset offset) {
     final Paint paint = Paint()
       ..isAntiAlias = true
-      ..color = axis.axisLine.color ?? axis.chartThemeData!.axisLineColor
+      ..color = (axis.axisLine.color ?? axis.chartThemeData!.axisLineColor)!
       ..strokeWidth = axis.axisLine.width
       ..style = PaintingStyle.stroke;
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
@@ -4127,8 +4137,8 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
   void _drawMajorTicks(PaintingContext context, Offset offset) {
     final Paint paint = Paint()
       ..isAntiAlias = true
-      ..color =
-          axis.majorTickLines.color ?? axis.chartThemeData!.majorTickLineColor
+      ..color = (axis.majorTickLines.color ??
+          axis.chartThemeData!.majorTickLineColor)!
       ..strokeWidth = axis.majorTickLines.width
       ..style = PaintingStyle.stroke;
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
@@ -4144,8 +4154,8 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
   void _drawMinorTicks(PaintingContext context, Offset offset) {
     final Paint paint = Paint()
       ..isAntiAlias = true
-      ..color =
-          axis.minorTickLines.color ?? axis.chartThemeData!.minorTickLineColor
+      ..color = (axis.minorTickLines.color ??
+          axis.chartThemeData!.minorTickLineColor)!
       ..strokeWidth = axis.minorTickLines.width
       ..style = PaintingStyle.stroke;
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
@@ -4175,7 +4185,7 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
 
     final List<AxisLabel> axisLabels = axis.visibleLabels;
     for (final AxisLabel label in axisLabels) {
-      if (!label.isVisible || label.position == null) {
+      if (!label.isVisible || label.position == null || label.position!.isNaN) {
         continue;
       }
 
@@ -4221,7 +4231,7 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
     }
 
     final Color effectiveBorderColor =
-        axis.borderColor ?? axis.chartThemeData!.axisLineColor;
+        (axis.borderColor ?? axis.chartThemeData!.axisLineColor)!;
     if (effectiveBorderColor != Colors.transparent &&
         axis.borderWidth > 0 &&
         axis.borderPositions.isNotEmpty) {
@@ -4261,8 +4271,8 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
       final MultiLevelBorderType borderType =
           axis.multiLevelLabelStyle.borderType;
       final Paint paint = Paint()
-        ..color = axis.multiLevelLabelStyle.borderColor ??
-            axis.chartThemeData!.axisLineColor
+        ..color = (axis.multiLevelLabelStyle.borderColor ??
+            axis.chartThemeData!.axisLineColor)!
         ..strokeWidth = axis.multiLevelLabelStyle.borderWidth != 0
             ? axis.multiLevelLabelStyle.borderWidth
             : axis.axisLine.width
@@ -4382,7 +4392,7 @@ class _VerticalAxisRenderer extends _AxisRenderer {
   void _drawAxisLine(PaintingContext context, Offset offset) {
     final Paint paint = Paint()
       ..isAntiAlias = true
-      ..color = axis.axisLine.color ?? axis.chartThemeData!.axisLineColor
+      ..color = (axis.axisLine.color ?? axis.chartThemeData!.axisLineColor)!
       ..strokeWidth = axis.axisLine.width
       ..style = PaintingStyle.stroke;
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
@@ -4400,8 +4410,8 @@ class _VerticalAxisRenderer extends _AxisRenderer {
   void _drawMajorTicks(PaintingContext context, Offset offset) {
     final Paint paint = Paint()
       ..isAntiAlias = true
-      ..color =
-          axis.majorTickLines.color ?? axis.chartThemeData!.majorTickLineColor
+      ..color = (axis.majorTickLines.color ??
+          axis.chartThemeData!.majorTickLineColor)!
       ..strokeWidth = axis.majorTickLines.width
       ..style = PaintingStyle.stroke;
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
@@ -4417,8 +4427,8 @@ class _VerticalAxisRenderer extends _AxisRenderer {
   void _drawMinorTicks(PaintingContext context, Offset offset) {
     final Paint paint = Paint()
       ..isAntiAlias = true
-      ..color =
-          axis.minorTickLines.color ?? axis.chartThemeData!.minorTickLineColor
+      ..color = (axis.minorTickLines.color ??
+          axis.chartThemeData!.minorTickLineColor)!
       ..strokeWidth = axis.minorTickLines.width
       ..style = PaintingStyle.stroke;
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
@@ -4448,7 +4458,7 @@ class _VerticalAxisRenderer extends _AxisRenderer {
 
     final List<AxisLabel> axisLabels = axis.visibleLabels;
     for (final AxisLabel label in axisLabels) {
-      if (!label.isVisible || label.position == null) {
+      if (!label.isVisible || label.position == null || label.position!.isNaN) {
         continue;
       }
 
@@ -4494,7 +4504,7 @@ class _VerticalAxisRenderer extends _AxisRenderer {
     }
 
     final Color effectiveBorderColor =
-        axis.borderColor ?? axis.chartThemeData!.axisLineColor;
+        (axis.borderColor ?? axis.chartThemeData!.axisLineColor)!;
     if (effectiveBorderColor != Colors.transparent &&
         axis.borderWidth > 0 &&
         axis.borderPositions.isNotEmpty) {
@@ -4534,8 +4544,8 @@ class _VerticalAxisRenderer extends _AxisRenderer {
       final MultiLevelBorderType borderType =
           axis.multiLevelLabelStyle.borderType;
       final Paint paint = Paint()
-        ..color = axis.multiLevelLabelStyle.borderColor ??
-            axis.chartThemeData!.axisLineColor
+        ..color = (axis.multiLevelLabelStyle.borderColor ??
+            axis.chartThemeData!.axisLineColor)!
         ..strokeWidth = axis.multiLevelLabelStyle.borderWidth != 0
             ? axis.multiLevelLabelStyle.borderWidth
             : axis.axisLine.width
@@ -5689,6 +5699,8 @@ abstract class ChartAxisController {
   void _updateActualRange(DoubleRange range) {
     _actualRange = range;
     _onUpdateInitialZoomFactorAndPosition?.call();
+    _isVisibleMinChanged = false;
+    _isVisibleMaxChanged = false;
   }
 
   void _updateZoomFactorAndPosition(num? min, num? max) {
@@ -5800,7 +5812,7 @@ class CategoryAxisController extends ChartAxisController {
   double? get visibleMinimum => _visibleMin();
   double? _visibleMinimum;
   set visibleMinimum(double? value) {
-    if (_visibleMinimum != value) {
+    if (visibleMinimum != value) {
       _visibleMinimum = value;
       _updateMinMaxIfNeeded();
       _isVisibleMinChanged = true;
@@ -5811,7 +5823,7 @@ class CategoryAxisController extends ChartAxisController {
   double? get visibleMaximum => _visibleMax();
   double? _visibleMaximum;
   set visibleMaximum(double? value) {
-    if (_visibleMaximum != value) {
+    if (visibleMaximum != value) {
       _visibleMaximum = value;
       _updateMinMaxIfNeeded();
       _isVisibleMaxChanged = true;
@@ -5871,7 +5883,7 @@ class DateTimeAxisController extends ChartAxisController {
   DateTime? get visibleMinimum => _visibleMin();
   DateTime? _visibleMinimum;
   set visibleMinimum(DateTime? value) {
-    if (_visibleMinimum != value) {
+    if (visibleMinimum != value) {
       _visibleMinimum = value;
       _updateMinMaxIfNeeded();
       _isVisibleMinChanged = true;
@@ -5882,7 +5894,7 @@ class DateTimeAxisController extends ChartAxisController {
   DateTime? get visibleMaximum => _visibleMax();
   DateTime? _visibleMaximum;
   set visibleMaximum(DateTime? value) {
-    if (_visibleMaximum != value) {
+    if (visibleMaximum != value) {
       _visibleMaximum = value;
       _updateMinMaxIfNeeded();
       _isVisibleMaxChanged = true;
@@ -5950,7 +5962,7 @@ class DateTimeCategoryAxisController extends ChartAxisController {
   DateTime? get visibleMinimum => _visibleMin();
   DateTime? _visibleMinimum;
   set visibleMinimum(DateTime? value) {
-    if (_visibleMinimum != value) {
+    if (visibleMinimum != value) {
       _visibleMinimum = value;
       if (_dateAxis.labels.isNotEmpty) {
         _updateMinMaxIfNeeded();
@@ -5964,7 +5976,7 @@ class DateTimeCategoryAxisController extends ChartAxisController {
   DateTime? get visibleMaximum => _visibleMax();
   DateTime? _visibleMaximum;
   set visibleMaximum(DateTime? value) {
-    if (_visibleMaximum != value) {
+    if (visibleMaximum != value) {
       _visibleMaximum = value;
       if (_dateAxis.labels.isNotEmpty) {
         _updateMinMaxIfNeeded();
@@ -5980,7 +5992,7 @@ class DateTimeCategoryAxisController extends ChartAxisController {
     if (_actualRange != null) {
       return;
     }
-    super._updateActualRange(range);
+    _actualRange = range;
     if (_visibleMinimumIndex == null &&
         _visibleMaximumIndex == null &&
         _dateAxis.labels.isNotEmpty) {
@@ -5996,8 +6008,12 @@ class DateTimeCategoryAxisController extends ChartAxisController {
         }
       }
       _updateMinMaxIfNeeded();
-      _updateZoomFactorAndPosition(_visibleMinimumIndex, _visibleMaximumIndex);
+      if (_visibleMaximumIndex != null && _visibleMinimumIndex != null) {
+        _updateZoomFactorAndPosition(
+            _visibleMinimumIndex, _visibleMaximumIndex);
+      }
     }
+    _onUpdateInitialZoomFactorAndPosition?.call();
   }
 
   void _updateMinMaxIfNeeded() {
@@ -6073,7 +6089,7 @@ class LogarithmicAxisController extends ChartAxisController {
   double? get visibleMinimum => _visibleMin();
   double? _visibleMinimum;
   set visibleMinimum(double? value) {
-    if (_visibleMinimum != value) {
+    if (visibleMinimum != value) {
       _visibleMinimum = value;
       _updateMinMaxIfNeeded();
       _isVisibleMinChanged = true;
@@ -6084,7 +6100,7 @@ class LogarithmicAxisController extends ChartAxisController {
   double? get visibleMaximum => _visibleMax();
   double? _visibleMaximum;
   set visibleMaximum(double? value) {
-    if (_visibleMaximum != value) {
+    if (visibleMaximum != value) {
       _visibleMaximum = value;
       _updateMinMaxIfNeeded();
       _isVisibleMaxChanged = true;
@@ -6140,7 +6156,7 @@ class NumericAxisController extends ChartAxisController {
   double? get visibleMinimum => _visibleMin();
   double? _visibleMinimum;
   set visibleMinimum(double? value) {
-    if (_visibleMinimum != value) {
+    if (visibleMinimum != value) {
       _visibleMinimum = value;
       _updateMinMaxIfNeeded();
       _isVisibleMinChanged = true;
@@ -6151,7 +6167,7 @@ class NumericAxisController extends ChartAxisController {
   double? get visibleMaximum => _visibleMax();
   double? _visibleMaximum;
   set visibleMaximum(double? value) {
-    if (_visibleMaximum != value) {
+    if (visibleMaximum != value) {
       _visibleMaximum = value;
       _updateMinMaxIfNeeded();
       _isVisibleMaxChanged = true;

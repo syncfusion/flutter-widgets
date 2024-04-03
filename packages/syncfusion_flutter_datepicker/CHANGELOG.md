@@ -1,3 +1,16 @@
+## Unreleased
+
+**General**
+* Provided th​e Material 3 themes support.
+
+**Bug fixes**
+* \#FB50679 - Now, text size remains consistent when the app state or themes gets changed.
+
+## [24.1.46] - 17/01/2024
+
+**General**
+* Upgraded the `intl` package to the latest version 0.19.0.
+
 ## [19.4.38] - 12/17/2021
 **Features**
 * Provided support to extendable range selection direction in the date range picker.

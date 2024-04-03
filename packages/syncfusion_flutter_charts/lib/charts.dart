@@ -40,6 +40,10 @@ export './src/charts/axis/multi_level_labels.dart'
         MultiLevelLabelStyle;
 export './src/charts/axis/numeric_axis.dart' hide RenderNumericAxis;
 export './src/charts/axis/plot_band.dart';
+export './src/charts/behaviors/crosshair.dart';
+export './src/charts/behaviors/trackball.dart'
+    show TrackballBehavior, TrackballMarkerSettings;
+export './src/charts/behaviors/zooming.dart';
 export './src/charts/cartesian_chart.dart';
 export './src/charts/circular_chart.dart';
 export './src/charts/common/chart_point.dart'
@@ -126,21 +130,10 @@ export './src/charts/utils/typedef.dart' hide PointToPixelCallback;
 export 'src/charts/common/annotation.dart';
 export 'src/charts/common/callbacks.dart' hide ErrorBarValues;
 export 'src/charts/common/title.dart';
-export 'src/charts/interactions/behavior.dart'
-    show ZoomPanBehavior, TrackballBehavior, CrosshairBehavior;
 //export user interaction
 export 'src/charts/interactions/selection.dart';
 export 'src/charts/interactions/tooltip.dart'
     hide ChartTooltipInfo, TrendlineTooltipInfo;
-export 'src/charts/interactions/trackball.dart'
-    hide
-        TrackballRenderObject,
-        TrackballInfo,
-        TrackballElement,
-        ChartLocation,
-        ChartTrackballInfo,
-        TooltipPositions,
-        ClosestPoints;
 export 'src/charts/trendline/trendline.dart'
     hide
         TrendlineWidget,

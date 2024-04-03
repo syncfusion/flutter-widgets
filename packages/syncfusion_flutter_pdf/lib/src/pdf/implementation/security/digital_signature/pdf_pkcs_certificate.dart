@@ -435,6 +435,22 @@ class PdfPKCSCertificate {
   }
 
   /// internal method
+  Future<Map<String, String>> getContentTableAsync() async {
+    final Map<String, String> result = <String, String>{};
+    // ignore: avoid_function_literals_in_foreach_calls
+    _certificates.keys.forEach((String key) {
+      result[key] = 'cert';
+    });
+    // ignore: avoid_function_literals_in_foreach_calls
+    _keys.keys.forEach((String key) {
+      if (!result.containsKey(key)) {
+        result[key] = 'key';
+      }
+    });
+    return result;
+  }
+
+  /// internal method
   bool isKey(String key) {
     return _keys[key] != null;
   }
@@ -446,6 +462,33 @@ class PdfPKCSCertificate {
 
   /// internal method
   X509Certificates? getCertificate(String key) {
+    dynamic certificates = _certificates[key];
+    if (certificates != null && certificates is X509Certificates) {
+      return certificates;
+    } else {
+      String? id;
+      if (_localIdentifiers.containsKey(key)) {
+        id = _localIdentifiers[key];
+      }
+      if (id != null) {
+        if (_keyCertificates.containsKey(id)) {
+          certificates = _keyCertificates[id] is X509Certificates
+              ? _keyCertificates[id]
+              : null;
+        }
+      } else {
+        if (_keyCertificates.containsKey(key)) {
+          certificates = _keyCertificates[key] is X509Certificates
+              ? _keyCertificates[key]
+              : null;
+        }
+      }
+      return certificates as X509Certificates?;
+    }
+  }
+
+  /// internal method
+  Future<X509Certificates?> getCertificateAsync(String key) async {
     dynamic certificates = _certificates[key];
     if (certificates != null && certificates is X509Certificates) {
       return certificates;
@@ -534,6 +577,73 @@ class PdfPKCSCertificate {
           certificateList.length, (int i) => certificateList[i]);
     }
     return null;
+  }
+
+  /// internal method
+  Future<List<X509Certificates>?> getCertificateChainAsync(String key) async {
+    if (!isKey(key)) {
+      return null;
+    }
+    List<X509Certificates>? x509Certificates;
+    await getCertificateAsync(key).then((X509Certificates? certificates) {
+      if (certificates != null) {
+        final List<X509Certificates> certificateList = <X509Certificates>[];
+        bool isContinue = true;
+        while (certificates != null) {
+          final X509Certificate x509Certificate = certificates.certificate!;
+          X509Certificates? nextCertificate;
+          final Asn1Octet? x509Extension = x509Certificate
+              .getExtension(X509Extensions.authorityKeyIdentifier);
+          if (x509Extension != null) {
+            final _KeyIdentifier id = _KeyIdentifier.getKeyIdentifier(
+                Asn1Stream(PdfStreamReader(x509Extension.getOctets()))
+                    .readAsn1());
+            if (id.keyID != null) {
+              if (_chainCertificates
+                  .containsKey(_CertificateIdentifier(id: id.keyID))) {
+                nextCertificate =
+                    _chainCertificates[_CertificateIdentifier(id: id.keyID)];
+              }
+            }
+          }
+          if (nextCertificate == null) {
+            final X509Name? issuer = x509Certificate.c!.issuer;
+            final X509Name? subject = x509Certificate.c!.subject;
+            if (!(issuer == subject)) {
+              final List<_CertificateIdentifier> keys =
+                  _chainCertificates.keys.toList();
+              // ignore: avoid_function_literals_in_foreach_calls
+              keys.forEach((_CertificateIdentifier certId) {
+                X509Certificates? x509CertEntry;
+                if (_chainCertificates.containsKey(certId)) {
+                  x509CertEntry = _chainCertificates[certId];
+                }
+                final X509Certificate certificate = x509CertEntry!.certificate!;
+                if (certificate.c!.subject == issuer) {
+                  try {
+                    // x509Certificate.verify(certificate.getPublicKey());
+                    // nextCertificate = x509CertEntry;
+                    isContinue = false;
+                  } catch (e) {
+                    //
+                  }
+                }
+              });
+            }
+          }
+          if (isContinue) {
+            certificateList.add(certificates);
+            certificates =
+                nextCertificate != null && nextCertificate != certificates
+                    ? nextCertificate
+                    : null;
+          }
+        }
+        x509Certificates = List<X509Certificates>.generate(
+            certificateList.length, (int i) => certificateList[i]);
+      }
+    });
+    return x509Certificates;
   }
 }
 

@@ -11,6 +11,7 @@ import 'common.dart';
 import 'constants.dart';
 import 'range_slider_base.dart';
 import 'slider_shapes.dart';
+import 'theme.dart';
 
 /// A Material Design range slider.
 ///
@@ -1416,6 +1417,15 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       ThemeData themeData, bool isActive) {
     SfRangeSliderThemeData rangeSliderThemeData =
         SfRangeSliderTheme.of(context)!;
+    final bool isMaterial3 = themeData.useMaterial3;
+    final SfRangeSliderThemeData effectiveThemeData = isMaterial3
+        ? SfRangeSliderThemeDataM3(context)
+        : SfRangeSliderThemeDataM2(context);
+    final Color labelColor = isMaterial3
+        ? themeData.colorScheme.onSurfaceVariant
+        : isActive
+            ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
+            : themeData.colorScheme.onSurface.withOpacity(0.32);
     final double minTrackHeight = math.min(
         rangeSliderThemeData.activeTrackHeight,
         rangeSliderThemeData.inactiveTrackHeight);
@@ -1426,75 +1436,72 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       activeTrackHeight: rangeSliderThemeData.activeTrackHeight,
       inactiveTrackHeight: rangeSliderThemeData.inactiveTrackHeight,
       tickOffset: rangeSliderThemeData.tickOffset,
-      inactiveLabelStyle: rangeSliderThemeData.inactiveLabelStyle ??
-          themeData.textTheme.bodyLarge!.copyWith(
-              color: isActive
-                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
-                  : themeData.colorScheme.onSurface.withOpacity(0.32)),
-      activeLabelStyle: rangeSliderThemeData.activeLabelStyle ??
-          themeData.textTheme.bodyLarge!.copyWith(
-              color: isActive
-                  ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
-                  : themeData.colorScheme.onSurface.withOpacity(0.32)),
-      tooltipTextStyle: rangeSliderThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyLarge!
-              .copyWith(color: themeData.colorScheme.surface),
+      inactiveLabelStyle: themeData.textTheme.bodyLarge!
+          .copyWith(color: labelColor, fontSize: isMaterial3 ? 12 : 14)
+          .merge(rangeSliderThemeData.inactiveLabelStyle),
+      activeLabelStyle: themeData.textTheme.bodyLarge!
+          .copyWith(color: labelColor, fontSize: isMaterial3 ? 12 : 14)
+          .merge(rangeSliderThemeData.activeLabelStyle),
+      tooltipTextStyle: themeData.textTheme.bodyLarge!
+          .copyWith(
+              fontSize: isMaterial3 ? 12 : 14,
+              color: isMaterial3
+                  ? themeData.colorScheme.onPrimary
+                  : themeData.colorScheme.surface)
+          .merge(rangeSliderThemeData.tooltipTextStyle),
       inactiveTrackColor: widget.inactiveColor ??
           rangeSliderThemeData.inactiveTrackColor ??
-          themeData.colorScheme.primary.withOpacity(0.24),
+          effectiveThemeData.inactiveTrackColor,
       activeTrackColor: widget.activeColor ??
           rangeSliderThemeData.activeTrackColor ??
-          themeData.colorScheme.primary,
+          effectiveThemeData.activeTrackColor,
       thumbColor: widget.activeColor ??
           rangeSliderThemeData.thumbColor ??
-          themeData.colorScheme.primary,
+          effectiveThemeData.thumbColor,
       activeTickColor: rangeSliderThemeData.activeTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.37),
+          effectiveThemeData.activeTickColor,
       inactiveTickColor: rangeSliderThemeData.inactiveTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.37),
+          effectiveThemeData.inactiveTickColor,
       disabledActiveTickColor: rangeSliderThemeData.disabledActiveTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.24),
+          effectiveThemeData.disabledActiveTickColor,
       disabledInactiveTickColor:
           rangeSliderThemeData.disabledInactiveTickColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.24),
+              effectiveThemeData.disabledInactiveTickColor,
       activeMinorTickColor: rangeSliderThemeData.activeMinorTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.37),
+          effectiveThemeData.activeMinorTickColor,
       inactiveMinorTickColor: rangeSliderThemeData.inactiveMinorTickColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.37),
+          effectiveThemeData.disabledInactiveMinorTickColor,
       disabledActiveMinorTickColor:
           rangeSliderThemeData.disabledActiveMinorTickColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.24),
+              effectiveThemeData.disabledActiveMinorTickColor,
       disabledInactiveMinorTickColor:
           rangeSliderThemeData.disabledInactiveMinorTickColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.24),
+              effectiveThemeData.disabledInactiveMinorTickColor,
       // ignore: lines_longer_than_80_chars
       overlayColor: widget.activeColor?.withOpacity(0.12) ??
           rangeSliderThemeData.overlayColor ??
-          themeData.colorScheme.primary.withOpacity(0.12),
+          effectiveThemeData.overlayColor,
       inactiveDividerColor: widget.activeColor ??
           rangeSliderThemeData.inactiveDividerColor ??
-          themeData.colorScheme.primary.withOpacity(0.54),
+          effectiveThemeData.inactiveDividerColor,
       activeDividerColor: widget.inactiveColor ??
           rangeSliderThemeData.activeDividerColor ??
-          themeData.colorScheme.onPrimary.withOpacity(0.54),
+          effectiveThemeData.activeDividerColor,
       disabledInactiveDividerColor:
           rangeSliderThemeData.disabledInactiveDividerColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.12),
+              effectiveThemeData.disabledInactiveDividerColor,
       disabledActiveDividerColor:
           rangeSliderThemeData.disabledActiveDividerColor ??
-              themeData.colorScheme.onPrimary.withOpacity(0.12),
+              effectiveThemeData.disabledActiveDividerColor,
       disabledActiveTrackColor: rangeSliderThemeData.disabledActiveTrackColor ??
-          themeData.colorScheme.onSurface.withOpacity(0.32),
+          effectiveThemeData.disabledActiveTrackColor,
       disabledInactiveTrackColor:
           rangeSliderThemeData.disabledInactiveTrackColor ??
-              themeData.colorScheme.onSurface.withOpacity(0.12),
+              effectiveThemeData.disabledInactiveTrackColor,
       disabledThumbColor: rangeSliderThemeData.disabledThumbColor ??
-          Color.alphaBlend(themeData.colorScheme.onSurface.withOpacity(0.38),
-              themeData.colorScheme.surface),
+          effectiveThemeData.disabledThumbColor,
       tooltipBackgroundColor: rangeSliderThemeData.tooltipBackgroundColor ??
-          (themeData.brightness == Brightness.light
-              ? const Color.fromRGBO(97, 97, 97, 1)
-              : const Color.fromRGBO(224, 224, 224, 1)),
+          effectiveThemeData.tooltipBackgroundColor,
       thumbStrokeColor: rangeSliderThemeData.thumbStrokeColor,
       overlappingThumbStrokeColor:
           rangeSliderThemeData.overlappingThumbStrokeColor ??
@@ -2235,6 +2242,8 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
     final Rect endRect = sliderType == SliderType.horizontal
         ? Rect.fromPoints(node.rect.topCenter, node.rect.bottomRight)
         : Rect.fromPoints(node.rect.centerLeft, node.rect.topRight);
+    startSemanticsNode ??= SemanticsNode();
+    endSemanticsNode ??= SemanticsNode();
     if (sliderType == SliderType.vertical ||
         textDirection == TextDirection.ltr) {
       startSemanticsNode!.rect = startRect;

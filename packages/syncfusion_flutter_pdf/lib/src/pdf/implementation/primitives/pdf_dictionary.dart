@@ -178,7 +178,10 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
   }
 
   /// internal method
-  void setName(PdfName key, String? name) {
+  void setName(dynamic key, String? name) {
+    if (key is String) {
+      key = PdfName(key);
+    }
     if (items!.containsKey(key)) {
       this[key] = PdfName(name);
       modify();
@@ -204,10 +207,12 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
 
   /// internal method
   void setString(String key, String? str) {
-    final PdfString? pdfString = this[key] as PdfString?;
-    if (pdfString != null) {
-      pdfString.value = str;
-      modify();
+    if (containsKey(key) && this[key] is PdfString) {
+      final IPdfPrimitive? pdfString = this[key];
+      if (pdfString != null && pdfString is PdfString) {
+        pdfString.value = str;
+        modify();
+      }
     } else {
       this[key] = PdfString(str!);
     }
@@ -359,7 +364,7 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
   }
 
   /// internal method
-  void setNumber(String key, int? value) {
+  void setNumber(String key, num? value) {
     final PdfNumber? pdfNumber = this[key] as PdfNumber?;
     if (pdfNumber != null) {
       pdfNumber.value = value;

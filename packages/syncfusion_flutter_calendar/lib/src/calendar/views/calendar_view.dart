@@ -269,6 +269,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   late ValueNotifier<_DragPaintDetails> _dragDetails;
   Offset? _dragDifferenceOffset;
   Timer? _timer;
+  double? _viewPortHeight;
 
   @override
   void initState() {
@@ -495,6 +496,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
   @override
   Widget build(BuildContext context) {
+    _viewPortHeight = MediaQuery.of(context).size.height;
     if (!CalendarViewHelper.isTimelineView(widget.view) &&
         widget.view != CalendarView.month) {
       _updateScrollPosition();
@@ -682,7 +684,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
               top: topPosition,
               child: FocusScope(
                 node: _focusNode,
-                onKey: _onKeyDown,
+                onKeyEvent: _onKeyDown,
                 child: isTimelineView
                     ? Listener(
                         onPointerSignal: _handlePointerSignal,
@@ -2555,7 +2557,8 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       /// Check the scrolling is vertical and timeline view does not have
       /// vertical scroll view then scroll the vertical movement on
       /// Horizontal direction.
-      if (event.scrollDelta.dy.abs() > event.scrollDelta.dx.abs() &&
+      if (widget.height <= _viewPortHeight! &&
+          event.scrollDelta.dy.abs() > event.scrollDelta.dx.abs() &&
           viewKey._timelineViewVerticalScrollController!.position
                   .maxScrollExtent ==
               0) {
@@ -4196,7 +4199,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   DateTime? _updateSelectedDate(
-      RawKeyEvent event,
+      KeyEvent event,
       _CalendarViewState currentViewState,
       _CalendarView currentView,
       int resourceIndex,
@@ -4338,7 +4341,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   /// Method to handle the page up/down key for timeslot views in calendar.
-  KeyEventResult _updatePageUpAndDown(RawKeyEvent event,
+  KeyEventResult _updatePageUpAndDown(KeyEvent event,
       _CalendarViewState currentViewState, bool isResourceEnabled) {
     if (widget.controller.view != CalendarView.day &&
         widget.controller.view != CalendarView.week &&
@@ -4417,7 +4420,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
 
   /// Updates the appointment selection based on keyboard navigation in calendar
   KeyEventResult _updateAppointmentSelection(
-      RawKeyEvent event,
+      KeyEvent event,
       _CalendarViewState currentVisibleViewState,
       bool isResourceEnabled,
       AppointmentView? currentSelectedAppointment,
@@ -4435,7 +4438,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         _updateCalendarStateDetails.allDayAppointmentViewCollection;
     final List<AppointmentView> tempAppColl =
         isAllDay ? allDayAppointmentCollection : appointmentCollection;
-    if (event.isShiftPressed) {
+    if (HardwareKeyboard.instance.isShiftPressed) {
       if (event.logicalKey == LogicalKeyboardKey.tab) {
         if (currentAllDayAppointment != null ||
             currentSelectedAppointment != null) {
@@ -4486,7 +4489,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
             currentVisibleViewState,
             isAllDay,
             isResourceEnabled,
-            !event.isShiftPressed);
+            !HardwareKeyboard.instance.isShiftPressed);
       }
     } else if (event.logicalKey == LogicalKeyboardKey.tab) {
       if (currentAllDayAppointment != null ||
@@ -4534,7 +4537,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
           currentVisibleViewState,
           isAllDay,
           isResourceEnabled,
-          !event.isShiftPressed);
+          !HardwareKeyboard.instance.isShiftPressed);
     }
 
     return KeyEventResult.ignored;
@@ -4673,15 +4676,16 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
     }
   }
 
-  KeyEventResult _onKeyDown(FocusNode node, RawKeyEvent event) {
+  KeyEventResult _onKeyDown(FocusNode node, KeyEvent event) {
     KeyEventResult result = KeyEventResult.ignored;
-    if (event.runtimeType != RawKeyDownEvent) {
+    if (event.runtimeType != KeyDownEvent) {
       return result;
     }
 
     widget.removePicker();
 
-    if (event.isControlPressed && widget.view != CalendarView.schedule) {
+    if (HardwareKeyboard.instance.isControlPressed &&
+        widget.view != CalendarView.schedule) {
       final bool canMoveToNextView = DateTimeHelper.canMoveToNextView(
           widget.view,
           widget.calendar.monthViewSettings.numberOfWeeksInView,
@@ -8301,6 +8305,7 @@ class _CalendarViewState extends State<_CalendarView>
                     isRTL,
                     widget.locale,
                     widget.calendarTheme,
+                    widget.themeData,
                     widget.calendar.todayHighlightColor ??
                         widget.calendarTheme.todayHighlightColor,
                     widget.calendar.todayTextStyle,
@@ -8365,6 +8370,7 @@ class _CalendarViewState extends State<_CalendarView>
         widget.calendar.todayTextStyle,
         widget.calendar.cellBorderColor,
         widget.calendarTheme,
+        widget.themeData,
         _calendarCellNotifier,
         widget.calendar.monthViewSettings.showTrailingAndLeadingDates,
         widget.calendar.minDate,
@@ -8520,6 +8526,7 @@ class _CalendarViewState extends State<_CalendarView>
                     isRTL,
                     widget.locale,
                     widget.calendarTheme,
+                    widget.themeData,
                     widget.calendar.todayHighlightColor ??
                         widget.calendarTheme.todayHighlightColor,
                     widget.calendar.todayTextStyle,
@@ -9780,16 +9787,17 @@ class _CalendarViewState extends State<_CalendarView>
           (yPosition < allDayHeight - kAllDayAppointmentHeight ||
               _updateCalendarStateDetails.allDayPanelHeight <= allDayHeight ||
               appointmentView.position + 1 >= appointmentView.maxPositions)) {
-        if (!CalendarViewHelper.isDateTimeWithInDateTimeRange(
-                widget.calendar.minDate,
-                widget.calendar.maxDate,
-                appointmentView.appointment!.actualStartTime,
-                timeInterval) ||
-            !CalendarViewHelper.isDateTimeWithInDateTimeRange(
-                widget.calendar.minDate,
-                widget.calendar.maxDate,
-                appointmentView.appointment!.actualEndTime,
-                timeInterval)) {
+        if ((!CalendarViewHelper.isDateTimeWithInDateTimeRange(
+                    widget.calendar.minDate,
+                    widget.calendar.maxDate,
+                    appointmentView.appointment!.actualStartTime,
+                    timeInterval) ||
+                !CalendarViewHelper.isDateTimeWithInDateTimeRange(
+                    widget.calendar.minDate,
+                    widget.calendar.maxDate,
+                    appointmentView.appointment!.actualEndTime,
+                    timeInterval)) &&
+            !appointmentView.appointment!.isSpanned) {
           return null;
         }
         if (selectedDate != null) {
@@ -11367,6 +11375,7 @@ class _ViewHeaderViewPainter extends CustomPainter {
       this.isRTL,
       this.locale,
       this.calendarTheme,
+      this.themeData,
       this.todayHighlightColor,
       this.todayTextStyle,
       this.cellBorderColor,
@@ -11388,6 +11397,7 @@ class _ViewHeaderViewPainter extends CustomPainter {
   final double timeLabelWidth;
   final double viewHeaderHeight;
   final SfCalendarThemeData calendarTheme;
+  final ThemeData themeData;
   final bool isRTL;
   final String locale;
   final Color? todayHighlightColor;
@@ -11588,13 +11598,13 @@ class _ViewHeaderViewPainter extends CustomPainter {
         dayTextStyle = dayTextStyle.copyWith(
             color: dayTextStyle.color != null
                 ? dayTextStyle.color!.withOpacity(0.38)
-                : calendarTheme.brightness == Brightness.light
+                : themeData.brightness == Brightness.light
                     ? Colors.black26
                     : Colors.white38);
         dateTextStyle = dateTextStyle.copyWith(
             color: dateTextStyle.color != null
                 ? dateTextStyle.color!.withOpacity(0.38)
-                : calendarTheme.brightness == Brightness.light
+                : themeData.brightness == Brightness.light
                     ? Colors.black26
                     : Colors.white38);
       }
@@ -11732,7 +11742,7 @@ class _ViewHeaderViewPainter extends CustomPainter {
           xPosition + (width / 2 - _dayTextPainter.width / 2),
           yPosition,
           _dayTextPainter,
-          hoveringColor: (calendarTheme.brightness == Brightness.dark
+          hoveringColor: (themeData.brightness == Brightness.dark
                   ? Colors.white
                   : Colors.black87)
               .withOpacity(0.04));
@@ -11753,7 +11763,7 @@ class _ViewHeaderViewPainter extends CustomPainter {
             viewHeaderNotifier.value!.dx) {
       final Color hoveringColor = isToday
           ? Colors.black.withOpacity(0.12)
-          : (calendarTheme.brightness == Brightness.dark
+          : (themeData.brightness == Brightness.dark
                   ? Colors.white
                   : Colors.black87)
               .withOpacity(0.04);

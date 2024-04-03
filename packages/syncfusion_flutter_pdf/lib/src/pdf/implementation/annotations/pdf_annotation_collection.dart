@@ -361,7 +361,7 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
               dictionary, crossTable, PdfDictionaryProperties.subtype, true)!
           as PdfName;
       final PdfAnnotationTypes type =
-          _getAnnotationType(name, dictionary, crossTable);
+          getAnnotationType(name, dictionary, crossTable);
       final PdfArray? rectValue =
           PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.rect])
               as PdfArray?;
@@ -435,7 +435,7 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
   }
 
   /// Gets the type of the annotation.
-  PdfAnnotationTypes _getAnnotationType(
+  static PdfAnnotationTypes getAnnotationType(
       PdfName name, PdfDictionary dictionary, PdfCrossTable? crossTable) {
     final String str = name.name!;
     PdfAnnotationTypes type = PdfAnnotationTypes.noAnnotation;
@@ -610,7 +610,7 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
     return annot;
   }
 
-  bool _findAnnotation(PdfArray? arr) {
+  static bool _findAnnotation(PdfArray? arr) {
     if (arr == null) {
       return false;
     }
