@@ -14,6 +14,19 @@ body:
           - [User Guide Documentation](https://help.syncfusion.com/flutter/introduction/overview)
           - [Knowledge Base](https://support.syncfusion.com/kb/cross-platforms/category/79)
           - [Feedbacks](https://stackoverflow.com/questions/tagged/flutter?sort=frequent)
+          
+        You can also contact us through the following methods.
+          - [Support portal](https://support.syncfusion.com)
+          - [Support forums](https://www.syncfusion.com/forums)
+          - [Feedback portal](https://www.syncfusion.com/feedback/flutter)
+  - type: textarea
+    attributes:
+      label: Bug description
+      description: Clearly and concisely describe the problem.
+      placeholder: |
+        A clear and concise description of what the bug is.
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Steps to reproduce
@@ -35,7 +48,7 @@ body:
         <details open><summary>Code sample</summary>
 
         ```dart
-        [Paste your code here]
+        [Add your code here]
         ```
 
         </details>
@@ -53,20 +66,25 @@ body:
         [Upload media here]
 
         </details>
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Stack Traces
       description: |
         If it is a runtime exception, kindly provide the stack trace from the console.
         If the traces are too large to be uploaded to GitHub, you may upload them as a `zip` file.
+        Note: If no stack trace is available, please mention it.
       value: |
         <details open><summary>Stack Traces</summary>
 
-        ```json
-        [Paste the Stack Traces here]
+        ```dart
+        [Add the Stack Traces here]
         ```
 
         </details>
+    validations:
+      required: true
   - type: dropdown
     id: target_platforms
     attributes:
@@ -93,7 +111,7 @@ body:
         <details open><summary>Doctor output</summary>
 
         ```console
-        [Paste your output here]
+        [Add your output here]
         ```
 
         </details>
