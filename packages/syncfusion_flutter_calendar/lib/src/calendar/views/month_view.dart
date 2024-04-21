@@ -39,7 +39,8 @@ class MonthViewWidget extends StatefulWidget {
       this.height,
       this.weekNumberStyle,
       this.isMobilePlatform,
-      this.visibleAppointmentNotifier);
+      this.visibleAppointmentNotifier,
+      this.monthCellHeaderBuilder);
 
   /// Defines the row count for the month view.
   final int rowCount;
@@ -107,6 +108,9 @@ class MonthViewWidget extends StatefulWidget {
   /// Used to build the widget that replaces the month cell.
   final MonthCellBuilder? builder;
 
+  final  Widget Function(
+    BuildContext context, DateTime dateTime)? monthCellHeaderBuilder;
+
   /// Holds the visible appointment collection used to trigger the builder
   /// when its value changed.
   final ValueNotifier<List<CalendarAppointment>?> visibleAppointmentNotifier;
@@ -148,7 +152,7 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
             widget.calendar.showWeekNumber,
             widget.width,
             widget.isMobilePlatform);
-    if (widget.builder != null) {
+    if (widget.builder != null || widget.monthCellHeaderBuilder != null) {
       final int visibleDatesCount = widget.visibleDates.length;
       final double cellWidth =
           (widget.width - weekNumberPanelWidth) / DateTime.daysPerWeek;
@@ -183,7 +187,7 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
               appointments, widget.calendar.dataSource);
         }
 
-        final Widget child = widget.builder!(
+        final Widget? monthCellChild = widget.builder?.call(
             context,
             MonthCellDetails(
                 currentVisibleDate,
@@ -196,7 +200,14 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
                     yPosition,
                     cellWidth,
                     cellHeight)));
-        children.add(RepaintBoundary(child: child));
+        if (monthCellChild != null) {
+          children.add(RepaintBoundary(child: monthCellChild));
+        }
+        final Widget? monthCellHeader = widget.monthCellHeaderBuilder?.call(
+            context, currentVisibleDate);
+        if (monthCellHeader != null) {
+          children.add(RepaintBoundary(child: monthCellHeader));
+        }
 
         xPosition += cellWidth;
         if (xPosition + 1 >= widget.width) {
@@ -747,6 +758,9 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     if (!isNeedCustomPaint) {
       _drawMonthCells(context.canvas, size);
     } else {
+      // added to draw customHeader and monthCell
+      _drawMonthCells(context.canvas, size);
+
       final double cellWidth =
           (size.width - weekNumberPanelWidth) / DateTime.daysPerWeek;
       final double cellHeight = size.height / rowCount;

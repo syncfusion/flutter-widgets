@@ -58,6 +58,7 @@ class CustomCalendarScrollView extends StatefulWidget {
       this.timelineMonthWeekNumberNotifier,
       this.updateCalendarState,
       this.getCalendarState,
+      this.monthCellHeaderBuilder,
       {Key? key})
       : super(key: key);
 
@@ -135,6 +136,9 @@ class CustomCalendarScrollView extends StatefulWidget {
 
   /// Holds the localization data of the calendar widget.
   final SfLocalizations localizations;
+
+  final  Widget Function(
+    BuildContext context, DateTime dateTime)? monthCellHeaderBuilder;
 
   /// Updates the focus to the custom scroll view element.
   void updateFocus() {
@@ -2962,6 +2966,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         (UpdateCalendarStateDetails details) {
           _getCalendarViewStateDetails(details);
         },
+        widget.monthCellHeaderBuilder,
         key: _previousViewKey,
       );
       _currentView = _CalendarView(
@@ -2995,6 +3000,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         (UpdateCalendarStateDetails details) {
           _getCalendarViewStateDetails(details);
         },
+        widget.monthCellHeaderBuilder,
         key: _currentViewKey,
       );
       _nextView = _CalendarView(
@@ -3029,6 +3035,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         (UpdateCalendarStateDetails details) {
           _getCalendarViewStateDetails(details);
         },
+        widget.monthCellHeaderBuilder,
         key: _nextViewKey,
       );
 
@@ -3101,6 +3108,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         (UpdateCalendarStateDetails details) {
           _getCalendarViewStateDetails(details);
         },
+        widget.monthCellHeaderBuilder,
         key: viewKey,
       );
 
@@ -3143,6 +3151,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
           (UpdateCalendarStateDetails details) {
             _getCalendarViewStateDetails(details);
           },
+          widget.monthCellHeaderBuilder,
           key: viewKey,
         );
         _children[index] = view;
@@ -3180,6 +3189,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
           (UpdateCalendarStateDetails details) {
             _getCalendarViewStateDetails(details);
           },
+          widget.monthCellHeaderBuilder,
           key: viewKey,
         );
 
@@ -3244,6 +3254,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
         (UpdateCalendarStateDetails details) {
           _getCalendarViewStateDetails(details);
         },
+        widget.monthCellHeaderBuilder,
         key: viewKey,
       );
 
@@ -5537,6 +5548,7 @@ class _CalendarView extends StatefulWidget {
       this.dragDetails,
       this.updateCalendarState,
       this.getCalendarState,
+      this.monthCellHeaderBuilder,
       {Key? key})
       : super(key: key);
 
@@ -5566,6 +5578,8 @@ class _CalendarView extends StatefulWidget {
   final DateTime maxDate;
   final SfLocalizations localizations;
   final ValueNotifier<_DragPaintDetails> dragDetails;
+  final  Widget Function(
+    BuildContext context, DateTime dateTime)? monthCellHeaderBuilder;
 
   @override
   _CalendarViewState createState() => _CalendarViewState();
@@ -8384,7 +8398,8 @@ class _CalendarViewState extends State<_CalendarView>
         height,
         widget.calendar.weekNumberStyle,
         widget.isMobilePlatform,
-        ValueNotifier<List<CalendarAppointment>?>(visibleAppointments));
+        ValueNotifier<List<CalendarAppointment>?>(visibleAppointments),
+        widget.monthCellHeaderBuilder);
     return _monthView;
   }
 

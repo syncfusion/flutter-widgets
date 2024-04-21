@@ -220,6 +220,7 @@ class SfCalendar extends StatefulWidget {
     this.onDragStart,
     this.onDragUpdate,
     this.onDragEnd,
+    this.monthCellHeaderBuilder,
   })  : assert(firstDayOfWeek >= 1 && firstDayOfWeek <= 7),
         assert(headerHeight >= 0),
         assert(viewHeaderHeight >= -1),
@@ -2387,6 +2388,9 @@ class SfCalendar extends StatefulWidget {
   ///
   /// ```
   final AppointmentResizeEndCallback? onAppointmentResizeEnd;
+
+  final  Widget Function(
+    BuildContext context, DateTime dateTime)? monthCellHeaderBuilder;
 
   /// Returns the date time collection at which the recurrence appointment will
   /// recur
@@ -8549,6 +8553,7 @@ class _SfCalendarState extends State<SfCalendar>
             _timelineMonthWeekNumberNotifier,
             _updateCalendarState,
             _getCalendarStateDetails,
+            widget.monthCellHeaderBuilder,
             key: _customScrollViewKey,
           )),
     );
