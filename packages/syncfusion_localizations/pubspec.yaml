@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   intl: '>=0.18.1 <0.20.0'
-  syncfusion_flutter_core:
+  syncfusion_flutter_core: any
 
 dev_dependencies:
   flutter_test:
