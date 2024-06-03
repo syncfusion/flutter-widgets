@@ -11,7 +11,6 @@ dependencies:
     sdk: flutter
   intl: '>=0.18.1 <0.20.0'
   syncfusion_flutter_core:
-      path: ../syncfusion_flutter_core
 
 dev_dependencies:
   flutter_test:
